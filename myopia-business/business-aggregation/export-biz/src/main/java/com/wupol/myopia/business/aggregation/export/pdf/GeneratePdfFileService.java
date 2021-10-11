@@ -24,18 +24,15 @@ import com.wupol.myopia.business.core.screening.organization.domain.model.Screen
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.system.service.TemplateDistrictService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
 
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -165,8 +162,8 @@ public class GeneratePdfFileService {
     /**
      * 生成档案卡PDF文件 - 筛查机构
      *
-     * @param saveDirectory 保存目录
-     * @param exportCondition        条件
+     * @param saveDirectory   保存目录
+     * @param exportCondition 条件
      **/
     public void generateScreeningOrgArchivesPdfFile(String saveDirectory, ExportCondition exportCondition) {
         Assert.hasLength(saveDirectory, BizMsgConstant.SAVE_DIRECTORY_EMPTY);
@@ -177,7 +174,8 @@ public class GeneratePdfFileService {
 
     /**
      * 生成档案卡PDF文件 - 学校
-     *  @param saveDirectory 保存目录
+     *
+     * @param saveDirectory   保存目录
      * @param exportCondition
      **/
     public void generateSchoolArchivesPdfFile(String saveDirectory, ExportCondition exportCondition) {
@@ -241,5 +239,27 @@ public class GeneratePdfFileService {
             }).collect(Collectors.toList()));
             return vo;
         }).collect(Collectors.toList());
+    }
+
+    /**
+     * 生成文件
+     *
+     * @param exportCondition 导出条件
+     * @param fileSavePath    文件保存路径
+     */
+    public void generateStudentArchivesPdfFile(ExportCondition exportCondition, String fileSavePath) {
+
+        Integer schoolId = exportCondition.getSchoolId();
+        String planStudentIds = exportCondition.getPlanStudentIds();
+        Integer planId = exportCondition.getPlanId();
+
+        School school = schoolService.getById(schoolId);
+
+        // 获取筛查机构的模板
+        ScreeningOrganization org = screeningOrganizationService.getById(screeningPlanService.getById(planId).getScreeningOrgId());
+        Integer templateId = templateDistrictService.getByDistrictId(districtService.getProvinceId(org.getDistrictId()));
+
+        String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.STUDENT_ARCHIVES_HTML_URL, htmlUrlHost, planId, schoolId, templateId, planStudentIds);
+        Assert.isTrue(HtmlToPdfUtil.convertArchives(schoolPdfHtmlUrl, Paths.get(fileSavePath).toString()), "【生成学校档案卡PDF文件异常】：" + school.getName());
     }
 }

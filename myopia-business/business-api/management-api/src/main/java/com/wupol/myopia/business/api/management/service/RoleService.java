@@ -109,6 +109,7 @@ public class RoleService {
         Assert.isTrue(currentUser.isPlatformAdminUser() || govDeptId.equals(currentUser.getOrgId()), "没有权限访问该部门角色");
         RoleDTO roleDTO = new RoleDTO();
         roleDTO.setOrgId(govDeptId);
+        roleDTO.setSystemCode(currentUser.getSystemCode());
         return oauthServiceClient.getRoleList(roleDTO);
     }
 

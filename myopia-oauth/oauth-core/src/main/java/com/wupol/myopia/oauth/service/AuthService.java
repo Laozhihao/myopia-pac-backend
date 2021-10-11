@@ -28,12 +28,19 @@ import java.util.stream.Collectors;
  **/
 @Service
 public class AuthService {
-    @Autowired
-    private UserService userService;
+
+    /** 刷新token后，旧 access token 的有效期，单位：秒 */
+    public static final int OLD_ACCESS_TOKEN_EXPIRES_TIME = 300;
+
     @Autowired
     private PermissionService permissionService;
     @Autowired
     private RedisUtil redisUtil;
+
+    public List<Permission> cachePermissionAndToken(Integer userId, Integer systemCode, long expiresTime, String accessToken) {
+        cacheUserAccessToken(userId, accessToken, expiresTime);
+        return cacheUserPermission(userId, systemCode, expiresTime);
+    }
 
     /**
      * 缓存用户权限
@@ -43,7 +50,7 @@ public class AuthService {
      * @param expiresTime 缓存过期时间（秒）
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.Permission>
      **/
-    public List<Permission> cacheUserPermission(Integer userId, Integer systemCode, long expiresTime) {
+    private List<Permission> cacheUserPermission(Integer userId, Integer systemCode, long expiresTime) {
         // 只有管理端和筛查管理端的用户需要缓存权限
         if (!SystemCode.MANAGEMENT_CLIENT.getCode().equals(systemCode) && !SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode().equals(systemCode)) {
             return new ArrayList<>();
@@ -65,7 +72,7 @@ public class AuthService {
      * @param expiresTime 过期时间（秒）
      * @return void
      **/
-    public void cacheUserPermission(Integer userId, List<Object> permissionList, long expiresTime) {
+    private void cacheUserPermission(Integer userId, List<Object> permissionList, long expiresTime) {
         Assert.notNull(userId, "【缓存用户权限】用户ID为空！");
         redisUtil.lSet(String.format(RedisConstant.USER_PERMISSION_KEY, userId), permissionList, expiresTime);
     }
@@ -78,8 +85,12 @@ public class AuthService {
      * @param newExpiresTime 新过期时间
      * @return void
      **/
-    public void delayPermissionCache(String accessToken, String refreshToken, long newExpiresTime) throws ParseException {
+    public void delayPermissionAndTokenCache(String accessToken, String refreshToken, long newExpiresTime) throws ParseException {
         CurrentUser currentUser = parseToken(refreshToken);
+        // 保留旧 accessToken 5分钟，以便新旧token正常过渡
+        Object oldAccessToken = redisUtil.get(String.format(RedisConstant.USER_AUTHORIZATION_KEY, currentUser.getId()));
+        redisUtil.set(String.format(RedisConstant.USER_AUTHORIZATION_OLD_KEY, currentUser.getId()), oldAccessToken, OLD_ACCESS_TOKEN_EXPIRES_TIME);
+        // 缓存权限和新token
         cacheUserPermission(currentUser.getId(), currentUser.getSystemCode(), newExpiresTime);
         cacheUserAccessToken(currentUser.getId(), accessToken, newExpiresTime);
     }
@@ -90,7 +101,7 @@ public class AuthService {
      * @param permissions 权限列表
      * @return java.util.List<java.lang.Object>
      **/
-    public List<Object> getApiPermission(List<Permission> permissions) {
+    private List<Object> getApiPermission(List<Permission> permissions) {
         if (CollectionUtils.isEmpty(permissions)) {
             return Collections.emptyList();
         }
@@ -108,7 +119,7 @@ public class AuthService {
      * @param expiresTime
      * @return void
      **/
-    public void cacheUserAccessToken(Integer userId, String accessToken, long expiresTime) {
+    private void cacheUserAccessToken(Integer userId, String accessToken, long expiresTime) {
         Assert.notNull(userId, "【缓存用户accessToken】用户ID为空！");
         Assert.hasLength(accessToken, "【缓存用户accessToken】accessToken为空！");
         redisUtil.set(String.format(RedisConstant.USER_AUTHORIZATION_KEY, userId), accessToken, expiresTime);

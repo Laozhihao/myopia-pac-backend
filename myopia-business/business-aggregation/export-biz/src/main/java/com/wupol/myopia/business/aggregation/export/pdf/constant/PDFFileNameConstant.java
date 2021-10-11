@@ -45,4 +45,9 @@ public class PDFFileNameConstant {
      */
     public static final String GRADE_CLASS_PDF_FILE_NAME = "%s的%s%s的档案卡";
 
+    /**
+     * PDF档案卡批量学生导出文件名
+     */
+    public static final String ARCHIVES_PDF_FILE_NAME_STUDENT = "%s的档案卡.pdf";
+
 }

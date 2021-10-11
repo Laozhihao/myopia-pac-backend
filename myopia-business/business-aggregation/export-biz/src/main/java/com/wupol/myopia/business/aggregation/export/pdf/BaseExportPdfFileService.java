@@ -3,10 +3,11 @@ package com.wupol.myopia.business.aggregation.export.pdf;
 import cn.hutool.core.util.ZipUtil;
 import com.alibaba.fastjson.JSON;
 import com.vistel.Interface.exception.UtilException;
-import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.cache.RedisUtil;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.interfaces.ExportFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.common.util.S3Utils;
 import com.wupol.myopia.business.core.system.service.NoticeService;
 import lombok.extern.log4j.Log4j2;
@@ -40,6 +41,8 @@ public abstract class BaseExportPdfFileService implements ExportFileService {
     public S3Utils s3Utils;
     @Autowired
     private RedisUtil redisUtil;
+    @Autowired
+    private ResourceFileService resourceFileService;
 
     /**
      * 导出文件
@@ -98,8 +101,8 @@ public abstract class BaseExportPdfFileService implements ExportFileService {
      * 生成文件
      *
      * @param exportCondition 导出条件
-     * @param fileSavePath 文件保存路径
-     * @param fileName 文件名
+     * @param fileSavePath    文件保存路径
+     * @param fileName        文件名
      * @return void
      **/
     public abstract void generatePdfFile(ExportCondition exportCondition, String fileSavePath, String fileName);
@@ -130,8 +133,8 @@ public abstract class BaseExportPdfFileService implements ExportFileService {
      * 发送导出失败通知
      *
      * @param applyExportUserId 申请导出的用户ID
-     * @param fileName 文件名
-     * @param zipFileId 压缩文件ID
+     * @param fileName          文件名
+     * @param zipFileId         压缩文件ID
      * @return void
      **/
     @Override
@@ -143,7 +146,7 @@ public abstract class BaseExportPdfFileService implements ExportFileService {
      * 发送导出失败通知
      *
      * @param applyExportUserId 申请导出的用户ID
-     * @param fileName 文件名
+     * @param fileName          文件名
      * @return void
      **/
     @Override
@@ -178,7 +181,7 @@ public abstract class BaseExportPdfFileService implements ExportFileService {
      * 获取文件保存路径
      *
      * @param parentPath 文件名
-     * @param fileName 文件名
+     * @param fileName   文件名
      * @return java.lang.String
      **/
     public String getFileSavePath(String parentPath, String fileName) {
@@ -216,5 +219,29 @@ public abstract class BaseExportPdfFileService implements ExportFileService {
     @Override
     public void unlock(String key) {
         Assert.isTrue(redisUtil.unlock(key), "Redis解锁异常,key=" + key);
+    }
+
+    @Override
+    public String syncExport(ExportCondition exportCondition) {
+        String parentPath = null;
+        try {
+            // 1.获取文件名
+            String fileName = getFileName(exportCondition);
+            // 2.获取文件保存父目录路径
+            parentPath = getFileSaveParentPath();
+            // 3.获取文件保存路径
+            String fileSavePath = getFileSavePath(parentPath, fileName);
+            // 4.生成导出的文件
+            generatePdfFile(exportCondition, fileSavePath, fileName);
+            return resourceFileService.getResourcePath(s3Utils.uploadS3AndGetResourceFile(fileSavePath, fileName).getId());
+        } catch (Exception e) {
+            String requestData = JSON.toJSONString(exportCondition);
+            log.error("【生成报告异常】{}", requestData, e);
+            // 发送失败通知
+            throw new BusinessException("导出数据异常");
+        } finally {
+            // 5.删除临时文件
+            deleteTempFile(parentPath);
+        }
     }
 }

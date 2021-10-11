@@ -12,6 +12,7 @@ import com.wupol.myopia.business.api.management.domain.dto.PlanStudentRequestDTO
 import com.wupol.myopia.business.api.management.domain.vo.SchoolGradeVO;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
+import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
@@ -135,7 +136,6 @@ public class ScreeningPlanSchoolStudentBizService {
         }
         School school = schoolService.getById(schoolId);
         ScreeningPlan plan = screeningPlanService.getById(screeningPlanId);
-        Date date = DateFormatUtil.parse("2015-1-1", DateFormatUtil.FORMAT_ONLY_DATE);
 
         List<MockStudentRequestDTO.GradeItem> gradeItem = requestDTO.getGradeItem();
         if (!CollectionUtils.isEmpty(gradeItem)) {
@@ -144,8 +144,8 @@ public class ScreeningPlanSchoolStudentBizService {
                 classItem.forEach(schoolClass -> {
                     List<Student> mockStudentList = new ArrayList<>(studentTotal);
                     List<ScreeningPlanSchoolStudent> mockPlanStudentList = new ArrayList<>(studentTotal);
-                    mockStudent(studentTotal, school, date, schoolGrade, schoolClass, mockStudentList, currentUser);
-                    mockPlanStudent(studentTotal, school, plan, schoolGrade, schoolClass, mockStudentList, mockPlanStudentList, date);
+                    mockStudent(studentTotal, school, schoolGrade, schoolClass, mockStudentList, currentUser);
+                    mockPlanStudent(studentTotal, school, plan, schoolGrade, schoolClass, mockStudentList, mockPlanStudentList);
                 });
             });
         }
@@ -158,13 +158,12 @@ public class ScreeningPlanSchoolStudentBizService {
      *
      * @param studentTotal    需要生成的学生数
      * @param school          学校
-     * @param date            日期
      * @param schoolGrade     年级
      * @param schoolClass     班级
      * @param mockStudentList 多端管理学生列表
      * @param currentUser     登录用户
      */
-    private void mockStudent(Integer studentTotal, School school, Date date,
+    private void mockStudent(Integer studentTotal, School school,
                              MockStudentRequestDTO.GradeItem schoolGrade, MockStudentRequestDTO.ClassItem schoolClass,
                              List<Student> mockStudentList, CurrentUser currentUser) {
         for (int i = 0; i < studentTotal; i++) {
@@ -172,10 +171,12 @@ public class ScreeningPlanSchoolStudentBizService {
             student.setSchoolNo(school.getSchoolNo());
             student.setCreateUserId(currentUser.getId());
             student.setGradeId(schoolGrade.getGradeId());
-            student.setGradeType(GradeCodeEnum.getByName(schoolGrade.getGradeName()).getType());
             student.setClassId(schoolClass.getClassId());
             student.setName(String.valueOf(ScreeningCodeGenerator.nextId()));
             student.setGender(GenderEnum.MALE.type);
+            GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByName(schoolGrade.getGradeName());
+            Date date = getDateByGrade(gradeCodeEnum);
+            student.setGradeType(gradeCodeEnum.getType());
             student.setBirthday(date);
             mockStudentList.add(student);
         }
@@ -192,12 +193,10 @@ public class ScreeningPlanSchoolStudentBizService {
      * @param schoolClass         班级
      * @param mockStudentList     多端管理学生列表
      * @param mockPlanStudentList 计划学生
-     * @param date                日期
      */
     private void mockPlanStudent(Integer studentTotal, School school, ScreeningPlan plan,
                                  MockStudentRequestDTO.GradeItem schoolGrade, MockStudentRequestDTO.ClassItem schoolClass,
-                                 List<Student> mockStudentList, List<ScreeningPlanSchoolStudent> mockPlanStudentList,
-                                 Date date) {
+                                 List<Student> mockStudentList, List<ScreeningPlanSchoolStudent> mockPlanStudentList) {
         for (int i = 0; i < studentTotal; i++) {
             ScreeningPlanSchoolStudent planSchoolStudent = new ScreeningPlanSchoolStudent();
             planSchoolStudent.setSrcScreeningNoticeId(plan.getSrcScreeningNoticeId());
@@ -211,15 +210,15 @@ public class ScreeningPlanSchoolStudentBizService {
             planSchoolStudent.setSchoolName(school.getName());
             planSchoolStudent.setGradeId(schoolGrade.getGradeId());
             planSchoolStudent.setGradeName(schoolGrade.getGradeName());
-            planSchoolStudent.setGradeType(GradeCodeEnum.getByName(schoolGrade.getGradeName()).getType());
             planSchoolStudent.setClassId(schoolClass.getClassId());
             planSchoolStudent.setClassName(schoolClass.getClassName());
             planSchoolStudent.setStudentId(mockStudentList.get(i).getId());
+            GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByName(schoolGrade.getGradeName());
+            planSchoolStudent.setGradeType(gradeCodeEnum.getType());
+            Date date = getDateByGrade(gradeCodeEnum);
             planSchoolStudent.setBirthday(date);
             planSchoolStudent.setGender(GenderEnum.MALE.type);
-            if (Objects.nonNull(date)) {
-                planSchoolStudent.setStudentAge(DateUtil.ageOfNow(date));
-            }
+            planSchoolStudent.setStudentAge(DateUtil.ageOfNow(date));
             planSchoolStudent.setStudentName(mockStudentList.get(i).getName());
             planSchoolStudent.setArtificial(1);
             planSchoolStudent.setScreeningCode(Long.valueOf(mockStudentList.get(i).getName()));
@@ -241,5 +240,20 @@ public class ScreeningPlanSchoolStudentBizService {
                 .setSchoolId(requestDTO.getSchoolId())
                 .setGradeId(requestDTO.getGradeId())
                 .setClassId(requestDTO.getClassId()));
+    }
+
+    /**
+     * 通过班级类型获取生日
+     *
+     * @param gradeCodeEnum 年级编码枚举类
+     * @return 生日
+     */
+    private Date getDateByGrade(GradeCodeEnum gradeCodeEnum) {
+        // 幼儿园
+        if (SchoolAge.KINDERGARTEN.code.equals(gradeCodeEnum.getType())) {
+            return DateFormatUtil.parse("2017-1-1", DateFormatUtil.FORMAT_ONLY_DATE);
+        }
+        // 中小学
+        return DateFormatUtil.parse("2010-1-1", DateFormatUtil.FORMAT_ONLY_DATE);
     }
 }

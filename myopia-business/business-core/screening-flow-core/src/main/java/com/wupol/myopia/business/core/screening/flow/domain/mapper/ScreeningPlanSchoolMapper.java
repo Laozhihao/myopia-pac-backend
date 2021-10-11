@@ -20,7 +20,7 @@ public interface ScreeningPlanSchoolMapper extends BaseMapper<ScreeningPlanSchoo
 
     List<SchoolScreeningCountDTO> countScreeningTime();
 
-    List<ScreeningPlanSchoolDTO> selectVoListByPlanId(@Param("screeningPlanId") Integer screeningPlanId);
+    List<ScreeningPlanSchoolDTO> selectVoListByPlanId(@Param("screeningPlanId") Integer screeningPlanId, @Param("schoolName") String schoolName);
 
     List<ScreeningPlanSchool> selectHasPlanInPeriod(@Param("param") ScreeningPlanQueryDTO screeningPlanQuery);
 

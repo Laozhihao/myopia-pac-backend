@@ -25,4 +25,9 @@ public class ScreeningOrgStaffUserDTO extends UserDTO {
      */
     private Integer staffId;
 
+    /**
+     * 签名图片
+     */
+    private String signFileUrl;
+
 }

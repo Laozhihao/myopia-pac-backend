@@ -318,10 +318,11 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * 通过screeningCode获取列表
      *
      * @param screeningCode 筛查编号
+     * @param planId        计划Id
      * @return List<ScreeningPlanSchoolStudent>
      */
-    public List<ScreeningPlanSchoolStudent> getByScreeningCodes(List<Long> screeningCode) {
-        return baseMapper.getByScreeningCodes(screeningCode);
+    public List<ScreeningPlanSchoolStudent> getByScreeningCodes(List<Long> screeningCode, Integer planId) {
+        return baseMapper.getByScreeningCodes(screeningCode, planId);
     }
 
     /**

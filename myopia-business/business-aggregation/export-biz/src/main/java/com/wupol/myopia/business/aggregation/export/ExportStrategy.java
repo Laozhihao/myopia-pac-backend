@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -56,5 +57,17 @@ public class ExportStrategy {
         ExportFileService exportFileService = getExportFileService(queueInfo.getServiceName());
         ExportCondition exportCondition = queueInfo.getExportCondition();
         exportFileService.export(exportCondition);
+    }
+
+    /**
+     * 同步导出文件
+     *
+     * @param exportCondition 条件
+     * @param serviceName     服务名称
+     * @return File
+     */
+    public String syncExport(ExportCondition exportCondition, String serviceName) {
+        ExportFileService exportFileService = getExportFileService(serviceName);
+        return exportFileService.syncExport(exportCondition);
     }
 }

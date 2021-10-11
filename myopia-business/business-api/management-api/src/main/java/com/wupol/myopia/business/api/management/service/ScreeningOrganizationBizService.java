@@ -148,7 +148,7 @@ public class ScreeningOrganizationBizService {
         List<RecordDetails> details = new ArrayList<>();
 
         Integer planId = planResponse.getId();
-        List<ScreeningPlanSchoolDTO> schoolVos = screeningPlanSchoolService.getSchoolVoListsByPlanId(planId);
+        List<ScreeningPlanSchoolDTO> schoolVos = screeningPlanSchoolService.getSchoolVoListsByPlanId(planId, StringUtils.EMPTY);
         Map<Integer, ScreeningPlanSchoolDTO> schoolVoMaps = schoolVos.stream()
                 .collect(Collectors.toMap(ScreeningPlanSchoolDTO::getSchoolId, Function.identity()));
 

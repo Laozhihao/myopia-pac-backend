@@ -15,6 +15,7 @@ import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.domain.model.ResourceFile;
+import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.*;
 import com.wupol.myopia.business.core.screening.organization.domain.mapper.ScreeningOrganizationStaffMapper;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
@@ -30,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -46,6 +48,8 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
     private ScreeningOrganizationService screeningOrganizationService;
     @Resource
     private OauthServiceClient oauthServiceClient;
+    @Resource
+    private ResourceFileService resourceFileService;
 
     /**
      * 获取机构人员列表
@@ -76,7 +80,11 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
                 .stream().collect(Collectors.toMap(ScreeningOrganizationStaff::getUserId, Function.identity()));
         List<ScreeningOrgStaffUserDTO> screeningOrgStaffUserDTOList = resultLists.stream().map(user -> {
             ScreeningOrgStaffUserDTO screeningOrgStaffUserDTO = new ScreeningOrgStaffUserDTO(user);
-            screeningOrgStaffUserDTO.setStaffId(staffSnMaps.get(user.getId()).getId());
+            ScreeningOrganizationStaff staff = staffSnMaps.get(user.getId());
+            screeningOrgStaffUserDTO.setStaffId(staff.getId());
+            if (Objects.nonNull(staff.getSignFileId())) {
+                screeningOrgStaffUserDTO.setSignFileUrl(resourceFileService.getResourcePath(staff.getSignFileId()));
+            }
             return screeningOrgStaffUserDTO;
         }).collect(Collectors.toList());
         return new Page<ScreeningOrgStaffUserDTO>(page.getCurrent(), page.getSize(), page.getTotal()).setRecords(screeningOrgStaffUserDTOList);
@@ -308,7 +316,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         screeningOrganizationStaff.setScreeningOrgId(currentUser.getOrgId()).setUserId(currentUser.getId());
         List<ScreeningOrganizationStaff> screeningOrganizationStaffs = getByEntity(screeningOrganizationStaff);
         if (CollectionUtils.isNotEmpty(screeningOrganizationStaffs)) {
-            screeningOrganizationStaff = screeningOrganizationStaffs.stream().findFirst().orElseThrow(()->new BusinessException("无法找到当前用户的机构人员信息,当前用户数据 User = " + JSON.toJSONString(currentUser)));
+            screeningOrganizationStaff = screeningOrganizationStaffs.stream().findFirst().orElseThrow(() -> new BusinessException("无法找到当前用户的机构人员信息,当前用户数据 User = " + JSON.toJSONString(currentUser)));
         }
         if (screeningOrganizationStaff.getId() != null) {
             screeningOrganizationStaff.setSignFileId(resourceFile.getId());

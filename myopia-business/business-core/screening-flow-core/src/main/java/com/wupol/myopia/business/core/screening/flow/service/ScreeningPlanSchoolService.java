@@ -92,10 +92,11 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
      * 通过筛查计划ID获取所有关联的学校vo信息
      *
      * @param screeningPlanId 筛查计划ID
+     * @param schoolName 学校名称
      * @return List<ScreeningPlanSchoolDTO>
      */
-    public List<ScreeningPlanSchoolDTO> getSchoolVoListsByPlanId(Integer screeningPlanId) {
-        List<ScreeningPlanSchoolDTO> screeningPlanSchools = baseMapper.selectVoListByPlanId(screeningPlanId);
+    public List<ScreeningPlanSchoolDTO> getSchoolVoListsByPlanId(Integer screeningPlanId, String schoolName) {
+        List<ScreeningPlanSchoolDTO> screeningPlanSchools = baseMapper.selectVoListByPlanId(screeningPlanId,schoolName);
         Map<Integer, Long> schoolIdStudentCountMap = screeningPlanSchoolStudentService.getSchoolStudentCountByScreeningPlanId(screeningPlanId);
         screeningPlanSchools.forEach(vo -> vo.setStudentCount(schoolIdStudentCountMap.getOrDefault(vo.getSchoolId(), (long) 0).intValue()));
         return screeningPlanSchools;

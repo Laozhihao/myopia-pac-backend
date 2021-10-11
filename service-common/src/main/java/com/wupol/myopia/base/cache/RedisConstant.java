@@ -22,6 +22,10 @@ public interface RedisConstant {
      * 用户授权token，auth:user:authorization:{userId}，如：auth:user:authorization:24
      */
     String USER_AUTHORIZATION_KEY = "auth:user:authorization:%d";
+    /**
+     * 用户旧的授权token，auth:user:authorization_old:{userId}，如：auth:user:authorization_old:24
+     */
+    String USER_AUTHORIZATION_OLD_KEY = "auth:user:authorization_old:%d";
 
     /**
      * 学生二维码过期时间
@@ -97,4 +101,9 @@ public interface RedisConstant {
      * 导出PDF-机构筛查
      */
     String FILE_EXPORT_PDF_ARCHIVES_ORG = "file:export:pdf:archives:org:%s-%s-%s-%s-%s-%s";
+
+    /**
+     * 同步导出学生档案卡
+     */
+    String SYNC_FILE_EXPORT_PDF_ARCHIVES_ORG = "file:export:pdf:archives:student:%s";
 }
