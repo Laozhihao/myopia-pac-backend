@@ -201,7 +201,6 @@ public class StatUtil {
                 if (nakedVision < 4.6f) {
                     isLowVision = true;
                 }
-                ;
                 break;
             case 3:
                 if (nakedVision < 4.7f) {
@@ -246,44 +245,12 @@ public class StatUtil {
         if ((age < 8 && age >= 6) && se > 1.5) {
             return WarningLevel.ONE;
         }
-        if ((age < 12 && age >= 8) && se > 0.5) {
-            return WarningLevel.ONE;
-        }
-        if (age >= 12 ) {
-            if (se > 0.25f && se <= 0.5f) return WarningLevel.ZERO;
+        if (age >= 8) {
             if (se > 0.5f && se <= 3.0f) return WarningLevel.ONE;
             if (se > 3.0f && se <= 6.0f) return WarningLevel.TWO;
             if (se > 6.0f) return WarningLevel.THREE;
         }
         return WarningLevel.NORMAL;
-    }
-
-    /**
-     * 返回远视预警级别(大于12岁)
-     *
-     * @param sphere   球镜
-     * @param cylinder 柱镜
-     * @param age      年龄
-     * @return WarningLevel
-     */
-    public static WarningLevel getHyperopiaWarningLevelMoreThan12(Float sphere, Float cylinder, Integer age) {
-        if (sphere == null || cylinder == null) {
-            return null;
-        }
-        if (age < 12) {
-            return null;
-        }
-        float se = getSphericalEquivalent(sphere, cylinder);
-        if (se > 0.5f && se <= 3.0f) {
-            return WarningLevel.ONE;
-        }
-        if (se > 3.0f && se <= 6.0f) {
-            return WarningLevel.TWO;
-        }
-        if (se > 6.0f) {
-            return WarningLevel.THREE;
-        }
-        return null;
     }
 
     /**
@@ -307,14 +274,12 @@ public class StatUtil {
      *
      * @param sphere   球镜
      * @param cylinder 柱镜
-     * @return
      */
     public static WarningLevel getMyopiaWarningLevel(Float sphere, Float cylinder) {
         if (!ObjectsUtil.allNotNull(sphere, cylinder)) {
             return null;
         }
         float se = getSphericalEquivalent(sphere, cylinder);
-        if (se >= -0.5f && se <= -0.25f) return WarningLevel.ZERO;
         if (se >= -3.0f && se < -0.5f) return WarningLevel.ONE;
         if (se >= -6.0f && se < -3.0f) return WarningLevel.TWO;
         if (se < -6.0f) return WarningLevel.THREE;
@@ -326,7 +291,6 @@ public class StatUtil {
      *
      * @param sphere   球镜
      * @param cylinder 柱镜
-     * @return
      */
     public static Integer getMyopiaLevel(Float sphere, Float cylinder) {
         WarningLevel myopiaWarningLevel = getMyopiaWarningLevel(sphere, cylinder);
@@ -340,15 +304,13 @@ public class StatUtil {
      * 返回散光预警级别
      *
      * @param cylinder 柱镜
-     * @return
      */
     public static WarningLevel getAstigmatismWarningLevel(Float cylinder) {
         if (cylinder == null) {
             return null;
         }
         float cylinderAbs = Math.abs(cylinder);
-        if (cylinderAbs >= 0.25f && cylinderAbs <= 0.5f) return WarningLevel.ZERO;
-        if (cylinderAbs > 0.5f && cylinderAbs <= 2.0f) return WarningLevel.ONE;
+        if (cylinderAbs >= 0.5f && cylinderAbs <= 2.0f) return WarningLevel.ONE;
         if (cylinderAbs > 2.0f && cylinderAbs <= 4.0f) return WarningLevel.TWO;
         if (cylinderAbs > 4.0f) return WarningLevel.THREE;
         return WarningLevel.NORMAL;
@@ -360,7 +322,6 @@ public class StatUtil {
      * @param isAstigmatism 是否散光
      * @param isMyopia      是否近视
      * @param isHyperopia   是否远视
-     * @return
      */
     public static boolean isRefractiveError(
             boolean isAstigmatism, boolean isMyopia, boolean isHyperopia) {
@@ -372,8 +333,7 @@ public class StatUtil {
      *
      * @param sphere   球镜
      * @param cylinder 柱镜
-     * @param age
-     * @return
+     * @param age      年龄
      */
     public static boolean isRefractiveError(Float sphere, Float cylinder, Integer age) {
         return isAstigmatism(cylinder) && isMyopia(sphere, cylinder)
@@ -385,7 +345,6 @@ public class StatUtil {
      *
      * @param sphere   球镜
      * @param cylinder 柱镜
-     * @return
      */
     public static BigDecimal getSphericalEquivalent(BigDecimal sphere, BigDecimal cylinder) {
         if (ObjectsUtil.hasNull(sphere, cylinder)) {
@@ -399,7 +358,6 @@ public class StatUtil {
      *
      * @param sphere   球镜
      * @param cylinder 柱镜
-     * @return
      */
     public static Float getSphericalEquivalent(Float sphere, Float cylinder) {
         return cylinder / 2 + sphere;
@@ -496,10 +454,10 @@ public class StatUtil {
         WarningLevel leftLevel = null;
         WarningLevel rightLevel = null;
         if (ObjectsUtil.allNotNull(leftSpn, leftCyl)) {
-            leftLevel = getHyperopiaWarningLevelMoreThan12(leftSpn.floatValue(), leftCyl.floatValue(), age);
+            leftLevel = getHyperopiaWarningLevel(leftSpn.floatValue(), leftCyl.floatValue(), age);
         }
         if (ObjectsUtil.allNotNull(rightSpn, rightCyl)) {
-            rightLevel = getHyperopiaWarningLevelMoreThan12(rightSpn.floatValue(), rightCyl.floatValue(), age);
+            rightLevel = getHyperopiaWarningLevel(rightSpn.floatValue(), rightCyl.floatValue(), age);
         }
 
         if (ObjectsUtil.allNull(leftLevel, rightLevel)) {
@@ -555,4 +513,220 @@ public class StatUtil {
                 + getAstigmatismDesc(leftCyl, rightCyl);
     }
 
+    /**
+     * 获取预警等级（两眼取严重的）
+     *
+     * @param leftCyl          左柱镜
+     * @param leftSpn          左球镜
+     * @param leftNakedVision  左裸眼视力
+     * @param rightCyl         右柱镜
+     * @param rightSpn         右球镜
+     * @param rightNakedVision 右裸眼视力
+     * @param age              年龄
+     * @return {@link WarningLevel}
+     */
+    public Integer getWarningLevelInt(Float leftCyl, Float leftSpn, Float leftNakedVision,
+                                      Float rightCyl, Float rightSpn, Float rightNakedVision,
+                                      Integer age) {
+        WarningLevel left = getWarningLevel(leftCyl, leftSpn, leftNakedVision, age);
+        WarningLevel right = getWarningLevel(rightCyl, rightSpn, rightNakedVision, age);
+        if (ObjectsUtil.allNull(left, right)) {
+            return null;
+        }
+        if (ObjectsUtil.allNotNull(left, right)) {
+            return left.code >= right.code ? left.code : right.code;
+        }
+        return Objects.isNull(left) ? right.code : left.code;
+    }
+
+    /**
+     * 单眼获取预警级别
+     *
+     * @param cyl         柱镜
+     * @param spn         球镜
+     * @param nakedVision 裸眼视力
+     * @param age         年龄
+     * @return {@link WarningLevel}
+     */
+    public WarningLevel getWarningLevel(Float cyl, Float spn, Float nakedVision, Integer age) {
+
+        if (ObjectsUtil.hasNull(cyl, spn, nakedVision, age)) {
+            return null;
+        }
+        if (age >= 3 && age < 6) {
+            return between3And5GetLevel(cyl, spn, nakedVision, age);
+        }
+        if (age >= 6 && age < 8) {
+            return between6And7GetLevel(cyl, spn, nakedVision);
+        }
+        if (age > 8) {
+            return moreThan8GetLevel(cyl, spn, nakedVision);
+        }
+        return null;
+    }
+
+    /**
+     * 3到5岁预警级别
+     *
+     * @param cyl         柱镜
+     * @param spn         球镜
+     * @param nakedVision 裸眼视力
+     * @param age         年龄
+     * @return {@link WarningLevel}
+     */
+    private WarningLevel between3And5GetLevel(Float cyl, Float spn, Float nakedVision, Integer age) {
+        float se = getSphericalEquivalent(spn, cyl);
+        float absCyl = Math.abs(cyl);
+        if (se > 0 && se <= 1.5) {
+            return WarningLevel.ZERO_SP;
+        }
+        if ((nakedVision > 4.7 && nakedVision < 5) || zeroSE(se) || zeroAbsCyl(absCyl)) {
+            return WarningLevel.ZERO;
+        }
+        if ((nakedVision <= 4.7 && nakedVision > 4.6) || oneSE(se) || (age < 4 && se > 3 && se <= 6) || (age >= 4 && se > 2 && se <= 5) || oneAbsCyl(absCyl)) {
+            return WarningLevel.ONE;
+        }
+        if ((nakedVision <= 4.6 && nakedVision > 4.5) || twoSE(se) || (age < 4 && se > 6 && se <= 9) || (age >= 4 && se > 5 && se <= 8) || twoAbsCyl(absCyl)) {
+            return WarningLevel.TWO;
+        }
+        if ((nakedVision <= 4.5) || threeSE(se) || (age < 4 && se > 9) || (age >= 4 && se > 8) || threeAbsCyl(absCyl)) {
+            return WarningLevel.THREE;
+        }
+        return null;
+    }
+
+    /**
+     * 6到7岁预警级别
+     *
+     * @param cyl         柱镜
+     * @param spn         球镜
+     * @param nakedVision 裸眼视力
+     * @return {@link WarningLevel}
+     */
+    private WarningLevel between6And7GetLevel(Float cyl, Float spn, Float nakedVision) {
+        float se = getSphericalEquivalent(spn, cyl);
+        float absCyl = Math.abs(cyl);
+        if (se > 0 && se <= 1) {
+            return WarningLevel.ZERO_SP;
+        }
+        if ((nakedVision > 4.8 && nakedVision < 5) || zeroSE(se) || zeroAbsCyl(absCyl)) {
+            return WarningLevel.ZERO;
+        }
+        if ((nakedVision <= 4.8 && nakedVision > 4.7) || oneSE(se) || (se > 1.5 && se <= 4.5) || oneAbsCyl(absCyl)) {
+            return WarningLevel.ONE;
+        }
+        if ((nakedVision <= 4.6 && nakedVision > 4.5) || twoSE(se) || (se > 4.5 && se <= 7.5) || twoAbsCyl(absCyl)) {
+            return WarningLevel.TWO;
+        }
+        if ((nakedVision <= 4.5) || threeSE(se) || (se > 7.5) || threeAbsCyl(absCyl)) {
+            return WarningLevel.THREE;
+        }
+        return null;
+    }
+
+    /**
+     * 8岁以上预警级别
+     *
+     * @param cyl         柱镜
+     * @param spn         球镜
+     * @param nakedVision 裸眼视力
+     * @return {@link WarningLevel}
+     */
+    private WarningLevel moreThan8GetLevel(Float cyl, Float spn, Float nakedVision) {
+        float se = getSphericalEquivalent(spn, cyl);
+        float absCyl = Math.abs(cyl);
+        if ((nakedVision > 4.9 && nakedVision < 5) || zeroSE(se) || zeroAbsCyl(absCyl)) {
+            return WarningLevel.ZERO;
+        }
+        if ((nakedVision <= 4.9 && nakedVision > 4.7) || oneSE(se) || (se > 0.5 && se <= 3) || oneAbsCyl(absCyl)) {
+            return WarningLevel.ONE;
+        }
+        if ((nakedVision <= 4.7 && nakedVision > 4.5) || twoSE(se) || (se > 3 && se <= 6) || twoAbsCyl(absCyl)) {
+            return WarningLevel.TWO;
+        }
+        if ((nakedVision <= 4.5) || threeSE(se) || (se > 6) || threeAbsCyl(absCyl)) {
+            return WarningLevel.THREE;
+        }
+        return null;
+    }
+
+    /**
+     * 0级预警等效球镜
+     *
+     * @param se 等效球镜
+     * @return 是否满足条件
+     */
+    private boolean zeroSE(Float se) {
+        return ((se >= -0.5 && se <= -0.25));
+    }
+
+    /**
+     * 1级预警等效球镜
+     *
+     * @param se 等效球镜
+     * @return 是否满足条件
+     */
+    private boolean oneSE(Float se) {
+        return ((se >= -3.0 && se < -0.5));
+    }
+
+    /**
+     * 2级预警等效球镜
+     *
+     * @param se 等效球镜
+     * @return 是否满足条件
+     */
+    private boolean twoSE(Float se) {
+        return (se >= -6.0 && se < -3);
+    }
+
+    /**
+     * 3级预警等效球镜
+     *
+     * @param se 等效球镜
+     * @return 是否满足条件
+     */
+    private boolean threeSE(Float se) {
+        return (se < -6);
+    }
+
+    /**
+     * 0级预警绝对柱镜
+     *
+     * @param absCyl 绝对柱镜
+     * @return 是否满足条件
+     */
+    private boolean zeroAbsCyl(Float absCyl) {
+        return (absCyl >= 0.25 && absCyl < 0.5);
+    }
+
+    /**
+     * 1级预警绝对柱镜
+     *
+     * @param absCyl 绝对柱镜
+     * @return 是否满足条件
+     */
+    private boolean oneAbsCyl(Float absCyl) {
+        return (absCyl >= 0.5 && absCyl <= 2);
+    }
+
+    /**
+     * 2级预警绝对柱镜
+     *
+     * @param absCyl 绝对柱镜
+     * @return 是否满足条件
+     */
+    private boolean twoAbsCyl(Float absCyl) {
+        return (absCyl > 2 && absCyl <= 4);
+    }
+
+    /**
+     * 3级预警绝对柱镜
+     *
+     * @param absCyl 绝对柱镜
+     * @return 是否满足条件
+     */
+    private boolean threeAbsCyl(Float absCyl) {
+        return (absCyl > 4);
+    }
 }

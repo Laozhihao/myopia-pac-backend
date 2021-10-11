@@ -74,4 +74,13 @@ public class DoctorConclusion {
      * 设备报告-屈光正常-远视储备不足
      */
     public final String DEVICE_REFRACTIVE_NORMAL_INSUFFICIENT_FARSIGHTED_RESERVES_ERROR = "建议：请6~12个月，带孩子到正规医疗机构进行视力检查，了解是否可能发展为近视。平时注意眼睛休息避免劳累熬夜，尽量少玩手机上网，多户外，多远近交替看东西避免眼睛疲劳，读书学习姿势要端正光线要充足，养成做眼睛保健操的习惯！";
+
+
+    public final static String KINDERGARTEN_RESULT_1 = "戴镜视力下降，建议及时到医疗机构复查，确定是否需要更换眼镜.建议：建议就诊。";
+
+    public final static String KINDERGARTEN_RESULT_2 = "戴镜视力正常。建议3个月或半年1次检查裸眼视力和戴镜视力。";
+
+    public final static String KINDERGARTEN_RESULT_3 = "裸眼视力下降，视功能可能异常。建议到医疗机构接受散瞳光检查，明确诊断并采取措施。建议：建议就诊。";
+
+    public final static String KINDERGARTEN_RESULT_4 = "裸眼视力下降，合并较为明显的屈光不正或眼病。建议到医疗机构明确诊断及时矫治疗。建议：建议就诊。";
 }
