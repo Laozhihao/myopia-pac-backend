@@ -58,6 +58,7 @@ public class DistrictPermissionService extends BaseService<DistrictPermissionMap
             RoleDTO roleDTO = new RoleDTO();
             roleDTO.setOrgIds(govIds);
             roleDTO.setRoleType(RoleType.GOVERNMENT_DEPARTMENT.getType());
+            roleDTO.setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode());
             // 通过部门Id获取角色
             List<Role> roleList = roleService.getRoleList(roleDTO);
             roleList.forEach(r -> roleService.updateRolePermission(r.getId(), templateType, permissionIds));
@@ -67,6 +68,7 @@ public class DistrictPermissionService extends BaseService<DistrictPermissionMap
         if (PermissionTemplateType.PLATFORM_ADMIN.getType().equals(templateType)) {
             RoleDTO roleDTO = new RoleDTO();
             roleDTO.setRoleType(RoleType.PLATFORM_ADMIN.getType());
+            roleDTO.setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode());
             // 平台管理员通过RoleType来获取角色列表
             List<Role> roleList = roleService.getRoleList(roleDTO);
             roleList.forEach(r -> roleService.updateRolePermission(r.getId(), PermissionTemplateType.PLATFORM_ADMIN.getType(), permissionIds));
