@@ -136,7 +136,6 @@ public class ScreeningPlanSchoolStudentBizService {
         }
         School school = schoolService.getById(schoolId);
         ScreeningPlan plan = screeningPlanService.getById(screeningPlanId);
-//
 
         List<MockStudentRequestDTO.GradeItem> gradeItem = requestDTO.getGradeItem();
         if (!CollectionUtils.isEmpty(gradeItem)) {

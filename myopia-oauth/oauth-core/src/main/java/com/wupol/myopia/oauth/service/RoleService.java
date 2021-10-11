@@ -41,6 +41,7 @@ public class RoleService extends BaseService<RoleMapper, Role> {
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.Role>
      **/
     public List<Role> getRoleList(RoleDTO query) {
+        Assert.notNull(query.getSystemCode(), "系统编码不能为空");
         return baseMapper.selectRoleList(query);
     }
 

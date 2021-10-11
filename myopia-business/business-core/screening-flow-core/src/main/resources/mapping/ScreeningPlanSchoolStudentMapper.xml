@@ -270,6 +270,7 @@
         <foreach collection="screeningCodes" item="screeningCode" index="index" open="(" close=")" separator=",">
             #{screeningCode}
         </foreach>
+        and screening_plan_id = #{planId}
     </select>
 
     <select id="getByPlanIdAndSchoolIdAndGradeId" resultMap="BaseResultMap">

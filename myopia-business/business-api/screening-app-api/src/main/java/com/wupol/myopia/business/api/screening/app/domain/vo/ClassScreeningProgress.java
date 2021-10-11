@@ -15,12 +15,18 @@ import java.util.List;
 public class ClassScreeningProgress {
     /** 计划筛查人数 */
     private Integer planCount;
-    /** 实际筛查人数 */
+    /** 实际筛查人数（有筛查数据的） */
     private Integer screeningCount;
-    /** 有异常筛查人数，仅统计有初步结果的：眼位、视力检查、电脑验光、小瞳验光 */
+    /** 有异常筛查人数（优先判断复测是否异常，无再判断初诊是否异常） */
     private Integer abnormalCount;
-    /** 筛查未完成学生数 */
+    /** 无异常筛查人数 = 实际筛查人数 - 有异常筛查人数 */
+    private Integer normalCount;
+    /** 筛查未完成学生数（做了筛查，但未完成初诊或初诊异常未完成复测的） */
     private Integer unfinishedCount;
+    /** 筛查完成学生数 = 筛查结果=已完成 */
+    private Integer finishedCount;
+    /** 需要复测学生数（初诊异常的） */
+    private Integer needReScreeningCount;
     /** 学龄段：5-幼儿园、0-小学、1-初中、2-高中、3-职业高中 */
     private Integer schoolAge;
     /** 当前班级的学生筛查进度情况 */
