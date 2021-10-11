@@ -31,9 +31,9 @@ import com.wupol.myopia.business.core.screening.flow.util.ScreeningCodeGenerator
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
-import java.sql.BatchUpdateException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -105,13 +105,11 @@ public class ExcelStudentService {
                 Collections.emptyMap() : alreadyExistOrNotStudents.get(true).stream().filter(e -> StringUtils.isNotBlank(e.getIdCard())).collect(Collectors.toMap(ScreeningPlanSchoolStudent::getIdCard, Function.identity()));
         List<StudentDTO> excelStudents = getStudentListFromExcelItem(listMap, gradeNameIdMap, gradeClassNameClassIdMap, districtNameCodeMap, school.getSchoolNo());
         Map<String, StudentDTO> excelIdCardStudentMap = excelStudents.stream()
-                .filter(e -> StringUtils.isNotBlank(e.getIdCard()))
-                .filter(e -> Objects.isNull(e.getScreeningCode()))
+                .filter(e -> StringUtils.isNotBlank(e.getIdCard()) && Objects.isNull(e.getScreeningCode()))
                 .collect(Collectors.toMap(Student::getIdCard, Function.identity()));
         // 7. 新增或更新学生和筛查学生数据(更新只存在身份存在的学生)
         List<StudentDTO> onlyHaveIdCardList = excelStudents.stream()
-                .filter(e -> StringUtils.isNotBlank(e.getIdCard()))
-                .filter(e -> Objects.isNull(e.getScreeningCode()))
+                .filter(e -> StringUtils.isNotBlank(e.getIdCard()) && Objects.isNull(e.getScreeningCode()))
                 .collect(Collectors.toList());
         addOrUpdateStudentAndScreeningStudent(userId, screeningPlan, schoolId, school, idCardExistStudents, idCardExistScreeningStudents, onlyHaveIdCardList, excelIdCardStudentMap);
         // 8 更新存在筛查编号的学生
@@ -367,9 +365,8 @@ public class ExcelStudentService {
                         log.error("导入筛查学生数据异常", e);
                         return null;
                     }
-                }).filter(Objects::nonNull)
-                // 过滤身份证和Code同时为空的数据
-                .filter(s -> (StringUtils.isNotBlank(s.getIdCard()) || Objects.nonNull(s.getScreeningCode())))
+                    // 过滤身份证和Code同时为空的数据
+                }).filter(s -> Objects.nonNull(s) && (StringUtils.isNotBlank(s.getIdCard()) || Objects.nonNull(s.getScreeningCode())))
                 .collect(Collectors.toList());
         if (excelStudents.size() != listMap.size()) {
             throw new BusinessException("学生数据有误，请检查");
@@ -476,7 +473,7 @@ public class ExcelStudentService {
                 .collect(Collectors.toMap(ScreeningPlanSchoolStudent::getStudentId, Function.identity()));
         try {
             updateManagementStudent(studentList, planStudentMap, school);
-        } catch (Exception e) {
+        } catch (DuplicateKeyException e) {
             log.error("身份证重复",e);
             throw new BusinessException("身份证重复数据异常，请检查");
         }

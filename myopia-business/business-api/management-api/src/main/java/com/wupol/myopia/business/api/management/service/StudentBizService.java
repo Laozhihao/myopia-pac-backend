@@ -1004,18 +1004,19 @@ public class StudentBizService {
         VisionInfoVO rightEye = visionInfo.getSecond();
         // 是否屈光不正
         Boolean isRefractiveError = isRefractiveError(leftEye, rightEye);
-        if (Objects.nonNull(isRefractiveError)) {
-            // 设置近视、远视、散光
-            if (isRefractiveError && Objects.nonNull(leftEye)) {
-                cardDetail.setLeftMyopiaInfo(leftEye.getMyopiaLevel());
-                cardDetail.setLeftFarsightednessInfo(leftEye.getFarsightednessLevel());
-                cardDetail.setLeftAstigmatismInfo(leftEye.getAstigmatism());
-            }
-            if (isRefractiveError && Objects.nonNull(rightEye)) {
-                cardDetail.setRightMyopiaInfo(rightEye.getMyopiaLevel());
-                cardDetail.setRightFarsightednessInfo(rightEye.getFarsightednessLevel());
-                cardDetail.setRightAstigmatismInfo(rightEye.getAstigmatism());
-            }
+        if (Objects.isNull(isRefractiveError)) {
+            return isRefractiveError;
+        }
+        // 设置近视、远视、散光
+        if (isRefractiveError && Objects.nonNull(leftEye)) {
+            cardDetail.setLeftMyopiaInfo(leftEye.getMyopiaLevel());
+            cardDetail.setLeftFarsightednessInfo(leftEye.getFarsightednessLevel());
+            cardDetail.setLeftAstigmatismInfo(leftEye.getAstigmatism());
+        }
+        if (isRefractiveError && Objects.nonNull(rightEye)) {
+            cardDetail.setRightMyopiaInfo(rightEye.getMyopiaLevel());
+            cardDetail.setRightFarsightednessInfo(rightEye.getFarsightednessLevel());
+            cardDetail.setRightAstigmatismInfo(rightEye.getAstigmatism());
         }
         return isRefractiveError;
     }

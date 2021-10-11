@@ -233,10 +233,6 @@ public abstract class BaseExportPdfFileService implements ExportFileService {
             String fileSavePath = getFileSavePath(parentPath, fileName);
             // 4.生成导出的文件
             generatePdfFile(exportCondition, fileSavePath, fileName);
-//            // 5.压缩文件
-//            File file = compressFile(fileSavePath);
-//            // 6.上传文件
-//            return resourceFileService.getResourcePath(uploadFile(file));
             return resourceFileService.getResourcePath(s3Utils.uploadS3AndGetResourceFile(fileSavePath, fileName).getId());
         } catch (Exception e) {
             String requestData = JSON.toJSONString(exportCondition);
@@ -244,7 +240,7 @@ public abstract class BaseExportPdfFileService implements ExportFileService {
             // 发送失败通知
             throw new BusinessException("导出数据异常");
         } finally {
-            // 6.删除临时文件
+            // 5.删除临时文件
             deleteTempFile(parentPath);
         }
     }
