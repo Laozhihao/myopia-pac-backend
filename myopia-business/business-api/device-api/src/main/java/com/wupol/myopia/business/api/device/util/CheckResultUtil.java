@@ -480,7 +480,7 @@ public class CheckResultUtil {
         HIGH_LEVEL(3, "重度");
         public static final int NORMAL_LEVEL = 0;
         public static final int NOT_LEVEL = 0;
-        public static final Map<Integer, String> levelDisplayMap = new HashMap(3);
+        public static final Map<Integer, String> levelDisplayMap = new HashMap<>(3);
 
         static {
             for (LevelEnum levelEnum : EnumSet.allOf(LevelEnum.class)) {
