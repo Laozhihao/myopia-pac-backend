@@ -780,7 +780,7 @@ public class ScreeningResultUtil {
                                              Integer glassesType, Integer schoolAge, Integer age, boolean otherEyeDiseasesNormal) {
 
         // 幼儿园、0-6岁
-        if (SchoolAge.KINDERGARTEN.code.equals(schoolAge) && age < 6) {
+        if (SchoolAge.KINDERGARTEN.code.equals(schoolAge) || age < 6) {
             return kindergartenAdviceResult(leftNakedVision, rightNakedVision, leftCorrectedVision, rightCorrectedVision,
                     leftSph, rightSph, leftCyl, rightCyl, glassesType, age, otherEyeDiseasesNormal);
         }
@@ -806,7 +806,7 @@ public class ScreeningResultUtil {
      * @param age                  年龄
      * @return 医生建议
      */
-    private String middleAdviceResult(BigDecimal leftNakedVision, BigDecimal rightNakedVision,
+    public String middleAdviceResult(BigDecimal leftNakedVision, BigDecimal rightNakedVision,
                                       BigDecimal leftCorrectedVision, BigDecimal rightCorrectedVision,
                                       BigDecimal leftSph, BigDecimal rightSph,
                                       BigDecimal leftCyl, BigDecimal rightCyl,

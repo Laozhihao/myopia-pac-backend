@@ -220,14 +220,27 @@ public class StudentController {
 
     @GetMapping("/getResult")
     public ApiResult<String> getResult(BigDecimal leftNakedVision, BigDecimal rightNakedVision,
-                               BigDecimal leftCorrectedVision, BigDecimal rightCorrectedVision,
-                               BigDecimal leftSph, BigDecimal rightSph,
-                               BigDecimal leftCyl, BigDecimal rightCyl,
-                               Integer glassesType, Integer age, boolean otherEyeDiseasesNormal) {
+                                       BigDecimal leftCorrectedVision, BigDecimal rightCorrectedVision,
+                                       BigDecimal leftSph, BigDecimal rightSph,
+                                       BigDecimal leftCyl, BigDecimal rightCyl,
+                                       Integer glassesType, Integer age, boolean otherEyeDiseasesNormal) {
         return ApiResult.success(ScreeningResultUtil.kindergartenAdviceResult(leftNakedVision, rightNakedVision,
                 leftCorrectedVision, rightCorrectedVision,
                 leftSph, rightSph,
                 leftCyl, rightCyl,
                 glassesType, age, otherEyeDiseasesNormal));
+    }
+
+    @GetMapping("middle")
+    public ApiResult<String> middleAdviceResult(BigDecimal leftNakedVision, BigDecimal rightNakedVision,
+                                                BigDecimal leftCorrectedVision, BigDecimal rightCorrectedVision,
+                                                BigDecimal leftSph, BigDecimal rightSph,
+                                                BigDecimal leftCyl, BigDecimal rightCyl,
+                                                Integer glassesType, Integer age) {
+        return ApiResult.success(ScreeningResultUtil.middleAdviceResult(leftNakedVision, rightNakedVision,
+                leftCorrectedVision, rightCorrectedVision,
+                leftSph, rightSph,
+                leftCyl, rightCyl,
+                glassesType, age));
     }
 }
