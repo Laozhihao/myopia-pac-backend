@@ -43,6 +43,28 @@ public class BigDecimalUtil {
     }
 
     /**
+     * 取两个值中小的
+     *
+     * @param val1 值1
+     * @param val2 值2
+     * @return 是否满足
+     */
+    public static BigDecimal getLess(BigDecimal val1, BigDecimal val2) {
+        return val1.compareTo(val2) <= 0 ? val1 : val2;
+    }
+
+    /**
+     * 取两个值的绝对值中小的
+     *
+     * @param val1 值1
+     * @param val2 值2
+     * @return 是否满足
+     */
+    public static BigDecimal getAbsLess(BigDecimal val1, BigDecimal val2) {
+        return val1.abs().compareTo(val2.abs()) <= 0 ? val1 : val2;
+    }
+
+    /**
      * 大于
      *
      * @param val1 值1

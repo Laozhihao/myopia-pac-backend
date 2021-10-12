@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.screening.flow.util;
 
 import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.ObjectsUtil;
+import com.wupol.framework.core.util.StringUtils;
 import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.common.utils.constant.*;
@@ -778,7 +779,7 @@ public class ScreeningResultUtil {
 
         // 幼儿园、0-6岁
         if (SchoolAge.KINDERGARTEN.code.equals(schoolAge) && age < 6) {
-            return getKindergartenDoctorAdvice(leftNakedVision, rightNakedVision, leftCorrectedVision, rightCorrectedVision,
+            return kindergartenAdviceResult(leftNakedVision, rightNakedVision, leftCorrectedVision, rightCorrectedVision,
                     leftSph, rightSph, leftCyl, rightCyl, glassesType, age, otherEyeDiseasesNormal);
         }
 
@@ -815,35 +816,6 @@ public class ScreeningResultUtil {
     }
 
     /**
-     * 幼儿园、0-6岁获取医生建议
-     *
-     * @param leftNakedVision        左-裸眼
-     * @param rightNakedVision       右-裸眼
-     * @param leftCorrectedVision    左-矫正视力
-     * @param rightCorrectedVision   右-矫正视力
-     * @param leftSph                左-柱镜
-     * @param rightSph               右-柱镜
-     * @param leftCyl                左-球镜
-     * @param rightCyl               右-球镜
-     * @param glassesType            戴镜类型
-     * @param age                    年龄
-     * @param otherEyeDiseasesNormal 是否有其他眼病
-     * @return 医生建议
-     */
-    private String getKindergartenDoctorAdvice(BigDecimal leftNakedVision, BigDecimal rightNakedVision,
-                                               BigDecimal leftCorrectedVision, BigDecimal rightCorrectedVision,
-                                               BigDecimal leftSph, BigDecimal rightSph,
-                                               BigDecimal leftCyl, BigDecimal rightCyl,
-                                               Integer glassesType, Integer age, boolean otherEyeDiseasesNormal) {
-        BigDecimal anisometropia = getAnisometropia(StatUtil.getSphericalEquivalent(leftSph, leftCyl), StatUtil.getSphericalEquivalent(rightSph, rightCyl));
-        if (BigDecimalUtil.lessThanAndEqual(leftNakedVision, rightNakedVision)) {
-            return kindergartenAdviceResult(leftCorrectedVision, leftSph, leftCyl, glassesType, age, anisometropia, otherEyeDiseasesNormal);
-        }
-        return kindergartenAdviceResult(rightCorrectedVision, rightSph, rightCyl, glassesType, age, anisometropia, otherEyeDiseasesNormal);
-    }
-
-
-    /**
      * 获取屈光参差
      *
      * @param leftSe  左眼等效球镜
@@ -862,94 +834,92 @@ public class ScreeningResultUtil {
         return leftSe.abs().add(rightSe).abs();
     }
 
+
     /**
-     * @param correctedVision        矫正视力
-     * @param sph                    球镜
-     * @param cyl                    柱镜
+     * 幼儿园、0-6岁获取医生建议
+     *
+     * @param leftNakedVision        左-裸眼
+     * @param rightNakedVision       右-裸眼
+     * @param leftCorrectedVision    左-矫正视力
+     * @param rightCorrectedVision   右-矫正视力
+     * @param leftSph                左-柱镜
+     * @param rightSph               右-柱镜
+     * @param leftCyl                左-球镜
+     * @param rightCyl               右-球镜
      * @param glassesType            戴镜类型
      * @param age                    年龄
-     * @param anisometropia          屈光参差
      * @param otherEyeDiseasesNormal 是否有其他眼病
      * @return 医生建议
      */
-    private String kindergartenAdviceResult(BigDecimal correctedVision, BigDecimal sph, BigDecimal cyl,
-                                            Integer glassesType, Integer age, BigDecimal anisometropia, boolean otherEyeDiseasesNormal) {
-        // 已经佩戴眼镜片
-        if (glassesType >= 1) {
-            if (age < 4 && BigDecimalUtil.lessThan(correctedVision, "4.7")
-                    || age < 6 && BigDecimalUtil.lessThan(correctedVision, "4.8")
-                    || age > 6 && BigDecimalUtil.lessThan(correctedVision, "4.9")) {
-                return DoctorConclusion.KINDERGARTEN_RESULT_1;
-            }
-            if (age < 4 && BigDecimalUtil.greaterAndEqual(correctedVision, "4.7")
-                    || age < 6 && BigDecimalUtil.greaterAndEqual(correctedVision, "4.8")
-                    || age > 6 && BigDecimalUtil.greaterAndEqual(correctedVision, "4.9")) {
-                return DoctorConclusion.KINDERGARTEN_RESULT_2;
-            }
-        } else {
-            BigDecimal seBigDecimal = StatUtil.getSphericalEquivalent(sph, cyl);
-            if (Objects.isNull(seBigDecimal)) {
-                return "";
-            }
-            if (BigDecimalUtil.isBetweenLeft(seBigDecimal, "0", "2")
-                    && BigDecimalUtil.lessThanAndEqual(cyl.abs(), "1.5")) {
-                return DoctorConclusion.KINDERGARTEN_RESULT_3;
-            }
-            if ((BigDecimalUtil.greaterAndEqual(seBigDecimal, "2") || BigDecimalUtil.lessThan(seBigDecimal, "0") || BigDecimalUtil.moreThan(cyl.abs(), "1.5"))
-                    || (Objects.nonNull(anisometropia) && BigDecimalUtil.moreThan(anisometropia, "1.5"))
-                    || !otherEyeDiseasesNormal) {
-                return DoctorConclusion.KINDERGARTEN_RESULT_4;
-            }
-        }
-        return "";
-    }
-
-    private String newResult(BigDecimal leftNakedVision, BigDecimal rightNakedVision,
-                             BigDecimal leftCorrectedVision, BigDecimal rightCorrectedVision,
-                             BigDecimal leftSph, BigDecimal rightSph,
-                             BigDecimal leftCyl, BigDecimal rightCyl,
-                             Integer glassesType, Integer schoolAge, Integer age, boolean otherEyeDiseasesNormal) {
+    public String kindergartenAdviceResult(BigDecimal leftNakedVision, BigDecimal rightNakedVision,
+                                            BigDecimal leftCorrectedVision, BigDecimal rightCorrectedVision,
+                                            BigDecimal leftSph, BigDecimal rightSph,
+                                            BigDecimal leftCyl, BigDecimal rightCyl,
+                                            Integer glassesType, Integer age, boolean otherEyeDiseasesNormal) {
         BigDecimal correctedVision;
+        // 佩戴眼镜
         if (glassesType >= 1) {
             // 3岁以下
             correctedVision = kindergartenHaveGlassesResult(leftNakedVision, rightNakedVision, leftCorrectedVision, rightCorrectedVision, age, 3, "4.6");
-            if (Objects.nonNull(correctedVision)) {
-                return isMatch(age, correctedVision);
+            if (StringUtils.isNotBlank(haveGlassesKindergartenIsMatch(age, correctedVision))) {
+                return haveGlassesKindergartenIsMatch(age, correctedVision);
             }
             // 4岁以下
             correctedVision = kindergartenHaveGlassesResult(leftNakedVision, rightNakedVision, leftCorrectedVision, rightCorrectedVision, age, 4, "4.7");
-            if (Objects.nonNull(correctedVision)) {
-                return isMatch(age, correctedVision);
+            if (StringUtils.isNotBlank(haveGlassesKindergartenIsMatch(age, correctedVision))) {
+                return haveGlassesKindergartenIsMatch(age, correctedVision);
             }
 
             // 6岁以下
             correctedVision = kindergartenHaveGlassesResult(leftNakedVision, rightNakedVision, leftCorrectedVision, rightCorrectedVision, age, 6, "4.9");
-            if (Objects.nonNull(correctedVision)) {
-                return isMatch(age, correctedVision);
+            if (StringUtils.isNotBlank(haveGlassesKindergartenIsMatch(age, correctedVision))) {
+                return haveGlassesKindergartenIsMatch(age, correctedVision);
             }
 
             // 6岁以上
             correctedVision = kindergartenHaveGlassesResult(leftNakedVision, rightNakedVision, leftCorrectedVision, rightCorrectedVision, age, 6, "5.0");
-            if (Objects.nonNull(correctedVision)) {
-                return isMatch(age, correctedVision);
+            if (StringUtils.isNotBlank(haveGlassesKindergartenIsMatch(age, correctedVision))) {
+                return haveGlassesKindergartenIsMatch(age, correctedVision);
             }
         } else {
+            // 3岁以下
+            correctedVision = kindergartenHaveGlassesResult(leftNakedVision, rightNakedVision, leftCorrectedVision, rightCorrectedVision, age, 3, "4.6");
+            if (StringUtils.isNotBlank(noGlassesKindergartenIsMatch(age, correctedVision, leftSph, rightSph, leftCyl, rightCyl, otherEyeDiseasesNormal))) {
+                return noGlassesKindergartenIsMatch(age, correctedVision, leftSph, rightSph, leftCyl, rightCyl, otherEyeDiseasesNormal);
+            }
 
+            // 4岁以下
+            correctedVision = kindergartenHaveGlassesResult(leftNakedVision, rightNakedVision, leftCorrectedVision, rightCorrectedVision, age, 4, "4.7");
+            if (StringUtils.isNotBlank(noGlassesKindergartenIsMatch(age, correctedVision, leftSph, rightSph, leftCyl, rightCyl, otherEyeDiseasesNormal))) {
+                return noGlassesKindergartenIsMatch(age, correctedVision, leftSph, rightSph, leftCyl, rightCyl, otherEyeDiseasesNormal);
+            }
+
+            // 6岁以下
+            correctedVision = kindergartenHaveGlassesResult(leftNakedVision, rightNakedVision, leftCorrectedVision, rightCorrectedVision, age, 6, "4.9");
+            if (StringUtils.isNotBlank(noGlassesKindergartenIsMatch(age, correctedVision, leftSph, rightSph, leftCyl, rightCyl, otherEyeDiseasesNormal))) {
+                return noGlassesKindergartenIsMatch(age, correctedVision, leftSph, rightSph, leftCyl, rightCyl, otherEyeDiseasesNormal);
+            }
+
+            // 6岁以上
+            correctedVision = kindergartenHaveGlassesResult(leftNakedVision, rightNakedVision, leftCorrectedVision, rightCorrectedVision, age, 6, "5.0");
+            if (StringUtils.isNotBlank(noGlassesKindergartenIsMatch(age, correctedVision, leftSph, rightSph, leftCyl, rightCyl, otherEyeDiseasesNormal))) {
+                return noGlassesKindergartenIsMatch(age, correctedVision, leftSph, rightSph, leftCyl, rightCyl, otherEyeDiseasesNormal);
+            }
         }
+        return StringUtils.EMPTY;
     }
-
 
     /**
      * 学龄前儿童获取满足条件的矫正视力
      *
-     * @param leftNakedVision
-     * @param rightNakedVision
-     * @param leftCorrectedVision
-     * @param rightCorrectedVision
-     * @param age
-     * @param targetAge
-     * @param targetVision
-     * @return
+     * @param leftNakedVision      左-裸眼
+     * @param rightNakedVision     右-裸眼
+     * @param leftCorrectedVision  左-矫正视力
+     * @param rightCorrectedVision 右-矫正视力
+     * @param age                  年龄
+     * @param targetAge            目标年龄
+     * @param targetVision         目标视力
+     * @return 矫正视力
      */
     private BigDecimal kindergartenHaveGlassesResult(BigDecimal leftNakedVision, BigDecimal rightNakedVision,
                                                      BigDecimal leftCorrectedVision, BigDecimal rightCorrectedVision,
@@ -971,9 +941,16 @@ public class ScreeningResultUtil {
         return null;
     }
 
-    private String isMatch(Integer age, BigDecimal correctedVision) {
+    /**
+     * 戴镜学龄前儿童获取结论
+     *
+     * @param age             年龄
+     * @param correctedVision 矫正视力
+     * @return 结论
+     */
+    private String haveGlassesKindergartenIsMatch(Integer age, BigDecimal correctedVision) {
         if (Objects.isNull(correctedVision)) {
-            return null;
+            return "";
         }
         if (age < 4 && BigDecimalUtil.lessThan(correctedVision, "4.7")
                 || age < 6 && BigDecimalUtil.lessThan(correctedVision, "4.8")
@@ -985,7 +962,60 @@ public class ScreeningResultUtil {
                 || age > 6 && BigDecimalUtil.greaterAndEqual(correctedVision, "4.9")) {
             return DoctorConclusion.KINDERGARTEN_RESULT_2;
         }
+        return "";
     }
+
+    /**
+     * 不戴镜学龄前儿童获取结论
+     *
+     * @param age                    年龄
+     * @param correctedVision        矫正视力
+     * @param leftSph                左-柱镜
+     * @param rightSph               右-柱镜
+     * @param leftCyl                左-球镜
+     * @param rightCyl               右-球镜
+     * @param otherEyeDiseasesNormal 目标视力
+     * @return 结论
+     */
+    private String noGlassesKindergartenIsMatch(Integer age, BigDecimal correctedVision, BigDecimal leftSph, BigDecimal rightSph,
+                                                BigDecimal leftCyl, BigDecimal rightCyl, boolean otherEyeDiseasesNormal) {
+
+        BigDecimal leftSe = StatUtil.getSphericalEquivalent(leftSph, leftCyl);
+        BigDecimal rightSe = StatUtil.getSphericalEquivalent(rightSph, rightCyl);
+        BigDecimal anisometropia = getAnisometropia(leftSe, rightSe);
+        if (ObjectsUtil.hasNull(leftSe, rightSe, correctedVision, anisometropia)) {
+            return "";
+        }
+        BigDecimal seBigDecimal;
+        BigDecimal cyl;
+        if (BigDecimalUtil.lessThanAndEqual(leftSe, rightSe)) {
+            seBigDecimal = leftSe;
+            cyl = leftCyl;
+        } else {
+            seBigDecimal = rightSe;
+            cyl = rightCyl;
+        }
+
+        if (age < 4 && BigDecimalUtil.lessThan(correctedVision, "4.7")
+                || age < 6 && BigDecimalUtil.lessThan(correctedVision, "4.8")
+                || age > 6 && BigDecimalUtil.lessThan(correctedVision, "4.9")) {
+            if (BigDecimalUtil.isBetweenLeft(seBigDecimal, "0", "2")
+                    && BigDecimalUtil.lessThanAndEqual(cyl.abs(), "1.5")) {
+                return DoctorConclusion.KINDERGARTEN_RESULT_3;
+            }
+        }
+        if (age < 4 && BigDecimalUtil.greaterAndEqual(correctedVision, "4.7")
+                || age < 6 && BigDecimalUtil.greaterAndEqual(correctedVision, "4.8")
+                || age > 6 && BigDecimalUtil.greaterAndEqual(correctedVision, "4.9")) {
+            if ((BigDecimalUtil.greaterAndEqual(seBigDecimal, "2") || BigDecimalUtil.lessThan(seBigDecimal, "0") || BigDecimalUtil.moreThan(cyl.abs(), "1.5"))
+                    || (Objects.nonNull(anisometropia) && BigDecimalUtil.moreThan(anisometropia, "1.5"))
+                    || !otherEyeDiseasesNormal) {
+                return DoctorConclusion.KINDERGARTEN_RESULT_4;
+            }
+        }
+        return "";
+    }
+
 
     /**
      * 两眼的值是否都在4.9的同侧

@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
@@ -23,6 +24,7 @@ import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningResultResponseDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentCardResponseVO;
+import com.wupol.myopia.business.core.screening.flow.util.ScreeningResultUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
@@ -30,6 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Objects;
@@ -213,5 +216,18 @@ public class StudentController {
     @GetMapping("/report/detail/{reportId}")
     public StudentVisitReportResponseDTO getReportDetail(@PathVariable("reportId") Integer reportId) {
         return medicalReportBizService.getStudentVisitReport(reportId);
+    }
+
+    @GetMapping("/getResult")
+    public ApiResult<String> getResult(BigDecimal leftNakedVision, BigDecimal rightNakedVision,
+                               BigDecimal leftCorrectedVision, BigDecimal rightCorrectedVision,
+                               BigDecimal leftSph, BigDecimal rightSph,
+                               BigDecimal leftCyl, BigDecimal rightCyl,
+                               Integer glassesType, Integer age, boolean otherEyeDiseasesNormal) {
+        return ApiResult.success(ScreeningResultUtil.kindergartenAdviceResult(leftNakedVision, rightNakedVision,
+                leftCorrectedVision, rightCorrectedVision,
+                leftSph, rightSph,
+                leftCyl, rightCyl,
+                glassesType, age, otherEyeDiseasesNormal));
     }
 }
