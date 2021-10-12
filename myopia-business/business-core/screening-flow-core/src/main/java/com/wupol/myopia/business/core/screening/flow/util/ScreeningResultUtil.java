@@ -51,8 +51,12 @@ public class ScreeningResultUtil {
         if (Objects.isNull(leftNakedVision) && Objects.isNull(rightNakedVision)) {
             return "";
         }
+
         // 是否有其他眼病
-        boolean otherEyeDiseasesNormal = result.getOtherEyeDiseases().isNormal();
+        boolean otherEyeDiseasesNormal = false;
+        if (Objects.nonNull(result.getOtherEyeDiseases())) {
+            otherEyeDiseasesNormal = result.getOtherEyeDiseases().isNormal();
+        }
 
         // 获取左右眼的矫正视力
         BigDecimal leftCorrectedVision = visionData.getLeftEyeData().getCorrectedVision();
