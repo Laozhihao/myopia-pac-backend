@@ -45,7 +45,6 @@ public interface ParentReportConst {
     /**
      * 标签-中度
      */
-
     Integer LABEL_MODERATE = 7;
 
     /**
