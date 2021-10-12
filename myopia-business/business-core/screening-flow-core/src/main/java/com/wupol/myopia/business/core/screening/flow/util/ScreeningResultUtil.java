@@ -861,50 +861,50 @@ public class ScreeningResultUtil {
         // 佩戴眼镜
         if (glassesType >= 1) {
             // 3岁以下
-            correctedVision = kindergartenHaveGlassesResult(leftNakedVision, rightNakedVision, leftCorrectedVision, rightCorrectedVision, age, 3, "4.6");
+            correctedVision = kindergartenHaveGlassesResult(leftNakedVision, rightNakedVision, leftCorrectedVision, rightCorrectedVision, age, "4.6");
             if (StringUtils.isNotBlank(haveGlassesKindergartenIsMatch(age, correctedVision))) {
                 return haveGlassesKindergartenIsMatch(age, correctedVision);
             }
             // 4岁以下
-            correctedVision = kindergartenHaveGlassesResult(leftNakedVision, rightNakedVision, leftCorrectedVision, rightCorrectedVision, age, 4, "4.7");
+            correctedVision = kindergartenHaveGlassesResult(leftNakedVision, rightNakedVision, leftCorrectedVision, rightCorrectedVision, age, "4.7");
             if (StringUtils.isNotBlank(haveGlassesKindergartenIsMatch(age, correctedVision))) {
                 return haveGlassesKindergartenIsMatch(age, correctedVision);
             }
 
             // 6岁以下
-            correctedVision = kindergartenHaveGlassesResult(leftNakedVision, rightNakedVision, leftCorrectedVision, rightCorrectedVision, age, 5, "4.9");
+            correctedVision = kindergartenHaveGlassesResult(leftNakedVision, rightNakedVision, leftCorrectedVision, rightCorrectedVision, age, "4.9");
             if (StringUtils.isNotBlank(haveGlassesKindergartenIsMatch(age, correctedVision))) {
                 return haveGlassesKindergartenIsMatch(age, correctedVision);
             }
 
             // 6岁以上
-            correctedVision = kindergartenHaveGlassesResult(leftNakedVision, rightNakedVision, leftCorrectedVision, rightCorrectedVision, age, 6, "5.0");
+            correctedVision = kindergartenHaveGlassesResult(leftNakedVision, rightNakedVision, leftCorrectedVision, rightCorrectedVision, age, "5.0");
             if (StringUtils.isNotBlank(haveGlassesKindergartenIsMatch(age, correctedVision))) {
                 return haveGlassesKindergartenIsMatch(age, correctedVision);
             }
         } else {
             // 3岁以下
-            ;
-            if (StringUtils.isNotBlank(noGlassesKindergartenIsMatch(kindergartenNoGlassesResult(leftNakedVision, rightNakedVision, leftSph, rightSph, leftCyl, rightCyl, age, 3, "4.6"), otherEyeDiseasesNormal))) {
-                return noGlassesKindergartenIsMatch(kindergartenNoGlassesResult(leftNakedVision, rightNakedVision, leftSph, rightSph, leftCyl, rightCyl, age, 3, "4.6"), otherEyeDiseasesNormal);
+            String result = noGlassesKindergartenIsMatch(kindergartenNoGlassesResult(leftNakedVision, rightNakedVision, leftSph, rightSph, leftCyl, rightCyl, age, "4.6"), otherEyeDiseasesNormal);
+            if (StringUtils.isNotBlank(result)) {
+                return result;
             }
 
             // 4岁以下
-
-            if (StringUtils.isNotBlank(noGlassesKindergartenIsMatch(kindergartenNoGlassesResult(leftNakedVision, rightNakedVision, leftSph, rightSph, leftCyl, rightCyl, age, 4, "4.7"), otherEyeDiseasesNormal))) {
-                return noGlassesKindergartenIsMatch(kindergartenNoGlassesResult(leftNakedVision, rightNakedVision, leftSph, rightSph, leftCyl, rightCyl, age, 4, "4.7"), otherEyeDiseasesNormal);
+            String str = noGlassesKindergartenIsMatch(kindergartenNoGlassesResult(leftNakedVision, rightNakedVision, leftSph, rightSph, leftCyl, rightCyl, age, "4.7"), otherEyeDiseasesNormal);
+            if (StringUtils.isNotBlank(str)) {
+                return str;
             }
 
             // 6岁以下
-            ;
-            if (StringUtils.isNotBlank(noGlassesKindergartenIsMatch(kindergartenNoGlassesResult(leftNakedVision, rightNakedVision, leftSph, rightSph, leftCyl, rightCyl, age, 5, "4.9"), otherEyeDiseasesNormal))) {
-                return noGlassesKindergartenIsMatch(kindergartenNoGlassesResult(leftNakedVision, rightNakedVision, leftSph, rightSph, leftCyl, rightCyl, age, 5, "4.9"), otherEyeDiseasesNormal);
+            String str1 = noGlassesKindergartenIsMatch(kindergartenNoGlassesResult(leftNakedVision, rightNakedVision, leftSph, rightSph, leftCyl, rightCyl, age, "4.9"), otherEyeDiseasesNormal);
+            if (StringUtils.isNotBlank(str1)) {
+                return str1;
             }
 
             // 6岁以上
-            ;
-            if (StringUtils.isNotBlank(noGlassesKindergartenIsMatch(kindergartenNoGlassesResult(leftNakedVision, rightNakedVision, leftSph, rightSph, leftCyl, rightCyl, age, 6, "5.0"), otherEyeDiseasesNormal))) {
-                return noGlassesKindergartenIsMatch(kindergartenNoGlassesResult(leftNakedVision, rightNakedVision, leftSph, rightSph, leftCyl, rightCyl, age, 6, "5.0"), otherEyeDiseasesNormal);
+            String str2 = noGlassesKindergartenIsMatch(kindergartenNoGlassesResult(leftNakedVision, rightNakedVision, leftSph, rightSph, leftCyl, rightCyl, age, "5.0"), otherEyeDiseasesNormal);
+            if (StringUtils.isNotBlank(str2)) {
+                return str2;
             }
         }
         return StringUtils.EMPTY;
@@ -918,23 +918,32 @@ public class ScreeningResultUtil {
      * @param leftCorrectedVision  左-矫正视力
      * @param rightCorrectedVision 右-矫正视力
      * @param age                  年龄
-     * @param targetAge            目标年龄
      * @param targetVision         目标视力
      * @return 矫正视力
      */
     private BigDecimal kindergartenHaveGlassesResult(BigDecimal leftNakedVision, BigDecimal rightNakedVision,
                                                      BigDecimal leftCorrectedVision, BigDecimal rightCorrectedVision,
-                                                     Integer age, Integer targetAge, String targetVision) {
-        if ((age < targetAge && targetAge < 6) || (age >= targetAge && targetAge >= 6)) {
-            if (BigDecimalUtil.isAllLessThan(leftNakedVision, rightNakedVision, targetVision)) {
-                return BigDecimalUtil.lessThanAndEqual(leftCorrectedVision, rightCorrectedVision) ? leftCorrectedVision : rightCorrectedVision;
-            }
-            if (BigDecimalUtil.lessThanAndEqual(leftNakedVision, rightNakedVision)) {
-                if (BigDecimalUtil.lessThanAndEqual(leftNakedVision, targetVision)) {
+                                                     Integer age, String targetVision) {
+        if (BigDecimalUtil.isAllLessThan(leftNakedVision, rightNakedVision, targetVision)) {
+            if (BigDecimalUtil.lessThanAndEqual(leftCorrectedVision, rightCorrectedVision)) {
+                if (checkAgeAndNakedVision(age, leftNakedVision)) {
                     return leftCorrectedVision;
                 }
             } else {
-                if (BigDecimalUtil.lessThanAndEqual(rightNakedVision, targetVision)) {
+                if (checkAgeAndNakedVision(age, rightNakedVision)) {
+                    return rightCorrectedVision;
+                }
+            }
+        }
+        if (BigDecimalUtil.lessThanAndEqual(leftNakedVision, rightNakedVision)) {
+            if (BigDecimalUtil.lessThanAndEqual(leftNakedVision, targetVision)) {
+                if (checkAgeAndNakedVision(age, leftNakedVision)) {
+                    return leftCorrectedVision;
+                }
+            }
+        } else {
+            if (BigDecimalUtil.lessThanAndEqual(rightNakedVision, targetVision)) {
+                if (checkAgeAndNakedVision(age, rightNakedVision)) {
                     return rightCorrectedVision;
                 }
             }
@@ -997,35 +1006,53 @@ public class ScreeningResultUtil {
     private ThreeTuple<BigDecimal, BigDecimal, BigDecimal> kindergartenNoGlassesResult(BigDecimal leftNakedVision, BigDecimal rightNakedVision,
                                                                                        BigDecimal leftSph, BigDecimal rightSph,
                                                                                        BigDecimal leftCyl, BigDecimal rightCyl,
-                                                                                       Integer age, Integer targetAge, String targetVision) {
+                                                                                       Integer age, String targetVision) {
         BigDecimal leftSe = StatUtil.getSphericalEquivalent(leftSph, leftCyl);
         BigDecimal rightSe = StatUtil.getSphericalEquivalent(rightSph, rightCyl);
         BigDecimal anisometropia = getAnisometropia(leftSe, rightSe);
         if (Objects.isNull(anisometropia)) {
             return null;
         }
-        if ((age < targetAge && targetAge < 6) || (age >= targetAge && targetAge >= 6)) {
-            // 如果都满足，则取等效球镜低的一个
-            if (BigDecimalUtil.isAllLessThan(leftNakedVision, rightNakedVision, targetVision)) {
-
-                if (BigDecimalUtil.lessThanAndEqual(leftSe, rightSe)) {
-                    return new ThreeTuple<>(leftSe, leftCyl, anisometropia);
-                } else {
-                    return new ThreeTuple<>(rightSe, rightCyl, anisometropia);
-                }
-            }
-            if (BigDecimalUtil.lessThanAndEqual(leftNakedVision, rightNakedVision)) {
-                if (BigDecimalUtil.lessThanAndEqual(leftNakedVision, targetVision)) {
+        // 如果都满足，则取等效球镜低的一个
+        if (BigDecimalUtil.isAllLessThan(leftNakedVision, rightNakedVision, targetVision)) {
+            if (BigDecimalUtil.lessThanAndEqual(leftSe, rightSe)) {
+                if (checkAgeAndNakedVision(age, leftNakedVision)) {
                     return new ThreeTuple<>(leftSe, leftCyl, anisometropia);
                 }
             } else {
-                if (BigDecimalUtil.lessThanAndEqual(rightNakedVision, targetVision)) {
+                if (checkAgeAndNakedVision(age, rightNakedVision)) {
                     return new ThreeTuple<>(rightSe, rightCyl, anisometropia);
-
+                }
+            }
+        }
+        if (BigDecimalUtil.lessThanAndEqual(leftNakedVision, rightNakedVision)) {
+            if (BigDecimalUtil.lessThanAndEqual(leftNakedVision, targetVision)) {
+                if (checkAgeAndNakedVision(age, leftNakedVision)) {
+                    return new ThreeTuple<>(leftSe, leftCyl, anisometropia);
+                }
+            }
+        } else {
+            if (BigDecimalUtil.lessThanAndEqual(rightNakedVision, targetVision)) {
+                if (checkAgeAndNakedVision(age, rightNakedVision)) {
+                    return new ThreeTuple<>(rightSe, rightCyl, anisometropia);
                 }
             }
         }
         return null;
+    }
+
+    /**
+     * 检查年龄和裸眼视力是否匹配
+     *
+     * @param age         年龄
+     * @param nakedVision 裸眼视力
+     * @return 是否匹配
+     */
+    private boolean checkAgeAndNakedVision(Integer age, BigDecimal nakedVision) {
+        return (age < 3 && BigDecimalUtil.lessThan(nakedVision, "4.6"))
+                || (age < 4 && BigDecimalUtil.lessThan(nakedVision, "4.7"))
+                || (age < 6 && BigDecimalUtil.lessThan(nakedVision, "4.9"))
+                || (age >= 6 && BigDecimalUtil.lessThan(nakedVision, "5"));
     }
 
 
