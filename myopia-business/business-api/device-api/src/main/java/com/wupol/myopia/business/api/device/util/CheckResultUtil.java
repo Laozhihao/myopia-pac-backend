@@ -477,7 +477,7 @@ public class CheckResultUtil {
     public enum LevelEnum {
         LOW_LEVEL(1, "低度"),
         MEDIUM_LEVEL(2, "中度"),
-        HIGH_LEVEL(3, "高度");
+        HIGH_LEVEL(3, "重度");
         public static final int NORMAL_LEVEL = 0;
         public static final int NOT_LEVEL = 0;
         public static final Map<Integer, String> levelDisplayMap = new HashMap(3);

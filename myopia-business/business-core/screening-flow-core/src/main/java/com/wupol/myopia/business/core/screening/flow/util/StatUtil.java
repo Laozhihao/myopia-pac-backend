@@ -425,14 +425,16 @@ public class StatUtil {
         }
         if (!ObjectsUtil.allNull(leftMyopiaLevel, rightMyopiaLevel)) {
             Integer seriousLevel = ScreeningResultUtil.getSeriousLevel(leftMyopiaLevel, rightMyopiaLevel);
-            if (WarningLevel.ONE.code.equals(seriousLevel)) {
-                return VisionLabelsEnum.MILD_MYOPIA.getName();
-            }
-            if (WarningLevel.TWO.code.equals(seriousLevel)) {
-                return VisionLabelsEnum.MODERATE_MYOPIA.getName();
-            }
-            if (WarningLevel.THREE.code.equals(seriousLevel)) {
-                return VisionLabelsEnum.HIGH_MYOPIA.getName();
+            if (Objects.nonNull(seriousLevel)) {
+                if (WarningLevel.ONE.code.equals(seriousLevel)) {
+                    return VisionLabelsEnum.MILD_MYOPIA.getName();
+                }
+                if (WarningLevel.TWO.code.equals(seriousLevel)) {
+                    return VisionLabelsEnum.MODERATE_MYOPIA.getName();
+                }
+                if (WarningLevel.THREE.code.equals(seriousLevel)) {
+                    return VisionLabelsEnum.HIGH_MYOPIA.getName();
+                }
             }
         }
         return "";

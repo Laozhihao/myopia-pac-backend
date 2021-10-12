@@ -1443,9 +1443,13 @@ public class ScreeningResultUtil {
      * @return 视力
      */
     public Integer getSeriousLevel(Integer leftLevel, Integer rightLevel) {
-        return Objects.isNull(leftLevel) ?
-                rightLevel : Objects.isNull(rightLevel) ?
-                leftLevel : leftLevel.compareTo(rightLevel) >= 0 ?
-                leftLevel : rightLevel;
+        // 排除远视储备不足
+        if (Objects.isNull(leftLevel) || leftLevel.equals(WarningLevel.ZERO_SP.code)) {
+            return rightLevel;
+        }
+        if (Objects.isNull(rightLevel) || rightLevel.equals(WarningLevel.ZERO_SP.code)) {
+            return leftLevel;
+        }
+        return leftLevel > rightLevel ? leftLevel : rightLevel;
     }
 }
