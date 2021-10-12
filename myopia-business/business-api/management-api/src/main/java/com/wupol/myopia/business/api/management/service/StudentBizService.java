@@ -778,7 +778,7 @@ public class StudentBizService {
     private String nakedVisionNormal(BigDecimal leftNakedVision, BigDecimal rightNakedVision,
                                      BigDecimal leftSe, BigDecimal rightSe,
                                      TwoTuple<BigDecimal, Integer> nakedVisionResult) {
-        BigDecimal se = ScreeningResultUtil.getSE(leftNakedVision, rightNakedVision,
+        BigDecimal se = ScreeningResultUtil.getNakedVisionNormalSE(leftNakedVision, rightNakedVision,
                 leftSe, rightSe, nakedVisionResult);
         // SE >= 0
         if (se.compareTo(new BigDecimal("0.00")) >= 0) {

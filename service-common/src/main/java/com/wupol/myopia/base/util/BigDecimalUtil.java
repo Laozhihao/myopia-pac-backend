@@ -82,7 +82,7 @@ public class BigDecimalUtil {
      * @param val2 值2
      * @return 是否满足
      */
-    public static Boolean greaterAndEqual(BigDecimal val1, String val2) {
+    public static Boolean moreThanAndEqual(BigDecimal val1, String val2) {
         return val1.compareTo(new BigDecimal(val2)) >= 0;
     }
 
@@ -119,7 +119,7 @@ public class BigDecimalUtil {
      * @return 是否满足
      */
     public static boolean isSameSide(BigDecimal val1, BigDecimal val2, String target) {
-        return (greaterAndEqual(val1, target) && greaterAndEqual(val2, target)) || (lessThan(val1, target) && (lessThan(val2, target)));
+        return (moreThanAndEqual(val1, target) && moreThanAndEqual(val2, target)) || (lessThan(val1, target) && (lessThan(val2, target)));
     }
 
     /**
