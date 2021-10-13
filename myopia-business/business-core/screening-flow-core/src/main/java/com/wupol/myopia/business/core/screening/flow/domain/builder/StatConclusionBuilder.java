@@ -19,8 +19,10 @@ import lombok.experimental.Accessors;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.math.BigDecimal;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 /**
  * 筛查数据结论
@@ -206,19 +208,23 @@ public class StatConclusionBuilder {
             statConclusion.setWarningLevel(WarningLevel.NORMAL.code);
             return;
         }
-        List<WarningLevel> warningLevelList = Arrays.asList(
-                basicData.leftAstigmatismWarningLevel,
-                basicData.rightAstigmatismWarningLevel,
-                basicData.leftHyperopiaWarningLevel,
-                basicData.rightHyperopiaWarningLevel,
-                basicData.leftMyopiaWarningLevel,
-                basicData.rightMyopiaWarningLevel,
-                basicData.rightNakedVisionWarningLevel,
-                basicData.leftNakedVisionWarningLevel);
-        List<Integer> warningLevelCodeList = warningLevelList.stream().filter(Objects::nonNull).map(warningLevel -> warningLevel.code).collect(Collectors.toList());
-        if (CollectionUtils.isNotEmpty(warningLevelCodeList)) {
-            statConclusion.setWarningLevel(Collections.max(warningLevelCodeList));
-        }
+        statConclusion.setWarningLevel(StatUtil.getWarningLevelInt(
+                basicData.getLeftCyl(), basicData.getLeftSph(), basicData.getLeftNakedVision(),
+                basicData.getRightCyl(), basicData.getRightSph(), basicData.getRightNakedVision(),
+                basicData.getAge()));
+//        List<WarningLevel> warningLevelList = Arrays.asList(
+//                basicData.leftAstigmatismWarningLevel,
+//                basicData.rightAstigmatismWarningLevel,
+//                basicData.leftHyperopiaWarningLevel,
+//                basicData.rightHyperopiaWarningLevel,
+//                basicData.leftMyopiaWarningLevel,
+//                basicData.rightMyopiaWarningLevel,
+//                basicData.rightNakedVisionWarningLevel,
+//                basicData.leftNakedVisionWarningLevel);
+//        List<Integer> warningLevelCodeList = warningLevelList.stream().filter(Objects::nonNull).map(warningLevel -> warningLevel.code).collect(Collectors.toList());
+//        if (CollectionUtils.isNotEmpty(warningLevelCodeList)) {
+//            statConclusion.setWarningLevel(Collections.max(warningLevelCodeList));
+//        }
     }
 
     /**
