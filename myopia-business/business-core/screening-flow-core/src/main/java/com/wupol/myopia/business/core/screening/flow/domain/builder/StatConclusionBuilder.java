@@ -108,7 +108,7 @@ public class StatConclusionBuilder {
     private void setWarningVision() {
         boolean isLeftEyeVisionWarning = statConclusion.getVisionL() != null && statConclusion.getVisionL() <= 4.9;
         boolean isRightEyeVisionWarning = statConclusion.getVisionR() != null && statConclusion.getVisionR() <= 4.9;
-        boolean isVisionWarning = (isLeftEyeVisionWarning || isRightEyeVisionWarning ) && statConclusion.getAge() >=6 ;
+        boolean isVisionWarning = (isLeftEyeVisionWarning || isRightEyeVisionWarning) && statConclusion.getAge() >= 6;
         statConclusion.setIsVisionWarning(isVisionWarning);
         statConclusion.setVisionWarningUpdateTime(new Date());
     }
@@ -209,8 +209,8 @@ public class StatConclusionBuilder {
             return;
         }
         statConclusion.setWarningLevel(StatUtil.getWarningLevelInt(
-                basicData.getLeftCyl(), basicData.getLeftSph(), basicData.getLeftNakedVision(),
-                basicData.getRightCyl(), basicData.getRightSph(), basicData.getRightNakedVision(),
+                BigDecimal.valueOf(basicData.getLeftCyl()), BigDecimal.valueOf(basicData.getLeftSph()), BigDecimal.valueOf(basicData.getLeftNakedVision()),
+                BigDecimal.valueOf(basicData.getRightCyl()), BigDecimal.valueOf(basicData.getRightSph()), BigDecimal.valueOf(basicData.getRightNakedVision()),
                 basicData.getAge()));
 //        List<WarningLevel> warningLevelList = Arrays.asList(
 //                basicData.leftAstigmatismWarningLevel,
@@ -437,7 +437,8 @@ public class StatConclusionBuilder {
 
         /**
          * 获取实例
-          * @param visionScreeningResult
+         *
+         * @param visionScreeningResult
          * @param screeningPlanSchoolStudent
          * @return
          */
@@ -460,6 +461,7 @@ public class StatConclusionBuilder {
 
         /**
          * 处理基础的数据
+         *
          * @param visionScreeningResult
          * @param screeningPlanSchoolStudent
          * @param basicData
@@ -474,6 +476,7 @@ public class StatConclusionBuilder {
 
         /**
          * 处理电脑视光的数据
+         *
          * @param screeningPlanSchoolStudent
          * @param basicData
          * @param computerOptometry
@@ -498,6 +501,7 @@ public class StatConclusionBuilder {
 
         /**
          * 处理视力相关的数据
+         *
          * @param basicData
          * @param visionData
          */
