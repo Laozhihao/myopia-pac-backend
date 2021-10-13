@@ -19,6 +19,7 @@ import com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanResponseDTO;
+import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccountListDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -129,8 +130,18 @@ public class SchoolController {
      */
     @PutMapping("status")
     public Integer updateStatus(@RequestBody @Valid StatusRequest statusRequest) {
-        CurrentUserUtil.getCurrentUser();
         return schoolService.updateStatus(statusRequest);
+    }
+
+    /**
+     * 更新学校管理员状态
+     *
+     * @param statusRequest 请求入参
+     * @return 更新个数
+     */
+    @PutMapping("/admin/status")
+    public boolean updateSchoolAdminUserStatus(@RequestBody @Valid StatusRequest statusRequest) {
+        return schoolService.updateSchoolAdminUserStatus(statusRequest);
     }
 
     /**
@@ -141,8 +152,7 @@ public class SchoolController {
      */
     @PostMapping("reset")
     public UsernameAndPasswordDTO resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
-        CurrentUserUtil.getCurrentUser();
-        return schoolService.resetPassword(request.getId());
+        return schoolService.resetPassword(request);
     }
 
     /**
@@ -230,5 +240,27 @@ public class SchoolController {
     @GetMapping("/schoolAge/list")
     public List<SchoolAgeDTO> getSchoolAge() {
         return SchoolAge.getSchoolAgeList();
+    }
+
+    /**
+     * 获取学校管理员用户账号列表
+     *
+     * @param schoolId 学校Id
+     * @return List<OrgAccountListDTO>
+     */
+    @GetMapping("/accountList/{schoolId}")
+    public List<OrgAccountListDTO> getAccountList(@PathVariable("schoolId") Integer schoolId) {
+        return schoolBizService.getAccountList(schoolId);
+    }
+
+    /**
+     * 添加用户
+     *
+     * @param schoolId 请求入参
+     * @return UsernameAndPasswordDTO
+     */
+    @PostMapping("/add/account/{schoolId}")
+    public UsernameAndPasswordDTO addAccount(@PathVariable("schoolId") Integer schoolId) {
+        return schoolBizService.addSchoolAdminUserAccount(schoolId);
     }
 }

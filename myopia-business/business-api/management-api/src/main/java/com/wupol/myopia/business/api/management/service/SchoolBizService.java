@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.domain.model.District;
@@ -28,6 +29,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanS
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatRescreenService;
+import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccountListDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationAdmin;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationAdminService;
@@ -379,6 +381,53 @@ public class SchoolBizService {
         }
         Set<Integer> schoolIds = screeningPlanSchoolService.getSchoolIdsByPlanIds(screeningPlanIds);
         return schoolService.getAllSchoolDistrictIdsBySchoolIds(schoolIds);
+    }
+
+    /**
+     * 学校管理员用户账号列表
+     *
+     * @param schoolId 学校Id
+     * @return List<OrgAccountListDTO>
+     */
+    public List<OrgAccountListDTO> getAccountList(Integer schoolId) {
+        List<OrgAccountListDTO> accountList = new LinkedList<>();
+        List<SchoolAdmin> schoolAdminList = schoolAdminService.findByList(new SchoolAdmin().setSchoolId(schoolId));
+        if (CollectionUtils.isEmpty(schoolAdminList)) {
+            return accountList;
+        }
+        List<Integer> userIds = schoolAdminList.stream().map(SchoolAdmin::getUserId).collect(Collectors.toList());
+        List<User> userList = oauthServiceClient.getUserBatchByUserIds(userIds);
+        Map<Integer, User> userMap = userList.stream().collect(Collectors.toMap(User::getId, Function.identity()));
+        schoolAdminList.forEach(adminUser -> {
+            User user = userMap.get(adminUser.getUserId());
+            OrgAccountListDTO account = new OrgAccountListDTO();
+            account.setUserId(adminUser.getUserId());
+            account.setOrgId(schoolId);
+            account.setUsername(user.getUsername());
+            account.setStatus(user.getStatus());
+            accountList.add(account);
+        });
+        return accountList;
+    }
+
+    /**
+     * 添加学校管理员账号账号
+     *
+     * @param schoolId 学校ID
+     * @return UsernameAndPasswordDTO
+     */
+    public UsernameAndPasswordDTO addSchoolAdminUserAccount(Integer schoolId) {
+        School school = schoolService.getById(schoolId);
+        if (Objects.isNull(school)) {
+            throw new BusinessException("不存在该学校");
+        }
+        // 获取该筛查机构已经有多少个账号
+        List<SchoolAdmin> adminList = schoolAdminService.findByList(new SchoolAdmin().setSchoolId(schoolId));
+        if (CollectionUtils.isEmpty(adminList)) {
+            throw new BusinessException("数据异常，无主账号");
+        }
+        school.setName(school.getName() + "0" + adminList.size());
+        return schoolService.generateAccountAndPassword(school);
     }
 
 }

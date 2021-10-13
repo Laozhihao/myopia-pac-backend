@@ -504,7 +504,7 @@ public class ScreeningOrganizationBizService {
         Integer orgId = addAccountDTO.getOrgId();
         ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(orgId);
         if (Objects.isNull(screeningOrganization)) {
-            throw new BusinessException("筛查结构异常");
+            throw new BusinessException("筛查机构异常");
         }
         // 获取该筛查机构已经有多少个账号
         List<ScreeningOrganizationAdmin> orgList = screeningOrganizationAdminService.getListOrgList(orgId);

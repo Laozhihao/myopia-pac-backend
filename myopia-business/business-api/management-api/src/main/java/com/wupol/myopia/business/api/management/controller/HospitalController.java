@@ -18,12 +18,14 @@ import com.wupol.myopia.business.core.hospital.domain.dto.HospitalResponseDTO;
 import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
 import com.wupol.myopia.business.core.hospital.domain.query.HospitalQuery;
 import com.wupol.myopia.business.core.hospital.service.HospitalService;
+import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccountListDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * 医院控制层
@@ -135,6 +137,17 @@ public class HospitalController {
     }
 
     /**
+     * 更新医院管理员状态
+     *
+     * @param statusRequest 请求入参
+     * @return 更新结果
+     */
+    @PutMapping("/admin/status")
+    public boolean updateHospitalAdminUserStatus(@RequestBody @Valid StatusRequest statusRequest) {
+        return hospitalService.updateHospitalAdminUserStatus(statusRequest);
+    }
+
+    /**
      * 重置密码
      *
      * @param request 请求入参
@@ -142,7 +155,7 @@ public class HospitalController {
      */
     @PostMapping("reset")
     public UsernameAndPasswordDTO resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
-        return hospitalService.resetPassword(request.getId());
+        return hospitalService.resetPassword(request);
     }
 
     /**
@@ -158,5 +171,28 @@ public class HospitalController {
                         .setApplyExportFileUserId(currentUser.getId())
                         .setDistrictId(districtId),
                 ExportExcelServiceNameConstant.HOSPITAL_EXCEL_SERVICE);
+    }
+
+
+    /**
+     * 获取医院管理员用户账号列表
+     *
+     * @param hospitalId 医院Id
+     * @return List<OrgAccountListDTO>
+     */
+    @GetMapping("/accountList/{hospitalId}")
+    public List<OrgAccountListDTO> getAccountList(@PathVariable("hospitalId") Integer hospitalId) {
+        return hospitalBizService.getAccountList(hospitalId);
+    }
+
+    /**
+     * 添加用户
+     *
+     * @param hospitalId 请求入参
+     * @return UsernameAndPasswordDTO
+     */
+    @PostMapping("/add/account/{hospitalId}")
+    public UsernameAndPasswordDTO addAccount(@PathVariable("hospitalId") Integer hospitalId) {
+        return hospitalBizService.addHospitalAdminUserAccount(hospitalId);
     }
 }

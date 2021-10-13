@@ -11,6 +11,7 @@ import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.PasswordGenerator;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
+import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
@@ -32,6 +33,7 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
@@ -110,19 +112,35 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      */
     @Transactional(rollbackFor = Exception.class)
     public Integer updateStatus(StatusRequest request) {
-
-        SchoolAdmin staff = schoolAdminService.getAdminBySchoolId(request.getId());
-        if (null == staff) {
+        List<SchoolAdmin> schoolAdminList = schoolAdminService.findByList(new SchoolAdmin().setSchoolId(request.getId()));
+        if (CollectionUtils.isEmpty(schoolAdminList)) {
             log.error("更新学校状态异常，找不到学校管理员。学校ID:{}", request.getId());
             throw new BusinessException("数据异常!");
         }
-        // 更新OAuth2
-        UserDTO userDTO = new UserDTO();
-        userDTO.setId(staff.getUserId())
-                .setStatus(request.getStatus());
-        oauthServiceClient.updateUser(userDTO);
+        // 更新用户状态
+        UserDTO user = new UserDTO();
+        user.setUserIds(schoolAdminList.stream().map(SchoolAdmin::getUserId).collect(Collectors.toList()));
+        user.setStatus(request.getStatus());
+        oauthServiceClient.updateUserStatusBatch(user);
+        // 更新学校状态
         School school = new School().setId(request.getId()).setStatus(request.getStatus());
         return baseMapper.updateById(school);
+    }
+
+    /**
+     * 更新学校管理员用户状态
+     *
+     * @param request 用户信息
+     * @return boolean
+     **/
+    public boolean updateSchoolAdminUserStatus(StatusRequest request) {
+        SchoolAdmin schoolAdmin = schoolAdminService.findOne(new SchoolAdmin().setSchoolId(request.getId()).setUserId(request.getUserId()));
+        Assert.notNull(schoolAdmin, "不存在该用户");
+        UserDTO user = new UserDTO();
+        user.setId(request.getUserId());
+        user.setStatus(request.getStatus());
+        oauthServiceClient.updateUser(user);
+        return true;
     }
 
     /**
@@ -147,17 +165,16 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     /**
      * 重置密码
      *
-     * @param id 医院id
+     * @param request 请求参数
      * @return 账号密码
      */
     @Transactional(rollbackFor = Exception.class)
-    public UsernameAndPasswordDTO resetPassword(Integer id) {
-        School school = baseMapper.selectById(id);
-        if (null == school) {
-            throw new BusinessException("数据异常");
+    public UsernameAndPasswordDTO resetPassword(ResetPasswordRequest request) {
+        SchoolAdmin schoolAdmin = schoolAdminService.findOne(new SchoolAdmin().setSchoolId(request.getId()).setUserId(request.getUserId()));
+        if (Objects.isNull(schoolAdmin)) {
+            throw new BusinessException("该账号不存");
         }
-        SchoolAdmin admin = schoolAdminService.getAdminBySchoolId(id);
-        return resetOAuthPassword(school, admin.getUserId());
+        return resetOAuthPassword(request.getUsername(), schoolAdmin.getUserId());
     }
 
 
@@ -166,7 +183,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      *
      * @return UsernameAndPasswordDto 账号密码
      */
-    private UsernameAndPasswordDTO generateAccountAndPassword(School school) {
+    public UsernameAndPasswordDTO generateAccountAndPassword(School school) {
         String password = PasswordGenerator.getSchoolAdminPwd();
         String username = school.getName();
 
@@ -185,13 +202,12 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     /**
      * 重置密码
      *
-     * @param school 学校
+     * @param username 用户名
      * @param userId OAuth2 的userId
      * @return 账号密码
      */
-    private UsernameAndPasswordDTO resetOAuthPassword(School school, Integer userId) {
+    private UsernameAndPasswordDTO resetOAuthPassword(String username, Integer userId) {
         String password = PasswordGenerator.getSchoolAdminPwd();
-        String username = school.getName();
         oauthServiceClient.resetPwd(userId, password);
         return new UsernameAndPasswordDTO(username, password);
     }
