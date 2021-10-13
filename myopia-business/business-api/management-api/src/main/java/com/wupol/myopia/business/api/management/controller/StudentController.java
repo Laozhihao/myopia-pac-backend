@@ -25,6 +25,7 @@ import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningResultResponseDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentCardResponseVO;
 import com.wupol.myopia.business.core.screening.flow.util.ScreeningResultUtil;
+import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
@@ -242,5 +243,14 @@ public class StudentController {
                 leftSph, rightSph,
                 leftCyl, rightCyl,
                 glassesType, age));
+    }
+
+    @GetMapping("getWarningLevelInt")
+    public ApiResult<Integer> middleAdviceResult(BigDecimal leftCyl, BigDecimal leftSpn, BigDecimal leftNakedVision,
+                                                 BigDecimal rightCyl, BigDecimal rightSpn, BigDecimal rightNakedVision,
+                                                Integer age) {
+        return ApiResult.success(StatUtil.getWarningLevelInt(leftCyl, leftSpn, leftNakedVision,
+                rightCyl, rightSpn, rightNakedVision,
+                age));
     }
 }

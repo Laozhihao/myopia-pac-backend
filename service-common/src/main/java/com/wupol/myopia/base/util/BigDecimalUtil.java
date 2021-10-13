@@ -99,6 +99,18 @@ public class BigDecimalUtil {
     }
 
     /**
+     * 判断是否在某个区间，左开右闭区间
+     *
+     * @param val   值
+     * @param start 开始值
+     * @param end   结束值
+     * @return 是否在区间内
+     */
+    public static Boolean isBetweenRight(BigDecimal val, String start, String end) {
+        return val.compareTo(new BigDecimal(start)) > 0 && val.compareTo(new BigDecimal(end)) <= 0;
+    }
+
+    /**
      * 判断是否在某个区间，左闭右闭区间
      *
      * @param val   值
@@ -108,6 +120,30 @@ public class BigDecimalUtil {
      */
     public static boolean isBetweenAll(BigDecimal val, BigDecimal start, BigDecimal end) {
         return val.compareTo(start) >= 0 && val.compareTo(end) <= 0;
+    }
+
+    /**
+     * 判断是否在某个区间，左闭右闭区间
+     *
+     * @param val   值
+     * @param start 开始值
+     * @param end   结束值
+     * @return 是否在区间内
+     */
+    public static boolean isBetweenAll(BigDecimal val, String start, String end) {
+        return val.compareTo(new BigDecimal(start)) >= 0 && val.compareTo(new BigDecimal(end)) <= 0;
+    }
+
+    /**
+     * 判断是否在某个区间，左开右开区间
+     *
+     * @param val   值
+     * @param start 开始值
+     * @param end   结束值
+     * @return 是否在区间内
+     */
+    public static boolean isBetweenNo(BigDecimal val, String start, String end) {
+        return val.compareTo(new BigDecimal(start)) > 0 && val.compareTo(new BigDecimal(end)) <= 0;
     }
 
     /**

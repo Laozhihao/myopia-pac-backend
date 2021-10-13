@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.screening.flow.util;
 
 import com.wupol.framework.core.util.ObjectsUtil;
+import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.constant.VisionLabelsEnum;
 import com.wupol.myopia.business.common.utils.constant.WarningLevel;
@@ -527,8 +528,8 @@ public class StatUtil {
      * @param age              年龄
      * @return {@link WarningLevel}
      */
-    public Integer getWarningLevelInt(Float leftCyl, Float leftSpn, Float leftNakedVision,
-                                      Float rightCyl, Float rightSpn, Float rightNakedVision,
+    public Integer getWarningLevelInt(BigDecimal leftCyl, BigDecimal leftSpn, BigDecimal leftNakedVision,
+                                      BigDecimal rightCyl, BigDecimal rightSpn, BigDecimal rightNakedVision,
                                       Integer age) {
         WarningLevel left = getWarningLevel(leftCyl, leftSpn, leftNakedVision, age);
         WarningLevel right = getWarningLevel(rightCyl, rightSpn, rightNakedVision, age);
@@ -550,7 +551,7 @@ public class StatUtil {
      * @param age         年龄
      * @return {@link WarningLevel}
      */
-    public WarningLevel getWarningLevel(Float cyl, Float spn, Float nakedVision, Integer age) {
+    public WarningLevel getWarningLevel(BigDecimal cyl, BigDecimal spn, BigDecimal nakedVision, Integer age) {
 
         if (ObjectsUtil.hasNull(cyl, spn, nakedVision, age)) {
             return null;
@@ -576,22 +577,25 @@ public class StatUtil {
      * @param age         年龄
      * @return {@link WarningLevel}
      */
-    private WarningLevel between3And5GetLevel(Float cyl, Float spn, Float nakedVision, Integer age) {
-        float se = getSphericalEquivalent(spn, cyl);
-        float absCyl = Math.abs(cyl);
-        if (se > 0 && se <= 1.5) {
+    private WarningLevel between3And5GetLevel(BigDecimal cyl, BigDecimal spn, BigDecimal nakedVision, Integer age) {
+        BigDecimal se = getSphericalEquivalent(spn, cyl);
+        if (Objects.isNull(se)) {
+            return null;
+        }
+        BigDecimal absCyl = cyl.abs();
+        if (BigDecimalUtil.isBetweenRight(se, "0", "1.5")) {
             return WarningLevel.ZERO_SP;
         }
-        if ((nakedVision > 4.7 && nakedVision < 5) || zeroSE(se) || zeroAbsCyl(absCyl)) {
+        if (BigDecimalUtil.isBetweenNo(nakedVision, "4.7", "5") || zeroSE(se) || zeroAbsCyl(absCyl)) {
             return WarningLevel.ZERO;
         }
-        if ((nakedVision <= 4.7 && nakedVision > 4.6) || oneSE(se) || (age < 4 && se > 3 && se <= 6) || (age >= 4 && se > 2 && se <= 5) || oneAbsCyl(absCyl)) {
+        if (BigDecimalUtil.isBetweenRight(nakedVision, "4.6", "4.7") || oneSE(se) || (age < 4 && BigDecimalUtil.isBetweenRight(se, "3", "6")) || (age >= 4 && BigDecimalUtil.isBetweenRight(se, "2", "5")) || oneAbsCyl(absCyl)) {
             return WarningLevel.ONE;
         }
-        if ((nakedVision <= 4.6 && nakedVision > 4.5) || twoSE(se) || (age < 4 && se > 6 && se <= 9) || (age >= 4 && se > 5 && se <= 8) || twoAbsCyl(absCyl)) {
+        if (BigDecimalUtil.isBetweenRight(nakedVision, "4.5", "4.6") || twoSE(se) || (age < 4 && BigDecimalUtil.isBetweenRight(se, "6", "9") || (age >= 4 && BigDecimalUtil.isBetweenRight(se, "5", "8")) || twoAbsCyl(absCyl))) {
             return WarningLevel.TWO;
         }
-        if ((nakedVision <= 4.5) || threeSE(se) || (age < 4 && se > 9) || (age >= 4 && se > 8) || threeAbsCyl(absCyl)) {
+        if (BigDecimalUtil.lessThanAndEqual(nakedVision, "4.5") || threeSE(se) || (age < 4 && BigDecimalUtil.moreThan(se, "9")) || (age >= 4 && BigDecimalUtil.moreThan(se, "8")) || threeAbsCyl(absCyl)) {
             return WarningLevel.THREE;
         }
         return null;
@@ -605,22 +609,25 @@ public class StatUtil {
      * @param nakedVision 裸眼视力
      * @return {@link WarningLevel}
      */
-    private WarningLevel between6And7GetLevel(Float cyl, Float spn, Float nakedVision) {
-        float se = getSphericalEquivalent(spn, cyl);
-        float absCyl = Math.abs(cyl);
-        if (se > 0 && se <= 1) {
+    private WarningLevel between6And7GetLevel(BigDecimal cyl, BigDecimal spn, BigDecimal nakedVision) {
+        BigDecimal se = getSphericalEquivalent(spn, cyl);
+        BigDecimal absCyl = cyl.abs();
+        if (Objects.isNull(se)) {
+            return null;
+        }
+        if (BigDecimalUtil.isBetweenRight(se, "0", "1")) {
             return WarningLevel.ZERO_SP;
         }
-        if ((nakedVision > 4.8 && nakedVision < 5) || zeroSE(se) || zeroAbsCyl(absCyl)) {
+        if (BigDecimalUtil.isBetweenNo(nakedVision, "4.8", "5") || zeroSE(se) || zeroAbsCyl(absCyl)) {
             return WarningLevel.ZERO;
         }
-        if ((nakedVision <= 4.8 && nakedVision > 4.7) || oneSE(se) || (se > 1.5 && se <= 4.5) || oneAbsCyl(absCyl)) {
+        if (BigDecimalUtil.isBetweenRight(nakedVision, "4.7", "4.8") || oneSE(se) || BigDecimalUtil.isBetweenRight(se, "1.5", "4.5") || oneAbsCyl(absCyl)) {
             return WarningLevel.ONE;
         }
-        if ((nakedVision <= 4.6 && nakedVision > 4.5) || twoSE(se) || (se > 4.5 && se <= 7.5) || twoAbsCyl(absCyl)) {
+        if (BigDecimalUtil.isBetweenRight(nakedVision, "4.5", "4.6") || twoSE(se) || BigDecimalUtil.isBetweenRight(se, "4.5", "7.5") || twoAbsCyl(absCyl)) {
             return WarningLevel.TWO;
         }
-        if ((nakedVision <= 4.5) || threeSE(se) || (se > 7.5) || threeAbsCyl(absCyl)) {
+        if ((BigDecimalUtil.lessThanAndEqual(nakedVision, "4.5")) || threeSE(se) || BigDecimalUtil.moreThan(se, "7.5") || threeAbsCyl(absCyl)) {
             return WarningLevel.THREE;
         }
         return null;
@@ -634,19 +641,22 @@ public class StatUtil {
      * @param nakedVision 裸眼视力
      * @return {@link WarningLevel}
      */
-    private WarningLevel moreThan8GetLevel(Float cyl, Float spn, Float nakedVision) {
-        float se = getSphericalEquivalent(spn, cyl);
-        float absCyl = Math.abs(cyl);
-        if ((nakedVision > 4.9 && nakedVision < 5) || zeroSE(se) || zeroAbsCyl(absCyl)) {
+    private WarningLevel moreThan8GetLevel(BigDecimal cyl, BigDecimal spn, BigDecimal nakedVision) {
+        BigDecimal se = getSphericalEquivalent(spn, cyl);
+        if (Objects.isNull(se)) {
+            return null;
+        }
+        BigDecimal absCyl = cyl.abs();
+        if (BigDecimalUtil.isBetweenNo(nakedVision, "4.9", "5") || zeroSE(se) || zeroAbsCyl(absCyl)) {
             return WarningLevel.ZERO;
         }
-        if ((nakedVision <= 4.9 && nakedVision > 4.7) || oneSE(se) || (se > 0.5 && se <= 3) || oneAbsCyl(absCyl)) {
+        if (BigDecimalUtil.isBetweenRight(nakedVision, "4.7", "4.9") || oneSE(se) || (BigDecimalUtil.isBetweenRight(se, "0.5", "3")) || oneAbsCyl(absCyl)) {
             return WarningLevel.ONE;
         }
-        if ((nakedVision <= 4.7 && nakedVision > 4.5) || twoSE(se) || (se > 3 && se <= 6) || twoAbsCyl(absCyl)) {
+        if (BigDecimalUtil.isBetweenRight(nakedVision, "4.5", "4.7") || twoSE(se) || (BigDecimalUtil.isBetweenRight(se, "3", "6")) || twoAbsCyl(absCyl)) {
             return WarningLevel.TWO;
         }
-        if ((nakedVision <= 4.5) || threeSE(se) || (se > 6) || threeAbsCyl(absCyl)) {
+        if (BigDecimalUtil.lessThanAndEqual(nakedVision, "4.5") || threeSE(se) || (BigDecimalUtil.moreThan(se, "6") || threeAbsCyl(absCyl))) {
             return WarningLevel.THREE;
         }
         return null;
@@ -658,8 +668,8 @@ public class StatUtil {
      * @param se 等效球镜
      * @return 是否满足条件
      */
-    private boolean zeroSE(Float se) {
-        return ((se >= -0.5 && se <= -0.25));
+    private boolean zeroSE(BigDecimal se) {
+        return (BigDecimalUtil.isBetweenRight(se, "-0.5", "-0.25"));
     }
 
     /**
@@ -668,8 +678,8 @@ public class StatUtil {
      * @param se 等效球镜
      * @return 是否满足条件
      */
-    private boolean oneSE(Float se) {
-        return ((se >= -3.0 && se < -0.5));
+    private boolean oneSE(BigDecimal se) {
+        return BigDecimalUtil.isBetweenRight(se, "-3", "-0.5");
     }
 
     /**
@@ -678,8 +688,8 @@ public class StatUtil {
      * @param se 等效球镜
      * @return 是否满足条件
      */
-    private boolean twoSE(Float se) {
-        return (se >= -6.0 && se < -3);
+    private boolean twoSE(BigDecimal se) {
+        return BigDecimalUtil.isBetweenRight(se, "-6", "-3");
     }
 
     /**
@@ -688,8 +698,8 @@ public class StatUtil {
      * @param se 等效球镜
      * @return 是否满足条件
      */
-    private boolean threeSE(Float se) {
-        return (se < -6);
+    private boolean threeSE(BigDecimal se) {
+        return BigDecimalUtil.lessThan(se, "-6");
     }
 
     /**
@@ -698,8 +708,8 @@ public class StatUtil {
      * @param absCyl 绝对柱镜
      * @return 是否满足条件
      */
-    private boolean zeroAbsCyl(Float absCyl) {
-        return (absCyl >= 0.25 && absCyl < 0.5);
+    private boolean zeroAbsCyl(BigDecimal absCyl) {
+        return BigDecimalUtil.isBetweenLeft(absCyl, "0.25", "0.5");
     }
 
     /**
@@ -708,8 +718,8 @@ public class StatUtil {
      * @param absCyl 绝对柱镜
      * @return 是否满足条件
      */
-    private boolean oneAbsCyl(Float absCyl) {
-        return (absCyl >= 0.5 && absCyl <= 2);
+    private boolean oneAbsCyl(BigDecimal absCyl) {
+        return BigDecimalUtil.isBetweenAll(absCyl, "0.5", "2");
     }
 
     /**
@@ -718,8 +728,8 @@ public class StatUtil {
      * @param absCyl 绝对柱镜
      * @return 是否满足条件
      */
-    private boolean twoAbsCyl(Float absCyl) {
-        return (absCyl > 2 && absCyl <= 4);
+    private boolean twoAbsCyl(BigDecimal absCyl) {
+        return BigDecimalUtil.isBetweenRight(absCyl, "2", "4");
     }
 
     /**
@@ -728,7 +738,7 @@ public class StatUtil {
      * @param absCyl 绝对柱镜
      * @return 是否满足条件
      */
-    private boolean threeAbsCyl(Float absCyl) {
-        return (absCyl > 4);
+    private boolean threeAbsCyl(BigDecimal absCyl) {
+        return BigDecimalUtil.moreThan(absCyl, "4");
     }
 }
