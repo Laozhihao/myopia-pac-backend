@@ -45,11 +45,15 @@ public interface ParentReportConst {
     /**
      * 标签-中度
      */
-
     Integer LABEL_MODERATE = 7;
 
     /**
      * 标签-重度
      */
     Integer LABEL_SEVERE = 8;
+
+    /**
+     * 标签-远视储备不足
+     */
+    Integer LABEL_NORMAL_SP = 9;
 }
