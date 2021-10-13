@@ -614,7 +614,7 @@ public class ScreeningResultUtil {
      */
     public static BigDecimal calculationSE(BigDecimal sph, BigDecimal cyl) {
         return sph.add(cyl.multiply(new BigDecimal("0.5")))
-                .setScale(2, BigDecimal.ROUND_HALF_UP);
+                .setScale(2, RoundingMode.HALF_UP);
     }
 
     /**
@@ -637,7 +637,7 @@ public class ScreeningResultUtil {
      */
     public static TwoTuple<String, Integer> getSphTypeName(BigDecimal sph, BigDecimal cyl, Integer age) {
         BigDecimal se = calculationSE(sph, cyl);
-        BigDecimal seVal = se.abs().multiply(new BigDecimal("100")).setScale(0, BigDecimal.ROUND_DOWN);
+        BigDecimal seVal = se.abs().multiply(new BigDecimal("100")).setScale(0, RoundingMode.DOWN);
         if (sph.compareTo(new BigDecimal("0.00")) <= 0) {
             // 近视
             WarningLevel myopiaWarningLevel = StatUtil.getMyopiaWarningLevel(sph.floatValue(), cyl.floatValue());
@@ -807,10 +807,10 @@ public class ScreeningResultUtil {
      * @return 医生建议
      */
     public String middleAdviceResult(BigDecimal leftNakedVision, BigDecimal rightNakedVision,
-                                      BigDecimal leftCorrectedVision, BigDecimal rightCorrectedVision,
-                                      BigDecimal leftSph, BigDecimal rightSph,
-                                      BigDecimal leftCyl, BigDecimal rightCyl,
-                                      Integer glassesType, Integer age) {
+                                     BigDecimal leftCorrectedVision, BigDecimal rightCorrectedVision,
+                                     BigDecimal leftSph, BigDecimal rightSph,
+                                     BigDecimal leftCyl, BigDecimal rightCyl,
+                                     Integer glassesType, Integer age) {
 
         TwoTuple<BigDecimal, Integer> nakedVisionResult = getResultVision(leftNakedVision, rightNakedVision);
         BigDecimal leftSe = calculationSE(leftSph, leftCyl);
@@ -1043,28 +1043,22 @@ public class ScreeningResultUtil {
             return null;
         }
         // 如果都满足，则取等效球镜低的一个
-        if (BigDecimalUtil.isAllLessThan(leftNakedVision, rightNakedVision, targetVision)) {
-            if (BigDecimalUtil.lessThanAndEqual(leftSe, rightSe)) {
-                if (checkAgeAndNakedVision(age, leftNakedVision)) {
-                    return new ThreeTuple<>(leftSe, leftCyl, anisometropia);
-                }
-            } else {
-                if (checkAgeAndNakedVision(age, rightNakedVision)) {
-                    return new ThreeTuple<>(rightSe, rightCyl, anisometropia);
-                }
-            }
-        }
-        if (BigDecimalUtil.lessThanAndEqual(leftNakedVision, rightNakedVision)) {
-            if (BigDecimalUtil.lessThanAndEqual(leftNakedVision, targetVision)) {
-                if (checkAgeAndNakedVision(age, leftNakedVision)) {
-                    return new ThreeTuple<>(leftSe, leftCyl, anisometropia);
-                }
+        if (BigDecimalUtil.isAllLessThan(leftNakedVision, rightNakedVision, targetVision) && BigDecimalUtil.lessThanAndEqual(leftSe, rightSe)) {
+            if (checkAgeAndNakedVision(age, leftNakedVision)) {
+                return new ThreeTuple<>(leftSe, leftCyl, anisometropia);
             }
         } else {
-            if (BigDecimalUtil.lessThanAndEqual(rightNakedVision, targetVision)) {
-                if (checkAgeAndNakedVision(age, rightNakedVision)) {
-                    return new ThreeTuple<>(rightSe, rightCyl, anisometropia);
-                }
+            if (checkAgeAndNakedVision(age, rightNakedVision)) {
+                return new ThreeTuple<>(rightSe, rightCyl, anisometropia);
+            }
+        }
+        if (BigDecimalUtil.lessThanAndEqual(leftNakedVision, rightNakedVision) && BigDecimalUtil.lessThanAndEqual(leftNakedVision, targetVision)) {
+            if (checkAgeAndNakedVision(age, leftNakedVision)) {
+                return new ThreeTuple<>(leftSe, leftCyl, anisometropia);
+            }
+        } else {
+            if (BigDecimalUtil.lessThanAndEqual(rightNakedVision, targetVision) && checkAgeAndNakedVision(age, rightNakedVision)) {
+                return new ThreeTuple<>(rightSe, rightCyl, anisometropia);
             }
         }
         return null;
