@@ -216,7 +216,7 @@ public class UserController {
      * @param user 用户数据
      * @return com.wupol.myopia.oauth.sdk.domain.response.User
      **/
-    @PutMapping("/oauth/user/status/batch")
+    @PutMapping("/status/batch")
     public boolean updateUserStatusBatch(@RequestBody UserDTO user) {
         Assert.isTrue(Objects.nonNull(user) && !CollectionUtils.isEmpty(user.getUserIds()), "用户Id不能为空");
         return userService.updateBatchById(user.getUserIds().stream().map(userId -> new User().setId(userId).setStatus(user.getStatus())).collect(Collectors.toList()));
