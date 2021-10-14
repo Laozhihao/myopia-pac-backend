@@ -216,6 +216,11 @@ public class SchoolVisionStatistic implements Serializable {
     private Integer myopiaLevelHigh;
 
     /**
+     * 高度近视人数
+     */
+    private Integer myopiaLevelInsufficient;
+
+    /**
      * 视力情况--更新时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

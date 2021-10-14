@@ -60,7 +60,8 @@ public class SchoolVisionStatisticBuilder {
                 .setPlanScreeningNumbers(planScreeningNumbers).setRealScreeningNumbers(realScreeningNumber)
                 .setMyopiaLevelLight(myopiaLevelMap.getOrDefault(WarningLevel.ONE.code,0L).intValue())
                 .setMyopiaLevelMiddle(myopiaLevelMap.getOrDefault(WarningLevel.TWO.code,0L).intValue())
-                .setMyopiaLevelHigh(myopiaLevelMap.getOrDefault(WarningLevel.THREE.code,0L).intValue());
+                .setMyopiaLevelHigh(myopiaLevelMap.getOrDefault(WarningLevel.THREE.code,0L).intValue())
+                .setMyopiaLevelInsufficient(myopiaLevelMap.getOrDefault(WarningLevel.ZERO_SP.code,0L).intValue());
         return statistic;
     }
 }
