@@ -209,6 +209,7 @@ public class SchoolVisionStatistic implements Serializable {
      * 中度近视人数
      */
     private Integer myopiaLevelMiddle;
+
     /**
      * 高度近视人数
      */

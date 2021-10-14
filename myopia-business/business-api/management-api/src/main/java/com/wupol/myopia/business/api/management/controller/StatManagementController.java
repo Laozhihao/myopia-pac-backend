@@ -32,6 +32,7 @@ import com.wupol.myopia.business.core.stat.domain.model.SchoolVisionStatistic;
 import com.wupol.myopia.business.core.stat.service.DistrictVisionStatisticService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.compress.utils.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -319,12 +320,12 @@ public class StatManagementController {
 
     @GetMapping("/triggerAll")
     public void statTaskTriggerAll() {
-        List<Integer> yesterdayScreeningPlanIds = screeningPlanService.list().stream().map(ScreeningPlan::getId).collect(Collectors.toList());
-        if (com.wupol.framework.core.util.CollectionUtils.isEmpty(yesterdayScreeningPlanIds)) {
-            log.info("筛查数据统计：历史无筛查数据，无需统计");
-            return;
-        }
-        scheduledTasksExecutor.statisticByPlanIds(yesterdayScreeningPlanIds);
+//        List<Integer> yesterdayScreeningPlanIds = screeningPlanService.list().stream().map(ScreeningPlan::getId).collect(Collectors.toList());
+//        if (com.wupol.framework.core.util.CollectionUtils.isEmpty(yesterdayScreeningPlanIds)) {
+//            log.info("筛查数据统计：历史无筛查数据，无需统计");
+//            return;
+//        }
+        scheduledTasksExecutor.statisticByPlanIds(com.google.common.collect.Lists.newArrayList(9));
     }
 
     /**
