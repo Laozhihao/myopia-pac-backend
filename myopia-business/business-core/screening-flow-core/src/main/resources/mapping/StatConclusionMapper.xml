@@ -89,7 +89,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, update_time,student_id, is_vision_warning,vision_warning_update_time, age, result_id, screening_org_id, screening_plan_school_student_id,src_screening_notice_id,task_id, plan_id, district_id, school_age, gender, warning_level, vision_l, vision_r, is_low_vision, is_refractive_error, is_myopia, is_hyperopia, is_astigmatism,  is_recommend_visit, is_rescreen, rescreen_error_num, is_valid, create_time, school_id, school_grade_code, school_class_name, myopia_warning_level, naked_vision_warning_level, glasses_type, vision_correction
+        id, update_time,student_id, is_vision_warning,vision_warning_update_time, age, result_id, screening_org_id, screening_plan_school_student_id,src_screening_notice_id,task_id, plan_id, district_id, school_age, gender, warning_level, vision_l, vision_r, is_low_vision, is_refractive_error, is_myopia, is_hyperopia, is_astigmatism,  is_recommend_visit, is_rescreen, rescreen_error_num, is_valid, create_time, school_id, school_grade_code, school_class_name, myopia_warning_level, naked_vision_warning_level, glasses_type, vision_correction,myopia_level
     </sql>
 
     <!-- 通用查询结果列 -->

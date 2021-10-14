@@ -97,6 +97,7 @@ public class StatConclusionBuilder {
         this.setValid();
         this.setRescreenErrorNum();
         this.setWarningVision();
+        this.setMyopiaLevel();
         return statConclusion;
     }
 
@@ -225,6 +226,15 @@ public class StatConclusionBuilder {
 //        if (CollectionUtils.isNotEmpty(warningLevelCodeList)) {
 //            statConclusion.setWarningLevel(Collections.max(warningLevelCodeList));
 //        }
+    }
+
+    /**
+     * 近视等级
+     */
+    private void setMyopiaLevel() {
+        Integer left = StatUtil.getMyopiaLevel(basicData.getLeftSph(), basicData.getLeftCyl());
+        Integer right = StatUtil.getMyopiaLevel(basicData.getRightSph(), basicData.getRightCyl());
+        statConclusion.setMyopiaLevel(StatUtil.getSeriousLevel(left, right));
     }
 
     /**

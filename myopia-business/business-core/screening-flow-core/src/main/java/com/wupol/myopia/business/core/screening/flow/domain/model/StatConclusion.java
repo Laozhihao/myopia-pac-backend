@@ -89,6 +89,11 @@ public class StatConclusion implements Serializable {
     /** 筛查学生ID */
     private Integer studentId;
 
+    /**
+     * 近视预警等级
+     */
+    private Integer myopiaLevel;
+
     /** 创建时间 */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;

@@ -425,7 +425,7 @@ public class StatUtil {
             rightMyopiaLevel = getMyopiaLevel(rightSpn.floatValue(), rightCyl.floatValue());
         }
         if (!ObjectsUtil.allNull(leftMyopiaLevel, rightMyopiaLevel)) {
-            Integer seriousLevel = ScreeningResultUtil.getSeriousLevel(leftMyopiaLevel, rightMyopiaLevel);
+            Integer seriousLevel = getSeriousLevel(leftMyopiaLevel, rightMyopiaLevel);
             if (Objects.nonNull(seriousLevel)) {
                 if (WarningLevel.ONE.code.equals(seriousLevel)) {
                     return VisionLabelsEnum.MILD_MYOPIA.getName();
@@ -469,7 +469,7 @@ public class StatUtil {
         Integer leftHyperopiaLevel = Objects.nonNull(leftLevel) ? leftLevel.code : null;
         Integer rightHyperopiaLevel = Objects.nonNull(rightLevel) ? rightLevel.code : null;
         if (!ObjectsUtil.allNull(leftHyperopiaLevel, rightHyperopiaLevel)) {
-            Integer seriousLevel = ScreeningResultUtil.getSeriousLevel(leftHyperopiaLevel, rightHyperopiaLevel);
+            Integer seriousLevel = getSeriousLevel(leftHyperopiaLevel, rightHyperopiaLevel);
             if (WarningLevel.ONE.code.equals(seriousLevel)) {
                 return VisionLabelsEnum.MILD_HYPEROPIA.getName();
             }
@@ -533,13 +533,7 @@ public class StatUtil {
                                       Integer age) {
         WarningLevel left = getWarningLevel(leftCyl, leftSpn, leftNakedVision, age);
         WarningLevel right = getWarningLevel(rightCyl, rightSpn, rightNakedVision, age);
-        if (ObjectsUtil.allNull(left, right)) {
-            return null;
-        }
-        if (ObjectsUtil.allNotNull(left, right)) {
-            return left.code >= right.code ? left.code : right.code;
-        }
-        return Objects.isNull(left) ? right.code : left.code;
+        return getSeriousLevel(Objects.nonNull(left) ? left.code : null, Objects.nonNull(right) ? right.code : null);
     }
 
     /**
@@ -740,5 +734,23 @@ public class StatUtil {
      */
     private boolean threeAbsCyl(BigDecimal absCyl) {
         return BigDecimalUtil.moreThan(absCyl, "4");
+    }
+
+    /**
+     * 取严重的等级
+     *
+     * @param leftLevel  左眼视力
+     * @param rightLevel 右眼视力
+     * @return 视力
+     */
+    public Integer getSeriousLevel(Integer leftLevel, Integer rightLevel) {
+        // 排除远视储备不足
+        if (Objects.isNull(leftLevel) || leftLevel.equals(WarningLevel.ZERO_SP.code)) {
+            return rightLevel;
+        }
+        if (Objects.isNull(rightLevel) || rightLevel.equals(WarningLevel.ZERO_SP.code)) {
+            return leftLevel;
+        }
+        return leftLevel > rightLevel ? leftLevel : rightLevel;
     }
 }

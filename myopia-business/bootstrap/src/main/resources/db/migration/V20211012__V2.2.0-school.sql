@@ -9,3 +9,6 @@ alter table m_school_vision_statistic
 
 alter table m_school_vision_statistic
     add myopia_level_insufficient int null comment '远视储备不足人数' after myopia_level_high;
+
+alter table m_stat_conclusion
+    add myopia_level int null comment '近视预警等级';
