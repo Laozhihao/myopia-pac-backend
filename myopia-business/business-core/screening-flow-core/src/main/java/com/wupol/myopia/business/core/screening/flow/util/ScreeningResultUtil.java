@@ -1432,22 +1432,4 @@ public class ScreeningResultUtil {
         }
         return new TwoTuple<>(leftSE, rightSE);
     }
-
-    /**
-     * 取严重的等级
-     *
-     * @param leftLevel  左眼视力
-     * @param rightLevel 右眼视力
-     * @return 视力
-     */
-    public Integer getSeriousLevel(Integer leftLevel, Integer rightLevel) {
-        // 排除远视储备不足
-        if (Objects.isNull(leftLevel) || leftLevel.equals(WarningLevel.ZERO_SP.code)) {
-            return rightLevel;
-        }
-        if (Objects.isNull(rightLevel) || rightLevel.equals(WarningLevel.ZERO_SP.code)) {
-            return leftLevel;
-        }
-        return leftLevel > rightLevel ? leftLevel : rightLevel;
-    }
 }
