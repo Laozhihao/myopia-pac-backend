@@ -1001,12 +1001,6 @@ public class StudentBizService {
         if (ObjectsUtil.allNull(pupilOptometryData, computerOptometryDO)) {
             return null;
         }
-        // 2021-10-14需求
-//        if (Objects.nonNull(computerOptometryDO)
-//                && Objects.nonNull(computerOptometryDO.getDiagnosis())
-//                && AbstractDiagnosisResult.NORMAL == computerOptometryDO.getDiagnosis()) {
-//            return false;
-//        }
         // 获取视力信息，优先取小瞳验光的数据
         TwoTuple<VisionInfoVO, VisionInfoVO> visionInfo = Objects.nonNull(pupilOptometryData) ?
                 getVisionInfoByPupilOptometryData(pupilOptometryData, age, visionData) : getVisionInfoByComputerOptometryData(computerOptometryDO, age, visionData);
