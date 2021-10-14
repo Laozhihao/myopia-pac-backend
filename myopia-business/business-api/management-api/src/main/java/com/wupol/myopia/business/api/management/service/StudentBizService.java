@@ -29,10 +29,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
-import com.wupol.myopia.business.core.screening.flow.domain.vo.CardDetailsVO;
-import com.wupol.myopia.business.core.screening.flow.domain.vo.CardInfoVO;
-import com.wupol.myopia.business.core.screening.flow.domain.vo.HaiNanCardDetail;
-import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentCardResponseVO;
+import com.wupol.myopia.business.core.screening.flow.domain.vo.*;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.flow.util.ScreeningResultUtil;
@@ -979,6 +976,13 @@ public class StudentBizService {
      **/
     private Boolean setRefractiveErrorInfo(HaiNanCardDetail cardDetail, VisionScreeningResult visionScreeningResult,
                                            Integer age, Integer status) {
+
+        // 2021-10-14需求 获取学生的筛查进度情况
+        StudentScreeningProgressVO studentScreeningProgressVO = screeningPlanSchoolStudentService.getStudentScreeningProgress(visionScreeningResult);
+        // 初筛项目都没有问题，则视为屈光正常
+        if (Boolean.FALSE.equals(studentScreeningProgressVO.getHasAbnormal())) {
+            return false;
+        }
 
         // 幼儿园判断
         VisionDataDO visionData = visionScreeningResult.getVisionData();
