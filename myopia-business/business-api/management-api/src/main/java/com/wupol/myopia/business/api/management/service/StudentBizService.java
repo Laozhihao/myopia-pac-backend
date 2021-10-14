@@ -1080,7 +1080,7 @@ public class StudentBizService {
      */
     private TwoTuple<VisionInfoVO, VisionInfoVO> getVisionInfoByComputerOptometryData(ComputerOptometryDO computerOptometry,
                                                                                       Integer age, VisionDataDO visionDataDO) {
-        if (ObjectsUtil.hasNull(computerOptometry, visionDataDO)) {
+        if (Objects.isNull(computerOptometry) || Objects.isNull(visionDataDO)) {
             return new TwoTuple<>();
         }
         ComputerOptometryDO.ComputerOptometry leftEyeData = computerOptometry.getLeftEyeData();
