@@ -104,15 +104,9 @@ public class StudentScreeningProgressVO {
         // 判断各个检查型的进度状态
         studentScreeningProgressVO.setVisionStatus(getProgress(screeningResult.getVisionData(), true, true));
         studentScreeningProgressVO.setEyePositionStatus(getProgress(screeningResult.getOcularInspectionData(), true,true));
-        Boolean firstCheckAbnormal = false;
-        if (isKindergarten) {
-            firstCheckAbnormal = hasAbnormalInFirstCheck.get();
-        }
+        Boolean firstCheckAbnormal = hasAbnormalInFirstCheck.get();
         studentScreeningProgressVO.setSliLampStatus(getProgress(screeningResult.getSlitLampData(), !isKindergarten, !isKindergarten || firstCheckAbnormal));
         studentScreeningProgressVO.setDiopterStatus(getProgress(screeningResult.getComputerOptometry(), !isKindergarten, !isKindergarten));
-        if (!isKindergarten) {
-            firstCheckAbnormal = hasAbnormalInFirstCheck.get();
-        }
         studentScreeningProgressVO.setPupillaryOptometryStatus(getProgress(screeningResult.getPupilOptometryData(), firstCheckAbnormal));
         studentScreeningProgressVO.setBiometricsStatus(getProgress(screeningResult.getBiometricData(), !isKindergarten && firstCheckAbnormal));
         studentScreeningProgressVO.setPressureStatus(getProgress(screeningResult.getEyePressureData(), !isKindergarten && firstCheckAbnormal));
@@ -120,7 +114,7 @@ public class StudentScreeningProgressVO {
         studentScreeningProgressVO.setOtherStatus(getProgress(screeningResult.getOtherEyeDiseases(), false));
         studentScreeningProgressVO.setResult(isAllMustCheckDone.get());
         studentScreeningProgressVO.setHasAbnormal(hasAbnormalInSubsequentCheck.get() || firstCheckAbnormal);
-        studentScreeningProgressVO.setFirstCheckAbnormal(firstCheckAbnormal);
+        studentScreeningProgressVO.setFirstCheckAbnormal(isKindergarten ? firstCheckAbnormal : hasAbnormalInFirstCheck.get());
         isAllMustCheckDone.remove();
         hasAbnormalInFirstCheck.remove();
         hasAbnormalInSubsequentCheck.remove();
