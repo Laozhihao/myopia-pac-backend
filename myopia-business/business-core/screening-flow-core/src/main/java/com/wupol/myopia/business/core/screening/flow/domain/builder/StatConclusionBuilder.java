@@ -210,8 +210,8 @@ public class StatConclusionBuilder {
             return;
         }
         statConclusion.setWarningLevel(StatUtil.getWarningLevelInt(
-                BigDecimal.valueOf(basicData.getLeftCyl()), BigDecimal.valueOf(basicData.getLeftSph()), BigDecimal.valueOf(basicData.getLeftNakedVision()),
-                BigDecimal.valueOf(basicData.getRightCyl()), BigDecimal.valueOf(basicData.getRightSph()), BigDecimal.valueOf(basicData.getRightNakedVision()),
+                new BigDecimal(basicData.getLeftCyl().toString()), new BigDecimal(basicData.getLeftSph().toString()), new BigDecimal(basicData.getLeftNakedVision().toString()),
+                new BigDecimal(basicData.getRightCyl().toString()), new BigDecimal(basicData.getRightSph().toString()), new BigDecimal(basicData.getRightNakedVision().toString()),
                 basicData.getAge()));
 //        List<WarningLevel> warningLevelList = Arrays.asList(
 //                basicData.leftAstigmatismWarningLevel,
