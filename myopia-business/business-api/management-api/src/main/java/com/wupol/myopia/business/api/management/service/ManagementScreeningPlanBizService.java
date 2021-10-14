@@ -89,7 +89,7 @@ public class ManagementScreeningPlanBizService {
         List<ScreeningNotice> screeningNotices = screeningNoticeBizService.getRelatedNoticeByUser(user);
         Set<Integer> screeningNoticeIds = screeningNotices.stream().map(ScreeningNotice::getId).collect(Collectors.toSet());
         // 筛查机构可以直接创建计划，不需要有通知下发
-        if (user.isScreeningUser()) {
+        if (user.isScreeningUser() || user.isPlatformAdminUser()) {
             screeningNoticeIds.add(ScreeningConstant.NO_EXIST_NOTICE);
         }
         return this.getScreeningPlanByNoticeIdsAndUser(screeningNoticeIds, user);

@@ -31,7 +31,7 @@ public class SchoolVisionStatisticBuilder {
         Integer ametropiaNumber = (int) statConclusions.stream().filter(StatConclusion::getIsRefractiveError).count();
         Integer lowVisionNumber = (int) statConclusions.stream().filter(StatConclusion::getIsLowVision).count();
         // 近视等级人数
-        Map<Integer, Long> myopiaLevelMap = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getMyopiaWarningLevel, Collectors.counting()));
+        Map<Integer, Long> myopiaLevelMap = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getWarningLevel, Collectors.counting()));
         // 预警人群、建议就诊使用所有筛查数据（有效、无效）
         Map<Integer, Long> visionLabelNumberMap = statConclusions.stream().filter(stat -> Objects.nonNull(stat.getWarningLevel())).collect(Collectors.groupingBy(StatConclusion::getWarningLevel, Collectors.counting()));
         Integer visionLabel0Numbers = visionLabelNumberMap.getOrDefault(WarningLevel.ZERO.code, 0L).intValue();
