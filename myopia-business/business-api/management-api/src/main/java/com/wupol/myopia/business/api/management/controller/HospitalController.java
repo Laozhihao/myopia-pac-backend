@@ -81,12 +81,7 @@ public class HospitalController {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         hospital.setCreateUserId(user.getId());
         hospital.setGovDeptId(user.getOrgId());
-        HospitalResponseDTO hospitalResponseDTO = hospitalBizService.updateHospital(hospital);
-        // 若为平台管理员且修改了用户名，则回显账户名
-        if (user.isPlatformAdminUser() && StringUtils.isNotBlank(hospitalResponseDTO.getUsername())) {
-            hospitalResponseDTO.setDisplayUsername(true);
-        }
-        return hospitalResponseDTO;
+        return hospitalBizService.updateHospital(hospital);
     }
 
     /**
