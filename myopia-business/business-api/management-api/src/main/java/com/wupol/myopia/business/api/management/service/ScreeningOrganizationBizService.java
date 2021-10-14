@@ -28,7 +28,6 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningRecordI
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.core.screening.flow.service.*;
-import com.wupol.myopia.business.core.screening.organization.domain.dto.AddAccountDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationQueryDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
@@ -497,17 +496,16 @@ public class ScreeningOrganizationBizService {
     /**
      * 添加账号
      *
-     * @param addAccountDTO 入参
+     * @param screeningOrgId 筛查机构ID
      * @return UsernameAndPasswordDTO
      */
-    public UsernameAndPasswordDTO addAccount(AddAccountDTO addAccountDTO) {
-        Integer orgId = addAccountDTO.getOrgId();
-        ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(orgId);
+    public UsernameAndPasswordDTO addAccount(Integer screeningOrgId) {
+        ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(screeningOrgId);
         if (Objects.isNull(screeningOrganization)) {
             throw new BusinessException("筛查机构异常");
         }
         // 获取该筛查机构已经有多少个账号
-        List<ScreeningOrganizationAdmin> orgList = screeningOrganizationAdminService.getListOrgList(orgId);
+        List<ScreeningOrganizationAdmin> orgList = screeningOrganizationAdminService.getListOrgList(screeningOrgId);
         if (CollectionUtils.isEmpty(orgList)) {
             throw new BusinessException("数据异常");
         }

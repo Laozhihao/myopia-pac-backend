@@ -15,11 +15,9 @@ import com.wupol.myopia.business.core.hospital.domain.model.HospitalAdmin;
 import com.wupol.myopia.business.core.hospital.domain.query.HospitalQuery;
 import com.wupol.myopia.business.core.hospital.service.HospitalAdminService;
 import com.wupol.myopia.business.core.hospital.service.HospitalService;
-import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccountListDTO;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,8 +41,6 @@ public class HospitalBizService {
     @Resource
     private HospitalAdminService hospitalAdminService;
     @Resource
-    private SchoolService schoolService;
-    @Resource
     private DistrictService districtService;
     @Resource
     private GovDeptService govDeptService;
@@ -61,33 +57,18 @@ public class HospitalBizService {
      */
     @Transactional(rollbackFor = Exception.class)
     public HospitalResponseDTO updateHospital(Hospital hospital) {
-
         if (hospitalService.checkHospitalName(hospital.getName(), hospital.getId())) {
             throw new BusinessException("医院名字重复，请确认");
-        }
-
-        HospitalResponseDTO response = new HospitalResponseDTO();
-        Hospital checkHospital = hospitalService.getById(hospital.getId());
-
-        // 医院管理员
-        HospitalAdmin admin = hospitalAdminService.getByHospitalId(hospital.getId());
-
-        // 更新OAuth账号
-        schoolService.updateOAuthName(admin.getUserId(), hospital.getName());
-
-        // 名字更新
-        if (!StringUtils.equals(checkHospital.getName(), hospital.getName())) {
-            response.setUsername(hospital.getName());
         }
         District district = districtService.getById(hospital.getDistrictId());
         hospital.setDistrictProvinceCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
         hospitalService.updateById(hospital);
-        Hospital h = hospitalService.getById(hospital.getId());
-        BeanUtils.copyProperties(h, response);
-        response.setDistrictName(districtService.getDistrictName(h.getDistrictDetail()));
+        Hospital newHospital = hospitalService.getById(hospital.getId());
+        HospitalResponseDTO response = new HospitalResponseDTO();
+        BeanUtils.copyProperties(newHospital, response);
+        response.setDistrictName(districtService.getDistrictName(newHospital.getDistrictDetail()));
         // 行政区域名称
-        response.setAddressDetail(districtService.getAddressDetails(
-                h.getProvinceCode(), h.getCityCode(), h.getAreaCode(), h.getTownCode(), h.getAddress()));
+        response.setAddressDetail(districtService.getAddressDetails(newHospital.getProvinceCode(), newHospital.getCityCode(), newHospital.getAreaCode(), newHospital.getTownCode(), newHospital.getAddress()));
         if (Objects.nonNull(hospital.getAvatarFileId())) {
             response.setAvatarUrl(resourceFileService.getResourcePath(hospital.getAvatarFileId()));
         }

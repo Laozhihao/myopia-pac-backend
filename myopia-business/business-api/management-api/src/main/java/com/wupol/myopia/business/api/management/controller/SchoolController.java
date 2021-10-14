@@ -60,12 +60,12 @@ public class SchoolController {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         school.setCreateUserId(user.getId());
         school.setGovDeptId(user.getOrgId());
-        UsernameAndPasswordDTO nameAndpassword = schoolService.saveSchool(school);
+        UsernameAndPasswordDTO nameAndPassword = schoolService.saveSchool(school);
         // 非平台管理员屏蔽账号密码信息
         if (!user.isPlatformAdminUser()) {
-            nameAndpassword.setNoDisplay();
+            nameAndPassword.setNoDisplay();
         }
-        return nameAndpassword;
+        return nameAndPassword;
     }
 
     /**
@@ -79,12 +79,7 @@ public class SchoolController {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         school.setCreateUserId(user.getId());
         school.setGovDeptId(user.getOrgId());
-        SchoolResponseDTO schoolResponseDTO = schoolBizService.updateSchool(school);
-        // 若为平台管理员且修改了用户名，则回显账户名
-        if (user.isPlatformAdminUser() && StringUtils.isNotBlank(schoolResponseDTO.getUsername())) {
-            schoolResponseDTO.setDisplayUsername(true);
-        }
-        return schoolResponseDTO;
+        return schoolBizService.updateSchool(school);
     }
 
     /**
