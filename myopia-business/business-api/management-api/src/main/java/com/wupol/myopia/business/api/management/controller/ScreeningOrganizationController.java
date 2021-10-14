@@ -21,7 +21,6 @@ import com.wupol.myopia.business.core.hospital.domain.dto.CooperationHospitalReq
 import com.wupol.myopia.business.core.hospital.domain.dto.HospitalResponseDTO;
 import com.wupol.myopia.business.core.hospital.service.OrgCooperationHospitalService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningOrgPlanResponseDTO;
-import com.wupol.myopia.business.core.screening.organization.domain.dto.AddAccountDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccountListDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationQueryDTO;
@@ -316,11 +315,11 @@ public class ScreeningOrganizationController {
     /**
      * 添加用户
      *
-     * @param addAccountDTO 请求入参
+     * @param screeningOrgId 筛查机构ID
      * @return UsernameAndPasswordDTO
      */
-    @PostMapping("/add/account")
-    public UsernameAndPasswordDTO addAccount(@RequestBody AddAccountDTO addAccountDTO) {
-        return screeningOrganizationBizService.addAccount(addAccountDTO);
+    @PostMapping("/add/account/{screeningOrgId}")
+    public UsernameAndPasswordDTO addAccount(@PathVariable("screeningOrgId") Integer screeningOrgId) {
+        return screeningOrganizationBizService.addAccount(screeningOrgId);
     }
 }
