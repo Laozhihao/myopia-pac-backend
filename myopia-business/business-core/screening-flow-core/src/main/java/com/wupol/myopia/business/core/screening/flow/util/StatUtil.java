@@ -96,7 +96,7 @@ public class StatUtil {
      * @return
      */
     public static boolean isRecommendVisit(Float nakedVision, Float sphere, Float cylinder,
-                                           Boolean isWearingGlasses, Float correctVision, Integer age, SchoolAge schoolAge) {
+                                           boolean isWearingGlasses, Float correctVision, Integer age, SchoolAge schoolAge) {
         if (nakedVision == null) {
             return false;
         }
@@ -107,7 +107,7 @@ public class StatUtil {
 
         if (nakedVision < 4.9) {
             if (isWearingGlasses) {
-                return correctVision < 4.9;
+                return Objects.nonNull(correctVision) && correctVision < 4.9;
             } else {
 
                 if (schoolAge == null || se == null) {
