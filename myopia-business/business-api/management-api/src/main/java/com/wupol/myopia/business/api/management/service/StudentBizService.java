@@ -980,7 +980,7 @@ public class StudentBizService {
         // 2021-10-14需求 获取学生的筛查进度情况
         StudentScreeningProgressVO studentScreeningProgressVO = screeningPlanSchoolStudentService.getStudentScreeningProgress(visionScreeningResult);
         // 初筛项目都没有问题，则视为屈光正常
-        if (Boolean.FALSE.equals(studentScreeningProgressVO.getHasAbnormal())) {
+        if (Boolean.FALSE.equals(studentScreeningProgressVO.getFirstCheckAbnormal())) {
             return false;
         }
 
