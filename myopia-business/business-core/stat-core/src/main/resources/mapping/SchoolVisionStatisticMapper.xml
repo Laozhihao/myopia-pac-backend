@@ -61,6 +61,9 @@
                     #{realScreeningNumbers}
                 </if>
                 <if test="@Ognl@isNotEmpty(validScreeningNumbers)">and `valid_screening_numbers` = #{validScreeningNumbers}</if>
+                <if test="@Ognl@isNotEmpty(myopiaLevelLight)">and `myopia_level_light` = #{myopiaLevelLight}</if>
+                <if test="@Ognl@isNotEmpty(myopiaLevelMiddle)">and `myopia_level_middle` = #{myopiaLevelMiddle}</if>
+                <if test="@Ognl@isNotEmpty(myopiaLevelHigh)">and `myopia_level_high` = #{myopiaLevelHigh}</if>
                 <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
             </trim>
@@ -69,7 +72,13 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, school_id, school_name, school_type, focus_targets_numbers, screening_org_name, screening_notice_id, screening_task_id,screening_org_id,screening_plan_id, district_id, avg_left_vision, avg_right_vision, low_vision_numbers, low_vision_ratio, wearing_glasses_numbers, wearing_glasses_ratio, myopia_numbers, myopia_ratio, ametropia_numbers, ametropia_ratio, vision_label0_numbers, vision_label0_ratio, vision_label1_numbers, vision_label1_ratio, vision_label2_numbers, vision_label2_ratio, vision_label3_numbers, vision_label3_ratio, key_warning_numbers, treatment_advice_numbers, treatment_advice_ratio, plan_screening_numbers, real_screening_numbers, valid_screening_numbers, update_time, create_time
+        id, school_id, school_name, school_type, focus_targets_numbers, screening_org_name, screening_notice_id, screening_task_id,
+        screening_org_id,screening_plan_id, district_id, avg_left_vision, avg_right_vision, low_vision_numbers, low_vision_ratio,
+        wearing_glasses_numbers, wearing_glasses_ratio, myopia_numbers, myopia_ratio, ametropia_numbers, ametropia_ratio,
+        vision_label0_numbers, vision_label0_ratio, vision_label1_numbers, vision_label1_ratio, vision_label2_numbers, vision_label2_ratio,
+        vision_label3_numbers, vision_label3_ratio, key_warning_numbers, treatment_advice_numbers, treatment_advice_ratio,
+        plan_screening_numbers, real_screening_numbers, valid_screening_numbers, myopia_level_light,myopia_level_middle,myopia_level_high,
+        update_time, create_time
     </sql>
 
     <insert id="batchSaveOrUpdate">
