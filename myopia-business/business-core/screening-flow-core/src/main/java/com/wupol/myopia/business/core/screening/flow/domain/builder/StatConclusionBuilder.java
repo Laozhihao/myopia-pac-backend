@@ -209,23 +209,11 @@ public class StatConclusionBuilder {
             statConclusion.setWarningLevel(WarningLevel.NORMAL.code);
             return;
         }
-        statConclusion.setWarningLevel(StatUtil.getWarningLevelInt(
+        Integer warningLevelInt = StatUtil.getWarningLevelInt(
                 new BigDecimal(basicData.getLeftCyl().toString()), new BigDecimal(basicData.getLeftSph().toString()), new BigDecimal(basicData.getLeftNakedVision().toString()),
                 new BigDecimal(basicData.getRightCyl().toString()), new BigDecimal(basicData.getRightSph().toString()), new BigDecimal(basicData.getRightNakedVision().toString()),
-                basicData.getAge()));
-//        List<WarningLevel> warningLevelList = Arrays.asList(
-//                basicData.leftAstigmatismWarningLevel,
-//                basicData.rightAstigmatismWarningLevel,
-//                basicData.leftHyperopiaWarningLevel,
-//                basicData.rightHyperopiaWarningLevel,
-//                basicData.leftMyopiaWarningLevel,
-//                basicData.rightMyopiaWarningLevel,
-//                basicData.rightNakedVisionWarningLevel,
-//                basicData.leftNakedVisionWarningLevel);
-//        List<Integer> warningLevelCodeList = warningLevelList.stream().filter(Objects::nonNull).map(warningLevel -> warningLevel.code).collect(Collectors.toList());
-//        if (CollectionUtils.isNotEmpty(warningLevelCodeList)) {
-//            statConclusion.setWarningLevel(Collections.max(warningLevelCodeList));
-//        }
+                basicData.getAge());
+        statConclusion.setWarningLevel(warningLevelInt);
     }
 
     /**
