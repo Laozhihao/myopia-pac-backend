@@ -38,6 +38,7 @@ public class SchoolVisionStatisticBuilder {
         Integer visionLabel1Numbers = visionLabelNumberMap.getOrDefault(WarningLevel.ONE.code, 0L).intValue();
         Integer visionLabel2Numbers = visionLabelNumberMap.getOrDefault(WarningLevel.TWO.code, 0L).intValue();
         Integer visionLabel3Numbers = visionLabelNumberMap.getOrDefault(WarningLevel.THREE.code, 0L).intValue();
+        Integer visionLabelZeroSPNumbers = visionLabelNumberMap.getOrDefault(WarningLevel.ZERO_SP.code, 0L).intValue();
         Integer keyWarningNumbers = visionLabel0Numbers + visionLabel1Numbers + visionLabel2Numbers + visionLabel3Numbers;
         Integer treatmentAdviceNumber = (int) statConclusions.stream().filter(StatConclusion::getIsRecommendVisit).count();
         double avgLeftVision = statConclusions.stream().mapToDouble(StatConclusion::getVisionL).average().orElse(0);
@@ -61,7 +62,7 @@ public class SchoolVisionStatisticBuilder {
                 .setMyopiaLevelLight(myopiaLevelMap.getOrDefault(WarningLevel.ONE.code,0L).intValue())
                 .setMyopiaLevelMiddle(myopiaLevelMap.getOrDefault(WarningLevel.TWO.code,0L).intValue())
                 .setMyopiaLevelHigh(myopiaLevelMap.getOrDefault(WarningLevel.THREE.code,0L).intValue())
-                .setMyopiaLevelInsufficient(myopiaLevelMap.getOrDefault(WarningLevel.ZERO_SP.code,0L).intValue());
+                .setMyopiaLevelInsufficient(visionLabelZeroSPNumbers);
         return statistic;
     }
 }
