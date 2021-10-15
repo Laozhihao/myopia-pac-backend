@@ -113,7 +113,7 @@ public class StudentBizService {
                 studentQueryDTO, conditionalFilter);
         List<StudentDTO> students = pageStudents.getRecords();
 
-        // 为空直接放回
+        // 为空直接返回
         if (CollectionUtils.isEmpty(students)) {
             return pageStudents;
         }
@@ -142,12 +142,8 @@ public class StudentBizService {
             student.setScreeningCount(countMaps.getOrDefault(student.getId(), 0));
             // 筛查码
             student.setScreeningCodes(getScreeningCodesByPlan(studentPlans.get(student.getId())));
-            if (Objects.nonNull(visitMap.get(student.getId()))) {
-                // 就诊次数
-                student.setNumOfVisits(visitMap.get(student.getId()).size());
-            } else {
-                student.setNumOfVisits(0);
-            }
+            // 就诊次数
+            student.setNumOfVisits(Objects.nonNull(visitMap.get(student.getId())) ? visitMap.get(student.getId()).size() : 0);
             // 问卷次数
             student.setQuestionnaireCount(0);
         }

@@ -135,7 +135,7 @@ public class School extends AddressCode implements Serializable, HasName {
     private String createUser;
 
     /**
-     * 创建人
+     * 所属区/县行政区域编号
      */
     private Long districtAreaCode;
 

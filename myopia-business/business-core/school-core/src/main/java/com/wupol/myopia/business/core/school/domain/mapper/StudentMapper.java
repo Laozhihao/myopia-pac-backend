@@ -23,7 +23,8 @@ public interface StudentMapper extends BaseMapper<Student> {
                                                 @Param("name") String name, @Param("parentPhone") String parentPhone,
                                                 @Param("gender") Integer gender, @Param("gradeIds") List<Integer> gradeIds,
                                                 @Param("visionLabels") List<Integer> visionLabels, @Param("startScreeningTime") Date startScreeningTime,
-                                                @Param("endScreeningTime") Date endScreeningTime, @Param("schoolName") String schoolName);
+                                                @Param("endScreeningTime") Date endScreeningTime, @Param("schoolName") String schoolName,
+                                                @Param("schoolId") Integer schoolId, @Param("gradeId") Integer gradeId, @Param("classId") Integer classId);
 
     List<Student> getByQuery(StudentQueryDTO query);
 

@@ -19,6 +19,7 @@ import com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentCountDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolAdmin;
+import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.SchoolAdminService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
@@ -136,7 +137,11 @@ public class SchoolBizService {
         SchoolResponseDTO responseDTO = new SchoolResponseDTO();
         School school = schoolService.getById(id);
         BeanUtils.copyProperties(school, responseDTO);
+        // 填充地址
         responseDTO.setAddressDetail(districtService.getAddressDetails(school.getProvinceCode(), school.getCityCode(), school.getAreaCode(), school.getTownCode(), school.getAddress()));
+        int studentCount = studentService.count(new Student().setSchoolNo(school.getSchoolNo()));
+        // 统计学生数
+        responseDTO.setStudentCount(studentCount);
         return responseDTO;
     }
 
