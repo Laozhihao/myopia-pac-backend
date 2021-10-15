@@ -69,12 +69,4 @@ public class StudentQueryDTO extends StudentExtraDTO {
      * 学校ID
      */
     private Integer schoolId;
-    /**
-     * 年级ID
-     */
-    private Integer gradeId;
-    /**
-     * 班级ID
-     */
-    private Integer classId;
 }
