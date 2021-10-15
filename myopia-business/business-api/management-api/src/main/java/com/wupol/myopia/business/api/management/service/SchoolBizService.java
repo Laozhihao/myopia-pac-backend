@@ -136,8 +136,7 @@ public class SchoolBizService {
         SchoolResponseDTO responseDTO = new SchoolResponseDTO();
         School school = schoolService.getById(id);
         BeanUtils.copyProperties(school, responseDTO);
-        responseDTO.setAddressDetail(districtService.getAddressDetails(
-                school.getProvinceCode(), school.getCityCode(), school.getAreaCode(), school.getTownCode(), school.getAddress()));
+        responseDTO.setAddressDetail(districtService.getAddressDetails(school.getProvinceCode(), school.getCityCode(), school.getAreaCode(), school.getTownCode(), school.getAddress()));
         return responseDTO;
     }
 

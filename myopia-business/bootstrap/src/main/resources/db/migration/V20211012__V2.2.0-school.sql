@@ -1,0 +1,9 @@
+
+-- 更新学校表
+UPDATE m_school SET district_detail = '[]' WHERE school_no = '1234567890';
+ALTER TABLE `m_school`
+  MODIFY COLUMN `district_detail` json NOT NULL COMMENT '行政区域json',
+  ADD COLUMN `district_area_code` bigint(20) DEFAULT NULL COMMENT '行政区域-区/县code（含省市）',
+  ADD COLUMN `area_type` tinyint(1) COMMENT '片区：1好片、2中片、3差片',
+  ADD COLUMN `monitor_type` tinyint(1) COMMENT '监测点：1城区、2郊县',
+  ADD INDEX `m_school_district_area_code_area_type_monitor_type_index`(`district_area_code`, `area_type`, `monitor_type`) USING BTREE;
