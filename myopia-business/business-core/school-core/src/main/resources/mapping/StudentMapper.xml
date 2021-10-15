@@ -47,6 +47,7 @@
                 <if test="@Ognl@isNotEmpty(status)">and `isAstigmatism` = #{status}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
                 <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
+                <if test="@Ognl@isNotEmpty(schoolId)">and `school_id` = #{schoolId}</if>
 
                 <!-- 模糊查询 -->
                 <if test="nameLike != null">and `name` like CONCAT("%",#{nameLike},"%")</if>
@@ -65,7 +66,8 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, school_no, create_user_id, sno, grade_id, grade_type, class_id, name, gender, birthday, nation, id_card, parent_phone, mp_parent_phone, province_code, city_code, area_code, town_code, address, avatar_file_id, current_situation, vision_label, last_screening_time, remark, status, glasses_type,is_myopia,is_hyperopia,is_astigmatism,create_time, update_time
+        id, school_no, create_user_id, sno, grade_id, grade_type, class_id, name, gender, birthday, nation, id_card, parent_phone, mp_parent_phone, province_code, city_code, area_code, town_code, address,
+        avatar_file_id, current_situation, vision_label, last_screening_time, remark, status, glasses_type,is_myopia,is_hyperopia,is_astigmatism,create_time, update_time, school_id
     </sql>
 
     <select id="getStudentListByCondition" resultMap="BaseResultMapDTO">
@@ -99,6 +101,15 @@
         </if>
         <if test="gender != null">
             and ms.gender = #{gender}
+        </if>
+        <if test="schoolId != null">
+            and ms.school_id = #{schoolId}
+        </if>
+        <if test="gradeId != null">
+            and ms.grade_id = #{gradeId}
+        </if>
+        <if test="classId != null">
+            and ms.class_id = #{classId}
         </if>
         <if test="gradeIds != null and gradeIds.size() != 0">
             and ms.grade_id in

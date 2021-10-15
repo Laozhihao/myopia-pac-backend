@@ -72,20 +72,16 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      */
     @Transactional(rollbackFor = Exception.class)
     public UsernameAndPasswordDTO saveSchool(School school) {
-
-        Integer createUserId = school.getCreateUserId();
-        String schoolNo = school.getSchoolNo();
-        if (StringUtils.isBlank(schoolNo)) {
-            throw new BusinessException("数据异常");
-        }
-
+        Assert.hasLength(school.getSchoolNo(), "学校编号不能为空");
+        Assert.notNull(school.getDistrictId(), "行政区域ID不能为空");
         if (checkSchoolName(school.getName(), null)) {
             throw new BusinessException("学校名称重复，请确认");
         }
         District district = districtService.getById(school.getDistrictId());
+        Assert.notNull(district, "无效行政区域");
         school.setDistrictProvinceCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
         baseMapper.insert(school);
-        initGradeAndClass(school.getId(), school.getType(), createUserId);
+        initGradeAndClass(school.getId(), school.getType(), school.getCreateUserId());
         return generateAccountAndPassword(school);
     }
 
