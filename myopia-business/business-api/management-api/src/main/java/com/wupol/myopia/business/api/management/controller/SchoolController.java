@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
@@ -28,6 +29,8 @@ import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.ValidationException;
 import javax.validation.constraints.Max;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.List;
 
@@ -263,12 +266,12 @@ public class SchoolController {
     }
 
     @GetMapping("/getLatestSchoolNo")
-    public String getLatestSchoolNo(@Length(min = 9, max = 9, message = "无效districtAreaCode") String districtAreaCode,
-                                   @Max(value = 3, message = "无效areaType") Integer areaType,
-                                   @Max(value = 3, message = "无效monitorType") Integer monitorType) {
+    public ApiResult getLatestSchoolNo(@NotBlank(message = "districtAreaCode不能为空") @Length(min = 9, max = 9, message = "无效districtAreaCode") String districtAreaCode,
+                                       @NotNull(message = "areaType不能为空") @Max(value = 3, message = "无效areaType") Integer areaType,
+                                       @NotNull(message = "monitorType不能为空") @Max(value = 3, message = "无效monitorType") Integer monitorType) {
         List<School> schoolList = schoolService.findByList(new School().setDistrictAreaCode(Long.valueOf(districtAreaCode)));
         String schoolNo = districtAreaCode.substring(0, 4) + areaType + districtAreaCode.substring(4, 6) + monitorType;
         String size = String.format("%02d", schoolList.size() + 1);
-        return schoolNo + size;
+        return ApiResult.success(schoolNo + size);
     }
 }
