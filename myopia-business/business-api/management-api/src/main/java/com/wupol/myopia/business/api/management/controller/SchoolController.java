@@ -20,12 +20,14 @@ import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccountListDTO;
-import org.apache.commons.lang3.StringUtils;
+import org.hibernate.validator.constraints.Length;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.ValidationException;
+import javax.validation.constraints.Max;
 import java.io.IOException;
 import java.util.List;
 
@@ -34,6 +36,7 @@ import java.util.List;
  *
  * @author Simple4H
  */
+@Validated
 @ResponseResultBody
 @CrossOrigin
 @RestController
@@ -257,5 +260,15 @@ public class SchoolController {
     @PostMapping("/add/account/{schoolId}")
     public UsernameAndPasswordDTO addAccount(@PathVariable("schoolId") Integer schoolId) {
         return schoolBizService.addSchoolAdminUserAccount(schoolId);
+    }
+
+    @GetMapping("/getLatestSchoolNo")
+    public String getLatestSchoolNo(@Length(min = 9, max = 9, message = "无效districtAreaCode") String districtAreaCode,
+                                   @Max(value = 3, message = "无效areaType") Integer areaType,
+                                   @Max(value = 3, message = "无效monitorType") Integer monitorType) {
+        List<School> schoolList = schoolService.findByList(new School().setDistrictAreaCode(Long.valueOf(districtAreaCode)));
+        String schoolNo = districtAreaCode.substring(0, 4) + areaType + districtAreaCode.substring(4, 6) + monitorType;
+        String size = String.format("%02d", schoolList.size() + 1);
+        return schoolNo + size;
     }
 }
