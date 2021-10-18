@@ -2,7 +2,6 @@ package com.wupol.myopia.business.core.screening.flow.util;
 
 import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.ObjectsUtil;
-import com.wupol.framework.core.util.StringUtils;
 import com.wupol.framework.domain.ThreeTuple;
 import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.base.util.DateFormatUtil;
@@ -67,10 +66,10 @@ public class ScreeningResultUtil {
         BigDecimal rightSph = computerOptometry.getRightEyeData().getSph();
         BigDecimal rightCyl = computerOptometry.getRightEyeData().getCyl();
 
-        return packageDoctorAdvice(leftNakedVision, rightNakedVision,
+        return getDoctorAdvice(leftNakedVision, rightNakedVision,
                 leftCorrectedVision, rightCorrectedVision,
                 leftSph, rightSph, leftCyl, rightCyl,
-                glassesType, gradeType, age, otherEyeDiseasesNormal);
+                glassesType, gradeType, age, otherEyeDiseasesNormal).getAdvice();
     }
 
     /**
@@ -844,11 +843,11 @@ public class ScreeningResultUtil {
      * @param otherEyeDiseasesNormal 是否有其他眼病
      * @return 医生建议
      */
-    public static String packageDoctorAdvice(BigDecimal leftNakedVision, BigDecimal rightNakedVision,
-                                             BigDecimal leftCorrectedVision, BigDecimal rightCorrectedVision,
-                                             BigDecimal leftSph, BigDecimal rightSph,
-                                             BigDecimal leftCyl, BigDecimal rightCyl,
-                                             Integer glassesType, Integer schoolAge, Integer age, boolean otherEyeDiseasesNormal) {
+    public static RecommendVisitEnum getDoctorAdvice(BigDecimal leftNakedVision, BigDecimal rightNakedVision,
+                                                     BigDecimal leftCorrectedVision, BigDecimal rightCorrectedVision,
+                                                     BigDecimal leftSph, BigDecimal rightSph,
+                                                     BigDecimal leftCyl, BigDecimal rightCyl,
+                                                     Integer glassesType, Integer schoolAge, Integer age, boolean otherEyeDiseasesNormal) {
 
         // 幼儿园、0-6岁
         if (SchoolAge.KINDERGARTEN.code.equals(schoolAge) || age < 6) {
@@ -877,11 +876,11 @@ public class ScreeningResultUtil {
      * @param age                  年龄
      * @return 医生建议
      */
-    public String middleAdviceResult(BigDecimal leftNakedVision, BigDecimal rightNakedVision,
-                                     BigDecimal leftCorrectedVision, BigDecimal rightCorrectedVision,
-                                     BigDecimal leftSph, BigDecimal rightSph,
-                                     BigDecimal leftCyl, BigDecimal rightCyl,
-                                     Integer glassesType, Integer age) {
+    public RecommendVisitEnum middleAdviceResult(BigDecimal leftNakedVision, BigDecimal rightNakedVision,
+                                                 BigDecimal leftCorrectedVision, BigDecimal rightCorrectedVision,
+                                                 BigDecimal leftSph, BigDecimal rightSph,
+                                                 BigDecimal leftCyl, BigDecimal rightCyl,
+                                                 Integer glassesType, Integer age) {
 
         TwoTuple<BigDecimal, Integer> nakedVisionResult = getResultVision(leftNakedVision, rightNakedVision);
         BigDecimal leftSe = calculationSE(leftSph, leftCyl);
@@ -898,9 +897,9 @@ public class ScreeningResultUtil {
                 BigDecimal anisometropia = getAnisometropia(leftSe, rightSe);
 
                 // 获取两只眼的结论
-                TwoTuple<Integer, String> left = getNotWearingGlasses(leftCyl, leftSe,
+                TwoTuple<Integer, RecommendVisitEnum> left = getNotWearingGlasses(leftCyl, leftSe,
                         leftNakedVision, anisometropia);
-                TwoTuple<Integer, String> right = getNotWearingGlasses(rightCyl, rightSe,
+                TwoTuple<Integer, RecommendVisitEnum> right = getNotWearingGlasses(rightCyl, rightSe,
                         rightNakedVision, anisometropia);
 
                 // 取结论严重的那只眼
@@ -952,62 +951,62 @@ public class ScreeningResultUtil {
      * @param otherEyeDiseasesNormal 是否有其他眼病
      * @return 医生建议
      */
-    public String kindergartenAdviceResult(BigDecimal leftNakedVision, BigDecimal rightNakedVision,
-                                           BigDecimal leftCorrectedVision, BigDecimal rightCorrectedVision,
-                                           BigDecimal leftSph, BigDecimal rightSph,
-                                           BigDecimal leftCyl, BigDecimal rightCyl,
-                                           Integer glassesType, Integer age, boolean otherEyeDiseasesNormal) {
+    public RecommendVisitEnum kindergartenAdviceResult(BigDecimal leftNakedVision, BigDecimal rightNakedVision,
+                                                       BigDecimal leftCorrectedVision, BigDecimal rightCorrectedVision,
+                                                       BigDecimal leftSph, BigDecimal rightSph,
+                                                       BigDecimal leftCyl, BigDecimal rightCyl,
+                                                       Integer glassesType, Integer age, boolean otherEyeDiseasesNormal) {
         BigDecimal correctedVision;
         // 佩戴眼镜
         if (glassesType >= 1) {
             // 3岁以下
             correctedVision = kindergartenHaveGlassesResult(leftNakedVision, rightNakedVision, leftCorrectedVision, rightCorrectedVision, age, "4.6");
-            if (StringUtils.isNotBlank(haveGlassesKindergartenIsMatch(age, correctedVision))) {
+            if (!haveGlassesKindergartenIsMatch(age, correctedVision).equals(RecommendVisitEnum.EMPTY)) {
                 return haveGlassesKindergartenIsMatch(age, correctedVision);
             }
             // 4岁以下
             correctedVision = kindergartenHaveGlassesResult(leftNakedVision, rightNakedVision, leftCorrectedVision, rightCorrectedVision, age, "4.7");
-            if (StringUtils.isNotBlank(haveGlassesKindergartenIsMatch(age, correctedVision))) {
+            if (!haveGlassesKindergartenIsMatch(age, correctedVision).equals(RecommendVisitEnum.EMPTY)) {
                 return haveGlassesKindergartenIsMatch(age, correctedVision);
             }
 
             // 6岁以下
             correctedVision = kindergartenHaveGlassesResult(leftNakedVision, rightNakedVision, leftCorrectedVision, rightCorrectedVision, age, "4.9");
-            if (StringUtils.isNotBlank(haveGlassesKindergartenIsMatch(age, correctedVision))) {
+            if (!haveGlassesKindergartenIsMatch(age, correctedVision).equals(RecommendVisitEnum.EMPTY)) {
                 return haveGlassesKindergartenIsMatch(age, correctedVision);
             }
 
             // 6岁以上
             correctedVision = kindergartenHaveGlassesResult(leftNakedVision, rightNakedVision, leftCorrectedVision, rightCorrectedVision, age, "5.0");
-            if (StringUtils.isNotBlank(haveGlassesKindergartenIsMatch(age, correctedVision))) {
+            if (!haveGlassesKindergartenIsMatch(age, correctedVision).equals(RecommendVisitEnum.EMPTY)) {
                 return haveGlassesKindergartenIsMatch(age, correctedVision);
             }
         } else {
             // 3岁以下
-            String result = noGlassesKindergartenIsMatch(kindergartenNoGlassesResult(leftNakedVision, rightNakedVision, leftSph, rightSph, leftCyl, rightCyl, age, "4.6"), otherEyeDiseasesNormal);
-            if (StringUtils.isNotBlank(result)) {
-                return result;
+            RecommendVisitEnum recommendVisitEnum = noGlassesKindergartenIsMatch(kindergartenNoGlassesResult(leftNakedVision, rightNakedVision, leftSph, rightSph, leftCyl, rightCyl, age, "4.6"), otherEyeDiseasesNormal);
+            if (!recommendVisitEnum.equals(RecommendVisitEnum.EMPTY)) {
+                return recommendVisitEnum;
             }
 
             // 4岁以下
-            String str = noGlassesKindergartenIsMatch(kindergartenNoGlassesResult(leftNakedVision, rightNakedVision, leftSph, rightSph, leftCyl, rightCyl, age, "4.7"), otherEyeDiseasesNormal);
-            if (StringUtils.isNotBlank(str)) {
-                return str;
+            RecommendVisitEnum recommendVisitEnum1 = noGlassesKindergartenIsMatch(kindergartenNoGlassesResult(leftNakedVision, rightNakedVision, leftSph, rightSph, leftCyl, rightCyl, age, "4.7"), otherEyeDiseasesNormal);
+            if (!recommendVisitEnum1.equals(RecommendVisitEnum.EMPTY)) {
+                return recommendVisitEnum1;
             }
 
             // 6岁以下
-            String str1 = noGlassesKindergartenIsMatch(kindergartenNoGlassesResult(leftNakedVision, rightNakedVision, leftSph, rightSph, leftCyl, rightCyl, age, "4.9"), otherEyeDiseasesNormal);
-            if (StringUtils.isNotBlank(str1)) {
-                return str1;
+            RecommendVisitEnum recommendVisitEnum2 = noGlassesKindergartenIsMatch(kindergartenNoGlassesResult(leftNakedVision, rightNakedVision, leftSph, rightSph, leftCyl, rightCyl, age, "4.9"), otherEyeDiseasesNormal);
+            if (!recommendVisitEnum2.equals(RecommendVisitEnum.EMPTY)) {
+                return recommendVisitEnum2;
             }
 
             // 6岁以上
-            String str2 = noGlassesKindergartenIsMatch(kindergartenNoGlassesResult(leftNakedVision, rightNakedVision, leftSph, rightSph, leftCyl, rightCyl, age, "5.0"), otherEyeDiseasesNormal);
-            if (StringUtils.isNotBlank(str2)) {
-                return str2;
+            RecommendVisitEnum recommendVisitEnum3 = noGlassesKindergartenIsMatch(kindergartenNoGlassesResult(leftNakedVision, rightNakedVision, leftSph, rightSph, leftCyl, rightCyl, age, "5.0"), otherEyeDiseasesNormal);
+            if (!recommendVisitEnum3.equals(RecommendVisitEnum.EMPTY)) {
+                return recommendVisitEnum3;
             }
         }
-        return StringUtils.EMPTY;
+        return RecommendVisitEnum.EMPTY;
     }
 
     /**
@@ -1058,21 +1057,21 @@ public class ScreeningResultUtil {
      * @param correctedVision 矫正视力
      * @return 结论
      */
-    private String haveGlassesKindergartenIsMatch(Integer age, BigDecimal correctedVision) {
+    private RecommendVisitEnum haveGlassesKindergartenIsMatch(Integer age, BigDecimal correctedVision) {
         if (Objects.isNull(correctedVision)) {
-            return "";
+            return RecommendVisitEnum.EMPTY;
         }
         if (age < 4 && BigDecimalUtil.lessThan(correctedVision, "4.7")
                 || age < 6 && BigDecimalUtil.lessThan(correctedVision, "4.8")
                 || age > 6 && BigDecimalUtil.lessThan(correctedVision, "4.9")) {
-            return DoctorConclusion.KINDERGARTEN_RESULT_1;
+            return RecommendVisitEnum.MIDDLE_RESULT_1;
         }
         if (age < 4 && BigDecimalUtil.moreThanAndEqual(correctedVision, "4.7")
                 || age < 6 && BigDecimalUtil.moreThanAndEqual(correctedVision, "4.8")
                 || age > 6 && BigDecimalUtil.moreThanAndEqual(correctedVision, "4.9")) {
-            return DoctorConclusion.KINDERGARTEN_RESULT_2;
+            return RecommendVisitEnum.KINDERGARTEN_RESULT_2;
         }
-        return "";
+        return RecommendVisitEnum.EMPTY;
     }
 
     /**
@@ -1082,10 +1081,10 @@ public class ScreeningResultUtil {
      * @param otherEyeDiseasesNormal 目标视力
      * @return 结论
      */
-    private String noGlassesKindergartenIsMatch(ThreeTuple<BigDecimal, BigDecimal, BigDecimal> threeTuple, Boolean otherEyeDiseasesNormal) {
+    private RecommendVisitEnum noGlassesKindergartenIsMatch(ThreeTuple<BigDecimal, BigDecimal, BigDecimal> threeTuple, Boolean otherEyeDiseasesNormal) {
 
         if (Objects.isNull(threeTuple)) {
-            return "";
+            return RecommendVisitEnum.EMPTY;
         }
         BigDecimal seBigDecimal = threeTuple.getFirst();
         BigDecimal cyl = threeTuple.getSecond();
@@ -1093,14 +1092,14 @@ public class ScreeningResultUtil {
 
         if (BigDecimalUtil.isBetweenLeft(seBigDecimal, "0", "2")
                 && BigDecimalUtil.lessThanAndEqual(cyl.abs(), "1.5")) {
-            return DoctorConclusion.KINDERGARTEN_RESULT_3;
+            return RecommendVisitEnum.KINDERGARTEN_RESULT_3;
         }
         if ((BigDecimalUtil.moreThanAndEqual(seBigDecimal, "2") || BigDecimalUtil.lessThan(seBigDecimal, "0") || BigDecimalUtil.moreThan(cyl.abs(), "1.5"))
                 || (Objects.nonNull(anisometropia) && BigDecimalUtil.moreThan(anisometropia, "1.5"))
                 || !otherEyeDiseasesNormal) {
-            return DoctorConclusion.KINDERGARTEN_RESULT_4;
+            return RecommendVisitEnum.KINDERGARTEN_RESULT_4;
         }
-        return "";
+        return RecommendVisitEnum.EMPTY;
     }
 
     private ThreeTuple<BigDecimal, BigDecimal, BigDecimal> kindergartenNoGlassesResult(BigDecimal leftNakedVision, BigDecimal rightNakedVision,
@@ -1178,18 +1177,18 @@ public class ScreeningResultUtil {
      * @param nakedVisionResult    取视力值低的眼球
      * @return 结论
      */
-    public static String getIsWearingGlasses(BigDecimal leftCorrectedVision, BigDecimal rightCorrectedVision,
-                                             BigDecimal leftNakedVision, BigDecimal rightNakedVision,
-                                             TwoTuple<BigDecimal, Integer> nakedVisionResult) {
+    public static RecommendVisitEnum getIsWearingGlasses(BigDecimal leftCorrectedVision, BigDecimal rightCorrectedVision,
+                                                         BigDecimal leftNakedVision, BigDecimal rightNakedVision,
+                                                         TwoTuple<BigDecimal, Integer> nakedVisionResult) {
         if (Objects.isNull(leftCorrectedVision) || Objects.isNull(rightCorrectedVision)) {
-            return "";
+            return RecommendVisitEnum.EMPTY;
         }
         BigDecimal visionVal = getResultVision(leftCorrectedVision, rightCorrectedVision,
                 leftNakedVision, rightNakedVision, nakedVisionResult);
         if (BigDecimalUtil.lessThan(visionVal, "4.9")) {
-            return DoctorConclusion.MIDDLE_RESULT_1;
+            return RecommendVisitEnum.MIDDLE_RESULT_1;
         } else {
-            return DoctorConclusion.MIDDLE_RESULT_2;
+            return RecommendVisitEnum.MIDDLE_RESULT_2;
         }
     }
 
@@ -1223,21 +1222,21 @@ public class ScreeningResultUtil {
      * @param anisometropia 屈光参差
      * @return TwoTuple<Integer, String>
      */
-    public static TwoTuple<Integer, String> getNotWearingGlasses(BigDecimal cyl, BigDecimal se,
-                                                                 BigDecimal nakedVision, BigDecimal anisometropia) {
+    public static TwoTuple<Integer, RecommendVisitEnum> getNotWearingGlasses(BigDecimal cyl, BigDecimal se,
+                                                                             BigDecimal nakedVision, BigDecimal anisometropia) {
         // 是否大于4.9，大于4.9直接返回
         if (Objects.isNull(nakedVision) || nakedVision.compareTo(new BigDecimal("4.90")) >= 0) {
-            return new TwoTuple<>(0, StringUtils.EMPTY);
+            return new TwoTuple<>(0, RecommendVisitEnum.EMPTY);
         }
         boolean checkCyl = BigDecimalUtil.lessThanAndEqual(cyl, "1.5");
         if (BigDecimalUtil.isBetweenLeft(se, "0.00", "2.00") && checkCyl) {
-            return new TwoTuple<>(1, DoctorConclusion.MIDDLE_RESULT_3);
+            return new TwoTuple<>(1, RecommendVisitEnum.MIDDLE_RESULT_3);
         }
 
         if (!BigDecimalUtil.isBetweenLeft(se, "0.00", "2.00") || !checkCyl || BigDecimalUtil.moreThan(anisometropia, "1.5")) {
-            return new TwoTuple<>(2, DoctorConclusion.MIDDLE_RESULT_4);
+            return new TwoTuple<>(2, RecommendVisitEnum.MIDDLE_RESULT_4);
         }
-        return new TwoTuple<>(0, StringUtils.EMPTY);
+        return new TwoTuple<>(0, RecommendVisitEnum.EMPTY);
     }
 
     /**
@@ -1251,17 +1250,17 @@ public class ScreeningResultUtil {
      * @param age               年龄
      * @return 结论
      */
-    public static String nakedVisionNormal(BigDecimal leftNakedVision, BigDecimal rightNakedVision,
-                                           BigDecimal leftSe, BigDecimal rightSe,
-                                           TwoTuple<BigDecimal, Integer> nakedVisionResult, Integer age) {
+    public static RecommendVisitEnum nakedVisionNormal(BigDecimal leftNakedVision, BigDecimal rightNakedVision,
+                                                       BigDecimal leftSe, BigDecimal rightSe,
+                                                       TwoTuple<BigDecimal, Integer> nakedVisionResult, Integer age) {
         BigDecimal se = getNakedVisionNormalSE(leftNakedVision, rightNakedVision, leftSe, rightSe, nakedVisionResult);
         if (BigDecimalUtil.moreThanAndEqual(se, "0")) {
             if (age >= 6 && BigDecimalUtil.moreThanAndEqual(se, "2")) {
-                return DoctorConclusion.MIDDLE_RESULT_6;
+                return RecommendVisitEnum.MIDDLE_RESULT_6;
             }
-            return DoctorConclusion.MIDDLE_RESULT_5;
+            return RecommendVisitEnum.MIDDLE_RESULT_5;
         }
-        return DoctorConclusion.MIDDLE_RESULT_7;
+        return RecommendVisitEnum.MIDDLE_RESULT_7;
     }
 
     /**

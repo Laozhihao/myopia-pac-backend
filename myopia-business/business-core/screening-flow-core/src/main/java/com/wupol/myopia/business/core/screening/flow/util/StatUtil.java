@@ -84,55 +84,6 @@ public class StatUtil {
     }
 
     /**
-     * 是否建议就诊
-     *
-     * @param nakedVision      裸眼视力
-     * @param sphere           球镜
-     * @param cylinder         柱镜
-     * @param isWearingGlasses
-     * @param correctVision    矫正视力
-     * @param age              年龄
-     * @param schoolAge        学龄
-     * @return
-     */
-    public static boolean isRecommendVisit(Float nakedVision, Float sphere, Float cylinder,
-                                           Boolean isWearingGlasses, Float correctVision, Integer age, SchoolAge schoolAge) {
-        if (nakedVision == null) {
-            return false;
-        }
-        Float se = null;
-        if (sphere != null && cylinder != null) {
-            se = getSphericalEquivalent(sphere, cylinder);
-        }
-
-        if (nakedVision < 4.9) {
-            if (isWearingGlasses) {
-                return correctVision < 4.9;
-            } else {
-
-                if (schoolAge == null || se == null) {
-                    return false;
-                }
-
-                switch (schoolAge) {
-                    case PRIMARY:
-                        if (se >= 0 && se < 2 && Math.abs(cylinder) < 1.5) return true;
-                        if (se >= 2 || se < 0) return true;
-                        break;
-                    case JUNIOR:
-                    case HIGH:
-                    case VOCATIONAL_HIGH:
-                        if (se >= -0.5 && se < 3 && Math.abs(cylinder) < 1.5) return true;
-                        if (se < -0.5 || se >= 3 || Math.abs(cylinder) >= 1.5) return true;
-                        break;
-                    default:
-                }
-            }
-        } else return age != null && se != null && age >= 6 && se >= 2;
-        return false;
-    }
-
-    /**
      * 判断预警级别是否大于0
      *
      * @param warningLevel 预警级别

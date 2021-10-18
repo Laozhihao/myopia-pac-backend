@@ -229,7 +229,7 @@ public class StudentController {
                 leftCorrectedVision, rightCorrectedVision,
                 leftSph, rightSph,
                 leftCyl, rightCyl,
-                glassesType, age, otherEyeDiseasesNormal));
+                glassesType, age, otherEyeDiseasesNormal).getAdvice());
     }
 
     @GetMapping("middle")
@@ -242,7 +242,7 @@ public class StudentController {
                 leftCorrectedVision, rightCorrectedVision,
                 leftSph, rightSph,
                 leftCyl, rightCyl,
-                glassesType, age));
+                glassesType, age).getAdvice());
     }
 
     @GetMapping("getWarningLevelInt")

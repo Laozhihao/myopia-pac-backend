@@ -4,10 +4,12 @@ import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.OtherEyeDiseasesDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
+import com.wupol.myopia.business.core.screening.flow.util.ScreeningResultUtil;
 import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -16,10 +18,7 @@ import lombok.experimental.Accessors;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * 筛查数据结论
@@ -271,11 +270,11 @@ public class StatConclusionBuilder {
 
 
     private void setRecommendVisit() {
-        boolean isRecommendVisit =
-                StatUtil.isRecommendVisit(basicData.leftNakedVision, basicData.leftSph, basicData.leftCyl, basicData.isWearingGlasses,
-                        basicData.leftCorrectVision, basicData.age, SchoolAge.get(basicData.schoolAge))
-                        || StatUtil.isRecommendVisit(basicData.rightNakedVision, basicData.rightSph, basicData.rightCyl,
-                        basicData.isWearingGlasses, basicData.rightCorrectVision, basicData.age, SchoolAge.get(basicData.schoolAge));
+        boolean isRecommendVisit = ScreeningResultUtil.getDoctorAdvice(new BigDecimal(basicData.leftNakedVision.toString()), new BigDecimal(basicData.rightNakedVision.toString()),
+                new BigDecimal(basicData.leftCorrectVision.toString()), new BigDecimal(basicData.rightCorrectVision.toString()),
+                new BigDecimal(basicData.leftSph.toString()), new BigDecimal(basicData.rightSph.toString()),
+                new BigDecimal(basicData.leftCyl.toString()), new BigDecimal(basicData.rightCyl),
+                basicData.glassesType, basicData.schoolAge, basicData.age, basicData.otherEyeDiseasesNormal).getIsRecommendVisit();
         statConclusion.setIsRecommendVisit(isRecommendVisit);
     }
 
@@ -425,6 +424,7 @@ public class StatConclusionBuilder {
         private Integer nakedVisionWarningLevel;
         private Integer myopiaWarningLevel;
         private Integer glassesType;
+        private Boolean otherEyeDiseasesNormal;
 
         private BasicData() {
 
@@ -451,6 +451,7 @@ public class StatConclusionBuilder {
             if (visionData != null) {
                 dealWithVisionData(basicData, visionData);
             }
+            setOtherEyeDiseases(basicData, visionScreeningResult.getOtherEyeDiseases());
             return basicData;
         }
 
@@ -554,6 +555,19 @@ public class StatConclusionBuilder {
             if (CollectionUtils.isNotEmpty(warningLevelList)) {
                 basicData.myopiaWarningLevel = Collections.max(warningLevelList);
             }
+        }
+
+        /**
+         * 其他眼病
+         *
+         * @param basicData        基本数据
+         * @param otherEyeDiseases 其他眼病
+         */
+        private static void setOtherEyeDiseases(BasicData basicData, OtherEyeDiseasesDO otherEyeDiseases) {
+            if (Objects.isNull(otherEyeDiseases)) {
+                basicData.otherEyeDiseasesNormal = false;
+            }
+            basicData.otherEyeDiseasesNormal = otherEyeDiseases.isNormal();
         }
     }
 }

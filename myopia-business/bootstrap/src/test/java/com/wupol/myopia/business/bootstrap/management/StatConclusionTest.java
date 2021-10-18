@@ -140,11 +140,7 @@ public class StatConclusionTest {
             boolean isRefractiveError =
                     StatUtil.isRefractiveError(isAstigmatism, isMyopia, isHyperopia);
 
-            boolean isRecommendVisit =
-                    StatUtil.isRecommendVisit(leftNakedVision, leftSph, leftCyl, isWearingGlasses,
-                            leftCorrectVision, age, SchoolAge.get(schoolAge))
-                    || StatUtil.isRecommendVisit(rightNakedVision, rightSph, rightCyl,
-                            isWearingGlasses, rightCorrectVision, age, SchoolAge.get(schoolAge));
+            boolean isRecommendVisit = false;
 
             List<Integer> warningLevelList = new ArrayList() {
                 {
