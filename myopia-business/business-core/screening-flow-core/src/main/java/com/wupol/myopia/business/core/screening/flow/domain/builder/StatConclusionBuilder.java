@@ -218,7 +218,7 @@ public class StatConclusionBuilder {
     private void setMyopiaLevel() {
         Integer left = StatUtil.getMyopiaLevel(basicData.getLeftSph(), basicData.getLeftCyl(), basicData.getAge(), basicData.getLeftNakedVision());
         Integer right = StatUtil.getMyopiaLevel(basicData.getRightSph(), basicData.getRightCyl(), basicData.getAge(), basicData.getRightNakedVision());
-        statConclusion.setMyopiaLevel(StatUtil.getSeriousLevel(left, right));
+        statConclusion.setMyopiaLevel(StatUtil.getMyopiaHyperopiaSeriousLevel(left, right));
     }
 
     /**
