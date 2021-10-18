@@ -94,6 +94,8 @@ public class StatConclusionBuilder {
         this.setRescreenErrorNum();
         this.setWarningVision();
         this.setMyopiaLevel();
+        this.setHyperopiaLevel();
+        this.setAstigmatismLevel();
         return statConclusion;
     }
 
@@ -218,7 +220,25 @@ public class StatConclusionBuilder {
     private void setMyopiaLevel() {
         Integer left = StatUtil.getMyopiaLevel(basicData.getLeftSph(), basicData.getLeftCyl(), basicData.getAge(), basicData.getLeftNakedVision());
         Integer right = StatUtil.getMyopiaLevel(basicData.getRightSph(), basicData.getRightCyl(), basicData.getAge(), basicData.getRightNakedVision());
-        statConclusion.setMyopiaLevel(StatUtil.getMyopiaHyperopiaSeriousLevel(left, right));
+        statConclusion.setMyopiaLevel(StatUtil.getSeriousLevel(left, right));
+    }
+
+    /**
+     * 远视等级
+     */
+    private void setHyperopiaLevel() {
+        Integer left = StatUtil.getHyperopiaLevel(basicData.getLeftSph(), basicData.getLeftCyl(), basicData.getAge());
+        Integer right = StatUtil.getHyperopiaLevel(basicData.getRightSph(), basicData.getRightCyl(), basicData.getAge());
+        statConclusion.setHyperopiaLevel(StatUtil.getSeriousLevel(left, right));
+    }
+
+    /**
+     * 散光等级
+     */
+    private void setAstigmatismLevel() {
+        Integer left = StatUtil.getAstigmatismLevel(basicData.getLeftCyl());
+        Integer right = StatUtil.getAstigmatismLevel(basicData.getRightCyl());
+        statConclusion.setAstigmatismLevel(StatUtil.getSeriousLevel(left, right));
     }
 
     /**
@@ -406,8 +426,8 @@ public class StatConclusionBuilder {
         private Float leftNakedVision;
         private Float leftCorrectVision;
         private Float rightCorrectVision;
-        private WarningLevel leftAstigmatismWarningLevel;
-        private WarningLevel rightAstigmatismWarningLevel;
+        private AstigmatismLevelEnum leftAstigmatismWarningLevel;
+        private AstigmatismLevelEnum rightAstigmatismWarningLevel;
         private Boolean isAstigmatism;
         private WarningLevel leftNakedVisionWarningLevel;
         private WarningLevel rightNakedVisionWarningLevel;

@@ -95,9 +95,8 @@ public class StatConclusionTest {
             float leftSph = leftData.getSph().floatValue();
             float rightSph = rightData.getSph().floatValue();
 
-            WarningLevel leftAstigmatismWarningLevel = StatUtil.getAstigmatismWarningLevel(leftCyl);
-            WarningLevel rightAstigmatismWarningLevel =
-                    StatUtil.getAstigmatismWarningLevel(rightCyl);
+            AstigmatismLevelEnum leftAstigmatismWarningLevel = StatUtil.getAstigmatismWarningLevel(leftCyl);
+            AstigmatismLevelEnum rightAstigmatismWarningLevel = StatUtil.getAstigmatismWarningLevel(rightCyl);
 
             HyperopiaLevelEnum leftHyperopiaWarningLevel =
                     StatUtil.getHyperopiaWarningLevel(leftSph, leftCyl, age);
