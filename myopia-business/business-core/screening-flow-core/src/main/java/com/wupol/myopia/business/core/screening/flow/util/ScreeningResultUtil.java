@@ -847,7 +847,7 @@ public class ScreeningResultUtil {
                                                      BigDecimal leftCorrectedVision, BigDecimal rightCorrectedVision,
                                                      BigDecimal leftSph, BigDecimal rightSph,
                                                      BigDecimal leftCyl, BigDecimal rightCyl,
-                                                     Integer glassesType, Integer schoolAge, Integer age, boolean otherEyeDiseasesNormal) {
+                                                     Integer glassesType, Integer schoolAge, Integer age, Boolean otherEyeDiseasesNormal) {
 
         // 幼儿园、0-6岁
         if (SchoolAge.KINDERGARTEN.code.equals(schoolAge) || age < 6) {
@@ -955,7 +955,7 @@ public class ScreeningResultUtil {
                                                        BigDecimal leftCorrectedVision, BigDecimal rightCorrectedVision,
                                                        BigDecimal leftSph, BigDecimal rightSph,
                                                        BigDecimal leftCyl, BigDecimal rightCyl,
-                                                       Integer glassesType, Integer age, boolean otherEyeDiseasesNormal) {
+                                                       Integer glassesType, Integer age, Boolean otherEyeDiseasesNormal) {
         BigDecimal correctedVision;
         // 佩戴眼镜
         if (glassesType >= 1) {
