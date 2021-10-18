@@ -172,7 +172,6 @@ public class StatUtil {
         return isLowVision;
     }
 
-
     /**
      * 返回远视预警级别
      *
@@ -399,7 +398,7 @@ public class StatUtil {
             rightMyopiaLevel = getMyopiaLevel(rightSpn.floatValue(), rightCyl.floatValue(), age, rightNakedVision.floatValue());
         }
         if (!ObjectsUtil.allNull(leftMyopiaLevel, rightMyopiaLevel)) {
-            Integer seriousLevel = getSeriousLevel(leftMyopiaLevel, rightMyopiaLevel);
+            Integer seriousLevel = getMyopiaHyperopiaSeriousLevel(leftMyopiaLevel, rightMyopiaLevel);
             return MyopiaLevelEnum.getDesc(seriousLevel);
         }
         return "";
@@ -433,7 +432,7 @@ public class StatUtil {
         Integer leftHyperopiaLevel = Objects.nonNull(leftLevel) ? leftLevel.code : null;
         Integer rightHyperopiaLevel = Objects.nonNull(rightLevel) ? rightLevel.code : null;
         if (!ObjectsUtil.allNull(leftHyperopiaLevel, rightHyperopiaLevel)) {
-            Integer seriousLevel = getSeriousLevel(leftHyperopiaLevel, rightHyperopiaLevel);
+            Integer seriousLevel = getMyopiaHyperopiaSeriousLevel(leftHyperopiaLevel, rightHyperopiaLevel);
             return HyperopiaLevelEnum.getDesc(seriousLevel);
         }
         return "";
@@ -704,6 +703,25 @@ public class StatUtil {
      * @return 视力
      */
     public Integer getSeriousLevel(Integer leftLevel, Integer rightLevel) {
+        // 排除远视储备不足
+        if (Objects.isNull(leftLevel) || leftLevel.equals(WarningLevel.ZERO_SP.code)) {
+            return rightLevel;
+        }
+        if (Objects.isNull(rightLevel) || rightLevel.equals(WarningLevel.ZERO_SP.code)) {
+            return leftLevel;
+        }
+        return leftLevel > rightLevel ? leftLevel : rightLevel;
+    }
+
+
+    /**
+     * 取近视严重的等级
+     *
+     * @param leftLevel  左眼视力
+     * @param rightLevel 右眼视力
+     * @return 视力
+     */
+    public Integer getMyopiaHyperopiaSeriousLevel(Integer leftLevel, Integer rightLevel) {
         // 排除远视储备不足
         if (Objects.isNull(leftLevel)) {
             return rightLevel;
