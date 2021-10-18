@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.builder;
 
+import com.wupol.myopia.business.common.utils.constant.MyopiaLevelEnum;
 import com.wupol.myopia.business.common.utils.constant.WarningLevel;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
 import com.wupol.myopia.business.core.school.domain.model.School;
@@ -59,9 +60,10 @@ public class SchoolVisionStatisticBuilder {
                 .setTreatmentAdviceNumbers(treatmentAdviceNumber).setTreatmentAdviceRatio(MathUtil.divide(treatmentAdviceNumber, validScreeningNumbers))
                 .setKeyWarningNumbers(keyWarningNumbers).setFocusTargetsNumbers(keyWarningNumbers).setValidScreeningNumbers(validScreeningNumbers)
                 .setPlanScreeningNumbers(planScreeningNumbers).setRealScreeningNumbers(realScreeningNumber)
-                .setMyopiaLevelLight(myopiaLevelMap.getOrDefault(WarningLevel.ONE.code,0L).intValue())
-                .setMyopiaLevelMiddle(myopiaLevelMap.getOrDefault(WarningLevel.TWO.code,0L).intValue())
-                .setMyopiaLevelHigh(myopiaLevelMap.getOrDefault(WarningLevel.THREE.code,0L).intValue())
+                .setMyopiaLevelEarly(myopiaLevelMap.getOrDefault(MyopiaLevelEnum.MYOPIA_LEVEL_EARLY.code,0L).intValue())
+                .setMyopiaLevelLight(myopiaLevelMap.getOrDefault(MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.code,0L).intValue())
+                .setMyopiaLevelMiddle(myopiaLevelMap.getOrDefault(MyopiaLevelEnum.MYOPIA_LEVEL_MIDDLE.code,0L).intValue())
+                .setMyopiaLevelHigh(myopiaLevelMap.getOrDefault(MyopiaLevelEnum.MYOPIA_LEVEL_HIGH.code,0L).intValue())
                 .setMyopiaLevelInsufficient(visionLabelZeroSPNumbers);
         return statistic;
     }

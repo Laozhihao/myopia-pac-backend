@@ -201,6 +201,11 @@ public class SchoolVisionStatistic implements Serializable {
     private Integer focusTargetsNumbers;
 
     /**
+     * 近视前期
+     */
+    private Integer myopiaLevelEarly;
+
+    /**
      * 轻度近视人数
      */
     private Integer myopiaLevelLight;

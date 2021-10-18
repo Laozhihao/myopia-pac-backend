@@ -1,10 +1,7 @@
 package com.wupol.myopia.business.core.screening.flow.domain.builder;
 
 import com.wupol.framework.core.util.ObjectsUtil;
-import com.wupol.myopia.business.common.utils.constant.GlassesType;
-import com.wupol.myopia.business.common.utils.constant.SchoolAge;
-import com.wupol.myopia.business.common.utils.constant.VisionCorrection;
-import com.wupol.myopia.business.common.utils.constant.WarningLevel;
+import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
@@ -220,8 +217,8 @@ public class StatConclusionBuilder {
      * 近视等级
      */
     private void setMyopiaLevel() {
-        Integer left = StatUtil.getMyopiaLevel(basicData.getLeftSph(), basicData.getLeftCyl());
-        Integer right = StatUtil.getMyopiaLevel(basicData.getRightSph(), basicData.getRightCyl());
+        Integer left = StatUtil.getMyopiaLevel(basicData.getLeftSph(), basicData.getLeftCyl(), basicData.getAge(), basicData.getLeftNakedVision());
+        Integer right = StatUtil.getMyopiaLevel(basicData.getRightSph(), basicData.getRightCyl(), basicData.getAge(), basicData.getRightNakedVision());
         statConclusion.setMyopiaLevel(StatUtil.getSeriousLevel(left, right));
     }
 
@@ -415,10 +412,10 @@ public class StatConclusionBuilder {
         private Boolean isAstigmatism;
         private WarningLevel leftNakedVisionWarningLevel;
         private WarningLevel rightNakedVisionWarningLevel;
-        private WarningLevel leftHyperopiaWarningLevel;
-        private WarningLevel rightHyperopiaWarningLevel;
-        private WarningLevel leftMyopiaWarningLevel;
-        private WarningLevel rightMyopiaWarningLevel;
+        private HyperopiaLevelEnum leftHyperopiaWarningLevel;
+        private HyperopiaLevelEnum rightHyperopiaWarningLevel;
+        private MyopiaLevelEnum leftMyopiaWarningLevel;
+        private MyopiaLevelEnum rightMyopiaWarningLevel;
         private Boolean isRescreen;
         private Integer age;
         private Integer gender;
@@ -493,8 +490,8 @@ public class StatConclusionBuilder {
             }
             basicData.leftHyperopiaWarningLevel = StatUtil.getHyperopiaWarningLevel(basicData.leftSph, basicData.leftCyl, screeningPlanSchoolStudent.getStudentAge());
             basicData.rightHyperopiaWarningLevel = StatUtil.getHyperopiaWarningLevel(basicData.rightSph, basicData.rightCyl, screeningPlanSchoolStudent.getStudentAge());
-            basicData.leftMyopiaWarningLevel = StatUtil.getMyopiaWarningLevel(basicData.leftSph, basicData.leftCyl);
-            basicData.rightMyopiaWarningLevel = StatUtil.getMyopiaWarningLevel(basicData.rightSph, basicData.rightCyl);
+            basicData.leftMyopiaWarningLevel = StatUtil.getMyopiaWarningLevel(basicData.leftSph, basicData.leftCyl, basicData.getAge(), basicData.getLeftNakedVision());
+            basicData.rightMyopiaWarningLevel = StatUtil.getMyopiaWarningLevel(basicData.rightSph, basicData.rightCyl, basicData.getAge(), basicData.getRightNakedVision());
         }
 
         /**
@@ -558,7 +555,5 @@ public class StatConclusionBuilder {
                 basicData.myopiaWarningLevel = Collections.max(warningLevelList);
             }
         }
-
-
     }
 }

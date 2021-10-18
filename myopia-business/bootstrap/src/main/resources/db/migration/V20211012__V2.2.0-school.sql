@@ -12,3 +12,6 @@ alter table m_school_vision_statistic
 
 alter table m_stat_conclusion
     add myopia_level int null comment '近视预警等级';
+
+alter table m_school_vision_statistic
+    add myopia_level_early int null comment '近视前期' after myopia_level_light;
