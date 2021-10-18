@@ -1054,7 +1054,7 @@ public class ScreeningResultUtil {
     private BigDecimal kindergartenHaveGlassesResult(BigDecimal leftNakedVision, BigDecimal rightNakedVision,
                                                      BigDecimal leftCorrectedVision, BigDecimal rightCorrectedVision,
                                                      Integer age, String targetVision) {
-        if (BigDecimalUtil.isAllLessThan(leftNakedVision, rightNakedVision, targetVision)) {
+        if (ObjectsUtil.allNotNull(leftCorrectedVision, rightCorrectedVision) && BigDecimalUtil.isAllLessThan(leftNakedVision, rightNakedVision, targetVision)) {
             if (BigDecimalUtil.lessThanAndEqual(leftCorrectedVision, rightCorrectedVision)) {
                 if (checkAgeAndNakedVision(age, leftNakedVision)) {
                     return leftCorrectedVision;

@@ -167,7 +167,7 @@ public class BigDecimalUtil {
      * @return 是否满足
      */
     public static boolean isAllLessThan(BigDecimal val1, BigDecimal val2, String target) {
-        return lessThan(val1, target) && lessThan(val1, target);
+        return lessThan(val1, target) && lessThan(val2, target);
     }
 
 
