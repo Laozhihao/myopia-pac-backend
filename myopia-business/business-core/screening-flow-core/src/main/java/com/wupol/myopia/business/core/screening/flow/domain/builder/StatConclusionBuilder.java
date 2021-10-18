@@ -516,7 +516,7 @@ public class StatConclusionBuilder {
                 basicData.rightNakedVisionWarningLevel = StatUtil.getNakedVisionWarningLevel(basicData.rightNakedVision, basicData.age);
             }
             setVisionWarningLevel(basicData);
-            setMypoiaVisionWarningLevel(basicData);
+            setMyopiaVisionWarningLevel(basicData);
         }
 
         /**
@@ -543,7 +543,7 @@ public class StatConclusionBuilder {
          *
          * @param basicData
          */
-        private static void setMypoiaVisionWarningLevel(BasicData basicData) {
+        private static void setMyopiaVisionWarningLevel(BasicData basicData) {
             List<Integer> warningLevelList = new ArrayList<>();
             if (basicData.leftMyopiaWarningLevel != null) {
                 warningLevelList.add(basicData.leftMyopiaWarningLevel.code);
