@@ -564,10 +564,9 @@ public class StatConclusionBuilder {
          * @param otherEyeDiseases 其他眼病
          */
         private static void setOtherEyeDiseases(BasicData basicData, OtherEyeDiseasesDO otherEyeDiseases) {
-            if (Objects.isNull(otherEyeDiseases)) {
-                basicData.otherEyeDiseasesNormal = false;
+            if (Objects.nonNull(otherEyeDiseases)) {
+                basicData.otherEyeDiseasesNormal = otherEyeDiseases.isNormal();
             }
-            basicData.otherEyeDiseasesNormal = otherEyeDiseases.isNormal();
         }
     }
 }
