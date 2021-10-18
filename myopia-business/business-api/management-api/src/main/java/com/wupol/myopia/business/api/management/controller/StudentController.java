@@ -248,9 +248,20 @@ public class StudentController {
     @GetMapping("getWarningLevelInt")
     public ApiResult<Integer> middleAdviceResult(BigDecimal leftCyl, BigDecimal leftSpn, BigDecimal leftNakedVision,
                                                  BigDecimal rightCyl, BigDecimal rightSpn, BigDecimal rightNakedVision,
-                                                Integer age) {
+                                                 Integer age) {
         return ApiResult.success(StatUtil.getWarningLevelInt(leftCyl, leftSpn, leftNakedVision,
                 rightCyl, rightSpn, rightNakedVision,
                 age));
+    }
+
+    @GetMapping("advice")
+    public ApiResult<String> getDoctorAdvice(BigDecimal leftNakedVision, BigDecimal rightNakedVision,
+                                             BigDecimal leftCorrectedVision, BigDecimal rightCorrectedVision,
+                                             BigDecimal leftSph, BigDecimal rightSph,
+                                             BigDecimal leftCyl, BigDecimal rightCyl,
+                                             Integer glassesType, Integer schoolAge, Integer age, Boolean otherEyeDiseasesNormal) {
+        return ApiResult.success(ScreeningResultUtil.getDoctorAdvice(leftNakedVision, rightNakedVision,
+                leftCorrectedVision, rightCorrectedVision, leftSph, rightSph, leftCyl, rightCyl,
+                glassesType, schoolAge, age, otherEyeDiseasesNormal).getAdvice());
     }
 }
