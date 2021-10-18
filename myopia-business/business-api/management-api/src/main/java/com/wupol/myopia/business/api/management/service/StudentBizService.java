@@ -1118,12 +1118,12 @@ public class StudentBizService {
             return null;
         }
 
-        Integer myopiaLevel = StatUtil.getMyopiaHyperopiaSeriousLevel(leftEye.getMyopiaLevel(), rightEye.getMyopiaLevel());
+        Integer myopiaLevel = StatUtil.getSeriousLevel(leftEye.getMyopiaLevel(), rightEye.getMyopiaLevel());
         if (Objects.nonNull(myopiaLevel) && myopiaLevel.compareTo(WarningLevel.ZERO.code) > 0) {
             return true;
         }
 
-        Integer farsightednessLevel = StatUtil.getMyopiaHyperopiaSeriousLevel(leftEye.getFarsightednessLevel(), rightEye.getFarsightednessLevel());
+        Integer farsightednessLevel = StatUtil.getSeriousLevel(leftEye.getFarsightednessLevel(), rightEye.getFarsightednessLevel());
         if (Objects.nonNull(farsightednessLevel) && farsightednessLevel.compareTo(WarningLevel.ZERO.code) > 0) {
             return true;
         }

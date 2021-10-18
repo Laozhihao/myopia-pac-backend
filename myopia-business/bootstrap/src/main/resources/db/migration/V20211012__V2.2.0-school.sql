@@ -16,6 +16,12 @@ alter table m_stat_conclusion
 alter table m_school_vision_statistic
     add myopia_level_early int null comment '近视前期' after myopia_level_light;
 
+alter table m_stat_conclusion
+    add hyperopia_level int null comment '远视等级';
+
+alter table m_stat_conclusion
+    add astigmatism_level int null comment '散光等级';
+
 -- 更新学校表
 UPDATE m_school SET district_detail = '[]' WHERE school_no = '1234567890';
 ALTER TABLE `m_school`

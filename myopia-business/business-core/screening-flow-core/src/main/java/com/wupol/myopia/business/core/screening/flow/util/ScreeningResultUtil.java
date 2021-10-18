@@ -676,12 +676,12 @@ public class ScreeningResultUtil {
      * @return String 散光中文名
      */
     public static TwoTuple<String, Integer> getCylTypeName(BigDecimal cyl) {
-        WarningLevel astigmatismWarningLevel = StatUtil.getAstigmatismWarningLevel(cyl.floatValue());
+        AstigmatismLevelEnum astigmatismWarningLevel = StatUtil.getAstigmatismWarningLevel(cyl.floatValue());
         BigDecimal cylVal = cyl.abs().multiply(new BigDecimal("100")).setScale(0, RoundingMode.DOWN);
         if (BigDecimalUtil.isBetweenAll(cyl, new BigDecimal("-0.5"), new BigDecimal("0.5"))) {
-            return new TwoTuple<>(cylVal + "度", warningLevel2Type(astigmatismWarningLevel));
+            return new TwoTuple<>(cylVal + "度", astigmatismLevelLevel2Type(astigmatismWarningLevel));
         }
-        return new TwoTuple<>("散光" + cylVal + "度", warningLevel2Type(astigmatismWarningLevel));
+        return new TwoTuple<>("散光" + cylVal + "度", astigmatismLevelLevel2Type(astigmatismWarningLevel));
     }
 
     /**
@@ -794,6 +794,37 @@ public class ScreeningResultUtil {
 
         if (hyperopiaLevelEnum.code.equals(HyperopiaLevelEnum.HYPEROPIA_LEVEL_HIGH.code)) {
             return ParentReportConst.LABEL_SEVERE;
+        }
+        // 未知返回正常
+        return ParentReportConst.LABEL_NORMAL;
+    }
+
+    /**
+     * 远视级别转换成type
+     * <p>预警级别 {@link AstigmatismLevelEnum}</p>
+     *
+     * @param hyperopiaLevelEnum 预警级别
+     * @return Integer {@link ParentReportConst}
+     */
+    public static Integer astigmatismLevelLevel2Type(AstigmatismLevelEnum hyperopiaLevelEnum) {
+        if (null == hyperopiaLevelEnum) {
+            return ParentReportConst.LABEL_NORMAL;
+        }
+        // 预警-1或0则是正常
+        if (hyperopiaLevelEnum.code.equals(AstigmatismLevelEnum.ZERO.code)) {
+            return ParentReportConst.LABEL_NORMAL;
+        }
+
+        if (hyperopiaLevelEnum.code.equals(AstigmatismLevelEnum.ASTIGMATISM_LEVEL_LIGHT.code)) {
+            return ParentReportConst.LABEL_MILD;
+        }
+
+        if (hyperopiaLevelEnum.code.equals(AstigmatismLevelEnum.ASTIGMATISM_LEVEL_MIDDLE.code)) {
+            return ParentReportConst.LABEL_MODERATE;
+        }
+
+        if (hyperopiaLevelEnum.code.equals(AstigmatismLevelEnum.ASTIGMATISM_LEVEL_HIGH.code)) {
+            return ParentReportConst.LABEL_MODERATE;
         }
         // 未知返回正常
         return ParentReportConst.LABEL_NORMAL;
