@@ -26,6 +26,16 @@ public class StatUtil {
      * @return
      */
     public static boolean isMyopia(Float sphere, Float cylinder, Integer age, Float nakedVision) {
+        if (Objects.nonNull(age)) {
+            if (age < 6 && nakedVision < 4.9) {
+                return true;
+            }
+            if (Objects.nonNull(nakedVision)) {
+                if (age >= 6 && nakedVision < 5) {
+                    return true;
+                }
+            }
+        }
         return Objects.requireNonNull(getMyopiaWarningLevel(sphere, cylinder, age, nakedVision)).code > 0;
     }
 
@@ -235,16 +245,6 @@ public class StatUtil {
         float se = getSphericalEquivalent(sphere, cylinder);
         if (se >= -0.5 && se <= 0.5) {
             return MyopiaLevelEnum.ZERO;
-        }
-        if (Objects.nonNull(age)) {
-            if (age < 6 && nakedVision < 4.9) {
-                return MyopiaLevelEnum.SCREENING_MYOPIA;
-            }
-            if (Objects.nonNull(nakedVision)) {
-                if (age >= 6 && nakedVision < 5) {
-                    return MyopiaLevelEnum.SCREENING_MYOPIA;
-                }
-            }
         }
         if (se > -0.5 && se <= 0.75) return MyopiaLevelEnum.MYOPIA_LEVEL_EARLY;
         if (se >= -3.0f && se < -0.5f) return MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT;
