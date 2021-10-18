@@ -1064,7 +1064,7 @@ public class ScreeningResultUtil {
         if (age < 4 && BigDecimalUtil.lessThan(correctedVision, "4.7")
                 || age < 6 && BigDecimalUtil.lessThan(correctedVision, "4.8")
                 || age > 6 && BigDecimalUtil.lessThan(correctedVision, "4.9")) {
-            return RecommendVisitEnum.MIDDLE_RESULT_1;
+            return RecommendVisitEnum.KINDERGARTEN_RESULT_1;
         }
         if (age < 4 && BigDecimalUtil.moreThanAndEqual(correctedVision, "4.7")
                 || age < 6 && BigDecimalUtil.moreThanAndEqual(correctedVision, "4.8")
