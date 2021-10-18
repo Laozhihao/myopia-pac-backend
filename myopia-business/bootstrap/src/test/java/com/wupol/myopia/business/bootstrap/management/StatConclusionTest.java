@@ -2,10 +2,7 @@ package com.wupol.myopia.business.bootstrap.management;
 
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.wupol.myopia.business.bootstrap.MyopiaBusinessApplication;
-import com.wupol.myopia.business.common.utils.constant.GlassesType;
-import com.wupol.myopia.business.common.utils.constant.SchoolAge;
-import com.wupol.myopia.business.common.utils.constant.VisionCorrection;
-import com.wupol.myopia.business.common.utils.constant.WarningLevel;
+import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
@@ -26,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -103,14 +99,13 @@ public class StatConclusionTest {
             WarningLevel rightAstigmatismWarningLevel =
                     StatUtil.getAstigmatismWarningLevel(rightCyl);
 
-            WarningLevel leftHyperopiaWarningLevel =
+            HyperopiaLevelEnum leftHyperopiaWarningLevel =
                     StatUtil.getHyperopiaWarningLevel(leftSph, leftCyl, age);
-            WarningLevel rightHyperopiaWarningLevel =
+            HyperopiaLevelEnum rightHyperopiaWarningLevel =
                     StatUtil.getHyperopiaWarningLevel(rightSph, rightCyl, age);
 
-            WarningLevel leftMyopiaWarningLevel = StatUtil.getMyopiaWarningLevel(leftSph, leftCyl);
-            WarningLevel rightMyopiaWarningLevel =
-                    StatUtil.getMyopiaWarningLevel(rightSph, rightCyl);
+            MyopiaLevelEnum leftMyopiaWarningLevel = StatUtil.getMyopiaWarningLevel(leftSph, leftCyl, null, null);
+            MyopiaLevelEnum rightMyopiaWarningLevel = StatUtil.getMyopiaWarningLevel(rightSph, rightCyl, null,null );
 
             Integer myopiaWarningLevel = leftMyopiaWarningLevel.code > rightMyopiaWarningLevel.code
                     ? leftMyopiaWarningLevel.code

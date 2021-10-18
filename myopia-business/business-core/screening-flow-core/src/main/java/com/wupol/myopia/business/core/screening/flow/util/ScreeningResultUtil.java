@@ -78,10 +78,13 @@ public class ScreeningResultUtil {
      *
      * @param date 数据
      * @param age  年龄
-     * @return List<VisionItems> 视力检查结果
+     * @return ThreeTuple<List < VisionItems>, BigDecimal, BigDecimal> first-视力检查结果 second-左眼裸眼视力 third-右眼裸眼视力
      */
-    public static List<VisionItems> packageVisionResult(VisionDataDO date, Integer age) {
+    public static ThreeTuple<List<VisionItems>, BigDecimal, BigDecimal> packageVisionResult(VisionDataDO date, Integer age) {
         List<VisionItems> itemsList = new ArrayList<>();
+        BigDecimal leftNV = null;
+        BigDecimal rightNV = null;
+
 
         // 裸眼视力
         VisionItems nakedVision = new VisionItems();
@@ -100,6 +103,7 @@ public class ScreeningResultUtil {
             BigDecimal leftNakedVisionValue = date.getLeftEyeData().getNakedVision();
             if (Objects.nonNull(leftNakedVisionValue)) {
                 nakedVision.setOs(packageNakedVision(leftNakedVision, leftNakedVisionValue, age));
+                leftNV = leftNakedVisionValue;
             }
 
             // 右裸眼视力
@@ -107,6 +111,7 @@ public class ScreeningResultUtil {
             BigDecimal rightNakedVisionValue = date.getRightEyeData().getNakedVision();
             if (Objects.nonNull(rightNakedVisionValue)) {
                 nakedVision.setOd(packageNakedVision(rightNakedVision, rightNakedVisionValue, age));
+                rightNV = rightNakedVisionValue;
             }
 
             // 左矫正视力
@@ -127,7 +132,7 @@ public class ScreeningResultUtil {
         }
         itemsList.add(nakedVision);
         itemsList.add(correctedVision);
-        return itemsList;
+        return new ThreeTuple<>(itemsList, leftNV, rightNV);
     }
 
     /**
@@ -171,7 +176,8 @@ public class ScreeningResultUtil {
      * @param age  年龄
      * @return TwoTuple<List < RefractoryResultItems>, Integer> left-验光仪检查数据 right-预警级别
      */
-    public static TwoTuple<List<RefractoryResultItems>, Integer> packageRefractoryResult(ComputerOptometryDO date, Integer age) {
+    public static TwoTuple<List<RefractoryResultItems>, Integer> packageRefractoryResult(ComputerOptometryDO date, Integer age,
+                                                                                         BigDecimal leftNakedVision, BigDecimal rightNakedVision) {
 
         List<RefractoryResultItems> items = new ArrayList<>();
         Integer maxType = 0;
@@ -199,13 +205,13 @@ public class ScreeningResultUtil {
 
             // 左眼等效球镜SE
             if (Objects.nonNull(leftSph) && Objects.nonNull(leftCyl)) {
-                TwoTuple<Integer, RefractoryResultItems.Item> result = packageSpnItem(leftSph, leftCyl, age, maxType);
+                TwoTuple<Integer, RefractoryResultItems.Item> result = packageSpnItem(leftSph, leftCyl, age, maxType, leftNakedVision);
                 maxType = result.getFirst();
                 sphItems.setOs(result.getSecond());
             }
             // 右眼等效球镜SE
             if (Objects.nonNull(rightSph) && Objects.nonNull(rightCyl)) {
-                TwoTuple<Integer, RefractoryResultItems.Item> result = packageSpnItem(rightSph, rightCyl, age, maxType);
+                TwoTuple<Integer, RefractoryResultItems.Item> result = packageSpnItem(rightSph, rightCyl, age, maxType, rightNakedVision);
                 maxType = result.getFirst();
                 sphItems.setOd(result.getSecond());
             }
@@ -245,17 +251,19 @@ public class ScreeningResultUtil {
     /**
      * 封装等效球镜SE
      *
-     * @param spn     球镜
-     * @param cyl     柱镜
-     * @param age     年龄
-     * @param maxType 最大类型
+     * @param spn         球镜
+     * @param cyl         柱镜
+     * @param age         年龄
+     * @param maxType     最大类型
+     * @param nakedVision 裸眼视力
      * @return TwoTuple<Integer, RefractoryResultItems.Item>
      */
-    public static TwoTuple<Integer, RefractoryResultItems.Item> packageSpnItem(BigDecimal spn, BigDecimal cyl, Integer age, Integer maxType) {
+    public static TwoTuple<Integer, RefractoryResultItems.Item> packageSpnItem(BigDecimal spn, BigDecimal cyl,
+                                                                               Integer age, Integer maxType, BigDecimal nakedVision) {
         RefractoryResultItems.Item sphItems = new RefractoryResultItems.Item();
         // 等效球镜SE
         sphItems.setVision(calculationSE(spn, cyl));
-        TwoTuple<String, Integer> leftSphType = getSphTypeName(spn, cyl, age);
+        TwoTuple<String, Integer> leftSphType = getSphTypeName(spn, cyl, age, nakedVision);
         sphItems.setTypeName(leftSphType.getFirst());
         Integer type = leftSphType.getSecond();
         // 取最大的type
@@ -630,34 +638,35 @@ public class ScreeningResultUtil {
     /**
      * 获取球镜typeName
      *
-     * @param sph 球镜
-     * @param cyl 柱镜
-     * @param age 年龄
+     * @param sph         球镜
+     * @param cyl         柱镜
+     * @param age         年龄
+     * @param nakedVision 裸眼视力
      * @return TwoTuple<> left-球镜中文 right-预警级别(重新封装的一层)
      */
-    public static TwoTuple<String, Integer> getSphTypeName(BigDecimal sph, BigDecimal cyl, Integer age) {
+    public static TwoTuple<String, Integer> getSphTypeName(BigDecimal sph, BigDecimal cyl, Integer age, BigDecimal nakedVision) {
         BigDecimal se = calculationSE(sph, cyl);
         BigDecimal seVal = se.abs().multiply(new BigDecimal("100")).setScale(0, RoundingMode.DOWN);
         if (sph.compareTo(new BigDecimal("0.00")) <= 0) {
             // 近视
-            WarningLevel myopiaWarningLevel = StatUtil.getMyopiaWarningLevel(sph.floatValue(), cyl.floatValue());
+            MyopiaLevelEnum myopiaWarningLevel = StatUtil.getMyopiaWarningLevel(sph.floatValue(), cyl.floatValue(), age, nakedVision.floatValue());
             String str;
             if (sph.compareTo(new BigDecimal("-0.50")) < 0) {
                 str = "近视" + seVal + "度";
             } else {
                 str = seVal + "度";
             }
-            return new TwoTuple<>(str, warningLevel2Type(myopiaWarningLevel));
+            return new TwoTuple<>(str, myopiaLevel2Type(myopiaWarningLevel));
         } else {
             // 远视
-            WarningLevel hyperopiaWarningLevel = StatUtil.getHyperopiaWarningLevel(sph.floatValue(), cyl.floatValue(), age);
+            HyperopiaLevelEnum hyperopiaWarningLevel = StatUtil.getHyperopiaWarningLevel(sph.floatValue(), cyl.floatValue(), age);
             String str;
             if (sph.compareTo(new BigDecimal("0.50")) > 0) {
                 str = "远视" + seVal + "度";
             } else {
                 str = seVal + "度";
             }
-            return new TwoTuple<>(str, warningLevel2Type(hyperopiaWarningLevel));
+            return new TwoTuple<>(str, hyperopiaLevelLevel2Type(hyperopiaWarningLevel));
         }
     }
 
@@ -724,6 +733,68 @@ public class ScreeningResultUtil {
         // 预警4 远视储备不足
         if (warningLevel.code.equals(WarningLevel.ZERO_SP.code)) {
             return ParentReportConst.LABEL_NORMAL_SP;
+        }
+        // 未知返回正常
+        return ParentReportConst.LABEL_NORMAL;
+    }
+
+    /**
+     * 近视级别转换成type
+     * <p>预警级别 {@link MyopiaLevelEnum}</p>
+     *
+     * @param warningLevel 预警级别
+     * @return Integer {@link ParentReportConst}
+     */
+    public static Integer myopiaLevel2Type(MyopiaLevelEnum warningLevel) {
+        if (null == warningLevel) {
+            return ParentReportConst.LABEL_NORMAL;
+        }
+        // 预警-1或0则是正常
+        if (warningLevel.code.equals(MyopiaLevelEnum.ZERO.code) || warningLevel.code.equals(MyopiaLevelEnum.SCREENING_MYOPIA.code)) {
+            return ParentReportConst.LABEL_NORMAL;
+        }
+
+        if (warningLevel.code.equals(MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.code)) {
+            return ParentReportConst.LABEL_MILD;
+        }
+
+        if (warningLevel.code.equals(MyopiaLevelEnum.MYOPIA_LEVEL_MIDDLE.code)) {
+            return ParentReportConst.LABEL_MODERATE;
+        }
+
+        if (warningLevel.code.equals(MyopiaLevelEnum.MYOPIA_LEVEL_HIGH.code)) {
+            return ParentReportConst.LABEL_SEVERE;
+        }
+        // 未知返回正常
+        return ParentReportConst.LABEL_NORMAL;
+    }
+
+    /**
+     * 远视级别转换成type
+     * <p>预警级别 {@link HyperopiaLevelEnum}</p>
+     *
+     * @param hyperopiaLevelEnum 预警级别
+     * @return Integer {@link ParentReportConst}
+     */
+    public static Integer hyperopiaLevelLevel2Type(HyperopiaLevelEnum hyperopiaLevelEnum) {
+        if (null == hyperopiaLevelEnum) {
+            return ParentReportConst.LABEL_NORMAL;
+        }
+        // 预警-1或0则是正常
+        if (hyperopiaLevelEnum.code.equals(HyperopiaLevelEnum.ZERO.code)) {
+            return ParentReportConst.LABEL_NORMAL;
+        }
+
+        if (hyperopiaLevelEnum.code.equals(HyperopiaLevelEnum.HYPEROPIA_LEVEL_LIGHT.code)) {
+            return ParentReportConst.LABEL_MILD;
+        }
+
+        if (hyperopiaLevelEnum.code.equals(HyperopiaLevelEnum.HYPEROPIA_LEVEL_MIDDLE.code)) {
+            return ParentReportConst.LABEL_MODERATE;
+        }
+
+        if (hyperopiaLevelEnum.code.equals(HyperopiaLevelEnum.HYPEROPIA_LEVEL_HIGH.code)) {
+            return ParentReportConst.LABEL_SEVERE;
         }
         // 未知返回正常
         return ParentReportConst.LABEL_NORMAL;

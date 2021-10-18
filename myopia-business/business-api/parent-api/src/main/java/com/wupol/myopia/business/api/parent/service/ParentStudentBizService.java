@@ -4,6 +4,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.crypto.SecureUtil;
 import com.google.common.collect.Lists;
+import com.wupol.framework.domain.ThreeTuple;
 import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
@@ -51,6 +52,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -415,10 +417,12 @@ public class ParentStudentBizService {
         VisionDataDO visionData = result.getVisionData();
 
         // 视力检查结果
-        responseDTO.setVisionResultItems(ScreeningResultUtil.packageVisionResult(visionData, age));
+        ThreeTuple<List<VisionItems>, BigDecimal, BigDecimal> listBigDecimalBigDecimalThreeTuple = ScreeningResultUtil.packageVisionResult(visionData, age);
+        responseDTO.setVisionResultItems(listBigDecimalBigDecimalThreeTuple.getFirst());
 
         // 验光仪检查结果
-        TwoTuple<List<RefractoryResultItems>, Integer> refractoryResult = ScreeningResultUtil.packageRefractoryResult(result.getComputerOptometry(), age);
+        TwoTuple<List<RefractoryResultItems>, Integer> refractoryResult = ScreeningResultUtil.packageRefractoryResult(result.getComputerOptometry(), age,
+                listBigDecimalBigDecimalThreeTuple.getSecond(), listBigDecimalBigDecimalThreeTuple.getThird());
         responseDTO.setRefractoryResultItems(refractoryResult.getFirst());
 
         // 生物测量
