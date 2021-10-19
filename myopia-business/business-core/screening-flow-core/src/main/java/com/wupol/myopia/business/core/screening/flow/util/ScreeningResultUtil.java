@@ -620,6 +620,9 @@ public class ScreeningResultUtil {
      * @return 等效球镜
      */
     public static BigDecimal calculationSE(BigDecimal sph, BigDecimal cyl) {
+        if (ObjectsUtil.hasNull(sph, cyl)) {
+            return null;
+        }
         return sph.add(cyl.multiply(new BigDecimal("0.5")))
                 .setScale(2, RoundingMode.HALF_UP);
     }
@@ -1251,9 +1254,8 @@ public class ScreeningResultUtil {
     public static TwoTuple<Integer, RecommendVisitEnum> getNotWearingGlasses(BigDecimal cyl, BigDecimal se, Integer schoolAge,
                                                                              Integer age, BigDecimal nakedVision) {
         // 是否大于4.9，大于4.9直接返回
-        if (Objects.isNull(nakedVision)
-                || BigDecimalUtil.moreThanAndEqual(nakedVision, "4.9")
-                || Objects.isNull(schoolAge)) {
+        if (ObjectsUtil.hasNull(nakedVision, schoolAge, se)
+                || BigDecimalUtil.moreThanAndEqual(nakedVision, "4.9")) {
             return new TwoTuple<>(0, RecommendVisitEnum.EMPTY);
         }
         boolean checkCyl = BigDecimalUtil.lessThanAndEqual(cyl, "1.5");
