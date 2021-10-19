@@ -237,12 +237,12 @@ public class StudentController {
                                                 BigDecimal leftCorrectedVision, BigDecimal rightCorrectedVision,
                                                 BigDecimal leftSph, BigDecimal rightSph,
                                                 BigDecimal leftCyl, BigDecimal rightCyl,
-                                                Integer glassesType, Integer age) {
+                                                Integer glassesType, Integer age, Integer schoolAge) {
         return ApiResult.success(ScreeningResultUtil.middleAdviceResult(leftNakedVision, rightNakedVision,
                 leftCorrectedVision, rightCorrectedVision,
                 leftSph, rightSph,
                 leftCyl, rightCyl,
-                glassesType, age, ).getAdvice());
+                glassesType, age, schoolAge).getAdvice());
     }
 
     @GetMapping("getWarningLevelInt")
