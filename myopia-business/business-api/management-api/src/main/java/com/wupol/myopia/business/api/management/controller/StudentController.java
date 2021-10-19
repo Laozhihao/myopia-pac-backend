@@ -242,7 +242,7 @@ public class StudentController {
                 leftCorrectedVision, rightCorrectedVision,
                 leftSph, rightSph,
                 leftCyl, rightCyl,
-                glassesType, age).getAdvice());
+                glassesType, age, ).getAdvice());
     }
 
     @GetMapping("getWarningLevelInt")

@@ -48,6 +48,9 @@
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
                 <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
                 <if test="@Ognl@isNotEmpty(schoolId)">and `school_id` = #{schoolId}</if>
+                <if test="@Ognl@isNotEmpty(myopiaLevel)">and `myopia_level` = #{myopiaLevel}</if>
+                <if test="@Ognl@isNotEmpty(hyperopiaLevel)">and `hyperopia_level` = #{hyperopiaLevel}</if>
+                <if test="@Ognl@isNotEmpty(astigmatismLevel)">and `astigmatism_level` = #{astigmatismLevel}</if>
 
                 <!-- 模糊查询 -->
                 <if test="nameLike != null">and `name` like CONCAT("%",#{nameLike},"%")</if>
@@ -66,8 +69,9 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, school_no, create_user_id, sno, grade_id, grade_type, class_id, name, gender, birthday, nation, id_card, parent_phone, mp_parent_phone, province_code, city_code, area_code, town_code, address,
-        avatar_file_id, current_situation, vision_label, last_screening_time, remark, status, glasses_type,is_myopia,is_hyperopia,is_astigmatism,create_time, update_time, school_id
+        id, school_no, create_user_id, sno, grade_id, grade_type, class_id, name, gender, birthday, nation, id_card, parent_phone, mp_parent_phone, province_code, city_code, area_code, town_code,
+        address, avatar_file_id, current_situation, vision_label, last_screening_time, remark, status, glasses_type,is_myopia,is_hyperopia,is_astigmatism,create_time, update_time,school_id,
+        myopia_level, hyperopia_level, astigmatism_level
     </sql>
 
     <select id="getStudentListByCondition" resultMap="BaseResultMapDTO">
