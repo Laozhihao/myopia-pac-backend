@@ -864,10 +864,10 @@ public class ScreeningResultUtil {
      * @param rightNakedVision       右-裸眼
      * @param leftCorrectedVision    左-矫正视力
      * @param rightCorrectedVision   右-矫正视力
-     * @param leftSph                左-柱镜
-     * @param rightSph               右-柱镜
-     * @param leftCyl                左-球镜
-     * @param rightCyl               右-球镜
+     * @param leftSph                左-球镜
+     * @param rightSph               右-球镜
+     * @param leftCyl                左-柱镜
+     * @param rightCyl               右-柱镜
      * @param glassesType            戴镜类型
      * @param schoolAge              学龄段
      * @param age                    年龄
@@ -970,10 +970,10 @@ public class ScreeningResultUtil {
      * @param rightNakedVision       右-裸眼
      * @param leftCorrectedVision    左-矫正视力
      * @param rightCorrectedVision   右-矫正视力
-     * @param leftSph                左-柱镜
-     * @param rightSph               右-柱镜
-     * @param leftCyl                左-球镜
-     * @param rightCyl               右-球镜
+     * @param leftSph                左-球镜
+     * @param rightSph               右-球镜
+     * @param leftCyl                左-柱镜
+     * @param rightCyl               右-柱镜
      * @param glassesType            戴镜类型
      * @param age                    年龄
      * @param otherEyeDiseasesNormal 是否有其他眼病
