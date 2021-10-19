@@ -544,20 +544,21 @@ public class StatUtil {
             return null;
         }
         BigDecimal absCyl = cyl.abs();
+
+        if (BigDecimalUtil.lessThanAndEqual(nakedVision, "4.5") || threeSE(se) || (age < 4 && BigDecimalUtil.moreThan(se, "9")) || (age >= 4 && BigDecimalUtil.moreThan(se, "8")) || threeAbsCyl(absCyl)) {
+            return WarningLevel.THREE;
+        }
+        if (BigDecimalUtil.isBetweenRight(nakedVision, "4.5", "4.6") || twoSE(se) || (age < 4 && BigDecimalUtil.isBetweenRight(se, "6", "9") || (age >= 4 && BigDecimalUtil.isBetweenRight(se, "5", "8")) || twoAbsCyl(absCyl))) {
+            return WarningLevel.TWO;
+        }
+        if (BigDecimalUtil.isBetweenRight(nakedVision, "4.6", "4.7") || oneSE(se) || (age < 4 && BigDecimalUtil.isBetweenRight(se, "3", "6")) || (age >= 4 && BigDecimalUtil.isBetweenRight(se, "2", "5")) || oneAbsCyl(absCyl)) {
+            return WarningLevel.ONE;
+        }
         if (BigDecimalUtil.isBetweenRight(se, "0", "1.5")) {
             return WarningLevel.ZERO_SP;
         }
         if (BigDecimalUtil.isBetweenNo(nakedVision, "4.7", "5") || zeroSE(se) || zeroAbsCyl(absCyl)) {
             return WarningLevel.ZERO;
-        }
-        if (BigDecimalUtil.isBetweenRight(nakedVision, "4.6", "4.7") || oneSE(se) || (age < 4 && BigDecimalUtil.isBetweenRight(se, "3", "6")) || (age >= 4 && BigDecimalUtil.isBetweenRight(se, "2", "5")) || oneAbsCyl(absCyl)) {
-            return WarningLevel.ONE;
-        }
-        if (BigDecimalUtil.isBetweenRight(nakedVision, "4.5", "4.6") || twoSE(se) || (age < 4 && BigDecimalUtil.isBetweenRight(se, "6", "9") || (age >= 4 && BigDecimalUtil.isBetweenRight(se, "5", "8")) || twoAbsCyl(absCyl))) {
-            return WarningLevel.TWO;
-        }
-        if (BigDecimalUtil.lessThanAndEqual(nakedVision, "4.5") || threeSE(se) || (age < 4 && BigDecimalUtil.moreThan(se, "9")) || (age >= 4 && BigDecimalUtil.moreThan(se, "8")) || threeAbsCyl(absCyl)) {
-            return WarningLevel.THREE;
         }
         return null;
     }
@@ -576,20 +577,20 @@ public class StatUtil {
         if (Objects.isNull(se)) {
             return null;
         }
+        if ((BigDecimalUtil.lessThanAndEqual(nakedVision, "4.5")) || threeSE(se) || BigDecimalUtil.moreThan(se, "7.5") || threeAbsCyl(absCyl)) {
+            return WarningLevel.THREE;
+        }
+        if (BigDecimalUtil.isBetweenRight(nakedVision, "4.5", "4.6") || twoSE(se) || BigDecimalUtil.isBetweenRight(se, "4.5", "7.5") || twoAbsCyl(absCyl)) {
+            return WarningLevel.TWO;
+        }
+        if (BigDecimalUtil.isBetweenRight(nakedVision, "4.7", "4.8") || oneSE(se) || BigDecimalUtil.isBetweenRight(se, "1.5", "4.5") || oneAbsCyl(absCyl)) {
+            return WarningLevel.ONE;
+        }
         if (BigDecimalUtil.isBetweenRight(se, "0", "1")) {
             return WarningLevel.ZERO_SP;
         }
         if (BigDecimalUtil.isBetweenNo(nakedVision, "4.8", "5") || zeroSE(se) || zeroAbsCyl(absCyl)) {
             return WarningLevel.ZERO;
-        }
-        if (BigDecimalUtil.isBetweenRight(nakedVision, "4.7", "4.8") || oneSE(se) || BigDecimalUtil.isBetweenRight(se, "1.5", "4.5") || oneAbsCyl(absCyl)) {
-            return WarningLevel.ONE;
-        }
-        if (BigDecimalUtil.isBetweenRight(nakedVision, "4.5", "4.6") || twoSE(se) || BigDecimalUtil.isBetweenRight(se, "4.5", "7.5") || twoAbsCyl(absCyl)) {
-            return WarningLevel.TWO;
-        }
-        if ((BigDecimalUtil.lessThanAndEqual(nakedVision, "4.5")) || threeSE(se) || BigDecimalUtil.moreThan(se, "7.5") || threeAbsCyl(absCyl)) {
-            return WarningLevel.THREE;
         }
         return null;
     }
@@ -608,17 +609,17 @@ public class StatUtil {
             return null;
         }
         BigDecimal absCyl = cyl.abs();
-        if (BigDecimalUtil.isBetweenNo(nakedVision, "4.9", "5") || zeroSE(se) || zeroAbsCyl(absCyl)) {
-            return WarningLevel.ZERO;
-        }
-        if (BigDecimalUtil.isBetweenRight(nakedVision, "4.7", "4.9") || oneSE(se) || (BigDecimalUtil.isBetweenRight(se, "0.5", "3")) || oneAbsCyl(absCyl)) {
-            return WarningLevel.ONE;
+        if (BigDecimalUtil.lessThanAndEqual(nakedVision, "4.5") || threeSE(se) || (BigDecimalUtil.moreThan(se, "6") || threeAbsCyl(absCyl))) {
+            return WarningLevel.THREE;
         }
         if (BigDecimalUtil.isBetweenRight(nakedVision, "4.5", "4.7") || twoSE(se) || (BigDecimalUtil.isBetweenRight(se, "3", "6")) || twoAbsCyl(absCyl)) {
             return WarningLevel.TWO;
         }
-        if (BigDecimalUtil.lessThanAndEqual(nakedVision, "4.5") || threeSE(se) || (BigDecimalUtil.moreThan(se, "6") || threeAbsCyl(absCyl))) {
-            return WarningLevel.THREE;
+        if (BigDecimalUtil.isBetweenRight(nakedVision, "4.7", "4.9") || oneSE(se) || (BigDecimalUtil.isBetweenRight(se, "0.5", "3")) || oneAbsCyl(absCyl)) {
+            return WarningLevel.ONE;
+        }
+        if (BigDecimalUtil.isBetweenNo(nakedVision, "4.9", "5") || zeroSE(se) || zeroAbsCyl(absCyl)) {
+            return WarningLevel.ZERO;
         }
         return null;
     }
