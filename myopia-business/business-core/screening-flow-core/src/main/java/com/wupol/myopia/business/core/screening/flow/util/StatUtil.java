@@ -631,7 +631,7 @@ public class StatUtil {
      * @return 是否满足条件
      */
     private boolean zeroSE(BigDecimal se) {
-        return (BigDecimalUtil.isBetweenRight(se, "-0.5", "-0.25"));
+        return (BigDecimalUtil.isBetweenAll(se, "-0.5", "-0.25"));
     }
 
     /**
@@ -641,7 +641,7 @@ public class StatUtil {
      * @return 是否满足条件
      */
     private boolean oneSE(BigDecimal se) {
-        return BigDecimalUtil.isBetweenRight(se, "-3", "-0.5");
+        return BigDecimalUtil.isBetweenLeft(se, "-3", "-0.5");
     }
 
     /**
@@ -651,7 +651,7 @@ public class StatUtil {
      * @return 是否满足条件
      */
     private boolean twoSE(BigDecimal se) {
-        return BigDecimalUtil.isBetweenRight(se, "-6", "-3");
+        return BigDecimalUtil.isBetweenLeft(se, "-6", "-3");
     }
 
     /**
