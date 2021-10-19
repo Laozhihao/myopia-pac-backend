@@ -290,10 +290,14 @@ public class StatConclusionBuilder {
 
 
     private void setRecommendVisit() {
-        boolean isRecommendVisit = ScreeningResultUtil.getDoctorAdvice(new BigDecimal(basicData.leftNakedVision.toString()), new BigDecimal(basicData.rightNakedVision.toString()),
-                new BigDecimal(basicData.leftCorrectVision.toString()), new BigDecimal(basicData.rightCorrectVision.toString()),
-                new BigDecimal(basicData.leftSph.toString()), new BigDecimal(basicData.rightSph.toString()),
-                new BigDecimal(basicData.leftCyl.toString()), new BigDecimal(basicData.rightCyl),
+        boolean isRecommendVisit = ScreeningResultUtil.getDoctorAdvice(new BigDecimal(basicData.leftNakedVision.toString()),
+                new BigDecimal(basicData.rightNakedVision.toString()),
+                Objects.nonNull(basicData.leftCorrectVision) ? new BigDecimal(basicData.leftCorrectVision.toString()) : null,
+                Objects.nonNull(basicData.rightCorrectVision) ? new BigDecimal(basicData.rightCorrectVision.toString()) : null,
+                Objects.nonNull(basicData.leftSph) ? new BigDecimal(basicData.leftSph.toString()) : null,
+                Objects.nonNull(basicData.rightSph) ? new BigDecimal(basicData.rightSph.toString()) : null,
+                Objects.nonNull(basicData.leftCyl) ? new BigDecimal(basicData.leftCyl.toString()) : null,
+                Objects.nonNull(basicData.rightCyl) ? new BigDecimal(basicData.rightCyl) : null,
                 basicData.glassesType, basicData.schoolAge, basicData.age, basicData.otherEyeDiseasesNormal).getIsRecommendVisit();
         statConclusion.setIsRecommendVisit(isRecommendVisit);
     }

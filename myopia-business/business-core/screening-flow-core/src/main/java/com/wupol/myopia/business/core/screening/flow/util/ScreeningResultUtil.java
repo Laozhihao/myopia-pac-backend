@@ -925,14 +925,10 @@ public class ScreeningResultUtil {
                 return getIsWearingGlasses(leftCorrectedVision, rightCorrectedVision,
                         leftNakedVision, rightNakedVision, nakedVisionResult);
             } else {
-                // 获取屈光参差
-                BigDecimal anisometropia = getAnisometropia(leftSe, rightSe);
 
                 // 获取两只眼的结论
-                TwoTuple<Integer, RecommendVisitEnum> left = getNotWearingGlasses(leftCyl, leftSe, schoolAge,
-                        leftNakedVision, anisometropia);
-                TwoTuple<Integer, RecommendVisitEnum> right = getNotWearingGlasses(rightCyl, rightSe, schoolAge,
-                        rightNakedVision, anisometropia);
+                TwoTuple<Integer, RecommendVisitEnum> left = getNotWearingGlasses(leftCyl, leftSe, schoolAge, age, leftNakedVision);
+                TwoTuple<Integer, RecommendVisitEnum> right = getNotWearingGlasses(rightCyl, rightSe, schoolAge, age, rightNakedVision);
 
                 // 取结论严重的那只眼
                 if (left.getFirst() >= right.getFirst()) {
@@ -1245,31 +1241,30 @@ public class ScreeningResultUtil {
     /**
      * 没有戴镜情况下获取结论
      *
-     * @param cyl           柱镜
-     * @param se            等效球镜
-     * @param schoolAge     学龄段
-     * @param nakedVision   裸眼视力
-     * @param anisometropia 屈光参差
+     * @param cyl         柱镜
+     * @param se          等效球镜
+     * @param schoolAge   学龄段
+     * @param age
+     * @param nakedVision 裸眼视力
      * @return TwoTuple<Integer, String>
      */
     public static TwoTuple<Integer, RecommendVisitEnum> getNotWearingGlasses(BigDecimal cyl, BigDecimal se, Integer schoolAge,
-                                                                             BigDecimal nakedVision, BigDecimal anisometropia) {
+                                                                             Integer age, BigDecimal nakedVision) {
         // 是否大于4.9，大于4.9直接返回
         if (Objects.isNull(nakedVision)
                 || BigDecimalUtil.moreThanAndEqual(nakedVision, "4.9")
                 || Objects.isNull(schoolAge)) {
             return new TwoTuple<>(0, RecommendVisitEnum.EMPTY);
         }
-
-//        if ((schoolAge.equals()))
-
-
         boolean checkCyl = BigDecimalUtil.lessThanAndEqual(cyl, "1.5");
-        if (BigDecimalUtil.isBetweenLeft(se, "0.00", "2.00") && checkCyl) {
+
+        if ((schoolAge.equals(SchoolAge.PRIMARY.code) && age < 7 && BigDecimalUtil.isBetweenLeft(se, "0", "2") && checkCyl)
+                || (SchoolAge.isMiddleSchool(schoolAge) && BigDecimalUtil.isBetweenLeft(se, "-0.5", "3") && BigDecimalUtil.lessThan(cyl, "1.5"))) {
             return new TwoTuple<>(1, RecommendVisitEnum.MIDDLE_RESULT_3);
         }
 
-        if (!BigDecimalUtil.isBetweenLeft(se, "0.00", "2.00") || !checkCyl || BigDecimalUtil.moreThan(anisometropia, "1.5")) {
+        if ((schoolAge.equals(SchoolAge.PRIMARY.code) && age < 7 && !BigDecimalUtil.isBetweenLeft(se, "0", "2"))
+                || (SchoolAge.isMiddleSchool(schoolAge) && !BigDecimalUtil.isBetweenLeft(se, "-0.5", "3") && BigDecimalUtil.moreThan(cyl, "1.5"))) {
             return new TwoTuple<>(2, RecommendVisitEnum.MIDDLE_RESULT_4);
         }
         return new TwoTuple<>(0, RecommendVisitEnum.EMPTY);
