@@ -523,7 +523,7 @@ public class StatUtil {
         if (age >= 6 && age < 8) {
             return between6And7GetLevel(cyl, spn, nakedVision);
         }
-        if (age > 8) {
+        if (age >= 8) {
             return moreThan8GetLevel(cyl, spn, nakedVision);
         }
         return null;
