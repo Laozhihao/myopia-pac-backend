@@ -1286,6 +1286,9 @@ public class ScreeningResultUtil {
     public static RecommendVisitEnum nakedVisionNormal(BigDecimal leftNakedVision, BigDecimal rightNakedVision,
                                                        BigDecimal leftSe, BigDecimal rightSe,
                                                        TwoTuple<BigDecimal, Integer> nakedVisionResult, Integer age) {
+        if (ObjectsUtil.hasNull(leftSe, rightSe)) {
+            return RecommendVisitEnum.EMPTY;
+        }
         BigDecimal se = getNakedVisionNormalSE(leftNakedVision, rightNakedVision, leftSe, rightSe, nakedVisionResult);
         if (BigDecimalUtil.moreThanAndEqual(se, "0")) {
             if (age >= 6 && BigDecimalUtil.moreThanAndEqual(se, "2")) {
