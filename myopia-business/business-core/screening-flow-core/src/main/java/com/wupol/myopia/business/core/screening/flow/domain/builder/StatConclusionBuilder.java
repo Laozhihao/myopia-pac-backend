@@ -208,8 +208,12 @@ public class StatConclusionBuilder {
             return;
         }
         Integer warningLevelInt = StatUtil.getWarningLevelInt(
-                new BigDecimal(basicData.getLeftCyl().toString()), new BigDecimal(basicData.getLeftSph().toString()), new BigDecimal(basicData.getLeftNakedVision().toString()),
-                new BigDecimal(basicData.getRightCyl().toString()), new BigDecimal(basicData.getRightSph().toString()), new BigDecimal(basicData.getRightNakedVision().toString()),
+                Objects.nonNull(basicData.getLeftCyl()) ? new BigDecimal(basicData.getLeftCyl().toString()) : null,
+                Objects.nonNull(basicData.getLeftSph()) ?new BigDecimal(basicData.getLeftSph().toString()): null,
+                Objects.nonNull(basicData.getLeftNakedVision()) ?new BigDecimal(basicData.getLeftNakedVision().toString()): null,
+                Objects.nonNull(basicData.getRightCyl()) ?new BigDecimal(basicData.getRightCyl().toString()): null,
+                Objects.nonNull(basicData.getRightSph()) ?new BigDecimal(basicData.getRightSph().toString()): null,
+                Objects.nonNull(basicData.getRightNakedVision()) ?new BigDecimal(basicData.getRightNakedVision().toString()): null,
                 basicData.getAge());
         statConclusion.setWarningLevel(warningLevelInt);
     }
