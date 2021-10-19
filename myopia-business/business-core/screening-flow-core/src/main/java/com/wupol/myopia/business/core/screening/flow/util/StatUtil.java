@@ -713,11 +713,17 @@ public class StatUtil {
      */
     public Integer getWarningSeriousLevel(Integer leftLevel, Integer rightLevel) {
         // 排除远视储备不足
-        if (Objects.isNull(leftLevel) || leftLevel.equals(WarningLevel.ZERO_SP.code)) {
+        if (Objects.isNull(leftLevel)) {
             return rightLevel;
         }
-        if (Objects.isNull(rightLevel) || rightLevel.equals(WarningLevel.ZERO_SP.code)) {
+        if (Objects.isNull(rightLevel) ) {
             return leftLevel;
+        }
+        if (leftLevel.equals(WarningLevel.ZERO_SP.code) && (rightLevel.equals(WarningLevel.ZERO.code) || rightLevel.equals(WarningLevel.NORMAL.code))) {
+            return leftLevel;
+        }
+        if (rightLevel.equals(WarningLevel.ZERO_SP.code) && (leftLevel.equals(WarningLevel.ZERO.code) || leftLevel.equals(WarningLevel.NORMAL.code))) {
+            return rightLevel;
         }
         return leftLevel > rightLevel ? leftLevel : rightLevel;
     }

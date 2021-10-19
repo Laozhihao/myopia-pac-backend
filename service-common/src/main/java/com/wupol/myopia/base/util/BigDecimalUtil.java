@@ -143,7 +143,7 @@ public class BigDecimalUtil {
      * @return 是否在区间内
      */
     public static boolean isBetweenNo(BigDecimal val, String start, String end) {
-        return val.compareTo(new BigDecimal(start)) > 0 && val.compareTo(new BigDecimal(end)) <= 0;
+        return val.compareTo(new BigDecimal(start)) > 0 && val.compareTo(new BigDecimal(end)) < 0;
     }
 
     /**
