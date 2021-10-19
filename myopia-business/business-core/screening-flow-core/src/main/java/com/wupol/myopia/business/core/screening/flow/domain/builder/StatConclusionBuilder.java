@@ -215,7 +215,10 @@ public class StatConclusionBuilder {
                 Objects.nonNull(basicData.getRightSph()) ?new BigDecimal(basicData.getRightSph().toString()): null,
                 Objects.nonNull(basicData.getRightNakedVision()) ?new BigDecimal(basicData.getRightNakedVision().toString()): null,
                 basicData.getAge());
-        statConclusion.setWarningLevel(warningLevelInt);
+        if (Objects.nonNull(warningLevelInt)) {
+            statConclusion.setWarningLevel(warningLevelInt);
+        }
+        statConclusion.setWarningLevel(WarningLevel.NORMAL.code);
     }
 
     /**
