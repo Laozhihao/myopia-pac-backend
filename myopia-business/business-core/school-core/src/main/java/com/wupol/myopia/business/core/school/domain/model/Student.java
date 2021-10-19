@@ -202,6 +202,19 @@ public class Student extends AddressCode implements Serializable {
     private Integer numOfVisits;
 
     /**
+     * 近视等级，0-正常、1-筛查性近视、2-近视前期、3-低度近视、4-中度近视、5-重度近视
+     */
+    private Integer myopiaLevel;
+    /**
+     * 远视等级，0-正常、1-远视、2-低度远视、3-中度远视、4-重度远视
+     */
+    private Integer hyperopiaLevel;
+    /**
+     * 散光等级，0-正常、1-低度散光、2-中度散光、3-重度散光
+     */
+    private Integer astigmatismLevel;
+
+    /**
      * 上传筛查学生时，判断学生需更新信息是否一致
      * 由于只有部分字段，所以不使用equals
      *
