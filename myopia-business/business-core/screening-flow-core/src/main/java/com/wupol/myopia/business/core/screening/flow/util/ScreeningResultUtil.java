@@ -1255,9 +1255,15 @@ public class ScreeningResultUtil {
     public static TwoTuple<Integer, RecommendVisitEnum> getNotWearingGlasses(BigDecimal cyl, BigDecimal se, Integer schoolAge,
                                                                              BigDecimal nakedVision, BigDecimal anisometropia) {
         // 是否大于4.9，大于4.9直接返回
-        if (Objects.isNull(nakedVision) || nakedVision.compareTo(new BigDecimal("4.90")) >= 0) {
+        if (Objects.isNull(nakedVision)
+                || BigDecimalUtil.moreThanAndEqual(nakedVision, "4.9")
+                || Objects.isNull(schoolAge)) {
             return new TwoTuple<>(0, RecommendVisitEnum.EMPTY);
         }
+
+//        if ((schoolAge.equals()))
+
+
         boolean checkCyl = BigDecimalUtil.lessThanAndEqual(cyl, "1.5");
         if (BigDecimalUtil.isBetweenLeft(se, "0.00", "2.00") && checkCyl) {
             return new TwoTuple<>(1, RecommendVisitEnum.MIDDLE_RESULT_3);
