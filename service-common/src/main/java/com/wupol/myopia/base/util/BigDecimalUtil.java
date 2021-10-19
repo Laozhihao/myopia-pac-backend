@@ -170,5 +170,16 @@ public class BigDecimalUtil {
         return lessThan(val1, target) && lessThan(val2, target);
     }
 
+    /**
+     * 两数相减
+     *
+     * @param val1 值1
+     * @param val2 值2
+     * @return 结果
+     */
+    public static BigDecimal subtract(BigDecimal val1, BigDecimal val2) {
+        return val1.subtract(val2);
+    }
+
 
 }
