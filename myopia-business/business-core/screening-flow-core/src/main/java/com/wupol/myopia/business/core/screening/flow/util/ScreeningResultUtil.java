@@ -1264,12 +1264,12 @@ public class ScreeningResultUtil {
         }
         boolean checkCyl = BigDecimalUtil.lessThanAndEqual(cyl, "1.5");
 
-        if ((schoolAge.equals(SchoolAge.PRIMARY.code) && age < 7 && BigDecimalUtil.isBetweenLeft(se, "0", "2") && checkCyl)
+        if ((schoolAge.equals(SchoolAge.PRIMARY.code) && age <= 7 && BigDecimalUtil.isBetweenLeft(se, "0", "2") && checkCyl)
                 || (SchoolAge.isMiddleSchool(schoolAge) && BigDecimalUtil.isBetweenLeft(se, "-0.5", "3") && BigDecimalUtil.lessThan(cyl, "1.5"))) {
             return new TwoTuple<>(1, RecommendVisitEnum.MIDDLE_RESULT_3);
         }
 
-        if ((schoolAge.equals(SchoolAge.PRIMARY.code) && age < 7 && !BigDecimalUtil.isBetweenLeft(se, "0", "2"))
+        if ((schoolAge.equals(SchoolAge.PRIMARY.code) && age <= 7 && !BigDecimalUtil.isBetweenLeft(se, "0", "2"))
                 || (SchoolAge.isMiddleSchool(schoolAge) && !BigDecimalUtil.isBetweenLeft(se, "-0.5", "3") && BigDecimalUtil.moreThan(cyl, "1.5"))) {
             return new TwoTuple<>(2, RecommendVisitEnum.MIDDLE_RESULT_4);
         }
