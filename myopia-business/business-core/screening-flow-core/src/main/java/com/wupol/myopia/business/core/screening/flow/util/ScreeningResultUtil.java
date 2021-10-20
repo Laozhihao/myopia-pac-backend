@@ -1270,7 +1270,7 @@ public class ScreeningResultUtil {
         }
 
         if ((SchoolAge.isPrimaryAndKindergarten(schoolAge) && !BigDecimalUtil.isBetweenLeft(se, "0", "2"))
-                || (SchoolAge.isMiddleSchool(schoolAge) && !BigDecimalUtil.isBetweenLeft(se, "-0.5", "3") && BigDecimalUtil.moreThan(cyl, "1.5"))) {
+                || (SchoolAge.isMiddleSchool(schoolAge) && !BigDecimalUtil.isBetweenLeft(se, "-0.5", "3") || BigDecimalUtil.moreThan(cyl, "1.5"))) {
             return new TwoTuple<>(2, RecommendVisitEnum.MIDDLE_RESULT_4);
         }
         return new TwoTuple<>(0, RecommendVisitEnum.EMPTY);
