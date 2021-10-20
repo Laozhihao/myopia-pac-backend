@@ -220,7 +220,7 @@ public class ScreeningVisionStatisticVO extends ScreeningBasicResult {
         private BigDecimal warningLevelOneRatio;
 
         /**
-         * 轻度近视人数
+         * 近视前期人数
          */
         private Integer myopiaLevelEarlyNum;
 

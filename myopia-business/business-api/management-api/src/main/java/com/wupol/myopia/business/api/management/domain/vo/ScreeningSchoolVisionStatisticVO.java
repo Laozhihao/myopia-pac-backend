@@ -114,6 +114,11 @@ public class ScreeningSchoolVisionStatisticVO extends ScreeningBasicResult {
         private BigDecimal myopiaRatio;
 
         /**
+         * 近视前期人数
+         */
+        private Integer myopiaLevelEarlyNum;
+
+        /**
          * 0级预警率
          */
         private BigDecimal warningLevelZeroRatio;
@@ -230,6 +235,7 @@ public class ScreeningSchoolVisionStatisticVO extends ScreeningBasicResult {
             item.screeningOrgId = schoolVisionStatistic.getScreeningOrgId();
             item.schoolType = SchoolEnum.getTypeName(schoolVisionStatistic.getSchoolType());
             item.screeningPlanId = schoolVisionStatistic.getScreeningPlanId();
+            item.myopiaLevelEarlyNum = schoolVisionStatistic.getMyopiaLevelEarly();
             return item;
         }
     }
