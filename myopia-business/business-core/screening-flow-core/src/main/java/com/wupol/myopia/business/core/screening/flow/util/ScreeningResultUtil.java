@@ -887,8 +887,8 @@ public class ScreeningResultUtil {
                                                      BigDecimal leftCyl, BigDecimal rightCyl,
                                                      Integer glassesType, Integer schoolAge, Integer age, Boolean otherEyeDiseasesNormal) {
 
-        // 幼儿园、0-6岁
-        if (SchoolAge.KINDERGARTEN.code.equals(schoolAge) || age < 6) {
+        // 幼儿园、7岁以下
+        if (SchoolAge.KINDERGARTEN.code.equals(schoolAge) || age < 7) {
             return kindergartenAdviceResult(leftNakedVision, rightNakedVision, leftCorrectedVision, rightCorrectedVision,
                     leftSph, rightSph, leftCyl, rightCyl, glassesType, age, otherEyeDiseasesNormal);
         }
@@ -1264,12 +1264,12 @@ public class ScreeningResultUtil {
         }
         boolean checkCyl = BigDecimalUtil.lessThanAndEqual(cyl, "1.5");
 
-        if ((schoolAge.equals(SchoolAge.PRIMARY.code) && BigDecimalUtil.isBetweenLeft(se, "0", "2") && checkCyl)
+        if ((SchoolAge.isPrimaryAndKindergarten(schoolAge) && BigDecimalUtil.isBetweenLeft(se, "0", "2") && checkCyl)
                 || (SchoolAge.isMiddleSchool(schoolAge) && BigDecimalUtil.isBetweenLeft(se, "-0.5", "3") && BigDecimalUtil.lessThan(cyl, "1.5"))) {
             return new TwoTuple<>(1, RecommendVisitEnum.MIDDLE_RESULT_3);
         }
 
-        if ((schoolAge.equals(SchoolAge.PRIMARY.code) && !BigDecimalUtil.isBetweenLeft(se, "0", "2"))
+        if ((SchoolAge.isPrimaryAndKindergarten(schoolAge) && !BigDecimalUtil.isBetweenLeft(se, "0", "2"))
                 || (SchoolAge.isMiddleSchool(schoolAge) && !BigDecimalUtil.isBetweenLeft(se, "-0.5", "3") && BigDecimalUtil.moreThan(cyl, "1.5"))) {
             return new TwoTuple<>(2, RecommendVisitEnum.MIDDLE_RESULT_4);
         }
