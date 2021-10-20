@@ -1031,7 +1031,7 @@ public class ScreeningResultUtil {
                                                      BigDecimal leftCorrectedVision, BigDecimal rightCorrectedVision,
                                                      Integer age, String targetVision) {
         Boolean differenceTwoLines = isDifferenceTwoLines(leftNakedVision, rightNakedVision);
-        if (ObjectsUtil.allNotNull(leftCorrectedVision, rightCorrectedVision) && BigDecimalUtil.isAllLessThan(leftNakedVision, rightNakedVision, targetVision)) {
+        if (ObjectsUtil.allNotNull(leftCorrectedVision, rightCorrectedVision) && BigDecimalUtil.isAllLessThanAndEqual(leftNakedVision, rightNakedVision, targetVision)) {
             if (BigDecimalUtil.lessThanAndEqual(leftCorrectedVision, rightCorrectedVision)) {
                 if (checkAgeAndNakedVision(age, leftNakedVision, differenceTwoLines)) {
                     return leftCorrectedVision;
@@ -1157,7 +1157,7 @@ public class ScreeningResultUtil {
      * @return 是否匹配
      */
     private boolean checkAgeAndNakedVision(Integer age, BigDecimal nakedVision, Boolean differenceTwoLines) {
-        return (age < 5 && BigDecimalUtil.lessThanAndEqual(nakedVision, "4.6"))
+        return (age < 5 && BigDecimalUtil.lessThanAndEqual(nakedVision, "4.8"))
                 || (age >= 5 && age < 7 && BigDecimalUtil.lessThanAndEqual(nakedVision, "4.9")
                 || differenceTwoLines);
     }
