@@ -756,6 +756,10 @@ public class ScreeningResultUtil {
             return ParentReportConst.LABEL_NORMAL;
         }
 
+        if (warningLevel.code.equals(MyopiaLevelEnum.MYOPIA_LEVEL_EARLY.code)) {
+            return ParentReportConst.LABEL_EARLY;
+        }
+
         if (warningLevel.code.equals(MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.code)) {
             return ParentReportConst.LABEL_MILD;
         }
@@ -1002,13 +1006,13 @@ public class ScreeningResultUtil {
             }
         } else {
             // 5岁以下
-            RecommendVisitEnum recommendVisitEnum = noGlassesKindergartenIsMatch(kindergartenNoGlassesResult(leftNakedVision, rightNakedVision, leftSph, rightSph, leftCyl, rightCyl, age, "4.6"), otherEyeDiseasesNormal);
+            RecommendVisitEnum recommendVisitEnum = noGlassesKindergartenIsMatch(kindergartenNoGlassesResult(leftNakedVision, rightNakedVision, leftSph, rightSph, leftCyl, rightCyl, age, "4.8"), otherEyeDiseasesNormal);
             if (!recommendVisitEnum.equals(RecommendVisitEnum.EMPTY)) {
                 return recommendVisitEnum;
             }
 
             // 5-7岁
-            RecommendVisitEnum recommendVisitEnum1 = noGlassesKindergartenIsMatch(kindergartenNoGlassesResult(leftNakedVision, rightNakedVision, leftSph, rightSph, leftCyl, rightCyl, age, "4.7"), otherEyeDiseasesNormal);
+            RecommendVisitEnum recommendVisitEnum1 = noGlassesKindergartenIsMatch(kindergartenNoGlassesResult(leftNakedVision, rightNakedVision, leftSph, rightSph, leftCyl, rightCyl, age, "4.9"), otherEyeDiseasesNormal);
             if (!recommendVisitEnum1.equals(RecommendVisitEnum.EMPTY)) {
                 return recommendVisitEnum1;
             }
