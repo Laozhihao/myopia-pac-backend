@@ -888,7 +888,7 @@ public class ScreeningResultUtil {
                                                      Integer glassesType, Integer schoolAge, Integer age, Boolean otherEyeDiseasesNormal) {
 
         // 幼儿园、7岁以下
-        if (SchoolAge.KINDERGARTEN.code.equals(schoolAge) || age < 7) {
+        if (SchoolAge.KINDERGARTEN.code.equals(schoolAge)) {
             return kindergartenAdviceResult(leftNakedVision, rightNakedVision, leftCorrectedVision, rightCorrectedVision,
                     leftSph, rightSph, leftCyl, rightCyl, glassesType, age, otherEyeDiseasesNormal);
         }
