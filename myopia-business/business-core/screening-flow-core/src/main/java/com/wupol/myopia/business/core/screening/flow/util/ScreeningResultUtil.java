@@ -1131,12 +1131,10 @@ public class ScreeningResultUtil {
             return null;
         }
         // 如果都满足，则取等效球镜低的一个
-        if (BigDecimalUtil.isAllLessThan(leftNakedVision, rightNakedVision, targetVision) && BigDecimalUtil.lessThanAndEqual(leftSe, rightSe)) {
-            if (checkAgeAndNakedVision(age, leftNakedVision, differenceTwoLines)) {
+        if (BigDecimalUtil.isAllLessThan(leftNakedVision, rightNakedVision, targetVision)) {
+            if (Objects.nonNull(leftSe) && Objects.nonNull(rightSe) && BigDecimalUtil.moreThan(leftSe.abs(), rightSe.abs())) {
                 return new ThreeTuple<>(leftSe, leftCyl, anisometropia);
-            }
-        } else {
-            if (checkAgeAndNakedVision(age, rightNakedVision, differenceTwoLines)) {
+            } else {
                 return new ThreeTuple<>(rightSe, rightCyl, anisometropia);
             }
         }
@@ -1319,7 +1317,11 @@ public class ScreeningResultUtil {
         BigDecimal se;
         // 判断两只眼睛的裸眼视力是否都在4.9的同侧
         if (isNakedVisionMatch(leftNakedVision, rightNakedVision)) {
-            se = BigDecimalUtil.moreThanAndEqual(leftSe, rightSe) ? leftSe : rightSe;
+            if (Objects.nonNull(leftSe) && Objects.nonNull(rightSe) && BigDecimalUtil.moreThan(leftSe.abs(), rightSe.abs())) {
+                se = leftSe;
+            } else {
+                se = rightSe;
+            }
         } else {
             // 裸眼视力不同，取视力低的眼别
             se = nakedVisionResult.getSecond().equals(CommonConst.LEFT_EYE) ? leftSe : rightSe;
