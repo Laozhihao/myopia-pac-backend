@@ -119,6 +119,7 @@ public class ScreeningVisionStatisticVO extends ScreeningBasicResult {
                 .setRefractiveErrorNum(districtVisionStatistic.getAmetropiaNumbers())
                 .setWearingGlassesRatio(districtVisionStatistic.getWearingGlassesRatio())
                 .setWearingGlassesNum(districtVisionStatistic.getWearingGlassesNumbers())
+                .setMyopiaLevelEarlyNum(districtVisionStatistic.getMyopiaLevelEarlyNum())
                 .setWarningLevelOneNum(districtVisionStatistic.getVisionLabel1Numbers())
                 .setWarningLevelOneRatio(districtVisionStatistic.getVisionLabel1Ratio())
                 .setWarningLevelTwoNum(districtVisionStatistic.getVisionLabel2Numbers())
@@ -217,6 +218,11 @@ public class ScreeningVisionStatisticVO extends ScreeningBasicResult {
          * 1级预警率
          */
         private BigDecimal warningLevelOneRatio;
+
+        /**
+         * 近视前期人数
+         */
+        private Integer myopiaLevelEarlyNum;
 
         /**
          * 1级预警人数
