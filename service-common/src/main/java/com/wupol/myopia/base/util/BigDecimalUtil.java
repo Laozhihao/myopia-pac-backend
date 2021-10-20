@@ -87,6 +87,17 @@ public class BigDecimalUtil {
     }
 
     /**
+     * 大于且等于
+     *
+     * @param val1 值1
+     * @param val2 值2
+     * @return 是否满足
+     */
+    public static Boolean moreThanAndEqual(BigDecimal val1, BigDecimal val2) {
+        return val1.compareTo(val2) >= 0;
+    }
+
+    /**
      * 判断是否在某个区间，左闭右开区间
      *
      * @param val   值
