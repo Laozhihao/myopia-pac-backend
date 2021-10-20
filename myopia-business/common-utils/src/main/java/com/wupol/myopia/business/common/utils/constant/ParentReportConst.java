@@ -60,5 +60,5 @@ public interface ParentReportConst {
     /**
      * 标签-远视储备不足
      */
-    Integer LABEL_NORMAL_SP = 19;
+    Integer LABEL_NORMAL_SP = 10;
 }
