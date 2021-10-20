@@ -171,6 +171,18 @@ public class BigDecimalUtil {
     }
 
     /**
+     * 判断两个数是都小于等于目标值
+     *
+     * @param val1   值1
+     * @param val2   值2
+     * @param target 目标值
+     * @return 是否满足
+     */
+    public static boolean isAllLessThanAndEqual(BigDecimal val1, BigDecimal val2, String target) {
+        return lessThanAndEqual(val1, target) && lessThanAndEqual(val2, target);
+    }
+
+    /**
      * 两数相减
      *
      * @param val1 值1
