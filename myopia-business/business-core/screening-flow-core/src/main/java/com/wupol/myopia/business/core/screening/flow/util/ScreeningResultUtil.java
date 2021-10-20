@@ -1319,13 +1319,6 @@ public class ScreeningResultUtil {
         BigDecimal se;
         // 判断两只眼睛的裸眼视力是否都在4.9的同侧
         if (isNakedVisionMatch(leftNakedVision, rightNakedVision)) {
-            // 取等效球镜严重的眼别
-//            if (BigDecimalUtil.lessThanAndEqual(leftSe, "0") || BigDecimalUtil.lessThanAndEqual(rightSe, "0")) {
-//                se = BigDecimalUtil.lessThanAndEqual(leftSe, "0") ? leftSe : rightSe;
-//            } else {
-//                // 取等效球镜值大的眼别
-//                se = BigDecimalUtil.moreThan(leftSe, "0") ? leftSe : rightSe;
-//            }
             se = BigDecimalUtil.moreThanAndEqual(leftSe, rightSe) ? leftSe : rightSe;
         } else {
             // 裸眼视力不同，取视力低的眼别
