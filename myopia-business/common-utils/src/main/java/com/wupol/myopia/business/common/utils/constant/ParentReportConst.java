@@ -38,22 +38,27 @@ public interface ParentReportConst {
     Integer LABEL_NORMAL = 5;
 
     /**
+     * 标签-前期
+     */
+    Integer LABEL_EARLY = 6;
+
+    /**
      * 标签-轻度
      */
-    Integer LABEL_MILD = 6;
+    Integer LABEL_MILD = 7;
 
     /**
      * 标签-中度
      */
-    Integer LABEL_MODERATE = 7;
+    Integer LABEL_MODERATE = 8;
 
     /**
      * 标签-重度
      */
-    Integer LABEL_SEVERE = 8;
+    Integer LABEL_SEVERE = 9;
 
     /**
      * 标签-远视储备不足
      */
-    Integer LABEL_NORMAL_SP = 9;
+    Integer LABEL_NORMAL_SP = 19;
 }

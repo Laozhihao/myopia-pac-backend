@@ -756,6 +756,10 @@ public class ScreeningResultUtil {
             return ParentReportConst.LABEL_NORMAL;
         }
 
+        if (warningLevel.code.equals(MyopiaLevelEnum.MYOPIA_LEVEL_EARLY.code)) {
+            return ParentReportConst.LABEL_EARLY;
+        }
+
         if (warningLevel.code.equals(MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.code)) {
             return ParentReportConst.LABEL_MILD;
         }
