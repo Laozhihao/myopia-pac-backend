@@ -1073,7 +1073,7 @@ public class ScreeningResultUtil {
                 || (age >= 5 && age < 7 && BigDecimalUtil.lessThanAndEqual(correctedVision, "4.9"))) {
             return RecommendVisitEnum.KINDERGARTEN_RESULT_1;
         }
-        if (age > 5 && BigDecimalUtil.moreThan(correctedVision, "4.8")
+        if (age < 5 && BigDecimalUtil.moreThan(correctedVision, "4.8")
                 || (age >= 5 && age < 7 && BigDecimalUtil.moreThan(correctedVision, "4.9"))) {
             return RecommendVisitEnum.KINDERGARTEN_RESULT_2;
         }

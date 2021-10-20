@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.builder;
 
+import com.wupol.myopia.business.common.utils.constant.MyopiaLevelEnum;
 import com.wupol.myopia.business.common.utils.constant.WarningLevel;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
@@ -30,6 +31,7 @@ public final class DistrictVisionStatisticBuilder {
         Integer lowVisionNumber = (int) statConclusions.stream().filter(StatConclusion::getIsLowVision).count();
         // 预警人群、建议就诊使用所有筛查数据（有效、无效）
         Map<Integer, Long> visionLabelNumberMap = statConclusions.stream().filter(stat -> Objects.nonNull(stat.getWarningLevel())).collect(Collectors.groupingBy(StatConclusion::getWarningLevel, Collectors.counting()));
+        Map<Integer, Long> myopiaLevelMap = statConclusions.stream().filter(stat -> Objects.nonNull(stat.getMyopiaLevel())).collect(Collectors.groupingBy(StatConclusion::getMyopiaLevel, Collectors.counting()));
         Integer visionLabel0Numbers = visionLabelNumberMap.getOrDefault(WarningLevel.ZERO.code, 0L).intValue();
         Integer visionLabel1Numbers = visionLabelNumberMap.getOrDefault(WarningLevel.ONE.code, 0L).intValue();
         Integer visionLabel2Numbers = visionLabelNumberMap.getOrDefault(WarningLevel.TWO.code, 0L).intValue();
@@ -51,7 +53,8 @@ public final class DistrictVisionStatisticBuilder {
                 .setVisionLabel3Numbers(visionLabel3Numbers).setVisionLabel3Ratio(MathUtil.divide(visionLabel3Numbers, validScreeningNumbers))
                 .setTreatmentAdviceNumbers(treatmentAdviceNumber).setTreatmentAdviceRatio(MathUtil.divide(treatmentAdviceNumber, validScreeningNumbers))
                 .setKeyWarningNumbers(keyWarningNumbers).setValidScreeningNumbers(validScreeningNumbers)
-                .setPlanScreeningNumbers(planScreeningNumbers).setRealScreeningNumbers(realScreeningNumber);
+                .setPlanScreeningNumbers(planScreeningNumbers).setRealScreeningNumbers(realScreeningNumber)
+                .setMyopiaLevelEarlyNum(myopiaLevelMap.getOrDefault(MyopiaLevelEnum.MYOPIA_LEVEL_EARLY.code,0L).intValue());
         return statistic;
     }
 

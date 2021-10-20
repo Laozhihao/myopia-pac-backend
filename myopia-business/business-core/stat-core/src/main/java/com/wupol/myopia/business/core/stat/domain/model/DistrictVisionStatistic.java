@@ -171,6 +171,11 @@ public class DistrictVisionStatistic implements Serializable {
     private Integer validScreeningNumbers;
 
     /**
+     * 近视前期人数
+     */
+    private Integer myopiaLevelEarlyNum;
+
+    /**
      * 视力情况--更新时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
