@@ -217,8 +217,6 @@ public class StatConclusionBuilder {
                 basicData.getAge());
         if (Objects.nonNull(warningLevelInt)) {
             statConclusion.setWarningLevel(warningLevelInt);
-        } else {
-            statConclusion.setWarningLevel(WarningLevel.NORMAL.code);
         }
     }
 
