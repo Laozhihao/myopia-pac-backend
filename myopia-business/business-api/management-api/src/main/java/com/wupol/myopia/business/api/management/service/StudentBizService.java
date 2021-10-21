@@ -10,6 +10,7 @@ import com.wupol.framework.sms.domain.dto.MsgData;
 import com.wupol.framework.sms.domain.dto.SmsResult;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.api.management.constant.VisionScreeningConst;
+import com.wupol.myopia.business.api.management.domain.vo.StudentWarningArchiveVO;
 import com.wupol.myopia.business.api.management.domain.vo.VisionInfoVO;
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
@@ -17,6 +18,7 @@ import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
+import com.wupol.myopia.business.core.hospital.domain.model.MedicalReport;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.core.school.constant.GlassesType;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
@@ -25,10 +27,14 @@ import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.*;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
+import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.flow.util.ScreeningResultUtil;
 import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
@@ -95,6 +101,12 @@ public class StudentBizService {
     @Autowired
     private ResourceFileService resourceFileService;
 
+    @Autowired
+    private StatConclusionService statConclusionService;
+
+    @Autowired
+    private ScreeningPlanService screeningPlanService;
+
     /**
      * 获取学生列表
      *
@@ -146,6 +158,70 @@ public class StudentBizService {
             student.setQuestionnaireCount(0);
         }
         return pageStudents;
+    }
+
+    /**
+     * 获取学生预警跟踪档案
+     *
+     * @param studentId 学生ID
+     * @return java.util.List<com.wupol.myopia.business.api.management.domain.vo.StudentWarningArchiveVO>
+     **/
+    public List<StudentWarningArchiveVO> getStudentWarningArchive(Integer studentId) {
+        List<StatConclusion> statConclusionList = statConclusionService.findByList(new StatConclusion().setStudentId(studentId));
+        if (CollectionUtils.isEmpty(statConclusionList)) {
+            return new ArrayList<>();
+        }
+        List<MedicalReport> medicalReportList = medicalReportService.findByList(new MedicalReport().setStudentId(studentId));
+        List<StudentWarningArchiveVO> studentWarningArchiveVOList = new LinkedList<>();
+        int size = statConclusionList.size();
+        for (int i = 0; i < size; i++) {
+            StudentWarningArchiveVO studentWarningArchiveVO = new StudentWarningArchiveVO();
+            StatConclusion statConclusion = statConclusionList.get(i);
+            BeanUtils.copyProperties(statConclusion, studentWarningArchiveVO);
+            // 筛查信息
+            studentWarningArchiveVO.setScreeningDate(statConclusion.getUpdateTime());
+            ScreeningPlan screeningPlan = screeningPlanService.getById(statConclusion.getPlanId());
+            studentWarningArchiveVO.setScreeningTitle(screeningPlan.getTitle());
+            // 就诊情况
+            Date endScreeningDate = null;
+            int next = i + 1;
+            if (next < size) {
+                endScreeningDate = statConclusionList.get(next).getUpdateTime();
+            }
+            setVisitInfo(studentWarningArchiveVO, statConclusion.getUpdateTime(), endScreeningDate, medicalReportList);
+            // 课桌椅 TODO：由于系统没有身高数据，课桌椅信息为空
+            studentWarningArchiveVO.setDeskType(null);
+            studentWarningArchiveVO.setDeskAdviseHeight(null);
+            studentWarningArchiveVO.setChairType(null);
+            studentWarningArchiveVO.setChairAdviseHeight(null);
+            studentWarningArchiveVOList.add(studentWarningArchiveVO);
+        }
+        return studentWarningArchiveVOList;
+    }
+
+    /**
+     * 设置就诊信息
+     *
+     * @param studentWarningArchiveVO 预警跟踪档案
+     * @param startScreeningDate 开始筛查日期
+     * @param endScreeningDate 结束筛查日期
+     * @param medicalReportList 就诊报告列表
+     * @return void
+     **/
+    private void setVisitInfo(StudentWarningArchiveVO studentWarningArchiveVO, Date startScreeningDate, Date endScreeningDate, List<MedicalReport> medicalReportList) {
+        Assert.notNull(startScreeningDate, "开始筛查日期不能为空");
+        studentWarningArchiveVO.setIsVisited(false);
+        if (CollectionUtils.isEmpty(medicalReportList)) {
+            return;
+        }
+        MedicalReport medicalReport = medicalReportList.stream().filter(x -> Objects.isNull(endScreeningDate) ?
+                x.getCreateTime().before(startScreeningDate) :
+                x.getCreateTime().before(startScreeningDate) && x.getCreateTime().after(endScreeningDate))
+                .findFirst().orElse(null);
+        if (Objects.nonNull(medicalReport)) {
+            studentWarningArchiveVO.setIsVisited(true);
+            studentWarningArchiveVO.setVisitResult(medicalReport.getMedicalContent());
+        }
     }
 
     public StudentDTO getStudentById(Integer id) {
