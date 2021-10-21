@@ -1,5 +1,7 @@
 package com.wupol.myopia.business.core.screening.flow.domain.vo;
 
+import com.wupol.myopia.business.common.utils.constant.HyperopiaLevelEnum;
+import com.wupol.myopia.business.common.utils.constant.MyopiaLevelEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -86,22 +88,26 @@ public class HaiNanCardDetail {
     private FundusDataDO fundusData;
 
     /**
-     * 左眼近视级别 1-轻度 2-中度 3-高度
+     * 左眼近视级别
+     * {@link MyopiaLevelEnum}
      */
     private Integer leftMyopiaInfo;
 
     /**
-     * 右眼近视级别 1-轻度 2-中度 3-高度
+     * 右眼近视级别
+     * {@link MyopiaLevelEnum}
      */
     private Integer rightMyopiaInfo;
 
     /**
-     * 左眼远视级别 1-轻度 2-中度 3-高度
+     * 左眼远视级别
+     * {@link HyperopiaLevelEnum}
      */
     private Integer leftFarsightednessInfo;
 
     /**
-     * 右眼远视级别 1-轻度 2-中度 3-高度
+     * 右眼远视级别
+     * {@link HyperopiaLevelEnum}
      */
     private Integer rightFarsightednessInfo;
 
