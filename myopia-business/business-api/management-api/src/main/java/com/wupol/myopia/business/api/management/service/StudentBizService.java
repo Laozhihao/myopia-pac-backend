@@ -910,6 +910,7 @@ public class StudentBizService {
             // 是否正常
             cardDetail.setIsNormal(!isRefractiveError && CollectionUtils.isEmpty(otherEyeDiseasesList));
         }
+        setMyopiaAndFarsightedness(visionScreeningResult, age, cardDetail);
         return cardDetail;
     }
 
@@ -1244,6 +1245,37 @@ public class StudentBizService {
             return Collections.emptyList();
         }
         return planStudentList.stream().map(ScreeningPlanSchoolStudent::getScreeningCode).collect(Collectors.toList());
+    }
+
+    /**
+     * 设置是否近视、远视
+     *
+     * @param visionScreeningResult 数据
+     * @param age                   年龄
+     * @param cardDetail            档案卡
+     */
+    private void setMyopiaAndFarsightedness(VisionScreeningResult visionScreeningResult, Integer age, HaiNanCardDetail cardDetail) {
+        ComputerOptometryDO computerOptometry = visionScreeningResult.getComputerOptometry();
+        VisionDataDO visionData = visionScreeningResult.getVisionData();
+
+        if (!computerOptometry.valid() || !visionData.validNakedVision()) {
+            return;
+        }
+        BigDecimal leftSph = computerOptometry.getLeftEyeData().getSph();
+        BigDecimal rightSph = computerOptometry.getRightEyeData().getSph();
+        BigDecimal leftCyl = computerOptometry.getLeftEyeData().getCyl();
+        BigDecimal rightCyl = computerOptometry.getRightEyeData().getCyl();
+
+        BigDecimal leftNakedVision = visionData.getLeftEyeData().getNakedVision();
+        BigDecimal rightNakedVision = visionData.getRightEyeData().getNakedVision();
+        // 是否近视
+        cardDetail.setIsMyopia(StatUtil.isMyopia(leftSph.floatValue(), leftCyl.floatValue(), age, leftNakedVision.floatValue())
+                || StatUtil.isMyopia(rightSph.floatValue(), rightCyl.floatValue(), age, rightNakedVision.floatValue()));
+
+        // 是否远视
+        cardDetail.setIsHyperopia(StatUtil.isHyperopia(leftSph.floatValue(), leftCyl.floatValue(), age)
+                || StatUtil.isHyperopia(rightSph.floatValue(), rightCyl.floatValue(), age));
+
     }
 
 }

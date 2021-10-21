@@ -36,7 +36,7 @@ public class StatUtil {
                 }
             }
         }
-        return Objects.requireNonNull(getMyopiaWarningLevel(sphere, cylinder)).code > 0;
+        return Objects.requireNonNull(getMyopiaWarningLevel(sphere, cylinder)).code > MyopiaLevelEnum.MYOPIA_LEVEL_EARLY.code;
     }
 
     /**
@@ -59,7 +59,7 @@ public class StatUtil {
      */
     public static boolean isHyperopia(Float sphere, Float cylinder, Integer age) {
         HyperopiaLevelEnum hyperopiaWarningLevel = getHyperopiaWarningLevel(sphere, cylinder, age);
-        return hyperopiaWarningLevel != null && hyperopiaWarningLevel.code > 0;
+        return hyperopiaWarningLevel != null && hyperopiaWarningLevel.code > HyperopiaLevelEnum.ZERO.code;
     }
 
     /**
