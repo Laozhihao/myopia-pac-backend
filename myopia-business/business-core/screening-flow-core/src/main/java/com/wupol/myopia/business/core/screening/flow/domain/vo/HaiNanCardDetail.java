@@ -136,4 +136,14 @@ public class HaiNanCardDetail {
      */
     private List<String> eyeDiseases;
 
+    /**
+     * 是否近视
+     */
+    private Boolean isMyopia;
+
+    /**
+     * 是否远视
+     */
+    private Boolean isHyperopia;
+
 }
