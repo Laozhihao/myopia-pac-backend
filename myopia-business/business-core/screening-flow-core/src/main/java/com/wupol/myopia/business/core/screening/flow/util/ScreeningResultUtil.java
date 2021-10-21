@@ -1131,7 +1131,7 @@ public class ScreeningResultUtil {
             return null;
         }
         // 如果都满足，则取等效球镜低的一个
-        if (BigDecimalUtil.isAllLessThan(leftNakedVision, rightNakedVision, targetVision)) {
+        if (BigDecimalUtil.isAllLessThanAndEqual(leftNakedVision, rightNakedVision, targetVision)) {
             if (Objects.nonNull(leftSe) && Objects.nonNull(rightSe) && BigDecimalUtil.moreThan(leftSe.abs(), rightSe.abs())) {
                 return new ThreeTuple<>(leftSe, leftCyl, anisometropia);
             } else {
