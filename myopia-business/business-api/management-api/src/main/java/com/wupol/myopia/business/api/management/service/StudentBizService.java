@@ -1253,7 +1253,9 @@ public class StudentBizService {
         ComputerOptometryDO computerOptometry = visionScreeningResult.getComputerOptometry();
         VisionDataDO visionData = visionScreeningResult.getVisionData();
 
-        if (!computerOptometry.valid() || !visionData.validNakedVision()) {
+        if (ObjectsUtil.hasNull(computerOptometry, visionData)
+                || !computerOptometry.valid()
+                || !visionData.validNakedVision()) {
             return;
         }
         BigDecimal leftSph = computerOptometry.getLeftEyeData().getSph();
