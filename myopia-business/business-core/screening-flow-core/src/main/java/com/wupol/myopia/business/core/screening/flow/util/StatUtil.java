@@ -515,7 +515,7 @@ public class StatUtil {
             return between3And5GetLevel(cyl, spn, nakedVision, age);
         }
         if (age >= 6 && age < 8) {
-            return between6And7GetLevel(cyl, spn, nakedVision);
+            return between6And7GetLevel(cyl, spn, nakedVision, age);
         }
         if (age >= 8) {
             return moreThan8GetLevel(cyl, spn, nakedVision);
@@ -551,7 +551,7 @@ public class StatUtil {
         if (BigDecimalUtil.isBetweenNo(nakedVision, "4.7", "5") || zeroSE(se) || zeroAbsCyl(absCyl)) {
             return WarningLevel.ZERO;
         }
-        return null;
+        return zeroSPWarningLevel(cyl, spn, age);
     }
 
     /**
@@ -560,9 +560,11 @@ public class StatUtil {
      * @param cyl         柱镜
      * @param spn         球镜
      * @param nakedVision 裸眼视力
+     * @param age         年龄
      * @return {@link WarningLevel}
      */
-    private WarningLevel between6And7GetLevel(BigDecimal cyl, BigDecimal spn, BigDecimal nakedVision) {
+    private WarningLevel between6And7GetLevel(BigDecimal cyl, BigDecimal spn,
+                                              BigDecimal nakedVision, Integer age) {
         BigDecimal se = getSphericalEquivalent(spn, cyl);
         BigDecimal absCyl = cyl.abs();
         if (Objects.isNull(se)) {
@@ -580,7 +582,7 @@ public class StatUtil {
         if (BigDecimalUtil.isBetweenNo(nakedVision, "4.8", "5") || zeroSE(se) || zeroAbsCyl(absCyl)) {
             return WarningLevel.ZERO;
         }
-        return null;
+        return zeroSPWarningLevel(cyl, spn, age);
     }
 
     /**
