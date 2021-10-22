@@ -225,6 +225,7 @@ public class StudentBizService {
         if (Objects.nonNull(medicalReport)) {
             studentWarningArchiveVO.setIsVisited(true);
             studentWarningArchiveVO.setVisitResult(medicalReport.getMedicalContent());
+            studentWarningArchiveVO.setGlassesSuggest(medicalReport.getGlassesSituation());
         }
     }
 

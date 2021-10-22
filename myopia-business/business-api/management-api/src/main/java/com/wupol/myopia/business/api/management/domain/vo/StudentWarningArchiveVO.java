@@ -23,7 +23,7 @@ public class StudentWarningArchiveVO {
     /** 学生ID */
     private Integer studentId;
 
-    /** 学龄 */
+    /** 学龄：5-幼儿园、0-小学、1-初中 */
     private Integer schoolAge;
 
     /** 性别 */
@@ -59,8 +59,11 @@ public class StudentWarningArchiveVO {
     /** 是否已经就诊 */
     private Boolean isVisited;
 
-    /** 筛查标题 */
+    /** 就诊结论(医生反馈) */
     private String visitResult;
+
+    /** 配镜建议 */
+    private Integer glassesSuggest;
 
     /** 课桌型号 */
     private List<Integer> deskType;
