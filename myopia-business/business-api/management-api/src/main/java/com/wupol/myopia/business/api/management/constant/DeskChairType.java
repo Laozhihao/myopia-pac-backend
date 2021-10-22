@@ -1,11 +1,14 @@
 package com.wupol.myopia.business.api.management.constant;
 
+import lombok.Getter;
+
 /**
  * 课桌椅的型号
  *
  * @Author HaoHao
  * @Date 2021/10/21
  **/
+@Getter
 public enum DeskChairType {
     /** 中小学 */
     PRIMARY_AND_SECONDARY_DESK_0(0, 180, 300),

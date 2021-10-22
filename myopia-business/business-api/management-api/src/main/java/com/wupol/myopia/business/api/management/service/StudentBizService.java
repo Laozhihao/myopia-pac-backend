@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.management.service;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.RandomUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.google.common.collect.Lists;
@@ -9,6 +10,7 @@ import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.framework.sms.domain.dto.MsgData;
 import com.wupol.framework.sms.domain.dto.SmsResult;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.business.api.management.constant.DeskChairType;
 import com.wupol.myopia.business.api.management.constant.VisionScreeningConst;
 import com.wupol.myopia.business.api.management.domain.vo.StudentWarningArchiveVO;
 import com.wupol.myopia.business.api.management.domain.vo.VisionInfoVO;
@@ -190,10 +192,12 @@ public class StudentBizService {
             }
             setVisitInfo(studentWarningArchiveVO, statConclusion.getUpdateTime(), endScreeningDate, medicalReportList);
             // 课桌椅 TODO：由于系统没有身高数据，课桌椅信息为空
-            studentWarningArchiveVO.setDeskType(null);
-            studentWarningArchiveVO.setDeskAdviseHeight(null);
-            studentWarningArchiveVO.setChairType(null);
-            studentWarningArchiveVO.setChairAdviseHeight(null);
+            int height = RandomUtil.randomInt(120, 180);
+            studentWarningArchiveVO.setHeight((float) height);
+            studentWarningArchiveVO.setDeskType(Arrays.asList(DeskChairType.PRIMARY_AND_SECONDARY_DESK_1.getType(), DeskChairType.PRIMARY_AND_SECONDARY_DESK_2.getType()));
+            studentWarningArchiveVO.setDeskAdviseHeight((int) (height * 0.43));
+            studentWarningArchiveVO.setChairType(Collections.singletonList(DeskChairType.PRIMARY_AND_SECONDARY_DESK_1.getType()));
+            studentWarningArchiveVO.setChairAdviseHeight((int) (height * 0.24));
             studentWarningArchiveVOList.add(studentWarningArchiveVO);
         }
         return studentWarningArchiveVOList;
