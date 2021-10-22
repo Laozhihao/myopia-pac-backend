@@ -153,33 +153,16 @@ public class StatUtil {
         if (nakedVision == null || age == null || age < 0) {
             return null;
         }
-        boolean isLowVision = false;
-
-        switch (age) {
-            case 0:
-            case 1:
-            case 2:
-                if (nakedVision < 4.6f) {
-                    isLowVision = true;
-                }
-                break;
-            case 3:
-                if (nakedVision < 4.7f) {
-                    isLowVision = true;
-                }
-                break;
-            case 4:
-            case 5:
-                if (nakedVision < 4.9f) {
-                    isLowVision = true;
-                }
-                break;
-            default:
-                if (nakedVision < 5.0f) {
-                    isLowVision = true;
-                }
+        if (age < 3 && nakedVision < 4.6) {
+            return true;
         }
-        return isLowVision;
+        if (age < 4 && nakedVision < 4.7) {
+            return true;
+        }
+        if (age < 5 && nakedVision < 4.8) {
+            return true;
+        }
+        return age >= 5 && nakedVision < 4.9;
     }
 
     /**
@@ -709,11 +692,17 @@ public class StatUtil {
         if (Objects.isNull(rightLevel)) {
             return leftLevel;
         }
-        if (leftLevel.equals(WarningLevel.ZERO_SP.code) && (rightLevel.equals(WarningLevel.ZERO.code) || rightLevel.equals(WarningLevel.NORMAL.code))) {
-            return leftLevel;
-        }
-        if (rightLevel.equals(WarningLevel.ZERO_SP.code) && (leftLevel.equals(WarningLevel.ZERO.code) || leftLevel.equals(WarningLevel.NORMAL.code))) {
+        if (leftLevel.equals(WarningLevel.ZERO_SP.code)) {
+            if (rightLevel.equals(WarningLevel.ZERO.code) || rightLevel.equals(WarningLevel.NORMAL.code)) {
+                return leftLevel;
+            }
             return rightLevel;
+        }
+        if (rightLevel.equals(WarningLevel.ZERO_SP.code)) {
+            if (leftLevel.equals(WarningLevel.ZERO.code) || leftLevel.equals(WarningLevel.NORMAL.code)) {
+                return rightLevel;
+            }
+            return leftLevel;
         }
         return leftLevel > rightLevel ? leftLevel : rightLevel;
     }
