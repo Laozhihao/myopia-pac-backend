@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.aggregation.export;
 
 import com.vistel.Interface.exception.UtilException;
+import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.business.aggregation.export.interfaces.ExportFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.core.common.util.S3Utils;
@@ -9,6 +10,8 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 import java.io.File;
 
@@ -24,6 +27,8 @@ public abstract class BaseExportFileService implements ExportFileService {
     public NoticeService noticeService;
     @Autowired
     public S3Utils s3Utils;
+    @Autowired
+    private RedisUtil redisUtil;
 
     /**
      * 导出前的校验
@@ -81,6 +86,30 @@ public abstract class BaseExportFileService implements ExportFileService {
      **/
     @Override
     public void deleteTempFile(String directoryPath) {
+        if (StringUtils.isEmpty(directoryPath)) {
+            return;
+        }
         FileUtils.deleteQuietly(new File(directoryPath));
+    }
+
+    /**
+     * 上锁
+     *
+     * @param key key
+     * @return 是否成功
+     */
+    @Override
+    public Boolean tryLock(String key) {
+        return redisUtil.tryLock(key, "1", 60 * 20L);
+    }
+
+    /**
+     * 释放锁
+     *
+     * @param key key
+     */
+    @Override
+    public void unlock(String key) {
+        Assert.isTrue(redisUtil.unlock(key), "Redis解锁异常,key=" + key);
     }
 }

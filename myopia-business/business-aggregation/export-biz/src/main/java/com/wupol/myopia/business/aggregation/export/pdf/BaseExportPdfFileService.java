@@ -2,25 +2,18 @@ package com.wupol.myopia.business.aggregation.export.pdf;
 
 import cn.hutool.core.util.ZipUtil;
 import com.alibaba.fastjson.JSON;
-import com.vistel.Interface.exception.UtilException;
-import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.exception.BusinessException;
-import com.wupol.myopia.business.aggregation.export.interfaces.ExportFileService;
+import com.wupol.myopia.business.aggregation.export.BaseExportFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
-import com.wupol.myopia.business.core.common.util.S3Utils;
-import com.wupol.myopia.business.core.system.service.NoticeService;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.UUID;
 
@@ -30,17 +23,11 @@ import java.util.UUID;
  **/
 @Log4j2
 @Service
-public abstract class BaseExportPdfFileService implements ExportFileService {
+public abstract class BaseExportPdfFileService extends BaseExportFileService {
 
     @Value("${report.pdf.save-path}")
     public String pdfSavePath;
 
-    @Autowired
-    public NoticeService noticeService;
-    @Autowired
-    public S3Utils s3Utils;
-    @Autowired
-    private RedisUtil redisUtil;
     @Autowired
     private ResourceFileService resourceFileService;
 
@@ -87,17 +74,6 @@ public abstract class BaseExportPdfFileService implements ExportFileService {
     }
 
     /**
-     * 导出前的校验
-     *
-     * @param exportCondition 导出条件
-     * @return void
-     **/
-    @Override
-    public void validateBeforeExport(ExportCondition exportCondition) throws IOException {
-        // 有需要校验的，重写覆盖该方法
-    }
-
-    /**
      * 生成文件
      *
      * @param exportCondition 导出条件
@@ -118,57 +94,6 @@ public abstract class BaseExportPdfFileService implements ExportFileService {
     }
 
     /**
-     * 上传文件
-     *
-     * @param zipFile 压缩文件
-     * @return java.lang.Integer
-     * @throws UtilException
-     **/
-    @Override
-    public Integer uploadFile(File zipFile) throws UtilException {
-        return s3Utils.uploadFileToS3(zipFile);
-    }
-
-    /**
-     * 发送导出失败通知
-     *
-     * @param applyExportUserId 申请导出的用户ID
-     * @param fileName          文件名
-     * @param zipFileId         压缩文件ID
-     * @return void
-     **/
-    @Override
-    public void sendSuccessNotice(Integer applyExportUserId, String fileName, Integer zipFileId) {
-        noticeService.sendExportSuccessNotice(applyExportUserId, applyExportUserId, fileName, zipFileId);
-    }
-
-    /**
-     * 发送导出失败通知
-     *
-     * @param applyExportUserId 申请导出的用户ID
-     * @param fileName          文件名
-     * @return void
-     **/
-    @Override
-    public void sendFailNotice(Integer applyExportUserId, String fileName) {
-        noticeService.sendExportFailNotice(applyExportUserId, applyExportUserId, fileName);
-    }
-
-    /**
-     * 删除临时文件
-     *
-     * @param directoryPath 文件所在目录路径
-     * @return void
-     **/
-    @Override
-    public void deleteTempFile(String directoryPath) {
-        if (StringUtils.isEmpty(directoryPath)) {
-            return;
-        }
-        FileUtils.deleteQuietly(new File(directoryPath));
-    }
-
-    /**
      * 获取文件保存父目录路径
      *
      * @return java.lang.String
@@ -186,39 +111,6 @@ public abstract class BaseExportPdfFileService implements ExportFileService {
      **/
     public String getFileSavePath(String parentPath, String fileName) {
         return Paths.get(parentPath, fileName).toString();
-    }
-
-
-    /**
-     * 获取Key
-     *
-     * @param exportCondition 导出条件
-     * @return key
-     */
-    @Override
-    public String getRedisKey(ExportCondition exportCondition) {
-        return null;
-    }
-
-    /**
-     * 上锁
-     *
-     * @param key key
-     * @return 是否成功
-     */
-    @Override
-    public Boolean tryLock(String key) {
-        return redisUtil.tryLock(key, "1", 60 * 20L);
-    }
-
-    /**
-     * 释放锁
-     *
-     * @param key key
-     */
-    @Override
-    public void unlock(String key) {
-        Assert.isTrue(redisUtil.unlock(key), "Redis解锁异常,key=" + key);
     }
 
     @Override
