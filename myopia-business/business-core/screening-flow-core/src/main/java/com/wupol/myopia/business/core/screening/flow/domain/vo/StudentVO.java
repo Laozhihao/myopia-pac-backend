@@ -82,6 +82,16 @@ public class StudentVO {
     private Long screeningCode;
 
     /**
+     * 筛查计划--参与筛查的学生年级ID
+     */
+    private Integer gradeId;
+
+    /**
+     * 筛查计划--参与筛查的学生班级ID
+     */
+    private Integer classId;
+
+    /**
      * 获取实例
      *
      * @param screeningPlanSchoolStudent 筛查学生信息
@@ -100,6 +110,8 @@ public class StudentVO {
         studentVO.deptId = screeningPlanSchoolStudent.getScreeningOrgId();
         studentVO.gradeType = screeningPlanSchoolStudent.getGradeType();
         studentVO.screeningCode = screeningPlanSchoolStudent.getScreeningCode();
+        studentVO.gradeId = screeningPlanSchoolStudent.getGradeId();
+        studentVO.classId = screeningPlanSchoolStudent.getClassId();
         return studentVO;
     }
 }
