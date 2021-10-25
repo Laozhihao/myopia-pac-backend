@@ -14,7 +14,7 @@ import javax.validation.ValidationException;
  * @Date 2020/12/29
  **/
 @UtilityClass
-public class PasswordGenerator {
+public class PasswordAndUsernameGenerator {
 
     /** 筛查人员密码截取长度 */
     private final int SCREENING_ADMIN_PWD_SUB_LENGTH = 4;
@@ -29,6 +29,9 @@ public class PasswordGenerator {
     private final String HOSPITAL_ADMIN_PWD_PREFIX = "y";
     /** 筛查机构管理端的管理员用户密码前缀 */
     private final String SCREENING_ORG_ADMIN_PWD_PREFIX = "s";
+
+    /** 用户名 */
+    private final String USERNAME = "jsfk%s%d";
 
     /**
      * 管理端用户密码
@@ -83,5 +86,35 @@ public class PasswordGenerator {
         }
         // 手机号码后四位+身份证号后四位，共8位
         return StrUtil.subSuf(phone, -SCREENING_ADMIN_PWD_SUB_LENGTH) + StrUtil.subSuf(idCard, -SCREENING_ADMIN_PWD_SUB_LENGTH);
+    }
+
+    /**
+     * 获取学校端管理员用户名
+     *
+     * @param sequence 序号
+     * @return java.lang.String
+     **/
+    public static String getSchoolAdminUserName(int sequence) {
+        return String.format(USERNAME, SCHOOL_ADMIN_PWD_PREFIX, sequence);
+    }
+
+    /**
+     * 获取医院端管理员用户名
+     *
+     * @param sequence 序号
+     * @return java.lang.String
+     **/
+    public static String getHospitalAdminUserName(int sequence) {
+        return String.format(USERNAME, HOSPITAL_ADMIN_PWD_PREFIX, sequence);
+    }
+
+    /**
+     * 获取筛查端管理员用户名
+     *
+     * @param sequence 序号
+     * @return java.lang.String
+     **/
+    public static String getScreeningOrgAdminUserName(int sequence) {
+        return String.format(USERNAME, SCREENING_ORG_ADMIN_PWD_PREFIX, sequence);
     }
 }

@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelFileNameConstant;
+import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelNoticeKeyContentConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationStaffExportDTO;
@@ -76,13 +77,13 @@ public class ExportScreeningOrganizationStaffExcelService extends BaseExportExce
     @Override
     public String getNoticeKeyContent(ExportCondition exportCondition) {
         String orgName = screeningOrganizationService.getById(exportCondition.getScreeningOrgId()).getName();
-        return String.format(ExcelFileNameConstant.STAFF_EXCEL_FILE_NAME, orgName);
+        return String.format(ExcelNoticeKeyContentConstant.STAFF_EXCEL_NOTICE_KEY_CONTENT, orgName);
     }
 
     @Override
     public String getFileName(ExportCondition exportCondition) {
         // 设置文件名
-        StringBuilder builder = new StringBuilder().append(ExcelFileNameConstant.STAFF_NAME);
+        StringBuilder builder = new StringBuilder().append(ExcelFileNameConstant.STAFF_FILE_NAME);
         String orgName = screeningOrganizationService.getById(exportCondition.getScreeningOrgId()).getName();
         builder.append(orgName);
         return builder.toString();

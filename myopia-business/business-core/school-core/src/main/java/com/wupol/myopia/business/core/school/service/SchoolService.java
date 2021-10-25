@@ -8,7 +8,7 @@ import com.google.common.collect.Lists;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.base.util.PasswordGenerator;
+import com.wupol.myopia.base.util.PasswordAndUsernameGenerator;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
@@ -82,7 +82,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         school.setDistrictProvinceCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
         baseMapper.insert(school);
         initGradeAndClass(school.getId(), school.getType(), school.getCreateUserId());
-        return generateAccountAndPassword(school);
+        return generateAccountAndPassword(school, 1);
     }
 
 
@@ -179,15 +179,15 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      *
      * @return UsernameAndPasswordDto 账号密码
      */
-    public UsernameAndPasswordDTO generateAccountAndPassword(School school) {
-        String password = PasswordGenerator.getSchoolAdminPwd();
-        String username = school.getName();
+    public UsernameAndPasswordDTO generateAccountAndPassword(School school, int sequence) {
+        String password = PasswordAndUsernameGenerator.getSchoolAdminPwd();
+        String username = PasswordAndUsernameGenerator.getSchoolAdminUserName(sequence);
 
         UserDTO userDTO = new UserDTO();
         userDTO.setOrgId(school.getId())
                 .setUsername(username)
                 .setPassword(password)
-                .setRealName(username)
+                .setRealName(school.getName())
                 .setCreateUserId(school.getCreateUserId())
                 .setSystemCode(SystemCode.SCHOOL_CLIENT.getCode());
         User user = oauthServiceClient.addMultiSystemUser(userDTO);
@@ -203,7 +203,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @return 账号密码
      */
     private UsernameAndPasswordDTO resetOAuthPassword(String username, Integer userId) {
-        String password = PasswordGenerator.getSchoolAdminPwd();
+        String password = PasswordAndUsernameGenerator.getSchoolAdminPwd();
         oauthServiceClient.resetPwd(userId, password);
         return new UsernameAndPasswordDTO(username, password);
     }

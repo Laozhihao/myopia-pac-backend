@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelFileNameConstant;
+import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelNoticeKeyContentConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
@@ -148,7 +149,7 @@ public class ExportStudentExcelService extends BaseExportExcelFileService {
         String gradeName = schoolGradeService.getById(exportCondition.getGradeId()).getName();
         // 行政区域
         District district = districtService.findOne(new District().setId(school.getDistrictId()));
-        return String.format(ExcelFileNameConstant.STUDENT_EXCEL_FILE_NAME,
+        return String.format(ExcelNoticeKeyContentConstant.STUDENT_EXCEL_NOTICE_KEY_CONTENT,
                 districtService.getTopDistrictName(district.getCode()),
                 school.getName(),
                 gradeName);
@@ -157,7 +158,7 @@ public class ExportStudentExcelService extends BaseExportExcelFileService {
     @Override
     public String getFileName(ExportCondition exportCondition) {
         // 设置文件名
-        StringBuilder builder = new StringBuilder().append(ExcelFileNameConstant.STUDENT_NAME);
+        StringBuilder builder = new StringBuilder().append(ExcelFileNameConstant.STUDENT_FILE_NAME);
         School school = schoolService.getById(exportCondition.getSchoolId());
         String schoolName = school.getName();
         String gradeName = schoolGradeService.getById(exportCondition.getGradeId()).getName();

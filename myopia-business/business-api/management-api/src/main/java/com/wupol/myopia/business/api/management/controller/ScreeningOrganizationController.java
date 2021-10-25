@@ -161,6 +161,11 @@ public class ScreeningOrganizationController {
                 ExportExcelServiceNameConstant.SCREENING_ORGANIZATION_EXCEL_SERVICE);
     }
 
+    @GetMapping("/export/student/warning/archive")
+    public void exportStudentWarningArchive() {
+
+    }
+
     /**
      * 重置密码
      *

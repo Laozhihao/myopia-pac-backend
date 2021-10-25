@@ -3,6 +3,7 @@ package com.wupol.myopia.business.aggregation.export.excel;
 import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelFileNameConstant;
+import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelNoticeKeyContentConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.core.common.constant.ExportAddressKey;
 import com.wupol.myopia.business.core.common.domain.model.District;
@@ -123,14 +124,14 @@ public class ExportSchoolExcelService extends BaseExportExcelFileService {
     @Override
     public String getNoticeKeyContent(ExportCondition exportCondition) {
         District district = districtService.checkAndGetDistrict(exportCondition.getDistrictId());
-        return String.format(ExcelFileNameConstant.SCHOOL_EXCEL_FILE_NAME, districtService.getTopDistrictName(district.getCode()));
+        return String.format(ExcelNoticeKeyContentConstant.SCHOOL_EXCEL_NOTICE_KEY_CONTENT, districtService.getTopDistrictName(district.getCode()));
     }
 
     @Override
     public String getFileName(ExportCondition exportCondition) {
         District district = districtService.checkAndGetDistrict(exportCondition.getDistrictId());
         // 设置文件名
-        return ExcelFileNameConstant.SCHOOL_NAME + district.getName();
+        return ExcelFileNameConstant.SCHOOL_FILE_NAME + district.getName();
     }
 
     /**

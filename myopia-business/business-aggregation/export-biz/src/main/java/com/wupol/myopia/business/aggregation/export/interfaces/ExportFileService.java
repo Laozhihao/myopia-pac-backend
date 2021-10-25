@@ -19,6 +19,7 @@ public interface ExportFileService {
      *
      * @param exportCondition 导出条件
      * @return void
+     * @throws IOException
      **/
     void validateBeforeExport(ExportCondition exportCondition) throws IOException;
 
