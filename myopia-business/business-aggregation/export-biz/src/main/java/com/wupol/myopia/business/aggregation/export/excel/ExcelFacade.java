@@ -273,7 +273,7 @@ public class ExcelFacade {
                     .setPhone(item.get(3))
                     .setCreateUserId(currentUser.getId())
                     .setIsLeader(0)
-                    .setPassword(PasswordGenerator.getScreeningUserPwd(item.get(3), item.get(2)))
+                    .setPassword(PasswordAndUsernameGenerator.getScreeningUserPwd(item.get(3), item.get(2)))
                     .setUsername(item.get(3))
                     .setOrgId(screeningOrgId)
                     .setSystemCode(SystemCode.SCREENING_CLIENT.getCode());

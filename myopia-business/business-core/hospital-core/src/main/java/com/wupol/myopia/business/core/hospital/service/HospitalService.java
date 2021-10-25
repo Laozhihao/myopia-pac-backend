@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.base.util.PasswordGenerator;
+import com.wupol.myopia.base.util.PasswordAndUsernameGenerator;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
@@ -65,7 +65,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         District district = districtService.getById(hospital.getDistrictId());
         hospital.setDistrictProvinceCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
         baseMapper.insert(hospital);
-        return generateAccountAndPassword(hospital);
+        return generateAccountAndPassword(hospital, 1);
     }
 
     /**
@@ -150,15 +150,15 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      *
      * @return UsernameAndPasswordDto 账号密码
      */
-    public UsernameAndPasswordDTO generateAccountAndPassword(Hospital hospital) {
-        String password = PasswordGenerator.getHospitalAdminPwd();
-        String username = hospital.getName();
+    public UsernameAndPasswordDTO generateAccountAndPassword(Hospital hospital, int sequence) {
+        String password = PasswordAndUsernameGenerator.getHospitalAdminPwd();
+        String username = PasswordAndUsernameGenerator.getHospitalAdminUserName(sequence);
 
         UserDTO userDTO = new UserDTO();
         userDTO.setOrgId(hospital.getId())
                 .setUsername(username)
                 .setPassword(password)
-                .setRealName(username)
+                .setRealName(hospital.getName())
                 .setCreateUserId(hospital.getCreateUserId())
                 .setSystemCode(SystemCode.HOSPITAL_CLIENT.getCode());
 
@@ -175,7 +175,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      * @return 账号密码
      */
     private UsernameAndPasswordDTO resetAuthPassword(String username, Integer userId) {
-        String password = PasswordGenerator.getHospitalAdminPwd();
+        String password = PasswordAndUsernameGenerator.getHospitalAdminPwd();
         oauthServiceClient.resetPwd(userId, password);
         return new UsernameAndPasswordDTO(username, password);
     }

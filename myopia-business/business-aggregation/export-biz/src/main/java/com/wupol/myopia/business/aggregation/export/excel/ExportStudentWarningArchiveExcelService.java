@@ -9,11 +9,13 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionEx
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 导出学生预警跟踪档案Excel
@@ -36,11 +38,11 @@ public class ExportStudentWarningArchiveExcelService extends BaseExportExcelFile
         // 1.获取当前学校下的筛查数据
         List<StatConclusionExportDTO> statConclusionExportList = statConclusionService.getExportVoByScreeningPlanIdAndSchoolId(exportCondition.getPlanId(), exportCondition.getSchoolId());
         // 2.遍历构建Excel实体
-        /*statConclusionExportList.stream().map(statConclusionExport -> {
-
-            BeanUtils.copyProperties(statConclusionExport, );
-        })*/
-        return null;
+        return statConclusionExportList.stream().map(statConclusionExport -> {
+            StudentWarningArchive studentWarningArchive = new StudentWarningArchive();
+            BeanUtils.copyProperties(statConclusionExport, studentWarningArchive);
+            return studentWarningArchive;
+        }).collect(Collectors.toList());
     }
 
     @Override

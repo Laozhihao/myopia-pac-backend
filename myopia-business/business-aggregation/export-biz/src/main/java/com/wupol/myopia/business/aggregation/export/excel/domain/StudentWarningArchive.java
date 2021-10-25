@@ -38,9 +38,9 @@ public class StudentWarningArchive {
     @ExcelProperty({TOP_HEADER, "姓名"})
     private String studentName;
 
-    /** 性别 */
+    /** 性别描述 */
     @ExcelProperty({TOP_HEADER, "性别"})
-    private Integer gender;
+    private Integer genderDesc;
 
     /** 年级和班级名称 */
     @ExcelProperty({TOP_HEADER, "年级-班级"})
@@ -86,6 +86,9 @@ public class StudentWarningArchive {
 
     /** 年龄 */
     private Integer age;
+
+    /** 性别 */
+    private Integer gender;
 
     /** 身高 */
     private Float height;
