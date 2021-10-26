@@ -124,6 +124,7 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
                                             BiometricsMedicalRecord biometrics,
                                             DiopterMedicalRecord diopter,
                                             ToscaMedicalRecord tosca,
+                                            EyePressure eyePressure,
                                             Integer hospitalId,
                                             Integer departmentId,
                                             Integer doctorId,
@@ -136,6 +137,7 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
         if (Objects.nonNull(biometrics)) medicalRecord.setBiometrics(biometrics);
         if (Objects.nonNull(diopter)) medicalRecord.setDiopter(diopter);
         if (Objects.nonNull(tosca)) medicalRecord.setTosca(tosca);
+        if (Objects.nonNull(eyePressure)) medicalRecord.setEyePressure(eyePressure);
         if (!updateById(medicalRecord)) {
             throw new BusinessException("修改失败");
         }

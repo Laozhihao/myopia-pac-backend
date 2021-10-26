@@ -43,7 +43,7 @@ public class MedicalRecordController {
     @PostMapping("/consultation")
     public Boolean createConsultation(@RequestBody @Valid Consultation consultation) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        medicalRecordFacade.addCheckDataAndCreateStudent(consultation, null, null, null,null, user.getOrgId(), -1, consultation.getStudentId());
+        medicalRecordFacade.addCheckDataAndCreateStudent(consultation, null, null, null,null, null, user.getOrgId(), -1, consultation.getStudentId());
         return true;
     }
 
@@ -57,7 +57,7 @@ public class MedicalRecordController {
     @PostMapping("/vision")
     public Boolean createVisionMedicalRecord(@RequestBody VisionMedicalRecord vision) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        medicalRecordFacade.addCheckDataAndCreateStudent( null, vision,null, null,null, user.getOrgId(), -1, vision.getStudentId());
+        medicalRecordFacade.addCheckDataAndCreateStudent( null, vision,null, null,null, null, user.getOrgId(), -1, vision.getStudentId());
         return true;
     }
 
@@ -78,7 +78,7 @@ public class MedicalRecordController {
     @PostMapping("/biometrics")
     public Boolean createBiometricsMedicalRecord(@RequestBody BiometricsMedicalRecord biometrics) throws IOException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        medicalRecordFacade.addCheckDataAndCreateStudent(null, null, biometrics,null, null, user.getOrgId(), -1, biometrics.getStudentId());
+        medicalRecordFacade.addCheckDataAndCreateStudent(null, null, biometrics,null, null, null, user.getOrgId(), -1, biometrics.getStudentId());
         return true;
     }
 
@@ -99,7 +99,7 @@ public class MedicalRecordController {
     @PostMapping("/diopter")
     public Boolean createDiopterMedicalRecord(@RequestBody DiopterMedicalRecord diopter) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        medicalRecordFacade.addCheckDataAndCreateStudent(null, null, null, diopter, null, user.getOrgId(), -1, diopter.getStudentId());
+        medicalRecordFacade.addCheckDataAndCreateStudent(null, null, null, diopter, null, null, user.getOrgId(), -1, diopter.getStudentId());
         return true;
     }
 
@@ -112,9 +112,17 @@ public class MedicalRecordController {
     @PostMapping("/tosca")
     public Boolean createToscaMedicalRecord(@RequestBody ToscaMedicalRecord tosca) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        medicalRecordFacade.addCheckDataAndCreateStudent(null, null, null, null, tosca, user.getOrgId(), -1, tosca.getStudentId());
+        medicalRecordFacade.addCheckDataAndCreateStudent(null, null, null, null, tosca, null, user.getOrgId(), -1, tosca.getStudentId());
         return true;
     }
+
+    @PostMapping("/eyePressure")
+    public Boolean createEyePressureMedicalRecord(@RequestBody EyePressure eyePressure) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        medicalRecordFacade.addCheckDataAndCreateStudent(null, null, null, null, null, eyePressure, user.getOrgId(), -1, eyePressure.getStudentId());
+        return true;
+    }
+
     @GetMapping("/detailWithCompare/{id}")
     public CompareMedicalRecord getMedicalRecordWithCompare(@PathVariable("id") @NotNull(message = "检查单id不能为空") Integer id, @NotNull(message = "学生id不能为空") Integer studentId) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
