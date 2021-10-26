@@ -138,7 +138,7 @@ public class ExportScreeningOrganizationExcelService extends BaseExportExcelFile
     }
 
     @Override
-    public String getRedisKey(ExportCondition exportCondition) {
+    public String getLockKey(ExportCondition exportCondition) {
         return String.format(RedisConstant.FILE_EXPORT_EXCEL_ORG,
                 exportCondition.getApplyExportFileUserId(),
                 exportCondition.getDistrictId());

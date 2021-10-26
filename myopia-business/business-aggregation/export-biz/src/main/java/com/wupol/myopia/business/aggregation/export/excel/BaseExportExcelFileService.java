@@ -74,7 +74,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
                 deleteTempFile(excelFile.getPath());
             }
             // 8.释放锁
-            unlock(getRedisKey(exportCondition));
+            unlock(getLockKey(exportCondition));
         }
     }
 

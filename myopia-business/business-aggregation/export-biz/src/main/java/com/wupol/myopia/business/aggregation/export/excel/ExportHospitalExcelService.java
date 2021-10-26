@@ -97,7 +97,7 @@ public class ExportHospitalExcelService extends BaseExportExcelFileService {
     }
 
     @Override
-    public String getRedisKey(ExportCondition exportCondition) {
+    public String getLockKey(ExportCondition exportCondition) {
         return String.format(RedisConstant.FILE_EXPORT_EXCEL_HOSPITAL,
                 exportCondition.getApplyExportFileUserId(),
                 exportCondition.getDistrictId());

@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.api.management.service;
 
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.util.RandomUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.google.common.collect.Lists;
@@ -185,19 +184,9 @@ public class StudentBizService {
             ScreeningPlan screeningPlan = screeningPlanService.getById(statConclusion.getPlanId());
             studentWarningArchiveVO.setScreeningTitle(screeningPlan.getTitle());
             // 就诊情况
-            Date endScreeningDate = null;
-            int next = i + 1;
-            if (next < size) {
-                endScreeningDate = statConclusionList.get(next).getUpdateTime();
-            }
-            setVisitInfo(studentWarningArchiveVO, statConclusion.getUpdateTime(), endScreeningDate, medicalReportList);
-            // 课桌椅 TODO：由于系统没有身高数据，课桌椅信息为空
-            int height = RandomUtil.randomInt(120, 180);
-            studentWarningArchiveVO.setHeight((float) height);
-            studentWarningArchiveVO.setDeskType(Arrays.asList(DeskChairType.PRIMARY_AND_SECONDARY_DESK_1.getType(), DeskChairType.PRIMARY_AND_SECONDARY_DESK_2.getType()));
-            studentWarningArchiveVO.setDeskAdviseHeight((int) (height * 0.43));
-            studentWarningArchiveVO.setChairType(Collections.singletonList(DeskChairType.PRIMARY_AND_SECONDARY_DESK_1.getType()));
-            studentWarningArchiveVO.setChairAdviseHeight((int) (height * 0.24));
+            setVisitInfo(studentWarningArchiveVO, statConclusion.getUpdateTime(), (i + 1) < size ? statConclusionList.get(i + 1).getUpdateTime() : null, medicalReportList);
+            // 课桌椅信息
+            setDeskAndChairInfo(studentWarningArchiveVO);
             studentWarningArchiveVOList.add(studentWarningArchiveVO);
         }
         return studentWarningArchiveVOList;
@@ -227,6 +216,25 @@ public class StudentBizService {
             studentWarningArchiveVO.setVisitResult(medicalReport.getMedicalContent());
             studentWarningArchiveVO.setGlassesSuggest(medicalReport.getGlassesSituation());
         }
+    }
+
+    /**
+     * 设置课桌椅信息
+     *
+     * @param studentWarningArchiveVO 预警跟踪信息
+     * @return void
+     **/
+    private void setDeskAndChairInfo(StudentWarningArchiveVO studentWarningArchiveVO) {
+        Float height = studentWarningArchiveVO.getHeight();
+        Integer schoolAge = studentWarningArchiveVO.getSchoolAge();
+        if (Objects.isNull(height) || Objects.isNull(schoolAge)) {
+            return;
+        }
+        List<Integer> deskAndChairType = SchoolAge.KINDERGARTEN.code.equals(schoolAge) ? DeskChairType.getKindergartenTypeByHeight(height) : DeskChairType.getPrimarySecondaryTypeByHeight(height);
+        studentWarningArchiveVO.setDeskType(deskAndChairType);
+        studentWarningArchiveVO.setDeskAdviseHeight((int) (height * 0.43));
+        studentWarningArchiveVO.setChairType(deskAndChairType);
+        studentWarningArchiveVO.setChairAdviseHeight((int) (height * 0.24));
     }
 
     public StudentDTO getStudentById(Integer id) {

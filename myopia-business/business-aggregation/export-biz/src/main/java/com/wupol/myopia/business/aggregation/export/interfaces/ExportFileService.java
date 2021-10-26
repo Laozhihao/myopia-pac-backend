@@ -81,7 +81,7 @@ public interface ExportFileService {
      * @param exportCondition 导出条件
      * @return Key
      */
-    String getRedisKey(ExportCondition exportCondition);
+    String getLockKey(ExportCondition exportCondition);
 
     /**
      * 上锁
