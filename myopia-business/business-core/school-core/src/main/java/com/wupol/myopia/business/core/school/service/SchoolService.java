@@ -82,7 +82,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         school.setDistrictProvinceCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
         baseMapper.insert(school);
         initGradeAndClass(school.getId(), school.getType(), school.getCreateUserId());
-        return generateAccountAndPassword(school, 1);
+        return generateAccountAndPassword(school);
     }
 
 
@@ -179,9 +179,10 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      *
      * @return UsernameAndPasswordDto 账号密码
      */
-    public UsernameAndPasswordDTO generateAccountAndPassword(School school, int sequence) {
+    public UsernameAndPasswordDTO generateAccountAndPassword(School school) {
+        // 账号规则：jsfkx + 序号
         String password = PasswordAndUsernameGenerator.getSchoolAdminPwd();
-        String username = PasswordAndUsernameGenerator.getSchoolAdminUserName(sequence);
+        String username = PasswordAndUsernameGenerator.getSchoolAdminUserName(schoolAdminService.count() + 1);
 
         UserDTO userDTO = new UserDTO();
         userDTO.setOrgId(school.getId())

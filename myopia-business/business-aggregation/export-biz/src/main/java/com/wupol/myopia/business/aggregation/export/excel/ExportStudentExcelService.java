@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.aggregation.export.excel;
 
-import com.google.common.collect.Maps;
 import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelFileNameConstant;
@@ -18,6 +17,7 @@ import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentExportDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
+import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
@@ -66,26 +66,24 @@ public class ExportStudentExcelService extends BaseExportExcelFileService {
 
     @Override
     public List getExcelData(ExportCondition exportCondition) {
-
+        // 获取学校信息
         Integer schoolId = exportCondition.getSchoolId();
-        Integer gradeId = exportCondition.getGradeId();
-
         School school = schoolService.getById(schoolId);
         String schoolName = school.getName();
-        String gradeName = schoolGradeService.getById(gradeId).getName();
 
         // 查询学生
-        List<StudentDTO> studentLists = studentService.getBySchoolIdAndGradeIdAndClassId(schoolId, null, gradeId);
-
+        List<StudentDTO> studentLists = studentService.getBySchoolIdAndGradeIdAndClassId(schoolId, null, exportCondition.getGradeId());
         if (CollectionUtils.isEmpty(studentLists)) {
             return new ArrayList<>();
         }
+
+        // 获取年级信息(同个学校的年级名称不存在相同的)
+        List<Integer> gradeIdList = studentLists.stream().map(Student::getGradeId).distinct().collect(Collectors.toList());
+        Map<Integer, String> gradeNameMap = schoolGradeService.getByIds(gradeIdList).stream().collect(Collectors.toMap(SchoolGrade::getId, SchoolGrade::getName));
+
         // 获取年级班级信息
-        List<Integer> classIdList = studentLists.stream().map(StudentDTO::getClassId).collect(Collectors.toList());
-        Map<Integer, SchoolClass> classMap = Maps.newHashMap();
-        if (!CollectionUtils.isEmpty(classIdList)) {
-            classMap = schoolClassService.getClassMapByIds(classIdList);
-        }
+        List<Integer> classIdList = studentLists.stream().map(StudentDTO::getClassId).distinct().collect(Collectors.toList());
+        Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(classIdList);
 
         // 筛查次数
         List<StudentScreeningCountDTO> studentScreeningCountVOS = visionScreeningResultService.countScreeningTime();
@@ -110,8 +108,7 @@ public class ExportStudentExcelService extends BaseExportExcelFileService {
                     .setBirthday(DateFormatUtil.format(item.getBirthday(), DateFormatUtil.FORMAT_ONLY_DATE))
                     .setNation(NationEnum.getName(item.getNation()))
                     .setSchoolName(schoolName)
-                    .setGrade(gradeName)
-//                    .setIdCard(item.getIdCard())
+                    .setGrade(gradeNameMap.get(item.getGradeId()))
                     .setBindPhone(item.getMpParentPhone())
                     .setPhone(item.getParentPhone())
                     .setAddress(item.getAddress())

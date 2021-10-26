@@ -66,9 +66,9 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @param accountType 账号类型 1-主账号 2-子账号
      * @return 账号密码
      */
-    public UsernameAndPasswordDTO generateAccountAndPassword(ScreeningOrganization org, Integer accountType, int sequence) {
+    public UsernameAndPasswordDTO generateAccountAndPassword(ScreeningOrganization org, Integer accountType) {
         String password = PasswordAndUsernameGenerator.getScreeningAdminPwd();
-        String username = PasswordAndUsernameGenerator.getScreeningOrgAdminUserName(sequence);
+        String username = PasswordAndUsernameGenerator.getScreeningOrgAdminUserName(screeningOrganizationAdminService.count() + 1);
 
         UserDTO userDTO = new UserDTO();
         userDTO.setOrgId(org.getId())

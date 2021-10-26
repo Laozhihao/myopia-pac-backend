@@ -417,7 +417,7 @@ public class SchoolBizService {
             throw new BusinessException("数据异常，无主账号");
         }
         school.setName(school.getName() + "0" + adminList.size());
-        return schoolService.generateAccountAndPassword(school, adminList.size() + 1);
+        return schoolService.generateAccountAndPassword(school);
     }
 
 }
