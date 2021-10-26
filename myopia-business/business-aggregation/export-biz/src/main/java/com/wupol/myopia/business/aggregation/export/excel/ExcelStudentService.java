@@ -103,14 +103,12 @@ public class ExcelStudentService {
         //6. 获取已有的筛查学生数据
         Map<String, ScreeningPlanSchoolStudent> idCardExistScreeningStudents = CollectionUtils.isEmpty(alreadyExistOrNotStudents.get(true)) ?
                 Collections.emptyMap() : alreadyExistOrNotStudents.get(true).stream().filter(e -> StringUtils.isNotBlank(e.getIdCard())).collect(Collectors.toMap(ScreeningPlanSchoolStudent::getIdCard, Function.identity()));
-        List<StudentDTO> excelStudents = getStudentListFromExcelItem(listMap, gradeNameIdMap, gradeClassNameClassIdMap, districtNameCodeMap, school.getSchoolNo());
+        List<StudentDTO> excelStudents = getStudentListFromExcelItem(listMap, gradeNameIdMap, gradeClassNameClassIdMap, districtNameCodeMap, school.getSchoolNo(), schoolId);
         Map<String, StudentDTO> excelIdCardStudentMap = excelStudents.stream()
                 .filter(e -> StringUtils.isNotBlank(e.getIdCard()) && Objects.isNull(e.getScreeningCode()))
                 .collect(Collectors.toMap(Student::getIdCard, Function.identity()));
-        // 7. 新增或更新学生和筛查学生数据(更新只存在身份存在的学生)
-        List<StudentDTO> onlyHaveIdCardList = excelStudents.stream()
-                .filter(e -> StringUtils.isNotBlank(e.getIdCard()) && Objects.isNull(e.getScreeningCode()))
-                .collect(Collectors.toList());
+        // 7. 新增或更新学生和筛查学生数据(更新只存在身份号码而没筛查编号的学生)
+        List<StudentDTO> onlyHaveIdCardList = (List<StudentDTO>) excelIdCardStudentMap.values();
         addOrUpdateStudentAndScreeningStudent(userId, screeningPlan, schoolId, school, idCardExistStudents, idCardExistScreeningStudents, onlyHaveIdCardList, excelIdCardStudentMap);
         // 8 更新存在筛查编号的学生
         updateMockPlanStudent(excelStudents.stream().filter(e -> Objects.nonNull(e.getScreeningCode())).collect(Collectors.toList()), screeningPlan.getId(), schoolId);
@@ -259,6 +257,7 @@ public class ExcelStudentService {
                         .setBirthday(excelStudent.getBirthday()).setNation(ObjectsUtil.getDefaultIfNull(excelStudent.getNation(), student.getNation()))
                         .setGradeId(excelStudent.getGradeId()).setGradeType(GradeCodeEnum.getByName(excelStudent.getGradeName()).getType())
                         .setClassId(excelStudent.getClassId()).setSno(excelStudent.getSno())
+                        .setSchoolId(schoolId)
                         .setAddress(StringUtils.getDefaultIfBlank(excelStudent.getAddress(), student.getAddress()))
                         .setParentPhone(StringUtils.getDefaultIfBlank(excelStudent.getParentPhone(), student.getParentPhone()));
                 updateStudent.setProvinceCode(ObjectsUtil.getDefaultIfNull(excelStudent.getProvinceCode(), student.getProvinceCode()));
@@ -356,11 +355,11 @@ public class ExcelStudentService {
      * @param schoolNo                 学校编号
      * @return List<Student>
      */
-    private List<StudentDTO> getStudentListFromExcelItem(List<Map<Integer, String>> listMap, Map<String, Integer> gradeNameIdMap, Map<String, Integer> gradeClassNameClassIdMap, Map<String, List<Long>> districtNameCodeMap, String schoolNo) {
+    private List<StudentDTO> getStudentListFromExcelItem(List<Map<Integer, String>> listMap, Map<String, Integer> gradeNameIdMap, Map<String, Integer> gradeClassNameClassIdMap, Map<String, List<Long>> districtNameCodeMap, String schoolNo, Integer schoolId) {
         // excel格式：姓名、性别、出生日期、民族(1：汉族  2：蒙古族  3：藏族  4：壮族  5:回族  6:其他  )、学校编号、年级、班级、学号、身份证号、手机号码、省、市、县区、镇/街道、居住地址
         List<StudentDTO> excelStudents = listMap.stream().map(item -> {
                     try {
-                        return generateStudentByExcelItem(item, gradeNameIdMap, gradeClassNameClassIdMap, districtNameCodeMap, schoolNo);
+                        return generateStudentByExcelItem(item, gradeNameIdMap, gradeClassNameClassIdMap, districtNameCodeMap, schoolNo, schoolId);
                     } catch (Exception e) {
                         log.error("导入筛查学生数据异常", e);
                         return null;
@@ -383,7 +382,7 @@ public class ExcelStudentService {
      * @param schoolNo                 学校编号
      * @return 学生实体
      */
-    private StudentDTO generateStudentByExcelItem(Map<Integer, String> item, Map<String, Integer> gradeNameIdMap, Map<String, Integer> gradeClassNameClassIdMap, Map<String, List<Long>> districtNameCodeMap, String schoolNo) {
+    private StudentDTO generateStudentByExcelItem(Map<Integer, String> item, Map<String, Integer> gradeNameIdMap, Map<String, Integer> gradeClassNameClassIdMap, Map<String, List<Long>> districtNameCodeMap, String schoolNo, Integer schoolId) {
         try {
             // excel格式：姓名、性别、出生日期、民族(1：汉族  2：蒙古族  3：藏族  4：壮族  5:回族  6:其他  )、学校编号、年级、班级、学号、身份证号、手机号码、省、市、县区、镇/街道、居住地址
             StudentDTO student = new StudentDTO();
@@ -393,6 +392,7 @@ public class ExcelStudentService {
                     .setBirthday(StringUtils.isBlank(item.get(ImportExcelEnum.BIRTHDAY.getIndex())) ? null : com.wupol.myopia.base.util.DateFormatUtil.parseDate(item.get(ImportExcelEnum.BIRTHDAY.getIndex()), DateFormatUtil.FORMAT_ONLY_DATE2))
                     .setNation(StringUtils.isBlank(item.get(ImportExcelEnum.NATION.getIndex())) ? null : NationEnum.getCode(item.get(ImportExcelEnum.NATION.getIndex())))
                     .setSchoolNo(schoolNo)
+                    .setSchoolId(schoolId)
                     .setGradeId(gradeNameIdMap.get(item.get(ImportExcelEnum.GRADE.getIndex())))
                     .setClassId(gradeClassNameClassIdMap.get(String.format(GRADE_CLASS_NAME_FORMAT, item.get(ImportExcelEnum.GRADE.getIndex()), item.get(ImportExcelEnum.CLASS.getIndex()))))
                     .setSno(StringUtils.getDefaultIfBlank(item.get(ImportExcelEnum.STUDENT_NO.getIndex()), null))

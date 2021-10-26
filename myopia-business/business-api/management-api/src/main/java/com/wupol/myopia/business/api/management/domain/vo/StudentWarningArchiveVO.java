@@ -35,6 +35,9 @@ public class StudentWarningArchiveVO {
     /** 身高 */
     private Float height;
 
+    /** 眼镜类型 */
+    private Integer glassesType;
+
     /** 近视预警等级 */
     private Integer myopiaLevel;
 

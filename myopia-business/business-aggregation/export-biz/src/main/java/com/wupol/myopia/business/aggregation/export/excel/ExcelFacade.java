@@ -105,36 +105,30 @@ public class ExcelFacade {
      * @param multipartFile 导入文件
      * @throws BusinessException 异常
      */
-    public void importStudent(Integer createUserId, MultipartFile multipartFile) throws ParseException {
-        String fileName = IOUtils.getTempPath() + multipartFile.getName() + "_" + System.currentTimeMillis() + FILE_SUFFIX;
-        File file = new File(fileName);
-        try {
-            FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
-        } catch (IOException e) {
-            log.error("导入学生数据异常:", e);
-            throw new BusinessException("导入学生数据异常");
-        }
-        // 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
-        List<Map<Integer, String>> listMap;
-        try {
-            listMap = EasyExcel.read(fileName).sheet().doReadSync();
-        } catch (Exception e) {
-            log.error("导入学生数据异常:", e);
-            throw new BusinessException("Excel解析异常");
-        }
+    public void importStudent(Integer createUserId, MultipartFile multipartFile, Integer schoolId) throws ParseException {
+        List<Map<Integer, String>> listMap = readExcel(multipartFile);
         if (CollectionUtils.isEmpty(listMap)) {
             return;
         }
-        if (!listMap.isEmpty()) {
-            // 去头部
-            listMap.remove(0);
-        }
+
+        // 判断是否导入到同一个学校(同个学校时没有"学校编号"列，第5列，index=4)
+        boolean isSameSchool = Objects.nonNull(schoolId);
+        int offset = isSameSchool ? 1 : 0;
+
         // 收集学校编号
-        List<String> schoolNos = listMap.stream().map(s -> s.get(4)).collect(Collectors.toList());
-        List<School> schools = schoolService.getBySchoolNos(schoolNos);
+        List<School> schools;
+        String schoolNo = null;
+        if (isSameSchool) {
+            School school = schoolService.getById(schoolId);
+            schoolNo = school.getSchoolNo();
+            schools = Collections.singletonList(schoolService.getById(schoolId));
+        } else {
+            List<String> schoolNos = listMap.stream().map(s -> s.get(4)).collect(Collectors.toList());
+            schools = schoolService.getBySchoolNos(schoolNos);
+        }
 
         // 收集身份证号码
-        List<String> idCards = listMap.stream().map(s -> s.get(8))
+        List<String> idCards = listMap.stream().map(s -> s.get(8 - offset))
                 .filter(Objects::nonNull).collect(Collectors.toList());
 
         preCheckStudent(schools, idCards);
@@ -156,55 +150,67 @@ public class ExcelFacade {
             }
             checkStudentInfo(item);
 
-            // excel 格式： 姓名	性别	出生日期	民族(1：汉族  2：蒙古族  3：藏族  4：壮族  5:回族  6:其他  ) 年级	班级	学号	身份证号	手机号码	省	市	县区	镇/街道	详细
+            // Excel 格式： 姓名	性别	出生日期	民族   学校编号(同个学校时没有该列)   年级	班级	学号	身份证号	手机号码	省	市	县区	镇/街道	详细
+            // 民族取值：1-汉族  2-蒙古族  3-藏族  4-壮族  5-回族  6-其他
             student.setName(item.get(0))
                     .setGender(GenderEnum.getType(item.get(1)))
                     .setBirthday(DateFormatUtil.parseDate(item.get(2), DateFormatUtil.FORMAT_ONLY_DATE2))
                     .setNation(NationEnum.getCode(item.get(3)))
-                    .setSchoolNo(item.get(4))
-                    .setGradeType(GradeCodeEnum.getByName(item.get(5)).getType())
-                    .setSno((item.get(7)))
-                    .setIdCard(item.get(8))
-                    .setParentPhone(item.get(9))
+                    .setSchoolNo(isSameSchool ? schoolNo : item.get(4))
+                    .setGradeType(GradeCodeEnum.getByName(item.get(5 - offset)).getType())
+                    .setSno((item.get(7 - offset)))
+                    .setIdCard(item.get(8 - offset))
+                    .setParentPhone(item.get(9 - offset))
                     .setCreateUserId(createUserId);
-            student.setProvinceCode(districtService.getCodeByName(item.get(10)));
-            student.setCityCode(districtService.getCodeByName(item.get(11)));
-            student.setAreaCode(districtService.getCodeByName(item.get(12)));
-            student.setTownCode(districtService.getCodeByName(item.get(13)));
-            student.setAddress(item.get(14));
-
+            student.setProvinceCode(districtService.getCodeByName(item.get(10 - offset)));
+            student.setCityCode(districtService.getCodeByName(item.get(11 - offset)));
+            student.setAreaCode(districtService.getCodeByName(item.get(12 - offset)));
+            student.setTownCode(districtService.getCodeByName(item.get(13 - offset)));
+            student.setAddress(item.get(14 - offset));
             // 通过学校编号获取改学校的年级信息
-            List<SchoolGradeExportDTO> schoolGradeExportVOS = schoolGradeMaps.get(item.get(4));
-
+            List<SchoolGradeExportDTO> schoolGradeExportVOS = schoolGradeMaps.get(isSameSchool ? schoolNo : item.get(4));
             // 转换成年级Maps，年级名称作为Key
             Map<String, SchoolGradeExportDTO> gradeMaps = schoolGradeExportVOS.stream()
                     .collect(Collectors.toMap(SchoolGradeExportDTO::getName, Function.identity()));
-
             // 年级信息
-            SchoolGradeExportDTO schoolGradeExportDTO = gradeMaps.get(item.get(5));
-            if (null == schoolGradeExportDTO) {
-                throw new BusinessException("年级数据异常");
-            } else {
-                // 设置年级ID
-                student.setGradeId(schoolGradeExportDTO.getId());
-
-                // 获取年级内的班级信息
-                List<SchoolClassExportDTO> classExportVOS = schoolGradeExportDTO.getChild();
-
-                // 转换成班级Maps 把班级名称作为key
-                Map<String, Integer> classExportMaps = classExportVOS.stream()
-                        .collect(Collectors.toMap(SchoolClassExportDTO::getName, SchoolClassExportDTO::getId));
-                Integer classId = classExportMaps.get(item.get(6));
-                if (Objects.isNull(classId)) {
-                    throw new BusinessException("班级数据异常");
-                } else {
-                    // 设置班级信息
-                    student.setClassId(classId);
-                }
-            }
+            SchoolGradeExportDTO schoolGradeExportDTO = gradeMaps.get(item.get(5 - offset));
+            Assert.notNull(schoolGradeExportDTO, "年级数据异常");
+            // 设置年级ID
+            student.setGradeId(schoolGradeExportDTO.getId());
+            // 获取年级内的班级信息
+            List<SchoolClassExportDTO> classExportVOS = schoolGradeExportDTO.getChild();
+            // 转换成班级Maps 把班级名称作为key
+            Map<String, Integer> classExportMaps = classExportVOS.stream()
+                    .collect(Collectors.toMap(SchoolClassExportDTO::getName, SchoolClassExportDTO::getId));
+            Integer classId = classExportMaps.get(item.get(6 - offset));
+            Assert.notNull(classId, "班级数据为空");
+            // 设置班级信息
+            student.setClassId(classId);
             importList.add(student);
         }
         studentService.saveBatch(importList);
+    }
+
+    private List<Map<Integer, String>> readExcel(MultipartFile multipartFile) {
+        String fileName = IOUtils.getTempPath() + multipartFile.getName() + "_" + System.currentTimeMillis() + FILE_SUFFIX;
+        File file = new File(fileName);
+        try {
+            FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
+        } catch (IOException e) {
+            log.error("导入学生数据异常:", e);
+            throw new BusinessException("导入学生数据异常");
+        }
+        // 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
+        try {
+            List<Map<Integer, String>> listMap = EasyExcel.read(fileName).sheet().doReadSync();
+            if (!CollectionUtils.isEmpty(listMap)) {
+                listMap.remove(0);
+            }
+            return listMap;
+        } catch (Exception e) {
+            log.error("导入学生数据异常:", e);
+            throw new BusinessException("Excel解析异常");
+        }
     }
 
     /**

@@ -65,7 +65,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         District district = districtService.getById(hospital.getDistrictId());
         hospital.setDistrictProvinceCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
         baseMapper.insert(hospital);
-        return generateAccountAndPassword(hospital, 1);
+        return generateAccountAndPassword(hospital);
     }
 
     /**
@@ -150,9 +150,9 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      *
      * @return UsernameAndPasswordDto 账号密码
      */
-    public UsernameAndPasswordDTO generateAccountAndPassword(Hospital hospital, int sequence) {
+    public UsernameAndPasswordDTO generateAccountAndPassword(Hospital hospital) {
         String password = PasswordAndUsernameGenerator.getHospitalAdminPwd();
-        String username = PasswordAndUsernameGenerator.getHospitalAdminUserName(sequence);
+        String username = PasswordAndUsernameGenerator.getHospitalAdminUserName(hospitalAdminService.count() + 1);
 
         UserDTO userDTO = new UserDTO();
         userDTO.setOrgId(hospital.getId())

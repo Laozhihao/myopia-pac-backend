@@ -172,6 +172,6 @@ public class HospitalBizService {
             throw new BusinessException("数据异常，无主账号");
         }
         hospital.setName(hospital.getName() + "0" + adminList.size());
-        return hospitalService.generateAccountAndPassword(hospital, adminList.size() + 1);
+        return hospitalService.generateAccountAndPassword(hospital);
     }
 }

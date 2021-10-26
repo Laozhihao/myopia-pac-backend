@@ -73,7 +73,6 @@ public class StudentController {
      */
     @PostMapping()
     public Integer saveStudent(@RequestBody @Valid Student student) {
-        Assert.notNull(student.getSchoolId(), "学校ID不能为空");
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         student.setCreateUserId(user.getId());
         return studentService.saveStudent(student);
@@ -135,7 +134,6 @@ public class StudentController {
     @GetMapping("/export")
     public void getStudentExportData(Integer schoolId, Integer gradeId) throws IOException {
         Assert.isTrue(Objects.nonNull(schoolId), "学校id不能为空");
-        Assert.isTrue(Objects.nonNull(gradeId), "年级id不能为空");
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         exportStrategy.doExport(new ExportCondition()
                         .setApplyExportFileUserId(user.getId())
@@ -151,9 +149,9 @@ public class StudentController {
      * @throws ParseException 转换异常
      */
     @PostMapping("/import")
-    public void importStudent(MultipartFile file) throws ParseException {
+    public void importStudent(MultipartFile file, Integer schoolId) throws ParseException {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        excelFacade.importStudent(currentUser.getId(), file);
+        excelFacade.importStudent(currentUser.getId(), file, schoolId);
     }
 
     /**
