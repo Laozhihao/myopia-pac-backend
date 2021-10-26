@@ -47,4 +47,9 @@ public class SyncExportStudentArchivesService extends BaseExportPdfFileService {
         return String.format(PDFFileNameConstant.ARCHIVES_PDF_FILE_NAME_STUDENT, school.getName());
     }
 
+    @Override
+    public String getRedisKey(ExportCondition exportCondition) {
+        return null;
+    }
+
 }
