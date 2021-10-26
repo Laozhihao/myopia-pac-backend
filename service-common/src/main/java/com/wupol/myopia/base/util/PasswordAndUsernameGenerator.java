@@ -50,7 +50,7 @@ public class PasswordAndUsernameGenerator {
      **/
     public static String getSchoolAdminPwd() {
         // 开头字母x + 11位字母或数字
-        return SCHOOL_ADMIN_PWD_PREFIX + RandomUtil.randomString(PASSWORD_SUFFIX_RANDOM_LENGTH);
+        return SCHOOL_ADMIN_PWD_PREFIX + RandomUtil.randomNumbers(PASSWORD_SUFFIX_RANDOM_LENGTH);
     }
 
     /**
@@ -60,7 +60,7 @@ public class PasswordAndUsernameGenerator {
      **/
     public static String getHospitalAdminPwd() {
         // 开头字母y + 11位字母或数字
-        return HOSPITAL_ADMIN_PWD_PREFIX + RandomUtil.randomString(PASSWORD_SUFFIX_RANDOM_LENGTH);
+        return HOSPITAL_ADMIN_PWD_PREFIX + RandomUtil.randomNumbers(PASSWORD_SUFFIX_RANDOM_LENGTH);
     }
 
     /**
@@ -70,7 +70,7 @@ public class PasswordAndUsernameGenerator {
      **/
     public static String getScreeningAdminPwd() {
         // 开头字母y + 11位字母或数字
-        return SCREENING_ORG_ADMIN_PWD_PREFIX + RandomUtil.randomString(PASSWORD_SUFFIX_RANDOM_LENGTH);
+        return SCREENING_ORG_ADMIN_PWD_PREFIX + RandomUtil.randomNumbers(PASSWORD_SUFFIX_RANDOM_LENGTH);
     }
 
     /**
