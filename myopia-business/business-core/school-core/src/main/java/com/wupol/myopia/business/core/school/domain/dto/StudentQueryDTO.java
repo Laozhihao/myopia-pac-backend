@@ -65,8 +65,4 @@ public class StudentQueryDTO extends StudentExtraDTO {
      * 筛查计划ID
      */
     private Integer screeningPlanId;
-    /**
-     * 学校ID
-     */
-    private Integer schoolId;
 }
