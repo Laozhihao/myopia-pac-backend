@@ -65,7 +65,7 @@ public class ExportStudentWarningArchiveExcelService extends BaseExportExcelFile
     }
 
     @Override
-    public String getRedisKey(ExportCondition exportCondition) {
+    public String getLockKey(ExportCondition exportCondition) {
         return null;
     }
 

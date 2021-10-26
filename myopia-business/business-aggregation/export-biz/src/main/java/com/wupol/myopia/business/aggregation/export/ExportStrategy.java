@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,14 +34,14 @@ public class ExportStrategy {
         // 数据校验
         exportFileService.validateBeforeExport(exportCondition);
         // 尝试获锁
-        if (!exportFileService.tryLock(exportFileService.getRedisKey(exportCondition))) {
+        if (!exportFileService.tryLock(exportFileService.getLockKey(exportCondition))) {
             throw new BusinessException("正在导出中，请勿重复导出");
         }
         // 设置进队列
         redisUtil.lSet(RedisConstant.FILE_EXPORT_LIST, new QueueInfo(exportCondition, serviceName));
     }
 
-    public ExportFileService getExportFileService(String serviceName) {
+    private ExportFileService getExportFileService(String serviceName) {
         ExportFileService exportFileService = exportFileServiceMap.get(serviceName);
         Assert.notNull(exportFileService, "没有找到对应导出文件service实例：" + serviceName);
         return exportFileService;

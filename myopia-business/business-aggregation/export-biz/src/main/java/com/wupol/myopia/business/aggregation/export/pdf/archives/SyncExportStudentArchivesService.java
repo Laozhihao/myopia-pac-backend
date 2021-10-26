@@ -48,7 +48,7 @@ public class SyncExportStudentArchivesService extends BaseExportPdfFileService {
     }
 
     @Override
-    public String getRedisKey(ExportCondition exportCondition) {
+    public String getLockKey(ExportCondition exportCondition) {
         return null;
     }
 
