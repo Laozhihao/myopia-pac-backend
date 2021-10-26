@@ -202,6 +202,11 @@ public class Student extends AddressCode implements Serializable {
     private Integer numOfVisits;
 
     /**
+     * 学校ID
+     */
+    private Integer schoolId;
+
+    /**
      * 近视等级，0-正常、1-筛查性近视、2-近视前期、3-低度近视、4-中度近视、5-重度近视
      */
     private Integer myopiaLevel;

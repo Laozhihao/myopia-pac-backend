@@ -73,6 +73,7 @@ public class StudentController {
      */
     @PostMapping()
     public Integer saveStudent(@RequestBody @Valid Student student) {
+        Assert.notNull(student.getSchoolId(), "学校ID不能为空");
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         student.setCreateUserId(user.getId());
         return studentService.saveStudent(student);
