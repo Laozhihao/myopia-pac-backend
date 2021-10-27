@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.aggregation.export.excel;
 
+import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelNoticeKeyContentConstant;
 import com.wupol.myopia.business.aggregation.export.excel.domain.StudentWarningArchive;
@@ -66,7 +67,10 @@ public class ExportStudentWarningArchiveExcelService extends BaseExportExcelFile
 
     @Override
     public String getLockKey(ExportCondition exportCondition) {
-        return null;
+        return String.format(RedisConstant.FILE_EXPORT_EXCEL_STUDENT_WARNING_ARCHIVE,
+                exportCondition.getApplyExportFileUserId(),
+                exportCondition.getPlanId(),
+                exportCondition.getSchoolId());
     }
 
     @Override
