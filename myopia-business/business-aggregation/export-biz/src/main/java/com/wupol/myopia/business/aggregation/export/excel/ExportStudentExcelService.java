@@ -141,9 +141,8 @@ public class ExportStudentExcelService extends BaseExportExcelFileService {
 
     @Override
     public String getNoticeKeyContent(ExportCondition exportCondition) {
-
         School school = schoolService.getById(exportCondition.getSchoolId());
-        String gradeName = schoolGradeService.getById(exportCondition.getGradeId()).getName();
+        String gradeName = Objects.nonNull(exportCondition.getGradeId()) ? schoolGradeService.getById(exportCondition.getGradeId()).getName() : StringUtils.EMPTY;
         // 行政区域
         District district = districtService.findOne(new District().setId(school.getDistrictId()));
         return String.format(ExcelNoticeKeyContentConstant.STUDENT_EXCEL_NOTICE_KEY_CONTENT,
@@ -157,9 +156,11 @@ public class ExportStudentExcelService extends BaseExportExcelFileService {
         // 设置文件名
         StringBuilder builder = new StringBuilder().append(ExcelFileNameConstant.STUDENT_FILE_NAME);
         School school = schoolService.getById(exportCondition.getSchoolId());
-        String schoolName = school.getName();
-        String gradeName = schoolGradeService.getById(exportCondition.getGradeId()).getName();
-        builder.append(schoolName).append("-").append(gradeName);
+        builder.append(school.getName());
+        if (Objects.nonNull(exportCondition.getGradeId())) {
+            String gradeName = schoolGradeService.getById(exportCondition.getGradeId()).getName();
+            builder.append("-").append(gradeName);
+        }
         return builder.toString();
     }
 
