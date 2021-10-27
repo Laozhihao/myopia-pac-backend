@@ -1111,7 +1111,7 @@ public class ScreeningResultUtil {
             return RecommendVisitEnum.EMPTY;
         }
 
-        if ((BigDecimalUtil.moreThanAndEqual(seBigDecimal, "2") || BigDecimalUtil.lessThan(seBigDecimal, "0") || BigDecimalUtil.moreThan(cyl.abs(), "1.5"))
+        if ((BigDecimalUtil.moreThanAndEqual(seBigDecimal, "2") || BigDecimalUtil.moreThan(cyl.abs(), "1.5"))
                 || (Objects.nonNull(anisometropia) && BigDecimalUtil.moreThan(anisometropia, "1.5"))
                 || !otherEyeDiseasesNormal) {
             return RecommendVisitEnum.KINDERGARTEN_RESULT_4;

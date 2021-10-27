@@ -531,7 +531,7 @@ public class StatUtil {
         if (BigDecimalUtil.isBetweenRight(nakedVision, "4.6", "4.7") || oneSE(se) || (age < 4 && BigDecimalUtil.isBetweenRight(se, "3", "6")) || (age >= 4 && BigDecimalUtil.isBetweenRight(se, "2", "5")) || oneAbsCyl(absCyl)) {
             return WarningLevel.ONE;
         }
-        if (BigDecimalUtil.isBetweenNo(nakedVision, "4.7", "5") || zeroSE(se) || zeroAbsCyl(absCyl)) {
+        if (BigDecimalUtil.moreThan(nakedVision, "4.7") || zeroSE(se) || zeroAbsCyl(absCyl)) {
             return WarningLevel.ZERO;
         }
         return zeroSPWarningLevel(cyl, spn, age);
@@ -562,7 +562,7 @@ public class StatUtil {
         if (BigDecimalUtil.isBetweenRight(nakedVision, "4.7", "4.8") || oneSE(se) || BigDecimalUtil.isBetweenRight(se, "1.5", "4.5") || oneAbsCyl(absCyl)) {
             return WarningLevel.ONE;
         }
-        if (BigDecimalUtil.isBetweenNo(nakedVision, "4.8", "5") || zeroSE(se) || zeroAbsCyl(absCyl)) {
+        if (BigDecimalUtil.moreThan(nakedVision, "4.8") || zeroSE(se) || zeroAbsCyl(absCyl)) {
             return WarningLevel.ZERO;
         }
         return zeroSPWarningLevel(cyl, spn, age);
@@ -591,7 +591,7 @@ public class StatUtil {
         if (BigDecimalUtil.isBetweenRight(nakedVision, "4.7", "4.9") || oneSE(se) || (BigDecimalUtil.isBetweenRight(se, "0.5", "3")) || oneAbsCyl(absCyl)) {
             return WarningLevel.ONE;
         }
-        if (BigDecimalUtil.isBetweenNo(nakedVision, "4.9", "5") || zeroSE(se) || zeroAbsCyl(absCyl)) {
+        if (BigDecimalUtil.moreThan(nakedVision, "4.9") || zeroSE(se) || zeroAbsCyl(absCyl)) {
             return WarningLevel.ZERO;
         }
         return null;
