@@ -11,7 +11,10 @@ import com.wupol.framework.sms.domain.dto.SmsResult;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.api.management.constant.VisionScreeningConst;
 import com.wupol.myopia.business.api.management.domain.vo.VisionInfoVO;
-import com.wupol.myopia.business.common.utils.constant.*;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.common.utils.constant.HyperopiaLevelEnum;
+import com.wupol.myopia.business.common.utils.constant.MyopiaLevelEnum;
+import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.service.DistrictService;
@@ -1011,20 +1014,20 @@ public class StudentBizService {
         VisionInfoVO leftEye = visionInfo.getFirst();
         VisionInfoVO rightEye = visionInfo.getSecond();
         // 是否屈光不正
-        Boolean isRefractiveError = isRefractiveError(leftEye, rightEye, cardDetail);
+        Boolean isRefractiveError = isRefractiveError(leftEye, rightEye);
         if (Objects.isNull(isRefractiveError)) {
             return isRefractiveError;
         }
         // 设置近视、远视、散光
         if (isRefractiveError && Objects.nonNull(leftEye)) {
             cardDetail.setLeftMyopiaInfo(leftEye.getMyopiaLevel());
-            cardDetail.setLeftFarsightednessInfo(leftEye.getFarsightednessLevel());
-            cardDetail.setLeftAstigmatismInfo(leftEye.getAstigmatism());
+            cardDetail.setLeftFarsightednessInfo(leftEye.getHyperopiaLevel());
+            cardDetail.setLeftAstigmatismInfo(leftEye.getAstigmatismLevel());
         }
         if (isRefractiveError && Objects.nonNull(rightEye)) {
             cardDetail.setRightMyopiaInfo(rightEye.getMyopiaLevel());
-            cardDetail.setRightFarsightednessInfo(rightEye.getFarsightednessLevel());
-            cardDetail.setRightAstigmatismInfo(rightEye.getAstigmatism());
+            cardDetail.setRightFarsightednessInfo(rightEye.getHyperopiaLevel());
+            cardDetail.setRightAstigmatismInfo(rightEye.getAstigmatismLevel());
         }
         return isRefractiveError;
     }
@@ -1109,10 +1112,10 @@ public class StudentBizService {
             // 远视
             HyperopiaLevelEnum farsightednessWarningLevel = StatUtil.getHyperopiaWarningLevel(sph.floatValue(), cyl.floatValue(), age);
             visionInfoVO.setMyopiaLevel(Objects.nonNull(myopiaWarningLevel) ? myopiaWarningLevel.code : null);
-            visionInfoVO.setFarsightednessLevel(Objects.nonNull(farsightednessWarningLevel) ? farsightednessWarningLevel.code : null);
+            visionInfoVO.setHyperopiaLevel(Objects.nonNull(farsightednessWarningLevel) ? farsightednessWarningLevel.code : null);
         }
         // 散光
-        visionInfoVO.setAstigmatism(Objects.nonNull(cyl) && cyl.abs().compareTo(new BigDecimal("0.5")) >= 0);
+        visionInfoVO.setAstigmatismLevel(Objects.nonNull(cyl) && cyl.abs().compareTo(new BigDecimal("0.5")) >= 0);
         return visionInfoVO;
     }
 
@@ -1121,18 +1124,25 @@ public class StudentBizService {
      *
      * @param leftEye  左眼数据
      * @param rightEye 右眼数据
-     * @param cardDetail
      * @return 是否屈光不正
      */
-    private Boolean isRefractiveError(VisionInfoVO leftEye, VisionInfoVO rightEye, HaiNanCardDetail cardDetail) {
+    private Boolean isRefractiveError(VisionInfoVO leftEye, VisionInfoVO rightEye) {
         if (ObjectsUtil.allNull(leftEye, rightEye)) {
             return null;
         }
+        if (ObjectsUtil.allNotNull(leftEye.getMyopiaLevel(), rightEye.getMyopiaLevel()) && (leftEye.getMyopiaLevel() >= MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.code
+                || rightEye.getMyopiaLevel() > MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.code)) {
+            return true;
+        }
+        if (ObjectsUtil.allNotNull(leftEye.getHyperopiaLevel(), rightEye.getHyperopiaLevel()) && (leftEye.getHyperopiaLevel() >= HyperopiaLevelEnum.HYPEROPIA_LEVEL_LIGHT.code
+                || rightEye.getHyperopiaLevel() > HyperopiaLevelEnum.HYPEROPIA_LEVEL_LIGHT.code)) {
+            return true;
+        }
 
-        return (Objects.nonNull(cardDetail.getIsMyopia()) && cardDetail.getIsMyopia())
-                || (Objects.nonNull(cardDetail.getIsHyperopia()) && cardDetail.getIsHyperopia())
-                || (Objects.nonNull(leftEye.getAstigmatism()) && leftEye.getAstigmatism())
-                || (Objects.nonNull(rightEye.getAstigmatism()) && rightEye.getAstigmatism());
+        if (ObjectsUtil.allNotNull(leftEye.getAstigmatismLevel(), rightEye.getAstigmatismLevel()) && (leftEye.getAstigmatismLevel() || rightEye.getAstigmatismLevel())) {
+            return true;
+        }
+        return null;
     }
 
     /**
