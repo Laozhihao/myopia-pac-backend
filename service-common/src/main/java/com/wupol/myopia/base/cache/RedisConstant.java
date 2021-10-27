@@ -78,6 +78,11 @@ public interface RedisConstant {
     String FILE_EXPORT_EXCEL_STUDENT = "file:export:excel:org:staff:%d-%d-%d";
 
     /**
+     * 导出Excel-学生预警跟踪档案
+     */
+    String FILE_EXPORT_EXCEL_STUDENT_WARNING_ARCHIVE = "file:export:excel:student:warning:archive:%d-%d-%d";
+
+    /**
      * 导出PDF-区域-筛查机构
      */
     String FILE_EXPORT_PDF_DISTRICT_SCREENING = "file:export:pdf:district:screening:%s-%s-%s";

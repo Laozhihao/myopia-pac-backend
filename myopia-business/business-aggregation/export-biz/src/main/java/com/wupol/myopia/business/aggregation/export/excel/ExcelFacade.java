@@ -131,7 +131,7 @@ public class ExcelFacade {
         List<String> idCards = listMap.stream().map(s -> s.get(8 - offset))
                 .filter(Objects::nonNull).collect(Collectors.toList());
 
-        // 参数校验
+        // 数据预校验
         preCheckStudent(schools, idCards);
 
         // 收集年级信息
@@ -149,9 +149,8 @@ public class ExcelFacade {
             if (StringUtils.isBlank(item.get(0))) {
                 break;
             }
-            checkStudentInfo(item);
-
-            // Excel 格式： 姓名	性别	出生日期	民族   学校编号(同个学校时没有该列)   年级	班级	学号	身份证号	手机号码	省	市	县区	镇/街道	详细
+            checkStudentInfo(item, offset);
+            // Excel 格式： 姓名	性别	出生日期	民族   学校编号(同个学校时没有该列，后面的左移一列)   年级	班级	学号	身份证号	手机号码	省	市	县区	镇/街道	详细
             // 民族取值：1-汉族  2-蒙古族  3-藏族  4-壮族  5-回族  6-其他
             student.setName(item.get(0))
                     .setGender(GenderEnum.getType(item.get(1)))
@@ -192,6 +191,12 @@ public class ExcelFacade {
         studentService.saveBatch(importList);
     }
 
+    /**
+     * 读取Excel数据
+     *
+     * @param multipartFile Excel文件
+     * @return java.util.List<java.util.Map<java.lang.Integer,java.lang.String>>
+     **/
     private List<Map<Integer, String>> readExcel(MultipartFile multipartFile) {
         String fileName = IOUtils.getTempPath() + multipartFile.getName() + "_" + System.currentTimeMillis() + FILE_SUFFIX;
         File file = new File(fileName);
@@ -649,15 +654,18 @@ public class ExcelFacade {
      * 检查学生信息是否完整
      *
      * @param item 学生信息
+     * @param offset 偏移量(导入的为同一个学校的数据时，没有学校编号列，后面的左移一列)
      */
-    private void checkStudentInfo(Map<Integer, String> item) {
+    private void checkStudentInfo(Map<Integer, String> item, int offset) {
         Assert.isTrue(StringUtils.isNotBlank(item.get(1)) && !GenderEnum.getType(item.get(1)).equals(GenderEnum.UNKONE.type), "学生性别异常");
         Assert.isTrue(StringUtils.isNotBlank(item.get(2)), "学生出生日期不能为空");
-        Assert.isTrue(StringUtils.isNotBlank(item.get(4)), "学校编号不能为空");
-        Assert.isTrue(StringUtils.isNotBlank(item.get(5)), "学生年级不能为空");
-        Assert.isTrue(StringUtils.isNotBlank(item.get(6)), "学生班级不能为空");
-        Assert.isTrue(StringUtils.isNotBlank(item.get(8)) && Pattern.matches(RegularUtils.REGULAR_ID_CARD, item.get(8)), "学生身份证异常");
-        Assert.isTrue(StringUtils.isBlank(item.get(9)) || Pattern.matches(RegularUtils.REGULAR_MOBILE, item.get(9)), "学生手机号码异常");
+        if (offset > 0) {
+            Assert.isTrue(StringUtils.isNotBlank(item.get(4)), "学校编号不能为空");
+        }
+        Assert.isTrue(StringUtils.isNotBlank(item.get(5 - offset)), "学生年级不能为空");
+        Assert.isTrue(StringUtils.isNotBlank(item.get(6 - offset)), "学生班级不能为空");
+        Assert.isTrue(StringUtils.isNotBlank(item.get(8 - offset)) && Pattern.matches(RegularUtils.REGULAR_ID_CARD, item.get(8 - offset)), "学生身份证异常");
+        Assert.isTrue(StringUtils.isBlank(item.get(9 - offset)) || Pattern.matches(RegularUtils.REGULAR_MOBILE, item.get(9 - offset)), "学生手机号码异常");
     }
 
     /**
