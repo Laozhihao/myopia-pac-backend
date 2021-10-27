@@ -37,8 +37,8 @@ public class ScreeningResultUtil {
     public static String getDoctorAdviceDetail(VisionScreeningResult result, Integer gradeType, Integer age) {
 
         VisionDataDO visionData = result.getVisionData();
-        ComputerOptometryDO computerOptometry = result.getComputerOptometry();
-        if (null == visionData || null == computerOptometry) {
+
+        if (null == visionData) {
             return null;
         }
         // 戴镜类型，取一只眼就行
@@ -61,15 +61,11 @@ public class ScreeningResultUtil {
         BigDecimal leftCorrectedVision = visionData.getLeftEyeData().getCorrectedVision();
         BigDecimal rightCorrectedVision = visionData.getRightEyeData().getCorrectedVision();
 
-        BigDecimal leftSph = computerOptometry.getLeftEyeData().getSph();
-        BigDecimal leftCyl = computerOptometry.getLeftEyeData().getCyl();
-        BigDecimal rightSph = computerOptometry.getRightEyeData().getSph();
-        BigDecimal rightCyl = computerOptometry.getRightEyeData().getCyl();
+        ComputerOptometryDO computerOptometry = result.getComputerOptometry();
 
         return getDoctorAdvice(leftNakedVision, rightNakedVision,
                 leftCorrectedVision, rightCorrectedVision,
-                leftSph, rightSph, leftCyl, rightCyl,
-                glassesType, gradeType, age, otherEyeDiseasesNormal).getAdvice();
+                glassesType, gradeType, age, otherEyeDiseasesNormal, computerOptometry).getAdvice();
     }
 
     /**
@@ -640,9 +636,9 @@ public class ScreeningResultUtil {
     /**
      * 获取球镜typeName
      *
-     * @param sph         球镜
-     * @param cyl         柱镜
-     * @param age         年龄
+     * @param sph 球镜
+     * @param cyl 柱镜
+     * @param age 年龄
      * @return TwoTuple<> left-球镜中文 right-预警级别(重新封装的一层)
      */
     public static TwoTuple<String, Integer> getSphTypeName(BigDecimal sph, BigDecimal cyl, Integer age) {
@@ -870,31 +866,26 @@ public class ScreeningResultUtil {
      * @param rightNakedVision       右-裸眼
      * @param leftCorrectedVision    左-矫正视力
      * @param rightCorrectedVision   右-矫正视力
-     * @param leftSph                左-球镜
-     * @param rightSph               右-球镜
-     * @param leftCyl                左-柱镜
-     * @param rightCyl               右-柱镜
      * @param glassesType            戴镜类型
      * @param schoolAge              学龄段
      * @param age                    年龄
      * @param otherEyeDiseasesNormal 是否有其他眼病
+     * @param computerOptometry      电脑验光数据
      * @return 医生建议
      */
     public static RecommendVisitEnum getDoctorAdvice(BigDecimal leftNakedVision, BigDecimal rightNakedVision,
                                                      BigDecimal leftCorrectedVision, BigDecimal rightCorrectedVision,
-                                                     BigDecimal leftSph, BigDecimal rightSph,
-                                                     BigDecimal leftCyl, BigDecimal rightCyl,
-                                                     Integer glassesType, Integer schoolAge, Integer age, Boolean otherEyeDiseasesNormal) {
+                                                     Integer glassesType, Integer schoolAge, Integer age, Boolean otherEyeDiseasesNormal,
+                                                     ComputerOptometryDO computerOptometry) {
 
         // 幼儿园、7岁以下
         if (SchoolAge.KINDERGARTEN.code.equals(schoolAge) && age < 7) {
             return kindergartenAdviceResult(leftNakedVision, rightNakedVision, leftCorrectedVision, rightCorrectedVision,
-                    leftSph, rightSph, leftCyl, rightCyl, glassesType, age, otherEyeDiseasesNormal);
+                    glassesType, age, otherEyeDiseasesNormal, computerOptometry);
         }
         // 中小学
         return middleAdviceResult(leftNakedVision, rightNakedVision, leftCorrectedVision, rightCorrectedVision,
-                leftSph, rightSph, leftCyl, rightCyl, glassesType, age, schoolAge);
-
+                glassesType, age, schoolAge, computerOptometry);
 
     }
 
@@ -905,22 +896,22 @@ public class ScreeningResultUtil {
      * @param rightNakedVision     右-裸眼
      * @param leftCorrectedVision  左-矫正视力
      * @param rightCorrectedVision 右-矫正视力
-     * @param leftSph              左-柱镜
-     * @param rightSph             右-柱镜
-     * @param leftCyl              左-球镜
-     * @param rightCyl             右-球镜
      * @param glassesType          戴镜类型
      * @param age                  年龄
      * @param schoolAge            学龄段
+     * @param computerOptometry    电脑验光数据
      * @return 医生建议
      */
     public RecommendVisitEnum middleAdviceResult(BigDecimal leftNakedVision, BigDecimal rightNakedVision,
                                                  BigDecimal leftCorrectedVision, BigDecimal rightCorrectedVision,
-                                                 BigDecimal leftSph, BigDecimal rightSph,
-                                                 BigDecimal leftCyl, BigDecimal rightCyl,
-                                                 Integer glassesType, Integer age, Integer schoolAge) {
-
+                                                 Integer glassesType, Integer age, Integer schoolAge, ComputerOptometryDO computerOptometry) {
         TwoTuple<BigDecimal, Integer> nakedVisionResult = getResultVision(leftNakedVision, rightNakedVision);
+
+        BigDecimal leftSph = Objects.nonNull(computerOptometry) ? computerOptometry.getLeftEyeData().getSph() : null;
+        BigDecimal leftCyl = Objects.nonNull(computerOptometry) ? computerOptometry.getLeftEyeData().getCyl() : null;
+        BigDecimal rightSph = Objects.nonNull(computerOptometry) ? computerOptometry.getRightEyeData().getSph() : null;
+        BigDecimal rightCyl = Objects.nonNull(computerOptometry) ? computerOptometry.getRightEyeData().getCyl() : null;
+
         BigDecimal leftSe = calculationSE(leftSph, leftCyl);
         BigDecimal rightSe = calculationSE(rightSph, rightCyl);
 
@@ -931,7 +922,6 @@ public class ScreeningResultUtil {
                 return getIsWearingGlasses(leftCorrectedVision, rightCorrectedVision,
                         leftNakedVision, rightNakedVision, nakedVisionResult);
             } else {
-
                 // 获取两只眼的结论
                 TwoTuple<Integer, RecommendVisitEnum> left = getNotWearingGlasses(leftCyl, leftSe, schoolAge, age, leftNakedVision);
                 TwoTuple<Integer, RecommendVisitEnum> right = getNotWearingGlasses(rightCyl, rightSe, schoolAge, age, rightNakedVision);
@@ -976,21 +966,18 @@ public class ScreeningResultUtil {
      * @param rightNakedVision       右-裸眼
      * @param leftCorrectedVision    左-矫正视力
      * @param rightCorrectedVision   右-矫正视力
-     * @param leftSph                左-球镜
-     * @param rightSph               右-球镜
-     * @param leftCyl                左-柱镜
-     * @param rightCyl               右-柱镜
      * @param glassesType            戴镜类型
      * @param age                    年龄
      * @param otherEyeDiseasesNormal 是否有其他眼病
+     * @param computerOptometry      电脑验光数据
      * @return 医生建议
      */
     public RecommendVisitEnum kindergartenAdviceResult(BigDecimal leftNakedVision, BigDecimal rightNakedVision,
                                                        BigDecimal leftCorrectedVision, BigDecimal rightCorrectedVision,
-                                                       BigDecimal leftSph, BigDecimal rightSph,
-                                                       BigDecimal leftCyl, BigDecimal rightCyl,
-                                                       Integer glassesType, Integer age, Boolean otherEyeDiseasesNormal) {
+                                                       Integer glassesType, Integer age, Boolean otherEyeDiseasesNormal, ComputerOptometryDO computerOptometry) {
         BigDecimal correctedVision;
+
+
         // 佩戴眼镜
         if (glassesType >= 1) {
             // 5岁以下
@@ -1004,6 +991,16 @@ public class ScreeningResultUtil {
                 return haveGlassesKindergartenIsMatch(age, correctedVision);
             }
         } else {
+            if (Objects.isNull(computerOptometry) || !computerOptometry.valid()) {
+                return RecommendVisitEnum.EMPTY;
+            }
+            BigDecimal leftSph = computerOptometry.getLeftEyeData().getSph();
+            BigDecimal leftCyl = computerOptometry.getLeftEyeData().getCyl();
+            BigDecimal rightSph = computerOptometry.getRightEyeData().getSph();
+            BigDecimal rightCyl = computerOptometry.getRightEyeData().getCyl();
+            if (ObjectsUtil.hasNull(leftSph, leftCyl, rightSph, rightCyl)) {
+                return RecommendVisitEnum.EMPTY;
+            }
             // 5岁以下
             RecommendVisitEnum recommendVisitEnum = noGlassesKindergartenIsMatch(kindergartenNoGlassesResult(leftNakedVision, rightNakedVision, leftSph, rightSph, leftCyl, rightCyl, age, "4.8"), otherEyeDiseasesNormal);
             if (!recommendVisitEnum.equals(RecommendVisitEnum.EMPTY)) {
