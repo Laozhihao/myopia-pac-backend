@@ -80,6 +80,7 @@
                 where name = #{name}
                   and school_id = #{schoolId}
                   and status = 0
+                  and grade_id = #{gradeId}
         <if test="id != null">
             and id != #{id}
         </if>

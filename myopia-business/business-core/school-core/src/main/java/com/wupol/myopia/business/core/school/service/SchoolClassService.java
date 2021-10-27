@@ -39,7 +39,8 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
      */
     @Transactional(rollbackFor = Exception.class)
     public Integer saveClass(SchoolClass schoolClass) {
-        List<SchoolClass> schoolClasses = baseMapper.getByNameNeId(schoolClass.getName(), null, schoolClass.getSchoolId());
+        List<SchoolClass> schoolClasses = baseMapper.getByNameNeId(schoolClass.getName(), null,
+                schoolClass.getGradeId(), schoolClass.getSchoolId());
         if (!CollectionUtils.isEmpty(schoolClasses)) {
             throw new BusinessException("班级名称重复");
         }
@@ -77,7 +78,8 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
      */
     @Transactional(rollbackFor = Exception.class)
     public SchoolClass updateClass(SchoolClass schoolClass) {
-        List<SchoolClass> schoolClasses = baseMapper.getByNameNeId(schoolClass.getName(), schoolClass.getId(), schoolClass.getSchoolId());
+        List<SchoolClass> schoolClasses = baseMapper.getByNameNeId(schoolClass.getName(), schoolClass.getId(),
+                schoolClass.getGradeId(), schoolClass.getSchoolId());
         if (!CollectionUtils.isEmpty(schoolClasses)) {
             throw new BusinessException("班级名称重复");
         }

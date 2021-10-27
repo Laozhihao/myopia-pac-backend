@@ -28,5 +28,6 @@ public interface SchoolClassMapper extends BaseMapper<SchoolClass> {
                                                            @Param("schoolId") Integer schoolId,
                                                            @Param("status") Integer status);
 
-    List<SchoolClass> getByNameNeId(@Param("name") String name, @Param("id") Integer id, @Param("schoolId") Integer schoolId);
+    List<SchoolClass> getByNameNeId(@Param("name") String name, @Param("id") Integer id,
+                                    @Param("gradeId") Integer gradeId, @Param("schoolId") Integer schoolId);
 }
