@@ -922,6 +922,11 @@ public class StudentBizService {
                 cardDetail.setIsHyperopia(null);
             }
         }
+        // 如果近视和远视，显示屈光不正
+        if ((Objects.nonNull(cardDetail.getIsMyopia()) && cardDetail.getIsMyopia())
+                || (Objects.nonNull(cardDetail.getIsHyperopia()) && cardDetail.getIsHyperopia())) {
+            cardDetail.setIsRefractiveError(true);
+        }
         return cardDetail;
     }
 
