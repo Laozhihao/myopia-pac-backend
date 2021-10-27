@@ -200,13 +200,13 @@ public class ScreeningResultUtil {
 
             // 左眼等效球镜SE
             if (Objects.nonNull(leftSph) && Objects.nonNull(leftCyl)) {
-                TwoTuple<Integer, RefractoryResultItems.Item> result = packageSpnItem(leftSph, leftCyl, age, maxType, leftNakedVision);
+                TwoTuple<Integer, RefractoryResultItems.Item> result = packageSpnItem(leftSph, leftCyl, age, maxType);
                 maxType = result.getFirst();
                 sphItems.setOs(result.getSecond());
             }
             // 右眼等效球镜SE
             if (Objects.nonNull(rightSph) && Objects.nonNull(rightCyl)) {
-                TwoTuple<Integer, RefractoryResultItems.Item> result = packageSpnItem(rightSph, rightCyl, age, maxType, rightNakedVision);
+                TwoTuple<Integer, RefractoryResultItems.Item> result = packageSpnItem(rightSph, rightCyl, age, maxType);
                 maxType = result.getFirst();
                 sphItems.setOd(result.getSecond());
             }
@@ -250,11 +250,10 @@ public class ScreeningResultUtil {
      * @param cyl         柱镜
      * @param age         年龄
      * @param maxType     最大类型
-     * @param nakedVision 裸眼视力
      * @return TwoTuple<Integer, RefractoryResultItems.Item>
      */
     public static TwoTuple<Integer, RefractoryResultItems.Item> packageSpnItem(BigDecimal spn, BigDecimal cyl,
-                                                                               Integer age, Integer maxType, BigDecimal nakedVision) {
+                                                                               Integer age, Integer maxType) {
         RefractoryResultItems.Item sphItems = new RefractoryResultItems.Item();
         // 等效球镜SE
         sphItems.setVision(calculationSE(spn, cyl));
@@ -695,44 +694,6 @@ public class ScreeningResultUtil {
             return ParentReportConst.NAKED_LOW;
         }
         return ParentReportConst.NAKED_NORMAL;
-    }
-
-    /**
-     * 预警级别转换成type
-     * <p>预警级别 {@link WarningLevel}</p>
-     *
-     * @param warningLevel 预警级别
-     * @return Integer {@link ParentReportConst}
-     */
-    public static Integer warningLevel2Type(WarningLevel warningLevel) {
-        if (null == warningLevel) {
-            return ParentReportConst.LABEL_NORMAL;
-        }
-        // 预警-1或0则是正常
-        if (warningLevel.code.equals(WarningLevel.NORMAL.code) || warningLevel.code.equals(WarningLevel.ZERO.code)) {
-            return ParentReportConst.LABEL_NORMAL;
-        }
-
-        // 预警1是轻度
-        if (warningLevel.code.equals(WarningLevel.ONE.code)) {
-            return ParentReportConst.LABEL_MILD;
-        }
-
-        // 预警2是中度
-        if (warningLevel.code.equals(WarningLevel.TWO.code)) {
-            return ParentReportConst.LABEL_MODERATE;
-        }
-
-        // 预警3是重度
-        if (warningLevel.code.equals(WarningLevel.THREE.code)) {
-            return ParentReportConst.LABEL_SEVERE;
-        }
-        // 预警4 远视储备不足
-        if (warningLevel.code.equals(WarningLevel.ZERO_SP.code)) {
-            return ParentReportConst.LABEL_NORMAL_SP;
-        }
-        // 未知返回正常
-        return ParentReportConst.LABEL_NORMAL;
     }
 
     /**
