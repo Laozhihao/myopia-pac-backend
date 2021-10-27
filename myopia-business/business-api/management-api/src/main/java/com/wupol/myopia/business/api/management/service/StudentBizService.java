@@ -990,18 +990,21 @@ public class StudentBizService {
 
         // 设置屈光不正信息
         Boolean isRefractiveError = setRefractiveErrorInfo(cardDetail, visionScreeningResult, age, status);
+        // 设置是否近视、远视
+        setMyopiaAndFarsightedness(visionScreeningResult, age, cardDetail);
         // isRefractiveError为Null不展示
         if (Objects.nonNull(isRefractiveError)) {
             // 是否曲光不正
             cardDetail.setIsRefractiveError(isRefractiveError);
             // 是否正常
-            cardDetail.setIsNormal(!isRefractiveError && CollectionUtils.isEmpty(otherEyeDiseasesList));
-            if (isRefractiveError) {
-                // 设置是否近视、远视
-                setMyopiaAndFarsightedness(visionScreeningResult, age, cardDetail);
+            boolean isNormal = CollectionUtils.isEmpty(otherEyeDiseasesList);
+            cardDetail.setIsNormal(!isRefractiveError && isNormal);
+            if (isNormal) {
+                // 正常就不显示近、远视
+                cardDetail.setIsMyopia(null);
+                cardDetail.setIsHyperopia(null);
             }
         }
-
         return cardDetail;
     }
 

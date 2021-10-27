@@ -198,7 +198,7 @@ public class StatUtil {
             if (se > 3.0f && se <= 6.0f) return HyperopiaLevelEnum.HYPEROPIA_LEVEL_MIDDLE;
             if (se > 6.0f) return HyperopiaLevelEnum.HYPEROPIA_LEVEL_HIGH;
         }
-        return HyperopiaLevelEnum.ZERO;
+        return null;
     }
 
     /**
