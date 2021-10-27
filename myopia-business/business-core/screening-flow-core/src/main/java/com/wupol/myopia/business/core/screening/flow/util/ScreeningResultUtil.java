@@ -262,7 +262,7 @@ public class ScreeningResultUtil {
         RefractoryResultItems.Item sphItems = new RefractoryResultItems.Item();
         // 等效球镜SE
         sphItems.setVision(calculationSE(spn, cyl));
-        TwoTuple<String, Integer> leftSphType = getSphTypeName(spn, cyl, age, nakedVision);
+        TwoTuple<String, Integer> leftSphType = getSphTypeName(spn, cyl, age);
         sphItems.setTypeName(leftSphType.getFirst());
         Integer type = leftSphType.getSecond();
         // 取最大的type
@@ -643,10 +643,9 @@ public class ScreeningResultUtil {
      * @param sph         球镜
      * @param cyl         柱镜
      * @param age         年龄
-     * @param nakedVision 裸眼视力
      * @return TwoTuple<> left-球镜中文 right-预警级别(重新封装的一层)
      */
-    public static TwoTuple<String, Integer> getSphTypeName(BigDecimal sph, BigDecimal cyl, Integer age, BigDecimal nakedVision) {
+    public static TwoTuple<String, Integer> getSphTypeName(BigDecimal sph, BigDecimal cyl, Integer age) {
         BigDecimal se = calculationSE(sph, cyl);
         BigDecimal seVal = se.abs().multiply(new BigDecimal("100")).setScale(0, RoundingMode.DOWN);
         if (sph.compareTo(new BigDecimal("0.00")) <= 0) {
@@ -807,7 +806,7 @@ public class ScreeningResultUtil {
     }
 
     /**
-     * 远视级别转换成type
+     * 散光级别转换成type
      * <p>预警级别 {@link AstigmatismLevelEnum}</p>
      *
      * @param hyperopiaLevelEnum 预警级别
@@ -831,7 +830,7 @@ public class ScreeningResultUtil {
         }
 
         if (hyperopiaLevelEnum.code.equals(AstigmatismLevelEnum.ASTIGMATISM_LEVEL_HIGH.code)) {
-            return ParentReportConst.LABEL_MODERATE;
+            return ParentReportConst.LABEL_SEVERE;
         }
         // 未知返回正常
         return ParentReportConst.LABEL_NORMAL;

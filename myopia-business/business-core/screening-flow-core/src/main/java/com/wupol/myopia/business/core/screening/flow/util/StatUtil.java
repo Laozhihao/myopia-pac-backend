@@ -58,6 +58,20 @@ public class StatUtil {
      * @return
      */
     public static boolean isHyperopia(Float sphere, Float cylinder, Integer age) {
+        float se = getSphericalEquivalent(sphere, cylinder);
+
+        if (age < 4 && se > 3) {
+            return true;
+        }
+        if ((age < 6 && age >= 4) && se > 2) {
+            return true;
+        }
+        if ((age < 8 && age >= 6) && se > 1.5) {
+            return true;
+        }
+        if (age >= 8 && se > 0.5) {
+            return true;
+        }
         HyperopiaLevelEnum hyperopiaWarningLevel = getHyperopiaWarningLevel(sphere, cylinder, age);
         return hyperopiaWarningLevel != null && hyperopiaWarningLevel.code > HyperopiaLevelEnum.ZERO.code;
     }
@@ -179,16 +193,7 @@ public class StatUtil {
         }
         float se = getSphericalEquivalent(sphere, cylinder);
 
-        if (age < 4 && se > 3) {
-            return HyperopiaLevelEnum.HYPEROPIA;
-        }
-        if ((age < 6 && age >= 4) && se > 2) {
-            return HyperopiaLevelEnum.HYPEROPIA;
-        }
-        if ((age < 8 && age >= 6) && se > 1.5) {
-            return HyperopiaLevelEnum.HYPEROPIA;
-        }
-        if (age >= 8) {
+        if (age >= 12) {
             if (se > 0.5f && se <= 3.0f) return HyperopiaLevelEnum.HYPEROPIA_LEVEL_LIGHT;
             if (se > 3.0f && se <= 6.0f) return HyperopiaLevelEnum.HYPEROPIA_LEVEL_MIDDLE;
             if (se > 6.0f) return HyperopiaLevelEnum.HYPEROPIA_LEVEL_HIGH;
