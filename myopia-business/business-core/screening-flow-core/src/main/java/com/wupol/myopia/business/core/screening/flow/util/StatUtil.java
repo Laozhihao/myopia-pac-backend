@@ -58,6 +58,20 @@ public class StatUtil {
      * @return
      */
     public static boolean isHyperopia(Float sphere, Float cylinder, Integer age) {
+        float se = getSphericalEquivalent(sphere, cylinder);
+
+        if (age < 4 && se > 3) {
+            return true;
+        }
+        if ((age < 6 && age >= 4) && se > 2) {
+            return true;
+        }
+        if ((age < 8 && age >= 6) && se > 1.5) {
+            return true;
+        }
+        if (age >= 8 && se > 0.5) {
+            return true;
+        }
         HyperopiaLevelEnum hyperopiaWarningLevel = getHyperopiaWarningLevel(sphere, cylinder, age);
         return hyperopiaWarningLevel != null && hyperopiaWarningLevel.code > HyperopiaLevelEnum.ZERO.code;
     }
@@ -179,16 +193,7 @@ public class StatUtil {
         }
         float se = getSphericalEquivalent(sphere, cylinder);
 
-        if (age < 4 && se > 3) {
-            return HyperopiaLevelEnum.HYPEROPIA;
-        }
-        if ((age < 6 && age >= 4) && se > 2) {
-            return HyperopiaLevelEnum.HYPEROPIA;
-        }
-        if ((age < 8 && age >= 6) && se > 1.5) {
-            return HyperopiaLevelEnum.HYPEROPIA;
-        }
-        if (age >= 8) {
+        if (age >= 12) {
             if (se > 0.5f && se <= 3.0f) return HyperopiaLevelEnum.HYPEROPIA_LEVEL_LIGHT;
             if (se > 3.0f && se <= 6.0f) return HyperopiaLevelEnum.HYPEROPIA_LEVEL_MIDDLE;
             if (se > 6.0f) return HyperopiaLevelEnum.HYPEROPIA_LEVEL_HIGH;
@@ -531,7 +536,7 @@ public class StatUtil {
         if (BigDecimalUtil.isBetweenRight(nakedVision, "4.6", "4.7") || oneSE(se) || (age < 4 && BigDecimalUtil.isBetweenRight(se, "3", "6")) || (age >= 4 && BigDecimalUtil.isBetweenRight(se, "2", "5")) || oneAbsCyl(absCyl)) {
             return WarningLevel.ONE;
         }
-        if (BigDecimalUtil.isBetweenNo(nakedVision, "4.7", "5") || zeroSE(se) || zeroAbsCyl(absCyl)) {
+        if (BigDecimalUtil.moreThan(nakedVision, "4.7") || zeroSE(se) || zeroAbsCyl(absCyl)) {
             return WarningLevel.ZERO;
         }
         return zeroSPWarningLevel(cyl, spn, age);
@@ -562,7 +567,7 @@ public class StatUtil {
         if (BigDecimalUtil.isBetweenRight(nakedVision, "4.7", "4.8") || oneSE(se) || BigDecimalUtil.isBetweenRight(se, "1.5", "4.5") || oneAbsCyl(absCyl)) {
             return WarningLevel.ONE;
         }
-        if (BigDecimalUtil.isBetweenNo(nakedVision, "4.8", "5") || zeroSE(se) || zeroAbsCyl(absCyl)) {
+        if (BigDecimalUtil.moreThan(nakedVision, "4.8") || zeroSE(se) || zeroAbsCyl(absCyl)) {
             return WarningLevel.ZERO;
         }
         return zeroSPWarningLevel(cyl, spn, age);
@@ -591,7 +596,7 @@ public class StatUtil {
         if (BigDecimalUtil.isBetweenRight(nakedVision, "4.7", "4.9") || oneSE(se) || (BigDecimalUtil.isBetweenRight(se, "0.5", "3")) || oneAbsCyl(absCyl)) {
             return WarningLevel.ONE;
         }
-        if (BigDecimalUtil.isBetweenNo(nakedVision, "4.9", "5") || zeroSE(se) || zeroAbsCyl(absCyl)) {
+        if (BigDecimalUtil.moreThan(nakedVision, "4.9") || zeroSE(se) || zeroAbsCyl(absCyl)) {
             return WarningLevel.ZERO;
         }
         return null;
