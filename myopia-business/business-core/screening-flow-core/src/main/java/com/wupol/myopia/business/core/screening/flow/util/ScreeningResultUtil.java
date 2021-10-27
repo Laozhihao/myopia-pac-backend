@@ -643,11 +643,11 @@ public class ScreeningResultUtil {
     public static TwoTuple<String, Integer> getSphTypeName(BigDecimal sph, BigDecimal cyl, Integer age) {
         BigDecimal se = calculationSE(sph, cyl);
         BigDecimal seVal = se.abs().multiply(new BigDecimal("100")).setScale(0, RoundingMode.DOWN);
-        if (sph.compareTo(new BigDecimal("0.00")) <= 0) {
+        if (se.compareTo(new BigDecimal("0.00")) <= 0) {
             // 近视
             MyopiaLevelEnum myopiaWarningLevel = StatUtil.getMyopiaWarningLevel(sph.floatValue(), cyl.floatValue());
             String str;
-            if (sph.compareTo(new BigDecimal("-0.50")) < 0) {
+            if (se.compareTo(new BigDecimal("-0.50")) < 0) {
                 str = "近视" + seVal + "度";
             } else {
                 str = seVal + "度";
@@ -657,7 +657,7 @@ public class ScreeningResultUtil {
             // 远视
             HyperopiaLevelEnum hyperopiaWarningLevel = StatUtil.getHyperopiaWarningLevel(sph.floatValue(), cyl.floatValue(), age);
             String str;
-            if (sph.compareTo(new BigDecimal("0.50")) > 0) {
+            if (se.compareTo(new BigDecimal("0.50")) > 0) {
                 str = "远视" + seVal + "度";
             } else {
                 str = seVal + "度";
