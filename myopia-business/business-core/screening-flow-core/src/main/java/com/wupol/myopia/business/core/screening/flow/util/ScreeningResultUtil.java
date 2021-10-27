@@ -246,10 +246,10 @@ public class ScreeningResultUtil {
     /**
      * 封装等效球镜SE
      *
-     * @param spn         球镜
-     * @param cyl         柱镜
-     * @param age         年龄
-     * @param maxType     最大类型
+     * @param spn     球镜
+     * @param cyl     柱镜
+     * @param age     年龄
+     * @param maxType 最大类型
      * @return TwoTuple<Integer, RefractoryResultItems.Item>
      */
     public static TwoTuple<Integer, RefractoryResultItems.Item> packageSpnItem(BigDecimal spn, BigDecimal cyl,
@@ -261,8 +261,10 @@ public class ScreeningResultUtil {
         sphItems.setTypeName(leftSphType.getFirst());
         Integer type = leftSphType.getSecond();
         // 取最大的type
-        maxType = maxType > type ? maxType : type;
-        sphItems.setType(type);
+        if (Objects.nonNull(type)) {
+            maxType = maxType > type ? maxType : type;
+            sphItems.setType(type);
+        }
         return new TwoTuple<>(maxType, sphItems);
     }
 
@@ -740,7 +742,7 @@ public class ScreeningResultUtil {
      */
     public static Integer hyperopiaLevelLevel2Type(HyperopiaLevelEnum hyperopiaLevelEnum) {
         if (null == hyperopiaLevelEnum) {
-            return ParentReportConst.LABEL_NORMAL;
+            return null;
         }
         // 预警-1或0则是正常
         if (hyperopiaLevelEnum.code.equals(HyperopiaLevelEnum.ZERO.code)) {
