@@ -131,6 +131,7 @@ public class ExcelFacade {
         List<String> idCards = listMap.stream().map(s -> s.get(8 - offset))
                 .filter(Objects::nonNull).collect(Collectors.toList());
 
+        // 参数校验
         preCheckStudent(schools, idCards);
 
         // 收集年级信息

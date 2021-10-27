@@ -100,12 +100,16 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      */
     @Transactional(rollbackFor = Exception.class)
     public Integer saveStudent(Student student) {
-
         // 检查学生年龄
         if (student.checkBirthdayExceedLimit()) {
             throw new BusinessException("学生年龄太大");
         }
         student.checkIdCard();
+        // 兼容处理，避免漏掉学校ID
+        if (Objects.nonNull(student.getSchoolNo()) && Objects.isNull(student.getSchoolId())) {
+            School school = schoolService.getBySchoolNo(student.getSchoolNo());
+            student.setSchoolId(school.getId());
+        }
         // 设置学龄
         if (null != student.getGradeId()) {
             SchoolGrade grade = schoolGradeService.getById(student.getGradeId());
@@ -125,7 +129,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @param studentId   学生ID
      * @param parentPhone 家长手机号码
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void updateMpParentPhone(Integer studentId, String parentPhone) {
         Student student = getById(studentId);
         String parentPhoneStr = student.getMpParentPhone();
