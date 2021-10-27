@@ -987,7 +987,7 @@ public class StudentBizService {
         // 眼斜
         cardDetail.setSquint(getSquintList(otherEyeDiseasesList));
         cardDetail.setSignPicUrl(getSignPicUrl(visionScreeningResult));
-        setMyopiaAndFarsightedness(visionScreeningResult, age, cardDetail);
+
         // 设置屈光不正信息
         Boolean isRefractiveError = setRefractiveErrorInfo(cardDetail, visionScreeningResult, age, status);
         // isRefractiveError为Null不展示
@@ -996,6 +996,10 @@ public class StudentBizService {
             cardDetail.setIsRefractiveError(isRefractiveError);
             // 是否正常
             cardDetail.setIsNormal(!isRefractiveError && CollectionUtils.isEmpty(otherEyeDiseasesList));
+            if (isRefractiveError) {
+                // 设置是否近视、远视
+                setMyopiaAndFarsightedness(visionScreeningResult, age, cardDetail);
+            }
         }
 
         return cardDetail;
