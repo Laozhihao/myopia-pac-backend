@@ -103,8 +103,8 @@ public class StatConclusionTest {
             HyperopiaLevelEnum rightHyperopiaWarningLevel =
                     StatUtil.getHyperopiaWarningLevel(rightSph, rightCyl, age);
 
-            MyopiaLevelEnum leftMyopiaWarningLevel = StatUtil.getMyopiaWarningLevel(leftSph, leftCyl, null, null);
-            MyopiaLevelEnum rightMyopiaWarningLevel = StatUtil.getMyopiaWarningLevel(rightSph, rightCyl, null,null );
+            MyopiaLevelEnum leftMyopiaWarningLevel = StatUtil.getMyopiaWarningLevel(leftSph, leftCyl);
+            MyopiaLevelEnum rightMyopiaWarningLevel = StatUtil.getMyopiaWarningLevel(rightSph, rightCyl);
 
             Integer myopiaWarningLevel = leftMyopiaWarningLevel.code > rightMyopiaWarningLevel.code
                     ? leftMyopiaWarningLevel.code

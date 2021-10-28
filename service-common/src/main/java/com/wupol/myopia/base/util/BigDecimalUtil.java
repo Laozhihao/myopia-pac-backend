@@ -76,6 +76,17 @@ public class BigDecimalUtil {
     }
 
     /**
+     * 大于
+     *
+     * @param val1 值1
+     * @param val2 值2
+     * @return 是否满足
+     */
+    public static Boolean moreThan(BigDecimal val1, BigDecimal val2) {
+        return val1.compareTo(val2) > 0;
+    }
+
+    /**
      * 大于且等于
      *
      * @param val1 值1
@@ -84,6 +95,17 @@ public class BigDecimalUtil {
      */
     public static Boolean moreThanAndEqual(BigDecimal val1, String val2) {
         return val1.compareTo(new BigDecimal(val2)) >= 0;
+    }
+
+    /**
+     * 大于且等于
+     *
+     * @param val1 值1
+     * @param val2 值2
+     * @return 是否满足
+     */
+    public static Boolean moreThanAndEqual(BigDecimal val1, BigDecimal val2) {
+        return val1.compareTo(val2) >= 0;
     }
 
     /**

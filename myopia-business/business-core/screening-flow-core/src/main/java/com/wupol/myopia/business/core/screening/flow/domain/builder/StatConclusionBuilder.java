@@ -209,24 +209,21 @@ public class StatConclusionBuilder {
         }
         Integer warningLevelInt = StatUtil.getWarningLevelInt(
                 Objects.nonNull(basicData.getLeftCyl()) ? new BigDecimal(basicData.getLeftCyl().toString()) : null,
-                Objects.nonNull(basicData.getLeftSph()) ?new BigDecimal(basicData.getLeftSph().toString()): null,
-                Objects.nonNull(basicData.getLeftNakedVision()) ?new BigDecimal(basicData.getLeftNakedVision().toString()): null,
-                Objects.nonNull(basicData.getRightCyl()) ?new BigDecimal(basicData.getRightCyl().toString()): null,
-                Objects.nonNull(basicData.getRightSph()) ?new BigDecimal(basicData.getRightSph().toString()): null,
-                Objects.nonNull(basicData.getRightNakedVision()) ?new BigDecimal(basicData.getRightNakedVision().toString()): null,
+                Objects.nonNull(basicData.getLeftSph()) ? new BigDecimal(basicData.getLeftSph().toString()) : null,
+                Objects.nonNull(basicData.getLeftNakedVision()) ? new BigDecimal(basicData.getLeftNakedVision().toString()) : null,
+                Objects.nonNull(basicData.getRightCyl()) ? new BigDecimal(basicData.getRightCyl().toString()) : null,
+                Objects.nonNull(basicData.getRightSph()) ? new BigDecimal(basicData.getRightSph().toString()) : null,
+                Objects.nonNull(basicData.getRightNakedVision()) ? new BigDecimal(basicData.getRightNakedVision().toString()) : null,
                 basicData.getAge());
-        if (Objects.nonNull(warningLevelInt)) {
-            statConclusion.setWarningLevel(warningLevelInt);
-        }
-        statConclusion.setWarningLevel(WarningLevel.NORMAL.code);
+        statConclusion.setWarningLevel(warningLevelInt);
     }
 
     /**
      * 近视等级
      */
     private void setMyopiaLevel() {
-        Integer left = StatUtil.getMyopiaLevel(basicData.getLeftSph(), basicData.getLeftCyl(), basicData.getAge(), basicData.getLeftNakedVision());
-        Integer right = StatUtil.getMyopiaLevel(basicData.getRightSph(), basicData.getRightCyl(), basicData.getAge(), basicData.getRightNakedVision());
+        Integer left = StatUtil.getMyopiaLevel(basicData.getLeftSph(), basicData.getLeftCyl());
+        Integer right = StatUtil.getMyopiaLevel(basicData.getRightSph(), basicData.getRightCyl());
         statConclusion.setMyopiaLevel(StatUtil.getSeriousLevel(left, right));
     }
 
@@ -301,11 +298,8 @@ public class StatConclusionBuilder {
                 new BigDecimal(basicData.rightNakedVision.toString()),
                 Objects.nonNull(basicData.leftCorrectVision) ? new BigDecimal(basicData.leftCorrectVision.toString()) : null,
                 Objects.nonNull(basicData.rightCorrectVision) ? new BigDecimal(basicData.rightCorrectVision.toString()) : null,
-                Objects.nonNull(basicData.leftSph) ? new BigDecimal(basicData.leftSph.toString()) : null,
-                Objects.nonNull(basicData.rightSph) ? new BigDecimal(basicData.rightSph.toString()) : null,
-                Objects.nonNull(basicData.leftCyl) ? new BigDecimal(basicData.leftCyl.toString()) : null,
-                Objects.nonNull(basicData.rightCyl) ? new BigDecimal(basicData.rightCyl) : null,
-                basicData.glassesType, basicData.schoolAge, basicData.age, basicData.otherEyeDiseasesNormal).getIsRecommendVisit();
+                basicData.glassesType, basicData.schoolAge, basicData.age, basicData.otherEyeDiseasesNormal,
+                currentVisionScreeningResult.getComputerOptometry()).getIsRecommendVisit();
         statConclusion.setIsRecommendVisit(isRecommendVisit);
     }
 
@@ -522,8 +516,8 @@ public class StatConclusionBuilder {
             }
             basicData.leftHyperopiaWarningLevel = StatUtil.getHyperopiaWarningLevel(basicData.leftSph, basicData.leftCyl, screeningPlanSchoolStudent.getStudentAge());
             basicData.rightHyperopiaWarningLevel = StatUtil.getHyperopiaWarningLevel(basicData.rightSph, basicData.rightCyl, screeningPlanSchoolStudent.getStudentAge());
-            basicData.leftMyopiaWarningLevel = StatUtil.getMyopiaWarningLevel(basicData.leftSph, basicData.leftCyl, basicData.getAge(), basicData.getLeftNakedVision());
-            basicData.rightMyopiaWarningLevel = StatUtil.getMyopiaWarningLevel(basicData.rightSph, basicData.rightCyl, basicData.getAge(), basicData.getRightNakedVision());
+            basicData.leftMyopiaWarningLevel = StatUtil.getMyopiaWarningLevel(basicData.leftSph, basicData.leftCyl);
+            basicData.rightMyopiaWarningLevel = StatUtil.getMyopiaWarningLevel(basicData.rightSph, basicData.rightCyl);
         }
 
         /**

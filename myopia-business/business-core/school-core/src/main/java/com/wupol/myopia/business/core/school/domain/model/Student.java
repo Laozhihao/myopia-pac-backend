@@ -133,6 +133,7 @@ public class Student extends AddressCode implements Serializable {
     /**
      * 视力标签 0-零级、1-一级、2-二级、3-三级
      */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Integer visionLabel;
 
     /**
