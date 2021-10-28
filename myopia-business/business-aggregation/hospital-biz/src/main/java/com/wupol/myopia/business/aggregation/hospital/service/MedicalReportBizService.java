@@ -153,6 +153,7 @@ public class MedicalReportBizService {
             responseDTO.setBiometrics(medicalRecord.getBiometrics());
             responseDTO.setDiopter(medicalRecord.getDiopter());
             responseDTO.setTosca(medicalRecord.getTosca());
+            responseDTO.setEyePressure(medicalRecord.getEyePressure());
             // 问诊内容
             responseDTO.setConsultation(medicalRecord.getConsultation());
         }

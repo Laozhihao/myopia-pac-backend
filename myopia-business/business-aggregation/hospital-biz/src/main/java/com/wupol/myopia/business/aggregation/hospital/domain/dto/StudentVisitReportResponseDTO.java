@@ -56,6 +56,11 @@ public class StudentVisitReportResponseDTO {
      */
     private ToscaMedicalRecord tosca;
 
+    /**
+     * 眼压
+     */
+    private EyePressure eyePressure;
+
     @Getter
     @Setter
     public static class StudentInfo {
