@@ -33,6 +33,11 @@ public class MedicalRecordController {
     @Autowired
     private MedicalRecordFacade medicalRecordFacade;
 
+    /**
+     * 获取该学生的最新的问诊检查
+     * @param studentId
+     * @return
+     */
     @GetMapping("/consultation")
     public Consultation getTodayLastConsultation(Integer studentId) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
@@ -47,6 +52,11 @@ public class MedicalRecordController {
         return true;
     }
 
+    /**
+     * 获取该学生的最新的视力检查
+     * @param studentId
+     * @return
+     */
     @GetMapping("/vision")
     public VisionMedicalRecord getTodayLastVisionMedicalRecord(Integer studentId) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
@@ -61,6 +71,11 @@ public class MedicalRecordController {
         return true;
     }
 
+    /**
+     * 获取该学生的最新的生物测量
+     * @param studentId
+     * @return
+     */
     @GetMapping("/biometrics")
     public BiometricsMedicalRecord getTodayLastBiometricsMedicalRecord(Integer studentId) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
@@ -82,6 +97,11 @@ public class MedicalRecordController {
         return true;
     }
 
+    /**
+     * 获取该学生的最新的屈光检查
+     * @param studentId
+     * @return
+     */
     @GetMapping("/diopter")
     public DiopterMedicalRecord getTodayLastDiopterMedicalRecord(Integer studentId) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
@@ -103,6 +123,11 @@ public class MedicalRecordController {
         return true;
     }
 
+    /**
+     * 获取该学生的最新的角膜地形
+     * @param studentId
+     * @return
+     */
     @GetMapping("/tosca")
     public ToscaMedicalRecord getTodayLastToscaMedicalRecord(Integer studentId) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
@@ -114,6 +139,18 @@ public class MedicalRecordController {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         medicalRecordFacade.addCheckDataAndCreateStudent(null, null, null, null, tosca, null, user.getOrgId(), -1, tosca.getStudentId());
         return true;
+    }
+
+    /**
+     * 获取该学生的最新的眼压检查
+     * @param studentId
+     * @return
+     */
+    @GetMapping("/eyePressure")
+    public EyePressure getTodayLastEyePressureMedicalRecord(Integer studentId) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        MedicalRecord medicalRecord = medicalRecordService.getTodayLastMedicalRecord(user.getOrgId(), studentId);
+        return Objects.isNull(medicalRecord) || Objects.isNull(medicalRecord.getEyePressure()) ? new EyePressure() : medicalRecord.getEyePressure();
     }
 
     @PostMapping("/eyePressure")
