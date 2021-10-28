@@ -28,10 +28,12 @@ import com.wupol.myopia.business.core.screening.organization.domain.model.Screen
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Assert;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
@@ -41,6 +43,7 @@ import java.util.Objects;
  *
  * @author Simple4H
  */
+@Validated
 @ResponseResultBody
 @CrossOrigin
 @RestController
@@ -161,9 +164,21 @@ public class ScreeningOrganizationController {
                 ExportExcelServiceNameConstant.SCREENING_ORGANIZATION_EXCEL_SERVICE);
     }
 
+    /**
+     * 导出指定计划下的单个学校的学生的预计跟踪档案
+     *
+     * @param planId 筛查计划ID
+     * @param schoolId 学校ID
+     * @param screeningOrgId 筛查机构ID
+     * @return void
+     **/
     @GetMapping("/export/student/warning/archive")
-    public void exportStudentWarningArchive() {
-
+    public void exportStudentWarningArchive(@NotNull(message = "planId不能为空") Integer planId,
+                                            @NotNull(message = "schoolId不能为空") Integer schoolId,
+                                            @NotNull(message = "screeningOrgId不能为空") Integer screeningOrgId) throws IOException {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        exportStrategy.doExport(new ExportCondition().setApplyExportFileUserId(user.getId()).setPlanId(planId).setSchoolId(schoolId).setScreeningOrgId(screeningOrgId),
+                ExportExcelServiceNameConstant.STUDENT_WARNING_ARCHIVE_EXCEL_SERVICE);
     }
 
     /**

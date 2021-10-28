@@ -203,7 +203,7 @@ public class StatConclusionBuilder {
      */
     private void setWarningLevel() {
         // 特殊处理 角膜塑型镜特殊处理
-        if (basicData.glassesType != null && basicData.glassesType.equals(GlassesType.ORTHOKERATOLOGY.code)) {
+        if (basicData.glassesType != null && basicData.glassesType.equals(GlassesTypeEnum.ORTHOKERATOLOGY.code)) {
             statConclusion.setWarningLevel(WarningLevel.NORMAL.code);
             return;
         }

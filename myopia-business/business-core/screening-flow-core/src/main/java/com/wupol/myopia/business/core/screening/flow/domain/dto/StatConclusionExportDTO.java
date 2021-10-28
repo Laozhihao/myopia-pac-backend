@@ -65,6 +65,16 @@ public class StatConclusionExportDTO extends StatConclusion {
     private String className;
 
     /**
+     * 筛查计划--年级ID
+     */
+    private Integer gradeId;
+
+    /**
+     * 筛查计划--年级ID
+     */
+    private Integer classId;
+
+    /**
      * 筛查计划--参与筛查的学生编号
      */
     private String studentNo;

@@ -6,8 +6,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.RegularUtils;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
+import com.wupol.myopia.business.common.utils.util.VisionUtil;
 import com.wupol.myopia.business.core.common.domain.model.AddressCode;
-import com.wupol.myopia.business.core.school.constant.GlassesType;
 import freemarker.core.BugException;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -249,20 +249,7 @@ public class Student extends AddressCode implements Serializable {
      * @return 视力情况
      */
     public String situation2Str() {
-        StringBuilder result = new StringBuilder();
-        if (Objects.nonNull(glassesType)) {
-            result.append(GlassesType.get(glassesType).desc).append("、");
-        }
-        if (Objects.nonNull(isMyopia) && isMyopia) {
-            result.append("近视、");
-        }
-        if (Objects.nonNull(isHyperopia) && isHyperopia) {
-            result.append("远视、");
-        }
-        if (Objects.nonNull(isAstigmatism) && isAstigmatism) {
-            result.append("散光");
-        }
-        return result.toString();
+        return VisionUtil.getVisionSummary(glassesType, myopiaLevel, hyperopiaLevel, astigmatismLevel);
     }
 
     /**

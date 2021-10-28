@@ -70,6 +70,14 @@
             limit 1
     </select>
 
+    <select id="getLastOne" resultMap="BaseResultMap" parameterType="java.util.Map">
+        select *
+        from h_medical_report mr
+        <include refid="Base_Where_Clause"/>
+        order by mr.id desc
+        limit 1
+    </select>
+
     <select id="getTodayLastMedicalReportDO" resultMap="MedicalReportDO">
         select r.*, d.name as doctorName
         from h_medical_report r

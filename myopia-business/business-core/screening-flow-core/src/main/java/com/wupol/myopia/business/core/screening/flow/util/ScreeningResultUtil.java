@@ -807,7 +807,7 @@ public class ScreeningResultUtil {
         // 凡单眼裸眼视力＜4.9时，计入矫正人数
         if (nakedVision.compareTo(new BigDecimal("4.9")) < 0) {
             // 有问题但是没有佩戴眼镜,为未矫
-            if (glassesType.equals(GlassesType.NOT_WEARING.code)) {
+            if (glassesType.equals(GlassesTypeEnum.NOT_WEARING.code)) {
                 return ParentReportConst.CORRECTED_NOT;
             } else {
                 if (correctedVision.compareTo(new BigDecimal("4.9")) > 0) {

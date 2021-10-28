@@ -5,14 +5,10 @@ import com.alibaba.excel.annotation.write.style.ColumnWidth;
 import com.alibaba.excel.annotation.write.style.HeadFontStyle;
 import com.alibaba.excel.annotation.write.style.HeadRowHeight;
 import com.alibaba.excel.annotation.write.style.HeadStyle;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.FillPatternType;
-
-import java.util.Date;
-import java.util.List;
 
 /**
  * 学生预警跟踪档案
@@ -40,7 +36,7 @@ public class StudentWarningArchive {
 
     /** 性别描述 */
     @ExcelProperty({TOP_HEADER, "性别"})
-    private Integer genderDesc;
+    private String genderDesc;
 
     /** 年级和班级名称 */
     @ExcelProperty({TOP_HEADER, "年级-班级"})
@@ -73,57 +69,4 @@ public class StudentWarningArchive {
     /** 座位与黑板距离建议 */
     @ExcelProperty({TOP_HEADER, "防控建议-座位调整"})
     private String seatDistanceSuggest;
-
-
-    /** 筛查计划学生ID */
-    private Integer screeningPlanSchoolStudentId;
-
-    /** 学生ID */
-    private Integer studentId;
-
-    /** 学龄：5-幼儿园、0-小学、1-初中 */
-    private Integer schoolAge;
-
-    /** 年龄 */
-    private Integer age;
-
-    /** 性别 */
-    private Integer gender;
-
-    /** 身高 */
-    private Float height;
-
-    /** 近视预警等级 */
-    private Integer myopiaLevel;
-
-    /** 远视预警等级 */
-    private Integer hyperopiaLevel;
-
-    /** 散光预警等级 */
-    private Integer astigmatismLevel;
-
-    /**
-     * 视力标签 0-零级、1-一级、2-二级、3-三级
-     */
-    private Integer visionLabel;
-
-    /** 筛查时间 */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date screeningDate;
-
-    /** 筛查标题 */
-    private String screeningTitle;
-
-    /** 课桌型号 */
-    private List<Integer> deskType;
-
-    /** 课桌建议高度 */
-    private Integer deskAdviseHeight;
-
-    /** 课椅型号 */
-    private List<Integer> chairType;
-
-    /** 课椅建议高度 */
-    private Integer chairAdviseHeight;
-
 }
