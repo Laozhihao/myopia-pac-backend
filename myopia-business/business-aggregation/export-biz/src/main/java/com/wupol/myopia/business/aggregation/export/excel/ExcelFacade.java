@@ -343,7 +343,7 @@ public class ExcelFacade {
      * @param item 筛查人员
      */
     private void checkStaffInfo(Map<Integer, String> item) {
-        Assert.isTrue(StringUtils.isNotBlank(item.get(1)) && !GenderEnum.getType(item.get(1)).equals(GenderEnum.UNKONE.type), "性别异常");
+        Assert.isTrue(StringUtils.isNotBlank(item.get(1)) && !GenderEnum.getType(item.get(1)).equals(GenderEnum.UNKNOWN.type), "性别异常");
         Assert.isTrue(StringUtils.isNotBlank(item.get(2)) && Pattern.matches(RegularUtils.REGULAR_ID_CARD, item.get(2)), "身份证异常");
         Assert.isTrue(StringUtils.isNotBlank(item.get(3)) && Pattern.matches(RegularUtils.REGULAR_MOBILE, item.get(3)), "手机号码异常");
     }
@@ -459,11 +459,11 @@ public class ExcelFacade {
             StatConclusionExportDTO vo = vos.get(i);
             VisionScreeningResultExportDTO exportVo = new VisionScreeningResultExportDTO();
             BeanUtils.copyProperties(vo, exportVo);
-            GlassesType glassesType = GlassesType.get(vo.getGlassesType());
             exportVo.setId(i + 1)
                     .setGenderDesc(GenderEnum.getName(vo.getGender()))
                     .setNationDesc(StringUtils.defaultString(NationEnum.getName(vo.getNation())))
-                    .setGlassesTypeDesc(Objects.isNull(glassesType) ? "--" : glassesType.desc).setIsRescreenDesc("否")
+                    .setGlassesTypeDesc(StringUtils.defaultIfBlank(GlassesTypeEnum.getDescByCode(vo.getGlassesType()), "--"))
+                    .setIsRescreenDesc("否")
                     .setWarningLevelDesc(StringUtils.defaultIfBlank(WarningLevel.getDesc(vo.getWarningLevel()), "--"))
                     .setParentPhone(vo.getParentPhone())
                     .setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(),
@@ -657,7 +657,7 @@ public class ExcelFacade {
      * @param offset 偏移量(导入的为同一个学校的数据时，没有学校编号列，后面的左移一列)
      */
     private void checkStudentInfo(Map<Integer, String> item, int offset) {
-        Assert.isTrue(StringUtils.isNotBlank(item.get(1)) && !GenderEnum.getType(item.get(1)).equals(GenderEnum.UNKONE.type), "学生性别异常");
+        Assert.isTrue(StringUtils.isNotBlank(item.get(1)) && !GenderEnum.getType(item.get(1)).equals(GenderEnum.UNKNOWN.type), "学生性别异常");
         Assert.isTrue(StringUtils.isNotBlank(item.get(2)), "学生出生日期不能为空");
         if (offset > 0) {
             Assert.isTrue(StringUtils.isNotBlank(item.get(4)), "学校编号不能为空");

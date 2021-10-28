@@ -181,6 +181,16 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
         return baseMapper.getLastOneByStudentId(studentId);
     }
 
+    /**
+     * 获取最新一条
+     *
+     * @param query 查询条件
+     * @return com.wupol.myopia.business.core.hospital.domain.model.MedicalReport
+     **/
+    public MedicalReport getLastOne(MedicalReportQuery query) {
+        return baseMapper.getLastOne(query);
+    }
+
     public List<MedicalReport> getMedicalReportList(MedicalReportQuery query) {
         return baseMapper.getMedicalReportList(query);
     }

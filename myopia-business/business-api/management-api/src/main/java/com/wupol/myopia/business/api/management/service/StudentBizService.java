@@ -9,11 +9,10 @@ import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.framework.sms.domain.dto.MsgData;
 import com.wupol.framework.sms.domain.dto.SmsResult;
 import com.wupol.myopia.base.exception.BusinessException;
-import com.wupol.myopia.business.api.management.constant.DeskChairType;
+import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.api.management.constant.VisionScreeningConst;
 import com.wupol.myopia.business.api.management.domain.vo.StudentWarningArchiveVO;
 import com.wupol.myopia.business.api.management.domain.vo.VisionInfoVO;
-import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.service.DistrictService;
@@ -21,7 +20,6 @@ import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.hospital.domain.model.MedicalReport;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
-import com.wupol.myopia.business.core.school.constant.GlassesType;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentQueryDTO;
 import com.wupol.myopia.business.core.school.domain.model.Student;
@@ -231,7 +229,7 @@ public class StudentBizService {
         if (Objects.isNull(height) || Objects.isNull(schoolAge)) {
             return;
         }
-        List<Integer> deskAndChairType = SchoolAge.KINDERGARTEN.code.equals(schoolAge) ? DeskChairType.getKindergartenTypeByHeight(height) : DeskChairType.getPrimarySecondaryTypeByHeight(height);
+        List<Integer> deskAndChairType = SchoolAge.KINDERGARTEN.code.equals(schoolAge) ? DeskChairTypeEnum.getKindergartenTypeByHeight(height) : DeskChairTypeEnum.getPrimarySecondaryTypeByHeight(height);
         studentWarningArchiveVO.setDeskType(deskAndChairType);
         studentWarningArchiveVO.setDeskAdviseHeight((int) (height * 0.43));
         studentWarningArchiveVO.setChairType(deskAndChairType);
@@ -786,7 +784,7 @@ public class StudentBizService {
             if (nakedVisionResult.getFirst().compareTo(new BigDecimal("4.9")) < 0) {
                 // 是否佩戴眼镜
                 String noticeInfo;
-                if (glassesType >= GlassesType.FRAME_GLASSES.code) {
+                if (glassesType >= GlassesTypeEnum.FRAME_GLASSES.code) {
                     noticeInfo = getSMSNoticeInfo(student.getName(), leftNakedVision, rightNakedVision,
                             getWearingGlassesConclusion(leftCorrectedVision, rightCorrectedVision,
                                     leftNakedVision, rightNakedVision, nakedVisionResult));

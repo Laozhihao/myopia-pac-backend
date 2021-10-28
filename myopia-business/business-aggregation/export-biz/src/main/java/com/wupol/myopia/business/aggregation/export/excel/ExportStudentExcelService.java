@@ -116,7 +116,7 @@ public class ExportStudentExcelService extends BaseExportExcelFileService {
                     .setSituation(item.situation2Str())
                     .setScreeningCount(countMaps.getOrDefault(item.getId(), 0))
                     .setQuestionCount(0)
-                    .setLastScreeningTime(null)
+                    .setLastScreeningTime(DateFormatUtil.format(item.getLastScreeningTime(), DateFormatUtil.FORMAT_ONLY_DATE))
                     .setProvince(addressMap.getOrDefault(ExportAddressKey.PROVIDE, StringUtils.EMPTY))
                     .setCity(addressMap.getOrDefault(ExportAddressKey.CITY, StringUtils.EMPTY))
                     .setArea(addressMap.getOrDefault(ExportAddressKey.AREA, StringUtils.EMPTY))
