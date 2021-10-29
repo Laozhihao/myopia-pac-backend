@@ -30,6 +30,8 @@ public class VisionMedicalRecord {
     private String pressureUnit;
     /** 是否佩镜 */
     private Boolean glassesSituation;
+    /** 眼镜类型。0没有佩戴眼镜, 1佩戴框架眼镜，2佩戴隐形眼镜，3夜戴角膜塑形镜。 */
+    private Integer glassesType;
     /** 旧镜验镜时间，选择是否佩镜后必填 */
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date oldGlassTime;
