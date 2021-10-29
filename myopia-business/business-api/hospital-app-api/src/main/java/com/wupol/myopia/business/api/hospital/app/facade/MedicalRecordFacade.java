@@ -50,6 +50,7 @@ public class MedicalRecordFacade {
                                              BiometricsMedicalRecord biometrics,
                                              DiopterMedicalRecord diopter,
                                              ToscaMedicalRecord tosca,
+                                             EyePressure eyePressure,
                                              Integer hospitalId,
                                              Integer doctorId,
                                              Integer studentId) {
@@ -57,7 +58,7 @@ public class MedicalRecordFacade {
             throw new BusinessException("学生id不能为空");
         }
         // 追加检查单数据
-        medicalRecordService.addCheckDataToMedicalRecord(consultation, vision, biometrics, diopter, tosca, hospitalId, -1, doctorId, studentId);
+        medicalRecordService.addCheckDataToMedicalRecord(consultation, vision, biometrics, diopter, tosca, eyePressure, hospitalId, -1, doctorId, studentId);
         // 已建档则跳过
         String cacheKey = String.format(HospitalCacheKey.EXIST_HOSPITAL_STUDENT_ID, hospitalId, studentId);
         if (redisUtil.hasKey(cacheKey)) {
