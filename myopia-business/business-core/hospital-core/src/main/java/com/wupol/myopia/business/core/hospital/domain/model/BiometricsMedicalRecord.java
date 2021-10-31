@@ -70,6 +70,14 @@ public class BiometricsMedicalRecord {
         private String leftK2Radius;
         /** 左眼角膜K2 */
         private String leftK2Axis;
+        /** 右眼垂直方向角膜散光度数 */
+        private String rightAST;
+        /** 左眼垂直方向角膜散光度数 */
+        private String leftAST;
+        /** 右眼晶状体厚度 */
+        private String rightVT;
+        /** 左眼晶状体厚度 */
+        private String leftVT;
         /** 备注 */
         private String remark;
 
