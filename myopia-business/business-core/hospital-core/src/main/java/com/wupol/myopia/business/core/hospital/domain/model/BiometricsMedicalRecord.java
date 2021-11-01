@@ -31,45 +31,57 @@ public class BiometricsMedicalRecord {
         /** 左眼轴位 */
         private String leftAxis;
         /** 右眼前房深度 */
-        private String rightDepthPreviousChamber;
+        private String rightACD;
         /** 左眼前房深度 */
-        private String leftDepthPreviousChamber;
+        private String leftACD;
         /** 右眼中央房水深度 */
-        private String rightAqueousDepth;
+        private String rightAD;
         /** 左眼中央房水深度 */
-        private String leftAqueousDepth;
+        private String leftAD;
         /** 右眼晶状体厚度 */
-        private String rightLensThickness;
+        private String rightLT;
         /** 左眼晶状体厚度 */
-        private String leftLensThickness;
+        private String leftLT;
         /** 右眼瞳孔直径 */
-        private String rightPupilDiameter;
+        private String rightPD;
         /** 左眼瞳孔直径 */
-        private String leftPupilDiameter;
+        private String leftPD;
         /** 右眼角膜中央厚度 */
-        private String rightCentral;
+        private String rightCCT;
         /** 左眼角膜中央厚度 */
-        private String leftCentral;
+        private String leftCCT;
         /** 右眼角膜白到白 */
-        private String rightWhiteToWhite;
+        private String rightWTW;
         /** 左眼角膜白到白 */
-        private String leftWhiteToWhite;
+        private String leftWTW;
         /** 右眼角膜K1 */
-        private String rightSimK1Radius;
+        private String rightK1Radius;
         /** 右眼角膜K1 */
-        private String rightSimK1Axis;
+        private String rightK1Axis;
         /** 左眼角膜K1 */
-        private String leftSimK1Radius;
+        private String leftK1Radius;
         /** 左眼角膜K1 */
-        private String leftSimK1Axis;
+        private String leftK1Axis;
         /** 右眼角膜K2 */
-        private String rightSimK2Radius;
+        private String rightK2Radius;
         /** 右眼角膜K2 */
-        private String rightSimK2Axis;
+        private String rightK2Axis;
         /** 左眼角膜K2 */
-        private String leftSimK2Radius;
+        private String leftK2Radius;
         /** 左眼角膜K2 */
-        private String leftSimK2Axis;
+        private String leftK2Axis;
+        /** 右眼垂直方向角膜散光度数 */
+        private String rightASTRadius;
+        /** 右眼垂直方向角膜散光度数 */
+        private String rightASTAxis;
+        /** 左眼垂直方向角膜散光度数 */
+        private String leftASTRadius;
+        /** 左眼垂直方向角膜散光度数 */
+        private String leftASTAxis;
+        /** 右眼晶状体厚度 */
+        private String rightVT;
+        /** 左眼晶状体厚度 */
+        private String leftVT;
         /** 备注 */
         private String remark;
 
