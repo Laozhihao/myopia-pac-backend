@@ -82,6 +82,7 @@ public class RoleController {
         }
         RoleDTO roleDTO = new RoleDTO();
         roleDTO.setId(param.getId());
+        roleDTO.setSystemCode(param.getSystemCode());
         List<Role> roles = roleService.getRoleList(roleDTO);
         return roles.get(0);
     }
