@@ -276,6 +276,9 @@ public class Student extends AddressCode implements Serializable {
                 return 1;
             }
         }
+        if (Objects.isNull(birthday)) {
+            return null;
+        }
         if (DateUtil.ageOfNow(birthday) > 6) {
             return 1;
         } else {
