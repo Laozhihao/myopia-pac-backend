@@ -44,3 +44,16 @@ UPDATE m_student a, m_school b SET a.school_id = b.id WHERE a.school_no = b.scho
 
 alter table m_district_vision_statistic
     add myopia_level_early_num int null comment '近视前期人数' after valid_screening_numbers;
+
+alter table m_school_vision_statistic alter column myopia_level_light set default 0;
+
+alter table m_school_vision_statistic alter column myopia_level_early set default 0;
+
+alter table m_school_vision_statistic alter column myopia_level_middle set default 0;
+
+alter table m_school_vision_statistic alter column myopia_level_high set default 0;
+
+alter table m_school_vision_statistic alter column myopia_level_insufficient set default 0;
+
+alter table m_district_vision_statistic alter column myopia_level_early_num set default 0;
+
