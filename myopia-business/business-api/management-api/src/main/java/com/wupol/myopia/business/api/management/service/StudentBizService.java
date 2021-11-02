@@ -188,6 +188,7 @@ public class StudentBizService {
             setDeskAndChairInfo(studentWarningArchiveVO);
             studentWarningArchiveVOList.add(studentWarningArchiveVO);
         }
+        studentWarningArchiveVOList.sort(Comparator.comparing(StudentWarningArchiveVO::getScreeningDate).reversed());
         return studentWarningArchiveVOList;
     }
 
