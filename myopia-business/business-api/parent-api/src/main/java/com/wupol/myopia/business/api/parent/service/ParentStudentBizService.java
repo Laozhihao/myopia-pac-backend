@@ -417,12 +417,10 @@ public class ParentStudentBizService {
         VisionDataDO visionData = result.getVisionData();
 
         // 视力检查结果
-        ThreeTuple<List<VisionItems>, BigDecimal, BigDecimal> listBigDecimalBigDecimalThreeTuple = ScreeningResultUtil.packageVisionResult(visionData, age);
-        responseDTO.setVisionResultItems(listBigDecimalBigDecimalThreeTuple.getFirst());
+        responseDTO.setVisionResultItems(ScreeningResultUtil.packageVisionResult(visionData, age));
 
         // 验光仪检查结果
-        TwoTuple<List<RefractoryResultItems>, Integer> refractoryResult = ScreeningResultUtil.packageRefractoryResult(result.getComputerOptometry(), age,
-                listBigDecimalBigDecimalThreeTuple.getSecond(), listBigDecimalBigDecimalThreeTuple.getThird());
+        TwoTuple<List<RefractoryResultItems>, Integer> refractoryResult = ScreeningResultUtil.packageRefractoryResult(result.getComputerOptometry(), age);
         responseDTO.setRefractoryResultItems(refractoryResult.getFirst());
 
         // 生物测量

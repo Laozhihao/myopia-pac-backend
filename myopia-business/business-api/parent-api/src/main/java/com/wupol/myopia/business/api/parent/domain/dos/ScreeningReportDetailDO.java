@@ -40,7 +40,7 @@ public class ScreeningReportDetailDO {
     private List<VisionItems> visionResultItems;
 
     /**
-     * 医生建议1 5-正常,6-轻度屈光不正,7-中度屈光不正,8-重度屈光不正
+     * 医生建议1 5，6-正常,7-轻度屈光不正,8-中度屈光不正,9-重度屈光不正
      */
     private Integer doctorAdvice1;
 

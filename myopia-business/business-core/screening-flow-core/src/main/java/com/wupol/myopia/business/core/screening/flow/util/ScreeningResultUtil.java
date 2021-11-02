@@ -73,13 +73,10 @@ public class ScreeningResultUtil {
      *
      * @param date 数据
      * @param age  年龄
-     * @return ThreeTuple<List < VisionItems>, BigDecimal, BigDecimal> first-视力检查结果 second-左眼裸眼视力 third-右眼裸眼视力
+     * @return List<VisionItems>-视力检查结果
      */
-    public static ThreeTuple<List<VisionItems>, BigDecimal, BigDecimal> packageVisionResult(VisionDataDO date, Integer age) {
+    public static List<VisionItems> packageVisionResult(VisionDataDO date, Integer age) {
         List<VisionItems> itemsList = new ArrayList<>();
-        BigDecimal leftNV = null;
-        BigDecimal rightNV = null;
-
 
         // 裸眼视力
         VisionItems nakedVision = new VisionItems();
@@ -98,7 +95,6 @@ public class ScreeningResultUtil {
             BigDecimal leftNakedVisionValue = date.getLeftEyeData().getNakedVision();
             if (Objects.nonNull(leftNakedVisionValue)) {
                 nakedVision.setOs(packageNakedVision(leftNakedVision, leftNakedVisionValue, age));
-                leftNV = leftNakedVisionValue;
             }
 
             // 右裸眼视力
@@ -106,7 +102,6 @@ public class ScreeningResultUtil {
             BigDecimal rightNakedVisionValue = date.getRightEyeData().getNakedVision();
             if (Objects.nonNull(rightNakedVisionValue)) {
                 nakedVision.setOd(packageNakedVision(rightNakedVision, rightNakedVisionValue, age));
-                rightNV = rightNakedVisionValue;
             }
 
             // 左矫正视力
@@ -127,7 +122,7 @@ public class ScreeningResultUtil {
         }
         itemsList.add(nakedVision);
         itemsList.add(correctedVision);
-        return new ThreeTuple<>(itemsList, leftNV, rightNV);
+        return itemsList;
     }
 
     /**
@@ -171,8 +166,7 @@ public class ScreeningResultUtil {
      * @param age  年龄
      * @return TwoTuple<List < RefractoryResultItems>, Integer> left-验光仪检查数据 right-预警级别
      */
-    public static TwoTuple<List<RefractoryResultItems>, Integer> packageRefractoryResult(ComputerOptometryDO date, Integer age,
-                                                                                         BigDecimal leftNakedVision, BigDecimal rightNakedVision) {
+    public static TwoTuple<List<RefractoryResultItems>, Integer> packageRefractoryResult(ComputerOptometryDO date, Integer age) {
 
         List<RefractoryResultItems> items = new ArrayList<>();
         Integer maxType = 0;
