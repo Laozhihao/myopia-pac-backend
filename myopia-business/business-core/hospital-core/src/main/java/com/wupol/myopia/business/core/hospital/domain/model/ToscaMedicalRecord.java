@@ -35,9 +35,9 @@ public class ToscaMedicalRecord {
         /** 左眼轴位 */
         private String leftAxis;
         /** 右眼散光 */
-        private String rightAstigmatism;
+        private String rightAST;
         /** 左眼散光 */
-        private String leftAstigmatism;
+        private String leftAST;
         /** 右眼E值1 */
         private String rightE1;
         /** 右眼E值2 */
@@ -51,29 +51,29 @@ public class ToscaMedicalRecord {
         /** 左眼视力 */
         private String leftVision;
         /** 右眼瞳孔直径 */
-        private String rightPupilDiameter;
+        private String rightPD;
         /** 左眼瞳孔直径 */
-        private String leftPupilDiameter;
+        private String leftPD;
         /** 右眼角膜直径 */
-        private String rightCornealDiameter;
+        private String rightCD;
         /** 左眼角膜直径 */
-        private String leftCornealDiameter;
+        private String leftCD;
         /** 右眼角膜K1 */
-        private String rightSimK1Radius;
+        private String rightK1Radius;
         /** 右眼角膜K1 */
-        private String rightSimK1Axis;
+        private String rightK1Axis;
         /** 左眼角膜K1 */
-        private String leftSimK1Radius;
+        private String leftK1Radius;
         /** 左眼角膜K1 */
-        private String leftSimK1Axis;
+        private String leftK1Axis;
         /** 右眼角膜K2 */
-        private String rightSimK2Radius;
+        private String rightK2Radius;
         /** 右眼角膜K2 */
-        private String rightSimK2Axis;
+        private String rightK2Axis;
         /** 左眼角膜K2 */
-        private String leftSimK2Radius;
+        private String leftK2Radius;
         /** 左眼角膜K2 */
-        private String leftSimK2Axis;
+        private String leftK2Axis;
         /** 备注 */
         private String remark;
         /** 影像列表 */
