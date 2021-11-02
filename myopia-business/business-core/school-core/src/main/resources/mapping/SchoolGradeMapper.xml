@@ -62,7 +62,7 @@
         select *, ms.school_no as schoolNo
         from m_school_grade msg
                      left join m_school ms on msg.school_id = ms.id
-                where msg.school_id in
+                where msg.status = 0 and msg.school_id in
         <foreach collection="ids" open="(" close=")" separator="," item="item">
             #{item}
         </foreach>
