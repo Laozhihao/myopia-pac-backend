@@ -18,5 +18,16 @@
             <artifactId>school-management-core</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>screening-flow-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>hospital-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
     </dependencies>
 </project>
