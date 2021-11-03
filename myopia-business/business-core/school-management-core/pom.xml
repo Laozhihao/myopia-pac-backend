@@ -11,5 +11,13 @@
 
     <artifactId>school-management-core</artifactId>
     <description>家长相关</description>
+    <dependencies>
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>common-core</artifactId>
+            <version>MP-2.1.0</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
 
 </project>
