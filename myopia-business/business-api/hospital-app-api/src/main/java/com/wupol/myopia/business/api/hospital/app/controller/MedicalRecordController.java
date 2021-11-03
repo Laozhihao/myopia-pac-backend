@@ -33,6 +33,11 @@ public class MedicalRecordController {
     @Autowired
     private MedicalRecordFacade medicalRecordFacade;
 
+    /**
+     * 获取该学生的最新的问诊检查
+     * @param studentId
+     * @return
+     */
     @GetMapping("/consultation")
     public Consultation getTodayLastConsultation(Integer studentId) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
@@ -43,10 +48,15 @@ public class MedicalRecordController {
     @PostMapping("/consultation")
     public Boolean createConsultation(@RequestBody @Valid Consultation consultation) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        medicalRecordFacade.addCheckDataAndCreateStudent(consultation, null, null, null,null, user.getOrgId(), -1, consultation.getStudentId());
+        medicalRecordFacade.addCheckDataAndCreateStudent(consultation, null, null, null,null, null, user.getOrgId(), -1, consultation.getStudentId());
         return true;
     }
 
+    /**
+     * 获取该学生的最新的视力检查
+     * @param studentId
+     * @return
+     */
     @GetMapping("/vision")
     public VisionMedicalRecord getTodayLastVisionMedicalRecord(Integer studentId) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
@@ -57,10 +67,15 @@ public class MedicalRecordController {
     @PostMapping("/vision")
     public Boolean createVisionMedicalRecord(@RequestBody VisionMedicalRecord vision) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        medicalRecordFacade.addCheckDataAndCreateStudent( null, vision,null, null,null, user.getOrgId(), -1, vision.getStudentId());
+        medicalRecordFacade.addCheckDataAndCreateStudent( null, vision,null, null,null, null, user.getOrgId(), -1, vision.getStudentId());
         return true;
     }
 
+    /**
+     * 获取该学生的最新的生物测量
+     * @param studentId
+     * @return
+     */
     @GetMapping("/biometrics")
     public BiometricsMedicalRecord getTodayLastBiometricsMedicalRecord(Integer studentId) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
@@ -78,10 +93,15 @@ public class MedicalRecordController {
     @PostMapping("/biometrics")
     public Boolean createBiometricsMedicalRecord(@RequestBody BiometricsMedicalRecord biometrics) throws IOException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        medicalRecordFacade.addCheckDataAndCreateStudent(null, null, biometrics,null, null, user.getOrgId(), -1, biometrics.getStudentId());
+        medicalRecordFacade.addCheckDataAndCreateStudent(null, null, biometrics,null, null, null, user.getOrgId(), -1, biometrics.getStudentId());
         return true;
     }
 
+    /**
+     * 获取该学生的最新的屈光检查
+     * @param studentId
+     * @return
+     */
     @GetMapping("/diopter")
     public DiopterMedicalRecord getTodayLastDiopterMedicalRecord(Integer studentId) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
@@ -99,10 +119,15 @@ public class MedicalRecordController {
     @PostMapping("/diopter")
     public Boolean createDiopterMedicalRecord(@RequestBody DiopterMedicalRecord diopter) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        medicalRecordFacade.addCheckDataAndCreateStudent(null, null, null, diopter, null, user.getOrgId(), -1, diopter.getStudentId());
+        medicalRecordFacade.addCheckDataAndCreateStudent(null, null, null, diopter, null, null, user.getOrgId(), -1, diopter.getStudentId());
         return true;
     }
 
+    /**
+     * 获取该学生的最新的角膜地形
+     * @param studentId
+     * @return
+     */
     @GetMapping("/tosca")
     public ToscaMedicalRecord getTodayLastToscaMedicalRecord(Integer studentId) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
@@ -112,9 +137,29 @@ public class MedicalRecordController {
     @PostMapping("/tosca")
     public Boolean createToscaMedicalRecord(@RequestBody ToscaMedicalRecord tosca) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        medicalRecordFacade.addCheckDataAndCreateStudent(null, null, null, null, tosca, user.getOrgId(), -1, tosca.getStudentId());
+        medicalRecordFacade.addCheckDataAndCreateStudent(null, null, null, null, tosca, null, user.getOrgId(), -1, tosca.getStudentId());
         return true;
     }
+
+    /**
+     * 获取该学生的最新的眼压检查
+     * @param studentId
+     * @return
+     */
+    @GetMapping("/eyePressure")
+    public EyePressure getTodayLastEyePressureMedicalRecord(Integer studentId) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        MedicalRecord medicalRecord = medicalRecordService.getTodayLastMedicalRecord(user.getOrgId(), studentId);
+        return Objects.isNull(medicalRecord) || Objects.isNull(medicalRecord.getEyePressure()) ? new EyePressure() : medicalRecord.getEyePressure();
+    }
+
+    @PostMapping("/eyePressure")
+    public Boolean createEyePressureMedicalRecord(@RequestBody EyePressure eyePressure) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        medicalRecordFacade.addCheckDataAndCreateStudent(null, null, null, null, null, eyePressure, user.getOrgId(), -1, eyePressure.getStudentId());
+        return true;
+    }
+
     @GetMapping("/detailWithCompare/{id}")
     public CompareMedicalRecord getMedicalRecordWithCompare(@PathVariable("id") @NotNull(message = "检查单id不能为空") Integer id, @NotNull(message = "学生id不能为空") Integer studentId) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();

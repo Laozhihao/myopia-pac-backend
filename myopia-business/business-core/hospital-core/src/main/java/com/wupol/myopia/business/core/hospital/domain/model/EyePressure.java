@@ -9,30 +9,19 @@ import lombok.experimental.Accessors;
 import java.util.List;
 
 /**
- * 学生在医院问诊
+ * 眼压
  * @author Chikong
  * @date 2021-02-10
  */
 @Getter
 @Setter
 @Accessors(chain = true)
-public class Consultation {
-
+public class EyePressure {
     /** 学生id */
     private Integer studentId;
-    /** 病种列表 */
-    @TableField(typeHandler = DiseaseTypeHandler.class)
-    private List<Disease> diseaseList;
+    /** 右眼压 */
+    private String rightPressure;
+    /** 左眼压 */
+    private String leftPressure;
 
-    /**
-     * 病种信息
-     */
-    @Getter
-    @Setter
-    @Accessors(chain = true)
-    public static class Disease {
-        private Integer id;
-        /** 名称 */
-        private String name;
-    }
 }

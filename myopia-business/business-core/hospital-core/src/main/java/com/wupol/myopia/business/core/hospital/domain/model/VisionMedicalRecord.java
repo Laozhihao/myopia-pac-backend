@@ -29,7 +29,9 @@ public class VisionMedicalRecord {
     /** 眼压单位 */
     private String pressureUnit;
     /** 是否佩镜 */
-    private Boolean glassesSituation;
+    private Boolean wearGlasses;
+    /** 眼镜类型。0没有佩戴眼镜, 1佩戴框架眼镜，2佩戴隐形眼镜，3夜戴角膜塑形镜。 */
+    private Integer glassesType;
     /** 旧镜验镜时间，选择是否佩镜后必填 */
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date oldGlassTime;
@@ -50,26 +52,26 @@ public class VisionMedicalRecord {
     /** 左眼压力 */
     private String leftPressure;
     /** 右眼球镜 */
-    private String rightSphere;
+    private String rightDS;
     /** 左眼球镜 */
-    private String leftSphere;
+    private String leftDS;
     /** 右眼柱镜 */
-    private String rightCylinder;
+    private String rightDC;
     /** 左眼柱镜 */
-    private String leftCylinder;
+    private String leftDC;
     /** 右眼轴位 */
     private String rightAxis;
     /** 左眼轴位 */
     private String leftAxis;
     /** 右眼近用附加度 */
-    private String rightAdditionalDegree;
+    private String rightADD;
     /** 左眼近用附加度 */
-    private String leftAdditionalDegree;
+    private String leftADD;
     /** 右眼佩镜视力 */
     private String rightGlassVision;
     /** 左眼佩镜视力 */
     private String leftGlassVision;
     /** 瞳距 */
-    private String pupilDistance;
+    private String pd;
 
 }

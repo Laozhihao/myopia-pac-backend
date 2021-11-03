@@ -9,6 +9,7 @@
         <result typeHandler="com.wupol.myopia.business.core.hospital.domain.handler.DiopterMedicalRecordTypeHandler" column="diopter" property="diopter"/>
         <result typeHandler="com.wupol.myopia.business.core.hospital.domain.handler.ToscaMedicalRecordTypeHandler" column="tosca" property="tosca"/>
         <result typeHandler="com.wupol.myopia.business.core.hospital.domain.handler.VisionMedicalRecordTypeHandler" column="vision" property="vision"/>
+        <result typeHandler="com.wupol.myopia.business.core.hospital.domain.handler.EyePressureTypeHandler" column="eye_pressure" property="eyePressure"/>
     </resultMap>
 
     <resultMap id="MedicalRecordDO" type="com.wupol.myopia.business.core.hospital.domain.dos.MedicalRecordDO">
