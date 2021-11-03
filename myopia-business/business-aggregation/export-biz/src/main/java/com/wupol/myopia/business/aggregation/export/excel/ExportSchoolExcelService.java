@@ -144,6 +144,9 @@ public class ExportSchoolExcelService extends BaseExportExcelFileService {
         exportGrade.forEach(grade -> {
             result.append(grade.getName()).append(": ");
             List<SchoolClassExportDTO> child = grade.getChild();
+            if(Objects.isNull(child) || CollectionUtils.isEmpty(child)) {
+                return;
+            }
             for (int i = 0; i < child.size(); i++) {
                 result.append(child.get(i).getName());
                 if (i < child.size() - 1) {

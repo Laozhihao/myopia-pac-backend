@@ -108,7 +108,7 @@ public class ExcelStudentService {
                 .filter(e -> StringUtils.isNotBlank(e.getIdCard()) && Objects.isNull(e.getScreeningCode()))
                 .collect(Collectors.toMap(Student::getIdCard, Function.identity()));
         // 7. 新增或更新学生和筛查学生数据(更新只存在身份号码而没筛查编号的学生)
-        List<StudentDTO> onlyHaveIdCardList = (List<StudentDTO>) excelIdCardStudentMap.values();
+        List<StudentDTO> onlyHaveIdCardList = new ArrayList<>(excelIdCardStudentMap.values());
         addOrUpdateStudentAndScreeningStudent(userId, screeningPlan, schoolId, school, idCardExistStudents, idCardExistScreeningStudents, onlyHaveIdCardList, excelIdCardStudentMap);
         // 8 更新存在筛查编号的学生
         updateMockPlanStudent(excelStudents.stream().filter(e -> Objects.nonNull(e.getScreeningCode())).collect(Collectors.toList()), screeningPlan.getId(), schoolId);
