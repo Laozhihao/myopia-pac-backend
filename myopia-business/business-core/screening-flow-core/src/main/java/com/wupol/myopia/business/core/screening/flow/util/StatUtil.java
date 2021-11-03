@@ -173,10 +173,10 @@ public class StatUtil {
         if (age == 3 && nakedVision < 4.7) {
             return true;
         }
-        if (age == 4 && nakedVision < 4.8) {
+        if (age == 4 && nakedVision <= 4.8) {
             return true;
         }
-        return age >= 5 && nakedVision < 4.9;
+        return age >= 5 && nakedVision <= 4.9;
     }
 
     /**

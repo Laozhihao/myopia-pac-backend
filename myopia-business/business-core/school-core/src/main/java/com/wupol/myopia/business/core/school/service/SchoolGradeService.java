@@ -268,7 +268,7 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
     public SchoolGrade getByGradeNameAndSchoolId(Integer schoolId, String gradeName) {
         LambdaQueryWrapper<SchoolGrade> schoolGradeExportDTOLambdaQueryWrapper = new LambdaQueryWrapper<>();
         SchoolGrade schoolGrade = new SchoolGrade();
-        schoolGrade.setSchoolId(schoolId).setName(gradeName);
+        schoolGrade.setSchoolId(schoolId).setName(gradeName).setStatus(CommonConst.STATUS_NOT_DELETED);
         schoolGradeExportDTOLambdaQueryWrapper.setEntity(schoolGrade);
         return baseMapper.selectOne(schoolGradeExportDTOLambdaQueryWrapper);
     }
