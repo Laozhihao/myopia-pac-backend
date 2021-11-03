@@ -1,12 +1,13 @@
 package com.wupol.myopia.business.api.school.management.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentRequestDTO;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 /**
  * 学校端学生
@@ -28,8 +29,8 @@ public class SchoolStudentController {
     }
 
     @GetMapping
-    public List<SchoolStudent> getList() {
-        return schoolStudentService.list();
+    public IPage<SchoolStudent> getList(PageRequest pageRequest, SchoolStudentRequestDTO requestDTO) {
+        return schoolStudentService.getList(pageRequest, requestDTO);
     }
 
 }
