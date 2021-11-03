@@ -140,11 +140,6 @@ public class SchoolStudent extends AddressCode implements Serializable {
     private String address;
 
     /**
-     * 备注
-     */
-    private String remark;
-
-    /**
      * 状态 0-启用 1-禁止 2-删除
      */
     private Integer status;

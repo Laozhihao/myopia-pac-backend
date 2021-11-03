@@ -13,5 +13,10 @@
 
     <dependencies>
 
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>school-management-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
