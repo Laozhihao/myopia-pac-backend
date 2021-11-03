@@ -875,6 +875,9 @@ public class ScreeningResultUtil {
         BigDecimal leftSe = calculationSE(leftSph, leftCyl);
         BigDecimal rightSe = calculationSE(rightSph, rightCyl);
 
+        if (Objects.isNull(nakedVisionResult.getFirst())) {
+            return RecommendVisitEnum.EMPTY;
+        }
         // 裸眼视力是否小于4.9
         if (BigDecimalUtil.lessThan(nakedVisionResult.getFirst(), "4.9")) {
             // 是否佩戴眼镜

@@ -294,8 +294,9 @@ public class StatConclusionBuilder {
 
 
     private void setRecommendVisit() {
-        boolean isRecommendVisit = ScreeningResultUtil.getDoctorAdvice(new BigDecimal(basicData.leftNakedVision.toString()),
-                new BigDecimal(basicData.rightNakedVision.toString()),
+        boolean isRecommendVisit = ScreeningResultUtil.getDoctorAdvice(
+                Objects.nonNull(basicData.leftNakedVision) ? new BigDecimal(basicData.leftNakedVision.toString()) : null,
+                Objects.nonNull(basicData.rightNakedVision) ? new BigDecimal(basicData.rightNakedVision.toString()) : null,
                 Objects.nonNull(basicData.leftCorrectVision) ? new BigDecimal(basicData.leftCorrectVision.toString()) : null,
                 Objects.nonNull(basicData.rightCorrectVision) ? new BigDecimal(basicData.rightCorrectVision.toString()) : null,
                 basicData.glassesType, basicData.schoolAge, basicData.age, basicData.otherEyeDiseasesNormal,
