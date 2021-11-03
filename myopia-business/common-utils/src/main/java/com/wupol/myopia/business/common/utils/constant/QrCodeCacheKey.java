@@ -10,7 +10,7 @@ package com.wupol.myopia.business.common.utils.constant;
  */
 public interface QrCodeCacheKey {
 
-    String PARENT_STUDENT_PREFIX = "PA@";
+    String PARENT_STUDENT_PREFIX = "PA@%07d";
     /**
      * 获取学生二维码
      */
