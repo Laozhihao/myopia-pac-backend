@@ -998,7 +998,7 @@ public class StudentBizService {
             // 是否正常
             boolean isNormal = CollectionUtils.isEmpty(otherEyeDiseasesList);
             cardDetail.setIsNormal(!isRefractiveError && isNormal);
-            if (isNormal) {
+            if (cardDetail.getIsNormal()) {
                 // 正常就不显示近、远视
                 cardDetail.setIsMyopia(null);
                 cardDetail.setIsHyperopia(null);
