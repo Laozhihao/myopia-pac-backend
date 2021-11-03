@@ -611,7 +611,7 @@ public class ScreeningResultUtil {
      * @return 等效球镜
      */
     public static BigDecimal calculationSE(BigDecimal sph, BigDecimal cyl) {
-        if (ObjectsUtil.hasNull(sph, cyl)) {
+        if (Objects.isNull(sph) || Objects.isNull(cyl)) {
             return null;
         }
         return sph.add(cyl.multiply(new BigDecimal("0.5")))
@@ -638,6 +638,9 @@ public class ScreeningResultUtil {
      */
     public static TwoTuple<String, Integer> getSphTypeName(BigDecimal sph, BigDecimal cyl, Integer age) {
         BigDecimal se = calculationSE(sph, cyl);
+        if (Objects.isNull(se)) {
+            return new TwoTuple<>();
+        }
         BigDecimal seVal = se.abs().multiply(new BigDecimal("100")).setScale(0, RoundingMode.DOWN);
         if (se.compareTo(new BigDecimal("0.00")) <= 0) {
             // 近视
