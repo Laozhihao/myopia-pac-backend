@@ -25,8 +25,8 @@ public class SchoolStudentController {
     private SchoolStudentBizService schoolStudentBizService;
 
     @PostMapping
-    public Boolean save(@RequestBody SchoolStudent student) {
-        return null;
+    public SchoolStudent save(@RequestBody SchoolStudent student) {
+        return schoolStudentBizService.saveStudent(student);
     }
 
     /**
