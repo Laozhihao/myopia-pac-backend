@@ -10,6 +10,8 @@ import com.wupol.myopia.business.core.school.management.domain.model.SchoolStude
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * 学校端-学生服务
  *
@@ -21,6 +23,10 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
 
     public IPage<SchoolStudentListResponseDTO> getList(PageRequest pageRequest, SchoolStudentRequestDTO requestDTO) {
         return baseMapper.getList(pageRequest.toPage(), requestDTO);
+    }
+
+    public List<SchoolStudent> getByIdCardAndSno(Integer id, String idCard, String sno) {
+        return baseMapper.getByIdCardAndSno(id, idCard, sno);
     }
 
 

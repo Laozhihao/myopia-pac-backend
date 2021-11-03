@@ -8,6 +8,8 @@ import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudent
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+
 /**
  * 学校端-学生表Mapper接口
  *
@@ -16,6 +18,8 @@ import org.apache.ibatis.annotations.Param;
 public interface SchoolStudentMapper extends BaseMapper<SchoolStudent> {
 
     IPage<SchoolStudentListResponseDTO> getList(@Param("page") Page<?> page, @Param("requestDTO") SchoolStudentRequestDTO requestDTO);
+
+    List<SchoolStudent> getByIdCardAndSno(@Param("id") Integer id, @Param("idCard") String idCard, @Param("sno") String sno);
 
 
 }

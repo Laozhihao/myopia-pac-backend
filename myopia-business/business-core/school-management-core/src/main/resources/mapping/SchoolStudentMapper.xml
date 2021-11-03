@@ -62,4 +62,13 @@
             and vision_label = #{requestDTO.visionLabel}
         </if>
     </select>
+
+    <select id="getByIdCardAndSno" resultMap="BaseResultMap">
+        select *
+        from m_school_student where (id_card = #{idCard}
+                or sno = #{sno})
+        <if test="id != null">
+            and id != #{id}
+        </if>
+    </select>
 </mapper>
