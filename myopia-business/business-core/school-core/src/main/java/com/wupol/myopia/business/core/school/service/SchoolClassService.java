@@ -164,7 +164,7 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
     public SchoolClass getByClassNameAndSchoolId(Integer schoolId, Integer gradeId, String className) {
         LambdaQueryWrapper<SchoolClass> queryWrapper = new LambdaQueryWrapper<>();
         SchoolClass schoolClass = new SchoolClass();
-        schoolClass.setSchoolId(schoolId).setName(className).setGradeId(gradeId);
+        schoolClass.setSchoolId(schoolId).setName(className).setGradeId(gradeId).setStatus(CommonConst.STATUS_NOT_DELETED);
         queryWrapper.setEntity(schoolClass);
         return baseMapper.selectOne(queryWrapper);
     }
