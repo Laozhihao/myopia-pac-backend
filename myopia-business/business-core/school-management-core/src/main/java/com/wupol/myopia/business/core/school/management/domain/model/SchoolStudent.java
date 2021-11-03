@@ -48,11 +48,13 @@ public class SchoolStudent extends AddressCode implements Serializable {
     /**
      * 学校Id
      */
+    @NotNull(message = "学校Id不能为空")
     private Integer schoolId;
 
     /**
      * 学校编码
      */
+    @NotBlank(message = "学校编码不能为空")
     private String schoolNo;
 
     /**
@@ -69,7 +71,6 @@ public class SchoolStudent extends AddressCode implements Serializable {
     /**
      * 年级ID
      */
-    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Integer gradeId;
 
     /**
@@ -85,7 +86,6 @@ public class SchoolStudent extends AddressCode implements Serializable {
     /**
      * 班级id
      */
-    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Integer classId;
 
     /**

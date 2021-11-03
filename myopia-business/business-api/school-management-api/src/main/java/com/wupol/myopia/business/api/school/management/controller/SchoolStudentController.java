@@ -24,10 +24,6 @@ public class SchoolStudentController {
     @Autowired
     private SchoolStudentBizService schoolStudentBizService;
 
-    @PostMapping
-    public SchoolStudent save(@RequestBody SchoolStudent student) {
-        return schoolStudentBizService.saveStudent(student);
-    }
 
     /**
      * 获取学生列表
@@ -40,5 +36,11 @@ public class SchoolStudentController {
     public IPage<SchoolStudentListResponseDTO> getList(PageRequest pageRequest, SchoolStudentRequestDTO requestDTO) {
         return schoolStudentBizService.getList(pageRequest, requestDTO);
     }
+
+    @PostMapping
+    public SchoolStudent save(@RequestBody SchoolStudent student) {
+        return schoolStudentBizService.saveStudent(student);
+    }
+
 
 }
