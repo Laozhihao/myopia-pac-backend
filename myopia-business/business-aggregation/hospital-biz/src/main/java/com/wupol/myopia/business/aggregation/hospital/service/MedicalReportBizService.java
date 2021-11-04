@@ -12,7 +12,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -153,26 +152,6 @@ public class MedicalReportBizService {
             responseDTO.setVision(medicalRecord.getVision());
             BiometricsMedicalRecord biometrics = medicalRecord.getBiometrics();
             responseDTO.setBiometrics(biometrics);
-
-            // 特殊处理，优先获取ACD，没有则取AD
-            if (Objects.nonNull(biometrics)
-                    && Objects.nonNull(biometrics.getNonMydriasis())
-                    && StringUtils.isEmpty(biometrics.getNonMydriasis().getLeftACD())
-                    && StringUtils.isEmpty(biometrics.getNonMydriasis().getRightACD())) {
-
-                biometrics.getNonMydriasis().setLeftACD(biometrics.getNonMydriasis().getLeftAD());
-                biometrics.getNonMydriasis().setRightACD(biometrics.getNonMydriasis().getRightAD());
-            }
-
-            if (Objects.nonNull(biometrics)
-                    && Objects.nonNull(biometrics.getMydriasis())
-                    && StringUtils.isEmpty(biometrics.getMydriasis().getLeftACD())
-                    && StringUtils.isEmpty(biometrics.getMydriasis().getRightACD())) {
-
-                biometrics.getMydriasis().setLeftACD(biometrics.getMydriasis().getLeftAD());
-                biometrics.getMydriasis().setRightACD(biometrics.getMydriasis().getRightAD());
-            }
-
             responseDTO.setDiopter(medicalRecord.getDiopter());
             responseDTO.setTosca(medicalRecord.getTosca());
             responseDTO.setEyePressure(medicalRecord.getEyePressure());
