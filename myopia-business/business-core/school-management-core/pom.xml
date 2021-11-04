@@ -15,8 +15,7 @@
         <dependency>
             <groupId>com.wupol.myopia</groupId>
             <artifactId>common-core</artifactId>
-            <version>MP-2.1.0</version>
-            <scope>compile</scope>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 

@@ -31,14 +31,12 @@
         <dependency>
             <groupId>com.wupol.myopia</groupId>
             <artifactId>school-core</artifactId>
-            <version>MP-2.1.0</version>
-            <scope>compile</scope>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.wupol.myopia</groupId>
             <artifactId>student-biz</artifactId>
-            <version>MP-2.1.0</version>
-            <scope>compile</scope>
+            <version>${project.version}</version>
         </dependency>
 
     </dependencies>
