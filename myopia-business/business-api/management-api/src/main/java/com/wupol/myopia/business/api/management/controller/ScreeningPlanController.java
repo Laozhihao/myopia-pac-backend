@@ -17,11 +17,12 @@ import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
+import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanSchoolStudentFacadeService;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanStudentBizService;
 import com.wupol.myopia.business.api.management.constant.QrCodeConstant;
 import com.wupol.myopia.business.api.management.domain.dto.MockStudentRequestDTO;
 import com.wupol.myopia.business.api.management.domain.dto.PlanStudentRequestDTO;
-import com.wupol.myopia.business.api.management.domain.vo.SchoolGradeVO;
+import com.wupol.myopia.business.aggregation.screening.domain.vos.SchoolGradeVO;
 import com.wupol.myopia.business.api.management.service.ManagementScreeningPlanBizService;
 import com.wupol.myopia.business.api.management.service.ScreeningPlanSchoolStudentBizService;
 import com.wupol.myopia.business.common.utils.constant.BizMsgConstant;
@@ -115,6 +116,8 @@ public class ScreeningPlanController {
     private ExportStrategy exportStrategy;
     @Autowired
     private ScreeningPlanStudentBizService screeningPlanStudentBizService;
+    @Autowired
+    private ScreeningPlanSchoolStudentFacadeService screeningPlanSchoolStudentFacadeService;
 
     @Value("${server.host}")
     private String hostUrl;
@@ -309,7 +312,7 @@ public class ScreeningPlanController {
     public List<SchoolGradeVO> queryGradesInfo(@PathVariable Integer screeningPlanId, @PathVariable Integer schoolId) {
         // 任务状态判断
         validateExist(screeningPlanId);
-        return screeningPlanSchoolStudentBizService.getSchoolGradeVoByPlanIdAndSchoolId(screeningPlanId, schoolId);
+        return screeningPlanSchoolStudentFacadeService.getSchoolGradeVoByPlanIdAndSchoolId(screeningPlanId, schoolId);
     }
 
     /**
@@ -398,7 +401,7 @@ public class ScreeningPlanController {
     @GetMapping("students/page")
     public IPage<ScreeningStudentDTO> queryStudentInfos(PageRequest page, ScreeningStudentQueryDTO query) {
         validateExistWithReleaseStatusAndReturn(query.getScreeningPlanId(), null);
-        return screeningPlanSchoolStudentBizService.getPage(query, page);
+        return screeningPlanSchoolStudentFacadeService.getPage(query, page);
     }
 
     /**

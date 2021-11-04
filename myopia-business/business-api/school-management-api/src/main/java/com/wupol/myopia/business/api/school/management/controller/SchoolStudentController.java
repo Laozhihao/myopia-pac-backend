@@ -2,17 +2,22 @@ package com.wupol.myopia.business.api.school.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.business.aggregation.screening.domain.vos.SchoolGradeVO;
+import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanSchoolStudentFacadeService;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
 import com.wupol.myopia.business.api.school.management.service.SchoolStudentBizService;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentListResponseDTO;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentRequestDTO;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentQueryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningResultResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * 学校端学生
@@ -31,6 +36,9 @@ public class SchoolStudentController {
     @Autowired
     private StudentFacade studentFacade;
 
+    @Autowired
+    private ScreeningPlanSchoolStudentFacadeService screeningPlanSchoolStudentFacadeService;
+
 
     /**
      * 获取学生列表
@@ -40,7 +48,7 @@ public class SchoolStudentController {
      * @return IPage<SchoolStudentListResponseDTO>
      */
     @GetMapping
-    public IPage<SchoolStudentListResponseDTO> getList(PageRequest pageRequest,@Valid SchoolStudentRequestDTO requestDTO) {
+    public IPage<SchoolStudentListResponseDTO> getList(PageRequest pageRequest, @Valid SchoolStudentRequestDTO requestDTO) {
         return schoolStudentBizService.getList(pageRequest, requestDTO);
     }
 
@@ -64,6 +72,30 @@ public class SchoolStudentController {
     @GetMapping("screening/list/{studentId}")
     public StudentScreeningResultResponseDTO screeningList(@PathVariable("studentId") Integer studentId) {
         return studentFacade.getScreeningList(studentId);
+    }
+
+    /**
+     * 获取计划学校的年级情况
+     *
+     * @param screeningPlanId 计划ID
+     * @param schoolId        学校ID
+     * @return List<SchoolGradeVo>
+     */
+    @GetMapping("grades/{screeningPlanId}/{schoolId}")
+    public List<SchoolGradeVO> queryGradesInfo(@PathVariable Integer screeningPlanId, @PathVariable Integer schoolId) {
+        return screeningPlanSchoolStudentFacadeService.getSchoolGradeVoByPlanIdAndSchoolId(screeningPlanId, schoolId);
+    }
+
+    /**
+     * 分页查询筛查学生信息
+     *
+     * @param query 查询参数
+     * @param page  分页数据
+     * @return IPage<StudentDTO>
+     */
+    @GetMapping("students/page")
+    public IPage<ScreeningStudentDTO> queryStudentInfos(PageRequest page, ScreeningStudentQueryDTO query) {
+        return screeningPlanSchoolStudentFacadeService.getPage(query, page);
     }
 
 
