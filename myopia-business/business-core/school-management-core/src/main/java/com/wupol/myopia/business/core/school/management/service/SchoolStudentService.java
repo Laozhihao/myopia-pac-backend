@@ -21,13 +21,26 @@ import java.util.List;
 @Log4j2
 public class SchoolStudentService extends BaseService<SchoolStudentMapper, SchoolStudent> {
 
+    /**
+     * 获取学生列表
+     *
+     * @param pageRequest 分页请求
+     * @param requestDTO  入参
+     * @return IPage<SchoolStudentListResponseDTO>
+     */
     public IPage<SchoolStudentListResponseDTO> getList(PageRequest pageRequest, SchoolStudentRequestDTO requestDTO) {
         return baseMapper.getList(pageRequest.toPage(), requestDTO);
     }
 
+    /**
+     * 通过身份证和学号获取学生
+     *
+     * @param id     学生Id
+     * @param idCard 身份证
+     * @param sno    学号
+     * @return List<SchoolStudent>
+     */
     public List<SchoolStudent> getByIdCardAndSno(Integer id, String idCard, String sno) {
         return baseMapper.getByIdCardAndSno(id, idCard, sno);
     }
-
-
 }

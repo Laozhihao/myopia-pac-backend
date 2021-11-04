@@ -165,4 +165,11 @@
                  screening_code DESC
         LIMIT 1;
     </select>
+
+    <select id="getResponseBySchoolId"
+            resultType="com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningListResponseDTO">
+        select screening_plan_id as planId, school_id as schoolId
+        from m_screening_plan_school
+        where school_id = #{schoolId}
+    </select>
 </mapper>
