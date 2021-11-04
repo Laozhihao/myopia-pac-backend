@@ -24,6 +24,7 @@
         <module>system-core</module>
         <module>common-core</module>
         <module>device-core</module>
+        <module>school-management-core</module>
     </modules>
 
     <dependencies>
