@@ -66,6 +66,9 @@ public class SchoolStudentBizService {
 
         // 学生Ids
         List<Integer> studentIds = studentList.stream().map(SchoolStudent::getStudentId).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(studentIds)) {
+            return responseDTO;
+        }
 
         // 筛查次数
         List<StudentScreeningCountDTO> studentScreeningCountVOS = visionScreeningResultService.countScreeningTime();
@@ -93,6 +96,10 @@ public class SchoolStudentBizService {
      */
     @Transactional(rollbackFor = Exception.class)
     public SchoolStudent saveStudent(SchoolStudent schoolStudent) {
+
+        if (Objects.isNull(schoolStudent.getSchoolId())) {
+            throw new BusinessException("学校Id为空");
+        }
 
         if (!checkIdCardAndSno(schoolStudent.getId(), schoolStudent.getIdCard(), schoolStudent.getSno())) {
             throw new BusinessException("学号、身份证是重复");

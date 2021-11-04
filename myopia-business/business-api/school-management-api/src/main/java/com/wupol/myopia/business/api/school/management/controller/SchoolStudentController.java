@@ -12,6 +12,8 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreening
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 /**
  * 学校端学生
  *
@@ -38,7 +40,7 @@ public class SchoolStudentController {
      * @return IPage<SchoolStudentListResponseDTO>
      */
     @GetMapping
-    public IPage<SchoolStudentListResponseDTO> getList(PageRequest pageRequest, SchoolStudentRequestDTO requestDTO) {
+    public IPage<SchoolStudentListResponseDTO> getList(PageRequest pageRequest,@Valid SchoolStudentRequestDTO requestDTO) {
         return schoolStudentBizService.getList(pageRequest, requestDTO);
     }
 

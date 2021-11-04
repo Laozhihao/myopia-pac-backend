@@ -46,6 +46,7 @@
         select
         <include refid="Base_Column_List"/>
         from m_school_student where status = 0
+                                and school_id = #{requestDTO.schoolId}
         <if test="requestDTO.sno != null and requestDTO.sno != ''">
             and sno like CONCAT('%', #{requestDTO.sno}, '%')
         </if>
