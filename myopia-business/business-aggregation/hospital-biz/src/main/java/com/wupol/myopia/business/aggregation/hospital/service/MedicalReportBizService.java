@@ -150,8 +150,7 @@ public class MedicalReportBizService {
             MedicalRecord medicalRecord = medicalRecordService.getById(report.getMedicalRecordId());
             medicalRecordService.generateToscaImageUrls(medicalRecord); // 设置角膜地形图的图片
             responseDTO.setVision(medicalRecord.getVision());
-            BiometricsMedicalRecord biometrics = medicalRecord.getBiometrics();
-            responseDTO.setBiometrics(biometrics);
+            responseDTO.setBiometrics(medicalRecord.getBiometrics());
             responseDTO.setDiopter(medicalRecord.getDiopter());
             responseDTO.setTosca(medicalRecord.getTosca());
             responseDTO.setEyePressure(medicalRecord.getEyePressure());
