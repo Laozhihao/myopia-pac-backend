@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import java.util.Objects;
+
 /**
  * 生物测量检查数据
  * @author Chikong
@@ -85,6 +87,14 @@ public class BiometricsMedicalRecord {
         /** 备注 */
         private String remark;
 
+        // 特殊处理，优先获取ACD，没有则取AD
+        public String getRightACD() {
+            return Objects.nonNull(rightACD) ? rightACD : rightAD;
+        }
+
+        public String getLeftACD() {
+            return Objects.nonNull(leftACD) ? leftACD : leftAD;
+        }
     }
 
 }
