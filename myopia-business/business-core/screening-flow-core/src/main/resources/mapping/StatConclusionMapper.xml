@@ -235,4 +235,12 @@
         LIMIT 1
     </select>
 
+    <select id="getByResultIds" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_stat_conclusion msc where msc.result_id in
+        <foreach collection="resultIds" item="resultId" index="index" open="(" close=")" separator=",">
+            #{resultId}
+        </foreach>
+    </select>
 </mapper>

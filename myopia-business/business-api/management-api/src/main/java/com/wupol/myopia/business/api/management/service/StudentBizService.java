@@ -9,10 +9,10 @@ import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.framework.sms.domain.dto.MsgData;
 import com.wupol.framework.sms.domain.dto.SmsResult;
 import com.wupol.myopia.base.exception.BusinessException;
-import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.api.management.constant.VisionScreeningConst;
 import com.wupol.myopia.business.api.management.domain.vo.StudentWarningArchiveVO;
 import com.wupol.myopia.business.api.management.domain.vo.VisionInfoVO;
+import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.service.DistrictService;
@@ -25,7 +25,8 @@ import com.wupol.myopia.business.core.school.domain.dto.StudentQueryDTO;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.AppStudentCardResponseDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
@@ -55,7 +56,6 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -196,9 +196,9 @@ public class StudentBizService {
      * 设置就诊信息
      *
      * @param studentWarningArchiveVO 预警跟踪档案
-     * @param startScreeningDate 开始筛查日期
-     * @param endScreeningDate 结束筛查日期
-     * @param medicalReportList 就诊报告列表
+     * @param startScreeningDate      开始筛查日期
+     * @param endScreeningDate        结束筛查日期
+     * @param medicalReportList       就诊报告列表
      * @return void
      **/
     private void setVisitInfo(StudentWarningArchiveVO studentWarningArchiveVO, Date startScreeningDate, Date endScreeningDate, List<MedicalReport> medicalReportList) {
@@ -208,8 +208,8 @@ public class StudentBizService {
             return;
         }
         MedicalReport medicalReport = medicalReportList.stream().filter(x -> Objects.isNull(endScreeningDate) ?
-                x.getCreateTime().before(startScreeningDate) :
-                x.getCreateTime().before(startScreeningDate) && x.getCreateTime().after(endScreeningDate))
+                        x.getCreateTime().before(startScreeningDate) :
+                        x.getCreateTime().before(startScreeningDate) && x.getCreateTime().after(endScreeningDate))
                 .findFirst().orElse(null);
         if (Objects.nonNull(medicalReport)) {
             studentWarningArchiveVO.setIsVisited(true);
@@ -241,166 +241,6 @@ public class StudentBizService {
         StudentDTO student = studentService.getStudentById(id);
         student.setScreeningCodes(getScreeningCodesByPlan(screeningPlanSchoolStudentService.getByStudentId(id)));
         return student;
-    }
-
-    /**
-     * 获取学生筛查档案
-     *
-     * @param studentId 学生ID
-     * @return 学生档案卡返回体
-     */
-    public StudentScreeningResultResponseDTO getScreeningList(Integer studentId) {
-        StudentScreeningResultResponseDTO responseDTO = new StudentScreeningResultResponseDTO();
-        List<StudentScreeningResultItemsDTO> items = new ArrayList<>();
-
-        // 通过学生id查询结果
-        List<VisionScreeningResult> resultList = visionScreeningResultService.getByStudentId(studentId);
-
-        for (VisionScreeningResult result : resultList) {
-            StudentScreeningResultItemsDTO item = new StudentScreeningResultItemsDTO();
-            List<StudentResultDetailsDTO> resultDetail = packageDTO(result);
-            item.setDetails(resultDetail);
-            item.setScreeningDate(result.getUpdateTime());
-            // 佩戴眼镜的类型随便取一个都行，两只眼睛的数据是一样的
-            if (null != result.getVisionData() && null != result.getVisionData().getLeftEyeData() && null != result.getVisionData().getLeftEyeData().getGlassesType()) {
-                item.setGlassesType(WearingGlassesSituation.getType(result.getVisionData().getLeftEyeData().getGlassesType()));
-            }
-            item.setResultId(result.getId());
-            item.setIsDoubleScreen(result.getIsDoubleScreen());
-            item.setTemplateId(getTemplateId(result.getScreeningOrgId()));
-            items.add(item);
-        }
-        responseDTO.setTotal(resultList.size());
-        responseDTO.setItems(items);
-        return responseDTO;
-    }
-
-    /**
-     * 封装结果
-     *
-     * @param result 结果表
-     * @return 详情列表
-     */
-    private List<StudentResultDetailsDTO> packageDTO(VisionScreeningResult result) {
-
-        // 设置左眼
-        StudentResultDetailsDTO leftDetails = new StudentResultDetailsDTO();
-        leftDetails.setLateriality(CommonConst.LEFT_EYE);
-        //设置右眼
-        StudentResultDetailsDTO rightDetails = new StudentResultDetailsDTO();
-        rightDetails.setLateriality(CommonConst.RIGHT_EYE);
-
-        if (null != result.getVisionData()) {
-            // 视力检查结果
-            packageVisionResult(result, leftDetails, rightDetails);
-        }
-        if (null != result.getComputerOptometry()) {
-            // 电脑验光
-            packageComputerOptometryResult(result, leftDetails, rightDetails);
-        }
-        if (null != result.getBiometricData()) {
-            // 生物测量
-            packageBiometricDataResult(result, leftDetails, rightDetails);
-        }
-        if (null != result.getOtherEyeDiseases()) {
-            // 眼部疾病
-            packageOtherEyeDiseasesResult(result, leftDetails, rightDetails);
-        }
-        return Lists.newArrayList(rightDetails, leftDetails);
-    }
-
-    /**
-     * 封装视力检查结果
-     *
-     * @param result       原始视力筛查结果
-     * @param leftDetails  左眼数据
-     * @param rightDetails 右眼数据
-     */
-    private void packageVisionResult(VisionScreeningResult result, StudentResultDetailsDTO leftDetails, StudentResultDetailsDTO rightDetails) {
-        // 左眼-视力检查结果
-        leftDetails.setGlassesType(WearingGlassesSituation.getType(result.getVisionData().getLeftEyeData().getGlassesType()));
-        leftDetails.setCorrectedVision(result.getVisionData().getLeftEyeData().getCorrectedVision());
-        leftDetails.setNakedVision(result.getVisionData().getLeftEyeData().getNakedVision());
-
-        // 右眼-视力检查结果
-        rightDetails.setGlassesType(WearingGlassesSituation.getType(result.getVisionData().getRightEyeData().getGlassesType()));
-        rightDetails.setCorrectedVision(result.getVisionData().getRightEyeData().getCorrectedVision());
-        rightDetails.setNakedVision(result.getVisionData().getRightEyeData().getNakedVision());
-    }
-
-    /**
-     * 封装电脑验光
-     *
-     * @param result       原始视力筛查结果
-     * @param leftDetails  左眼数据
-     * @param rightDetails 右眼数据
-     */
-    private void packageComputerOptometryResult(VisionScreeningResult result, StudentResultDetailsDTO leftDetails, StudentResultDetailsDTO rightDetails) {
-        // 左眼--电脑验光
-        leftDetails.setAxial(result.getComputerOptometry().getLeftEyeData().getAxial());
-        leftDetails.setSe(calculationSE(result.getComputerOptometry().getLeftEyeData().getSph(),
-                result.getComputerOptometry().getLeftEyeData().getCyl()));
-        leftDetails.setCyl(result.getComputerOptometry().getLeftEyeData().getCyl());
-        leftDetails.setSph(result.getComputerOptometry().getLeftEyeData().getSph());
-
-        // 左眼--电脑验光
-        rightDetails.setAxial(result.getComputerOptometry().getRightEyeData().getAxial());
-        rightDetails.setSe(calculationSE(result.getComputerOptometry().getRightEyeData().getSph(),
-                result.getComputerOptometry().getRightEyeData().getCyl()));
-        rightDetails.setCyl(result.getComputerOptometry().getRightEyeData().getCyl());
-        rightDetails.setSph(result.getComputerOptometry().getRightEyeData().getSph());
-    }
-
-    /**
-     * 封装生物测量结果
-     *
-     * @param result       原始视力筛查结果
-     * @param leftDetails  左眼数据
-     * @param rightDetails 右眼数据
-     */
-    private void packageBiometricDataResult(VisionScreeningResult result, StudentResultDetailsDTO leftDetails, StudentResultDetailsDTO rightDetails) {
-        // 左眼--生物测量
-        leftDetails.setAD(result.getBiometricData().getLeftEyeData().getAd());
-        leftDetails.setAL(result.getBiometricData().getLeftEyeData().getAl());
-        leftDetails.setCCT(result.getBiometricData().getLeftEyeData().getCct());
-        leftDetails.setLT(result.getBiometricData().getLeftEyeData().getLt());
-        leftDetails.setWTW(result.getBiometricData().getLeftEyeData().getWtw());
-
-        // 右眼--生物测量
-        rightDetails.setAD(result.getBiometricData().getRightEyeData().getAd());
-        rightDetails.setAL(result.getBiometricData().getRightEyeData().getAl());
-        rightDetails.setCCT(result.getBiometricData().getRightEyeData().getCct());
-        rightDetails.setLT(result.getBiometricData().getRightEyeData().getLt());
-        rightDetails.setWTW(result.getBiometricData().getRightEyeData().getWtw());
-    }
-
-    /**
-     * 封装眼部疾病结果
-     *
-     * @param result       原始视力筛查结果
-     * @param leftDetails  左眼数据
-     * @param rightDetails 右眼数据
-     */
-    private void packageOtherEyeDiseasesResult(VisionScreeningResult result, StudentResultDetailsDTO leftDetails, StudentResultDetailsDTO rightDetails) {
-        // 左眼--眼部疾病
-        leftDetails.setEyeDiseases(result.getOtherEyeDiseases().getLeftEyeData().getEyeDiseases());
-        // 右眼--眼部疾病
-        rightDetails.setEyeDiseases(result.getOtherEyeDiseases().getRightEyeData().getEyeDiseases());
-    }
-
-    /**
-     * 计算 等效球镜
-     *
-     * @param sph 球镜
-     * @param cyl 柱镜
-     * @return 等效球镜
-     */
-    private BigDecimal calculationSE(BigDecimal sph, BigDecimal cyl) {
-        if (Objects.isNull(sph) || Objects.isNull(cyl)) {
-            return null;
-        }
-        return sph.add(cyl.multiply(new BigDecimal("0.5")))
-                .setScale(2, RoundingMode.HALF_UP);
     }
 
     /**

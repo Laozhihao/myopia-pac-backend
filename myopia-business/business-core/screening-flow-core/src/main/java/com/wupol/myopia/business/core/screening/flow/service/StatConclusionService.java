@@ -228,5 +228,15 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
     public StatConclusion getNextScreeningStat(Integer statConclusionId, Integer studentId) {
         return baseMapper.getNextScreeningStat(statConclusionId, studentId);
     }
+
+    /**
+     * 通过resultIds获取
+     *
+     * @param resultIds 结果Id
+     * @return List<StatConclusion>
+     */
+    public List<StatConclusion> getByResultIds(List<Integer> resultIds) {
+        return baseMapper.getByResultIds(resultIds);
+    }
 }
 

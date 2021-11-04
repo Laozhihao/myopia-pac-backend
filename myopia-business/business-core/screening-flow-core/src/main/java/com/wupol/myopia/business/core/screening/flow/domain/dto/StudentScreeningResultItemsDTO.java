@@ -21,6 +21,11 @@ public class StudentScreeningResultItemsDTO {
     private List<StudentResultDetailsDTO> details;
 
     /**
+     * 筛查标题
+     */
+    private String screeningTitle;
+
+    /**
      * 筛查时间
      */
     private Date screeningDate;
@@ -44,4 +49,29 @@ public class StudentScreeningResultItemsDTO {
      * 模板Id
      */
     private Integer templateId;
+
+    /**
+     * 其他眼病
+     */
+    private List<String> otherEyeDiseases;
+
+    /**
+     * 预警级别
+     */
+    private Integer warningLevel;
+
+    /**
+     * 近视等级
+     */
+    private Integer myopiaLevel;
+
+    /**
+     * 远视等级
+     */
+    private Integer hyperopiaLevel;
+
+    /**
+     * 散光等级
+     */
+    private Integer astigmatismLevel;
 }

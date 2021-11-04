@@ -82,4 +82,6 @@ public interface StatConclusionMapper extends BaseMapper<StatConclusion> {
      * @return com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion
      **/
     StatConclusion getNextScreeningStat(@Param("statConclusionId")Integer statConclusionId, @Param("studentId")Integer studentId);
+
+    List<StatConclusion> getByResultIds(@Param("resultIds") List<Integer> resultIds);
 }
