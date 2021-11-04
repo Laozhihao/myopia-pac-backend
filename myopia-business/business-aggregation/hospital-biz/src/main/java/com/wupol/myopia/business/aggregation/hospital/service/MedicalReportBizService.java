@@ -151,19 +151,26 @@ public class MedicalReportBizService {
             MedicalRecord medicalRecord = medicalRecordService.getById(report.getMedicalRecordId());
             medicalRecordService.generateToscaImageUrls(medicalRecord); // 设置角膜地形图的图片
             responseDTO.setVision(medicalRecord.getVision());
-            responseDTO.setBiometrics(medicalRecord.getBiometrics());
-            if (Objects.nonNull(medicalRecord.getBiometrics())
-                    && Objects.nonNull(medicalRecord.getBiometrics().getNonMydriasis())
-                    && Objects.nonNull(medicalRecord.getBiometrics().getMydriasis())
-                    && (StringUtils.isEmpty(medicalRecord.getBiometrics().getNonMydriasis().getLeftACD())
-                    || StringUtils.isEmpty(medicalRecord.getBiometrics().getNonMydriasis().getRightACD()))) {
+            BiometricsMedicalRecord biometrics = medicalRecord.getBiometrics();
+            responseDTO.setBiometrics(biometrics);
 
-                medicalRecord.getBiometrics().getNonMydriasis().setLeftACD(medicalRecord.getBiometrics().getNonMydriasis().getLeftAD());
-                medicalRecord.getBiometrics().getNonMydriasis().setRightACD(medicalRecord.getBiometrics().getNonMydriasis().getRightAD());
+            // 特殊处理，优先获取ACD，没有则取AD
+            if (Objects.nonNull(biometrics)
+                    && Objects.nonNull(biometrics.getNonMydriasis())
+                    && StringUtils.isEmpty(biometrics.getNonMydriasis().getLeftACD())
+                    && StringUtils.isEmpty(biometrics.getNonMydriasis().getRightACD())) {
 
-                medicalRecord.getBiometrics().getMydriasis().setLeftACD(medicalRecord.getBiometrics().getMydriasis().getLeftAD());
-                medicalRecord.getBiometrics().getMydriasis().setRightACD(medicalRecord.getBiometrics().getMydriasis().getRightAD());
+                biometrics.getNonMydriasis().setLeftACD(biometrics.getNonMydriasis().getLeftAD());
+                biometrics.getNonMydriasis().setRightACD(biometrics.getNonMydriasis().getRightAD());
+            }
 
+            if (Objects.nonNull(biometrics)
+                    && Objects.nonNull(biometrics.getMydriasis())
+                    && StringUtils.isEmpty(biometrics.getMydriasis().getLeftACD())
+                    && StringUtils.isEmpty(biometrics.getMydriasis().getRightACD())) {
+
+                biometrics.getMydriasis().setLeftACD(biometrics.getMydriasis().getLeftAD());
+                biometrics.getMydriasis().setRightACD(biometrics.getMydriasis().getRightAD());
             }
 
             responseDTO.setDiopter(medicalRecord.getDiopter());
