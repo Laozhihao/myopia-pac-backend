@@ -44,6 +44,7 @@ public class SchoolStudentController {
 
     /**
      * 新增或更新学生
+     *
      * @param student 学生
      * @return SchoolStudent
      */
@@ -54,6 +55,7 @@ public class SchoolStudentController {
 
     /**
      * 获取筛查记录
+     *
      * @param studentId 学生Id
      * @return StudentScreeningResultResponseDTO
      */
