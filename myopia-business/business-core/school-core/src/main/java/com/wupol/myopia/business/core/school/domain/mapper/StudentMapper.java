@@ -57,4 +57,6 @@ public interface StudentMapper extends BaseMapper<Student> {
     StudentDTO getStudentInfo(@Param("studentId") Integer studentId);
 
     List<StudentDTO> getStudentInfoList(@Param("studentIds") List<Integer> studentIds);
+
+    List<Student> getDeleteStudentByIdCard(@Param("idCards") List<String> idCards);
 }

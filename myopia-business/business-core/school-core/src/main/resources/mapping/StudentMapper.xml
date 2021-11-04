@@ -288,4 +288,13 @@
             #{studentId}
         </foreach>
     </select>
+
+    <select id="getDeleteStudentByIdCard" resultMap="BaseResultMap">
+        select *
+        from m_student where status = 2
+                         and id_card in
+        <foreach collection="idCards" open="(" close=")" separator="," item="idCard">
+            #{idCard}
+        </foreach>
+    </select>
 </mapper>

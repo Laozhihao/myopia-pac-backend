@@ -383,6 +383,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
 
     /**
      * 获取学生联系人电话
+     *
      * @param studentIds
      * @return
      */
@@ -391,10 +392,10 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             return Collections.emptyMap();
         }
         List<Student> warnStudentList = getByIds(studentIds);
-        if(CollectionUtils.isEmpty(warnStudentList)) {
+        if (CollectionUtils.isEmpty(warnStudentList)) {
             return Collections.emptyMap();
         }
-         return warnStudentList.stream().collect(Collectors.toMap(Student::getId, student -> {
+        return warnStudentList.stream().collect(Collectors.toMap(Student::getId, student -> {
             List<String> phoneNumList = getPhones(student.getMpParentPhone(), student.getParentPhone());
             StudentBasicInfoDTO studentBasicInfoDTO = new StudentBasicInfoDTO();
             studentBasicInfoDTO.setStudentId(student.getId()).setStudentName(student.getName()).setPhoneNums(phoneNumList);
@@ -404,6 +405,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
 
     /**
      * 获取电话
+     *
      * @param mpParentPhonesStr
      * @param parentPhone
      * @return
@@ -413,7 +415,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             return Arrays.stream(mpParentPhonesStr.split(",")).map(String::valueOf)
                     .collect(Collectors.toList());
         }
-        return  StringUtils.isBlank(parentPhone) ? Collections.emptyList() : Collections.singletonList(parentPhone);
+        return StringUtils.isBlank(parentPhone) ? Collections.emptyList() : Collections.singletonList(parentPhone);
     }
 
     /**
@@ -434,5 +436,15 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      */
     public List<StudentDTO> getStudentInfoList(List<Integer> studentIds) {
         return baseMapper.getStudentInfoList(studentIds);
+    }
+
+    /**
+     * 通过身份证获取已经删除的学生
+     *
+     * @param idCards 身份证
+     * @return List<Student>
+     */
+    public List<Student> getDeleteStudentByIdCard(List<String> idCards) {
+        return baseMapper.getDeleteStudentByIdCard(idCards);
     }
 }
