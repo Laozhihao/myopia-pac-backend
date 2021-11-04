@@ -208,8 +208,8 @@ public class StudentBizService {
             return;
         }
         MedicalReport medicalReport = medicalReportList.stream().filter(x -> Objects.isNull(endScreeningDate) ?
-                x.getCreateTime().before(startScreeningDate) :
-                x.getCreateTime().before(startScreeningDate) && x.getCreateTime().after(endScreeningDate))
+                x.getCreateTime().after(startScreeningDate) :
+                x.getCreateTime().after(startScreeningDate) && x.getCreateTime().before(endScreeningDate))
                 .findFirst().orElse(null);
         if (Objects.nonNull(medicalReport)) {
             studentWarningArchiveVO.setIsVisited(true);
