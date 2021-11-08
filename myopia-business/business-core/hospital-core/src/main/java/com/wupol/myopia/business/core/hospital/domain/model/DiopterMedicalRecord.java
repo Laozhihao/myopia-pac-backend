@@ -1,8 +1,13 @@
 package com.wupol.myopia.business.core.hospital.domain.model;
 
+import com.wupol.framework.core.util.ObjectsUtil;
+import com.wupol.framework.core.util.StringUtils;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 /**
  * 屈光检查数据
@@ -75,6 +80,21 @@ public class DiopterMedicalRecord {
         /** 备注 */
         private String remark;
 
+        public String getComputerRightSE() {
+            if (ObjectsUtil.allNotNull(computerRightDS, computerRightDC)) {
+                return new BigDecimal(computerRightDS).add(new BigDecimal(computerRightDC).multiply(new BigDecimal("0.5")))
+                        .setScale(2, RoundingMode.HALF_UP).toString();
+            }
+            return StringUtils.EMPTY;
+        }
+
+        public String getComputerLeftSE() {
+            if (ObjectsUtil.allNotNull(computerLeftDS, computerLeftDC)) {
+                return new BigDecimal(computerLeftDS).add(new BigDecimal(computerLeftDC).multiply(new BigDecimal("0.5")))
+                        .setScale(2, RoundingMode.HALF_UP).toString();
+            }
+            return StringUtils.EMPTY;
+        }
     }
 
 }
