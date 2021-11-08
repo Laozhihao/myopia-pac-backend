@@ -27,17 +27,6 @@ public class CompareMedicalRecord extends MedicalRecord{
     /** 数据对比日期记录 */
     private List<MedicalRecordDate> compareDateList;
 
-    /** 右眼等效球镜SE */
-    private String nonMydriasisComputerRightSE;
-    /** 左眼等效球镜SE */
-    private String nonMydriasisComputerLeftSE;
-
-    /** 右眼等效球镜SE */
-    private String mydriasisComputerRightSE;
-    /** 左眼等效球镜SE */
-    private String mydriasisComputerLeftSE;
-
-
     public String getNonMydriasisComputerRightSE() {
         if (Objects.isNull(compareDiopter)) {
             return StringUtils.EMPTY;

@@ -65,16 +65,6 @@ public class StudentVisitReportResponseDTO {
      */
     private EyePressure eyePressure;
 
-    /** 右眼等效球镜SE */
-    private String nonMydriasisComputerRightSE;
-    /** 左眼等效球镜SE */
-    private String nonMydriasisComputerLeftSE;
-
-    /** 右眼等效球镜SE */
-    private String mydriasisComputerRightSE;
-    /** 左眼等效球镜SE */
-    private String mydriasisComputerLeftSE;
-
     @Getter
     @Setter
     public static class StudentInfo {
@@ -129,46 +119,5 @@ public class StudentVisitReportResponseDTO {
          * 医生签名图片
          */
         private String doctorSign;
-    }
-
-    public String getNonMydriasisComputerRightSE() {
-        if (Objects.isNull(diopter)) {
-            return StringUtils.EMPTY;
-        }
-        DiopterMedicalRecord.Diopter diopterRecord = diopter.getNonMydriasis();
-        return getSE(diopterRecord.getComputerRightDS(), diopterRecord.getComputerRightDC());
-    }
-
-    public String getNonMydriasisComputerLeftSE() {
-        if (Objects.isNull(diopter)) {
-            return StringUtils.EMPTY;
-        }
-        DiopterMedicalRecord.Diopter diopterRecord = diopter.getNonMydriasis();
-        return getSE(diopterRecord.getComputerLeftDS(), diopterRecord.getComputerLeftDC());
-    }
-
-    public String getMydriasisComputerRightSE() {
-        if (Objects.isNull(diopter)) {
-            return StringUtils.EMPTY;
-        }
-        DiopterMedicalRecord.Diopter diopterRecord = diopter.getMydriasis();
-        return getSE(diopterRecord.getComputerRightDS(), diopterRecord.getComputerRightDC());
-    }
-
-    public String getMydriasisComputerLeftSE() {
-        if (Objects.isNull(diopter)) {
-            return StringUtils.EMPTY;
-        }
-        DiopterMedicalRecord.Diopter diopterRecord = diopter.getMydriasis();
-        return getSE(diopterRecord.getComputerLeftDS(), diopterRecord.getComputerLeftDC());
-    }
-
-
-    private String getSE(String val1, String val2) {
-        if (!StringUtils.allHasLength(val1, val2)) {
-            return StringUtils.EMPTY;
-        }
-        return new BigDecimal(val1).add(new BigDecimal(val2).multiply(new BigDecimal("0.5")))
-                .setScale(2, RoundingMode.HALF_UP).toString();
     }
 }

@@ -91,7 +91,7 @@ public class MedicalRecordController {
     }
 
     @PostMapping("/biometrics")
-    public Boolean createBiometricsMedicalRecord(@RequestBody BiometricsMedicalRecord biometrics) throws IOException {
+    public Boolean createBiometricsMedicalRecord(@RequestBody BiometricsMedicalRecord biometrics) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         medicalRecordFacade.addCheckDataAndCreateStudent(null, null, biometrics,null, null, null, user.getOrgId(), -1, biometrics.getStudentId());
         return true;
@@ -118,8 +118,8 @@ public class MedicalRecordController {
 
     @PostMapping("/diopter")
     public Boolean createDiopterMedicalRecord(@RequestBody DiopterMedicalRecord diopter) {
-        CurrentUser user = CurrentUserUtil.getCurrentUser();
-        medicalRecordFacade.addCheckDataAndCreateStudent(null, null, null, diopter, null, null, user.getOrgId(), -1, diopter.getStudentId());
+//        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        medicalRecordFacade.addCheckDataAndCreateStudent(null, null, null, diopter, null, null, 22, -1, diopter.getStudentId());
         return true;
     }
 
