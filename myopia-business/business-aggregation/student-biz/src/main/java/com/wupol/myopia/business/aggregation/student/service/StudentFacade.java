@@ -19,6 +19,7 @@ import com.wupol.myopia.business.core.screening.organization.service.ScreeningOr
 import com.wupol.myopia.business.core.system.service.TemplateDistrictService;
 import org.apache.commons.collections4.ListUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
@@ -71,6 +72,9 @@ public class StudentFacade {
 
         // 获取筛查计划
         List<Integer> planIds = resultList.stream().map(VisionScreeningResult::getPlanId).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(planIds)) {
+            return responseDTO;
+        }
         List<ScreeningPlan> plans = screeningPlanService.getByIds(planIds);
         Map<Integer, String> planMap = plans.stream().collect(Collectors.toMap(ScreeningPlan::getId, ScreeningPlan::getTitle));
 

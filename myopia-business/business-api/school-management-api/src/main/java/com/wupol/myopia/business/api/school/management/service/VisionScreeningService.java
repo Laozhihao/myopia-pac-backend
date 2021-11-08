@@ -9,6 +9,7 @@ import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanServic
 import com.wupol.myopia.business.core.stat.domain.model.SchoolMonitorStatistic;
 import com.wupol.myopia.business.core.stat.service.SchoolMonitorStatisticService;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -47,6 +48,9 @@ public class VisionScreeningService {
 
         // 获取筛查计划
         List<Integer> planIds = schoolPlanList.stream().map(ScreeningListResponseDTO::getPlanId).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(planIds)) {
+            return responseDTO;
+        }
         List<ScreeningPlan> screeningPlans = screeningPlanService.getByIds(planIds);
         Map<Integer, ScreeningPlan> planMap = screeningPlans.stream().collect(Collectors.toMap(ScreeningPlan::getId, Function.identity()));
 
