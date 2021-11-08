@@ -40,6 +40,10 @@ public class DiopterMedicalRecord {
         private String computerRightAxis;
         /** 左眼轴位 */
         private String computerLeftAxis;
+        /** 右眼等效球镜SE */
+        private String computerRightSE;
+        /** 左眼等效球镜SE */
+        private String computerLeftSE;
         /** 电脑瞳距 */
         private String computerPD;
 
