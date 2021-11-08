@@ -72,7 +72,7 @@ public class VisionScreeningController {
     }
 
     /**
-     * 分页查询筛查学生信息
+     * 学生预警跟踪
      *
      * @param query 查询参数
      * @param page  分页数据
