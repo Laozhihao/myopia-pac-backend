@@ -21,5 +21,7 @@ public interface SchoolStudentMapper extends BaseMapper<SchoolStudent> {
 
     List<SchoolStudent> getByIdCardAndSno(@Param("id") Integer id, @Param("idCard") String idCard, @Param("sno") String sno);
 
+    void deletedStudent(@Param("id") Integer id);
+
 
 }

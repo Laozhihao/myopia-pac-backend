@@ -72,4 +72,10 @@
             and id != #{id}
         </if>
     </select>
+
+    <update id="deletedStudent">
+        update m_school_student
+        set status = 2
+        where id = #{id}
+    </update>
 </mapper>

@@ -9,6 +9,7 @@ import com.wupol.myopia.business.core.school.management.domain.mapper.SchoolStud
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -42,5 +43,15 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
      */
     public List<SchoolStudent> getByIdCardAndSno(Integer id, String idCard, String sno) {
         return baseMapper.getByIdCardAndSno(id, idCard, sno);
+    }
+
+    /**
+     * 删除学生
+     *
+     * @param id 学生Id
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void deletedStudent(Integer id) {
+        baseMapper.deletedStudent(id);
     }
 }

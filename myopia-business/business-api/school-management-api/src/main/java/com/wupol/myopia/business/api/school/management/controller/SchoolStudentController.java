@@ -82,5 +82,9 @@ public class SchoolStudentController {
         return schoolStudentService.getById(id);
     }
 
-
+    @DeleteMapping("{id}")
+    public Boolean deletedStudent(@PathVariable("id") Integer id) {
+        schoolStudentService.deletedStudent(id);
+        return Boolean.TRUE;
+    }
 }
