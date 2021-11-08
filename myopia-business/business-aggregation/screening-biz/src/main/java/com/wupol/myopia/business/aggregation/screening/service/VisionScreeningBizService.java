@@ -15,6 +15,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanS
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import lombok.extern.log4j.Log4j2;
@@ -22,7 +23,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
@@ -53,6 +53,8 @@ public class VisionScreeningBizService {
     private SchoolGradeService schoolGradeService;
     @Autowired
     private MedicalReportService medicalReportService;
+    @Autowired
+    private ScreeningPlanService screeningPlanService;
 
     /**
      * 保存学生眼镜信息
@@ -68,11 +70,8 @@ public class VisionScreeningBizService {
         allFirstAndSecondResult.setFirst(currentVisionScreeningResult);
         //更新vision_result表
         visionScreeningResultService.saveOrUpdateStudentScreenData(allFirstAndSecondResult.getFirst());
-        // 更新建议
-        StatConclusion screeningConclusionResult = getScreeningConclusionResult(allFirstAndSecondResult);
-        updateStatConclusion(screeningConclusionResult);
         //更新statConclusion表
-        StatConclusion statConclusion = statConclusionService.saveOrUpdateStudentScreenData(screeningConclusionResult);
+        StatConclusion statConclusion = statConclusionService.saveOrUpdateStudentScreenData(getScreeningConclusionResult(allFirstAndSecondResult));
         //更新学生表的数据
         this.updateStudentVisionData(allFirstAndSecondResult.getFirst(),statConclusion);
         //返回最近一次的statConclusion
@@ -196,11 +195,29 @@ public class VisionScreeningBizService {
         studentService.updateStudent(student);
     }
 
-    private void updateStatConclusion(StatConclusion statConclusion) {
-        Student student = studentService.getById(statConclusion.getStudentId());
-        statConclusion.setIsBindMp(StringUtils.isNotBlank(student.getMpParentPhone()));
-        setVisitInfo(statConclusion);
-        statConclusion.setSuggestDesksChairs();
+    /**
+     * 更新结论
+     *
+     * @param studentId          学生Id
+     * @param statConclusionList 统计信息
+     */
+    public void updateStatConclusion(Integer studentId, List<StatConclusion> statConclusionList) {
+        if (CollectionUtils.isEmpty(statConclusionList)) {
+            return;
+        }
+        List<MedicalReport> medicalReportList = medicalReportService.findByList(new MedicalReport().setStudentId(studentId));
+        int size = statConclusionList.size();
+        for (int i = 0; i < statConclusionList.size(); i++) {
+            StatConclusion statConclusion = statConclusionList.get(i);
+
+            Student student = studentService.getById(statConclusion.getStudentId());
+            statConclusion.setIsBindMp(StringUtils.isNotBlank(student.getMpParentPhone()));
+
+            // 就诊情况
+            setVisitInfo(statConclusion, statConclusion.getUpdateTime(), (i + 1) < size ? statConclusionList.get(i + 1).getUpdateTime() : null, medicalReportList);
+//            statConclusion.setSuggestDesksChairs();
+            statConclusionService.updateById(statConclusion);
+        }
     }
 
     /**
@@ -208,9 +225,8 @@ public class VisionScreeningBizService {
      *
      * @param statConclusion 预警跟踪档案
      **/
-    private void setVisitInfo(StatConclusion statConclusion) {
-        Date startScreeningDate = statConclusion.getUpdateTime();
-        List<MedicalReport> medicalReportList = medicalReportService.findByList(new MedicalReport().setStudentId(statConclusion.getStudentId()));
+    private void setVisitInfo(StatConclusion statConclusion, Date startScreeningDate, Date endScreeningDate, List<MedicalReport> medicalReportList) {
+
         statConclusion.setIsReview(false);
         if (CollectionUtils.isEmpty(medicalReportList)) {
             return;
