@@ -1,16 +1,12 @@
 package com.wupol.myopia.business.aggregation.hospital.domain.dto;
 
-import com.wupol.framework.core.util.StringUtils;
 import com.wupol.myopia.business.core.hospital.domain.model.*;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * 学生就诊记录详情
