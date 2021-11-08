@@ -221,7 +221,7 @@ public class SchoolVisionStatistic implements Serializable {
     private Integer myopiaLevelHigh;
 
     /**
-     * 高度近视人数
+     * 远视储备不足人数
      */
     private Integer myopiaLevelInsufficient;
 
