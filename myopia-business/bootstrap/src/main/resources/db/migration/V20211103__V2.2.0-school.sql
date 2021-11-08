@@ -37,3 +37,18 @@ create table m_school_student
     update_time         timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
 )
     comment '学校端-学生表';
+
+alter table m_stat_conclusion
+    add is_bind_mp tinyint null comment '是否绑定公众号';
+
+alter table m_stat_conclusion
+    add is_review tinyint null comment '是否复查';
+
+alter table m_stat_conclusion
+    add visit_result varchar(128) null comment '就诊结论';
+
+alter table m_stat_conclusion
+    add glasses_suggest int null comment '戴镜建议';
+
+alter table m_stat_conclusion
+    add suggest_desks_chairs varchar(512) null comment '建议课桌椅';

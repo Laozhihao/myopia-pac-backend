@@ -2,6 +2,7 @@ package com.wupol.myopia.business.aggregation.screening.service;
 
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.core.hospital.domain.model.MedicalReport;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
@@ -16,13 +17,17 @@ import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchool
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @Classname VisionScreeningBizService2
@@ -60,6 +65,8 @@ public class VisionScreeningBizService {
         allFirstAndSecondResult.setFirst(currentVisionScreeningResult);
         //更新vision_result表
         visionScreeningResultService.saveOrUpdateStudentScreenData(allFirstAndSecondResult.getFirst());
+        // 更新建议
+
         //更新statConclusion表
         StatConclusion statConclusion = statConclusionService.saveOrUpdateStudentScreenData(getScreeningConclusionResult(allFirstAndSecondResult));
         //更新学生表的数据
@@ -183,6 +190,43 @@ public class VisionScreeningBizService {
         student.setHyperopiaLevel(statConclusion.getHyperopiaLevel());
         student.setMyopiaLevel(statConclusion.getMyopiaLevel());
         studentService.updateStudent(student);
+    }
+
+    private void updateStatConclusion(StatConclusion statConclusion) {
+        Student student = studentService.getById(statConclusion.getStudentId());
+        statConclusion.setIsBindMp(StringUtils.isNotBlank(student.getMpParentPhone()));
+        setVisitInfo();
+        statConclusion.setSuggestDesksChairs();
+    }
+
+    public void set() {
+
+    }
+
+    /**
+     * 设置就诊信息
+     *
+     * @param statConclusion 预警跟踪档案
+     * @param startScreeningDate      开始筛查日期
+     * @param endScreeningDate        结束筛查日期
+     * @param medicalReportList       就诊报告列表
+     * @return void
+     **/
+    private void setVisitInfo(StatConclusion statConclusion, Date startScreeningDate, Date endScreeningDate, List<MedicalReport> medicalReportList) {
+        Assert.notNull(startScreeningDate, "开始筛查日期不能为空");
+        statConclusion.setIsReview(false);
+        if (CollectionUtils.isEmpty(medicalReportList)) {
+            return;
+        }
+        MedicalReport medicalReport = medicalReportList.stream().filter(x -> Objects.isNull(endScreeningDate) ?
+                        x.getCreateTime().before(startScreeningDate) :
+                        x.getCreateTime().before(startScreeningDate) && x.getCreateTime().after(endScreeningDate))
+                .findFirst().orElse(null);
+        if (Objects.nonNull(medicalReport)) {
+            statConclusion.setIsReview(true);
+            statConclusion.setVisitResult(medicalReport.getMedicalContent());
+            statConclusion.setGlassesSuggest(medicalReport.getGlassesSituation());
+        }
     }
 
 }

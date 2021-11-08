@@ -103,6 +103,31 @@ public class StatConclusion implements Serializable {
      */
     private Integer astigmatismLevel;
 
+    /**
+     * 是否绑定公众号
+     */
+    private Boolean isBindMp;
+
+    /**
+     * 是否复查
+     */
+    private Boolean isReview;
+
+    /**
+     * 就诊结论
+     */
+    private String visitResult;
+
+    /**
+     * 戴镜建议
+     */
+    private Integer glassesSuggest;
+
+    /**
+     * 建议课桌椅
+     */
+    private String suggestDesksChairs;
+
     /** 创建时间 */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
