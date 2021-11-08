@@ -82,6 +82,12 @@ public class SchoolStudentController {
         return schoolStudentService.getById(id);
     }
 
+    /**
+     * 删除学生
+     *
+     * @param id 学生Id
+     * @return 是否成功
+     */
     @DeleteMapping("{id}")
     public Boolean deletedStudent(@PathVariable("id") Integer id) {
         schoolStudentService.deletedStudent(id);
