@@ -78,7 +78,7 @@ public class VisionScreeningController {
      * @param page  分页数据
      * @return IPage<StudentDTO>
      */
-    @GetMapping("students/page")
+    @GetMapping("planStudents/list")
     public IPage<ScreeningStudentDTO> queryStudentInfos(PageRequest page, ScreeningStudentQueryDTO query) {
         return screeningPlanSchoolStudentFacadeService.getPage(query, page);
     }
