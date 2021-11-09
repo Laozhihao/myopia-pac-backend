@@ -28,7 +28,7 @@ public class StudentWarningArchive {
 
     /** 学号 */
     @ExcelProperty({TOP_HEADER, "学号"})
-    private String schoolNo;
+    private String sno;
 
     /** 姓名 */
     @ExcelProperty({TOP_HEADER, "姓名"})
