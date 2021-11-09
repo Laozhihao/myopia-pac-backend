@@ -347,7 +347,9 @@ public class StudentBizService {
         leftDetails.setSe(calculationSE(leftSph, leftCyl));
         leftDetails.setCyl(leftCyl);
         leftDetails.setSph(leftSph);
-        leftDetails.setIsHyperopia(StatUtil.isHyperopia(leftSph.floatValue(), leftCyl.floatValue(), age));
+        if (Objects.nonNull(leftSph) && Objects.nonNull(leftCyl)) {
+            leftDetails.setIsHyperopia(StatUtil.isHyperopia(leftSph.floatValue(), leftCyl.floatValue(), age));
+        }
 
         // 左眼--电脑验光
         rightDetails.setAxial(result.getComputerOptometry().getRightEyeData().getAxial());
@@ -356,7 +358,9 @@ public class StudentBizService {
         rightDetails.setSe(calculationSE(rightSph, rightCyl));
         rightDetails.setCyl(rightCyl);
         rightDetails.setSph(rightSph);
-        rightDetails.setIsHyperopia(StatUtil.isHyperopia(rightSph.floatValue(), rightCyl.floatValue(), age));
+        if (Objects.nonNull(rightSph) && Objects.nonNull(rightCyl)) {
+            rightDetails.setIsHyperopia(StatUtil.isHyperopia(rightSph.floatValue(), rightCyl.floatValue(), age));
+        }
     }
 
     /**
