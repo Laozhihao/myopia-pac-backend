@@ -58,6 +58,9 @@ public class StatUtil {
      * @return
      */
     public static boolean isHyperopia(Float sphere, Float cylinder, Integer age) {
+        if (Objects.isNull(age)) {
+            return false;
+        }
         float se = getSphericalEquivalent(sphere, cylinder);
 
         if (age < 4 && se > 3) {

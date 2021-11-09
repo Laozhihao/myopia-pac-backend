@@ -84,4 +84,9 @@ public class StudentResultDetailsDTO {
      * 眼部疾病
      */
     private List<String> eyeDiseases;
+
+    /**
+     * 是否远视
+     */
+    private Boolean isHyperopia;
 }

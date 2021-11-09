@@ -252,13 +252,14 @@ public class StudentBizService {
     public StudentScreeningResultResponseDTO getScreeningList(Integer studentId) {
         StudentScreeningResultResponseDTO responseDTO = new StudentScreeningResultResponseDTO();
         List<StudentScreeningResultItemsDTO> items = new ArrayList<>();
+        int age = DateUtil.ageOfNow(studentService.getById(studentId).getBirthday());
 
         // 通过学生id查询结果
         List<VisionScreeningResult> resultList = visionScreeningResultService.getByStudentId(studentId);
 
         for (VisionScreeningResult result : resultList) {
             StudentScreeningResultItemsDTO item = new StudentScreeningResultItemsDTO();
-            List<StudentResultDetailsDTO> resultDetail = packageDTO(result);
+            List<StudentResultDetailsDTO> resultDetail = packageDTO(result, age);
             item.setDetails(resultDetail);
             item.setScreeningDate(result.getUpdateTime());
             // 佩戴眼镜的类型随便取一个都行，两只眼睛的数据是一样的
@@ -279,9 +280,10 @@ public class StudentBizService {
      * 封装结果
      *
      * @param result 结果表
+     * @param age    年龄
      * @return 详情列表
      */
-    private List<StudentResultDetailsDTO> packageDTO(VisionScreeningResult result) {
+    private List<StudentResultDetailsDTO> packageDTO(VisionScreeningResult result, Integer age) {
 
         // 设置左眼
         StudentResultDetailsDTO leftDetails = new StudentResultDetailsDTO();
@@ -296,7 +298,7 @@ public class StudentBizService {
         }
         if (null != result.getComputerOptometry()) {
             // 电脑验光
-            packageComputerOptometryResult(result, leftDetails, rightDetails);
+            packageComputerOptometryResult(result, age, leftDetails, rightDetails);
         }
         if (null != result.getBiometricData()) {
             // 生物测量
@@ -332,23 +334,29 @@ public class StudentBizService {
      * 封装电脑验光
      *
      * @param result       原始视力筛查结果
+     * @param age          年龄
      * @param leftDetails  左眼数据
      * @param rightDetails 右眼数据
      */
-    private void packageComputerOptometryResult(VisionScreeningResult result, StudentResultDetailsDTO leftDetails, StudentResultDetailsDTO rightDetails) {
+    private void packageComputerOptometryResult(VisionScreeningResult result, Integer age,
+                                                StudentResultDetailsDTO leftDetails, StudentResultDetailsDTO rightDetails) {
         // 左眼--电脑验光
         leftDetails.setAxial(result.getComputerOptometry().getLeftEyeData().getAxial());
-        leftDetails.setSe(calculationSE(result.getComputerOptometry().getLeftEyeData().getSph(),
-                result.getComputerOptometry().getLeftEyeData().getCyl()));
-        leftDetails.setCyl(result.getComputerOptometry().getLeftEyeData().getCyl());
-        leftDetails.setSph(result.getComputerOptometry().getLeftEyeData().getSph());
+        BigDecimal leftSph = result.getComputerOptometry().getLeftEyeData().getSph();
+        BigDecimal leftCyl = result.getComputerOptometry().getLeftEyeData().getCyl();
+        leftDetails.setSe(calculationSE(leftSph, leftCyl));
+        leftDetails.setCyl(leftCyl);
+        leftDetails.setSph(leftSph);
+        leftDetails.setIsHyperopia(StatUtil.isHyperopia(leftSph.floatValue(), leftCyl.floatValue(), age));
 
         // 左眼--电脑验光
         rightDetails.setAxial(result.getComputerOptometry().getRightEyeData().getAxial());
-        rightDetails.setSe(calculationSE(result.getComputerOptometry().getRightEyeData().getSph(),
-                result.getComputerOptometry().getRightEyeData().getCyl()));
-        rightDetails.setCyl(result.getComputerOptometry().getRightEyeData().getCyl());
-        rightDetails.setSph(result.getComputerOptometry().getRightEyeData().getSph());
+        BigDecimal rightSph = result.getComputerOptometry().getRightEyeData().getSph();
+        BigDecimal rightCyl = result.getComputerOptometry().getRightEyeData().getCyl();
+        rightDetails.setSe(calculationSE(rightSph, rightCyl));
+        rightDetails.setCyl(rightCyl);
+        rightDetails.setSph(rightSph);
+        rightDetails.setIsHyperopia(StatUtil.isHyperopia(rightSph.floatValue(), rightCyl.floatValue(), age));
     }
 
     /**
