@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.api.device.service;
 
-import com.alibaba.fastjson.JSONObject;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -139,7 +138,7 @@ public class DeviceUploadDataService {
 
         computerOptometryDTO.setDeptId(screeningPlanSchoolStudent.getScreeningOrgId());
         computerOptometryDTO.setCreateUserId(DEVICE_UPLOAD_DEFAULT_USER_ID);
-        computerOptometryDTO.setStudentId(String.valueOf(screeningPlanSchoolStudent.getStudentId()));
+        computerOptometryDTO.setPlanStudentId(String.valueOf(screeningPlanSchoolStudent.getId()));
         computerOptometryDTO.setSchoolId(String.valueOf(screeningPlanSchoolStudent.getSchoolId()));
         return computerOptometryDTO;
     }
