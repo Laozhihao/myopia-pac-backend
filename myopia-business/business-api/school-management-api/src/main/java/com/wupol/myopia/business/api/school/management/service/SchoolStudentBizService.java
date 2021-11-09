@@ -106,6 +106,7 @@ public class SchoolStudentBizService {
 
         School school = schoolService.getById(schoolId);
         schoolStudent.setSchoolNo(school.getSchoolNo());
+        schoolStudent.setSchoolId(schoolId);
 
         if (!checkIdCardAndSno(schoolStudent.getId(), schoolStudent.getIdCard(), schoolStudent.getSno(), schoolId)) {
             throw new BusinessException("学号、身份证是重复");
