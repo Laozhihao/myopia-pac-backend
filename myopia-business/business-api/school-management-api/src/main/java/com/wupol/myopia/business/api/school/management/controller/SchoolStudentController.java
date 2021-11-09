@@ -1,7 +1,9 @@
 package com.wupol.myopia.business.api.school.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
 import com.wupol.myopia.business.api.school.management.service.SchoolStudentBizService;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
@@ -13,7 +15,6 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreening
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import javax.validation.Valid;
 
 /**
  * 学校端学生
@@ -44,8 +45,10 @@ public class SchoolStudentController {
      * @return IPage<SchoolStudentListResponseDTO>
      */
     @GetMapping
-    public IPage<SchoolStudentListResponseDTO> getList(PageRequest pageRequest, @Valid SchoolStudentRequestDTO requestDTO) {
-        return schoolStudentBizService.getList(pageRequest, requestDTO);
+    public IPage<SchoolStudentListResponseDTO> getList(PageRequest pageRequest, SchoolStudentRequestDTO requestDTO) {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        Integer schoolId = currentUser.getOrgId();
+        return schoolStudentBizService.getList(pageRequest, requestDTO, schoolId);
     }
 
     /**
@@ -56,7 +59,10 @@ public class SchoolStudentController {
      */
     @PostMapping
     public SchoolStudent save(@RequestBody SchoolStudent student) {
-        return schoolStudentBizService.saveStudent(student);
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        Integer schoolId = currentUser.getOrgId();
+        student.setCreateUserId(currentUser.getId());
+        return schoolStudentBizService.saveStudent(student, schoolId);
     }
 
     /**

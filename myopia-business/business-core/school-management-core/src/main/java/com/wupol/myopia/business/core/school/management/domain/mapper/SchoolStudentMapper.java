@@ -17,7 +17,7 @@ import java.util.List;
  */
 public interface SchoolStudentMapper extends BaseMapper<SchoolStudent> {
 
-    IPage<SchoolStudentListResponseDTO> getList(@Param("page") Page<?> page, @Param("requestDTO") SchoolStudentRequestDTO requestDTO);
+    IPage<SchoolStudentListResponseDTO> getList(@Param("page") Page<?> page, @Param("requestDTO") SchoolStudentRequestDTO requestDTO, @Param("schoolId") Integer schoolId);
 
     List<SchoolStudent> getByIdCardAndSno(@Param("id") Integer id, @Param("idCard") String idCard, @Param("sno") String sno);
 

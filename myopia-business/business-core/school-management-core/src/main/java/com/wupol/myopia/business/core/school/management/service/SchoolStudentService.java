@@ -27,10 +27,11 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
      *
      * @param pageRequest 分页请求
      * @param requestDTO  入参
+     * @param schoolId    学校Id
      * @return IPage<SchoolStudentListResponseDTO>
      */
-    public IPage<SchoolStudentListResponseDTO> getList(PageRequest pageRequest, SchoolStudentRequestDTO requestDTO) {
-        return baseMapper.getList(pageRequest.toPage(), requestDTO);
+    public IPage<SchoolStudentListResponseDTO> getList(PageRequest pageRequest, SchoolStudentRequestDTO requestDTO, Integer schoolId) {
+        return baseMapper.getList(pageRequest.toPage(), requestDTO, schoolId);
     }
 
     /**

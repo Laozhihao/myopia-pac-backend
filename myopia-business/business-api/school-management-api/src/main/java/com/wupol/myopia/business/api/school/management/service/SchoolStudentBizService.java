@@ -5,6 +5,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
+import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentListResponseDTO;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentRequestDTO;
@@ -12,6 +13,7 @@ import com.wupol.myopia.business.core.school.management.domain.model.SchoolStude
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
+import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
@@ -52,16 +54,20 @@ public class SchoolStudentBizService {
     @Resource
     private SchoolClassService schoolClassService;
 
+    @Resource
+    private SchoolService schoolService;
+
     /**
      * 获取学生列表
      *
      * @param pageRequest 分页请求
      * @param requestDTO  请求入参
+     * @param schoolId    学校Id
      * @return IPage<SchoolStudentListResponseDTO>
      */
-    public IPage<SchoolStudentListResponseDTO> getList(PageRequest pageRequest, SchoolStudentRequestDTO requestDTO) {
+    public IPage<SchoolStudentListResponseDTO> getList(PageRequest pageRequest, SchoolStudentRequestDTO requestDTO, Integer schoolId) {
 
-        IPage<SchoolStudentListResponseDTO> responseDTO = schoolStudentService.getList(pageRequest, requestDTO);
+        IPage<SchoolStudentListResponseDTO> responseDTO = schoolStudentService.getList(pageRequest, requestDTO, schoolId);
         List<SchoolStudentListResponseDTO> studentList = responseDTO.getRecords();
 
         // 学生Ids
@@ -92,14 +98,14 @@ public class SchoolStudentBizService {
      * 保存学生
      *
      * @param schoolStudent 学生
+     * @param schoolId      学校Id
      * @return SchoolStudent
      */
     @Transactional(rollbackFor = Exception.class)
-    public SchoolStudent saveStudent(SchoolStudent schoolStudent) {
+    public SchoolStudent saveStudent(SchoolStudent schoolStudent, Integer schoolId) {
 
-        if (Objects.isNull(schoolStudent.getSchoolId())) {
-            throw new BusinessException("学校Id为空");
-        }
+        School school = schoolService.getById(schoolId);
+        schoolStudent.setSchoolNo(school.getSchoolNo());
 
         if (!checkIdCardAndSno(schoolStudent.getId(), schoolStudent.getIdCard(), schoolStudent.getSno())) {
             throw new BusinessException("学号、身份证是重复");
