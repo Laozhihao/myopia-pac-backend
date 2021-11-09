@@ -19,7 +19,7 @@ public interface SchoolStudentMapper extends BaseMapper<SchoolStudent> {
 
     IPage<SchoolStudentListResponseDTO> getList(@Param("page") Page<?> page, @Param("requestDTO") SchoolStudentRequestDTO requestDTO, @Param("schoolId") Integer schoolId);
 
-    List<SchoolStudent> getByIdCardAndSno(@Param("id") Integer id, @Param("idCard") String idCard, @Param("sno") String sno);
+    List<SchoolStudent> getByIdCardAndSno(@Param("id") Integer id, @Param("idCard") String idCard, @Param("sno") String sno, @Param("schoolId") Integer schoolId);
 
     void deletedStudent(@Param("id") Integer id);
 

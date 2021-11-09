@@ -107,7 +107,7 @@ public class SchoolStudentBizService {
         School school = schoolService.getById(schoolId);
         schoolStudent.setSchoolNo(school.getSchoolNo());
 
-        if (!checkIdCardAndSno(schoolStudent.getId(), schoolStudent.getIdCard(), schoolStudent.getSno())) {
+        if (!checkIdCardAndSno(schoolStudent.getId(), schoolStudent.getIdCard(), schoolStudent.getSno(), schoolId)) {
             throw new BusinessException("学号、身份证是重复");
         }
 
@@ -162,13 +162,14 @@ public class SchoolStudentBizService {
     /**
      * 学号、身份证是否重复
      *
-     * @param id     id
-     * @param idCard 身份证
-     * @param sno    学号
+     * @param id       id
+     * @param idCard   身份证
+     * @param sno      学号
+     * @param schoolId 学校Id
      * @return true-没有重复 false-存在重复
      */
-    private Boolean checkIdCardAndSno(Integer id, String idCard, String sno) {
-        List<SchoolStudent> studentList = schoolStudentService.getByIdCardAndSno(id, idCard, sno);
+    private Boolean checkIdCardAndSno(Integer id, String idCard, String sno, Integer schoolId) {
+        List<SchoolStudent> studentList = schoolStudentService.getByIdCardAndSno(id, idCard, sno, schoolId);
         return CollectionUtils.isEmpty(studentList);
     }
 }

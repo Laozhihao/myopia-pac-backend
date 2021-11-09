@@ -68,6 +68,7 @@
         select *
         from m_school_student where (id_card = #{idCard}
                 or sno = #{sno})
+                                and school_id = #{schoolId}
         <if test="id != null">
             and id != #{id}
         </if>
