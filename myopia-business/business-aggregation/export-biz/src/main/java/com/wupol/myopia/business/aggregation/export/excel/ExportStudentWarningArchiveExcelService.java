@@ -17,6 +17,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
+import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,7 +76,7 @@ public class ExportStudentWarningArchiveExcelService extends BaseExportExcelFile
                     .setVisionWarning(WarningLevel.getDesc(statConclusionExport.getWarningLevel()))
                     // 系统暂时没有身高数据，写死null
                     .setDeskAndChairTypeSuggest(getDeskAndChairTypeSuggest(null, statConclusionExport.getSchoolAge()))
-                    .setSeatDistanceSuggest(Boolean.TRUE.equals(statConclusionExport.getIsMyopia()) ? SEAT_DISTANCE_SUGGEST : StringUtils.EMPTY);
+                    .setSeatDistanceSuggest(StatUtil.isMyopia(statConclusionExport.getMyopiaLevel()) ? SEAT_DISTANCE_SUGGEST : StringUtils.EMPTY);
             // 设置就诊信息
             setVisitInfo(studentWarningArchive, statConclusionExport.getStudentId(), statConclusionExport.getId(), statConclusionExport.getCreateTime());
             return studentWarningArchive;
