@@ -1355,8 +1355,58 @@ public class StudentBizService {
      */
     private void setMyopiaAndFarsightedness(VisionScreeningResult visionScreeningResult, Integer age, HaiNanCardDetail cardDetail) {
         ComputerOptometryDO computerOptometry = visionScreeningResult.getComputerOptometry();
+        PupilOptometryDataDO pupilOptometryData = visionScreeningResult.getPupilOptometryData();
         VisionDataDO visionData = visionScreeningResult.getVisionData();
 
+        if (Objects.nonNull(pupilOptometryData)) {
+            setPupilOptometryMyopiaAndFarsightedness(visionData, cardDetail, pupilOptometryData, age);
+        } else {
+            setComputerOptometryMyopiaAndFarsightedness(visionData, cardDetail, computerOptometry, age);
+        }
+    }
+
+    /**
+     * 设置是否近视、远视
+     *
+     * @param visionData           视力筛查结果
+     * @param cardDetail           档案卡
+     * @param pupilOptometryDataDO 小瞳验光数据
+     * @param age                  年龄
+     */
+    private void setPupilOptometryMyopiaAndFarsightedness(VisionDataDO visionData, HaiNanCardDetail cardDetail,
+                                                          PupilOptometryDataDO pupilOptometryDataDO, Integer age) {
+        if (ObjectsUtil.hasNull(pupilOptometryDataDO, visionData)
+                || !pupilOptometryDataDO.judgeValidData()
+                || !visionData.validNakedVision()) {
+            return;
+        }
+        BigDecimal leftSph = pupilOptometryDataDO.getLeftEyeData().getSph();
+        BigDecimal rightSph = pupilOptometryDataDO.getRightEyeData().getSph();
+        BigDecimal leftCyl = pupilOptometryDataDO.getLeftEyeData().getCyl();
+        BigDecimal rightCyl = pupilOptometryDataDO.getRightEyeData().getCyl();
+
+        BigDecimal leftNakedVision = visionData.getLeftEyeData().getNakedVision();
+        BigDecimal rightNakedVision = visionData.getRightEyeData().getNakedVision();
+        // 是否近视
+        cardDetail.setIsMyopia(StatUtil.isMyopia(leftSph.floatValue(), leftCyl.floatValue(), age, leftNakedVision.floatValue())
+                || StatUtil.isMyopia(rightSph.floatValue(), rightCyl.floatValue(), age, rightNakedVision.floatValue()));
+
+        // 是否远视
+        cardDetail.setIsHyperopia(StatUtil.isHyperopia(leftSph.floatValue(), leftCyl.floatValue(), age)
+                || StatUtil.isHyperopia(rightSph.floatValue(), rightCyl.floatValue(), age));
+
+    }
+
+    /**
+     * 设置是否近视、远视
+     *
+     * @param visionData        视力筛查结果
+     * @param cardDetail        档案卡
+     * @param computerOptometry 电脑验光数据
+     * @param age               年龄
+     */
+    private void setComputerOptometryMyopiaAndFarsightedness(VisionDataDO visionData, HaiNanCardDetail cardDetail,
+                                                             ComputerOptometryDO computerOptometry, Integer age) {
         if (ObjectsUtil.hasNull(computerOptometry, visionData)
                 || !computerOptometry.valid()
                 || !visionData.validNakedVision()) {
@@ -1376,7 +1426,6 @@ public class StudentBizService {
         // 是否远视
         cardDetail.setIsHyperopia(StatUtil.isHyperopia(leftSph.floatValue(), leftCyl.floatValue(), age)
                 || StatUtil.isHyperopia(rightSph.floatValue(), rightCyl.floatValue(), age));
-
     }
 
 }
