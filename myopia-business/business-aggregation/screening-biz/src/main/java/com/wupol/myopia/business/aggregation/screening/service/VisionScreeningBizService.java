@@ -214,7 +214,7 @@ public class VisionScreeningBizService {
             statConclusion.setIsBindMp(StringUtils.isNotBlank(student.getMpParentPhone()));
 
             // 就诊情况
-            setVisitInfo(statConclusion, statConclusion.getUpdateTime(), (i + 1) < size ? statConclusionList.get(i + 1).getUpdateTime() : null, medicalReportList);
+            setVisitInfo(statConclusion, statConclusion.getCreateTime(), (i + 1) < size ? statConclusionList.get(i + 1).getCreateTime() : null, medicalReportList);
 //            statConclusion.setSuggestDesksChairs();
             statConclusionService.updateById(statConclusion);
         }
@@ -239,6 +239,7 @@ public class VisionScreeningBizService {
             statConclusion.setIsReview(true);
             statConclusion.setVisitResult(medicalReport.getMedicalContent());
             statConclusion.setGlassesSuggest(medicalReport.getGlassesSituation());
+            statConclusion.setReportId(medicalReport.getId());
         }
     }
 

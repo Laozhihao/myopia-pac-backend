@@ -2,19 +2,26 @@ package com.wupol.myopia.business.api.school.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.screening.domain.vos.SchoolGradeVO;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanSchoolStudentFacadeService;
+import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
 import com.wupol.myopia.business.api.school.management.service.VisionScreeningService;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningListResponseDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentQueryDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
+import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.stat.domain.model.SchoolVisionStatistic;
 import com.wupol.myopia.business.core.stat.service.SchoolVisionStatisticService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 视力筛查
@@ -35,6 +42,12 @@ public class VisionScreeningController {
 
     @Resource
     private ScreeningPlanSchoolStudentFacadeService screeningPlanSchoolStudentFacadeService;
+
+    @Resource
+    private VisionScreeningBizService visionScreeningBizService;
+
+    @Resource
+    private StatConclusionService statConclusionService;
 
     /**
      * 获取学校计划
@@ -81,5 +94,19 @@ public class VisionScreeningController {
     @GetMapping("planStudents/list")
     public IPage<ScreeningStudentDTO> queryStudentInfos(PageRequest page, ScreeningStudentQueryDTO query) {
         return screeningPlanSchoolStudentFacadeService.getPage(query, page);
+    }
+
+    /**
+     * 触发全部
+     */
+    @GetMapping("run")
+    public void run() {
+        Date yesterdayStartTime = DateUtil.getYesterdayStartTime();
+        Date yesterdayEndTime = DateUtil.getYesterdayEndTime();
+        List<StatConclusion> list = statConclusionService.getByDate(yesterdayStartTime, yesterdayEndTime);
+        Map<Integer, List<StatConclusion>> collect = list.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolId));
+        for (Map.Entry<Integer, List<StatConclusion>> entry : collect.entrySet()) {
+            visionScreeningBizService.updateStatConclusion(entry.getKey(), entry.getValue());
+        }
     }
 }

@@ -238,5 +238,16 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
     public List<StatConclusion> getByResultIds(List<Integer> resultIds) {
         return baseMapper.getByResultIds(resultIds);
     }
+
+    /**
+     * 获取指定时间的数据
+     *
+     * @param start 开始
+     * @param end   结束
+     * @return List<StatConclusion>
+     */
+    public List<StatConclusion> getByDate(Date start, Date end) {
+        return baseMapper.getByDate(start, end);
+    }
 }
 

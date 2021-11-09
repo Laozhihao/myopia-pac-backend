@@ -52,3 +52,6 @@ alter table m_stat_conclusion
 
 alter table m_stat_conclusion
     add suggest_desks_chairs varchar(512) null comment '建议课桌椅';
+
+alter table m_stat_conclusion
+    add report_id int null comment '报告Id';

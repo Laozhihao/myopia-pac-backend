@@ -3,6 +3,7 @@ package com.wupol.myopia.business.api.management.schedule;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.CompareUtil;
 import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
 import com.wupol.myopia.business.api.management.domain.builder.*;
 import com.wupol.myopia.business.api.management.service.SchoolBizService;
 import com.wupol.myopia.business.api.management.service.StatService;
@@ -76,7 +77,7 @@ public class ScheduledTasksExecutor {
     @Autowired
     private StatService statService;
     @Autowired
-    private StatRescreenService statRescreenService;
+    private VisionScreeningBizService visionScreeningBizService;
 
     /**
      * 筛查数据统计
@@ -340,6 +341,21 @@ public class ScheduledTasksExecutor {
         log.info("开始进行复测报告统计");
         int size = statService.rescreenStat(DateUtils.addDays(DateUtil.getMidday(new Date()), -1));
         log.info("本次复测统计共新增加内容{}条", size);
+    }
+
+    /**
+     * 每天凌晨0点15分执行，结论
+     */
+    @Scheduled(cron = "0 15 0 * * ?")
+    @Transactional(rollbackFor = Exception.class)
+    public void statConclusion() {
+        Date yesterdayStartTime = DateUtil.getYesterdayStartTime();
+        Date yesterdayEndTime = DateUtil.getYesterdayEndTime();
+        List<StatConclusion> list = statConclusionService.getByDate(yesterdayStartTime, yesterdayEndTime);
+        Map<Integer, List<StatConclusion>> collect = list.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolId));
+        for (Map.Entry<Integer, List<StatConclusion>> entry : collect.entrySet()) {
+            visionScreeningBizService.updateStatConclusion(entry.getKey(), entry.getValue());
+        }
     }
 
 }
