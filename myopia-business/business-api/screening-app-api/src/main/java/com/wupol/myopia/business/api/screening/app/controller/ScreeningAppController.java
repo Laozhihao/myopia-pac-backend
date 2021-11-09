@@ -154,10 +154,10 @@ public class ScreeningAppController {
      * @return
      */
     @GetMapping("/school/findAllStudentName")
-    public Page<StudentVO> findAllStudentName(Integer schoolId, Integer gradeId, Integer classId,
+    public Page<StudentVO> findAllStudentName(Integer schoolId, Integer gradeId, Integer classId, String nameLike,
                                               @RequestParam(value = "current", defaultValue = "1") Integer page,
                                               @RequestParam(value = "size", defaultValue = "60") Integer size) {
-        ScreeningStudentQueryDTO screeningStudentQuery = new ScreeningStudentQueryDTO().setScreeningOrgId(CurrentUserUtil.getCurrentUser().getOrgId());
+        ScreeningStudentQueryDTO screeningStudentQuery = new ScreeningStudentQueryDTO().setScreeningOrgId(CurrentUserUtil.getCurrentUser().getOrgId()).setNameLike(nameLike);
         if (Objects.nonNull(schoolId) && schoolId != -1) {
             screeningStudentQuery.setSchoolId(schoolId);
         }
