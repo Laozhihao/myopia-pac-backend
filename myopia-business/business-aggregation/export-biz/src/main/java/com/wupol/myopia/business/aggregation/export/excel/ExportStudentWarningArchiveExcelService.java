@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 public class ExportStudentWarningArchiveExcelService extends BaseExportExcelFileService {
 
     private static final String DESK_AND_CHAIR_TYPE_SUGGEST = "%scm。课桌：%s，建议桌面高：%d。课椅：%s，建议座面高：%d。";
-    private static final String SEAT_DISTANCE_SUGGEST = "与黑板相距";
+    private static final String SEAT_DISTANCE_SUGGEST = "与黑板相距5-6米";
     private static final String EMPTY_DATA = "--";
 
     @Autowired
