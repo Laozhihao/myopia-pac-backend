@@ -466,11 +466,9 @@ public class ScreeningPlanController {
                 }
                 student.setQrCodeUrl(QrCodeUtil.generateAsBase64(content, config, "jpg"));
             });
-            // 3. 过滤导出虚拟二维码中，screeningCode为空的数据
-            List<ScreeningStudentDTO> resultList = students.stream().filter(s -> Objects.nonNull(s.getScreeningCode()) && CommonConst.EXPORT_SCREENING_QRCODE.equals(type)).collect(Collectors.toList());
-            // 4. 处理pdf报告参数
+            // 3. 处理pdf报告参数
             Map<String, Object> models = new HashMap<>(16);
-            models.put("students", resultList);
+            models.put("students", students);
             models.put("classDisplay", classDisplay);
             models.put("schoolName", schoolName);
             // 4. 生成并上传覆盖pdf。S3上路径：myopia/pdf/{date}/{file}。获取地址1天失效
