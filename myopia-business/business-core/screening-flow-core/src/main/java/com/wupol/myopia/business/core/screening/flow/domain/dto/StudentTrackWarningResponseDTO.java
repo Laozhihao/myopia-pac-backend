@@ -28,21 +28,25 @@ public class StudentTrackWarningResponseDTO {
 
     /**
      * 近视预警等级
+     * {@link com.wupol.myopia.business.common.utils.constant.MyopiaLevelEnum}
      */
     private Integer myopiaLevel;
 
     /**
      * 远视预警等级
+     * {@link com.wupol.myopia.business.common.utils.constant.HyperopiaLevelEnum}
      */
     private Integer hyperopiaLevel;
 
     /**
      * 散光预警等级
+     * {@link com.wupol.myopia.business.common.utils.constant.AstigmatismLevelEnum}
      */
     private Integer astigmatismLevel;
 
     /**
-     * 预警基本
+     * 预警等级
+     * {@link com.wupol.myopia.business.common.utils.constant.WarningLevel}
      */
     private Integer warningLevel;
 
