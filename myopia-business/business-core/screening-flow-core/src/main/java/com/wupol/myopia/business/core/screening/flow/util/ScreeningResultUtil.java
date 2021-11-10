@@ -739,16 +739,17 @@ public class ScreeningResultUtil {
      * @return Integer {@link ParentReportConst}
      */
     public static Integer hyperopiaLevelLevel2Type(HyperopiaLevelEnum hyperopiaLevelEnum, BigDecimal se) {
+
+        if (BigDecimalUtil.isBetweenAll(se, "0", "0.75")) {
+            return ParentReportConst.LABEL_EARLY;
+        }
+
         if (null == hyperopiaLevelEnum) {
             return null;
         }
         // 预警-1或0则是正常
         if (hyperopiaLevelEnum.code.equals(HyperopiaLevelEnum.ZERO.code)) {
             return ParentReportConst.LABEL_NORMAL;
-        }
-
-        if (BigDecimalUtil.isBetweenAll(se, "0", "0.75")) {
-            return ParentReportConst.LABEL_EARLY;
         }
 
         if (hyperopiaLevelEnum.code.equals(HyperopiaLevelEnum.HYPEROPIA_LEVEL_LIGHT.code)) {
