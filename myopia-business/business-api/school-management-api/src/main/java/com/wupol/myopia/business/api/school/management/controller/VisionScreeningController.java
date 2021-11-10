@@ -1,7 +1,9 @@
 package com.wupol.myopia.business.api.school.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.screening.domain.vos.SchoolGradeVO;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanSchoolStudentFacadeService;
@@ -53,12 +55,12 @@ public class VisionScreeningController {
      * 获取学校计划
      *
      * @param pageRequest 分页请求
-     * @param schoolId    学校Id
      * @return IPage<ScreeningListResponseDTO>
      */
     @GetMapping("list")
-    public IPage<ScreeningListResponseDTO> getList(PageRequest pageRequest, Integer schoolId) {
-        return visionScreeningService.getList(pageRequest, schoolId);
+    public IPage<ScreeningListResponseDTO> getList(PageRequest pageRequest) {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        return visionScreeningService.getList(pageRequest, currentUser.getOrgId());
     }
 
     /**
@@ -76,12 +78,12 @@ public class VisionScreeningController {
      * 获取计划学校的年级情况
      *
      * @param screeningPlanId 计划ID
-     * @param schoolId        学校ID
      * @return List<SchoolGradeVo>
      */
-    @GetMapping("grades/{screeningPlanId}/{schoolId}")
-    public List<SchoolGradeVO> queryGradesInfo(@PathVariable Integer screeningPlanId, @PathVariable Integer schoolId) {
-        return screeningPlanSchoolStudentFacadeService.getSchoolGradeVoByPlanIdAndSchoolId(screeningPlanId, schoolId);
+    @GetMapping("grades/{screeningPlanId}")
+    public List<SchoolGradeVO> queryGradesInfo(@PathVariable Integer screeningPlanId) {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        return screeningPlanSchoolStudentFacadeService.getSchoolGradeVoByPlanIdAndSchoolId(screeningPlanId, currentUser.getOrgId());
     }
 
     /**
