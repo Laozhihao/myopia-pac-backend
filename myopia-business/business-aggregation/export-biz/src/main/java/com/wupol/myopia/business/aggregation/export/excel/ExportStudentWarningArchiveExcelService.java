@@ -17,6 +17,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
+import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +40,7 @@ import java.util.stream.Collectors;
 public class ExportStudentWarningArchiveExcelService extends BaseExportExcelFileService {
 
     private static final String DESK_AND_CHAIR_TYPE_SUGGEST = "%scm。课桌：%s，建议桌面高：%d。课椅：%s，建议座面高：%d。";
-    private static final String SEAT_DISTANCE_SUGGEST = "与黑板相距";
+    private static final String SEAT_DISTANCE_SUGGEST = "与黑板相距5-6米";
     private static final String EMPTY_DATA = "--";
 
     @Autowired
@@ -67,7 +68,7 @@ public class ExportStudentWarningArchiveExcelService extends BaseExportExcelFile
         return statConclusionExportList.stream().map(statConclusionExport -> {
             StudentWarningArchive studentWarningArchive = new StudentWarningArchive();
             BeanUtils.copyProperties(statConclusionExport, studentWarningArchive);
-            studentWarningArchive.setSchoolNo(statConclusionExport.getSchoolNo())
+            studentWarningArchive.setSno(statConclusionExport.getStudentNo())
                     .setStudentName(statConclusionExport.getStudentName())
                     .setGenderDesc(GenderEnum.getName(statConclusionExport.getGender()))
                     .setGradeAndClassName(gradeNameMap.get(statConclusionExport.getGradeId()) + "-" + classNameMap.get(statConclusionExport.getClassId()))
@@ -75,7 +76,7 @@ public class ExportStudentWarningArchiveExcelService extends BaseExportExcelFile
                     .setVisionWarning(WarningLevel.getDesc(statConclusionExport.getWarningLevel()))
                     // 系统暂时没有身高数据，写死null
                     .setDeskAndChairTypeSuggest(getDeskAndChairTypeSuggest(null, statConclusionExport.getSchoolAge()))
-                    .setSeatDistanceSuggest(Boolean.TRUE.equals(statConclusionExport.getIsMyopia()) ? SEAT_DISTANCE_SUGGEST : StringUtils.EMPTY);
+                    .setSeatDistanceSuggest(StatUtil.isMyopia(statConclusionExport.getMyopiaLevel()) ? SEAT_DISTANCE_SUGGEST : StringUtils.EMPTY);
             // 设置就诊信息
             setVisitInfo(studentWarningArchive, statConclusionExport.getStudentId(), statConclusionExport.getId(), statConclusionExport.getCreateTime());
             return studentWarningArchive;
@@ -111,7 +112,9 @@ public class ExportStudentWarningArchiveExcelService extends BaseExportExcelFile
         // 获取下一次的筛查记录
         StatConclusion nextScreeningStat = statConclusionService.getNextScreeningStat(currentStatConclusionId, studentId);
         // 获取下次筛查前的最新一条就诊记录，需求：https://vistelab.sharepoint.com/:w:/r/sites/msteams_4c1013/_layouts/15/Doc.aspx?sourcedoc=%7B9EC045B8-B6C4-4F0A-AB18-57733870408D%7D&file=JS1.1.010-1%E8%81%94%E5%8A%A8-%E7%AE%A1%E7%90%86%E5%90%8E%E5%8F%B0%E5%B0%B1%E8%AF%8A%E5%88%A4%E6%96%AD%E5%92%8C%E8%B4%A6%E5%8F%B7%E5%90%8D%E7%A7%B0%E5%8F%98%E6%9B%B4%E5%8A%9F%E8%83%BD.docx&action=default&mobileredirect=true&cid=9936c55c-3d63-4be4-8dde-07c6ab354a12
-        MedicalReport lastMedicalReport = medicalReportService.getLastOne(new MedicalReportQuery().setStartDate(startDate).setEndDate(Objects.isNull(nextScreeningStat) ? null : nextScreeningStat.getCreateTime()));
+        MedicalReportQuery medicalReportQuery = new MedicalReportQuery();
+        medicalReportQuery.setStudentId(studentId);
+        MedicalReport lastMedicalReport = medicalReportService.getLastOne(medicalReportQuery.setStartDate(startDate).setEndDate(Objects.isNull(nextScreeningStat) ? null : nextScreeningStat.getCreateTime()));
         if (Objects.isNull(lastMedicalReport)) {
             studentWarningArchive.setIsVisited("未去");
             return;

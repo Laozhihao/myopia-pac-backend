@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.api.device.service;
 
-import com.alibaba.fastjson.JSONObject;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -72,13 +71,13 @@ public class DeviceUploadDataService {
     private static boolean dealStudentId(DeviceScreenDataDTO deviceScreenDataDTO) {
         String patientId = deviceScreenDataDTO.getPatientId();
         String reg = "^VS@\\d{1,}_\\d{1,}";
-        if (!patientId.matches(reg) || patientId.length() != 35) {
+        if (!patientId.matches(reg)) {
             deviceScreenDataDTO.setPatientId(null);
             return false;
         }
         String planStudentIdWithZero = patientId.substring(patientId.indexOf("_") + 1);
         //主要是为了去除0, 如 000000001 ,通过转换后可以变成integer类型的1,再将其转换为字符串
-        deviceScreenDataDTO.setPatientId(Integer.valueOf(planStudentIdWithZero) + "");
+        deviceScreenDataDTO.setPatientId(planStudentIdWithZero);
         return true;
     }
 
@@ -139,7 +138,7 @@ public class DeviceUploadDataService {
 
         computerOptometryDTO.setDeptId(screeningPlanSchoolStudent.getScreeningOrgId());
         computerOptometryDTO.setCreateUserId(DEVICE_UPLOAD_DEFAULT_USER_ID);
-        computerOptometryDTO.setStudentId(String.valueOf(screeningPlanSchoolStudent.getStudentId()));
+        computerOptometryDTO.setPlanStudentId(String.valueOf(screeningPlanSchoolStudent.getId()));
         computerOptometryDTO.setSchoolId(String.valueOf(screeningPlanSchoolStudent.getSchoolId()));
         return computerOptometryDTO;
     }

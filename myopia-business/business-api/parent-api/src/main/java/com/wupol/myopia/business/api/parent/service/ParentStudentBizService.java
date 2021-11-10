@@ -388,12 +388,12 @@ public class ParentStudentBizService {
         if (Objects.isNull(student)) {
             throw new BusinessException("学生信息异常");
         }
-        String md5 = QrCodeCacheKey.PARENT_STUDENT_PREFIX + StringUtils.upperCase(SecureUtil.md5(student.getIdCard() + studentId + IdUtil.simpleUUID()));
-        String key = String.format(QrCodeCacheKey.PARENT_STUDENT_QR_CODE, md5);
+        String qrCodeContent = String.format(QrCodeCacheKey.PARENT_STUDENT_PREFIX, studentId);
+        String key = String.format(QrCodeCacheKey.PARENT_STUDENT_QR_CODE, qrCodeContent);
         if (!redisUtil.set(key, studentId, RedisConstant.TOKEN_EXPIRE_TIME)) {
             throw new BusinessException("获取学生授权二维码失败");
         }
-        return md5;
+        return qrCodeContent;
     }
 
     /**
@@ -417,12 +417,10 @@ public class ParentStudentBizService {
         VisionDataDO visionData = result.getVisionData();
 
         // 视力检查结果
-        ThreeTuple<List<VisionItems>, BigDecimal, BigDecimal> listBigDecimalBigDecimalThreeTuple = ScreeningResultUtil.packageVisionResult(visionData, age);
-        responseDTO.setVisionResultItems(listBigDecimalBigDecimalThreeTuple.getFirst());
+        responseDTO.setVisionResultItems(ScreeningResultUtil.packageVisionResult(visionData, age));
 
         // 验光仪检查结果
-        TwoTuple<List<RefractoryResultItems>, Integer> refractoryResult = ScreeningResultUtil.packageRefractoryResult(result.getComputerOptometry(), age,
-                listBigDecimalBigDecimalThreeTuple.getSecond(), listBigDecimalBigDecimalThreeTuple.getThird());
+        TwoTuple<List<RefractoryResultItems>, Integer> refractoryResult = ScreeningResultUtil.packageRefractoryResult(result.getComputerOptometry(), age);
         responseDTO.setRefractoryResultItems(refractoryResult.getFirst());
 
         // 生物测量

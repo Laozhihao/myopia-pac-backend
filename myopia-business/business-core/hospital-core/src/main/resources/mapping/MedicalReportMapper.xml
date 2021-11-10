@@ -72,9 +72,9 @@
 
     <select id="getLastOne" resultMap="BaseResultMap" parameterType="java.util.Map">
         select *
-        from h_medical_report mr
+        from h_medical_report report
         <include refid="Base_Where_Clause"/>
-        order by mr.id desc
+        order by report.id desc
         limit 1
     </select>
 

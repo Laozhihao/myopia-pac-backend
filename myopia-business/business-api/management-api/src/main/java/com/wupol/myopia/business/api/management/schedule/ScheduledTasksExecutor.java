@@ -166,6 +166,10 @@ public class ScheduledTasksExecutor {
             }
             Map<Integer, List<StatConclusionDTO>> schoolIdStatConslusions = statConclusions.stream().collect(Collectors.groupingBy(StatConclusionDTO::getSchoolId));
             ScreeningPlan screeningPlan = screeningPlanService.getById(screeningPlanId);
+            if (Objects.isNull(screeningPlan)) {
+                log.warn("按学校生成统计数据,筛查任务异常:{}", screeningPlanId);
+                return;
+            }
             Map<Integer, School> schoolIdMap = schoolService.getByIds(new ArrayList<>(schoolIdStatConslusions.keySet())).stream().collect(Collectors.toMap(School::getId, Function.identity()));
             ScreeningOrganization screeningOrg = screeningOrganizationService.getById(screeningPlan.getScreeningOrgId());
             Map<Integer, Long> planSchoolStudentNum = screeningPlanSchoolStudentService.getByScreeningPlanId(screeningPlanId).stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getSchoolId, Collectors.counting()));

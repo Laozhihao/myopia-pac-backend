@@ -50,6 +50,19 @@ public class StatUtil {
     }
 
     /**
+     * 是否近视
+     *
+     * @param myopiaWarningLevel 近视预警级别
+     * @return boolean
+     */
+    public static boolean isMyopia(Integer myopiaWarningLevel) {
+        if (Objects.isNull(myopiaWarningLevel)) {
+            return false;
+        }
+        return myopiaWarningLevel > 0;
+    }
+
+    /**
      * 是否远视
      *
      * @param sphere   球镜
@@ -58,6 +71,9 @@ public class StatUtil {
      * @return
      */
     public static boolean isHyperopia(Float sphere, Float cylinder, Integer age) {
+        if (Objects.isNull(age)) {
+            return false;
+        }
         float se = getSphericalEquivalent(sphere, cylinder);
 
         if (age < 4 && se > 3) {
@@ -173,10 +189,10 @@ public class StatUtil {
         if (age == 3 && nakedVision < 4.7) {
             return true;
         }
-        if (age == 4 && nakedVision < 4.8) {
+        if (age == 4 && nakedVision <= 4.8) {
             return true;
         }
-        return age >= 5 && nakedVision < 4.9;
+        return age >= 5 && nakedVision <= 4.9;
     }
 
     /**
@@ -526,7 +542,9 @@ public class StatUtil {
             return null;
         }
         BigDecimal absCyl = cyl.abs();
-
+        if (Objects.nonNull(zeroSPWarningLevel(cyl, spn, age))) {
+            return zeroSPWarningLevel(cyl, spn, age);
+        }
         if (BigDecimalUtil.lessThanAndEqual(nakedVision, "4.5") || threeSE(se) || (age < 4 && BigDecimalUtil.moreThan(se, "9")) || (age >= 4 && BigDecimalUtil.moreThan(se, "8")) || threeAbsCyl(absCyl)) {
             return WarningLevel.THREE;
         }
@@ -539,7 +557,7 @@ public class StatUtil {
         if (BigDecimalUtil.moreThan(nakedVision, "4.7") || zeroSE(se) || zeroAbsCyl(absCyl)) {
             return WarningLevel.ZERO;
         }
-        return zeroSPWarningLevel(cyl, spn, age);
+        return null;
     }
 
     /**
@@ -558,6 +576,9 @@ public class StatUtil {
         if (Objects.isNull(se)) {
             return null;
         }
+        if (Objects.nonNull(zeroSPWarningLevel(cyl, spn, age))) {
+            return zeroSPWarningLevel(cyl, spn, age);
+        }
         if ((BigDecimalUtil.lessThanAndEqual(nakedVision, "4.5")) || threeSE(se) || BigDecimalUtil.moreThan(se, "7.5") || threeAbsCyl(absCyl)) {
             return WarningLevel.THREE;
         }
@@ -570,7 +591,7 @@ public class StatUtil {
         if (BigDecimalUtil.moreThan(nakedVision, "4.8") || zeroSE(se) || zeroAbsCyl(absCyl)) {
             return WarningLevel.ZERO;
         }
-        return zeroSPWarningLevel(cyl, spn, age);
+        return null;
     }
 
     /**

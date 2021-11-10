@@ -179,15 +179,16 @@ public class StudentBizService {
             BeanUtils.copyProperties(statConclusion, studentWarningArchiveVO);
             studentWarningArchiveVO.setVisionLabel(statConclusion.getWarningLevel());
             // 筛查信息
-            studentWarningArchiveVO.setScreeningDate(statConclusion.getUpdateTime());
+            studentWarningArchiveVO.setScreeningDate(statConclusion.getCreateTime());
             ScreeningPlan screeningPlan = screeningPlanService.getById(statConclusion.getPlanId());
             studentWarningArchiveVO.setScreeningTitle(screeningPlan.getTitle());
             // 就诊情况
-            setVisitInfo(studentWarningArchiveVO, statConclusion.getUpdateTime(), (i + 1) < size ? statConclusionList.get(i + 1).getUpdateTime() : null, medicalReportList);
+            setVisitInfo(studentWarningArchiveVO, statConclusion.getCreateTime(), (i + 1) < size ? statConclusionList.get(i + 1).getCreateTime() : null, medicalReportList);
             // 课桌椅信息
             setDeskAndChairInfo(studentWarningArchiveVO);
             studentWarningArchiveVOList.add(studentWarningArchiveVO);
         }
+        studentWarningArchiveVOList.sort(Comparator.comparing(StudentWarningArchiveVO::getScreeningDate).reversed());
         return studentWarningArchiveVOList;
     }
 
@@ -207,8 +208,8 @@ public class StudentBizService {
             return;
         }
         MedicalReport medicalReport = medicalReportList.stream().filter(x -> Objects.isNull(endScreeningDate) ?
-                x.getCreateTime().before(startScreeningDate) :
-                x.getCreateTime().before(startScreeningDate) && x.getCreateTime().after(endScreeningDate))
+                x.getCreateTime().after(startScreeningDate) :
+                x.getCreateTime().after(startScreeningDate) && x.getCreateTime().before(endScreeningDate))
                 .findFirst().orElse(null);
         if (Objects.nonNull(medicalReport)) {
             studentWarningArchiveVO.setIsVisited(true);
@@ -251,13 +252,14 @@ public class StudentBizService {
     public StudentScreeningResultResponseDTO getScreeningList(Integer studentId) {
         StudentScreeningResultResponseDTO responseDTO = new StudentScreeningResultResponseDTO();
         List<StudentScreeningResultItemsDTO> items = new ArrayList<>();
+        int age = DateUtil.ageOfNow(studentService.getById(studentId).getBirthday());
 
         // 通过学生id查询结果
         List<VisionScreeningResult> resultList = visionScreeningResultService.getByStudentId(studentId);
 
         for (VisionScreeningResult result : resultList) {
             StudentScreeningResultItemsDTO item = new StudentScreeningResultItemsDTO();
-            List<StudentResultDetailsDTO> resultDetail = packageDTO(result);
+            List<StudentResultDetailsDTO> resultDetail = packageDTO(result, age);
             item.setDetails(resultDetail);
             item.setScreeningDate(result.getUpdateTime());
             // 佩戴眼镜的类型随便取一个都行，两只眼睛的数据是一样的
@@ -278,9 +280,10 @@ public class StudentBizService {
      * 封装结果
      *
      * @param result 结果表
+     * @param age    年龄
      * @return 详情列表
      */
-    private List<StudentResultDetailsDTO> packageDTO(VisionScreeningResult result) {
+    private List<StudentResultDetailsDTO> packageDTO(VisionScreeningResult result, Integer age) {
 
         // 设置左眼
         StudentResultDetailsDTO leftDetails = new StudentResultDetailsDTO();
@@ -295,7 +298,7 @@ public class StudentBizService {
         }
         if (null != result.getComputerOptometry()) {
             // 电脑验光
-            packageComputerOptometryResult(result, leftDetails, rightDetails);
+            packageComputerOptometryResult(result, age, leftDetails, rightDetails);
         }
         if (null != result.getBiometricData()) {
             // 生物测量
@@ -331,23 +334,33 @@ public class StudentBizService {
      * 封装电脑验光
      *
      * @param result       原始视力筛查结果
+     * @param age          年龄
      * @param leftDetails  左眼数据
      * @param rightDetails 右眼数据
      */
-    private void packageComputerOptometryResult(VisionScreeningResult result, StudentResultDetailsDTO leftDetails, StudentResultDetailsDTO rightDetails) {
+    private void packageComputerOptometryResult(VisionScreeningResult result, Integer age,
+                                                StudentResultDetailsDTO leftDetails, StudentResultDetailsDTO rightDetails) {
         // 左眼--电脑验光
         leftDetails.setAxial(result.getComputerOptometry().getLeftEyeData().getAxial());
-        leftDetails.setSe(calculationSE(result.getComputerOptometry().getLeftEyeData().getSph(),
-                result.getComputerOptometry().getLeftEyeData().getCyl()));
-        leftDetails.setCyl(result.getComputerOptometry().getLeftEyeData().getCyl());
-        leftDetails.setSph(result.getComputerOptometry().getLeftEyeData().getSph());
+        BigDecimal leftSph = result.getComputerOptometry().getLeftEyeData().getSph();
+        BigDecimal leftCyl = result.getComputerOptometry().getLeftEyeData().getCyl();
+        leftDetails.setSe(calculationSE(leftSph, leftCyl));
+        leftDetails.setCyl(leftCyl);
+        leftDetails.setSph(leftSph);
+        if (Objects.nonNull(leftSph) && Objects.nonNull(leftCyl)) {
+            leftDetails.setIsHyperopia(StatUtil.isHyperopia(leftSph.floatValue(), leftCyl.floatValue(), age));
+        }
 
         // 左眼--电脑验光
         rightDetails.setAxial(result.getComputerOptometry().getRightEyeData().getAxial());
-        rightDetails.setSe(calculationSE(result.getComputerOptometry().getRightEyeData().getSph(),
-                result.getComputerOptometry().getRightEyeData().getCyl()));
-        rightDetails.setCyl(result.getComputerOptometry().getRightEyeData().getCyl());
-        rightDetails.setSph(result.getComputerOptometry().getRightEyeData().getSph());
+        BigDecimal rightSph = result.getComputerOptometry().getRightEyeData().getSph();
+        BigDecimal rightCyl = result.getComputerOptometry().getRightEyeData().getCyl();
+        rightDetails.setSe(calculationSE(rightSph, rightCyl));
+        rightDetails.setCyl(rightCyl);
+        rightDetails.setSph(rightSph);
+        if (Objects.nonNull(rightSph) && Objects.nonNull(rightCyl)) {
+            rightDetails.setIsHyperopia(StatUtil.isHyperopia(rightSph.floatValue(), rightCyl.floatValue(), age));
+        }
     }
 
     /**
@@ -997,7 +1010,7 @@ public class StudentBizService {
             // 是否正常
             boolean isNormal = CollectionUtils.isEmpty(otherEyeDiseasesList);
             cardDetail.setIsNormal(!isRefractiveError && isNormal);
-            if (isNormal) {
+            if (cardDetail.getIsNormal()) {
                 // 正常就不显示近、远视
                 cardDetail.setIsMyopia(null);
                 cardDetail.setIsHyperopia(null);
@@ -1219,12 +1232,12 @@ public class StudentBizService {
         if (ObjectsUtil.allNull(leftEye, rightEye)) {
             return null;
         }
-        if (ObjectsUtil.allNotNull(leftEye.getMyopiaLevel(), rightEye.getMyopiaLevel()) && (leftEye.getMyopiaLevel() >= MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.code
-                || rightEye.getMyopiaLevel() > MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.code)) {
+        if ((Objects.nonNull(leftEye.getMyopiaLevel()) && leftEye.getMyopiaLevel() >= MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.code)
+                || (Objects.nonNull(rightEye.getMyopiaLevel()) && rightEye.getMyopiaLevel() > MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.code)) {
             return true;
         }
-        if (ObjectsUtil.allNotNull(leftEye.getHyperopiaLevel(), rightEye.getHyperopiaLevel()) && (leftEye.getHyperopiaLevel() >= HyperopiaLevelEnum.HYPEROPIA_LEVEL_LIGHT.code
-                || rightEye.getHyperopiaLevel() > HyperopiaLevelEnum.HYPEROPIA_LEVEL_LIGHT.code)) {
+        if ((Objects.nonNull(leftEye.getHyperopiaLevel()) && leftEye.getHyperopiaLevel() >= HyperopiaLevelEnum.HYPEROPIA_LEVEL_LIGHT.code)
+                || (Objects.nonNull(rightEye.getHyperopiaLevel()) && rightEye.getHyperopiaLevel() > HyperopiaLevelEnum.HYPEROPIA_LEVEL_LIGHT.code)) {
             return true;
         }
 
@@ -1354,8 +1367,58 @@ public class StudentBizService {
      */
     private void setMyopiaAndFarsightedness(VisionScreeningResult visionScreeningResult, Integer age, HaiNanCardDetail cardDetail) {
         ComputerOptometryDO computerOptometry = visionScreeningResult.getComputerOptometry();
+        PupilOptometryDataDO pupilOptometryData = visionScreeningResult.getPupilOptometryData();
         VisionDataDO visionData = visionScreeningResult.getVisionData();
 
+        if (Objects.nonNull(pupilOptometryData)) {
+            setPupilOptometryMyopiaAndFarsightedness(visionData, cardDetail, pupilOptometryData, age);
+        } else {
+            setComputerOptometryMyopiaAndFarsightedness(visionData, cardDetail, computerOptometry, age);
+        }
+    }
+
+    /**
+     * 设置是否近视、远视
+     *
+     * @param visionData           视力筛查结果
+     * @param cardDetail           档案卡
+     * @param pupilOptometryDataDO 小瞳验光数据
+     * @param age                  年龄
+     */
+    private void setPupilOptometryMyopiaAndFarsightedness(VisionDataDO visionData, HaiNanCardDetail cardDetail,
+                                                          PupilOptometryDataDO pupilOptometryDataDO, Integer age) {
+        if (ObjectsUtil.hasNull(pupilOptometryDataDO, visionData)
+                || !pupilOptometryDataDO.judgeValidData()
+                || !visionData.validNakedVision()) {
+            return;
+        }
+        BigDecimal leftSph = pupilOptometryDataDO.getLeftEyeData().getSph();
+        BigDecimal rightSph = pupilOptometryDataDO.getRightEyeData().getSph();
+        BigDecimal leftCyl = pupilOptometryDataDO.getLeftEyeData().getCyl();
+        BigDecimal rightCyl = pupilOptometryDataDO.getRightEyeData().getCyl();
+
+        BigDecimal leftNakedVision = visionData.getLeftEyeData().getNakedVision();
+        BigDecimal rightNakedVision = visionData.getRightEyeData().getNakedVision();
+        // 是否近视
+        cardDetail.setIsMyopia(StatUtil.isMyopia(leftSph.floatValue(), leftCyl.floatValue(), age, leftNakedVision.floatValue())
+                || StatUtil.isMyopia(rightSph.floatValue(), rightCyl.floatValue(), age, rightNakedVision.floatValue()));
+
+        // 是否远视
+        cardDetail.setIsHyperopia(StatUtil.isHyperopia(leftSph.floatValue(), leftCyl.floatValue(), age)
+                || StatUtil.isHyperopia(rightSph.floatValue(), rightCyl.floatValue(), age));
+
+    }
+
+    /**
+     * 设置是否近视、远视
+     *
+     * @param visionData        视力筛查结果
+     * @param cardDetail        档案卡
+     * @param computerOptometry 电脑验光数据
+     * @param age               年龄
+     */
+    private void setComputerOptometryMyopiaAndFarsightedness(VisionDataDO visionData, HaiNanCardDetail cardDetail,
+                                                             ComputerOptometryDO computerOptometry, Integer age) {
         if (ObjectsUtil.hasNull(computerOptometry, visionData)
                 || !computerOptometry.valid()
                 || !visionData.validNakedVision()) {
@@ -1375,7 +1438,6 @@ public class StudentBizService {
         // 是否远视
         cardDetail.setIsHyperopia(StatUtil.isHyperopia(leftSph.floatValue(), leftCyl.floatValue(), age)
                 || StatUtil.isHyperopia(rightSph.floatValue(), rightCyl.floatValue(), age));
-
     }
 
 }
