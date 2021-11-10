@@ -611,7 +611,7 @@ public class ScreeningResultUtil {
      * @return 等效球镜
      */
     public static BigDecimal calculationSE(BigDecimal sph, BigDecimal cyl) {
-        if (ObjectsUtil.hasNull(sph, cyl)) {
+        if (Objects.isNull(sph) || Objects.isNull(cyl)) {
             return null;
         }
         return sph.add(cyl.multiply(new BigDecimal("0.5")))
@@ -638,6 +638,9 @@ public class ScreeningResultUtil {
      */
     public static TwoTuple<String, Integer> getSphTypeName(BigDecimal sph, BigDecimal cyl, Integer age) {
         BigDecimal se = calculationSE(sph, cyl);
+        if (Objects.isNull(se)) {
+            return new TwoTuple<>();
+        }
         BigDecimal seVal = se.abs().multiply(new BigDecimal("100")).setScale(0, RoundingMode.DOWN);
         if (se.compareTo(new BigDecimal("0.00")) <= 0) {
             // 近视
@@ -653,7 +656,7 @@ public class ScreeningResultUtil {
             // 远视
             HyperopiaLevelEnum hyperopiaWarningLevel = StatUtil.getHyperopiaWarningLevel(sph.floatValue(), cyl.floatValue(), age);
             String str;
-            if (se.compareTo(new BigDecimal("0.50")) > 0) {
+            if (StatUtil.isHyperopia(sph.floatValue(), cyl.floatValue(), age)) {
                 str = "远视" + seVal + "度";
             } else {
                 str = seVal + "度";
@@ -872,6 +875,9 @@ public class ScreeningResultUtil {
         BigDecimal leftSe = calculationSE(leftSph, leftCyl);
         BigDecimal rightSe = calculationSE(rightSph, rightCyl);
 
+        if (Objects.isNull(nakedVisionResult.getFirst())) {
+            return RecommendVisitEnum.EMPTY;
+        }
         // 裸眼视力是否小于4.9
         if (BigDecimalUtil.lessThan(nakedVisionResult.getFirst(), "4.9")) {
             // 是否佩戴眼镜
