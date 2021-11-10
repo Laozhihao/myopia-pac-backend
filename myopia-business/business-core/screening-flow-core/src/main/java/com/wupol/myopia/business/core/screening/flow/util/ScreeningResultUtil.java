@@ -661,7 +661,7 @@ public class ScreeningResultUtil {
             } else {
                 str = seVal + "度";
             }
-            return new TwoTuple<>(str, hyperopiaLevelLevel2Type(hyperopiaWarningLevel));
+            return new TwoTuple<>(str, hyperopiaLevelLevel2Type(hyperopiaWarningLevel, se));
         }
     }
 
@@ -735,15 +735,20 @@ public class ScreeningResultUtil {
      * <p>预警级别 {@link HyperopiaLevelEnum}</p>
      *
      * @param hyperopiaLevelEnum 预警级别
+     * @param se                 等效球镜
      * @return Integer {@link ParentReportConst}
      */
-    public static Integer hyperopiaLevelLevel2Type(HyperopiaLevelEnum hyperopiaLevelEnum) {
+    public static Integer hyperopiaLevelLevel2Type(HyperopiaLevelEnum hyperopiaLevelEnum, BigDecimal se) {
         if (null == hyperopiaLevelEnum) {
             return null;
         }
         // 预警-1或0则是正常
         if (hyperopiaLevelEnum.code.equals(HyperopiaLevelEnum.ZERO.code)) {
             return ParentReportConst.LABEL_NORMAL;
+        }
+
+        if (BigDecimalUtil.isBetweenAll(se, "0", "0.75")) {
+            return ParentReportConst.LABEL_EARLY;
         }
 
         if (hyperopiaLevelEnum.code.equals(HyperopiaLevelEnum.HYPEROPIA_LEVEL_LIGHT.code)) {
