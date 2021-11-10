@@ -27,14 +27,15 @@ public abstract class ScreeningResultBasicData implements ScreeningDataInterface
     /**
      * 学生id
      */
-    private String studentId;
+    @JsonProperty("studentId")
+    private String planStudentId;
     /**
      * 默认是初筛，app设计如此
      */
     private Integer isState=0;
 
-    public Integer getStudentId() {
-       return stringToInteger(studentId);
+    public Integer getPlanStudentId() {
+       return stringToInteger(planStudentId);
     }
 
     public Integer getSchoolId() {
