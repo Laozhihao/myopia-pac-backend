@@ -4,26 +4,19 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
-import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.screening.domain.vos.SchoolGradeVO;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanSchoolStudentFacadeService;
-import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
 import com.wupol.myopia.business.api.school.management.service.VisionScreeningService;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningListResponseDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentQueryDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
-import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentTrackWarningRequestDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentTrackWarningResponseDTO;
 import com.wupol.myopia.business.core.stat.domain.model.SchoolVisionStatistic;
 import com.wupol.myopia.business.core.stat.service.SchoolVisionStatisticService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * 视力筛查
@@ -44,12 +37,6 @@ public class VisionScreeningController {
 
     @Resource
     private ScreeningPlanSchoolStudentFacadeService screeningPlanSchoolStudentFacadeService;
-
-    @Resource
-    private VisionScreeningBizService visionScreeningBizService;
-
-    @Resource
-    private StatConclusionService statConclusionService;
 
     /**
      * 获取学校计划
@@ -87,14 +74,15 @@ public class VisionScreeningController {
     }
 
     /**
-     * 学生预警跟踪
+     * 获取学生跟踪预警列表
      *
-     * @param query 查询参数
-     * @param page  分页数据
-     * @return IPage<StudentDTO>
+     * @param pageRequest 分页请求
+     * @param requestDTO  入参
+     * @return IPage<StudentTrackWarningResponseDTO>
      */
     @GetMapping("statStudents/list")
-    public IPage<ScreeningStudentDTO> queryStudentInfos(PageRequest page, ScreeningStudentQueryDTO query) {
-        return screeningPlanSchoolStudentFacadeService.getPage(query, page);
+    public IPage<StudentTrackWarningResponseDTO> queryStudentInfos(PageRequest pageRequest, StudentTrackWarningRequestDTO requestDTO) {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        return visionScreeningService.getTrackList(pageRequest, requestDTO, currentUser.getOrgId());
     }
 }

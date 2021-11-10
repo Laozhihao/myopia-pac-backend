@@ -1,6 +1,8 @@
 package com.wupol.myopia.business.core.screening.flow.domain.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import org.apache.ibatis.annotations.Param;
@@ -89,4 +91,6 @@ public interface StatConclusionMapper extends BaseMapper<StatConclusion> {
     List<StatConclusion> getByResultIds(@Param("resultIds") List<Integer> resultIds);
 
     List<StatConclusion> getByDate(@Param("start") Date start, @Param("end") Date end);
+
+    IPage<StudentTrackWarningResponseDTO> getTrackList(@Param("page") Page<?> page, @Param("requestDTO") StudentTrackWarningRequestDTO requestDTO, @Param("schoolId") Integer schoolId);
 }

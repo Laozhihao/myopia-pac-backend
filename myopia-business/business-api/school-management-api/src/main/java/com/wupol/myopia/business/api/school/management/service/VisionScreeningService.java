@@ -3,9 +3,12 @@ package com.wupol.myopia.business.api.school.management.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningListResponseDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentTrackWarningRequestDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentTrackWarningResponseDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
+import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.stat.domain.model.SchoolMonitorStatistic;
 import com.wupol.myopia.business.core.stat.service.SchoolMonitorStatisticService;
 import org.springframework.stereotype.Service;
@@ -34,6 +37,9 @@ public class VisionScreeningService {
 
     @Resource
     private SchoolMonitorStatisticService schoolMonitorStatisticService;
+
+    @Resource
+    private StatConclusionService statConclusionService;
 
     /**
      * 获取视力筛查列表
@@ -77,6 +83,26 @@ public class VisionScreeningService {
                 schoolPlan.setRealScreeningNumbers(schoolMonitorStatistic.getRealScreeningNumbers());
                 schoolPlan.setScreeningOrgName(schoolMonitorStatistic.getScreeningOrgName());
             }
+        });
+        return responseDTO;
+    }
+
+    /**
+     * 获取学生跟踪预警列表
+     *
+     * @param pageRequest 分页请求
+     * @param requestDTO  入参
+     * @param schoolId    学校Id
+     * @return IPage<StudentTrackWarningResponseDTO>
+     */
+    public IPage<StudentTrackWarningResponseDTO> getTrackList(PageRequest pageRequest, StudentTrackWarningRequestDTO requestDTO, Integer schoolId) {
+        IPage<StudentTrackWarningResponseDTO> responseDTO = statConclusionService.getTrackList(pageRequest, requestDTO, schoolId);
+        List<StudentTrackWarningResponseDTO> trackList = responseDTO.getRecords();
+        if (CollectionUtils.isEmpty(trackList)) {
+            return responseDTO;
+        }
+        trackList.forEach(track -> {
+
         });
         return responseDTO;
     }

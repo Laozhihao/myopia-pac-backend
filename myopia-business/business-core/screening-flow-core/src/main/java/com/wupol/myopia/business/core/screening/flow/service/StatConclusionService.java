@@ -1,7 +1,9 @@
 package com.wupol.myopia.business.core.screening.flow.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.StatConclusionMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
@@ -248,6 +250,19 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
      */
     public List<StatConclusion> getByDate(Date start, Date end) {
         return baseMapper.getByDate(start, end);
+    }
+
+    /**
+     * 获取学生跟踪预警列表
+     *
+     * @param pageRequest 分页请求
+     * @param requestDTO  入参
+     * @param schoolId    学校Id
+     * @return IPage<StudentTrackWarningResponseDTO>
+     */
+    public IPage<StudentTrackWarningResponseDTO> getTrackList(PageRequest pageRequest, StudentTrackWarningRequestDTO requestDTO,
+                                                              Integer schoolId) {
+        return baseMapper.getTrackList(pageRequest.toPage(), requestDTO, schoolId);
     }
 }
 

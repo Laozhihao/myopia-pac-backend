@@ -251,4 +251,45 @@
         from m_stat_conclusion
         where create_time between DATE(#{start}) and DATE(#{end})
     </select>
+
+    <select id="getTrackList"
+            resultType="com.wupol.myopia.business.core.screening.flow.domain.dto.StudentTrackWarningResponseDTO">
+        select msc.student_id,
+               msc.report_id,
+               mspss.student_name as name,
+               mspss.gender,
+               mspss.class_name,
+               mspss.grade_name,
+               msc.warning_level,
+               msc.myopia_level,
+               msc.hyperopia_level,
+               msc.astigmatism_level,
+               msc.is_bind_mp
+        from m_stat_conclusion msc
+                     left join m_screening_plan_school_student mspss on msc.screening_plan_school_student_id = mspss.id
+                where msc.plan_id = #{requestDTO.planId}
+                  and msc.school_id = #{schoolId}
+        <if test="requestDTO.classId != null">
+            and mspss.class_id = #{requestDTO.classId}
+        </if>
+        <if test="requestDTO.gradeId != null">
+            and mspss.grade_id = #{requestDTO.gradeId}
+        </if>
+        <if test="requestDTO.isBindMq != null">
+            and msc.is_bind_mp = #{requestDTO.isBindMq}
+        </if>
+        <if test="requestDTO.visionLabel != null">
+            and msc.warning_level = #{requestDTO.visionLabel}
+        </if>
+        <if test="requestDTO.isReview != null">
+            <choose>
+                <when test="requestDTO.isReview == true">
+                    and msc.report_id IS NOT NULL
+                </when>
+                <when test="requestDTO.isReview == false">
+                    and msc.report_id IS NULL
+                </when>
+            </choose>
+        </if>
+    </select>
 </mapper>
