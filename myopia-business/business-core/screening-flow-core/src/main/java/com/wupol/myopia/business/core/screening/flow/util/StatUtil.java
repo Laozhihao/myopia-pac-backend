@@ -50,6 +50,19 @@ public class StatUtil {
     }
 
     /**
+     * 是否近视
+     *
+     * @param myopiaWarningLevel 近视预警级别
+     * @return boolean
+     */
+    public static boolean isMyopia(Integer myopiaWarningLevel) {
+        if (Objects.isNull(myopiaWarningLevel)) {
+            return false;
+        }
+        return myopiaWarningLevel > 0;
+    }
+
+    /**
      * 是否远视
      *
      * @param sphere   球镜
