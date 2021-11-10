@@ -93,22 +93,8 @@ public class VisionScreeningController {
      * @param page  分页数据
      * @return IPage<StudentDTO>
      */
-    @GetMapping("planStudents/list")
+    @GetMapping("statStudents/list")
     public IPage<ScreeningStudentDTO> queryStudentInfos(PageRequest page, ScreeningStudentQueryDTO query) {
         return screeningPlanSchoolStudentFacadeService.getPage(query, page);
-    }
-
-    /**
-     * 触发全部
-     */
-    @GetMapping("run")
-    public void run() {
-        Date yesterdayStartTime = DateUtil.getYesterdayStartTime();
-        Date yesterdayEndTime = DateUtil.getYesterdayEndTime();
-        List<StatConclusion> list = statConclusionService.getByDate(yesterdayStartTime, yesterdayEndTime);
-        Map<Integer, List<StatConclusion>> collect = list.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolId));
-        for (Map.Entry<Integer, List<StatConclusion>> entry : collect.entrySet()) {
-            visionScreeningBizService.updateStatConclusion(entry.getKey(), entry.getValue());
-        }
     }
 }

@@ -2,8 +2,6 @@ package com.wupol.myopia.business.aggregation.screening.service;
 
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
-import com.wupol.myopia.business.core.hospital.domain.model.MedicalReport;
-import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
@@ -15,7 +13,6 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanS
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import lombok.extern.log4j.Log4j2;
@@ -23,12 +20,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @Classname VisionScreeningBizService2
@@ -51,10 +46,6 @@ public class VisionScreeningBizService {
     private StudentService studentService;
     @Autowired
     private SchoolGradeService schoolGradeService;
-    @Autowired
-    private MedicalReportService medicalReportService;
-    @Autowired
-    private ScreeningPlanService screeningPlanService;
 
     /**
      * 保存学生眼镜信息
@@ -72,6 +63,8 @@ public class VisionScreeningBizService {
         visionScreeningResultService.saveOrUpdateStudentScreenData(allFirstAndSecondResult.getFirst());
         //更新statConclusion表
         StatConclusion statConclusion = statConclusionService.saveOrUpdateStudentScreenData(getScreeningConclusionResult(allFirstAndSecondResult));
+        // 更新是否绑定手机号码
+        setIsBindMq(screeningResultBasicData.getStudentId(), statConclusion);
         //更新学生表的数据
         this.updateStudentVisionData(allFirstAndSecondResult.getFirst(),statConclusion);
         //返回最近一次的statConclusion
@@ -196,51 +189,14 @@ public class VisionScreeningBizService {
     }
 
     /**
-     * 更新结论
+     * 是否绑定公众号
      *
-     * @param studentId          学生Id
-     * @param statConclusionList 统计信息
+     * @param studentId      学生Id
+     * @param statConclusion 结论
      */
-    public void updateStatConclusion(Integer studentId, List<StatConclusion> statConclusionList) {
-        if (CollectionUtils.isEmpty(statConclusionList)) {
-            return;
-        }
-        List<MedicalReport> medicalReportList = medicalReportService.findByList(new MedicalReport().setStudentId(studentId));
-        int size = statConclusionList.size();
-        for (int i = 0; i < statConclusionList.size(); i++) {
-            StatConclusion statConclusion = statConclusionList.get(i);
-
-            Student student = studentService.getById(statConclusion.getStudentId());
-            statConclusion.setIsBindMp(StringUtils.isNotBlank(student.getMpParentPhone()));
-
-            // 就诊情况
-            setVisitInfo(statConclusion, statConclusion.getCreateTime(), (i + 1) < size ? statConclusionList.get(i + 1).getCreateTime() : null, medicalReportList);
-//            statConclusion.setSuggestDesksChairs();
-            statConclusionService.updateById(statConclusion);
-        }
-    }
-
-    /**
-     * 设置就诊信息
-     *
-     * @param statConclusion 预警跟踪档案
-     **/
-    private void setVisitInfo(StatConclusion statConclusion, Date startScreeningDate, Date endScreeningDate, List<MedicalReport> medicalReportList) {
-
-        statConclusion.setIsReview(false);
-        if (CollectionUtils.isEmpty(medicalReportList)) {
-            return;
-        }
-        MedicalReport medicalReport = medicalReportList.stream().filter(x -> Objects.isNull(endScreeningDate) ?
-                        x.getCreateTime().before(startScreeningDate) :
-                        x.getCreateTime().before(startScreeningDate) && x.getCreateTime().after(endScreeningDate))
-                .findFirst().orElse(null);
-        if (Objects.nonNull(medicalReport)) {
-            statConclusion.setIsReview(true);
-            statConclusion.setVisitResult(medicalReport.getMedicalContent());
-            statConclusion.setGlassesSuggest(medicalReport.getGlassesSituation());
-            statConclusion.setReportId(medicalReport.getId());
-        }
+    private void setIsBindMq(Integer studentId, StatConclusion statConclusion) {
+        Student student = studentService.getById(studentId);
+        statConclusion.setIsBindMp(StringUtils.isNotBlank(student.getMpParentPhone()));
     }
 
 }

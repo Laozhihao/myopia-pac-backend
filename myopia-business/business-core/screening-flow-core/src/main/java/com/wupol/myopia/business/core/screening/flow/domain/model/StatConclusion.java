@@ -109,26 +109,6 @@ public class StatConclusion implements Serializable {
     private Boolean isBindMp;
 
     /**
-     * 是否复查
-     */
-    private Boolean isReview;
-
-    /**
-     * 就诊结论
-     */
-    private String visitResult;
-
-    /**
-     * 戴镜建议
-     */
-    private Integer glassesSuggest;
-
-    /**
-     * 建议课桌椅
-     */
-    private String suggestDesksChairs;
-
-    /**
      * 报告Id
      */
     private Integer reportId;

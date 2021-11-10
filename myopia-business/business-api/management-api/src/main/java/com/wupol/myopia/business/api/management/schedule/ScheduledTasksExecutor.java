@@ -343,19 +343,4 @@ public class ScheduledTasksExecutor {
         log.info("本次复测统计共新增加内容{}条", size);
     }
 
-    /**
-     * 每天凌晨0点15分执行，结论
-     */
-    @Scheduled(cron = "0 15 0 * * ?")
-    @Transactional(rollbackFor = Exception.class)
-    public void statConclusion() {
-        Date yesterdayStartTime = DateUtil.getYesterdayStartTime();
-        Date yesterdayEndTime = DateUtil.getYesterdayEndTime();
-        List<StatConclusion> list = statConclusionService.getByDate(yesterdayStartTime, yesterdayEndTime);
-        Map<Integer, List<StatConclusion>> collect = list.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolId));
-        for (Map.Entry<Integer, List<StatConclusion>> entry : collect.entrySet()) {
-            visionScreeningBizService.updateStatConclusion(entry.getKey(), entry.getValue());
-        }
-    }
-
 }
