@@ -183,9 +183,9 @@ public class VisionScreeningResultExportDTO implements Serializable {
     private String rightBiometricCCT;
     @ExcelProperty({TOP_HEADER, "生物测量", "角膜中央厚度CCT（左）"})
     private String leftBiometricCCT;
-    @ExcelProperty({TOP_HEADER, "生物测量", "前房深度AD（右）"})
+    @ExcelProperty({TOP_HEADER, "生物测量", "房水深度ACD（右）"})
     private String rightBiometricAD;
-    @ExcelProperty({TOP_HEADER, "生物测量", "前房深度AD（左）"})
+    @ExcelProperty({TOP_HEADER, "生物测量", "房水深度ACD（左）"})
     private String leftBiometricAD;
     @ExcelProperty({TOP_HEADER, "生物测量", "晶体厚度LT（右）"})
     private String rightBiometricLT;

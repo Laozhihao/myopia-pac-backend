@@ -29,29 +29,33 @@ public class DiopterMedicalRecord {
         private Integer checkType;
         // 电脑验光
         /** 右眼球镜 */
-        private String computerRightSphere;
+        private String computerRightDS;
         /** 左眼球镜 */
-        private String computerLeftSphere;
+        private String computerLeftDS;
         /** 右眼柱镜 */
-        private String computerRightCylinder;
+        private String computerRightDC;
         /** 左眼柱镜 */
-        private String computerLeftCylinder;
+        private String computerLeftDC;
         /** 右眼轴位 */
         private String computerRightAxis;
         /** 左眼轴位 */
         private String computerLeftAxis;
+        /** 右眼轴位 */
+        private String computerRightSE;
+        /** 左眼轴位 */
+        private String computerLeftSE;
         /** 电脑瞳距 */
-        private String computerPupilDistance;
+        private String computerPD;
 
         // 检影验光
         /** 右眼球镜 */
-        private String retinoscopyRightSphere;
+        private String retinoscopyRightDS;
         /** 左眼球镜 */
-        private String retinoscopyLeftSphere;
+        private String retinoscopyLeftDS;
         /** 右眼柱镜 */
-        private String retinoscopyRightCylinder;
+        private String retinoscopyRightDC;
         /** 左眼柱镜 */
-        private String retinoscopyLeftCylinder;
+        private String retinoscopyLeftDC;
         /** 右眼轴位 */
         private String retinoscopyRightAxis;
         /** 左眼轴位 */
@@ -61,7 +65,7 @@ public class DiopterMedicalRecord {
         /** 左眼视力 */
         private String retinoscopyLeftVision;
         /** 检影瞳距 */
-        private String retinoscopyPupilDistance;
+        private String retinoscopyPD;
         /** 主导眼。1右眼，2左眼。非散瞳验光必填 */
         private String mainEye;
         /** 双眼平衡法。非散瞳验光必填。 */
