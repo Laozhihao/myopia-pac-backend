@@ -72,6 +72,7 @@
         <if test="id != null">
             and id != #{id}
         </if>
+        and status = 0
     </select>
 
     <update id="deletedStudent">
