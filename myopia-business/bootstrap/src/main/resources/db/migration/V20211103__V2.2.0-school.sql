@@ -43,3 +43,9 @@ alter table m_stat_conclusion
 
 alter table m_stat_conclusion
     add report_id int null comment '报告Id';
+
+alter table m_school_vision_statistic
+    add bind_mp_numbers int default 0 null comment '绑定公众号人数' after myopia_level_insufficient;
+
+alter table m_school_vision_statistic
+    add review_numbers int default 0 null comment '去医院就诊数' after bind_mp_numbers;
