@@ -179,7 +179,7 @@ public class StudentBizService {
             BeanUtils.copyProperties(statConclusion, studentWarningArchiveVO);
             studentWarningArchiveVO.setVisionLabel(statConclusion.getWarningLevel());
             // 筛查信息
-            studentWarningArchiveVO.setScreeningDate(statConclusion.getCreateTime());
+            studentWarningArchiveVO.setScreeningDate(statConclusion.getUpdateTime());
             ScreeningPlan screeningPlan = screeningPlanService.getById(statConclusion.getPlanId());
             studentWarningArchiveVO.setScreeningTitle(screeningPlan.getTitle());
             // 就诊情况
