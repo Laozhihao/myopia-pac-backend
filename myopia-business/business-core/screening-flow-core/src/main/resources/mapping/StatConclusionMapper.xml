@@ -260,6 +260,7 @@
                mspss.gender,
                mspss.class_name,
                mspss.grade_name,
+               mspss.student_no   as sno,
                msc.warning_level,
                msc.myopia_level,
                msc.hyperopia_level,

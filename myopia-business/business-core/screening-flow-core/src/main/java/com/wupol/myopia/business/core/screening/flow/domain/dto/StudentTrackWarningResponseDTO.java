@@ -14,6 +14,8 @@ import java.util.List;
 @Setter
 public class StudentTrackWarningResponseDTO {
 
+    private String sno;
+
     private Integer studentId;
 
     private Integer reportId;
