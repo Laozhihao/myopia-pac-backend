@@ -64,7 +64,7 @@ public class VisionScreeningBizService {
         //更新statConclusion表
         StatConclusion statConclusion = statConclusionService.saveOrUpdateStudentScreenData(getScreeningConclusionResult(allFirstAndSecondResult));
         // 更新是否绑定手机号码
-        setIsBindMq(screeningResultBasicData.getStudentId(), statConclusion);
+        setIsBindMq(statConclusion);
         //更新学生表的数据
         this.updateStudentVisionData(allFirstAndSecondResult.getFirst(),statConclusion);
         //返回最近一次的statConclusion
@@ -191,11 +191,10 @@ public class VisionScreeningBizService {
     /**
      * 是否绑定公众号
      *
-     * @param studentId      学生Id
      * @param statConclusion 结论
      */
-    private void setIsBindMq(Integer studentId, StatConclusion statConclusion) {
-        Student student = studentService.getById(studentId);
+    private void setIsBindMq(StatConclusion statConclusion) {
+        Student student = studentService.getById(statConclusion.getStudentId());
         statConclusion.setIsBindMp(StringUtils.isNotBlank(student.getMpParentPhone()));
     }
 
