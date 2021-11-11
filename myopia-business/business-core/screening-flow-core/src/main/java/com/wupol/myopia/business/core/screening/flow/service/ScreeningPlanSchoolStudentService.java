@@ -384,4 +384,14 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     public ScreeningPlanSchoolStudent getOneByStudentName(String name) {
         return baseMapper.getOneByStudentName(name);
     }
+
+    /**
+     * 通过学生Id获取最新一条筛查学生
+     *
+     * @param studentId 学生Id
+     * @return ScreeningPlanSchoolStudent
+     */
+    public ScreeningPlanSchoolStudent getLastByStudentId(Integer studentId) {
+        return baseMapper.getLastByStudentId(studentId);
+    }
 }

@@ -48,4 +48,6 @@ public interface ScreeningPlanSchoolStudentMapper extends BaseMapper<ScreeningPl
     List<ScreeningPlanSchoolStudent> getByPlanIdAndSchoolIdAndGradeIdAndClassId(@Param("planId") Integer planId, @Param("schoolId") Integer schoolId, @Param("gradeId") Integer gradeId, @Param("classId") Integer classId);
 
     ScreeningPlanSchoolStudent getOneByStudentName(String name);
+
+    ScreeningPlanSchoolStudent getLastByStudentId(@Param("studentId") Integer studentId);
 }

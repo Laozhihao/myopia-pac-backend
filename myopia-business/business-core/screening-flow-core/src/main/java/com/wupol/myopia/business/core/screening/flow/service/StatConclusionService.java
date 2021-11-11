@@ -264,5 +264,15 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
                                                               Integer schoolId) {
         return baseMapper.getTrackList(pageRequest.toPage(), requestDTO, schoolId);
     }
+
+    /**
+     * 通过筛查学生获取
+     *
+     * @param planStudentId 筛查学生
+     * @return StatConclusion
+     */
+    public StatConclusion getByPlanStudentId(Integer planStudentId) {
+        return baseMapper.getByPlanStudentId(planStudentId);
+    }
 }
 

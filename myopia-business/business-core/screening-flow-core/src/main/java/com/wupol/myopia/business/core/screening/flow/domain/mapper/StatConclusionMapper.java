@@ -93,4 +93,6 @@ public interface StatConclusionMapper extends BaseMapper<StatConclusion> {
     List<StatConclusion> getByDate(@Param("start") Date start, @Param("end") Date end);
 
     IPage<StudentTrackWarningResponseDTO> getTrackList(@Param("page") Page<?> page, @Param("requestDTO") StudentTrackWarningRequestDTO requestDTO, @Param("schoolId") Integer schoolId);
+
+    StatConclusion getByPlanStudentId(@Param("planStudentId") Integer planStudentId);
 }
