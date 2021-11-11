@@ -11,6 +11,7 @@ import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudent
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentRequestDTO;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
+import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningResultResponseDTO;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,6 +36,9 @@ public class SchoolStudentController {
 
     @Resource
     private SchoolStudentService schoolStudentService;
+
+    @Resource
+    private StudentService studentService;
 
 
     /**
@@ -97,6 +101,7 @@ public class SchoolStudentController {
     @DeleteMapping("{id}")
     public Boolean deletedStudent(@PathVariable("id") Integer id) {
         schoolStudentService.deletedStudent(id);
+        studentService.deletedStudent(schoolStudentService.getById(id).getStudentId());
         return Boolean.TRUE;
     }
 }
