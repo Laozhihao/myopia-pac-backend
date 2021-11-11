@@ -3,6 +3,8 @@ package com.wupol.myopia.business.core.screening.flow.domain.dto;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.constraints.NotNull;
+
 /**
  * 学生跟踪预警请求DTO
  *
@@ -15,6 +17,7 @@ public class StudentTrackWarningRequestDTO {
     /**
      * 计划Id
      */
+    @NotNull(message = "planId不能为空")
     private Integer planId;
 
     /**

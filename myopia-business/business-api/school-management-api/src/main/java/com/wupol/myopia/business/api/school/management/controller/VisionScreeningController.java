@@ -16,6 +16,7 @@ import com.wupol.myopia.business.core.stat.service.SchoolVisionStatisticService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -81,7 +82,7 @@ public class VisionScreeningController {
      * @return IPage<StudentTrackWarningResponseDTO>
      */
     @GetMapping("statStudents/list")
-    public IPage<StudentTrackWarningResponseDTO> queryStudentInfos(PageRequest pageRequest, StudentTrackWarningRequestDTO requestDTO) {
+    public IPage<StudentTrackWarningResponseDTO> queryStudentInfos(PageRequest pageRequest, @Valid StudentTrackWarningRequestDTO requestDTO) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         return visionScreeningService.getTrackList(pageRequest, requestDTO, currentUser.getOrgId());
     }
