@@ -29,6 +29,11 @@ public class StudentTrackWarningResponseDTO {
     private String gradeName;
 
     /**
+     * 学校端学生Id
+     */
+    private Integer schoolStudentId;
+
+    /**
      * 近视预警等级
      * {@link com.wupol.myopia.business.common.utils.constant.MyopiaLevelEnum}
      */

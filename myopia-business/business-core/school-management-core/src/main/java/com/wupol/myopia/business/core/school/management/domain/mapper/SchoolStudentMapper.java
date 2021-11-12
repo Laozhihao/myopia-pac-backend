@@ -23,5 +23,7 @@ public interface SchoolStudentMapper extends BaseMapper<SchoolStudent> {
 
     void deletedStudent(@Param("id") Integer id);
 
+    List<SchoolStudent> getByStudentIds(@Param("studentIds") List<Integer> studentIds);
+
 
 }

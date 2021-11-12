@@ -2,6 +2,8 @@ package com.wupol.myopia.business.api.school.management.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
+import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningListResponseDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentTrackWarningRequestDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentTrackWarningResponseDTO;
@@ -40,6 +42,9 @@ public class VisionScreeningService {
 
     @Resource
     private StatConclusionService statConclusionService;
+
+    @Resource
+    private SchoolStudentService schoolStudentService;
 
     /**
      * 获取视力筛查列表
@@ -101,8 +106,10 @@ public class VisionScreeningService {
         if (CollectionUtils.isEmpty(trackList)) {
             return responseDTO;
         }
+        List<Integer> studentIds = trackList.stream().map(StudentTrackWarningResponseDTO::getStudentId).collect(Collectors.toList());
+        Map<Integer, Integer> schoolStudentMap = schoolStudentService.getByStudentIds(studentIds).stream().collect(Collectors.toMap(SchoolStudent::getStudentId, SchoolStudent::getId));
         trackList.forEach(track -> {
-
+            track.setSchoolStudentId(schoolStudentMap.get(track.getStudentId()));
         });
         return responseDTO;
     }

@@ -56,4 +56,14 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
     public void deletedStudent(Integer id) {
         baseMapper.deletedStudent(id);
     }
+
+    /**
+     * 通过学生ids获取学校学生
+     *
+     * @param studentIds 学生ids
+     * @return List<SchoolStudent>
+     */
+    public List<SchoolStudent> getByStudentIds(List<Integer> studentIds) {
+        return baseMapper.getByStudentIds(studentIds);
+    }
 }
