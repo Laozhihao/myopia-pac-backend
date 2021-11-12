@@ -116,7 +116,7 @@ public class SchoolStudentBizService {
         Integer managementStudentId = updateManagementStudent(schoolStudent);
         schoolStudent.setStudentId(managementStudentId);
 
-        schoolStudent.setGradeName(schoolGradeService.getById(schoolStudent.getGradeId()).getGradeCode());
+        schoolStudent.setGradeName(schoolGradeService.getById(schoolStudent.getGradeId()).getName());
         schoolStudent.setClassName(schoolClassService.getById(schoolStudent.getClassId()).getName());
         schoolStudentService.saveOrUpdate(schoolStudent);
         return schoolStudent;
