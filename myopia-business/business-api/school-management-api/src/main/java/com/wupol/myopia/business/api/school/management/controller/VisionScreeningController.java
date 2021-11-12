@@ -92,6 +92,12 @@ public class VisionScreeningController {
         return visionScreeningService.getTrackList(pageRequest, requestDTO, currentUser.getOrgId());
     }
 
+    /**
+     * 获取筛查计划信息
+     *
+     * @param screeningPlanId 筛查计划Id
+     * @return ScreeningPlan
+     */
     @GetMapping("/plan/{screeningPlanId}")
     public ScreeningPlan getPlanInfo(@PathVariable("screeningPlanId") Integer screeningPlanId) {
         return screeningPlanService.getById(screeningPlanId);
