@@ -4,6 +4,8 @@ import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedExcep
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.domain.model.Student;
+import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
+import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.builder.ScreeningResultBuilder;
@@ -46,6 +48,8 @@ public class VisionScreeningBizService {
     private StudentService studentService;
     @Autowired
     private SchoolGradeService schoolGradeService;
+    @Autowired
+    private SchoolStudentService schoolStudentService;
 
     /**
      * 保存学生眼镜信息
@@ -67,6 +71,7 @@ public class VisionScreeningBizService {
         setIsBindMq(statConclusion);
         //更新学生表的数据
         this.updateStudentVisionData(allFirstAndSecondResult.getFirst(),statConclusion);
+        updateSchoolStudent(statConclusion,allFirstAndSecondResult.getFirst().getUpdateTime());
         //返回最近一次的statConclusion
         TwoTuple<VisionScreeningResult, StatConclusion> visionScreeningResultStatConclusionTwoTuple = new TwoTuple<>();
         visionScreeningResultStatConclusionTwoTuple.setFirst(allFirstAndSecondResult.getFirst());
@@ -186,6 +191,22 @@ public class VisionScreeningBizService {
         student.setHyperopiaLevel(statConclusion.getHyperopiaLevel());
         student.setMyopiaLevel(statConclusion.getMyopiaLevel());
         studentService.updateStudent(student);
+    }
+
+    /**
+     * 更新学校学生
+     *
+     * @param statConclusion    结论
+     * @param lastScreeningTime 上次筛查时间
+     */
+    private void updateSchoolStudent(StatConclusion statConclusion, Date lastScreeningTime) {
+        SchoolStudent schoolStudent = schoolStudentService.getByStudentId(statConclusion.getStudentId());
+        schoolStudent.setGlassesType(statConclusion.getGlassesType());
+        schoolStudent.setLastScreeningTime(lastScreeningTime);
+        schoolStudent.setVisionLabel(statConclusion.getWarningLevel());
+        schoolStudent.setMyopiaLevel(statConclusion.getMyopiaLevel());
+        schoolStudent.setHyperopiaLevel(statConclusion.getHyperopiaLevel());
+        schoolStudent.setAstigmatismLevel(statConclusion.getAstigmatismLevel());
     }
 
     /**
