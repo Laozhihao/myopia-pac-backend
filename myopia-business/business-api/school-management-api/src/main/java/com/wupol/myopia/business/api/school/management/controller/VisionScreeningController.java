@@ -11,6 +11,8 @@ import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningListResponseDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentTrackWarningRequestDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentTrackWarningResponseDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.stat.domain.model.SchoolVisionStatistic;
 import com.wupol.myopia.business.core.stat.service.SchoolVisionStatisticService;
 import org.springframework.web.bind.annotation.*;
@@ -38,6 +40,9 @@ public class VisionScreeningController {
 
     @Resource
     private ScreeningPlanSchoolStudentFacadeService screeningPlanSchoolStudentFacadeService;
+
+    @Resource
+    private ScreeningPlanService screeningPlanService;
 
     /**
      * 获取学校计划
@@ -85,5 +90,10 @@ public class VisionScreeningController {
     public IPage<StudentTrackWarningResponseDTO> queryStudentInfos(PageRequest pageRequest, @Valid StudentTrackWarningRequestDTO requestDTO) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         return visionScreeningService.getTrackList(pageRequest, requestDTO, currentUser.getOrgId());
+    }
+
+    @GetMapping("/plan/{screeningPlanId}")
+    public ScreeningPlan getPlanInfo(@PathVariable("screeningPlanId") Integer screeningPlanId) {
+        return screeningPlanService.getById(screeningPlanId);
     }
 }
