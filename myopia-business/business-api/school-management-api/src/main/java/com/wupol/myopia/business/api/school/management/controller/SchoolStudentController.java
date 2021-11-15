@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.school.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
@@ -13,6 +14,8 @@ import com.wupol.myopia.business.core.school.management.domain.model.SchoolStude
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningResultResponseDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
+import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -39,6 +42,9 @@ public class SchoolStudentController {
 
     @Resource
     private StudentService studentService;
+
+    @Resource
+    private VisionScreeningResultService visionScreeningResultService;
 
 
     /**
@@ -103,5 +109,11 @@ public class SchoolStudentController {
         schoolStudentService.deletedStudent(id);
         studentService.deletedStudent(schoolStudentService.getById(id).getStudentId());
         return Boolean.TRUE;
+    }
+
+    @GetMapping("card/{resultId}")
+    public Object getCard(@PathVariable("resultId") Integer resultId) {
+        VisionScreeningResult visionScreeningResult = visionScreeningResultService.getById(resultId);
+        return Lists.newArrayList(studentFacade.getStudentCardResponseDTO(visionScreeningResult));
     }
 }

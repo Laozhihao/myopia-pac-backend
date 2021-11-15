@@ -41,14 +41,17 @@
         <dependency>
             <groupId>com.wupol.myopia</groupId>
             <artifactId>stat-core</artifactId>
-            <version>MP-2.1.0</version>
-            <scope>compile</scope>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.wupol.myopia</groupId>
             <artifactId>screening-biz</artifactId>
-            <version>MP-2.1.0</version>
-            <scope>compile</scope>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>export-biz</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
     </dependencies>

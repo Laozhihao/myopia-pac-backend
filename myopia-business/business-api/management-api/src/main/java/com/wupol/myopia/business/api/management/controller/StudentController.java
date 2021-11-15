@@ -196,7 +196,7 @@ public class StudentController {
      */
     @GetMapping("/screening/card/{resultId}")
     public StudentCardResponseVO getCardDetails(@PathVariable("resultId") Integer resultId) {
-        return studentBizService.getCardDetail(resultId);
+        return studentFacade.getCardDetail(resultId);
     }
 
     /**
