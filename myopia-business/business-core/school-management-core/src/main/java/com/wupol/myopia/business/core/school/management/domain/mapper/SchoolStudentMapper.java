@@ -27,5 +27,7 @@ public interface SchoolStudentMapper extends BaseMapper<SchoolStudent> {
 
     SchoolStudent getByStudentId(@Param("studentId") Integer studentId);
 
+    List<SchoolStudent> getBySchoolIdAndGradeId(@Param("schoolId") Integer schoolId, @Param("gradeId") Integer gradeId);
+
 
 }

@@ -5,6 +5,9 @@ import com.google.common.collect.Lists;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.aggregation.export.ExportStrategy;
+import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
+import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
 import com.wupol.myopia.business.api.school.management.service.SchoolStudentBizService;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
@@ -15,10 +18,13 @@ import com.wupol.myopia.business.core.school.management.service.SchoolStudentSer
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningResultResponseDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
+import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentCardResponseVO;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.io.IOException;
+import java.util.List;
 
 /**
  * 学校端学生
@@ -45,6 +51,9 @@ public class SchoolStudentController {
 
     @Resource
     private VisionScreeningResultService visionScreeningResultService;
+
+    @Resource
+    private ExportStrategy exportStrategy;
 
 
     /**
@@ -111,9 +120,32 @@ public class SchoolStudentController {
         return Boolean.TRUE;
     }
 
+    /**
+     * 获取档案卡
+     *
+     * @param resultId 结论Id
+     * @return List<StudentCardResponseVO>
+     */
     @GetMapping("card/{resultId}")
-    public Object getCard(@PathVariable("resultId") Integer resultId) {
+    public List<StudentCardResponseVO> getCard(@PathVariable("resultId") Integer resultId) {
         VisionScreeningResult visionScreeningResult = visionScreeningResultService.getById(resultId);
         return Lists.newArrayList(studentFacade.getStudentCardResponseDTO(visionScreeningResult));
+    }
+
+
+    /**
+     * 导出学校学生
+     *
+     * @param gradeId 年级Id
+     * @throws IOException io异常
+     */
+    @GetMapping("/export")
+    public void getStudentExportData(Integer gradeId) throws IOException {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        exportStrategy.doExport(new ExportCondition()
+                        .setApplyExportFileUserId(user.getId())
+                        .setSchoolId(user.getOrgId())
+                        .setGradeId(gradeId),
+                ExportExcelServiceNameConstant.SCHOOL_STUDENT_EXCEL_SERVICE);
     }
 }

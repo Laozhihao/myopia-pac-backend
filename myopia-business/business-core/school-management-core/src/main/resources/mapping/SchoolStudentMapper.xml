@@ -97,4 +97,14 @@
         from m_school_student
         where student_id = #{studentId}
     </select>
+
+    <select id="getBySchoolIdAndGradeId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school_student where status = 0
+                                and school_id = #{schoolId}
+        <if test="gradeId != null">
+            and grade_id = #{gradeId}
+        </if>
+    </select>
 </mapper>
