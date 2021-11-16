@@ -30,6 +30,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
+import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.stat.domain.model.SchoolVisionStatistic;
@@ -248,6 +249,17 @@ public class VisionScreeningController {
     public Object updateScreeningOrganization(@RequestBody @Valid ScreeningOrganization screeningOrganization) {
         screeningOrganizationService.updateById(screeningOrganization);
         return ApiResult.success();
+    }
+
+    /**
+     * 获取筛查机构
+     *
+     * @param screeningOrgId 筛查机构Id
+     * @return ScreeningOrgResponseDTO
+     */
+    @GetMapping("screeningOrg/{screeningOrgId}")
+    public ScreeningOrgResponseDTO getScreeningOrganization(@PathVariable("screeningOrgId")Integer screeningOrgId) {
+        return screeningOrganizationService.getScreeningOrgDetails(screeningOrgId);
     }
 
     /**
