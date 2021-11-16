@@ -82,7 +82,7 @@ public class VisionScreeningService {
 
         // 筛查机构
         List<Integer> orgIds = schoolPlanList.stream().map(ScreeningListResponseDTO::getScreeningOrgId).collect(Collectors.toList());
-        Map<Integer, NotificationConfig> notificationConfigMap = screeningOrganizationService.getByIds(orgIds).stream()
+        Map<Integer, NotificationConfig> notificationConfigMap = screeningOrganizationService.getScreeningOrgDetails(orgIds).stream()
                 .collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization::getNotificationConfig));
 
         schoolPlanList.forEach(schoolPlan -> {

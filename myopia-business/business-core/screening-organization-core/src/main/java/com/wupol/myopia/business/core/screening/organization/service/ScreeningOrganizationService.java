@@ -299,4 +299,14 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         });
         return accountList;
     }
+
+    /**
+     * 获取筛查机构详情
+     *
+     * @param ids 筛查机构Ids
+     * @return List<ScreeningOrgResponseDTO>
+     */
+    public List<ScreeningOrgResponseDTO> getScreeningOrgDetails(List<Integer> ids) {
+        return baseMapper.getOrgByIds(ids);
+    }
 }
