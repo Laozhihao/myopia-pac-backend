@@ -5,6 +5,7 @@ import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.exception.ExcelAnalysisException;
 import com.alibaba.excel.write.merge.OnceAbsoluteMergeStrategy;
 import com.alibaba.fastjson.JSONPath;
+import com.google.common.collect.Lists;
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.constant.SystemCode;
@@ -20,6 +21,8 @@ import com.wupol.myopia.business.core.school.domain.dto.SchoolClassExportDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeExportDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.Student;
+import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
+import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
@@ -97,6 +100,8 @@ public class ExcelFacade {
     private ExcelStudentService excelStudentService;
     @Autowired
     private RedisUtil redisUtil;
+    @Autowired
+    private SchoolStudentService schoolStudentService;
 
     /**
      * 导入学生
@@ -195,7 +200,7 @@ public class ExcelFacade {
      * 读取Excel数据
      *
      * @param multipartFile Excel文件
-     * @return java.util.List<java.util.Map<java.lang.Integer,java.lang.String>>
+     * @return java.util.List<java.util.Map < java.lang.Integer, java.lang.String>>
      **/
     private List<Map<Integer, String>> readExcel(MultipartFile multipartFile) {
         String fileName = IOUtils.getTempPath() + multipartFile.getName() + "_" + System.currentTimeMillis() + FILE_SUFFIX;
@@ -653,7 +658,7 @@ public class ExcelFacade {
     /**
      * 检查学生信息是否完整
      *
-     * @param item 学生信息
+     * @param item   学生信息
      * @param offset 偏移量(导入的为同一个学校的数据时，没有学校编号列，后面的左移一列)
      */
     private void checkStudentInfo(Map<Integer, String> item, int offset) {
@@ -744,5 +749,111 @@ public class ExcelFacade {
     private String generateSingleSuffixUMStr(Object val) {
         DecimalFormat decimalFormat = new DecimalFormat("0.00");
         return (StringUtils.isNotBlank((CharSequence) val) ? decimalFormat.format(new BigDecimal((String) val)) + "um" : "--");
+    }
+
+    public void importSchoolStudent(Integer createUserId, MultipartFile multipartFile, Integer schoolId) throws ParseException {
+        List<Map<Integer, String>> listMap = readExcel(multipartFile);
+        if (CollectionUtils.isEmpty(listMap)) {
+            return;
+        }
+
+        School school = schoolService.getById(schoolId);
+
+        // 收集身份证号码
+        List<String> idCards = listMap.stream().map(s -> s.get(8)).filter(Objects::nonNull).collect(Collectors.toList());
+
+        // 收集年级信息
+        List<SchoolGradeExportDTO> grades = schoolGradeService.getBySchoolIds(Lists.newArrayList(school.getId()));
+        schoolGradeService.packageGradeInfo(grades);
+
+        // 年级信息通过学校Id分组
+        Map<Integer, List<SchoolGradeExportDTO>> schoolGradeMaps = grades.stream()
+                .collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolId));
+
+        for (Map<Integer, String> item : listMap) {
+            SchoolStudent schoolStudent = new SchoolStudent();
+            if (StringUtils.isBlank(item.get(0))) {
+                break;
+            }
+            schoolStudent.setName(item.get(0))
+                    .setGender(GenderEnum.getType(item.get(1)))
+                    .setBirthday(DateFormatUtil.parseDate(item.get(2), DateFormatUtil.FORMAT_ONLY_DATE2))
+                    .setNation(NationEnum.getCode(item.get(3)))
+                    .setSchoolNo(school.getSchoolNo())
+                    .setGradeType(GradeCodeEnum.getByName(item.get(4)).getType())
+                    .setSno((item.get(6)))
+                    .setIdCard(item.get(7))
+                    .setParentPhone(item.get(8))
+                    .setCreateUserId(createUserId)
+                    .setSchoolId(schoolId);
+            schoolStudent.setProvinceCode(districtService.getCodeByName(item.get(9)));
+            schoolStudent.setCityCode(districtService.getCodeByName(item.get(10)));
+            schoolStudent.setAreaCode(districtService.getCodeByName(item.get(11)));
+            schoolStudent.setTownCode(districtService.getCodeByName(item.get(12)));
+            schoolStudent.setAddress(item.get(13));
+            // 通过学校编号获取改学校的年级信息
+            List<SchoolGradeExportDTO> schoolGradeExportVOS = schoolGradeMaps.get(schoolId);
+            // 转换成年级Maps，年级名称作为Key
+            Map<String, SchoolGradeExportDTO> gradeMaps = schoolGradeExportVOS.stream()
+                    .collect(Collectors.toMap(SchoolGradeExportDTO::getName, Function.identity()));
+            // 年级信息
+            SchoolGradeExportDTO schoolGradeExportDTO = gradeMaps.get(item.get(4));
+            Assert.notNull(schoolGradeExportDTO, "年级数据异常");
+            // 设置年级ID
+            schoolStudent.setGradeId(schoolGradeExportDTO.getId());
+            schoolStudent.setGradeName(item.get(4));
+            // 获取年级内的班级信息
+            List<SchoolClassExportDTO> classExportVOS = schoolGradeExportDTO.getChild();
+            // 转换成班级Maps 把班级名称作为key
+            Map<String, Integer> classExportMaps = classExportVOS.stream()
+                    .collect(Collectors.toMap(SchoolClassExportDTO::getName, SchoolClassExportDTO::getId));
+            Integer classId = classExportMaps.get(item.get(5));
+            Assert.notNull(classId, "班级数据为空");
+            // 设置班级信息
+            schoolStudent.setClassId(classId);
+            schoolStudent.setClassName(item.get(5));
+            // 更新管理端
+            Integer managementStudentId = updateManagementStudent(schoolStudent);
+            schoolStudent.setStudentId(managementStudentId);
+            schoolStudentService.save(schoolStudent);
+        }
+
+    }
+
+    /**
+     * 更新管理端的学生信息
+     *
+     * @param schoolStudent 学校端学生
+     * @return 管理端学生
+     */
+    public Integer updateManagementStudent(SchoolStudent schoolStudent) {
+        // 通过身份证在管理端查找学生
+        Student managementStudent = studentService.getByIdCard(schoolStudent.getIdCard());
+
+        // 如果为空新增，否则是更新
+        if (Objects.isNull(managementStudent)) {
+            Student student = new Student();
+            BeanUtils.copyProperties(schoolStudent, student);
+            studentService.saveStudent(student);
+            return student.getId();
+        }
+        managementStudent.setSchoolId(schoolStudent.getSchoolId());
+        managementStudent.setSchoolNo(schoolStudent.getSchoolNo());
+        managementStudent.setSno(schoolStudent.getSno());
+        managementStudent.setName(schoolStudent.getName());
+        managementStudent.setGender(schoolStudent.getGender());
+        managementStudent.setClassId(schoolStudent.getClassId());
+        managementStudent.setGradeId(schoolStudent.getGradeId());
+        managementStudent.setIdCard(schoolStudent.getIdCard());
+        managementStudent.setBirthday(schoolStudent.getBirthday());
+        managementStudent.setNation(schoolStudent.getNation());
+        managementStudent.setParentPhone(schoolStudent.getParentPhone());
+        managementStudent.setProvinceCode(schoolStudent.getProvinceCode());
+        managementStudent.setCityCode(schoolStudent.getCityCode());
+        managementStudent.setAreaCode(schoolStudent.getAreaCode());
+        managementStudent.setTownCode(schoolStudent.getTownCode());
+        managementStudent.setAddress(schoolStudent.getAddress());
+        studentService.updateStudent(managementStudent);
+        return managementStudent.getId();
     }
 }

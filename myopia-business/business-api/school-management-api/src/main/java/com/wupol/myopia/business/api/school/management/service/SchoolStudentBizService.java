@@ -2,11 +2,11 @@ package com.wupol.myopia.business.api.school.management.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.core.school.domain.model.School;
-import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentListResponseDTO;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentRequestDTO;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
@@ -14,10 +14,8 @@ import com.wupol.myopia.business.core.school.management.service.SchoolStudentSer
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
-import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -46,7 +44,7 @@ public class SchoolStudentBizService {
     private MedicalReportService medicalReportService;
 
     @Resource
-    private StudentService studentService;
+    private ExcelFacade excelFacade;
 
     @Resource
     private SchoolGradeService schoolGradeService;
@@ -113,7 +111,7 @@ public class SchoolStudentBizService {
         }
 
         // 更新管理端的数据
-        Integer managementStudentId = updateManagementStudent(schoolStudent);
+        Integer managementStudentId = excelFacade.updateManagementStudent(schoolStudent);
         schoolStudent.setStudentId(managementStudentId);
 
         schoolStudent.setGradeName(schoolGradeService.getById(schoolStudent.getGradeId()).getName());
@@ -122,43 +120,6 @@ public class SchoolStudentBizService {
         return schoolStudent;
     }
 
-
-    /**
-     * 更新管理端的学生信息
-     *
-     * @param schoolStudent 学校端学生
-     * @return 管理端学生
-     */
-    private Integer updateManagementStudent(SchoolStudent schoolStudent) {
-        // 通过身份证在管理端查找学生
-        Student managementStudent = studentService.getByIdCard(schoolStudent.getIdCard());
-
-        // 如果为空新增，否则是更新
-        if (Objects.isNull(managementStudent)) {
-            Student student = new Student();
-            BeanUtils.copyProperties(schoolStudent, student);
-            studentService.saveStudent(student);
-            return student.getId();
-        }
-        managementStudent.setSchoolId(schoolStudent.getSchoolId());
-        managementStudent.setSchoolNo(schoolStudent.getSchoolNo());
-        managementStudent.setSno(schoolStudent.getSno());
-        managementStudent.setName(schoolStudent.getName());
-        managementStudent.setGender(schoolStudent.getGender());
-        managementStudent.setClassId(schoolStudent.getClassId());
-        managementStudent.setGradeId(schoolStudent.getGradeId());
-        managementStudent.setIdCard(schoolStudent.getIdCard());
-        managementStudent.setBirthday(schoolStudent.getBirthday());
-        managementStudent.setNation(schoolStudent.getNation());
-        managementStudent.setParentPhone(schoolStudent.getParentPhone());
-        managementStudent.setProvinceCode(schoolStudent.getProvinceCode());
-        managementStudent.setCityCode(schoolStudent.getCityCode());
-        managementStudent.setAreaCode(schoolStudent.getAreaCode());
-        managementStudent.setTownCode(schoolStudent.getTownCode());
-        managementStudent.setAddress(schoolStudent.getAddress());
-        studentService.updateStudent(managementStudent);
-        return managementStudent.getId();
-    }
 
     /**
      * 学号、身份证是否重复

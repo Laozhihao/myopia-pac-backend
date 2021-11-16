@@ -2,10 +2,12 @@ package com.wupol.myopia.business.api.school.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.google.common.collect.Lists;
+import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
+import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
@@ -21,9 +23,11 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreenin
 import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentCardResponseVO;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.List;
 
 /**
@@ -54,6 +58,9 @@ public class SchoolStudentController {
 
     @Resource
     private ExportStrategy exportStrategy;
+
+    @Resource
+    private ExcelFacade excelFacade;
 
 
     /**
@@ -147,5 +154,17 @@ public class SchoolStudentController {
                         .setSchoolId(user.getOrgId())
                         .setGradeId(gradeId),
                 ExportExcelServiceNameConstant.SCHOOL_STUDENT_EXCEL_SERVICE);
+    }
+
+    /**
+     * 导入学生列表
+     *
+     * @param file 导入文件
+     */
+    @PostMapping("/import")
+    public Object importStudent(MultipartFile file) throws ParseException {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        excelFacade.importSchoolStudent(currentUser.getId(), file, currentUser.getOrgId());
+        return ApiResult.success();
     }
 }
