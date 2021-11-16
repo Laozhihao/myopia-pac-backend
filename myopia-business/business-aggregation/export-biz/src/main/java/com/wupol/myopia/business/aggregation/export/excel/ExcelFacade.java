@@ -760,7 +760,14 @@ public class ExcelFacade {
         School school = schoolService.getById(schoolId);
 
         // 收集身份证号码
-        List<String> idCards = listMap.stream().map(s -> s.get(8)).filter(Objects::nonNull).collect(Collectors.toList());
+        List<String> idCards = listMap.stream().map(s -> s.get(7)).filter(Objects::nonNull).collect(Collectors.toList());
+        List<String> snos = listMap.stream().map(s -> s.get(6)).filter(Objects::nonNull).collect(Collectors.toList());
+        checkIdCard(idCards, snos);
+
+        // 获取学校学生
+        List<SchoolStudent> studentList = schoolStudentService.getByIdCardOrSno(idCards, snos, schoolId);
+        Map<String, SchoolStudent> snoMap = studentList.stream().collect(Collectors.toMap(SchoolStudent::getSno, Function.identity()));
+        Map<String, SchoolStudent> idCardMap = studentList.stream().collect(Collectors.toMap(SchoolStudent::getIdCard, Function.identity()));
 
         // 收集年级信息
         List<SchoolGradeExportDTO> grades = schoolGradeService.getBySchoolIds(Lists.newArrayList(school.getId()));
@@ -775,6 +782,7 @@ public class ExcelFacade {
             if (StringUtils.isBlank(item.get(0))) {
                 break;
             }
+            checkIsExist(snoMap, idCardMap, item.get(6), item.get(7));
             schoolStudent.setName(item.get(0))
                     .setGender(GenderEnum.getType(item.get(1)))
                     .setBirthday(DateFormatUtil.parseDate(item.get(2), DateFormatUtil.FORMAT_ONLY_DATE2))
@@ -855,5 +863,66 @@ public class ExcelFacade {
         managementStudent.setAddress(schoolStudent.getAddress());
         studentService.updateStudent(managementStudent);
         return managementStudent.getId();
+    }
+
+    /**
+     * 检查身份证、学号是否重复
+     *
+     * @param idCards 身份证
+     * @param snoList 学号
+     */
+    private void checkIdCard(List<String> idCards, List<String> snoList) {
+        if (CollectionUtils.isEmpty(idCards)) {
+            throw new BusinessException("身份证为空");
+        }
+        if (CollectionUtils.isEmpty(snoList)) {
+            throw new BusinessException("学号为空");
+        }
+        List<String> idCardDuplicate = getDuplicateElements(idCards);
+        if (!CollectionUtils.isEmpty(idCardDuplicate)) {
+            throw new BusinessException("身份证号码：" + String.join(",", idCardDuplicate) + "重复");
+        }
+        List<String> snoDuplicate = getDuplicateElements(snoList);
+        if (!CollectionUtils.isEmpty(snoDuplicate)) {
+            throw new BusinessException("学号：" + String.join(",", snoDuplicate) + "重复");
+        }
+    }
+
+    /**
+     * list中重复的元素
+     *
+     * @param list list
+     * @param <T>  对象
+     * @return 重复的元素
+     */
+    public static <T> List<T> getDuplicateElements(List<T> list) {
+        return list.stream()
+                .collect(Collectors.toMap(e -> e, e -> 1, Integer::sum))
+                .entrySet().stream()
+                .filter(entry -> entry.getValue() > 1)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 学校端-学生是否存在
+     *
+     * @param snoMap    学号Map
+     * @param idCardMap 身份证Map
+     * @param sno       学号
+     * @param idCard    身份证
+     */
+    private void checkIsExist(Map<String, SchoolStudent> snoMap, Map<String, SchoolStudent> idCardMap,
+                              String sno, String idCard) {
+
+        if (StringUtils.isAllBlank(sno, idCard)) {
+            throw new BusinessException("学号或身份证为空");
+        }
+        if (Objects.nonNull(snoMap.get(sno))) {
+            throw new BusinessException("学号" + sno + "在系统中重复");
+        }
+        if (Objects.nonNull(idCardMap.get(idCard))) {
+            throw new BusinessException("身份证" + idCard + "在系统中重复");
+        }
     }
 }

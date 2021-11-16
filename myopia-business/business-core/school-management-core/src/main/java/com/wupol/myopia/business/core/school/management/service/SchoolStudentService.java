@@ -87,4 +87,16 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
     public List<SchoolStudent> getBySchoolIdAndGradeId(Integer schoolId, Integer gradeId) {
         return baseMapper.getBySchoolIdAndGradeId(schoolId, gradeId);
     }
+
+    /**
+     * 通过身份证或学号获取学生
+     *
+     * @param idCards  身份证
+     * @param snos     学号
+     * @param schoolId 学校Id
+     * @return List<SchoolStudent>
+     */
+    public List<SchoolStudent> getByIdCardOrSno(List<String> idCards, List<String> snos, Integer schoolId) {
+        return baseMapper.getByIdCardOrSno(idCards, snos, schoolId);
+    }
 }

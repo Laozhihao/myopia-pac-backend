@@ -107,4 +107,20 @@
             and grade_id = #{gradeId}
         </if>
     </select>
+
+    <select id="getByIdCardOrSno" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school_student where school_id = #{schoolId}
+                                and status = 0
+                                and (id_card in
+        <foreach collection="idCards" item="idCard" index="index" open="(" close=")" separator=",">
+            #{idCard}
+        </foreach>
+        or sno in
+        <foreach collection="snos" item="sno" index="index" open="(" close=")" separator=",">
+            #{sno}
+        </foreach>
+        )
+    </select>
 </mapper>
