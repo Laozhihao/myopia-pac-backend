@@ -878,30 +878,14 @@ public class ExcelFacade {
         if (CollectionUtils.isEmpty(snoList)) {
             throw new BusinessException("学号为空");
         }
-        List<String> idCardDuplicate = getDuplicateElements(idCards);
+        List<String> idCardDuplicate = ListUtil.getDuplicateElements(idCards);
         if (!CollectionUtils.isEmpty(idCardDuplicate)) {
             throw new BusinessException("身份证号码：" + String.join(",", idCardDuplicate) + "重复");
         }
-        List<String> snoDuplicate = getDuplicateElements(snoList);
+        List<String> snoDuplicate = ListUtil.getDuplicateElements(snoList);
         if (!CollectionUtils.isEmpty(snoDuplicate)) {
             throw new BusinessException("学号：" + String.join(",", snoDuplicate) + "重复");
         }
-    }
-
-    /**
-     * list中重复的元素
-     *
-     * @param list list
-     * @param <T>  对象
-     * @return 重复的元素
-     */
-    public static <T> List<T> getDuplicateElements(List<T> list) {
-        return list.stream()
-                .collect(Collectors.toMap(e -> e, e -> 1, Integer::sum))
-                .entrySet().stream()
-                .filter(entry -> entry.getValue() > 1)
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toList());
     }
 
     /**

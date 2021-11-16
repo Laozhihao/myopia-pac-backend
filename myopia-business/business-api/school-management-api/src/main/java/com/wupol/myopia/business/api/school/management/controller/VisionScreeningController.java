@@ -258,7 +258,7 @@ public class VisionScreeningController {
      * @return ScreeningOrgResponseDTO
      */
     @GetMapping("screeningOrg/{screeningOrgId}")
-    public ScreeningOrgResponseDTO getScreeningOrganization(@PathVariable("screeningOrgId")Integer screeningOrgId) {
+    public ScreeningOrgResponseDTO getScreeningOrganization(@PathVariable("screeningOrgId") Integer screeningOrgId) {
         return screeningOrganizationService.getScreeningOrgDetails(screeningOrgId);
     }
 
