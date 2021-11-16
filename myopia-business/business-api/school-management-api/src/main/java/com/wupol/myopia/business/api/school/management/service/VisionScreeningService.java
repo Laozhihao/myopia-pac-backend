@@ -107,12 +107,12 @@ public class VisionScreeningService {
             // 设置告知书配置
             NotificationConfig notificationConfig = notificationConfigMap.get(schoolPlan.getScreeningOrgId());
             if (Objects.nonNull(notificationConfig))
-            schoolPlan.setNotificationConfig(notificationConfig);
+                schoolPlan.setNotificationConfig(notificationConfig);
 
             // 设置图片
             Integer qrCodeFileId = notificationConfig.getQrCodeFileId();
             if (Objects.nonNull(qrCodeFileId)) {
-                schoolPlan.setQrCodeFileUrl(resourceFileService.getResourcePath());
+                schoolPlan.setQrCodeFileUrl(resourceFileService.getResourcePath(qrCodeFileId));
             }
         });
         return responseDTO;
