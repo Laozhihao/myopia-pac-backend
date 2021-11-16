@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.core.screening.organization.domain.model;
+package com.wupol.myopia.business.common.utils.domain.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;

@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
+import com.wupol.myopia.business.common.utils.domain.model.NotificationConfig;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,6 +19,11 @@ public class ScreeningListResponseDTO {
      * 学校统计Id
      */
     private Integer schoolStatisticId;
+
+    /**
+     * 筛查机构Id
+     */
+    private Integer screeningOrgId;
 
     /**
      * 筛查计划Id
@@ -73,4 +79,14 @@ public class ScreeningListResponseDTO {
      * 发布时间
      */
     private Date releaseTime;
+
+    /**
+     * 筛查机构-告知书配置
+     */
+    private NotificationConfig notificationConfig;
+
+    /**
+     * 二维码文件地址
+     */
+    private String qrCodeFileUrl;
 }

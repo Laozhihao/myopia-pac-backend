@@ -1,7 +1,9 @@
 package com.wupol.myopia.business.api.school.management.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.myopia.business.common.utils.domain.model.NotificationConfig;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningListResponseDTO;
@@ -11,6 +13,8 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
+import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
+import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.stat.domain.model.SchoolMonitorStatistic;
 import com.wupol.myopia.business.core.stat.service.SchoolMonitorStatisticService;
 import org.springframework.stereotype.Service;
@@ -46,6 +50,12 @@ public class VisionScreeningService {
     @Resource
     private SchoolStudentService schoolStudentService;
 
+    @Resource
+    private ScreeningOrganizationService screeningOrganizationService;
+
+    @Resource
+    private ResourceFileService resourceFileService;
+
     /**
      * 获取视力筛查列表
      *
@@ -70,6 +80,11 @@ public class VisionScreeningService {
         Map<Integer, SchoolMonitorStatistic> schoolStatisticMap = statisticList.stream()
                 .collect(Collectors.toMap(SchoolMonitorStatistic::getScreeningPlanId, Function.identity()));
 
+        // 筛查机构
+        List<Integer> orgIds = schoolPlanList.stream().map(ScreeningListResponseDTO::getScreeningOrgId).collect(Collectors.toList());
+        Map<Integer, NotificationConfig> notificationConfigMap = screeningOrganizationService.getByIds(orgIds).stream()
+                .collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization::getNotificationConfig));
+
         schoolPlanList.forEach(schoolPlan -> {
             ScreeningPlan screeningPlan = planMap.get(schoolPlan.getPlanId());
             if (Objects.nonNull(screeningPlan)) {
@@ -87,6 +102,17 @@ public class VisionScreeningService {
                 schoolPlan.setPlanScreeningNumbers(schoolMonitorStatistic.getPlanScreeningNumbers());
                 schoolPlan.setRealScreeningNumbers(schoolMonitorStatistic.getRealScreeningNumbers());
                 schoolPlan.setScreeningOrgName(schoolMonitorStatistic.getScreeningOrgName());
+            }
+
+            // 设置告知书配置
+            NotificationConfig notificationConfig = notificationConfigMap.get(schoolPlan.getScreeningOrgId());
+            if (Objects.nonNull(notificationConfig))
+            schoolPlan.setNotificationConfig(notificationConfig);
+
+            // 设置图片
+            Integer qrCodeFileId = notificationConfig.getQrCodeFileId();
+            if (Objects.nonNull(qrCodeFileId)) {
+                schoolPlan.setQrCodeFileUrl(resourceFileService.getResourcePath());
             }
         });
         return responseDTO;
