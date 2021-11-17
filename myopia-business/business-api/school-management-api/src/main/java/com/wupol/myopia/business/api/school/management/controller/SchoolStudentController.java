@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
@@ -110,7 +111,7 @@ public class SchoolStudentController {
      * @return SchoolStudent
      */
     @GetMapping("{id}")
-    public SchoolStudent getStudent(@PathVariable("id") Integer id) {
+    public SchoolStudent getStudent(@PathVariable("id") @NotNull(message = "学生Id不能为空") Integer id) {
         return schoolStudentService.getById(id);
     }
 
