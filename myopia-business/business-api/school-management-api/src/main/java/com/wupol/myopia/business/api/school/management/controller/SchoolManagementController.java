@@ -94,7 +94,7 @@ public class SchoolManagementController {
      * @param schoolGrade 年级实体
      * @return 新增个数
      */
-    @PostMapping()
+    @PostMapping("grade")
     public Integer saveGrade(@RequestBody @Valid SchoolGrade schoolGrade) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         schoolGrade.setCreateUserId(user.getId());
@@ -120,7 +120,7 @@ public class SchoolManagementController {
      * @param schoolId    学校ID
      * @return 年级列表
      */
-    @GetMapping("list")
+    @GetMapping("grade/list")
     public IPage<SchoolGradeItemsDTO> getGradeList(PageRequest pageRequest, Integer schoolId) {
         if (null == schoolId) {
             throw new BusinessException("学校ID不能为空");
@@ -134,7 +134,7 @@ public class SchoolManagementController {
      * @param schoolId 学校ID
      * @return 年级列表
      */
-    @GetMapping("all")
+    @GetMapping("grade/all")
     public List<SchoolGradeItemsDTO> getAllGradeList(Integer schoolId) {
         if (null == schoolId) {
             throw new BusinessException("学校ID不能为空");
@@ -147,7 +147,7 @@ public class SchoolManagementController {
      *
      * @return 年级编码
      */
-    @GetMapping("getGradeCode")
+    @GetMapping("/grade/getGradeCode")
     public List<GradeCode> getGradeCode() {
         return GradeCodeEnum.getGradeCodeList();
     }
@@ -158,7 +158,7 @@ public class SchoolManagementController {
      * @param schoolGrade 年级实体
      * @return 年级实体
      */
-    @PutMapping("")
+    @PutMapping("grade")
     public SchoolGrade updateGrade(@RequestBody @Valid SchoolGrade schoolGrade) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         schoolGrade.setCreateUserId(user.getId());
