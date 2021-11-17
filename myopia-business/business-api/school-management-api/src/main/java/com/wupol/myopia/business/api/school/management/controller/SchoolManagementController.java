@@ -46,6 +46,7 @@ public class SchoolManagementController {
     public Integer saveGrade(@RequestBody @Valid SchoolClass schoolClass) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         schoolClass.setCreateUserId(user.getId());
+        schoolClass.setSchoolId(user.getOrgId());
         return schoolClassService.saveClass(schoolClass);
     }
 
@@ -71,6 +72,7 @@ public class SchoolManagementController {
     public SchoolClass updateClass(@RequestBody @Valid SchoolClass schoolClass) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         schoolClass.setCreateUserId(user.getId());
+        schoolClass.setSchoolId(user.getOrgId());
         return schoolClassService.updateClass(schoolClass);
     }
 
@@ -98,6 +100,7 @@ public class SchoolManagementController {
     public Integer saveGrade(@RequestBody @Valid SchoolGrade schoolGrade) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         schoolGrade.setCreateUserId(user.getId());
+        schoolGrade.setSchoolId(user.getOrgId());
         return schoolGradeService.saveGrade(schoolGrade);
     }
 
@@ -117,29 +120,23 @@ public class SchoolManagementController {
      * 年级列表
      *
      * @param pageRequest 分页请求
-     * @param schoolId    学校ID
      * @return 年级列表
      */
     @GetMapping("grade/list")
-    public IPage<SchoolGradeItemsDTO> getGradeList(PageRequest pageRequest, Integer schoolId) {
-        if (null == schoolId) {
-            throw new BusinessException("学校ID不能为空");
-        }
-        return schoolGradeService.getGradeList(pageRequest, schoolId);
+    public IPage<SchoolGradeItemsDTO> getGradeList(PageRequest pageRequest) {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        return schoolGradeService.getGradeList(pageRequest, currentUser.getOrgId());
     }
 
     /**
      * 获取年级列表（不分页）
      *
-     * @param schoolId 学校ID
      * @return 年级列表
      */
     @GetMapping("grade/all")
-    public List<SchoolGradeItemsDTO> getAllGradeList(Integer schoolId) {
-        if (null == schoolId) {
-            throw new BusinessException("学校ID不能为空");
-        }
-        return schoolGradeService.getAllGradeList(schoolId);
+    public List<SchoolGradeItemsDTO> getAllGradeList() {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        return schoolGradeService.getAllGradeList(currentUser.getOrgId());
     }
 
     /**
@@ -162,6 +159,7 @@ public class SchoolManagementController {
     public SchoolGrade updateGrade(@RequestBody @Valid SchoolGrade schoolGrade) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         schoolGrade.setCreateUserId(user.getId());
+        schoolGrade.setSchoolId(user.getOrgId());
         return schoolGradeService.updateGrade(schoolGrade);
     }
 }
