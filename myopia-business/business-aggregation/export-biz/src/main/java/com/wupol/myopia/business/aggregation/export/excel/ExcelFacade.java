@@ -751,6 +751,14 @@ public class ExcelFacade {
         return (StringUtils.isNotBlank((CharSequence) val) ? decimalFormat.format(new BigDecimal((String) val)) + "um" : "--");
     }
 
+    /**
+     * 导出学校学生
+     *
+     * @param createUserId  创建人
+     * @param multipartFile 文件
+     * @param schoolId      学校Id
+     * @throws ParseException 转换异常
+     */
     public void importSchoolStudent(Integer createUserId, MultipartFile multipartFile, Integer schoolId) throws ParseException {
         List<Map<Integer, String>> listMap = readExcel(multipartFile);
         if (CollectionUtils.isEmpty(listMap)) {
