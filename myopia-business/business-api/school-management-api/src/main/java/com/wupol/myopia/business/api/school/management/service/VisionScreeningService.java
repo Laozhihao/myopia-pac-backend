@@ -136,6 +136,7 @@ public class VisionScreeningService {
         Map<Integer, Integer> schoolStudentMap = schoolStudentService.getByStudentIds(studentIds).stream().collect(Collectors.toMap(SchoolStudent::getStudentId, SchoolStudent::getId));
         trackList.forEach(track -> {
             track.setSchoolStudentId(schoolStudentMap.get(track.getStudentId()));
+            track.setIsReview(Objects.nonNull(track.getReportId()));
         });
         return responseDTO;
     }
