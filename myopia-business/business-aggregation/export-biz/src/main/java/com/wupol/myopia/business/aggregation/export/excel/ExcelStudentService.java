@@ -18,6 +18,8 @@ import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.domain.model.Student;
+import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
+import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
@@ -60,6 +62,8 @@ public class ExcelStudentService {
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     @Autowired
     private VisionScreeningResultService visionScreeningResultService;
+    @Autowired
+    private SchoolStudentService schoolStudentService;
 
     /**
      * 年级-班级 格式化
@@ -112,16 +116,21 @@ public class ExcelStudentService {
         addOrUpdateStudentAndScreeningStudent(userId, screeningPlan, schoolId, school, idCardExistStudents, idCardExistScreeningStudents, onlyHaveIdCardList, excelIdCardStudentMap);
         // 8 更新存在筛查编号的学生
         updateMockPlanStudent(excelStudents.stream().filter(e -> Objects.nonNull(e.getScreeningCode())).collect(Collectors.toList()), screeningPlan.getId(), schoolId);
+        // 9 更新学校端学生(只处理有身份证和学号的学生)
+        updateSchoolStudent(excelStudents.stream()
+                        .filter(s -> StringUtils.isNotBlank(s.getIdCard()) && StringUtils.isNotBlank(s.getSno())).collect(Collectors.toList()),
+                schoolId,userId);
     }
 
     /**
      * 根据上传的筛查学生数据组装基础信息
-     *  @param listMap
+     *
+     * @param listMap
      * @param idCardSet
      * @param gradeNameSet
      * @param gradeClassNameSet
      * @param districtNameCodeMap
-     * @param screeningCodeSet 筛查编号
+     * @param screeningCodeSet    筛查编号
      */
     private void genBaseInfoFromUploadData(List<Map<Integer, String>> listMap, Set<String> idCardSet,
                                            Set<String> gradeNameSet, Set<String> gradeClassNameSet,
@@ -314,13 +323,14 @@ public class ExcelStudentService {
      * 1. 身份证号
      * 2. 年级
      * 3. 班级
+     *
      * @param snoList
      * @param gradeNameSet
      * @param gradeClassNameSet
      * @param gradeNameIdMap
      * @param gradeClassNameClassIdMap
      * @param notUploadStudents        已有筛查学生数据中，身份证不在这次上传的数据中的筛查学生
-     * @param screeningCodeList 筛查CodeList
+     * @param screeningCodeList        筛查CodeList
      */
     private void checkExcelDataLegal(List<String> snoList, Set<String> gradeNameSet, Set<String> gradeClassNameSet,
                                      Map<String, Integer> gradeNameIdMap, Map<String, Integer> gradeClassNameClassIdMap,
@@ -386,7 +396,8 @@ public class ExcelStudentService {
         try {
             // excel格式：姓名、性别、出生日期、民族(1：汉族  2：蒙古族  3：藏族  4：壮族  5:回族  6:其他  )、学校编号、年级、班级、学号、身份证号、手机号码、省、市、县区、镇/街道、居住地址
             StudentDTO student = new StudentDTO();
-            student.setGradeName(item.get(ImportExcelEnum.GRADE.getIndex())).setClassName(item.get(ImportExcelEnum.CLASS.getIndex()));
+            student.setGradeName(item.get(ImportExcelEnum.GRADE.getIndex()))
+                    .setClassName(item.get(ImportExcelEnum.CLASS.getIndex()));
             student.setName(StringUtils.getDefaultIfBlank(item.get(ImportExcelEnum.NAME.getIndex()), null))
                     .setGender(StringUtils.isBlank(item.get(ImportExcelEnum.GENDER.getIndex())) ? null : GenderEnum.getType(item.get(ImportExcelEnum.GENDER.getIndex())))
                     .setBirthday(StringUtils.isBlank(item.get(ImportExcelEnum.BIRTHDAY.getIndex())) ? null : com.wupol.myopia.base.util.DateFormatUtil.parseDate(item.get(ImportExcelEnum.BIRTHDAY.getIndex()), DateFormatUtil.FORMAT_ONLY_DATE2))
@@ -474,7 +485,7 @@ public class ExcelStudentService {
         try {
             updateManagementStudent(studentList, planStudentMap, school);
         } catch (DuplicateKeyException e) {
-            log.error("身份证重复",e);
+            log.error("身份证重复", e);
             throw new BusinessException("身份证重复数据异常，请检查");
         }
 
@@ -488,7 +499,7 @@ public class ExcelStudentService {
      * @param studentList    学生列表
      * @param planStudentMap 计划学生列表
      */
-    private void updateManagementStudent(List<Student> studentList, Map<Integer, ScreeningPlanSchoolStudent> planStudentMap,School school) {
+    private void updateManagementStudent(List<Student> studentList, Map<Integer, ScreeningPlanSchoolStudent> planStudentMap, School school) {
         studentList.forEach(student -> {
             ScreeningPlanSchoolStudent planSchoolStudent = planStudentMap.get(student.getId());
             student.setName(planSchoolStudent.getStudentName());
@@ -525,4 +536,65 @@ public class ExcelStudentService {
         resultList.forEach(r -> r.setSchoolId(schoolId));
         visionScreeningResultService.updateBatchById(resultList);
     }
+
+    /**
+     * 更新学校端学生
+     *
+     * @param excelStudents 导入的学生
+     * @param schoolId      学校Id
+     */
+    private void updateSchoolStudent(List<StudentDTO> excelStudents, Integer schoolId, Integer userId) {
+
+        School school = schoolService.getById(schoolId);
+
+        List<String> idCards = excelStudents.stream().map(Student::getIdCard).collect(Collectors.toList());
+
+        // 获取学校端的学生
+        List<SchoolStudent> schoolStudents = schoolStudentService.getByIdCards(idCards, schoolId);
+        Map<String, Integer> schoolStudentMap = schoolStudents.stream().collect(Collectors.toMap(SchoolStudent::getIdCard, SchoolStudent::getId));
+
+        // 获取管理端的学生
+        List<Student> managementStudents = studentService.getByIdCards(idCards);
+        Map<String, Integer> managementStudentMap = managementStudents.stream().collect(Collectors.toMap(Student::getIdCard, Student::getId));
+
+        List<SchoolStudent> saveSchoolStudentList = new ArrayList<>();
+
+        excelStudents.forEach(excelStudent -> {
+
+            SchoolStudent schoolStudent = new SchoolStudent();
+            String idCard = excelStudent.getIdCard();
+
+            // 设置多端管理的Id
+            Integer managementStudentId = managementStudentMap.get(idCard);
+            if (Objects.isNull(managementStudentId)) {
+                throw new BusinessException("身份证为" + idCard + "信息异常");
+            }
+            schoolStudent.setStudentId(managementStudentId);
+
+            schoolStudent.setId(schoolStudentMap.getOrDefault(idCard, null))
+                    .setName(excelStudent.getName())
+                    .setGender(excelStudent.getGender())
+                    .setBirthday(excelStudent.getBirthday())
+                    .setNation(excelStudent.getNation())
+                    .setSchoolNo(school.getSchoolNo())
+                    .setGradeType(excelStudent.getGradeType())
+                    .setSno(excelStudent.getSno())
+                    .setIdCard(idCard)
+                    .setParentPhone(excelStudent.getParentPhone())
+                    .setCreateUserId(userId)
+                    .setSchoolId(schoolId)
+                    .setGradeId(excelStudent.getGradeId())
+                    .setGradeName(excelStudent.getGradeName())
+                    .setClassId(excelStudent.getClassId())
+                    .setClassName(excelStudent.getClassName());
+            schoolStudent.setProvinceCode(excelStudent.getProvinceCode());
+            schoolStudent.setCityCode(excelStudent.getCityCode());
+            schoolStudent.setAreaCode(excelStudent.getAreaCode());
+            schoolStudent.setTownCode(excelStudent.getTownCode());
+            schoolStudent.setAddress(excelStudent.getAddress());
+            saveSchoolStudentList.add(schoolStudent);
+        });
+        schoolStudentService.saveOrUpdateBatch(saveSchoolStudentList);
+    }
+
 }

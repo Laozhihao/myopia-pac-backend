@@ -759,7 +759,7 @@ public class ExcelFacade {
 
         School school = schoolService.getById(schoolId);
 
-        // 收集身份证号码
+        // 收集身份证号码、学号
         List<String> idCards = listMap.stream().map(s -> s.get(7)).filter(Objects::nonNull).collect(Collectors.toList());
         List<String> snos = listMap.stream().map(s -> s.get(6)).filter(Objects::nonNull).collect(Collectors.toList());
         checkIdCard(idCards, snos);
