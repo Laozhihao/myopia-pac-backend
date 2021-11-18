@@ -30,10 +30,8 @@ public class StatUtil {
             if (age < 6 && nakedVision < 4.9) {
                 return true;
             }
-            if (Objects.nonNull(nakedVision)) {
-                if (age >= 6 && nakedVision < 5) {
-                    return true;
-                }
+            if (Objects.nonNull(nakedVision) && age >= 6 && nakedVision < 5) {
+                return true;
             }
         }
         return Objects.requireNonNull(getMyopiaWarningLevel(sphere, cylinder)).code > MyopiaLevelEnum.MYOPIA_LEVEL_EARLY.code;
@@ -210,9 +208,15 @@ public class StatUtil {
         float se = getSphericalEquivalent(sphere, cylinder);
 
         if (age >= 12) {
-            if (se > 0.5f && se <= 3.0f) return HyperopiaLevelEnum.HYPEROPIA_LEVEL_LIGHT;
-            if (se > 3.0f && se <= 6.0f) return HyperopiaLevelEnum.HYPEROPIA_LEVEL_MIDDLE;
-            if (se > 6.0f) return HyperopiaLevelEnum.HYPEROPIA_LEVEL_HIGH;
+            if (se > 0.5f && se <= 3.0f) {
+                return HyperopiaLevelEnum.HYPEROPIA_LEVEL_LIGHT;
+            }
+            if (se > 3.0f && se <= 6.0f) {
+                return HyperopiaLevelEnum.HYPEROPIA_LEVEL_MIDDLE;
+            }
+            if (se > 6.0f) {
+                return HyperopiaLevelEnum.HYPEROPIA_LEVEL_HIGH;
+            }
         }
         return null;
     }
@@ -247,10 +251,18 @@ public class StatUtil {
         if (se == -0.5) {
             return MyopiaLevelEnum.ZERO;
         }
-        if (se > -0.5 && se <= 0.75) return MyopiaLevelEnum.MYOPIA_LEVEL_EARLY;
-        if (se >= -3.0f && se < -0.5f) return MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT;
-        if (se >= -6.0f && se < -3.0f) return MyopiaLevelEnum.MYOPIA_LEVEL_MIDDLE;
-        if (se < -6.0f) return MyopiaLevelEnum.MYOPIA_LEVEL_HIGH;
+        if (se > -0.5 && se <= 0.75) {
+            return MyopiaLevelEnum.MYOPIA_LEVEL_EARLY;
+        }
+        if (se >= -3.0f && se < -0.5f) {
+            return MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT;
+        }
+        if (se >= -6.0f && se < -3.0f) {
+            return MyopiaLevelEnum.MYOPIA_LEVEL_MIDDLE;
+        }
+        if (se < -6.0f) {
+            return MyopiaLevelEnum.MYOPIA_LEVEL_HIGH;
+        }
         return MyopiaLevelEnum.ZERO;
     }
 
@@ -286,9 +298,15 @@ public class StatUtil {
             return null;
         }
         float cylinderAbs = Math.abs(cylinder);
-        if (cylinderAbs >= 0.5f && cylinderAbs <= 2.0f) return AstigmatismLevelEnum.ASTIGMATISM_LEVEL_LIGHT;
-        if (cylinderAbs > 2.0f && cylinderAbs <= 4.0f) return AstigmatismLevelEnum.ASTIGMATISM_LEVEL_MIDDLE;
-        if (cylinderAbs > 4.0f) return AstigmatismLevelEnum.ASTIGMATISM_LEVEL_HIGH;
+        if (cylinderAbs >= 0.5f && cylinderAbs <= 2.0f) {
+            return AstigmatismLevelEnum.ASTIGMATISM_LEVEL_LIGHT;
+        }
+        if (cylinderAbs > 2.0f && cylinderAbs <= 4.0f) {
+            return AstigmatismLevelEnum.ASTIGMATISM_LEVEL_MIDDLE;
+        }
+        if (cylinderAbs > 4.0f) {
+            return AstigmatismLevelEnum.ASTIGMATISM_LEVEL_HIGH;
+        }
         return AstigmatismLevelEnum.ZERO;
     }
 

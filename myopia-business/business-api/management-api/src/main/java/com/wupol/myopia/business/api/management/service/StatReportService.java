@@ -1547,7 +1547,7 @@ public class StatReportService {
         list.add(composeBasicParams(MyopiaLevelEnum.MYOPIA_LEVEL_MIDDLE.desc, levelTwoNum, rowTotal));
         list.add(composeBasicParams(MyopiaLevelEnum.MYOPIA_LEVEL_HIGH.desc, levelThreeNum, rowTotal));
         list.add(composeBasicParams("levelTotal", levelEarlyNum + levelOneNum + levelTwoNum + levelThreeNum, rowTotal));
-        Map<String, Object> resultMap = new HashMap<>();
+        Map<String, Object> resultMap = new HashMap<>(2);
         resultMap.put("name", name);
         resultMap.put(TABLE_LABEL_ROW_TOTAL, rowTotal);
         resultMap.put("list", list);

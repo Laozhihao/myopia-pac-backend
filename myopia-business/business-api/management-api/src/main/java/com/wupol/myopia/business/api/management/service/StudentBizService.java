@@ -1124,12 +1124,12 @@ public class StudentBizService {
         if (isRefractiveError && Objects.nonNull(leftEye)) {
             cardDetail.setLeftMyopiaInfo(leftEye.getMyopiaLevel());
             cardDetail.setLeftFarsightednessInfo(leftEye.getHyperopiaLevel());
-            cardDetail.setLeftAstigmatismInfo(leftEye.getAstigmatismLevel());
+            cardDetail.setLeftAstigmatismInfo(leftEye.getAstigmatism());
         }
         if (isRefractiveError && Objects.nonNull(rightEye)) {
             cardDetail.setRightMyopiaInfo(rightEye.getMyopiaLevel());
             cardDetail.setRightFarsightednessInfo(rightEye.getHyperopiaLevel());
-            cardDetail.setRightAstigmatismInfo(rightEye.getAstigmatismLevel());
+            cardDetail.setRightAstigmatismInfo(rightEye.getAstigmatism());
         }
         return isRefractiveError;
     }
@@ -1217,7 +1217,7 @@ public class StudentBizService {
             visionInfoVO.setHyperopiaLevel(Objects.nonNull(farsightednessWarningLevel) ? farsightednessWarningLevel.code : null);
         }
         // 散光
-        visionInfoVO.setAstigmatismLevel(Objects.nonNull(cyl) && cyl.abs().compareTo(new BigDecimal("0.5")) >= 0);
+        visionInfoVO.setAstigmatism(Objects.nonNull(cyl) && cyl.abs().compareTo(new BigDecimal("0.5")) >= 0);
         return visionInfoVO;
     }
 
@@ -1241,7 +1241,7 @@ public class StudentBizService {
             return true;
         }
 
-        if (ObjectsUtil.allNotNull(leftEye.getAstigmatismLevel(), rightEye.getAstigmatismLevel()) && (leftEye.getAstigmatismLevel() || rightEye.getAstigmatismLevel())) {
+        if (ObjectsUtil.allNotNull(leftEye.getAstigmatism(), rightEye.getAstigmatism()) && (leftEye.getAstigmatism() || rightEye.getAstigmatism())) {
             return true;
         }
         return null;
@@ -1399,14 +1399,7 @@ public class StudentBizService {
 
         BigDecimal leftNakedVision = visionData.getLeftEyeData().getNakedVision();
         BigDecimal rightNakedVision = visionData.getRightEyeData().getNakedVision();
-        // 是否近视
-        cardDetail.setIsMyopia(StatUtil.isMyopia(leftSph.floatValue(), leftCyl.floatValue(), age, leftNakedVision.floatValue())
-                || StatUtil.isMyopia(rightSph.floatValue(), rightCyl.floatValue(), age, rightNakedVision.floatValue()));
-
-        // 是否远视
-        cardDetail.setIsHyperopia(StatUtil.isHyperopia(leftSph.floatValue(), leftCyl.floatValue(), age)
-                || StatUtil.isHyperopia(rightSph.floatValue(), rightCyl.floatValue(), age));
-
+        setCardVisionInfo(cardDetail, age, leftSph, rightSph, leftCyl, rightCyl, leftNakedVision, rightNakedVision);
     }
 
     /**
@@ -1431,6 +1424,22 @@ public class StudentBizService {
 
         BigDecimal leftNakedVision = visionData.getLeftEyeData().getNakedVision();
         BigDecimal rightNakedVision = visionData.getRightEyeData().getNakedVision();
+        setCardVisionInfo(cardDetail, age, leftSph, rightSph, leftCyl, rightCyl, leftNakedVision, rightNakedVision);
+    }
+
+    /**
+     * 设置是否近视、远视
+     *
+     * @param cardDetail       档案卡
+     * @param age              年龄
+     * @param leftSph          左眼 -球镜
+     * @param rightSph         右眼-球镜
+     * @param leftCyl          左眼-柱镜
+     * @param rightCyl         右眼-柱镜
+     * @param leftNakedVision  左眼-裸眼视力
+     * @param rightNakedVision 右眼-裸眼视力
+     */
+    private void setCardVisionInfo(HaiNanCardDetail cardDetail, Integer age, BigDecimal leftSph, BigDecimal rightSph, BigDecimal leftCyl, BigDecimal rightCyl, BigDecimal leftNakedVision, BigDecimal rightNakedVision) {
         // 是否近视
         cardDetail.setIsMyopia(StatUtil.isMyopia(leftSph.floatValue(), leftCyl.floatValue(), age, leftNakedVision.floatValue())
                 || StatUtil.isMyopia(rightSph.floatValue(), rightCyl.floatValue(), age, rightNakedVision.floatValue()));
