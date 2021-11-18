@@ -217,12 +217,4 @@ public class StudentController {
     public StudentVisitReportResponseDTO getReportDetail(@PathVariable("reportId") Integer reportId) {
         return medicalReportBizService.getStudentVisitReport(reportId);
     }
-
-    @GetMapping("getWarningLevelInt")
-    public ApiResult<Integer> middleAdviceResult(BigDecimal leftCyl, BigDecimal leftSpn, BigDecimal leftNakedVision,
-                                                 BigDecimal rightCyl, BigDecimal rightSpn, BigDecimal rightNakedVision,
-                                                 Integer age) {
-        return ApiResult.success(StatUtil.getWarningLevelInt(leftCyl, leftSpn, leftNakedVision,
-                rightCyl, rightSpn, rightNakedVision, age));
-    }
 }
