@@ -22,6 +22,7 @@ import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccountListDTO;
 import org.hibernate.validator.constraints.Length;
+import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -265,13 +266,25 @@ public class SchoolController {
         return schoolBizService.addSchoolAdminUserAccount(schoolId);
     }
 
+    /**
+     * 获取学校编码
+     *
+     * @param districtAreaCode 行政Code
+     * @param areaType         片区
+     * @param monitorType      监测点
+     * @return 学校编码
+     */
     @GetMapping("/getLatestSchoolNo")
     public ApiResult getLatestSchoolNo(@NotBlank(message = "districtAreaCode不能为空") @Length(min = 9, max = 9, message = "无效districtAreaCode") String districtAreaCode,
                                        @NotNull(message = "areaType不能为空") @Max(value = 3, message = "无效areaType") Integer areaType,
                                        @NotNull(message = "monitorType不能为空") @Max(value = 3, message = "无效monitorType") Integer monitorType) {
         List<School> schoolList = schoolService.findByList(new School().setDistrictAreaCode(Long.valueOf(districtAreaCode)));
         String schoolNo = districtAreaCode.substring(0, 4) + areaType + districtAreaCode.substring(4, 6) + monitorType;
-        String size = String.format("%02d", schoolList.size() + 1);
+        if (CollectionUtils.isEmpty(schoolList)) {
+            return ApiResult.success(schoolNo + "01");
+        }
+        String maxSchoolNo = String.valueOf(schoolList.stream().mapToLong(s -> Long.parseLong(s.getSchoolNo())).max().orElse(0));
+        String size = String.format("%02d", Integer.parseInt(maxSchoolNo.substring(maxSchoolNo.length() - 2)) + 1);
         return ApiResult.success(schoolNo + size);
     }
 }
