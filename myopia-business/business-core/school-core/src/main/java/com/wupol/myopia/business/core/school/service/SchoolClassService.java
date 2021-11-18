@@ -11,6 +11,7 @@ import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -38,6 +39,11 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
      */
     @Transactional(rollbackFor = Exception.class)
     public Integer saveClass(SchoolClass schoolClass) {
+        List<SchoolClass> schoolClasses = baseMapper.getByNameNeId(schoolClass.getName(), null,
+                schoolClass.getGradeId(), schoolClass.getSchoolId());
+        if (!CollectionUtils.isEmpty(schoolClasses)) {
+            throw new BusinessException("班级名称重复");
+        }
         return baseMapper.insert(schoolClass);
     }
 
@@ -72,6 +78,11 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
      */
     @Transactional(rollbackFor = Exception.class)
     public SchoolClass updateClass(SchoolClass schoolClass) {
+        List<SchoolClass> schoolClasses = baseMapper.getByNameNeId(schoolClass.getName(), schoolClass.getId(),
+                schoolClass.getGradeId(), schoolClass.getSchoolId());
+        if (!CollectionUtils.isEmpty(schoolClasses)) {
+            throw new BusinessException("班级名称重复");
+        }
         baseMapper.updateById(schoolClass);
         return schoolClass;
     }
@@ -153,7 +164,7 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
     public SchoolClass getByClassNameAndSchoolId(Integer schoolId, Integer gradeId, String className) {
         LambdaQueryWrapper<SchoolClass> queryWrapper = new LambdaQueryWrapper<>();
         SchoolClass schoolClass = new SchoolClass();
-        schoolClass.setSchoolId(schoolId).setName(className).setGradeId(gradeId);
+        schoolClass.setSchoolId(schoolId).setName(className).setGradeId(gradeId).setStatus(CommonConst.STATUS_NOT_DELETED);
         queryWrapper.setEntity(schoolClass);
         return baseMapper.selectOne(queryWrapper);
     }

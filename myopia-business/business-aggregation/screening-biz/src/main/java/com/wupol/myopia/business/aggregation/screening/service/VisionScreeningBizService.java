@@ -179,6 +179,9 @@ public class VisionScreeningBizService {
         student.setVisionLabel(statConclusion.getWarningLevel());
         student.setLastScreeningTime(visionScreeningResult.getUpdateTime());
         student.setUpdateTime(new Date());
+        student.setAstigmatismLevel(statConclusion.getAstigmatismLevel());
+        student.setHyperopiaLevel(statConclusion.getHyperopiaLevel());
+        student.setMyopiaLevel(statConclusion.getMyopiaLevel());
         studentService.updateStudent(student);
     }
 

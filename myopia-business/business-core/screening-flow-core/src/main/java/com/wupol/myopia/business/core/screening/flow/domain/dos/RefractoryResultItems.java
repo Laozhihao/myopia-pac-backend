@@ -45,30 +45,7 @@ public class RefractoryResultItems {
         private BigDecimal vision;
 
         /**
-         * 类型
-         * <p>
-         * 裸眼视力正常： 0
-         *
-         * 低下： 1
-         *
-         * 矫正视力
-         *
-         * 正常： 2
-         *
-         * 未矫： 3
-         *
-         * 欠矫：4
-         *
-         * 验光仪
-         *
-         * 正常：5
-         *
-         * 轻度：6
-         *
-         * 中度：7
-         *
-         * 重度：8
-         * </p>
+         * {@link com.wupol.myopia.business.common.utils.constant.ParentReportConst}
          */
         private Integer type;
 

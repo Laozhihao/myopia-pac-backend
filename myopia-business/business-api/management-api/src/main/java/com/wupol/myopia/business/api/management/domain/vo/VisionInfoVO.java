@@ -24,7 +24,7 @@ public class VisionInfoVO {
     /**
      * 远视等级
      */
-    private Integer farsightednessLevel;
+    private Integer hyperopiaLevel;
 
     /**
      * 是否散光
