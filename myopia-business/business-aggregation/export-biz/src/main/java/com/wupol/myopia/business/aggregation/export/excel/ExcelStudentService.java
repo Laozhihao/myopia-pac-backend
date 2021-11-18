@@ -119,7 +119,7 @@ public class ExcelStudentService {
         // 9 更新学校端学生(只处理有身份证和学号的学生)
         updateSchoolStudent(excelStudents.stream()
                         .filter(s -> StringUtils.isNotBlank(s.getIdCard()) && StringUtils.isNotBlank(s.getSno())).collect(Collectors.toList()),
-                schoolId,userId);
+                schoolId, userId);
     }
 
     /**
@@ -544,6 +544,10 @@ public class ExcelStudentService {
      * @param schoolId      学校Id
      */
     private void updateSchoolStudent(List<StudentDTO> excelStudents, Integer schoolId, Integer userId) {
+
+        if (CollectionUtils.isEmpty(excelStudents)) {
+            return;
+        }
 
         School school = schoolService.getById(schoolId);
 
