@@ -1042,12 +1042,12 @@ public class StudentBizService {
         if (isRefractiveError && Objects.nonNull(leftEye)) {
             cardDetail.setLeftMyopiaInfo(leftEye.getMyopiaLevel());
             cardDetail.setLeftFarsightednessInfo(leftEye.getHyperopiaLevel());
-            cardDetail.setLeftAstigmatismInfo(leftEye.getAstigmatismLevel());
+            cardDetail.setLeftAstigmatismInfo(leftEye.getAstigmatism());
         }
         if (isRefractiveError && Objects.nonNull(rightEye)) {
             cardDetail.setRightMyopiaInfo(rightEye.getMyopiaLevel());
             cardDetail.setRightFarsightednessInfo(rightEye.getHyperopiaLevel());
-            cardDetail.setRightAstigmatismInfo(rightEye.getAstigmatismLevel());
+            cardDetail.setRightAstigmatismInfo(rightEye.getAstigmatism());
         }
         return isRefractiveError;
     }
@@ -1135,7 +1135,7 @@ public class StudentBizService {
             visionInfoVO.setHyperopiaLevel(Objects.nonNull(farsightednessWarningLevel) ? farsightednessWarningLevel.code : null);
         }
         // 散光
-        visionInfoVO.setAstigmatismLevel(Objects.nonNull(cyl) && cyl.abs().compareTo(new BigDecimal("0.5")) >= 0);
+        visionInfoVO.setAstigmatism(Objects.nonNull(cyl) && cyl.abs().compareTo(new BigDecimal("0.5")) >= 0);
         return visionInfoVO;
     }
 
@@ -1159,7 +1159,7 @@ public class StudentBizService {
             return true;
         }
 
-        if (ObjectsUtil.allNotNull(leftEye.getAstigmatismLevel(), rightEye.getAstigmatismLevel()) && (leftEye.getAstigmatismLevel() || rightEye.getAstigmatismLevel())) {
+        if (ObjectsUtil.allNotNull(leftEye.getAstigmatism(), rightEye.getAstigmatism()) && (leftEye.getAstigmatism() || rightEye.getAstigmatism())) {
             return true;
         }
         return null;
