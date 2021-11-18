@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
@@ -19,12 +20,17 @@ import com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanResponseDTO;
-import org.apache.commons.lang3.StringUtils;
+import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccountListDTO;
+import org.hibernate.validator.constraints.Length;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.ValidationException;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.List;
 
@@ -33,6 +39,7 @@ import java.util.List;
  *
  * @author Simple4H
  */
+@Validated
 @ResponseResultBody
 @CrossOrigin
 @RestController
@@ -59,12 +66,12 @@ public class SchoolController {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         school.setCreateUserId(user.getId());
         school.setGovDeptId(user.getOrgId());
-        UsernameAndPasswordDTO nameAndpassword = schoolService.saveSchool(school);
+        UsernameAndPasswordDTO nameAndPassword = schoolService.saveSchool(school);
         // 非平台管理员屏蔽账号密码信息
         if (!user.isPlatformAdminUser()) {
-            nameAndpassword.setNoDisplay();
+            nameAndPassword.setNoDisplay();
         }
-        return nameAndpassword;
+        return nameAndPassword;
     }
 
     /**
@@ -78,12 +85,7 @@ public class SchoolController {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         school.setCreateUserId(user.getId());
         school.setGovDeptId(user.getOrgId());
-        SchoolResponseDTO schoolResponseDTO = schoolBizService.updateSchool(school);
-        // 若为平台管理员且修改了用户名，则回显账户名
-        if (user.isPlatformAdminUser() && StringUtils.isNotBlank(schoolResponseDTO.getUsername())) {
-            schoolResponseDTO.setDisplayUsername(true);
-        }
-        return schoolResponseDTO;
+        return schoolBizService.updateSchool(school);
     }
 
     /**
@@ -129,8 +131,18 @@ public class SchoolController {
      */
     @PutMapping("status")
     public Integer updateStatus(@RequestBody @Valid StatusRequest statusRequest) {
-        CurrentUserUtil.getCurrentUser();
         return schoolService.updateStatus(statusRequest);
+    }
+
+    /**
+     * 更新学校管理员状态
+     *
+     * @param statusRequest 请求入参
+     * @return 更新个数
+     */
+    @PutMapping("/admin/status")
+    public boolean updateSchoolAdminUserStatus(@RequestBody @Valid StatusRequest statusRequest) {
+        return schoolService.updateSchoolAdminUserStatus(statusRequest);
     }
 
     /**
@@ -141,8 +153,7 @@ public class SchoolController {
      */
     @PostMapping("reset")
     public UsernameAndPasswordDTO resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
-        CurrentUserUtil.getCurrentUser();
-        return schoolService.resetPassword(request.getId());
+        return schoolService.resetPassword(request);
     }
 
     /**
@@ -230,5 +241,37 @@ public class SchoolController {
     @GetMapping("/schoolAge/list")
     public List<SchoolAgeDTO> getSchoolAge() {
         return SchoolAge.getSchoolAgeList();
+    }
+
+    /**
+     * 获取学校管理员用户账号列表
+     *
+     * @param schoolId 学校Id
+     * @return List<OrgAccountListDTO>
+     */
+    @GetMapping("/accountList/{schoolId}")
+    public List<OrgAccountListDTO> getAccountList(@PathVariable("schoolId") Integer schoolId) {
+        return schoolBizService.getAccountList(schoolId);
+    }
+
+    /**
+     * 添加用户
+     *
+     * @param schoolId 请求入参
+     * @return UsernameAndPasswordDTO
+     */
+    @PostMapping("/add/account/{schoolId}")
+    public UsernameAndPasswordDTO addAccount(@PathVariable("schoolId") Integer schoolId) {
+        return schoolBizService.addSchoolAdminUserAccount(schoolId);
+    }
+
+    @GetMapping("/getLatestSchoolNo")
+    public ApiResult getLatestSchoolNo(@NotBlank(message = "districtAreaCode不能为空") @Length(min = 9, max = 9, message = "无效districtAreaCode") String districtAreaCode,
+                                       @NotNull(message = "areaType不能为空") @Max(value = 3, message = "无效areaType") Integer areaType,
+                                       @NotNull(message = "monitorType不能为空") @Max(value = 3, message = "无效monitorType") Integer monitorType) {
+        List<School> schoolList = schoolService.findByList(new School().setDistrictAreaCode(Long.valueOf(districtAreaCode)));
+        String schoolNo = districtAreaCode.substring(0, 4) + areaType + districtAreaCode.substring(4, 6) + monitorType;
+        String size = String.format("%02d", schoolList.size() + 1);
+        return ApiResult.success(schoolNo + size);
     }
 }

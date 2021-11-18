@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.school.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.google.common.collect.Maps;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
@@ -127,6 +128,21 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
     public Map<Integer, SchoolClass> getClassMapByIds(List<Integer> ids) {
         return baseMapper.selectBatchIds(ids).stream()
                 .collect(Collectors.toMap(SchoolClass::getId, Function.identity()));
+    }
+
+    /**
+     * 批量通过id获取名称
+     *
+     * @param ids ids
+     * @return Map<Integer, String>
+     */
+    public Map<Integer, String> getClassNameMapByIds(List<Integer> ids) {
+        if (CollectionUtils.isEmpty(ids)) {
+            return Maps.newHashMap();
+        }
+        List<Integer> distinctIds = ids.stream().distinct().collect(Collectors.toList());
+        return baseMapper.selectBatchIds(distinctIds).stream()
+                .collect(Collectors.toMap(SchoolClass::getId, SchoolClass::getName));
     }
 
     public List<SchoolClass> getByIds(List<Integer> ids) {

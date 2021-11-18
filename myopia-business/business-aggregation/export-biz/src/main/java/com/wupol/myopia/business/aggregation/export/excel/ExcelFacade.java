@@ -105,38 +105,34 @@ public class ExcelFacade {
      * @param multipartFile 导入文件
      * @throws BusinessException 异常
      */
-    public void importStudent(Integer createUserId, MultipartFile multipartFile) throws ParseException {
-        String fileName = IOUtils.getTempPath() + multipartFile.getName() + "_" + System.currentTimeMillis() + FILE_SUFFIX;
-        File file = new File(fileName);
-        try {
-            FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
-        } catch (IOException e) {
-            log.error("导入学生数据异常:", e);
-            throw new BusinessException("导入学生数据异常");
-        }
-        // 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
-        List<Map<Integer, String>> listMap;
-        try {
-            listMap = EasyExcel.read(fileName).sheet().doReadSync();
-        } catch (Exception e) {
-            log.error("导入学生数据异常:", e);
-            throw new BusinessException("Excel解析异常");
-        }
+    public void importStudent(Integer createUserId, MultipartFile multipartFile, Integer schoolId) throws ParseException {
+        List<Map<Integer, String>> listMap = readExcel(multipartFile);
         if (CollectionUtils.isEmpty(listMap)) {
             return;
         }
-        if (!listMap.isEmpty()) {
-            // 去头部
-            listMap.remove(0);
-        }
+
+        // 判断是否导入到同一个学校(同个学校时没有"学校编号"列，第5列，index=4)
+        boolean isSameSchool = Objects.nonNull(schoolId);
+        int offset = isSameSchool ? 1 : 0;
+
         // 收集学校编号
-        List<String> schoolNos = listMap.stream().map(s -> s.get(4)).collect(Collectors.toList());
-        List<School> schools = schoolService.getBySchoolNos(schoolNos);
+        List<School> schools;
+        String schoolNo = null;
+        if (isSameSchool) {
+            School school = schoolService.getById(schoolId);
+            schoolNo = school.getSchoolNo();
+            schools = Collections.singletonList(schoolService.getById(schoolId));
+        } else {
+            List<String> schoolNos = listMap.stream().map(s -> s.get(4)).collect(Collectors.toList());
+            schools = schoolService.getBySchoolNos(schoolNos);
+        }
+        Map<String, Integer> schoolMap = schools.stream().collect(Collectors.toMap(School::getSchoolNo, School::getId));
 
         // 收集身份证号码
-        List<String> idCards = listMap.stream().map(s -> s.get(8))
+        List<String> idCards = listMap.stream().map(s -> s.get(8 - offset))
                 .filter(Objects::nonNull).collect(Collectors.toList());
 
+        // 数据预校验
         preCheckStudent(schools, idCards);
 
         // 收集年级信息
@@ -154,57 +150,85 @@ public class ExcelFacade {
             if (StringUtils.isBlank(item.get(0))) {
                 break;
             }
-            checkStudentInfo(item);
-
-            // excel 格式： 姓名	性别	出生日期	民族(1：汉族  2：蒙古族  3：藏族  4：壮族  5:回族  6:其他  ) 年级	班级	学号	身份证号	手机号码	省	市	县区	镇/街道	详细
+            checkStudentInfo(item, offset);
+            // Excel 格式： 姓名	性别	出生日期	民族   学校编号(同个学校时没有该列，后面的左移一列)   年级	班级	学号	身份证号	手机号码	省	市	县区	镇/街道	详细
+            // 民族取值：1-汉族  2-蒙古族  3-藏族  4-壮族  5-回族  6-其他
             student.setName(item.get(0))
                     .setGender(GenderEnum.getType(item.get(1)))
                     .setBirthday(DateFormatUtil.parseDate(item.get(2), DateFormatUtil.FORMAT_ONLY_DATE2))
                     .setNation(NationEnum.getCode(item.get(3)))
-                    .setSchoolNo(item.get(4))
-                    .setGradeType(GradeCodeEnum.getByName(item.get(5)).getType())
-                    .setSno((item.get(7)))
-                    .setIdCard(item.get(8))
-                    .setParentPhone(item.get(9))
+                    .setSchoolNo(isSameSchool ? schoolNo : item.get(4))
+                    .setGradeType(GradeCodeEnum.getByName(item.get(5 - offset)).getType())
+                    .setSno((item.get(7 - offset)))
+                    .setIdCard(item.get(8 - offset))
+                    .setParentPhone(item.get(9 - offset))
                     .setCreateUserId(createUserId);
-            student.setProvinceCode(districtService.getCodeByName(item.get(10)));
-            student.setCityCode(districtService.getCodeByName(item.get(11)));
-            student.setAreaCode(districtService.getCodeByName(item.get(12)));
-            student.setTownCode(districtService.getCodeByName(item.get(13)));
-            student.setAddress(item.get(14));
-
+            student.setProvinceCode(districtService.getCodeByName(item.get(10 - offset)));
+            student.setCityCode(districtService.getCodeByName(item.get(11 - offset)));
+            student.setAreaCode(districtService.getCodeByName(item.get(12 - offset)));
+            student.setTownCode(districtService.getCodeByName(item.get(13 - offset)));
+            student.setAddress(item.get(14 - offset));
             // 通过学校编号获取改学校的年级信息
-            List<SchoolGradeExportDTO> schoolGradeExportVOS = schoolGradeMaps.get(item.get(4));
-
+            List<SchoolGradeExportDTO> schoolGradeExportVOS = schoolGradeMaps.get(isSameSchool ? schoolNo : item.get(4));
             // 转换成年级Maps，年级名称作为Key
             Map<String, SchoolGradeExportDTO> gradeMaps = schoolGradeExportVOS.stream()
                     .collect(Collectors.toMap(SchoolGradeExportDTO::getName, Function.identity()));
-
             // 年级信息
-            SchoolGradeExportDTO schoolGradeExportDTO = gradeMaps.get(item.get(5));
-            if (null == schoolGradeExportDTO) {
-                throw new BusinessException("年级数据异常");
-            } else {
-                // 设置年级ID
-                student.setGradeId(schoolGradeExportDTO.getId());
-
-                // 获取年级内的班级信息
-                List<SchoolClassExportDTO> classExportVOS = schoolGradeExportDTO.getChild();
-
-                // 转换成班级Maps 把班级名称作为key
-                Map<String, Integer> classExportMaps = classExportVOS.stream()
-                        .collect(Collectors.toMap(SchoolClassExportDTO::getName, SchoolClassExportDTO::getId));
-                Integer classId = classExportMaps.get(item.get(6));
-                if (Objects.isNull(classId)) {
-                    throw new BusinessException("班级数据异常");
-                } else {
-                    // 设置班级信息
-                    student.setClassId(classId);
-                }
-            }
+            SchoolGradeExportDTO schoolGradeExportDTO = gradeMaps.get(item.get(5 - offset));
+            Assert.notNull(schoolGradeExportDTO, "年级数据异常");
+            // 设置年级ID
+            student.setGradeId(schoolGradeExportDTO.getId());
+            // 获取年级内的班级信息
+            List<SchoolClassExportDTO> classExportVOS = schoolGradeExportDTO.getChild();
+            // 转换成班级Maps 把班级名称作为key
+            Map<String, Integer> classExportMaps = classExportVOS.stream()
+                    .collect(Collectors.toMap(SchoolClassExportDTO::getName, SchoolClassExportDTO::getId));
+            Integer classId = classExportMaps.get(item.get(6 - offset));
+            Assert.notNull(classId, "班级数据为空");
+            // 设置班级信息
+            student.setClassId(classId);
+            student.setSchoolId(schoolMap.get(student.getSchoolNo()));
             importList.add(student);
         }
-        studentService.saveBatch(importList);
+        // 通过身份证获取已经删除的学生
+        List<Student> deleteStudent = studentService.getDeleteStudentByIdCard(idCards);
+        Map<String, Integer> deletedMap = deleteStudent.stream().collect(Collectors.toMap(Student::getIdCard, Student::getId));
+        importList.forEach(student -> {
+            if (Objects.nonNull(deletedMap.get(student.getIdCard()))) {
+                student.setId(deletedMap.get(student.getIdCard()));
+                student.setStatus(CommonConst.STATUS_NOT_DELETED);
+            }
+
+        });
+        studentService.saveOrUpdateBatch(importList);
+    }
+
+    /**
+     * 读取Excel数据
+     *
+     * @param multipartFile Excel文件
+     * @return java.util.List<java.util.Map<java.lang.Integer,java.lang.String>>
+     **/
+    private List<Map<Integer, String>> readExcel(MultipartFile multipartFile) {
+        String fileName = IOUtils.getTempPath() + multipartFile.getName() + "_" + System.currentTimeMillis() + FILE_SUFFIX;
+        File file = new File(fileName);
+        try {
+            FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
+        } catch (IOException e) {
+            log.error("导入学生数据异常:", e);
+            throw new BusinessException("导入学生数据异常");
+        }
+        // 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
+        try {
+            List<Map<Integer, String>> listMap = EasyExcel.read(fileName).sheet().doReadSync();
+            if (!CollectionUtils.isEmpty(listMap)) {
+                listMap.remove(0);
+            }
+            return listMap;
+        } catch (Exception e) {
+            log.error("导入学生数据异常:", e);
+            throw new BusinessException("Excel解析异常");
+        }
     }
 
     /**
@@ -273,7 +297,7 @@ public class ExcelFacade {
                     .setPhone(item.get(3))
                     .setCreateUserId(currentUser.getId())
                     .setIsLeader(0)
-                    .setPassword(PasswordGenerator.getScreeningUserPwd(item.get(3), item.get(2)))
+                    .setPassword(PasswordAndUsernameGenerator.getScreeningUserPwd(item.get(3), item.get(2)))
                     .setUsername(item.get(3))
                     .setOrgId(screeningOrgId)
                     .setSystemCode(SystemCode.SCREENING_CLIENT.getCode());
@@ -331,7 +355,7 @@ public class ExcelFacade {
      * @param item 筛查人员
      */
     private void checkStaffInfo(Map<Integer, String> item) {
-        Assert.isTrue(StringUtils.isNotBlank(item.get(1)) && !GenderEnum.getType(item.get(1)).equals(GenderEnum.UNKONE.type), "性别异常");
+        Assert.isTrue(StringUtils.isNotBlank(item.get(1)) && !GenderEnum.getType(item.get(1)).equals(GenderEnum.UNKNOWN.type), "性别异常");
         Assert.isTrue(StringUtils.isNotBlank(item.get(2)) && Pattern.matches(RegularUtils.REGULAR_ID_CARD, item.get(2)), "身份证异常");
         Assert.isTrue(StringUtils.isNotBlank(item.get(3)) && Pattern.matches(RegularUtils.REGULAR_MOBILE, item.get(3)), "手机号码异常");
     }
@@ -447,11 +471,11 @@ public class ExcelFacade {
             StatConclusionExportDTO vo = vos.get(i);
             VisionScreeningResultExportDTO exportVo = new VisionScreeningResultExportDTO();
             BeanUtils.copyProperties(vo, exportVo);
-            GlassesType glassesType = GlassesType.get(vo.getGlassesType());
             exportVo.setId(i + 1)
                     .setGenderDesc(GenderEnum.getName(vo.getGender()))
                     .setNationDesc(StringUtils.defaultString(NationEnum.getName(vo.getNation())))
-                    .setGlassesTypeDesc(Objects.isNull(glassesType) ? "--" : glassesType.desc).setIsRescreenDesc("否")
+                    .setGlassesTypeDesc(StringUtils.defaultIfBlank(GlassesTypeEnum.getDescByCode(vo.getGlassesType()), "--"))
+                    .setIsRescreenDesc("否")
                     .setWarningLevelDesc(StringUtils.defaultIfBlank(WarningLevel.getDesc(vo.getWarningLevel()), "--"))
                     .setParentPhone(vo.getParentPhone())
                     .setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(),
@@ -642,15 +666,18 @@ public class ExcelFacade {
      * 检查学生信息是否完整
      *
      * @param item 学生信息
+     * @param offset 偏移量(导入的为同一个学校的数据时，没有学校编号列，后面的左移一列)
      */
-    private void checkStudentInfo(Map<Integer, String> item) {
-        Assert.isTrue(StringUtils.isNotBlank(item.get(1)) && !GenderEnum.getType(item.get(1)).equals(GenderEnum.UNKONE.type), "学生性别异常");
+    private void checkStudentInfo(Map<Integer, String> item, int offset) {
+        Assert.isTrue(StringUtils.isNotBlank(item.get(1)) && !GenderEnum.getType(item.get(1)).equals(GenderEnum.UNKNOWN.type), "学生性别异常");
         Assert.isTrue(StringUtils.isNotBlank(item.get(2)), "学生出生日期不能为空");
-        Assert.isTrue(StringUtils.isNotBlank(item.get(4)), "学校编号不能为空");
-        Assert.isTrue(StringUtils.isNotBlank(item.get(5)), "学生年级不能为空");
-        Assert.isTrue(StringUtils.isNotBlank(item.get(6)), "学生班级不能为空");
-        Assert.isTrue(StringUtils.isNotBlank(item.get(8)) && Pattern.matches(RegularUtils.REGULAR_ID_CARD, item.get(8)), "学生身份证异常");
-        Assert.isTrue(StringUtils.isBlank(item.get(9)) || Pattern.matches(RegularUtils.REGULAR_MOBILE, item.get(9)), "学生手机号码异常");
+        if (offset > 0) {
+            Assert.isTrue(StringUtils.isNotBlank(item.get(4)), "学校编号不能为空");
+        }
+        Assert.isTrue(StringUtils.isNotBlank(item.get(5 - offset)), "学生年级不能为空");
+        Assert.isTrue(StringUtils.isNotBlank(item.get(6 - offset)), "学生班级不能为空");
+        Assert.isTrue(StringUtils.isNotBlank(item.get(8 - offset)) && Pattern.matches(RegularUtils.REGULAR_ID_CARD, item.get(8 - offset)), "学生身份证异常");
+        Assert.isTrue(StringUtils.isBlank(item.get(9 - offset)) || Pattern.matches(RegularUtils.REGULAR_MOBILE, item.get(9 - offset)), "学生手机号码异常");
     }
 
     /**

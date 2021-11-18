@@ -106,6 +106,15 @@ public interface OauthServiceClient {
     User updateUser(@RequestBody UserDTO param);
 
     /**
+     * 批量更新用户状态
+     *
+     * @param param 用户数据
+     * @return com.wupol.myopia.oauth.sdk.domain.response.User
+     **/
+    @PutMapping("/oauth/user/status/batch")
+    boolean updateUserStatusBatch(@RequestBody UserDTO param);
+
+    /**
      * 重置管理端用户的密码【其他端用户的不适合】
      *
      * @param userId 用户ID

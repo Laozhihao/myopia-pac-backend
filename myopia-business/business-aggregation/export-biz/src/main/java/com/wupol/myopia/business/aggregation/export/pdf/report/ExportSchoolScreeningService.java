@@ -67,7 +67,7 @@ public class ExportSchoolScreeningService extends BaseExportPdfFileService {
     }
 
     @Override
-    public String getRedisKey(ExportCondition exportCondition) {
+    public String getLockKey(ExportCondition exportCondition) {
         return String.format(RedisConstant.FILE_EXPORT_PDF_SCHOOL_SCREENING,
                 exportCondition.getApplyExportFileUserId(),
                 exportCondition.getSchoolId(),

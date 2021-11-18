@@ -100,12 +100,16 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      */
     @Transactional(rollbackFor = Exception.class)
     public Integer saveStudent(Student student) {
-
         // 检查学生年龄
         if (student.checkBirthdayExceedLimit()) {
             throw new BusinessException("学生年龄太大");
         }
         student.checkIdCard();
+        // 兼容处理，避免漏掉学校ID
+        if (Objects.nonNull(student.getSchoolNo()) && Objects.isNull(student.getSchoolId())) {
+            School school = schoolService.getBySchoolNo(student.getSchoolNo());
+            student.setSchoolId(school.getId());
+        }
         // 设置学龄
         if (null != student.getGradeId()) {
             SchoolGrade grade = schoolGradeService.getById(student.getGradeId());
@@ -125,7 +129,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @param studentId   学生ID
      * @param parentPhone 家长手机号码
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void updateMpParentPhone(Integer studentId, String parentPhone) {
         Student student = getById(studentId);
         String parentPhoneStr = student.getMpParentPhone();
@@ -305,7 +309,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
                 studentQueryDTO.getSno(), studentQueryDTO.getIdCard(), studentQueryDTO.getName(),
                 studentQueryDTO.getParentPhone(), studentQueryDTO.getGender(), conditionalFilter.getFirst(),
                 conditionalFilter.getSecond(), studentQueryDTO.getStartScreeningTime(), studentQueryDTO.getEndScreeningTime(),
-                studentQueryDTO.getSchoolName());
+                studentQueryDTO.getSchoolName(), studentQueryDTO.getSchoolId(), studentQueryDTO.getGradeId(), studentQueryDTO.getClassId());
     }
 
     /**
@@ -379,6 +383,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
 
     /**
      * 获取学生联系人电话
+     *
      * @param studentIds
      * @return
      */
@@ -387,10 +392,10 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             return Collections.emptyMap();
         }
         List<Student> warnStudentList = getByIds(studentIds);
-        if(CollectionUtils.isEmpty(warnStudentList)) {
+        if (CollectionUtils.isEmpty(warnStudentList)) {
             return Collections.emptyMap();
         }
-         return warnStudentList.stream().collect(Collectors.toMap(Student::getId, student -> {
+        return warnStudentList.stream().collect(Collectors.toMap(Student::getId, student -> {
             List<String> phoneNumList = getPhones(student.getMpParentPhone(), student.getParentPhone());
             StudentBasicInfoDTO studentBasicInfoDTO = new StudentBasicInfoDTO();
             studentBasicInfoDTO.setStudentId(student.getId()).setStudentName(student.getName()).setPhoneNums(phoneNumList);
@@ -400,6 +405,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
 
     /**
      * 获取电话
+     *
      * @param mpParentPhonesStr
      * @param parentPhone
      * @return
@@ -409,7 +415,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             return Arrays.stream(mpParentPhonesStr.split(",")).map(String::valueOf)
                     .collect(Collectors.toList());
         }
-        return  StringUtils.isBlank(parentPhone) ? Collections.emptyList() : Collections.singletonList(parentPhone);
+        return StringUtils.isBlank(parentPhone) ? Collections.emptyList() : Collections.singletonList(parentPhone);
     }
 
     /**
@@ -430,5 +436,15 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      */
     public List<StudentDTO> getStudentInfoList(List<Integer> studentIds) {
         return baseMapper.getStudentInfoList(studentIds);
+    }
+
+    /**
+     * 通过身份证获取已经删除的学生
+     *
+     * @param idCards 身份证
+     * @return List<Student>
+     */
+    public List<Student> getDeleteStudentByIdCard(List<String> idCards) {
+        return baseMapper.getDeleteStudentByIdCard(idCards);
     }
 }

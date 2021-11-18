@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.hospital.app.service;
 
+import com.wupol.myopia.business.common.utils.constant.WearingGlassesSuggestEnum;
 import com.wupol.myopia.business.core.hospital.domain.model.HospitalStudent;
 import com.wupol.myopia.business.core.hospital.domain.model.MedicalRecord;
 import com.wupol.myopia.business.core.hospital.domain.model.MedicalReport;
@@ -138,11 +139,11 @@ public class HospitalStatisticsService {
     private Map<String, Object> getGlassesInfo(List<MedicalReport> reportList) {
         Map<String, Object> map = new HashMap<>();
         // 隐形眼镜人数
-        map.put("contactLensCount", reportList.stream().filter(item-> MedicalReport.GLASSES_SITUATION_CONTACT_LENS.equals(item.getGlassesSituation())).count());
+        map.put("contactLensCount", reportList.stream().filter(item-> WearingGlassesSuggestEnum.GLASSES_SITUATION_CONTACT_LENS.getCode().equals(item.getGlassesSituation())).count());
         // ok镜人数
-        map.put("okGlassesCount", reportList.stream().filter(item-> MedicalReport.GLASSES_SITUATION_OK_GLASSES.equals(item.getGlassesSituation())).count());
+        map.put("okGlassesCount", reportList.stream().filter(item-> WearingGlassesSuggestEnum.GLASSES_SITUATION_OK_GLASSES.getCode().equals(item.getGlassesSituation())).count());
         // 配框架镜人数
-        map.put("commonGlassesCount", reportList.stream().filter(item-> MedicalReport.GLASSES_SITUATION_COMMON_GLASSES.equals(item.getGlassesSituation())).count());
+        map.put("commonGlassesCount", reportList.stream().filter(item-> WearingGlassesSuggestEnum.GLASSES_SITUATION_COMMON_GLASSES.getCode().equals(item.getGlassesSituation())).count());
         return map;
     }
 

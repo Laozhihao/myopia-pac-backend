@@ -83,11 +83,11 @@ public class StatConclusionTest {
             // TODO: 需要增加合法数据判断
             boolean isValid = true;
             // TODO: 需要获取戴镜类型
-            int glassesType = GlassesType.CONTACT_LENS.code;
+            int glassesType = GlassesTypeEnum.CONTACT_LENS.code;
             // TODO: 需要获取视力矫正状态
             int visionCorrection = VisionCorrection.ENOUGH_CORRECTED.code;
 
-            boolean isWearingGlasses = GlassesType.NOT_WEARING.code == 0 ? false : true;
+            boolean isWearingGlasses = GlassesTypeEnum.NOT_WEARING.code == 0 ? false : true;
 
             float leftCyl = leftData.getCyl().floatValue();
             float rightCyl = rightData.getCyl().floatValue();

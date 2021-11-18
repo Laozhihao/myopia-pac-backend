@@ -169,6 +169,7 @@ public class ScreeningPlanSchoolStudentBizService {
         for (int i = 0; i < studentTotal; i++) {
             Student student = new Student();
             student.setSchoolNo(school.getSchoolNo());
+            student.setSchoolId(school.getId());
             student.setCreateUserId(currentUser.getId());
             student.setGradeId(schoolGrade.getGradeId());
             student.setClassId(schoolClass.getClassId());

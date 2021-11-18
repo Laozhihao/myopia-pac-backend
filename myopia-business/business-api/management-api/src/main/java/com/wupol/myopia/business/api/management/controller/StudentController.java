@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
@@ -11,6 +10,7 @@ import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelSe
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.hospital.domain.dto.StudentVisitReportResponseDTO;
 import com.wupol.myopia.business.aggregation.hospital.service.MedicalReportBizService;
+import com.wupol.myopia.business.api.management.domain.vo.StudentWarningArchiveVO;
 import com.wupol.myopia.business.api.management.service.StudentBizService;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
 import com.wupol.myopia.business.common.utils.constant.VisionLabels;
@@ -24,7 +24,6 @@ import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningResultResponseDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentCardResponseVO;
-import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
@@ -32,7 +31,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Objects;
@@ -132,7 +130,6 @@ public class StudentController {
     @GetMapping("/export")
     public void getStudentExportData(Integer schoolId, Integer gradeId) throws IOException {
         Assert.isTrue(Objects.nonNull(schoolId), "学校id不能为空");
-        Assert.isTrue(Objects.nonNull(gradeId), "年级id不能为空");
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         exportStrategy.doExport(new ExportCondition()
                         .setApplyExportFileUserId(user.getId())
@@ -148,9 +145,9 @@ public class StudentController {
      * @throws ParseException 转换异常
      */
     @PostMapping("/import")
-    public void importStudent(MultipartFile file) throws ParseException {
+    public void importStudent(MultipartFile file, Integer schoolId) throws ParseException {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        excelFacade.importStudent(currentUser.getId(), file);
+        excelFacade.importStudent(currentUser.getId(), file, schoolId);
     }
 
     /**
@@ -216,5 +213,16 @@ public class StudentController {
     @GetMapping("/report/detail/{reportId}")
     public StudentVisitReportResponseDTO getReportDetail(@PathVariable("reportId") Integer reportId) {
         return medicalReportBizService.getStudentVisitReport(reportId);
+    }
+
+    /**
+     * 获取学生预警跟踪档案
+     *
+     * @param studentId 学生ID
+     * @return java.util.List<com.wupol.myopia.business.api.management.domain.vo.StudentWarningArchiveVO>
+     **/
+    @GetMapping("/warning/archive/{studentId}")
+    public List<StudentWarningArchiveVO> getStudentWarningArchive(@PathVariable("studentId") Integer studentId) {
+        return studentBizService.getStudentWarningArchive(studentId);
     }
 }

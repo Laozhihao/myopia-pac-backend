@@ -77,7 +77,7 @@ public class ExportScreeningOrgArchivesService extends BaseExportPdfFileService 
     }
 
     @Override
-    public String getRedisKey(ExportCondition exportCondition) {
+    public String getLockKey(ExportCondition exportCondition) {
         return String.format(RedisConstant.FILE_EXPORT_PDF_ARCHIVES_ORG,
                 exportCondition.getApplyExportFileUserId(),
                 exportCondition.getPlanId(),

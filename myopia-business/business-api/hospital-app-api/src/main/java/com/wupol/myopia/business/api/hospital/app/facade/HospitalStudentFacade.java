@@ -144,6 +144,7 @@ public class HospitalStudentFacade {
             // 转换地址与学校数据
             if (Objects.nonNull(studentVo.getSchoolId())) {
                 tmpStudent.setSchoolNo(schoolService.getById(studentVo.getSchoolId()).getSchoolNo());
+                tmpStudent.setSchoolId(studentVo.getSchoolId());
             }
             if (Objects.nonNull(studentVo.getProvinceId())) {
                 tmpStudent.setProvinceCode(districtService.getById(studentVo.getProvinceId()).getCode());

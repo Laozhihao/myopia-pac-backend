@@ -3,6 +3,7 @@ package com.wupol.myopia.business.aggregation.export.excel;
 import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelFileNameConstant;
+import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelNoticeKeyContentConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.core.common.constant.ExportAddressKey;
 import com.wupol.myopia.business.core.common.domain.model.District;
@@ -133,11 +134,11 @@ public class ExportScreeningOrganizationExcelService extends BaseExportExcelFile
     public String getNoticeKeyContent(ExportCondition exportCondition) {
         District district = districtService.getById(exportCondition.getDistrictId());
         String districtFullName = districtService.getTopDistrictName(district.getCode());
-        return String.format(ExcelFileNameConstant.SCREENING_ORG_NOTICE_KEY_CONTENT, districtFullName);
+        return String.format(ExcelNoticeKeyContentConstant.SCREENING_ORG_NOTICE_KEY_CONTENT, districtFullName);
     }
 
     @Override
-    public String getRedisKey(ExportCondition exportCondition) {
+    public String getLockKey(ExportCondition exportCondition) {
         return String.format(RedisConstant.FILE_EXPORT_EXCEL_ORG,
                 exportCondition.getApplyExportFileUserId(),
                 exportCondition.getDistrictId());

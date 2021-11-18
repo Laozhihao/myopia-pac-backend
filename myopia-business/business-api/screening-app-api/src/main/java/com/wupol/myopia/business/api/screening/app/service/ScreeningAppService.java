@@ -352,7 +352,8 @@ public class ScreeningAppService {
                 .setIdCard(appStudentDTO.getIdCard())
                 .setCreateUserId(currentUser.getId())
                 .setParentPhone(appStudentDTO.getStudentPhone())
-                .setStatus(0);
+                .setStatus(0)
+                .setSchoolId(schoolId.intValue());
         return student;
     }
 

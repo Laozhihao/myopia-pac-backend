@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.domain.CurrentUser;
-import com.wupol.myopia.base.util.PasswordGenerator;
+import com.wupol.myopia.base.util.PasswordAndUsernameGenerator;
 import com.wupol.myopia.business.api.management.domain.dto.UserQueryDTO;
 import com.wupol.myopia.business.api.management.domain.vo.UserVO;
 import com.wupol.myopia.business.core.common.domain.model.District;
@@ -102,7 +102,7 @@ public class UserService {
         // 参数校验
         validateAndInitUserData(user, currentUser);
         // 新增用户并绑定角色
-        user.setPassword(PasswordGenerator.getManagementUserPwd())
+        user.setPassword(PasswordAndUsernameGenerator.getManagementUserPwd())
                 .setUsername(user.getPhone())
                 .setCreateUserId(currentUser.getId())
                 .setSystemCode(currentUser.getSystemCode());
@@ -191,7 +191,7 @@ public class UserService {
      * @return com.wupol.myopia.business.management.domain.dto.UserDTO
      **/
     public UserVO resetPwd(Integer userId) {
-        String pwd = PasswordGenerator.getManagementUserPwd();
+        String pwd = PasswordAndUsernameGenerator.getManagementUserPwd();
         oauthServiceClient.resetPwd(userId, pwd);
         return new UserVO().setId(userId).setPassword(pwd);
     }

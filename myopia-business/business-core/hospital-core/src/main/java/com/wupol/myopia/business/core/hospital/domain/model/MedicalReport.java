@@ -27,14 +27,6 @@ public class MedicalReport implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    /** 配镜情况, 框架镜 */
-    public static final Integer GLASSES_SITUATION_COMMON_GLASSES = 1;
-    /** 配镜情况, OK眼镜 */
-    public static final Integer GLASSES_SITUATION_OK_GLASSES = 2;
-    /** 配镜情况, 隐形眼镜 */
-    public static final Integer GLASSES_SITUATION_CONTACT_LENS = 3;
-
-
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
     /** 报告编号. 医院ID+生成日期时分秒（202011111111）+6位数排序（000001开始） */

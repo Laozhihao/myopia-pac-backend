@@ -3,6 +3,7 @@ package com.wupol.myopia.business.core.school.service;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.common.collect.Maps;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
@@ -15,6 +16,7 @@ import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -170,6 +172,21 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
     public Map<Integer, SchoolGrade> getGradeMapByIds(List<Integer> ids) {
         return getByIds(ids).stream()
                 .collect(Collectors.toMap(SchoolGrade::getId, Function.identity()));
+    }
+
+    /**
+     * 批量通过id获取名称
+     *
+     * @param ids ids
+     * @return Map<Integer, String>
+     */
+    public Map<Integer, String> getClassNameMapByIds(List<Integer> ids) {
+        if (CollectionUtils.isEmpty(ids)) {
+            return Maps.newHashMap();
+        }
+        List<Integer> distinctIds = ids.stream().distinct().collect(Collectors.toList());
+        return baseMapper.selectBatchIds(distinctIds).stream()
+                .collect(Collectors.toMap(SchoolGrade::getId, SchoolGrade::getName));
     }
 
     /**

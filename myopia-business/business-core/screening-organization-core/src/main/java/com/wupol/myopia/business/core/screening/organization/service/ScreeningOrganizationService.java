@@ -6,7 +6,7 @@ import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.base.util.PasswordGenerator;
+import com.wupol.myopia.base.util.PasswordAndUsernameGenerator;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
@@ -67,14 +67,14 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @return 账号密码
      */
     public UsernameAndPasswordDTO generateAccountAndPassword(ScreeningOrganization org, Integer accountType) {
-        String password = PasswordGenerator.getScreeningAdminPwd();
-        String username = org.getName();
+        String password = PasswordAndUsernameGenerator.getScreeningAdminPwd();
+        String username = PasswordAndUsernameGenerator.getScreeningOrgAdminUserName(screeningOrganizationAdminService.count() + 1);
 
         UserDTO userDTO = new UserDTO();
         userDTO.setOrgId(org.getId())
                 .setUsername(username)
                 .setPassword(password)
-                .setRealName(username)
+                .setRealName(org.getName())
                 .setCreateUserId(org.getCreateUserId())
                 .setSystemCode(SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode());
         if (accountType.equals(PARENT_ACCOUNT)) {
@@ -166,7 +166,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @return 账号密码
      */
     private UsernameAndPasswordDTO resetOAuthPassword(Integer userId, String username) {
-        String password = PasswordGenerator.getScreeningAdminPwd();
+        String password = PasswordAndUsernameGenerator.getScreeningAdminPwd();
         oauthServiceClient.resetPwd(userId, password);
         return new UsernameAndPasswordDTO(username, password);
     }

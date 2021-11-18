@@ -13,6 +13,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
+import com.wupol.myopia.business.core.screening.flow.util.ScreeningCodeGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -46,6 +47,7 @@ public class ScreeningPlanBizService {
      */
     public void insertWithStudent(CurrentUser currentUser, Student student, String gradeName, String clazzName, String schoolName, String schoolNo, Integer schoolDistrictId, Integer schoolId, ScreeningPlan currentPlan) {
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = new ScreeningPlanSchoolStudent();
+        Long screeningCode = ScreeningCodeGenerator.nextId();
         screeningPlanSchoolStudent.setIdCard(student.getIdCard())
                 .setSrcScreeningNoticeId(currentPlan.getSrcScreeningNoticeId())
                 .setScreeningTaskId(currentPlan.getScreeningTaskId())
@@ -56,7 +58,8 @@ public class ScreeningPlanBizService {
                 .setSchoolId(schoolId)
                 .setSchoolName(schoolName)
                 .setSchoolNo(schoolNo)
-                .setStudentId(student.getId());
+                .setStudentId(student.getId())
+                .setScreeningCode(screeningCode);
 
         screeningPlanSchoolStudent.setStudentName(student.getName())
                 .setGradeId(student.getGradeId())
@@ -68,7 +71,8 @@ public class ScreeningPlanBizService {
                 .setGender(student.getGender())
                 .setStudentAge(AgeUtil.countAge(student.getBirthday()))
                 .setStudentSituation(SerializationUtil.serializeWithoutException(student))
-                .setStudentNo(student.getSno());
+                .setStudentNo(student.getSno())
+                .setScreeningCode(screeningCode);
         screeningPlanSchoolStudentService.save(screeningPlanSchoolStudent);
         screeningPlanService.updateStudentNumbers(currentUser.getId(), currentPlan.getId(), screeningPlanSchoolStudentService.getCountByScreeningPlanId(currentPlan.getId()));
     }
