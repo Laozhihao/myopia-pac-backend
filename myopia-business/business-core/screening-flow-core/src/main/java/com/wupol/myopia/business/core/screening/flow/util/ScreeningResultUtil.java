@@ -52,10 +52,7 @@ public class ScreeningResultUtil {
         }
 
         // 是否有其他眼病
-        boolean otherEyeDiseasesNormal = false;
-        if (Objects.nonNull(result.getOtherEyeDiseases())) {
-            otherEyeDiseasesNormal = result.getOtherEyeDiseases().isNormal();
-        }
+        boolean otherEyeDiseasesNormal = Objects.nonNull(result.getOtherEyeDiseases()) && result.getOtherEyeDiseases().isNormal();
 
         // 获取左右眼的矫正视力
         BigDecimal leftCorrectedVision = visionData.getLeftEyeData().getCorrectedVision();
@@ -1012,16 +1009,14 @@ public class ScreeningResultUtil {
             }
         }
         if (BigDecimalUtil.lessThanAndEqual(leftNakedVision, rightNakedVision)) {
-            if (BigDecimalUtil.lessThanAndEqual(leftNakedVision, targetVision)) {
-                if (checkAgeAndNakedVision(age, leftNakedVision, differenceTwoLines)) {
-                    return leftCorrectedVision;
-                }
+            if (BigDecimalUtil.lessThanAndEqual(leftNakedVision, targetVision)
+                    && checkAgeAndNakedVision(age, leftNakedVision, differenceTwoLines)) {
+                return leftCorrectedVision;
             }
         } else {
-            if (BigDecimalUtil.lessThanAndEqual(rightNakedVision, targetVision)) {
-                if (checkAgeAndNakedVision(age, rightNakedVision, differenceTwoLines)) {
-                    return rightCorrectedVision;
-                }
+            if (BigDecimalUtil.lessThanAndEqual(rightNakedVision, targetVision)
+                    && checkAgeAndNakedVision(age, rightNakedVision, differenceTwoLines)) {
+                return rightCorrectedVision;
             }
         }
         return null;
