@@ -1094,9 +1094,8 @@ public class ScreeningResultUtil {
         if (BigDecimalUtil.isAllLessThanAndEqual(leftNakedVision, rightNakedVision, targetVision)) {
             if (Objects.nonNull(leftSe) && Objects.nonNull(rightSe) && BigDecimalUtil.moreThan(leftSe.abs(), rightSe.abs())) {
                 return new ThreeTuple<>(leftSe, leftCyl, anisometropia);
-            } else {
-                return new ThreeTuple<>(rightSe, rightCyl, anisometropia);
             }
+            return new ThreeTuple<>(rightSe, rightCyl, anisometropia);
         }
         if (BigDecimalUtil.lessThanAndEqual(leftNakedVision, rightNakedVision) && BigDecimalUtil.lessThanAndEqual(leftNakedVision, targetVision)) {
             if (checkAgeAndNakedVision(age, leftNakedVision, differenceTwoLines)) {

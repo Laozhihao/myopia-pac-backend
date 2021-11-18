@@ -29,5 +29,5 @@ public class VisionInfoVO {
     /**
      * 是否散光
      */
-    private Boolean astigmatismLevel;
+    private Boolean astigmatism;
 }
