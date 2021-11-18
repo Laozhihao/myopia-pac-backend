@@ -89,7 +89,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, update_time,student_id, is_vision_warning,vision_warning_update_time, age, result_id, screening_org_id, screening_plan_school_student_id,src_screening_notice_id,task_id, plan_id, district_id, school_age, gender, warning_level, vision_l, vision_r, is_low_vision, is_refractive_error, is_myopia, is_hyperopia, is_astigmatism,  is_recommend_visit, is_rescreen, rescreen_error_num, is_valid, create_time, school_id, school_grade_code, school_class_name, myopia_warning_level, naked_vision_warning_level, glasses_type, vision_correction
+        id, update_time,student_id, is_vision_warning,vision_warning_update_time, age, result_id, screening_org_id, screening_plan_school_student_id,src_screening_notice_id,task_id, plan_id, district_id, school_age, gender, warning_level, vision_l, vision_r, is_low_vision, is_refractive_error, is_myopia, is_hyperopia, is_astigmatism,  is_recommend_visit, is_rescreen, rescreen_error_num, is_valid, create_time, school_id, school_grade_code, school_class_name, myopia_warning_level, naked_vision_warning_level, glasses_type, vision_correction,myopia_level,hyperopia_level,astigmatism_level
     </sql>
 
     <!-- 通用查询结果列 -->
@@ -97,7 +97,8 @@
         mspss.student_name, mspss.gender, mspss.birthday, mspss.nation, mspss.school_id, mspss.school_no, mspss.school_name, mspss.grade_name, mspss.class_name,
         mspss.student_no, mspss.id_card, mspss.parent_phone, mspss.province_code, mspss.city_code, mspss.town_code, mspss.area_code, mspss.address,
         mvsr.vision_data, mvsr.computer_optometry, msc.glasses_type, msc.warning_level, msc.is_rescreen, msc.screening_plan_school_student_id,
-        mvsr.ocular_inspection_data,mvsr.eye_pressure_data,mvsr.fundus_data,mvsr.slit_lamp_data,mvsr.pupil_optometry_data,mvsr.visual_loss_level_data,mvsr.systemic_disease_symptom,mvsr.biometric_data,mvsr.other_eye_diseases
+        mvsr.ocular_inspection_data,mvsr.eye_pressure_data,mvsr.fundus_data,mvsr.slit_lamp_data,mvsr.pupil_optometry_data,mvsr.visual_loss_level_data,
+        mvsr.systemic_disease_symptom,mvsr.biometric_data,mvsr.other_eye_diseases, mspss.grade_id, mspss.class_id, msc.myopia_level,msc.hyperopia_level,msc.astigmatism_level,mspss.student_id,msc.create_time
     </sql>
 
     <select id="selectLastOne" resultMap="BaseResultMap" parameterType="java.util.Map">
@@ -221,6 +222,17 @@
             and is_rescreen = #{isRescreen}
         </if>
         group by plan_id, school_id
+    </select>
+
+    <select id="getNextScreeningStat" resultMap="BaseResultMap">
+        SELECT
+                *
+        FROM
+             m_stat_conclusion
+        WHERE
+                student_id = #{studentId}
+          AND id > #{statConclusionId}
+        LIMIT 1
     </select>
 
 </mapper>

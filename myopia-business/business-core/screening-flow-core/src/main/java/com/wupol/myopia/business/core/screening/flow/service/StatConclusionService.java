@@ -217,5 +217,16 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
                 .gt(StatConclusion::getVisionWarningUpdateTime, yesterdayDateTime).le(StatConclusion::getVisionWarningUpdateTime, todayDateTime);
         return list(statConclusionLambdaQueryWrapper);
     }
+
+    /**
+     * 获取下一条筛查统计
+     *
+     * @param statConclusionId 表ID
+     * @param studentId 学校ID
+     * @return com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion
+     **/
+    public StatConclusion getNextScreeningStat(Integer statConclusionId, Integer studentId) {
+        return baseMapper.getNextScreeningStat(statConclusionId, studentId);
+    }
 }
 

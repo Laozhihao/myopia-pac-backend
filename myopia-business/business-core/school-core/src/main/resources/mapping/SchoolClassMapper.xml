@@ -41,11 +41,13 @@
     <select id="getByGradeIds" resultType="com.wupol.myopia.business.core.school.domain.dto.SchoolClassExportDTO">
         select *
         from m_school_class msc
-                where msc.grade_id in
+                where msc.status = 0
+                  and msc.grade_id in
         <foreach collection="ids" open="(" close=")" separator="," item="item">
             #{item}
         </foreach>
     </select>
+
     <select id="selectVoList" resultMap="VoResultMap">
         select msc.*, msg.name as grade_name
         from m_school_class msc
@@ -71,5 +73,18 @@
         </foreach>
         and school_id = #{schoolId}
         and status = #{status}
+    </select>
+
+    <select id="getByNameNeId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school_class
+                where name = #{name}
+                  and school_id = #{schoolId}
+                  and status = 0
+                  and grade_id = #{gradeId}
+        <if test="id != null">
+            and id != #{id}
+        </if>
     </select>
 </mapper>

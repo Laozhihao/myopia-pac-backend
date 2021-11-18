@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.aggregation.export.excel;
 
 import com.alibaba.fastjson.JSON;
-import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.ExcelUtil;
 import com.wupol.myopia.business.aggregation.export.BaseExportFileService;
@@ -16,7 +15,6 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
@@ -38,8 +36,6 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
     private DistrictService districtService;
     @Resource
     private OauthServiceClient oauthServiceClient;
-    @Autowired
-    private RedisUtil redisUtil;
 
     /**
      * 导出文件
@@ -78,7 +74,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
                 deleteTempFile(excelFile.getPath());
             }
             // 8.释放锁
-            unlock(getRedisKey(exportCondition));
+            unlock(getLockKey(exportCondition));
         }
     }
 
@@ -166,38 +162,6 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
             addressCodeMap.put(ExportAddressKey.TOWN, districtService.getDistrictName(item.getTownCode()));
         }
         return addressCodeMap;
-    }
-
-    /**
-     * 获取Key
-     *
-     * @param exportCondition 导出条件
-     * @return key
-     */
-    @Override
-    public String getRedisKey(ExportCondition exportCondition) {
-        return null;
-    }
-
-    /**
-     * 上锁
-     *
-     * @param key key
-     * @return 是否成功
-     */
-    @Override
-    public Boolean tryLock(String key) {
-        return redisUtil.tryLock(key, "1", 60 * 20L);
-    }
-
-    /**
-     * 释放锁
-     *
-     * @param key key
-     */
-    @Override
-    public void unlock(String key) {
-        Assert.isTrue(redisUtil.unlock(key), "Redis解锁异常,key=" + key);
     }
 
     @Override

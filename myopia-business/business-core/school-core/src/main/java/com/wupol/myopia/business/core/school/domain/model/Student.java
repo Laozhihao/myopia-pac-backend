@@ -6,8 +6,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.RegularUtils;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
+import com.wupol.myopia.business.common.utils.util.VisionUtil;
 import com.wupol.myopia.business.core.common.domain.model.AddressCode;
-import com.wupol.myopia.business.core.school.constant.GlassesType;
 import freemarker.core.BugException;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -133,6 +133,7 @@ public class Student extends AddressCode implements Serializable {
     /**
      * 视力标签 0-零级、1-一级、2-二级、3-三级
      */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Integer visionLabel;
 
     /**
@@ -202,6 +203,24 @@ public class Student extends AddressCode implements Serializable {
     private Integer numOfVisits;
 
     /**
+     * 学校ID
+     */
+    private Integer schoolId;
+
+    /**
+     * 近视等级，0-正常、1-筛查性近视、2-近视前期、3-低度近视、4-中度近视、5-重度近视
+     */
+    private Integer myopiaLevel;
+    /**
+     * 远视等级，0-正常、1-远视、2-低度远视、3-中度远视、4-重度远视
+     */
+    private Integer hyperopiaLevel;
+    /**
+     * 散光等级，0-正常、1-低度散光、2-中度散光、3-重度散光
+     */
+    private Integer astigmatismLevel;
+
+    /**
      * 上传筛查学生时，判断学生需更新信息是否一致
      * 由于只有部分字段，所以不使用equals
      *
@@ -230,20 +249,7 @@ public class Student extends AddressCode implements Serializable {
      * @return 视力情况
      */
     public String situation2Str() {
-        StringBuilder result = new StringBuilder();
-        if (Objects.nonNull(glassesType)) {
-            result.append(GlassesType.get(glassesType).desc).append("、");
-        }
-        if (Objects.nonNull(isMyopia) && isMyopia) {
-            result.append("近视、");
-        }
-        if (Objects.nonNull(isHyperopia) && isHyperopia) {
-            result.append("远视、");
-        }
-        if (Objects.nonNull(isAstigmatism) && isAstigmatism) {
-            result.append("散光");
-        }
-        return result.toString();
+        return VisionUtil.getVisionSummary(glassesType, myopiaLevel, hyperopiaLevel, astigmatismLevel);
     }
 
     /**
@@ -269,6 +275,9 @@ public class Student extends AddressCode implements Serializable {
             } else {
                 return 1;
             }
+        }
+        if (Objects.isNull(birthday)) {
+            return null;
         }
         if (DateUtil.ageOfNow(birthday) > 6) {
             return 1;

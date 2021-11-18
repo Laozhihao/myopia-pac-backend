@@ -8,12 +8,15 @@ import com.wupol.myopia.oauth.domain.model.UserWithRole;
 import com.wupol.myopia.oauth.service.UserService;
 import com.wupol.myopia.oauth.validator.UserValidatorGroup;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @Author HaoHao
@@ -205,5 +208,17 @@ public class UserController {
             return new ArrayList<>();
         }
         return userService.getByUserIds(userIds);
+    }
+
+    /**
+     * 批量更新用户状态
+     *
+     * @param user 用户数据
+     * @return com.wupol.myopia.oauth.sdk.domain.response.User
+     **/
+    @PutMapping("/status/batch")
+    public boolean updateUserStatusBatch(@RequestBody UserDTO user) {
+        Assert.isTrue(Objects.nonNull(user) && !CollectionUtils.isEmpty(user.getUserIds()), "用户Id不能为空");
+        return userService.updateBatchById(user.getUserIds().stream().map(userId -> new User().setId(userId).setStatus(user.getStatus())).collect(Collectors.toList()));
     }
 }

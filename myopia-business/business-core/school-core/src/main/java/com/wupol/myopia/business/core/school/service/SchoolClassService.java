@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.school.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.google.common.collect.Maps;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
@@ -11,6 +12,7 @@ import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -38,6 +40,11 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
      */
     @Transactional(rollbackFor = Exception.class)
     public Integer saveClass(SchoolClass schoolClass) {
+        List<SchoolClass> schoolClasses = baseMapper.getByNameNeId(schoolClass.getName(), null,
+                schoolClass.getGradeId(), schoolClass.getSchoolId());
+        if (!CollectionUtils.isEmpty(schoolClasses)) {
+            throw new BusinessException("班级名称重复");
+        }
         return baseMapper.insert(schoolClass);
     }
 
@@ -72,6 +79,11 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
      */
     @Transactional(rollbackFor = Exception.class)
     public SchoolClass updateClass(SchoolClass schoolClass) {
+        List<SchoolClass> schoolClasses = baseMapper.getByNameNeId(schoolClass.getName(), schoolClass.getId(),
+                schoolClass.getGradeId(), schoolClass.getSchoolId());
+        if (!CollectionUtils.isEmpty(schoolClasses)) {
+            throw new BusinessException("班级名称重复");
+        }
         baseMapper.updateById(schoolClass);
         return schoolClass;
     }
@@ -118,6 +130,21 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
                 .collect(Collectors.toMap(SchoolClass::getId, Function.identity()));
     }
 
+    /**
+     * 批量通过id获取名称
+     *
+     * @param ids ids
+     * @return Map<Integer, String>
+     */
+    public Map<Integer, String> getClassNameMapByIds(List<Integer> ids) {
+        if (CollectionUtils.isEmpty(ids)) {
+            return Maps.newHashMap();
+        }
+        List<Integer> distinctIds = ids.stream().distinct().collect(Collectors.toList());
+        return baseMapper.selectBatchIds(distinctIds).stream()
+                .collect(Collectors.toMap(SchoolClass::getId, SchoolClass::getName));
+    }
+
     public List<SchoolClass> getByIds(List<Integer> ids) {
         return baseMapper.selectBatchIds(ids);
     }
@@ -153,7 +180,7 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
     public SchoolClass getByClassNameAndSchoolId(Integer schoolId, Integer gradeId, String className) {
         LambdaQueryWrapper<SchoolClass> queryWrapper = new LambdaQueryWrapper<>();
         SchoolClass schoolClass = new SchoolClass();
-        schoolClass.setSchoolId(schoolId).setName(className).setGradeId(gradeId);
+        schoolClass.setSchoolId(schoolId).setName(className).setGradeId(gradeId).setStatus(CommonConst.STATUS_NOT_DELETED);
         queryWrapper.setEntity(schoolClass);
         return baseMapper.selectOne(queryWrapper);
     }

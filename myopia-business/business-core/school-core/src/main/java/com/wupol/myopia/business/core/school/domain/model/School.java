@@ -133,4 +133,19 @@ public class School extends AddressCode implements Serializable, HasName {
      */
     @TableField(exist = false)
     private String createUser;
+
+    /**
+     * 所属区/县行政区域编号
+     */
+    private Long districtAreaCode;
+
+    /**
+     * 片区类型：1好片、2中片、3差片
+     */
+    private Integer areaType;
+
+    /**
+     * 监测点类型：1城区、2郊县
+     */
+    private Integer monitorType;
 }

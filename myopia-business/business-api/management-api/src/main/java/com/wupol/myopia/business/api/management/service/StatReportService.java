@@ -11,7 +11,6 @@ import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolClassDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeItemsDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
-import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningResultPahtConst;
@@ -593,7 +592,7 @@ public class StatReportService {
         Long wearingNum = 0L;
         float wearingRatio = 0;
         for (BasicStatParams params : list) {
-            if (GlassesType.NOT_WEARING.name().equals(params.getTitle())) {
+            if (GlassesTypeEnum.NOT_WEARING.name().equals(params.getTitle())) {
                 continue;
             }
             wearingNum += params.getNum();
@@ -740,7 +739,7 @@ public class StatReportService {
      */
     private List<TypeRatioDTO> getMyopiaRatio(List<StatConclusion> validConclusions) {
         List<TypeRatioDTO> myopiaRatio = new ArrayList<>();
-        long myopiaNum = validConclusions.stream().filter(x -> x.getIsMyopia() || GlassesType.ORTHOKERATOLOGY.code.equals(x.getGlassesType())).count();
+        long myopiaNum = validConclusions.stream().filter(x -> x.getIsMyopia() || GlassesTypeEnum.ORTHOKERATOLOGY.code.equals(x.getGlassesType())).count();
         long lowVisionNum = validConclusions.stream().filter(StatConclusion::getIsLowVision).count();
         Float vision = validConclusions.stream().map(x -> x.getVisionL() + x.getVisionR()).reduce(0f, Float::sum);
         int countNum = validConclusions.size();
@@ -1124,7 +1123,7 @@ public class StatReportService {
 
         long totalSize = statConclusions.size();
         long totalWearingNum =
-                statConclusions.stream().filter(x -> x.getGlassesType() != null && !GlassesType.NOT_WEARING.code.equals(x.getGlassesType())).count();
+                statConclusions.stream().filter(x -> x.getGlassesType() != null && !GlassesTypeEnum.NOT_WEARING.code.equals(x.getGlassesType())).count();
         List<BasicStatParams> totalStatList = (List<BasicStatParams>) totalStat.get("list");
         Map<String, Object> resultMap = new HashMap<>();
         resultMap.put("list", schoolGradeWearingTypeTable);
@@ -1329,11 +1328,9 @@ public class StatReportService {
             List<SchoolClassDTO> schoolClasses = schoolGradeItem.getChild();
             for (SchoolClassDTO schoolClass : schoolClasses) {
                 Map<String, Object> myopiaLevelStat = composeMyopiaLevelStat(schoolClass.getName(),
-                        statConclusions.stream()
-                                .filter(x
-                                        -> schoolClass.getName().equals(x.getSchoolClassName())
-                                                && gradeCode.getCode().equals(
-                                                        x.getSchoolGradeCode()))
+                        statConclusions.stream().filter(x ->
+                                        schoolClass.getName().equals(x.getSchoolClassName())
+                                                && gradeCode.getCode().equals(x.getSchoolGradeCode()))
                                 .collect(Collectors.toList()));
                 myopiaLevelStat.put("rowKey", ++rowKey);
                 myopiaLevelStat.put("grade", gradeCode.name());
@@ -1364,7 +1361,7 @@ public class StatReportService {
     private Map<String, Object> composeGenderMyopiaStat(
             String name, List<StatConclusion> statConclusions) {
         Predicate<StatConclusion> predicate =
-                x -> x.getIsMyopia() || GlassesType.ORTHOKERATOLOGY.code.equals(x.getGlassesType());
+                x -> x.getIsMyopia() || GlassesTypeEnum.ORTHOKERATOLOGY.code.equals(x.getGlassesType());
         return composeGenderPredicateStat(name, statConclusions, predicate);
     }
 
@@ -1438,8 +1435,8 @@ public class StatReportService {
                 x -> WarningLevel.TWO.code.equals(x.getNakedVisionWarningLevel());
         Predicate<StatConclusion> levelThreePredicate =
                 x -> WarningLevel.THREE.code.equals(x.getNakedVisionWarningLevel());
-        Map<String, Object> levelMap = composeLevelStat(
-                name, statConclusions, levelOnePredicate, levelTwoPredicate, levelThreePredicate);
+        Map<String, Object> levelMap = composeLevelStat(name, statConclusions,
+                levelOnePredicate, levelTwoPredicate, levelThreePredicate);
         AverageVision averageVision = this.calculateAverageVision(statConclusions);
         float averageVisionValue = round2Digits(
                 (averageVision.getAverageVisionLeft() + averageVision.getAverageVisionRight()) / 2);
@@ -1453,15 +1450,17 @@ public class StatReportService {
      * @param statConclusions 统计数据
      * @return
      */
-    private Map<String, Object> composeMyopiaLevelStat(
-            String name, List<StatConclusion> statConclusions) {
+    private Map<String, Object> composeMyopiaLevelStat(String name,
+                                                       List<StatConclusion> statConclusions) {
+        Predicate<StatConclusion> levelEarlyPredicate =
+                x -> MyopiaLevelEnum.MYOPIA_LEVEL_EARLY.code.equals(x.getMyopiaWarningLevel());
         Predicate<StatConclusion> levelOnePredicate =
-                x -> WarningLevel.ONE.code.equals(x.getMyopiaWarningLevel());
+                x -> MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.code.equals(x.getMyopiaWarningLevel());
         Predicate<StatConclusion> levelTwoPredicate =
-                x -> WarningLevel.TWO.code.equals(x.getMyopiaWarningLevel());
+                x -> MyopiaLevelEnum.MYOPIA_LEVEL_MIDDLE.code.equals(x.getMyopiaWarningLevel());
         Predicate<StatConclusion> levelThreePredicate =
-                x -> WarningLevel.THREE.code.equals(x.getMyopiaWarningLevel());
-        return composeLevelStat(name, statConclusions, levelOnePredicate, levelTwoPredicate, levelThreePredicate);
+                x -> MyopiaLevelEnum.MYOPIA_LEVEL_HIGH.code.equals(x.getMyopiaWarningLevel());
+        return composeMyopiaLevelStat(name, statConclusions, levelEarlyPredicate, levelOnePredicate, levelTwoPredicate, levelThreePredicate);
     }
 
     /**
@@ -1523,6 +1522,39 @@ public class StatReportService {
     }
 
     /**
+     * 构建 预警级别 统计
+     *
+     * @param name                标题
+     * @param statConclusions     统计数据
+     * @param levelOnePredicate   一级过滤条件
+     * @param levelTwoPredicate   二级过滤条件
+     * @param levelThreePredicate 三级过滤条件
+     * @return
+     */
+    private Map<String, Object> composeMyopiaLevelStat(String name, List<StatConclusion> statConclusions,
+                                                 Predicate<StatConclusion> levelEarlyPredicate,
+                                                 Predicate<StatConclusion> levelOnePredicate,
+                                                 Predicate<StatConclusion> levelTwoPredicate,
+                                                 Predicate<StatConclusion> levelThreePredicate) {
+        long rowTotal = statConclusions.size();
+        long levelEarlyNum = statConclusions.stream().filter(levelEarlyPredicate).count();
+        long levelOneNum = statConclusions.stream().filter(levelOnePredicate).count();
+        long levelTwoNum = statConclusions.stream().filter(levelTwoPredicate).count();
+        long levelThreeNum = statConclusions.stream().filter(levelThreePredicate).count();
+        List<BasicStatParams> list = new ArrayList<>();
+        list.add(composeBasicParams(MyopiaLevelEnum.MYOPIA_LEVEL_EARLY.desc, levelEarlyNum, rowTotal));
+        list.add(composeBasicParams(MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.desc, levelOneNum, rowTotal));
+        list.add(composeBasicParams(MyopiaLevelEnum.MYOPIA_LEVEL_MIDDLE.desc, levelTwoNum, rowTotal));
+        list.add(composeBasicParams(MyopiaLevelEnum.MYOPIA_LEVEL_HIGH.desc, levelThreeNum, rowTotal));
+        list.add(composeBasicParams("levelTotal", levelEarlyNum + levelOneNum + levelTwoNum + levelThreeNum, rowTotal));
+        Map<String, Object> resultMap = new HashMap<>(2);
+        resultMap.put("name", name);
+        resultMap.put(TABLE_LABEL_ROW_TOTAL, rowTotal);
+        resultMap.put("list", list);
+        return resultMap;
+    }
+
+    /**
      * 构建 戴镜类型 统计
      * @param name 标题
      * @param statConclusions 统计数据
@@ -1532,18 +1564,18 @@ public class StatReportService {
             String name, List<StatConclusion> statConclusions) {
         long rowTotal = statConclusions.size();
         long typeFrameNum =
-                statConclusions.stream().filter(x -> GlassesType.FRAME_GLASSES.code.equals(x.getGlassesType())).count();
+                statConclusions.stream().filter(x -> GlassesTypeEnum.FRAME_GLASSES.code.equals(x.getGlassesType())).count();
         long typeContactLensNum =
-                statConclusions.stream().filter(x -> GlassesType.CONTACT_LENS.code.equals(x.getGlassesType())).count();
+                statConclusions.stream().filter(x -> GlassesTypeEnum.CONTACT_LENS.code.equals(x.getGlassesType())).count();
         long typeOrthokeratologyNum =
-                statConclusions.stream().filter(x -> GlassesType.ORTHOKERATOLOGY.code.equals(x.getGlassesType())).count();
+                statConclusions.stream().filter(x -> GlassesTypeEnum.ORTHOKERATOLOGY.code.equals(x.getGlassesType())).count();
         long typeNotWearingNum =
-                statConclusions.stream().filter(x -> GlassesType.NOT_WEARING.code.equals(x.getGlassesType())).count();
+                statConclusions.stream().filter(x -> GlassesTypeEnum.NOT_WEARING.code.equals(x.getGlassesType())).count();
         List<BasicStatParams> list = new ArrayList<>();
-        list.add(composeBasicParams(GlassesType.FRAME_GLASSES.name(), typeFrameNum, rowTotal));
-        list.add(composeBasicParams(GlassesType.FRAME_GLASSES.name(), typeContactLensNum, rowTotal));
-        list.add(composeBasicParams(GlassesType.ORTHOKERATOLOGY.name(), typeOrthokeratologyNum, rowTotal));
-        list.add(composeBasicParams(GlassesType.NOT_WEARING.name(), typeNotWearingNum, rowTotal));
+        list.add(composeBasicParams(GlassesTypeEnum.FRAME_GLASSES.name(), typeFrameNum, rowTotal));
+        list.add(composeBasicParams(GlassesTypeEnum.FRAME_GLASSES.name(), typeContactLensNum, rowTotal));
+        list.add(composeBasicParams(GlassesTypeEnum.ORTHOKERATOLOGY.name(), typeOrthokeratologyNum, rowTotal));
+        list.add(composeBasicParams(GlassesTypeEnum.NOT_WEARING.name(), typeNotWearingNum, rowTotal));
         Map<String, Object> resultMap = new HashMap<>();
         resultMap.put("name", name);
         resultMap.put(TABLE_LABEL_ROW_TOTAL, rowTotal);
@@ -1563,7 +1595,7 @@ public class StatReportService {
             StatConclusionReportDTO vo = statConclusionExportVos.get(i);
             VisionScreeningResultReportDTO reportVo = new VisionScreeningResultReportDTO();
             BeanUtils.copyProperties(vo, reportVo);
-            GlassesType glassesType = GlassesType.get(vo.getGlassesType());
+            GlassesTypeEnum glassesType = GlassesTypeEnum.get(vo.getGlassesType());
             reportVo.setId(i + 1)
                     .setGenderDesc(GenderEnum.getName(vo.getGender()))
                     .setGlassesTypeDesc(Objects.isNull(glassesType) ? "--" : glassesType.desc);

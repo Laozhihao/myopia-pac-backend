@@ -40,6 +40,9 @@
                         #{id}
                     </foreach>
                 </if>
+                <if test="@Ognl@isNotEmpty(districtAreaCode)">and `district_area_code` = #{districtAreaCode}</if>
+                <if test="@Ognl@isNotEmpty(areaType)">and `area_type` = #{areaType}</if>
+                <if test="@Ognl@isNotEmpty(monitorType)">and `monitor_type` = #{monitorType}</if>
 
                 <!-- 模糊查询 -->
                 <if test="nameLike != null">and `name` like CONCAT("%",#{nameLike},"%")</if>
@@ -53,7 +56,8 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, school_no, create_user_id, gov_dept_id, district_id, district_province_code, district_detail, name, kind, kind_desc, lodge_status, type, province_code, city_code, area_code, town_code, address, remark, status, create_time, update_time
+        id, school_no, create_user_id, gov_dept_id, district_id, district_province_code, district_detail, name, kind, kind_desc, lodge_status, type, province_code, city_code, area_code, town_code, address,
+        remark, status, create_time, update_time, district_area_code, area_type, monitor_type
     </sql>
 
     <select id="getSchoolListByCondition" resultMap="BaseResultMapDto">
@@ -61,9 +65,6 @@
         from m_school ms
                 where ms.status != 2
         <if test="districtIdPre != null">
-            <!--            left join m_district d on ms.district_id = d.id-->
-            <!--            left join (select id, left(code, 2) as pre-->
-            <!--                       from m_district md) as re on re.id = d.id-->
             and ms.district_province_code = #{districtCode}
         </if>
         <if test="name != null and name != ''">
@@ -78,9 +79,6 @@
         <if test="districtId != null">
             and ms.district_id = #{districtId}
         </if>
-        <!--        <if test="districtIdPre != null">-->
-        <!--            and re.pre = #{districtIdPre}-->
-        <!--        </if>-->
         <if test="userIds != null and userIds.size() != 0">
             and ms.create_user_id in
             <foreach collection="userIds" item="id" index="index" open="(" close=")" separator=",">

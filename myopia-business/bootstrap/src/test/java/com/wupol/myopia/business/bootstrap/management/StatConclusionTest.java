@@ -2,10 +2,7 @@ package com.wupol.myopia.business.bootstrap.management;
 
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.wupol.myopia.business.bootstrap.MyopiaBusinessApplication;
-import com.wupol.myopia.business.common.utils.constant.GlassesType;
-import com.wupol.myopia.business.common.utils.constant.SchoolAge;
-import com.wupol.myopia.business.common.utils.constant.VisionCorrection;
-import com.wupol.myopia.business.common.utils.constant.WarningLevel;
+import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
@@ -26,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -87,11 +83,11 @@ public class StatConclusionTest {
             // TODO: 需要增加合法数据判断
             boolean isValid = true;
             // TODO: 需要获取戴镜类型
-            int glassesType = GlassesType.CONTACT_LENS.code;
+            int glassesType = GlassesTypeEnum.CONTACT_LENS.code;
             // TODO: 需要获取视力矫正状态
             int visionCorrection = VisionCorrection.ENOUGH_CORRECTED.code;
 
-            boolean isWearingGlasses = GlassesType.NOT_WEARING.code == 0 ? false : true;
+            boolean isWearingGlasses = GlassesTypeEnum.NOT_WEARING.code == 0 ? false : true;
 
             float leftCyl = leftData.getCyl().floatValue();
             float rightCyl = rightData.getCyl().floatValue();
@@ -99,18 +95,16 @@ public class StatConclusionTest {
             float leftSph = leftData.getSph().floatValue();
             float rightSph = rightData.getSph().floatValue();
 
-            WarningLevel leftAstigmatismWarningLevel = StatUtil.getAstigmatismWarningLevel(leftCyl);
-            WarningLevel rightAstigmatismWarningLevel =
-                    StatUtil.getAstigmatismWarningLevel(rightCyl);
+            AstigmatismLevelEnum leftAstigmatismWarningLevel = StatUtil.getAstigmatismWarningLevel(leftCyl);
+            AstigmatismLevelEnum rightAstigmatismWarningLevel = StatUtil.getAstigmatismWarningLevel(rightCyl);
 
-            WarningLevel leftHyperopiaWarningLevel =
+            HyperopiaLevelEnum leftHyperopiaWarningLevel =
                     StatUtil.getHyperopiaWarningLevel(leftSph, leftCyl, age);
-            WarningLevel rightHyperopiaWarningLevel =
+            HyperopiaLevelEnum rightHyperopiaWarningLevel =
                     StatUtil.getHyperopiaWarningLevel(rightSph, rightCyl, age);
 
-            WarningLevel leftMyopiaWarningLevel = StatUtil.getMyopiaWarningLevel(leftSph, leftCyl);
-            WarningLevel rightMyopiaWarningLevel =
-                    StatUtil.getMyopiaWarningLevel(rightSph, rightCyl);
+            MyopiaLevelEnum leftMyopiaWarningLevel = StatUtil.getMyopiaWarningLevel(leftSph, leftCyl);
+            MyopiaLevelEnum rightMyopiaWarningLevel = StatUtil.getMyopiaWarningLevel(rightSph, rightCyl);
 
             Integer myopiaWarningLevel = leftMyopiaWarningLevel.code > rightMyopiaWarningLevel.code
                     ? leftMyopiaWarningLevel.code
@@ -145,11 +139,7 @@ public class StatConclusionTest {
             boolean isRefractiveError =
                     StatUtil.isRefractiveError(isAstigmatism, isMyopia, isHyperopia);
 
-            boolean isRecommendVisit =
-                    StatUtil.isRecommendVisit(leftNakedVision, leftSph, leftCyl, isWearingGlasses,
-                            leftCorrectVision, age, SchoolAge.get(schoolAge))
-                    || StatUtil.isRecommendVisit(rightNakedVision, rightSph, rightCyl,
-                            isWearingGlasses, rightCorrectVision, age, SchoolAge.get(schoolAge));
+            boolean isRecommendVisit = false;
 
             List<Integer> warningLevelList = new ArrayList() {
                 {

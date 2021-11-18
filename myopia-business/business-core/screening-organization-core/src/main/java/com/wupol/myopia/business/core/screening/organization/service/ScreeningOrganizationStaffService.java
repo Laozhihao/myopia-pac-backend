@@ -10,7 +10,7 @@ import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.base.util.PasswordGenerator;
+import com.wupol.myopia.base.util.PasswordAndUsernameGenerator;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
@@ -197,7 +197,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
     @Transactional(rollbackFor = Exception.class)
     public UsernameAndPasswordDTO resetPassword(StaffResetPasswordRequestDTO request) {
         ScreeningOrganizationStaff staff = baseMapper.selectById(request.getStaffId());
-        String password = PasswordGenerator.getScreeningUserPwd(request.getPhone(), request.getIdCard());
+        String password = PasswordAndUsernameGenerator.getScreeningUserPwd(request.getPhone(), request.getIdCard());
         String username = request.getPhone();
         oauthServiceClient.resetPwd(staff.getUserId(), password);
         return new UsernameAndPasswordDTO(username, password);
@@ -218,7 +218,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
     private TwoTuple<UsernameAndPasswordDTO, Integer> generateAccountAndPassword(ScreeningOrganizationStaffQueryDTO staff) {
         TwoTuple<UsernameAndPasswordDTO, Integer> tuple = new TwoTuple<>();
 
-        String password = PasswordGenerator.getScreeningUserPwd(staff.getPhone(), staff.getIdCard());
+        String password = PasswordAndUsernameGenerator.getScreeningUserPwd(staff.getPhone(), staff.getIdCard());
         String username = staff.getPhone();
         tuple.setFirst(new UsernameAndPasswordDTO(username, password));
 

@@ -22,8 +22,7 @@ public interface StatConclusionMapper extends BaseMapper<StatConclusion> {
 
     /**
      * 获取统计结论数据
-     * @param noticeId 政府通知ID
-     * @param districtIds 行政区域ID列表
+     * @param query 查询条件
      * @return
      */
     List<StatConclusion> listByQuery(StatConclusionQueryDTO query);
@@ -74,4 +73,13 @@ public interface StatConclusionMapper extends BaseMapper<StatConclusion> {
      * @return
      */
     List<ScreenPlanSchoolDTO> getPlanSchoolByDate(@Param("date") Date date, @Param("isRescreen") Boolean isRescreen);
+
+    /**
+     * 获取下一条筛查统计
+     *
+     * @param statConclusionId 表ID
+     * @param studentId 学校ID
+     * @return com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion
+     **/
+    StatConclusion getNextScreeningStat(@Param("statConclusionId")Integer statConclusionId, @Param("studentId")Integer studentId);
 }

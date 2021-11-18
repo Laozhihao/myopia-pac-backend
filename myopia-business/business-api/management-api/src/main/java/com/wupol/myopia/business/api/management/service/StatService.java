@@ -601,6 +601,8 @@ public class StatService {
                 validConclusions.stream().filter(x -> WarningLevel.TWO.code.equals(x.getWarningLevel())).count();
         long warning3Num =
                 validConclusions.stream().filter(x -> WarningLevel.THREE.code.equals(x.getWarningLevel())).count();
+        long warningSPNum =
+                validConclusions.stream().filter(x -> WarningLevel.ZERO_SP.code.equals(x.getWarningLevel())).count();
         long focusTargetsNum = warning0Num + warning1Num + warning2Num + warning3Num;
 
         List<StatConclusion> rescreenConclusions =
@@ -622,8 +624,8 @@ public class StatService {
                 .myopiaRatio(convertToPercentage(myopiaNum * 1f / validFirstScreeningNum))
                 .focusTargetsNum(focusTargetsNum)
                 .focusTargetsRatio(convertToPercentage(focusTargetsNum * 1f / validFirstScreeningNum))
-                .warningLevelZeroNum(warning0Num)
-                .warningLevelZeroRatio(convertToPercentage(warning0Num * 1f / validFirstScreeningNum))
+                .warningLevelZeroNum(warning0Num + warningSPNum)
+                .warningLevelZeroRatio(convertToPercentage((warning0Num + warningSPNum) * 1f / validFirstScreeningNum))
                 .warningLevelOneNum(warning1Num)
                 .warningLevelOneRatio(convertToPercentage(warning1Num * 1f / validFirstScreeningNum))
                 .warningLevelTwoNum(warning2Num)

@@ -67,4 +67,14 @@ public enum SchoolAge {
     public static Boolean isMiddleSchool(Integer schoolAge) {
         return JUNIOR.code.equals(schoolAge) || HIGH.code.equals(schoolAge) || VOCATIONAL_HIGH.code.equals(schoolAge);
     }
+
+    /**
+     * 是否小学生和幼儿园
+     *
+     * @param schoolAge 学龄段
+     * @return Boolean
+     */
+    public static Boolean isPrimaryAndKindergarten(Integer schoolAge) {
+        return KINDERGARTEN.code.equals(schoolAge) || PRIMARY.code.equals(schoolAge);
+    }
 }

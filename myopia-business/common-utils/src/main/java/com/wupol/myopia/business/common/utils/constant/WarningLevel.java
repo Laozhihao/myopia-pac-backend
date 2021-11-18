@@ -8,7 +8,8 @@ public enum WarningLevel {
     ZERO(0, "0级预警"),
     ONE(1, "1级预警"),
     TWO(2, "2级预警"),
-    THREE(3, "3级预警");
+    THREE(3, "3级预警"),
+    ZERO_SP(4, "0级预警 远视储备不足");
 
     public final Integer code;
     public final String desc;

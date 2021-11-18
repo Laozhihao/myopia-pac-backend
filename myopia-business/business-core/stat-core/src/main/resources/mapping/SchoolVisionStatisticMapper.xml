@@ -61,6 +61,10 @@
                     #{realScreeningNumbers}
                 </if>
                 <if test="@Ognl@isNotEmpty(validScreeningNumbers)">and `valid_screening_numbers` = #{validScreeningNumbers}</if>
+                <if test="@Ognl@isNotEmpty(myopiaLevelLight)">and `myopia_level_light` = #{myopiaLevelLight}</if>
+                <if test="@Ognl@isNotEmpty(myopiaLevelMiddle)">and `myopia_level_middle` = #{myopiaLevelMiddle}</if>
+                <if test="@Ognl@isNotEmpty(myopiaLevelHigh)">and `myopia_level_high` = #{myopiaLevelHigh}</if>
+                <if test="@Ognl@isNotEmpty(myopia_level_insufficient)">and `myopiaLevelInsufficient` = #{myopia_level_insufficient}</if>
                 <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
             </trim>
@@ -69,7 +73,13 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, school_id, school_name, school_type, focus_targets_numbers, screening_org_name, screening_notice_id, screening_task_id,screening_org_id,screening_plan_id, district_id, avg_left_vision, avg_right_vision, low_vision_numbers, low_vision_ratio, wearing_glasses_numbers, wearing_glasses_ratio, myopia_numbers, myopia_ratio, ametropia_numbers, ametropia_ratio, vision_label0_numbers, vision_label0_ratio, vision_label1_numbers, vision_label1_ratio, vision_label2_numbers, vision_label2_ratio, vision_label3_numbers, vision_label3_ratio, key_warning_numbers, treatment_advice_numbers, treatment_advice_ratio, plan_screening_numbers, real_screening_numbers, valid_screening_numbers, update_time, create_time
+        id, school_id, school_name, school_type, focus_targets_numbers, screening_org_name, screening_notice_id, screening_task_id,
+        screening_org_id,screening_plan_id, district_id, avg_left_vision, avg_right_vision, low_vision_numbers, low_vision_ratio,
+        wearing_glasses_numbers, wearing_glasses_ratio, myopia_numbers, myopia_ratio, ametropia_numbers, ametropia_ratio,
+        vision_label0_numbers, vision_label0_ratio, vision_label1_numbers, vision_label1_ratio, vision_label2_numbers, vision_label2_ratio,
+        vision_label3_numbers, vision_label3_ratio, key_warning_numbers, treatment_advice_numbers, treatment_advice_ratio,
+        plan_screening_numbers, real_screening_numbers, valid_screening_numbers, myopia_level_light,myopia_level_middle,myopia_level_high,myopia_level_insufficient,myopia_level_early,
+        update_time, create_time
     </sql>
 
     <insert id="batchSaveOrUpdate">
@@ -78,20 +88,23 @@
         focus_targets_numbers, avg_left_vision, avg_right_vision, low_vision_numbers, low_vision_ratio, wearing_glasses_numbers, wearing_glasses_ratio,
         myopia_numbers, myopia_ratio, ametropia_numbers, ametropia_ratio, vision_label0_numbers, vision_label0_ratio,
         vision_label1_numbers, vision_label1_ratio, vision_label2_numbers, vision_label2_ratio, vision_label3_numbers, vision_label3_ratio,
-        key_warning_numbers, treatment_advice_numbers, treatment_advice_ratio, plan_screening_numbers, real_screening_numbers, valid_screening_numbers)
+        key_warning_numbers, treatment_advice_numbers, treatment_advice_ratio, plan_screening_numbers, real_screening_numbers, valid_screening_numbers,
+        myopia_level_light,myopia_level_middle,myopia_level_high,myopia_level_insufficient,myopia_level_early)
         VALUES
         <foreach collection="list" item="entity" separator=",">
             (#{entity.screeningNoticeId}, #{entity.screeningTaskId}, #{entity.screeningPlanId}, #{entity.districtId}, #{entity.screeningOrgId}, #{entity.screeningOrgName}, #{entity.schoolId}, #{entity.schoolName}, #{entity.schoolType},
             #{entity.focusTargetsNumbers}, #{entity.avgLeftVision}, #{entity.avgRightVision}, #{entity.lowVisionNumbers}, #{entity.lowVisionRatio}, #{entity.wearingGlassesNumbers}, #{entity.wearingGlassesRatio},
             #{entity.myopiaNumbers}, #{entity.myopiaRatio}, #{entity.ametropiaNumbers}, #{entity.ametropiaRatio}, #{entity.visionLabel0Numbers}, #{entity.visionLabel0Ratio},
             #{entity.visionLabel1Numbers}, #{entity.visionLabel1Ratio}, #{entity.visionLabel2Numbers}, #{entity.visionLabel2Ratio}, #{entity.visionLabel3Numbers}, #{entity.visionLabel3Ratio},
-            #{entity.keyWarningNumbers}, #{entity.treatmentAdviceNumbers}, #{entity.treatmentAdviceRatio}, #{entity.planScreeningNumbers}, #{entity.realScreeningNumbers}, #{entity.validScreeningNumbers})
+            #{entity.keyWarningNumbers}, #{entity.treatmentAdviceNumbers}, #{entity.treatmentAdviceRatio}, #{entity.planScreeningNumbers}, #{entity.realScreeningNumbers}, #{entity.validScreeningNumbers},
+            #{entity.myopiaLevelLight},#{entity.myopiaLevelMiddle},#{entity.myopiaLevelHigh},#{entity.myopiaLevelInsufficient},#{entity.myopiaLevelEarly})
         </foreach>
         ON DUPLICATE KEY UPDATE
         focus_targets_numbers=values(focus_targets_numbers), avg_left_vision=values(avg_left_vision), avg_right_vision=values(avg_right_vision), low_vision_numbers=values(low_vision_numbers), low_vision_ratio=values(low_vision_ratio), wearing_glasses_numbers=values(wearing_glasses_numbers),wearing_glasses_ratio=values(wearing_glasses_ratio),
         myopia_numbers=values(myopia_numbers), myopia_ratio=values(myopia_ratio), ametropia_numbers=values(ametropia_numbers), ametropia_ratio=values(ametropia_ratio), vision_label0_numbers=values(vision_label0_numbers),vision_label0_ratio=values(vision_label0_ratio),
         vision_label1_numbers=values(vision_label1_numbers),vision_label1_ratio=values(vision_label1_ratio), vision_label2_numbers=values(vision_label2_numbers), vision_label2_ratio=values(vision_label2_ratio), vision_label3_numbers=values(vision_label3_numbers), vision_label3_ratio=values(vision_label3_ratio),
         key_warning_numbers=values(key_warning_numbers),treatment_advice_numbers=values(treatment_advice_numbers), treatment_advice_ratio=values(treatment_advice_ratio), plan_screening_numbers=values(plan_screening_numbers), real_screening_numbers=values(real_screening_numbers), valid_screening_numbers=values(valid_screening_numbers),
+        myopia_level_light=values(myopia_level_light),myopia_level_middle=values(myopia_level_middle),myopia_level_high=values(myopia_level_high),myopia_level_insufficient=values(myopia_level_insufficient),myopia_level_early=values(myopia_level_early),
         update_time = now()
     </insert>
 

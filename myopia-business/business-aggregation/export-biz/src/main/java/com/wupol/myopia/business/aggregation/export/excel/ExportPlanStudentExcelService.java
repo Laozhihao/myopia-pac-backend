@@ -7,6 +7,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.ExcelUtil;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelFileNameConstant;
+import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelNoticeKeyContentConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
@@ -86,7 +87,6 @@ public class ExportPlanStudentExcelService extends BaseExportExcelFileService {
             exportDTO.setIdCard("");
             exportDTO.setGender(GenderEnum.getName(student.getGender()));
             exportDTO.setBirthday(DateFormatUtil.format(student.getBirthday(), DateFormatUtil.FORMAT_ONLY_DATE2));
-//            exportDTO.setSchoolName(student.getSchoolName());
             exportDTO.setNation(NationEnum.getName(student.getNation()));
             exportDTO.setGradeName(Objects.nonNull(gradeMap.get(student.getGradeId())) ? gradeMap.get(student.getGradeId()).getName() : "");
             exportDTO.setClassName(Objects.nonNull(classMap.get(student.getClassId())) ? classMap.get(student.getClassId()).getName() : "");
@@ -116,7 +116,7 @@ public class ExportPlanStudentExcelService extends BaseExportExcelFileService {
         if (Objects.nonNull(gradeId)) {
             gradeName = schoolGradeService.getById(gradeId).getName();
         }
-        return String.format(ExcelFileNameConstant.PLAN_STUDENT_EXCEL_FILE_NAME,
+        return String.format(ExcelNoticeKeyContentConstant.PLAN_STUDENT_EXCEL_NOTICE_KEY_CONTENT,
                 plan.getTitle(),
                 DateFormatUtil.format(plan.getStartTime(), DateFormatUtil.FORMAT_ONLY_DATE),
                 DateFormatUtil.format(plan.getEndTime(), DateFormatUtil.FORMAT_ONLY_DATE),
@@ -126,7 +126,7 @@ public class ExportPlanStudentExcelService extends BaseExportExcelFileService {
 
     @Override
     public String getFileName(ExportCondition exportCondition) {
-        return ExcelFileNameConstant.PLAN_STUDENT_NAME;
+        return ExcelFileNameConstant.PLAN_STUDENT_FILE_NAME;
     }
 
     @Override
@@ -153,7 +153,7 @@ public class ExportPlanStudentExcelService extends BaseExportExcelFileService {
     }
 
     @Override
-    public String getRedisKey(ExportCondition exportCondition) {
+    public String getLockKey(ExportCondition exportCondition) {
         return String.format(RedisConstant.FILE_EXPORT_EXCEL_PLAN_STUDENT,
                 exportCondition.getApplyExportFileUserId(),
                 exportCondition.getSchoolId(),

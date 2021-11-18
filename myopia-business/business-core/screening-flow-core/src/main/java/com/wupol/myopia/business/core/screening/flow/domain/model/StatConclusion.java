@@ -1,8 +1,6 @@
 package com.wupol.myopia.business.core.screening.flow.domain.model;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -48,6 +46,7 @@ public class StatConclusion implements Serializable {
     private Integer age;
 
     /** 预警级别 */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Integer warningLevel;
 
     /** 左眼视力 */
@@ -88,6 +87,21 @@ public class StatConclusion implements Serializable {
 
     /** 筛查学生ID */
     private Integer studentId;
+
+    /**
+     * 近视预警等级
+     */
+    private Integer myopiaLevel;
+
+    /**
+     * 远视预警等级
+     */
+    private Integer hyperopiaLevel;
+
+    /**
+     * 散光预警等级
+     */
+    private Integer astigmatismLevel;
 
     /** 创建时间 */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
