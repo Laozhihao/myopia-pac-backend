@@ -134,4 +134,12 @@
             #{idCard}
         </foreach>
     </select>
+
+    <select id="getBySchoolId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school_student
+        where school_id = #{schoolId}
+          and status = 0
+    </select>
 </mapper>

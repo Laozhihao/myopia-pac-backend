@@ -33,5 +33,5 @@ public interface SchoolStudentMapper extends BaseMapper<SchoolStudent> {
 
     List<SchoolStudent> getByIdCards(@Param("idCards") List<String> idCards, @Param("schoolId") Integer schoolId);
 
-
+    List<SchoolStudent> getBySchoolId(@Param("schoolId") Integer schoolId);
 }

@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.aggregation.export.excel;
 
+import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.CompareUtil;
 import com.wupol.framework.core.util.ObjectsUtil;
@@ -31,6 +32,7 @@ import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchool
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.flow.util.ScreeningCodeGenerator;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.collections4.ListUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
@@ -550,6 +552,7 @@ public class ExcelStudentService {
         }
 
         School school = schoolService.getById(schoolId);
+        List<SchoolStudent> allSchoolStudents = schoolStudentService.getBySchoolId(schoolId);
 
         List<String> idCards = excelStudents.stream().map(Student::getIdCard).collect(Collectors.toList());
 
@@ -565,24 +568,30 @@ public class ExcelStudentService {
 
         excelStudents.forEach(excelStudent -> {
 
-            SchoolStudent schoolStudent = new SchoolStudent();
             String idCard = excelStudent.getIdCard();
+            Integer id = schoolStudentMap.get(idCard);
+            String sno = excelStudent.getSno();
+
+            // 检查学号是否重复
+            checkStudentSno(id, allSchoolStudents, sno);
 
             // 设置多端管理的Id
             Integer managementStudentId = managementStudentMap.get(idCard);
             if (Objects.isNull(managementStudentId)) {
                 throw new BusinessException("身份证为" + idCard + "信息异常");
             }
-            schoolStudent.setStudentId(managementStudentId);
 
-            schoolStudent.setId(schoolStudentMap.getOrDefault(idCard, null))
+            SchoolStudent schoolStudent = new SchoolStudent();
+
+            schoolStudent.setId(id)
+                    .setStudentId(managementStudentId)
                     .setName(excelStudent.getName())
                     .setGender(excelStudent.getGender())
                     .setBirthday(excelStudent.getBirthday())
                     .setNation(excelStudent.getNation())
                     .setSchoolNo(school.getSchoolNo())
                     .setGradeType(excelStudent.getGradeType())
-                    .setSno(excelStudent.getSno())
+                    .setSno(sno)
                     .setIdCard(idCard)
                     .setParentPhone(excelStudent.getParentPhone())
                     .setCreateUserId(userId)
@@ -599,6 +608,28 @@ public class ExcelStudentService {
             saveSchoolStudentList.add(schoolStudent);
         });
         schoolStudentService.saveOrUpdateBatch(saveSchoolStudentList);
+    }
+
+    /**
+     * 检查学号是否重复
+     *
+     * @param id                学校学生Id
+     * @param allSchoolStudents 所有学生
+     * @param sno               学号
+     */
+    private void checkStudentSno(Integer id, List<SchoolStudent> allSchoolStudents, String sno) {
+        List<String> snoList;
+        if (Objects.isNull(id)) {
+            snoList = allSchoolStudents.stream().map(SchoolStudent::getSno).collect(Collectors.toList());
+        } else {
+            // 除自己外是否使用过
+            snoList = allSchoolStudents.stream().filter(s -> !s.getId().equals(id)).map(SchoolStudent::getSno).collect(Collectors.toList());
+        }
+        // 学号是否已经使用过
+        List<String> retain = ListUtils.retainAll(snoList, Lists.newArrayList(sno));
+        if (!CollectionUtils.isEmpty(retain)) {
+            throw new BusinessException("学号" + sno + "重复");
+        }
     }
 
 }

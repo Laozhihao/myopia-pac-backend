@@ -110,4 +110,14 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
     public List<SchoolStudent> getByIdCards(List<String> idCards, Integer schoolId) {
         return baseMapper.getByIdCards(idCards, schoolId);
     }
+
+    /**
+     * 通过学校获取学生
+     *
+     * @param schoolId 学校Id
+     * @return List<SchoolStudent>
+     */
+    public List<SchoolStudent> getBySchoolId(Integer schoolId) {
+        return baseMapper.getBySchoolId(schoolId);
+    }
 }
