@@ -244,7 +244,6 @@ public class ExcelFacade {
      */
     private void preCheckStudent(List<School> schools, List<String> idCards) {
         Assert.isTrue(!CollectionUtils.isEmpty(schools), "学校编号异常");
-        Assert.isTrue(idCards.stream().distinct().count() == idCards.size(), "学生身份证号码重复");
         List<String> duplicateElements = ListUtil.getDuplicateElements(idCards);
         if (!CollectionUtils.isEmpty(duplicateElements)) {
             throw new BusinessException("身份证" + StringUtils.join(duplicateElements, ",") + "重复");
