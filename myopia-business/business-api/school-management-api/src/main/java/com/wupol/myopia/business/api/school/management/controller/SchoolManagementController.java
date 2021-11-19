@@ -188,7 +188,7 @@ public class SchoolManagementController {
      * @param school 学校实体
      * @return 学校实体
      */
-    @PutMapping("/school/")
+    @PutMapping("/school")
     public SchoolResponseDTO updateSchool(@RequestBody @Valid School school) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         school.setCreateUserId(user.getId());
