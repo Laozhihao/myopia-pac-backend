@@ -248,7 +248,7 @@ public class ExcelFacade {
 
         List<String> repeatIdCard = idCards.stream().filter(s -> StringUtils.isNotBlank(s) && Pattern.matches(RegularUtils.REGULAR_ID_CARD, s)).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(repeatIdCard)) {
-            throw new BusinessException("身份证" + StringUtils.join(repeatIdCard, ",") + "重复");
+            throw new BusinessException("身份证" + StringUtils.join(repeatIdCard, ",") + "重复或错误");
         }
     }
 
