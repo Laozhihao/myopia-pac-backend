@@ -5,10 +5,13 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.aggregation.student.service.SchoolFacade;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.dto.GradeCode;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeItemsDTO;
+import com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO;
+import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
@@ -35,6 +38,9 @@ public class SchoolManagementController {
 
     @Resource
     private SchoolGradeService schoolGradeService;
+
+    @Resource
+    private SchoolFacade schoolFacade;
 
     /**
      * 保存班级
@@ -161,5 +167,32 @@ public class SchoolManagementController {
         schoolGrade.setCreateUserId(user.getId());
         schoolGrade.setSchoolId(user.getOrgId());
         return schoolGradeService.updateGrade(schoolGrade);
+    }
+
+
+    /**
+     * 通过ID获取学校详情
+     *
+     * @param id 学校ID
+     * @return 学校实体
+     */
+    @GetMapping("/school/{id}")
+    public SchoolResponseDTO getSchoolDetail(@PathVariable("id") Integer id) {
+        return schoolFacade.getBySchoolId(id);
+    }
+
+
+    /**
+     * 更新学校
+     *
+     * @param school 学校实体
+     * @return 学校实体
+     */
+    @PutMapping("/school/")
+    public SchoolResponseDTO updateSchool(@RequestBody @Valid School school) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        school.setCreateUserId(user.getId());
+        school.setGovDeptId(user.getOrgId());
+        return schoolFacade.updateSchool(school);
     }
 }

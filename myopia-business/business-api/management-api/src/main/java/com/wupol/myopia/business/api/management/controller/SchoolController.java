@@ -8,6 +8,7 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.aggregation.student.service.SchoolFacade;
 import com.wupol.myopia.business.api.management.service.SchoolBizService;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
@@ -56,6 +57,9 @@ public class SchoolController {
     @Resource
     private ExportStrategy exportStrategy;
 
+    @Resource
+    private SchoolFacade schoolFacade;
+
     /**
      * 新增学校
      *
@@ -86,7 +90,7 @@ public class SchoolController {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         school.setCreateUserId(user.getId());
         school.setGovDeptId(user.getOrgId());
-        return schoolBizService.updateSchool(school);
+        return schoolFacade.updateSchool(school);
     }
 
     /**
@@ -97,7 +101,7 @@ public class SchoolController {
      */
     @GetMapping("{id}")
     public SchoolResponseDTO getSchoolDetail(@PathVariable("id") Integer id) {
-        return schoolBizService.getBySchoolId(id);
+        return schoolFacade.getBySchoolId(id);
     }
 
     /**
