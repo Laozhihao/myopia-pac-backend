@@ -62,6 +62,7 @@
         <if test="requestDTO.visionLabel != null">
             and vision_label = #{requestDTO.visionLabel}
         </if>
+        order by create_time desc
     </select>
 
     <select id="getByIdCardAndSno" resultMap="BaseResultMap">
