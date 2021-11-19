@@ -82,7 +82,7 @@ public class VisionScreeningService {
 
         // 筛查机构
         List<Integer> orgIds = schoolPlanList.stream().map(ScreeningListResponseDTO::getScreeningOrgId).collect(Collectors.toList());
-        Map<Integer, NotificationConfig> notificationConfigMap = screeningOrganizationService.getScreeningOrgDetails(orgIds).stream()
+        Map<Integer, NotificationConfig> notificationConfigMap = screeningOrganizationService.getScreeningOrgDetails(orgIds).stream().filter(org -> Objects.nonNull(org.getNotificationConfig()))
                 .collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization::getNotificationConfig));
 
         schoolPlanList.forEach(schoolPlan -> {
@@ -106,13 +106,13 @@ public class VisionScreeningService {
 
             // 设置告知书配置
             NotificationConfig notificationConfig = notificationConfigMap.get(schoolPlan.getScreeningOrgId());
-            if (Objects.nonNull(notificationConfig))
+            if (Objects.nonNull(notificationConfig)) {
                 schoolPlan.setNotificationConfig(notificationConfig);
-
-            // 设置图片
-            Integer qrCodeFileId = notificationConfig.getQrCodeFileId();
-            if (Objects.nonNull(qrCodeFileId)) {
-                schoolPlan.setQrCodeFileUrl(resourceFileService.getResourcePath(qrCodeFileId));
+                // 设置图片
+                Integer qrCodeFileId = notificationConfig.getQrCodeFileId();
+                if (Objects.nonNull(qrCodeFileId)) {
+                    schoolPlan.setQrCodeFileUrl(resourceFileService.getResourcePath(qrCodeFileId));
+                }
             }
         });
         return responseDTO;
