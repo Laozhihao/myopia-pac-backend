@@ -245,7 +245,11 @@ public class ExcelFacade {
     private void preCheckStudent(List<School> schools, List<String> idCards) {
         Assert.isTrue(!CollectionUtils.isEmpty(schools), "学校编号异常");
         Assert.isTrue(idCards.stream().distinct().count() == idCards.size(), "学生身份证号码重复");
-        Assert.isTrue(!studentService.checkIdCards(idCards), "学生身份证号码重复");
+
+        List<String> repeatIdCard = idCards.stream().filter(s -> StringUtils.isNotBlank(s) && Pattern.matches(RegularUtils.REGULAR_ID_CARD, s)).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(repeatIdCard)) {
+            throw new BusinessException("身份证" + StringUtils.join(repeatIdCard, ",") + "重复");
+        }
     }
 
 
@@ -682,7 +686,7 @@ public class ExcelFacade {
         Assert.isTrue(StringUtils.isNotBlank(item.get(5 - offset)), "学生年级不能为空");
         Assert.isTrue(StringUtils.isNotBlank(item.get(6 - offset)), "学生班级不能为空");
         Assert.isTrue(StringUtils.isNotBlank(item.get(8 - offset)) && Pattern.matches(RegularUtils.REGULAR_ID_CARD, item.get(8 - offset)), "学生身份证" + item.get(8 - offset) + "异常");
-        Assert.isTrue(StringUtils.isBlank(item.get(9 - offset)) || Pattern.matches(RegularUtils.REGULAR_MOBILE, item.get(9 - offset)), "学生手机号码" + item.get(9 - offset) +"异常");
+        Assert.isTrue(StringUtils.isBlank(item.get(9 - offset)) || Pattern.matches(RegularUtils.REGULAR_MOBILE, item.get(9 - offset)), "学生手机号码" + item.get(9 - offset) + "异常");
     }
 
     /**
