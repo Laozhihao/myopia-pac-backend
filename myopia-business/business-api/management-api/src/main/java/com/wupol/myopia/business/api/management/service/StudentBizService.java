@@ -169,7 +169,7 @@ public class StudentBizService {
             ScreeningPlan screeningPlan = screeningPlanService.getById(statConclusion.getPlanId());
             studentWarningArchiveVO.setScreeningTitle(screeningPlan.getTitle());
             // 就诊情况
-            setVisitInfo(studentWarningArchiveVO, statConclusion.getUpdateTime(), (i + 1) < size ? statConclusionList.get(i + 1).getUpdateTime() : null, medicalReportList);
+            setVisitInfo(studentWarningArchiveVO, statConclusion.getCreateTime(), (i + 1) < size ? statConclusionList.get(i + 1).getCreateTime() : null, medicalReportList);
             // 课桌椅信息
             setDeskAndChairInfo(studentWarningArchiveVO);
             studentWarningArchiveVOList.add(studentWarningArchiveVO);
@@ -194,8 +194,8 @@ public class StudentBizService {
             return;
         }
         MedicalReport medicalReport = medicalReportList.stream().filter(x -> Objects.isNull(endScreeningDate) ?
-                        x.getCreateTime().before(startScreeningDate) :
-                        x.getCreateTime().before(startScreeningDate) && x.getCreateTime().after(endScreeningDate))
+                        x.getCreateTime().after(startScreeningDate) :
+                        x.getCreateTime().after(startScreeningDate) && x.getCreateTime().before(endScreeningDate))
                 .findFirst().orElse(null);
         if (Objects.nonNull(medicalReport)) {
             studentWarningArchiveVO.setIsVisited(true);

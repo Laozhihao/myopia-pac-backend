@@ -439,6 +439,16 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     }
 
     /**
+     * 通过身份证获取已经删除的学生
+     *
+     * @param idCards 身份证
+     * @return List<Student>
+     */
+    public List<Student> getDeleteStudentByIdCard(List<String> idCards) {
+        return baseMapper.getDeleteStudentByIdCard(idCards);
+    }
+
+    /**
      * 删除学生
      *
      * @param studentId 学生Id

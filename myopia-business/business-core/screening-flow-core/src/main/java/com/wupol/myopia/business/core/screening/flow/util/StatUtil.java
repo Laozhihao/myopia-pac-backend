@@ -30,10 +30,8 @@ public class StatUtil {
             if (age < 6 && nakedVision < 4.9) {
                 return true;
             }
-            if (Objects.nonNull(nakedVision)) {
-                if (age >= 6 && nakedVision < 5) {
-                    return true;
-                }
+            if (Objects.nonNull(nakedVision) && age >= 6 && nakedVision < 5) {
+                return true;
             }
         }
         return Objects.requireNonNull(getMyopiaWarningLevel(sphere, cylinder)).code > MyopiaLevelEnum.MYOPIA_LEVEL_EARLY.code;
@@ -50,6 +48,19 @@ public class StatUtil {
     }
 
     /**
+     * 是否近视
+     *
+     * @param myopiaWarningLevel 近视预警级别
+     * @return boolean
+     */
+    public static boolean isMyopia(Integer myopiaWarningLevel) {
+        if (Objects.isNull(myopiaWarningLevel)) {
+            return false;
+        }
+        return myopiaWarningLevel > 0;
+    }
+
+    /**
      * 是否远视
      *
      * @param sphere   球镜
@@ -58,6 +69,9 @@ public class StatUtil {
      * @return
      */
     public static boolean isHyperopia(Float sphere, Float cylinder, Integer age) {
+        if (Objects.isNull(age)) {
+            return false;
+        }
         float se = getSphericalEquivalent(sphere, cylinder);
 
         if (age < 4 && se > 3) {
@@ -194,9 +208,15 @@ public class StatUtil {
         float se = getSphericalEquivalent(sphere, cylinder);
 
         if (age >= 12) {
-            if (se > 0.5f && se <= 3.0f) return HyperopiaLevelEnum.HYPEROPIA_LEVEL_LIGHT;
-            if (se > 3.0f && se <= 6.0f) return HyperopiaLevelEnum.HYPEROPIA_LEVEL_MIDDLE;
-            if (se > 6.0f) return HyperopiaLevelEnum.HYPEROPIA_LEVEL_HIGH;
+            if (se > 0.5f && se <= 3.0f) {
+                return HyperopiaLevelEnum.HYPEROPIA_LEVEL_LIGHT;
+            }
+            if (se > 3.0f && se <= 6.0f) {
+                return HyperopiaLevelEnum.HYPEROPIA_LEVEL_MIDDLE;
+            }
+            if (se > 6.0f) {
+                return HyperopiaLevelEnum.HYPEROPIA_LEVEL_HIGH;
+            }
         }
         return null;
     }
@@ -231,10 +251,18 @@ public class StatUtil {
         if (se == -0.5) {
             return MyopiaLevelEnum.ZERO;
         }
-        if (se > -0.5 && se <= 0.75) return MyopiaLevelEnum.MYOPIA_LEVEL_EARLY;
-        if (se >= -3.0f && se < -0.5f) return MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT;
-        if (se >= -6.0f && se < -3.0f) return MyopiaLevelEnum.MYOPIA_LEVEL_MIDDLE;
-        if (se < -6.0f) return MyopiaLevelEnum.MYOPIA_LEVEL_HIGH;
+        if (se > -0.5 && se <= 0.75) {
+            return MyopiaLevelEnum.MYOPIA_LEVEL_EARLY;
+        }
+        if (se >= -3.0f && se < -0.5f) {
+            return MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT;
+        }
+        if (se >= -6.0f && se < -3.0f) {
+            return MyopiaLevelEnum.MYOPIA_LEVEL_MIDDLE;
+        }
+        if (se < -6.0f) {
+            return MyopiaLevelEnum.MYOPIA_LEVEL_HIGH;
+        }
         return MyopiaLevelEnum.ZERO;
     }
 
@@ -270,9 +298,15 @@ public class StatUtil {
             return null;
         }
         float cylinderAbs = Math.abs(cylinder);
-        if (cylinderAbs >= 0.5f && cylinderAbs <= 2.0f) return AstigmatismLevelEnum.ASTIGMATISM_LEVEL_LIGHT;
-        if (cylinderAbs > 2.0f && cylinderAbs <= 4.0f) return AstigmatismLevelEnum.ASTIGMATISM_LEVEL_MIDDLE;
-        if (cylinderAbs > 4.0f) return AstigmatismLevelEnum.ASTIGMATISM_LEVEL_HIGH;
+        if (cylinderAbs >= 0.5f && cylinderAbs <= 2.0f) {
+            return AstigmatismLevelEnum.ASTIGMATISM_LEVEL_LIGHT;
+        }
+        if (cylinderAbs > 2.0f && cylinderAbs <= 4.0f) {
+            return AstigmatismLevelEnum.ASTIGMATISM_LEVEL_MIDDLE;
+        }
+        if (cylinderAbs > 4.0f) {
+            return AstigmatismLevelEnum.ASTIGMATISM_LEVEL_HIGH;
+        }
         return AstigmatismLevelEnum.ZERO;
     }
 
@@ -526,7 +560,9 @@ public class StatUtil {
             return null;
         }
         BigDecimal absCyl = cyl.abs();
-
+        if (Objects.nonNull(zeroSPWarningLevel(cyl, spn, age))) {
+            return zeroSPWarningLevel(cyl, spn, age);
+        }
         if (BigDecimalUtil.lessThanAndEqual(nakedVision, "4.5") || threeSE(se) || (age < 4 && BigDecimalUtil.moreThan(se, "9")) || (age >= 4 && BigDecimalUtil.moreThan(se, "8")) || threeAbsCyl(absCyl)) {
             return WarningLevel.THREE;
         }
@@ -539,7 +575,7 @@ public class StatUtil {
         if (BigDecimalUtil.moreThan(nakedVision, "4.7") || zeroSE(se) || zeroAbsCyl(absCyl)) {
             return WarningLevel.ZERO;
         }
-        return zeroSPWarningLevel(cyl, spn, age);
+        return null;
     }
 
     /**
@@ -558,6 +594,9 @@ public class StatUtil {
         if (Objects.isNull(se)) {
             return null;
         }
+        if (Objects.nonNull(zeroSPWarningLevel(cyl, spn, age))) {
+            return zeroSPWarningLevel(cyl, spn, age);
+        }
         if ((BigDecimalUtil.lessThanAndEqual(nakedVision, "4.5")) || threeSE(se) || BigDecimalUtil.moreThan(se, "7.5") || threeAbsCyl(absCyl)) {
             return WarningLevel.THREE;
         }
@@ -570,7 +609,7 @@ public class StatUtil {
         if (BigDecimalUtil.moreThan(nakedVision, "4.8") || zeroSE(se) || zeroAbsCyl(absCyl)) {
             return WarningLevel.ZERO;
         }
-        return zeroSPWarningLevel(cyl, spn, age);
+        return null;
     }
 
     /**

@@ -131,6 +131,7 @@ public class ExcelFacade {
             List<String> schoolNos = listMap.stream().map(s -> s.get(4)).collect(Collectors.toList());
             schools = schoolService.getBySchoolNos(schoolNos);
         }
+        Map<String, Integer> schoolMap = schools.stream().collect(Collectors.toMap(School::getSchoolNo, School::getId));
 
         // 收集身份证号码
         List<String> idCards = listMap.stream().map(s -> s.get(8 - offset))
@@ -191,9 +192,20 @@ public class ExcelFacade {
             Assert.notNull(classId, "班级数据为空");
             // 设置班级信息
             student.setClassId(classId);
+            student.setSchoolId(schoolMap.get(student.getSchoolNo()));
             importList.add(student);
         }
-        studentService.saveBatch(importList);
+        // 通过身份证获取已经删除的学生
+        List<Student> deleteStudent = studentService.getDeleteStudentByIdCard(idCards);
+        Map<String, Integer> deletedMap = deleteStudent.stream().collect(Collectors.toMap(Student::getIdCard, Student::getId));
+        importList.forEach(student -> {
+            if (Objects.nonNull(deletedMap.get(student.getIdCard()))) {
+                student.setId(deletedMap.get(student.getIdCard()));
+                student.setStatus(CommonConst.STATUS_NOT_DELETED);
+            }
+
+        });
+        studentService.saveOrUpdateBatch(importList);
     }
 
     /**

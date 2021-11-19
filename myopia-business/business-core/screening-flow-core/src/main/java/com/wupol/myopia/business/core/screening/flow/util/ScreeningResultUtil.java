@@ -52,10 +52,7 @@ public class ScreeningResultUtil {
         }
 
         // 是否有其他眼病
-        boolean otherEyeDiseasesNormal = false;
-        if (Objects.nonNull(result.getOtherEyeDiseases())) {
-            otherEyeDiseasesNormal = result.getOtherEyeDiseases().isNormal();
-        }
+        boolean otherEyeDiseasesNormal = Objects.nonNull(result.getOtherEyeDiseases()) && result.getOtherEyeDiseases().isNormal();
 
         // 获取左右眼的矫正视力
         BigDecimal leftCorrectedVision = visionData.getLeftEyeData().getCorrectedVision();
@@ -656,12 +653,12 @@ public class ScreeningResultUtil {
             // 远视
             HyperopiaLevelEnum hyperopiaWarningLevel = StatUtil.getHyperopiaWarningLevel(sph.floatValue(), cyl.floatValue(), age);
             String str;
-            if (se.compareTo(new BigDecimal("0.50")) > 0) {
+            if (StatUtil.isHyperopia(sph.floatValue(), cyl.floatValue(), age)) {
                 str = "远视" + seVal + "度";
             } else {
                 str = seVal + "度";
             }
-            return new TwoTuple<>(str, hyperopiaLevelLevel2Type(hyperopiaWarningLevel));
+            return new TwoTuple<>(str, hyperopiaLevelLevel2Type(hyperopiaWarningLevel, se));
         }
     }
 
@@ -735,9 +732,15 @@ public class ScreeningResultUtil {
      * <p>预警级别 {@link HyperopiaLevelEnum}</p>
      *
      * @param hyperopiaLevelEnum 预警级别
+     * @param se                 等效球镜
      * @return Integer {@link ParentReportConst}
      */
-    public static Integer hyperopiaLevelLevel2Type(HyperopiaLevelEnum hyperopiaLevelEnum) {
+    public static Integer hyperopiaLevelLevel2Type(HyperopiaLevelEnum hyperopiaLevelEnum, BigDecimal se) {
+
+        if (BigDecimalUtil.isBetweenAll(se, "0", "0.75")) {
+            return ParentReportConst.LABEL_EARLY;
+        }
+
         if (null == hyperopiaLevelEnum) {
             return null;
         }
@@ -875,6 +878,9 @@ public class ScreeningResultUtil {
         BigDecimal leftSe = calculationSE(leftSph, leftCyl);
         BigDecimal rightSe = calculationSE(rightSph, rightCyl);
 
+        if (Objects.isNull(nakedVisionResult.getFirst())) {
+            return RecommendVisitEnum.EMPTY;
+        }
         // 裸眼视力是否小于4.9
         if (BigDecimalUtil.lessThan(nakedVisionResult.getFirst(), "4.9")) {
             // 是否佩戴眼镜
@@ -1003,16 +1009,14 @@ public class ScreeningResultUtil {
             }
         }
         if (BigDecimalUtil.lessThanAndEqual(leftNakedVision, rightNakedVision)) {
-            if (BigDecimalUtil.lessThanAndEqual(leftNakedVision, targetVision)) {
-                if (checkAgeAndNakedVision(age, leftNakedVision, differenceTwoLines)) {
-                    return leftCorrectedVision;
-                }
+            if (BigDecimalUtil.lessThanAndEqual(leftNakedVision, targetVision)
+                    && checkAgeAndNakedVision(age, leftNakedVision, differenceTwoLines)) {
+                return leftCorrectedVision;
             }
         } else {
-            if (BigDecimalUtil.lessThanAndEqual(rightNakedVision, targetVision)) {
-                if (checkAgeAndNakedVision(age, rightNakedVision, differenceTwoLines)) {
-                    return rightCorrectedVision;
-                }
+            if (BigDecimalUtil.lessThanAndEqual(rightNakedVision, targetVision)
+                    && checkAgeAndNakedVision(age, rightNakedVision, differenceTwoLines)) {
+                return rightCorrectedVision;
             }
         }
         return null;
@@ -1090,9 +1094,8 @@ public class ScreeningResultUtil {
         if (BigDecimalUtil.isAllLessThanAndEqual(leftNakedVision, rightNakedVision, targetVision)) {
             if (Objects.nonNull(leftSe) && Objects.nonNull(rightSe) && BigDecimalUtil.moreThan(leftSe.abs(), rightSe.abs())) {
                 return new ThreeTuple<>(leftSe, leftCyl, anisometropia);
-            } else {
-                return new ThreeTuple<>(rightSe, rightCyl, anisometropia);
             }
+            return new ThreeTuple<>(rightSe, rightCyl, anisometropia);
         }
         if (BigDecimalUtil.lessThanAndEqual(leftNakedVision, rightNakedVision) && BigDecimalUtil.lessThanAndEqual(leftNakedVision, targetVision)) {
             if (checkAgeAndNakedVision(age, leftNakedVision, differenceTwoLines)) {

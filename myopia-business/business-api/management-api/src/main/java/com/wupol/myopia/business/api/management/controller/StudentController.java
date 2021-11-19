@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
@@ -26,7 +25,6 @@ import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningResultResponseDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentCardResponseVO;
-import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
@@ -34,7 +32,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Objects;
@@ -222,15 +219,6 @@ public class StudentController {
         return medicalReportBizService.getStudentVisitReport(reportId);
     }
 
-    @GetMapping("getWarningLevelInt")
-    public ApiResult<Integer> middleAdviceResult(BigDecimal leftCyl, BigDecimal leftSpn, BigDecimal leftNakedVision,
-                                                 BigDecimal rightCyl, BigDecimal rightSpn, BigDecimal rightNakedVision,
-                                                 Integer age) {
-        return ApiResult.success(StatUtil.getWarningLevelInt(leftCyl, leftSpn, leftNakedVision,
-                rightCyl, rightSpn, rightNakedVision, age));
-    }
-
-
     /**
      * 获取学生预警跟踪档案
      *
@@ -241,5 +229,4 @@ public class StudentController {
     public List<StudentWarningArchiveVO> getStudentWarningArchive(@PathVariable("studentId") Integer studentId) {
         return studentBizService.getStudentWarningArchive(studentId);
     }
-
 }

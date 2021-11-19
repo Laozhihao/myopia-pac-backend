@@ -190,6 +190,9 @@
                         #{item}
                     </foreach>
                 </if>
+                <if test="param.nameLike != null and param.nameLike != ''">
+                    and spss.`student_name` like CONCAT('%', #{param.nameLike}, '%')
+                </if>
             </trim>
         </where>
     </select>
