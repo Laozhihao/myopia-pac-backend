@@ -12,7 +12,6 @@ import com.wupol.myopia.business.aggregation.export.excel.constant.ImportExcelEn
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
 import com.wupol.myopia.business.common.utils.util.AgeUtil;
-import com.wupol.myopia.business.common.utils.util.ListUtil;
 import com.wupol.myopia.business.common.utils.util.SerializationUtil;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
