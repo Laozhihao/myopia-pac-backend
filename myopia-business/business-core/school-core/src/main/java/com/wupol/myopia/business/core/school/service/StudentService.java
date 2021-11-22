@@ -23,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
@@ -106,8 +107,9 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         }
         student.checkIdCard();
         // 兼容处理，避免漏掉学校ID
-        if (Objects.nonNull(student.getSchoolNo()) && Objects.isNull(student.getSchoolId())) {
+        if (StringUtils.isNotBlank(student.getSchoolNo()) && Objects.isNull(student.getSchoolId())) {
             School school = schoolService.getBySchoolNo(student.getSchoolNo());
+            Assert.notNull(school, "找不到该学校：" + student.getSchoolNo());
             student.setSchoolId(school.getId());
         }
         // 设置学龄
