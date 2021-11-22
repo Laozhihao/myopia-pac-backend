@@ -420,6 +420,8 @@ public class ExcelStudentService {
             String code = item.getOrDefault(ImportExcelEnum.SCREENING_CODE.getIndex(), null);
             student.setScreeningCode(Objects.nonNull(code) ? Long.valueOf(code) : null);
             return student;
+        } catch (BusinessException e) {
+            throw new BusinessException(e.getMessage());
         } catch (Exception e) {
             throw new BusinessException("学生数据有误，请检查", e);
         }
