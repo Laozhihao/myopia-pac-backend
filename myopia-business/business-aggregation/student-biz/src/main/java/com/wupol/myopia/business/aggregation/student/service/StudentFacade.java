@@ -106,6 +106,8 @@ public class StudentFacade {
         // 获取筛查计划
         List<Integer> planIds = resultList.stream().map(VisionScreeningResult::getPlanId).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(planIds)) {
+            responseDTO.setItems(new ArrayList<>());
+            responseDTO.setTotal(0);
             return responseDTO;
         }
         List<ScreeningPlan> plans = screeningPlanService.getByIds(planIds);
