@@ -7,6 +7,7 @@ import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.framework.core.util.StringUtils;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
+import com.wupol.myopia.base.util.ListUtil;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ImportExcelEnum;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
@@ -200,13 +201,15 @@ public class ExcelStudentService {
         }
 
         List<String> idCards = listMap.stream().map(map -> map.get(ImportExcelEnum.ID_CARD.getIndex())).filter(StringUtils::isNotBlank).collect(Collectors.toList());
-        if (idCards.size() != idCards.stream().distinct().count()) {
-            throw new BusinessException("身份证号码存在重复");
+        List<String> duplicateIdCard = ListUtil.getDuplicateElements(idCards);
+        if (CollectionUtils.isNotEmpty(duplicateIdCard)) {
+            throw new BusinessException("身份证" + org.apache.commons.lang3.StringUtils.join(duplicateIdCard, ",") + "重复");
         }
 
         List<String> studentNos = listMap.stream().map(map -> map.get(ImportExcelEnum.STUDENT_NO.getIndex())).filter(StringUtils::isNotBlank).collect(Collectors.toList());
-        if (studentNos.size() != studentNos.stream().distinct().count()) {
-            throw new BusinessException("学号存在重复");
+        List<String> duplicateSno = ListUtil.getDuplicateElements(studentNos);
+        if (CollectionUtils.isNotEmpty(duplicateSno)) {
+            throw new BusinessException("学号" + org.apache.commons.lang3.StringUtils.join(duplicateSno, ",") + "重复");
         }
         return studentNos;
     }
