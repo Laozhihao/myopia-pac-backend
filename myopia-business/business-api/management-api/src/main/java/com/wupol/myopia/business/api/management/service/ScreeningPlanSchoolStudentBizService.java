@@ -1,28 +1,18 @@
 package com.wupol.myopia.business.api.management.service;
 
 import cn.hutool.core.date.DateUtil;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.framework.core.util.DateFormatUtil;
-import com.wupol.framework.core.util.StringUtils;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.api.management.domain.dto.MockStudentRequestDTO;
 import com.wupol.myopia.business.api.management.domain.dto.PlanStudentRequestDTO;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
-import com.wupol.myopia.business.common.utils.constant.NationEnum;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
-import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
-import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.Student;
-import com.wupol.myopia.business.core.school.service.SchoolClassService;
-import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentQueryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
@@ -31,12 +21,9 @@ import com.wupol.myopia.business.core.screening.flow.util.ScreeningCodeGenerator
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @Author wulizhou
@@ -47,12 +34,6 @@ public class ScreeningPlanSchoolStudentBizService {
 
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
-    @Autowired
-    private SchoolGradeService schoolGradeService;
-    @Autowired
-    private SchoolClassService schoolClassService;
-    @Autowired
-    private DistrictService districtService;
     @Autowired
     private SchoolService schoolService;
     @Autowired
@@ -111,7 +92,6 @@ public class ScreeningPlanSchoolStudentBizService {
                              List<Student> mockStudentList, CurrentUser currentUser) {
         for (int i = 0; i < studentTotal; i++) {
             Student student = new Student();
-            student.setSchoolNo(school.getSchoolNo());
             student.setSchoolId(school.getId());
             student.setCreateUserId(currentUser.getId());
             student.setGradeId(schoolGrade.getGradeId());

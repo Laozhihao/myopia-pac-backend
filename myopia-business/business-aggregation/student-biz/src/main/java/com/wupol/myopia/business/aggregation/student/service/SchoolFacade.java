@@ -47,7 +47,7 @@ public class SchoolFacade {
         BeanUtils.copyProperties(school, responseDTO);
         // 填充地址
         responseDTO.setAddressDetail(districtService.getAddressDetails(school.getProvinceCode(), school.getCityCode(), school.getAreaCode(), school.getTownCode(), school.getAddress()));
-        int studentCount = studentService.count(new Student().setSchoolNo(school.getSchoolNo()));
+        int studentCount = studentService.count(new Student().setSchoolId(school.getId()));
         // 统计学生数
         responseDTO.setStudentCount(studentCount);
         return responseDTO;

@@ -131,7 +131,7 @@ public class ExcelFacade {
             List<String> schoolNos = listMap.stream().map(s -> s.get(4)).collect(Collectors.toList());
             schools = schoolService.getBySchoolNos(schoolNos);
         }
-        Map<String, Integer> schoolMap = schools.stream().collect(Collectors.toMap(School::getSchoolNo, School::getId));
+        Map<Integer, Integer> schoolMap = schools.stream().collect(Collectors.toMap(School::getId, School::getId));
 
         // 收集身份证号码
         List<String> idCards = listMap.stream().map(s -> s.get(8 - offset))
@@ -162,7 +162,6 @@ public class ExcelFacade {
                     .setGender(GenderEnum.getType(item.get(1)))
                     .setBirthday(DateFormatUtil.parseDate(item.get(2), DateFormatUtil.FORMAT_ONLY_DATE2))
                     .setNation(NationEnum.getCode(item.get(3)))
-                    .setSchoolNo(isSameSchool ? schoolNo : item.get(4))
                     .setGradeType(GradeCodeEnum.getByName(item.get(5 - offset)).getType())
                     .setSno((item.get(7 - offset)))
                     .setIdCard(item.get(8 - offset))
@@ -192,7 +191,7 @@ public class ExcelFacade {
             Assert.notNull(classId, "班级数据为空");
             // 设置班级信息
             student.setClassId(classId);
-            student.setSchoolId(schoolMap.get(student.getSchoolNo()));
+            student.setSchoolId(schoolMap.get(student.getSchoolId()));
             importList.add(student);
         }
         // 通过身份证获取已经删除的学生
@@ -873,7 +872,6 @@ public class ExcelFacade {
             return student.getId();
         }
         managementStudent.setSchoolId(schoolStudent.getSchoolId());
-        managementStudent.setSchoolNo(schoolStudent.getSchoolNo());
         managementStudent.setSno(schoolStudent.getSno());
         managementStudent.setName(schoolStudent.getName());
         managementStudent.setGender(schoolStudent.getGender());

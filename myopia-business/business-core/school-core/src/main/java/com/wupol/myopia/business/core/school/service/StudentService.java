@@ -105,11 +105,6 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             throw new BusinessException("学生年龄太大");
         }
         student.checkIdCard();
-        // 兼容处理，避免漏掉学校ID
-        if (Objects.nonNull(student.getSchoolNo()) && Objects.isNull(student.getSchoolId())) {
-            School school = schoolService.getBySchoolNo(student.getSchoolNo());
-            student.setSchoolId(school.getId());
-        }
         // 设置学龄
         if (null != student.getGradeId()) {
             SchoolGrade grade = schoolGradeService.getById(student.getGradeId());
@@ -201,11 +196,10 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     public StudentDTO getStudentById(Integer id) {
         StudentDTO student = baseMapper.getStudentById(id);
 
-        if (StringUtils.isNotBlank(student.getSchoolNo())) {
+        if (Objects.nonNull(student.getSchoolId())) {
             // 学校编号不为空，则拼接学校信息
-            School school = schoolService.getBySchoolNo(student.getSchoolNo());
+            School school = schoolService.getById(student.getSchoolId());
             student.setSchoolId(school.getId());
-            student.setSchoolNo(school.getSchoolNo());
             student.setSchoolName(school.getName());
             if (null != student.getClassId() && null != student.getGradeId()) {
                 SchoolGrade schoolGrade = schoolGradeService.getById(student.getGradeId());
@@ -232,8 +226,8 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      *
      * @return List<StudentCountDTO>
      */
-    public List<StudentCountDTO> countStudentBySchoolNo() {
-        return baseMapper.countStudentBySchoolNo();
+    public List<StudentCountDTO> countStudentBySchoolId() {
+        return baseMapper.countStudentBySchoolId();
     }
 
 
@@ -365,8 +359,8 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         baseMapper.updateById(student);
         // 查询信息
         StudentDTO resultStudent = baseMapper.getStudentById(student.getId());
-        if (StringUtils.isNotBlank(resultStudent.getSchoolNo())) {
-            School school = schoolService.getBySchoolNo(resultStudent.getSchoolNo());
+        if (Objects.nonNull(resultStudent.getSchoolId())) {
+            School school = schoolService.getById(resultStudent.getSchoolId());
             resultStudent.setSchoolName(school.getName());
             resultStudent.setSchoolId(school.getId());
 

@@ -42,12 +42,6 @@ public class Student extends AddressCode implements Serializable {
     private Integer id;
 
     /**
-     * 学校编码
-     */
-    @TableField(updateStrategy = FieldStrategy.IGNORED)
-    private String schoolNo;
-
-    /**
      * 创建人ID
      */
     private Integer createUserId;

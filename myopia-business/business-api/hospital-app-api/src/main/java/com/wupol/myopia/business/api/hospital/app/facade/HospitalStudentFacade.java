@@ -143,7 +143,6 @@ public class HospitalStudentFacade {
             tmpStudent.setId(null);
             // 转换地址与学校数据
             if (Objects.nonNull(studentVo.getSchoolId())) {
-                tmpStudent.setSchoolNo(schoolService.getById(studentVo.getSchoolId()).getSchoolNo());
                 tmpStudent.setSchoolId(studentVo.getSchoolId());
             }
             if (Objects.nonNull(studentVo.getProvinceId())) {
@@ -264,8 +263,8 @@ public class HospitalStudentFacade {
         Map<Long, District> districtMaps = getDistrictMap(Lists.newArrayList(student));
         packageStudentDistrict(districtMaps, studentVO, student);
 
-        if (StringUtils.isNotBlank(student.getSchoolNo())) {
-            studentVO.setSchool(schoolService.getBySchoolNo(student.getSchoolNo()));
+        if (Objects.nonNull(student.getSchoolId())) {
+            studentVO.setSchool(schoolService.getById(student.getSchoolId()));
         }
         if (null != student.getGradeId()) {
             studentVO.setSchoolGrade(schoolGradeService.getById(student.getGradeId()));

@@ -264,7 +264,8 @@ public class ExcelStudentService {
             if (student.checkNeedUpdate(excelStudent)) {
                 Student updateStudent = new Student();
                 BeanUtils.copyProperties(student, updateStudent);
-                updateStudent.setName(excelStudent.getName()).setSchoolNo(excelStudent.getSchoolNo()).setGender(excelStudent.getGender())
+                updateStudent.setName(excelStudent.getName())
+                        .setGender(excelStudent.getGender())
                         .setBirthday(excelStudent.getBirthday()).setNation(ObjectsUtil.getDefaultIfNull(excelStudent.getNation(), student.getNation()))
                         .setGradeId(excelStudent.getGradeId()).setGradeType(GradeCodeEnum.getByName(excelStudent.getGradeName()).getType())
                         .setClassId(excelStudent.getClassId()).setSno(excelStudent.getSno())
@@ -404,7 +405,6 @@ public class ExcelStudentService {
                     .setGender(StringUtils.isBlank(item.get(ImportExcelEnum.GENDER.getIndex())) ? null : GenderEnum.getType(item.get(ImportExcelEnum.GENDER.getIndex())))
                     .setBirthday(StringUtils.isBlank(item.get(ImportExcelEnum.BIRTHDAY.getIndex())) ? null : com.wupol.myopia.base.util.DateFormatUtil.parseDate(item.get(ImportExcelEnum.BIRTHDAY.getIndex()), DateFormatUtil.FORMAT_ONLY_DATE2))
                     .setNation(StringUtils.isBlank(item.get(ImportExcelEnum.NATION.getIndex())) ? null : NationEnum.getCode(item.get(ImportExcelEnum.NATION.getIndex())))
-                    .setSchoolNo(schoolNo)
                     .setSchoolId(schoolId)
                     .setGradeId(gradeNameIdMap.get(item.get(ImportExcelEnum.GRADE.getIndex())))
                     .setClassId(gradeClassNameClassIdMap.get(String.format(GRADE_CLASS_NAME_FORMAT, item.get(ImportExcelEnum.GRADE.getIndex()), item.get(ImportExcelEnum.CLASS.getIndex()))))
@@ -517,7 +517,6 @@ public class ExcelStudentService {
             student.setAreaCode(planSchoolStudent.getAreaCode());
             student.setTownCode(planSchoolStudent.getTownCode());
             student.setAddress(planSchoolStudent.getAddress());
-            student.setSchoolNo(school.getSchoolNo());
             student.setIdCard(planSchoolStudent.getIdCard());
         });
         studentService.batchUpdateOrSave(studentList);

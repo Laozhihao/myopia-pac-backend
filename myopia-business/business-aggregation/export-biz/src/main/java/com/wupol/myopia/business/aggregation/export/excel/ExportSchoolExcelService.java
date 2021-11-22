@@ -66,9 +66,9 @@ public class ExportSchoolExcelService extends BaseExportExcelFileService {
         Map<Integer, User> userMap = getUserMapByIds(createUserIds);
 
         // 学生统计
-        List<StudentCountDTO> studentCountVOS = studentService.countStudentBySchoolNo();
-        Map<String, Integer> studentCountMaps = studentCountVOS.stream()
-                .collect(Collectors.toMap(StudentCountDTO::getSchoolNo, StudentCountDTO::getCount));
+        List<StudentCountDTO> studentCountVOS = studentService.countStudentBySchoolId();
+        Map<Integer, Integer> studentCountMaps = studentCountVOS.stream()
+                .collect(Collectors.toMap(StudentCountDTO::getSchoolId, StudentCountDTO::getCount));
 
         // 年级统计
         List<SchoolGradeExportDTO> grades = schoolGradeService.getBySchoolIds(schoolIds);
@@ -91,7 +91,7 @@ public class ExportSchoolExcelService extends BaseExportExcelFileService {
                     .setName(item.getName())
                     .setKind(SchoolEnum.getKindName(item.getKind()))
                     .setType(SchoolEnum.getTypeName(item.getType()))
-                    .setStudentCount(studentCountMaps.getOrDefault(item.getSchoolNo(), 0))
+                    .setStudentCount(studentCountMaps.getOrDefault(item.getId(), 0))
                     .setDistrictName(districtService.getDistrictName(item.getDistrictDetail()))
                     .setAddress(item.getAddress())
                     .setRemark(item.getRemark())

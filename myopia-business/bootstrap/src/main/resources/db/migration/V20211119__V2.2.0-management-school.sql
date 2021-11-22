@@ -49,3 +49,10 @@ alter table m_school_vision_statistic
 
 alter table m_school_vision_statistic
     add review_numbers int default 0 null comment '去医院就诊数' after bind_mp_numbers;
+
+drop index m_student_school_no_status_class_id_grade_id_index on m_student;
+
+alter table m_student drop column school_no;
+
+create index m_student_status_class_id_grade_id_index
+    on m_student (status, class_id, grade_id);

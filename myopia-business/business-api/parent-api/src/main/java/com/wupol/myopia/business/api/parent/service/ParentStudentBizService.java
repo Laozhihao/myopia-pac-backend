@@ -137,11 +137,10 @@ public class ParentStudentBizService {
             }
         }
         BeanUtils.copyProperties(student, studentDTO);
-        if (StringUtils.isNotBlank(student.getSchoolNo())) {
+        if (Objects.nonNull(student.getSchoolId())) {
             // 学校编号不为空，则拼接学校信息
-            School school = schoolService.getBySchoolNo(student.getSchoolNo());
+            School school = schoolService.getById(student.getSchoolId());
             studentDTO.setSchoolId(school.getId());
-            studentDTO.setSchoolNo(school.getSchoolNo());
             studentDTO.setSchoolName(school.getName());
         }
         return studentDTO;
