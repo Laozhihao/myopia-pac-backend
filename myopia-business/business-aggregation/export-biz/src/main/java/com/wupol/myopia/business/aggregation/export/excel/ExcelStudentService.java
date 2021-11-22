@@ -469,6 +469,10 @@ public class ExcelStudentService {
         if (CollectionUtils.isEmpty(screeningCodes)) {
             return;
         }
+        List<Long> duplicateCode = ListUtil.getDuplicateElements(screeningCodes);
+        if (CollectionUtils.isNotEmpty(duplicateCode)) {
+            throw new BusinessException("编号为"+ org.apache.commons.lang3.StringUtils.join(duplicateCode,",") + "重复");
+        }
         Map<Long, StudentDTO> excelStudentMap = excelStudent.stream().collect(Collectors.toMap(StudentDTO::getScreeningCode, Function.identity()));
 
         List<ScreeningPlanSchoolStudent> planStudents = screeningPlanSchoolStudentService.getByScreeningCodes(screeningCodes, planId);
