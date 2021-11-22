@@ -402,9 +402,9 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
 
         gradeIds.forEach(g -> {
             ArrayList<SchoolClass> schoolClasses = Lists.newArrayList(
-                    new SchoolClass(g, createUserId, schoolId, "一班", 35),
-                    new SchoolClass(g, createUserId, schoolId, "二班", 35),
-                    new SchoolClass(g, createUserId, schoolId, "三班", 35),
+                    new SchoolClass(g, createUserId, schoolId, "1班", 35),
+                    new SchoolClass(g, createUserId, schoolId, "2班", 35),
+                    new SchoolClass(g, createUserId, schoolId, "3班", 35),
                     new SchoolClass(g, createUserId, schoolId, "其他", 35));
             schoolClassService.saveBatch(schoolClasses);
         });
