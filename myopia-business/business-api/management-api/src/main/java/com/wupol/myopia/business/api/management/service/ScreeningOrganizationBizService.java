@@ -510,7 +510,11 @@ public class ScreeningOrganizationBizService {
             throw new BusinessException("数据异常");
         }
         String orgName = screeningOrganization.getName();
-        screeningOrganization.setName(orgName + "0" + orgList.size());
+        if (orgList.size() < 10) {
+            screeningOrganization.setName(orgName + "0" + orgList.size());
+        } else {
+            screeningOrganization.setName(orgName + orgList.size());
+        }
         return screeningOrganizationService.generateAccountAndPassword(screeningOrganization, ScreeningOrganizationService.CHILD_ACCOUNT);
     }
 }

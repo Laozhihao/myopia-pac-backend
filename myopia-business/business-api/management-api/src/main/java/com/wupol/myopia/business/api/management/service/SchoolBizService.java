@@ -416,7 +416,11 @@ public class SchoolBizService {
         if (CollectionUtils.isEmpty(adminList)) {
             throw new BusinessException("数据异常，无主账号");
         }
-        school.setName(school.getName() + "0" + adminList.size());
+        if (adminList.size() < 10) {
+            school.setName(school.getName() + "0" + adminList.size());
+        } else {
+            school.setName(school.getName() + adminList.size());
+        }
         return schoolService.generateAccountAndPassword(school, school.getName());
     }
 

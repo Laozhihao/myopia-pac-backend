@@ -171,7 +171,12 @@ public class HospitalBizService {
         if (CollectionUtils.isEmpty(adminList)) {
             throw new BusinessException("数据异常，无主账号");
         }
-        hospital.setName(hospital.getName() + "0" + adminList.size());
+        if (adminList.size() < 10) {
+            hospital.setName(hospital.getName() + "0" + adminList.size());
+        } else {
+            hospital.setName(hospital.getName() + adminList.size());
+        }
+
         return hospitalService.generateAccountAndPassword(hospital, hospital.getName());
     }
 }
