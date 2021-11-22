@@ -23,6 +23,7 @@ import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,7 +69,12 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      */
     public UsernameAndPasswordDTO generateAccountAndPassword(ScreeningOrganization org, Integer accountType) {
         String password = PasswordAndUsernameGenerator.getScreeningAdminPwd();
-        String username = PasswordAndUsernameGenerator.getScreeningOrgAdminUserName(screeningOrganizationAdminService.count() + 1);
+        String username;
+        if (accountType.equals(PARENT_ACCOUNT)) {
+            username = PasswordAndUsernameGenerator.getScreeningOrgAdminUserName(screeningOrganizationAdminService.count() + 1);
+        } else {
+            username = org.getName();
+        }
 
         UserDTO userDTO = new UserDTO();
         userDTO.setOrgId(org.getId())
