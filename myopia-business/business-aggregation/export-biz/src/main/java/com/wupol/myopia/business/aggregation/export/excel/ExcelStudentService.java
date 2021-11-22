@@ -10,6 +10,7 @@ import com.wupol.myopia.business.aggregation.export.excel.constant.ImportExcelEn
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
 import com.wupol.myopia.business.common.utils.util.AgeUtil;
+import com.wupol.myopia.business.common.utils.util.ListUtil;
 import com.wupol.myopia.business.common.utils.util.SerializationUtil;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
@@ -187,15 +188,16 @@ public class ExcelStudentService {
                 map.getOrDefault(ImportExcelEnum.CLASS.getIndex(), null)))) {
             throw new BusinessException("存在必填项无填写");
         }
-
         List<String> idCards = listMap.stream().map(map -> map.get(ImportExcelEnum.ID_CARD.getIndex())).filter(StringUtils::isNotBlank).collect(Collectors.toList());
-        if (idCards.size() != idCards.stream().distinct().count()) {
-            throw new BusinessException("身份证号码存在重复");
+        List<String> duplicateIdCard = ListUtil.getDuplicateElements(idCards);
+        if (CollectionUtils.isNotEmpty(duplicateIdCard)) {
+            throw new BusinessException("身份证" + org.apache.commons.lang3.StringUtils.join(duplicateIdCard, ",") + "重复");
         }
 
         List<String> studentNos = listMap.stream().map(map -> map.get(ImportExcelEnum.STUDENT_NO.getIndex())).filter(StringUtils::isNotBlank).collect(Collectors.toList());
-        if (studentNos.size() != studentNos.stream().distinct().count()) {
-            throw new BusinessException("学号存在重复");
+        List<String> duplicateSno = ListUtil.getDuplicateElements(studentNos);
+        if (CollectionUtils.isNotEmpty(duplicateSno)) {
+            throw new BusinessException("学号" + org.apache.commons.lang3.StringUtils.join(duplicateSno, ",") + "重复");
         }
         return studentNos;
     }
@@ -403,6 +405,9 @@ public class ExcelStudentService {
             String cityName = item.getOrDefault(ImportExcelEnum.CITY.getIndex(), null);
             String areaName = item.getOrDefault(ImportExcelEnum.AREA.getIndex(), null);
             String townName = item.getOrDefault(ImportExcelEnum.TOWN.getIndex(), null);
+            if (student.checkBirthdayExceedLimit()) {
+                throw new BusinessException("学生身份证为:" + student.getIdCard() + "出生日期超过范围");
+            }
             if (StringUtils.allHasLength(provinceName, cityName, areaName, townName)) {
                 List<Long> codeList = districtNameCodeMap.get(String.format(DISTRICT_NAME_FORMAT, provinceName, cityName, areaName, townName));
                 if (CollectionUtils.hasLength(codeList)) {
