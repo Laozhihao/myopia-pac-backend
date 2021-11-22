@@ -115,7 +115,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         }
         // 更新用户状态
         UserDTO user = new UserDTO();
-        user.setUserIds(schoolAdminList.stream().map(SchoolAdmin::getUserId).collect(Collectors.toList()));
+        user.setUserIds(Lists.newArrayList(request.getUserId()));
         user.setStatus(request.getStatus());
         oauthServiceClient.updateUserStatusBatch(user);
         // 更新学校状态
