@@ -100,7 +100,7 @@ public class SchoolBizService {
     /**
      * 更新学校
      *
-     * @param school      学校实体类
+     * @param school 学校实体类
      * @return 学校实体类
      */
     @Transactional(rollbackFor = Exception.class)
@@ -336,7 +336,7 @@ public class SchoolBizService {
      * 封装DTO
      *
      * @param currentUser      当前登录用户
-     * @param userMap       用户信息
+     * @param userMap          用户信息
      * @param studentCountMaps 学生统计
      * @param planSchoolMaps   学校筛查统计
      * @return Consumer<SchoolDto>
@@ -416,12 +416,17 @@ public class SchoolBizService {
         if (CollectionUtils.isEmpty(adminList)) {
             throw new BusinessException("数据异常，无主账号");
         }
+        school.setName(school.getName() + "0" + adminList.size());
+
+        SchoolAdmin schoolAdmin = adminList.stream().sorted(Comparator.comparing(SchoolAdmin::getCreateTime)).collect(Collectors.toList()).get(0);
+        String mainUsername = oauthServiceClient.getUserDetailByUserId(schoolAdmin.getUserId()).getUsername();
+        String username;
         if (adminList.size() < 10) {
-            school.setName(school.getName() + "0" + adminList.size());
+            username = mainUsername + "0" + adminList.size();
         } else {
-            school.setName(school.getName() + adminList.size());
+            username = mainUsername + adminList.size();
         }
-        return schoolService.generateAccountAndPassword(school, school.getName());
+        return schoolService.generateAccountAndPassword(school, username);
     }
 
 }
