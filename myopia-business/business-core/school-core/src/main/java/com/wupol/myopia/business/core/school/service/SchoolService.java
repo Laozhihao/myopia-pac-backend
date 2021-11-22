@@ -82,7 +82,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         school.setDistrictProvinceCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
         baseMapper.insert(school);
         initGradeAndClass(school.getId(), school.getType(), school.getCreateUserId());
-        return generateAccountAndPassword(school);
+        return generateAccountAndPassword(school, StringUtils.EMPTY);
     }
 
 
@@ -173,16 +173,22 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         return resetOAuthPassword(request.getUsername(), schoolAdmin.getUserId());
     }
 
-
     /**
      * 生成账号密码
      *
+     * @param school 学校信息
+     * @param name   子账号名称
      * @return UsernameAndPasswordDto 账号密码
      */
-    public UsernameAndPasswordDTO generateAccountAndPassword(School school) {
+    public UsernameAndPasswordDTO generateAccountAndPassword(School school, String name) {
         // 账号规则：jsfkx + 序号
         String password = PasswordAndUsernameGenerator.getSchoolAdminPwd();
-        String username = PasswordAndUsernameGenerator.getSchoolAdminUserName(schoolAdminService.count() + 1);
+        String username;
+        if (StringUtils.isBlank(name)) {
+            username = PasswordAndUsernameGenerator.getSchoolAdminUserName(schoolAdminService.count() + 1);
+        } else {
+            username = name;
+        }
 
         UserDTO userDTO = new UserDTO();
         userDTO.setOrgId(school.getId())

@@ -114,7 +114,7 @@ public class ScreeningOrganizationBizService {
         // 为筛查机构新增设备报告模板
         DeviceReportTemplate template = deviceReportTemplateService.getSortFirstTemplate();
         screeningOrgBindDeviceReportService.orgBindReportTemplate(template.getId(), screeningOrganization.getId(), screeningOrganization.getName());
-        return screeningOrganizationService.generateAccountAndPassword(screeningOrganization, ScreeningOrganizationService.PARENT_ACCOUNT);
+        return screeningOrganizationService.generateAccountAndPassword(screeningOrganization, ScreeningOrganizationService.PARENT_ACCOUNT, null);
     }
 
     /**
@@ -511,6 +511,14 @@ public class ScreeningOrganizationBizService {
         }
         String orgName = screeningOrganization.getName();
         screeningOrganization.setName(orgName + "0" + orgList.size());
-        return screeningOrganizationService.generateAccountAndPassword(screeningOrganization, ScreeningOrganizationService.CHILD_ACCOUNT);
+        ScreeningOrganizationAdmin screeningOrganizationAdmin = orgList.stream().sorted(Comparator.comparing(ScreeningOrganizationAdmin::getCreateTime)).collect(Collectors.toList()).get(0);
+        String mainUsername = oauthServiceClient.getUserDetailByUserId(screeningOrganizationAdmin.getUserId()).getUsername();
+        String username;
+        if (orgList.size() < 10) {
+            username = mainUsername + "0" + orgList.size();
+        } else {
+            username = mainUsername + orgList.size();
+        }
+        return screeningOrganizationService.generateAccountAndPassword(screeningOrganization, ScreeningOrganizationService.CHILD_ACCOUNT, username);
     }
 }

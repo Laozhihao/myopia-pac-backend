@@ -285,7 +285,7 @@ public class SchoolBizService {
      * 封装DTO
      *
      * @param currentUser      当前登录用户
-     * @param userMap       用户信息
+     * @param userMap          用户信息
      * @param studentCountMaps 学生统计
      * @param planSchoolMaps   学校筛查统计
      * @return Consumer<SchoolDto>
@@ -366,7 +366,16 @@ public class SchoolBizService {
             throw new BusinessException("数据异常，无主账号");
         }
         school.setName(school.getName() + "0" + adminList.size());
-        return schoolService.generateAccountAndPassword(school);
+
+        SchoolAdmin schoolAdmin = adminList.stream().sorted(Comparator.comparing(SchoolAdmin::getCreateTime)).collect(Collectors.toList()).get(0);
+        String mainUsername = oauthServiceClient.getUserDetailByUserId(schoolAdmin.getUserId()).getUsername();
+        String username;
+        if (adminList.size() < 10) {
+            username = mainUsername + "0" + adminList.size();
+        } else {
+            username = mainUsername + adminList.size();
+        }
+        return schoolService.generateAccountAndPassword(school, username);
     }
 
 }
