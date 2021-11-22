@@ -172,6 +172,16 @@ public class HospitalBizService {
             throw new BusinessException("数据异常，无主账号");
         }
         hospital.setName(hospital.getName() + "0" + adminList.size());
-        return hospitalService.generateAccountAndPassword(hospital);
+
+        // 获取主账号的账号名称
+        HospitalAdmin hospitalAdmin = adminList.stream().sorted(Comparator.comparing(HospitalAdmin::getCreateTime)).collect(Collectors.toList()).get(0);
+        String mainUsername = oauthServiceClient.getUserDetailByUserId(hospitalAdmin.getUserId()).getUsername();
+        String username;
+        if (adminList.size() < 10) {
+            username = mainUsername + "0" + adminList.size();
+        } else {
+            username = mainUsername + adminList.size();
+        }
+        return hospitalService.generateAccountAndPassword(hospital,username);
     }
 }

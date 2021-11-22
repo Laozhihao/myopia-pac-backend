@@ -21,6 +21,7 @@ import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -65,7 +66,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         District district = districtService.getById(hospital.getDistrictId());
         hospital.setDistrictProvinceCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
         baseMapper.insert(hospital);
-        return generateAccountAndPassword(hospital);
+        return generateAccountAndPassword(hospital, StringUtils.EMPTY);
     }
 
     /**
@@ -148,11 +149,18 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     /**
      * 生成账号密码
      *
+     * @param hospital 医院
+     * @param name     子账号名称
      * @return UsernameAndPasswordDto 账号密码
      */
-    public UsernameAndPasswordDTO generateAccountAndPassword(Hospital hospital) {
+    public UsernameAndPasswordDTO generateAccountAndPassword(Hospital hospital, String name) {
         String password = PasswordAndUsernameGenerator.getHospitalAdminPwd();
-        String username = PasswordAndUsernameGenerator.getHospitalAdminUserName(hospitalAdminService.count() + 1);
+        String username;
+        if (StringUtils.isBlank(name)) {
+            username = PasswordAndUsernameGenerator.getHospitalAdminUserName(hospitalAdminService.count() + 1);
+        } else {
+            username = name;
+        }
 
         UserDTO userDTO = new UserDTO();
         userDTO.setOrgId(hospital.getId())
