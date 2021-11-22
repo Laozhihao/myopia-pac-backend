@@ -119,8 +119,8 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         user.setStatus(request.getStatus());
         oauthServiceClient.updateUserStatusBatch(user);
         // 更新学校状态
-        School school = new School().setId(request.getId()).setStatus(request.getStatus());
-        return baseMapper.updateById(school);
+        baseMapper.updateStatus(request);
+        return 1;
     }
 
     /**

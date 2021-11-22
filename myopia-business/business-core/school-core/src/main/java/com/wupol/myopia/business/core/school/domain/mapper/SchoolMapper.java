@@ -3,6 +3,7 @@ package com.wupol.myopia.business.core.school.domain.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolQueryDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
@@ -41,5 +42,7 @@ public interface SchoolMapper extends BaseMapper<School> {
     List<School> getByNameNeId(@Param("name") String name, @Param("id") Integer id);
 
     Set<Integer> selectDistrictIdsBySchoolIds(@Param("schoolIds") Set<Integer> schoolIds);
+
+    void updateStatus(@Param("request") StatusRequest request);
 
 }

@@ -160,4 +160,9 @@
         </foreach>
     </select>
 
+    <update id="updateStatus">
+        update m_school
+        set status = #{request.status}
+        where id = #{request.id}
+    </update>
 </mapper>
