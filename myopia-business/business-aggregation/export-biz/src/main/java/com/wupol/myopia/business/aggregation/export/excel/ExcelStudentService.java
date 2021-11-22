@@ -118,12 +118,13 @@ public class ExcelStudentService {
 
     /**
      * 根据上传的筛查学生数据组装基础信息
-     *  @param listMap
+     *
+     * @param listMap
      * @param idCardSet
      * @param gradeNameSet
      * @param gradeClassNameSet
      * @param districtNameCodeMap
-     * @param screeningCodeSet 筛查编号
+     * @param screeningCodeSet    筛查编号
      */
     private void genBaseInfoFromUploadData(List<Map<Integer, String>> listMap, Set<String> idCardSet,
                                            Set<String> gradeNameSet, Set<String> gradeClassNameSet,
@@ -317,13 +318,14 @@ public class ExcelStudentService {
      * 1. 身份证号
      * 2. 年级
      * 3. 班级
+     *
      * @param snoList
      * @param gradeNameSet
      * @param gradeClassNameSet
      * @param gradeNameIdMap
      * @param gradeClassNameClassIdMap
      * @param notUploadStudents        已有筛查学生数据中，身份证不在这次上传的数据中的筛查学生
-     * @param screeningCodeList 筛查CodeList
+     * @param screeningCodeList        筛查CodeList
      */
     private void checkExcelDataLegal(List<String> snoList, Set<String> gradeNameSet, Set<String> gradeClassNameSet,
                                      Map<String, Integer> gradeNameIdMap, Map<String, Integer> gradeClassNameClassIdMap,
@@ -404,9 +406,7 @@ public class ExcelStudentService {
         String cityName = item.getOrDefault(ImportExcelEnum.CITY.getIndex(), null);
         String areaName = item.getOrDefault(ImportExcelEnum.AREA.getIndex(), null);
         String townName = item.getOrDefault(ImportExcelEnum.TOWN.getIndex(), null);
-        if (student.checkBirthdayExceedLimit()) {
-            throw new BusinessException("学生身份证为:" + student.getIdCard() + "出生日期超过范围");
-        }
+        checkStudentInfo(student);
         if (StringUtils.allHasLength(provinceName, cityName, areaName, townName)) {
             List<Long> codeList = districtNameCodeMap.get(String.format(DISTRICT_NAME_FORMAT, provinceName, cityName, areaName, townName));
             if (CollectionUtils.hasLength(codeList)) {
@@ -419,6 +419,42 @@ public class ExcelStudentService {
         String code = item.getOrDefault(ImportExcelEnum.SCREENING_CODE.getIndex(), null);
         student.setScreeningCode(Objects.nonNull(code) ? Long.valueOf(code) : null);
         return student;
+    }
+
+    /**
+     * 检查学生信息是否完成
+     *
+     * @param student 学生信息
+     */
+    private void checkStudentInfo(StudentDTO student) {
+        if (student.checkBirthdayExceedLimit()) {
+            getErrorMsg(student.getIdCard(), student.getScreeningCode(), "出生日期超过范围");
+        }
+        if (StringUtils.isBlank(student.getName())) {
+            getErrorMsg(student.getIdCard(), student.getScreeningCode(), "姓名不能为空");
+        }
+        if (Objects.isNull(student.getClassId())) {
+            getErrorMsg(student.getIdCard(), student.getScreeningCode(), "班级信息为空");
+        }
+        if (Objects.isNull(student.getGradeId())) {
+            getErrorMsg(student.getIdCard(), student.getScreeningCode(), "年级信息为空");
+        }
+    }
+
+    /**
+     * 抛出异常信息
+     *
+     * @param idCard        学生证
+     * @param screeningCode 编码
+     * @param message       错误信息
+     */
+    private void getErrorMsg(String idCard, Long screeningCode, String message) {
+        if (StringUtils.isNotBlank(idCard)) {
+            throw new BusinessException("学生身份证为:" + idCard + message);
+        }
+        if (Objects.nonNull(screeningCode)) {
+            throw new BusinessException("学生编码为:" + screeningCode + message);
+        }
     }
 
     /**
@@ -475,7 +511,7 @@ public class ExcelStudentService {
         try {
             updateManagementStudent(studentList, planStudentMap, school);
         } catch (DuplicateKeyException e) {
-            log.error("身份证重复",e);
+            log.error("身份证重复", e);
             throw new BusinessException("身份证重复数据异常，请检查");
         }
 
@@ -489,7 +525,7 @@ public class ExcelStudentService {
      * @param studentList    学生列表
      * @param planStudentMap 计划学生列表
      */
-    private void updateManagementStudent(List<Student> studentList, Map<Integer, ScreeningPlanSchoolStudent> planStudentMap,School school) {
+    private void updateManagementStudent(List<Student> studentList, Map<Integer, ScreeningPlanSchoolStudent> planStudentMap, School school) {
         studentList.forEach(student -> {
             ScreeningPlanSchoolStudent planSchoolStudent = planStudentMap.get(student.getId());
             student.setName(planSchoolStudent.getStudentName());
