@@ -406,6 +406,8 @@ public class ExcelStudentService {
         String cityName = item.getOrDefault(ImportExcelEnum.CITY.getIndex(), null);
         String areaName = item.getOrDefault(ImportExcelEnum.AREA.getIndex(), null);
         String townName = item.getOrDefault(ImportExcelEnum.TOWN.getIndex(), null);
+        String code = item.getOrDefault(ImportExcelEnum.SCREENING_CODE.getIndex(), null);
+        student.setScreeningCode(Objects.nonNull(code) ? Long.valueOf(code) : null);
         checkStudentInfo(student);
         if (StringUtils.allHasLength(provinceName, cityName, areaName, townName)) {
             List<Long> codeList = districtNameCodeMap.get(String.format(DISTRICT_NAME_FORMAT, provinceName, cityName, areaName, townName));
@@ -416,8 +418,7 @@ public class ExcelStudentService {
                 student.setTownCode(codeList.get(3));
             }
         }
-        String code = item.getOrDefault(ImportExcelEnum.SCREENING_CODE.getIndex(), null);
-        student.setScreeningCode(Objects.nonNull(code) ? Long.valueOf(code) : null);
+
         return student;
     }
 
