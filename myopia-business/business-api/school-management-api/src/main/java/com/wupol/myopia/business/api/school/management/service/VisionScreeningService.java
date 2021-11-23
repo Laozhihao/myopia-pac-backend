@@ -93,15 +93,17 @@ public class VisionScreeningService {
                 schoolPlan.setEndTime(screeningPlan.getEndTime());
                 schoolPlan.setReleaseStatus(screeningPlan.getReleaseStatus());
                 schoolPlan.setReleaseTime(screeningPlan.getReleaseTime());
+                schoolPlan.setPlanScreeningNumbers(screeningPlan.getStudentNumbers());
                 schoolPlan.setContent(screeningPlan.getContent());
             }
 
             SchoolMonitorStatistic schoolMonitorStatistic = schoolStatisticMap.get(schoolPlan.getPlanId());
             if (Objects.nonNull(schoolMonitorStatistic)) {
                 schoolPlan.setSchoolStatisticId(schoolMonitorStatistic.getId());
-                schoolPlan.setPlanScreeningNumbers(schoolMonitorStatistic.getPlanScreeningNumbers());
                 schoolPlan.setRealScreeningNumbers(schoolMonitorStatistic.getRealScreeningNumbers());
                 schoolPlan.setScreeningOrgName(schoolMonitorStatistic.getScreeningOrgName());
+            } else {
+                schoolPlan.setRealScreeningNumbers(0);
             }
 
             // 设置告知书配置
