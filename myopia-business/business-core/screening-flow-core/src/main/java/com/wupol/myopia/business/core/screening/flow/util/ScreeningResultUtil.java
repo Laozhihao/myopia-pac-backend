@@ -944,6 +944,9 @@ public class ScreeningResultUtil {
         BigDecimal correctedVision;
 
 
+        if (Objects.isNull(glassesType)) {
+            return RecommendVisitEnum.EMPTY;
+        }
         // 佩戴眼镜
         if (glassesType >= 1) {
             // 5岁以下
