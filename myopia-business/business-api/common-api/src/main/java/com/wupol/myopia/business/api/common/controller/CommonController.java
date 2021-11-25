@@ -31,7 +31,7 @@ import java.util.Objects;
 @ResponseResultBody
 @CrossOrigin
 @RestController
-@RequestMapping
+@RequestMapping("/management/common")
 public class CommonController {
 
     @Autowired
@@ -44,7 +44,7 @@ public class CommonController {
     /**
      * 上传图片
      */
-    @PostMapping("/management/common/fileUpload")
+    @PostMapping("/fileUpload")
     public Map<String, Object> fileUpload(MultipartFile file) throws AccessDeniedException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         if (Objects.isNull(user)) {
@@ -64,7 +64,7 @@ public class CommonController {
     /**
      * 获取图片
      */
-    @GetMapping("/management/common/file/{fileId}")
+    @GetMapping("/file/{fileId}")
     public Map<String, String> file(@PathVariable Integer fileId) throws AccessDeniedException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         if (Objects.isNull(user)) {
@@ -79,7 +79,7 @@ public class CommonController {
      * 富文本上传图片
      * 直接返回访问地址
      */
-    @PostMapping("/management/common/richTextFileUpload")
+    @PostMapping("/richTextFileUpload")
     public Map<String, String> richTextFileUpload(MultipartFile file) throws AccessDeniedException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         if (Objects.isNull(user)) {
@@ -104,7 +104,7 @@ public class CommonController {
      * @param channel 渠道
      * @return com.wupol.myopia.business.core.system.domain.model.AppVersion
      **/
-    @GetMapping("/common/app/version/latest")
+    @GetMapping("/app/version/latest")
     public AppVersion getAppLatestVersion(@NotBlank(message = "packageName不能为空") String packageName, @NotBlank(message = "channel不能为空") String channel) {
         return appVersionService.getLatestVersionByPackageNameAndChannel(packageName, channel);
     }
