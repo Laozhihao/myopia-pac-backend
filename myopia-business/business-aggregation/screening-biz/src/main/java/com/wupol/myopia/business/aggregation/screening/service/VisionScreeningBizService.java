@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @Classname VisionScreeningBizService2
@@ -201,12 +202,16 @@ public class VisionScreeningBizService {
      */
     private void updateSchoolStudent(StatConclusion statConclusion, Date lastScreeningTime) {
         SchoolStudent schoolStudent = schoolStudentService.getByStudentId(statConclusion.getStudentId());
+        if (Objects.isNull(schoolStudent)) {
+            return;
+        }
         schoolStudent.setGlassesType(statConclusion.getGlassesType());
         schoolStudent.setLastScreeningTime(lastScreeningTime);
         schoolStudent.setVisionLabel(statConclusion.getWarningLevel());
         schoolStudent.setMyopiaLevel(statConclusion.getMyopiaLevel());
         schoolStudent.setHyperopiaLevel(statConclusion.getHyperopiaLevel());
         schoolStudent.setAstigmatismLevel(statConclusion.getAstigmatismLevel());
+        schoolStudentService.updateById(schoolStudent);
     }
 
     /**
