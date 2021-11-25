@@ -73,8 +73,8 @@ public class AppVersionDTO implements Serializable {
      * 状态，0-启用、1-停用（默认）
      */
     @NotNull(message = "status不能为空", groups = UpdateStatusValidatorGroup.class)
-    @Min(value = 0)
-    @Max(value = 1)
+    @Min(value = 0, message = "status值无效")
+    @Max(value = 1, message = "status值无效")
     private Integer status;
 
     /**

@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.vistel.Interface.exception.UtilException;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.api.management.domain.dto.AppVersionDTO;
@@ -15,6 +16,7 @@ import com.wupol.myopia.business.core.system.domain.model.AppVersion;
 import com.wupol.myopia.business.core.system.service.AppVersionService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,7 +30,6 @@ import javax.validation.groups.Default;
  */
 @Validated
 @ResponseResultBody
-@CrossOrigin
 @RestController
 @RequestMapping("/management/app/version")
 public class AppVersionController {
@@ -45,7 +46,7 @@ public class AppVersionController {
      * @param pageRequest 分页参数
      * @return com.baomidou.mybatisplus.core.metadata.IPage<com.wupol.myopia.business.core.system.domain.model.AppVersion>
      **/
-    @GetMapping("list")
+    @GetMapping("/page")
     public IPage<AppVersion> getAppVersionList(AppVersion appVersion, @Validated PageRequest pageRequest) {
         return appVersionService.findByPage(appVersion, pageRequest.getCurrent(), pageRequest.getSize());
     }
@@ -58,7 +59,7 @@ public class AppVersionController {
      * @return void
      **/
     @PostMapping
-    public void addAppVersion(@NotNull(message = "apkFile不能为空") MultipartFile apkFile,
+    public Boolean addAppVersion(@NotNull(message = "apkFile不能为空") MultipartFile apkFile,
                                  @Validated(value = AddValidatorGroup.class) AppVersionDTO appVersionDTO) throws UtilException {
         // 上传
         ResourceFile resourceFile = resourceFileService.uploadFileAndSave(apkFile, "apk");
@@ -69,7 +70,11 @@ public class AppVersionController {
                 .setApkFileName(apkFile.getOriginalFilename())
                 .setApkFileSize(apkFile.getSize())
                 .setCreateUserId(CurrentUserUtil.getCurrentUser().getId());
-        appVersionService.save(appVersion);
+        try {
+            return appVersionService.save(appVersion);
+        } catch (DuplicateKeyException e) {
+            throw new BusinessException("已存在该版本，请填写新版本", e);
+        }
     }
 
     /**
@@ -79,10 +84,14 @@ public class AppVersionController {
      * @return void
      **/
     @PutMapping
-    public void updateAppVersion(@RequestBody @Validated(value = UpdateValidatorGroup.class) AppVersionDTO appVersionDTO) {
+    public Boolean updateAppVersion(@RequestBody @Validated(value = UpdateValidatorGroup.class) AppVersionDTO appVersionDTO) {
         AppVersion appVersion = new AppVersion();
         BeanUtils.copyProperties(appVersionDTO, appVersion);
-        appVersionService.updateById(appVersion);
+        try {
+            return appVersionService.updateById(appVersion);
+        } catch (DuplicateKeyException e) {
+            throw new BusinessException("已存在该版本，请填写新版本", e);
+        }
     }
 
     /**
@@ -92,7 +101,7 @@ public class AppVersionController {
      * @return void
      **/
     @PutMapping("/status")
-    public void updateAppVersionStatus(@RequestBody @Validated(value = {UpdateStatusValidatorGroup.class, Default.class}) AppVersionDTO appVersionDTO) {
-        appVersionService.updateById(new AppVersion().setId(appVersionDTO.getId()).setStatus(appVersionDTO.getStatus()));
+    public Boolean updateAppVersionStatus(@RequestBody @Validated(value = {UpdateStatusValidatorGroup.class, Default.class}) AppVersionDTO appVersionDTO) {
+        return appVersionService.updateById(new AppVersion().setId(appVersionDTO.getId()).setStatus(appVersionDTO.getStatus()));
     }
 }

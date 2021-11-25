@@ -31,6 +31,7 @@ import java.util.Objects;
 @ResponseResultBody
 @CrossOrigin
 @RestController
+@RequestMapping
 public class CommonController {
 
     @Autowired
