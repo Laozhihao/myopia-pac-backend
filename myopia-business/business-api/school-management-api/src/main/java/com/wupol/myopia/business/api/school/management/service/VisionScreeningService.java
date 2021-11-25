@@ -96,7 +96,7 @@ public class VisionScreeningService {
                 schoolPlan.setTitle(screeningPlan.getTitle());
                 schoolPlan.setStartTime(screeningPlan.getStartTime());
                 schoolPlan.setEndTime(screeningPlan.getEndTime());
-                schoolPlan.setReleaseStatus(screeningPlan.getReleaseStatus());
+                schoolPlan.setReleaseStatus(screeningOrganizationService.getScreeningStatus(screeningPlan.getStartTime(), screeningPlan.getEndTime()));
                 schoolPlan.setReleaseTime(screeningPlan.getReleaseTime());
                 schoolPlan.setPlanScreeningNumbers(screeningPlan.getStudentNumbers());
                 schoolPlan.setContent(screeningPlan.getContent());
