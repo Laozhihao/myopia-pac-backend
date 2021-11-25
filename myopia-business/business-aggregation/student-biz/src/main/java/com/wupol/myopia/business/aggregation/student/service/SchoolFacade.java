@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.aggregation.student.service;
 
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO;
@@ -47,7 +48,7 @@ public class SchoolFacade {
         BeanUtils.copyProperties(school, responseDTO);
         // 填充地址
         responseDTO.setAddressDetail(districtService.getAddressDetails(school.getProvinceCode(), school.getCityCode(), school.getAreaCode(), school.getTownCode(), school.getAddress()));
-        int studentCount = studentService.count(new Student().setSchoolId(school.getId()));
+        int studentCount = studentService.count(new Student().setSchoolId(school.getId()).setStatus(CommonConst.STATUS_NOT_DELETED));
         // 统计学生数
         responseDTO.setStudentCount(studentCount);
         return responseDTO;
