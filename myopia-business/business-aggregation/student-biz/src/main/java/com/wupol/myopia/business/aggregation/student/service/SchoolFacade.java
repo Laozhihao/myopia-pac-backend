@@ -7,6 +7,8 @@ import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.Student;
+import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
+import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
@@ -36,19 +38,28 @@ public class SchoolFacade {
     @Resource
     private ScreeningPlanSchoolService screeningPlanSchoolService;
 
+    @Resource
+    private SchoolStudentService schoolStudentService;
+
     /**
      * 获取学校详情
      *
-     * @param id 学校ID
+     * @param id                 学校ID
+     * @param isSchoolManagement 是否学校管理端
      * @return SchoolResponseDTO
      */
-    public SchoolResponseDTO getBySchoolId(Integer id) {
+    public SchoolResponseDTO getBySchoolId(Integer id, boolean isSchoolManagement) {
         SchoolResponseDTO responseDTO = new SchoolResponseDTO();
         School school = schoolService.getById(id);
         BeanUtils.copyProperties(school, responseDTO);
         // 填充地址
         responseDTO.setAddressDetail(districtService.getAddressDetails(school.getProvinceCode(), school.getCityCode(), school.getAreaCode(), school.getTownCode(), school.getAddress()));
-        int studentCount = studentService.count(new Student().setSchoolId(school.getId()).setStatus(CommonConst.STATUS_NOT_DELETED));
+        int studentCount;
+        if (isSchoolManagement) {
+            studentCount = schoolStudentService.count(new SchoolStudent().setSchoolId(school.getId()).setStatus(CommonConst.STATUS_NOT_DELETED));
+        } else {
+            studentCount = studentService.count(new Student().setSchoolId(school.getId()).setStatus(CommonConst.STATUS_NOT_DELETED));
+        }
         // 统计学生数
         responseDTO.setStudentCount(studentCount);
         return responseDTO;
@@ -57,7 +68,7 @@ public class SchoolFacade {
     /**
      * 更新学校
      *
-     * @param school      学校实体类
+     * @param school 学校实体类
      * @return 学校实体类
      */
     @Transactional(rollbackFor = Exception.class)
