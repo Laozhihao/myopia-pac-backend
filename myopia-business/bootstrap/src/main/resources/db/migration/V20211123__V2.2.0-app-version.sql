@@ -15,7 +15,7 @@ CREATE TABLE `m_app_version` (
   `create_user_id` int(11) DEFAULT NULL COMMENT '创建者ID',
   `thirdparty_qrcode_file_id` int(11) DEFAULT NULL COMMENT '第三方下载安装包二维码图片文件ID',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `package_name_channel_version_unique_index` (`package_name`,`channel`,`version`) USING BTREE COMMENT '包名、渠道和版本号作为唯一索引'
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='APP的apk版本管理表';
