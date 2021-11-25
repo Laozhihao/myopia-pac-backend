@@ -808,7 +808,7 @@ public class ExcelFacade {
             if (StringUtils.isBlank(item.get(0))) {
                 break;
             }
-            checkIsExist(snoMap, idCardMap, item.get(6), item.get(7));
+            checkIsExist(snoMap, idCardMap, item.get(6), item.get(7), item.get(1), item.get(2),item.get(4));
             schoolStudent.setName(item.get(0))
                     .setGender(GenderEnum.getType(item.get(1)))
                     .setBirthday(DateFormatUtil.parseDate(item.get(2), DateFormatUtil.FORMAT_ONLY_DATE2))
@@ -922,7 +922,7 @@ public class ExcelFacade {
      * @param idCard    身份证
      */
     private void checkIsExist(Map<String, SchoolStudent> snoMap, Map<String, SchoolStudent> idCardMap,
-                              String sno, String idCard) {
+                              String sno, String idCard, String gender, String birthday, String gradeName) {
 
         if (StringUtils.isAllBlank(sno, idCard)) {
             throw new BusinessException("学号或身份证为空");
@@ -932,6 +932,15 @@ public class ExcelFacade {
         }
         if (Objects.nonNull(idCardMap.get(idCard))) {
             throw new BusinessException("身份证" + idCard + "在系统中重复");
+        }
+        if (StringUtils.isBlank(gender)) {
+            throw new BusinessException("身份证" + idCard + "性别不能为空");
+        }
+        if (StringUtils.isBlank(birthday)) {
+            throw new BusinessException("身份证" + idCard + "生日不能为空");
+        }
+        if (StringUtils.isBlank(gradeName)) {
+            throw new BusinessException("身份证" + idCard + "年级不能为空");
         }
     }
 }

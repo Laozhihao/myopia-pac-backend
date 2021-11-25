@@ -249,23 +249,13 @@ public class StudentBizService {
      */
     @Transactional(rollbackFor = Exception.class)
     public Boolean deletedStudent(Integer id) {
-        if (checkStudentHavePlan(id)) {
+        if (screeningPlanSchoolStudentService.checkStudentHavePlan(id)) {
             throw new BusinessException("该学生有对应的筛查计划，无法进行删除");
         }
         Student student = new Student();
         student.setId(id);
         student.setStatus(CommonConst.STATUS_IS_DELETED);
         return studentService.updateById(student);
-    }
-
-    /**
-     * 检查学生是否有筛查计划
-     *
-     * @param studentId 学生ID
-     * @return true-存在筛查计划 false-不存在
-     */
-    private boolean checkStudentHavePlan(Integer studentId) {
-        return !CollectionUtils.isEmpty(screeningPlanSchoolStudentService.getByStudentId(studentId));
     }
 
     /**

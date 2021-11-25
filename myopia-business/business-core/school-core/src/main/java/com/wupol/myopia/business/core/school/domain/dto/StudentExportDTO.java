@@ -36,7 +36,7 @@ public class StudentExportDTO implements Serializable {
     @ExcelProperty({TOP_HEADER, "出生日期"})
     private String birthday;
 
-    @ExcelProperty({TOP_HEADER, "民族(1：汉族  2：蒙古族  3：藏族  4：壮族  5:回族  6:其他  )"})
+    @ExcelProperty({TOP_HEADER, "民族"})
     private String nation;
 
     @ExcelProperty({TOP_HEADER, "学校编码"})

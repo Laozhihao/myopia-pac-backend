@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
@@ -21,6 +22,7 @@ import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningResultResponseDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentCardResponseVO;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -62,6 +64,9 @@ public class SchoolStudentController {
 
     @Resource
     private ExcelFacade excelFacade;
+
+    @Resource
+    private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
 
 
     /**
@@ -123,6 +128,9 @@ public class SchoolStudentController {
      */
     @DeleteMapping("{id}")
     public Boolean deletedStudent(@PathVariable("id") Integer id) {
+        if (screeningPlanSchoolStudentService.checkStudentHavePlan(id)) {
+            throw new BusinessException("该学生有对应的筛查计划，无法进行删除");
+        }
         schoolStudentService.deletedStudent(id);
         studentService.deletedStudent(schoolStudentService.getById(id).getStudentId());
         return Boolean.TRUE;
