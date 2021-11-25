@@ -1,9 +1,12 @@
 package com.wupol.myopia.business.api.school.management.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.myopia.business.common.utils.constant.WearingGlassesSuggestEnum;
 import com.wupol.myopia.business.common.utils.domain.model.NotificationConfig;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
+import com.wupol.myopia.business.core.hospital.domain.model.MedicalReport;
+import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningListResponseDTO;
@@ -56,6 +59,9 @@ public class VisionScreeningService {
 
     @Resource
     private ResourceFileService resourceFileService;
+
+    @Resource
+    private MedicalReportService medicalReportService;
 
     /**
      * 获取视力筛查列表
@@ -141,10 +147,24 @@ public class VisionScreeningService {
             return responseDTO;
         }
         List<Integer> studentIds = trackList.stream().map(StudentTrackWarningResponseDTO::getStudentId).collect(Collectors.toList());
-        Map<Integer, Integer> schoolStudentMap = schoolStudentService.getByStudentIds(studentIds).stream().collect(Collectors.toMap(SchoolStudent::getStudentId, SchoolStudent::getId));
+        List<Integer> reportIds = trackList.stream().map(StudentTrackWarningResponseDTO::getReportId).collect(Collectors.toList());
+
+        Map<Integer, MedicalReport> reportMap = medicalReportService.getByIds(reportIds).stream()
+                .collect(Collectors.toMap(MedicalReport::getId, Function.identity()));
+
+        // 学校端学生
+        Map<Integer, Integer> schoolStudentMap = schoolStudentService.getByStudentIds(studentIds).stream()
+                .collect(Collectors.toMap(SchoolStudent::getStudentId, SchoolStudent::getId));
+
         trackList.forEach(track -> {
             track.setSchoolStudentId(schoolStudentMap.get(track.getStudentId()));
-            track.setIsReview(Objects.nonNull(track.getReportId()));
+            track.setIsBindMq(track.getIsBindMq());
+            if (Objects.nonNull(track.getReportId())) {
+                MedicalReport report = reportMap.get(track.getReportId());
+                track.setIsReview(true);
+                track.setVisitResult(report.getMedicalContent());
+                track.setGlassesSuggest(report.getGlassesSituation());
+            }
         });
         return responseDTO;
     }

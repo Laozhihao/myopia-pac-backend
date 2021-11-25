@@ -42,4 +42,6 @@ public interface MedicalReportMapper extends BaseMapper<MedicalReport> {
 
     List<MedicalReport> getInconclusiveReportList();
 
+    List<MedicalReport> getByIds(@Param("ids") List<Integer> ids);
+
 }
