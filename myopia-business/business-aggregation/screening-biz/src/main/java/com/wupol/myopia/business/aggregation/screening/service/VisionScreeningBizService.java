@@ -4,6 +4,8 @@ import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedExcep
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.domain.model.Student;
+import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
+import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.builder.ScreeningResultBuilder;
@@ -16,6 +18,7 @@ import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchool
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @Classname VisionScreeningBizService2
@@ -45,6 +49,8 @@ public class VisionScreeningBizService {
     private StudentService studentService;
     @Autowired
     private SchoolGradeService schoolGradeService;
+    @Autowired
+    private SchoolStudentService schoolStudentService;
 
     /**
      * 保存学生眼镜信息
@@ -62,8 +68,11 @@ public class VisionScreeningBizService {
         visionScreeningResultService.saveOrUpdateStudentScreenData(allFirstAndSecondResult.getFirst());
         //更新statConclusion表
         StatConclusion statConclusion = statConclusionService.saveOrUpdateStudentScreenData(getScreeningConclusionResult(allFirstAndSecondResult));
+        // 更新是否绑定手机号码
+        setIsBindMq(statConclusion);
         //更新学生表的数据
         this.updateStudentVisionData(allFirstAndSecondResult.getFirst(),statConclusion);
+        updateSchoolStudent(statConclusion,allFirstAndSecondResult.getFirst().getUpdateTime());
         //返回最近一次的statConclusion
         TwoTuple<VisionScreeningResult, StatConclusion> visionScreeningResultStatConclusionTwoTuple = new TwoTuple<>();
         visionScreeningResultStatConclusionTwoTuple.setFirst(allFirstAndSecondResult.getFirst());
@@ -183,6 +192,36 @@ public class VisionScreeningBizService {
         student.setHyperopiaLevel(statConclusion.getHyperopiaLevel());
         student.setMyopiaLevel(statConclusion.getMyopiaLevel());
         studentService.updateStudent(student);
+    }
+
+    /**
+     * 更新学校学生
+     *
+     * @param statConclusion    结论
+     * @param lastScreeningTime 上次筛查时间
+     */
+    private void updateSchoolStudent(StatConclusion statConclusion, Date lastScreeningTime) {
+        SchoolStudent schoolStudent = schoolStudentService.getByStudentId(statConclusion.getStudentId());
+        if (Objects.isNull(schoolStudent)) {
+            return;
+        }
+        schoolStudent.setGlassesType(statConclusion.getGlassesType());
+        schoolStudent.setLastScreeningTime(lastScreeningTime);
+        schoolStudent.setVisionLabel(statConclusion.getWarningLevel());
+        schoolStudent.setMyopiaLevel(statConclusion.getMyopiaLevel());
+        schoolStudent.setHyperopiaLevel(statConclusion.getHyperopiaLevel());
+        schoolStudent.setAstigmatismLevel(statConclusion.getAstigmatismLevel());
+        schoolStudentService.updateById(schoolStudent);
+    }
+
+    /**
+     * 是否绑定公众号
+     *
+     * @param statConclusion 结论
+     */
+    private void setIsBindMq(StatConclusion statConclusion) {
+        Student student = studentService.getById(statConclusion.getStudentId());
+        statConclusion.setIsBindMp(StringUtils.isNotBlank(student.getMpParentPhone()));
     }
 
 }

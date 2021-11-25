@@ -221,9 +221,19 @@ public class SchoolVisionStatistic implements Serializable {
     private Integer myopiaLevelHigh;
 
     /**
-     * 高度近视人数
+     * 远视储备不足人数
      */
     private Integer myopiaLevelInsufficient;
+
+    /**
+     * 绑定公众号人数
+     */
+    private Integer bindMpNumbers;
+
+    /**
+     * 去医院就诊数
+     */
+    private Integer reviewNumbers;
 
     /**
      * 视力情况--更新时间

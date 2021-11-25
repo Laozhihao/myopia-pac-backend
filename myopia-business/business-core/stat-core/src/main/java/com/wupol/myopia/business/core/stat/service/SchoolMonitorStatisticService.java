@@ -27,4 +27,14 @@ public class SchoolMonitorStatisticService extends BaseService<SchoolMonitorStat
         }
         Lists.partition(schoolMonitorStatistics, 20).forEach(statistics -> baseMapper.batchSaveOrUpdate(statistics));
     }
+
+    /**
+     * 通过学校Id获取统计
+     *
+     * @param schoolId 学校Id
+     * @return List<SchoolMonitorStatistic>
+     */
+    public List<SchoolMonitorStatistic> getBySchoolId(Integer schoolId) {
+        return baseMapper.getBySchoolId(schoolId);
+    }
 }

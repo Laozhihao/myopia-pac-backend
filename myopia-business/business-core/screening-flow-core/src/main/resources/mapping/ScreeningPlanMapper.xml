@@ -153,4 +153,13 @@
             #{orgId}
         </foreach>
     </select>
+
+    <select id="getByIds" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_plan msp where msp.id in
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
 </mapper>

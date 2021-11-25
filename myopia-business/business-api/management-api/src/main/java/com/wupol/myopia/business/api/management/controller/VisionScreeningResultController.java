@@ -11,6 +11,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
+import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
 import com.wupol.myopia.business.api.management.service.StudentBizService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.interfaces.HasName;
@@ -66,6 +67,8 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
     private StudentBizService studentBizService;
     @Autowired
     private RedisUtil redisUtil;
+    @Autowired
+    private StudentFacade studentFacade;
 
     /**
      * 获取档案卡列表
@@ -84,7 +87,7 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
         // 方便前端模板渲染复用
         if (Objects.nonNull(resultId)) {
             VisionScreeningResult visionScreeningResult = visionScreeningResultService.getById(resultId);
-            return Lists.newArrayList(studentBizService.getStudentCardResponseDTO(visionScreeningResult));
+            return Lists.newArrayList(studentFacade.getStudentCardResponseDTO(visionScreeningResult));
         }
         ScreeningPlan screeningPlan = screeningPlanService.getById(planId);
         if (screeningPlan == null) {
@@ -103,7 +106,7 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
             screeningPlanSchoolStudentIds = planStudentIds;
         }
         List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.getByScreeningPlanSchoolStudentIds(screeningPlanSchoolStudentIds);
-        return studentBizService.generateBatchStudentCard(visionScreeningResults);
+        return studentFacade.generateBatchStudentCard(visionScreeningResults);
     }
 
     /**
@@ -270,6 +273,6 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
 
     @GetMapping("/screening/planStudent/card/{planStudentId}")
     public AppStudentCardResponseDTO getResultByPlanStudentId(@PathVariable("planStudentId") Integer planStudentId) {
-        return studentBizService.getCardDetailByPlanStudentId(planStudentId);
+        return studentFacade.getCardDetailByPlanStudentId(planStudentId);
     }
 }

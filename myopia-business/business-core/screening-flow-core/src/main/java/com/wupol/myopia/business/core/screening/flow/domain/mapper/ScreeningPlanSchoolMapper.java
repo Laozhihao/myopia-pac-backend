@@ -1,7 +1,10 @@
 package com.wupol.myopia.business.core.screening.flow.domain.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.SchoolScreeningCountDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningListResponseDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanQueryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanSchoolDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
@@ -45,5 +48,7 @@ public interface ScreeningPlanSchoolMapper extends BaseMapper<ScreeningPlanSchoo
     List<Integer> getByPlanIdNotInSchoolIds(@Param("screeningPlanId") Integer screeningPlanId, @Param("schoolIds") List<Integer> schoolIds);
 
     Long getCurrentMaxScreeningCode();
+
+    IPage<ScreeningListResponseDTO> getResponseBySchoolId(@Param("page") Page<?> page, @Param("schoolId") Integer schoolId);
 
 }

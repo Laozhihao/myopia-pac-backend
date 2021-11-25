@@ -1,7 +1,9 @@
 package com.wupol.myopia.business.core.screening.flow.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.StatConclusionMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
@@ -227,6 +229,50 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
      **/
     public StatConclusion getNextScreeningStat(Integer statConclusionId, Integer studentId) {
         return baseMapper.getNextScreeningStat(statConclusionId, studentId);
+    }
+
+    /**
+     * 通过resultIds获取
+     *
+     * @param resultIds 结果Id
+     * @return List<StatConclusion>
+     */
+    public List<StatConclusion> getByResultIds(List<Integer> resultIds) {
+        return baseMapper.getByResultIds(resultIds);
+    }
+
+    /**
+     * 获取指定时间的数据
+     *
+     * @param start 开始
+     * @param end   结束
+     * @return List<StatConclusion>
+     */
+    public List<StatConclusion> getByDate(Date start, Date end) {
+        return baseMapper.getByDate(start, end);
+    }
+
+    /**
+     * 获取学生跟踪预警列表
+     *
+     * @param pageRequest 分页请求
+     * @param requestDTO  入参
+     * @param schoolId    学校Id
+     * @return IPage<StudentTrackWarningResponseDTO>
+     */
+    public IPage<StudentTrackWarningResponseDTO> getTrackList(PageRequest pageRequest, StudentTrackWarningRequestDTO requestDTO,
+                                                              Integer schoolId) {
+        return baseMapper.getTrackList(pageRequest.toPage(), requestDTO, schoolId);
+    }
+
+    /**
+     * 通过筛查学生获取
+     *
+     * @param planStudentId 筛查学生
+     * @return StatConclusion
+     */
+    public StatConclusion getByPlanStudentId(Integer planStudentId) {
+        return baseMapper.getByPlanStudentId(planStudentId);
     }
 }
 

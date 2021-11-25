@@ -14,4 +14,6 @@ import java.util.List;
  */
 public interface SchoolMonitorStatisticMapper extends BaseMapper<SchoolMonitorStatistic> {
     Integer batchSaveOrUpdate(@Param("list") List<SchoolMonitorStatistic> schoolMonitorStatistics);
+
+    List<SchoolMonitorStatistic> getBySchoolId(Integer schoolId);
 }

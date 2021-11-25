@@ -34,7 +34,7 @@ public interface StudentMapper extends BaseMapper<Student> {
 
     List<StudentDTO> getByOtherId(@Param("schoolId") Integer schoolId, @Param("classId") Integer classId, @Param("gradeId") Integer gradeId);
 
-    List<StudentCountDTO> countStudentBySchoolNo();
+    List<StudentCountDTO> countStudentBySchoolId();
 
     Student getByIdCard(@Param("idCard") String idCard);
 

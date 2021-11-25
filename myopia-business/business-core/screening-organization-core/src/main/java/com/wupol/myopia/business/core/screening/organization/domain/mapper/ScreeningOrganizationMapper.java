@@ -36,4 +36,6 @@ public interface ScreeningOrganizationMapper extends BaseMapper<ScreeningOrganiz
     List<ScreeningOrganization> getByConfigType(@Param("configType") Integer configType);
 
     List<ScreeningOrganization> getAll();
+
+    List<ScreeningOrgResponseDTO> getOrgByIds(@Param("ids") List<Integer> ids);
 }

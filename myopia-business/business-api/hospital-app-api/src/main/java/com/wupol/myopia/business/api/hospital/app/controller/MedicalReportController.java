@@ -3,6 +3,7 @@ package com.wupol.myopia.business.api.hospital.app.controller;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.aggregation.hospital.service.MedicalReportBizService;
 import com.wupol.myopia.business.core.hospital.domain.dos.MedicalReportDO;
 import com.wupol.myopia.business.core.hospital.domain.dto.StudentReportResponseDTO;
 import com.wupol.myopia.business.core.hospital.domain.model.MedicalReport;
@@ -25,12 +26,15 @@ public class MedicalReportController {
 
     @Autowired
     private MedicalReportService medicalReportService;
+    @Autowired
+    private MedicalReportBizService medicalReportBizService;
 
     @PostMapping()
     public Boolean saveReport(@RequestBody MedicalReport medicalReport) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         medicalReport.setHospitalId(user.getOrgId());
         medicalReportService.saveReport(medicalReport, user.getOrgId(), medicalReport.getDoctorId(), medicalReport.getStudentId());
+        medicalReportBizService.updateStatConclusion(medicalReport);
         return true;
     }
 

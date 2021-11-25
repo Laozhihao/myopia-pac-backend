@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.business.core.school.management.domain.mapper.SchoolStudentMapper">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent">
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id,
+        student_id,
+        school_id,
+        school_no,
+        create_user_id,
+        sno,
+        grade_id,
+        grade_name,
+        grade_type,
+        class_id,
+        class_name,
+        name,
+        gender,
+        birthday,
+        nation,
+        id_card,
+        parent_phone,
+        mp_parent_phone,
+        province_code,
+        city_code,
+        area_code,
+        town_code,
+        address,
+        status,
+        glasses_type,
+        last_screening_time,
+        vision_label,
+        myopia_level,
+        hyperopia_level,
+        astigmatism_level,
+        create_time,
+        update_time
+    </sql>
+
+    <select id="getList"
+            resultType="com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentListResponseDTO">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school_student where status = 0
+                                and school_id = #{schoolId}
+        <if test="requestDTO.sno != null and requestDTO.sno != ''">
+            and sno like CONCAT('%', #{requestDTO.sno}, '%')
+        </if>
+        <if test="requestDTO.name != null and requestDTO.name != ''">
+            and name like CONCAT('%', #{requestDTO.name}, '%')
+        </if>
+        <if test="requestDTO.gradeId != null">
+            and grade_id = #{requestDTO.gradeId}
+        </if>
+        <if test="requestDTO.classId != null">
+            and class_id = #{requestDTO.classId}
+        </if>
+        <if test="requestDTO.visionLabel != null">
+            and vision_label = #{requestDTO.visionLabel}
+        </if>
+        order by create_time desc
+    </select>
+
+    <select id="getByIdCardAndSno" resultMap="BaseResultMap">
+        select *
+        from m_school_student where (id_card = #{idCard}
+                or sno = #{sno})
+                                and school_id = #{schoolId}
+        <if test="id != null">
+            and id != #{id}
+        </if>
+        and status = 0
+    </select>
+
+    <update id="deletedStudent">
+        update m_school_student
+        set status = 2
+        where id = #{id}
+    </update>
+
+    <select id="getByStudentIds" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school_student
+                where student_id in
+        <foreach collection="studentIds" item="studentId" index="index" open="(" close=")" separator=",">
+            #{studentId}
+        </foreach>
+    </select>
+
+    <select id="getByStudentId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school_student
+        where student_id = #{studentId}
+    </select>
+
+    <select id="getBySchoolIdAndGradeId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school_student where status = 0
+                                and school_id = #{schoolId}
+        <if test="gradeId != null">
+            and grade_id = #{gradeId}
+        </if>
+    </select>
+
+    <select id="getByIdCardOrSno" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school_student where school_id = #{schoolId}
+                                and status = 0
+                                and (id_card in
+        <foreach collection="idCards" item="idCard" index="index" open="(" close=")" separator=",">
+            #{idCard}
+        </foreach>
+        or sno in
+        <foreach collection="snos" item="sno" index="index" open="(" close=")" separator=",">
+            #{sno}
+        </foreach>
+        )
+    </select>
+
+    <select id="getByIdCards" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school_student where school_id = #{schoolId}
+                                and status = 0
+                                and id_card in
+        <foreach collection="idCards" item="idCard" index="index" open="(" close=")" separator=",">
+            #{idCard}
+        </foreach>
+    </select>
+
+    <select id="getBySchoolId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school_student
+        where school_id = #{schoolId}
+          and status = 0
+    </select>
+</mapper>

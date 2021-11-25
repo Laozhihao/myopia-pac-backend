@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.api.management.constant;
+package com.wupol.myopia.business.aggregation.student.constant;
 
 /**
  * 筛查结果常量类

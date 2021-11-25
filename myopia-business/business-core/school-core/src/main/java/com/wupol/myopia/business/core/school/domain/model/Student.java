@@ -42,12 +42,6 @@ public class Student extends AddressCode implements Serializable {
     private Integer id;
 
     /**
-     * 学校编码
-     */
-    @TableField(updateStrategy = FieldStrategy.IGNORED)
-    private String schoolNo;
-
-    /**
      * 创建人ID
      */
     private Integer createUserId;
@@ -259,8 +253,9 @@ public class Student extends AddressCode implements Serializable {
      */
     public boolean checkBirthdayExceedLimit() {
         // 1970-01-01 毫秒时间戳
-        Date checkDate = new Date(-28800000L);
-        return Objects.nonNull(birthday) && birthday.before(checkDate);
+        Date beforeDate = new Date(-28800000L);
+        Date afterDate = new Date(2145888000000L);
+        return Objects.nonNull(birthday) && (birthday.before(beforeDate) || birthday.after(afterDate));
     }
 
     /**

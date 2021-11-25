@@ -3,6 +3,7 @@ package com.wupol.myopia.business.core.screening.organization.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.framework.core.util.CollectionUtils;
+import com.wupol.framework.core.util.StringUtils;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
@@ -64,11 +65,17 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      *
      * @param org         筛查机构
      * @param accountType 账号类型 1-主账号 2-子账号
+     * @param name        账号
      * @return 账号密码
      */
-    public UsernameAndPasswordDTO generateAccountAndPassword(ScreeningOrganization org, Integer accountType) {
+    public UsernameAndPasswordDTO generateAccountAndPassword(ScreeningOrganization org, Integer accountType, String name) {
         String password = PasswordAndUsernameGenerator.getScreeningAdminPwd();
-        String username = PasswordAndUsernameGenerator.getScreeningOrgAdminUserName(screeningOrganizationAdminService.count() + 1);
+        String username;
+        if (StringUtils.isBlank(name)) {
+            username = PasswordAndUsernameGenerator.getScreeningOrgAdminUserName(screeningOrganizationAdminService.count() + 1);
+        } else {
+            username = name;
+        }
 
         UserDTO userDTO = new UserDTO();
         userDTO.setOrgId(org.getId())
@@ -298,5 +305,15 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
             accountList.add(account);
         });
         return accountList;
+    }
+
+    /**
+     * 获取筛查机构详情
+     *
+     * @param ids 筛查机构Ids
+     * @return List<ScreeningOrgResponseDTO>
+     */
+    public List<ScreeningOrgResponseDTO> getScreeningOrgDetails(List<Integer> ids) {
+        return baseMapper.getOrgByIds(ids);
     }
 }

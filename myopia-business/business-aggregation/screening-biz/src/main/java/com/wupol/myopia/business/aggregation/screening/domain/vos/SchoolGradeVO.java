@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.api.management.domain.vo;
+package com.wupol.myopia.business.aggregation.screening.domain.vos;
 
 import com.wupol.myopia.business.core.school.domain.dto.SchoolClassDTO;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;

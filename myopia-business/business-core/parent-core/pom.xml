@@ -10,6 +10,6 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>parent-core</artifactId>
-    <description>家长相关</description>
+    <description>学校端相关</description>
 
 </project>

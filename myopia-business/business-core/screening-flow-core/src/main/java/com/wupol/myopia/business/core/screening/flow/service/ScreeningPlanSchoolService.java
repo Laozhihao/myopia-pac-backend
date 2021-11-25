@@ -2,8 +2,11 @@ package com.wupol.myopia.business.core.screening.flow.service;
 
 import cn.hutool.core.lang.Assert;
 import com.alibaba.excel.util.CollectionUtils;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.utils.constant.ScreeningConstant;
+import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningListResponseDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanQueryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanSchoolDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningPlanSchoolMapper;
@@ -193,5 +196,16 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
      **/
     public Long getCurrentMaxScreeningCode() {
         return baseMapper.getCurrentMaxScreeningCode();
+    }
+
+    /**
+     * 通过学校ID获取计划
+     *
+     * @param pageRequest 分页请求
+     * @param schoolId    学校Id
+     * @return IPage<ScreeningListResponseDTO>
+     */
+    public IPage<ScreeningListResponseDTO> getResponseBySchoolId(PageRequest pageRequest, Integer schoolId) {
+        return baseMapper.getResponseBySchoolId(pageRequest.toPage(), schoolId);
     }
 }

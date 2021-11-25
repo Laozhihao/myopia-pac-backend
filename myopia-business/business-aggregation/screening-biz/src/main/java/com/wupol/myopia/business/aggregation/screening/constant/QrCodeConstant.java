@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.api.management.constant;
+package com.wupol.myopia.business.aggregation.screening.constant;
 
 import lombok.experimental.UtilityClass;
 

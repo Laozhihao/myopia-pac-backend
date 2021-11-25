@@ -20,6 +20,7 @@
         <module>parent-api</module>
         <module>screening-app-api</module>
         <module>device-api</module>
+        <module>school-management-api</module>
     </modules>
 
 </project>

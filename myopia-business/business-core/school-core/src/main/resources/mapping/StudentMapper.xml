@@ -17,7 +17,6 @@
         <where>
             <trim prefixOverrides="and">
                 <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
-                <if test="@Ognl@isNotEmpty(schoolNo)">and `school_no` = #{schoolNo}</if>
                 <if test="@Ognl@isNotEmpty(createUserId)">and `create_user_id` = #{createUserId}</if>
                 <if test="@Ognl@isNotEmpty(sno)">and `sno` = #{sno}</if>
                 <if test="@Ognl@isNotEmpty(gradeId)">and `grade_id` = #{gradeId}</if>
@@ -69,7 +68,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, school_no, create_user_id, sno, grade_id, grade_type, class_id, name, gender, birthday, nation, id_card, parent_phone, mp_parent_phone, province_code, city_code, area_code, town_code,
+        id, create_user_id, sno, grade_id, grade_type, class_id, name, gender, birthday, nation, id_card, parent_phone, mp_parent_phone, province_code, city_code, area_code, town_code,
         address, avatar_file_id, current_situation, vision_label, last_screening_time, remark, status, glasses_type,is_myopia,is_hyperopia,is_astigmatism,create_time, update_time,school_id,
         myopia_level, hyperopia_level, astigmatism_level
     </sql>
@@ -83,7 +82,7 @@
         from m_student ms
                      left join
                      m_school school
-                             on ms.school_no = school.school_no
+                             on ms.school_id = school.id
                      left join
                      m_school_grade msg
                              on ms.grade_id = msg.id
@@ -159,7 +158,7 @@
     <select id="getByOtherId" resultMap="BaseResultMapDTO">
         select student.*
         from m_student student
-                     left join m_school school on student.school_no = school.school_no
+                     left join m_school school on student.school_id = school.id
                 where student.status != 2
         <if test="schoolId != null">
             and school.id = #{schoolId}
@@ -172,10 +171,11 @@
         </if>
     </select>
 
-    <select id="countStudentBySchoolNo" resultType="com.wupol.myopia.business.core.school.domain.dto.StudentCountDTO">
-        select count(1) as count, school_no
+    <select id="countStudentBySchoolId" resultType="com.wupol.myopia.business.core.school.domain.dto.StudentCountDTO">
+        select count(1) as count, school_id
         from m_student
-        group by school_no
+        where status = 0
+        group by school_id
     </select>
 
     <select id="getByIdCard" resultMap="BaseResultMap">
@@ -245,7 +245,7 @@
     <select id="selectBySchoolDistrictIds" resultMap="StudentExtraDTOMap">
         select mst.id, mst.vision_label, msc.district_id
         from m_student mst
-        left join m_school msc on mst.school_no = msc.school_no
+        left join m_school msc on mst.school_id = msc.id
         where msc.district_id in
         <foreach collection="districtIds" item="districtId" index="index" open="(" close=")" separator=",">
           #{districtId}
@@ -267,7 +267,7 @@
         msc.name as className,
         msg.name as gradeName
         from m_student student
-        left join m_school school on student.school_no = school.school_no
+        left join m_school school on student.school_id = school.id
         left join m_school_class msc on student.class_id = msc.id
         left join m_school_grade msg on student.grade_id = msg.id
         where student.id = #{studentId}
@@ -280,7 +280,7 @@
         msc.name as className,
         msg.name as gradeName
         from m_student student
-        left join m_school school on student.school_no = school.school_no
+        left join m_school school on student.school_id = school.id
         left join m_school_class msc on student.class_id = msc.id
         left join m_school_grade msg on student.grade_id = msg.id
         where student.id in
