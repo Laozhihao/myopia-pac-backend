@@ -247,6 +247,16 @@ public class ScreeningOrganizationBizService {
         ScreeningOrgResponseDTO response = new ScreeningOrgResponseDTO();
         ScreeningOrganization checkOrg = screeningOrganizationService.getById(screeningOrganization.getId());
 
+        // 机构管理员
+        ScreeningOrganizationAdmin admin = screeningOrganizationAdminService.getByOrgId(screeningOrganization.getId());
+        // 更新OAuth账号
+        UserDTO userDTO = new UserDTO();
+        userDTO.setId(admin.getUserId())
+                .setPhone(screeningOrganization.getPhone())
+                .setRealName(screeningOrganization.getName());
+        userDTO.setOrgConfigType(screeningOrganization.getConfigType());
+        oauthServiceClient.updateUser(userDTO);
+
         // 名字更新
         if (!StringUtils.equals(checkOrg.getName(), screeningOrganization.getName())) {
             response.setUsername(screeningOrganization.getName());
