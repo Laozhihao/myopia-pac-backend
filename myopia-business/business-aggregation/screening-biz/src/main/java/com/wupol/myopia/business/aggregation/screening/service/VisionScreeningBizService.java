@@ -22,6 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
 import java.util.Date;
@@ -201,17 +202,20 @@ public class VisionScreeningBizService {
      * @param lastScreeningTime 上次筛查时间
      */
     private void updateSchoolStudent(StatConclusion statConclusion, Date lastScreeningTime) {
-        SchoolStudent schoolStudent = schoolStudentService.getByStudentId(statConclusion.getStudentId());
-        if (Objects.isNull(schoolStudent)) {
+        List<SchoolStudent> schoolStudents = schoolStudentService.getByStudentId(statConclusion.getStudentId());
+        if (CollectionUtils.isEmpty(schoolStudents)) {
             return;
         }
-        schoolStudent.setGlassesType(statConclusion.getGlassesType());
-        schoolStudent.setLastScreeningTime(lastScreeningTime);
-        schoolStudent.setVisionLabel(statConclusion.getWarningLevel());
-        schoolStudent.setMyopiaLevel(statConclusion.getMyopiaLevel());
-        schoolStudent.setHyperopiaLevel(statConclusion.getHyperopiaLevel());
-        schoolStudent.setAstigmatismLevel(statConclusion.getAstigmatismLevel());
-        schoolStudentService.updateById(schoolStudent);
+        schoolStudents.forEach(schoolStudent->{
+            schoolStudent.setGlassesType(statConclusion.getGlassesType());
+            schoolStudent.setLastScreeningTime(lastScreeningTime);
+            schoolStudent.setVisionLabel(statConclusion.getWarningLevel());
+            schoolStudent.setMyopiaLevel(statConclusion.getMyopiaLevel());
+            schoolStudent.setHyperopiaLevel(statConclusion.getHyperopiaLevel());
+            schoolStudent.setAstigmatismLevel(statConclusion.getAstigmatismLevel());
+            schoolStudent.setUpdateTime(new Date());
+        });
+        schoolStudentService.updateBatchById(schoolStudents);
     }
 
     /**
