@@ -128,11 +128,13 @@ public class SchoolStudentController {
      */
     @DeleteMapping("{id}")
     public Boolean deletedStudent(@PathVariable("id") Integer id) {
-        if (screeningPlanSchoolStudentService.checkStudentHavePlan(id)) {
+        SchoolStudent schoolStudent = schoolStudentService.getById(id);
+        Integer studentId = schoolStudent.getStudentId();
+        if (screeningPlanSchoolStudentService.checkStudentHavePlan(studentId)) {
             throw new BusinessException("该学生有对应的筛查计划，无法进行删除");
         }
         schoolStudentService.deletedStudent(id);
-        studentService.deletedStudent(schoolStudentService.getById(id).getStudentId());
+        studentService.deletedStudent(studentId);
         return Boolean.TRUE;
     }
 
