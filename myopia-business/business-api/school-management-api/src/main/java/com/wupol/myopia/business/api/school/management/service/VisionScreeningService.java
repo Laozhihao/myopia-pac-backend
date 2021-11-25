@@ -13,6 +13,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
+import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.stat.domain.model.SchoolMonitorStatistic;
@@ -82,7 +83,11 @@ public class VisionScreeningService {
 
         // 筛查机构
         List<Integer> orgIds = schoolPlanList.stream().map(ScreeningListResponseDTO::getScreeningOrgId).collect(Collectors.toList());
-        Map<Integer, NotificationConfig> notificationConfigMap = screeningOrganizationService.getScreeningOrgDetails(orgIds).stream().filter(org -> Objects.nonNull(org.getNotificationConfig()))
+        List<ScreeningOrgResponseDTO> screeningOrgDetails = screeningOrganizationService.getScreeningOrgDetails(orgIds);
+        Map<Integer, String> orgMap = screeningOrgDetails.stream().collect(Collectors
+                .toMap(ScreeningOrganization::getId, ScreeningOrganization::getName));
+        // 告知书配置
+        Map<Integer, NotificationConfig> notificationConfigMap = screeningOrgDetails.stream().filter(org -> Objects.nonNull(org.getNotificationConfig()))
                 .collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization::getNotificationConfig));
 
         schoolPlanList.forEach(schoolPlan -> {
@@ -101,10 +106,11 @@ public class VisionScreeningService {
             if (Objects.nonNull(schoolMonitorStatistic)) {
                 schoolPlan.setSchoolStatisticId(schoolMonitorStatistic.getId());
                 schoolPlan.setRealScreeningNumbers(schoolMonitorStatistic.getRealScreeningNumbers());
-                schoolPlan.setScreeningOrgName(schoolMonitorStatistic.getScreeningOrgName());
             } else {
                 schoolPlan.setRealScreeningNumbers(0);
             }
+
+            schoolPlan.setScreeningOrgName(orgMap.get(schoolPlan.getScreeningOrgId()));
 
             // 设置告知书配置
             NotificationConfig notificationConfig = notificationConfigMap.get(schoolPlan.getScreeningOrgId());
