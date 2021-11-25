@@ -101,7 +101,7 @@ public class SchoolController {
      */
     @GetMapping("{id}")
     public SchoolResponseDTO getSchoolDetail(@PathVariable("id") Integer id) {
-        return schoolFacade.getBySchoolId(id, );
+        return schoolFacade.getBySchoolId(id, false);
     }
 
     /**
