@@ -277,6 +277,7 @@ public class StudentBizService {
         } else {
             studentDTO.setNumOfVisits(0);
         }
+        studentDTO.setScreeningCodes(getScreeningCodesByPlan(screeningPlanSchoolStudentService.getByStudentId(id)));
         return studentDTO;
     }
 
