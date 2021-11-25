@@ -22,8 +22,6 @@ import com.wupol.myopia.business.api.screening.app.enums.SysEnum;
 import com.wupol.myopia.business.api.screening.app.utils.CommUtil;
 import com.wupol.myopia.business.common.utils.config.UploadConfig;
 import com.wupol.myopia.business.common.utils.constant.*;
-import com.wupol.myopia.business.common.utils.util.TwoTuple;
-import com.wupol.myopia.business.common.utils.util.UploadUtil;
 import com.wupol.myopia.business.core.common.domain.model.ResourceFile;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.common.util.S3Utils;
@@ -287,16 +285,9 @@ public class ScreeningAppService {
      * @return
      */
     public String uploadSignPic(CurrentUser currentUser, MultipartFile file) {
-        ResourceFile resourceFile;
         try {
-            String savePath = uploadConfig.getSavePath();
-            TwoTuple<String, String> uploadToServerResults = UploadUtil.upload(file, savePath);
-            String tempPath = uploadToServerResults.getSecond();
-            // 判断上传的文件是否图片或者PDF
-            String allowExtension = uploadConfig.getSuffixs();
-            UploadUtil.validateFileIsAllowed(file, allowExtension.split(","));
-            // 上传
-            resourceFile = s3Utils.uploadS3AndGetResourceFile(tempPath, UploadUtil.genNewFileName(file));
+            // 上传图片
+            ResourceFile resourceFile = resourceFileService.uploadFileAndSave(file);
             // 增加到筛查用户中
             screeningOrganizationStaffService.updateOrganizationStaffSignId(currentUser, resourceFile);
             return resourceFileService.getResourcePath(resourceFile.getId());
