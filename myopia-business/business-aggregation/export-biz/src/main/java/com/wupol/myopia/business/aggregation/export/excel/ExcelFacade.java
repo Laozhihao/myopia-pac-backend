@@ -164,7 +164,7 @@ public class ExcelFacade {
             // 民族取值：1-汉族  2-蒙古族  3-藏族  4-壮族  5-回族  6-其他
             String idCard = item.get(8 - offset);
             if (Objects.nonNull(studentMap.get(idCard))) {
-                throw new BusinessException("身份证" + idCard + "重复");
+                throw new BusinessException("身份证" + idCard + "在系统中重复");
             }
             student.setName(item.get(0))
                     .setGender(GenderEnum.getType(item.get(1)))
