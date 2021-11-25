@@ -152,7 +152,7 @@ public class ScreeningOrganizationBizService {
                 .collect(Collectors.toMap(ScreeningPlanSchoolDTO::getSchoolId, Function.identity()));
 
         // 设置筛查状态
-        planResponse.setScreeningStatus(getScreeningStatus(planResponse.getStartTime(), planResponse.getEndTime()));
+        planResponse.setScreeningStatus(screeningOrganizationService.getScreeningStatus(planResponse.getStartTime(), planResponse.getEndTime()));
 
         // 获取学校ID
         List<Integer> schoolIds = schoolVos.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toList());
@@ -201,34 +201,6 @@ public class ScreeningOrganizationBizService {
         });
         response.setDetails(details);
         planResponse.setItems(response);
-    }
-
-    /**
-     * 获取筛查状态
-     *
-     * @param startDate 开始时间
-     * @param endDate   结束时间
-     * @return 筛查状态 0-未开始 1-进行中 2-已结束
-     */
-    private Integer getScreeningStatus(Date startDate, Date endDate) {
-
-        Date nowDate = new Date();
-
-        // 结束时间加一天
-        Calendar calendar = new GregorianCalendar();
-        calendar.setTime(endDate);
-        calendar.add(Calendar.DATE, 1);
-        endDate = calendar.getTime();
-        if (nowDate.before(startDate)) {
-            return 0;
-        }
-        if (nowDate.after(startDate) && nowDate.before(endDate)) {
-            return 1;
-        }
-        if (nowDate.after(endDate)) {
-            return 2;
-        }
-        return 1;
     }
 
     /**
