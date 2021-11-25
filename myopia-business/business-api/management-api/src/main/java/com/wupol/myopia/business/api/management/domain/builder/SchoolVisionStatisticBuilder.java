@@ -32,7 +32,7 @@ public class SchoolVisionStatisticBuilder {
         Integer ametropiaNumber = (int) statConclusions.stream().filter(StatConclusion::getIsRefractiveError).count();
         Integer lowVisionNumber = (int) statConclusions.stream().filter(StatConclusion::getIsLowVision).count();
 
-        Integer bindMpNumber = (int) statConclusions.stream().filter(StatConclusion::getIsBindMp).count();
+        Integer bindMpNumber = (int) statConclusions.stream().filter(s -> Objects.nonNull(s.getIsBindMp()) && s.getIsBindMp()).count();
         Integer reviewNumber = (int) statConclusions.stream().filter(s -> Objects.nonNull(s.getReportId())).count();
         // 近视等级人数
         Map<Integer, Long> myopiaLevelMap = statConclusions.stream().filter(stat -> Objects.nonNull(stat.getMyopiaLevel())).collect(Collectors.groupingBy(StatConclusion::getMyopiaLevel, Collectors.counting()));
