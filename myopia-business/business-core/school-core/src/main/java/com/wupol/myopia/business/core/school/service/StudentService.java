@@ -267,6 +267,16 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     }
 
     /**
+     * 通过身份证获取学生
+     *
+     * @param idCards 身份证号码
+     * @return 是否重复
+     */
+    public List<Student> getByIdCardsAndStatus(List<String> idCards) {
+        return baseMapper.getByIdCardsAndStatus(idCards, CommonConst.STATUS_NOT_DELETED);
+    }
+
+    /**
      * 通过身份证查找学生
      *
      * @param idCard 身份证

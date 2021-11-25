@@ -149,6 +149,10 @@ public class ExcelFacade {
         Map<String, List<SchoolGradeExportDTO>> schoolGradeMaps = grades.stream()
                 .collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolNo));
 
+        // 通过身份证获取学生
+        Map<String, Student> studentMap = studentService.getByIdCardsAndStatus(idCards)
+                .stream().collect(Collectors.toMap(Student::getIdCard, Function.identity()));
+
         List<Student> importList = new ArrayList<>();
         for (Map<Integer, String> item : listMap) {
             Student student = new Student();
@@ -158,13 +162,17 @@ public class ExcelFacade {
             checkStudentInfo(item, offset);
             // Excel 格式： 姓名	性别	出生日期	民族   学校编号(同个学校时没有该列，后面的左移一列)   年级	班级	学号	身份证号	手机号码	省	市	县区	镇/街道	详细
             // 民族取值：1-汉族  2-蒙古族  3-藏族  4-壮族  5-回族  6-其他
+            String idCard = item.get(8 - offset);
+            if (Objects.nonNull(studentMap.get(idCard))) {
+                throw new BusinessException("身份证" + idCard + "重复");
+            }
             student.setName(item.get(0))
                     .setGender(GenderEnum.getType(item.get(1)))
                     .setBirthday(DateFormatUtil.parseDate(item.get(2), DateFormatUtil.FORMAT_ONLY_DATE2))
                     .setNation(NationEnum.getCode(item.get(3)))
                     .setGradeType(GradeCodeEnum.getByName(item.get(5 - offset)).getType())
                     .setSno((item.get(7 - offset)))
-                    .setIdCard(item.get(8 - offset))
+                    .setIdCard(idCard)
                     .setParentPhone(item.get(9 - offset))
                     .setCreateUserId(createUserId);
             student.setProvinceCode(districtService.getCodeByName(item.get(10 - offset)));
