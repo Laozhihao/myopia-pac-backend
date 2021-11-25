@@ -2,7 +2,6 @@ package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.vistel.Interface.exception.UtilException;
-import com.wupol.myopia.base.controller.BaseController;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.api.management.domain.dto.AppVersionDTO;
@@ -32,8 +31,10 @@ import javax.validation.groups.Default;
 @CrossOrigin
 @RestController
 @RequestMapping("/management/app/version")
-public class AppVersionController extends BaseController<AppVersionService, AppVersion> {
+public class AppVersionController {
 
+    @Autowired
+    private AppVersionService appVersionService;
     @Autowired
     private ResourceFileService resourceFileService;
 
@@ -46,7 +47,7 @@ public class AppVersionController extends BaseController<AppVersionService, AppV
      **/
     @GetMapping("list")
     public IPage<AppVersion> getAppVersionList(AppVersion appVersion, @Validated PageRequest pageRequest) {
-        return baseService.findByPage(appVersion, pageRequest.getCurrent(), pageRequest.getSize());
+        return appVersionService.findByPage(appVersion, pageRequest.getCurrent(), pageRequest.getSize());
     }
 
     /**
@@ -68,7 +69,7 @@ public class AppVersionController extends BaseController<AppVersionService, AppV
                 .setApkFileName(apkFile.getOriginalFilename())
                 .setApkFileSize(apkFile.getSize())
                 .setCreateUserId(CurrentUserUtil.getCurrentUser().getId());
-        baseService.save(appVersion);
+        appVersionService.save(appVersion);
     }
 
     /**
@@ -81,7 +82,7 @@ public class AppVersionController extends BaseController<AppVersionService, AppV
     public void updateAppVersion(@RequestBody @Validated(value = UpdateValidatorGroup.class) AppVersionDTO appVersionDTO) {
         AppVersion appVersion = new AppVersion();
         BeanUtils.copyProperties(appVersionDTO, appVersion);
-        baseService.updateById(appVersion);
+        appVersionService.updateById(appVersion);
     }
 
     /**
@@ -92,6 +93,6 @@ public class AppVersionController extends BaseController<AppVersionService, AppV
      **/
     @PutMapping("/status")
     public void updateAppVersionStatus(@RequestBody @Validated(value = {UpdateStatusValidatorGroup.class, Default.class}) AppVersionDTO appVersionDTO) {
-        baseService.updateById(new AppVersion().setId(appVersionDTO.getId()).setStatus(appVersionDTO.getStatus()));
+        appVersionService.updateById(new AppVersion().setId(appVersionDTO.getId()).setStatus(appVersionDTO.getStatus()));
     }
 }
