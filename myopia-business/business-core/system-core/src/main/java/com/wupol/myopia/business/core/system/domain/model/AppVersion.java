@@ -78,7 +78,7 @@ public class AppVersion implements Serializable {
     private String apkFileName;
 
     /**
-     * apk大小，单位：b
+     * apk大小，单位：B
      */
     private Long apkFileSize;
 
