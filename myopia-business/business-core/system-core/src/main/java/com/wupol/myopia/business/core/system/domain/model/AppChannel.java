@@ -42,7 +42,7 @@ public class AppChannel implements Serializable {
     /**
      * 状态，0-启用（默认）、1-停用、2-删除
      */
-    private Boolean status;
+    private Integer status;
 
 
 }
