@@ -93,7 +93,7 @@ public class ResourceFileService extends BaseService<ResourceFileMapper, Resourc
     public String checkFileAndSaveToLocal(MultipartFile file) {
         // 判断上传的文件是否图片或者PDF
         String allowExtension = uploadConfig.getSuffixs();
-        return checkFileAndSaveToLocal(file, allowExtension);
+        return checkFileAndSaveToLocal(file, allowExtension.split(","));
     }
 
     /**
