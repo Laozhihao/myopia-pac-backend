@@ -73,7 +73,7 @@ public class AppVersionController {
         try {
             return appVersionService.save(appVersion);
         } catch (DuplicateKeyException e) {
-            throw new BusinessException("已存在该版本，请填写新版本", e);
+            throw new BusinessException("已存在该版本，请填写新版本号", e);
         }
     }
 
@@ -90,7 +90,7 @@ public class AppVersionController {
         try {
             return appVersionService.updateById(appVersion);
         } catch (DuplicateKeyException e) {
-            throw new BusinessException("已存在该版本，请填写新版本", e);
+            throw new BusinessException("已存在该版本，请填写新版本号", e);
         }
     }
 
