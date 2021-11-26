@@ -17,7 +17,7 @@ CREATE TABLE `m_app_version` (
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `package_name_channel_version_unique_index` (`package_name`,`channel`,`version`) USING BTREE COMMENT '包名、渠道和版本号作为唯一索引'
+  UNIQUE KEY `package_name_channel_build_code_unique_index` (`package_name`,`channel`,`build_code`) USING BTREE COMMENT '包名、渠道和版本号作为唯一索引'
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='APP的apk版本管理表';
 
 -- APP渠道表

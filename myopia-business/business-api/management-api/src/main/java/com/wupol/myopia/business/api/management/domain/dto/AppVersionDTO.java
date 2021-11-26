@@ -51,14 +51,14 @@ public class AppVersionDTO implements Serializable {
     /**
      * APP版本，例如：v1.2
      */
-    @NotNull(message = "version不能为空", groups = {AddValidatorGroup.class, UpdateValidatorGroup.class})
+    @NotBlank(message = "version不能为空", groups = {AddValidatorGroup.class, UpdateValidatorGroup.class})
     @Length(max = 30, message = "APP版本号超长")
     private String version;
 
     /**
      * 版本号，例如：10
      */
-    @NotBlank(message = "buildCode不能为空", groups = {AddValidatorGroup.class, UpdateValidatorGroup.class})
+    @NotNull(message = "buildCode不能为空", groups = {AddValidatorGroup.class, UpdateValidatorGroup.class})
     @Max(value = 9999, message = "buildCode超过取值范围")
     private Integer buildCode;
 
