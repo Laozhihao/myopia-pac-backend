@@ -19,3 +19,13 @@ CREATE TABLE `m_app_version` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `package_name_channel_version_unique_index` (`package_name`,`channel`,`version`) USING BTREE COMMENT '包名、渠道和版本号作为唯一索引'
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='APP的apk版本管理表';
+
+-- APP渠道表
+CREATE TABLE `m_app_channel` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `cn_name` varchar(50) NOT NULL COMMENT '中文名称',
+  `en_name` varchar(50) NOT NULL COMMENT '英文名称',
+  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，0-启用（默认）、1-停用、2-删除',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `m_app_channel_en_name_unique_index` (`en_name`) USING BTREE COMMENT '英文名做唯一索引'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='APP渠道表';
