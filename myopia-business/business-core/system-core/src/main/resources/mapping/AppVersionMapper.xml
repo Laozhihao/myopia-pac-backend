@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.business.core.system.domain.mapper.AppVersionMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.system.domain.model.AppVersion">
+    </resultMap>
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(packageName)">and `package_name` = #{packageName}</if>
+                <if test="@Ognl@isNotEmpty(channel)">and `channel` = #{channel}</if>
+                <if test="@Ognl@isNotEmpty(version)">and `version` = #{version}</if>
+                <if test="@Ognl@isNotEmpty(buildCode)">and `build_code` = #{buildCode}</if>
+                <if test="@Ognl@isNotEmpty(isForceUpdate)">and `is_force_update` = #{isForceUpdate}</if>
+                <if test="@Ognl@isNotEmpty(isAutoUpdate)">and `is_auto_update` = #{isAutoUpdate}</if>
+                <if test="@Ognl@isNotEmpty(apkFileResourceId)">and `apk_file_resource_id` = #{apkFileResourceId}</if>
+                <if test="@Ognl@isNotEmpty(apkFileResourceId)">and `thirdparty_qr_code_file_id` = #{thirdpartyQrCodeFileId}</if>
+                <if test="@Ognl@isNotEmpty(apkFileName)">and `apk_file_name` = #{apkFileName}</if>
+                <if test="@Ognl@isNotEmpty(apkFileSize)">and `apk_file_size` = #{apkFileSize}</if>
+                <if test="@Ognl@isNotEmpty(status)">and `status` = #{status}</if>
+                <if test="@Ognl@isNotEmpty(remark)">and `remark` = #{remark}</if>
+                <if test="@Ognl@isNotEmpty(createUserId)">and `create_user_id` = #{createUserId}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+                <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
+            </trim>
+        </where>
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, package_name, channel, version, build_code, is_force_update, is_auto_update, apk_file_resource_id, apk_file_name, apk_file_size, status, remark, create_user_id, create_time, update_time, thirdparty_qr_code_file_id
+    </sql>
+
+    <select id="selectLatestVersionByPackageNameAndChannel" resultMap="BaseResultMap">
+        SELECT
+                *
+        FROM
+             m_app_version
+        WHERE
+                package_name = #{packageName}
+          AND channel = #{channel}
+        ORDER BY
+                 id DESC
+        LIMIT 1
+    </select>
+
+</mapper>

@@ -7,6 +7,7 @@ import com.wupol.myopia.base.service.BaseService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -25,15 +26,15 @@ public abstract class BaseController<M extends BaseService, T> {
 	 * 分页查询
 	 *
 	 * @param entity 查询参数
-	 * @param pageNum 页码
-	 * @param pageSize 条数
+	 * @param current 页码
+	 * @param size 条数
 	 * @return Object
 	 */
 	@GetMapping("page")
     public IPage queryInfo(T entity,
-                           @RequestParam(defaultValue = "1") Integer pageNum,
-                           @RequestParam(defaultValue = "10") Integer pageSize) {
-		return baseService.findByPage(entity, pageNum, pageSize);
+                           @RequestParam(defaultValue = "1") Integer current,
+                           @RequestParam(defaultValue = "10") Integer size) {
+		return baseService.findByPage(entity, current, size);
     }
 
 	/**
@@ -77,9 +78,13 @@ public abstract class BaseController<M extends BaseService, T> {
 	 */
 	@PostMapping()
 	public void createInfo(@RequestBody T entity) {
-		if (!baseService.save(entity)) {
-            throw new BusinessException("创建失败");
-        }
+		try {
+			if (!baseService.save(entity)) {
+				throw new BusinessException("创建失败");
+			}
+		} catch (DuplicateKeyException e) {
+			throw new BusinessException("唯一主键冲突，请检查唯一约束条件数据是否重复", e);
+		}
 	}
 	
 	/**
@@ -89,8 +94,12 @@ public abstract class BaseController<M extends BaseService, T> {
 	 */
 	@PutMapping()
 	public void updateInfo(@RequestBody T entity) {
-		if (!baseService.updateById(entity)) {
-            throw new BusinessException("修改失败");
+	    try {
+            if (!baseService.updateById(entity)) {
+                throw new BusinessException("修改失败");
+            }
+        } catch (DuplicateKeyException e) {
+            throw new BusinessException("唯一主键冲突，请检查唯一约束条件数据是否重复", e);
         }
 	}
 	

@@ -194,7 +194,6 @@ public class ScreeningVisionMsgService {
         //获取电话号码
         List<String> phoneNumbers = warningMsg.getPhoneNumbers();
         if (CollectionUtils.isEmpty(phoneNumbers)) {
-            log.warn("发送视力预警短信的时候没有找到该学生的电话号码,studentId = {}", warningMsg.getStudentId());
             warningMsg.setSendStatus(WarningMsg.STATUS_SEND_CANCEL);
             return;
         }

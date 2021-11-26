@@ -89,9 +89,9 @@ spring:
       file: classpath:redisson.yaml
   servlet:
     multipart:
-      # 上传限制：10M
-      max-file-size: 10485760
-      max-request-size: 10485760
+      # 上传限制：100MB
+      max-file-size: 100MB
+      max-request-size: 100MB
 
 ### 远程调用oauth服务的负载均衡策略
 myopia-oauth:
