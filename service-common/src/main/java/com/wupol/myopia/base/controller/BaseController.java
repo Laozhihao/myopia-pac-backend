@@ -26,15 +26,15 @@ public abstract class BaseController<M extends BaseService, T> {
 	 * 分页查询
 	 *
 	 * @param entity 查询参数
-	 * @param pageNum 页码
-	 * @param pageSize 条数
+	 * @param current 页码
+	 * @param size 条数
 	 * @return Object
 	 */
 	@GetMapping("page")
     public IPage queryInfo(T entity,
-                           @RequestParam(defaultValue = "1") Integer pageNum,
-                           @RequestParam(defaultValue = "10") Integer pageSize) {
-		return baseService.findByPage(entity, pageNum, pageSize);
+                           @RequestParam(defaultValue = "1") Integer current,
+                           @RequestParam(defaultValue = "10") Integer size) {
+		return baseService.findByPage(entity, current, size);
     }
 
 	/**
