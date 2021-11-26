@@ -60,7 +60,7 @@ public class AppVersionController {
      **/
     @PostMapping
     public Boolean addAppVersion(@NotNull(message = "apkFile不能为空") MultipartFile apkFile,
-                                 @Validated(value = AddValidatorGroup.class) AppVersionDTO appVersionDTO) throws UtilException {
+                                 @Validated(value = {AddValidatorGroup.class, Default.class}) AppVersionDTO appVersionDTO) throws UtilException {
         // 上传
         ResourceFile resourceFile = resourceFileService.uploadFileAndSave(apkFile, "apk");
         // 保存
@@ -84,7 +84,7 @@ public class AppVersionController {
      * @return void
      **/
     @PutMapping
-    public Boolean updateAppVersion(@RequestBody @Validated(value = UpdateValidatorGroup.class) AppVersionDTO appVersionDTO) {
+    public Boolean updateAppVersion(@RequestBody @Validated(value = {UpdateValidatorGroup.class, Default.class}) AppVersionDTO appVersionDTO) {
         AppVersion appVersion = new AppVersion();
         BeanUtils.copyProperties(appVersionDTO, appVersion);
         try {

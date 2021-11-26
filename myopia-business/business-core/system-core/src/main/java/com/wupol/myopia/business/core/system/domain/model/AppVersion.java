@@ -43,14 +43,14 @@ public class AppVersion implements Serializable {
     private String channel;
 
     /**
-     * apk版本，例如：v1.2
+     * APP版本，例如：v1.2
      */
     private String version;
 
     /**
      * 版本号，例如：10
      */
-    private String buildCode;
+    private Integer buildCode;
 
     /**
      * 是否强制更新
