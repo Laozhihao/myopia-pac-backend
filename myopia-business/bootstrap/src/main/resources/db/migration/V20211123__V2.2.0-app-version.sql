@@ -4,7 +4,7 @@ CREATE TABLE `m_app_version` (
   `package_name` varchar(100) NOT NULL COMMENT '包名，例如：com.xbt.eyeproject',
   `channel` varchar(50) NOT NULL COMMENT '渠道，例如：Official-官方、HaiKou-海口、KunMing-昆明、JinCheng-晋城、YunCheng-运城',
   `version` varchar(30) NOT NULL COMMENT 'APP版本，例如：v1.2',
-  `build_code` varchar(20) NOT NULL COMMENT '版本号，例如：10',
+  `build_code` int(5) NOT NULL COMMENT '版本号，例如：10',
   `is_force_update` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否强制更新，0-否（默认）、1-是',
   `is_auto_update` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否自动下载，0-否（默认）、1-是',
   `apk_file_resource_id` int(11) NOT NULL COMMENT 'apk资源文件ID',

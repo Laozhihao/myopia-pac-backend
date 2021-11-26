@@ -50,7 +50,7 @@ public class AppVersion implements Serializable {
     /**
      * 版本号，例如：10
      */
-    private String buildCode;
+    private Integer buildCode;
 
     /**
      * 是否强制更新
