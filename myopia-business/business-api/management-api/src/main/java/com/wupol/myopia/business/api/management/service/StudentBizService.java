@@ -44,7 +44,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
@@ -156,20 +155,17 @@ public class StudentBizService {
         if (CollectionUtils.isEmpty(statConclusionList)) {
             return new ArrayList<>();
         }
-        List<MedicalReport> medicalReportList = medicalReportService.findByList(new MedicalReport().setStudentId(studentId));
         List<StudentWarningArchiveVO> studentWarningArchiveVOList = new LinkedList<>();
-        int size = statConclusionList.size();
-        for (int i = 0; i < size; i++) {
+        for (StatConclusion conclusion : statConclusionList) {
             StudentWarningArchiveVO studentWarningArchiveVO = new StudentWarningArchiveVO();
-            StatConclusion statConclusion = statConclusionList.get(i);
-            BeanUtils.copyProperties(statConclusion, studentWarningArchiveVO);
-            studentWarningArchiveVO.setVisionLabel(statConclusion.getWarningLevel());
+            BeanUtils.copyProperties(conclusion, studentWarningArchiveVO);
+            studentWarningArchiveVO.setVisionLabel(conclusion.getWarningLevel());
             // 筛查信息
-            studentWarningArchiveVO.setScreeningDate(statConclusion.getUpdateTime());
-            ScreeningPlan screeningPlan = screeningPlanService.getById(statConclusion.getPlanId());
+            studentWarningArchiveVO.setScreeningDate(conclusion.getUpdateTime());
+            ScreeningPlan screeningPlan = screeningPlanService.getById(conclusion.getPlanId());
             studentWarningArchiveVO.setScreeningTitle(screeningPlan.getTitle());
             // 就诊情况
-            setVisitInfo(studentWarningArchiveVO, statConclusion.getCreateTime(), (i + 1) < size ? statConclusionList.get(i + 1).getCreateTime() : null, medicalReportList);
+            setVisitInfo(studentWarningArchiveVO, conclusion);
             // 课桌椅信息
             setDeskAndChairInfo(studentWarningArchiveVO);
             studentWarningArchiveVOList.add(studentWarningArchiveVO);
@@ -182,26 +178,23 @@ public class StudentBizService {
      * 设置就诊信息
      *
      * @param studentWarningArchiveVO 预警跟踪档案
-     * @param startScreeningDate      开始筛查日期
-     * @param endScreeningDate        结束筛查日期
-     * @param medicalReportList       就诊报告列表
-     * @return void
-     **/
-    private void setVisitInfo(StudentWarningArchiveVO studentWarningArchiveVO, Date startScreeningDate, Date endScreeningDate, List<MedicalReport> medicalReportList) {
-        Assert.notNull(startScreeningDate, "开始筛查日期不能为空");
-        studentWarningArchiveVO.setIsVisited(false);
-        if (CollectionUtils.isEmpty(medicalReportList)) {
+     * @param statConclusion          统计结果
+     */
+    private void setVisitInfo(StudentWarningArchiveVO studentWarningArchiveVO, StatConclusion statConclusion) {
+
+        Integer reportId = statConclusion.getReportId();
+        if (Objects.isNull(reportId)) {
+            studentWarningArchiveVO.setIsVisited(false);
             return;
         }
-        MedicalReport medicalReport = medicalReportList.stream().filter(x -> Objects.isNull(endScreeningDate) ?
-                        x.getCreateTime().after(startScreeningDate) :
-                        x.getCreateTime().after(startScreeningDate) && x.getCreateTime().before(endScreeningDate))
-                .findFirst().orElse(null);
-        if (Objects.nonNull(medicalReport)) {
-            studentWarningArchiveVO.setIsVisited(true);
-            studentWarningArchiveVO.setVisitResult(medicalReport.getMedicalContent());
-            studentWarningArchiveVO.setGlassesSuggest(medicalReport.getGlassesSituation());
+        MedicalReport report = medicalReportService.getById(reportId);
+        if (Objects.isNull(report)) {
+            studentWarningArchiveVO.setIsVisited(false);
+            return;
         }
+        studentWarningArchiveVO.setIsVisited(true);
+        studentWarningArchiveVO.setVisitResult(report.getMedicalContent());
+        studentWarningArchiveVO.setGlassesSuggest(report.getGlassesSituation());
     }
 
     /**
