@@ -661,7 +661,14 @@ public class ExcelFacade {
      */
     private String singleEyeDateFormat(BigDecimal date) {
         DecimalFormat decimalFormat = new DecimalFormat("0.0");
-        return Objects.isNull(date) ? "--" : decimalFormat.format(date);
+        if (Objects.isNull(date)) {
+            return "--";
+        }
+        String formatVal = decimalFormat.format(date);
+        if (StringUtils.isNotBlank(formatVal) && BigDecimalUtil.moreThanAndEqual(formatVal, "0")) {
+            return "+" + formatVal;
+        }
+        return formatVal;
     }
 
     /**
@@ -756,7 +763,14 @@ public class ExcelFacade {
      */
     private String generateSingleSuffixDStr(Object val) {
         DecimalFormat decimalFormat = new DecimalFormat("0.00");
-        return (Objects.nonNull(val) ? decimalFormat.format(val) + "D" : "--");
+        if (Objects.nonNull(val)) {
+            String formatVal = decimalFormat.format(val);
+            if (StringUtils.isNotBlank(formatVal) && BigDecimalUtil.moreThanAndEqual(formatVal, "0")) {
+                return "+" + formatVal + "D";
+            }
+            return formatVal + "D";
+        }
+        return "--";
     }
 
     /**
@@ -820,7 +834,7 @@ public class ExcelFacade {
             if (StringUtils.isBlank(item.get(0))) {
                 break;
             }
-            checkIsExist(snoMap, idCardMap, item.get(6), item.get(7), item.get(1), item.get(2),item.get(4));
+            checkIsExist(snoMap, idCardMap, item.get(6), item.get(7), item.get(1), item.get(2), item.get(4));
             schoolStudent.setName(item.get(0))
                     .setGender(GenderEnum.getType(item.get(1)))
                     .setBirthday(DateFormatUtil.parseDate(item.get(2), DateFormatUtil.FORMAT_ONLY_DATE2))
