@@ -33,7 +33,7 @@ public class StudentTrackWarningRequestDTO {
     /**
      * 是否绑定公众号
      */
-    private Boolean isBindMq;
+    private Boolean isBindMp;
 
     /**
      * 预警级别

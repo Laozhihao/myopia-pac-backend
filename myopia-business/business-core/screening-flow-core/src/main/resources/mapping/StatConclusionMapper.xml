@@ -276,8 +276,8 @@
         <if test="requestDTO.gradeId != null">
             and mspss.grade_id = #{requestDTO.gradeId}
         </if>
-        <if test="requestDTO.isBindMq != null">
-            and msc.is_bind_mp = #{requestDTO.isBindMq}
+        <if test="requestDTO.isBindMp != null">
+            and msc.is_bind_mp = #{requestDTO.isBindMp}
         </if>
         <if test="requestDTO.visionLabel != null">
             and msc.warning_level = #{requestDTO.visionLabel}
