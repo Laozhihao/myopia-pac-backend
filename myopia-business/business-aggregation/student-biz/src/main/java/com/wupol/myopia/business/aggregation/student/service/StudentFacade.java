@@ -963,5 +963,6 @@ public class StudentFacade {
         }
         // 判断是否家长手机号码是否为空
         statConclusion.setIsBindMp(StringUtils.isNotBlank(student.getMpParentPhone()));
+        statConclusionService.updateById(statConclusion);
     }
 }
