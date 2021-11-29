@@ -661,14 +661,7 @@ public class ExcelFacade {
      */
     private String singleEyeDateFormat(BigDecimal date) {
         DecimalFormat decimalFormat = new DecimalFormat("0.0");
-        if (Objects.isNull(date)) {
-            return "--";
-        }
-        String formatVal = decimalFormat.format(date);
-        if (StringUtils.isNotBlank(formatVal) && BigDecimalUtil.moreThanAndEqual(formatVal, "0")) {
-            return "+" + formatVal;
-        }
-        return formatVal;
+        return Objects.isNull(date) ? "--" : decimalFormat.format(date);
     }
 
     /**
