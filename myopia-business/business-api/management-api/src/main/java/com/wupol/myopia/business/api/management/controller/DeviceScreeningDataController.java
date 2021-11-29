@@ -6,10 +6,10 @@ import com.wupol.myopia.base.domain.ResultCode;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
-import com.wupol.myopia.business.api.management.service.DeviceBizService;
 import com.wupol.myopia.business.api.management.service.DeviceScreeningDataBizService;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.ObjectUtil;
+import com.wupol.myopia.business.common.utils.util.VS666Util;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceScreeningDataAndOrgDTO;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceScreeningDataQueryDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,9 +37,6 @@ public class DeviceScreeningDataController {
     @Autowired
     private DeviceScreeningDataBizService deviceScreeningDataBizService;
 
-    @Autowired
-    private DeviceBizService deviceBizService;
-
     @GetMapping("/list")
     public IPage<DeviceScreeningDataAndOrgDTO> queryDeptPage(DeviceScreeningDataQueryDTO query, @Validated PageRequest pageRequest) {
         checkAndHandleParam(query);
@@ -53,10 +50,10 @@ public class DeviceScreeningDataController {
         if (Objects.nonNull(page) && !CollectionUtils.isEmpty(page.getRecords())) {
             List<DeviceScreeningDataAndOrgDTO> records = page.getRecords();
             records.forEach(r -> {
-                r.setLeftCylDisplay(deviceBizService.getDisplayValue(r.getLeftCyl()));
-                r.setRightCylDisplay(deviceBizService.getDisplayValue(r.getRightCyl()));
-                r.setLeftSphDisplay(deviceBizService.getDisplayValue(r.getLeftSph()));
-                r.setRightSphDisplay(deviceBizService.getDisplayValue(r.getRightSph()));
+                r.setLeftCylDisplay(VS666Util.getDisplayValue(r.getLeftCyl()));
+                r.setRightCylDisplay(VS666Util.getDisplayValue(r.getRightCyl()));
+                r.setLeftSphDisplay(VS666Util.getDisplayValue(r.getLeftSph()));
+                r.setRightSphDisplay(VS666Util.getDisplayValue(r.getRightSph()));
             });
         }
         return page;
