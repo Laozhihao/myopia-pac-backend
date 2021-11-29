@@ -98,14 +98,14 @@ public class VisionScreeningResultExportDTO implements Serializable {
 
     @ExcelProperty({TOP_HEADER, "电脑验光", "球镜（右）"})
     private String rightSphs;
-    @ExcelProperty({TOP_HEADER, "电脑验光", "球镜（左）"})
-    private String leftSphs;
     @ExcelProperty({TOP_HEADER, "电脑验光", "柱镜（右）"})
     private String rightCyls;
-    @ExcelProperty({TOP_HEADER, "电脑验光", "柱镜（左）"})
-    private String leftCyls;
     @ExcelProperty({TOP_HEADER, "电脑验光", "轴位（右）"})
     private String rightAxials;
+    @ExcelProperty({TOP_HEADER, "电脑验光", "球镜（左）"})
+    private String leftSphs;
+    @ExcelProperty({TOP_HEADER, "电脑验光", "柱镜（左）"})
+    private String leftCyls;
     @ExcelProperty({TOP_HEADER, "电脑验光", "轴位（左）"})
     private String leftAxials;
     @ExcelProperty({TOP_HEADER, "电脑验光", "初步结果"})
