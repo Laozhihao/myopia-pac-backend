@@ -7,11 +7,11 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.hospital.domain.dto.StudentVisitReportResponseDTO;
 import com.wupol.myopia.business.api.parent.domain.dos.CountReportItemsDO;
 import com.wupol.myopia.business.api.parent.domain.dos.ReportCountResponseDO;
-import com.wupol.myopia.business.core.common.domain.dto.SuggestHospitalDTO;
 import com.wupol.myopia.business.api.parent.domain.dto.ScreeningReportResponseDTO;
 import com.wupol.myopia.business.api.parent.domain.dto.ScreeningVisionTrendsResponseDTO;
 import com.wupol.myopia.business.api.parent.domain.dto.VisitsReportDetailRequest;
 import com.wupol.myopia.business.api.parent.service.ParentStudentBizService;
+import com.wupol.myopia.business.core.common.domain.dto.SuggestHospitalDTO;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.parent.domain.dto.CheckIdCardRequestDTO;
@@ -25,7 +25,6 @@ import com.wupol.myopia.business.core.school.service.SchoolService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -54,7 +53,7 @@ public class ParentStudentController {
      * @return 孩子统计、孩子列表
      */
     @GetMapping("count")
-    public CountParentStudentResponseDTO countParentStudent() throws IOException {
+    public CountParentStudentResponseDTO countParentStudent() {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         return parentStudentBizService.countParentStudent(currentUser);
     }
@@ -97,10 +96,9 @@ public class ParentStudentController {
      *
      * @param student 学生实体
      * @return 学生信息
-     * @throws IOException IO异常
      */
     @PutMapping("")
-    public StudentDTO updateParentStudent(@RequestBody Student student) throws IOException {
+    public StudentDTO updateParentStudent(@RequestBody Student student) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         return parentStudentBizService.updateStudent(currentUser, student);
     }
@@ -110,10 +108,9 @@ public class ParentStudentController {
      *
      * @param student 学生信息
      * @return 更新个数
-     * @throws IOException IO异常
      */
     @PostMapping
-    public Integer saveParentStudent(@RequestBody Student student) throws IOException {
+    public Integer saveParentStudent(@RequestBody Student student) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         return parentStudentBizService.saveStudent(student, currentUser);
     }
