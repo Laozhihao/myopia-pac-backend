@@ -186,6 +186,8 @@ public class ParentStudentBizService {
         StudentDTO studentDTO = studentService.updateStudent(student);
         // 绑定孩子
         bindStudent(parent, student.getId());
+        // 更新筛查统计信息
+        studentFacade.updateStatConclusion(student.getId());
         return studentDTO;
     }
 
