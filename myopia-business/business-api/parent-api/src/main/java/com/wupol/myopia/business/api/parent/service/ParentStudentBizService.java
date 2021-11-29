@@ -1,10 +1,7 @@
 package com.wupol.myopia.business.api.parent.service;
 
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.util.IdUtil;
-import cn.hutool.crypto.SecureUtil;
 import com.google.common.collect.Lists;
-import com.wupol.framework.domain.ThreeTuple;
 import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
@@ -13,6 +10,7 @@ import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.aggregation.hospital.domain.dto.StudentVisitReportResponseDTO;
 import com.wupol.myopia.business.aggregation.hospital.service.MedicalReportBizService;
 import com.wupol.myopia.business.aggregation.hospital.service.OrgCooperationHospitalBizService;
+import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
 import com.wupol.myopia.business.api.parent.domain.dos.*;
 import com.wupol.myopia.business.api.parent.domain.dto.ScreeningReportResponseDTO;
 import com.wupol.myopia.business.api.parent.domain.dto.ScreeningVisionTrendsResponseDTO;
@@ -52,7 +50,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -91,6 +88,8 @@ public class ParentStudentBizService {
     private MedicalReportBizService medicalReportBizService;
     @Resource
     private OrgCooperationHospitalBizService orgCooperationHospitalBizService;
+    @Resource
+    private StudentFacade studentFacade;
 
     /**
      * 孩子统计、孩子列表
@@ -208,6 +207,8 @@ public class ParentStudentBizService {
         Integer studentId = studentService.saveStudent(student);
         // 绑定孩子
         bindStudent(parent, studentId);
+        // 更新筛查统计信息
+        studentFacade.updateStatConclusion(studentId);
         return studentId;
     }
 
@@ -304,9 +305,10 @@ public class ParentStudentBizService {
             detail.setVisionResultItems(Lists.newArrayList(new VisionItems("矫正视力"),
                     new VisionItems("裸眼视力")));
             // 验光仪检查结果
-            detail.setRefractoryResultItems(Lists.newArrayList(new RefractoryResultItems("等效球镜SE"),
+            detail.setRefractoryResultItems(Lists.newArrayList(new RefractoryResultItems("球镜SC"),
                     new RefractoryResultItems("柱镜DC"),
-                    new RefractoryResultItems("轴位A")));
+                    new RefractoryResultItems("轴位A"),
+                    new RefractoryResultItems("等效球镜SE")));
             responseDTO.setDetail(detail);
             return responseDTO;
         }
