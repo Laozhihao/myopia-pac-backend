@@ -60,7 +60,7 @@ public class StudentTrackWarningResponseDTO {
     /**
      * 是否绑定公众号
      */
-    private Boolean isBindMq;
+    private Boolean isBindMp;
 
     /**
      * 是否复查

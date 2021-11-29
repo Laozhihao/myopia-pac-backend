@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.api.school.management.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.wupol.myopia.business.common.utils.constant.WearingGlassesSuggestEnum;
 import com.wupol.myopia.business.common.utils.domain.model.NotificationConfig;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
@@ -158,7 +157,7 @@ public class VisionScreeningService {
 
         trackList.forEach(track -> {
             track.setSchoolStudentId(schoolStudentMap.get(track.getStudentId()));
-            track.setIsBindMq(track.getIsBindMq());
+            track.setIsBindMp(track.getIsBindMp());
             if (Objects.nonNull(track.getReportId())) {
                 MedicalReport report = reportMap.get(track.getReportId());
                 track.setIsReview(true);
