@@ -21,6 +21,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentResultDet
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningResultItemsDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningResultResponseDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.*;
@@ -39,6 +40,7 @@ import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
@@ -936,5 +938,30 @@ public class StudentFacade {
         // 散光
         visionInfoVO.setAstigmatism(Objects.nonNull(cyl) && cyl.abs().compareTo(new BigDecimal("0.5")) >= 0);
         return visionInfoVO;
+    }
+
+
+    /**
+     * 更新学生统计就诊信息
+     *
+     * @param studentId 学生Id
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void updateStatConclusion(Integer studentId) {
+        // 先查出最新的一条筛查学生
+        ScreeningPlanSchoolStudent planSchoolStudent = screeningPlanSchoolStudentService.getLastByStudentId(studentId);
+        if (Objects.isNull(planSchoolStudent)) {
+            return;
+        }
+        Student student = studentService.getById(studentId);
+        if (Objects.isNull(student)) {
+            return;
+        }
+        StatConclusion statConclusion = statConclusionService.getByPlanStudentId(planSchoolStudent.getId());
+        if (Objects.isNull(statConclusion)) {
+            return;
+        }
+        // 判断是否家长手机号码是否为空
+        statConclusion.setIsBindMp(StringUtils.isNotBlank(student.getMpParentPhone()));
     }
 }

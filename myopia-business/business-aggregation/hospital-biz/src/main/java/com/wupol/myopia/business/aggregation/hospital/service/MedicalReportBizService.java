@@ -25,6 +25,7 @@ import java.util.Objects;
 
 /**
  * 医院-报告数据的业务模块
+ *
  * @Author Chikong
  * @Date 2020/12/22
  **/
@@ -64,7 +65,7 @@ public class MedicalReportBizService {
                 MedicalRecordQuery query = new MedicalRecordQuery();
                 query.setId(report.getMedicalRecordId());
                 updateReportConclusion(report); // 更新报告的固化数据
-                successCount ++;
+                successCount++;
             } catch (BusinessException e) {
                 log.error("生成报告的固化结论失败。report id = ." + report.getId(), e);
             }
@@ -73,13 +74,17 @@ public class MedicalReportBizService {
     }
 
 
-    /** 更新报告的固化数据 */
+    /**
+     * 更新报告的固化数据
+     */
     private void updateReportConclusion(MedicalReport report) {
         report.setReportConclusionData(generateReportConclusion(report));
         medicalReportService.saveOrUpdate(report);
     }
 
-    /** 获取报告的固化数据 */
+    /**
+     * 获取报告的固化数据
+     */
     private ReportConclusion generateReportConclusion(MedicalReport report) {
         ReportConclusion.ReportInfo reportInfo = new ReportConclusion.ReportInfo();
         BeanUtils.copyProperties(report, reportInfo);
@@ -87,8 +92,8 @@ public class MedicalReportBizService {
         HospitalStudentQuery query = new HospitalStudentQuery();
         query.setStudentId(report.getStudentId()).setHospitalId(report.getHospitalId());
         HospitalStudent hospitalStudent = hospitalStudentService.getBy(query).stream().findFirst()
-                .orElseThrow(()-> {
-                    log.error("生成固化结论时，未找到对应学生. studentId="+report.getStudentId() + ", hospitalId="+report.getHospitalId());
+                .orElseThrow(() -> {
+                    log.error("生成固化结论时，未找到对应学生. studentId=" + report.getStudentId() + ", hospitalId=" + report.getHospitalId());
                     return new BusinessException("未找到该学生");
                 });
         ReportConclusion conclusion = new ReportConclusion()
@@ -110,6 +115,7 @@ public class MedicalReportBizService {
 
     /**
      * 获取报告结论，如果有固化的则直接使用，如果没有则组装
+     *
      * @param reportId 报告id
      */
     public ReportConclusion getReportConclusion(Integer reportId) {
@@ -118,6 +124,7 @@ public class MedicalReportBizService {
 
     /**
      * 获取报告结论，如果有固化的则直接使用，如果没有则组装
+     *
      * @param report 报告
      */
     public ReportConclusion getReportConclusion(MedicalReport report) {
@@ -238,6 +245,4 @@ public class MedicalReportBizService {
             }
         }
     }
-
-
 }
