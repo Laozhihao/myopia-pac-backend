@@ -397,21 +397,21 @@ public class ExcelStudentService {
         // excel格式：姓名、性别、出生日期、民族(1：汉族  2：蒙古族  3：藏族  4：壮族  5:回族  6:其他  )、学校编号、年级、班级、学号、身份证号、手机号码、省、市、县区、镇/街道、居住地址
         StudentDTO student = new StudentDTO();
         student.setGradeName(item.get(ImportExcelEnum.GRADE.getIndex()))
-                    .setClassName(item.get(ImportExcelEnum.CLASS.getIndex()));
+                .setClassName(item.get(ImportExcelEnum.CLASS.getIndex()));
+        student.setName(StringUtils.getDefaultIfBlank(item.get(ImportExcelEnum.NAME.getIndex()), null))
+                .setGender(StringUtils.isBlank(item.get(ImportExcelEnum.GENDER.getIndex())) ? null : GenderEnum.getType(item.get(ImportExcelEnum.GENDER.getIndex())))
+                .setNation(StringUtils.isBlank(item.get(ImportExcelEnum.NATION.getIndex())) ? null : NationEnum.getCode(item.get(ImportExcelEnum.NATION.getIndex())))
+                .setSchoolId(schoolId)
+                .setGradeId(gradeNameIdMap.get(item.get(ImportExcelEnum.GRADE.getIndex())))
+                .setClassId(gradeClassNameClassIdMap.get(String.format(GRADE_CLASS_NAME_FORMAT, item.get(ImportExcelEnum.GRADE.getIndex()), item.get(ImportExcelEnum.CLASS.getIndex()))))
+                .setSno(StringUtils.getDefaultIfBlank(item.get(ImportExcelEnum.STUDENT_NO.getIndex()), null))
+                .setIdCard(StringUtils.getDefaultIfBlank(item.get(ImportExcelEnum.ID_CARD.getIndex()), null))
+                .setParentPhone(StringUtils.getDefaultIfBlank(item.get(ImportExcelEnum.PHONE.getIndex()), null))
+                .setAddress(StringUtils.getDefaultIfBlank(item.get(ImportExcelEnum.ADDRESS.getIndex()), null));
         try {
-            student.setName(StringUtils.getDefaultIfBlank(item.get(ImportExcelEnum.NAME.getIndex()), null))
-                    .setGender(StringUtils.isBlank(item.get(ImportExcelEnum.GENDER.getIndex())) ? null : GenderEnum.getType(item.get(ImportExcelEnum.GENDER.getIndex())))
-                    .setBirthday(StringUtils.isBlank(item.get(ImportExcelEnum.BIRTHDAY.getIndex())) ? null : DateFormatUtil.parseDate(item.get(ImportExcelEnum.BIRTHDAY.getIndex()), DateFormatUtil.FORMAT_ONLY_DATE2))
-                    .setNation(StringUtils.isBlank(item.get(ImportExcelEnum.NATION.getIndex())) ? null : NationEnum.getCode(item.get(ImportExcelEnum.NATION.getIndex())))
-                    .setSchoolId(schoolId)
-                    .setGradeId(gradeNameIdMap.get(item.get(ImportExcelEnum.GRADE.getIndex())))
-                    .setClassId(gradeClassNameClassIdMap.get(String.format(GRADE_CLASS_NAME_FORMAT, item.get(ImportExcelEnum.GRADE.getIndex()), item.get(ImportExcelEnum.CLASS.getIndex()))))
-                    .setSno(StringUtils.getDefaultIfBlank(item.get(ImportExcelEnum.STUDENT_NO.getIndex()), null))
-                    .setIdCard(StringUtils.getDefaultIfBlank(item.get(ImportExcelEnum.ID_CARD.getIndex()), null))
-                    .setParentPhone(StringUtils.getDefaultIfBlank(item.get(ImportExcelEnum.PHONE.getIndex()), null))
-                    .setAddress(StringUtils.getDefaultIfBlank(item.get(ImportExcelEnum.ADDRESS.getIndex()), null));
+            student.setBirthday(StringUtils.isBlank(item.get(ImportExcelEnum.BIRTHDAY.getIndex())) ? null : DateFormatUtil.parseDate(item.get(ImportExcelEnum.BIRTHDAY.getIndex()), DateFormatUtil.FORMAT_ONLY_DATE2));
         } catch (ParseException e) {
-            throw new BusinessException("学生身份证为:" + student.getIdCard() + "日期转换异常");
+            throw new BusinessException("学生姓名为:" + student.getName() + "日期转换异常");
         }
         String provinceName = item.getOrDefault(ImportExcelEnum.PROVINCE.getIndex(), null);
         String cityName = item.getOrDefault(ImportExcelEnum.CITY.getIndex(), null);
@@ -429,7 +429,6 @@ public class ExcelStudentService {
                 student.setTownCode(codeList.get(3));
             }
         }
-
         return student;
     }
 
@@ -482,7 +481,7 @@ public class ExcelStudentService {
         }
         List<Long> duplicateCode = ListUtil.getDuplicateElements(screeningCodes);
         if (CollectionUtils.isNotEmpty(duplicateCode)) {
-            throw new BusinessException("编号为"+ org.apache.commons.lang3.StringUtils.join(duplicateCode,",") + "重复");
+            throw new BusinessException("编号为" + org.apache.commons.lang3.StringUtils.join(duplicateCode, ",") + "重复");
         }
         Map<Long, StudentDTO> excelStudentMap = excelStudent.stream().collect(Collectors.toMap(StudentDTO::getScreeningCode, Function.identity()));
 
