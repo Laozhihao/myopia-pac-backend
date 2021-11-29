@@ -604,8 +604,8 @@ public class ExcelFacade {
             exportDTO.setRightReScreenCyls(singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHTEYE_CYL)));
             exportDTO.setLeftReScreenAxials(singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.LEFTEYE_AXIAL)));
             exportDTO.setRightReScreenAxials(singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHTEYE_AXIAL)));
-            exportDTO.setLeftReScreenSphericalEquivalents(singleEyeDateFormat(StatUtil.getSphericalEquivalent((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.LEFTEYE_SPH), (BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.LEFTEYE_CYL))));
-            exportDTO.setRightReScreenSphericalEquivalents(singleEyeDateFormat(StatUtil.getSphericalEquivalent((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHTEYE_SPH), (BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHTEYE_CYL))));
+            exportDTO.setLeftReScreenSphericalEquivalents(singleEyeSEFormat(StatUtil.getSphericalEquivalent((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.LEFTEYE_SPH), (BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.LEFTEYE_CYL))));
+            exportDTO.setRightReScreenSphericalEquivalents(singleEyeSEFormat(StatUtil.getSphericalEquivalent((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHTEYE_SPH), (BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHTEYE_CYL))));
             exportDTO.setIsRescreenDesc("是");
         }
     }
@@ -662,6 +662,24 @@ public class ExcelFacade {
     private String singleEyeDateFormat(BigDecimal date) {
         DecimalFormat decimalFormat = new DecimalFormat("0.0");
         return Objects.isNull(date) ? "--" : decimalFormat.format(date);
+    }
+
+    /**
+     * 单眼数据格式化
+     *
+     * @param date 左眼数据
+     * @return String
+     */
+    private String singleEyeSEFormat(BigDecimal date) {
+        DecimalFormat decimalFormat = new DecimalFormat("0.0");
+        if (Objects.isNull(date)) {
+            return "--";
+        }
+        String formatVal = decimalFormat.format(date);
+        if (StringUtils.isNotBlank(formatVal) && BigDecimalUtil.moreThanAndEqual(formatVal, "0")) {
+            return "+" + formatVal;
+        }
+        return formatVal;
     }
 
     /**
