@@ -44,7 +44,7 @@ public class StatUtil {
      * @return
      */
     public static boolean isMyopia(MyopiaLevelEnum myopiaWarningLevel) {
-        return myopiaWarningLevel.code > 0;
+        return myopiaWarningLevel.code > MyopiaLevelEnum.MYOPIA_LEVEL_EARLY.code;
     }
 
     /**
@@ -57,7 +57,7 @@ public class StatUtil {
         if (Objects.isNull(myopiaWarningLevel)) {
             return false;
         }
-        return myopiaWarningLevel > 0;
+        return myopiaWarningLevel > MyopiaLevelEnum.MYOPIA_LEVEL_EARLY.code;
     }
 
     /**
@@ -97,7 +97,7 @@ public class StatUtil {
      * @return
      */
     public static boolean isHyperopia(HyperopiaLevelEnum hyperopiaWarningLevel) {
-        return hyperopiaWarningLevel.code > 0;
+        return hyperopiaWarningLevel.code > HyperopiaLevelEnum.ZERO.code;
     }
 
     /**
@@ -108,7 +108,7 @@ public class StatUtil {
      */
     public static boolean isAstigmatism(Float cylinder) {
         AstigmatismLevelEnum astigmatismWarningLevel = getAstigmatismWarningLevel(cylinder);
-        return astigmatismWarningLevel != null && astigmatismWarningLevel.code > 0;
+        return astigmatismWarningLevel != null && astigmatismWarningLevel.code > AstigmatismLevelEnum.ZERO.getCode();
     }
 
     /**
@@ -128,7 +128,7 @@ public class StatUtil {
      * @return
      */
     private static boolean isWarningLevelGreatThanZero(AstigmatismLevelEnum warningLevel) {
-        return warningLevel.code > 0;
+        return warningLevel.code > AstigmatismLevelEnum.ZERO.getCode();
     }
 
     /**
