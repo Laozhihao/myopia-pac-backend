@@ -227,4 +227,17 @@ public class BigDecimalUtil {
     }
 
 
+    /**
+     * 判断是否在某个区间，左闭右开区间
+     *
+     * @param val   值
+     * @param start 开始值
+     * @param end   结束值
+     * @return 是否在区间内
+     */
+    public static boolean isBetweenLeft(Double val, Double start, Double end) {
+        return val.compareTo(start) >= 0 && val.compareTo(end) < 0;
+    }
+
+
 }
