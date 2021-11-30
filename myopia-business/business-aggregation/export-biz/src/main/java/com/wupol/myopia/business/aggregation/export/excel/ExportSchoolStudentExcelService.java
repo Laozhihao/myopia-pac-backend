@@ -18,7 +18,6 @@ import com.wupol.myopia.business.core.school.domain.dto.StudentExportDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
-import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO;
@@ -52,9 +51,6 @@ public class ExportSchoolStudentExcelService extends BaseExportExcelFileService 
 
     @Resource
     private SchoolStudentService schoolStudentService;
-
-    @Resource
-    private SchoolClassService schoolClassService;
 
     @Resource
     private VisionScreeningResultService visionScreeningResultService;
@@ -104,7 +100,7 @@ public class ExportSchoolStudentExcelService extends BaseExportExcelFileService 
                     .setAddress(item.getAddress())
                     .setLabel(WarningLevel.getDesc(item.getVisionLabel()))
                     .setSituation(VisionUtil.getVisionSummary(item.getGlassesType(), item.getMyopiaLevel(), item.getHyperopiaLevel(), item.getAstigmatismLevel()))
-                    .setScreeningCount(countMaps.getOrDefault(item.getId(), 0))
+                    .setScreeningCount(countMaps.getOrDefault(item.getStudentId(), 0))
                     .setQuestionCount(0)
                     .setLastScreeningTime(DateFormatUtil.format(item.getLastScreeningTime(), DateFormatUtil.FORMAT_ONLY_DATE))
                     .setProvince(addressMap.getOrDefault(ExportAddressKey.PROVIDE, StringUtils.EMPTY))
