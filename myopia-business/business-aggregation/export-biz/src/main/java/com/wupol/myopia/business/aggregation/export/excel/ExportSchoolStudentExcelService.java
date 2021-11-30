@@ -107,8 +107,8 @@ public class ExportSchoolStudentExcelService extends BaseExportExcelFileService 
                     .setCity(addressMap.getOrDefault(ExportAddressKey.CITY, StringUtils.EMPTY))
                     .setArea(addressMap.getOrDefault(ExportAddressKey.AREA, StringUtils.EMPTY))
                     .setTown(addressMap.getOrDefault(ExportAddressKey.TOWN, StringUtils.EMPTY));
-            if (Objects.nonNull(visitMap.get(item.getId()))) {
-                exportVo.setVisitsCount(visitMap.get(item.getId()).size());
+            if (Objects.nonNull(visitMap.get(item.getStudentId()))) {
+                exportVo.setVisitsCount(visitMap.get(item.getStudentId()).size());
             } else {
                 exportVo.setVisitsCount(0);
             }
