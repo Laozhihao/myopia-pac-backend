@@ -11,6 +11,7 @@ import com.wupol.myopia.business.api.management.domain.vo.DeviceVO;
 import com.wupol.myopia.business.common.utils.constant.DoctorConclusion;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.common.utils.util.VS666Util;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceReportPrintResponseDTO;
 import com.wupol.myopia.business.core.device.domain.model.Device;
@@ -88,10 +89,10 @@ public class DeviceBizService {
             r.setDoctorConclusion(doctorAdvice.getFirst());
             r.setDoctorAdvice(doctorAdvice.getSecond());
             r.setTemplateType(templateMap.get(r.getScreeningOrgId()));
-            r.setLeftCylDisplay(getDisplayValue(r.getLeftCyl()));
-            r.setRightCylDisplay(getDisplayValue(r.getRightCyl()));
-            r.setLeftSphDisplay(getDisplayValue(r.getLeftSph()));
-            r.setRightSphDisplay(getDisplayValue(r.getRightSph()));
+            r.setLeftCylDisplay(VS666Util.getDisplayValue(r.getLeftCyl()));
+            r.setRightCylDisplay(VS666Util.getDisplayValue(r.getRightCyl()));
+            r.setLeftSphDisplay(VS666Util.getDisplayValue(r.getLeftSph()));
+            r.setRightSphDisplay(VS666Util.getDisplayValue(r.getRightSph()));
         });
         return responseDTOS;
     }
@@ -315,69 +316,5 @@ public class DeviceBizService {
             deviceVO.setBindingScreeningOrgDistrictName(districtService.getDistrictNameByDistrictId(screeningOrg.getDistrictId()));
             return deviceVO;
         }).collect(Collectors.toList());
-    }
-
-    /**
-     * VS666数据格式化
-     *
-     * @param value 值
-     * @return VS666数据格式化
-     */
-    public Double getDisplayValue(Double value) {
-        if (Objects.isNull(value)) {
-            return null;
-        }
-        TwoTuple<Double, Double> splitDouble = splitDouble(value);
-        double result = 0d;
-        Double absValue = Math.abs(splitDouble.getSecond());
-        if (absValue.compareTo(0.125) < 0) {
-            result = 0.00;
-        }
-        if (isBetweenLeft(absValue, 0.125, 0.375)) {
-            result = 0.25;
-        }
-        if (isBetweenLeft(absValue, 0.375, 0.625)) {
-            result = 0.50;
-        }
-        if (isBetweenLeft(absValue, 0.625, 0.875)) {
-            result = 0.75;
-        }
-        if (absValue.compareTo(0.875) >= 0) {
-            result = 1.00;
-        }
-        if (value.compareTo(0d) < 0) {
-            result = result * (-1d);
-        }
-        return splitDouble.getFirst() + result;
-    }
-
-    /**
-     * 拆分Double成两部分
-     *
-     * @param value 值
-     * @return left-整数 right-小数
-     */
-    private TwoTuple<Double, Double> splitDouble(Double value) {
-        //整数部分
-        int intNum = (int) Double.parseDouble(value.toString());
-        BigDecimal valueDecimal = new BigDecimal(value.toString());
-
-        BigDecimal intBigDecimal = new BigDecimal(intNum);
-        //小数部分
-        double decimalNum = valueDecimal.subtract(intBigDecimal).doubleValue();
-        return new TwoTuple<>((double) intNum, decimalNum);
-    }
-
-
-    /**
-     * 判断是否在某个区间，左闭右开区间
-     *
-     * @param val   值
-     * @param start 开始值
-     * @param end   结束值
-     * @return 是否在区间内
-     */
-    public static boolean isBetweenLeft(Double val, Double start, Double end) {
-        return val.compareTo(start) >= 0 && val.compareTo(end) < 0;
     }
 }
