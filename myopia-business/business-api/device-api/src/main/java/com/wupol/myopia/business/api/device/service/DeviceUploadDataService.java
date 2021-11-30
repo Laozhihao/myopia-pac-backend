@@ -7,6 +7,7 @@ import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBi
 import com.wupol.myopia.business.api.device.domain.dto.DeviceUploadDTO;
 import com.wupol.myopia.business.api.device.util.CheckResultUtil;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.common.utils.util.VS666Util;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceScreenDataDTO;
 import com.wupol.myopia.business.core.device.domain.model.Device;
 import com.wupol.myopia.business.core.device.service.DeviceScreeningDataService;
@@ -120,20 +121,24 @@ public class DeviceUploadDataService {
             computerOptometryDTO.setRAxial(BigDecimal.valueOf(deviceScreenDataDTO.getRightAxsi()));
         }
 
-        if (deviceScreenDataDTO.getLeftCyl() != null) {
-            computerOptometryDTO.setLCyl(BigDecimal.valueOf(deviceScreenDataDTO.getLeftCyl()));
+        Double leftCyl = VS666Util.getDisplayValue(deviceScreenDataDTO.getLeftCyl());
+        if (leftCyl != null) {
+            computerOptometryDTO.setLCyl(BigDecimal.valueOf(leftCyl));
         }
 
-        if (deviceScreenDataDTO.getRightCyl() != null) {
-            computerOptometryDTO.setRCyl(BigDecimal.valueOf(deviceScreenDataDTO.getRightCyl()));
+        Double rightCyl = VS666Util.getDisplayValue(deviceScreenDataDTO.getRightCyl());
+        if (rightCyl != null) {
+            computerOptometryDTO.setRCyl(BigDecimal.valueOf(rightCyl));
         }
 
-        if (deviceScreenDataDTO.getRightSph() != null) {
-            computerOptometryDTO.setRSph(BigDecimal.valueOf(deviceScreenDataDTO.getRightSph()));
+        Double rightSph = VS666Util.getDisplayValue(deviceScreenDataDTO.getRightSph());
+        if (rightSph != null) {
+            computerOptometryDTO.setRSph(BigDecimal.valueOf(rightSph));
         }
 
-        if (deviceScreenDataDTO.getLeftSph() != null) {
-            computerOptometryDTO.setLSph(BigDecimal.valueOf(deviceScreenDataDTO.getLeftSph()));
+        Double leftSph = VS666Util.getDisplayValue(deviceScreenDataDTO.getLeftSph());
+        if (leftSph != null) {
+            computerOptometryDTO.setLSph(BigDecimal.valueOf(leftSph));
         }
 
         computerOptometryDTO.setDeptId(screeningPlanSchoolStudent.getScreeningOrgId());
