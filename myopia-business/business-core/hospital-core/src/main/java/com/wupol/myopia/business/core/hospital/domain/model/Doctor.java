@@ -37,6 +37,10 @@ public class Doctor implements Serializable {
     @NotBlank(message = "姓名不能为空")
     private String name;
     private Integer userId;
+    /** 创建者ID */
+    private Integer createUserId;
+    /** 手机号码 */
+    private String phone;
     /** 个人简介 */
     private String remark;
     /** 职称 */

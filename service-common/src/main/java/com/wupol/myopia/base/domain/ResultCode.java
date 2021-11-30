@@ -19,7 +19,9 @@ public enum ResultCode {
 
     CLIENT_AUTHENTICATION_FAILED(401,"客户端认证失败"),
     USER_ACCESS_UNAUTHORIZED (401, "访问未授权"),
-    TOKEN_INVALID_OR_EXPIRED(403, "token无效或已过期");
+    TOKEN_INVALID_OR_EXPIRED(403, "token无效或已过期"),
+
+    ;
 
     /** 业务异常码 */
     private Integer code;

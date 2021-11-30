@@ -22,10 +22,11 @@ public class UsernameAndPasswordDTO {
         this.display = true;
     }
 
-    public void setNoDisplay() {
+    public UsernameAndPasswordDTO setNoDisplay() {
         display = false;
         username = null;
         password = null;
+        return this;
     }
 
 }

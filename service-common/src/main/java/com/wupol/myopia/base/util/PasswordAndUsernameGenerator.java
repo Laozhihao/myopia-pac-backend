@@ -6,6 +6,7 @@ import lombok.experimental.UtilityClass;
 import org.springframework.util.StringUtils;
 
 import javax.validation.ValidationException;
+import java.util.Date;
 
 /**
  * 密码生成器
@@ -118,4 +119,15 @@ public class PasswordAndUsernameGenerator {
     public static String getScreeningOrgAdminUserName(int sequence) {
         return String.format(USERNAME, SCREENING_ORG_ADMIN_PWD_PREFIX, sequence);
     }
+
+    /**
+     * 获取医生默认密码
+     * @param phone
+     * @return
+     */
+    public static String getDoctorPwd(String phone, Date date) {
+        // 手机号码后5位+创建日期的日（01-31），合计7位数
+        return StrUtil.subSuf(phone, -SCREENING_ADMIN_PWD_SUB_LENGTH) + DateFormatUtil.format(date, DateFormatUtil.FORMAT_ONLY_DAY);
+    }
+
 }

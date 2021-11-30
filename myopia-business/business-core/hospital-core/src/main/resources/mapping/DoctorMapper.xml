@@ -19,6 +19,9 @@
                 <if test="@Ognl@isNotEmpty(status)">and d.`status` = #{status}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and d.`create_time` = #{createTime}</if>
                 <if test="@Ognl@isNotEmpty(updateTime)">and d.`update_time` = #{updateTime}</if>
+                <if test="@Ognl@isNotEmpty(userId)">and d.`user_id` = #{userId}</if>
+                <if test="@Ognl@isNotEmpty(createUserId)">and d.`create_user_id` = #{createUserId}</if>
+                <if test="@Ognl@isNotEmpty(phone)">and d.`phone` = #{phone}</if>
 
                 <!-- 模糊查询 -->
                 <if test="@Ognl@isNotEmpty(like)">and (
