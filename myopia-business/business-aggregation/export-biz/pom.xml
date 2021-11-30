@@ -5,7 +5,7 @@
     <parent>
         <artifactId>business-aggregation</artifactId>
         <groupId>com.wupol.myopia</groupId>
-        <version>MP-2.1.0</version>
+        <version>MP-2.2.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
