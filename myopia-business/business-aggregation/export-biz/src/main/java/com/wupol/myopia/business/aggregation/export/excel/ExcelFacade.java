@@ -814,6 +814,7 @@ public class ExcelFacade {
      * @param schoolId      学校Id
      * @throws ParseException 转换异常
      */
+    @Transactional(rollbackFor = Exception.class)
     public void importSchoolStudent(Integer createUserId, MultipartFile multipartFile, Integer schoolId) throws ParseException {
         List<Map<Integer, String>> listMap = readExcel(multipartFile);
         if (CollectionUtils.isEmpty(listMap)) {
