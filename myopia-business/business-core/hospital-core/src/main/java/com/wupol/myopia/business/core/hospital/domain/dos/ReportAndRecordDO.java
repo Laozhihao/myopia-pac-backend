@@ -35,4 +35,14 @@ public class ReportAndRecordDO {
      * 综合处方
      */
     private String medicalContent;
+
+    /**
+     * 医生Id
+     */
+    private Integer doctorId;
+
+    /**
+     * 医生名称
+     */
+    private String doctorName;
 }

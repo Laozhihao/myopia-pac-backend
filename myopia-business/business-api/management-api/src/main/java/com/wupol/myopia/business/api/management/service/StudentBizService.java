@@ -15,7 +15,9 @@ import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
+import com.wupol.myopia.business.core.hospital.domain.model.Doctor;
 import com.wupol.myopia.business.core.hospital.domain.model.MedicalReport;
+import com.wupol.myopia.business.core.hospital.service.HospitalDoctorService;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentQueryDTO;
@@ -90,6 +92,9 @@ public class StudentBizService {
 
     @Autowired
     private ScreeningPlanService screeningPlanService;
+
+    @Autowired
+    private HospitalDoctorService hospitalDoctorService;
 
     /**
      * 获取学生列表
@@ -282,7 +287,18 @@ public class StudentBizService {
      * @return List<MedicalReportDO>
      */
     public IPage<ReportAndRecordDO> getReportList(PageRequest pageRequest, Integer studentId) {
-        return medicalReportService.getByStudentIdWithPage(pageRequest, studentId);
+        IPage<ReportAndRecordDO> pageReport = medicalReportService.getByStudentIdWithPage(pageRequest, studentId);
+        List<ReportAndRecordDO> records = pageReport.getRecords();
+        if (CollectionUtils.isEmpty(records)) {
+            return pageReport;
+        }
+        // 收集医生Id
+        Set<Integer> doctorIds = records.stream().map(ReportAndRecordDO::getDoctorId).collect(Collectors.toSet());
+        Map<Integer, String> doctorMap = hospitalDoctorService.listByIds(doctorIds).stream().collect(Collectors.toMap(Doctor::getId, Doctor::getName));
+        records.forEach(report->{
+            report.setDoctorName(doctorMap.getOrDefault(report.getDoctorId(),StringUtils.EMPTY));
+        });
+        return pageReport;
     }
 
     /**
