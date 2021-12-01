@@ -31,6 +31,7 @@ import java.util.Objects;
 @ResponseResultBody
 @CrossOrigin
 @RestController
+@RequestMapping("/management/common")
 public class CommonController {
 
     @Autowired
@@ -43,7 +44,7 @@ public class CommonController {
     /**
      * 上传图片
      */
-    @PostMapping("/management/common/fileUpload")
+    @PostMapping("/fileUpload")
     public Map<String, Object> fileUpload(MultipartFile file) throws AccessDeniedException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         if (Objects.isNull(user)) {
@@ -63,7 +64,7 @@ public class CommonController {
     /**
      * 获取图片
      */
-    @GetMapping("/management/common/file/{fileId}")
+    @GetMapping("/file/{fileId}")
     public Map<String, String> file(@PathVariable Integer fileId) throws AccessDeniedException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         if (Objects.isNull(user)) {
@@ -78,7 +79,7 @@ public class CommonController {
      * 富文本上传图片
      * 直接返回访问地址
      */
-    @PostMapping("/management/common/richTextFileUpload")
+    @PostMapping("/richTextFileUpload")
     public Map<String, String> richTextFileUpload(MultipartFile file) throws AccessDeniedException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         if (Objects.isNull(user)) {
