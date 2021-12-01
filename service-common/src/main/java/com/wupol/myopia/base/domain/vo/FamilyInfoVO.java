@@ -15,6 +15,9 @@ import java.util.List;
 @Setter
 public class FamilyInfoVO {
 
+    /**
+     * 家庭成员
+     */
     private List<MemberInfo> member;
 
 
