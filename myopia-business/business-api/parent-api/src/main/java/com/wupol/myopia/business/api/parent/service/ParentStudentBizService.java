@@ -185,9 +185,9 @@ public class ParentStudentBizService {
         }
         StudentDTO studentDTO = studentService.updateStudent(student);
         // 绑定孩子
-        bindStudent(parent, student.getId());
-        // 更新筛查统计信息
-        studentFacade.updateStatConclusion(student.getId());
+        Integer studentId = student.getId();
+        bindStudent(parent, studentId);
+        updateOtherInfo(studentId, parent.getPhone());
         return studentDTO;
     }
 
@@ -209,8 +209,7 @@ public class ParentStudentBizService {
         Integer studentId = studentService.saveStudent(student);
         // 绑定孩子
         bindStudent(parent, studentId);
-        // 更新筛查统计信息
-        studentFacade.updateStatConclusion(studentId);
+        updateOtherInfo(studentId, parent.getPhone());
         return studentId;
     }
 
@@ -462,5 +461,19 @@ public class ParentStudentBizService {
             responseDTO.add(suggestHospitalDTO);
         });
         return responseDTO;
+    }
+
+    /**
+     * 更新其他信息
+     *
+     * @param studentId 学生Id
+     * @param phone     手机号码
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void updateOtherInfo(Integer studentId, String phone) {
+        // 更新筛查统计信息
+        studentFacade.updateStatConclusion(studentId);
+        // 更新学校端学生绑定手机号码
+        studentFacade.updateMpParentPhone(studentId, phone);
     }
 }

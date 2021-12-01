@@ -220,6 +220,9 @@ public class VisionScreeningController {
                 .setPlanId(planId)
                 .setSchoolId(currentUser.getOrgId())
                 .setApplyExportFileUserId(currentUser.getId());
+        if (Objects.nonNull(screeningNoticeId) && screeningNoticeId == 0) {
+            exportCondition.setNotificationId(null);
+        }
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.SCHOOL_SCREENING_REPORT_SERVICE);
     }
 
