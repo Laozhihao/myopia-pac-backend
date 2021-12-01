@@ -71,4 +71,9 @@ public class StudentDTO extends Student {
      */
     private List<Long> screeningCodes;
 
+    /**
+     * 生日信息
+     */
+    private String birthdayInfo;
+
 }

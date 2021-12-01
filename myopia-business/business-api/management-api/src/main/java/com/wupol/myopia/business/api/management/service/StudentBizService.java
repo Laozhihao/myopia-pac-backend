@@ -6,6 +6,7 @@ import com.wupol.framework.api.service.VistelToolsService;
 import com.wupol.framework.sms.domain.dto.MsgData;
 import com.wupol.framework.sms.domain.dto.SmsResult;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.api.management.domain.vo.StudentWarningArchiveVO;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.DeskChairTypeEnum;
@@ -221,9 +222,16 @@ public class StudentBizService {
         studentWarningArchiveVO.setChairAdviseHeight((int) (height * 0.24));
     }
 
+    /**
+     * 通过学生Id获取学生信息
+     *
+     * @param id 学生Id
+     * @return StudentDTO
+     */
     public StudentDTO getStudentById(Integer id) {
         StudentDTO student = studentService.getStudentById(id);
         student.setScreeningCodes(getScreeningCodesByPlan(screeningPlanSchoolStudentService.getByStudentId(id)));
+        student.setBirthdayInfo(DateUtil.dayComparePeriod(student.getBirthday()));
         return student;
     }
 
@@ -295,8 +303,8 @@ public class StudentBizService {
         // 收集医生Id
         Set<Integer> doctorIds = records.stream().map(ReportAndRecordDO::getDoctorId).collect(Collectors.toSet());
         Map<Integer, String> doctorMap = hospitalDoctorService.listByIds(doctorIds).stream().collect(Collectors.toMap(Doctor::getId, Doctor::getName));
-        records.forEach(report->{
-            report.setDoctorName(doctorMap.getOrDefault(report.getDoctorId(),StringUtils.EMPTY));
+        records.forEach(report -> {
+            report.setDoctorName(doctorMap.getOrDefault(report.getDoctorId(), StringUtils.EMPTY));
         });
         return pageReport;
     }

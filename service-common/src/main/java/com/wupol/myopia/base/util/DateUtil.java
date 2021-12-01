@@ -3,6 +3,7 @@ package com.wupol.myopia.base.util;
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateTime;
 import lombok.experimental.UtilityClass;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
 
@@ -341,5 +342,19 @@ public class DateUtil extends cn.hutool.core.date.DateUtil {
         dateTime.setField(DateField.SECOND,seconds);
         dateTime.setField(DateField.MINUTE,mins);
         return dateTime;
+    }
+
+    /**
+     * 获取改时间与当前时间的年月日
+     *
+     * @param date 时间
+     * @return xx年xx月xx日
+     */
+    public static String dayComparePeriod(Date date) {
+        if (Objects.isNull(date)) {
+            return StringUtils.EMPTY;
+        }
+        Period period = Period.between(date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalDate.now());
+        return period.getYears() + "年" + period.getMonths() + "月" + period.getDays() + "日";
     }
 }
