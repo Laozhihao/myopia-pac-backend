@@ -56,3 +56,6 @@ alter table m_student drop column school_no;
 
 create index m_student_status_class_id_grade_id_index
     on m_student (status, class_id, grade_id);
+
+alter table m_stat_conclusion
+    alter column is_bind_mp set default false;

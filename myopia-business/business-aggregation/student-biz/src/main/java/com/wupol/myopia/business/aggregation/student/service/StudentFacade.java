@@ -14,6 +14,8 @@ import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
 import com.wupol.myopia.business.core.school.domain.model.Student;
+import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
+import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.AppStudentCardResponseDTO;
@@ -90,6 +92,9 @@ public class StudentFacade {
 
     @Resource
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
+
+    @Resource
+    private SchoolStudentService schoolStudentService;
 
 
     /**
@@ -964,5 +969,33 @@ public class StudentFacade {
         // 判断是否家长手机号码是否为空
         statConclusion.setIsBindMp(StringUtils.isNotBlank(student.getMpParentPhone()));
         statConclusionService.updateById(statConclusion);
+    }
+
+    /**
+     * 更新绑定家长手机号码
+     *
+     * @param studentId   学生ID
+     * @param parentPhone 家长手机号码
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void updateMpParentPhone(Integer studentId, String parentPhone) {
+        List<SchoolStudent> schoolStudents = schoolStudentService.getByStudentId(studentId);
+        if (CollectionUtils.isEmpty(schoolStudents)) {
+            return;
+        }
+        schoolStudents.forEach(schoolStudent -> {
+            String parentPhoneStr = schoolStudent.getMpParentPhone();
+            if (StringUtils.isBlank(parentPhoneStr)) {
+                // 为空新增
+                schoolStudent.setMpParentPhone(parentPhone);
+            } else {
+                // 家长手机号码是否已经存在
+                if (StringUtils.countMatches(parentPhoneStr, parentPhone) == 0) {
+                    // 不存在拼接家长手机号码
+                    schoolStudent.setMpParentPhone(parentPhoneStr + "," + parentPhone);
+                }
+            }
+        });
+        schoolStudentService.updateBatchById(schoolStudents);
     }
 }

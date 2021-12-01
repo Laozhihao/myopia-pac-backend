@@ -12,7 +12,6 @@ import java.util.TimeZone;
 
 @EnableAsync
 @MapperScan("com.wupol.myopia.business.core.**.domain.mapper")
-@MapperScan("com.wupol.myopia.business.core.**.**.domain.mapper")
 @EnableDiscoveryClient
 @EnableScheduling
 @EnableFeignClients(basePackages = {"com.wupol.myopia.business.**.client", "com.wupol.myopia.oauth.sdk.client"})
