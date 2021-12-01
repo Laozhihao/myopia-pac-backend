@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.service;
 
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.hospital.domain.dto.HospitalStudentRequestDTO;
 import com.wupol.myopia.business.core.hospital.domain.dto.HospitalStudentResponseDTO;
@@ -71,6 +72,9 @@ public class HospitalStudentBizService {
             hospitalStudent.setSchoolName(schoolMap.get(hospitalStudent.getSchoolId()));
             hospitalStudent.setGradeName(Objects.isNull(gradeMap.get(hospitalStudent.getGradeId())) ? null : gradeMap.get(hospitalStudent.getGradeId()).getName());
             hospitalStudent.setClassName(Objects.isNull(classMap.get(hospitalStudent.getClassId())) ? null : classMap.get(hospitalStudent.getClassId()).getName());
+            if (Objects.nonNull(hospitalStudent.getBirthday())){
+                hospitalStudent.setBirthdayInfo(DateUtil.dayComparePeriod(hospitalStudent.getBirthday()));
+            }
         });
         return responseDTOIPage;
 
@@ -92,6 +96,9 @@ public class HospitalStudentBizService {
         }
         if (Objects.nonNull(hospitalStudent.getClassId())) {
             hospitalStudent.setClassName(schoolClassService.getClassNameById(hospitalStudent.getClassId()));
+        }
+        if (Objects.nonNull(hospitalStudent.getBirthday())){
+            hospitalStudent.setBirthdayInfo(DateUtil.dayComparePeriod(hospitalStudent.getBirthday()));
         }
         return hospitalStudent;
     }

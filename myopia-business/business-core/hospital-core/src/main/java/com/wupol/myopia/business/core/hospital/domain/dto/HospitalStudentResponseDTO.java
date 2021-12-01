@@ -27,4 +27,9 @@ public class HospitalStudentResponseDTO extends HospitalStudent {
      * 年级名称
      */
     private String gradeName;
+
+    /**
+     * 生日信息
+     */
+    private String birthdayInfo;
 }

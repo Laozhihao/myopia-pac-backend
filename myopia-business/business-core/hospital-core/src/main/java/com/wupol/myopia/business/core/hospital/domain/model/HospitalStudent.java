@@ -62,8 +62,8 @@ public class HospitalStudent implements Serializable {
     @NotBlank(message = "学生姓名不能为空")
     private String name;
 
-    /** 性别 0-男 1-女 */
-    @Range(min = 0, max = 1)
+    /** 性别 -1未知 0-男 1-女 */
+    @Range(min = -1, max = 1)
     private Integer gender;
 
     /** 出生日期 */
