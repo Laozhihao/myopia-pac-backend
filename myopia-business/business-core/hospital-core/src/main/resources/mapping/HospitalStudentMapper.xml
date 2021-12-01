@@ -4,9 +4,15 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.hospital.domain.model.HospitalStudent">
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="family_info" property="familyInfo"/>
     </resultMap>
 
     <resultMap id="HospitalStudentDO" type="com.wupol.myopia.business.core.hospital.domain.dos.HospitalStudentDO">
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="family_info" property="familyInfo"/>
+    </resultMap>
+
+    <resultMap id="HospitalStudentMap" type="com.wupol.myopia.business.core.hospital.domain.dto.HospitalStudentResponseDTO">
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="family_info" property="familyInfo"/>
     </resultMap>
 
     <!-- 通用查询条件 -->
@@ -64,7 +70,7 @@
         group by hs.student_id
     </select>
 
-    <select id="getByList" resultType="com.wupol.myopia.business.core.hospital.domain.dto.HospitalStudentResponseDTO">
+    <select id="getByList" resultMap="HospitalStudentMap">
         select *
         from h_hospital_student where hospital_id = #{requestDTO.hospitalId}
         <if test="requestDTO.name != null and requestDTO.name != ''">
@@ -78,4 +84,10 @@
         set status = 2
         where id = #{id}
     </update>
+
+    <select id="getByHospitalStudentId" resultMap="HospitalStudentMap">
+        select *
+        from h_hospital_student
+        where id = #{id};
+    </select>
 </mapper>

@@ -10,8 +10,6 @@ import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
 import com.wupol.myopia.business.core.hospital.domain.dto.HospitalResponseDTO;
-import com.wupol.myopia.business.core.hospital.domain.dto.HospitalStudentRequestDTO;
-import com.wupol.myopia.business.core.hospital.domain.dto.HospitalStudentResponseDTO;
 import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
 import com.wupol.myopia.business.core.hospital.domain.model.HospitalAdmin;
 import com.wupol.myopia.business.core.hospital.domain.query.HospitalQuery;
@@ -187,17 +185,6 @@ public class HospitalBizService {
         } else {
             username = mainUsername + adminList.size();
         }
-        return hospitalService.generateAccountAndPassword(hospital,username);
-    }
-
-    /**
-     * 获取医院学生
-     *
-     * @param pageRequest 分页请求
-     * @param requestDTO  条件
-     * @return IPage<HospitalStudentResponseDTO>
-     */
-    public IPage<HospitalStudentResponseDTO> getHospitalStudent(PageRequest pageRequest, HospitalStudentRequestDTO requestDTO) {
-        return hospitalStudentService.getByList(pageRequest, requestDTO);
+        return hospitalService.generateAccountAndPassword(hospital, username);
     }
 }

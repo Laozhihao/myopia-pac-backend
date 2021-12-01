@@ -9,7 +9,7 @@ import com.wupol.myopia.base.util.RegularUtils;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.util.VisionUtil;
 import com.wupol.myopia.business.core.common.domain.model.AddressCode;
-import com.wupol.myopia.business.core.school.domain.vos.FamilyInfoVO;
+import com.wupol.myopia.base.domain.vo.FamilyInfoVO;
 import freemarker.core.BugException;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

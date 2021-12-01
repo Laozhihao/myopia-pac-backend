@@ -29,4 +29,6 @@ public interface HospitalStudentMapper extends BaseMapper<HospitalStudent> {
     IPage<HospitalStudentResponseDTO> getByList(@Param("page") Page<?> page, @Param("requestDTO") HospitalStudentRequestDTO requestDTO);
 
     void deletedById(@Param("id") Integer id);
+
+    HospitalStudentResponseDTO getByHospitalStudentId(@Param("id") Integer id);
 }

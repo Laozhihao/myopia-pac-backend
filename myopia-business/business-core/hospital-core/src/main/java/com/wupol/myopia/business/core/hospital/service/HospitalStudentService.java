@@ -29,15 +29,17 @@ import java.util.stream.Collectors;
 @Log4j2
 public class HospitalStudentService extends BaseService<HospitalStudentMapper, HospitalStudent> {
 
-    /** 获取HospitalStudentDTO的数据 */
+    /**
+     * 获取HospitalStudentDTO的数据
+     */
     public List<HospitalStudentDO> getHospitalStudentDoList(HospitalStudentQuery query) {
         return baseMapper.getHospitalStudentDoList(query);
     }
 
     /**
-     *  该医院已建档的学生的map数据
-     *  1. key是studentId
-     *  2. value是HospitalStudentVo
+     * 该医院已建档的学生的map数据
+     * 1. key是studentId
+     * 2. value是HospitalStudentVo
      */
     public Map<Integer, HospitalStudentDO> getHospitalStudentVoMap(HospitalStudentQuery query) {
         return getHospitalStudentDoList(query).stream()
@@ -45,12 +47,16 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
 
     }
 
-    /** 保存医院与学生的关系 */
+    /**
+     * 保存医院与学生的关系
+     */
     public void saveHospitalStudentArchive(Integer hospitalId, Integer studentId) {
         saveOrUpdate(new HospitalStudent(hospitalId, studentId));
     }
 
-    /** 校验学生与医院关系 */
+    /**
+     * 校验学生与医院关系
+     */
     public Boolean existHospitalAndStudentRelationship(Integer hospitalId, Integer studentId) {
         HospitalStudent student = findOne(new HospitalStudent(hospitalId, studentId));
         return Objects.nonNull(student);
@@ -89,5 +95,15 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
     @Transactional(rollbackFor = Exception.class)
     public void deletedById(Integer id) {
         baseMapper.deletedById(id);
+    }
+
+    /**
+     * 通过Id获取医院学生
+     *
+     * @param id 医院学生Id
+     * @return HospitalStudentResponseDTO
+     */
+    public HospitalStudentResponseDTO getByHospitalStudentId(Integer id) {
+        return baseMapper.getByHospitalStudentId(id);
     }
 }

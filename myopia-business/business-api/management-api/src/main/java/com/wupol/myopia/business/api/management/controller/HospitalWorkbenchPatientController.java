@@ -3,10 +3,11 @@ package com.wupol.myopia.business.api.management.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.handler.ResponseResultBody;
-import com.wupol.myopia.business.api.management.service.HospitalBizService;
+import com.wupol.myopia.business.api.management.service.HospitalStudentBizService;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.hospital.domain.dto.HospitalStudentRequestDTO;
 import com.wupol.myopia.business.core.hospital.domain.dto.HospitalStudentResponseDTO;
+import com.wupol.myopia.business.core.hospital.domain.model.HospitalStudent;
 import com.wupol.myopia.business.core.hospital.service.HospitalStudentService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -25,13 +26,13 @@ import javax.annotation.Resource;
 public class HospitalWorkbenchPatientController {
 
     @Resource
-    private HospitalBizService hospitalBizService;
+    private HospitalStudentBizService hospitalStudentBizService;
 
     @Resource
     private HospitalStudentService hospitalStudentService;
 
     /**
-     * 获取医院学生
+     * 获取医院学生列表
      *
      * @param pageRequest 分页请求
      * @param requestDTO  条件
@@ -39,12 +40,40 @@ public class HospitalWorkbenchPatientController {
      */
     @GetMapping("list")
     public IPage<HospitalStudentResponseDTO> getByList(@Validated PageRequest pageRequest, @Validated HospitalStudentRequestDTO requestDTO) {
-        return hospitalBizService.getHospitalStudent(pageRequest, requestDTO);
+        return hospitalStudentBizService.getHospitalStudent(pageRequest, requestDTO);
     }
 
+    /**
+     * 删除医院学生
+     *
+     * @param hospitalStudentId 医院学生Id
+     * @return ApiResult
+     */
     @DeleteMapping("{hospitalStudentId}")
     public ApiResult deleted(@PathVariable("hospitalStudentId") Integer hospitalStudentId) {
         hospitalStudentService.deletedById(hospitalStudentId);
         return ApiResult.success();
+    }
+
+    /**
+     * 更新医院学生
+     *
+     * @param hospitalStudent 医院学生
+     * @return ApiResult
+     */
+    @PutMapping
+    public void updateHospitalStudent(@RequestBody HospitalStudent hospitalStudent) {
+        hospitalStudentService.updateById(hospitalStudent);
+    }
+
+    /**
+     * 通过Id获取医院学生
+     *
+     * @param hospitalStudentId 医院学生Id
+     * @return HospitalStudentResponseDTO
+     */
+    @GetMapping("{hospitalStudentId}")
+    public HospitalStudentResponseDTO getByHospitalStudentId(@PathVariable("hospitalStudentId") Integer hospitalStudentId) {
+        return hospitalStudentBizService.getByHospitalStudentId(hospitalStudentId);
     }
 }
