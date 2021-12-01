@@ -7,6 +7,7 @@ import com.wupol.framework.sms.domain.dto.MsgData;
 import com.wupol.framework.sms.domain.dto.SmsResult;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.aggregation.hospital.service.MedicalReportBizService;
 import com.wupol.myopia.business.api.management.domain.vo.StudentWarningArchiveVO;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.DeskChairTypeEnum;
@@ -15,9 +16,11 @@ import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.hospital.domain.model.Doctor;
 import com.wupol.myopia.business.core.hospital.domain.model.MedicalReport;
+import com.wupol.myopia.business.core.hospital.domain.model.ReportConclusion;
 import com.wupol.myopia.business.core.hospital.service.HospitalDoctorService;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
@@ -96,6 +99,12 @@ public class StudentBizService {
 
     @Autowired
     private HospitalDoctorService hospitalDoctorService;
+
+    @Autowired
+    private ResourceFileService resourceFileService;
+
+    @Autowired
+    private MedicalReportBizService medicalReportBizService;
 
     /**
      * 获取学生列表
@@ -305,6 +314,12 @@ public class StudentBizService {
         Map<Integer, String> doctorMap = hospitalDoctorService.listByIds(doctorIds).stream().collect(Collectors.toMap(Doctor::getId, Doctor::getName));
         records.forEach(report -> {
             report.setDoctorName(doctorMap.getOrDefault(report.getDoctorId(), StringUtils.EMPTY));
+            ReportConclusion reportConclusion = medicalReportBizService.getReportConclusion(report.getReportId());
+            if (Objects.nonNull(reportConclusion)
+                    && Objects.nonNull(reportConclusion.getReport())
+                    && !CollectionUtils.isEmpty((reportConclusion.getReport().getImageIdList()))) {
+                report.setImageFileUrl(resourceFileService.getBatchResourcePath(reportConclusion.getReport().getImageIdList()));
+            }
         });
         return pageReport;
     }
