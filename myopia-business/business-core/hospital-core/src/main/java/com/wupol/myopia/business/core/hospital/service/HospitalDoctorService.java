@@ -6,6 +6,8 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.PasswordAndUsernameGenerator;
+import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
+import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.hospital.domain.dto.DoctorDTO;
@@ -16,6 +18,7 @@ import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,47 +46,20 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
     private OauthServiceClient oauthServiceClient;
 
     /**
-     * 获取医生详情
-     * @param hospitalId 医院id
-     * @param doctorId 医生id
-     * @return
-     */
-    public Doctor getDoctor(Integer hospitalId, Integer doctorId) {
-        DoctorQuery query = new DoctorQuery();
-        query.setHospitalId(hospitalId).setId(doctorId);
-        return baseMapper.getBy(query)
-                .stream().findFirst().orElseThrow(()-> new BusinessException("未找到该医生"));
-    }
-
-    /**
-     * 获取医生，带Vo
-     * @param hospitalId 医院id
-     * @param doctorId 医生id
-     * @return
-     */
-    public DoctorDTO getDoctorVo(Integer hospitalId, Integer doctorId) {
-        Doctor doctor = getDoctor(hospitalId, doctorId);
-        DoctorDTO doctorVo = new DoctorDTO();
-        BeanUtils.copyProperties(doctor, doctorVo);
-        return doctorVo.setAvatarUrl(resourceFileService.getResourcePath(doctor.getAvatarFileId()))
-                .setSignUrl(resourceFileService.getResourcePath(doctor.getSignFileId()));
-    }
-
-    /**
      * 保存医生
      *
      * @param doctor 医生信息
      * @return UsernameAndPasswordDto 账号密码
      */
     @Transactional(rollbackFor = Exception.class)
-    public synchronized UsernameAndPasswordDTO saveDoctor(Doctor doctor) {
+    public synchronized UsernameAndPasswordDTO saveDoctor(DoctorDTO doctor) {
         // 保证手机号合法&唯一
         checkPhone(doctor.getPhone(), null);
         return generateUserAndSaveDoctor(doctor);
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public synchronized UsernameAndPasswordDTO updateDoctor(Doctor doctor) {
+    public synchronized UsernameAndPasswordDTO updateDoctor(DoctorDTO doctor) {
         // 若修改手机号，保证手机号合法&唯一
         if (StringUtils.isNotBlank(doctor.getPhone())) {
             checkPhone(doctor.getPhone(), doctor.getId());
@@ -95,15 +71,16 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
         if (StringUtils.isBlank(phone) || phone.length() != 11) {
             new BusinessException("无效的手机号码！");
         }
-        Doctor doctor = getByPhone(phone);
-        if (Objects.nonNull(doctor) && !doctor.getId().equals(id)) {
+        List<User> users = getByPhone(phone);
+        if (CollectionUtils.isNotEmpty(users) && users.size() > 1) {
             new BusinessException("手机号码已存在！");
         }
     }
 
-    public Doctor getByPhone(String phone) {
-        Doctor doctor = new Doctor().setPhone(phone);
-        return baseMapper.selectOne(new QueryWrapper<>(doctor));
+    public List<User> getByPhone(String phone) {
+        UserDTO userDTO = new UserDTO();
+        userDTO.setPhone(phone).setSystemCode(SystemCode.HOSPITAL_CLIENT.getCode());
+        return oauthServiceClient.getUserList(userDTO);
     }
 
     /**
@@ -162,6 +139,64 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
         doctor.setUserId(user.getId());
         this.updateOrSave(doctor);
         return new UsernameAndPasswordDTO(doctor.getPhone(), password);
+    }
+
+    /**
+     * 更新状态
+     *
+     * @param request 入参
+     * @return UserDTO
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public User updateStatus(StatusRequest request) {
+        Doctor doctor = baseMapper.selectById(request.getId());
+        // 更新OAuth2
+        UserDTO userDTO = new UserDTO();
+        userDTO.setId(doctor.getUserId())
+                .setStatus(request.getStatus());
+        return oauthServiceClient.updateUser(userDTO);
+    }
+
+    /**
+     * 重置密码
+     *
+     * @param request 入参
+     * @return 账号密码
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public UsernameAndPasswordDTO resetPassword(ResetPasswordRequest request) {
+        Doctor doctor = baseMapper.selectById(request.getId());
+        User user = oauthServiceClient.getUserDetailByUserId(doctor.getUserId());
+        String password = PasswordAndUsernameGenerator.getDoctorPwd(user.getPhone(), doctor.getCreateTime());
+        User newUser = oauthServiceClient.resetPwd(doctor.getUserId(), password);
+        return new UsernameAndPasswordDTO(newUser.getUsername(), password);
+    }
+
+    /**
+     * 获取医生详情
+     * @param hospitalId 医院id
+     * @param doctorId 医生id
+     * @return
+     */
+    public Doctor getDoctor(Integer hospitalId, Integer doctorId) {
+        DoctorQuery query = new DoctorQuery();
+        query.setHospitalId(hospitalId).setId(doctorId);
+        return baseMapper.getBy(query)
+                .stream().findFirst().orElseThrow(()-> new BusinessException("未找到该医生"));
+    }
+
+    /**
+     * 获取医生，带Vo
+     * @param hospitalId 医院id
+     * @param doctorId 医生id
+     * @return
+     */
+    public DoctorDTO getDoctorVo(Integer hospitalId, Integer doctorId) {
+        Doctor doctor = getDoctor(hospitalId, doctorId);
+        DoctorDTO doctorVo = new DoctorDTO();
+        BeanUtils.copyProperties(doctor, doctorVo);
+        return doctorVo.setAvatarUrl(resourceFileService.getResourcePath(doctor.getAvatarFileId()))
+                .setSignUrl(resourceFileService.getResourcePath(doctor.getSignFileId()));
     }
 
     /**
