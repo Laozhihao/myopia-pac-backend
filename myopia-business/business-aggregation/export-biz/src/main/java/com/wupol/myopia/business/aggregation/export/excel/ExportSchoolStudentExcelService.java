@@ -18,7 +18,6 @@ import com.wupol.myopia.business.core.school.domain.dto.StudentExportDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
-import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO;
@@ -52,9 +51,6 @@ public class ExportSchoolStudentExcelService extends BaseExportExcelFileService 
 
     @Resource
     private SchoolStudentService schoolStudentService;
-
-    @Resource
-    private SchoolClassService schoolClassService;
 
     @Resource
     private VisionScreeningResultService visionScreeningResultService;
@@ -104,15 +100,15 @@ public class ExportSchoolStudentExcelService extends BaseExportExcelFileService 
                     .setAddress(item.getAddress())
                     .setLabel(WarningLevel.getDesc(item.getVisionLabel()))
                     .setSituation(VisionUtil.getVisionSummary(item.getGlassesType(), item.getMyopiaLevel(), item.getHyperopiaLevel(), item.getAstigmatismLevel()))
-                    .setScreeningCount(countMaps.getOrDefault(item.getId(), 0))
+                    .setScreeningCount(countMaps.getOrDefault(item.getStudentId(), 0))
                     .setQuestionCount(0)
                     .setLastScreeningTime(DateFormatUtil.format(item.getLastScreeningTime(), DateFormatUtil.FORMAT_ONLY_DATE))
                     .setProvince(addressMap.getOrDefault(ExportAddressKey.PROVIDE, StringUtils.EMPTY))
                     .setCity(addressMap.getOrDefault(ExportAddressKey.CITY, StringUtils.EMPTY))
                     .setArea(addressMap.getOrDefault(ExportAddressKey.AREA, StringUtils.EMPTY))
                     .setTown(addressMap.getOrDefault(ExportAddressKey.TOWN, StringUtils.EMPTY));
-            if (Objects.nonNull(visitMap.get(item.getId()))) {
-                exportVo.setVisitsCount(visitMap.get(item.getId()).size());
+            if (Objects.nonNull(visitMap.get(item.getStudentId()))) {
+                exportVo.setVisitsCount(visitMap.get(item.getStudentId()).size());
             } else {
                 exportVo.setVisitsCount(0);
             }
