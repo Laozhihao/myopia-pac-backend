@@ -10,11 +10,14 @@ import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
 import com.wupol.myopia.business.core.hospital.domain.dto.HospitalResponseDTO;
+import com.wupol.myopia.business.core.hospital.domain.dto.HospitalStudentRequestDTO;
+import com.wupol.myopia.business.core.hospital.domain.dto.HospitalStudentResponseDTO;
 import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
 import com.wupol.myopia.business.core.hospital.domain.model.HospitalAdmin;
 import com.wupol.myopia.business.core.hospital.domain.query.HospitalQuery;
 import com.wupol.myopia.business.core.hospital.service.HospitalAdminService;
 import com.wupol.myopia.business.core.hospital.service.HospitalService;
+import com.wupol.myopia.business.core.hospital.service.HospitalStudentService;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccountListDTO;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
@@ -48,6 +51,8 @@ public class HospitalBizService {
     private ResourceFileService resourceFileService;
     @Resource
     private OauthServiceClient oauthServiceClient;
+    @Resource
+    private HospitalStudentService hospitalStudentService;
 
     /**
      * 更新医院信息
@@ -183,5 +188,16 @@ public class HospitalBizService {
             username = mainUsername + adminList.size();
         }
         return hospitalService.generateAccountAndPassword(hospital,username);
+    }
+
+    /**
+     * 获取医院学生
+     *
+     * @param pageRequest 分页请求
+     * @param requestDTO  条件
+     * @return IPage<HospitalStudentResponseDTO>
+     */
+    public IPage<HospitalStudentResponseDTO> getHospitalStudent(PageRequest pageRequest, HospitalStudentRequestDTO requestDTO) {
+        return hospitalStudentService.getByList(pageRequest, requestDTO);
     }
 }

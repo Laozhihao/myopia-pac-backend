@@ -64,4 +64,18 @@
         group by hs.student_id
     </select>
 
+    <select id="getByList" resultType="com.wupol.myopia.business.core.hospital.domain.dto.HospitalStudentResponseDTO">
+        select *
+        from h_hospital_student where hospital_id = #{requestDTO.hospitalId}
+        <if test="requestDTO.name != null and requestDTO.name != ''">
+            and name like CONCAT('%', #{requestDTO.name}, '%')
+        </if>
+        and status = 0
+    </select>
+
+    <update id="deletedById">
+        update h_hospital_student
+        set status = 2
+        where id = #{id}
+    </update>
 </mapper>

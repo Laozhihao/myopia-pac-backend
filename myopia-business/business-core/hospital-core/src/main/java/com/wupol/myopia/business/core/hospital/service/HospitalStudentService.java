@@ -1,12 +1,17 @@
 package com.wupol.myopia.business.core.hospital.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.hospital.domain.dos.HospitalStudentDO;
+import com.wupol.myopia.business.core.hospital.domain.dto.HospitalStudentRequestDTO;
+import com.wupol.myopia.business.core.hospital.domain.dto.HospitalStudentResponseDTO;
 import com.wupol.myopia.business.core.hospital.domain.mapper.HospitalStudentMapper;
 import com.wupol.myopia.business.core.hospital.domain.model.HospitalStudent;
 import com.wupol.myopia.business.core.hospital.domain.query.HospitalStudentQuery;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -63,5 +68,26 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
      */
     public HospitalStudent getByIdCard(String idCard) {
         return findOne(new HospitalStudent().setIdCard(idCard));
+    }
+
+    /**
+     * 获取医院学生
+     *
+     * @param pageRequest 分页请求
+     * @param requestDTO  条件
+     * @return IPage<HospitalStudentResponseDTO>
+     */
+    public IPage<HospitalStudentResponseDTO> getByList(PageRequest pageRequest, HospitalStudentRequestDTO requestDTO) {
+        return baseMapper.getByList(pageRequest.toPage(), requestDTO);
+    }
+
+    /**
+     * 通过Id删除学生
+     *
+     * @param id 医院学生Id
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void deletedById(Integer id) {
+        baseMapper.deletedById(id);
     }
 }
