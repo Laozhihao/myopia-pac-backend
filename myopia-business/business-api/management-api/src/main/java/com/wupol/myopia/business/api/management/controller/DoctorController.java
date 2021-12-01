@@ -1,16 +1,18 @@
 package com.wupol.myopia.business.api.management.controller;
 
-import com.wupol.myopia.base.controller.BaseController;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
+import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.hospital.domain.dto.DoctorDTO;
-import com.wupol.myopia.business.core.hospital.domain.model.Doctor;
+import com.wupol.myopia.business.core.hospital.domain.query.DoctorQuery;
 import com.wupol.myopia.business.core.hospital.service.HospitalDoctorService;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -23,7 +25,32 @@ import javax.validation.Valid;
 @CrossOrigin
 @RestController
 @RequestMapping("/management/doctor")
-public class DoctorController extends BaseController<HospitalDoctorService, Doctor> {
+public class DoctorController {
+
+    @Autowired
+    private HospitalDoctorService baseService;
+
+    /**
+     * 获取医生详情
+     * @param id
+     * @return
+     */
+    @GetMapping("/{id}")
+    public DoctorDTO getDoctor(@PathVariable("id") Integer id) {
+        return baseService.getDetails(id);
+    }
+
+    /**
+     * 医生列表
+     *
+     * @param pageRequest 分页请求
+     * @param query       分页条件
+     * @return
+     */
+    @GetMapping("/list")
+    public IPage<DoctorDTO> getDoctorList(PageRequest pageRequest, DoctorQuery query) {
+        return baseService.getPage(pageRequest, query);
+    }
 
     /**
      * 添加医生

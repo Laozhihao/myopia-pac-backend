@@ -37,10 +37,19 @@
         <include refid="Base_Where_Clause" />
     </select>
 
-    <select id="getByPage" resultMap="BaseResultMap">
-        select *
+    <select id="getByPage" resultMap="DoctorDTO">
+        select d.*, h.name as hospital_name
         from h_doctor d
-        <include refid="Base_Where_Clause"/>
+        inner join m_hospital h
+        on d.hospital_id = h.id
+        <where>
+            <if test="@Ognl@isNotEmpty(query.like)">
+                and d.`name` like CONCAT("%",#{query.like},"%")
+            </if>
+            <if test="@Ognl@isNotEmpty(query.hospitalId)">
+                and d.hospital_id = #{query.hospitalId}
+            </if>
+        </where>
     </select>
 
     <select id="getDoctorVoList" resultMap="DoctorDTO">
@@ -49,6 +58,14 @@
         LEFT JOIN h_medical_report mr ON d.id = mr.doctor_id
         <include refid="Base_Where_Clause"/>
         group by d.id
+    </select>
+
+    <select id="getById" resultMap="DoctorDTO">
+        select d.*, h.name as hospital_name
+        from h_doctor d
+        inner join m_hospital h
+        on d.hospital_id = h.id
+        where d.id = #{id}
     </select>
 
 </mapper>

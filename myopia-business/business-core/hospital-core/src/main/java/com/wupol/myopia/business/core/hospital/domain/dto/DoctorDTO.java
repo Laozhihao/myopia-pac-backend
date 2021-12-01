@@ -17,7 +17,6 @@ public class DoctorDTO extends Doctor {
 
     /** 性别：0-男、1-女 */
     private Integer gender;
-    private Integer userId;
     private Integer createUserId;
     /** 手机号码 */
     private String phone;
@@ -28,4 +27,7 @@ public class DoctorDTO extends Doctor {
     private String avatarUrl;
     /** 签名url */
     private String signUrl;
+    /** 医院名称 */
+    private String hospitalName;
+
 }

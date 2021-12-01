@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.core.hospital.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -9,6 +9,7 @@ import com.wupol.myopia.base.util.PasswordAndUsernameGenerator;
 import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
+import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.hospital.domain.dto.DoctorDTO;
 import com.wupol.myopia.business.core.hospital.domain.mapper.DoctorMapper;
@@ -26,9 +27,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * 医院-医生
@@ -71,16 +72,24 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
         if (StringUtils.isBlank(phone) || phone.length() != 11) {
             new BusinessException("无效的手机号码！");
         }
-        List<User> users = getByPhone(phone);
-        if (CollectionUtils.isNotEmpty(users) && users.size() > 1) {
-            new BusinessException("手机号码已存在！");
+        User user = getByPhone(phone);
+        if (Objects.nonNull(user)) {
+            // 新增时，手机号码已存在
+            if (Objects.isNull(id)) {
+                new BusinessException("手机号码已存在！");
+            } else {
+                Doctor doctor = getById(id);
+                // 更新时，手机号码已存在
+                if (!doctor.getUserId().equals(user.getId())) {
+                    new BusinessException("手机号码已存在！");
+                }
+            }
         }
     }
 
-    public List<User> getByPhone(String phone) {
-        UserDTO userDTO = new UserDTO();
-        userDTO.setPhone(phone).setSystemCode(SystemCode.HOSPITAL_CLIENT.getCode());
-        return oauthServiceClient.getUserList(userDTO);
+    public User getByPhone(String phone) {
+        List<User> users = oauthServiceClient.getUserBatchByPhones(Arrays.asList(phone), SystemCode.HOSPITAL_CLIENT.getCode());
+        return CollectionUtils.isEmpty(users) ? null : users.get(0);
     }
 
     /**
@@ -89,33 +98,31 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
      * @param doctor     医生信息
      * @return UsernameAndPasswordDto 账号密码
      */
-    public UsernameAndPasswordDTO updateUserAndDoctor(Doctor doctor) {
+    public UsernameAndPasswordDTO updateUserAndDoctor(DoctorDTO doctor) {
+
+        Doctor oldDoctor = getById(doctor.getId());
+        User oldUser = oauthServiceClient.getUserDetailByUserId(oldDoctor.getUserId());
+        boolean usernameIsUpdate = false;
 
         UserDTO userDTO = new UserDTO();
-        userDTO.setId(doctor.getId());
-        Doctor oldDoctor = getById(doctor.getId());
-        int userIsUpdate = 0;   // 0：未修改；> 0 已修改；> 1，密码已修改，需反显
+        userDTO.setId(oldDoctor.getUserId())
+                .setGender(doctor.getGender())
+                .setRealName(doctor.getName())
+                .setOrgId(doctor.getHospitalId());
+
         // 手机号码（即账号）已修改，重新生成密码
-        if (StringUtils.isNotBlank(doctor.getPhone()) && (!doctor.getPhone().equals(oldDoctor.getPhone()))) {
+        if (StringUtils.isNotBlank(doctor.getPhone()) && (!doctor.getPhone().equals(oldUser.getPhone()))) {
             userDTO.setUsername(doctor.getPhone())
                     .setPassword(PasswordAndUsernameGenerator.getDoctorPwd(doctor.getPhone(), new Date()))
                     .setPhone(doctor.getPhone());
-            userIsUpdate += 2;
-        }
-        // 用户名修改
-        if (StringUtils.isNotBlank(doctor.getName()) && (!doctor.getName().equals(oldDoctor.getName()))) {
-            userDTO.setRealName(doctor.getName());
-            userIsUpdate += 1;
+            usernameIsUpdate = true;
         }
 
-        // 用户内容更新
-        if (userIsUpdate > 0) {
-            oauthServiceClient.updateUser(userDTO);
-        }
-
+        // 更新用户信息
+        User newUser = oauthServiceClient.updateUser(userDTO);
         this.updateOrSave(doctor);
-        UsernameAndPasswordDTO usernameAndPasswordDTO = new UsernameAndPasswordDTO(doctor.getPhone(), userDTO.getPassword());
-        return userIsUpdate > 1 ? usernameAndPasswordDTO : usernameAndPasswordDTO.setNoDisplay();
+        UsernameAndPasswordDTO usernameAndPasswordDTO = new UsernameAndPasswordDTO(newUser.getPhone(), userDTO.getPassword(), newUser.getRealName());
+        return usernameIsUpdate ? usernameAndPasswordDTO : usernameAndPasswordDTO.setNoDisplay();
     }
 
     /**
@@ -124,21 +131,22 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
      * @param doctor     医生信息
      * @return UsernameAndPasswordDto 账号密码
      */
-    public UsernameAndPasswordDTO generateUserAndSaveDoctor(Doctor doctor) {
+    public UsernameAndPasswordDTO generateUserAndSaveDoctor(DoctorDTO doctor) {
         String password = PasswordAndUsernameGenerator.getDoctorPwd(doctor.getPhone(), new Date());
         UserDTO userDTO = new UserDTO();
         userDTO.setOrgId(doctor.getHospitalId())
-                .setUsername(doctor.getPhone())
-                .setPhone(doctor.getPhone())
-                .setPassword(password)
                 .setRealName(doctor.getName())
+                .setGender(doctor.getGender())
+                .setPhone(doctor.getPhone())
+                .setUsername(doctor.getPhone())
+                .setPassword(password)
                 .setCreateUserId(doctor.getCreateUserId())
                 .setSystemCode(SystemCode.HOSPITAL_CLIENT.getCode());
 
         User user = oauthServiceClient.addMultiSystemUser(userDTO);
         doctor.setUserId(user.getId());
         this.updateOrSave(doctor);
-        return new UsernameAndPasswordDTO(doctor.getPhone(), password);
+        return new UsernameAndPasswordDTO(doctor.getPhone(), password, doctor.getName());
     }
 
     /**
@@ -168,8 +176,48 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
         Doctor doctor = baseMapper.selectById(request.getId());
         User user = oauthServiceClient.getUserDetailByUserId(doctor.getUserId());
         String password = PasswordAndUsernameGenerator.getDoctorPwd(user.getPhone(), doctor.getCreateTime());
-        User newUser = oauthServiceClient.resetPwd(doctor.getUserId(), password);
-        return new UsernameAndPasswordDTO(newUser.getUsername(), password);
+        oauthServiceClient.resetPwd(doctor.getUserId(), password);
+        return new UsernameAndPasswordDTO(user.getUsername(), password, user.getRealName());
+    }
+
+    /**
+     * 获取列表
+     * @param pageRequest
+     * @param query
+     * @return
+     */
+    public IPage<DoctorDTO> getPage(PageRequest pageRequest, DoctorQuery query) {
+        IPage<DoctorDTO> page = baseMapper.getByPage(pageRequest.toPage(), query);
+        // 获取用户相关信息
+        List<Integer> userIds = page.getRecords().stream().map(DoctorDTO::getUserId).collect(Collectors.toList());
+        List<User> userList = oauthServiceClient.getUserBatchByUserIds(userIds);
+        Map<Integer, User> userMap = userList.stream().collect(Collectors.toMap(User::getId, Function.identity()));
+        // 获取用户及图片信息
+        page.getRecords().forEach(doctor -> {
+            User user = userMap.get(doctor.getUserId());
+            createDTO(doctor, user);
+        });
+        return page;
+    }
+
+    /**
+     * 获取医生详情
+     * @param id
+     * @return
+     */
+    public DoctorDTO getDetails(Integer id) {
+        DoctorDTO doctor = baseMapper.getById(id);
+        User user = oauthServiceClient.getUserDetailByUserId(doctor.getUserId());
+        return createDTO(doctor, user);
+    }
+
+    private DoctorDTO createDTO(DoctorDTO simple, User user) {
+        simple.setGender(user.getGender())
+                .setPhone(user.getPhone())
+                .setStatus(user.getStatus())
+                .setAvatarUrl(resourceFileService.getResourcePath(simple.getAvatarFileId()))
+                .setSignUrl(resourceFileService.getResourcePath(simple.getSignFileId()));
+        return simple;
     }
 
     /**

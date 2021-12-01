@@ -15,7 +15,7 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class DoctorQuery extends DoctorDTO {
 
-    /** 模糊查询 */
+    /** 查询 */
     private String like;
 
 }
