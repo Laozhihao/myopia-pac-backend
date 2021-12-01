@@ -73,7 +73,7 @@ public class HospitalStudentBizService {
             hospitalStudent.setGradeName(Objects.isNull(gradeMap.get(hospitalStudent.getGradeId())) ? null : gradeMap.get(hospitalStudent.getGradeId()).getName());
             hospitalStudent.setClassName(Objects.isNull(classMap.get(hospitalStudent.getClassId())) ? null : classMap.get(hospitalStudent.getClassId()).getName());
             if (Objects.nonNull(hospitalStudent.getBirthday())){
-                hospitalStudent.setBirthdayInfo(DateUtil.dayComparePeriod(hospitalStudent.getBirthday()));
+                hospitalStudent.setBirthdayInfo(DateUtil.getAgeInfo(hospitalStudent.getBirthday()));
             }
         });
         return responseDTOIPage;
@@ -98,7 +98,7 @@ public class HospitalStudentBizService {
             hospitalStudent.setClassName(schoolClassService.getClassNameById(hospitalStudent.getClassId()));
         }
         if (Objects.nonNull(hospitalStudent.getBirthday())){
-            hospitalStudent.setBirthdayInfo(DateUtil.dayComparePeriod(hospitalStudent.getBirthday()));
+            hospitalStudent.setBirthdayInfo(DateUtil.getAgeInfo(hospitalStudent.getBirthday()));
         }
         return hospitalStudent;
     }
