@@ -261,11 +261,12 @@ public class VisionScreeningController {
      */
     @PutMapping("update")
     @Transactional(rollbackFor = Exception.class)
-    public void updateSchool(@RequestBody NotificationConfig notificationConfig) {
+    public Object updateSchool(@RequestBody NotificationConfig notificationConfig) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         School school = schoolService.getBySchoolId(currentUser.getOrgId());
         school.setNotificationConfig(notificationConfig);
         schoolService.updateById(school);
+        return ApiResult.success();
     }
 
     /**
