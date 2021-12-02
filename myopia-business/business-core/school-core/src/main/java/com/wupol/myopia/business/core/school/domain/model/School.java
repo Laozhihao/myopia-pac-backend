@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.school.domain.model;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.interfaces.HasName;
 import com.wupol.myopia.business.core.common.domain.model.AddressCode;
 import lombok.Data;
@@ -10,6 +11,7 @@ import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * 学校表
@@ -104,6 +106,26 @@ public class School extends AddressCode implements Serializable, HasName {
     private Integer status;
 
     /**
+     * 合作类型 0-合作 1-试用
+     */
+    private Integer cooperationType;
+
+    /**
+     * 合作期限类型 -1-自定义 0-30天 1-60天 2-180天 3-1年 4-2年 5-3年
+     */
+    private Integer cooperationTimeType;
+
+    /**
+     * 合作开始时间
+     */
+    private Date cooperationStartTime;
+
+    /**
+     * 合作结束时间
+     */
+    private Date cooperationEndTime;
+
+    /**
      * 创建时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -148,4 +170,12 @@ public class School extends AddressCode implements Serializable, HasName {
      * 监测点类型：1城区、2郊县
      */
     private Integer monitorType;
+
+    public Integer getCooperationRemainTime() {
+        if (Objects.nonNull(cooperationEndTime)) {
+            return Math.max(0, (int) DateUtil.betweenDay(cooperationEndTime, new Date(), true));
+        }
+        return null;
+    }
+
 }
