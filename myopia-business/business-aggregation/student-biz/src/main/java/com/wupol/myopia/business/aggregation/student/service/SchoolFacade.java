@@ -50,7 +50,7 @@ public class SchoolFacade {
      */
     public SchoolResponseDTO getBySchoolId(Integer id, boolean isSchoolManagement) {
         SchoolResponseDTO responseDTO = new SchoolResponseDTO();
-        School school = schoolService.getById(id);
+        School school = schoolService.getBySchoolId(id);
         BeanUtils.copyProperties(school, responseDTO);
         // 填充地址
         responseDTO.setAddressDetail(districtService.getAddressDetails(school.getProvinceCode(), school.getCityCode(), school.getAreaCode(), school.getTownCode(), school.getAddress()));
