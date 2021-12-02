@@ -356,7 +356,11 @@ public class ExcelStudentService {
         List<String> codeNotUploadSno = CollectionUtils.isEmpty(screeningCodeList) ? Collections.emptyList() : screeningCodeList.stream().filter(s -> s.getSchoolId().equals(schoolId)).map(ScreeningPlanSchoolStudent::getStudentNo).collect(Collectors.toList());
         if (CollectionUtils.hasLength(CompareUtil.getRetain(snoList, notUploadSno))
                 && CollectionUtils.hasLength(CompareUtil.getRetain(snoList, codeNotUploadSno))) {
-            throw new BusinessException("上传数据与已有筛查学生有学号存在重复");
+            List<String> result = ListUtils.sum(snoList, notUploadSno);
+            if (CollectionUtils.isEmpty(result)) {
+                result = ListUtils.sum(snoList, codeNotUploadSno);
+            }
+            throw new BusinessException("上传数据与已有筛查学生有学号存在重复，学号：" + result);
         }
     }
 
