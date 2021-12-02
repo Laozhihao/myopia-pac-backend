@@ -670,7 +670,7 @@ public class ExcelStudentService {
         // 学号是否已经使用过
         List<String> retain = ListUtils.retainAll(snoList, Lists.newArrayList(sno));
         if (!CollectionUtils.isEmpty(retain)) {
-            throw new BusinessException("学号" + sno + "重复");
+            throw new BusinessException("学校端学号" + sno + "重复");
         }
     }
 
