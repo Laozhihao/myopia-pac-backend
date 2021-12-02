@@ -105,7 +105,7 @@ public class ExcelStudentService {
         Map<String, Integer> gradeClassNameClassIdMap = schoolClassService.getVoBySchoolId(schoolId).stream().collect(Collectors.toMap(schoolClass -> String.format(GRADE_CLASS_NAME_FORMAT, schoolClass.getGradeName(), schoolClass.getName()), SchoolClass::getId));
 
         //4. 校验上传筛查学生数据是否合法
-        checkExcelDataLegal(snoList, gradeNameSet, gradeClassNameSet, gradeNameIdMap, gradeClassNameClassIdMap, alreadyExistOrNotStudents.get(false), screeningCodeMap.get(false));
+        checkExcelDataLegal(snoList, gradeNameSet, gradeClassNameSet, gradeNameIdMap, gradeClassNameClassIdMap, alreadyExistOrNotStudents.get(false), screeningCodeMap.get(false), schoolId);
         //5. 根据身份证号分批获取已有的学生
         Map<String, Student> idCardExistStudents = studentService.getByIdCards(new ArrayList<>(idCardSet)).stream().collect(Collectors.toMap(Student::getIdCard, Function.identity()));
         //6. 获取已有的筛查学生数据
@@ -341,7 +341,7 @@ public class ExcelStudentService {
     private void checkExcelDataLegal(List<String> snoList, Set<String> gradeNameSet, Set<String> gradeClassNameSet,
                                      Map<String, Integer> gradeNameIdMap, Map<String, Integer> gradeClassNameClassIdMap,
                                      List<ScreeningPlanSchoolStudent> notUploadStudents,
-                                     List<ScreeningPlanSchoolStudent> screeningCodeList) {
+                                     List<ScreeningPlanSchoolStudent> screeningCodeList, Integer schoolId) {
         // 年级名是否都存在
         if (gradeNameSet.stream().anyMatch(gradeName -> StringUtils.isEmpty(gradeName) || !gradeNameIdMap.containsKey(gradeName))) {
             throw new BusinessException("存在不正确的年级名称");
@@ -351,9 +351,9 @@ public class ExcelStudentService {
             throw new BusinessException("存在不正确的班级名称");
         }
 
-        // 上传的学号与已有的学号校验
-        List<String> notUploadSno = CollectionUtils.isEmpty(notUploadStudents) ? Collections.emptyList() : notUploadStudents.stream().map(ScreeningPlanSchoolStudent::getStudentNo).collect(Collectors.toList());
-        List<String> codeNotUploadSno = CollectionUtils.isEmpty(screeningCodeList) ? Collections.emptyList() : screeningCodeList.stream().map(ScreeningPlanSchoolStudent::getStudentNo).collect(Collectors.toList());
+        // 上传的学号与已有的学号校验(只考虑自己学校)
+        List<String> notUploadSno = CollectionUtils.isEmpty(notUploadStudents) ? Collections.emptyList() : notUploadStudents.stream().filter(s -> s.getSchoolId().equals(schoolId)).map(ScreeningPlanSchoolStudent::getStudentNo).collect(Collectors.toList());
+        List<String> codeNotUploadSno = CollectionUtils.isEmpty(screeningCodeList) ? Collections.emptyList() : screeningCodeList.stream().filter(s -> s.getSchoolId().equals(schoolId)).map(ScreeningPlanSchoolStudent::getStudentNo).collect(Collectors.toList());
         if (CollectionUtils.hasLength(CompareUtil.getRetain(snoList, notUploadSno))
                 && CollectionUtils.hasLength(CompareUtil.getRetain(snoList, codeNotUploadSno))) {
             throw new BusinessException("上传数据与已有筛查学生有学号存在重复");
