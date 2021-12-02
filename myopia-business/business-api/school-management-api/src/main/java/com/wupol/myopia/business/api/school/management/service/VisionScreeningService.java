@@ -89,7 +89,7 @@ public class VisionScreeningService {
         // 获取统计信息
         List<SchoolMonitorStatistic> statisticList = schoolMonitorStatisticService.getBySchoolId(schoolId);
         Map<Integer, SchoolMonitorStatistic> schoolStatisticMap = statisticList.stream()
-                .collect(Collectors.toMap(SchoolMonitorStatistic::getScreeningPlanId, Function.identity()));
+                .collect(Collectors.toMap(SchoolMonitorStatistic::getScreeningPlanId, Function.identity(), (o, n) -> o));
 
         // 筛查机构
         List<Integer> orgIds = schoolPlanList.stream().map(ScreeningListResponseDTO::getScreeningOrgId).collect(Collectors.toList());
