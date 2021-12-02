@@ -211,6 +211,12 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
         return createDTO(doctor, user);
     }
 
+    public DoctorDTO getDetailsByUserId(Integer userId) {
+        DoctorDTO doctor = baseMapper.getByUserId(userId);
+        User user = oauthServiceClient.getUserDetailByUserId(doctor.getUserId());
+        return createDTO(doctor, user);
+    }
+
     private DoctorDTO createDTO(DoctorDTO simple, User user) {
         simple.setGender(user.getGender())
                 .setPhone(user.getPhone())

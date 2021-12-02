@@ -68,4 +68,12 @@
         where d.id = #{id}
     </select>
 
+    <select id="getByUserId" resultMap="DoctorDTO">
+        select d.*, h.name as hospital_name
+        from h_doctor d
+        inner join m_hospital h
+        on d.hospital_id = h.id
+        where d.user_id = #{userId}
+    </select>
+
 </mapper>
