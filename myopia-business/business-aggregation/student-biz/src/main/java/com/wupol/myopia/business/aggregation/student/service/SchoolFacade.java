@@ -12,6 +12,7 @@ import com.wupol.myopia.business.core.school.management.service.SchoolStudentSer
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -73,15 +74,20 @@ public class SchoolFacade {
      */
     @Transactional(rollbackFor = Exception.class)
     public SchoolResponseDTO updateSchool(School school) {
-        if (schoolService.checkSchoolName(school.getName(), school.getId())) {
+        Integer schoolId = school.getId();
+        if (schoolService.checkSchoolName(school.getName(), schoolId)) {
             throw new BusinessException("学校名称重复，请确认");
+        }
+        School originalSchool = schoolService.getById(schoolId);
+        if (StringUtils.isNotBlank(originalSchool.getSchoolNo())) {
+            school.setSchoolNo(originalSchool.getSchoolNo());
         }
         District district = districtService.getById(school.getDistrictId());
         school.setDistrictProvinceCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
         schoolService.updateById(school);
         // 更新筛查计划中的学校
-        screeningPlanSchoolService.updateSchoolNameBySchoolId(school.getId(), school.getName());
-        School newSchool = schoolService.getById(school.getId());
+        screeningPlanSchoolService.updateSchoolNameBySchoolId(schoolId, school.getName());
+        School newSchool = schoolService.getById(schoolId);
         SchoolResponseDTO schoolResponseDTO = new SchoolResponseDTO();
         BeanUtils.copyProperties(newSchool, schoolResponseDTO);
         schoolResponseDTO.setDistrictName(districtService.getDistrictName(newSchool.getDistrictDetail()));
