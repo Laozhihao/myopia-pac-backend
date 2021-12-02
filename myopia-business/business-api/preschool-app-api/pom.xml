@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>business-api</artifactId>
@@ -8,23 +9,16 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>management-api</artifactId>
-    <description>管理端接口</description>
-
+    <artifactId>preschool-app-api</artifactId>
     <dependencies>
         <dependency>
             <groupId>com.wupol.myopia</groupId>
-            <artifactId>export-biz</artifactId>
+            <artifactId>screening-flow-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.wupol.myopia</groupId>
-            <artifactId>stat-core</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.wupol.myopia</groupId>
-            <artifactId>student-biz</artifactId>
+            <artifactId>school-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -34,17 +28,7 @@
         </dependency>
         <dependency>
             <groupId>com.wupol.myopia</groupId>
-            <artifactId>hospital-biz</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.wupol.myopia</groupId>
-            <artifactId>device-core</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.wupol.myopia</groupId>
-            <artifactId>screening-biz</artifactId>
+            <artifactId>hospital-core</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
