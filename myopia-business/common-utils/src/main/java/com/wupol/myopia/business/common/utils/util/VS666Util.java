@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.common.utils.util;
 
+import com.wupol.myopia.base.util.BigDecimalUtil;
 import lombok.experimental.UtilityClass;
 
 import java.math.BigDecimal;
@@ -28,13 +29,13 @@ public class VS666Util {
         if (absValue.compareTo(0.125) < 0) {
             result = 0.00;
         }
-        if (isBetweenLeft(absValue, 0.125, 0.375)) {
+        if (BigDecimalUtil.isBetweenLeft(absValue, 0.125, 0.375)) {
             result = 0.25;
         }
-        if (isBetweenLeft(absValue, 0.375, 0.625)) {
+        if (BigDecimalUtil.isBetweenLeft(absValue, 0.375, 0.625)) {
             result = 0.50;
         }
-        if (isBetweenLeft(absValue, 0.625, 0.875)) {
+        if (BigDecimalUtil.isBetweenLeft(absValue, 0.625, 0.875)) {
             result = 0.75;
         }
         if (absValue.compareTo(0.875) >= 0) {
@@ -61,17 +62,5 @@ public class VS666Util {
         //小数部分
         double decimalNum = valueDecimal.subtract(intBigDecimal).doubleValue();
         return new TwoTuple<>((double) intNum, decimalNum);
-    }
-
-    /**
-     * 判断是否在某个区间，左闭右开区间
-     *
-     * @param val   值
-     * @param start 开始值
-     * @param end   结束值
-     * @return 是否在区间内
-     */
-    public static boolean isBetweenLeft(Double val, Double start, Double end) {
-        return val.compareTo(start) >= 0 && val.compareTo(end) < 0;
     }
 }
