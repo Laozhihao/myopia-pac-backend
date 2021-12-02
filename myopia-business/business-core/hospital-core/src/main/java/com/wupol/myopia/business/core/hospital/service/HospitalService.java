@@ -97,11 +97,10 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     public Integer updateStatus(StatusRequest request) {
         Integer hospitalId = request.getId();
         Integer status = request.getStatus();
-        // 获取医院管理员信息
-        List<HospitalAdmin> hospitalAdminList = hospitalAdminService.findByList(new HospitalAdmin().setHospitalId(hospitalId));
+        Integer userId = request.getUserId();
         // 更新用户状态
         UserDTO user = new UserDTO();
-        user.setUserIds(hospitalAdminList.stream().map(HospitalAdmin::getUserId).collect(Collectors.toList()));
+        user.setId(userId);
         user.setStatus(request.getStatus());
         oauthServiceClient.updateUserStatusBatch(user);
         // 禁用医院，从合作医院中移除
