@@ -157,7 +157,8 @@ public class VisionScreeningController {
      */
     @GetMapping("/export/notice")
     public Map<String, String> downloadNoticeFile(@Valid ScreeningPlanSchoolStudent schoolClassInfo) {
-        return screeningExportService.getNoticeFile(schoolClassInfo);
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        return screeningExportService.getNoticeFile(schoolClassInfo, currentUser.getOrgId());
     }
 
     /**
