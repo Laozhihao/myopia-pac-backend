@@ -45,4 +45,6 @@ public interface SchoolMapper extends BaseMapper<School> {
 
     void updateStatus(@Param("request") StatusRequest request);
 
+    School getBySchoolId(@Param("id") Integer id);
+
 }
