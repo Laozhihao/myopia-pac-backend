@@ -49,6 +49,12 @@
             <artifactId>device-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- 0-6岁系统APP端 -->
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>preschool-app-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
