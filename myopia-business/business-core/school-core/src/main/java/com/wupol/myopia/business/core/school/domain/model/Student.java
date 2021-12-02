@@ -217,11 +217,6 @@ public class Student extends AddressCode implements Serializable {
     private Integer astigmatismLevel;
 
     /**
-     * 1-居委会 2-村委会 3-其他组织
-     */
-    private Integer committeeType;
-
-    /**
      * 是否新生儿暂无身份证 false-否 true-是
      */
     private Boolean isNewbornWithoutIdCard;
