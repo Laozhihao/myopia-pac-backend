@@ -133,6 +133,9 @@ public class VisionScreeningService {
                 }
             } else {
                 notificationConfig = new NotificationConfig();
+                notificationConfig.setTitle("学生视力筛查告家长书");
+                notificationConfig.setCall("亲爱的家长");
+                notificationConfig.setContent("您好！");
                 notificationConfig.setSubTitle(school.getName());
                 schoolPlan.setNotificationConfig(notificationConfig);
             }

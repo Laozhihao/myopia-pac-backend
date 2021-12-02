@@ -32,8 +32,6 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
-import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
-import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.stat.domain.model.SchoolVisionStatistic;
 import com.wupol.myopia.business.core.stat.service.SchoolVisionStatisticService;
 import org.springframework.transaction.annotation.Transactional;
@@ -91,9 +89,6 @@ public class VisionScreeningController {
 
     @Resource
     private ExportStrategy exportStrategy;
-
-    @Resource
-    private ScreeningOrganizationService screeningOrganizationService;
 
     /**
      * 获取学校计划
@@ -240,18 +235,6 @@ public class VisionScreeningController {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         exportStrategy.doExport(new ExportCondition().setApplyExportFileUserId(user.getId()).setPlanId(planId).setSchoolId(user.getOrgId()).setScreeningOrgId(screeningOrgId),
                 ExportExcelServiceNameConstant.STUDENT_WARNING_ARCHIVE_EXCEL_SERVICE);
-    }
-
-    /**
-     * 保存筛查机构（二维码）
-     *
-     * @param screeningOrganization 筛查机构
-     * @return ApiResult.success()
-     */
-    @PutMapping("update/screeningOrg")
-    public Object updateScreeningOrganization(@RequestBody @Valid ScreeningOrganization screeningOrganization) {
-        screeningOrganizationService.updateById(screeningOrganization);
-        return ApiResult.success();
     }
 
     /**
