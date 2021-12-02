@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 @ResponseResultBody
 @CrossOrigin
 @RestController
-@RequestMapping("/preschool/app")
-public class PreschoolInfoController {
+@RequestMapping("/preschool/app/doctor")
+public class PreschoolDoctorController {
 
 
 
