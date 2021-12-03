@@ -47,9 +47,7 @@ public class ParentZeroAndSixController {
      */
     @PutMapping("")
     public StudentDTO updateParentStudent(@RequestBody Student student) {
-//        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        CurrentUser currentUser = new CurrentUser();
-        currentUser.setId(2);
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         return parentStudentBizService.updateStudent(currentUser, student);
     }
 
@@ -62,6 +60,6 @@ public class ParentZeroAndSixController {
     @PostMapping("")
     public Integer saveParentStudent(@RequestBody Student student) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        return parentStudentBizService.saveStudent(student, currentUser);
+        return parentStudentBizService.saveRecordStudent(student, currentUser);
     }
 }

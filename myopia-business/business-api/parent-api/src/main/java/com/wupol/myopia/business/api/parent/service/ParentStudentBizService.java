@@ -490,4 +490,21 @@ public class ParentStudentBizService {
             throw new BusinessException("身份证不能为空");
         }
     }
+
+    /**
+     * 保存学生
+     *
+     * @param student     学生
+     * @param currentUser 当前用户
+     * @return Integer
+     */
+    public Integer saveRecordStudent(Student student, CurrentUser currentUser) {
+        Long committeeCode = student.getCommitteeCode();
+        if (Objects.isNull(committeeCode)) {
+            throw new BusinessException("委会行政区域code不能为空");
+        }
+        String recordNo = String.format("%s%05d", committeeCode, studentService.getByCommitteeCode(committeeCode).size() + 1);
+        student.setRecordNo(Long.valueOf(recordNo));
+        return saveStudent(student, currentUser);
+    }
 }

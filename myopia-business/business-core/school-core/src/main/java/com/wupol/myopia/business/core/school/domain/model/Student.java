@@ -228,6 +228,16 @@ public class Student extends AddressCode implements Serializable {
     private FamilyInfoVO familyInfo;
 
     /**
+     * 委会行政区域code
+     */
+    private Long committeeCode;
+
+    /**
+     * 检查建档编码
+     */
+    private Long recordNo;
+
+    /**
      * 上传筛查学生时，判断学生需更新信息是否一致
      * 由于只有部分字段，所以不使用equals
      *

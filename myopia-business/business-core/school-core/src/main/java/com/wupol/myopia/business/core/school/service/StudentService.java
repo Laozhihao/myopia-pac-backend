@@ -462,4 +462,14 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         student.setStatus(CommonConst.STATUS_IS_DELETED);
         updateById(student);
     }
+
+    /**
+     * 通过委会行政区域获取学生
+     *
+     * @param committeeCode 委会行政区域
+     * @return 学生
+     */
+    public List<Student> getByCommitteeCode(Long committeeCode) {
+        return baseMapper.getByCommitteeCode(committeeCode);
+    }
 }
