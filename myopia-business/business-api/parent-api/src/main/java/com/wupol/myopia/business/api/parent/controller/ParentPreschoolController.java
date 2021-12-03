@@ -19,8 +19,8 @@ import javax.annotation.Resource;
 @ResponseResultBody
 @CrossOrigin
 @RestController
-@RequestMapping("/parent/zeroAndSix")
-public class ParentZeroAndSixController {
+@RequestMapping("/parent/preschool")
+public class ParentPreschoolController {
 
     @Resource
     private StudentService studentService;
