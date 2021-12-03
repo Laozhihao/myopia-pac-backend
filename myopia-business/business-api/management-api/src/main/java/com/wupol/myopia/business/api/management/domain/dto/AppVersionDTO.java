@@ -75,7 +75,7 @@ public class AppVersionDTO implements Serializable {
     private Boolean isAutoUpdate;
 
     /**
-     * 状态，0-启用、1-停用（默认）
+     * 状态，0-停用（默认）、1-启用
      */
     @NotNull(message = "status不能为空", groups = UpdateStatusValidatorGroup.class)
     @Min(value = 0, message = "status值无效")
