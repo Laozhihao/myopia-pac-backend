@@ -8,13 +8,11 @@ import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.util.VisionUtil;
 import com.wupol.myopia.business.core.hospital.domain.model.MedicalReport;
-import com.wupol.myopia.business.core.hospital.domain.query.MedicalReportQuery;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
-import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
@@ -24,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -78,7 +75,7 @@ public class ExportStudentWarningArchiveExcelService extends BaseExportExcelFile
                     .setDeskAndChairTypeSuggest(getDeskAndChairTypeSuggest(null, statConclusionExport.getSchoolAge()))
                     .setSeatDistanceSuggest(StatUtil.isMyopia(statConclusionExport.getMyopiaLevel()) ? SEAT_DISTANCE_SUGGEST : StringUtils.EMPTY);
             // 设置就诊信息
-            setVisitInfo(studentWarningArchive, statConclusionExport.getStudentId(), statConclusionExport.getId(), statConclusionExport.getCreateTime());
+            setVisitInfo(studentWarningArchive, statConclusionExport);
             return studentWarningArchive;
         }).collect(Collectors.toList());
     }
@@ -102,26 +99,23 @@ public class ExportStudentWarningArchiveExcelService extends BaseExportExcelFile
     /**
      * 设置就诊信息
      *
-     * @param studentWarningArchive 预计跟踪档案
-     * @param studentId 学生ID
-     * @param currentStatConclusionId 当前筛查统计记录ID
-     * @param startDate 开始时间
-     * @return void
-     **/
-    private void setVisitInfo(StudentWarningArchive studentWarningArchive, Integer studentId, Integer currentStatConclusionId, Date startDate) {
-        // 获取下一次的筛查记录
-        StatConclusion nextScreeningStat = statConclusionService.getNextScreeningStat(currentStatConclusionId, studentId);
-        // 获取下次筛查前的最新一条就诊记录，需求：https://vistelab.sharepoint.com/:w:/r/sites/msteams_4c1013/_layouts/15/Doc.aspx?sourcedoc=%7B9EC045B8-B6C4-4F0A-AB18-57733870408D%7D&file=JS1.1.010-1%E8%81%94%E5%8A%A8-%E7%AE%A1%E7%90%86%E5%90%8E%E5%8F%B0%E5%B0%B1%E8%AF%8A%E5%88%A4%E6%96%AD%E5%92%8C%E8%B4%A6%E5%8F%B7%E5%90%8D%E7%A7%B0%E5%8F%98%E6%9B%B4%E5%8A%9F%E8%83%BD.docx&action=default&mobileredirect=true&cid=9936c55c-3d63-4be4-8dde-07c6ab354a12
-        MedicalReportQuery medicalReportQuery = new MedicalReportQuery();
-        medicalReportQuery.setStudentId(studentId);
-        MedicalReport lastMedicalReport = medicalReportService.getLastOne(medicalReportQuery.setStartDate(startDate).setEndDate(Objects.isNull(nextScreeningStat) ? null : nextScreeningStat.getCreateTime()));
-        if (Objects.isNull(lastMedicalReport)) {
+     * @param studentWarningArchive   预计跟踪档案
+     * @param statConclusionExportDTO 筛查统计记录
+     */
+    private void setVisitInfo(StudentWarningArchive studentWarningArchive, StatConclusionExportDTO statConclusionExportDTO) {
+        Integer reportId = statConclusionExportDTO.getReportId();
+        if (Objects.isNull(reportId)) {
+            studentWarningArchive.setIsVisited("未去");
+            return;
+        }
+        MedicalReport report = medicalReportService.getById(reportId);
+        if (Objects.isNull(report)) {
             studentWarningArchive.setIsVisited("未去");
             return;
         }
         studentWarningArchive.setIsVisited("已去")
-                .setGlassesSuggest(WearingGlassesSuggestEnum.getDescByCode(lastMedicalReport.getGlassesSituation()))
-                .setVisitResult(lastMedicalReport.getMedicalContent());
+                .setGlassesSuggest(WearingGlassesSuggestEnum.getDescByCode(report.getGlassesSituation()))
+                .setVisitResult(report.getMedicalContent());
     }
 
     @Override

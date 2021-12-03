@@ -7,10 +7,17 @@ import com.wupol.myopia.business.core.hospital.domain.model.*;
 import com.wupol.myopia.business.core.hospital.domain.query.HospitalStudentQuery;
 import com.wupol.myopia.business.core.hospital.domain.query.MedicalRecordQuery;
 import com.wupol.myopia.business.core.hospital.service.*;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
+import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
@@ -18,6 +25,7 @@ import java.util.Objects;
 
 /**
  * 医院-报告数据的业务模块
+ *
  * @Author Chikong
  * @Date 2020/12/22
  **/
@@ -36,6 +44,12 @@ public class MedicalReportBizService {
     private HospitalService hospitalService;
     @Autowired
     private ResourceFileService resourceFileService;
+    @Autowired
+    private StatConclusionService statConclusionService;
+    @Autowired
+    private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
+    @Autowired
+    private ScreeningPlanService screeningPlanService;
 
 
     /**
@@ -51,7 +65,7 @@ public class MedicalReportBizService {
                 MedicalRecordQuery query = new MedicalRecordQuery();
                 query.setId(report.getMedicalRecordId());
                 updateReportConclusion(report); // 更新报告的固化数据
-                successCount ++;
+                successCount++;
             } catch (BusinessException e) {
                 log.error("生成报告的固化结论失败。report id = ." + report.getId(), e);
             }
@@ -60,13 +74,17 @@ public class MedicalReportBizService {
     }
 
 
-    /** 更新报告的固化数据 */
+    /**
+     * 更新报告的固化数据
+     */
     private void updateReportConclusion(MedicalReport report) {
         report.setReportConclusionData(generateReportConclusion(report));
         medicalReportService.saveOrUpdate(report);
     }
 
-    /** 获取报告的固化数据 */
+    /**
+     * 获取报告的固化数据
+     */
     private ReportConclusion generateReportConclusion(MedicalReport report) {
         ReportConclusion.ReportInfo reportInfo = new ReportConclusion.ReportInfo();
         BeanUtils.copyProperties(report, reportInfo);
@@ -74,8 +92,8 @@ public class MedicalReportBizService {
         HospitalStudentQuery query = new HospitalStudentQuery();
         query.setStudentId(report.getStudentId()).setHospitalId(report.getHospitalId());
         HospitalStudent hospitalStudent = hospitalStudentService.getBy(query).stream().findFirst()
-                .orElseThrow(()-> {
-                    log.error("生成固化结论时，未找到对应学生. studentId="+report.getStudentId() + ", hospitalId="+report.getHospitalId());
+                .orElseThrow(() -> {
+                    log.error("生成固化结论时，未找到对应学生. studentId=" + report.getStudentId() + ", hospitalId=" + report.getHospitalId());
                     return new BusinessException("未找到该学生");
                 });
         ReportConclusion conclusion = new ReportConclusion()
@@ -97,6 +115,7 @@ public class MedicalReportBizService {
 
     /**
      * 获取报告结论，如果有固化的则直接使用，如果没有则组装
+     *
      * @param reportId 报告id
      */
     public ReportConclusion getReportConclusion(Integer reportId) {
@@ -105,6 +124,7 @@ public class MedicalReportBizService {
 
     /**
      * 获取报告结论，如果有固化的则直接使用，如果没有则组装
+     *
      * @param report 报告
      */
     public ReportConclusion getReportConclusion(MedicalReport report) {
@@ -200,5 +220,29 @@ public class MedicalReportBizService {
         return reportResult;
     }
 
-
+    /**
+     * 更新学生统计就诊信息
+     *
+     * @param report 报告
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void updateStatConclusion(MedicalReport report) {
+        // 先查出最新的一条筛查学生
+        ScreeningPlanSchoolStudent planSchoolStudent = screeningPlanSchoolStudentService.getLastByStudentId(report.getStudentId());
+        if (Objects.isNull(planSchoolStudent)) {
+            return;
+        }
+        ScreeningPlan screeningPlan = screeningPlanService.getById(planSchoolStudent.getScreeningPlanId());
+        if (Objects.isNull(screeningPlan)) {
+            return;
+        }
+        // 判断筛查时间是否大于报告生成时间
+        if (screeningPlan.getStartTime().before(report.getCreateTime())) {
+            StatConclusion statConclusion = statConclusionService.getByPlanStudentId(planSchoolStudent.getId());
+            if (Objects.nonNull(statConclusion)) {
+                statConclusion.setReportId(report.getId());
+                statConclusionService.updateById(statConclusion);
+            }
+        }
+    }
 }

@@ -3,6 +3,7 @@ package com.wupol.myopia.business.api.management.schedule;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.CompareUtil;
 import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
 import com.wupol.myopia.business.api.management.domain.builder.*;
 import com.wupol.myopia.business.api.management.service.SchoolBizService;
 import com.wupol.myopia.business.api.management.service.StatService;
@@ -76,7 +77,7 @@ public class ScheduledTasksExecutor {
     @Autowired
     private StatService statService;
     @Autowired
-    private StatRescreenService statRescreenService;
+    private VisionScreeningBizService visionScreeningBizService;
 
     /**
      * 筛查数据统计

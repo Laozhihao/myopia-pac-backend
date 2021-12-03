@@ -15,7 +15,7 @@ public class StudentCountDTO {
     /**
      * 学校编号
      */
-    private String schoolNo;
+    private Integer schoolId;
 
     /**
      * 学生统计

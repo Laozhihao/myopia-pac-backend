@@ -44,4 +44,9 @@ public class ExportExcelServiceNameConstant {
      * 学生预警跟踪档案
      */
     public final String STUDENT_WARNING_ARCHIVE_EXCEL_SERVICE = "studentWarningArchiveExcelService";
+
+    /**
+     * 学校端-学生
+     */
+    public final String SCHOOL_STUDENT_EXCEL_SERVICE = "schoolStudentExcelService";
 }

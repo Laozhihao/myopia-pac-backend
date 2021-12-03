@@ -31,6 +31,9 @@ public class SchoolVisionStatisticBuilder {
         Integer myopiaNumber = (int) statConclusions.stream().filter(StatConclusion::getIsMyopia).count();
         Integer ametropiaNumber = (int) statConclusions.stream().filter(StatConclusion::getIsRefractiveError).count();
         Integer lowVisionNumber = (int) statConclusions.stream().filter(StatConclusion::getIsLowVision).count();
+
+        Integer bindMpNumber = (int) statConclusions.stream().filter(s -> Objects.nonNull(s.getIsBindMp()) && s.getIsBindMp()).count();
+        Integer reviewNumber = (int) statConclusions.stream().filter(s -> Objects.nonNull(s.getReportId())).count();
         // 近视等级人数
         Map<Integer, Long> myopiaLevelMap = statConclusions.stream().filter(stat -> Objects.nonNull(stat.getMyopiaLevel())).collect(Collectors.groupingBy(StatConclusion::getMyopiaLevel, Collectors.counting()));
         // 预警人群、建议就诊使用所有筛查数据（有效、无效）
@@ -64,7 +67,9 @@ public class SchoolVisionStatisticBuilder {
                 .setMyopiaLevelLight(myopiaLevelMap.getOrDefault(MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.code,0L).intValue())
                 .setMyopiaLevelMiddle(myopiaLevelMap.getOrDefault(MyopiaLevelEnum.MYOPIA_LEVEL_MIDDLE.code,0L).intValue())
                 .setMyopiaLevelHigh(myopiaLevelMap.getOrDefault(MyopiaLevelEnum.MYOPIA_LEVEL_HIGH.code,0L).intValue())
-                .setMyopiaLevelInsufficient(visionLabelZeroSPNumbers);
+                .setMyopiaLevelInsufficient(visionLabelZeroSPNumbers)
+                .setBindMpNumbers(bindMpNumber)
+                .setReviewNumbers(reviewNumber);
         return statistic;
     }
 }

@@ -23,7 +23,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
@@ -106,12 +105,6 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             throw new BusinessException("学生年龄太大");
         }
         student.checkIdCard();
-        // 兼容处理，避免漏掉学校ID
-        if (StringUtils.isNotBlank(student.getSchoolNo()) && Objects.isNull(student.getSchoolId())) {
-            School school = schoolService.getBySchoolNo(student.getSchoolNo());
-            Assert.notNull(school, "找不到该学校：" + student.getSchoolNo());
-            student.setSchoolId(school.getId());
-        }
         // 设置学龄
         if (null != student.getGradeId()) {
             SchoolGrade grade = schoolGradeService.getById(student.getGradeId());
@@ -203,11 +196,10 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     public StudentDTO getStudentById(Integer id) {
         StudentDTO student = baseMapper.getStudentById(id);
 
-        if (StringUtils.isNotBlank(student.getSchoolNo())) {
+        if (Objects.nonNull(student.getSchoolId())) {
             // 学校编号不为空，则拼接学校信息
-            School school = schoolService.getBySchoolNo(student.getSchoolNo());
+            School school = schoolService.getById(student.getSchoolId());
             student.setSchoolId(school.getId());
-            student.setSchoolNo(school.getSchoolNo());
             student.setSchoolName(school.getName());
             if (null != student.getClassId() && null != student.getGradeId()) {
                 SchoolGrade schoolGrade = schoolGradeService.getById(student.getGradeId());
@@ -234,8 +226,8 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      *
      * @return List<StudentCountDTO>
      */
-    public List<StudentCountDTO> countStudentBySchoolNo() {
-        return baseMapper.countStudentBySchoolNo();
+    public List<StudentCountDTO> countStudentBySchoolId() {
+        return baseMapper.countStudentBySchoolId();
     }
 
 
@@ -272,6 +264,16 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      */
     public Boolean checkIdCards(List<String> idCards) {
         return baseMapper.getByIdCardsAndStatus(idCards, CommonConst.STATUS_NOT_DELETED).size() > 0;
+    }
+
+    /**
+     * 通过身份证获取学生
+     *
+     * @param idCards 身份证号码
+     * @return 是否重复
+     */
+    public List<Student> getByIdCardsAndStatus(List<String> idCards) {
+        return baseMapper.getByIdCardsAndStatus(idCards, CommonConst.STATUS_NOT_DELETED);
     }
 
     /**
@@ -367,8 +369,8 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         baseMapper.updateById(student);
         // 查询信息
         StudentDTO resultStudent = baseMapper.getStudentById(student.getId());
-        if (StringUtils.isNotBlank(resultStudent.getSchoolNo())) {
-            School school = schoolService.getBySchoolNo(resultStudent.getSchoolNo());
+        if (Objects.nonNull(resultStudent.getSchoolId())) {
+            School school = schoolService.getById(resultStudent.getSchoolId());
             resultStudent.setSchoolName(school.getName());
             resultStudent.setSchoolId(school.getId());
 
@@ -448,5 +450,16 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      */
     public List<Student> getDeleteStudentByIdCard(List<String> idCards) {
         return baseMapper.getDeleteStudentByIdCard(idCards);
+    }
+
+    /**
+     * 删除学生
+     *
+     * @param studentId 学生Id
+     */
+    public void deletedStudent(Integer studentId) {
+        Student student = getById(studentId);
+        student.setStatus(CommonConst.STATUS_IS_DELETED);
+        updateById(student);
     }
 }

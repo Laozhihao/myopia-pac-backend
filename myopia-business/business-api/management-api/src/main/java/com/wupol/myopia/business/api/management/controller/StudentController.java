@@ -10,6 +10,7 @@ import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelSe
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.hospital.domain.dto.StudentVisitReportResponseDTO;
 import com.wupol.myopia.business.aggregation.hospital.service.MedicalReportBizService;
+import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
 import com.wupol.myopia.business.api.management.domain.vo.StudentWarningArchiveVO;
 import com.wupol.myopia.business.api.management.service.StudentBizService;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
@@ -60,6 +61,9 @@ public class StudentController {
 
     @Autowired
     private MedicalReportBizService medicalReportBizService;
+
+    @Autowired
+    private StudentFacade studentFacade;
 
     /**
      * 新增学生
@@ -178,7 +182,7 @@ public class StudentController {
      */
     @GetMapping("/screening/{id}")
     public StudentScreeningResultResponseDTO getScreeningList(@PathVariable("id") Integer id) {
-        return studentBizService.getScreeningList(id);
+        return studentFacade.getScreeningList(id);
     }
 
     /**
@@ -189,7 +193,7 @@ public class StudentController {
      */
     @GetMapping("/screening/card/{resultId}")
     public StudentCardResponseVO getCardDetails(@PathVariable("resultId") Integer resultId) {
-        return studentBizService.getCardDetail(resultId);
+        return studentFacade.getCardDetail(resultId);
     }
 
     /**

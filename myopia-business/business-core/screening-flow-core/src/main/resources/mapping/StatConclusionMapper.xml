@@ -89,7 +89,8 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, update_time,student_id, is_vision_warning,vision_warning_update_time, age, result_id, screening_org_id, screening_plan_school_student_id,src_screening_notice_id,task_id, plan_id, district_id, school_age, gender, warning_level, vision_l, vision_r, is_low_vision, is_refractive_error, is_myopia, is_hyperopia, is_astigmatism,  is_recommend_visit, is_rescreen, rescreen_error_num, is_valid, create_time, school_id, school_grade_code, school_class_name, myopia_warning_level, naked_vision_warning_level, glasses_type, vision_correction,myopia_level,hyperopia_level,astigmatism_level
+        id, update_time,student_id, is_vision_warning,vision_warning_update_time, age, result_id, screening_org_id, screening_plan_school_student_id,src_screening_notice_id,task_id, plan_id, district_id, school_age, gender, warning_level, vision_l, vision_r, is_low_vision, is_refractive_error, is_myopia, is_hyperopia, is_astigmatism,  is_recommend_visit, is_rescreen, rescreen_error_num, is_valid, create_time, school_id, school_grade_code, school_class_name, myopia_warning_level, naked_vision_warning_level, glasses_type, vision_correction,myopia_level,hyperopia_level,astigmatism_level,
+        is_bind_mp,report_id
     </sql>
 
     <!-- 通用查询结果列 -->
@@ -98,7 +99,7 @@
         mspss.student_no, mspss.id_card, mspss.parent_phone, mspss.province_code, mspss.city_code, mspss.town_code, mspss.area_code, mspss.address,
         mvsr.vision_data, mvsr.computer_optometry, msc.glasses_type, msc.warning_level, msc.is_rescreen, msc.screening_plan_school_student_id,
         mvsr.ocular_inspection_data,mvsr.eye_pressure_data,mvsr.fundus_data,mvsr.slit_lamp_data,mvsr.pupil_optometry_data,mvsr.visual_loss_level_data,
-        mvsr.systemic_disease_symptom,mvsr.biometric_data,mvsr.other_eye_diseases, mspss.grade_id, mspss.class_id, msc.myopia_level,msc.hyperopia_level,msc.astigmatism_level,mspss.student_id,msc.create_time
+        mvsr.systemic_disease_symptom,mvsr.biometric_data,mvsr.other_eye_diseases, mspss.grade_id, mspss.class_id, msc.myopia_level,msc.hyperopia_level,msc.astigmatism_level,mspss.student_id,msc.create_time,msc.report_id
     </sql>
 
     <select id="selectLastOne" resultMap="BaseResultMap" parameterType="java.util.Map">
@@ -235,4 +236,68 @@
         LIMIT 1
     </select>
 
+    <select id="getByResultIds" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_stat_conclusion msc where msc.result_id in
+        <foreach collection="resultIds" item="resultId" index="index" open="(" close=")" separator=",">
+            #{resultId}
+        </foreach>
+    </select>
+
+    <select id="getByDate" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_stat_conclusion
+        where create_time between DATE(#{start}) and DATE(#{end})
+    </select>
+
+    <select id="getTrackList"
+            resultType="com.wupol.myopia.business.core.screening.flow.domain.dto.StudentTrackWarningResponseDTO">
+        select msc.student_id,
+               msc.report_id,
+               mspss.student_name as name,
+               mspss.gender,
+               mspss.class_name,
+               mspss.grade_name,
+               mspss.student_no   as sno,
+               msc.warning_level,
+               msc.myopia_level,
+               msc.hyperopia_level,
+               msc.astigmatism_level,
+               msc.is_bind_mp
+        from m_stat_conclusion msc
+                     left join m_screening_plan_school_student mspss on msc.screening_plan_school_student_id = mspss.id
+                where msc.plan_id = #{requestDTO.planId}
+                  and msc.school_id = #{schoolId}
+        <if test="requestDTO.classId != null">
+            and mspss.class_id = #{requestDTO.classId}
+        </if>
+        <if test="requestDTO.gradeId != null">
+            and mspss.grade_id = #{requestDTO.gradeId}
+        </if>
+        <if test="requestDTO.isBindMp != null">
+            and msc.is_bind_mp = #{requestDTO.isBindMp}
+        </if>
+        <if test="requestDTO.visionLabel != null">
+            and msc.warning_level = #{requestDTO.visionLabel}
+        </if>
+        <if test="requestDTO.isReview != null">
+            <choose>
+                <when test="requestDTO.isReview == true">
+                    and msc.report_id IS NOT NULL
+                </when>
+                <when test="requestDTO.isReview == false">
+                    and msc.report_id IS NULL
+                </when>
+            </choose>
+        </if>
+    </select>
+
+    <select id="getByPlanStudentId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_stat_conclusion
+        where screening_plan_school_student_id = #{planStudentId}
+    </select>
 </mapper>

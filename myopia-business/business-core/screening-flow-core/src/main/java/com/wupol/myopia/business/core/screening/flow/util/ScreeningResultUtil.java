@@ -169,13 +169,16 @@ public class ScreeningResultUtil {
         Integer maxType = 0;
 
         RefractoryResultItems sphItems = new RefractoryResultItems();
-        sphItems.setTitle("等效球镜SE");
+        sphItems.setTitle("球镜SC");
 
         RefractoryResultItems cylItems = new RefractoryResultItems();
         cylItems.setTitle("柱镜DC");
 
         RefractoryResultItems axialItems = new RefractoryResultItems();
         axialItems.setTitle("轴位A");
+
+        RefractoryResultItems seItems = new RefractoryResultItems();
+        seItems.setTitle("等效球镜SE");
 
         if (Objects.nonNull(date)) {
             // 左眼数据
@@ -189,17 +192,13 @@ public class ScreeningResultUtil {
             BigDecimal leftAxial = leftEyeData.getAxial();
             BigDecimal rightAxial = date.getRightEyeData().getAxial();
 
-            // 左眼等效球镜SE
-            if (Objects.nonNull(leftSph) && Objects.nonNull(leftCyl)) {
-                TwoTuple<Integer, RefractoryResultItems.Item> result = packageSpnItem(leftSph, leftCyl, age, maxType);
-                maxType = result.getFirst();
-                sphItems.setOs(result.getSecond());
+            // 左眼球镜
+            if (Objects.nonNull(leftSph)) {
+                sphItems.setOs(packageSpnItem(leftSph));
             }
-            // 右眼等效球镜SE
-            if (Objects.nonNull(rightSph) && Objects.nonNull(rightCyl)) {
-                TwoTuple<Integer, RefractoryResultItems.Item> result = packageSpnItem(rightSph, rightCyl, age, maxType);
-                maxType = result.getFirst();
-                sphItems.setOd(result.getSecond());
+            // 右眼球镜
+            if (Objects.nonNull(rightSph)) {
+                sphItems.setOd(packageSpnItem(rightSph));
             }
             items.add(sphItems);
 
@@ -226,9 +225,24 @@ public class ScreeningResultUtil {
                 axialItems.setOd(packageAxialItem(rightAxial));
             }
             items.add(axialItems);
+
+            // 左眼等效球镜SE
+            if (Objects.nonNull(leftSph) && Objects.nonNull(leftCyl)) {
+                TwoTuple<Integer, RefractoryResultItems.Item> result = packageSeItem(leftSph, leftCyl, age, maxType);
+                maxType = result.getFirst();
+                seItems.setOs(result.getSecond());
+            }
+            // 右眼等效球镜SE
+            if (Objects.nonNull(rightSph) && Objects.nonNull(rightCyl)) {
+                TwoTuple<Integer, RefractoryResultItems.Item> result = packageSeItem(rightSph, rightCyl, age, maxType);
+                maxType = result.getFirst();
+                seItems.setOd(result.getSecond());
+            }
+            items.add(seItems);
+
             return new TwoTuple<>(items, maxType);
         }
-        items.add(sphItems);
+        items.add(seItems);
         items.add(cylItems);
         items.add(axialItems);
         return new TwoTuple<>(items, maxType);
@@ -243,8 +257,8 @@ public class ScreeningResultUtil {
      * @param maxType 最大类型
      * @return TwoTuple<Integer, RefractoryResultItems.Item>
      */
-    public static TwoTuple<Integer, RefractoryResultItems.Item> packageSpnItem(BigDecimal spn, BigDecimal cyl,
-                                                                               Integer age, Integer maxType) {
+    public static TwoTuple<Integer, RefractoryResultItems.Item> packageSeItem(BigDecimal spn, BigDecimal cyl,
+                                                                              Integer age, Integer maxType) {
         RefractoryResultItems.Item sphItems = new RefractoryResultItems.Item();
         // 等效球镜SE
         sphItems.setVision(calculationSE(spn, cyl));
@@ -944,6 +958,9 @@ public class ScreeningResultUtil {
         BigDecimal correctedVision;
 
 
+        if (Objects.isNull(glassesType)) {
+            return RecommendVisitEnum.EMPTY;
+        }
         // 佩戴眼镜
         if (glassesType >= 1) {
             // 5岁以下
@@ -1496,5 +1513,18 @@ public class ScreeningResultUtil {
             rightSE = calculationSE(rightSph, rightCyl);
         }
         return new TwoTuple<>(leftSE, rightSE);
+    }
+
+    /**
+     * 设置球镜
+     *
+     * @param spn 球镜
+     * @return RefractoryResultItems.Item
+     */
+    private RefractoryResultItems.Item packageSpnItem(BigDecimal spn) {
+        RefractoryResultItems.Item spnItems = new RefractoryResultItems.Item();
+        spnItems.setVision(spn);
+        spnItems.setTypeName(spn.abs().multiply(new BigDecimal("100")) + "度");
+        return spnItems;
     }
 }

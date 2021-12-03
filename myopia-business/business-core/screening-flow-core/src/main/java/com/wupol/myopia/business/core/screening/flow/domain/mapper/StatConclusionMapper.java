@@ -1,6 +1,8 @@
 package com.wupol.myopia.business.core.screening.flow.domain.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import org.apache.ibatis.annotations.Param;
@@ -22,6 +24,7 @@ public interface StatConclusionMapper extends BaseMapper<StatConclusion> {
 
     /**
      * 获取统计结论数据
+     *
      * @param query 查询条件
      * @return
      */
@@ -29,6 +32,7 @@ public interface StatConclusionMapper extends BaseMapper<StatConclusion> {
 
     /**
      * 根据筛查计划ID获取Vo列表
+     *
      * @param screeningPlanId
      * @return
      */
@@ -52,7 +56,7 @@ public interface StatConclusionMapper extends BaseMapper<StatConclusion> {
     /**
      * 根据筛查通知ID获取学校ID
      *
-     * @param noticeId 筛查通知ID
+     * @param noticeId    筛查通知ID
      * @param districtIds 行政区域ID集
      * @return java.util.List<java.lang.Integer>
      **/
@@ -68,6 +72,7 @@ public interface StatConclusionMapper extends BaseMapper<StatConclusion> {
 
     /**
      * 获取指定时间内进行
+     *
      * @param date
      * @param isRescreen
      * @return
@@ -78,8 +83,16 @@ public interface StatConclusionMapper extends BaseMapper<StatConclusion> {
      * 获取下一条筛查统计
      *
      * @param statConclusionId 表ID
-     * @param studentId 学校ID
+     * @param studentId        学校ID
      * @return com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion
      **/
-    StatConclusion getNextScreeningStat(@Param("statConclusionId")Integer statConclusionId, @Param("studentId")Integer studentId);
+    StatConclusion getNextScreeningStat(@Param("statConclusionId") Integer statConclusionId, @Param("studentId") Integer studentId);
+
+    List<StatConclusion> getByResultIds(@Param("resultIds") List<Integer> resultIds);
+
+    List<StatConclusion> getByDate(@Param("start") Date start, @Param("end") Date end);
+
+    IPage<StudentTrackWarningResponseDTO> getTrackList(@Param("page") Page<?> page, @Param("requestDTO") StudentTrackWarningRequestDTO requestDTO, @Param("schoolId") Integer schoolId);
+
+    StatConclusion getByPlanStudentId(@Param("planStudentId") Integer planStudentId);
 }

@@ -10,7 +10,6 @@ import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
-import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
@@ -19,7 +18,6 @@ import com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentCountDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolAdmin;
-import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.SchoolAdminService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
@@ -44,7 +42,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
@@ -96,54 +93,6 @@ public class SchoolBizService {
 
     @Autowired
     private StatRescreenService statRescreenService;
-
-    /**
-     * 更新学校
-     *
-     * @param school 学校实体类
-     * @return 学校实体类
-     */
-    @Transactional(rollbackFor = Exception.class)
-    public SchoolResponseDTO updateSchool(School school) {
-        if (schoolService.checkSchoolName(school.getName(), school.getId())) {
-            throw new BusinessException("学校名称重复，请确认");
-        }
-        District district = districtService.getById(school.getDistrictId());
-        school.setDistrictProvinceCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
-        schoolService.updateById(school);
-        // 更新筛查计划中的学校
-        screeningPlanSchoolService.updateSchoolNameBySchoolId(school.getId(), school.getName());
-        School newSchool = schoolService.getById(school.getId());
-        SchoolResponseDTO schoolResponseDTO = new SchoolResponseDTO();
-        BeanUtils.copyProperties(newSchool, schoolResponseDTO);
-        schoolResponseDTO.setDistrictName(districtService.getDistrictName(newSchool.getDistrictDetail()));
-        schoolResponseDTO.setAddressDetail(districtService.getAddressDetails(newSchool.getProvinceCode(), newSchool.getCityCode(), newSchool.getAreaCode(), newSchool.getTownCode(), newSchool.getAddress()));
-        // 判断是否能更新
-        schoolResponseDTO.setCanUpdate(newSchool.getGovDeptId().equals(school.getGovDeptId()));
-        schoolResponseDTO.setStudentCount(school.getStudentCount())
-                .setScreeningCount(school.getScreeningCount())
-                .setCreateUser(school.getCreateUser());
-        return schoolResponseDTO;
-    }
-
-
-    /**
-     * 获取学校详情
-     *
-     * @param id 学校ID
-     * @return SchoolResponseDTO
-     */
-    public SchoolResponseDTO getBySchoolId(Integer id) {
-        SchoolResponseDTO responseDTO = new SchoolResponseDTO();
-        School school = schoolService.getById(id);
-        BeanUtils.copyProperties(school, responseDTO);
-        // 填充地址
-        responseDTO.setAddressDetail(districtService.getAddressDetails(school.getProvinceCode(), school.getCityCode(), school.getAreaCode(), school.getTownCode(), school.getAddress()));
-        int studentCount = studentService.count(new Student().setSchoolNo(school.getSchoolNo()));
-        // 统计学生数
-        responseDTO.setStudentCount(studentCount);
-        return responseDTO;
-    }
 
     /**
      * 根据层级Id获取学校列表（带是否有计划字段）
@@ -287,9 +236,9 @@ public class SchoolBizService {
         Map<Integer, User> userDTOMap = userLists.stream().collect(Collectors.toMap(User::getId, Function.identity()));
 
         // 学生统计
-        List<StudentCountDTO> studentCountDTOS = studentService.countStudentBySchoolNo();
-        Map<String, Integer> studentCountMaps = studentCountDTOS.stream()
-                .collect(Collectors.toMap(StudentCountDTO::getSchoolNo, StudentCountDTO::getCount));
+        List<StudentCountDTO> studentCountDTOS = studentService.countStudentBySchoolId();
+        Map<Integer, Integer> studentCountMaps = studentCountDTOS.stream()
+                .collect(Collectors.toMap(StudentCountDTO::getSchoolId, StudentCountDTO::getCount));
 
         // 学校筛查次数
         List<ScreeningPlanSchool> planSchoolList = screeningPlanSchoolService
@@ -342,7 +291,7 @@ public class SchoolBizService {
      * @return Consumer<SchoolDto>
      */
     private Consumer<SchoolResponseDTO> getSchoolDtoConsumer(CurrentUser currentUser, Map<Integer, User> userMap,
-                                                             Map<String, Integer> studentCountMaps, Map<Integer, Long> planSchoolMaps) {
+                                                             Map<Integer, Integer> studentCountMaps, Map<Integer, Long> planSchoolMaps) {
         return school -> {
             // 创建人
             school.setCreateUser(userMap.get(school.getCreateUserId()).getRealName());
@@ -357,7 +306,7 @@ public class SchoolBizService {
             school.setScreeningCount(planSchoolMaps.getOrDefault(school.getId(), 0L));
 
             // 学生统计
-            school.setStudentCount(studentCountMaps.getOrDefault(school.getSchoolNo(), 0));
+            school.setStudentCount(studentCountMaps.getOrDefault(school.getId(), 0));
 
             // 详细地址
             school.setAddressDetail(districtService.getAddressDetails(

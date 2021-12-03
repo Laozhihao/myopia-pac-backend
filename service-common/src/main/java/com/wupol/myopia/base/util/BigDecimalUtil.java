@@ -104,6 +104,17 @@ public class BigDecimalUtil {
      * @param val2 值2
      * @return 是否满足
      */
+    public static Boolean moreThanAndEqual(String val1, String val2) {
+        return new BigDecimal(val1).compareTo(new BigDecimal(val2)) >= 0;
+    }
+
+    /**
+     * 大于且等于
+     *
+     * @param val1 值1
+     * @param val2 值2
+     * @return 是否满足
+     */
     public static Boolean moreThanAndEqual(BigDecimal val1, BigDecimal val2) {
         return val1.compareTo(val2) >= 0;
     }
@@ -213,6 +224,19 @@ public class BigDecimalUtil {
      */
     public static BigDecimal subtract(BigDecimal val1, BigDecimal val2) {
         return val1.subtract(val2);
+    }
+
+
+    /**
+     * 判断是否在某个区间，左闭右开区间
+     *
+     * @param val   值
+     * @param start 开始值
+     * @param end   结束值
+     * @return 是否在区间内
+     */
+    public static boolean isBetweenLeft(Double val, Double start, Double end) {
+        return val.compareTo(start) >= 0 && val.compareTo(end) < 0;
     }
 
 

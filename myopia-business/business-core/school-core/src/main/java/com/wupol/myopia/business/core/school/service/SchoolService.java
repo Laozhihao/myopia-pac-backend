@@ -115,12 +115,12 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         }
         // 更新用户状态
         UserDTO user = new UserDTO();
-        user.setUserIds(schoolAdminList.stream().map(SchoolAdmin::getUserId).collect(Collectors.toList()));
+        user.setUserIds(Lists.newArrayList(request.getUserId()));
         user.setStatus(request.getStatus());
         oauthServiceClient.updateUserStatusBatch(user);
         // 更新学校状态
-        School school = new School().setId(request.getId()).setStatus(request.getStatus());
-        return baseMapper.updateById(school);
+        baseMapper.updateStatus(request);
+        return 1;
     }
 
     /**
@@ -457,6 +457,10 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     public String getNameById(Integer id) {
         School school = getById(id);
         return Objects.nonNull(school) ? school.getName() : "";
+    }
+
+    public School getBySchoolId(Integer id) {
+        return baseMapper.getBySchoolId(id);
     }
 
 }

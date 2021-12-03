@@ -150,4 +150,11 @@
         where report_conclusion_data is null
     </select>
 
+    <select id="getByIds" resultMap="BaseResultMap">
+        select *
+        from h_medical_report where id in
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
 </mapper>

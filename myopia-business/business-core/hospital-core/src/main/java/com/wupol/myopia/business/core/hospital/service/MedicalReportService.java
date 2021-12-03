@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -238,6 +239,19 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
     /** 获取未生成固化结论的报告列表 */
     public List<MedicalReport> getInconclusiveReportList() {
         return baseMapper.getInconclusiveReportList();
+    }
+
+    /**
+     * 通过Ids获取报告
+     *
+     * @param ids id
+     * @return List<MedicalReport>
+     */
+    public List<MedicalReport> getByIds(List<Integer> ids) {
+        if (CollectionUtils.isEmpty(ids)) {
+            return new ArrayList<>();
+        }
+        return baseMapper.getByIds(ids);
     }
 
 

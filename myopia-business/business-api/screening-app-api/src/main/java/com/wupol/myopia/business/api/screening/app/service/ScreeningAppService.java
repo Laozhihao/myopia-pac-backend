@@ -336,7 +336,6 @@ public class ScreeningAppService {
                 .setGender(StringUtils.isBlank(appStudentDTO.getGrade()) ? null : GenderEnum.getType(appStudentDTO.getSex()))
                 .setBirthday(StringUtils.isBlank(appStudentDTO.getBirthday()) ? null : DateFormatUtil.parseDate(appStudentDTO.getBirthday(), DateFormatUtil.FORMAT_ONLY_DATE))
                 .setNation(StringUtils.isBlank(appStudentDTO.getClan()) ? null : NationEnum.getCode(appStudentDTO.getClan()))
-                .setSchoolNo(school.getSchoolNo())
                 .setGradeId(schoolGrade.getId())
                 .setClassId(schoolClass.getId())
                 .setSno(appStudentDTO.getStudentNo())

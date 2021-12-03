@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.api.management.domain.vo;
+package com.wupol.myopia.business.aggregation.student.domain.vo;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

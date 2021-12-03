@@ -15,6 +15,8 @@ import com.wupol.myopia.business.api.management.validator.UserUpdateValidatorGro
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
+import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
@@ -47,6 +49,8 @@ public class UserController {
     private ScreeningOrganizationService screeningOrganizationService;
     @Autowired
     private DistrictService districtService;
+    @Autowired
+    private SchoolService schoolService;
 
     /**
      * 分页获取用户列表
@@ -129,6 +133,10 @@ public class UserController {
                 userVO.setDistrictDetail(districtService.getDistrictPositionDetailById(screeningOrganization.getDistrictId()));
             }
             return userVO.setOrgName(screeningOrganization.getName()).setDistrictId(screeningOrganization.getDistrictId());
+        }
+        if (SystemCode.SCHOOL_CLIENT.getCode().equals(user.getSystemCode())) {
+            School school = schoolService.getById(user.getOrgId());
+            return userVO.setOrgName(school.getName());
         }
         throw new BusinessException("不支持查询该用户");
     }

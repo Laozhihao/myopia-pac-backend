@@ -129,4 +129,14 @@
         <include refid="Base_Column_List"/>
         from m_screening_organization
     </select>
+
+    <select id="getOrgByIds" resultMap="BaseResponseMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_organization
+                where id in
+        <foreach collection="ids" open="(" close=")" separator="," item="id">
+            #{id}
+        </foreach>
+    </select>
 </mapper>

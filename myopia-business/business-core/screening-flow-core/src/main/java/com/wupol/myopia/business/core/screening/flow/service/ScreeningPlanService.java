@@ -228,7 +228,6 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
     }
 
     /**
-     *
      * @param screeningOrgId
      * @return
      */
@@ -260,6 +259,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
 
     /**
      * 根据通知获取学生
+     *
      * @param noticeId
      * @return
      */
@@ -315,6 +315,16 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
             throw new BusinessException("该计划未发布");
         }
         return screeningPlan;
+    }
+
+    /**
+     * 通过Ids获取
+     *
+     * @param ids 筛查计划Id
+     * @return List<ScreeningPlan>
+     */
+    public List<ScreeningPlan> getByIds(List<Integer> ids) {
+        return baseMapper.getByIds(ids);
     }
 
 }

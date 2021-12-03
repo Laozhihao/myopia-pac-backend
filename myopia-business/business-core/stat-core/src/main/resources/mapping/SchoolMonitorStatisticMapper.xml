@@ -69,4 +69,9 @@
         update_time = now()
     </insert>
 
+    <select id="getBySchoolId" resultMap="BaseResultMap">
+        select *
+        from m_school_monitor_statistic
+        where school_id = #{schoolId}
+    </select>
 </mapper>
