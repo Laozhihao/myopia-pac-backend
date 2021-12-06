@@ -157,12 +157,14 @@ public class Hospital extends AddressCode implements Serializable {
      * 合作开始时间
      */
     @NotNull(message = "合作开始时间不能为空")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date cooperationStartTime;
 
     /**
      * 合作结束时间
      */
     @NotNull(message = "合作结束时间不能为空")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date cooperationEndTime;
 
     /**
