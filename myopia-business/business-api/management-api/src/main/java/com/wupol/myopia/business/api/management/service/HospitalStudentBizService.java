@@ -4,6 +4,8 @@ package com.wupol.myopia.business.api.management.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.hospital.domain.dto.HospitalStudentRequestDTO;
 import com.wupol.myopia.business.core.hospital.domain.dto.HospitalStudentResponseDTO;
 import com.wupol.myopia.business.core.hospital.domain.model.HospitalStudent;
@@ -42,6 +44,9 @@ public class HospitalStudentBizService {
 
     @Resource
     private SchoolClassService schoolClassService;
+
+    @Resource
+    private DistrictService districtService;
 
     /**
      * 获取医院学生
@@ -99,6 +104,11 @@ public class HospitalStudentBizService {
         }
         if (Objects.nonNull(hospitalStudent.getBirthday())){
             hospitalStudent.setBirthdayInfo(DateUtil.getAgeInfo(hospitalStudent.getBirthday()));
+        }
+        if (Objects.nonNull(hospitalStudent.getCommitteeCode())) {
+            TwoTuple<String, String> committeeDesc = districtService.getCommitteeDesc(hospitalStudent.getCommitteeCode());
+            hospitalStudent.setCommitteeDesc(committeeDesc.getFirst());
+            hospitalStudent.setCommitteeName(committeeDesc.getSecond());
         }
         return hospitalStudent;
     }

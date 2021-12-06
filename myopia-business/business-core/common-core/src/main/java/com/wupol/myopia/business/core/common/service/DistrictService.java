@@ -757,4 +757,22 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         String pre = String.valueOf(district.getCode()).substring(0, 2);
         return new TwoTuple<>(null, Integer.valueOf(pre));
     }
+
+    /**
+     * 获取居委会描述
+     * <p>
+     * 如 659003513403，将返回 first-新疆维吾尔自治区石河子市图木舒克市兵团五十三团 second-友好北路社区
+     * </p>
+     *
+     * @param code code
+     * @return TwoTuple<String, String>
+     */
+    public TwoTuple<String, String> getCommitteeDesc(Long code) {
+        District district = baseMapper.getByCode(code);
+        if (Objects.isNull(district)) {
+            log.error("code:{}为空", code);
+            throw new BusinessException("行政区域异常");
+        }
+        return new TwoTuple<>(getTopDistrictName(district.getParentCode()), district.getName());
+    }
 }

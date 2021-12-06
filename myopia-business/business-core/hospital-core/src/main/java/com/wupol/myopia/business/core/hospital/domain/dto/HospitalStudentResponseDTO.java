@@ -32,4 +32,14 @@ public class HospitalStudentResponseDTO extends HospitalStudent {
      * 生日信息
      */
     private String birthdayInfo;
+
+    /**
+     * 委会详情
+     */
+    private String committeeDesc;
+
+    /**
+     * 委会名称
+     */
+    private String committeeName;
 }

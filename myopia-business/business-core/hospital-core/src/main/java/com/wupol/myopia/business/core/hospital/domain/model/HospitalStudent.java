@@ -125,6 +125,16 @@ public class HospitalStudent implements Serializable {
     @TableField(typeHandler = JacksonTypeHandler.class)
     private FamilyInfoVO familyInfo;
 
+    /**
+     * 委会行政区域code
+     */
+    private Long committeeCode;
+
+    /**
+     * 检查建档编码
+     */
+    private Long recordNo;
+
 
     public HospitalStudent(Integer hospitalId, Integer studentId) {
         this.studentId = studentId;
