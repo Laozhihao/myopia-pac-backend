@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.oauth.domain.mapper.OrganizationMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.oauth.domain.model.Organization">
+    </resultMap>
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(orgId)">and `org_id` = #{orgId}</if>
+                <if test="@Ognl@isNotEmpty(systemCode)">and `system_code` = #{systemCode}</if>
+                <if test="@Ognl@isNotEmpty(status)">and `status` = #{status}</if>
+                <if test="@Ognl@isNotEmpty(bindOrgId)">and `bind_org_id` = #{bindOrgId}</if>
+                <if test="@Ognl@isNotEmpty(bindSystemCode)">and `bind_system_code` = #{bindSystemCode}</if>
+            </trim>
+        </where>
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        org_id, system_code, status, bind_org_id, bind_system_code
+    </sql>
+
+</mapper>

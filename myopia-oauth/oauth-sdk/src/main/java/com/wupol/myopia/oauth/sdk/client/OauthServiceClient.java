@@ -280,4 +280,20 @@ public interface OauthServiceClient {
     @GetMapping("/oauth/user/batch/userIds")
     List<User> getUserBatchByUserIds(@RequestParam("userIds") List<Integer> userIds);
 
+    /**
+     * 更新机构信息
+     * @param organization
+     * @return
+     */
+    @PutMapping("/oauth/organization")
+    Organization updateOrganization(@RequestBody Organization organization);
+
+    /**
+     * 增加机构信息
+     * @param organization
+     * @return
+     */
+    @PostMapping("/oauth/organization")
+    Organization addOrganization(@RequestBody Organization organization);
+
 }

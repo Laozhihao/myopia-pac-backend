@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.wupol.myopia.base.constant.StatusConstant;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
@@ -80,7 +81,10 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         District district = districtService.getById(school.getDistrictId());
         Assert.notNull(district, "无效行政区域");
         school.setDistrictProvinceCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
+        // TODO wulizhou 学校状态判断？
         baseMapper.insert(school);
+        // oauth系统中增加学校状态信息
+
         initGradeAndClass(school.getId(), school.getType(), school.getCreateUserId());
         return generateAccountAndPassword(school, StringUtils.EMPTY);
     }
@@ -457,6 +461,14 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     public String getNameById(Integer id) {
         School school = getById(id);
         return Objects.nonNull(school) ? school.getName() : "";
+    }
+
+    /**
+     * 获取已过合作时间但未处理为禁止的学校
+     * @return
+     */
+    public List<School> getCooperationStopAndUnhandleSchool(Date date) {
+        return baseMapper.getByCooperationTimeAndStatus(date, StatusConstant.ENABLE);
     }
 
 }

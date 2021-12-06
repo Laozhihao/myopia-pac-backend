@@ -3,6 +3,7 @@ package com.wupol.myopia.business.core.screening.organization.domain.model;
 import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.common.utils.annotation.CheckTimeInterval;
 import com.wupol.myopia.business.common.utils.domain.model.NotificationConfig;
 import com.wupol.myopia.business.common.utils.interfaces.HasName;
 import com.wupol.myopia.business.core.common.domain.model.AddressCode;
@@ -26,6 +27,7 @@ import java.util.Objects;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @TableName("m_screening_organization")
+@CheckTimeInterval(beginTime = "cooperationStartTime", endTime = "cooperationEndTime", message = "开始时间不能晚于结束时间")
 public class ScreeningOrganization extends AddressCode implements Serializable, HasName {
 
     private static final long serialVersionUID = 1L;
@@ -160,6 +162,17 @@ public class ScreeningOrganization extends AddressCode implements Serializable, 
             return Math.max(0, (int)DateUtil.betweenDay(cooperationEndTime, new Date(), true));
         }
         return null;
+    }
+
+    /**
+     * 合作是否到期
+     * @return
+     */
+    public boolean isCooperationStop() {
+        if (Objects.nonNull(cooperationEndTime)) {
+            return cooperationEndTime.getTime() < new Date().getTime();
+        }
+        return true;
     }
 
 }

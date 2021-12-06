@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.StringUtils;
+import com.wupol.myopia.base.constant.StatusConstant;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
@@ -22,6 +23,7 @@ import com.wupol.myopia.business.core.screening.organization.domain.model.Screen
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationAdmin;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
+import com.wupol.myopia.oauth.sdk.domain.response.Organization;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -344,4 +346,39 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         }
         return 1;
     }
+
+    /**
+     * 处理机构状态，将已过合作时间但未处理为禁止的学校设置为禁止
+     * @return
+     */
+    public int handleOrganizationStatus(Date date) {
+        List<ScreeningOrganization> orgs = getCooperationStopAndUnhandleOrganization(date);
+        int result = 0;
+        for (ScreeningOrganization org : orgs) {
+            // 更新成功
+            if (updateOrganizationStatus(org.getId(), StatusConstant.DISABLE, date, StatusConstant.ENABLE) > 0) {
+                // 更新oauth上机构的状态
+                Organization organization = new Organization()
+                        .setOrgId(org.getId())
+                        .setSystemCode(SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode())
+                        .setStatus(StatusConstant.DISABLE);
+                // TODO 更新oauth
+                result++;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 获取已过合作时间但未处理为禁止的学校
+     * @return
+     */
+    public List<ScreeningOrganization> getCooperationStopAndUnhandleOrganization(Date date) {
+        return baseMapper.getByCooperationTimeAndStatus(date, StatusConstant.ENABLE);
+    }
+
+    public int updateOrganizationStatus(Integer id, Integer targetStatus, Date stopDate, Integer sourceStatus) {
+        return baseMapper.updateOrganizationStatus(id, targetStatus, stopDate, sourceStatus);
+    }
+
 }

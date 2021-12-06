@@ -78,6 +78,7 @@ public class SchoolFacade {
         }
         District district = districtService.getById(school.getDistrictId());
         school.setDistrictProvinceCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
+        // TODO wulizhou 学校状态判断？
         schoolService.updateById(school);
         // 更新筛查计划中的学校
         screeningPlanSchoolService.updateSchoolNameBySchoolId(school.getId(), school.getName());

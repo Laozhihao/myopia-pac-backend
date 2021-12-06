@@ -169,4 +169,13 @@
         set status = #{request.status}
         where id = #{request.id}
     </update>
+
+    <select id="getByCooperationTimeAndStatus" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school
+        where cooperation_end_time &lt; #{date}
+        and status = #{status}
+    </select>
+
 </mapper>

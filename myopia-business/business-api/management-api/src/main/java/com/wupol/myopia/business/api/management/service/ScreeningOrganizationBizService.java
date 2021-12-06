@@ -110,6 +110,7 @@ public class ScreeningOrganizationBizService {
         if (screeningOrganizationService.checkScreeningOrgName(name, null)) {
             throw new BusinessException("筛查机构名称不能重复");
         }
+        // TODO wulizhou 机构状态判断？
         screeningOrganizationService.save(screeningOrganization);
         // 为筛查机构新增设备报告模板
         DeviceReportTemplate template = deviceReportTemplateService.getSortFirstTemplate();
@@ -234,6 +235,7 @@ public class ScreeningOrganizationBizService {
             response.setUsername(screeningOrganization.getName());
         }
 
+        // TODO wulizhou 机构状态判断？
         screeningOrganizationService.updateById(screeningOrganization);
         ScreeningOrganization organization = screeningOrganizationService.getById(screeningOrganization.getId());
         BeanUtils.copyProperties(organization, response);

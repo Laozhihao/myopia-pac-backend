@@ -143,4 +143,21 @@
             #{id}
         </foreach>
     </select>
+
+    <select id="getByCooperationTimeAndStatus" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_organization
+        where cooperation_end_time &lt; #{date}
+        and status = #{status}
+    </select>
+
+    <update id="updateOrganizationStatus">
+        update m_screening_organization
+        set status = #{targetStatus}
+        where id = #{id}
+        and cooperation_end_time &lt; #{stopDate}
+        and status = #{sourceStatus}
+    </update>
+
 </mapper>

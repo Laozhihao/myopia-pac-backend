@@ -3,7 +3,6 @@ package com.wupol.myopia.business.api.management.schedule;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.CompareUtil;
 import com.wupol.myopia.base.util.DateUtil;
-import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
 import com.wupol.myopia.business.api.management.domain.builder.*;
 import com.wupol.myopia.business.api.management.service.SchoolBizService;
 import com.wupol.myopia.business.api.management.service.StatService;
@@ -76,8 +75,6 @@ public class ScheduledTasksExecutor {
     private StudentBizService studentBizService;
     @Autowired
     private StatService statService;
-    @Autowired
-    private VisionScreeningBizService visionScreeningBizService;
 
     /**
      * 筛查数据统计
@@ -346,5 +343,16 @@ public class ScheduledTasksExecutor {
         int size = statService.rescreenStat(DateUtils.addDays(DateUtil.getMidday(new Date()), -1));
         log.info("本次复测统计共新增加内容{}条", size);
     }
+
+    /**
+     * 合作状态处理：包含机构、医院、学校<br/>
+     * 每日凌晨0点5分执行
+     */
+    @Scheduled(cron = "0 5 0 * * ?")
+    @Transactional(rollbackFor = Exception.class)
+    public void cooperationStatusHandle() {
+
+    }
+
 
 }
