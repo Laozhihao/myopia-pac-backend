@@ -312,7 +312,7 @@
         select *
         from m_student
         where record_no like CONCAT('%', #{recordNo}, '%')
-        order by record_no
+        order by record_no desc
         limit 1
     </select>
 </mapper>
