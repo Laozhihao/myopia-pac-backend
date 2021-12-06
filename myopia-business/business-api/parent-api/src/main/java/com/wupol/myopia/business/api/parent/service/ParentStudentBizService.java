@@ -474,18 +474,10 @@ public class ParentStudentBizService {
      */
     @Transactional(rollbackFor = Exception.class)
     public Integer saveRecordStudent(Student student, CurrentUser currentUser) {
-        Long committeeCode = student.getCommitteeCode();
-        if (Objects.isNull(committeeCode)) {
-            throw new BusinessException("委会行政区域code不能为空");
-        }
-        String recordNo;
-        Student studentRecordNo = studentService.getOneByRecordNo(committeeCode);
-        if (Objects.isNull(studentRecordNo)) {
-            recordNo = String.format("%s%05d", committeeCode, 1);
-        } else {
-            recordNo = String.valueOf(studentRecordNo.getRecordNo() + 1);
-        }
-        student.setRecordNo(Long.valueOf(recordNo));
+        Long recordNo = studentService.getRecordNo(student.getCommitteeCode());
+        student.setRecordNo(recordNo);
         return saveStudent(student, currentUser);
     }
+
+
 }

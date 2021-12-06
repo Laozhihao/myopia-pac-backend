@@ -474,6 +474,26 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     }
 
     /**
+     * 获取RecordNo
+     *
+     * @param committeeCode 委会行政区域
+     * @return RecordNo
+     */
+    public Long getRecordNo(Long committeeCode) {
+        if (Objects.isNull(committeeCode)) {
+            throw new BusinessException("委会行政区域code不能为空");
+        }
+        String recordNo;
+        Student studentRecordNo = getOneByRecordNo(committeeCode);
+        if (Objects.isNull(studentRecordNo)) {
+            recordNo = String.format("%s%05d", committeeCode, 1);
+        } else {
+            recordNo = String.valueOf(studentRecordNo.getRecordNo() + 1);
+        }
+        return Long.valueOf(recordNo);
+    }
+
+    /**
      * 通过委会行政区域获取学生
      *
      * @param recordNo 检查建档编码

@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.framework.api.service.VistelToolsService;
 import com.wupol.framework.sms.domain.dto.MsgData;
 import com.wupol.framework.sms.domain.dto.SmsResult;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.hospital.service.MedicalReportBizService;
@@ -280,8 +281,10 @@ public class StudentBizService {
      * @return 学生
      */
     @Transactional(rollbackFor = Exception.class)
-    public StudentDTO updateStudentReturnCountInfo(Student student) {
+    public StudentDTO updateStudentReturnCountInfo(Student student, CurrentUser user) {
         haveIdCardOrCode(student);
+        // 判断是否要修改委会行政区域
+        isUpdateCommitteeCode(student, user);
         StudentDTO studentDTO = studentService.updateStudent(student);
         studentDTO.setScreeningCount(student.getScreeningCount())
                 .setQuestionnaireCount(student.getQuestionnaireCount());
@@ -590,5 +593,21 @@ public class StudentBizService {
         return planStudentList.stream().map(ScreeningPlanSchoolStudent::getScreeningCode).collect(Collectors.toList());
     }
 
-
+    /**
+     * 判断是否要修改委会行政区域
+     *
+     * @param student 学生信息
+     * @param user    用户
+     */
+    private void isUpdateCommitteeCode(Student student, CurrentUser user) {
+        Long newCommitteeCode = student.getCommitteeCode();
+        if (!user.isPlatformAdminUser() || Objects.isNull(newCommitteeCode)) {
+            return;
+        }
+        StudentDTO oldStudent = studentService.getStudentById(student.getId());
+        // 如果旧数据没有委会行政区域，或旧数据与新委会行政区域不相同，则生成新的编码
+        if (Objects.isNull(oldStudent.getCommitteeCode()) || (!oldStudent.getCommitteeCode().equals(newCommitteeCode))) {
+            student.setRecordNo(studentService.getRecordNo(newCommitteeCode));
+        }
+    }
 }
