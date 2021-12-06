@@ -157,11 +157,7 @@ public class ParentStudentBizService {
             throw new BusinessException("身份证异常");
         }
         Integer gender = Integer.parseInt(idCard.substring(16, 17)) % 2 != 0 ? GenderEnum.MALE.type : GenderEnum.FEMALE.type;
-        String birthdayStr = idCard.substring(6, 10)
-                + "-"
-                + idCard.substring(10, 12)
-                + "-"
-                + idCard.substring(12, 14);
+        String birthdayStr = idCard.substring(6, 10) + "-" + idCard.substring(10, 12) + "-" + idCard.substring(12, 14);
         try {
             return new TwoTuple<>(DateFormatUtil.parseDate(birthdayStr, DateFormatUtil.FORMAT_ONLY_DATE), gender);
         } catch (ParseException e) {
@@ -281,14 +277,13 @@ public class ParentStudentBizService {
      */
     public List<CountReportItemsDO> getStudentCountReportItems(Integer studentId) {
         List<VisionScreeningResult> screeningResults = visionScreeningResultService.getByStudentId(studentId);
-        return screeningResults.stream().filter(result -> result.getIsDoubleScreen().equals(Boolean.FALSE))
-                .map(result -> {
-                    CountReportItemsDO items = new CountReportItemsDO();
-                    items.setId(result.getId());
-                    items.setCreateTime(result.getCreateTime());
-                    items.setUpdateTime(result.getUpdateTime());
-                    return items;
-                }).collect(Collectors.toList());
+        return screeningResults.stream().filter(result -> result.getIsDoubleScreen().equals(Boolean.FALSE)).map(result -> {
+            CountReportItemsDO items = new CountReportItemsDO();
+            items.setId(result.getId());
+            items.setCreateTime(result.getCreateTime());
+            items.setUpdateTime(result.getUpdateTime());
+            return items;
+        }).collect(Collectors.toList());
     }
 
     /**
@@ -303,13 +298,9 @@ public class ParentStudentBizService {
             ScreeningReportResponseDTO responseDTO = new ScreeningReportResponseDTO();
             ScreeningReportDetailDO detail = new ScreeningReportDetailDO();
             // 视力检查结果
-            detail.setVisionResultItems(Lists.newArrayList(new VisionItems("矫正视力"),
-                    new VisionItems("裸眼视力")));
+            detail.setVisionResultItems(Lists.newArrayList(new VisionItems("矫正视力"), new VisionItems("裸眼视力")));
             // 验光仪检查结果
-            detail.setRefractoryResultItems(Lists.newArrayList(new RefractoryResultItems("球镜SC"),
-                    new RefractoryResultItems("柱镜DC"),
-                    new RefractoryResultItems("轴位A"),
-                    new RefractoryResultItems("等效球镜SE")));
+            detail.setRefractoryResultItems(Lists.newArrayList(new RefractoryResultItems("球镜SC"), new RefractoryResultItems("柱镜DC"), new RefractoryResultItems("轴位A"), new RefractoryResultItems("等效球镜SE")));
             responseDTO.setDetail(detail);
             return responseDTO;
         }
@@ -364,10 +355,7 @@ public class ParentStudentBizService {
      */
     public ScreeningVisionTrendsResponseDTO screeningVisionTrends(Integer studentId) {
         ScreeningVisionTrendsResponseDTO responseDTO = new ScreeningVisionTrendsResponseDTO();
-        List<VisionScreeningResult> resultList = visionScreeningResultService.getByStudentId(studentId)
-                .stream()
-                .filter(result -> result.getIsDoubleScreen().equals(Boolean.FALSE))
-                .collect(Collectors.toList());
+        List<VisionScreeningResult> resultList = visionScreeningResultService.getByStudentId(studentId).stream().filter(result -> result.getIsDoubleScreen().equals(Boolean.FALSE)).collect(Collectors.toList());
         // 矫正视力详情
         responseDTO.setCorrectedVisionDetails(ScreeningResultUtil.packageVisionTrendsByCorrected(resultList));
         // 柱镜详情
@@ -476,4 +464,20 @@ public class ParentStudentBizService {
         // 更新学校端学生绑定手机号码
         studentFacade.updateMpParentPhone(studentId, phone);
     }
+
+    /**
+     * 保存学生
+     *
+     * @param student     学生
+     * @param currentUser 当前用户
+     * @return Integer
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public Integer saveRecordStudent(Student student, CurrentUser currentUser) {
+        Long recordNo = studentService.getRecordNo(student.getCommitteeCode());
+        student.setRecordNo(recordNo);
+        return saveStudent(student, currentUser);
+    }
+
+
 }

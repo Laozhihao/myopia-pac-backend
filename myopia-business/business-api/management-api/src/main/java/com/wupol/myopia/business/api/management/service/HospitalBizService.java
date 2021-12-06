@@ -15,6 +15,7 @@ import com.wupol.myopia.business.core.hospital.domain.model.HospitalAdmin;
 import com.wupol.myopia.business.core.hospital.domain.query.HospitalQuery;
 import com.wupol.myopia.business.core.hospital.service.HospitalAdminService;
 import com.wupol.myopia.business.core.hospital.service.HospitalService;
+import com.wupol.myopia.business.core.hospital.service.HospitalStudentService;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccountListDTO;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
@@ -48,6 +49,8 @@ public class HospitalBizService {
     private ResourceFileService resourceFileService;
     @Resource
     private OauthServiceClient oauthServiceClient;
+    @Resource
+    private HospitalStudentService hospitalStudentService;
 
     /**
      * 更新医院信息
@@ -182,6 +185,6 @@ public class HospitalBizService {
         } else {
             username = mainUsername + adminList.size();
         }
-        return hospitalService.generateAccountAndPassword(hospital,username);
+        return hospitalService.generateAccountAndPassword(hospital, username);
     }
 }

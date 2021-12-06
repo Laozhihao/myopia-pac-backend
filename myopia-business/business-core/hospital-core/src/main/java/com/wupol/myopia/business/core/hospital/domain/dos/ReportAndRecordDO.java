@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * ReportAndRecordVo
@@ -35,4 +36,19 @@ public class ReportAndRecordDO {
      * 综合处方
      */
     private String medicalContent;
+
+    /**
+     * 医生Id
+     */
+    private Integer doctorId;
+
+    /**
+     * 医生名称
+     */
+    private String doctorName;
+
+    /**
+     * 图片url
+     */
+    private List<String> imageFileUrl;
 }
