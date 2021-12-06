@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.hospital.domain.dto.HospitalStudentRequestDTO;
 import com.wupol.myopia.business.core.hospital.domain.dto.HospitalStudentResponseDTO;
@@ -109,6 +110,7 @@ public class HospitalStudentBizService {
             TwoTuple<String, String> committeeDesc = districtService.getCommitteeDesc(hospitalStudent.getCommitteeCode());
             hospitalStudent.setCommitteeDesc(committeeDesc.getFirst());
             hospitalStudent.setCommitteeName(committeeDesc.getSecond());
+            hospitalStudent.setCommitteeLists(districtService.getDistrictPositionDetail(hospitalStudent.getCommitteeCode()));
         }
         return hospitalStudent;
     }

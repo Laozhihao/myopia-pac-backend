@@ -1,5 +1,6 @@
 package com.wupol.myopia.base.domain.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -38,6 +39,7 @@ public class FamilyInfoVO {
         /**
          * 生日
          */
+        @JsonFormat(pattern = "yyyy-MM-dd")
         private Date birthday;
 
         /**

@@ -1,8 +1,11 @@
 package com.wupol.myopia.business.core.hospital.domain.dto;
 
+import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.hospital.domain.model.HospitalStudent;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.List;
 
 /**
  * 医院-获取学生
@@ -42,4 +45,9 @@ public class HospitalStudentResponseDTO extends HospitalStudent {
      * 委会名称
      */
     private String committeeName;
+
+    /**
+     * 委会区域List
+     */
+    private List<District> committeeLists;
 }
