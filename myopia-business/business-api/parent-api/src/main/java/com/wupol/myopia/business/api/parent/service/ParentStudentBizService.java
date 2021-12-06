@@ -178,7 +178,6 @@ public class ParentStudentBizService {
      */
     @Transactional(rollbackFor = Exception.class)
     public StudentDTO updateStudent(CurrentUser currentUser, Student student) {
-        checkParentStudentInfo(student);
         // 查找家长ID
         Parent parent = parentService.getParentByUserId(currentUser.getId());
         if (null == parent) {
@@ -201,7 +200,6 @@ public class ParentStudentBizService {
      */
     @Transactional(rollbackFor = Exception.class)
     public Integer saveStudent(Student student, CurrentUser currentUser) {
-        checkParentStudentInfo(student);
         // 查找家长ID
         Parent parent = parentService.getParentByUserId(currentUser.getId());
         if (null == parent) {
@@ -477,18 +475,6 @@ public class ParentStudentBizService {
         studentFacade.updateStatConclusion(studentId);
         // 更新学校端学生绑定手机号码
         studentFacade.updateMpParentPhone(studentId, phone);
-    }
-
-    /**
-     * 检查身份证是否满足条件
-     *
-     * @param student 学生信息
-     */
-    private void checkParentStudentInfo(Student student) {
-        // 非新生儿且身份证为空抛出异常
-        if (Objects.nonNull(student.getIsNewbornWithoutIdCard()) && !student.getIsNewbornWithoutIdCard() && StringUtils.isBlank(student.getIdCard())) {
-            throw new BusinessException("身份证不能为空");
-        }
     }
 
     /**
