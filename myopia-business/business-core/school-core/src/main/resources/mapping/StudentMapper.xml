@@ -306,4 +306,13 @@
         from m_student
         where committee_code = #{committeeCode};
     </select>
+
+
+    <select id="getOneByRecordNo" resultMap="BaseResultMap">
+        select *
+        from m_student
+        where record_no like CONCAT('%', #{recordNo}, '%')
+        order by record_no
+        limit 1
+    </select>
 </mapper>

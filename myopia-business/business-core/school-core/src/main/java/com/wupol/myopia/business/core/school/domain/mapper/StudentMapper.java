@@ -61,4 +61,6 @@ public interface StudentMapper extends BaseMapper<Student> {
     List<Student> getDeleteStudentByIdCard(@Param("idCards") List<String> idCards);
 
     List<Student> getByCommitteeCode(@Param("committeeCode") Long committeeCode);
+
+    Student getOneByRecordNo(@Param("recordNo") Long recordNo);
 }

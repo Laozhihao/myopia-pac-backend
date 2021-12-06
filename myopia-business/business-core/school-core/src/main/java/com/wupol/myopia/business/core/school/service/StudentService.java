@@ -472,4 +472,14 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     public List<Student> getByCommitteeCode(Long committeeCode) {
         return baseMapper.getByCommitteeCode(committeeCode);
     }
+
+    /**
+     * 通过委会行政区域获取学生
+     *
+     * @param recordNo 检查建档编码
+     * @return 学生
+     */
+    public Student getOneByRecordNo(Long recordNo) {
+        return baseMapper.getOneByRecordNo(recordNo);
+    }
 }
