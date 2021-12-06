@@ -66,7 +66,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         District district = districtService.getById(hospital.getDistrictId());
         hospital.setDistrictProvinceCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
         baseMapper.insert(hospital);
-        return generateAccountAndPassword(hospital, StringUtils.EMPTY);
+        return generateAccountAndPassword(hospital, StringUtils.EMPTY, hospital.getAssociateScreeningOrgId());
     }
 
     /**
@@ -151,9 +151,10 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      *
      * @param hospital 医院
      * @param name     子账号名称
+     * @param associateScreeningOrgId 关联筛查机构的ID
      * @return UsernameAndPasswordDto 账号密码
      */
-    public UsernameAndPasswordDTO generateAccountAndPassword(Hospital hospital, String name) {
+    public UsernameAndPasswordDTO generateAccountAndPassword(Hospital hospital, String name, Integer associateScreeningOrgId) {
         String password = PasswordAndUsernameGenerator.getHospitalAdminPwd();
         String username;
         if (StringUtils.isBlank(name)) {
@@ -161,7 +162,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         } else {
             username = name;
         }
-
+        // TODO：若associateScreeningOrgId不为空，则为当前用户分配对应筛查机构的角色权限
         UserDTO userDTO = new UserDTO();
         userDTO.setOrgId(hospital.getId())
                 .setUsername(username)
@@ -169,7 +170,6 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
                 .setRealName(hospital.getName())
                 .setCreateUserId(hospital.getCreateUserId())
                 .setSystemCode(SystemCode.HOSPITAL_CLIENT.getCode());
-
         User user = oauthServiceClient.addMultiSystemUser(userDTO);
         hospitalAdminService.saveAdmin(hospital.getCreateUserId(), hospital.getId(), user.getId(), hospital.getGovDeptId());
         return new UsernameAndPasswordDTO(username, password);

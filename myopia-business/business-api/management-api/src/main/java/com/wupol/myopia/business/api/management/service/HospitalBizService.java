@@ -182,6 +182,6 @@ public class HospitalBizService {
         } else {
             username = mainUsername + adminList.size();
         }
-        return hospitalService.generateAccountAndPassword(hospital,username);
+        return hospitalService.generateAccountAndPassword(hospital, username, hospital.getAssociateScreeningOrgId());
     }
 }
