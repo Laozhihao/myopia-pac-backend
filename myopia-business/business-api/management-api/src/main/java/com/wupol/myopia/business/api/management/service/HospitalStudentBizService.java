@@ -108,8 +108,6 @@ public class HospitalStudentBizService {
         }
         if (Objects.nonNull(hospitalStudent.getCommitteeCode())) {
             TwoTuple<String, String> committeeDesc = districtService.getCommitteeDesc(hospitalStudent.getCommitteeCode());
-            hospitalStudent.setCommitteeDesc(committeeDesc.getFirst());
-            hospitalStudent.setCommitteeName(committeeDesc.getSecond());
             hospitalStudent.setCommitteeLists(districtService.getDistrictPositionDetail(hospitalStudent.getCommitteeCode()));
         }
         return hospitalStudent;

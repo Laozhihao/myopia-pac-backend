@@ -37,16 +37,6 @@ public class HospitalStudentResponseDTO extends HospitalStudent {
     private String birthdayInfo;
 
     /**
-     * 委会详情
-     */
-    private String committeeDesc;
-
-    /**
-     * 委会名称
-     */
-    private String committeeName;
-
-    /**
      * 委会区域List
      */
     private List<District> committeeLists;
