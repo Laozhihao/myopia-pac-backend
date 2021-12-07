@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.school.domain.model;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.wupol.myopia.base.constant.StatusConstant;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.annotation.CheckTimeInterval;
 import com.wupol.myopia.business.common.utils.interfaces.HasName;
@@ -193,6 +194,10 @@ public class School extends AddressCode implements Serializable, HasName {
             return cooperationEndTime.getTime() < new Date().getTime();
         }
         return true;
+    }
+
+    public int getCooperationStopStatus() {
+        return isCooperationStop() ? StatusConstant.DISABLE : StatusConstant.ENABLE;
     }
 
 }

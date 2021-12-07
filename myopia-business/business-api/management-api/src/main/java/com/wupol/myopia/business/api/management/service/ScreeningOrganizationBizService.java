@@ -3,6 +3,7 @@ package com.wupol.myopia.business.api.management.service;
 import cn.hutool.core.lang.Assert;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.constant.SystemCode;
+import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
@@ -38,6 +39,7 @@ import com.wupol.myopia.business.core.screening.organization.service.ScreeningOr
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationStaffService;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
+import com.wupol.myopia.oauth.sdk.domain.response.Organization;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -110,8 +112,12 @@ public class ScreeningOrganizationBizService {
         if (screeningOrganizationService.checkScreeningOrgName(name, null)) {
             throw new BusinessException("筛查机构名称不能重复");
         }
-        // TODO wulizhou 机构状态判断？
+        // 机构状态设置
+        screeningOrganization.setStatus(screeningOrganization.getCooperationStopStatus());
         screeningOrganizationService.save(screeningOrganization);
+        // 同步到oauth机构状态
+        oauthServiceClient.addOrganization(new Organization(screeningOrganization.getId(), SystemCode.MANAGEMENT_CLIENT,
+                UserType.SCREENING_ORGANIZATION_ADMIN, screeningOrganization.getStatus()));
         // 为筛查机构新增设备报告模板
         DeviceReportTemplate template = deviceReportTemplateService.getSortFirstTemplate();
         screeningOrgBindDeviceReportService.orgBindReportTemplate(template.getId(), screeningOrganization.getId(), screeningOrganization.getName());
@@ -235,9 +241,13 @@ public class ScreeningOrganizationBizService {
             response.setUsername(screeningOrganization.getName());
         }
 
-        // TODO wulizhou 机构状态判断？
+        // 机构状态设置
+        screeningOrganization.setStatus(screeningOrganization.getCooperationStopStatus());
         screeningOrganizationService.updateById(screeningOrganization);
         ScreeningOrganization organization = screeningOrganizationService.getById(screeningOrganization.getId());
+        // 同步到oauth机构状态
+        oauthServiceClient.updateOrganization(new Organization(screeningOrganization.getId(), SystemCode.MANAGEMENT_CLIENT,
+                UserType.SCREENING_ORGANIZATION_ADMIN, screeningOrganization.getStatus()));
         BeanUtils.copyProperties(organization, response);
         response.setDistrictName(districtService.getDistrictName(organization.getDistrictDetail()));
         // 详细地址

@@ -7,6 +7,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.constant.StatusConstant;
 import com.wupol.myopia.base.constant.SystemCode;
+import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.PasswordAndUsernameGenerator;
@@ -82,10 +83,12 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         District district = districtService.getById(school.getDistrictId());
         Assert.notNull(district, "无效行政区域");
         school.setDistrictProvinceCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
-        // TODO wulizhou 学校状态判断？
+        // 设置学校状态
+        school.setStatus(school.getCooperationStopStatus());
         baseMapper.insert(school);
         // oauth系统中增加学校状态信息
-
+        oauthServiceClient.addOrganization(new Organization(school.getId(), SystemCode.SCHOOL_CLIENT,
+                UserType.OTHER, school.getStatus()));
         initGradeAndClass(school.getId(), school.getType(), school.getCreateUserId());
         return generateAccountAndPassword(school, StringUtils.EMPTY);
     }
@@ -468,6 +471,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * 处理机构状态，将已过合作时间但未处理为禁止的学校设置为禁止
      * @return
      */
+    @Transactional(rollbackFor = Exception.class)
     public int handleOrganizationStatus(Date date) {
         List<School> schools = getCooperationStopAndUnhandleSchool(date);
         int result = 0;
@@ -475,7 +479,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
             // 更新机构状态成功
             if (updateSchoolStatus(school.getId(), StatusConstant.DISABLE, date, StatusConstant.ENABLE) > 0) {
                 // 更新oauth上机构的状态
-                oauthServiceClient.updateOrganization(new Organization(school.getId(), SystemCode.SCHOOL_CLIENT, StatusConstant.DISABLE));
+                oauthServiceClient.updateOrganization(new Organization(school.getId(), SystemCode.SCHOOL_CLIENT, UserType.OTHER, StatusConstant.DISABLE));
                 result++;
             }
         }

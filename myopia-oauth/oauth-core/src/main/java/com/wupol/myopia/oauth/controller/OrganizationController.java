@@ -24,14 +24,14 @@ public class OrganizationController {
 
     @PutMapping
     public Organization updateOrganization(@RequestBody @Valid Organization organization) {
-        organizationService.update(organization, new Organization().setOrgId(organization.getOrgId()).setSystemCode(organization.getSystemCode()));
-        return organizationService.get(organization.getOrgId(), organization.getSystemCode());
+        organizationService.update(organization, new Organization().setOrgId(organization.getOrgId()).setSystemCode(organization.getSystemCode()).setUserType(organization.getUserType()));
+        return organizationService.get(organization.getOrgId(), organization.getSystemCode(), organization.getUserType());
     }
 
     @PostMapping
     public Organization addOrganization(@RequestBody @Valid Organization organization) {
         organizationService.save(organization);
-        return organizationService.get(organization.getOrgId(), organization.getSystemCode());
+        return organizationService.get(organization.getOrgId(), organization.getSystemCode(), organization.getUserType());
     }
 
 }

@@ -1,8 +1,10 @@
 package com.wupol.myopia.oauth.domain.model;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 import javax.validation.constraints.Max;
@@ -21,6 +23,8 @@ import java.io.Serializable;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @TableName("o_organization")
+@NoArgsConstructor
+@AllArgsConstructor
 public class Organization implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -38,21 +42,16 @@ public class Organization implements Serializable {
     private Integer systemCode;
 
     /**
+     * 用户类型：0-平台管理员、1-政府人员、2-筛查机构、3-医院管理员
+     */
+    @NotNull(message = "userType")
+    private Integer userType;
+
+    /**
      * 组织状态：0-启用 1-禁止 2-删除
      */
     @Min(0)
     @Max(2)
     private Integer status;
-
-    /**
-     * 关联机构组织ID（如政府部门ID、学校ID、医院ID）
-     */
-    private Integer bindOrgId;
-
-    /**
-     * 关联的组织系统编号
-     */
-    private Integer bindSystemCode;
-
 
 }

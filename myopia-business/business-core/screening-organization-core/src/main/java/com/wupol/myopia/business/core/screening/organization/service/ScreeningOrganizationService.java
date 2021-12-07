@@ -6,6 +6,7 @@ import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.StringUtils;
 import com.wupol.myopia.base.constant.StatusConstant;
 import com.wupol.myopia.base.constant.SystemCode;
+import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.PasswordAndUsernameGenerator;
@@ -351,6 +352,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * 处理机构状态，将已过合作时间但未处理为禁止的机构设置为禁止
      * @return
      */
+    @Transactional(rollbackFor = Exception.class)
     public int handleOrganizationStatus(Date date) {
         List<ScreeningOrganization> orgs = getCooperationStopAndUnhandleOrganization(date);
         int result = 0;
@@ -358,8 +360,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
             // 更新机构状态成功
             if (updateOrganizationStatus(org.getId(), StatusConstant.DISABLE, date, StatusConstant.ENABLE) > 0) {
                 // 更新oauth上机构的状态（同时影响筛查管理端跟筛查端）
-                oauthServiceClient.updateOrganization(new Organization(org.getId(), SystemCode.SCREENING_MANAGEMENT_CLIENT, StatusConstant.DISABLE));
-                oauthServiceClient.updateOrganization(new Organization(org.getId(), SystemCode.SCREENING_CLIENT, StatusConstant.DISABLE));
+                oauthServiceClient.updateOrganization(new Organization(org.getId(), SystemCode.MANAGEMENT_CLIENT, UserType.SCREENING_ORGANIZATION_ADMIN, StatusConstant.DISABLE));
                 result++;
             }
         }

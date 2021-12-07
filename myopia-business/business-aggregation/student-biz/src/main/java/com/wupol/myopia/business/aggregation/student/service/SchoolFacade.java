@@ -1,5 +1,7 @@
 package com.wupol.myopia.business.aggregation.student.service;
 
+import com.wupol.myopia.base.constant.SystemCode;
+import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.core.common.domain.model.District;
@@ -12,6 +14,8 @@ import com.wupol.myopia.business.core.school.management.service.SchoolStudentSer
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
+import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
+import com.wupol.myopia.oauth.sdk.domain.response.Organization;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,6 +44,9 @@ public class SchoolFacade {
 
     @Resource
     private SchoolStudentService schoolStudentService;
+
+    @Resource
+    private OauthServiceClient oauthServiceClient;
 
     /**
      * 获取学校详情
@@ -78,8 +85,12 @@ public class SchoolFacade {
         }
         District district = districtService.getById(school.getDistrictId());
         school.setDistrictProvinceCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
-        // TODO wulizhou 学校状态判断？
+        // 设置学校状态
+        school.setStatus(school.getCooperationStopStatus());
         schoolService.updateById(school);
+        // 同步到oauth机构状态
+        oauthServiceClient.updateOrganization(new Organization(school.getId(), SystemCode.SCHOOL_CLIENT,
+                UserType.OTHER, school.getStatus()));
         // 更新筛查计划中的学校
         screeningPlanSchoolService.updateSchoolNameBySchoolId(school.getId(), school.getName());
         School newSchool = schoolService.getById(school.getId());

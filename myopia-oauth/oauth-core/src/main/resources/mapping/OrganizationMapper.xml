@@ -12,9 +12,8 @@
             <trim prefixOverrides="and">
                 <if test="@Ognl@isNotEmpty(orgId)">and `org_id` = #{orgId}</if>
                 <if test="@Ognl@isNotEmpty(systemCode)">and `system_code` = #{systemCode}</if>
+                <if test="@Ognl@isNotEmpty(userType)">and `user_type` = #{userType}</if>
                 <if test="@Ognl@isNotEmpty(status)">and `status` = #{status}</if>
-                <if test="@Ognl@isNotEmpty(bindOrgId)">and `bind_org_id` = #{bindOrgId}</if>
-                <if test="@Ognl@isNotEmpty(bindSystemCode)">and `bind_system_code` = #{bindSystemCode}</if>
             </trim>
         </where>
     </sql>
