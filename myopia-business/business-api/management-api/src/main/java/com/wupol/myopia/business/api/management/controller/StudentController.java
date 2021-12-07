@@ -88,7 +88,7 @@ public class StudentController {
     public StudentDTO updateStudent(@RequestBody @Valid Student student) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         student.setCreateUserId(user.getId());
-        return studentBizService.updateStudentReturnCountInfo(student);
+        return studentBizService.updateStudentReturnCountInfo(student, user);
     }
 
     /**

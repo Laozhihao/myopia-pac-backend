@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.hospital.domain.model;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.base.util.RegularUtils;
 import com.wupol.myopia.business.core.common.domain.model.AddressCode;
 import lombok.Data;
@@ -13,6 +14,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * 医院表
@@ -133,5 +135,51 @@ public class Hospital extends AddressCode implements Serializable {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
 
+    /**
+     * 服务类型（配置），0：居民健康系统(默认)、1：0-6岁眼保健、2：0-6岁眼保健+居民健康系统
+     */
+    @NotNull(message = "配置类型不能为空")
+    private Integer serviceType;
+
+    /**
+     * 合作类型 0-合作 1-试用
+     */
+    @NotNull(message = "合作类型不能为空")
+    private Integer cooperationType;
+
+    /**
+     * 合作期限类型 -1-自定义 0-30天 1-60天 2-180天 3-1年 4-2年 5-3年
+     */
+    @NotNull(message = "合作期限类型不能为空")
+    private Integer cooperationTimeType;
+
+    /**
+     * 合作开始时间
+     */
+    @NotNull(message = "合作开始时间不能为空")
+    private Date cooperationStartTime;
+
+    /**
+     * 合作结束时间
+     */
+    @NotNull(message = "合作结束时间不能为空")
+    private Date cooperationEndTime;
+
+    /**
+     * 关联筛查机构的ID
+     */
+    private Integer associateScreeningOrgId;
+
+    /**
+     * 剩余合作时间，单位：天
+     *
+     * @return java.lang.Integer
+     **/
+    public Integer getCooperationRemainTime() {
+        if (Objects.nonNull(cooperationEndTime)) {
+            return Math.max(0, (int) DateUtil.betweenDay(cooperationEndTime, new Date(), true));
+        }
+        return null;
+    }
 
 }

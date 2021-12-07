@@ -1,7 +1,9 @@
 package com.wupol.myopia.business.core.hospital.domain.model;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.wupol.myopia.base.domain.vo.FamilyInfoVO;
 import com.wupol.myopia.base.util.RegularUtils;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -60,8 +62,8 @@ public class HospitalStudent implements Serializable {
     @NotBlank(message = "学生姓名不能为空")
     private String name;
 
-    /** 性别 0-男 1-女 */
-    @Range(min = 0, max = 1)
+    /** 性别 -1未知 0-男 1-女 */
+    @Range(min = -1, max = 1)
     private Integer gender;
 
     /** 出生日期 */
@@ -111,6 +113,27 @@ public class HospitalStudent implements Serializable {
 
     /** 更新时间 */
     private Date updateTime;
+
+    /**
+     * 是否新生儿暂无身份证 false-否 true-是
+     */
+    private Boolean isNewbornWithoutIdCard;
+
+    /**
+     * 家庭信息
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private FamilyInfoVO familyInfo;
+
+    /**
+     * 委会行政区域code
+     */
+    private Long committeeCode;
+
+    /**
+     * 检查建档编码
+     */
+    private Long recordNo;
 
 
     public HospitalStudent(Integer hospitalId, Integer studentId) {
