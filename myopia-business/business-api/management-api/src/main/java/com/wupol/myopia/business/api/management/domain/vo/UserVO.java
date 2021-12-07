@@ -151,7 +151,7 @@ public class UserVO implements Serializable {
     private List<Integer> roleIds;
 
     /**
-     * 用户类型：0-平台管理员、1-非平台管理员
+     * 用户类型：0-平台管理员（含超级管理员）、1-政府人员管理员、2-筛查机构管理员、3-医院管理员
      */
     private Integer userType;
 
