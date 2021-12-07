@@ -356,11 +356,11 @@ public class ExcelStudentService {
 
         List<String> notLegalIdCards = new ArrayList<>();
         if (!CollectionUtils.isEmpty(idCardSet)) {
-            idCardSet.forEach(s -> {
-                if (!IdcardUtil.isValidCard(s)) {
+            for (String s : idCardSet) {
+                if (StringUtils.isNotBlank(s) && !IdcardUtil.isValidCard(s)) {
                     notLegalIdCards.add(s);
                 }
-            });
+            }
             if (!CollectionUtils.isEmpty(notLegalIdCards)) {
                 throw new BusinessException("身份证格式错误：" + notLegalIdCards);
             }

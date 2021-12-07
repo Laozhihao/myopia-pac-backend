@@ -43,6 +43,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.VisionItems;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.flow.util.ScreeningResultUtil;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -62,6 +63,7 @@ import java.util.stream.Collectors;
  * Date 2021/4/21
  **/
 @Service
+@Log4j2
 public class ParentStudentBizService {
 
     @Resource
@@ -132,7 +134,8 @@ public class ParentStudentBizService {
         } else {
             // 检查与姓名是否匹配
             if (!StringUtils.equals(request.getName(), student.getName())) {
-                throw new BusinessException("身份证号与学生姓名不一致，身份证：" + idCard + "，身份证名称：" + request.getName() + "。系统学生姓名：" + student.getName());
+                log.error("身份证号与学生姓名不一致，身份证:{},身份证名称:{},系统学生姓名:{}", idCard, request.getName(), student.getName());
+                throw new BusinessException("身份证号与学生姓名不一致");
             }
         }
         BeanUtils.copyProperties(student, studentDTO);
@@ -154,6 +157,7 @@ public class ParentStudentBizService {
     private TwoTuple<Date, Integer> getIdCardInfo(String idCard) {
 
         if (StringUtils.isEmpty(idCard) || idCard.length() < 18) {
+            log.error("身份证:[{}]异常", idCard);
             throw new BusinessException("身份证异常");
         }
         Integer gender = Integer.parseInt(idCard.substring(16, 17)) % 2 != 0 ? GenderEnum.MALE.type : GenderEnum.FEMALE.type;
