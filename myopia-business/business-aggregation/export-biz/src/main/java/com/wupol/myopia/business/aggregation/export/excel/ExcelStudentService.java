@@ -8,6 +8,7 @@ import com.wupol.framework.core.util.StringUtils;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.ListUtil;
+import com.wupol.myopia.base.util.RegularUtils;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ImportExcelEnum;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
@@ -105,7 +106,7 @@ public class ExcelStudentService {
         Map<String, Integer> gradeClassNameClassIdMap = schoolClassService.getVoBySchoolId(schoolId).stream().collect(Collectors.toMap(schoolClass -> String.format(GRADE_CLASS_NAME_FORMAT, schoolClass.getGradeName(), schoolClass.getName()), SchoolClass::getId));
 
         //4. 校验上传筛查学生数据是否合法
-        checkExcelDataLegal(snoList, gradeNameSet, gradeClassNameSet, gradeNameIdMap, gradeClassNameClassIdMap, alreadyExistOrNotStudents.get(false), screeningCodeMap.get(false), schoolId);
+        checkExcelDataLegal(snoList, gradeNameSet, gradeClassNameSet, gradeNameIdMap, gradeClassNameClassIdMap, alreadyExistOrNotStudents.get(false), screeningCodeMap.get(false), schoolId, idCardSet);
         //5. 根据身份证号分批获取已有的学生
         Map<String, Student> idCardExistStudents = studentService.getByIdCards(new ArrayList<>(idCardSet)).stream().collect(Collectors.toMap(Student::getIdCard, Function.identity()));
         //6. 获取已有的筛查学生数据
@@ -337,11 +338,12 @@ public class ExcelStudentService {
      * @param gradeClassNameClassIdMap
      * @param notUploadStudents        已有筛查学生数据中，身份证不在这次上传的数据中的筛查学生
      * @param screeningCodeList        筛查CodeList
+     * @param idCardSet
      */
     private void checkExcelDataLegal(List<String> snoList, Set<String> gradeNameSet, Set<String> gradeClassNameSet,
                                      Map<String, Integer> gradeNameIdMap, Map<String, Integer> gradeClassNameClassIdMap,
                                      List<ScreeningPlanSchoolStudent> notUploadStudents,
-                                     List<ScreeningPlanSchoolStudent> screeningCodeList, Integer schoolId) {
+                                     List<ScreeningPlanSchoolStudent> screeningCodeList, Integer schoolId, Set<String> idCardSet) {
         // 年级名是否都存在
         if (gradeNameSet.stream().anyMatch(gradeName -> StringUtils.isEmpty(gradeName) || !gradeNameIdMap.containsKey(gradeName))) {
             throw new BusinessException("存在不正确的年级名称");
@@ -349,6 +351,16 @@ public class ExcelStudentService {
         // 班级名是否都存在
         if (gradeClassNameSet.stream().anyMatch(gradeClassName -> StringUtils.isEmpty(gradeClassName) || !gradeClassNameClassIdMap.containsKey(gradeClassName))) {
             throw new BusinessException("存在不正确的班级名称");
+        }
+
+        List<String> notLegalIdCards = new ArrayList<>();
+        idCardSet.forEach(s -> {
+            if (!RegularUtils.isIdCard(s)) {
+                notLegalIdCards.add(s);
+            }
+        });
+        if (!CollectionUtils.isEmpty(notLegalIdCards)) {
+            throw new BusinessException("身份证格式错误：" + notLegalIdCards);
         }
 
         // 上传的学号与已有的学号校验(只考虑自己学校)
