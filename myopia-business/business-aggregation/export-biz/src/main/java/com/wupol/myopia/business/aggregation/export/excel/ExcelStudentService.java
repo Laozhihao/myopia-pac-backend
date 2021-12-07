@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.aggregation.export.excel;
 
+import cn.hutool.core.util.IdcardUtil;
 import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.CompareUtil;
@@ -355,7 +356,7 @@ public class ExcelStudentService {
 
         List<String> notLegalIdCards = new ArrayList<>();
         idCardSet.forEach(s -> {
-            if (!RegularUtils.isIdCard(s)) {
+            if (!IdcardUtil.isValidCard(s)) {
                 notLegalIdCards.add(s);
             }
         });
