@@ -1009,6 +1009,7 @@ public class ExcelFacade {
             visionDataDTO.setCreateUserId(2);
             visionDataDTO.setPlanStudentId(String.valueOf(planSchoolStudent.getId()));
             visionDataDTO.setIsState(0);
+            visionDataDTO.setGlassesType("没有佩戴眼镜");
 
             if (visionDataDTO.isValid()) {
                 visionScreeningBizService.saveOrUpdateStudentScreenData(visionDataDTO);
