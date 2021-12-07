@@ -83,6 +83,7 @@ public class DistrictPermissionService extends BaseService<DistrictPermissionMap
             List<Role> roleList = roleService.getRoleList(roleDTO);
             roleList.forEach(r -> roleService.updateRolePermission(r.getId(), templateType, permissionIds));
         }
+        // TODO: 更新医院管理员角色
         remove(new DistrictPermission().setDistrictLevel(templateType));
         List<DistrictPermission> permissions = permissionIds.stream().distinct().map(x -> new DistrictPermission().setDistrictLevel(templateType).setPermissionId(x)).collect(Collectors.toList());
         return saveBatch(permissions);
