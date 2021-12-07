@@ -203,6 +203,7 @@ public class UserService extends BaseService<UserMapper, User> {
             User existPhone = findOne(new User().setPhone(user.getPhone()).setSystemCode(existUser.getSystemCode()));
             if (Objects.nonNull(existPhone) && !existPhone.getId().equals(userId)) {
                 log.error("已经存在该手机号码:{}", user.getPhone());
+                throw new BusinessException("已经存在该手机号码");
             }
         }
         if (StringUtils.hasLength(user.getPassword())) {
