@@ -13,6 +13,8 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.*;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ImportExcelEnum;
+import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
+import com.wupol.myopia.business.api.screening.app.domain.dto.VisionDataDTO;
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.util.S3Utils;
@@ -30,6 +32,7 @@ import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningResultPahtConst;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ComputerOptometryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningDataContrastDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.VisionScreeningResultExportDTO;
@@ -108,7 +111,7 @@ public class ExcelFacade {
     @Autowired
     private SchoolStudentService schoolStudentService;
     @Autowired
-    private SchoolClassService schoolClassService;
+    private VisionScreeningBizService visionScreeningBizService;
 
     /**
      * 导入学生
@@ -931,10 +934,14 @@ public class ExcelFacade {
     @Transactional(rollbackFor = Exception.class)
     public void importABVStudent(MultipartFile multipartFile) throws ParseException {
         List<Map<Integer, String>> listMap = readExcel(multipartFile);
-        School school = schoolService.getById(2);
+        School school = schoolService.getById(103);
 
-        Map<String, Integer> gradeMap = schoolGradeService.getBySchoolId(2).stream().collect(Collectors.toMap(SchoolGrade::getName, SchoolGrade::getId));
-        Map<String, Integer> classMap = schoolClassService.getByGradeIds(2).stream().collect(Collectors.toMap(SchoolClass::getName, SchoolClass::getId));
+        // 收集年级信息
+        List<SchoolGradeExportDTO> grades = schoolGradeService.getBySchoolIds(Lists.newArrayList(school.getId()));
+        schoolGradeService.packageGradeInfo(grades);
+
+        // 年级信息通过学校Id分组
+        Map<Integer, List<SchoolGradeExportDTO>> schoolGradeMaps = grades.stream().collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolId));
         Long screeningCode = ScreeningCodeGenerator.nextId();
 
         for (Map<Integer, String> item : listMap) {
@@ -944,9 +951,25 @@ public class ExcelFacade {
                     .setBirthday(DateFormatUtil.parseDate(item.get(2), DateFormatUtil.FORMAT_ONLY_DATE_WITHOUT_LINE))
                     .setGradeType(GradeCodeEnum.getByName(item.get(31)).getType())
                     .setCreateUserId(1)
-                    .setGradeId(gradeMap.get(item.get(31)))
-                    .setSchoolId(2)
-                    .setClassId(classMap.get(item.get(32)));
+                    .setSchoolId(school.getId());
+
+            // 通过学校编号获取改学校的年级信息
+            List<SchoolGradeExportDTO> schoolGradeExportVOS = schoolGradeMaps.get(school.getId());
+            // 转换成年级Maps，年级名称作为Key
+            Map<String, SchoolGradeExportDTO> gradeMaps = schoolGradeExportVOS.stream().collect(Collectors.toMap(SchoolGradeExportDTO::getName, Function.identity()));
+            // 年级信息
+            SchoolGradeExportDTO schoolGradeExportDTO = gradeMaps.get(item.get(31));
+            Assert.notNull(schoolGradeExportDTO, "年级数据异常");
+            // 设置年级ID
+            student.setGradeId(schoolGradeExportDTO.getId());
+            // 获取年级内的班级信息
+            List<SchoolClassExportDTO> classExportVOS = schoolGradeExportDTO.getChild();
+            // 转换成班级Maps 把班级名称作为key
+            Map<String, Integer> classExportMaps = classExportVOS.stream().collect(Collectors.toMap(SchoolClassExportDTO::getName, SchoolClassExportDTO::getId));
+            Integer classId = classExportMaps.get(item.get(32));
+            Assert.notNull(classId, "班级数据为空");
+            // 设置班级信息
+            student.setClassId(classId);
             studentService.save(student);
 
 
@@ -960,10 +983,10 @@ public class ExcelFacade {
             planSchoolStudent.setSchoolId(school.getId());
             planSchoolStudent.setSchoolNo(school.getSchoolNo());
             planSchoolStudent.setSchoolName(school.getName());
-            planSchoolStudent.setGradeId(gradeMap.get(item.get(31)));
+            planSchoolStudent.setGradeId(student.getGradeId());
             planSchoolStudent.setGradeName(item.get(31));
             planSchoolStudent.setGradeType(GradeCodeEnum.getByName(item.get(31)).getType());
-            planSchoolStudent.setClassId(classMap.get(item.get(32)));
+            planSchoolStudent.setClassId(student.getClassId());
             planSchoolStudent.setClassName(item.get(32));
             planSchoolStudent.setStudentId(student.getId());
             planSchoolStudent.setBirthday(student.getBirthday());
@@ -972,6 +995,138 @@ public class ExcelFacade {
             planSchoolStudent.setStudentName(student.getName());
             planSchoolStudent.setArtificial(1);
             planSchoolStudent.setScreeningCode(screeningCode);
+            screeningPlanSchoolStudentService.save(planSchoolStudent);
+
+            VisionDataDTO visionDataDTO = new VisionDataDTO();
+            visionDataDTO.setRightCorrectedVision(getRightCorrectedVision(item));
+            visionDataDTO.setLeftCorrectedVision(getLeftCorrectedVision(item));
+            visionDataDTO.setRightNakedVision(Objects.nonNull(item.get(11)) ? new BigDecimal(item.get(11)) : null);
+            visionDataDTO.setLeftNakedVision(Objects.nonNull(item.get(12)) ? new BigDecimal(item.get(12)) : null);
+            visionDataDTO.setDiagnosis(0);
+            visionDataDTO.setIsCooperative(0);
+            visionDataDTO.setSchoolId(String.valueOf(school.getId()));
+            visionDataDTO.setDeptId(2);
+            visionDataDTO.setCreateUserId(2);
+            visionDataDTO.setPlanStudentId(String.valueOf(planSchoolStudent.getId()));
+            visionDataDTO.setIsState(0);
+
+            if (visionDataDTO.isValid()) {
+                visionScreeningBizService.saveOrUpdateStudentScreenData(visionDataDTO);
+            }
+
+            ComputerOptometryDTO computerOptometryDTO = new ComputerOptometryDTO();
+            computerOptometryDTO.setRAxial(Objects.nonNull(item.get(26)) ? new BigDecimal(item.get(26)) : null);
+            computerOptometryDTO.setLAxial(Objects.nonNull(item.get(30)) ? new BigDecimal(item.get(30)) : null);
+            computerOptometryDTO.setLSph(getLSph(item));
+            computerOptometryDTO.setRSph(getRSph(item));
+            computerOptometryDTO.setRCyl(getRCyl(item));
+            computerOptometryDTO.setLCyl(getLCyl(item));
+            computerOptometryDTO.setDiagnosis(0);
+            computerOptometryDTO.setIsCooperative(0);
+            computerOptometryDTO.setSchoolId(String.valueOf(school.getId()));
+            computerOptometryDTO.setDeptId(2);
+            computerOptometryDTO.setCreateUserId(2);
+            computerOptometryDTO.setPlanStudentId(String.valueOf(planSchoolStudent.getId()));
+            computerOptometryDTO.setIsState(0);
+
+            if (computerOptometryDTO.isValid()) {
+                visionScreeningBizService.saveOrUpdateStudentScreenData(computerOptometryDTO);
+            }
+
+
         }
+    }
+
+    private BigDecimal getRightCorrectedVision(Map<Integer, String> item) {
+        if (Objects.nonNull(item.get(3))) {
+            return new BigDecimal(item.get(3));
+        }
+        if (Objects.nonNull(item.get(4))) {
+            return new BigDecimal(item.get(4));
+        }
+        if (Objects.nonNull(item.get(5))) {
+            return new BigDecimal(item.get(5));
+        }
+        if (Objects.nonNull(item.get(6))) {
+            return new BigDecimal(item.get(6));
+        }
+        return null;
+    }
+    private BigDecimal getLeftCorrectedVision(Map<Integer, String> item) {
+        if (Objects.nonNull(item.get(7))) {
+            return new BigDecimal(item.get(7));
+        }
+        if (Objects.nonNull(item.get(8))) {
+            return new BigDecimal(item.get(8));
+        }
+        if (Objects.nonNull(item.get(9))) {
+            return new BigDecimal(item.get(9));
+        }
+        if (Objects.nonNull(item.get(10))) {
+            return new BigDecimal(item.get(10));
+        }
+        return null;
+    }
+    private BigDecimal getLSph(Map<Integer, String> item) {
+        if (Objects.nonNull(item.get(18))) {
+            return new BigDecimal(item.get(18));
+        }
+        if (Objects.nonNull(item.get(19))) {
+            return new BigDecimal(item.get(19));
+        }
+        if (Objects.nonNull(item.get(20))) {
+            return new BigDecimal(item.get(20));
+        }
+        if (Objects.nonNull(item.get(21))) {
+            return new BigDecimal(item.get(21));
+        }
+        if (Objects.nonNull(item.get(22))) {
+            return new BigDecimal(item.get(22));
+        }
+        return null;
+    }
+    private BigDecimal getRSph(Map<Integer, String> item) {
+        if (Objects.nonNull(item.get(13))) {
+            return new BigDecimal(item.get(13));
+        }
+        if (Objects.nonNull(item.get(14))) {
+            return new BigDecimal(item.get(14));
+        }
+        if (Objects.nonNull(item.get(15))) {
+            return new BigDecimal(item.get(15));
+        }
+        if (Objects.nonNull(item.get(16))) {
+            return new BigDecimal(item.get(16));
+        }
+        if (Objects.nonNull(item.get(17))) {
+            return new BigDecimal(item.get(17));
+        }
+        return null;
+    }
+
+    private BigDecimal getRCyl(Map<Integer, String> item) {
+        if (Objects.nonNull(item.get(23))) {
+            return new BigDecimal(item.get(23));
+        }
+        if (Objects.nonNull(item.get(24))) {
+            return new BigDecimal(item.get(24));
+        }
+        if (Objects.nonNull(item.get(25))) {
+            return new BigDecimal(item.get(25));
+        }
+        return null;
+    }
+
+    private BigDecimal getLCyl(Map<Integer, String> item) {
+        if (Objects.nonNull(item.get(27))) {
+            return new BigDecimal(item.get(27));
+        }
+        if (Objects.nonNull(item.get(28))) {
+            return new BigDecimal(item.get(28));
+        }
+        if (Objects.nonNull(item.get(29))) {
+            return new BigDecimal(item.get(29));
+        }
+        return null;
     }
 }
