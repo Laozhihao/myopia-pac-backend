@@ -942,8 +942,8 @@ public class ExcelFacade {
 
         // 年级信息通过学校Id分组
         Map<Integer, List<SchoolGradeExportDTO>> schoolGradeMaps = grades.stream().collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolId));
-        Long screeningCode = ScreeningCodeGenerator.nextId();
-
+        List<Long> idBatch = ScreeningCodeGenerator.getIdBatch(listMap.size());
+        int id= 0;
         for (Map<Integer, String> item : listMap) {
             Student student = new Student();
             student.setName(item.get(0))
@@ -994,7 +994,7 @@ public class ExcelFacade {
             planSchoolStudent.setStudentAge(student.getSchoolAgeStatus());
             planSchoolStudent.setStudentName(student.getName());
             planSchoolStudent.setArtificial(1);
-            planSchoolStudent.setScreeningCode(screeningCode);
+            planSchoolStudent.setScreeningCode(idBatch.get(id));
             screeningPlanSchoolStudentService.save(planSchoolStudent);
 
             VisionDataDTO visionDataDTO = new VisionDataDTO();
@@ -1033,8 +1033,7 @@ public class ExcelFacade {
             if (computerOptometryDTO.isValid()) {
                 visionScreeningBizService.saveOrUpdateStudentScreenData(computerOptometryDTO);
             }
-
-
+            id = id + 1;
         }
     }
 
