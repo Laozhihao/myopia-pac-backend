@@ -156,7 +156,8 @@ public class UserService extends BaseService<UserMapper, User> {
             generateOrgAdminUserRole(userDTO, user.getId(), PermissionTemplateType.HOSPITAL_ADMIN.getType(), RoleType.HOSPITAL_ADMIN.getType());
             // 绑定关联筛查机构的角色
             if (Objects.nonNull(userDTO.getAssociateScreeningOrgId())) {
-                generateScreeningOrgAdminUserRole(userDTO, user.getId());
+                Role role = roleService.getFirstOneRoleByScreeningOrgId(userDTO.getAssociateScreeningOrgId());
+                userRoleService.save(new UserRole().setUserId(user.getId()).setRoleId(role.getId()));
             }
         }
         return userDTO.setId(user.getId());

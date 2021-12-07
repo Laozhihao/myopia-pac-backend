@@ -78,4 +78,18 @@
         </where>
     </select>
 
+    <select id="getFirstOneRoleByScreeningOrgId" resultMap="BaseResultMap">
+        SELECT
+                *
+        FROM
+             o_role
+        WHERE
+                org_id = #{screeningOrgId}
+          AND system_code = #{systemCode}
+          AND role_type = #{roleType}
+        ORDER BY
+                 id
+        LIMIT 1
+    </select>
+
 </mapper>
