@@ -3,16 +3,18 @@ package com.wupol.myopia.base.constant;
 import lombok.Getter;
 
 /**
- * 用户类型
+ * 管理平台端用户类型
  *
  * @Author HaoHao
  * @Date 2021/1/25
  **/
 @Getter
 public enum UserType {
-    /** 用户类型 */
+    /** 含超级管理员 */
     PLATFORM_ADMIN(0, "平台管理员"),
-    NOT_PLATFORM_ADMIN(1, "非平台管理员");
+    GOVERNMENT_ADMIN(1, "政府人员管理员"),
+    SCREENING_ORGANIZATION_ADMIN(2, "筛查机构管理员"),
+    HOSPITAL_ADMIN(3, "医院管理员");
 
     /**
      * 类型
