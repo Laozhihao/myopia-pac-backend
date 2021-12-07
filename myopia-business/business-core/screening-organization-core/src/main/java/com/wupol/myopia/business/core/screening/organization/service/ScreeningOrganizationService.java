@@ -30,6 +30,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -227,6 +228,19 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         List<ScreeningOrganization> orgList = baseMapper.getByName(screeningOrgNameLike);
         orgList.forEach(org -> org.setDistrictDetailName(districtService.getDistrictName(org.getDistrictDetail())));
         return orgList;
+    }
+
+    /**
+     * 模糊查询指定省份下筛查机构
+     *
+     * @param screeningOrgNameLike 筛查机构名称
+     * @param provinceDistrictCode 省行政区域编码，如：110000000
+     * @return java.util.List<com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization>
+     **/
+    public List<ScreeningOrganization> getListByProvinceCodeAndNameLike(String screeningOrgNameLike, Long provinceDistrictCode) {
+        Assert.hasText(screeningOrgNameLike, "筛查机构名称不能为空");
+        Assert.notNull(provinceDistrictCode, "省行政区域编码不能为空");
+        return baseMapper.getListByProvinceCodeAndNameLike(screeningOrgNameLike, provinceDistrictCode);
     }
 
     /**

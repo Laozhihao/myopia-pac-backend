@@ -121,6 +121,13 @@
         where name like concat('%', #{name}, '%')
     </select>
 
+    <select id="getListByProvinceCodeAndNameLike" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_organization
+        where name like concat('%', #{name}, '%') and json_extract(cast(district_detail as json) ,'$[0].code') = #{provinceDistrictCode}
+    </select>
+
     <select id="getByConfigType" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>

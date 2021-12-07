@@ -186,7 +186,7 @@ public class HospitalController {
      * @return UsernameAndPasswordDTO
      */
     @PostMapping("/add/account/{hospitalId}")
-    public UsernameAndPasswordDTO addAccount(@PathVariable("hospitalId") Integer hospitalId) {
+    public UsernameAndPasswordDTO addAccount(@PathVariable("hospitalId")  Integer hospitalId) {
         return hospitalBizService.addHospitalAdminUserAccount(hospitalId);
     }
 

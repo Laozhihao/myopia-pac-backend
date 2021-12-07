@@ -160,7 +160,7 @@ public class ScreeningOrganization extends AddressCode implements Serializable, 
 
     public Integer getCooperationRemainTime() {
         if (Objects.nonNull(cooperationEndTime)) {
-            return Math.max(0, (int)DateUtil.betweenDay(cooperationEndTime, new Date(), true));
+            return Math.max(0, (int) DateUtil.betweenDay(cooperationEndTime, new Date(), false) + 1);
         }
         return null;
     }

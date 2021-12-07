@@ -17,8 +17,9 @@ public enum RoleType {
     /** 超级管理员 */
     SUPER_ADMIN(0, "超级管理员"),
     GOVERNMENT_DEPARTMENT(1, "政府部门类型角色"),
-    SCREENING_ORGANIZATION(2, "筛查端管理员类型角色"),
-    PLATFORM_ADMIN(3,"平台管理员类型角色");
+    SCREENING_ORGANIZATION(2, "筛查机构管理员类型角色"),
+    PLATFORM_ADMIN(3,"平台管理员类型角色"),
+    HOSPITAL_ADMIN(4,"医院管理员类型角色");
 
     /**
      * 类型

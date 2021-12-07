@@ -16,19 +16,25 @@ import java.util.List;
  **/
 @Getter
 public enum PermissionTemplateType {
-    /**
-     * 权限集合包
-     */
-    SCREENING_ORGANIZATION(0, "筛查机构权限集合包"),
+
+    /** 筛查机构管理员 */
+    SCREENING_ORGANIZATION(0, "（省级）筛查机构权限集合包"),
+    SCREENING_ORG_SINGLE(7, "筛查机构单点权限集合包"),
+    SCREENING_ORG_VS666(8, "筛查机构VS666权限集合包"),
+    SCREENING_ORG_SINGLE_AND_VS666(9, "筛查机构单点+vs666权限集合包"),
+
+    /** 政府部门管理员 */
     PROVINCE(1, "省级权限集合包"),
     CITY(2, "市级权限集合包"),
     COUNTY(3, "县/区级权限集合包"),
     TOWN(4, "镇/乡/街道级权限集合包"),
+
+    /** 平台管理员 */
     ALL(5, "超级管理员"),
     PLATFORM_ADMIN(6, "平台管理员权限集合包"),
-    SCREENING_ORG_SINGLE(7, "筛查机构单点权限集合包"),
-    SCREENING_ORG_VS666(8, "筛查机构VS666权限集合包"),
-    SCREENING_ORG_SINGLE_AND_VS666(9, "筛查机构单点+vs666权限集合包");
+
+    /** 医院管理员 */
+    HOSPITAL_ADMIN(10, "医院管理端权限集合包");
 
     /**
      * 类型

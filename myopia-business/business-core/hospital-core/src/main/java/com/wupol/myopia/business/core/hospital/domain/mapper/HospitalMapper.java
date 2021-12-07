@@ -8,6 +8,7 @@ import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
 import com.wupol.myopia.business.core.hospital.domain.query.HospitalQuery;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -30,4 +31,8 @@ public interface HospitalMapper extends BaseMapper<Hospital> {
     List<Hospital> getByNameNeId(@Param("name") String name, @Param("id") Integer id);
 
     List<HospitalResponseDTO> getHospitalByName(@Param("name") String name, @Param("codePre") Integer codePre);
+
+    List<Hospital> getByCooperationTimeAndStatus(@Param("date") Date date, @Param("status") Integer status);
+
+    int updateHospitalStatus(@Param("id") Integer id, @Param("targetStatus") Integer targetStatus, @Param("stopDate") Date stopDate, @Param("sourceStatus")Integer sourceStatus);
 }

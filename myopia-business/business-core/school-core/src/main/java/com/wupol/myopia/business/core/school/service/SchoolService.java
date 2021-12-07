@@ -468,11 +468,11 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     }
 
     /**
-     * 处理机构状态，将已过合作时间但未处理为禁止的学校设置为禁止
+     * 处理学校状态，将已过合作时间但未处理为禁止的学校设置为禁止
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
-    public int handleOrganizationStatus(Date date) {
+    public int handleSchoolStatus(Date date) {
         List<School> schools = getCooperationStopAndUnhandleSchool(date);
         int result = 0;
         for (School school : schools) {
