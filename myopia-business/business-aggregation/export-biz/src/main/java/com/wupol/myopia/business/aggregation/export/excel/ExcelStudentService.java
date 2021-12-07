@@ -355,13 +355,15 @@ public class ExcelStudentService {
         }
 
         List<String> notLegalIdCards = new ArrayList<>();
-        idCardSet.forEach(s -> {
-            if (!IdcardUtil.isValidCard(s)) {
-                notLegalIdCards.add(s);
+        if (!CollectionUtils.isEmpty(idCardSet)) {
+            idCardSet.forEach(s -> {
+                if (!IdcardUtil.isValidCard(s)) {
+                    notLegalIdCards.add(s);
+                }
+            });
+            if (!CollectionUtils.isEmpty(notLegalIdCards)) {
+                throw new BusinessException("身份证格式错误：" + notLegalIdCards);
             }
-        });
-        if (!CollectionUtils.isEmpty(notLegalIdCards)) {
-            throw new BusinessException("身份证格式错误：" + notLegalIdCards);
         }
 
         // 上传的学号与已有的学号校验(只考虑自己学校)
