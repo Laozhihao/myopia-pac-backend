@@ -3,6 +3,7 @@ package com.wupol.myopia.business.core.hospital.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.SystemCode;
+import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.PasswordAndUsernameGenerator;
@@ -156,20 +157,16 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      */
     public UsernameAndPasswordDTO generateAccountAndPassword(Hospital hospital, String name, Integer associateScreeningOrgId) {
         String password = PasswordAndUsernameGenerator.getHospitalAdminPwd();
-        String username;
-        if (StringUtils.isBlank(name)) {
-            username = PasswordAndUsernameGenerator.getHospitalAdminUserName(hospitalAdminService.count() + 1);
-        } else {
-            username = name;
-        }
-        // TODO：若associateScreeningOrgId不为空，则为当前用户分配对应筛查机构的角色权限
+        String username = StringUtils.isBlank(name) ? PasswordAndUsernameGenerator.getHospitalAdminUserName(hospitalAdminService.count() + 1) : name;
         UserDTO userDTO = new UserDTO();
         userDTO.setOrgId(hospital.getId())
                 .setUsername(username)
                 .setPassword(password)
                 .setRealName(hospital.getName())
                 .setCreateUserId(hospital.getCreateUserId())
-                .setSystemCode(SystemCode.HOSPITAL_CLIENT.getCode());
+                .setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode())
+                .setUserType(UserType.HOSPITAL_ADMIN.getType());
+        userDTO.setAssociateScreeningOrgId(associateScreeningOrgId);
         User user = oauthServiceClient.addMultiSystemUser(userDTO);
         hospitalAdminService.saveAdmin(hospital.getCreateUserId(), hospital.getId(), user.getId(), hospital.getGovDeptId());
         return new UsernameAndPasswordDTO(username, password);

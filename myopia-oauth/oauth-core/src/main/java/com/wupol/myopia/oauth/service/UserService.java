@@ -2,8 +2,10 @@ package com.wupol.myopia.oauth.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wupol.myopia.base.constant.PermissionTemplateType;
 import com.wupol.myopia.base.constant.RoleType;
 import com.wupol.myopia.base.constant.SystemCode;
+import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.oauth.constant.OrgScreeningMap;
@@ -122,7 +124,7 @@ public class UserService extends BaseService<UserMapper, User> {
     }
 
     /**
-     * 管理端创建其他系统的用户(医院端、学校端、筛查端、筛查管理端)
+     * 管理端创建其他系统的用户(医院端医生用户、学校端老师用户、筛查端筛查人员用户、平台-筛查管理员、平台-医院管理员)
      *
      * @param userDTO 用户数据
      * @return com.wupol.myopia.oauth.domain.model.User
@@ -134,14 +136,27 @@ public class UserService extends BaseService<UserMapper, User> {
         User user = new User();
         BeanUtils.copyProperties(userDTO, user);
         save(user.setPassword(new BCryptPasswordEncoder().encode(userDTO.getPassword())));
-        // 根据系统编号，绑定初始化的角色（每个端只有一个，非一个则报异常）
-        boolean isScreeningAdmin = SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode().equals(user.getSystemCode());
+        // 创建角色
+        // 1. 平台-筛查机构管理员
+        boolean isScreeningAdmin = SystemCode.MANAGEMENT_CLIENT.getCode().equals(user.getSystemCode()) && UserType.SCREENING_ORGANIZATION_ADMIN.getType().equals(userDTO.getUserType());
         if (isScreeningAdmin) {
-            // 根据筛查机构配置赋予权限
-            boolean result = generateOrgRole(userDTO, user.getId());
-            if (!result) {
-                Role role = roleService.findOne(new Role().setSystemCode(userDTO.getSystemCode()));
-                userRoleService.save(new UserRole().setUserId(user.getId()).setRoleId(role.getId()));
+            generateScreeningOrgAdminUserRole(userDTO, user.getId());
+            return userDTO.setId(user.getId());
+        }
+        // 2. 平台-医院管理员
+        boolean isHospitalAdmin = SystemCode.MANAGEMENT_CLIENT.getCode().equals(user.getSystemCode()) && UserType.HOSPITAL_ADMIN.getType().equals(userDTO.getUserType());
+        if (isHospitalAdmin) {
+            // 已经存在该机构的角色，则直接给用户绑定该角色
+            List<Role> roleList = roleService.findByList(new Role().setSystemCode(userDTO.getSystemCode()).setOrgId(user.getOrgId()).setRoleType(RoleType.HOSPITAL_ADMIN.getType()));
+            if (!CollectionUtils.isEmpty(roleList)) {
+                userRoleService.save(new UserRole().setUserId(user.getId()).setRoleId(roleList.get(0).getId()));
+                return userDTO.setId(user.getId());
+            }
+            // 没有则生成新的角色
+            generateOrgAdminUserRole(userDTO, user.getId(), PermissionTemplateType.HOSPITAL_ADMIN.getType(), RoleType.HOSPITAL_ADMIN.getType());
+            // 绑定关联筛查机构的角色
+            if (Objects.nonNull(userDTO.getAssociateScreeningOrgId())) {
+                generateScreeningOrgAdminUserRole(userDTO, user.getId());
             }
         }
         return userDTO.setId(user.getId());
@@ -295,40 +310,42 @@ public class UserService extends BaseService<UserMapper, User> {
     }
 
     /**
-     * 生成角色并初始化权限
+     * 生成筛查机构管理员角色并初始其化权限
      *
      * @param userDTO userDTO
      * @param userId  userId
      * @return boolean 是否成功
      */
-    private boolean generateOrgRole(UserDTO userDTO, Integer userId) {
+    private void generateScreeningOrgAdminUserRole(UserDTO userDTO, Integer userId) {
         Integer orgConfigType = userDTO.getOrgConfigType();
-        if (Objects.nonNull(orgConfigType)) {
-            // 根据orgConfigType获取权限集合包
-            List<Integer> permissionIds = districtPermissionService.getByTemplateType(OrgScreeningMap.ORG_CONFIG_TYPE_TO_TEMPLATE.get(orgConfigType))
-                    .stream().map(DistrictPermission::getPermissionId).collect(Collectors.toList());
+        Assert.notNull(orgConfigType, "筛查机构配置类型为空");
+        generateOrgAdminUserRole(userDTO, userId, OrgScreeningMap.ORG_CONFIG_TYPE_TO_TEMPLATE.get(orgConfigType), RoleType.SCREENING_ORGANIZATION.getType());
+    }
 
-            Role role = saveOrgRole(userDTO, userId);
-            roleService.assignRolePermission(role.getId(), permissionIds);
-            return true;
-        }
-        return false;
+    private void generateOrgAdminUserRole(UserDTO userDTO, Integer userId, Integer permissionTemplateType, Integer roleType) {
+        // 生成角色，并给用户分配角色
+        Role role = createScreeningOrgAdminRoleAndAssignUserRole(userDTO, userId, roleType);
+        // 根据orgConfigType获取权限集合包
+        List<Integer> permissionIds = districtPermissionService.getByTemplateType(permissionTemplateType)
+                .stream().map(DistrictPermission::getPermissionId).collect(Collectors.toList());
+        // 给角色分配权限
+        roleService.assignRolePermission(role.getId(), permissionIds);
     }
 
     /**
-     * 生成机构角色
+     * 生成筛查机构管理员角色
      *
      * @param userDTO userDTO
      * @param userId  userId
      * @return 角色
      */
-    private Role saveOrgRole(UserDTO userDTO, Integer userId) {
-        Role role = new Role();
-        role.setOrgId(userDTO.getOrgId());
-        role.setChName(userDTO.getUsername());
-        role.setRoleType(RoleType.SCREENING_ORGANIZATION.getType());
-        role.setSystemCode(userDTO.getSystemCode());
-        role.setCreateUserId(userDTO.getCreateUserId());
+    private Role createScreeningOrgAdminRoleAndAssignUserRole(UserDTO userDTO, Integer userId, Integer roleType) {
+        Role role = new Role()
+                .setOrgId(userDTO.getOrgId())
+                .setChName(userDTO.getUsername())
+                .setRoleType(roleType)
+                .setSystemCode(userDTO.getSystemCode())
+                .setCreateUserId(userDTO.getCreateUserId());
         roleService.save(role);
         userRoleService.save(new UserRole().setUserId(userId).setRoleId(role.getId()));
         return role;
@@ -340,14 +357,7 @@ public class UserService extends BaseService<UserMapper, User> {
         // 删除user_role
         userRoleService.remove(new UserRole().setUserId(userId));
         // 创建role和user_role
-        Role role = saveOrgRole(userDTO, userId);
-        // 更新权限
-        List<Integer> permissionIds = districtPermissionService.getByTemplateType(OrgScreeningMap.ORG_CONFIG_TYPE_TO_TEMPLATE.get(userDTO.getOrgConfigType()))
-                .stream().map(DistrictPermission::getPermissionId).collect(Collectors.toList());
-
-        if (!CollectionUtils.isEmpty(permissionIds)) {
-            roleService.assignRolePermission(role.getId(), permissionIds);
-        }
+        generateScreeningOrgAdminUserRole(userDTO, userId);
     }
 
     private void updateScreeningOrgRolePermission(Integer orgConfigType, Integer userId) {
