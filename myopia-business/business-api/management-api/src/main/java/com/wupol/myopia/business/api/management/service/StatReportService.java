@@ -1025,20 +1025,19 @@ public class StatReportService {
     }
 
     /**
-     *
      * 构建 年级 预警级别 统计
+     *
      * @param statConclusions 统计数据
      * @return
      */
-    private Map<String, Object> composeSchoolGradeWarningLevelDesc(
-            List<SchoolGradeItemsDTO> schoolGradeItemList, List<StatConclusion> statConclusions) {
+    private Map<String, Object> composeSchoolGradeWarningLevelDesc(List<SchoolGradeItemsDTO> schoolGradeItemList,
+                                                                   List<StatConclusion> statConclusions) {
         List<Map<String, Object>> schoolGradeGenderVisionTable = new ArrayList<>();
         for (SchoolGradeItemsDTO schoolGradeItems : schoolGradeItemList) {
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeItems.getGradeCode());
-            List<StatConclusion> list =
-                    statConclusions.stream()
-                            .filter(x -> gradeCodeEnum.getCode().equals(x.getSchoolGradeCode()))
-                            .collect(Collectors.toList());
+            List<StatConclusion> list = statConclusions.stream()
+                    .filter(x -> gradeCodeEnum.getCode().equals(x.getSchoolGradeCode()))
+                    .collect(Collectors.toList());
             schoolGradeGenderVisionTable.add(composeWarningLevelStat(gradeCodeEnum.name(), list));
         }
         Map<String, Object> totalStat = composeWarningLevelStat(TABLE_LABEL_TOTAL, statConclusions);
@@ -1473,7 +1472,7 @@ public class StatReportService {
             String name, List<StatConclusion> statConclusions) {
         long rowTotal = statConclusions.size();
         long levelZeroNum =
-                statConclusions.stream().filter(x -> WarningLevel.ZERO.code.equals(x.getWarningLevel())).count();
+                statConclusions.stream().filter(x -> WarningLevel.ZERO.code.equals(x.getWarningLevel()) || WarningLevel.ZERO_SP.code.equals(x.getWarningLevel())).count();
         long levelOneNum =
                 statConclusions.stream().filter(x -> WarningLevel.ONE.code.equals(x.getWarningLevel())).count();
         long levelTwoNum =
