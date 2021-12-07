@@ -128,10 +128,8 @@ public class StatReportService {
      * @param totalStatNum 统计总量
      * @return
      */
-    private TableBasicStatParams composeTableBasicParams(
-            String name, long statNum, long totalStatNum) {
-        return new TableBasicStatParams(
-                name, convertToPercentage(statNum * 1f / totalStatNum), statNum, totalStatNum);
+    private TableBasicStatParams composeTableBasicParams(String name, long statNum, long totalStatNum) {
+        return new TableBasicStatParams(name, convertToPercentage(statNum * 1f / totalStatNum), statNum, totalStatNum);
     }
 
     /**
@@ -488,8 +486,7 @@ public class StatReportService {
      * @param schoolAgeWarningLevelTable 表格数据
      * @return
      */
-    private Map<String, Object> composeSchoolAgeWarningLevelDesc(
-            String title, List<Map<String, Object>> schoolAgeWarningLevelTable) {
+    private Map<String, Object> composeSchoolAgeWarningLevelDesc(String title, List<Map<String, Object>> schoolAgeWarningLevelTable) {
         int size = schoolAgeWarningLevelTable.size();
         Map<String, Object> totalStat = schoolAgeWarningLevelTable.get(size - 1);
         Long totalNum = (Long) totalStat.get(TABLE_LABEL_ROW_TOTAL);
@@ -1083,15 +1080,15 @@ public class StatReportService {
      * @param statConclusions 统计数据
      * @return
      */
-    private Map<String, Object> composeSchoolGradeGenderUnderCorrectedDesc(
-            List<SchoolGradeItemsDTO> schoolGradeItemList, List<StatConclusion> statConclusions) {
-        List<StatConclusion> myopiaConclusions =
-                statConclusions.stream().filter(StatConclusion::getIsMyopia).collect(Collectors.toList());
+    private Map<String, Object> composeSchoolGradeGenderUnderCorrectedDesc(List<SchoolGradeItemsDTO> schoolGradeItemList,
+                                                                           List<StatConclusion> statConclusions) {
+        List<StatConclusion> myopiaConclusions = statConclusions
+                .stream().filter(StatConclusion::getIsMyopia).collect(Collectors.toList());
         List<Map<String, Object>> schoolGradeGenderVisionTable = new ArrayList<>();
         for (SchoolGradeItemsDTO schoolGradeItems : schoolGradeItemList) {
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeItems.getGradeCode());
-            List<StatConclusion> list =
-                    myopiaConclusions.stream().filter(x -> gradeCodeEnum.getCode().equals(x.getSchoolGradeCode())).collect(Collectors.toList());
+            List<StatConclusion> list = myopiaConclusions
+                    .stream().filter(x -> gradeCodeEnum.getCode().equals(x.getSchoolGradeCode())).collect(Collectors.toList());
             schoolGradeGenderVisionTable.add(composeGenderVisionUnderCorrectedStat(gradeCodeEnum.name(), list));
         }
         Map<String, Object> totalStat = composeGenderVisionUnderCorrectedStat(TABLE_LABEL_TOTAL, myopiaConclusions);
@@ -1383,10 +1380,8 @@ public class StatReportService {
      * @param statConclusions 统计数据
      * @return
      */
-    private Map<String, Object> composeGenderVisionUnderCorrectedStat(
-            String name, List<StatConclusion> statConclusions) {
-        Predicate<StatConclusion> predicate =
-                x -> VisionCorrection.UNDER_CORRECTED.code.equals(x.getVisionCorrection());
+    private Map<String, Object> composeGenderVisionUnderCorrectedStat(String name, List<StatConclusion> statConclusions) {
+        Predicate<StatConclusion> predicate = x -> VisionCorrection.UNDER_CORRECTED.code.equals(x.getVisionCorrection());
         return composeGenderPredicateStat(name, statConclusions, predicate);
     }
 
@@ -1397,15 +1392,12 @@ public class StatReportService {
      * @param predicate
      * @return
      */
-    private Map<String, Object> composeGenderPredicateStat(String name,
-            List<StatConclusion> statConclusions, Predicate<StatConclusion> predicate) {
+    private Map<String, Object> composeGenderPredicateStat(String name, List<StatConclusion> statConclusions,
+                                                           Predicate<StatConclusion> predicate) {
         long rowTotal = statConclusions.size();
 
-        List<StatConclusion> maleList =
-                statConclusions.stream().filter(x -> GenderEnum.MALE.type.equals(x.getGender())).collect(Collectors.toList());
-
-        List<StatConclusion> femaleList =
-                statConclusions.stream().filter(x -> GenderEnum.FEMALE.type.equals(x.getGender())).collect(Collectors.toList());
+        List<StatConclusion> maleList = statConclusions.stream().filter(x -> GenderEnum.MALE.type.equals(x.getGender())).collect(Collectors.toList());
+        List<StatConclusion> femaleList = statConclusions.stream().filter(x -> GenderEnum.FEMALE.type.equals(x.getGender())).collect(Collectors.toList());
 
         long maleLowVisionNum = maleList.stream().filter(predicate).count();
         long femaleLowVisionNum = femaleList.stream().filter(predicate).count();
