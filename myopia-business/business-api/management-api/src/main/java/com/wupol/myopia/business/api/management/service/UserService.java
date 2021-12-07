@@ -142,7 +142,7 @@ public class UserService {
     private void validateAndInitUserData(UserQueryDTO user, CurrentUser currentUser) {
         if (currentUser.isPlatformAdminUser()) {
             Assert.notNull(user.getUserType(), "用户类型不能为空");
-            if (UserType.NOT_PLATFORM_ADMIN.getType().equals(user.getUserType())) {
+            if (UserType.GOVERNMENT_ADMIN.getType().equals(user.getUserType())) {
                 // 创建非平台管理员用户
                 Assert.notNull(user.getOrgId(), "所属部门ID不能为空");
                 Assert.notNull(user.getIsLeader(), "是否为领导不能为空");
