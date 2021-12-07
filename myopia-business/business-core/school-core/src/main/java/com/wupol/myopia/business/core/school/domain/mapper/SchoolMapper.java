@@ -48,4 +48,5 @@ public interface SchoolMapper extends BaseMapper<School> {
 
     List<School> getByCooperationTimeAndStatus(@Param("date") Date date, @Param("status") Integer status);
 
+    int updateSchoolStatus(@Param("id") Integer id, @Param("targetStatus") Integer targetStatus, @Param("stopDate") Date stopDate, @Param("sourceStatus")Integer sourceStatus);
 }

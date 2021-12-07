@@ -348,21 +348,18 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     }
 
     /**
-     * 处理机构状态，将已过合作时间但未处理为禁止的学校设置为禁止
+     * 处理机构状态，将已过合作时间但未处理为禁止的机构设置为禁止
      * @return
      */
     public int handleOrganizationStatus(Date date) {
         List<ScreeningOrganization> orgs = getCooperationStopAndUnhandleOrganization(date);
         int result = 0;
         for (ScreeningOrganization org : orgs) {
-            // 更新成功
+            // 更新机构状态成功
             if (updateOrganizationStatus(org.getId(), StatusConstant.DISABLE, date, StatusConstant.ENABLE) > 0) {
-                // 更新oauth上机构的状态
-                Organization organization = new Organization()
-                        .setOrgId(org.getId())
-                        .setSystemCode(SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode())
-                        .setStatus(StatusConstant.DISABLE);
-                // TODO 更新oauth
+                // 更新oauth上机构的状态（同时影响筛查管理端跟筛查端）
+                oauthServiceClient.updateOrganization(new Organization(org.getId(), SystemCode.SCREENING_MANAGEMENT_CLIENT, StatusConstant.DISABLE));
+                oauthServiceClient.updateOrganization(new Organization(org.getId(), SystemCode.SCREENING_CLIENT, StatusConstant.DISABLE));
                 result++;
             }
         }
@@ -370,13 +367,21 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     }
 
     /**
-     * 获取已过合作时间但未处理为禁止的学校
+     * 获取已过合作时间但未处理为禁止的机构
      * @return
      */
     public List<ScreeningOrganization> getCooperationStopAndUnhandleOrganization(Date date) {
         return baseMapper.getByCooperationTimeAndStatus(date, StatusConstant.ENABLE);
     }
 
+    /**
+     * CAS更新机构状态，当且仅当源状态为sourceStatus，合作结束时间早于stopDate时更新状态为targetStatus，且限定id
+     * @param id
+     * @param targetStatus
+     * @param stopDate
+     * @param sourceStatus
+     * @return
+     */
     public int updateOrganizationStatus(Integer id, Integer targetStatus, Date stopDate, Integer sourceStatus) {
         return baseMapper.updateOrganizationStatus(id, targetStatus, stopDate, sourceStatus);
     }

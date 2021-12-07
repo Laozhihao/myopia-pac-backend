@@ -352,6 +352,11 @@ public class ScheduledTasksExecutor {
     @Transactional(rollbackFor = Exception.class)
     public void cooperationStatusHandle() {
 
+        Date date = new Date();
+        log.info("开始进行机构（筛查机构、学校、医院）状态处理");
+        log.info("本次任务共处理筛查机构状态{}条", screeningOrganizationService.handleOrganizationStatus(date));
+        log.info("本次任务共处理学校状态{}条", schoolService.handleOrganizationStatus(date));
+        log.info("本次任务共处理医院状态{}条", 0);
     }
 
 

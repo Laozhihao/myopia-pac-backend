@@ -178,4 +178,12 @@
         and status = #{status}
     </select>
 
+    <update id="updateSchoolStatus">
+        update m_school
+        set status = #{targetStatus}
+        where id = #{id}
+        and cooperation_end_time &lt; #{stopDate}
+        and status = #{sourceStatus}
+    </update>
+
 </mapper>

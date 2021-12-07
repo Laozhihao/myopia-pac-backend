@@ -1,8 +1,11 @@
 package com.wupol.myopia.oauth.sdk.domain.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.wupol.myopia.base.constant.SystemCode;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
@@ -18,6 +21,8 @@ import java.io.Serializable;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
+@AllArgsConstructor
+@NoArgsConstructor
 public class Organization implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -47,5 +52,11 @@ public class Organization implements Serializable {
      */
     private Integer bindSystemCode;
 
+
+    public Organization(Integer orgId, SystemCode systemCode, Integer status) {
+        this.orgId = orgId;
+        this.systemCode = systemCode.getCode();
+        this.status = status;
+    }
 
 }

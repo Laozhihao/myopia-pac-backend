@@ -29,6 +29,7 @@ import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
+import com.wupol.myopia.oauth.sdk.domain.response.Organization;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
@@ -464,11 +465,41 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     }
 
     /**
+     * 处理机构状态，将已过合作时间但未处理为禁止的学校设置为禁止
+     * @return
+     */
+    public int handleOrganizationStatus(Date date) {
+        List<School> schools = getCooperationStopAndUnhandleSchool(date);
+        int result = 0;
+        for (School school : schools) {
+            // 更新机构状态成功
+            if (updateSchoolStatus(school.getId(), StatusConstant.DISABLE, date, StatusConstant.ENABLE) > 0) {
+                // 更新oauth上机构的状态
+                oauthServiceClient.updateOrganization(new Organization(school.getId(), SystemCode.SCHOOL_CLIENT, StatusConstant.DISABLE));
+                result++;
+            }
+        }
+        return result;
+    }
+
+    /**
      * 获取已过合作时间但未处理为禁止的学校
      * @return
      */
     public List<School> getCooperationStopAndUnhandleSchool(Date date) {
         return baseMapper.getByCooperationTimeAndStatus(date, StatusConstant.ENABLE);
+    }
+
+    /**
+     * CAS更新学校状态，当且仅当源状态为sourceStatus，合作结束时间早于stopDate时更新状态为targetStatus，且限定id
+     * @param id
+     * @param targetStatus
+     * @param stopDate
+     * @param sourceStatus
+     * @return
+     */
+    public int updateSchoolStatus(Integer id, Integer targetStatus, Date stopDate, Integer sourceStatus) {
+        return baseMapper.updateSchoolStatus(id, targetStatus, stopDate, sourceStatus);
     }
 
 }
