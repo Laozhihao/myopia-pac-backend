@@ -344,7 +344,10 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         String key = String.format(DistrictCacheKey.DISTRICT_CHILD, parentCode);
         Object cacheList = redisUtil.get(key);
         if (!Objects.isNull(cacheList)) {
-            return JSON.parseObject(JSON.toJSONString(cacheList), new TypeReference<List<District>>() {});
+            List<District> districtList = JSON.parseObject(JSON.toJSONString(cacheList), new TypeReference<List<District>>() {});
+            if (!CollectionUtils.isEmpty(districtList)) {
+                return districtList;
+            }
         }
         List<District> districts = findByList(new District().setParentCode(parentCode));
         redisUtil.set(key, districts);
