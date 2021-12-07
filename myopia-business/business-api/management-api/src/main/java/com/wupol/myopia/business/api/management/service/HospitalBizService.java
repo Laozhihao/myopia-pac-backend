@@ -17,9 +17,12 @@ import com.wupol.myopia.business.core.hospital.service.HospitalAdminService;
 import com.wupol.myopia.business.core.hospital.service.HospitalService;
 import com.wupol.myopia.business.core.hospital.service.HospitalStudentService;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccountListDTO;
+import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
+import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -51,6 +54,8 @@ public class HospitalBizService {
     private OauthServiceClient oauthServiceClient;
     @Resource
     private HospitalStudentService hospitalStudentService;
+    @Autowired
+    private ScreeningOrganizationService screeningOrganizationService;
 
     /**
      * 更新医院信息
@@ -103,6 +108,9 @@ public class HospitalBizService {
     }
 
     private void packageHospitalDTO(List<HospitalResponseDTO> records) {
+        List<Integer> associateScreeningOrgIdList = records.stream().map(Hospital::getAssociateScreeningOrgId).collect(Collectors.toList());
+        List<ScreeningOrganization> screeningOrganizationList = screeningOrganizationService.getByIds(associateScreeningOrgIdList);
+        Map<Integer, ScreeningOrganization> screeningOrganizationMap = screeningOrganizationList.stream().collect(Collectors.toMap(ScreeningOrganization::getId, Function.identity()));
         records.forEach(h -> {
             // 详细地址
             h.setAddressDetail(districtService.getAddressDetails(
@@ -114,6 +122,12 @@ public class HospitalBizService {
             // 头像
             if (Objects.nonNull(h.getAvatarFileId())) {
                 h.setAvatarUrl(resourceFileService.getResourcePath(h.getAvatarFileId()));
+            }
+
+            // 关联筛查机构名称
+            if (Objects.nonNull(h.getAssociateScreeningOrgId())) {
+                ScreeningOrganization screeningOrganization = screeningOrganizationMap.get(h.getAssociateScreeningOrgId());
+                h.setAssociateScreeningOrgName(screeningOrganization.getName());
             }
         });
     }
