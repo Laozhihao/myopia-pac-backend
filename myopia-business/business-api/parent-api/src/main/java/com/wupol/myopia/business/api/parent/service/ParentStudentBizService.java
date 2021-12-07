@@ -132,7 +132,7 @@ public class ParentStudentBizService {
         } else {
             // 检查与姓名是否匹配
             if (!StringUtils.equals(request.getName(), student.getName())) {
-                throw new BusinessException("身份证号与学生姓名不一致");
+                throw new BusinessException("身份证号与学生姓名不一致，身份证：" + idCard + "，身份证名称：" + request.getName() + "。系统学生姓名：" + student.getName());
             }
         }
         BeanUtils.copyProperties(student, studentDTO);

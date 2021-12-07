@@ -118,7 +118,7 @@ public class UserService extends BaseService<UserMapper, User> {
             return;
         }
         User existUser = findOne(new User().setPhone(phone).setSystemCode(systemCode));
-        Assert.isNull(existUser, "已经存在该手机号码");
+        Assert.isNull(existUser, "已经存在该手机号码" + phone + "systemCode:" + systemCode);
     }
 
     /**
@@ -196,7 +196,7 @@ public class UserService extends BaseService<UserMapper, User> {
         Assert.notNull(existUser, "该用户不存在");
         if (StringUtils.hasLength(user.getPhone())) {
             User existPhone = findOne(new User().setPhone(user.getPhone()).setSystemCode(existUser.getSystemCode()));
-            Assert.isTrue(Objects.isNull(existPhone) || existPhone.getId().equals(userId), "已经存在该手机号码");
+            Assert.isTrue(Objects.isNull(existPhone) || existPhone.getId().equals(userId), "已经存在该手机号码" + user.getPhone());
         }
         if (StringUtils.hasLength(user.getPassword())) {
             user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
