@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.management.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -319,12 +320,12 @@ public class StatManagementController {
 
     @GetMapping("/triggerAll")
     public void statTaskTriggerAll() {
-        List<Integer> yesterdayScreeningPlanIds = screeningPlanService.list().stream().map(ScreeningPlan::getId).collect(Collectors.toList());
-        if (com.wupol.framework.core.util.CollectionUtils.isEmpty(yesterdayScreeningPlanIds)) {
-            log.info("筛查数据统计：历史无筛查数据，无需统计");
-            return;
-        }
-        scheduledTasksExecutor.statisticByPlanIds(yesterdayScreeningPlanIds);
+//        List<Integer> yesterdayScreeningPlanIds = screeningPlanService.list().stream().map(ScreeningPlan::getId).collect(Collectors.toList());
+//        if (com.wupol.framework.core.util.CollectionUtils.isEmpty(yesterdayScreeningPlanIds)) {
+//            log.info("筛查数据统计：历史无筛查数据，无需统计");
+//            return;
+//        }
+        scheduledTasksExecutor.statisticByPlanIds(Lists.newArrayList(11));
     }
 
     /**
