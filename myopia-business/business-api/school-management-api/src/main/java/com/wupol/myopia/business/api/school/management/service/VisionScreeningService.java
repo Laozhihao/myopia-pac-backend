@@ -20,8 +20,9 @@ import com.wupol.myopia.business.core.screening.flow.service.StatConclusionServi
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
-import com.wupol.myopia.business.core.stat.domain.model.SchoolMonitorStatistic;
+import com.wupol.myopia.business.core.stat.domain.model.SchoolVisionStatistic;
 import com.wupol.myopia.business.core.stat.service.SchoolMonitorStatisticService;
+import com.wupol.myopia.business.core.stat.service.SchoolVisionStatisticService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -67,6 +68,9 @@ public class VisionScreeningService {
     @Resource
     private SchoolService schoolService;
 
+    @Resource
+    private SchoolVisionStatisticService schoolVisionStatisticService;
+
     /**
      * 获取视力筛查列表
      *
@@ -87,9 +91,9 @@ public class VisionScreeningService {
         Map<Integer, ScreeningPlan> planMap = screeningPlans.stream().collect(Collectors.toMap(ScreeningPlan::getId, Function.identity()));
 
         // 获取统计信息
-        List<SchoolMonitorStatistic> statisticList = schoolMonitorStatisticService.getBySchoolId(schoolId);
-        Map<Integer, SchoolMonitorStatistic> schoolStatisticMap = statisticList.stream()
-                .collect(Collectors.toMap(SchoolMonitorStatistic::getScreeningPlanId, Function.identity(), (o, n) -> o));
+        List<SchoolVisionStatistic> statisticList = schoolVisionStatisticService.getByPlanIdsAndSchoolId(planIds, schoolId);
+        Map<Integer, SchoolVisionStatistic> schoolStatisticMap = statisticList.stream()
+                .collect(Collectors.toMap(SchoolVisionStatistic::getScreeningPlanId, Function.identity(), (o, n) -> o));
 
         // 筛查机构
         List<Integer> orgIds = schoolPlanList.stream().map(ScreeningListResponseDTO::getScreeningOrgId).collect(Collectors.toList());
@@ -112,10 +116,10 @@ public class VisionScreeningService {
                 schoolPlan.setContent(screeningPlan.getContent());
             }
 
-            SchoolMonitorStatistic schoolMonitorStatistic = schoolStatisticMap.get(schoolPlan.getPlanId());
-            if (Objects.nonNull(schoolMonitorStatistic)) {
-                schoolPlan.setSchoolStatisticId(schoolMonitorStatistic.getId());
-                schoolPlan.setRealScreeningNumbers(schoolMonitorStatistic.getRealScreeningNumbers());
+            SchoolVisionStatistic schoolVisionStatistic = schoolStatisticMap.get(schoolPlan.getPlanId());
+            if (Objects.nonNull(schoolVisionStatistic)) {
+                schoolPlan.setSchoolStatisticId(schoolVisionStatistic.getId());
+                schoolPlan.setRealScreeningNumbers(schoolVisionStatistic.getRealScreeningNumbers());
             } else {
                 schoolPlan.setRealScreeningNumbers(0);
             }
