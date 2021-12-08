@@ -179,9 +179,9 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
     @GetMapping("/plan/export")
     public Object getScreeningPlanExportData(Integer screeningPlanId, @RequestParam(defaultValue = "0") Integer screeningOrgId,
                                              @RequestParam(defaultValue = "0") Integer schoolId) throws IOException, UtilException {
-//        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         // 参数校验
-//        validatePlanExportParams(screeningPlanId, screeningOrgId, schoolId);
+        validatePlanExportParams(screeningPlanId, screeningOrgId, schoolId);
         List<StatConclusionExportDTO> statConclusionExportDTOs = new ArrayList<>();
         // 获取文件需显示的名称的机构/学校/区域前缀
         String exportFileNamePrefix = "";
@@ -199,10 +199,10 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
             throw new BusinessException("暂无筛查数据，无法导出");
         }
         statConclusionExportDTOs.forEach(vo -> vo.setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(), vo.getAreaCode(), vo.getTownCode(), vo.getAddress())));
-        String key = String.format(RedisConstant.FILE_EXPORT_PLAN_DATA, screeningPlanId,screeningOrgId,schoolId,2);
+        String key = String.format(RedisConstant.FILE_EXPORT_PLAN_DATA, screeningPlanId,screeningOrgId,schoolId, currentUser.getId());
         checkIsExport(key);
         // 获取文件需显示的名称
-        excelFacade.generateVisionScreeningResult(2, statConclusionExportDTOs, isSchoolExport, exportFileNamePrefix, key);
+        excelFacade.generateVisionScreeningResult(currentUser.getId(), statConclusionExportDTOs, isSchoolExport, exportFileNamePrefix, key);
         return ApiResult.success();
     }
 
