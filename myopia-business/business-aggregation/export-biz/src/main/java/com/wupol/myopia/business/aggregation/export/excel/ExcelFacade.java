@@ -16,6 +16,7 @@ import com.wupol.myopia.business.aggregation.export.excel.constant.ImportExcelEn
 import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
 import com.wupol.myopia.business.api.screening.app.domain.dto.VisionDataDTO;
 import com.wupol.myopia.business.common.utils.constant.*;
+import com.wupol.myopia.business.common.utils.util.AgeUtil;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.util.S3Utils;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
@@ -934,7 +935,7 @@ public class ExcelFacade {
     @Transactional(rollbackFor = Exception.class)
     public void importABVStudent(MultipartFile multipartFile) throws ParseException {
         List<Map<Integer, String>> listMap = readExcel(multipartFile);
-        School school = schoolService.getById(25);
+        School school = schoolService.getById(104);
 
         // 收集年级信息
         List<SchoolGradeExportDTO> grades = schoolGradeService.getBySchoolIds(Lists.newArrayList(school.getId()));
@@ -974,12 +975,12 @@ public class ExcelFacade {
 
 
             ScreeningPlanSchoolStudent planSchoolStudent = new ScreeningPlanSchoolStudent();
-            planSchoolStudent.setSrcScreeningNoticeId(25);
-            planSchoolStudent.setScreeningTaskId(12);
+            planSchoolStudent.setSrcScreeningNoticeId(0);
+            planSchoolStudent.setScreeningTaskId(0);
             planSchoolStudent.setScreeningPlanId(11);
-            planSchoolStudent.setScreeningOrgId(18);
-            planSchoolStudent.setPlanDistrictId(3434);
-            planSchoolStudent.setSchoolDistrictId(2);
+            planSchoolStudent.setScreeningOrgId(26);
+            planSchoolStudent.setPlanDistrictId(2189);
+            planSchoolStudent.setSchoolDistrictId(2190);
             planSchoolStudent.setSchoolId(school.getId());
             planSchoolStudent.setSchoolNo(school.getSchoolNo());
             planSchoolStudent.setSchoolName(school.getName());
@@ -991,7 +992,7 @@ public class ExcelFacade {
             planSchoolStudent.setStudentId(student.getId());
             planSchoolStudent.setBirthday(student.getBirthday());
             planSchoolStudent.setGender(student.getGender());
-            planSchoolStudent.setStudentAge(student.getSchoolAgeStatus());
+            planSchoolStudent.setStudentAge(AgeUtil.countAge(student.getBirthday()));
             planSchoolStudent.setStudentName(student.getName());
             planSchoolStudent.setArtificial(1);
             planSchoolStudent.setScreeningCode(idBatch.get(id));
@@ -1005,7 +1006,7 @@ public class ExcelFacade {
             visionDataDTO.setDiagnosis(0);
             visionDataDTO.setIsCooperative(0);
             visionDataDTO.setSchoolId(String.valueOf(school.getId()));
-            visionDataDTO.setDeptId(18);
+            visionDataDTO.setDeptId(0);
             visionDataDTO.setCreateUserId(2);
             visionDataDTO.setPlanStudentId(String.valueOf(planSchoolStudent.getId()));
             visionDataDTO.setIsState(0);
