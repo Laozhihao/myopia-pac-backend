@@ -135,14 +135,20 @@
         ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
     </select>
 
-    <select id="selectExportVoByScreeningNoticeIdAndSchoolId" resultMap="ExportVoResultMap" parameterType="java.util.Map">
+    <select id="selectExportVoByScreeningNoticeIdAndSchoolId" resultMap="ExportVoResultMap"
+            parameterType="java.util.Map">
         SELECT
-        <include refid="Export_Vo_List" />
+        <include refid="Export_Vo_List"/>
         FROM m_stat_conclusion msc
-        LEFT JOIN m_vision_screening_result mvsr ON msc.result_id = mvsr.id
-        LEFT JOIN m_screening_plan_school_student mspss ON msc.screening_plan_school_student_id = mspss.id
-        WHERE msc.src_screening_notice_id = #{screeningNoticeId}
-        AND msc.school_id = #{schoolId}
+                     LEFT JOIN m_vision_screening_result mvsr ON msc.result_id = mvsr.id
+                     LEFT JOIN m_screening_plan_school_student mspss ON msc.screening_plan_school_student_id = mspss.id
+                WHERE msc.school_id = #{schoolId}
+        <if test="screeningNoticeId != null">
+            and msc.src_screening_notice_id = #{screeningNoticeId}
+        </if>
+        <if test="planId != null">
+            and msc.plan_id = #{planId}
+        </if>
         ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
     </select>
 

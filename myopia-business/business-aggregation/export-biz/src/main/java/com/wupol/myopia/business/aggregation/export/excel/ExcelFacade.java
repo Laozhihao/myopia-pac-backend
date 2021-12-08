@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.aggregation.export.excel;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.IdcardUtil;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.exception.ExcelAnalysisException;
 import com.alibaba.excel.write.merge.OnceAbsoluteMergeStrategy;
@@ -57,6 +58,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.text.Collator;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.util.*;
@@ -255,6 +257,17 @@ public class ExcelFacade {
      */
     private void preCheckStudent(List<School> schools, List<String> idCards) {
         Assert.isTrue(!CollectionUtils.isEmpty(schools), "学校编号异常");
+
+        List<String> notLegalIdCards = new ArrayList<>();
+        idCards.forEach(s -> {
+            if (!IdcardUtil.isValidCard(s)) {
+                notLegalIdCards.add(s);
+            }
+        });
+        if (!com.wupol.framework.core.util.CollectionUtils.isEmpty(notLegalIdCards)) {
+            throw new BusinessException("身份证格式错误：" + notLegalIdCards);
+        }
+
         List<String> duplicateElements = ListUtil.getDuplicateElements(idCards);
         if (!CollectionUtils.isEmpty(duplicateElements)) {
             throw new BusinessException("身份证" + StringUtils.join(duplicateElements, ",") + "重复");
@@ -379,7 +392,7 @@ public class ExcelFacade {
      */
     private void checkStaffInfo(Map<Integer, String> item) {
         Assert.isTrue(StringUtils.isNotBlank(item.get(1)) && !GenderEnum.getType(item.get(1)).equals(GenderEnum.UNKNOWN.type), "性别异常");
-        Assert.isTrue(StringUtils.isNotBlank(item.get(2)) && Pattern.matches(RegularUtils.REGULAR_ID_CARD, item.get(2)), "身份证异常");
+        Assert.isTrue(StringUtils.isNotBlank(item.get(2)) && IdcardUtil.isValidCard(item.get(2)), "身份证异常");
         Assert.isTrue(StringUtils.isNotBlank(item.get(3)) && Pattern.matches(RegularUtils.REGULAR_MOBILE, item.get(3)), "手机号码异常");
     }
 
@@ -458,6 +471,7 @@ public class ExcelFacade {
         OnceAbsoluteMergeStrategy mergeStrategy = new OnceAbsoluteMergeStrategy(0, 1, 20, 21);
         if (isSchoolExport) {
             List<VisionScreeningResultExportDTO> visionScreeningResultExportVos = genVisionScreeningResultExportVos(statConclusionExportDTOs);
+            visionScreeningResultExportVos.sort(Comparator.comparing((VisionScreeningResultExportDTO exportDTO) -> Integer.valueOf(GradeCodeEnum.getByName(exportDTO.getGradeName()).getCode())));
             File excelFile = ExcelUtil.exportListToExcel(fileName, visionScreeningResultExportVos, mergeStrategy, VisionScreeningResultExportDTO.class);
             noticeService.createExportNotice(userId, userId, content, content, s3Utils.uploadFileToS3(excelFile), CommonConst.NOTICE_STATION_LETTER);
         } else {
@@ -465,6 +479,7 @@ public class ExcelFacade {
             Map<String, List<StatConclusionExportDTO>> schoolNameMap = statConclusionExportDTOs.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getSchoolName));
             schoolNameMap.keySet().forEach(schoolName -> {
                 List<VisionScreeningResultExportDTO> visionScreeningResultExportVos = genVisionScreeningResultExportVos(schoolNameMap.getOrDefault(schoolName, Collections.emptyList()));
+                visionScreeningResultExportVos.sort(Comparator.comparing((VisionScreeningResultExportDTO exportDTO) -> Integer.valueOf(GradeCodeEnum.getByName(exportDTO.getGradeName()).getCode())));
                 String excelFileName = String.format("%s-筛查数据", schoolName);
                 try {
                     ExcelUtil.exportListToExcelWithFolder(folder, excelFileName, visionScreeningResultExportVos, mergeStrategy, VisionScreeningResultExportDTO.class);
