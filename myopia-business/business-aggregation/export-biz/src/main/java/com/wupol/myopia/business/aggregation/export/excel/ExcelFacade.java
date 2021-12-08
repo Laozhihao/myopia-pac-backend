@@ -1000,8 +1000,8 @@ public class ExcelFacade {
             VisionDataDTO visionDataDTO = new VisionDataDTO();
             visionDataDTO.setRightCorrectedVision(getRightCorrectedVision(item));
             visionDataDTO.setLeftCorrectedVision(getLeftCorrectedVision(item));
-            visionDataDTO.setRightNakedVision(Objects.nonNull(item.get(11)) ? new BigDecimal(item.get(11)) : null);
-            visionDataDTO.setLeftNakedVision(Objects.nonNull(item.get(12)) ? new BigDecimal(item.get(12)) : null);
+            visionDataDTO.setRightNakedVision(Objects.nonNull(item.get(11)) ? new BigDecimal(item.get(11)) : new BigDecimal("5.2"));
+            visionDataDTO.setLeftNakedVision(Objects.nonNull(item.get(12)) ? new BigDecimal(item.get(12)) : new BigDecimal("5.2"));
             visionDataDTO.setDiagnosis(0);
             visionDataDTO.setIsCooperative(0);
             visionDataDTO.setSchoolId(String.valueOf(school.getId()));
@@ -1009,7 +1009,11 @@ public class ExcelFacade {
             visionDataDTO.setCreateUserId(2);
             visionDataDTO.setPlanStudentId(String.valueOf(planSchoolStudent.getId()));
             visionDataDTO.setIsState(0);
-            visionDataDTO.setGlassesType("没有佩戴眼镜");
+            if (Objects.isNull(item.get(11)) && Objects.isNull(item.get(12))) {
+                visionDataDTO.setGlassesType("没有佩戴眼镜");
+            } else {
+                visionDataDTO.setGlassesType("佩戴框架眼镜");
+            }
 
             if (visionDataDTO.isValid()) {
                 visionScreeningBizService.saveOrUpdateStudentScreenData(visionDataDTO);
