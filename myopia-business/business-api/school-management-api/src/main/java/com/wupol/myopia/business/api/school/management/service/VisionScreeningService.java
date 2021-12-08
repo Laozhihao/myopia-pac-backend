@@ -112,13 +112,14 @@ public class VisionScreeningService {
                 schoolPlan.setEndTime(screeningPlan.getEndTime());
                 schoolPlan.setReleaseStatus(screeningOrganizationService.getScreeningStatus(screeningPlan.getStartTime(), screeningPlan.getEndTime()));
                 schoolPlan.setReleaseTime(screeningPlan.getReleaseTime());
-                schoolPlan.setPlanScreeningNumbers(screeningPlan.getStudentNumbers());
+
                 schoolPlan.setContent(screeningPlan.getContent());
             }
 
             SchoolVisionStatistic schoolVisionStatistic = schoolStatisticMap.get(schoolPlan.getPlanId());
             if (Objects.nonNull(schoolVisionStatistic)) {
                 schoolPlan.setSchoolStatisticId(schoolVisionStatistic.getId());
+                schoolPlan.setPlanScreeningNumbers(schoolVisionStatistic.getPlanScreeningNumbers());
                 schoolPlan.setRealScreeningNumbers(schoolVisionStatistic.getRealScreeningNumbers());
             } else {
                 schoolPlan.setRealScreeningNumbers(0);
