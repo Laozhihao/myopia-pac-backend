@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.hospital.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -98,11 +99,10 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     public Integer updateStatus(StatusRequest request) {
         Integer hospitalId = request.getId();
         Integer status = request.getStatus();
-        // 获取医院管理员信息
-        List<HospitalAdmin> hospitalAdminList = hospitalAdminService.findByList(new HospitalAdmin().setHospitalId(hospitalId));
+        Integer userId = request.getUserId();
         // 更新用户状态
         UserDTO user = new UserDTO();
-        user.setUserIds(hospitalAdminList.stream().map(HospitalAdmin::getUserId).collect(Collectors.toList()));
+        user.setUserIds(Lists.newArrayList(userId));
         user.setStatus(request.getStatus());
         oauthServiceClient.updateUserStatusBatch(user);
         // 禁用医院，从合作医院中移除

@@ -18,9 +18,11 @@ import com.wupol.myopia.business.aggregation.screening.domain.vos.SchoolGradeVO;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningExportService;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanSchoolStudentFacadeService;
 import com.wupol.myopia.business.api.school.management.service.VisionScreeningService;
+import com.wupol.myopia.business.common.utils.domain.model.NotificationConfig;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.interfaces.HasName;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningListResponseDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionExportDTO;
@@ -30,11 +32,9 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
-import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
-import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
-import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.stat.domain.model.SchoolVisionStatistic;
 import com.wupol.myopia.business.core.stat.service.SchoolVisionStatisticService;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -89,9 +89,6 @@ public class VisionScreeningController {
 
     @Resource
     private ExportStrategy exportStrategy;
-
-    @Resource
-    private ScreeningOrganizationService screeningOrganizationService;
 
     /**
      * 获取学校计划
@@ -160,7 +157,8 @@ public class VisionScreeningController {
      */
     @GetMapping("/export/notice")
     public Map<String, String> downloadNoticeFile(@Valid ScreeningPlanSchoolStudent schoolClassInfo) {
-        return screeningExportService.getNoticeFile(schoolClassInfo);
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        return screeningExportService.getNoticeFile(schoolClassInfo, currentUser.getOrgId());
     }
 
     /**
@@ -241,26 +239,18 @@ public class VisionScreeningController {
     }
 
     /**
-     * 保存筛查机构（二维码）
+     * 更新学校
      *
-     * @param screeningOrganization 筛查机构
-     * @return ApiResult.success()
+     * @param notificationConfig 告知书配置
      */
-    @PutMapping("update/screeningOrg")
-    public Object updateScreeningOrganization(@RequestBody @Valid ScreeningOrganization screeningOrganization) {
-        screeningOrganizationService.updateById(screeningOrganization);
+    @PutMapping("update")
+    @Transactional(rollbackFor = Exception.class)
+    public Object updateSchool(@RequestBody NotificationConfig notificationConfig) {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        School school = schoolService.getBySchoolId(currentUser.getOrgId());
+        school.setNotificationConfig(notificationConfig);
+        schoolService.updateById(school);
         return ApiResult.success();
-    }
-
-    /**
-     * 获取筛查机构
-     *
-     * @param screeningOrgId 筛查机构Id
-     * @return ScreeningOrgResponseDTO
-     */
-    @GetMapping("screeningOrg/{screeningOrgId}")
-    public ScreeningOrgResponseDTO getScreeningOrganization(@PathVariable("screeningOrgId") Integer screeningOrgId) {
-        return screeningOrganizationService.getScreeningOrgDetails(screeningOrgId);
     }
 
     /**

@@ -459,4 +459,8 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         return Objects.nonNull(school) ? school.getName() : "";
     }
 
+    public School getBySchoolId(Integer id) {
+        return baseMapper.getBySchoolId(id);
+    }
+
 }

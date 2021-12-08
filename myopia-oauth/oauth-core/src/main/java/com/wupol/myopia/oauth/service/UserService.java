@@ -12,6 +12,7 @@ import com.wupol.myopia.oauth.constant.OrgScreeningMap;
 import com.wupol.myopia.oauth.domain.dto.UserDTO;
 import com.wupol.myopia.oauth.domain.mapper.UserMapper;
 import com.wupol.myopia.oauth.domain.model.*;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -31,6 +32,7 @@ import java.util.stream.Collectors;
  * @Date 2020-12-23
  */
 @Service
+@Log4j2
 public class UserService extends BaseService<UserMapper, User> {
 
     @Autowired
@@ -120,7 +122,10 @@ public class UserService extends BaseService<UserMapper, User> {
             return;
         }
         User existUser = findOne(new User().setPhone(phone).setSystemCode(systemCode));
-        Assert.isNull(existUser, "已经存在该手机号码");
+        if (Objects.nonNull(existUser)) {
+            log.error("已经存在该手机号码:{},systemCode:{}", phone, systemCode);
+            throw new BusinessException("已经存在该手机号码");
+        }
     }
 
     /**
@@ -187,7 +192,7 @@ public class UserService extends BaseService<UserMapper, User> {
     /**
      * 重置密码
      *
-     * @param userId 用户ID
+     * @param userId   用户ID
      * @param password 密码
      * @return com.wupol.myopia.oauth.domain.model.User
      **/
@@ -212,7 +217,10 @@ public class UserService extends BaseService<UserMapper, User> {
         Assert.notNull(existUser, "该用户不存在");
         if (StringUtils.hasLength(user.getPhone())) {
             User existPhone = findOne(new User().setPhone(user.getPhone()).setSystemCode(existUser.getSystemCode()));
-            Assert.isTrue(Objects.isNull(existPhone) || existPhone.getId().equals(userId), "已经存在该手机号码");
+            if (Objects.nonNull(existPhone) && !existPhone.getId().equals(userId)) {
+                log.error("已经存在该手机号码:{},SystemCode:{}", user.getPhone(), existUser.getSystemCode());
+                throw new BusinessException("已经存在该手机号码");
+            }
         }
         if (StringUtils.hasLength(user.getPassword())) {
             user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
@@ -262,7 +270,7 @@ public class UserService extends BaseService<UserMapper, User> {
     /**
      * 根据手机号码批量查询
      *
-     * @param phones 手机号码集合
+     * @param phones     手机号码集合
      * @param systemCode 系统编号
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
      **/
@@ -278,9 +286,9 @@ public class UserService extends BaseService<UserMapper, User> {
     /**
      * 根据手机号码批量查询
      *
-     * @param idCards 身份证ID
+     * @param idCards    身份证ID
      * @param systemCode 系统编号
-     * @param orgId 机构ID
+     * @param orgId      机构ID
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
      **/
     public List<User> getUserBatchByIdCards(List<String> idCards, Integer systemCode, Integer orgId) {

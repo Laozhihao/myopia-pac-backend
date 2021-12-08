@@ -10,7 +10,7 @@ CREATE TABLE `m_app_version` (
   `apk_file_resource_id` int(11) NOT NULL COMMENT 'apk资源文件ID',
   `apk_file_name` varchar(100) DEFAULT NULL COMMENT 'apk文件名',
   `apk_file_size` bigint(20) DEFAULT NULL COMMENT 'apk大小，单位：b',
-  `status` tinyint(1) NOT NULL DEFAULT '1' COMMENT '状态，0-启用、1-停用（默认）',
+  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，0-停用（默认）、1-启用',
   `remark` varchar(255) DEFAULT NULL COMMENT '备注',
   `create_user_id` int(11) DEFAULT NULL COMMENT '创建者ID',
   `thirdparty_qr_code_file_id` int(11) DEFAULT NULL COMMENT '第三方下载安装包二维码图片文件ID',

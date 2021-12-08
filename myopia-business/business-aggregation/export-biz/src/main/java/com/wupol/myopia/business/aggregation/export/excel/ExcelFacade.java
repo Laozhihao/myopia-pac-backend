@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.aggregation.export.excel;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.IdcardUtil;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.exception.ExcelAnalysisException;
 import com.alibaba.excel.write.merge.OnceAbsoluteMergeStrategy;
@@ -255,6 +256,17 @@ public class ExcelFacade {
      */
     private void preCheckStudent(List<School> schools, List<String> idCards) {
         Assert.isTrue(!CollectionUtils.isEmpty(schools), "学校编号异常");
+
+        List<String> notLegalIdCards = new ArrayList<>();
+        idCards.forEach(s -> {
+            if (!IdcardUtil.isValidCard(s)) {
+                notLegalIdCards.add(s);
+            }
+        });
+        if (!com.wupol.framework.core.util.CollectionUtils.isEmpty(notLegalIdCards)) {
+            throw new BusinessException("身份证格式错误：" + notLegalIdCards);
+        }
+
         List<String> duplicateElements = ListUtil.getDuplicateElements(idCards);
         if (!CollectionUtils.isEmpty(duplicateElements)) {
             throw new BusinessException("身份证" + StringUtils.join(duplicateElements, ",") + "重复");
@@ -379,7 +391,7 @@ public class ExcelFacade {
      */
     private void checkStaffInfo(Map<Integer, String> item) {
         Assert.isTrue(StringUtils.isNotBlank(item.get(1)) && !GenderEnum.getType(item.get(1)).equals(GenderEnum.UNKNOWN.type), "性别异常");
-        Assert.isTrue(StringUtils.isNotBlank(item.get(2)) && Pattern.matches(RegularUtils.REGULAR_ID_CARD, item.get(2)), "身份证异常");
+        Assert.isTrue(StringUtils.isNotBlank(item.get(2)) && IdcardUtil.isValidCard(item.get(2)), "身份证异常");
         Assert.isTrue(StringUtils.isNotBlank(item.get(3)) && Pattern.matches(RegularUtils.REGULAR_MOBILE, item.get(3)), "手机号码异常");
     }
 
