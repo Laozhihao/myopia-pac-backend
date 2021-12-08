@@ -56,6 +56,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -932,7 +933,7 @@ public class ExcelFacade {
      * @param multipartFile 导入文件
      * @throws BusinessException 异常
      */
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_UNCOMMITTED)
     public void importABVStudent(MultipartFile multipartFile) throws ParseException {
         List<Map<Integer, String>> listMap = readExcel(multipartFile);
         School school = schoolService.getById(106);
@@ -978,7 +979,8 @@ public class ExcelFacade {
             planSchoolStudent.setSrcScreeningNoticeId(31);
             planSchoolStudent.setScreeningTaskId(12);
             planSchoolStudent.setScreeningPlanId(27);
-            planSchoolStudent.setScreeningOrgId(20);
+            int deptId = 20;
+            planSchoolStudent.setScreeningOrgId(deptId);
             planSchoolStudent.setPlanDistrictId(2189);
             planSchoolStudent.setSchoolDistrictId(3434);
             planSchoolStudent.setSchoolId(school.getId());
@@ -1006,7 +1008,7 @@ public class ExcelFacade {
             visionDataDTO.setDiagnosis(0);
             visionDataDTO.setIsCooperative(0);
             visionDataDTO.setSchoolId(String.valueOf(school.getId()));
-            visionDataDTO.setDeptId(20);
+            visionDataDTO.setDeptId(deptId);
             visionDataDTO.setCreateUserId(2);
             visionDataDTO.setPlanStudentId(String.valueOf(planSchoolStudent.getId()));
             visionDataDTO.setIsState(0);
@@ -1030,7 +1032,7 @@ public class ExcelFacade {
             computerOptometryDTO.setDiagnosis(0);
             computerOptometryDTO.setIsCooperative(0);
             computerOptometryDTO.setSchoolId(String.valueOf(school.getId()));
-            computerOptometryDTO.setDeptId(18);
+            computerOptometryDTO.setDeptId(deptId);
             computerOptometryDTO.setCreateUserId(2);
             computerOptometryDTO.setPlanStudentId(String.valueOf(planSchoolStudent.getId()));
             computerOptometryDTO.setIsState(0);

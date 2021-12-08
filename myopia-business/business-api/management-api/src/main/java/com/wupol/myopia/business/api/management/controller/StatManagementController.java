@@ -325,7 +325,7 @@ public class StatManagementController {
 //            log.info("筛查数据统计：历史无筛查数据，无需统计");
 //            return;
 //        }
-        scheduledTasksExecutor.statisticByPlanIds(Lists.newArrayList(11));
+        scheduledTasksExecutor.statisticByPlanIds(Lists.newArrayList(27));
     }
 
     /**
