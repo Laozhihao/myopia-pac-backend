@@ -59,3 +59,18 @@ create index m_student_status_class_id_grade_id_index
 
 alter table m_stat_conclusion
     alter column is_bind_mp set default false;
+
+alter table m_school_vision_statistic alter column myopia_level_light set default 0;
+
+alter table m_school_vision_statistic alter column myopia_level_early set default 0;
+
+alter table m_school_vision_statistic alter column myopia_level_middle set default 0;
+
+alter table m_school_vision_statistic alter column myopia_level_high set default 0;
+
+alter table m_school_vision_statistic alter column myopia_level_insufficient set default 0;
+
+alter table m_district_vision_statistic alter column myopia_level_early_num set default 0;
+
+alter table m_school
+    add notification_config json null comment '告知书配置';

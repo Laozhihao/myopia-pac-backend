@@ -153,7 +153,7 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
             if (!CommonConst.DEFAULT_ID.equals(schoolId)) {
                 exportFileNamePrefix = checkNotNullAndGetName(schoolService.getById(schoolId), "学校");
                 isSchoolExport = true;
-                statConclusionExportVos = statConclusionService.getExportVoByScreeningNoticeIdAndSchoolId(screeningNoticeId, schoolId);
+                statConclusionExportVos = statConclusionService.getExportVoByScreeningNoticeIdAndSchoolId(screeningNoticeId, schoolId, planId);
             }
         }
         if (CollectionUtils.isEmpty(statConclusionExportVos)) {

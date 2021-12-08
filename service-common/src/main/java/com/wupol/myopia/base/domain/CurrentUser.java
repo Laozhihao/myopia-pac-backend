@@ -55,7 +55,7 @@ public class CurrentUser {
     }
 
     /**
-     * 是否筛查端用户
+     * 是否筛查管理端用户
      */
     @JsonIgnore
     public boolean isScreeningUser() {

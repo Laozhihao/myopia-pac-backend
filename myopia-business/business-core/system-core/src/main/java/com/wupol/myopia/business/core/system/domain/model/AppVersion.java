@@ -83,7 +83,7 @@ public class AppVersion implements Serializable {
     private Long apkFileSize;
 
     /**
-     * 状态，0-启用、1-停用（默认）
+     * 状态，0-停用（默认）、1-启用
      */
     private Integer status;
 
