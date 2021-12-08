@@ -1,7 +1,9 @@
 package com.wupol.myopia.business.core.school.domain.model;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.wupol.myopia.business.common.utils.domain.model.NotificationConfig;
 import com.wupol.myopia.business.common.utils.interfaces.HasName;
 import com.wupol.myopia.business.core.common.domain.model.AddressCode;
 import lombok.Data;
@@ -148,4 +150,10 @@ public class School extends AddressCode implements Serializable, HasName {
      * 监测点类型：1城区、2郊县
      */
     private Integer monitorType;
+
+    /**
+     * 告知书配置
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private NotificationConfig notificationConfig;
 }
