@@ -401,4 +401,13 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         return baseMapper.updateOrganizationStatus(id, targetStatus, stopDate, sourceStatus);
     }
 
+    /**
+     * 获取指定合作结束时间的筛查机构信息
+     * @param date 合作结束时间，只精确到day
+     * @return
+     */
+    public List<ScreeningOrganization> getByCooperationEndTime(Date date) {
+        return baseMapper.getByCooperationEndTime(date);
+    }
+
 }

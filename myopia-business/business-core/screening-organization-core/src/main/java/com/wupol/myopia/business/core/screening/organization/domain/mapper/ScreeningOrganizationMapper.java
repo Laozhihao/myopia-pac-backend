@@ -46,4 +46,6 @@ public interface ScreeningOrganizationMapper extends BaseMapper<ScreeningOrganiz
 
     int updateOrganizationStatus(@Param("id") Integer id, @Param("targetStatus") Integer targetStatus, @Param("stopDate") Date stopDate, @Param("sourceStatus")Integer sourceStatus);
 
+    List<ScreeningOrganization> getByCooperationEndTime(@Param("date") Date date);
+
 }

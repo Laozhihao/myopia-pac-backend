@@ -40,7 +40,7 @@ public class ScreeningRelatedFacade {
         }
         UserDTO userDTO = new UserDTO();
         userDTO.setRealName(query.getCreatorNameLike()).setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode());
-        List<Integer> queryCreatorIds = oauthServiceClient.getUserList(userDTO).stream().map(User::getId).collect(Collectors.toList());
+        List<Integer> queryCreatorIds = oauthServiceClient.getUserListByName(userDTO).stream().map(User::getId).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(queryCreatorIds)) {
             // 可以直接返回空
             return true;

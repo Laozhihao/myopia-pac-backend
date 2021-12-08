@@ -31,13 +31,22 @@ public interface OauthServiceClient {
     Page<User> getUserListPage(@SpringQueryMap UserDTO param);
 
     /**
-     * 获取用户列表（仅支持用户名模糊查询）
+     * 获取用户列表
      *
      * @param param 查询参数
      * @return java.util.List<com.wupol.myopia.oauth.sdk.domain.response.User>
      **/
     @GetMapping("/oauth/user/list")
     List<User> getUserList(@SpringQueryMap UserDTO param);
+
+    /**
+     * 获取用户列表（仅支持用户名模糊查询）
+     *
+     * @param param 查询参数
+     * @return java.util.List<com.wupol.myopia.oauth.sdk.domain.response.User>
+     **/
+    @GetMapping("/oauth/user/getByName")
+    List<User> getUserListByName(@SpringQueryMap UserDTO param);
 
     /**
      * 根据用户ID集批量获取用户

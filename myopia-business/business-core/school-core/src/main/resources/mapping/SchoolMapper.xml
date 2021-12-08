@@ -186,4 +186,11 @@
         and status = #{sourceStatus}
     </update>
 
+    <select id="getByCooperationEndTime" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school
+        where Date(cooperation_end_time) = Date(#{date})
+    </select>
+
 </mapper>

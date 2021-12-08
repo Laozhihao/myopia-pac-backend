@@ -98,7 +98,7 @@ public class ScreeningNoticeBizService {
         List<User> userBatchByOrgIds = oauthServiceClient.getUserBatchByOrgIds(govOrgIds, SystemCode.MANAGEMENT_CLIENT.getCode());
         List<Integer> toUserIds = userBatchByOrgIds.stream().map(User::getId).collect(Collectors.toList());
         if (!CollectionUtils.isEmpty(toUserIds)) {
-            noticeService.batchCreateScreeningNotice(user.getId(), id, toUserIds, CommonConst.NOTICE_SCREENING_NOTICE, notice.getTitle(), notice.getTitle(), notice.getStartTime(), notice.getEndTime());
+            noticeService.batchCreateNotice(user.getId(), id, toUserIds, CommonConst.NOTICE_SCREENING_NOTICE, notice.getTitle(), notice.getTitle(), notice.getStartTime(), notice.getEndTime());
         }
     }
 

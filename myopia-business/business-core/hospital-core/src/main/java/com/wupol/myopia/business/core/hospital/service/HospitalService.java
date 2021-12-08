@@ -292,4 +292,13 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         return baseMapper.updateHospitalStatus(id, targetStatus, stopDate, sourceStatus);
     }
 
+    /**
+     * 获取指定合作结束时间的医院信息
+     * @param date 合作结束时间，只精确到day
+     * @return
+     */
+    public List<Hospital> getByCooperationEndTime(Date date) {
+        return baseMapper.getByCooperationEndTime(date);
+    }
+
 }

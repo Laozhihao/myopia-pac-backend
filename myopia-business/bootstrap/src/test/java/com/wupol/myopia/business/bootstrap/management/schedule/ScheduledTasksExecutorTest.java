@@ -24,4 +24,9 @@ public class ScheduledTasksExecutorTest {
         scheduledTasksExecutor.cooperationStatusHandle();
     }
 
+    @Test
+    public void testCooperationWarnnInfoNotice() {
+        scheduledTasksExecutor.cooperationWarnnInfoNotice();
+    }
+
 }

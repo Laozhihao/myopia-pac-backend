@@ -259,6 +259,15 @@ public class UserService extends BaseService<UserMapper, User> {
     }
 
     /**
+     * 获取用户列表
+     * @param queryParam
+     * @return
+     */
+    public List<User> getUserList(UserDTO queryParam) {
+        return baseMapper.selectUserList(queryParam);
+    }
+
+    /**
      * 根据手机号码批量查询
      *
      * @param phones 手机号码集合

@@ -8,6 +8,7 @@ import com.wupol.myopia.oauth.domain.model.UserWithRole;
 import com.wupol.myopia.oauth.service.UserService;
 import com.wupol.myopia.oauth.validator.UserValidatorGroup;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.openfeign.SpringQueryMap;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
@@ -159,9 +160,14 @@ public class UserController {
      * @param queryParam 搜索参数
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
      **/
-    @GetMapping("/list")
+    @GetMapping("/getByName")
     public List<User> getUserListByNameLike(UserDTO queryParam) {
         return userService.getUserListByNameLike(queryParam.getRealName());
+    }
+
+    @GetMapping("/list")
+    public List<User> getUserList(@SpringQueryMap UserDTO param) {
+        return userService.getUserList(param);
     }
 
     /**

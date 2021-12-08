@@ -213,7 +213,7 @@ public class SchoolBizService {
         if (StringUtils.isNotBlank(createUser)) {
             UserDTO query = new UserDTO();
             query.setRealName(createUser);
-            List<User> userListPage = oauthServiceClient.getUserList(query);
+            List<User> userListPage = oauthServiceClient.getUserListByName(query);
             if (!CollectionUtils.isEmpty(userListPage)) {
                 userIds = userListPage.stream().map(User::getId).collect(Collectors.toList());
             }
