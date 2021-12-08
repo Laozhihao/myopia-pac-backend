@@ -58,5 +58,5 @@ public interface RoleMapper extends BaseMapper<Role> {
      * @param roleType 角色类型
      * @return com.wupol.myopia.oauth.domain.model.Role
      **/
-    Role getFirstOneRoleByScreeningOrgId(@Param("screeningOrgId") Integer screeningOrgId, @Param("systemCode") Integer systemCode, @Param("roleType") Integer roleType);
+    Role getOrgFirstOneRole(@Param("screeningOrgId") Integer screeningOrgId, @Param("systemCode") Integer systemCode, @Param("roleType") Integer roleType);
 }

@@ -171,7 +171,23 @@ public class RoleService extends BaseService<RoleMapper, Role> {
      * @param screeningOrgId 筛查机构ID
      * @return com.wupol.myopia.oauth.domain.model.Role
      **/
-    public Role getFirstOneRoleByScreeningOrgId(Integer screeningOrgId) {
-        return baseMapper.getFirstOneRoleByScreeningOrgId(screeningOrgId, SystemCode.MANAGEMENT_CLIENT.getCode(), RoleType.SCREENING_ORGANIZATION.getType());
+    public Role getScreeningOrgFirstOneRole(Integer screeningOrgId) {
+        Assert.notNull(screeningOrgId, "筛查机构ID不能为空");
+        return getOrgFirstOneRole(screeningOrgId, SystemCode.MANAGEMENT_CLIENT.getCode(), RoleType.SCREENING_ORGANIZATION.getType());
+    }
+
+    /**
+     * 获取指定机构的第一个角色
+     *
+     * @param orgId 筛查机构ID
+     * @param systemCode 系统编号
+     * @param roleType 角色类型
+     * @return com.wupol.myopia.oauth.domain.model.Role
+     **/
+    public Role getOrgFirstOneRole(Integer orgId, Integer systemCode, Integer roleType) {
+        Assert.notNull(orgId, "机构ID不能为空");
+        Assert.notNull(systemCode, "系统编号systemCode不能为空");
+        Assert.notNull(roleType, "角色类型roleType不能为空");
+        return baseMapper.getOrgFirstOneRole(orgId, systemCode, roleType);
     }
 }

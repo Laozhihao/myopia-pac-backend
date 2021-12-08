@@ -78,7 +78,7 @@
         </where>
     </select>
 
-    <select id="getFirstOneRoleByScreeningOrgId" resultMap="BaseResultMap">
+    <select id="getOrgFirstOneRole" resultMap="BaseResultMap">
         SELECT
                 *
         FROM
