@@ -107,7 +107,6 @@ public class HospitalStudentBizService {
             hospitalStudent.setBirthdayInfo(DateUtil.getAgeInfo(hospitalStudent.getBirthday()));
         }
         if (Objects.nonNull(hospitalStudent.getCommitteeCode())) {
-            TwoTuple<String, String> committeeDesc = districtService.getCommitteeDesc(hospitalStudent.getCommitteeCode());
             hospitalStudent.setCommitteeLists(districtService.getDistrictPositionDetail(hospitalStudent.getCommitteeCode()));
         }
         return hospitalStudent;

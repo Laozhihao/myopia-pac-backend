@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.school.domain.dto;
 
+import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -75,5 +76,10 @@ public class StudentDTO extends Student {
      * 生日信息
      */
     private String birthdayInfo;
+
+    /**
+     * 委会区域List
+     */
+    private List<District> committeeLists;
 
 }
