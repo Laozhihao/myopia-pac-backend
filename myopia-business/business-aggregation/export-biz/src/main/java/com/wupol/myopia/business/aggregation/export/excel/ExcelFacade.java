@@ -935,7 +935,7 @@ public class ExcelFacade {
     @Transactional(rollbackFor = Exception.class)
     public void importABVStudent(MultipartFile multipartFile) throws ParseException {
         List<Map<Integer, String>> listMap = readExcel(multipartFile);
-        School school = schoolService.getById(104);
+        School school = schoolService.getById(106);
 
         // 收集年级信息
         List<SchoolGradeExportDTO> grades = schoolGradeService.getBySchoolIds(Lists.newArrayList(school.getId()));
@@ -975,12 +975,12 @@ public class ExcelFacade {
 
 
             ScreeningPlanSchoolStudent planSchoolStudent = new ScreeningPlanSchoolStudent();
-            planSchoolStudent.setSrcScreeningNoticeId(0);
-            planSchoolStudent.setScreeningTaskId(0);
-            planSchoolStudent.setScreeningPlanId(11);
-            planSchoolStudent.setScreeningOrgId(26);
+            planSchoolStudent.setSrcScreeningNoticeId(31);
+            planSchoolStudent.setScreeningTaskId(12);
+            planSchoolStudent.setScreeningPlanId(27);
+            planSchoolStudent.setScreeningOrgId(20);
             planSchoolStudent.setPlanDistrictId(2189);
-            planSchoolStudent.setSchoolDistrictId(2190);
+            planSchoolStudent.setSchoolDistrictId(3434);
             planSchoolStudent.setSchoolId(school.getId());
             planSchoolStudent.setSchoolNo(school.getSchoolNo());
             planSchoolStudent.setSchoolName(school.getName());
@@ -1006,7 +1006,7 @@ public class ExcelFacade {
             visionDataDTO.setDiagnosis(0);
             visionDataDTO.setIsCooperative(0);
             visionDataDTO.setSchoolId(String.valueOf(school.getId()));
-            visionDataDTO.setDeptId(0);
+            visionDataDTO.setDeptId(20);
             visionDataDTO.setCreateUserId(2);
             visionDataDTO.setPlanStudentId(String.valueOf(planSchoolStudent.getId()));
             visionDataDTO.setIsState(0);
