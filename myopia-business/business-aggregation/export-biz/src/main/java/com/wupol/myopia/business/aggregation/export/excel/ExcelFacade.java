@@ -936,7 +936,11 @@ public class ExcelFacade {
     @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_UNCOMMITTED)
     public void importABVStudent(MultipartFile multipartFile) throws ParseException {
         List<Map<Integer, String>> listMap = readExcel(multipartFile);
-        School school = schoolService.getById(106);
+        int schoolId = 106;
+        int planId = 27;
+        int deptId = 20;
+
+        School school = schoolService.getById(schoolId);
 
         // 收集年级信息
         List<SchoolGradeExportDTO> grades = schoolGradeService.getBySchoolIds(Lists.newArrayList(school.getId()));
@@ -978,8 +982,7 @@ public class ExcelFacade {
             ScreeningPlanSchoolStudent planSchoolStudent = new ScreeningPlanSchoolStudent();
             planSchoolStudent.setSrcScreeningNoticeId(31);
             planSchoolStudent.setScreeningTaskId(12);
-            planSchoolStudent.setScreeningPlanId(27);
-            int deptId = 20;
+            planSchoolStudent.setScreeningPlanId(planId);
             planSchoolStudent.setScreeningOrgId(deptId);
             planSchoolStudent.setPlanDistrictId(2189);
             planSchoolStudent.setSchoolDistrictId(3434);
