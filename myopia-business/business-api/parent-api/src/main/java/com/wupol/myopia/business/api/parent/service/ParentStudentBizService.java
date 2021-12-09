@@ -483,5 +483,23 @@ public class ParentStudentBizService {
         return saveStudent(student, currentUser);
     }
 
-
+    /**
+     * 根据身份证获取学生
+     *
+     * @param idCard 身份证
+     * @param userId 家长Id
+     * @return Student
+     */
+    public Student getByIdCard(String idCard, Integer userId) {
+        Student student = studentService.getByIdCard(idCard);
+        if (Objects.isNull(student)) {
+            return null;
+        }
+        if (StringUtils.isNotBlank(student.getParentPhone())) {
+            return student;
+        }
+        Parent parent = parentService.getParentByUserId(userId);
+        student.setParentPhone(parent.getPhone());
+        return student;
+    }
 }

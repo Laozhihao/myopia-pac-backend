@@ -8,7 +8,6 @@ import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
 import com.wupol.myopia.business.core.school.domain.model.Student;
-import com.wupol.myopia.business.core.school.service.StudentService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -27,9 +26,6 @@ import java.util.List;
 public class ParentPreschoolController {
 
     @Resource
-    private StudentService studentService;
-
-    @Resource
     private ParentStudentBizService parentStudentBizService;
 
     @Resource
@@ -43,7 +39,8 @@ public class ParentPreschoolController {
      */
     @GetMapping("getByIdCard")
     public Student getByIdCard(String idCard) {
-        return studentService.getByIdCard(idCard);
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        return parentStudentBizService.getByIdCard(idCard,currentUser.getId());
     }
 
     /**
