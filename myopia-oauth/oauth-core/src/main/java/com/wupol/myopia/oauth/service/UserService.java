@@ -358,7 +358,7 @@ public class UserService extends BaseService<UserMapper, User> {
     }
 
     /**
-     * 根据筛查机构用户角色权限
+     * 更新筛查机构用户角色权限
      *
      * @param user 用户信息
      * @return void
@@ -373,7 +373,7 @@ public class UserService extends BaseService<UserMapper, User> {
     }
 
     /**
-     * 根据筛查机构用户角色权限
+     * 更新筛查机构用户角色权限
      *
      * @param orgConfigType 配置类型
      * @param userId 用户ID
