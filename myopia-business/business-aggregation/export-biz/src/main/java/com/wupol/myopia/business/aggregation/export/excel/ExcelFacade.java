@@ -1025,7 +1025,7 @@ public class ExcelFacade {
             visionDataDTO.setIsCooperative(0);
             visionDataDTO.setSchoolId(String.valueOf(school.getId()));
             visionDataDTO.setDeptId(deptId);
-            visionDataDTO.setCreateUserId(2);
+            visionDataDTO.setCreateUserId(1);
             visionDataDTO.setPlanStudentId(String.valueOf(planSchoolStudent.getId()));
             visionDataDTO.setIsState(0);
             if (Objects.isNull(item.get(11)) && Objects.isNull(item.get(12))) {
