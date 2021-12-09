@@ -467,6 +467,10 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         return Objects.nonNull(school) ? school.getName() : "";
     }
 
+    public School getBySchoolId(Integer id) {
+        return baseMapper.getBySchoolId(id);
+    }
+
     /**
      * 处理学校状态，将已过合作时间但未处理为禁止的学校设置为禁止
      * @return

@@ -12,6 +12,7 @@ import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.aggregation.screening.constant.QrCodeConstant;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
+import com.wupol.myopia.business.common.utils.domain.model.NotificationConfig;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.common.util.S3Utils;
 import com.wupol.myopia.business.core.school.domain.model.School;
@@ -90,36 +91,45 @@ public class ScreeningExportService {
      * 导出筛查计划的学生告知书
      *
      * @param schoolClassInfo 参与筛查计划的学生
+     * @param schoolId        学校Id
      * @return PDF的URL
      */
-    public Map<String, String> getNoticeFile(ScreeningPlanSchoolStudent schoolClassInfo) {
+    public Map<String, String> getNoticeFile(ScreeningPlanSchoolStudent schoolClassInfo, Integer schoolId) {
         try {
             // 1. 校验
             validateExistAndAuthorize(schoolClassInfo.getScreeningPlanId(), CommonConst.STATUS_NOT_RELEASE);
             // 2. 处理参数
-            School school = schoolService.getById(schoolClassInfo.getSchoolId());
+            School school = schoolService.getBySchoolId(schoolClassInfo.getSchoolId());
             SchoolClass schoolClass = schoolClassService.getById(schoolClassInfo.getClassId());
             SchoolGrade schoolGrade = schoolGradeService.getById(schoolClassInfo.getGradeId());
             String classDisplay = String.format("%s%s", schoolGrade.getName(), schoolClass.getName());
             String fileName = String.format("%s-%s-告知书", classDisplay, DateFormatUtil.formatNow(DateFormatUtil.FORMAT_TIME_WITHOUT_LINE));
             ScreeningPlan plan = screeningPlanService.getById(schoolClassInfo.getScreeningPlanId());
-            ScreeningOrgResponseDTO screeningOrganization = screeningOrganizationService.getScreeningOrgDetails(plan.getScreeningOrgId());
+
             List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.getByGradeAndClass(schoolClassInfo.getScreeningPlanId(), schoolClassInfo.getGradeId(), schoolClassInfo.getClassId());
             QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white).setMargin(1);
             students.forEach(student -> {
                 student.setQrCodeUrl(QrCodeUtil.generateAsBase64(String.format(QrCodeConstant.QR_CODE_CONTENT_FORMAT_RULE, student.getId()), config, "jpg"));
                 student.setGenderDesc(GenderEnum.getName(student.getGender()));
             });
+            NotificationConfig notificationConfig;
+            // 如果学校Id不为空，说明是学校端进行的导出，使用学校自己的告知书配置
+            if (Objects.nonNull(schoolId)) {
+                notificationConfig = school.getNotificationConfig();
+            } else {
+                ScreeningOrgResponseDTO screeningOrganization = screeningOrganizationService.getScreeningOrgDetails(plan.getScreeningOrgId());
+                notificationConfig = screeningOrganization.getNotificationConfig();
+            }
             Map<String, Object> models = new HashMap<>(16);
-            models.put("screeningOrgConfigs", screeningOrganization.getNotificationConfig());
+            models.put("screeningOrgConfigs", notificationConfig);
             models.put("students", students);
             models.put("classDisplay", classDisplay);
             models.put("schoolName", school.getName());
-            if (Objects.nonNull(screeningOrganization.getNotificationConfig())
-                    && Objects.nonNull(screeningOrganization.getNotificationConfig().getQrCodeFileId())
-                    && !screeningOrganization.getNotificationConfig().getQrCodeFileId().equals(DEFAULT_FILE_ID)
+            if (Objects.nonNull(notificationConfig)
+                    && Objects.nonNull(notificationConfig.getQrCodeFileId())
+                    && !notificationConfig.getQrCodeFileId().equals(DEFAULT_FILE_ID)
             ) {
-                models.put("qrCodeFile", resourceFileService.getResourcePath(screeningOrganization.getNotificationConfig().getQrCodeFileId()));
+                models.put("qrCodeFile", resourceFileService.getResourcePath(notificationConfig.getQrCodeFileId()));
             } else {
                 models.put("qrCodeFile", DEFAULT_IMAGE_PATH);
             }

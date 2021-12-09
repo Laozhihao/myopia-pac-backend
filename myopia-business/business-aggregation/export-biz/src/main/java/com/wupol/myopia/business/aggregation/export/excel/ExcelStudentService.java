@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.aggregation.export.excel;
 
+import cn.hutool.core.util.IdcardUtil;
 import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.CompareUtil;
@@ -105,7 +106,7 @@ public class ExcelStudentService {
         Map<String, Integer> gradeClassNameClassIdMap = schoolClassService.getVoBySchoolId(schoolId).stream().collect(Collectors.toMap(schoolClass -> String.format(GRADE_CLASS_NAME_FORMAT, schoolClass.getGradeName(), schoolClass.getName()), SchoolClass::getId));
 
         //4. 校验上传筛查学生数据是否合法
-        checkExcelDataLegal(snoList, gradeNameSet, gradeClassNameSet, gradeNameIdMap, gradeClassNameClassIdMap, alreadyExistOrNotStudents.get(false), screeningCodeMap.get(false));
+        checkExcelDataLegal(snoList, gradeNameSet, gradeClassNameSet, gradeNameIdMap, gradeClassNameClassIdMap, alreadyExistOrNotStudents.get(false), screeningCodeMap.get(false), schoolId, idCardSet);
         //5. 根据身份证号分批获取已有的学生
         Map<String, Student> idCardExistStudents = studentService.getByIdCards(new ArrayList<>(idCardSet)).stream().collect(Collectors.toMap(Student::getIdCard, Function.identity()));
         //6. 获取已有的筛查学生数据
@@ -337,26 +338,51 @@ public class ExcelStudentService {
      * @param gradeClassNameClassIdMap
      * @param notUploadStudents        已有筛查学生数据中，身份证不在这次上传的数据中的筛查学生
      * @param screeningCodeList        筛查CodeList
+     * @param idCardSet
      */
     private void checkExcelDataLegal(List<String> snoList, Set<String> gradeNameSet, Set<String> gradeClassNameSet,
                                      Map<String, Integer> gradeNameIdMap, Map<String, Integer> gradeClassNameClassIdMap,
                                      List<ScreeningPlanSchoolStudent> notUploadStudents,
-                                     List<ScreeningPlanSchoolStudent> screeningCodeList) {
+                                     List<ScreeningPlanSchoolStudent> screeningCodeList, Integer schoolId, Set<String> idCardSet) {
         // 年级名是否都存在
-        if (gradeNameSet.stream().anyMatch(gradeName -> StringUtils.isEmpty(gradeName) || !gradeNameIdMap.containsKey(gradeName))) {
-            throw new BusinessException("存在不正确的年级名称");
-        }
-        // 班级名是否都存在
-        if (gradeClassNameSet.stream().anyMatch(gradeClassName -> StringUtils.isEmpty(gradeClassName) || !gradeClassNameClassIdMap.containsKey(gradeClassName))) {
-            throw new BusinessException("存在不正确的班级名称");
+        List<String> noLegalGrade = gradeNameSet.stream()
+                .filter(gradeName -> StringUtils.isEmpty(gradeName) || !gradeNameIdMap.containsKey(gradeName))
+                .collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(noLegalGrade)) {
+            throw new BusinessException("以下年级名称不正确" + noLegalGrade);
         }
 
-        // 上传的学号与已有的学号校验
-        List<String> notUploadSno = CollectionUtils.isEmpty(notUploadStudents) ? Collections.emptyList() : notUploadStudents.stream().map(ScreeningPlanSchoolStudent::getStudentNo).collect(Collectors.toList());
-        List<String> codeNotUploadSno = CollectionUtils.isEmpty(screeningCodeList) ? Collections.emptyList() : screeningCodeList.stream().map(ScreeningPlanSchoolStudent::getStudentNo).collect(Collectors.toList());
+        List<String> notLegalClass = gradeClassNameSet
+                .stream().filter(gradeClassName -> StringUtils.isEmpty(gradeClassName) || !gradeClassNameClassIdMap.containsKey(gradeClassName))
+                .collect(Collectors.toList());
+
+        // 班级名是否都存在
+        if (!CollectionUtils.isEmpty(notLegalClass)) {
+            throw new BusinessException("以下班级名称不正确" + notLegalClass);
+        }
+
+        List<String> notLegalIdCards = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(idCardSet)) {
+            for (String s : idCardSet) {
+                if (StringUtils.isNotBlank(s) && !IdcardUtil.isValidCard(s)) {
+                    notLegalIdCards.add(s);
+                }
+            }
+            if (!CollectionUtils.isEmpty(notLegalIdCards)) {
+                throw new BusinessException("身份证格式错误：" + notLegalIdCards);
+            }
+        }
+
+        // 上传的学号与已有的学号校验(只考虑自己学校)
+        List<String> notUploadSno = CollectionUtils.isEmpty(notUploadStudents) ? Collections.emptyList() : notUploadStudents.stream().filter(s -> s.getSchoolId().equals(schoolId)).map(ScreeningPlanSchoolStudent::getStudentNo).collect(Collectors.toList());
+        List<String> codeNotUploadSno = CollectionUtils.isEmpty(screeningCodeList) ? Collections.emptyList() : screeningCodeList.stream().filter(s -> s.getSchoolId().equals(schoolId)).map(ScreeningPlanSchoolStudent::getStudentNo).collect(Collectors.toList());
         if (CollectionUtils.hasLength(CompareUtil.getRetain(snoList, notUploadSno))
                 && CollectionUtils.hasLength(CompareUtil.getRetain(snoList, codeNotUploadSno))) {
-            throw new BusinessException("上传数据与已有筛查学生有学号存在重复");
+            List<String> result = ListUtils.intersection(snoList, notUploadSno);
+            if (CollectionUtils.isEmpty(result)) {
+                result = ListUtils.intersection(snoList, codeNotUploadSno);
+            }
+            throw new BusinessException("上传数据与已有筛查学生有学号存在重复，学号：" + result);
         }
     }
 
@@ -666,7 +692,7 @@ public class ExcelStudentService {
         // 学号是否已经使用过
         List<String> retain = ListUtils.retainAll(snoList, Lists.newArrayList(sno));
         if (!CollectionUtils.isEmpty(retain)) {
-            throw new BusinessException("学号" + sno + "重复");
+            throw new BusinessException("学校端学号" + sno + "重复");
         }
     }
 

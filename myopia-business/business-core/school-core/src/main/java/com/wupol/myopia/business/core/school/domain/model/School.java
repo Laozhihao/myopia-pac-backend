@@ -1,11 +1,13 @@
 package com.wupol.myopia.business.core.school.domain.model;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.wupol.myopia.base.constant.StatusConstant;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.annotation.CheckTimeInterval;
+import com.wupol.myopia.business.common.utils.domain.model.NotificationConfig;
 import com.wupol.myopia.business.common.utils.handler.DateDeserializer;
 import com.wupol.myopia.business.common.utils.interfaces.HasName;
 import com.wupol.myopia.business.core.common.domain.model.AddressCode;
@@ -177,6 +179,12 @@ public class School extends AddressCode implements Serializable, HasName {
      * 监测点类型：1城区、2郊县
      */
     private Integer monitorType;
+
+    /**
+     * 告知书配置
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private NotificationConfig notificationConfig;
 
     /**
      * 合作剩余天数据

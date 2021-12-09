@@ -359,7 +359,7 @@ public class ScreeningPlanController {
      */
     @GetMapping("/export/notice")
     public Map<String, String> downloadNoticeFile(@Valid ScreeningPlanSchoolStudent schoolClassInfo) {
-        return screeningExportService.getNoticeFile(schoolClassInfo);
+        return screeningExportService.getNoticeFile(schoolClassInfo, null);
     }
 
     /**

@@ -6,8 +6,10 @@ import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.hospital.domain.model.MedicalReport;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
+import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
+import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningListResponseDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentTrackWarningRequestDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentTrackWarningResponseDTO;
@@ -18,8 +20,9 @@ import com.wupol.myopia.business.core.screening.flow.service.StatConclusionServi
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
-import com.wupol.myopia.business.core.stat.domain.model.SchoolMonitorStatistic;
+import com.wupol.myopia.business.core.stat.domain.model.SchoolVisionStatistic;
 import com.wupol.myopia.business.core.stat.service.SchoolMonitorStatisticService;
+import com.wupol.myopia.business.core.stat.service.SchoolVisionStatisticService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -62,6 +65,12 @@ public class VisionScreeningService {
     @Resource
     private MedicalReportService medicalReportService;
 
+    @Resource
+    private SchoolService schoolService;
+
+    @Resource
+    private SchoolVisionStatisticService schoolVisionStatisticService;
+
     /**
      * 获取视力筛查列表
      *
@@ -82,18 +91,18 @@ public class VisionScreeningService {
         Map<Integer, ScreeningPlan> planMap = screeningPlans.stream().collect(Collectors.toMap(ScreeningPlan::getId, Function.identity()));
 
         // 获取统计信息
-        List<SchoolMonitorStatistic> statisticList = schoolMonitorStatisticService.getBySchoolId(schoolId);
-        Map<Integer, SchoolMonitorStatistic> schoolStatisticMap = statisticList.stream()
-                .collect(Collectors.toMap(SchoolMonitorStatistic::getScreeningPlanId, Function.identity()));
+        List<SchoolVisionStatistic> statisticList = schoolVisionStatisticService.getByPlanIdsAndSchoolId(planIds, schoolId);
+        Map<Integer, SchoolVisionStatistic> schoolStatisticMap = statisticList.stream()
+                .collect(Collectors.toMap(SchoolVisionStatistic::getScreeningPlanId, Function.identity(), (o, n) -> o));
 
         // 筛查机构
         List<Integer> orgIds = schoolPlanList.stream().map(ScreeningListResponseDTO::getScreeningOrgId).collect(Collectors.toList());
         List<ScreeningOrgResponseDTO> screeningOrgDetails = screeningOrganizationService.getScreeningOrgDetails(orgIds);
         Map<Integer, String> orgMap = screeningOrgDetails.stream().collect(Collectors
                 .toMap(ScreeningOrganization::getId, ScreeningOrganization::getName));
-        // 告知书配置
-        Map<Integer, NotificationConfig> notificationConfigMap = screeningOrgDetails.stream().filter(org -> Objects.nonNull(org.getNotificationConfig()))
-                .collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization::getNotificationConfig));
+
+        // 获取学校告知书
+        School school = schoolService.getBySchoolId(schoolId);
 
         schoolPlanList.forEach(schoolPlan -> {
             ScreeningPlan screeningPlan = planMap.get(schoolPlan.getPlanId());
@@ -103,14 +112,15 @@ public class VisionScreeningService {
                 schoolPlan.setEndTime(screeningPlan.getEndTime());
                 schoolPlan.setReleaseStatus(screeningOrganizationService.getScreeningStatus(screeningPlan.getStartTime(), screeningPlan.getEndTime()));
                 schoolPlan.setReleaseTime(screeningPlan.getReleaseTime());
-                schoolPlan.setPlanScreeningNumbers(screeningPlan.getStudentNumbers());
+
                 schoolPlan.setContent(screeningPlan.getContent());
             }
 
-            SchoolMonitorStatistic schoolMonitorStatistic = schoolStatisticMap.get(schoolPlan.getPlanId());
-            if (Objects.nonNull(schoolMonitorStatistic)) {
-                schoolPlan.setSchoolStatisticId(schoolMonitorStatistic.getId());
-                schoolPlan.setRealScreeningNumbers(schoolMonitorStatistic.getRealScreeningNumbers());
+            SchoolVisionStatistic schoolVisionStatistic = schoolStatisticMap.get(schoolPlan.getPlanId());
+            if (Objects.nonNull(schoolVisionStatistic)) {
+                schoolPlan.setSchoolStatisticId(schoolVisionStatistic.getId());
+                schoolPlan.setPlanScreeningNumbers(schoolVisionStatistic.getPlanScreeningNumbers());
+                schoolPlan.setRealScreeningNumbers(schoolVisionStatistic.getRealScreeningNumbers());
             } else {
                 schoolPlan.setRealScreeningNumbers(0);
             }
@@ -118,7 +128,7 @@ public class VisionScreeningService {
             schoolPlan.setScreeningOrgName(orgMap.get(schoolPlan.getScreeningOrgId()));
 
             // 设置告知书配置
-            NotificationConfig notificationConfig = notificationConfigMap.get(schoolPlan.getScreeningOrgId());
+            NotificationConfig notificationConfig = school.getNotificationConfig();
             if (Objects.nonNull(notificationConfig)) {
                 schoolPlan.setNotificationConfig(notificationConfig);
                 // 设置图片
@@ -126,6 +136,13 @@ public class VisionScreeningService {
                 if (Objects.nonNull(qrCodeFileId)) {
                     schoolPlan.setQrCodeFileUrl(resourceFileService.getResourcePath(qrCodeFileId));
                 }
+            } else {
+                notificationConfig = new NotificationConfig();
+                notificationConfig.setTitle("学生视力筛查告家长书");
+                notificationConfig.setCall("亲爱的家长");
+                notificationConfig.setGreetings("您好！");
+                notificationConfig.setSubTitle(school.getName());
+                schoolPlan.setNotificationConfig(notificationConfig);
             }
         });
         return responseDTO;

@@ -4,9 +4,11 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.school.domain.model.School">
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="notification_config" property="notificationConfig"/>
     </resultMap>
 
     <resultMap id="BaseResultMapDto" type="com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO">
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="notification_config" property="notificationConfig"/>
     </resultMap>
 
     <!-- 通用查询条件 -->
@@ -61,7 +63,7 @@
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         id, school_no, create_user_id, gov_dept_id, district_id, district_province_code, district_detail, name, kind, kind_desc, lodge_status, type, province_code, city_code, area_code, town_code, address,
-        remark, status, cooperation_type, cooperation_time_type, cooperation_start_time, cooperation_end_time, create_time, update_time, district_area_code, area_type, monitor_type
+        remark, status, cooperation_type, cooperation_time_type, cooperation_start_time, cooperation_end_time, create_time, update_time, district_area_code, area_type, monitor_type, notification_config
     </sql>
 
     <select id="getSchoolListByCondition" resultMap="BaseResultMapDto">
@@ -169,6 +171,13 @@
         set status = #{request.status}
         where id = #{request.id}
     </update>
+
+    <select id="getBySchoolId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school
+        where id = #{id}
+    </select>
 
     <select id="getByCooperationTimeAndStatus" resultMap="BaseResultMap">
         select

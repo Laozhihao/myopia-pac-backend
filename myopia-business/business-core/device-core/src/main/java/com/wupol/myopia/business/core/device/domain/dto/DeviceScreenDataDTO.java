@@ -2,8 +2,6 @@ package com.wupol.myopia.business.core.device.domain.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.wupol.framework.core.util.ObjectsUtil;
-import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.BeanCopyUtil;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.util.PatientAgeUtil;
