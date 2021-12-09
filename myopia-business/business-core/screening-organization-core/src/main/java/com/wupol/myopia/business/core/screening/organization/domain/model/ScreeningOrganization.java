@@ -2,10 +2,12 @@ package com.wupol.myopia.business.core.screening.organization.domain.model;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.wupol.myopia.base.constant.StatusConstant;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.annotation.CheckTimeInterval;
 import com.wupol.myopia.business.common.utils.domain.model.NotificationConfig;
+import com.wupol.myopia.business.common.utils.handler.DateDeserializer;
 import com.wupol.myopia.business.common.utils.interfaces.HasName;
 import com.wupol.myopia.business.core.common.domain.model.AddressCode;
 import com.wupol.myopia.business.core.screening.organization.domain.handler.NotificationConfigTypeHandler;
@@ -121,11 +123,13 @@ public class ScreeningOrganization extends AddressCode implements Serializable, 
     /**
      * 合作开始时间
      */
+    @JsonDeserialize(using = DateDeserializer.class)
     private Date cooperationStartTime;
 
     /**
      * 合作结束时间
      */
+    @JsonDeserialize(using = DateDeserializer.class)
     private Date cooperationEndTime;
 
     /**

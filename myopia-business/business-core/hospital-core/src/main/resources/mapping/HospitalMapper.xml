@@ -70,23 +70,32 @@
                 #{id}
             </foreach>
         </if>
-        <if test="status != null">
-            and h.status = #{status}
+        <if test="query.status != null">
+            and h.status = #{query.status}
         </if>
-        <if test="name != null and name != ''">
-            and h.name like CONCAT('%', #{name}, '%')
+        <if test="query.name != null and query.name != ''">
+            and h.name like CONCAT('%', #{query.name}, '%')
         </if>
-        <if test="type != null">
-            and h.type = #{type}
+        <if test="query.type != null">
+            and h.type = #{query.type}
         </if>
-        <if test="kind != null">
-            and h.kind = #{kind}
+        <if test="query.kind != null">
+            and h.kind = #{query.kind}
         </if>
-        <if test="level != null">
-            and h.level = #{level}
+        <if test="query.level != null">
+            and h.level = #{query.level}
         </if>
-        <if test="districtId != null">
-            and h.district_id = #{districtId}
+        <if test="query.districtId != null">
+            and h.district_id = #{query.districtId}
+        </if>
+        <if test="@Ognl@isNotEmpty(query.cooperationType)">
+            and h.cooperation_type = #{query.cooperationType}
+        </if>
+        <if test="@Ognl@isNotEmpty(query.cooperationEndGe)">
+            and h.cooperation_end_time &gt;= #{query.cooperationEndGe}
+        </if>
+        <if test="@Ognl@isNotEmpty(query.cooperationEndle)">
+            and h.cooperation_end_time &lt;= #{query.cooperationEndle}
         </if>
         order by h.create_time desc
     </select>

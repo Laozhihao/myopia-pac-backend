@@ -101,8 +101,7 @@ public class HospitalBizService {
         if (!user.isPlatformAdminUser()) {
             govOrgIds = govDeptService.getAllSubordinate(user.getOrgId());
         }
-        IPage<HospitalResponseDTO> hospitalListsPage = hospitalService.getHospitalListByCondition(pageRequest.toPage(), govOrgIds,
-                query.getName(), query.getType(), query.getKind(), query.getLevel(), query.getDistrictId(), query.getStatus());
+        IPage<HospitalResponseDTO> hospitalListsPage = hospitalService.getHospitalListByCondition(pageRequest.toPage(), govOrgIds, query);
 
         List<HospitalResponseDTO> records = hospitalListsPage.getRecords();
         if (CollectionUtils.isEmpty(records)) {

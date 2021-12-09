@@ -2,10 +2,12 @@ package com.wupol.myopia.business.core.hospital.domain.model;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.wupol.myopia.base.constant.StatusConstant;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.base.util.RegularUtils;
 import com.wupol.myopia.business.common.utils.annotation.CheckTimeInterval;
+import com.wupol.myopia.business.common.utils.handler.DateDeserializer;
 import com.wupol.myopia.business.core.common.domain.model.AddressCode;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -159,13 +161,13 @@ public class Hospital extends AddressCode implements Serializable {
     /**
      * 合作开始时间
      */
-    @NotNull(message = "合作开始时间不能为空")
+    @JsonDeserialize(using = DateDeserializer.class)
     private Date cooperationStartTime;
 
     /**
      * 合作结束时间
      */
-    @NotNull(message = "合作结束时间不能为空")
+    @JsonDeserialize(using = DateDeserializer.class)
     private Date cooperationEndTime;
 
     /**

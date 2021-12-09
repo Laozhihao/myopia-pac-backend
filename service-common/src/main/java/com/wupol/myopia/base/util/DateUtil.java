@@ -170,6 +170,22 @@ public class DateUtil extends cn.hutool.core.date.DateUtil {
         cal.set(Calendar.HOUR, 0);
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        return cal.getTime();
+    }
+
+    /**
+     * 获取昨天最迟时刻的时间
+     *
+     * @return long
+     **/
+    public static Date getEndTime(Date date) {
+        Calendar cal=Calendar.getInstance();
+        cal.setTime(date);
+        cal.set(Calendar.HOUR, 23);
+        cal.set(Calendar.MINUTE, 59);
+        cal.set(Calendar.SECOND, 59);
+        cal.set(Calendar.MILLISECOND, 999);
         return cal.getTime();
     }
 
@@ -193,12 +209,7 @@ public class DateUtil extends cn.hutool.core.date.DateUtil {
      * @return long
      **/
     public static Date getYesterdayEndTime() {
-        Calendar cal=Calendar.getInstance();
-        cal.add(Calendar.DATE,-1);
-        cal.set(Calendar.HOUR, 23);
-        cal.set(Calendar.MINUTE, 59);
-        cal.set(Calendar.SECOND, 59);
-        return cal.getTime();
+        return getEndTime(DateUtils.addDays(new Date(), -1));
     }
 
     /**

@@ -228,18 +228,11 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      *
      * @param page       分页请求
      * @param govDeptId  政府机构Id
-     * @param name       医院名称
-     * @param type       医院类型
-     * @param kind       医院性质
-     * @param level      医院等级
-     * @param districtId 行政区域Id
-     * @param status     状态
+     * @param query      查询内容
      * @return {@link IPage}
      */
-    public IPage<HospitalResponseDTO> getHospitalListByCondition(Page<?> page, List<Integer> govDeptId,
-                                                                 String name, Integer type, Integer kind, Integer level,
-                                                                 Integer districtId, Integer status) {
-        return baseMapper.getHospitalListByCondition(page, govDeptId, name, type, kind, level, districtId, status);
+    public IPage<HospitalResponseDTO> getHospitalListByCondition(Page<?> page, List<Integer> govDeptId, HospitalQuery query) {
+        return baseMapper.getHospitalListByCondition(page, govDeptId, query);
     }
 
     /**
