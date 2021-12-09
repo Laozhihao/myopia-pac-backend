@@ -24,12 +24,9 @@ import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolClassExportDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeExportDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
-import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
-import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
-import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
@@ -1016,10 +1013,10 @@ public class ExcelFacade {
             screeningPlanSchoolStudentService.save(planSchoolStudent);
 
             VisionDataDTO visionDataDTO = new VisionDataDTO();
-            visionDataDTO.setRightCorrectedVision(getRightCorrectedVision(item));
-            visionDataDTO.setLeftCorrectedVision(getLeftCorrectedVision(item));
-            visionDataDTO.setRightNakedVision(Objects.nonNull(item.get(11)) ? new BigDecimal(item.get(11)) : new BigDecimal("5.2"));
-            visionDataDTO.setLeftNakedVision(Objects.nonNull(item.get(12)) ? new BigDecimal(item.get(12)) : new BigDecimal("5.2"));
+            visionDataDTO.setRightCorrectedVision(Objects.nonNull(item.get(11)) ? new BigDecimal(item.get(11)) : null);
+            visionDataDTO.setLeftCorrectedVision(Objects.nonNull(item.get(12)) ? new BigDecimal(item.get(12)) : null);
+            visionDataDTO.setRightNakedVision(getRightNakedVision(item));
+            visionDataDTO.setLeftNakedVision(getLeftNakedVision(item));
             visionDataDTO.setDiagnosis(0);
             visionDataDTO.setIsCooperative(0);
             visionDataDTO.setSchoolId(String.valueOf(school.getId()));
@@ -1059,7 +1056,7 @@ public class ExcelFacade {
         }
     }
 
-    private BigDecimal getRightCorrectedVision(Map<Integer, String> item) {
+    private BigDecimal getRightNakedVision(Map<Integer, String> item) {
         if (Objects.nonNull(item.get(3))) {
             return new BigDecimal(item.get(3));
         }
@@ -1074,7 +1071,7 @@ public class ExcelFacade {
         }
         return null;
     }
-    private BigDecimal getLeftCorrectedVision(Map<Integer, String> item) {
+    private BigDecimal getLeftNakedVision(Map<Integer, String> item) {
         if (Objects.nonNull(item.get(7))) {
             return new BigDecimal(item.get(7));
         }
