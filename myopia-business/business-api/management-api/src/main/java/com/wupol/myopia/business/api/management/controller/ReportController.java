@@ -89,7 +89,7 @@ public class ReportController {
         ExportCondition exportCondition = new ExportCondition()
                 .setPlanId(planId)
                 .setScreeningOrgId(screeningOrgId)
-                .setApplyExportFileUserId(2);
+                .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.SCREENING_ORG_SCREENING_REPORT_SERVICE);
     }
 
