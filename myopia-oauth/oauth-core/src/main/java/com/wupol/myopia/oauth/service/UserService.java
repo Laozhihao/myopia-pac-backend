@@ -214,8 +214,7 @@ public class UserService extends BaseService<UserMapper, User> {
             throw new BusinessException("更新用户信息失败");
         }
         //筛查机构更新权限
-        Integer orgConfigType = user.getOrgConfigType();
-        updateScreeningOrgRolePermission(orgConfigType, userId);
+        updateScreeningOrgAdminRolePermission(user);
         // 获取用户最新信息
         UserDTO newUser = new UserDTO();
         newUser.setId(userId);
@@ -358,6 +357,28 @@ public class UserService extends BaseService<UserMapper, User> {
         }
     }
 
+    /**
+     * 根据筛查机构用户角色权限
+     *
+     * @param user 用户信息
+     * @return void
+     **/
+    public void updateScreeningOrgAdminRolePermission(UserDTO user) {
+        Integer orgConfigType = user.getOrgConfigType();
+        if (!SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode().equals(user.getSystemCode()) || Objects.isNull(orgConfigType) || Objects.isNull(user.getOrgId())) {
+            return;
+        }
+        List<User> userList = findByList(new User().setSystemCode(SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode()).setOrgId(user.getOrgId()));
+        userList.forEach(x -> updateScreeningOrgRolePermission(orgConfigType, x.getId()));
+    }
+
+    /**
+     * 根据筛查机构用户角色权限
+     *
+     * @param orgConfigType 配置类型
+     * @param userId 用户ID
+     * @return void
+     **/
     private void updateScreeningOrgRolePermission(Integer orgConfigType, Integer userId) {
         if (Objects.isNull(orgConfigType)) {
             return;
