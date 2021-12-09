@@ -962,22 +962,17 @@ public class ExcelFacade {
         // 年级信息通过学校Id分组
         Map<Integer, List<SchoolGradeExportDTO>> schoolGradeMaps = grades.stream().collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolId));
         List<Long> idBatch = ScreeningCodeGenerator.getIdBatch(listMap.size());
-        int id= 0;
+        int id = 0;
         for (Map<Integer, String> item : listMap) {
             Student student = new Student();
-            student.setName(item.get(0))
-                    .setGender(GenderEnum.getType(item.get(1)))
-                    .setBirthday(DateFormatUtil.parseDate(item.get(2), DateFormatUtil.FORMAT_ONLY_DATE_WITHOUT_LINE))
-                    .setGradeType(GradeCodeEnum.getByName(item.get(31)).getType())
-                    .setCreateUserId(1)
-                    .setSchoolId(school.getId());
+            student.setName(item.get(Import.NAME.index)).setGender(GenderEnum.getType(item.get(Import.GENDER.index))).setBirthday(DateFormatUtil.parseDate(item.get(Import.BIRTHDAY.index), DateFormatUtil.FORMAT_ONLY_DATE_WITHOUT_LINE)).setGradeType(GradeCodeEnum.getByName(item.get(Import.GRADE.index)).getType()).setCreateUserId(1).setSchoolId(school.getId());
 
             // 通过学校编号获取改学校的年级信息
             List<SchoolGradeExportDTO> schoolGradeExportVOS = schoolGradeMaps.get(school.getId());
             // 转换成年级Maps，年级名称作为Key
             Map<String, SchoolGradeExportDTO> gradeMaps = schoolGradeExportVOS.stream().collect(Collectors.toMap(SchoolGradeExportDTO::getName, Function.identity()));
             // 年级信息
-            SchoolGradeExportDTO schoolGradeExportDTO = gradeMaps.get(item.get(31));
+            SchoolGradeExportDTO schoolGradeExportDTO = gradeMaps.get(item.get(Import.GRADE.index));
             Assert.notNull(schoolGradeExportDTO, "年级数据异常");
             // 设置年级ID
             student.setGradeId(schoolGradeExportDTO.getId());
@@ -985,12 +980,11 @@ public class ExcelFacade {
             List<SchoolClassExportDTO> classExportVOS = schoolGradeExportDTO.getChild();
             // 转换成班级Maps 把班级名称作为key
             Map<String, Integer> classExportMaps = classExportVOS.stream().collect(Collectors.toMap(SchoolClassExportDTO::getName, SchoolClassExportDTO::getId));
-            Integer classId = classExportMaps.get(item.get(32));
+            Integer classId = classExportMaps.get(item.get(Import.CLASS.index));
             Assert.notNull(classId, "班级数据为空");
             // 设置班级信息
             student.setClassId(classId);
             studentService.save(student);
-
 
             ScreeningPlanSchoolStudent planSchoolStudent = new ScreeningPlanSchoolStudent();
             planSchoolStudent.setSrcScreeningNoticeId(noticeId);
@@ -1003,10 +997,10 @@ public class ExcelFacade {
             planSchoolStudent.setSchoolNo(school.getSchoolNo());
             planSchoolStudent.setSchoolName(school.getName());
             planSchoolStudent.setGradeId(student.getGradeId());
-            planSchoolStudent.setGradeName(item.get(31));
-            planSchoolStudent.setGradeType(GradeCodeEnum.getByName(item.get(31)).getType());
+            planSchoolStudent.setGradeName(item.get(Import.GRADE.index));
+            planSchoolStudent.setGradeType(GradeCodeEnum.getByName(item.get(Import.GRADE.index)).getType());
             planSchoolStudent.setClassId(student.getClassId());
-            planSchoolStudent.setClassName(item.get(32));
+            planSchoolStudent.setClassName(item.get(Import.CLASS.index));
             planSchoolStudent.setStudentId(student.getId());
             planSchoolStudent.setBirthday(student.getBirthday());
             planSchoolStudent.setGender(student.getGender());
@@ -1017,10 +1011,10 @@ public class ExcelFacade {
             screeningPlanSchoolStudentService.save(planSchoolStudent);
 
             VisionDataDTO visionDataDTO = new VisionDataDTO();
-            visionDataDTO.setRightCorrectedVision(Objects.nonNull(item.get(11)) ? new BigDecimal(item.get(11)) : null);
-            visionDataDTO.setLeftCorrectedVision(Objects.nonNull(item.get(12)) ? new BigDecimal(item.get(12)) : null);
-            visionDataDTO.setRightNakedVision(getRightNakedVision(item));
-            visionDataDTO.setLeftNakedVision(getLeftNakedVision(item));
+            visionDataDTO.setRightCorrectedVision(Objects.nonNull(item.get(Import.RIGHT_CORRECTED_VISION.index)) ? new BigDecimal(item.get(Import.RIGHT_CORRECTED_VISION.index)) : null);
+            visionDataDTO.setLeftCorrectedVision(Objects.nonNull(item.get(Import.LEFT_CORRECTED_VISION.index)) ? new BigDecimal(item.get(Import.LEFT_CORRECTED_VISION.index)) : null);
+            visionDataDTO.setRightNakedVision(Objects.nonNull(item.get(Import.RIGHT_NAKED_VISION.index)) ? new BigDecimal(item.get(Import.RIGHT_NAKED_VISION.index)) : null);
+            visionDataDTO.setLeftNakedVision(Objects.nonNull(item.get(Import.LEFT_NAKED_VISION.index)) ? new BigDecimal(item.get(Import.LEFT_NAKED_VISION.index)) : null);
             visionDataDTO.setDiagnosis(0);
             visionDataDTO.setIsCooperative(0);
             visionDataDTO.setSchoolId(String.valueOf(school.getId()));
@@ -1028,7 +1022,7 @@ public class ExcelFacade {
             visionDataDTO.setCreateUserId(1);
             visionDataDTO.setPlanStudentId(String.valueOf(planSchoolStudent.getId()));
             visionDataDTO.setIsState(0);
-            if (Objects.isNull(item.get(11)) && Objects.isNull(item.get(12))) {
+            if (Objects.isNull(item.get(Import.RIGHT_CORRECTED_VISION.index)) && Objects.isNull(item.get(Import.LEFT_CORRECTED_VISION.index))) {
                 visionDataDTO.setGlassesType("没有佩戴眼镜");
             } else {
                 visionDataDTO.setGlassesType("佩戴框架眼镜");
@@ -1039,17 +1033,17 @@ public class ExcelFacade {
             }
 
             ComputerOptometryDTO computerOptometryDTO = new ComputerOptometryDTO();
-            computerOptometryDTO.setRAxial(Objects.nonNull(item.get(26)) ? new BigDecimal(item.get(26)) : null);
-            computerOptometryDTO.setLAxial(Objects.nonNull(item.get(30)) ? new BigDecimal(item.get(30)) : null);
-            computerOptometryDTO.setLSph(getLSph(item));
-            computerOptometryDTO.setRSph(getRSph(item));
-            computerOptometryDTO.setRCyl(getRCyl(item));
-            computerOptometryDTO.setLCyl(getLCyl(item));
+            computerOptometryDTO.setRAxial(Objects.nonNull(item.get(Import.RIGHT_AXIAL.index)) ? new BigDecimal(item.get(Import.RIGHT_AXIAL.index)) : null);
+            computerOptometryDTO.setLAxial(Objects.nonNull(item.get(Import.LEFT_AXIAL.index)) ? new BigDecimal(item.get(Import.LEFT_AXIAL.index)) : null);
+            computerOptometryDTO.setRSph(Objects.nonNull(item.get(Import.RIGHT_SPH.index)) ? new BigDecimal(item.get(Import.RIGHT_SPH.index)) : null);
+            computerOptometryDTO.setLSph(Objects.nonNull(item.get(Import.LEFT_SPH.index)) ? new BigDecimal(item.get(Import.LEFT_SPH.index)) : null);
+            computerOptometryDTO.setRCyl(Objects.nonNull(item.get(Import.RIGHT_CYL.index)) ? new BigDecimal(item.get(Import.RIGHT_CYL.index)) : null);
+            computerOptometryDTO.setLCyl(Objects.nonNull(item.get(Import.LEFT_CYL.index)) ? new BigDecimal(item.get(Import.LEFT_CYL.index)) : null);
             computerOptometryDTO.setDiagnosis(0);
             computerOptometryDTO.setIsCooperative(0);
             computerOptometryDTO.setSchoolId(String.valueOf(school.getId()));
             computerOptometryDTO.setDeptId(deptId);
-            computerOptometryDTO.setCreateUserId(2);
+            computerOptometryDTO.setCreateUserId(1);
             computerOptometryDTO.setPlanStudentId(String.valueOf(planSchoolStudent.getId()));
             computerOptometryDTO.setIsState(0);
 
@@ -1060,96 +1054,30 @@ public class ExcelFacade {
         }
     }
 
-    private BigDecimal getRightNakedVision(Map<Integer, String> item) {
-        if (Objects.nonNull(item.get(3))) {
-            return new BigDecimal(item.get(3));
-        }
-        if (Objects.nonNull(item.get(4))) {
-            return new BigDecimal(item.get(4));
-        }
-        if (Objects.nonNull(item.get(5))) {
-            return new BigDecimal(item.get(5));
-        }
-        if (Objects.nonNull(item.get(6))) {
-            return new BigDecimal(item.get(6));
-        }
-        return null;
-    }
-    private BigDecimal getLeftNakedVision(Map<Integer, String> item) {
-        if (Objects.nonNull(item.get(7))) {
-            return new BigDecimal(item.get(7));
-        }
-        if (Objects.nonNull(item.get(8))) {
-            return new BigDecimal(item.get(8));
-        }
-        if (Objects.nonNull(item.get(9))) {
-            return new BigDecimal(item.get(9));
-        }
-        if (Objects.nonNull(item.get(10))) {
-            return new BigDecimal(item.get(10));
-        }
-        return null;
-    }
-    private BigDecimal getLSph(Map<Integer, String> item) {
-        if (Objects.nonNull(item.get(18))) {
-            return new BigDecimal(item.get(18));
-        }
-        if (Objects.nonNull(item.get(19))) {
-            return new BigDecimal(item.get(19));
-        }
-        if (Objects.nonNull(item.get(20))) {
-            return new BigDecimal(item.get(20));
-        }
-        if (Objects.nonNull(item.get(21))) {
-            return new BigDecimal(item.get(21));
-        }
-        if (Objects.nonNull(item.get(22))) {
-            return new BigDecimal(item.get(22));
-        }
-        return null;
-    }
-    private BigDecimal getRSph(Map<Integer, String> item) {
-        if (Objects.nonNull(item.get(13))) {
-            return new BigDecimal(item.get(13));
-        }
-        if (Objects.nonNull(item.get(14))) {
-            return new BigDecimal(item.get(14));
-        }
-        if (Objects.nonNull(item.get(15))) {
-            return new BigDecimal(item.get(15));
-        }
-        if (Objects.nonNull(item.get(16))) {
-            return new BigDecimal(item.get(16));
-        }
-        if (Objects.nonNull(item.get(17))) {
-            return new BigDecimal(item.get(17));
-        }
-        return null;
-    }
+    public enum Import {
+        NAME(0, "姓名"), GENDER(1, "性别"), BIRTHDAY(2, "出生日期"), GRADE(3, "年级"), CLASS(4, "班级"), RIGHT_NAKED_VISION(5, "右-裸眼"), LEFT_NAKED_VISION(6, "左-裸眼"), RIGHT_CORRECTED_VISION(7, "右-戴镜"), LEFT_CORRECTED_VISION(8, "左-戴镜"), RIGHT_SPH(9, "右-球镜"), LEFT_SPH(10, "左-球镜"), LEFT_CYL(11, "右-柱镜"), RIGHT_CYL(12, "左-柱镜"), RIGHT_AXIAL(13, "右-轴位"), LEFT_AXIAL(14, "左-轴位");
 
-    private BigDecimal getRCyl(Map<Integer, String> item) {
-        if (Objects.nonNull(item.get(23))) {
-            return new BigDecimal(item.get(23));
-        }
-        if (Objects.nonNull(item.get(24))) {
-            return new BigDecimal(item.get(24));
-        }
-        if (Objects.nonNull(item.get(25))) {
-            return new BigDecimal(item.get(25));
-        }
-        return null;
-    }
+        /**
+         * 列标
+         **/
+        private final Integer index;
+        /**
+         * 名称
+         **/
+        private final String name;
 
-    private BigDecimal getLCyl(Map<Integer, String> item) {
-        if (Objects.nonNull(item.get(27))) {
-            return new BigDecimal(item.get(27));
+        Import(Integer index, String name) {
+            this.index = index;
+            this.name = name;
         }
-        if (Objects.nonNull(item.get(28))) {
-            return new BigDecimal(item.get(28));
+
+        public Integer getIndex() {
+            return this.index;
         }
-        if (Objects.nonNull(item.get(29))) {
-            return new BigDecimal(item.get(29));
+
+        public String getName() {
+            return this.name;
         }
-        return null;
+
     }
 }
