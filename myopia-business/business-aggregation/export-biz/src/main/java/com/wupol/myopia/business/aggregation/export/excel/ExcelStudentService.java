@@ -346,12 +346,20 @@ public class ExcelStudentService {
                                      List<ScreeningPlanSchoolStudent> notUploadStudents,
                                      List<ScreeningPlanSchoolStudent> screeningCodeList, Integer schoolId, Set<String> idCardSet) {
         // 年级名是否都存在
-        if (gradeNameSet.stream().anyMatch(gradeName -> StringUtils.isEmpty(gradeName) || !gradeNameIdMap.containsKey(gradeName))) {
-            throw new BusinessException("存在不正确的年级名称");
+        List<String> noLegalGrade = gradeNameSet.stream()
+                .filter(gradeName -> StringUtils.isEmpty(gradeName) || !gradeNameIdMap.containsKey(gradeName))
+                .collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(noLegalGrade)) {
+            throw new BusinessException("以下年级名称不正确" + noLegalGrade);
         }
+
+        List<String> notLegalClass = gradeClassNameSet
+                .stream().filter(gradeClassName -> StringUtils.isEmpty(gradeClassName) || !gradeClassNameClassIdMap.containsKey(gradeClassName))
+                .collect(Collectors.toList());
+
         // 班级名是否都存在
-        if (gradeClassNameSet.stream().anyMatch(gradeClassName -> StringUtils.isEmpty(gradeClassName) || !gradeClassNameClassIdMap.containsKey(gradeClassName))) {
-            throw new BusinessException("存在不正确的班级名称");
+        if (!CollectionUtils.isEmpty(notLegalClass)) {
+            throw new BusinessException("以下班级名称不正确" + noLegalGrade);
         }
 
         List<String> notLegalIdCards = new ArrayList<>();
