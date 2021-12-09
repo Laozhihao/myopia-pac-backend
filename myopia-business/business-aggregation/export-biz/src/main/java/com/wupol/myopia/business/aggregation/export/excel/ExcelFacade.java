@@ -948,7 +948,7 @@ public class ExcelFacade {
     @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_UNCOMMITTED)
     public void importABVStudent(MultipartFile multipartFile) throws ParseException {
         List<Map<Integer, String>> listMap = readExcel(multipartFile);
-        int schoolId = 2;
+        int schoolId = 28;
         int planId = 12;
         int deptId = 18;
 
