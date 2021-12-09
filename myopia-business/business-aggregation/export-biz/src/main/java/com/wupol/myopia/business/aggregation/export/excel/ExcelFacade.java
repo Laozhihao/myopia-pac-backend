@@ -946,8 +946,12 @@ public class ExcelFacade {
     public void importABVStudent(MultipartFile multipartFile) throws ParseException {
         List<Map<Integer, String>> listMap = readExcel(multipartFile);
         int schoolId = 28;
-        int planId = 12;
+        int planId = 13;
         int deptId = 18;
+        int noticeId = 31;
+        int taskId = 14;
+        int planDistrictId = 3434;
+        int schoolDistrictId = 3434;
 
         School school = schoolService.getById(schoolId);
 
@@ -989,12 +993,12 @@ public class ExcelFacade {
 
 
             ScreeningPlanSchoolStudent planSchoolStudent = new ScreeningPlanSchoolStudent();
-            planSchoolStudent.setSrcScreeningNoticeId(27);
-            planSchoolStudent.setScreeningTaskId(13);
+            planSchoolStudent.setSrcScreeningNoticeId(noticeId);
+            planSchoolStudent.setScreeningTaskId(taskId);
             planSchoolStudent.setScreeningPlanId(planId);
             planSchoolStudent.setScreeningOrgId(deptId);
-            planSchoolStudent.setPlanDistrictId(3434);
-            planSchoolStudent.setSchoolDistrictId(3434);
+            planSchoolStudent.setPlanDistrictId(planDistrictId);
+            planSchoolStudent.setSchoolDistrictId(schoolDistrictId);
             planSchoolStudent.setSchoolId(school.getId());
             planSchoolStudent.setSchoolNo(school.getSchoolNo());
             planSchoolStudent.setSchoolName(school.getName());
