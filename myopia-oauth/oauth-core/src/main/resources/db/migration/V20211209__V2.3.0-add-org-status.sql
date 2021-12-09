@@ -24,3 +24,20 @@ SELECT org_id, system_code, user_type
 FROM o_user
 GROUP BY org_id, system_code, user_type
 HAVING system_code in (1,2);
+
+
+-- 增加相关权限信息
+INSERT INTO `o_permission`(`id`, `name`, `menu_btn_name`, `api_url`, `is_menu`, `is_page`, `order`, `pid`, `system_code`)
+VALUES
+(412, '工作台', 'workbench', NULL, 1, 1, 1, 0, 1),
+(413, '患者管理', 'patient', NULL, 1, 1, 1, 412, 1),
+(414, '医生管理', 'doctor', NULL, 1, 1, 2, 412, 1),
+(415, '就诊记录', 'diagnosisRecord', NULL, 1, 1, 1, 413, 1),
+
+(416, '获取医生列表', 'getDoctorList', 'get:/management/doctor/list', 0, 0, 1, 414, 1),
+(417, '获取医生详情', 'getDoctorDetails', 'get:/management/doctor/**', 0, 0, 2, 414, 1),
+(418, '添加医生', 'addDoctor', 'post:/management/doctor', 0, 0, 3, 414, 1),
+(419, '更新医生', 'updateDoctor', 'put:/management/doctor', 0, 0, 4, 414, 1),
+(420, '更新医生状态', 'updateDoctorStatus', 'put:/management/doctor/status', 0, 0, 5, 414, 1),
+(421, '重置医生密码', 'resetDoctorPassword', 'put:/management/doctor/reset', 0, 0, 6, 414, 1);
+
