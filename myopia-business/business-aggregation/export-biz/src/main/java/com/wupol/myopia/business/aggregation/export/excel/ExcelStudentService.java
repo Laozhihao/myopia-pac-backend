@@ -359,7 +359,7 @@ public class ExcelStudentService {
 
         // 班级名是否都存在
         if (!CollectionUtils.isEmpty(notLegalClass)) {
-            throw new BusinessException("以下班级名称不正确" + noLegalGrade);
+            throw new BusinessException("以下班级名称不正确" + notLegalClass);
         }
 
         List<String> notLegalIdCards = new ArrayList<>();
