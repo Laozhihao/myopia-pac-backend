@@ -770,7 +770,7 @@ public class StatReportService {
      */
     private List<TypeRatioDTO> getWarnLevel(List<StatConclusion> validConclusions) {
         List<TypeRatioDTO> warnLevel = new ArrayList<>();
-        Map<Integer, Long> warningLevelMap = validConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getWarningLevel, Collectors.counting()));
+        Map<Integer, Long> warningLevelMap = validConclusions.stream().filter(s->Objects.nonNull(s.getWarningLevel())).collect(Collectors.groupingBy(StatConclusion::getWarningLevel, Collectors.counting()));
         int countNum = validConclusions.size();
         warnLevel.add(TypeRatioDTO.getInstance(RatioEnum.WARNING_LEVEL_0.name(), warningLevelMap.getOrDefault(WarningLevel.ZERO.code, 0L), convertToPercentage(warningLevelMap.getOrDefault(WarningLevel.ZERO.code, 0L) * 1f / countNum)));
         warnLevel.add(TypeRatioDTO.getInstance(RatioEnum.WARNING_LEVEL_1.name(), warningLevelMap.getOrDefault(WarningLevel.ONE.code, 0L), convertToPercentage(warningLevelMap.getOrDefault(WarningLevel.ONE.code, 0L) * 1f / countNum)));
