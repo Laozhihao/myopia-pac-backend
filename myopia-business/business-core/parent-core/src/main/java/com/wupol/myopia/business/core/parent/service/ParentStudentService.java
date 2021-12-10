@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 家长端-家长查看学生信息
@@ -26,14 +27,15 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      * @param parentId  家长ID
      */
     @Transactional(rollbackFor = Exception.class)
-    public void parentBindStudent(Integer studentId, Integer parentId) {
+    public synchronized void parentBindStudent(Integer studentId, Integer parentId) {
         ParentStudent parentStudent = new ParentStudent();
         if (null == parentId || null == studentId) {
             throw new BusinessException("数据异常");
         }
         ParentStudent checkResult = baseMapper.getByParentIdAndStudentId(parentId, studentId);
-        if (null != checkResult) {
-            return;
+        if (Objects.nonNull(checkResult)) {
+            log.error("孩子已经绑定,家长Id:{},孩子Id:{}", parentId, studentId);
+            throw new BusinessException("孩子已经绑定");
         }
         parentStudent.setParentId(parentId);
         parentStudent.setStudentId(studentId);
