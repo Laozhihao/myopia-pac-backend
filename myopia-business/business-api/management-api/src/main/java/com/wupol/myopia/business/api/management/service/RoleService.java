@@ -190,7 +190,9 @@ public class RoleService {
     public Role updateRoleStatus(Integer roleId, Integer status) {
         validatePermission(roleId);
         RoleDTO roleDTO = new RoleDTO();
-        roleDTO.setId(roleId).setStatus(status);
+        roleDTO.setId(roleId)
+                .setStatus(status)
+                .setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode());
         return oauthServiceClient.updateRole(roleDTO);
     }
 
