@@ -20,7 +20,6 @@ import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningNoticeNameDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanNameDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanSchoolInfoDTO;
@@ -346,29 +345,31 @@ public class StatManagementController {
 
         for (StatConclusion statConclusion : statConclusionList) {
             VisionScreeningResult visionScreeningResult = screeningResultMap.get(statConclusion.getResultId());
-            if (Objects.nonNull(visionScreeningResult)) {
-                ComputerOptometryDO computerOptometry = visionScreeningResult.getComputerOptometry();
-                if (Objects.nonNull(computerOptometry)) {
-                    BigDecimal leftSph = computerOptometry.getLeftEyeData().getSph();
-                    BigDecimal leftCyl = computerOptometry.getLeftEyeData().getCyl();
-                    BigDecimal rightSph = computerOptometry.getRightEyeData().getSph();
-                    BigDecimal rightCyl = computerOptometry.getRightEyeData().getCyl();
-
-                    MyopiaLevelEnum leftMyopiaWarningLevel = StatUtil.getMyopiaWarningLevel(leftSph.floatValue(), leftCyl.floatValue());
-                    MyopiaLevelEnum rightMyopiaWarningLevel = StatUtil.getMyopiaWarningLevel(rightSph.floatValue(), rightCyl.floatValue());
-                    boolean isLeftMyopia = false;
-                    boolean isrightMyopia = false;
-                    if (leftMyopiaWarningLevel != null) {
-                        isLeftMyopia = StatUtil.isMyopia(leftMyopiaWarningLevel);
-                    }
-                    if (rightMyopiaWarningLevel != null) {
-                        isrightMyopia = StatUtil.isMyopia(rightMyopiaWarningLevel);
-                    }
-                    boolean isMyopia = isLeftMyopia || isrightMyopia;
-                    statConclusion.setIsMyopia(isMyopia);
-                    statConclusion.setUpdateTime(new Date());
-                }
+            if (Objects.isNull(visionScreeningResult)) {
+                break;
             }
+            ComputerOptometryDO computerOptometry = visionScreeningResult.getComputerOptometry();
+            if (Objects.isNull(computerOptometry)) {
+                break;
+            }
+            BigDecimal leftSph = computerOptometry.getLeftEyeData().getSph();
+            BigDecimal leftCyl = computerOptometry.getLeftEyeData().getCyl();
+            BigDecimal rightSph = computerOptometry.getRightEyeData().getSph();
+            BigDecimal rightCyl = computerOptometry.getRightEyeData().getCyl();
+
+            MyopiaLevelEnum leftMyopiaWarningLevel = StatUtil.getMyopiaWarningLevel(leftSph.floatValue(), leftCyl.floatValue());
+            MyopiaLevelEnum rightMyopiaWarningLevel = StatUtil.getMyopiaWarningLevel(rightSph.floatValue(), rightCyl.floatValue());
+            boolean isLeftMyopia = false;
+            boolean isrightMyopia = false;
+            if (leftMyopiaWarningLevel != null) {
+                isLeftMyopia = StatUtil.isMyopia(leftMyopiaWarningLevel);
+            }
+            if (rightMyopiaWarningLevel != null) {
+                isrightMyopia = StatUtil.isMyopia(rightMyopiaWarningLevel);
+            }
+            boolean isMyopia = isLeftMyopia || isrightMyopia;
+            statConclusion.setIsMyopia(isMyopia);
+            statConclusion.setUpdateTime(new Date());
         }
         statConclusionService.updateBatchById(statConclusionList);
         scheduledTasksExecutor.statisticByPlanIds(Lists.newArrayList(planId));
