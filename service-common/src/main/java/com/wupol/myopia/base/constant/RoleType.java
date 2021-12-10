@@ -1,7 +1,9 @@
 package com.wupol.myopia.base.constant;
 
 import cn.hutool.core.util.EnumUtil;
+import com.google.common.collect.ImmutableMap;
 import lombok.Getter;
+import org.springframework.util.Assert;
 
 import java.util.Arrays;
 import java.util.List;
@@ -14,12 +16,24 @@ import java.util.List;
  **/
 @Getter
 public enum RoleType {
-    /** 超级管理员 */
+    /** 管理平台角色类型 */
     SUPER_ADMIN(0, "超级管理员"),
     GOVERNMENT_DEPARTMENT(1, "政府部门类型角色"),
     SCREENING_ORGANIZATION(2, "筛查机构管理员类型角色"),
     PLATFORM_ADMIN(3,"平台管理员类型角色"),
-    HOSPITAL_ADMIN(4,"医院管理员类型角色");
+    HOSPITAL_ADMIN(4,"医院管理员类型角色"),
+
+    /** 医院端APP角色类型 */
+    RESIDENT_DOCTOR(5,"居民健康医生类型角色"),
+    PRESCHOOL_DOCTOR(6,"0-6岁眼检查医生类型角色");
+
+    private static final ImmutableMap<Integer, RoleType> HOSPITAL_ROLE_TYPE_MAP;
+
+    static {
+        HOSPITAL_ROLE_TYPE_MAP = ImmutableMap.of(
+                HospitalServiceType.RESIDENT.getType(), RESIDENT_DOCTOR,
+                HospitalServiceType.PRESCHOOL.getType(), PRESCHOOL_DOCTOR);
+    }
 
     /**
      * 类型
@@ -53,5 +67,18 @@ public enum RoleType {
      **/
     public static List<Object> getAllType() {
         return EnumUtil.getFieldValues(RoleType.class, "type");
+    }
+
+    /**
+     * 根据医院服务类型获取角色类型
+     *
+     * @param hospitalServiceType 医院服务类型
+     * @return java.lang.Integer
+     **/
+    public static RoleType getRoleTypeByHospitalServiceType(Integer hospitalServiceType) {
+        Assert.notNull(hospitalServiceType, "医院服务类型不能为空");
+        RoleType roleType = HOSPITAL_ROLE_TYPE_MAP.get(hospitalServiceType);
+        Assert.notNull(roleType, "没有匹配的角色类型");
+        return roleType;
     }
 }

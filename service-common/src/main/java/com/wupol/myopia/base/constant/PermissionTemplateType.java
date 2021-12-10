@@ -2,6 +2,7 @@ package com.wupol.myopia.base.constant;
 
 import cn.hutool.core.util.EnumUtil;
 import cn.hutool.core.util.StrUtil;
+import com.google.common.collect.ImmutableMap;
 import lombok.Getter;
 import org.springframework.util.Assert;
 
@@ -34,7 +35,19 @@ public enum PermissionTemplateType {
     PLATFORM_ADMIN(6, "平台管理员权限集合包"),
 
     /** 医院管理员 */
-    HOSPITAL_ADMIN(10, "医院管理端权限集合包");
+    HOSPITAL_ADMIN(10, "医院管理员权限集合包"),
+
+    /** 医院APP */
+    HOSPITAL_RESIDENT_APP(11, "居民健康APP权限集合包"),
+    HOSPITAL_PRESCHOOL_APP(12, "0-6岁眼保健APP权限集合包");
+
+    private static final ImmutableMap<Integer, Integer> HOSPITAL_PERMISSION_TEMPLATE_TYPE_MAP;
+
+    static {
+        HOSPITAL_PERMISSION_TEMPLATE_TYPE_MAP = ImmutableMap.of(
+                HospitalServiceType.RESIDENT.getType(), HOSPITAL_RESIDENT_APP.getType(),
+                HospitalServiceType.PRESCHOOL.getType(), HOSPITAL_PRESCHOOL_APP.getType());
+    }
 
     /**
      * 类型
@@ -110,5 +123,16 @@ public enum PermissionTemplateType {
     public static boolean isSpecialScreening(Integer type) {
         return SCREENING_ORGANIZATION.type.equals(type) || SCREENING_ORG_SINGLE.type.equals(type)
                 || SCREENING_ORG_VS666.type.equals(type) || SCREENING_ORG_SINGLE_AND_VS666.type.equals(type);
+    }
+
+    /**
+     * 根据医院服务类型获取权限模板类型
+     *
+     * @param hospitalServiceType 医院服务类型
+     * @return java.lang.Integer
+     **/
+    public static Integer getTemplateTypeByHospitalServiceType(Integer hospitalServiceType) {
+        Assert.notNull(hospitalServiceType, "医院服务类型不能为空");
+        return HOSPITAL_PERMISSION_TEMPLATE_TYPE_MAP.get(hospitalServiceType);
     }
 }

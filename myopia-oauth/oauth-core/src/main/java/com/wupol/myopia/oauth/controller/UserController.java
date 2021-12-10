@@ -227,4 +227,19 @@ public class UserController {
         Assert.isTrue(Objects.nonNull(user) && !CollectionUtils.isEmpty(user.getUserIds()), "用户Id不能为空");
         return userService.updateBatchById(user.getUserIds().stream().map(userId -> new User().setId(userId).setStatus(user.getStatus())).collect(Collectors.toList()));
     }
+
+    @DeleteMapping("/hospital/associated/role")
+    public boolean removeHospitalAssociatedRole() {
+        return true;
+    }
+
+    @PutMapping("/hospital/associated/role")
+    public boolean addHospitalAssociatedRole() {
+        return true;
+    }
+
+    @PutMapping("/docker/role")
+    public boolean updateDoctorRole() {
+        return true;
+    }
 }

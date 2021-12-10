@@ -3,6 +3,7 @@ package com.wupol.myopia.oauth.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.RoleType;
+import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.oauth.domain.dto.RoleDTO;
 import com.wupol.myopia.oauth.domain.mapper.RoleMapper;
@@ -162,5 +163,31 @@ public class RoleService extends BaseService<RoleMapper, Role> {
         if (!CollectionUtils.isEmpty(deletedLists)) {
             rolePermissionService.batchDeleted(roleId, deletedLists);
         }
+    }
+
+    /**
+     * 获取指定筛查机构的第一个角色
+     *
+     * @param screeningOrgId 筛查机构ID
+     * @return com.wupol.myopia.oauth.domain.model.Role
+     **/
+    public Role getScreeningOrgFirstOneRole(Integer screeningOrgId) {
+        Assert.notNull(screeningOrgId, "筛查机构ID不能为空");
+        return getOrgFirstOneRole(screeningOrgId, SystemCode.MANAGEMENT_CLIENT.getCode(), RoleType.SCREENING_ORGANIZATION.getType());
+    }
+
+    /**
+     * 获取指定机构的第一个角色
+     *
+     * @param orgId 筛查机构ID
+     * @param systemCode 系统编号
+     * @param roleType 角色类型
+     * @return com.wupol.myopia.oauth.domain.model.Role
+     **/
+    public Role getOrgFirstOneRole(Integer orgId, Integer systemCode, Integer roleType) {
+        Assert.notNull(orgId, "机构ID不能为空");
+        Assert.notNull(systemCode, "系统编号systemCode不能为空");
+        Assert.notNull(roleType, "角色类型roleType不能为空");
+        return baseMapper.getOrgFirstOneRole(orgId, systemCode, roleType);
     }
 }

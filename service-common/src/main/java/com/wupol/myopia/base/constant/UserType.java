@@ -31,4 +31,14 @@ public enum UserType {
         this.type = type;
         this.msg = descr;
     }
+
+    /**
+     * 是否为平台机构管理员用户
+     *
+     * @param userType 用户类型
+     * @return boolean
+     **/
+    public static boolean isPlatformOrgAdminUser(Integer userType) {
+        return SCREENING_ORGANIZATION_ADMIN.getType().equals(userType) || HOSPITAL_ADMIN.getType().equals(userType);
+    }
 }

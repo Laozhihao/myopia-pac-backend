@@ -1,6 +1,7 @@
 package com.wupol.myopia.oauth.service;
 
 import com.wupol.myopia.base.constant.AuthConstants;
+import com.wupol.myopia.base.constant.RoleType;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.oauth.domain.model.Role;
 import com.wupol.myopia.oauth.domain.model.SecurityUserDetails;
@@ -68,6 +69,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
      * @return com.wupol.myopia.oauth.domain.model.User
      **/
     private User validateAccount(Integer systemCode, String username) {
+        // 0-6岁客户端，实际上使用的是医院端
+        if (SystemCode.PRESCHOOL_CLIENT.getCode().equals(systemCode)) {
+            systemCode = SystemCode.HOSPITAL_CLIENT.getCode();
+        }
         User user = userService.getByUsername(username, systemCode);
         // TODO: 临时处理，允许筛查机构管理员登录。需要通过不同域名来区分不同的系统
         if (Objects.isNull(user) && SystemCode.MANAGEMENT_CLIENT.getCode().equals(systemCode)) {
@@ -76,9 +81,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         if (Objects.isNull(user)) {
             throw new AuthenticationCredentialsNotFoundException("账号或密码错误!");
         }
-        /*if (!organizationService.getOrgStatus(user.getOrgId(), user.getSystemCode(), user.getUserType())) {
+        if (!organizationService.getOrgStatus(user.getOrgId(), user.getSystemCode(), user.getUserType())) {
             throw new AccountExpiredException("该用户所在机构已被禁用!");
-        }*/
+        }
         return user;
     }
 
@@ -95,6 +100,14 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             return Collections.emptyList();
         }
         List<Role> roles = roleService.getUsableRoleByUserId(userId);
+        // 0-6岁系统客户端
+        if (SystemCode.PRESCHOOL_CLIENT.getCode().equals(systemCode)
+                && !roles.stream().filter(role -> RoleType.PRESCHOOL_DOCTOR.getType().equals(role.getRoleType())).findFirst().isPresent()) {
+            throw new AuthenticationCredentialsNotFoundException("该账号未分配0-6岁眼检查系统权限!");
+        } else if (SystemCode.HOSPITAL_CLIENT.getCode().equals(systemCode)
+                && !roles.stream().filter(role -> RoleType.RESIDENT_DOCTOR.getType().equals(role.getRoleType())).findFirst().isPresent()) { // 医院端
+            throw new AuthenticationCredentialsNotFoundException("该账号未分配居民眼健康系统权限!");
+        }
         if (CollectionUtils.isEmpty(roles)) {
             throw new AuthenticationCredentialsNotFoundException("该账号未分配权限!");
         }
