@@ -89,7 +89,8 @@ public class RoleController {
      * @return com.wupol.myopia.business.management.domain.dto.RoleDTO
      **/
     @PutMapping("/{roleId}/{status}")
-    public Role updateRoleStatus(@PathVariable @NotNull(message = "角色ID不能为空") Integer roleId, @PathVariable @NotNull(message = "角色状态不能为空") Integer status) {
+    public Role updateRoleStatus(@PathVariable @NotNull(message = "角色ID不能为空") Integer roleId,
+                                 @PathVariable @NotNull(message = "角色状态不能为空") Integer status) {
         return roleService.updateRoleStatus(roleId, status);
     }
 
