@@ -372,7 +372,7 @@ public class StatManagementController {
             }
         }
         statConclusionService.updateBatchById(statConclusionList);
-//        scheduledTasksExecutor.statisticByPlanIds(Lists.newArrayList(planId));
+        scheduledTasksExecutor.statisticByPlanIds(Lists.newArrayList(planId));
     }
 
     /**
