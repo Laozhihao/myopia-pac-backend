@@ -2,7 +2,9 @@ package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.ApiResult;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.api.management.service.HospitalStudentBizService;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.domain.model.District;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 工作台-患者
@@ -46,7 +49,14 @@ public class HospitalWorkbenchPatientController {
      * @return IPage<HospitalStudentResponseDTO>
      */
     @GetMapping("list")
-    public IPage<HospitalStudentResponseDTO> getByList(@Validated PageRequest pageRequest, @Validated HospitalStudentRequestDTO requestDTO) {
+    public IPage<HospitalStudentResponseDTO> getByList(@Validated PageRequest pageRequest, HospitalStudentRequestDTO requestDTO) {
+        if (CurrentUserUtil.getCurrentUser().isPlatformAdminUser()) {
+            if (Objects.isNull(requestDTO.getHospitalId())) {
+                throw new BusinessException("医院Id不能为空");
+            }
+        } else {
+            requestDTO.setHospitalId(CurrentUserUtil.getCurrentUser().getOrgId());
+        }
         return hospitalStudentBizService.getHospitalStudent(pageRequest, requestDTO);
     }
 
