@@ -336,11 +336,6 @@ public class StatManagementController {
 
     @GetMapping("/triggerById/{planId}")
     public void statTaskTriggerById(@PathVariable("planId") Integer planId) {
-        scheduledTasksExecutor.statisticByPlanIds(Lists.newArrayList(planId));
-    }
-
-    @GetMapping("/triggerByIda/{planId}")
-    public void statTaskTriggerByIdA(@PathVariable("planId") Integer planId) {
         List<VisionScreeningResult> byPlanIdsOrderByUpdateTimeDesc = visionScreeningResultService.getByPlanIdsOrderByUpdateTimeDesc(Sets.newHashSet(planId));
         Map<Integer, VisionScreeningResult> screeningResultMap = byPlanIdsOrderByUpdateTimeDesc.stream().collect(Collectors.toMap(VisionScreeningResult::getId, Function.identity()));
         List<Integer> resultId = byPlanIdsOrderByUpdateTimeDesc.stream().map(VisionScreeningResult::getId).collect(Collectors.toList());
@@ -373,6 +368,7 @@ public class StatManagementController {
             }
         }
         statConclusionService.updateBatchById(statConclusionList);
+        scheduledTasksExecutor.statisticByPlanIds(Lists.newArrayList(planId));
     }
 
     /**
