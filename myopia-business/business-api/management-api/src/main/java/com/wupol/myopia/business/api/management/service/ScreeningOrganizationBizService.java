@@ -225,6 +225,8 @@ public class ScreeningOrganizationBizService {
         UserDTO userDTO = new UserDTO();
         userDTO.setId(admin.getUserId())
                 .setPhone(screeningOrganization.getPhone())
+                .setOrgId(screeningOrganization.getId())
+                .setSystemCode(SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode())
                 .setRealName(screeningOrganization.getName());
         userDTO.setOrgConfigType(screeningOrganization.getConfigType());
         oauthServiceClient.updateUser(userDTO);

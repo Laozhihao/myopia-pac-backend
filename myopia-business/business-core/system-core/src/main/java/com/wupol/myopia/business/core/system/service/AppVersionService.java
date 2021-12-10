@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import java.util.Objects;
+
 /**
  * @Author HaoHao
  * @Date 2021-11-23
@@ -29,6 +31,9 @@ public class AppVersionService extends BaseService<AppVersionMapper, AppVersion>
         Assert.hasText(packageName, "packageName不能为空");
         Assert.hasText(channel, "channel不能为空");
         AppVersion appVersion = baseMapper.selectLatestVersionByPackageNameAndChannel(new AppVersion().setPackageName(packageName).setChannel(channel));
+        if (Objects.isNull(appVersion)) {
+            return null;
+        }
         String apkUrl = resourceFileService.getResourcePath(appVersion.getApkFileResourceId());
         return appVersion.setApkUrl(apkUrl);
     }
