@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.management.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -325,6 +326,11 @@ public class StatManagementController {
             return;
         }
         scheduledTasksExecutor.statisticByPlanIds(yesterdayScreeningPlanIds);
+    }
+
+    @GetMapping("/triggerById/{planId}")
+    public void statTaskTriggerById(@PathVariable("planId") Integer planId) {
+        scheduledTasksExecutor.statisticByPlanIds(Lists.newArrayList(planId));
     }
 
     /**
