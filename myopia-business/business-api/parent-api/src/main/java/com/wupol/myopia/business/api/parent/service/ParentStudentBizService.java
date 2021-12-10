@@ -492,7 +492,11 @@ public class ParentStudentBizService {
      */
     public Student getByIdCard(String idCard, Integer userId) {
         Student student = studentService.getByIdCard(idCard);
-        if (Objects.nonNull(student) && StringUtils.isNotBlank(student.getParentPhone())) {
+        if (Objects.isNull(student)) {
+            Parent parent = parentService.getParentByUserId(userId);
+            return new Student().setParentPhone(parent.getPhone());
+        }
+        if (StringUtils.isNotBlank(student.getParentPhone())) {
             return student;
         }
         Parent parent = parentService.getParentByUserId(userId);
