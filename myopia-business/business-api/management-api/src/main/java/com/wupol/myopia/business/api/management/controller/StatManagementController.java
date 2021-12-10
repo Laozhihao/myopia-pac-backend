@@ -368,6 +368,7 @@ public class StatManagementController {
                     }
                     boolean isMyopia = isLeftMyopia || isrightMyopia;
                     statConclusion.setIsMyopia(isMyopia);
+                    statConclusion.setUpdateTime(new Date());
                 }
             }
         }
