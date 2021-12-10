@@ -1,6 +1,5 @@
 package com.wupol.myopia.oauth.service;
 
-import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.*;
@@ -40,7 +39,6 @@ public class UserService extends BaseService<UserMapper, User> {
     private RoleService roleService;
     @Autowired
     private DistrictPermissionService districtPermissionService;
-
     @Autowired
     private RolePermissionService rolePermissionService;
 
@@ -285,7 +283,7 @@ public class UserService extends BaseService<UserMapper, User> {
         }
         // 获取用户最新信息
         UserWithRole userWithRole = UserWithRole.parseFromUser(getById(userId));
-        // 更新|绑定新角色
+        // 更新角色
         if (SystemCode.MANAGEMENT_CLIENT.getCode().equals(user.getSystemCode()) && UserType.SCREENING_ORGANIZATION_ADMIN.getType().equals(user.getUserType())) {
             // 更新筛查机构管理员权限
             updateScreeningOrgAdminRolePermission(user.getOrgConfigType(), user.getOrgId());
@@ -293,7 +291,7 @@ public class UserService extends BaseService<UserMapper, User> {
             // 更新医生角色
             updateDoctorRole(userId, user.getOrgConfigType());
         } else {
-            // 平台管理员、政府人员
+            // 平台管理员、政府人员绑定新角色
             List<Integer> roleIds = user.getRoleIds();
             List<Role> roles = CollectionUtils.isEmpty(roleIds) ? roleService.getRoleListByUserId(userId) : updateRole(roleIds, userId, user.getSystemCode(), user.getOrgId());
             userWithRole.setRoles(roles);
@@ -553,6 +551,14 @@ public class UserService extends BaseService<UserMapper, User> {
         userList.forEach(user -> updateDoctorRole(user.getId(), serviceType));
     }
 
+    /**
+     * 
+     * @Author HaoHao
+     * @Date 2021/12/10
+     * @param userId
+     * @param serviceType
+     * @return void
+     **/
     private void updateDoctorRole(Integer userId, Integer serviceType) {
         userRoleService.remove(new UserRole().setUserId(userId));
         UserDTO userDTO = new UserDTO();
