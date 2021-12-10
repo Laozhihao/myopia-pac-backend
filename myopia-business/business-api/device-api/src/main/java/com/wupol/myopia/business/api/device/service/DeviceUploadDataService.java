@@ -159,7 +159,7 @@ public class DeviceUploadDataService {
         Device device = deviceService.getDeviceByDeviceSn(deviceUploadDto.getImei());
         //如果不存在报错
         if (device == null) {
-            log.warn("无法找到设备,imei={}", deviceUploadDto.getImei());
+            log.debug("无法找到设备,imei={}", deviceUploadDto.getImei());
             return;
         }
         Integer bindingScreeningOrgId = device.getBindingScreeningOrgId();
