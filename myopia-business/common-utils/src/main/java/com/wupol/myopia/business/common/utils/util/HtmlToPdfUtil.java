@@ -111,6 +111,7 @@ public class HtmlToPdfUtil {
      **/
     private boolean checkResult(String htmlSrcPath, String pdfFilePath, int retryCount, int exitCode, String[] command) {
         if (exitCode == 0) {
+            log.info("[SUCCESS]-[html convert to pdf] {}", pdfFilePath);
             return true;
         }
         // 如果转换失败则重试
