@@ -37,6 +37,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -345,34 +346,34 @@ public class StatManagementController {
 
         for (StatConclusion statConclusion : statConclusionList) {
             VisionScreeningResult visionScreeningResult = screeningResultMap.get(statConclusion.getResultId());
-            if (Objects.isNull(visionScreeningResult)) {
-                break;
-            }
-            ComputerOptometryDO computerOptometry = visionScreeningResult.getComputerOptometry();
-            if (Objects.isNull(computerOptometry)) {
-                break;
-            }
-            BigDecimal leftSph = computerOptometry.getLeftEyeData().getSph();
-            BigDecimal leftCyl = computerOptometry.getLeftEyeData().getCyl();
-            BigDecimal rightSph = computerOptometry.getRightEyeData().getSph();
-            BigDecimal rightCyl = computerOptometry.getRightEyeData().getCyl();
+            if (Objects.nonNull(visionScreeningResult)) {
+                ComputerOptometryDO computerOptometry = visionScreeningResult.getComputerOptometry();
+                if (Objects.nonNull(computerOptometry)) {
+                    BigDecimal leftSpn = computerOptometry.getLeftEyeData().getSph().setScale(2, RoundingMode.HALF_UP);
+                    BigDecimal leftCyl = computerOptometry.getLeftEyeData().getCyl().setScale(2, RoundingMode.HALF_UP);
+                    BigDecimal rightSpn = computerOptometry.getRightEyeData().getSph().setScale(2, RoundingMode.HALF_UP);
+                    BigDecimal rightCyl = computerOptometry.getRightEyeData().getCyl().setScale(2, RoundingMode.HALF_UP);
 
-            MyopiaLevelEnum leftMyopiaWarningLevel = StatUtil.getMyopiaWarningLevel(leftSph.floatValue(), leftCyl.floatValue());
-            MyopiaLevelEnum rightMyopiaWarningLevel = StatUtil.getMyopiaWarningLevel(rightSph.floatValue(), rightCyl.floatValue());
-            boolean isLeftMyopia = false;
-            boolean isrightMyopia = false;
-            if (leftMyopiaWarningLevel != null) {
-                isLeftMyopia = StatUtil.isMyopia(leftMyopiaWarningLevel);
+
+                    Integer leftMyopiaLevel = null;
+                    Integer rightMyopiaLevel = null;
+                    Integer seriousLevel = 0;
+                    if (ObjectsUtil.allNotNull(leftSpn, leftCyl)) {
+                        leftMyopiaLevel = StatUtil.getMyopiaLevel(leftSpn.floatValue(), leftCyl.floatValue());
+                    }
+                    if (ObjectsUtil.allNotNull(rightSpn, rightCyl)) {
+                        rightMyopiaLevel = StatUtil.getMyopiaLevel(rightSpn.floatValue(), rightCyl.floatValue());
+                    }
+                    if (!ObjectsUtil.allNull(leftMyopiaLevel, rightMyopiaLevel)) {
+                        seriousLevel = StatUtil.getSeriousLevel(leftMyopiaLevel, rightMyopiaLevel);
+                    }
+                    statConclusion.setIsMyopia(StatUtil.isMyopia(seriousLevel));
+                    statConclusion.setUpdateTime(new Date());
+                }
             }
-            if (rightMyopiaWarningLevel != null) {
-                isrightMyopia = StatUtil.isMyopia(rightMyopiaWarningLevel);
-            }
-            boolean isMyopia = isLeftMyopia || isrightMyopia;
-            statConclusion.setIsMyopia(isMyopia);
-            statConclusion.setUpdateTime(new Date());
         }
         statConclusionService.updateBatchById(statConclusionList);
-        scheduledTasksExecutor.statisticByPlanIds(Lists.newArrayList(planId));
+//        scheduledTasksExecutor.statisticByPlanIds(Lists.newArrayList(planId));
     }
 
     /**
