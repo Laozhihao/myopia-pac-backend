@@ -337,6 +337,9 @@ public class StatManagementController {
     @GetMapping("/triggerById/{planId}")
     public void statTaskTriggerById(@PathVariable("planId") Integer planId) {
         List<VisionScreeningResult> byPlanIdsOrderByUpdateTimeDesc = visionScreeningResultService.getByPlanIdsOrderByUpdateTimeDesc(Sets.newHashSet(planId));
+        if (CollectionUtils.isEmpty(byPlanIdsOrderByUpdateTimeDesc)) {
+            return;
+        }
         Map<Integer, VisionScreeningResult> screeningResultMap = byPlanIdsOrderByUpdateTimeDesc.stream().collect(Collectors.toMap(VisionScreeningResult::getId, Function.identity()));
         List<Integer> resultId = byPlanIdsOrderByUpdateTimeDesc.stream().map(VisionScreeningResult::getId).collect(Collectors.toList());
         List<StatConclusion> statConclusionList = statConclusionService.getByResultIds(resultId);
