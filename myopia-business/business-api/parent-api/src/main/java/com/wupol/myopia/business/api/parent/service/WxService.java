@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.EncryptUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.StringUtils;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -159,9 +160,7 @@ public class WxService {
             // TODO: 临时还原异常现场，排查是否为系统bug
             String message = e.getMessage();
             if ("已经存在该手机号码".equals(message)) {
-                UserDTO user = new UserDTO();
-                user.setSystemCode(SystemCode.PATENT_CLIENT.getCode()).setPhone(wxLoginInfo.getPhone());
-                List<User> userList = oauthServiceClient.getUserList(user);
+                List<User> userList = oauthServiceClient.getUserBatchByPhones(Lists.newArrayList(wxLoginInfo.getPhone()),SystemCode.PATENT_CLIENT.getCode());
                 User existUser = userList.get(0);
                 Parent existParent = parentService.findOne(new Parent().setUserId(existUser.getId()));
                 if (Objects.isNull(existParent)) {
