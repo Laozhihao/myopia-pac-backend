@@ -33,9 +33,8 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
             throw new BusinessException("数据异常");
         }
         ParentStudent checkResult = baseMapper.getByParentIdAndStudentId(parentId, studentId);
-        if (Objects.nonNull(checkResult)) {
-            log.error("孩子已经绑定,家长Id:{},孩子Id:{}", parentId, studentId);
-            throw new BusinessException("孩子已经绑定");
+        if (null != checkResult) {
+            return;
         }
         parentStudent.setParentId(parentId);
         parentStudent.setStudentId(studentId);
