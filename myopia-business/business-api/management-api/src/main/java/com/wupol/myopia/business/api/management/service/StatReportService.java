@@ -1159,7 +1159,7 @@ public class StatReportService {
         resultMap.put("list", list);
         resultMap.put(TABLE_LABEL_AVERAGE_VISION, totalStat.get(TABLE_LABEL_AVERAGE_VISION));
         resultMap.put(TABLE_LABEL_TOTAL_RATIO, lastTotalLevelStat.getRatio());
-        resultMap.put("topStat", getTopStatList(totalLevelStat.subList(0, totalSize - 1)));
+        resultMap.put("topStat", getTopStatList(totalLevelStat.subList(1, totalSize - 1)));
         return resultMap;
     }
 
@@ -1169,18 +1169,15 @@ public class StatReportService {
      * @return
      */
     private Map<String, Object> composeGenderMyopiaLevelDesc(List<StatConclusion> statConclusions) {
-        List<StatConclusion> maleList =
-                statConclusions.stream()
-                        .filter(x -> GenderEnum.MALE.type.equals(x.getGender()))
-                        .collect(Collectors.toList());
-        List<StatConclusion> femaleList =
-                statConclusions.stream()
-                        .filter(x -> GenderEnum.FEMALE.type.equals(x.getGender()))
-                        .collect(Collectors.toList());
+        List<StatConclusion> maleList = statConclusions.stream()
+                .filter(x -> GenderEnum.MALE.type.equals(x.getGender())).collect(Collectors.toList());
+        List<StatConclusion> femaleList = statConclusions.stream()
+                .filter(x -> GenderEnum.FEMALE.type.equals(x.getGender())).collect(Collectors.toList());
+
         Map<String, Object> maleStat = composeMyopiaLevelStat(GenderEnum.MALE.name(), maleList);
-        Map<String, Object> femaleStat =
-                composeMyopiaLevelStat(GenderEnum.FEMALE.name(), femaleList);
+        Map<String, Object> femaleStat = composeMyopiaLevelStat(GenderEnum.FEMALE.name(), femaleList);
         Map<String, Object> totalStat = composeMyopiaLevelStat(TABLE_LABEL_TOTAL, statConclusions);
+
         List<Map<String, Object>> list = new ArrayList<>();
         list.add(maleStat);
         list.add(femaleStat);
@@ -1191,7 +1188,7 @@ public class StatReportService {
         Map<String, Object> resultMap = new HashMap<>();
         resultMap.put("list", list);
         resultMap.put(TABLE_LABEL_TOTAL_RATIO, lastTotalLevelStat.getRatio());
-        resultMap.put("topStat", getTopStatList(totalLevelStat.subList(0, totalLevelStatSize - 1)));
+        resultMap.put("topStat", getTopStatList(totalLevelStat.subList(1, totalLevelStatSize - 1)));
         return resultMap;
     }
 
