@@ -1443,15 +1443,13 @@ public class StatReportService {
      */
     private Map<String, Object> composeMyopiaLevelStat(String name,
                                                        List<StatConclusion> statConclusions) {
-        Predicate<StatConclusion> levelEarlyPredicate =
-                x -> MyopiaLevelEnum.MYOPIA_LEVEL_EARLY.code.equals(x.getMyopiaWarningLevel());
         Predicate<StatConclusion> levelOnePredicate =
                 x -> MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.code.equals(x.getMyopiaWarningLevel());
         Predicate<StatConclusion> levelTwoPredicate =
                 x -> MyopiaLevelEnum.MYOPIA_LEVEL_MIDDLE.code.equals(x.getMyopiaWarningLevel());
         Predicate<StatConclusion> levelThreePredicate =
                 x -> MyopiaLevelEnum.MYOPIA_LEVEL_HIGH.code.equals(x.getMyopiaWarningLevel());
-        return composeMyopiaLevelStat(name, statConclusions, levelEarlyPredicate, levelOnePredicate, levelTwoPredicate, levelThreePredicate);
+        return composeMyopiaLevelStat(name, statConclusions, levelOnePredicate, levelTwoPredicate, levelThreePredicate);
     }
 
     /**
@@ -1523,17 +1521,14 @@ public class StatReportService {
      * @return
      */
     private Map<String, Object> composeMyopiaLevelStat(String name, List<StatConclusion> statConclusions,
-                                                 Predicate<StatConclusion> levelEarlyPredicate,
                                                  Predicate<StatConclusion> levelOnePredicate,
                                                  Predicate<StatConclusion> levelTwoPredicate,
                                                  Predicate<StatConclusion> levelThreePredicate) {
         long rowTotal = statConclusions.size();
-        long levelEarlyNum = statConclusions.stream().filter(levelEarlyPredicate).count();
         long levelOneNum = statConclusions.stream().filter(levelOnePredicate).count();
         long levelTwoNum = statConclusions.stream().filter(levelTwoPredicate).count();
         long levelThreeNum = statConclusions.stream().filter(levelThreePredicate).count();
         List<BasicStatParams> list = new ArrayList<>();
-        list.add(composeBasicParams(MyopiaLevelEnum.MYOPIA_LEVEL_EARLY.desc, levelEarlyNum, rowTotal));
         list.add(composeBasicParams(MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.desc, levelOneNum, rowTotal));
         list.add(composeBasicParams(MyopiaLevelEnum.MYOPIA_LEVEL_MIDDLE.desc, levelTwoNum, rowTotal));
         list.add(composeBasicParams(MyopiaLevelEnum.MYOPIA_LEVEL_HIGH.desc, levelThreeNum, rowTotal));
