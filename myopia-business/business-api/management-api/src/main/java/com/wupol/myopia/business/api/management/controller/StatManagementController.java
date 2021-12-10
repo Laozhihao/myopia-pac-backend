@@ -354,7 +354,6 @@ public class StatManagementController {
                     BigDecimal rightSpn = computerOptometry.getRightEyeData().getSph().setScale(2, RoundingMode.HALF_UP);
                     BigDecimal rightCyl = computerOptometry.getRightEyeData().getCyl().setScale(2, RoundingMode.HALF_UP);
 
-
                     Integer leftMyopiaLevel = null;
                     Integer rightMyopiaLevel = null;
                     Integer seriousLevel = 0;
