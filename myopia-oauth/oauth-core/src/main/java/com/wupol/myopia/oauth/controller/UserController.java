@@ -253,6 +253,6 @@ public class UserController {
     @PutMapping("/doctor/role")
     public void updateDoctorRole(@NotNull(message = "hospitalId不能为空") Integer hospitalId,
                                  @NotNull(message = "serviceType不能为空") Integer serviceType) {
-        userService.updateDoctorRole(hospitalId, serviceType);
+        userService.updateDoctorRoleBatch(hospitalId, serviceType);
     }
 }
