@@ -59,7 +59,6 @@ public class HtmlToPdfUtil {
         Process process;
         try {
             ProcessBuilder processBuilder = new ProcessBuilder(command);
-            log.info(processBuilder.command().toString());
             processBuilder.redirectErrorStream(true);
             process = processBuilder.start();
         } catch (IOException e) {
@@ -70,7 +69,6 @@ public class HtmlToPdfUtil {
         try (BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
             String line;
             while ((line = br.readLine()) != null) {
-                log.info(line);
                 if (line.contains("Error")) {
                     log.error("【HTML转PDF异常】：" + line);
                     process.destroy();
