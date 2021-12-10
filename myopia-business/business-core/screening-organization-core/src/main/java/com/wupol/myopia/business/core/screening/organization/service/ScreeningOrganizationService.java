@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.StringUtils;
 import com.wupol.myopia.base.constant.SystemCode;
+import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.PasswordAndUsernameGenerator;
@@ -79,16 +80,17 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         }
 
         UserDTO userDTO = new UserDTO();
-        userDTO.setOrgId(org.getId())
+        userDTO.setOrgConfigType(org.getConfigType())
+                .setUserType(UserType.SCREENING_ORGANIZATION_ADMIN.getType())
+                .setOrgId(org.getId())
                 .setUsername(username)
                 .setPassword(password)
                 .setRealName(org.getName())
                 .setCreateUserId(org.getCreateUserId())
-                .setSystemCode(SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode());
+                .setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode());
         if (accountType.equals(PARENT_ACCOUNT)) {
             userDTO.setPhone(org.getPhone());
         }
-        userDTO.setOrgConfigType(org.getConfigType());
 
         User user = oauthServiceClient.addMultiSystemUser(userDTO);
         screeningOrganizationAdminService

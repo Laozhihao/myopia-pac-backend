@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
@@ -309,17 +308,6 @@ public class ScreeningOrganizationController {
     public List<ScreeningOrganization> getByName(String name) {
         Assert.notNull(name, "筛查机构名称不能为空");
         return screeningOrganizationService.getByNameLike(name);
-    }
-
-    /**
-     * 初始化筛查机构角色
-     *
-     * @return ApiResult
-     */
-    @GetMapping("resetOrg")
-    public ApiResult resetOrg() {
-        screeningOrganizationBizService.resetOrg();
-        return ApiResult.success();
     }
 
     /**

@@ -293,15 +293,6 @@ public interface OauthServiceClient {
     List<Integer> getListByTemplateType(@PathVariable("templateType") Integer templateType);
 
     /**
-     * 初始化筛查机构权限
-     *
-     * @param param param
-     * @return 是否成功
-     */
-    @PostMapping("/oauth/user/reset/org")
-    Boolean resetOrg(@RequestBody UserDTO param);
-
-    /**
      * 通过UserIds获取用户信息
      *
      * @param userIds 用户Ids

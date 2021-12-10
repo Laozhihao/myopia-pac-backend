@@ -1,5 +1,6 @@
 package com.wupol.myopia.oauth.service;
 
+import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.*;
@@ -420,14 +421,6 @@ public class UserService extends BaseService<UserMapper, User> {
         return role;
     }
 
-    public void resetScreeningOrg(UserDTO userDTO) {
-        User user = baseMapper.selectByOrgId(userDTO.getOrgId());
-        // 删除user_role
-        userRoleService.remove(new UserRole().setUserId(user.getId()));
-        // 创建role和user_role
-        generateScreeningOrgAdminUserRole(userDTO);
-    }
-
     /**
      * 更新筛查机构用户角色权限
      *
@@ -436,10 +429,10 @@ public class UserService extends BaseService<UserMapper, User> {
      **/
     public void updateScreeningOrgAdminRolePermission(UserDTO user) {
         Integer orgConfigType = user.getOrgConfigType();
-        if (!SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode().equals(user.getSystemCode()) || Objects.isNull(orgConfigType) || Objects.isNull(user.getOrgId())) {
+        if (!SystemCode.MANAGEMENT_CLIENT.getCode().equals(user.getSystemCode()) || !ObjectUtil.isAllNotEmpty(orgConfigType, user.getOrgId())) {
             return;
         }
-        List<User> userList = findByList(new User().setSystemCode(SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode()).setOrgId(user.getOrgId()));
+        List<User> userList = findByList(new User().setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode()).setOrgId(user.getOrgId()).setUserType(UserType.SCREENING_ORGANIZATION_ADMIN.getType()));
         userList.forEach(x -> updateScreeningOrgRolePermission(orgConfigType, x.getId()));
     }
 
