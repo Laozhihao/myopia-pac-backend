@@ -27,7 +27,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      * @param parentId  家长ID
      */
     @Transactional(rollbackFor = Exception.class)
-    public synchronized void parentBindStudent(Integer studentId, Integer parentId) {
+    public void parentBindStudent(Integer studentId, Integer parentId) {
         ParentStudent parentStudent = new ParentStudent();
         if (null == parentId || null == studentId) {
             throw new BusinessException("数据异常");
