@@ -152,6 +152,36 @@ public interface OauthServiceClient {
     Integer count(@SpringQueryMap UserDTO queryParam);
 
     /**
+     * 移除医院管理员关联的筛查机构管理员角色
+     *
+     * @param hospitalId 医院ID
+     * @param associateScreeningOrgId 关联筛查机构ID
+     * @return void
+     **/
+    @DeleteMapping("/oauth/user/hospital/associated/role")
+    void removeHospitalUserAssociatedScreeningOrgAdminRole(@RequestParam("hospitalId") Integer hospitalId, @RequestParam("associateScreeningOrgId") Integer associateScreeningOrgId);
+
+    /**
+     * 给医院管理员添加关联的筛查机构管理员角色
+     *
+     * @param hospitalId 医院ID
+     * @param associateScreeningOrgId 关联筛查机构ID
+     * @return void
+     **/
+    @PostMapping("/oauth/user/hospital/associated/role")
+    void addHospitalUserAssociatedScreeningOrgAdminRole(@RequestParam("hospitalId") Integer hospitalId, @RequestParam("associateScreeningOrgId") Integer associateScreeningOrgId);
+
+    /**
+     * 更新医生用户的角色
+     *
+     * @param hospitalId 医院ID
+     * @param serviceType 服务类型
+     * @return void
+     **/
+    @PutMapping("/oauth/user/doctor/role")
+    void updateDoctorRole(@RequestParam("hospitalId") Integer hospitalId, @RequestParam("serviceType") Integer serviceType);
+
+    /**
      * 获取角色列表
      *
      * @param param 查询参数
@@ -270,15 +300,6 @@ public interface OauthServiceClient {
      */
     @GetMapping("/oauth/districtPermission/permissionIds/{templateType}")
     List<Integer> getListByTemplateType(@PathVariable("templateType") Integer templateType);
-
-    /**
-     * 初始化筛查机构权限
-     *
-     * @param param param
-     * @return 是否成功
-     */
-    @PostMapping("/oauth/user/reset/org")
-    Boolean resetOrg(@RequestBody UserDTO param);
 
     /**
      * 通过UserIds获取用户信息

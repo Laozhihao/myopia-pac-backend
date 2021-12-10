@@ -14,6 +14,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -196,12 +197,6 @@ public class UserController {
         return userService.getIdsByOrgIds(orgIds, systemCode);
     }
 
-    @PostMapping("/reset/org")
-    public Boolean resetOrg(@RequestBody UserDTO userDTO) {
-        userService.resetScreeningOrg(userDTO);
-        return true;
-    }
-
     /**
      * 通过UserIds获取用户列表
      *
@@ -228,18 +223,42 @@ public class UserController {
         return userService.updateBatchById(user.getUserIds().stream().map(userId -> new User().setId(userId).setStatus(user.getStatus())).collect(Collectors.toList()));
     }
 
+    /**
+     * 移除医院管理员关联的筛查机构管理员角色
+     *
+     * @param hospitalId 医院ID
+     * @param associateScreeningOrgId 关联筛查机构ID
+     * @return void
+     **/
     @DeleteMapping("/hospital/associated/role")
-    public boolean removeHospitalAssociatedRole() {
-        return true;
+    public void removeHospitalUserAssociatedScreeningOrgAdminRole(@NotNull(message = "hospitalId不能为空") Integer hospitalId,
+                                                                  @NotNull(message = "associateScreeningOrgId不能为空") Integer associateScreeningOrgId) {
+        userService.removeHospitalUserAssociatedScreeningOrgAdminRole(hospitalId, associateScreeningOrgId);
     }
 
-    @PutMapping("/hospital/associated/role")
-    public boolean addHospitalAssociatedRole() {
-        return true;
+    /**
+     * 给医院管理员添加关联的筛查机构管理员角色
+     *
+     * @param hospitalId 医院ID
+     * @param associateScreeningOrgId 关联筛查机构ID
+     * @return void
+     **/
+    @PostMapping("/hospital/associated/role")
+    public void addHospitalUserAssociatedScreeningOrgAdminRole(@NotNull(message = "hospitalId不能为空") Integer hospitalId,
+                                                               @NotNull(message = "associateScreeningOrgId不能为空") Integer associateScreeningOrgId) {
+        userService.addHospitalUserAssociatedScreeningOrgAdminRole(hospitalId, associateScreeningOrgId);
     }
 
-    @PutMapping("/docker/role")
-    public boolean updateDoctorRole() {
-        return true;
+    /**
+     * 更新医生用户的角色
+     *
+     * @param hospitalId 医院ID
+     * @param serviceType 服务类型
+     * @return void
+     **/
+    @PutMapping("/doctor/role")
+    public void updateDoctorRole(@NotNull(message = "hospitalId不能为空") Integer hospitalId,
+                                 @NotNull(message = "serviceType不能为空") Integer serviceType) {
+        userService.updateDoctorRole(hospitalId, serviceType);
     }
 }

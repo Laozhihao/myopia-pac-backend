@@ -82,16 +82,17 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         }
 
         UserDTO userDTO = new UserDTO();
-        userDTO.setOrgId(org.getId())
+        userDTO.setOrgConfigType(org.getConfigType())
+                .setUserType(UserType.SCREENING_ORGANIZATION_ADMIN.getType())
+                .setOrgId(org.getId())
                 .setUsername(username)
                 .setPassword(password)
                 .setRealName(org.getName())
                 .setCreateUserId(org.getCreateUserId())
-                .setSystemCode(SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode());
+                .setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode());
         if (accountType.equals(PARENT_ACCOUNT)) {
             userDTO.setPhone(org.getPhone());
         }
-        userDTO.setOrgConfigType(org.getConfigType());
 
         User user = oauthServiceClient.addMultiSystemUser(userDTO);
         screeningOrganizationAdminService

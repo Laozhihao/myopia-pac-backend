@@ -1,5 +1,6 @@
 package com.wupol.myopia.oauth.service;
 
+import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.*;
@@ -175,7 +176,7 @@ public class UserService extends BaseService<UserMapper, User> {
         RoleType roleType = RoleType.getRoleTypeByHospitalServiceType(serviceType);
         Integer permissionTemplateType = PermissionTemplateType.getTemplateTypeByHospitalServiceType(serviceType);
         // 1.获取角色
-        Role role = roleService.findOne(new Role().setSystemCode(userDTO.getSystemCode()).setRoleType(roleType.getType()));
+        Role role = roleService.findOne(new Role().setSystemCode(systemCode).setRoleType(roleType.getType()));
         // 2.已经存在则直接绑定
         if (Objects.nonNull(role)) {
             userRoleService.save(new UserRole().setUserId(userDTO.getId()).setRoleId(role.getId()));
@@ -429,14 +430,6 @@ public class UserService extends BaseService<UserMapper, User> {
         return role;
     }
 
-    public void resetScreeningOrg(UserDTO userDTO) {
-        User user = baseMapper.selectByOrgId(userDTO.getOrgId());
-        // 删除user_role
-        userRoleService.remove(new UserRole().setUserId(user.getId()));
-        // 创建role和user_role
-        generateScreeningOrgAdminUserRole(userDTO);
-    }
-
     /**
      * 更新筛查机构用户角色权限
      *
@@ -445,10 +438,10 @@ public class UserService extends BaseService<UserMapper, User> {
      **/
     public void updateScreeningOrgAdminRolePermission(UserDTO user) {
         Integer orgConfigType = user.getOrgConfigType();
-        if (!SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode().equals(user.getSystemCode()) || Objects.isNull(orgConfigType) || Objects.isNull(user.getOrgId())) {
+        if (!SystemCode.MANAGEMENT_CLIENT.getCode().equals(user.getSystemCode()) || !ObjectUtil.isAllNotEmpty(orgConfigType, user.getOrgId())) {
             return;
         }
-        List<User> userList = findByList(new User().setSystemCode(SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode()).setOrgId(user.getOrgId()));
+        List<User> userList = findByList(new User().setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode()).setOrgId(user.getOrgId()).setUserType(UserType.SCREENING_ORGANIZATION_ADMIN.getType()));
         userList.forEach(x -> updateScreeningOrgRolePermission(orgConfigType, x.getId()));
     }
 
@@ -486,5 +479,56 @@ public class UserService extends BaseService<UserMapper, User> {
         UserDTO queryParam = new UserDTO();
         queryParam.setUserIds(userIds);
         return baseMapper.selectUserList(queryParam);
+    }
+
+    /**
+     * 移除医院管理员关联的筛查机构管理员角色
+     *
+     * @param hospitalId 医院ID
+     * @param associateScreeningOrgId 关联筛查机构ID
+     * @return void
+     **/
+    @Transactional(rollbackFor = Exception.class)
+    public void removeHospitalUserAssociatedScreeningOrgAdminRole(Integer hospitalId, Integer associateScreeningOrgId) {
+        List<User> userList = findByList(new User().setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode()).setUserType(UserType.HOSPITAL_ADMIN.getType()).setOrgId(hospitalId));
+        Role role = roleService.getOrgFirstOneRole(associateScreeningOrgId, SystemCode.MANAGEMENT_CLIENT.getCode(), RoleType.SCREENING_ORGANIZATION.getType());
+        Integer roleId = role.getId();
+        userList.forEach(user -> userRoleService.remove(new UserRole().setUserId(user.getId()).setRoleId(roleId)));
+    }
+
+    /**
+     * 给医院管理员添加关联的筛查机构管理员角色
+     *
+     * @param hospitalId 医院ID
+     * @param associateScreeningOrgId 关联筛查机构ID
+     * @return void
+     **/
+    @Transactional(rollbackFor = Exception.class)
+    public void addHospitalUserAssociatedScreeningOrgAdminRole(Integer hospitalId, Integer associateScreeningOrgId) {
+        List<User> userList = findByList(new User().setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode()).setUserType(UserType.HOSPITAL_ADMIN.getType()).setOrgId(hospitalId));
+        Role role = roleService.getOrgFirstOneRole(associateScreeningOrgId, SystemCode.MANAGEMENT_CLIENT.getCode(), RoleType.SCREENING_ORGANIZATION.getType());
+        Integer roleId = role.getId();
+        List<UserRole> userRoles = userList.stream().map(user -> new UserRole().setUserId(user.getId()).setRoleId(roleId)).collect(Collectors.toList());
+        userRoleService.saveBatch(userRoles);
+    }
+
+    /**
+     * 更新医生用户的角色
+     *
+     * @param hospitalId 医院ID
+     * @param serviceType 服务类型
+     * @return void
+     **/
+    @Transactional(rollbackFor = Exception.class)
+    public void updateDoctorRole(Integer hospitalId, Integer serviceType) {
+        List<User> userList = findByList(new User().setSystemCode(SystemCode.HOSPITAL_CLIENT.getCode()).setOrgId(hospitalId));
+        userList.forEach(user -> {
+            userRoleService.remove(new UserRole().setUserId(user.getId()));
+            UserDTO userDTO = new UserDTO();
+            userDTO.setOrgConfigType(serviceType)
+                    .setSystemCode(SystemCode.HOSPITAL_CLIENT.getCode())
+                    .setId(user.getId());
+            createHospitalDoctorRole(userDTO);
+        });
     }
 }

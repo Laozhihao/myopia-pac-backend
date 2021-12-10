@@ -68,11 +68,16 @@ public class HospitalBizService {
         if (hospitalService.checkHospitalName(hospital.getName(), hospital.getId())) {
             throw new BusinessException("医院名字重复，请确认");
         }
+        // 1.更新医院
         District district = districtService.getById(hospital.getDistrictId());
         hospital.setDistrictProvinceCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
+        Hospital oldHospital = hospitalService.getById(hospital.getId());
         // 设置医院状态
         hospital.setStatus(hospital.getCooperationStopStatus());
         hospitalService.updateById(hospital);
+        // 2.更新医院管理员和医生用户的账号权限
+        updateAdminAndDoctorAccountPermission(hospital, oldHospital.getAssociateScreeningOrgId());
+        // 3.返回最新消息
         // 同步到oauth机构状态
         oauthServiceClient.updateOrganization(new Organization(hospital.getId(), SystemCode.MANAGEMENT_CLIENT,
                 UserType.HOSPITAL_ADMIN, hospital.getStatus()));
@@ -204,5 +209,25 @@ public class HospitalBizService {
             username = mainUsername + adminList.size();
         }
         return hospitalService.generateAccountAndPassword(hospital, username, hospital.getAssociateScreeningOrgId());
+    }
+
+    /**
+     * 更新医院管理员和医生用户的账号权限
+     *
+     * @param newHospital 新的医院信息
+     * @param oldAssociateScreeningOrgId 旧关联筛查机构ID
+     * @return void
+     **/
+    private void updateAdminAndDoctorAccountPermission(Hospital newHospital, Integer oldAssociateScreeningOrgId) {
+        Integer newAssociateScreeningOrgId = newHospital.getAssociateScreeningOrgId();
+        // 医院管理员(关联筛查机构有变动才更新)
+        if ((Objects.isNull(oldAssociateScreeningOrgId) && Objects.nonNull(newAssociateScreeningOrgId))) {
+            oauthServiceClient.addHospitalUserAssociatedScreeningOrgAdminRole(newHospital.getId(), newAssociateScreeningOrgId);
+        } else if (Objects.nonNull(oldAssociateScreeningOrgId) && !oldAssociateScreeningOrgId.equals(newAssociateScreeningOrgId)){
+            oauthServiceClient.removeHospitalUserAssociatedScreeningOrgAdminRole(newHospital.getId(), oldAssociateScreeningOrgId);
+            oauthServiceClient.addHospitalUserAssociatedScreeningOrgAdminRole(newHospital.getId(), newAssociateScreeningOrgId);
+        }
+        // 医生用户
+        oauthServiceClient.updateDoctorRole(newHospital.getId(), newHospital.getServiceType());
     }
 }
