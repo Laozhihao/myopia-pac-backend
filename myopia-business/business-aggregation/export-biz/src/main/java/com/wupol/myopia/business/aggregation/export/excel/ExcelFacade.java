@@ -943,6 +943,7 @@ public class ExcelFacade {
      * @throws BusinessException 异常
      */
     @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_UNCOMMITTED)
+    @Async
     public void importABVStudent(MultipartFile multipartFile) throws ParseException {
         List<Map<Integer, String>> listMap = readExcelAbc(multipartFile);
         Map<Integer, String> integerStringMap = listMap.get(0);
