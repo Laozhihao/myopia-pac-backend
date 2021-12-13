@@ -80,7 +80,7 @@ public class CurrentUser {
      */
     @JsonIgnore
     public boolean isHospitalUser() {
-        return UserType.HOSPITAL_ADMIN.equals(userType) && SystemCode.MANAGEMENT_CLIENT.getCode().equals(systemCode);
+        return UserType.HOSPITAL_ADMIN.getType().equals(userType) && SystemCode.MANAGEMENT_CLIENT.getCode().equals(systemCode);
     }
 
 }
