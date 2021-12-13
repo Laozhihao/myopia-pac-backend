@@ -65,7 +65,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
-import java.text.Collator;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.util.*;
@@ -946,7 +945,6 @@ public class ExcelFacade {
      * @throws BusinessException 异常
      */
     @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_UNCOMMITTED)
-    @Async
     public void importABVStudent(MultipartFile multipartFile) throws ParseException {
         List<Map<Integer, String>> listMap = readExcelAbc(multipartFile);
         Map<Integer, String> integerStringMap = listMap.get(0);
