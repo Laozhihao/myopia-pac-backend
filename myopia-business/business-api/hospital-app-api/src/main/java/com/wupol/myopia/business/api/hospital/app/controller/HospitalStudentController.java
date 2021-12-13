@@ -88,5 +88,4 @@ public class HospitalStudentController {
         return ApiResult.success("更新成功");
     }
 
-
 }

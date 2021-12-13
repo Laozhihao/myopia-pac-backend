@@ -30,7 +30,6 @@ import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanServic
 import com.wupol.myopia.business.core.screening.flow.service.StatRescreenService;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccountListDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
-import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationAdmin;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationAdminService;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.stat.domain.model.SchoolVisionStatistic;
@@ -265,14 +264,13 @@ public class SchoolBizService {
             if (null != districtId) {
                 return new TwoTuple<>(districtId, null);
             }
-        } else if (currentUser.isScreeningUser()) {
+        } else if (currentUser.isScreeningUser() || (currentUser.isHospitalUser() && (Objects.nonNull(currentUser.getScreeningOrgId())))) {
             if (null != districtId) {
                 // 不为空说明是搜索条件
                 return new TwoTuple<>(districtId, null);
             }
             // 只能看到所属的省级数据
-            ScreeningOrganizationAdmin orgAdmin = screeningOrganizationAdminService.getByOrgId(currentUser.getOrgId());
-            ScreeningOrganization org = screeningOrganizationService.getById(orgAdmin.getScreeningOrgId());
+            ScreeningOrganization org = screeningOrganizationService.getById(currentUser.getScreeningOrgId());
             return districtService.getDistrictPrefix(org.getDistrictId());
         } else if (currentUser.isGovDeptUser()) {
             GovDept govDept = govDeptService.getById(currentUser.getOrgId());

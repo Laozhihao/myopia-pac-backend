@@ -64,7 +64,7 @@ public class ScreeningNoticeController {
             Assert.notNull(screeningNotice.getDistrictId(), "请选择行政区域");
             Assert.notNull(screeningNotice.getGovDeptId(), "请选择所处部门");
         }
-        if (user.isScreeningUser()) {
+        if (user.isScreeningUser() || user.isHospitalUser()) {
             throw new ValidationException("无权限");
         }
         if (user.isGovDeptUser()) {
@@ -194,9 +194,9 @@ public class ScreeningNoticeController {
         if (user.isGovDeptUser()) {
             query.setType(0);
             query.setGovDeptId(user.getOrgId());
-        } else if (user.isScreeningUser()) {
+        } else if (user.isScreeningUser() || (user.isHospitalUser() && (Objects.nonNull(user.getScreeningOrgId())))) {
             query.setType(1);
-            query.setGovDeptId(user.getOrgId());
+            query.setGovDeptId(user.getScreeningOrgId());
         }
         return screeningNoticeDeptOrgBizService.getPage(query, pageRequest);
     }

@@ -14,6 +14,7 @@ import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.hospital.domain.dto.DoctorDTO;
 import com.wupol.myopia.business.core.hospital.domain.mapper.DoctorMapper;
 import com.wupol.myopia.business.core.hospital.domain.model.Doctor;
+import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
 import com.wupol.myopia.business.core.hospital.domain.query.DoctorQuery;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
@@ -45,6 +46,9 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
 
     @Resource
     private OauthServiceClient oauthServiceClient;
+
+    @Autowired
+    private HospitalService hospitalService;
 
     /**
      * 保存医生
@@ -103,12 +107,15 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
         Doctor oldDoctor = getById(doctor.getId());
         User oldUser = oauthServiceClient.getUserDetailByUserId(oldDoctor.getUserId());
         boolean usernameIsUpdate = false;
+        Hospital hospital = hospitalService.getById(doctor.getHospitalId());
 
         UserDTO userDTO = new UserDTO();
         userDTO.setId(oldDoctor.getUserId())
                 .setGender(doctor.getGender())
                 .setRealName(doctor.getName())
                 .setOrgId(doctor.getHospitalId());
+        // 医生当前的医院配置
+        userDTO.setOrgConfigType(hospital.getServiceType());
 
         // 手机号码（即账号）已修改，重新生成密码
         if (StringUtils.isNotBlank(doctor.getPhone()) && (!doctor.getPhone().equals(oldUser.getPhone()))) {
@@ -133,6 +140,7 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
      */
     public UsernameAndPasswordDTO generateUserAndSaveDoctor(DoctorDTO doctor) {
         String password = PasswordAndUsernameGenerator.getDoctorPwd(doctor.getPhone(), new Date());
+        Hospital hospital = hospitalService.getById(doctor.getHospitalId());
         UserDTO userDTO = new UserDTO();
         userDTO.setOrgId(doctor.getHospitalId())
                 .setRealName(doctor.getName())
@@ -142,6 +150,8 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
                 .setPassword(password)
                 .setCreateUserId(doctor.getCreateUserId())
                 .setSystemCode(SystemCode.HOSPITAL_CLIENT.getCode());
+        // 医生当前的医院配置
+        userDTO.setOrgConfigType(hospital.getServiceType());
 
         User user = oauthServiceClient.addMultiSystemUser(userDTO);
         doctor.setUserId(user.getId());

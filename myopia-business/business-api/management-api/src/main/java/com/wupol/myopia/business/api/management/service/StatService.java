@@ -466,8 +466,8 @@ public class StatService {
      */
     private List<Integer> getCurrentUserDistrictIds(CurrentUser currentUser) {
         //TODO: 机构用户是否有权限调用此接口？
-        if (currentUser.isScreeningUser()) {
-            ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(currentUser.getOrgId());
+        if (currentUser.isScreeningUser() || (currentUser.isHospitalUser() && (Objects.nonNull(currentUser.getScreeningOrgId())))) {
+            ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(currentUser.getScreeningOrgId());
             District userDistrict = districtService.getById(screeningOrganization.getDistrictId());
             return districtService.getSpecificDistrictTreeAllDistrictIds(userDistrict.getId());
         }
@@ -690,7 +690,7 @@ public class StatService {
     public Map<Integer, List<ContrastTypeYearItemsDTO>> composeContrastTypeFilter(CurrentUser currentUser) {
         Map<Integer, List<ContrastTypeYearItemsDTO>> contrastTypeFilterMap = new HashMap<>(5);
         boolean isPlatformAdmin = currentUser.isPlatformAdminUser();
-        if (currentUser.isScreeningUser() || isPlatformAdmin) {
+        if (currentUser.isScreeningUser() || currentUser.isHospitalUser() || isPlatformAdmin) {
             List<ScreeningPlan> planList = managementScreeningPlanBizService.getScreeningPlanByUser(currentUser);
             contrastTypeFilterMap.put(ContrastTypeEnum.PLAN.code, getYearPlanList(planList));
         }

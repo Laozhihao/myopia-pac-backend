@@ -16,6 +16,8 @@ import com.wupol.myopia.business.api.management.validator.UserUpdateValidatorGro
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
+import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
+import com.wupol.myopia.business.core.hospital.service.HospitalService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
@@ -52,6 +54,8 @@ public class UserController {
     private DistrictService districtService;
     @Autowired
     private SchoolService schoolService;
+    @Autowired
+    private HospitalService hospitalService;
 
     /**
      * 分页获取用户列表
@@ -134,6 +138,14 @@ public class UserController {
                 userVO.setDistrictDetail(districtService.getDistrictPositionDetailById(screeningOrganization.getDistrictId()));
             }
             return userVO.setOrgName(screeningOrganization.getName()).setDistrictId(screeningOrganization.getDistrictId());
+        }
+        // 管理端 - 医院管理员用户
+        if (SystemCode.MANAGEMENT_CLIENT.getCode().equals(user.getSystemCode()) && UserType.HOSPITAL_ADMIN.getType().equals(user.getUserType())) {
+            Hospital hospital = hospitalService.getById(user.getOrgId());
+            if (Objects.nonNull(hospital.getDistrictId())) {
+                userVO.setDistrictDetail(districtService.getDistrictPositionDetailById(hospital.getDistrictId()));
+            }
+            return userVO.setOrgName(hospital.getName()).setDistrictId(hospital.getDistrictId());
         }
         // 学校端
         if (SystemCode.SCHOOL_CLIENT.getCode().equals(user.getSystemCode())) {

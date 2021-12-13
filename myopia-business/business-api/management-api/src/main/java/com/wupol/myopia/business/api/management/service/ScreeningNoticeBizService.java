@@ -95,6 +95,7 @@ public class ScreeningNoticeBizService {
         if (CollectionUtils.isEmpty(govOrgIds)) {
             return;
         }
+        // TODO wulizhou 这里要修改
         List<User> userBatchByOrgIds = oauthServiceClient.getUserBatchByOrgIds(govOrgIds, SystemCode.MANAGEMENT_CLIENT.getCode());
         List<Integer> toUserIds = userBatchByOrgIds.stream().map(User::getId).collect(Collectors.toList());
         if (!CollectionUtils.isEmpty(toUserIds)) {
@@ -120,9 +121,9 @@ public class ScreeningNoticeBizService {
             //这里只是查找政府的通知
             return screeningNoticeService.getAllReleaseNotice();
         }
-        if (user.isScreeningUser()) {
-            //该部门发布的通知
-            return screeningNoticeService.getNoticeBySreeningUser(user.getOrgId());
+        if (user.isScreeningUser() || (user.isHospitalUser() && (Objects.nonNull(user.getScreeningOrgId())))) {
+            //该机构发布的通知
+            return screeningNoticeService.getNoticeBySreeningUser(user.getScreeningOrgId());
         }
         return Collections.emptyList();
     }
