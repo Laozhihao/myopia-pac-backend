@@ -16,16 +16,27 @@ public class UsernameAndPasswordDTO {
 
     private String password;
 
+    private String realName;
+
     public UsernameAndPasswordDTO(String username, String password) {
         this.username = username;
         this.password = password;
         this.display = true;
     }
 
-    public void setNoDisplay() {
+    public UsernameAndPasswordDTO(String username, String password, String realName) {
+        this.username = username;
+        this.password = password;
+        this.realName = realName;
+        this.display = true;
+    }
+
+    public UsernameAndPasswordDTO setNoDisplay() {
         display = false;
         username = null;
         password = null;
+        realName = null;
+        return this;
     }
 
 }

@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.core.hospital.domain.handler;
 
 import com.wupol.myopia.business.common.utils.handler.BaseJsonTypeHandler;
-import com.wupol.myopia.business.core.hospital.domain.model.Consultation;
 import com.wupol.myopia.business.core.hospital.domain.model.EyePressure;
 
 /**

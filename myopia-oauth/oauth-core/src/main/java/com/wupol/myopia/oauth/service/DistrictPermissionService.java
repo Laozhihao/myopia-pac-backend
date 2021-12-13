@@ -56,9 +56,9 @@ public class DistrictPermissionService extends BaseService<DistrictPermissionMap
         // 政府部门
         if (PermissionTemplateType.isGovUser(templateType)) {
             RoleDTO roleDTO = new RoleDTO();
-            roleDTO.setOrgIds(govIds);
-            roleDTO.setRoleType(RoleType.GOVERNMENT_DEPARTMENT.getType());
-            roleDTO.setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode());
+            roleDTO.setOrgIds(govIds)
+                    .setRoleType(RoleType.GOVERNMENT_DEPARTMENT.getType())
+                    .setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode());
             // 通过部门Id获取角色
             List<Role> roleList = roleService.getRoleList(roleDTO);
             roleList.forEach(r -> roleService.updateRolePermission(r.getId(), templateType, permissionIds));
@@ -67,8 +67,8 @@ public class DistrictPermissionService extends BaseService<DistrictPermissionMap
         // 平台管理员
         if (PermissionTemplateType.PLATFORM_ADMIN.getType().equals(templateType)) {
             RoleDTO roleDTO = new RoleDTO();
-            roleDTO.setRoleType(RoleType.PLATFORM_ADMIN.getType());
-            roleDTO.setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode());
+            roleDTO.setRoleType(RoleType.PLATFORM_ADMIN.getType())
+                    .setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode());
             // 平台管理员通过RoleType来获取角色列表
             List<Role> roleList = roleService.getRoleList(roleDTO);
             roleList.forEach(r -> roleService.updateRolePermission(r.getId(), PermissionTemplateType.PLATFORM_ADMIN.getType(), permissionIds));
@@ -77,12 +77,16 @@ public class DistrictPermissionService extends BaseService<DistrictPermissionMap
         // 筛查机构-配置
         if (PermissionTemplateType.isSpecialScreening(templateType) && !CollectionUtils.isEmpty(orgIds)) {
             RoleDTO roleDTO = new RoleDTO();
-            roleDTO.setOrgIds(orgIds);
-            roleDTO.setSystemCode(SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode());
+            roleDTO.setOrgIds(orgIds)
+                    .setRoleType(RoleType.SCREENING_ORGANIZATION.getType())
+                    .setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode());
             // 通过部门Id获取角色
             List<Role> roleList = roleService.getRoleList(roleDTO);
             roleList.forEach(r -> roleService.updateRolePermission(r.getId(), templateType, permissionIds));
         }
+        // TODO: 更新医院管理员角色
+
+        // 更新模板权限
         remove(new DistrictPermission().setDistrictLevel(templateType));
         List<DistrictPermission> permissions = permissionIds.stream().distinct().map(x -> new DistrictPermission().setDistrictLevel(templateType).setPermissionId(x)).collect(Collectors.toList());
         return saveBatch(permissions);

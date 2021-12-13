@@ -3,7 +3,9 @@ package com.wupol.myopia.business.core.hospital.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
+import com.wupol.myopia.base.constant.StatusConstant;
 import com.wupol.myopia.base.constant.SystemCode;
+import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.PasswordAndUsernameGenerator;
@@ -20,6 +22,7 @@ import com.wupol.myopia.business.core.hospital.domain.model.HospitalAdmin;
 import com.wupol.myopia.business.core.hospital.domain.query.HospitalQuery;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
+import com.wupol.myopia.oauth.sdk.domain.response.Organization;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
@@ -28,9 +31,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * 医院Service
@@ -66,8 +69,13 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         }
         District district = districtService.getById(hospital.getDistrictId());
         hospital.setDistrictProvinceCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
+        // 设置医院状态
+        hospital.setStatus(hospital.getCooperationStopStatus());
         baseMapper.insert(hospital);
-        return generateAccountAndPassword(hospital, StringUtils.EMPTY);
+        // oauth系统中增加医院状态信息
+        oauthServiceClient.addOrganization(new Organization(hospital.getId(), SystemCode.MANAGEMENT_CLIENT,
+                UserType.HOSPITAL_ADMIN, hospital.getStatus()));
+        return generateAccountAndPassword(hospital, StringUtils.EMPTY, hospital.getAssociateScreeningOrgId());
     }
 
     /**
@@ -151,25 +159,21 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      *
      * @param hospital 医院
      * @param name     子账号名称
+     * @param associateScreeningOrgId 关联筛查机构的ID
      * @return UsernameAndPasswordDto 账号密码
      */
-    public UsernameAndPasswordDTO generateAccountAndPassword(Hospital hospital, String name) {
+    public UsernameAndPasswordDTO generateAccountAndPassword(Hospital hospital, String name, Integer associateScreeningOrgId) {
         String password = PasswordAndUsernameGenerator.getHospitalAdminPwd();
-        String username;
-        if (StringUtils.isBlank(name)) {
-            username = PasswordAndUsernameGenerator.getHospitalAdminUserName(hospitalAdminService.count() + 1);
-        } else {
-            username = name;
-        }
-
+        String username = StringUtils.isBlank(name) ? PasswordAndUsernameGenerator.getHospitalAdminUserName(hospitalAdminService.count() + 1) : name;
         UserDTO userDTO = new UserDTO();
         userDTO.setOrgId(hospital.getId())
                 .setUsername(username)
                 .setPassword(password)
                 .setRealName(hospital.getName())
                 .setCreateUserId(hospital.getCreateUserId())
-                .setSystemCode(SystemCode.HOSPITAL_CLIENT.getCode());
-
+                .setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode())
+                .setUserType(UserType.HOSPITAL_ADMIN.getType());
+        userDTO.setAssociateScreeningOrgId(associateScreeningOrgId);
         User user = oauthServiceClient.addMultiSystemUser(userDTO);
         hospitalAdminService.saveAdmin(hospital.getCreateUserId(), hospital.getId(), user.getId(), hospital.getGovDeptId());
         return new UsernameAndPasswordDTO(username, password);
@@ -223,18 +227,11 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      *
      * @param page       分页请求
      * @param govDeptId  政府机构Id
-     * @param name       医院名称
-     * @param type       医院类型
-     * @param kind       医院性质
-     * @param level      医院等级
-     * @param districtId 行政区域Id
-     * @param status     状态
+     * @param query      查询内容
      * @return {@link IPage}
      */
-    public IPage<HospitalResponseDTO> getHospitalListByCondition(Page<?> page, List<Integer> govDeptId,
-                                                                 String name, Integer type, Integer kind, Integer level,
-                                                                 Integer districtId, Integer status) {
-        return baseMapper.getHospitalListByCondition(page, govDeptId, name, type, kind, level, districtId, status);
+    public IPage<HospitalResponseDTO> getHospitalListByCondition(Page<?> page, List<Integer> govDeptId, HospitalQuery query) {
+        return baseMapper.getHospitalListByCondition(page, govDeptId, query);
     }
 
     /**
@@ -247,4 +244,53 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     public List<HospitalResponseDTO> getHospitalByName(String name, Integer codePre) {
         return baseMapper.getHospitalByName(name, codePre);
     }
+
+    /**
+     * 处理医院状态，将已过合作时间但未处理为禁止的医院设置为禁止
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public int handleHospitalStatus(Date date) {
+        List<Hospital> hospitals = getCooperationStopAndUnhandleHospital(date);
+        int result = 0;
+        for (Hospital hospital : hospitals) {
+            // 更新机构状态成功
+            if (updateHospitalStatus(hospital.getId(), StatusConstant.DISABLE, date, StatusConstant.ENABLE) > 0) {
+                // 更新oauth上机构的状态
+                oauthServiceClient.updateOrganization(new Organization(hospital.getId(), SystemCode.MANAGEMENT_CLIENT, UserType.HOSPITAL_ADMIN, StatusConstant.DISABLE));
+                result++;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 获取已过合作时间但未处理为禁止的医院
+     * @return
+     */
+    public List<Hospital> getCooperationStopAndUnhandleHospital(Date date) {
+        return baseMapper.getByCooperationTimeAndStatus(date, StatusConstant.ENABLE);
+    }
+
+    /**
+     * CAS更新医院状态，当且仅当源状态为sourceStatus，合作结束时间早于stopDate时更新状态为targetStatus，且限定id
+     * @param id
+     * @param targetStatus
+     * @param stopDate
+     * @param sourceStatus
+     * @return
+     */
+    public int updateHospitalStatus(Integer id, Integer targetStatus, Date stopDate, Integer sourceStatus) {
+        return baseMapper.updateHospitalStatus(id, targetStatus, stopDate, sourceStatus);
+    }
+
+    /**
+     * 获取指定合作结束时间的医院信息
+     * @param date 合作结束时间，只精确到day
+     * @return
+     */
+    public List<Hospital> getByCooperationEndTime(Date date) {
+        return baseMapper.getByCooperationEndTime(date);
+    }
+
 }

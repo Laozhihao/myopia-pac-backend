@@ -101,6 +101,11 @@ public class CommonConst {
     public final String EXPORT_MESSAGE_CONTENT_FAILURE = "【导出失败】%s，请稍后重试";
 
     /**
+     * 合作即将到期通知
+     */
+    public final String COOPERATION_WARNN_NOTICE = "%s将于%s合作终止，请注意！";
+
+    /**
      * 左眼
      */
     public final Integer LEFT_EYE = 0;

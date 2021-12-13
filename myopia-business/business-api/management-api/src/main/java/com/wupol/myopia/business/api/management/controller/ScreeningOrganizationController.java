@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
@@ -33,6 +32,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.List;
@@ -311,17 +311,6 @@ public class ScreeningOrganizationController {
     }
 
     /**
-     * 初始化筛查机构角色
-     *
-     * @return ApiResult
-     */
-    @GetMapping("resetOrg")
-    public ApiResult resetOrg() {
-        screeningOrganizationBizService.resetOrg();
-        return ApiResult.success();
-    }
-
-    /**
      * 获取筛查机构账号列表
      *
      * @param orgId 机构Id
@@ -341,5 +330,18 @@ public class ScreeningOrganizationController {
     @PostMapping("/add/account/{screeningOrgId}")
     public UsernameAndPasswordDTO addAccount(@PathVariable("screeningOrgId") Integer screeningOrgId) {
         return screeningOrganizationBizService.addAccount(screeningOrgId);
+    }
+
+    /**
+     * 模糊查询指定省份下筛查机构
+     *
+     * @param name 筛查机构名称
+     * @param provinceDistrictCode 省行政区域编码，如：110000000
+     * @return java.util.List<com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization>
+     **/
+    @GetMapping("/province/list")
+    public List<ScreeningOrganization> getListByProvinceCodeAndNameLike(@NotBlank(message = "筛查机构名称不能为空") String name,
+                                                                    @NotNull(message = "省行政区域编码不能为空") Long provinceDistrictCode) {
+        return screeningOrganizationService.getListByProvinceCodeAndNameLike(name, provinceDistrictCode);
     }
 }

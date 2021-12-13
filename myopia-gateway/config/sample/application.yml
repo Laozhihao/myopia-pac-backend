@@ -17,6 +17,13 @@ spring:
       - id: route_business
         uri: lb://myopia-business
         predicates:
+        - Path=/hospital/app/management/**, /hospital/app/parent/**
+        filters:
+        - StripPrefix=2
+
+      - id: route_business
+        uri: lb://myopia-business
+        predicates:
         - Path=/management/**, /hospital/**, /parent/**, /app/**, /api/**, /school/**, /preschool/**
 
     # 注册中心地址

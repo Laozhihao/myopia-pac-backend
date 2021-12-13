@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.aggregation.screening.domain.vos;
 
 import com.wupol.myopia.business.core.school.domain.dto.SchoolClassDTO;
-import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import lombok.Data;
 import lombok.experimental.Accessors;

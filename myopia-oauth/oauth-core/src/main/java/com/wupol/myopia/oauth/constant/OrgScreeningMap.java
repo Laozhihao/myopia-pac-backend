@@ -3,6 +3,7 @@ package com.wupol.myopia.oauth.constant;
 import com.wupol.myopia.base.constant.PermissionTemplateType;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 筛查机构配置Map
@@ -11,7 +12,7 @@ import java.util.HashMap;
  */
 public class OrgScreeningMap {
 
-    public static final HashMap<Integer, Integer> ORG_CONFIG_TYPE_TO_TEMPLATE = new HashMap<>();
+    public static final Map<Integer, Integer> ORG_CONFIG_TYPE_TO_TEMPLATE = new HashMap<>();
 
     /**
      * 省级

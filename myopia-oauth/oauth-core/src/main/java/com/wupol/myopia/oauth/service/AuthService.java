@@ -51,8 +51,8 @@ public class AuthService {
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.Permission>
      **/
     private List<Permission> cacheUserPermission(Integer userId, Integer systemCode, long expiresTime) {
-        // 只有管理端和筛查管理端的用户需要缓存权限
-        if (!SystemCode.MANAGEMENT_CLIENT.getCode().equals(systemCode) && !SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode().equals(systemCode)) {
+        // 只有管理端的用户需要缓存权限
+        if (!SystemCode.MANAGEMENT_CLIENT.getCode().equals(systemCode)) {
             return new ArrayList<>();
         }
         List<Permission> permissions = permissionService.getUserDistinctPermissionByUserId(userId);

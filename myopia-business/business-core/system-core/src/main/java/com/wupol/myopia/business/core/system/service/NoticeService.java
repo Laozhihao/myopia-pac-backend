@@ -1,6 +1,8 @@
 package com.wupol.myopia.business.core.system.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.myopia.base.constant.SystemCode;
+import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
@@ -9,7 +11,11 @@ import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.system.domain.dto.UnreadNoticeResponse;
 import com.wupol.myopia.business.core.system.domain.mapper.NoticeMapper;
 import com.wupol.myopia.business.core.system.domain.model.Notice;
+import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
+import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
+import com.wupol.myopia.oauth.sdk.domain.response.User;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -30,6 +36,9 @@ public class NoticeService extends BaseService<NoticeMapper, Notice> {
 
     @Resource
     private ResourceFileService resourceFileService;
+
+    @Autowired
+    private OauthServiceClient oauthServiceClient;
 
     /**
      * 获取通知列表
@@ -97,15 +106,15 @@ public class NoticeService extends BaseService<NoticeMapper, Notice> {
     }
 
     /**
-     * 筛查通知已读
+     * 通知已读
      *
      * @param currentUser       当前用户
      * @param screeningNoticeId 筛查通知ID
      * @return 是否成功
      */
     @Transactional(rollbackFor = Exception.class)
-    public Boolean readScreeningNotice(CurrentUser currentUser, Integer screeningNoticeId) {
-        return baseMapper.updateScreeningNotice(currentUser.getId(), screeningNoticeId) > 0;
+    public Boolean readNotice(CurrentUser currentUser, Integer screeningNoticeId) {
+        return baseMapper.updateNotice(currentUser.getId(), screeningNoticeId) > 0;
     }
 
     /**
@@ -142,8 +151,8 @@ public class NoticeService extends BaseService<NoticeMapper, Notice> {
      * @param endTime      结束时间
      */
     @Transactional(rollbackFor = Exception.class)
-    public void batchCreateScreeningNotice(Integer createUserId, Integer linkId, List<Integer> toUserIds, Byte type, String title, String content, Date startTime, Date endTime) {
-        baseMapper.batchCreateScreeningNotice(createUserId, linkId, toUserIds,
+    public void batchCreateNotice(Integer createUserId, Integer linkId, List<Integer> toUserIds, Byte type, String title, String content, Date startTime, Date endTime) {
+        baseMapper.batchCreateNotice(createUserId, linkId, toUserIds,
                 type, title, content, startTime, endTime);
     }
 
@@ -173,4 +182,21 @@ public class NoticeService extends BaseService<NoticeMapper, Notice> {
         String fullContent = String.format(CommonConst.EXPORT_MESSAGE_CONTENT_FAILURE, keyContent);
         createExportNotice(createUserId, noticeUserId, fullContent, fullContent, null, CommonConst.NOTICE_STATION_LETTER);
     }
+
+    /**
+     * 发送信息给所有平台管理员（不发送给自己）
+     * @param createUserId
+     * @param title
+     * @param content
+     * @param type
+     * @return
+     */
+    public void sendNoticeToAllAdmin(Integer createUserId, String title, String content, Byte type) {
+        UserDTO userDTO = new UserDTO();
+        userDTO.setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode()).setUserType(UserType.PLATFORM_ADMIN.getType());
+        List<User> userList = oauthServiceClient.getUserList(userDTO);
+        List<Integer> userIds = userList.stream().map(user -> user.getId()).filter(userId -> !userId.equals(createUserId)).collect(Collectors.toList());
+        batchCreateNotice(createUserId, null, userIds, type, title, content, null, null);
+    }
+
 }

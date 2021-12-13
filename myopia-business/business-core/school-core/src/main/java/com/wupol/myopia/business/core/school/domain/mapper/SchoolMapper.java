@@ -9,6 +9,7 @@ import com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -46,5 +47,11 @@ public interface SchoolMapper extends BaseMapper<School> {
     void updateStatus(@Param("request") StatusRequest request);
 
     School getBySchoolId(@Param("id") Integer id);
+
+    List<School> getByCooperationTimeAndStatus(@Param("date") Date date, @Param("status") Integer status);
+
+    int updateSchoolStatus(@Param("id") Integer id, @Param("targetStatus") Integer targetStatus, @Param("stopDate") Date stopDate, @Param("sourceStatus")Integer sourceStatus);
+
+    List<School> getByCooperationEndTime(@Param("date") Date date);
 
 }

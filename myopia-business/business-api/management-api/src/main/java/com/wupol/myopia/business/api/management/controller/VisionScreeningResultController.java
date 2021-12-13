@@ -133,12 +133,13 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
         boolean isSchoolExport = false;
 
         // 是否单点机构
-        if (currentUser.isScreeningUser() && ScreeningOrgConfigTypeEnum.CONFIG_TYPE_1.getType().equals(screeningOrganizationService.getById(currentUser.getOrgId()).getConfigType())) {
-            exportFileNamePrefix = checkNotNullAndGetName(screeningOrganizationService.getById(currentUser.getOrgId()), "筛查机构");
+        if (currentUser.isScreeningUser() || (currentUser.isHospitalUser() && (Objects.nonNull(currentUser.getScreeningOrgId())))
+                && ScreeningOrgConfigTypeEnum.CONFIG_TYPE_1.getType().equals(screeningOrganizationService.getById(currentUser.getScreeningOrgId()).getConfigType())) {
+            exportFileNamePrefix = checkNotNullAndGetName(screeningOrganizationService.getById(currentUser.getScreeningOrgId()), "筛查机构");
             if (Objects.isNull(planId)) {
                 throw new BusinessException("单点筛查机构PlanId不能为空");
             }
-            statConclusionExportVos = statConclusionService.getExportVoByScreeningPlanIdAndScreeningOrgId(planId, currentUser.getOrgId());
+            statConclusionExportVos = statConclusionService.getExportVoByScreeningPlanIdAndScreeningOrgId(planId, currentUser.getScreeningOrgId());
         } else {
             if (!CommonConst.DEFAULT_ID.equals(screeningOrgId)) {
                 exportFileNamePrefix = checkNotNullAndGetName(screeningOrganizationService.getById(screeningOrgId), "筛查机构");

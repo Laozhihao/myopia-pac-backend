@@ -27,7 +27,6 @@ import org.springframework.util.CollectionUtils;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @Classname VisionScreeningBizService2

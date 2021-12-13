@@ -28,6 +28,4 @@ public interface UserMapper extends BaseMapper<User> {
     List<UserWithRole> selectUserListWithRole(@Param("param") UserDTO queryParam);
 
     List<User> selectUserList(@Param("param") UserDTO queryParam);
-
-    User selectByOrgId(@Param("orgId") Integer orgId);
 }

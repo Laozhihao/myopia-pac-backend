@@ -145,8 +145,8 @@ public class ScreeningTaskBizService {
             return Collections.emptyList();
         }
         LambdaQueryWrapper<ScreeningTask> screeningTaskLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        if (user.isScreeningUser()) {
-            throw new BusinessException("筛查机构无权限获取任务信息");
+        if (user.isScreeningUser() || user.isHospitalUser()) {
+            throw new BusinessException("医院、筛查机构无权限获取任务信息");
         } else if (user.isGovDeptUser()) {
             List<Integer> allGovDeptIds = govDeptService.getAllSubordinate(user.getOrgId());
             allGovDeptIds.add(user.getOrgId());

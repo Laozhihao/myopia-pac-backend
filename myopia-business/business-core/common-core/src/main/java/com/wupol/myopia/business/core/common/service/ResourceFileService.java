@@ -38,6 +38,9 @@ public class ResourceFileService extends BaseService<ResourceFileMapper, Resourc
      * @return
      */
     public String getResourcePath(Integer fileId) {
+        if (Objects.isNull(fileId) || fileId < 1) {
+            return null;
+        }
         ResourceFile file = getById(fileId);
         if (Objects.isNull(file)) {
             return null;

@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.core.screening.organization.domain.handler;
 
-import com.wupol.myopia.business.common.utils.handler.BaseJsonTypeHandler;
 import com.wupol.myopia.business.common.utils.domain.model.NotificationConfig;
+import com.wupol.myopia.business.common.utils.handler.BaseJsonTypeHandler;
 
 /**
  * @author Alix

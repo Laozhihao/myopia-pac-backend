@@ -291,4 +291,5 @@ public class SchoolController {
         String size = String.format("%02d", Integer.parseInt(maxSchoolNo.substring(maxSchoolNo.length() - 2)) + 1);
         return ApiResult.success(schoolNo + size);
     }
+
 }
