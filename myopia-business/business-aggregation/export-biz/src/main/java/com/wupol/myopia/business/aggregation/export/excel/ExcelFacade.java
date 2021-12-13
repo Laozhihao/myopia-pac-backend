@@ -962,6 +962,19 @@ public class ExcelFacade {
         List<SchoolGradeExportDTO> grades = schoolGradeService.getBySchoolIds(Lists.newArrayList(school.getId()));
         schoolGradeService.packageGradeInfo(grades);
 
+        // 日期
+        List<String> errorDateList = new ArrayList<>();
+        listMap.forEach(map->{
+            try {
+                DateFormatUtil.parseDate(map.get(Import.BIRTHDAY.index), DateFormatUtil.FORMAT_ONLY_DATE_WITHOUT_LINE);
+            } catch (ParseException e) {
+                errorDateList.add(map.get(Import.BIRTHDAY.index));
+            }
+        });
+        if (!CollectionUtils.isEmpty(errorDateList)) {
+            throw new BusinessException("错误日期格式" + errorDateList);
+        }
+
         // 年级信息通过学校Id分组
         Map<Integer, List<SchoolGradeExportDTO>> schoolGradeMaps = grades.stream().collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolId));
         List<Long> idBatch = ScreeningCodeGenerator.getIdBatch(listMap.size());
@@ -969,7 +982,11 @@ public class ExcelFacade {
         for (Map<Integer, String> item : listMap) {
             log.info("一共:{}个,当前第:{}个,还剩余:{}个", listMap.size(), id + 1, listMap.size() - id);
             Student student = new Student();
-            student.setName(item.get(Import.NAME.index)).setGender(GenderEnum.getType(item.get(Import.GENDER.index))).setBirthday(DateFormatUtil.parseDate(item.get(Import.BIRTHDAY.index), DateFormatUtil.FORMAT_ONLY_DATE_WITHOUT_LINE)).setGradeType(GradeCodeEnum.getByName(item.get(Import.GRADE.index)).getType()).setCreateUserId(1).setSchoolId(school.getId());
+            student.setName(item.get(Import.NAME.index))
+                    .setGender(GenderEnum.getType(item.get(Import.GENDER.index)))
+                    .setBirthday(DateFormatUtil.parseDate(item.get(Import.BIRTHDAY.index), DateFormatUtil.FORMAT_ONLY_DATE_WITHOUT_LINE))
+                    .setGradeType(GradeCodeEnum.getByName(item.get(Import.GRADE.index)).getType())
+                    .setCreateUserId(1).setSchoolId(school.getId());
 
             // 通过学校编号获取改学校的年级信息
             List<SchoolGradeExportDTO> schoolGradeExportVOS = schoolGradeMaps.get(school.getId());
