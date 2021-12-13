@@ -947,9 +947,9 @@ public class StatReportService {
 
         long lowVisionNum = validConclusions.stream()
                 .filter(c -> Objects.nonNull(c.getNakedVisionWarningLevel())
-                        && (c.getNakedVisionWarningLevel().equals(WarningLevel.ONE.code)
-                        || c.getNakedVisionWarningLevel().equals(WarningLevel.TWO.code)
-                        || c.getNakedVisionWarningLevel().equals(WarningLevel.THREE.code))).count();
+                        && (WarningLevel.ONE.code.equals(c.getNakedVisionWarningLevel())
+                        || WarningLevel.TWO.code.equals(c.getNakedVisionWarningLevel())
+                        || WarningLevel.THREE.code.equals(c.getNakedVisionWarningLevel()))).count();
         resultMap.put("lowVisionRatio", convertToPercentage(lowVisionNum * 1f / validFirstScreeningNum));
         resultMap.put(TABLE_LABEL_AVERAGE_VISION, averageVisionValue);
 
