@@ -81,6 +81,6 @@ public class SchoolNoticeController {
     @PostMapping("screeningNotice/{screeningNoticeId}")
     public Boolean readScreeningNotice(@PathVariable("screeningNoticeId") Integer screeningNoticeId) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        return noticeService.readScreeningNotice(currentUser, screeningNoticeId);
+        return noticeService.readNotice(currentUser, screeningNoticeId);
     }
 }

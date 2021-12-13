@@ -1,25 +1,17 @@
 package com.wupol.myopia.business.core.school.management.domain.model;
 
-import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.wupol.myopia.base.util.DateFormatUtil;
-import com.wupol.myopia.base.util.RegularUtils;
-import com.wupol.myopia.business.common.utils.constant.SchoolAge;
-import com.wupol.myopia.business.common.utils.util.VisionUtil;
 import com.wupol.myopia.business.core.common.domain.model.AddressCode;
-import freemarker.core.BugException;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.Range;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.Objects;
 
 /**
  * 学校-学生表

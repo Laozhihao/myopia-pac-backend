@@ -89,7 +89,7 @@ public class ManagementScreeningPlanBizService {
         List<ScreeningNotice> screeningNotices = screeningNoticeBizService.getRelatedNoticeByUser(user);
         Set<Integer> screeningNoticeIds = screeningNotices.stream().map(ScreeningNotice::getId).collect(Collectors.toSet());
         // 筛查机构可以直接创建计划，不需要有通知下发
-        if (user.isScreeningUser() || user.isPlatformAdminUser()) {
+        if (user.isScreeningUser() || (user.isHospitalUser() && (Objects.nonNull(user.getScreeningOrgId()))) || user.isPlatformAdminUser()) {
             screeningNoticeIds.add(ScreeningConstant.NO_EXIST_NOTICE);
         }
         return this.getScreeningPlanByNoticeIdsAndUser(screeningNoticeIds, user);
@@ -104,8 +104,8 @@ public class ManagementScreeningPlanBizService {
      */
     public List<ScreeningPlan> getScreeningPlanByNoticeIdsAndUser(Set<Integer> noticeIds, CurrentUser user) {
         LambdaQueryWrapper<ScreeningPlan> screeningPlanLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        if (user.isScreeningUser()) {
-            screeningPlanLambdaQueryWrapper.eq(ScreeningPlan::getScreeningOrgId, user.getOrgId());
+        if (user.isScreeningUser() || (user.isHospitalUser() && (Objects.nonNull(user.getScreeningOrgId())))) {
+            screeningPlanLambdaQueryWrapper.eq(ScreeningPlan::getScreeningOrgId, user.getScreeningOrgId());
         } else if (user.isGovDeptUser()) {
             List<Integer> allGovDeptIds = govDeptService.getAllSubordinate(user.getOrgId());
             allGovDeptIds.add(user.getOrgId());
@@ -143,8 +143,8 @@ public class ManagementScreeningPlanBizService {
      */
     public List<ScreeningPlan> getScreeningPlanByTaskIdsAndUser(Set<Integer> taskIds, CurrentUser user) {
         LambdaQueryWrapper<ScreeningPlan> screeningPlanLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        if (user.isScreeningUser()) {
-            screeningPlanLambdaQueryWrapper.eq(ScreeningPlan::getScreeningOrgId, user.getOrgId());
+        if (user.isScreeningUser() || (user.isHospitalUser() && (Objects.nonNull(user.getScreeningOrgId())))) {
+            screeningPlanLambdaQueryWrapper.eq(ScreeningPlan::getScreeningOrgId, user.getScreeningOrgId());
         } else if (user.isGovDeptUser()) {
             List<Integer> allGovDeptIds = govDeptService.getAllSubordinate(user.getOrgId());
             allGovDeptIds.add(user.getOrgId());

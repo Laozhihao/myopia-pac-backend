@@ -2,6 +2,8 @@ package com.wupol.myopia.oauth.domain.dto;
 
 import com.wupol.myopia.oauth.domain.model.Role;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 import java.util.List;
 
@@ -9,6 +11,8 @@ import java.util.List;
  * @Author HaoHao
  * @Date 2021/1/27
  **/
+@Accessors(chain = true)
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class RoleDTO extends Role {
     /**

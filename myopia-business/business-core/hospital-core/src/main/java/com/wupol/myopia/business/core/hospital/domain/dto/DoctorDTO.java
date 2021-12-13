@@ -14,10 +14,20 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 public class DoctorDTO extends Doctor {
+
+    /** 性别：0-男、1-女 */
+    private Integer gender;
+    private Integer createUserId;
+    /** 手机号码 */
+    private String phone;
+    private Integer status;
     /** 报告数 */
     private Integer reportCount;
     /** 头像url */
     private String avatarUrl;
     /** 签名url */
     private String signUrl;
+    /** 医院名称 */
+    private String hospitalName;
+
 }

@@ -2,8 +2,12 @@ package com.wupol.myopia.business.core.hospital.domain.model;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.wupol.myopia.base.constant.StatusConstant;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.base.util.RegularUtils;
+import com.wupol.myopia.business.common.utils.annotation.CheckTimeInterval;
+import com.wupol.myopia.business.common.utils.handler.DateDeserializer;
 import com.wupol.myopia.business.core.common.domain.model.AddressCode;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -26,6 +30,7 @@ import java.util.Objects;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @TableName("m_hospital")
+@CheckTimeInterval(beginTime = "cooperationStartTime", endTime = "cooperationEndTime", message = "开始时间不能晚于结束时间")
 public class Hospital extends AddressCode implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -156,13 +161,13 @@ public class Hospital extends AddressCode implements Serializable {
     /**
      * 合作开始时间
      */
-    @NotNull(message = "合作开始时间不能为空")
+    @JsonDeserialize(using = DateDeserializer.class)
     private Date cooperationStartTime;
 
     /**
      * 合作结束时间
      */
-    @NotNull(message = "合作结束时间不能为空")
+    @JsonDeserialize(using = DateDeserializer.class)
     private Date cooperationEndTime;
 
     /**
@@ -180,6 +185,21 @@ public class Hospital extends AddressCode implements Serializable {
             return Math.max(0, (int) DateUtil.betweenDay(cooperationEndTime, new Date(), true));
         }
         return null;
+    }
+
+    /**
+     * 合作是否到期
+     * @return
+     */
+    public boolean isCooperationStop() {
+        if (Objects.nonNull(cooperationEndTime)) {
+            return cooperationEndTime.getTime() < new Date().getTime();
+        }
+        return true;
+    }
+
+    public int getCooperationStopStatus() {
+        return isCooperationStop() ? StatusConstant.DISABLE : StatusConstant.ENABLE;
     }
 
 }

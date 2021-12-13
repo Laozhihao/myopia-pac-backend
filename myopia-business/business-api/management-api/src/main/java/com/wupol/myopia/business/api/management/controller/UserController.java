@@ -3,6 +3,7 @@ package com.wupol.myopia.business.api.management.controller;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.constant.SystemCode;
+import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
@@ -15,6 +16,8 @@ import com.wupol.myopia.business.api.management.validator.UserUpdateValidatorGro
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
+import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
+import com.wupol.myopia.business.core.hospital.service.HospitalService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
@@ -51,6 +54,8 @@ public class UserController {
     private DistrictService districtService;
     @Autowired
     private SchoolService schoolService;
+    @Autowired
+    private HospitalService hospitalService;
 
     /**
      * 分页获取用户列表
@@ -119,7 +124,7 @@ public class UserController {
         // 屏蔽密码
         userVO.setPassword(null);
         // 管理端 - 平台管理员或政府部门人员用户
-        if (SystemCode.MANAGEMENT_CLIENT.getCode().equals(user.getSystemCode())) {
+        if (SystemCode.MANAGEMENT_CLIENT.getCode().equals(user.getSystemCode()) && (UserType.PLATFORM_ADMIN.getType().equals(user.getUserType()) || UserType.GOVERNMENT_ADMIN.getType().equals(user.getUserType()))) {
             GovDept govDept = govDeptService.getById(user.getOrgId());
             if (Objects.nonNull(govDept.getDistrictId())) {
                 userVO.setDistrictDetail(districtService.getDistrictPositionDetailById(govDept.getDistrictId()));
@@ -127,13 +132,22 @@ public class UserController {
             return userVO.setOrgName(govDept.getName()).setDistrictId(govDept.getDistrictId());
         }
         // 管理端 - 筛查机构管理员用户
-        if (SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode().equals(user.getSystemCode())) {
+        if (SystemCode.MANAGEMENT_CLIENT.getCode().equals(user.getSystemCode()) && UserType.SCREENING_ORGANIZATION_ADMIN.getType().equals(user.getUserType())) {
             ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(user.getOrgId());
             if (Objects.nonNull(screeningOrganization.getDistrictId())) {
                 userVO.setDistrictDetail(districtService.getDistrictPositionDetailById(screeningOrganization.getDistrictId()));
             }
             return userVO.setOrgName(screeningOrganization.getName()).setDistrictId(screeningOrganization.getDistrictId());
         }
+        // 管理端 - 医院管理员用户
+        if (SystemCode.MANAGEMENT_CLIENT.getCode().equals(user.getSystemCode()) && UserType.HOSPITAL_ADMIN.getType().equals(user.getUserType())) {
+            Hospital hospital = hospitalService.getById(user.getOrgId());
+            if (Objects.nonNull(hospital.getDistrictId())) {
+                userVO.setDistrictDetail(districtService.getDistrictPositionDetailById(hospital.getDistrictId()));
+            }
+            return userVO.setOrgName(hospital.getName()).setDistrictId(hospital.getDistrictId());
+        }
+        // 学校端
         if (SystemCode.SCHOOL_CLIENT.getCode().equals(user.getSystemCode())) {
             School school = schoolService.getById(user.getOrgId());
             return userVO.setOrgName(school.getName());

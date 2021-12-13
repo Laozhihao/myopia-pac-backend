@@ -11,10 +11,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -49,10 +46,10 @@ public class SchoolVisionStatisticBizService {
             List<ScreeningPlan> screeningPlans = screeningPlanService.getAllPlanByNoticeId(noticeId);
             return getStatisticDtoByPlanIdsAndOrgId(screeningPlans, districtIds);
         }
-        if (user.isScreeningUser()) {
+        if (user.isScreeningUser() || (user.isHospitalUser() && (Objects.nonNull(user.getScreeningOrgId())))) {
             LambdaQueryWrapper<SchoolVisionStatistic> queryWrapper = new LambdaQueryWrapper<>();
             queryWrapper.eq(SchoolVisionStatistic::getScreeningNoticeId, noticeId);
-            queryWrapper.eq(SchoolVisionStatistic::getScreeningOrgId, user.getOrgId());
+            queryWrapper.eq(SchoolVisionStatistic::getScreeningOrgId, user.getScreeningOrgId());
             return schoolVisionStatisticService.list(queryWrapper);
         }
         Set<Integer> noticeIds = new HashSet<>();

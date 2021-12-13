@@ -1,12 +1,8 @@
 package com.wupol.myopia.business.core.hospital.domain.model;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.wupol.myopia.business.core.hospital.domain.handler.DiseaseTypeHandler;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-
-import java.util.List;
 
 /**
  * 眼压

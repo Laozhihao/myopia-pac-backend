@@ -4,7 +4,9 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.StringUtils;
+import com.wupol.myopia.base.constant.StatusConstant;
 import com.wupol.myopia.base.constant.SystemCode;
+import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.PasswordAndUsernameGenerator;
@@ -22,6 +24,7 @@ import com.wupol.myopia.business.core.screening.organization.domain.model.Screen
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationAdmin;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
+import com.wupol.myopia.oauth.sdk.domain.response.Organization;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,16 +82,17 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         }
 
         UserDTO userDTO = new UserDTO();
-        userDTO.setOrgId(org.getId())
+        userDTO.setOrgConfigType(org.getConfigType())
+                .setUserType(UserType.SCREENING_ORGANIZATION_ADMIN.getType())
+                .setOrgId(org.getId())
                 .setUsername(username)
                 .setPassword(password)
                 .setRealName(org.getName())
                 .setCreateUserId(org.getCreateUserId())
-                .setSystemCode(SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode());
+                .setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode());
         if (accountType.equals(PARENT_ACCOUNT)) {
             userDTO.setPhone(org.getPhone());
         }
-        userDTO.setOrgConfigType(org.getConfigType());
 
         User user = oauthServiceClient.addMultiSystemUser(userDTO);
         screeningOrganizationAdminService
@@ -358,4 +362,53 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         }
         return 1;
     }
+
+    /**
+     * 处理机构状态，将已过合作时间但未处理为禁止的机构设置为禁止
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public int handleOrganizationStatus(Date date) {
+        List<ScreeningOrganization> orgs = getCooperationStopAndUnhandleOrganization(date);
+        int result = 0;
+        for (ScreeningOrganization org : orgs) {
+            // 更新机构状态成功
+            if (updateOrganizationStatus(org.getId(), StatusConstant.DISABLE, date, StatusConstant.ENABLE) > 0) {
+                // 更新oauth上机构的状态（同时影响筛查管理端跟筛查端）
+                oauthServiceClient.updateOrganization(new Organization(org.getId(), SystemCode.MANAGEMENT_CLIENT, UserType.SCREENING_ORGANIZATION_ADMIN, StatusConstant.DISABLE));
+                result++;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 获取已过合作时间但未处理为禁止的机构
+     * @return
+     */
+    public List<ScreeningOrganization> getCooperationStopAndUnhandleOrganization(Date date) {
+        return baseMapper.getByCooperationTimeAndStatus(date, StatusConstant.ENABLE);
+    }
+
+    /**
+     * CAS更新机构状态，当且仅当源状态为sourceStatus，合作结束时间早于stopDate时更新状态为targetStatus，且限定id
+     * @param id
+     * @param targetStatus
+     * @param stopDate
+     * @param sourceStatus
+     * @return
+     */
+    public int updateOrganizationStatus(Integer id, Integer targetStatus, Date stopDate, Integer sourceStatus) {
+        return baseMapper.updateOrganizationStatus(id, targetStatus, stopDate, sourceStatus);
+    }
+
+    /**
+     * 获取指定合作结束时间的筛查机构信息
+     * @param date 合作结束时间，只精确到day
+     * @return
+     */
+    public List<ScreeningOrganization> getByCooperationEndTime(Date date) {
+        return baseMapper.getByCooperationEndTime(date);
+    }
+
 }

@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.core.school.domain.dto;
 
-import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import lombok.Getter;
 import lombok.Setter;
 

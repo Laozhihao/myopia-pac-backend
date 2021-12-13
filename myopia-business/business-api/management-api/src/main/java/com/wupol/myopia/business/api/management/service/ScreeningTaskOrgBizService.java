@@ -107,10 +107,11 @@ public class ScreeningTaskOrgBizService {
 
         // 查找org的userId
         List<ScreeningOrganizationAdmin> adminLists = screeningOrganizationAdminService.getByOrgIds(orgLists.stream().map(ScreeningTaskOrg::getScreeningOrgId).collect(Collectors.toList()));
+        // TODO wulizhou 增加通知绑定了该筛查机构的医院信息
         if (!org.springframework.util.CollectionUtils.isEmpty(adminLists)) {
             List<Integer> toUserIds = adminLists.stream().map(ScreeningOrganizationAdmin::getUserId).collect(Collectors.toList());
             // 为消息中心创建通知
-            noticeService.batchCreateScreeningNotice(user.getId(), screeningTask.getScreeningNoticeId(), toUserIds, CommonConst.NOTICE_SCREENING_DUTY, screeningTask.getTitle(), screeningTask.getTitle(), screeningTask.getStartTime(), screeningTask.getEndTime());
+            noticeService.batchCreateNotice(user.getId(), screeningTask.getScreeningNoticeId(), toUserIds, CommonConst.NOTICE_SCREENING_DUTY, screeningTask.getTitle(), screeningTask.getTitle(), screeningTask.getStartTime(), screeningTask.getEndTime());
         }
         return result;
     }

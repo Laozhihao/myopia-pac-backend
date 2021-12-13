@@ -105,11 +105,4 @@
         FROM o_user u
         <include refid="Base_Like_Where_Clause"/>
     </select>
-
-    <select id="selectByOrgId" resultMap="BaseResultMap">
-        select *
-        from o_user
-        where org_id = #{orgId}
-        and system_code = 6
-    </select>
 </mapper>

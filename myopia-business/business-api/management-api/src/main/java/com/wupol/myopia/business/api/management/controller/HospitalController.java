@@ -19,7 +19,6 @@ import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
 import com.wupol.myopia.business.core.hospital.domain.query.HospitalQuery;
 import com.wupol.myopia.business.core.hospital.service.HospitalService;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccountListDTO;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -187,7 +186,13 @@ public class HospitalController {
      * @return UsernameAndPasswordDTO
      */
     @PostMapping("/add/account/{hospitalId}")
-    public UsernameAndPasswordDTO addAccount(@PathVariable("hospitalId") Integer hospitalId) {
+    public UsernameAndPasswordDTO addAccount(@PathVariable("hospitalId")  Integer hospitalId) {
         return hospitalBizService.addHospitalAdminUserAccount(hospitalId);
     }
+
+    @GetMapping("/byName")
+    public List<HospitalResponseDTO> getByName(String name) {
+        return hospitalBizService.getHospitalByName(name, null);
+    }
+
 }
