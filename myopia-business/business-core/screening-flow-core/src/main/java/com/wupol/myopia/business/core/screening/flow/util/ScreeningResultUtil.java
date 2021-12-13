@@ -1524,7 +1524,7 @@ public class ScreeningResultUtil {
     private RefractoryResultItems.Item packageSpnItem(BigDecimal spn) {
         RefractoryResultItems.Item spnItems = new RefractoryResultItems.Item();
         spnItems.setVision(spn);
-        spnItems.setTypeName(spn.abs().multiply(new BigDecimal("100")) + "度");
+        spnItems.setTypeName(spn.abs().multiply(new BigDecimal("100")).intValue() + "度");
         return spnItems;
     }
 }

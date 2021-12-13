@@ -691,13 +691,13 @@ public class StatReportService {
     private List<StatSchoolPersonnelDTO> getSchoolPersonnel(List<School> schools, Map<Integer, Long> planSchoolStudentMap,
                                                             Map<Integer, List<StatConclusion>> schoolFirstScreenMap, Map<Integer, List<StatConclusion>> schoolValidMap) {
         List<StatSchoolPersonnelDTO> schoolPersonnels = schools.stream().map(school -> {
-            StatSchoolPersonnelDTO persionnel = new StatSchoolPersonnelDTO();
-            persionnel.setName(school.getName())
-                    .setPlanScreeningNum(planSchoolStudentMap.getOrDefault(school.getId(), 0L))
-                    .setActualScreeningNum(schoolFirstScreenMap.getOrDefault(school.getId(), Collections.emptyList()).size())
-                    .setValidFirstScreeningNum(schoolValidMap.getOrDefault(school.getId(), Collections.emptyList()).size());
-            return persionnel;
-        })
+                    StatSchoolPersonnelDTO persionnel = new StatSchoolPersonnelDTO();
+                    persionnel.setName(school.getName())
+                            .setPlanScreeningNum(planSchoolStudentMap.getOrDefault(school.getId(), 0L))
+                            .setActualScreeningNum(schoolFirstScreenMap.getOrDefault(school.getId(), Collections.emptyList()).size())
+                            .setValidFirstScreeningNum(schoolValidMap.getOrDefault(school.getId(), Collections.emptyList()).size());
+                    return persionnel;
+                })
                 .sorted(Comparator.comparing(StatSchoolPersonnelDTO::getActualScreeningNum).reversed()
                         .thenComparing(StatSchoolPersonnelDTO::getPlanScreeningNum,Comparator.reverseOrder()))
                 .collect(Collectors.toList());
@@ -1159,7 +1159,7 @@ public class StatReportService {
         resultMap.put("list", list);
         resultMap.put(TABLE_LABEL_AVERAGE_VISION, totalStat.get(TABLE_LABEL_AVERAGE_VISION));
         resultMap.put(TABLE_LABEL_TOTAL_RATIO, lastTotalLevelStat.getRatio());
-        resultMap.put("topStat", getTopStatList(totalLevelStat.subList(0, totalSize - 1)));
+        resultMap.put("topStat", getTopStatList(totalLevelStat.subList(1, totalSize - 1)));
         return resultMap;
     }
 
@@ -1169,18 +1169,15 @@ public class StatReportService {
      * @return
      */
     private Map<String, Object> composeGenderMyopiaLevelDesc(List<StatConclusion> statConclusions) {
-        List<StatConclusion> maleList =
-                statConclusions.stream()
-                        .filter(x -> GenderEnum.MALE.type.equals(x.getGender()))
-                        .collect(Collectors.toList());
-        List<StatConclusion> femaleList =
-                statConclusions.stream()
-                        .filter(x -> GenderEnum.FEMALE.type.equals(x.getGender()))
-                        .collect(Collectors.toList());
+        List<StatConclusion> maleList = statConclusions.stream()
+                .filter(x -> GenderEnum.MALE.type.equals(x.getGender())).collect(Collectors.toList());
+        List<StatConclusion> femaleList = statConclusions.stream()
+                .filter(x -> GenderEnum.FEMALE.type.equals(x.getGender())).collect(Collectors.toList());
+
         Map<String, Object> maleStat = composeMyopiaLevelStat(GenderEnum.MALE.name(), maleList);
-        Map<String, Object> femaleStat =
-                composeMyopiaLevelStat(GenderEnum.FEMALE.name(), femaleList);
+        Map<String, Object> femaleStat = composeMyopiaLevelStat(GenderEnum.FEMALE.name(), femaleList);
         Map<String, Object> totalStat = composeMyopiaLevelStat(TABLE_LABEL_TOTAL, statConclusions);
+
         List<Map<String, Object>> list = new ArrayList<>();
         list.add(maleStat);
         list.add(femaleStat);
@@ -1191,7 +1188,7 @@ public class StatReportService {
         Map<String, Object> resultMap = new HashMap<>();
         resultMap.put("list", list);
         resultMap.put(TABLE_LABEL_TOTAL_RATIO, lastTotalLevelStat.getRatio());
-        resultMap.put("topStat", getTopStatList(totalLevelStat.subList(0, totalLevelStatSize - 1)));
+        resultMap.put("topStat", getTopStatList(totalLevelStat.subList(1, totalLevelStatSize - 1)));
         return resultMap;
     }
 
@@ -1523,10 +1520,10 @@ public class StatReportService {
      * @return
      */
     private Map<String, Object> composeMyopiaLevelStat(String name, List<StatConclusion> statConclusions,
-                                                 Predicate<StatConclusion> levelEarlyPredicate,
-                                                 Predicate<StatConclusion> levelOnePredicate,
-                                                 Predicate<StatConclusion> levelTwoPredicate,
-                                                 Predicate<StatConclusion> levelThreePredicate) {
+                                                       Predicate<StatConclusion> levelEarlyPredicate,
+                                                       Predicate<StatConclusion> levelOnePredicate,
+                                                       Predicate<StatConclusion> levelTwoPredicate,
+                                                       Predicate<StatConclusion> levelThreePredicate) {
         long rowTotal = statConclusions.size();
         long levelEarlyNum = statConclusions.stream().filter(levelEarlyPredicate).count();
         long levelOneNum = statConclusions.stream().filter(levelOnePredicate).count();
@@ -1537,7 +1534,7 @@ public class StatReportService {
         list.add(composeBasicParams(MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.desc, levelOneNum, rowTotal));
         list.add(composeBasicParams(MyopiaLevelEnum.MYOPIA_LEVEL_MIDDLE.desc, levelTwoNum, rowTotal));
         list.add(composeBasicParams(MyopiaLevelEnum.MYOPIA_LEVEL_HIGH.desc, levelThreeNum, rowTotal));
-        list.add(composeBasicParams("levelTotal", levelEarlyNum + levelOneNum + levelTwoNum + levelThreeNum, rowTotal));
+        list.add(composeBasicParams("levelTotal", levelOneNum + levelTwoNum + levelThreeNum, rowTotal));
         Map<String, Object> resultMap = new HashMap<>(2);
         resultMap.put("name", name);
         resultMap.put(TABLE_LABEL_ROW_TOTAL, rowTotal);
