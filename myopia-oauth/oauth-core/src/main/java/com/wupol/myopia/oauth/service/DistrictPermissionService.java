@@ -1,8 +1,6 @@
 package com.wupol.myopia.oauth.service;
 
 import com.wupol.myopia.base.constant.PermissionTemplateType;
-import com.wupol.myopia.base.constant.RoleType;
-import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.oauth.domain.dto.RoleDTO;
 import com.wupol.myopia.oauth.domain.dto.RolePermissionDTO;
@@ -49,47 +47,34 @@ public class DistrictPermissionService extends BaseService<DistrictPermissionMap
      **/
     @Transactional(rollbackFor = Exception.class)
     public boolean updatePermissionTemplate(Integer templateType, RolePermissionDTO rolePermissionDTO) {
-        List<Integer> govIds = rolePermissionDTO.getGovIds();
         List<Integer> permissionIds = rolePermissionDTO.getPermissionIds();
-        List<Integer> orgIds = rolePermissionDTO.getOrgIds();
-
-        // 政府部门
-        if (PermissionTemplateType.isGovUser(templateType)) {
-            RoleDTO roleDTO = new RoleDTO();
-            roleDTO.setOrgIds(govIds)
-                    .setRoleType(RoleType.GOVERNMENT_DEPARTMENT.getType())
-                    .setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode());
-            // 通过部门Id获取角色
-            List<Role> roleList = roleService.getRoleList(roleDTO);
-            roleList.forEach(r -> roleService.updateRolePermission(r.getId(), templateType, permissionIds));
-        }
-
-        // 平台管理员
-        if (PermissionTemplateType.PLATFORM_ADMIN.getType().equals(templateType)) {
-            RoleDTO roleDTO = new RoleDTO();
-            roleDTO.setRoleType(RoleType.PLATFORM_ADMIN.getType())
-                    .setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode());
-            // 平台管理员通过RoleType来获取角色列表
-            List<Role> roleList = roleService.getRoleList(roleDTO);
-            roleList.forEach(r -> roleService.updateRolePermission(r.getId(), PermissionTemplateType.PLATFORM_ADMIN.getType(), permissionIds));
-        }
-
-        // 筛查机构-配置
-        if (PermissionTemplateType.isSpecialScreening(templateType) && !CollectionUtils.isEmpty(orgIds)) {
-            RoleDTO roleDTO = new RoleDTO();
-            roleDTO.setOrgIds(orgIds)
-                    .setRoleType(RoleType.SCREENING_ORGANIZATION.getType())
-                    .setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode());
-            // 通过部门Id获取角色
-            List<Role> roleList = roleService.getRoleList(roleDTO);
-            roleList.forEach(r -> roleService.updateRolePermission(r.getId(), templateType, permissionIds));
-        }
-        // TODO: 更新医院管理员角色
-
+        // 更新角色权限
+        updateRolePermission(rolePermissionDTO.getOrgIds(), templateType, permissionIds);
         // 更新模板权限
         remove(new DistrictPermission().setDistrictLevel(templateType));
         List<DistrictPermission> permissions = permissionIds.stream().distinct().map(x -> new DistrictPermission().setDistrictLevel(templateType).setPermissionId(x)).collect(Collectors.toList());
         return saveBatch(permissions);
+    }
+
+    /**
+     * 更新角色权限
+     *
+     * @param orgIds 机构ID集
+     * @param templateType 模板类型
+     * @param permissionIds 权限ID集
+     * @return void
+     **/
+    private void updateRolePermission(List<Integer> orgIds, Integer templateType, List<Integer> permissionIds) {
+        PermissionTemplateType  districtPermission = PermissionTemplateType.getByType(templateType);
+        Assert.notNull(districtPermission, "权限模板类型不能为空");
+        // 为政府人员和筛查机构管理员的权限模板时，需要传入指定的机构ID
+        Assert.isTrue((!PermissionTemplateType.isGovTemplate(templateType) && !PermissionTemplateType.isScreeningOrgTemplate(templateType)) || !CollectionUtils.isEmpty(orgIds), "机构ID不能为空");
+        RoleDTO roleDTO = new RoleDTO();
+        roleDTO.setOrgIds(orgIds)
+                .setRoleType(districtPermission.getRoleType())
+                .setSystemCode(districtPermission.getSystemCode());
+        List<Role> roleList = roleService.getRoleList(roleDTO);
+        roleList.forEach(r -> roleService.updateRolePermission(r.getId(), templateType, permissionIds));
     }
 
     /**
