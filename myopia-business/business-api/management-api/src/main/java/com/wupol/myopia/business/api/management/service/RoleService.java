@@ -285,9 +285,8 @@ public class RoleService {
      *
      * @param templateType  类型
      */
-    public List<Integer> getGovIds(Integer templateType) {
-
-        if (!PermissionTemplateType.isGovUser(templateType)) {
+    private List<Integer> getGovIds(Integer templateType) {
+        if (!PermissionTemplateType.isGovTemplate(templateType)) {
             return new ArrayList<>();
         }
         // 只有角色为政府人员需要处理
@@ -305,7 +304,7 @@ public class RoleService {
      * @param templateType 模板
      * @return 机构Ids
      */
-    public List<Integer> getOrgIds(Integer templateType) {
+    private List<Integer> getScreeningOrgIds(Integer templateType) {
         Integer configType = TemplateConfigType.TEMPLATE_TO_ORG_CONFIG_TYPE.get(templateType);
         if (Objects.isNull(templateType)) {
             return new ArrayList<>();
@@ -315,5 +314,21 @@ public class RoleService {
             return new ArrayList<>();
         }
         return orgList.stream().map(ScreeningOrganization::getId).collect(Collectors.toList());
+    }
+
+    /**
+     * 获取机构ID集
+     *
+     * @param templateType 模板类型
+     * @return java.util.List<java.lang.Integer>
+     **/
+    public List<Integer> getOrgIds(Integer templateType) {
+        if (PermissionTemplateType.isGovTemplate(templateType)) {
+            return getGovIds(templateType);
+        }
+        if (Objects.nonNull(TemplateConfigType.TEMPLATE_TO_ORG_CONFIG_TYPE.get(templateType))) {
+            return getScreeningOrgIds(templateType);
+        }
+        return new ArrayList<>();
     }
 }

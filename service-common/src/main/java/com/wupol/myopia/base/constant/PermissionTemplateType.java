@@ -19,27 +19,27 @@ import java.util.List;
 public enum PermissionTemplateType {
 
     /** 筛查机构管理员 */
-    SCREENING_ORGANIZATION(0, "（省级）筛查机构权限集合包"),
-    SCREENING_ORG_SINGLE(7, "筛查机构单点权限集合包"),
-    SCREENING_ORG_VS666(8, "筛查机构VS666权限集合包"),
-    SCREENING_ORG_SINGLE_AND_VS666(9, "筛查机构单点+vs666权限集合包"),
+    SCREENING_ORGANIZATION(0, "（省级）筛查机构权限集合包", RoleType.SCREENING_ORGANIZATION.getType(), SystemCode.MANAGEMENT_CLIENT.getCode()),
+    SCREENING_ORG_SINGLE(7, "筛查机构单点权限集合包", RoleType.SCREENING_ORGANIZATION.getType(), SystemCode.MANAGEMENT_CLIENT.getCode()),
+    SCREENING_ORG_VS666(8, "筛查机构VS666权限集合包", RoleType.SCREENING_ORGANIZATION.getType(), SystemCode.MANAGEMENT_CLIENT.getCode()),
+    SCREENING_ORG_SINGLE_AND_VS666(9, "筛查机构单点+vs666权限集合包", RoleType.SCREENING_ORGANIZATION.getType(), SystemCode.MANAGEMENT_CLIENT.getCode()),
 
     /** 政府部门管理员 */
-    PROVINCE(1, "省级权限集合包"),
-    CITY(2, "市级权限集合包"),
-    COUNTY(3, "县/区级权限集合包"),
-    TOWN(4, "镇/乡/街道级权限集合包"),
+    PROVINCE(1, "省级权限集合包", RoleType.GOVERNMENT_DEPARTMENT.getType(), SystemCode.MANAGEMENT_CLIENT.getCode()),
+    CITY(2, "市级权限集合包", RoleType.GOVERNMENT_DEPARTMENT.getType(), SystemCode.MANAGEMENT_CLIENT.getCode()),
+    COUNTY(3, "县/区级权限集合包", RoleType.GOVERNMENT_DEPARTMENT.getType(), SystemCode.MANAGEMENT_CLIENT.getCode()),
+    TOWN(4, "镇/乡/街道级权限集合包", RoleType.GOVERNMENT_DEPARTMENT.getType(), SystemCode.MANAGEMENT_CLIENT.getCode()),
 
     /** 平台管理员 */
-    ALL(5, "超级管理员"),
-    PLATFORM_ADMIN(6, "平台管理员权限集合包"),
+    ALL(5, "超级管理员", RoleType.SUPER_ADMIN.getType(), SystemCode.MANAGEMENT_CLIENT.getCode()),
+    PLATFORM_ADMIN(6, "平台管理员权限集合包", RoleType.PLATFORM_ADMIN.getType(), SystemCode.MANAGEMENT_CLIENT.getCode()),
 
     /** 医院管理员 */
-    HOSPITAL_ADMIN(10, "医院管理员权限集合包"),
+    HOSPITAL_ADMIN(10, "医院管理员权限集合包", RoleType.HOSPITAL_ADMIN.getType(), SystemCode.MANAGEMENT_CLIENT.getCode()),
 
     /** 医院APP */
-    HOSPITAL_RESIDENT_APP(11, "居民健康APP权限集合包"),
-    HOSPITAL_PRESCHOOL_APP(12, "0-6岁眼保健APP权限集合包");
+    HOSPITAL_RESIDENT_APP(11, "居民健康APP权限集合包", RoleType.RESIDENT_DOCTOR.getType(), SystemCode.HOSPITAL_CLIENT.getCode()),
+    HOSPITAL_PRESCHOOL_APP(12, "0-6岁眼保健APP权限集合包", RoleType.PRESCHOOL_DOCTOR.getType(), SystemCode.HOSPITAL_CLIENT.getCode());
 
     private static final ImmutableMap<Integer, Integer> HOSPITAL_PERMISSION_TEMPLATE_TYPE_MAP;
 
@@ -57,10 +57,20 @@ public enum PermissionTemplateType {
      * 描述
      **/
     private final String msg;
+    /**
+     * 角色类型
+     **/
+    private final Integer roleType;
+    /**
+     * 系统编号
+     **/
+    private final Integer systemCode;
 
-    PermissionTemplateType(Integer type, String descr) {
+    PermissionTemplateType(Integer type, String descr, Integer roleType, Integer systemCode) {
         this.type = type;
         this.msg = descr;
+        this.roleType = roleType;
+        this.systemCode = systemCode;
     }
 
     /**
@@ -109,7 +119,7 @@ public enum PermissionTemplateType {
      * @param type 类型
      * @return 是否政府人员
      */
-    public static boolean isGovUser(Integer type) {
+    public static boolean isGovTemplate(Integer type) {
         return PROVINCE.type.equals(type) || CITY.type.equals(type)
                 || COUNTY.type.equals(type) || TOWN.type.equals(type);
     }
@@ -120,7 +130,7 @@ public enum PermissionTemplateType {
      * @param type 类型
      * @return 是否筛查机构
      */
-    public static boolean isSpecialScreening(Integer type) {
+    public static boolean isScreeningOrgTemplate(Integer type) {
         return SCREENING_ORGANIZATION.type.equals(type) || SCREENING_ORG_SINGLE.type.equals(type)
                 || SCREENING_ORG_VS666.type.equals(type) || SCREENING_ORG_SINGLE_AND_VS666.type.equals(type);
     }
