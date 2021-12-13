@@ -922,7 +922,6 @@ public class StatReportService {
 
         long totalFirstScreeningNum = statBase.getFirstScreen().size();
         long validFirstScreeningNum = validConclusions.size();
-        long myopiaNum = validConclusions.stream().filter(x -> x.getIsMyopia() != null && x.getIsMyopia()).count();
         long warning0Num = validConclusions.stream().filter(x -> WarningLevel.ZERO.code.equals(x.getWarningLevel())).count();
         long warning1Num = validConclusions.stream().filter(x -> WarningLevel.ONE.code.equals(x.getWarningLevel())).count();
         long warning2Num = validConclusions.stream().filter(x -> WarningLevel.TWO.code.equals(x.getWarningLevel())).count();
@@ -943,10 +942,18 @@ public class StatReportService {
         resultMap.put("validFirstScreeningNum", validFirstScreeningNum);
         resultMap.put("maleNum", statGender.getMale().size());
         resultMap.put("femaleNum", statGender.getFemale().size());
+
+        // 近视
+        long myopiaNum = validConclusions.stream().filter(
+                x -> Objects.nonNull(x.getMyopiaWarningLevel())
+                        && (MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.code.equals(x.getMyopiaWarningLevel())
+                        || MyopiaLevelEnum.MYOPIA_LEVEL_MIDDLE.code.equals(x.getMyopiaWarningLevel())
+                        || MyopiaLevelEnum.MYOPIA_LEVEL_HIGH.code.equals(x.getMyopiaWarningLevel()))).count();
         resultMap.put("myopiaRatio", convertToPercentage(myopiaNum * 1f / validFirstScreeningNum));
 
-        long lowVisionNum = validConclusions.stream()
-                .filter(c -> Objects.nonNull(c.getNakedVisionWarningLevel())
+        // 视力低下
+        long lowVisionNum = validConclusions.stream().filter(
+                c -> Objects.nonNull(c.getNakedVisionWarningLevel())
                         && (WarningLevel.ONE.code.equals(c.getNakedVisionWarningLevel())
                         || WarningLevel.TWO.code.equals(c.getNakedVisionWarningLevel())
                         || WarningLevel.THREE.code.equals(c.getNakedVisionWarningLevel()))).count();
@@ -970,16 +977,25 @@ public class StatReportService {
                 convertToPercentage(warning3Num * 1f / validFirstScreeningNum),
                 warning3Num));
         resultMap.put("warningLevelStat", basicStatParamsList);
+        // 表1
         resultMap.put("genderLowVisionLevelDesc", composeGenderLowVisionLevelDesc(validConclusions));
         // 表2
         resultMap.put("schoolGradeLowVisionLevelDesc", composeSchoolGradeLowVisionLevelDesc(validConclusions, schoolGradeItems));
+        // 表5
         resultMap.put("schoolGradeMyopiaLevelDesc", composeSchoolGradeMyopiaLevelDesc(validConclusions, schoolGradeItems));
+        // 表3
         resultMap.put("schoolGradeClassLowVisionLevelTable", composeSchoolGradeClassLowVisionLevelTable(schoolGradeItems, validConclusions));
+        // 表6
         resultMap.put("schoolGradeClassMyopiaLevelTable", composeSchoolGradeClassMyopiaLevelTable(schoolGradeItems, validConclusions));
+        // 表4
         resultMap.put("genderMyopiaLevelDesc", composeGenderMyopiaLevelDesc(validConclusions));
+        // 表7
         resultMap.put("schoolGradeWearingTypeDesc", composeSchoolGradeWearingTypeDesc(schoolGradeItems, validConclusions));
+        // 表8
         resultMap.put("schoolGradeGenderUncorrectedDesc", composeSchoolGradeGenderUncorrectedDesc(schoolGradeItems, validConclusions));
+        // 表9
         resultMap.put("schoolGradeGenderUnderCorrectedDesc", composeSchoolGradeGenderUnderCorrectedDesc(schoolGradeItems, validConclusions));
+        // 表10
         resultMap.put("schoolGradeWarningLevelDesc", composeSchoolGradeWarningLevelDesc(schoolGradeItems, validConclusions));
         // 视力详情
         resultMap.put("schoolClassStudentStatList", composeSchoolClassStudentStatList(schoolGradeItems, statConclusionReportDTOs));
