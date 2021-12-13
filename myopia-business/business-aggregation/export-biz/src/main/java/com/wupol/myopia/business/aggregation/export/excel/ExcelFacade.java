@@ -944,14 +944,15 @@ public class ExcelFacade {
      */
     @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_UNCOMMITTED)
     public void importABVStudent(MultipartFile multipartFile) throws ParseException {
-        List<Map<Integer, String>> listMap = readExcel(multipartFile);
-        int schoolId = 28;
-        int planId = 13;
-        int deptId = 18;
-        int noticeId = 31;
-        int taskId = 14;
-        int planDistrictId = 3434;
-        int schoolDistrictId = 3434;
+        List<Map<Integer, String>> listMap = readExcelAbc(multipartFile);
+        Map<Integer, String> integerStringMap = listMap.get(0);
+        int schoolId = Integer.parseInt(integerStringMap.get(Import.SCHOOL_ID.index));
+        int planId = Integer.parseInt(integerStringMap.get(Import.PLAN_ID.index));
+        int orgId = Integer.parseInt(integerStringMap.get(Import.ORG_ID.index));
+        int noticeId = Integer.parseInt(integerStringMap.get(Import.NOTICE_ID.index));
+        int taskId = Integer.parseInt(integerStringMap.get(Import.TASK_ID.index));
+        int planDistrictId = Integer.parseInt(integerStringMap.get(Import.PLAN_DISTRICT_ID.index));
+        int schoolDistrictId = Integer.parseInt(integerStringMap.get(Import.SCHOOL_DISTRICT_ID.index));
 
         School school = schoolService.getById(schoolId);
 
@@ -964,6 +965,7 @@ public class ExcelFacade {
         List<Long> idBatch = ScreeningCodeGenerator.getIdBatch(listMap.size());
         int id = 0;
         for (Map<Integer, String> item : listMap) {
+            log.info("一共:{}个,当前第:{}个,还剩余:{}个", listMap.size(), id + 1, listMap.size() - id);
             Student student = new Student();
             student.setName(item.get(Import.NAME.index)).setGender(GenderEnum.getType(item.get(Import.GENDER.index))).setBirthday(DateFormatUtil.parseDate(item.get(Import.BIRTHDAY.index), DateFormatUtil.FORMAT_ONLY_DATE_WITHOUT_LINE)).setGradeType(GradeCodeEnum.getByName(item.get(Import.GRADE.index)).getType()).setCreateUserId(1).setSchoolId(school.getId());
 
@@ -990,7 +992,7 @@ public class ExcelFacade {
             planSchoolStudent.setSrcScreeningNoticeId(noticeId);
             planSchoolStudent.setScreeningTaskId(taskId);
             planSchoolStudent.setScreeningPlanId(planId);
-            planSchoolStudent.setScreeningOrgId(deptId);
+            planSchoolStudent.setScreeningOrgId(orgId);
             planSchoolStudent.setPlanDistrictId(planDistrictId);
             planSchoolStudent.setSchoolDistrictId(schoolDistrictId);
             planSchoolStudent.setSchoolId(school.getId());
@@ -1018,7 +1020,7 @@ public class ExcelFacade {
             visionDataDTO.setDiagnosis(0);
             visionDataDTO.setIsCooperative(0);
             visionDataDTO.setSchoolId(String.valueOf(school.getId()));
-            visionDataDTO.setDeptId(deptId);
+            visionDataDTO.setDeptId(orgId);
             visionDataDTO.setCreateUserId(1);
             visionDataDTO.setPlanStudentId(String.valueOf(planSchoolStudent.getId()));
             visionDataDTO.setIsState(0);
@@ -1042,7 +1044,7 @@ public class ExcelFacade {
             computerOptometryDTO.setDiagnosis(0);
             computerOptometryDTO.setIsCooperative(0);
             computerOptometryDTO.setSchoolId(String.valueOf(school.getId()));
-            computerOptometryDTO.setDeptId(deptId);
+            computerOptometryDTO.setDeptId(orgId);
             computerOptometryDTO.setCreateUserId(1);
             computerOptometryDTO.setPlanStudentId(String.valueOf(planSchoolStudent.getId()));
             computerOptometryDTO.setIsState(0);
@@ -1055,7 +1057,28 @@ public class ExcelFacade {
     }
 
     public enum Import {
-        NAME(0, "姓名"), GENDER(1, "性别"), BIRTHDAY(2, "出生日期"), GRADE(3, "年级"), CLASS(4, "班级"), RIGHT_NAKED_VISION(5, "右-裸眼"), LEFT_NAKED_VISION(6, "左-裸眼"), RIGHT_CORRECTED_VISION(7, "右-戴镜"), LEFT_CORRECTED_VISION(8, "左-戴镜"), RIGHT_SPH(9, "右-球镜"), LEFT_SPH(10, "左-球镜"), LEFT_CYL(11, "右-柱镜"), RIGHT_CYL(12, "左-柱镜"), RIGHT_AXIAL(13, "右-轴位"), LEFT_AXIAL(14, "左-轴位");
+        NAME(0, "姓名"),
+        GENDER(1, "性别"),
+        BIRTHDAY(2, "出生日期"),
+        GRADE(3, "年级"),
+        CLASS(4, "班级"),
+        RIGHT_NAKED_VISION(5, "右-裸眼"),
+        LEFT_NAKED_VISION(6, "左-裸眼"),
+        RIGHT_CORRECTED_VISION(7, "右-戴镜"),
+        LEFT_CORRECTED_VISION(8, "左-戴镜"),
+        RIGHT_SPH(9, "右-球镜"),
+        LEFT_SPH(10, "左-球镜"),
+        LEFT_CYL(11, "右-柱镜"),
+        RIGHT_CYL(12, "左-柱镜"),
+        RIGHT_AXIAL(13, "右-轴位"),
+        LEFT_AXIAL(14, "左-轴位"),
+        SCHOOL_ID(15, "SCHOOL_ID"),
+        PLAN_ID(16, "PLAN_ID"),
+        ORG_ID(17, "ORG_ID"),
+        NOTICE_ID(18, "NOTICE_ID"),
+        TASK_ID(19, "TASK_ID"),
+        PLAN_DISTRICT_ID(20, "PLAN_DISTRICT_ID"),
+        SCHOOL_DISTRICT_ID(21, "SCHOOL_DISTRICT_ID");
 
         /**
          * 列标
@@ -1078,6 +1101,29 @@ public class ExcelFacade {
         public String getName() {
             return this.name;
         }
+    }
 
+    /**
+     * 读取Excel数据
+     *
+     * @param multipartFile Excel文件
+     * @return java.util.List<java.util.Map < java.lang.Integer, java.lang.String>>
+     **/
+    private List<Map<Integer, String>> readExcelAbc(MultipartFile multipartFile) {
+        String fileName = IOUtils.getTempPath() + multipartFile.getName() + "_" + System.currentTimeMillis() + FILE_SUFFIX;
+        File file = new File(fileName);
+        try {
+            FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
+        } catch (IOException e) {
+            log.error("导入学生数据异常:", e);
+            throw new BusinessException("导入学生数据异常");
+        }
+        // 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
+        try {
+            return EasyExcel.read(fileName).sheet().doReadSync();
+        } catch (Exception e) {
+            log.error("导入学生数据异常:", e);
+            throw new BusinessException("Excel解析异常");
+        }
     }
 }
