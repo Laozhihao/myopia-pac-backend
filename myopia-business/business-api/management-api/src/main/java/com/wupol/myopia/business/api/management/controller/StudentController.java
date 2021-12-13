@@ -88,7 +88,7 @@ public class StudentController {
     public StudentDTO updateStudent(@RequestBody @Valid Student student) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         student.setCreateUserId(user.getId());
-        return studentBizService.updateStudentReturnCountInfo(student);
+        return studentBizService.updateStudentReturnCountInfo(student, user);
     }
 
     /**
@@ -229,6 +229,7 @@ public class StudentController {
     public List<StudentWarningArchiveVO> getStudentWarningArchive(@PathVariable("studentId") Integer studentId) {
         return studentBizService.getStudentWarningArchive(studentId);
     }
+
 
     @GetMapping("abc")
     public void abc(MultipartFile file) throws ParseException {

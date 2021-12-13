@@ -109,7 +109,6 @@
         order by report.create_time desc
     </select>
 
-
     <select id="getByStudentIdWithPage"
             resultType="com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO">
         select report.id                as reportId,
@@ -119,7 +118,8 @@
                mh.name                  as hospitalName,
                report.student_id        as studentId,
                report.glasses_situation as glassesSituation,
-               report.medical_content   as medicalContent
+               report.medical_content   as medicalContent,
+               report.doctor_id         as doctorId
         from h_medical_report report
                      left join h_medical_record record on report.medical_record_id = record.id
                      left join m_hospital mh on report.hospital_id = mh.id

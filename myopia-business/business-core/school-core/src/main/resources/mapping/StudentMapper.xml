@@ -4,6 +4,7 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.school.domain.model.Student">
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="family_info" property="familyInfo"/>
     </resultMap>
 
     <resultMap id="BaseResultMapDTO" type="com.wupol.myopia.business.core.school.domain.dto.StudentDTO">
@@ -68,9 +69,9 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, create_user_id, sno, grade_id, grade_type, class_id, name, gender, birthday, nation, id_card, parent_phone, mp_parent_phone, province_code, city_code, area_code, town_code, address,
-        avatar_file_id, current_situation, vision_label, last_screening_time, remark, status, glasses_type,is_myopia,is_hyperopia,is_astigmatism,create_time, update_time, school_id,
-        myopia_level, hyperopia_level, astigmatism_level
+        id, create_user_id, sno, grade_id, grade_type, class_id, name, gender, birthday, nation, id_card, parent_phone, mp_parent_phone, province_code, city_code, area_code, town_code,
+        address, avatar_file_id, current_situation, vision_label, last_screening_time, remark, status, glasses_type,is_myopia,is_hyperopia,is_astigmatism,create_time, update_time,school_id,
+        myopia_level, hyperopia_level, astigmatism_level,is_newborn_without_id_card,family_info,committee_code,record_no
     </sql>
 
     <select id="getStudentListByCondition" resultMap="BaseResultMapDTO">
@@ -183,6 +184,7 @@
         <include refid="Base_Column_List"/>
         from m_student
         where id_card = #{idCard}
+          and status = 0
     </select>
 
     <select id="getByIdCardAndName" resultMap="BaseResultMap">
@@ -296,5 +298,20 @@
         <foreach collection="idCards" open="(" close=")" separator="," item="idCard">
             #{idCard}
         </foreach>
+    </select>
+
+    <select id="getByCommitteeCode" resultMap="BaseResultMap">
+        select *
+        from m_student
+        where committee_code = #{committeeCode};
+    </select>
+
+
+    <select id="getOneByRecordNo" resultMap="BaseResultMap">
+        select *
+        from m_student
+        where record_no like CONCAT('%', #{recordNo}, '%')
+        order by record_no desc
+        limit 1
     </select>
 </mapper>

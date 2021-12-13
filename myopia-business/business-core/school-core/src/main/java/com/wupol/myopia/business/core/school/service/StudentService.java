@@ -462,4 +462,44 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         student.setStatus(CommonConst.STATUS_IS_DELETED);
         updateById(student);
     }
+
+    /**
+     * 通过委会行政区域获取学生
+     *
+     * @param committeeCode 委会行政区域
+     * @return 学生
+     */
+    public List<Student> getByCommitteeCode(Long committeeCode) {
+        return baseMapper.getByCommitteeCode(committeeCode);
+    }
+
+    /**
+     * 获取RecordNo
+     *
+     * @param committeeCode 委会行政区域
+     * @return RecordNo
+     */
+    public Long getRecordNo(Long committeeCode) {
+        if (Objects.isNull(committeeCode)) {
+            throw new BusinessException("委会行政区域code不能为空");
+        }
+        String recordNo;
+        Student studentRecordNo = getOneByRecordNo(committeeCode);
+        if (Objects.isNull(studentRecordNo)) {
+            recordNo = String.format("%s%05d", committeeCode, 1);
+        } else {
+            recordNo = String.valueOf(studentRecordNo.getRecordNo() + 1);
+        }
+        return Long.valueOf(recordNo);
+    }
+
+    /**
+     * 通过委会行政区域获取学生
+     *
+     * @param recordNo 检查建档编码
+     * @return 学生
+     */
+    public Student getOneByRecordNo(Long recordNo) {
+        return baseMapper.getOneByRecordNo(recordNo);
+    }
 }

@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.List;
@@ -341,5 +342,18 @@ public class ScreeningOrganizationController {
     @PostMapping("/add/account/{screeningOrgId}")
     public UsernameAndPasswordDTO addAccount(@PathVariable("screeningOrgId") Integer screeningOrgId) {
         return screeningOrganizationBizService.addAccount(screeningOrgId);
+    }
+
+    /**
+     * 模糊查询指定省份下筛查机构
+     *
+     * @param name 筛查机构名称
+     * @param provinceDistrictCode 省行政区域编码，如：110000000
+     * @return java.util.List<com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization>
+     **/
+    @GetMapping("/province/list")
+    public List<ScreeningOrganization> getListByProvinceCodeAndNameLike(@NotBlank(message = "筛查机构名称不能为空") String name,
+                                                                    @NotNull(message = "省行政区域编码不能为空") Long provinceDistrictCode) {
+        return screeningOrganizationService.getListByProvinceCodeAndNameLike(name, provinceDistrictCode);
     }
 }

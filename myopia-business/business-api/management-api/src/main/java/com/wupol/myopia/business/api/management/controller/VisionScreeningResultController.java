@@ -199,7 +199,7 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
             throw new BusinessException("暂无筛查数据，无法导出");
         }
         statConclusionExportDTOs.forEach(vo -> vo.setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(), vo.getAreaCode(), vo.getTownCode(), vo.getAddress())));
-        String key = String.format(RedisConstant.FILE_EXPORT_PLAN_DATA, screeningPlanId,screeningOrgId,schoolId,currentUser.getId());
+        String key = String.format(RedisConstant.FILE_EXPORT_PLAN_DATA, screeningPlanId,screeningOrgId,schoolId, currentUser.getId());
         checkIsExport(key);
         // 获取文件需显示的名称
         excelFacade.generateVisionScreeningResult(currentUser.getId(), statConclusionExportDTOs, isSchoolExport, exportFileNamePrefix, key);
