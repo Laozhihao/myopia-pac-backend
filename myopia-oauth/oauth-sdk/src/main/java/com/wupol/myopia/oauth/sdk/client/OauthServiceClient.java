@@ -278,7 +278,7 @@ public interface OauthServiceClient {
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
      **/
     @GetMapping("/oauth/user/batch/orgIds")
-    List<User> getUserBatchByOrgIds(@RequestParam("orgIds") List<Integer> orgIds, @RequestParam("systemCode") Integer systemCode);
+    List<User> getUserBatchByOrgIds(@RequestParam("orgIds") List<Integer> orgIds, @RequestParam("systemCode") Integer systemCode, @RequestParam("userType") Integer userType);
 
     /**
      * 登录

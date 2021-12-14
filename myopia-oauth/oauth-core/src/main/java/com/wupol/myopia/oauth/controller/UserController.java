@@ -190,11 +190,11 @@ public class UserController {
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
      **/
     @GetMapping("/batch/orgIds")
-    public List<User> getIdsByOrgIds(@RequestParam("orgIds") List<Integer> orgIds, @RequestParam("systemCode") Integer systemCode) {
+    public List<User> getIdsByOrgIds(@RequestParam("orgIds") List<Integer> orgIds, @RequestParam("systemCode") Integer systemCode, @RequestParam("userType") Integer userType) {
         if (CollectionUtils.isEmpty(orgIds)) {
             return new ArrayList<>();
         }
-        return userService.getIdsByOrgIds(orgIds, systemCode);
+        return userService.getIdsByOrgIds(orgIds, systemCode, userType);
     }
 
     /**

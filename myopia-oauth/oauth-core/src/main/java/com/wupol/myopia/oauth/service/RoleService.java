@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.RoleType;
 import com.wupol.myopia.base.constant.SystemCode;
+import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.oauth.domain.dto.RoleDTO;
 import com.wupol.myopia.oauth.domain.mapper.RoleMapper;
@@ -34,6 +35,8 @@ public class RoleService extends BaseService<RoleMapper, Role> {
     private RolePermissionService rolePermissionService;
     @Autowired
     private DistrictPermissionService districtPermissionService;
+    @Autowired
+    private OrganizationService organizationService;
 
     /**
      * 获取角色列表
@@ -116,12 +119,20 @@ public class RoleService extends BaseService<RoleMapper, Role> {
      * @param userId 用户ID
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.Role>
      **/
-    public List<Role> getUsableRoleByUserId(Integer userId) {
+    public List<Role> getUsableRoleByUserId(Integer userId, Integer systemCode, Integer userType) {
         List<Role> roleList = getRoleListByUserId(userId);
         if (CollectionUtils.isEmpty(roleList)) {
             return roleList;
         }
-        return roleList.stream().filter(x -> x.getStatus() == 0).collect(Collectors.toList());
+        List<Role> roles = roleList.stream().filter(x -> x.getStatus() == 0).collect(Collectors.toList());
+        // 医院信息，如若拥有筛查机构角色，需去除掉机构状态已停用的角色
+        if (SystemCode.MANAGEMENT_CLIENT.getCode().equals(systemCode) && UserType.HOSPITAL_ADMIN.getType().equals(userType)) {
+            // 只保存非筛查机构角色或筛查机构可用的角色
+            roles = roles.stream().filter(role -> (!RoleType.SCREENING_ORGANIZATION.getType().equals(role.getRoleType()))
+                    || organizationService.getOrgStatus(role.getOrgId(), SystemCode.MANAGEMENT_CLIENT.getCode(),
+                    UserType.SCREENING_ORGANIZATION_ADMIN.getType())).collect(Collectors.toList());
+        }
+        return roles;
     }
 
     /**

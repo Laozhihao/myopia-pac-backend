@@ -2,6 +2,7 @@ package com.wupol.myopia.base.util;
 
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUnit;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -353,4 +354,20 @@ public class DateUtil extends cn.hutool.core.date.DateUtil {
         dateTime.setField(DateField.MINUTE,mins);
         return dateTime;
     }
+
+    /**
+     * 计算end比start晚的天数<br/>
+     * 如(2021-12-13, 2021-12-15) = 2
+     * 如(2021-12-16, 2021-12-15) = -1
+     * @param start
+     * @param end
+     * @return
+     */
+    public static long betweenDay(Date start, Date end) {
+        Date startTime = getStartTime(start);
+        Date endTime = getStartTime(end);
+        long diff = endTime.getTime() - startTime.getTime();
+        return diff / DateUnit.DAY.getMillis();
+    }
+
 }

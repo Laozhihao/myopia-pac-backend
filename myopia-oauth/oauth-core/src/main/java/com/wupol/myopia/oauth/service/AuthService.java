@@ -9,6 +9,7 @@ import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.oauth.domain.model.Permission;
+import com.wupol.myopia.oauth.domain.model.Role;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,10 +37,12 @@ public class AuthService {
     private PermissionService permissionService;
     @Autowired
     private RedisUtil redisUtil;
+    @Autowired
+    private RoleService roleService;
 
-    public List<Permission> cachePermissionAndToken(Integer userId, Integer systemCode, long expiresTime, String accessToken) {
+    public List<Permission> cachePermissionAndToken(Integer userId, Integer systemCode, Integer userType, long expiresTime, String accessToken) {
         cacheUserAccessToken(userId, accessToken, expiresTime);
-        return cacheUserPermission(userId, systemCode, expiresTime);
+        return cacheUserPermission(userId, systemCode, userType, expiresTime);
     }
 
     /**
@@ -50,15 +53,18 @@ public class AuthService {
      * @param expiresTime 缓存过期时间（秒）
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.Permission>
      **/
-    private List<Permission> cacheUserPermission(Integer userId, Integer systemCode, long expiresTime) {
+    private List<Permission> cacheUserPermission(Integer userId, Integer systemCode, Integer userType, long expiresTime) {
         // 只有管理端的用户需要缓存权限
         if (!SystemCode.MANAGEMENT_CLIENT.getCode().equals(systemCode)) {
             return new ArrayList<>();
         }
-        List<Permission> permissions = permissionService.getUserDistinctPermissionByUserId(userId);
+        // 通过角色获取权限
+        List<Role> roles = roleService.getUsableRoleByUserId(userId, systemCode, userType);
+        List<Permission> permissions = permissionService.getUsablePermissionByRoleIds(roles.stream().map(Role::getId).collect(Collectors.toList()));
         if (CollectionUtils.isEmpty(permissions)) {
             throw new BusinessException("没有访问权限");
         }
+
         List<Object> apiPermissionPaths = getApiPermission(permissions);
         cacheUserPermission(userId, apiPermissionPaths, expiresTime);
         return permissions;
@@ -91,7 +97,7 @@ public class AuthService {
         Object oldAccessToken = redisUtil.get(String.format(RedisConstant.USER_AUTHORIZATION_KEY, currentUser.getId()));
         redisUtil.set(String.format(RedisConstant.USER_AUTHORIZATION_OLD_KEY, currentUser.getId()), oldAccessToken, OLD_ACCESS_TOKEN_EXPIRES_TIME);
         // 缓存权限和新token
-        cacheUserPermission(currentUser.getId(), currentUser.getSystemCode(), newExpiresTime);
+        cacheUserPermission(currentUser.getId(), currentUser.getSystemCode(), currentUser.getUserType(), newExpiresTime);
         cacheUserAccessToken(currentUser.getId(), accessToken, newExpiresTime);
     }
 

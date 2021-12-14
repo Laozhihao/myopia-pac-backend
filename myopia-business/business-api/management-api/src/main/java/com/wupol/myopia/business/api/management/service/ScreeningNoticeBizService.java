@@ -3,6 +3,7 @@ package com.wupol.myopia.business.api.management.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.SystemCode;
+import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.api.management.domain.vo.ScreeningNoticeVO;
@@ -95,8 +96,7 @@ public class ScreeningNoticeBizService {
         if (CollectionUtils.isEmpty(govOrgIds)) {
             return;
         }
-        // TODO wulizhou 这里要修改
-        List<User> userBatchByOrgIds = oauthServiceClient.getUserBatchByOrgIds(govOrgIds, SystemCode.MANAGEMENT_CLIENT.getCode());
+        List<User> userBatchByOrgIds = oauthServiceClient.getUserBatchByOrgIds(govOrgIds, SystemCode.MANAGEMENT_CLIENT.getCode(), UserType.GOVERNMENT_ADMIN.getType());
         List<Integer> toUserIds = userBatchByOrgIds.stream().map(User::getId).collect(Collectors.toList());
         if (!CollectionUtils.isEmpty(toUserIds)) {
             noticeService.batchCreateNotice(user.getId(), id, toUserIds, CommonConst.NOTICE_SCREENING_NOTICE, notice.getTitle(), notice.getTitle(), notice.getStartTime(), notice.getEndTime());

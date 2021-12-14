@@ -406,12 +406,13 @@ public class UserService extends BaseService<UserMapper, User> {
      * @param orgIds     机构ID
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
      **/
-    public List<User> getIdsByOrgIds(List<Integer> orgIds, Integer systemCode) {
+    public List<User> getIdsByOrgIds(List<Integer> orgIds, Integer systemCode, Integer userType) {
         Assert.notEmpty(orgIds, "机构orgId不能为空");
         Assert.notNull(systemCode, "系统编号不能为空");
         UserDTO queryParam = new UserDTO();
         queryParam.setSystemCode(systemCode);
         queryParam.setOrgIds(orgIds);
+        queryParam.setUserType(userType);
         return baseMapper.selectUserList(queryParam);
     }
 

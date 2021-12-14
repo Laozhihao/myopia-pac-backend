@@ -182,7 +182,7 @@ public class Hospital extends AddressCode implements Serializable {
      **/
     public Integer getCooperationRemainTime() {
         if (Objects.nonNull(cooperationEndTime)) {
-            return Math.max(0, (int) DateUtil.betweenDay(cooperationEndTime, new Date(), true));
+            return Math.max(0, (int) DateUtil.betweenDay(new Date(), cooperationEndTime));
         }
         return null;
     }

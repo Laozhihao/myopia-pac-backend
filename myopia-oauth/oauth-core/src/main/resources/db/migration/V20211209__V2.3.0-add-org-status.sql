@@ -18,12 +18,23 @@ update o_user set system_code = 1, user_type = 3 where system_code = 4;
 update o_user set user_type = -1 where system_code = 5;
 update o_user set system_code = 1, user_type = 2 where system_code = 6;
 
+update o_role set system_code = 1 where system_code = 6;
+update o_permission set system_code = 1 where system_code = 6;
+
 -- 数据迁移，生成机构数据
-INSERT INTO o_organization(org_id, system_code, user_type)
-SELECT org_id, system_code, user_type
+INSERT INTO o_organization(org_id, system_code, user_type, `status`)
+SELECT org_id, system_code, user_type, 1
 FROM o_user
 GROUP BY org_id, system_code, user_type
-HAVING system_code in (1,2);
+HAVING system_code in (1,2)
+AND user_type in (2,3);
+
+INSERT INTO o_organization(org_id, system_code, user_type, `status`)
+SELECT org_id, system_code, user_type, 0
+FROM o_user
+GROUP BY org_id, system_code, user_type
+HAVING system_code in (1,2)
+AND user_type in (0,1);
 
 
 -- 增加相关权限信息
