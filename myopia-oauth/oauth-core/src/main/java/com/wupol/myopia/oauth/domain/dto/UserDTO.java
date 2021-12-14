@@ -99,4 +99,9 @@ public class UserDTO extends User {
      */
     private Integer associateScreeningOrgId;
 
+    /**
+     * 用户类型集合
+     */
+    private List<Integer> userTypes;
+
 }

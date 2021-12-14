@@ -48,6 +48,9 @@
                 <if test="param.orgIds != null">
                     and r.`org_id` IN <foreach collection="param.orgIds" open="(" close=")" separator="," item="item">#{item}</foreach>
                 </if>
+                <if test="param.roleTypes != null">
+                    and r.`roleType` IN <foreach collection="param.roleTypes" open="(" close=")" separator="," item="item">#{item}</foreach>
+                </if>
             </trim>
         </where>
         ORDER BY r.create_time DESC

@@ -75,7 +75,9 @@ public class RoleService {
         }
         param.setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode()).setCurrent(current).setSize(size);
         // 调oauth服务，获取角色列表
-        Page<Role> rolePage = oauthServiceClient.getRoleListByPage(param.convertToOauthRoleDTO());
+        RoleDTO roleDTO = param.convertToOauthRoleDTO();
+        roleDTO.setRoleTypes(Arrays.asList(RoleType.GOVERNMENT_DEPARTMENT.getType(), RoleType.PLATFORM_ADMIN.getType(), RoleType.SUPER_ADMIN.getType()));
+        Page<Role> rolePage = oauthServiceClient.getRoleListByPage(roleDTO);
         List<Role> roleList = JSON.parseArray(JSON.toJSONString(rolePage.getRecords()), Role.class);
         if (CollectionUtils.isEmpty(roleList)) {
             return new Page<>(current, size);
