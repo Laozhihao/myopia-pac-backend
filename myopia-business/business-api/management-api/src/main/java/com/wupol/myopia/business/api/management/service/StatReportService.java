@@ -967,7 +967,7 @@ public class StatReportService {
                 warningNum));
         basicStatParamsList.add(new BasicStatParams("warning0",
                 convertToPercentage((warningSPNum + warning0Num) * 1f / validFirstScreeningNum),
-                warning0Num));
+                (warningSPNum +warning0Num)));
         basicStatParamsList.add(new BasicStatParams("warning1",
                 convertToPercentage(warning1Num * 1f / validFirstScreeningNum),
                 warning1Num));
