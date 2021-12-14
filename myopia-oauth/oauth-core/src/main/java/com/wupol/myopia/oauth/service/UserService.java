@@ -180,15 +180,11 @@ public class UserService extends BaseService<UserMapper, User> {
             return;
         }
         RoleType roleType = RoleType.getRoleTypeByHospitalServiceType(serviceType);
-        Integer permissionTemplateType = PermissionTemplateType.getTemplateTypeByHospitalServiceType(serviceType);
-        // 1.获取角色
+        // 1.获取角色（初始化已插入医生的角色，每个角色类型仅一条，所有医生共用）
         Role role = roleService.findOne(new Role().setSystemCode(systemCode).setRoleType(roleType.getType()));
-        // 2.已经存在则直接绑定
-        if (Objects.nonNull(role)) {
-            userRoleService.save(new UserRole().setUserId(userDTO.getId()).setRoleId(role.getId()));
-        }
-        // 3.没有则创建
-        generateUserRole(userDTO, permissionTemplateType, roleType.getType(), roleType.getMsg());
+        Assert.notNull(role, "未初始化医生角色");
+        // 2.绑定角色
+        userRoleService.save(new UserRole().setUserId(userDTO.getId()).setRoleId(role.getId()));
     }
 
     /**
@@ -562,11 +558,10 @@ public class UserService extends BaseService<UserMapper, User> {
     }
 
     /**
-     * 
-     * @Author HaoHao
-     * @Date 2021/12/10
-     * @param userId
-     * @param serviceType
+     * 更新医生角色
+     *
+     * @param userId 用户ID
+     * @param serviceType 服务类型
      * @return void
      **/
     private void updateDoctorRole(Integer userId, Integer serviceType) {
