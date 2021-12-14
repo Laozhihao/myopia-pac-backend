@@ -141,6 +141,16 @@ public class DeviceUploadDataService {
             computerOptometryDTO.setLSph(BigDecimal.valueOf(leftSph));
         }
 
+        Double leftAxsi = VS666Util.getDisplayValue(deviceScreenDataDTO.getLeftAxsi());
+        if (leftAxsi != null) {
+            computerOptometryDTO.setLAxial(BigDecimal.valueOf(Math.round(leftAxsi)));
+        }
+
+        Double rightAxsi = VS666Util.getDisplayValue(deviceScreenDataDTO.getRightAxsi());
+        if (rightAxsi != null) {
+            computerOptometryDTO.setRAxial(BigDecimal.valueOf(Math.round(rightAxsi)));
+        }
+
         computerOptometryDTO.setDeptId(screeningPlanSchoolStudent.getScreeningOrgId());
         computerOptometryDTO.setCreateUserId(DEVICE_UPLOAD_DEFAULT_USER_ID);
         computerOptometryDTO.setPlanStudentId(String.valueOf(screeningPlanSchoolStudent.getId()));
