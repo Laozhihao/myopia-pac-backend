@@ -15,6 +15,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.*;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ImportExcelEnum;
 import com.wupol.myopia.business.common.utils.constant.*;
+import com.wupol.myopia.business.common.utils.util.VS666Util;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.util.S3Utils;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
@@ -775,7 +776,7 @@ public class ExcelFacade {
      * @return String
      */
     private String generateSingleEyeDegree(Object val) {
-        return Objects.nonNull(val) ? val + "°" : "--";
+        return Objects.nonNull(val) ? Math.round(new BigDecimal(String.valueOf(val)).floatValue()) + "°" : "--";
     }
 
     /**
@@ -788,10 +789,10 @@ public class ExcelFacade {
         DecimalFormat decimalFormat = new DecimalFormat("0.00");
         if (Objects.nonNull(val)) {
             String formatVal = decimalFormat.format(val);
-            if (StringUtils.isNotBlank(formatVal) && BigDecimalUtil.moreThanAndEqual(formatVal, "0")) {
-                return "+" + formatVal + "D";
+            if (StringUtils.isNotBlank(formatVal) && BigDecimalUtil.moreThanAndEqual(formatVal, "0.00")) {
+                return "+" + VS666Util.getStrDisplayValue(formatVal) + "D";
             }
-            return formatVal + "D";
+            return VS666Util.getStrDisplayValue(formatVal) + "D";
         }
         return "--";
     }

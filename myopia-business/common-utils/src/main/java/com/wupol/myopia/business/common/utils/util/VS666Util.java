@@ -48,6 +48,38 @@ public class VS666Util {
     }
 
     /**
+     * VS666数据格式化
+     *
+     * @return VS666数据格式化
+     */
+    public static String getStrDisplayValue(String val) {
+
+        Double value = new BigDecimal(val).doubleValue();
+        TwoTuple<Double, Double> splitDouble = splitDouble(value);
+        double result = 0d;
+        Double absValue = Math.abs(splitDouble.getSecond());
+        if (absValue.compareTo(0.125) < 0) {
+            result = 0.00;
+        }
+        if (BigDecimalUtil.isBetweenLeft(absValue, 0.125, 0.375)) {
+            result = 0.25;
+        }
+        if (BigDecimalUtil.isBetweenLeft(absValue, 0.375, 0.625)) {
+            result = 0.50;
+        }
+        if (BigDecimalUtil.isBetweenLeft(absValue, 0.625, 0.875)) {
+            result = 0.75;
+        }
+        if (absValue.compareTo(0.875) >= 0) {
+            result = 1.00;
+        }
+        if (value.compareTo(0d) < 0) {
+            result = result * (-1d);
+        }
+        return String.format("%.2f",splitDouble.getFirst() + result);
+    }
+
+    /**
      * 拆分Double成两部分
      *
      * @param value 值
