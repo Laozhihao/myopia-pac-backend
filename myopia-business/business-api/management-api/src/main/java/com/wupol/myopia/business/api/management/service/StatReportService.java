@@ -926,7 +926,8 @@ public class StatReportService {
         long warning1Num = validConclusions.stream().filter(x -> WarningLevel.ONE.code.equals(x.getWarningLevel())).count();
         long warning2Num = validConclusions.stream().filter(x -> WarningLevel.TWO.code.equals(x.getWarningLevel())).count();
         long warning3Num = validConclusions.stream().filter(x -> WarningLevel.THREE.code.equals(x.getWarningLevel())).count();
-        long warningNum = warning0Num + warning1Num + warning2Num + warning3Num;
+        long warningSPNum = validConclusions.stream().filter(x -> WarningLevel.ZERO_SP.code.equals(x.getWarningLevel())).count();
+        long warningNum = warning0Num + warning1Num + warning2Num + warning3Num + warningSPNum;
 
         AverageVision averageVision = this.calculateAverageVision(validConclusions);
         float averageVisionValue =
@@ -965,8 +966,8 @@ public class StatReportService {
                 convertToPercentage(warningNum * 1f / validFirstScreeningNum),
                 warningNum));
         basicStatParamsList.add(new BasicStatParams("warning0",
-                convertToPercentage(warning0Num * 1f / validFirstScreeningNum),
-                warning0Num));
+                convertToPercentage((warningSPNum + warning0Num) * 1f / validFirstScreeningNum),
+                (warningSPNum +warning0Num)));
         basicStatParamsList.add(new BasicStatParams("warning1",
                 convertToPercentage(warning1Num * 1f / validFirstScreeningNum),
                 warning1Num));
