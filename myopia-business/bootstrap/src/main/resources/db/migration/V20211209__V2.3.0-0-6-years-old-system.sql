@@ -26,3 +26,8 @@ ADD COLUMN `cooperation_type` tinyint(4) NULL DEFAULT NULL COMMENT '合作类型
 ADD COLUMN `cooperation_time_type` tinyint(4) NULL DEFAULT NULL COMMENT '合作期限类型 -1-自定义 0-30天 1-60天 2-180天 3-1年 4-2年 5-3年' AFTER `cooperation_type`,
 ADD COLUMN `cooperation_start_time` timestamp(3) NULL DEFAULT NULL COMMENT '合作开始时间' AFTER `cooperation_time_type`,
 ADD COLUMN `cooperation_end_time` timestamp(3) NULL DEFAULT NULL COMMENT '合作结束时间' AFTER `cooperation_start_time`;
+
+-- 初始化医生角色
+INSERT INTO `o_role` ( `org_id`, `ch_name`, `role_type`, `create_user_id`, `system_code` ) VALUES
+( - 1, '居民健康医生类型角色', 5, 1, 4 ),
+( - 1, '0-6岁眼检查医生类型角色', 5, 1, 4 );
