@@ -81,7 +81,7 @@
                     and DATE(u.last_login_time) between DATE(#{param.startLastLoginTime}) and DATE(#{param.endLastLoginTime})
                 </if>
                 <if test="param.userTypes != null">
-                    and u.`userType` IN <foreach collection="param.userTypes" open="(" close=")" separator="," item="item">#{item}</foreach>
+                    and u.`user_type` IN <foreach collection="param.userTypes" open="(" close=")" separator="," item="item">#{item}</foreach>
                 </if>
             </trim>
         </where>

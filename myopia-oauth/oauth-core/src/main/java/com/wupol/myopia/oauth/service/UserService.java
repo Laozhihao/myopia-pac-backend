@@ -289,7 +289,7 @@ public class UserService extends BaseService<UserMapper, User> {
             updateScreeningOrgAdminRolePermission(user.getOrgConfigType(), user.getOrgId());
         } else if (SystemCode.HOSPITAL_CLIENT.getCode().equals(user.getSystemCode())) {
             // 更新医生角色
-            updateDoctorRole(userId, user.getOrgConfigType());
+            updateDoctorRole(userId, user.getOrgId(), user.getOrgConfigType());
         } else {
             // 平台管理员、政府人员绑定新角色
             List<Integer> roleIds = user.getRoleIds();
@@ -558,7 +558,7 @@ public class UserService extends BaseService<UserMapper, User> {
     @Transactional(rollbackFor = Exception.class)
     public void updateDoctorRoleBatch(Integer hospitalId, Integer serviceType) {
         List<User> userList = findByList(new User().setSystemCode(SystemCode.HOSPITAL_CLIENT.getCode()).setOrgId(hospitalId));
-        userList.forEach(user -> updateDoctorRole(user.getId(), serviceType));
+        userList.forEach(user -> updateDoctorRole(user.getId(), hospitalId, serviceType));
     }
 
     /**
@@ -569,10 +569,11 @@ public class UserService extends BaseService<UserMapper, User> {
      * @param serviceType
      * @return void
      **/
-    private void updateDoctorRole(Integer userId, Integer serviceType) {
+    private void updateDoctorRole(Integer userId, Integer orgId, Integer serviceType) {
         userRoleService.remove(new UserRole().setUserId(userId));
         UserDTO userDTO = new UserDTO();
         userDTO.setOrgConfigType(serviceType)
+                .setOrgId(orgId)
                 .setSystemCode(SystemCode.HOSPITAL_CLIENT.getCode())
                 .setId(userId);
         createDoctorRole(userDTO);

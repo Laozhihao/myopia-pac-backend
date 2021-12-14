@@ -187,14 +187,13 @@ public class School extends AddressCode implements Serializable, HasName {
     private NotificationConfig notificationConfig;
 
     /**
-     * 合作剩余天数据
-     * @return
-     */
+     * 剩余合作时间，单位：天
+     *
+     * @return java.lang.Integer
+     **/
     public Integer getCooperationRemainTime() {
-        if (Objects.nonNull(cooperationEndTime)) {
-            return Math.max(0, (int) DateUtil.betweenDay(new Date(), cooperationEndTime));
-        }
-        return null;
+        return isCooperationBegin() ? Math.max(0, (int) DateUtil.betweenDay(new Date(), cooperationEndTime)) :
+                Math.max(0, (int) DateUtil.betweenDay(cooperationStartTime, cooperationEndTime));
     }
 
     /**
@@ -208,8 +207,19 @@ public class School extends AddressCode implements Serializable, HasName {
         return true;
     }
 
+    public boolean isCooperationBegin() {
+        if (Objects.nonNull(cooperationStartTime)) {
+            return cooperationStartTime.getTime() < new Date().getTime();
+        }
+        return false;
+    }
+
+    /**
+     * 合作未开始或合作已结束禁止
+     * @return
+     */
     public int getCooperationStopStatus() {
-        return isCooperationStop() ? StatusConstant.DISABLE : StatusConstant.ENABLE;
+        return (!isCooperationBegin()) || isCooperationStop() ? StatusConstant.DISABLE : StatusConstant.ENABLE;
     }
 
 }

@@ -181,10 +181,8 @@ public class Hospital extends AddressCode implements Serializable {
      * @return java.lang.Integer
      **/
     public Integer getCooperationRemainTime() {
-        if (Objects.nonNull(cooperationEndTime)) {
-            return Math.max(0, (int) DateUtil.betweenDay(new Date(), cooperationEndTime));
-        }
-        return null;
+        return isCooperationBegin() ? Math.max(0, (int) DateUtil.betweenDay(new Date(), cooperationEndTime)) :
+                Math.max(0, (int) DateUtil.betweenDay(cooperationStartTime, cooperationEndTime));
     }
 
     /**
@@ -198,8 +196,19 @@ public class Hospital extends AddressCode implements Serializable {
         return true;
     }
 
+    public boolean isCooperationBegin() {
+        if (Objects.nonNull(cooperationStartTime)) {
+            return cooperationStartTime.getTime() < new Date().getTime();
+        }
+        return false;
+    }
+
+    /**
+     * 合作未开始或合作已结束禁止
+     * @return
+     */
     public int getCooperationStopStatus() {
-        return isCooperationStop() ? StatusConstant.DISABLE : StatusConstant.ENABLE;
+        return (!isCooperationBegin()) || isCooperationStop() ? StatusConstant.DISABLE : StatusConstant.ENABLE;
     }
 
 }
