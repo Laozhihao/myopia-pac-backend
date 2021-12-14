@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.EncryptUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.StringUtils;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -26,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import javax.annotation.Resource;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -143,14 +145,32 @@ public class WxService {
         // 绑定手机号码到家长用户，同时更新账号与密码
         Parent parent = parentService.findOne(new Parent().setHashKey(wxLoginInfo.getOpenId()));
         if (Objects.isNull(parent)) {
-            logger.error("根据openId的hashKey无法找到该家长数据，hashKey = " + wxLoginInfo.getOpenId());
+            logger.error("根据openId的hashKey无法找到该家长数据，hashKey = {}", wxLoginInfo.getOpenId());
             throw new BusinessException("当前用户不存在");
         }
         UserDTO userDTO = new UserDTO();
         userDTO.setId(parent.getUserId())
                 .setPhone(wxLoginInfo.getPhone())
                 .setUsername(wxLoginInfo.getPhone())
+                .setSystemCode(SystemCode.PATENT_CLIENT.getCode())
                 .setPassword(parent.getHashKey());
-        oauthServiceClient.updateUser(userDTO);
+        try {
+            oauthServiceClient.updateUser(userDTO);
+        } catch (Exception e) {
+            // TODO: 临时还原异常现场，排查是否为系统bug
+            String message = e.getMessage();
+            if ("已经存在该手机号码".equals(message)) {
+                List<User> userList = oauthServiceClient.getUserBatchByPhones(Lists.newArrayList(wxLoginInfo.getPhone()),SystemCode.PATENT_CLIENT.getCode());
+                User existUser = userList.get(0);
+                Parent existParent = parentService.findOne(new Parent().setUserId(existUser.getId()));
+                if (Objects.isNull(existParent)) {
+                    logger.error("【异常-已经存在该手机号码】{}该手机号的用户未绑定家长", wxLoginInfo.getPhone());
+                } else {
+                    logger.error("【异常-已经存在该手机号码】手机：{}，新微信：{}，旧微信：{}", wxLoginInfo.getPhone(), parent.getWxNickname(), existParent.getWxNickname());
+                }
+
+            }
+            throw new BusinessException(e.getMessage());
+        }
     }
 }
