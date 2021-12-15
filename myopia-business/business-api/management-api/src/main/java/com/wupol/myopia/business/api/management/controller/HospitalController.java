@@ -78,9 +78,6 @@ public class HospitalController {
      */
     @PutMapping
     public HospitalResponseDTO updateHospital(@RequestBody @Valid Hospital hospital) {
-        CurrentUser user = CurrentUserUtil.getCurrentUser();
-        hospital.setCreateUserId(user.getId());
-        hospital.setGovDeptId(user.getOrgId());
         return hospitalBizService.updateHospital(hospital);
     }
 
