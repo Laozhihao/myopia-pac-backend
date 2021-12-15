@@ -28,4 +28,6 @@ public interface DoctorMapper extends BaseMapper<Doctor> {
 
     DoctorDTO getByUserId(@Param("userId") Integer userId);
 
+    List<DoctorDTO> getAll();
+
 }

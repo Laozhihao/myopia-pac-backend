@@ -35,6 +35,14 @@ public class DoctorController {
     private HospitalDoctorService baseService;
 
     /**
+     * TODO wulizhou 用于修复医生账号问题
+     */
+    @PostMapping("/repair")
+    public void repair() {
+        baseService.repair(CurrentUserUtil.getCurrentUser().getId());
+    }
+
+    /**
      * 获取医生详情
      * @param id
      * @return

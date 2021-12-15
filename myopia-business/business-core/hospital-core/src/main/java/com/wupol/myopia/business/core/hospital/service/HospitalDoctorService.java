@@ -263,6 +263,35 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
                 .setSignUrl(resourceFileService.getResourcePath(doctor.getSignFileId()));
     }
 
+    public boolean repair(Integer userId) {
+        List<DoctorDTO> list = baseMapper.getAll();
+        long phone = 10000000000L;
+        for (DoctorDTO doctor : list) {
+            if (Objects.nonNull(doctor.getUserId())) {
+                continue;
+            }
+            doctor.setPhone(++phone + "");
+            String password = PasswordAndUsernameGenerator.getDoctorPwd(doctor.getPhone(), doctor.getCreateTime());
+            Hospital hospital = hospitalService.getById(doctor.getHospitalId());
+            UserDTO userDTO = new UserDTO();
+            userDTO.setOrgId(doctor.getHospitalId())
+                    .setRealName(doctor.getName())
+                    .setGender(doctor.getGender())
+                    .setPhone(doctor.getPhone())
+                    .setUsername(doctor.getPhone())
+                    .setPassword(password)
+                    .setCreateUserId(userId)
+                    .setSystemCode(SystemCode.HOSPITAL_CLIENT.getCode());
+            // 医生当前的医院配置
+            userDTO.setOrgConfigType(hospital.getServiceType());
+
+            User user = oauthServiceClient.addMultiSystemUser(userDTO);
+            doctor.setUserId(user.getId());
+            this.updateOrSave(doctor);
+        }
+        return true;
+    }
+
     /**
      * 更新医生信息   TODO 待删除
      * @param doctor 医生信息

@@ -7,12 +7,6 @@ ALTER TABLE `m_hospital`
   ADD COLUMN `cooperation_end_time` timestamp(3) NULL DEFAULT NULL COMMENT '合作结束时间',
   ADD COLUMN `associate_screening_org_id` int(11) COMMENT '关联筛查机构的ID';
 
--- 医生信息表
-truncate table `h_doctor`;
-ALTER TABLE `h_doctor`
-DROP COLUMN `gender`,
-DROP COLUMN `status`;
-
 -- 筛查机构表
 ALTER TABLE `m_screening_organization`
 ADD COLUMN `cooperation_type` tinyint(4) NULL DEFAULT NULL COMMENT '合作类型 0-合作 1-试用' AFTER `status`,
