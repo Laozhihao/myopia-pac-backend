@@ -132,42 +132,29 @@ public class StatUtil {
     }
 
     /**
-     * 返回裸眼视力预警级别
+     * 视力低下等级
      *
      * @param nakedVision 裸眼视力
      * @param age         年龄
      * @return
      */
     public static WarningLevel getNakedVisionWarningLevel(Float nakedVision, Integer age) {
-        if (nakedVision == null || age == null) {
+        if (nakedVision == null || age == null || age < 6) {
             return null;
         }
-        switch (age) {
-            case 0:
-            case 1:
-            case 2:
-            case 3:
-            case 4:
-            case 5:
-                if (nakedVision > 4.7f && nakedVision < 5.0f) return WarningLevel.ZERO;
-                if (nakedVision > 4.6f && nakedVision <= 4.7f) return WarningLevel.ONE;
-                if (nakedVision > 4.5f && nakedVision <= 4.6f) return WarningLevel.TWO;
-                if (nakedVision <= 4.5f) return WarningLevel.THREE;
-                break;
-            case 6:
-            case 7:
-                if (nakedVision > 4.8f && nakedVision < 5.0f) return WarningLevel.ZERO;
-                if (nakedVision > 4.7f && nakedVision <= 4.8f) return WarningLevel.ONE;
-                if (nakedVision > 4.5f && nakedVision <= 4.7f) return WarningLevel.TWO;
-                if (nakedVision <= 4.5f) return WarningLevel.THREE;
-                break;
-            default:
-                if (nakedVision > 4.9f && nakedVision < 5.0f) return WarningLevel.ZERO;
-                if (nakedVision > 4.7f && nakedVision <= 4.9f) return WarningLevel.ONE;
-                if (nakedVision > 4.5f && nakedVision <= 4.7f) return WarningLevel.TWO;
-                if (nakedVision <= 4.5f) return WarningLevel.THREE;
+        if (nakedVision >= 5.0f ) {
+            return null;
         }
-        return WarningLevel.NORMAL;
+        if (nakedVision == 4.9f) {
+            return WarningLevel.ONE;
+        }
+        if (nakedVision >= 4.6f && nakedVision <= 4.8f) {
+            return WarningLevel.TWO;
+        }
+        if (nakedVision <= 4.5f) {
+            return WarningLevel.THREE;
+        }
+        return null;
     }
 
     /**
@@ -181,16 +168,19 @@ public class StatUtil {
         if (nakedVision == null || age == null || age < 0) {
             return null;
         }
-        if (age > 0 && age < 3 && nakedVision < 4.6) {
+        if (age > 0 && age < 3 && nakedVision <= 4.6) {
             return true;
         }
-        if (age == 3 && nakedVision < 4.7) {
+        if (age == 3 && nakedVision <= 4.7) {
             return true;
         }
         if (age == 4 && nakedVision <= 4.8) {
             return true;
         }
-        return age >= 5 && nakedVision <= 4.9;
+        if (age == 5 && nakedVision <= 4.9) {
+            return true;
+        }
+        return age >= 6 && nakedVision < 5.0;
     }
 
     /**
@@ -783,11 +773,11 @@ public class StatUtil {
         if (Objects.isNull(se)) {
             return null;
         }
-        if (age >= 3 && age < 6 && BigDecimalUtil.isBetweenRight(se, "0", "1.5")) {
+        if (age >= 3 && age < 6 && BigDecimalUtil.isBetweenAll(se, "0", "1.5")) {
             return WarningLevel.ZERO_SP;
         }
 
-        if (age >= 6 && age < 8 && BigDecimalUtil.isBetweenRight(se, "0", "1")) {
+        if (age >= 6 && age < 8 && BigDecimalUtil.isBetweenAll(se, "0", "1")) {
             return WarningLevel.ZERO_SP;
         }
         return null;
