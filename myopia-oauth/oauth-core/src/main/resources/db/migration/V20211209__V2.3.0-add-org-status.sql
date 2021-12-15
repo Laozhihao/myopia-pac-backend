@@ -35,21 +35,44 @@ GROUP BY org_id, system_code, user_type
 HAVING system_code = 1
 AND user_type in (0,1,2,3);
 
-
 -- 增加相关权限信息
-INSERT INTO `o_permission`(`id`, `name`, `menu_btn_name`, `api_url`, `is_menu`, `is_page`, `order`, `pid`, `system_code`)
-VALUES
-(412, '工作台', 'workbench', NULL, 1, 1, 1, 0, 1),
-(413, '患者管理', 'patient', NULL, 1, 1, 1, 412, 1),
-(414, '医生管理', 'doctor', NULL, 1, 1, 2, 412, 1),
-(415, '就诊记录', 'diagnosisRecord', NULL, 1, 1, 1, 413, 1),
-
-(416, '获取医生列表', 'getDoctorList', 'get:/management/doctor/list', 0, 0, 1, 414, 1),
-(417, '获取医生详情', 'getDoctorDetails', 'get:/management/doctor/**', 0, 0, 2, 414, 1),
-(418, '添加医生', 'addDoctor', 'post:/management/doctor', 0, 0, 3, 414, 1),
-(419, '更新医生', 'updateDoctor', 'put:/management/doctor', 0, 0, 4, 414, 1),
-(420, '更新医生状态', 'updateDoctorStatus', 'put:/management/doctor/status', 0, 0, 5, 414, 1),
-(421, '重置医生密码', 'resetDoctorPassword', 'put:/management/doctor/reset', 0, 0, 6, 414, 1);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (500, '工作台（一级）', 'workbench', null, 1, 1, 1, 0, 1);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (501, '患者管理', 'patient', null, 1, 1, 1, 500, 1);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (502, '医生管理', 'doctor', null, 1, 1, 2, 500, 1);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (503, '0-6眼保健检查记录', 'eyeInspect', null, 1, 1, 3, 500, 1);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (504, '眼健康就诊记录', 'eyeHealthy', null, 1, 1, 4, 500, 1);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (505, '就诊记录', 'diagnosisRecord', null, 1, 1, 1, 501, 1);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (506, '获取医院学生列表', 'HospitalStudentList', 'get:/management/hospital/workbench/patient/list', 0, 0, 0, 501, 1);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (507, '删除医院学生', 'deletedHospitalStudentId', 'delete:/management/hospital/workbench/patient/**', 0, 0, 0, 501, 1);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (508, '通过Id获取医院学生', 'getByHospitalStudentId', 'get:/management/hospital/workbench/patient/**', 0, 0, 0, 505, 1);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (509, '根据指定code，获取其下级行政区域集', 'getDistrictCode', 'get:/management/hospital/workbench/patient/child/district/**', 0, 0, 0, 505, 1);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (510, '通过名字获取学校列表', 'getBySchoolName', 'get:/management/school/getSchools/**', 0, 0, 0, 505, 1);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (511, '获取班级', 'getGradeInfo', 'get:/management/schoolGrade/all', 0, 0, 0, 505, 1);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (512, '更新资料', 'update', 'put:/management/hospital/workbench/patient', 0, 0, 0, 505, 1);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (513, '获取医生列表', 'getDoctorList', 'get:/management/doctor/list', 0, 0, 1, 502, 1);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (514, '获取医生详情', 'getDoctorDetails', 'get:/management/doctor/**', 0, 0, 2, 502, 1);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (515, '添加医生', 'addDoctor', 'post:/management/doctor', 0, 0, 3, 502, 1);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (516, '更新医生', 'updateDoctor', 'put:/management/doctor', 0, 0, 4, 502, 1);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (517, '更新医生状态', 'updateDoctorStatus', 'put:/management/doctor/status', 0, 0, 5, 502, 1);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (518, '重置医生密码', 'resetDoctorPassword', 'put:/management/doctor/reset', 0, 0, 6, 502, 1);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (519, '患者管理（三级）', 'tPatient', null, 1, 1, 0, 12, 1);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (520, '医生管理（三级）', 'tDoctor', null, 1, 1, 0, 12, 1);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (521, '0-6眼保健检查记录', 'tEyeInspect', null, 1, 1, 3, 12, 1);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (522, '眼健康就诊记录', 'tEyeHealthy', null, 1, 1, 4, 12, 1);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (523, '就诊记录', 'tDiagnosisRecord', null, 1, 1, 1, 519, 1);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (524, '获取医院学生列表', 'tHospitalStudentList', 'get:/management/hospital/workbench/patient/list', 0, 0, 0, 519, 1);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (525, '删除医院学生', 'tDeletedHospitalStudentId', 'delete:/management/hospital/workbench/patient/**', 0, 0, 0, 519, 1);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (526, '通过Id获取医院学生', 'tGetByHospitalStudentId', 'get:/management/hospital/workbench/patient/**', 0, 0, 0, 523, 1);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (527, '根据指定code，获取其下级行政区域集', 'tGetDistrictCode', 'get:/management/hospital/workbench/patient/child/district/**', 0, 0, 0, 523, 1);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (528, '通过名字获取学校列表', 'tGetBySchoolName', 'get:/management/school/getSchools/**', 0, 0, 0, 523, 1);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (529, '获取班级', 'tGetGradeInfo', 'get:/management/schoolGrade/all', 0, 0, 0, 523, 1);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (530, '更新资料', 'tUpdate', 'put:/management/hospital/workbench/patient', 0, 0, 0, 523, 1);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (531, '获取医生列表', 'tGetDoctorList', 'get:/management/doctor/list', 0, 0, 1, 520, 1);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (532, '获取医生详情', 'tGetDoctorDetails', 'get:/management/doctor/**', 0, 0, 2, 520, 1);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (533, '添加医生', 'tAddDoctor', 'post:/management/doctor', 0, 0, 3, 520, 1);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (534, '更新医生', 'tUpdateDoctor', 'put:/management/doctor', 0, 0, 4, 520, 1);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (535, '更新医生状态', 'tUpdateDoctorStatus', 'put:/management/doctor/status', 0, 0, 5, 520, 1);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (536, '重置医生密码', 'tResetDoctorPassword', 'put:/management/doctor/reset', 0, 0, 6, 520, 1);
 
 
 -- 初始化医生角色
