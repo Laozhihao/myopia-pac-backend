@@ -953,7 +953,11 @@ public class StatReportService {
         resultMap.put("myopiaRatio", convertToPercentage(myopiaNum * 1f / validFirstScreeningNum));
 
         // 视力低下
-        long lowVisionNum = validConclusions.stream().filter(c -> Objects.nonNull(c.getIsLowVision()) && c.getIsLowVision()).count();
+        long lowVisionNum = validConclusions.stream().filter(
+                c -> Objects.nonNull(c.getNakedVisionWarningLevel())
+                        && (WarningLevel.ONE.code.equals(c.getNakedVisionWarningLevel())
+                        || WarningLevel.TWO.code.equals(c.getNakedVisionWarningLevel())
+                        || WarningLevel.THREE.code.equals(c.getNakedVisionWarningLevel()))).count();
         resultMap.put("lowVisionRatio", convertToPercentage(lowVisionNum * 1f / validFirstScreeningNum));
         resultMap.put(TABLE_LABEL_AVERAGE_VISION, averageVisionValue);
 
