@@ -191,6 +191,7 @@ public class NoticeService extends BaseService<NoticeMapper, Notice> {
      * @param type
      * @return
      */
+    @Transactional(rollbackFor = Exception.class)
     public void sendNoticeToAllAdmin(Integer createUserId, String title, String content, Byte type) {
         UserDTO userDTO = new UserDTO();
         userDTO.setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode()).setUserType(UserType.PLATFORM_ADMIN.getType());
