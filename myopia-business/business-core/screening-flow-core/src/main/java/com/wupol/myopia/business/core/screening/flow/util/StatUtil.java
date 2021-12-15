@@ -773,11 +773,11 @@ public class StatUtil {
         if (Objects.isNull(se)) {
             return null;
         }
-        if (age >= 3 && age < 6 && BigDecimalUtil.isBetweenRight(se, "0", "1.5")) {
+        if (age >= 3 && age < 6 && BigDecimalUtil.isBetweenAll(se, "0", "1.5")) {
             return WarningLevel.ZERO_SP;
         }
 
-        if (age >= 6 && age < 8 && BigDecimalUtil.isBetweenRight(se, "0", "1")) {
+        if (age >= 6 && age < 8 && BigDecimalUtil.isBetweenAll(se, "0", "1")) {
             return WarningLevel.ZERO_SP;
         }
         return null;
