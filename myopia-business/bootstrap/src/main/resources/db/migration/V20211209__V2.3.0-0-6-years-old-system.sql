@@ -27,7 +27,7 @@ ADD COLUMN `cooperation_time_type` tinyint(4) NULL DEFAULT NULL COMMENT '合作�
 ADD COLUMN `cooperation_start_time` timestamp(3) NULL DEFAULT NULL COMMENT '合作开始时间' AFTER `cooperation_time_type`,
 ADD COLUMN `cooperation_end_time` timestamp(3) NULL DEFAULT NULL COMMENT '合作结束时间' AFTER `cooperation_start_time`;
 
--- 初始化医生角色
-INSERT INTO `o_role` ( `org_id`, `ch_name`, `role_type`, `create_user_id`, `system_code` ) VALUES
-( - 1, '居民健康医生类型角色', 5, 1, 4 ),
-( - 1, '0-6岁眼检查医生类型角色', 5, 1, 4 );
+-- 初始化合作信息
+update m_school set cooperation_type = 0, cooperation_time_type = -1, cooperation_start_time = create_time, cooperation_end_time = '2021-12-02 23:59:59', `status` = 1;
+update m_hospital set cooperation_type = 1, cooperation_time_type = -1, cooperation_start_time = create_time, cooperation_end_time = '2022-12-02 23:59:59', `status` = 0;
+update m_screening_organization set cooperation_type = 1, cooperation_time_type = -1, cooperation_start_time = create_time, cooperation_end_time = '2022-12-02 23:59:59', `status` = 0;

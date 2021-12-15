@@ -26,15 +26,14 @@ INSERT INTO o_organization(org_id, system_code, user_type, `status`)
 SELECT org_id, system_code, user_type, 1
 FROM o_user
 GROUP BY org_id, system_code, user_type
-HAVING system_code in (1,2)
-AND user_type in (2,3);
+HAVING system_code = 2;
 
 INSERT INTO o_organization(org_id, system_code, user_type, `status`)
 SELECT org_id, system_code, user_type, 0
 FROM o_user
 GROUP BY org_id, system_code, user_type
-HAVING system_code in (1,2)
-AND user_type in (0,1);
+HAVING system_code = 1
+AND user_type in (0,1,2,3);
 
 
 -- 增加相关权限信息
@@ -51,4 +50,10 @@ VALUES
 (419, '更新医生', 'updateDoctor', 'put:/management/doctor', 0, 0, 4, 414, 1),
 (420, '更新医生状态', 'updateDoctorStatus', 'put:/management/doctor/status', 0, 0, 5, 414, 1),
 (421, '重置医生密码', 'resetDoctorPassword', 'put:/management/doctor/reset', 0, 0, 6, 414, 1);
+
+
+-- 初始化医生角色
+INSERT INTO `o_role` ( `org_id`, `ch_name`, `role_type`, `create_user_id`, `system_code` ) VALUES
+( -1, '居民健康医生类型角色', 5, 1, 4 ),
+( -1, '0-6岁眼检查医生类型角色', 6, 1, 4 );
 
