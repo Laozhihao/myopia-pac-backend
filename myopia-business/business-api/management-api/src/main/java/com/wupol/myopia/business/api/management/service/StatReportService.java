@@ -922,18 +922,12 @@ public class StatReportService {
 
         long totalFirstScreeningNum = statBase.getFirstScreen().size();
         long validFirstScreeningNum = validConclusions.size();
-        long myopiaNum = validConclusions.stream().filter(x -> x.getIsMyopia() != null && x.getIsMyopia()).count();
-        long lowVisionNum =
-                validConclusions.stream().filter(x -> x.getIsLowVision() != null && x.getIsLowVision()).count();
-        long warning0Num =
-                validConclusions.stream().filter(x -> WarningLevel.ZERO.code.equals(x.getWarningLevel())).count();
-        long warning1Num =
-                validConclusions.stream().filter(x -> WarningLevel.ONE.code.equals(x.getWarningLevel())).count();
-        long warning2Num =
-                validConclusions.stream().filter(x -> WarningLevel.TWO.code.equals(x.getWarningLevel())).count();
-        long warning3Num =
-                validConclusions.stream().filter(x -> WarningLevel.THREE.code.equals(x.getWarningLevel())).count();
-        long warningNum = warning0Num + warning1Num + warning2Num + warning3Num;
+        long warning0Num = validConclusions.stream().filter(x -> WarningLevel.ZERO.code.equals(x.getWarningLevel())).count();
+        long warning1Num = validConclusions.stream().filter(x -> WarningLevel.ONE.code.equals(x.getWarningLevel())).count();
+        long warning2Num = validConclusions.stream().filter(x -> WarningLevel.TWO.code.equals(x.getWarningLevel())).count();
+        long warning3Num = validConclusions.stream().filter(x -> WarningLevel.THREE.code.equals(x.getWarningLevel())).count();
+        long warningSPNum = validConclusions.stream().filter(x -> WarningLevel.ZERO_SP.code.equals(x.getWarningLevel())).count();
+        long warningNum = warning0Num + warning1Num + warning2Num + warning3Num + warningSPNum;
 
         AverageVision averageVision = this.calculateAverageVision(validConclusions);
         float averageVisionValue =
@@ -949,17 +943,31 @@ public class StatReportService {
         resultMap.put("validFirstScreeningNum", validFirstScreeningNum);
         resultMap.put("maleNum", statGender.getMale().size());
         resultMap.put("femaleNum", statGender.getFemale().size());
+
+        // 近视
+        long myopiaNum = validConclusions.stream().filter(
+                x -> Objects.nonNull(x.getMyopiaWarningLevel())
+                        && (MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.code.equals(x.getMyopiaWarningLevel())
+                        || MyopiaLevelEnum.MYOPIA_LEVEL_MIDDLE.code.equals(x.getMyopiaWarningLevel())
+                        || MyopiaLevelEnum.MYOPIA_LEVEL_HIGH.code.equals(x.getMyopiaWarningLevel()))).count();
         resultMap.put("myopiaRatio", convertToPercentage(myopiaNum * 1f / validFirstScreeningNum));
-        resultMap.put("lowVisionRatio",
-                convertToPercentage(lowVisionNum * 1f / validFirstScreeningNum));
+
+        // 视力低下
+        long lowVisionNum = validConclusions.stream().filter(
+                c -> Objects.nonNull(c.getNakedVisionWarningLevel())
+                        && (WarningLevel.ONE.code.equals(c.getNakedVisionWarningLevel())
+                        || WarningLevel.TWO.code.equals(c.getNakedVisionWarningLevel())
+                        || WarningLevel.THREE.code.equals(c.getNakedVisionWarningLevel()))).count();
+        resultMap.put("lowVisionRatio", convertToPercentage(lowVisionNum * 1f / validFirstScreeningNum));
         resultMap.put(TABLE_LABEL_AVERAGE_VISION, averageVisionValue);
+
         List<BasicStatParams> basicStatParamsList = new ArrayList<>();
         basicStatParamsList.add(new BasicStatParams("warningTotal",
                 convertToPercentage(warningNum * 1f / validFirstScreeningNum),
                 warningNum));
         basicStatParamsList.add(new BasicStatParams("warning0",
-                convertToPercentage(warning0Num * 1f / validFirstScreeningNum),
-                warning0Num));
+                convertToPercentage((warningSPNum + warning0Num) * 1f / validFirstScreeningNum),
+                (warningSPNum +warning0Num)));
         basicStatParamsList.add(new BasicStatParams("warning1",
                 convertToPercentage(warning1Num * 1f / validFirstScreeningNum),
                 warning1Num));
@@ -970,16 +978,25 @@ public class StatReportService {
                 convertToPercentage(warning3Num * 1f / validFirstScreeningNum),
                 warning3Num));
         resultMap.put("warningLevelStat", basicStatParamsList);
+        // 表1
         resultMap.put("genderLowVisionLevelDesc", composeGenderLowVisionLevelDesc(validConclusions));
         // 表2
         resultMap.put("schoolGradeLowVisionLevelDesc", composeSchoolGradeLowVisionLevelDesc(validConclusions, schoolGradeItems));
+        // 表5
         resultMap.put("schoolGradeMyopiaLevelDesc", composeSchoolGradeMyopiaLevelDesc(validConclusions, schoolGradeItems));
+        // 表3
         resultMap.put("schoolGradeClassLowVisionLevelTable", composeSchoolGradeClassLowVisionLevelTable(schoolGradeItems, validConclusions));
+        // 表6
         resultMap.put("schoolGradeClassMyopiaLevelTable", composeSchoolGradeClassMyopiaLevelTable(schoolGradeItems, validConclusions));
+        // 表4
         resultMap.put("genderMyopiaLevelDesc", composeGenderMyopiaLevelDesc(validConclusions));
+        // 表7
         resultMap.put("schoolGradeWearingTypeDesc", composeSchoolGradeWearingTypeDesc(schoolGradeItems, validConclusions));
+        // 表8
         resultMap.put("schoolGradeGenderUncorrectedDesc", composeSchoolGradeGenderUncorrectedDesc(schoolGradeItems, validConclusions));
+        // 表9
         resultMap.put("schoolGradeGenderUnderCorrectedDesc", composeSchoolGradeGenderUnderCorrectedDesc(schoolGradeItems, validConclusions));
+        // 表10
         resultMap.put("schoolGradeWarningLevelDesc", composeSchoolGradeWarningLevelDesc(schoolGradeItems, validConclusions));
         // 视力详情
         resultMap.put("schoolClassStudentStatList", composeSchoolClassStudentStatList(schoolGradeItems, statConclusionReportDTOs));
@@ -1134,20 +1151,18 @@ public class StatReportService {
      * @param statConclusions 统计数据
      * @return
      */
-    private Map<String, Object> composeGenderLowVisionLevelDesc(
-            List<StatConclusion> statConclusions) {
-        List<StatConclusion> maleList =
-                statConclusions.stream()
-                        .filter(x -> GenderEnum.MALE.type.equals(x.getGender()))
-                        .collect(Collectors.toList());
-        List<StatConclusion> femaleList =
-                statConclusions.stream()
-                        .filter(x -> GenderEnum.FEMALE.type.equals(x.getGender()))
-                        .collect(Collectors.toList());
+    private Map<String, Object> composeGenderLowVisionLevelDesc(List<StatConclusion> statConclusions) {
+        List<StatConclusion> maleList = statConclusions.stream()
+                .filter(x -> GenderEnum.MALE.type.equals(x.getGender()))
+                .collect(Collectors.toList());
+        List<StatConclusion> femaleList = statConclusions.stream()
+                .filter(x -> GenderEnum.FEMALE.type.equals(x.getGender()))
+                .collect(Collectors.toList());
+
         Map<String, Object> maleStat = composeLowVisionLevelStat(GenderEnum.MALE.name(), maleList);
-        Map<String, Object> femaleStat =
-                composeLowVisionLevelStat(GenderEnum.FEMALE.name(), femaleList);
+        Map<String, Object> femaleStat = composeLowVisionLevelStat(GenderEnum.FEMALE.name(), femaleList);
         Map<String, Object> totalStat = composeLowVisionLevelStat(TABLE_LABEL_TOTAL, statConclusions);
+
         List<Map<String, Object>> list = new ArrayList<>();
         list.add(maleStat);
         list.add(femaleStat);
@@ -1415,14 +1430,12 @@ public class StatReportService {
      * @param statConclusions 统计数据
      * @return
      */
-    private Map<String, Object> composeLowVisionLevelStat(
-            String name, List<StatConclusion> statConclusions) {
-        Predicate<StatConclusion> levelOnePredicate =
-                x -> WarningLevel.ONE.code.equals(x.getNakedVisionWarningLevel());
-        Predicate<StatConclusion> levelTwoPredicate =
-                x -> WarningLevel.TWO.code.equals(x.getNakedVisionWarningLevel());
-        Predicate<StatConclusion> levelThreePredicate =
-                x -> WarningLevel.THREE.code.equals(x.getNakedVisionWarningLevel());
+    private Map<String, Object> composeLowVisionLevelStat(String name,
+                                                          List<StatConclusion> statConclusions) {
+        Predicate<StatConclusion> levelOnePredicate = x -> WarningLevel.ONE.code.equals(x.getNakedVisionWarningLevel());
+        Predicate<StatConclusion> levelTwoPredicate = x -> WarningLevel.TWO.code.equals(x.getNakedVisionWarningLevel());
+        Predicate<StatConclusion> levelThreePredicate = x -> WarningLevel.THREE.code.equals(x.getNakedVisionWarningLevel());
+
         Map<String, Object> levelMap = composeLevelStat(name, statConclusions,
                 levelOnePredicate, levelTwoPredicate, levelThreePredicate);
         AverageVision averageVision = this.calculateAverageVision(statConclusions);
