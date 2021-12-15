@@ -403,7 +403,7 @@ public class StatManagementController {
                             statConclusion.setIsLowVision(null);
                             statConclusion.setNakedVisionWarningLevel(null);
                         } else {
-                            statConclusion.setIsLowVision(isLeftLowVision || isRightLowVision);
+                            statConclusion.setIsLowVision(ObjectsUtil.allNotNull(isLeftLowVision, isRightLowVision) ? isLeftLowVision || isRightLowVision : Objects.nonNull(isLeftLowVision) ? isLeftLowVision : Boolean.TRUE.equals(isRightLowVision));
                             statConclusion.setNakedVisionWarningLevel(StatUtil.getSeriousLevel(leftCode, rightCode));
                         }
                     }
