@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.management.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.myopia.base.constant.RoleType;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.domain.CurrentUser;
@@ -22,7 +23,10 @@ import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccou
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
+import com.wupol.myopia.oauth.sdk.domain.request.RoleDTO;
+import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
 import com.wupol.myopia.oauth.sdk.domain.response.Organization;
+import com.wupol.myopia.oauth.sdk.domain.response.Role;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -232,5 +236,34 @@ public class HospitalBizService {
         }
         // 医生用户
         oauthServiceClient.updateDoctorRole(newHospital.getId(), newHospital.getServiceType());
+    }
+
+    /**
+     * 处理医院历史数据，给医院管理员账号绑定角色
+     *
+     * @return void
+     **/
+    public void dealHistoryData() {
+        List<Hospital> hospitals = hospitalService.findByList(new Hospital());
+        hospitals.forEach(hospital -> {
+            // 1. 为当前医院创建且仅创建一个角色
+            RoleDTO roleDTO = new RoleDTO();
+            roleDTO.setOrgId(hospital.getId())
+                    .setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode())
+                    .setRoleType(RoleType.HOSPITAL_ADMIN.getType())
+                    .setChName(hospital.getName() + "管理员")
+                    .setCreateUserId(1);
+            Role role = oauthServiceClient.addRole(roleDTO);
+            // 2. 给该医院下的所有管理员账号都绑定到该角色
+            List<HospitalAdmin> hospitalAdminList = hospitalAdminService.findByList(new HospitalAdmin().setHospitalId(hospital.getId()));
+            hospitalAdminList.forEach(hospitalAdmin -> {
+                UserDTO userDTO = new UserDTO();
+                userDTO.setRoleIds(Collections.singletonList(role.getId()))
+                        .setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode())
+                        .setOrgId(hospitalAdmin.getHospitalId())
+                        .setId(hospitalAdmin.getUserId());
+                oauthServiceClient.updateUser(userDTO);
+            });
+        });
     }
 }

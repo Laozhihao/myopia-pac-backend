@@ -195,4 +195,14 @@ public class HospitalController {
         return hospitalBizService.getHospitalByName(name, null);
     }
 
+    /**
+     * 处理医院历史数据，给医院管理员账号绑定角色
+     *
+     * @return void
+     **/
+    @PostMapping("/dealHistoryData")
+    public void dealHistoryData() {
+        hospitalBizService.dealHistoryData();
+    }
+
 }
