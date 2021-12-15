@@ -17,6 +17,7 @@ import com.wupol.myopia.business.core.hospital.domain.model.HospitalAdmin;
 import com.wupol.myopia.business.core.hospital.domain.query.HospitalQuery;
 import com.wupol.myopia.business.core.hospital.service.HospitalAdminService;
 import com.wupol.myopia.business.core.hospital.service.HospitalService;
+import com.wupol.myopia.business.core.hospital.service.HospitalStudentService;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccountListDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
@@ -56,6 +57,8 @@ public class HospitalBizService {
     private OauthServiceClient oauthServiceClient;
     @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
+    @Resource
+    private HospitalStudentService hospitalStudentService;
 
     /**
      * 更新医院信息

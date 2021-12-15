@@ -112,6 +112,8 @@ white-list:
   - "/management/stat/getAllSchoolReport"
   # 档案卡报告接口（内网访问）
   - "/management/screeningResult/list-result"
+  # 就诊卡
+  - "/management/student/report/detail/**"
   # 健康检查接口
   - "/actuator/health"
   # 学校端

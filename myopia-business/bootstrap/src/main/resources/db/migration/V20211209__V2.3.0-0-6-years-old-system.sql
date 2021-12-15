@@ -31,3 +31,28 @@ ADD COLUMN `cooperation_end_time` timestamp(3) NULL DEFAULT NULL COMMENT '合作
 update m_school set cooperation_type = 0, cooperation_time_type = -1, cooperation_start_time = create_time, cooperation_end_time = '2021-12-02 23:59:59', `status` = 1;
 update m_hospital set cooperation_type = 1, cooperation_time_type = -1, cooperation_start_time = create_time, cooperation_end_time = '2022-12-02 23:59:59', `status` = 0;
 update m_screening_organization set cooperation_type = 1, cooperation_time_type = -1, cooperation_start_time = create_time, cooperation_end_time = '2022-12-02 23:59:59', `status` = 0;
+
+-- 0-6岁系统
+alter table m_student
+    add is_newborn_without_id_card tinyint(1) default false null comment '是否新生儿暂无身份证 false-否 true-是';
+
+alter table m_student
+    add family_info json null comment '家庭信息';
+
+alter table m_student
+    add committee_code bigint null comment '委会行政区域code';
+
+alter table m_student
+    add record_no bigint null comment '检查建档编码';
+
+alter table h_hospital_student
+    add is_newborn_without_id_card tinyint(1) default false null comment '是否新生儿暂无身份证 false-否 true-是';
+
+alter table h_hospital_student
+    add family_info json null comment '家庭信息';
+
+alter table h_hospital_student
+    add committee_code bigint null comment '委会行政区域code';
+
+alter table h_hospital_student
+    add record_no bigint null comment '检查建档编码';

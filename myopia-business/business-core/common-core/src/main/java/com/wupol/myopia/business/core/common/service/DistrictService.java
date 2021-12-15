@@ -344,7 +344,10 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         String key = String.format(DistrictCacheKey.DISTRICT_CHILD, parentCode);
         Object cacheList = redisUtil.get(key);
         if (!Objects.isNull(cacheList)) {
-            return JSON.parseObject(JSON.toJSONString(cacheList), new TypeReference<List<District>>() {});
+            List<District> districtList = JSON.parseObject(JSON.toJSONString(cacheList), new TypeReference<List<District>>() {});
+            if (!CollectionUtils.isEmpty(districtList)) {
+                return districtList;
+            }
         }
         List<District> districts = findByList(new District().setParentCode(parentCode));
         redisUtil.set(key, districts);
@@ -756,5 +759,23 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         District district = getProvinceDistrictTreePriorityCache(getById(districtId).getCode());
         String pre = String.valueOf(district.getCode()).substring(0, 2);
         return new TwoTuple<>(null, Integer.valueOf(pre));
+    }
+
+    /**
+     * 获取居委会描述
+     * <p>
+     * 如 659003513403，将返回 first-新疆维吾尔自治区石河子市图木舒克市兵团五十三团 second-友好北路社区
+     * </p>
+     *
+     * @param code code
+     * @return TwoTuple<String, String>
+     */
+    public TwoTuple<String, String> getCommitteeDesc(Long code) {
+        District district = baseMapper.getByCode(code);
+        if (Objects.isNull(district)) {
+            log.error("code:{}为空", code);
+            throw new BusinessException("行政区域异常");
+        }
+        return new TwoTuple<>(getTopDistrictName(district.getParentCode()), district.getName());
     }
 }
