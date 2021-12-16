@@ -91,6 +91,8 @@ INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `o
 INSERT INTO `o_permission`(`id`, `name`, `menu_btn_name`, `api_url`, `is_menu`, `is_page`, `order`, `pid`, `system_code`) VALUES (547, '医院账号历史问题处理', 'dealHistoryData', 'post:/management/hospital/dealHistoryData', 0, 0, 2, 294, 1);
 INSERT INTO `o_permission`(`id`, `name`, `menu_btn_name`, `api_url`, `is_menu`, `is_page`, `order`, `pid`, `system_code`) VALUES (548, '医生账号历史问题处理', 'doctorRepair', 'post:/management/doctor/repair', 0, 0, 3, 294, 1);
 
+INSERT INTO `o_permission`(`id`, `name`, `menu_btn_name`, `api_url`, `is_menu`, `is_page`, `order`, `pid`, `system_code`) VALUES (549, '医生管理（按钮）', 'bDoctor', 'get:/management/doctor/list', 0, 0, 2, 12, 1);
+INSERT INTO `o_permission`(`id`, `name`, `menu_btn_name`, `api_url`, `is_menu`, `is_page`, `order`, `pid`, `system_code`) VALUES (550, '患者管理（按钮）', 'bPatient', 'get:/management/hospital/workbench/patient/list', 0, 0, 1, 12, 1);
 
 
 -- 初始化医生角色
