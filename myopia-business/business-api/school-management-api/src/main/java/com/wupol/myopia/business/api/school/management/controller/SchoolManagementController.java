@@ -190,9 +190,6 @@ public class SchoolManagementController {
      */
     @PutMapping("/school")
     public SchoolResponseDTO updateSchool(@RequestBody @Valid School school) {
-        CurrentUser user = CurrentUserUtil.getCurrentUser();
-        school.setCreateUserId(user.getId());
-        school.setGovDeptId(user.getOrgId());
         return schoolFacade.updateSchool(school);
     }
 }
