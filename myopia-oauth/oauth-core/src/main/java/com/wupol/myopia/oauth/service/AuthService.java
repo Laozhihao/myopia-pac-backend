@@ -54,8 +54,8 @@ public class AuthService {
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.Permission>
      **/
     private List<Permission> cacheUserPermission(Integer userId, Integer systemCode, Integer userType, long expiresTime) {
-        // 只有管理端的用户需要缓存权限
-        if (!SystemCode.MANAGEMENT_CLIENT.getCode().equals(systemCode)) {
+        // 家长端、筛查端、学校端的用户，不需要校验接口访问权限
+        if (SystemCode.PATENT_CLIENT.getCode().equals(systemCode) || SystemCode.SCREENING_CLIENT.getCode().equals(systemCode) || SystemCode.SCHOOL_CLIENT.getCode().equals(systemCode)) {
             return new ArrayList<>();
         }
         // 通过角色获取权限

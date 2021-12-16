@@ -74,6 +74,24 @@ INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `o
 INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (535, '更新医生状态', 'tUpdateDoctorStatus', 'put:/management/doctor/status', 0, 0, 5, 520, 1);
 INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (536, '重置医生密码', 'tResetDoctorPassword', 'put:/management/doctor/reset', 0, 0, 6, 520, 1);
 
+-- 0-6系统APP权限
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (537, '0-6岁系统（APP）', 'appPreschool', null, 1, 1, 0, 0, 4);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (538, '获取', 'appGetPreschool', 'get:/preschool/app/**', 0, 0, 1, 537, 4);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (539, '增加', 'appPostPreschool', 'post:/preschool/app/**', 0, 0, 2, 537, 4);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (540, '更新', 'appPutPreschool', 'put:/preschool/app/**', 0, 0, 3, 537, 4);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (541, '删除', 'appDeletePreschool', 'delete:/preschool/app/**', 0, 0, 4, 537, 4);
+
+-- 0-6系统APP权限
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (542, '居民健康系统（APP）', 'appHospital', null, 1, 1, 0, 0, 4);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (543, '获取', 'appGetHospital', 'get:/hospital/app/**', 0, 0, 1, 542, 4);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (544, '增加', 'appPostHospital', 'post:/hospital/app/**', 0, 0, 2, 542, 4);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (545, '更新', 'appPutHospital', 'put:/hospital/app/**', 0, 0, 3, 542, 4);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (546, '删除', 'appDeleteHospital', 'delete:/hospital/app/**', 0, 0, 4, 542, 4);
+
+INSERT INTO `o_permission`(`id`, `name`, `menu_btn_name`, `api_url`, `is_menu`, `is_page`, `order`, `pid`, `system_code`) VALUES (547, '医院账号历史问题处理', 'dealHistoryData', 'post:/management/hospital/dealHistoryData', 0, 0, 2, 294, 1);
+INSERT INTO `o_permission`(`id`, `name`, `menu_btn_name`, `api_url`, `is_menu`, `is_page`, `order`, `pid`, `system_code`) VALUES (548, '医生账号历史问题处理', 'doctorRepair', 'post:/management/doctor/repair', 0, 0, 3, 294, 1);
+
+
 
 -- 初始化医生角色
 INSERT INTO `o_role` ( `org_id`, `ch_name`, `role_type`, `create_user_id`, `system_code` ) VALUES

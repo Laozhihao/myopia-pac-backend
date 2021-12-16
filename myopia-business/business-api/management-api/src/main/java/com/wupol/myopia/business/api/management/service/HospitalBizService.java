@@ -244,7 +244,7 @@ public class HospitalBizService {
      * @return void
      **/
     public void dealHistoryData() {
-        List<Hospital> hospitals = hospitalService.findByList(new Hospital());
+        List<Hospital> hospitals = hospitalService.list();
         hospitals.forEach(hospital -> {
             // 1. 为当前医院创建且仅创建一个角色
             RoleDTO roleDTO = new RoleDTO();
