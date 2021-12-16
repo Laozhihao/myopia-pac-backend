@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.business.core.hospital.domain.dos.MedicalReportDO;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
+import com.wupol.myopia.business.core.hospital.domain.dto.HospitalReportRequestDTO;
 import com.wupol.myopia.business.core.hospital.domain.model.MedicalReport;
 import com.wupol.myopia.business.core.hospital.domain.query.MedicalReportQuery;
 import org.apache.ibatis.annotations.Param;
@@ -44,5 +45,7 @@ public interface MedicalReportMapper extends BaseMapper<MedicalReport> {
     List<MedicalReport> getInconclusiveReportList();
 
     List<MedicalReport> getByIds(@Param("ids") List<Integer> ids);
+
+    IPage<ReportAndRecordDO> getByHospitalId(@Param("page") Page<?> page, @Param("requestDTO") HospitalReportRequestDTO requestDTO);
 
 }

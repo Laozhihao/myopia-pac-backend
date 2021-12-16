@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.hospital.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.framework.core.util.DateFormatUtil;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -9,6 +10,7 @@ import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.hospital.domain.dos.MedicalReportDO;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
+import com.wupol.myopia.business.core.hospital.domain.dto.HospitalReportRequestDTO;
 import com.wupol.myopia.business.core.hospital.domain.dto.StudentReportResponseDTO;
 import com.wupol.myopia.business.core.hospital.domain.mapper.MedicalReportMapper;
 import com.wupol.myopia.business.core.hospital.domain.model.MedicalRecord;
@@ -252,6 +254,17 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
             return new ArrayList<>();
         }
         return baseMapper.getByIds(ids);
+    }
+
+    /**
+     * 通过学生ID(只取当前时间的前一天)
+     *
+     * @param pageRequest 分页请求
+     * @param requestDTO  医院就诊报告DTO
+     * @return List<ReportAndRecordVo>
+     */
+    public IPage<ReportAndRecordDO> getByHospitalId(PageRequest pageRequest, HospitalReportRequestDTO requestDTO) {
+        return baseMapper.getByHospitalId(pageRequest.toPage().setOptimizeCountSql(false), requestDTO);
     }
 
 
