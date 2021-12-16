@@ -424,4 +424,19 @@ public class DateUtil extends cn.hutool.core.date.DateUtil {
         return diff / DateUnit.DAY.getMillis();
     }
 
+    /**
+     * 距离结束的天数
+     * @param start 开始时间
+     * @param end   结束时间
+     * @return
+     */
+    public static Integer getRemainTime(Date start, Date end) {
+        if (Objects.isNull(start) || Objects.isNull(end)) {
+            return null;
+        }
+        Date now = new Date();
+        return start.getTime() < now.getTime() ? Math.max(0, (int) betweenDay(now, end)) :
+                Math.max(0, (int) betweenDay(start, end));
+    }
+
 }

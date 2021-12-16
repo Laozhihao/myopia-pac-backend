@@ -112,6 +112,8 @@ public class RoleService {
         RoleDTO roleDTO = new RoleDTO();
         roleDTO.setOrgId(govDeptId);
         roleDTO.setSystemCode(currentUser.getSystemCode());
+            roleDTO.setRoleTypes(Arrays.asList(RoleType.SUPER_ADMIN.getType(), RoleType.PLATFORM_ADMIN.getType(),
+                    RoleType.GOVERNMENT_DEPARTMENT.getType()));
         return oauthServiceClient.getRoleList(roleDTO);
     }
 
