@@ -3,7 +3,6 @@ package com.wupol.myopia.business.core.hospital.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
-import com.wupol.myopia.base.constant.StatusConstant;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -246,18 +245,18 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     }
 
     /**
-     * 处理医院状态，将已过合作时间但未处理为禁止的医院设置为禁止
+     * 处理医院状态
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
     public int handleHospitalStatus(Date date) {
-        List<Hospital> hospitals = getCooperationStopAndUnhandleHospital(date);
+        List<Hospital> hospitals = getUnhandleHospital(date);
         int result = 0;
         for (Hospital hospital : hospitals) {
             // 更新机构状态成功
-            if (updateHospitalStatus(hospital.getId(), StatusConstant.DISABLE, date, StatusConstant.ENABLE) > 0) {
-                // 更新oauth上机构的状态
-                oauthServiceClient.updateOrganization(new Organization(hospital.getId(), SystemCode.MANAGEMENT_CLIENT, UserType.HOSPITAL_ADMIN, StatusConstant.DISABLE));
+            if (updateHospitalStatus(hospital.getId(), hospital.getCooperationStopStatus(), hospital.getStatus()) > 0) {
+                // 更新oauth上机构的状态（同时影响筛查管理端跟筛查端）
+                oauthServiceClient.updateOrganization(new Organization(hospital.getId(), SystemCode.MANAGEMENT_CLIENT, UserType.SCREENING_ORGANIZATION_ADMIN, hospital.getCooperationStopStatus()));
                 result++;
             }
         }
@@ -265,23 +264,22 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     }
 
     /**
-     * 获取已过合作时间但未处理为禁止的医院
+     * 获取状态未更新的医院（已到合作开始时间未启用，已到合作结束时间未停止）
      * @return
      */
-    public List<Hospital> getCooperationStopAndUnhandleHospital(Date date) {
-        return baseMapper.getByCooperationTimeAndStatus(date, StatusConstant.ENABLE);
+    public List<Hospital> getUnhandleHospital(Date date) {
+        return baseMapper.getByCooperationTimeAndStatus(date);
     }
 
     /**
-     * CAS更新医院状态，当且仅当源状态为sourceStatus，合作结束时间早于stopDate时更新状态为targetStatus，且限定id
+     * CAS更新机构状态，当且仅当源状态为sourceStatus，且限定id
      * @param id
      * @param targetStatus
-     * @param stopDate
      * @param sourceStatus
      * @return
      */
-    public int updateHospitalStatus(Integer id, Integer targetStatus, Date stopDate, Integer sourceStatus) {
-        return baseMapper.updateHospitalStatus(id, targetStatus, stopDate, sourceStatus);
+    public int updateHospitalStatus(Integer id, Integer targetStatus, Integer sourceStatus) {
+        return baseMapper.updateHospitalStatus(id, targetStatus, sourceStatus);
     }
 
     /**

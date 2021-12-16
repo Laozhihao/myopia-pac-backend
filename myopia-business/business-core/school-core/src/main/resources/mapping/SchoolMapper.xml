@@ -183,15 +183,17 @@
         select
         <include refid="Base_Column_List"/>
         from m_school
-        where cooperation_end_time &lt; #{date}
-        and status = #{status}
+        <!-- 已过期但状态为可用 或 已开始合作但状态为停用 -->
+        where
+        (cooperation_end_time &lt; #{date} and `status` = 0)
+        or
+        (cooperation_start_time &lt; #{date} and cooperation_end_time &gt; #{date} and `status` = 1)
     </select>
 
     <update id="updateSchoolStatus">
         update m_school
         set status = #{targetStatus}
         where id = #{id}
-        and cooperation_end_time &lt; #{stopDate}
         and status = #{sourceStatus}
     </update>
 

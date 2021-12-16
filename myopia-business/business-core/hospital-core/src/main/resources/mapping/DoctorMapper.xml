@@ -76,4 +76,9 @@
         where d.user_id = #{userId}
     </select>
 
+    <select id="getAll" resultMap="DoctorDTO">
+        select *
+        from h_doctor
+    </select>
+
 </mapper>

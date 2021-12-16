@@ -42,9 +42,9 @@ public interface ScreeningOrganizationMapper extends BaseMapper<ScreeningOrganiz
 
     List<ScreeningOrgResponseDTO> getOrgByIds(@Param("ids") List<Integer> ids);
 
-    List<ScreeningOrganization> getByCooperationTimeAndStatus(@Param("date") Date date, @Param("status") Integer status);
+    List<ScreeningOrganization> getByCooperationTimeAndStatus(@Param("date") Date date);
 
-    int updateOrganizationStatus(@Param("id") Integer id, @Param("targetStatus") Integer targetStatus, @Param("stopDate") Date stopDate, @Param("sourceStatus")Integer sourceStatus);
+    int updateOrganizationStatus(@Param("id") Integer id, @Param("targetStatus") Integer targetStatus, @Param("sourceStatus")Integer sourceStatus);
 
     List<ScreeningOrganization> getByCooperationEndTime(@Param("date") Date date);
 

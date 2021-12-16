@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.wupol.myopia.base.constant.StatusConstant;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -472,18 +471,18 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     }
 
     /**
-     * 处理学校状态，将已过合作时间但未处理为禁止的学校设置为禁止
+     * 处理学校状态
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
     public int handleSchoolStatus(Date date) {
-        List<School> schools = getCooperationStopAndUnhandleSchool(date);
+        List<School> schools = getUnhandleSchool(date);
         int result = 0;
         for (School school : schools) {
             // 更新机构状态成功
-            if (updateSchoolStatus(school.getId(), StatusConstant.DISABLE, date, StatusConstant.ENABLE) > 0) {
-                // 更新oauth上机构的状态
-                oauthServiceClient.updateOrganization(new Organization(school.getId(), SystemCode.SCHOOL_CLIENT, UserType.OTHER, StatusConstant.DISABLE));
+            if (updateSchoolStatus(school.getId(), school.getCooperationStopStatus(), school.getStatus()) > 0) {
+                // 更新oauth上机构的状态（同时影响筛查管理端跟筛查端）
+                oauthServiceClient.updateOrganization(new Organization(school.getId(), SystemCode.MANAGEMENT_CLIENT, UserType.SCREENING_ORGANIZATION_ADMIN, school.getCooperationStopStatus()));
                 result++;
             }
         }
@@ -491,23 +490,22 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     }
 
     /**
-     * 获取已过合作时间但未处理为禁止的学校
+     * 获取状态未更新的学校（已到合作开始时间未启用，已到合作结束时间未停止）
      * @return
      */
-    public List<School> getCooperationStopAndUnhandleSchool(Date date) {
-        return baseMapper.getByCooperationTimeAndStatus(date, StatusConstant.ENABLE);
+    public List<School> getUnhandleSchool(Date date) {
+        return baseMapper.getByCooperationTimeAndStatus(date);
     }
 
     /**
-     * CAS更新学校状态，当且仅当源状态为sourceStatus，合作结束时间早于stopDate时更新状态为targetStatus，且限定id
+     * CAS更新机构状态，当且仅当源状态为sourceStatus，且限定id
      * @param id
      * @param targetStatus
-     * @param stopDate
      * @param sourceStatus
      * @return
      */
-    public int updateSchoolStatus(Integer id, Integer targetStatus, Date stopDate, Integer sourceStatus) {
-        return baseMapper.updateSchoolStatus(id, targetStatus, stopDate, sourceStatus);
+    public int updateSchoolStatus(Integer id, Integer targetStatus, Integer sourceStatus) {
+        return baseMapper.updateSchoolStatus(id, targetStatus, sourceStatus);
     }
 
     /**

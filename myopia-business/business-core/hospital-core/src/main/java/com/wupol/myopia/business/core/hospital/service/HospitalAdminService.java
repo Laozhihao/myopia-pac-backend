@@ -5,6 +5,10 @@ import com.wupol.myopia.business.core.hospital.domain.mapper.HospitalAdminMapper
 import com.wupol.myopia.business.core.hospital.domain.model.HospitalAdmin;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 医院管理员
@@ -41,4 +45,17 @@ public class HospitalAdminService extends BaseService<HospitalAdminMapper, Hospi
     public HospitalAdmin getByHospitalId(Integer hospitalId) {
         return baseMapper.getByHospitalId(hospitalId);
     }
+
+    /**
+     * 获取筛查机构绑定的医院管理员信息
+     * @param orgIds
+     * @return
+     */
+    public List<HospitalAdmin> getHospitalAdminByOrgIds(List<Integer> orgIds) {
+        if (CollectionUtils.isEmpty(orgIds)) {
+            return new ArrayList<>();
+        }
+        return baseMapper.getHospitalAdminByOrgIds(orgIds);
+    }
+
 }

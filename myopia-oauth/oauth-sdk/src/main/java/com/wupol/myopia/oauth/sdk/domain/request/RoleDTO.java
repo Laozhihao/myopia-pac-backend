@@ -27,4 +27,9 @@ public class RoleDTO extends Role {
      * 每页条数
      **/
     private Integer size;
+
+    /**
+     * 角色类型集合
+     */
+    private List<Integer> roleTypes;
 }

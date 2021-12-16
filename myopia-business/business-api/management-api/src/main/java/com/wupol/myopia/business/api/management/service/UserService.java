@@ -24,6 +24,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -71,6 +72,7 @@ public class UserService {
         // 调用远程服务获取用户数据
         UserDTO userDTO = new UserDTO();
         BeanUtils.copyProperties(param, userDTO);
+        userDTO.setUserTypes(Arrays.asList(UserType.GOVERNMENT_ADMIN.getType(), UserType.PLATFORM_ADMIN.getType()));
         Page<User> userPage = oauthServiceClient.getUserListPage(userDTO);
         List<UserVO> users = JSON.parseArray(JSON.toJSONString(userPage.getRecords()), UserVO.class);
         if (CollectionUtils.isEmpty(users)) {

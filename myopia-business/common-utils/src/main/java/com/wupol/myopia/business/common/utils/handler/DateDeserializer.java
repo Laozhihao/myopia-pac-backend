@@ -18,7 +18,7 @@ import java.util.Date;
 @Slf4j
 public class DateDeserializer extends JsonDeserializer<Date> {
 
-    public static final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+    private final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
     @Override
     public Date deserialize(JsonParser jsonParser, DeserializationContext ctxt) throws IOException, JsonProcessingException {
         try {

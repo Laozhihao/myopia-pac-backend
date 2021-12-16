@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.StringUtils;
-import com.wupol.myopia.base.constant.StatusConstant;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -369,13 +368,13 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      */
     @Transactional(rollbackFor = Exception.class)
     public int handleOrganizationStatus(Date date) {
-        List<ScreeningOrganization> orgs = getCooperationStopAndUnhandleOrganization(date);
+        List<ScreeningOrganization> orgs = getUnhandleOrganization(date);
         int result = 0;
         for (ScreeningOrganization org : orgs) {
             // 更新机构状态成功
-            if (updateOrganizationStatus(org.getId(), StatusConstant.DISABLE, date, StatusConstant.ENABLE) > 0) {
+            if (updateOrganizationStatus(org.getId(), org.getCooperationStopStatus(), org.getStatus()) > 0) {
                 // 更新oauth上机构的状态（同时影响筛查管理端跟筛查端）
-                oauthServiceClient.updateOrganization(new Organization(org.getId(), SystemCode.MANAGEMENT_CLIENT, UserType.SCREENING_ORGANIZATION_ADMIN, StatusConstant.DISABLE));
+                oauthServiceClient.updateOrganization(new Organization(org.getId(), SystemCode.MANAGEMENT_CLIENT, UserType.SCREENING_ORGANIZATION_ADMIN, org.getCooperationStopStatus()));
                 result++;
             }
         }
@@ -383,23 +382,22 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     }
 
     /**
-     * 获取已过合作时间但未处理为禁止的机构
+     * 获取状态未更新的机构（已到合作开始时间未启用，已到合作结束时间未停止）
      * @return
      */
-    public List<ScreeningOrganization> getCooperationStopAndUnhandleOrganization(Date date) {
-        return baseMapper.getByCooperationTimeAndStatus(date, StatusConstant.ENABLE);
+    public List<ScreeningOrganization> getUnhandleOrganization(Date date) {
+        return baseMapper.getByCooperationTimeAndStatus(date);
     }
 
     /**
-     * CAS更新机构状态，当且仅当源状态为sourceStatus，合作结束时间早于stopDate时更新状态为targetStatus，且限定id
+     * CAS更新机构状态，当且仅当源状态为sourceStatus，且限定id
      * @param id
      * @param targetStatus
-     * @param stopDate
      * @param sourceStatus
      * @return
      */
-    public int updateOrganizationStatus(Integer id, Integer targetStatus, Date stopDate, Integer sourceStatus) {
-        return baseMapper.updateOrganizationStatus(id, targetStatus, stopDate, sourceStatus);
+    public int updateOrganizationStatus(Integer id, Integer targetStatus, Integer sourceStatus) {
+        return baseMapper.updateOrganizationStatus(id, targetStatus, sourceStatus);
     }
 
     /**

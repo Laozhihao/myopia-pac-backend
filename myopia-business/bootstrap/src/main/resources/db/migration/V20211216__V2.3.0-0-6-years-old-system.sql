@@ -7,12 +7,6 @@ ALTER TABLE `m_hospital`
   ADD COLUMN `cooperation_end_time` timestamp(3) NULL DEFAULT NULL COMMENT '合作结束时间',
   ADD COLUMN `associate_screening_org_id` int(11) COMMENT '关联筛查机构的ID';
 
--- 医生信息表
-truncate table `h_doctor`;
-ALTER TABLE `h_doctor`
-DROP COLUMN `gender`,
-DROP COLUMN `status`;
-
 -- 筛查机构表
 ALTER TABLE `m_screening_organization`
 ADD COLUMN `cooperation_type` tinyint(4) NULL DEFAULT NULL COMMENT '合作类型 0-合作 1-试用' AFTER `status`,
@@ -26,6 +20,11 @@ ADD COLUMN `cooperation_type` tinyint(4) NULL DEFAULT NULL COMMENT '合作类型
 ADD COLUMN `cooperation_time_type` tinyint(4) NULL DEFAULT NULL COMMENT '合作期限类型 -1-自定义 0-30天 1-60天 2-180天 3-1年 4-2年 5-3年' AFTER `cooperation_type`,
 ADD COLUMN `cooperation_start_time` timestamp(3) NULL DEFAULT NULL COMMENT '合作开始时间' AFTER `cooperation_time_type`,
 ADD COLUMN `cooperation_end_time` timestamp(3) NULL DEFAULT NULL COMMENT '合作结束时间' AFTER `cooperation_start_time`;
+
+-- 初始化合作信息
+update m_school set cooperation_type = 0, cooperation_time_type = -1, cooperation_start_time = create_time, cooperation_end_time = '2021-12-02 23:59:59', `status` = 1;
+update m_hospital set cooperation_type = 1, cooperation_time_type = -1, cooperation_start_time = create_time, cooperation_end_time = '2022-12-02 23:59:59', `status` = 0;
+update m_screening_organization set cooperation_type = 1, cooperation_time_type = -1, cooperation_start_time = create_time, cooperation_end_time = '2022-12-02 23:59:59', `status` = 0;
 
 -- 0-6岁系统
 alter table m_student

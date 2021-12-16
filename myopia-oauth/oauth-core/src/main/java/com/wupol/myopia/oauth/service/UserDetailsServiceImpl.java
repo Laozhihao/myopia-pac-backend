@@ -47,7 +47,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         // 检查账号密码
         User user = validateAccount(systemCode, username);
         // 判断是否分配角色
-        List<Role> roles = validateRole(systemCode, user.getId());
+        List<Role> roles = validateRole(systemCode, user);
         // 生成用户明细，将作为accessToken的payload的一部分
         SecurityUserDetails userDetail = new SecurityUserDetails(user, roles, clientId);
         if (!userDetail.isEnabled()) {
@@ -86,16 +86,16 @@ public class UserDetailsServiceImpl implements UserDetailsService {
      * 校验用户角色信息
      *
      * @param systemCode 系统编号
-     * @param userId 用户ID
+     * @param user 用户
      * @return java.util.List<java.lang.Integer>
      **/
-    private List<Role> validateRole(Integer systemCode, Integer userId) {
+    private List<Role> validateRole(Integer systemCode, User user) {
         // 非管理端和筛查管理端的用户不需要校验角色  学校端、筛查端、家长端用户不需要校验角色
         if (SystemCode.SCHOOL_CLIENT.getCode().equals(systemCode) || SystemCode.SCREENING_CLIENT.getCode().equals(systemCode)
             || SystemCode.PATENT_CLIENT.getCode().equals(systemCode)) {
             return Collections.emptyList();
         }
-        List<Role> roles = roleService.getUsableRoleByUserId(userId);
+        List<Role> roles = roleService.getUsableRoleByUserId(user.getId(), systemCode, user.getUserType());
         // 0-6岁系统客户端
         if (SystemCode.PRESCHOOL_CLIENT.getCode().equals(systemCode)    // 0-6岁端必须要有0-6角色
                 && !roles.stream().filter(role -> RoleType.PRESCHOOL_DOCTOR.getType().equals(role.getRoleType())).findFirst().isPresent()) {

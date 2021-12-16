@@ -90,7 +90,8 @@ public class AuthController {
         CurrentUser currentUser = authService.parseToken(oAuth2AccessToken.getValue());
         Integer userId = currentUser.getId();
         // 获取菜单权限，并缓存token和权限
-        List<Permission> permissions = authService.cachePermissionAndToken(userId, currentUser.getSystemCode(), oAuth2AccessToken.getExpiresIn(), oAuth2AccessToken.getValue());
+        List<Permission> permissions = authService.cachePermissionAndToken(userId, currentUser.getSystemCode(), currentUser.getUserType(),
+                oAuth2AccessToken.getExpiresIn(), oAuth2AccessToken.getValue());
         // 更新用户最后登录时间
         userService.updateById(new User().setId(userId).setLastLoginTime(new Date()));
         return ApiResult.success(new LoginInfoVO(oAuth2AccessToken, permissions));
