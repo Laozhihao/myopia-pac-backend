@@ -171,7 +171,7 @@
                student.name             as name,
                student.gender           as gender
         from h_medical_report report
-                     left join h_hospital_student student on student.hospital_id = report.hospital_id
+                     left join h_hospital_student student on student.id = report.student_id
                      left join h_medical_record record on report.medical_record_id = record.id
                      left join m_hospital mh on report.hospital_id = mh.id
                      left join h_doctor doctor on doctor.hospital_id = report.hospital_id
