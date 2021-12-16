@@ -14,12 +14,14 @@ import com.wupol.myopia.business.api.management.schedule.ScheduledTasksExecutor;
 import com.wupol.myopia.business.api.management.service.*;
 import com.wupol.myopia.business.common.utils.constant.BizMsgConstant;
 import com.wupol.myopia.business.common.utils.constant.MyopiaLevelEnum;
+import com.wupol.myopia.business.common.utils.constant.WarningLevel;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningNoticeNameDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanNameDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanSchoolInfoDTO;
@@ -349,24 +351,62 @@ public class StatManagementController {
             if (Objects.nonNull(visionScreeningResult)) {
                 ComputerOptometryDO computerOptometry = visionScreeningResult.getComputerOptometry();
                 if (Objects.nonNull(computerOptometry)) {
-                    BigDecimal leftSpn = computerOptometry.getLeftEyeData().getSph().setScale(2, RoundingMode.HALF_UP);
-                    BigDecimal leftCyl = computerOptometry.getLeftEyeData().getCyl().setScale(2, RoundingMode.HALF_UP);
-                    BigDecimal rightSpn = computerOptometry.getRightEyeData().getSph().setScale(2, RoundingMode.HALF_UP);
-                    BigDecimal rightCyl = computerOptometry.getRightEyeData().getCyl().setScale(2, RoundingMode.HALF_UP);
+                    ComputerOptometryDO.ComputerOptometry leftEyeData = computerOptometry.getLeftEyeData();
+                    ComputerOptometryDO.ComputerOptometry rightEyeData = computerOptometry.getRightEyeData();
+                    if (ObjectsUtil.allNotNull(leftEyeData,rightEyeData)) {
+                        BigDecimal leftSpn = leftEyeData.getSph();
+                        BigDecimal leftCyl = leftEyeData.getCyl();
 
-                    Integer leftMyopiaLevel = null;
-                    Integer rightMyopiaLevel = null;
-                    Integer seriousLevel = 0;
-                    if (ObjectsUtil.allNotNull(leftSpn, leftCyl)) {
-                        leftMyopiaLevel = StatUtil.getMyopiaLevel(leftSpn.floatValue(), leftCyl.floatValue());
+                        BigDecimal rightSpn = rightEyeData.getSph();
+                        BigDecimal rightCyl = rightEyeData.getCyl();
+
+                        Integer leftMyopiaLevel = null;
+                        Integer rightMyopiaLevel = null;
+                        Integer seriousLevel = 0;
+                        if (ObjectsUtil.allNotNull(leftSpn, leftCyl)) {
+                            leftMyopiaLevel = StatUtil.getMyopiaLevel(leftSpn.setScale(2, RoundingMode.HALF_UP).floatValue(), leftCyl.setScale(2, RoundingMode.HALF_UP).floatValue());
+                        }
+                        if (ObjectsUtil.allNotNull(rightSpn, rightCyl)) {
+                            rightMyopiaLevel = StatUtil.getMyopiaLevel(rightSpn.setScale(2, RoundingMode.HALF_UP).floatValue(), rightCyl.setScale(2, RoundingMode.HALF_UP).floatValue());
+                        }
+                        if (!ObjectsUtil.allNull(leftMyopiaLevel, rightMyopiaLevel)) {
+                            seriousLevel = StatUtil.getSeriousLevel(leftMyopiaLevel, rightMyopiaLevel);
+                        }
+                        statConclusion.setIsMyopia(StatUtil.isMyopia(seriousLevel));
                     }
-                    if (ObjectsUtil.allNotNull(rightSpn, rightCyl)) {
-                        rightMyopiaLevel = StatUtil.getMyopiaLevel(rightSpn.floatValue(), rightCyl.floatValue());
+                    Integer age = statConclusion.getAge();
+                    VisionDataDO visionData = visionScreeningResult.getVisionData();
+                    if (Objects.nonNull(visionData) && Objects.nonNull(age)) {
+                        BigDecimal leftNV = visionData.getLeftEyeData().getNakedVision();
+                        BigDecimal rightNV = visionData.getRightEyeData().getNakedVision();
+                        Boolean isLeftLowVision;
+                        Boolean isRightLowVision;
+                        Integer leftCode = null;
+                        Integer rightCode = null;
+                        if (Objects.nonNull(leftNV)) {
+                            isLeftLowVision = StatUtil.isLowVision(leftNV.floatValue(), age);
+                            WarningLevel nakedVisionWarningLevel = StatUtil.getNakedVisionWarningLevel(leftNV.floatValue(), age);
+                            leftCode = Objects.nonNull(nakedVisionWarningLevel) ? nakedVisionWarningLevel.code : null;
+                        } else {
+                            isLeftLowVision = null;
+                        }
+
+                        if (Objects.nonNull(rightNV)) {
+                            isRightLowVision = StatUtil.isLowVision(rightNV.floatValue(), age);
+                            WarningLevel nakedVisionWarningLevel = StatUtil.getNakedVisionWarningLevel(rightNV.floatValue(), age);
+                            rightCode = Objects.nonNull(nakedVisionWarningLevel) ? nakedVisionWarningLevel.code : null;
+                        } else {
+                            isRightLowVision = null;
+                        }
+
+                        if (ObjectsUtil.allNull(isLeftLowVision,isRightLowVision )) {
+                            statConclusion.setIsLowVision(null);
+                            statConclusion.setNakedVisionWarningLevel(null);
+                        } else {
+                            statConclusion.setIsLowVision(ObjectsUtil.allNotNull(isLeftLowVision, isRightLowVision) ? isLeftLowVision || isRightLowVision : Objects.nonNull(isLeftLowVision) ? isLeftLowVision : Boolean.TRUE.equals(isRightLowVision));
+                            statConclusion.setNakedVisionWarningLevel(StatUtil.getSeriousLevel(leftCode, rightCode));
+                        }
                     }
-                    if (!ObjectsUtil.allNull(leftMyopiaLevel, rightMyopiaLevel)) {
-                        seriousLevel = StatUtil.getSeriousLevel(leftMyopiaLevel, rightMyopiaLevel);
-                    }
-                    statConclusion.setIsMyopia(StatUtil.isMyopia(seriousLevel));
                     statConclusion.setUpdateTime(new Date());
                 }
             }
