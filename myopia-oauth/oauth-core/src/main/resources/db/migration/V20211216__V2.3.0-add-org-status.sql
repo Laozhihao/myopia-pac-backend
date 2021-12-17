@@ -100,3 +100,5 @@ INSERT INTO `o_role` ( `org_id`, `ch_name`, `role_type`, `create_user_id`, `syst
 ( -1, '居民健康医生类型角色', 5, 1, 4 ),
 ( -1, '0-6岁眼检查医生类型角色', 6, 1, 4 );
 
+-- 菜单栏调整
+UPDATE o_permission set pid = 500 where id = 5;
