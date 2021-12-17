@@ -12,13 +12,15 @@ import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
+import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
+import com.wupol.myopia.business.core.hospital.domain.dto.HospitalReportRequestDTO;
 import com.wupol.myopia.business.core.hospital.domain.dto.HospitalResponseDTO;
 import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
 import com.wupol.myopia.business.core.hospital.domain.model.HospitalAdmin;
 import com.wupol.myopia.business.core.hospital.domain.query.HospitalQuery;
 import com.wupol.myopia.business.core.hospital.service.HospitalAdminService;
 import com.wupol.myopia.business.core.hospital.service.HospitalService;
-import com.wupol.myopia.business.core.hospital.service.HospitalStudentService;
+import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccountListDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
@@ -61,6 +63,10 @@ public class HospitalBizService {
     private OauthServiceClient oauthServiceClient;
     @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
+    @Resource
+    private MedicalReportService medicalReportService;
+    @Resource
+    private StudentBizService studentBizService;
 
     /**
      * 更新医院信息
@@ -219,7 +225,7 @@ public class HospitalBizService {
     /**
      * 更新医院管理员和医生用户的账号权限
      *
-     * @param newHospital 新的医院信息
+     * @param newHospital                新的医院信息
      * @param oldAssociateScreeningOrgId 旧关联筛查机构ID
      * @return void
      **/
@@ -228,7 +234,7 @@ public class HospitalBizService {
         // 医院管理员(关联筛查机构有变动才更新)
         if ((Objects.isNull(oldAssociateScreeningOrgId) && Objects.nonNull(newAssociateScreeningOrgId))) {
             oauthServiceClient.addHospitalUserAssociatedScreeningOrgAdminRole(newHospital.getId(), newAssociateScreeningOrgId);
-        } else if (Objects.nonNull(oldAssociateScreeningOrgId) && !oldAssociateScreeningOrgId.equals(newAssociateScreeningOrgId)){
+        } else if (Objects.nonNull(oldAssociateScreeningOrgId) && !oldAssociateScreeningOrgId.equals(newAssociateScreeningOrgId)) {
             oauthServiceClient.removeHospitalUserAssociatedScreeningOrgAdminRole(newHospital.getId(), oldAssociateScreeningOrgId);
             oauthServiceClient.addHospitalUserAssociatedScreeningOrgAdminRole(newHospital.getId(), newAssociateScreeningOrgId);
         }
@@ -263,5 +269,22 @@ public class HospitalBizService {
                 oauthServiceClient.updateUser(userDTO);
             });
         });
+    }
+
+    /**
+     * 获取医院就诊列表
+     *
+     * @param pageRequest 分页请求
+     * @param requestDTO  医院就诊报告DTO
+     * @return List<MedicalReportDO>
+     */
+    public IPage<ReportAndRecordDO> getReportList(PageRequest pageRequest, HospitalReportRequestDTO requestDTO) {
+        IPage<ReportAndRecordDO> pageReport = medicalReportService.getByHospitalId(pageRequest, requestDTO);
+        List<ReportAndRecordDO> records = pageReport.getRecords();
+        if (CollectionUtils.isEmpty(records)) {
+            return pageReport;
+        }
+        studentBizService.packageReportInfo(records);
+        return pageReport;
     }
 }

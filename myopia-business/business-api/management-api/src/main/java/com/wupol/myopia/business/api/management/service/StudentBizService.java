@@ -315,6 +315,16 @@ public class StudentBizService {
         if (CollectionUtils.isEmpty(records)) {
             return pageReport;
         }
+        packageReportInfo(records);
+        return pageReport;
+    }
+
+    /**
+     * 设置报告信息
+     *
+     * @param records 报告
+     */
+    public void packageReportInfo(List<ReportAndRecordDO> records) {
         // 收集医生Id
         Set<Integer> doctorIds = records.stream().map(ReportAndRecordDO::getDoctorId).collect(Collectors.toSet());
         Map<Integer, String> doctorMap = hospitalDoctorService.listByIds(doctorIds).stream().collect(Collectors.toMap(Doctor::getId, Doctor::getName));
@@ -327,7 +337,6 @@ public class StudentBizService {
                 report.setImageFileUrl(resourceFileService.getBatchResourcePath(reportConclusion.getReport().getImageIdList()));
             }
         });
-        return pageReport;
     }
 
     /**

@@ -51,4 +51,14 @@ public class ReportAndRecordDO {
      * 图片url
      */
     private List<String> imageFileUrl;
+
+    /**
+     * 学生姓名
+     */
+    private String name;
+
+    /**
+     * 性别 -1未知 0-男 1-女
+     */
+    private Integer gender;
 }
