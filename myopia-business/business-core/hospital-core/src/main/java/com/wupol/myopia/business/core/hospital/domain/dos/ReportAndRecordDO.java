@@ -17,6 +17,11 @@ public class ReportAndRecordDO {
 
     private Integer hospitalId;
 
+    /**
+     * 医院学生Id
+     */
+    private Integer hospitalStudentId;
+
     private Integer reportId;
 
     private Date createTime;
