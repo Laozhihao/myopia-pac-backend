@@ -117,9 +117,8 @@ public class HospitalWorkbenchPatientController {
      * @param studentId   学生ID
      * @return List<MedicalReportDO>
      */
-    @GetMapping("/report/list/{studentId}")
-    public IPage<ReportAndRecordDO> getReportList(@Validated PageRequest pageRequest,
-                                                  @PathVariable("studentId") @NotNull(message = "学生Id不能为空") Integer studentId) {
+    @GetMapping("/report/list")
+    public IPage<ReportAndRecordDO> getReportList(@Validated PageRequest pageRequest, @NotNull(message = "学生Id不能为空") Integer studentId) {
         return studentBizService.getReportList(pageRequest, studentId);
     }
 }
