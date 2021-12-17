@@ -648,18 +648,19 @@ public class StudentFacade {
             return Lists.newArrayList(right, left);
         }
         ComputerOptometryDO computerOptometry = result.getComputerOptometry();
+        VisionDataDO visionData = result.getVisionData();
 
         // 左眼
-        if (Objects.nonNull(computerOptometry) && Objects.nonNull(computerOptometry.getLeftEyeData())
-                && ObjectsUtil.allNotNull(computerOptometry.getLeftEyeData().getSph(), computerOptometry.getLeftEyeData().getCyl())) {
-            left.setMyopia(StatUtil.isMyopia(computerOptometry.getLeftEyeData().getSph().floatValue(), computerOptometry.getLeftEyeData().getCyl().floatValue(), age, result.getVisionData().getLeftEyeData().getNakedVision().floatValue()));
+        if (Objects.nonNull(visionData) && Objects.nonNull(visionData.getLeftEyeData()) && Objects.nonNull(computerOptometry) && Objects.nonNull(computerOptometry.getLeftEyeData())
+                && ObjectsUtil.allNotNull(computerOptometry.getLeftEyeData().getSph(), computerOptometry.getLeftEyeData().getCyl(), visionData.getLeftEyeData().getNakedVision())) {
+            left.setMyopia(StatUtil.isMyopia(computerOptometry.getLeftEyeData().getSph().floatValue(), computerOptometry.getLeftEyeData().getCyl().floatValue(), age, visionData.getLeftEyeData().getNakedVision().floatValue()));
             left.setFarsightedness(StatUtil.isHyperopia(computerOptometry.getLeftEyeData().getSph().floatValue(), computerOptometry.getLeftEyeData().getCyl().floatValue(), age));
         }
 
         // 右眼
-        if (Objects.nonNull(computerOptometry) && Objects.nonNull(computerOptometry.getRightEyeData())
-                && ObjectsUtil.allNotNull(computerOptometry.getRightEyeData().getSph(), computerOptometry.getRightEyeData().getCyl())) {
-            right.setMyopia(StatUtil.isMyopia(computerOptometry.getRightEyeData().getSph().floatValue(), computerOptometry.getRightEyeData().getCyl().floatValue(), age, result.getVisionData().getRightEyeData().getNakedVision().floatValue()));
+        if (Objects.nonNull(visionData) && Objects.nonNull(visionData.getRightEyeData()) &&  Objects.nonNull(computerOptometry) && Objects.nonNull(computerOptometry.getRightEyeData())
+                && ObjectsUtil.allNotNull(computerOptometry.getRightEyeData().getSph(), computerOptometry.getRightEyeData().getCyl(), visionData.getRightEyeData().getNakedVision())) {
+            right.setMyopia(StatUtil.isMyopia(computerOptometry.getRightEyeData().getSph().floatValue(), computerOptometry.getRightEyeData().getCyl().floatValue(), age, visionData.getRightEyeData().getNakedVision().floatValue()));
             right.setFarsightedness(StatUtil.isHyperopia(computerOptometry.getRightEyeData().getSph().floatValue(), computerOptometry.getRightEyeData().getCyl().floatValue(), age));
         }
 
