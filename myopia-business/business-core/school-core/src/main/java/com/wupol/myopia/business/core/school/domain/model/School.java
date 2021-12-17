@@ -186,14 +186,19 @@ public class School extends AddressCode implements Serializable, HasName {
     @TableField(typeHandler = JacksonTypeHandler.class)
     private NotificationConfig notificationConfig;
 
+    @TableField(exist = false)
+    private Integer cooperationRemainTime;
+
+    @TableField(exist = false)
+    private Integer cooperationStopStatus;
+
     /**
      * 剩余合作时间，单位：天
      *
      * @return java.lang.Integer
      **/
     public Integer getCooperationRemainTime() {
-        return isCooperationBegin() ? Math.max(0, (int) DateUtil.betweenDay(new Date(), cooperationEndTime)) :
-                Math.max(0, (int) DateUtil.betweenDay(cooperationStartTime, cooperationEndTime));
+        return DateUtil.getRemainTime(cooperationStartTime, cooperationEndTime);
     }
 
     /**
@@ -218,7 +223,7 @@ public class School extends AddressCode implements Serializable, HasName {
      * 合作未开始或合作已结束禁止
      * @return
      */
-    public int getCooperationStopStatus() {
+    public Integer getCooperationStopStatus() {
         return (!isCooperationBegin()) || isCooperationStop() ? StatusConstant.DISABLE : StatusConstant.ENABLE;
     }
 

@@ -3,13 +3,19 @@ package com.wupol.myopia.business.core.government.service;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.constant.PermissionTemplateType;
+import com.wupol.myopia.base.constant.StatusConstant;
+import com.wupol.myopia.base.constant.SystemCode;
+import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.core.government.domain.dto.GovDeptDTO;
 import com.wupol.myopia.business.core.government.domain.dto.GovDistrictDTO;
 import com.wupol.myopia.business.core.government.domain.mapper.GovDeptMapper;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
+import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
+import com.wupol.myopia.oauth.sdk.domain.response.Organization;
 import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -22,6 +28,9 @@ import java.util.stream.Collectors;
  */
 @Service
 public class GovDeptService extends BaseService<GovDeptMapper, GovDept> {
+
+    @Autowired
+    private OauthServiceClient oauthServiceClient;
 
     /**
      * 运营中心部门ID
@@ -245,4 +254,21 @@ public class GovDeptService extends BaseService<GovDeptMapper, GovDept> {
         }
         return PermissionTemplateType.getTypeByDistrictCode(govDistrict.getCode());
     }
+
+    public boolean saveGovDept(GovDept govDept) {
+        boolean result = this.save(govDept);
+        oauthServiceClient.addOrganization(new Organization(govDept.getId(), SystemCode.MANAGEMENT_CLIENT,
+                UserType.GOVERNMENT_ADMIN, StatusConstant.ENABLE));
+        return result;
+    }
+
+    public boolean updateGovDeptById(GovDept govDept) {
+        boolean result = this.updateById(govDept);
+        if (Objects.nonNull(govDept.getStatus())) {
+            oauthServiceClient.updateOrganization(new Organization(govDept.getId(), SystemCode.MANAGEMENT_CLIENT,
+                    UserType.GOVERNMENT_ADMIN, govDept.getStatus()));
+        }
+        return result;
+    }
+
 }
