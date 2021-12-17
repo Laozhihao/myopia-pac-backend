@@ -1,8 +1,10 @@
 package com.wupol.myopia.business.api.management.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.api.management.service.HospitalBizService;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.hospital.domain.dto.HospitalReportRequestDTO;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -32,10 +34,10 @@ public class HospitalWorkbenchReportController {
      *
      * @param pageRequest 分页请求
      * @param requestDTO  医院就诊报告DTO
-     * @return List<MedicalReportDO>
+     * @return IPage<ReportAndRecordDO>
      */
     @GetMapping("list")
-    public Object getList(@Validated PageRequest pageRequest, HospitalReportRequestDTO requestDTO) {
+    public IPage<ReportAndRecordDO> getList(@Validated PageRequest pageRequest, HospitalReportRequestDTO requestDTO) {
         return hospitalBizService.getReportList(pageRequest, requestDTO);
     }
 }

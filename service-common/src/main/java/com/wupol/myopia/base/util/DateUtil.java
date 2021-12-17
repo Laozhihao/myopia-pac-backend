@@ -378,21 +378,22 @@ public class DateUtil extends cn.hutool.core.date.DateUtil {
     }
 
     /**
-     * 获取年龄
+     * 获取年龄描述
      * <p>
      * 0<*<3 ：显示月龄+天数，如3个月1天、3个月10天
      * 3≤*7 ：显示岁龄+月数+天数，如3岁1个月1天
      * *≥7：显示年龄，如7岁
      * </p>
      *
-     * @param date 时间
+     * @param startDate 时间
      * @return String
      */
-    public static String getAgeInfo(Date date) {
-        if (Objects.isNull(date)) {
+    public static String getAgeInfo(Date startDate, Date endDate) {
+        if (Objects.isNull(startDate)) {
             return StringUtils.EMPTY;
         }
-        Period period = Period.between(date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalDate.now());
+        Period period = Period.between(startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(),
+                endDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
         int years = period.getYears();
         int months = period.getMonths();
         int days = period.getDays();
