@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
@@ -203,8 +204,8 @@ public class StudentController {
      * @param studentId   学生Id
      * @return List<MedicalReportDO>
      */
-    @GetMapping("/report/list/{studentId}")
-    public IPage<ReportAndRecordDO> getReportList(PageRequest pageRequest, @PathVariable("studentId") Integer studentId) {
+    @GetMapping("/report/list")
+    public IPage<ReportAndRecordDO> getReportList(PageRequest pageRequest, @NotNull(message = "学生Id不能为空") Integer studentId) {
         return studentBizService.getReportList(pageRequest, studentId);
     }
 
