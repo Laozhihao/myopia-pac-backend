@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 
 /**
- * 工作台-患者
+ * 工作台-眼健康就诊记录
  *
  * @author Simple4H
  */
