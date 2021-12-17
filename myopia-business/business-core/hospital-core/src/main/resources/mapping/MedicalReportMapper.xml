@@ -169,7 +169,8 @@
                report.medical_content   as medicalContent,
                report.doctor_id         as doctorId,
                student.name             as name,
-               student.gender           as gender
+               student.gender           as gender,
+               student.birthday         as birthday
         from h_medical_report report
                      left join h_hospital_student student on student.id = report.student_id
                      left join h_medical_record record on report.medical_record_id = record.id

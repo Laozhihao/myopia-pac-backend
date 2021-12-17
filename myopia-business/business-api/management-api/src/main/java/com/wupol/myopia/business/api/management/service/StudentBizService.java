@@ -330,6 +330,9 @@ public class StudentBizService {
         Map<Integer, String> doctorMap = hospitalDoctorService.listByIds(doctorIds).stream().collect(Collectors.toMap(Doctor::getId, Doctor::getName));
         records.forEach(report -> {
             report.setDoctorName(doctorMap.getOrDefault(report.getDoctorId(), StringUtils.EMPTY));
+            if (Objects.nonNull(report.getBirthday())) {
+                report.setCreateTimeAge(DateUtil.getAgeInfo(report.getCreateTime(), report.getBirthday()));
+            }
             ReportConclusion reportConclusion = medicalReportBizService.getReportConclusion(report.getReportId());
             if (Objects.nonNull(reportConclusion)
                     && Objects.nonNull(reportConclusion.getReport())

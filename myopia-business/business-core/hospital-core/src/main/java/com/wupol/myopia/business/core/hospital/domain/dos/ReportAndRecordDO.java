@@ -61,4 +61,14 @@ public class ReportAndRecordDO {
      * 性别 -1未知 0-男 1-女
      */
     private Integer gender;
+
+    /**
+     * 学生生日
+     */
+    private Date birthday;
+
+    /**
+     * 检查时年龄
+     */
+    private String createTimeAge;
 }
