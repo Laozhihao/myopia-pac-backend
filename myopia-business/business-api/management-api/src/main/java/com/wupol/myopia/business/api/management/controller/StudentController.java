@@ -229,4 +229,9 @@ public class StudentController {
     public List<StudentWarningArchiveVO> getStudentWarningArchive(@PathVariable("studentId") Integer studentId) {
         return studentBizService.getStudentWarningArchive(studentId);
     }
+
+    @GetMapping("abc")
+    public void abc(MultipartFile file) throws ParseException {
+        excelFacade.importABVStudent(file);
+    }
 }

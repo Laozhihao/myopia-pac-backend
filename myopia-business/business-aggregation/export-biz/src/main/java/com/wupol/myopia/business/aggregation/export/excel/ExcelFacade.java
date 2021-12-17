@@ -14,7 +14,10 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.*;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ImportExcelEnum;
+import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
+import com.wupol.myopia.business.api.screening.app.domain.dto.VisionDataDTO;
 import com.wupol.myopia.business.common.utils.constant.*;
+import com.wupol.myopia.business.common.utils.util.AgeUtil;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.util.S3Utils;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
@@ -28,12 +31,15 @@ import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningResultPahtConst;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ComputerOptometryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningDataContrastDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.VisionScreeningResultExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
+import com.wupol.myopia.business.core.screening.flow.util.ScreeningCodeGenerator;
 import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationStaffDTO;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationStaffService;
@@ -48,6 +54,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -58,7 +65,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
-import java.text.Collator;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.util.*;
@@ -104,6 +110,8 @@ public class ExcelFacade {
     private RedisUtil redisUtil;
     @Autowired
     private SchoolStudentService schoolStudentService;
+    @Autowired
+    private VisionScreeningBizService visionScreeningBizService;
 
     /**
      * 导入学生
@@ -136,24 +144,20 @@ public class ExcelFacade {
         Map<String, Integer> schoolMap = schools.stream().collect(Collectors.toMap(School::getSchoolNo, School::getId));
 
         // 收集身份证号码
-        List<String> idCards = listMap.stream().map(s -> s.get(8 - offset))
-                .filter(Objects::nonNull).collect(Collectors.toList());
+        List<String> idCards = listMap.stream().map(s -> s.get(8 - offset)).filter(Objects::nonNull).collect(Collectors.toList());
 
         // 数据预校验
         preCheckStudent(schools, idCards);
 
         // 收集年级信息
-        List<SchoolGradeExportDTO> grades = schoolGradeService.getBySchoolIds(schools.stream()
-                .map(School::getId).collect(Collectors.toList()));
+        List<SchoolGradeExportDTO> grades = schoolGradeService.getBySchoolIds(schools.stream().map(School::getId).collect(Collectors.toList()));
         schoolGradeService.packageGradeInfo(grades);
 
         // 通过学校编号分组
-        Map<String, List<SchoolGradeExportDTO>> schoolGradeMaps = grades.stream()
-                .collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolNo));
+        Map<String, List<SchoolGradeExportDTO>> schoolGradeMaps = grades.stream().collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolNo));
 
         // 通过身份证获取学生
-        Map<String, Student> studentMap = studentService.getByIdCardsAndStatus(idCards)
-                .stream().collect(Collectors.toMap(Student::getIdCard, Function.identity()));
+        Map<String, Student> studentMap = studentService.getByIdCardsAndStatus(idCards).stream().collect(Collectors.toMap(Student::getIdCard, Function.identity()));
 
         List<Student> importList = new ArrayList<>();
         for (Map<Integer, String> item : listMap) {
@@ -168,15 +172,7 @@ public class ExcelFacade {
             if (Objects.nonNull(studentMap.get(idCard))) {
                 throw new BusinessException("身份证" + idCard + "在系统中重复");
             }
-            student.setName(item.get(0))
-                    .setGender(GenderEnum.getType(item.get(1)))
-                    .setBirthday(DateFormatUtil.parseDate(item.get(2), DateFormatUtil.FORMAT_ONLY_DATE2))
-                    .setNation(NationEnum.getCode(item.get(3)))
-                    .setGradeType(GradeCodeEnum.getByName(item.get(5 - offset)).getType())
-                    .setSno((item.get(7 - offset)))
-                    .setIdCard(idCard)
-                    .setParentPhone(item.get(9 - offset))
-                    .setCreateUserId(createUserId);
+            student.setName(item.get(0)).setGender(GenderEnum.getType(item.get(1))).setBirthday(DateFormatUtil.parseDate(item.get(2), DateFormatUtil.FORMAT_ONLY_DATE2)).setNation(NationEnum.getCode(item.get(3))).setGradeType(GradeCodeEnum.getByName(item.get(5 - offset)).getType()).setSno((item.get(7 - offset))).setIdCard(idCard).setParentPhone(item.get(9 - offset)).setCreateUserId(createUserId);
             student.setProvinceCode(districtService.getCodeByName(item.get(10 - offset)));
             student.setCityCode(districtService.getCodeByName(item.get(11 - offset)));
             student.setAreaCode(districtService.getCodeByName(item.get(12 - offset)));
@@ -185,8 +181,7 @@ public class ExcelFacade {
             // 通过学校编号获取改学校的年级信息
             List<SchoolGradeExportDTO> schoolGradeExportVOS = schoolGradeMaps.get(isSameSchool ? schoolNo : item.get(4));
             // 转换成年级Maps，年级名称作为Key
-            Map<String, SchoolGradeExportDTO> gradeMaps = schoolGradeExportVOS.stream()
-                    .collect(Collectors.toMap(SchoolGradeExportDTO::getName, Function.identity()));
+            Map<String, SchoolGradeExportDTO> gradeMaps = schoolGradeExportVOS.stream().collect(Collectors.toMap(SchoolGradeExportDTO::getName, Function.identity()));
             // 年级信息
             SchoolGradeExportDTO schoolGradeExportDTO = gradeMaps.get(item.get(5 - offset));
             Assert.notNull(schoolGradeExportDTO, "年级数据异常");
@@ -195,8 +190,7 @@ public class ExcelFacade {
             // 获取年级内的班级信息
             List<SchoolClassExportDTO> classExportVOS = schoolGradeExportDTO.getChild();
             // 转换成班级Maps 把班级名称作为key
-            Map<String, Integer> classExportMaps = classExportVOS.stream()
-                    .collect(Collectors.toMap(SchoolClassExportDTO::getName, SchoolClassExportDTO::getId));
+            Map<String, Integer> classExportMaps = classExportVOS.stream().collect(Collectors.toMap(SchoolClassExportDTO::getName, SchoolClassExportDTO::getId));
             Integer classId = classExportMaps.get(item.get(6 - offset));
             Assert.notNull(classId, "班级数据为空");
             // 设置班级信息
@@ -288,8 +282,7 @@ public class ExcelFacade {
      * @param screeningOrgId 筛查机构id
      * @throws BusinessException io异常
      */
-    public void importScreeningOrganizationStaff(CurrentUser currentUser, MultipartFile multipartFile,
-                                                 Integer screeningOrgId) {
+    public void importScreeningOrganizationStaff(CurrentUser currentUser, MultipartFile multipartFile, Integer screeningOrgId) {
         if (null == screeningOrgId) {
             throw new BusinessException("机构ID不能为空");
         }
@@ -327,16 +320,7 @@ public class ExcelFacade {
             }
             checkStaffInfo(item);
             UserDTO userDTO = new UserDTO();
-            userDTO.setRealName(item.get(0))
-                    .setGender(GenderEnum.getType(item.get(1)))
-                    .setIdCard(item.get(2))
-                    .setPhone(item.get(3))
-                    .setCreateUserId(currentUser.getId())
-                    .setIsLeader(0)
-                    .setPassword(PasswordAndUsernameGenerator.getScreeningUserPwd(item.get(3), item.get(2)))
-                    .setUsername(item.get(3))
-                    .setOrgId(screeningOrgId)
-                    .setSystemCode(SystemCode.SCREENING_CLIENT.getCode());
+            userDTO.setRealName(item.get(0)).setGender(GenderEnum.getType(item.get(1))).setIdCard(item.get(2)).setPhone(item.get(3)).setCreateUserId(currentUser.getId()).setIsLeader(0).setPassword(PasswordAndUsernameGenerator.getScreeningUserPwd(item.get(3), item.get(2))).setUsername(item.get(3)).setOrgId(screeningOrgId).setSystemCode(SystemCode.SCREENING_CLIENT.getCode());
             if (null != item.get(4)) {
                 userDTO.setRemark(item.get(4));
             }
@@ -344,18 +328,13 @@ public class ExcelFacade {
         }
         List<ScreeningOrganizationStaffDTO> importList = userList.stream().map(item -> {
             ScreeningOrganizationStaffDTO staff = new ScreeningOrganizationStaffDTO();
-            staff.setIdCard(item.getIdCard())
-                    .setScreeningOrgId(item.getOrgId())
-                    .setCreateUserId(item.getCreateUserId())
-                    .setRemark(item.getRemark())
-                    .setGovDeptId(currentUser.getOrgId());
+            staff.setIdCard(item.getIdCard()).setScreeningOrgId(item.getOrgId()).setCreateUserId(item.getCreateUserId()).setRemark(item.getRemark()).setGovDeptId(currentUser.getOrgId());
             return staff;
         }).collect(Collectors.toList());
 
         // 批量新增OAuth2
         List<User> users = oauthServiceClient.addScreeningUserBatch(userList);
-        Map<String, Integer> userMaps = users.stream()
-                .collect(Collectors.toMap(User::getIdCard, User::getId));
+        Map<String, Integer> userMaps = users.stream().collect(Collectors.toMap(User::getIdCard, User::getId));
         // 设置userId
         importList.forEach(i -> i.setUserId(userMaps.get(i.getIdCard())));
         screeningOrganizationStaffService.saveBatch(importList);
@@ -373,8 +352,7 @@ public class ExcelFacade {
         if (idCards.stream().distinct().count() < idCards.size()) {
             throw new BusinessException("身份证号码重复");
         }
-        List<User> checkIdCards = oauthServiceClient.getUserBatchByIdCards(idCards,
-                SystemCode.SCREENING_CLIENT.getCode(), screeningOrgId);
+        List<User> checkIdCards = oauthServiceClient.getUserBatchByIdCards(idCards, SystemCode.SCREENING_CLIENT.getCode(), screeningOrgId);
         Assert.isTrue(CollectionUtils.isEmpty(checkIdCards), "身份证号码已经被使用，请确认！");
 
         // 收集手机号码
@@ -443,8 +421,7 @@ public class ExcelFacade {
      * @throws IOException
      * @throws UtilException
      */
-    public void exportStatContrast(Integer userId, List<ScreeningDataContrastDTO> exportList,
-                                   InputStream template) throws IOException, UtilException {
+    public void exportStatContrast(Integer userId, List<ScreeningDataContrastDTO> exportList, InputStream template) throws IOException, UtilException {
         String fileName = "统计对比报表";
         log.info("导出统计对比报文件: {}", fileName);
         File file = ExcelUtil.exportHorizonListToExcel(fileName, exportList, template);
@@ -462,8 +439,7 @@ public class ExcelFacade {
      * @throws UtilException
      */
     @Async
-    public void generateVisionScreeningResult(Integer userId, List<StatConclusionExportDTO> statConclusionExportDTOs,
-                                              boolean isSchoolExport, String districtOrSchoolName, String redisKey) throws IOException, UtilException {
+    public void generateVisionScreeningResult(Integer userId, List<StatConclusionExportDTO> statConclusionExportDTOs, boolean isSchoolExport, String districtOrSchoolName, String redisKey) throws IOException, UtilException {
         // 设置导出的文件名
         String fileName = String.format("%s-筛查数据", districtOrSchoolName);
         String content = String.format(CommonConst.EXPORT_MESSAGE_CONTENT_SUCCESS, districtOrSchoolName + "筛查数据", new Date());
@@ -509,15 +485,7 @@ public class ExcelFacade {
             StatConclusionExportDTO vo = vos.get(i);
             VisionScreeningResultExportDTO exportVo = new VisionScreeningResultExportDTO();
             BeanUtils.copyProperties(vo, exportVo);
-            exportVo.setId(i + 1)
-                    .setGenderDesc(GenderEnum.getName(vo.getGender()))
-                    .setNationDesc(StringUtils.defaultString(NationEnum.getName(vo.getNation())))
-                    .setGlassesTypeDesc(StringUtils.defaultIfBlank(GlassesTypeEnum.getDescByCode(vo.getGlassesType()), "--"))
-                    .setIsRescreenDesc("否")
-                    .setWarningLevelDesc(StringUtils.defaultIfBlank(WarningLevel.getDesc(vo.getWarningLevel()), "--"))
-                    .setParentPhone(vo.getParentPhone())
-                    .setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(),
-                            vo.getAreaCode(), vo.getTownCode(), vo.getAddress()));
+            exportVo.setId(i + 1).setGenderDesc(GenderEnum.getName(vo.getGender())).setNationDesc(StringUtils.defaultString(NationEnum.getName(vo.getNation()))).setGlassesTypeDesc(StringUtils.defaultIfBlank(GlassesTypeEnum.getDescByCode(vo.getGlassesType()), "--")).setIsRescreenDesc("否").setWarningLevelDesc(StringUtils.defaultIfBlank(WarningLevel.getDesc(vo.getWarningLevel()), "--")).setParentPhone(vo.getParentPhone()).setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(), vo.getAreaCode(), vo.getTownCode(), vo.getAddress()));
             genScreeningData(vo, exportVo);
             genReScreeningData(rescreenPlanStudentIdVoMap, vo, exportVo);
             generateDate(vo, exportVo);
@@ -556,9 +524,7 @@ public class ExcelFacade {
         exportDTO.setLeftPupilOptometryCorrectedVision(singleEyeDateFormat((BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_LEFT_CORRECTEDVISION)));
         exportDTO.setRightPupilOptometryCorrectedVision(singleEyeDateFormat((BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_RIGHT_CORRECTEDVISION)));
         exportDTO.setPupilOptometryDiagnosis(singleDiagnosis2String((Integer) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_DIAGNOSIS)));
-        exportDTO.setPupilOptometryResult(StatUtil.getRefractiveResult((BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_LEFT_SPN), (BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_LEFT_CYL),
-                (BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_RIGHT_SPN), (BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_RIGHT_CYL), DateUtil.ageOfNow(dto.getBirthday()),
-                (BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_NAKED_VISION), (BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_NAKED_VISION)));
+        exportDTO.setPupilOptometryResult(StatUtil.getRefractiveResult((BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_LEFT_SPN), (BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_LEFT_CYL), (BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_RIGHT_SPN), (BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_RIGHT_CYL), DateUtil.ageOfNow(dto.getBirthday()), (BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_NAKED_VISION), (BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_NAKED_VISION)));
 
         exportDTO.setLeftBiometricK1(genEyeBiometric(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_K1)));
         exportDTO.setLeftBiometricK1Axis(genBiometricAxis(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_K1_AXIS)));
@@ -632,19 +598,8 @@ public class ExcelFacade {
      * @param exportDTO
      */
     private void genScreeningData(StatConclusionExportDTO dto, VisionScreeningResultExportDTO exportDTO) {
-        exportDTO.setLeftNakedVisions(singleEyeDateFormat((BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_NAKED_VISION)))
-                .setRightNakedVisions(singleEyeDateFormat((BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_NAKED_VISION)))
-                .setLeftCorrectedVisions(singleEyeDateFormat((BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_CORRECTED_VISION)))
-                .setRightCorrectedVisions(singleEyeDateFormat((BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_CORRECTED_VISION)))
-                .setRightSphs(generateSingleSuffixDStr(JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_SPH)))
-                .setLeftSphs(generateSingleSuffixDStr(JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_SPH)))
-                .setRightCyls(generateSingleSuffixDStr(JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_CYL)))
-                .setLeftCyls(generateSingleSuffixDStr(JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_CYL)))
-                .setRightAxials(generateSingleEyeDegree(JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_AXIAL)))
-                .setLeftAxials(generateSingleEyeDegree(JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_AXIAL)));
-        exportDTO.setComputerOptometryResult(StatUtil.getRefractiveResult((BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_SPH), (BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_CYL),
-                (BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_SPH), (BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_CYL), DateUtil.ageOfNow(dto.getBirthday()),
-                (BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_NAKED_VISION), (BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_NAKED_VISION)));
+        exportDTO.setLeftNakedVisions(singleEyeDateFormat((BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_NAKED_VISION))).setRightNakedVisions(singleEyeDateFormat((BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_NAKED_VISION))).setLeftCorrectedVisions(singleEyeDateFormat((BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_CORRECTED_VISION))).setRightCorrectedVisions(singleEyeDateFormat((BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_CORRECTED_VISION))).setRightSphs(generateSingleSuffixDStr(JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_SPH))).setLeftSphs(generateSingleSuffixDStr(JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_SPH))).setRightCyls(generateSingleSuffixDStr(JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_CYL))).setLeftCyls(generateSingleSuffixDStr(JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_CYL))).setRightAxials(generateSingleEyeDegree(JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_AXIAL))).setLeftAxials(generateSingleEyeDegree(JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_AXIAL)));
+        exportDTO.setComputerOptometryResult(StatUtil.getRefractiveResult((BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_SPH), (BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_CYL), (BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_SPH), (BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_CYL), DateUtil.ageOfNow(dto.getBirthday()), (BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_NAKED_VISION), (BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_NAKED_VISION)));
     }
 
     /**
@@ -853,8 +808,7 @@ public class ExcelFacade {
         schoolGradeService.packageGradeInfo(grades);
 
         // 年级信息通过学校Id分组
-        Map<Integer, List<SchoolGradeExportDTO>> schoolGradeMaps = grades.stream()
-                .collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolId));
+        Map<Integer, List<SchoolGradeExportDTO>> schoolGradeMaps = grades.stream().collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolId));
 
         for (Map<Integer, String> item : listMap) {
             SchoolStudent schoolStudent = new SchoolStudent();
@@ -862,17 +816,7 @@ public class ExcelFacade {
                 break;
             }
             checkIsExist(snoMap, idCardMap, item.get(6), item.get(7), item.get(1), item.get(2), item.get(4));
-            schoolStudent.setName(item.get(0))
-                    .setGender(GenderEnum.getType(item.get(1)))
-                    .setBirthday(DateFormatUtil.parseDate(item.get(2), DateFormatUtil.FORMAT_ONLY_DATE2))
-                    .setNation(NationEnum.getCode(item.get(3)))
-                    .setSchoolNo(school.getSchoolNo())
-                    .setGradeType(GradeCodeEnum.getByName(item.get(4)).getType())
-                    .setSno((item.get(6)))
-                    .setIdCard(item.get(7))
-                    .setParentPhone(item.get(8))
-                    .setCreateUserId(createUserId)
-                    .setSchoolId(schoolId);
+            schoolStudent.setName(item.get(0)).setGender(GenderEnum.getType(item.get(1))).setBirthday(DateFormatUtil.parseDate(item.get(2), DateFormatUtil.FORMAT_ONLY_DATE2)).setNation(NationEnum.getCode(item.get(3))).setSchoolNo(school.getSchoolNo()).setGradeType(GradeCodeEnum.getByName(item.get(4)).getType()).setSno((item.get(6))).setIdCard(item.get(7)).setParentPhone(item.get(8)).setCreateUserId(createUserId).setSchoolId(schoolId);
             schoolStudent.setProvinceCode(districtService.getCodeByName(item.get(9)));
             schoolStudent.setCityCode(districtService.getCodeByName(item.get(10)));
             schoolStudent.setAreaCode(districtService.getCodeByName(item.get(11)));
@@ -881,8 +825,7 @@ public class ExcelFacade {
             // 通过学校编号获取改学校的年级信息
             List<SchoolGradeExportDTO> schoolGradeExportVOS = schoolGradeMaps.get(schoolId);
             // 转换成年级Maps，年级名称作为Key
-            Map<String, SchoolGradeExportDTO> gradeMaps = schoolGradeExportVOS.stream()
-                    .collect(Collectors.toMap(SchoolGradeExportDTO::getName, Function.identity()));
+            Map<String, SchoolGradeExportDTO> gradeMaps = schoolGradeExportVOS.stream().collect(Collectors.toMap(SchoolGradeExportDTO::getName, Function.identity()));
             // 年级信息
             SchoolGradeExportDTO schoolGradeExportDTO = gradeMaps.get(item.get(4));
             Assert.notNull(schoolGradeExportDTO, "年级数据异常");
@@ -892,8 +835,7 @@ public class ExcelFacade {
             // 获取年级内的班级信息
             List<SchoolClassExportDTO> classExportVOS = schoolGradeExportDTO.getChild();
             // 转换成班级Maps 把班级名称作为key
-            Map<String, Integer> classExportMaps = classExportVOS.stream()
-                    .collect(Collectors.toMap(SchoolClassExportDTO::getName, SchoolClassExportDTO::getId));
+            Map<String, Integer> classExportMaps = classExportVOS.stream().collect(Collectors.toMap(SchoolClassExportDTO::getName, SchoolClassExportDTO::getId));
             Integer classId = classExportMaps.get(item.get(5));
             Assert.notNull(classId, "班级数据为空");
             // 设置班级信息
@@ -974,8 +916,7 @@ public class ExcelFacade {
      * @param sno       学号
      * @param idCard    身份证
      */
-    private void checkIsExist(Map<String, SchoolStudent> snoMap, Map<String, SchoolStudent> idCardMap,
-                              String sno, String idCard, String gender, String birthday, String gradeName) {
+    private void checkIsExist(Map<String, SchoolStudent> snoMap, Map<String, SchoolStudent> idCardMap, String sno, String idCard, String gender, String birthday, String gradeName) {
 
         if (StringUtils.isAllBlank(sno, idCard)) {
             throw new BusinessException("学号或身份证为空");
@@ -994,6 +935,214 @@ public class ExcelFacade {
         }
         if (StringUtils.isBlank(gradeName)) {
             throw new BusinessException("身份证" + idCard + "年级不能为空");
+        }
+    }
+
+    /**
+     * 导入学生
+     *
+     * @param multipartFile 导入文件
+     * @throws BusinessException 异常
+     */
+    @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_UNCOMMITTED)
+    public void importABVStudent(MultipartFile multipartFile) throws ParseException {
+        List<Map<Integer, String>> listMap = readExcelAbc(multipartFile);
+        Map<Integer, String> integerStringMap = listMap.get(0);
+        int schoolId = Integer.parseInt(integerStringMap.get(Import.SCHOOL_ID.index));
+        int planId = Integer.parseInt(integerStringMap.get(Import.PLAN_ID.index));
+        int orgId = Integer.parseInt(integerStringMap.get(Import.ORG_ID.index));
+        int noticeId = Integer.parseInt(integerStringMap.get(Import.NOTICE_ID.index));
+        int taskId = Integer.parseInt(integerStringMap.get(Import.TASK_ID.index));
+        int planDistrictId = Integer.parseInt(integerStringMap.get(Import.PLAN_DISTRICT_ID.index));
+        int schoolDistrictId = Integer.parseInt(integerStringMap.get(Import.SCHOOL_DISTRICT_ID.index));
+
+        School school = schoolService.getById(schoolId);
+
+        // 收集年级信息
+        List<SchoolGradeExportDTO> grades = schoolGradeService.getBySchoolIds(Lists.newArrayList(school.getId()));
+        schoolGradeService.packageGradeInfo(grades);
+
+        // 日期
+        List<String> errorDateList = new ArrayList<>();
+        listMap.forEach(map->{
+            try {
+                DateFormatUtil.parseDate(map.get(Import.BIRTHDAY.index), DateFormatUtil.FORMAT_ONLY_DATE_WITHOUT_LINE);
+            } catch (ParseException e) {
+                errorDateList.add(map.get(Import.BIRTHDAY.index));
+            }
+        });
+        if (!CollectionUtils.isEmpty(errorDateList)) {
+            throw new BusinessException("错误日期格式" + errorDateList);
+        }
+
+        // 年级信息通过学校Id分组
+        Map<Integer, List<SchoolGradeExportDTO>> schoolGradeMaps = grades.stream().collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolId));
+        List<Long> idBatch = ScreeningCodeGenerator.getIdBatch(listMap.size());
+        int id = 0;
+        for (Map<Integer, String> item : listMap) {
+            log.info("一共:{}个,当前第:{}个,还剩余:{}个", listMap.size(), id + 1, listMap.size() - id);
+            Student student = new Student();
+            student.setName(item.get(Import.NAME.index))
+                    .setGender(GenderEnum.getType(item.get(Import.GENDER.index)))
+                    .setBirthday(DateFormatUtil.parseDate(item.get(Import.BIRTHDAY.index), DateFormatUtil.FORMAT_ONLY_DATE_WITHOUT_LINE))
+                    .setGradeType(GradeCodeEnum.getByName(item.get(Import.GRADE.index)).getType())
+                    .setCreateUserId(1).setSchoolId(school.getId());
+
+            // 通过学校编号获取改学校的年级信息
+            List<SchoolGradeExportDTO> schoolGradeExportVOS = schoolGradeMaps.get(school.getId());
+            // 转换成年级Maps，年级名称作为Key
+            Map<String, SchoolGradeExportDTO> gradeMaps = schoolGradeExportVOS.stream().collect(Collectors.toMap(SchoolGradeExportDTO::getName, Function.identity()));
+            // 年级信息
+            SchoolGradeExportDTO schoolGradeExportDTO = gradeMaps.get(item.get(Import.GRADE.index));
+            Assert.notNull(schoolGradeExportDTO, "年级数据异常");
+            // 设置年级ID
+            student.setGradeId(schoolGradeExportDTO.getId());
+            // 获取年级内的班级信息
+            List<SchoolClassExportDTO> classExportVOS = schoolGradeExportDTO.getChild();
+            // 转换成班级Maps 把班级名称作为key
+            Map<String, Integer> classExportMaps = classExportVOS.stream().collect(Collectors.toMap(SchoolClassExportDTO::getName, SchoolClassExportDTO::getId));
+            Integer classId = classExportMaps.get(item.get(Import.CLASS.index));
+            Assert.notNull(classId, "班级数据为空");
+            // 设置班级信息
+            student.setClassId(classId);
+            studentService.save(student);
+
+            ScreeningPlanSchoolStudent planSchoolStudent = new ScreeningPlanSchoolStudent();
+            planSchoolStudent.setSrcScreeningNoticeId(noticeId);
+            planSchoolStudent.setScreeningTaskId(taskId);
+            planSchoolStudent.setScreeningPlanId(planId);
+            planSchoolStudent.setScreeningOrgId(orgId);
+            planSchoolStudent.setPlanDistrictId(planDistrictId);
+            planSchoolStudent.setSchoolDistrictId(schoolDistrictId);
+            planSchoolStudent.setSchoolId(school.getId());
+            planSchoolStudent.setSchoolNo(school.getSchoolNo());
+            planSchoolStudent.setSchoolName(school.getName());
+            planSchoolStudent.setGradeId(student.getGradeId());
+            planSchoolStudent.setGradeName(item.get(Import.GRADE.index));
+            planSchoolStudent.setGradeType(GradeCodeEnum.getByName(item.get(Import.GRADE.index)).getType());
+            planSchoolStudent.setClassId(student.getClassId());
+            planSchoolStudent.setClassName(item.get(Import.CLASS.index));
+            planSchoolStudent.setStudentId(student.getId());
+            planSchoolStudent.setBirthday(student.getBirthday());
+            planSchoolStudent.setGender(student.getGender());
+            planSchoolStudent.setStudentAge(AgeUtil.countAge(student.getBirthday()));
+            planSchoolStudent.setStudentName(student.getName());
+            planSchoolStudent.setArtificial(1);
+            planSchoolStudent.setScreeningCode(idBatch.get(id));
+            screeningPlanSchoolStudentService.save(planSchoolStudent);
+
+            VisionDataDTO visionDataDTO = new VisionDataDTO();
+            visionDataDTO.setRightCorrectedVision(Objects.nonNull(item.get(Import.RIGHT_CORRECTED_VISION.index)) ? new BigDecimal(item.get(Import.RIGHT_CORRECTED_VISION.index)) : null);
+            visionDataDTO.setLeftCorrectedVision(Objects.nonNull(item.get(Import.LEFT_CORRECTED_VISION.index)) ? new BigDecimal(item.get(Import.LEFT_CORRECTED_VISION.index)) : null);
+            visionDataDTO.setRightNakedVision(Objects.nonNull(item.get(Import.RIGHT_NAKED_VISION.index)) ? new BigDecimal(item.get(Import.RIGHT_NAKED_VISION.index)) : null);
+            visionDataDTO.setLeftNakedVision(Objects.nonNull(item.get(Import.LEFT_NAKED_VISION.index)) ? new BigDecimal(item.get(Import.LEFT_NAKED_VISION.index)) : null);
+            visionDataDTO.setDiagnosis(0);
+            visionDataDTO.setIsCooperative(0);
+            visionDataDTO.setSchoolId(String.valueOf(school.getId()));
+            visionDataDTO.setDeptId(orgId);
+            visionDataDTO.setCreateUserId(1);
+            visionDataDTO.setPlanStudentId(String.valueOf(planSchoolStudent.getId()));
+            visionDataDTO.setIsState(0);
+            if (Objects.isNull(item.get(Import.RIGHT_CORRECTED_VISION.index)) && Objects.isNull(item.get(Import.LEFT_CORRECTED_VISION.index))) {
+                visionDataDTO.setGlassesType("没有佩戴眼镜");
+            } else {
+                visionDataDTO.setGlassesType("佩戴框架眼镜");
+            }
+
+            if (visionDataDTO.isValid()) {
+                visionScreeningBizService.saveOrUpdateStudentScreenData(visionDataDTO);
+            }
+
+            ComputerOptometryDTO computerOptometryDTO = new ComputerOptometryDTO();
+            computerOptometryDTO.setRAxial(Objects.nonNull(item.get(Import.RIGHT_AXIAL.index)) ? new BigDecimal(item.get(Import.RIGHT_AXIAL.index)) : null);
+            computerOptometryDTO.setLAxial(Objects.nonNull(item.get(Import.LEFT_AXIAL.index)) ? new BigDecimal(item.get(Import.LEFT_AXIAL.index)) : null);
+            computerOptometryDTO.setRSph(Objects.nonNull(item.get(Import.RIGHT_SPH.index)) ? new BigDecimal(item.get(Import.RIGHT_SPH.index)) : null);
+            computerOptometryDTO.setLSph(Objects.nonNull(item.get(Import.LEFT_SPH.index)) ? new BigDecimal(item.get(Import.LEFT_SPH.index)) : null);
+            computerOptometryDTO.setRCyl(Objects.nonNull(item.get(Import.RIGHT_CYL.index)) ? new BigDecimal(item.get(Import.RIGHT_CYL.index)) : null);
+            computerOptometryDTO.setLCyl(Objects.nonNull(item.get(Import.LEFT_CYL.index)) ? new BigDecimal(item.get(Import.LEFT_CYL.index)) : null);
+            computerOptometryDTO.setDiagnosis(0);
+            computerOptometryDTO.setIsCooperative(0);
+            computerOptometryDTO.setSchoolId(String.valueOf(school.getId()));
+            computerOptometryDTO.setDeptId(orgId);
+            computerOptometryDTO.setCreateUserId(1);
+            computerOptometryDTO.setPlanStudentId(String.valueOf(planSchoolStudent.getId()));
+            computerOptometryDTO.setIsState(0);
+
+            if (computerOptometryDTO.isValid()) {
+                visionScreeningBizService.saveOrUpdateStudentScreenData(computerOptometryDTO);
+            }
+            id = id + 1;
+        }
+    }
+
+    public enum Import {
+        NAME(0, "姓名"),
+        GENDER(1, "性别"),
+        BIRTHDAY(2, "出生日期"),
+        GRADE(3, "年级"),
+        CLASS(4, "班级"),
+        RIGHT_NAKED_VISION(5, "右-裸眼"),
+        LEFT_NAKED_VISION(6, "左-裸眼"),
+        RIGHT_CORRECTED_VISION(7, "右-戴镜"),
+        LEFT_CORRECTED_VISION(8, "左-戴镜"),
+        RIGHT_SPH(9, "右-球镜"),
+        LEFT_SPH(10, "左-球镜"),
+        LEFT_CYL(11, "右-柱镜"),
+        RIGHT_CYL(12, "左-柱镜"),
+        RIGHT_AXIAL(13, "右-轴位"),
+        LEFT_AXIAL(14, "左-轴位"),
+        SCHOOL_ID(15, "SCHOOL_ID"),
+        PLAN_ID(16, "PLAN_ID"),
+        ORG_ID(17, "ORG_ID"),
+        NOTICE_ID(18, "NOTICE_ID"),
+        TASK_ID(19, "TASK_ID"),
+        PLAN_DISTRICT_ID(20, "PLAN_DISTRICT_ID"),
+        SCHOOL_DISTRICT_ID(21, "SCHOOL_DISTRICT_ID");
+
+        /**
+         * 列标
+         **/
+        private final Integer index;
+        /**
+         * 名称
+         **/
+        private final String name;
+
+        Import(Integer index, String name) {
+            this.index = index;
+            this.name = name;
+        }
+
+        public Integer getIndex() {
+            return this.index;
+        }
+
+        public String getName() {
+            return this.name;
+        }
+    }
+
+    /**
+     * 读取Excel数据
+     *
+     * @param multipartFile Excel文件
+     * @return java.util.List<java.util.Map < java.lang.Integer, java.lang.String>>
+     **/
+    private List<Map<Integer, String>> readExcelAbc(MultipartFile multipartFile) {
+        String fileName = IOUtils.getTempPath() + multipartFile.getName() + "_" + System.currentTimeMillis() + FILE_SUFFIX;
+        File file = new File(fileName);
+        try {
+            FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
+        } catch (IOException e) {
+            log.error("导入学生数据异常:", e);
+            throw new BusinessException("导入学生数据异常");
+        }
+        // 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
+        try {
+            return EasyExcel.read(fileName).sheet().doReadSync();
+        } catch (Exception e) {
+            log.error("导入学生数据异常:", e);
+            throw new BusinessException("Excel解析异常");
         }
     }
 }

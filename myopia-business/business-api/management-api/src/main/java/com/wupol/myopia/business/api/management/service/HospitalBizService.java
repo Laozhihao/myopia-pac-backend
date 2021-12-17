@@ -61,8 +61,6 @@ public class HospitalBizService {
     private OauthServiceClient oauthServiceClient;
     @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
-    @Resource
-    private HospitalStudentService hospitalStudentService;
 
     /**
      * 更新医院信息
