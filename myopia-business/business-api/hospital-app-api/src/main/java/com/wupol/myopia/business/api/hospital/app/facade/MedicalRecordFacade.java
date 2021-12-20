@@ -3,6 +3,7 @@ package com.wupol.myopia.business.api.hospital.app.facade;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.api.hospital.app.domain.vo.HospitalStudentVO;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.core.hospital.constant.HospitalCacheKey;
 import com.wupol.myopia.business.core.hospital.domain.model.*;
 import com.wupol.myopia.business.core.hospital.service.HospitalStudentService;
@@ -71,6 +72,7 @@ public class MedicalRecordFacade {
         }
         HospitalStudentVO hospitalStudentVO = hospitalStudentFacade.getStudentById(hospitalId, studentId);
         hospitalStudentVO.setHospitalId(hospitalId);
+        hospitalStudentVO.setStatus(CommonConst.STATUS_NOT_DELETED);
         // 未建档则建档
         hospitalStudentFacade.saveStudent(hospitalStudentVO, false);
         // 设置标识，一天内只通过缓存查询患者信息

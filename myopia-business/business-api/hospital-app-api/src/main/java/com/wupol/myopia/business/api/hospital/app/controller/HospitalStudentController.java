@@ -15,7 +15,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
@@ -62,7 +61,7 @@ public class HospitalStudentController {
     }
 
     @PostMapping()
-    public ApiResult<String> saveStudentArchive(@RequestBody @Valid HospitalStudentVO studentVo) throws IOException {
+    public ApiResult<String> saveStudentArchive(@RequestBody @Valid HospitalStudentVO studentVo) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         Integer hospitalId = user.getOrgId();
         studentVo.setHospitalId(hospitalId);
@@ -76,7 +75,7 @@ public class HospitalStudentController {
     }
 
     @PutMapping()
-    public ApiResult<String> updateStudent(@RequestBody @Valid HospitalStudentVO studentVo) throws IOException {
+    public ApiResult<String> updateStudent(@RequestBody @Valid HospitalStudentVO studentVo) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         Integer hospitalId = user.getOrgId();
         studentVo.setHospitalId(hospitalId);
