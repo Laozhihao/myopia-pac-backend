@@ -157,4 +157,36 @@
             #{id}
         </foreach>
     </select>
+
+    <select id="getByHospitalId" resultType="com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO">
+        select report.id                as reportId,
+               report.hospital_id       as hospitalId,
+               report.create_time,
+               report.update_time       as updateTime,
+               mh.name                  as hospitalName,
+               report.student_id        as studentId,
+               report.glasses_situation as glassesSituation,
+               report.medical_content   as medicalContent,
+               report.doctor_id         as doctorId,
+               student.name             as name,
+               student.gender           as gender,
+               student.birthday         as birthday,
+               student.id               as hospitalStudentId
+        from h_medical_report report
+                     left join h_hospital_student student on student.id = report.student_id
+                     left join h_medical_record record on report.medical_record_id = record.id
+                     left join m_hospital mh on report.hospital_id = mh.id
+                     left join h_doctor doctor on doctor.hospital_id = report.hospital_id
+                where report.hospital_id = #{requestDTO.hospitalId}
+        <if test="requestDTO.name != null and requestDTO.name != ''">
+            and student.name like CONCAT('%', #{requestDTO.name}, '%')
+        </if>
+        <if test="requestDTO.doctorName != null and requestDTO.doctorName != ''">
+            and doctor.name like CONCAT('%', #{requestDTO.doctorName}, '%')
+        </if>
+        <if test="requestDTO.reportStartTime != null and requestDTO.reportEndTIme != null">
+            and report.create_time between (#{requestDTO.reportStartTime}, #{requestDTO.reportEndTIme})
+        </if>
+        order by report.create_time desc
+    </select>
 </mapper>

@@ -6,9 +6,11 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.api.management.service.HospitalStudentBizService;
+import com.wupol.myopia.business.api.management.service.StudentBizService;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.hospital.domain.dto.HospitalStudentRequestDTO;
 import com.wupol.myopia.business.core.hospital.domain.dto.HospitalStudentResponseDTO;
 import com.wupol.myopia.business.core.hospital.domain.model.HospitalStudent;
@@ -40,6 +42,9 @@ public class HospitalWorkbenchPatientController {
 
     @Resource
     private DistrictService districtService;
+
+    @Resource
+    private StudentBizService studentBizService;
 
     /**
      * 获取医院学生列表
@@ -103,5 +108,17 @@ public class HospitalWorkbenchPatientController {
     @GetMapping("child/district/{code}")
     public List<District> getChildDistrict(@PathVariable("code") @NotNull(message = "行政区域编号不能为空") Long code) {
         return districtService.getChildDistrictByParentIdPriorityCache(code);
+    }
+
+    /**
+     * 获取学生就诊列表
+     *
+     * @param pageRequest 分页请求
+     * @param studentId   学生ID
+     * @return List<MedicalReportDO>
+     */
+    @GetMapping("/report/list")
+    public IPage<ReportAndRecordDO> getReportList(@Validated PageRequest pageRequest, @NotNull(message = "学生Id不能为空") Integer studentId) {
+        return studentBizService.getReportList(pageRequest, studentId);
     }
 }

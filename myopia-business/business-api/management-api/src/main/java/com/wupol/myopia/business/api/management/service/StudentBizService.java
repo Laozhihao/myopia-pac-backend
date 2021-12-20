@@ -241,7 +241,7 @@ public class StudentBizService {
     public StudentDTO getStudentById(Integer id) {
         StudentDTO student = studentService.getStudentById(id);
         student.setScreeningCodes(getScreeningCodesByPlan(screeningPlanSchoolStudentService.getByStudentId(id)));
-        student.setBirthdayInfo(DateUtil.dayComparePeriod(student.getBirthday()));
+        student.setBirthdayInfo(DateUtil.getAgeInfo(student.getBirthday(), new Date()));
         if (Objects.nonNull(student.getCommitteeCode())) {
             student.setCommitteeLists(districtService.getDistrictPositionDetail(student.getCommitteeCode()));
         }
@@ -315,11 +315,24 @@ public class StudentBizService {
         if (CollectionUtils.isEmpty(records)) {
             return pageReport;
         }
+        packageReportInfo(records);
+        return pageReport;
+    }
+
+    /**
+     * 设置报告信息
+     *
+     * @param records 报告
+     */
+    public void packageReportInfo(List<ReportAndRecordDO> records) {
         // 收集医生Id
         Set<Integer> doctorIds = records.stream().map(ReportAndRecordDO::getDoctorId).collect(Collectors.toSet());
         Map<Integer, String> doctorMap = hospitalDoctorService.listByIds(doctorIds).stream().collect(Collectors.toMap(Doctor::getId, Doctor::getName));
         records.forEach(report -> {
             report.setDoctorName(doctorMap.getOrDefault(report.getDoctorId(), StringUtils.EMPTY));
+            if (Objects.nonNull(report.getBirthday())) {
+                report.setCreateTimeAge(DateUtil.getAgeInfo(report.getCreateTime(), report.getBirthday()));
+            }
             ReportConclusion reportConclusion = medicalReportBizService.getReportConclusion(report.getReportId());
             if (Objects.nonNull(reportConclusion)
                     && Objects.nonNull(reportConclusion.getReport())
@@ -327,7 +340,6 @@ public class StudentBizService {
                 report.setImageFileUrl(resourceFileService.getBatchResourcePath(reportConclusion.getReport().getImageIdList()));
             }
         });
-        return pageReport;
     }
 
     /**
