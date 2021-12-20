@@ -241,7 +241,7 @@ public class StudentBizService {
     public StudentDTO getStudentById(Integer id) {
         StudentDTO student = studentService.getStudentById(id);
         student.setScreeningCodes(getScreeningCodesByPlan(screeningPlanSchoolStudentService.getByStudentId(id)));
-        student.setBirthdayInfo(DateUtil.dayComparePeriod(student.getBirthday()));
+        student.setBirthdayInfo(DateUtil.getAgeInfo(student.getBirthday(), new Date()));
         if (Objects.nonNull(student.getCommitteeCode())) {
             student.setCommitteeLists(districtService.getDistrictPositionDetail(student.getCommitteeCode()));
         }
