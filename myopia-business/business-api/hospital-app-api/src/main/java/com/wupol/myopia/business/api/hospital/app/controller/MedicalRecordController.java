@@ -66,8 +66,8 @@ public class MedicalRecordController {
 
     @PostMapping("/vision")
     public Boolean createVisionMedicalRecord(@RequestBody VisionMedicalRecord vision) {
-        CurrentUser user = CurrentUserUtil.getCurrentUser();
-        medicalRecordFacade.addCheckDataAndCreateStudent( null, vision,null, null,null, null, user.getOrgId(), -1, vision.getStudentId());
+//        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        medicalRecordFacade.addCheckDataAndCreateStudent( null, vision,null, null,null, null, 72, -1, vision.getStudentId());
         return true;
     }
 
