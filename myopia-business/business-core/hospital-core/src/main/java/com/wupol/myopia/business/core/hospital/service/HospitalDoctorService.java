@@ -80,12 +80,12 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
         if (Objects.nonNull(user)) {
             // 新增时，手机号码已存在
             if (Objects.isNull(id)) {
-                new BusinessException("手机号码已存在！");
+                new BusinessException("该手机号已被使用！");
             } else {
                 Doctor doctor = getById(id);
                 // 更新时，手机号码已存在
                 if (!doctor.getUserId().equals(user.getId())) {
-                    new BusinessException("手机号码已存在！");
+                    new BusinessException("该手机号已被使用！");
                 }
             }
         }

@@ -113,6 +113,10 @@ public class UserService extends BaseService<UserMapper, User> {
         return userDTO.setId(user.getId());
     }
 
+    public Integer updateUserRealName(String realName, Integer byOrgId, Integer bySystemCode, Integer byUserType) {
+        return baseMapper.updateUserRealName(realName, byOrgId, bySystemCode, byUserType);
+    }
+
     /**
      * 检验参数
      *
@@ -207,6 +211,7 @@ public class UserService extends BaseService<UserMapper, User> {
         Role role = roleService.getOrgFirstOneRole(userDTO.getOrgId(), systemCode, roleType);
         if (Objects.nonNull(role)) {
             userRoleService.save(new UserRole().setUserId(userId).setRoleId(role.getId()));
+            bindScreeningPermission(userDTO.getAssociateScreeningOrgId(), userDTO.getId());
             return;
         }
         // 生成筛查机构管理员角色
@@ -217,8 +222,12 @@ public class UserService extends BaseService<UserMapper, User> {
         // 生成医院管理员角色
         generateUserRole(userDTO, PermissionTemplateType.HOSPITAL_ADMIN.getType(), roleType, userDTO.getUsername());
         // 给医院绑定关联筛查机构的角色
-        if (Objects.nonNull(userDTO.getAssociateScreeningOrgId())) {
-            Role screeningOrgAdminRole = roleService.getScreeningOrgFirstOneRole(userDTO.getAssociateScreeningOrgId());
+        bindScreeningPermission(userDTO.getAssociateScreeningOrgId(), userDTO.getId());
+    }
+
+    private void bindScreeningPermission(Integer associateScreeningOrgId, Integer userId) {
+        if (Objects.nonNull(associateScreeningOrgId)) {
+            Role screeningOrgAdminRole = roleService.getScreeningOrgFirstOneRole(associateScreeningOrgId);
             userRoleService.save(new UserRole().setUserId(userId).setRoleId(screeningOrgAdminRole.getId()));
         }
     }

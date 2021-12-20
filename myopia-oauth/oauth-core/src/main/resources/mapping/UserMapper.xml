@@ -108,4 +108,17 @@
         FROM o_user u
         <include refid="Base_Like_Where_Clause"/>
     </select>
+
+    <update id="updateUserRealName">
+        update o_user
+        set real_name = #{realName}
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(orgId)">and `org_id` = #{orgId}</if>
+                <if test="@Ognl@isNotEmpty(systemCode)">and `system_code` = #{systemCode}</if>
+                <if test="@Ognl@isNotEmpty(userType)">and `user_type` = #{userType}</if>
+            </trim>
+        </where>
+    </update>
+
 </mapper>

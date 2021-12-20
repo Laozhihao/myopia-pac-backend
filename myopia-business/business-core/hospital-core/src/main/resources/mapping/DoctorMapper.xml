@@ -50,6 +50,7 @@
                 and d.hospital_id = #{query.hospitalId}
             </if>
         </where>
+        order by create_time desc
     </select>
 
     <select id="getDoctorVoList" resultMap="DoctorDTO">

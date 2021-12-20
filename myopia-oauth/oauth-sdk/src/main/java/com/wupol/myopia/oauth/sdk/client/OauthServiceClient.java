@@ -58,6 +58,18 @@ public interface OauthServiceClient {
     List<User> getUserBatchByIds(@RequestParam("userIds") List<Integer> userIds);
 
     /**
+     * 更新用户名称
+     * @param realName
+     * @param byOrgId
+     * @param bySystemCode
+     * @param byUserType
+     * @return
+     */
+    @PutMapping("/oauth/user/realname")
+    Integer updateUserRealName(@RequestParam("realName") String realName, @RequestParam("byOrgId") Integer byOrgId,
+                               @RequestParam("bySystemCode") Integer bySystemCode, @RequestParam("byUserType") Integer byUserType);
+
+    /**
      * 根据手机号码批量获取用户
      *
      * @param phones 手机号码集合
