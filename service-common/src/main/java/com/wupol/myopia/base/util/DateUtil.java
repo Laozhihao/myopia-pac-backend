@@ -398,7 +398,7 @@ public class DateUtil extends cn.hutool.core.date.DateUtil {
         int months = period.getMonths();
         int days = period.getDays();
 
-        if (years > 0 && years < 3) {
+        if (years >= 0 && years < 3) {
             return (years * 12 + months) + "个月" + days + "天";
         }
         if (years >= 3 && years < 7) {
