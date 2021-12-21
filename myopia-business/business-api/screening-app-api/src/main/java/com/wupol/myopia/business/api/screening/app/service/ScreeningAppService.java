@@ -548,7 +548,7 @@ public class ScreeningAppService {
         schoolStudent.setCityCode(student.getCityCode());
         schoolStudent.setAreaCode(student.getAreaCode());
         schoolStudent.setTownCode(student.getTownCode());
-        schoolStudentService.save(schoolStudent);
+        schoolStudentService.saveOrUpdate(schoolStudent);
     }
 
 }
