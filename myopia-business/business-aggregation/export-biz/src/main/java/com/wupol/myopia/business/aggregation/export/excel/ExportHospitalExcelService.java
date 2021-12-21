@@ -5,7 +5,6 @@ import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelNoticeKeyContentConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
-import com.wupol.myopia.business.core.common.constant.ExportAddressKey;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.hospital.constant.HospitalEnum;
@@ -14,13 +13,17 @@ import com.wupol.myopia.business.core.hospital.domain.dto.HospitalExportDTO;
 import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
 import com.wupol.myopia.business.core.hospital.domain.query.HospitalQuery;
 import com.wupol.myopia.business.core.hospital.service.HospitalService;
-import com.wupol.myopia.oauth.sdk.domain.response.User;
+import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
+import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 
@@ -38,6 +41,9 @@ public class ExportHospitalExcelService extends BaseExportExcelFileService {
     @Resource
     private HospitalService hospitalService;
 
+    @Resource
+    private ScreeningOrganizationService screeningOrganizationService;
+
     @Override
     public List getExcelData(ExportCondition exportCondition) {
 
@@ -48,31 +54,28 @@ public class ExportHospitalExcelService extends BaseExportExcelFileService {
         query.setDistrictId(districtId);
         List<Hospital> list = hospitalService.getBy(query);
 
+        List<Integer> orgIds = list.stream().map(Hospital::getAssociateScreeningOrgId).collect(Collectors.toList());
+        Map<Integer, String> orgMap = screeningOrganizationService.getByIds(orgIds).stream().collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization::getName));
+
         if (CollectionUtils.isEmpty(list)) {
             return new ArrayList<>();
         }
-
-        // 创建人姓名
-        Set<Integer> createUserIds = list.stream().map(Hospital::getCreateUserId).collect(Collectors.toSet());
-        Map<Integer, User> userMap = getUserMapByIds(createUserIds);
-
-        for (Hospital item : list) {
-            HashMap<String, String> addressMap = generateAddressMap(item);
+        for (Hospital hospital : list) {
             HospitalExportDTO exportVo = new HospitalExportDTO()
-                    .setName(item.getName())
-                    .setDistrictName(districtService.getDistrictName(item.getDistrictDetail()))
-                    .setLevel(HospitalLevelEnum.getLevel(item.getLevel()))
-                    .setType(HospitalEnum.getTypeName(item.getType()))
-                    .setKind(HospitalEnum.getKindName(item.getKind()))
-                    .setRemark(item.getRemark())
-                    .setAccountNo(item.getName())
-                    .setAddress(item.getAddress())
-                    .setCreateUser(userMap.get(item.getCreateUserId()).getRealName())
-                    .setCreateTime(DateFormatUtil.format(item.getCreateTime(), DateFormatUtil.FORMAT_DETAIL_TIME))
-                    .setProvince(addressMap.getOrDefault(ExportAddressKey.PROVIDE, StringUtils.EMPTY))
-                    .setCity(addressMap.getOrDefault(ExportAddressKey.CITY, StringUtils.EMPTY))
-                    .setArea(addressMap.getOrDefault(ExportAddressKey.AREA, StringUtils.EMPTY))
-                    .setTown(addressMap.getOrDefault(ExportAddressKey.TOWN, StringUtils.EMPTY));
+                    .setName(hospital.getName())
+                    .setAddress(districtService.getAddressDetails(hospital.getProvinceCode(), hospital.getCityCode(), hospital.getAreaCode(), hospital.getTownCode(), hospital.getAddress()))
+                    .setLevel(HospitalLevelEnum.getLevel(hospital.getLevel()))
+                    .setType(HospitalEnum.getTypeName(hospital.getType()))
+                    .setKind(HospitalEnum.getKindName(hospital.getKind()))
+                    .setRemark(hospital.getRemark())
+                    .setAccountNo(hospital.getName())
+                    .setServiceType(HospitalEnum.getServiceTypeName(hospital.getServiceType()))
+                    .setCooperationType(HospitalEnum.getCooperationTypeName(hospital.getCooperationType()))
+                    .setCooperationRemainTime(hospital.getCooperationRemainTime())
+                    .setCooperationStartTime(Objects.nonNull(hospital.getCooperationStartTime()) ? DateFormatUtil.format(hospital.getCooperationStartTime(), DateFormatUtil.FORMAT_TIME_WITHOUT_SECOND) : StringUtils.EMPTY)
+                    .setCooperationEndTime(Objects.nonNull(hospital.getCooperationEndTime()) ? DateFormatUtil.format(hospital.getCooperationEndTime(), DateFormatUtil.FORMAT_TIME_WITHOUT_SECOND) : StringUtils.EMPTY)
+                    .setAssociateScreeningOrg(orgMap.getOrDefault(hospital.getAssociateScreeningOrgId(), StringUtils.EMPTY))
+                    .setCreateTime(DateFormatUtil.format(hospital.getCreateTime(), DateFormatUtil.FORMAT_DETAIL_TIME));
             exportList.add(exportVo);
         }
         return exportList;

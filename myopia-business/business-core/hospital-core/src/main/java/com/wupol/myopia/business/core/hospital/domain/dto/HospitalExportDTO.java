@@ -32,8 +32,8 @@ public class HospitalExportDTO implements Serializable {
     @ExcelProperty({TOP_HEADER, "医院名称"})
     private String name;
 
-    @ExcelProperty({TOP_HEADER, "所处层级"})
-    private String districtName;
+    @ExcelProperty({TOP_HEADER, "地址"})
+    private String address;
 
     @ExcelProperty({TOP_HEADER, "等级"})
     private String level;
@@ -50,23 +50,23 @@ public class HospitalExportDTO implements Serializable {
     @ExcelProperty({TOP_HEADER, "账号"})
     private String accountNo;
 
-    @ExcelProperty({TOP_HEADER, "省"})
-    private String province;
+    @ExcelProperty({TOP_HEADER, "配置"})
+    private String serviceType;
 
-    @ExcelProperty({TOP_HEADER, "市"})
-    private String city;
+    @ExcelProperty({TOP_HEADER, "合作类型"})
+    private String cooperationType;
 
-    @ExcelProperty({TOP_HEADER, "县区"})
-    private String area;
+    @ExcelProperty({TOP_HEADER, "剩余合作时间"})
+    private Integer cooperationRemainTime;
 
-    @ExcelProperty({TOP_HEADER, "镇/街道"})
-    private String town;
+    @ExcelProperty({TOP_HEADER, "开始时间"})
+    private String cooperationStartTime;
 
-    @ExcelProperty({TOP_HEADER, "详细"})
-    private String address;
+    @ExcelProperty({TOP_HEADER, "截止时间"})
+    private String cooperationEndTime;
 
-    @ExcelProperty({TOP_HEADER, "创建人"})
-    private String createUser;
+    @ExcelProperty({TOP_HEADER, "绑定筛查机构"})
+    private String associateScreeningOrg;
 
     @ExcelProperty({TOP_HEADER, "创建时间"})
     private String createTime;

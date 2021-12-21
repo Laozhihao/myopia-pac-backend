@@ -399,6 +399,7 @@ public class ScreeningAppController {
         Student student = screeningAppService.getStudent(CurrentUserUtil.getCurrentUser(), appStudentDTO, school);
         try {
             studentService.saveStudent(student);
+            screeningAppService.insertSchoolStudent(student);
             //获取当前的计划
         } catch (Exception e) {
             // app 就是这么干的。

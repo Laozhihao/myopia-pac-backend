@@ -143,4 +143,14 @@
         where school_id = #{schoolId}
           and status = 0
     </select>
+
+    <select id="getDeletedByIdCardAndSno" resultMap="BaseResultMap">
+        select *
+        from m_school_student
+        where (id_card = #{idCard}
+                or sno = #{sno})
+          and school_id = #{schoolId}
+          and status = 2
+        limit 1
+    </select>
 </mapper>
