@@ -10,6 +10,7 @@ import com.wupol.myopia.business.core.school.management.domain.model.SchoolStude
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
@@ -119,5 +120,31 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
      */
     public List<SchoolStudent> getBySchoolId(Integer schoolId) {
         return baseMapper.getBySchoolId(schoolId);
+    }
+
+    /**
+     * 学号、身份证是否重复
+     *
+     * @param id       id
+     * @param idCard   身份证
+     * @param sno      学号
+     * @param schoolId 学校Id
+     * @return true-没有重复 false-存在重复
+     */
+    public Boolean checkIdCardAndSno(Integer id, String idCard, String sno, Integer schoolId) {
+        List<SchoolStudent> studentList = baseMapper.getByIdCardAndSno(id, idCard, sno, schoolId);
+        return CollectionUtils.isEmpty(studentList);
+    }
+
+    /**
+     * 获取已经删除的学生
+     *
+     * @param idCard   学生证
+     * @param sno      学号
+     * @param schoolId 学校Id
+     * @return SchoolStudent
+     */
+    public SchoolStudent getDeletedByIdCardAndSno(String idCard, String sno, Integer schoolId) {
+        return baseMapper.getDeletedByIdCardAndSno(idCard, sno, schoolId);
     }
 }
