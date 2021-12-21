@@ -74,18 +74,18 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
 
     private void checkPhone(String phone, Integer id) {
         if (StringUtils.isBlank(phone) || phone.length() != 11) {
-            new BusinessException("无效的手机号码！");
+            throw new BusinessException("无效的手机号码！");
         }
         User user = getByPhone(phone);
         if (Objects.nonNull(user)) {
             // 新增时，手机号码已存在
             if (Objects.isNull(id)) {
-                new BusinessException("该手机号已被使用！");
+                throw new BusinessException("该手机号已被使用！");
             } else {
                 Doctor doctor = getById(id);
                 // 更新时，手机号码已存在
                 if (!doctor.getUserId().equals(user.getId())) {
-                    new BusinessException("该手机号已被使用！");
+                    throw new BusinessException("该手机号已被使用！");
                 }
             }
         }
