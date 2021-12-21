@@ -173,6 +173,7 @@ public class Hospital extends AddressCode implements Serializable {
     /**
      * 关联筛查机构的ID
      */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Integer associateScreeningOrgId;
 
     @TableField(exist = false)

@@ -103,9 +103,9 @@ public class ScreeningPlanController {
             // 政府部门，无法新增计划
             throw new ValidationException("无权限");
         }
+        // 若为筛查人员或医生，只能发布自己机构的计划
         if (user.isScreeningUser() || (user.isHospitalUser() && (Objects.nonNull(user.getScreeningOrgId())))) {
-            // 筛查机构人员，需校验是否同机构
-            Assert.isTrue(user.getScreeningOrgId().equals(screeningPlanDTO.getScreeningOrgId()), "无该筛查机构权限");
+            screeningPlanDTO.setScreeningOrgId(user.getScreeningOrgId());
         }
         // 开始时间只能在今天或以后
         if (DateUtil.isDateBeforeToday(screeningPlanDTO.getStartTime())) {
