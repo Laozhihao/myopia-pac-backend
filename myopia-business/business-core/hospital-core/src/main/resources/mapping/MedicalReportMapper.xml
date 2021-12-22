@@ -173,10 +173,10 @@
                student.birthday         as birthday,
                student.id               as hospitalStudentId
         from h_medical_report report
-                     left join h_hospital_student student on student.id = report.student_id
+                     left join h_hospital_student student on student.student_id = report.student_id
                      left join h_medical_record record on report.medical_record_id = record.id
                      left join m_hospital mh on report.hospital_id = mh.id
-                     left join h_doctor doctor on doctor.hospital_id = report.hospital_id
+                     left join h_doctor doctor on doctor.id = report.doctor_id
                 where report.hospital_id = #{requestDTO.hospitalId}
         <if test="requestDTO.name != null and requestDTO.name != ''">
             and student.name like CONCAT('%', #{requestDTO.name}, '%')
