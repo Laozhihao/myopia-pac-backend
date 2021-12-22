@@ -181,14 +181,14 @@ public class ScreeningOrganization extends AddressCode implements Serializable, 
      * 合作是否到期
      * @return
      */
-    public boolean isCooperationStop() {
+    private boolean isCooperationStop() {
         if (Objects.nonNull(cooperationEndTime)) {
             return cooperationEndTime.getTime() < new Date().getTime();
         }
         return true;
     }
 
-    public boolean isCooperationBegin() {
+    private boolean isCooperationBegin() {
         if (Objects.nonNull(cooperationStartTime)) {
             return cooperationStartTime.getTime() < new Date().getTime();
         }

@@ -181,6 +181,9 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
     public Object getScreeningPlanExportData(Integer screeningPlanId, @RequestParam(defaultValue = "0") Integer screeningOrgId,
                                              @RequestParam(defaultValue = "0") Integer schoolId) throws IOException, UtilException {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        if (currentUser.isScreeningUser() || (currentUser.isHospitalUser() && (Objects.nonNull(currentUser.getScreeningOrgId())))) {
+            screeningOrgId = currentUser.getScreeningOrgId();
+        }
         // 参数校验
         validatePlanExportParams(screeningPlanId, screeningOrgId, schoolId);
         List<StatConclusionExportDTO> statConclusionExportDTOs = new ArrayList<>();

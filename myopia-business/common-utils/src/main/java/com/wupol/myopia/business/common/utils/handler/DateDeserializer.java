@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.common.utils.handler;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -23,6 +22,7 @@ public class DateDeserializer extends JsonDeserializer<Date> {
     @Override
     public Date deserialize(JsonParser jsonParser, DeserializationContext ctxt) throws IOException {
         try {
+            // TODO wulizhou 后期增强功能，使其能支持时间戳转Date
             if (jsonParser != null && StringUtils.isNotEmpty(jsonParser.getText())) {
                 return format.parse(jsonParser.getText());
             } else {
