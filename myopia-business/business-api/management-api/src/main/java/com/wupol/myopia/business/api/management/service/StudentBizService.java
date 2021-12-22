@@ -331,7 +331,7 @@ public class StudentBizService {
         records.forEach(report -> {
             report.setDoctorName(doctorMap.getOrDefault(report.getDoctorId(), StringUtils.EMPTY));
             if (Objects.nonNull(report.getBirthday())) {
-                report.setCreateTimeAge(DateUtil.getAgeInfo(report.getCreateTime(), report.getBirthday()));
+                report.setCreateTimeAge(DateUtil.getAgeInfo(report.getBirthday(), report.getCreateTime()));
             }
             ReportConclusion reportConclusion = medicalReportBizService.getReportConclusion(report.getReportId());
             if (Objects.nonNull(reportConclusion)
