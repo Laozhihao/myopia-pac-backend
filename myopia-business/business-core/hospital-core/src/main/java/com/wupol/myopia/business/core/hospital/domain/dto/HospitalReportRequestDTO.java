@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.hospital.domain.dto;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
@@ -32,10 +33,12 @@ public class HospitalReportRequestDTO {
     /**
      * 检查开始时间
      */
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date reportStartTime;
 
     /**
      * 检查结束时间
      */
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date reportEndTIme;
 }
