@@ -100,14 +100,18 @@ public class HospitalStudentFacade {
         if (Objects.isNull(studentVo)) {
             throw new BusinessException("学生信息不能为空");
         }
+        String idCard = studentVo.getIdCard();
+        if (StringUtils.isBlank(idCard)) {
+            throw new BusinessException("缺少学生身份证信息");
+        }
 
         // 数据库中保存的学生信息
         // 优先使用studentId查询
         Student oldStudent = Objects.nonNull(studentVo.getStudentId()) ?
                 studentService.getById(studentVo.getStudentId()) :
-                studentService.getByIdCard(studentVo.getIdCard());
+                studentService.getByIdCard(idCard);
         if ((Objects.nonNull(oldStudent) && isCheckNameAndIDCard)
-                && (!(oldStudent.getIdCard().equals(studentVo.getIdCard())
+                && (!(oldStudent.getIdCard().equals(idCard)
                 && oldStudent.getName().equals(studentVo.getName())))) {
             throw new BusinessException("学生的身份证与姓名不匹配");
         }
