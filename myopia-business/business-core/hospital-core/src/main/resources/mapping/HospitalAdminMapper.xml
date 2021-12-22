@@ -43,4 +43,11 @@
         <foreach collection="orgIds" open="(" close=")" separator="," item="item">#{item}</foreach>
     </select>
 
+    <select id="getByHospitalIds" resultMap="BaseResultMap">
+        select *
+        from m_hospital_admin where hospital_id in
+        <foreach collection="hospitalIds" open="(" close=")" separator="," item="hospitalId">
+            #{hospitalId}
+        </foreach>
+    </select>
 </mapper>
