@@ -41,6 +41,9 @@ public class HospitalWorkbenchReportController {
     @GetMapping("list")
     public IPage<ReportAndRecordDO> getList(@Validated PageRequest pageRequest, HospitalReportRequestDTO requestDTO) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        return hospitalBizService.getReportList(pageRequest, requestDTO, currentUser);
+        if (!currentUser.isPlatformAdminUser()) {
+            requestDTO.setHospitalId(currentUser.getOrgId());
+        }
+        return hospitalBizService.getReportList(pageRequest, requestDTO);
     }
 }
