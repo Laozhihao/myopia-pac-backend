@@ -2,7 +2,6 @@ package com.wupol.myopia.business.core.hospital.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.constant.SystemCode;
-import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.PasswordAndUsernameGenerator;
@@ -107,7 +106,7 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
         Doctor oldDoctor = getById(doctor.getId());
         User oldUser = oauthServiceClient.getUserDetailByUserId(oldDoctor.getUserId());
         boolean usernameIsUpdate = false;
-        Hospital hospital = hospitalService.getById(doctor.getHospitalId());
+        Hospital hospital = hospitalService.getById(Objects.isNull(doctor.getHospitalId()) ? oldDoctor.getHospitalId() : doctor.getHospitalId());
 
         UserDTO userDTO = new UserDTO();
         userDTO.setId(oldDoctor.getUserId())
@@ -293,45 +292,4 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
         return true;
     }
 
-    /**
-     * 更新医生信息   TODO 待删除
-     * @param doctor 医生信息
-     * @return
-     */
-    @Deprecated
-    public void saveDoctor(CurrentUser user, Doctor doctor) {
-        doctor.setHospitalId(user.getOrgId())
-                .setDepartmentId(-1);
-        if (!saveOrUpdate(doctor)) {
-            throw new BusinessException("保存医生信息失败");
-        }
-    }
-
-    /**
-     * 删除医生
-     * @param hospitalId 医院id
-     * @param doctorId 医生id
-     * @return
-     */
-    public void deleteDoctor(Integer hospitalId, Integer doctorId) {
-        Doctor doctor = getDoctor(hospitalId, doctorId);
-        if (!removeById(doctor.getId())) {
-            throw new BusinessException("删除失败");
-        }
-    }
-
-    /**
-     * 获取医生列表
-     * @param query 查询条件
-     * @return
-     */
-    public List<DoctorDTO> getDoctorVoList(DoctorQuery query)  {
-        List<DoctorDTO> list = baseMapper.getDoctorVoList(query);
-        list.forEach(item-> {
-            if (Objects.nonNull(item.getAvatarFileId()) && item.getAvatarFileId() != 0) {
-                item.setAvatarUrl(resourceFileService.getResourcePath(item.getAvatarFileId()));
-            }
-        });
-        return list;
-    }
 }
