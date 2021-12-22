@@ -100,7 +100,7 @@ public class ExportHospitalExcelService extends BaseExportExcelFileService {
                     .setAssociateScreeningOrg(orgMap.getOrDefault(hospital.getAssociateScreeningOrgId(), StringUtils.EMPTY))
                     .setCreateTime(DateFormatUtil.format(hospital.getCreateTime(), DateFormatUtil.FORMAT_DETAIL_TIME));
             if (HospitalEnum.COOPERATION_TIME_TYPE_CUSTOMIZE.getType().equals(hospital.getCooperationTimeType())) {
-                exportVo.setCooperationType(HospitalEnum.getCooperationTypeName(hospital.getCooperationType()) + " " + DateUtil.betweenDay(hospital.getCooperationStartTime(), hospital.getCooperationEndTime()));
+                exportVo.setCooperationType(HospitalEnum.getCooperationTypeName(hospital.getCooperationType()) + " " + DateUtil.betweenDay(hospital.getCooperationStartTime(), hospital.getCooperationEndTime()) + "天");
             } else {
                 exportVo.setCooperationType(HospitalEnum.getCooperationTypeName(hospital.getCooperationType()) + " " + HospitalEnum.getCooperationTimeTypeName(hospital.getCooperationTimeType()));
             }
