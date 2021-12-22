@@ -258,6 +258,7 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
         Doctor doctor = getDoctor(hospitalId, doctorId);
         DoctorDTO doctorVo = new DoctorDTO();
         BeanUtils.copyProperties(doctor, doctorVo);
+        doctorVo.setHospitalName(hospitalService.getById(hospitalId).getName());
         return doctorVo.setAvatarUrl(resourceFileService.getResourcePath(doctor.getAvatarFileId()))
                 .setSignUrl(resourceFileService.getResourcePath(doctor.getSignFileId()));
     }
