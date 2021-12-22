@@ -85,6 +85,7 @@ public class ExportHospitalExcelService extends BaseExportExcelFileService {
         for (Hospital hospital : hospitalList) {
             AtomicReference<String> account = new AtomicReference<>(StringUtils.EMPTY);
             adminMap.get(hospital.getId()).forEach(s -> account.set(account + userMap.get(s) + "、"));
+            account.set(account.get().substring(0, account.get().length() - 1));
             HospitalExportDTO exportVo = new HospitalExportDTO()
                     .setName(hospital.getName())
                     .setAddress(districtService.getAddressDetails(hospital.getProvinceCode(), hospital.getCityCode(), hospital.getAreaCode(), hospital.getTownCode(), hospital.getAddress()))
