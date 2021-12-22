@@ -185,7 +185,7 @@
             and doctor.name like CONCAT('%', #{requestDTO.doctorName}, '%')
         </if>
         <if test="requestDTO.reportStartTime != null and requestDTO.reportEndTIme != null">
-            and report.create_time between (#{requestDTO.reportStartTime}, #{requestDTO.reportEndTIme})
+            and report.create_time between #{requestDTO.reportStartTime} and #{requestDTO.reportEndTIme}
         </if>
         order by report.create_time desc
     </select>
