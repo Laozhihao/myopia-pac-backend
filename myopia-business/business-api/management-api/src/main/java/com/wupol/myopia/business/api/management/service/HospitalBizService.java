@@ -276,9 +276,14 @@ public class HospitalBizService {
      *
      * @param pageRequest 分页请求
      * @param requestDTO  医院就诊报告DTO
+     * @param currentUser 登录用户
      * @return List<MedicalReportDO>
      */
-    public IPage<ReportAndRecordDO> getReportList(PageRequest pageRequest, HospitalReportRequestDTO requestDTO) {
+    public IPage<ReportAndRecordDO> getReportList(PageRequest pageRequest, HospitalReportRequestDTO requestDTO,
+                                                  CurrentUser currentUser) {
+        if (!currentUser.isPlatformAdminUser()) {
+            requestDTO.setHospitalId(currentUser.getOrgId());
+        }
         IPage<ReportAndRecordDO> pageReport = medicalReportService.getByHospitalId(pageRequest, requestDTO);
         List<ReportAndRecordDO> records = pageReport.getRecords();
         if (CollectionUtils.isEmpty(records)) {

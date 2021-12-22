@@ -1,7 +1,9 @@
 package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.api.management.service.HospitalBizService;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
@@ -38,6 +40,7 @@ public class HospitalWorkbenchReportController {
      */
     @GetMapping("list")
     public IPage<ReportAndRecordDO> getList(@Validated PageRequest pageRequest, HospitalReportRequestDTO requestDTO) {
-        return hospitalBizService.getReportList(pageRequest, requestDTO);
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        return hospitalBizService.getReportList(pageRequest, requestDTO, currentUser);
     }
 }
