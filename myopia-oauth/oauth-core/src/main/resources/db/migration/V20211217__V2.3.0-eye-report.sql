@@ -4,4 +4,4 @@ INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `o
 INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (556, '眼健康就诊记录', 'tGatientReportList', 'get:/management/hospital/workbench/patient/report/list', 0, 0, 0, 523, 1);
 INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (557, '就诊列表', 'reportList', 'get:/management/student/report/list', 0, 0, 0, 505, 1);
 INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (558, '学生信息', 'studentInfo', 'get:/management/student/**', 0, 0, 0, 505, 1);
-INSERT INTO o_permission (name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES ('眼健康（按钮）', 'btnEyeHealthy', null, 0, 0, 0, 12, 1);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (559, '眼健康（按钮）', 'bEyeHealthy', null, 0, 0, 0, 12, 1);
