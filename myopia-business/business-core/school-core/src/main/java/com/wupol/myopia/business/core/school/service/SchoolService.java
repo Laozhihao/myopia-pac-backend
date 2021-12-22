@@ -510,11 +510,12 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
 
     /**
      * 获取指定合作结束时间的学校信息
-     * @param date 合作结束时间，只精确到day
+     * @param start     开始时间早于该时间才处理
+     * @param end       指定结束时间，精确到天
      * @return
      */
-    public List<School> getByCooperationEndTime(Date date) {
-        return baseMapper.getByCooperationEndTime(date);
+    public List<School> getByCooperationEndTime(Date start, Date end) {
+        return baseMapper.getByCooperationEndTime(start, end);
     }
 
 }
