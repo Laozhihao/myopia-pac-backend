@@ -238,6 +238,11 @@ public class ScreeningOrganizationBizService {
                 .setRealName(screeningOrganization.getName());
         userDTO.setOrgConfigType(screeningOrganization.getConfigType());
         oauthServiceClient.updateUser(userDTO);
+        // 更新筛查机构管理员用户名称
+        if (StringUtils.isNotBlank(screeningOrganization.getName())) {
+            oauthServiceClient.updateUserRealName(screeningOrganization.getName(), screeningOrganization.getId(), SystemCode.MANAGEMENT_CLIENT.getCode(),
+                    UserType.SCREENING_ORGANIZATION_ADMIN.getType());
+        }
 
         // 名字更新
         if (!StringUtils.equals(checkOrg.getName(), screeningOrganization.getName())) {
@@ -479,8 +484,6 @@ public class ScreeningOrganizationBizService {
         if (CollectionUtils.isEmpty(orgList)) {
             throw new BusinessException("数据异常");
         }
-        String orgName = screeningOrganization.getName();
-        screeningOrganization.setName(orgName + "0" + orgList.size());
         ScreeningOrganizationAdmin screeningOrganizationAdmin = orgList.stream().sorted(Comparator.comparing(ScreeningOrganizationAdmin::getCreateTime)).collect(Collectors.toList()).get(0);
         String mainUsername = oauthServiceClient.getUserDetailByUserId(screeningOrganizationAdmin.getUserId()).getUsername();
         String username;

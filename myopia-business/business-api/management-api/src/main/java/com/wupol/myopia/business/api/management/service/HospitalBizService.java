@@ -30,6 +30,7 @@ import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
 import com.wupol.myopia.oauth.sdk.domain.response.Organization;
 import com.wupol.myopia.oauth.sdk.domain.response.Role;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -88,6 +89,11 @@ public class HospitalBizService {
         hospitalService.updateById(hospital);
         // 2.更新医院管理员和医生用户的账号权限
         updateAdminAndDoctorAccountPermission(hospital, oldHospital.getAssociateScreeningOrgId());
+        // 更新医院管理员用户名称
+        if (StringUtils.isNotBlank(hospital.getName()) && (!hospital.getName().equals(oldHospital.getName()))) {
+            oauthServiceClient.updateUserRealName(hospital.getName(), hospital.getId(), SystemCode.MANAGEMENT_CLIENT.getCode(),
+                    UserType.HOSPITAL_ADMIN.getType());
+        }
         // 3.返回最新消息
         // 同步到oauth机构状态
         oauthServiceClient.updateOrganization(new Organization(hospital.getId(), SystemCode.MANAGEMENT_CLIENT,
@@ -208,7 +214,6 @@ public class HospitalBizService {
         if (CollectionUtils.isEmpty(adminList)) {
             throw new BusinessException("数据异常，无主账号");
         }
-        hospital.setName(hospital.getName() + "0" + adminList.size());
 
         // 获取主账号的账号名称
         HospitalAdmin hospitalAdmin = adminList.stream().sorted(Comparator.comparing(HospitalAdmin::getCreateTime)).collect(Collectors.toList()).get(0);
@@ -232,11 +237,15 @@ public class HospitalBizService {
     private void updateAdminAndDoctorAccountPermission(Hospital newHospital, Integer oldAssociateScreeningOrgId) {
         Integer newAssociateScreeningOrgId = newHospital.getAssociateScreeningOrgId();
         // 医院管理员(关联筛查机构有变动才更新)
+        // 之前没有绑定，现在绑定
         if ((Objects.isNull(oldAssociateScreeningOrgId) && Objects.nonNull(newAssociateScreeningOrgId))) {
             oauthServiceClient.addHospitalUserAssociatedScreeningOrgAdminRole(newHospital.getId(), newAssociateScreeningOrgId);
-        } else if (Objects.nonNull(oldAssociateScreeningOrgId) && !oldAssociateScreeningOrgId.equals(newAssociateScreeningOrgId)) {
+        // 之前有绑定，现在改绑或解绑
+        } else if (Objects.nonNull(oldAssociateScreeningOrgId) && !oldAssociateScreeningOrgId.equals(newAssociateScreeningOrgId)){
             oauthServiceClient.removeHospitalUserAssociatedScreeningOrgAdminRole(newHospital.getId(), oldAssociateScreeningOrgId);
-            oauthServiceClient.addHospitalUserAssociatedScreeningOrgAdminRole(newHospital.getId(), newAssociateScreeningOrgId);
+            if (Objects.nonNull(newAssociateScreeningOrgId)) {
+                oauthServiceClient.addHospitalUserAssociatedScreeningOrgAdminRole(newHospital.getId(), newAssociateScreeningOrgId);
+            }
         }
         // 医生用户
         oauthServiceClient.updateDoctorRole(newHospital.getId(), newHospital.getServiceType());
@@ -264,6 +273,7 @@ public class HospitalBizService {
                 UserDTO userDTO = new UserDTO();
                 userDTO.setRoleIds(Collections.singletonList(role.getId()))
                         .setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode())
+                        .setUserType(UserType.HOSPITAL_ADMIN.getType())
                         .setOrgId(hospitalAdmin.getHospitalId())
                         .setId(hospitalAdmin.getUserId());
                 oauthServiceClient.updateUser(userDTO);

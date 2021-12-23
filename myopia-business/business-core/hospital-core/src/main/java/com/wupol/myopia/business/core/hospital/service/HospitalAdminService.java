@@ -58,4 +58,14 @@ public class HospitalAdminService extends BaseService<HospitalAdminMapper, Hospi
         return baseMapper.getHospitalAdminByOrgIds(orgIds);
     }
 
+    /**
+     * 通过医院Id获取医院Admin
+     *
+     * @param hospitalIds 医院ids
+     * @return admin
+     */
+    public List<HospitalAdmin> getByHospitalIds(List<Integer> hospitalIds) {
+        return baseMapper.getByHospitalIds(hospitalIds);
+    }
+
 }

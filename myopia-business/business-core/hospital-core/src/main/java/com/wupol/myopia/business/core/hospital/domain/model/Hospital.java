@@ -173,7 +173,14 @@ public class Hospital extends AddressCode implements Serializable {
     /**
      * 关联筛查机构的ID
      */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Integer associateScreeningOrgId;
+
+    @TableField(exist = false)
+    private Integer cooperationRemainTime;
+
+    @TableField(exist = false)
+    private Integer cooperationStopStatus;
 
     /**
      * 剩余合作时间，单位：天
@@ -181,22 +188,21 @@ public class Hospital extends AddressCode implements Serializable {
      * @return java.lang.Integer
      **/
     public Integer getCooperationRemainTime() {
-        return isCooperationBegin() ? Math.max(0, (int) DateUtil.betweenDay(new Date(), cooperationEndTime)) :
-                Math.max(0, (int) DateUtil.betweenDay(cooperationStartTime, cooperationEndTime));
+        return DateUtil.getRemainTime(cooperationStartTime, cooperationEndTime);
     }
 
     /**
      * 合作是否到期
      * @return
      */
-    public boolean isCooperationStop() {
+    private boolean isCooperationStop() {
         if (Objects.nonNull(cooperationEndTime)) {
             return cooperationEndTime.getTime() < new Date().getTime();
         }
         return true;
     }
 
-    public boolean isCooperationBegin() {
+    private boolean isCooperationBegin() {
         if (Objects.nonNull(cooperationStartTime)) {
             return cooperationStartTime.getTime() < new Date().getTime();
         }
@@ -207,7 +213,7 @@ public class Hospital extends AddressCode implements Serializable {
      * 合作未开始或合作已结束禁止
      * @return
      */
-    public int getCooperationStopStatus() {
+    public Integer getCooperationStopStatus() {
         return (!isCooperationBegin()) || isCooperationStop() ? StatusConstant.DISABLE : StatusConstant.ENABLE;
     }
 

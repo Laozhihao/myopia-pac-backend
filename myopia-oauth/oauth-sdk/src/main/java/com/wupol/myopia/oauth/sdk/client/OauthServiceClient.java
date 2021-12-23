@@ -58,6 +58,18 @@ public interface OauthServiceClient {
     List<User> getUserBatchByIds(@RequestParam("userIds") List<Integer> userIds);
 
     /**
+     * 更新用户名称
+     * @param realName
+     * @param byOrgId
+     * @param bySystemCode
+     * @param byUserType
+     * @return
+     */
+    @PutMapping("/oauth/user/realname")
+    Integer updateUserRealName(@RequestParam("realName") String realName, @RequestParam("byOrgId") Integer byOrgId,
+                               @RequestParam("bySystemCode") Integer bySystemCode, @RequestParam("byUserType") Integer byUserType);
+
+    /**
      * 根据手机号码批量获取用户
      *
      * @param phones 手机号码集合
@@ -106,8 +118,8 @@ public interface OauthServiceClient {
     List<User> addScreeningUserBatch(@RequestBody List<UserDTO> param);
 
     /**
-     * 更新用户
-     *
+     * 更新用户<br/>
+     * 传手机号时必须有id, systemcode, usertype
      * @param param 用户数据
      * @return com.wupol.myopia.oauth.sdk.domain.response.User
      **/

@@ -34,6 +34,6 @@ public interface HospitalMapper extends BaseMapper<Hospital> {
 
     int updateHospitalStatus(@Param("id") Integer id, @Param("targetStatus") Integer targetStatus, @Param("sourceStatus")Integer sourceStatus);
 
-    List<Hospital> getByCooperationEndTime(@Param("date") Date date);
+    List<Hospital> getByCooperationEndTime(@Param("start") Date start, @Param("end") Date end);
 
 }

@@ -66,6 +66,11 @@ public class UserController {
         return userService.updateUser(user);
     }
 
+    @PutMapping("/realname")
+    public Integer updateUserRealName(String realName, Integer byOrgId, Integer bySystemCode, Integer byUserType) {
+        return userService.updateUserRealName(realName, byOrgId, bySystemCode, byUserType);
+    }
+
     /**
      * 重置密码
      *

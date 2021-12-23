@@ -352,7 +352,7 @@ public class ScheduledTasksExecutor {
 
     /**
      * 合作状态处理：包含机构、医院、学校<br/>
-     * 每日凌晨0点5分执行
+     * 每5分执行
      */
     @Scheduled(cron = "0 0/5 * * * ?")
     public void cooperationStatusHandle() {

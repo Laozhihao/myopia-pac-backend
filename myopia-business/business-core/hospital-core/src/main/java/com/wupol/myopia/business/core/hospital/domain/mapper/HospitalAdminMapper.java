@@ -18,4 +18,6 @@ public interface HospitalAdminMapper extends BaseMapper<HospitalAdmin> {
 
     List<HospitalAdmin> getHospitalAdminByOrgIds(@Param("orgIds") List<Integer> orgIds);
 
+    List<HospitalAdmin> getByHospitalIds(@Param("hospitalIds") List<Integer> hospitalIds);
+
 }

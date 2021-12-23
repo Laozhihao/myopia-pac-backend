@@ -162,28 +162,33 @@ public class ScreeningOrganization extends AddressCode implements Serializable, 
     @TableField(exist = false)
     private String districtDetailName;
 
+    @TableField(exist = false)
+    private Integer cooperationRemainTime;
+
+    @TableField(exist = false)
+    private Integer cooperationStopStatus;
+
     /**
      * 剩余合作时间，单位：天
      *
      * @return java.lang.Integer
      **/
     public Integer getCooperationRemainTime() {
-        return isCooperationBegin() ? Math.max(0, (int) DateUtil.betweenDay(new Date(), cooperationEndTime)) :
-                Math.max(0, (int) DateUtil.betweenDay(cooperationStartTime, cooperationEndTime));
+        return DateUtil.getRemainTime(cooperationStartTime, cooperationEndTime);
     }
 
     /**
      * 合作是否到期
      * @return
      */
-    public boolean isCooperationStop() {
+    private boolean isCooperationStop() {
         if (Objects.nonNull(cooperationEndTime)) {
             return cooperationEndTime.getTime() < new Date().getTime();
         }
         return true;
     }
 
-    public boolean isCooperationBegin() {
+    private boolean isCooperationBegin() {
         if (Objects.nonNull(cooperationStartTime)) {
             return cooperationStartTime.getTime() < new Date().getTime();
         }
@@ -194,7 +199,7 @@ public class ScreeningOrganization extends AddressCode implements Serializable, 
      * 合作未开始或合作已结束禁止
      * @return
      */
-    public int getCooperationStopStatus() {
+    public Integer getCooperationStopStatus() {
         return (!isCooperationBegin()) || isCooperationStop() ? StatusConstant.DISABLE : StatusConstant.ENABLE;
     }
 

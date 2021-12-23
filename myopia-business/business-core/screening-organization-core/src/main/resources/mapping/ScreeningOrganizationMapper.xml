@@ -173,7 +173,8 @@
         select
         <include refid="Base_Column_List"/>
         from m_screening_organization
-        where Date(cooperation_end_time) = Date(#{date})
+        where cooperation_start_time &lt; #{start} and
+        Date(cooperation_end_time) = Date(#{end})
     </select>
 
 </mapper>

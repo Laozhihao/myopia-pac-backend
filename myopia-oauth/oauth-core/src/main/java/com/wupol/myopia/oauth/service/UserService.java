@@ -113,6 +113,10 @@ public class UserService extends BaseService<UserMapper, User> {
         return userDTO.setId(user.getId());
     }
 
+    public Integer updateUserRealName(String realName, Integer byOrgId, Integer bySystemCode, Integer byUserType) {
+        return baseMapper.updateUserRealName(realName, byOrgId, bySystemCode, byUserType);
+    }
+
     /**
      * 检验参数
      *
@@ -207,6 +211,7 @@ public class UserService extends BaseService<UserMapper, User> {
         Role role = roleService.getOrgFirstOneRole(userDTO.getOrgId(), systemCode, roleType);
         if (Objects.nonNull(role)) {
             userRoleService.save(new UserRole().setUserId(userId).setRoleId(role.getId()));
+            bindScreeningPermission(userDTO.getAssociateScreeningOrgId(), userDTO.getId());
             return;
         }
         // 生成筛查机构管理员角色
@@ -217,8 +222,12 @@ public class UserService extends BaseService<UserMapper, User> {
         // 生成医院管理员角色
         generateUserRole(userDTO, PermissionTemplateType.HOSPITAL_ADMIN.getType(), roleType, userDTO.getUsername());
         // 给医院绑定关联筛查机构的角色
-        if (Objects.nonNull(userDTO.getAssociateScreeningOrgId())) {
-            Role screeningOrgAdminRole = roleService.getScreeningOrgFirstOneRole(userDTO.getAssociateScreeningOrgId());
+        bindScreeningPermission(userDTO.getAssociateScreeningOrgId(), userDTO.getId());
+    }
+
+    private void bindScreeningPermission(Integer associateScreeningOrgId, Integer userId) {
+        if (Objects.nonNull(associateScreeningOrgId)) {
+            Role screeningOrgAdminRole = roleService.getScreeningOrgFirstOneRole(associateScreeningOrgId);
             userRoleService.save(new UserRole().setUserId(userId).setRoleId(screeningOrgAdminRole.getId()));
         }
     }
@@ -269,7 +278,7 @@ public class UserService extends BaseService<UserMapper, User> {
     public UserWithRole updateUser(UserDTO user) {
         Integer userId = user.getId();
         Assert.notNull(getById(userId), "该用户不存在");
-        checkPhone(user.getPhone(), userId, user.getSystemCode());
+        checkPhone(user.getPhone(), userId, user.getSystemCode(), user.getUserType());
         if (StringUtils.hasLength(user.getPassword())) {
             user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
         }
@@ -303,11 +312,11 @@ public class UserService extends BaseService<UserMapper, User> {
      * @param systemCode 系统编号
      * @return void
      **/
-    private void checkPhone(String phone, Integer userId, Integer systemCode) {
+    private void checkPhone(String phone, Integer userId, Integer systemCode, Integer userType) {
         if (StringUtils.isEmpty(phone)) {
             return;
         }
-        User existPhone = findOne(new User().setPhone(phone).setSystemCode(systemCode));
+        User existPhone = findOne(new User().setPhone(phone).setSystemCode(systemCode).setUserType(userType));
         if (Objects.nonNull(existPhone) && !existPhone.getId().equals(userId)) {
             log.error("已经存在该手机号码:{},SystemCode:{}", phone, systemCode);
             throw new BusinessException("已经存在该手机号码");

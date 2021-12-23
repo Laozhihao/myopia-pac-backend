@@ -85,10 +85,6 @@ public class SchoolFacade {
         if (schoolService.checkSchoolName(school.getName(), schoolId)) {
             throw new BusinessException("学校名称重复，请确认");
         }
-        School originalSchool = schoolService.getById(schoolId);
-        if (StringUtils.isNotBlank(originalSchool.getSchoolNo())) {
-            school.setSchoolNo(originalSchool.getSchoolNo());
-        }
         District district = districtService.getById(school.getDistrictId());
         school.setDistrictProvinceCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
         // 设置学校状态

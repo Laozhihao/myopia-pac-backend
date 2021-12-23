@@ -23,7 +23,7 @@ public class ScreeningCodeGenerator implements CommandLineRunner {
     /** 默认偏移量 */
     private static final long DEFAULT_OFFSET = 100000000000L;
     /** 生成器 */
-    private static AtomicLong generator = new AtomicLong(DEFAULT_OFFSET);
+    private static final AtomicLong generator = new AtomicLong(DEFAULT_OFFSET);
 
     @Autowired
     private ScreeningPlanSchoolService screeningPlanSchoolService;

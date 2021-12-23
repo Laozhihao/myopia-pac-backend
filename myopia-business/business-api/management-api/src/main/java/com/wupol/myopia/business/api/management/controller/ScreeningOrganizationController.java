@@ -111,7 +111,10 @@ public class ScreeningOrganizationController {
      */
     @GetMapping("{id}")
     public ScreeningOrgResponseDTO getScreeningOrganization(@PathVariable("id") Integer id) {
-        CurrentUserUtil.getCurrentUser();
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        if (Objects.nonNull(user.getScreeningOrgId())) {
+            id = user.getScreeningOrgId();
+        }
         return screeningOrganizationService.getScreeningOrgDetails(id);
     }
 
@@ -201,6 +204,10 @@ public class ScreeningOrganizationController {
      */
     @GetMapping("/record/lists/{orgId}")
     public IPage<ScreeningOrgPlanResponseDTO> getRecordLists(PageRequest request, @PathVariable("orgId") Integer orgId) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        if (Objects.nonNull(user.getScreeningOrgId())) {
+            orgId = user.getScreeningOrgId();
+        }
         return screeningOrganizationBizService.getRecordLists(request, orgId);
     }
 
@@ -239,6 +246,10 @@ public class ScreeningOrganizationController {
     @GetMapping("/getOrgCooperationHospital/{screeningOrgId}")
     public IPage<CooperationHospitalDTO> getOrgCooperationHospital(PageRequest request,
                                                                    @PathVariable("screeningOrgId") Integer screeningOrgId) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        if (Objects.nonNull(user.getScreeningOrgId())) {
+            screeningOrgId = user.getScreeningOrgId();
+        }
         return screeningOrganizationBizService.getCooperationHospitalList(request, screeningOrgId);
     }
 
@@ -250,6 +261,10 @@ public class ScreeningOrganizationController {
      */
     @PostMapping("/saveOrgCooperationHospital")
     public boolean saveOrgCooperationHospital(@RequestBody CooperationHospitalRequestDTO requestDTO) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        if (Objects.nonNull(user.getScreeningOrgId())) {
+            requestDTO.setScreeningOrgId(user.getScreeningOrgId());
+        }
         return orgCooperationHospitalService.saveCooperationHospital(requestDTO);
     }
 
@@ -284,6 +299,10 @@ public class ScreeningOrganizationController {
      */
     @GetMapping("/getOrgCooperationHospitalList")
     public List<HospitalResponseDTO> getOrgCooperationHospitalList(Integer orgId, String name) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        if (Objects.nonNull(user.getScreeningOrgId())) {
+            orgId = user.getScreeningOrgId();
+        }
         return screeningOrganizationBizService.getHospitalList(orgId, name);
     }
 
@@ -295,6 +314,10 @@ public class ScreeningOrganizationController {
      */
     @GetMapping("/getDistrictTree/{orgId}")
     public List<District> getDistrictTree(@PathVariable("orgId") Integer orgId) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        if (Objects.nonNull(user.getScreeningOrgId())) {
+            orgId = user.getScreeningOrgId();
+        }
         return screeningOrganizationBizService.getDistrictTree(orgId);
     }
 
@@ -318,6 +341,10 @@ public class ScreeningOrganizationController {
      */
     @GetMapping("/accountList/{orgId}")
     public List<OrgAccountListDTO> getAccountList(@PathVariable("orgId") Integer orgId) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        if (Objects.nonNull(user.getScreeningOrgId())) {
+            orgId = user.getScreeningOrgId();
+        }
         return screeningOrganizationService.getAccountList(orgId);
     }
 
@@ -329,6 +356,10 @@ public class ScreeningOrganizationController {
      */
     @PostMapping("/add/account/{screeningOrgId}")
     public UsernameAndPasswordDTO addAccount(@PathVariable("screeningOrgId") Integer screeningOrgId) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        if (Objects.nonNull(user.getScreeningOrgId())) {
+            screeningOrgId = user.getScreeningOrgId();
+        }
         return screeningOrganizationBizService.addAccount(screeningOrgId);
     }
 

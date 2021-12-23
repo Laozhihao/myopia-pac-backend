@@ -2,7 +2,7 @@ package com.wupol.myopia.business.core.hospital.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.constant.SystemCode;
-import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.PasswordAndUsernameGenerator;
@@ -74,18 +74,18 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
 
     private void checkPhone(String phone, Integer id) {
         if (StringUtils.isBlank(phone) || phone.length() != 11) {
-            new BusinessException("无效的手机号码！");
+            throw new BusinessException("无效的手机号码！");
         }
         User user = getByPhone(phone);
         if (Objects.nonNull(user)) {
             // 新增时，手机号码已存在
             if (Objects.isNull(id)) {
-                new BusinessException("手机号码已存在！");
+                throw new BusinessException("该手机号已被使用！");
             } else {
                 Doctor doctor = getById(id);
                 // 更新时，手机号码已存在
                 if (!doctor.getUserId().equals(user.getId())) {
-                    new BusinessException("手机号码已存在！");
+                    throw new BusinessException("该手机号已被使用！");
                 }
             }
         }
@@ -107,13 +107,15 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
         Doctor oldDoctor = getById(doctor.getId());
         User oldUser = oauthServiceClient.getUserDetailByUserId(oldDoctor.getUserId());
         boolean usernameIsUpdate = false;
-        Hospital hospital = hospitalService.getById(doctor.getHospitalId());
+        Hospital hospital = hospitalService.getById(Objects.isNull(doctor.getHospitalId()) ? oldDoctor.getHospitalId() : doctor.getHospitalId());
 
         UserDTO userDTO = new UserDTO();
         userDTO.setId(oldDoctor.getUserId())
                 .setGender(doctor.getGender())
                 .setRealName(doctor.getName())
-                .setOrgId(doctor.getHospitalId());
+                .setOrgId(doctor.getHospitalId())
+                .setSystemCode(SystemCode.HOSPITAL_CLIENT.getCode())
+                .setUserType(UserType.OTHER.getType());
         // 医生当前的医院配置
         userDTO.setOrgConfigType(hospital.getServiceType());
 
@@ -149,13 +151,14 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
                 .setUsername(doctor.getPhone())
                 .setPassword(password)
                 .setCreateUserId(doctor.getCreateUserId())
-                .setSystemCode(SystemCode.HOSPITAL_CLIENT.getCode());
+                .setSystemCode(SystemCode.HOSPITAL_CLIENT.getCode())
+                .setUserType(UserType.OTHER.getType());
         // 医生当前的医院配置
         userDTO.setOrgConfigType(hospital.getServiceType());
 
         User user = oauthServiceClient.addMultiSystemUser(userDTO);
         doctor.setUserId(user.getId());
-        this.updateOrSave(doctor);
+        this.save(doctor);
         return new UsernameAndPasswordDTO(doctor.getPhone(), password, doctor.getName());
     }
 
@@ -198,15 +201,7 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
      */
     public IPage<DoctorDTO> getPage(PageRequest pageRequest, DoctorQuery query) {
         IPage<DoctorDTO> page = baseMapper.getByPage(pageRequest.toPage(), query);
-        // 获取用户相关信息
-        List<Integer> userIds = page.getRecords().stream().map(DoctorDTO::getUserId).collect(Collectors.toList());
-        List<User> userList = oauthServiceClient.getUserBatchByUserIds(userIds);
-        Map<Integer, User> userMap = userList.stream().collect(Collectors.toMap(User::getId, Function.identity()));
-        // 获取用户及图片信息
-        page.getRecords().forEach(doctor -> {
-            User user = userMap.get(doctor.getUserId());
-            createDTO(doctor, user);
-        });
+        page.setRecords(createDTOList(page.getRecords()));
         return page;
     }
 
@@ -225,6 +220,20 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
         DoctorDTO doctor = baseMapper.getByUserId(userId);
         User user = oauthServiceClient.getUserDetailByUserId(doctor.getUserId());
         return createDTO(doctor, user);
+    }
+
+    private List<DoctorDTO> createDTOList(List<DoctorDTO> sources) {
+        List<DoctorDTO> target = new ArrayList<>();
+        // 获取用户相关信息
+        List<Integer> userIds = sources.stream().map(DoctorDTO::getUserId).collect(Collectors.toList());
+        List<User> userList = oauthServiceClient.getUserBatchByUserIds(userIds);
+        Map<Integer, User> userMap = userList.stream().collect(Collectors.toMap(User::getId, Function.identity()));
+        // 获取用户及图片信息
+        sources.forEach(doctor -> {
+            User user = userMap.get(doctor.getUserId());
+            target.add(createDTO(doctor, user));
+        });
+        return target;
     }
 
     private DoctorDTO createDTO(DoctorDTO simple, User user) {
@@ -294,44 +303,13 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
     }
 
     /**
-     * 更新医生信息   TODO 待删除
-     * @param doctor 医生信息
-     * @return
-     */
-    @Deprecated
-    public void saveDoctor(CurrentUser user, Doctor doctor) {
-        doctor.setHospitalId(user.getOrgId())
-                .setDepartmentId(-1);
-        if (!saveOrUpdate(doctor)) {
-            throw new BusinessException("保存医生信息失败");
-        }
-    }
-
-    /**
-     * 删除医生
-     * @param hospitalId 医院id
-     * @param doctorId 医生id
-     * @return
-     */
-    public void deleteDoctor(Integer hospitalId, Integer doctorId) {
-        Doctor doctor = getDoctor(hospitalId, doctorId);
-        if (!removeById(doctor.getId())) {
-            throw new BusinessException("删除失败");
-        }
-    }
-
-    /**
      * 获取医生列表
      * @param query 查询条件
      * @return
      */
     public List<DoctorDTO> getDoctorVoList(DoctorQuery query)  {
         List<DoctorDTO> list = baseMapper.getDoctorVoList(query);
-        list.forEach(item-> {
-            if (Objects.nonNull(item.getAvatarFileId()) && item.getAvatarFileId() != 0) {
-                item.setAvatarUrl(resourceFileService.getResourcePath(item.getAvatarFileId()));
-            }
-        });
-        return list;
+        return createDTOList(list);
     }
+
 }

@@ -41,19 +41,20 @@ public class NoticeBizService {
      * @param beforeDay 通知提醒提前天数
      */
     public void sendCooperationWarnnInfoNotice(int beforeDay) {
-        Date cooperationEndTime = DateUtils.addDays(new Date(), beforeDay);
+        Date now = new Date();
+        Date cooperationEndTime = DateUtils.addDays(now, beforeDay);
         // 发送即将到期学校通知
-        List<School> schools = schoolService.getByCooperationEndTime(cooperationEndTime);
+        List<School> schools = schoolService.getByCooperationEndTime(now, cooperationEndTime);
         for (School school : schools) {
             sendNotice(school.getName(), school.getCooperationEndTime());
         }
         // 发送即将到期筛查机构通知
-        List<ScreeningOrganization> orgs = screeningOrganizationService.getByCooperationEndTime(cooperationEndTime);
+        List<ScreeningOrganization> orgs = screeningOrganizationService.getByCooperationEndTime(now, cooperationEndTime);
         for (ScreeningOrganization org : orgs) {
             sendNotice(org.getName(), org.getCooperationEndTime());
         }
         // 发送即将到期医院通知
-        List<Hospital> hospitals = hospitalService.getByCooperationEndTime(cooperationEndTime);
+        List<Hospital> hospitals = hospitalService.getByCooperationEndTime(now, cooperationEndTime);
         for (Hospital hospital : hospitals) {
             sendNotice(hospital.getName(), hospital.getCooperationEndTime());
         }

@@ -398,7 +398,7 @@ public class DateUtil extends cn.hutool.core.date.DateUtil {
         int months = period.getMonths();
         int days = period.getDays();
 
-        if (years > 0 && years < 3) {
+        if (years >= 0 && years < 3) {
             return (years * 12 + months) + "个月" + days + "天";
         }
         if (years >= 3 && years < 7) {
@@ -423,6 +423,21 @@ public class DateUtil extends cn.hutool.core.date.DateUtil {
         Date endTime = getStartTime(end);
         long diff = endTime.getTime() - startTime.getTime();
         return diff / DateUnit.DAY.getMillis();
+    }
+
+    /**
+     * 距离结束的天数
+     * @param start 开始时间
+     * @param end   结束时间
+     * @return
+     */
+    public static Integer getRemainTime(Date start, Date end) {
+        if (Objects.isNull(start) || Objects.isNull(end)) {
+            return null;
+        }
+        Date now = new Date();
+        return start.getTime() < now.getTime() ? Math.max(0, (int) betweenDay(now, end)) :
+                Math.max(0, (int) betweenDay(start, end));
     }
 
 }
