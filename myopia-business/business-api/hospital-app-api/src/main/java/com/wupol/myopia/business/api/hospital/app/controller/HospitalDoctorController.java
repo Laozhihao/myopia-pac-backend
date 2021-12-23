@@ -4,11 +4,13 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.core.hospital.domain.dto.DoctorDTO;
+import com.wupol.myopia.business.core.hospital.domain.query.DoctorQuery;
 import com.wupol.myopia.business.core.hospital.service.HospitalDoctorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * 医院的医生管理的App接口
@@ -39,6 +41,13 @@ public class HospitalDoctorController {
         doctor.setUserId(user.getId());
         hospitalDoctorService.updateDoctor(doctor);
         return true;
+    }
+
+    @GetMapping("/list")
+    public List<DoctorDTO> getDoctorList(DoctorQuery query) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        query.setHospitalId(user.getOrgId());
+        return hospitalDoctorService.getDoctorVoList(query);
     }
 
 }

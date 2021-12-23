@@ -118,8 +118,8 @@ public interface OauthServiceClient {
     List<User> addScreeningUserBatch(@RequestBody List<UserDTO> param);
 
     /**
-     * 更新用户
-     *
+     * 更新用户<br/>
+     * 传手机号时必须有id, systemcode, usertype
      * @param param 用户数据
      * @return com.wupol.myopia.oauth.sdk.domain.response.User
      **/

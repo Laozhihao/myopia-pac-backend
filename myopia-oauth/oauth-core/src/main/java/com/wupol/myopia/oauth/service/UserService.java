@@ -278,7 +278,7 @@ public class UserService extends BaseService<UserMapper, User> {
     public UserWithRole updateUser(UserDTO user) {
         Integer userId = user.getId();
         Assert.notNull(getById(userId), "该用户不存在");
-        checkPhone(user.getPhone(), userId, user.getSystemCode());
+        checkPhone(user.getPhone(), userId, user.getSystemCode(), user.getUserType());
         if (StringUtils.hasLength(user.getPassword())) {
             user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
         }
@@ -312,11 +312,11 @@ public class UserService extends BaseService<UserMapper, User> {
      * @param systemCode 系统编号
      * @return void
      **/
-    private void checkPhone(String phone, Integer userId, Integer systemCode) {
+    private void checkPhone(String phone, Integer userId, Integer systemCode, Integer userType) {
         if (StringUtils.isEmpty(phone)) {
             return;
         }
-        User existPhone = findOne(new User().setPhone(phone).setSystemCode(systemCode));
+        User existPhone = findOne(new User().setPhone(phone).setSystemCode(systemCode).setUserType(userType));
         if (Objects.nonNull(existPhone) && !existPhone.getId().equals(userId)) {
             log.error("已经存在该手机号码:{},SystemCode:{}", phone, systemCode);
             throw new BusinessException("已经存在该手机号码");

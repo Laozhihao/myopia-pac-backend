@@ -273,6 +273,7 @@ public class HospitalBizService {
                 UserDTO userDTO = new UserDTO();
                 userDTO.setRoleIds(Collections.singletonList(role.getId()))
                         .setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode())
+                        .setUserType(UserType.HOSPITAL_ADMIN.getType())
                         .setOrgId(hospitalAdmin.getHospitalId())
                         .setId(hospitalAdmin.getUserId());
                 oauthServiceClient.updateUser(userDTO);

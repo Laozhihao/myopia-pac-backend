@@ -126,7 +126,8 @@ public class UserService {
             user.setUsername(user.getPhone());
         }
         // 该接口不允许更新密码
-        user.setSystemCode(currentUser.getSystemCode()).setPassword(null);
+        User oldUser = oauthServiceClient.getUserDetailByUserId(user.getId());
+        user.setSystemCode(currentUser.getSystemCode()).setUserType(oldUser.getUserType()).setPassword(null);
         User newUser = oauthServiceClient.updateUser(user.convertToOauthUserDTO());
         GovDept govDept = govDeptService.getById(newUser.getOrgId());
         District district = districtService.getById(govDept.getDistrictId());
