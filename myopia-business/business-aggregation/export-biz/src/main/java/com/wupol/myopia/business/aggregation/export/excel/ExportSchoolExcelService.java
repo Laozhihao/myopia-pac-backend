@@ -1,21 +1,26 @@
 package com.wupol.myopia.business.aggregation.export.excel;
 
 import com.wupol.myopia.base.cache.RedisConstant;
+import com.wupol.myopia.base.constant.CooperationTimeTypeEnum;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelNoticeKeyContentConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
-import com.wupol.myopia.business.core.common.constant.ExportAddressKey;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
+import com.wupol.myopia.business.core.hospital.domain.model.HospitalAdmin;
 import com.wupol.myopia.business.core.school.constant.SchoolEnum;
 import com.wupol.myopia.business.core.school.domain.dto.*;
 import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.domain.model.SchoolAdmin;
+import com.wupol.myopia.business.core.school.service.SchoolAdminService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
+import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -23,6 +28,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 /**
@@ -40,13 +46,13 @@ public class ExportSchoolExcelService extends BaseExportExcelFileService {
     private SchoolService schoolService;
 
     @Resource
-    private StudentService studentService;
-
-    @Resource
     private SchoolGradeService schoolGradeService;
 
     @Resource
-    private ScreeningPlanSchoolService screeningPlanSchoolService;
+    private SchoolAdminService schoolAdminService;
+
+    @Resource
+    private OauthServiceClient oauthServiceClient;
 
     @Override
     public List getExcelData(ExportCondition exportCondition) {
@@ -60,15 +66,6 @@ public class ExportSchoolExcelService extends BaseExportExcelFileService {
         }
 
         List<Integer> schoolIds = list.stream().map(School::getId).collect(Collectors.toList());
-        Set<Integer> createUserIds = list.stream().map(School::getCreateUserId).collect(Collectors.toSet());
-
-        // 创建人姓名
-        Map<Integer, User> userMap = getUserMapByIds(createUserIds);
-
-        // 学生统计
-        List<StudentCountDTO> studentCountVOS = studentService.countStudentBySchoolId();
-        Map<Integer, Integer> studentCountMaps = studentCountVOS.stream()
-                .collect(Collectors.toMap(StudentCountDTO::getSchoolId, StudentCountDTO::getCount));
 
         // 年级统计
         List<SchoolGradeExportDTO> grades = schoolGradeService.getBySchoolIds(schoolIds);
@@ -78,30 +75,32 @@ public class ExportSchoolExcelService extends BaseExportExcelFileService {
         Map<Integer, List<SchoolGradeExportDTO>> gradeMaps = grades.stream()
                 .collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolId));
 
-        // 学校筛查次数
-        List<ScreeningPlanSchool> planSchoolList = screeningPlanSchoolService.getBySchoolIds(schoolIds);
-        Map<Integer, Long> planSchoolMaps = planSchoolList.stream()
-                .collect(Collectors.groupingBy(ScreeningPlanSchool::getSchoolId, Collectors.counting()));
+        List<SchoolAdmin> schoolAdminList = schoolAdminService.getBySchoolIds(schoolIds);
+        Map<Integer, List<Integer>> adminMap = schoolAdminList.stream().collect(Collectors.groupingBy(SchoolAdmin::getSchoolId, Collectors.mapping(SchoolAdmin::getUserId, Collectors.toList())));
+
+        List<Integer> userIds = schoolAdminList.stream().map(SchoolAdmin::getUserId).collect(Collectors.toList());
+        List<User> userLists = oauthServiceClient.getUserBatchByIds(userIds);
+        Map<Integer, String> userMap = userLists.stream().collect(Collectors.toMap(User::getId, User::getUsername));
 
         List<SchoolExportDTO> exportList = new ArrayList<>();
         for (School item : list) {
-            HashMap<String, String> addressMap = generateAddressMap(item);
+            AtomicReference<String> account = new AtomicReference<>(StringUtils.EMPTY);
+            adminMap.get(item.getId()).forEach(s -> account.set(account + userMap.get(s) + "、"));
+            account.set(account.get().substring(0, account.get().length() - 1));
+
             SchoolExportDTO exportVo = new SchoolExportDTO()
                     .setNo(item.getSchoolNo())
                     .setName(item.getName())
                     .setKind(SchoolEnum.getKindName(item.getKind()))
+                    .setAddress(districtService.getAddressDetails(item.getProvinceCode(), item.getCityCode(), item.getAreaCode(), item.getTownCode(), item.getAddress()))
                     .setType(SchoolEnum.getTypeName(item.getType()))
-                    .setStudentCount(studentCountMaps.getOrDefault(item.getId(), 0))
-                    .setDistrictName(districtService.getDistrictName(item.getDistrictDetail()))
-                    .setAddress(item.getAddress())
                     .setRemark(item.getRemark())
-                    .setScreeningCount(planSchoolMaps.getOrDefault(item.getId(), 0L))
-                    .setCreateUser(userMap.get(item.getCreateUserId()).getRealName())
-                    .setCreateTime(DateFormatUtil.format(item.getCreateTime(), DateFormatUtil.FORMAT_DETAIL_TIME))
-                    .setProvince(addressMap.getOrDefault(ExportAddressKey.PROVIDE, StringUtils.EMPTY))
-                    .setCity(addressMap.getOrDefault(ExportAddressKey.CITY, StringUtils.EMPTY))
-                    .setArea(addressMap.getOrDefault(ExportAddressKey.AREA, StringUtils.EMPTY))
-                    .setTown(addressMap.getOrDefault(ExportAddressKey.TOWN, StringUtils.EMPTY));
+                    .setAccount(account.get())
+                    .setCooperationType(CooperationTimeTypeEnum.getCooperationTimeTypeDesc(item.getCooperationTimeType(), item.getCooperationStartTime(), item.getCooperationEndTime()))
+                    .setCooperationRemainTime(item.getCooperationRemainTime())
+                    .setCooperationStartTime(Objects.nonNull(item.getCooperationStartTime()) ? DateFormatUtil.format(item.getCooperationStartTime(), DateFormatUtil.FORMAT_TIME_WITHOUT_SECOND) : StringUtils.EMPTY)
+                    .setCooperationEndTime(Objects.nonNull(item.getCooperationEndTime()) ? DateFormatUtil.format(item.getCooperationEndTime(), DateFormatUtil.FORMAT_TIME_WITHOUT_SECOND) : StringUtils.EMPTY)
+                    .setCreateTime(DateFormatUtil.format(item.getCreateTime(), DateFormatUtil.FORMAT_DETAIL_TIME));
             StringBuilder result = new StringBuilder();
             List<SchoolGradeExportDTO> exportGrade = gradeMaps.get(item.getId());
             if (!CollectionUtils.isEmpty(exportGrade)) {

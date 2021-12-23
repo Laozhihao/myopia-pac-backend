@@ -1,31 +1,29 @@
 package com.wupol.myopia.business.aggregation.export.excel;
 
 import com.wupol.myopia.base.cache.RedisConstant;
+import com.wupol.myopia.base.constant.CooperationTimeTypeEnum;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelNoticeKeyContentConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
-import com.wupol.myopia.business.core.common.constant.ExportAddressKey;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.organization.constant.ScreeningOrgConfigTypeEnum;
 import com.wupol.myopia.business.core.screening.organization.constant.ScreeningOrganizationEnum;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationExportDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationQueryDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
-import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationStaff;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationStaffService;
-import com.wupol.myopia.oauth.sdk.domain.response.User;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * 导出行政区域的筛查报告
@@ -73,42 +71,21 @@ public class ExportScreeningOrganizationExcelService extends BaseExportExcelFile
         if (CollectionUtils.isEmpty(list)) {
             return new ArrayList<>();
         }
-
-        // 获取筛查人员信息
-        Map<Integer, List<ScreeningOrganizationStaff>> staffMaps = screeningOrganizationStaffService
-                .getOrgStaffMapByIds(list.stream().map(ScreeningOrganization::getId)
-                        .collect(Collectors.toList()));
-
-        // 创建人姓名
-        Set<Integer> createUserIds = list.stream()
-                .map(ScreeningOrganization::getCreateUserId)
-                .collect(Collectors.toSet());
-        Map<Integer, User> userMap = getUserMapByIds(createUserIds);
-
         List<ScreeningOrganizationExportDTO> exportList = new ArrayList<>();
         for (ScreeningOrganization item : list) {
-            HashMap<String, String> addressMap = generateAddressMap(item);
             ScreeningOrganizationExportDTO exportVo = new ScreeningOrganizationExportDTO();
             exportVo.setName(item.getName())
                     .setType(ScreeningOrganizationEnum.getTypeName(item.getType()))
-                    .setConfigType(ScreeningOrgConfigTypeEnum.getTypeName(item.getConfigType()))
-                    .setPhone(item.getPhone())
-                    .setRemark(item.getRemark())
                     .setDistrictName(districtService.getDistrictName(item.getDistrictDetail()))
-                    .setAddress(item.getAddress())
-                    .setCreateUser(userMap.get(item.getCreateUserId()).getRealName())
-                    .setCreateTime(DateFormatUtil.format(item.getCreateTime(), DateFormatUtil.FORMAT_DETAIL_TIME))
-                    .setProvince(addressMap.getOrDefault(ExportAddressKey.PROVIDE, StringUtils.EMPTY))
-                    .setCity(addressMap.getOrDefault(ExportAddressKey.CITY, StringUtils.EMPTY))
-                    .setArea(addressMap.getOrDefault(ExportAddressKey.AREA, StringUtils.EMPTY))
-                    .setTown(addressMap.getOrDefault(ExportAddressKey.TOWN, StringUtils.EMPTY));
-            List<ScreeningPlan> planResult = screeningPlanService.getByOrgId(item.getId());
-            exportVo.setScreeningCount(CollectionUtils.isEmpty(planResult) ? 0 : planResult.size());
-            if (Objects.nonNull(staffMaps.get(item.getId()))) {
-                exportVo.setPersonSituation(staffMaps.get(item.getId()).size());
-            } else {
-                exportVo.setPersonSituation(0);
-            }
+                    .setPhone(item.getPhone())
+                    .setCooperationType(CooperationTimeTypeEnum.getCooperationTimeTypeDesc(item.getCooperationTimeType(), item.getCooperationStartTime(), item.getCooperationEndTime()))
+                    .setCooperationRemainTime(item.getCooperationRemainTime())
+                    .setCooperationStartTime(Objects.nonNull(item.getCooperationStartTime()) ? DateFormatUtil.format(item.getCooperationStartTime(), DateFormatUtil.FORMAT_TIME_WITHOUT_SECOND) : StringUtils.EMPTY)
+                    .setCooperationEndTime(Objects.nonNull(item.getCooperationEndTime()) ? DateFormatUtil.format(item.getCooperationEndTime(), DateFormatUtil.FORMAT_TIME_WITHOUT_SECOND) : StringUtils.EMPTY)
+                    .setConfigType(ScreeningOrgConfigTypeEnum.getTypeName(item.getConfigType()))
+                    .setAddress(districtService.getAddressDetails(item.getProvinceCode(), item.getCityCode(), item.getAreaCode(), item.getTownCode(), item.getAddress()))
+                    .setRemark(item.getRemark())
+                    .setCreateTime(DateFormatUtil.format(item.getCreateTime(), DateFormatUtil.FORMAT_DETAIL_TIME));
             exportList.add(exportVo);
         }
         return exportList;
