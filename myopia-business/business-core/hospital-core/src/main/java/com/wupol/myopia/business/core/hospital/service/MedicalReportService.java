@@ -267,5 +267,16 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
         return baseMapper.getByHospitalId(pageRequest.toPage().setOptimizeCountSql(false), requestDTO);
     }
 
+    /**
+     * 通过学生Ids和医院Id获取就诊报告
+     *
+     * @param studentIds 学生Ids
+     * @param hospitalId 医院Id
+     * @return List<ReportAndRecordDO>
+     */
+    public List<ReportAndRecordDO> getByStudentIdsAndHospitalId(List<Integer> studentIds, Integer hospitalId) {
+        return baseMapper.getByStudentIdsAndHospitalId(studentIds, hospitalId);
+    }
+
 
 }
