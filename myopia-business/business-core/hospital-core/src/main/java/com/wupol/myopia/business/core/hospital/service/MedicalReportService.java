@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.core.hospital.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.framework.core.util.DateFormatUtil;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -212,11 +211,12 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
      * 通过学生ID(只取当前时间的前一天)
      *
      * @param pageRequest 分页请求
-     * @param studentId   学生ID
+     * @param studentId   学生Id
+     * @param hospitalId  医院Id
      * @return List<ReportAndRecordVo>
      */
-    public IPage<ReportAndRecordDO> getByStudentIdWithPage(PageRequest pageRequest, Integer studentId) {
-        return baseMapper.getByStudentIdWithPage(pageRequest.toPage(), studentId);
+    public IPage<ReportAndRecordDO> getByStudentIdWithPage(PageRequest pageRequest, Integer studentId, Integer hospitalId) {
+        return baseMapper.getByStudentIdWithPage(pageRequest.toPage(), studentId, hospitalId);
     }
 
     /**
