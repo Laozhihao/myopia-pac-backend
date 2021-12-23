@@ -14,16 +14,7 @@ public enum HospitalEnum {
     KIND_PRIVATE(1, "私立"),
     SERVICE_TYPE_HEALTHY_SYSTEM(0, "居民健康系统"),
     SERVICE_TYPE_PRE_SCHOOL(1, "0-6岁眼保健"),
-    SERVICE_TYPE_HEALTHY_SYSTEM_AND_PRE_SCHOOL(2, "0-6岁眼保健+居民健康系统"),
-    COOPERATION_TYPE_COOPERATE(0, "合作"),
-    COOPERATION_TYPE_TRY_OUT(1, "试用"),
-    COOPERATION_TIME_TYPE_CUSTOMIZE(-1, "自定义"),
-    COOPERATION_TIME_TYPE_30_DAY(0, "30天"),
-    COOPERATION_TIME_TYPE_60_DAY(1, "60天"),
-    COOPERATION_TIME_TYPE_180_DAY(2, "180天"),
-    COOPERATION_TIME_TYPE_1_YEAR(3, "1年"),
-    COOPERATION_TIME_TYPE_2_YEAR(4, "2年"),
-    COOPERATION_TIME_TYPE_3_YEAR(5, "3年");
+    SERVICE_TYPE_HEALTHY_SYSTEM_AND_PRE_SCHOOL(2, "0-6岁眼保健+居民健康系统");
 
     /**
      * 类型
@@ -84,38 +75,6 @@ public enum HospitalEnum {
         return "";
     }
 
-    public static String getCooperationTypeName(Integer type) {
-        if (type.equals(COOPERATION_TYPE_COOPERATE.type)) {
-            return COOPERATION_TYPE_COOPERATE.name;
-        }
-        if (type.equals(COOPERATION_TYPE_TRY_OUT.type)) {
-            return COOPERATION_TYPE_TRY_OUT.name;
-        }
-        return "";
-    }
 
-    public static String getCooperationTimeTypeName(Integer type) {
-        if (type.equals(COOPERATION_TIME_TYPE_CUSTOMIZE.type)) {
-            return COOPERATION_TIME_TYPE_CUSTOMIZE.name;
-        }
-        if (type.equals(COOPERATION_TIME_TYPE_30_DAY.type)) {
-            return COOPERATION_TIME_TYPE_30_DAY.name;
-        }
-        if (type.equals(COOPERATION_TIME_TYPE_60_DAY.type)) {
-            return COOPERATION_TIME_TYPE_60_DAY.name;
-        }
-        if (type.equals(COOPERATION_TIME_TYPE_180_DAY.type)) {
-            return COOPERATION_TIME_TYPE_180_DAY.name;
-        }
-        if (type.equals(COOPERATION_TIME_TYPE_1_YEAR.type)) {
-            return COOPERATION_TIME_TYPE_1_YEAR.name;
-        }
-        if (type.equals(COOPERATION_TIME_TYPE_2_YEAR.type)) {
-            return COOPERATION_TIME_TYPE_2_YEAR.name;
-        }
-        if (type.equals(COOPERATION_TIME_TYPE_3_YEAR.type)) {
-            return COOPERATION_TIME_TYPE_3_YEAR.name;
-        }
-        return "";
-    }
+
 }

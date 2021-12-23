@@ -1,8 +1,8 @@
 package com.wupol.myopia.business.aggregation.export.excel;
 
 import com.wupol.myopia.base.cache.RedisConstant;
+import com.wupol.myopia.base.constant.CooperationTimeTypeEnum;
 import com.wupol.myopia.base.util.DateFormatUtil;
-import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelNoticeKeyContentConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
@@ -95,16 +95,12 @@ public class ExportHospitalExcelService extends BaseExportExcelFileService {
                     .setRemark(hospital.getRemark())
                     .setAccountNo(account.get())
                     .setServiceType(HospitalEnum.getServiceTypeName(hospital.getServiceType()))
+                    .setCooperationType(CooperationTimeTypeEnum.getCooperationTimeTypeDesc(hospital.getCooperationTimeType(), hospital.getCooperationStartTime(), hospital.getCooperationEndTime()))
                     .setCooperationRemainTime(hospital.getCooperationRemainTime())
                     .setCooperationStartTime(Objects.nonNull(hospital.getCooperationStartTime()) ? DateFormatUtil.format(hospital.getCooperationStartTime(), DateFormatUtil.FORMAT_TIME_WITHOUT_SECOND) : StringUtils.EMPTY)
                     .setCooperationEndTime(Objects.nonNull(hospital.getCooperationEndTime()) ? DateFormatUtil.format(hospital.getCooperationEndTime(), DateFormatUtil.FORMAT_TIME_WITHOUT_SECOND) : StringUtils.EMPTY)
                     .setAssociateScreeningOrg(orgMap.getOrDefault(hospital.getAssociateScreeningOrgId(), StringUtils.EMPTY))
                     .setCreateTime(DateFormatUtil.format(hospital.getCreateTime(), DateFormatUtil.FORMAT_DETAIL_TIME));
-            if (HospitalEnum.COOPERATION_TIME_TYPE_CUSTOMIZE.getType().equals(hospital.getCooperationTimeType())) {
-                exportVo.setCooperationType(HospitalEnum.getCooperationTypeName(hospital.getCooperationType()) + " " + DateUtil.betweenDay(hospital.getCooperationStartTime(), hospital.getCooperationEndTime()) + "天");
-            } else {
-                exportVo.setCooperationType(HospitalEnum.getCooperationTypeName(hospital.getCooperationType()) + " " + HospitalEnum.getCooperationTimeTypeName(hospital.getCooperationTimeType()));
-            }
             exportList.add(exportVo);
         }
         return exportList;
