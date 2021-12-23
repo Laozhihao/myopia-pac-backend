@@ -102,3 +102,5 @@ INSERT INTO `o_role` ( `org_id`, `ch_name`, `role_type`, `create_user_id`, `syst
 
 -- 菜单栏调整
 UPDATE o_permission set pid = 500 where id = 5;
+UPDATE o_permission set pid = 500 where id = 6;
+
