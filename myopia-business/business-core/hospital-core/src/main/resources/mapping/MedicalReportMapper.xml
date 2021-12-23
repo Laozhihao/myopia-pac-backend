@@ -178,6 +178,8 @@
                      left join m_hospital mh on report.hospital_id = mh.id
                      left join h_doctor doctor on doctor.id = report.doctor_id
                 where report.hospital_id = #{requestDTO.hospitalId}
+                  and student.hospital_id = #{requestDTO.hospitalId}
+                  and student.status = 0
         <if test="requestDTO.name != null and requestDTO.name != ''">
             and student.name like CONCAT('%', #{requestDTO.name}, '%')
         </if>
