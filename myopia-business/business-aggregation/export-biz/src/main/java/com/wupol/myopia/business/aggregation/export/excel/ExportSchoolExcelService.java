@@ -96,7 +96,7 @@ public class ExportSchoolExcelService extends BaseExportExcelFileService {
                     .setType(SchoolEnum.getTypeName(item.getType()))
                     .setRemark(item.getRemark())
                     .setAccount(account.get())
-                    .setCooperationType(CooperationTimeTypeEnum.getCooperationTimeTypeDesc(item.getCooperationTimeType(), item.getCooperationStartTime(), item.getCooperationEndTime()))
+                    .setCooperationType(CooperationTimeTypeEnum.getCooperationTimeTypeDesc(item.getCooperationType(), item.getCooperationTimeType(), item.getCooperationStartTime(), item.getCooperationEndTime()))
                     .setCooperationRemainTime(item.getCooperationRemainTime())
                     .setCooperationStartTime(Objects.nonNull(item.getCooperationStartTime()) ? DateFormatUtil.format(item.getCooperationStartTime(), DateFormatUtil.FORMAT_TIME_WITHOUT_SECOND) : StringUtils.EMPTY)
                     .setCooperationEndTime(Objects.nonNull(item.getCooperationEndTime()) ? DateFormatUtil.format(item.getCooperationEndTime(), DateFormatUtil.FORMAT_TIME_WITHOUT_SECOND) : StringUtils.EMPTY)
