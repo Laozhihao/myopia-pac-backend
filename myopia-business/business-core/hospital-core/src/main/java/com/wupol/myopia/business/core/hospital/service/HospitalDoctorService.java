@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.hospital.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.constant.SystemCode;
+import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.PasswordAndUsernameGenerator;
@@ -112,7 +113,9 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
         userDTO.setId(oldDoctor.getUserId())
                 .setGender(doctor.getGender())
                 .setRealName(doctor.getName())
-                .setOrgId(doctor.getHospitalId());
+                .setOrgId(doctor.getHospitalId())
+                .setSystemCode(SystemCode.HOSPITAL_CLIENT.getCode())
+                .setUserType(UserType.OTHER.getType());
         // 医生当前的医院配置
         userDTO.setOrgConfigType(hospital.getServiceType());
 
@@ -148,13 +151,14 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
                 .setUsername(doctor.getPhone())
                 .setPassword(password)
                 .setCreateUserId(doctor.getCreateUserId())
-                .setSystemCode(SystemCode.HOSPITAL_CLIENT.getCode());
+                .setSystemCode(SystemCode.HOSPITAL_CLIENT.getCode())
+                .setUserType(UserType.OTHER.getType());
         // 医生当前的医院配置
         userDTO.setOrgConfigType(hospital.getServiceType());
 
         User user = oauthServiceClient.addMultiSystemUser(userDTO);
         doctor.setUserId(user.getId());
-        this.updateOrSave(doctor);
+        this.save(doctor);
         return new UsernameAndPasswordDTO(doctor.getPhone(), password, doctor.getName());
     }
 
@@ -197,15 +201,7 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
      */
     public IPage<DoctorDTO> getPage(PageRequest pageRequest, DoctorQuery query) {
         IPage<DoctorDTO> page = baseMapper.getByPage(pageRequest.toPage(), query);
-        // 获取用户相关信息
-        List<Integer> userIds = page.getRecords().stream().map(DoctorDTO::getUserId).collect(Collectors.toList());
-        List<User> userList = oauthServiceClient.getUserBatchByUserIds(userIds);
-        Map<Integer, User> userMap = userList.stream().collect(Collectors.toMap(User::getId, Function.identity()));
-        // 获取用户及图片信息
-        page.getRecords().forEach(doctor -> {
-            User user = userMap.get(doctor.getUserId());
-            createDTO(doctor, user);
-        });
+        page.setRecords(createDTOList(page.getRecords()));
         return page;
     }
 
@@ -224,6 +220,20 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
         DoctorDTO doctor = baseMapper.getByUserId(userId);
         User user = oauthServiceClient.getUserDetailByUserId(doctor.getUserId());
         return createDTO(doctor, user);
+    }
+
+    private List<DoctorDTO> createDTOList(List<DoctorDTO> sources) {
+        List<DoctorDTO> target = new ArrayList<>();
+        // 获取用户相关信息
+        List<Integer> userIds = sources.stream().map(DoctorDTO::getUserId).collect(Collectors.toList());
+        List<User> userList = oauthServiceClient.getUserBatchByUserIds(userIds);
+        Map<Integer, User> userMap = userList.stream().collect(Collectors.toMap(User::getId, Function.identity()));
+        // 获取用户及图片信息
+        sources.forEach(doctor -> {
+            User user = userMap.get(doctor.getUserId());
+            target.add(createDTO(doctor, user));
+        });
+        return target;
     }
 
     private DoctorDTO createDTO(DoctorDTO simple, User user) {
@@ -290,6 +300,16 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
             this.updateOrSave(doctor);
         }
         return true;
+    }
+
+    /**
+     * 获取医生列表
+     * @param query 查询条件
+     * @return
+     */
+    public List<DoctorDTO> getDoctorVoList(DoctorQuery query)  {
+        List<DoctorDTO> list = baseMapper.getDoctorVoList(query);
+        return createDTOList(list);
     }
 
 }
