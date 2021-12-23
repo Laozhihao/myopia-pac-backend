@@ -48,4 +48,6 @@ public interface MedicalReportMapper extends BaseMapper<MedicalReport> {
 
     IPage<ReportAndRecordDO> getByHospitalId(@Param("page") Page<?> page, @Param("requestDTO") HospitalReportRequestDTO requestDTO);
 
+    List<ReportAndRecordDO> getByStudentIdsAndHospitalId(@Param("studentIds") List<Integer> studentIds, @Param("hospitalId") Integer hospitalId);
+
 }

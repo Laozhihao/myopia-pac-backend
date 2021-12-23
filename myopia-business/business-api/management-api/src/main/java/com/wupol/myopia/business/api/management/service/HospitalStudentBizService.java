@@ -4,13 +4,13 @@ package com.wupol.myopia.business.api.management.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
-import com.wupol.myopia.business.common.utils.util.TwoTuple;
-import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.hospital.domain.dto.HospitalStudentRequestDTO;
 import com.wupol.myopia.business.core.hospital.domain.dto.HospitalStudentResponseDTO;
 import com.wupol.myopia.business.core.hospital.domain.model.HospitalStudent;
 import com.wupol.myopia.business.core.hospital.service.HospitalStudentService;
+import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
@@ -21,10 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -49,6 +46,9 @@ public class HospitalStudentBizService {
 
     @Resource
     private DistrictService districtService;
+
+    @Resource
+    private MedicalReportService medicalReportService;
 
     /**
      * 获取医院学生
@@ -75,16 +75,23 @@ public class HospitalStudentBizService {
         List<Integer> classIds = hospitalStudentList.stream().map(HospitalStudent::getClassId).collect(Collectors.toList());
         Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(classIds);
 
+        // 获取学生列表
+        List<Integer> studentIds = hospitalStudentList.stream().map(HospitalStudent::getStudentId).collect(Collectors.toList());
+
+        // 获取报告
+        List<ReportAndRecordDO> reportList = medicalReportService.getByStudentIdsAndHospitalId(studentIds, requestDTO.getHospitalId());
+        LinkedHashMap<Integer, Long> reportMap = reportList.stream().collect(Collectors.groupingBy(ReportAndRecordDO::getStudentId, LinkedHashMap::new, Collectors.counting()));
+
         hospitalStudentList.forEach(hospitalStudent -> {
             hospitalStudent.setSchoolName(schoolMap.get(hospitalStudent.getSchoolId()));
             hospitalStudent.setGradeName(Objects.isNull(gradeMap.get(hospitalStudent.getGradeId())) ? null : gradeMap.get(hospitalStudent.getGradeId()).getName());
             hospitalStudent.setClassName(Objects.isNull(classMap.get(hospitalStudent.getClassId())) ? null : classMap.get(hospitalStudent.getClassId()).getName());
-            if (Objects.nonNull(hospitalStudent.getBirthday())){
+            if (Objects.nonNull(hospitalStudent.getBirthday())) {
                 hospitalStudent.setBirthdayInfo(DateUtil.getAgeInfo(hospitalStudent.getBirthday(), new Date()));
             }
+            hospitalStudent.setReportCount(reportMap.getOrDefault(hospitalStudent.getStudentId(), 0L));
         });
         return responseDTOIPage;
-
     }
 
     /**

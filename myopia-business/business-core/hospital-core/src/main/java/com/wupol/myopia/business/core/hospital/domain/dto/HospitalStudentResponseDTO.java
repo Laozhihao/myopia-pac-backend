@@ -40,4 +40,9 @@ public class HospitalStudentResponseDTO extends HospitalStudent {
      * 委会区域List
      */
     private List<District> committeeLists;
+
+    /**
+     * 视力筛查数
+     */
+    private Long reportCount;
 }
