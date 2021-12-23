@@ -10,8 +10,10 @@ import com.wupol.myopia.business.core.hospital.domain.mapper.HospitalStudentMapp
 import com.wupol.myopia.business.core.hospital.domain.model.HospitalStudent;
 import com.wupol.myopia.business.core.hospital.domain.query.HospitalStudentQuery;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -105,5 +107,33 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
      */
     public HospitalStudentResponseDTO getByHospitalStudentId(Integer id) {
         return baseMapper.getByHospitalStudentId(id);
+    }
+
+    /**
+     * 更新绑定家长手机号码
+     *
+     * @param studentId   学生ID
+     * @param parentPhone 家长手机号码
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void updateMpParentPhone(Integer studentId, String parentPhone) {
+        List<HospitalStudent> hospitalStudents = baseMapper.getByStudentId(studentId);
+        if (CollectionUtils.isEmpty(hospitalStudents)) {
+            return;
+        }
+        hospitalStudents.forEach(hospitalStudent -> {
+            String parentPhoneStr = hospitalStudent.getMpParentPhone();
+            if (StringUtils.isBlank(parentPhoneStr)) {
+                // 为空新增
+                hospitalStudent.setMpParentPhone(parentPhone);
+            } else {
+                // 家长手机号码是否已经存在
+                if (StringUtils.countMatches(parentPhoneStr, parentPhone) == 0) {
+                    // 不存在拼接家长手机号码
+                    hospitalStudent.setMpParentPhone(parentPhoneStr + "," + parentPhone);
+                }
+            }
+        });
+        updateBatchById(hospitalStudents);
     }
 }

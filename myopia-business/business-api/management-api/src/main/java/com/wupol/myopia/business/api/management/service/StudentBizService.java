@@ -307,10 +307,15 @@ public class StudentBizService {
      *
      * @param pageRequest 分页请求
      * @param studentId   学生ID
+     * @param currentUser 登录用户
      * @return List<MedicalReportDO>
      */
-    public IPage<ReportAndRecordDO> getReportList(PageRequest pageRequest, Integer studentId) {
-        IPage<ReportAndRecordDO> pageReport = medicalReportService.getByStudentIdWithPage(pageRequest, studentId);
+    public IPage<ReportAndRecordDO> getReportList(PageRequest pageRequest, Integer studentId, CurrentUser currentUser) {
+        Integer hospitalId = null;
+        if (!currentUser.isPlatformAdminUser()) {
+            hospitalId = currentUser.getOrgId();
+        }
+        IPage<ReportAndRecordDO> pageReport = medicalReportService.getByStudentIdWithPage(pageRequest, studentId, hospitalId);
         List<ReportAndRecordDO> records = pageReport.getRecords();
         if (CollectionUtils.isEmpty(records)) {
             return pageReport;

@@ -31,4 +31,6 @@ public interface HospitalStudentMapper extends BaseMapper<HospitalStudent> {
     void deletedById(@Param("id") Integer id);
 
     HospitalStudentResponseDTO getByHospitalStudentId(@Param("id") Integer id);
+
+    List<HospitalStudent> getByStudentId(@Param("studentId") Integer studentId);
 }

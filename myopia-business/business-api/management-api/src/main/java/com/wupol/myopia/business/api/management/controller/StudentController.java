@@ -206,7 +206,7 @@ public class StudentController {
      */
     @GetMapping("/report/list")
     public IPage<ReportAndRecordDO> getReportList(PageRequest pageRequest, @NotNull(message = "学生Id不能为空") Integer studentId) {
-        return studentBizService.getReportList(pageRequest, studentId);
+        return studentBizService.getReportList(pageRequest, studentId, CurrentUserUtil.getCurrentUser());
     }
 
     /**

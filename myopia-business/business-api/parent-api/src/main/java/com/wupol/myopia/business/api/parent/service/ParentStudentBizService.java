@@ -24,6 +24,7 @@ import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
 import com.wupol.myopia.business.core.hospital.domain.model.OrgCooperationHospital;
 import com.wupol.myopia.business.core.hospital.service.HospitalService;
+import com.wupol.myopia.business.core.hospital.service.HospitalStudentService;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.core.hospital.service.OrgCooperationHospitalService;
 import com.wupol.myopia.business.core.parent.domain.dto.CheckIdCardRequestDTO;
@@ -92,6 +93,8 @@ public class ParentStudentBizService {
     private OrgCooperationHospitalBizService orgCooperationHospitalBizService;
     @Resource
     private StudentFacade studentFacade;
+    @Resource
+    private HospitalStudentService hospitalStudentService;
 
     /**
      * 孩子统计、孩子列表
@@ -222,6 +225,8 @@ public class ParentStudentBizService {
     private void bindStudent(Parent parent, Integer studentId) {
         // 更新孩子绑定家长手机号码
         studentService.updateMpParentPhone(studentId, parent.getPhone());
+        // 更新医院学生家长手机号码
+        hospitalStudentService.updateMpParentPhone(studentId, parent.getPhone());
         // 绑定孩子
         parentStudentService.parentBindStudent(studentId, parent.getId());
     }

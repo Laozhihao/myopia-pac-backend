@@ -36,7 +36,7 @@ public interface MedicalReportMapper extends BaseMapper<MedicalReport> {
 
     MedicalReport getTodayLastMedicalReport(Integer hospitalId, Integer studentId);
 
-    IPage<ReportAndRecordDO> getByStudentIdWithPage(@Param("page") Page<?> page, @Param("studentId") Integer studentId);
+    IPage<ReportAndRecordDO> getByStudentIdWithPage(@Param("page") Page<?> page, @Param("studentId") Integer studentId,@Param("hospitalId") Integer hospitalId);
 
     List<ReportAndRecordDO> getStudentId(@Param("studentId") Integer studentId);
 
