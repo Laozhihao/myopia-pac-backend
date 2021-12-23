@@ -95,7 +95,7 @@ public class ExportHospitalExcelService extends BaseExportExcelFileService {
                     .setRemark(hospital.getRemark())
                     .setAccountNo(account.get())
                     .setServiceType(HospitalEnum.getServiceTypeName(hospital.getServiceType()))
-                    .setCooperationType(CooperationTimeTypeEnum.getCooperationTimeTypeDesc(hospital.getCooperationTimeType(), hospital.getCooperationStartTime(), hospital.getCooperationEndTime()))
+                    .setCooperationType(CooperationTimeTypeEnum.getCooperationTimeTypeDesc(hospital.getCooperationType(), hospital.getCooperationTimeType(), hospital.getCooperationStartTime(), hospital.getCooperationEndTime()))
                     .setCooperationRemainTime(hospital.getCooperationRemainTime())
                     .setCooperationStartTime(Objects.nonNull(hospital.getCooperationStartTime()) ? DateFormatUtil.format(hospital.getCooperationStartTime(), DateFormatUtil.FORMAT_TIME_WITHOUT_SECOND) : StringUtils.EMPTY)
                     .setCooperationEndTime(Objects.nonNull(hospital.getCooperationEndTime()) ? DateFormatUtil.format(hospital.getCooperationEndTime(), DateFormatUtil.FORMAT_TIME_WITHOUT_SECOND) : StringUtils.EMPTY)
