@@ -153,4 +153,15 @@
           and status = 2
         limit 1
     </select>
+
+    <select id="getDeletedByIdCard" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school_student where school_id = #{schoolId}
+                                and status = 2
+                                and id_card in
+        <foreach collection="idCards" item="idCard" index="index" open="(" close=")" separator=",">
+            #{idCard}
+        </foreach>
+    </select>
 </mapper>
