@@ -502,4 +502,14 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     public Student getOneByRecordNo(Long recordNo) {
         return baseMapper.getOneByRecordNo(recordNo);
     }
+
+    /**
+     * 通过身份证查找学生(包括删除的)
+     *
+     * @param idCard 身份证
+     * @return Student
+     */
+    public Student getAllByIdCard(String idCard) {
+        return baseMapper.getAllByIdCard(idCard);
+    }
 }

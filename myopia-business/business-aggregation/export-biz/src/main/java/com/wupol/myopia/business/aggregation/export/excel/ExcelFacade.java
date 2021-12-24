@@ -777,7 +777,7 @@ public class ExcelFacade {
     }
 
     /**
-     * 导出学校学生
+     * 导入学校学生
      *
      * @param createUserId  创建人
      * @param multipartFile 文件
@@ -803,6 +803,9 @@ public class ExcelFacade {
         Map<String, SchoolStudent> snoMap = studentList.stream().collect(Collectors.toMap(SchoolStudent::getSno, Function.identity()));
         Map<String, SchoolStudent> idCardMap = studentList.stream().collect(Collectors.toMap(SchoolStudent::getIdCard, Function.identity()));
 
+        List<SchoolStudent> deletedSchoolStudents = schoolStudentService.getDeletedByIdCard(idCards, schoolId);
+        Map<String, SchoolStudent> deletedStudentMap = deletedSchoolStudents.stream().collect(Collectors.toMap(SchoolStudent::getIdCard, Function.identity()));
+
         // 收集年级信息
         List<SchoolGradeExportDTO> grades = schoolGradeService.getBySchoolIds(Lists.newArrayList(school.getId()));
         schoolGradeService.packageGradeInfo(grades);
@@ -811,12 +814,29 @@ public class ExcelFacade {
         Map<Integer, List<SchoolGradeExportDTO>> schoolGradeMaps = grades.stream().collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolId));
 
         for (Map<Integer, String> item : listMap) {
-            SchoolStudent schoolStudent = new SchoolStudent();
+            SchoolStudent schoolStudent;
+            SchoolStudent deletedSchoolStudent = deletedStudentMap.get(item.get(7));
+            if (Objects.isNull(deletedSchoolStudent)) {
+                schoolStudent = new SchoolStudent();
+            } else {
+                schoolStudent = deletedSchoolStudent;
+            }
             if (StringUtils.isBlank(item.get(0))) {
                 break;
             }
             checkIsExist(snoMap, idCardMap, item.get(6), item.get(7), item.get(1), item.get(2), item.get(4));
-            schoolStudent.setName(item.get(0)).setGender(GenderEnum.getType(item.get(1))).setBirthday(DateFormatUtil.parseDate(item.get(2), DateFormatUtil.FORMAT_ONLY_DATE2)).setNation(NationEnum.getCode(item.get(3))).setSchoolNo(school.getSchoolNo()).setGradeType(GradeCodeEnum.getByName(item.get(4)).getType()).setSno((item.get(6))).setIdCard(item.get(7)).setParentPhone(item.get(8)).setCreateUserId(createUserId).setSchoolId(schoolId);
+            schoolStudent.setName(item.get(0))
+                    .setGender(GenderEnum.getType(item.get(1)))
+                    .setBirthday(DateFormatUtil.parseDate(item.get(2), DateFormatUtil.FORMAT_ONLY_DATE2))
+                    .setNation(NationEnum.getCode(item.get(3)))
+                    .setSchoolNo(school.getSchoolNo())
+                    .setGradeType(GradeCodeEnum.getByName(item.get(4)).getType())
+                    .setSno((item.get(6)))
+                    .setIdCard(item.get(7))
+                    .setParentPhone(item.get(8))
+                    .setCreateUserId(createUserId)
+                    .setSchoolId(schoolId)
+                    .setStatus(CommonConst.STATUS_NOT_DELETED);
             schoolStudent.setProvinceCode(districtService.getCodeByName(item.get(9)));
             schoolStudent.setCityCode(districtService.getCodeByName(item.get(10)));
             schoolStudent.setAreaCode(districtService.getCodeByName(item.get(11)));
@@ -844,7 +864,7 @@ public class ExcelFacade {
             // 更新管理端
             Integer managementStudentId = updateManagementStudent(schoolStudent);
             schoolStudent.setStudentId(managementStudentId);
-            schoolStudentService.save(schoolStudent);
+            schoolStudentService.saveOrUpdate(schoolStudent);
         }
 
     }
@@ -857,7 +877,7 @@ public class ExcelFacade {
      */
     public Integer updateManagementStudent(SchoolStudent schoolStudent) {
         // 通过身份证在管理端查找学生
-        Student managementStudent = studentService.getByIdCard(schoolStudent.getIdCard());
+        Student managementStudent = studentService.getAllByIdCard(schoolStudent.getIdCard());
 
         // 如果为空新增，否则是更新
         if (Objects.isNull(managementStudent)) {
@@ -881,6 +901,7 @@ public class ExcelFacade {
         managementStudent.setAreaCode(schoolStudent.getAreaCode());
         managementStudent.setTownCode(schoolStudent.getTownCode());
         managementStudent.setAddress(schoolStudent.getAddress());
+        managementStudent.setStatus(CommonConst.STATUS_NOT_DELETED);
         studentService.updateStudent(managementStudent);
         return managementStudent.getId();
     }
