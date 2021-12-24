@@ -8,14 +8,12 @@ import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelNoticeKe
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.organization.constant.ScreeningOrgConfigTypeEnum;
 import com.wupol.myopia.business.core.screening.organization.constant.ScreeningOrganizationEnum;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationExportDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationQueryDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
-import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationStaffService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,10 +36,6 @@ public class ExportScreeningOrganizationExcelService extends BaseExportExcelFile
     private DistrictService districtService;
     @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
-    @Autowired
-    private ScreeningOrganizationStaffService screeningOrganizationStaffService;
-    @Autowired
-    private ScreeningPlanService screeningPlanService;
 
     /**
      * 获取文件名
