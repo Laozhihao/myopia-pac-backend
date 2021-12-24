@@ -22,7 +22,7 @@ ADD COLUMN `cooperation_start_time` timestamp(3) NULL DEFAULT NULL COMMENT '合�
 ADD COLUMN `cooperation_end_time` timestamp(3) NULL DEFAULT NULL COMMENT '合作结束时间' AFTER `cooperation_start_time`;
 
 -- 初始化合作信息
-update m_school set cooperation_type = 0, cooperation_time_type = -1, cooperation_start_time = create_time, cooperation_end_time = '2021-12-02 23:59:59', `status` = 1;
+update m_school set cooperation_type = 0, cooperation_time_type = -1, cooperation_start_time = create_time, cooperation_end_time = '2021-12-29 18:00:00', `status` = 1;
 update m_hospital set cooperation_type = 1, cooperation_time_type = -1, cooperation_start_time = create_time, cooperation_end_time = '2022-12-02 23:59:59', `status` = 0;
 update m_screening_organization set cooperation_type = 1, cooperation_time_type = -1, cooperation_start_time = create_time, cooperation_end_time = '2022-12-02 23:59:59', `status` = 0;
 
