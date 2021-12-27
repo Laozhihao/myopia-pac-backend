@@ -3,17 +3,23 @@ package com.wupol.myopia.business.core.screening.organization.domain.model;
 import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.wupol.myopia.base.constant.CooperationTimeTypeEnum;
 import com.wupol.myopia.base.constant.StatusConstant;
+import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.annotation.CheckTimeInterval;
 import com.wupol.myopia.business.common.utils.domain.model.NotificationConfig;
 import com.wupol.myopia.business.common.utils.handler.DateDeserializer;
 import com.wupol.myopia.business.common.utils.interfaces.HasName;
 import com.wupol.myopia.business.core.common.domain.model.AddressCode;
+import com.wupol.myopia.business.core.screening.organization.constant.ScreeningOrgConfigTypeEnum;
+import com.wupol.myopia.business.core.screening.organization.constant.ScreeningOrganizationEnum;
+import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationExportDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.handler.NotificationConfigTypeHandler;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -201,6 +207,25 @@ public class ScreeningOrganization extends AddressCode implements Serializable, 
      */
     public Integer getCooperationStopStatus() {
         return (!isCooperationBegin()) || isCooperationStop() ? StatusConstant.DISABLE : StatusConstant.ENABLE;
+    }
+
+    /**
+     * 转化成ScreeningOrganizationExportDTO
+     *
+     * @return ScreeningOrganizationExportDTO
+     */
+    public ScreeningOrganizationExportDTO parseFromScreeningOrg() {
+        return new ScreeningOrganizationExportDTO()
+                .setName(name)
+                .setType(ScreeningOrganizationEnum.getTypeName(type))
+                .setPhone(phone)
+                .setCooperationType(CooperationTimeTypeEnum.getCooperationTimeTypeDesc(cooperationType, cooperationTimeType, cooperationStartTime, cooperationEndTime))
+                .setCooperationRemainTime(cooperationRemainTime)
+                .setCooperationStartTime(Objects.nonNull(cooperationStartTime) ? DateFormatUtil.format(cooperationStartTime, DateFormatUtil.FORMAT_TIME_WITHOUT_SECOND) : StringUtils.EMPTY)
+                .setCooperationEndTime(Objects.nonNull(cooperationEndTime) ? DateFormatUtil.format(cooperationEndTime, DateFormatUtil.FORMAT_TIME_WITHOUT_SECOND) : StringUtils.EMPTY)
+                .setConfigType(ScreeningOrgConfigTypeEnum.getTypeName(configType))
+                .setRemark(remark)
+                .setCreateTime(DateFormatUtil.format(createTime, DateFormatUtil.FORMAT_DETAIL_TIME));
     }
 
 }
