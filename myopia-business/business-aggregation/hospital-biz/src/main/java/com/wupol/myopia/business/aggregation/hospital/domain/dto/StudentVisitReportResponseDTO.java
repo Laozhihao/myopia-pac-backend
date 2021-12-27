@@ -115,5 +115,10 @@ public class StudentVisitReportResponseDTO {
          * 医生签名图片
          */
         private String doctorSign;
+
+        /**
+         * 医生名字
+         */
+        private String doctorName;
     }
 }
