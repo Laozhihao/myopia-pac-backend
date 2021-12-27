@@ -221,7 +221,9 @@ public class MedicalReportBizService {
         }
         if (Objects.nonNull(doctorId)) {
             Doctor doctor = hospitalDoctorService.getById(doctorId);
-            reportResult.setDoctorName(doctor.getName());
+            if (Objects.nonNull(doctor)) {
+                reportResult.setDoctorName(doctor.getName());
+            }
         }
         return reportResult;
     }
