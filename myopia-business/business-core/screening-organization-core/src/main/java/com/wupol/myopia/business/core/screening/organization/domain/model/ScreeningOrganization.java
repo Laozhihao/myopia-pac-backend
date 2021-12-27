@@ -220,7 +220,7 @@ public class ScreeningOrganization extends AddressCode implements Serializable, 
                 .setType(ScreeningOrganizationEnum.getTypeName(type))
                 .setPhone(phone)
                 .setCooperationType(CooperationTimeTypeEnum.getCooperationTimeTypeDesc(cooperationType, cooperationTimeType, cooperationStartTime, cooperationEndTime))
-                .setCooperationRemainTime(cooperationRemainTime)
+                .setCooperationRemainTime(getCooperationRemainTime())
                 .setCooperationStartTime(Objects.nonNull(cooperationStartTime) ? DateFormatUtil.format(cooperationStartTime, DateFormatUtil.FORMAT_TIME_WITHOUT_SECOND) : StringUtils.EMPTY)
                 .setCooperationEndTime(Objects.nonNull(cooperationEndTime) ? DateFormatUtil.format(cooperationEndTime, DateFormatUtil.FORMAT_TIME_WITHOUT_SECOND) : StringUtils.EMPTY)
                 .setConfigType(ScreeningOrgConfigTypeEnum.getTypeName(configType))
