@@ -87,20 +87,9 @@ public class ExportSchoolExcelService extends BaseExportExcelFileService {
             AtomicReference<String> account = new AtomicReference<>(StringUtils.EMPTY);
             adminMap.get(item.getId()).forEach(s -> account.set(account + userMap.get(s) + "、"));
             account.set(account.get().substring(0, account.get().length() - 1));
-
-            SchoolExportDTO exportVo = new SchoolExportDTO()
-                    .setNo(item.getSchoolNo())
-                    .setName(item.getName())
-                    .setKind(SchoolEnum.getKindName(item.getKind()))
-                    .setAddress(districtService.getAddressDetails(item.getProvinceCode(), item.getCityCode(), item.getAreaCode(), item.getTownCode(), item.getAddress()))
-                    .setType(SchoolEnum.getTypeName(item.getType()))
-                    .setRemark(item.getRemark())
-                    .setAccount(account.get())
-                    .setCooperationType(CooperationTimeTypeEnum.getCooperationTimeTypeDesc(item.getCooperationType(), item.getCooperationTimeType(), item.getCooperationStartTime(), item.getCooperationEndTime()))
-                    .setCooperationRemainTime(item.getCooperationRemainTime())
-                    .setCooperationStartTime(Objects.nonNull(item.getCooperationStartTime()) ? DateFormatUtil.format(item.getCooperationStartTime(), DateFormatUtil.FORMAT_TIME_WITHOUT_SECOND) : StringUtils.EMPTY)
-                    .setCooperationEndTime(Objects.nonNull(item.getCooperationEndTime()) ? DateFormatUtil.format(item.getCooperationEndTime(), DateFormatUtil.FORMAT_TIME_WITHOUT_SECOND) : StringUtils.EMPTY)
-                    .setCreateTime(DateFormatUtil.format(item.getCreateTime(), DateFormatUtil.FORMAT_DETAIL_TIME));
+            SchoolExportDTO exportVo = item.parseFromSchoolExcel();
+            exportVo.setAddress(districtService.getAddressDetails(item.getProvinceCode(), item.getCityCode(), item.getAreaCode(), item.getTownCode(), item.getAddress()))
+                    .setAccount(account.get());
             StringBuilder result = new StringBuilder();
             List<SchoolGradeExportDTO> exportGrade = gradeMaps.get(item.getId());
             if (!CollectionUtils.isEmpty(exportGrade)) {
