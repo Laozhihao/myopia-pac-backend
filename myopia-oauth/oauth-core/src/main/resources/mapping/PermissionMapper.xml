@@ -120,7 +120,6 @@
         on rp.permission_id = p.id
         WHERE rp.role_id in
         <foreach collection="roleIds" open="(" close=")" separator="," item="item">#{item}</foreach>
-        order by p.`order` ASC, p.update_time DESC
     </select>
 
 </mapper>
