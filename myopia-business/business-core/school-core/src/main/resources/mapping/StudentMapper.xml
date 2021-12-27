@@ -314,4 +314,11 @@
         order by record_no desc
         limit 1
     </select>
+
+    <select id="getAllByIdCard" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_student
+        where id_card = #{idCard}
+    </select>
 </mapper>

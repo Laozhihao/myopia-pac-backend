@@ -147,4 +147,15 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
     public SchoolStudent getDeletedByIdCardAndSno(String idCard, String sno, Integer schoolId) {
         return baseMapper.getDeletedByIdCardAndSno(idCard, sno, schoolId);
     }
+
+    /**
+     * 通过身份证获取已经删除的学生
+     *
+     * @param idCards  身份证
+     * @param schoolId 学校Id
+     * @return List<SchoolStudent>
+     */
+    public List<SchoolStudent> getDeletedByIdCard(List<String> idCards, Integer schoolId) {
+        return baseMapper.getDeletedByIdCard(idCards, schoolId);
+    }
 }
