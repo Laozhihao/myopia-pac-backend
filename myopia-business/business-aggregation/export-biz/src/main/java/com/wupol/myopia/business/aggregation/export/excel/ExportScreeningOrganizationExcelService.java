@@ -67,19 +67,9 @@ public class ExportScreeningOrganizationExcelService extends BaseExportExcelFile
         }
         List<ScreeningOrganizationExportDTO> exportList = new ArrayList<>();
         for (ScreeningOrganization item : list) {
-            ScreeningOrganizationExportDTO exportVo = new ScreeningOrganizationExportDTO();
-            exportVo.setName(item.getName())
-                    .setType(ScreeningOrganizationEnum.getTypeName(item.getType()))
-                    .setDistrictName(districtService.getDistrictName(item.getDistrictDetail()))
-                    .setPhone(item.getPhone())
-                    .setCooperationType(CooperationTimeTypeEnum.getCooperationTimeTypeDesc(item.getCooperationType(), item.getCooperationTimeType(), item.getCooperationStartTime(), item.getCooperationEndTime()))
-                    .setCooperationRemainTime(item.getCooperationRemainTime())
-                    .setCooperationStartTime(Objects.nonNull(item.getCooperationStartTime()) ? DateFormatUtil.format(item.getCooperationStartTime(), DateFormatUtil.FORMAT_TIME_WITHOUT_SECOND) : StringUtils.EMPTY)
-                    .setCooperationEndTime(Objects.nonNull(item.getCooperationEndTime()) ? DateFormatUtil.format(item.getCooperationEndTime(), DateFormatUtil.FORMAT_TIME_WITHOUT_SECOND) : StringUtils.EMPTY)
-                    .setConfigType(ScreeningOrgConfigTypeEnum.getTypeName(item.getConfigType()))
-                    .setAddress(districtService.getAddressDetails(item.getProvinceCode(), item.getCityCode(), item.getAreaCode(), item.getTownCode(), item.getAddress()))
-                    .setRemark(item.getRemark())
-                    .setCreateTime(DateFormatUtil.format(item.getCreateTime(), DateFormatUtil.FORMAT_DETAIL_TIME));
+            ScreeningOrganizationExportDTO exportVo = item.parseFromScreeningOrg();
+            exportVo.setDistrictName(districtService.getDistrictName(item.getDistrictDetail()))
+                    .setAddress(districtService.getAddressDetails(item.getProvinceCode(), item.getCityCode(), item.getAreaCode(), item.getTownCode(), item.getAddress()));
             exportList.add(exportVo);
         }
         return exportList;

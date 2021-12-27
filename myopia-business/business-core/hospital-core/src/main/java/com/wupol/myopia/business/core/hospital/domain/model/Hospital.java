@@ -3,15 +3,21 @@ package com.wupol.myopia.business.core.hospital.domain.model;
 import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.wupol.myopia.base.constant.CooperationTimeTypeEnum;
 import com.wupol.myopia.base.constant.StatusConstant;
+import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.base.util.RegularUtils;
 import com.wupol.myopia.business.common.utils.annotation.CheckTimeInterval;
 import com.wupol.myopia.business.common.utils.handler.DateDeserializer;
 import com.wupol.myopia.business.core.common.domain.model.AddressCode;
+import com.wupol.myopia.business.core.hospital.constant.HospitalEnum;
+import com.wupol.myopia.business.core.hospital.constant.HospitalLevelEnum;
+import com.wupol.myopia.business.core.hospital.domain.dto.HospitalExportDTO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -215,6 +221,26 @@ public class Hospital extends AddressCode implements Serializable {
      */
     public Integer getCooperationStopStatus() {
         return (!isCooperationBegin()) || isCooperationStop() ? StatusConstant.DISABLE : StatusConstant.ENABLE;
+    }
+
+    /**
+     * 转换成HospitalExportDTO
+     *
+     * @return HospitalExportDTO
+     */
+    public HospitalExportDTO parseFromHospital() {
+        return new HospitalExportDTO()
+                .setName(name)
+                .setLevel(HospitalLevelEnum.getLevel(level))
+                .setType(HospitalEnum.getTypeName(type))
+                .setKind(HospitalEnum.getKindName(kind))
+                .setRemark(remark)
+                .setServiceType(HospitalEnum.getServiceTypeName(serviceType))
+                .setCooperationType(CooperationTimeTypeEnum.getCooperationTimeTypeDesc(cooperationType, cooperationTimeType, cooperationStartTime, cooperationEndTime))
+                .setCooperationRemainTime(cooperationRemainTime)
+                .setCooperationStartTime(Objects.nonNull(cooperationStartTime) ? DateFormatUtil.format(cooperationStartTime, DateFormatUtil.FORMAT_TIME_WITHOUT_SECOND) : StringUtils.EMPTY)
+                .setCooperationEndTime(Objects.nonNull(cooperationEndTime) ? DateFormatUtil.format(cooperationEndTime, DateFormatUtil.FORMAT_TIME_WITHOUT_SECOND) : StringUtils.EMPTY)
+                .setCreateTime(DateFormatUtil.format(createTime, DateFormatUtil.FORMAT_DETAIL_TIME));
     }
 
 }
