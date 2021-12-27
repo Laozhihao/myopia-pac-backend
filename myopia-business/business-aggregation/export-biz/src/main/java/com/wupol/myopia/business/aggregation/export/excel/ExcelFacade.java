@@ -15,9 +15,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.*;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ImportExcelEnum;
 import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
-import com.wupol.myopia.business.api.screening.app.domain.dto.VisionDataDTO;
 import com.wupol.myopia.business.common.utils.constant.*;
-import com.wupol.myopia.business.common.utils.util.AgeUtil;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.util.S3Utils;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
@@ -31,15 +29,12 @@ import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningResultPahtConst;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.ComputerOptometryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningDataContrastDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.VisionScreeningResultExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
-import com.wupol.myopia.business.core.screening.flow.util.ScreeningCodeGenerator;
 import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationStaffDTO;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationStaffService;
@@ -54,7 +49,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -956,214 +950,6 @@ public class ExcelFacade {
         }
         if (StringUtils.isBlank(gradeName)) {
             throw new BusinessException("身份证" + idCard + "年级不能为空");
-        }
-    }
-
-    /**
-     * 导入学生
-     *
-     * @param multipartFile 导入文件
-     * @throws BusinessException 异常
-     */
-    @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_UNCOMMITTED)
-    public void importABVStudent(MultipartFile multipartFile) throws ParseException {
-        List<Map<Integer, String>> listMap = readExcelAbc(multipartFile);
-        Map<Integer, String> integerStringMap = listMap.get(0);
-        int schoolId = Integer.parseInt(integerStringMap.get(Import.SCHOOL_ID.index));
-        int planId = Integer.parseInt(integerStringMap.get(Import.PLAN_ID.index));
-        int orgId = Integer.parseInt(integerStringMap.get(Import.ORG_ID.index));
-        int noticeId = Integer.parseInt(integerStringMap.get(Import.NOTICE_ID.index));
-        int taskId = Integer.parseInt(integerStringMap.get(Import.TASK_ID.index));
-        int planDistrictId = Integer.parseInt(integerStringMap.get(Import.PLAN_DISTRICT_ID.index));
-        int schoolDistrictId = Integer.parseInt(integerStringMap.get(Import.SCHOOL_DISTRICT_ID.index));
-
-        School school = schoolService.getById(schoolId);
-
-        // 收集年级信息
-        List<SchoolGradeExportDTO> grades = schoolGradeService.getBySchoolIds(Lists.newArrayList(school.getId()));
-        schoolGradeService.packageGradeInfo(grades);
-
-        // 日期
-        List<String> errorDateList = new ArrayList<>();
-        listMap.forEach(map->{
-            try {
-                DateFormatUtil.parseDate(map.get(Import.BIRTHDAY.index), DateFormatUtil.FORMAT_ONLY_DATE_WITHOUT_LINE);
-            } catch (ParseException e) {
-                errorDateList.add(map.get(Import.BIRTHDAY.index));
-            }
-        });
-        if (!CollectionUtils.isEmpty(errorDateList)) {
-            throw new BusinessException("错误日期格式" + errorDateList);
-        }
-
-        // 年级信息通过学校Id分组
-        Map<Integer, List<SchoolGradeExportDTO>> schoolGradeMaps = grades.stream().collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolId));
-        List<Long> idBatch = ScreeningCodeGenerator.getIdBatch(listMap.size());
-        int id = 0;
-        for (Map<Integer, String> item : listMap) {
-            log.info("一共:{}个,当前第:{}个,还剩余:{}个", listMap.size(), id + 1, listMap.size() - id);
-            Student student = new Student();
-            student.setName(item.get(Import.NAME.index))
-                    .setGender(GenderEnum.getType(item.get(Import.GENDER.index)))
-                    .setBirthday(DateFormatUtil.parseDate(item.get(Import.BIRTHDAY.index), DateFormatUtil.FORMAT_ONLY_DATE_WITHOUT_LINE))
-                    .setGradeType(GradeCodeEnum.getByName(item.get(Import.GRADE.index)).getType())
-                    .setCreateUserId(1).setSchoolId(school.getId());
-
-            // 通过学校编号获取改学校的年级信息
-            List<SchoolGradeExportDTO> schoolGradeExportVOS = schoolGradeMaps.get(school.getId());
-            // 转换成年级Maps，年级名称作为Key
-            Map<String, SchoolGradeExportDTO> gradeMaps = schoolGradeExportVOS.stream().collect(Collectors.toMap(SchoolGradeExportDTO::getName, Function.identity()));
-            // 年级信息
-            SchoolGradeExportDTO schoolGradeExportDTO = gradeMaps.get(item.get(Import.GRADE.index));
-            Assert.notNull(schoolGradeExportDTO, "年级数据异常");
-            // 设置年级ID
-            student.setGradeId(schoolGradeExportDTO.getId());
-            // 获取年级内的班级信息
-            List<SchoolClassExportDTO> classExportVOS = schoolGradeExportDTO.getChild();
-            // 转换成班级Maps 把班级名称作为key
-            Map<String, Integer> classExportMaps = classExportVOS.stream().collect(Collectors.toMap(SchoolClassExportDTO::getName, SchoolClassExportDTO::getId));
-            Integer classId = classExportMaps.get(item.get(Import.CLASS.index));
-            Assert.notNull(classId, "班级数据为空");
-            // 设置班级信息
-            student.setClassId(classId);
-            studentService.save(student);
-
-            ScreeningPlanSchoolStudent planSchoolStudent = new ScreeningPlanSchoolStudent();
-            planSchoolStudent.setSrcScreeningNoticeId(noticeId);
-            planSchoolStudent.setScreeningTaskId(taskId);
-            planSchoolStudent.setScreeningPlanId(planId);
-            planSchoolStudent.setScreeningOrgId(orgId);
-            planSchoolStudent.setPlanDistrictId(planDistrictId);
-            planSchoolStudent.setSchoolDistrictId(schoolDistrictId);
-            planSchoolStudent.setSchoolId(school.getId());
-            planSchoolStudent.setSchoolNo(school.getSchoolNo());
-            planSchoolStudent.setSchoolName(school.getName());
-            planSchoolStudent.setGradeId(student.getGradeId());
-            planSchoolStudent.setGradeName(item.get(Import.GRADE.index));
-            planSchoolStudent.setGradeType(GradeCodeEnum.getByName(item.get(Import.GRADE.index)).getType());
-            planSchoolStudent.setClassId(student.getClassId());
-            planSchoolStudent.setClassName(item.get(Import.CLASS.index));
-            planSchoolStudent.setStudentId(student.getId());
-            planSchoolStudent.setBirthday(student.getBirthday());
-            planSchoolStudent.setGender(student.getGender());
-            planSchoolStudent.setStudentAge(AgeUtil.countAge(student.getBirthday()));
-            planSchoolStudent.setStudentName(student.getName());
-            planSchoolStudent.setArtificial(1);
-            planSchoolStudent.setScreeningCode(idBatch.get(id));
-            screeningPlanSchoolStudentService.save(planSchoolStudent);
-
-            VisionDataDTO visionDataDTO = new VisionDataDTO();
-            visionDataDTO.setRightCorrectedVision(Objects.nonNull(item.get(Import.RIGHT_CORRECTED_VISION.index)) ? new BigDecimal(item.get(Import.RIGHT_CORRECTED_VISION.index)) : null);
-            visionDataDTO.setLeftCorrectedVision(Objects.nonNull(item.get(Import.LEFT_CORRECTED_VISION.index)) ? new BigDecimal(item.get(Import.LEFT_CORRECTED_VISION.index)) : null);
-            visionDataDTO.setRightNakedVision(Objects.nonNull(item.get(Import.RIGHT_NAKED_VISION.index)) ? new BigDecimal(item.get(Import.RIGHT_NAKED_VISION.index)) : null);
-            visionDataDTO.setLeftNakedVision(Objects.nonNull(item.get(Import.LEFT_NAKED_VISION.index)) ? new BigDecimal(item.get(Import.LEFT_NAKED_VISION.index)) : null);
-            visionDataDTO.setDiagnosis(0);
-            visionDataDTO.setIsCooperative(0);
-            visionDataDTO.setSchoolId(String.valueOf(school.getId()));
-            visionDataDTO.setDeptId(orgId);
-            visionDataDTO.setCreateUserId(1);
-            visionDataDTO.setPlanStudentId(String.valueOf(planSchoolStudent.getId()));
-            visionDataDTO.setIsState(0);
-            if (Objects.isNull(item.get(Import.RIGHT_CORRECTED_VISION.index)) && Objects.isNull(item.get(Import.LEFT_CORRECTED_VISION.index))) {
-                visionDataDTO.setGlassesType("没有佩戴眼镜");
-            } else {
-                visionDataDTO.setGlassesType("佩戴框架眼镜");
-            }
-
-            if (visionDataDTO.isValid()) {
-                visionScreeningBizService.saveOrUpdateStudentScreenData(visionDataDTO);
-            }
-
-            ComputerOptometryDTO computerOptometryDTO = new ComputerOptometryDTO();
-            computerOptometryDTO.setRAxial(Objects.nonNull(item.get(Import.RIGHT_AXIAL.index)) ? new BigDecimal(item.get(Import.RIGHT_AXIAL.index)) : null);
-            computerOptometryDTO.setLAxial(Objects.nonNull(item.get(Import.LEFT_AXIAL.index)) ? new BigDecimal(item.get(Import.LEFT_AXIAL.index)) : null);
-            computerOptometryDTO.setRSph(Objects.nonNull(item.get(Import.RIGHT_SPH.index)) ? new BigDecimal(item.get(Import.RIGHT_SPH.index)) : null);
-            computerOptometryDTO.setLSph(Objects.nonNull(item.get(Import.LEFT_SPH.index)) ? new BigDecimal(item.get(Import.LEFT_SPH.index)) : null);
-            computerOptometryDTO.setRCyl(Objects.nonNull(item.get(Import.RIGHT_CYL.index)) ? new BigDecimal(item.get(Import.RIGHT_CYL.index)) : null);
-            computerOptometryDTO.setLCyl(Objects.nonNull(item.get(Import.LEFT_CYL.index)) ? new BigDecimal(item.get(Import.LEFT_CYL.index)) : null);
-            computerOptometryDTO.setDiagnosis(0);
-            computerOptometryDTO.setIsCooperative(0);
-            computerOptometryDTO.setSchoolId(String.valueOf(school.getId()));
-            computerOptometryDTO.setDeptId(orgId);
-            computerOptometryDTO.setCreateUserId(1);
-            computerOptometryDTO.setPlanStudentId(String.valueOf(planSchoolStudent.getId()));
-            computerOptometryDTO.setIsState(0);
-
-            if (computerOptometryDTO.isValid()) {
-                visionScreeningBizService.saveOrUpdateStudentScreenData(computerOptometryDTO);
-            }
-            id = id + 1;
-        }
-    }
-
-    public enum Import {
-        NAME(0, "姓名"),
-        GENDER(1, "性别"),
-        BIRTHDAY(2, "出生日期"),
-        GRADE(3, "年级"),
-        CLASS(4, "班级"),
-        RIGHT_NAKED_VISION(5, "右-裸眼"),
-        LEFT_NAKED_VISION(6, "左-裸眼"),
-        RIGHT_CORRECTED_VISION(7, "右-戴镜"),
-        LEFT_CORRECTED_VISION(8, "左-戴镜"),
-        RIGHT_SPH(9, "右-球镜"),
-        LEFT_SPH(10, "左-球镜"),
-        LEFT_CYL(11, "右-柱镜"),
-        RIGHT_CYL(12, "左-柱镜"),
-        RIGHT_AXIAL(13, "右-轴位"),
-        LEFT_AXIAL(14, "左-轴位"),
-        SCHOOL_ID(15, "SCHOOL_ID"),
-        PLAN_ID(16, "PLAN_ID"),
-        ORG_ID(17, "ORG_ID"),
-        NOTICE_ID(18, "NOTICE_ID"),
-        TASK_ID(19, "TASK_ID"),
-        PLAN_DISTRICT_ID(20, "PLAN_DISTRICT_ID"),
-        SCHOOL_DISTRICT_ID(21, "SCHOOL_DISTRICT_ID");
-
-        /**
-         * 列标
-         **/
-        private final Integer index;
-        /**
-         * 名称
-         **/
-        private final String name;
-
-        Import(Integer index, String name) {
-            this.index = index;
-            this.name = name;
-        }
-
-        public Integer getIndex() {
-            return this.index;
-        }
-
-        public String getName() {
-            return this.name;
-        }
-    }
-
-    /**
-     * 读取Excel数据
-     *
-     * @param multipartFile Excel文件
-     * @return java.util.List<java.util.Map < java.lang.Integer, java.lang.String>>
-     **/
-    private List<Map<Integer, String>> readExcelAbc(MultipartFile multipartFile) {
-        String fileName = IOUtils.getTempPath() + multipartFile.getName() + "_" + System.currentTimeMillis() + FILE_SUFFIX;
-        File file = new File(fileName);
-        try {
-            FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
-        } catch (IOException e) {
-            log.error("导入学生数据异常:", e);
-            throw new BusinessException("导入学生数据异常");
-        }
-        // 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
-        try {
-            return EasyExcel.read(fileName).sheet().doReadSync();
-        } catch (Exception e) {
-            log.error("导入学生数据异常:", e);
-            throw new BusinessException("Excel解析异常");
         }
     }
 }

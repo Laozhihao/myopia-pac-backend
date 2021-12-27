@@ -86,22 +86,11 @@ public class ExportHospitalExcelService extends BaseExportExcelFileService {
             AtomicReference<String> account = new AtomicReference<>(StringUtils.EMPTY);
             adminMap.get(hospital.getId()).forEach(s -> account.set(account + userMap.get(s) + "、"));
             account.set(account.get().substring(0, account.get().length() - 1));
-            HospitalExportDTO exportVo = new HospitalExportDTO()
-                    .setName(hospital.getName())
-                    .setAddress(districtService.getAddressDetails(hospital.getProvinceCode(), hospital.getCityCode(), hospital.getAreaCode(), hospital.getTownCode(), hospital.getAddress()))
-                    .setLevel(HospitalLevelEnum.getLevel(hospital.getLevel()))
-                    .setType(HospitalEnum.getTypeName(hospital.getType()))
-                    .setKind(HospitalEnum.getKindName(hospital.getKind()))
-                    .setRemark(hospital.getRemark())
+            HospitalExportDTO hospitalExportDTO = hospital.parseFromHospital();
+            hospitalExportDTO.setAddress(districtService.getAddressDetails(hospital.getProvinceCode(), hospital.getCityCode(), hospital.getAreaCode(), hospital.getTownCode(), hospital.getAddress()))
                     .setAccountNo(account.get())
-                    .setServiceType(HospitalEnum.getServiceTypeName(hospital.getServiceType()))
-                    .setCooperationType(CooperationTimeTypeEnum.getCooperationTimeTypeDesc(hospital.getCooperationType(), hospital.getCooperationTimeType(), hospital.getCooperationStartTime(), hospital.getCooperationEndTime()))
-                    .setCooperationRemainTime(hospital.getCooperationRemainTime())
-                    .setCooperationStartTime(Objects.nonNull(hospital.getCooperationStartTime()) ? DateFormatUtil.format(hospital.getCooperationStartTime(), DateFormatUtil.FORMAT_TIME_WITHOUT_SECOND) : StringUtils.EMPTY)
-                    .setCooperationEndTime(Objects.nonNull(hospital.getCooperationEndTime()) ? DateFormatUtil.format(hospital.getCooperationEndTime(), DateFormatUtil.FORMAT_TIME_WITHOUT_SECOND) : StringUtils.EMPTY)
-                    .setAssociateScreeningOrg(orgMap.getOrDefault(hospital.getAssociateScreeningOrgId(), StringUtils.EMPTY))
-                    .setCreateTime(DateFormatUtil.format(hospital.getCreateTime(), DateFormatUtil.FORMAT_DETAIL_TIME));
-            exportList.add(exportVo);
+                    .setAssociateScreeningOrg(orgMap.getOrDefault(hospital.getAssociateScreeningOrgId(), StringUtils.EMPTY));
+            exportList.add(hospitalExportDTO);
         }
         return exportList;
     }
