@@ -237,7 +237,7 @@ public class Hospital extends AddressCode implements Serializable {
                 .setRemark(remark)
                 .setServiceType(HospitalEnum.getServiceTypeName(serviceType))
                 .setCooperationType(CooperationTimeTypeEnum.getCooperationTimeTypeDesc(cooperationType, cooperationTimeType, cooperationStartTime, cooperationEndTime))
-                .setCooperationRemainTime(cooperationRemainTime)
+                .setCooperationRemainTime(getCooperationRemainTime())
                 .setCooperationStartTime(Objects.nonNull(cooperationStartTime) ? DateFormatUtil.format(cooperationStartTime, DateFormatUtil.FORMAT_TIME_WITHOUT_SECOND) : StringUtils.EMPTY)
                 .setCooperationEndTime(Objects.nonNull(cooperationEndTime) ? DateFormatUtil.format(cooperationEndTime, DateFormatUtil.FORMAT_TIME_WITHOUT_SECOND) : StringUtils.EMPTY)
                 .setCreateTime(DateFormatUtil.format(createTime, DateFormatUtil.FORMAT_DETAIL_TIME));
