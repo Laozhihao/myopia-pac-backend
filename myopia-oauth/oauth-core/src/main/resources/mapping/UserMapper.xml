@@ -80,6 +80,9 @@
                 <if test="param.startLastLoginTime != null and param.endLastLoginTime != null">
                     and DATE(u.last_login_time) between DATE(#{param.startLastLoginTime}) and DATE(#{param.endLastLoginTime})
                 </if>
+                <if test="param.userTypes != null">
+                    and u.`user_type` IN <foreach collection="param.userTypes" open="(" close=")" separator="," item="item">#{item}</foreach>
+                </if>
             </trim>
         </where>
     </sql>
@@ -106,10 +109,16 @@
         <include refid="Base_Like_Where_Clause"/>
     </select>
 
-    <select id="selectByOrgId" resultMap="BaseResultMap">
-        select *
-        from o_user
-        where org_id = #{orgId}
-        and system_code = 6
-    </select>
+    <update id="updateUserRealName">
+        update o_user
+        set real_name = #{realName}
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(orgId)">and `org_id` = #{orgId}</if>
+                <if test="@Ognl@isNotEmpty(systemCode)">and `system_code` = #{systemCode}</if>
+                <if test="@Ognl@isNotEmpty(userType)">and `user_type` = #{userType}</if>
+            </trim>
+        </where>
+    </update>
+
 </mapper>

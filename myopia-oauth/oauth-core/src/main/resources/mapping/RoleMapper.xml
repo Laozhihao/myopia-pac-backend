@@ -45,8 +45,11 @@
                 <if test="param.status != null">and r.status = #{param.status}</if>
                 <if test="param.chName != null and param.chName != ''">and r.ch_name like CONCAT("%",#{param.chName},"%")</if>
                 <if test="param.createUserName != null and param.createUserName != ''">and u.real_name like CONCAT("%",#{param.createUserName},"%")</if>
-                <if test="param.orgIds != null">
+                <if test="param.orgIds != null and param.orgIds.size() > 0">
                     and r.`org_id` IN <foreach collection="param.orgIds" open="(" close=")" separator="," item="item">#{item}</foreach>
+                </if>
+                <if test="param.roleTypes != null">
+                    and r.`role_type` IN <foreach collection="param.roleTypes" open="(" close=")" separator="," item="item">#{item}</foreach>
                 </if>
             </trim>
         </where>
@@ -76,6 +79,20 @@
                 <if test="chName != null and chName != ''">and r.ch_name like CONCAT("%",#{chName},"%")</if>
             </trim>
         </where>
+    </select>
+
+    <select id="getOrgFirstOneRole" resultMap="BaseResultMap">
+        SELECT
+                *
+        FROM
+             o_role
+        WHERE
+                org_id = #{screeningOrgId}
+          AND system_code = #{systemCode}
+          AND role_type = #{roleType}
+        ORDER BY
+                 id
+        LIMIT 1
     </select>
 
 </mapper>

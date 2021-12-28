@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.constant.SystemCode;
+import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.PasswordAndUsernameGenerator;
@@ -26,8 +27,10 @@ import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolAdmin;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
+import com.wupol.myopia.business.core.school.domain.vo.SchoolGradeClassVO;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
+import com.wupol.myopia.oauth.sdk.domain.response.Organization;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
@@ -80,7 +83,12 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         District district = districtService.getById(school.getDistrictId());
         Assert.notNull(district, "无效行政区域");
         school.setDistrictProvinceCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
+        // 设置学校状态
+        school.setStatus(school.getCooperationStopStatus());
         baseMapper.insert(school);
+        // oauth系统中增加学校状态信息
+        oauthServiceClient.addOrganization(new Organization(school.getId(), SystemCode.SCHOOL_CLIENT,
+                UserType.OTHER, school.getStatus()));
         initGradeAndClass(school.getId(), school.getType(), school.getCreateUserId());
         return generateAccountAndPassword(school, StringUtils.EMPTY);
     }
@@ -462,4 +470,63 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         return baseMapper.getBySchoolId(id);
     }
 
+    /**
+     * 处理学校状态
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public int handleSchoolStatus(Date date) {
+        List<School> schools = getUnhandleSchool(date);
+        int result = 0;
+        for (School school : schools) {
+            // 更新机构状态成功
+            if (updateSchoolStatus(school.getId(), school.getCooperationStopStatus(), school.getStatus()) > 0) {
+                // 更新oauth上机构的状态（同时影响筛查管理端跟筛查端）
+                oauthServiceClient.updateOrganization(new Organization(school.getId(), SystemCode.MANAGEMENT_CLIENT, UserType.SCREENING_ORGANIZATION_ADMIN, school.getCooperationStopStatus()));
+                result++;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 获取状态未更新的学校（已到合作开始时间未启用，已到合作结束时间未停止）
+     * @return
+     */
+    public List<School> getUnhandleSchool(Date date) {
+        return baseMapper.getByCooperationTimeAndStatus(date);
+    }
+
+    /**
+     * CAS更新机构状态，当且仅当源状态为sourceStatus，且限定id
+     * @param id
+     * @param targetStatus
+     * @param sourceStatus
+     * @return
+     */
+    public int updateSchoolStatus(Integer id, Integer targetStatus, Integer sourceStatus) {
+        return baseMapper.updateSchoolStatus(id, targetStatus, sourceStatus);
+    }
+
+    /**
+     * 获取指定合作结束时间的学校信息
+     * @param start     开始时间早于该时间才处理
+     * @param end       指定结束时间，精确到天
+     * @return
+     */
+    public List<School> getByCooperationEndTime(Date start, Date end) {
+        return baseMapper.getByCooperationEndTime(start, end);
+    }
+
+    /**
+     * 获取学校信息
+     *
+     * @param schoolId 学校Id
+     * @param gradeId  年级Id
+     * @param classId  班级Id
+     * @return SchoolGradeClassVO
+     */
+    public SchoolGradeClassVO getBySchoolIdAndGradeIdAndClassId(Integer schoolId, Integer gradeId, Integer classId) {
+        return baseMapper.getBySchoolIdAndGradeIdAndClassId(schoolId, gradeId, classId);
+    }
 }

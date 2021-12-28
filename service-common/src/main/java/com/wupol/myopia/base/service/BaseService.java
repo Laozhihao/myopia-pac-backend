@@ -8,6 +8,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.wupol.myopia.base.config.MyBatisPlusIntrospetor;
 import com.wupol.myopia.base.exception.BusinessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,7 +79,8 @@ public abstract class BaseService<M extends BaseMapper<T>, T> extends ServiceImp
      **/
     public QueryWrapper<T> getQueryWrapper(T entity) {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.setPropertyNamingStrategy(com.fasterxml.jackson.databind.PropertyNamingStrategy.SNAKE_CASE);
+        mapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
+        mapper.setAnnotationIntrospector(new MyBatisPlusIntrospetor());
         Map<String, Object> params;
         try {
             params = mapper.readValue(mapper.writeValueAsString(entity), new TypeReference<Map<String, Object>>() {

@@ -73,15 +73,15 @@
         order by mn.create_time desc
     </select>
 
-    <update id="updateScreeningNotice">
+    <update id="updateNotice">
         update m_notice mn
         set mn.status = 1
         where mn.notice_user_id = #{noticeUserId}
           and mn.link_id = #{linkId};
     </update>
 
-    <insert id="batchCreateScreeningNotice">
-        insert into m_notice (create_user_id, link_id, notice_user_id, type, title, content, start_time, end_time) values
+    <insert id="batchCreateNotice">
+        insert into m_notice (create_user_id, link_id, notice_user_id, `type`, title, content, start_time, end_time) values
         <foreach collection="toUserIds" item="toUserId" index="index" separator=",">
             (#{createUserId}, #{linkId}, #{toUserId}, #{type}, #{title}, #{content}, #{startTime}, #{endTime})
         </foreach>

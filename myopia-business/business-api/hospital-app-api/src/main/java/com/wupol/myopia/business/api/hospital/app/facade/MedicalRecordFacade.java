@@ -3,6 +3,7 @@ package com.wupol.myopia.business.api.hospital.app.facade;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.api.hospital.app.domain.vo.HospitalStudentVO;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.core.hospital.constant.HospitalCacheKey;
 import com.wupol.myopia.business.core.hospital.domain.model.*;
 import com.wupol.myopia.business.core.hospital.service.HospitalStudentService;
@@ -62,19 +63,42 @@ public class MedicalRecordFacade {
         // 已建档则跳过
         String cacheKey = String.format(HospitalCacheKey.EXIST_HOSPITAL_STUDENT_ID, hospitalId, studentId);
         if (redisUtil.hasKey(cacheKey)) {
+            updateHospitalStudentStatus(hospitalId, studentId);
             return;
         }
         if (hospitalStudentService.count(new HospitalStudent().setStudentId(studentId).setHospitalId(hospitalId)) != 0) {
             // 设置标识，一天内只通过缓存查询患者信息
             redisUtil.set(cacheKey, "", TimeUnit.DAYS.toSeconds(1));
+            updateHospitalStudentStatus(hospitalId, studentId);
             return;
         }
         HospitalStudentVO hospitalStudentVO = hospitalStudentFacade.getStudentById(hospitalId, studentId);
         hospitalStudentVO.setHospitalId(hospitalId);
+        hospitalStudentVO.setStatus(CommonConst.STATUS_NOT_DELETED);
         // 未建档则建档
         hospitalStudentFacade.saveStudent(hospitalStudentVO, false);
         // 设置标识，一天内只通过缓存查询患者信息
         redisUtil.set(cacheKey, "", TimeUnit.DAYS.toSeconds(1));
+    }
+
+    /**
+     * 更新医院学生状态
+     *
+     * @param hospitalId 医院Id
+     * @param studentId  学生Id
+     */
+    private void updateHospitalStudentStatus(Integer hospitalId, Integer studentId) {
+        HospitalStudentVO hospitalStudentVO = hospitalStudentFacade.getStudentById(hospitalId, studentId);
+        if (Objects.isNull(hospitalStudentVO)) {
+            return;
+        }
+        if (CommonConst.STATUS_NOT_DELETED.equals(hospitalStudentVO.getStatus())) {
+            return;
+        }
+        // 删除的学生重新启用
+        hospitalStudentVO.setHospitalId(hospitalId);
+        hospitalStudentVO.setStatus(CommonConst.STATUS_NOT_DELETED);
+        hospitalStudentService.updateById(hospitalStudentVO);
     }
 
 }

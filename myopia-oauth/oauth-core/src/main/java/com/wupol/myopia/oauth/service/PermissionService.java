@@ -9,6 +9,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -83,4 +84,18 @@ public class PermissionService extends BaseService<PermissionMapper, Permission>
         }
         Assert.isTrue(param.getIsPage() == 1 || RegExpUtil.isApiUrl(param.getApiUrl()), "apiUrl参数格式错误");
     }
+
+    /**
+     * 获取指定角色的权限
+     *
+     * @param roleIds 用户ID
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.Permission>
+     **/
+    public List<Permission> getUsablePermissionByRoleIds(List<Integer> roleIds) {
+        if (org.apache.commons.collections4.CollectionUtils.isEmpty(roleIds)) {
+            return new ArrayList<>();
+        }
+        return baseMapper.selectByRoleIds(roleIds);
+    }
+
 }

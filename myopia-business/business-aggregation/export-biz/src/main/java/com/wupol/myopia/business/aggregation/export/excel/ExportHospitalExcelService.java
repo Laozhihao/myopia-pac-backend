@@ -1,26 +1,31 @@
 package com.wupol.myopia.business.aggregation.export.excel;
 
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.cache.RedisConstant;
-import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelNoticeKeyContentConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
-import com.wupol.myopia.business.core.common.constant.ExportAddressKey;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
-import com.wupol.myopia.business.core.hospital.constant.HospitalEnum;
-import com.wupol.myopia.business.core.hospital.constant.HospitalLevelEnum;
 import com.wupol.myopia.business.core.hospital.domain.dto.HospitalExportDTO;
 import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
+import com.wupol.myopia.business.core.hospital.domain.model.HospitalAdmin;
 import com.wupol.myopia.business.core.hospital.domain.query.HospitalQuery;
+import com.wupol.myopia.business.core.hospital.service.HospitalAdminService;
 import com.wupol.myopia.business.core.hospital.service.HospitalService;
+import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
+import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
+import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 
@@ -38,6 +43,15 @@ public class ExportHospitalExcelService extends BaseExportExcelFileService {
     @Resource
     private HospitalService hospitalService;
 
+    @Resource
+    private ScreeningOrganizationService screeningOrganizationService;
+
+    @Resource
+    private OauthServiceClient oauthServiceClient;
+
+    @Resource
+    private HospitalAdminService hospitalAdminService;
+
     @Override
     public List getExcelData(ExportCondition exportCondition) {
 
@@ -46,34 +60,41 @@ public class ExportHospitalExcelService extends BaseExportExcelFileService {
 
         HospitalQuery query = new HospitalQuery();
         query.setDistrictId(districtId);
-        List<Hospital> list = hospitalService.getBy(query);
+        List<Hospital> hospitalList = hospitalService.getBy(query);
 
-        if (CollectionUtils.isEmpty(list)) {
+        // 筛查机构
+        List<Integer> orgIds = hospitalList.stream().map(Hospital::getAssociateScreeningOrgId).collect(Collectors.toList());
+        Map<Integer, String> orgMap = screeningOrganizationService.getByIds(orgIds).stream().collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization::getName));
+
+        // 账号
+        List<Integer> hospitalIds = hospitalList.stream().map(Hospital::getId).collect(Collectors.toList());
+        List<HospitalAdmin> hospitalAdminList = hospitalAdminService.getByHospitalIds(hospitalIds);
+        Map<Integer, List<Integer>> adminMap = hospitalAdminList.stream().collect(Collectors.groupingBy(HospitalAdmin::getHospitalId, Collectors.mapping(HospitalAdmin::getUserId, Collectors.toList())));
+
+        List<Integer> userIds = hospitalAdminList.stream().map(HospitalAdmin::getUserId).collect(Collectors.toList());
+        List<User> userLists = oauthServiceClient.getUserBatchByIds(userIds);
+        Map<Integer, String> userMap = userLists.stream().collect(Collectors.toMap(User::getId, User::getUsername));
+
+        if (CollectionUtils.isEmpty(hospitalList)) {
             return new ArrayList<>();
         }
-
-        // 创建人姓名
-        Set<Integer> createUserIds = list.stream().map(Hospital::getCreateUserId).collect(Collectors.toSet());
-        Map<Integer, User> userMap = getUserMapByIds(createUserIds);
-
-        for (Hospital item : list) {
-            HashMap<String, String> addressMap = generateAddressMap(item);
-            HospitalExportDTO exportVo = new HospitalExportDTO()
-                    .setName(item.getName())
-                    .setDistrictName(districtService.getDistrictName(item.getDistrictDetail()))
-                    .setLevel(HospitalLevelEnum.getLevel(item.getLevel()))
-                    .setType(HospitalEnum.getTypeName(item.getType()))
-                    .setKind(HospitalEnum.getKindName(item.getKind()))
-                    .setRemark(item.getRemark())
-                    .setAccountNo(item.getName())
-                    .setAddress(item.getAddress())
-                    .setCreateUser(userMap.get(item.getCreateUserId()).getRealName())
-                    .setCreateTime(DateFormatUtil.format(item.getCreateTime(), DateFormatUtil.FORMAT_DETAIL_TIME))
-                    .setProvince(addressMap.getOrDefault(ExportAddressKey.PROVIDE, StringUtils.EMPTY))
-                    .setCity(addressMap.getOrDefault(ExportAddressKey.CITY, StringUtils.EMPTY))
-                    .setArea(addressMap.getOrDefault(ExportAddressKey.AREA, StringUtils.EMPTY))
-                    .setTown(addressMap.getOrDefault(ExportAddressKey.TOWN, StringUtils.EMPTY));
-            exportList.add(exportVo);
+        boolean isAdmin = oauthServiceClient.getUserBatchByIds(Lists.newArrayList(exportCondition.getApplyExportFileUserId())).get(0).getUserType().equals(0);
+        for (Hospital hospital : hospitalList) {
+            HospitalExportDTO hospitalExportDTO = hospital.parseFromHospital();
+            if (isAdmin) {
+                AtomicReference<String> account = new AtomicReference<>(StringUtils.EMPTY);
+                adminMap.get(hospital.getId()).forEach(s -> account.set(account + userMap.get(s) + "、"));
+                account.set(account.get().substring(0, account.get().length() - 1));
+                hospitalExportDTO.setAccountNo(account.get());
+            } else {
+                hospitalExportDTO.setCooperationType(StringUtils.EMPTY)
+                        .setCooperationRemainTime(null)
+                        .setCooperationStartTime(StringUtils.EMPTY)
+                        .setCooperationEndTime(StringUtils.EMPTY);
+            }
+            hospitalExportDTO.setAddress(districtService.getAddressDetails(hospital.getProvinceCode(), hospital.getCityCode(), hospital.getAreaCode(), hospital.getTownCode(), hospital.getAddress()))
+                    .setAssociateScreeningOrg(orgMap.getOrDefault(hospital.getAssociateScreeningOrgId(), StringUtils.EMPTY));
+            exportList.add(hospitalExportDTO);
         }
         return exportList;
     }

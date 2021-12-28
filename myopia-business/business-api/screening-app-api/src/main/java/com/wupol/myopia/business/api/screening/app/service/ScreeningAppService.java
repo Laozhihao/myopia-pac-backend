@@ -29,6 +29,8 @@ import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.domain.model.Student;
+import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
+import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
@@ -51,6 +53,7 @@ import com.wupol.myopia.business.core.screening.organization.service.ScreeningOr
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -85,10 +88,6 @@ public class ScreeningAppService {
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     @Autowired
-    private UploadConfig uploadConfig;
-    @Resource
-    private S3Utils s3Utils;
-    @Autowired
     private ScreeningOrganizationStaffService screeningOrganizationStaffService;
     @Autowired
     private ResourceFileService resourceFileService;
@@ -96,6 +95,8 @@ public class ScreeningAppService {
     private ScreeningOrganizationService screeningOrganizationService;
     @Autowired
     private RedisUtil redisUtil;
+    @Autowired
+    private SchoolStudentService schoolStudentService;
 
     /**
      * 获取学生复测数据
@@ -496,6 +497,58 @@ public class ScreeningAppService {
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.findOne(new ScreeningPlanSchoolStudent().setId(planStudentId).setScreeningOrgId(screeningOrgId));
         Assert.notNull(screeningPlanSchoolStudent, SysEnum.SYS_STUDENT_NULL.getMessage());
         return visionScreeningResultService.findOne(new VisionScreeningResult().setScreeningPlanSchoolStudentId(planStudentId).setIsDoubleScreen(false));
+    }
+
+    /**
+     * 新增学校端学生
+     * @param student 学生
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void insertSchoolStudent(Student student) {
+        Integer schoolId = student.getSchoolId();
+        String idCard = student.getIdCard();
+        String sno = student.getSno();
+        if (Objects.isNull(schoolId) || StringUtils.isBlank(idCard) || StringUtils.isBlank(sno)) {
+            return;
+        }
+        if (!schoolStudentService.checkIdCardAndSno(null, idCard, sno, schoolId)) {
+            return;
+        }
+        SchoolStudent schoolStudent;
+
+        SchoolStudent deletedByIdCardAndSno = schoolStudentService.getDeletedByIdCardAndSno(idCard, sno, schoolId);
+        if (Objects.nonNull(deletedByIdCardAndSno)) {
+            schoolStudent = deletedByIdCardAndSno;
+        } else {
+            schoolStudent = new SchoolStudent();
+        }
+
+        School school = schoolService.getById(schoolId);
+
+        schoolStudent.setStudentId(student.getId());
+        schoolStudent.setSchoolNo(school.getSchoolNo());
+        schoolStudent.setSchoolId(schoolId);
+        schoolStudent.setCreateUserId(student.getCreateUserId());
+        schoolStudent.setSno(sno);
+        schoolStudent.setGradeId(student.getGradeId());
+        schoolStudent.setGradeName(schoolGradeService.getById(student.getGradeId()).getName());
+        schoolStudent.setGradeType(student.getGradeType());
+        schoolStudent.setClassId(student.getClassId());
+        schoolStudent.setClassName(schoolClassService.getById(student.getClassId()).getName());
+        schoolStudent.setName(student.getName());
+        schoolStudent.setGender(student.getGender());
+        schoolStudent.setBirthday(student.getBirthday());
+        schoolStudent.setNation(student.getNation());
+        schoolStudent.setIdCard(idCard);
+        schoolStudent.setParentPhone(student.getParentPhone());
+        schoolStudent.setMpParentPhone(student.getMpParentPhone());
+        schoolStudent.setStatus(CommonConst.STATUS_NOT_DELETED);
+        schoolStudent.setAddress(student.getAddress());
+        schoolStudent.setProvinceCode(student.getProvinceCode());
+        schoolStudent.setCityCode(student.getCityCode());
+        schoolStudent.setAreaCode(student.getAreaCode());
+        schoolStudent.setTownCode(student.getTownCode());
+        schoolStudentService.saveOrUpdate(schoolStudent);
     }
 
 }

@@ -2,6 +2,8 @@ package com.wupol.myopia.base.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wupol.myopia.base.constant.RoleType;
+import com.wupol.myopia.base.constant.SystemCode;
+import com.wupol.myopia.base.constant.UserType;
 import lombok.Data;
 import org.springframework.util.CollectionUtils;
 
@@ -25,6 +27,11 @@ public class CurrentUser {
     private Integer orgId;
 
     /**
+     * 筛查机构ID
+     */
+    private Integer screeningOrgId;
+
+    /**
      * 用户名（账号）
      */
     private String username;
@@ -38,6 +45,11 @@ public class CurrentUser {
      * 角色类型
      */
     private List<Integer> roleTypes;
+
+    /**
+     * 用户类型
+     */
+    private Integer userType;
 
     /**
      * 是否平台管理员
@@ -61,4 +73,14 @@ public class CurrentUser {
     public boolean isScreeningUser() {
         return !CollectionUtils.isEmpty(roleTypes) && roleTypes.contains(RoleType.SCREENING_ORGANIZATION.getType());
     }
+
+    /**
+     * 是否医院管理员用户
+     * @return
+     */
+    @JsonIgnore
+    public boolean isHospitalUser() {
+        return UserType.HOSPITAL_ADMIN.getType().equals(userType) && SystemCode.MANAGEMENT_CLIENT.getCode().equals(systemCode);
+    }
+
 }

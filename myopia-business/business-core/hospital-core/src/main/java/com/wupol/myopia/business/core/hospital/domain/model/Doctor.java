@@ -31,9 +31,6 @@ public class Doctor implements Serializable {
 
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
-
-    /** 性别：0-男、1-女 */
-    private Integer gender;
     @NotBlank(message = "姓名不能为空")
     private String name;
     private Integer userId;
@@ -51,8 +48,6 @@ public class Doctor implements Serializable {
     private Integer avatarFileId;
     /** 电子签名 */
     private Integer signFileId;
-    /** 状态 0-启用 1-禁止 */
-    private Integer status;
     /** 创建时间 */
     private Date createTime;
     /** 更新时间 */

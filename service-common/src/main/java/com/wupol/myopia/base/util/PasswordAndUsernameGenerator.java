@@ -6,6 +6,7 @@ import lombok.experimental.UtilityClass;
 import org.springframework.util.StringUtils;
 
 import javax.validation.ValidationException;
+import java.util.Date;
 
 /**
  * 密码生成器
@@ -19,6 +20,8 @@ public class PasswordAndUsernameGenerator {
 
     /** 筛查人员密码截取长度 */
     private final int SCREENING_ADMIN_PWD_SUB_LENGTH = 4;
+    /** 医生密码截取长度 */
+    private final int DOCTOR_PWD_SUB_LENGTH = 5;
     /** 密码后缀随机数长度 */
     private final int PASSWORD_SUFFIX_RANDOM_LENGTH = 11;
 
@@ -118,4 +121,15 @@ public class PasswordAndUsernameGenerator {
     public static String getScreeningOrgAdminUserName(int sequence) {
         return String.format(USERNAME, SCREENING_ORG_ADMIN_PWD_PREFIX, sequence);
     }
+
+    /**
+     * 获取医生默认密码
+     * @param phone
+     * @return
+     */
+    public static String getDoctorPwd(String phone, Date date) {
+        // 手机号码后5位+创建日期的日（01-31），合计7位数
+        return StrUtil.subSuf(phone, -DOCTOR_PWD_SUB_LENGTH) + DateFormatUtil.format(date, DateFormatUtil.FORMAT_ONLY_DAY);
+    }
+
 }

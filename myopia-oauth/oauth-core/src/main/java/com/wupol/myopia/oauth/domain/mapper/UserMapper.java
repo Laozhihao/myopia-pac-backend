@@ -29,5 +29,6 @@ public interface UserMapper extends BaseMapper<User> {
 
     List<User> selectUserList(@Param("param") UserDTO queryParam);
 
-    User selectByOrgId(@Param("orgId") Integer orgId);
+    Integer updateUserRealName(@Param("realName") String realName, @Param("orgId") Integer byOrgId, @Param("systemCode") Integer bySystemCode, @Param("userType") Integer byUserType);
+
 }

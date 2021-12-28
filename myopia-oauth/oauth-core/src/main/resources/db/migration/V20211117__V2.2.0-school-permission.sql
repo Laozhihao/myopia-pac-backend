@@ -29,7 +29,7 @@ INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `o
 (398, '导出指定计划下的单个学校的学生的预计跟踪档案', 'orgExportSchoolStudentWarningArchive', 'get:/export/student/warning/archive', 0, 0, 1, 5, 1, '2021-11-04 16:41:21', '2021-11-04 16:41:21'),
 
 -- 政府人员新增用户时获取角色信息
-(399, '获取角色信息', 'getRoleInfo', '	get:/management/role/**', 0, 0, 1, 22, 1, '2021-11-04 16:41:21', '2021-11-04 16:41:21');
+(399, '获取角色信息', 'getRoleInfo', 'get:/management/role/**', 0, 0, 1, 22, 1, '2021-11-04 16:41:21', '2021-11-04 16:41:21');
 
 -- 更新“筛查机构账号列表”接口
 UPDATE o_permission set api_url = 'post:/management/screeningOrganization/add/account/**' WHERE id = 373;

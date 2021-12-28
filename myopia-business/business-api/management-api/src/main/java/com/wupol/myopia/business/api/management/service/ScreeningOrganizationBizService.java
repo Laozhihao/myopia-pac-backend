@@ -3,6 +3,7 @@ package com.wupol.myopia.business.api.management.service;
 import cn.hutool.core.lang.Assert;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.constant.SystemCode;
+import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
@@ -38,6 +39,7 @@ import com.wupol.myopia.business.core.screening.organization.service.ScreeningOr
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationStaffService;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
+import com.wupol.myopia.oauth.sdk.domain.response.Organization;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -110,7 +112,12 @@ public class ScreeningOrganizationBizService {
         if (screeningOrganizationService.checkScreeningOrgName(name, null)) {
             throw new BusinessException("筛查机构名称不能重复");
         }
+        // 机构状态设置
+        screeningOrganization.setStatus(screeningOrganization.getCooperationStopStatus());
         screeningOrganizationService.save(screeningOrganization);
+        // 同步到oauth机构状态
+        oauthServiceClient.addOrganization(new Organization(screeningOrganization.getId(), SystemCode.MANAGEMENT_CLIENT,
+                UserType.SCREENING_ORGANIZATION_ADMIN, screeningOrganization.getStatus()));
         // 为筛查机构新增设备报告模板
         DeviceReportTemplate template = deviceReportTemplateService.getSortFirstTemplate();
         screeningOrgBindDeviceReportService.orgBindReportTemplate(template.getId(), screeningOrganization.getId(), screeningOrganization.getName());
@@ -226,18 +233,29 @@ public class ScreeningOrganizationBizService {
         userDTO.setId(admin.getUserId())
                 .setPhone(screeningOrganization.getPhone())
                 .setOrgId(screeningOrganization.getId())
-                .setSystemCode(SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode())
+                .setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode())
+                .setUserType(UserType.SCREENING_ORGANIZATION_ADMIN.getType())
                 .setRealName(screeningOrganization.getName());
         userDTO.setOrgConfigType(screeningOrganization.getConfigType());
         oauthServiceClient.updateUser(userDTO);
+        // 更新筛查机构管理员用户名称
+        if (StringUtils.isNotBlank(screeningOrganization.getName())) {
+            oauthServiceClient.updateUserRealName(screeningOrganization.getName(), screeningOrganization.getId(), SystemCode.MANAGEMENT_CLIENT.getCode(),
+                    UserType.SCREENING_ORGANIZATION_ADMIN.getType());
+        }
 
         // 名字更新
         if (!StringUtils.equals(checkOrg.getName(), screeningOrganization.getName())) {
             response.setUsername(screeningOrganization.getName());
         }
 
+        // 机构状态设置
+        screeningOrganization.setStatus(screeningOrganization.getCooperationStopStatus());
         screeningOrganizationService.updateById(screeningOrganization);
         ScreeningOrganization organization = screeningOrganizationService.getById(screeningOrganization.getId());
+        // 同步到oauth机构状态
+        oauthServiceClient.updateOrganization(new Organization(screeningOrganization.getId(), SystemCode.MANAGEMENT_CLIENT,
+                UserType.SCREENING_ORGANIZATION_ADMIN, screeningOrganization.getStatus()));
         BeanUtils.copyProperties(organization, response);
         response.setDistrictName(districtService.getDistrictName(organization.getDistrictDetail()));
         // 详细地址
@@ -451,22 +469,6 @@ public class ScreeningOrganizationBizService {
     }
 
     /**
-     * 初始化筛查机构角色
-     */
-    public void resetOrg() {
-        List<ScreeningOrganization> byConfigType = screeningOrganizationService.getAll();
-        byConfigType.forEach(c -> {
-            UserDTO userDTO = new UserDTO();
-            userDTO.setOrgId(c.getId());
-            userDTO.setUsername(c.getName());
-            userDTO.setSystemCode(SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode());
-            userDTO.setCreateUserId(c.getCreateUserId());
-            userDTO.setOrgConfigType(c.getConfigType());
-            oauthServiceClient.resetOrg(userDTO);
-        });
-    }
-
-    /**
      * 添加账号
      *
      * @param screeningOrgId 筛查机构ID
@@ -482,8 +484,6 @@ public class ScreeningOrganizationBizService {
         if (CollectionUtils.isEmpty(orgList)) {
             throw new BusinessException("数据异常");
         }
-        String orgName = screeningOrganization.getName();
-        screeningOrganization.setName(orgName + "0" + orgList.size());
         ScreeningOrganizationAdmin screeningOrganizationAdmin = orgList.stream().sorted(Comparator.comparing(ScreeningOrganizationAdmin::getCreateTime)).collect(Collectors.toList()).get(0);
         String mainUsername = oauthServiceClient.getUserDetailByUserId(screeningOrganizationAdmin.getUserId()).getUsername();
         String username;

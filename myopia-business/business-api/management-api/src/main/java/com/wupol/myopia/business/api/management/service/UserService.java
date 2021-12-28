@@ -24,6 +24,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -71,6 +72,7 @@ public class UserService {
         // 调用远程服务获取用户数据
         UserDTO userDTO = new UserDTO();
         BeanUtils.copyProperties(param, userDTO);
+        userDTO.setUserTypes(Arrays.asList(UserType.GOVERNMENT_ADMIN.getType(), UserType.PLATFORM_ADMIN.getType()));
         Page<User> userPage = oauthServiceClient.getUserListPage(userDTO);
         List<UserVO> users = JSON.parseArray(JSON.toJSONString(userPage.getRecords()), UserVO.class);
         if (CollectionUtils.isEmpty(users)) {
@@ -124,7 +126,8 @@ public class UserService {
             user.setUsername(user.getPhone());
         }
         // 该接口不允许更新密码
-        user.setSystemCode(currentUser.getSystemCode()).setPassword(null);
+        User oldUser = oauthServiceClient.getUserDetailByUserId(user.getId());
+        user.setSystemCode(currentUser.getSystemCode()).setUserType(oldUser.getUserType()).setPassword(null);
         User newUser = oauthServiceClient.updateUser(user.convertToOauthUserDTO());
         GovDept govDept = govDeptService.getById(newUser.getOrgId());
         District district = districtService.getById(govDept.getDistrictId());
@@ -142,7 +145,7 @@ public class UserService {
     private void validateAndInitUserData(UserQueryDTO user, CurrentUser currentUser) {
         if (currentUser.isPlatformAdminUser()) {
             Assert.notNull(user.getUserType(), "用户类型不能为空");
-            if (UserType.NOT_PLATFORM_ADMIN.getType().equals(user.getUserType())) {
+            if (UserType.GOVERNMENT_ADMIN.getType().equals(user.getUserType())) {
                 // 创建非平台管理员用户
                 Assert.notNull(user.getOrgId(), "所属部门ID不能为空");
                 Assert.notNull(user.getIsLeader(), "是否为领导不能为空");

@@ -15,10 +15,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RolePermissionDTO {
-    /**
-     * 部门Id
-     */
-    private List<Integer> govIds;
 
     /**
      * 权限Id
@@ -26,7 +22,7 @@ public class RolePermissionDTO {
     private List<Integer> permissionIds;
 
     /**
-     * 筛查机构Id
+     * 机构Id
      */
     private List<Integer> orgIds;
 }

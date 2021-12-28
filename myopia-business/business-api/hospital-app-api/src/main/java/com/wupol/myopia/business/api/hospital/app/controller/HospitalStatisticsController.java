@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -28,7 +27,7 @@ public class HospitalStatisticsController {
     private HospitalStatisticsService hospitalStatisticsService;
 
     @GetMapping()
-    public Map<String, Object> getStatistics() throws IOException {
+    public Map<String, Object> getStatistics() {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         return hospitalStatisticsService.getStatistics(user.getOrgId());
     }

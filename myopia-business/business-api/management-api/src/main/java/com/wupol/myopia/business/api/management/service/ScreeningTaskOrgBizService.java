@@ -3,6 +3,8 @@ package com.wupol.myopia.business.api.management.service;
 import com.alibaba.excel.util.CollectionUtils;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.core.hospital.domain.model.HospitalAdmin;
+import com.wupol.myopia.business.core.hospital.service.HospitalAdminService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskOrgDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNoticeDeptOrg;
@@ -46,6 +48,8 @@ public class ScreeningTaskOrgBizService {
     private ScreeningNoticeService screeningNoticeService;
     @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
+    @Autowired
+    private HospitalAdminService hospitalAdminService;
 
 
     /**
@@ -105,12 +109,16 @@ public class ScreeningTaskOrgBizService {
         List<ScreeningNoticeDeptOrg> screeningNoticeDeptOrgs = orgLists.stream().filter(org -> !existAcceptOrgIds.contains(org.getScreeningOrgId())).map(org -> new ScreeningNoticeDeptOrg().setScreeningNoticeId(screeningNotice.getId()).setDistrictId(screeningTask.getDistrictId()).setAcceptOrgId(org.getScreeningOrgId()).setOperatorId(user.getId())).collect(Collectors.toList());
         boolean result = screeningNoticeDeptOrgService.saveBatch(screeningNoticeDeptOrgs);
 
-        // 查找org的userId
-        List<ScreeningOrganizationAdmin> adminLists = screeningOrganizationAdminService.getByOrgIds(orgLists.stream().map(ScreeningTaskOrg::getScreeningOrgId).collect(Collectors.toList()));
-        if (!org.springframework.util.CollectionUtils.isEmpty(adminLists)) {
-            List<Integer> toUserIds = adminLists.stream().map(ScreeningOrganizationAdmin::getUserId).collect(Collectors.toList());
+        // 查找筛查机构用户
+        List<Integer> orgIds = orgLists.stream().map(ScreeningTaskOrg::getScreeningOrgId).collect(Collectors.toList());
+        List<ScreeningOrganizationAdmin> adminLists = screeningOrganizationAdminService.getByOrgIds(orgIds);
+        // 通知绑定了该筛查机构的医院信息
+        List<HospitalAdmin> hospitalAdmins = hospitalAdminService.getHospitalAdminByOrgIds(orgIds);
+        List<Integer> toUserIds = adminLists.stream().map(ScreeningOrganizationAdmin::getUserId).collect(Collectors.toList());
+        toUserIds.addAll(hospitalAdmins.stream().map(HospitalAdmin::getUserId).collect(Collectors.toList()));
+        if (!org.springframework.util.CollectionUtils.isEmpty(toUserIds)) {
             // 为消息中心创建通知
-            noticeService.batchCreateScreeningNotice(user.getId(), screeningTask.getScreeningNoticeId(), toUserIds, CommonConst.NOTICE_SCREENING_DUTY, screeningTask.getTitle(), screeningTask.getTitle(), screeningTask.getStartTime(), screeningTask.getEndTime());
+            noticeService.batchCreateNotice(user.getId(), screeningTask.getScreeningNoticeId(), toUserIds, CommonConst.NOTICE_SCREENING_DUTY, screeningTask.getTitle(), screeningTask.getTitle(), screeningTask.getStartTime(), screeningTask.getEndTime());
         }
         return result;
     }

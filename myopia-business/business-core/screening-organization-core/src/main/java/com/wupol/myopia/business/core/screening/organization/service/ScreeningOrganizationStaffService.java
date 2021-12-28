@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.constant.SystemCode;
+import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
@@ -166,7 +167,9 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
                 .setPhone(staff.getPhone())
                 .setIdCard(staff.getIdCard())
                 .setUsername(staff.getPhone())
-                .setRemark(staff.getRemark());
+                .setRemark(staff.getRemark())
+                .setSystemCode(SystemCode.SCREENING_CLIENT.getCode())
+                .setUserType(UserType.OTHER.getType());
         oauthServiceClient.updateUser(userDTO);
         resetPassword(new StaffResetPasswordRequestDTO(staff.getId(), staff.getPhone(), staff.getIdCard()));
         return staff;

@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
@@ -33,6 +32,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.List;
@@ -111,7 +111,10 @@ public class ScreeningOrganizationController {
      */
     @GetMapping("{id}")
     public ScreeningOrgResponseDTO getScreeningOrganization(@PathVariable("id") Integer id) {
-        CurrentUserUtil.getCurrentUser();
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        if (Objects.nonNull(user.getScreeningOrgId())) {
+            id = user.getScreeningOrgId();
+        }
         return screeningOrganizationService.getScreeningOrgDetails(id);
     }
 
@@ -201,6 +204,10 @@ public class ScreeningOrganizationController {
      */
     @GetMapping("/record/lists/{orgId}")
     public IPage<ScreeningOrgPlanResponseDTO> getRecordLists(PageRequest request, @PathVariable("orgId") Integer orgId) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        if (Objects.nonNull(user.getScreeningOrgId())) {
+            orgId = user.getScreeningOrgId();
+        }
         return screeningOrganizationBizService.getRecordLists(request, orgId);
     }
 
@@ -239,6 +246,10 @@ public class ScreeningOrganizationController {
     @GetMapping("/getOrgCooperationHospital/{screeningOrgId}")
     public IPage<CooperationHospitalDTO> getOrgCooperationHospital(PageRequest request,
                                                                    @PathVariable("screeningOrgId") Integer screeningOrgId) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        if (Objects.nonNull(user.getScreeningOrgId())) {
+            screeningOrgId = user.getScreeningOrgId();
+        }
         return screeningOrganizationBizService.getCooperationHospitalList(request, screeningOrgId);
     }
 
@@ -250,6 +261,10 @@ public class ScreeningOrganizationController {
      */
     @PostMapping("/saveOrgCooperationHospital")
     public boolean saveOrgCooperationHospital(@RequestBody CooperationHospitalRequestDTO requestDTO) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        if (Objects.nonNull(user.getScreeningOrgId())) {
+            requestDTO.setScreeningOrgId(user.getScreeningOrgId());
+        }
         return orgCooperationHospitalService.saveCooperationHospital(requestDTO);
     }
 
@@ -284,6 +299,10 @@ public class ScreeningOrganizationController {
      */
     @GetMapping("/getOrgCooperationHospitalList")
     public List<HospitalResponseDTO> getOrgCooperationHospitalList(Integer orgId, String name) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        if (Objects.nonNull(user.getScreeningOrgId())) {
+            orgId = user.getScreeningOrgId();
+        }
         return screeningOrganizationBizService.getHospitalList(orgId, name);
     }
 
@@ -295,6 +314,10 @@ public class ScreeningOrganizationController {
      */
     @GetMapping("/getDistrictTree/{orgId}")
     public List<District> getDistrictTree(@PathVariable("orgId") Integer orgId) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        if (Objects.nonNull(user.getScreeningOrgId())) {
+            orgId = user.getScreeningOrgId();
+        }
         return screeningOrganizationBizService.getDistrictTree(orgId);
     }
 
@@ -311,17 +334,6 @@ public class ScreeningOrganizationController {
     }
 
     /**
-     * 初始化筛查机构角色
-     *
-     * @return ApiResult
-     */
-    @GetMapping("resetOrg")
-    public ApiResult resetOrg() {
-        screeningOrganizationBizService.resetOrg();
-        return ApiResult.success();
-    }
-
-    /**
      * 获取筛查机构账号列表
      *
      * @param orgId 机构Id
@@ -329,6 +341,10 @@ public class ScreeningOrganizationController {
      */
     @GetMapping("/accountList/{orgId}")
     public List<OrgAccountListDTO> getAccountList(@PathVariable("orgId") Integer orgId) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        if (Objects.nonNull(user.getScreeningOrgId())) {
+            orgId = user.getScreeningOrgId();
+        }
         return screeningOrganizationService.getAccountList(orgId);
     }
 
@@ -340,6 +356,23 @@ public class ScreeningOrganizationController {
      */
     @PostMapping("/add/account/{screeningOrgId}")
     public UsernameAndPasswordDTO addAccount(@PathVariable("screeningOrgId") Integer screeningOrgId) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        if (Objects.nonNull(user.getScreeningOrgId())) {
+            screeningOrgId = user.getScreeningOrgId();
+        }
         return screeningOrganizationBizService.addAccount(screeningOrgId);
+    }
+
+    /**
+     * 模糊查询指定省份下筛查机构
+     *
+     * @param name 筛查机构名称
+     * @param provinceDistrictCode 省行政区域编码，如：110000000
+     * @return java.util.List<com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization>
+     **/
+    @GetMapping("/province/list")
+    public List<ScreeningOrganization> getListByProvinceCodeAndNameLike(@NotBlank(message = "筛查机构名称不能为空") String name,
+                                                                    @NotNull(message = "省行政区域编码不能为空") Long provinceDistrictCode) {
+        return screeningOrganizationService.getListByProvinceCodeAndNameLike(name, provinceDistrictCode);
     }
 }

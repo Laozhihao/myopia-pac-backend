@@ -206,9 +206,9 @@ public class ScreeningExportService {
             throw new ValidationException("无权限");
         }
         ScreeningPlan screeningPlan = validateExistWithReleaseStatusAndReturn(screeningPlanId, releaseStatus);
-        if (user.isScreeningUser()) {
+        if (user.isScreeningUser() || (user.isHospitalUser() && (Objects.nonNull(user.getScreeningOrgId())))) {
             // 筛查机构人员，需校验是否同机构
-            Assert.isTrue(user.getOrgId().equals(screeningPlan.getScreeningOrgId()), "无该筛查机构权限");
+            Assert.isTrue(user.getScreeningOrgId().equals(screeningPlan.getScreeningOrgId()), "无该筛查机构权限");
         }
         return screeningPlan;
     }

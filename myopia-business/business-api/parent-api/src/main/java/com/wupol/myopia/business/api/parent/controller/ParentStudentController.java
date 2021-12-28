@@ -104,7 +104,7 @@ public class ParentStudentController {
     }
 
     /**
-     * 更新孩子（没有绑定则绑定）
+     * 新增孩子（没有绑定则绑定）
      *
      * @param student 学生信息
      * @return 更新个数

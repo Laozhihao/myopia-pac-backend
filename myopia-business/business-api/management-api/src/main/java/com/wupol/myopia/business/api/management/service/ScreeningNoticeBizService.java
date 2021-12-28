@@ -3,6 +3,7 @@ package com.wupol.myopia.business.api.management.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.SystemCode;
+import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.api.management.domain.vo.ScreeningNoticeVO;
@@ -95,10 +96,10 @@ public class ScreeningNoticeBizService {
         if (CollectionUtils.isEmpty(govOrgIds)) {
             return;
         }
-        List<User> userBatchByOrgIds = oauthServiceClient.getUserBatchByOrgIds(govOrgIds, SystemCode.MANAGEMENT_CLIENT.getCode());
+        List<User> userBatchByOrgIds = oauthServiceClient.getUserBatchByOrgIds(govOrgIds, SystemCode.MANAGEMENT_CLIENT.getCode(), UserType.GOVERNMENT_ADMIN.getType());
         List<Integer> toUserIds = userBatchByOrgIds.stream().map(User::getId).collect(Collectors.toList());
         if (!CollectionUtils.isEmpty(toUserIds)) {
-            noticeService.batchCreateScreeningNotice(user.getId(), id, toUserIds, CommonConst.NOTICE_SCREENING_NOTICE, notice.getTitle(), notice.getTitle(), notice.getStartTime(), notice.getEndTime());
+            noticeService.batchCreateNotice(user.getId(), id, toUserIds, CommonConst.NOTICE_SCREENING_NOTICE, notice.getTitle(), notice.getTitle(), notice.getStartTime(), notice.getEndTime());
         }
     }
 
@@ -120,9 +121,9 @@ public class ScreeningNoticeBizService {
             //这里只是查找政府的通知
             return screeningNoticeService.getAllReleaseNotice();
         }
-        if (user.isScreeningUser()) {
-            //该部门发布的通知
-            return screeningNoticeService.getNoticeBySreeningUser(user.getOrgId());
+        if (user.isScreeningUser() || (user.isHospitalUser() && (Objects.nonNull(user.getScreeningOrgId())))) {
+            //该机构发布的通知
+            return screeningNoticeService.getNoticeBySreeningUser(user.getScreeningOrgId());
         }
         return Collections.emptyList();
     }

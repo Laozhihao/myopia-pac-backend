@@ -94,4 +94,13 @@ public class UserDTO extends User {
      */
     private Integer orgConfigType;
 
+    /**
+     * 关联筛查机构的ID
+     */
+    private Integer associateScreeningOrgId;
+
+    /**
+     * 用户类型集合
+     */
+    private List<Integer> userTypes;
 }

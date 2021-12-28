@@ -5,7 +5,7 @@
     <parent>
         <artifactId>business-aggregation</artifactId>
         <groupId>com.wupol.myopia</groupId>
-        <version>MP-2.2.0</version>
+        <version>MP-2.3.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -46,6 +46,11 @@
         <dependency>
             <groupId>com.wupol.myopia</groupId>
             <artifactId>school-management-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>screening-app-api</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

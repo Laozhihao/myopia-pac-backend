@@ -8,6 +8,7 @@ import com.wupol.myopia.business.core.screening.organization.domain.dto.Screenin
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -33,9 +34,18 @@ public interface ScreeningOrganizationMapper extends BaseMapper<ScreeningOrganiz
 
     List<ScreeningOrganization> getByName(@Param("name") String name);
 
+    List<ScreeningOrganization> getListByProvinceCodeAndNameLike(@Param("name") String name, @Param("provinceDistrictCode") Long provinceDistrictCode);
+
     List<ScreeningOrganization> getByConfigType(@Param("configType") Integer configType);
 
     List<ScreeningOrganization> getAll();
 
     List<ScreeningOrgResponseDTO> getOrgByIds(@Param("ids") List<Integer> ids);
+
+    List<ScreeningOrganization> getByCooperationTimeAndStatus(@Param("date") Date date);
+
+    int updateOrganizationStatus(@Param("id") Integer id, @Param("targetStatus") Integer targetStatus, @Param("sourceStatus")Integer sourceStatus);
+
+    List<ScreeningOrganization> getByCooperationEndTime(@Param("start") Date start, @Param("end") Date end);
+
 }

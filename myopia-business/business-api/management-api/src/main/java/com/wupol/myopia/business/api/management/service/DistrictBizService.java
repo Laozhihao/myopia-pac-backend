@@ -12,10 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @Author HaoHao
@@ -42,8 +39,8 @@ public class DistrictBizService {
             GovDept govDept = govDeptService.getById(currentUser.getOrgId());
             return districtService.getById(govDept.getDistrictId());
         }
-        if (currentUser.isScreeningUser()) {
-            ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(currentUser.getOrgId());
+        if (currentUser.isScreeningUser() || (currentUser.isHospitalUser() && (Objects.nonNull(currentUser.getScreeningOrgId())))) {
+            ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(currentUser.getScreeningOrgId());
             return districtService.getById(screeningOrganization.getDistrictId());
         }
         throw new BusinessException("无效用户类型");

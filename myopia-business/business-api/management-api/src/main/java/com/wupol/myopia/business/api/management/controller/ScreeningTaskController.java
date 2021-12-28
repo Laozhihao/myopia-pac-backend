@@ -68,7 +68,7 @@ public class ScreeningTaskController {
             Assert.notNull(screeningTaskDTO.getDistrictId(), "请选择行政区域");
             Assert.notNull(screeningTaskDTO.getGovDeptId(), "请选择所处部门");
         }
-        if (user.isScreeningUser()) {
+        if (user.isScreeningUser() || user.isHospitalUser()) {
             throw new ValidationException("无权限");
         }
         if (CollectionUtils.isEmpty(screeningTaskDTO.getScreeningOrgs()) || screeningTaskDTO.getScreeningOrgs().stream().map(ScreeningTaskOrg::getScreeningOrgId).distinct().count() != screeningTaskDTO.getScreeningOrgs().size()) {
@@ -122,7 +122,7 @@ public class ScreeningTaskController {
     }
 
     /**
-     * 校验计划是否存在与发布状态
+     * 校验任务是否存在与发布状态
      * 同时校验权限
      *
      * @param screeningTaskId 筛查通知ID
@@ -132,7 +132,7 @@ public class ScreeningTaskController {
     private ScreeningTask validateExistAndAuthorize(Integer screeningTaskId) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         // 校验用户机构
-        if (user.isScreeningUser()) {
+        if (user.isScreeningUser() || user.isHospitalUser()) {
             // 筛查机构，无权限处理
             throw new ValidationException("无权限");
         }
