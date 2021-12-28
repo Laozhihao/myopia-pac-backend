@@ -47,7 +47,7 @@ public class HospitalDoctorController {
     public List<DoctorDTO> getDoctorList(DoctorQuery query) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         query.setHospitalId(user.getOrgId());
-        return hospitalDoctorService.getDoctorVoList(query);
+        return hospitalDoctorService.getDoctorDTOList(query);
     }
 
 }

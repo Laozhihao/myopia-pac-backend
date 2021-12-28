@@ -2,8 +2,6 @@ package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.CurrentUser;
-import com.wupol.myopia.base.domain.ResultCode;
-import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
@@ -11,7 +9,6 @@ import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.hospital.domain.dto.DoctorDTO;
-import com.wupol.myopia.business.core.hospital.domain.model.Doctor;
 import com.wupol.myopia.business.core.hospital.domain.query.DoctorQuery;
 import com.wupol.myopia.business.core.hospital.service.HospitalDoctorService;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
@@ -19,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Objects;
 
 /**
  * @Author wulizhou
@@ -49,7 +45,7 @@ public class DoctorController {
      */
     @GetMapping("/{id}")
     public DoctorDTO getDoctor(@PathVariable("id") Integer id) {
-        checkId(id);
+        baseService.checkId(id);
         return baseService.getDetails(id);
     }
 
@@ -92,7 +88,7 @@ public class DoctorController {
      */
     @PutMapping
     public UsernameAndPasswordDTO updateDoctor(@RequestBody @Valid DoctorDTO doctor) {
-        checkId(doctor.getId());
+        baseService.checkId(doctor.getId());
         return baseService.updateDoctor(doctor);
     }
 
@@ -104,7 +100,7 @@ public class DoctorController {
      */
     @PutMapping("/status")
     public User updateDoctorStatus(@RequestBody @Valid StatusRequest statusRequest) {
-        checkId(statusRequest.getId());
+        baseService.checkId(statusRequest.getId());
         return baseService.updateStatus(statusRequest);
     }
 
@@ -116,18 +112,8 @@ public class DoctorController {
      */
     @PutMapping("/reset")
     public UsernameAndPasswordDTO resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
-        checkId(request.getId());
+        baseService.checkId(request.getId());
         return baseService.resetPassword(request);
-    }
-
-    private void checkId(Integer id) {
-        CurrentUser user = CurrentUserUtil.getCurrentUser();
-        if (user.isHospitalUser()) {
-            Doctor doctor = baseService.getById(id);
-            if (Objects.isNull(doctor) || !user.getOrgId().equals(doctor.getHospitalId())) {
-                throw new BusinessException("非法请求", ResultCode.USER_ACCESS_UNAUTHORIZED.getCode());
-            }
-        }
     }
 
 }

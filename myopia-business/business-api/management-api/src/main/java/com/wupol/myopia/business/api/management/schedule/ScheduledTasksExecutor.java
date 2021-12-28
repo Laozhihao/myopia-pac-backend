@@ -368,10 +368,10 @@ public class ScheduledTasksExecutor {
      * 每日10点执行
      */
     @Scheduled(cron = "0 0 10 * * ?")
-    public void cooperationWarnnInfoNotice() {
+    public void cooperationWarnInfoNotice() {
         log.info("开始进行合作机构（筛查机构、学校、医院）即将到期通知");
         // 提前7天通知
-        noticeBizService.sendCooperationWarnnInfoNotice(7);
+        noticeBizService.sendCooperationWarnInfoNotice(7);
     }
 
 

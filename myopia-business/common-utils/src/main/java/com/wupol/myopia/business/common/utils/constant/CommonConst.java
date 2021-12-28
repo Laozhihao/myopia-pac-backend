@@ -103,7 +103,7 @@ public class CommonConst {
     /**
      * 合作即将到期通知
      */
-    public final String COOPERATION_WARNN_NOTICE = "%s将于%s合作终止，请注意！";
+    public final String COOPERATION_WARN_NOTICE = "%s将于%s合作终止，请注意！";
 
     /**
      * 左眼
