@@ -68,8 +68,6 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         }
         District district = districtService.getById(hospital.getDistrictId());
         hospital.setDistrictProvinceCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
-        // 设置医院状态
-        hospital.setStatus(hospital.getCooperationStopStatus());
         baseMapper.insert(hospital);
         // oauth系统中增加医院状态信息
         oauthServiceClient.addOrganization(new Organization(hospital.getId(), SystemCode.MANAGEMENT_CLIENT,

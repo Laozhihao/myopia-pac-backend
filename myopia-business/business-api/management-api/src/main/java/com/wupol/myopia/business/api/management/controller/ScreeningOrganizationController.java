@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
@@ -75,6 +76,12 @@ public class ScreeningOrganizationController {
         if (user.isGovDeptUser()) {
             screeningOrganization.setConfigType(0);
         }
+        if (user.isPlatformAdminUser()) {
+            checkCooperation(screeningOrganization);
+        } else {     // 默认合作信息
+            screeningOrganization.initCooperationInfo();
+        }
+        screeningOrganization.setStatus(screeningOrganization.getCooperationStopStatus());
         UsernameAndPasswordDTO usernameAndPasswordDTO = screeningOrganizationBizService.saveScreeningOrganization(screeningOrganization);
         // 非平台管理员屏蔽账号密码信息
         if (!user.isPlatformAdminUser()) {
@@ -92,6 +99,14 @@ public class ScreeningOrganizationController {
     @PutMapping()
     public ScreeningOrgResponseDTO updateScreeningOrganization(@RequestBody @Valid ScreeningOrganization screeningOrganization) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
+        if (user.isPlatformAdminUser()){
+            checkCooperation(screeningOrganization);
+            // 设置机构状态
+            screeningOrganization.setStatus(screeningOrganization.getCooperationStopStatus());
+        } else {    // 非平台管理员无法更新合作信息
+            screeningOrganization.clearCooperationInfo();
+            screeningOrganization.setStatus(null);
+        }
         ScreeningOrgResponseDTO screeningOrgResponseDTO = screeningOrganizationBizService.updateScreeningOrganization(user, screeningOrganization);
         // 若为平台管理员且修改了用户名，则回显账户名
         if (user.isPlatformAdminUser() && StringUtils.isNotBlank(screeningOrgResponseDTO.getUsername())) {
@@ -375,4 +390,11 @@ public class ScreeningOrganizationController {
                                                                     @NotNull(message = "省行政区域编码不能为空") Long provinceDistrictCode) {
         return screeningOrganizationService.getListByProvinceCodeAndNameLike(name, provinceDistrictCode);
     }
+
+    private void checkCooperation(ScreeningOrganization screeningOrganization)  {
+        if (!screeningOrganization.checkCooperation()) {
+            throw new BusinessException("合作信息非法，请确认");
+        }
+    }
+
 }

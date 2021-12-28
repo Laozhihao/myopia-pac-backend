@@ -295,7 +295,11 @@ public class SchoolBizService {
             school.setCreateUser(userMap.get(school.getCreateUserId()).getRealName());
 
             // 判断是否能更新
-            school.setCanUpdate(school.getGovDeptId().equals(currentUser.getOrgId()));
+            if (currentUser.isHospitalUser()) {
+                school.setCanUpdate(school.getGovDeptId().equals(currentUser.getScreeningOrgId()));
+            } else {
+                school.setCanUpdate(school.getGovDeptId().equals(currentUser.getOrgId()));
+            }
 
             // 行政区名字
             school.setDistrictName(districtService.getDistrictName(school.getDistrictDetail()));

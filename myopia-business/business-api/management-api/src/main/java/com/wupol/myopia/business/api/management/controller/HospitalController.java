@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
@@ -57,10 +58,13 @@ public class HospitalController {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         hospital.setCreateUserId(user.getId());
         hospital.setGovDeptId(user.getOrgId());
-        // 非平台管理员默认为合作医院
-        if (!user.isPlatformAdminUser()) {
+        if (user.isPlatformAdminUser()) {
+            checkCooperation(hospital);
+        } else { // 非平台管理员默认为合作医院
             hospital.setIsCooperation(CommonConst.IS_COOPERATION);
+            hospital.initCooperationInfo();     // 默认合作信息
         }
+        hospital.setStatus(hospital.getCooperationStopStatus());
         UsernameAndPasswordDTO usernameAndPasswordDTO = hospitalService.saveHospital(hospital);
         // 非平台管理员屏蔽账号密码信息
         if (!user.isPlatformAdminUser()) {
@@ -77,6 +81,15 @@ public class HospitalController {
      */
     @PutMapping
     public HospitalResponseDTO updateHospital(@RequestBody @Valid Hospital hospital) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        if (user.isPlatformAdminUser()){
+            checkCooperation(hospital);
+            // 设置医院状态
+            hospital.setStatus(hospital.getCooperationStopStatus());
+        } else {    // 非平台管理员无法更新合作信息
+            hospital.clearCooperationInfo();
+            hospital.setStatus(null);
+        }
         return hospitalBizService.updateHospital(hospital);
     }
 
@@ -200,6 +213,12 @@ public class HospitalController {
     @PostMapping("/dealHistoryData")
     public void dealHistoryData() {
         hospitalBizService.dealHistoryData();
+    }
+
+    private void checkCooperation(Hospital hospital)  {
+        if (!hospital.checkCooperation()) {
+            throw new BusinessException("合作信息非法，请确认");
+        }
     }
 
 }

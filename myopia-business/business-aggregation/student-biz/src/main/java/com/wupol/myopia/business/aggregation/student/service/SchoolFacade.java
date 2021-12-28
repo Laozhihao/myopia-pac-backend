@@ -16,12 +16,12 @@ import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.response.Organization;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.Objects;
 
 /**
  * 多端管理学校
@@ -87,12 +87,12 @@ public class SchoolFacade {
         }
         District district = districtService.getById(school.getDistrictId());
         school.setDistrictProvinceCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
-        // 设置学校状态
-        school.setStatus(school.getCooperationStopStatus());
         schoolService.updateById(school);
         // 同步到oauth机构状态
-        oauthServiceClient.updateOrganization(new Organization(school.getId(), SystemCode.SCHOOL_CLIENT,
-                UserType.OTHER, school.getStatus()));
+        if (Objects.nonNull(school.getStatus())) {
+            oauthServiceClient.updateOrganization(new Organization(school.getId(), SystemCode.SCHOOL_CLIENT,
+                    UserType.OTHER, school.getStatus()));
+        }
         // 更新筛查计划中的学校
         screeningPlanSchoolService.updateSchoolNameBySchoolId(schoolId, school.getName());
         School newSchool = schoolService.getById(schoolId);

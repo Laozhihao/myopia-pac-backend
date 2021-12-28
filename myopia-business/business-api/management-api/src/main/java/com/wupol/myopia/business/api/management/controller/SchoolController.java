@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
@@ -72,6 +73,15 @@ public class SchoolController {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         school.setCreateUserId(user.getId());
         school.setGovDeptId(user.getOrgId());
+        if (user.isPlatformAdminUser()) {
+            checkCooperation(school);
+        } else {     // 默认合作信息
+            school.initCooperationInfo();
+        }
+        if (user.isHospitalUser()) {
+            school.setGovDeptId(user.getScreeningOrgId());
+        }
+        school.setStatus(school.getCooperationStopStatus());
         UsernameAndPasswordDTO nameAndPassword = schoolService.saveSchool(school);
         // 非平台管理员屏蔽账号密码信息
         if (!user.isPlatformAdminUser()) {
@@ -88,6 +98,15 @@ public class SchoolController {
      */
     @PutMapping()
     public SchoolResponseDTO updateSchool(@RequestBody @Valid School school) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        if (user.isPlatformAdminUser()){
+            checkCooperation(school);
+            // 设置学校状态
+            school.setStatus(school.getCooperationStopStatus());
+        } else {    // 非平台管理员无法更新合作信息
+            school.clearCooperationInfo();
+            school.setStatus(null);
+        }
         return schoolFacade.updateSchool(school);
     }
 
@@ -288,6 +307,12 @@ public class SchoolController {
         String maxSchoolNo = String.valueOf(schoolList.stream().mapToLong(s -> Long.parseLong(s.getSchoolNo())).max().orElse(0));
         String size = String.format("%02d", Integer.parseInt(maxSchoolNo.substring(maxSchoolNo.length() - 2)) + 1);
         return ApiResult.success(schoolNo + size);
+    }
+
+    private void checkCooperation(School school)  {
+        if (!school.checkCooperation()) {
+            throw new BusinessException("合作信息非法，请确认");
+        }
     }
 
 }
