@@ -31,13 +31,22 @@ public interface OauthServiceClient {
     Page<User> getUserListPage(@SpringQueryMap UserDTO param);
 
     /**
-     * 获取用户列表（仅支持用户名模糊查询）
+     * 获取用户列表
      *
      * @param param 查询参数
      * @return java.util.List<com.wupol.myopia.oauth.sdk.domain.response.User>
      **/
     @GetMapping("/oauth/user/list")
     List<User> getUserList(@SpringQueryMap UserDTO param);
+
+    /**
+     * 获取用户列表（仅支持用户名模糊查询）
+     *
+     * @param param 查询参数
+     * @return java.util.List<com.wupol.myopia.oauth.sdk.domain.response.User>
+     **/
+    @GetMapping("/oauth/user/getByName")
+    List<User> getUserListByName(@SpringQueryMap UserDTO param);
 
     /**
      * 根据用户ID集批量获取用户
@@ -47,6 +56,18 @@ public interface OauthServiceClient {
      **/
     @GetMapping("/oauth/user/batch/id")
     List<User> getUserBatchByIds(@RequestParam("userIds") List<Integer> userIds);
+
+    /**
+     * 更新用户名称
+     * @param realName
+     * @param byOrgId
+     * @param bySystemCode
+     * @param byUserType
+     * @return
+     */
+    @PutMapping("/oauth/user/realname")
+    Integer updateUserRealName(@RequestParam("realName") String realName, @RequestParam("byOrgId") Integer byOrgId,
+                               @RequestParam("bySystemCode") Integer bySystemCode, @RequestParam("byUserType") Integer byUserType);
 
     /**
      * 根据手机号码批量获取用户
@@ -97,8 +118,8 @@ public interface OauthServiceClient {
     List<User> addScreeningUserBatch(@RequestBody List<UserDTO> param);
 
     /**
-     * 更新用户
-     *
+     * 更新用户<br/>
+     * 传手机号时必须有id, systemcode, usertype
      * @param param 用户数据
      * @return com.wupol.myopia.oauth.sdk.domain.response.User
      **/
@@ -141,6 +162,36 @@ public interface OauthServiceClient {
      **/
     @GetMapping("/oauth/user/count")
     Integer count(@SpringQueryMap UserDTO queryParam);
+
+    /**
+     * 移除医院管理员关联的筛查机构管理员角色
+     *
+     * @param hospitalId 医院ID
+     * @param associateScreeningOrgId 关联筛查机构ID
+     * @return void
+     **/
+    @DeleteMapping("/oauth/user/hospital/associated/role")
+    void removeHospitalUserAssociatedScreeningOrgAdminRole(@RequestParam("hospitalId") Integer hospitalId, @RequestParam("associateScreeningOrgId") Integer associateScreeningOrgId);
+
+    /**
+     * 给医院管理员添加关联的筛查机构管理员角色
+     *
+     * @param hospitalId 医院ID
+     * @param associateScreeningOrgId 关联筛查机构ID
+     * @return void
+     **/
+    @PostMapping("/oauth/user/hospital/associated/role")
+    void addHospitalUserAssociatedScreeningOrgAdminRole(@RequestParam("hospitalId") Integer hospitalId, @RequestParam("associateScreeningOrgId") Integer associateScreeningOrgId);
+
+    /**
+     * 更新医生用户的角色
+     *
+     * @param hospitalId 医院ID
+     * @param serviceType 服务类型
+     * @return void
+     **/
+    @PutMapping("/oauth/user/doctor/role")
+    void updateDoctorRole(@RequestParam("hospitalId") Integer hospitalId, @RequestParam("serviceType") Integer serviceType);
 
     /**
      * 获取角色列表
@@ -239,7 +290,7 @@ public interface OauthServiceClient {
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
      **/
     @GetMapping("/oauth/user/batch/orgIds")
-    List<User> getUserBatchByOrgIds(@RequestParam("orgIds") List<Integer> orgIds, @RequestParam("systemCode") Integer systemCode);
+    List<User> getUserBatchByOrgIds(@RequestParam("orgIds") List<Integer> orgIds, @RequestParam("systemCode") Integer systemCode, @RequestParam("userType") Integer userType);
 
     /**
      * 登录
@@ -263,15 +314,6 @@ public interface OauthServiceClient {
     List<Integer> getListByTemplateType(@PathVariable("templateType") Integer templateType);
 
     /**
-     * 初始化筛查机构权限
-     *
-     * @param param param
-     * @return 是否成功
-     */
-    @PostMapping("/oauth/user/reset/org")
-    Boolean resetOrg(@RequestBody UserDTO param);
-
-    /**
      * 通过UserIds获取用户信息
      *
      * @param userIds 用户Ids
@@ -279,5 +321,21 @@ public interface OauthServiceClient {
      */
     @GetMapping("/oauth/user/batch/userIds")
     List<User> getUserBatchByUserIds(@RequestParam("userIds") List<Integer> userIds);
+
+    /**
+     * 更新机构信息
+     * @param organization
+     * @return
+     */
+    @PutMapping("/oauth/organization")
+    Organization updateOrganization(@RequestBody Organization organization);
+
+    /**
+     * 增加机构信息
+     * @param organization
+     * @return
+     */
+    @PostMapping("/oauth/organization")
+    Organization addOrganization(@RequestBody Organization organization);
 
 }

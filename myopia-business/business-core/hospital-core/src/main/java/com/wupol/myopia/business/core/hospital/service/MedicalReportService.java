@@ -9,6 +9,7 @@ import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.hospital.domain.dos.MedicalReportDO;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
+import com.wupol.myopia.business.core.hospital.domain.dto.HospitalReportRequestDTO;
 import com.wupol.myopia.business.core.hospital.domain.dto.StudentReportResponseDTO;
 import com.wupol.myopia.business.core.hospital.domain.mapper.MedicalReportMapper;
 import com.wupol.myopia.business.core.hospital.domain.model.MedicalRecord;
@@ -210,11 +211,12 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
      * 通过学生ID(只取当前时间的前一天)
      *
      * @param pageRequest 分页请求
-     * @param studentId   学生ID
+     * @param studentId   学生Id
+     * @param hospitalId  医院Id
      * @return List<ReportAndRecordVo>
      */
-    public IPage<ReportAndRecordDO> getByStudentIdWithPage(PageRequest pageRequest, Integer studentId) {
-        return baseMapper.getByStudentIdWithPage(pageRequest.toPage(), studentId);
+    public IPage<ReportAndRecordDO> getByStudentIdWithPage(PageRequest pageRequest, Integer studentId, Integer hospitalId) {
+        return baseMapper.getByStudentIdWithPage(pageRequest.toPage(), studentId, hospitalId);
     }
 
     /**
@@ -252,6 +254,28 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
             return new ArrayList<>();
         }
         return baseMapper.getByIds(ids);
+    }
+
+    /**
+     * 通过学生ID(只取当前时间的前一天)
+     *
+     * @param pageRequest 分页请求
+     * @param requestDTO  医院就诊报告DTO
+     * @return List<ReportAndRecordVo>
+     */
+    public IPage<ReportAndRecordDO> getByHospitalId(PageRequest pageRequest, HospitalReportRequestDTO requestDTO) {
+        return baseMapper.getByHospitalId(pageRequest.toPage().setOptimizeCountSql(false), requestDTO);
+    }
+
+    /**
+     * 通过学生Ids和医院Id获取就诊报告
+     *
+     * @param studentIds 学生Ids
+     * @param hospitalId 医院Id
+     * @return List<ReportAndRecordDO>
+     */
+    public List<ReportAndRecordDO> getByStudentIdsAndHospitalId(List<Integer> studentIds, Integer hospitalId) {
+        return baseMapper.getByStudentIdsAndHospitalId(studentIds, hospitalId);
     }
 
 

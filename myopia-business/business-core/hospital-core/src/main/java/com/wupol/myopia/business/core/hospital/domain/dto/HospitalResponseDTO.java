@@ -44,4 +44,9 @@ public class HospitalResponseDTO extends Hospital {
      * 是否已经添加合作医院 true-是 false-否
      */
     private Boolean isAdd = false;
+
+    /**
+     * 关联筛查机构的名称
+     */
+    private String associateScreeningOrgName;
 }

@@ -8,11 +8,13 @@ import com.wupol.myopia.oauth.domain.model.UserWithRole;
 import com.wupol.myopia.oauth.service.UserService;
 import com.wupol.myopia.oauth.validator.UserValidatorGroup;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.openfeign.SpringQueryMap;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -62,6 +64,11 @@ public class UserController {
     @PutMapping()
     public UserWithRole updateUser(@RequestBody UserDTO user) {
         return userService.updateUser(user);
+    }
+
+    @PutMapping("/realname")
+    public Integer updateUserRealName(String realName, Integer byOrgId, Integer bySystemCode, Integer byUserType) {
+        return userService.updateUserRealName(realName, byOrgId, bySystemCode, byUserType);
     }
 
     /**
@@ -159,9 +166,14 @@ public class UserController {
      * @param queryParam 搜索参数
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
      **/
-    @GetMapping("/list")
+    @GetMapping("/getByName")
     public List<User> getUserListByNameLike(UserDTO queryParam) {
         return userService.getUserListByNameLike(queryParam.getRealName());
+    }
+
+    @GetMapping("/list")
+    public List<User> getUserList(@SpringQueryMap UserDTO param) {
+        return userService.getUserList(param);
     }
 
     /**
@@ -183,17 +195,11 @@ public class UserController {
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
      **/
     @GetMapping("/batch/orgIds")
-    public List<User> getIdsByOrgIds(@RequestParam("orgIds") List<Integer> orgIds, @RequestParam("systemCode") Integer systemCode) {
+    public List<User> getIdsByOrgIds(@RequestParam("orgIds") List<Integer> orgIds, @RequestParam("systemCode") Integer systemCode, @RequestParam("userType") Integer userType) {
         if (CollectionUtils.isEmpty(orgIds)) {
             return new ArrayList<>();
         }
-        return userService.getIdsByOrgIds(orgIds, systemCode);
-    }
-
-    @PostMapping("/reset/org")
-    public Boolean resetOrg(@RequestBody UserDTO userDTO) {
-        userService.resetScreeningOrg(userDTO);
-        return true;
+        return userService.getIdsByOrgIds(orgIds, systemCode, userType);
     }
 
     /**
@@ -220,5 +226,44 @@ public class UserController {
     public boolean updateUserStatusBatch(@RequestBody UserDTO user) {
         Assert.isTrue(Objects.nonNull(user) && !CollectionUtils.isEmpty(user.getUserIds()), "用户Id不能为空");
         return userService.updateBatchById(user.getUserIds().stream().map(userId -> new User().setId(userId).setStatus(user.getStatus())).collect(Collectors.toList()));
+    }
+
+    /**
+     * 移除医院管理员关联的筛查机构管理员角色
+     *
+     * @param hospitalId 医院ID
+     * @param associateScreeningOrgId 关联筛查机构ID
+     * @return void
+     **/
+    @DeleteMapping("/hospital/associated/role")
+    public void removeHospitalUserAssociatedScreeningOrgAdminRole(@NotNull(message = "hospitalId不能为空") Integer hospitalId,
+                                                                  @NotNull(message = "associateScreeningOrgId不能为空") Integer associateScreeningOrgId) {
+        userService.removeHospitalUserAssociatedScreeningOrgAdminRole(hospitalId, associateScreeningOrgId);
+    }
+
+    /**
+     * 给医院管理员添加关联的筛查机构管理员角色
+     *
+     * @param hospitalId 医院ID
+     * @param associateScreeningOrgId 关联筛查机构ID
+     * @return void
+     **/
+    @PostMapping("/hospital/associated/role")
+    public void addHospitalUserAssociatedScreeningOrgAdminRole(@NotNull(message = "hospitalId不能为空") Integer hospitalId,
+                                                               @NotNull(message = "associateScreeningOrgId不能为空") Integer associateScreeningOrgId) {
+        userService.addHospitalUserAssociatedScreeningOrgAdminRole(hospitalId, associateScreeningOrgId);
+    }
+
+    /**
+     * 更新医生用户的角色
+     *
+     * @param hospitalId 医院ID
+     * @param serviceType 服务类型
+     * @return void
+     **/
+    @PutMapping("/doctor/role")
+    public void updateDoctorRole(@NotNull(message = "hospitalId不能为空") Integer hospitalId,
+                                 @NotNull(message = "serviceType不能为空") Integer serviceType) {
+        userService.updateDoctorRoleBatch(hospitalId, serviceType);
     }
 }

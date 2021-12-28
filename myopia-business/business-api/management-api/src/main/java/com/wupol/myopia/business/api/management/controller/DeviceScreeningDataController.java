@@ -41,8 +41,8 @@ public class DeviceScreeningDataController {
     public IPage<DeviceScreeningDataAndOrgDTO> queryDeptPage(DeviceScreeningDataQueryDTO query, @Validated PageRequest pageRequest) {
         checkAndHandleParam(query);
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        if (user.isScreeningUser()) {
-            query.setScreeningOrgId(user.getOrgId());
+        if (user.isScreeningUser() || (user.isHospitalUser() && (Objects.nonNull(user.getScreeningOrgId())))) {
+            query.setScreeningOrgId(user.getScreeningOrgId());
         } else if (user.isGovDeptUser()) {
             throw new BusinessException("政府人员无权查看", ResultCode.USER_ACCESS_UNAUTHORIZED.getCode());
         }

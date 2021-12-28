@@ -42,10 +42,10 @@ public class SchoolMonitorStatisticBizService {
         if (ObjectsUtil.hasNull(noticeId, user)) {
             return Collections.emptyList();
         }
-        if (user.isScreeningUser()) {
+        if (user.isScreeningUser() || (user.isHospitalUser() && (Objects.nonNull(user.getScreeningOrgId())))) {
             LambdaQueryWrapper<SchoolMonitorStatistic> queryWrapper = new LambdaQueryWrapper<>();
             queryWrapper.eq(SchoolMonitorStatistic::getScreeningNoticeId, noticeId);
-            queryWrapper.eq(SchoolMonitorStatistic::getScreeningOrgId, user.getOrgId());
+            queryWrapper.eq(SchoolMonitorStatistic::getScreeningOrgId, user.getScreeningOrgId());
             return schoolMonitorStatisticService.list(queryWrapper);
         }
         Set<Integer> noticeIds = new HashSet<>();

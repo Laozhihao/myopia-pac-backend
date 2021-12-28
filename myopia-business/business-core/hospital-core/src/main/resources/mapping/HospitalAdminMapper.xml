@@ -32,4 +32,22 @@
         from m_hospital_admin
         where hospital_id = #{hospitalId}
     </select>
+
+    <select id="getHospitalAdminByOrgIds" resultMap="BaseResultMap">
+        select ha.*
+        FROM m_hospital h
+        inner join m_hospital_admin ha
+        on ha.hospital_id = h.id
+        where h.`status` = 0
+        and h.associate_screening_org_id in
+        <foreach collection="orgIds" open="(" close=")" separator="," item="item">#{item}</foreach>
+    </select>
+
+    <select id="getByHospitalIds" resultMap="BaseResultMap">
+        select *
+        from m_hospital_admin where hospital_id in
+        <foreach collection="hospitalIds" open="(" close=")" separator="," item="hospitalId">
+            #{hospitalId}
+        </foreach>
+    </select>
 </mapper>

@@ -20,8 +20,9 @@ public enum SystemCode {
     SCREENING_CLIENT(3, "筛查端"),
     HOSPITAL_CLIENT(4, "医院端"),
     PATENT_CLIENT(5, "家长端"),
-    SCREENING_MANAGEMENT_CLIENT(6, "筛查管理端");
-
+    SCREENING_MANAGEMENT_CLIENT(6, "筛查管理端"),
+    PRESCHOOL_CLIENT(7, "0-6岁客户端"),      // 虚拟客户端，重写向到HOSPITAL_CLIENT
+    ;
     /**
      * 系统编号
      **/

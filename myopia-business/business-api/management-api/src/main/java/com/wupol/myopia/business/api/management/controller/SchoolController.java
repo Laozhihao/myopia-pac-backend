@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
@@ -279,7 +280,7 @@ public class SchoolController {
     public ApiResult getLatestSchoolNo(@NotBlank(message = "districtAreaCode不能为空") @Length(min = 9, max = 9, message = "无效districtAreaCode") String districtAreaCode,
                                        @NotNull(message = "areaType不能为空") @Max(value = 3, message = "无效areaType") Integer areaType,
                                        @NotNull(message = "monitorType不能为空") @Max(value = 3, message = "无效monitorType") Integer monitorType) {
-        List<School> schoolList = schoolService.findByList(new School().setDistrictAreaCode(Long.valueOf(districtAreaCode)));
+        List<School> schoolList = schoolService.list(new QueryWrapper<>(new School().setDistrictAreaCode(Long.valueOf(districtAreaCode))));
         String schoolNo = districtAreaCode.substring(0, 4) + areaType + districtAreaCode.substring(4, 6) + monitorType;
         if (CollectionUtils.isEmpty(schoolList)) {
             return ApiResult.success(schoolNo + "01");
@@ -288,4 +289,5 @@ public class SchoolController {
         String size = String.format("%02d", Integer.parseInt(maxSchoolNo.substring(maxSchoolNo.length() - 2)) + 1);
         return ApiResult.success(schoolNo + size);
     }
+
 }

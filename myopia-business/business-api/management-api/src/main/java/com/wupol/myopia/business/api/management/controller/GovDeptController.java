@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.management.controller;
 
 import com.wupol.myopia.base.constant.SystemCode;
+import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
@@ -70,7 +71,7 @@ public class GovDeptController {
                 govDept.setCreateUserName(createUser.getRealName());
             }
             UserDTO userDTO = new UserDTO();
-            userDTO.setOrgId(govDept.getId()).setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode());
+            userDTO.setOrgId(govDept.getId()).setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode()).setUserType(UserType.GOVERNMENT_ADMIN.getType());
             govDept.setUserCount(oauthServiceClient.count(userDTO));
         });
         return govDeptList;
@@ -100,7 +101,7 @@ public class GovDeptController {
             govDept.setPid(currentUser.getOrgId());
         }
         try {
-            govDeptService.save(govDept.setCreateUserId(currentUser.getId()));
+            govDeptService.saveGovDept(govDept.setCreateUserId(currentUser.getId()));
         } catch (DuplicateKeyException e) {
             throw new BusinessException("已经存在该部门名称");
         }
@@ -116,7 +117,7 @@ public class GovDeptController {
     @PutMapping()
     public GovDept updateGovDept(@RequestBody @Validated(value = GovDeptUpdateValidatorGroup.class) GovDept govDept) {
         Assert.isTrue(CurrentUserUtil.getCurrentUser().isPlatformAdminUser(), BizMsgConstant.NOT_ADMIN_NO_ACCESS);
-        govDeptService.updateById(govDept);
+        govDeptService.updateGovDeptById(govDept);
         return govDept;
     }
 
@@ -175,7 +176,7 @@ public class GovDeptController {
     @PutMapping("/{govDeptId}/{status}")
     public boolean updateStatus(@PathVariable @NotNull(message = "部门ID不能为空") Integer govDeptId, @PathVariable @NotNull(message = "状态不能为空") Integer status) {
         Assert.isTrue(CurrentUserUtil.getCurrentUser().isPlatformAdminUser(), BizMsgConstant.NOT_ADMIN_NO_ACCESS);
-        return govDeptService.updateById(new GovDept().setId(govDeptId).setStatus(status));
+        return govDeptService.updateGovDeptById(new GovDept().setId(govDeptId).setStatus(status));
     }
 
 }

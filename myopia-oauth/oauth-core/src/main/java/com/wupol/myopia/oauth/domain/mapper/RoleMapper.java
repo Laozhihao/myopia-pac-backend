@@ -50,4 +50,13 @@ public interface RoleMapper extends BaseMapper<Role> {
      **/
     List<Integer> selectUserIdList(Role query);
 
+    /**
+     * 获取指定筛查机构的第一个角色
+     *
+     * @param screeningOrgId 筛查机构ID
+     * @param systemCode 系统编号
+     * @param roleType 角色类型
+     * @return com.wupol.myopia.oauth.domain.model.Role
+     **/
+    Role getOrgFirstOneRole(@Param("screeningOrgId") Integer screeningOrgId, @Param("systemCode") Integer systemCode, @Param("roleType") Integer roleType);
 }

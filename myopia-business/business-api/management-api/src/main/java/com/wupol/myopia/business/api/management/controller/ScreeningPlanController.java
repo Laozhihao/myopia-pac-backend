@@ -103,9 +103,9 @@ public class ScreeningPlanController {
             // 政府部门，无法新增计划
             throw new ValidationException("无权限");
         }
-        if (user.isScreeningUser()) {
-            // 筛查机构人员，需校验是否同机构
-            Assert.isTrue(user.getOrgId().equals(screeningPlanDTO.getScreeningOrgId()), "无该筛查机构权限");
+        // 若为筛查人员或医生，只能发布自己机构的计划
+        if (user.isScreeningUser() || (user.isHospitalUser() && (Objects.nonNull(user.getScreeningOrgId())))) {
+            screeningPlanDTO.setScreeningOrgId(user.getScreeningOrgId());
         }
         // 开始时间只能在今天或以后
         if (DateUtil.isDateBeforeToday(screeningPlanDTO.getStartTime())) {
@@ -124,7 +124,7 @@ public class ScreeningPlanController {
             screeningPlanDTO.setSrcScreeningNoticeId(screeningTask.getScreeningNoticeId()).setDistrictId(screeningTask.getDistrictId()).setGovDeptId(screeningTask.getGovDeptId());
         } else {
             // 用户自己新建的筛查计划需设置districtIdmanagement/screeningNotice
-            ScreeningOrganization organization = screeningOrganizationService.getById(user.getOrgId());
+            ScreeningOrganization organization = screeningOrganizationService.getById(user.getScreeningOrgId());
             screeningPlanDTO.setDistrictId(organization.getDistrictId());
         }
         screeningPlanDTO.setCreateUserId(user.getId());
@@ -172,8 +172,8 @@ public class ScreeningPlanController {
         if (user.isGovDeptUser()) {
             throw new ValidationException("无权限");
         }
-        if (user.isScreeningUser()) {
-            query.setScreeningOrgId(user.getOrgId());
+        if (user.isScreeningUser() || (user.isHospitalUser() && (Objects.nonNull(user.getScreeningOrgId())))) {
+            query.setScreeningOrgId(user.getScreeningOrgId());
         }
         return managementScreeningPlanBizService.getPage(query, page);
     }
@@ -272,7 +272,7 @@ public class ScreeningPlanController {
         if (!CollectionUtils.isEmpty(schoolAdmins)) {
             // 为消息中心创建通知
             List<Integer> toUserIds = schoolAdmins.stream().map(SchoolAdmin::getUserId).collect(Collectors.toList());
-            noticeService.batchCreateScreeningNotice(user.getId(), id, toUserIds, CommonConst.NOTICE_SCREENING_PLAN, screeningPlan.getTitle(), screeningPlan.getTitle(), screeningPlan.getStartTime(), screeningPlan.getEndTime());
+            noticeService.batchCreateNotice(user.getId(), id, toUserIds, CommonConst.NOTICE_SCREENING_PLAN, screeningPlan.getTitle(), screeningPlan.getTitle(), screeningPlan.getStartTime(), screeningPlan.getEndTime());
         }
         screeningPlanService.release(id, CurrentUserUtil.getCurrentUser());
     }

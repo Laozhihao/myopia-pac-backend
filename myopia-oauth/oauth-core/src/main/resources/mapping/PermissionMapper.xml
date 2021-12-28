@@ -112,4 +112,14 @@
         order by p.`order` ASC, p.update_time DESC
     </select>
 
+    <select id="selectByRoleIds" resultMap="BaseResultMap">
+        SELECT
+        p.*
+        FROM
+        o_role_permission rp inner join o_permission p
+        on rp.permission_id = p.id
+        WHERE rp.role_id in
+        <foreach collection="roleIds" open="(" close=")" separator="," item="item">#{item}</foreach>
+    </select>
+
 </mapper>

@@ -5,7 +5,10 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.framework.api.service.VistelToolsService;
 import com.wupol.framework.sms.domain.dto.MsgData;
 import com.wupol.framework.sms.domain.dto.SmsResult;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.aggregation.hospital.service.MedicalReportBizService;
 import com.wupol.myopia.business.api.management.domain.vo.StudentWarningArchiveVO;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.DeskChairTypeEnum;
@@ -14,8 +17,12 @@ import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
+import com.wupol.myopia.business.core.hospital.domain.model.Doctor;
 import com.wupol.myopia.business.core.hospital.domain.model.MedicalReport;
+import com.wupol.myopia.business.core.hospital.domain.model.ReportConclusion;
+import com.wupol.myopia.business.core.hospital.service.HospitalDoctorService;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentQueryDTO;
@@ -90,6 +97,15 @@ public class StudentBizService {
 
     @Autowired
     private ScreeningPlanService screeningPlanService;
+
+    @Autowired
+    private HospitalDoctorService hospitalDoctorService;
+
+    @Autowired
+    private ResourceFileService resourceFileService;
+
+    @Autowired
+    private MedicalReportBizService medicalReportBizService;
 
     /**
      * 获取学生列表
@@ -216,9 +232,19 @@ public class StudentBizService {
         studentWarningArchiveVO.setChairAdviseHeight((int) (height * 0.24));
     }
 
+    /**
+     * 通过学生Id获取学生信息
+     *
+     * @param id 学生Id
+     * @return StudentDTO
+     */
     public StudentDTO getStudentById(Integer id) {
         StudentDTO student = studentService.getStudentById(id);
         student.setScreeningCodes(getScreeningCodesByPlan(screeningPlanSchoolStudentService.getByStudentId(id)));
+        student.setBirthdayInfo(DateUtil.getAgeInfo(student.getBirthday(), new Date()));
+        if (Objects.nonNull(student.getCommitteeCode())) {
+            student.setCommitteeLists(districtService.getDistrictPositionDetail(student.getCommitteeCode()));
+        }
         return student;
     }
 
@@ -258,8 +284,10 @@ public class StudentBizService {
      * @return 学生
      */
     @Transactional(rollbackFor = Exception.class)
-    public StudentDTO updateStudentReturnCountInfo(Student student) {
+    public StudentDTO updateStudentReturnCountInfo(Student student, CurrentUser user) {
         haveIdCardOrCode(student);
+        // 判断是否要修改委会行政区域
+        isUpdateCommitteeCode(student, user);
         StudentDTO studentDTO = studentService.updateStudent(student);
         studentDTO.setScreeningCount(student.getScreeningCount())
                 .setQuestionnaireCount(student.getQuestionnaireCount());
@@ -279,10 +307,44 @@ public class StudentBizService {
      *
      * @param pageRequest 分页请求
      * @param studentId   学生ID
+     * @param currentUser 登录用户
      * @return List<MedicalReportDO>
      */
-    public IPage<ReportAndRecordDO> getReportList(PageRequest pageRequest, Integer studentId) {
-        return medicalReportService.getByStudentIdWithPage(pageRequest, studentId);
+    public IPage<ReportAndRecordDO> getReportList(PageRequest pageRequest, Integer studentId, CurrentUser currentUser) {
+        Integer hospitalId = null;
+        if (!currentUser.isPlatformAdminUser()) {
+            hospitalId = currentUser.getOrgId();
+        }
+        IPage<ReportAndRecordDO> pageReport = medicalReportService.getByStudentIdWithPage(pageRequest, studentId, hospitalId);
+        List<ReportAndRecordDO> records = pageReport.getRecords();
+        if (CollectionUtils.isEmpty(records)) {
+            return pageReport;
+        }
+        packageReportInfo(records);
+        return pageReport;
+    }
+
+    /**
+     * 设置报告信息
+     *
+     * @param records 报告
+     */
+    public void packageReportInfo(List<ReportAndRecordDO> records) {
+        // 收集医生Id
+        Set<Integer> doctorIds = records.stream().map(ReportAndRecordDO::getDoctorId).collect(Collectors.toSet());
+        Map<Integer, String> doctorMap = hospitalDoctorService.listByIds(doctorIds).stream().collect(Collectors.toMap(Doctor::getId, Doctor::getName));
+        records.forEach(report -> {
+            report.setDoctorName(doctorMap.getOrDefault(report.getDoctorId(), StringUtils.EMPTY));
+            if (Objects.nonNull(report.getBirthday())) {
+                report.setCreateTimeAge(DateUtil.getAgeInfo(report.getBirthday(), report.getCreateTime()));
+            }
+            ReportConclusion reportConclusion = medicalReportBizService.getReportConclusion(report.getReportId());
+            if (Objects.nonNull(reportConclusion)
+                    && Objects.nonNull(reportConclusion.getReport())
+                    && !CollectionUtils.isEmpty((reportConclusion.getReport().getImageIdList()))) {
+                report.setImageFileUrl(resourceFileService.getBatchResourcePath(reportConclusion.getReport().getImageIdList()));
+            }
+        });
     }
 
     /**
@@ -551,5 +613,21 @@ public class StudentBizService {
         return planStudentList.stream().map(ScreeningPlanSchoolStudent::getScreeningCode).collect(Collectors.toList());
     }
 
-
+    /**
+     * 判断是否要修改委会行政区域
+     *
+     * @param student 学生信息
+     * @param user    用户
+     */
+    private void isUpdateCommitteeCode(Student student, CurrentUser user) {
+        Long newCommitteeCode = student.getCommitteeCode();
+        if (!user.isPlatformAdminUser() || Objects.isNull(newCommitteeCode)) {
+            return;
+        }
+        StudentDTO oldStudent = studentService.getStudentById(student.getId());
+        // 如果旧数据没有委会行政区域，或旧数据与新委会行政区域不相同，则生成新的编码
+        if (Objects.isNull(oldStudent.getCommitteeCode()) || (!oldStudent.getCommitteeCode().equals(newCommitteeCode))) {
+            student.setRecordNo(studentService.getRecordNo(newCommitteeCode));
+        }
+    }
 }

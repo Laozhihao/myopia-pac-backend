@@ -53,6 +53,10 @@ public class ScreeningOrganizationStaffController {
      */
     @GetMapping("list")
     public IPage<ScreeningOrgStaffUserDTO> getOrganizationStaffList(@Valid OrganizationStaffRequestDTO request) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        if (Objects.nonNull(user.getScreeningOrgId())) {
+            request.setScreeningOrgId(user.getScreeningOrgId());
+        }
         return screeningOrganizationStaffService.getOrganizationStaffList(request);
     }
 
@@ -65,6 +69,9 @@ public class ScreeningOrganizationStaffController {
     @PostMapping()
     public UsernameAndPasswordDTO insertOrganizationStaff(@RequestBody @Valid ScreeningOrganizationStaffQueryDTO screeningOrganizationStaff) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
+        if (Objects.nonNull(user.getScreeningOrgId())) {
+            screeningOrganizationStaff.setScreeningOrgId(user.getScreeningOrgId());
+        }
         screeningOrganizationStaff.setCreateUserId(user.getId());
         screeningOrganizationStaff.setGovDeptId(user.getOrgId());
         return screeningOrganizationStaffService.saveOrganizationStaff(screeningOrganizationStaff);
@@ -79,6 +86,9 @@ public class ScreeningOrganizationStaffController {
     @PutMapping()
     public ScreeningOrganizationStaffQueryDTO updateOrganizationStaffList(@RequestBody @Valid ScreeningOrganizationStaffQueryDTO screeningOrganizationStaff) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
+        if (Objects.nonNull(user.getScreeningOrgId())) {
+            screeningOrganizationStaff.setScreeningOrgId(user.getScreeningOrgId());
+        }
         screeningOrganizationStaff.setCreateUserId(user.getId());
         return screeningOrganizationStaffService.updateOrganizationStaff(screeningOrganizationStaff);
     }
@@ -119,6 +129,9 @@ public class ScreeningOrganizationStaffController {
             throw new BusinessException("筛查机构id不能为空");
         }
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        if (Objects.nonNull(currentUser.getScreeningOrgId())) {
+            screeningOrgId = currentUser.getScreeningOrgId();
+        }
         exportStrategy.doExport(new ExportCondition()
                         .setApplyExportFileUserId(currentUser.getId())
                         .setScreeningOrgId(screeningOrgId),
@@ -135,6 +148,9 @@ public class ScreeningOrganizationStaffController {
     @PostMapping("/import/{screeningOrgId}")
     public void importOrganizationStaff(MultipartFile file, @PathVariable("screeningOrgId") Integer screeningOrgId) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        if (Objects.nonNull(currentUser.getScreeningOrgId())) {
+            screeningOrgId = currentUser.getScreeningOrgId();
+        }
         excelFacade.importScreeningOrganizationStaff(currentUser, file, screeningOrgId);
     }
 

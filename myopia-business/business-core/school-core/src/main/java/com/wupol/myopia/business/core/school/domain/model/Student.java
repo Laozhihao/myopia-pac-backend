@@ -2,12 +2,14 @@ package com.wupol.myopia.business.core.school.domain.model;
 
 import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.RegularUtils;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.util.VisionUtil;
 import com.wupol.myopia.business.core.common.domain.model.AddressCode;
+import com.wupol.myopia.base.domain.vo.FamilyInfoVO;
 import freemarker.core.BugException;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -213,6 +215,27 @@ public class Student extends AddressCode implements Serializable {
      * 散光等级，0-正常、1-低度散光、2-中度散光、3-重度散光
      */
     private Integer astigmatismLevel;
+
+    /**
+     * 是否新生儿暂无身份证 false-否 true-是
+     */
+    private Boolean isNewbornWithoutIdCard;
+
+    /**
+     * 家庭信息
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private FamilyInfoVO familyInfo;
+
+    /**
+     * 委会行政区域code
+     */
+    private Long committeeCode;
+
+    /**
+     * 检查建档编码
+     */
+    private Long recordNo;
 
     /**
      * 上传筛查学生时，判断学生需更新信息是否一致

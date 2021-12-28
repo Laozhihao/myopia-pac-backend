@@ -102,36 +102,21 @@ public class SchoolStudentBizService {
     @Transactional(rollbackFor = Exception.class)
     public SchoolStudent saveStudent(SchoolStudent schoolStudent, Integer schoolId) {
 
+        if (!schoolStudentService.checkIdCardAndSno(schoolStudent.getId(), schoolStudent.getIdCard(), schoolStudent.getSno(), schoolId)) {
+            throw new BusinessException("学号、身份证是重复");
+        }
+
         School school = schoolService.getById(schoolId);
         schoolStudent.setSchoolNo(school.getSchoolNo());
         schoolStudent.setSchoolId(schoolId);
 
-        if (!checkIdCardAndSno(schoolStudent.getId(), schoolStudent.getIdCard(), schoolStudent.getSno(), schoolId)) {
-            throw new BusinessException("学号、身份证是重复");
-        }
+        schoolStudent.setGradeName(schoolGradeService.getById(schoolStudent.getGradeId()).getName());
+        schoolStudent.setClassName(schoolClassService.getById(schoolStudent.getClassId()).getName());
 
         // 更新管理端的数据
         Integer managementStudentId = excelFacade.updateManagementStudent(schoolStudent);
         schoolStudent.setStudentId(managementStudentId);
-
-        schoolStudent.setGradeName(schoolGradeService.getById(schoolStudent.getGradeId()).getName());
-        schoolStudent.setClassName(schoolClassService.getById(schoolStudent.getClassId()).getName());
         schoolStudentService.saveOrUpdate(schoolStudent);
         return schoolStudent;
-    }
-
-
-    /**
-     * 学号、身份证是否重复
-     *
-     * @param id       id
-     * @param idCard   身份证
-     * @param sno      学号
-     * @param schoolId 学校Id
-     * @return true-没有重复 false-存在重复
-     */
-    private Boolean checkIdCardAndSno(Integer id, String idCard, String sno, Integer schoolId) {
-        List<SchoolStudent> studentList = schoolStudentService.getByIdCardAndSno(id, idCard, sno, schoolId);
-        return CollectionUtils.isEmpty(studentList);
     }
 }

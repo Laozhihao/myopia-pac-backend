@@ -40,4 +40,7 @@ public interface PermissionMapper extends BaseMapper<Permission> {
     List<Permission> selectRolePermissionTree(@Param("pid")Integer pid, @Param("roleId")Integer roleId, @Param("districtLevel")Integer districtLevel);
 
     List<Permission> selectAdminRolePermissionTree(@Param("pid")Integer pid, @Param("roleId")Integer roleId);
+
+    List<Permission> selectByRoleIds(@Param("roleIds") List<Integer> roleIds);
+
 }

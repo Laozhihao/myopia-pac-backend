@@ -11,19 +11,36 @@ public enum HospitalEnum {
     TYPE_DESIGNATED(0, "定点医院"),
     TYPE_NON_DESIGNATED(1, "非定点医院"),
     KIND_PUBLIC(0, "公立"),
-    KIND_PRIVATE(1, "私立");
+    KIND_PRIVATE(1, "私立"),
+    SERVICE_TYPE_HEALTHY_SYSTEM(0, "居民健康系统"),
+    SERVICE_TYPE_PRE_SCHOOL(1, "0-6岁眼保健"),
+    SERVICE_TYPE_HEALTHY_SYSTEM_AND_PRE_SCHOOL(2, "0-6岁眼保健+居民健康系统");
 
-    /** 类型 **/
+    /**
+     * 类型
+     **/
     private final Integer type;
-    /** 描述 **/
+    /**
+     * 描述
+     **/
     private final String name;
+
+    public Integer getType() {
+        return this.type;
+    }
+
+    public String getName() {
+        return this.name;
+    }
 
     HospitalEnum(Integer type, String name) {
         this.type = type;
         this.name = name;
     }
 
-    /** 根据类型获取描述 */
+    /**
+     * 根据类型获取描述
+     */
     public static String getTypeName(Integer type) {
         if (type.equals(TYPE_DESIGNATED.type)) {
             return TYPE_DESIGNATED.name;
@@ -33,7 +50,9 @@ public enum HospitalEnum {
         return "";
     }
 
-    /** 根据性质获取描述 */
+    /**
+     * 根据性质获取描述
+     */
     public static String getKindName(Integer kind) {
         if (kind.equals(KIND_PUBLIC.type)) {
             return KIND_PUBLIC.name;
@@ -43,11 +62,19 @@ public enum HospitalEnum {
         return "";
     }
 
-    public Integer getType() {
-        return this.type;
+    public static String getServiceTypeName(Integer type) {
+        if (type.equals(SERVICE_TYPE_HEALTHY_SYSTEM.type)) {
+            return SERVICE_TYPE_HEALTHY_SYSTEM.name;
+        }
+        if (type.equals(SERVICE_TYPE_PRE_SCHOOL.type)) {
+            return SERVICE_TYPE_PRE_SCHOOL.name;
+        }
+        if (type.equals(SERVICE_TYPE_HEALTHY_SYSTEM_AND_PRE_SCHOOL.type)) {
+            return SERVICE_TYPE_HEALTHY_SYSTEM_AND_PRE_SCHOOL.name;
+        }
+        return "";
     }
-    public String getName() {
-        return this.name;
-    }
-   }
 
+
+
+}

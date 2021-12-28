@@ -3,6 +3,8 @@ package com.wupol.myopia.oauth.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.RoleType;
+import com.wupol.myopia.base.constant.SystemCode;
+import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.oauth.domain.dto.RoleDTO;
 import com.wupol.myopia.oauth.domain.mapper.RoleMapper;
@@ -33,6 +35,8 @@ public class RoleService extends BaseService<RoleMapper, Role> {
     private RolePermissionService rolePermissionService;
     @Autowired
     private DistrictPermissionService districtPermissionService;
+    @Autowired
+    private OrganizationService organizationService;
 
     /**
      * 获取角色列表
@@ -115,12 +119,20 @@ public class RoleService extends BaseService<RoleMapper, Role> {
      * @param userId 用户ID
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.Role>
      **/
-    public List<Role> getUsableRoleByUserId(Integer userId) {
+    public List<Role> getUsableRoleByUserId(Integer userId, Integer systemCode, Integer userType) {
         List<Role> roleList = getRoleListByUserId(userId);
         if (CollectionUtils.isEmpty(roleList)) {
             return roleList;
         }
-        return roleList.stream().filter(x -> x.getStatus() == 0).collect(Collectors.toList());
+        List<Role> roles = roleList.stream().filter(x -> x.getStatus() == 0).collect(Collectors.toList());
+        // 医院信息，如若拥有筛查机构角色，需去除掉机构状态已停用的角色
+        if (SystemCode.MANAGEMENT_CLIENT.getCode().equals(systemCode) && UserType.HOSPITAL_ADMIN.getType().equals(userType)) {
+            // 只保存非筛查机构角色或筛查机构可用的角色
+            roles = roles.stream().filter(role -> (!RoleType.SCREENING_ORGANIZATION.getType().equals(role.getRoleType()))
+                    || organizationService.getOrgStatus(role.getOrgId(), SystemCode.MANAGEMENT_CLIENT.getCode(),
+                    UserType.SCREENING_ORGANIZATION_ADMIN.getType())).collect(Collectors.toList());
+        }
+        return roles;
     }
 
     /**
@@ -162,5 +174,31 @@ public class RoleService extends BaseService<RoleMapper, Role> {
         if (!CollectionUtils.isEmpty(deletedLists)) {
             rolePermissionService.batchDeleted(roleId, deletedLists);
         }
+    }
+
+    /**
+     * 获取指定筛查机构的第一个角色
+     *
+     * @param screeningOrgId 筛查机构ID
+     * @return com.wupol.myopia.oauth.domain.model.Role
+     **/
+    public Role getScreeningOrgFirstOneRole(Integer screeningOrgId) {
+        Assert.notNull(screeningOrgId, "筛查机构ID不能为空");
+        return getOrgFirstOneRole(screeningOrgId, SystemCode.MANAGEMENT_CLIENT.getCode(), RoleType.SCREENING_ORGANIZATION.getType());
+    }
+
+    /**
+     * 获取指定机构的第一个角色
+     *
+     * @param orgId 筛查机构ID
+     * @param systemCode 系统编号
+     * @param roleType 角色类型
+     * @return com.wupol.myopia.oauth.domain.model.Role
+     **/
+    public Role getOrgFirstOneRole(Integer orgId, Integer systemCode, Integer roleType) {
+        Assert.notNull(orgId, "机构ID不能为空");
+        Assert.notNull(systemCode, "系统编号systemCode不能为空");
+        Assert.notNull(roleType, "角色类型roleType不能为空");
+        return baseMapper.getOrgFirstOneRole(orgId, systemCode, roleType);
     }
 }

@@ -18,11 +18,16 @@ import java.util.List;
  */
 public interface DoctorMapper extends BaseMapper<Doctor> {
 
-
     List<Doctor> getBy(DoctorQuery query);
 
     List<DoctorDTO> getDoctorVoList(DoctorQuery query);
 
-    IPage<Doctor> getByPage(@Param("page") Page<?> page, @Param("query") Doctor query);
+    IPage<DoctorDTO> getByPage(@Param("page") Page<?> page, @Param("query") DoctorQuery query);
+
+    DoctorDTO getById(@Param("id") Integer id);
+
+    DoctorDTO getByUserId(@Param("userId") Integer userId);
+
+    List<DoctorDTO> getAll();
 
 }

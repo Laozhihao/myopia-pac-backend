@@ -3,8 +3,6 @@ package com.wupol.myopia.business.aggregation.export.pdf.domain;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import java.util.Set;
-
 /**
  * @Author HaoHao
  * @Date 2021/3/24

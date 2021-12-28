@@ -48,5 +48,10 @@
             <artifactId>school-management-core</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>screening-app-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

@@ -133,12 +133,13 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
         boolean isSchoolExport = false;
 
         // 是否单点机构
-        if (currentUser.isScreeningUser() && ScreeningOrgConfigTypeEnum.CONFIG_TYPE_1.getType().equals(screeningOrganizationService.getById(currentUser.getOrgId()).getConfigType())) {
-            exportFileNamePrefix = checkNotNullAndGetName(screeningOrganizationService.getById(currentUser.getOrgId()), "筛查机构");
+        if (currentUser.isScreeningUser() || (currentUser.isHospitalUser() && (Objects.nonNull(currentUser.getScreeningOrgId())))
+                && ScreeningOrgConfigTypeEnum.CONFIG_TYPE_1.getType().equals(screeningOrganizationService.getById(currentUser.getScreeningOrgId()).getConfigType())) {
+            exportFileNamePrefix = checkNotNullAndGetName(screeningOrganizationService.getById(currentUser.getScreeningOrgId()), "筛查机构");
             if (Objects.isNull(planId)) {
                 throw new BusinessException("单点筛查机构PlanId不能为空");
             }
-            statConclusionExportVos = statConclusionService.getExportVoByScreeningPlanIdAndScreeningOrgId(planId, currentUser.getOrgId());
+            statConclusionExportVos = statConclusionService.getExportVoByScreeningPlanIdAndScreeningOrgId(planId, currentUser.getScreeningOrgId());
         } else {
             if (!CommonConst.DEFAULT_ID.equals(screeningOrgId)) {
                 exportFileNamePrefix = checkNotNullAndGetName(screeningOrganizationService.getById(screeningOrgId), "筛查机构");
@@ -180,6 +181,9 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
     public Object getScreeningPlanExportData(Integer screeningPlanId, @RequestParam(defaultValue = "0") Integer screeningOrgId,
                                              @RequestParam(defaultValue = "0") Integer schoolId) throws IOException, UtilException {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        if (currentUser.isScreeningUser() || (currentUser.isHospitalUser() && (Objects.nonNull(currentUser.getScreeningOrgId())))) {
+            screeningOrgId = currentUser.getScreeningOrgId();
+        }
         // 参数校验
         validatePlanExportParams(screeningPlanId, screeningOrgId, schoolId);
         List<StatConclusionExportDTO> statConclusionExportDTOs = new ArrayList<>();
@@ -199,7 +203,7 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
             throw new BusinessException("暂无筛查数据，无法导出");
         }
         statConclusionExportDTOs.forEach(vo -> vo.setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(), vo.getAreaCode(), vo.getTownCode(), vo.getAddress())));
-        String key = String.format(RedisConstant.FILE_EXPORT_PLAN_DATA, screeningPlanId,screeningOrgId,schoolId,currentUser.getId());
+        String key = String.format(RedisConstant.FILE_EXPORT_PLAN_DATA, screeningPlanId,screeningOrgId,schoolId, currentUser.getId());
         checkIsExport(key);
         // 获取文件需显示的名称
         excelFacade.generateVisionScreeningResult(currentUser.getId(), statConclusionExportDTOs, isSchoolExport, exportFileNamePrefix, key);
