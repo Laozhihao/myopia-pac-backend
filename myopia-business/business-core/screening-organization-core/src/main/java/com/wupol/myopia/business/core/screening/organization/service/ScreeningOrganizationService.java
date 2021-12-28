@@ -410,4 +410,14 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         return baseMapper.getByCooperationEndTime(start, end);
     }
 
+    /**
+     * 检验筛查机构合作信息是否合法
+     * @param screeningOrganization
+     */
+    public void checkScreeningOrganizationCooperation(ScreeningOrganization screeningOrganization)  {
+        if (!screeningOrganization.checkCooperation()) {
+            throw new BusinessException("合作信息非法，请确认");
+        }
+    }
+
 }

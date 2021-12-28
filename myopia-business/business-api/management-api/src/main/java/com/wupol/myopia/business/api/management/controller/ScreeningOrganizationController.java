@@ -75,6 +75,13 @@ public class ScreeningOrganizationController {
         if (user.isGovDeptUser()) {
             screeningOrganization.setConfigType(0);
         }
+        if (user.isPlatformAdminUser()) {
+            screeningOrganizationService.checkScreeningOrganizationCooperation(screeningOrganization);
+        } else {
+            // 默认合作信息
+            screeningOrganization.initCooperationInfo();
+        }
+        screeningOrganization.setStatus(screeningOrganization.getCooperationStopStatus());
         UsernameAndPasswordDTO usernameAndPasswordDTO = screeningOrganizationBizService.saveScreeningOrganization(screeningOrganization);
         // 非平台管理员屏蔽账号密码信息
         if (!user.isPlatformAdminUser()) {
@@ -92,6 +99,15 @@ public class ScreeningOrganizationController {
     @PutMapping()
     public ScreeningOrgResponseDTO updateScreeningOrganization(@RequestBody @Valid ScreeningOrganization screeningOrganization) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
+        if (user.isPlatformAdminUser()){
+            screeningOrganizationService.checkScreeningOrganizationCooperation(screeningOrganization);
+            // 设置机构状态
+            screeningOrganization.setStatus(screeningOrganization.getCooperationStopStatus());
+        } else {
+            // 非平台管理员无法更新合作信息
+            screeningOrganization.clearCooperationInfo();
+            screeningOrganization.setStatus(null);
+        }
         ScreeningOrgResponseDTO screeningOrgResponseDTO = screeningOrganizationBizService.updateScreeningOrganization(user, screeningOrganization);
         // 若为平台管理员且修改了用户名，则回显账户名
         if (user.isPlatformAdminUser() && StringUtils.isNotBlank(screeningOrgResponseDTO.getUsername())) {
@@ -375,4 +391,5 @@ public class ScreeningOrganizationController {
                                                                     @NotNull(message = "省行政区域编码不能为空") Long provinceDistrictCode) {
         return screeningOrganizationService.getListByProvinceCodeAndNameLike(name, provinceDistrictCode);
     }
+
 }

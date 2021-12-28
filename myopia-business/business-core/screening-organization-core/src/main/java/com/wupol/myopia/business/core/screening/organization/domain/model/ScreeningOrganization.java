@@ -4,10 +4,11 @@ import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.wupol.myopia.base.constant.CooperationTimeTypeEnum;
+import com.wupol.myopia.base.constant.CooperationTypeEnum;
 import com.wupol.myopia.base.constant.StatusConstant;
+import com.wupol.myopia.base.util.BusinessUtil;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
-import com.wupol.myopia.business.common.utils.annotation.CheckTimeInterval;
 import com.wupol.myopia.business.common.utils.domain.model.NotificationConfig;
 import com.wupol.myopia.business.common.utils.handler.DateDeserializer;
 import com.wupol.myopia.business.common.utils.interfaces.HasName;
@@ -20,6 +21,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -36,7 +38,6 @@ import java.util.Objects;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @TableName("m_screening_organization")
-@CheckTimeInterval(beginTime = "cooperationStartTime", endTime = "cooperationEndTime", message = "开始时间不能晚于结束时间")
 public class ScreeningOrganization extends AddressCode implements Serializable, HasName {
 
     private static final long serialVersionUID = 1L;
@@ -207,6 +208,34 @@ public class ScreeningOrganization extends AddressCode implements Serializable, 
      */
     public Integer getCooperationStopStatus() {
         return (!isCooperationBegin()) || isCooperationStop() ? StatusConstant.DISABLE : StatusConstant.ENABLE;
+    }
+
+    /**
+     * 检验合作数据是否合法
+     * @return
+     */
+    public boolean checkCooperation() {
+        return BusinessUtil.checkCooperation(cooperationType, cooperationTimeType, cooperationStartTime, cooperationEndTime);
+    }
+
+    /**
+     * 初始化合作默认信息
+     */
+    public void initCooperationInfo() {
+        cooperationType = CooperationTypeEnum.COOPERATION_TYPE_COOPERATE.getType();                         // 合作
+        cooperationTimeType = CooperationTimeTypeEnum.COOPERATION_TIME_TYPE_1_YEAR.getType();               // 合作1年
+        cooperationStartTime = new Date();
+        cooperationEndTime = DateUtil.getLastMinute(DateUtils.addYears(cooperationStartTime, 1));
+    }
+
+    /**
+     * 清除合作信息
+     */
+    public void clearCooperationInfo() {
+        cooperationType = null;
+        cooperationTimeType = null;
+        cooperationStartTime = null;
+        cooperationEndTime = null;
     }
 
     /**

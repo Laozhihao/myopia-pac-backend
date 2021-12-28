@@ -84,8 +84,6 @@ public class HospitalBizService {
         District district = districtService.getById(hospital.getDistrictId());
         hospital.setDistrictProvinceCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
         Hospital oldHospital = hospitalService.getById(hospital.getId());
-        // 设置医院状态
-        hospital.setStatus(hospital.getCooperationStopStatus());
         hospitalService.updateById(hospital);
         // 2.更新医院管理员和医生用户的账号权限
         updateAdminAndDoctorAccountPermission(hospital, oldHospital.getAssociateScreeningOrgId());
@@ -94,10 +92,12 @@ public class HospitalBizService {
             oauthServiceClient.updateUserRealName(hospital.getName(), hospital.getId(), SystemCode.MANAGEMENT_CLIENT.getCode(),
                     UserType.HOSPITAL_ADMIN.getType());
         }
+        if (Objects.nonNull(hospital.getStatus())) {
+            // 同步到oauth机构状态
+            oauthServiceClient.updateOrganization(new Organization(hospital.getId(), SystemCode.MANAGEMENT_CLIENT,
+                    UserType.HOSPITAL_ADMIN, hospital.getStatus()));
+        }
         // 3.返回最新消息
-        // 同步到oauth机构状态
-        oauthServiceClient.updateOrganization(new Organization(hospital.getId(), SystemCode.MANAGEMENT_CLIENT,
-                UserType.HOSPITAL_ADMIN, hospital.getStatus()));
         Hospital newHospital = hospitalService.getById(hospital.getId());
         HospitalResponseDTO response = new HospitalResponseDTO();
         BeanUtils.copyProperties(newHospital, response);

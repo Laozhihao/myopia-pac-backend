@@ -112,8 +112,6 @@ public class ScreeningOrganizationBizService {
         if (screeningOrganizationService.checkScreeningOrgName(name, null)) {
             throw new BusinessException("筛查机构名称不能重复");
         }
-        // 机构状态设置
-        screeningOrganization.setStatus(screeningOrganization.getCooperationStopStatus());
         screeningOrganizationService.save(screeningOrganization);
         // 同步到oauth机构状态
         oauthServiceClient.addOrganization(new Organization(screeningOrganization.getId(), SystemCode.MANAGEMENT_CLIENT,
@@ -249,13 +247,14 @@ public class ScreeningOrganizationBizService {
             response.setUsername(screeningOrganization.getName());
         }
 
-        // 机构状态设置
-        screeningOrganization.setStatus(screeningOrganization.getCooperationStopStatus());
         screeningOrganizationService.updateById(screeningOrganization);
         ScreeningOrganization organization = screeningOrganizationService.getById(screeningOrganization.getId());
         // 同步到oauth机构状态
-        oauthServiceClient.updateOrganization(new Organization(screeningOrganization.getId(), SystemCode.MANAGEMENT_CLIENT,
-                UserType.SCREENING_ORGANIZATION_ADMIN, screeningOrganization.getStatus()));
+        if (Objects.nonNull(screeningOrganization.getStatus())) {
+            oauthServiceClient.updateOrganization(new Organization(screeningOrganization.getId(), SystemCode.MANAGEMENT_CLIENT,
+                    UserType.SCREENING_ORGANIZATION_ADMIN, screeningOrganization.getStatus()));
+        }
+
         BeanUtils.copyProperties(organization, response);
         response.setDistrictName(districtService.getDistrictName(organization.getDistrictDetail()));
         // 详细地址

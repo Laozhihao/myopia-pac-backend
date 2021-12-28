@@ -72,6 +72,16 @@ public class SchoolController {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         school.setCreateUserId(user.getId());
         school.setGovDeptId(user.getOrgId());
+        if (user.isPlatformAdminUser()) {
+            schoolService.checkSchoolCooperation(school);
+        } else {
+            // 默认合作信息
+            school.initCooperationInfo();
+        }
+        if (user.isHospitalUser()) {
+            school.setGovDeptId(user.getScreeningOrgId());
+        }
+        school.setStatus(school.getCooperationStopStatus());
         UsernameAndPasswordDTO nameAndPassword = schoolService.saveSchool(school);
         // 非平台管理员屏蔽账号密码信息
         if (!user.isPlatformAdminUser()) {
@@ -88,6 +98,16 @@ public class SchoolController {
      */
     @PutMapping()
     public SchoolResponseDTO updateSchool(@RequestBody @Valid School school) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        if (user.isPlatformAdminUser()){
+            schoolService.checkSchoolCooperation(school);
+            // 设置学校状态
+            school.setStatus(school.getCooperationStopStatus());
+        } else {
+            // 非平台管理员无法更新合作信息
+            school.clearCooperationInfo();
+            school.setStatus(null);
+        }
         return schoolFacade.updateSchool(school);
     }
 
