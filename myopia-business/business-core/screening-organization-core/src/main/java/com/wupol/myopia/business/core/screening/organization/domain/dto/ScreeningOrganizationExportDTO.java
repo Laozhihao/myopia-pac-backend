@@ -42,6 +42,9 @@ public class ScreeningOrganizationExportDTO implements Serializable {
     @ExcelProperty({TOP_HEADER, "联系方式"})
     private String phone;
 
+    @ExcelProperty({TOP_HEADER, "账号"})
+    private String account;
+
     @ExcelProperty({TOP_HEADER, "合作类型"})
     private String cooperationType;
 
