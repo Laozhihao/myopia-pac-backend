@@ -27,6 +27,7 @@ import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolAdmin;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
+import com.wupol.myopia.business.core.school.domain.vo.SchoolGradeClassVO;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
 import com.wupol.myopia.oauth.sdk.domain.response.Organization;
@@ -82,8 +83,6 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         District district = districtService.getById(school.getDistrictId());
         Assert.notNull(district, "无效行政区域");
         school.setDistrictProvinceCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
-        // 设置学校状态
-        school.setStatus(school.getCooperationStopStatus());
         baseMapper.insert(school);
         // oauth系统中增加学校状态信息
         oauthServiceClient.addOrganization(new Organization(school.getId(), SystemCode.SCHOOL_CLIENT,
@@ -517,4 +516,25 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         return baseMapper.getByCooperationEndTime(start, end);
     }
 
+    /**
+     * 获取学校信息
+     *
+     * @param schoolId 学校Id
+     * @param gradeId  年级Id
+     * @param classId  班级Id
+     * @return SchoolGradeClassVO
+     */
+    public SchoolGradeClassVO getBySchoolIdAndGradeIdAndClassId(Integer schoolId, Integer gradeId, Integer classId) {
+        return baseMapper.getBySchoolIdAndGradeIdAndClassId(schoolId, gradeId, classId);
+    }
+
+    /**
+     * 检验学校合作信息是否合法
+     * @param school
+     */
+    public void checkSchoolCooperation(School school)  {
+        if (!school.checkCooperation()) {
+            throw new BusinessException("合作信息非法，请确认");
+        }
+    }
 }

@@ -68,8 +68,6 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         }
         District district = districtService.getById(hospital.getDistrictId());
         hospital.setDistrictProvinceCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
-        // 设置医院状态
-        hospital.setStatus(hospital.getCooperationStopStatus());
         baseMapper.insert(hospital);
         // oauth系统中增加医院状态信息
         oauthServiceClient.addOrganization(new Organization(hospital.getId(), SystemCode.MANAGEMENT_CLIENT,
@@ -290,6 +288,16 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      */
     public List<Hospital> getByCooperationEndTime(Date start, Date end) {
         return baseMapper.getByCooperationEndTime(start, end);
+    }
+
+    /**
+     * 检验医院合作信息是否合法
+     * @param hospital
+     */
+    public void checkHospitalCooperation(Hospital hospital)  {
+        if (!hospital.checkCooperation()) {
+            throw new BusinessException("合作信息非法，请确认");
+        }
     }
 
 }

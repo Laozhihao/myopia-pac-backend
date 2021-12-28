@@ -57,10 +57,13 @@ public class HospitalController {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         hospital.setCreateUserId(user.getId());
         hospital.setGovDeptId(user.getOrgId());
-        // 非平台管理员默认为合作医院
-        if (!user.isPlatformAdminUser()) {
+        if (user.isPlatformAdminUser()) {
+            hospitalService.checkHospitalCooperation(hospital);
+        } else { // 非平台管理员默认为合作医院
             hospital.setIsCooperation(CommonConst.IS_COOPERATION);
+            hospital.initCooperationInfo();     // 默认合作信息
         }
+        hospital.setStatus(hospital.getCooperationStopStatus());
         UsernameAndPasswordDTO usernameAndPasswordDTO = hospitalService.saveHospital(hospital);
         // 非平台管理员屏蔽账号密码信息
         if (!user.isPlatformAdminUser()) {
@@ -77,6 +80,16 @@ public class HospitalController {
      */
     @PutMapping
     public HospitalResponseDTO updateHospital(@RequestBody @Valid Hospital hospital) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        if (user.isPlatformAdminUser()){
+            hospitalService.checkHospitalCooperation(hospital);
+            // 设置医院状态
+            hospital.setStatus(hospital.getCooperationStopStatus());
+        } else {
+            // 非平台管理员无法更新合作信息
+            hospital.clearCooperationInfo();
+            hospital.setStatus(null);
+        }
         return hospitalBizService.updateHospital(hospital);
     }
 

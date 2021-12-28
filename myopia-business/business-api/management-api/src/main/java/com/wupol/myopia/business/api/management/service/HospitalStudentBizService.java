@@ -14,6 +14,7 @@ import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
+import com.wupol.myopia.business.core.school.domain.vo.SchoolGradeClassVO;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
@@ -102,16 +103,14 @@ public class HospitalStudentBizService {
      */
     public HospitalStudentResponseDTO getByHospitalStudentId(Integer id) {
         HospitalStudentResponseDTO hospitalStudent = hospitalStudentService.getByHospitalStudentId(id);
-        if (Objects.nonNull(hospitalStudent.getSchoolId())) {
-            hospitalStudent.setSchoolName(schoolService.getNameById(hospitalStudent.getSchoolId()));
+        SchoolGradeClassVO schoolGradeClassVO = schoolService.getBySchoolIdAndGradeIdAndClassId(hospitalStudent.getSchoolId(),
+                hospitalStudent.getGradeId(), hospitalStudent.getClassId());
+        if (Objects.nonNull(schoolGradeClassVO)) {
+            hospitalStudent.setSchoolName(schoolGradeClassVO.getSchoolName());
+            hospitalStudent.setGradeName(schoolGradeClassVO.getGradeName());
+            hospitalStudent.setClassName(schoolGradeClassVO.getClassName());
         }
-        if (Objects.nonNull(hospitalStudent.getGradeId())) {
-            hospitalStudent.setGradeName(schoolGradeService.getGradeNameById(hospitalStudent.getGradeId()));
-        }
-        if (Objects.nonNull(hospitalStudent.getClassId())) {
-            hospitalStudent.setClassName(schoolClassService.getClassNameById(hospitalStudent.getClassId()));
-        }
-        if (Objects.nonNull(hospitalStudent.getBirthday())){
+        if (Objects.nonNull(hospitalStudent.getBirthday())) {
             hospitalStudent.setBirthdayInfo(DateUtil.getAgeInfo(hospitalStudent.getBirthday(), new Date()));
         }
         if (Objects.nonNull(hospitalStudent.getCommitteeCode())) {

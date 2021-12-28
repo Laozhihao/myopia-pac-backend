@@ -1,25 +1,22 @@
 package com.wupol.myopia.business.aggregation.export.excel;
 
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.cache.RedisConstant;
-import com.wupol.myopia.base.constant.CooperationTimeTypeEnum;
-import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelNoticeKeyContentConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
-import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
-import com.wupol.myopia.business.core.hospital.domain.model.HospitalAdmin;
 import com.wupol.myopia.business.core.school.constant.SchoolEnum;
-import com.wupol.myopia.business.core.school.domain.dto.*;
+import com.wupol.myopia.business.core.school.domain.dto.SchoolClassExportDTO;
+import com.wupol.myopia.business.core.school.domain.dto.SchoolExportDTO;
+import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeExportDTO;
+import com.wupol.myopia.business.core.school.domain.dto.SchoolQueryDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolAdmin;
 import com.wupol.myopia.business.core.school.service.SchoolAdminService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
-import com.wupol.myopia.business.core.school.service.StudentService;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
 import org.apache.commons.lang3.StringUtils;
@@ -27,7 +24,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -72,8 +72,7 @@ public class ExportSchoolExcelService extends BaseExportExcelFileService {
         schoolGradeService.packageGradeInfo(grades);
 
         // 年级通过学校ID分组
-        Map<Integer, List<SchoolGradeExportDTO>> gradeMaps = grades.stream()
-                .collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolId));
+        Map<Integer, List<SchoolGradeExportDTO>> gradeMaps = grades.stream().collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolId));
 
         List<SchoolAdmin> schoolAdminList = schoolAdminService.getBySchoolIds(schoolIds);
         Map<Integer, List<Integer>> adminMap = schoolAdminList.stream().collect(Collectors.groupingBy(SchoolAdmin::getSchoolId, Collectors.mapping(SchoolAdmin::getUserId, Collectors.toList())));
@@ -82,14 +81,22 @@ public class ExportSchoolExcelService extends BaseExportExcelFileService {
         List<User> userLists = oauthServiceClient.getUserBatchByIds(userIds);
         Map<Integer, String> userMap = userLists.stream().collect(Collectors.toMap(User::getId, User::getUsername));
 
+        boolean isAdmin = oauthServiceClient.getUserBatchByIds(Lists.newArrayList(exportCondition.getApplyExportFileUserId())).get(0).getUserType().equals(0);
         List<SchoolExportDTO> exportList = new ArrayList<>();
         for (School item : list) {
-            AtomicReference<String> account = new AtomicReference<>(StringUtils.EMPTY);
-            adminMap.get(item.getId()).forEach(s -> account.set(account + userMap.get(s) + "、"));
-            account.set(account.get().substring(0, account.get().length() - 1));
             SchoolExportDTO exportVo = item.parseFromSchoolExcel();
-            exportVo.setAddress(districtService.getAddressDetails(item.getProvinceCode(), item.getCityCode(), item.getAreaCode(), item.getTownCode(), item.getAddress()))
-                    .setAccount(account.get());
+            if (isAdmin) {
+                AtomicReference<String> account = new AtomicReference<>(StringUtils.EMPTY);
+                adminMap.get(item.getId()).forEach(s -> account.set(account + userMap.get(s) + "、"));
+                account.set(account.get().substring(0, account.get().length() - 1));
+                exportVo.setAccount(account.get());
+            } else {
+                exportVo.setCooperationType(StringUtils.EMPTY)
+                        .setCooperationRemainTime(null)
+                        .setCooperationStartTime(StringUtils.EMPTY)
+                        .setCooperationEndTime(StringUtils.EMPTY);
+            }
+            exportVo.setAddress(districtService.getAddressDetails(item.getProvinceCode(), item.getCityCode(), item.getAreaCode(), item.getTownCode(), item.getAddress()));
             StringBuilder result = new StringBuilder();
             List<SchoolGradeExportDTO> exportGrade = gradeMaps.get(item.getId());
             if (!CollectionUtils.isEmpty(exportGrade)) {
@@ -100,8 +107,7 @@ public class ExportSchoolExcelService extends BaseExportExcelFileService {
                 exportVo.setLodgeStatus(SchoolEnum.getLodgeName(item.getLodgeStatus()));
             }
             exportList.add(exportVo);
-        }
-        return exportList;
+        } return exportList;
     }
 
     @Override
@@ -132,7 +138,7 @@ public class ExportSchoolExcelService extends BaseExportExcelFileService {
         exportGrade.forEach(grade -> {
             result.append(grade.getName()).append(": ");
             List<SchoolClassExportDTO> child = grade.getChild();
-            if(Objects.isNull(child) || CollectionUtils.isEmpty(child)) {
+            if (Objects.isNull(child) || CollectionUtils.isEmpty(child)) {
                 return;
             }
             for (int i = 0; i < child.size(); i++) {
@@ -148,8 +154,6 @@ public class ExportSchoolExcelService extends BaseExportExcelFileService {
 
     @Override
     public String getLockKey(ExportCondition exportCondition) {
-        return String.format(RedisConstant.FILE_EXPORT_EXCEL_SCHOOL,
-                exportCondition.getApplyExportFileUserId(),
-                exportCondition.getDistrictId());
+        return String.format(RedisConstant.FILE_EXPORT_EXCEL_SCHOOL, exportCondition.getApplyExportFileUserId(), exportCondition.getDistrictId());
     }
 }
