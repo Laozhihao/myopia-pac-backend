@@ -290,4 +290,14 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         return baseMapper.getByCooperationEndTime(start, end);
     }
 
+    /**
+     * 检验医院合作信息是否合法
+     * @param hospital
+     */
+    public void checkHospitalCooperation(Hospital hospital)  {
+        if (!hospital.checkCooperation()) {
+            throw new BusinessException("合作信息非法，请确认");
+        }
+    }
+
 }

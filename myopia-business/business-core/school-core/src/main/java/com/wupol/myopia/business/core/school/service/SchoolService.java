@@ -527,4 +527,14 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     public SchoolGradeClassVO getBySchoolIdAndGradeIdAndClassId(Integer schoolId, Integer gradeId, Integer classId) {
         return baseMapper.getBySchoolIdAndGradeIdAndClassId(schoolId, gradeId, classId);
     }
+
+    /**
+     * 检验学校合作信息是否合法
+     * @param school
+     */
+    public void checkSchoolCooperation(School school)  {
+        if (!school.checkCooperation()) {
+            throw new BusinessException("合作信息非法，请确认");
+        }
+    }
 }

@@ -2,7 +2,6 @@ package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.CurrentUser;
-import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
@@ -77,8 +76,9 @@ public class ScreeningOrganizationController {
             screeningOrganization.setConfigType(0);
         }
         if (user.isPlatformAdminUser()) {
-            checkCooperation(screeningOrganization);
-        } else {     // 默认合作信息
+            screeningOrganizationService.checkScreeningOrganizationCooperation(screeningOrganization);
+        } else {
+            // 默认合作信息
             screeningOrganization.initCooperationInfo();
         }
         screeningOrganization.setStatus(screeningOrganization.getCooperationStopStatus());
@@ -100,10 +100,11 @@ public class ScreeningOrganizationController {
     public ScreeningOrgResponseDTO updateScreeningOrganization(@RequestBody @Valid ScreeningOrganization screeningOrganization) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         if (user.isPlatformAdminUser()){
-            checkCooperation(screeningOrganization);
+            screeningOrganizationService.checkScreeningOrganizationCooperation(screeningOrganization);
             // 设置机构状态
             screeningOrganization.setStatus(screeningOrganization.getCooperationStopStatus());
-        } else {    // 非平台管理员无法更新合作信息
+        } else {
+            // 非平台管理员无法更新合作信息
             screeningOrganization.clearCooperationInfo();
             screeningOrganization.setStatus(null);
         }
@@ -389,12 +390,6 @@ public class ScreeningOrganizationController {
     public List<ScreeningOrganization> getListByProvinceCodeAndNameLike(@NotBlank(message = "筛查机构名称不能为空") String name,
                                                                     @NotNull(message = "省行政区域编码不能为空") Long provinceDistrictCode) {
         return screeningOrganizationService.getListByProvinceCodeAndNameLike(name, provinceDistrictCode);
-    }
-
-    private void checkCooperation(ScreeningOrganization screeningOrganization)  {
-        if (!screeningOrganization.checkCooperation()) {
-            throw new BusinessException("合作信息非法，请确认");
-        }
     }
 
 }
