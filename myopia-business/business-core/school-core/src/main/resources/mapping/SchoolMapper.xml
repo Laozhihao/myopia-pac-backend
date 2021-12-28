@@ -205,4 +205,14 @@
         Date(cooperation_end_time) = Date(#{end})
     </select>
 
+    <select id="getBySchoolIdAndGradeIdAndClassId"
+            resultType="com.wupol.myopia.business.core.school.domain.vo.SchoolGradeClassVO">
+        select ms.name as schoolName, msg.name as gradeName, msc.name as className
+        from m_school ms
+                     left join m_school_grade msg on msg.school_id = ms.id
+                     left join m_school_class msc on msc.school_id = ms.id
+        where ms.id = #{schoolId}
+          and msg.id = #{gradeId}
+          and msc.id = #{classId}
+    </select>
 </mapper>

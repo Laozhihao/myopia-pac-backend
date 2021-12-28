@@ -27,6 +27,7 @@ import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolAdmin;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
+import com.wupol.myopia.business.core.school.domain.vo.SchoolGradeClassVO;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
 import com.wupol.myopia.oauth.sdk.domain.response.Organization;
@@ -517,4 +518,15 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         return baseMapper.getByCooperationEndTime(start, end);
     }
 
+    /**
+     * 获取学校信息
+     *
+     * @param schoolId 学校Id
+     * @param gradeId  年级Id
+     * @param classId  班级Id
+     * @return SchoolGradeClassVO
+     */
+    public SchoolGradeClassVO getBySchoolIdAndGradeIdAndClassId(Integer schoolId, Integer gradeId, Integer classId) {
+        return baseMapper.getBySchoolIdAndGradeIdAndClassId(schoolId, gradeId, classId);
+    }
 }
