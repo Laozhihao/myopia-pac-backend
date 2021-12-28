@@ -92,7 +92,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private List<Role> validateRole(Integer systemCode, User user) {
         // 非管理端和筛查管理端的用户不需要校验角色  学校端、筛查端、家长端用户不需要校验角色
         if (SystemCode.SCHOOL_CLIENT.getCode().equals(systemCode) || SystemCode.SCREENING_CLIENT.getCode().equals(systemCode)
-            || SystemCode.PATENT_CLIENT.getCode().equals(systemCode)) {
+            || SystemCode.PARENT_CLIENT.getCode().equals(systemCode)) {
             return Collections.emptyList();
         }
         List<Role> roles = roleService.getUsableRoleByUserId(user.getId(), systemCode, user.getUserType());

@@ -95,7 +95,7 @@ public class UserService extends BaseService<UserMapper, User> {
         BeanUtils.copyProperties(userDTO, user);
         save(user.setPassword(new BCryptPasswordEncoder().encode(userDTO.getPassword())));
         // 家长端不用创建角色
-        if (SystemCode.PATENT_CLIENT.getCode().equals(userDTO.getSystemCode())) {
+        if (SystemCode.PARENT_CLIENT.getCode().equals(userDTO.getSystemCode())) {
             return userDTO.setId(user.getId());
         }
         // 绑定角色，判断角色ID与部门ID有效性 —— 是否都存在该角色、且是在所属部门下的、跟用户同系统端的
