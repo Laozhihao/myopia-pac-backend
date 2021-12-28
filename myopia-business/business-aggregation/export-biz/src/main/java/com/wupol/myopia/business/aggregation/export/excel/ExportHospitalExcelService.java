@@ -1,15 +1,12 @@
 package com.wupol.myopia.business.aggregation.export.excel;
 
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.cache.RedisConstant;
-import com.wupol.myopia.base.constant.CooperationTimeTypeEnum;
-import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelNoticeKeyContentConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
-import com.wupol.myopia.business.core.hospital.constant.HospitalEnum;
-import com.wupol.myopia.business.core.hospital.constant.HospitalLevelEnum;
 import com.wupol.myopia.business.core.hospital.domain.dto.HospitalExportDTO;
 import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
 import com.wupol.myopia.business.core.hospital.domain.model.HospitalAdmin;
@@ -28,7 +25,6 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -82,13 +78,21 @@ public class ExportHospitalExcelService extends BaseExportExcelFileService {
         if (CollectionUtils.isEmpty(hospitalList)) {
             return new ArrayList<>();
         }
+        boolean isAdmin = oauthServiceClient.getUserBatchByIds(Lists.newArrayList(exportCondition.getApplyExportFileUserId())).get(0).getUserType().equals(0);
         for (Hospital hospital : hospitalList) {
-            AtomicReference<String> account = new AtomicReference<>(StringUtils.EMPTY);
-            adminMap.get(hospital.getId()).forEach(s -> account.set(account + userMap.get(s) + "、"));
-            account.set(account.get().substring(0, account.get().length() - 1));
             HospitalExportDTO hospitalExportDTO = hospital.parseFromHospital();
+            if (isAdmin) {
+                AtomicReference<String> account = new AtomicReference<>(StringUtils.EMPTY);
+                adminMap.get(hospital.getId()).forEach(s -> account.set(account + userMap.get(s) + "、"));
+                account.set(account.get().substring(0, account.get().length() - 1));
+                hospitalExportDTO.setAccountNo(account.get());
+            } else {
+                hospitalExportDTO.setCooperationType(StringUtils.EMPTY)
+                        .setCooperationRemainTime(null)
+                        .setCooperationStartTime(StringUtils.EMPTY)
+                        .setCooperationEndTime(StringUtils.EMPTY);
+            }
             hospitalExportDTO.setAddress(districtService.getAddressDetails(hospital.getProvinceCode(), hospital.getCityCode(), hospital.getAreaCode(), hospital.getTownCode(), hospital.getAddress()))
-                    .setAccountNo(account.get())
                     .setAssociateScreeningOrg(orgMap.getOrDefault(hospital.getAssociateScreeningOrgId(), StringUtils.EMPTY));
             exportList.add(hospitalExportDTO);
         }

@@ -1,19 +1,17 @@
 package com.wupol.myopia.business.aggregation.export.excel;
 
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.cache.RedisConstant;
-import com.wupol.myopia.base.constant.CooperationTimeTypeEnum;
-import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelNoticeKeyContentConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
-import com.wupol.myopia.business.core.screening.organization.constant.ScreeningOrgConfigTypeEnum;
-import com.wupol.myopia.business.core.screening.organization.constant.ScreeningOrganizationEnum;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationExportDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationQueryDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
+import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,7 +19,6 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * 导出行政区域的筛查报告
@@ -36,6 +33,8 @@ public class ExportScreeningOrganizationExcelService extends BaseExportExcelFile
     private DistrictService districtService;
     @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
+    @Autowired
+    private OauthServiceClient oauthServiceClient;
 
     /**
      * 获取文件名
@@ -65,9 +64,16 @@ public class ExportScreeningOrganizationExcelService extends BaseExportExcelFile
         if (CollectionUtils.isEmpty(list)) {
             return new ArrayList<>();
         }
+        boolean isAdmin = oauthServiceClient.getUserBatchByIds(Lists.newArrayList(exportCondition.getApplyExportFileUserId())).get(0).getUserType().equals(0);
         List<ScreeningOrganizationExportDTO> exportList = new ArrayList<>();
         for (ScreeningOrganization item : list) {
             ScreeningOrganizationExportDTO exportVo = item.parseFromScreeningOrg();
+            if (!isAdmin) {
+                exportVo.setCooperationType(StringUtils.EMPTY)
+                        .setCooperationRemainTime(null)
+                        .setCooperationStartTime(StringUtils.EMPTY)
+                        .setCooperationEndTime(StringUtils.EMPTY);
+            }
             exportVo.setDistrictName(districtService.getDistrictName(item.getDistrictDetail()))
                     .setAddress(districtService.getAddressDetails(item.getProvinceCode(), item.getCityCode(), item.getAreaCode(), item.getTownCode(), item.getAddress()));
             exportList.add(exportVo);
