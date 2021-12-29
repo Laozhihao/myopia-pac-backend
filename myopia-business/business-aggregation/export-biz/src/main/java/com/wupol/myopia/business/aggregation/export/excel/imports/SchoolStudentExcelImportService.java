@@ -200,12 +200,6 @@ public class SchoolStudentExcelImportService {
         if (Objects.nonNull(idCardMap.get(idCard))) {
             throw new BusinessException("身份证" + idCard + "在系统中重复");
         }
-        if (StringUtils.isBlank(gender)) {
-            throw new BusinessException("身份证" + idCard + "性别不能为空");
-        }
-        if (StringUtils.isBlank(birthday)) {
-            throw new BusinessException("身份证" + idCard + "生日不能为空");
-        }
         if (StringUtils.isBlank(gradeName)) {
             throw new BusinessException("身份证" + idCard + "年级不能为空");
         }
