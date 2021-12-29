@@ -203,8 +203,6 @@ public class StudentExcelImportService {
      * @param offset 偏移量(导入的为同一个学校的数据时，没有学校编号列，后面的左移一列)
      */
     private void checkStudentInfo(Map<Integer, String> item, int offset) {
-        Assert.isTrue(StringUtils.isNotBlank(item.get(1)) && !GenderEnum.getType(item.get(1)).equals(GenderEnum.UNKNOWN.type), "学生性别异常");
-        Assert.isTrue(StringUtils.isNotBlank(item.get(2)), "学生出生日期不能为空");
         if (offset > 0) {
             Assert.isTrue(StringUtils.isNotBlank(item.get(4)), "学校编号不能为空");
         }
