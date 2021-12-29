@@ -89,26 +89,32 @@ public class ScreeningOrgStaffExcelImportService {
         // excel格式：序号	姓名	性别	身份证号	手机号码	说明
         List<UserDTO> userList = new ArrayList<>();
         for (Map<Integer, String> item : listMap) {
-            if (StringUtils.isBlank(item.get(0))) {
+            if (StringUtils.isBlank(item.get(StaffImportEnum.NAME.index))) {
                 break;
             }
             checkStaffInfo(item);
             UserDTO userDTO = new UserDTO();
-            userDTO.setRealName(item.get(0))
-                    .setGender(GenderEnum.getType(item.get(1)))
-                    .setIdCard(item.get(2)).setPhone(item.get(3))
+            userDTO.setRealName(item.get(StaffImportEnum.NAME.index))
+                    .setGender(GenderEnum.getType(item.get(StaffImportEnum.GENDER.index)))
+                    .setIdCard(item.get(StaffImportEnum.ID_CARD.index))
+                    .setPhone(item.get(StaffImportEnum.PHONE.index))
                     .setCreateUserId(currentUser.getId())
                     .setIsLeader(0)
-                    .setPassword(PasswordAndUsernameGenerator.getScreeningUserPwd(item.get(3), item.get(2)))
-                    .setUsername(item.get(3)).setOrgId(screeningOrgId).setSystemCode(SystemCode.SCREENING_CLIENT.getCode());
-            if (null != item.get(4)) {
-                userDTO.setRemark(item.get(4));
+                    .setPassword(PasswordAndUsernameGenerator.getScreeningUserPwd(item.get(StaffImportEnum.PHONE.index), item.get(StaffImportEnum.ID_CARD.index)))
+                    .setUsername(item.get(StaffImportEnum.PHONE.index))
+                    .setOrgId(screeningOrgId).setSystemCode(SystemCode.SCREENING_CLIENT.getCode());
+            if (null != item.get(StaffImportEnum.REMARK.index)) {
+                userDTO.setRemark(item.get(StaffImportEnum.REMARK.index));
             }
             userList.add(userDTO);
         }
         List<ScreeningOrganizationStaffDTO> importList = userList.stream().map(item -> {
             ScreeningOrganizationStaffDTO staff = new ScreeningOrganizationStaffDTO();
-            staff.setIdCard(item.getIdCard()).setScreeningOrgId(item.getOrgId()).setCreateUserId(item.getCreateUserId()).setRemark(item.getRemark()).setGovDeptId(currentUser.getOrgId());
+            staff.setIdCard(item.getIdCard())
+                    .setScreeningOrgId(item.getOrgId())
+                    .setCreateUserId(item.getCreateUserId())
+                    .setRemark(item.getRemark())
+                    .setGovDeptId(currentUser.getOrgId());
             return staff;
         }).collect(Collectors.toList());
 
@@ -128,7 +134,7 @@ public class ScreeningOrgStaffExcelImportService {
      */
     private void preCheckStaff(Integer screeningOrgId, List<Map<Integer, String>> listMap) {
         // 收集身份证号码
-        List<String> idCards = listMap.stream().map(s -> s.get(2)).collect(Collectors.toList());
+        List<String> idCards = listMap.stream().map(s -> s.get(StaffImportEnum.ID_CARD.index)).collect(Collectors.toList());
         if (idCards.stream().distinct().count() < idCards.size()) {
             throw new BusinessException("身份证号码重复");
         }
@@ -175,10 +181,6 @@ public class ScreeningOrgStaffExcelImportService {
         StaffImportEnum(Integer index, String name) {
             this.index = index;
             this.name = name;
-        }
-
-        public Integer getIndex() {
-            return this.index;
         }
 
         public String getName() {
