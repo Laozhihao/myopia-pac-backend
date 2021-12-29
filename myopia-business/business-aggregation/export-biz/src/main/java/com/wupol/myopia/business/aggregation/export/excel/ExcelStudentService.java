@@ -8,6 +8,7 @@ import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.framework.core.util.StringUtils;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
+import com.wupol.myopia.base.util.IdCardUtil;
 import com.wupol.myopia.base.util.ListUtil;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ImportExcelEnum;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
@@ -425,7 +426,7 @@ public class ExcelStudentService {
         student.setGradeName(item.get(ImportExcelEnum.GRADE.getIndex()))
                 .setClassName(item.get(ImportExcelEnum.CLASS.getIndex()));
         student.setName(StringUtils.getDefaultIfBlank(item.get(ImportExcelEnum.NAME.getIndex()), null))
-                .setGender(StringUtils.isBlank(item.get(ImportExcelEnum.GENDER.getIndex())) ? null : GenderEnum.getType(item.get(ImportExcelEnum.GENDER.getIndex())))
+                .setGender(StringUtils.isBlank(item.get(ImportExcelEnum.GENDER.getIndex())) ? IdCardUtil.getGender(item.get(ImportExcelEnum.ID_CARD.getIndex())) : GenderEnum.getType(item.get(ImportExcelEnum.GENDER.getIndex())))
                 .setNation(StringUtils.isBlank(item.get(ImportExcelEnum.NATION.getIndex())) ? null : NationEnum.getCode(item.get(ImportExcelEnum.NATION.getIndex())))
                 .setSchoolId(schoolId)
                 .setGradeId(gradeNameIdMap.get(item.get(ImportExcelEnum.GRADE.getIndex())))
@@ -435,7 +436,7 @@ public class ExcelStudentService {
                 .setParentPhone(StringUtils.getDefaultIfBlank(item.get(ImportExcelEnum.PHONE.getIndex()), null))
                 .setAddress(StringUtils.getDefaultIfBlank(item.get(ImportExcelEnum.ADDRESS.getIndex()), null));
         try {
-            student.setBirthday(StringUtils.isBlank(item.get(ImportExcelEnum.BIRTHDAY.getIndex())) ? null : DateFormatUtil.parseDate(item.get(ImportExcelEnum.BIRTHDAY.getIndex()), DateFormatUtil.FORMAT_ONLY_DATE2));
+            student.setBirthday(StringUtils.isBlank(item.get(ImportExcelEnum.BIRTHDAY.getIndex())) ? IdCardUtil.getBirthDay(item.get(ImportExcelEnum.ID_CARD.getIndex())) : DateFormatUtil.parseDate(item.get(ImportExcelEnum.BIRTHDAY.getIndex()), DateFormatUtil.FORMAT_ONLY_DATE2));
         } catch (ParseException e) {
             throw new BusinessException("学生姓名为:" + student.getName() + "日期转换异常");
         }

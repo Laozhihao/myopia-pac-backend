@@ -3,6 +3,7 @@ package com.wupol.myopia.business.aggregation.export.excel.imports;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
+import com.wupol.myopia.base.util.IdCardUtil;
 import com.wupol.myopia.base.util.ListUtil;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
@@ -114,8 +115,8 @@ public class SchoolStudentExcelImportService {
                     item.get(SchoolStudentImportEnum.BIRTHDAY.index), item.get(SchoolStudentImportEnum.GRADE_NAME.index));
 
             schoolStudent.setName(item.get(SchoolStudentImportEnum.NAME.index))
-                    .setGender(GenderEnum.getType(item.get(SchoolStudentImportEnum.GENDER.index)))
-                    .setBirthday(DateFormatUtil.parseDate(item.get(SchoolStudentImportEnum.BIRTHDAY.index), DateFormatUtil.FORMAT_ONLY_DATE2))
+                    .setGender(Objects.nonNull(item.get(SchoolStudentImportEnum.GENDER.index)) ? GenderEnum.getType(item.get(SchoolStudentImportEnum.GENDER.index)) : IdCardUtil.getGender(item.get(SchoolStudentImportEnum.ID_CARD.index)))
+                    .setBirthday(Objects.nonNull(item.get(SchoolStudentImportEnum.BIRTHDAY.index)) ? DateFormatUtil.parseDate(item.get(SchoolStudentImportEnum.BIRTHDAY.index), DateFormatUtil.FORMAT_ONLY_DATE2) : IdCardUtil.getBirthDay(item.get(SchoolStudentImportEnum.ID_CARD.index)))
                     .setNation(NationEnum.getCode(item.get(SchoolStudentImportEnum.NATION.index)))
                     .setSchoolNo(school.getSchoolNo())
                     .setGradeType(GradeCodeEnum.getByName(item.get(SchoolStudentImportEnum.GRADE_NAME.index)).getType())

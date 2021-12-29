@@ -3,9 +3,11 @@ package com.wupol.myopia.business.aggregation.export.excel.imports;
 import cn.hutool.core.util.IdcardUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
+import com.wupol.myopia.base.util.IdCardUtil;
 import com.wupol.myopia.base.util.ListUtil;
 import com.wupol.myopia.base.util.RegularUtils;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
+import com.wupol.myopia.business.aggregation.export.excel.constant.ImportExcelEnum;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
@@ -114,7 +116,14 @@ public class StudentExcelImportService {
             if (Objects.nonNull(studentMap.get(idCard))) {
                 throw new BusinessException("身份证" + idCard + "在系统中重复");
             }
-            student.setName(item.get(0)).setGender(GenderEnum.getType(item.get(1))).setBirthday(DateFormatUtil.parseDate(item.get(2), DateFormatUtil.FORMAT_ONLY_DATE2)).setNation(NationEnum.getCode(item.get(3))).setGradeType(GradeCodeEnum.getByName(item.get(5 - offset)).getType()).setSno((item.get(7 - offset))).setIdCard(idCard).setParentPhone(item.get(9 - offset)).setCreateUserId(createUserId);
+            student.setName(item.get(0))
+                    .setGender(Objects.nonNull(item.get(1)) ? GenderEnum.getType(item.get(1)) : IdCardUtil.getGender(idCard))
+                    .setBirthday(Objects.nonNull(item.get(2)) ? DateFormatUtil.parseDate(item.get(2), DateFormatUtil.FORMAT_ONLY_DATE2) : IdCardUtil.getBirthDay(idCard))
+                    .setNation(NationEnum.getCode(item.get(3))).setGradeType(GradeCodeEnum.getByName(item.get(5 - offset)).getType())
+                    .setSno((item.get(7 - offset)))
+                    .setIdCard(idCard)
+                    .setParentPhone(item.get(9 - offset))
+                    .setCreateUserId(createUserId);
             student.setProvinceCode(districtService.getCodeByName(item.get(10 - offset)));
             student.setCityCode(districtService.getCodeByName(item.get(11 - offset)));
             student.setAreaCode(districtService.getCodeByName(item.get(12 - offset)));
