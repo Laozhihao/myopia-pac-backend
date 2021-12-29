@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
@@ -11,6 +12,7 @@ import com.wupol.myopia.business.api.management.service.ScreeningOrganizationBiz
 import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
+import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
@@ -390,6 +392,17 @@ public class ScreeningOrganizationController {
     public List<ScreeningOrganization> getListByProvinceCodeAndNameLike(@NotBlank(message = "筛查机构名称不能为空") String name,
                                                                     @NotNull(message = "省行政区域编码不能为空") Long provinceDistrictCode) {
         return screeningOrganizationService.getListByProvinceCodeAndNameLike(name, provinceDistrictCode);
+    }
+
+    /**
+     * 更新结果通知配置
+     *
+     * @param id                 筛查机构Id
+     * @param resultNoticeConfig 结果通知
+     */
+    @PutMapping("/update/resultNoticeConfig/{id}")
+    public void updateResultNoticeConfig(@PathVariable("id")Integer id, @RequestBody ResultNoticeConfig resultNoticeConfig) {
+        screeningOrganizationService.updateResultNoticeConfig(id, resultNoticeConfig);
     }
 
 }

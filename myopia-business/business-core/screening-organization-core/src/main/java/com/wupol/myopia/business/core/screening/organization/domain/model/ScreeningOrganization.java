@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.screening.organization.domain.model;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.wupol.myopia.base.constant.CooperationTimeTypeEnum;
@@ -10,6 +11,7 @@ import com.wupol.myopia.base.util.BusinessUtil;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.domain.model.NotificationConfig;
+import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;
 import com.wupol.myopia.business.common.utils.handler.DateDeserializer;
 import com.wupol.myopia.business.common.utils.interfaces.HasName;
 import com.wupol.myopia.business.core.common.domain.model.AddressCode;
@@ -138,6 +140,12 @@ public class ScreeningOrganization extends AddressCode implements Serializable, 
      */
     @JsonDeserialize(using = DateDeserializer.class)
     private Date cooperationEndTime;
+
+    /**
+     * 结果通知配置
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private ResultNoticeConfig resultNoticeConfig;
 
     /**
      * 创建时间

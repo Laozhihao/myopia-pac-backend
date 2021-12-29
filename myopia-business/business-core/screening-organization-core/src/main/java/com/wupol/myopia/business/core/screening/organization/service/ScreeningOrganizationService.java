@@ -13,6 +13,7 @@ import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
+import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccountListDTO;
@@ -364,6 +365,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
 
     /**
      * 处理机构状态，将已过合作时间但未处理为禁止的机构设置为禁止
+     *
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
@@ -383,6 +385,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
 
     /**
      * 获取状态未更新的机构（已到合作开始时间未启用，已到合作结束时间未停止）
+     *
      * @return
      */
     public List<ScreeningOrganization> getUnhandleOrganization(Date date) {
@@ -391,6 +394,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
 
     /**
      * CAS更新机构状态，当且仅当源状态为sourceStatus，且限定id
+     *
      * @param id
      * @param targetStatus
      * @param sourceStatus
@@ -402,8 +406,9 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
 
     /**
      * 获取指定合作结束时间的筛查机构信息
-     * @param start     开始时间早于该时间才处理
-     * @param end       指定结束时间，精确到天
+     *
+     * @param start 开始时间早于该时间才处理
+     * @param end   指定结束时间，精确到天
      * @return
      */
     public List<ScreeningOrganization> getByCooperationEndTime(Date start, Date end) {
@@ -412,12 +417,28 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
 
     /**
      * 检验筛查机构合作信息是否合法
+     *
      * @param screeningOrganization
      */
-    public void checkScreeningOrganizationCooperation(ScreeningOrganization screeningOrganization)  {
+    public void checkScreeningOrganizationCooperation(ScreeningOrganization screeningOrganization) {
         if (!screeningOrganization.checkCooperation()) {
             throw new BusinessException("合作信息非法，请确认");
         }
+    }
+
+    /**
+     * 更新结果通知配置
+     *
+     * @param id                 筛查机构Id
+     * @param resultNoticeConfig 结果通知
+     */
+    public void updateResultNoticeConfig(Integer id, ResultNoticeConfig resultNoticeConfig) {
+        ScreeningOrganization org = getById(id);
+        if (Objects.isNull(org)) {
+            throw new BusinessException("数据异常");
+        }
+        org.setResultNoticeConfig(resultNoticeConfig);
+        updateById(org);
     }
 
 }
