@@ -196,8 +196,6 @@ public class ExcelStudentService {
         // excel格式：姓名、性别、出生日期、民族(1：汉族  2：蒙古族  3：藏族  4：壮族  5:回族  6:其他  )、学校编号、年级、班级、学号、身份证号、手机号码、省、市、县区、镇/街道、居住地址
         if (listMap.stream().anyMatch(map -> ObjectsUtil.hasNull(
                 map.getOrDefault(ImportExcelEnum.NAME.getIndex(), null),
-                map.getOrDefault(ImportExcelEnum.GENDER.getIndex(), null),
-                map.getOrDefault(ImportExcelEnum.BIRTHDAY.getIndex(), null),
                 map.getOrDefault(ImportExcelEnum.GRADE.getIndex(), null),
                 map.getOrDefault(ImportExcelEnum.CLASS.getIndex(), null)))) {
             throw new BusinessException("存在必填项无填写");
