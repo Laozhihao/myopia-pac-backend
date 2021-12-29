@@ -1,5 +1,6 @@
 package com.wupol.myopia.base.util;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -25,5 +26,21 @@ public class ListUtil {
                 .filter(entry -> entry.getValue() > 1)
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * List转换成String
+     *
+     * @param obj List
+     * @return String
+     */
+    public static String objectList2Str(Object obj) {
+        List<String> result = new ArrayList<>();
+        if (obj instanceof ArrayList<?>) {
+            for (Object o : (List<?>) obj) {
+                result.add((String) o);
+            }
+        }
+        return String.join(",", result);
     }
 }

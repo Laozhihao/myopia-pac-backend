@@ -8,6 +8,7 @@ import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
+import com.wupol.myopia.business.aggregation.export.excel.imports.PlanStudentExcelImportService;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
 import com.wupol.myopia.business.aggregation.screening.domain.vos.SchoolGradeVO;
@@ -72,7 +73,7 @@ public class ScreeningPlanController {
     @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
     @Autowired
-    private ExcelFacade excelFacade;
+    private PlanStudentExcelImportService planStudentExcelImportService;
     @Autowired
     private NoticeService noticeService;
     @Autowired
@@ -336,7 +337,7 @@ public class ScreeningPlanController {
             throw new ValidationException("该筛查学校不存在");
         }
         ScreeningPlan screeningPlan = screeningPlanService.getById(screeningPlanId);
-        excelFacade.importScreeningSchoolStudents(currentUser.getId(), file, screeningPlan, schoolId);
+        planStudentExcelImportService.importScreeningSchoolStudents(currentUser.getId(), file, screeningPlan, schoolId);
     }
 
     /**

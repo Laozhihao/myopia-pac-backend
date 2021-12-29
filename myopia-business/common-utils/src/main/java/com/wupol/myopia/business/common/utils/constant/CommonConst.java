@@ -159,4 +159,9 @@ public class CommonConst {
      * 合作医院 0-非合作医院
      */
     public final Integer NOT_COOPERATION = 0;
+
+    /**
+     *  Excel格式
+     */
+    public static final String FILE_SUFFIX = ".xlsx";
 }

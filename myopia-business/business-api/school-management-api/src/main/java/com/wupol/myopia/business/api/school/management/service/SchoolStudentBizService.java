@@ -3,6 +3,7 @@ package com.wupol.myopia.business.api.school.management.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
+import com.wupol.myopia.business.aggregation.export.excel.imports.SchoolStudentExcelImportService;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
@@ -44,7 +45,7 @@ public class SchoolStudentBizService {
     private MedicalReportService medicalReportService;
 
     @Resource
-    private ExcelFacade excelFacade;
+    private SchoolStudentExcelImportService schoolStudentExcelImportService;
 
     @Resource
     private SchoolGradeService schoolGradeService;
@@ -114,7 +115,7 @@ public class SchoolStudentBizService {
         schoolStudent.setClassName(schoolClassService.getById(schoolStudent.getClassId()).getName());
 
         // 更新管理端的数据
-        Integer managementStudentId = excelFacade.updateManagementStudent(schoolStudent);
+        Integer managementStudentId = schoolStudentExcelImportService.updateManagementStudent(schoolStudent);
         schoolStudent.setStudentId(managementStudentId);
         schoolStudentService.saveOrUpdate(schoolStudent);
         return schoolStudent;

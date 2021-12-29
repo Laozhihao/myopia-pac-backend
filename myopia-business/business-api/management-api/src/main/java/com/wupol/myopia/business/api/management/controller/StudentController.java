@@ -7,6 +7,7 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
+import com.wupol.myopia.business.aggregation.export.excel.imports.StudentExcelImportService;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.hospital.domain.dto.StudentVisitReportResponseDTO;
 import com.wupol.myopia.business.aggregation.hospital.service.MedicalReportBizService;
@@ -65,6 +66,9 @@ public class StudentController {
 
     @Autowired
     private StudentFacade studentFacade;
+
+    @Autowired
+    private StudentExcelImportService studentExcelImportService;
 
     /**
      * 新增学生
@@ -152,7 +156,7 @@ public class StudentController {
     @PostMapping("/import")
     public void importStudent(MultipartFile file, Integer schoolId) throws ParseException {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        excelFacade.importStudent(currentUser.getId(), file, schoolId);
+        studentExcelImportService.importStudent(currentUser.getId(), file, schoolId);
     }
 
     /**
