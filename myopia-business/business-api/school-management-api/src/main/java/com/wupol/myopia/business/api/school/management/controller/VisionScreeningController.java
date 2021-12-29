@@ -19,6 +19,7 @@ import com.wupol.myopia.business.aggregation.screening.service.ScreeningExportSe
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanSchoolStudentFacadeService;
 import com.wupol.myopia.business.api.school.management.service.VisionScreeningService;
 import com.wupol.myopia.business.common.utils.domain.model.NotificationConfig;
+import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.interfaces.HasName;
 import com.wupol.myopia.business.core.common.service.DistrictService;
@@ -251,6 +252,18 @@ public class VisionScreeningController {
         school.setNotificationConfig(notificationConfig);
         schoolService.updateById(school);
         return ApiResult.success();
+    }
+
+    /**
+     * 更新结果通知
+     *
+     * @param id                 学校Id
+     * @param resultNoticeConfig 结果通知
+     */
+    @PutMapping("/update/resultNoticeConfig/{id}")
+    public void updateResultNoticeConfig(@PathVariable("id") @NotNull(message = "学校Id不能为空") Integer id,
+                                         @RequestBody ResultNoticeConfig resultNoticeConfig) {
+        schoolService.updateResultNoticeConfig(id, resultNoticeConfig);
     }
 
     /**

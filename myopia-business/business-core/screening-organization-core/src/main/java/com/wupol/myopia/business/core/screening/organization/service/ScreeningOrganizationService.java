@@ -432,6 +432,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @param id                 筛查机构Id
      * @param resultNoticeConfig 结果通知
      */
+    @Transactional(rollbackFor = Exception.class)
     public void updateResultNoticeConfig(Integer id, ResultNoticeConfig resultNoticeConfig) {
         ScreeningOrganization org = getById(id);
         if (Objects.isNull(org)) {
