@@ -4,6 +4,7 @@ import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.RegularUtils;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
@@ -309,7 +310,7 @@ public class Student extends AddressCode implements Serializable {
      */
     public void checkIdCard() {
         if (!RegularUtils.isIdCard(idCard)) {
-            throw new BugException("身份证信息异常");
+            throw new BusinessException("身份证信息异常");
         }
     }
 }
