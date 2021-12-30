@@ -254,7 +254,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
             // 更新机构状态成功
             if (updateHospitalStatus(hospital.getId(), hospital.getCooperationStopStatus(), hospital.getStatus()) > 0) {
                 // 更新oauth上机构的状态（同时影响筛查管理端跟筛查端）
-                oauthServiceClient.updateOrganization(new Organization(hospital.getId(), SystemCode.MANAGEMENT_CLIENT, UserType.SCREENING_ORGANIZATION_ADMIN, hospital.getCooperationStopStatus()));
+                oauthServiceClient.updateOrganization(new Organization(hospital.getId(), SystemCode.MANAGEMENT_CLIENT, UserType.HOSPITAL_ADMIN, hospital.getCooperationStopStatus()));
                 result++;
             }
         }
