@@ -603,7 +603,7 @@ public class ExcelFacade {
      * @return String
      */
     private String genEyeBiometric(Object val1) {
-        return Objects.nonNull(val1) ? val1 + "D" : "--";
+        return Objects.nonNull(val1) ? StringUtils.isNotBlank(String.valueOf(val1)) ? val1 + "D" : "--" : "--";
     }
 
     /**
