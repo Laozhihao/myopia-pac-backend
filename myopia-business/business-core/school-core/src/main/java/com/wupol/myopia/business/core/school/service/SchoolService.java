@@ -477,12 +477,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         List<School> schools = getUnhandleSchool(date);
         int result = 0;
         for (School school : schools) {
-            // 更新机构状态成功
-            if (updateSchoolStatus(school.getId(), school.getCooperationStopStatus(), school.getStatus()) > 0) {
-                // 更新oauth上机构的状态（同时影响筛查管理端跟筛查端）
-                oauthServiceClient.updateOrganization(new Organization(school.getId(), SystemCode.MANAGEMENT_CLIENT, UserType.SCREENING_ORGANIZATION_ADMIN, school.getCooperationStopStatus()));
-                result++;
-            }
+            result += updateSchoolStatus(school.getId(), school.getCooperationStopStatus(), school.getStatus());
         }
         return result;
     }
@@ -503,7 +498,13 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @return
      */
     public int updateSchoolStatus(Integer id, Integer targetStatus, Integer sourceStatus) {
-        return baseMapper.updateSchoolStatus(id, targetStatus, sourceStatus);
+        // 更新机构状态成功
+        int result = baseMapper.updateSchoolStatus(id, targetStatus, sourceStatus);
+        if (result > 0) {
+            // 更新oauth上机构的状态
+            oauthServiceClient.updateOrganization(new Organization(id, SystemCode.SCHOOL_CLIENT, UserType.OTHER, targetStatus));
+        }
+        return result;
     }
 
     /**

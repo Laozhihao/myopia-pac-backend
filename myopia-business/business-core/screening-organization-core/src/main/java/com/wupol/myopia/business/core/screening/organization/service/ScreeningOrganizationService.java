@@ -371,12 +371,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         List<ScreeningOrganization> orgs = getUnhandleOrganization(date);
         int result = 0;
         for (ScreeningOrganization org : orgs) {
-            // 更新机构状态成功
-            if (updateOrganizationStatus(org.getId(), org.getCooperationStopStatus(), org.getStatus()) > 0) {
-                // 更新oauth上机构的状态（同时影响筛查管理端跟筛查端）
-                oauthServiceClient.updateOrganization(new Organization(org.getId(), SystemCode.MANAGEMENT_CLIENT, UserType.SCREENING_ORGANIZATION_ADMIN, org.getCooperationStopStatus()));
-                result++;
-            }
+            result += updateOrganizationStatus(org.getId(), org.getCooperationStopStatus(), org.getStatus());
         }
         return result;
     }
@@ -396,8 +391,15 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @param sourceStatus
      * @return
      */
+    @Transactional
     public int updateOrganizationStatus(Integer id, Integer targetStatus, Integer sourceStatus) {
-        return baseMapper.updateOrganizationStatus(id, targetStatus, sourceStatus);
+        // 更新机构状态成功
+        int result = baseMapper.updateOrganizationStatus(id, targetStatus, sourceStatus);
+        if (result > 0) {
+            // 更新oauth上机构的状态（同时影响筛查管理端跟筛查端）
+            oauthServiceClient.updateOrganization(new Organization(id, SystemCode.MANAGEMENT_CLIENT, UserType.SCREENING_ORGANIZATION_ADMIN, targetStatus));
+        }
+        return result;
     }
 
     /**

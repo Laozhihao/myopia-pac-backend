@@ -9,6 +9,7 @@ import com.wupol.myopia.base.util.BusinessUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.handler.DateDeserializer;
 import lombok.Data;
+import lombok.experimental.Accessors;
 import org.apache.commons.lang3.time.DateUtils;
 
 import java.util.Date;
@@ -19,7 +20,13 @@ import java.util.Objects;
  * @Date 2021/12/28 17:47
  */
 @Data
-public class Cooperation {
+@Accessors(chain = true)
+public abstract class Cooperation {
+
+    /**
+     * 状态 0-启用 1-禁止 2-删除
+     */
+    private Integer status;
 
     /**
      * 合作类型 0-合作 1-试用
@@ -69,6 +76,10 @@ public class Cooperation {
         return true;
     }
 
+    /**
+     * 合作是否开始
+     * @return
+     */
     private boolean isCooperationBegin() {
         if (Objects.nonNull(cooperationStartTime)) {
             return cooperationStartTime.getTime() < new Date().getTime();
@@ -77,7 +88,7 @@ public class Cooperation {
     }
 
     /**
-     * 合作未开始或合作已结束禁止
+     * 合作未开始或合作已结束时状态为禁止
      * @return
      */
     public Integer getCooperationStopStatus() {
@@ -96,10 +107,11 @@ public class Cooperation {
      * 初始化合作默认信息
      */
     public void initCooperationInfo() {
+        Date date = new Date();
         cooperationType = CooperationTypeEnum.COOPERATION_TYPE_COOPERATE.getType();                         // 合作
         cooperationTimeType = CooperationTimeTypeEnum.COOPERATION_TIME_TYPE_1_YEAR.getType();               // 合作1年
-        cooperationStartTime = new Date();
-        cooperationEndTime = DateUtil.getLastMinute(DateUtils.addYears(cooperationStartTime, 1));
+        cooperationStartTime = DateUtils.addMinutes(date, -5);
+        cooperationEndTime = DateUtil.getLastMinute(DateUtils.addYears(date, 1));
     }
 
     /**

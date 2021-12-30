@@ -2,16 +2,10 @@ package com.wupol.myopia.business.core.hospital.domain.model;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.wupol.myopia.base.constant.CooperationTimeTypeEnum;
-import com.wupol.myopia.base.constant.CooperationTypeEnum;
-import com.wupol.myopia.base.constant.StatusConstant;
-import com.wupol.myopia.base.util.BusinessUtil;
 import com.wupol.myopia.base.util.DateFormatUtil;
-import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.base.util.RegularUtils;
-import com.wupol.myopia.business.common.utils.handler.DateDeserializer;
-import com.wupol.myopia.business.core.common.domain.model.AddressCode;
+import com.wupol.myopia.business.core.common.domain.model.AddressCooperation;
 import com.wupol.myopia.business.core.hospital.constant.HospitalEnum;
 import com.wupol.myopia.business.core.hospital.constant.HospitalLevelEnum;
 import com.wupol.myopia.business.core.hospital.domain.dto.HospitalExportDTO;
@@ -19,7 +13,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DateUtils;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -38,7 +31,7 @@ import java.util.Objects;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @TableName("m_hospital")
-public class Hospital extends AddressCode implements Serializable {
+public class Hospital extends AddressCooperation implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -131,11 +124,6 @@ public class Hospital extends AddressCode implements Serializable {
     private Integer isCooperation;
 
     /**
-     * 状态 0-启用 1-禁止 2-删除
-     */
-    private Integer status;
-
-    /**
      * 创建时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -154,106 +142,10 @@ public class Hospital extends AddressCode implements Serializable {
     private Integer serviceType;
 
     /**
-     * 合作类型 0-合作 1-试用
-     */
-    private Integer cooperationType;
-
-    /**
-     * 合作期限类型 -1-自定义 0-30天 1-60天 2-180天 3-1年 4-2年 5-3年
-     */
-    private Integer cooperationTimeType;
-
-    /**
-     * 合作开始时间
-     */
-    @JsonDeserialize(using = DateDeserializer.class)
-    private Date cooperationStartTime;
-
-    /**
-     * 合作结束时间
-     */
-    @JsonDeserialize(using = DateDeserializer.class)
-    private Date cooperationEndTime;
-
-    /**
      * 关联筛查机构的ID
      */
     @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Integer associateScreeningOrgId;
-
-    @TableField(exist = false)
-    private Integer cooperationRemainTime;
-
-    @TableField(exist = false)
-    private Integer cooperationStopStatus;
-
-    /**
-     * 剩余合作时间，单位：天
-     *
-     * @return java.lang.Integer
-     **/
-    public Integer getCooperationRemainTime() {
-        return DateUtil.getRemainTime(cooperationStartTime, cooperationEndTime);
-    }
-
-    /**
-     * 合作是否到期
-     * @return
-     */
-    private boolean isCooperationStop() {
-        if (Objects.nonNull(cooperationEndTime)) {
-            return cooperationEndTime.getTime() < new Date().getTime();
-        }
-        return true;
-    }
-
-    /**
-     * 合作是否开始
-     * @return
-     */
-    private boolean isCooperationBegin() {
-        if (Objects.nonNull(cooperationStartTime)) {
-            return cooperationStartTime.getTime() < new Date().getTime();
-        }
-        return false;
-    }
-
-    /**
-     * 合作未开始或合作已结束禁止
-     * @return
-     */
-    public Integer getCooperationStopStatus() {
-        return (!isCooperationBegin()) || isCooperationStop() ? StatusConstant.DISABLE : StatusConstant.ENABLE;
-    }
-
-    /**
-     * 检验合作数据是否合法
-     * @return
-     */
-    public boolean checkCooperation() {
-        return BusinessUtil.checkCooperation(cooperationType, cooperationTimeType, cooperationStartTime, cooperationEndTime);
-    }
-
-    /**
-     * 初始化合作默认信息
-     */
-    public void initCooperationInfo() {
-        Date date = new Date();
-        cooperationType = CooperationTypeEnum.COOPERATION_TYPE_COOPERATE.getType();                         // 合作
-        cooperationTimeType = CooperationTimeTypeEnum.COOPERATION_TIME_TYPE_1_YEAR.getType();               // 合作1年
-        cooperationStartTime = DateUtils.addMinutes(date, -5);
-        cooperationEndTime = DateUtil.getLastMinute(DateUtils.addYears(date, 1));
-    }
-
-    /**
-     * 清除合作信息
-     */
-    public void clearCooperationInfo() {
-        cooperationType = null;
-        cooperationTimeType = null;
-        cooperationStartTime = null;
-        cooperationEndTime = null;
-    }
 
     /**
      * 转换成HospitalExportDTO
@@ -268,10 +160,10 @@ public class Hospital extends AddressCode implements Serializable {
                 .setKind(HospitalEnum.getKindName(kind))
                 .setRemark(remark)
                 .setServiceType(HospitalEnum.getServiceTypeName(serviceType))
-                .setCooperationType(CooperationTimeTypeEnum.getCooperationTimeTypeDesc(cooperationType, cooperationTimeType, cooperationStartTime, cooperationEndTime))
+                .setCooperationType(CooperationTimeTypeEnum.getCooperationTimeTypeDesc(getCooperationType(), getCooperationTimeType(), getCooperationStartTime(), getCooperationEndTime()))
                 .setCooperationRemainTime(getCooperationRemainTime())
-                .setCooperationStartTime(Objects.nonNull(cooperationStartTime) ? DateFormatUtil.format(cooperationStartTime, DateFormatUtil.FORMAT_TIME_WITHOUT_SECOND) : StringUtils.EMPTY)
-                .setCooperationEndTime(Objects.nonNull(cooperationEndTime) ? DateFormatUtil.format(cooperationEndTime, DateFormatUtil.FORMAT_TIME_WITHOUT_SECOND) : StringUtils.EMPTY)
+                .setCooperationStartTime(Objects.nonNull(getCooperationStartTime()) ? DateFormatUtil.format(getCooperationStartTime(), DateFormatUtil.FORMAT_TIME_WITHOUT_SECOND) : StringUtils.EMPTY)
+                .setCooperationEndTime(Objects.nonNull(getCooperationEndTime()) ? DateFormatUtil.format(getCooperationEndTime(), DateFormatUtil.FORMAT_TIME_WITHOUT_SECOND) : StringUtils.EMPTY)
                 .setCreateTime(DateFormatUtil.format(createTime, DateFormatUtil.FORMAT_DETAIL_TIME));
     }
 
