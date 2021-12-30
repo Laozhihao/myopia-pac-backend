@@ -472,7 +472,6 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * 处理学校状态
      * @return
      */
-    @Transactional(rollbackFor = Exception.class)
     public int handleSchoolStatus(Date date) {
         List<School> schools = getUnhandleSchool(date);
         int result = 0;
@@ -497,6 +496,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @param sourceStatus
      * @return
      */
+    @Transactional
     public int updateSchoolStatus(Integer id, Integer targetStatus, Integer sourceStatus) {
         // 更新机构状态成功
         int result = baseMapper.updateSchoolStatus(id, targetStatus, sourceStatus);

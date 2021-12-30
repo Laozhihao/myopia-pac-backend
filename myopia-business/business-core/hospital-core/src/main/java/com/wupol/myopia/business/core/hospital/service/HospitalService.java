@@ -248,7 +248,6 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      * 处理医院状态
      * @return
      */
-    @Transactional(rollbackFor = Exception.class)
     public int handleHospitalStatus(Date date) {
         List<Hospital> hospitals = getUnhandleHospital(date);
         int result = 0;
@@ -273,6 +272,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      * @param sourceStatus
      * @return
      */
+    @Transactional
     public int updateHospitalStatus(Integer id, Integer targetStatus, Integer sourceStatus) {
         // 更新机构状态成功
         int result = baseMapper.updateHospitalStatus(id, targetStatus, sourceStatus);
