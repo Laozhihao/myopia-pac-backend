@@ -141,4 +141,15 @@ public abstract class BaseService<M extends BaseMapper<T>, T> extends ServiceImp
     public boolean batchUpdateOrSave(List<T> entityList) {
         return saveOrUpdateBatch(entityList);
     }
+
+    /**
+     * 根据部门id查询通知List集合
+     * @author tastyb
+     * @param entity
+     * @return
+     */
+    public List<T> findByDeptId(T entity) {
+        return list(getQueryWrapper(entity));
+    }
+
 }

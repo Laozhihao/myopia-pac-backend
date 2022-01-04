@@ -1,6 +1,11 @@
 package com.wupol.myopia.business.api.management.controller;
 
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.aggregation.export.ExportStrategy;
+import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
+import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.api.management.service.DeviceBizService;
 import com.wupol.myopia.business.core.device.domain.dto.ConfigurationReportRequestDTO;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceReportPrintResponseDTO;
@@ -15,6 +20,7 @@ import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -37,6 +43,9 @@ public class DeviceReportTemplateController {
 
     @Resource
     private DeviceBizService deviceBizService;
+
+    @Resource
+    private ExportStrategy exportStrategy;
 
     /**
      * 获取设备报告模板列表
@@ -79,4 +88,22 @@ public class DeviceReportTemplateController {
     public List<DeviceReportPrintResponseDTO> getPrintReportInfo(@RequestParam("ids") @NotEmpty(message = "Id不能为空") List<Integer> ids) {
         return deviceBizService.getPrintReportInfo(ids);
     }
+
+
+    /**
+     * 打印VS666数据
+     *
+     * @param ids ids
+     *
+     */
+    @GetMapping("/excel")
+    public void getExcelExportData(@RequestParam("ids") @NotEmpty(message = "Id不能为空") List<Integer> ids) throws IOException {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        exportStrategy.syncExport(new ExportCondition()
+                        .setApplyExportFileUserId(currentUser.getId())
+                        .setIds(ids),
+                ExportExcelServiceNameConstant.VS_DATA_EXCEL_SERVICE);
+    }
+
+
 }

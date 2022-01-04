@@ -126,6 +126,11 @@ public class Hospital extends AddressCode implements Serializable {
     private String remark;
 
     /**
+     * 账号数量
+     */
+    private Integer accountNum;
+
+    /**
      * 是否合作医院 0-否 1-是
      */
     private Integer isCooperation;

@@ -15,9 +15,14 @@ import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
 import com.wupol.myopia.business.core.government.validator.GovDeptAddValidatorGroup;
 import com.wupol.myopia.business.core.government.validator.GovDeptUpdateValidatorGroup;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNoticeDeptOrg;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeDeptOrgService;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.util.Assert;
@@ -27,6 +32,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.validation.ValidationException;
 import javax.validation.constraints.NotNull;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -50,6 +56,10 @@ public class GovDeptController {
     private UserService userService;
     @Resource
     private OauthServiceClient oauthServiceClient;
+    @Autowired
+    private ScreeningNoticeDeptOrgService noticeDeptOrgService;
+    @Autowired
+    private ScreeningNoticeService screeningNoticeService;
 
     /**
      * 获取部门列表
@@ -102,6 +112,22 @@ public class GovDeptController {
         }
         try {
             govDeptService.saveGovDept(govDept.setCreateUserId(currentUser.getId()));
+
+            ScreeningNotice screeningNotice = new ScreeningNotice();
+            screeningNotice.setGovDeptId(govDept.getPid());
+            screeningNotice.setReleaseStatus(1);
+            List<ScreeningNotice> list = screeningNoticeService.findByDeptId(screeningNotice);
+            if (list.size()>0){
+                for (ScreeningNotice screeningNotice1 :list){
+                    ScreeningNoticeDeptOrg screeningNoticeDeptOrg  = new ScreeningNoticeDeptOrg();
+                    screeningNoticeDeptOrg.setScreeningNoticeId(screeningNotice1.getId());
+                    screeningNoticeDeptOrg.setDistrictId(govDept.getDistrictId());
+                    screeningNoticeDeptOrg.setAcceptOrgId(govDept.getId());
+                    screeningNoticeDeptOrg.setOperationStatus(0);
+                    screeningNoticeDeptOrg.setScreeningTaskPlanId(screeningNotice1.getScreeningTaskId());
+                    noticeDeptOrgService.saveOrUpdate(screeningNoticeDeptOrg);
+                }
+            }
         } catch (DuplicateKeyException e) {
             throw new BusinessException("已经存在该部门名称");
         }

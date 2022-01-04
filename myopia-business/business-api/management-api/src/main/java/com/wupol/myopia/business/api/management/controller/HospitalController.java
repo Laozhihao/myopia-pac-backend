@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
@@ -16,15 +17,20 @@ import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.hospital.domain.dto.HospitalResponseDTO;
 import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
+import com.wupol.myopia.business.core.hospital.domain.model.HospitalAdmin;
 import com.wupol.myopia.business.core.hospital.domain.query.HospitalQuery;
+import com.wupol.myopia.business.core.hospital.service.HospitalAdminService;
 import com.wupol.myopia.business.core.hospital.service.HospitalService;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccountListDTO;
+import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
+import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationAdmin;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 医院控制层
@@ -46,6 +52,8 @@ public class HospitalController {
     @Resource
     private ExportStrategy exportStrategy;
 
+    @Resource
+    private HospitalAdminService hospitalAdminService;
     /**
      * 保存医院
      *
@@ -197,6 +205,15 @@ public class HospitalController {
      */
     @PostMapping("/add/account/{hospitalId}")
     public UsernameAndPasswordDTO addAccount(@PathVariable("hospitalId")  Integer hospitalId) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        if (!user.isPlatformAdminUser()){//如果不是管理员
+            Hospital hospital = hospitalService.getById(hospitalId);
+            // 获取该筛查机构已经有多少个账号
+            List<HospitalAdmin> adminList = hospitalAdminService.findByList(new HospitalAdmin().setHospitalId(hospitalId));
+            if (adminList.size()>=hospital.getAccountNum()){
+                return null;
+            }
+        }
         return hospitalBizService.addHospitalAdminUserAccount(hospitalId);
     }
 
