@@ -482,7 +482,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
             // 更新机构状态成功
             if (updateSchoolStatus(school.getId(), school.getCooperationStopStatus(), school.getStatus()) > 0) {
                 // 更新oauth上机构的状态（同时影响筛查管理端跟筛查端）
-                oauthServiceClient.updateOrganization(new Organization(school.getId(), SystemCode.MANAGEMENT_CLIENT, UserType.SCREENING_ORGANIZATION_ADMIN, school.getCooperationStopStatus()));
+                oauthServiceClient.updateOrganization(new Organization(school.getId(), SystemCode.SCHOOL_CLIENT, UserType.OTHER, school.getCooperationStopStatus()));
                 result++;
             }
         }
