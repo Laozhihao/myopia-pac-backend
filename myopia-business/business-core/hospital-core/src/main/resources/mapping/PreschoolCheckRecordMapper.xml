@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.business.core.hospital.domain.mapper.PreschoolCheckRecordMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.hospital.domain.model.PreschoolCheckRecord">
+    </resultMap>
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(studentId)">and `student_id` = #{studentId}</if>
+                <if test="@Ognl@isNotEmpty(hospitalId)">and `hospital_id` = #{hospitalId}</if>
+                <if test="@Ognl@isNotEmpty(fromReferralId)">and `from_referral_id` = #{fromReferralId}</if>
+                <if test="@Ognl@isNotEmpty(monthAge)">and `month_age` = #{monthAge}</if>
+                <if test="@Ognl@isNotEmpty(outerEye)">and `outer_eye` = #{outerEye}</if>
+                <if test="@Ognl@isNotEmpty(eyeDiseaseFactor)">and `eye_disease_factor` = #{eyeDiseaseFactor}</if>
+                <if test="@Ognl@isNotEmpty(lightReaction)">and `light_reaction` = #{lightReaction}</if>
+                <if test="@Ognl@isNotEmpty(blinkReflex)">and `blink_reflex` = #{blinkReflex}</if>
+                <if test="@Ognl@isNotEmpty(redBallTest)">and `red_ball_test` = #{redBallTest}</if>
+                <if test="@Ognl@isNotEmpty(visualBehaviorObservation)">and `visual_behavior_observation` = #{visualBehaviorObservation}</if>
+                <if test="@Ognl@isNotEmpty(redReflex)">and `red_reflex` = #{redReflex}</if>
+                <if test="@Ognl@isNotEmpty(ocularInspection)">and `ocular_inspection` = #{ocularInspection}</if>
+                <if test="@Ognl@isNotEmpty(visionData)">and `vision_data` = #{visionData}</if>
+                <if test="@Ognl@isNotEmpty(monocularMaskingAversionTest)">and `monocular_masking_aversion_test` = #{monocularMaskingAversionTest}</if>
+                <if test="@Ognl@isNotEmpty(refractionData)">and `refraction_data` = #{refractionData}</if>
+                <if test="@Ognl@isNotEmpty(toReferralId)">and `to_referral_id` = #{toReferralId}</if>
+                <if test="@Ognl@isNotEmpty(receiptId)">and `receipt_id` = #{receiptId}</if>
+                <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+            </trim>
+        </where>
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, student_id, hospital_id, from_referral_id, month_age, outer_eye, eye_disease_factor, light_reaction, blink_reflex, red_ball_test, visual_behavior_observation, red_reflex, ocular_inspection, vision_data, monocular_masking_aversion_test, refraction_data, to_referral_id, receipt_id, update_time, create_time
+    </sql>
+
+</mapper>

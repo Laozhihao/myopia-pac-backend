@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.business.core.hospital.domain.mapper.ReferralRecordMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.hospital.domain.model.ReferralRecord">
+    </resultMap>
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(studentId)">and `student_id` = #{studentId}</if>
+                <if test="@Ognl@isNotEmpty(applyTime)">and `apply_time` = #{applyTime}</if>
+                <if test="@Ognl@isNotEmpty(fromHospitalId)">and `from_hospital_id` = #{fromHospitalId}</if>
+                <if test="@Ognl@isNotEmpty(fromHospital)">and `from_hospital` = #{fromHospital}</if>
+                <if test="@Ognl@isNotEmpty(fromDoctorId)">and `from_doctor_id` = #{fromDoctorId}</if>
+                <if test="@Ognl@isNotEmpty(fromDoctor)">and `from_doctor` = #{fromDoctor}</if>
+                <if test="@Ognl@isNotEmpty(toHospitalId)">and `to_hospital_id` = #{toHospitalId}</if>
+                <if test="@Ognl@isNotEmpty(toHospital)">and `to_hospital` = #{toHospital}</if>
+                <if test="@Ognl@isNotEmpty(toDepartment)">and `to_department` = #{toDepartment}</if>
+                <if test="@Ognl@isNotEmpty(specialMedical)">and `special_medical` = #{specialMedical}</if>
+                <if test="@Ognl@isNotEmpty(diseaseMedical)">and `disease_medical` = #{diseaseMedical}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+            </trim>
+        </where>
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, student_id, apply_time, from_hospital_id, from_hospital, from_doctor_id, from_doctor, to_hospital_id, to_hospital, to_department, special_medical, disease_medical, create_time
+    </sql>
+
+</mapper>
