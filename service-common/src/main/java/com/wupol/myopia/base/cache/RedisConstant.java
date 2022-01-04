@@ -117,4 +117,7 @@ public interface RedisConstant {
      * 同步导出学生档案卡
      */
     String SYNC_FILE_EXPORT_PDF_ARCHIVES_ORG = "file:export:pdf:archives:student:%s";
+
+
+
 }
