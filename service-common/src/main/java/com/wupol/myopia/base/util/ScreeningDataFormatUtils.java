@@ -4,8 +4,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -22,7 +20,7 @@ public class ScreeningDataFormatUtils {
      * @return String
      */
     public static String genEyeBiometric(Object val1) {
-        return Objects.nonNull(val1) ? val1 + "D" : "--";
+        return Objects.nonNull(val1) ? StringUtils.isNotBlank(String.valueOf(val1)) ? val1 + "D" : "--" : "--";
     }
 
     /**
