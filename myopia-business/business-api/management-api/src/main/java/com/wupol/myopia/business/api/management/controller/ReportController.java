@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.controller;
 
+import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
@@ -7,6 +8,7 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.api.management.service.SysUtilService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +41,8 @@ public class ReportController {
     @Autowired
     private VisionScreeningResultService visionScreeningResultService;
 
+    @Autowired
+    private SysUtilService sysUtilService;
     /**
      * 导出区域的筛查报告 TODO: 权限校验、导出次数限制
      *
@@ -120,12 +124,17 @@ public class ReportController {
                                            @NotNull(message = "筛查机构ID不能为空") Integer schoolId, Integer classId,
                                            Integer gradeId, @RequestParam(value="planStudentIds", required = false) String planStudentIds) throws IOException {
         ExportCondition exportCondition = new ExportCondition()
-                .setPlanId(planId).setScreeningOrgId(screeningOrgId)
+                .setPlanId(planId)
+                .setScreeningOrgId(screeningOrgId)
                 .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId())
                 .setSchoolId(schoolId)
                 .setClassId(classId)
                 .setGradeId(gradeId)
                 .setPlanStudentIds(planStudentIds);
+
+        String key =  String.format(RedisConstant.FILE_EXPORT_ARCHIVES_COUNT, planId,screeningOrgId,CurrentUserUtil.getCurrentUser().getId(),schoolId,gradeId,classId,planStudentIds);
+        sysUtilService.isExport(key);
+
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.SCREENING_ORG_ARCHIVES_SERVICE);
     }
 
@@ -169,6 +178,10 @@ public class ReportController {
                 .setScreeningOrgId(screeningOrgId)
                 .setSchoolId(schoolId)
                 .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
+
+        String key =  String.format(RedisConstant.FILE_EXPORT_PDF_COUNT, exportCondition.getApplyExportFileUserId(),
+                exportCondition.getPlanId(), exportCondition.getSchoolId());
+        sysUtilService.isExport(key);
 
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.SCREENING_PLAN);
     }

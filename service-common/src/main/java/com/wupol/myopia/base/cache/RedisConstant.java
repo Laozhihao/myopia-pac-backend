@@ -118,6 +118,22 @@ public interface RedisConstant {
      */
     String SYNC_FILE_EXPORT_PDF_ARCHIVES_ORG = "file:export:pdf:archives:student:%s";
 
+    /**
+     * 导出筛查数据excel文件
+     * 作者：钓猫的小鱼
+     */
+    String FILE_EXPORT_EXCEL_COUNT = "file:export:excel:count:%s-%s-%s-%s-%s";
+    /**
+     * 导出筛查数据PDF
+     * 作者：钓猫的小鱼
+     */
+    String FILE_EXPORT_PDF_COUNT = "file:export:pdf:count:%s-%s-%s";
+    /**
+     * 导出筛查数据 档案库
+     * 作者：钓猫的小鱼
+     */
+    String FILE_EXPORT_ARCHIVES_COUNT = "file:export:pdf:count:%s-%s-%s-%s-%s-%s-%s";
+
 
 
 }
