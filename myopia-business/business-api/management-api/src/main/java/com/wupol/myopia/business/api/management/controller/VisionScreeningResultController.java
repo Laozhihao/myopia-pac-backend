@@ -10,12 +10,16 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
+import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportServiceNameConstant;
+import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
 import com.wupol.myopia.business.api.management.service.StudentBizService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.interfaces.HasName;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.AppStudentCardResponseDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionExportDTO;
@@ -69,6 +73,8 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
     private RedisUtil redisUtil;
     @Autowired
     private StudentFacade studentFacade;
+    @Autowired
+    private ExportStrategy exportStrategy;
 
     /**
      * 获取档案卡列表
@@ -279,4 +285,99 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
     public AppStudentCardResponseDTO getResultByPlanStudentId(@PathVariable("planStudentId") Integer planStudentId) {
         return studentFacade.getCardDetailByPlanStudentId(planStudentId);
     }
+
+
+    /**
+     * @Description: 获取筛查计划的学校
+     * @Param: [筛查计划ID, 筛查机构ID, 学校ID集合]
+     * @return: java.lang.Object
+     * @Author: 钓猫的小鱼
+     * @Date: 2021/12/29
+     */
+//    @GetMapping("/plan/schoolInfor")
+//    public Object getScreeningPlanschoolInfor(@RequestParam Integer screeningPlanId){
+//        List<Integer> schoolIdList = statConclusionService.getSchoolIdByPlanId(screeningPlanId);
+//        List<School> schools = schoolService.getByIds(schoolIdList);
+//
+//        return ApiResult.success(schools);
+//    }
+
+    /**
+     * @Description: 参考本页面：getScreeningPlanExportData
+     *  班级信息获取 ScreeningPlanController：querySchoolsInfo,getPlanSchool,queryGradesInfo(参考)
+     * @Param: [screeningPlanId, screeningOrgId, 学校ID（必传）, 年级名称（非必传）, 班级名称（非必传）]
+     * @return: java.lang.Object
+     * @Author: 钓猫的小鱼
+     * @Date: 2021/12/30
+     */
+//    @GetMapping("/plan/export")
+//    public Object getScreeningPlanSchoolExportData(Integer screeningPlanId, @RequestParam(defaultValue = "0") Integer screeningOrgId,
+//                                                   @RequestParam(defaultValue = "0") Integer schoolId,
+//                                                   @RequestParam(defaultValue = "0") Integer gradeId,@RequestParam(defaultValue = "0") Integer classId) throws IOException, UtilException {
+//        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+//        if (currentUser.isScreeningUser() || (currentUser.isHospitalUser() && (Objects.nonNull(currentUser.getScreeningOrgId())))) {
+//            screeningOrgId = currentUser.getScreeningOrgId();
+//        }
+//        // 参数校验
+////        validatePlanExportParams(screeningPlanId, screeningOrgId, schoolId);
+//        List<StatConclusionExportDTO> statConclusionExportDTOs = new ArrayList<>();
+//        // 获取文件需显示的名称的机构/学校/区域前缀
+//        String exportFileNamePrefix = "";
+//        boolean isSchoolExport = false;
+//        if (!CommonConst.DEFAULT_ID.equals(screeningOrgId)) {
+//            exportFileNamePrefix = checkNotNullAndGetName(screeningOrganizationService.getById(screeningOrgId), "筛查机构");
+//            statConclusionExportDTOs = statConclusionService.selectExportVoBySPlanIdAndSOrgIdAndSChoolIdAndGradeNameAndClassanme(screeningPlanId, screeningOrgId,schoolId,gradeId,classId);
+//
+//        }
+//        if (!CommonConst.DEFAULT_ID.equals(schoolId)) {
+//            exportFileNamePrefix = checkNotNullAndGetName(schoolService.getById(schoolId), "学校");
+//            isSchoolExport = true;
+//            statConclusionExportDTOs = statConclusionService.selectExportVoByScreeningPlanIdAndSchoolIdAndGradeIdAndClassId(screeningPlanId, schoolId,gradeId,classId);
+//        }
+//        if (CollectionUtils.isEmpty(statConclusionExportDTOs)) {
+//            throw new BusinessException("暂无筛查数据，无法导出");
+//        }
+//        System.out.println("-----------------statConclusionExportDTOs----------"+statConclusionExportDTOs.size());
+//        statConclusionExportDTOs.forEach(vo -> vo.setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(), vo.getAreaCode(), vo.getTownCode(), vo.getAddress())));
+//        String key = String.format(RedisConstant.FILE_EXPORT_PLAN_SCHOOL_GRADE_CLASS_DATA, screeningPlanId,screeningOrgId,schoolId,gradeId,classId, currentUser.getId());
+//        checkIsExport(key);
+//        // 获取文件需显示的名称
+//        excelFacade.generateVisionScreeningResult(currentUser.getId(), statConclusionExportDTOs, isSchoolExport, exportFileNamePrefix, key);
+//        return ApiResult.success();
+//    }
+
+
+    /**
+     * @Description: 导出文件
+     * @Param: [筛查计划ID, 筛查机构ID, 学校ID, 年级ID, 班级ID]
+     * @return: void
+     * @Author: 钓猫的小鱼
+     * @Date: 2021/12/29
+     */
+    @GetMapping("/plan/export/schoolInfor")
+    public Object getScreeningPlanExportDoAndSync(Integer screeningPlanId, @RequestParam(defaultValue = "0") Integer screeningOrgId,
+                                                @RequestParam Integer schoolId,
+                                                @RequestParam(required = false) Integer gradeId,
+                                                @RequestParam(required = false) Integer classId) throws IOException {
+
+        ExportCondition exportCondition = new ExportCondition()
+                .setPlanId(screeningPlanId)
+                .setScreeningOrgId(screeningOrgId)
+                .setSchoolId(schoolId)
+                .setGradeId(gradeId)
+                .setClassId(classId)
+                .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId())
+                ;
+
+        if (classId==null){
+            exportStrategy.doExcelExport(exportCondition, ExportReportServiceNameConstant.EXPORTPLANSTUDENTDATAEXCELSERVICE);
+            return ApiResult.success();
+        }else {
+            String path = exportStrategy.syncExport(exportCondition, ExportReportServiceNameConstant.EXPORTPLANSTUDENTDATAEXCELSERVICE);
+
+            return ApiResult.success(path);
+        }
+
+    }
+
 }

@@ -48,6 +48,12 @@ public interface RedisConstant {
     String FILE_EXPORT_PLAN_DATA = "file:export:plan:%s-%s-%s-%s";
 
     /**
+     * 筛查计划(学校/班级/年级)
+     * 作者：钓猫的小鱼
+     */
+    String FILE_EXPORT_PLAN_SCHOOL_GRADE_CLASS_DATA = "file:export:plan:%s-%s-%s-%s-%s-%s";
+
+    /**
      * 导出Excel-医院
      */
     String FILE_EXPORT_EXCEL_HOSPITAL = "file:export:excel:hospital:%s-%s";

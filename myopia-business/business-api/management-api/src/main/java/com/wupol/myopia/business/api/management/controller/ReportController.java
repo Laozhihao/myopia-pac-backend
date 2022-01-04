@@ -151,4 +151,25 @@ public class ReportController {
                 .setPlanId(planId);
         return ApiResult.success(exportStrategy.syncExport(exportCondition, ExportReportServiceNameConstant.STUDENT_ARCHIVES_SERVICE));
     }
+
+
+    /**
+    * @Description: 导出学校筛查报告PDF
+    * @Param: [筛检计划ID, 筛查机构ID, 学校ID]
+    * @return: void
+    * @Author: 钓猫的小鱼
+    * @Date: 2021/12/30
+    */
+    @GetMapping("/screeningOrg/export/school")
+    public void getScreeningPlanSchool(@NotNull(message = "筛查计划ID不能为空") Integer planId, @NotNull(message = "筛查机构ID不能为空") Integer screeningOrgId,
+                                                @NotNull(message = "学校ID不能为空") Integer schoolId) throws IOException {
+
+        ExportCondition exportCondition = new ExportCondition()
+                .setPlanId(planId)
+                .setScreeningOrgId(screeningOrgId)
+                .setSchoolId(schoolId)
+                .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
+
+        exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.SCREENING_PLAN);
+    }
 }

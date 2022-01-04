@@ -46,6 +46,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
     @Async
     @Override
     public void export(ExportCondition exportCondition) {
+
         File excelFile = null;
         String noticeKeyContent = null;
         try {
@@ -55,8 +56,10 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
             noticeKeyContent = getNoticeKeyContent(exportCondition);
             // 3.获取数据，生成List
             List data = getExcelData(exportCondition);
+
             // 4.生成导出的文件
             excelFile = generateExcelFile(fileName, data);
+            System.out.println("-----------excelFile--------------"+excelFile);
             // 5.上传文件
             Integer fileId = uploadFile(excelFile);
             // 6.发送成功通知
@@ -166,6 +169,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
 
     @Override
     public String syncExport(ExportCondition exportCondition) {
+
         return null;
     }
 }

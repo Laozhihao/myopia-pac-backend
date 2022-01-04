@@ -23,7 +23,7 @@ spring:
     ### sentinel dashboard
     sentinel:
       transport:
-        dashboard: localhost:8858
+        dashboard: localhost:8080
       # 取消Sentinel控制台懒加载
       eager: true
     time-zone: Asia/Shanghai
