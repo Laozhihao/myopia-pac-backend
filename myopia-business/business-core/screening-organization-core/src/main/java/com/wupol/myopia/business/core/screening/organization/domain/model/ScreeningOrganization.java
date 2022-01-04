@@ -109,7 +109,7 @@ public class ScreeningOrganization extends AddressCode implements Serializable, 
     /**
      * 筛查人员账号数量
      */
-    private Integer screeningNum;
+    private int screeningNum;
 
     /**
      * 告知书配置
