@@ -70,6 +70,7 @@ public class HospitalController {
         } else { // 非平台管理员默认为合作医院
             hospital.setIsCooperation(CommonConst.IS_COOPERATION);
             hospital.initCooperationInfo();     // 默认合作信息
+            hospital.setAccountNum(5);
         }
         hospital.setStatus(hospital.getCooperationStopStatus());
         UsernameAndPasswordDTO usernameAndPasswordDTO = hospitalService.saveHospital(hospital);
