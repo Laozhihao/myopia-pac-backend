@@ -144,6 +144,7 @@ public abstract class BaseService<M extends BaseMapper<T>, T> extends ServiceImp
 
     /**
      * 根据部门id查询通知List集合
+     * @author tastyb
      * @param entity
      * @return
      */

@@ -124,8 +124,6 @@ public class GovDeptController {
                     screeningNoticeDeptOrg.setDistrictId(govDept.getDistrictId());
                     screeningNoticeDeptOrg.setAcceptOrgId(govDept.getId());
                     screeningNoticeDeptOrg.setOperationStatus(0);
-                    screeningNoticeDeptOrg.setOperatorId(0);
-                    screeningNoticeDeptOrg.setCreateTime(new Date());
                     screeningNoticeDeptOrg.setScreeningTaskPlanId(screeningNotice1.getScreeningTaskId());
                     noticeDeptOrgService.saveOrUpdate(screeningNoticeDeptOrg);
                 }

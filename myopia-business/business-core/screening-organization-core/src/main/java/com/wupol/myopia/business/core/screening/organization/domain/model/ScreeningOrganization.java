@@ -107,6 +107,11 @@ public class ScreeningOrganization extends AddressCode implements Serializable, 
     private String remark;
 
     /**
+     * 筛查人员账号数量
+     */
+    private Integer screeningNum;
+
+    /**
      * 告知书配置
      */
     @TableField(typeHandler = NotificationConfigTypeHandler.class)
@@ -195,6 +200,10 @@ public class ScreeningOrganization extends AddressCode implements Serializable, 
         return true;
     }
 
+    /**
+     * 合作是否开始
+     * @return
+     */
     private boolean isCooperationBegin() {
         if (Objects.nonNull(cooperationStartTime)) {
             return cooperationStartTime.getTime() < new Date().getTime();
@@ -222,10 +231,11 @@ public class ScreeningOrganization extends AddressCode implements Serializable, 
      * 初始化合作默认信息
      */
     public void initCooperationInfo() {
+        Date date = new Date();
         cooperationType = CooperationTypeEnum.COOPERATION_TYPE_COOPERATE.getType();                         // 合作
         cooperationTimeType = CooperationTimeTypeEnum.COOPERATION_TIME_TYPE_1_YEAR.getType();               // 合作1年
-        cooperationStartTime = new Date();
-        cooperationEndTime = DateUtil.getLastMinute(DateUtils.addYears(cooperationStartTime, 1));
+        cooperationStartTime = DateUtils.addMinutes(date, -5);
+        cooperationEndTime = DateUtil.getLastMinute(DateUtils.addYears(date, 1));
     }
 
     /**

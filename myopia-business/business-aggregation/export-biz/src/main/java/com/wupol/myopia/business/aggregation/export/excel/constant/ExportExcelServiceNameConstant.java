@@ -49,4 +49,9 @@ public class ExportExcelServiceNameConstant {
      * 学校端-学生
      */
     public final String SCHOOL_STUDENT_EXCEL_SERVICE = "schoolStudentExcelService";
+
+    /**
+     * VS666管理-数据管理
+     */
+    public final String VS_DATA_EXCEL_SERVICE = "vsDataExcelService";
 }
