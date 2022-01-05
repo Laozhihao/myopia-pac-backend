@@ -376,14 +376,14 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
                     exportCondition.getPlanId(), exportCondition.getSchoolId(), exportCondition.getClassId(), exportCondition.getGradeId());
             sysUtilService.isExport(key);
 
-            exportStrategy.doExcelExport(exportCondition, ExportReportServiceNameConstant.EXPORTPLANSTUDENTDATAEXCELSERVICE);
+            exportStrategy.doExcelExport(exportCondition, ExportReportServiceNameConstant.EXPOR_TPLAN_STUDENT_DATA_EXCELS_ERVICE);
             return ApiResult.success();
         }else {
             String key =  String.format(RedisConstant.FILE_EXPORT_EXCEL_COUNT, exportCondition.getApplyExportFileUserId(),
                     exportCondition.getPlanId(), exportCondition.getSchoolId(), exportCondition.getClassId(), exportCondition.getGradeId());
             sysUtilService.isExport(key);
 
-            String path = exportStrategy.syncExport(exportCondition, ExportReportServiceNameConstant.EXPORTPLANSTUDENTDATAEXCELSERVICE);
+            String path = exportStrategy.syncExport(exportCondition, ExportReportServiceNameConstant.EXPOR_TPLAN_STUDENT_DATA_EXCELS_ERVICE);
             return ApiResult.success(path);
         }
 

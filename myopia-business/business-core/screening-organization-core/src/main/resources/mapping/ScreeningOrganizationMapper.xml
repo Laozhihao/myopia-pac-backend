@@ -51,7 +51,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, create_user_id, gov_dept_id, district_id, district_detail, name, type, type_desc,config_type, phone, province_code, city_code, area_code, town_code, address, remark,
+        id, create_user_id, gov_dept_id, district_id, district_detail, name, type, type_desc,config_type, phone, province_code, city_code, area_code, town_code, address, remark,screening_num,
         notification_config, status, cooperation_type, cooperation_time_type, cooperation_start_time, cooperation_end_time, create_time, update_time
     </sql>
 

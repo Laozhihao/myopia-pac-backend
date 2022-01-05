@@ -1,6 +1,8 @@
 package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.myopia.base.cache.RedisConstant;
+import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
@@ -8,6 +10,7 @@ import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
+import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
 import com.wupol.myopia.business.aggregation.screening.domain.vos.SchoolGradeVO;
@@ -399,6 +402,40 @@ public class ScreeningPlanController {
     @PostMapping("/update/planStudent")
     public void updatePlanStudent(@RequestBody UpdatePlanStudentRequestDTO requestDTO) {
         screeningPlanStudentBizService.updatePlanStudent(requestDTO);
+    }
+
+    /**
+     * @Description: 学生筛查信息
+     * @Param: [筛查计划ID, 筛查机构ID, 学校ID, 年级ID, 班级ID]
+     * @return: void
+     * @Author: 钓猫的小鱼
+     * @Date: 2021/12/29
+     */
+    @GetMapping("/plan/export")
+    public Object getScreeningPlanExportDoAndSync(Integer screeningPlanId, @RequestParam(defaultValue = "0") Integer screeningOrgId,
+                                                  @RequestParam Integer schoolId,
+                                                  @RequestParam(required = false) Integer gradeId,
+                                                  @RequestParam(required = false) Integer classId) throws IOException {
+
+        ExportCondition exportCondition = new ExportCondition()
+                .setPlanId(screeningPlanId)
+                .setScreeningOrgId(screeningOrgId)
+                .setSchoolId(schoolId)
+                .setGradeId(gradeId)
+                .setClassId(classId)
+                .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId())
+                ;
+
+        if (classId==null){
+
+            exportStrategy.doExcelExport(exportCondition, ExportReportServiceNameConstant.EXPORT_PLAN_SCHOOL_STUDENT_DATA);
+            return ApiResult.success();
+        }else {
+
+            String path = exportStrategy.syncExport(exportCondition, ExportReportServiceNameConstant.EXPORT_PLAN_SCHOOL_STUDENT_DATA);
+            return ApiResult.success(path);
+        }
+
     }
 
 }

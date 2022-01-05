@@ -46,7 +46,13 @@ public class ExportReportServiceNameConstant {
      * 导出筛检计划下的对应数据
      *  作者：钓猫的小鱼
      */
-    public final String EXPORTPLANSTUDENTDATAEXCELSERVICE = "exportPlanStudentDataExcelService";
+    public final String EXPOR_TPLAN_STUDENT_DATA_EXCELS_ERVICE = "exportPlanStudentDataExcelService";
+
+    /**
+     * 导出筛检计划下学校学生的筛查数据
+     *  作者：钓猫的小鱼
+     */
+    public final String EXPORT_PLAN_SCHOOL_STUDENT_DATA = "exportPlanSchoolStudentDataExcelService";
 
 
 }
