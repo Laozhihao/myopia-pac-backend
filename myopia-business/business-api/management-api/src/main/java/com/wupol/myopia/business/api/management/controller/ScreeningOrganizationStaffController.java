@@ -15,14 +15,20 @@ import com.wupol.myopia.business.core.screening.organization.domain.dto.Organiza
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgStaffUserDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationStaffQueryDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.StaffResetPasswordRequestDTO;
+import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
+import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationAdmin;
+import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationAdminService;
+import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationStaffService;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -44,6 +50,11 @@ public class ScreeningOrganizationStaffController {
 
     @Autowired
     private ExportStrategy exportStrategy;
+
+    @Resource
+    private ScreeningOrganizationService screeningOrganizationService;
+    @Resource
+    private ScreeningOrganizationAdminService screeningOrganizationAdminService;
 
     /**
      * 筛查人员列表
@@ -71,6 +82,13 @@ public class ScreeningOrganizationStaffController {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         if (Objects.nonNull(user.getScreeningOrgId())) {
             screeningOrganizationStaff.setScreeningOrgId(user.getScreeningOrgId());
+        }
+        if (!user.isPlatformAdminUser()){//如果不是管理员
+            ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(user.getScreeningOrgId());
+            List<ScreeningOrganizationAdmin> orgList = screeningOrganizationAdminService.getListOrgList(user.getScreeningOrgId());
+            if (orgList.size()>=screeningOrganization.getScreeningNum()){
+                return null;
+            }
         }
         screeningOrganizationStaff.setCreateUserId(user.getId());
         screeningOrganizationStaff.setGovDeptId(user.getOrgId());
