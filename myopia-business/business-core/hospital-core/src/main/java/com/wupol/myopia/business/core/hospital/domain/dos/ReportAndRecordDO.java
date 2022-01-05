@@ -76,4 +76,9 @@ public class ReportAndRecordDO {
      * 检查时年龄
      */
     private String createTimeAge;
+
+    /**
+     * 状态 true-首次就诊 false-复诊
+     */
+    private boolean checkStatus;
 }
