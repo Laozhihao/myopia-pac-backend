@@ -91,6 +91,11 @@ public class ReferralRecord implements Serializable {
     private Integer referralStatus;
 
     /**
+     * 更新时间
+     */
+    private Date updateTime;
+
+    /**
      * 创建时间
      */
     private Date createTime;
