@@ -162,13 +162,13 @@ public class ParentStudentController {
     /**
      * 获取筛查结果详情
      *
-     * @param id                     学生ID
-     * @param isNewbornWithoutIdCard 是否新生儿暂无身份证
+     * @param id         学生ID
+     * @param isShowBind 是否展示重新绑定身份证
      * @return 筛查结果详情
      */
     @GetMapping("report/screening/detail/{id}")
-    public ScreeningReportResponseDTO reportScreeningDetail(@PathVariable("id") Integer id, Boolean isNewbornWithoutIdCard) {
-        return parentStudentBizService.getScreeningReportDetail(id, isNewbornWithoutIdCard);
+    public ScreeningReportResponseDTO reportScreeningDetail(@PathVariable("id") Integer id, @NotNull(message = "辨识位不能为空") Boolean isShowBind) {
+        return parentStudentBizService.getScreeningReportDetail(id, isShowBind);
     }
 
     /**
