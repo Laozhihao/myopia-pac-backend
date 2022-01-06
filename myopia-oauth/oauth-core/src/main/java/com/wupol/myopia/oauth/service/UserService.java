@@ -184,7 +184,7 @@ public class UserService extends BaseService<UserMapper, User> {
             return;
         }
         // 1.获取角色（初始化已插入医生的角色，每个角色类型仅一条，所有医生共用）
-        Role role = roleService.findOne(new Role().setSystemCode(systemCode).setRoleType(PermissionTemplateType.getTemplateTypeByHospitalServiceType(serviceType)));
+        Role role = roleService.findOne(new Role().setSystemCode(systemCode).setRoleType(PermissionTemplateType.getRoleTypeByHospitalServiceType(serviceType)));
         Assert.notNull(role, "未初始化医生角色");
         // 2.绑定角色
         userRoleService.save(new UserRole().setUserId(userDTO.getId()).setRoleId(role.getId()));
@@ -219,7 +219,7 @@ public class UserService extends BaseService<UserMapper, User> {
             return;
         }
         // 生成医院管理员角色
-        generateUserRole(userDTO, PermissionTemplateType.HOSPITAL_ADMIN.getType(), roleType, userDTO.getUsername());
+        generateHospitalAdminUserRole(userDTO);
         // 给医院绑定关联筛查机构的角色
         bindScreeningPermission(userDTO.getAssociateScreeningOrgId(), userDTO.getId());
     }
@@ -433,6 +433,18 @@ public class UserService extends BaseService<UserMapper, User> {
     }
 
     /**
+     * 生成筛查机构管理员角色并初始其化权限
+     *
+     * @param userDTO userDTO
+     * @return boolean 是否成功
+     */
+    private void generateHospitalAdminUserRole(UserDTO userDTO) {
+        Integer orgConfigType = userDTO.getOrgConfigType();
+        Assert.notNull(orgConfigType, "服务配置类型为空");
+        generateUserRole(userDTO, PermissionTemplateType.getTemplateTypeByHospitalAdminServiceType(orgConfigType), RoleType.HOSPITAL_ADMIN.getType(), userDTO.getUsername());
+    }
+
+    /**
      * 生成用户角色
      *
      * @param userDTO 用户信息
@@ -488,8 +500,7 @@ public class UserService extends BaseService<UserMapper, User> {
     private void updateHospitalAdminRolePermission(Integer serviceType, Integer hospitalId) {
         Assert.notNull(serviceType, "配置类型不能为空");
         Assert.notNull(hospitalId, "医院ID不能为空");
-        List<User> userList = findByList(new User().setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode()).setOrgId(hospitalId).setUserType(UserType.HOSPITAL_ADMIN.getType()));
-        userList.forEach(x -> updateHospitalRolePermission(serviceType, x.getId()));
+        roleService.updateRolePermissionByHospital(hospitalId, PermissionTemplateType.getTemplateTypeByHospitalAdminServiceType(serviceType));
     }
 
     /**
@@ -504,13 +515,6 @@ public class UserService extends BaseService<UserMapper, User> {
             return;
         }
         updateRolePermission(userId, OrgScreeningMap.ORG_CONFIG_TYPE_TO_TEMPLATE.get(orgConfigType));
-    }
-
-    private void updateHospitalRolePermission(Integer serviceType, Integer userId) {
-        if (Objects.isNull(serviceType)) {
-            return;
-        }
-        updateRolePermission(userId, PermissionTemplateType.getTemplateTypeByHospitalAdminServiceType(serviceType));
     }
 
     /**
@@ -584,7 +588,7 @@ public class UserService extends BaseService<UserMapper, User> {
      **/
     @Transactional(rollbackFor = Exception.class)
     public void updateHospitalRoleBatch(Integer hospitalId, Integer serviceType) {
-        // TODO wulizhou 更新医院管理员角色
+        // 更新医院管理员角色
         updateHospitalAdminRolePermission(serviceType, hospitalId);
         // 更新医生角色
         List<User> userList = findByList(new User().setSystemCode(SystemCode.HOSPITAL_CLIENT.getCode()).setOrgId(hospitalId));
