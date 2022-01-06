@@ -281,6 +281,12 @@ public class ParentStudentController {
         parentStudentBizService.updateStudentIdCard(requestDTO, studentId);
     }
 
+    /**
+     * 获取学生信息
+     *
+     * @param studentId 学生Id
+     * @return StudentDTO
+     */
     @GetMapping("getStudentInfo/{studentId}")
     public StudentDTO getStudentInfo(@PathVariable("studentId")Integer studentId) {
         return parentStudentBizService.getStudentInfo(studentId);
