@@ -319,4 +319,15 @@
         order by create_time desc
         limit 1
     </select>
+
+    <select id="getByCondition" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_plan_school_student
+        where (id_card = #{condition}
+                or screening_code = #{condition}
+                or student_no = #{condition})
+          and student_name = #{name}
+        order by create_time desc limit 1
+    </select>
 </mapper>

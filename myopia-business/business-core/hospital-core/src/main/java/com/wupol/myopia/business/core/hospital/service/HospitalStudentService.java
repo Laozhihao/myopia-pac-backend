@@ -136,4 +136,14 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
         });
         updateBatchById(hospitalStudents);
     }
+
+    /**
+     * 通过学生Id获取患者
+     *
+     * @param studentId 学生
+     * @return 患者
+     */
+    public List<HospitalStudent> getByStudentId(Integer studentId) {
+        return baseMapper.getByStudentId(studentId);
+    }
 }

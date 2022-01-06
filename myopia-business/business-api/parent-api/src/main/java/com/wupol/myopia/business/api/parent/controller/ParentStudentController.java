@@ -7,9 +7,7 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.hospital.domain.dto.StudentVisitReportResponseDTO;
 import com.wupol.myopia.business.api.parent.domain.dos.CountReportItemsDO;
 import com.wupol.myopia.business.api.parent.domain.dos.ReportCountResponseDO;
-import com.wupol.myopia.business.api.parent.domain.dto.ScreeningReportResponseDTO;
-import com.wupol.myopia.business.api.parent.domain.dto.ScreeningVisionTrendsResponseDTO;
-import com.wupol.myopia.business.api.parent.domain.dto.VisitsReportDetailRequest;
+import com.wupol.myopia.business.api.parent.domain.dto.*;
 import com.wupol.myopia.business.api.parent.service.ParentStudentBizService;
 import com.wupol.myopia.business.core.common.domain.dto.SuggestHospitalDTO;
 import com.wupol.myopia.business.core.common.domain.model.District;
@@ -22,9 +20,11 @@ import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -162,12 +162,13 @@ public class ParentStudentController {
     /**
      * 获取筛查结果详情
      *
-     * @param id 学生ID
+     * @param id                     学生ID
+     * @param isNewbornWithoutIdCard 是否新生儿暂无身份证
      * @return 筛查结果详情
      */
     @GetMapping("report/screening/detail/{id}")
-    public ScreeningReportResponseDTO reportScreeningDetail(@PathVariable("id") Integer id) {
-        return parentStudentBizService.getScreeningReportDetail(id);
+    public ScreeningReportResponseDTO reportScreeningDetail(@PathVariable("id") Integer id, Boolean isNewbornWithoutIdCard) {
+        return parentStudentBizService.getScreeningReportDetail(id, isNewbornWithoutIdCard);
     }
 
     /**
@@ -235,4 +236,49 @@ public class ParentStudentController {
     public List<SuggestHospitalDTO> getCooperationHospital(@PathVariable("screeningOrgId") Integer screeningOrgId) {
         return parentStudentBizService.getCooperationHospital(screeningOrgId);
     }
+
+    /**
+     * 获取学生眼保健检查报告
+     *
+     * @param studentId 学生Id
+     * @return 眼保健检查报告列表
+     */
+    public List<Object> getEyeHealthyReportList(Integer studentId) {
+        return null;
+    }
+
+    /**
+     * 获取学生眼保健检查详情
+     *
+     * @param reportId 报告Id
+     * @return 详情
+     */
+    public EyeHealthyReportResponseDTO getEyeHealthyReportDetail(Integer reportId) {
+        return null;
+    }
+
+    /**
+     * 通过条件获取筛查记录
+     *
+     * @param condition 条件
+     * @param name      学生名称
+     * @return 筛查条件
+     */
+    @GetMapping("report/screening/byCondition")
+    public Integer getScreeningReportByCondition(String condition, String name) {
+        return parentStudentBizService.getScreeningReportByCondition(condition, name);
+    }
+
+    /**
+     * 更新学生身份证
+     *
+     * @param requestDTO 请求入参
+     * @param studentId  学生Id
+     */
+    @PostMapping("updateStudentIdCard/{studentId}")
+    public void updateStudentIdCard(@RequestBody @Validated BindStudentRequestDTO requestDTO,
+                                    @PathVariable("studentId") @NotNull(message = "学生Id不能为空") Integer studentId) {
+        parentStudentBizService.updateStudentIdCard(requestDTO, studentId);
+    }
+
 }
