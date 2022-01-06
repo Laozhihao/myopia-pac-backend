@@ -264,7 +264,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @param districtId  行政区域
      * @return 筛查机构列表
      */
-    public IPage<ScreeningOrgResponseDTO> getByCondition(PageRequest pageRequest, ScreeningOrganizationQueryDTO query, Integer districtId) throws ParseException {
+    public IPage<ScreeningOrgResponseDTO> getByCondition(PageRequest pageRequest, ScreeningOrganizationQueryDTO query, Integer districtId){
         return baseMapper.getScreeningOrganizationListByCondition(
                 pageRequest.toPage(), query.getName(), query.getType(), query.getConfigType(), districtId,
                 query.getGovDeptId(), query.getPhone(), query.getStatus(),query.getCooperationType(),query.getStartTimes(),query.getEndTimes());

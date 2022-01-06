@@ -38,6 +38,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.List;
 import java.util.Objects;
 
@@ -159,7 +160,7 @@ public class ScreeningOrganizationController {
      * @return 机构列表
      */
     @GetMapping("list")
-    public IPage<ScreeningOrgResponseDTO> getScreeningOrganizationList(PageRequest pageRequest, ScreeningOrganizationQueryDTO query) {
+    public IPage<ScreeningOrgResponseDTO> getScreeningOrganizationList(PageRequest pageRequest, ScreeningOrganizationQueryDTO query){
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         return screeningOrganizationBizService.getScreeningOrganizationList(pageRequest, query, user);
     }
