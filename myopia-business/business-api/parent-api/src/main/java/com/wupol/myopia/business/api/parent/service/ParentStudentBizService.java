@@ -562,27 +562,30 @@ public class ParentStudentBizService {
         if (!IdcardUtil.isValidCard(idCard)) {
             throw new BusinessException("身份证异常");
         }
-        // 更新学生
-        // 查看是否有删除的学生
-        Student student;
-        List<Student> deletedStudents = studentService.getDeleteStudentByIdCard(Lists.newArrayList(idCard));
-        if (CollectionUtils.isEmpty(deletedStudents)) {
-            student = studentService.getById(studentId);
-        } else {
-            if (deletedStudents.size() > 1) {
-                log.error("家长端更新学生身份证异常，学生Id:{}，身份证:{}", studentId, idCard);
-                throw new BusinessException("学生数据异常");
-            }
-            student = deletedStudents.get(0);
-            student.setStatus(CommonConst.STATUS_NOT_DELETED);
-        }
 
-        if (Objects.isNull(student)) {
-            throw new BusinessException("学生信息异常");
-        }
+        // 查看是否有删除的学生
+//        Student student;
+//        List<Student> deletedStudents = studentService.getDeleteStudentByIdCard(Lists.newArrayList(idCard));
+//        if (CollectionUtils.isEmpty(deletedStudents)) {
+//            student = studentService.getById(studentId);
+//        } else {
+//            if (deletedStudents.size() > 1) {
+//                log.error("家长端更新学生身份证异常，学生Id:{}，身份证:{}", studentId, idCard);
+//                throw new BusinessException("学生数据异常");
+//            }
+//            student = deletedStudents.get(0);
+//            student.setStatus(CommonConst.STATUS_NOT_DELETED);
+//        }
+//
+//        if (Objects.isNull(student)) {
+//            throw new BusinessException("学生信息异常");
+//        }
+        // 更新学生
+        Student student = studentService.getById(studentId);
         // 检查学生身份证是否重复
-        if (studentService.checkIdCard(idCard, studentId)) {
-            throw new BusinessException("学生身份证重复");
+        if (studentService.checkIdCardAndId(idCard, studentId)) {
+            log.error("家长端更新学生身份证异常，学生Id:{}，身份证:{}", studentId, idCard);
+            throw new BusinessException("学生身份证重复，请联系管理员");
         }
         studentService.updateById(student.setIdCard(idCard).setName(name).setIsNewbornWithoutIdCard(false));
         // 更新患者

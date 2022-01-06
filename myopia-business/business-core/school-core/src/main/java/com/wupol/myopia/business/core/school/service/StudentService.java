@@ -512,4 +512,15 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     public Student getAllByIdCard(String idCard) {
         return baseMapper.getAllByIdCard(idCard);
     }
+
+    /**
+     * 检查学生身份证号码是否重复
+     *
+     * @param idCard 身份证号码
+     * @param id     学生ID
+     * @return 是否重复
+     */
+    public boolean checkIdCardAndId(String idCard, Integer id) {
+        return baseMapper.checkIdCardAndId(idCard, id).size() > 0;
+    }
 }

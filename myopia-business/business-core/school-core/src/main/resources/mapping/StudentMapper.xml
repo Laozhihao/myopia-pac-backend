@@ -321,4 +321,12 @@
         from m_student
         where id_card = #{idCard}
     </select>
+
+    <select id="checkIdCardAndId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_student
+        where id_card = #{cardId}
+          and id != #{id}
+    </select>
 </mapper>
