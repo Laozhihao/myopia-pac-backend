@@ -7,10 +7,7 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.hospital.domain.dto.StudentVisitReportResponseDTO;
 import com.wupol.myopia.business.api.parent.domain.dos.CountReportItemsDO;
 import com.wupol.myopia.business.api.parent.domain.dos.ReportCountResponseDO;
-import com.wupol.myopia.business.api.parent.domain.dto.EyeHealthyReportResponseDTO;
-import com.wupol.myopia.business.api.parent.domain.dto.ScreeningReportResponseDTO;
-import com.wupol.myopia.business.api.parent.domain.dto.ScreeningVisionTrendsResponseDTO;
-import com.wupol.myopia.business.api.parent.domain.dto.VisitsReportDetailRequest;
+import com.wupol.myopia.business.api.parent.domain.dto.*;
 import com.wupol.myopia.business.api.parent.service.ParentStudentBizService;
 import com.wupol.myopia.business.core.common.domain.dto.SuggestHospitalDTO;
 import com.wupol.myopia.business.core.common.domain.model.District;
@@ -244,7 +241,7 @@ public class ParentStudentController {
      * @return 眼保健检查报告列表
      */
     public List<Object> getEyeHealthyReportList(Integer studentId) {
-
+        return null;
     }
 
     /**
@@ -254,8 +251,30 @@ public class ParentStudentController {
      * @return 详情
      */
     public EyeHealthyReportResponseDTO getEyeHealthyReportDetail(Integer reportId) {
+        return null;
     }
 
-    public
+    /**
+     * 通过条件获取筛查条件
+     *
+     * @param condition 条件
+     * @param name      学生名称
+     * @return 筛查条件
+     */
+    @GetMapping("report/screening/byCondition")
+    public ScreeningReportResponseDTO getScreeningReportByCondition(String condition, String name) {
+        return parentStudentBizService.getScreeningReportByCondition(condition, name);
+    }
+
+    /**
+     * 更新学生身份证
+     *
+     * @param requestDTO 请求入参
+     * @param studentId  学生Id
+     */
+    @PostMapping("updateStudentIdCard")
+    public void updateStudentIdCard(@RequestBody BindStudentRequestDTO requestDTO, Integer studentId) {
+        parentStudentBizService.updateStudentIdCard(requestDTO, studentId);
+    }
 
 }

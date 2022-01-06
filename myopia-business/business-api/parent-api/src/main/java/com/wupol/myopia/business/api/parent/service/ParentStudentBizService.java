@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.parent.service;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.IdcardUtil;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.cache.RedisUtil;
@@ -12,6 +13,7 @@ import com.wupol.myopia.business.aggregation.hospital.service.MedicalReportBizSe
 import com.wupol.myopia.business.aggregation.hospital.service.OrgCooperationHospitalBizService;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
 import com.wupol.myopia.business.api.parent.domain.dos.*;
+import com.wupol.myopia.business.api.parent.domain.dto.BindStudentRequestDTO;
 import com.wupol.myopia.business.api.parent.domain.dto.ScreeningReportResponseDTO;
 import com.wupol.myopia.business.api.parent.domain.dto.ScreeningVisionTrendsResponseDTO;
 import com.wupol.myopia.business.api.parent.domain.dto.VisitsReportDetailRequest;
@@ -21,7 +23,9 @@ import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.domain.dto.SuggestHospitalDTO;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
+import com.wupol.myopia.business.core.hospital.domain.dto.HospitalStudentResponseDTO;
 import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
+import com.wupol.myopia.business.core.hospital.domain.model.HospitalStudent;
 import com.wupol.myopia.business.core.hospital.domain.model.OrgCooperationHospital;
 import com.wupol.myopia.business.core.hospital.service.HospitalService;
 import com.wupol.myopia.business.core.hospital.service.HospitalStudentService;
@@ -41,7 +45,9 @@ import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.RefractoryResultItems;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.VisionItems;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.flow.util.ScreeningResultUtil;
 import lombok.extern.log4j.Log4j2;
@@ -95,6 +101,8 @@ public class ParentStudentBizService {
     private StudentFacade studentFacade;
     @Resource
     private HospitalStudentService hospitalStudentService;
+    @Resource
+    private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
 
     /**
      * 孩子统计、孩子列表
@@ -313,7 +321,7 @@ public class ParentStudentBizService {
             responseDTO.setDetail(detail);
             return responseDTO;
         }
-        return packageScreeningReport(visionScreeningResultService.getById(result.getId()));
+        return packageScreeningReport(visionScreeningResultService.getById(result.getId()), null);
     }
 
     /**
@@ -327,7 +335,7 @@ public class ParentStudentBizService {
         if (null == result) {
             return new ScreeningReportResponseDTO();
         }
-        return packageScreeningReport(result);
+        return packageScreeningReport(result, null);
     }
 
     /**
@@ -398,14 +406,21 @@ public class ParentStudentBizService {
     /**
      * 封装筛查结果
      *
-     * @param result 筛查结果
+     * @param result                 筛查结果
+     * @param isNewbornWithoutIdCard 是否新生儿暂无身份证 false-否 true-是
      * @return ScreeningReportResponseDTO 筛查报告返回体
      */
-    private ScreeningReportResponseDTO packageScreeningReport(VisionScreeningResult result) {
+    private ScreeningReportResponseDTO packageScreeningReport(VisionScreeningResult result, Boolean isNewbornWithoutIdCard) {
         ScreeningReportResponseDTO response = new ScreeningReportResponseDTO();
         Integer screeningOrgId = result.getScreeningOrgId();
         // 查询学生
-        Student student = studentService.getById(result.getStudentId());
+        StudentDTO student = studentService.getStudentById(result.getStudentId());
+        response.setStudentInfo(student);
+        if (Objects.nonNull(isNewbornWithoutIdCard)) {
+            response.setIsNewbornWithoutIdCard(isNewbornWithoutIdCard);
+        } else {
+            response.setIsNewbornWithoutIdCard(student.getIsNewbornWithoutIdCard());
+        }
         int age = DateUtil.ageOfNow(student.getBirthday());
 
         ScreeningReportDetailDO responseDTO = new ScreeningReportDetailDO();
@@ -508,4 +523,52 @@ public class ParentStudentBizService {
         student.setParentPhone(parent.getPhone());
         return student;
     }
+
+    /**
+     * 通过条件获取筛查条件
+     *
+     * @param condition 条件
+     * @param name      学生名称
+     * @return 筛查条件
+     */
+    public ScreeningReportResponseDTO getScreeningReportByCondition(String condition, String name) {
+        ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getByCondition(condition, name);
+        if (Objects.isNull(planStudent)) {
+            return null;
+        }
+        VisionScreeningResult result = visionScreeningResultService.getByPlanStudentId(planStudent.getId());
+        if (Objects.isNull(result)) {
+            return null;
+        }
+        return packageScreeningReport(result, false);
+    }
+
+    /**
+     * 更新学生身份证
+     *
+     * @param requestDTO 请求入参
+     * @param studentId  学生Id
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void updateStudentIdCard(BindStudentRequestDTO requestDTO, Integer studentId) {
+        String idCard = requestDTO.getIdCard();
+        String name = requestDTO.getName();
+        if (!IdcardUtil.isValidCard(idCard)) {
+            throw new BusinessException("身份证异常");
+        }
+        // 更新学生
+        Student student = studentService.getById(studentId);
+        if (Objects.isNull(student)) {
+            throw new BusinessException("学生信息异常");
+        }
+        studentService.updateById(student.setIdCard(idCard).setName(name).setIsNewbornWithoutIdCard(false));
+        // 更新患者
+        List<HospitalStudent> hospitalStudents = hospitalStudentService.getByStudentId(studentId);
+        if (CollectionUtils.isEmpty(hospitalStudents)) {
+            return;
+        }
+        hospitalStudents.forEach(hospitalStudent -> hospitalStudent.setIdCard(idCard).setName(name).setIsNewbornWithoutIdCard(false));
+        hospitalStudentService.updateBatchById(hospitalStudents);
+    }
+
 }
