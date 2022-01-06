@@ -172,6 +172,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
                 .setCreateUserId(hospital.getCreateUserId())
                 .setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode())
                 .setUserType(UserType.HOSPITAL_ADMIN.getType());
+        userDTO.setOrgConfigType(hospital.getServiceType());
         userDTO.setAssociateScreeningOrgId(associateScreeningOrgId);
         User user = oauthServiceClient.addMultiSystemUser(userDTO);
         hospitalAdminService.saveAdmin(hospital.getCreateUserId(), hospital.getId(), user.getId(), hospital.getGovDeptId());
@@ -197,6 +198,17 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      */
     public List<Hospital> getBy(HospitalQuery query) {
         return baseMapper.getBy(query);
+    }
+
+    /**
+     * 获取指定serviceType类型的医院
+     * @param serviceType
+     * @return
+     */
+    public List<Hospital> getByServiceType(Integer serviceType) {
+        HospitalQuery query = new HospitalQuery();
+        query.setServiceType(serviceType);
+        return getBy(query);
     }
 
     /**

@@ -8,10 +8,7 @@ import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.oauth.domain.dto.RoleDTO;
 import com.wupol.myopia.oauth.domain.mapper.RoleMapper;
-import com.wupol.myopia.oauth.domain.model.DistrictPermission;
-import com.wupol.myopia.oauth.domain.model.Permission;
-import com.wupol.myopia.oauth.domain.model.Role;
-import com.wupol.myopia.oauth.domain.model.RolePermission;
+import com.wupol.myopia.oauth.domain.model.*;
 import org.apache.commons.collections4.ListUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -201,4 +198,36 @@ public class RoleService extends BaseService<RoleMapper, Role> {
         Assert.notNull(roleType, "角色类型roleType不能为空");
         return baseMapper.getOrgFirstOneRole(orgId, systemCode, roleType);
     }
+
+    /**
+     * 更新指定医院的角色权限
+     * @param hospitalId
+     * @param templateType
+     */
+    @Transactional
+    public void updateRolePermissionByHospital(Integer hospitalId, Integer templateType) {
+        RoleDTO query = new RoleDTO();
+        query.setOrgId(hospitalId).setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode())
+                .setRoleType(RoleType.HOSPITAL_ADMIN.getType());
+        List<Role> roleList = getRoleList(query);
+        roleList.forEach(role -> updateRolePermission(role.getId(), templateType));
+    }
+
+    /**
+     * 更新角色的权限
+     * @param roleId
+     * @param templateType
+     */
+    @Transactional
+    public void updateRolePermission(Integer roleId, Integer templateType) {
+        // 删除改角色所有的所有权限
+        rolePermissionService.remove(new RolePermission().setRoleId(roleId));
+        // 查找模板的权限集合包
+        List<Integer> permissionIds = districtPermissionService.getByTemplateType(templateType)
+                .stream().map(DistrictPermission::getPermissionId).collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(permissionIds)) {
+            this.assignRolePermission(roleId, permissionIds);
+        }
+    }
+
 }
