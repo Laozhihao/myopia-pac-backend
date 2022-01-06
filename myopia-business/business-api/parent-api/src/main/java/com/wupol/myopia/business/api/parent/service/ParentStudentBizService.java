@@ -17,13 +17,13 @@ import com.wupol.myopia.business.api.parent.domain.dto.BindStudentRequestDTO;
 import com.wupol.myopia.business.api.parent.domain.dto.ScreeningReportResponseDTO;
 import com.wupol.myopia.business.api.parent.domain.dto.ScreeningVisionTrendsResponseDTO;
 import com.wupol.myopia.business.api.parent.domain.dto.VisitsReportDetailRequest;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.QrCodeCacheKey;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.domain.dto.SuggestHospitalDTO;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
-import com.wupol.myopia.business.core.hospital.domain.dto.HospitalStudentResponseDTO;
 import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
 import com.wupol.myopia.business.core.hospital.domain.model.HospitalStudent;
 import com.wupol.myopia.business.core.hospital.domain.model.OrgCooperationHospital;
@@ -58,6 +58,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import javax.validation.constraints.NotNull;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -321,21 +322,22 @@ public class ParentStudentBizService {
             responseDTO.setDetail(detail);
             return responseDTO;
         }
-        return packageScreeningReport(visionScreeningResultService.getById(result.getId()), null);
+        return packageScreeningReport(visionScreeningResultService.getById(result.getId()), true);
     }
 
     /**
      * 获取筛查结果详情
      *
-     * @param reportId 报告ID
+     * @param reportId   报告ID
+     * @param isShowBind 是否展示重新绑定身份证
      * @return ScreeningReportResponseDTO 学生就诊记录档案卡
      */
-    public ScreeningReportResponseDTO getScreeningReportDetail(Integer reportId) {
+    public ScreeningReportResponseDTO getScreeningReportDetail(Integer reportId, @NotNull(message = "辨识位不能为空") boolean isShowBind) {
         VisionScreeningResult result = visionScreeningResultService.getById(reportId);
         if (null == result) {
             return new ScreeningReportResponseDTO();
         }
-        return packageScreeningReport(result, null);
+        return packageScreeningReport(result, isShowBind);
     }
 
     /**
@@ -406,21 +408,25 @@ public class ParentStudentBizService {
     /**
      * 封装筛查结果
      *
-     * @param result                 筛查结果
-     * @param isNewbornWithoutIdCard 是否新生儿暂无身份证 false-否 true-是
+     * @param result     筛查结果
+     * @param isShowBind 是否展示重新绑定身份证
      * @return ScreeningReportResponseDTO 筛查报告返回体
      */
-    private ScreeningReportResponseDTO packageScreeningReport(VisionScreeningResult result, Boolean isNewbornWithoutIdCard) {
+    private ScreeningReportResponseDTO packageScreeningReport(VisionScreeningResult result, boolean isShowBind) {
         ScreeningReportResponseDTO response = new ScreeningReportResponseDTO();
         Integer screeningOrgId = result.getScreeningOrgId();
         // 查询学生
-        StudentDTO student = studentService.getStudentById(result.getStudentId());
+        Integer studentId = result.getStudentId();
+        StudentDTO student = studentService.getStudentById(studentId);
         response.setStudentInfo(student);
-        if (Objects.nonNull(isNewbornWithoutIdCard)) {
-            response.setIsNewbornWithoutIdCard(isNewbornWithoutIdCard);
-        } else {
+        if (isShowBind) {
             response.setIsNewbornWithoutIdCard(student.getIsNewbornWithoutIdCard());
+        } else {
+            response.setIsNewbornWithoutIdCard(false);
         }
+        student.setScreeningCodes(screeningPlanSchoolStudentService.getByStudentId(studentId)
+                .stream().map(ScreeningPlanSchoolStudent::getScreeningCode)
+                .collect(Collectors.toList()));
         int age = DateUtil.ageOfNow(student.getBirthday());
 
         ScreeningReportDetailDO responseDTO = new ScreeningReportDetailDO();
@@ -531,16 +537,16 @@ public class ParentStudentBizService {
      * @param name      学生名称
      * @return 筛查条件
      */
-    public ScreeningReportResponseDTO getScreeningReportByCondition(String condition, String name) {
+    public Integer getScreeningReportByCondition(String condition, String name) {
         ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getByCondition(condition, name);
         if (Objects.isNull(planStudent)) {
             return null;
         }
         VisionScreeningResult result = visionScreeningResultService.getByPlanStudentId(planStudent.getId());
-        if (Objects.isNull(result)) {
-            return null;
+        if (Objects.nonNull(result)) {
+            return result.getId();
         }
-        return packageScreeningReport(result, false);
+        return null;
     }
 
     /**
@@ -557,9 +563,26 @@ public class ParentStudentBizService {
             throw new BusinessException("身份证异常");
         }
         // 更新学生
-        Student student = studentService.getById(studentId);
+        // 查看是否有删除的学生
+        Student student;
+        List<Student> deletedStudents = studentService.getDeleteStudentByIdCard(Lists.newArrayList(idCard));
+        if (CollectionUtils.isEmpty(deletedStudents)) {
+            student = studentService.getById(studentId);
+        } else {
+            if (deletedStudents.size() > 1) {
+                log.error("家长端更新学生身份证异常，学生Id:{}，身份证:{}", studentId, idCard);
+                throw new BusinessException("学生数据异常");
+            }
+            student = deletedStudents.get(0);
+            student.setStatus(CommonConst.STATUS_NOT_DELETED);
+        }
+
         if (Objects.isNull(student)) {
             throw new BusinessException("学生信息异常");
+        }
+        // 检查学生身份证是否重复
+        if (studentService.checkIdCard(idCard, studentId)) {
+            throw new BusinessException("学生身份证重复");
         }
         studentService.updateById(student.setIdCard(idCard).setName(name).setIsNewbornWithoutIdCard(false));
         // 更新患者

@@ -512,15 +512,4 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     public Student getAllByIdCard(String idCard) {
         return baseMapper.getAllByIdCard(idCard);
     }
-
-    /**
-     * 通过条件获取学生
-     *
-     * @param condition 条件
-     * @param name      学生名称
-     * @return 学生
-     */
-    public Student getByCondition(String condition, String name) {
-        return baseMapper.getByCondition(idCard);
-    }
 }
