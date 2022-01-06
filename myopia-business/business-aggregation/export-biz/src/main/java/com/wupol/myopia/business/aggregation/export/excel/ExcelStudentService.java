@@ -424,7 +424,7 @@ public class ExcelStudentService {
         student.setGradeName(item.get(ImportExcelEnum.GRADE.getIndex()))
                 .setClassName(item.get(ImportExcelEnum.CLASS.getIndex()));
         student.setName(StringUtils.getDefaultIfBlank(item.get(ImportExcelEnum.NAME.getIndex()), null))
-                .setGender(StringUtils.isBlank(item.get(ImportExcelEnum.GENDER.getIndex())) ? IdCardUtil.getGender(item.get(ImportExcelEnum.ID_CARD.getIndex())) : GenderEnum.getType(item.get(ImportExcelEnum.GENDER.getIndex())))
+                .setGender(StringUtils.isBlank(item.get(ImportExcelEnum.ID_CARD.getIndex())) ? GenderEnum.getType(item.get(ImportExcelEnum.GENDER.getIndex())) : IdCardUtil.getGender(item.get(ImportExcelEnum.ID_CARD.getIndex())))
                 .setNation(StringUtils.isBlank(item.get(ImportExcelEnum.NATION.getIndex())) ? null : NationEnum.getCode(item.get(ImportExcelEnum.NATION.getIndex())))
                 .setSchoolId(schoolId)
                 .setGradeId(gradeNameIdMap.get(item.get(ImportExcelEnum.GRADE.getIndex())))

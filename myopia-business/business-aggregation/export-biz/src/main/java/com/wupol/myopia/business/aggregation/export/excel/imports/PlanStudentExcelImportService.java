@@ -12,6 +12,7 @@ import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchool
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -75,8 +76,12 @@ public class PlanStudentExcelImportService {
             return;
         }
         // 这里是Excel的一个小坑
-//        List<Map<Integer, String>> resultList = listMap.stream().filter(s -> s.get(ImportExcelEnum.NAME.getIndex()) != null).collect(Collectors.toList());
-        excelStudentService.insertByUpload(userId, listMap, screeningPlan, schoolId);
+        List<Map<Integer, String>> resultList = listMap.stream().filter(s ->
+                        s.get(ImportExcelEnum.SCREENING_CODE.getIndex()) != null
+                                && StringUtils.isNotBlank(s.get(ImportExcelEnum.ID_CARD.getIndex()))
+                                && StringUtils.isNotBlank(s.get(ImportExcelEnum.NAME.getIndex())))
+                .collect(Collectors.toList());
+        excelStudentService.insertByUpload(userId, resultList, screeningPlan, schoolId);
         screeningPlanService.updateStudentNumbers(userId, screeningPlan.getId(), screeningPlanSchoolStudentService.getCountByScreeningPlanId(screeningPlan.getId()));
     }
 }
