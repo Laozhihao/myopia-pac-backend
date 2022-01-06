@@ -81,6 +81,16 @@
         <if test="status != null">
             and mso.status = #{status}
         </if>
+        <if test="cooperationType != null">
+            and mso.cooperation_type = #{cooperationType}
+        </if>
+        <if test="startTimes !=null">
+            and mso.cooperation_end_time &gt;= #{startTimes}
+        </if>
+        <if test="endTimes !=null">
+            and mso.cooperation_end_time &lt;= #{endTimes}
+        </if>
+
         order by mso.create_time desc
     </select>
 

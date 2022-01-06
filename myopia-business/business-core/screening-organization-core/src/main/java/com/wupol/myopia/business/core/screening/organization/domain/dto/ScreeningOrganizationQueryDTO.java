@@ -31,4 +31,8 @@ public class ScreeningOrganizationQueryDTO extends ScreeningOrganization {
     private LocalDate endTime;
     /** 是否需要查询是否有任务（配合开始结束时间） **/
     private Boolean needCheckHaveTask = false;
+
+    private String startTimes;
+
+    private String endTimes;
 }
