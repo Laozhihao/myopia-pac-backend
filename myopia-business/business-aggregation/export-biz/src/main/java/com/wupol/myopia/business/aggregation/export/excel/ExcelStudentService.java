@@ -433,6 +433,9 @@ public class ExcelStudentService {
                 .setIdCard(StringUtils.getDefaultIfBlank(item.get(ImportExcelEnum.ID_CARD.getIndex()), null))
                 .setParentPhone(StringUtils.getDefaultIfBlank(item.get(ImportExcelEnum.PHONE.getIndex()), null))
                 .setAddress(StringUtils.getDefaultIfBlank(item.get(ImportExcelEnum.ADDRESS.getIndex()), null));
+        if (GenderEnum.UNKNOWN.type.equals(student.getGender())) {
+            throw new BusinessException("性别异常");
+        }
         try {
             student.setBirthday(StringUtils.isBlank(item.get(ImportExcelEnum.BIRTHDAY.getIndex())) ? IdCardUtil.getBirthDay(item.get(ImportExcelEnum.ID_CARD.getIndex())) : DateFormatUtil.parseDate(item.get(ImportExcelEnum.BIRTHDAY.getIndex()), DateFormatUtil.FORMAT_ONLY_DATE2));
         } catch (ParseException e) {
