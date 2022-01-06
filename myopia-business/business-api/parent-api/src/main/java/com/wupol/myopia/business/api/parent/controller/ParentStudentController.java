@@ -265,7 +265,7 @@ public class ParentStudentController {
      * @return 筛查条件
      */
     @GetMapping("report/screening/byCondition")
-    public Integer getScreeningReportByCondition(String condition, String name) {
+    public ScreeningReportInfoResponseDTO getScreeningReportByCondition(String condition, String name) {
         return parentStudentBizService.getScreeningReportByCondition(condition, name);
     }
 
@@ -279,6 +279,11 @@ public class ParentStudentController {
     public void updateStudentIdCard(@RequestBody @Validated BindStudentRequestDTO requestDTO,
                                     @PathVariable("studentId") @NotNull(message = "学生Id不能为空") Integer studentId) {
         parentStudentBizService.updateStudentIdCard(requestDTO, studentId);
+    }
+
+    @GetMapping("getStudentInfo/{studentId}")
+    public StudentDTO getStudentInfo(@PathVariable("studentId")Integer studentId) {
+        return parentStudentBizService.getStudentInfo(studentId);
     }
 
 }
