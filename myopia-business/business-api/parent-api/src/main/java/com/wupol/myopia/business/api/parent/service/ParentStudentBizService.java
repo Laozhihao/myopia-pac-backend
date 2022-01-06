@@ -17,7 +17,6 @@ import com.wupol.myopia.business.api.parent.domain.dto.BindStudentRequestDTO;
 import com.wupol.myopia.business.api.parent.domain.dto.ScreeningReportResponseDTO;
 import com.wupol.myopia.business.api.parent.domain.dto.ScreeningVisionTrendsResponseDTO;
 import com.wupol.myopia.business.api.parent.domain.dto.VisitsReportDetailRequest;
-import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.QrCodeCacheKey;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
@@ -58,7 +57,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import javax.validation.constraints.NotNull;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -332,7 +330,7 @@ public class ParentStudentBizService {
      * @param isShowBind 是否展示重新绑定身份证
      * @return ScreeningReportResponseDTO 学生就诊记录档案卡
      */
-    public ScreeningReportResponseDTO getScreeningReportDetail(Integer reportId, @NotNull(message = "辨识位不能为空") boolean isShowBind) {
+    public ScreeningReportResponseDTO getScreeningReportDetail(Integer reportId, boolean isShowBind) {
         VisionScreeningResult result = visionScreeningResultService.getById(reportId);
         if (null == result) {
             return new ScreeningReportResponseDTO();
@@ -540,13 +538,13 @@ public class ParentStudentBizService {
     public Integer getScreeningReportByCondition(String condition, String name) {
         ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getByCondition(condition, name);
         if (Objects.isNull(planStudent)) {
-            return null;
+            throw new BusinessException("该学生筛查编号/身份证/学籍号/姓名错误");
         }
         VisionScreeningResult result = visionScreeningResultService.getByPlanStudentId(planStudent.getId());
         if (Objects.nonNull(result)) {
             return result.getId();
         }
-        return null;
+        throw new BusinessException("该学生筛查编号/身份证/学籍号/姓名错误");
     }
 
     /**
