@@ -1,5 +1,9 @@
 package com.wupol.myopia.business.core.hospital.domain.dto;
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.wupol.myopia.base.domain.vo.FamilyInfoVO;
 import com.wupol.myopia.business.core.hospital.domain.model.ReferralRecord;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -50,5 +54,12 @@ public class ReferralDTO extends ReferralRecord {
      * 联系方式
      */
     private String parentPhone;
+
+    /**
+     * 家庭信息
+     */
+    @JsonIgnore
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private FamilyInfoVO familyInfo;
 
 }

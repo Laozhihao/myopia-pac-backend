@@ -46,7 +46,7 @@ public class ReceiptList implements Serializable {
     private String medicalResult;
 
     /**
-     * 是否进一步转诊
+     * 是否进一步转诊[0 否; 1 是]
      */
     private Integer furtherReferral;
 
@@ -56,7 +56,7 @@ public class ReceiptList implements Serializable {
     private String referralHospital;
 
     /**
-     * 回执单所有医院id
+     * 开具回执单医院id
      */
     private Integer fromHospitalId;
 

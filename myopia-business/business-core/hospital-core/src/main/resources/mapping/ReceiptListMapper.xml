@@ -6,6 +6,10 @@
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.hospital.domain.model.ReceiptList">
     </resultMap>
 
+    <resultMap id="ReceiptDTO" type="com.wupol.myopia.business.core.hospital.domain.dto.ReceiptDTO" extends="BaseResultMap">
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="family_info" property="familyInfo"/>
+    </resultMap>
+
     <!-- 通用查询条件 -->
     <sql id="Base_Where_Clause">
         <where>
@@ -27,5 +31,17 @@
     <sql id="Base_Column_List">
         id, student_id, special_medical, medical_result, further_referral, referral_hospital, from_hospital_id, from_doctor_id, create_time
     </sql>
+
+    <select id="getDetails" resultMap="ReceiptDTO">
+        select rl.*, hs.`name` as student_name, hs.gender, hs.record_no, hs.birthday, hs.id_card, hs.family_info, h.`name` as from_hospital, d.`name` as from_doctor
+        from h_receipt_list rl
+        INNER JOIN h_hospital_student hs
+        on rl.student_id = hs.student_id
+        LEFT JOIN m_hospital h
+        ON h.id = rl.from_hospital_id
+        LEFT JOIN h_doctor d
+        ON d.id = rl.from_doctor_id
+        where rl.id = #{id}
+    </select>
 
 </mapper>

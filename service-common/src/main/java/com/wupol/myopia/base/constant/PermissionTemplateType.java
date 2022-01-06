@@ -35,7 +35,9 @@ public enum PermissionTemplateType {
     PLATFORM_ADMIN(6, "平台管理员权限集合包", RoleType.PLATFORM_ADMIN.getType(), SystemCode.MANAGEMENT_CLIENT.getCode()),
 
     /** 医院管理员 */
-    HOSPITAL_ADMIN(10, "医院管理员权限集合包", RoleType.HOSPITAL_ADMIN.getType(), SystemCode.MANAGEMENT_CLIENT.getCode()),
+    HOSPITAL_ADMIN(10, "居民健康系统权限集合包", RoleType.HOSPITAL_ADMIN.getType(), SystemCode.MANAGEMENT_CLIENT.getCode()),
+    PRESCHOOL_ADMIN(13, "0-6岁眼保健系统权限集合包", RoleType.HOSPITAL_ADMIN.getType(), SystemCode.MANAGEMENT_CLIENT.getCode()),
+    HOSPITAL_HOSPITAL_ADMIN(14, "居民健康系统+0-6岁眼保健系统权限集合包", RoleType.HOSPITAL_ADMIN.getType(), SystemCode.MANAGEMENT_CLIENT.getCode()),
 
     /** 医院APP */
     HOSPITAL_RESIDENT_APP(11, "居民健康APP权限集合包", RoleType.RESIDENT_DOCTOR.getType(), SystemCode.HOSPITAL_CLIENT.getCode()),
@@ -43,10 +45,19 @@ public enum PermissionTemplateType {
 
     private static final ImmutableMap<Integer, Integer> HOSPITAL_PERMISSION_TEMPLATE_TYPE_MAP;
 
+    private static final ImmutableMap<Integer, Integer> HOSPITAL_ADMIN_PERMISSION_TEMPLATE_TYPE_MAP;
+
     static {
         HOSPITAL_PERMISSION_TEMPLATE_TYPE_MAP = ImmutableMap.of(
                 HospitalServiceType.RESIDENT.getType(), HOSPITAL_RESIDENT_APP.getType(),
                 HospitalServiceType.PRESCHOOL.getType(), HOSPITAL_PRESCHOOL_APP.getType());
+    }
+
+    static {
+        HOSPITAL_ADMIN_PERMISSION_TEMPLATE_TYPE_MAP = ImmutableMap.of(
+                HospitalServiceType.RESIDENT.getType(), HOSPITAL_ADMIN.getType(),
+                HospitalServiceType.PRESCHOOL.getType(), PRESCHOOL_ADMIN.getType(),
+                HospitalServiceType.RESIDENT_PRESCHOOL.getType(), HOSPITAL_HOSPITAL_ADMIN.getType());
     }
 
     /**
@@ -145,4 +156,16 @@ public enum PermissionTemplateType {
         Assert.notNull(hospitalServiceType, "医院服务类型不能为空");
         return HOSPITAL_PERMISSION_TEMPLATE_TYPE_MAP.get(hospitalServiceType);
     }
+
+    /**
+     * 根据医院服务类型获取权限模板类型
+     *
+     * @param hospitalServiceType 医院服务类型
+     * @return java.lang.Integer
+     **/
+    public static Integer getTemplateTypeByHospitalAdminServiceType(Integer hospitalServiceType) {
+        Assert.notNull(hospitalServiceType, "医院服务类型不能为空");
+        return HOSPITAL_ADMIN_PERMISSION_TEMPLATE_TYPE_MAP.get(hospitalServiceType);
+    }
+
 }

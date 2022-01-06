@@ -6,6 +6,9 @@
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.hospital.domain.model.PreschoolCheckRecord">
     </resultMap>
 
+    <resultMap id="PreschoolCheckRecordDTO" type="com.wupol.myopia.business.core.hospital.domain.dto.PreschoolCheckRecordDTO">
+    </resultMap>
+
     <!-- 通用查询条件 -->
     <sql id="Base_Where_Clause">
         <where>
@@ -26,6 +29,7 @@
                 <if test="@Ognl@isNotEmpty(visionData)">and `vision_data` = #{visionData}</if>
                 <if test="@Ognl@isNotEmpty(monocularMaskingAversionTest)">and `monocular_masking_aversion_test` = #{monocularMaskingAversionTest}</if>
                 <if test="@Ognl@isNotEmpty(refractionData)">and `refraction_data` = #{refractionData}</if>
+                <if test="@Ognl@isNotEmpty(guideContent)">and `guide_content` = #{guideContent}</if>
                 <if test="@Ognl@isNotEmpty(toReferralId)">and `to_referral_id` = #{toReferralId}</if>
                 <if test="@Ognl@isNotEmpty(receiptId)">and `receipt_id` = #{receiptId}</if>
                 <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
@@ -36,7 +40,52 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, student_id, hospital_id, from_referral_id, month_age, outer_eye, eye_disease_factor, light_reaction, blink_reflex, red_ball_test, visual_behavior_observation, red_reflex, ocular_inspection, vision_data, monocular_masking_aversion_test, refraction_data, to_referral_id, receipt_id, update_time, create_time
+        id, student_id, hospital_id, from_referral_id, month_age, outer_eye, eye_disease_factor, light_reaction, blink_reflex, red_ball_test, visual_behavior_observation, red_reflex, ocular_inspection, vision_data, monocular_masking_aversion_test, refraction_data, guide_content, to_referral_id, receipt_id, update_time, create_time
     </sql>
+
+    <select id="getDetails" resultMap="PreschoolCheckRecordDTO">
+        select pcr.*, hs.`name` as student_name, hs.gender, hs.record_no, hs.birthday, hs.id_card, h.`name` as hospital_name, rr.to_hospital, rr.special_medical, rr.disease_medical
+        from h_preschool_check_record pcr
+        INNER JOIN h_hospital_student hs
+        on pcr.student_id = hs.student_id
+        LEFT JOIN m_hospital h
+        ON h.id = pcr.hospital_id
+        LEFT JOIN h_referral_record rr
+        ON rr.id = pcr.to_referral_id
+        where pcr.id = #{id}
+    </select>
+
+    <select id="getListByCondition" resultMap="PreschoolCheckRecordDTO">
+        SELECT
+            pcr.*,
+            hs.`name` AS student_name,
+            hs.gender,
+            hs.record_no,
+            hs.birthday,
+            hs.id_card,
+            h.`name` AS hospital_name,
+            rr.to_hospital, rr.referral_status
+        FROM
+            h_preschool_check_record pcr
+            INNER JOIN h_hospital_student hs ON pcr.student_id = hs.student_id
+            LEFT JOIN m_hospital h ON h.id = pcr.hospital_id
+            LEFT JOIN h_referral_record rr ON rr.id = pcr.to_referral_id
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(query.hospitalId)">and pcr.`hospital_id` = #{query.hospitalId}</if>
+                <if test="@Ognl@isNotEmpty(query.studentName)">and hs.`name` like CONCAT('%', #{query.studentName}, '%')</if>
+                <if test="@Ognl@isNotEmpty(query.hospitalName)">and h.`name` like CONCAT('%', #{query.hospitalName}, '%')</if>
+                <if test="@Ognl@isNotEmpty(query.toHospital)">and rr.`to_hospital` like CONCAT('%', #{query.toHospital}, '%')</if>
+                <if test="@Ognl@isNotEmpty(query.referralStatus)">and rr.`referral_status` = #{query.referralStatus}</if>
+                <if test="@Ognl@isNotEmpty(query.checkDateStart)">and Date(pcr.`create_time`) &lt;= Date(#{query.checkDateStart})</if>
+                <if test="@Ognl@isNotEmpty(query.checkDateEnd)">and Date(pcr.`create_time`) &gt;= Date(#{query.checkDateEnd})</if>
+                <if test="@Ognl@isNotEmpty(query.isToReferral) and query.isToReferral == 0">and pcr.to_referral_id is null</if>
+                <if test="@Ognl@isNotEmpty(query.isToReferral) and query.isToReferral == 1">and pcr.to_referral_id is not null</if>
+                <!-- TODO wulizhou 未实现
+                <if test="@Ognl@isNotEmpty(query.doctorsName)">and rr.`to_hospital` = #{query.doctorsName}</if>
+                 -->
+            </trim>
+        </where>
+    </select>
 
 </mapper>

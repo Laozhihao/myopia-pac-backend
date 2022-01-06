@@ -86,6 +86,11 @@ public class ReferralRecord implements Serializable {
     private String diseaseMedical;
 
     /**
+     * 转诊状态[0 待就诊；1 已接诊]
+     */
+    private Integer referralStatus;
+
+    /**
      * 创建时间
      */
     private Date createTime;

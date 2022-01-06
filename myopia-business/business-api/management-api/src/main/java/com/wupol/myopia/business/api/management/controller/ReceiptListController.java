@@ -1,11 +1,12 @@
 package com.wupol.myopia.business.api.management.controller;
 
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.business.core.hospital.domain.dto.ReceiptDTO;
+import com.wupol.myopia.business.core.hospital.service.ReceiptListService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * 回执单
@@ -20,6 +21,17 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class ReceiptListController {
 
+    @Autowired
+    private ReceiptListService receiptListService;
 
+    /**
+     * 获取回执单详情
+     * @param id
+     * @return
+     */
+    @GetMapping("/{id}")
+    public ReceiptDTO getDetails(@PathVariable("id") Integer id) {
+        return receiptListService.getDetails(id);
+    }
 
 }

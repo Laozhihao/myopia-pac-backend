@@ -106,6 +106,11 @@ public class PreschoolCheckRecord implements Serializable {
     private String refractionData;
 
     /**
+     * 健康指导
+     */
+    private String guideContent;
+
+    /**
      * 检查后转诊id
      */
     private Integer toReferralId;

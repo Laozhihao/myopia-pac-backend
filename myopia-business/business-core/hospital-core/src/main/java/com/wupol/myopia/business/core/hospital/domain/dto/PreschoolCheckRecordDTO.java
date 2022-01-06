@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import java.util.Date;
+
 /**
  * @Author wulizhou
  * @Date 2022/1/4 20:29
@@ -25,9 +27,14 @@ public class PreschoolCheckRecordDTO extends PreschoolCheckRecord {
     private String gender;
 
     /**
-     * 检查时年龄
+     * 生日
      */
-    private String checkAge;
+    private Date birthDay;
+
+    /**
+     * 编号
+     */
+    private String recordNo;
 
     /**
      * 结论
@@ -52,6 +59,21 @@ public class PreschoolCheckRecordDTO extends PreschoolCheckRecord {
     /**
      * 接诊机构
      */
-    private String receiveHospital;
+    private String toHospital;
+
+    /**
+     * 未做专项检查
+     */
+    private String specialMedical;
+
+    /**
+     * 初筛异常项目
+     */
+    private String diseaseMedical;
+
+    /**
+     * 转诊状态[0 待就诊；1 已接诊]
+     */
+    private Integer referralStatus = 0;
 
 }
