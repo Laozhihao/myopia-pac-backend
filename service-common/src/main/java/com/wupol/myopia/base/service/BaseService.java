@@ -151,5 +151,4 @@ public abstract class BaseService<M extends BaseMapper<T>, T> extends ServiceImp
     public List<T> findByDeptId(T entity) {
         return list(getQueryWrapper(entity));
     }
-
 }
