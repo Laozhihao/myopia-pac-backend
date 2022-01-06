@@ -538,13 +538,13 @@ public class ParentStudentBizService {
     public Integer getScreeningReportByCondition(String condition, String name) {
         ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getByCondition(condition, name);
         if (Objects.isNull(planStudent)) {
-            return null;
+            throw new BusinessException("该学生筛查编号/身份证/学籍号/姓名错误");
         }
         VisionScreeningResult result = visionScreeningResultService.getByPlanStudentId(planStudent.getId());
         if (Objects.nonNull(result)) {
             return result.getId();
         }
-        return null;
+        throw new BusinessException("该学生筛查编号/身份证/学籍号/姓名错误");
     }
 
     /**
