@@ -45,4 +45,10 @@ public class ExcelNoticeKeyContentConstant {
      */
     public final String STUDENT_WARNING_ARCHIVE_EXCEL_NOTICE_KEY_CONTENT = "%s在%s至%s的学生预警跟踪数据表";
 
+    /**
+     * 学生 Excel 导出通知消息的关键内容
+     *  作者钓猫的小鱼
+     */
+    public final String EXPORT_PLAN_STUDENT_DATA = "%s学生数据表";
+
 }

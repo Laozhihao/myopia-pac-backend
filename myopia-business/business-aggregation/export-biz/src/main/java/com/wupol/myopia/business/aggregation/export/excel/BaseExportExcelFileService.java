@@ -59,7 +59,6 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
 
             // 4.生成导出的文件
             excelFile = generateExcelFile(fileName, data);
-            System.out.println("-----------excelFile--------------"+excelFile);
             // 5.上传文件
             Integer fileId = uploadFile(excelFile);
             // 6.发送成功通知

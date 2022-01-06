@@ -124,13 +124,8 @@ public class ScreeningPlanSchoolStudentFacadeService {
     * @Author: 钓猫的小鱼
     * @Date: 2022/1/5
     */
-    private void setStudentEyeInfor(ScreeningStudentDTO studentEyeInfor){
-        Integer id = studentEyeInfor.getId();
-        List<VisionScreeningResult> visionScreeningResults =  visionScreeningResultService.getByStudentId(id);
-        if (visionScreeningResults.size()>1){
-            log.error("学生数据大于1条，请检查。report id = ." + id);
-        }
-        VisionScreeningResult visionScreeningResult = visionScreeningResults.get(0);
+    public void setStudentEyeInfor(ScreeningStudentDTO studentEyeInfor){
+        VisionScreeningResult visionScreeningResult = getVisionScreeningResult(studentEyeInfor);
 
         String nakedVision = visionScreeningResult.getVisionData().getRightEyeData().getNakedVision()+"/"+visionScreeningResult.getVisionData().getLeftEyeData().getNakedVision();
         studentEyeInfor.setNakedVision(nakedVision);//裸视力
@@ -147,6 +142,15 @@ public class ScreeningPlanSchoolStudentFacadeService {
         String axial = visionScreeningResult.getComputerOptometry().getRightEyeData().getAxial()+"/"+visionScreeningResult.getComputerOptometry().getLeftEyeData().getAxial();
         studentEyeInfor.setAxial(axial);//眼轴
 
+    }
+
+    public VisionScreeningResult getVisionScreeningResult(ScreeningStudentDTO studentEyeInfor) {
+        Integer id = studentEyeInfor.getId();
+        List<VisionScreeningResult> visionScreeningResults =  visionScreeningResultService.getByStudentId(id);
+        if (visionScreeningResults.size()>1){
+            log.error("学生数据大于1条，请检查。report id = ." + id);
+        }
+        return visionScreeningResults.get(0);
     }
 
 }

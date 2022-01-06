@@ -66,7 +66,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
 
     @Override
     public List getExcelData(ExportCondition exportCondition) {
-        Integer screeningPlanId = exportCondition.getPlanId();
+        Integer screeningPlanId = exportCondition.getPlanId();//这个地方有问题
         Integer screeningOrgId = exportCondition.getScreeningOrgId();
         Integer schoolId = exportCondition.getSchoolId();
         Integer gradeId = exportCondition.getGradeId();
@@ -84,20 +84,10 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
 
     @Override
     public String getNoticeKeyContent(ExportCondition exportCondition) {
-        ScreeningPlan plan = screeningPlanService.getById(exportCondition.getPlanId());
-        School school = schoolService.getById(exportCondition.getSchoolId());
-        String gradeName = "";
-        Integer gradeId = exportCondition.getGradeId();
-        if (Objects.nonNull(gradeId)) {
-            gradeName = schoolGradeService.getById(gradeId).getName();
-        }
 
-        return String.format(ExcelNoticeKeyContentConstant.PLAN_STUDENT_EXCEL_NOTICE_KEY_CONTENT,
-                plan.getTitle(),
-                DateFormatUtil.format(plan.getStartTime(), DateFormatUtil.FORMAT_ONLY_DATE),
-                DateFormatUtil.format(plan.getEndTime(), DateFormatUtil.FORMAT_ONLY_DATE),
-                school.getName(),
-                gradeName);
+        String noticeKeyContent = String.format(ExcelNoticeKeyContentConstant.EXPORT_PLAN_STUDENT_DATA, getFileNameTitle(exportCondition));
+
+        return noticeKeyContent;
     }
 
     @Override
@@ -107,11 +97,13 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
 
     @Override
     public String getLockKey(ExportCondition exportCondition) {
-        return String.format(RedisConstant.FILE_EXPORT_EXCEL_PLAN_STUDENT,
-                exportCondition.getApplyExportFileUserId(),
-                exportCondition.getSchoolId(),
-                exportCondition.getPlanId(),
-                exportCondition.getGradeId());
+        Integer screeningPlanId = exportCondition.getPlanId();
+        Integer screeningOrgId = exportCondition.getScreeningOrgId();
+        Integer schoolId = exportCondition.getSchoolId();
+        Integer userId = exportCondition.getApplyExportFileUserId();
+        String lockKey = String.format(RedisConstant.FILE_EXPORT_PLAN_DATA, screeningPlanId,screeningOrgId,schoolId, userId);
+
+        return lockKey;
     }
 
     @Override

@@ -427,12 +427,13 @@ public class ScreeningPlanController {
                 ;
 
         if (classId==null){
-
             exportStrategy.doExcelExport(exportCondition, ExportReportServiceNameConstant.EXPORT_PLAN_SCHOOL_STUDENT_DATA);
+            System.out.println("------------doExcelExport-----------------");
             return ApiResult.success();
         }else {
 
             String path = exportStrategy.syncExport(exportCondition, ExportReportServiceNameConstant.EXPORT_PLAN_SCHOOL_STUDENT_DATA);
+            System.out.println("------------doExcelExport-----------------");
             return ApiResult.success(path);
         }
 

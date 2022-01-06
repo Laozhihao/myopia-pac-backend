@@ -133,6 +133,17 @@ public interface RedisConstant {
      * 作者：钓猫的小鱼
      */
     String FILE_EXPORT_ARCHIVES_COUNT = "file:export:pdf:count:%s-%s-%s-%s-%s-%s-%s";
+    /**
+     * 导出Excel-学生
+     * 作者：钓猫的小鱼
+     */
+    String FILE_EXPORT_EXCELDATA_PLAN_STUDENT = "file:export:excelData:plan:student:%s-%s-%s-%s";
+
+    /**
+     * 导出Excel-学生筛查数据
+     * 作者：钓猫的小鱼
+     */
+    String FILE_EXPORT_PLAN_STUDENTSCREENING = "file:export:plan:studentScreening:%s-%s-%s-%s-%s-%s";
 
 
 
