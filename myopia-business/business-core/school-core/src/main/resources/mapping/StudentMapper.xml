@@ -8,6 +8,7 @@
     </resultMap>
 
     <resultMap id="BaseResultMapDTO" type="com.wupol.myopia.business.core.school.domain.dto.StudentDTO">
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="family_info" property="familyInfo"/>
     </resultMap>
 
     <resultMap id="StudentExtraDTOMap" type="com.wupol.myopia.business.core.school.domain.dto.StudentExtraDTO">
@@ -320,5 +321,13 @@
         <include refid="Base_Column_List"/>
         from m_student
         where id_card = #{idCard}
+    </select>
+
+    <select id="checkIdCardAndId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_student
+        where id_card = #{cardId}
+          and id != #{id}
     </select>
 </mapper>

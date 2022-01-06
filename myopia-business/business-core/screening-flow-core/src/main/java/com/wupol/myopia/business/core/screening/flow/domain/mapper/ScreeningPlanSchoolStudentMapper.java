@@ -50,4 +50,6 @@ public interface ScreeningPlanSchoolStudentMapper extends BaseMapper<ScreeningPl
     ScreeningPlanSchoolStudent getOneByStudentName(String name);
 
     ScreeningPlanSchoolStudent getLastByStudentId(@Param("studentId") Integer studentId);
+
+    ScreeningPlanSchoolStudent getByCondition(@Param("condition") String condition, @Param("name") String name);
 }
