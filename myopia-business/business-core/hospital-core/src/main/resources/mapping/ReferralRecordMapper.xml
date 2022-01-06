@@ -42,7 +42,7 @@
         select rr.*, hs.`name` as student_name, hs.gender, hs.record_no, hs.birthday, hs.id_card, hs.family_info
         from h_referral_record rr
         INNER JOIN h_hospital_student hs
-        on rr.student_id = hs.student_id
+        on rr.student_id = hs.student_id and hs.hospital_id = rr.from_hospital_id
         where rr.id = #{id}
     </select>
 
