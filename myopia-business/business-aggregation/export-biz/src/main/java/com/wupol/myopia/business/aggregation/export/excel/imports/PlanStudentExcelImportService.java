@@ -75,8 +75,8 @@ public class PlanStudentExcelImportService {
             return;
         }
         // 这里是Excel的一个小坑
-        List<Map<Integer, String>> resultList = listMap.stream().filter(s -> s.get(ImportExcelEnum.NAME.getIndex()) != null).collect(Collectors.toList());
-        excelStudentService.insertByUpload(userId, resultList, screeningPlan, schoolId);
+//        List<Map<Integer, String>> resultList = listMap.stream().filter(s -> s.get(ImportExcelEnum.NAME.getIndex()) != null).collect(Collectors.toList());
+        excelStudentService.insertByUpload(userId, listMap, screeningPlan, schoolId);
         screeningPlanService.updateStudentNumbers(userId, screeningPlan.getId(), screeningPlanSchoolStudentService.getCountByScreeningPlanId(screeningPlan.getId()));
     }
 }
