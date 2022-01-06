@@ -22,6 +22,7 @@
                 <if test="@Ognl@isNotEmpty(referralHospital)">and `referral_hospital` = #{referralHospital}</if>
                 <if test="@Ognl@isNotEmpty(fromHospitalId)">and `from_hospital_id` = #{fromHospitalId}</if>
                 <if test="@Ognl@isNotEmpty(fromDoctorId)">and `from_doctor_id` = #{fromDoctorId}</if>
+                <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
             </trim>
         </where>
@@ -29,7 +30,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, student_id, special_medical, medical_result, further_referral, referral_hospital, from_hospital_id, from_doctor_id, create_time
+        id, student_id, special_medical, medical_result, further_referral, referral_hospital, from_hospital_id, from_doctor_id, update_time, create_time
     </sql>
 
     <select id="getDetails" resultMap="ReceiptDTO">

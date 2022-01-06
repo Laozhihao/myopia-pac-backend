@@ -23,7 +23,7 @@ CREATE TABLE `h_preschool_check_record`  (
   `create_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `ind_student_id`(`student_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '筛查结果表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '眼保健信息表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for h_receipt_list
@@ -38,6 +38,7 @@ CREATE TABLE `h_receipt_list`  (
   `referral_hospital` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '转诊医院',
   `from_hospital_id` int(11) NULL DEFAULT NULL COMMENT '回执单所有医院id',
   `from_doctor_id` int(11) NULL DEFAULT NULL COMMENT '开具回执单医生id',
+  `update_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
   `create_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '回执单' ROW_FORMAT = Dynamic;
@@ -60,6 +61,7 @@ CREATE TABLE `h_referral_record`  (
   `special_medical` json NULL COMMENT '未做专项检查',
   `disease_medical` json NULL COMMENT '初筛异常项目',
   `referral_status` tinyint(4) NOT NULL DEFAULT 0 COMMENT '转诊状态[0 待就诊；1 已接诊]',
+  `update_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
   `create_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '转诊信息表' ROW_FORMAT = Dynamic;

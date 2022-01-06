@@ -27,6 +27,7 @@
                 <if test="@Ognl@isNotEmpty(specialMedical)">and `special_medical` = #{specialMedical}</if>
                 <if test="@Ognl@isNotEmpty(diseaseMedical)">and `disease_medical` = #{diseaseMedical}</if>
                 <if test="@Ognl@isNotEmpty(referralStatus)">and `referral_status` = #{referralStatus}</if>
+                <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
             </trim>
         </where>
@@ -34,7 +35,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, student_id, apply_time, from_hospital_id, from_hospital, from_doctor_id, from_doctor, to_hospital_id, to_hospital, to_department, special_medical, disease_medical, referral_status, create_time
+        id, student_id, apply_time, from_hospital_id, from_hospital, from_doctor_id, from_doctor, to_hospital_id, to_hospital, to_department, special_medical, disease_medical, referral_status, update_time, create_time
     </sql>
 
     <select id="getDetails" resultMap="ReferralDTO">
