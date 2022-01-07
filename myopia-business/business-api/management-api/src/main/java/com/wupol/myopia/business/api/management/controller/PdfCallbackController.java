@@ -9,6 +9,7 @@ import com.wupol.myopia.business.core.common.domain.model.ResourceFile;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.system.service.NoticeService;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,6 +36,9 @@ public class PdfCallbackController {
     @Resource
     private RedisUtil redisUtil;
 
+    @Value("${report.pdf.callbackUrl}")
+    private String callbackUrl;
+
     @PostMapping("callback")
     @Transactional(rollbackFor = Exception.class)
     public void callback(@RequestBody PdfResponseDTO responseDTO) {
@@ -57,6 +61,11 @@ public class PdfCallbackController {
         noticeService.sendExportSuccessNotice(userId, userId, fileName, resourceFile.getId());
         redisUtil.del(uuid);
         log.info(JSONObject.toJSONString(responseDTO));
+    }
+
+    @GetMapping("getCallbackUrl")
+    public void getCallbackUrl() {
+        log.info(callbackUrl);
     }
 
 }
