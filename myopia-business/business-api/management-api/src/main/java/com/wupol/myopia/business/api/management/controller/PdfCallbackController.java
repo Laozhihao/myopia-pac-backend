@@ -9,6 +9,7 @@ import com.wupol.myopia.business.core.common.domain.model.ResourceFile;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.system.service.NoticeService;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -35,6 +36,7 @@ public class PdfCallbackController {
     private RedisUtil redisUtil;
 
     @PostMapping("callback")
+    @Transactional(rollbackFor = Exception.class)
     public void callback(@RequestBody PdfResponseDTO responseDTO) {
         String uuid = responseDTO.getUuid();
 
@@ -45,6 +47,7 @@ public class PdfCallbackController {
         String bucket = responseDTO.getBucket();
         String s3key = responseDTO.getS3key();
 
+        // 保存到resourceFile
         ResourceFile resourceFile = new ResourceFile();
         resourceFile.setFileName(fileName);
         resourceFile.setBucket(bucket);
@@ -52,6 +55,7 @@ public class PdfCallbackController {
 
         resourceFileService.save(resourceFile);
         noticeService.sendExportSuccessNotice(userId, userId, fileName, resourceFile.getId());
+        redisUtil.del(uuid);
         log.info(JSONObject.toJSONString(responseDTO));
     }
 
