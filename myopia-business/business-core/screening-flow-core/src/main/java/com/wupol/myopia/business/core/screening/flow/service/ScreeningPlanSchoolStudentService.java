@@ -404,4 +404,18 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     public boolean checkStudentHavePlan(Integer studentId) {
         return !CollectionUtils.isEmpty(getByStudentId(studentId));
     }
+
+    /**
+     * 通过条件获取筛查学生
+     *
+     * @param planId        计划Id
+     * @param schoolId      学校Id
+     * @param gradeId       年级Id
+     * @param classId       班级Id
+     * @param planStudentId 筛查学生Id
+     * @return List<ScreeningStudentDTO>
+     */
+    public List<ScreeningStudentDTO> getScreeningNoticeResultStudent(Integer planId, Integer schoolId, Integer gradeId, Integer classId, Integer planStudentId) {
+        return baseMapper.getScreeningNoticeResultStudent(planId, schoolId, gradeId, classId, planStudentId);
+    }
 }

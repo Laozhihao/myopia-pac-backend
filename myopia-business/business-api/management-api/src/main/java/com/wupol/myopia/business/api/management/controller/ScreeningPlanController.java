@@ -6,7 +6,6 @@ import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
-import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.excel.imports.PlanStudentExcelImportService;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
@@ -42,6 +41,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import javax.validation.ValidationException;
+import javax.validation.constraints.NotBlank;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
@@ -400,6 +400,25 @@ public class ScreeningPlanController {
     @PostMapping("/update/planStudent")
     public void updatePlanStudent(@RequestBody UpdatePlanStudentRequestDTO requestDTO) {
         screeningPlanStudentBizService.updatePlanStudent(requestDTO);
+    }
+
+    /**
+     * 通过条件获取筛查学生
+     *
+     * @param planId         计划Id
+     * @param schoolId       学校Id
+     * @param gradeId        年级Id
+     * @param classId        班级Id
+     * @param orgId          筛查机构Id
+     * @param planStudentId  筛查学生Id
+     * @param isSchoolClient 是否学校端
+     * @return List<ScreeningStudentDTO>
+     */
+    @GetMapping("screeningNoticeResult/studentList/{planId}")
+    public List<ScreeningStudentDTO> getScreeningNoticeResultStudent(@PathVariable("planId") @NotBlank(message = "计划Id不能为空") Integer planId,
+                                                                     Integer schoolId, Integer gradeId, Integer classId, Integer orgId,
+                                                                     Integer planStudentId, @NotBlank(message = "查询类型不能为空") Boolean isSchoolClient) {
+        return screeningPlanStudentBizService.getScreeningNoticeResultStudent(planId, schoolId, gradeId, classId, orgId, planStudentId, isSchoolClient);
     }
 
 }

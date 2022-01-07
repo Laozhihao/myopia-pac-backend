@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
+import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.StudentDO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -78,4 +79,9 @@ public class ScreeningStudentDTO extends StudentDO {
      * 学生编码
      */
     private Long screeningCode;
+
+    /**
+     * 结果通知配置
+     */
+    private ResultNoticeConfig resultNoticeConfig;
 }
