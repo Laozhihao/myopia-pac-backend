@@ -84,4 +84,9 @@ public class ScreeningStudentDTO extends StudentDO {
      * 结果通知配置
      */
     private ResultNoticeConfig resultNoticeConfig;
+
+    /**
+     * 结果通知配置文件URL
+     */
+    private String noticeQrCodeFileUrl;
 }

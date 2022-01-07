@@ -2,6 +2,7 @@ package com.wupol.myopia.business.aggregation.screening.service;
 
 import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
 import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;
+import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
@@ -19,6 +20,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @Author HaoHao
@@ -37,6 +39,8 @@ public class ScreeningPlanStudentBizService {
     private SchoolService schoolService;
     @Resource
     private ScreeningOrganizationService screeningOrganizationService;
+    @Resource
+    private ResourceFileService resourceFileService;
 
     /**
      * 更新筛查学生
@@ -113,7 +117,12 @@ public class ScreeningPlanStudentBizService {
             resultNoticeConfig = screeningOrganizationService.getScreeningOrgDetails(orgId).getResultNoticeConfig();
         }
         List<ScreeningStudentDTO> planStudents = screeningPlanSchoolStudentService.getScreeningNoticeResultStudent(planId, schoolId, gradeId, classId, planStudentId);
-        planStudents.forEach(planStudent -> planStudent.setResultNoticeConfig(resultNoticeConfig));
+        planStudents.forEach(planStudent -> {
+            planStudent.setResultNoticeConfig(resultNoticeConfig);
+            if (Objects.nonNull(resultNoticeConfig) && Objects.nonNull(resultNoticeConfig.getQrCodeFileId())) {
+                planStudent.setNoticeQrCodeFileUrl(resourceFileService.getResourcePath(resultNoticeConfig.getQrCodeFileId()));
+            }
+        });
         return planStudents;
     }
 }
