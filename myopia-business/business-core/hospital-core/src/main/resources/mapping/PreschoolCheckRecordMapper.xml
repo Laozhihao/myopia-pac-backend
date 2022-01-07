@@ -75,7 +75,8 @@
 
     <select id="getListByCondition" resultMap="PreschoolCheckRecordDTO">
         SELECT
-            pcr.*,
+            pcr.id, pcr.student_id, pcr.hospital_id, pcr.from_referral_id, pcr.month_age, pcr.guide_content, pcr.conclusion,
+            pcr.status, pcr.to_referral_id, pcr.receipt_id, pcr.update_time, pcr.create_time,
             hs.id as hospital_student_id,
             hs.`name` AS student_name,
             hs.gender,
