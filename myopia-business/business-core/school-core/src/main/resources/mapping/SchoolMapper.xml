@@ -88,11 +88,17 @@
         <if test="cooperationType != null and cooperationType != ''">
             and ms.cooperation_type = #{cooperationType}
         </if>
-        <if test="startTimes !=null">
+        <if test="startTimes !=null and startTimes !=''">
             and ms.cooperation_end_time &gt;= #{startTimes}
         </if>
-        <if test="endTimes !=null">
+        <if test="endTimes !=null and endTimes !=''">
             and ms.cooperation_end_time &lt;= #{endTimes}
+        </if>
+        <if test="@Ognl@isNotEmpty(expireDayGt) and expireDayGt != -1">
+            and LEAST(DATEDIFF(ms.cooperation_end_time, ms.cooperation_start_time),DATEDIFF(ms.cooperation_end_time, now())) &gt; #{expireDayGt}
+        </if>
+        <if test="@Ognl@isNotEmpty(expireDayLe) and expireDayLe != -1">
+            and LEAST(DATEDIFF(ms.cooperation_end_time, ms.cooperation_start_time),DATEDIFF(ms.cooperation_end_time, now())) &lt;= #{expireDayLe}
         </if>
         <if test="userIds != null and userIds.size() != 0">
             and ms.create_user_id in

@@ -27,7 +27,8 @@ public interface SchoolMapper extends BaseMapper<School> {
                                                       @Param("cooperationType") Integer cooperationType,@Param("startTimes") String startTimes,
                                                       @Param("endTimes") String endTimes,
                                                       @Param("districtId") Integer districtId, @Param("userIds") List<Integer> userIds,
-                                                      @Param("districtIdPre") Integer districtIdPre, @Param("districtCode") Integer districtCode);
+                                                      @Param("districtIdPre") Integer districtIdPre, @Param("districtCode") Integer districtCode,@Param("expireDayGt") Integer expireDayGt
+            , @Param("expireDayLe") Integer expireDayLe);
 
     List<School> getByQuery(SchoolQueryDTO query);
 

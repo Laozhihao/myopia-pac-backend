@@ -19,7 +19,7 @@ spring:
     ### sentinel dashboard
     sentinel:
       transport:
-        dashboard: localhost:8080
+        dashboard: 192.168.1.80:8080
       # 取消Sentinel控制台懒加载
       eager: true
   ### 为true设置的是web开启sleuth功能
@@ -32,7 +32,7 @@ spring:
       probability: 1.0
   ### 指定了 Zipkin 服务器的地址
   zipkin:
-    base-url: http://127.0.0.1:9411
+    base-url: http://192.168.1.80:9411
 
   datasource:
     druid:
