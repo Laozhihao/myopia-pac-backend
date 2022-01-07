@@ -531,14 +531,21 @@ public class ParentStudentBizService {
      */
     public ScreeningReportInfoResponseDTO getScreeningReportByCondition(String condition, String name) {
         ScreeningReportInfoResponseDTO responseDTO = new ScreeningReportInfoResponseDTO();
+
+        // 查询学生
+        Student student = studentService.getByCondition(condition, name);
         ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getByCondition(condition, name);
-        if (Objects.isNull(planStudent)) {
+        if (Objects.isNull(student) && Objects.isNull(planStudent)) {
             throw new BusinessException("该学生筛查编号/身份证/学籍号/姓名错误");
         }
-        responseDTO.setStudentId(planStudent.getStudentId());
-        VisionScreeningResult result = visionScreeningResultService.getByPlanStudentId(planStudent.getId());
-        if (Objects.nonNull(result)) {
-            responseDTO.setReportId(result.getId());
+        responseDTO.setStudentId(Objects.nonNull(student) ? student.getId() : planStudent.getStudentId());
+
+        // 查询报告
+        if (Objects.nonNull(planStudent.getId())) {
+            VisionScreeningResult result = visionScreeningResultService.getByPlanStudentId(planStudent.getId());
+            if (Objects.nonNull(result)) {
+                responseDTO.setReportId(result.getId());
+            }
         }
         return responseDTO;
     }

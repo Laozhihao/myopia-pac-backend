@@ -523,4 +523,15 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     public boolean checkIdCardAndId(String idCard, Integer id) {
         return baseMapper.checkIdCardAndId(idCard, id).size() > 0;
     }
+
+    /**
+     * 通过条件获取学生
+     *
+     * @param condition 条件
+     * @param name      名称
+     * @return 学生
+     */
+    public Student getByCondition(String condition, String name) {
+        return baseMapper.getByCondition(condition, name);
+    }
 }
