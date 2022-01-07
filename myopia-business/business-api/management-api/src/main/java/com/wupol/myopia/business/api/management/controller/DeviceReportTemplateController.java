@@ -97,7 +97,7 @@ public class DeviceReportTemplateController {
      *
      */
     @GetMapping("/excel")
-    public void getExcelExportData(@RequestParam("ids") @NotEmpty(message = "Id不能为空") List<Integer> ids) throws IOException {
+    public void getExcelExportData(@RequestParam("ids") @NotEmpty(message = "Id不能为空") List<Integer> ids) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         exportStrategy.syncExport(new ExportCondition()
                         .setApplyExportFileUserId(currentUser.getId())
