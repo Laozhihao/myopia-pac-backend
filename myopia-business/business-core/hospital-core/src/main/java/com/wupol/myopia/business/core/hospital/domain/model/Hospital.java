@@ -155,7 +155,7 @@ public class Hospital extends AddressCode implements Serializable {
     /**
      * 服务类型（配置），0：居民健康系统(默认)、1：0-6岁眼保健、2：0-6岁眼保健+居民健康系统
      */
-    @NotNull(message = "配置类型不能为空")
+//    @NotNull(message = "配置类型不能为空")
     private Integer serviceType;
 
     /**

@@ -44,6 +44,10 @@ public class SchoolQueryDTO extends School {
     /** 是否需要查询是否有计划（配合开始结束时间） **/
     private Boolean needCheckHavePlan;
 
+    private String startTimes;
+    
+    private String endTimes;
+
     public Boolean getNeedCheckHavePlan() {
         return !Objects.isNull(needCheckHavePlan) && needCheckHavePlan;
     }

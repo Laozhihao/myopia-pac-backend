@@ -85,6 +85,15 @@
         <if test="districtId != null">
             and ms.district_id = #{districtId}
         </if>
+        <if test="cooperationType != null and cooperationType != ''">
+            and ms.cooperation_type = #{cooperationType}
+        </if>
+        <if test="startTimes !=null">
+            and ms.cooperation_end_time &gt;= #{startTimes}
+        </if>
+        <if test="endTimes !=null">
+            and ms.cooperation_end_time &lt;= #{endTimes}
+        </if>
         <if test="userIds != null and userIds.size() != 0">
             and ms.create_user_id in
             <foreach collection="userIds" item="id" index="index" open="(" close=")" separator=",">

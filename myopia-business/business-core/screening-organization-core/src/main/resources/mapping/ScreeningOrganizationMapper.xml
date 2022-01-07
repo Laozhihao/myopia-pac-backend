@@ -84,10 +84,10 @@
         <if test="cooperationType != null">
             and mso.cooperation_type = #{cooperationType}
         </if>
-        <if test="startTimes !=null">
+        <if test="startTimes !=null and startTimes !=''">
             and mso.cooperation_end_time &gt;= #{startTimes}
         </if>
-        <if test="endTimes !=null">
+        <if test="endTimes !=null and endTimes !=''">
             and mso.cooperation_end_time &lt;= #{endTimes}
         </if>
 
