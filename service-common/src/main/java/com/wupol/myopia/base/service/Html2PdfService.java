@@ -24,14 +24,17 @@ public class Html2PdfService {
     @Autowired
     private RestTemplate restTemplate;
 
-    @Value("${report.pdf.requestUrl}")
-    private String requestUrl;
-
     @Value("${upload.bucketName}")
     private String bucket;
 
     @Value("${upload.prefix}")
     private String prefix;
+
+    @Value("${report.pdf.async-request-url}")
+    private String asyncRequestUrl;
+
+    @Value("${report.pdf.callbackUrl}")
+    private String callbackUrl;
 
     public void sendRequest(String fileName, String UUID) {
         PdfRequestDTO requestDTO = new PdfRequestDTO();
@@ -40,7 +43,8 @@ public class Html2PdfService {
         requestDTO.setBucket(bucket);
         requestDTO.setKeyPrefix(prefix);
         requestDTO.setUuid(UUID);
-        requestDTO.setCallbackUrl("https://00c5-240e-3b1-21a-2a70-6d1f-6132-cebb-9349.ngrok.io/management/pdf/callback");
+        requestDTO.setTimeout(90);
+        requestDTO.setCallbackUrl(callbackUrl);
 
         PdfRequestDTO.Config config = new PdfRequestDTO.Config();
         config.setSize("a4");
@@ -55,7 +59,7 @@ public class Html2PdfService {
         HttpEntity<String> request = new HttpEntity<>(JSONObject.toJSONString(requestDTO), httpHeaders);
 
 
-        PdfResponseDTO pdfResponseDTO = restTemplate.postForObject(requestUrl, request, PdfResponseDTO.class);
+        PdfResponseDTO pdfResponseDTO = restTemplate.postForObject(asyncRequestUrl, request, PdfResponseDTO.class);
         log.info(JSONObject.toJSONString(pdfResponseDTO));
     }
 }

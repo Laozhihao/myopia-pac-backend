@@ -163,6 +163,9 @@ vistel:
 report:
   pdf:
     save-path: /app/pdf/
+    async-request-url: ${VISTEL_PDF_GENERATOR_ASYNC}
+    sync-request-url: ${VISTEL_PDF_GENERATOR_SYNC}
+    callbackUrl: ${VISTEL_PDF_GENERATOR_CALLBACK}
   # 筛查报告前端工程访问域名
   html:
     url-host: ${VISTEL_MYOPIA_PAC_REPORT_BASE_URI}

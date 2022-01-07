@@ -26,6 +26,8 @@ public class PdfRequestDTO {
 
     private Config config;
 
+    private Integer timeout;
+
     @Getter
     @Setter
     public static class Config {
