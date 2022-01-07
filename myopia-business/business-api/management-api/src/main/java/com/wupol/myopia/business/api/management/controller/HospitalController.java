@@ -126,6 +126,17 @@ public class HospitalController {
     }
 
     /**
+    * @Description: 由于前端新建的接口与 getHospital 重复，所以新建了改接口
+    * @Param:
+    * @return: com.wupol.myopia.business.core.hospital.domain.model.Hospital
+    * @Author: 钓猫的小鱼
+    * @Date: 2022/1/7
+    */
+    @GetMapping("/select/{id}")
+    public Hospital getHospitalSelect(@PathVariable("id") Integer id) {
+        return hospitalService.getById(id);
+    }
+    /**
      * 医院列表
      *
      * @param pageRequest 分页请求
