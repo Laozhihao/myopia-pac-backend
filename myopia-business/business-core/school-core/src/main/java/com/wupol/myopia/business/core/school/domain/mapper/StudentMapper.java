@@ -67,4 +67,6 @@ public interface StudentMapper extends BaseMapper<Student> {
     Student getAllByIdCard(@Param("idCard") String idCard);
 
     List<Student> checkIdCardAndId(@Param("cardId") String cardId, @Param("id") Integer id);
+
+    Student getByCondition(@Param("condition") String condition, @Param("name") String name);
 }

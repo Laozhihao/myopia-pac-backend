@@ -330,4 +330,15 @@
         where id_card = #{cardId}
           and id != #{id}
     </select>
+
+    <select id="getByCondition" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_student
+        where (id_card = #{condition}
+                or sno = #{condition})
+          and name = #{name}
+        order by create_time desc
+        limit 1
+    </select>
 </mapper>
