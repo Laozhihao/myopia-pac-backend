@@ -33,6 +33,9 @@ public class Html2PdfService {
     @Value("${report.pdf.async-request-url}")
     private String asyncRequestUrl;
 
+    @Value("${report.pdf.sync-request-url}")
+    private String syncRequestUrl;
+
     @Value("${report.pdf.callbackUrl}")
     private String callbackUrl;
 
@@ -43,9 +46,9 @@ public class Html2PdfService {
      * @param fileName 文件名
      * @param UUID     uuid
      */
-    public void asyncGeneratorPDF(String url, String fileName, String UUID) {
+    public PdfResponseDTO asyncGeneratorPDF(String url, String fileName, String UUID) {
         HttpEntity<String> request = getStringHttpEntity(url, fileName, UUID);
-        restTemplate.postForObject(asyncRequestUrl, request, PdfResponseDTO.class);
+        return restTemplate.postForObject(asyncRequestUrl, request, PdfResponseDTO.class);
     }
 
     /**
@@ -54,10 +57,11 @@ public class Html2PdfService {
      * @param url      文件URL
      * @param fileName 文件名
      * @param UUID     uuid
+     * @return PdfResponseDTO
      */
-    public void syncGeneratorPDF(String url, String fileName, String UUID) {
+    public PdfResponseDTO syncGeneratorPDF(String url, String fileName, String UUID) {
         HttpEntity<String> request = getStringHttpEntity(url, fileName, UUID);
-        restTemplate.postForObject(asyncRequestUrl, request, PdfResponseDTO.class);
+        return restTemplate.postForObject(syncRequestUrl, request, PdfResponseDTO.class);
     }
 
 
@@ -74,7 +78,7 @@ public class Html2PdfService {
         requestDTO.setUrl(url);
         requestDTO.setOutput(fileName);
         requestDTO.setBucket(bucket);
-        requestDTO.setKeyPrefix(prefix);
+        requestDTO.setKeyPrefix(prefix + "/" + UUID);
         requestDTO.setUuid(UUID);
         requestDTO.setTimeout(90);
         requestDTO.setCallbackUrl(callbackUrl);

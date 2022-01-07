@@ -14,11 +14,13 @@ public class PdfResponseDTO {
 
     private String uuid;
 
-    private String s3ket;
+    private String s3key;
 
     private String url;
 
     private String status;
 
     private String message;
+
+    private String bucket;
 }
