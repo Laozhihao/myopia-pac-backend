@@ -47,6 +47,14 @@ public class SchoolQueryDTO extends School {
     private String startTimes;
     
     private String endTimes;
+    /**
+     * 过期时间大于expireDayGt天
+     */
+    private Integer expireDayGt;
+    /**
+     * 过期时间小于等于expireDayLe天
+     */
+    private Integer expireDayLe;
 
     public Boolean getNeedCheckHavePlan() {
         return !Objects.isNull(needCheckHavePlan) && needCheckHavePlan;

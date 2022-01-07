@@ -456,7 +456,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
                                                              List<Integer> userIds, Integer districtCode) {
         return baseMapper.getSchoolListByCondition(pageRequest.toPage(), schoolQueryDTO.getName(),
                 schoolQueryDTO.getSchoolNo(), schoolQueryDTO.getType(),schoolQueryDTO.getCooperationType(),schoolQueryDTO.getStartTimes(),schoolQueryDTO.getEndTimes(),
-                resultDistrictId.getFirst(), userIds, resultDistrictId.getSecond(), districtCode);
+                resultDistrictId.getFirst(), userIds, resultDistrictId.getSecond(), districtCode,schoolQueryDTO.getExpireDayGt(),schoolQueryDTO.getExpireDayLe());
     }
 
     public String getNameById(Integer id) {
