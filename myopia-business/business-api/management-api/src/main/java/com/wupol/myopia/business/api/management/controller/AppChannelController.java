@@ -1,7 +1,9 @@
 package com.wupol.myopia.business.api.management.controller;
 
+import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.controller.BaseController;
 import com.wupol.myopia.base.domain.PdfResponseDTO;
+import com.wupol.myopia.base.domain.vo.PdfGeneratorVO;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.service.Html2PdfService;
 import com.wupol.myopia.business.core.system.domain.model.AppChannel;
@@ -29,10 +31,25 @@ public class AppChannelController extends BaseController<AppChannelService, AppC
     @Autowired
     private Html2PdfService html2PdfService;
 
-    @GetMapping("ab")
-    public PdfResponseDTO ab() {
-        return html2PdfService.asyncGeneratorPDF("https://t-myopia-pac-report.tulab.cn?planId=9&schoolId=14", "abc.pdf", UUID.randomUUID().toString());
-//        return html2PdfService.syncGeneratorPDF("https://t-myopia-pac-report.tulab.cn?planId=9&schoolId=14", "abc.pdf", UUID.randomUUID().toString());
+    @Autowired
+    private RedisUtil redisUtil;
+
+    @GetMapping("async")
+    public PdfResponseDTO async() {
+        String uuid = UUID.randomUUID().toString();
+
+        String fileName = "abc.pdf";
+        Integer userId = 101;
+
+        PdfGeneratorVO pdfGeneratorVO = new PdfGeneratorVO(userId, fileName);
+        redisUtil.set(uuid, pdfGeneratorVO, 60 * 60 * 12);
+        return html2PdfService.asyncGeneratorPDF("https://t-myopia-pac-report.tulab.cn?planId=9&schoolId=14", fileName, uuid);
     }
+
+    @GetMapping("sync")
+    public PdfResponseDTO sync() {
+        return html2PdfService.syncGeneratorPDF("https://t-myopia-pac-report.tulab.cn?planId=9&schoolId=14", "abc.pdf", UUID.randomUUID().toString());
+    }
+
 
 }

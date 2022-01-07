@@ -3,6 +3,7 @@ package com.wupol.myopia.base.service;
 import com.alibaba.fastjson.JSONObject;
 import com.wupol.myopia.base.domain.PdfRequestDTO;
 import com.wupol.myopia.base.domain.PdfResponseDTO;
+import com.wupol.myopia.base.util.DateFormatUtil;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,6 +12,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.Date;
 
 /**
  * HTML转换PDF
@@ -78,7 +81,7 @@ public class Html2PdfService {
         requestDTO.setUrl(url);
         requestDTO.setOutput(fileName);
         requestDTO.setBucket(bucket);
-        requestDTO.setKeyPrefix(prefix + "/" + UUID);
+        requestDTO.setKeyPrefix(prefix + "/" + DateFormatUtil.format(new Date(), DateFormatUtil.FORMAT_ONLY_DATE) + "/" + UUID);
         requestDTO.setUuid(UUID);
         requestDTO.setTimeout(90);
         requestDTO.setCallbackUrl(callbackUrl);
