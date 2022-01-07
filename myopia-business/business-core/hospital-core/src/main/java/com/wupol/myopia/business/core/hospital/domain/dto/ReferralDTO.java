@@ -38,7 +38,7 @@ public class ReferralDTO extends ReferralRecord {
     /**
      * 生日
      */
-    private Date birthDay;
+    private Date birthday;
 
     /**
      * 身份证

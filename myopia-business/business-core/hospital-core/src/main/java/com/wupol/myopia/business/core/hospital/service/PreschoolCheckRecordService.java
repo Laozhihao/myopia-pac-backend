@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.hospital.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.hospital.domain.dto.PreschoolCheckRecordDTO;
 import com.wupol.myopia.business.core.hospital.domain.mapper.PreschoolCheckRecordMapper;
@@ -25,7 +26,7 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
     public PreschoolCheckRecordDTO getDetails(Integer id) {
         PreschoolCheckRecordDTO details = baseMapper.getDetails(id);
         // TODO wulizhou
-        details.setConclusion("正常");
+        details.setCreateTimeAge(DateUtil.getAgeInfo(details.getBirthday(), details.getCreateTime()));
         details.setDoctorsName("");
         return details;
     }
@@ -40,8 +41,7 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
         IPage<PreschoolCheckRecordDTO> records = baseMapper.getListByCondition(pageRequest.toPage(), query);
         // TODO wulizhou
         records.getRecords().forEach(record -> {
-            record.setConclusion("正常");
-            record.setReferralConclusion("sdfsdf");
+            record.setCreateTimeAge(DateUtil.getAgeInfo(record.getBirthday(), record.getCreateTime()));
             record.setDoctorsName("");
         });
         return records;

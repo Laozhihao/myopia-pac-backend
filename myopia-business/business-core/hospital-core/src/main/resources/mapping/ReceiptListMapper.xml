@@ -4,6 +4,7 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.hospital.domain.model.ReceiptList">
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="special_medical" property="specialMedical"/>
     </resultMap>
 
     <resultMap id="ReceiptDTO" type="com.wupol.myopia.business.core.hospital.domain.dto.ReceiptDTO" extends="BaseResultMap">

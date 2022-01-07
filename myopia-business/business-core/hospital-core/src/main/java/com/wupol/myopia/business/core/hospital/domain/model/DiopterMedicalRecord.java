@@ -13,6 +13,8 @@ import lombok.experimental.Accessors;
 @Setter
 @Accessors(chain = true)
 public class DiopterMedicalRecord {
+
+    private Integer doctorId;
     /** 学生id */
     private Integer studentId;
     /** 散瞳前 */
@@ -74,6 +76,10 @@ public class DiopterMedicalRecord {
         private Integer drug;
         /** 备注 */
         private String remark;
+        /** 右眼状态 */
+        private Integer computerRightStatus;
+        /** 左眼状态 */
+        private Integer computerLeftStatus;
 
     }
 

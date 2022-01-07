@@ -4,9 +4,22 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.hospital.domain.model.PreschoolCheckRecord">
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="outer_eye" property="outerEye"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="eye_disease_factor" property="eyeDiseaseFactor"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="light_reaction" property="lightReaction"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="blink_reflex" property="blinkReflex"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="red_ball_test" property="redBallTest"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="visual_behavior_observation" property="visualBehaviorObservation"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="red_reflex" property="redReflex"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="ocular_inspection" property="ocularInspection"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="vision_data" property="visionData"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="monocular_masking_aversion_test" property="monocularMaskingAversionTest"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="refraction_data" property="refractionData"/>
     </resultMap>
 
-    <resultMap id="PreschoolCheckRecordDTO" type="com.wupol.myopia.business.core.hospital.domain.dto.PreschoolCheckRecordDTO">
+    <resultMap id="PreschoolCheckRecordDTO" type="com.wupol.myopia.business.core.hospital.domain.dto.PreschoolCheckRecordDTO" extends="BaseResultMap">
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="special_medical" property="specialMedical"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="disease_medical" property="diseaseMedical"/>
     </resultMap>
 
     <!-- 通用查询条件 -->
@@ -30,6 +43,8 @@
                 <if test="@Ognl@isNotEmpty(monocularMaskingAversionTest)">and `monocular_masking_aversion_test` = #{monocularMaskingAversionTest}</if>
                 <if test="@Ognl@isNotEmpty(refractionData)">and `refraction_data` = #{refractionData}</if>
                 <if test="@Ognl@isNotEmpty(guideContent)">and `guide_content` = #{guideContent}</if>
+                <if test="@Ognl@isNotEmpty(conclusion)">and `conclusion` = #{conclusion}</if>
+                <if test="@Ognl@isNotEmpty(status)">and `status` = #{status}</if>
                 <if test="@Ognl@isNotEmpty(toReferralId)">and `to_referral_id` = #{toReferralId}</if>
                 <if test="@Ognl@isNotEmpty(receiptId)">and `receipt_id` = #{receiptId}</if>
                 <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
@@ -40,14 +55,17 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, student_id, hospital_id, from_referral_id, month_age, outer_eye, eye_disease_factor, light_reaction, blink_reflex, red_ball_test, visual_behavior_observation, red_reflex, ocular_inspection, vision_data, monocular_masking_aversion_test, refraction_data, guide_content, to_referral_id, receipt_id, update_time, create_time
+        id, student_id, hospital_id, from_referral_id, month_age, outer_eye, eye_disease_factor, light_reaction, blink_reflex,
+        red_ball_test, visual_behavior_observation, red_reflex, ocular_inspection, vision_data, monocular_masking_aversion_test,
+        refraction_data, guide_content, conclusion, status, to_referral_id, receipt_id, update_time, create_time
     </sql>
 
     <select id="getDetails" resultMap="PreschoolCheckRecordDTO">
-        select pcr.*, hs.`name` as student_name, hs.gender, hs.record_no, hs.birthday, hs.id_card, h.`name` as hospital_name, rr.to_hospital, rr.special_medical, rr.disease_medical
+        select pcr.*, hs.`name` as student_name, hs.gender, hs.record_no, hs.birthday, hs.id_card, h.`name` as hospital_name,
+        rr.to_hospital, rr.special_medical, rr.disease_medical, rr.conclusion as referral_conclusion
         from h_preschool_check_record pcr
         INNER JOIN h_hospital_student hs
-        on pcr.student_id = hs.student_id
+        on pcr.student_id = hs.student_id AND hs.hospital_id = pcr.hospital_id
         LEFT JOIN m_hospital h
         ON h.id = pcr.hospital_id
         LEFT JOIN h_referral_record rr
@@ -58,17 +76,19 @@
     <select id="getListByCondition" resultMap="PreschoolCheckRecordDTO">
         SELECT
             pcr.*,
+            hs.id as hospital_student_id,
             hs.`name` AS student_name,
             hs.gender,
             hs.record_no,
             hs.birthday,
             hs.id_card,
             h.`name` AS hospital_name,
-            rr.to_hospital, rr.referral_status
+            rr.to_hospital, rr.referral_status, rr.conclusion as referral_conclusion,
+            rr.special_medical, rr.disease_medical
         FROM
             h_preschool_check_record pcr
-            INNER JOIN h_hospital_student hs ON pcr.student_id = hs.student_id
-            LEFT JOIN m_hospital h ON h.id = pcr.hospital_id and hs.hospital_id = pcr.hospital_id
+            INNER JOIN h_hospital_student hs ON pcr.student_id = hs.student_id AND hs.hospital_id = pcr.hospital_id
+            LEFT JOIN m_hospital h ON h.id = pcr.hospital_id
             LEFT JOIN h_referral_record rr ON rr.id = pcr.to_referral_id
         <where>
             <trim prefixOverrides="and">
