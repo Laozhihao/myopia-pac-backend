@@ -36,9 +36,42 @@ public class Html2PdfService {
     @Value("${report.pdf.callbackUrl}")
     private String callbackUrl;
 
-    public void sendRequest(String fileName, String UUID) {
+    /**
+     * 异步导出PDF
+     *
+     * @param url      文件URL
+     * @param fileName 文件名
+     * @param UUID     uuid
+     */
+    public void asyncGeneratorPDF(String url, String fileName, String UUID) {
+        HttpEntity<String> request = getStringHttpEntity(url, fileName, UUID);
+        restTemplate.postForObject(asyncRequestUrl, request, PdfResponseDTO.class);
+    }
+
+    /**
+     * 同步导出PDF
+     *
+     * @param url      文件URL
+     * @param fileName 文件名
+     * @param UUID     uuid
+     */
+    public void syncGeneratorPDF(String url, String fileName, String UUID) {
+        HttpEntity<String> request = getStringHttpEntity(url, fileName, UUID);
+        restTemplate.postForObject(asyncRequestUrl, request, PdfResponseDTO.class);
+    }
+
+
+    /**
+     * 生成请求参数
+     *
+     * @param url      文件URL
+     * @param fileName 文件名
+     * @param UUID     uuid
+     * @return HttpEntity<String>
+     */
+    private HttpEntity<String> getStringHttpEntity(String url, String fileName, String UUID) {
         PdfRequestDTO requestDTO = new PdfRequestDTO();
-        requestDTO.setUrl("https://t-myopia-pac-report.tulab.cn?planId=9&schoolId=14");
+        requestDTO.setUrl(url);
         requestDTO.setOutput(fileName);
         requestDTO.setBucket(bucket);
         requestDTO.setKeyPrefix(prefix);
@@ -53,13 +86,8 @@ public class Html2PdfService {
         config.setFooterTemplate("<h1>Page <span class='pageNumber'></span> of <span class='totalPages'></span></h1>");
         config.setMargin("{ \"bottom\": \"10cm\"}");
         requestDTO.setConfig(config);
-
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<String> request = new HttpEntity<>(JSONObject.toJSONString(requestDTO), httpHeaders);
-
-
-        PdfResponseDTO pdfResponseDTO = restTemplate.postForObject(asyncRequestUrl, request, PdfResponseDTO.class);
-        log.info(JSONObject.toJSONString(pdfResponseDTO));
+        return new HttpEntity<>(JSONObject.toJSONString(requestDTO), httpHeaders);
     }
 }

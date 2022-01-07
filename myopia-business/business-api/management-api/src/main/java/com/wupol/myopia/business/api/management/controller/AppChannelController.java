@@ -26,7 +26,7 @@ public class AppChannelController extends BaseController<AppChannelService, AppC
 
     @GetMapping("ab")
     public void ab() {
-        html2PdfService.sendRequest("abc.pdf", "123");
+        html2PdfService.asyncGeneratorPDF("https://t-myopia-pac-report.tulab.cn?planId=9&schoolId=14", "abc.pdf", "123");
     }
 
 }
