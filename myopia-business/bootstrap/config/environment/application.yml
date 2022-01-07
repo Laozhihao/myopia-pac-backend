@@ -164,10 +164,14 @@ report:
   pdf:
     save-path: /app/pdf/
     # 异步请求URL
-    async-request-url: ${VISTEL_PDF_GENERATOR_ASYNC}
+#    async-request-url: ${VISTEL_PDF_GENERATOR_ASYNC}
     # 同步请求URL
-    sync-request-url: ${VISTEL_PDF_GENERATOR_SYNC}
-    callbackUrl: ${VISTEL_MYOPIA_PROJECT_URL}/management/pdf/callback
+#    sync-request-url: ${VISTEL_PDF_GENERATOR_SYNC}
+#    callbackUrl: ${VISTEL_MYOPIA_PROJECT_URL}/management/pdf/callback
+
+    async-request-url: http://t-nodejs-pdf-generator.internal/pdf/single-async
+    sync-request-url: http://t-nodejs-pdf-generator.internal/pdf/single-sync
+    callbackUrl: https://00c5-240e-3b1-21a-2a70-6d1f-6132-cebb-9349.ngrok.io/management/pdf/callback
   # 筛查报告前端工程访问域名
   html:
     url-host: ${VISTEL_MYOPIA_PAC_REPORT_BASE_URI}
