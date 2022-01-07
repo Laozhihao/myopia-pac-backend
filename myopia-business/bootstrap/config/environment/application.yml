@@ -167,7 +167,7 @@ report:
     async-request-url: ${VISTEL_PDF_GENERATOR_ASYNC}
     # 同步请求URL
     sync-request-url: ${VISTEL_PDF_GENERATOR_SYNC}
-    callbackUrl: ${VISTEL_MYOPIA_MGMT_EXTERNAL_URL}
+    callbackUrl: ${VISTEL_MYOPIA_MGMT_EXTERNAL_URL}/management/pdf/callback
   # 筛查报告前端工程访问域名
   html:
     url-host: ${VISTEL_MYOPIA_PAC_REPORT_BASE_URI}
