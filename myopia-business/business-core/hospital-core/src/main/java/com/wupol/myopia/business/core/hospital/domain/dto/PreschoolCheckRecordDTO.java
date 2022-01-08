@@ -2,8 +2,10 @@ package com.wupol.myopia.business.core.hospital.domain.dto;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
+import com.wupol.myopia.base.domain.vo.FamilyInfoVO;
 import com.wupol.myopia.business.core.hospital.domain.model.BaseValue;
 import com.wupol.myopia.business.core.hospital.domain.model.PreschoolCheckRecord;
+import com.wupol.myopia.business.core.hospital.domain.model.ReferralRecord;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -20,6 +22,18 @@ import java.util.List;
 @Accessors(chain = true)
 public class PreschoolCheckRecordDTO extends PreschoolCheckRecord {
 
+    /**
+     * 学号
+     */
+    private String sno;
+    /**
+     * 是否有新生儿身份证
+     */
+    private Boolean hasIdCard;
+    /**
+     * 家长联系方式
+     */
+    private String parentPhone;
     /**
      * 医院学生ID
      */
@@ -85,5 +99,25 @@ public class PreschoolCheckRecordDTO extends PreschoolCheckRecord {
      * 检查时年龄
      */
     private String createTimeAge;
+    /**
+        * 家庭信息
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private FamilyInfoVO familyInfo;
+
+    /**
+     * 当前用户各月龄段检查情况
+     */
+    private List<MonthAgeStatusDTO> ageStageStatusList;
+
+    /**
+     * 转诊前-转诊单
+     */
+    private ReferralRecord fromReferral;
+
+    /**
+     * 转诊后-转诊单
+     */
+    private ReferralRecord toReferral;
 
 }

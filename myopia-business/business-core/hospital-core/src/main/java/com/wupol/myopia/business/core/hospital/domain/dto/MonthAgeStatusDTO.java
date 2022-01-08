@@ -24,4 +24,14 @@ public class MonthAgeStatusDTO {
      */
     private Integer status;
 
+    /**
+     * 检查id
+     */
+    private Integer preschoolCheckRecordId;
+
+    public MonthAgeStatusDTO(Integer monthAge, Integer status) {
+        this.monthAge = monthAge;
+        this.status = status;
+    }
+
 }
