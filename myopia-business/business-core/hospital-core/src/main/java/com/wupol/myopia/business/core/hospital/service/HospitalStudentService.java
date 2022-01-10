@@ -2,7 +2,6 @@ package com.wupol.myopia.business.core.hospital.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.constant.SystemCode;
-import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.hospital.constant.StudentTypeEnum;
@@ -153,12 +152,11 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
     /**
      * 获取学生类型
      *
-     * @param user        登录用户
+     * @param systemCode  登录用户
      * @param studentType 学生类型
-     * @return
+     * @return Integer
      */
-    public Integer getStudentType(CurrentUser user, Integer studentType) {
-        Integer systemCode = user.getSystemCode();
+    public Integer getStudentType(Integer systemCode, Integer studentType) {
         if (Objects.isNull(studentType)) {
             // 医院端
             if (SystemCode.HOSPITAL_CLIENT.getCode().equals(systemCode)) {
