@@ -328,6 +328,5 @@
                 or screening_code = #{condition}
                 or student_no = #{condition})
           and student_name = #{name}
-        order by create_time desc limit 1
     </select>
 </mapper>

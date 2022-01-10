@@ -534,15 +534,15 @@ public class ParentStudentBizService {
 
         // 查询学生
         Student student = studentService.getByCondition(condition, name);
-        ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getByCondition(condition, name);
-        if (Objects.isNull(student) && Objects.isNull(planStudent)) {
+        List<ScreeningPlanSchoolStudent> planStudents = screeningPlanSchoolStudentService.getByCondition(condition, name);
+        if (Objects.isNull(student) && Objects.isNull(planStudents)) {
             throw new BusinessException("该学生筛查编号/身份证/学籍号/姓名错误");
         }
-        responseDTO.setStudentId(Objects.nonNull(student) ? student.getId() : planStudent.getStudentId());
+        responseDTO.setStudentId(student.getId());
 
         // 查询报告
-        if (Objects.nonNull(planStudent.getId())) {
-            VisionScreeningResult result = visionScreeningResultService.getByPlanStudentId(planStudent.getId());
+        if (!CollectionUtils.isEmpty(planStudents)) {
+            VisionScreeningResult result = visionScreeningResultService.getLatestByPlanStudentIds(planStudents.stream().map(ScreeningPlanSchoolStudent::getId).collect(Collectors.toList()));
             if (Objects.nonNull(result)) {
                 responseDTO.setReportId(result.getId());
             }
