@@ -6,10 +6,13 @@ import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.BusinessUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.core.hospital.constant.CheckReferralInfoEnum;
 import com.wupol.myopia.business.core.hospital.constant.MonthAgeStatusEnum;
 import com.wupol.myopia.business.core.hospital.domain.dto.MonthAgeStatusDTO;
 import com.wupol.myopia.business.core.hospital.domain.dto.PreschoolCheckRecordDTO;
+import com.wupol.myopia.business.core.hospital.domain.dto.StudentPreschoolCheckRecordDTO;
 import com.wupol.myopia.business.core.hospital.domain.mapper.PreschoolCheckRecordMapper;
+import com.wupol.myopia.business.core.hospital.domain.model.HospitalStudent;
 import com.wupol.myopia.business.core.hospital.domain.model.PreschoolCheckRecord;
 import com.wupol.myopia.business.core.hospital.domain.query.PreschoolCheckRecordQuery;
 import org.apache.commons.collections4.CollectionUtils;
@@ -29,6 +32,9 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
 
     @Autowired
     private ReferralRecordService referralRecordService;
+
+    @Autowired
+    private HospitalStudentService hospitalStudentService;
 
     /**
      * 获取眼保健详情
@@ -51,6 +57,42 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
         return details;
     }
 
+    /**
+     * 获取默认显示信息
+     * @param hospitalId
+     * @param studentId
+     * @return
+     */
+    public StudentPreschoolCheckRecordDTO getInit(Integer hospitalId, Integer studentId) {
+        StudentPreschoolCheckRecordDTO init = new StudentPreschoolCheckRecordDTO();
+        // 学生信息
+        HospitalStudent student = hospitalStudentService.getByHospitalIdAndStudentId(hospitalId, studentId);
+        init.setStudent(student);
+        // 对应当前医院各年龄段状态
+        List<PreschoolCheckRecord> records = getStudentRecord(hospitalId, studentId);
+        Map<Integer, MonthAgeStatusDTO> studentCheckStatus = getStudentCheckStatus(student.getBirthday(), records);
+        init.setAgeStageStatusList(createMonthAgeStatusDTOByMap(studentCheckStatus));
+        // 设置当前选中的检查
+        Integer currentShowCheckMonthAge = getCurrentShowCheckMonthAge(student.getBirthday(), records);
+        if (Objects.nonNull(studentCheckStatus.get(currentShowCheckMonthAge).getPreschoolCheckRecordId())) {
+            PreschoolCheckRecordDTO details = getDetails(studentCheckStatus.get(currentShowCheckMonthAge).getPreschoolCheckRecordId());
+            init.setPreschoolMedicalRecord(details);
+        } else {
+            PreschoolCheckRecordDTO emptyCheck = new PreschoolCheckRecordDTO();
+            emptyCheck.setMonthAge(currentShowCheckMonthAge).setIsReferral(CheckReferralInfoEnum.NOT_REFERRAL.getStatus());
+            init.setPreschoolMedicalRecord(emptyCheck);
+        }
+        // 设置学生转诊信息
+        init.setFromReferral(referralRecordService.getByStudentId(studentId));
+        return init;
+    }
+
+    /**
+     * 获取学生检查记录
+     * @param hospitalId
+     * @param studentId
+     * @return
+     */
     public List<PreschoolCheckRecord> getStudentRecord(Integer hospitalId, Integer studentId) {
         PreschoolCheckRecord record = new PreschoolCheckRecord().setHospitalId(hospitalId).setStudentId(studentId);
         return findByList(record);
@@ -74,30 +116,43 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
     }
 
     /**
+     * 获取学生指定年龄段检查信息
+     * @param hospitalId
+     * @param studentId
+     * @param monthAge
+     * @return
+     */
+    public PreschoolCheckRecord get(Integer hospitalId, Integer studentId, Integer monthAge) {
+        PreschoolCheckRecord record = new PreschoolCheckRecord().setHospitalId(hospitalId).setStudentId(studentId)
+                .setMonthAge(monthAge);
+        return findOne(record);
+    }
+
+    /**
      * 获取学生13次检查的检查状态
      * @param records
      * @return
      */
-    private List<MonthAgeStatusDTO> getStudentCheckStatus(Date birthday, List<PreschoolCheckRecord> records) {
+    private Map<Integer, MonthAgeStatusDTO> getStudentCheckStatus(Date birthday, List<PreschoolCheckRecord> records) {
         Date now = new Date();
         Map<Integer, MonthAgeStatusDTO> monthAgeStatusDTOS = initMonthAgeStatusMap();
         List<Integer> canCheckMonthAge = BusinessUtil.getCanCheckMonthAgeByDate(birthday);
         // 设置当前可检查年龄段为AGE_STAGE_STATUS_NOT_DATA状态
         canCheckMonthAge.forEach(monthAge -> {
-            monthAgeStatusDTOS.put(monthAge, new MonthAgeStatusDTO(monthAge, MonthAgeStatusEnum.AGE_STAGE_STATUS_NOT_DATA.getStatus()));
+            monthAgeStatusDTOS.get(monthAge).setStatus(MonthAgeStatusEnum.AGE_STAGE_STATUS_NOT_DATA.getStatus());
         });
         records.forEach(record -> {
             // 检查大于3天，无法修改
             if (DateUtil.betweenDay(record.getCreateTime(), now) > 3) {
-                monthAgeStatusDTOS.put(record.getMonthAge(), new MonthAgeStatusDTO(record.getMonthAge(),
-                        MonthAgeStatusEnum.AGE_STAGE_STATUS_CANNOT_UPDATE.getStatus(), record.getId()));
+                monthAgeStatusDTOS.get(record.getMonthAge()).setStatus(MonthAgeStatusEnum.AGE_STAGE_STATUS_CANNOT_UPDATE.getStatus())
+                        .setPreschoolCheckRecordId(record.getId());
             } else {
                 // 已检查，可修改
-                monthAgeStatusDTOS.put(record.getMonthAge(), new MonthAgeStatusDTO(record.getMonthAge(),
-                        MonthAgeStatusEnum.AGE_STAGE_STATUS_CAN_UPDATE.getStatus(), record.getId()));
+                monthAgeStatusDTOS.get(record.getMonthAge()).setStatus(MonthAgeStatusEnum.AGE_STAGE_STATUS_CAN_UPDATE.getStatus())
+                        .setPreschoolCheckRecordId(record.getId());
             }
         });
-        return createMonthAgeStatusDTOByMap(monthAgeStatusDTOS);
+        return monthAgeStatusDTOS;
     }
 
     /**
@@ -131,11 +186,16 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
     private Map<Integer, MonthAgeStatusDTO> initMonthAgeStatusMap() {
         Map<Integer, MonthAgeStatusDTO> monthAgeStatus = new LinkedHashMap();
         for(MonthAgeEnum monAge : MonthAgeEnum.values()) {
-            monthAgeStatus.put(monAge.getId(), new MonthAgeStatusDTO(monAge.getId(), MonthAgeStatusEnum.AGE_STAGE_STATUS_DISABLE.getStatus()));
+            monthAgeStatus.put(monAge.getId(), new MonthAgeStatusDTO(monAge, MonthAgeStatusEnum.AGE_STAGE_STATUS_DISABLE.getStatus()));
         }
         return monthAgeStatus;
     }
 
+    /**
+     * 组装各月龄段状态信息
+     * @param map
+     * @return
+     */
     private List<MonthAgeStatusDTO> createMonthAgeStatusDTOByMap(Map<Integer, MonthAgeStatusDTO> map) {
         return map.keySet().stream().map(monthAge -> map.get(monthAge)).collect(Collectors.toList());
     }

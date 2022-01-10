@@ -4,10 +4,10 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wupol.myopia.base.domain.vo.FamilyInfoVO;
+import com.wupol.myopia.business.core.hospital.domain.interfaces.HasParentInfoInterface;
 import com.wupol.myopia.business.core.hospital.domain.model.ReceiptList;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
 
 import java.util.Date;
 
@@ -17,8 +17,7 @@ import java.util.Date;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-@Accessors(chain = true)
-public class ReceiptDTO extends ReceiptList {
+public class ReceiptDTO extends ReceiptList implements HasParentInfoInterface {
 
     /**
      * 学生名称

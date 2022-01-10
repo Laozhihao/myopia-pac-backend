@@ -146,4 +146,16 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
     public List<HospitalStudent> getByStudentId(Integer studentId) {
         return baseMapper.getByStudentId(studentId);
     }
+
+    /**
+     * 通过医院id跟学生id获取医院学生信息
+     * @param hospitalId
+     * @param studentId
+     * @return
+     */
+    public HospitalStudent getByHospitalIdAndStudentId(Integer hospitalId, Integer studentId) {
+        HospitalStudent hs = new HospitalStudent().setHospitalId(hospitalId).setStudentId(studentId);
+        return findOne(hs);
+    }
+
 }
