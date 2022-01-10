@@ -22,6 +22,8 @@ public class HospitalStudentVO extends HospitalStudentDO {
     private District area;
     /** 乡/镇 */
     private District town;
+    /** 委会类型 */
+    private District committee;
     /** 学校 */
     private School school;
     /** 班级 */
