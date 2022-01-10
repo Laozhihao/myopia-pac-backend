@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.aggregation.screening.service;
 
-import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.base.service.Html2PdfService;
 import com.wupol.myopia.base.util.ListUtil;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
@@ -23,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -96,7 +96,7 @@ public class ScreeningPlanStudentBizService {
         if (CollectionUtils.isEmpty(schoolStudents)) {
             return;
         }
-        schoolStudents.forEach(schoolStudent->{
+        schoolStudents.forEach(schoolStudent -> {
             schoolStudent.setName(requestDTO.getName());
             schoolStudent.setGender(requestDTO.getGender());
             schoolStudent.setBirthday(requestDTO.getBirthday());
@@ -118,13 +118,11 @@ public class ScreeningPlanStudentBizService {
      * @param gradeId        年级Id
      * @param classId        班级Id
      * @param orgId          筛查机构Id
-     * @param planStudentIds  筛查学生Ids
+     * @param planStudentIds 筛查学生Ids
      * @param isSchoolClient 是否学校端
      * @return List<ScreeningStudentDTO>
      */
-    public List<ScreeningStudentDTO> getScreeningNoticeResultStudent(Integer planId, Integer schoolId, Integer gradeId,
-                                                                     Integer classId, Integer orgId,
-                                                                     String planStudentIds, Boolean isSchoolClient) {
+    public List<ScreeningStudentDTO> getScreeningNoticeResultStudent(Integer planId, Integer schoolId, Integer gradeId, Integer classId, Integer orgId, String planStudentIds, Boolean isSchoolClient) {
         ResultNoticeConfig resultNoticeConfig;
         if (isSchoolClient) {
             resultNoticeConfig = schoolService.getBySchoolId(schoolId).getResultNoticeConfig();
@@ -142,7 +140,7 @@ public class ScreeningPlanStudentBizService {
         return planStudents;
     }
 
-//    public void asyncGeneratorPDF() {
+//    public void asyncGeneratorPDF(Integer planId, Integer schoolId, Integer gradeId, Integer classId, Integer orgId, String planStudentIds, Boolean isSchoolClient) {
 //        String fileName;
 //        html2PdfService.asyncGeneratorPDF(url, fileName, UUID.randomUUID().toString());
 //    }

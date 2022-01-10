@@ -85,7 +85,7 @@ public class Html2PdfService {
         requestDTO.setOutput(fileName);
         requestDTO.setBucket(bucket);
 
-//        requestDTO.setRegion(awsConfig.getRegion());
+        requestDTO.setRegion("cn-northwest-1");
         requestDTO.setKeyPrefix(prefix + "/" + DateFormatUtil.format(new Date(), DateFormatUtil.FORMAT_ONLY_DATE) + "/" + UUID);
         requestDTO.setUuid(UUID);
         requestDTO.setTimeout(90);
