@@ -6,6 +6,7 @@ import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
@@ -17,6 +18,7 @@ import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.screening.domain.vos.SchoolGradeVO;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningExportService;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanSchoolStudentFacadeService;
+import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanStudentBizService;
 import com.wupol.myopia.business.api.school.management.service.VisionScreeningService;
 import com.wupol.myopia.business.common.utils.domain.model.NotificationConfig;
 import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;
@@ -25,10 +27,7 @@ import com.wupol.myopia.business.common.utils.interfaces.HasName;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningListResponseDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionExportDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentTrackWarningRequestDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentTrackWarningResponseDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
@@ -41,6 +40,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.List;
@@ -90,6 +90,9 @@ public class VisionScreeningController {
 
     @Resource
     private ExportStrategy exportStrategy;
+
+    @Resource
+    private ScreeningPlanStudentBizService screeningPlanStudentBizService;
 
     /**
      * 获取学校计划
@@ -290,5 +293,55 @@ public class VisionScreeningController {
             throw new BusinessException("正在导出中，请勿重复导出");
         }
         redisUtil.set(key, 1, 60 * 60 * 24);
+    }
+
+    /**
+     * 通过条件获取筛查学生
+     *
+     * @param planId         计划Id
+     * @param schoolId       学校Id
+     * @param gradeId        年级Id
+     * @param classId        班级Id
+     * @param orgId          筛查机构Id
+     * @param planStudentIds 筛查学生Id
+     * @param isSchoolClient 是否学校端
+     * @return List<ScreeningStudentDTO>
+     */
+    @GetMapping("screeningNoticeResult")
+    public List<ScreeningStudentDTO> getScreeningNoticeResultStudent(@NotBlank(message = "计划Id不能为空") Integer planId,
+                                                                     Integer schoolId, Integer gradeId, Integer classId, Integer orgId,
+                                                                     String planStudentIds, @NotBlank(message = "查询类型不能为空") Boolean isSchoolClient,
+                                                                     String planStudentName) {
+        return screeningPlanStudentBizService.getScreeningNoticeResultStudent(planId, schoolId, gradeId, classId, orgId, planStudentIds, isSchoolClient, planStudentName);
+    }
+
+    /**
+     * 异步导出学生报告
+     *
+     * @param planId           计划Id
+     * @param gradeId          年级Id
+     * @param classId          班级Id
+     * @param orgId            筛查机构Id
+     * @param planStudentIdStr 筛查学生Ids
+     */
+    @GetMapping("screeningNoticeResult/asyncGeneratorPDF")
+    public void asyncGeneratorPDF(Integer planId, Integer gradeId, Integer classId, Integer orgId, String planStudentIdStr) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        screeningPlanStudentBizService.asyncGeneratorPDF(planId, user.getOrgId(), gradeId, classId, orgId, planStudentIdStr, true, user.getId());
+    }
+
+    /**
+     * 同步导出学生报告
+     *
+     * @param planId           计划Id
+     * @param gradeId          年级Id
+     * @param classId          班级Id
+     * @param orgId            筛查机构Id
+     * @param planStudentIdStr 筛查学生Ids
+     */
+    @GetMapping("screeningNoticeResult/syncGeneratorPDF")
+    public PdfResponseDTO syncGeneratorPDF(Integer planId, Integer gradeId, Integer classId, Integer orgId, String planStudentIdStr) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        return screeningPlanStudentBizService.syncGeneratorPDF(planId, user.getOrgId(), gradeId, classId, orgId, planStudentIdStr, true, user.getId());
     }
 }
