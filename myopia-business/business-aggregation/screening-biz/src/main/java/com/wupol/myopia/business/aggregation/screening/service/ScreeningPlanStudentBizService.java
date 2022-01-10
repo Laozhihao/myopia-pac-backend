@@ -134,7 +134,7 @@ public class ScreeningPlanStudentBizService {
             resultNoticeConfig = screeningOrganizationService.getScreeningOrgDetails(orgId).getResultNoticeConfig();
         }
         List<Integer> planStudentId = ListUtil.str2List(planStudentIds);
-        List<ScreeningStudentDTO> planStudents = screeningPlanSchoolStudentService.getScreeningNoticeResultStudent(planId, schoolId, gradeId, classId, planStudentId);
+        List<ScreeningStudentDTO> planStudents = screeningPlanSchoolStudentService.getScreeningNoticeResultStudent(planId, schoolId, gradeId, classId, CollectionUtils.isEmpty(planStudentId) ? null : planStudentId);
         planStudents.forEach(planStudent -> {
             planStudent.setResultNoticeConfig(resultNoticeConfig);
             if (Objects.nonNull(resultNoticeConfig) && Objects.nonNull(resultNoticeConfig.getQrCodeFileId())) {
