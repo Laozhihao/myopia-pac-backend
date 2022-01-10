@@ -139,6 +139,9 @@ public class HospitalStudentFacade {
         if (Objects.nonNull(studentVo.getTown())) {
             studentVo.setTownId(studentVo.getTown().getId());
         }
+        if (Objects.nonNull(studentVo.getCommittee())) {
+            studentVo.setCommitteeCode(studentVo.getCommittee().getCode());
+        }
 
         // 如果管理端没有该学生信息, 则先到管理端创建,再到医院端创建
         if (Objects.isNull(oldStudent)) {
@@ -407,6 +410,9 @@ public class HospitalStudentFacade {
         }
         if (null != student.getTownCode()) {
             dto.setTown(districtMaps.get(student.getTownCode()));
+        }
+        if (Objects.nonNull(student.getCommitteeCode())) {
+            dto.setCommittee(districtService.getDistrictByCode(student.getCommitteeCode()));
         }
     }
 
