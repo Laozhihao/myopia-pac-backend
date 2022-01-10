@@ -172,7 +172,7 @@ public class ParentStudentController {
      * @return 筛查结果详情
      */
     @GetMapping("report/screening/detail/{id}")
-    public ScreeningReportResponseDTO reportScreeningDetail(@PathVariable("id") Integer id, @NotNull(message = "辨识位不能为空") Boolean isShowBind) {
+    public ScreeningReportResponseDTO reportScreeningDetail(@PathVariable("id") Integer id, @NotNull(message = "辨识位不能为空") boolean isShowBind) {
         return parentStudentBizService.getScreeningReportDetail(id, isShowBind);
     }
 
