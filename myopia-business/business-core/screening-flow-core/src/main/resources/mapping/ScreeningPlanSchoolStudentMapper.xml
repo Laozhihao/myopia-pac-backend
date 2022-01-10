@@ -349,5 +349,8 @@
                 #{item}
             </foreach>
         </if>
+        <if test="planStudentName != null and planStudentName != ''">
+            and mspss.student_name like CONCAT('%', #{planStudentName}, '%')
+        </if>
     </select>
 </mapper>
