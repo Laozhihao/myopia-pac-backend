@@ -18,6 +18,8 @@ public class PdfRequestDTO {
 
     private String bucket;
 
+    private String region;
+
     private String keyPrefix;
 
     private String uuid;

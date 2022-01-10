@@ -30,6 +30,9 @@ public class Html2PdfService {
     @Value("${upload.bucketName}")
     private String bucket;
 
+    @Value("${upload.bucketName}")
+    private String region;
+
     @Value("${upload.prefix}")
     private String prefix;
 
@@ -81,6 +84,7 @@ public class Html2PdfService {
         requestDTO.setUrl(url);
         requestDTO.setOutput(fileName);
         requestDTO.setBucket(bucket);
+        requestDTO.setRegion();
         requestDTO.setKeyPrefix(prefix + "/" + DateFormatUtil.format(new Date(), DateFormatUtil.FORMAT_ONLY_DATE) + "/" + UUID);
         requestDTO.setUuid(UUID);
         requestDTO.setTimeout(90);
