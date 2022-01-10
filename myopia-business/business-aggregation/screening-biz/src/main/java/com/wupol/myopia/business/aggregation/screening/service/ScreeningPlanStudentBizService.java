@@ -1,5 +1,7 @@
 package com.wupol.myopia.business.aggregation.screening.service;
 
+import com.wupol.myopia.base.domain.PdfResponseDTO;
+import com.wupol.myopia.base.service.Html2PdfService;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
 import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
@@ -14,6 +16,7 @@ import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchool
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -21,6 +24,7 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * @Author HaoHao
@@ -28,6 +32,9 @@ import java.util.Objects;
  **/
 @Service
 public class ScreeningPlanStudentBizService {
+
+    @Value("${report.html.url-host}")
+    public String htmlUrlHost;
 
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
@@ -41,6 +48,13 @@ public class ScreeningPlanStudentBizService {
     private ScreeningOrganizationService screeningOrganizationService;
     @Resource
     private ResourceFileService resourceFileService;
+    @Autowired
+    private Html2PdfService html2PdfService;
+
+    /**
+     * 筛查通知结果页面地址
+     */
+    public static final String SCREENING_NOTICE_RESULT_HTML_URL = "%s?planId=%d&schoolId=%d&gradeId=%d&classId=%d&planStudentId=%d&orgId=%d&isSchoolClient=%s";
 
     /**
      * 更新筛查学生
@@ -125,4 +139,16 @@ public class ScreeningPlanStudentBizService {
         });
         return planStudents;
     }
+
+//    public void asyncGeneratorPDF() {
+//        String fileName;
+//        html2PdfService.asyncGeneratorPDF(url, fileName, UUID.randomUUID().toString());
+//    }
+//
+//    public PdfResponseDTO syncGeneratorPDF(Integer planId, Integer schoolId, Integer gradeId, Integer classId, Integer orgId,
+//                                           Integer planStudentId, Boolean isSchoolClient) {
+//        String fileName;
+//        String screeningNoticeResultHtmlUrl = String.format(SCREENING_NOTICE_RESULT_HTML_URL, htmlUrlHost, planId, schoolId, gradeId, classId, );
+//        return html2PdfService.syncGeneratorPDF(url, fileName, UUID.randomUUID().toString());
+//    }
 }

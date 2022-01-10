@@ -18,7 +18,7 @@ public class PdfResponseDTO {
 
     private String url;
 
-    private String status;
+    private Boolean status;
 
     private String message;
 

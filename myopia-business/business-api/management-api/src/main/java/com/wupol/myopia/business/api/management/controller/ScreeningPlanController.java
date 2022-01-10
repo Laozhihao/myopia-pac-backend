@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateUtil;
@@ -90,6 +91,7 @@ public class ScreeningPlanController {
     private ScreeningPlanSchoolStudentFacadeService screeningPlanSchoolStudentFacadeService;
     @Autowired
     private ScreeningExportService screeningExportService;
+
 
     /**
      * 新增
@@ -420,5 +422,20 @@ public class ScreeningPlanController {
                                                                      Integer planStudentId, @NotBlank(message = "查询类型不能为空") Boolean isSchoolClient) {
         return screeningPlanStudentBizService.getScreeningNoticeResultStudent(planId, schoolId, gradeId, classId, orgId, planStudentId, isSchoolClient);
     }
+
+//    @GetMapping("screeningNoticeResult/asyncGeneratorPDF")
+//    public void asyncGeneratorPDF(@NotBlank(message = "计划Id不能为空") Integer planId,
+//                                  Integer schoolId, Integer gradeId, Integer classId, Integer orgId,
+//                                  Integer planStudentId, @NotBlank(message = "查询类型不能为空") Boolean isSchoolClient) {
+//        screeningPlanStudentBizService.asyncGeneratorPDF();
+//    }
+//
+//
+//    @GetMapping("screeningNoticeResult/syncGeneratorPDF")
+//    public PdfResponseDTO syncGeneratorPDF(@NotBlank(message = "计划Id不能为空") Integer planId,
+//                                           Integer schoolId, Integer gradeId, Integer classId, Integer orgId,
+//                                           Integer planStudentId, @NotBlank(message = "查询类型不能为空") Boolean isSchoolClient) {
+//        return screeningPlanStudentBizService.syncGeneratorPDF();
+//    }
 
 }
