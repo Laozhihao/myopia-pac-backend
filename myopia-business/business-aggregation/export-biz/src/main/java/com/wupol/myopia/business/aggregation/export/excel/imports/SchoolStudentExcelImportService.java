@@ -118,7 +118,6 @@ public class SchoolStudentExcelImportService {
                     .setGender(Objects.nonNull(item.get(SchoolStudentImportEnum.GENDER.index)) ? GenderEnum.getType(item.get(SchoolStudentImportEnum.GENDER.index)) : IdCardUtil.getGender(item.get(SchoolStudentImportEnum.ID_CARD.index)))
                     .setBirthday(Objects.nonNull(item.get(SchoolStudentImportEnum.BIRTHDAY.index)) ? DateFormatUtil.parseDate(item.get(SchoolStudentImportEnum.BIRTHDAY.index), DateFormatUtil.FORMAT_ONLY_DATE2) : IdCardUtil.getBirthDay(item.get(SchoolStudentImportEnum.ID_CARD.index)))
                     .setNation(NationEnum.getCode(item.get(SchoolStudentImportEnum.NATION.index)))
-                    .setSchoolNo(school.getSchoolNo())
                     .setGradeType(GradeCodeEnum.getByName(item.get(SchoolStudentImportEnum.GRADE_NAME.index)).getType())
                     .setSno((item.get(SchoolStudentImportEnum.SNO.index)))
                     .setIdCard(item.get(SchoolStudentImportEnum.ID_CARD.index))

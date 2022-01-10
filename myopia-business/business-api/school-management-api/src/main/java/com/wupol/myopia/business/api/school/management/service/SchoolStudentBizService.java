@@ -108,7 +108,6 @@ public class SchoolStudentBizService {
         }
 
         School school = schoolService.getById(schoolId);
-        schoolStudent.setSchoolNo(school.getSchoolNo());
         schoolStudent.setSchoolId(schoolId);
 
         schoolStudent.setGradeName(schoolGradeService.getById(schoolStudent.getGradeId()).getName());

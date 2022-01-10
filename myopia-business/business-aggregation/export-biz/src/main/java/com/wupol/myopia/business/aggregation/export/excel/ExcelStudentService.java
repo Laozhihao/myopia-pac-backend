@@ -231,7 +231,7 @@ public class ExcelStudentService {
             if (Objects.isNull(existPlanStudent)) {
                 existPlanStudent = new ScreeningPlanSchoolStudent();
                 existPlanStudent.setIdCard(student.getIdCard()).setSrcScreeningNoticeId(screeningPlan.getSrcScreeningNoticeId()).setScreeningTaskId(screeningPlan.getScreeningTaskId()).setScreeningPlanId(screeningPlan.getId())
-                        .setScreeningOrgId(screeningPlan.getScreeningOrgId()).setPlanDistrictId(screeningPlan.getDistrictId()).setSchoolDistrictId(school.getDistrictId()).setSchoolId(schoolId).setSchoolName(school.getName()).setSchoolNo(school.getSchoolNo()).setStudentId(dbStudent.getId())
+                        .setScreeningOrgId(screeningPlan.getScreeningOrgId()).setPlanDistrictId(screeningPlan.getDistrictId()).setSchoolDistrictId(school.getDistrictId()).setSchoolId(schoolId).setSchoolName(school.getName()).setStudentId(dbStudent.getId())
                         .setScreeningCode(ScreeningCodeGenerator.nextId());
             }
             existPlanStudent.setId(existPlanStudent.getId()).setStudentName(student.getName()).setGradeId(student.getGradeId()).setGradeName(student.getGradeName())
@@ -655,7 +655,6 @@ public class ExcelStudentService {
                     .setGender(excelStudent.getGender())
                     .setBirthday(excelStudent.getBirthday())
                     .setNation(excelStudent.getNation())
-                    .setSchoolNo(school.getSchoolNo())
                     .setGradeType(excelStudent.getGradeType())
                     .setSno(sno)
                     .setIdCard(idCard)
