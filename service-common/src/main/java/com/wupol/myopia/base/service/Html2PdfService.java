@@ -1,7 +1,6 @@
 package com.wupol.myopia.base.service;
 
 import com.alibaba.fastjson.JSONObject;
-import com.vistel.Interface.config.AWSConfig;
 import com.wupol.myopia.base.domain.PdfRequestDTO;
 import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.base.util.DateFormatUtil;
@@ -14,7 +13,6 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import javax.annotation.Resource;
 import java.util.Date;
 
 /**
