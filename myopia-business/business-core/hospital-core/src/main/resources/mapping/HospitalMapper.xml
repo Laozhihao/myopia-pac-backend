@@ -79,6 +79,9 @@
         <if test="query.type != null">
             and h.type = #{query.type}
         </if>
+        <if test="query.serviceType != null">
+            and h.service_type = #{query.serviceType}
+        </if>
         <if test="query.kind != null">
             and h.kind = #{query.kind}
         </if>

@@ -4,6 +4,8 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.hospital.domain.model.ReferralRecord">
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="special_medical" property="specialMedical"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="disease_medical" property="diseaseMedical"/>
     </resultMap>
 
     <resultMap id="ReferralDTO" type="com.wupol.myopia.business.core.hospital.domain.dto.ReferralDTO" extends="BaseResultMap">
@@ -26,6 +28,7 @@
                 <if test="@Ognl@isNotEmpty(toDepartment)">and `to_department` = #{toDepartment}</if>
                 <if test="@Ognl@isNotEmpty(specialMedical)">and `special_medical` = #{specialMedical}</if>
                 <if test="@Ognl@isNotEmpty(diseaseMedical)">and `disease_medical` = #{diseaseMedical}</if>
+                <if test="@Ognl@isNotEmpty(conclusion)">and `conclusion` = #{conclusion}</if>
                 <if test="@Ognl@isNotEmpty(referralStatus)">and `referral_status` = #{referralStatus}</if>
                 <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
@@ -35,14 +38,15 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, student_id, apply_time, from_hospital_id, from_hospital, from_doctor_id, from_doctor, to_hospital_id, to_hospital, to_department, special_medical, disease_medical, referral_status, update_time, create_time
+        id, student_id, apply_time, from_hospital_id, from_hospital, from_doctor_id, from_doctor, to_hospital_id, to_hospital,
+        to_department, special_medical, disease_medical, conclusion, referral_status, update_time, create_time
     </sql>
 
     <select id="getDetails" resultMap="ReferralDTO">
         select rr.*, hs.`name` as student_name, hs.gender, hs.record_no, hs.birthday, hs.id_card, hs.family_info
         from h_referral_record rr
         INNER JOIN h_hospital_student hs
-        on rr.student_id = hs.student_id
+        on rr.student_id = hs.student_id and hs.hospital_id = rr.from_hospital_id
         where rr.id = #{id}
     </select>
 

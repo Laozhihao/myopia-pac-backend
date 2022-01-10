@@ -1,14 +1,17 @@
 package com.wupol.myopia.business.core.hospital.domain.model;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 回执单
@@ -38,12 +41,14 @@ public class ReceiptList implements Serializable {
     /**
      * 专项检查情况
      */
-    private String specialMedical;
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private List<BaseValue> specialMedical;
 
     /**
      * 诊断结果
      */
-    private String medicalResult;
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private List<BaseValue> medicalResult;
 
     /**
      * 是否进一步转诊[0 否; 1 是]

@@ -1,14 +1,17 @@
 package com.wupol.myopia.business.core.hospital.domain.model;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 转诊信息表
@@ -78,12 +81,19 @@ public class ReferralRecord implements Serializable {
     /**
      * 未做专项检查
      */
-    private String specialMedical;
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private List<BaseValue> specialMedical;
 
     /**
      * 初筛异常项目
      */
-    private String diseaseMedical;
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private List<BaseValue> diseaseMedical;
+
+    /**
+     * 检查结论
+     */
+    private String conclusion;
 
     /**
      * 转诊状态[0 待就诊；1 已接诊]

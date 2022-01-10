@@ -4,6 +4,7 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.hospital.domain.model.ReceiptList">
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="special_medical" property="specialMedical"/>
     </resultMap>
 
     <resultMap id="ReceiptDTO" type="com.wupol.myopia.business.core.hospital.domain.dto.ReceiptDTO" extends="BaseResultMap">
@@ -37,7 +38,7 @@
         select rl.*, hs.`name` as student_name, hs.gender, hs.record_no, hs.birthday, hs.id_card, hs.family_info, h.`name` as from_hospital, d.`name` as from_doctor
         from h_receipt_list rl
         INNER JOIN h_hospital_student hs
-        on rl.student_id = hs.student_id
+        on rl.student_id = hs.student_id and hs.hospital_id = rl.from_hospital_id
         LEFT JOIN m_hospital h
         ON h.id = rl.from_hospital_id
         LEFT JOIN h_doctor d
