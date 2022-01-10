@@ -43,7 +43,7 @@ public class MedicalRecordFacade {
      * @param hospitalId   医院id
      * @param doctorId     医生id
      * @param studentId    学生id
-     * @param systemCode   系统编码
+     * @param clientId   系统编码
      */
     @Transactional(rollbackFor = Exception.class)
     public void addCheckDataAndCreateStudent(Consultation consultation,
@@ -55,7 +55,7 @@ public class MedicalRecordFacade {
                                              Integer hospitalId,
                                              Integer doctorId,
                                              Integer studentId,
-                                             Integer systemCode) {
+                                             String clientId) {
         if (Objects.isNull(studentId)) {
             throw new BusinessException("学生id不能为空");
         }
@@ -77,7 +77,7 @@ public class MedicalRecordFacade {
         hospitalStudentVO.setHospitalId(hospitalId);
         hospitalStudentVO.setStatus(CommonConst.STATUS_NOT_DELETED);
         // 未建档则建档
-        hospitalStudentVO.setStudentType(hospitalStudentService.getStudentType(systemCode, hospitalStudentVO.getStudentType()));
+        hospitalStudentVO.setStudentType(hospitalStudentService.getStudentType(clientId, hospitalStudentVO.getStudentType()));
         hospitalStudentFacade.saveStudent(hospitalStudentVO, false);
         // 设置标识，一天内只通过缓存查询患者信息
         redisUtil.set(cacheKey, "", TimeUnit.DAYS.toSeconds(1));
