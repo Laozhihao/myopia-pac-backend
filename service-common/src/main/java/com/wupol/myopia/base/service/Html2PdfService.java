@@ -44,8 +44,8 @@ public class Html2PdfService {
     @Value("${report.pdf.callbackUrl}")
     private String callbackUrl;
 
-    @Resource
-    private AWSConfig awsConfig;
+//    @Resource
+//    private AWSConfig awsConfig;
 
     /**
      * 异步导出PDF
@@ -86,7 +86,8 @@ public class Html2PdfService {
         requestDTO.setUrl(url);
         requestDTO.setOutput(fileName);
         requestDTO.setBucket(bucket);
-        requestDTO.setRegion(awsConfig.getRegion());
+
+//        requestDTO.setRegion(awsConfig.getRegion());
         requestDTO.setKeyPrefix(prefix + "/" + DateFormatUtil.format(new Date(), DateFormatUtil.FORMAT_ONLY_DATE) + "/" + UUID);
         requestDTO.setUuid(UUID);
         requestDTO.setTimeout(90);
