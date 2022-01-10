@@ -2,7 +2,6 @@ package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.CurrentUser;
-import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateUtil;
@@ -412,15 +411,15 @@ public class ScreeningPlanController {
      * @param gradeId        年级Id
      * @param classId        班级Id
      * @param orgId          筛查机构Id
-     * @param planStudentId  筛查学生Id
+     * @param planStudentIds 筛查学生Id
      * @param isSchoolClient 是否学校端
      * @return List<ScreeningStudentDTO>
      */
     @GetMapping("screeningNoticeResult")
     public List<ScreeningStudentDTO> getScreeningNoticeResultStudent(@NotBlank(message = "计划Id不能为空") Integer planId,
                                                                      Integer schoolId, Integer gradeId, Integer classId, Integer orgId,
-                                                                     Integer planStudentId, @NotBlank(message = "查询类型不能为空") Boolean isSchoolClient) {
-        return screeningPlanStudentBizService.getScreeningNoticeResultStudent(planId, schoolId, gradeId, classId, orgId, planStudentId, isSchoolClient);
+                                                                     String planStudentIds, @NotBlank(message = "查询类型不能为空") Boolean isSchoolClient) {
+        return screeningPlanStudentBizService.getScreeningNoticeResultStudent(planId, schoolId, gradeId, classId, orgId, planStudentIds, isSchoolClient);
     }
 
 //    @GetMapping("screeningNoticeResult/asyncGeneratorPDF")

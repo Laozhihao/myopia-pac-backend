@@ -1,6 +1,9 @@
 package com.wupol.myopia.base.util;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -42,5 +45,18 @@ public class ListUtil {
             }
         }
         return String.join(",", result);
+    }
+
+    /**
+     * 字符串转List
+     *
+     * @param str 字符串
+     * @return List
+     */
+    public static List<Integer> str2List(String str) {
+        if (StringUtils.isBlank(str)) {
+            return new ArrayList<>();
+        }
+        return Arrays.stream(str.split(",")).map(s -> Integer.valueOf(s.trim())).collect(Collectors.toList());
     }
 }

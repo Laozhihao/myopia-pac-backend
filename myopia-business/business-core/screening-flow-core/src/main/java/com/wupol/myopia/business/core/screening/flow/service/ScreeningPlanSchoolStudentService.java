@@ -415,7 +415,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @param planStudentId 筛查学生Id
      * @return List<ScreeningStudentDTO>
      */
-    public List<ScreeningStudentDTO> getScreeningNoticeResultStudent(Integer planId, Integer schoolId, Integer gradeId, Integer classId, Integer planStudentId) {
+    public List<ScreeningStudentDTO> getScreeningNoticeResultStudent(Integer planId, Integer schoolId, Integer gradeId, Integer classId, List<Integer> planStudentId) {
         return baseMapper.getScreeningNoticeResultStudent(planId, schoolId, gradeId, classId, planStudentId);
     }
 }

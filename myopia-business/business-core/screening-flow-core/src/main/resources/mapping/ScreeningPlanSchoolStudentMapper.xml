@@ -344,7 +344,10 @@
             and mspss.class_id = #{classId}
         </if>
         <if test="planStudentId != null">
-            and mspss.id = #{planStudentId}
+            and mspss.id in
+            <foreach collection="planStudentId" open="(" close=")" separator="," item="item">
+                #{item}
+            </foreach>
         </if>
     </select>
 </mapper>

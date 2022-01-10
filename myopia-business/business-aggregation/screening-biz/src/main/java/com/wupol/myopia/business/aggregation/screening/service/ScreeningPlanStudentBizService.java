@@ -2,6 +2,7 @@ package com.wupol.myopia.business.aggregation.screening.service;
 
 import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.base.service.Html2PdfService;
+import com.wupol.myopia.base.util.ListUtil;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
 import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
@@ -117,19 +118,20 @@ public class ScreeningPlanStudentBizService {
      * @param gradeId        年级Id
      * @param classId        班级Id
      * @param orgId          筛查机构Id
-     * @param planStudentId  筛查学生Id
+     * @param planStudentIds  筛查学生Ids
      * @param isSchoolClient 是否学校端
      * @return List<ScreeningStudentDTO>
      */
     public List<ScreeningStudentDTO> getScreeningNoticeResultStudent(Integer planId, Integer schoolId, Integer gradeId,
                                                                      Integer classId, Integer orgId,
-                                                                     Integer planStudentId, Boolean isSchoolClient) {
+                                                                     String planStudentIds, Boolean isSchoolClient) {
         ResultNoticeConfig resultNoticeConfig;
         if (isSchoolClient) {
             resultNoticeConfig = schoolService.getBySchoolId(schoolId).getResultNoticeConfig();
         } else {
             resultNoticeConfig = screeningOrganizationService.getScreeningOrgDetails(orgId).getResultNoticeConfig();
         }
+        List<Integer> planStudentId = ListUtil.str2List(planStudentIds);
         List<ScreeningStudentDTO> planStudents = screeningPlanSchoolStudentService.getScreeningNoticeResultStudent(planId, schoolId, gradeId, classId, planStudentId);
         planStudents.forEach(planStudent -> {
             planStudent.setResultNoticeConfig(resultNoticeConfig);
