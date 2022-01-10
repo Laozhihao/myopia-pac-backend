@@ -1,6 +1,8 @@
 package com.wupol.myopia.business.aggregation.screening.service;
 
+import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.domain.PdfResponseDTO;
+import com.wupol.myopia.base.domain.vo.PdfGeneratorVO;
 import com.wupol.myopia.base.service.Html2PdfService;
 import com.wupol.myopia.base.util.ListUtil;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
@@ -23,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import javax.validation.constraints.NotBlank;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -52,6 +53,8 @@ public class ScreeningPlanStudentBizService {
     private ResourceFileService resourceFileService;
     @Autowired
     private Html2PdfService html2PdfService;
+    @Autowired
+    private RedisUtil redisUtil;
 
     /**
      * 筛查通知结果页面地址
@@ -152,8 +155,12 @@ public class ScreeningPlanStudentBizService {
      * @param planStudentIdStr 筛查学生Ids
      */
     public void asyncGeneratorPDF(Integer planId, Integer schoolId, Integer gradeId, Integer classId, Integer orgId, String planStudentIdStr, Boolean isSchoolClient) {
-        String fileName = "报告.pdf";
-        html2PdfService.asyncGeneratorPDF("https://t-myopia-pac-report.tulab.cn/notice-report/", fileName, UUID.randomUUID().toString());
+        String uuid = UUID.randomUUID().toString();
+        Integer userId = 2;
+        String fileName = "abc.pdf";
+        cacheInfo(uuid, userId, fileName);
+
+        html2PdfService.asyncGeneratorPDF("https://t-myopia-pac-report.tulab.cn/notice-report/", fileName, uuid);
     }
 
     /**
@@ -168,7 +175,15 @@ public class ScreeningPlanStudentBizService {
      */
     public PdfResponseDTO syncGeneratorPDF(Integer planId, Integer schoolId, Integer gradeId, Integer classId, Integer orgId, String planStudentIdStr, Boolean isSchoolClient) {
         String fileName = "报告.pdf";
+        Integer userId = 2;
+        String uuid = UUID.randomUUID().toString();
+        cacheInfo(uuid, userId, fileName);
 //        String screeningNoticeResultHtmlUrl = String.format(SCREENING_NOTICE_RESULT_HTML_URL, htmlUrlHost, planId, schoolId, gradeId, classId, );
-        return html2PdfService.syncGeneratorPDF("https://t-myopia-pac-report.tulab.cn/notice-report/", fileName, UUID.randomUUID().toString());
+        return html2PdfService.syncGeneratorPDF("https://t-myopia-pac-report.tulab.cn/notice-report/", fileName, uuid);
+    }
+
+    private void cacheInfo(String uuid, Integer userId, String fileName) {
+        PdfGeneratorVO pdfGeneratorVO = new PdfGeneratorVO(userId, fileName);
+        redisUtil.set(uuid, pdfGeneratorVO, 60 * 60 * 12);
     }
 }

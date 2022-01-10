@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.Objects;
 
 /**
  * pdf回调地址
@@ -46,6 +47,9 @@ public class PdfCallbackController {
 
         // 通过UUID获取信息
         PdfGeneratorVO pdfGeneratorVO = (PdfGeneratorVO) redisUtil.get(uuid);
+        if (Objects.isNull(pdfGeneratorVO)) {
+            return;
+        }
         String fileName = pdfGeneratorVO.getFileName();
         Integer userId = pdfGeneratorVO.getUserId();
         String bucket = responseDTO.getBucket();
