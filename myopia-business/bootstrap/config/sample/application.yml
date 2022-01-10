@@ -126,6 +126,7 @@ upload:
   staticHost: https://vistel-development.s3.cn-northwest-1.amazonaws.com.cn
   # S3链接失效时间（小时）
   expiredHours: 2
+  region: cn-northwest-1
 
 ### 微信相关
 wechat:

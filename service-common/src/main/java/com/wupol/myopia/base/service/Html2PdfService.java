@@ -30,6 +30,9 @@ public class Html2PdfService {
     @Value("${upload.bucketName}")
     private String bucket;
 
+    @Value("${upload.region}")
+    private String region;
+
     @Value("${upload.prefix}")
     private String prefix;
 
@@ -41,9 +44,6 @@ public class Html2PdfService {
 
     @Value("${report.pdf.callbackUrl}")
     private String callbackUrl;
-
-//    @Resource
-//    private AWSConfig awsConfig;
 
     /**
      * 异步导出PDF
@@ -85,7 +85,7 @@ public class Html2PdfService {
         requestDTO.setOutput(fileName);
         requestDTO.setBucket(bucket);
 
-        requestDTO.setRegion("cn-northwest-1");
+        requestDTO.setRegion(region);
         requestDTO.setKeyPrefix(prefix + "/" + DateFormatUtil.format(new Date(), DateFormatUtil.FORMAT_ONLY_DATE) + "/" + UUID);
         requestDTO.setUuid(UUID);
         requestDTO.setTimeout(90);

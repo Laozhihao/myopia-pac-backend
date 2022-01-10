@@ -137,6 +137,7 @@ upload:
   staticHost: https://${AWS_S3_BUCKET}.s3.${AWS_REGION}.amazonaws.com.cn
   # S3链接失效时间（小时）
   expiredHours: 2
+  region: ${AWS_REGION}
 
 ### 微信相关
 wechat:
