@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.aggregation.screening.service;
 
+import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.base.service.Html2PdfService;
 import com.wupol.myopia.base.util.ListUtil;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
@@ -140,15 +141,34 @@ public class ScreeningPlanStudentBizService {
         return planStudents;
     }
 
-//    public void asyncGeneratorPDF(Integer planId, Integer schoolId, Integer gradeId, Integer classId, Integer orgId, String planStudentIds, Boolean isSchoolClient) {
-//        String fileName;
-//        html2PdfService.asyncGeneratorPDF(url, fileName, UUID.randomUUID().toString());
-//    }
-//
-//    public PdfResponseDTO syncGeneratorPDF(Integer planId, Integer schoolId, Integer gradeId, Integer classId, Integer orgId,
-//                                           Integer planStudentId, Boolean isSchoolClient) {
-//        String fileName;
+    /**
+     * 异步导出学生报告
+     *
+     * @param planId           计划Id
+     * @param schoolId         学校Id
+     * @param gradeId          年级Id
+     * @param classId          班级Id
+     * @param orgId            筛查机构Id
+     * @param planStudentIdStr 筛查学生Ids
+     */
+    public void asyncGeneratorPDF(Integer planId, Integer schoolId, Integer gradeId, Integer classId, Integer orgId, String planStudentIdStr, Boolean isSchoolClient) {
+        String fileName = "报告.pdf";
+        html2PdfService.asyncGeneratorPDF("https://t-myopia-pac-report.tulab.cn/notice-report/", fileName, UUID.randomUUID().toString());
+    }
+
+    /**
+     * 同步导出学生报告
+     *
+     * @param planId           计划Id
+     * @param schoolId         学校Id
+     * @param gradeId          年级Id
+     * @param classId          班级Id
+     * @param orgId            筛查机构Id
+     * @param planStudentIdStr 筛查学生Ids
+     */
+    public PdfResponseDTO syncGeneratorPDF(Integer planId, Integer schoolId, Integer gradeId, Integer classId, Integer orgId, String planStudentIdStr, Boolean isSchoolClient) {
+        String fileName = "报告.pdf";
 //        String screeningNoticeResultHtmlUrl = String.format(SCREENING_NOTICE_RESULT_HTML_URL, htmlUrlHost, planId, schoolId, gradeId, classId, );
-//        return html2PdfService.syncGeneratorPDF(url, fileName, UUID.randomUUID().toString());
-//    }
+        return html2PdfService.syncGeneratorPDF("https://t-myopia-pac-report.tulab.cn/notice-report/", fileName, UUID.randomUUID().toString());
+    }
 }

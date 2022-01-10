@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateUtil;
@@ -422,19 +423,34 @@ public class ScreeningPlanController {
         return screeningPlanStudentBizService.getScreeningNoticeResultStudent(planId, schoolId, gradeId, classId, orgId, planStudentIds, isSchoolClient);
     }
 
-//    @GetMapping("screeningNoticeResult/asyncGeneratorPDF")
-//    public void asyncGeneratorPDF(@NotBlank(message = "计划Id不能为空") Integer planId,
-//                                  Integer schoolId, Integer gradeId, Integer classId, Integer orgId,
-//                                  Integer planStudentId, @NotBlank(message = "查询类型不能为空") Boolean isSchoolClient) {
-//        screeningPlanStudentBizService.asyncGeneratorPDF();
-//    }
-//
-//
-//    @GetMapping("screeningNoticeResult/syncGeneratorPDF")
-//    public PdfResponseDTO syncGeneratorPDF(@NotBlank(message = "计划Id不能为空") Integer planId,
-//                                           Integer schoolId, Integer gradeId, Integer classId, Integer orgId,
-//                                           Integer planStudentId, @NotBlank(message = "查询类型不能为空") Boolean isSchoolClient) {
-//        return screeningPlanStudentBizService.syncGeneratorPDF();
-//    }
+    /**
+     * 异步导出学生报告
+     *
+     * @param planId           计划Id
+     * @param schoolId         学校Id
+     * @param gradeId          年级Id
+     * @param classId          班级Id
+     * @param orgId            筛查机构Id
+     * @param planStudentIdStr 筛查学生Ids
+     */
+    @GetMapping("screeningNoticeResult/asyncGeneratorPDF")
+    public void asyncGeneratorPDF(Integer planId, Integer schoolId, Integer gradeId, Integer classId, Integer orgId, String planStudentIdStr) {
+        screeningPlanStudentBizService.asyncGeneratorPDF(planId, schoolId, gradeId, classId, orgId, planStudentIdStr, false);
+    }
+
+    /**
+     * 同步导出学生报告
+     *
+     * @param planId           计划Id
+     * @param schoolId         学校Id
+     * @param gradeId          年级Id
+     * @param classId          班级Id
+     * @param orgId            筛查机构Id
+     * @param planStudentIdStr 筛查学生Ids
+     */
+    @GetMapping("screeningNoticeResult/syncGeneratorPDF")
+    public PdfResponseDTO syncGeneratorPDF(Integer planId, Integer schoolId, Integer gradeId, Integer classId, Integer orgId, String planStudentIdStr) {
+        return screeningPlanStudentBizService.syncGeneratorPDF(planId, schoolId, gradeId, classId, orgId, planStudentIdStr, false);
+    }
 
 }
