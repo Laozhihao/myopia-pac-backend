@@ -41,6 +41,7 @@ public class SecurityUserDetails implements UserDetails {
         this.userInfo = new CurrentUser();
         BeanUtils.copyProperties(user, this.userInfo);
         this.userInfo.setRoleTypes(roles.stream().map(Role::getRoleType).distinct().collect(Collectors.toList()));
+        this.userInfo.setClientId(clientId);
         Role screenRole = roles.stream().filter(role -> RoleType.SCREENING_ORGANIZATION.getType().equals(role.getRoleType())).findFirst().orElse(null);
         if (Objects.nonNull(screenRole)) {
             this.userInfo.setScreeningOrgId(screenRole.getOrgId());

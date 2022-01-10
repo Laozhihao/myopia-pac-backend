@@ -52,6 +52,11 @@ public class CurrentUser {
     private Integer userType;
 
     /**
+     * 系统用户类型
+     */
+    private String clientId;
+
+    /**
      * 是否平台管理员
      */
     public boolean isPlatformAdminUser() {
