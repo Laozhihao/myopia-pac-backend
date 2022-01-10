@@ -430,5 +430,8 @@ public class HospitalStudentFacade {
         if (null != student.getTownId()) {
             dto.setTown(districtMaps.get(student.getTownId()));
         }
+        if (Objects.nonNull(student.getCommitteeCode())) {
+            dto.setCommittee(districtService.getDistrictByCode(student.getCommitteeCode()));
+        }
     }
 }
