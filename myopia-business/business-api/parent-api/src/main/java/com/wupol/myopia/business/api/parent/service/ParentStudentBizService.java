@@ -18,6 +18,7 @@ import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.QrCodeCacheKey;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.domain.dto.SuggestHospitalDTO;
+import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
@@ -99,6 +100,8 @@ public class ParentStudentBizService {
     private HospitalStudentService hospitalStudentService;
     @Resource
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
+    @Resource
+    private DistrictService districtService;
 
     /**
      * 孩子统计、孩子列表
@@ -506,20 +509,28 @@ public class ParentStudentBizService {
      *
      * @param idCard 身份证
      * @param userId 家长Id
-     * @return Student
+     * @return StudentDTO
      */
-    public Student getByIdCard(String idCard, Integer userId) {
+    public StudentDTO getByIdCard(String idCard, Integer userId) {
         Student student = studentService.getByIdCard(idCard);
         if (Objects.isNull(student)) {
             Parent parent = parentService.getParentByUserId(userId);
-            return new Student().setParentPhone(parent.getPhone());
+            StudentDTO studentDTO = new StudentDTO();
+            studentDTO.setParentPhone(parent.getPhone());
+            return studentDTO;
         }
+        StudentDTO studentDTO = new StudentDTO();
+        BeanUtils.copyProperties(student, studentDTO);
         if (StringUtils.isNotBlank(student.getParentPhone())) {
-            return student;
+            return studentDTO;
         }
         Parent parent = parentService.getParentByUserId(userId);
         student.setParentPhone(parent.getPhone());
-        return student;
+
+        if (Objects.nonNull(student.getCommitteeCode())) {
+            studentDTO.setCommitteeLists(districtService.getDistrictPositionDetail(student.getCommitteeCode()));
+        }
+        return studentDTO;
     }
 
     /**
