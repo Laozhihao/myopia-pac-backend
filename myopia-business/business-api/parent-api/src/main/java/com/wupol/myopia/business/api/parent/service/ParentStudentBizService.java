@@ -119,6 +119,9 @@ public class ParentStudentBizService {
             return responseDTO;
         }
         List<ParentStudentDTO> parentStudentDTOS = studentService.countParentStudent(studentIds);
+        parentStudentDTOS.forEach(student -> {
+            student.setAvatarUrl(Objects.isNull(student.getAvatarFileId()) ? StringUtils.EMPTY : resourceFileService.getResourcePath(student.getAvatarFileId()));
+        });
         responseDTO.setTotal(parentStudentDTOS.size());
         responseDTO.setItem(parentStudentDTOS);
         return responseDTO;
