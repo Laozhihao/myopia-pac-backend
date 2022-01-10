@@ -35,8 +35,7 @@ public class MedicalRecordFacade {
 
     /**
      * 追加检查检查数据到检查单, 如果该学生未建档，则自动建档
-     *
-     * @param consultation 问诊
+     *  @param consultation 问诊
      * @param vision       视力检查检查数据
      * @param biometrics   生物测量检查数据
      * @param diopter      屈光检查数据
@@ -44,6 +43,7 @@ public class MedicalRecordFacade {
      * @param hospitalId   医院id
      * @param doctorId     医生id
      * @param studentId    学生id
+     * @param systemCode   系统编码
      */
     @Transactional(rollbackFor = Exception.class)
     public void addCheckDataAndCreateStudent(Consultation consultation,
@@ -54,7 +54,8 @@ public class MedicalRecordFacade {
                                              EyePressure eyePressure,
                                              Integer hospitalId,
                                              Integer doctorId,
-                                             Integer studentId) {
+                                             Integer studentId,
+                                             Integer systemCode) {
         if (Objects.isNull(studentId)) {
             throw new BusinessException("学生id不能为空");
         }
@@ -76,6 +77,7 @@ public class MedicalRecordFacade {
         hospitalStudentVO.setHospitalId(hospitalId);
         hospitalStudentVO.setStatus(CommonConst.STATUS_NOT_DELETED);
         // 未建档则建档
+        hospitalStudentVO.setStudentType(hospitalStudentService.getStudentType(systemCode, hospitalStudentVO.getStudentType()));
         hospitalStudentFacade.saveStudent(hospitalStudentVO, false);
         // 设置标识，一天内只通过缓存查询患者信息
         redisUtil.set(cacheKey, "", TimeUnit.DAYS.toSeconds(1));
