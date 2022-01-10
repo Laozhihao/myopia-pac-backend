@@ -8,11 +8,11 @@ import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.hospital.constant.CheckReferralInfoEnum;
 import com.wupol.myopia.business.core.hospital.constant.MonthAgeStatusEnum;
+import com.wupol.myopia.business.core.hospital.domain.dto.HospitalStudentResponseDTO;
 import com.wupol.myopia.business.core.hospital.domain.dto.MonthAgeStatusDTO;
 import com.wupol.myopia.business.core.hospital.domain.dto.PreschoolCheckRecordDTO;
 import com.wupol.myopia.business.core.hospital.domain.dto.StudentPreschoolCheckRecordDTO;
 import com.wupol.myopia.business.core.hospital.domain.mapper.PreschoolCheckRecordMapper;
-import com.wupol.myopia.business.core.hospital.domain.model.HospitalStudent;
 import com.wupol.myopia.business.core.hospital.domain.model.PreschoolCheckRecord;
 import com.wupol.myopia.business.core.hospital.domain.query.PreschoolCheckRecordQuery;
 import org.apache.commons.collections4.CollectionUtils;
@@ -66,7 +66,7 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
     public StudentPreschoolCheckRecordDTO getInit(Integer hospitalId, Integer studentId) {
         StudentPreschoolCheckRecordDTO init = new StudentPreschoolCheckRecordDTO();
         // 学生信息
-        HospitalStudent student = hospitalStudentService.getByHospitalIdAndStudentId(hospitalId, studentId);
+        HospitalStudentResponseDTO student = hospitalStudentService.getByHospitalIdAndStudentId(hospitalId, studentId);
         init.setStudent(student);
         // 对应当前医院各年龄段状态
         List<PreschoolCheckRecord> records = getStudentRecord(hospitalId, studentId);

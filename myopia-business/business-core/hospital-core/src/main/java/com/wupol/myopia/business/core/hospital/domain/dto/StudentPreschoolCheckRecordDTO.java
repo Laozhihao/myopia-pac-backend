@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.core.hospital.domain.dto;
 
-import com.wupol.myopia.business.core.hospital.domain.model.HospitalStudent;
 import com.wupol.myopia.business.core.hospital.domain.model.ReferralRecord;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -18,7 +17,7 @@ public class StudentPreschoolCheckRecordDTO {
     /**
      * 学生信息
      */
-    private HospitalStudent student;
+    private HospitalStudentResponseDTO student;
 
     /**
      * 年龄段对应的检查的状态
