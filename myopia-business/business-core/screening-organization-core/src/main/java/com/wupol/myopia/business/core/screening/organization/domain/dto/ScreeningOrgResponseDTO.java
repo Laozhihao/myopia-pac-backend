@@ -55,4 +55,9 @@ public class ScreeningOrgResponseDTO extends ScreeningOrganization {
      * 合作医院个数
      */
     private Integer countCooperationHospital;
+
+    /**
+     * 筛查通知文件URL
+     */
+    private String noticeResultFileUrl;
 }

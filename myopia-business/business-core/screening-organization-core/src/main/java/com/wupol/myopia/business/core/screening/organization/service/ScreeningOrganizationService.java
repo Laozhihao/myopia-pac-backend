@@ -16,6 +16,7 @@ import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccountListDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationQueryDTO;
@@ -52,6 +53,8 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     private OauthServiceClient oauthServiceClient;
     @Autowired
     private DistrictService districtService;
+    @Autowired
+    private ResourceFileService resourceFileService;
 
     /**
      * 父账号
@@ -196,6 +199,9 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         }
         if (Objects.isNull(org.getResultNoticeConfig())) {
             org.setResultNoticeConfig(new ResultNoticeConfig());
+        } else {
+            org.setNoticeResultFileUrl(Objects.nonNull(org.getResultNoticeConfig().getQrCodeFileId()) ?
+                    resourceFileService.getResourcePath(org.getResultNoticeConfig().getQrCodeFileId()) : StringUtils.EMPTY);
         }
         org.setLastCountDate(new Date());
         return org;

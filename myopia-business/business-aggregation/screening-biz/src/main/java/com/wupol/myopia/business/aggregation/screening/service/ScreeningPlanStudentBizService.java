@@ -7,20 +7,17 @@ import com.wupol.myopia.base.service.Html2PdfService;
 import com.wupol.myopia.base.util.ListUtil;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
 import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;
-import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
-import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,18 +51,12 @@ public class ScreeningPlanStudentBizService {
     private SchoolService schoolService;
     @Resource
     private ScreeningOrganizationService screeningOrganizationService;
-    @Resource
-    private ResourceFileService resourceFileService;
     @Autowired
     private Html2PdfService html2PdfService;
     @Autowired
     private RedisUtil redisUtil;
     @Resource
     private SchoolGradeService schoolGradeService;
-    @Resource
-    private SchoolClassService schoolClassService;
-    @Resource
-    private ScreeningPlanService screeningPlanService;
 
     /**
      * 筛查通知结果页面地址
@@ -151,9 +142,6 @@ public class ScreeningPlanStudentBizService {
         List<ScreeningStudentDTO> planStudents = screeningPlanSchoolStudentService.getScreeningNoticeResultStudent(planId, schoolId, gradeId, classId, CollectionUtils.isEmpty(planStudentId) ? null : planStudentId, planStudentName);
         planStudents.forEach(planStudent -> {
             planStudent.setResultNoticeConfig(resultNoticeConfig);
-            if (Objects.nonNull(resultNoticeConfig) && Objects.nonNull(resultNoticeConfig.getQrCodeFileId())) {
-                planStudent.setNoticeQrCodeFileUrl(resourceFileService.getResourcePath(resultNoticeConfig.getQrCodeFileId()));
-            }
         });
         return planStudents;
     }
