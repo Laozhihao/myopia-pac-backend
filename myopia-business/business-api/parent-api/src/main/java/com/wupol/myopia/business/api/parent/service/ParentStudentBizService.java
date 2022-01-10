@@ -524,15 +524,14 @@ public class ParentStudentBizService {
         }
         StudentDTO studentDTO = new StudentDTO();
         BeanUtils.copyProperties(student, studentDTO);
+        if (Objects.nonNull(student.getCommitteeCode())) {
+            studentDTO.setCommitteeLists(districtService.getDistrictPositionDetail(student.getCommitteeCode()));
+        }
         if (StringUtils.isNotBlank(student.getParentPhone())) {
             return studentDTO;
         }
         Parent parent = parentService.getParentByUserId(userId);
         student.setParentPhone(parent.getPhone());
-
-        if (Objects.nonNull(student.getCommitteeCode())) {
-            studentDTO.setCommitteeLists(districtService.getDistrictPositionDetail(student.getCommitteeCode()));
-        }
         return studentDTO;
     }
 
