@@ -8,4 +8,4 @@ alter table m_school_student
     drop column school_no;
 
 alter table m_screening_plan_school_student
-    drop column student_no;
+    drop column school_no;
