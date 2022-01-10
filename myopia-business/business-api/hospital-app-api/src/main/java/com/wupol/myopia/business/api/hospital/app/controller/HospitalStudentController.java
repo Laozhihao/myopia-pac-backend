@@ -70,6 +70,7 @@ public class HospitalStudentController {
             return ApiResult.failure("该学生已建档，请勿重复建档");
         }
         studentVo.setCreateUserId(user.getId());
+        studentVo.setStudentType(hospitalStudentService.getStudentType(user, studentVo.getStudentType()));
         hospitalStudentFacade.saveStudent(studentVo, true);
         return ApiResult.success("建档成功");
     }
@@ -83,6 +84,7 @@ public class HospitalStudentController {
         if (!hospitalStudentService.existHospitalAndStudentRelationship(hospitalId, studentVo.getStudentId())) {
             return ApiResult.failure("该学生未建档");
         }
+        studentVo.setStudentType(hospitalStudentService.getStudentType(user, studentVo.getStudentType()));
         hospitalStudentFacade.saveStudent(studentVo, false);
         return ApiResult.success("更新成功");
     }

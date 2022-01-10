@@ -62,3 +62,6 @@ CREATE TABLE `h_referral_record`  (
 
 alter table m_screening_plan_school_student
     modify student_situation varchar(2048) default '' not null comment '筛查计划--参与筛查的当时情况';
+
+alter table h_hospital_student
+    add student_type int null comment '学生类型 1-医院端 2-0到6岁 3医院和0到6';
