@@ -194,6 +194,9 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         if (null == org) {
             throw new BusinessException("数据异常");
         }
+        if (Objects.isNull(org.getResultNoticeConfig())) {
+            org.setResultNoticeConfig(new ResultNoticeConfig());
+        }
         org.setLastCountDate(new Date());
         return org;
     }
