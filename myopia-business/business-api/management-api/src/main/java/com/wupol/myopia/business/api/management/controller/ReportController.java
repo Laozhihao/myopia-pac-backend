@@ -170,8 +170,9 @@ public class ReportController {
     * @Date: 2021/12/30
     */
     @GetMapping("/screeningOrg/export/school")
-    public void getScreeningPlanSchool(@NotNull(message = "筛查计划ID不能为空") Integer planId, @NotNull(message = "筛查机构ID不能为空") Integer screeningOrgId,
-                                                @NotNull(message = "学校ID不能为空") Integer schoolId) throws IOException {
+    public void getScreeningPlanSchool(@NotNull(message = "筛查计划ID不能为空") Integer planId,
+                                       @NotNull(message = "筛查机构ID不能为空") Integer screeningOrgId,
+                                       @NotNull(message = "学校ID不能为空") Integer schoolId) throws IOException {
 
         ExportCondition exportCondition = new ExportCondition()
                 .setPlanId(planId)

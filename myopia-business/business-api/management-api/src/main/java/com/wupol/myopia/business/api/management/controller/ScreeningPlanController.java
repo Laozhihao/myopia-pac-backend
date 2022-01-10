@@ -411,7 +411,7 @@ public class ScreeningPlanController {
      * @Author: 钓猫的小鱼
      * @Date: 2021/12/29
      */
-    @GetMapping("/plan/export")
+    @GetMapping("/plan/export/studentInfor")
     public Object getScreeningPlanExportDoAndSync(Integer screeningPlanId, @RequestParam(defaultValue = "0") Integer screeningOrgId,
                                                   @RequestParam Integer schoolId,
                                                   @RequestParam(required = false) Integer gradeId,
@@ -428,12 +428,10 @@ public class ScreeningPlanController {
 
         if (classId==null){
             exportStrategy.doExcelExport(exportCondition, ExportReportServiceNameConstant.EXPORT_PLAN_SCHOOL_STUDENT_DATA);
-            System.out.println("------------doExcelExport-----------------");
             return ApiResult.success();
         }else {
 
             String path = exportStrategy.syncExport(exportCondition, ExportReportServiceNameConstant.EXPORT_PLAN_SCHOOL_STUDENT_DATA);
-            System.out.println("------------doExcelExport-----------------");
             return ApiResult.success(path);
         }
 

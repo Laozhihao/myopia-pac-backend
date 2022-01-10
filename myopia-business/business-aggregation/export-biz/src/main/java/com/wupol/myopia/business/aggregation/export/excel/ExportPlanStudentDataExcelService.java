@@ -111,13 +111,32 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
 
         List<StatConclusionExportDTO> statConclusionExportDTOs = data;
 
-        String path = UUID.randomUUID() + "/" + statConclusionExportDTOs.get(0).getSchoolName()+fileName;
+        String path = fileName;
         OnceAbsoluteMergeStrategy mergeStrategy = new OnceAbsoluteMergeStrategy(0, 1, 20, 21);
 
         List<VisionScreeningResultExportDTO> visionScreeningResultExportVos = excelFacade.genVisionScreeningResultExportVos(statConclusionExportDTOs);
         File excelFile =   ExcelUtil.exportListToExcel(path, visionScreeningResultExportVos, mergeStrategy, VisionScreeningResultExportDTO.class);
 
         return ZipUtil.zip(StringUtils.substringBeforeLast(StringUtils.substringBeforeLast(StringUtils.substringBeforeLast(excelFile.getAbsolutePath(), "/"), "/"), "/"));
+    }
+
+    /**
+    * @Description: 导出文件部位ZIP
+    * @Param: [fileName, data]
+    * @return: java.io.File
+    * @Author: 钓猫的小鱼
+    * @Date: 2022/1/10
+    */
+    public File generateExcelFileNoZip(String fileName, List data) throws IOException {
+
+        List<StatConclusionExportDTO> statConclusionExportDTOs = data;
+
+        String path = fileName;
+        OnceAbsoluteMergeStrategy mergeStrategy = new OnceAbsoluteMergeStrategy(0, 1, 20, 21);
+
+        List<VisionScreeningResultExportDTO> visionScreeningResultExportVos = excelFacade.genVisionScreeningResultExportVos(statConclusionExportDTOs);
+        File excelFile =   ExcelUtil.exportListToExcel(path, visionScreeningResultExportVos, mergeStrategy, VisionScreeningResultExportDTO.class);
+        return excelFile;
     }
 
     @Override
@@ -131,7 +150,8 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
             List data = getExcelData(exportCondition);
             // 2.获取文件保存父目录路径
             excelFile = generateExcelFile(fileName, data);
-            return resourceFileService.getResourcePath(s3Utils.uploadS3AndGetResourceFile(excelFile.getAbsolutePath(), fileName).getId());
+            String downloadUrl = resourceFileService.getResourcePath(s3Utils.uploadS3AndGetResourceFile(excelFile.getAbsolutePath(), fileName).getId());
+            return downloadUrl;
         } catch (Exception e) {
             String requestData = JSON.toJSONString(exportCondition);
             log.error("【生成报告异常】{}", requestData, e);
@@ -149,8 +169,12 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
      * @return
      */
     private String getFileNameTitle(ExportCondition exportCondition){
-        School school = schoolService.getById(exportCondition.getSchoolId());
 
+        String schoolName = "";
+        if(Objects.nonNull(exportCondition.getSchoolId())){
+            School school = schoolService.getById(exportCondition.getSchoolId());
+            schoolName = school.getName();
+        }
         String gradeName = "";
         Integer gradeId = exportCondition.getGradeId();
         if (Objects.nonNull(gradeId)) {
@@ -161,7 +185,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         if (Objects.nonNull(classId)) {
             className = schoolClassService.getById(gradeId).getName();
         }
-        return school.getName()+gradeName+className;
+        return schoolName+gradeName+className;
     }
 
 }

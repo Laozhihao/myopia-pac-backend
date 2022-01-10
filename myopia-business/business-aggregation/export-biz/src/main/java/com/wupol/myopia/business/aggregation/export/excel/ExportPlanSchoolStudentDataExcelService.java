@@ -85,45 +85,120 @@ public class ExportPlanSchoolStudentDataExcelService extends BaseExportExcelFile
             //循环导出数据会慢，看是否有必要改成链表
             VisionScreeningResult visionScreeningResult = screeningPlanSchoolStudentFacadeService.getVisionScreeningResult(studentDTO);
 
-            StudentVisionScreeningResultExportDTO studentVisionScreeningResultExportDTO = new StudentVisionScreeningResultExportDTO();
-            studentVisionScreeningResultExportDTO.setId(studentDTO.getId());
-            studentVisionScreeningResultExportDTO.setStudentName(name(studentDTO));//姓名
-            studentVisionScreeningResultExportDTO.setStudentNo(sno(studentDTO));//学号
-            studentVisionScreeningResultExportDTO.setGenderDesc(gender(studentDTO));//性别
-
-            studentVisionScreeningResultExportDTO.setGradeName(gradeName(studentDTO));//性别
-            studentVisionScreeningResultExportDTO.setClassName(className(studentDTO));//性别
-            studentVisionScreeningResultExportDTO.setBirthday(studentDTO.getBirthday());//性别
-
-
-            studentVisionScreeningResultExportDTO.setParentPhone(phone(studentDTO));//手机号码
-            studentVisionScreeningResultExportDTO.setAddress(address(studentDTO));//地址
-            studentVisionScreeningResultExportDTO.setRightReScreenNakedVisions(visionRightDataToStr(visionScreeningResult));//有眼裸视力
-            studentVisionScreeningResultExportDTO.setLeftReScreenNakedVisions(visionLeftDataToStr(visionScreeningResult));//左眼裸视力
-
-            studentVisionScreeningResultExportDTO.setRightReScreenCorrectedVisions(correcteRightDataToStr(visionScreeningResult));//有眼矫正视力
-            studentVisionScreeningResultExportDTO.setLeftReScreenCorrectedVisions(correcteLeftDataToStr(visionScreeningResult));//左眼矫正视力
-
-            studentVisionScreeningResultExportDTO.setRightReScreenSphs(computerRightSph(visionScreeningResult));
-            studentVisionScreeningResultExportDTO.setRightReScreenCyls(computerRightCyl(visionScreeningResult));
-            studentVisionScreeningResultExportDTO.setRightReScreenAxials(computerRightAxial(visionScreeningResult));
-            studentVisionScreeningResultExportDTO.setRightReScreenSphericalEquivalents(rightReScreenSph(visionScreeningResult));
-
-            studentVisionScreeningResultExportDTO.setLeftReScreenSphs(computerLeftSph(visionScreeningResult));
-            studentVisionScreeningResultExportDTO.setLeftReScreenCyls(computerLeftCyl(visionScreeningResult));
-            studentVisionScreeningResultExportDTO.setLeftReScreenAxials(computerLeftAxial(visionScreeningResult));
-            studentVisionScreeningResultExportDTO.setLeftReScreenSphericalEquivalents(leftReScreenSph(visionScreeningResult));
-
-            studentVisionScreeningResultExportDTOS.add(studentVisionScreeningResultExportDTO);
+            setStudentData(studentVisionScreeningResultExportDTOS, studentDTO, visionScreeningResult);
         });
-
-        System.out.println("------------screeningStudentDTOS------结束-----------"+screeningStudentDTOS.size());
-
         //对年级排序
         studentVisionScreeningResultExportDTOS.sort(Comparator.comparing((StudentVisionScreeningResultExportDTO planSchoolStudent) ->
                 Integer.valueOf(GradeCodeEnum.getByName(planSchoolStudent.getGradeName()).getCode())));
         return studentVisionScreeningResultExportDTOS;
     }
+
+    private void setStudentData(List<StudentVisionScreeningResultExportDTO> studentVisionScreeningResultExportDTOS, ScreeningStudentDTO studentDTO, VisionScreeningResult visionScreeningResult) {
+        StudentVisionScreeningResultExportDTO studentVisionScreeningResultExportDTO = new StudentVisionScreeningResultExportDTO();
+        studentVisionScreeningResultExportDTO.setId(studentDTO.getId());
+        studentVisionScreeningResultExportDTO.setStudentName(name(studentDTO));//姓名
+        studentVisionScreeningResultExportDTO.setStudentNo(sno(studentDTO));//学号
+        studentVisionScreeningResultExportDTO.setGenderDesc(gender(studentDTO));//性别
+
+        studentVisionScreeningResultExportDTO.setGradeName(gradeName(studentDTO));//性别
+        studentVisionScreeningResultExportDTO.setClassName(className(studentDTO));//性别
+        studentVisionScreeningResultExportDTO.setBirthday(studentDTO.getBirthday());//性别
+
+        studentVisionScreeningResultExportDTO.setParentPhone(phone(studentDTO));//手机号码
+        studentVisionScreeningResultExportDTO.setAddress(address(studentDTO));//地址
+        studentVisionScreeningResultExportDTO.setRightReScreenNakedVisions(visionRightDataToStr(visionScreeningResult));//有眼裸视力
+        studentVisionScreeningResultExportDTO.setLeftReScreenNakedVisions(visionLeftDataToStr(visionScreeningResult));//左眼裸视力
+
+        studentVisionScreeningResultExportDTO.setRightReScreenCorrectedVisions(correcteRightDataToStr(visionScreeningResult));//有眼矫正视力
+        studentVisionScreeningResultExportDTO.setLeftReScreenCorrectedVisions(correcteLeftDataToStr(visionScreeningResult));//左眼矫正视力
+
+        studentVisionScreeningResultExportDTO.setRightReScreenSphs(computerRightSph(visionScreeningResult));
+        studentVisionScreeningResultExportDTO.setRightReScreenCyls(computerRightCyl(visionScreeningResult));
+        studentVisionScreeningResultExportDTO.setRightReScreenAxials(computerRightAxial(visionScreeningResult));
+        studentVisionScreeningResultExportDTO.setRightReScreenSphericalEquivalents(rightReScreenSph(visionScreeningResult));
+
+        studentVisionScreeningResultExportDTO.setLeftReScreenSphs(computerLeftSph(visionScreeningResult));
+        studentVisionScreeningResultExportDTO.setLeftReScreenCyls(computerLeftCyl(visionScreeningResult));
+        studentVisionScreeningResultExportDTO.setLeftReScreenAxials(computerLeftAxial(visionScreeningResult));
+        studentVisionScreeningResultExportDTO.setLeftReScreenSphericalEquivalents(leftReScreenSph(visionScreeningResult));
+
+        studentVisionScreeningResultExportDTOS.add(studentVisionScreeningResultExportDTO);
+    }
+
+    @Override
+    public Class getHeadClass() {
+        return StudentVisionScreeningResultExportDTO.class;
+    }
+
+    @Override
+    public String getNoticeKeyContent(ExportCondition exportCondition) {
+        String noticeKeyContent = String.format(ExcelNoticeKeyContentConstant.EXPORT_PLAN_STUDENT_DATA, getFileNameTitle(exportCondition));
+        return noticeKeyContent;
+    }
+
+    @Override
+    public String getFileName(ExportCondition exportCondition) {
+        return getFileNameTitle(exportCondition)+ ExcelFileNameConstant.PLAN_STUDENT_FILE_NAME;
+    }
+
+    @Override
+    public String getLockKey(ExportCondition exportCondition) {
+        Integer screeningPlanId = exportCondition.getPlanId();
+        Integer screeningOrgId = exportCondition.getScreeningOrgId();
+        Integer schoolId = exportCondition.getSchoolId();
+        Integer gradeId = exportCondition.getGradeId();
+        Integer classId = exportCondition.getClassId();
+        Integer userId = exportCondition.getApplyExportFileUserId();
+
+        String lockKey = String.format(RedisConstant.FILE_EXPORT_PLAN_STUDENTSCREENING, screeningPlanId,screeningOrgId,schoolId, gradeId,classId,userId);
+        return lockKey;
+    }
+
+    @Override
+    public String syncExport(ExportCondition exportCondition) {
+
+        String parentPath = null;
+        File excelFile = null;
+        try {
+            // 1.获取文件名
+            String fileName = getFileName(exportCondition);
+            // 3.获取数据，生成List
+            List data = getExcelData(exportCondition);
+            // 2.获取文件保存父目录路径
+            excelFile = generateExcelFile(fileName, data);
+            return resourceFileService.getResourcePath(s3Utils.uploadS3AndGetResourceFile(excelFile.getAbsolutePath(), fileName).getId());
+        } catch (Exception e) {
+            String requestData = JSON.toJSONString(exportCondition);
+            log.error("【生成报告异常】{}", requestData, e);
+            // 发送失败通知
+            throw new BusinessException("导出数据异常");
+        } finally {
+            // 5.删除临时文件
+            deleteTempFile(parentPath);
+        }
+    }
+
+    /**
+     * 获取文件同步导出文件名称
+     * @param exportCondition
+     * @return
+     */
+    private String getFileNameTitle(ExportCondition exportCondition){
+        School school = schoolService.getById(exportCondition.getSchoolId());
+
+        String gradeName = "";
+        Integer gradeId = exportCondition.getGradeId();
+        if (Objects.nonNull(gradeId)) {
+            gradeName = schoolGradeService.getById(gradeId).getName();
+        }
+        Integer classId = exportCondition.getClassId();
+        String className = "";
+        if (Objects.nonNull(classId)) {
+            className = schoolClassService.getById(gradeId).getName();
+        }
+        return school.getName()+gradeName+className;
+    }
+
     private String leftReScreenSph(VisionScreeningResult visionScreeningResult){
         if (visionScreeningResult==null
                 ||visionScreeningResult.getComputerOptometry()==null
@@ -168,14 +243,12 @@ public class ExportPlanSchoolStudentDataExcelService extends BaseExportExcelFile
             return "柱镜为null";
         }
 
-       BigDecimal cyl = visionScreeningResult.getComputerOptometry().getRightEyeData().getCyl().divide(new BigDecimal(2),2,BigDecimal.ROUND_HALF_UP);
+        BigDecimal cyl = visionScreeningResult.getComputerOptometry().getRightEyeData().getCyl().divide(new BigDecimal(2),2,BigDecimal.ROUND_HALF_UP);
 
-       BigDecimal resulr = visionScreeningResult.getComputerOptometry().getRightEyeData().getSph().add(cyl);
+        BigDecimal resulr = visionScreeningResult.getComputerOptometry().getRightEyeData().getSph().add(cyl);
 
         return resulr.toString();
     }
-
-
 
     private String className(ScreeningStudentDTO screeningStudentDTO){
         if (screeningStudentDTO!=null
@@ -364,88 +437,21 @@ public class ExportPlanSchoolStudentDataExcelService extends BaseExportExcelFile
     }
 
     private String visionLeftDataToStr(VisionScreeningResult visionScreeningResult){
+        if (resultData(visionScreeningResult))
+            return visionScreeningResult.getVisionData().getLeftEyeData().getNakedVision().toString();
+
+        return "--";
+    }
+
+    private boolean resultData(VisionScreeningResult visionScreeningResult) {
         if (visionScreeningResult!=null
                 &&visionScreeningResult.getVisionData()!=null
                 &&visionScreeningResult.getVisionData().getLeftEyeData()!=null
                 &&visionScreeningResult.getVisionData().getLeftEyeData().getNakedVision()!=null){
 
-            return visionScreeningResult.getVisionData().getLeftEyeData().getNakedVision().toString();
+            return true;
         }
-
-        return "--";
+        return false;
     }
 
-    @Override
-    public Class getHeadClass() {
-        return StudentVisionScreeningResultExportDTO.class;
-    }
-
-    @Override
-    public String getNoticeKeyContent(ExportCondition exportCondition) {
-        String noticeKeyContent = String.format(ExcelNoticeKeyContentConstant.EXPORT_PLAN_STUDENT_DATA, getFileNameTitle(exportCondition));
-        return noticeKeyContent;
-    }
-
-    @Override
-    public String getFileName(ExportCondition exportCondition) {
-        return getFileNameTitle(exportCondition)+ ExcelFileNameConstant.PLAN_STUDENT_FILE_NAME;
-    }
-
-    @Override
-    public String getLockKey(ExportCondition exportCondition) {
-        Integer screeningPlanId = exportCondition.getPlanId();
-        Integer screeningOrgId = exportCondition.getScreeningOrgId();
-        Integer schoolId = exportCondition.getSchoolId();
-        Integer gradeId = exportCondition.getGradeId();
-        Integer classId = exportCondition.getClassId();
-        Integer userId = exportCondition.getApplyExportFileUserId();
-
-        String lockKey = String.format(RedisConstant.FILE_EXPORT_PLAN_STUDENTSCREENING, screeningPlanId,screeningOrgId,schoolId, gradeId,classId,userId);
-        return lockKey;
-    }
-
-    @Override
-    public String syncExport(ExportCondition exportCondition) {
-
-        String parentPath = null;
-        File excelFile = null;
-        try {
-            // 1.获取文件名
-            String fileName = getFileName(exportCondition);
-            // 3.获取数据，生成List
-            List data = getExcelData(exportCondition);
-            // 2.获取文件保存父目录路径
-            excelFile = generateExcelFile(fileName, data);
-            return resourceFileService.getResourcePath(s3Utils.uploadS3AndGetResourceFile(excelFile.getAbsolutePath(), fileName).getId());
-        } catch (Exception e) {
-            String requestData = JSON.toJSONString(exportCondition);
-            log.error("【生成报告异常】{}", requestData, e);
-            // 发送失败通知
-            throw new BusinessException("导出数据异常");
-        } finally {
-            // 5.删除临时文件
-            deleteTempFile(parentPath);
-        }
-    }
-
-    /**
-     * 获取文件同步导出文件名称
-     * @param exportCondition
-     * @return
-     */
-    private String getFileNameTitle(ExportCondition exportCondition){
-        School school = schoolService.getById(exportCondition.getSchoolId());
-
-        String gradeName = "";
-        Integer gradeId = exportCondition.getGradeId();
-        if (Objects.nonNull(gradeId)) {
-            gradeName = schoolGradeService.getById(gradeId).getName();
-        }
-        Integer classId = exportCondition.getClassId();
-        String className = "";
-        if (Objects.nonNull(classId)) {
-            className = schoolClassService.getById(gradeId).getName();
-        }
-        return school.getName()+gradeName+className;
-    }
 }
