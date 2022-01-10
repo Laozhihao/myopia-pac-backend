@@ -140,7 +140,7 @@ public class HospitalStudentFacade {
             studentVo.setTownId(studentVo.getTown().getId());
         }
         if (Objects.nonNull(studentVo.getCommittee())) {
-            studentVo.setCommitteeCode(studentVo.getCommittee().getCode());
+            studentVo.setCommitteeCode(districtService.getById(studentVo.getCommittee().getId()).getCode());
         }
 
         // 如果管理端没有该学生信息, 则先到管理端创建,再到医院端创建
@@ -163,6 +163,9 @@ public class HospitalStudentFacade {
             }
             if (Objects.nonNull(studentVo.getTownId())) {
                 tmpStudent.setTownCode(districtService.getById(studentVo.getTownId()).getCode());
+            }
+            if (Objects.nonNull(studentVo.getCommitteeCode())) {
+                tmpStudent.setCommitteeCode(studentVo.getCommitteeCode());
             }
             Integer studentId = studentService.saveStudent(tmpStudent);
             studentVo.setStudentId(studentId);
