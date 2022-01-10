@@ -39,7 +39,7 @@ public class AppChannelController extends BaseController<AppChannelService, AppC
         String uuid = UUID.randomUUID().toString();
 
         String fileName = "abc.pdf";
-        Integer userId = 101;
+        Integer userId = 2;
 
         PdfGeneratorVO pdfGeneratorVO = new PdfGeneratorVO(userId, fileName);
         redisUtil.set(uuid, pdfGeneratorVO, 60 * 60 * 12);
