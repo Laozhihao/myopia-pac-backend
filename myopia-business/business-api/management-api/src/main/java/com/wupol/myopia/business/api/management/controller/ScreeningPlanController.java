@@ -435,7 +435,8 @@ public class ScreeningPlanController {
      */
     @GetMapping("screeningNoticeResult/asyncGeneratorPDF")
     public void asyncGeneratorPDF(Integer planId, Integer schoolId, Integer gradeId, Integer classId, Integer orgId, String planStudentIdStr) {
-        screeningPlanStudentBizService.asyncGeneratorPDF(planId, schoolId, gradeId, classId, orgId, planStudentIdStr, false);
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        screeningPlanStudentBizService.asyncGeneratorPDF(planId, schoolId, gradeId, classId, orgId, planStudentIdStr, false, user.getId());
     }
 
     /**
@@ -450,7 +451,8 @@ public class ScreeningPlanController {
      */
     @GetMapping("screeningNoticeResult/syncGeneratorPDF")
     public PdfResponseDTO syncGeneratorPDF(Integer planId, Integer schoolId, Integer gradeId, Integer classId, Integer orgId, String planStudentIdStr) {
-        return screeningPlanStudentBizService.syncGeneratorPDF(planId, schoolId, gradeId, classId, orgId, planStudentIdStr, false);
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        return screeningPlanStudentBizService.syncGeneratorPDF(planId, schoolId, gradeId, classId, orgId, planStudentIdStr, false, user.getId());
     }
 
 }

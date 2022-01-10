@@ -8,14 +8,19 @@ import com.wupol.myopia.base.util.ListUtil;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
 import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
+import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
+import com.wupol.myopia.business.core.school.service.SchoolClassService;
+import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,6 +60,12 @@ public class ScreeningPlanStudentBizService {
     private Html2PdfService html2PdfService;
     @Autowired
     private RedisUtil redisUtil;
+    @Resource
+    private SchoolGradeService schoolGradeService;
+    @Resource
+    private SchoolClassService schoolClassService;
+    @Resource
+    private ScreeningPlanService screeningPlanService;
 
     /**
      * 筛查通知结果页面地址
@@ -153,11 +164,12 @@ public class ScreeningPlanStudentBizService {
      * @param classId          班级Id
      * @param orgId            筛查机构Id
      * @param planStudentIdStr 筛查学生Ids
+     * @param userId           用户Id
      */
-    public void asyncGeneratorPDF(Integer planId, Integer schoolId, Integer gradeId, Integer classId, Integer orgId, String planStudentIdStr, Boolean isSchoolClient) {
+    public void asyncGeneratorPDF(Integer planId, Integer schoolId, Integer gradeId, Integer classId,
+                                  Integer orgId, String planStudentIdStr, Boolean isSchoolClient, Integer userId) {
         String uuid = UUID.randomUUID().toString();
-        Integer userId = 2;
-        String fileName = "abc.pdf";
+        String fileName = getFileName(schoolId, gradeId);
         cacheInfo(uuid, userId, fileName);
 
         html2PdfService.asyncGeneratorPDF("https://t-myopia-pac-report.tulab.cn/notice-report/", fileName, uuid);
@@ -172,18 +184,46 @@ public class ScreeningPlanStudentBizService {
      * @param classId          班级Id
      * @param orgId            筛查机构Id
      * @param planStudentIdStr 筛查学生Ids
+     * @param userId           用户Id
      */
-    public PdfResponseDTO syncGeneratorPDF(Integer planId, Integer schoolId, Integer gradeId, Integer classId, Integer orgId, String planStudentIdStr, Boolean isSchoolClient) {
-        String fileName = "报告.pdf";
-        Integer userId = 2;
+    public PdfResponseDTO syncGeneratorPDF(Integer planId, Integer schoolId, Integer gradeId, Integer classId,
+                                           Integer orgId, String planStudentIdStr, Boolean isSchoolClient, Integer userId) {
+        String fileName = getFileName(schoolId, gradeId);
         String uuid = UUID.randomUUID().toString();
         cacheInfo(uuid, userId, fileName);
 //        String screeningNoticeResultHtmlUrl = String.format(SCREENING_NOTICE_RESULT_HTML_URL, htmlUrlHost, planId, schoolId, gradeId, classId, );
         return html2PdfService.syncGeneratorPDF("https://t-myopia-pac-report.tulab.cn/notice-report/", fileName, uuid);
     }
 
+    /**
+     * 缓存导出信息
+     *
+     * @param uuid     UUID
+     * @param userId   用户Id
+     * @param fileName 文件名
+     */
     private void cacheInfo(String uuid, Integer userId, String fileName) {
         PdfGeneratorVO pdfGeneratorVO = new PdfGeneratorVO(userId, fileName);
         redisUtil.set(uuid, pdfGeneratorVO, 60 * 60 * 12);
+    }
+
+    /**
+     * 获取文件名称
+     *
+     * @param schoolId 学校Id
+     * @param gradeId  年级Id
+     * @return 文件名称
+     */
+    private String getFileName(Integer schoolId, Integer gradeId) {
+        if (Objects.nonNull(gradeId)) {
+            School school = schoolService.getById(schoolId);
+            SchoolGrade schoolGrade = schoolGradeService.getById(gradeId);
+            return school.getName() + schoolGrade.getName() + ".pdf";
+        }
+        if (Objects.nonNull(schoolId)) {
+            School school = schoolService.getById(schoolId);
+            return school.getName() + ".pdf";
+        }
+        return "整个计划下的学生筛查结果通知书.pdf";
     }
 }
