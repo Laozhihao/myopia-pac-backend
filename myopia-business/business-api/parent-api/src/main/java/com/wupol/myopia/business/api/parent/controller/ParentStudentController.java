@@ -12,6 +12,9 @@ import com.wupol.myopia.business.api.parent.service.ParentStudentBizService;
 import com.wupol.myopia.business.core.common.domain.dto.SuggestHospitalDTO;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.hospital.domain.dto.EyeHealthyReportResponseDTO;
+import com.wupol.myopia.business.core.hospital.domain.dto.PreschoolCheckRecordDTO;
+import com.wupol.myopia.business.core.hospital.service.PreschoolCheckRecordService;
 import com.wupol.myopia.business.core.parent.domain.dto.CheckIdCardRequestDTO;
 import com.wupol.myopia.business.core.school.domain.dto.CountParentStudentResponseDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeItemsDTO;
@@ -46,6 +49,8 @@ public class ParentStudentController {
     private DistrictService districtService;
     @Resource
     private ParentStudentBizService parentStudentBizService;
+    @Resource
+    private PreschoolCheckRecordService preschoolCheckRecordService;
 
     /**
      * 获取孩子统计、孩子列表
@@ -243,18 +248,20 @@ public class ParentStudentController {
      * @param studentId 学生Id
      * @return 眼保健检查报告列表
      */
-    public List<Object> getEyeHealthyReportList(Integer studentId) {
-        return null;
+    @GetMapping("eyeHealthyReport/list/{studentId}")
+    public List<EyeHealthyReportResponseDTO> getEyeHealthyReportList(@PathVariable("studentId") Integer studentId) {
+        return preschoolCheckRecordService.getByStudentId(studentId);
     }
 
     /**
      * 获取学生眼保健检查详情
      *
-     * @param reportId 报告Id
+     * @param id 报告Id
      * @return 详情
      */
-    public EyeHealthyReportResponseDTO getEyeHealthyReportDetail(Integer reportId) {
-        return null;
+    @GetMapping("eyeHealthyReport/{id}")
+    public PreschoolCheckRecordDTO getEyeHealthyReportDetail(@PathVariable Integer id) {
+        return preschoolCheckRecordService.getDetails(id);
     }
 
     /**
@@ -288,7 +295,7 @@ public class ParentStudentController {
      * @return StudentDTO
      */
     @GetMapping("getStudentInfo/{studentId}")
-    public StudentDTO getStudentInfo(@PathVariable("studentId")Integer studentId) {
+    public StudentDTO getStudentInfo(@PathVariable("studentId") Integer studentId) {
         return parentStudentBizService.getStudentInfo(studentId);
     }
 

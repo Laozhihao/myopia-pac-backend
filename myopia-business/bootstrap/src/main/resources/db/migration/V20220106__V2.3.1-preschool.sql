@@ -1,4 +1,3 @@
-DROP TABLE IF EXISTS `h_preschool_check_record`;
 CREATE TABLE `h_preschool_check_record`  (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键id',
   `student_id` int(11) NOT NULL COMMENT '学生id',
@@ -17,6 +16,8 @@ CREATE TABLE `h_preschool_check_record`  (
   `monocular_masking_aversion_test` json NULL COMMENT '单眼遮盖厌恶试验',
   `refraction_data` json NULL COMMENT '屈光检查',
   `guide_content` varchar(320) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '健康指导',
+  `conclusion` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '眼病筛查及视力评估',
+  `status` tinyint(4) NULL DEFAULT 0 COMMENT '总休情况[0 异常 ；1 正常]',
   `to_referral_id` int(11) NULL DEFAULT NULL COMMENT '检查后转诊id',
   `receipt_id` int(11) NULL DEFAULT NULL COMMENT '回执单id',
   `update_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
@@ -25,12 +26,8 @@ CREATE TABLE `h_preschool_check_record`  (
   INDEX `ind_student_id`(`student_id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '眼保健信息表' ROW_FORMAT = Dynamic;
 
--- ----------------------------
--- Table structure for h_receipt_list
--- ----------------------------
-DROP TABLE IF EXISTS `h_receipt_list`;
 CREATE TABLE `h_receipt_list`  (
-  `id` int(11) NOT NULL COMMENT 'id',
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'id',
   `student_id` int(11) NOT NULL COMMENT '学生id',
   `special_medical` json NULL COMMENT '专项检查情况',
   `medical_result` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '诊断结果',
@@ -43,12 +40,8 @@ CREATE TABLE `h_receipt_list`  (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '回执单' ROW_FORMAT = Dynamic;
 
--- ----------------------------
--- Table structure for h_referral_record
--- ----------------------------
-DROP TABLE IF EXISTS `h_referral_record`;
 CREATE TABLE `h_referral_record`  (
-  `id` int(11) NOT NULL COMMENT 'id',
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'id',
   `student_id` int(11) NOT NULL COMMENT '学生id',
   `apply_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '申请时间',
   `from_hospital_id` int(11) NULL DEFAULT NULL COMMENT '申请医院id',
@@ -60,6 +53,7 @@ CREATE TABLE `h_referral_record`  (
   `to_department` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '目标科室名称',
   `special_medical` json NULL COMMENT '未做专项检查',
   `disease_medical` json NULL COMMENT '初筛异常项目',
+  `conclusion` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '检查结论',
   `referral_status` tinyint(4) NOT NULL DEFAULT 0 COMMENT '转诊状态[0 待就诊；1 已接诊]',
   `update_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
   `create_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
