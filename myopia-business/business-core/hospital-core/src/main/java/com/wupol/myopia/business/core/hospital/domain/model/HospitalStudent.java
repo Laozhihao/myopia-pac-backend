@@ -135,6 +135,11 @@ public class HospitalStudent implements Serializable {
      */
     private Long recordNo;
 
+    /**
+     * 学生类型 1-医院端 2-0到6岁 3医院和0到6
+     */
+    private Integer studentType;
+
 
     public HospitalStudent(Integer hospitalId, Integer studentId) {
         this.studentId = studentId;
