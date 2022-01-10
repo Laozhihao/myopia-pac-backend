@@ -7,6 +7,7 @@ import com.wupol.myopia.base.util.BusinessUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.hospital.constant.MonthAgeStatusEnum;
+import com.wupol.myopia.business.core.hospital.domain.dto.EyeHealthyReportResponseDTO;
 import com.wupol.myopia.business.core.hospital.domain.dto.MonthAgeStatusDTO;
 import com.wupol.myopia.business.core.hospital.domain.dto.PreschoolCheckRecordDTO;
 import com.wupol.myopia.business.core.hospital.domain.mapper.PreschoolCheckRecordMapper;
@@ -138,6 +139,16 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
 
     private List<MonthAgeStatusDTO> createMonthAgeStatusDTOByMap(Map<Integer, MonthAgeStatusDTO> map) {
         return map.keySet().stream().map(monthAge -> map.get(monthAge)).collect(Collectors.toList());
+    }
+
+    /**
+     * 通过学生Id获取报告列表
+     *
+     * @param studentId 学生Id
+     * @return List<EyeHealthyReportResponseDTO>
+     */
+    public List<EyeHealthyReportResponseDTO> getByStudentId(Integer studentId) {
+        return baseMapper.getByStudentId(studentId);
     }
 
 }
