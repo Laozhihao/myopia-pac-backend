@@ -6,6 +6,7 @@ import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.hospital.domain.dto.PreschoolCheckRecordDTO;
+import com.wupol.myopia.business.core.hospital.domain.dto.StudentPreschoolCheckRecordDTO;
 import com.wupol.myopia.business.core.hospital.domain.query.PreschoolCheckRecordQuery;
 import com.wupol.myopia.business.core.hospital.service.PreschoolCheckRecordService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +60,7 @@ public class CheckRecordController {
      * @return
      */
     @GetMapping("/init")
-    public PreschoolCheckRecordDTO getInit(Integer studentId) {
+    public StudentPreschoolCheckRecordDTO getInit(Integer studentId) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         return preschoolCheckRecordService.getInit(user.getOrgId(), studentId);
     }

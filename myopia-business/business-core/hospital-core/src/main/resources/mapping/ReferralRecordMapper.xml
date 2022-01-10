@@ -50,4 +50,12 @@
         where rr.id = #{id}
     </select>
 
+    <select id="getByStudentId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from h_referral_record
+        where student_id = #{studentId}
+        order by update_time desc;
+    </select>
+
 </mapper>
