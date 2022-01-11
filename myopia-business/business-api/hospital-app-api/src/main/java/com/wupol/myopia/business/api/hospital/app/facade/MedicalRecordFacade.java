@@ -64,13 +64,13 @@ public class MedicalRecordFacade {
         // 已建档则跳过
         String cacheKey = String.format(HospitalCacheKey.EXIST_HOSPITAL_STUDENT_ID, hospitalId, studentId);
         if (redisUtil.hasKey(cacheKey)) {
-            updateHospitalStudentStatus(hospitalId, studentId);
+            updateHospitalStudentStatus(hospitalId, studentId, clientId);
             return;
         }
         if (hospitalStudentService.count(new HospitalStudent().setStudentId(studentId).setHospitalId(hospitalId)) != 0) {
             // 设置标识，一天内只通过缓存查询患者信息
             redisUtil.set(cacheKey, "", TimeUnit.DAYS.toSeconds(1));
-            updateHospitalStudentStatus(hospitalId, studentId);
+            updateHospitalStudentStatus(hospitalId, studentId, clientId);
             return;
         }
         HospitalStudentVO hospitalStudentVO = hospitalStudentFacade.getStudentById(hospitalId, studentId);
@@ -88,12 +88,15 @@ public class MedicalRecordFacade {
      *
      * @param hospitalId 医院Id
      * @param studentId  学生Id
+     * @param clientId   客户端Id
      */
-    private void updateHospitalStudentStatus(Integer hospitalId, Integer studentId) {
+    private void updateHospitalStudentStatus(Integer hospitalId, Integer studentId,String clientId) {
         HospitalStudentVO hospitalStudentVO = hospitalStudentFacade.getStudentById(hospitalId, studentId);
         if (Objects.isNull(hospitalStudentVO)) {
             return;
         }
+        hospitalStudentVO.setStudentType(hospitalStudentService.getStudentType(clientId, hospitalStudentVO.getStudentType()));
+        hospitalStudentService.updateById(hospitalStudentVO);
         if (CommonConst.STATUS_NOT_DELETED.equals(hospitalStudentVO.getStatus())) {
             return;
         }
