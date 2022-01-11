@@ -55,6 +55,11 @@ public class ReferralDTO extends ReferralRecord implements HasParentInfoInterfac
     private String parentPhone;
 
     /**
+     * 月龄
+     */
+    private Integer monthAge;
+
+    /**
      * 家庭信息
      */
     @JsonIgnore

@@ -6,6 +6,7 @@ import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.BusinessUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.core.hospital.constant.BaseConstant;
 import com.wupol.myopia.business.core.hospital.constant.CheckReferralInfoEnum;
 import com.wupol.myopia.business.core.hospital.constant.MonthAgeStatusEnum;
 import com.wupol.myopia.business.core.hospital.domain.dto.HospitalStudentResponseDTO;
@@ -15,7 +16,9 @@ import com.wupol.myopia.business.core.hospital.domain.dto.StudentPreschoolCheckR
 import com.wupol.myopia.business.core.hospital.domain.mapper.PreschoolCheckRecordMapper;
 import com.wupol.myopia.business.core.hospital.domain.model.PreschoolCheckRecord;
 import com.wupol.myopia.business.core.hospital.domain.query.PreschoolCheckRecordQuery;
+import com.wupol.myopia.business.core.hospital.util.HospitalUtil;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,6 +39,9 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
     @Autowired
     private HospitalStudentService hospitalStudentService;
 
+    @Autowired
+    private HospitalDoctorService hospitalDoctorService;
+
     /**
      * 获取眼保健详情
      * @param id
@@ -52,8 +58,9 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
             details.setToReferral(referralRecordService.getById(details.getToReferralId()));
         }
 
-        // TODO wulizhou
-        details.setDoctorsName("");
+        // 设置医师名称
+        Map<Integer, String> doctorNames = hospitalDoctorService.getDoctorNameByIds(details.getDoctorIds());
+        details.setDoctorsName(HospitalUtil.getName(details.getDoctorIds(), doctorNames, BaseConstant.DOCTOR_NAME_SEPARATOR));
         return details;
     }
 
@@ -106,11 +113,21 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
      * @return
      */
     public IPage<PreschoolCheckRecordDTO> getList(PageRequest pageRequest, PreschoolCheckRecordQuery query) {
+        // 如果有查询医师，先获取相关医师id再查询
+        if (StringUtils.isNotBlank(query.getDoctorsName())) {
+            query.setDoctorIds(hospitalDoctorService.getDoctorIdByName(query.getHospitalId(), query.getDoctorsName()));
+        }
         IPage<PreschoolCheckRecordDTO> records = baseMapper.getListByCondition(pageRequest.toPage(), query);
-        // TODO wulizhou
+        // 获取医生信息集
+        Set<Integer> doctorIds = new HashSet<>();
+        records.getRecords().forEach(record -> {
+            doctorIds.addAll(record.getDoctorIds());
+        });
+        Map<Integer, String> doctorNames = hospitalDoctorService.getDoctorNameByIds(doctorIds);
+        // 设置名称
         records.getRecords().forEach(record -> {
             record.setCreateTimeAge(DateUtil.getAgeInfo(record.getBirthday(), record.getCreateTime()));
-            record.setDoctorsName("");
+            record.setDoctorsName(HospitalUtil.getName(record.getDoctorIds(), doctorNames, BaseConstant.DOCTOR_NAME_SEPARATOR));
         });
         return records;
     }
@@ -172,10 +189,10 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
         List<Integer> unCheckMonthAgeByCanCheck = canCheckMonthAge.stream().filter(x -> !collect.contains(x)).collect(Collectors.toList());
         // 当前需检查的都已检查，选中最后的检查项
         if (CollectionUtils.isEmpty(unCheckMonthAgeByCanCheck)) {
-            return canCheckMonthAge.stream().mapToInt(x -> x).max().getAsInt();
+            return canCheckMonthAge.get(canCheckMonthAge.size() - 1);
         } else {
             // 若存在应检未检的，选中该年龄段最小月龄
-            return unCheckMonthAgeByCanCheck.stream().mapToInt(x -> x).min().getAsInt();
+            return unCheckMonthAgeByCanCheck.get(0);
         }
     }
 

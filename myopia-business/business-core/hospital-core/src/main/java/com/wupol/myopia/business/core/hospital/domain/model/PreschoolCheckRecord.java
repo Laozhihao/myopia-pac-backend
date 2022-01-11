@@ -22,7 +22,7 @@ import java.util.Date;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @TableName("h_preschool_check_record")
-public class PreschoolCheckRecord implements Serializable {
+public class PreschoolCheckRecord extends SpecialMedical implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -94,34 +94,10 @@ public class PreschoolCheckRecord implements Serializable {
     private BaseMedicalResult visualBehaviorObservation;
 
     /**
-     * 红光反射
-     */
-    @TableField(typeHandler = JacksonTypeHandler.class)
-    private BaseMedicalResult redReflex;
-
-    /**
-     * 眼位检查
-     */
-    @TableField(typeHandler = JacksonTypeHandler.class)
-    private BaseMedicalResult ocularInspection;
-
-    /**
      * 视力检查
      */
     @TableField(typeHandler = JacksonTypeHandler.class)
     private VisionMedicalRecord visionData;
-
-    /**
-     * 单眼遮盖厌恶试验
-     */
-    @TableField(typeHandler = JacksonTypeHandler.class)
-    private BaseMedicalResult monocularMaskingAversionTest;
-
-    /**
-     * 屈光检查
-     */
-    @TableField(typeHandler = JacksonTypeHandler.class)
-    private DiopterMedicalRecord.Diopter refractionData;
 
     /**
      * 健康指导
