@@ -37,7 +37,7 @@ public class SysUtilService {
         }
        int count = (Integer)result.get("count");
         if (count>=2){
-            throw new BusinessException("一天之内只能导出2次数据");
+            throw new BusinessException("今天的次数已用完，请明天再操作！！！");
         }
         count = count+1;
         result.put("count",count);

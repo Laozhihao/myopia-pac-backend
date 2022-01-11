@@ -10,6 +10,7 @@ import com.wupol.myopia.base.util.ExcelUtil;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelNoticeKeyContentConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.school.domain.model.School;
@@ -18,7 +19,9 @@ import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.VisionScreeningResultExportDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
@@ -31,6 +34,7 @@ import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -57,8 +61,8 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
     private SchoolGradeService schoolGradeService;
     @Resource
     private SchoolClassService schoolClassService;
-    @Resource
-    private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
+    @Autowired
+    private ScreeningNoticeService screeningNoticeService;
     @Autowired
     private ExcelFacade excelFacade;
     @Autowired
@@ -71,6 +75,9 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         Integer schoolId = exportCondition.getSchoolId();
         Integer gradeId = exportCondition.getGradeId();
         Integer classId = exportCondition.getClassId();
+        // 参数校验
+        validatePlanExportParams(screeningPlanId, screeningOrgId, schoolId);
+
         List<StatConclusionExportDTO> statConclusionExportDTOs  = statConclusionService.selectExportVoBySPlanIdAndSOrgIdAndSChoolIdAndGradeNameAndClassanme(screeningPlanId, screeningOrgId,schoolId,gradeId,classId);
         statConclusionExportDTOs.forEach(vo -> vo.setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(), vo.getAreaCode(), vo.getTownCode(), vo.getAddress())));
 
@@ -188,4 +195,20 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         return schoolName+gradeName+className;
     }
 
+    /**
+     * 校验筛查数据导出参数
+     * @param screeningPlanId
+     * @param screeningOrgId
+     * @param schoolId
+     */
+    private void validatePlanExportParams(Integer screeningPlanId, Integer screeningOrgId, Integer schoolId) {
+        ScreeningPlan screeningPlan = screeningPlanService.getById(screeningPlanId);
+        if (Objects.isNull(screeningPlan)) {
+            throw new BusinessException("筛查计划不存在");
+        }
+        List<Integer> needCheckIdList = Arrays.asList(screeningOrgId, schoolId);
+        if (needCheckIdList.stream().filter(i -> !CommonConst.DEFAULT_ID.equals(i)).count() != 1) {
+            throw new BusinessException("必须选择层级、学校或筛查机构中一个维度");
+        }
+    }
 }

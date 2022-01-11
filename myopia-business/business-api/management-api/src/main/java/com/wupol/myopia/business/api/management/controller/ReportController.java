@@ -132,8 +132,11 @@ public class ReportController {
                 .setGradeId(gradeId)
                 .setPlanStudentIds(planStudentIds);
 
-        String key =  String.format(RedisConstant.FILE_EXPORT_ARCHIVES_COUNT, planId,screeningOrgId,CurrentUserUtil.getCurrentUser().getId(),schoolId,gradeId,classId,planStudentIds);
-        sysUtilService.isExport(key);
+        if (CurrentUserUtil.getCurrentUser().getUserType()==1){
+            String key =  String.format(RedisConstant.FILE_EXPORT_ARCHIVES_COUNT, planId,screeningOrgId,CurrentUserUtil.getCurrentUser().getId(),schoolId,gradeId,classId,planStudentIds);
+            sysUtilService.isExport(key);
+        }
+
 
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.SCREENING_ORG_ARCHIVES_SERVICE);
     }
@@ -154,6 +157,12 @@ public class ReportController {
         if (CollectionUtils.isEmpty(visionScreeningResultService.getByPlanStudentIds(planStudentIdList))) {
             throw new BusinessException("所选学生无筛查数据");
         }
+
+        if (CurrentUserUtil.getCurrentUser().getUserType()==1){
+            String key =  String.format(RedisConstant.FILE_EXPORT_EXCEL_ARCHIVES_COUNT, CurrentUserUtil.getCurrentUser().getId(),planId, schoolId, planStudentIds);
+            sysUtilService.isExport(key);
+        }
+
         ExportCondition exportCondition = new ExportCondition()
                 .setPlanStudentIds(planStudentIds)
                 .setSchoolId(schoolId)
@@ -180,10 +189,11 @@ public class ReportController {
                 .setSchoolId(schoolId)
                 .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
 
-        String key =  String.format(RedisConstant.FILE_EXPORT_PDF_COUNT, exportCondition.getApplyExportFileUserId(),
-                exportCondition.getPlanId(), exportCondition.getSchoolId());
-        sysUtilService.isExport(key);
-
+        if (CurrentUserUtil.getCurrentUser().getUserType()==1){
+            String key =  String.format(RedisConstant.FILE_EXPORT_PDF_COUNT, exportCondition.getApplyExportFileUserId(),
+                    exportCondition.getPlanId(), exportCondition.getSchoolId());
+            sysUtilService.isExport(key);
+        }
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.SCREENING_PLAN);
     }
 }

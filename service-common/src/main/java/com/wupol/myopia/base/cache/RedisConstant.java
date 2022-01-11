@@ -124,6 +124,12 @@ public interface RedisConstant {
      */
     String FILE_EXPORT_EXCEL_COUNT = "file:export:excel:count:%s-%s-%s-%s-%s";
     /**
+     * 导出档案卡
+     * 作者：钓猫的小鱼
+     */
+    String FILE_EXPORT_EXCEL_ARCHIVES_COUNT = "file:export:excel:archives:count:%s-%s-%s-%s-%s";
+
+    /**
      * 导出筛查数据PDF
      * 作者：钓猫的小鱼
      */

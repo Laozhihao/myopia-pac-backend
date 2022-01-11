@@ -130,7 +130,8 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
      */
     @GetMapping("/export")
     public Object getScreeningNoticeExportData(Integer screeningNoticeId, @RequestParam(defaultValue = "0") Integer screeningOrgId,
-                                               @RequestParam(defaultValue = "0") Integer districtId, @RequestParam(defaultValue = "0") Integer schoolId,
+                                               @RequestParam(defaultValue = "0") Integer districtId,
+                                               @RequestParam(defaultValue = "0") Integer schoolId,
                                                @RequestParam(defaultValue = "0") Integer planId) throws IOException, UtilException {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         // 参数校验
@@ -372,17 +373,20 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
                 ;
 
         if (classId==null){
-
-//            String key =  String.format(RedisConstant.FILE_EXPORT_EXCEL_COUNT, exportCondition.getApplyExportFileUserId(),
-//                    exportCondition.getPlanId(), exportCondition.getSchoolId(), exportCondition.getClassId(), exportCondition.getGradeId());
-//            sysUtilService.isExport(key);
+            if (CurrentUserUtil.getCurrentUser().getUserType()==1){
+                String key =  String.format(RedisConstant.FILE_EXPORT_EXCEL_COUNT, exportCondition.getApplyExportFileUserId(),
+                        exportCondition.getPlanId(), exportCondition.getSchoolId(), exportCondition.getClassId(), exportCondition.getGradeId());
+                sysUtilService.isExport(key);
+            }
 
             exportStrategy.doExcelExport(exportCondition, ExportReportServiceNameConstant.EXPOR_TPLAN_STUDENT_DATA_EXCELS_ERVICE);
             return ApiResult.success();
         }else {
-//            String key =  String.format(RedisConstant.FILE_EXPORT_EXCEL_COUNT, exportCondition.getApplyExportFileUserId(),
-//                    exportCondition.getPlanId(), exportCondition.getSchoolId(), exportCondition.getClassId(), exportCondition.getGradeId());
-//            sysUtilService.isExport(key);
+            if (CurrentUserUtil.getCurrentUser().getUserType()==1){
+                String key =  String.format(RedisConstant.FILE_EXPORT_EXCEL_COUNT, exportCondition.getApplyExportFileUserId(),
+                        exportCondition.getPlanId(), exportCondition.getSchoolId(), exportCondition.getClassId(), exportCondition.getGradeId());
+                sysUtilService.isExport(key);
+            }
 
             String path = exportStrategy.syncExport(exportCondition, ExportReportServiceNameConstant.EXPOR_TPLAN_STUDENT_DATA_EXCELS_ERVICE);
             return ApiResult.success(path);
