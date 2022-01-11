@@ -86,11 +86,9 @@ public class PreSchoolNoticeService {
         if (StringUtils.isEmpty(phone)) {
             return;
         }
-        log.info("发送短信");
         String messageInfo = String.format(CommonConst.SEND_SMS_PRESCHOOL_NOTICE, packageStudentName(hospitalStudent.getName()), monthAge.getName());
         MsgData msgData = new MsgData(phone, "+86", messageInfo);
         vistelToolsService.sendMsg(msgData);
-
     }
 
     /**
