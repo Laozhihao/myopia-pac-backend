@@ -5,7 +5,6 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
-import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.excel.imports.StudentExcelImportService;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
@@ -48,9 +47,6 @@ import java.util.Objects;
 @RestController
 @RequestMapping("/management/student")
 public class StudentController {
-
-    @Autowired
-    private ExcelFacade excelFacade;
 
     @Autowired
     private StudentService studentService;
@@ -140,11 +136,7 @@ public class StudentController {
     public void getStudentExportData(Integer schoolId, Integer gradeId) throws IOException {
         Assert.isTrue(Objects.nonNull(schoolId), "学校id不能为空");
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        exportStrategy.doExport(new ExportCondition()
-                        .setApplyExportFileUserId(user.getId())
-                        .setSchoolId(schoolId)
-                        .setGradeId(gradeId),
-                ExportExcelServiceNameConstant.STUDENT_EXCEL_SERVICE);
+        exportStrategy.doExport(new ExportCondition().setApplyExportFileUserId(user.getId()).setSchoolId(schoolId).setGradeId(gradeId), ExportExcelServiceNameConstant.STUDENT_EXCEL_SERVICE);
     }
 
     /**
