@@ -97,4 +97,12 @@
         from h_hospital_student
         where student_id = #{studentId}
     </select>
+
+    <select id="getByHospitalIdAndStudentId" resultMap="HospitalStudentMap">
+        select *
+        from h_hospital_student
+        where hospital_id = #{hospitalId}
+        and student_id = #{studentId}
+    </select>
+
 </mapper>

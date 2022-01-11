@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.hospital.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.hospital.domain.dos.HospitalStudentDO;
 import com.wupol.myopia.business.core.hospital.domain.dto.HospitalStudentRequestDTO;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -153,9 +155,10 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
      * @param studentId
      * @return
      */
-    public HospitalStudent getByHospitalIdAndStudentId(Integer hospitalId, Integer studentId) {
-        HospitalStudent hs = new HospitalStudent().setHospitalId(hospitalId).setStudentId(studentId);
-        return findOne(hs);
+    public HospitalStudentResponseDTO getByHospitalIdAndStudentId(Integer hospitalId, Integer studentId) {
+        HospitalStudentResponseDTO hospitalStudent = baseMapper.getByHospitalIdAndStudentId(hospitalId, studentId);
+        hospitalStudent.setBirthdayInfo(DateUtil.getAgeInfo(hospitalStudent.getBirthday(), new Date()));
+        return hospitalStudent;
     }
 
 }

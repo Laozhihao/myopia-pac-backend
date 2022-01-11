@@ -33,4 +33,7 @@ public interface HospitalStudentMapper extends BaseMapper<HospitalStudent> {
     HospitalStudentResponseDTO getByHospitalStudentId(@Param("id") Integer id);
 
     List<HospitalStudent> getByStudentId(@Param("studentId") Integer studentId);
+
+    HospitalStudentResponseDTO getByHospitalIdAndStudentId(@Param("hospitalId") Integer hospitalId, @Param("studentId") Integer studentId);
+
 }

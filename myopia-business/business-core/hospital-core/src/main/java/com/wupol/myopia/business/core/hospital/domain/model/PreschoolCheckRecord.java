@@ -121,7 +121,7 @@ public class PreschoolCheckRecord implements Serializable {
      * 屈光检查
      */
     @TableField(typeHandler = JacksonTypeHandler.class)
-    private DiopterMedicalRecord refractionData;
+    private DiopterMedicalRecord.Diopter refractionData;
 
     /**
      * 健康指导
