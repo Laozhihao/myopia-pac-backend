@@ -65,6 +65,7 @@ public class PreSchoolNoticeService {
             // 如果报告为空，说明学生没有检查，直接发送短信
             if (CollectionUtils.isEmpty(studentReportList)) {
                 sendMsg(hospitalStudent, monthAge);
+                return;
             }
             // 判断当前年龄段是否做过检查
             if (studentReportList.stream().map(PreschoolCheckRecord::getMonthAge).collect(Collectors.toList()).contains(monthAge.getId())) {
