@@ -377,7 +377,7 @@ public class ScheduledTasksExecutor {
      * 孩子年龄到了后会短信或公众号提醒家长做保健
      * 每日10点执行
      */
-//    @Scheduled(cron = "0 0 10 * * ?")
+    @Scheduled(cron = "0 0 10 * * ?")
     public void preschoolCheckNotice() {
         // 提前7天通知
         preSchoolNoticeService.timedTaskSendMsg();
