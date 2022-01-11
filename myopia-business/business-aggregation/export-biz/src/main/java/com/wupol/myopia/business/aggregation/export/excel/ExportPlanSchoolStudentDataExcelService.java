@@ -106,6 +106,8 @@ public class ExportPlanSchoolStudentDataExcelService extends BaseExportExcelFile
 
         studentVisionScreeningResultExportDTO.setParentPhone(phone(studentDTO));//手机号码
         studentVisionScreeningResultExportDTO.setAddress(address(studentDTO));//地址
+
+        studentVisionScreeningResultExportDTO.setGlassesType(glassesType(visionScreeningResult));//戴镜情况
         studentVisionScreeningResultExportDTO.setRightReScreenNakedVisions(visionRightDataToStr(visionScreeningResult));//有眼裸视力
         studentVisionScreeningResultExportDTO.setLeftReScreenNakedVisions(visionLeftDataToStr(visionScreeningResult));//左眼裸视力
 
@@ -325,6 +327,18 @@ public class ExportPlanSchoolStudentDataExcelService extends BaseExportExcelFile
 
         return "--";
     }
+    private String glassesType(VisionScreeningResult visionScreeningResult){
+        if (visionScreeningResult!=null
+                &&visionScreeningResult.getVisionData()!=null
+                &&visionScreeningResult.getVisionData().getRightEyeData()!=null
+                &&visionScreeningResult.getVisionData().getRightEyeData().getGlassesType()!=null){
+
+            return visionScreeningResult.getVisionData().getRightEyeData().getGlassesType().toString();
+        }
+
+        return "--";
+    }
+
 
     private String computerLeftAxial(VisionScreeningResult visionScreeningResult){
         if (visionScreeningResult!=null

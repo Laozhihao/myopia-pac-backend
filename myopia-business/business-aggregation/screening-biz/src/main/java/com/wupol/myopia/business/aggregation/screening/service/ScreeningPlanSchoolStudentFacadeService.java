@@ -127,6 +127,8 @@ public class ScreeningPlanSchoolStudentFacadeService {
     public void setStudentEyeInfor(ScreeningStudentDTO studentEyeInfor){
         VisionScreeningResult visionScreeningResult = getVisionScreeningResult(studentEyeInfor);
 
+        studentEyeInfor.setGlassesType(visionScreeningResult.getVisionData().getRightEyeData().getGlassesType());//是否戴镜情况
+
         String nakedVision = visionScreeningResult.getVisionData().getRightEyeData().getNakedVision()+"/"+visionScreeningResult.getVisionData().getLeftEyeData().getNakedVision();
         studentEyeInfor.setNakedVision(nakedVision);//裸视力
 

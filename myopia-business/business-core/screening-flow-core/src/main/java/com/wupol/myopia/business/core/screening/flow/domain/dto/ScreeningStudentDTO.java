@@ -79,10 +79,10 @@ public class ScreeningStudentDTO extends StudentDO {
      */
     private Long screeningCode;
 
-    /**
-     * 是否佩戴眼镜情况
-     */
-    private String isGlasses;
+//    /**
+//     * 是否佩戴眼镜情况
+//     */
+//    private String glassesType;
 
     /**
      * 裸视力 右/左

@@ -66,8 +66,8 @@ public class StudentVisionScreeningResultExportDTO implements Serializable {
     @ExcelProperty("地址")
     private String address;
 
-//    @ExcelProperty("戴镜情况")
-
+    @ExcelProperty("戴镜情况")
+    private String glassesType;
 
     @ExcelProperty("裸眼视力（右）")
     private String rightReScreenNakedVisions;

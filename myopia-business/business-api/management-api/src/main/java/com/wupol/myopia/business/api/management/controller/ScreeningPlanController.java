@@ -28,10 +28,7 @@ import com.wupol.myopia.business.core.school.domain.model.SchoolAdmin;
 import com.wupol.myopia.business.core.school.service.SchoolAdminService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.*;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningTaskOrgService;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningTaskService;
+import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.system.service.NoticeService;
@@ -92,7 +89,8 @@ public class ScreeningPlanController {
     private ScreeningPlanSchoolStudentFacadeService screeningPlanSchoolStudentFacadeService;
     @Autowired
     private ScreeningExportService screeningExportService;
-
+    @Autowired
+    private VisionScreeningResultService visionScreeningResultService;
     /**
      * 新增
      *
@@ -435,6 +433,22 @@ public class ScreeningPlanController {
             return ApiResult.success(path);
         }
 
+    }
+    /**
+     * @Description: 学生筛查信息
+     * @Param: [学生ID]
+     * @return: void
+     * @Author: 钓猫的小鱼
+     * @Date: 2021/12/29
+     */
+    @GetMapping("/getStudentEyeByStudentId")
+    public Object getStudentEyeByStudentId(@RequestParam Integer studentId) throws IOException {
+
+        List<VisionScreeningResult> visionScreeningResults =  visionScreeningResultService.getByStudentId(studentId);
+        if (visionScreeningResults.size()==0){
+            return null;
+        }
+        return ApiResult.success(visionScreeningResults.get(0));
     }
 
 }
