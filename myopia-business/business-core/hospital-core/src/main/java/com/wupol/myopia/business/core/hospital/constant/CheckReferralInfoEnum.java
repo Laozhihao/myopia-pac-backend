@@ -6,25 +6,25 @@ package com.wupol.myopia.business.core.hospital.constant;
  */
 public enum CheckReferralInfoEnum {
 
-    NOT_REFERRAL(0, "未有检查前转诊"),
-    HAS_REFERRAL(1, "检查前有转诊信息"),
+    NOT_REFERRAL(false, "未有检查前转诊"),
+    HAS_REFERRAL(true, "检查前有转诊信息"),
 
     ;
     /**
      * 状态
      **/
-    private final Integer status;
+    private final Boolean status;
     /**
      * 描述
      **/
     private final String name;
 
-    CheckReferralInfoEnum(Integer status, String name) {
+    CheckReferralInfoEnum(Boolean status, String name) {
         this.status = status;
         this.name = name;
     }
 
-    public Integer getStatus() {
+    public Boolean getStatus() {
         return this.status;
     }
 

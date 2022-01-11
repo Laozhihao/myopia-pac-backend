@@ -43,9 +43,9 @@ public class PreschoolCheckRecord implements Serializable {
     private Integer hospitalId;
 
     /**
-     * 是否有检查前转诊信息[0-没有；1-有]
+     * 是否有检查前转诊信息
      */
-    private Integer isReferral;
+    private Boolean isReferral;
 
     /**
      * 检查前-转诊id

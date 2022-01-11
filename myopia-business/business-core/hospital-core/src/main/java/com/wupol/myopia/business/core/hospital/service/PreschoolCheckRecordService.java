@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.hospital.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.constant.MonthAgeEnum;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.BusinessUtil;
 import com.wupol.myopia.base.util.DateUtil;
@@ -13,7 +14,7 @@ import com.wupol.myopia.business.core.hospital.domain.dto.MonthAgeStatusDTO;
 import com.wupol.myopia.business.core.hospital.domain.dto.PreschoolCheckRecordDTO;
 import com.wupol.myopia.business.core.hospital.domain.dto.StudentPreschoolCheckRecordDTO;
 import com.wupol.myopia.business.core.hospital.domain.mapper.PreschoolCheckRecordMapper;
-import com.wupol.myopia.business.core.hospital.domain.model.PreschoolCheckRecord;
+import com.wupol.myopia.business.core.hospital.domain.model.*;
 import com.wupol.myopia.business.core.hospital.domain.query.PreschoolCheckRecordQuery;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,7 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
 
     @Autowired
     private HospitalStudentService hospitalStudentService;
+
 
     /**
      * 获取眼保健详情
@@ -66,8 +68,11 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
     public StudentPreschoolCheckRecordDTO getInit(Integer hospitalId, Integer studentId) {
         StudentPreschoolCheckRecordDTO init = new StudentPreschoolCheckRecordDTO();
         // 学生信息
-        HospitalStudentResponseDTO student = hospitalStudentService.getByHospitalIdAndStudentId(hospitalId, studentId);
-        init.setStudent(student);
+        //TODO 之前逻辑不对，这里临时写
+        HospitalStudent student = hospitalStudentService.findOne(new HospitalStudent(hospitalId, studentId));
+        HospitalStudentResponseDTO studentResponseDTO = new HospitalStudentResponseDTO();
+        studentResponseDTO.setStudentId(student.getStudentId()).setName(student.getName()).setBirthday(student.getBirthday()).setGender(student.getGender());
+        init.setStudent(studentResponseDTO);
         // 对应当前医院各年龄段状态
         List<PreschoolCheckRecord> records = getStudentRecord(hospitalId, studentId);
         Map<Integer, MonthAgeStatusDTO> studentCheckStatus = getStudentCheckStatus(student.getBirthday(), records);
@@ -123,9 +128,46 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
      * @return
      */
     public PreschoolCheckRecord get(Integer hospitalId, Integer studentId, Integer monthAge) {
-        PreschoolCheckRecord record = new PreschoolCheckRecord().setHospitalId(hospitalId).setStudentId(studentId)
+        PreschoolCheckRecordQuery query = new PreschoolCheckRecordQuery();
+        query.setHospitalId(hospitalId).setStudentId(studentId)
                 .setMonthAge(monthAge);
-        return findOne(record);
+        return baseMapper.getByOne(query);
+    }
+
+    /** 根据id获取检查单 */
+    public PreschoolCheckRecord getById(Integer id, Integer hospitalId) {
+        PreschoolCheckRecordQuery query = new PreschoolCheckRecordQuery();
+        query.setId(id).setHospitalId(hospitalId);
+        return baseMapper.getByOne(query);
+    }
+
+
+    /**
+     * 追加检查检查数据到检查单
+     */
+    public void saveCheckRecord(PreschoolCheckRecord checkRecord) {
+        if (Objects.isNull(checkRecord.getId()) || checkRecord.getId() < 1) {
+            if (!save(checkRecord)) {
+                throw new BusinessException("新增失败");
+            }
+            return;
+        }
+        PreschoolCheckRecord dbCheckRecord = getById(checkRecord.getId(), checkRecord.getHospitalId());
+        if (Objects.nonNull(checkRecord.getOuterEye())) dbCheckRecord.setOuterEye(checkRecord.getOuterEye());
+        if (Objects.nonNull(checkRecord.getVisionData())) dbCheckRecord.setVisionData(checkRecord.getVisionData());
+        if (Objects.nonNull(checkRecord.getRefractionData())) dbCheckRecord.setRefractionData(checkRecord.getRefractionData());
+        if (Objects.nonNull(checkRecord.getEyeDiseaseFactor())) dbCheckRecord.setEyeDiseaseFactor(checkRecord.getEyeDiseaseFactor());
+        if (Objects.nonNull(checkRecord.getLightReaction())) dbCheckRecord.setLightReaction(checkRecord.getLightReaction());
+        if (Objects.nonNull(checkRecord.getBlinkReflex())) dbCheckRecord.setBlinkReflex(checkRecord.getBlinkReflex());
+        if (Objects.nonNull(checkRecord.getRedBallTest())) dbCheckRecord.setRedBallTest(checkRecord.getRedBallTest());
+        if (Objects.nonNull(checkRecord.getVisualBehaviorObservation())) dbCheckRecord.setVisualBehaviorObservation(checkRecord.getVisualBehaviorObservation());
+        if (Objects.nonNull(checkRecord.getRedReflex())) dbCheckRecord.setRedReflex(checkRecord.getRedReflex());
+        if (Objects.nonNull(checkRecord.getOcularInspection())) dbCheckRecord.setOcularInspection(checkRecord.getOcularInspection());
+        if (Objects.nonNull(checkRecord.getMonocularMaskingAversionTest())) dbCheckRecord.setMonocularMaskingAversionTest(checkRecord.getMonocularMaskingAversionTest());
+        if (Objects.nonNull(checkRecord.getGuideContent())) dbCheckRecord.setGuideContent(checkRecord.getGuideContent());
+        if (!updateById(dbCheckRecord)) {
+            throw new BusinessException("修改失败");
+        }
     }
 
     /**

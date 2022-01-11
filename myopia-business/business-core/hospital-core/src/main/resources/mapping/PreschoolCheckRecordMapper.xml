@@ -114,4 +114,11 @@
         order by pcr.update_time desc
     </select>
 
+    <select id="getByOne" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from h_preschool_check_record
+        <include refid="Base_Where_Clause" />
+    </select>
+
 </mapper>

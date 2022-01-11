@@ -32,4 +32,6 @@ public interface PreschoolCheckRecordMapper extends BaseMapper<PreschoolCheckRec
      */
     IPage<PreschoolCheckRecordDTO> getListByCondition(@Param("page") Page<?> page, @Param("query") PreschoolCheckRecordQuery query);
 
+
+    PreschoolCheckRecord getByOne(PreschoolCheckRecordQuery query);
 }
