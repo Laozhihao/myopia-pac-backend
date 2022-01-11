@@ -548,7 +548,7 @@ public class ParentStudentBizService {
         // 查询学生
         Student student = studentService.getByCondition(condition, name);
         List<ScreeningPlanSchoolStudent> planStudents = screeningPlanSchoolStudentService.getByCondition(condition, name);
-        if (Objects.isNull(student) && Objects.isNull(planStudents)) {
+        if (Objects.isNull(student) && CollectionUtils.isEmpty(planStudents)) {
             throw new BusinessException("该学生筛查编号/身份证/学籍号/姓名错误");
         }
         responseDTO.setStudentId(student.getId());
