@@ -115,13 +115,26 @@ public class BusinessUtil {
         }
     }
 
-    public MonthAgeEnum getMonthAgeByBirthday(Date birthday) {
+    /**
+     * 通过生日获取年龄段
+     *
+     * @param birthday 生日
+     * @return {@link MonthAgeEnum} 枚举类
+     */
+    public static MonthAgeEnum getMonthAgeByBirthday(Date birthday) {
         if (isMatchNewBorn(birthday)) {
             return MonthAgeEnum.NB;
         }
         if (isMatchMonth1(birthday)) {
             return MonthAgeEnum.MONTH1;
         }
+        List<MonthAgeEnum> monthAgeList = MonthAgeEnum.monthAgeList;
+        for (MonthAgeEnum monthAgeEnum : monthAgeList) {
+            if (isMatchMouthDay(birthday, monthAgeEnum.getOffset())) {
+                return monthAgeEnum;
+            }
+        }
+        return null;
     }
 
     /**
@@ -130,7 +143,7 @@ public class BusinessUtil {
      * @param birthday 生日
      * @return 是否满足
      */
-    private boolean isMatchNewBorn(Date birthday) {
+    private static boolean isMatchNewBorn(Date birthday) {
         Date nowDate = new Date();
         return DateUtil.isSameDay(nowDate, birthday)
                 || DateUtil.isSameDay(nowDate, DateUtil.offsetDay(birthday, 3))
@@ -143,7 +156,7 @@ public class BusinessUtil {
      * @param birthday 生日
      * @return 是否满足
      */
-    private boolean isMatchMonth1(Date birthday) {
+    private static boolean isMatchMonth1(Date birthday) {
         long betweenDay = DateUtil.between(birthday, new Date(), DateUnit.DAY);
         return betweenDay == 23 || betweenDay == 27 || betweenDay == 30 || betweenDay == 33 || betweenDay == 37;
     }
@@ -155,7 +168,7 @@ public class BusinessUtil {
      * @param offset   年龄段
      * @return 是否满足
      */
-    private boolean isMatchMouthDay(Date birthday, Integer offset) {
+    private static boolean isMatchMouthDay(Date birthday, Integer offset) {
 
         DateTime checkDay = DateUtil.offsetMonth(birthday, offset);
         Date nowDate = new Date();

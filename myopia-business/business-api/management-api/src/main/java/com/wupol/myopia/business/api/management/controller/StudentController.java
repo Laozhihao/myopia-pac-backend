@@ -3,7 +3,9 @@ package com.wupol.myopia.business.api.management.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.base.util.BusinessUtil;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
@@ -229,5 +231,10 @@ public class StudentController {
     @GetMapping("/warning/archive/{studentId}")
     public List<StudentWarningArchiveVO> getStudentWarningArchive(@PathVariable("studentId") Integer studentId) {
         return studentBizService.getStudentWarningArchive(studentId);
+    }
+
+    @GetMapping("getMonthAge")
+    public Object getMonthAge(String date) throws ParseException {
+        return BusinessUtil.getMonthAgeByBirthday(DateFormatUtil.parseDate(date, DateFormatUtil.FORMAT_ONLY_DATE));
     }
 }
