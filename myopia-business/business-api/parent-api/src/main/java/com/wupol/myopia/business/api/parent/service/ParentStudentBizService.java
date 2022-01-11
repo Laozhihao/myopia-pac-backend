@@ -18,6 +18,7 @@ import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.QrCodeCacheKey;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.domain.dto.SuggestHospitalDTO;
+import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
@@ -503,6 +504,13 @@ public class ParentStudentBizService {
     @Transactional(rollbackFor = Exception.class)
     public Integer saveRecordStudent(Student student, CurrentUser currentUser) {
         Long recordNo = studentService.getRecordNo(student.getCommitteeCode());
+        if (Objects.isNull(student.getProvinceCode())) {
+            List<District> districtDetail = districtService.getDistrictPositionDetail(student.getCommitteeCode());
+            student.setProvinceCode(districtDetail.get(0).getCode());
+            student.setCityCode(districtDetail.get(1).getCode());
+            student.setAreaCode(districtDetail.get(2).getCode());
+            student.setTownCode(districtDetail.get(3).getCode());
+        }
         student.setRecordNo(recordNo);
         return saveStudent(student, currentUser);
     }
