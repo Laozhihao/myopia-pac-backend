@@ -315,6 +315,7 @@ public class ParentStudentBizService {
     public ScreeningReportResponseDTO latestScreeningReport(Integer studentId) {
         VisionScreeningResult result = visionScreeningResultService.getLatestResultByStudentId(studentId);
         if (null == result) {
+            Student student = studentService.getById(studentId);
             ScreeningReportResponseDTO responseDTO = new ScreeningReportResponseDTO();
             ScreeningReportDetailDO detail = new ScreeningReportDetailDO();
             // 视力检查结果
@@ -322,6 +323,7 @@ public class ParentStudentBizService {
             // 验光仪检查结果
             detail.setRefractoryResultItems(Lists.newArrayList(new RefractoryResultItems("球镜SC"), new RefractoryResultItems("柱镜DC"), new RefractoryResultItems("轴位A"), new RefractoryResultItems("等效球镜SE")));
             responseDTO.setDetail(detail);
+            responseDTO.setIsNewbornWithoutIdCard(student.getIsNewbornWithoutIdCard());
             return responseDTO;
         }
         return packageScreeningReport(visionScreeningResultService.getById(result.getId()), true);
