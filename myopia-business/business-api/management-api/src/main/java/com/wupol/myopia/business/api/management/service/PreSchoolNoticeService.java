@@ -1,7 +1,9 @@
 package com.wupol.myopia.business.api.management.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.wupol.framework.api.service.VistelToolsService;
 import com.wupol.framework.sms.domain.dto.MsgData;
+import com.wupol.framework.sms.domain.dto.SmsResult;
 import com.wupol.myopia.base.constant.MonthAgeEnum;
 import com.wupol.myopia.base.domain.vo.FamilyInfoVO;
 import com.wupol.myopia.base.util.BusinessUtil;
@@ -89,7 +91,12 @@ public class PreSchoolNoticeService {
         }
         String messageInfo = String.format(CommonConst.SEND_SMS_PRESCHOOL_NOTICE, packageStudentName(hospitalStudent.getName()), monthAge.getName());
         MsgData msgData = new MsgData(phone, "+86", messageInfo);
-        vistelToolsService.sendMsg(msgData);
+        // 上线删除
+        log.info(JSONObject.toJSONString(msgData));
+        SmsResult smsResult = vistelToolsService.sendMsg(msgData);
+        if (!smsResult.isSuccessful()) {
+            log.error("发送短信异常,医院学生Id:{},发送信息:{}, 错误信息:{}", hospitalStudent.getId(), JSONObject.toJSONString(msgData), smsResult.getErrorMsg());
+        }
     }
 
     /**

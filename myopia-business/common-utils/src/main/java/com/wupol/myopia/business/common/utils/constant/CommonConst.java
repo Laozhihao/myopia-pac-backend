@@ -163,5 +163,5 @@ public class CommonConst {
     /**
      * 短信通知-孩子年龄到了后会短信或公众号提醒家长做保健
      */
-    public final String SEND_SMS_PRESCHOOL_NOTICE = "【青少年近视防控】%s家长您好，请及时到保健院为孩子做%s眼保健检查。";
+    public final String SEND_SMS_PRESCHOOL_NOTICE = "【青少年近视防控】%s的家长您好，请及时到保健院为孩子做%s眼保健检查。";
 }
