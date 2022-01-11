@@ -197,6 +197,7 @@ public class ParentStudentBizService {
         if (null == parent) {
             throw new BusinessException("家长信息异常");
         }
+        setStudentAddress(student);
         StudentDTO studentDTO = studentService.updateStudent(student);
         // 绑定孩子
         Integer studentId = student.getId();
@@ -506,6 +507,17 @@ public class ParentStudentBizService {
     @Transactional(rollbackFor = Exception.class)
     public Integer saveRecordStudent(Student student, CurrentUser currentUser) {
         Long recordNo = studentService.getRecordNo(student.getCommitteeCode());
+        setStudentAddress(student);
+        student.setRecordNo(recordNo);
+        return saveStudent(student, currentUser);
+    }
+
+    /**
+     * 设置学生地址
+     *
+     * @param student 学生
+     */
+    private void setStudentAddress(Student student) {
         if (Objects.isNull(student.getProvinceCode())) {
             List<District> districtDetail = districtService.getDistrictPositionDetail(student.getCommitteeCode());
             student.setProvinceCode(districtDetail.get(0).getCode());
@@ -513,8 +525,6 @@ public class ParentStudentBizService {
             student.setAreaCode(districtDetail.get(2).getCode());
             student.setTownCode(districtDetail.get(3).getCode());
         }
-        student.setRecordNo(recordNo);
-        return saveStudent(student, currentUser);
     }
 
     /**
@@ -534,6 +544,9 @@ public class ParentStudentBizService {
         }
         StudentDTO studentDTO = new StudentDTO();
         BeanUtils.copyProperties(student, studentDTO);
+        if (Objects.nonNull(student.getSchoolId())) {
+            studentDTO.setSchoolName(schoolService.getById(student.getSchoolId()).getName());
+        }
         if (Objects.nonNull(student.getCommitteeCode())) {
             studentDTO.setCommitteeLists(districtService.getDistrictPositionDetail(student.getCommitteeCode()));
         }
