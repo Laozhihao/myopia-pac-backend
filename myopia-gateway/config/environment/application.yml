@@ -120,3 +120,4 @@ white-list:
   - "/school/student/**"
   - "/school/student/screening/list/{studentId}"
   - "/school/vision/screening/list"
+  - "/management/screeningPlan/screeningNoticeResult"
