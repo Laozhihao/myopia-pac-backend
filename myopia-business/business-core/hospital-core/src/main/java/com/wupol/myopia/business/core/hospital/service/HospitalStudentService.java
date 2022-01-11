@@ -179,4 +179,13 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
         }
         return null;
     }
+
+    /**
+     * 获取0-6岁患者
+     *
+     * @return List<HospitalStudent>
+     */
+    public List<HospitalStudent> getByStudentType() {
+        return baseMapper.getPreschoolByStudentType();
+    }
 }

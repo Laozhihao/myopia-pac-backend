@@ -118,4 +118,12 @@
                      left join m_hospital mh on hpcr.hospital_id = mh.id
         where hpcr.student_id = #{studentId}
     </select>
+
+    <select id="getByStudentIds" resultMap="BaseResultMap">
+        select *
+        from h_preschool_check_record where student_id in
+        <foreach collection="studentIds" item="studentId" index="index" open="(" close=")" separator=",">
+            #{studentId}
+        </foreach>
+    </select>
 </mapper>

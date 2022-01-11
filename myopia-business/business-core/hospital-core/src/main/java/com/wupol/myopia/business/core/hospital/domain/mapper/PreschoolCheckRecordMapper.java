@@ -39,9 +39,12 @@ public interface PreschoolCheckRecordMapper extends BaseMapper<PreschoolCheckRec
 
     /**
      * 通过学生Id获取列表
+     *
      * @param studentId 学生Id
      * @return List<EyeHealthyReportResponseDTO>
      */
     List<EyeHealthyReportResponseDTO> getByStudentId(@Param("studentId") Integer studentId);
+
+    List<PreschoolCheckRecord> getByStudentIds(@Param("studentIds") List<Integer> studentIds);
 
 }

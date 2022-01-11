@@ -4,10 +4,7 @@ import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.CompareUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.api.management.domain.builder.*;
-import com.wupol.myopia.business.api.management.service.NoticeBizService;
-import com.wupol.myopia.business.api.management.service.SchoolBizService;
-import com.wupol.myopia.business.api.management.service.StatService;
-import com.wupol.myopia.business.api.management.service.StudentBizService;
+import com.wupol.myopia.business.api.management.service.*;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
@@ -81,6 +78,8 @@ public class ScheduledTasksExecutor {
     private HospitalService hospitalService;
     @Autowired
     private NoticeBizService noticeBizService;
+    @Autowired
+    private PreSchoolNoticeService preSchoolNoticeService;
 
     /**
      * 筛查数据统计
@@ -372,6 +371,16 @@ public class ScheduledTasksExecutor {
         log.info("开始进行合作机构（筛查机构、学校、医院）即将到期通知");
         // 提前7天通知
         noticeBizService.sendCooperationWarnInfoNotice(7);
+    }
+
+    /**
+     * 孩子年龄到了后会短信或公众号提醒家长做保健
+     * 每日10点执行
+     */
+//    @Scheduled(cron = "0 0 10 * * ?")
+    public void preschoolCheckNotice() {
+        // 提前7天通知
+        preSchoolNoticeService.timedTaskSendMsg();
     }
 
 
