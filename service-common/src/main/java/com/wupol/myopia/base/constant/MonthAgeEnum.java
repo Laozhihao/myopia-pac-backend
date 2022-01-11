@@ -1,5 +1,8 @@
 package com.wupol.myopia.base.constant;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @Author wulizhou
  * @Date 2022/1/7 17:56
@@ -30,6 +33,9 @@ public enum MonthAgeEnum {
      * 说明
      */
     private final String name;
+
+
+    private List<MonthAgeEnum> monthAgeList = new ArrayList<>();
 
     MonthAgeEnum(Integer id, String name) {
         this.id = id;

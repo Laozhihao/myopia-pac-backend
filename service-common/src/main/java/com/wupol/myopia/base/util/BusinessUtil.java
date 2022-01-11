@@ -1,5 +1,7 @@
 package com.wupol.myopia.base.util;
 
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUnit;
 import com.wupol.myopia.base.constant.MonthAgeEnum;
 
 import java.time.Period;
@@ -17,6 +19,7 @@ public class BusinessUtil {
 
     /**
      * 检验合作信息是否有效
+     *
      * @param cooperationType
      * @param cooperationTimeType
      * @param cooperationStartTime
@@ -37,8 +40,9 @@ public class BusinessUtil {
 
     /**
      * 获取用户可做的月龄检查
-     * @param birthday
-     * @return
+     *
+     * @param birthday 生日
+     * @return 满足条件的mouthDay
      */
     public static List<Integer> getCanCheckMonthAgeByDate(Date birthday) {
         Date now = new Date();
@@ -63,7 +67,7 @@ public class BusinessUtil {
         } else if ((years * 12 + months > 35) || (years * 12 + months == 35 && days > 15)) {
             // 35月龄15天＜*≤36月龄15天：【36月龄】
             return Arrays.asList(MonthAgeEnum.MONTH36.getId());
-        } else if (years  == 2 && (months > 0 || days > 15)) {
+        } else if (years == 2 && (months > 0 || days > 15)) {
             // 24月龄15天＜*≤35月龄15天：【24月龄】、【36月龄】
             return Arrays.asList(MonthAgeEnum.MONTH24.getId(), MonthAgeEnum.MONTH36.getId());
         } else if ((years * 12 + months > 23) || (years * 12 + months == 23 && days > 15)) {
@@ -111,4 +115,54 @@ public class BusinessUtil {
         }
     }
 
+    public MonthAgeEnum getMonthAgeByBirthday(Date birthday) {
+        if (isMatchNewBorn(birthday)) {
+            return MonthAgeEnum.NB;
+        }
+        if (isMatchMonth1(birthday)) {
+            return MonthAgeEnum.MONTH1;
+        }
+    }
+
+    /**
+     * 是否满足新生儿条件
+     *
+     * @param birthday 生日
+     * @return 是否满足
+     */
+    private boolean isMatchNewBorn(Date birthday) {
+        Date nowDate = new Date();
+        return DateUtil.isSameDay(nowDate, birthday)
+                || DateUtil.isSameDay(nowDate, DateUtil.offsetDay(birthday, 3))
+                || DateUtil.isSameDay(nowDate, DateUtil.offsetDay(birthday, 7));
+    }
+
+    /**
+     * 是否满足满月
+     *
+     * @param birthday 生日
+     * @return 是否满足
+     */
+    private boolean isMatchMonth1(Date birthday) {
+        long betweenDay = DateUtil.between(birthday, new Date(), DateUnit.DAY);
+        return betweenDay == 23 || betweenDay == 27 || betweenDay == 30 || betweenDay == 33 || betweenDay == 37;
+    }
+
+    /**
+     * 月龄是否满足条件
+     *
+     * @param birthday 生日
+     * @param offset   年龄段
+     * @return 是否满足
+     */
+    private boolean isMatchMouthDay(Date birthday, Integer offset) {
+
+        DateTime checkDay = DateUtil.offsetMonth(birthday, offset);
+        Date nowDate = new Date();
+        return DateUtil.isSameDay(nowDate, DateUtil.offsetDay(checkDay, -7))
+                || DateUtil.isSameDay(nowDate, DateUtil.offsetDay(checkDay, -3))
+                || DateUtil.isSameDay(nowDate, checkDay)
+                || DateUtil.isSameDay(nowDate, DateUtil.offsetDay(checkDay, 3))
+                || DateUtil.isSameDay(nowDate, DateUtil.offsetDay(checkDay, 7));
+    }
 }
