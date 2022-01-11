@@ -3,10 +3,10 @@ package com.wupol.myopia.business.aggregation.screening.service;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.base.domain.vo.PdfGeneratorVO;
-import com.wupol.myopia.business.core.common.service.Html2PdfService;
 import com.wupol.myopia.base.util.ListUtil;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
 import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;
+import com.wupol.myopia.business.core.common.service.Html2PdfService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.domain.model.Student;
@@ -61,7 +61,7 @@ public class ScreeningPlanStudentBizService {
     /**
      * 筛查通知结果页面地址
      */
-    public static final String SCREENING_NOTICE_RESULT_HTML_URL = "%s?planId=%d&schoolId=%d&gradeId=%d&classId=%d&planStudentId=%d&orgId=%d&isSchoolClient=%s";
+    public static final String SCREENING_NOTICE_RESULT_HTML_URL = "%s?planId=%d&schoolId=%d&gradeId=%d&classId=%d&orgId=%d&planStudentIds=%s&isSchoolClient=%s";
 
     /**
      * 更新筛查学生
@@ -162,8 +162,8 @@ public class ScreeningPlanStudentBizService {
         String uuid = UUID.randomUUID().toString();
         String fileName = getFileName(schoolId, gradeId);
         cacheInfo(uuid, userId, fileName);
-
-        html2PdfService.asyncGeneratorPDF("https://t-myopia-pac-report.tulab.cn/notice-report/", fileName, uuid);
+        String screeningNoticeResultHtmlUrl = String.format(SCREENING_NOTICE_RESULT_HTML_URL, htmlUrlHost, planId, schoolId, gradeId, classId, orgId, planStudentIdStr, isSchoolClient);
+        html2PdfService.asyncGeneratorPDF(screeningNoticeResultHtmlUrl, fileName, uuid);
     }
 
     /**
@@ -182,8 +182,8 @@ public class ScreeningPlanStudentBizService {
         String fileName = getFileName(schoolId, gradeId);
         String uuid = UUID.randomUUID().toString();
         cacheInfo(uuid, userId, fileName);
-//        String screeningNoticeResultHtmlUrl = String.format(SCREENING_NOTICE_RESULT_HTML_URL, htmlUrlHost, planId, schoolId, gradeId, classId, );
-        return html2PdfService.syncGeneratorPDF("https://t-myopia-pac-report.tulab.cn/notice-report/", fileName, uuid);
+        String screeningNoticeResultHtmlUrl = String.format(SCREENING_NOTICE_RESULT_HTML_URL, htmlUrlHost, planId, schoolId, gradeId, classId, orgId, planStudentIdStr, isSchoolClient);
+        return html2PdfService.syncGeneratorPDF(screeningNoticeResultHtmlUrl, fileName, uuid);
     }
 
     /**
