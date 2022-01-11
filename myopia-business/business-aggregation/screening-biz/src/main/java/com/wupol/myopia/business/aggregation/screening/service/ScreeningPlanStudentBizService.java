@@ -3,7 +3,7 @@ package com.wupol.myopia.business.aggregation.screening.service;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.base.domain.vo.PdfGeneratorVO;
-import com.wupol.myopia.base.service.Html2PdfService;
+import com.wupol.myopia.business.core.common.service.Html2PdfService;
 import com.wupol.myopia.base.util.ListUtil;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
 import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;

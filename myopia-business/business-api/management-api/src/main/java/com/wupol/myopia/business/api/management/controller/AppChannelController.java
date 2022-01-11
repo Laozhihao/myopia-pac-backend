@@ -5,7 +5,7 @@ import com.wupol.myopia.base.controller.BaseController;
 import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.base.domain.vo.PdfGeneratorVO;
 import com.wupol.myopia.base.handler.ResponseResultBody;
-import com.wupol.myopia.base.service.Html2PdfService;
+import com.wupol.myopia.business.core.common.service.Html2PdfService;
 import com.wupol.myopia.business.core.system.domain.model.AppChannel;
 import com.wupol.myopia.business.core.system.service.AppChannelService;
 import lombok.extern.log4j.Log4j2;

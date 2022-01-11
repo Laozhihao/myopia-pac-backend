@@ -1,4 +1,4 @@
-package com.wupol.myopia.base.service;
+package com.wupol.myopia.business.core.common.service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.wupol.myopia.base.domain.PdfRequestDTO;
