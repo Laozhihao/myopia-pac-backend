@@ -174,7 +174,7 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
         }
 
         // 学生类型是0到6岁，当前登录用户为医院端，则更新
-        if (studentType.equals(1) && SystemCode.HOSPITAL_CLIENT.getCode().equals(clientId)) {
+        if (studentType.equals(2) && SystemCode.HOSPITAL_CLIENT.getCode().equals(clientId)) {
             return StudentTypeEnum.HOSPITAL_AND_PRESCHOOL.getType();
         }
         return null;
