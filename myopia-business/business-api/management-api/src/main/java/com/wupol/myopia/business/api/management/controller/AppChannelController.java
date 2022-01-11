@@ -2,9 +2,12 @@ package com.wupol.myopia.business.api.management.controller;
 
 import com.wupol.myopia.base.controller.BaseController;
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.business.api.management.service.PreSchoolNoticeService;
 import com.wupol.myopia.business.core.system.domain.model.AppChannel;
 import com.wupol.myopia.business.core.system.service.AppChannelService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,5 +20,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/management/app/channel")
 public class AppChannelController extends BaseController<AppChannelService, AppChannel> {
+    @Autowired
+    private PreSchoolNoticeService preSchoolNoticeService;
+
+    @GetMapping("test")
+    public void test() {
+        preSchoolNoticeService.timedTaskSendMsg();
+    }
 
 }

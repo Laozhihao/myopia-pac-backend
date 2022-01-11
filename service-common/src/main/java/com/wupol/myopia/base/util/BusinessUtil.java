@@ -122,6 +122,9 @@ public class BusinessUtil {
      * @return {@link MonthAgeEnum} 枚举类
      */
     public static MonthAgeEnum getMonthAgeByBirthday(Date birthday) {
+        if (Objects.isNull(birthday)) {
+            return null;
+        }
         if (isMatchNewBorn(birthday)) {
             return MonthAgeEnum.NB;
         }

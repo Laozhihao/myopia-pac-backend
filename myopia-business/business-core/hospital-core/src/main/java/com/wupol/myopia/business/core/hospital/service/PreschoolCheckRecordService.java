@@ -151,4 +151,14 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
         return baseMapper.getByStudentId(studentId);
     }
 
+    /**
+     * 通过学生Ids获取报告列表
+     *
+     * @param studentIds 学生Ids
+     * @return List<EyeHealthyReportResponseDTO>
+     */
+    public List<PreschoolCheckRecord> getByStudentIds(List<Integer> studentIds) {
+        return baseMapper.getByStudentIds(studentIds);
+    }
+
 }
