@@ -7,7 +7,10 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @Author wulizhou
@@ -52,6 +55,18 @@ public class HospitalUtil {
             parentInfo.setParentName(parentNameAndPhone.getFirst());
             parentInfo.setParentPhone(parentNameAndPhone.getSecond());
         }
+    }
+
+    /**
+     * 获取map中id对应名称
+     * @param ids
+     * @param idAndNameMap
+     * @param separator  分割符
+     * @return
+     */
+    public static String getName(Set<Integer> ids, Map<Integer, String> idAndNameMap, String separator) {
+        String collect = ids.stream().map(id -> idAndNameMap.get(id)).filter(name -> StringUtils.isNotBlank(name)).collect(Collectors.joining(separator));
+        return StringUtils.isBlank(collect) ? null : collect;
     }
 
 }

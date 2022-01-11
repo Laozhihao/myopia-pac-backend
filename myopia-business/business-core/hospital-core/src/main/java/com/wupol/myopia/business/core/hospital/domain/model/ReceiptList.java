@@ -11,7 +11,6 @@ import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 
 /**
  * 回执单
@@ -42,13 +41,12 @@ public class ReceiptList implements Serializable {
      * 专项检查情况
      */
     @TableField(typeHandler = JacksonTypeHandler.class)
-    private List<BaseValue> specialMedical;
+    private SpecialMedical specialMedical;
 
     /**
      * 诊断结果
      */
-    @TableField(typeHandler = JacksonTypeHandler.class)
-    private List<BaseValue> medicalResult;
+    private String medicalResult;
 
     /**
      * 是否进一步转诊[0 否; 1 是]
