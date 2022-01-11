@@ -349,7 +349,6 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
 //        return ApiResult.success();
 //    }
 
-
     /**
      * @Description: 导出文件
      * @Param: [筛查计划ID, 筛查机构ID, 学校ID, 年级ID, 班级ID]
@@ -374,8 +373,8 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
 
         if (classId==null){
             if (CurrentUserUtil.getCurrentUser().getUserType()==1){
-                String key =  String.format(RedisConstant.FILE_EXPORT_EXCEL_COUNT, exportCondition.getApplyExportFileUserId(),
-                        exportCondition.getPlanId(), exportCondition.getSchoolId(), exportCondition.getClassId(), exportCondition.getGradeId());
+                String key =  String.format(RedisConstant.FILE_EXPORT_EXCEL_COUNT,
+                        "getScreeningPlanExportDoAndSync",exportCondition.getApplyExportFileUserId(), exportCondition.getPlanId(), exportCondition.getSchoolId(), exportCondition.getClassId(), exportCondition.getGradeId());
                 sysUtilService.isExport(key);
             }
 
@@ -383,15 +382,14 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
             return ApiResult.success();
         }else {
             if (CurrentUserUtil.getCurrentUser().getUserType()==1){
-                String key =  String.format(RedisConstant.FILE_EXPORT_EXCEL_COUNT, exportCondition.getApplyExportFileUserId(),
-                        exportCondition.getPlanId(), exportCondition.getSchoolId(), exportCondition.getClassId(), exportCondition.getGradeId());
+                String key =  String.format(RedisConstant.FILE_EXPORT_EXCEL_COUNT,
+                        "getScreeningPlanExportDoAndSync",exportCondition.getApplyExportFileUserId(), exportCondition.getPlanId(), exportCondition.getSchoolId(), exportCondition.getClassId(), exportCondition.getGradeId());
                 sysUtilService.isExport(key);
             }
 
             String path = exportStrategy.syncExport(exportCondition, ExportReportServiceNameConstant.EXPOR_TPLAN_STUDENT_DATA_EXCELS_ERVICE);
             return ApiResult.success(path);
         }
-
     }
 
 }

@@ -122,23 +122,23 @@ public interface RedisConstant {
      * 导出筛查数据excel文件
      * 作者：钓猫的小鱼
      */
-    String FILE_EXPORT_EXCEL_COUNT = "file:export:excel:count:%s-%s-%s-%s-%s";
+    String FILE_EXPORT_EXCEL_COUNT = "file:url:export:excel:count:%s-%s-%s-%s-%s-%s";
     /**
      * 导出档案卡
      * 作者：钓猫的小鱼
      */
-    String FILE_EXPORT_EXCEL_ARCHIVES_COUNT = "file:export:excel:archives:count:%s-%s-%s-%s-%s";
+    String FILE_EXPORT_EXCEL_ARCHIVES_COUNT = "file:url:export:excel:archives:count:%s-%s-%s-%s-%s-%s";
 
     /**
      * 导出筛查数据PDF
      * 作者：钓猫的小鱼
      */
-    String FILE_EXPORT_PDF_COUNT = "file:export:pdf:count:%s-%s-%s";
+    String FILE_EXPORT_PDF_COUNT = "file:url:export:pdf:count:%s-%s-%s-%s";
     /**
      * 导出筛查数据 档案库
      * 作者：钓猫的小鱼
      */
-    String FILE_EXPORT_ARCHIVES_COUNT = "file:export:pdf:count:%s-%s-%s-%s-%s-%s-%s";
+    String FILE_EXPORT_ARCHIVES_COUNT = "file:url:export:pdf:count:%s-%s-%s-%s-%s-%s-%s-%s";
     /**
      * 导出Excel-学生
      * 作者：钓猫的小鱼

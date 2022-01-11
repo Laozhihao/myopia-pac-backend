@@ -132,8 +132,10 @@ public class ReportController {
                 .setGradeId(gradeId)
                 .setPlanStudentIds(planStudentIds);
 
+
         if (CurrentUserUtil.getCurrentUser().getUserType()==1){
-            String key =  String.format(RedisConstant.FILE_EXPORT_ARCHIVES_COUNT, planId,screeningOrgId,CurrentUserUtil.getCurrentUser().getId(),schoolId,gradeId,classId,planStudentIds);
+            String key =  String.format(RedisConstant.FILE_EXPORT_ARCHIVES_COUNT,
+                    "exportScreeningOrgArchives",planId,screeningOrgId,CurrentUserUtil.getCurrentUser().getId(),schoolId,gradeId,classId,planStudentIds);
             sysUtilService.isExport(key);
         }
 
@@ -159,7 +161,8 @@ public class ReportController {
         }
 
         if (CurrentUserUtil.getCurrentUser().getUserType()==1){
-            String key =  String.format(RedisConstant.FILE_EXPORT_EXCEL_ARCHIVES_COUNT, CurrentUserUtil.getCurrentUser().getId(),planId, schoolId, planStudentIds);
+            String key =  String.format(RedisConstant.FILE_EXPORT_EXCEL_ARCHIVES_COUNT,
+                    "syncExportSchoolStudentArchives",CurrentUserUtil.getCurrentUser().getId(),planId, schoolId, planStudentIds);
             sysUtilService.isExport(key);
         }
 
@@ -190,8 +193,8 @@ public class ReportController {
                 .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
 
         if (CurrentUserUtil.getCurrentUser().getUserType()==1){
-            String key =  String.format(RedisConstant.FILE_EXPORT_PDF_COUNT, exportCondition.getApplyExportFileUserId(),
-                    exportCondition.getPlanId(), exportCondition.getSchoolId());
+            String key =  String.format(RedisConstant.FILE_EXPORT_PDF_COUNT,
+                    "getScreeningPlanSchool",exportCondition.getApplyExportFileUserId(), exportCondition.getPlanId(), exportCondition.getSchoolId());
             sysUtilService.isExport(key);
         }
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.SCREENING_PLAN);
