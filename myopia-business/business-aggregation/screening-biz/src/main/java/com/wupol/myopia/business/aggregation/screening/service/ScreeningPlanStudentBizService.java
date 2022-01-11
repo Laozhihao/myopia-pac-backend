@@ -7,6 +7,7 @@ import com.wupol.myopia.base.util.ListUtil;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
 import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;
 import com.wupol.myopia.business.core.common.service.Html2PdfService;
+import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.domain.model.Student;
@@ -57,6 +58,8 @@ public class ScreeningPlanStudentBizService {
     private RedisUtil redisUtil;
     @Resource
     private SchoolGradeService schoolGradeService;
+    @Resource
+    private ResourceFileService resourceFileService;
 
     /**
      * 筛查通知结果页面地址
@@ -138,11 +141,16 @@ public class ScreeningPlanStudentBizService {
         } else {
             resultNoticeConfig = screeningOrganizationService.getScreeningOrgDetails(orgId).getResultNoticeConfig();
         }
+        String fileUrl = StringUtils.EMPTY;
+        if (Objects.nonNull(resultNoticeConfig) && Objects.nonNull(resultNoticeConfig.getQrCodeFileId())) {
+            fileUrl = resourceFileService.getResourcePath(resultNoticeConfig.getQrCodeFileId());
+        }
         List<Integer> planStudentId = ListUtil.str2List(planStudentIds);
         List<ScreeningStudentDTO> planStudents = screeningPlanSchoolStudentService.getScreeningNoticeResultStudent(planId, schoolId, gradeId, classId, CollectionUtils.isEmpty(planStudentId) ? null : planStudentId, planStudentName);
-        planStudents.forEach(planStudent -> {
+        for (ScreeningStudentDTO planStudent : planStudents) {
             planStudent.setResultNoticeConfig(resultNoticeConfig);
-        });
+            planStudent.setNoticeQrCodeFileUrl(fileUrl);
+        }
         return planStudents;
     }
 
