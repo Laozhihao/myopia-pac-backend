@@ -4,10 +4,7 @@ import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.core.hospital.domain.model.ReferralRecord;
 import com.wupol.myopia.business.core.hospital.service.ReferralRecordService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -32,6 +29,12 @@ public class ReferralController {
     @GetMapping("/list")
     public List<ReferralRecord> getList(Integer studentId) {
         return referralRecordService.getByStudentId(studentId);
+    }
+
+    @PostMapping
+    public Integer save(ReferralRecord record) {
+        // TODO wulizhou
+        return 1;
     }
 
 }

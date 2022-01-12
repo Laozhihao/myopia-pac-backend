@@ -16,6 +16,7 @@
         <where>
             <trim prefixOverrides="and">
                 <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(preschoolCheckRecordId)">and `preschool_check_record_id` = #{preschoolCheckRecordId}</if>
                 <if test="@Ognl@isNotEmpty(studentId)">and `student_id` = #{studentId}</if>
                 <if test="@Ognl@isNotEmpty(specialMedical)">and `special_medical` = #{specialMedical}</if>
                 <if test="@Ognl@isNotEmpty(medicalResult)">and `medical_result` = #{medicalResult}</if>
@@ -31,11 +32,12 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, student_id, special_medical, medical_result, further_referral, referral_hospital, from_hospital_id, from_doctor_id, update_time, create_time
+        id, preschool_check_record_id, student_id, special_medical, medical_result, further_referral, referral_hospital, from_hospital_id, from_doctor_id, update_time, create_time
     </sql>
 
     <select id="getDetails" resultMap="ReceiptDTO">
-        select rl.*, hs.`name` as student_name, hs.gender, hs.record_no, hs.birthday, hs.id_card, hs.family_info, h.`name` as from_hospital, d.`name` as from_doctor
+        select rl.*, hs.`name` as student_name, hs.gender, hs.record_no, hs.birthday, hs.id_card, hs.family_info,
+        h.`name` as from_hospital, d.`name` as from_doctor, pcr.month_age
         from h_receipt_list rl
         INNER JOIN h_hospital_student hs
         on rl.student_id = hs.student_id and hs.hospital_id = rl.from_hospital_id
@@ -43,6 +45,8 @@
         ON h.id = rl.from_hospital_id
         LEFT JOIN h_doctor d
         ON d.id = rl.from_doctor_id
+        LEFT JOIN h_preschool_check_record pcr
+		on pcr.id = rl.preschool_check_record_id
         where rl.id = #{id}
     </select>
 

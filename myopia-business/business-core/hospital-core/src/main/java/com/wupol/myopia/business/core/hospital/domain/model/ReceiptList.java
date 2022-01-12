@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -33,8 +34,15 @@ public class ReceiptList implements Serializable {
     private Integer id;
 
     /**
+     * 生成回执的眼保健检查单id
+     */
+    @NotNull
+    private Integer preschoolCheckRecordId;
+
+    /**
      * 学生id
      */
+    @NotNull
     private Integer studentId;
 
     /**
@@ -51,6 +59,7 @@ public class ReceiptList implements Serializable {
     /**
      * 是否进一步转诊[0 否; 1 是]
      */
+    @NotNull
     private Integer furtherReferral;
 
     /**

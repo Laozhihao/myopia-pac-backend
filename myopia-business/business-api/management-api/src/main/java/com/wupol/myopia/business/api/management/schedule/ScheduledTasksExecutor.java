@@ -4,14 +4,10 @@ import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.CompareUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.api.management.domain.builder.*;
-import com.wupol.myopia.business.api.management.service.NoticeBizService;
-import com.wupol.myopia.business.api.management.service.SchoolBizService;
-import com.wupol.myopia.business.api.management.service.StatService;
-import com.wupol.myopia.business.api.management.service.StudentBizService;
+import com.wupol.myopia.business.api.management.service.*;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
-import com.wupol.myopia.business.core.hospital.service.HospitalService;
 import com.wupol.myopia.business.core.school.domain.dto.StudentExtraDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.Student;
@@ -78,9 +74,9 @@ public class ScheduledTasksExecutor {
     @Autowired
     private StatService statService;
     @Autowired
-    private HospitalService hospitalService;
-    @Autowired
     private NoticeBizService noticeBizService;
+    @Autowired
+    private CooperationService cooperationService;
 
     /**
      * 筛查数据统计
@@ -358,9 +354,9 @@ public class ScheduledTasksExecutor {
     public void cooperationStatusHandle() {
         log.info("开始进行机构（筛查机构、学校、医院）状态处理");
         Date date = new Date();
-        log.info("本次任务共处理筛查机构状态{}条", screeningOrganizationService.handleOrganizationStatus(date));
-        log.info("本次任务共处理学校状态{}条", schoolService.handleSchoolStatus(date));
-        log.info("本次任务共处理医院状态{}条", hospitalService.handleHospitalStatus(date));
+        log.info("本次任务共处理筛查机构状态{}条", cooperationService.handleOrganizationStatus(date));
+        log.info("本次任务共处理学校状态{}条", cooperationService.handleSchoolStatus(date));
+        log.info("本次任务共处理医院状态{}条", cooperationService.handleHospitalStatus(date));
     }
 
     /**

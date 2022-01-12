@@ -51,14 +51,13 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
     public PreschoolCheckRecordDTO getDetails(Integer id) {
         PreschoolCheckRecordDTO details = baseMapper.getDetails(id);
         details.setCreateTimeAge(DateUtil.getAgeInfo(details.getBirthday(), details.getCreateTime()));
-        // 设置检查前后转诊信息
+        // 设置检查前转诊信息
         if (Objects.nonNull(details.getFromReferralId())) {
             details.setFromReferral(referralRecordService.getById(details.getFromReferralId()));
         }
         if (Objects.nonNull(details.getToReferralId())) {
             details.setToReferral(referralRecordService.getById(details.getToReferralId()));
         }
-
         // 设置医师名称
         Map<Integer, String> doctorNames = hospitalDoctorService.getDoctorNameByIds(details.getDoctorIds());
         details.setDoctorsName(HospitalUtil.getName(details.getDoctorIds(), doctorNames, BaseConstant.DOCTOR_NAME_SEPARATOR));

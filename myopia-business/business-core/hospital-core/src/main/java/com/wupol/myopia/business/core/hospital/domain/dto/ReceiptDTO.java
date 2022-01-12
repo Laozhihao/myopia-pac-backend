@@ -65,6 +65,11 @@ public class ReceiptDTO extends ReceiptList implements HasParentInfoInterface {
     private String fromDoctor;
 
     /**
+     * 月龄
+     */
+    private Integer monthAge;
+
+    /**
      * 家庭信息
      */
     @JsonIgnore

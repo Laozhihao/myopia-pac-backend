@@ -125,6 +125,16 @@ public class PreschoolCheckRecordDTO extends PreschoolCheckRecord {
     private List<MonthAgeStatusDTO> ageStageStatusList;
 
     /**
+     * 检查后转诊id
+     */
+    private Integer toReferralId;
+
+    /**
+     * 回执单id
+     */
+    private Integer receiptId;
+
+    /**
      * 转诊前-转诊单
      */
     private ReferralRecord fromReferral;

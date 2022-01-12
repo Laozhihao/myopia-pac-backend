@@ -115,16 +115,6 @@ public class PreschoolCheckRecord extends SpecialMedical implements Serializable
     private Integer status;
 
     /**
-     * 检查后转诊id
-     */
-    private Integer toReferralId;
-
-    /**
-     * 回执单id
-     */
-    private Integer receiptId;
-
-    /**
      * 更新时间
      */
     private Date updateTime;
