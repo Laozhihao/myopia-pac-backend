@@ -7,10 +7,9 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.hospital.domain.dto.PreschoolCheckRecordDTO;
 import com.wupol.myopia.business.core.hospital.domain.dto.StudentPreschoolCheckRecordDTO;
-import com.wupol.myopia.business.core.hospital.domain.model.PreschoolCheckRecord;
+import com.wupol.myopia.business.core.hospital.domain.model.*;
 import com.wupol.myopia.business.core.hospital.domain.query.PreschoolCheckRecordQuery;
 import com.wupol.myopia.business.core.hospital.service.PreschoolCheckRecordService;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
