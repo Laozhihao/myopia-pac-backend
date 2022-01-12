@@ -433,12 +433,12 @@ public class ScreeningPlanController {
     }
 
     /**
-     * @Description: 学生筛查信息
-     * @Param: [学生ID]
-     * @return: void
-     * @Author: 钓猫的小鱼
-     * @Date: 2021/12/29
-     */
+    * @Description: 学生筛查信息
+    * @Param: [计划ID, 学生ID]
+    * @return: java.lang.Object
+    * @Author: 钓猫的小鱼
+    * @Date: 2022/1/12
+    */
     @GetMapping("/getStudentEyeByStudentId")
     public Object getStudentEyeByStudentId(@RequestParam Integer planId,@RequestParam Integer studentId) throws IOException {
         List<Integer> studentIds = Arrays.asList(studentId);
