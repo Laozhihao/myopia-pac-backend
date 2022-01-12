@@ -4,6 +4,7 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.core.hospital.domain.model.ReceiptList;
+import com.wupol.myopia.business.core.hospital.service.PreschoolCheckRecordService;
 import com.wupol.myopia.business.core.hospital.service.ReceiptListService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,16 +27,19 @@ public class ReceiptController {
     @Autowired
     private ReceiptListService receiptListService;
 
+    @Autowired
+    private PreschoolCheckRecordService preschoolCheckRecordService;
+
     /**
      * 保存转诊单
      * @param receiptList
      * @return
      */
     @PostMapping()
-    public Integer save(@RequestBody @Valid ReceiptList receiptList) {
+    public void saveOrUpdate(@RequestBody @Valid ReceiptList receiptList) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        // TODO wulizhou
-        return 1;
+        preschoolCheckRecordService.checkOrgOperation(user.getOrgId(), receiptList.getPreschoolCheckRecordId(), receiptList.getStudentId());
+        receiptListService.saveOrUpdateReceiptList(receiptList, user);
     }
 
 }

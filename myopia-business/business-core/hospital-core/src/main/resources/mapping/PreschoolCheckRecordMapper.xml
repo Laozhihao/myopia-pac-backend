@@ -4,6 +4,7 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.hospital.domain.model.PreschoolCheckRecord">
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="from_referral" property="fromReferral"/>
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="outer_eye" property="outerEye"/>
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="eye_disease_factor" property="eyeDiseaseFactor"/>
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="light_reaction" property="lightReaction"/>
@@ -31,7 +32,7 @@
                 <if test="@Ognl@isNotEmpty(studentId)">and `student_id` = #{studentId}</if>
                 <if test="@Ognl@isNotEmpty(hospitalId)">and `hospital_id` = #{hospitalId}</if>
                 <if test="@Ognl@isNotEmpty(isReferral)">and `is_referral` = #{isReferral}</if>
-                <if test="@Ognl@isNotEmpty(fromReferralId)">and `from_referral_id` = #{fromReferralId}</if>
+                <if test="@Ognl@isNotEmpty(fromReferral)">and `from_referral` = #{fromReferral}</if>
                 <if test="@Ognl@isNotEmpty(monthAge)">and `month_age` = #{monthAge}</if>
                 <if test="@Ognl@isNotEmpty(outerEye)">and `outer_eye` = #{outerEye}</if>
                 <if test="@Ognl@isNotEmpty(eyeDiseaseFactor)">and `eye_disease_factor` = #{eyeDiseaseFactor}</if>
@@ -55,7 +56,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, student_id, hospital_id, is_referral, from_referral_id, month_age, outer_eye, eye_disease_factor, light_reaction, blink_reflex,
+        id, student_id, hospital_id, is_referral, from_referral, month_age, outer_eye, eye_disease_factor, light_reaction, blink_reflex,
         red_ball_test, visual_behavior_observation, red_reflex, ocular_inspection, vision_data, monocular_masking_aversion_test,
         refraction_data, guide_content, conclusion, status, update_time, create_time
     </sql>
@@ -92,7 +93,7 @@
 
     <select id="getListByCondition" resultMap="PreschoolCheckRecordDTO">
         SELECT
-            pcr.id, pcr.is_referral, pcr.student_id, pcr.hospital_id, pcr.from_referral_id, pcr.month_age, pcr.guide_content, pcr.conclusion,
+            pcr.id, pcr.is_referral, pcr.student_id, pcr.hospital_id, pcr.from_referral, pcr.month_age, pcr.guide_content, pcr.conclusion,
             pcr.status, pcr.update_time, pcr.create_time,
             hs.id as hospital_student_id,
             hs.`name` AS student_name,

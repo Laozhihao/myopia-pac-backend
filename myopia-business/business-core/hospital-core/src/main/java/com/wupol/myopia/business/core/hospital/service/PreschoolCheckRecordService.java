@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.hospital.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.constant.MonthAgeEnum;
+import com.wupol.myopia.base.domain.ResultCode;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.BusinessUtil;
@@ -15,7 +16,7 @@ import com.wupol.myopia.business.core.hospital.domain.dto.MonthAgeStatusDTO;
 import com.wupol.myopia.business.core.hospital.domain.dto.PreschoolCheckRecordDTO;
 import com.wupol.myopia.business.core.hospital.domain.dto.StudentPreschoolCheckRecordDTO;
 import com.wupol.myopia.business.core.hospital.domain.mapper.PreschoolCheckRecordMapper;
-import com.wupol.myopia.business.core.hospital.domain.model.*;
+import com.wupol.myopia.business.core.hospital.domain.model.PreschoolCheckRecord;
 import com.wupol.myopia.business.core.hospital.domain.query.PreschoolCheckRecordQuery;
 import com.wupol.myopia.business.core.hospital.util.HospitalUtil;
 import org.apache.commons.collections4.CollectionUtils;
@@ -51,10 +52,7 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
     public PreschoolCheckRecordDTO getDetails(Integer id) {
         PreschoolCheckRecordDTO details = baseMapper.getDetails(id);
         details.setCreateTimeAge(DateUtil.getAgeInfo(details.getBirthday(), details.getCreateTime()));
-        // 设置检查前转诊信息
-        if (Objects.nonNull(details.getFromReferralId())) {
-            details.setFromReferral(referralRecordService.getById(details.getFromReferralId()));
-        }
+        // 检查单
         if (Objects.nonNull(details.getToReferralId())) {
             details.setToReferral(referralRecordService.getById(details.getToReferralId()));
         }
@@ -165,6 +163,8 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
             return;
         }
         PreschoolCheckRecord dbCheckRecord = getById(checkRecord.getId(), checkRecord.getHospitalId());
+        if (Objects.nonNull(checkRecord.getIsReferral())) dbCheckRecord.setIsReferral(checkRecord.getIsReferral());
+        if (Objects.nonNull(checkRecord.getFromReferral())) dbCheckRecord.setFromReferral(checkRecord.getFromReferral());
         if (Objects.nonNull(checkRecord.getOuterEye())) dbCheckRecord.setOuterEye(checkRecord.getOuterEye());
         if (Objects.nonNull(checkRecord.getVisionData())) dbCheckRecord.setVisionData(checkRecord.getVisionData());
         if (Objects.nonNull(checkRecord.getRefractionData())) dbCheckRecord.setRefractionData(checkRecord.getRefractionData());
@@ -252,6 +252,19 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
      */
     private List<MonthAgeStatusDTO> createMonthAgeStatusDTOByMap(Map<Integer, MonthAgeStatusDTO> map) {
         return map.keySet().stream().map(monthAge -> map.get(monthAge)).collect(Collectors.toList());
+    }
+
+    /**
+     * 检验操作合法性
+     * @param orgId
+     * @param preschoolCheckRecordId
+     * @param studentId
+     */
+    public void checkOrgOperation(Integer orgId, Integer preschoolCheckRecordId, Integer studentId) {
+        PreschoolCheckRecord record = getById(preschoolCheckRecordId, orgId);
+        if (Objects.isNull(record) || !record.getStudentId().equals(studentId)) {
+            throw new BusinessException("非法请求", ResultCode.USER_ACCESS_UNAUTHORIZED.getCode());
+        }
     }
 
 }

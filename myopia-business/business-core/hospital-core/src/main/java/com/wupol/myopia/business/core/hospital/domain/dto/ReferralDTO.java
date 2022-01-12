@@ -4,8 +4,8 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wupol.myopia.base.domain.vo.FamilyInfoVO;
+import com.wupol.myopia.business.core.hospital.domain.dos.ReferralDO;
 import com.wupol.myopia.business.core.hospital.domain.interfaces.HasParentInfoInterface;
-import com.wupol.myopia.business.core.hospital.domain.model.ReferralRecord;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -17,7 +17,7 @@ import java.util.Date;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class ReferralDTO extends ReferralRecord implements HasParentInfoInterface {
+public class ReferralDTO extends ReferralDO implements HasParentInfoInterface {
 
     /**
      * 学生名称

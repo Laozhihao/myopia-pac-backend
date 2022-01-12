@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.core.hospital.domain.dto;
 
-import com.wupol.myopia.business.core.hospital.domain.model.ReferralRecord;
+import com.wupol.myopia.business.core.hospital.domain.dos.ReferralDO;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -32,6 +32,6 @@ public class StudentPreschoolCheckRecordDTO {
     /**
      * 获取学生历史转诊单
      */
-    private List<ReferralRecord> fromReferral;
+    private List<ReferralDO> fromReferral;
 
 }
