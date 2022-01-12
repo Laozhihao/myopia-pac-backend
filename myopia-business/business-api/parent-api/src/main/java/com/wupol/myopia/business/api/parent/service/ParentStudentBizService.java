@@ -520,10 +520,16 @@ public class ParentStudentBizService {
     private void setStudentAddress(Student student) {
         if (Objects.isNull(student.getProvinceCode())) {
             List<District> districtDetail = districtService.getDistrictPositionDetail(student.getCommitteeCode());
+            if (CollectionUtils.isEmpty(districtDetail)) {
+                return;
+            }
             student.setProvinceCode(districtDetail.get(0).getCode());
             student.setCityCode(districtDetail.get(1).getCode());
             student.setAreaCode(districtDetail.get(2).getCode());
-            student.setTownCode(districtDetail.get(3).getCode());
+            // 处理直辖市问题
+            if (districtDetail.size() > 4) {
+                student.setTownCode(districtDetail.get(3).getCode());
+            }
         }
     }
 
