@@ -181,5 +181,6 @@
         <foreach collection="studentIds" item="studentId" index="index" open="(" close=")" separator=",">
             #{studentId}
         </foreach>
+        order by create_time desc
     </select>
 </mapper>

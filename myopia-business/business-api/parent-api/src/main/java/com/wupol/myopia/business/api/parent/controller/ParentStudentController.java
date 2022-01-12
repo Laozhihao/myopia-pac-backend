@@ -23,6 +23,7 @@ import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
+import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -251,6 +252,21 @@ public class ParentStudentController {
     @GetMapping("eyeHealthyReport/list/{studentId}")
     public List<EyeHealthyReportResponseDTO> getEyeHealthyReportList(@PathVariable("studentId") Integer studentId) {
         return preschoolCheckRecordService.getByStudentId(studentId);
+    }
+
+    /**
+     * 获取学生最新一条眼保健检查报告
+     *
+     * @param studentId 学生Id
+     * @return 眼保健检查报告列表
+     */
+    @GetMapping("eyeHealthyReport/latest/{studentId}")
+    public PreschoolCheckRecordDTO getLatestEyeHealthyReportList(@PathVariable("studentId") Integer studentId) {
+        List<EyeHealthyReportResponseDTO> report = preschoolCheckRecordService.getByStudentId(studentId);
+        if (CollectionUtils.isEmpty(report)) {
+            return new PreschoolCheckRecordDTO();
+        }
+        return preschoolCheckRecordService.getDetails(report.get(0).getId());
     }
 
     /**
