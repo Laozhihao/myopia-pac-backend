@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.hospital.domain.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.wupol.myopia.business.core.hospital.domain.dos.ReferralDO;
 import com.wupol.myopia.business.core.hospital.domain.dto.ReferralDTO;
 import com.wupol.myopia.business.core.hospital.domain.model.ReferralRecord;
 import org.apache.ibatis.annotations.Param;
@@ -28,6 +29,6 @@ public interface ReferralRecordMapper extends BaseMapper<ReferralRecord> {
      * @param studentId
      * @return
      */
-    List<ReferralRecord> getByStudentId(@Param("studentId") Integer studentId);
+    List<ReferralDO> getByStudentId(@Param("studentId") Integer studentId);
 
 }

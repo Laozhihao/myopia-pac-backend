@@ -3,7 +3,7 @@ CREATE TABLE `h_preschool_check_record`  (
   `student_id` int(11) NOT NULL COMMENT '学生id',
   `hospital_id` int(11) NOT NULL COMMENT '医院id',
   `is_referral` tinyint(4) NULL DEFAULT 0 COMMENT '是否有检查前转诊信息[0-没有；1-有]',
-  `from_referral_id` int(11) NULL DEFAULT NULL COMMENT '检查前-转诊id',
+  `from_referral` json NULL COMMENT '检查前转诊信息',
   `month_age` tinyint(4) NOT NULL COMMENT '月龄[0-新生儿；1-满月；2-3月龄；3-6月龄；4-8月龄；5-12月龄；6-18月龄；7-24月龄；8-30月龄；9-36月龄；10-4岁；11-5岁；12-6岁；]',
   `outer_eye` json NULL COMMENT '眼外观',
   `eye_disease_factor` json NULL COMMENT '主要眼病高危因素',
@@ -42,13 +42,10 @@ CREATE TABLE `h_receipt_list`  (
 
 CREATE TABLE `h_referral_record`  (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'id',
-  `preschool_check_record_id` int(11) NULL DEFAULT NULL COMMENT '生成转诊的眼保健检查单id',
+  `preschool_check_record_id` int(11) NOT NULL COMMENT '生成转诊的眼保健检查单id',
   `student_id` int(11) NOT NULL COMMENT '学生id',
-  `apply_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '申请时间',
   `from_hospital_id` int(11) NULL DEFAULT NULL COMMENT '申请医院id',
-  `from_hospital` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '申请医院名称',
   `from_doctor_id` int(11) NULL DEFAULT NULL COMMENT '申请医师id',
-  `from_doctor` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '申请医师名',
   `to_hospital_id` int(11) NULL DEFAULT NULL COMMENT '目标医院id',
   `to_hospital` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '目标医院名称',
   `to_department` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '目标科室名称',
