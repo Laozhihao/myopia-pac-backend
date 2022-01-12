@@ -22,6 +22,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudent
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentVisionScreeningResultExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
+import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.flow.util.EyeDataUtil;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.BeanUtils;
@@ -31,10 +32,8 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.io.File;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created with IntelliJ IDEA.
@@ -60,6 +59,10 @@ public class ExportPlanSchoolStudentDataExcelService extends BaseExportExcelFile
     private DistrictService districtService;
     @Resource
     private ScreeningPlanSchoolStudentFacadeService screeningPlanSchoolStudentFacadeService;
+    @Autowired
+    private VisionScreeningResultService visionScreeningResultService;
+
+
 
     @Override
     public List getExcelData(ExportCondition exportCondition) {
@@ -78,15 +81,19 @@ public class ExportPlanSchoolStudentDataExcelService extends BaseExportExcelFile
 
         List<ScreeningStudentDTO> screeningStudentDTOS =  screeningPlanSchoolStudentService.selectListByQuery(screeningStudentQueryDTO);
 
+
+        List<Integer> ids = screeningStudentDTOS.stream().map(ScreeningStudentDTO :: getId).collect(Collectors.toList());
+        List<VisionScreeningResult> visionScreeningResults =  visionScreeningResultService.getByStudentIds(screeningPlanId,ids);
+        //由于数据只有1条，所以进行分组
+        Map<Integer,List<VisionScreeningResult>> visionScreeningResultsGroup = visionScreeningResults.stream().collect(Collectors.groupingBy(VisionScreeningResult::getId));
+
         List<StudentVisionScreeningResultExportDTO> studentVisionScreeningResultExportDTOS = new ArrayList<>();
         screeningStudentDTOS.forEach(studentDTO -> {
 
             studentDTO.setNationDesc(NationEnum.getName(studentDTO.getNation()))
                     .setAddress(districtService.getAddressDetails(studentDTO.getProvinceCode(), studentDTO.getCityCode(), studentDTO.getAreaCode(), studentDTO.getTownCode(), studentDTO.getAddress()));
 
-            //循环导出数据会慢，看是否有必要改成链表
-            VisionScreeningResult visionScreeningResult = screeningPlanSchoolStudentFacadeService.getVisionScreeningResult(studentDTO);
-
+            VisionScreeningResult visionScreeningResult = EyeDataUtil.getVisionScreeningResult(studentDTO,visionScreeningResultsGroup);
             setStudentData(studentVisionScreeningResultExportDTOS, studentDTO, visionScreeningResult);
         });
         //对年级排序
@@ -202,6 +209,5 @@ public class ExportPlanSchoolStudentDataExcelService extends BaseExportExcelFile
         }
         return school.getName()+gradeName+className;
     }
-
 
 }

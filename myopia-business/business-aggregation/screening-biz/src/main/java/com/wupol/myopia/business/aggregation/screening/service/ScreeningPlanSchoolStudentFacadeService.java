@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -112,11 +113,16 @@ public class ScreeningPlanSchoolStudentFacadeService {
 //                        .setAddress(districtService.getAddressDetails(studentDTO.getProvinceCode(), studentDTO.getCityCode(), studentDTO.getAreaCode(), studentDTO.getTownCode(), studentDTO.getAddress()))
 //
 //        );
+        List<ScreeningStudentDTO> screeningStudentDTOS = studentDTOIPage.getRecords();
+        List<Integer> ids = screeningStudentDTOS.stream().map(ScreeningStudentDTO :: getId).collect(Collectors.toList());
+        List<VisionScreeningResult> visionScreeningResults =  visionScreeningResultService.getByStudentIds(query.getScreeningPlanId(),ids);
+        //由于数据只有1条，所以进行分组
+        Map<Integer,List<VisionScreeningResult>> visionScreeningResultsGroup = visionScreeningResults.stream().collect(Collectors.groupingBy(VisionScreeningResult::getStudentId));
         //作者：钓猫的小鱼。  描述：给学生扩展类赋值
         studentDTOIPage.getRecords().forEach(studentDTO -> {
             studentDTO.setNationDesc(NationEnum.getName(studentDTO.getNation()))
                         .setAddress(districtService.getAddressDetails(studentDTO.getProvinceCode(), studentDTO.getCityCode(), studentDTO.getAreaCode(), studentDTO.getTownCode(), studentDTO.getAddress()));
-            setStudentEyeInfor(studentDTO);
+            setStudentEyeInfor(studentDTO,visionScreeningResultsGroup);
         });
         return studentDTOIPage;
     }
@@ -128,8 +134,8 @@ public class ScreeningPlanSchoolStudentFacadeService {
     * @Author: 钓猫的小鱼
     * @Date: 2022/1/5
     */
-    public void setStudentEyeInfor(ScreeningStudentDTO studentEyeInfor){
-        VisionScreeningResult visionScreeningResult = getVisionScreeningResult(studentEyeInfor);
+    public void setStudentEyeInfor(ScreeningStudentDTO studentEyeInfor,Map<Integer,List<VisionScreeningResult>> visionScreeningResultsGroup){
+        VisionScreeningResult visionScreeningResult = EyeDataUtil.getVisionScreeningResult(studentEyeInfor,visionScreeningResultsGroup);
 
         studentEyeInfor.setGlassesTypeDes(EyeDataUtil.glassesType(visionScreeningResult));//是否戴镜情况
 
@@ -150,13 +156,5 @@ public class ScreeningPlanSchoolStudentFacadeService {
 
     }
 
-    public VisionScreeningResult getVisionScreeningResult(ScreeningStudentDTO studentEyeInfor) {
-        Integer id = studentEyeInfor.getId();
-        List<VisionScreeningResult> visionScreeningResults =  visionScreeningResultService.getByStudentId(id);
-        if (visionScreeningResults.size()>1){
-            log.error("学生数据大于1条，请检查。report id = ." + id);
-        }
-        return visionScreeningResults.get(0);
-    }
-//
+
 }

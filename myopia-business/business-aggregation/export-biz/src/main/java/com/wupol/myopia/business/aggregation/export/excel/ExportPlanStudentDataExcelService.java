@@ -61,8 +61,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
     private SchoolGradeService schoolGradeService;
     @Resource
     private SchoolClassService schoolClassService;
-    @Autowired
-    private ScreeningNoticeService screeningNoticeService;
+
     @Autowired
     private ExcelFacade excelFacade;
     @Autowired
@@ -126,24 +125,6 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         return ZipUtil.zip(StringUtils.substringBeforeLast(StringUtils.substringBeforeLast(StringUtils.substringBeforeLast(excelFile.getAbsolutePath(), "/"), "/"), "/"));
     }
 
-    /**
-    * @Description: 导出文件部位ZIP
-    * @Param: [fileName, data]
-    * @return: java.io.File
-    * @Author: 钓猫的小鱼
-    * @Date: 2022/1/10
-    */
-    public File generateExcelFileNoZip(String fileName, List data) throws IOException {
-
-        List<StatConclusionExportDTO> statConclusionExportDTOs = data;
-
-        String path = fileName;
-        OnceAbsoluteMergeStrategy mergeStrategy = new OnceAbsoluteMergeStrategy(0, 1, 20, 21);
-
-        List<VisionScreeningResultExportDTO> visionScreeningResultExportVos = excelFacade.genVisionScreeningResultExportVos(statConclusionExportDTOs);
-        File excelFile =   ExcelUtil.exportListToExcel(path, visionScreeningResultExportVos, mergeStrategy, VisionScreeningResultExportDTO.class);
-        return excelFile;
-    }
 
     @Override
     public String syncExport(ExportCondition exportCondition) {

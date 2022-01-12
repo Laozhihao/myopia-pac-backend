@@ -43,9 +43,7 @@ import javax.validation.Valid;
 import javax.validation.ValidationException;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -442,9 +440,10 @@ public class ScreeningPlanController {
      * @Date: 2021/12/29
      */
     @GetMapping("/getStudentEyeByStudentId")
-    public Object getStudentEyeByStudentId(@RequestParam Integer studentId) throws IOException {
+    public Object getStudentEyeByStudentId(@RequestParam Integer planId,@RequestParam Integer studentId) throws IOException {
+        List<Integer> studentIds = Arrays.asList(studentId);
 
-        List<VisionScreeningResult> visionScreeningResults =  visionScreeningResultService.getByStudentId(studentId);
+        List<VisionScreeningResult> visionScreeningResults =  visionScreeningResultService.getByStudentIds(planId,studentIds);
         if (visionScreeningResults.size()==0){
             return null;
         }

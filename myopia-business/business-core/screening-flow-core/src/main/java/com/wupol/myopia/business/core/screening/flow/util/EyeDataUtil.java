@@ -1,10 +1,14 @@
 package com.wupol.myopia.business.core.screening.flow.util;
 
+import com.alibaba.fastjson.JSON;
 import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
+import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
@@ -13,6 +17,7 @@ import java.math.BigDecimal;
  * @Date: 2022/01/12/11:05
  * @Description:
  */
+@Slf4j
 public class EyeDataUtil {
 
     public static String leftReScreenSph(VisionScreeningResult visionScreeningResult){
@@ -281,4 +286,13 @@ public class EyeDataUtil {
         }
         return false;
     }
+    public static VisionScreeningResult getVisionScreeningResult(ScreeningStudentDTO studentEyeInfor, Map<Integer, List<VisionScreeningResult>> visionScreeningResultsGroup) {
+        Integer id = studentEyeInfor.getId();
+        List<VisionScreeningResult>  visionScreeningResults =  visionScreeningResultsGroup.get(id);
+        if(visionScreeningResults==null||visionScreeningResults.size()==0){
+            return null;
+        }
+        return visionScreeningResults.get(0);
+    }
+//
 }
