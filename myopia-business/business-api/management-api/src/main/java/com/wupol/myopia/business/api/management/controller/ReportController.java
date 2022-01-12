@@ -56,6 +56,14 @@ public class ReportController {
                 .setNotificationId(notificationId)
                 .setDistrictId(districtId)
                 .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
+
+
+        if (CurrentUserUtil.getCurrentUser().getUserType()==1){
+            String key =  String.format(RedisConstant.FILE_URL_USERID_NOTIFICATIONID_DISTRICTID_COUNT,
+                    "district",exportCondition.getApplyExportFileUserId(), exportCondition.getPlanId(), exportCondition.getSchoolId());
+            sysUtilService.isExport(key);
+        }
+
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.DISTRICT_SCREENING_REPORT_SERVICE);
     }
 
@@ -72,6 +80,13 @@ public class ReportController {
         if (Objects.isNull(notificationId) && Objects.isNull(planId)) {
             throw new BusinessException("筛查通知ID或者筛查计划ID不能为空");
         }
+
+        if (CurrentUserUtil.getCurrentUser().getUserType()==1){
+            String key =  String.format(RedisConstant.FILE_URL_USERID_NOTIFICATIONID_PLANID_SCHOOLID_COUNT,
+                    "school",CurrentUserUtil.getCurrentUser().getId(), notificationId, planId,schoolId);
+            sysUtilService.isExport(key);
+        }
+
         ExportCondition exportCondition = new ExportCondition()
                 .setNotificationId(notificationId)
                 .setPlanId(planId)
@@ -93,6 +108,13 @@ public class ReportController {
                 .setPlanId(planId)
                 .setScreeningOrgId(screeningOrgId)
                 .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
+
+        if (CurrentUserUtil.getCurrentUser().getUserType()==1){
+            String key =  String.format(RedisConstant.FILE_URL_USERID_PLANID_SCREENINGORGID_COUNT,
+                    "screeningOrg",CurrentUserUtil.getCurrentUser().getId(),  planId,screeningOrgId);
+            sysUtilService.isExport(key);
+        }
+
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.SCREENING_ORG_SCREENING_REPORT_SERVICE);
     }
 
@@ -139,7 +161,6 @@ public class ReportController {
             sysUtilService.isExport(key);
         }
 
-
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.SCREENING_ORG_ARCHIVES_SERVICE);
     }
 
@@ -184,7 +205,7 @@ public class ReportController {
     @GetMapping("/screeningOrg/export/school")
     public void getScreeningPlanSchool(@NotNull(message = "筛查计划ID不能为空") Integer planId,
                                        @NotNull(message = "筛查机构ID不能为空") Integer screeningOrgId,
-                                       @NotNull(message = "学校ID不能为空") Integer schoolId) throws IOException {
+                                       Integer schoolId) throws IOException {
 
         ExportCondition exportCondition = new ExportCondition()
                 .setPlanId(planId)

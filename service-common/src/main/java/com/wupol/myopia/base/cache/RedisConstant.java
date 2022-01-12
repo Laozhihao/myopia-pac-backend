@@ -134,8 +134,27 @@ public interface RedisConstant {
      * 作者：钓猫的小鱼
      */
     String FILE_EXPORT_PDF_COUNT = "file:url:export:pdf:count:%s-%s-%s-%s";
+
     /**
-     * 导出筛查数据 档案库
+     * 导出筛查数据PDF(区域)
+     * 作者：钓猫的小鱼
+     */
+    String FILE_URL_USERID_NOTIFICATIONID_DISTRICTID_COUNT= "file:url:userId:notificationId:districtId:count:%s-%s-%s-%s";
+    /**
+     * 导出筛查数据PDF(学校)
+     * 作者：钓猫的小鱼
+     */
+    String FILE_URL_USERID_NOTIFICATIONID_PLANID_SCHOOLID_COUNT= "file:url:userId:notificationId:planId:schoolId:count:%s-%s-%s-%s-%s";
+
+    /**
+     * 导出筛查数据PDF(筛查机构)
+     * 作者：钓猫的小鱼
+     */
+    String FILE_URL_USERID_PLANID_SCREENINGORGID_COUNT= "file:url:userId:notificationId:planId:schoolId:count:%s-%s-%s-%s";
+
+
+    /**
+     * 导出筛查数据 档案卡
      * 作者：钓猫的小鱼
      */
     String FILE_EXPORT_ARCHIVES_COUNT = "file:url:export:pdf:count:%s-%s-%s-%s-%s-%s-%s-%s";

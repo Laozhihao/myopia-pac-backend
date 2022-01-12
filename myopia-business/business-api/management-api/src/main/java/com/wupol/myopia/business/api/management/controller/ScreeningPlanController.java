@@ -432,8 +432,8 @@ public class ScreeningPlanController {
             String path = exportStrategy.syncExport(exportCondition, ExportReportServiceNameConstant.EXPORT_PLAN_SCHOOL_STUDENT_DATA);
             return ApiResult.success(path);
         }
-
     }
+
     /**
      * @Description: 学生筛查信息
      * @Param: [学生ID]

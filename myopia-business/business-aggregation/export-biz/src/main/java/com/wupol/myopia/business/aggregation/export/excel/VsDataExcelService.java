@@ -71,7 +71,8 @@ public class VsDataExcelService extends BaseExportExcelFileService {
         OnceAbsoluteMergeStrategy mergeStrategy = new OnceAbsoluteMergeStrategy(0, 1, 20, 21);
         File excelFile =   ExcelUtil.exportListToExcel(path, deviceScreeningData, mergeStrategy, DeviceScreeningDataExportDTO.class);
 
-        return ZipUtil.zip(StringUtils.substringBeforeLast(StringUtils.substringBeforeLast(StringUtils.substringBeforeLast(excelFile.getAbsolutePath(), "/"), "/"), "/"));
+return excelFile;
+//        return ZipUtil.zip(StringUtils.substringBeforeLast(StringUtils.substringBeforeLast(StringUtils.substringBeforeLast(excelFile.getAbsolutePath(), "/"), "/"), "/"));
     }
 
     @Override

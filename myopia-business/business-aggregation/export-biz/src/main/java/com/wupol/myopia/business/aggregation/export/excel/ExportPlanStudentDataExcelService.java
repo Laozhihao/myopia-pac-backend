@@ -75,8 +75,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         Integer schoolId = exportCondition.getSchoolId();
         Integer gradeId = exportCondition.getGradeId();
         Integer classId = exportCondition.getClassId();
-        // 参数校验
-        validatePlanExportParams(screeningPlanId, screeningOrgId, schoolId);
+
 
         List<StatConclusionExportDTO> statConclusionExportDTOs  = statConclusionService.selectExportVoBySPlanIdAndSOrgIdAndSChoolIdAndGradeNameAndClassanme(screeningPlanId, screeningOrgId,schoolId,gradeId,classId);
         statConclusionExportDTOs.forEach(vo -> vo.setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(), vo.getAreaCode(), vo.getTownCode(), vo.getAddress())));
@@ -150,6 +149,9 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
     public String syncExport(ExportCondition exportCondition) {
         String parentPath = null;
         File excelFile = null;
+        // 参数校验
+//        validatePlanExportParams(exportCondition.getPlanId(), exportCondition.getScreeningOrgId(), exportCondition.getSchoolId());
+
         try {
             // 1.获取文件名
             String fileName = getFileName(exportCondition);

@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.framework.core.util.StringUtils;
 import com.wupol.myopia.business.aggregation.screening.domain.vos.SchoolGradeVO;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
+import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolClassDTO;
@@ -17,6 +18,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudent
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
+import com.wupol.myopia.business.core.screening.flow.util.EyeDataUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -52,6 +54,8 @@ public class ScreeningPlanSchoolStudentFacadeService {
 
     @Autowired
     private VisionScreeningResultService visionScreeningResultService;
+
+
 
     /**
      * 获取计划中的学校年级情况
@@ -127,21 +131,21 @@ public class ScreeningPlanSchoolStudentFacadeService {
     public void setStudentEyeInfor(ScreeningStudentDTO studentEyeInfor){
         VisionScreeningResult visionScreeningResult = getVisionScreeningResult(studentEyeInfor);
 
-        studentEyeInfor.setGlassesType(visionScreeningResult.getVisionData().getRightEyeData().getGlassesType());//是否戴镜情况
+        studentEyeInfor.setGlassesTypeDes(EyeDataUtil.glassesType(visionScreeningResult));//是否戴镜情况
 
-        String nakedVision = visionScreeningResult.getVisionData().getRightEyeData().getNakedVision()+"/"+visionScreeningResult.getVisionData().getLeftEyeData().getNakedVision();
+        String nakedVision = EyeDataUtil.visionRightDataToStr(visionScreeningResult)+"/"+EyeDataUtil.visionLeftDataToStr(visionScreeningResult);
         studentEyeInfor.setNakedVision(nakedVision);//裸视力
 
-        String correctedVision = visionScreeningResult.getVisionData().getRightEyeData().getCorrectedVision()+"/"+visionScreeningResult.getVisionData().getLeftEyeData().getCorrectedVision();
+        String correctedVision = EyeDataUtil.correcteRightDataToStr(visionScreeningResult)+"/"+EyeDataUtil.correcteLeftDataToStr(visionScreeningResult);
         studentEyeInfor.setCorrectedVision(correctedVision);//矫正 视力
 
-        String sph = visionScreeningResult.getComputerOptometry().getRightEyeData().getSph()+"/"+visionScreeningResult.getComputerOptometry().getLeftEyeData().getSph();
+        String sph = EyeDataUtil.computerRightSph(visionScreeningResult)+"/"+EyeDataUtil.computerLeftSph(visionScreeningResult);
         studentEyeInfor.setSph(sph);//球镜
 
-        String cyl = visionScreeningResult.getComputerOptometry().getRightEyeData().getCyl()+"/"+visionScreeningResult.getComputerOptometry().getLeftEyeData().getCyl();
+        String cyl = EyeDataUtil.computerRightCyl(visionScreeningResult)+"/"+EyeDataUtil.computerLeftCyl(visionScreeningResult);
         studentEyeInfor.setCyl(cyl);//柱镜
 
-        String axial = visionScreeningResult.getComputerOptometry().getRightEyeData().getAxial()+"/"+visionScreeningResult.getComputerOptometry().getLeftEyeData().getAxial();
+        String axial = EyeDataUtil.computerRightAxial(visionScreeningResult)+"/"+EyeDataUtil.computerLeftAxial(visionScreeningResult);
         studentEyeInfor.setAxial(axial);//眼轴
 
     }
@@ -154,5 +158,5 @@ public class ScreeningPlanSchoolStudentFacadeService {
         }
         return visionScreeningResults.get(0);
     }
-
+//
 }

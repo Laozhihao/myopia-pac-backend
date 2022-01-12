@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.controller;
 
+import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
@@ -97,12 +98,13 @@ public class DeviceReportTemplateController {
      *
      */
     @GetMapping("/excel")
-    public void getExcelExportData(@RequestParam("ids") @NotEmpty(message = "Id不能为空") List<Integer> ids) {
+    public Object  getExcelExportData(@RequestParam("ids") @NotEmpty(message = "Id不能为空") List<Integer> ids) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        exportStrategy.syncExport(new ExportCondition()
+       String path  =  exportStrategy.syncExport(new ExportCondition()
                         .setApplyExportFileUserId(currentUser.getId())
                         .setIds(ids),
                 ExportExcelServiceNameConstant.VS_DATA_EXCEL_SERVICE);
+        return ApiResult.success(path);
     }
 
 

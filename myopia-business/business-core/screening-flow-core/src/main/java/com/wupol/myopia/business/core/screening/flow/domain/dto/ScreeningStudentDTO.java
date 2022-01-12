@@ -108,4 +108,6 @@ public class ScreeningStudentDTO extends StudentDO {
      * 轴位 右/左
      */
     private String axial;
+
+    private String glassesTypeDes;
 }
