@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
+import com.wupol.myopia.business.core.hospital.domain.dos.ReferralDO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -48,9 +49,10 @@ public class PreschoolCheckRecord extends SpecialMedical implements Serializable
     private Boolean isReferral;
 
     /**
-     * 检查前-转诊id
+     * 转诊前-转诊单
      */
-    private Integer fromReferralId;
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private ReferralDO fromReferral;
 
     /**
      * 月龄[0-新生儿；1-满月；2-3月龄；3-6月龄；4-8月龄；5-12月龄；6-18月龄；7-24月龄；8-30月龄；9-36月龄；10-4岁；11-5岁；12-6岁；]

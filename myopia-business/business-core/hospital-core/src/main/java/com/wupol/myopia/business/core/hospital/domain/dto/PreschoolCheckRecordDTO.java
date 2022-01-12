@@ -135,11 +135,6 @@ public class PreschoolCheckRecordDTO extends PreschoolCheckRecord {
     private Integer receiptId;
 
     /**
-     * 转诊前-转诊单
-     */
-    private ReferralRecord fromReferral;
-
-    /**
      * 转诊后-转诊单
      */
     private ReferralRecord toReferral;

@@ -9,6 +9,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -36,17 +38,14 @@ public class ReferralRecord implements Serializable {
     /**
      * 生成转诊的眼保健检查单id
      */
+    @NotNull
     private Integer preschoolCheckRecordId;
 
     /**
      * 学生id
      */
+    @NotNull
     private Integer studentId;
-
-    /**
-     * 申请时间
-     */
-    private Date applyTime;
 
     /**
      * 申请医院id
@@ -54,19 +53,9 @@ public class ReferralRecord implements Serializable {
     private Integer fromHospitalId;
 
     /**
-     * 申请医院名称
-     */
-    private String fromHospital;
-
-    /**
      * 申请医师id
      */
     private Integer fromDoctorId;
-
-    /**
-     * 申请医师名
-     */
-    private String fromDoctor;
 
     /**
      * 目标医院id
@@ -76,11 +65,13 @@ public class ReferralRecord implements Serializable {
     /**
      * 目标医院名称
      */
+    @NotBlank
     private String toHospital;
 
     /**
      * 目标科室名称
      */
+    @NotBlank
     private String toDepartment;
 
     /**
