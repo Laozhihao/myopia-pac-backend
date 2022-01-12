@@ -61,7 +61,7 @@ public class HospitalStudentController {
     }
 
     @PostMapping()
-    public ApiResult<String> saveStudentArchive(@RequestBody @Valid HospitalStudentVO studentVo) {
+    public ApiResult<Integer> saveStudentArchive(@RequestBody @Valid HospitalStudentVO studentVo) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         Integer hospitalId = user.getOrgId();
         studentVo.setHospitalId(hospitalId);
@@ -71,8 +71,8 @@ public class HospitalStudentController {
         }
         studentVo.setCreateUserId(user.getId());
         studentVo.setStudentType(hospitalStudentService.getStudentType(user.getClientId(), studentVo.getStudentType()));
-        hospitalStudentFacade.saveStudent(studentVo, true);
-        return ApiResult.success("建档成功");
+        Integer studentId = hospitalStudentFacade.saveStudent(studentVo, true);
+        return ApiResult.success(studentId);
     }
 
     @PutMapping()

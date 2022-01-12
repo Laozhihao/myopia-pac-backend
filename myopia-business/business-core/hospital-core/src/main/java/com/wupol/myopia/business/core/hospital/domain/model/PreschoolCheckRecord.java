@@ -22,7 +22,7 @@ import java.util.Date;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @TableName("h_preschool_check_record")
-public class PreschoolCheckRecord implements Serializable {
+public class PreschoolCheckRecord extends SpecialMedical implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -41,6 +41,11 @@ public class PreschoolCheckRecord implements Serializable {
      * 医院id
      */
     private Integer hospitalId;
+
+    /**
+     * 是否有检查前转诊信息
+     */
+    private Boolean isReferral;
 
     /**
      * 检查前-转诊id
@@ -89,34 +94,10 @@ public class PreschoolCheckRecord implements Serializable {
     private BaseMedicalResult visualBehaviorObservation;
 
     /**
-     * 红光反射
-     */
-    @TableField(typeHandler = JacksonTypeHandler.class)
-    private BaseMedicalResult redReflex;
-
-    /**
-     * 眼位检查
-     */
-    @TableField(typeHandler = JacksonTypeHandler.class)
-    private BaseMedicalResult ocularInspection;
-
-    /**
      * 视力检查
      */
     @TableField(typeHandler = JacksonTypeHandler.class)
     private VisionMedicalRecord visionData;
-
-    /**
-     * 单眼遮盖厌恶试验
-     */
-    @TableField(typeHandler = JacksonTypeHandler.class)
-    private BaseMedicalResult monocularMaskingAversionTest;
-
-    /**
-     * 屈光检查
-     */
-    @TableField(typeHandler = JacksonTypeHandler.class)
-    private DiopterMedicalRecord refractionData;
 
     /**
      * 健康指导
@@ -132,16 +113,6 @@ public class PreschoolCheckRecord implements Serializable {
      * 总休情况[0 异常 ；1 正常]
      */
     private Integer status;
-
-    /**
-     * 检查后转诊id
-     */
-    private Integer toReferralId;
-
-    /**
-     * 回执单id
-     */
-    private Integer receiptId;
 
     /**
      * 更新时间

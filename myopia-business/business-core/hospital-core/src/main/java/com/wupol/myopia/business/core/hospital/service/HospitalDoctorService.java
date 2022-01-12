@@ -24,6 +24,8 @@ import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.SetUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -332,6 +334,31 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
                 throw new BusinessException("非法请求", ResultCode.USER_ACCESS_UNAUTHORIZED.getCode());
             }
         }
+    }
+
+    /**
+     * 获取医生名称
+     * @param doctorIds
+     * @return
+     */
+    public Map<Integer, String> getDoctorNameByIds(Set<Integer> doctorIds) {
+        if (CollectionUtils.isEmpty(doctorIds)) {
+            return MapUtils.EMPTY_SORTED_MAP;
+        }
+        return baseMapper.getDoctorNameByIds(doctorIds).stream().collect(Collectors.toMap(Doctor::getId, Doctor::getName));
+    }
+
+    /**
+     * 获取医师名称包含name的医师doctorId
+     * @param hospitalId
+     * @param name
+     * @return
+     */
+    public Set<Integer> getDoctorIdByName(Integer hospitalId, String name) {
+        if (StringUtils.isBlank(name)) {
+            return SetUtils.EMPTY_SET;
+        }
+        return baseMapper.getDoctorIdByName(hospitalId, name).stream().map(Doctor::getId).collect(Collectors.toSet());
     }
 
 }

@@ -17,6 +17,7 @@
         <where>
             <trim prefixOverrides="and">
                 <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(preschoolCheckRecordId)">and `preschool_check_record_id` = #{preschoolCheckRecordId}</if>
                 <if test="@Ognl@isNotEmpty(studentId)">and `student_id` = #{studentId}</if>
                 <if test="@Ognl@isNotEmpty(applyTime)">and `apply_time` = #{applyTime}</if>
                 <if test="@Ognl@isNotEmpty(fromHospitalId)">and `from_hospital_id` = #{fromHospitalId}</if>
@@ -38,16 +39,26 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, student_id, apply_time, from_hospital_id, from_hospital, from_doctor_id, from_doctor, to_hospital_id, to_hospital,
+        id, preschool_check_record_id, student_id, apply_time, from_hospital_id, from_hospital, from_doctor_id, from_doctor, to_hospital_id, to_hospital,
         to_department, special_medical, disease_medical, conclusion, referral_status, update_time, create_time
     </sql>
 
     <select id="getDetails" resultMap="ReferralDTO">
-        select rr.*, hs.`name` as student_name, hs.gender, hs.record_no, hs.birthday, hs.id_card, hs.family_info
+        select rr.*, hs.`name` as student_name, hs.gender, hs.record_no, hs.birthday, hs.id_card, hs.family_info, pcr.month_age
         from h_referral_record rr
         INNER JOIN h_hospital_student hs
         on rr.student_id = hs.student_id and hs.hospital_id = rr.from_hospital_id
+		LEFT JOIN h_preschool_check_record pcr
+		on pcr.id = rr.preschool_check_record_id
         where rr.id = #{id}
+    </select>
+
+    <select id="getByStudentId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from h_referral_record
+        where student_id = #{studentId}
+        order by update_time desc;
     </select>
 
 </mapper>

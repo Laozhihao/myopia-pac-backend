@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.hospital.domain.dto.PreschoolCheckRecordDTO;
+import com.wupol.myopia.business.core.hospital.domain.dto.StudentPreschoolCheckRecordDTO;
 import com.wupol.myopia.business.core.hospital.domain.query.PreschoolCheckRecordQuery;
 import com.wupol.myopia.business.core.hospital.service.PreschoolCheckRecordService;
 import lombok.extern.slf4j.Slf4j;
@@ -47,6 +48,16 @@ public class PreschoolCheckRecordController {
     @GetMapping("/{id}")
     public PreschoolCheckRecordDTO getDetails(@PathVariable("id") Integer id) {
         return preschoolCheckRecordService.getDetails(id);
+    }
+
+    /**
+     * 获取学生检查总体信息
+     * @param studentId
+     * @return
+     */
+    @GetMapping("/student/totality")
+    public StudentPreschoolCheckRecordDTO getStudentTotalityInfo(Integer hospitalId, Integer studentId) {
+        return preschoolCheckRecordService.getInit(hospitalId, studentId);
     }
 
 }

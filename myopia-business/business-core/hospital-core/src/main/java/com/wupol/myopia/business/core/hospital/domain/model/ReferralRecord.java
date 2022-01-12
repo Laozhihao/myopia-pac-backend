@@ -34,6 +34,11 @@ public class ReferralRecord implements Serializable {
     private Integer id;
 
     /**
+     * 生成转诊的眼保健检查单id
+     */
+    private Integer preschoolCheckRecordId;
+
+    /**
      * 学生id
      */
     private Integer studentId;

@@ -469,19 +469,6 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     }
 
     /**
-     * 处理学校状态
-     * @return
-     */
-    public int handleSchoolStatus(Date date) {
-        List<School> schools = getUnhandleSchool(date);
-        int result = 0;
-        for (School school : schools) {
-            result += updateSchoolStatus(school.getId(), school.getCooperationStopStatus(), school.getStatus());
-        }
-        return result;
-    }
-
-    /**
      * 获取状态未更新的学校（已到合作开始时间未启用，已到合作结束时间未停止）
      * @return
      */

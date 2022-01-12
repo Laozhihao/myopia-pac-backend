@@ -82,4 +82,26 @@
         from h_doctor
     </select>
 
+    <select id="getDoctorNameByIds" resultMap="BaseResultMap">
+        select *
+        from h_doctor
+        where id in
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="getDoctorIdByName" resultMap="BaseResultMap">
+        select *
+        from h_doctor
+        <where>
+            <trim prefixOverrides="and">
+                AND name like CONCAT("%",#{name},"%")
+                <if test="@Ognl@isNotEmpty(hospitalId)">
+                  and `hospital_id` = #{hospitalId}
+                </if>
+            </trim>
+        </where>
+    </select>
+
 </mapper>

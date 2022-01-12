@@ -3,6 +3,7 @@ package com.wupol.myopia.business.core.hospital.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.hospital.constant.StudentTypeEnum;
 import com.wupol.myopia.business.core.hospital.domain.dos.HospitalStudentDO;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -148,6 +150,19 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
     public List<HospitalStudent> getByStudentId(Integer studentId) {
         return baseMapper.getByStudentId(studentId);
     }
+
+    /**
+     * 通过医院id跟学生id获取医院学生信息
+     * @param hospitalId
+     * @param studentId
+     * @return
+     */
+    public HospitalStudentResponseDTO getByHospitalIdAndStudentId(Integer hospitalId, Integer studentId) {
+        HospitalStudentResponseDTO hospitalStudent = baseMapper.getByHospitalIdAndStudentId(hospitalId, studentId);
+        hospitalStudent.setBirthdayInfo(DateUtil.getAgeInfo(hospitalStudent.getBirthday(), new Date()));
+        return hospitalStudent;
+    }
+
 
     /**
      * 获取学生类型

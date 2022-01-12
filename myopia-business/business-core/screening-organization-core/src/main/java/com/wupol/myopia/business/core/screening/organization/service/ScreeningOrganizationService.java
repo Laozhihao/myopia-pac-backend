@@ -363,19 +363,6 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     }
 
     /**
-     * 处理机构状态，将已过合作时间但未处理为禁止的机构设置为禁止
-     * @return
-     */
-    public int handleOrganizationStatus(Date date) {
-        List<ScreeningOrganization> orgs = getUnhandleOrganization(date);
-        int result = 0;
-        for (ScreeningOrganization org : orgs) {
-            result += updateOrganizationStatus(org.getId(), org.getCooperationStopStatus(), org.getStatus());
-        }
-        return result;
-    }
-
-    /**
      * 获取状态未更新的机构（已到合作开始时间未启用，已到合作结束时间未停止）
      * @return
      */
