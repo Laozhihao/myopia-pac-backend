@@ -3,6 +3,7 @@ package com.wupol.myopia.business.aggregation.screening.service;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.base.domain.vo.PdfGeneratorVO;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.ListUtil;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
 import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;
@@ -20,6 +21,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudent
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,6 +39,7 @@ import java.util.UUID;
  * @Date 2021/9/16
  **/
 @Service
+@Log4j2
 public class ScreeningPlanStudentBizService {
 
     @Value("${report.html.url-host}")
@@ -171,7 +174,12 @@ public class ScreeningPlanStudentBizService {
         String fileName = getFileName(schoolId, gradeId);
         cacheInfo(uuid, userId, fileName);
         String screeningNoticeResultHtmlUrl = String.format(SCREENING_NOTICE_RESULT_HTML_URL, htmlUrlHost, planId, schoolId, gradeId, classId, orgId, planStudentIdStr, isSchoolClient);
-        html2PdfService.asyncGeneratorPDF(screeningNoticeResultHtmlUrl, fileName, uuid);
+        PdfResponseDTO responseDTO = html2PdfService.asyncGeneratorPDF(screeningNoticeResultHtmlUrl, fileName, uuid);
+        if (responseDTO.getStatus().equals(false)) {
+            // 错误删除时候删除缓存信息
+            redisUtil.del(uuid);
+            throw new BusinessException("异步导出学生报告异常");
+        }
     }
 
     /**

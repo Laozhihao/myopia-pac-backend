@@ -14,8 +14,14 @@ import lombok.Setter;
 @NoArgsConstructor
 public class PdfGeneratorVO {
 
+    /**
+     * 用户Id
+     */
     private Integer userId;
 
+    /**
+     * 文件名称
+     */
     private String fileName;
 
     public PdfGeneratorVO(Integer userId, String fileName) {
