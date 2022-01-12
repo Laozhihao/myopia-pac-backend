@@ -221,16 +221,33 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
         if (CollectionUtils.isNotEmpty(canCheckMonthAge) && 1== canCheckMonthAge.size()) {
             return canCheckMonthAge.get(0);
         }
-        // 首选未检查信息
-        List<Integer> collect = records.stream().map(record -> record.getMonthAge()).collect(Collectors.toList());
-        List<Integer> unCheckMonthAgeByCanCheck = canCheckMonthAge.stream().filter(x -> !collect.contains(x)).collect(Collectors.toList());
-        // 当前需检查的都已检查，选中最后的检查项
-        if (CollectionUtils.isEmpty(unCheckMonthAgeByCanCheck)) {
-            return canCheckMonthAge.get(canCheckMonthAge.size() - 1);
-        } else {
-            // 若存在应检未检的，选中该年龄段最小月龄
-            return unCheckMonthAgeByCanCheck.get(0);
+        // 获取当前可检查的已检查记录(按创建时间倒序)
+        List<PreschoolCheckRecord> recordOnMonthAgeCheck = records.stream().filter(x -> canCheckMonthAge.contains(x.getMonthAge()))
+                .sorted(Comparator.comparing(PreschoolCheckRecord::getCreateTime).reversed()).collect(Collectors.toList());
+        // 当前都未检查，选中最早的检查
+        if (CollectionUtils.isEmpty(recordOnMonthAgeCheck)) {
+            return canCheckMonthAge.get(0);
         }
+        Date now = new Date();
+        // 其中一个已检查 TODO wulizhou 可修改时选择当前，不可修改时选择另一个时间段
+        if (1 == recordOnMonthAgeCheck.size()) {
+            PreschoolCheckRecord hasCheck = recordOnMonthAgeCheck.get(0);
+            return DateUtil.betweenDay(hasCheck.getCreateTime(), now) > 3 ?
+                    canCheckMonthAge.get(0).equals(hasCheck.getMonthAge()) ? canCheckMonthAge.get(1) : canCheckMonthAge.get(0)
+                    : hasCheck.getMonthAge();
+        }
+        // 两个都已检查
+        // 都已无法修改，选择最迟的检查
+        if (DateUtil.betweenDay(recordOnMonthAgeCheck.get(0).getCreateTime(), now) > 3) {
+            return canCheckMonthAge.get(1);
+        }
+        // 一个无法修改，取可修改的
+        if (DateUtil.betweenDay(recordOnMonthAgeCheck.get(1).getCreateTime(), now) > 3) {
+            return canCheckMonthAge.get(0);
+        }
+        // 两个都可修改，取最新修改的
+        return recordOnMonthAgeCheck.stream().sorted(Comparator.comparing(PreschoolCheckRecord::getUpdateTime).reversed())
+                .findFirst().get().getMonthAge();
     }
 
     /**

@@ -3,6 +3,7 @@ package com.wupol.myopia.business.api.preschool.app.controller;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.core.hospital.domain.dto.ReceiptDTO;
 import com.wupol.myopia.business.core.hospital.domain.model.ReceiptList;
 import com.wupol.myopia.business.core.hospital.service.PreschoolCheckRecordService;
 import com.wupol.myopia.business.core.hospital.service.ReceiptListService;
@@ -29,6 +30,11 @@ public class ReceiptController {
 
     @Autowired
     private PreschoolCheckRecordService preschoolCheckRecordService;
+
+    @GetMapping("/details")
+    public ReceiptDTO getDetails(@RequestParam Integer preshcoolCheckRecordId) {
+        return receiptListService.getDetailsByHospitalAndPreschoolCheckRecordId(CurrentUserUtil.getCurrentUser().getOrgId(), preshcoolCheckRecordId);
+    }
 
     /**
      * 保存转诊单

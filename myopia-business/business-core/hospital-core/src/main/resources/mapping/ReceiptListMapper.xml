@@ -15,17 +15,17 @@
     <sql id="Base_Where_Clause">
         <where>
             <trim prefixOverrides="and">
-                <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
-                <if test="@Ognl@isNotEmpty(preschoolCheckRecordId)">and `preschool_check_record_id` = #{preschoolCheckRecordId}</if>
-                <if test="@Ognl@isNotEmpty(studentId)">and `student_id` = #{studentId}</if>
-                <if test="@Ognl@isNotEmpty(specialMedical)">and `special_medical` = #{specialMedical}</if>
-                <if test="@Ognl@isNotEmpty(medicalResult)">and `medical_result` = #{medicalResult}</if>
-                <if test="@Ognl@isNotEmpty(furtherReferral)">and `further_referral` = #{furtherReferral}</if>
-                <if test="@Ognl@isNotEmpty(referralHospital)">and `referral_hospital` = #{referralHospital}</if>
-                <if test="@Ognl@isNotEmpty(fromHospitalId)">and `from_hospital_id` = #{fromHospitalId}</if>
-                <if test="@Ognl@isNotEmpty(fromDoctorId)">and `from_doctor_id` = #{fromDoctorId}</if>
-                <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
-                <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+                <if test="@Ognl@isNotEmpty(id)">and rl.`id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(preschoolCheckRecordId)">and rl.`preschool_check_record_id` = #{preschoolCheckRecordId}</if>
+                <if test="@Ognl@isNotEmpty(studentId)">and rl.`student_id` = #{studentId}</if>
+                <if test="@Ognl@isNotEmpty(specialMedical)">and rl.`special_medical` = #{specialMedical}</if>
+                <if test="@Ognl@isNotEmpty(medicalResult)">and rl.`medical_result` = #{medicalResult}</if>
+                <if test="@Ognl@isNotEmpty(furtherReferral)">and rl.`further_referral` = #{furtherReferral}</if>
+                <if test="@Ognl@isNotEmpty(referralHospital)">and rl.`referral_hospital` = #{referralHospital}</if>
+                <if test="@Ognl@isNotEmpty(fromHospitalId)">and rl.`from_hospital_id` = #{fromHospitalId}</if>
+                <if test="@Ognl@isNotEmpty(fromDoctorId)">and rl.`from_doctor_id` = #{fromDoctorId}</if>
+                <if test="@Ognl@isNotEmpty(updateTime)">and rl.`update_time` = #{updateTime}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and rl.`create_time` = #{createTime}</if>
             </trim>
         </where>
     </sql>
@@ -47,7 +47,7 @@
         ON d.id = rl.from_doctor_id
         LEFT JOIN h_preschool_check_record pcr
 		on pcr.id = rl.preschool_check_record_id
-        where rl.id = #{id}
+        <include refid="Base_Where_Clause" />
     </select>
 
 </mapper>

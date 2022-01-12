@@ -7,13 +7,14 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.hospital.domain.dto.PreschoolCheckRecordDTO;
 import com.wupol.myopia.business.core.hospital.domain.dto.StudentPreschoolCheckRecordDTO;
-import com.wupol.myopia.business.core.hospital.domain.model.*;
+import com.wupol.myopia.business.core.hospital.domain.model.PreschoolCheckRecord;
 import com.wupol.myopia.business.core.hospital.domain.query.PreschoolCheckRecordQuery;
 import com.wupol.myopia.business.core.hospital.service.PreschoolCheckRecordService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * @Author wulizhou
@@ -79,15 +80,48 @@ public class CheckRecordController {
     }
 
     /**
-     * 保存检查单-眼外观
+     * 根据 id 获取检查前转诊
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping("/checkRecord/fromReferral/{id}")
+    public PreschoolCheckRecord getCheckRecordFromReferralById(@PathVariable("id") Integer id) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        Integer hospitalId = user.getOrgId();
+        PreschoolCheckRecord checkRecord = preschoolCheckRecordService.getById(id, hospitalId);
+        return Objects.nonNull(checkRecord) ? new PreschoolCheckRecord()
+                .setIsReferral(checkRecord.getIsReferral()).setFromReferral(checkRecord.getFromReferral()) : null;
+    }
+
+    /**
+     * 保存检查单
      *
      * @param checkRecord 检查单
      * @return
      */
     @PostMapping("/checkRecord")
-    public void saveOuterEyeCheckRecord(@RequestBody PreschoolCheckRecord checkRecord) {
+    public void saveCheckRecord(@RequestBody PreschoolCheckRecord checkRecord) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         checkRecord.setHospitalId(user.getOrgId());
+        preschoolCheckRecordService.saveCheckRecord(checkRecord);
+    }
+
+    /**
+     * 保存检查单-检查前转诊信息
+     *
+     * @param checkRecord 检查单
+     * @return
+     */
+    @PostMapping("/checkRecord/fromReferral")
+    public void saveCheckRecordFromReferral(@RequestBody PreschoolCheckRecord checkRecord) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        checkRecord.setHospitalId(user.getOrgId());
+        if (Objects.isNull(checkRecord.getFromReferral())) {
+            checkRecord.setIsReferral(false);
+        } else {
+            checkRecord.setIsReferral(true);
+        }
         preschoolCheckRecordService.saveCheckRecord(checkRecord);
     }
 

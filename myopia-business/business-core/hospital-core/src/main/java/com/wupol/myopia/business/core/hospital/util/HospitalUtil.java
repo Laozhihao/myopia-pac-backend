@@ -50,6 +50,7 @@ public class HospitalUtil {
      * @param parentInfo
      */
     public static void setParentInfo(HasParentInfoInterface parentInfo) {
+        if (Objects.isNull(parentInfo)) return;
         TwoTuple<String, String> parentNameAndPhone = HospitalUtil.getParentNameAndPhone(parentInfo.getFamilyInfo());
         if (Objects.nonNull(parentNameAndPhone)) {
             parentInfo.setParentName(parentNameAndPhone.getFirst());
