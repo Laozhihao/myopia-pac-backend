@@ -3,7 +3,7 @@ package com.wupol.myopia.business.aggregation.export.excel.imports;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
-import com.wupol.myopia.base.util.IdCardUtil;
+import com.wupol.myopia.business.common.utils.util.IdCardUtil;
 import com.wupol.myopia.base.util.ListUtil;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;

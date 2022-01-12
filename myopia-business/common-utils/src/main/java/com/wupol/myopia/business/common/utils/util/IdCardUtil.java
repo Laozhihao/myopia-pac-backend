@@ -1,6 +1,7 @@
-package com.wupol.myopia.base.util;
+package com.wupol.myopia.business.common.utils.util;
 
 import cn.hutool.core.util.IdcardUtil;
+import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Date;
@@ -25,10 +26,10 @@ public class IdCardUtil {
         }
         int gender = IdcardUtil.getGenderByIdCard(idCard);
         if (gender == 1) {
-            return 0;
+            return GenderEnum.MALE.type;
         }
         if (gender == 0) {
-            return 1;
+            return GenderEnum.FEMALE.type;
         }
         return null;
     }
