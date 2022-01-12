@@ -580,7 +580,7 @@ public class ParentStudentBizService {
         if (Objects.isNull(student) && CollectionUtils.isEmpty(planStudents)) {
             throw new BusinessException("该学生筛查编号/身份证/学籍号/姓名错误");
         }
-        responseDTO.setStudentId(student.getId());
+        responseDTO.setStudentId(Objects.nonNull(student) ? student.getId() : planStudents.get(0).getStudentId());
 
         // 查询报告
         if (!CollectionUtils.isEmpty(planStudents)) {
