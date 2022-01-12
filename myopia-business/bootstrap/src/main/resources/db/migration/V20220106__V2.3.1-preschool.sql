@@ -2,6 +2,7 @@ CREATE TABLE `h_preschool_check_record`  (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键id',
   `student_id` int(11) NOT NULL COMMENT '学生id',
   `hospital_id` int(11) NOT NULL COMMENT '医院id',
+  `is_referral` tinyint(4) NULL DEFAULT 0 COMMENT '是否有检查前转诊信息[0-没有；1-有]',
   `from_referral_id` int(11) NULL DEFAULT NULL COMMENT '检查前-转诊id',
   `month_age` tinyint(4) NOT NULL COMMENT '月龄[0-新生儿；1-满月；2-3月龄；3-6月龄；4-8月龄；5-12月龄；6-18月龄；7-24月龄；8-30月龄；9-36月龄；10-4岁；11-5岁；12-6岁；]',
   `outer_eye` json NULL COMMENT '眼外观',
@@ -18,8 +19,6 @@ CREATE TABLE `h_preschool_check_record`  (
   `guide_content` varchar(320) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '健康指导',
   `conclusion` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '眼病筛查及视力评估',
   `status` tinyint(4) NULL DEFAULT 0 COMMENT '总休情况[0 异常 ；1 正常]',
-  `to_referral_id` int(11) NULL DEFAULT NULL COMMENT '检查后转诊id',
-  `receipt_id` int(11) NULL DEFAULT NULL COMMENT '回执单id',
   `update_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
   `create_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE,
@@ -28,6 +27,7 @@ CREATE TABLE `h_preschool_check_record`  (
 
 CREATE TABLE `h_receipt_list`  (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `preschool_check_record_id` int(11) NOT NULL COMMENT '生成回执的眼保健检查单id',
   `student_id` int(11) NOT NULL COMMENT '学生id',
   `special_medical` json NULL COMMENT '专项检查情况',
   `medical_result` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '诊断结果',
@@ -42,6 +42,7 @@ CREATE TABLE `h_receipt_list`  (
 
 CREATE TABLE `h_referral_record`  (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `preschool_check_record_id` int(11) NULL DEFAULT NULL COMMENT '生成转诊的眼保健检查单id',
   `student_id` int(11) NOT NULL COMMENT '学生id',
   `apply_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '申请时间',
   `from_hospital_id` int(11) NULL DEFAULT NULL COMMENT '申请医院id',

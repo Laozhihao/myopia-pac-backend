@@ -5,6 +5,8 @@ import com.wupol.myopia.business.core.hospital.domain.dto.ReferralDTO;
 import com.wupol.myopia.business.core.hospital.domain.model.ReferralRecord;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+
 
 /**
  * 转诊信息表Mapper接口
@@ -20,5 +22,12 @@ public interface ReferralRecordMapper extends BaseMapper<ReferralRecord> {
      * @return
      */
     ReferralDTO getDetails(@Param("id") Integer id);
+
+    /**
+     * 获取指定学生转诊单信息
+     * @param studentId
+     * @return
+     */
+    List<ReferralRecord> getByStudentId(@Param("studentId") Integer studentId);
 
 }

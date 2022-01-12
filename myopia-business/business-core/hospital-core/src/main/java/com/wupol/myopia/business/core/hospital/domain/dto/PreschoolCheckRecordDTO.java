@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.hospital.domain.dto;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wupol.myopia.base.domain.vo.FamilyInfoVO;
 import com.wupol.myopia.business.core.hospital.domain.model.BaseValue;
 import com.wupol.myopia.business.core.hospital.domain.model.PreschoolCheckRecord;
@@ -9,9 +10,10 @@ import com.wupol.myopia.business.core.hospital.domain.model.ReferralRecord;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.apache.commons.lang3.StringUtils;
 
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Author wulizhou
@@ -64,6 +66,18 @@ public class PreschoolCheckRecordDTO extends PreschoolCheckRecord {
     private String hospitalName;
 
     /**
+     * 医生id集，字符串，如1,2,3
+     */
+    @JsonIgnore
+    private String doctorIdsStr;
+
+    /**
+     * 医生id集
+     */
+    @JsonIgnore
+    private Set<Integer> doctorIds;
+
+    /**
      * 医师
      */
     private String doctorsName;
@@ -111,6 +125,16 @@ public class PreschoolCheckRecordDTO extends PreschoolCheckRecord {
     private List<MonthAgeStatusDTO> ageStageStatusList;
 
     /**
+     * 检查后转诊id
+     */
+    private Integer toReferralId;
+
+    /**
+     * 回执单id
+     */
+    private Integer receiptId;
+
+    /**
      * 转诊前-转诊单
      */
     private ReferralRecord fromReferral;
@@ -119,5 +143,18 @@ public class PreschoolCheckRecordDTO extends PreschoolCheckRecord {
      * 转诊后-转诊单
      */
     private ReferralRecord toReferral;
+
+    /**
+     * 填充doctorId集
+     * @param doctorIdsStr
+     * @return
+     */
+    public PreschoolCheckRecordDTO setDoctorIdsStr(String doctorIdsStr) {
+        this.doctorIdsStr = doctorIdsStr;
+        this.doctorIds = StringUtils.isBlank(doctorIdsStr) ? new HashSet<>() :
+            Arrays.stream(doctorIdsStr.split(","))
+                    .map(doctorIdStr -> Integer.valueOf(doctorIdStr)).collect(Collectors.toSet());
+        return this;
+    }
 
 }

@@ -30,6 +30,7 @@
                 <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
                 <if test="@Ognl@isNotEmpty(studentId)">and `student_id` = #{studentId}</if>
                 <if test="@Ognl@isNotEmpty(hospitalId)">and `hospital_id` = #{hospitalId}</if>
+                <if test="@Ognl@isNotEmpty(isReferral)">and `is_referral` = #{isReferral}</if>
                 <if test="@Ognl@isNotEmpty(fromReferralId)">and `from_referral_id` = #{fromReferralId}</if>
                 <if test="@Ognl@isNotEmpty(monthAge)">and `month_age` = #{monthAge}</if>
                 <if test="@Ognl@isNotEmpty(outerEye)">and `outer_eye` = #{outerEye}</if>
@@ -46,8 +47,6 @@
                 <if test="@Ognl@isNotEmpty(guideContent)">and `guide_content` = #{guideContent}</if>
                 <if test="@Ognl@isNotEmpty(conclusion)">and `conclusion` = #{conclusion}</if>
                 <if test="@Ognl@isNotEmpty(status)">and `status` = #{status}</if>
-                <if test="@Ognl@isNotEmpty(toReferralId)">and `to_referral_id` = #{toReferralId}</if>
-                <if test="@Ognl@isNotEmpty(receiptId)">and `receipt_id` = #{receiptId}</if>
                 <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
             </trim>
@@ -56,29 +55,45 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, student_id, hospital_id, from_referral_id, month_age, outer_eye, eye_disease_factor, light_reaction, blink_reflex,
+        id, student_id, hospital_id, is_referral, from_referral_id, month_age, outer_eye, eye_disease_factor, light_reaction, blink_reflex,
         red_ball_test, visual_behavior_observation, red_reflex, ocular_inspection, vision_data, monocular_masking_aversion_test,
-        refraction_data, guide_content, conclusion, status, to_referral_id, receipt_id, update_time, create_time
+        refraction_data, guide_content, conclusion, status, update_time, create_time
+    </sql>
+
+    <sql id="GetCheckDoctor">
+        CONCAT_WS(',', json_extract(pcr.outer_eye,'$.doctorId'), json_extract(pcr.eye_disease_factor,'$.doctorId'),
+        json_extract(pcr.light_reaction,'$.doctorId'), json_extract(pcr.blink_reflex,'$.doctorId'),
+        json_extract(pcr.red_ball_test,'$.doctorId'), json_extract(pcr.visual_behavior_observation,'$.doctorId'),
+        json_extract(pcr.red_reflex,'$.doctorId'), json_extract(pcr.ocular_inspection,'$.doctorId'),
+        json_extract(pcr.vision_data,'$.doctorId'), json_extract(pcr.monocular_masking_aversion_test,'$.doctorId'),
+        json_extract(pcr.refraction_data,'$.doctorId')) as doctor_ids_str
+    </sql>
+
+    <sql id="DoctorIdWhere">
+        <foreach collection="query.doctorIds" item="doctorId" index="index" open="(" close=")" separator=",">
+            #{doctorId}
+        </foreach>
     </sql>
 
     <select id="getDetails" resultMap="PreschoolCheckRecordDTO">
         select pcr.*, hs.`name` as student_name, hs.gender, hs.record_no, hs.birthday, hs.id_card, hs.sno, hs.parent_phone,
         hs.is_newborn_without_id_card as has_id_card, hs.family_info,
-        h.`name` as hospital_name, rr.to_hospital, rr.special_medical, rr.disease_medical, rr.conclusion as referral_conclusion
+        h.`name` as hospital_name, rr.to_hospital, rr.special_medical, rr.disease_medical, rr.conclusion as referral_conclusion,
+        rr.id as to_referral_id, rl.id as receipt_id,
+        <include refid="GetCheckDoctor" />
         from h_preschool_check_record pcr
         INNER JOIN h_hospital_student hs
         on pcr.student_id = hs.student_id AND hs.hospital_id = pcr.hospital_id
-        LEFT JOIN m_hospital h
-        ON h.id = pcr.hospital_id
-        LEFT JOIN h_referral_record rr
-        ON rr.id = pcr.to_referral_id
+        LEFT JOIN m_hospital h ON h.id = pcr.hospital_id
+        LEFT JOIN h_referral_record rr ON rr.preschool_check_record_id = pcr.id
+        LEFT JOIN h_receipt_list rl ON rl.preschool_check_record_id = pcr.id
         where pcr.id = #{id}
     </select>
 
     <select id="getListByCondition" resultMap="PreschoolCheckRecordDTO">
         SELECT
-            pcr.id, pcr.student_id, pcr.hospital_id, pcr.from_referral_id, pcr.month_age, pcr.guide_content, pcr.conclusion,
-            pcr.status, pcr.to_referral_id, pcr.receipt_id, pcr.update_time, pcr.create_time,
+            pcr.id, pcr.is_referral, pcr.student_id, pcr.hospital_id, pcr.from_referral_id, pcr.month_age, pcr.guide_content, pcr.conclusion,
+            pcr.status, pcr.update_time, pcr.create_time,
             hs.id as hospital_student_id,
             hs.`name` AS student_name,
             hs.gender,
@@ -87,15 +102,19 @@
             hs.id_card,
             h.`name` AS hospital_name,
             rr.to_hospital, rr.referral_status, rr.conclusion as referral_conclusion,
-            rr.special_medical, rr.disease_medical
+            rr.special_medical, rr.disease_medical,
+            rr.id as to_referral_id, rl.id as receipt_id,
+            <include refid="GetCheckDoctor" />
         FROM
             h_preschool_check_record pcr
             INNER JOIN h_hospital_student hs ON pcr.student_id = hs.student_id AND hs.hospital_id = pcr.hospital_id
             LEFT JOIN m_hospital h ON h.id = pcr.hospital_id
-            LEFT JOIN h_referral_record rr ON rr.id = pcr.to_referral_id
+            LEFT JOIN h_referral_record rr ON rr.preschool_check_record_id = pcr.id
+            LEFT JOIN h_receipt_list rl ON rl.preschool_check_record_id = pcr.id
         <where>
             <trim prefixOverrides="and">
                 <if test="@Ognl@isNotEmpty(query.hospitalId)">and pcr.`hospital_id` = #{query.hospitalId}</if>
+                <if test="@Ognl@isNotEmpty(query.studentId)">and pcr.`student_id` = #{query.studentId}</if>
                 <if test="@Ognl@isNotEmpty(query.studentName)">and hs.`name` like CONCAT('%', #{query.studentName}, '%')</if>
                 <if test="@Ognl@isNotEmpty(query.hospitalName)">and h.`name` like CONCAT('%', #{query.hospitalName}, '%')</if>
                 <if test="@Ognl@isNotEmpty(query.toHospital)">and rr.`to_hospital` like CONCAT('%', #{query.toHospital}, '%')</if>
@@ -104,11 +123,48 @@
                 <if test="@Ognl@isNotEmpty(query.checkDateEnd)">and Date(pcr.`create_time`) &gt;= Date(#{query.checkDateEnd})</if>
                 <if test="@Ognl@isNotEmpty(query.isToReferral) and query.isToReferral == 0">and pcr.to_referral_id is null</if>
                 <if test="@Ognl@isNotEmpty(query.isToReferral) and query.isToReferral == 1">and pcr.to_referral_id is not null</if>
-                <!-- TODO wulizhou 未实现
-                <if test="@Ognl@isNotEmpty(query.doctorsName)">and rr.`to_hospital` = #{query.doctorsName}</if>
-                 -->
+                <if test="@Ognl@isNotEmpty(query.monthAges)">and pcr.`month_age` in
+                    <foreach collection="query.monthAges" item="item" index="index" open="(" close=")" separator=",">
+                        #{item}
+                    </foreach>
+                </if>
+                <!-- 判断医师 -->
+                <if test="@Ognl@isNotEmpty(query.doctorIds)">
+                    and (
+                    json_extract(pcr.outer_eye,'$.doctorId') in
+                    <include refid="DoctorIdWhere" />
+                    or json_extract(pcr.eye_disease_factor,'$.doctorId') in
+                    <include refid="DoctorIdWhere" />
+                    or json_extract(pcr.light_reaction,'$.doctorId') in
+                    <include refid="DoctorIdWhere" />
+                    or json_extract(pcr.blink_reflex,'$.doctorId') in
+                    <include refid="DoctorIdWhere" />
+                    or json_extract(pcr.red_ball_test,'$.doctorId') in
+                    <include refid="DoctorIdWhere" />
+                    or json_extract(pcr.visual_behavior_observation,'$.doctorId') in
+                    <include refid="DoctorIdWhere" />
+                    or json_extract(pcr.red_reflex,'$.doctorId') in
+                    <include refid="DoctorIdWhere" />
+                    or json_extract(pcr.ocular_inspection,'$.doctorId') in
+                    <include refid="DoctorIdWhere" />
+                    or json_extract(pcr.vision_data,'$.doctorId') in
+                    <include refid="DoctorIdWhere" />
+                    or json_extract(pcr.monocular_masking_aversion_test,'$.doctorId') in
+                    <include refid="DoctorIdWhere" />
+                    or json_extract(pcr.refraction_data,'$.doctorId') in
+                    <include refid="DoctorIdWhere" />
+                    )
+                </if>
             </trim>
         </where>
+        order by pcr.update_time desc
+    </select>
+
+    <select id="getByOne" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from h_preschool_check_record
+        <include refid="Base_Where_Clause" />
     </select>
 
     <select id="getByStudentId"

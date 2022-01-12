@@ -257,19 +257,6 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     }
 
     /**
-     * 处理医院状态
-     * @return
-     */
-    public int handleHospitalStatus(Date date) {
-        List<Hospital> hospitals = getUnhandleHospital(date);
-        int result = 0;
-        for (Hospital hospital : hospitals) {
-            result += updateHospitalStatus(hospital.getId(), hospital.getCooperationStopStatus(), hospital.getStatus());
-        }
-        return result;
-    }
-
-    /**
      * 获取状态未更新的医院（已到合作开始时间未启用，已到合作结束时间未停止）
      * @return
      */

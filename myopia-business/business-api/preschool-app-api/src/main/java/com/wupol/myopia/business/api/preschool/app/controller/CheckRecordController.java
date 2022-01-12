@@ -6,13 +6,12 @@ import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.hospital.domain.dto.PreschoolCheckRecordDTO;
+import com.wupol.myopia.business.core.hospital.domain.dto.StudentPreschoolCheckRecordDTO;
+import com.wupol.myopia.business.core.hospital.domain.model.*;
 import com.wupol.myopia.business.core.hospital.domain.query.PreschoolCheckRecordQuery;
 import com.wupol.myopia.business.core.hospital.service.PreschoolCheckRecordService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 
@@ -44,6 +43,52 @@ public class CheckRecordController {
         query.setCheckDateStart(new Date());
         query.setCheckDateEnd(new Date());
         return preschoolCheckRecordService.getList(pageRequest, query);
+    }
+
+    /**
+     * 获取检查详情
+     * @param id
+     * @return
+     */
+    @GetMapping("/{id}")
+    public PreschoolCheckRecordDTO getById(@PathVariable("id") Integer id) {
+        return preschoolCheckRecordService.getDetails(id);
+    }
+
+    /**
+     * 获取检查首页信息
+     * @param studentId
+     * @return
+     */
+    @GetMapping("/init")
+    public StudentPreschoolCheckRecordDTO getInit(Integer studentId) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        return preschoolCheckRecordService.getInit(user.getOrgId(), studentId);
+    }
+    /**
+     * 根据 id 获取检查单
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping("/checkRecord/{id}")
+    public PreschoolCheckRecord getCheckRecordById(@PathVariable("id") Integer id) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        Integer hospitalId = user.getOrgId();
+        return preschoolCheckRecordService.getById(id, hospitalId);
+    }
+
+    /**
+     * 保存检查单-眼外观
+     *
+     * @param checkRecord 检查单
+     * @return
+     */
+    @PostMapping("/checkRecord")
+    public void saveOuterEyeCheckRecord(@RequestBody PreschoolCheckRecord checkRecord) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        checkRecord.setHospitalId(user.getOrgId());
+        preschoolCheckRecordService.saveCheckRecord(checkRecord);
     }
 
 }

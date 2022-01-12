@@ -26,7 +26,7 @@ public class DiopterMedicalRecord {
     @Getter
     @Setter
     @Accessors(chain = true)
-    public class Diopter {
+    public static class Diopter {
         /** 1散瞳前，2散瞳后 */
         private Integer checkType;
         // 电脑验光
@@ -80,6 +80,12 @@ public class DiopterMedicalRecord {
         private Integer computerRightStatus;
         /** 左眼状态 */
         private Integer computerLeftStatus;
+
+        private Integer doctorId;
+        /** 学生id */
+        private Integer studentId;
+
+        private Boolean isAbnormal;
 
     }
 
