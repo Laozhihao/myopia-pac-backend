@@ -14,6 +14,7 @@ import com.wupol.myopia.business.aggregation.hospital.service.OrgCooperationHosp
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
 import com.wupol.myopia.business.api.parent.domain.dos.*;
 import com.wupol.myopia.business.api.parent.domain.dto.*;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.QrCodeCacheKey;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
@@ -137,7 +138,7 @@ public class ParentStudentBizService {
     public StudentDTO checkIdCard(CheckIdCardRequestDTO request) {
         String idCard = request.getIdCard();
         StudentDTO studentDTO = new StudentDTO();
-        Student student = studentService.getByIdCard(idCard);
+        Student student = studentService.getAllByIdCard(idCard);
 
         if (null == student) {
             // 为空说明是新增
@@ -192,6 +193,7 @@ public class ParentStudentBizService {
      */
     @Transactional(rollbackFor = Exception.class)
     public StudentDTO updateStudent(CurrentUser currentUser, Student student) {
+        student.setStatus(CommonConst.STATUS_NOT_DELETED);
         // 查找家长ID
         Parent parent = parentService.getParentByUserId(currentUser.getId());
         if (null == parent) {
