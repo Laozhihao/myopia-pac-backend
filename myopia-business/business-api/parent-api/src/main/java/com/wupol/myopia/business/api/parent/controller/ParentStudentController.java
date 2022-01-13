@@ -276,8 +276,8 @@ public class ParentStudentController {
      * @return 详情
      */
     @GetMapping("eyeHealthyReport/{id}")
-    public PreschoolCheckRecordDTO getEyeHealthyReportDetail(@PathVariable Integer id) {
-        return preschoolCheckRecordService.getDetails(id);
+    public PreschoolReportDTO getEyeHealthyReportDetail(@PathVariable Integer id) {
+        return parentStudentBizService.getEyeHealthyReportDetail(id);
     }
 
     /**

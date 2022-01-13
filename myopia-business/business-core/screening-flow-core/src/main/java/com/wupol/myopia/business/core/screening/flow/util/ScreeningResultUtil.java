@@ -103,6 +103,18 @@ public class ScreeningResultUtil {
         return itemsList;
     }
 
+    /**
+     * 视力检查结果
+     *
+     * @param age
+     * @param nakedVision
+     * @param correctedVision
+     * @param glassesType
+     * @param leftNakedVisionValue
+     * @param rightNakedVisionValue
+     * @param leftCorrectedVisionValue
+     * @param rightCorrectedVisionValue
+     */
     public static void packageVisionDate(Integer age, VisionItems nakedVision, VisionItems correctedVision,
                                          Integer glassesType, BigDecimal leftNakedVisionValue, BigDecimal rightNakedVisionValue,
                                          BigDecimal leftCorrectedVisionValue, BigDecimal rightCorrectedVisionValue) {
@@ -203,7 +215,7 @@ public class ScreeningResultUtil {
             BigDecimal leftAxial = leftEyeData.getAxial();
             BigDecimal rightAxial = date.getRightEyeData().getAxial();
 
-            maxType = getInteger(age, items, maxType, sphItems, cylItems, axialItems, seItems, leftSph, leftCyl, rightSph, rightCyl, leftAxial, rightAxial);
+            maxType = packageRefractoryResult(age, items, maxType, sphItems, cylItems, axialItems, seItems, leftSph, leftCyl, rightSph, rightCyl, leftAxial, rightAxial);
             return new TwoTuple<>(items, maxType);
         }
         items.add(seItems);
@@ -212,10 +224,28 @@ public class ScreeningResultUtil {
         return new TwoTuple<>(items, maxType);
     }
 
-    private static Integer getInteger(Integer age, List<RefractoryResultItems> items, Integer maxType,
-                                      RefractoryResultItems sphItems, RefractoryResultItems cylItems, RefractoryResultItems axialItems,
-                                      RefractoryResultItems seItems, BigDecimal leftSph, BigDecimal leftCyl, BigDecimal rightSph, BigDecimal rightCyl,
-                                      BigDecimal leftAxial, BigDecimal rightAxial) {
+    /**
+     * 验光仪检查结果
+     *
+     * @param age
+     * @param items
+     * @param maxType
+     * @param sphItems
+     * @param cylItems
+     * @param axialItems
+     * @param seItems
+     * @param leftSph
+     * @param leftCyl
+     * @param rightSph
+     * @param rightCyl
+     * @param leftAxial
+     * @param rightAxial
+     * @return
+     */
+    public static Integer packageRefractoryResult(Integer age, List<RefractoryResultItems> items, Integer maxType,
+                                                  RefractoryResultItems sphItems, RefractoryResultItems cylItems, RefractoryResultItems axialItems,
+                                                  RefractoryResultItems seItems, BigDecimal leftSph, BigDecimal leftCyl, BigDecimal rightSph, BigDecimal rightCyl,
+                                                  BigDecimal leftAxial, BigDecimal rightAxial) {
         // 左眼球镜
         if (Objects.nonNull(leftSph)) {
             sphItems.setOs(packageSpnItem(leftSph));
