@@ -668,51 +668,51 @@ public class ParentStudentBizService {
 
     private void getParentPreschoolReportInfo(PreschoolReportDTO reportDTO) {
 
-        // 裸眼视力
-        VisionItems nakedVision = new VisionItems();
-        nakedVision.setTitle("裸眼视力");
-        // 矫正视力
-        VisionItems correctedVision = new VisionItems();
-        correctedVision.setTitle("矫正视力");
-
-        List<RefractoryResultItems> items = new ArrayList<>();
-        RefractoryResultItems sphItems = new RefractoryResultItems();
-        sphItems.setTitle("球镜SC");
-        RefractoryResultItems cylItems = new RefractoryResultItems();
-        cylItems.setTitle("柱镜DC");
-        RefractoryResultItems axialItems = new RefractoryResultItems();
-        axialItems.setTitle("轴位A");
-        RefractoryResultItems seItems = new RefractoryResultItems();
-        seItems.setTitle("等效球镜SE");
-
-        VisionMedicalRecord visionData = reportDTO.getVisionData();
-        if (ObjectsUtil.hasNull(reportDTO.getBirthday(), visionData)) {
-            reportDTO.setVisionResultItems(Lists.newArrayList(nakedVision, correctedVision));
-            reportDTO.setRefractoryResultItems(Lists.newArrayList(sphItems, cylItems, axialItems, seItems));
-            return;
-        }
-        // 如果为空，默认不带镜（需求）
-        Integer glassesType = Objects.nonNull(visionData.getGlassesType()) ? visionData.getGlassesType() : 0;
-        int age = DateUtil.ageOfNow(reportDTO.getBirthday());
-
-        // 视力检查结果
-        ScreeningResultUtil.packageVisionDate(age, nakedVision, correctedVision,
-                glassesType,
-                StringUtils.isNotBlank(visionData.getLeftRawVision()) ? new BigDecimal(visionData.getLeftRawVision()) : null,
-                StringUtils.isNotBlank(visionData.getRightRawVision()) ? new BigDecimal(visionData.getRightRawVision()) : null,
-                StringUtils.isNotBlank(visionData.getLeftVision()) ? new BigDecimal(visionData.getLeftVision()) : null,
-                StringUtils.isNotBlank(visionData.getRightVision()) ? new BigDecimal(visionData.getRightVision()) : null);
-        reportDTO.setVisionResultItems(Lists.newArrayList(nakedVision, correctedVision));
-
-        // 验光仪检查结果
-        ScreeningResultUtil.packageRefractoryResult(age, items, 0, sphItems, cylItems, axialItems, seItems,
-                StringUtils.isNotBlank(visionData.getLeftDS()) ? new BigDecimal(visionData.getLeftDS()) : null,
-                StringUtils.isNotBlank(visionData.getLeftDC()) ? new BigDecimal(visionData.getLeftDC()) : null,
-                StringUtils.isNotBlank(visionData.getRightDS()) ? new BigDecimal(visionData.getRightDS()) : null,
-                StringUtils.isNotBlank(visionData.getRightDC()) ? new BigDecimal(visionData.getRightDC()) : null,
-                StringUtils.isNotBlank(visionData.getLeftAxis()) ? new BigDecimal(visionData.getLeftAxis()) : null,
-                StringUtils.isNotBlank(visionData.getRightAxis()) ? new BigDecimal(visionData.getRightAxis()) : null);
-        reportDTO.setRefractoryResultItems(Lists.newArrayList(sphItems, cylItems, axialItems, seItems));
+//        // 裸眼视力
+//        VisionItems nakedVision = new VisionItems();
+//        nakedVision.setTitle("裸眼视力");
+//        // 矫正视力
+//        VisionItems correctedVision = new VisionItems();
+//        correctedVision.setTitle("矫正视力");
+//
+//        List<RefractoryResultItems> items = new ArrayList<>();
+//        RefractoryResultItems sphItems = new RefractoryResultItems();
+//        sphItems.setTitle("球镜SC");
+//        RefractoryResultItems cylItems = new RefractoryResultItems();
+//        cylItems.setTitle("柱镜DC");
+//        RefractoryResultItems axialItems = new RefractoryResultItems();
+//        axialItems.setTitle("轴位A");
+//        RefractoryResultItems seItems = new RefractoryResultItems();
+//        seItems.setTitle("等效球镜SE");
+//
+//        VisionMedicalRecord visionData = reportDTO.getVisionData();
+//        if (ObjectsUtil.hasNull(reportDTO.getBirthday(), visionData)) {
+//            reportDTO.setVisionResultItems(Lists.newArrayList(nakedVision, correctedVision));
+//            reportDTO.setRefractoryResultItems(Lists.newArrayList(sphItems, cylItems, axialItems, seItems));
+//            return;
+//        }
+//        // 如果为空，默认不带镜（需求）
+//        Integer glassesType = Objects.nonNull(visionData.getGlassesType()) ? visionData.getGlassesType() : 0;
+//        int age = DateUtil.ageOfNow(reportDTO.getBirthday());
+//
+//        // 视力检查结果
+//        ScreeningResultUtil.packageVisionDate(age, nakedVision, correctedVision,
+//                glassesType,
+//                StringUtils.isNotBlank(visionData.getLeftRawVision()) ? new BigDecimal(visionData.getLeftRawVision()) : null,
+//                StringUtils.isNotBlank(visionData.getRightRawVision()) ? new BigDecimal(visionData.getRightRawVision()) : null,
+//                StringUtils.isNotBlank(visionData.getLeftVision()) ? new BigDecimal(visionData.getLeftVision()) : null,
+//                StringUtils.isNotBlank(visionData.getRightVision()) ? new BigDecimal(visionData.getRightVision()) : null);
+//        reportDTO.setVisionResultItems(Lists.newArrayList(nakedVision, correctedVision));
+//
+//        // 验光仪检查结果
+//        ScreeningResultUtil.packageRefractoryResult(age, items, 0, sphItems, cylItems, axialItems, seItems,
+//                StringUtils.isNotBlank(visionData.getLeftDS()) ? new BigDecimal(visionData.getLeftDS()) : null,
+//                StringUtils.isNotBlank(visionData.getLeftDC()) ? new BigDecimal(visionData.getLeftDC()) : null,
+//                StringUtils.isNotBlank(visionData.getRightDS()) ? new BigDecimal(visionData.getRightDS()) : null,
+//                StringUtils.isNotBlank(visionData.getRightDC()) ? new BigDecimal(visionData.getRightDC()) : null,
+//                StringUtils.isNotBlank(visionData.getLeftAxis()) ? new BigDecimal(visionData.getLeftAxis()) : null,
+//                StringUtils.isNotBlank(visionData.getRightAxis()) ? new BigDecimal(visionData.getRightAxis()) : null);
+//        reportDTO.setRefractoryResultItems(Lists.newArrayList(sphItems, cylItems, axialItems, seItems));
     }
 
 
