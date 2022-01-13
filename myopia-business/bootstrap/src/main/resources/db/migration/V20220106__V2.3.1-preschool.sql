@@ -66,3 +66,6 @@ alter table h_hospital_student
 
 alter table m_student
     modify record_no varchar(32) null comment '检查建档编码';
+
+alter table h_hospital_student
+    modify record_no varchar(32) null comment '检查建档编码';

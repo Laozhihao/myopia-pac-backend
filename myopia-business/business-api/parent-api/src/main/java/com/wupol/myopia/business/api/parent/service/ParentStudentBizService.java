@@ -627,7 +627,12 @@ public class ParentStudentBizService {
         if (CollectionUtils.isEmpty(hospitalStudents)) {
             return;
         }
-        hospitalStudents.forEach(hospitalStudent -> hospitalStudent.setIdCard(idCard).setName(name).setIsNewbornWithoutIdCard(false));
+        hospitalStudents.forEach(hospitalStudent -> hospitalStudent
+                .setIdCard(idCard)
+                .setName(name)
+                .setIsNewbornWithoutIdCard(false)
+                .setRecordNo(student.getRecordNo())
+                .setCommitteeCode(student.getCommitteeCode()));
         hospitalStudentService.updateBatchById(hospitalStudents);
     }
 
