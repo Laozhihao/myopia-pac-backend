@@ -17,7 +17,9 @@ public class BaseMedicalResult {
     private Integer leftStatus;
     private String rightRemark;
     private String leftRemark;
+    private String conclusion;
     private Integer studentId;
     private Integer doctorId;
+    private Boolean isAbnormal;
 
 }

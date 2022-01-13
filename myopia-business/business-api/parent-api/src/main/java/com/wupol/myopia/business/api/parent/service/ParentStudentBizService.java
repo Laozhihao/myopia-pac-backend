@@ -506,7 +506,7 @@ public class ParentStudentBizService {
      */
     @Transactional(rollbackFor = Exception.class)
     public Integer saveRecordStudent(Student student, CurrentUser currentUser) {
-        Long recordNo = studentService.getRecordNo(student.getCommitteeCode());
+        String recordNo = studentService.getRecordNo(student.getCommitteeCode());
         setStudentAddress(student);
         student.setRecordNo(recordNo);
         return saveStudent(student, currentUser);
@@ -580,7 +580,7 @@ public class ParentStudentBizService {
         if (Objects.isNull(student) && CollectionUtils.isEmpty(planStudents)) {
             throw new BusinessException("该学生筛查编号/身份证/学籍号/姓名错误");
         }
-        responseDTO.setStudentId(student.getId());
+        responseDTO.setStudentId(Objects.nonNull(student) ? student.getId() : planStudents.get(0).getStudentId());
 
         // 查询报告
         if (!CollectionUtils.isEmpty(planStudents)) {
@@ -605,24 +605,6 @@ public class ParentStudentBizService {
         if (!IdcardUtil.isValidCard(idCard)) {
             throw new BusinessException("身份证异常");
         }
-
-        // 查看是否有删除的学生
-//        Student student;
-//        List<Student> deletedStudents = studentService.getDeleteStudentByIdCard(Lists.newArrayList(idCard));
-//        if (CollectionUtils.isEmpty(deletedStudents)) {
-//            student = studentService.getById(studentId);
-//        } else {
-//            if (deletedStudents.size() > 1) {
-//                log.error("家长端更新学生身份证异常，学生Id:{}，身份证:{}", studentId, idCard);
-//                throw new BusinessException("学生数据异常");
-//            }
-//            student = deletedStudents.get(0);
-//            student.setStatus(CommonConst.STATUS_NOT_DELETED);
-//        }
-//
-//        if (Objects.isNull(student)) {
-//            throw new BusinessException("学生信息异常");
-//        }
         // 更新学生
         Student student = studentService.getById(studentId);
         // 检查学生身份证是否重复
