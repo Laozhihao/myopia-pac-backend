@@ -174,6 +174,7 @@
         from h_preschool_check_record hpcr
                      left join m_hospital mh on hpcr.hospital_id = mh.id
         where hpcr.student_id = #{studentId}
+        order by create_time desc
     </select>
 
     <select id="getByStudentIds" resultMap="BaseResultMap">

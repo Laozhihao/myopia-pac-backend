@@ -3,9 +3,12 @@ package com.wupol.myopia.business.api.parent.service;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.IdcardUtil;
 import com.google.common.collect.Lists;
+import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.domain.RefractoryResultItems;
+import com.wupol.myopia.base.domain.VisionItems;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.aggregation.hospital.domain.dto.StudentVisitReportResponseDTO;
@@ -23,13 +26,12 @@ import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
+import com.wupol.myopia.business.core.hospital.domain.dto.PreschoolCheckRecordDTO;
 import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
 import com.wupol.myopia.business.core.hospital.domain.model.HospitalStudent;
 import com.wupol.myopia.business.core.hospital.domain.model.OrgCooperationHospital;
-import com.wupol.myopia.business.core.hospital.service.HospitalService;
-import com.wupol.myopia.business.core.hospital.service.HospitalStudentService;
-import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
-import com.wupol.myopia.business.core.hospital.service.OrgCooperationHospitalService;
+import com.wupol.myopia.business.core.hospital.domain.model.VisionMedicalRecord;
+import com.wupol.myopia.business.core.hospital.service.*;
 import com.wupol.myopia.business.core.parent.domain.dto.CheckIdCardRequestDTO;
 import com.wupol.myopia.business.core.parent.domain.model.Parent;
 import com.wupol.myopia.business.core.parent.service.ParentService;
@@ -41,9 +43,7 @@ import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.RefractoryResultItems;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.VisionItems;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
@@ -57,6 +57,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -104,6 +105,8 @@ public class ParentStudentBizService {
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     @Resource
     private DistrictService districtService;
+    @Resource
+    private PreschoolCheckRecordService preschoolCheckRecordService;
 
     /**
      * 孩子统计、孩子列表
@@ -650,5 +653,67 @@ public class ParentStudentBizService {
                 .collect(Collectors.toList()));
         return student;
     }
+
+    public PreschoolReportDTO getEyeHealthyReportDetail(Integer reportId) {
+        PreschoolCheckRecordDTO details = preschoolCheckRecordService.getDetails(reportId);
+        return packagePreschoolReport(details);
+    }
+
+    private PreschoolReportDTO packagePreschoolReport(PreschoolCheckRecordDTO detail) {
+        PreschoolReportDTO reportDTO = new PreschoolReportDTO();
+        BeanUtils.copyProperties(detail, reportDTO);
+        getParentPreschoolReportInfo(reportDTO);
+        return reportDTO;
+    }
+
+    private void getParentPreschoolReportInfo(PreschoolReportDTO reportDTO) {
+
+//        // 裸眼视力
+//        VisionItems nakedVision = new VisionItems();
+//        nakedVision.setTitle("裸眼视力");
+//        // 矫正视力
+//        VisionItems correctedVision = new VisionItems();
+//        correctedVision.setTitle("矫正视力");
+//
+//        List<RefractoryResultItems> items = new ArrayList<>();
+//        RefractoryResultItems sphItems = new RefractoryResultItems();
+//        sphItems.setTitle("球镜SC");
+//        RefractoryResultItems cylItems = new RefractoryResultItems();
+//        cylItems.setTitle("柱镜DC");
+//        RefractoryResultItems axialItems = new RefractoryResultItems();
+//        axialItems.setTitle("轴位A");
+//        RefractoryResultItems seItems = new RefractoryResultItems();
+//        seItems.setTitle("等效球镜SE");
+//
+//        VisionMedicalRecord visionData = reportDTO.getVisionData();
+//        if (ObjectsUtil.hasNull(reportDTO.getBirthday(), visionData)) {
+//            reportDTO.setVisionResultItems(Lists.newArrayList(nakedVision, correctedVision));
+//            reportDTO.setRefractoryResultItems(Lists.newArrayList(sphItems, cylItems, axialItems, seItems));
+//            return;
+//        }
+//        // 如果为空，默认不带镜（需求）
+//        Integer glassesType = Objects.nonNull(visionData.getGlassesType()) ? visionData.getGlassesType() : 0;
+//        int age = DateUtil.ageOfNow(reportDTO.getBirthday());
+//
+//        // 视力检查结果
+//        ScreeningResultUtil.packageVisionDate(age, nakedVision, correctedVision,
+//                glassesType,
+//                StringUtils.isNotBlank(visionData.getLeftRawVision()) ? new BigDecimal(visionData.getLeftRawVision()) : null,
+//                StringUtils.isNotBlank(visionData.getRightRawVision()) ? new BigDecimal(visionData.getRightRawVision()) : null,
+//                StringUtils.isNotBlank(visionData.getLeftVision()) ? new BigDecimal(visionData.getLeftVision()) : null,
+//                StringUtils.isNotBlank(visionData.getRightVision()) ? new BigDecimal(visionData.getRightVision()) : null);
+//        reportDTO.setVisionResultItems(Lists.newArrayList(nakedVision, correctedVision));
+//
+//        // 验光仪检查结果
+//        ScreeningResultUtil.packageRefractoryResult(age, items, 0, sphItems, cylItems, axialItems, seItems,
+//                StringUtils.isNotBlank(visionData.getLeftDS()) ? new BigDecimal(visionData.getLeftDS()) : null,
+//                StringUtils.isNotBlank(visionData.getLeftDC()) ? new BigDecimal(visionData.getLeftDC()) : null,
+//                StringUtils.isNotBlank(visionData.getRightDS()) ? new BigDecimal(visionData.getRightDS()) : null,
+//                StringUtils.isNotBlank(visionData.getRightDC()) ? new BigDecimal(visionData.getRightDC()) : null,
+//                StringUtils.isNotBlank(visionData.getLeftAxis()) ? new BigDecimal(visionData.getLeftAxis()) : null,
+//                StringUtils.isNotBlank(visionData.getRightAxis()) ? new BigDecimal(visionData.getRightAxis()) : null);
+//        reportDTO.setRefractoryResultItems(Lists.newArrayList(sphItems, cylItems, axialItems, seItems));
+    }
+
 
 }
