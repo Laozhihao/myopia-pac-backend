@@ -32,10 +32,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.validation.ValidationException;
 import javax.validation.constraints.NotNull;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -112,26 +109,41 @@ public class GovDeptController {
         }
         try {
             govDeptService.saveGovDept(govDept.setCreateUserId(currentUser.getId()));
-
-            ScreeningNotice screeningNotice = new ScreeningNotice();
-            screeningNotice.setGovDeptId(govDept.getPid());
-            screeningNotice.setReleaseStatus(1);
-            List<ScreeningNotice> list = screeningNoticeService.findByDeptId(screeningNotice);
-            if (list.size()>0){
-                for (ScreeningNotice screeningNotice1 :list){
-                    ScreeningNoticeDeptOrg screeningNoticeDeptOrg  = new ScreeningNoticeDeptOrg();
-                    screeningNoticeDeptOrg.setScreeningNoticeId(screeningNotice1.getId());
-                    screeningNoticeDeptOrg.setDistrictId(govDept.getDistrictId());
-                    screeningNoticeDeptOrg.setAcceptOrgId(govDept.getId());
-                    screeningNoticeDeptOrg.setOperationStatus(0);
-                    screeningNoticeDeptOrg.setScreeningTaskPlanId(screeningNotice1.getScreeningTaskId());
-                    noticeDeptOrgService.saveOrUpdate(screeningNoticeDeptOrg);
+            List<GovDept> govList = findByParentIds(govDept.getPid());
+            if (govList.size()>0){
+                for (GovDept govDept1 : govList){
+                ScreeningNotice screeningNotice = new ScreeningNotice();
+                    screeningNotice.setGovDeptId(govDept1.getId());
+                    screeningNotice.setReleaseStatus(1);
+                    List<ScreeningNotice> list = screeningNoticeService.findByDeptId(screeningNotice);
+                    if (list.size()>0){
+                        for (ScreeningNotice screeningNotice1 :list){
+                            ScreeningNoticeDeptOrg screeningNoticeDeptOrg  = new ScreeningNoticeDeptOrg();
+                            screeningNoticeDeptOrg.setScreeningNoticeId(screeningNotice1.getId());
+                            screeningNoticeDeptOrg.setDistrictId(govDept1.getDistrictId());
+                            screeningNoticeDeptOrg.setAcceptOrgId(govDept1.getId());
+                            screeningNoticeDeptOrg.setOperationStatus(0);
+                            screeningNoticeDeptOrg.setScreeningTaskPlanId(screeningNotice1.getScreeningTaskId());
+                            noticeDeptOrgService.saveOrUpdate(screeningNoticeDeptOrg);
+                        }
+                    }
                 }
             }
         } catch (DuplicateKeyException e) {
             throw new BusinessException("已经存在该部门名称");
         }
         return govDept;
+    }
+
+    private List<GovDept> findByParentIds(Integer id) {
+        List<GovDept> list = new ArrayList<>();
+        GovDept govDept =  govDeptService.getById(id);
+        if (govDept.getPid() == -1){
+            return list;
+        }
+        list.add(govDept);
+        findByParentIds(govDept.getPid());
+        return list;
     }
 
     /**

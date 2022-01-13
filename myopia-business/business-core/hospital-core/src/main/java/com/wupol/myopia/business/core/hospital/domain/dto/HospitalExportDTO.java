@@ -48,7 +48,7 @@ public class HospitalExportDTO implements Serializable {
     private String remark;
 
     @ExcelProperty({TOP_HEADER, "账号数量"})
-    private int accountNum;
+    private Integer accountNum;
 
     @ExcelProperty({TOP_HEADER, "账号"})
     private String accountNo;
