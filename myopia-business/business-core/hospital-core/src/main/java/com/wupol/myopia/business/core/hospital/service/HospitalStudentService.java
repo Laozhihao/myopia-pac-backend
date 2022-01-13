@@ -1,9 +1,11 @@
 package com.wupol.myopia.business.core.hospital.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.core.hospital.constant.StudentTypeEnum;
 import com.wupol.myopia.business.core.hospital.domain.dos.HospitalStudentDO;
 import com.wupol.myopia.business.core.hospital.domain.dto.HospitalStudentRequestDTO;
 import com.wupol.myopia.business.core.hospital.domain.dto.HospitalStudentResponseDTO;
@@ -161,4 +163,44 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
         return hospitalStudent;
     }
 
+
+    /**
+     * 获取学生类型
+     *
+     * @param clientIdStr  登录用户
+     * @param studentType 学生类型
+     * @return Integer
+     */
+    public Integer getStudentType(String clientIdStr, Integer studentType) {
+        Integer clientId = Integer.valueOf(clientIdStr);
+        if (Objects.isNull(studentType)) {
+            // 医院端
+            if (SystemCode.HOSPITAL_CLIENT.getCode().equals(clientId)) {
+                return StudentTypeEnum.HOSPITAL_TYPE.getType();
+            }
+            // 0到6岁
+            if (SystemCode.PRESCHOOL_CLIENT.getCode().equals(clientId)) {
+                return StudentTypeEnum.PRESCHOOL_TYPE.getType();
+            }
+        }
+        // 学生类型是医院端，当前登录用户为0到6岁，则更新
+        if (studentType.equals(1) && SystemCode.PRESCHOOL_CLIENT.getCode().equals(clientId)) {
+            return StudentTypeEnum.HOSPITAL_AND_PRESCHOOL.getType();
+        }
+
+        // 学生类型是0到6岁，当前登录用户为医院端，则更新
+        if (studentType.equals(2) && SystemCode.HOSPITAL_CLIENT.getCode().equals(clientId)) {
+            return StudentTypeEnum.HOSPITAL_AND_PRESCHOOL.getType();
+        }
+        return null;
+    }
+
+    /**
+     * 获取0-6岁患者
+     *
+     * @return List<HospitalStudent>
+     */
+    public List<HospitalStudent> getByStudentType() {
+        return baseMapper.getPreschoolByStudentType();
+    }
 }

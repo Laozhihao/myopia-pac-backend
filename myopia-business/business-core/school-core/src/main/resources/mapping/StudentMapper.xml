@@ -256,7 +256,7 @@
     </select>
 
     <select id="countParentStudent" resultType="com.wupol.myopia.business.core.school.domain.dto.ParentStudentDTO">
-        select id, name, gender from m_student
+        select id, name, gender, avatar_file_id from m_student
         where id in
         <foreach collection="studentIds" item="studentId" index="index" open="(" close=")" separator=",">
             #{studentId}
@@ -329,5 +329,16 @@
         from m_student
         where id_card = #{cardId}
           and id != #{id}
+    </select>
+
+    <select id="getByCondition" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_student
+        where (id_card = #{condition}
+                or sno = #{condition})
+          and name = #{name}
+        order by create_time desc
+        limit 1
     </select>
 </mapper>

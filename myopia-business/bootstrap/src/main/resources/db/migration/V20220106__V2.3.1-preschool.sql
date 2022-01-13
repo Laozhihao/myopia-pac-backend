@@ -57,3 +57,9 @@ CREATE TABLE `h_referral_record`  (
   `create_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '转诊信息表' ROW_FORMAT = Dynamic;
+
+alter table m_screening_plan_school_student
+    modify student_situation varchar(2048) default '' not null comment '筛查计划--参与筛查的当时情况';
+
+alter table h_hospital_student
+    add student_type int null comment '学生类型 1-医院端 2-0到6岁 3医院和0到6';

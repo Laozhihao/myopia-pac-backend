@@ -77,6 +77,8 @@ public class ScheduledTasksExecutor {
     private NoticeBizService noticeBizService;
     @Autowired
     private CooperationService cooperationService;
+    @Autowired
+    private PreSchoolNoticeService preSchoolNoticeService;
 
     /**
      * 筛查数据统计
@@ -368,6 +370,16 @@ public class ScheduledTasksExecutor {
         log.debug("开始进行合作机构（筛查机构、学校、医院）即将到期通知");
         // 提前7天通知
         noticeBizService.sendCooperationWarnInfoNotice(7);
+    }
+
+    /**
+     * 孩子年龄到了后会短信或公众号提醒家长做保健
+     * 每日10点执行
+     */
+//    @Scheduled(cron = "0 0 10 * * ?")
+    public void preschoolCheckNotice() {
+        // 提前7天通知
+        preSchoolNoticeService.timedTaskSendMsg();
     }
 
 

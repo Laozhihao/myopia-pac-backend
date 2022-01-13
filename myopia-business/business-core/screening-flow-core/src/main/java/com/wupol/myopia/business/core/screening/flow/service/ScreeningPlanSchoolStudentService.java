@@ -412,7 +412,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @param name      名字
      * @return 筛查学生
      */
-    public ScreeningPlanSchoolStudent getByCondition(String condition, String name) {
+    public List<ScreeningPlanSchoolStudent> getByCondition(String condition, String name) {
         return baseMapper.getByCondition(condition, name);
     }
 }

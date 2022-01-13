@@ -12,6 +12,9 @@ import com.wupol.myopia.business.api.parent.service.ParentStudentBizService;
 import com.wupol.myopia.business.core.common.domain.dto.SuggestHospitalDTO;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.hospital.domain.dto.EyeHealthyReportResponseDTO;
+import com.wupol.myopia.business.core.hospital.domain.dto.PreschoolCheckRecordDTO;
+import com.wupol.myopia.business.core.hospital.service.PreschoolCheckRecordService;
 import com.wupol.myopia.business.core.parent.domain.dto.CheckIdCardRequestDTO;
 import com.wupol.myopia.business.core.school.domain.dto.CountParentStudentResponseDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeItemsDTO;
@@ -20,6 +23,7 @@ import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
+import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,6 +50,8 @@ public class ParentStudentController {
     private DistrictService districtService;
     @Resource
     private ParentStudentBizService parentStudentBizService;
+    @Resource
+    private PreschoolCheckRecordService preschoolCheckRecordService;
 
     /**
      * 获取孩子统计、孩子列表
@@ -167,7 +173,7 @@ public class ParentStudentController {
      * @return 筛查结果详情
      */
     @GetMapping("report/screening/detail/{id}")
-    public ScreeningReportResponseDTO reportScreeningDetail(@PathVariable("id") Integer id, @NotNull(message = "辨识位不能为空") Boolean isShowBind) {
+    public ScreeningReportResponseDTO reportScreeningDetail(@PathVariable("id") Integer id, @NotNull(message = "辨识位不能为空") boolean isShowBind) {
         return parentStudentBizService.getScreeningReportDetail(id, isShowBind);
     }
 
@@ -243,18 +249,35 @@ public class ParentStudentController {
      * @param studentId 学生Id
      * @return 眼保健检查报告列表
      */
-    public List<Object> getEyeHealthyReportList(Integer studentId) {
-        return null;
+    @GetMapping("eyeHealthyReport/list/{studentId}")
+    public List<EyeHealthyReportResponseDTO> getEyeHealthyReportList(@PathVariable("studentId") Integer studentId) {
+        return preschoolCheckRecordService.getByStudentId(studentId);
+    }
+
+    /**
+     * 获取学生最新一条眼保健检查报告
+     *
+     * @param studentId 学生Id
+     * @return 眼保健检查报告列表
+     */
+    @GetMapping("eyeHealthyReport/latest/{studentId}")
+    public PreschoolCheckRecordDTO getLatestEyeHealthyReportList(@PathVariable("studentId") Integer studentId) {
+        List<EyeHealthyReportResponseDTO> report = preschoolCheckRecordService.getByStudentId(studentId);
+        if (CollectionUtils.isEmpty(report)) {
+            return new PreschoolCheckRecordDTO();
+        }
+        return preschoolCheckRecordService.getDetails(report.get(0).getId());
     }
 
     /**
      * 获取学生眼保健检查详情
      *
-     * @param reportId 报告Id
+     * @param id 报告Id
      * @return 详情
      */
-    public EyeHealthyReportResponseDTO getEyeHealthyReportDetail(Integer reportId) {
-        return null;
+    @GetMapping("eyeHealthyReport/{id}")
+    public PreschoolCheckRecordDTO getEyeHealthyReportDetail(@PathVariable Integer id) {
+        return preschoolCheckRecordService.getDetails(id);
     }
 
     /**
@@ -265,7 +288,7 @@ public class ParentStudentController {
      * @return 筛查条件
      */
     @GetMapping("report/screening/byCondition")
-    public Integer getScreeningReportByCondition(String condition, String name) {
+    public ScreeningReportInfoResponseDTO getScreeningReportByCondition(String condition, String name) {
         return parentStudentBizService.getScreeningReportByCondition(condition, name);
     }
 
@@ -279,6 +302,17 @@ public class ParentStudentController {
     public void updateStudentIdCard(@RequestBody @Validated BindStudentRequestDTO requestDTO,
                                     @PathVariable("studentId") @NotNull(message = "学生Id不能为空") Integer studentId) {
         parentStudentBizService.updateStudentIdCard(requestDTO, studentId);
+    }
+
+    /**
+     * 获取学生信息
+     *
+     * @param studentId 学生Id
+     * @return StudentDTO
+     */
+    @GetMapping("getStudentInfo/{studentId}")
+    public StudentDTO getStudentInfo(@PathVariable("studentId") Integer studentId) {
+        return parentStudentBizService.getStudentInfo(studentId);
     }
 
 }

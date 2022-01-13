@@ -3,10 +3,13 @@ package com.wupol.myopia.business.core.hospital.domain.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wupol.myopia.business.core.hospital.domain.dto.EyeHealthyReportResponseDTO;
 import com.wupol.myopia.business.core.hospital.domain.dto.PreschoolCheckRecordDTO;
 import com.wupol.myopia.business.core.hospital.domain.model.PreschoolCheckRecord;
 import com.wupol.myopia.business.core.hospital.domain.query.PreschoolCheckRecordQuery;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 
 /**
@@ -19,6 +22,7 @@ public interface PreschoolCheckRecordMapper extends BaseMapper<PreschoolCheckRec
 
     /**
      * 获取眼保健详情
+     *
      * @param id
      * @return
      */
@@ -26,6 +30,7 @@ public interface PreschoolCheckRecordMapper extends BaseMapper<PreschoolCheckRec
 
     /**
      * 获取眼保健列表
+     *
      * @param page
      * @param query
      * @return
@@ -34,4 +39,14 @@ public interface PreschoolCheckRecordMapper extends BaseMapper<PreschoolCheckRec
 
 
     PreschoolCheckRecord getByOne(PreschoolCheckRecordQuery query);
+    /**
+     * 通过学生Id获取列表
+     *
+     * @param studentId 学生Id
+     * @return List<EyeHealthyReportResponseDTO>
+     */
+    List<EyeHealthyReportResponseDTO> getByStudentId(@Param("studentId") Integer studentId);
+
+    List<PreschoolCheckRecord> getByStudentIds(@Param("studentIds") List<Integer> studentIds);
+
 }

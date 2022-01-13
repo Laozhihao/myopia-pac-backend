@@ -13,14 +13,13 @@ import com.wupol.myopia.business.aggregation.hospital.service.MedicalReportBizSe
 import com.wupol.myopia.business.aggregation.hospital.service.OrgCooperationHospitalBizService;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
 import com.wupol.myopia.business.api.parent.domain.dos.*;
-import com.wupol.myopia.business.api.parent.domain.dto.BindStudentRequestDTO;
-import com.wupol.myopia.business.api.parent.domain.dto.ScreeningReportResponseDTO;
-import com.wupol.myopia.business.api.parent.domain.dto.ScreeningVisionTrendsResponseDTO;
-import com.wupol.myopia.business.api.parent.domain.dto.VisitsReportDetailRequest;
+import com.wupol.myopia.business.api.parent.domain.dto.*;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.QrCodeCacheKey;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.domain.dto.SuggestHospitalDTO;
+import com.wupol.myopia.business.core.common.domain.model.District;
+import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
@@ -102,6 +101,8 @@ public class ParentStudentBizService {
     private HospitalStudentService hospitalStudentService;
     @Resource
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
+    @Resource
+    private DistrictService districtService;
 
     /**
      * 孩子统计、孩子列表
@@ -119,6 +120,9 @@ public class ParentStudentBizService {
             return responseDTO;
         }
         List<ParentStudentDTO> parentStudentDTOS = studentService.countParentStudent(studentIds);
+        parentStudentDTOS.forEach(student -> {
+            student.setAvatarUrl(Objects.isNull(student.getAvatarFileId()) ? StringUtils.EMPTY : resourceFileService.getResourcePath(student.getAvatarFileId()));
+        });
         responseDTO.setTotal(parentStudentDTOS.size());
         responseDTO.setItem(parentStudentDTOS);
         return responseDTO;
@@ -193,6 +197,7 @@ public class ParentStudentBizService {
         if (null == parent) {
             throw new BusinessException("家长信息异常");
         }
+        setStudentAddress(student);
         StudentDTO studentDTO = studentService.updateStudent(student);
         // 绑定孩子
         Integer studentId = student.getId();
@@ -311,6 +316,7 @@ public class ParentStudentBizService {
     public ScreeningReportResponseDTO latestScreeningReport(Integer studentId) {
         VisionScreeningResult result = visionScreeningResultService.getLatestResultByStudentId(studentId);
         if (null == result) {
+            Student student = studentService.getById(studentId);
             ScreeningReportResponseDTO responseDTO = new ScreeningReportResponseDTO();
             ScreeningReportDetailDO detail = new ScreeningReportDetailDO();
             // 视力检查结果
@@ -318,6 +324,7 @@ public class ParentStudentBizService {
             // 验光仪检查结果
             detail.setRefractoryResultItems(Lists.newArrayList(new RefractoryResultItems("球镜SC"), new RefractoryResultItems("柱镜DC"), new RefractoryResultItems("轴位A"), new RefractoryResultItems("等效球镜SE")));
             responseDTO.setDetail(detail);
+            responseDTO.setIsNewbornWithoutIdCard(student.getIsNewbornWithoutIdCard());
             return responseDTO;
         }
         return packageScreeningReport(visionScreeningResultService.getById(result.getId()), true);
@@ -415,16 +422,13 @@ public class ParentStudentBizService {
         Integer screeningOrgId = result.getScreeningOrgId();
         // 查询学生
         Integer studentId = result.getStudentId();
-        StudentDTO student = studentService.getStudentById(studentId);
-        response.setStudentInfo(student);
+        StudentDTO student = getStudentDTO(studentId);
         if (isShowBind) {
             response.setIsNewbornWithoutIdCard(student.getIsNewbornWithoutIdCard());
         } else {
             response.setIsNewbornWithoutIdCard(false);
         }
-        student.setScreeningCodes(screeningPlanSchoolStudentService.getByStudentId(studentId)
-                .stream().map(ScreeningPlanSchoolStudent::getScreeningCode)
-                .collect(Collectors.toList()));
+        response.setStudentInfo(student);
         int age = DateUtil.ageOfNow(student.getBirthday());
 
         ScreeningReportDetailDO responseDTO = new ScreeningReportDetailDO();
@@ -503,8 +507,30 @@ public class ParentStudentBizService {
     @Transactional(rollbackFor = Exception.class)
     public Integer saveRecordStudent(Student student, CurrentUser currentUser) {
         Long recordNo = studentService.getRecordNo(student.getCommitteeCode());
+        setStudentAddress(student);
         student.setRecordNo(recordNo);
         return saveStudent(student, currentUser);
+    }
+
+    /**
+     * 设置学生地址
+     *
+     * @param student 学生
+     */
+    private void setStudentAddress(Student student) {
+        if (Objects.isNull(student.getProvinceCode())) {
+            List<District> districtDetail = districtService.getDistrictPositionDetail(student.getCommitteeCode());
+            if (CollectionUtils.isEmpty(districtDetail)) {
+                return;
+            }
+            student.setProvinceCode(districtDetail.get(0).getCode());
+            student.setCityCode(districtDetail.get(1).getCode());
+            student.setAreaCode(districtDetail.get(2).getCode());
+            // 处理直辖市问题
+            if (districtDetail.size() > 4) {
+                student.setTownCode(districtDetail.get(3).getCode());
+            }
+        }
     }
 
     /**
@@ -512,39 +538,58 @@ public class ParentStudentBizService {
      *
      * @param idCard 身份证
      * @param userId 家长Id
-     * @return Student
+     * @return StudentDTO
      */
-    public Student getByIdCard(String idCard, Integer userId) {
+    public StudentDTO getByIdCard(String idCard, Integer userId) {
         Student student = studentService.getByIdCard(idCard);
         if (Objects.isNull(student)) {
             Parent parent = parentService.getParentByUserId(userId);
-            return new Student().setParentPhone(parent.getPhone());
+            StudentDTO studentDTO = new StudentDTO();
+            studentDTO.setParentPhone(parent.getPhone());
+            return studentDTO;
+        }
+        StudentDTO studentDTO = new StudentDTO();
+        BeanUtils.copyProperties(student, studentDTO);
+        if (Objects.nonNull(student.getSchoolId())) {
+            studentDTO.setSchoolName(schoolService.getById(student.getSchoolId()).getName());
+        }
+        if (Objects.nonNull(student.getCommitteeCode())) {
+            studentDTO.setCommitteeLists(districtService.getDistrictPositionDetail(student.getCommitteeCode()));
         }
         if (StringUtils.isNotBlank(student.getParentPhone())) {
-            return student;
+            return studentDTO;
         }
         Parent parent = parentService.getParentByUserId(userId);
         student.setParentPhone(parent.getPhone());
-        return student;
+        return studentDTO;
     }
 
     /**
-     * 通过条件获取筛查条件
+     * 通过条件获取筛查报告
      *
      * @param condition 条件
      * @param name      学生名称
      * @return 筛查条件
      */
-    public Integer getScreeningReportByCondition(String condition, String name) {
-        ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getByCondition(condition, name);
-        if (Objects.isNull(planStudent)) {
+    public ScreeningReportInfoResponseDTO getScreeningReportByCondition(String condition, String name) {
+        ScreeningReportInfoResponseDTO responseDTO = new ScreeningReportInfoResponseDTO();
+
+        // 查询学生
+        Student student = studentService.getByCondition(condition, name);
+        List<ScreeningPlanSchoolStudent> planStudents = screeningPlanSchoolStudentService.getByCondition(condition, name);
+        if (Objects.isNull(student) && CollectionUtils.isEmpty(planStudents)) {
             throw new BusinessException("该学生筛查编号/身份证/学籍号/姓名错误");
         }
-        VisionScreeningResult result = visionScreeningResultService.getByPlanStudentId(planStudent.getId());
-        if (Objects.nonNull(result)) {
-            return result.getId();
+        responseDTO.setStudentId(student.getId());
+
+        // 查询报告
+        if (!CollectionUtils.isEmpty(planStudents)) {
+            VisionScreeningResult result = visionScreeningResultService.getLatestByPlanStudentIds(planStudents.stream().map(ScreeningPlanSchoolStudent::getId).collect(Collectors.toList()));
+            if (Objects.nonNull(result)) {
+                responseDTO.setReportId(result.getId());
+            }
         }
-        throw new BusinessException("该学生筛查编号/身份证/学籍号/姓名错误");
+        return responseDTO;
     }
 
     /**
@@ -593,6 +638,30 @@ public class ParentStudentBizService {
         }
         hospitalStudents.forEach(hospitalStudent -> hospitalStudent.setIdCard(idCard).setName(name).setIsNewbornWithoutIdCard(false));
         hospitalStudentService.updateBatchById(hospitalStudents);
+    }
+
+    /**
+     * 获取学生信息
+     *
+     * @param studentId 学生Id
+     * @return StudentDTO
+     */
+    public StudentDTO getStudentInfo(Integer studentId) {
+        return getStudentDTO(studentId);
+    }
+
+    /**
+     * 获取学生信息
+     *
+     * @param studentId 学生Id
+     * @return StudentDTO
+     */
+    private StudentDTO getStudentDTO(Integer studentId) {
+        StudentDTO student = studentService.getStudentById(studentId);
+        student.setScreeningCodes(screeningPlanSchoolStudentService.getByStudentId(studentId)
+                .stream().map(ScreeningPlanSchoolStudent::getScreeningCode)
+                .collect(Collectors.toList()));
+        return student;
     }
 
 }
