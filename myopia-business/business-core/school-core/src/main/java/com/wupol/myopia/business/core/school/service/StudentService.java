@@ -479,7 +479,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @param committeeCode 委会行政区域
      * @return RecordNo
      */
-    public Long getRecordNo(Long committeeCode) {
+    public String getRecordNo(Long committeeCode) {
         if (Objects.isNull(committeeCode)) {
             throw new BusinessException("委会行政区域code不能为空");
         }
@@ -488,9 +488,9 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         if (Objects.isNull(studentRecordNo)) {
             recordNo = committeeCode + "00001";
         } else {
-            recordNo = String.valueOf(studentRecordNo.getRecordNo() + 1);
+            recordNo = String.valueOf(Long.parseLong(studentRecordNo.getRecordNo()) + 1);
         }
-        return Long.valueOf(recordNo);
+        return recordNo;
     }
 
     /**

@@ -506,7 +506,7 @@ public class ParentStudentBizService {
      */
     @Transactional(rollbackFor = Exception.class)
     public Integer saveRecordStudent(Student student, CurrentUser currentUser) {
-        Long recordNo = studentService.getRecordNo(student.getCommitteeCode());
+        String recordNo = studentService.getRecordNo(student.getCommitteeCode());
         setStudentAddress(student);
         student.setRecordNo(recordNo);
         return saveStudent(student, currentUser);
