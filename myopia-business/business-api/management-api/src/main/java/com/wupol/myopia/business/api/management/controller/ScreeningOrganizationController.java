@@ -84,7 +84,7 @@ public class ScreeningOrganizationController {
         } else {
             // 默认合作信息
             screeningOrganization.initCooperationInfo();
-            screeningOrganization.setScreeningNum(5);
+            screeningOrganization.setAccountNum(5);
         }
         screeningOrganization.setStatus(screeningOrganization.getCooperationStopStatus());
         UsernameAndPasswordDTO usernameAndPasswordDTO = screeningOrganizationBizService.saveScreeningOrganization(screeningOrganization);
@@ -112,7 +112,7 @@ public class ScreeningOrganizationController {
             // 非平台管理员无法更新合作信息
             screeningOrganization.clearCooperationInfo();
             screeningOrganization.setStatus(null);
-            screeningOrganization.setScreeningNum(null);
+            screeningOrganization.setAccountNum(null);
         }
         ScreeningOrgResponseDTO screeningOrgResponseDTO = screeningOrganizationBizService.updateScreeningOrganization(user, screeningOrganization);
         // 若为平台管理员且修改了用户名，则回显账户名
@@ -385,7 +385,7 @@ public class ScreeningOrganizationController {
         if (!user.isPlatformAdminUser()){//如果不是管理员
             ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(screeningOrgId);
             List<ScreeningOrganizationAdmin> orgList = screeningOrganizationAdminService.getListOrgList(screeningOrgId);
-            if (orgList.size()>=screeningOrganization.getScreeningNum()){
+            if (orgList.size()>=screeningOrganization.getAccountNum()){
                 return null;
             }
         }
