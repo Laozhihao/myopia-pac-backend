@@ -114,6 +114,7 @@ public class ScreeningOrganizationController {
             // 非平台管理员无法更新合作信息
             screeningOrganization.clearCooperationInfo();
             screeningOrganization.setStatus(null);
+            screeningOrganization.setScreeningNum(null);
         }
         ScreeningOrgResponseDTO screeningOrgResponseDTO = screeningOrganizationBizService.updateScreeningOrganization(user, screeningOrganization);
         // 若为平台管理员且修改了用户名，则回显账户名

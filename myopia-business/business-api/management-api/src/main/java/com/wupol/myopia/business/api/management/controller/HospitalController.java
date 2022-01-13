@@ -2,7 +2,6 @@ package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.CurrentUser;
-import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
@@ -22,15 +21,12 @@ import com.wupol.myopia.business.core.hospital.domain.query.HospitalQuery;
 import com.wupol.myopia.business.core.hospital.service.HospitalAdminService;
 import com.wupol.myopia.business.core.hospital.service.HospitalService;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccountListDTO;
-import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
-import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationAdmin;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * 医院控制层
@@ -98,6 +94,7 @@ public class HospitalController {
             // 非平台管理员无法更新合作信息
             hospital.clearCooperationInfo();
             hospital.setStatus(null);
+            hospital.setAccountNum(null);
         }
         return hospitalBizService.updateHospital(hospital);
     }

@@ -128,7 +128,7 @@ public class Hospital extends AddressCode implements Serializable {
     /**
      * 账号数量
      */
-    private int accountNum;
+    private Integer accountNum;
 
     /**
      * 是否合作医院 0-否 1-是
