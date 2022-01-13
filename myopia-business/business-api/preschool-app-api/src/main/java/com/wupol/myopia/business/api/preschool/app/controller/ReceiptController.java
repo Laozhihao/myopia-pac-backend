@@ -31,9 +31,9 @@ public class ReceiptController {
     @Autowired
     private PreschoolCheckRecordService preschoolCheckRecordService;
 
-    @GetMapping("/details")
-    public ReceiptDTO getDetails(@RequestParam Integer preshcoolCheckRecordId) {
-        return receiptListService.getDetailsByHospitalAndPreschoolCheckRecordId(CurrentUserUtil.getCurrentUser().getOrgId(), preshcoolCheckRecordId);
+    @GetMapping("/{id}")
+    public ReceiptDTO getDetail(@PathVariable("id") Integer id) {
+        return receiptListService.getDetailByHospitalAndId(CurrentUserUtil.getCurrentUser().getOrgId(), id);
     }
 
     /**

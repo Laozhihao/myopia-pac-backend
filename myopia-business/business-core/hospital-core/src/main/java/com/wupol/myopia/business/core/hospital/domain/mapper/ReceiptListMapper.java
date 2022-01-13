@@ -18,6 +18,6 @@ public interface ReceiptListMapper extends BaseMapper<ReceiptList> {
      * @param receipt
      * @return
      */
-    ReceiptDTO getDetails(ReceiptList receipt);
+    ReceiptDTO getDetail(ReceiptList receipt);
 
 }

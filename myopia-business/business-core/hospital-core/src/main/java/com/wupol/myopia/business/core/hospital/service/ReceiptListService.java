@@ -25,18 +25,18 @@ public class ReceiptListService extends BaseService<ReceiptListMapper, ReceiptLi
      * @param id
      * @return
      */
-    public ReceiptDTO getDetailsById(Integer id) {
-        return getDetails(new ReceiptList().setId(id));
+    public ReceiptDTO getDetailById(Integer id) {
+        return getDetail(new ReceiptList().setId(id));
     }
 
     /**
      * 通过检查号id与医院id获取详情
      * @param hospitalId
-     * @param preschoolCheckRecordId
+     * @param id
      * @return
      */
-    public ReceiptDTO getDetailsByHospitalAndPreschoolCheckRecordId(Integer hospitalId, Integer preschoolCheckRecordId) {
-        return getDetails(new ReceiptList().setFromHospitalId(hospitalId).setPreschoolCheckRecordId(preschoolCheckRecordId));
+    public ReceiptDTO getDetailByHospitalAndId(Integer hospitalId, Integer id) {
+        return getDetail(new ReceiptList().setFromHospitalId(hospitalId).setId(id));
     }
 
     /**
@@ -44,8 +44,8 @@ public class ReceiptListService extends BaseService<ReceiptListMapper, ReceiptLi
      * @param receipt
      * @return
      */
-    public ReceiptDTO getDetails(ReceiptList receipt) {
-        ReceiptDTO details = baseMapper.getDetails(receipt);
+    public ReceiptDTO getDetail(ReceiptList receipt) {
+        ReceiptDTO details = baseMapper.getDetail(receipt);
         HospitalUtil.setParentInfo(details);
         return details;
     }

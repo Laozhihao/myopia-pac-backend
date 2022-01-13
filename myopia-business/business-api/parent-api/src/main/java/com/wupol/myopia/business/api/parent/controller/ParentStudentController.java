@@ -266,7 +266,7 @@ public class ParentStudentController {
         if (CollectionUtils.isEmpty(report)) {
             return new PreschoolCheckRecordDTO();
         }
-        return preschoolCheckRecordService.getDetails(report.get(0).getId());
+        return preschoolCheckRecordService.getDetail(report.get(0).getId());
     }
 
     /**
@@ -277,7 +277,7 @@ public class ParentStudentController {
      */
     @GetMapping("eyeHealthyReport/{id}")
     public PreschoolCheckRecordDTO getEyeHealthyReportDetail(@PathVariable Integer id) {
-        return preschoolCheckRecordService.getDetails(id);
+        return preschoolCheckRecordService.getDetail(id);
     }
 
     /**

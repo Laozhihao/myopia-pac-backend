@@ -22,7 +22,7 @@ public interface ReferralRecordMapper extends BaseMapper<ReferralRecord> {
      * @param referral
      * @return
      */
-    ReferralDTO getDetails(ReferralRecord referral);
+    ReferralDTO getDetail(ReferralRecord referral);
 
     /**
      * 获取指定学生转诊单信息

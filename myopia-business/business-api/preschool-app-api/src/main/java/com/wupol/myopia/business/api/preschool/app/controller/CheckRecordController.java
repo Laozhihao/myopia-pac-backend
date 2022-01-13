@@ -6,7 +6,7 @@ import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.hospital.domain.dto.PreschoolCheckRecordDTO;
-import com.wupol.myopia.business.core.hospital.domain.dto.StudentPreschoolCheckRecordDTO;
+import com.wupol.myopia.business.core.hospital.domain.dto.HospitalStudentPreschoolCheckRecordDTO;
 import com.wupol.myopia.business.core.hospital.domain.model.*;
 import com.wupol.myopia.business.core.hospital.domain.query.PreschoolCheckRecordQuery;
 import com.wupol.myopia.business.core.hospital.service.PreschoolCheckRecordService;
@@ -53,18 +53,19 @@ public class CheckRecordController {
      */
     @GetMapping("/{id}")
     public PreschoolCheckRecordDTO getById(@PathVariable("id") Integer id) {
-        return preschoolCheckRecordService.getDetails(id);
+        return preschoolCheckRecordService.getDetail(id);
     }
 
     /**
      * 获取检查首页信息
+     * @param monthAge      指定月龄
      * @param studentId
      * @return
      */
     @GetMapping("/init")
-    public StudentPreschoolCheckRecordDTO getInit(Integer studentId) {
+    public HospitalStudentPreschoolCheckRecordDTO getInit(Integer monthAge, Integer studentId) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        return preschoolCheckRecordService.getInit(user.getOrgId(), studentId);
+        return preschoolCheckRecordService.getInit(user.getOrgId(), monthAge, studentId);
     }
 
     /**
