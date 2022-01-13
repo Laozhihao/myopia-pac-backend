@@ -662,7 +662,7 @@ public class ParentStudentBizService {
      * @return PreschoolReportDTO
      */
     public PreschoolReportDTO getEyeHealthyReportDetail(Integer reportId) {
-        PreschoolCheckRecordDTO details = preschoolCheckRecordService.getDetails(reportId);
+        PreschoolCheckRecordDTO details = preschoolCheckRecordService.getDetail(reportId);
         return packagePreschoolReport(details);
     }
 
@@ -677,7 +677,7 @@ public class ParentStudentBizService {
         if (CollectionUtils.isEmpty(report)) {
             return new PreschoolReportDTO();
         }
-        return packagePreschoolReport(preschoolCheckRecordService.getDetails(report.get(0).getId()));
+        return packagePreschoolReport(preschoolCheckRecordService.getDetail(report.get(0).getId()));
     }
 
     /**
