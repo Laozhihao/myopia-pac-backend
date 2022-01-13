@@ -2,12 +2,13 @@ package com.wupol.myopia.business.aggregation.export.excel;
 
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
-import com.wupol.myopia.business.core.device.service.DeviceScreeningDataService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.DeviceScreeningDataExportDTO;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningDataExcelService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,14 +20,14 @@ import java.util.UUID;
 @Log4j2
 @Service("vsDataExcelService")
 public class VsDataExcelService extends BaseExportExcelFileService {
-        @Autowired
-        private DeviceScreeningDataService deviceScreeningDataService;
 
+    @Autowired
+    private ScreeningDataExcelService screeningDataExcelService;
 
     @Override
     public List<DeviceScreeningDataExportDTO> getExcelData(ExportCondition exportCondition) {
-        List<Integer> ids = exportCondition.getIds();
-        return deviceScreeningDataService.selectExcelData(ids);
+
+        return screeningDataExcelService.findByDataList(exportCondition.getIds());
     }
 
     @Override

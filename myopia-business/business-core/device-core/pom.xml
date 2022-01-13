@@ -21,12 +21,6 @@
             <artifactId>common-core</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.wupol.myopia</groupId>
-            <artifactId>screening-flow-core</artifactId>
-            <version>MP-2.3.1</version>
-            <scope>compile</scope>
-        </dependency>
     </dependencies>
 
 </project>

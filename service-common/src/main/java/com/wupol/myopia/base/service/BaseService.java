@@ -141,5 +141,4 @@ public abstract class BaseService<M extends BaseMapper<T>, T> extends ServiceImp
     public boolean batchUpdateOrSave(List<T> entityList) {
         return saveOrUpdateBatch(entityList);
     }
-
 }

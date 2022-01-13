@@ -7,7 +7,6 @@ import com.wupol.myopia.business.core.device.domain.dto.DeviceScreeningDataAndOr
 import com.wupol.myopia.business.core.device.domain.dto.DeviceScreeningDataQueryDTO;
 import com.wupol.myopia.business.core.device.domain.model.DeviceScreeningData;
 import com.wupol.myopia.business.core.device.service.DeviceScreeningDataService;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.DeviceScreeningDataExportDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import org.apache.commons.lang3.StringUtils;

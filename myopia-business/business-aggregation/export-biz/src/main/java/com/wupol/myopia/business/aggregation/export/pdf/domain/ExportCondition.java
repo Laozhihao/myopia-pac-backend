@@ -49,7 +49,7 @@ public class ExportCondition {
      */
     private String planStudentIds;
     /**
-     *  VS666数据id
+     *  VS666数据
      */
     private List<Integer> ids;
 }

@@ -10,7 +10,6 @@ import com.wupol.myopia.business.core.device.domain.dto.*;
 import com.wupol.myopia.business.core.device.domain.mapper.DeviceScreeningDataMapper;
 import com.wupol.myopia.business.core.device.domain.model.Device;
 import com.wupol.myopia.business.core.device.domain.model.DeviceScreeningData;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.DeviceScreeningDataExportDTO;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
@@ -109,9 +108,5 @@ public class DeviceScreeningDataService extends BaseService<DeviceScreeningDataM
             logger.warn("更新deviceScreenData数据异常,存在为空的数据, screeningOrgId = {} ,deviceSn = {}, deviceScreenDataDTOList = {} ", screeningOrgId, deviceSn, JSON.toJSONString(deviceScreenDataDTOList));
         }
         return baseMapper.selectWithMutiConditions(screeningOrgId, deviceSn, deviceScreenDataDTOList);
-    }
-    public List<DeviceScreeningDataExportDTO> selectExcelData(List<Integer> ids) {
-
-        return baseMapper.selectExcelData(ids);
     }
 }

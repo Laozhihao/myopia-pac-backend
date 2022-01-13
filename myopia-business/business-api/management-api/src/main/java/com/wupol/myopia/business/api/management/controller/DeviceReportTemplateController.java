@@ -10,10 +10,14 @@ import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.api.management.service.DeviceBizService;
 import com.wupol.myopia.business.core.device.domain.dto.ConfigurationReportRequestDTO;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceReportPrintResponseDTO;
+import com.wupol.myopia.business.core.device.domain.dto.DeviceScreenDataDTO;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceTemplateListDTO;
 import com.wupol.myopia.business.core.device.domain.model.ScreeningOrgBindDeviceReport;
 import com.wupol.myopia.business.core.device.service.DeviceReportTemplateService;
+import com.wupol.myopia.business.core.device.service.DeviceScreeningDataService;
 import com.wupol.myopia.business.core.device.service.ScreeningOrgBindDeviceReportService;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.DeviceScreeningDataExportDTO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,7 +25,6 @@ import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -47,6 +50,9 @@ public class DeviceReportTemplateController {
 
     @Resource
     private ExportStrategy exportStrategy;
+
+    @Autowired
+    private DeviceScreeningDataService deviceScreeningDataService;
 
     /**
      * 获取设备报告模板列表
