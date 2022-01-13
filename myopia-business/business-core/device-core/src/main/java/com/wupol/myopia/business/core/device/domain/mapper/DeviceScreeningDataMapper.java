@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.business.core.device.domain.dto.*;
 import com.wupol.myopia.business.core.device.domain.model.DeviceScreeningData;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.DeviceScreeningDataExportDTO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -30,4 +31,5 @@ public interface DeviceScreeningDataMapper extends BaseMapper<DeviceScreeningDat
      */
     List<DeviceScreenDataDTO> selectWithMutiConditions(Integer screeningOrgId, String deviceSn, List<DeviceScreenDataDTO> list);
 
+    List<DeviceScreeningDataExportDTO> selectExcelData(List<Integer> ids);
 }
