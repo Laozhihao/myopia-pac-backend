@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * @Author wulizhou
@@ -65,29 +66,218 @@ public class CheckRecordController {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         return preschoolCheckRecordService.getInit(user.getOrgId(), studentId);
     }
+
     /**
      * 根据 id 获取检查单
      *
      * @param id
      * @return
      */
-    @GetMapping("/checkRecord/{id}")
-    public PreschoolCheckRecord getCheckRecordById(@PathVariable("id") Integer id) {
+    @GetMapping("/checkRecord/outerEye/{id}")
+    public OuterEye getCheckRecordOuterEyeById(@PathVariable("id") Integer id) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         Integer hospitalId = user.getOrgId();
-        return preschoolCheckRecordService.getById(id, hospitalId);
+        PreschoolCheckRecord checkRecord = preschoolCheckRecordService.getById(id, hospitalId);
+        return Objects.nonNull(checkRecord) ? checkRecord.getOuterEye() : null;
     }
 
     /**
-     * 保存检查单-眼外观
+     * 根据 id 获取检查单
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping("/checkRecord/visionData/{id}")
+    public VisionMedicalRecord getCheckRecordVisionDataById(@PathVariable("id") Integer id) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        Integer hospitalId = user.getOrgId();
+        PreschoolCheckRecord checkRecord = preschoolCheckRecordService.getById(id, hospitalId);
+        return Objects.nonNull(checkRecord) ? checkRecord.getVisionData() : null;
+    }
+
+    /**
+     * 根据 id 获取检查单
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping("/checkRecord/refractionData/{id}")
+    public DiopterMedicalRecord.Diopter getCheckRecordRefractionDataById(@PathVariable("id") Integer id) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        Integer hospitalId = user.getOrgId();
+        PreschoolCheckRecord checkRecord = preschoolCheckRecordService.getById(id, hospitalId);
+        return Objects.nonNull(checkRecord) ? checkRecord.getRefractionData() : null;
+    }
+
+    /**
+     * 根据 id 获取检查单
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping("/checkRecord/eyeDiseaseFactor/{id}")
+    public EyeDiseaseFactor getCheckRecordEyeDiseaseFactorById(@PathVariable("id") Integer id) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        Integer hospitalId = user.getOrgId();
+        PreschoolCheckRecord checkRecord = preschoolCheckRecordService.getById(id, hospitalId);
+        return Objects.nonNull(checkRecord) ? checkRecord.getEyeDiseaseFactor() : null;
+    }
+
+    /**
+     * 根据 id 获取检查单
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping("/checkRecord/lightReaction/{id}")
+    public BaseMedicalResult getCheckRecordLightReactionById(@PathVariable("id") Integer id) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        Integer hospitalId = user.getOrgId();
+        PreschoolCheckRecord checkRecord = preschoolCheckRecordService.getById(id, hospitalId);
+        return Objects.nonNull(checkRecord) ? checkRecord.getLightReaction() : null;
+    }
+
+    /**
+     * 根据 id 获取检查单
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping("/checkRecord/blinkReflex/{id}")
+    public BaseMedicalResult getCheckRecordBlinkReflexById(@PathVariable("id") Integer id) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        Integer hospitalId = user.getOrgId();
+        PreschoolCheckRecord checkRecord = preschoolCheckRecordService.getById(id, hospitalId);
+        return Objects.nonNull(checkRecord) ? checkRecord.getBlinkReflex() : null;
+    }
+
+    /**
+     * 根据 id 获取检查单
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping("/checkRecord/redBallTest/{id}")
+    public BaseMedicalResult getCheckRecordRedBallTestById(@PathVariable("id") Integer id) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        Integer hospitalId = user.getOrgId();
+        PreschoolCheckRecord checkRecord = preschoolCheckRecordService.getById(id, hospitalId);
+        return Objects.nonNull(checkRecord) ? checkRecord.getRedBallTest() : null;
+    }
+
+    /**
+     * 根据 id 获取检查单
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping("/checkRecord/visualBehaviorObservation/{id}")
+    public BaseMedicalResult getCheckRecordVisualBehaviorObservationById(@PathVariable("id") Integer id) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        Integer hospitalId = user.getOrgId();
+        PreschoolCheckRecord checkRecord = preschoolCheckRecordService.getById(id, hospitalId);
+        return Objects.nonNull(checkRecord) ? checkRecord.getVisualBehaviorObservation() : null;
+    }
+
+    /**
+     * 根据 id 获取检查单
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping("/checkRecord/redReflex/{id}")
+    public BaseMedicalResult getCheckRecordRedReflexById(@PathVariable("id") Integer id) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        Integer hospitalId = user.getOrgId();
+        PreschoolCheckRecord checkRecord = preschoolCheckRecordService.getById(id, hospitalId);
+        return Objects.nonNull(checkRecord) ? checkRecord.getRedReflex() : null;
+    }
+
+    /**
+     * 根据 id 获取检查单
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping("/checkRecord/ocularInspection/{id}")
+    public BaseMedicalResult getCheckRecordOcularInspectionById(@PathVariable("id") Integer id) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        Integer hospitalId = user.getOrgId();
+        PreschoolCheckRecord checkRecord = preschoolCheckRecordService.getById(id, hospitalId);
+        return Objects.nonNull(checkRecord) ? checkRecord.getOcularInspection() : null;
+    }
+
+    /**
+     * 根据 id 获取检查单
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping("/checkRecord/monocularMaskingAversionTest/{id}")
+    public BaseMedicalResult getCheckRecordMonocularMaskingAversionTestById(@PathVariable("id") Integer id) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        Integer hospitalId = user.getOrgId();
+        PreschoolCheckRecord checkRecord = preschoolCheckRecordService.getById(id, hospitalId);
+        return Objects.nonNull(checkRecord) ? checkRecord.getMonocularMaskingAversionTest() : null;
+    }
+
+    /**
+     * 根据 id 获取检查单
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping("/checkRecord/guideContent/{id}")
+    public String getCheckRecordGuideContentById(@PathVariable("id") Integer id) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        Integer hospitalId = user.getOrgId();
+        PreschoolCheckRecord checkRecord = preschoolCheckRecordService.getById(id, hospitalId);
+        return Objects.nonNull(checkRecord) ? checkRecord.getGuideContent() : null;
+    }
+
+    /**
+     * 根据 id 获取检查前转诊
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping("/checkRecord/fromReferral/{id}")
+    public PreschoolCheckRecord getCheckRecordFromReferralById(@PathVariable("id") Integer id) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        Integer hospitalId = user.getOrgId();
+        PreschoolCheckRecord checkRecord = preschoolCheckRecordService.getById(id, hospitalId);
+        return Objects.nonNull(checkRecord) ? new PreschoolCheckRecord()
+                .setIsReferral(checkRecord.getIsReferral()).setFromReferral(checkRecord.getFromReferral()) : null;
+    }
+
+    /**
+     * 保存检查单
      *
      * @param checkRecord 检查单
      * @return
      */
     @PostMapping("/checkRecord")
-    public void saveOuterEyeCheckRecord(@RequestBody PreschoolCheckRecord checkRecord) {
+    public void saveCheckRecord(@RequestBody PreschoolCheckRecord checkRecord) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         checkRecord.setHospitalId(user.getOrgId());
+        preschoolCheckRecordService.saveCheckRecord(checkRecord);
+    }
+
+    /**
+     * 保存检查单-检查前转诊信息
+     *
+     * @param checkRecord 检查单
+     * @return
+     */
+    @PostMapping("/checkRecord/fromReferral")
+    public void saveCheckRecordFromReferral(@RequestBody PreschoolCheckRecord checkRecord) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        checkRecord.setHospitalId(user.getOrgId());
+        if (Objects.isNull(checkRecord.getFromReferral())) {
+            checkRecord.setIsReferral(false);
+        } else {
+            checkRecord.setIsReferral(true);
+        }
         preschoolCheckRecordService.saveCheckRecord(checkRecord);
     }
 

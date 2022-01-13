@@ -4,6 +4,7 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReferralDO;
+import com.wupol.myopia.business.core.hospital.domain.dto.ReferralDTO;
 import com.wupol.myopia.business.core.hospital.domain.model.ReferralRecord;
 import com.wupol.myopia.business.core.hospital.service.PreschoolCheckRecordService;
 import com.wupol.myopia.business.core.hospital.service.ReferralRecordService;
@@ -35,8 +36,13 @@ public class ReferralController {
      * @return
      */
     @GetMapping("/list")
-    public List<ReferralDO> getList(Integer studentId) {
+    public List<ReferralDO> getList(@RequestParam Integer studentId) {
         return referralRecordService.getByStudentId(studentId);
+    }
+
+    @GetMapping("/details")
+    public ReferralDTO getDetails(@RequestParam Integer preshcoolCheckRecordId) {
+        return referralRecordService.getDetailsByHospitalAndPreschoolCheckRecordId(CurrentUserUtil.getCurrentUser().getOrgId(), preshcoolCheckRecordId);
     }
 
     @PostMapping

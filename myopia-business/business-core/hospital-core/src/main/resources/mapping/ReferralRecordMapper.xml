@@ -19,20 +19,20 @@
     <sql id="Base_Where_Clause">
         <where>
             <trim prefixOverrides="and">
-                <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
-                <if test="@Ognl@isNotEmpty(preschoolCheckRecordId)">and `preschool_check_record_id` = #{preschoolCheckRecordId}</if>
-                <if test="@Ognl@isNotEmpty(studentId)">and `student_id` = #{studentId}</if>
-                <if test="@Ognl@isNotEmpty(fromHospitalId)">and `from_hospital_id` = #{fromHospitalId}</if>
-                <if test="@Ognl@isNotEmpty(fromDoctorId)">and `from_doctor_id` = #{fromDoctorId}</if>
-                <if test="@Ognl@isNotEmpty(toHospitalId)">and `to_hospital_id` = #{toHospitalId}</if>
-                <if test="@Ognl@isNotEmpty(toHospital)">and `to_hospital` = #{toHospital}</if>
-                <if test="@Ognl@isNotEmpty(toDepartment)">and `to_department` = #{toDepartment}</if>
-                <if test="@Ognl@isNotEmpty(specialMedical)">and `special_medical` = #{specialMedical}</if>
-                <if test="@Ognl@isNotEmpty(diseaseMedical)">and `disease_medical` = #{diseaseMedical}</if>
-                <if test="@Ognl@isNotEmpty(conclusion)">and `conclusion` = #{conclusion}</if>
-                <if test="@Ognl@isNotEmpty(referralStatus)">and `referral_status` = #{referralStatus}</if>
-                <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
-                <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+                <if test="@Ognl@isNotEmpty(id)">and rr.`id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(preschoolCheckRecordId)">and rr.`preschool_check_record_id` = #{preschoolCheckRecordId}</if>
+                <if test="@Ognl@isNotEmpty(studentId)">and rr.`student_id` = #{studentId}</if>
+                <if test="@Ognl@isNotEmpty(fromHospitalId)">and rr.`from_hospital_id` = #{fromHospitalId}</if>
+                <if test="@Ognl@isNotEmpty(fromDoctorId)">and rr.`from_doctor_id` = #{fromDoctorId}</if>
+                <if test="@Ognl@isNotEmpty(toHospitalId)">and rr.`to_hospital_id` = #{toHospitalId}</if>
+                <if test="@Ognl@isNotEmpty(toHospital)">and rr.`to_hospital` = #{toHospital}</if>
+                <if test="@Ognl@isNotEmpty(toDepartment)">and rr.`to_department` = #{toDepartment}</if>
+                <if test="@Ognl@isNotEmpty(specialMedical)">and rr.`special_medical` = #{specialMedical}</if>
+                <if test="@Ognl@isNotEmpty(diseaseMedical)">and rr.`disease_medical` = #{diseaseMedical}</if>
+                <if test="@Ognl@isNotEmpty(conclusion)">and rr.`conclusion` = #{conclusion}</if>
+                <if test="@Ognl@isNotEmpty(referralStatus)">and rr.`referral_status` = #{referralStatus}</if>
+                <if test="@Ognl@isNotEmpty(updateTime)">and rr.`update_time` = #{updateTime}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and rr.`create_time` = #{createTime}</if>
             </trim>
         </where>
     </sql>
@@ -53,7 +53,7 @@
 		on pcr.id = rr.preschool_check_record_id
 		LEFT JOIN m_hospital h on h.id = rr.from_hospital_id
 		LEFT JOIN h_doctor d on d.id = rr.from_doctor_id
-        where rr.id = #{id}
+        <include refid="Base_Where_Clause" />
     </select>
 
     <select id="getByStudentId" resultMap="BaseResultMap">

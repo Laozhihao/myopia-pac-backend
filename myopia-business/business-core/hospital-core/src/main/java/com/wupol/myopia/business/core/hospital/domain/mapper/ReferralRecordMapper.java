@@ -19,10 +19,10 @@ public interface ReferralRecordMapper extends BaseMapper<ReferralRecord> {
 
     /**
      * 获取转诊单详情
-     * @param id
+     * @param referral
      * @return
      */
-    ReferralDTO getDetails(@Param("id") Integer id);
+    ReferralDTO getDetails(ReferralRecord referral);
 
     /**
      * 获取指定学生转诊单信息
