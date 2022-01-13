@@ -86,6 +86,8 @@ public class DiopterMedicalRecord {
         private Integer studentId;
 
         private Boolean isAbnormal;
+        /** 结论 */
+        private String conclusion;
 
     }
 
