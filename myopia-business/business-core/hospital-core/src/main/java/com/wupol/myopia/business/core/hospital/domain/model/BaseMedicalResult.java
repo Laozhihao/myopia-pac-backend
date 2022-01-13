@@ -20,5 +20,6 @@ public class BaseMedicalResult {
     private String conclusion;
     private Integer studentId;
     private Integer doctorId;
+    private Boolean isAbnormal;
 
 }
