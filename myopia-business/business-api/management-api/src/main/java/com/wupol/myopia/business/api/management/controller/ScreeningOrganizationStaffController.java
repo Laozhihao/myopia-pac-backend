@@ -83,10 +83,11 @@ public class ScreeningOrganizationStaffController {
         if (Objects.nonNull(user.getScreeningOrgId())) {
             screeningOrganizationStaff.setScreeningOrgId(user.getScreeningOrgId());
         }
-        if (!user.isPlatformAdminUser()){//如果不是管理员
+        //如果不是管理员
+        if (!user.isPlatformAdminUser()){
             ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(user.getScreeningOrgId());
             List<ScreeningOrganizationAdmin> orgList = screeningOrganizationAdminService.getListOrgList(user.getScreeningOrgId());
-            if (orgList.size()>=screeningOrganization.getScreeningNum()){
+            if (orgList.size()>=screeningOrganization.getAccountNum()){
                 return null;
             }
         }
