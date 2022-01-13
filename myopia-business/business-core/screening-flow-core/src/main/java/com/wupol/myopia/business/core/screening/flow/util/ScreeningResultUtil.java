@@ -106,14 +106,14 @@ public class ScreeningResultUtil {
     /**
      * 视力检查结果
      *
-     * @param age
-     * @param nakedVision
-     * @param correctedVision
-     * @param glassesType
-     * @param leftNakedVisionValue
-     * @param rightNakedVisionValue
-     * @param leftCorrectedVisionValue
-     * @param rightCorrectedVisionValue
+     * @param age                       年龄
+     * @param nakedVision               裸眼视力检查结果
+     * @param correctedVision           矫正视力视力检查结果
+     * @param glassesType               带镜类型
+     * @param leftNakedVisionValue      左眼裸眼视力
+     * @param rightNakedVisionValue     右眼裸眼视力
+     * @param leftCorrectedVisionValue  左眼矫正视力
+     * @param rightCorrectedVisionValue 右眼矫正视力
      */
     public static void packageVisionDate(Integer age, VisionItems nakedVision, VisionItems correctedVision,
                                          Integer glassesType, BigDecimal leftNakedVisionValue, BigDecimal rightNakedVisionValue,
@@ -227,20 +227,20 @@ public class ScreeningResultUtil {
     /**
      * 验光仪检查结果
      *
-     * @param age
-     * @param items
-     * @param maxType
-     * @param sphItems
-     * @param cylItems
-     * @param axialItems
-     * @param seItems
-     * @param leftSph
-     * @param leftCyl
-     * @param rightSph
-     * @param rightCyl
-     * @param leftAxial
-     * @param rightAxial
-     * @return
+     * @param age        年龄
+     * @param items      验光仪检查结果对象
+     * @param maxType    最严重的级别
+     * @param sphItems   球镜对象
+     * @param cylItems   柱镜对象
+     * @param axialItems 轴位对象
+     * @param seItems    等效球镜对象
+     * @param leftSph    左眼球镜
+     * @param leftCyl    左眼柱镜
+     * @param rightSph   右眼球镜
+     * @param rightCyl   右眼柱镜
+     * @param leftAxial  左眼轴位
+     * @param rightAxial 右眼轴位
+     * @return 最严重的级别
      */
     public static Integer packageRefractoryResult(Integer age, List<RefractoryResultItems> items, Integer maxType,
                                                   RefractoryResultItems sphItems, RefractoryResultItems cylItems, RefractoryResultItems axialItems,

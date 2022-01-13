@@ -24,6 +24,9 @@
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="family_info" property="familyInfo"/>
     </resultMap>
 
+    <resultMap id="StudentCheckCountDTO" type="com.wupol.myopia.business.core.hospital.domain.dto.StudentPreschoolCheckDTO">
+    </resultMap>
+
     <!-- 通用查询条件 -->
     <sql id="Base_Where_Clause">
         <where>
@@ -76,7 +79,7 @@
         </foreach>
     </sql>
 
-    <select id="getDetails" resultMap="PreschoolCheckRecordDTO">
+    <select id="getDetail" resultMap="PreschoolCheckRecordDTO">
         select pcr.*, hs.`name` as student_name, hs.gender, hs.record_no, hs.birthday, hs.id_card, hs.sno, hs.parent_phone,
         hs.is_newborn_without_id_card as has_id_card, hs.family_info,
         h.`name` as hospital_name, rr.to_hospital, rr.special_medical, rr.disease_medical, rr.conclusion as referral_conclusion,
@@ -185,4 +188,14 @@
         </foreach>
         order by create_time desc
     </select>
+
+    <select id="getStudentCheckCount" resultMap="StudentCheckCountDTO">
+        select student_id, count(DISTINCT month_age) as count from h_preschool_check_record
+        group by student_id
+        HAVING student_id in
+        <foreach collection="studentIds" item="studentId" index="index" open="(" close=")" separator=",">
+            #{studentId}
+        </foreach>
+    </select>
+
 </mapper>

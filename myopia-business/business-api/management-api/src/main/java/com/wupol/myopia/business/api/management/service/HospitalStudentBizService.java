@@ -11,6 +11,7 @@ import com.wupol.myopia.business.core.hospital.domain.dto.HospitalStudentRespons
 import com.wupol.myopia.business.core.hospital.domain.model.HospitalStudent;
 import com.wupol.myopia.business.core.hospital.service.HospitalStudentService;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
+import com.wupol.myopia.business.core.hospital.service.PreschoolCheckRecordService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
@@ -51,6 +52,9 @@ public class HospitalStudentBizService {
     @Resource
     private MedicalReportService medicalReportService;
 
+    @Resource
+    private PreschoolCheckRecordService preschoolCheckRecordService;
+
     /**
      * 获取医院学生
      *
@@ -83,6 +87,9 @@ public class HospitalStudentBizService {
         List<ReportAndRecordDO> reportList = medicalReportService.getByStudentIdsAndHospitalId(studentIds, requestDTO.getHospitalId());
         LinkedHashMap<Integer, Long> reportMap = reportList.stream().collect(Collectors.groupingBy(ReportAndRecordDO::getStudentId, LinkedHashMap::new, Collectors.counting()));
 
+        // 获取学生检查数
+        Map<Integer, Integer> studentCheckCount = preschoolCheckRecordService.getStudentCheckCount(studentIds);
+
         hospitalStudentList.forEach(hospitalStudent -> {
             hospitalStudent.setSchoolName(schoolMap.get(hospitalStudent.getSchoolId()));
             hospitalStudent.setGradeName(Objects.isNull(gradeMap.get(hospitalStudent.getGradeId())) ? null : gradeMap.get(hospitalStudent.getGradeId()).getName());
@@ -91,6 +98,7 @@ public class HospitalStudentBizService {
                 hospitalStudent.setBirthdayInfo(DateUtil.getAgeInfo(hospitalStudent.getBirthday(), new Date()));
             }
             hospitalStudent.setReportCount(reportMap.getOrDefault(hospitalStudent.getStudentId(), 0L));
+            hospitalStudent.setPreschoolCheckCount(studentCheckCount.getOrDefault(hospitalStudent.getStudentId(), 0));
         });
         return responseDTOIPage;
     }

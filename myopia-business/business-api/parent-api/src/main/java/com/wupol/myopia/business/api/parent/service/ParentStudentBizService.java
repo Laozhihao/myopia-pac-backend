@@ -26,6 +26,7 @@ import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
+import com.wupol.myopia.business.core.hospital.domain.dto.EyeHealthyReportResponseDTO;
 import com.wupol.myopia.business.core.hospital.domain.dto.PreschoolCheckRecordDTO;
 import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
 import com.wupol.myopia.business.core.hospital.domain.model.HospitalStudent;
@@ -626,7 +627,12 @@ public class ParentStudentBizService {
         if (CollectionUtils.isEmpty(hospitalStudents)) {
             return;
         }
-        hospitalStudents.forEach(hospitalStudent -> hospitalStudent.setIdCard(idCard).setName(name).setIsNewbornWithoutIdCard(false));
+        hospitalStudents.forEach(hospitalStudent -> hospitalStudent
+                .setIdCard(idCard)
+                .setName(name)
+                .setIsNewbornWithoutIdCard(false)
+                .setRecordNo(student.getRecordNo())
+                .setCommitteeCode(student.getCommitteeCode()));
         hospitalStudentService.updateBatchById(hospitalStudents);
     }
 
@@ -654,11 +660,37 @@ public class ParentStudentBizService {
         return student;
     }
 
+    /**
+     * 获取报告
+     *
+     * @param reportId 报告Id
+     * @return PreschoolReportDTO
+     */
     public PreschoolReportDTO getEyeHealthyReportDetail(Integer reportId) {
-        PreschoolCheckRecordDTO details = preschoolCheckRecordService.getDetails(reportId);
+        PreschoolCheckRecordDTO details = preschoolCheckRecordService.getDetail(reportId);
         return packagePreschoolReport(details);
     }
 
+    /**
+     * 获取最新的一条眼保健数据
+     *
+     * @param studentId 学生Id
+     * @return PreschoolReportDTO
+     */
+    public PreschoolReportDTO getLatestEyeHealthyReportList(Integer studentId) {
+        List<EyeHealthyReportResponseDTO> report = preschoolCheckRecordService.getByStudentId(studentId);
+        if (CollectionUtils.isEmpty(report)) {
+            return new PreschoolReportDTO();
+        }
+        return packagePreschoolReport(preschoolCheckRecordService.getDetail(report.get(0).getId()));
+    }
+
+    /**
+     * 封装眼健康报告所需要的视力检查
+     *
+     * @param detail 报告详情
+     * @return PreschoolReportDTO
+     */
     private PreschoolReportDTO packagePreschoolReport(PreschoolCheckRecordDTO detail) {
         PreschoolReportDTO reportDTO = new PreschoolReportDTO();
         BeanUtils.copyProperties(detail, reportDTO);
@@ -666,54 +698,57 @@ public class ParentStudentBizService {
         return reportDTO;
     }
 
+    /**
+     * 封装眼健康报告所需要的视力检查
+     *
+     * @param reportDTO 眼健康报告
+     */
     private void getParentPreschoolReportInfo(PreschoolReportDTO reportDTO) {
 
-//        // 裸眼视力
-//        VisionItems nakedVision = new VisionItems();
-//        nakedVision.setTitle("裸眼视力");
-//        // 矫正视力
-//        VisionItems correctedVision = new VisionItems();
-//        correctedVision.setTitle("矫正视力");
-//
-//        List<RefractoryResultItems> items = new ArrayList<>();
-//        RefractoryResultItems sphItems = new RefractoryResultItems();
-//        sphItems.setTitle("球镜SC");
-//        RefractoryResultItems cylItems = new RefractoryResultItems();
-//        cylItems.setTitle("柱镜DC");
-//        RefractoryResultItems axialItems = new RefractoryResultItems();
-//        axialItems.setTitle("轴位A");
-//        RefractoryResultItems seItems = new RefractoryResultItems();
-//        seItems.setTitle("等效球镜SE");
-//
-//        VisionMedicalRecord visionData = reportDTO.getVisionData();
-//        if (ObjectsUtil.hasNull(reportDTO.getBirthday(), visionData)) {
-//            reportDTO.setVisionResultItems(Lists.newArrayList(nakedVision, correctedVision));
-//            reportDTO.setRefractoryResultItems(Lists.newArrayList(sphItems, cylItems, axialItems, seItems));
-//            return;
-//        }
-//        // 如果为空，默认不带镜（需求）
-//        Integer glassesType = Objects.nonNull(visionData.getGlassesType()) ? visionData.getGlassesType() : 0;
-//        int age = DateUtil.ageOfNow(reportDTO.getBirthday());
-//
-//        // 视力检查结果
-//        ScreeningResultUtil.packageVisionDate(age, nakedVision, correctedVision,
-//                glassesType,
-//                StringUtils.isNotBlank(visionData.getLeftRawVision()) ? new BigDecimal(visionData.getLeftRawVision()) : null,
-//                StringUtils.isNotBlank(visionData.getRightRawVision()) ? new BigDecimal(visionData.getRightRawVision()) : null,
-//                StringUtils.isNotBlank(visionData.getLeftVision()) ? new BigDecimal(visionData.getLeftVision()) : null,
-//                StringUtils.isNotBlank(visionData.getRightVision()) ? new BigDecimal(visionData.getRightVision()) : null);
-//        reportDTO.setVisionResultItems(Lists.newArrayList(nakedVision, correctedVision));
-//
-//        // 验光仪检查结果
-//        ScreeningResultUtil.packageRefractoryResult(age, items, 0, sphItems, cylItems, axialItems, seItems,
-//                StringUtils.isNotBlank(visionData.getLeftDS()) ? new BigDecimal(visionData.getLeftDS()) : null,
-//                StringUtils.isNotBlank(visionData.getLeftDC()) ? new BigDecimal(visionData.getLeftDC()) : null,
-//                StringUtils.isNotBlank(visionData.getRightDS()) ? new BigDecimal(visionData.getRightDS()) : null,
-//                StringUtils.isNotBlank(visionData.getRightDC()) ? new BigDecimal(visionData.getRightDC()) : null,
-//                StringUtils.isNotBlank(visionData.getLeftAxis()) ? new BigDecimal(visionData.getLeftAxis()) : null,
-//                StringUtils.isNotBlank(visionData.getRightAxis()) ? new BigDecimal(visionData.getRightAxis()) : null);
-//        reportDTO.setRefractoryResultItems(Lists.newArrayList(sphItems, cylItems, axialItems, seItems));
+        // 裸眼视力
+        VisionItems nakedVision = new VisionItems();
+        nakedVision.setTitle("裸眼视力");
+        // 矫正视力
+        VisionItems correctedVision = new VisionItems();
+        correctedVision.setTitle("矫正视力");
+
+        List<RefractoryResultItems> items = new ArrayList<>();
+        RefractoryResultItems sphItems = new RefractoryResultItems();
+        sphItems.setTitle("球镜SC");
+        RefractoryResultItems cylItems = new RefractoryResultItems();
+        cylItems.setTitle("柱镜DC");
+        RefractoryResultItems axialItems = new RefractoryResultItems();
+        axialItems.setTitle("轴位A");
+        RefractoryResultItems seItems = new RefractoryResultItems();
+        seItems.setTitle("等效球镜SE");
+
+        VisionMedicalRecord visionData = reportDTO.getVisionData();
+        if (ObjectsUtil.hasNull(reportDTO.getBirthday(), visionData)) {
+            reportDTO.setVisionResultItems(Lists.newArrayList(nakedVision, correctedVision));
+            reportDTO.setRefractoryResultItems(Lists.newArrayList(sphItems, cylItems, axialItems, seItems));
+            return;
+        }
+        // 如果为空，默认不带镜（需求）
+        Integer glassesType = Objects.nonNull(visionData.getGlassesType()) ? visionData.getGlassesType() : 0;
+        int age = DateUtil.ageOfNow(reportDTO.getBirthday());
+
+        // 视力检查结果
+        ScreeningResultUtil.packageVisionDate(age, nakedVision, correctedVision,
+                glassesType,
+                StringUtils.isNotBlank(visionData.getLeftRawVision()) ? new BigDecimal(visionData.getLeftRawVision()) : null,
+                StringUtils.isNotBlank(visionData.getRightRawVision()) ? new BigDecimal(visionData.getRightRawVision()) : null,
+                StringUtils.isNotBlank(visionData.getLeftVision()) ? new BigDecimal(visionData.getLeftVision()) : null,
+                StringUtils.isNotBlank(visionData.getRightVision()) ? new BigDecimal(visionData.getRightVision()) : null);
+        reportDTO.setVisionResultItems(Lists.newArrayList(nakedVision, correctedVision));
+
+        // 验光仪检查结果
+        ScreeningResultUtil.packageRefractoryResult(age, items, 0, sphItems, cylItems, axialItems, seItems,
+                StringUtils.isNotBlank(visionData.getLeftDS()) ? new BigDecimal(visionData.getLeftDS()) : null,
+                StringUtils.isNotBlank(visionData.getLeftDC()) ? new BigDecimal(visionData.getLeftDC()) : null,
+                StringUtils.isNotBlank(visionData.getRightDS()) ? new BigDecimal(visionData.getRightDS()) : null,
+                StringUtils.isNotBlank(visionData.getRightDC()) ? new BigDecimal(visionData.getRightDC()) : null,
+                StringUtils.isNotBlank(visionData.getLeftAxis()) ? new BigDecimal(visionData.getLeftAxis()) : null,
+                StringUtils.isNotBlank(visionData.getRightAxis()) ? new BigDecimal(visionData.getRightAxis()) : null);
+        reportDTO.setRefractoryResultItems(Lists.newArrayList(sphItems, cylItems, axialItems, seItems));
     }
-
-
 }

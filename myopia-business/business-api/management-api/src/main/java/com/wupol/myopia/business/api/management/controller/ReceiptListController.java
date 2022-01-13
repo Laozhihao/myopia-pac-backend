@@ -30,8 +30,8 @@ public class ReceiptListController {
      * @return
      */
     @GetMapping("/{id}")
-    public ReceiptDTO getDetails(@PathVariable("id") Integer id) {
-        return receiptListService.getDetailsById(id);
+    public ReceiptDTO getDetail(@PathVariable("id") Integer id) {
+        return receiptListService.getDetailById(id);
     }
 
 }

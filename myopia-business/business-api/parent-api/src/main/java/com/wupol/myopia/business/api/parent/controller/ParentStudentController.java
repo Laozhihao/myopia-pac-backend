@@ -262,11 +262,7 @@ public class ParentStudentController {
      */
     @GetMapping("eyeHealthyReport/latest/{studentId}")
     public PreschoolCheckRecordDTO getLatestEyeHealthyReportList(@PathVariable("studentId") Integer studentId) {
-        List<EyeHealthyReportResponseDTO> report = preschoolCheckRecordService.getByStudentId(studentId);
-        if (CollectionUtils.isEmpty(report)) {
-            return new PreschoolCheckRecordDTO();
-        }
-        return preschoolCheckRecordService.getDetails(report.get(0).getId());
+        return parentStudentBizService.getLatestEyeHealthyReportList(studentId);
     }
 
     /**
