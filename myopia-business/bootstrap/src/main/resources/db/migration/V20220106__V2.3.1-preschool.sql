@@ -63,3 +63,6 @@ alter table m_screening_plan_school_student
 
 alter table h_hospital_student
     add student_type int null comment '学生类型 1-医院端 2-0到6岁 3医院和0到6';
+
+alter table m_student
+    modify record_no varchar(32) null comment '检查建档编码';

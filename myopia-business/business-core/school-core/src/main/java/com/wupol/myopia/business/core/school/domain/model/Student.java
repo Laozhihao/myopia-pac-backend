@@ -235,7 +235,7 @@ public class Student extends AddressCode implements Serializable {
     /**
      * 检查建档编码
      */
-    private Long recordNo;
+    private String recordNo;
 
     /**
      * 上传筛查学生时，判断学生需更新信息是否一致
