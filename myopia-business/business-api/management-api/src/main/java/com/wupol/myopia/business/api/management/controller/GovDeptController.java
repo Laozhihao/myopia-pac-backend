@@ -109,6 +109,7 @@ public class GovDeptController {
         }
         try {
             govDeptService.saveGovDept(govDept.setCreateUserId(currentUser.getId()));
+            //新增部门获取上级发布的历史通知
             List<GovDept> lists = new ArrayList<>();
             List<GovDept> govList = findByParentIds(lists,govDept.getPid());
             if (!govList.isEmpty()){
@@ -135,6 +136,13 @@ public class GovDeptController {
         }
         return govDept;
     }
+
+    /**
+     * 根据部门父id获取所有上级部门
+     * @param list
+     * @param id
+     * @return
+     */
 
     private List<GovDept> findByParentIds(List<GovDept> list,Integer id) {
         GovDept govDept =  govDeptService.getById(id);
