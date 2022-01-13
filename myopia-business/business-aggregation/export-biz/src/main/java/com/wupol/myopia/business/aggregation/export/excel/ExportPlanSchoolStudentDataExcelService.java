@@ -62,9 +62,8 @@ public class ExportPlanSchoolStudentDataExcelService extends BaseExportExcelFile
 
 
     @Override
-    public List getExcelData(ExportCondition exportCondition) {
+    public List<StudentVisionScreeningResultExportDTO> getExcelData(ExportCondition exportCondition) {
         Integer screeningPlanId = exportCondition.getPlanId();
-        Integer screeningOrgId = exportCondition.getScreeningOrgId();
         Integer schoolId = exportCondition.getSchoolId();
         Integer gradeId = exportCondition.getGradeId();
         Integer classId = exportCondition.getClassId();
@@ -108,8 +107,7 @@ public class ExportPlanSchoolStudentDataExcelService extends BaseExportExcelFile
 
     @Override
     public String getNoticeKeyContent(ExportCondition exportCondition) {
-        String noticeKeyContent = String.format(ExcelNoticeKeyContentConstant.EXPORT_PLAN_STUDENT_DATA, getFileNameTitle(exportCondition));
-        return noticeKeyContent;
+        return String.format(ExcelNoticeKeyContentConstant.EXPORT_PLAN_STUDENT_DATA, getFileNameTitle(exportCondition));
     }
 
     @Override
@@ -126,8 +124,7 @@ public class ExportPlanSchoolStudentDataExcelService extends BaseExportExcelFile
         Integer classId = exportCondition.getClassId();
         Integer userId = exportCondition.getApplyExportFileUserId();
 
-        String lockKey = String.format(RedisConstant.FILE_EXPORT_PLAN_STUDENTSCREENING, screeningPlanId,screeningOrgId,schoolId, gradeId,classId,userId);
-        return lockKey;
+        return String.format(RedisConstant.FILE_EXPORT_PLAN_STUDENTSCREENING, screeningPlanId,screeningOrgId,schoolId, gradeId,classId,userId);
     }
 
     @Override
@@ -139,7 +136,7 @@ public class ExportPlanSchoolStudentDataExcelService extends BaseExportExcelFile
             // 1.获取文件名
             String fileName = getFileName(exportCondition);
             // 3.获取数据，生成List
-            List data = getExcelData(exportCondition);
+            List<StudentVisionScreeningResultExportDTO> data = getExcelData(exportCondition);
             // 2.获取文件保存父目录路径
             excelFile = generateExcelFile(fileName, data);
             return resourceFileService.getResourcePath(s3Utils.uploadS3AndGetResourceFile(excelFile.getAbsolutePath(), fileName).getId());

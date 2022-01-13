@@ -9,6 +9,7 @@ import com.wupol.myopia.business.core.common.constant.ExportAddressKey;
 import com.wupol.myopia.business.core.common.domain.model.AddressCode;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentVisionScreeningResultExportDTO;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
 import lombok.extern.log4j.Log4j2;
@@ -113,7 +114,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
      * @param data Excel数据
      * @return java.io.File
      **/
-    public File generateExcelFile(String fileName, List data) throws IOException {
+    public File generateExcelFile(String fileName, List<StudentVisionScreeningResultExportDTO> data) throws IOException {
         return ExcelUtil.exportListToExcel(fileName, data, getHeadClass());
     }
 

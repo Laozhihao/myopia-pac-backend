@@ -68,8 +68,9 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
     private ResourceFileService resourceFileService;
 
     @Override
-    public List getExcelData(ExportCondition exportCondition) {
-        Integer screeningPlanId = exportCondition.getPlanId();//这个地方有问题
+    public List<StatConclusionExportDTO> getExcelData(ExportCondition exportCondition) {
+        //这个地方有问题
+        Integer screeningPlanId = exportCondition.getPlanId();
         Integer screeningOrgId = exportCondition.getScreeningOrgId();
         Integer schoolId = exportCondition.getSchoolId();
         Integer gradeId = exportCondition.getGradeId();
@@ -90,9 +91,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
     @Override
     public String getNoticeKeyContent(ExportCondition exportCondition) {
 
-        String noticeKeyContent = String.format(ExcelNoticeKeyContentConstant.EXPORT_PLAN_STUDENT_DATA, getFileNameTitle(exportCondition));
-
-        return noticeKeyContent;
+        return String.format(ExcelNoticeKeyContentConstant.EXPORT_PLAN_STUDENT_DATA, getFileNameTitle(exportCondition));
     }
 
     @Override
@@ -106,9 +105,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         Integer screeningOrgId = exportCondition.getScreeningOrgId();
         Integer schoolId = exportCondition.getSchoolId();
         Integer userId = exportCondition.getApplyExportFileUserId();
-        String lockKey = String.format(RedisConstant.FILE_EXPORT_PLAN_DATA, screeningPlanId,screeningOrgId,schoolId, userId);
-
-        return lockKey;
+        return String.format(RedisConstant.FILE_EXPORT_PLAN_DATA, screeningPlanId,screeningOrgId,schoolId, userId);
     }
 
     @Override
@@ -131,17 +128,16 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         String parentPath = null;
         File excelFile = null;
         // 参数校验
-//        validatePlanExportParams(exportCondition.getPlanId(), exportCondition.getScreeningOrgId(), exportCondition.getSchoolId());
+        validatePlanExportParams(exportCondition.getPlanId());
 
         try {
             // 1.获取文件名
             String fileName = getFileName(exportCondition);
             // 3.获取数据，生成List
-            List data = getExcelData(exportCondition);
+            List<StatConclusionExportDTO> data = getExcelData(exportCondition);
             // 2.获取文件保存父目录路径
             excelFile = generateExcelFile(fileName, data);
-            String downloadUrl = resourceFileService.getResourcePath(s3Utils.uploadS3AndGetResourceFile(excelFile.getAbsolutePath(), fileName).getId());
-            return downloadUrl;
+            return resourceFileService.getResourcePath(s3Utils.uploadS3AndGetResourceFile(excelFile.getAbsolutePath(), fileName).getId());
         } catch (Exception e) {
             String requestData = JSON.toJSONString(exportCondition);
             log.error("【生成报告异常】{}", requestData, e);
@@ -181,17 +177,11 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
     /**
      * 校验筛查数据导出参数
      * @param screeningPlanId
-     * @param screeningOrgId
-     * @param schoolId
      */
-    private void validatePlanExportParams(Integer screeningPlanId, Integer screeningOrgId, Integer schoolId) {
+    private void validatePlanExportParams(Integer screeningPlanId) {
         ScreeningPlan screeningPlan = screeningPlanService.getById(screeningPlanId);
         if (Objects.isNull(screeningPlan)) {
             throw new BusinessException("筛查计划不存在");
-        }
-        List<Integer> needCheckIdList = Arrays.asList(screeningOrgId, schoolId);
-        if (needCheckIdList.stream().filter(i -> !CommonConst.DEFAULT_ID.equals(i)).count() != 1) {
-            throw new BusinessException("必须选择层级、学校或筛查机构中一个维度");
         }
     }
 }

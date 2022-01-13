@@ -109,14 +109,15 @@ public class GovDeptController {
         }
         try {
             govDeptService.saveGovDept(govDept.setCreateUserId(currentUser.getId()));
-            List<GovDept> govList = findByParentIds(govDept.getPid());
-            if (govList.size()>0){
+            List<GovDept> lists = new ArrayList<>();
+            List<GovDept> govList = findByParentIds(lists,govDept.getPid());
+            if (!govList.isEmpty()){
                 for (GovDept govDept1 : govList){
                 ScreeningNotice screeningNotice = new ScreeningNotice();
                     screeningNotice.setGovDeptId(govDept1.getId());
                     screeningNotice.setReleaseStatus(1);
                     List<ScreeningNotice> list = screeningNoticeService.findByDeptId(screeningNotice);
-                    if (list.size()>0){
+                    if (!list.isEmpty()){
                         for (ScreeningNotice screeningNotice1 :list){
                             ScreeningNoticeDeptOrg screeningNoticeDeptOrg  = new ScreeningNoticeDeptOrg();
                             screeningNoticeDeptOrg.setScreeningNoticeId(screeningNotice1.getId());
@@ -135,14 +136,13 @@ public class GovDeptController {
         return govDept;
     }
 
-    private List<GovDept> findByParentIds(Integer id) {
-        List<GovDept> list = new ArrayList<>();
+    private List<GovDept> findByParentIds(List<GovDept> list,Integer id) {
         GovDept govDept =  govDeptService.getById(id);
+        list.add(govDept);
         if (govDept.getPid() == -1){
             return list;
         }
-        list.add(govDept);
-        findByParentIds(govDept.getPid());
+        findByParentIds(list,govDept.getPid());
         return list;
     }
 

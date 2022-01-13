@@ -33,11 +33,9 @@ public class VsDataExcelService extends BaseExportExcelFileService {
     private ResourceFileService resourceFileService;
 
     @Override
-    public List getExcelData(ExportCondition exportCondition) {
+    public List<DeviceScreeningDataExportDTO> getExcelData(ExportCondition exportCondition) {
         List<Integer> ids = exportCondition.getIds();
-        List<DeviceScreeningDataExportDTO> deviceScreeningData  = deviceScreeningDataExcelService.selectExcelData(ids);
-
-        return deviceScreeningData;
+        return deviceScreeningDataExcelService.selectExcelData(ids);
     }
 
     @Override
@@ -63,8 +61,7 @@ public class VsDataExcelService extends BaseExportExcelFileService {
     @Override
     public File generateExcelFile(String fileName, List data) throws IOException {
         OnceAbsoluteMergeStrategy mergeStrategy = new OnceAbsoluteMergeStrategy(0, 1, 20, 21);
-        File excelFile =   ExcelUtil.exportListToExcel(fileName, data, mergeStrategy, DeviceScreeningDataExportDTO.class);
-        return excelFile;
+        return ExcelUtil.exportListToExcel(fileName, data, mergeStrategy, DeviceScreeningDataExportDTO.class);
     }
 
     @Override
@@ -74,7 +71,7 @@ public class VsDataExcelService extends BaseExportExcelFileService {
             // 1.获取文件名
             String fileName = getFileName(exportCondition);
             // 3.获取数据，生成List
-            List data = getExcelData(exportCondition);
+            List<DeviceScreeningDataExportDTO> data = getExcelData(exportCondition);
             // 2.获取文件保存父目录路径
             excelFile = generateExcelFile(fileName, data);
             return resourceFileService.getResourcePath(s3Utils.uploadS3AndGetResourceFile(excelFile.getAbsolutePath(), fileName).getId());

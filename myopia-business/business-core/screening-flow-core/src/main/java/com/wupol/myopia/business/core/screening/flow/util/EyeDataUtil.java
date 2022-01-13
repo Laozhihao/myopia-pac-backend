@@ -330,19 +330,15 @@ public class EyeDataUtil {
     }
 
     public static boolean resultData(VisionScreeningResult visionScreeningResult) {
-        if (visionScreeningResult!=null
-                &&visionScreeningResult.getVisionData()!=null
-                &&visionScreeningResult.getVisionData().getLeftEyeData()!=null
-                &&visionScreeningResult.getVisionData().getLeftEyeData().getNakedVision()!=null){
-
-            return true;
-        }
-        return false;
+        return visionScreeningResult != null
+                && visionScreeningResult.getVisionData() != null
+                && visionScreeningResult.getVisionData().getLeftEyeData() != null
+                && visionScreeningResult.getVisionData().getLeftEyeData().getNakedVision() != null;
     }
     public static VisionScreeningResult getVisionScreeningResult(ScreeningStudentDTO studentEyeInfor, Map<Integer, List<VisionScreeningResult>> visionScreeningResultsGroup) {
         Integer id = studentEyeInfor.getId();
         List<VisionScreeningResult>  visionScreeningResults =  visionScreeningResultsGroup.get(id);
-        if(visionScreeningResults==null||visionScreeningResults.size()==0){
+        if(visionScreeningResults==null||visionScreeningResults.isEmpty()){
             return null;
         }
         return visionScreeningResults.get(0);
