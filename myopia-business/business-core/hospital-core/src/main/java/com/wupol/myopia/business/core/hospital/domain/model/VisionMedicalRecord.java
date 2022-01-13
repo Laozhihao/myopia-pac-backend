@@ -80,6 +80,8 @@ public class VisionMedicalRecord {
 
     private Integer rightStatus;
     private Integer leftStatus;
+    private Boolean isAbnormal;
+
     /** 结论 */
     private String conclusion;
 
