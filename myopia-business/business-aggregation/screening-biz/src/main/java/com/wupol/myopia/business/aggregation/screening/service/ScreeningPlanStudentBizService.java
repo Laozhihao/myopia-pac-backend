@@ -67,7 +67,7 @@ public class ScreeningPlanStudentBizService {
     /**
      * 筛查通知结果页面地址
      */
-    public static final String SCREENING_NOTICE_RESULT_HTML_URL = "%s?planId=%d&schoolId=%d&gradeId=%d&classId=%d&orgId=%d&planStudentIds=%s&isSchoolClient=%s&noticeReport=1";
+    public static final String SCREENING_NOTICE_RESULT_HTML_URL = "%s?planId=%d&schoolId=%s&gradeId=%s&classId=%s&orgId=%s&planStudentIds=%s&isSchoolClient=%s&noticeReport=1";
 
     /**
      * 更新筛查学生
@@ -198,7 +198,15 @@ public class ScreeningPlanStudentBizService {
         String fileName = getFileName(schoolId, gradeId);
         String uuid = UUID.randomUUID().toString();
         cacheInfo(uuid, userId, fileName);
-        String screeningNoticeResultHtmlUrl = String.format(SCREENING_NOTICE_RESULT_HTML_URL, htmlUrlHost, planId, schoolId, gradeId, classId, orgId, planStudentIdStr, isSchoolClient);
+        String screeningNoticeResultHtmlUrl = String.format(SCREENING_NOTICE_RESULT_HTML_URL,
+                htmlUrlHost,
+                planId,
+                Objects.nonNull(schoolId) ? schoolId : StringUtils.EMPTY,
+                Objects.nonNull(gradeId) ? gradeId : StringUtils.EMPTY,
+                Objects.nonNull(classId) ? classId : StringUtils.EMPTY,
+                Objects.nonNull(orgId) ? orgId : StringUtils.EMPTY,
+                Objects.nonNull(planStudentIdStr) ? planStudentIdStr : StringUtils.EMPTY,
+                isSchoolClient);
         return html2PdfService.syncGeneratorPDF(screeningNoticeResultHtmlUrl, fileName, uuid);
     }
 
