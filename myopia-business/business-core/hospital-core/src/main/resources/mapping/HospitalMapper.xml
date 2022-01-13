@@ -56,7 +56,7 @@
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         id, create_user_id, gov_dept_id, district_id, district_province_code, district_detail, name, level, level_desc, telephone, type, kind, province_code, city_code, area_code, town_code, address,
-        avatar_file_id, remark,IFNULL(account_num, 0) as account_num,is_cooperation, status, create_time, update_time, service_type, cooperation_type, cooperation_time_type, cooperation_start_time, cooperation_end_time, associate_screening_org_id
+        avatar_file_id, remark,account_num,is_cooperation, status, create_time, update_time, service_type, cooperation_type, cooperation_time_type, cooperation_start_time, cooperation_end_time, associate_screening_org_id
     </sql>
 
     <select id="getHospitalListByCondition" resultMap="BaseResponseMap">

@@ -221,4 +221,14 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
         Optional<ScreeningNotice> screeningNoticeOptional = screeningNoticeList.stream().findFirst();
         return screeningNoticeOptional.orElse(null);
     }
+
+    /**
+     * 根据部门id查询通知List集合
+     * @author tastyb
+     * @param entity
+     * @return
+     */
+    public List<ScreeningNotice> findByDeptId(ScreeningNotice entity) {
+        return list(getQueryWrapper(entity));
+    }
 }

@@ -117,6 +117,7 @@ public class GovDeptController {
                 ScreeningNotice screeningNotice = new ScreeningNotice();
                     screeningNotice.setGovDeptId(govDept1.getId());
                     screeningNotice.setReleaseStatus(1);
+                    screeningNotice.setType(0);
                     List<ScreeningNotice> list = screeningNoticeService.findByDeptId(screeningNotice);
                     if (!list.isEmpty()){
                         for (ScreeningNotice screeningNotice1 :list){
