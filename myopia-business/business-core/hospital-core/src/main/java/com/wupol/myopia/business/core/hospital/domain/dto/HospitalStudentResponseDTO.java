@@ -45,4 +45,9 @@ public class HospitalStudentResponseDTO extends HospitalStudent {
      * 视力筛查数
      */
     private Long reportCount;
+
+    /**
+     * 眼保健检查数
+     */
+    private Integer preschoolCheckCount;
 }

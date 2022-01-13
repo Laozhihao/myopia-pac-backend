@@ -28,8 +28,8 @@ public class ReferralRecordService extends BaseService<ReferralRecordMapper, Ref
      * @param id
      * @return
      */
-    public ReferralDTO getDetailsById(Integer id) {
-        return getDetails(new ReferralRecord().setId(id));
+    public ReferralDTO getDetailById(Integer id) {
+        return getDetail(new ReferralRecord().setId(id));
     }
 
     /**
@@ -38,8 +38,8 @@ public class ReferralRecordService extends BaseService<ReferralRecordMapper, Ref
      * @param preschoolCheckRecordId
      * @return
      */
-    public ReferralDTO getDetailsByHospitalAndPreschoolCheckRecordId(Integer hospitalId, Integer preschoolCheckRecordId) {
-        return getDetails(new ReferralRecord().setFromHospitalId(hospitalId).setPreschoolCheckRecordId(preschoolCheckRecordId));
+    public ReferralDTO getDetailByHospitalAndId(Integer hospitalId, Integer preschoolCheckRecordId) {
+        return getDetail(new ReferralRecord().setFromHospitalId(hospitalId).setPreschoolCheckRecordId(preschoolCheckRecordId));
     }
 
     /**
@@ -47,8 +47,8 @@ public class ReferralRecordService extends BaseService<ReferralRecordMapper, Ref
      * @param referral
      * @return
      */
-    public ReferralDTO getDetails(ReferralRecord referral) {
-        ReferralDTO details = baseMapper.getDetails(referral);
+    public ReferralDTO getDetail(ReferralRecord referral) {
+        ReferralDTO details = baseMapper.getDetail(referral);
         HospitalUtil.setParentInfo(details);
         return details;
     }

@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.business.core.hospital.domain.dto.EyeHealthyReportResponseDTO;
 import com.wupol.myopia.business.core.hospital.domain.dto.PreschoolCheckRecordDTO;
+import com.wupol.myopia.business.core.hospital.domain.dto.StudentPreschoolCheckDTO;
 import com.wupol.myopia.business.core.hospital.domain.model.PreschoolCheckRecord;
 import com.wupol.myopia.business.core.hospital.domain.query.PreschoolCheckRecordQuery;
 import org.apache.ibatis.annotations.Param;
@@ -26,7 +27,7 @@ public interface PreschoolCheckRecordMapper extends BaseMapper<PreschoolCheckRec
      * @param id
      * @return
      */
-    PreschoolCheckRecordDTO getDetails(@Param("id") Integer id);
+    PreschoolCheckRecordDTO getDetail(@Param("id") Integer id);
 
     /**
      * 获取眼保健列表
@@ -48,5 +49,12 @@ public interface PreschoolCheckRecordMapper extends BaseMapper<PreschoolCheckRec
     List<EyeHealthyReportResponseDTO> getByStudentId(@Param("studentId") Integer studentId);
 
     List<PreschoolCheckRecord> getByStudentIds(@Param("studentIds") List<Integer> studentIds);
+
+    /**
+     * 通过学生获取学生月龄检查数
+     * @param studentIds
+     * @return
+     */
+    List<StudentPreschoolCheckDTO> getStudentCheckCount(@Param("studentIds") List<Integer> studentIds);
 
 }

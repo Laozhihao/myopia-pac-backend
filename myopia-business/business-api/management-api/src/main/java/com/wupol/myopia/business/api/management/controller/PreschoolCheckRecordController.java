@@ -1,10 +1,15 @@
 package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.domain.ResultCode;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.api.management.domain.dto.StudentPreschoolCheckRecordDTO;
+import com.wupol.myopia.business.api.management.service.PreschoolCheckRecordBizService;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.hospital.domain.dto.PreschoolCheckRecordDTO;
-import com.wupol.myopia.business.core.hospital.domain.dto.StudentPreschoolCheckRecordDTO;
 import com.wupol.myopia.business.core.hospital.domain.query.PreschoolCheckRecordQuery;
 import com.wupol.myopia.business.core.hospital.service.PreschoolCheckRecordService;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +33,9 @@ public class PreschoolCheckRecordController {
     @Autowired
     private PreschoolCheckRecordService preschoolCheckRecordService;
 
+    @Autowired
+    private PreschoolCheckRecordBizService preschoolCheckRecordBizService;
+
     /**
      * 眼保健列表
      *
@@ -37,6 +45,10 @@ public class PreschoolCheckRecordController {
      */
     @GetMapping("/list")
     public IPage<PreschoolCheckRecordDTO> getList(PageRequest pageRequest, PreschoolCheckRecordQuery query) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        if (user.isHospitalUser()) {
+            query.setHospitalId(user.getOrgId());
+        }
         return preschoolCheckRecordService.getList(pageRequest, query);
     }
 
@@ -46,8 +58,13 @@ public class PreschoolCheckRecordController {
      * @return
      */
     @GetMapping("/{id}")
-    public PreschoolCheckRecordDTO getDetails(@PathVariable("id") Integer id) {
-        return preschoolCheckRecordService.getDetails(id);
+    public PreschoolCheckRecordDTO getDetail(@PathVariable("id") Integer id) {
+        PreschoolCheckRecordDTO details = preschoolCheckRecordService.getDetail(id);
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        if (user.isHospitalUser() && !user.getOrgId().equals(details.getHospitalId())) {
+            throw new BusinessException("非法请求", ResultCode.USER_ACCESS_UNAUTHORIZED.getCode());
+        }
+        return details;
     }
 
     /**
@@ -56,8 +73,12 @@ public class PreschoolCheckRecordController {
      * @return
      */
     @GetMapping("/student/totality")
-    public StudentPreschoolCheckRecordDTO getStudentTotalityInfo(Integer hospitalId, Integer studentId) {
-        return preschoolCheckRecordService.getInit(hospitalId, studentId);
+    public StudentPreschoolCheckRecordDTO getStudentTotalityInfo(Integer hospitalId, @RequestParam Integer studentId) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        if (user.isHospitalUser()) {
+            hospitalId = user.getOrgId();
+        }
+        return preschoolCheckRecordBizService.getInit(hospitalId, studentId);
     }
 
 }

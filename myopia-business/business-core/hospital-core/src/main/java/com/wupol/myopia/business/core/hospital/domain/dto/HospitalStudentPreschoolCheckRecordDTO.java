@@ -12,7 +12,7 @@ import java.util.List;
  */
 @Data
 @Accessors(chain = true)
-public class StudentPreschoolCheckRecordDTO {
+public class HospitalStudentPreschoolCheckRecordDTO {
 
     /**
      * 学生信息

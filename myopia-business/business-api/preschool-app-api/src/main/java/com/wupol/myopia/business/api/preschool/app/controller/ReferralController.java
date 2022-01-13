@@ -40,9 +40,9 @@ public class ReferralController {
         return referralRecordService.getByStudentId(studentId);
     }
 
-    @GetMapping("/details")
-    public ReferralDTO getDetails(@RequestParam Integer preshcoolCheckRecordId) {
-        return referralRecordService.getDetailsByHospitalAndPreschoolCheckRecordId(CurrentUserUtil.getCurrentUser().getOrgId(), preshcoolCheckRecordId);
+    @GetMapping("/{id}")
+    public ReferralDTO getDetail(@PathVariable("id") Integer id) {
+        return referralRecordService.getDetailByHospitalAndId(CurrentUserUtil.getCurrentUser().getOrgId(), id);
     }
 
     @PostMapping

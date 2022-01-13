@@ -30,8 +30,8 @@ public class ReferralRecordController {
      * @return
      */
     @GetMapping("/{id}")
-    public ReferralDTO getDetails(@PathVariable("id") Integer id) {
-        return referralRecordService.getDetailsById(id);
+    public ReferralDTO getDetail(@PathVariable("id") Integer id) {
+        return referralRecordService.getDetailById(id);
     }
 
 }
