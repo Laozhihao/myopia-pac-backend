@@ -67,7 +67,7 @@ public class ScreeningPlanStudentBizService {
     /**
      * 筛查通知结果页面地址
      */
-    public static final String SCREENING_NOTICE_RESULT_HTML_URL = "%s?planId=%d&schoolId=%d&gradeId=%d&classId=%d&orgId=%d&planStudentIds=%s&isSchoolClient=%s";
+    public static final String SCREENING_NOTICE_RESULT_HTML_URL = "%s?planId=%d&schoolId=%d&gradeId=%d&classId=%d&orgId=%d&planStudentIds=%s&isSchoolClient=%s&noticeReport=1";
 
     /**
      * 更新筛查学生
