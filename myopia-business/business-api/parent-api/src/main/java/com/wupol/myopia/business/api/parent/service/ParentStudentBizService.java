@@ -28,10 +28,7 @@ import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.hospital.domain.dto.EyeHealthyReportResponseDTO;
 import com.wupol.myopia.business.core.hospital.domain.dto.PreschoolCheckRecordDTO;
-import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
-import com.wupol.myopia.business.core.hospital.domain.model.HospitalStudent;
-import com.wupol.myopia.business.core.hospital.domain.model.OrgCooperationHospital;
-import com.wupol.myopia.business.core.hospital.domain.model.VisionMedicalRecord;
+import com.wupol.myopia.business.core.hospital.domain.model.*;
 import com.wupol.myopia.business.core.hospital.service.*;
 import com.wupol.myopia.business.core.parent.domain.dto.CheckIdCardRequestDTO;
 import com.wupol.myopia.business.core.parent.domain.model.Parent;
@@ -741,14 +738,18 @@ public class ParentStudentBizService {
                 StringUtils.isNotBlank(visionData.getRightVision()) ? new BigDecimal(visionData.getRightVision()) : null);
         reportDTO.setVisionResultItems(Lists.newArrayList(nakedVision, correctedVision));
 
+        DiopterMedicalRecord.Diopter refractionData = reportDTO.getRefractionData();
+        if (Objects.isNull(refractionData)) {
+            return;
+        }
         // 验光仪检查结果
         ScreeningResultUtil.packageRefractoryResult(age, items, 0, sphItems, cylItems, axialItems, seItems,
-                StringUtils.isNotBlank(visionData.getLeftDS()) ? new BigDecimal(visionData.getLeftDS()) : null,
-                StringUtils.isNotBlank(visionData.getLeftDC()) ? new BigDecimal(visionData.getLeftDC()) : null,
-                StringUtils.isNotBlank(visionData.getRightDS()) ? new BigDecimal(visionData.getRightDS()) : null,
-                StringUtils.isNotBlank(visionData.getRightDC()) ? new BigDecimal(visionData.getRightDC()) : null,
-                StringUtils.isNotBlank(visionData.getLeftAxis()) ? new BigDecimal(visionData.getLeftAxis()) : null,
-                StringUtils.isNotBlank(visionData.getRightAxis()) ? new BigDecimal(visionData.getRightAxis()) : null);
+                StringUtils.isNotBlank(refractionData.getComputerLeftDS()) ? new BigDecimal(refractionData.getComputerLeftDS()) : null,
+                StringUtils.isNotBlank(refractionData.getComputerLeftDC()) ? new BigDecimal(refractionData.getComputerLeftDC()) : null,
+                StringUtils.isNotBlank(refractionData.getComputerRightDS()) ? new BigDecimal(refractionData.getComputerRightDS()) : null,
+                StringUtils.isNotBlank(refractionData.getComputerRightDC()) ? new BigDecimal(refractionData.getComputerRightDC()) : null,
+                StringUtils.isNotBlank(refractionData.getComputerLeftAxis()) ? new BigDecimal(refractionData.getComputerLeftAxis()) : null,
+                StringUtils.isNotBlank(refractionData.getComputerRightAxis()) ? new BigDecimal(refractionData.getComputerRightAxis()) : null);
         reportDTO.setRefractoryResultItems(Lists.newArrayList(sphItems, cylItems, axialItems, seItems));
     }
 }
