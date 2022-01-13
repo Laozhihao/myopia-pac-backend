@@ -444,7 +444,7 @@ public class ScreeningPlanController {
         List<Integer> studentIds = Arrays.asList(studentId);
         List<VisionScreeningResult> visionScreeningResults =  visionScreeningResultService.getByStudentIds(planId,studentIds);
         if (visionScreeningResults.size()==0){
-            return null;
+            return ApiResult.success();
         }
         VisionScreeningResult visionScreeningResult = visionScreeningResults.get(0);
 
