@@ -2,6 +2,8 @@ package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.annotation.format.DateTimeFormat;
+import com.alibaba.excel.annotation.write.style.ColumnWidth;
+import com.alibaba.excel.annotation.write.style.OnceAbsoluteMerge;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -14,6 +16,7 @@ import java.util.Date;
  * @author 钓猫的小鱼
  * @Date 2021/03/12
  **/
+@ColumnWidth(20)
 @Data
 @Accessors(chain = true)
 public class StudentVisionScreeningResultExportDTO implements Serializable {

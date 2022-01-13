@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
@@ -440,10 +439,10 @@ public class ScreeningPlanController {
     * @Date: 2022/1/12
     */
     @GetMapping("/getStudentEyeByStudentId")
-    public Object getStudentEyeByStudentId(@RequestParam Integer planId,@RequestParam Integer studentId) throws IOException {
-        List<Integer> studentIds = Arrays.asList(studentId);
+    public Object getStudentEyeByStudentId(@RequestParam Integer planId,@RequestParam Integer studentId) {
+        List<Integer> studentIds = Collections.singletonList(studentId);
         List<VisionScreeningResult> visionScreeningResults =  visionScreeningResultService.getByStudentIds(planId,studentIds);
-        if (visionScreeningResults.size()==0){
+        if (visionScreeningResults.isEmpty()){
             return ApiResult.success();
         }
         VisionScreeningResult visionScreeningResult = visionScreeningResults.get(0);

@@ -106,13 +106,6 @@ public class ScreeningPlanSchoolStudentFacadeService {
             query.setGradeList(Stream.of(StringUtils.commaDelimitedListToStringArray(query.getGradeIds())).map(Integer::parseInt).collect(Collectors.toList()));
         }
         IPage<ScreeningStudentDTO> studentDTOIPage = screeningPlanSchoolStudentService.selectPageByQuery(page, query);
-
-        // 设置民族、地址 最初的写发
-//        studentDTOIPage.getRecords().forEach(studentDTO ->
-//                studentDTO.setNationDesc(NationEnum.getName(studentDTO.getNation()))
-//                        .setAddress(districtService.getAddressDetails(studentDTO.getProvinceCode(), studentDTO.getCityCode(), studentDTO.getAreaCode(), studentDTO.getTownCode(), studentDTO.getAddress()))
-//
-//        );
         List<ScreeningStudentDTO> screeningStudentDTOS = studentDTOIPage.getRecords();
         List<Integer> ids = screeningStudentDTOS.stream().map(ScreeningStudentDTO :: getId).collect(Collectors.toList());
         List<VisionScreeningResult> visionScreeningResults =  visionScreeningResultService.getByStudentIds(query.getScreeningPlanId(),ids);
@@ -136,23 +129,23 @@ public class ScreeningPlanSchoolStudentFacadeService {
     */
     public void setStudentEyeInfor(ScreeningStudentDTO studentEyeInfor,Map<Integer,List<VisionScreeningResult>> visionScreeningResultsGroup){
         VisionScreeningResult visionScreeningResult = EyeDataUtil.getVisionScreeningResult(studentEyeInfor,visionScreeningResultsGroup);
-
-        studentEyeInfor.setGlassesTypeDes(EyeDataUtil.glassesType(visionScreeningResult));//是否戴镜情况
-
+        //是否戴镜情况
+        studentEyeInfor.setGlassesTypeDes(EyeDataUtil.glassesType(visionScreeningResult));
+        //裸视力
         String nakedVision = EyeDataUtil.visionRightDataToStr(visionScreeningResult)+"/"+EyeDataUtil.visionLeftDataToStr(visionScreeningResult);
-        studentEyeInfor.setNakedVision(nakedVision);//裸视力
-
+        studentEyeInfor.setNakedVision(nakedVision);
+        //矫正 视力
         String correctedVision = EyeDataUtil.correcteRightDataToStr(visionScreeningResult)+"/"+EyeDataUtil.correcteLeftDataToStr(visionScreeningResult);
-        studentEyeInfor.setCorrectedVision(correctedVision);//矫正 视力
-
+        studentEyeInfor.setCorrectedVision(correctedVision);
+        //球镜
         String sph = EyeDataUtil.computerRightSph(visionScreeningResult)+"/"+EyeDataUtil.computerLeftSph(visionScreeningResult);
-        studentEyeInfor.setSph(sph);//球镜
-
+        studentEyeInfor.setSph(sph);
+        //柱镜
         String cyl = EyeDataUtil.computerRightCyl(visionScreeningResult)+"/"+EyeDataUtil.computerLeftCyl(visionScreeningResult);
-        studentEyeInfor.setCyl(cyl);//柱镜
-
+        studentEyeInfor.setCyl(cyl);
+        //眼轴
         String axial = EyeDataUtil.computerRightAxial(visionScreeningResult)+"/"+EyeDataUtil.computerLeftAxial(visionScreeningResult);
-        studentEyeInfor.setAxial(axial);//眼轴
+        studentEyeInfor.setAxial(axial);
 
     }
 

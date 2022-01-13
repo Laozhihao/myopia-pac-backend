@@ -173,29 +173,11 @@
             <trim prefixOverrides="and">
                 AND mspss.screening_plan_id = #{param.screeningPlanId}
                 AND mspss.school_id = #{param.schoolId}
-                <if test="param.nameLike != null and param.nameLike != ''">
-                    and mspss.`student_name` like CONCAT('%', #{param.nameLike}, '%')
+                <if test="param.gradeId != null and param.gradeId != ''">
+                    and mspss.grade_id = #{param.gradeId}
                 </if>
-                <if test="param.idCardLike != null and param.idCardLike != ''">
-                    and mspss.`id_card` like CONCAT('%', #{param.idCardLike}, '%')
-                </if>
-                <if test="param.snoLike != null and param.snoLike != ''">
-                    and mspss.`student_no` like CONCAT('%', #{param.snoLike}, '%')
-                </if>
-                <if test="param.phoneLike != null and param.phoneLike != ''">
-                    and mspss.`parent_phone` like CONCAT('%', #{param.phoneLike}, '%')
-                </if>
-                <if test="param.gender != null">
-                    and mspss.`gender` = #{param.gender}
-                </if>
-                <if test="param.gradeList != null">
-                    and mspss.`grade_id` in
-                    <foreach collection="param.gradeList" open="(" close=")" separator="," item="item">
-                        #{item}
-                    </foreach>
-                </if>
-                <if test="param.screeningCode != null and param.screeningCode != ''">
-                    and mspss.`screening_code` like CONCAT('%', #{param.screeningCode}, '%')
+                <if test="param.classId != null and param.classId != ''">
+                    and mspss.class_id = #{param.classId}
                 </if>
             </trim>
         </where>

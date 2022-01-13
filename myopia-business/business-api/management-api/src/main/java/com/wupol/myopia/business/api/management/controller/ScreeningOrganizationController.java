@@ -88,10 +88,6 @@ public class ScreeningOrganizationController {
         }
         screeningOrganization.setStatus(screeningOrganization.getCooperationStopStatus());
         UsernameAndPasswordDTO usernameAndPasswordDTO = screeningOrganizationBizService.saveScreeningOrganization(screeningOrganization);
-        // 非平台管理员屏蔽账号密码信息
-        if (!user.isPlatformAdminUser()) {
-            usernameAndPasswordDTO.setNoDisplay();
-        }
         return usernameAndPasswordDTO;
     }
 
