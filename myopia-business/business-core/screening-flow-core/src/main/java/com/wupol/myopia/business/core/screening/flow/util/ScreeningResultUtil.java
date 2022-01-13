@@ -3,6 +3,8 @@ package com.wupol.myopia.business.core.screening.flow.util;
 import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.framework.domain.ThreeTuple;
+import com.wupol.myopia.base.domain.RefractoryResultItems;
+import com.wupol.myopia.base.domain.VisionItems;
 import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.common.utils.constant.*;
