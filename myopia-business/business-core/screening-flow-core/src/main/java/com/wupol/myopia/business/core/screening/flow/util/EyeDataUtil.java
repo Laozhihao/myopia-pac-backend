@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.core.screening.flow.util;
 
-import com.alibaba.fastjson.JSON;
 import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentVisionScreeningResultExportDTO;
@@ -24,32 +23,51 @@ public class EyeDataUtil {
     public static StudentVisionScreeningResultExportDTO setStudentData(ScreeningStudentDTO studentDTO, VisionScreeningResult visionScreeningResult) {
         StudentVisionScreeningResultExportDTO studentVisionScreeningResultExportDTO = new StudentVisionScreeningResultExportDTO();
         studentVisionScreeningResultExportDTO.setId(studentDTO.getId());
-        studentVisionScreeningResultExportDTO.setStudentName(EyeDataUtil.name(studentDTO));//姓名
-        studentVisionScreeningResultExportDTO.setStudentNo(EyeDataUtil.sno(studentDTO));//学号
-        studentVisionScreeningResultExportDTO.setGenderDesc(EyeDataUtil.gender(studentDTO));//性别
+        //姓名
+        studentVisionScreeningResultExportDTO.setStudentName(EyeDataUtil.name(studentDTO));
+        //学号
+        studentVisionScreeningResultExportDTO.setStudentNo(EyeDataUtil.sno(studentDTO));
+        //性别
+        studentVisionScreeningResultExportDTO.setGenderDesc(EyeDataUtil.gender(studentDTO));
 
-        studentVisionScreeningResultExportDTO.setGradeName(EyeDataUtil.gradeName(studentDTO));//性别
-        studentVisionScreeningResultExportDTO.setClassName(EyeDataUtil.className(studentDTO));//性别
-        studentVisionScreeningResultExportDTO.setBirthday(studentDTO.getBirthday());//性别
+        //性别
+        studentVisionScreeningResultExportDTO.setGradeName(EyeDataUtil.gradeName(studentDTO));
+        //性别
+        studentVisionScreeningResultExportDTO.setClassName(EyeDataUtil.className(studentDTO));
+        //性别
+        studentVisionScreeningResultExportDTO.setBirthday(studentDTO.getBirthday());
 
-        studentVisionScreeningResultExportDTO.setParentPhone(EyeDataUtil.phone(studentDTO));//手机号码
-        studentVisionScreeningResultExportDTO.setAddress(EyeDataUtil.address(studentDTO));//地址
+        //手机号码
+        studentVisionScreeningResultExportDTO.setParentPhone(EyeDataUtil.phone(studentDTO));
+        //地址
+        studentVisionScreeningResultExportDTO.setAddress(EyeDataUtil.address(studentDTO));
 
-        studentVisionScreeningResultExportDTO.setGlassesType(EyeDataUtil.glassesType(visionScreeningResult));//戴镜情况
-        studentVisionScreeningResultExportDTO.setRightReScreenNakedVisions(EyeDataUtil.visionRightDataToStr(visionScreeningResult));//右眼裸视力
-        studentVisionScreeningResultExportDTO.setRightReScreenCorrectedVisions(EyeDataUtil.correcteRightDataToStr(visionScreeningResult));//有眼矫正视力
+        //戴镜情况
+        studentVisionScreeningResultExportDTO.setGlassesType(EyeDataUtil.glassesType(visionScreeningResult));
+        //右眼裸视力
+        studentVisionScreeningResultExportDTO.setRightReScreenNakedVisions(EyeDataUtil.visionRightDataToStr(visionScreeningResult));
+        //有眼矫正视力
+        studentVisionScreeningResultExportDTO.setRightReScreenCorrectedVisions(EyeDataUtil.correcteRightDataToStr(visionScreeningResult));
 
-        studentVisionScreeningResultExportDTO.setLeftReScreenNakedVisions(EyeDataUtil.visionLeftDataToStr(visionScreeningResult));//左眼裸视力
-        studentVisionScreeningResultExportDTO.setLeftReScreenCorrectedVisions(EyeDataUtil.correcteLeftDataToStr(visionScreeningResult));//左眼矫正视力
+        //左眼裸视力
+        studentVisionScreeningResultExportDTO.setLeftReScreenNakedVisions(EyeDataUtil.visionLeftDataToStr(visionScreeningResult));
+        //左眼矫正视力
+        studentVisionScreeningResultExportDTO.setLeftReScreenCorrectedVisions(EyeDataUtil.correcteLeftDataToStr(visionScreeningResult));
 
-        studentVisionScreeningResultExportDTO.setRightReScreenSphs(EyeDataUtil.computerRightSph(visionScreeningResult));//右眼球镜
-        studentVisionScreeningResultExportDTO.setRightReScreenCyls(EyeDataUtil.computerRightCyl(visionScreeningResult));//右眼柱镜
-        studentVisionScreeningResultExportDTO.setRightReScreenAxials(EyeDataUtil.computerRightAxial(visionScreeningResult));//右眼轴为
+        //右眼球镜
+        studentVisionScreeningResultExportDTO.setRightReScreenSphs(EyeDataUtil.computerRightSph(visionScreeningResult));
+        //右眼柱镜
+        studentVisionScreeningResultExportDTO.setRightReScreenCyls(EyeDataUtil.computerRightCyl(visionScreeningResult));
+        //右眼轴为
+        studentVisionScreeningResultExportDTO.setRightReScreenAxials(EyeDataUtil.computerRightAxial(visionScreeningResult));
         studentVisionScreeningResultExportDTO.setRightReScreenSphericalEquivalents(EyeDataUtil.rightReScreenSph(visionScreeningResult));
 
-        studentVisionScreeningResultExportDTO.setLeftReScreenSphs(EyeDataUtil.computerLeftSph(visionScreeningResult));//左眼球镜
-        studentVisionScreeningResultExportDTO.setLeftReScreenCyls(EyeDataUtil.computerLeftCyl(visionScreeningResult));//左眼柱镜
-        studentVisionScreeningResultExportDTO.setLeftReScreenAxials(EyeDataUtil.computerLeftAxial(visionScreeningResult));//左眼州为
+        //左眼球镜
+        studentVisionScreeningResultExportDTO.setLeftReScreenSphs(EyeDataUtil.computerLeftSph(visionScreeningResult));
+        //左眼柱镜
+        studentVisionScreeningResultExportDTO.setLeftReScreenCyls(EyeDataUtil.computerLeftCyl(visionScreeningResult));
+        //左眼州为
+        studentVisionScreeningResultExportDTO.setLeftReScreenAxials(EyeDataUtil.computerLeftAxial(visionScreeningResult));
         studentVisionScreeningResultExportDTO.setLeftReScreenSphericalEquivalents(EyeDataUtil.leftReScreenSph(visionScreeningResult));
 
         return studentVisionScreeningResultExportDTO;
@@ -305,9 +323,9 @@ public class EyeDataUtil {
     }
 
     public static String visionLeftDataToStr(VisionScreeningResult visionScreeningResult){
-        if (resultData(visionScreeningResult))
+        if (resultData(visionScreeningResult)){
             return visionScreeningResult.getVisionData().getLeftEyeData().getNakedVision().toString();
-
+        }
         return "--";
     }
 
