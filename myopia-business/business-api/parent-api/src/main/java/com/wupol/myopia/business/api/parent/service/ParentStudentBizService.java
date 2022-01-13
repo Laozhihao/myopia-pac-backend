@@ -518,6 +518,9 @@ public class ParentStudentBizService {
      * @param student 学生
      */
     private void setStudentAddress(Student student) {
+        if (Objects.isNull(student)) {
+            return;
+        }
         if (Objects.isNull(student.getProvinceCode())) {
             List<District> districtDetail = districtService.getDistrictPositionDetail(student.getCommitteeCode());
             if (CollectionUtils.isEmpty(districtDetail)) {
