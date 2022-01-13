@@ -57,11 +57,8 @@ public class ExportPlanSchoolStudentDataExcelService extends BaseExportExcelFile
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     @Autowired
     private DistrictService districtService;
-    @Resource
-    private ScreeningPlanSchoolStudentFacadeService screeningPlanSchoolStudentFacadeService;
     @Autowired
     private VisionScreeningResultService visionScreeningResultService;
-
 
 
     @Override
@@ -94,7 +91,7 @@ public class ExportPlanSchoolStudentDataExcelService extends BaseExportExcelFile
                     .setAddress(districtService.getAddressDetails(studentDTO.getProvinceCode(), studentDTO.getCityCode(), studentDTO.getAreaCode(), studentDTO.getTownCode(), studentDTO.getAddress()));
 
             VisionScreeningResult visionScreeningResult = EyeDataUtil.getVisionScreeningResult(studentDTO,visionScreeningResultsGroup);
-            setStudentData(studentVisionScreeningResultExportDTOS, studentDTO, visionScreeningResult);
+            studentVisionScreeningResultExportDTOS.add(EyeDataUtil.setStudentData( studentDTO, visionScreeningResult)) ;
         });
         //对年级排序
         studentVisionScreeningResultExportDTOS.sort(Comparator.comparing((StudentVisionScreeningResultExportDTO planSchoolStudent) ->
@@ -102,39 +99,7 @@ public class ExportPlanSchoolStudentDataExcelService extends BaseExportExcelFile
         return studentVisionScreeningResultExportDTOS;
     }
 
-    private void setStudentData(List<StudentVisionScreeningResultExportDTO> studentVisionScreeningResultExportDTOS, ScreeningStudentDTO studentDTO, VisionScreeningResult visionScreeningResult) {
-        StudentVisionScreeningResultExportDTO studentVisionScreeningResultExportDTO = new StudentVisionScreeningResultExportDTO();
-        studentVisionScreeningResultExportDTO.setId(studentDTO.getId());
-        studentVisionScreeningResultExportDTO.setStudentName(EyeDataUtil.name(studentDTO));//姓名
-        studentVisionScreeningResultExportDTO.setStudentNo(EyeDataUtil.sno(studentDTO));//学号
-        studentVisionScreeningResultExportDTO.setGenderDesc(EyeDataUtil.gender(studentDTO));//性别
 
-        studentVisionScreeningResultExportDTO.setGradeName(EyeDataUtil.gradeName(studentDTO));//性别
-        studentVisionScreeningResultExportDTO.setClassName(EyeDataUtil.className(studentDTO));//性别
-        studentVisionScreeningResultExportDTO.setBirthday(studentDTO.getBirthday());//性别
-
-        studentVisionScreeningResultExportDTO.setParentPhone(EyeDataUtil.phone(studentDTO));//手机号码
-        studentVisionScreeningResultExportDTO.setAddress(EyeDataUtil.address(studentDTO));//地址
-
-        studentVisionScreeningResultExportDTO.setGlassesType(EyeDataUtil.glassesType(visionScreeningResult));//戴镜情况
-        studentVisionScreeningResultExportDTO.setRightReScreenNakedVisions(EyeDataUtil.visionRightDataToStr(visionScreeningResult));//右眼裸视力
-        studentVisionScreeningResultExportDTO.setRightReScreenCorrectedVisions(EyeDataUtil.correcteRightDataToStr(visionScreeningResult));//有眼矫正视力
-
-        studentVisionScreeningResultExportDTO.setLeftReScreenNakedVisions(EyeDataUtil.visionLeftDataToStr(visionScreeningResult));//左眼裸视力
-        studentVisionScreeningResultExportDTO.setLeftReScreenCorrectedVisions(EyeDataUtil.correcteLeftDataToStr(visionScreeningResult));//左眼矫正视力
-
-        studentVisionScreeningResultExportDTO.setRightReScreenSphs(EyeDataUtil.computerRightSph(visionScreeningResult));//右眼球镜
-        studentVisionScreeningResultExportDTO.setRightReScreenCyls(EyeDataUtil.computerRightCyl(visionScreeningResult));//右眼柱镜
-        studentVisionScreeningResultExportDTO.setRightReScreenAxials(EyeDataUtil.computerRightAxial(visionScreeningResult));//右眼轴为
-        studentVisionScreeningResultExportDTO.setRightReScreenSphericalEquivalents(EyeDataUtil.rightReScreenSph(visionScreeningResult));
-
-        studentVisionScreeningResultExportDTO.setLeftReScreenSphs(EyeDataUtil.computerLeftSph(visionScreeningResult));//左眼球镜
-        studentVisionScreeningResultExportDTO.setLeftReScreenCyls(EyeDataUtil.computerLeftCyl(visionScreeningResult));//左眼柱镜
-        studentVisionScreeningResultExportDTO.setLeftReScreenAxials(EyeDataUtil.computerLeftAxial(visionScreeningResult));//左眼州为
-        studentVisionScreeningResultExportDTO.setLeftReScreenSphericalEquivalents(EyeDataUtil.leftReScreenSph(visionScreeningResult));
-
-        studentVisionScreeningResultExportDTOS.add(studentVisionScreeningResultExportDTO);
-    }
 
     @Override
     public Class getHeadClass() {

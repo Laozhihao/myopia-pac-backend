@@ -442,12 +442,13 @@ public class ScreeningPlanController {
     @GetMapping("/getStudentEyeByStudentId")
     public Object getStudentEyeByStudentId(@RequestParam Integer planId,@RequestParam Integer studentId) throws IOException {
         List<Integer> studentIds = Arrays.asList(studentId);
-
         List<VisionScreeningResult> visionScreeningResults =  visionScreeningResultService.getByStudentIds(planId,studentIds);
         if (visionScreeningResults.size()==0){
             return null;
         }
-        return ApiResult.success(visionScreeningResults.get(0));
+        VisionScreeningResult visionScreeningResult = visionScreeningResults.get(0);
+
+        return ApiResult.success(visionScreeningResult);
     }
 
 }
