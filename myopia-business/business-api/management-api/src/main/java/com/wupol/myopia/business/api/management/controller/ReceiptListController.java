@@ -31,7 +31,7 @@ public class ReceiptListController {
      */
     @GetMapping("/{id}")
     public ReceiptDTO getDetails(@PathVariable("id") Integer id) {
-        return receiptListService.getDetails(id);
+        return receiptListService.getDetailsById(id);
     }
 
 }

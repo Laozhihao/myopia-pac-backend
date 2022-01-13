@@ -29,5 +29,11 @@ public class OuterEye {
     private Boolean isAbnormal;
     private Integer studentId;
     private Integer doctorId;
+    private String eyelidAbnormalContent;
+    private String conjunctivaAbnormalContent;
+    private String eyeballAbnormalContent;
+    private String cornealAbnormalContent;
+    private String pupilAbnormalContent;
+    private String scleraAbnormalContent;
 
 }
