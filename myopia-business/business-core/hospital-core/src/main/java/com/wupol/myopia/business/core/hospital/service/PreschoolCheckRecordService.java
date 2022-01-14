@@ -16,6 +16,7 @@ import com.wupol.myopia.business.core.hospital.domain.mapper.PreschoolCheckRecor
 import com.wupol.myopia.business.core.hospital.domain.model.PreschoolCheckRecord;
 import com.wupol.myopia.business.core.hospital.domain.query.PreschoolCheckRecordQuery;
 import com.wupol.myopia.business.core.hospital.util.HospitalUtil;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -31,6 +32,7 @@ import java.util.stream.Collectors;
  * @Date 2022-01-04
  */
 @Service
+@Log4j2
 public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecordMapper, PreschoolCheckRecord> {
 
     @Autowired
@@ -49,6 +51,10 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
      */
     public PreschoolCheckRecordDTO getDetail(Integer id) {
         PreschoolCheckRecordDTO details = baseMapper.getDetail(id);
+        if (Objects.isNull(details)) {
+            log.error("获取报告数据异常, 报告Id:{}", id);
+            throw new BusinessException("数据异常");
+        }
         details.setCreateTimeAge(DateUtil.getAgeInfo(details.getBirthday(), details.getCreateTime()));
         // 检查单
         if (Objects.nonNull(details.getToReferralId())) {
@@ -229,7 +235,7 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
             return canCheckMonthAge.get(0);
         }
         Date now = new Date();
-        // 其中一个已检查 TODO wulizhou 可修改时选择当前，不可修改时选择另一个时间段
+        // 其中一个已检查 可修改时选择当前，不可修改时选择另一个时间段
         if (1 == recordOnMonthAgeCheck.size()) {
             PreschoolCheckRecord hasCheck = recordOnMonthAgeCheck.get(0);
             return DateUtil.betweenDay(hasCheck.getCreateTime(), now) > 3 ?
@@ -246,8 +252,8 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
             return canCheckMonthAge.get(0);
         }
         // 两个都可修改，取最新修改的
-        return recordOnMonthAgeCheck.stream().sorted(Comparator.comparing(PreschoolCheckRecord::getUpdateTime).reversed())
-                .findFirst().get().getMonthAge();
+        Optional<PreschoolCheckRecord> max = recordOnMonthAgeCheck.stream().max(Comparator.comparing(PreschoolCheckRecord::getUpdateTime));
+        return max.map(PreschoolCheckRecord::getMonthAge).orElse(null);
     }
 
     /**
@@ -255,7 +261,7 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
      * @return
      */
     private Map<Integer, MonthAgeStatusDTO> initMonthAgeStatusMap() {
-        Map<Integer, MonthAgeStatusDTO> monthAgeStatus = new LinkedHashMap();
+        Map<Integer, MonthAgeStatusDTO> monthAgeStatus = new LinkedHashMap<>();
         for(MonthAgeEnum monAge : MonthAgeEnum.values()) {
             monthAgeStatus.put(monAge.getId(), new MonthAgeStatusDTO(monAge, MonthAgeStatusEnum.AGE_STAGE_STATUS_DISABLE.getStatus()));
         }
