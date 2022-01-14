@@ -13,9 +13,7 @@ import com.wupol.myopia.business.core.device.domain.dto.DeviceReportPrintRespons
 import com.wupol.myopia.business.core.device.domain.dto.DeviceTemplateListDTO;
 import com.wupol.myopia.business.core.device.domain.model.ScreeningOrgBindDeviceReport;
 import com.wupol.myopia.business.core.device.service.DeviceReportTemplateService;
-import com.wupol.myopia.business.core.device.service.DeviceScreeningDataService;
 import com.wupol.myopia.business.core.device.service.ScreeningOrgBindDeviceReportService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -48,9 +46,6 @@ public class DeviceReportTemplateController {
 
     @Resource
     private ExportStrategy exportStrategy;
-
-    @Autowired
-    private DeviceScreeningDataService deviceScreeningDataService;
 
     /**
      * 获取设备报告模板列表
