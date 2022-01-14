@@ -86,7 +86,7 @@ public class Html2PdfService {
         requestDTO.setBucket(bucket);
 
         requestDTO.setRegion(region);
-        requestDTO.setKeyPrefix(prefix + "/" + DateFormatUtil.format(new Date(), DateFormatUtil.FORMAT_ONLY_DATE) + "/" + UUID);
+        requestDTO.setKeyPrefix(prefix + "/" + DateFormatUtil.format(new Date(), DateFormatUtil.FORMAT_ONLY_DATE) + "/" + UUID + "/");
         requestDTO.setUuid(UUID);
         requestDTO.setTimeout(90);
         requestDTO.setCallbackUrl(callbackUrl);
