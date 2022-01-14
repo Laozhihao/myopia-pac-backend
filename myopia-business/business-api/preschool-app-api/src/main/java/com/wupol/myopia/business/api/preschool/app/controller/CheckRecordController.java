@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.preschool.app.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
@@ -229,11 +230,11 @@ public class CheckRecordController {
      * @return
      */
     @GetMapping("/checkRecord/guideContent/{id}")
-    public String getCheckRecordGuideContentById(@PathVariable("id") Integer id) {
+    public ApiResult<String> getCheckRecordGuideContentById(@PathVariable("id") Integer id) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         Integer hospitalId = user.getOrgId();
         PreschoolCheckRecord checkRecord = preschoolCheckRecordService.getById(id, hospitalId);
-        return Objects.nonNull(checkRecord) ? checkRecord.getGuideContent() : null;
+        return ApiResult.success(Objects.nonNull(checkRecord) ? checkRecord.getGuideContent() : "");
     }
 
     /**
