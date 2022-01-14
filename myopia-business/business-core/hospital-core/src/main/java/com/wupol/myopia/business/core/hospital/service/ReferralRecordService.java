@@ -35,11 +35,11 @@ public class ReferralRecordService extends BaseService<ReferralRecordMapper, Ref
     /**
      * 通过检查号id与医院id获取详情
      * @param hospitalId
-     * @param preschoolCheckRecordId
+     * @param id
      * @return
      */
-    public ReferralDTO getDetailByHospitalAndId(Integer hospitalId, Integer preschoolCheckRecordId) {
-        return getDetail(new ReferralRecord().setFromHospitalId(hospitalId).setPreschoolCheckRecordId(preschoolCheckRecordId));
+    public ReferralDTO getDetailByHospitalAndId(Integer hospitalId, Integer id) {
+        return getDetail(new ReferralRecord().setFromHospitalId(hospitalId).setId(id));
     }
 
     /**
