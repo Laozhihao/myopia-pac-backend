@@ -17,7 +17,15 @@ spring:
       - id: route_business
         uri: lb://myopia-business
         predicates:
-        - Path=/hospital/app/management/**, /hospital/app/parent/**
+        - Path= >
+          /hospital/app/parent/parentStudent/report/visits/detail, /hospital/app/parent/parentStudent/report/screening/detail,
+          /hospital/app/management/common/fileUpload, /hospital/app/management/district/child/**, /hospital/app/management/school/getSchools/schoolName,
+          /hospital/app/management/schoolGrade/all, /hospital/app/management/schoolClass/all, /hospital/app/parent/parentStudent/report/screening/list/,
+          /hospital/app/app/screening/student/findOneById,
+          /preschool/app/parent/parentStudent/report/visits/detail, /preschool/app/parent/parentStudent/report/screening/detail,
+          /preschool/app/management/common/fileUpload, /preschool/app/management/district/child/**, /preschool/app/management/school/getSchools/schoolName,
+          /preschool/app/management/schoolGrade/all, /preschool/app/management/schoolClass/all, /preschool/app/parent/parentStudent/report/screening/list/,
+          /preschool/app/app/screening/student/findOneById
         filters:
         - StripPrefix=2
 
