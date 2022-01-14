@@ -13,8 +13,10 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotic
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author Alix
@@ -22,9 +24,6 @@ import java.util.Objects;
  */
 @Service
 public class ScreeningNoticeDeptOrgService extends BaseService<ScreeningNoticeDeptOrgMapper, ScreeningNoticeDeptOrg> {
-
-    @Autowired
-    private ScreeningNoticeService screeningNoticeService;
 
     /**
      * 设置操作人再更新
@@ -124,12 +123,8 @@ public class ScreeningNoticeDeptOrgService extends BaseService<ScreeningNoticeDe
      * @param govDeptId
      * @param districtId
      */
-    public void saveScreeningNotice(Integer govDeptId, Integer districtId) {
-        ScreeningNotice screeningNotice = new ScreeningNotice();
-        screeningNotice.setGovDeptId(govDeptId);
-        screeningNotice.setReleaseStatus(1);
-        screeningNotice.setType(0);
-        List<ScreeningNotice> list = screeningNoticeService.findByDeptId(screeningNotice);
+    public void saveScreeningNotice(List<ScreeningNotice> list,Integer govDeptId, Integer districtId) {
+        List<ScreeningNoticeDeptOrg> orgList = new ArrayList<>();
         if (!list.isEmpty()){
             for (ScreeningNotice screeningNotice1 :list){
                 ScreeningNoticeDeptOrg screeningNoticeDeptOrg  = new ScreeningNoticeDeptOrg();
@@ -138,8 +133,9 @@ public class ScreeningNoticeDeptOrgService extends BaseService<ScreeningNoticeDe
                 screeningNoticeDeptOrg.setAcceptOrgId(govDeptId);
                 screeningNoticeDeptOrg.setOperationStatus(0);
                 screeningNoticeDeptOrg.setScreeningTaskPlanId(screeningNotice1.getScreeningTaskId());
-                saveOrUpdate(screeningNoticeDeptOrg);
+                orgList.add(screeningNoticeDeptOrg);
             }
+          batchUpdateOrSave(orgList);
         }
     }
 }
