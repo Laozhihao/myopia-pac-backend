@@ -10,10 +10,13 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningNoticeQ
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningNoticeDeptOrgMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNoticeDeptOrg;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author Alix
@@ -113,5 +116,26 @@ public class ScreeningNoticeDeptOrgService extends BaseService<ScreeningNoticeDe
     public void statusReadAndCreate(Integer noticeId, Integer acceptOrgId, Integer genTaskOrPlanId, CurrentUser user) {
         //1. 更新状态与任务/计划ID
         baseMapper.updateStatusAndTaskPlanIdByNoticeIdAndAcceptOrgId(noticeId, acceptOrgId, genTaskOrPlanId, user.getId(), CommonConst.STATUS_NOTICE_CREATED);
+    }
+
+    /**
+     * 添加上级部门历史通知
+     * @param govDeptId
+     * @param districtId
+     */
+    public void saveScreeningNotice(List<ScreeningNotice> list,Integer govDeptId, Integer districtId) {
+        List<ScreeningNoticeDeptOrg> orgList = new ArrayList<>();
+        if (!list.isEmpty()){
+            for (ScreeningNotice screeningNotice1 :list){
+                ScreeningNoticeDeptOrg screeningNoticeDeptOrg  = new ScreeningNoticeDeptOrg();
+                screeningNoticeDeptOrg.setScreeningNoticeId(screeningNotice1.getId());
+                screeningNoticeDeptOrg.setDistrictId(districtId);
+                screeningNoticeDeptOrg.setAcceptOrgId(govDeptId);
+                screeningNoticeDeptOrg.setOperationStatus(0);
+                screeningNoticeDeptOrg.setScreeningTaskPlanId(screeningNotice1.getScreeningTaskId());
+                orgList.add(screeningNoticeDeptOrg);
+            }
+          batchUpdateOrSave(orgList);
+        }
     }
 }

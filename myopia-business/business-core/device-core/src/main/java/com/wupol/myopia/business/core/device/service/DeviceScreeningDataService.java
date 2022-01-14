@@ -109,4 +109,9 @@ public class DeviceScreeningDataService extends BaseService<DeviceScreeningDataM
         }
         return baseMapper.selectWithMutiConditions(screeningOrgId, deviceSn, deviceScreenDataDTOList);
     }
+
+    public List<DeviceScreeningData> findByDataList(List<Integer> ids) {
+        return baseMapper.selectExcelData(ids);
+    }
+
 }

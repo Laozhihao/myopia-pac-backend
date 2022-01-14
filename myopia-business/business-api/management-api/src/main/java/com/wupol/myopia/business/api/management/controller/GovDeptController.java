@@ -16,13 +16,11 @@ import com.wupol.myopia.business.core.government.service.GovDeptService;
 import com.wupol.myopia.business.core.government.validator.GovDeptAddValidatorGroup;
 import com.wupol.myopia.business.core.government.validator.GovDeptUpdateValidatorGroup;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNoticeDeptOrg;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeDeptOrgService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.util.Assert;
@@ -110,27 +108,11 @@ public class GovDeptController {
         try {
             govDeptService.saveGovDept(govDept.setCreateUserId(currentUser.getId()));
             //新增部门获取上级发布的历史通知
-            List<GovDept> lists = new ArrayList<>();
-            List<GovDept> govList = findByParentIds(lists,govDept.getPid());
+            Set<Integer> lists = new HashSet<>();
+            Set<Integer> govList = findByParentIds(lists,govDept.getPid());
             if (!govList.isEmpty()){
-                for (GovDept govDept1 : govList){
-                ScreeningNotice screeningNotice = new ScreeningNotice();
-                    screeningNotice.setGovDeptId(govDept1.getId());
-                    screeningNotice.setReleaseStatus(1);
-                    screeningNotice.setType(0);
-                    List<ScreeningNotice> list = screeningNoticeService.findByDeptId(screeningNotice);
-                    if (!list.isEmpty()){
-                        for (ScreeningNotice screeningNotice1 :list){
-                            ScreeningNoticeDeptOrg screeningNoticeDeptOrg  = new ScreeningNoticeDeptOrg();
-                            screeningNoticeDeptOrg.setScreeningNoticeId(screeningNotice1.getId());
-                            screeningNoticeDeptOrg.setDistrictId(govDept1.getDistrictId());
-                            screeningNoticeDeptOrg.setAcceptOrgId(govDept1.getId());
-                            screeningNoticeDeptOrg.setOperationStatus(0);
-                            screeningNoticeDeptOrg.setScreeningTaskPlanId(screeningNotice1.getScreeningTaskId());
-                            noticeDeptOrgService.saveOrUpdate(screeningNoticeDeptOrg);
-                        }
-                    }
-                }
+                List<ScreeningNotice> list = screeningNoticeService.getNoticeByReleaseOrgId(govList,ScreeningNotice.TYPE_GOV_DEPT);
+                noticeDeptOrgService.saveScreeningNotice(list,govDept.getId(),govDept.getDistrictId());
             }
         } catch (DuplicateKeyException e) {
             throw new BusinessException("已经存在该部门名称");
@@ -145,9 +127,9 @@ public class GovDeptController {
      * @return
      */
 
-    private List<GovDept> findByParentIds(List<GovDept> list,Integer id) {
+    private Set<Integer> findByParentIds(Set<Integer> list,Integer id) {
         GovDept govDept =  govDeptService.getById(id);
-        list.add(govDept);
+        list.add(govDept.getId());
         if (govDept.getPid() == -1){
             return list;
         }

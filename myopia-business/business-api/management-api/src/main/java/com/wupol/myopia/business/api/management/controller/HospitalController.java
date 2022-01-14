@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
@@ -220,7 +221,7 @@ public class HospitalController {
             // 获取该筛查机构已经有多少个账号
             List<HospitalAdmin> adminList = hospitalAdminService.findByList(new HospitalAdmin().setHospitalId(hospitalId));
             if (adminList.size()>=hospital.getAccountNum()){
-                return null;
+                throw new BusinessException("用户账号超限！");
             }
         }
         return hospitalBizService.addHospitalAdminUserAccount(hospitalId);

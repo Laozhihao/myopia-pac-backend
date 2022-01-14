@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
@@ -382,7 +383,7 @@ public class ScreeningOrganizationController {
             ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(screeningOrgId);
             List<ScreeningOrganizationAdmin> orgList = screeningOrganizationAdminService.getListOrgList(screeningOrgId);
             if (orgList.size()>=screeningOrganization.getAccountNum()){
-                return null;
+              throw new BusinessException("用户账号超限！");
             }
         }
         return screeningOrganizationBizService.addAccount(screeningOrgId);

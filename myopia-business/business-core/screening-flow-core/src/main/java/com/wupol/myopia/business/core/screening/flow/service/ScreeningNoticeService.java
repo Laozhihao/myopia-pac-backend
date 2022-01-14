@@ -222,13 +222,4 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
         return screeningNoticeOptional.orElse(null);
     }
 
-    /**
-     * 根据部门id查询通知List集合
-     * @author tastyb
-     * @param entity
-     * @return
-     */
-    public List<ScreeningNotice> findByDeptId(ScreeningNotice entity) {
-        return list(getQueryWrapper(entity));
-    }
 }
