@@ -103,6 +103,7 @@
                mspss.parent_phone,
                mspss.grade_id,
                mspss.class_id,
+               mspss.id as planSutdhentId,
                ms.name   as school_name,
                sg.name   as gradeName,
                sc.name   as className,
@@ -183,63 +184,6 @@
         </where>
 
     </select>
-
-    <!--    <select id="selectPageByQueryAndStudentInfor" resultMap="ScreeningStudentDTO" parameterType="java.util.Map">-->
-<!--        SELECT mspss.student_id     as id,-->
-<!--        mspss.student_no     as sno,-->
-<!--        mspss.student_name   as name,-->
-<!--        mspss.gender,-->
-<!--        mspss.birthday,-->
-<!--        mspss.province_code,-->
-<!--        mspss.city_code,-->
-<!--        mspss.area_code,-->
-<!--        mspss.town_code,-->
-<!--        mspss.address,-->
-<!--        mspss.id_card,-->
-<!--        mspss.nation,-->
-<!--        mspss.parent_phone,-->
-<!--        mspss.grade_id,-->
-<!--        mspss.class_id,-->
-<!--        ms.name   as school_name,-->
-<!--        sg.name   as gradeName,-->
-<!--        sc.name   as className,-->
-<!--        mspss.screening_code as screeningCode,-->
-<!--        mspss.id             as planStudentId-->
-<!--        FROM m_screening_plan_school_student mspss-->
-<!--        left join m_school ms on ms.id = mspss.school_id-->
-<!--        left join m_school_grade sg on sg.id = mspss.grade_id-->
-<!--        left join m_school_class sc on sc.id = mspss.class_id-->
-<!--        <where>-->
-<!--            <trim prefixOverrides="and">-->
-<!--                AND mspss.screening_plan_id = #{param.screeningPlanId}-->
-<!--                AND mspss.school_id = #{param.schoolId}-->
-<!--                <if test="param.nameLike != null and param.nameLike != ''">-->
-<!--                    and mspss.`student_name` like CONCAT('%', #{param.nameLike}, '%')-->
-<!--                </if>-->
-<!--                <if test="param.idCardLike != null and param.idCardLike != ''">-->
-<!--                    and mspss.`id_card` like CONCAT('%', #{param.idCardLike}, '%')-->
-<!--                </if>-->
-<!--                <if test="param.snoLike != null and param.snoLike != ''">-->
-<!--                    and mspss.`student_no` like CONCAT('%', #{param.snoLike}, '%')-->
-<!--                </if>-->
-<!--                <if test="param.phoneLike != null and param.phoneLike != ''">-->
-<!--                    and mspss.`parent_phone` like CONCAT('%', #{param.phoneLike}, '%')-->
-<!--                </if>-->
-<!--                <if test="param.gender != null">-->
-<!--                    and mspss.`gender` = #{param.gender}-->
-<!--                </if>-->
-<!--                <if test="param.gradeList != null">-->
-<!--                    and mspss.`grade_id` in-->
-<!--                    <foreach collection="param.gradeList" open="(" close=")" separator="," item="item">-->
-<!--                        #{item}-->
-<!--                    </foreach>-->
-<!--                </if>-->
-<!--                <if test="param.screeningCode != null and param.screeningCode != ''">-->
-<!--                    and mspss.`screening_code` like CONCAT('%', #{param.screeningCode}, '%')-->
-<!--                </if>-->
-<!--            </trim>-->
-<!--        </where>-->
-<!--    </select>-->
 
     <select id="selectPlanStudentListByPage" resultMap="BaseResultMap" parameterType="map">
         SELECT

@@ -105,12 +105,12 @@ public class ScreeningPlanSchoolStudentFacadeService {
         if (StringUtils.hasLength(query.getGradeIds())) {
             query.setGradeList(Stream.of(StringUtils.commaDelimitedListToStringArray(query.getGradeIds())).map(Integer::parseInt).collect(Collectors.toList()));
         }
+
         IPage<ScreeningStudentDTO> studentDTOIPage = screeningPlanSchoolStudentService.selectPageByQuery(page, query);
         List<ScreeningStudentDTO> screeningStudentDTOS = studentDTOIPage.getRecords();
-        List<Integer> ids = screeningStudentDTOS.stream().map(ScreeningStudentDTO :: getId).collect(Collectors.toList());
-        List<VisionScreeningResult> visionScreeningResults =  visionScreeningResultService.getByStudentIds(query.getScreeningPlanId(),ids);
-        //由于数据只有1条，所以进行分组
-        Map<Integer,List<VisionScreeningResult>> visionScreeningResultsGroup = visionScreeningResults.stream().collect(Collectors.groupingBy(VisionScreeningResult::getStudentId));
+        List<VisionScreeningResult> resultList  = visionScreeningResultService.getByPlanStudentIds(screeningStudentDTOS.stream().map(s->s.getPlanStudentId()).collect(Collectors.toList()));
+        Map<Integer,List<VisionScreeningResult>> visionScreeningResultsGroup = resultList.stream().collect(Collectors.groupingBy(VisionScreeningResult::getStudentId));
+
         //作者：钓猫的小鱼。  描述：给学生扩展类赋值
         studentDTOIPage.getRecords().forEach(studentDTO -> {
             studentDTO.setNationDesc(NationEnum.getName(studentDTO.getNation()))

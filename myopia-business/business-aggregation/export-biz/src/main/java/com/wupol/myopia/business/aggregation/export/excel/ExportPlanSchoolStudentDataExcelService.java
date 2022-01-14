@@ -83,11 +83,8 @@ public class ExportPlanSchoolStudentDataExcelService extends BaseExportExcelFile
 
         List<ScreeningStudentDTO> screeningStudentDTOS =  screeningPlanSchoolStudentService.selectListByQuery(screeningStudentQueryDTO);
 
-
-        List<Integer> ids = screeningStudentDTOS.stream().map(ScreeningStudentDTO :: getId).collect(Collectors.toList());
-        List<VisionScreeningResult> visionScreeningResults =  visionScreeningResultService.getByStudentIds(screeningPlanId,ids);
-        //由于数据只有1条，所以进行分组
-        Map<Integer,List<VisionScreeningResult>> visionScreeningResultsGroup = visionScreeningResults.stream().collect(Collectors.groupingBy(VisionScreeningResult::getId));
+        List<VisionScreeningResult> resultList  = visionScreeningResultService.getByPlanStudentIds(screeningStudentDTOS.stream().map(s->s.getPlanStudentId()).collect(Collectors.toList()));
+        Map<Integer,List<VisionScreeningResult>> visionScreeningResultsGroup = resultList.stream().collect(Collectors.groupingBy(VisionScreeningResult::getStudentId));
 
         List<StudentVisionScreeningResultExportDTO> studentVisionScreeningResultExportDTOS = new ArrayList<>();
         screeningStudentDTOS.forEach(studentDTO -> {
@@ -130,33 +127,6 @@ public class ExportPlanSchoolStudentDataExcelService extends BaseExportExcelFile
 
         return String.format(RedisConstant.FILE_EXPORT_PLAN_STUDENTSCREENING, screeningPlanId,screeningOrgId,schoolId, gradeId,classId,userId);
     }
-
-    @Override
-    public String syncExport(ExportCondition exportCondition) {
-
-        String parentPath = null;
-        File excelFile = null;
-        try {
-            // 1.获取文件名
-            String fileName = getFileName(exportCondition);
-            // 3.获取数据，生成List
-            List<StudentVisionScreeningResultExportDTO> data = getExcelData(exportCondition);
-            // 2.获取文件保存父目录路径
-            excelFile = generateExcelFile(fileName, data);
-
-            return resourceFileService.getResourcePath(s3Utils.uploadS3AndGetResourceFile(excelFile.getAbsolutePath(), fileName).getId());
-        } catch (Exception e) {
-            String requestData = JSON.toJSONString(exportCondition);
-            log.error("【生成报告异常】{}", requestData, e);
-            // 发送失败通知
-            throw new BusinessException("导出数据异常");
-        } finally {
-            // 5.删除临时文件
-            deleteTempFile(parentPath);
-        }
-    }
-
-
 
     /**
      * 获取文件同步导出文件名称
