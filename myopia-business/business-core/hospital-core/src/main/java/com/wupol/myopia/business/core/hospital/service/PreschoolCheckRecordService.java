@@ -235,7 +235,7 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
             return canCheckMonthAge.get(0);
         }
         Date now = new Date();
-        // 其中一个已检查 TODO wulizhou 可修改时选择当前，不可修改时选择另一个时间段
+        // 其中一个已检查 可修改时选择当前，不可修改时选择另一个时间段
         if (1 == recordOnMonthAgeCheck.size()) {
             PreschoolCheckRecord hasCheck = recordOnMonthAgeCheck.get(0);
             return DateUtil.betweenDay(hasCheck.getCreateTime(), now) > 3 ?
