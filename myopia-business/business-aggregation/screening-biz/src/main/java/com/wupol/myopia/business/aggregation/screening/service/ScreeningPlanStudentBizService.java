@@ -173,7 +173,15 @@ public class ScreeningPlanStudentBizService {
         String uuid = UUID.randomUUID().toString();
         String fileName = getFileName(schoolId, gradeId);
         cacheInfo(uuid, userId, fileName);
-        String screeningNoticeResultHtmlUrl = String.format(SCREENING_NOTICE_RESULT_HTML_URL, htmlUrlHost, planId, schoolId, gradeId, classId, orgId, planStudentIdStr, isSchoolClient);
+        String screeningNoticeResultHtmlUrl = String.format(SCREENING_NOTICE_RESULT_HTML_URL,
+                htmlUrlHost,
+                planId,
+                Objects.nonNull(schoolId) ? schoolId : StringUtils.EMPTY,
+                Objects.nonNull(gradeId) ? gradeId : StringUtils.EMPTY,
+                Objects.nonNull(classId) ? classId : StringUtils.EMPTY,
+                Objects.nonNull(orgId) ? orgId : StringUtils.EMPTY,
+                Objects.nonNull(planStudentIdStr) ? planStudentIdStr : StringUtils.EMPTY,
+                isSchoolClient);
         log.info("导出URL:{}", screeningNoticeResultHtmlUrl);
         PdfResponseDTO responseDTO = html2PdfService.asyncGeneratorPDF(screeningNoticeResultHtmlUrl, fileName, uuid);
         if (responseDTO.getStatus().equals(false)) {
