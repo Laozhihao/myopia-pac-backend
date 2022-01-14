@@ -472,11 +472,15 @@ public class ExcelFacade {
         Map<Integer, StatConclusionExportDTO> rescreenPlanStudentIdVoMap = isRescreenMap.getOrDefault(true, Collections.emptyList()).stream().collect(Collectors.toMap(StatConclusionExportDTO::getScreeningPlanSchoolStudentId, Function.identity(), (x, y) -> x));
         List<VisionScreeningResultExportDTO> exportVos = new ArrayList<>();
         List<StatConclusionExportDTO> vos = isRescreenMap.getOrDefault(false, Collections.emptyList());
-        for (int i = 0; i < vos.size(); i++) {
-            StatConclusionExportDTO vo = vos.get(i);
+        for (StatConclusionExportDTO vo : vos) {
             VisionScreeningResultExportDTO exportVo = new VisionScreeningResultExportDTO();
             BeanUtils.copyProperties(vo, exportVo);
-            exportVo.setId(i + 1).setGenderDesc(GenderEnum.getName(vo.getGender())).setNationDesc(StringUtils.defaultString(NationEnum.getName(vo.getNation()))).setGlassesTypeDesc(StringUtils.defaultIfBlank(GlassesTypeEnum.getDescByCode(vo.getGlassesType()), "--")).setIsRescreenDesc("否").setWarningLevelDesc(StringUtils.defaultIfBlank(WarningLevel.getDesc(vo.getWarningLevel()), "--")).setParentPhone(vo.getParentPhone()).setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(), vo.getAreaCode(), vo.getTownCode(), vo.getAddress()));
+            exportVo.setGenderDesc(GenderEnum.getName(vo.getGender()))
+                    .setNationDesc(StringUtils.defaultString(NationEnum.getName(vo.getNation())))
+                    .setGlassesTypeDesc(StringUtils.defaultIfBlank(GlassesTypeEnum.getDescByCode(vo.getGlassesType()), "--"))
+                    .setIsRescreenDesc("否").setWarningLevelDesc(StringUtils.defaultIfBlank(WarningLevel.getDesc(vo.getWarningLevel()), "--"))
+                    .setParentPhone(vo.getParentPhone())
+                    .setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(), vo.getAreaCode(), vo.getTownCode(), vo.getAddress()));
             genScreeningData(vo, exportVo);
             genReScreeningData(rescreenPlanStudentIdVoMap, vo, exportVo);
             generateDate(vo, exportVo);
