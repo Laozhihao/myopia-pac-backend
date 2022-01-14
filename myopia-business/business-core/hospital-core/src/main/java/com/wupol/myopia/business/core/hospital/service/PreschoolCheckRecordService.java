@@ -252,8 +252,8 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
             return canCheckMonthAge.get(0);
         }
         // 两个都可修改，取最新修改的
-        return recordOnMonthAgeCheck.stream().sorted(Comparator.comparing(PreschoolCheckRecord::getUpdateTime).reversed())
-                .findFirst().get().getMonthAge();
+        Optional<PreschoolCheckRecord> max = recordOnMonthAgeCheck.stream().max(Comparator.comparing(PreschoolCheckRecord::getUpdateTime));
+        return max.map(PreschoolCheckRecord::getMonthAge).orElse(null);
     }
 
     /**
@@ -261,7 +261,7 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
      * @return
      */
     private Map<Integer, MonthAgeStatusDTO> initMonthAgeStatusMap() {
-        Map<Integer, MonthAgeStatusDTO> monthAgeStatus = new LinkedHashMap();
+        Map<Integer, MonthAgeStatusDTO> monthAgeStatus = new LinkedHashMap<>();
         for(MonthAgeEnum monAge : MonthAgeEnum.values()) {
             monthAgeStatus.put(monAge.getId(), new MonthAgeStatusDTO(monAge, MonthAgeStatusEnum.AGE_STAGE_STATUS_DISABLE.getStatus()));
         }
