@@ -16,6 +16,7 @@ import com.wupol.myopia.business.core.hospital.domain.mapper.PreschoolCheckRecor
 import com.wupol.myopia.business.core.hospital.domain.model.PreschoolCheckRecord;
 import com.wupol.myopia.business.core.hospital.domain.query.PreschoolCheckRecordQuery;
 import com.wupol.myopia.business.core.hospital.util.HospitalUtil;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -31,6 +32,7 @@ import java.util.stream.Collectors;
  * @Date 2022-01-04
  */
 @Service
+@Log4j2
 public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecordMapper, PreschoolCheckRecord> {
 
     @Autowired
@@ -49,6 +51,10 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
      */
     public PreschoolCheckRecordDTO getDetail(Integer id) {
         PreschoolCheckRecordDTO details = baseMapper.getDetail(id);
+        if (Objects.isNull(details)) {
+            log.error("获取报告数据异常, 报告Id:{}", id);
+            throw new BusinessException("数据异常");
+        }
         details.setCreateTimeAge(DateUtil.getAgeInfo(details.getBirthday(), details.getCreateTime()));
         // 检查单
         if (Objects.nonNull(details.getToReferralId())) {
