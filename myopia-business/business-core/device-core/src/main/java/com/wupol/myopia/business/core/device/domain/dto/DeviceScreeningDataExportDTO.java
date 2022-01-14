@@ -1,6 +1,7 @@
-package com.wupol.myopia.business.core.screening.flow.domain.dto;
+package com.wupol.myopia.business.core.device.domain.dto;
 
 import com.alibaba.excel.annotation.ExcelProperty;
+import com.alibaba.excel.annotation.write.style.ColumnWidth;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -180,6 +181,7 @@ public class DeviceScreeningDataExportDTO implements Serializable {
     /**
      * 筛查结果(1=优, 2=良, 3=差,-1=未知)
      */
+    @ColumnWidth(50)
     @ExcelProperty("测试结果")
     private String checkResult;
 

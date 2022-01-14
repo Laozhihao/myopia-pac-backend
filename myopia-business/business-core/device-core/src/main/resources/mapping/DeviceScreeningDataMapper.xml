@@ -141,7 +141,7 @@
     </select>
 
 
-    <select id="selectExcelData" resultType="com.wupol.myopia.business.core.device.domain.model.DeviceScreeningData">
+    <select id="selectExcelData" resultType="com.wupol.myopia.business.core.device.domain.dto.DeviceScreeningDataExportDTO">
         select  id, patient_name as patientName,
         CASE WHEN patient_age_group = -1 THEN "未知"
         WHEN patient_age_group = 1 THEN "(0M,12M]"

@@ -30,5 +30,5 @@ public interface DeviceScreeningDataMapper extends BaseMapper<DeviceScreeningDat
      */
     List<DeviceScreenDataDTO> selectWithMutiConditions(Integer screeningOrgId, String deviceSn, List<DeviceScreenDataDTO> list);
 
-    List<DeviceScreeningData> selectExcelData(List<Integer> ids);
+    List<DeviceScreeningDataExportDTO> selectExcelData(List<Integer> ids);
 }
