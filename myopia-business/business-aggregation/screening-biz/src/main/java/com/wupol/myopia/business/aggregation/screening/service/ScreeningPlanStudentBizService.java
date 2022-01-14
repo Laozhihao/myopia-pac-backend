@@ -174,6 +174,7 @@ public class ScreeningPlanStudentBizService {
         String fileName = getFileName(schoolId, gradeId);
         cacheInfo(uuid, userId, fileName);
         String screeningNoticeResultHtmlUrl = String.format(SCREENING_NOTICE_RESULT_HTML_URL, htmlUrlHost, planId, schoolId, gradeId, classId, orgId, planStudentIdStr, isSchoolClient);
+        log.info("导出URL:{}", screeningNoticeResultHtmlUrl);
         PdfResponseDTO responseDTO = html2PdfService.asyncGeneratorPDF(screeningNoticeResultHtmlUrl, fileName, uuid);
         if (responseDTO.getStatus().equals(false)) {
             // 错误删除时候删除缓存信息
