@@ -14,7 +14,6 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.*;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ImportExcelEnum;
-import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.util.S3Utils;
@@ -104,8 +103,6 @@ public class ExcelFacade {
     private RedisUtil redisUtil;
     @Autowired
     private SchoolStudentService schoolStudentService;
-    @Autowired
-    private VisionScreeningBizService visionScreeningBizService;
 
     /**
      * 导入学生
