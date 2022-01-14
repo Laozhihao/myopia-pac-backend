@@ -307,8 +307,7 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
                 .setSchoolId(schoolId)
                 .setGradeId(gradeId)
                 .setClassId(classId)
-                .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId())
-                ;
+                .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
 
         if (classId==null){
             if (CurrentUserUtil.getCurrentUser().getUserType()==1){
@@ -317,7 +316,7 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
                 sysUtilService.isExport(key);
             }
 
-            exportStrategy.doExcelExport(exportCondition, ExportReportServiceNameConstant.EXPOR_TPLAN_STUDENT_DATA_EXCELS_ERVICE);
+            exportStrategy.doExcelExport(exportCondition, ExportReportServiceNameConstant.EXPOR_TPLAN_STUDENT_DATA_EXCEL_SERVICE);
             return ApiResult.success();
         }else {
             if (CurrentUserUtil.getCurrentUser().getUserType()==1){
@@ -326,7 +325,7 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
                 sysUtilService.isExport(key);
             }
 
-            String path = exportStrategy.syncExport(exportCondition, ExportReportServiceNameConstant.EXPOR_TPLAN_STUDENT_DATA_EXCELS_ERVICE);
+            String path = exportStrategy.syncExport(exportCondition, ExportReportServiceNameConstant.EXPOR_TPLAN_STUDENT_DATA_EXCEL_SERVICE);
             return ApiResult.success(path);
         }
     }

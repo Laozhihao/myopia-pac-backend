@@ -7,7 +7,6 @@ import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelFileName
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelNoticeKeyContentConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.core.common.service.DistrictService;
-import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
@@ -52,8 +51,6 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
 
     @Autowired
     private ExcelFacade excelFacade;
-    @Autowired
-    private ResourceFileService resourceFileService;
 
     @Override
     public List<StatConclusionExportDTO> getExcelData(ExportCondition exportCondition) {
