@@ -111,7 +111,7 @@ public class HospitalStudentFacade {
                 studentService.getById(studentVo.getStudentId()) :
                 studentService.getByIdCard(idCard);
         if ((Objects.nonNull(oldStudent) && isCheckNameAndIDCard)
-                && (!(oldStudent.getIdCard().equals(idCard)
+                && (!(idCard.equals(oldStudent.getIdCard())
                 && oldStudent.getName().equals(studentVo.getName())))) {
             throw new BusinessException("学生的身份证与姓名不匹配");
         }
