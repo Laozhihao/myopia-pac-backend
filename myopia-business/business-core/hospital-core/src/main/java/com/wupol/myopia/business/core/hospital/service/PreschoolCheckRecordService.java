@@ -156,7 +156,7 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
      * 追加检查检查数据到检查单
      */
     public void saveCheckRecord(PreschoolCheckRecord checkRecord) {
-        if (Objects.isNull(checkRecord.getId()) || checkRecord.getId() < 1) {
+        if (Objects.isNull(checkRecord.getId())) {
             if (!save(checkRecord)) {
                 throw new BusinessException("新增失败");
             }
