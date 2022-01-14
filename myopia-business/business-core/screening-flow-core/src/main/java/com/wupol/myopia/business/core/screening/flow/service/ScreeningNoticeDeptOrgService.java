@@ -10,6 +10,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningNoticeQ
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningNoticeDeptOrgMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNoticeDeptOrg;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,6 +22,9 @@ import java.util.Objects;
  */
 @Service
 public class ScreeningNoticeDeptOrgService extends BaseService<ScreeningNoticeDeptOrgMapper, ScreeningNoticeDeptOrg> {
+
+    @Autowired
+    private ScreeningNoticeService screeningNoticeService;
 
     /**
      * 设置操作人再更新
@@ -113,5 +117,29 @@ public class ScreeningNoticeDeptOrgService extends BaseService<ScreeningNoticeDe
     public void statusReadAndCreate(Integer noticeId, Integer acceptOrgId, Integer genTaskOrPlanId, CurrentUser user) {
         //1. 更新状态与任务/计划ID
         baseMapper.updateStatusAndTaskPlanIdByNoticeIdAndAcceptOrgId(noticeId, acceptOrgId, genTaskOrPlanId, user.getId(), CommonConst.STATUS_NOTICE_CREATED);
+    }
+
+    /**
+     * 添加上级部门历史通知
+     * @param govDeptId
+     * @param districtId
+     */
+    public void saveScreeningNotice(Integer govDeptId, Integer districtId) {
+        ScreeningNotice screeningNotice = new ScreeningNotice();
+        screeningNotice.setGovDeptId(govDeptId);
+        screeningNotice.setReleaseStatus(1);
+        screeningNotice.setType(0);
+        List<ScreeningNotice> list = screeningNoticeService.findByDeptId(screeningNotice);
+        if (!list.isEmpty()){
+            for (ScreeningNotice screeningNotice1 :list){
+                ScreeningNoticeDeptOrg screeningNoticeDeptOrg  = new ScreeningNoticeDeptOrg();
+                screeningNoticeDeptOrg.setScreeningNoticeId(screeningNotice1.getId());
+                screeningNoticeDeptOrg.setDistrictId(districtId);
+                screeningNoticeDeptOrg.setAcceptOrgId(govDeptId);
+                screeningNoticeDeptOrg.setOperationStatus(0);
+                screeningNoticeDeptOrg.setScreeningTaskPlanId(screeningNotice1.getScreeningTaskId());
+                saveOrUpdate(screeningNoticeDeptOrg);
+            }
+        }
     }
 }

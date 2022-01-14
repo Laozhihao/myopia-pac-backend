@@ -55,8 +55,6 @@ public class GovDeptController {
     private OauthServiceClient oauthServiceClient;
     @Autowired
     private ScreeningNoticeDeptOrgService noticeDeptOrgService;
-    @Autowired
-    private ScreeningNoticeService screeningNoticeService;
 
     /**
      * 获取部门列表
@@ -114,22 +112,7 @@ public class GovDeptController {
             List<GovDept> govList = findByParentIds(lists,govDept.getPid());
             if (!govList.isEmpty()){
                 for (GovDept govDept1 : govList){
-                ScreeningNotice screeningNotice = new ScreeningNotice();
-                    screeningNotice.setGovDeptId(govDept1.getId());
-                    screeningNotice.setReleaseStatus(1);
-                    screeningNotice.setType(0);
-                    List<ScreeningNotice> list = screeningNoticeService.findByDeptId(screeningNotice);
-                    if (!list.isEmpty()){
-                        for (ScreeningNotice screeningNotice1 :list){
-                            ScreeningNoticeDeptOrg screeningNoticeDeptOrg  = new ScreeningNoticeDeptOrg();
-                            screeningNoticeDeptOrg.setScreeningNoticeId(screeningNotice1.getId());
-                            screeningNoticeDeptOrg.setDistrictId(govDept1.getDistrictId());
-                            screeningNoticeDeptOrg.setAcceptOrgId(govDept1.getId());
-                            screeningNoticeDeptOrg.setOperationStatus(0);
-                            screeningNoticeDeptOrg.setScreeningTaskPlanId(screeningNotice1.getScreeningTaskId());
-                            noticeDeptOrgService.saveOrUpdate(screeningNoticeDeptOrg);
-                        }
-                    }
+                noticeDeptOrgService.saveScreeningNotice(govDept1.getId(),govDept1.getDistrictId());
                 }
             }
         } catch (DuplicateKeyException e) {
