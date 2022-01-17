@@ -133,7 +133,6 @@ public class ScreeningPlanSchoolStudentBizService {
             planSchoolStudent.setPlanDistrictId(plan.getDistrictId());
             planSchoolStudent.setSchoolDistrictId(school.getDistrictId());
             planSchoolStudent.setSchoolId(school.getId());
-            planSchoolStudent.setSchoolNo(school.getSchoolNo());
             planSchoolStudent.setSchoolName(school.getName());
             planSchoolStudent.setGradeId(schoolGrade.getGradeId());
             planSchoolStudent.setGradeName(schoolGrade.getGradeName());

@@ -6,8 +6,8 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
-import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
+import com.wupol.myopia.business.aggregation.export.excel.imports.ScreeningOrgStaffExcelImportService;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
@@ -40,7 +40,7 @@ public class ScreeningOrganizationStaffController {
     private ScreeningOrganizationStaffService screeningOrganizationStaffService;
 
     @Autowired
-    private ExcelFacade excelFacade;
+    private ScreeningOrgStaffExcelImportService screeningOrgStaffExcelImportService;
 
     @Autowired
     private ExportStrategy exportStrategy;
@@ -151,7 +151,7 @@ public class ScreeningOrganizationStaffController {
         if (Objects.nonNull(currentUser.getScreeningOrgId())) {
             screeningOrgId = currentUser.getScreeningOrgId();
         }
-        excelFacade.importScreeningOrganizationStaff(currentUser, file, screeningOrgId);
+        screeningOrgStaffExcelImportService.importScreeningOrganizationStaff(currentUser, file, screeningOrgId);
     }
 
 }

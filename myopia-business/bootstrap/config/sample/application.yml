@@ -126,6 +126,7 @@ upload:
   staticHost: https://vistel-development.s3.cn-northwest-1.amazonaws.com.cn
   # S3链接失效时间（小时）
   expiredHours: 2
+  region: cn-northwest-1
 
 ### 微信相关
 wechat:
@@ -149,6 +150,9 @@ vistel:
 report:
   pdf:
     save-path: /app/pdf/
+  async-request-url: http://t-nodejs-pdf-generator.internal/pdf/single-async
+  sync-request-url: http://t-nodejs-pdf-generator.internal/pdf/single-sync
+  callbackUrl: https://00c5-240e-3b1-21a-2a70-6d1f-6132-cebb-9349.ngrok.io/management/pdf/callback
   html:
     url-host: http://8.135.35.154:7002
 

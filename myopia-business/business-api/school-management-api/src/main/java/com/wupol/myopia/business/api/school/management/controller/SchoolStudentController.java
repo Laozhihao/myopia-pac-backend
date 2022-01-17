@@ -8,8 +8,8 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
-import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
+import com.wupol.myopia.business.aggregation.export.excel.imports.SchoolStudentExcelImportService;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
 import com.wupol.myopia.business.api.school.management.service.SchoolStudentBizService;
@@ -63,7 +63,7 @@ public class SchoolStudentController {
     private ExportStrategy exportStrategy;
 
     @Resource
-    private ExcelFacade excelFacade;
+    private SchoolStudentExcelImportService schoolStudentExcelImportService;
 
     @Resource
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
@@ -175,7 +175,7 @@ public class SchoolStudentController {
     @PostMapping("/import")
     public Object importStudent(MultipartFile file) throws ParseException {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        excelFacade.importSchoolStudent(currentUser.getId(), file, currentUser.getOrgId());
+        schoolStudentExcelImportService.importSchoolStudent(currentUser.getId(), file, currentUser.getOrgId());
         return ApiResult.success();
     }
 }

@@ -11,6 +11,7 @@ import com.wupol.myopia.business.api.management.service.ScreeningOrganizationBiz
 import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
+import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
@@ -99,7 +100,7 @@ public class ScreeningOrganizationController {
     @PutMapping()
     public ScreeningOrgResponseDTO updateScreeningOrganization(@RequestBody @Valid ScreeningOrganization screeningOrganization) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        if (user.isPlatformAdminUser()){
+        if (user.isPlatformAdminUser()) {
             screeningOrganizationService.checkScreeningOrganizationCooperation(screeningOrganization);
             // 设置机构状态
             screeningOrganization.setStatus(screeningOrganization.getCooperationStopStatus());
@@ -186,8 +187,8 @@ public class ScreeningOrganizationController {
     /**
      * 导出指定计划下的单个学校的学生的预计跟踪档案
      *
-     * @param planId 筛查计划ID
-     * @param schoolId 学校ID
+     * @param planId         筛查计划ID
+     * @param schoolId       学校ID
      * @param screeningOrgId 筛查机构ID
      * @return void
      **/
@@ -382,14 +383,26 @@ public class ScreeningOrganizationController {
     /**
      * 模糊查询指定省份下筛查机构
      *
-     * @param name 筛查机构名称
+     * @param name                 筛查机构名称
      * @param provinceDistrictCode 省行政区域编码，如：110000000
      * @return java.util.List<com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization>
      **/
     @GetMapping("/province/list")
     public List<ScreeningOrganization> getListByProvinceCodeAndNameLike(@NotBlank(message = "筛查机构名称不能为空") String name,
-                                                                    @NotNull(message = "省行政区域编码不能为空") Long provinceDistrictCode) {
+                                                                        @NotNull(message = "省行政区域编码不能为空") Long provinceDistrictCode) {
         return screeningOrganizationService.getListByProvinceCodeAndNameLike(name, provinceDistrictCode);
+    }
+
+    /**
+     * 更新结果通知配置
+     *
+     * @param id                 筛查机构Id
+     * @param resultNoticeConfig 结果通知
+     */
+    @PutMapping("/update/resultNoticeConfig/{id}")
+    public void updateResultNoticeConfig(@PathVariable("id") @NotNull(message = "学校Id不能为空") Integer id,
+                                         @RequestBody ResultNoticeConfig resultNoticeConfig) {
+        screeningOrganizationService.updateResultNoticeConfig(id, resultNoticeConfig);
     }
 
 }

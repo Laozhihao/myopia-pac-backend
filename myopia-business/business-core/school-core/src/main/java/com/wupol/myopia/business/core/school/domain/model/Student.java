@@ -4,13 +4,13 @@ import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.wupol.myopia.base.domain.vo.FamilyInfoVO;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.RegularUtils;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.util.VisionUtil;
 import com.wupol.myopia.business.core.common.domain.model.AddressCode;
-import com.wupol.myopia.base.domain.vo.FamilyInfoVO;
-import freemarker.core.BugException;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -309,7 +309,7 @@ public class Student extends AddressCode implements Serializable {
      */
     public void checkIdCard() {
         if (!RegularUtils.isIdCard(idCard)) {
-            throw new BugException("身份证信息异常");
+            throw new BusinessException("身份证信息异常");
         }
     }
 }

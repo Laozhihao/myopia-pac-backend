@@ -8,6 +8,7 @@ import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.framework.core.util.StringUtils;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
+import com.wupol.myopia.business.common.utils.util.IdCardUtil;
 import com.wupol.myopia.base.util.ListUtil;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ImportExcelEnum;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
@@ -195,8 +196,6 @@ public class ExcelStudentService {
         // excel格式：姓名、性别、出生日期、民族(1：汉族  2：蒙古族  3：藏族  4：壮族  5:回族  6:其他  )、学校编号、年级、班级、学号、身份证号、手机号码、省、市、县区、镇/街道、居住地址
         if (listMap.stream().anyMatch(map -> ObjectsUtil.hasNull(
                 map.getOrDefault(ImportExcelEnum.NAME.getIndex(), null),
-                map.getOrDefault(ImportExcelEnum.GENDER.getIndex(), null),
-                map.getOrDefault(ImportExcelEnum.BIRTHDAY.getIndex(), null),
                 map.getOrDefault(ImportExcelEnum.GRADE.getIndex(), null),
                 map.getOrDefault(ImportExcelEnum.CLASS.getIndex(), null)))) {
             throw new BusinessException("存在必填项无填写");
@@ -232,7 +231,7 @@ public class ExcelStudentService {
             if (Objects.isNull(existPlanStudent)) {
                 existPlanStudent = new ScreeningPlanSchoolStudent();
                 existPlanStudent.setIdCard(student.getIdCard()).setSrcScreeningNoticeId(screeningPlan.getSrcScreeningNoticeId()).setScreeningTaskId(screeningPlan.getScreeningTaskId()).setScreeningPlanId(screeningPlan.getId())
-                        .setScreeningOrgId(screeningPlan.getScreeningOrgId()).setPlanDistrictId(screeningPlan.getDistrictId()).setSchoolDistrictId(school.getDistrictId()).setSchoolId(schoolId).setSchoolName(school.getName()).setSchoolNo(school.getSchoolNo()).setStudentId(dbStudent.getId())
+                        .setScreeningOrgId(screeningPlan.getScreeningOrgId()).setPlanDistrictId(screeningPlan.getDistrictId()).setSchoolDistrictId(school.getDistrictId()).setSchoolId(schoolId).setSchoolName(school.getName()).setStudentId(dbStudent.getId())
                         .setScreeningCode(ScreeningCodeGenerator.nextId());
             }
             existPlanStudent.setId(existPlanStudent.getId()).setStudentName(student.getName()).setGradeId(student.getGradeId()).setGradeName(student.getGradeName())
@@ -425,7 +424,7 @@ public class ExcelStudentService {
         student.setGradeName(item.get(ImportExcelEnum.GRADE.getIndex()))
                 .setClassName(item.get(ImportExcelEnum.CLASS.getIndex()));
         student.setName(StringUtils.getDefaultIfBlank(item.get(ImportExcelEnum.NAME.getIndex()), null))
-                .setGender(StringUtils.isBlank(item.get(ImportExcelEnum.GENDER.getIndex())) ? null : GenderEnum.getType(item.get(ImportExcelEnum.GENDER.getIndex())))
+                .setGender(StringUtils.isBlank(item.get(ImportExcelEnum.ID_CARD.getIndex())) ? GenderEnum.getType(item.get(ImportExcelEnum.GENDER.getIndex())) : IdCardUtil.getGender(item.get(ImportExcelEnum.ID_CARD.getIndex())))
                 .setNation(StringUtils.isBlank(item.get(ImportExcelEnum.NATION.getIndex())) ? null : NationEnum.getCode(item.get(ImportExcelEnum.NATION.getIndex())))
                 .setSchoolId(schoolId)
                 .setGradeId(gradeNameIdMap.get(item.get(ImportExcelEnum.GRADE.getIndex())))
@@ -434,8 +433,11 @@ public class ExcelStudentService {
                 .setIdCard(StringUtils.getDefaultIfBlank(item.get(ImportExcelEnum.ID_CARD.getIndex()), null))
                 .setParentPhone(StringUtils.getDefaultIfBlank(item.get(ImportExcelEnum.PHONE.getIndex()), null))
                 .setAddress(StringUtils.getDefaultIfBlank(item.get(ImportExcelEnum.ADDRESS.getIndex()), null));
+        if (GenderEnum.UNKNOWN.type.equals(student.getGender())) {
+            throw new BusinessException("性别异常");
+        }
         try {
-            student.setBirthday(StringUtils.isBlank(item.get(ImportExcelEnum.BIRTHDAY.getIndex())) ? null : DateFormatUtil.parseDate(item.get(ImportExcelEnum.BIRTHDAY.getIndex()), DateFormatUtil.FORMAT_ONLY_DATE2));
+            student.setBirthday(StringUtils.isBlank(item.get(ImportExcelEnum.BIRTHDAY.getIndex())) ? IdCardUtil.getBirthDay(item.get(ImportExcelEnum.ID_CARD.getIndex())) : DateFormatUtil.parseDate(item.get(ImportExcelEnum.BIRTHDAY.getIndex()), DateFormatUtil.FORMAT_ONLY_DATE2));
         } catch (ParseException e) {
             throw new BusinessException("学生姓名为:" + student.getName() + "日期转换异常");
         }
@@ -653,7 +655,6 @@ public class ExcelStudentService {
                     .setGender(excelStudent.getGender())
                     .setBirthday(excelStudent.getBirthday())
                     .setNation(excelStudent.getNation())
-                    .setSchoolNo(school.getSchoolNo())
                     .setGradeType(excelStudent.getGradeType())
                     .setSno(sno)
                     .setIdCard(idCard)

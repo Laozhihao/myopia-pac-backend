@@ -2,12 +2,13 @@ package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
-import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
+import com.wupol.myopia.business.aggregation.export.excel.imports.PlanStudentExcelImportService;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
 import com.wupol.myopia.business.aggregation.screening.domain.vos.SchoolGradeVO;
@@ -41,6 +42,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import javax.validation.ValidationException;
+import javax.validation.constraints.NotBlank;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
@@ -72,7 +74,7 @@ public class ScreeningPlanController {
     @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
     @Autowired
-    private ExcelFacade excelFacade;
+    private PlanStudentExcelImportService planStudentExcelImportService;
     @Autowired
     private NoticeService noticeService;
     @Autowired
@@ -89,6 +91,7 @@ public class ScreeningPlanController {
     private ScreeningPlanSchoolStudentFacadeService screeningPlanSchoolStudentFacadeService;
     @Autowired
     private ScreeningExportService screeningExportService;
+
 
     /**
      * 新增
@@ -336,7 +339,7 @@ public class ScreeningPlanController {
             throw new ValidationException("该筛查学校不存在");
         }
         ScreeningPlan screeningPlan = screeningPlanService.getById(screeningPlanId);
-        excelFacade.importScreeningSchoolStudents(currentUser.getId(), file, screeningPlan, schoolId);
+        planStudentExcelImportService.importScreeningSchoolStudents(currentUser.getId(), file, screeningPlan, schoolId);
     }
 
     /**
@@ -399,6 +402,58 @@ public class ScreeningPlanController {
     @PostMapping("/update/planStudent")
     public void updatePlanStudent(@RequestBody UpdatePlanStudentRequestDTO requestDTO) {
         screeningPlanStudentBizService.updatePlanStudent(requestDTO);
+    }
+
+    /**
+     * 通过条件获取筛查学生
+     *
+     * @param planId         计划Id
+     * @param schoolId       学校Id
+     * @param gradeId        年级Id
+     * @param classId        班级Id
+     * @param orgId          筛查机构Id
+     * @param planStudentIds 筛查学生Id
+     * @param isSchoolClient 是否学校端
+     * @return List<ScreeningStudentDTO>
+     */
+    @GetMapping("screeningNoticeResult")
+    public List<ScreeningStudentDTO> getScreeningNoticeResultStudent(@NotBlank(message = "计划Id不能为空") Integer planId,
+                                                                     Integer schoolId, Integer gradeId, Integer classId, Integer orgId,
+                                                                     String planStudentIds, @NotBlank(message = "查询类型不能为空") Boolean isSchoolClient,
+                                                                     String planStudentName) {
+        return screeningPlanStudentBizService.getScreeningNoticeResultStudent(planId, schoolId, gradeId, classId, orgId, planStudentIds, isSchoolClient, planStudentName);
+    }
+
+    /**
+     * 异步导出学生报告
+     *
+     * @param planId           计划Id
+     * @param schoolId         学校Id
+     * @param gradeId          年级Id
+     * @param classId          班级Id
+     * @param orgId            筛查机构Id
+     * @param planStudentIdStr 筛查学生Ids
+     */
+    @GetMapping("screeningNoticeResult/asyncGeneratorPDF")
+    public void asyncGeneratorPDF(Integer planId, Integer schoolId, Integer gradeId, Integer classId, Integer orgId, String planStudentIdStr) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        screeningPlanStudentBizService.asyncGeneratorPDF(planId, schoolId, gradeId, classId, orgId, planStudentIdStr, false, user.getId());
+    }
+
+    /**
+     * 同步导出学生报告
+     *
+     * @param planId           计划Id
+     * @param schoolId         学校Id
+     * @param gradeId          年级Id
+     * @param classId          班级Id
+     * @param orgId            筛查机构Id
+     * @param planStudentIdStr 筛查学生Ids
+     */
+    @GetMapping("screeningNoticeResult/syncGeneratorPDF")
+    public PdfResponseDTO syncGeneratorPDF(Integer planId, Integer schoolId, Integer gradeId, Integer classId, Integer orgId, String planStudentIdStr) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        return screeningPlanStudentBizService.syncGeneratorPDF(planId, schoolId, gradeId, classId, orgId, planStudentIdStr, false, user.getId());
     }
 
 }

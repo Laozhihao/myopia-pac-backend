@@ -57,7 +57,6 @@ public class ScreeningPlanBizService {
                 .setSchoolDistrictId(schoolDistrictId)
                 .setSchoolId(schoolId)
                 .setSchoolName(schoolName)
-                .setSchoolNo(schoolNo)
                 .setStudentId(student.getId())
                 .setScreeningCode(screeningCode);
 
