@@ -946,10 +946,10 @@ public class StatReportService {
 
         // 近视
         long myopiaNum = validConclusions.stream().filter(
-                x -> Objects.nonNull(x.getMyopiaWarningLevel())
-                        && (MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.code.equals(x.getMyopiaWarningLevel())
-                        || MyopiaLevelEnum.MYOPIA_LEVEL_MIDDLE.code.equals(x.getMyopiaWarningLevel())
-                        || MyopiaLevelEnum.MYOPIA_LEVEL_HIGH.code.equals(x.getMyopiaWarningLevel()))).count();
+                x -> Objects.nonNull(x.getMyopiaLevel())
+                        && (MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.code.equals(x.getMyopiaLevel())
+                        || MyopiaLevelEnum.MYOPIA_LEVEL_MIDDLE.code.equals(x.getMyopiaLevel())
+                        || MyopiaLevelEnum.MYOPIA_LEVEL_HIGH.code.equals(x.getMyopiaLevel()))).count();
         resultMap.put("myopiaRatio", convertToPercentage(myopiaNum * 1f / validFirstScreeningNum));
 
         // 视力低下
@@ -1443,13 +1443,13 @@ public class StatReportService {
     private Map<String, Object> composeMyopiaLevelStat(String name,
                                                        List<StatConclusion> statConclusions) {
         Predicate<StatConclusion> levelEarlyPredicate =
-                x -> MyopiaLevelEnum.MYOPIA_LEVEL_EARLY.code.equals(x.getMyopiaWarningLevel());
+                x -> MyopiaLevelEnum.MYOPIA_LEVEL_EARLY.code.equals(x.getMyopiaLevel());
         Predicate<StatConclusion> levelOnePredicate =
-                x -> MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.code.equals(x.getMyopiaWarningLevel());
+                x -> MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.code.equals(x.getMyopiaLevel());
         Predicate<StatConclusion> levelTwoPredicate =
-                x -> MyopiaLevelEnum.MYOPIA_LEVEL_MIDDLE.code.equals(x.getMyopiaWarningLevel());
+                x -> MyopiaLevelEnum.MYOPIA_LEVEL_MIDDLE.code.equals(x.getMyopiaLevel());
         Predicate<StatConclusion> levelThreePredicate =
-                x -> MyopiaLevelEnum.MYOPIA_LEVEL_HIGH.code.equals(x.getMyopiaWarningLevel());
+                x -> MyopiaLevelEnum.MYOPIA_LEVEL_HIGH.code.equals(x.getMyopiaLevel());
         return composeMyopiaLevelStat(name, statConclusions, levelEarlyPredicate, levelOnePredicate, levelTwoPredicate, levelThreePredicate);
     }
 
