@@ -42,9 +42,6 @@ public class ReferralRecord implements Serializable {
     @NotNull
     private Integer preschoolCheckRecordId;
 
-    @TableField(exist = false)
-    private String no;
-
     /**
      * 学生id
      */
@@ -77,12 +74,6 @@ public class ReferralRecord implements Serializable {
      */
     @NotBlank
     private String toDepartment;
-
-    /**
-     * 目标医生名称
-     */
-    @TableField(exist = false)
-    private String toDoctor;
 
     /**
      * 未做专项检查
