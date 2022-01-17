@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 
 /**
@@ -68,6 +69,13 @@ public class ReferralRecordService extends BaseService<ReferralRecordMapper, Ref
      * @param user
      */
     public void saveOrUpdateReferral(ReferralRecord record, CurrentUser user) {
+        if (Objects.isNull(record.getId())) {
+            // 保证一个检查记录只有一条转诊信息
+            ReferralRecord oldReferral = findOne(new ReferralRecord().setPreschoolCheckRecordId(record.getPreschoolCheckRecordId()));
+            if (Objects.nonNull(oldReferral)) {
+                record.setId(oldReferral.getId());
+            }
+        }
         record.setFromHospitalId(user.getOrgId());
         record.setFromDoctorId(hospitalDoctorService.getDetailsByUserId(user.getId()).getId());
         saveOrUpdate(record);
