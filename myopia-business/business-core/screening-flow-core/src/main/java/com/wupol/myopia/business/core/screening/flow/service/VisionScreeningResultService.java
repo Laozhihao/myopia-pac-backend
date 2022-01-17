@@ -8,8 +8,10 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreening
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.VisionScreeningResultMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -176,6 +178,9 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
      * @return 筛查结果
      */
     public List<VisionScreeningResult> getByPlanStudentIds(List<Integer> planStudentIds) {
+        if (CollectionUtils.isEmpty(planStudentIds)) {
+            return Collections.emptyList();
+        }
         return baseMapper.getByPlanStudentIds(planStudentIds);
     }
 }
