@@ -109,6 +109,12 @@ public class ScreeningOrganization extends AddressCooperation implements Seriali
     private NotificationConfig notificationConfig;
 
     /**
+     * 结果通知配置
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private ResultNoticeConfig resultNoticeConfig;
+
+    /**
      * 创建时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

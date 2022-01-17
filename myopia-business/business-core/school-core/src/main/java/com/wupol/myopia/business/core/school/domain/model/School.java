@@ -161,6 +161,12 @@ public class School extends AddressCooperation implements Serializable, HasName 
     private NotificationConfig notificationConfig;
 
     /**
+     * 结果通知配置
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private ResultNoticeConfig resultNoticeConfig;
+
+    /**
      * 转化成SchoolExportDTO
      *
      * @return SchoolExportDTO
