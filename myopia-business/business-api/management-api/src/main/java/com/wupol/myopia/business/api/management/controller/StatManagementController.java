@@ -385,6 +385,7 @@ public class StatManagementController {
                                 seriousLevel = StatUtil.getSeriousLevel(leftMyopiaLevel, rightMyopiaLevel);
                             }
                         }
+                        statConclusion.setMyopiaLevel(seriousLevel);
                         statConclusion.setIsMyopia(StatUtil.isMyopia(seriousLevel));
                     }
 
