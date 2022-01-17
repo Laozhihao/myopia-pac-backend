@@ -65,7 +65,10 @@ public class ExportPlanStudentExcelService extends BaseExportExcelFileService {
         Integer planId = exportCondition.getPlanId();
         Integer schoolId = exportCondition.getSchoolId();
         Integer gradeId = exportCondition.getGradeId();
+
         List<ScreeningPlanSchoolStudent> planSchoolStudents = screeningPlanSchoolStudentService.getByPlanIdAndSchoolIdAndGradeId(planId, schoolId, gradeId);
+
+
         if (CollectionUtils.isEmpty(planSchoolStudents)) {
             throw new BusinessException("数据为空");
         }
@@ -160,4 +163,6 @@ public class ExportPlanStudentExcelService extends BaseExportExcelFileService {
                 exportCondition.getPlanId(),
                 exportCondition.getGradeId());
     }
+
+
 }

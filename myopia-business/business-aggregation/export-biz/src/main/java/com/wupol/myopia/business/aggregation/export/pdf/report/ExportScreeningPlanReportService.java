@@ -13,6 +13,7 @@ import com.wupol.myopia.business.core.screening.organization.service.ScreeningOr
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 /**
  * 导出筛查机构的筛查报告
@@ -21,9 +22,8 @@ import org.springframework.stereotype.Service;
  * @Date 2021/3/24
  **/
 @Log4j2
-@Service("screeningOrgScreeningReportService")
-public class ExportScreeningOrgScreeningReportService extends BaseExportPdfFileService {
-
+@Service("exportScreeningPlanReportService")
+public class ExportScreeningPlanReportService extends BaseExportPdfFileService {
     @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
     @Autowired
@@ -41,11 +41,13 @@ public class ExportScreeningOrgScreeningReportService extends BaseExportPdfFileS
      **/
     @Override
     public void generatePdfFile(ExportCondition exportCondition, String fileSavePath, String fileName) {
+
+        Integer schoolId = exportCondition.getSchoolId();
+        Assert.notNull(schoolId, "学校ID不能为空");
         // 所有学校汇总
         generateReportPdfService.generateScreeningPlanReportPdfFile(fileSavePath, exportCondition.getPlanId());
         // 各个学校详情
-        generateReportPdfService.generateScreeningOrgScreeningReportPdfFile(fileSavePath, exportCondition.getPlanId());
-
+        generateReportPdfService.generateScreeningPlanSchoolReportPdfFile(fileSavePath, exportCondition.getPlanId(),schoolId);
     }
 
     /**

@@ -140,4 +140,28 @@
         </where>
     </select>
 
+
+    <select id="selectExcelData" resultType="com.wupol.myopia.business.core.device.domain.dto.DeviceScreeningDataExportDTO">
+        select  id, patient_name as patientName,
+        CASE WHEN patient_age_group = -1 THEN "未知"
+        WHEN patient_age_group = 1 THEN "(0M,12M]"
+        WHEN patient_age_group = 2 THEN "(12M,36M]"
+        WHEN patient_age_group = 3 THEN "(3y,6Y]"
+        WHEN patient_age_group = 4 THEN "(6Y-20Y]"
+        ELSE "(20Y,100Y]" END AS patientAgeGroup,
+        CASE WHEN patient_gender = 0 THEN "男"
+        WHEN patient_gender = 1 THEN "女"
+        ELSE "未知" END AS patientGender,patient_age as patientAge,patient_org AS patientOrg,patient_dept as patientDept, patient_pno as patientPno,
+        CASE WHEN check_mode = 0 THEN "双眼模式"
+        WHEN check_mode = 1 THEN "左眼模式"
+        WHEN check_mode = 2 THEN "右眼模式"
+        ELSE "未知" END AS checkMode,check_result as checkResult,
+        CASE WHEN check_type = 0 THEN "个体筛查"
+        ELSE "批量筛查" END AS checkType,left_cyl as leftCyl,right_cyl as rightCyl,left_axsi as leftAxsi,right_axsi as rightAxsi,left_pr*2 AS leftPr, right_pr*2 AS rightPr, left_pa as leftPa, right_pa as rightPa, pd,left_axsi_v as leftAxsiV, right_axsi_v as rightAxsiV, left_axsi_h as leftAxsiH, right_axsi_h as rightAxsiH, red_reflect_left as redReflectLeft, red_reflect_right as redReflectRight, left_sph as leftSph, right_sph as rightSph
+        from m_device_screening_data where id in
+        <foreach collection="ids" open="(" close=")" separator="," item="id">
+            #{id}
+        </foreach>
+    </select>
+
 </mapper>

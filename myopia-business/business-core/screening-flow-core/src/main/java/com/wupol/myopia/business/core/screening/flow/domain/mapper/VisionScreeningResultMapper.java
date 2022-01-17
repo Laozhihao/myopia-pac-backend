@@ -36,5 +36,12 @@ public interface VisionScreeningResultMapper extends BaseMapper<VisionScreeningR
 
     List<VisionScreeningResult> getByPlanStudentIds(@Param("planStudentIds") List<Integer> planStudentIds);
 
+<<<<<<< HEAD
     VisionScreeningResult getLatestByPlanStudentIds(@Param("planStudentIds") List<Integer> planStudentIds);
+=======
+    List<VisionScreeningResult> getByStudentIds( @Param("planId") Integer planId,@Param("studentIds") List<Integer> studentIds);
+
+
+
+>>>>>>> wsl
 }

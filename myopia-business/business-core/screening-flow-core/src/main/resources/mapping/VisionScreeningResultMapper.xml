@@ -132,6 +132,7 @@
         </foreach>
     </select>
 
+<<<<<<< HEAD
     <select id="getLatestByPlanStudentIds" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
@@ -141,5 +142,15 @@
         </foreach>
         order by create_time desc
         limit 1
+=======
+    <select id="getByStudentIds" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_vision_screening_result
+        where plan_id = #{planId} and student_id in
+        <foreach collection="studentIds" item="studentId" index="index" open="(" close=")" separator=",">
+             #{studentId}
+        </foreach>
+>>>>>>> wsl
     </select>
 </mapper>

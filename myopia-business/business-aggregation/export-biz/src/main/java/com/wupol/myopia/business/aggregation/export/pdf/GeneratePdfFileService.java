@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.aggregation.export.pdf;
 
 import com.wupol.framework.core.util.ObjectsUtil;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.HtmlPageUrlConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.PDFFileNameConstant;
@@ -111,6 +112,24 @@ public class GeneratePdfFileService {
         Assert.notNull(planId, BizMsgConstant.PLAN_ID_IS_EMPTY);
         List<Integer> schoolIdList = statConclusionService.getSchoolIdByPlanId(planId);
         generateSchoolScreeningReportPdfFileBatch(saveDirectory, null, planId, schoolIdList);
+    }
+
+    /**
+    * @Description: 导出筛查计划下的PDF报告
+    * @Param: [saveDirectory, planId, schoolId]
+    * @return: void
+    * @Author: 钓猫的小鱼
+    * @Date: 2021/12/30
+    */
+    public void generateScreeningPlanSchoolReportPdfFile(String saveDirectory, Integer planId,Integer schoolId) {
+        Assert.hasLength(saveDirectory, BizMsgConstant.SAVE_DIRECTORY_EMPTY);
+        Assert.notNull(planId, BizMsgConstant.PLAN_ID_IS_EMPTY);
+        List<Integer> schoolIdList = statConclusionService.getSchoolIdByPlanId(planId);
+
+        if (!schoolIdList.contains(schoolId)){
+            throw new BusinessException("学校ID不在筛检计划中");
+        }
+        generateSchoolScreeningReportPdfFile(saveDirectory, null, planId, schoolId);
     }
 
     /**
@@ -257,9 +276,12 @@ public class GeneratePdfFileService {
 
         // 获取筛查机构的模板
         ScreeningOrganization org = screeningOrganizationService.getById(screeningPlanService.getById(planId).getScreeningOrgId());
+
         Integer templateId = templateDistrictService.getByDistrictId(districtService.getProvinceId(org.getDistrictId()));
 
         String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.STUDENT_ARCHIVES_HTML_URL, htmlUrlHost, planId, schoolId, templateId, planStudentIds);
         Assert.isTrue(HtmlToPdfUtil.convertArchives(schoolPdfHtmlUrl, Paths.get(fileSavePath).toString()), "【生成学校档案卡PDF文件异常】：" + school.getName());
     }
+
+
 }

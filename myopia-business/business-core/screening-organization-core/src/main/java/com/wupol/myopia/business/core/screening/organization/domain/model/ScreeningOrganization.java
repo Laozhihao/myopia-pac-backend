@@ -103,6 +103,11 @@ public class ScreeningOrganization extends AddressCooperation implements Seriali
     private String remark;
 
     /**
+     * 筛查人员账号数量
+     */
+    private Integer accountNum;
+
+    /**
      * 告知书配置
      */
     @TableField(typeHandler = NotificationConfigTypeHandler.class)

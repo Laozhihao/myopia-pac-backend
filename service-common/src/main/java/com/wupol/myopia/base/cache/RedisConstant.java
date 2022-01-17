@@ -48,6 +48,12 @@ public interface RedisConstant {
     String FILE_EXPORT_PLAN_DATA = "file:export:plan:%s-%s-%s-%s";
 
     /**
+     * 筛查计划(学校/班级/年级)
+     * 作者：钓猫的小鱼
+     */
+    String FILE_EXPORT_PLAN_SCHOOL_GRADE_CLASS_DATA = "file:export:plan:%s-%s-%s-%s-%s-%s";
+
+    /**
      * 导出Excel-医院
      */
     String FILE_EXPORT_EXCEL_HOSPITAL = "file:export:excel:hospital:%s-%s";
@@ -111,4 +117,59 @@ public interface RedisConstant {
      * 同步导出学生档案卡
      */
     String SYNC_FILE_EXPORT_PDF_ARCHIVES_ORG = "file:export:pdf:archives:student:%s";
+
+    /**
+     * 导出筛查数据excel文件
+     * 作者：钓猫的小鱼
+     */
+    String FILE_EXPORT_EXCEL_COUNT = "file:url:export:excel:count:%s-%s-%s-%s-%s-%s";
+    /**
+     * 导出档案卡
+     * 作者：钓猫的小鱼
+     */
+    String FILE_EXPORT_EXCEL_ARCHIVES_COUNT = "file:url:export:excel:archives:count:%s-%s-%s-%s-%s-%s";
+
+    /**
+     * 导出筛查数据PDF
+     * 作者：钓猫的小鱼
+     */
+    String FILE_EXPORT_PDF_COUNT = "file:url:export:pdf:count:%s-%s-%s-%s";
+
+    /**
+     * 导出筛查数据PDF(区域)
+     * 作者：钓猫的小鱼
+     */
+    String FILE_URL_USERID_NOTIFICATIONID_DISTRICTID_COUNT= "file:url:userId:notificationId:districtId:count:%s-%s-%s-%s";
+    /**
+     * 导出筛查数据PDF(学校)
+     * 作者：钓猫的小鱼
+     */
+    String FILE_URL_USERID_NOTIFICATIONID_PLANID_SCHOOLID_COUNT= "file:url:userId:notificationId:planId:schoolId:count:%s-%s-%s-%s-%s";
+
+    /**
+     * 导出筛查数据PDF(筛查机构)
+     * 作者：钓猫的小鱼
+     */
+    String FILE_URL_USERID_PLANID_SCREENINGORGID_COUNT= "file:url:userId:notificationId:planId:schoolId:count:%s-%s-%s-%s";
+
+
+    /**
+     * 导出筛查数据 档案卡
+     * 作者：钓猫的小鱼
+     */
+    String FILE_EXPORT_ARCHIVES_COUNT = "file:url:export:pdf:count:%s-%s-%s-%s-%s-%s-%s-%s";
+    /**
+     * 导出Excel-学生
+     * 作者：钓猫的小鱼
+     */
+    String FILE_EXPORT_EXCELDATA_PLAN_STUDENT = "file:export:excelData:plan:student:%s-%s-%s-%s";
+
+    /**
+     * 导出Excel-学生筛查数据
+     * 作者：钓猫的小鱼
+     */
+    String FILE_EXPORT_PLAN_STUDENTSCREENING = "file:export:plan:studentScreening:%s-%s-%s-%s-%s-%s";
+
+
+
 }

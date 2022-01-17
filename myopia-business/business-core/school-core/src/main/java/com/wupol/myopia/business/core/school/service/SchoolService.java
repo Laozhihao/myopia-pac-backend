@@ -456,8 +456,8 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
                                                              TwoTuple<Integer, Integer> resultDistrictId,
                                                              List<Integer> userIds, Integer districtCode) {
         return baseMapper.getSchoolListByCondition(pageRequest.toPage(), schoolQueryDTO.getName(),
-                schoolQueryDTO.getSchoolNo(), schoolQueryDTO.getType(),
-                resultDistrictId.getFirst(), userIds, resultDistrictId.getSecond(), districtCode);
+                schoolQueryDTO.getSchoolNo(), schoolQueryDTO.getType(),schoolQueryDTO.getCooperationType(),schoolQueryDTO.getStartTimes(),schoolQueryDTO.getEndTimes(),
+                resultDistrictId.getFirst(), userIds, resultDistrictId.getSecond(), districtCode,schoolQueryDTO.getExpireDayGt(),schoolQueryDTO.getExpireDayLe());
     }
 
     public String getNameById(Integer id) {
