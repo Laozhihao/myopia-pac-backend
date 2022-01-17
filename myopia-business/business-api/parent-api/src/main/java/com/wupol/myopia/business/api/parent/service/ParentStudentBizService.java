@@ -749,7 +749,9 @@ public class ParentStudentBizService {
                 StringUtils.isNotBlank(refractionData.getComputerRightDS()) ? new BigDecimal(refractionData.getComputerRightDS()) : null,
                 StringUtils.isNotBlank(refractionData.getComputerRightDC()) ? new BigDecimal(refractionData.getComputerRightDC()) : null,
                 StringUtils.isNotBlank(refractionData.getComputerLeftAxis()) ? new BigDecimal(refractionData.getComputerLeftAxis()) : null,
-                StringUtils.isNotBlank(refractionData.getComputerRightAxis()) ? new BigDecimal(refractionData.getComputerRightAxis()) : null);
+                StringUtils.isNotBlank(refractionData.getComputerRightAxis()) ? new BigDecimal(refractionData.getComputerRightAxis()) : null,
+                StringUtils.isNotBlank(visionData.getLeftRawVision()) ? new BigDecimal(visionData.getLeftRawVision()) : null,
+                StringUtils.isNotBlank(visionData.getRightRawVision()) ? new BigDecimal(visionData.getRightRawVision()) : null);
         reportDTO.setRefractoryResultItems(Lists.newArrayList(sphItems, cylItems, axialItems, seItems));
     }
 }
