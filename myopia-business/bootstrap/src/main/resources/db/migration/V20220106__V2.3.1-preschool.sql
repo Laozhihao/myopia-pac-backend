@@ -22,7 +22,7 @@ CREATE TABLE `h_preschool_check_record`  (
   `update_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
   `create_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE,
-  INDEX `ind_student_id`(`student_id`) USING BTREE
+  UNIQUE INDEX `uniq_student_id_hospital_id_month_age`(`student_id`, `hospital_id`, `month_age`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '眼保健信息表' ROW_FORMAT = Dynamic;
 
 CREATE TABLE `h_receipt_list`  (
@@ -37,7 +37,8 @@ CREATE TABLE `h_receipt_list`  (
   `from_doctor_id` int(11) NULL DEFAULT NULL COMMENT '开具回执单医生id',
   `update_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
   `create_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
-  PRIMARY KEY (`id`) USING BTREE
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uniq_pcr_id`(`preschool_check_record_id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '回执单' ROW_FORMAT = Dynamic;
 
 CREATE TABLE `h_referral_record`  (
@@ -55,7 +56,8 @@ CREATE TABLE `h_referral_record`  (
   `referral_status` tinyint(4) NOT NULL DEFAULT 0 COMMENT '转诊状态[0 待就诊；1 已接诊]',
   `update_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
   `create_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
-  PRIMARY KEY (`id`) USING BTREE
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uniq_pcr_id`(`preschool_check_record_id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '转诊信息表' ROW_FORMAT = Dynamic;
 
 alter table m_screening_plan_school_student

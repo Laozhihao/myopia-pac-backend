@@ -9,6 +9,8 @@ import com.wupol.myopia.business.core.hospital.util.HospitalUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 
 /**
  * @Author wulizhou
@@ -56,6 +58,13 @@ public class ReceiptListService extends BaseService<ReceiptListMapper, ReceiptLi
      * @param user
      */
     public void saveOrUpdateReceiptList(ReceiptList receiptList, CurrentUser user) {
+        if (Objects.isNull(receiptList.getId())) {
+            // 保证一个检查记录只有一条回执信息
+            ReceiptList oldReceiptList = findOne(new ReceiptList().setPreschoolCheckRecordId(receiptList.getPreschoolCheckRecordId()));
+            if (Objects.nonNull(oldReceiptList)) {
+                receiptList.setId(oldReceiptList.getId());
+            }
+        }
         receiptList.setFromHospitalId(user.getOrgId());
         receiptList.setFromDoctorId(hospitalDoctorService.getDetailsByUserId(user.getId()).getId());
         saveOrUpdate(receiptList);

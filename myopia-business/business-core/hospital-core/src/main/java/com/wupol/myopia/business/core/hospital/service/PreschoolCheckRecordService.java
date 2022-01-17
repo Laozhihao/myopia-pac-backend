@@ -22,6 +22,7 @@ import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -144,6 +145,9 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
      * @return
      */
     public PreschoolCheckRecord get(Integer hospitalId, Integer studentId, Integer monthAge) {
+        Assert.notNull(hospitalId, "hospitalId不能为空");
+        Assert.notNull(studentId, "studentId不能为空");
+        Assert.notNull(monthAge, "monthAge不能为空");
         PreschoolCheckRecordQuery query = new PreschoolCheckRecordQuery();
         query.setHospitalId(hospitalId).setStudentId(studentId)
                 .setMonthAge(monthAge);
@@ -162,13 +166,18 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
      * 追加检查检查数据到检查单
      */
     public void saveCheckRecord(PreschoolCheckRecord checkRecord) {
+
+        PreschoolCheckRecord dbCheckRecord;
         if (Objects.isNull(checkRecord.getId())) {
-            if (!save(checkRecord)) {
-                throw new BusinessException("新增失败");
+            // 一个患者在一个医院下指定月龄只能做一次检查
+            dbCheckRecord = get(checkRecord.getHospitalId(), checkRecord.getStudentId(), checkRecord.getMonthAge());
+            if (Objects.isNull(dbCheckRecord)) {
+                save(checkRecord);
+                return;
             }
-            return;
+        } else {
+            dbCheckRecord = getById(checkRecord.getId(), checkRecord.getHospitalId());
         }
-        PreschoolCheckRecord dbCheckRecord = getById(checkRecord.getId(), checkRecord.getHospitalId());
         if (Objects.nonNull(checkRecord.getIsReferral())) dbCheckRecord.setIsReferral(checkRecord.getIsReferral());
         if (Objects.nonNull(checkRecord.getFromReferral())) dbCheckRecord.setFromReferral(checkRecord.getFromReferral());
         if (Objects.nonNull(checkRecord.getOuterEye())) dbCheckRecord.setOuterEye(checkRecord.getOuterEye());
