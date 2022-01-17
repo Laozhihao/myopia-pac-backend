@@ -89,4 +89,37 @@ public class ScreeningStudentDTO extends StudentDO {
      * 结果通知配置文件URL
      */
     private String noticeQrCodeFileUrl;
+
+//    /**
+//     * 是否佩戴眼镜情况
+//     */
+//    private String glassesType;
+
+    /**
+     * 裸视力 右/左
+     */
+    private String nakedVision;
+
+    /**
+     * 矫正 右/左
+     */
+    private String correctedVision;
+
+    /**
+     * 球镜 右/左
+     */
+    private String sph;
+
+    /**
+     * 柱镜 右/左
+     */
+    private String cyl;
+
+    /**
+     * 轴位 右/左
+     */
+    private String axial;
+
+    private String glassesTypeDes;
+
 }

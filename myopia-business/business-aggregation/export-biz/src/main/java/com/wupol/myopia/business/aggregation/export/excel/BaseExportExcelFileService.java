@@ -9,6 +9,8 @@ import com.wupol.myopia.business.core.common.constant.ExportAddressKey;
 import com.wupol.myopia.business.core.common.domain.model.AddressCode;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.common.service.ResourceFileService;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentVisionScreeningResultExportDTO;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
 import lombok.extern.log4j.Log4j2;
@@ -36,6 +38,8 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
     private DistrictService districtService;
     @Resource
     private OauthServiceClient oauthServiceClient;
+    @Autowired
+    private ResourceFileService resourceFileService;
 
     /**
      * 导出文件
@@ -46,6 +50,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
     @Async
     @Override
     public void export(ExportCondition exportCondition) {
+
         File excelFile = null;
         String noticeKeyContent = null;
         try {
@@ -55,6 +60,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
             noticeKeyContent = getNoticeKeyContent(exportCondition);
             // 3.获取数据，生成List
             List data = getExcelData(exportCondition);
+
             // 4.生成导出的文件
             excelFile = generateExcelFile(fileName, data);
             // 5.上传文件
@@ -111,7 +117,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
      * @param data Excel数据
      * @return java.io.File
      **/
-    public File generateExcelFile(String fileName, List data) throws IOException {
+    public File generateExcelFile(String fileName, List<StudentVisionScreeningResultExportDTO> data) throws IOException {
         return ExcelUtil.exportListToExcel(fileName, data, getHeadClass());
     }
 
@@ -166,6 +172,25 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
 
     @Override
     public String syncExport(ExportCondition exportCondition) {
-        return null;
+        File excelFile = null;
+        try {
+            // 1.获取文件名
+            String fileName = getFileName(exportCondition);
+            // 3.获取数据，生成List
+            List data = getExcelData(exportCondition);
+            // 2.获取文件保存父目录路径
+            excelFile = generateExcelFile(fileName, data);
+            return resourceFileService.getResourcePath(s3Utils.uploadS3AndGetResourceFile(excelFile.getAbsolutePath(), excelFile.getName()).getId());
+        } catch (Exception e) {
+            String requestData = JSON.toJSONString(exportCondition);
+            log.error("【生成Excel异常】{}", requestData, e);
+            // 发送失败通知
+            throw new BusinessException("导出数据异常");
+        } finally {
+            // 5.删除临时文件
+            if (Objects.nonNull(excelFile)) {
+                deleteTempFile(excelFile.getPath());
+            }
+        }
     }
 }

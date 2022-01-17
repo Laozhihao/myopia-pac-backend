@@ -1,10 +1,12 @@
 package com.wupol.myopia.business.aggregation.screening.service;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.framework.core.util.StringUtils;
 import com.wupol.myopia.business.aggregation.screening.domain.vos.SchoolGradeVO;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
+import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolClassDTO;
@@ -13,11 +15,17 @@ import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.GradeClassesDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentQueryDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
+import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
+import com.wupol.myopia.business.core.screening.flow.util.EyeDataUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -29,6 +37,7 @@ import java.util.stream.Stream;
  *
  * @author Simple4H
  */
+@Slf4j
 @Service
 public class ScreeningPlanSchoolStudentFacadeService {
 
@@ -43,6 +52,11 @@ public class ScreeningPlanSchoolStudentFacadeService {
 
     @Autowired
     private DistrictService districtService;
+
+    @Autowired
+    private VisionScreeningResultService visionScreeningResultService;
+
+
 
     /**
      * 获取计划中的学校年级情况
@@ -91,12 +105,49 @@ public class ScreeningPlanSchoolStudentFacadeService {
         if (StringUtils.hasLength(query.getGradeIds())) {
             query.setGradeList(Stream.of(StringUtils.commaDelimitedListToStringArray(query.getGradeIds())).map(Integer::parseInt).collect(Collectors.toList()));
         }
+
         IPage<ScreeningStudentDTO> studentDTOIPage = screeningPlanSchoolStudentService.selectPageByQuery(page, query);
-        // 设置民族、地址
-        studentDTOIPage.getRecords().forEach(studentDTO ->
-                studentDTO.setNationDesc(NationEnum.getName(studentDTO.getNation()))
-                        .setAddress(districtService.getAddressDetails(studentDTO.getProvinceCode(), studentDTO.getCityCode(), studentDTO.getAreaCode(), studentDTO.getTownCode(), studentDTO.getAddress()))
-        );
+        List<ScreeningStudentDTO> screeningStudentDTOS = studentDTOIPage.getRecords();
+        List<VisionScreeningResult> resultList  = visionScreeningResultService.getByPlanStudentIds(screeningStudentDTOS.stream().map(s->s.getPlanStudentId()).collect(Collectors.toList()));
+        Map<Integer,List<VisionScreeningResult>> visionScreeningResultsGroup = resultList.stream().collect(Collectors.groupingBy(VisionScreeningResult::getStudentId));
+
+        //作者：钓猫的小鱼。  描述：给学生扩展类赋值
+        studentDTOIPage.getRecords().forEach(studentDTO -> {
+            studentDTO.setNationDesc(NationEnum.getName(studentDTO.getNation()))
+                        .setAddress(districtService.getAddressDetails(studentDTO.getProvinceCode(), studentDTO.getCityCode(), studentDTO.getAreaCode(), studentDTO.getTownCode(), studentDTO.getAddress()));
+            setStudentEyeInfor(studentDTO,visionScreeningResultsGroup);
+        });
         return studentDTOIPage;
     }
+
+    /**
+    * @Description:  给学生扩展类赋值
+    * @Param: [studentEyeInfor]
+    * @return: void
+    * @Author: 钓猫的小鱼
+    * @Date: 2022/1/5
+    */
+    public void setStudentEyeInfor(ScreeningStudentDTO studentEyeInfor,Map<Integer,List<VisionScreeningResult>> visionScreeningResultsGroup){
+        VisionScreeningResult visionScreeningResult = EyeDataUtil.getVisionScreeningResult(studentEyeInfor,visionScreeningResultsGroup);
+        //是否戴镜情况
+        studentEyeInfor.setGlassesTypeDes(EyeDataUtil.glassesType(visionScreeningResult));
+        //裸视力
+        String nakedVision = EyeDataUtil.visionRightDataToStr(visionScreeningResult)+"/"+EyeDataUtil.visionLeftDataToStr(visionScreeningResult);
+        studentEyeInfor.setNakedVision(nakedVision);
+        //矫正 视力
+        String correctedVision = EyeDataUtil.correcteRightDataToStr(visionScreeningResult)+"/"+EyeDataUtil.correcteLeftDataToStr(visionScreeningResult);
+        studentEyeInfor.setCorrectedVision(correctedVision);
+        //球镜
+        String sph = EyeDataUtil.computerRightSph(visionScreeningResult)+"/"+EyeDataUtil.computerLeftSph(visionScreeningResult);
+        studentEyeInfor.setSph(sph);
+        //柱镜
+        String cyl = EyeDataUtil.computerRightCyl(visionScreeningResult)+"/"+EyeDataUtil.computerLeftCyl(visionScreeningResult);
+        studentEyeInfor.setCyl(cyl);
+        //眼轴
+        String axial = EyeDataUtil.computerRightAxial(visionScreeningResult)+"/"+EyeDataUtil.computerLeftAxial(visionScreeningResult);
+        studentEyeInfor.setAxial(axial);
+
+    }
+
+
 }

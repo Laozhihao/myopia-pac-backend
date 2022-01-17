@@ -35,4 +35,24 @@ public class ExportReportServiceNameConstant {
      * 批量当个学生档案卡
      */
     public final String STUDENT_ARCHIVES_SERVICE = "studentArchivesService";
+
+    /**
+     * 导出筛检计划下的对应数据
+     *  作者：钓猫的小鱼
+     */
+    public final String SCREENING_PLAN = "exportScreeningPlanReportService";
+
+    /**
+     * 导出筛检计划下的对应数据
+     *  作者：钓猫的小鱼
+     */
+    public final String EXPOR_TPLAN_STUDENT_DATA_EXCEL_SERVICE = "exportPlanStudentDataExcelService";
+
+    /**
+     * 导出筛检计划下学校学生的筛查数据
+     *  作者：钓猫的小鱼
+     */
+    public final String EXPORT_PLAN_SCHOOL_STUDENT_DATA = "exportPlanSchoolStudentDataExcelService";
+
+
 }

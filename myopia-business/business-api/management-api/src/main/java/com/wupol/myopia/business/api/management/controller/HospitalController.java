@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
@@ -16,7 +17,9 @@ import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.hospital.domain.dto.HospitalResponseDTO;
 import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
+import com.wupol.myopia.business.core.hospital.domain.model.HospitalAdmin;
 import com.wupol.myopia.business.core.hospital.domain.query.HospitalQuery;
+import com.wupol.myopia.business.core.hospital.service.HospitalAdminService;
 import com.wupol.myopia.business.core.hospital.service.HospitalService;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccountListDTO;
 import org.springframework.web.bind.annotation.*;
@@ -46,6 +49,8 @@ public class HospitalController {
     @Resource
     private ExportStrategy exportStrategy;
 
+    @Resource
+    private HospitalAdminService hospitalAdminService;
     /**
      * 保存医院
      *
@@ -62,6 +67,7 @@ public class HospitalController {
         } else { // 非平台管理员默认为合作医院
             hospital.setIsCooperation(CommonConst.IS_COOPERATION);
             hospital.initCooperationInfo();     // 默认合作信息
+            hospital.setAccountNum(7);
         }
         hospital.setStatus(hospital.getCooperationStopStatus());
         UsernameAndPasswordDTO usernameAndPasswordDTO = hospitalService.saveHospital(hospital);
@@ -89,6 +95,7 @@ public class HospitalController {
             // 非平台管理员无法更新合作信息
             hospital.clearCooperationInfo();
             hospital.setStatus(null);
+            hospital.setAccountNum(null);
         }
         return hospitalBizService.updateHospital(hospital);
     }
@@ -116,6 +123,17 @@ public class HospitalController {
         return hospitalService.getById(id);
     }
 
+    /**
+    * @Description: 由于前端新建的接口与 getHospital 重复，所以新建了改接口
+    * @Param:
+    * @return: com.wupol.myopia.business.core.hospital.domain.model.Hospital
+    * @Author: 钓猫的小鱼
+    * @Date: 2022/1/7
+    */
+    @GetMapping("/select/{id}")
+    public Hospital getHospitalSelect(@PathVariable("id") Integer id) {
+        return hospitalService.getById(id);
+    }
     /**
      * 医院列表
      *
@@ -197,6 +215,15 @@ public class HospitalController {
      */
     @PostMapping("/add/account/{hospitalId}")
     public UsernameAndPasswordDTO addAccount(@PathVariable("hospitalId")  Integer hospitalId) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        if (!user.isPlatformAdminUser()){//如果不是管理员
+            Hospital hospital = hospitalService.getById(hospitalId);
+            // 获取该筛查机构已经有多少个账号
+            List<HospitalAdmin> adminList = hospitalAdminService.findByList(new HospitalAdmin().setHospitalId(hospitalId));
+            if (adminList.size()>=hospital.getAccountNum()){
+                throw new BusinessException("用户账号超限！");
+            }
+        }
         return hospitalBizService.addHospitalAdminUserAccount(hospitalId);
     }
 

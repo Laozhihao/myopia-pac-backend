@@ -51,9 +51,4 @@ public class HospitalReportRequestDTO {
      */
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date reportEndTIme;
-
-    /**
-     * 就诊医院
-     */
-    private String hospitalName;
 }

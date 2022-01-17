@@ -22,7 +22,8 @@ public interface ScreeningOrganizationMapper extends BaseMapper<ScreeningOrganiz
     IPage<ScreeningOrgResponseDTO> getScreeningOrganizationListByCondition(@Param("page") Page<?> page, @Param("name") String name,
                                                                            @Param("type") Integer type, @Param("configType") Integer configType,
                                                                            @Param("districtId") Integer districtId, @Param("govDeptId") Integer govDeptId,
-                                                                           @Param("phone") String phone, @Param("status") Integer status);
+                                                                           @Param("phone") String phone, @Param("status") Integer status,@Param("cooperationType") Integer cooperationType,
+                                                                           @Param("startTimes") String startTimes,@Param("endTimes") String endTimes);
 
     List<ScreeningOrganization> getBy(ScreeningOrganizationQueryDTO query);
 

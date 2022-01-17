@@ -37,9 +37,6 @@ public class VisionScreeningResultExportDTO implements Serializable {
     public static final String TOP_HEADER = "视力筛查";
     public static final String TOP_HEADER2 = "视力复测";
 
-    @ExcelProperty("序号")
-    private Integer id;
-
     @ExcelProperty("姓名")
     private String studentName;
 

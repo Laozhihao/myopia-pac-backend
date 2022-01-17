@@ -6,9 +6,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -542,6 +540,9 @@ public class RedisUtil {
      */
     public long lRemove(String key, long count, Object value) {
         try {
+
+
+
             return redisTemplate.opsForList().remove(key, count, value);
         } catch (Exception e) {
             return 0;
@@ -568,6 +569,28 @@ public class RedisUtil {
      */
     public Boolean unlock(String key) {
         return redisTemplate.opsForValue().getOperations().delete(key);
+    }
+
+    /**
+    * @Description:
+    * @Param: [key, value]
+    * @return: boolean
+    * @Author: 钓猫的小鱼
+    * @Date: 2022/1/4
+    */
+    public boolean cSet(String key, Map<String,Object> param) {
+
+        try {
+            long current=System.currentTimeMillis();//当前时间毫秒数
+            long zero=current/(1000*3600*24)*(1000*3600*24)-TimeZone.getDefault().getRawOffset();//今天零点零分零秒的毫秒数
+            long twelve=zero+24*60*60*1000-1;//今天23点59分59秒的毫秒数
+
+            long time = twelve - current;
+            redisTemplate.boundValueOps(key).set(param,time, TimeUnit.MILLISECONDS);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }
 

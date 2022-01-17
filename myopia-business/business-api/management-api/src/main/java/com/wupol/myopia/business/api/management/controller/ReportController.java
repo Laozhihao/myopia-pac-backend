@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.controller;
 
+import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
@@ -7,6 +8,7 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.api.management.service.SysUtilService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +41,8 @@ public class ReportController {
     @Autowired
     private VisionScreeningResultService visionScreeningResultService;
 
+    @Autowired
+    private SysUtilService sysUtilService;
     /**
      * 导出区域的筛查报告 TODO: 权限校验、导出次数限制
      *
@@ -52,6 +56,12 @@ public class ReportController {
                 .setNotificationId(notificationId)
                 .setDistrictId(districtId)
                 .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
+
+        String key =  String.format(RedisConstant.FILE_URL_USERID_NOTIFICATIONID_DISTRICTID_COUNT,
+                "district",exportCondition.getApplyExportFileUserId(), exportCondition.getPlanId(), exportCondition.getSchoolId());
+        sysUtilService.isNoPlatformRepeatExport(key);
+
+
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.DISTRICT_SCREENING_REPORT_SERVICE);
     }
 
@@ -68,6 +78,11 @@ public class ReportController {
         if (Objects.isNull(notificationId) && Objects.isNull(planId)) {
             throw new BusinessException("筛查通知ID或者筛查计划ID不能为空");
         }
+
+        String key =  String.format(RedisConstant.FILE_URL_USERID_NOTIFICATIONID_PLANID_SCHOOLID_COUNT,
+                "school",CurrentUserUtil.getCurrentUser().getId(), notificationId, planId,schoolId);
+        sysUtilService.isNoPlatformRepeatExport(key);
+
         ExportCondition exportCondition = new ExportCondition()
                 .setNotificationId(notificationId)
                 .setPlanId(planId)
@@ -89,6 +104,11 @@ public class ReportController {
                 .setPlanId(planId)
                 .setScreeningOrgId(screeningOrgId)
                 .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
+
+        String key =  String.format(RedisConstant.FILE_URL_USERID_PLANID_SCREENINGORGID_COUNT,
+                "screeningOrg",CurrentUserUtil.getCurrentUser().getId(),  planId,screeningOrgId);
+        sysUtilService.isNoPlatformRepeatExport(key);
+
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.SCREENING_ORG_SCREENING_REPORT_SERVICE);
     }
 
@@ -120,12 +140,19 @@ public class ReportController {
                                            @NotNull(message = "筛查机构ID不能为空") Integer schoolId, Integer classId,
                                            Integer gradeId, @RequestParam(value="planStudentIds", required = false) String planStudentIds) throws IOException {
         ExportCondition exportCondition = new ExportCondition()
-                .setPlanId(planId).setScreeningOrgId(screeningOrgId)
+                .setPlanId(planId)
+                .setScreeningOrgId(screeningOrgId)
                 .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId())
                 .setSchoolId(schoolId)
                 .setClassId(classId)
                 .setGradeId(gradeId)
                 .setPlanStudentIds(planStudentIds);
+
+
+        String key =  String.format(RedisConstant.FILE_EXPORT_ARCHIVES_COUNT,
+                "exportScreeningOrgArchives",planId,screeningOrgId,CurrentUserUtil.getCurrentUser().getId(),schoolId,gradeId,classId,planStudentIds);
+        sysUtilService.isNoPlatformRepeatExport(key);
+
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.SCREENING_ORG_ARCHIVES_SERVICE);
     }
 
@@ -145,10 +172,41 @@ public class ReportController {
         if (CollectionUtils.isEmpty(visionScreeningResultService.getByPlanStudentIds(planStudentIdList))) {
             throw new BusinessException("所选学生无筛查数据");
         }
+
+        String key =  String.format(RedisConstant.FILE_EXPORT_EXCEL_ARCHIVES_COUNT,
+                "syncExportSchoolStudentArchives",CurrentUserUtil.getCurrentUser().getId(),planId, schoolId, planStudentIds);
+        sysUtilService.isNoPlatformRepeatExport(key);
+
         ExportCondition exportCondition = new ExportCondition()
                 .setPlanStudentIds(planStudentIds)
                 .setSchoolId(schoolId)
                 .setPlanId(planId);
         return ApiResult.success(exportStrategy.syncExport(exportCondition, ExportReportServiceNameConstant.STUDENT_ARCHIVES_SERVICE));
+    }
+
+
+    /**
+    * @Description: 导出学校筛查报告PDF
+    * @Param: [筛检计划ID, 筛查机构ID, 学校ID]
+    * @return: void
+    * @Author: 钓猫的小鱼
+    * @Date: 2021/12/30
+    */
+    @GetMapping("/screeningOrg/export/school")
+    public void getScreeningPlanSchool(@NotNull(message = "筛查计划ID不能为空") Integer planId,
+                                       @NotNull(message = "筛查机构ID不能为空") Integer screeningOrgId,
+                                       Integer schoolId) throws IOException {
+
+        ExportCondition exportCondition = new ExportCondition()
+                .setPlanId(planId)
+                .setScreeningOrgId(screeningOrgId)
+                .setSchoolId(schoolId)
+                .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
+
+        String key =  String.format(RedisConstant.FILE_EXPORT_PDF_COUNT,
+                "getScreeningPlanSchool",exportCondition.getApplyExportFileUserId(), exportCondition.getPlanId(), exportCondition.getSchoolId());
+        sysUtilService.isNoPlatformRepeatExport(key);
+
+        exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.SCREENING_PLAN);
     }
 }

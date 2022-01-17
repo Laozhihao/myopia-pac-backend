@@ -9,7 +9,8 @@
     </resultMap>
     <resultMap id="ScreeningStudentDTO" type="com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO">
     </resultMap>
-
+    <resultMap id="StudentVisionScreeningResultExportDTO" type="com.wupol.myopia.business.core.screening.flow.domain.dto.StudentVisionScreeningResultExportDTO">
+    </resultMap>
 
     <!-- 通用查询条件 -->
     <sql id="Base_Where_Clause">
@@ -101,6 +102,7 @@
                mspss.parent_phone,
                mspss.grade_id,
                mspss.class_id,
+               mspss.id as planSutdhentId,
                ms.name   as school_name,
                sg.name   as gradeName,
                sc.name   as className,
@@ -140,6 +142,46 @@
                 </if>
             </trim>
         </where>
+    </select>
+
+    <select id="selectListByQuery" resultMap="ScreeningStudentDTO" parameterType="java.util.Map">
+        SELECT mspss.student_id     as id,
+        mspss.student_no     as sno,
+        mspss.student_name   as name,
+        mspss.gender,
+        mspss.birthday,
+        mspss.province_code,
+        mspss.city_code,
+        mspss.area_code,
+        mspss.town_code,
+        mspss.address,
+        mspss.id_card,
+        mspss.nation,
+        mspss.parent_phone,
+        mspss.grade_id,
+        mspss.class_id,
+        ms.name   as school_name,
+        sg.name   as gradeName,
+        sc.name   as className,
+        mspss.screening_code as screeningCode,
+        mspss.id             as planStudentId
+        FROM m_screening_plan_school_student mspss
+        left join m_school ms on ms.id = mspss.school_id
+        left join m_school_grade sg on sg.id = mspss.grade_id
+        left join m_school_class sc on sc.id = mspss.class_id
+        <where>
+            <trim prefixOverrides="and">
+                AND mspss.screening_plan_id = #{param.screeningPlanId}
+                AND mspss.school_id = #{param.schoolId}
+                <if test="param.gradeId != null and param.gradeId != ''">
+                    and mspss.grade_id = #{param.gradeId}
+                </if>
+                <if test="param.classId != null and param.classId != ''">
+                    and mspss.class_id = #{param.classId}
+                </if>
+            </trim>
+        </where>
+
     </select>
 
     <select id="selectPlanStudentListByPage" resultMap="BaseResultMap" parameterType="map">

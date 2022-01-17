@@ -1,5 +1,7 @@
 package com.wupol.myopia.business.aggregation.export;
 
+import com.alibaba.fastjson.JSON;
+import com.amazonaws.services.simpleworkflow.flow.Suspendable;
 import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -29,12 +31,14 @@ public class ExportStrategy {
     @Autowired
     private RedisUtil redisUtil;
 
+
     public void doExport(ExportCondition exportCondition, String serviceName) throws IOException {
+
         ExportFileService exportFileService = getExportFileService(serviceName);
         // 数据校验
         exportFileService.validateBeforeExport(exportCondition);
         // 尝试获锁
-        if (!exportFileService.tryLock(exportFileService.getLockKey(exportCondition))) {
+        if (Boolean.FALSE.equals(exportFileService.tryLock(exportFileService.getLockKey(exportCondition)))) {
             throw new BusinessException("正在导出中，请勿重复导出");
         }
         // 设置进队列
@@ -43,9 +47,11 @@ public class ExportStrategy {
 
     private ExportFileService getExportFileService(String serviceName) {
         ExportFileService exportFileService = exportFileServiceMap.get(serviceName);
+
         Assert.notNull(exportFileService, "没有找到对应导出文件service实例：" + serviceName);
         return exportFileService;
     }
+
 
     /**
      * 导出文件
@@ -54,6 +60,7 @@ public class ExportStrategy {
      */
     public void exportFile(QueueInfo queueInfo) {
         ExportFileService exportFileService = getExportFileService(queueInfo.getServiceName());
+
         ExportCondition exportCondition = queueInfo.getExportCondition();
         exportFileService.export(exportCondition);
     }
