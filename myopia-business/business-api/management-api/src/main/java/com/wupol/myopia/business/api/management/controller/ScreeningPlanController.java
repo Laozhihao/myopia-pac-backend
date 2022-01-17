@@ -410,7 +410,6 @@ public class ScreeningPlanController {
     }
 
     /**
-
      * 通过条件获取筛查学生
      *
      * @param planId         计划Id
