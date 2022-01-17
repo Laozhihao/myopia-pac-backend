@@ -52,6 +52,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -419,7 +420,7 @@ public class ParentStudentBizService {
         responseDTO.setVisionResultItems(ScreeningResultUtil.packageVisionResult(visionData, age));
 
         // 验光仪检查结果
-        TwoTuple<List<RefractoryResultItems>, Integer> refractoryResult = ScreeningResultUtil.packageRefractoryResult(result.getComputerOptometry(), age);
+        TwoTuple<List<RefractoryResultItems>, Integer> refractoryResult = ScreeningResultUtil.packageRefractoryResult(result.getComputerOptometry(), age, visionData);
         responseDTO.setRefractoryResultItems(refractoryResult.getFirst());
 
         // 生物测量
