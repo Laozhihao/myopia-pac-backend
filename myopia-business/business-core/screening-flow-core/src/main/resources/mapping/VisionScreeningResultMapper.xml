@@ -142,6 +142,7 @@
         </foreach>
         order by create_time desc
         limit 1
+    </select>
 
     <select id="getByStudentIds" resultMap="BaseResultMap">
         select
@@ -151,6 +152,7 @@
         <foreach collection="studentIds" item="studentId" index="index" open="(" close=")" separator=",">
              #{studentId}
         </foreach>
-
     </select>
+
+
 </mapper>
