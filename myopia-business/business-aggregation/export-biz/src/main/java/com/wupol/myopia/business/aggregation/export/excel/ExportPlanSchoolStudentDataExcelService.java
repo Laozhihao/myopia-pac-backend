@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.aggregation.export.excel;
 
 import com.wupol.myopia.base.cache.RedisConstant;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelNoticeKeyContentConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
@@ -14,8 +15,10 @@ import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentQueryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentVisionScreeningResultExportDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.flow.util.EyeDataUtil;
 import lombok.extern.log4j.Log4j2;
@@ -48,7 +51,8 @@ public class ExportPlanSchoolStudentDataExcelService extends BaseExportExcelFile
     private DistrictService districtService;
     @Autowired
     private VisionScreeningResultService visionScreeningResultService;
-
+    @Resource
+    private ScreeningPlanService screeningPlanService;
 
     @Override
     public List<StudentVisionScreeningResultExportDTO> getExcelData(ExportCondition exportCondition) {
@@ -110,6 +114,15 @@ public class ExportPlanSchoolStudentDataExcelService extends BaseExportExcelFile
 
         return String.format(RedisConstant.FILE_EXPORT_PLAN_STUDENTSCREENING, screeningPlanId,screeningOrgId,schoolId, gradeId,classId,userId);
     }
+
+    @Override
+    public void validateBeforeExport(ExportCondition exportCondition){
+        ScreeningPlan screeningPlan = screeningPlanService.getById(exportCondition.getPlanId());
+        if (Objects.isNull(screeningPlan)) {
+            throw new BusinessException("筛查计划不存在");
+        }
+    }
+
 
     /**
      * 获取文件同步导出文件名称

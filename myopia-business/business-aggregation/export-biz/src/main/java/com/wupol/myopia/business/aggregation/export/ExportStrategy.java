@@ -38,27 +38,9 @@ public class ExportStrategy {
         // 数据校验
         exportFileService.validateBeforeExport(exportCondition);
         // 尝试获锁
-        if (!exportFileService.tryLock(exportFileService.getLockKey(exportCondition))) {
+        if (Boolean.FALSE.equals(exportFileService.tryLock(exportFileService.getLockKey(exportCondition)))) {
             throw new BusinessException("正在导出中，请勿重复导出");
         }
-        // 设置进队列
-        redisUtil.lSet(RedisConstant.FILE_EXPORT_LIST, new QueueInfo(exportCondition, serviceName));
-    }
-    /**
-    * @Description: 导出excel
-    * @Param: [exportCondition, serviceName]
-    * @return: void
-    * @Author: 钓猫的小鱼
-    * @Date: 2021/12/31
-    */
-    public void doExcelExport(ExportCondition exportCondition, String serviceName) throws IOException {
-        ExportFileService exportFileService = getExportFileService(serviceName);
-
-        // 尝试获锁
-        if (!exportFileService.tryLock(exportFileService.getLockKey(exportCondition))) {
-            throw new BusinessException("正在导出中，请勿重复导出");
-        }
-
         // 设置进队列
         redisUtil.lSet(RedisConstant.FILE_EXPORT_LIST, new QueueInfo(exportCondition, serviceName));
     }
@@ -69,6 +51,7 @@ public class ExportStrategy {
         Assert.notNull(exportFileService, "没有找到对应导出文件service实例：" + serviceName);
         return exportFileService;
     }
+
 
     /**
      * 导出文件
