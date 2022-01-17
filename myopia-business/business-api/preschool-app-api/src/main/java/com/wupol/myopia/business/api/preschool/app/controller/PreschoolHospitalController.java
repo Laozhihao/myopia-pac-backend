@@ -30,7 +30,7 @@ public class PreschoolHospitalController {
      * @param name
      * @return
      */
-    @GetMapping("/byName")
+    @GetMapping("/getByName")
     public List<Hospital> getByName(String name) {
         return hospitalService.getHospitalByName(name, null).stream()
                 .map(h -> new Hospital().setId(h.getId())

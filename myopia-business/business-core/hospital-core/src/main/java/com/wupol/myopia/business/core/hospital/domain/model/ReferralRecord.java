@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -41,6 +42,9 @@ public class ReferralRecord implements Serializable {
     @NotNull
     private Integer preschoolCheckRecordId;
 
+    @TableField(exist = false)
+    private String no;
+
     /**
      * 学生id
      */
@@ -75,6 +79,12 @@ public class ReferralRecord implements Serializable {
     private String toDepartment;
 
     /**
+     * 目标医生名称
+     */
+    @TableField(exist = false)
+    private String toDoctor;
+
+    /**
      * 未做专项检查
      */
     @TableField(typeHandler = JacksonTypeHandler.class)
@@ -104,6 +114,7 @@ public class ReferralRecord implements Serializable {
     /**
      * 创建时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date createTime;
 
 
