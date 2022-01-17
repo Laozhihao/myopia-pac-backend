@@ -946,10 +946,10 @@ public class StatReportService {
 
         // 近视
         long myopiaNum = validConclusions.stream().filter(
-                x -> Objects.nonNull(x.getMyopiaWarningLevel())
-                        && (MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.code.equals(x.getMyopiaWarningLevel())
-                        || MyopiaLevelEnum.MYOPIA_LEVEL_MIDDLE.code.equals(x.getMyopiaWarningLevel())
-                        || MyopiaLevelEnum.MYOPIA_LEVEL_HIGH.code.equals(x.getMyopiaWarningLevel()))).count();
+                x -> Objects.nonNull(x.getMyopiaLevel())
+                        && (MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.code.equals(x.getMyopiaLevel())
+                        || MyopiaLevelEnum.MYOPIA_LEVEL_MIDDLE.code.equals(x.getMyopiaLevel())
+                        || MyopiaLevelEnum.MYOPIA_LEVEL_HIGH.code.equals(x.getMyopiaLevel()))).count();
         resultMap.put("myopiaRatio", convertToPercentage(myopiaNum * 1f / validFirstScreeningNum));
 
         // 视力低下
@@ -978,27 +978,16 @@ public class StatReportService {
                 convertToPercentage(warning3Num * 1f / validFirstScreeningNum),
                 warning3Num));
         resultMap.put("warningLevelStat", basicStatParamsList);
-        // 表1
         resultMap.put("genderLowVisionLevelDesc", composeGenderLowVisionLevelDesc(validConclusions));
-        // 表2
         resultMap.put("schoolGradeLowVisionLevelDesc", composeSchoolGradeLowVisionLevelDesc(validConclusions, schoolGradeItems));
-        // 表5
         resultMap.put("schoolGradeMyopiaLevelDesc", composeSchoolGradeMyopiaLevelDesc(validConclusions, schoolGradeItems));
-        // 表3
         resultMap.put("schoolGradeClassLowVisionLevelTable", composeSchoolGradeClassLowVisionLevelTable(schoolGradeItems, validConclusions));
-        // 表6
         resultMap.put("schoolGradeClassMyopiaLevelTable", composeSchoolGradeClassMyopiaLevelTable(schoolGradeItems, validConclusions));
-        // 表4
         resultMap.put("genderMyopiaLevelDesc", composeGenderMyopiaLevelDesc(validConclusions));
-        // 表7
         resultMap.put("schoolGradeWearingTypeDesc", composeSchoolGradeWearingTypeDesc(schoolGradeItems, validConclusions));
-        // 表8
         resultMap.put("schoolGradeGenderUncorrectedDesc", composeSchoolGradeGenderUncorrectedDesc(schoolGradeItems, validConclusions));
-        // 表9
         resultMap.put("schoolGradeGenderUnderCorrectedDesc", composeSchoolGradeGenderUnderCorrectedDesc(schoolGradeItems, validConclusions));
-        // 表10
         resultMap.put("schoolGradeWarningLevelDesc", composeSchoolGradeWarningLevelDesc(schoolGradeItems, validConclusions));
-        // 视力详情
         resultMap.put("schoolClassStudentStatList", composeSchoolClassStudentStatList(schoolGradeItems, statConclusionReportDTOs));
         resultMap.put("startDate", startDate.getTime());
         resultMap.put("endDate", endDate.getTime());
@@ -1454,13 +1443,13 @@ public class StatReportService {
     private Map<String, Object> composeMyopiaLevelStat(String name,
                                                        List<StatConclusion> statConclusions) {
         Predicate<StatConclusion> levelEarlyPredicate =
-                x -> MyopiaLevelEnum.MYOPIA_LEVEL_EARLY.code.equals(x.getMyopiaWarningLevel());
+                x -> MyopiaLevelEnum.MYOPIA_LEVEL_EARLY.code.equals(x.getMyopiaLevel());
         Predicate<StatConclusion> levelOnePredicate =
-                x -> MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.code.equals(x.getMyopiaWarningLevel());
+                x -> MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.code.equals(x.getMyopiaLevel());
         Predicate<StatConclusion> levelTwoPredicate =
-                x -> MyopiaLevelEnum.MYOPIA_LEVEL_MIDDLE.code.equals(x.getMyopiaWarningLevel());
+                x -> MyopiaLevelEnum.MYOPIA_LEVEL_MIDDLE.code.equals(x.getMyopiaLevel());
         Predicate<StatConclusion> levelThreePredicate =
-                x -> MyopiaLevelEnum.MYOPIA_LEVEL_HIGH.code.equals(x.getMyopiaWarningLevel());
+                x -> MyopiaLevelEnum.MYOPIA_LEVEL_HIGH.code.equals(x.getMyopiaLevel());
         return composeMyopiaLevelStat(name, statConclusions, levelEarlyPredicate, levelOnePredicate, levelTwoPredicate, levelThreePredicate);
     }
 

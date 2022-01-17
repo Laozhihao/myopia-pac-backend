@@ -34,7 +34,7 @@ public class StatUtil {
                 return true;
             }
         }
-        return Objects.requireNonNull(getMyopiaWarningLevel(sphere, cylinder)).code > MyopiaLevelEnum.MYOPIA_LEVEL_EARLY.code;
+        return Objects.requireNonNull(getMyopiaWarningLevel(sphere, cylinder,age, nakedVision)).code > MyopiaLevelEnum.MYOPIA_LEVEL_EARLY.code;
     }
 
     /**
@@ -234,25 +234,29 @@ public class StatUtil {
      * @param sphere   球镜
      * @param cylinder 柱镜
      */
-    public static MyopiaLevelEnum getMyopiaWarningLevel(Float sphere, Float cylinder) {
-        if (!ObjectsUtil.allNotNull(sphere, cylinder)) {
-            return null;
-        }
-        float se = getSphericalEquivalent(sphere, cylinder);
-        if (se == -0.5) {
-            return MyopiaLevelEnum.ZERO;
-        }
-        if (se > -0.5 && se <= 0.75) {
-            return MyopiaLevelEnum.MYOPIA_LEVEL_EARLY;
-        }
-        if (se >= -3.0f && se < -0.5f) {
-            return MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT;
-        }
-        if (se >= -6.0f && se < -3.0f) {
-            return MyopiaLevelEnum.MYOPIA_LEVEL_MIDDLE;
-        }
-        if (se < -6.0f) {
-            return MyopiaLevelEnum.MYOPIA_LEVEL_HIGH;
+    public static MyopiaLevelEnum getMyopiaWarningLevel(Float sphere, Float cylinder, Integer age, Float nakedVision)    {
+        if (Objects.nonNull(age)) {
+           if ((age < 6 && nakedVision < 4.9) || (age >= 6 && nakedVision < 5.0)) {
+               if (!ObjectsUtil.allNotNull(sphere, cylinder)) {
+                   return null;
+               }
+               float se = getSphericalEquivalent(sphere, cylinder);
+               if (se == -0.5) {
+                   return MyopiaLevelEnum.ZERO;
+               }
+               if (se > -0.5 && se <= 0.75) {
+                   return MyopiaLevelEnum.MYOPIA_LEVEL_EARLY;
+               }
+               if (se >= -3.0f && se < -0.5f) {
+                   return MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT;
+               }
+               if (se >= -6.0f && se < -3.0f) {
+                   return MyopiaLevelEnum.MYOPIA_LEVEL_MIDDLE;
+               }
+               if (se < -6.0f) {
+                   return MyopiaLevelEnum.MYOPIA_LEVEL_HIGH;
+               }
+           }
         }
         return MyopiaLevelEnum.ZERO;
     }
@@ -263,8 +267,8 @@ public class StatUtil {
      * @param sphere   球镜
      * @param cylinder 柱镜
      */
-    public static Integer getMyopiaLevel(Float sphere, Float cylinder) {
-        MyopiaLevelEnum myopiaWarningLevel = getMyopiaWarningLevel(sphere, cylinder);
+    public static Integer getMyopiaLevel(Float sphere, Float cylinder, Integer age, Float nakedVision) {
+        MyopiaLevelEnum myopiaWarningLevel = getMyopiaWarningLevel(sphere, cylinder,age,nakedVision);
         if (Objects.nonNull(myopiaWarningLevel)) {
             return myopiaWarningLevel.code;
         }
@@ -407,10 +411,10 @@ public class StatUtil {
         Integer leftMyopiaLevel = null;
         Integer rightMyopiaLevel = null;
         if (ObjectsUtil.allNotNull(leftSpn, leftCyl)) {
-            leftMyopiaLevel = getMyopiaLevel(leftSpn.floatValue(), leftCyl.floatValue());
+            leftMyopiaLevel = getMyopiaLevel(leftSpn.floatValue(), leftCyl.floatValue(),age, leftNakedVision.floatValue());
         }
         if (ObjectsUtil.allNotNull(rightSpn, rightCyl)) {
-            rightMyopiaLevel = getMyopiaLevel(rightSpn.floatValue(), rightCyl.floatValue());
+            rightMyopiaLevel = getMyopiaLevel(rightSpn.floatValue(), rightCyl.floatValue(),age, rightNakedVision.floatValue());
         }
         if (!ObjectsUtil.allNull(leftMyopiaLevel, rightMyopiaLevel)) {
             Integer seriousLevel = getSeriousLevel(leftMyopiaLevel, rightMyopiaLevel);
