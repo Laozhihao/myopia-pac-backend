@@ -25,7 +25,7 @@ public class OrganizationService extends BaseService<OrganizationMapper, Organiz
         } else if (SystemCode.HOSPITAL_CLIENT.getCode().equals(systemCode) && UserType.OTHER.getType().equals(userType)) {
             systemCode = SystemCode.MANAGEMENT_CLIENT.getCode();
             userType = UserType.HOSPITAL_ADMIN.getType();
-        } else if (SystemCode.PATENT_CLIENT.getCode().equals(systemCode)) {
+        } else if (SystemCode.PARENT_CLIENT.getCode().equals(systemCode)) {
             // 家长端，返回一个id为-1，并状态为启用的机构
             return new Organization(-1, systemCode, userType, StatusConstant.ENABLE);
         }

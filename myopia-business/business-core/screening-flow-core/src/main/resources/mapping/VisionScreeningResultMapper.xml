@@ -131,4 +131,15 @@
             #{planStudentId}
         </foreach>
     </select>
+
+    <select id="getLatestByPlanStudentIds" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_vision_screening_result where screening_plan_school_student_id in
+        <foreach collection="planStudentIds" item="planStudentId" index="index" open="(" close=")" separator=",">
+            #{planStudentId}
+        </foreach>
+        order by create_time desc
+        limit 1
+    </select>
 </mapper>

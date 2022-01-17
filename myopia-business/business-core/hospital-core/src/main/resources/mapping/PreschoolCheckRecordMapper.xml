@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.business.core.hospital.domain.mapper.PreschoolCheckRecordMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.hospital.domain.model.PreschoolCheckRecord">
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="from_referral" property="fromReferral"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="outer_eye" property="outerEye"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="eye_disease_factor" property="eyeDiseaseFactor"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="light_reaction" property="lightReaction"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="blink_reflex" property="blinkReflex"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="red_ball_test" property="redBallTest"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="visual_behavior_observation" property="visualBehaviorObservation"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="red_reflex" property="redReflex"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="ocular_inspection" property="ocularInspection"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="vision_data" property="visionData"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="monocular_masking_aversion_test" property="monocularMaskingAversionTest"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="refraction_data" property="refractionData"/>
+    </resultMap>
+
+    <resultMap id="PreschoolCheckRecordDTO" type="com.wupol.myopia.business.core.hospital.domain.dto.PreschoolCheckRecordDTO" extends="BaseResultMap">
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="special_medical" property="specialMedical"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="disease_medical" property="diseaseMedical"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="family_info" property="familyInfo"/>
+    </resultMap>
+
+    <resultMap id="StudentCheckCountDTO" type="com.wupol.myopia.business.core.hospital.domain.dto.StudentPreschoolCheckDTO">
+    </resultMap>
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(studentId)">and `student_id` = #{studentId}</if>
+                <if test="@Ognl@isNotEmpty(hospitalId)">and `hospital_id` = #{hospitalId}</if>
+                <if test="@Ognl@isNotEmpty(isReferral)">and `is_referral` = #{isReferral}</if>
+                <if test="@Ognl@isNotEmpty(fromReferral)">and `from_referral` = #{fromReferral}</if>
+                <if test="@Ognl@isNotEmpty(monthAge)">and `month_age` = #{monthAge}</if>
+                <if test="@Ognl@isNotEmpty(outerEye)">and `outer_eye` = #{outerEye}</if>
+                <if test="@Ognl@isNotEmpty(eyeDiseaseFactor)">and `eye_disease_factor` = #{eyeDiseaseFactor}</if>
+                <if test="@Ognl@isNotEmpty(lightReaction)">and `light_reaction` = #{lightReaction}</if>
+                <if test="@Ognl@isNotEmpty(blinkReflex)">and `blink_reflex` = #{blinkReflex}</if>
+                <if test="@Ognl@isNotEmpty(redBallTest)">and `red_ball_test` = #{redBallTest}</if>
+                <if test="@Ognl@isNotEmpty(visualBehaviorObservation)">and `visual_behavior_observation` = #{visualBehaviorObservation}</if>
+                <if test="@Ognl@isNotEmpty(redReflex)">and `red_reflex` = #{redReflex}</if>
+                <if test="@Ognl@isNotEmpty(ocularInspection)">and `ocular_inspection` = #{ocularInspection}</if>
+                <if test="@Ognl@isNotEmpty(visionData)">and `vision_data` = #{visionData}</if>
+                <if test="@Ognl@isNotEmpty(monocularMaskingAversionTest)">and `monocular_masking_aversion_test` = #{monocularMaskingAversionTest}</if>
+                <if test="@Ognl@isNotEmpty(refractionData)">and `refraction_data` = #{refractionData}</if>
+                <if test="@Ognl@isNotEmpty(guideContent)">and `guide_content` = #{guideContent}</if>
+                <if test="@Ognl@isNotEmpty(conclusion)">and `conclusion` = #{conclusion}</if>
+                <if test="@Ognl@isNotEmpty(status)">and `status` = #{status}</if>
+                <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+            </trim>
+        </where>
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, student_id, hospital_id, is_referral, from_referral, month_age, outer_eye, eye_disease_factor, light_reaction, blink_reflex,
+        red_ball_test, visual_behavior_observation, red_reflex, ocular_inspection, vision_data, monocular_masking_aversion_test,
+        refraction_data, guide_content, conclusion, status, update_time, create_time
+    </sql>
+
+    <sql id="GetCheckDoctor">
+        CONCAT_WS(',', json_extract(pcr.outer_eye,'$.doctorId'), json_extract(pcr.eye_disease_factor,'$.doctorId'),
+        json_extract(pcr.light_reaction,'$.doctorId'), json_extract(pcr.blink_reflex,'$.doctorId'),
+        json_extract(pcr.red_ball_test,'$.doctorId'), json_extract(pcr.visual_behavior_observation,'$.doctorId'),
+        json_extract(pcr.red_reflex,'$.doctorId'), json_extract(pcr.ocular_inspection,'$.doctorId'),
+        json_extract(pcr.vision_data,'$.doctorId'), json_extract(pcr.monocular_masking_aversion_test,'$.doctorId'),
+        json_extract(pcr.refraction_data,'$.doctorId')) as doctor_ids_str
+    </sql>
+
+    <sql id="DoctorIdWhere">
+        <foreach collection="query.doctorIds" item="doctorId" index="index" open="(" close=")" separator=",">
+            #{doctorId}
+        </foreach>
+    </sql>
+
+    <select id="getDetail" resultMap="PreschoolCheckRecordDTO">
+        select pcr.*, hs.`name` as student_name, hs.gender, hs.record_no, hs.birthday, hs.id_card, hs.sno, hs.parent_phone,
+        hs.is_newborn_without_id_card as has_id_card, hs.family_info,
+        h.`name` as hospital_name, rr.to_hospital, rr.special_medical, rr.disease_medical, rr.conclusion as referral_conclusion,
+        rr.id as to_referral_id, rl.id as receipt_id,
+        <include refid="GetCheckDoctor" />
+        from h_preschool_check_record pcr
+        INNER JOIN h_hospital_student hs
+        on pcr.student_id = hs.student_id AND hs.hospital_id = pcr.hospital_id
+        LEFT JOIN m_hospital h ON h.id = pcr.hospital_id
+        LEFT JOIN h_referral_record rr ON rr.preschool_check_record_id = pcr.id
+        LEFT JOIN h_receipt_list rl ON rl.preschool_check_record_id = pcr.id
+        where pcr.id = #{id}
+    </select>
+
+    <select id="getListByCondition" resultMap="PreschoolCheckRecordDTO">
+        SELECT
+            pcr.id, pcr.is_referral, pcr.student_id, pcr.hospital_id, pcr.from_referral, pcr.month_age, pcr.guide_content, pcr.conclusion,
+            pcr.status, pcr.update_time, pcr.create_time,
+            hs.id as hospital_student_id,
+            hs.`name` AS student_name,
+            hs.gender,
+            hs.record_no,
+            hs.birthday,
+            hs.id_card,
+            h.`name` AS hospital_name,
+            rr.to_hospital, rr.referral_status, rr.conclusion as referral_conclusion,
+            rr.special_medical, rr.disease_medical,
+            rr.id as to_referral_id, rl.id as receipt_id,
+            <include refid="GetCheckDoctor" />
+        FROM
+            h_preschool_check_record pcr
+            INNER JOIN h_hospital_student hs ON pcr.student_id = hs.student_id AND hs.hospital_id = pcr.hospital_id
+            LEFT JOIN m_hospital h ON h.id = pcr.hospital_id
+            LEFT JOIN h_referral_record rr ON rr.preschool_check_record_id = pcr.id
+            LEFT JOIN h_receipt_list rl ON rl.preschool_check_record_id = pcr.id
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(query.hospitalId)">and pcr.`hospital_id` = #{query.hospitalId}</if>
+                <if test="@Ognl@isNotEmpty(query.studentId)">and pcr.`student_id` = #{query.studentId}</if>
+                <if test="@Ognl@isNotEmpty(query.studentName)">and hs.`name` like CONCAT('%', #{query.studentName}, '%')</if>
+                <if test="@Ognl@isNotEmpty(query.hospitalName)">and h.`name` like CONCAT('%', #{query.hospitalName}, '%')</if>
+                <if test="@Ognl@isNotEmpty(query.toHospital)">and rr.`to_hospital` like CONCAT('%', #{query.toHospital}, '%')</if>
+                <if test="@Ognl@isNotEmpty(query.referralStatus)">and rr.`referral_status` = #{query.referralStatus}</if>
+                <if test="@Ognl@isNotEmpty(query.checkDateStart)">and Date(pcr.`create_time`) &lt;= Date(#{query.checkDateStart})</if>
+                <if test="@Ognl@isNotEmpty(query.checkDateEnd)">and Date(pcr.`create_time`) &gt;= Date(#{query.checkDateEnd})</if>
+                <if test="@Ognl@isNotEmpty(query.isToReferral) and query.isToReferral == 0">and pcr.to_referral_id is null</if>
+                <if test="@Ognl@isNotEmpty(query.isToReferral) and query.isToReferral == 1">and pcr.to_referral_id is not null</if>
+                <if test="@Ognl@isNotEmpty(query.monthAges)">and pcr.`month_age` in
+                    <foreach collection="query.monthAges" item="item" index="index" open="(" close=")" separator=",">
+                        #{item}
+                    </foreach>
+                </if>
+                <!-- 判断医师 -->
+                <if test="@Ognl@isNotEmpty(query.doctorIds)">
+                    and (
+                    json_extract(pcr.outer_eye,'$.doctorId') in
+                    <include refid="DoctorIdWhere" />
+                    or json_extract(pcr.eye_disease_factor,'$.doctorId') in
+                    <include refid="DoctorIdWhere" />
+                    or json_extract(pcr.light_reaction,'$.doctorId') in
+                    <include refid="DoctorIdWhere" />
+                    or json_extract(pcr.blink_reflex,'$.doctorId') in
+                    <include refid="DoctorIdWhere" />
+                    or json_extract(pcr.red_ball_test,'$.doctorId') in
+                    <include refid="DoctorIdWhere" />
+                    or json_extract(pcr.visual_behavior_observation,'$.doctorId') in
+                    <include refid="DoctorIdWhere" />
+                    or json_extract(pcr.red_reflex,'$.doctorId') in
+                    <include refid="DoctorIdWhere" />
+                    or json_extract(pcr.ocular_inspection,'$.doctorId') in
+                    <include refid="DoctorIdWhere" />
+                    or json_extract(pcr.vision_data,'$.doctorId') in
+                    <include refid="DoctorIdWhere" />
+                    or json_extract(pcr.monocular_masking_aversion_test,'$.doctorId') in
+                    <include refid="DoctorIdWhere" />
+                    or json_extract(pcr.refraction_data,'$.doctorId') in
+                    <include refid="DoctorIdWhere" />
+                    )
+                </if>
+            </trim>
+        </where>
+        order by pcr.update_time desc
+    </select>
+
+    <select id="getByOne" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from h_preschool_check_record
+        <include refid="Base_Where_Clause" />
+    </select>
+
+    <select id="getByStudentId"
+            resultType="com.wupol.myopia.business.core.hospital.domain.dto.EyeHealthyReportResponseDTO">
+        select hpcr.id, hpcr.month_age as monthAge, hpcr.create_time, mh.name as hospitalName
+        from h_preschool_check_record hpcr
+                     left join m_hospital mh on hpcr.hospital_id = mh.id
+        where hpcr.student_id = #{studentId}
+        order by create_time desc
+    </select>
+
+    <select id="getByStudentIds" resultMap="BaseResultMap">
+        select *
+        from h_preschool_check_record where student_id in
+        <foreach collection="studentIds" item="studentId" index="index" open="(" close=")" separator=",">
+            #{studentId}
+        </foreach>
+        order by create_time desc
+    </select>
+
+    <select id="getStudentCheckCount" resultMap="StudentCheckCountDTO">
+        select student_id, count(DISTINCT month_age) as count from h_preschool_check_record
+        group by student_id
+        HAVING student_id in
+        <foreach collection="studentIds" item="studentId" index="index" open="(" close=")" separator=",">
+            #{studentId}
+        </foreach>
+    </select>
+
+</mapper>

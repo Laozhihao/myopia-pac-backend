@@ -35,8 +35,7 @@ public class MedicalRecordFacade {
 
     /**
      * 追加检查检查数据到检查单, 如果该学生未建档，则自动建档
-     *
-     * @param consultation 问诊
+     *  @param consultation 问诊
      * @param vision       视力检查检查数据
      * @param biometrics   生物测量检查数据
      * @param diopter      屈光检查数据
@@ -44,6 +43,7 @@ public class MedicalRecordFacade {
      * @param hospitalId   医院id
      * @param doctorId     医生id
      * @param studentId    学生id
+     * @param clientId   系统编码
      */
     @Transactional(rollbackFor = Exception.class)
     public void addCheckDataAndCreateStudent(Consultation consultation,
@@ -54,7 +54,8 @@ public class MedicalRecordFacade {
                                              EyePressure eyePressure,
                                              Integer hospitalId,
                                              Integer doctorId,
-                                             Integer studentId) {
+                                             Integer studentId,
+                                             String clientId) {
         if (Objects.isNull(studentId)) {
             throw new BusinessException("学生id不能为空");
         }
@@ -63,19 +64,20 @@ public class MedicalRecordFacade {
         // 已建档则跳过
         String cacheKey = String.format(HospitalCacheKey.EXIST_HOSPITAL_STUDENT_ID, hospitalId, studentId);
         if (redisUtil.hasKey(cacheKey)) {
-            updateHospitalStudentStatus(hospitalId, studentId);
+            updateHospitalStudentStatus(hospitalId, studentId, clientId);
             return;
         }
         if (hospitalStudentService.count(new HospitalStudent().setStudentId(studentId).setHospitalId(hospitalId)) != 0) {
             // 设置标识，一天内只通过缓存查询患者信息
             redisUtil.set(cacheKey, "", TimeUnit.DAYS.toSeconds(1));
-            updateHospitalStudentStatus(hospitalId, studentId);
+            updateHospitalStudentStatus(hospitalId, studentId, clientId);
             return;
         }
         HospitalStudentVO hospitalStudentVO = hospitalStudentFacade.getStudentById(hospitalId, studentId);
         hospitalStudentVO.setHospitalId(hospitalId);
         hospitalStudentVO.setStatus(CommonConst.STATUS_NOT_DELETED);
         // 未建档则建档
+        hospitalStudentVO.setStudentType(hospitalStudentService.getStudentType(clientId, hospitalStudentVO.getStudentType()));
         hospitalStudentFacade.saveStudent(hospitalStudentVO, false);
         // 设置标识，一天内只通过缓存查询患者信息
         redisUtil.set(cacheKey, "", TimeUnit.DAYS.toSeconds(1));
@@ -86,12 +88,15 @@ public class MedicalRecordFacade {
      *
      * @param hospitalId 医院Id
      * @param studentId  学生Id
+     * @param clientId   客户端Id
      */
-    private void updateHospitalStudentStatus(Integer hospitalId, Integer studentId) {
+    private void updateHospitalStudentStatus(Integer hospitalId, Integer studentId,String clientId) {
         HospitalStudentVO hospitalStudentVO = hospitalStudentFacade.getStudentById(hospitalId, studentId);
         if (Objects.isNull(hospitalStudentVO)) {
             return;
         }
+        hospitalStudentVO.setStudentType(hospitalStudentService.getStudentType(clientId, hospitalStudentVO.getStudentType()));
+        hospitalStudentService.updateById(hospitalStudentVO);
         if (CommonConst.STATUS_NOT_DELETED.equals(hospitalStudentVO.getStatus())) {
             return;
         }

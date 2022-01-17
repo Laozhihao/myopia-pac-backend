@@ -95,7 +95,7 @@ public class UserService extends BaseService<UserMapper, User> {
         BeanUtils.copyProperties(userDTO, user);
         save(user.setPassword(new BCryptPasswordEncoder().encode(userDTO.getPassword())));
         // 家长端不用创建角色
-        if (SystemCode.PATENT_CLIENT.getCode().equals(userDTO.getSystemCode())) {
+        if (SystemCode.PARENT_CLIENT.getCode().equals(userDTO.getSystemCode())) {
             return userDTO.setId(user.getId());
         }
         // 绑定角色，判断角色ID与部门ID有效性 —— 是否都存在该角色、且是在所属部门下的、跟用户同系统端的
@@ -178,14 +178,13 @@ public class UserService extends BaseService<UserMapper, User> {
         Integer serviceType = userDTO.getOrgConfigType();
         Assert.notNull(serviceType, "机构的服务类型不能为空");
         // 转化复合服务类型
-        if (HospitalServiceType.SCREENING_ORGANIZATION.getType().equals(serviceType)) {
+        if (HospitalServiceType.RESIDENT_PRESCHOOL.getType().equals(serviceType)) {
             createDoctorRole(userDTO.setOrgConfigType(HospitalServiceType.RESIDENT.getType()));
             createDoctorRole(userDTO.setOrgConfigType(HospitalServiceType.PRESCHOOL.getType()));
             return;
         }
-        RoleType roleType = RoleType.getRoleTypeByHospitalServiceType(serviceType);
         // 1.获取角色（初始化已插入医生的角色，每个角色类型仅一条，所有医生共用）
-        Role role = roleService.findOne(new Role().setSystemCode(systemCode).setRoleType(roleType.getType()));
+        Role role = roleService.findOne(new Role().setSystemCode(systemCode).setRoleType(PermissionTemplateType.getRoleTypeByHospitalServiceType(serviceType)));
         Assert.notNull(role, "未初始化医生角色");
         // 2.绑定角色
         userRoleService.save(new UserRole().setUserId(userDTO.getId()).setRoleId(role.getId()));
@@ -220,7 +219,7 @@ public class UserService extends BaseService<UserMapper, User> {
             return;
         }
         // 生成医院管理员角色
-        generateUserRole(userDTO, PermissionTemplateType.HOSPITAL_ADMIN.getType(), roleType, userDTO.getUsername());
+        generateHospitalAdminUserRole(userDTO);
         // 给医院绑定关联筛查机构的角色
         bindScreeningPermission(userDTO.getAssociateScreeningOrgId(), userDTO.getId());
     }
@@ -434,6 +433,18 @@ public class UserService extends BaseService<UserMapper, User> {
     }
 
     /**
+     * 生成筛查机构管理员角色并初始其化权限
+     *
+     * @param userDTO userDTO
+     * @return boolean 是否成功
+     */
+    private void generateHospitalAdminUserRole(UserDTO userDTO) {
+        Integer orgConfigType = userDTO.getOrgConfigType();
+        Assert.notNull(orgConfigType, "服务配置类型为空");
+        generateUserRole(userDTO, PermissionTemplateType.getTemplateTypeByHospitalAdminServiceType(orgConfigType), RoleType.HOSPITAL_ADMIN.getType(), userDTO.getUsername());
+    }
+
+    /**
      * 生成用户角色
      *
      * @param userDTO 用户信息
@@ -486,6 +497,12 @@ public class UserService extends BaseService<UserMapper, User> {
         userList.forEach(x -> updateScreeningOrgRolePermission(orgConfigType, x.getId()));
     }
 
+    private void updateHospitalAdminRolePermission(Integer serviceType, Integer hospitalId) {
+        Assert.notNull(serviceType, "配置类型不能为空");
+        Assert.notNull(hospitalId, "医院ID不能为空");
+        roleService.updateRolePermissionByHospital(hospitalId, PermissionTemplateType.getTemplateTypeByHospitalAdminServiceType(serviceType));
+    }
+
     /**
      * 更新筛查机构用户角色权限
      *
@@ -497,13 +514,22 @@ public class UserService extends BaseService<UserMapper, User> {
         if (Objects.isNull(orgConfigType)) {
             return;
         }
+        updateRolePermission(userId, OrgScreeningMap.ORG_CONFIG_TYPE_TO_TEMPLATE.get(orgConfigType));
+    }
+
+    /**
+     * 更新用户角色权限
+     * @param userId
+     * @param templateType
+     */
+    private void updateRolePermission(Integer userId, Integer templateType) {
         // 查询角色
         UserRole role = userRoleService.findOne(new UserRole().setUserId(userId));
         Integer roleId = role.getRoleId();
         // 删除改角色所有的所有权限
         rolePermissionService.remove(new RolePermission().setRoleId(roleId));
         // 查找模板的权限集合包
-        List<Integer> permissionIds = districtPermissionService.getByTemplateType(OrgScreeningMap.ORG_CONFIG_TYPE_TO_TEMPLATE.get(orgConfigType))
+        List<Integer> permissionIds = districtPermissionService.getByTemplateType(templateType)
                 .stream().map(DistrictPermission::getPermissionId).collect(Collectors.toList());
         if (!CollectionUtils.isEmpty(permissionIds)) {
             roleService.assignRolePermission(roleId, permissionIds);
@@ -561,7 +587,10 @@ public class UserService extends BaseService<UserMapper, User> {
      * @return void
      **/
     @Transactional(rollbackFor = Exception.class)
-    public void updateDoctorRoleBatch(Integer hospitalId, Integer serviceType) {
+    public void updateHospitalRoleBatch(Integer hospitalId, Integer serviceType) {
+        // 更新医院管理员角色
+        updateHospitalAdminRolePermission(serviceType, hospitalId);
+        // 更新医生角色
         List<User> userList = findByList(new User().setSystemCode(SystemCode.HOSPITAL_CLIENT.getCode()).setOrgId(hospitalId));
         userList.forEach(user -> updateDoctorRole(user.getId(), hospitalId, serviceType));
     }

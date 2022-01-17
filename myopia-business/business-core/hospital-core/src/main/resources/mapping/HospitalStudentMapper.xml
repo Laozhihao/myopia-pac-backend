@@ -97,4 +97,22 @@
         from h_hospital_student
         where student_id = #{studentId}
     </select>
+
+    <select id="getByHospitalIdAndStudentId" resultMap="HospitalStudentMap">
+        select *
+        from h_hospital_student
+        where hospital_id = #{hospitalId}
+        and student_id = #{studentId}
+    </select>
+
+
+    <select id="getPreschoolByStudentType" resultMap="BaseResultMap">
+        select *
+        from (select *
+              from h_hospital_student
+              where status = 0
+                and (student_type = 2 or student_type = 3)
+              order by create_time desc) as tmp
+        group by tmp.student_id
+    </select>
 </mapper>

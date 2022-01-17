@@ -18,6 +18,10 @@ import java.util.Date;
 public class VisionMedicalRecord {
     /** 学生id */
     private Integer studentId;
+    /**
+     * 医生id
+     */
+    private Integer doctorId;
 
     /** 眼压类型。眼压计测量。 */
     public static final Integer PRESSURE_1 = 1;
@@ -73,5 +77,12 @@ public class VisionMedicalRecord {
     private String leftGlassVision;
     /** 瞳距 */
     private String pd;
+
+    private Integer rightStatus;
+    private Integer leftStatus;
+    private Boolean isAbnormal;
+
+    /** 结论 */
+    private String conclusion;
 
 }

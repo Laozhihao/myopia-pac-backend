@@ -87,21 +87,21 @@ public class UserDetailsServiceImpl implements UserDetailsService {
      *
      * @param systemCode 系统编号
      * @param user 用户
-     * @return java.util.List<java.lang.Integer>
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.Role>
      **/
     private List<Role> validateRole(Integer systemCode, User user) {
         // 非管理端和筛查管理端的用户不需要校验角色  学校端、筛查端、家长端用户不需要校验角色
         if (SystemCode.SCHOOL_CLIENT.getCode().equals(systemCode) || SystemCode.SCREENING_CLIENT.getCode().equals(systemCode)
-            || SystemCode.PATENT_CLIENT.getCode().equals(systemCode)) {
+            || SystemCode.PARENT_CLIENT.getCode().equals(systemCode)) {
             return Collections.emptyList();
         }
         List<Role> roles = roleService.getUsableRoleByUserId(user.getId(), systemCode, user.getUserType());
         // 0-6岁系统客户端
         if (SystemCode.PRESCHOOL_CLIENT.getCode().equals(systemCode)    // 0-6岁端必须要有0-6角色
-                && !roles.stream().filter(role -> RoleType.PRESCHOOL_DOCTOR.getType().equals(role.getRoleType())).findFirst().isPresent()) {
+                && roles.stream().noneMatch(role -> RoleType.PRESCHOOL_DOCTOR.getType().equals(role.getRoleType()))) {
             throw new AuthenticationCredentialsNotFoundException("该账号未分配0-6岁眼检查系统权限!");
         } else if (SystemCode.HOSPITAL_CLIENT.getCode().equals(systemCode)  // 眼健康系统必须要有眼健康系统角色
-                && !roles.stream().filter(role -> RoleType.RESIDENT_DOCTOR.getType().equals(role.getRoleType())).findFirst().isPresent()) { // 医院端
+                && roles.stream().noneMatch(role -> RoleType.RESIDENT_DOCTOR.getType().equals(role.getRoleType()))) { // 医院端
             throw new AuthenticationCredentialsNotFoundException("该账号未分配居民眼健康系统权限!");
         }
         if (CollectionUtils.isEmpty(roles)) {

@@ -3,8 +3,11 @@ package com.wupol.myopia.business.core.hospital.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.constant.UserType;
+import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.domain.ResultCode;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.PasswordAndUsernameGenerator;
 import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
@@ -21,8 +24,9 @@ import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.SetUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,6 +67,11 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
         return generateUserAndSaveDoctor(doctor);
     }
 
+    /**
+     * 更新医生信息
+     * @param doctor
+     * @return
+     */
     @Transactional(rollbackFor = Exception.class)
     public synchronized UsernameAndPasswordDTO updateDoctor(DoctorDTO doctor) {
         // 若修改手机号，保证手机号合法&唯一
@@ -72,25 +81,36 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
         return updateUserAndDoctor(doctor);
     }
 
+    /**
+     * 检验手机号
+     * @param phone
+     * @param id
+     */
     private void checkPhone(String phone, Integer id) {
         if (StringUtils.isBlank(phone) || phone.length() != 11) {
             throw new BusinessException("无效的手机号码！");
         }
         User user = getByPhone(phone);
-        if (Objects.nonNull(user)) {
-            // 新增时，手机号码已存在
-            if (Objects.isNull(id)) {
-                throw new BusinessException("该手机号已被使用！");
-            } else {
-                Doctor doctor = getById(id);
-                // 更新时，手机号码已存在
-                if (!doctor.getUserId().equals(user.getId())) {
-                    throw new BusinessException("该手机号已被使用！");
-                }
-            }
+        if (Objects.isNull(user)) {
+            return;
         }
+        // 新增时，手机号码已存在
+        if (Objects.isNull(id)) {
+            throw new BusinessException("该手机号已被使用！");
+        }
+        Doctor doctor = getById(id);
+        // 更新时，手机号码已存在
+        if (!doctor.getUserId().equals(user.getId())) {
+            throw new BusinessException("该手机号已被使用！");
+        }
+
     }
 
+    /**
+     * 通过手机号获取医生用户
+     * @param phone
+     * @return
+     */
     public User getByPhone(String phone) {
         List<User> users = oauthServiceClient.getUserBatchByPhones(Arrays.asList(phone), SystemCode.HOSPITAL_CLIENT.getCode());
         return CollectionUtils.isEmpty(users) ? null : users.get(0);
@@ -259,20 +279,10 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
     }
 
     /**
-     * 获取医生，带Vo
-     * @param hospitalId 医院id
-     * @param doctorId 医生id
+     * 修改用户信息
+     * @param userId
      * @return
      */
-    public DoctorDTO getDoctorVo(Integer hospitalId, Integer doctorId) {
-        Doctor doctor = getDoctor(hospitalId, doctorId);
-        DoctorDTO doctorVo = new DoctorDTO();
-        BeanUtils.copyProperties(doctor, doctorVo);
-        doctorVo.setHospitalName(hospitalService.getById(hospitalId).getName());
-        return doctorVo.setAvatarUrl(resourceFileService.getResourcePath(doctor.getAvatarFileId()))
-                .setSignUrl(resourceFileService.getResourcePath(doctor.getSignFileId()));
-    }
-
     public boolean repair(Integer userId) {
         List<DoctorDTO> list = baseMapper.getAll();
         long phone = 10000000000L;
@@ -307,9 +317,48 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
      * @param query 查询条件
      * @return
      */
-    public List<DoctorDTO> getDoctorVoList(DoctorQuery query)  {
+    public List<DoctorDTO> getDoctorDTOList(DoctorQuery query)  {
         List<DoctorDTO> list = baseMapper.getDoctorVoList(query);
         return createDTOList(list);
+    }
+
+    /**
+     * 检验当前操作是否合规
+     * @param id
+     */
+    public void checkId(Integer id) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        if (user.isHospitalUser()) {
+            Doctor doctor = super.getById(id);
+            if (Objects.isNull(doctor) || !user.getOrgId().equals(doctor.getHospitalId())) {
+                throw new BusinessException("非法请求", ResultCode.USER_ACCESS_UNAUTHORIZED.getCode());
+            }
+        }
+    }
+
+    /**
+     * 获取医生名称
+     * @param doctorIds
+     * @return
+     */
+    public Map<Integer, String> getDoctorNameByIds(Set<Integer> doctorIds) {
+        if (CollectionUtils.isEmpty(doctorIds)) {
+            return MapUtils.EMPTY_SORTED_MAP;
+        }
+        return baseMapper.getDoctorNameByIds(doctorIds).stream().collect(Collectors.toMap(Doctor::getId, Doctor::getName));
+    }
+
+    /**
+     * 获取医师名称包含name的医师doctorId
+     * @param hospitalId
+     * @param name
+     * @return
+     */
+    public Set<Integer> getDoctorIdByName(Integer hospitalId, String name) {
+        if (StringUtils.isBlank(name)) {
+            return SetUtils.EMPTY_SET;
+        }
+        return baseMapper.getDoctorIdByName(hospitalId, name).stream().map(Doctor::getId).collect(Collectors.toSet());
     }
 
 }

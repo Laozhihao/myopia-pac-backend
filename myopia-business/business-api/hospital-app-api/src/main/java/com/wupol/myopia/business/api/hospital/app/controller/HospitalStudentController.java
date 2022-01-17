@@ -61,7 +61,7 @@ public class HospitalStudentController {
     }
 
     @PostMapping()
-    public ApiResult<String> saveStudentArchive(@RequestBody @Valid HospitalStudentVO studentVo) {
+    public ApiResult<Integer> saveStudentArchive(@RequestBody @Valid HospitalStudentVO studentVo) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         Integer hospitalId = user.getOrgId();
         studentVo.setHospitalId(hospitalId);
@@ -70,8 +70,9 @@ public class HospitalStudentController {
             return ApiResult.failure("该学生已建档，请勿重复建档");
         }
         studentVo.setCreateUserId(user.getId());
-        hospitalStudentFacade.saveStudent(studentVo, true);
-        return ApiResult.success("建档成功");
+        studentVo.setStudentType(hospitalStudentService.getStudentType(user.getClientId(), studentVo.getStudentType()));
+        Integer studentId = hospitalStudentFacade.saveStudent(studentVo, true);
+        return ApiResult.success(studentId);
     }
 
     @PutMapping()
@@ -83,6 +84,7 @@ public class HospitalStudentController {
         if (!hospitalStudentService.existHospitalAndStudentRelationship(hospitalId, studentVo.getStudentId())) {
             return ApiResult.failure("该学生未建档");
         }
+        studentVo.setStudentType(hospitalStudentService.getStudentType(user.getClientId(), studentVo.getStudentType()));
         hospitalStudentFacade.saveStudent(studentVo, false);
         return ApiResult.success("更新成功");
     }

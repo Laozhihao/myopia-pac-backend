@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.business.core.hospital.domain.mapper.ReceiptListMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.hospital.domain.model.ReceiptList">
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="special_medical" property="specialMedical"/>
+    </resultMap>
+
+    <resultMap id="ReceiptDTO" type="com.wupol.myopia.business.core.hospital.domain.dto.ReceiptDTO" extends="BaseResultMap">
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="family_info" property="familyInfo"/>
+    </resultMap>
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(id)">and rl.`id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(preschoolCheckRecordId)">and rl.`preschool_check_record_id` = #{preschoolCheckRecordId}</if>
+                <if test="@Ognl@isNotEmpty(studentId)">and rl.`student_id` = #{studentId}</if>
+                <if test="@Ognl@isNotEmpty(specialMedical)">and rl.`special_medical` = #{specialMedical}</if>
+                <if test="@Ognl@isNotEmpty(medicalResult)">and rl.`medical_result` = #{medicalResult}</if>
+                <if test="@Ognl@isNotEmpty(furtherReferral)">and rl.`further_referral` = #{furtherReferral}</if>
+                <if test="@Ognl@isNotEmpty(referralHospital)">and rl.`referral_hospital` = #{referralHospital}</if>
+                <if test="@Ognl@isNotEmpty(fromHospitalId)">and rl.`from_hospital_id` = #{fromHospitalId}</if>
+                <if test="@Ognl@isNotEmpty(fromDoctorId)">and rl.`from_doctor_id` = #{fromDoctorId}</if>
+                <if test="@Ognl@isNotEmpty(updateTime)">and rl.`update_time` = #{updateTime}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and rl.`create_time` = #{createTime}</if>
+            </trim>
+        </where>
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, preschool_check_record_id, student_id, special_medical, medical_result, further_referral, referral_hospital, from_hospital_id, from_doctor_id, update_time, create_time
+    </sql>
+
+    <select id="getDetail" resultMap="ReceiptDTO">
+        select rl.*, hs.`name` as student_name, hs.gender, hs.record_no, hs.birthday, hs.id_card, hs.family_info,
+        h.`name` as from_hospital, d.`name` as from_doctor, pcr.month_age
+        from h_receipt_list rl
+        INNER JOIN h_hospital_student hs
+        on rl.student_id = hs.student_id and hs.hospital_id = rl.from_hospital_id
+        LEFT JOIN m_hospital h
+        ON h.id = rl.from_hospital_id
+        LEFT JOIN h_doctor d
+        ON d.id = rl.from_doctor_id
+        LEFT JOIN h_preschool_check_record pcr
+		on pcr.id = rl.preschool_check_record_id
+        <include refid="Base_Where_Clause" />
+    </select>
+
+</mapper>

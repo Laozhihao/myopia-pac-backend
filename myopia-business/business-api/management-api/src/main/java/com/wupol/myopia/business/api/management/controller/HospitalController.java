@@ -200,6 +200,11 @@ public class HospitalController {
         return hospitalBizService.addHospitalAdminUserAccount(hospitalId);
     }
 
+    /**
+     * 通过医院名称获取医院列表
+     * @param name
+     * @return
+     */
     @GetMapping("/byName")
     public List<HospitalResponseDTO> getByName(String name) {
         return hospitalBizService.getHospitalByName(name, null);

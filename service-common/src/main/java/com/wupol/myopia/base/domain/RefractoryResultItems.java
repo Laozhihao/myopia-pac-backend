@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.core.screening.flow.domain.dos;
+package com.wupol.myopia.base.domain;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -45,7 +45,7 @@ public class RefractoryResultItems {
         private BigDecimal vision;
 
         /**
-         * {@link com.wupol.myopia.business.common.utils.constant.ParentReportConst}
+         * 学生筛查报告常量
          */
         private Integer type;
 

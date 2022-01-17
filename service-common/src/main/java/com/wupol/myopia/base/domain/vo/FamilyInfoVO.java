@@ -24,7 +24,7 @@ public class FamilyInfoVO {
 
     @Getter
     @Setter
-    static class MemberInfo {
+    public static class MemberInfo {
 
         /**
          * 名称

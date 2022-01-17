@@ -248,7 +248,7 @@ public class HospitalBizService {
             }
         }
         // 医生用户
-        oauthServiceClient.updateDoctorRole(newHospital.getId(), newHospital.getServiceType());
+        oauthServiceClient.updateHospitalRole(newHospital.getId(), newHospital.getServiceType());
     }
 
     /**

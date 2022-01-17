@@ -8,6 +8,7 @@
     </resultMap>
 
     <resultMap id="BaseResultMapDTO" type="com.wupol.myopia.business.core.school.domain.dto.StudentDTO">
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="family_info" property="familyInfo"/>
     </resultMap>
 
     <resultMap id="StudentExtraDTOMap" type="com.wupol.myopia.business.core.school.domain.dto.StudentExtraDTO">
@@ -255,7 +256,7 @@
     </select>
 
     <select id="countParentStudent" resultType="com.wupol.myopia.business.core.school.domain.dto.ParentStudentDTO">
-        select id, name, gender from m_student
+        select id, name, gender, avatar_file_id from m_student
         where id in
         <foreach collection="studentIds" item="studentId" index="index" open="(" close=")" separator=",">
             #{studentId}
@@ -307,10 +308,10 @@
     </select>
 
 
-    <select id="getOneByRecordNo" resultMap="BaseResultMap">
+    <select id="getOneByCommitteeCode" resultMap="BaseResultMap">
         select *
         from m_student
-        where record_no like CONCAT('%', #{recordNo}, '%')
+        where committee_code = #{committeeCode}
         order by record_no desc
         limit 1
     </select>
@@ -320,5 +321,24 @@
         <include refid="Base_Column_List"/>
         from m_student
         where id_card = #{idCard}
+    </select>
+
+    <select id="checkIdCardAndId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_student
+        where id_card = #{cardId}
+          and id != #{id}
+    </select>
+
+    <select id="getByCondition" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_student
+        where (id_card = #{condition}
+                or sno = #{condition})
+          and name = #{name}
+        order by create_time desc
+        limit 1
     </select>
 </mapper>

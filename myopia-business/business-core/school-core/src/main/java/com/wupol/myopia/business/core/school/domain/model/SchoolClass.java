@@ -59,7 +59,6 @@ public class SchoolClass implements Serializable {
     /**
      * 座位数
      */
-    @NotNull(message = "座位数不能为空")
     private Integer seatCount;
 
     /**

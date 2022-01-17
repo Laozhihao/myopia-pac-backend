@@ -38,7 +38,7 @@ public class ParentPreschoolController {
      * @return 学生
      */
     @GetMapping("getByIdCard")
-    public Student getByIdCard(String idCard) {
+    public StudentDTO getByIdCard(String idCard) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         return parentStudentBizService.getByIdCard(idCard,currentUser.getId());
     }

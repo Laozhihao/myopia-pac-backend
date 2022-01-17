@@ -40,7 +40,7 @@ public class NoticeBizService {
      * 发送合作即将到期通知
      * @param beforeDay 通知提醒提前天数
      */
-    public void sendCooperationWarnnInfoNotice(int beforeDay) {
+    public void sendCooperationWarnInfoNotice(int beforeDay) {
         Date now = new Date();
         Date cooperationEndTime = DateUtils.addDays(now, beforeDay);
         // 发送即将到期学校通知
@@ -61,7 +61,7 @@ public class NoticeBizService {
     }
 
     private void sendNotice(String name, Date cooperationEndTime) {
-        String content = String.format(CommonConst.COOPERATION_WARNN_NOTICE, name, DateFormatUtils.format(cooperationEndTime, DateFormatUtil.FORMAT_TIME_WITHOUT_SECOND));
+        String content = String.format(CommonConst.COOPERATION_WARN_NOTICE, name, DateFormatUtils.format(cooperationEndTime, DateFormatUtil.FORMAT_TIME_WITHOUT_SECOND));
         noticeService.sendNoticeToAllAdmin(-1, content, content, CommonConst.NOTICE_STATION_LETTER);
     }
 

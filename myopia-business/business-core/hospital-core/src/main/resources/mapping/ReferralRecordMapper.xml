@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.business.core.hospital.domain.mapper.ReferralRecordMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.hospital.domain.model.ReferralRecord">
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="special_medical" property="specialMedical"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="disease_medical" property="diseaseMedical"/>
+    </resultMap>
+
+    <resultMap id="ReferralDO" type="com.wupol.myopia.business.core.hospital.domain.dos.ReferralDO" extends="BaseResultMap">
+    </resultMap>
+
+    <resultMap id="ReferralDTO" type="com.wupol.myopia.business.core.hospital.domain.dto.ReferralDTO" extends="ReferralDO">
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="family_info" property="familyInfo"/>
+    </resultMap>
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(id)">and rr.`id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(preschoolCheckRecordId)">and rr.`preschool_check_record_id` = #{preschoolCheckRecordId}</if>
+                <if test="@Ognl@isNotEmpty(studentId)">and rr.`student_id` = #{studentId}</if>
+                <if test="@Ognl@isNotEmpty(fromHospitalId)">and rr.`from_hospital_id` = #{fromHospitalId}</if>
+                <if test="@Ognl@isNotEmpty(fromDoctorId)">and rr.`from_doctor_id` = #{fromDoctorId}</if>
+                <if test="@Ognl@isNotEmpty(toHospitalId)">and rr.`to_hospital_id` = #{toHospitalId}</if>
+                <if test="@Ognl@isNotEmpty(toHospital)">and rr.`to_hospital` = #{toHospital}</if>
+                <if test="@Ognl@isNotEmpty(toDepartment)">and rr.`to_department` = #{toDepartment}</if>
+                <if test="@Ognl@isNotEmpty(specialMedical)">and rr.`special_medical` = #{specialMedical}</if>
+                <if test="@Ognl@isNotEmpty(diseaseMedical)">and rr.`disease_medical` = #{diseaseMedical}</if>
+                <if test="@Ognl@isNotEmpty(conclusion)">and rr.`conclusion` = #{conclusion}</if>
+                <if test="@Ognl@isNotEmpty(referralStatus)">and rr.`referral_status` = #{referralStatus}</if>
+                <if test="@Ognl@isNotEmpty(updateTime)">and rr.`update_time` = #{updateTime}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and rr.`create_time` = #{createTime}</if>
+            </trim>
+        </where>
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, preschool_check_record_id, student_id, from_hospital_id, from_doctor_id, to_hospital_id, to_hospital,
+        to_department, special_medical, disease_medical, conclusion, referral_status, update_time, create_time
+    </sql>
+
+    <select id="getDetail" resultMap="ReferralDTO">
+        select rr.*, rr.update_time as apply_time, hs.`name` as student_name, hs.gender, hs.record_no, hs.birthday, hs.id_card, hs.family_info, pcr.month_age,
+        h.name as from_hospital, d.name as from_doctor
+        from h_referral_record rr
+        INNER JOIN h_hospital_student hs
+        on rr.student_id = hs.student_id and hs.hospital_id = rr.from_hospital_id
+		LEFT JOIN h_preschool_check_record pcr
+		on pcr.id = rr.preschool_check_record_id
+		LEFT JOIN m_hospital h on h.id = rr.from_hospital_id
+		LEFT JOIN h_doctor d on d.id = rr.from_doctor_id
+        <include refid="Base_Where_Clause" />
+    </select>
+
+    <select id="getByStudentId" resultMap="BaseResultMap">
+        select
+        rr.*, rr.update_time as apply_time, h.name as from_hospital, d.name as from_doctor
+        from h_referral_record rr
+        LEFT JOIN m_hospital h on h.id = rr.from_hospital_id
+		LEFT JOIN h_doctor d on d.id = rr.from_doctor_id
+        where student_id = #{studentId}
+        order by update_time desc;
+    </select>
+
+</mapper>

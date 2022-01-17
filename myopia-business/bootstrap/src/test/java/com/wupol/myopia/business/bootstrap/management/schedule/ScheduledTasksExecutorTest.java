@@ -25,8 +25,8 @@ public class ScheduledTasksExecutorTest {
     }
 
     @Test
-    public void testCooperationWarnnInfoNotice() {
-        scheduledTasksExecutor.cooperationWarnnInfoNotice();
+    public void testCooperationWarnInfoNotice() {
+        scheduledTasksExecutor.cooperationWarnInfoNotice();
     }
 
 }

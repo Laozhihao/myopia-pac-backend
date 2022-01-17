@@ -26,4 +26,14 @@ public class ParentStudentDTO {
      * 性别 0-男 1-女
      */
     private Integer gender;
+
+    /**
+     * 头像
+     */
+    private String avatarUrl;
+
+    /**
+     * 头像文件Id
+     */
+    private Integer avatarFileId;
 }

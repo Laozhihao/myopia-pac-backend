@@ -68,6 +68,8 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         }
         District district = districtService.getById(hospital.getDistrictId());
         hospital.setDistrictProvinceCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
+        // 设置医院状态
+        hospital.setStatus(hospital.getCooperationStopStatus());
         baseMapper.insert(hospital);
         // oauth系统中增加医院状态信息
         oauthServiceClient.addOrganization(new Organization(hospital.getId(), SystemCode.MANAGEMENT_CLIENT,
@@ -115,8 +117,8 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         }
         // 更新医院状态
         Hospital hospital = new Hospital()
-                .setId(hospitalId)
-                .setStatus(status);
+                .setId(hospitalId);
+        hospital.setStatus(status);
         return baseMapper.updateById(hospital);
     }
 
@@ -170,6 +172,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
                 .setCreateUserId(hospital.getCreateUserId())
                 .setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode())
                 .setUserType(UserType.HOSPITAL_ADMIN.getType());
+        userDTO.setOrgConfigType(hospital.getServiceType());
         userDTO.setAssociateScreeningOrgId(associateScreeningOrgId);
         User user = oauthServiceClient.addMultiSystemUser(userDTO);
         hospitalAdminService.saveAdmin(hospital.getCreateUserId(), hospital.getId(), user.getId(), hospital.getGovDeptId());
@@ -195,6 +198,17 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      */
     public List<Hospital> getBy(HospitalQuery query) {
         return baseMapper.getBy(query);
+    }
+
+    /**
+     * 获取指定serviceType类型的医院
+     * @param serviceType
+     * @return
+     */
+    public List<Hospital> getByServiceType(Integer serviceType) {
+        HospitalQuery query = new HospitalQuery();
+        query.setServiceType(serviceType);
+        return getBy(query);
     }
 
     /**
@@ -243,25 +257,6 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     }
 
     /**
-     * 处理医院状态
-     * @return
-     */
-    @Transactional(rollbackFor = Exception.class)
-    public int handleHospitalStatus(Date date) {
-        List<Hospital> hospitals = getUnhandleHospital(date);
-        int result = 0;
-        for (Hospital hospital : hospitals) {
-            // 更新机构状态成功
-            if (updateHospitalStatus(hospital.getId(), hospital.getCooperationStopStatus(), hospital.getStatus()) > 0) {
-                // 更新oauth上机构的状态（同时影响筛查管理端跟筛查端）
-                oauthServiceClient.updateOrganization(new Organization(hospital.getId(), SystemCode.MANAGEMENT_CLIENT, UserType.HOSPITAL_ADMIN, hospital.getCooperationStopStatus()));
-                result++;
-            }
-        }
-        return result;
-    }
-
-    /**
      * 获取状态未更新的医院（已到合作开始时间未启用，已到合作结束时间未停止）
      * @return
      */
@@ -276,8 +271,15 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      * @param sourceStatus
      * @return
      */
+    @Transactional
     public int updateHospitalStatus(Integer id, Integer targetStatus, Integer sourceStatus) {
-        return baseMapper.updateHospitalStatus(id, targetStatus, sourceStatus);
+        // 更新机构状态成功
+        int result = baseMapper.updateHospitalStatus(id, targetStatus, sourceStatus);
+        if (result > 0) {
+            // 更新oauth上机构的状态
+            oauthServiceClient.updateOrganization(new Organization(id, SystemCode.MANAGEMENT_CLIENT, UserType.HOSPITAL_ADMIN, targetStatus));
+        }
+        return result;
     }
 
     /**
