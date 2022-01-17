@@ -1,7 +1,9 @@
 package com.wupol.myopia.business.api.management.service;
 
+import com.alibaba.fastjson.JSON;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.base.util.CurrentUserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,8 +19,38 @@ import java.util.Map;
  */
 @Service
 public class SysUtilService {
-    @Autowired
-    private RedisUtil redisUtil;
+
+    /**
+     * 次数扩展字段
+     */
+    private final String COUNT = "count";
+    /**
+     * 每天下载次数
+     */
+    private final int CALL_COUNT = 2;
+    /**
+     * 非平台管理员
+     */
+    private final int NOPLATFORM = 1;
+
+    private final RedisUtil redisUtil;
+
+    public SysUtilService(RedisUtil redisUtil) {
+        this.redisUtil = redisUtil;
+    }
+
+    /***
+     * @Description: 非平台管理员一天只能下载2次
+     * @Param: [key]
+     * @return: void
+     * @Author: 钓猫的小鱼
+     * @Date: 2022/1/17
+     */
+    public void isNoPlatformRepeatExport(String key){
+        if (CurrentUserUtil.getCurrentUser().getUserType()==NOPLATFORM){
+            isExport(key);
+        }
+    }
 
     /**
     * @Description: 查看用户是否多次导出，
@@ -27,21 +59,21 @@ public class SysUtilService {
     * @Author: 钓猫的小鱼
     * @Date: 2022/1/4
     */
-    public boolean isExport(String key){
-        Map<String,Object> result = (Map<String, Object>) redisUtil.get(key);
-        if (result==null){
-            Map<String,Object> param  = new HashMap<>();
-            param.put("count",1);
+    public void isExport(String key){
+        Map<String,Object> result = JSON.parseObject(redisUtil.get(key).toString(),HashMap.class);
+
+        if (result.isEmpty()){
+            Map<String,Object> param  = new HashMap<>(0);
+            param.put(COUNT,1);
             redisUtil.cSet(key,param);
-            return true;
         }
-       int count = (Integer)result.get("count");
-        if (count>=2){
+        int count = (Integer)result.get(COUNT);
+        if (count>=CALL_COUNT){
             throw new BusinessException("今天的次数已用完，请明天再操作！！！");
         }
         count = count+1;
-        result.put("count",count);
+        result.put(COUNT,count);
         redisUtil.cSet(key,result);
-        return true;
     }
+
 }

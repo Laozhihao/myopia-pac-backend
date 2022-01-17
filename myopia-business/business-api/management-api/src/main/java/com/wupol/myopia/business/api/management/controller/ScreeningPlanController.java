@@ -422,7 +422,7 @@ public class ScreeningPlanController {
                 ;
 
         if (classId==null){
-            exportStrategy.doExcelExport(exportCondition, ExportReportServiceNameConstant.EXPORT_PLAN_SCHOOL_STUDENT_DATA);
+            exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.EXPORT_PLAN_SCHOOL_STUDENT_DATA);
             return ApiResult.success();
         }else {
 

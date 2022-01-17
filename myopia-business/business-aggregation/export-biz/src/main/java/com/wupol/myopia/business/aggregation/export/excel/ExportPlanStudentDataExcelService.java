@@ -125,12 +125,9 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         return schoolName+gradeName+className;
     }
 
-    /**
-     * 校验筛查数据导出参数
-     * @param screeningPlanId
-     */
-    private void validatePlanExportParams(Integer screeningPlanId) {
-        ScreeningPlan screeningPlan = screeningPlanService.getById(screeningPlanId);
+    @Override
+    public void validateBeforeExport(ExportCondition exportCondition){
+        ScreeningPlan screeningPlan = screeningPlanService.getById(exportCondition.getPlanId());
         if (Objects.isNull(screeningPlan)) {
             throw new BusinessException("筛查计划不存在");
         }

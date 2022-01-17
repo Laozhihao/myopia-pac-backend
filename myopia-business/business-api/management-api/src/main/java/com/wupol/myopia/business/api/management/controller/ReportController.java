@@ -57,12 +57,10 @@ public class ReportController {
                 .setDistrictId(districtId)
                 .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
 
+        String key =  String.format(RedisConstant.FILE_URL_USERID_NOTIFICATIONID_DISTRICTID_COUNT,
+                "district",exportCondition.getApplyExportFileUserId(), exportCondition.getPlanId(), exportCondition.getSchoolId());
+        sysUtilService.isNoPlatformRepeatExport(key);
 
-        if (CurrentUserUtil.getCurrentUser().getUserType()==1){
-            String key =  String.format(RedisConstant.FILE_URL_USERID_NOTIFICATIONID_DISTRICTID_COUNT,
-                    "district",exportCondition.getApplyExportFileUserId(), exportCondition.getPlanId(), exportCondition.getSchoolId());
-            sysUtilService.isExport(key);
-        }
 
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.DISTRICT_SCREENING_REPORT_SERVICE);
     }
@@ -81,11 +79,9 @@ public class ReportController {
             throw new BusinessException("筛查通知ID或者筛查计划ID不能为空");
         }
 
-        if (CurrentUserUtil.getCurrentUser().getUserType()==1){
-            String key =  String.format(RedisConstant.FILE_URL_USERID_NOTIFICATIONID_PLANID_SCHOOLID_COUNT,
-                    "school",CurrentUserUtil.getCurrentUser().getId(), notificationId, planId,schoolId);
-            sysUtilService.isExport(key);
-        }
+        String key =  String.format(RedisConstant.FILE_URL_USERID_NOTIFICATIONID_PLANID_SCHOOLID_COUNT,
+                "school",CurrentUserUtil.getCurrentUser().getId(), notificationId, planId,schoolId);
+        sysUtilService.isNoPlatformRepeatExport(key);
 
         ExportCondition exportCondition = new ExportCondition()
                 .setNotificationId(notificationId)
@@ -109,11 +105,9 @@ public class ReportController {
                 .setScreeningOrgId(screeningOrgId)
                 .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
 
-        if (CurrentUserUtil.getCurrentUser().getUserType()==1){
-            String key =  String.format(RedisConstant.FILE_URL_USERID_PLANID_SCREENINGORGID_COUNT,
-                    "screeningOrg",CurrentUserUtil.getCurrentUser().getId(),  planId,screeningOrgId);
-            sysUtilService.isExport(key);
-        }
+        String key =  String.format(RedisConstant.FILE_URL_USERID_PLANID_SCREENINGORGID_COUNT,
+                "screeningOrg",CurrentUserUtil.getCurrentUser().getId(),  planId,screeningOrgId);
+        sysUtilService.isNoPlatformRepeatExport(key);
 
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.SCREENING_ORG_SCREENING_REPORT_SERVICE);
     }
@@ -155,11 +149,9 @@ public class ReportController {
                 .setPlanStudentIds(planStudentIds);
 
 
-        if (CurrentUserUtil.getCurrentUser().getUserType()==1){
-            String key =  String.format(RedisConstant.FILE_EXPORT_ARCHIVES_COUNT,
-                    "exportScreeningOrgArchives",planId,screeningOrgId,CurrentUserUtil.getCurrentUser().getId(),schoolId,gradeId,classId,planStudentIds);
-            sysUtilService.isExport(key);
-        }
+        String key =  String.format(RedisConstant.FILE_EXPORT_ARCHIVES_COUNT,
+                "exportScreeningOrgArchives",planId,screeningOrgId,CurrentUserUtil.getCurrentUser().getId(),schoolId,gradeId,classId,planStudentIds);
+        sysUtilService.isNoPlatformRepeatExport(key);
 
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.SCREENING_ORG_ARCHIVES_SERVICE);
     }
@@ -181,11 +173,9 @@ public class ReportController {
             throw new BusinessException("所选学生无筛查数据");
         }
 
-        if (CurrentUserUtil.getCurrentUser().getUserType()==1){
-            String key =  String.format(RedisConstant.FILE_EXPORT_EXCEL_ARCHIVES_COUNT,
-                    "syncExportSchoolStudentArchives",CurrentUserUtil.getCurrentUser().getId(),planId, schoolId, planStudentIds);
-            sysUtilService.isExport(key);
-        }
+        String key =  String.format(RedisConstant.FILE_EXPORT_EXCEL_ARCHIVES_COUNT,
+                "syncExportSchoolStudentArchives",CurrentUserUtil.getCurrentUser().getId(),planId, schoolId, planStudentIds);
+        sysUtilService.isNoPlatformRepeatExport(key);
 
         ExportCondition exportCondition = new ExportCondition()
                 .setPlanStudentIds(planStudentIds)
@@ -213,11 +203,10 @@ public class ReportController {
                 .setSchoolId(schoolId)
                 .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
 
-        if (CurrentUserUtil.getCurrentUser().getUserType()==1){
-            String key =  String.format(RedisConstant.FILE_EXPORT_PDF_COUNT,
-                    "getScreeningPlanSchool",exportCondition.getApplyExportFileUserId(), exportCondition.getPlanId(), exportCondition.getSchoolId());
-            sysUtilService.isExport(key);
-        }
+        String key =  String.format(RedisConstant.FILE_EXPORT_PDF_COUNT,
+                "getScreeningPlanSchool",exportCondition.getApplyExportFileUserId(), exportCondition.getPlanId(), exportCondition.getSchoolId());
+        sysUtilService.isNoPlatformRepeatExport(key);
+
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.SCREENING_PLAN);
     }
 }

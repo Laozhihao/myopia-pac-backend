@@ -310,20 +310,17 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
                 .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
 
         if (classId==null){
-            if (CurrentUserUtil.getCurrentUser().getUserType()==1){
-                String key =  String.format(RedisConstant.FILE_EXPORT_EXCEL_COUNT,
-                        "getScreeningPlanExportDoAndSync",exportCondition.getApplyExportFileUserId(), exportCondition.getPlanId(), exportCondition.getSchoolId(), exportCondition.getClassId(), exportCondition.getGradeId());
-                sysUtilService.isExport(key);
-            }
 
-            exportStrategy.doExcelExport(exportCondition, ExportReportServiceNameConstant.EXPOR_TPLAN_STUDENT_DATA_EXCEL_SERVICE);
+            String key =  String.format(RedisConstant.FILE_EXPORT_EXCEL_COUNT,
+                    "getScreeningPlanExportDoAndSync",exportCondition.getApplyExportFileUserId(), exportCondition.getPlanId(), exportCondition.getSchoolId(), exportCondition.getClassId(), exportCondition.getGradeId());
+            sysUtilService.isNoPlatformRepeatExport(key);
+
+            exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.EXPOR_TPLAN_STUDENT_DATA_EXCEL_SERVICE);
             return ApiResult.success();
         }else {
-            if (CurrentUserUtil.getCurrentUser().getUserType()==1){
-                String key =  String.format(RedisConstant.FILE_EXPORT_EXCEL_COUNT,
-                        "getScreeningPlanExportDoAndSync",exportCondition.getApplyExportFileUserId(), exportCondition.getPlanId(), exportCondition.getSchoolId(), exportCondition.getClassId(), exportCondition.getGradeId());
-                sysUtilService.isExport(key);
-            }
+            String key =  String.format(RedisConstant.FILE_EXPORT_EXCEL_COUNT,
+                    "getScreeningPlanExportDoAndSync",exportCondition.getApplyExportFileUserId(), exportCondition.getPlanId(), exportCondition.getSchoolId(), exportCondition.getClassId(), exportCondition.getGradeId());
+            sysUtilService.isNoPlatformRepeatExport(key);
 
             String path = exportStrategy.syncExport(exportCondition, ExportReportServiceNameConstant.EXPOR_TPLAN_STUDENT_DATA_EXCEL_SERVICE);
             return ApiResult.success(path);
