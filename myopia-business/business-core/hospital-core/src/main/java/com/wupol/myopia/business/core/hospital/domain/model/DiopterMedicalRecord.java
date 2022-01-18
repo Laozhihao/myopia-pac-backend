@@ -80,9 +80,9 @@ public class DiopterMedicalRecord {
         /** 备注 */
         private String remark;
         /** 右眼状态 */
-        private List<Integer> computerRightStatus;
+        private List<Integer> computerRightStatusList;
         /** 左眼状态 */
-        private List<Integer> computerLeftStatus;
+        private List<Integer> computerLeftStatusList;
 
         private Integer doctorId;
         /** 学生id */
