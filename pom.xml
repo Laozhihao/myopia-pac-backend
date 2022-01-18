@@ -18,6 +18,7 @@
         <module>myopia-gateway</module>
         <module>service-common</module>
         <module>myopia-business</module>
+        <module>myopia-migrate-data</module>
     </modules>
 
     <properties>
