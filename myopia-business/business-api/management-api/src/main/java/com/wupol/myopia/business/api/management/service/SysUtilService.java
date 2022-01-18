@@ -62,7 +62,7 @@ public class SysUtilService {
         Map<String,Object> result = JSON.parseObject(redisUtil.get(key).toString(),HashMap.class);
 
         if (result.isEmpty()){
-            Map<String,Object> param  = new HashMap<>(0);
+            Map<String,Object> param  = new HashMap<>(2);
             param.put(COUNT,1);
             redisUtil.cSet(key,param);
         }

@@ -37,8 +37,8 @@ import java.util.stream.Collectors;
  * @Description: 导出学校学生筛查数据
  */
 @Log4j2
-@Service("exportPlanSchoolStudentDataExcelService")
-public class ExportPlanSchoolStudentDataExcelService extends BaseExportExcelFileService{
+@Service("exportVisionScreeningResultExcelService")
+public class ExportVisionScreeningResultExcelService extends BaseExportExcelFileService{
     @Resource
     private SchoolService schoolService;
     @Resource
