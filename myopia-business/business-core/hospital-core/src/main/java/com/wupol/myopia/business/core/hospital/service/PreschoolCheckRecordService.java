@@ -8,6 +8,7 @@ import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.BusinessUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.hospital.constant.BaseConstant;
 import com.wupol.myopia.business.core.hospital.constant.CheckReferralInfoEnum;
 import com.wupol.myopia.business.core.hospital.constant.MonthAgeStatusEnum;
@@ -17,11 +18,13 @@ import com.wupol.myopia.business.core.hospital.domain.model.PreschoolCheckRecord
 import com.wupol.myopia.business.core.hospital.domain.query.PreschoolCheckRecordQuery;
 import com.wupol.myopia.business.core.hospital.util.HospitalUtil;
 import lombok.extern.log4j.Log4j2;
+import com.wupol.myopia.business.core.hospital.util.PreschoolCheckRecordUtil;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -144,6 +147,9 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
      * @return
      */
     public PreschoolCheckRecord get(Integer hospitalId, Integer studentId, Integer monthAge) {
+        Assert.notNull(hospitalId, "hospitalId不能为空");
+        Assert.notNull(studentId, "studentId不能为空");
+        Assert.notNull(monthAge, "monthAge不能为空");
         PreschoolCheckRecordQuery query = new PreschoolCheckRecordQuery();
         query.setHospitalId(hospitalId).setStudentId(studentId)
                 .setMonthAge(monthAge);
@@ -162,13 +168,19 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
      * 追加检查检查数据到检查单
      */
     public void saveCheckRecord(PreschoolCheckRecord checkRecord) {
+
+        PreschoolCheckRecord dbCheckRecord;
         if (Objects.isNull(checkRecord.getId())) {
-            if (!save(checkRecord)) {
-                throw new BusinessException("新增失败");
+            // 一个患者在一个医院下指定月龄只能做一次检查
+            dbCheckRecord = get(checkRecord.getHospitalId(), checkRecord.getStudentId(), checkRecord.getMonthAge());
+            if (Objects.isNull(dbCheckRecord)) {
+                addConclusionAndStatus(checkRecord);
+                save(checkRecord);
+                return;
             }
-            return;
+        } else {
+            dbCheckRecord = getById(checkRecord.getId(), checkRecord.getHospitalId());
         }
-        PreschoolCheckRecord dbCheckRecord = getById(checkRecord.getId(), checkRecord.getHospitalId());
         if (Objects.nonNull(checkRecord.getIsReferral())) dbCheckRecord.setIsReferral(checkRecord.getIsReferral());
         if (Objects.nonNull(checkRecord.getFromReferral())) dbCheckRecord.setFromReferral(checkRecord.getFromReferral());
         if (Objects.nonNull(checkRecord.getOuterEye())) dbCheckRecord.setOuterEye(checkRecord.getOuterEye());
@@ -183,9 +195,16 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
         if (Objects.nonNull(checkRecord.getOcularInspection())) dbCheckRecord.setOcularInspection(checkRecord.getOcularInspection());
         if (Objects.nonNull(checkRecord.getMonocularMaskingAversionTest())) dbCheckRecord.setMonocularMaskingAversionTest(checkRecord.getMonocularMaskingAversionTest());
         if (Objects.nonNull(checkRecord.getGuideContent())) dbCheckRecord.setGuideContent(checkRecord.getGuideContent());
+        addConclusionAndStatus(dbCheckRecord);
         if (!updateById(dbCheckRecord)) {
             throw new BusinessException("修改失败");
         }
+    }
+
+    private void addConclusionAndStatus(PreschoolCheckRecord record) {
+        TwoTuple<Integer, String> conclusion = PreschoolCheckRecordUtil.conclusion(record);
+        record.setConclusion(conclusion.getSecond());
+        record.setStatus(conclusion.getFirst());
     }
 
     /**
@@ -249,7 +268,7 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
         }
         // 一个无法修改，取可修改的
         if (DateUtil.betweenDay(recordOnMonthAgeCheck.get(1).getCreateTime(), now) > 3) {
-            return canCheckMonthAge.get(0);
+            return recordOnMonthAgeCheck.get(0).getMonthAge();
         }
         // 两个都可修改，取最新修改的
         Optional<PreschoolCheckRecord> max = recordOnMonthAgeCheck.stream().max(Comparator.comparing(PreschoolCheckRecord::getUpdateTime));

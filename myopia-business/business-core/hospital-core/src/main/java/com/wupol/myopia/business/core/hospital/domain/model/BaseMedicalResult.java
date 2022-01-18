@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.hospital.domain.model;
 
+import com.wupol.myopia.business.core.hospital.domain.interfaces.HasResult;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -11,7 +12,7 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Accessors(chain = true)
-public class BaseMedicalResult {
+public class BaseMedicalResult implements HasResult {
 
     private Integer rightStatus;
     private Integer leftStatus;
