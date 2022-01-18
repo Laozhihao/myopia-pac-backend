@@ -27,10 +27,10 @@ public class StatUtil {
      */
     public static boolean isMyopia(Float sphere, Float cylinder, Integer age, Float nakedVision) {
         if (Objects.nonNull(age)) {
-            if (age < 6 && nakedVision < 4.9) {
+            if (age < 6 && nakedVision < 4.9f) {
                 return true;
             }
-            if (Objects.nonNull(nakedVision) && age >= 6 && nakedVision < 5) {
+            if (Objects.nonNull(nakedVision) && age >= 6 && nakedVision < 5.0f) {
                 return true;
             }
         }
@@ -74,16 +74,16 @@ public class StatUtil {
         }
         float se = getSphericalEquivalent(sphere, cylinder);
 
-        if (age < 4 && se > 3) {
+        if (age < 4 && se > 3f) {
             return true;
         }
-        if ((age < 6 && age >= 4) && se > 2) {
+        if ((age < 6 && age >= 4) && se > 2.0f) {
             return true;
         }
-        if ((age < 8 && age >= 6) && se > 1.5) {
+        if ((age < 8 && age >= 6) && se > 1.5f) {
             return true;
         }
-        if (age >= 8 && se > 0.5) {
+        if (age >= 8 && se > 0.5f) {
             return true;
         }
         HyperopiaLevelEnum hyperopiaWarningLevel = getHyperopiaWarningLevel(sphere, cylinder, age);
@@ -168,19 +168,19 @@ public class StatUtil {
         if (nakedVision == null || age == null || age < 0) {
             return null;
         }
-        if (age > 0 && age < 3 && nakedVision <= 4.6) {
+        if (age > 0 && age < 3 && nakedVision <= 4.6f) {
             return true;
         }
-        if (age == 3 && nakedVision <= 4.7) {
+        if (age == 3 && nakedVision <= 4.7f) {
             return true;
         }
-        if (age == 4 && nakedVision <= 4.8) {
+        if (age == 4 && nakedVision <= 4.8f) {
             return true;
         }
-        if (age == 5 && nakedVision <= 4.9) {
+        if (age == 5 && nakedVision <= 4.9f) {
             return true;
         }
-        return age >= 6 && nakedVision < 5.0;
+        return age >= 6 && nakedVision < 5.0f;
     }
 
     /**
@@ -240,10 +240,10 @@ public class StatUtil {
                 return null;
             }
             float se = getSphericalEquivalent(sphere, cylinder);
-            if (se == -0.5) {
+            if (se == -0.5f) {
                 return MyopiaLevelEnum.ZERO;
             }
-            if (se > -0.5 && se <= 0.75) {
+            if (se > -0.5f && se <= 0.75) {
                 return MyopiaLevelEnum.MYOPIA_LEVEL_EARLY;
             }
             if (se >= -3.0f && se < -0.5f) {
