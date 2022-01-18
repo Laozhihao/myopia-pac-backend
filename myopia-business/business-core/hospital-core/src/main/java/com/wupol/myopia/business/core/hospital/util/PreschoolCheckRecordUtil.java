@@ -4,7 +4,10 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.hospital.constant.CheckEnum;
 import com.wupol.myopia.business.core.hospital.domain.interfaces.HasResult;
+import com.wupol.myopia.business.core.hospital.domain.model.BaseValue;
 import com.wupol.myopia.business.core.hospital.domain.model.PreschoolCheckRecord;
+import com.wupol.myopia.business.core.hospital.domain.model.ReferralRecord;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
@@ -75,6 +78,19 @@ public class PreschoolCheckRecordUtil {
      */
     private static boolean isAbnormal(HasResult hasResult) {
         return Objects.nonNull(hasResult) && hasResult.getIsAbnormal();
+    }
+
+    public static String referralConclusion(ReferralRecord record) {
+        List<String> conclusion = new ArrayList<>();
+        String specialMedical = record.getSpecialMedical().stream().map(BaseValue::getName).collect(Collectors.joining("、"));
+        if (StringUtils.isNotBlank(specialMedical)){
+            conclusion.add(specialMedical + "未做");
+        }
+        String diseaseMedical = record.getDiseaseMedical().stream().filter(base -> base.getId() > 0).map(BaseValue::getName).collect(Collectors.joining("、"));
+        if (StringUtils.isNotBlank(specialMedical)){
+            conclusion.add(diseaseMedical);
+        }
+        return conclusion.stream().collect(Collectors.joining("，"));
     }
 
 }

@@ -7,6 +7,7 @@ import com.wupol.myopia.business.core.hospital.domain.dto.ReferralDTO;
 import com.wupol.myopia.business.core.hospital.domain.mapper.ReferralRecordMapper;
 import com.wupol.myopia.business.core.hospital.domain.model.ReferralRecord;
 import com.wupol.myopia.business.core.hospital.util.HospitalUtil;
+import com.wupol.myopia.business.core.hospital.util.PreschoolCheckRecordUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -78,6 +79,7 @@ public class ReferralRecordService extends BaseService<ReferralRecordMapper, Ref
         }
         record.setFromHospitalId(user.getOrgId());
         record.setFromDoctorId(hospitalDoctorService.getDetailsByUserId(user.getId()).getId());
+        record.setConclusion(PreschoolCheckRecordUtil.referralConclusion(record));
         saveOrUpdate(record);
     }
 

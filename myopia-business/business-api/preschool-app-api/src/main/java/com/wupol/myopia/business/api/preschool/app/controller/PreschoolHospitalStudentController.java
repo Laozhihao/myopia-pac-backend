@@ -11,6 +11,8 @@ import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 /**
  * @Author wulizhou
  * @Date 2022/1/17 19:10
@@ -44,8 +46,21 @@ public class PreschoolHospitalStudentController {
     }
 
     private ApiResult<HospitalStudentVO> getStudentResult(TwoTuple<HospitalStudentVO, Boolean> studentInfo) {
-        return ApiResult.success(studentInfo.getFirst()).setMessage(studentInfo.getSecond() ?
+        return ApiResult.success(hospitalAggService.setPreschoolDistrict(studentInfo.getFirst())).setMessage(studentInfo.getSecond() ?
                 ResultCode.SUCCESS.getMessage() : NOT_HOSPITAL_STUDENT);
+    }
+
+    @PostMapping()
+    public ApiResult<Integer> saveStudentArchive(@RequestBody @Valid HospitalStudentVO studentVo) {
+        studentVo.setProvince(null);
+        studentVo.setCity(null);
+        studentVo.setArea(null);
+        studentVo.setTown(null);
+        studentVo.setProvinceId(null);
+        studentVo.setCityId(null);
+        studentVo.setAreaId(null);
+        studentVo.setTownId(null);
+        return hospitalAggService.saveStudentArchive(studentVo, CurrentUserUtil.getCurrentUser());
     }
 
 }

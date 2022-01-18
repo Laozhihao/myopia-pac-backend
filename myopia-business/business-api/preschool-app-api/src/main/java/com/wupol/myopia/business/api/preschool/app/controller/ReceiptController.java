@@ -36,6 +36,11 @@ public class ReceiptController {
         return receiptListService.getDetailByHospitalAndId(CurrentUserUtil.getCurrentUser().getOrgId(), id);
     }
 
+    @GetMapping("/edit/{id}")
+    public ReceiptDTO getEditDetail(@PathVariable("id") Integer id) {
+        return receiptListService.getEditDetailByHospitalAndId(CurrentUserUtil.getCurrentUser().getOrgId(), id);
+    }
+
     /**
      * 保存转诊单
      * @param receiptList

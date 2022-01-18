@@ -4,7 +4,9 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.core.hospital.domain.dto.ReceiptDTO;
 import com.wupol.myopia.business.core.hospital.domain.mapper.ReceiptListMapper;
+import com.wupol.myopia.business.core.hospital.domain.model.PreschoolCheckRecord;
 import com.wupol.myopia.business.core.hospital.domain.model.ReceiptList;
+import com.wupol.myopia.business.core.hospital.domain.model.SpecialMedical;
 import com.wupol.myopia.business.core.hospital.util.HospitalUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,9 @@ public class ReceiptListService extends BaseService<ReceiptListMapper, ReceiptLi
 
     @Autowired
     private HospitalDoctorService hospitalDoctorService;
+
+    @Autowired
+    private PreschoolCheckRecordService preschoolCheckRecordService;
 
     /**
      * 通过id获取回执单详情
@@ -39,6 +44,21 @@ public class ReceiptListService extends BaseService<ReceiptListMapper, ReceiptLi
      */
     public ReceiptDTO getDetailByHospitalAndId(Integer hospitalId, Integer id) {
         return getDetail(new ReceiptList().setFromHospitalId(hospitalId).setId(id));
+    }
+
+    /**
+     * 获取编辑详情，即回执单内容+最新专项检查结果
+     * @param hospitalId
+     * @param id
+     * @return
+     */
+    public ReceiptDTO getEditDetailByHospitalAndId(Integer hospitalId, Integer id) {
+        ReceiptDTO detail = getDetail(new ReceiptList().setFromHospitalId(hospitalId).setId(id));
+        PreschoolCheckRecord preschool = preschoolCheckRecordService.getById(detail.getPreschoolCheckRecordId());
+        SpecialMedical specialMedical = new SpecialMedical(preschool.getRedReflex(), preschool.getOcularInspection(),
+                preschool.getMonocularMaskingAversionTest(), preschool.getRefractionData());
+        detail.setSpecialMedical(specialMedical);
+        return detail;
     }
 
     /**
