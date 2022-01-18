@@ -8,6 +8,7 @@ import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.BusinessUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.hospital.constant.BaseConstant;
 import com.wupol.myopia.business.core.hospital.constant.CheckReferralInfoEnum;
 import com.wupol.myopia.business.core.hospital.constant.MonthAgeStatusEnum;
@@ -16,6 +17,7 @@ import com.wupol.myopia.business.core.hospital.domain.mapper.PreschoolCheckRecor
 import com.wupol.myopia.business.core.hospital.domain.model.PreschoolCheckRecord;
 import com.wupol.myopia.business.core.hospital.domain.query.PreschoolCheckRecordQuery;
 import com.wupol.myopia.business.core.hospital.util.HospitalUtil;
+import com.wupol.myopia.business.core.hospital.util.PreschoolCheckRecordUtil;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -166,6 +168,7 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
             // 一个患者在一个医院下指定月龄只能做一次检查
             dbCheckRecord = get(checkRecord.getHospitalId(), checkRecord.getStudentId(), checkRecord.getMonthAge());
             if (Objects.isNull(dbCheckRecord)) {
+                addConclusionAndStatus(checkRecord);
                 save(checkRecord);
                 return;
             }
@@ -186,9 +189,16 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
         if (Objects.nonNull(checkRecord.getOcularInspection())) dbCheckRecord.setOcularInspection(checkRecord.getOcularInspection());
         if (Objects.nonNull(checkRecord.getMonocularMaskingAversionTest())) dbCheckRecord.setMonocularMaskingAversionTest(checkRecord.getMonocularMaskingAversionTest());
         if (Objects.nonNull(checkRecord.getGuideContent())) dbCheckRecord.setGuideContent(checkRecord.getGuideContent());
+        addConclusionAndStatus(dbCheckRecord);
         if (!updateById(dbCheckRecord)) {
             throw new BusinessException("修改失败");
         }
+    }
+
+    private void addConclusionAndStatus(PreschoolCheckRecord record) {
+        TwoTuple<Integer, String> conclusion = PreschoolCheckRecordUtil.conclusion(record);
+        record.setConclusion(conclusion.getSecond());
+        record.setStatus(conclusion.getFirst());
     }
 
     /**
@@ -238,7 +248,7 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
             return canCheckMonthAge.get(0);
         }
         Date now = new Date();
-        // 其中一个已检查 TODO wulizhou 可修改时选择当前，不可修改时选择另一个时间段
+        // 其中一个已检查 可修改时选择当前，不可修改时选择另一个时间段
         if (1 == recordOnMonthAgeCheck.size()) {
             PreschoolCheckRecord hasCheck = recordOnMonthAgeCheck.get(0);
             return DateUtil.betweenDay(hasCheck.getCreateTime(), now) > 3 ?
@@ -252,7 +262,7 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
         }
         // 一个无法修改，取可修改的
         if (DateUtil.betweenDay(recordOnMonthAgeCheck.get(1).getCreateTime(), now) > 3) {
-            return canCheckMonthAge.get(0);
+            return recordOnMonthAgeCheck.get(0).getMonthAge();
         }
         // 两个都可修改，取最新修改的
         return recordOnMonthAgeCheck.stream().sorted(Comparator.comparing(PreschoolCheckRecord::getUpdateTime).reversed())

@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.hospital.domain.model;
 
+import com.wupol.myopia.business.core.hospital.domain.interfaces.HasResult;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -13,7 +14,7 @@ import java.util.List;
  */
 @Data
 @Accessors(chain = true)
-public class EyeDiseaseFactor {
+public class EyeDiseaseFactor implements HasResult {
 
     /**
      * 出生时早产或低出生体重

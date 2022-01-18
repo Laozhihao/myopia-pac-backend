@@ -27,6 +27,11 @@ public class PreschoolCheckRecord extends SpecialMedical implements Serializable
 
     private static final long serialVersionUID = 1L;
 
+    /** 检查中 */
+    public static final Integer STATUS_ABNORMAL = 0;
+    /** 检查完成 */
+    public static final Integer STATUS_NORMAL = 1;
+
     /**
      * 主键id
      */
