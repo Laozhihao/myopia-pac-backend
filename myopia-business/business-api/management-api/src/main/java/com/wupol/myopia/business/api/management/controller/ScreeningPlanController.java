@@ -407,7 +407,7 @@ public class ScreeningPlanController {
      * @Date: 2021/12/29
      */
     @GetMapping("/plan/export/studentInfor")
-    public Object getScreeningPlanExportDoAndSync(Integer screeningPlanId, @RequestParam(defaultValue = "0") Integer screeningOrgId,
+    public ApiResult getScreeningPlanExportDoAndSync(Integer screeningPlanId, @RequestParam(defaultValue = "0") Integer screeningOrgId,
                                                   @RequestParam Integer schoolId,
                                                   @RequestParam(required = false) Integer gradeId,
                                                   @RequestParam(required = false) Integer classId) throws IOException {
@@ -418,17 +418,14 @@ public class ScreeningPlanController {
                 .setSchoolId(schoolId)
                 .setGradeId(gradeId)
                 .setClassId(classId)
-                .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId())
-                ;
+                .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
 
-        if (classId==null){
-            exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.EXPORT_PLAN_SCHOOL_STUDENT_DATA);
+        if (Objects.isNull(classId)){
+            exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.EXPORT_VISION_SCREENING_RESULT_EXCEL_SERVICE);
             return ApiResult.success();
-        }else {
-
-            String path = exportStrategy.syncExport(exportCondition, ExportReportServiceNameConstant.EXPORT_PLAN_SCHOOL_STUDENT_DATA);
-            return ApiResult.success(path);
         }
+        String path = exportStrategy.syncExport(exportCondition, ExportReportServiceNameConstant.EXPORT_VISION_SCREENING_RESULT_EXCEL_SERVICE);
+        return ApiResult.success(path);
     }
 
     /**
@@ -439,7 +436,7 @@ public class ScreeningPlanController {
     * @Date: 2022/1/12
     */
     @GetMapping("/getStudentEyeByStudentId")
-    public Object getStudentEyeByStudentId(@RequestParam Integer planId,@RequestParam Integer studentId) {
+    public ApiResult getStudentEyeByStudentId(@RequestParam Integer planId,@RequestParam Integer studentId) {
         List<Integer> studentIds = Collections.singletonList(studentId);
         List<VisionScreeningResult> visionScreeningResults =  visionScreeningResultService.getByStudentIds(planId,studentIds);
         if (visionScreeningResults.isEmpty()){
