@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.hospital.domain.model;
 
+import com.wupol.myopia.business.core.hospital.domain.interfaces.HasResult;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -12,7 +13,7 @@ import java.util.List;
  */
 @Data
 @Accessors(chain = true)
-public class OuterEye {
+public class OuterEye implements HasResult {
 
     private List<BaseValue> rightEyelidList;
     private List<BaseValue> leftEyelidList;

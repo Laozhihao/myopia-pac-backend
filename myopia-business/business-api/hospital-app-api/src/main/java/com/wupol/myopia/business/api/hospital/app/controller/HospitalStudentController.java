@@ -4,7 +4,8 @@ import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
-import com.wupol.myopia.business.api.hospital.app.domain.vo.HospitalStudentVO;
+import com.wupol.myopia.business.aggregation.hospital.domain.vo.HospitalStudentVO;
+import com.wupol.myopia.business.aggregation.hospital.service.HospitalAggService;
 import com.wupol.myopia.business.api.hospital.app.facade.HospitalStudentFacade;
 import com.wupol.myopia.business.core.hospital.domain.query.HospitalStudentQuery;
 import com.wupol.myopia.business.core.hospital.service.HospitalStudentService;
@@ -35,21 +36,23 @@ public class HospitalStudentController {
     private StudentService studentService;
     @Autowired
     private HospitalStudentFacade hospitalStudentFacade;
+    @Autowired
+    private HospitalAggService hospitalAggService;
 
     @GetMapping()
     public HospitalStudentVO getStudent(String token, String idCard, String name) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         if (StringUtils.isEmpty(token)) {
-            return hospitalStudentFacade.getStudent(user.getOrgId(), idCard, name);
+            return hospitalAggService.getStudent(user.getOrgId(), idCard, name);
         } else {
-            return hospitalStudentFacade.getStudentByToken(user.getOrgId(), token);
+            return hospitalAggService.getStudentByToken(user.getOrgId(), token).getFirst();
         }
     }
 
     @GetMapping("/{id}")
     public HospitalStudentVO getStudent(@PathVariable("id") Integer id) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        return hospitalStudentFacade.getStudentById(user.getOrgId(), id);
+        return hospitalAggService.getStudentById(user.getOrgId(), id).getFirst();
     }
 
     @GetMapping("/list")
