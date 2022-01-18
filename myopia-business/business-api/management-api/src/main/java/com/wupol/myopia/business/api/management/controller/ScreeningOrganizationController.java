@@ -85,7 +85,7 @@ public class ScreeningOrganizationController {
         } else {
             // 默认合作信息
             screeningOrganization.initCooperationInfo();
-            screeningOrganization.setAccountNum(5);
+            screeningOrganization.setAccountNum(ScreeningOrganization.account_num);
         }
         screeningOrganization.setStatus(screeningOrganization.getCooperationStopStatus());
         UsernameAndPasswordDTO usernameAndPasswordDTO = screeningOrganizationBizService.saveScreeningOrganization(screeningOrganization);
