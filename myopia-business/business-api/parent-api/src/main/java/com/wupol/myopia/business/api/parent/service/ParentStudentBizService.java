@@ -529,11 +529,17 @@ public class ParentStudentBizService {
             if (CollectionUtils.isEmpty(districtDetail)) {
                 return;
             }
-            student.setProvinceCode(districtDetail.get(0).getCode());
-            student.setCityCode(districtDetail.get(1).getCode());
-            student.setAreaCode(districtDetail.get(2).getCode());
-            // 处理直辖市问题
-            if (districtDetail.size() > 4) {
+            // 直辖市处理
+            if (districtDetail.size() == 4) {
+                student.setProvinceCode(districtDetail.get(0).getCode());
+                student.setCityCode(districtDetail.get(0).getCode());
+                student.setAreaCode(districtDetail.get(1).getCode());
+                student.setTownCode(districtDetail.get(2).getCode());
+            }
+            if (districtDetail.size() == 5) {
+                student.setProvinceCode(districtDetail.get(0).getCode());
+                student.setCityCode(districtDetail.get(1).getCode());
+                student.setAreaCode(districtDetail.get(2).getCode());
                 student.setTownCode(districtDetail.get(3).getCode());
             }
         }

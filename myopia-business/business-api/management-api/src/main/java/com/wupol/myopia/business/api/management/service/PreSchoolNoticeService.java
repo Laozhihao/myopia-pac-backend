@@ -117,6 +117,9 @@ public class PreSchoolNoticeService {
      * @return 手机号码
      */
     private String getNoticePhone(HospitalStudent hospitalStudent) {
+        if (StringUtils.isNotBlank(hospitalStudent.getParentPhone())) {
+            return hospitalStudent.getParentPhone();
+        }
         FamilyInfoVO familyInfo = hospitalStudent.getFamilyInfo();
         if (Objects.isNull(familyInfo)) {
             return null;

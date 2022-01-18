@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.hospital.domain.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.wupol.myopia.business.core.hospital.domain.interfaces.HasResult;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -15,7 +16,7 @@ import java.util.Date;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class VisionMedicalRecord {
+public class VisionMedicalRecord implements HasResult {
     /** 学生id */
     private Integer studentId;
     /**

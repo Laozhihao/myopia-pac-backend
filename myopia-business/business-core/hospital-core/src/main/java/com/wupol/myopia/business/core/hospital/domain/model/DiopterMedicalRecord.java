@@ -1,8 +1,11 @@
 package com.wupol.myopia.business.core.hospital.domain.model;
 
+import com.wupol.myopia.business.core.hospital.domain.interfaces.HasResult;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+
+import java.util.List;
 
 /**
  * 屈光检查数据
@@ -26,7 +29,7 @@ public class DiopterMedicalRecord {
     @Getter
     @Setter
     @Accessors(chain = true)
-    public static class Diopter {
+    public static class Diopter implements HasResult {
         /** 1散瞳前，2散瞳后 */
         private Integer checkType;
         // 电脑验光
@@ -77,9 +80,9 @@ public class DiopterMedicalRecord {
         /** 备注 */
         private String remark;
         /** 右眼状态 */
-        private Integer computerRightStatus;
+        private List<Integer> computerRightStatusList;
         /** 左眼状态 */
-        private Integer computerLeftStatus;
+        private List<Integer> computerLeftStatusList;
 
         private Integer doctorId;
         /** 学生id */

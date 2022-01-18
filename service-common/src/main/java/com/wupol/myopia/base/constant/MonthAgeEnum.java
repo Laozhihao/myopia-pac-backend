@@ -1,6 +1,7 @@
 package com.wupol.myopia.base.constant;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -38,6 +39,17 @@ public enum MonthAgeEnum {
      * 月份
      */
     private final Integer offset;
+
+    /**
+     * 根据月龄获取相得枚举实例
+     *
+     * @param month 月龄
+     * @return MonthAgeEnum
+     **/
+    public static MonthAgeEnum getMonthAge(Integer month) {
+        return Arrays.stream(values()).filter(monthAge -> monthAge.getId().equals(month))
+                .findFirst().orElse(null);
+    }
 
 
     public static final List<MonthAgeEnum> monthAgeList = new ArrayList<>();

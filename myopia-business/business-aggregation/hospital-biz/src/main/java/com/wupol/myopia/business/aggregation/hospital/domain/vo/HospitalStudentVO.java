@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.api.hospital.app.domain.vo;
+package com.wupol.myopia.business.aggregation.hospital.domain.vo;
 
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.hospital.domain.dos.HospitalStudentDO;
