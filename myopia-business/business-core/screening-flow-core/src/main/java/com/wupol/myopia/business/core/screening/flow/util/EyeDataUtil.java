@@ -249,6 +249,18 @@ public class EyeDataUtil {
         return "--";
     }
 
+    public static String computerLeftCylNull(VisionScreeningResult visionScreeningResult){
+        if (visionScreeningResult!=null
+                &&visionScreeningResult.getComputerOptometry()!=null
+                &&visionScreeningResult.getComputerOptometry().getLeftEyeData()!=null
+                &&visionScreeningResult.getComputerOptometry().getLeftEyeData().getCyl()!=null){
+
+            return visionScreeningResult.getComputerOptometry().getLeftEyeData().getCyl().toString();
+        }
+
+        return null;
+    }
+
     public static String computerRightCyl(VisionScreeningResult visionScreeningResult){
         if (visionScreeningResult!=null
                 &&visionScreeningResult.getComputerOptometry()!=null
@@ -260,6 +272,18 @@ public class EyeDataUtil {
 
         return "--";
     }
+    public static String computerRightCylNull(VisionScreeningResult visionScreeningResult){
+        if (visionScreeningResult!=null
+                &&visionScreeningResult.getComputerOptometry()!=null
+                &&visionScreeningResult.getComputerOptometry().getRightEyeData()!=null
+                &&visionScreeningResult.getComputerOptometry().getRightEyeData().getCyl()!=null){
+
+            return visionScreeningResult.getComputerOptometry().getRightEyeData().getCyl().toString();
+        }
+
+        return null;
+    }
+
 
     public static String computerLeftSph(VisionScreeningResult visionScreeningResult){
         if (visionScreeningResult!=null
@@ -272,6 +296,18 @@ public class EyeDataUtil {
 
         return "--";
     }
+    public static String computerLeftSphNull(VisionScreeningResult visionScreeningResult){
+        if (visionScreeningResult!=null
+                &&visionScreeningResult.getComputerOptometry()!=null
+                &&visionScreeningResult.getComputerOptometry().getLeftEyeData()!=null
+                &&visionScreeningResult.getComputerOptometry().getLeftEyeData().getSph()!=null){
+
+            return visionScreeningResult.getComputerOptometry().getLeftEyeData().getSph().toString();
+        }
+
+        return null;
+    }
+
 
 
     public static String computerRightSph(VisionScreeningResult visionScreeningResult){
@@ -284,6 +320,17 @@ public class EyeDataUtil {
         }
 
         return "--";
+    }
+
+    public static String computerRightSphNULL(VisionScreeningResult visionScreeningResult){
+        if (visionScreeningResult!=null
+                &&visionScreeningResult.getComputerOptometry()!=null
+                &&visionScreeningResult.getComputerOptometry().getRightEyeData()!=null
+                &&visionScreeningResult.getComputerOptometry().getRightEyeData().getSph()!=null){
+
+            return visionScreeningResult.getComputerOptometry().getRightEyeData().getSph().toString();
+        }
+        return null;
     }
 
 
