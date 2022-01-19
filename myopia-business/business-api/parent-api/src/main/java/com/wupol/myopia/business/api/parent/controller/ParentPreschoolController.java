@@ -77,4 +77,18 @@ public class ParentPreschoolController {
     public List<District> getChildDistrict(@PathVariable("code") @NotNull(message = "行政区域编号不能为空") Long code) {
         return districtService.getChildDistrictByParentIdPriorityCache(code);
     }
+
+
+    /**
+     * 根据指定code，获取其下级行政区域集
+     *
+     * @param code code
+     * @return List<District>
+     */
+    @GetMapping("child/districtA/{code}")
+    public List<District> getChildDistricta(@PathVariable("code") @NotNull(message = "行政区域编号不能为空") Long code) {
+        return districtService.getDistrictPositionDetail(code);
+    }
+
+
 }

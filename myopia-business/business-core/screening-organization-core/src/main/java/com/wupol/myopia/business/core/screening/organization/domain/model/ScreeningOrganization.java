@@ -38,6 +38,8 @@ public class ScreeningOrganization extends AddressCooperation implements Seriali
 
     private static final long serialVersionUID = 1L;
 
+    public static final Integer ACCOUNT_NUM = 5;
+
     /**
      * id
      */
