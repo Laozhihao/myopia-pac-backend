@@ -131,6 +131,7 @@ public class ScreeningPlanSchoolStudentFacadeService {
         VisionScreeningResult visionScreeningResult = EyeDataUtil.getVisionScreeningResult(studentEyeInfor,visionScreeningResultsGroup);
         //是否戴镜情况
         studentEyeInfor.setGlassesTypeDes(EyeDataUtil.glassesType(visionScreeningResult));
+
         //裸视力
         String nakedVision = EyeDataUtil.visionRightDataToStr(visionScreeningResult)+"/"+EyeDataUtil.visionLeftDataToStr(visionScreeningResult);
         studentEyeInfor.setNakedVision(nakedVision);
@@ -138,11 +139,11 @@ public class ScreeningPlanSchoolStudentFacadeService {
         String correctedVision = EyeDataUtil.correcteRightDataToStr(visionScreeningResult)+"/"+EyeDataUtil.correcteLeftDataToStr(visionScreeningResult);
         studentEyeInfor.setCorrectedVision(correctedVision);
         //球镜
-        String sph = EyeDataUtil.computerRightSph(visionScreeningResult)+"/"+EyeDataUtil.computerLeftSph(visionScreeningResult);
-        studentEyeInfor.setSph(sph);
+        studentEyeInfor.setRSph(EyeDataUtil.computerRightSphNULL(visionScreeningResult));
+        studentEyeInfor.setLSph(EyeDataUtil.computerLeftSphNull(visionScreeningResult));
         //柱镜
-        String cyl = EyeDataUtil.computerRightCyl(visionScreeningResult)+"/"+EyeDataUtil.computerLeftCyl(visionScreeningResult);
-        studentEyeInfor.setCyl(cyl);
+        studentEyeInfor.setRCyl(EyeDataUtil.computerRightCylNull(visionScreeningResult));
+        studentEyeInfor.setLCyl(EyeDataUtil.computerLeftCylNull(visionScreeningResult));
         //眼轴
         String axial = EyeDataUtil.computerRightAxial(visionScreeningResult)+"/"+EyeDataUtil.computerLeftAxial(visionScreeningResult);
         studentEyeInfor.setAxial(axial);
