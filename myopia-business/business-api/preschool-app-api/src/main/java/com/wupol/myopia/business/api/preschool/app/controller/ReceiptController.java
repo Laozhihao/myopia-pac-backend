@@ -31,14 +31,14 @@ public class ReceiptController {
     @Autowired
     private PreschoolCheckRecordService preschoolCheckRecordService;
 
-    @GetMapping("/{id}")
-    public ReceiptDTO getDetail(@PathVariable("id") Integer id) {
-        return receiptListService.getDetailByHospitalAndId(CurrentUserUtil.getCurrentUser().getOrgId(), id);
+    @GetMapping("/{preschoolCheckRecordId}")
+    public ReceiptDTO getDetail(@PathVariable("preschoolCheckRecordId") Integer preschoolCheckRecordId) {
+        return receiptListService.getDetailByHospitalAndPreschoolCheckRecordId(CurrentUserUtil.getCurrentUser().getOrgId(), preschoolCheckRecordId);
     }
 
-    @GetMapping("/edit/{id}")
-    public ReceiptDTO getEditDetail(@PathVariable("id") Integer id) {
-        return receiptListService.getEditDetailByHospitalAndId(CurrentUserUtil.getCurrentUser().getOrgId(), id);
+    @GetMapping("/edit/{preschoolCheckRecordId}")
+    public ReceiptDTO getEditDetail(@PathVariable("preschoolCheckRecordId") Integer preschoolCheckRecordId) {
+        return receiptListService.getEditDetailByHospitalAndPreschoolCheckRecordId(CurrentUserUtil.getCurrentUser().getOrgId(), preschoolCheckRecordId);
     }
 
     /**

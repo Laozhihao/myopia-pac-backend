@@ -39,21 +39,21 @@ public class ReceiptListService extends BaseService<ReceiptListMapper, ReceiptLi
     /**
      * 通过检查号id与医院id获取详情
      * @param hospitalId
-     * @param id
+     * @param preschoolCheckRecordId
      * @return
      */
-    public ReceiptDTO getDetailByHospitalAndId(Integer hospitalId, Integer id) {
-        return getDetail(new ReceiptList().setFromHospitalId(hospitalId).setId(id));
+    public ReceiptDTO getDetailByHospitalAndPreschoolCheckRecordId(Integer hospitalId, Integer preschoolCheckRecordId) {
+        return getDetail(new ReceiptList().setFromHospitalId(hospitalId).setPreschoolCheckRecordId(preschoolCheckRecordId));
     }
 
     /**
      * 获取编辑详情，即回执单内容+最新专项检查结果
      * @param hospitalId
-     * @param id
+     * @param preschoolCheckRecordId
      * @return
      */
-    public ReceiptDTO getEditDetailByHospitalAndId(Integer hospitalId, Integer id) {
-        ReceiptDTO detail = getDetail(new ReceiptList().setFromHospitalId(hospitalId).setId(id));
+    public ReceiptDTO getEditDetailByHospitalAndPreschoolCheckRecordId(Integer hospitalId, Integer preschoolCheckRecordId) {
+        ReceiptDTO detail = getDetail(new ReceiptList().setFromHospitalId(hospitalId).setPreschoolCheckRecordId(preschoolCheckRecordId));
         PreschoolCheckRecord preschool = preschoolCheckRecordService.getById(detail.getPreschoolCheckRecordId());
         SpecialMedical specialMedical = new SpecialMedical(preschool.getRedReflex(), preschool.getOcularInspection(),
                 preschool.getMonocularMaskingAversionTest(), preschool.getRefractionData());
