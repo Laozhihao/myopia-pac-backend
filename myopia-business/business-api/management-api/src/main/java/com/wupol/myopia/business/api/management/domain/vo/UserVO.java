@@ -164,4 +164,10 @@ public class UserVO implements Serializable {
      * 行政区ID
      */
     private Integer districtId;
+
+    /**
+     * 用户配置 医院管理端[0：居民健康系统(默认)、1：0-6岁眼保健、2：0-6岁眼保健+居民健康系统]；筛查机构[0-省级配置 1-单点配置]
+     */
+    private Integer orgConfigType;
+
 }

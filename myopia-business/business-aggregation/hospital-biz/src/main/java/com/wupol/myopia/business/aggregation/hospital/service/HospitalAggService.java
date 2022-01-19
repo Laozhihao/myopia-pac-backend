@@ -1,9 +1,12 @@
-package com.wupol.myopia.business.api.hospital.app.facade;
+package com.wupol.myopia.business.aggregation.hospital.service;
 
 import com.google.common.collect.Lists;
+import com.wupol.myopia.base.domain.ApiResult;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
-import com.wupol.myopia.business.api.hospital.app.domain.vo.HospitalStudentVO;
+import com.wupol.myopia.business.aggregation.hospital.domain.vo.HospitalStudentVO;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
+import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.hospital.domain.dos.HospitalStudentDO;
@@ -30,11 +33,11 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * @Author HaoHao
- * @Date 2021/4/21
- **/
+ * @Author wulizhou
+ * @Date 2022/1/17 19:35
+ */
 @Service
-public class HospitalStudentFacade {
+public class HospitalAggService {
 
     @Autowired
     private SchoolService schoolService;
@@ -56,7 +59,7 @@ public class HospitalStudentFacade {
      * @param token
      * @return com.wupol.myopia.business.api.hospital.app.domain.vo.HospitalStudentDTO
      **/
-    public HospitalStudentVO getStudentByToken(Integer hospitalId, String token) {
+    public TwoTuple<HospitalStudentVO, Boolean> getStudentByToken(Integer hospitalId, String token) {
         Integer studentId = studentService.parseToken2StudentId(token);
         return getStudentById(hospitalId, studentId);
     }
@@ -70,7 +73,7 @@ public class HospitalStudentFacade {
      * @return
      */
     public HospitalStudentVO getStudent(Integer hospitalId, String idCard, String name) {
-        return getHospitalStudent(hospitalId, null, idCard, name);
+        return getHospitalStudent(hospitalId, null, idCard, name).getFirst();
     }
 
     /**
@@ -80,12 +83,62 @@ public class HospitalStudentFacade {
      * @param id         学生id
      * @return
      */
-    public HospitalStudentVO getStudentById(Integer hospitalId, Integer id) {
-        HospitalStudentVO studentDTO = getHospitalStudent(hospitalId, id, null, null);
-        if (Objects.isNull(studentDTO)) {
+    public TwoTuple<HospitalStudentVO, Boolean> getStudentById(Integer hospitalId, Integer id) {
+        TwoTuple<HospitalStudentVO, Boolean> studentInfo = getHospitalStudent(hospitalId, id, null, null);
+        if (Objects.isNull(studentInfo) || Objects.isNull(studentInfo.getFirst())) {
             throw new BusinessException("未找到该学生");
         }
-        return studentDTO;
+        return studentInfo;
+    }
+
+    /**
+     * 获取学生详情,先从医院端获取，如果没有，则从管理端获取
+     *
+     * @param hospitalId 医院Id
+     * @param studentId  学生ID
+     * @param idCard     身份证
+     * @param name       姓名
+     * @return TwoTuple<学生信息, 是否在医院建档>
+     */
+    public TwoTuple<HospitalStudentVO, Boolean> getHospitalStudent(Integer hospitalId, Integer studentId, String idCard, String name) {
+        HospitalStudentVO studentVO = new HospitalStudentVO();
+        HospitalStudent student;
+        if (null != studentId) {
+            HospitalStudentQuery query = new HospitalStudentQuery();
+            query.setStudentId(studentId).setHospitalId(hospitalId);
+            student = hospitalStudentService.getBy(query).stream().findFirst().orElse(null);
+        } else {
+            if (StringUtils.isBlank(idCard) || StringUtils.isBlank(name)) {
+                throw new BusinessException("数据异常，请确认");
+            }
+            HospitalStudentQuery query = new HospitalStudentQuery();
+            query.setIdCard(idCard).setName(name);
+            student = hospitalStudentService.getBy(query).stream().findFirst().orElse(null);
+        }
+        // 医院端没有该学生信息，则从管理端获取
+        if (null == student) {
+            return TwoTuple.of(getHospitalStudentFromManagement(studentId, idCard, name), false);
+        }
+        BeanUtils.copyProperties(student, studentVO);
+        studentVO.setStudentId(studentId);
+
+        // 地区Maps
+        Map<Integer, District> districtMaps = getDistrictMapByDistrictId(Lists.newArrayList(student));
+        packageStudentDistrict(districtMaps, studentVO, student);
+
+        if (Objects.nonNull(student.getSchoolId())) {
+            studentVO.setSchool(schoolService.getById(student.getSchoolId()));
+        }
+        if (Objects.nonNull(student.getGradeId())) {
+            studentVO.setSchoolGrade(schoolGradeService.getById(student.getGradeId()));
+        }
+        if (Objects.nonNull(student.getClassId())) {
+            studentVO.setSchoolClass(schoolClassService.getById(student.getClassId()));
+        }
+        if (Objects.nonNull(student.getNation())) {
+            studentVO.setNationName(NationEnum.getName(studentVO.getNation()));
+        }
+        return TwoTuple.of(studentVO, true);
     }
 
     /**
@@ -194,53 +247,65 @@ public class HospitalStudentFacade {
     }
 
     /**
-     * 获取学生详情,先从医院端获取，如果没有，则从管理端获取
-     *
-     * @param hospitalId 医院Id
-     * @param studentId  学生ID
-     * @param idCard     身份证
-     * @param name       姓名
-     * @return HospitalStudentDTO
+     * 保存档案信息
+     * @param studentVo
+     * @return
      */
-    public HospitalStudentVO getHospitalStudent(Integer hospitalId, Integer studentId, String idCard, String name) {
-        HospitalStudentVO studentVO = new HospitalStudentVO();
-        HospitalStudent student;
-        if (null != studentId) {
-            HospitalStudentQuery query = new HospitalStudentQuery();
-            query.setStudentId(studentId).setHospitalId(hospitalId);
-            student = hospitalStudentService.getBy(query).stream().findFirst().orElse(null);
-        } else {
-            if (StringUtils.isBlank(idCard) || StringUtils.isBlank(name)) {
-                throw new BusinessException("数据异常，请确认");
+    public ApiResult<Integer> saveStudentArchive(HospitalStudentVO studentVo, CurrentUser user) {
+        Integer hospitalId = user.getOrgId();
+        studentVo.setHospitalId(hospitalId);
+        Student student = studentService.getByIdCard(studentVo.getIdCard());
+        if (Objects.nonNull(student) && hospitalStudentService.existHospitalAndStudentRelationship(hospitalId, student.getId())) {
+            return ApiResult.failure("该学生已建档，请勿重复建档");
+        }
+        studentVo.setCreateUserId(user.getId());
+        studentVo.setStudentType(hospitalStudentService.getStudentType(user.getClientId(), studentVo.getStudentType()));
+        Integer studentId = saveStudent(studentVo, true);
+        return ApiResult.success(studentId);
+    }
+
+    /**
+     * 设置医院端的学生信息的学校及地址信息
+     *
+     * @param studentList 学生信息列表
+     */
+    private List<HospitalStudentVO> updateStudentVoInfo(List<HospitalStudentDO> studentList) {
+        List<HospitalStudentVO> voList = new ArrayList<>();
+
+        if (CollectionUtils.isEmpty(studentList)) {
+            return voList;
+        }
+
+        // 学校Maps
+        List<School> schoolList = schoolService.getSchoolByIds(studentList
+                .stream().distinct().map(HospitalStudent::getSchoolId).collect(Collectors.toList()));
+        Map<Integer, School> schoolMaps = schoolList.stream()
+                .collect(Collectors.toMap(School::getId, Function.identity()));
+
+        // 班级Maps
+        Map<Integer, SchoolClass> classMaps = schoolClassService.getClassMapByIds(studentList
+                .stream().map(HospitalStudent::getClassId).collect(Collectors.toList()));
+
+        // 年级Maps
+        Map<Integer, SchoolGrade> gradeMaps = schoolGradeService.getGradeMapByIds(studentList
+                .stream().map(HospitalStudent::getGradeId).collect(Collectors.toList()));
+
+        studentList.forEach(student -> {
+            HospitalStudentVO dto = new HospitalStudentVO();
+            BeanUtils.copyProperties(student, dto);
+
+            if (Objects.nonNull(student.getSchoolId())) {
+                dto.setSchool(schoolMaps.get(student.getSchoolId()));
             }
-            HospitalStudentQuery query = new HospitalStudentQuery();
-            query.setIdCard(idCard).setName(name);
-            student = hospitalStudentService.getBy(query).stream().findFirst().orElse(null);
-        }
-        // 医院端没有该学生信息，则从管理端获取
-        if (null == student) {
-            return getHospitalStudentFromManagement(studentId, idCard, name);
-        }
-        BeanUtils.copyProperties(student, studentVO);
-        studentVO.setStudentId(studentId);
-
-        // 地区Maps
-        Map<Integer, District> districtMaps = getDistrictMapByDistrictId(Lists.newArrayList(student));
-        packageStudentDistrict(districtMaps, studentVO, student);
-
-        if (Objects.nonNull(student.getSchoolId())) {
-            studentVO.setSchool(schoolService.getById(student.getSchoolId()));
-        }
-        if (Objects.nonNull(student.getGradeId())) {
-            studentVO.setSchoolGrade(schoolGradeService.getById(student.getGradeId()));
-        }
-        if (Objects.nonNull(student.getClassId())) {
-            studentVO.setSchoolClass(schoolClassService.getById(student.getClassId()));
-        }
-        if (Objects.nonNull(student.getNation())) {
-            studentVO.setNationName(NationEnum.getName(studentVO.getNation()));
-        }
-        return studentVO;
+            if (null != student.getClassId()) {
+                dto.setSchoolClass(classMaps.get(student.getClassId()));
+            }
+            if (null != student.getGradeId()) {
+                dto.setSchoolGrade(gradeMaps.get(student.getGradeId()));
+            }
+            voList.add(dto);
+        });
+        return voList;
     }
 
     /**
@@ -287,7 +352,6 @@ public class HospitalStudentFacade {
         }
         return studentVO;
     }
-
 
     /**
      * 获取学生地区Maps
@@ -351,50 +415,6 @@ public class HospitalStudentFacade {
     }
 
     /**
-     * 设置医院端的学生信息的学校及地址信息
-     *
-     * @param studentList 学生信息列表
-     */
-    private List<HospitalStudentVO> updateStudentVoInfo(List<HospitalStudentDO> studentList) {
-        List<HospitalStudentVO> voList = new ArrayList<>();
-
-        if (CollectionUtils.isEmpty(studentList)) {
-            return voList;
-        }
-
-        // 学校Maps
-        List<School> schoolList = schoolService.getSchoolByIds(studentList
-                .stream().distinct().map(HospitalStudent::getSchoolId).collect(Collectors.toList()));
-        Map<Integer, School> schoolMaps = schoolList.stream()
-                .collect(Collectors.toMap(School::getId, Function.identity()));
-
-        // 班级Maps
-        Map<Integer, SchoolClass> classMaps = schoolClassService.getClassMapByIds(studentList
-                .stream().map(HospitalStudent::getClassId).collect(Collectors.toList()));
-
-        // 年级Maps
-        Map<Integer, SchoolGrade> gradeMaps = schoolGradeService.getGradeMapByIds(studentList
-                .stream().map(HospitalStudent::getGradeId).collect(Collectors.toList()));
-
-        studentList.forEach(student -> {
-            HospitalStudentVO dto = new HospitalStudentVO();
-            BeanUtils.copyProperties(student, dto);
-
-            if (Objects.nonNull(student.getSchoolId())) {
-                dto.setSchool(schoolMaps.get(student.getSchoolId()));
-            }
-            if (null != student.getClassId()) {
-                dto.setSchoolClass(classMaps.get(student.getClassId()));
-            }
-            if (null != student.getGradeId()) {
-                dto.setSchoolGrade(gradeMaps.get(student.getGradeId()));
-            }
-            voList.add(dto);
-        });
-        return voList;
-    }
-
-    /**
      * 封装学生区域
      *
      * @param districtMaps 区域Maps
@@ -423,24 +443,46 @@ public class HospitalStudentFacade {
      * 封装学生区域
      *
      * @param districtMaps 区域Maps
-     * @param dto          dto
+     * @param vo          vo
      * @param student      学生
      */
-    private void packageStudentDistrict(Map<Integer, District> districtMaps, HospitalStudentVO dto, HospitalStudent student) {
+    private void packageStudentDistrict(Map<Integer, District> districtMaps, HospitalStudentVO vo, HospitalStudent student) {
         if (null != student.getProvinceId()) {
-            dto.setProvince(districtMaps.get(student.getProvinceId()));
+            vo.setProvince(districtMaps.get(student.getProvinceId()));
         }
         if (null != student.getCityId()) {
-            dto.setCity(districtMaps.get(student.getCityId()));
+            vo.setCity(districtMaps.get(student.getCityId()));
         }
         if (null != student.getAreaId()) {
-            dto.setArea(districtMaps.get(student.getAreaId()));
+            vo.setArea(districtMaps.get(student.getAreaId()));
         }
         if (null != student.getTownId()) {
-            dto.setTown(districtMaps.get(student.getTownId()));
+            vo.setTown(districtMaps.get(student.getTownId()));
         }
         if (Objects.nonNull(student.getCommitteeCode())) {
-            dto.setCommittee(districtService.getDistrictByCode(student.getCommitteeCode()));
+            vo.setCommittee(districtService.getDistrictByCode(student.getCommitteeCode()));
         }
     }
+
+    public HospitalStudentVO setPreschoolDistrict(HospitalStudentVO vo) {
+        if (Objects.isNull(vo.getCommitteeCode())) {
+            vo.setProvince(null);
+            vo.setCity(null);
+            vo.setArea(null);
+            vo.setTown(null);
+        } else {
+            List<District> districtTree = districtService.getDistrictPositionDetail(vo.getCommitteeCode());
+            // 只有4级，说明为直辖市，补充一级
+            if (4 == districtTree.size()) {
+                districtTree.add(0, districtTree.get(0));
+            }
+            vo.setProvince(districtTree.get(0));
+            vo.setCity(districtTree.get(1));
+            vo.setArea(districtTree.get(2));
+            vo.setTown(districtTree.get(3));
+            vo.setCommittee(districtTree.get(4));
+        }
+        return vo;
+    }
+
 }

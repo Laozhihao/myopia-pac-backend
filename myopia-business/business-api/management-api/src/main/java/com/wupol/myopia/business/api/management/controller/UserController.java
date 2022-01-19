@@ -137,6 +137,7 @@ public class UserController {
             if (Objects.nonNull(screeningOrganization.getDistrictId())) {
                 userVO.setDistrictDetail(districtService.getDistrictPositionDetailById(screeningOrganization.getDistrictId()));
             }
+            userVO.setOrgConfigType(screeningOrganization.getConfigType());
             return userVO.setOrgName(screeningOrganization.getName()).setDistrictId(screeningOrganization.getDistrictId());
         }
         // 管理端 - 医院管理员用户
@@ -145,6 +146,7 @@ public class UserController {
             if (Objects.nonNull(hospital.getDistrictId())) {
                 userVO.setDistrictDetail(districtService.getDistrictPositionDetailById(hospital.getDistrictId()));
             }
+            userVO.setOrgConfigType(hospital.getServiceType());
             return userVO.setOrgName(hospital.getName()).setDistrictId(hospital.getDistrictId());
         }
         // 学校端
