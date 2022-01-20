@@ -160,7 +160,7 @@
         mvsr.plan_id =  #{planId}  and screening_org_id = #{orgId} and AND mvsr.school_id = #{schoolId} GROUP BY mspss.grade_id
     </select>
 
-    <select id="getGradeInforByPlanIdAndOrgId" resultType="com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningSGCDTO">
+    <select id="getClassInforByPlanIdAndOrgId" resultType="com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningSGCDTO">
       SELECT
         mspss.class_id as id,msc.`name` as name
       FROM
