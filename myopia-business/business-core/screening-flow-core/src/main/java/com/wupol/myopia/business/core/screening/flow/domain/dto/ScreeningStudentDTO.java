@@ -101,14 +101,24 @@ public class ScreeningStudentDTO extends StudentDO {
     private String correctedVision;
 
     /**
-     * 球镜 右/左
+     * 球镜 右
      */
-    private String sph;
+    private String rSph;
 
     /**
-     * 柱镜 右/左
+     * 球镜 左
      */
-    private String cyl;
+    private String lSph;
+
+    /**
+     * 柱镜 右
+     */
+    private String rCyl;
+    /**
+     * 柱镜 左
+     */
+    private String lCyl;
+
 
     /**
      * 轴位 右/左
