@@ -407,21 +407,21 @@ public class ScreeningPlanController {
     /**
      * 通过条件获取筛查学生
      *
-     * @param planId         计划Id
-     * @param schoolId       学校Id
-     * @param gradeId        年级Id
-     * @param classId        班级Id
-     * @param orgId          筛查机构Id
-     * @param planStudentIds 筛查学生Id
-     * @param isSchoolClient 是否学校端
+     * @param planId           计划Id
+     * @param schoolId         学校Id
+     * @param gradeId          年级Id
+     * @param classId          班级Id
+     * @param orgId            筛查机构Id
+     * @param planStudentIdStr 筛查学生Ids
+     * @param isSchoolClient   是否学校端
      * @return List<ScreeningStudentDTO>
      */
     @GetMapping("screeningNoticeResult")
     public List<ScreeningStudentDTO> getScreeningNoticeResultStudent(@NotBlank(message = "计划Id不能为空") Integer planId,
                                                                      Integer schoolId, Integer gradeId, Integer classId, Integer orgId,
-                                                                     String planStudentIds, @NotBlank(message = "查询类型不能为空") Boolean isSchoolClient,
+                                                                     String planStudentIdStr, @NotBlank(message = "查询类型不能为空") Boolean isSchoolClient,
                                                                      String planStudentName) {
-        return screeningPlanStudentBizService.getScreeningNoticeResultStudent(planId, schoolId, gradeId, classId, orgId, planStudentIds, isSchoolClient, planStudentName);
+        return screeningPlanStudentBizService.getScreeningNoticeResultStudent(planId, schoolId, gradeId, classId, orgId, planStudentIdStr, isSchoolClient, planStudentName);
     }
 
     /**
