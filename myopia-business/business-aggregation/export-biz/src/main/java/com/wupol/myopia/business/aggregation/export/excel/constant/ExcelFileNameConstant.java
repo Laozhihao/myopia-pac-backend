@@ -43,7 +43,7 @@ public class ExcelFileNameConstant {
     /**
      * VS666设备数据 Excel 文件名
      */
-        public final String VS_EQUIPMENT_FILE_NAME = "VS666筛查数据-%s";
+    public final String VS_EQUIPMENT_FILE_NAME = "VS666筛查数据表-%s";
 
     /**
      * 学生预警跟踪档案 Excel 文件名
