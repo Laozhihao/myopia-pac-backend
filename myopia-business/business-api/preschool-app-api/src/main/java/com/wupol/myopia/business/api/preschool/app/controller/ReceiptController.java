@@ -4,6 +4,7 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.core.hospital.domain.dto.ReceiptDTO;
+import com.wupol.myopia.business.core.hospital.domain.model.PreschoolCheckRecord;
 import com.wupol.myopia.business.core.hospital.domain.model.ReceiptList;
 import com.wupol.myopia.business.core.hospital.service.PreschoolCheckRecordService;
 import com.wupol.myopia.business.core.hospital.service.ReceiptListService;
@@ -31,9 +32,25 @@ public class ReceiptController {
     @Autowired
     private PreschoolCheckRecordService preschoolCheckRecordService;
 
-    @GetMapping("/{id}")
-    public ReceiptDTO getDetail(@PathVariable("id") Integer id) {
-        return receiptListService.getDetailByHospitalAndId(CurrentUserUtil.getCurrentUser().getOrgId(), id);
+    /**
+     * 获取回执单详情
+     * @param preschoolCheckRecordId
+     * @return
+     */
+    @GetMapping("/{preschoolCheckRecordId}")
+    public ReceiptDTO getDetail(@PathVariable("preschoolCheckRecordId") Integer preschoolCheckRecordId) {
+        return receiptListService.getDetailByHospitalAndPreschoolCheckRecordId(CurrentUserUtil.getCurrentUser().getOrgId(), preschoolCheckRecordId);
+    }
+
+    /**
+     * 获取编辑详情，即回执单内容+最新专项检查结果
+     * @param preschoolCheckRecordId
+     * @return
+     */
+    @GetMapping("/edit/{preschoolCheckRecordId}")
+    public ReceiptDTO getEditDetail(@PathVariable("preschoolCheckRecordId") Integer preschoolCheckRecordId) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        return receiptListService.getEditDetailByHospitalAndPreschoolCheckRecordId(user.getOrgId(), preschoolCheckRecordId, user.getId());
     }
 
     /**
@@ -44,7 +61,8 @@ public class ReceiptController {
     @PostMapping()
     public void saveOrUpdate(@RequestBody @Valid ReceiptList receiptList) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        preschoolCheckRecordService.checkOrgOperation(user.getOrgId(), receiptList.getPreschoolCheckRecordId(), receiptList.getStudentId());
+        PreschoolCheckRecord preschoolCheckRecord = preschoolCheckRecordService.checkOrgOperation(user.getOrgId(), receiptList.getPreschoolCheckRecordId());
+        receiptList.setStudentId(preschoolCheckRecord.getStudentId());
         receiptListService.saveOrUpdateReceiptList(receiptList, user);
     }
 

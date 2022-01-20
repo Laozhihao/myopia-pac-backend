@@ -4,12 +4,12 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wupol.myopia.base.domain.vo.FamilyInfoVO;
+import com.wupol.myopia.business.core.hospital.domain.interfaces.HasParentInfoInterface;
 import com.wupol.myopia.business.core.hospital.domain.model.BaseValue;
 import com.wupol.myopia.business.core.hospital.domain.model.PreschoolCheckRecord;
 import com.wupol.myopia.business.core.hospital.domain.model.ReferralRecord;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
@@ -21,8 +21,7 @@ import java.util.stream.Collectors;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-@Accessors(chain = true)
-public class PreschoolCheckRecordDTO extends PreschoolCheckRecord {
+public class PreschoolCheckRecordDTO extends PreschoolCheckRecord implements HasParentInfoInterface {
 
     /**
      * 学号
@@ -32,6 +31,14 @@ public class PreschoolCheckRecordDTO extends PreschoolCheckRecord {
      * 是否有新生儿身份证
      */
     private Boolean hasIdCard;
+    /**
+     * id信息
+     */
+    private String idCard;
+    /**
+     * 家长名称
+     */
+    private String parentName;
     /**
      * 家长联系方式
      */

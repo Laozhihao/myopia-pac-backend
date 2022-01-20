@@ -30,8 +30,6 @@ public class MedicalRecordFacade {
     @Autowired
     private HospitalStudentService hospitalStudentService;
     @Autowired
-    private HospitalStudentFacade hospitalStudentFacade;
-    @Autowired
     private RedisUtil redisUtil;
     @Autowired
     private HospitalAggService hospitalAggService;
@@ -81,7 +79,7 @@ public class MedicalRecordFacade {
         hospitalStudentVO.setStatus(CommonConst.STATUS_NOT_DELETED);
         // 未建档则建档
         hospitalStudentVO.setStudentType(hospitalStudentService.getStudentType(clientId, hospitalStudentVO.getStudentType()));
-        hospitalStudentFacade.saveStudent(hospitalStudentVO, false);
+        hospitalAggService.saveStudent(hospitalStudentVO, false);
         // 设置标识，一天内只通过缓存查询患者信息
         redisUtil.set(cacheKey, "", TimeUnit.DAYS.toSeconds(1));
     }

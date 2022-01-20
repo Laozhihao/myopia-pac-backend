@@ -58,6 +58,8 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
             log.error("获取报告数据异常, 报告Id:{}", id);
             throw new BusinessException("数据异常");
         }
+        // 设置家长信息
+        HospitalUtil.setParentInfo(details);
         details.setCreateTimeAge(DateUtil.getAgeInfo(details.getBirthday(), details.getCreateTime()));
         // 检查单
         if (Objects.nonNull(details.getToReferralId())) {
@@ -320,13 +322,13 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
      * 检验操作合法性
      * @param orgId
      * @param preschoolCheckRecordId
-     * @param studentId
      */
-    public void checkOrgOperation(Integer orgId, Integer preschoolCheckRecordId, Integer studentId) {
+    public PreschoolCheckRecord checkOrgOperation(Integer orgId, Integer preschoolCheckRecordId) {
         PreschoolCheckRecord record = getById(preschoolCheckRecordId, orgId);
-        if (Objects.isNull(record) || !record.getStudentId().equals(studentId)) {
+        if (Objects.isNull(record)) {
             throw new BusinessException("非法请求", ResultCode.USER_ACCESS_UNAUTHORIZED.getCode());
         }
+        return record;
     }
 
     /**

@@ -80,7 +80,7 @@
     </sql>
 
     <select id="getDetail" resultMap="PreschoolCheckRecordDTO">
-        select pcr.*, hs.`name` as student_name, hs.gender, hs.record_no, hs.birthday, hs.id_card, hs.sno, hs.parent_phone,
+        select pcr.*, hs.`name` as student_name, hs.gender, hs.record_no, hs.birthday, hs.id_card, hs.sno, hs.id_card,
         hs.is_newborn_without_id_card as has_id_card, hs.family_info,
         h.`name` as hospital_name, rr.to_hospital, rr.special_medical, rr.disease_medical, rr.conclusion as referral_conclusion,
         rr.id as to_referral_id, rl.id as receipt_id,
