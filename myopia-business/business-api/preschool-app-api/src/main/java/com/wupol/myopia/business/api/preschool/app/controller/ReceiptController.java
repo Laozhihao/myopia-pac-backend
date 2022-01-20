@@ -31,11 +31,21 @@ public class ReceiptController {
     @Autowired
     private PreschoolCheckRecordService preschoolCheckRecordService;
 
+    /**
+     * 获取回执单详情
+     * @param preschoolCheckRecordId
+     * @return
+     */
     @GetMapping("/{preschoolCheckRecordId}")
     public ReceiptDTO getDetail(@PathVariable("preschoolCheckRecordId") Integer preschoolCheckRecordId) {
         return receiptListService.getDetailByHospitalAndPreschoolCheckRecordId(CurrentUserUtil.getCurrentUser().getOrgId(), preschoolCheckRecordId);
     }
 
+    /**
+     * 获取编辑详情，即回执单内容+最新专项检查结果
+     * @param preschoolCheckRecordId
+     * @return
+     */
     @GetMapping("/edit/{preschoolCheckRecordId}")
     public ReceiptDTO getEditDetail(@PathVariable("preschoolCheckRecordId") Integer preschoolCheckRecordId) {
         return receiptListService.getEditDetailByHospitalAndPreschoolCheckRecordId(CurrentUserUtil.getCurrentUser().getOrgId(), preschoolCheckRecordId);

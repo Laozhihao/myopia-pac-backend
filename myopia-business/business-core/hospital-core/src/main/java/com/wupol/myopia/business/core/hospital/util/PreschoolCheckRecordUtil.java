@@ -80,11 +80,16 @@ public class PreschoolCheckRecordUtil {
         return Objects.nonNull(hasResult) && hasResult.getIsAbnormal();
     }
 
+    /**
+     * 组装转诊结论
+     * @param record
+     * @return
+     */
     public static String referralConclusion(ReferralRecord record) {
         List<String> conclusion = new ArrayList<>();
-        String specialMedical = record.getSpecialMedical().stream().map(BaseValue::getName).collect(Collectors.joining("、"));
+        String specialMedical = record.getSpecialMedical().stream().map(base -> base.getName() + "未做").collect(Collectors.joining("、"));
         if (StringUtils.isNotBlank(specialMedical)){
-            conclusion.add(specialMedical + "未做");
+            conclusion.add(specialMedical);
         }
         String diseaseMedical = record.getDiseaseMedical().stream().filter(base -> base.getId() > 0).map(BaseValue::getName).collect(Collectors.joining("、"));
         if (StringUtils.isNotBlank(specialMedical)){
