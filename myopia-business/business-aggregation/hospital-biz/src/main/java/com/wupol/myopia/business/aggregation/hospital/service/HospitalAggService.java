@@ -223,6 +223,9 @@ public class HospitalAggService {
             }
             Integer studentId = studentService.saveStudent(tmpStudent);
             studentVo.setStudentId(studentId);
+        } else {
+            studentVo.setRecordNo(oldStudent.getRecordNo());
+            studentVo.setFamilyInfo(oldStudent.getFamilyInfo());
         }
 
         // 如果是新增学生，则将创建时间与更新时间设置成当前
