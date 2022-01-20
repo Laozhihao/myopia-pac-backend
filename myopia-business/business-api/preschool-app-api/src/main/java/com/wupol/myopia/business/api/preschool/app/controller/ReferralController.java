@@ -5,6 +5,7 @@ import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReferralDO;
 import com.wupol.myopia.business.core.hospital.domain.dto.ReferralDTO;
+import com.wupol.myopia.business.core.hospital.domain.model.PreschoolCheckRecord;
 import com.wupol.myopia.business.core.hospital.domain.model.ReferralRecord;
 import com.wupol.myopia.business.core.hospital.service.PreschoolCheckRecordService;
 import com.wupol.myopia.business.core.hospital.service.ReferralRecordService;
@@ -48,7 +49,8 @@ public class ReferralController {
     @PostMapping
     public void saveOrUpdate(@RequestBody @Valid ReferralRecord record) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        preschoolCheckRecordService.checkOrgOperation(user.getOrgId(), record.getPreschoolCheckRecordId(), record.getStudentId());
+        PreschoolCheckRecord preschoolCheckRecord = preschoolCheckRecordService.checkOrgOperation(user.getOrgId(), record.getPreschoolCheckRecordId());
+        record.setStudentId(preschoolCheckRecord.getStudentId());
         referralRecordService.saveOrUpdateReferral(record, user);
     }
 

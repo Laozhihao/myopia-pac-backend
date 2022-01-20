@@ -44,7 +44,6 @@ public class ReferralRecord implements Serializable {
     /**
      * 学生id
      */
-    @NotNull
     private Integer studentId;
 
     /**
