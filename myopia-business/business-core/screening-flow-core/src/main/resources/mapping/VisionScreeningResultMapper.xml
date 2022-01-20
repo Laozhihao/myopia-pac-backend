@@ -157,7 +157,7 @@
         LEFT JOIN m_screening_plan_school_student mspss ON mspss.id = mvsr.screening_plan_school_student_id
 	    LEFT JOIN m_school_grade msg ON mspss.grade_id = msg.id
       WHERE
-        mvsr.plan_id =  #{planId}  and screening_org_id = #{orgId}  and mspss.school_id = #{schoolId} GROUP BY mspss.grade_id
+        mvsr.plan_id =  #{planId}  and mvsr.screening_org_id = #{orgId}  and mspss.school_id = #{schoolId} GROUP BY mspss.grade_id
     </select>
 
     <select id="getClassInforByPlanIdAndOrgId" resultType="com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningSGCDTO">
