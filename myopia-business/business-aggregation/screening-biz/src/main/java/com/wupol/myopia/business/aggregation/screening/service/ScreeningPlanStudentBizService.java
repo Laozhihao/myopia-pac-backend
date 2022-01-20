@@ -136,7 +136,7 @@ public class ScreeningPlanStudentBizService {
      * @return List<ScreeningStudentDTO>
      */
     public List<ScreeningStudentDTO> getScreeningNoticeResultStudent(Integer planId, Integer schoolId, Integer gradeId,
-                                                                     Integer classId, Integer orgId, String planStudentIds,
+                                                                     Integer classId, Integer orgId, String planStudentIdStr,
                                                                      Boolean isSchoolClient, String planStudentName) {
         ResultNoticeConfig resultNoticeConfig;
         if (isSchoolClient) {
@@ -148,7 +148,7 @@ public class ScreeningPlanStudentBizService {
         if (Objects.nonNull(resultNoticeConfig) && Objects.nonNull(resultNoticeConfig.getQrCodeFileId())) {
             fileUrl = resourceFileService.getResourcePath(resultNoticeConfig.getQrCodeFileId());
         }
-        List<Integer> planStudentId = ListUtil.str2List(planStudentIds);
+        List<Integer> planStudentId = ListUtil.str2List(planStudentIdStr);
         List<ScreeningStudentDTO> planStudents = screeningPlanSchoolStudentService.getScreeningNoticeResultStudent(planId, schoolId, gradeId, classId, CollectionUtils.isEmpty(planStudentId) ? null : planStudentId, planStudentName);
         for (ScreeningStudentDTO planStudent : planStudents) {
             planStudent.setResultNoticeConfig(resultNoticeConfig);
