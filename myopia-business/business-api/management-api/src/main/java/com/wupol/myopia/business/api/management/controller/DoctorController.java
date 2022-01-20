@@ -12,13 +12,19 @@ import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.hospital.domain.dto.DoctorDTO;
 import com.wupol.myopia.business.core.hospital.domain.model.Doctor;
+import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
+import com.wupol.myopia.business.core.hospital.domain.model.HospitalAdmin;
 import com.wupol.myopia.business.core.hospital.domain.query.DoctorQuery;
+import com.wupol.myopia.business.core.hospital.service.HospitalAdminService;
 import com.wupol.myopia.business.core.hospital.service.HospitalDoctorService;
+import com.wupol.myopia.business.core.hospital.service.HospitalService;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -33,6 +39,10 @@ public class DoctorController {
 
     @Autowired
     private HospitalDoctorService baseService;
+    @Resource
+    private HospitalAdminService hospitalAdminService;
+    @Resource
+    private HospitalService hospitalService;
 
     /**
      * TODO wulizhou 用于修复医生账号问题
@@ -81,6 +91,15 @@ public class DoctorController {
             .setDepartmentId(-1);
         if (user.isHospitalUser()) {
             doctor.setHospitalId(user.getOrgId());
+        }
+        //如果不是管理员
+        if (!user.isPlatformAdminUser()){
+            Hospital hospital = hospitalService.getById(doctor.getHospitalId());
+            // 获取该医院已经有多少个医生
+            List<Doctor> doctorList = baseService.findByList(new Doctor().setHospitalId(doctor.getHospitalId()));
+            if (doctorList.size()>=hospital.getAccountNum()){
+                throw new BusinessException("医生数量超限！");
+            }
         }
         return baseService.saveDoctor(doctor);
     }
