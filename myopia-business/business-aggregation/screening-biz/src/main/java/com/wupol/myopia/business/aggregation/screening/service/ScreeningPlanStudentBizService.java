@@ -125,14 +125,14 @@ public class ScreeningPlanStudentBizService {
     /**
      * 通过条件获取筛查学生
      *
-     * @param planId          计划Id
-     * @param schoolId        学校Id
-     * @param gradeId         年级Id
-     * @param classId         班级Id
-     * @param orgId           筛查机构Id
-     * @param planStudentIds  筛查学生Ids
-     * @param isSchoolClient  是否学校端
-     * @param planStudentName 学生名称
+     * @param planId           计划Id
+     * @param schoolId         学校Id
+     * @param gradeId          年级Id
+     * @param classId          班级Id
+     * @param orgId            筛查机构Id
+     * @param planStudentIdStr 筛查学生Ids
+     * @param isSchoolClient   是否学校端
+     * @param planStudentName  学生名称
      * @return List<ScreeningStudentDTO>
      */
     public List<ScreeningStudentDTO> getScreeningNoticeResultStudent(Integer planId, Integer schoolId, Integer gradeId,
