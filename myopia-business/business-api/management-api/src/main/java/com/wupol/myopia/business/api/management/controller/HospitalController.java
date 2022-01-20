@@ -48,9 +48,6 @@ public class HospitalController {
 
     @Resource
     private ExportStrategy exportStrategy;
-
-    @Resource
-    private HospitalAdminService hospitalAdminService;
     /**
      * 保存医院
      *
@@ -215,15 +212,6 @@ public class HospitalController {
      */
     @PostMapping("/add/account/{hospitalId}")
     public UsernameAndPasswordDTO addAccount(@PathVariable("hospitalId")  Integer hospitalId) {
-        CurrentUser user = CurrentUserUtil.getCurrentUser();
-        if (!user.isPlatformAdminUser()){//如果不是管理员
-            Hospital hospital = hospitalService.getById(hospitalId);
-            // 获取该筛查机构已经有多少个账号
-            List<HospitalAdmin> adminList = hospitalAdminService.findByList(new HospitalAdmin().setHospitalId(hospitalId));
-            if (adminList.size()>=hospital.getAccountNum()){
-                throw new BusinessException("用户账号超限！");
-            }
-        }
         return hospitalBizService.addHospitalAdminUserAccount(hospitalId);
     }
 
