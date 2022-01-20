@@ -42,7 +42,7 @@ public class VsDataExcelService extends BaseExportExcelFileService {
 
     @Override
     public String getFileName(ExportCondition exportCondition) {
-        return String.format(ExcelFileNameConstant.VS_EQUIPMENT_FILE_NAME, DateFormatUtil.format(new Date(), DateFormatUtil.FORMAT_ONLY_DATE));
+        return ExcelFileNameConstant.VS_EQUIPMENT_FILE_NAME;
     }
 
     @Override
