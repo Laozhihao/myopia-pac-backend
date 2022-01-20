@@ -58,6 +58,8 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
             log.error("获取报告数据异常, 报告Id:{}", id);
             throw new BusinessException("数据异常");
         }
+        // 设置家长信息
+        HospitalUtil.setParentInfo(details);
         details.setCreateTimeAge(DateUtil.getAgeInfo(details.getBirthday(), details.getCreateTime()));
         // 检查单
         if (Objects.nonNull(details.getToReferralId())) {
