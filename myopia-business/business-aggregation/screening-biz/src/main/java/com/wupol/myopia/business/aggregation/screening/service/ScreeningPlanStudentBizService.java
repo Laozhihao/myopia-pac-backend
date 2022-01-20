@@ -19,7 +19,9 @@ import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
+import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
@@ -30,9 +32,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Author HaoHao
@@ -63,11 +64,13 @@ public class ScreeningPlanStudentBizService {
     private SchoolGradeService schoolGradeService;
     @Resource
     private ResourceFileService resourceFileService;
+    @Resource
+    private VisionScreeningResultService visionScreeningResultService;
 
     /**
      * 筛查通知结果页面地址
      */
-    public static final String SCREENING_NOTICE_RESULT_HTML_URL = "%s?planId=%d&schoolId=%s&gradeId=%s&classId=%s&orgId=%s&planStudentIds=%s&isSchoolClient=%s&noticeReport=1";
+    public static final String SCREENING_NOTICE_RESULT_HTML_URL = "%s?planId=%d&schoolId=%s&gradeId=%s&classId=%s&orgId=%s&planStudentIdStr=%s&isSchoolClient=%s&noticeReport=1";
 
     /**
      * 更新筛查学生
@@ -148,13 +151,20 @@ public class ScreeningPlanStudentBizService {
         if (Objects.nonNull(resultNoticeConfig) && Objects.nonNull(resultNoticeConfig.getQrCodeFileId())) {
             fileUrl = resourceFileService.getResourcePath(resultNoticeConfig.getQrCodeFileId());
         }
-        List<Integer> planStudentId = ListUtil.str2List(planStudentIdStr);
-        List<ScreeningStudentDTO> planStudents = screeningPlanSchoolStudentService.getScreeningNoticeResultStudent(planId, schoolId, gradeId, classId, CollectionUtils.isEmpty(planStudentId) ? null : planStudentId, planStudentName);
+        List<ScreeningStudentDTO> planStudents = getScreeningStudentDTOS(planId, schoolId, gradeId, classId, planStudentIdStr, planStudentName);
         for (ScreeningStudentDTO planStudent : planStudents) {
             planStudent.setResultNoticeConfig(resultNoticeConfig);
             planStudent.setNoticeQrCodeFileUrl(fileUrl);
         }
-        return planStudents;
+        // 获取筛查学生
+        List<Integer> planStudentIds = planStudents.stream().map(ScreeningStudentDTO::getPlanStudentId).collect(Collectors.toList());
+        // 过滤没有筛查数据的学生
+        List<VisionScreeningResult> screeningResults = visionScreeningResultService.getByPlanStudentIds(planStudentIds);
+        if (CollectionUtils.isEmpty(screeningResults)) {
+            return new ArrayList<>();
+        }
+        Map<Integer, List<VisionScreeningResult>> visionResultMap = screeningResults.stream().collect(Collectors.groupingBy(VisionScreeningResult::getScreeningPlanSchoolStudentId));
+        return planStudents.stream().filter(s -> Objects.nonNull(visionResultMap.get(s.getPlanStudentId()))).collect(Collectors.toList());
     }
 
     /**
@@ -204,6 +214,15 @@ public class ScreeningPlanStudentBizService {
      */
     public PdfResponseDTO syncGeneratorPDF(Integer planId, Integer schoolId, Integer gradeId, Integer classId,
                                            Integer orgId, String planStudentIdStr, Boolean isSchoolClient, Integer userId) {
+
+        // 检查学生是否有筛查数据
+        if (StringUtils.isNotBlank(planStudentIdStr)) {
+            List<Integer> planStudentId = ListUtil.str2List(planStudentIdStr);
+            List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.getByPlanStudentIds(planStudentId);
+            if (CollectionUtils.isEmpty(visionScreeningResults)) {
+                throw new BusinessException("学生无筛查数据，操作失败！");
+            }
+        }
         String fileName = getFileName(schoolId, gradeId);
         String uuid = UUID.randomUUID().toString();
         cacheInfo(uuid, userId, fileName);
@@ -249,5 +268,21 @@ public class ScreeningPlanStudentBizService {
             return school.getName() + ".pdf";
         }
         return "整个计划下的学生筛查结果通知书.pdf";
+    }
+
+    /**
+     * 获取筛查学生
+     *
+     * @param planId           计划Id
+     * @param schoolId         学校Id
+     * @param gradeId          年级Id
+     * @param classId          班级Id
+     * @param planStudentIdStr 筛查学生Ids
+     * @param planStudentName  学生名称
+     * @return List<ScreeningStudentDTO>
+     */
+    private List<ScreeningStudentDTO> getScreeningStudentDTOS(Integer planId, Integer schoolId, Integer gradeId, Integer classId, String planStudentIdStr, String planStudentName) {
+        List<Integer> planStudentId = ListUtil.str2List(planStudentIdStr);
+        return screeningPlanSchoolStudentService.getScreeningNoticeResultStudent(planId, schoolId, gradeId, classId, CollectionUtils.isEmpty(planStudentId) ? null : planStudentId, planStudentName);
     }
 }
