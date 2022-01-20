@@ -91,10 +91,6 @@ public class ScreeningPlanController {
     private ScreeningPlanSchoolStudentFacadeService screeningPlanSchoolStudentFacadeService;
     @Autowired
     private ScreeningExportService screeningExportService;
-
-
-
-
     @Autowired
     private VisionScreeningResultService visionScreeningResultService;
 
@@ -378,8 +374,7 @@ public class ScreeningPlanController {
      * @param schoolId        学生Id
      */
     @PostMapping("/mock/student/{screeningPlanId}/{schoolId}")
-    public void mockStudent(@RequestBody MockStudentRequestDTO requestDTO,
-                            @PathVariable Integer screeningPlanId, @PathVariable Integer schoolId) {
+    public void mockStudent(@RequestBody MockStudentRequestDTO requestDTO, @PathVariable Integer screeningPlanId, @PathVariable Integer schoolId) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         screeningPlanSchoolStudentBizService.initMockStudent(requestDTO, screeningPlanId, schoolId, currentUser);
     }
@@ -396,12 +391,7 @@ public class ScreeningPlanController {
         Assert.isTrue(Objects.nonNull(schoolId), "学校Id不能为空");
 
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        exportStrategy.doExport(new ExportCondition()
-                        .setApplyExportFileUserId(user.getId())
-                        .setSchoolId(schoolId)
-                        .setPlanId(screeningPlanId)
-                        .setGradeId(gradeId),
-                ExportExcelServiceNameConstant.PLAN_STUDENT_SERVICE);
+        exportStrategy.doExport(new ExportCondition().setApplyExportFileUserId(user.getId()).setSchoolId(schoolId).setPlanId(screeningPlanId).setGradeId(gradeId), ExportExcelServiceNameConstant.PLAN_STUDENT_SERVICE);
     }
 
     @PostMapping("/update/planStudent")
@@ -422,10 +412,7 @@ public class ScreeningPlanController {
      * @return List<ScreeningStudentDTO>
      */
     @GetMapping("screeningNoticeResult")
-    public List<ScreeningStudentDTO> getScreeningNoticeResultStudent(@NotBlank(message = "计划Id不能为空") Integer planId,
-                                                                     Integer schoolId, Integer gradeId, Integer classId, Integer orgId,
-                                                                     String planStudentIdStr, @NotBlank(message = "查询类型不能为空") Boolean isSchoolClient,
-                                                                     String planStudentName) {
+    public List<ScreeningStudentDTO> getScreeningNoticeResultStudent(@NotBlank(message = "计划Id不能为空") Integer planId, Integer schoolId, Integer gradeId, Integer classId, Integer orgId, String planStudentIdStr, @NotBlank(message = "查询类型不能为空") Boolean isSchoolClient, String planStudentName) {
         return screeningPlanStudentBizService.getScreeningNoticeResultStudent(planId, schoolId, gradeId, classId, orgId, planStudentIdStr, isSchoolClient, planStudentName);
     }
 
@@ -508,6 +495,22 @@ public class ScreeningPlanController {
 
         return ApiResult.success(visionScreeningResult);
 
+    }
+
+    /**
+     * 通过条件获取筛查学生
+     *
+     * @param planId           计划Id
+     * @param schoolId         学校Id
+     * @param gradeId          年级Id
+     * @param classId          班级Id
+     * @param planStudentIdStr 筛查学生Ids
+     * @param planStudentName  筛查学生名称
+     * @return List<ScreeningStudentDTO>
+     */
+    @GetMapping("screeningNoticeResult/list")
+    public List<ScreeningStudentDTO> getScreeningNoticeResultLists(@NotBlank(message = "计划Id不能为空") Integer planId, Integer schoolId, Integer gradeId, Integer classId, String planStudentIdStr, String planStudentName) {
+        return screeningPlanStudentBizService.getScreeningStudentDTOS(planId, schoolId, gradeId, classId, planStudentIdStr, planStudentName);
     }
 
 }

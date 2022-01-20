@@ -281,7 +281,7 @@ public class ScreeningPlanStudentBizService {
      * @param planStudentName  学生名称
      * @return List<ScreeningStudentDTO>
      */
-    private List<ScreeningStudentDTO> getScreeningStudentDTOS(Integer planId, Integer schoolId, Integer gradeId, Integer classId, String planStudentIdStr, String planStudentName) {
+    public List<ScreeningStudentDTO> getScreeningStudentDTOS(Integer planId, Integer schoolId, Integer gradeId, Integer classId, String planStudentIdStr, String planStudentName) {
         List<Integer> planStudentId = ListUtil.str2List(planStudentIdStr);
         return screeningPlanSchoolStudentService.getScreeningNoticeResultStudent(planId, schoolId, gradeId, classId, CollectionUtils.isEmpty(planStudentId) ? null : planStudentId, planStudentName);
     }
