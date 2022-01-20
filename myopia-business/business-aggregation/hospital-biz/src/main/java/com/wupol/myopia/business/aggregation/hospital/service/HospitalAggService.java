@@ -219,6 +219,7 @@ public class HospitalAggService {
             }
             if (Objects.nonNull(studentVo.getCommitteeCode())) {
                 tmpStudent.setCommitteeCode(studentVo.getCommitteeCode());
+                tmpStudent.setRecordNo(studentService.getRecordNo(studentVo.getCommitteeCode()));
             }
             Integer studentId = studentService.saveStudent(tmpStudent);
             studentVo.setStudentId(studentId);
