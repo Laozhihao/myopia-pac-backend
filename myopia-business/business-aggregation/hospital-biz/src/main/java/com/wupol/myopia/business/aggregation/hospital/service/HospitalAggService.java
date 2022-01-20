@@ -161,7 +161,7 @@ public class HospitalAggService {
         // 数据库中保存的学生信息
         // 优先使用studentId查询
         Student oldStudent = Objects.nonNull(studentVo.getStudentId()) ?
-                studentService.getById(studentVo.getStudentId()) :
+                studentService.getStudentById(studentVo.getStudentId()) :
                 studentService.getByIdCard(idCard);
         if ((Objects.nonNull(oldStudent) && isCheckNameAndIDCard)
                 && (!(oldStudent.getIdCard().equals(idCard)
