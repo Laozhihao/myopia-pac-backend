@@ -49,7 +49,8 @@ public class ReceiptController {
      */
     @GetMapping("/edit/{preschoolCheckRecordId}")
     public ReceiptDTO getEditDetail(@PathVariable("preschoolCheckRecordId") Integer preschoolCheckRecordId) {
-        return receiptListService.getEditDetailByHospitalAndPreschoolCheckRecordId(CurrentUserUtil.getCurrentUser().getOrgId(), preschoolCheckRecordId);
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        return receiptListService.getEditDetailByHospitalAndPreschoolCheckRecordId(user.getOrgId(), preschoolCheckRecordId, user.getId());
     }
 
     /**
