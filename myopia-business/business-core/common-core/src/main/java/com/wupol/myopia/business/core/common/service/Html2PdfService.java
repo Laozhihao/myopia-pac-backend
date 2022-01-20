@@ -100,6 +100,7 @@ public class Html2PdfService {
         requestDTO.setConfig(config);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        log.info("通知书请求参数:{}", JSONObject.toJSONString(requestDTO));
         return new HttpEntity<>(JSONObject.toJSONString(requestDTO), httpHeaders);
     }
 }
