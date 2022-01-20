@@ -269,11 +269,9 @@ public class GeneratePdfFileService {
     public void generateStudentArchivesPdfFile(ExportCondition exportCondition, String fileSavePath) {
 
         Integer schoolId = exportCondition.getSchoolId();
-        String planStudentIds = exportCondition.getPlanStudentIds();
         Integer planId = exportCondition.getPlanId();
-
+        String planStudentIds = exportCondition.getPlanStudentIds();
         School school = schoolService.getById(schoolId);
-
         // 获取筛查机构的模板
         ScreeningOrganization org = screeningOrganizationService.getById(screeningPlanService.getById(planId).getScreeningOrgId());
 

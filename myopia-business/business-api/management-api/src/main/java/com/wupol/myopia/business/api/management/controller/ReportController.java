@@ -165,9 +165,13 @@ public class ReportController {
      * @return 文件URL
      */
     @GetMapping("/school/student/archives")
-    public ApiResult<String> syncExportSchoolStudentArchives(@RequestParam(value = "planStudentIds") String planStudentIds,
-                                                             @RequestParam(value = "schoolId") Integer schoolId,
-                                                             @RequestParam(value = "planId") Integer planId) {
+    public ApiResult<String> syncExportSchoolStudentArchives(
+                                                             String planStudentIds,
+                                                             @NotNull(message = "班级ID不能为空") Integer classId,
+                                                             @NotNull(message = "年级ID不能为空") Integer gradeId,
+                                                             @NotNull(message = "学校ID不能为空") Integer schoolId,
+                                                             @NotNull(message = "筛查机构ID不能为空") Integer screeningOrgId,
+                                                             @NotNull(message = "筛查计划ID不能为空") Integer planId) {
         List<Integer> planStudentIdList = Arrays.stream(planStudentIds.split(",")).map(Integer::valueOf).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(visionScreeningResultService.getByPlanStudentIds(planStudentIdList))) {
             throw new BusinessException("所选学生无筛查数据");
@@ -178,9 +182,14 @@ public class ReportController {
         sysUtilService.isNoPlatformRepeatExport(key);
 
         ExportCondition exportCondition = new ExportCondition()
-                .setPlanStudentIds(planStudentIds)
+                .setPlanId(planId)
+                .setScreeningOrgId(screeningOrgId)
+                .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId())
                 .setSchoolId(schoolId)
-                .setPlanId(planId);
+                .setClassId(classId)
+                .setGradeId(gradeId)
+                .setPlanStudentIds(planStudentIds);
+
         return ApiResult.success(exportStrategy.syncExport(exportCondition, ExportReportServiceNameConstant.STUDENT_ARCHIVES_SERVICE));
     }
 
@@ -209,4 +218,5 @@ public class ReportController {
 
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.SCREENING_PLAN);
     }
+
 }
