@@ -55,6 +55,7 @@ public class ReceiptListService extends BaseService<ReceiptListMapper, ReceiptLi
     public ReceiptDTO getEditDetailByHospitalAndPreschoolCheckRecordId(Integer hospitalId, Integer preschoolCheckRecordId) {
         ReceiptDTO detail = getDetail(new ReceiptList().setFromHospitalId(hospitalId).setPreschoolCheckRecordId(preschoolCheckRecordId));
         PreschoolCheckRecord preschool = preschoolCheckRecordService.getById(detail.getPreschoolCheckRecordId(), hospitalId);
+        detail.setStudentId(preschool.getStudentId());
         SpecialMedical specialMedical = new SpecialMedical(preschool.getRedReflex(), preschool.getOcularInspection(),
                 preschool.getMonocularMaskingAversionTest(), preschool.getRefractionData());
         detail.setSpecialMedical(specialMedical);
