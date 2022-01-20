@@ -195,6 +195,8 @@ public class ScreeningPlanController {
         return screeningPlanSchoolService.getSchoolVoListsByPlanId(screeningPlanId, schoolName);
     }
 
+
+
     /**
      * 获取指定计划下学校信息
      *
@@ -512,5 +514,53 @@ public class ScreeningPlanController {
     public List<ScreeningStudentDTO> getScreeningNoticeResultLists(@NotBlank(message = "计划Id不能为空") Integer planId, Integer schoolId, Integer gradeId, Integer classId, String planStudentIdStr, String planStudentName) {
         return screeningPlanStudentBizService.getScreeningStudentDTOS(planId, schoolId, gradeId, classId, planStudentIdStr, planStudentName);
     }
+
+
+    /**
+     * @Description: 获取筛查数据下的学校信息
+     * @Param: [plandId, orgId]
+     * @return: java.util.List<com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanSchoolDTO>
+     * @Author: 钓猫的小鱼
+     * @Date: 2022/1/20
+     */
+    @GetMapping("screeningPlan/schools/{planId}/{orgId}")
+    public Object queryScreeningPlanSchoolsInfo(@PathVariable Integer plandId,@PathVariable Integer orgId) {
+        // 任务状态判断
+        List<ScreeningSGCDTO> screeningSGCDTOS = visionScreeningResultService.getSchoolInforByPlanIdAndOrgId(plandId,orgId);
+
+        return ApiResult.success(screeningSGCDTOS);
+    }
+
+    /**
+     * @Description: 获取筛查数据下的学校信息
+     * @Param: [plandId, orgId]
+     * @return: java.util.List<com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanSchoolDTO>
+     * @Author: 钓猫的小鱼
+     * @Date: 2022/1/20
+     */
+    @GetMapping("screeningPlan/schools/{planId}/{orgId}/{schoolId}")
+    public Object queryScreeningPlanSchoolsInfo(@PathVariable Integer plandId,@PathVariable Integer orgId,@PathVariable Integer schoolId) {
+        // 任务状态判断
+        List<ScreeningSGCDTO> screeningSchoolDTOS = visionScreeningResultService.getSchoolInforByPlanIdAndOrgId(plandId,orgId,schoolId);
+
+        return ApiResult.success(screeningSchoolDTOS);
+    }
+
+
+    /**
+     * @Description: 获取筛查数据下的学校信息
+     * @Param: [plandId, orgId]
+     * @return: java.util.List<com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanSchoolDTO>
+     * @Author: 钓猫的小鱼
+     * @Date: 2022/1/20
+     */
+    @GetMapping("screeningPlan/schools/{planId}/{orgId}/{schoolId}/{gradeId}")
+    public Object queryScreeningPlanSchoolsInfo(@PathVariable Integer plandId,@PathVariable Integer orgId,@PathVariable Integer schoolId,@PathVariable Integer gradeId) {
+        // 任务状态判断
+        List<ScreeningSGCDTO> screeningSGCDTOS = visionScreeningResultService.getSchoolInforByPlanIdAndOrgId(plandId,orgId,schoolId,gradeId);
+
+        return ApiResult.success(screeningSGCDTOS);
+    }
+
 
 }

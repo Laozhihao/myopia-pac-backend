@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningSGCDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.VisionScreeningResultMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
@@ -183,6 +184,26 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         }
         return baseMapper.getByPlanStudentIds(planStudentIds);
     }
+    /**
+    * @Description: 获取筛查计划下的学校
+    * @Param: [筛查计划ID, 机构ID]
+    * @return: java.util.List<com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningSchoolDTO>
+    * @Author: 钓猫的小鱼
+    * @Date: 2022/1/20
+    */
+    public List<ScreeningSGCDTO> getSchoolInforByPlanIdAndOrgId(Integer planId, Integer orgId) {
+        return baseMapper.getSchoolInforByPlanIdAndOrgId(planId,orgId);
+    }
+
+    public List<ScreeningSGCDTO> getSchoolInforByPlanIdAndOrgId(Integer planId, Integer orgId, Integer schoolId) {
+        return baseMapper.getGradeInforByPlanIdAndOrgId(planId,orgId,schoolId);
+    }
+
+    public List<ScreeningSGCDTO> getSchoolInforByPlanIdAndOrgId(Integer planId, Integer orgId,Integer schoolId,Integer gradeId) {
+        return baseMapper.getClassInforByPlanIdAndOrgId(planId,orgId,schoolId,gradeId);
+    }
+
+
 
     /**
      * 通过筛查学生查询最新筛查结果

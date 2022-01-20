@@ -79,12 +79,19 @@
         </if>
     </select>
 
+    <select id="selectSchoolGradeVoByPlanId" resultMap="GradeClassesDTO">
+        select grade_id, grade_name, class_id, class_name from m_screening_plan_school_student
+        where screening_plan_id = #{screeningPlanId} and school_id = #{schoolId}
+        group by grade_id, class_id
+    </select>
 
     <select id="selectSchoolGradeVoByPlanIdAndSchoolId" resultMap="GradeClassesDTO">
         select grade_id, grade_name, class_id, class_name from m_screening_plan_school_student
         where screening_plan_id = #{screeningPlanId} and school_id = #{schoolId}
         group by grade_id, class_id
     </select>
+
+
 
     <select id="selectPageByQuery" resultMap="ScreeningStudentDTO" parameterType="java.util.Map">
         SELECT mspss.student_id     as id,

@@ -123,7 +123,6 @@ public abstract class BaseExportPdfFileService extends BaseExportFileService {
             parentPath = getFileSaveParentPath();
             // 3.获取文件保存路径
             String fileSavePath = getFileSavePath(parentPath, fileName);
-
             // 4.生成导出的文件
             generatePdfFile(exportCondition, fileSavePath, fileName);
 

@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.screening.flow.domain.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningSGCDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import org.apache.ibatis.annotations.Param;
@@ -40,6 +41,33 @@ public interface VisionScreeningResultMapper extends BaseMapper<VisionScreeningR
     VisionScreeningResult getLatestByPlanStudentIds(@Param("planStudentIds") List<Integer> planStudentIds);
 
     List<VisionScreeningResult> getByStudentIds( @Param("planId") Integer planId,@Param("studentIds") List<Integer> studentIds);
+
+    /**
+    * @Description: 获取筛查计划下的学校
+    * @Param: [planId, orgId]
+    * @return: java.util.List<com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningSchoolDTO>
+    * @Author: 钓猫的小鱼
+    * @Date: 2022/1/20
+    */
+    List<ScreeningSGCDTO> getSchoolInforByPlanIdAndOrgId(@Param("planId") Integer planId, @Param("orgId") Integer orgId);
+
+    /**
+     * @Description: 获取筛查计划下学校的年级
+     * @Param: [planId, orgId]
+     * @return: java.util.List<com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningSchoolDTO>
+     * @Author: 钓猫的小鱼
+     * @Date: 2022/1/20
+     */
+    List<ScreeningSGCDTO> getGradeInforByPlanIdAndOrgId(@Param("planId") Integer planId, @Param("orgId") Integer orgId, @Param("schoolId") Integer schoolId);
+
+    /**
+     * @Description: 获取筛查计划下的班级
+     * @Param: [planId, orgId]
+     * @return: java.util.List<com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningSchoolDTO>
+     * @Author: 钓猫的小鱼
+     * @Date: 2022/1/20
+     */
+    List<ScreeningSGCDTO> getClassInforByPlanIdAndOrgId(@Param("planId") Integer planId, @Param("orgId") Integer orgId, @Param("schoolId") Integer schoolId, @Param("gradeId") Integer gradeId);
 
 
 

@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
@@ -9,13 +10,19 @@ import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.hospital.domain.dto.DoctorDTO;
+import com.wupol.myopia.business.core.hospital.domain.model.Doctor;
+import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
 import com.wupol.myopia.business.core.hospital.domain.query.DoctorQuery;
+import com.wupol.myopia.business.core.hospital.service.HospitalAdminService;
 import com.wupol.myopia.business.core.hospital.service.HospitalDoctorService;
+import com.wupol.myopia.business.core.hospital.service.HospitalService;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * @Author wulizhou
@@ -29,6 +36,10 @@ public class DoctorController {
 
     @Autowired
     private HospitalDoctorService baseService;
+    @Resource
+    private HospitalAdminService hospitalAdminService;
+    @Resource
+    private HospitalService hospitalService;
 
     /**
      * 获取医生详情
@@ -69,6 +80,15 @@ public class DoctorController {
             .setDepartmentId(-1);
         if (user.isHospitalUser()) {
             doctor.setHospitalId(user.getOrgId());
+        }
+        //如果不是管理员
+        if (!user.isPlatformAdminUser()){
+            Hospital hospital = hospitalService.getById(doctor.getHospitalId());
+            // 获取该医院已经有多少个医生
+            List<Doctor> doctorList = baseService.findByList(new Doctor().setHospitalId(doctor.getHospitalId()));
+            if (doctorList.size()>=hospital.getAccountNum()){
+                throw new BusinessException("医生数量超限！");
+            }
         }
         return baseService.saveDoctor(doctor);
     }
