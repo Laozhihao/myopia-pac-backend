@@ -125,18 +125,18 @@ public class ScreeningPlanStudentBizService {
     /**
      * 通过条件获取筛查学生
      *
-     * @param planId          计划Id
-     * @param schoolId        学校Id
-     * @param gradeId         年级Id
-     * @param classId         班级Id
-     * @param orgId           筛查机构Id
-     * @param planStudentIds  筛查学生Ids
-     * @param isSchoolClient  是否学校端
-     * @param planStudentName 学生名称
+     * @param planId           计划Id
+     * @param schoolId         学校Id
+     * @param gradeId          年级Id
+     * @param classId          班级Id
+     * @param orgId            筛查机构Id
+     * @param planStudentIdStr 筛查学生Ids
+     * @param isSchoolClient   是否学校端
+     * @param planStudentName  学生名称
      * @return List<ScreeningStudentDTO>
      */
     public List<ScreeningStudentDTO> getScreeningNoticeResultStudent(Integer planId, Integer schoolId, Integer gradeId,
-                                                                     Integer classId, Integer orgId, String planStudentIds,
+                                                                     Integer classId, Integer orgId, String planStudentIdStr,
                                                                      Boolean isSchoolClient, String planStudentName) {
         ResultNoticeConfig resultNoticeConfig;
         if (isSchoolClient) {
@@ -148,7 +148,7 @@ public class ScreeningPlanStudentBizService {
         if (Objects.nonNull(resultNoticeConfig) && Objects.nonNull(resultNoticeConfig.getQrCodeFileId())) {
             fileUrl = resourceFileService.getResourcePath(resultNoticeConfig.getQrCodeFileId());
         }
-        List<Integer> planStudentId = ListUtil.str2List(planStudentIds);
+        List<Integer> planStudentId = ListUtil.str2List(planStudentIdStr);
         List<ScreeningStudentDTO> planStudents = screeningPlanSchoolStudentService.getScreeningNoticeResultStudent(planId, schoolId, gradeId, classId, CollectionUtils.isEmpty(planStudentId) ? null : planStudentId, planStudentName);
         for (ScreeningStudentDTO planStudent : planStudents) {
             planStudent.setResultNoticeConfig(resultNoticeConfig);
