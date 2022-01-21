@@ -184,4 +184,11 @@
     </select>
 
 
+
+    <select id="getBySchoolIdPlanId" resultType="java.lang.Integer">
+        select school_id
+        from m_vision_screening_result
+        where plan_id = #{planId}
+        group by school_id
+    </select>
 </mapper>

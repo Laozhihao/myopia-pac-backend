@@ -72,4 +72,6 @@ public interface VisionScreeningResultMapper extends BaseMapper<VisionScreeningR
 
 
 
+
+    List<Integer> getBySchoolIdPlanId(@Param("planId") Integer planId);
 }
