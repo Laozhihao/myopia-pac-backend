@@ -100,6 +100,7 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
      */
     public List<ScreeningPlanSchoolDTO> getSchoolVoListsByPlanId(Integer screeningPlanId, String schoolName) {
         List<ScreeningPlanSchoolDTO> screeningPlanSchools = baseMapper.selectVoListByPlanId(screeningPlanId,schoolName);
+
         Map<Integer, Long> schoolIdStudentCountMap = screeningPlanSchoolStudentService.getSchoolStudentCountByScreeningPlanId(screeningPlanId);
         screeningPlanSchools.forEach(vo -> vo.setStudentCount(schoolIdStudentCountMap.getOrDefault(vo.getSchoolId(), (long) 0).intValue()));
         return screeningPlanSchools;
@@ -208,4 +209,5 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
     public IPage<ScreeningListResponseDTO> getResponseBySchoolId(PageRequest pageRequest, Integer schoolId) {
         return baseMapper.getResponseBySchoolId(pageRequest.toPage(), schoolId);
     }
+
 }
