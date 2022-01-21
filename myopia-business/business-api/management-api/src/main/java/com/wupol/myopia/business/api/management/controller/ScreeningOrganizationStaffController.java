@@ -85,7 +85,7 @@ public class ScreeningOrganizationStaffController {
         if (!user.isPlatformAdminUser()) {
             ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(user.getScreeningOrgId());
             int totalNum = screeningOrganizationStaffService.countByScreeningOrgId(screeningOrganizationStaff.getScreeningOrgId());
-            Assert.isTrue(totalNum >= screeningOrganization.getAccountNum(), "超过人数限制");
+            Assert.isTrue(totalNum < screeningOrganization.getAccountNum(), "超过人数限制");
         }
         screeningOrganizationStaff.setCreateUserId(user.getId());
         screeningOrganizationStaff.setGovDeptId(user.getOrgId());

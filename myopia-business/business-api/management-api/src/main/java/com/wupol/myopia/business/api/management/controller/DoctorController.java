@@ -96,7 +96,7 @@ public class DoctorController {
         if (!user.isPlatformAdminUser()) {
             Hospital hospital = hospitalService.getById(doctor.getHospitalId());
             int totalNum = doctorService.countByHospitalId(doctor.getHospitalId());
-            Assert.isTrue(totalNum >= hospital.getAccountNum(), "超过人数限制");
+            Assert.isTrue(totalNum < hospital.getAccountNum(), "超过人数限制");
         }
         int totalNum = doctorService.countByHospitalId(doctor.getHospitalId());
         UsernameAndPasswordDTO usernameAndPasswordDTO = doctorService.saveDoctor(doctor);
