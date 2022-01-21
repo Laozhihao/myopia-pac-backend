@@ -12,10 +12,6 @@ import lombok.Data;
  */
 @Data
 public class ScreeningSGCDTO extends ScreeningPlanSchool {
-    private Integer id;
 
     private String name;
-
-
-
 }
