@@ -325,7 +325,7 @@ public class HospitalAggService {
         HospitalStudentVO studentVO = new HospitalStudentVO();
         Student student;
         if (null != studentId) {
-            student = studentService.getById(studentId);
+            student = studentService.getStudentById(studentId);
         } else {
             if (StringUtils.isBlank(idCard) || StringUtils.isBlank(name)) {
                 throw new BusinessException("数据异常，请确认");
