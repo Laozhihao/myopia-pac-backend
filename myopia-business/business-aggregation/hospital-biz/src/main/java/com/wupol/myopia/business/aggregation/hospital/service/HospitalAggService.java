@@ -255,6 +255,7 @@ public class HospitalAggService {
      * @param studentVo
      * @return
      */
+    @Transactional(rollbackFor = Exception.class)
     public ApiResult<Integer> saveStudentArchive(HospitalStudentVO studentVo, CurrentUser user) {
         Integer hospitalId = user.getOrgId();
         studentVo.setHospitalId(hospitalId);
@@ -269,6 +270,18 @@ public class HospitalAggService {
     }
 
     /**
+     * 模糊搜索医院下学生
+     * @param nameLike
+     * @param orgId
+     * @return
+     */
+     public List<HospitalStudentVO> getStudentVOList(String nameLike, Integer orgId) {
+         HospitalStudentQuery query = new HospitalStudentQuery();
+         query.setNameLike(nameLike).setHospitalId(orgId);
+         return getHospitalStudentVoList(query);
+     }
+
+   /**
      * 设置医院端的学生信息的学校及地址信息
      *
      * @param studentList 学生信息列表
@@ -325,7 +338,7 @@ public class HospitalAggService {
         HospitalStudentVO studentVO = new HospitalStudentVO();
         Student student;
         if (null != studentId) {
-            student = studentService.getById(studentId);
+            student = studentService.getStudentById(studentId);
         } else {
             if (StringUtils.isBlank(idCard) || StringUtils.isBlank(name)) {
                 throw new BusinessException("数据异常，请确认");
