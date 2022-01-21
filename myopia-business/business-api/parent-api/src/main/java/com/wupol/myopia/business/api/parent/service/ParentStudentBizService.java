@@ -259,6 +259,9 @@ public class ParentStudentBizService {
             studentDTO.setAvatar(resourceFileService.getResourcePath(studentDTO.getAvatarFileId()));
         }
         studentDTO.setToken(getQrCode(studentId));
+        if (Objects.nonNull(studentDTO.getCommitteeCode())) {
+            studentDTO.setCommitteeLists(districtService.getDistrictPositionDetail(studentDTO.getCommitteeCode()));
+        }
         return studentDTO;
     }
 
