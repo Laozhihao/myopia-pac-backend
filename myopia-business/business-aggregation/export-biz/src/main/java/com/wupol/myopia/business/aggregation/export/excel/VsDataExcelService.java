@@ -1,15 +1,20 @@
 package com.wupol.myopia.business.aggregation.export.excel;
 
-import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.common.utils.constant.GenderEnum;
+import com.wupol.myopia.business.common.utils.util.CheckModeEnum;
+import com.wupol.myopia.business.common.utils.util.CheckTypeEnum;
+import com.wupol.myopia.business.common.utils.util.PatientAgeUtil;
+import com.wupol.myopia.business.common.utils.util.VS666Util;
+import com.wupol.myopia.business.core.device.domain.dto.DeviceReportPrintResponseDTO;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceScreeningDataExportDTO;
 import com.wupol.myopia.business.core.device.service.DeviceScreeningDataService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -27,7 +32,41 @@ public class VsDataExcelService extends BaseExportExcelFileService {
 
     @Override
     public List<DeviceScreeningDataExportDTO> getExcelData(ExportCondition exportCondition) {
-        return deviceScreeningDataService.findByDataList(exportCondition.getIds());
+        List<DeviceReportPrintResponseDTO> reportList = deviceScreeningDataService.getPrintReportInfo(exportCondition.getIds());
+        List<DeviceScreeningDataExportDTO> exportDTOS = new ArrayList<>();
+        reportList.forEach(report -> {
+            DeviceScreeningDataExportDTO exportDTO = new DeviceScreeningDataExportDTO();
+            exportDTO.setId(report.getPatientId());
+            exportDTO.setPatientName(report.getPatientName());
+            exportDTO.setPatientGender(GenderEnum.getName(report.getPatientGender()));
+            exportDTO.setPatientAge(report.getPatientAge());
+            exportDTO.setPatientAgeGroup(PatientAgeUtil.getAgeRange(report.getPatientAge()));
+            exportDTO.setPatientOrg(report.getPatientOrg());
+            exportDTO.setPatientDept(report.getPatientDept());
+            exportDTO.setPatientPno(report.getPatientPno());
+            exportDTO.setCheckMode(CheckModeEnum.getName(report.getCheckMode()));
+            exportDTO.setCheckType(CheckTypeEnum.getName(report.getCheckType()));
+            exportDTO.setRightSph(VS666Util.getDisplayValue(report.getRightSph()));
+            exportDTO.setRightCyl(VS666Util.getDisplayValue(report.getRightCyl()));
+            exportDTO.setRightAxsi(report.getRightAxsi());
+            exportDTO.setRightPa(VS666Util.getDisplayValue(report.getRightPa()));
+            exportDTO.setLeftSph(VS666Util.getDisplayValue(report.getLeftSph()));
+            exportDTO.setLeftCyl(VS666Util.getDisplayValue(report.getLeftCyl()));
+            exportDTO.setLeftAxsi(report.getLeftAxsi());
+            exportDTO.setLeftPa(VS666Util.getDisplayValue(report.getLeftPa()));
+            exportDTO.setRightPr(report.getRightPr());
+            exportDTO.setLeftPr(report.getLeftPr());
+            exportDTO.setRightAxsiV(report.getRightAxsiV());
+            exportDTO.setLeftAxsiV(report.getLeftAxsiV());
+            exportDTO.setRightAxsiH(report.getRightAxsiH());
+            exportDTO.setLeftAxsiH(report.getLeftAxsiH());
+            exportDTO.setRedReflectRight(report.getRedReflectRight());
+            exportDTO.setRedReflectLeft(report.getRedReflectLeft());
+            exportDTO.setPd(report.getPd());
+            exportDTO.setCheckResult(report.getCheckResult());
+            exportDTOS.add(exportDTO);
+        });
+        return exportDTOS;
     }
 
     @Override

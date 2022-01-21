@@ -69,6 +69,19 @@ public class DoctorController {
     }
 
     /**
+     * 查询当前医院有多少医生
+     *
+     * @param hospitalId 医院id
+     * @return
+     */
+    @GetMapping("/findDoctorNum")
+    public int  findDoctorNum(Integer hospitalId) {
+        List<Doctor> doctorList = baseService.findByList(new Doctor().setHospitalId(hospitalId));
+        return doctorList.size();
+    }
+
+
+    /**
      * 添加医生
      * @param doctor
      * @return

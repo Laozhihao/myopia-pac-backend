@@ -154,31 +154,28 @@
         </foreach>
     </select>
 
-    <select id="getSchoolInforByPlanIdAndOrgId" resultType="com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningSGCDTO">
-       	select v.school_id as id,s.`name` as name
+    <select id="getSchoolInfoByPlanIdAndOrgId" resultType="com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningSGCDTO">
+       	select v.school_id as id
        	from m_vision_screening_result as v
-	    LEFT JOIN m_school AS s on s.id=v.school_id
 	    where v.plan_id = #{planId} and  screening_org_id = #{orgId} GROUP BY v.school_id
     </select>
 
-    <select id="getGradeInforByPlanIdAndOrgId" resultType="com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningSGCDTO">
+    <select id="getGradeInfoByPlanIdAndOrgId" resultType="com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningSGCDTO">
       SELECT
-         mspss.grade_id as id,msg.`name` as name
+         mspss.grade_id as id
       FROM
         m_vision_screening_result mvsr
         LEFT JOIN m_screening_plan_school_student mspss ON mspss.id = mvsr.screening_plan_school_student_id
-	    LEFT JOIN m_school_grade msg ON mspss.grade_id = msg.id
       WHERE
         mvsr.plan_id =  #{planId}  and mvsr.screening_org_id = #{orgId}  and mspss.school_id = #{schoolId} GROUP BY mspss.grade_id
     </select>
 
-    <select id="getClassInforByPlanIdAndOrgId" resultType="com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningSGCDTO">
+    <select id="getClassInfoByPlanIdAndOrgId" resultType="com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningSGCDTO">
       SELECT
-        mspss.class_id as id,msc.`name` as name
+        mspss.class_id as id
       FROM
         m_vision_screening_result mvsr
         LEFT JOIN m_screening_plan_school_student mspss ON mspss.id = mvsr.screening_plan_school_student_id
-		LEFT JOIN m_school_class msc ON mspss.class_id = msc.id
       WHERE
         mvsr.plan_id =  #{planId}  and mvsr.screening_org_id = #{orgId} and mspss.school_id = #{schoolId} and mspss.grade_id = #{gradeId} GROUP BY mspss.class_id
     </select>
@@ -190,5 +187,12 @@
         from m_vision_screening_result
         where plan_id = #{planId}
         group by school_id
+    </select>
+
+    <select id="getByPlanIdAndSchoolId" resultType="java.lang.Integer">
+        select screening_plan_school_student_id
+        from m_vision_screening_result
+        where plan_id = #{planId}
+          and school_id = #{schoolId}
     </select>
 </mapper>

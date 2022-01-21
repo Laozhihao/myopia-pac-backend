@@ -2,7 +2,6 @@ package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.CurrentUser;
-import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
@@ -16,12 +15,14 @@ import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.hospital.domain.dto.HospitalResponseDTO;
+import com.wupol.myopia.business.core.hospital.domain.model.Doctor;
 import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
-import com.wupol.myopia.business.core.hospital.domain.model.HospitalAdmin;
 import com.wupol.myopia.business.core.hospital.domain.query.HospitalQuery;
-import com.wupol.myopia.business.core.hospital.service.HospitalAdminService;
+import com.wupol.myopia.business.core.hospital.service.HospitalDoctorService;
 import com.wupol.myopia.business.core.hospital.service.HospitalService;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccountListDTO;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -48,6 +49,10 @@ public class HospitalController {
 
     @Resource
     private ExportStrategy exportStrategy;
+
+    @Autowired
+    private HospitalDoctorService hospitalDoctorService;
+
     /**
      * 保存医院
      *
@@ -116,8 +121,11 @@ public class HospitalController {
      * @return 医院实体
      */
     @GetMapping("{id}")
-    public Hospital getHospital(@PathVariable("id") Integer id) {
-        return hospitalService.getById(id);
+    public HospitalResponseDTO getHospital(@PathVariable("id") Integer id) {
+        Hospital hospital = hospitalService.getById(id);
+        HospitalResponseDTO hospitalResponse = new HospitalResponseDTO();
+        BeanUtils.copyProperties(hospital, hospitalResponse);
+        return hospitalResponse.setDoctorTotalNum(hospitalDoctorService.count(new Doctor().setHospitalId(id)));
     }
 
     /**

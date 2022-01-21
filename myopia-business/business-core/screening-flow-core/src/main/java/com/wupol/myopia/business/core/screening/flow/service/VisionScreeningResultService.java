@@ -4,18 +4,28 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
+import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
+import com.wupol.myopia.business.core.school.service.SchoolClassService;
+import com.wupol.myopia.business.core.school.service.SchoolGradeService;
+import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningSGCDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.VisionScreeningResultMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import javax.validation.constraints.NotBlank;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @Author HaoHao
@@ -23,6 +33,13 @@ import java.util.Set;
  */
 @Service
 public class VisionScreeningResultService extends BaseService<VisionScreeningResultMapper, VisionScreeningResult> {
+
+    @Autowired
+    private SchoolService schoolService;
+    @Autowired
+    private SchoolGradeService schoolGradeService;
+    @Autowired
+    private SchoolClassService schoolClassService;
 
    /***
    * @Description: 学生ID集合
@@ -185,22 +202,77 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         return baseMapper.getByPlanStudentIds(planStudentIds);
     }
     /**
-    * @Description: 获取筛查计划下的学校
+    * @Description: 获取筛查计划下有数据的学校
     * @Param: [筛查计划ID, 机构ID]
     * @return: java.util.List<com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningSchoolDTO>
     * @Author: 钓猫的小鱼
     * @Date: 2022/1/20
     */
-    public List<ScreeningSGCDTO> getSchoolInforByPlanIdAndOrgId(Integer planId, Integer orgId) {
-        return baseMapper.getSchoolInforByPlanIdAndOrgId(planId,orgId);
+    public List<ScreeningSGCDTO> getSchoolInfoHaveDataByPlanIdAndOrgId(Integer planId, Integer orgId) {
+        List<ScreeningSGCDTO> screeningSGCDTOS = baseMapper.getSchoolInfoByPlanIdAndOrgId(planId,orgId);
+        List<Integer> schoolId = screeningSGCDTOS.stream().map(ScreeningSGCDTO::getId).collect(Collectors.toList());
+        List<School> schools = schoolService.getByIds(schoolId);
+        Map<Integer, List<School>> schoolsMap = schools.stream().collect(Collectors.groupingBy(School::getId));
+        screeningSGCDTOS.forEach(vo->vo.setName(getSchoolName(schoolsMap, vo)));
+        return screeningSGCDTOS;
     }
 
-    public List<ScreeningSGCDTO> getSchoolInforByPlanIdAndOrgId(Integer planId, Integer orgId, Integer schoolId) {
-        return baseMapper.getGradeInforByPlanIdAndOrgId(planId,orgId,schoolId);
+    private String getSchoolName(Map<Integer, List<School>> schoolsMap, ScreeningSGCDTO vo) {
+        return schoolsMap.get(vo.getId()).get(0).getName();
     }
 
-    public List<ScreeningSGCDTO> getSchoolInforByPlanIdAndOrgId(Integer planId, Integer orgId,Integer schoolId,Integer gradeId) {
-        return baseMapper.getClassInforByPlanIdAndOrgId(planId,orgId,schoolId,gradeId);
+    /**
+    * @Description: 获取筛查计划下的年级
+    * @Param: [planId, orgId, schoolId]
+    * @return: java.util.List<com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningSGCDTO>
+    * @Author: 钓猫的小鱼
+    * @Date: 2022/1/20
+    */
+    public List<ScreeningSGCDTO> getSchoolInfoHaveDataByPlanIdAndOrgId(Integer planId, Integer orgId, Integer schoolId) {
+        List<ScreeningSGCDTO> screeningSGCDTOS =  baseMapper.getGradeInfoByPlanIdAndOrgId(planId,orgId,schoolId);
+        List<Integer> gradeIds = screeningSGCDTOS.stream().map(ScreeningSGCDTO::getId).collect(Collectors.toList());
+        List<SchoolGrade> schoolGrades = schoolGradeService.getByIds(gradeIds);
+        Map<Integer, List<SchoolGrade>> schoolGradeMap = schoolGrades.stream().collect(Collectors.groupingBy(SchoolGrade::getId));
+        screeningSGCDTOS.forEach(vo->vo.setName(getGradeName(schoolGradeMap, vo)));
+
+        return screeningSGCDTOS;
+    }
+
+    @NotBlank(message = "年级名称不能为空")
+    private String getGradeName(Map<Integer, List<SchoolGrade>> schoolGradeMap, ScreeningSGCDTO vo) {
+        return schoolGradeMap.get(vo.getId()).get(0).getName();
+    }
+
+    /**
+    * @Description: 获取筛查计划下的班级
+    * @Param: [planId, orgId, schoolId, gradeId]
+    * @return: java.util.List<com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningSGCDTO>
+    * @Author: 钓猫的小鱼
+    * @Date: 2022/1/20
+    */
+    public List<ScreeningSGCDTO> getSchoolInfoHaveDataByPlanIdAndOrgId(Integer planId, Integer orgId,Integer schoolId,Integer gradeId) {
+        List<ScreeningSGCDTO> screeningSGCDTOS =  baseMapper.getClassInfoByPlanIdAndOrgId(planId,orgId,schoolId,gradeId);
+        List<Integer> classIds = screeningSGCDTOS.stream().map(ScreeningSGCDTO::getId).collect(Collectors.toList());
+        List<SchoolClass> schoolClasses = schoolClassService.getByIds(classIds);
+        Map<Integer, List<SchoolClass>> schoolClassMap = schoolClasses.stream().collect(Collectors.groupingBy(SchoolClass::getId));
+        screeningSGCDTOS.forEach(vo -> vo.setName(getClassName(schoolClassMap, vo)));
+        return baseMapper.getClassInfoByPlanIdAndOrgId(planId,orgId,schoolId,gradeId);
+    }
+
+    @NotBlank(message = "班级名称不能为空")
+    private String getClassName(Map<Integer, List<SchoolClass>> schoolClassMap, ScreeningSGCDTO vo) {
+        return schoolClassMap.get(vo.getId()).get(0).getName();
+    }
+
+    /**
+     * 通过学校Id和计划Id获取信息
+     *
+     * @param planId   计划Id
+     * @param schoolId 学校Id
+     * @return List<Integer>
+     */
+    public List<Integer> getByPlanIdAndSchoolId(Integer planId, Integer schoolId) {
+        return baseMapper.getByPlanIdAndSchoolId(planId, schoolId);
     }
 
 

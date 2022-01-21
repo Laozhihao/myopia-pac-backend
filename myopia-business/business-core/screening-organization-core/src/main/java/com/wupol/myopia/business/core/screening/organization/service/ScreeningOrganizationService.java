@@ -23,6 +23,7 @@ import com.wupol.myopia.business.core.screening.organization.domain.dto.Screenin
 import com.wupol.myopia.business.core.screening.organization.domain.mapper.ScreeningOrganizationMapper;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationAdmin;
+import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationStaff;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
 import com.wupol.myopia.oauth.sdk.domain.response.Organization;
@@ -34,8 +35,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import javax.annotation.Resource;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -57,6 +56,8 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     private DistrictService districtService;
     @Autowired
     private ResourceFileService resourceFileService;
+    @Autowired
+    private ScreeningOrganizationStaffService screeningOrganizationStaffService;
 
     /**
      * 父账号
@@ -196,17 +197,16 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      */
     public ScreeningOrgResponseDTO getScreeningOrgDetails(Integer id) {
         ScreeningOrgResponseDTO org = baseMapper.getOrgById(id);
-        if (null == org) {
-            throw new BusinessException("数据异常");
-        }
+        Assert.notNull(org, "不存在该筛查机构");
+        int screeningStaffTotalNum = screeningOrganizationStaffService.count(new ScreeningOrganizationStaff().setScreeningOrgId(id));
         if (Objects.isNull(org.getResultNoticeConfig())) {
             org.setResultNoticeConfig(new ResultNoticeConfig());
         } else {
             org.setNoticeResultFileUrl(Objects.nonNull(org.getResultNoticeConfig().getQrCodeFileId()) ?
                     resourceFileService.getResourcePath(org.getResultNoticeConfig().getQrCodeFileId()) : StringUtils.EMPTY);
         }
-        org.setLastCountDate(new Date());
-        return org;
+        return org.setLastCountDate(new Date())
+                .setScreeningStaffTotalNum(screeningStaffTotalNum);
     }
 
     /**

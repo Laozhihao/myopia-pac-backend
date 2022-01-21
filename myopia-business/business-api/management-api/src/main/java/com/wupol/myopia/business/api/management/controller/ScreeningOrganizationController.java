@@ -2,7 +2,6 @@ package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.CurrentUser;
-import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
@@ -26,8 +25,6 @@ import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccou
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationQueryDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
-import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationAdmin;
-import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationAdminService;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Assert;
@@ -64,8 +61,6 @@ public class ScreeningOrganizationController {
     private ExportStrategy exportStrategy;
     @Resource
     private OrgCooperationHospitalService orgCooperationHospitalService;
-    @Resource
-    private ScreeningOrganizationAdminService screeningOrganizationAdminService;
 
     /**
      * 新增筛查机构
@@ -378,13 +373,6 @@ public class ScreeningOrganizationController {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         if (Objects.nonNull(user.getScreeningOrgId())) {
             screeningOrgId = user.getScreeningOrgId();
-        }
-        if (!user.isPlatformAdminUser()){//如果不是管理员
-            ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(screeningOrgId);
-            List<ScreeningOrganizationAdmin> orgList = screeningOrganizationAdminService.getListOrgList(screeningOrgId);
-            if (orgList.size()>=screeningOrganization.getAccountNum()){
-              throw new BusinessException("用户账号超限！");
-            }
         }
         return screeningOrganizationBizService.addAccount(screeningOrgId);
     }
