@@ -122,9 +122,8 @@ public class ParentStudentBizService {
             return responseDTO;
         }
         List<ParentStudentDTO> parentStudentDTOS = studentService.countParentStudent(studentIds);
-        parentStudentDTOS.forEach(student -> {
-            student.setAvatarUrl(Objects.isNull(student.getAvatarFileId()) ? StringUtils.EMPTY : resourceFileService.getResourcePath(student.getAvatarFileId()));
-        });
+        parentStudentDTOS.forEach(student -> student.setAvatarUrl(Objects.isNull(student.getAvatarFileId())
+                ? StringUtils.EMPTY : resourceFileService.getResourcePath(student.getAvatarFileId())));
         responseDTO.setTotal(parentStudentDTOS.size());
         responseDTO.setItem(parentStudentDTOS);
         return responseDTO;
@@ -202,6 +201,8 @@ public class ParentStudentBizService {
         }
         setStudentAddress(student);
         StudentDTO studentDTO = studentService.updateStudent(student);
+        // 更新医院学生信息
+        studentFacade.updateHospitalStudentRecordNo(studentDTO.getId(), studentDTO.getCommitteeCode(), studentDTO.getRecordNo());
         // 绑定孩子
         Integer studentId = student.getId();
         bindStudent(parent, studentId);

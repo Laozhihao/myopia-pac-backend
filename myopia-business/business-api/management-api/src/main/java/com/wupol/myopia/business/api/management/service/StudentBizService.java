@@ -9,6 +9,7 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.hospital.service.MedicalReportBizService;
+import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
 import com.wupol.myopia.business.api.management.domain.vo.StudentWarningArchiveVO;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.DeskChairTypeEnum;
@@ -20,9 +21,11 @@ import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.hospital.domain.model.Doctor;
+import com.wupol.myopia.business.core.hospital.domain.model.HospitalStudent;
 import com.wupol.myopia.business.core.hospital.domain.model.MedicalReport;
 import com.wupol.myopia.business.core.hospital.domain.model.ReportConclusion;
 import com.wupol.myopia.business.core.hospital.service.HospitalDoctorService;
+import com.wupol.myopia.business.core.hospital.service.HospitalStudentService;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentQueryDTO;
@@ -106,6 +109,9 @@ public class StudentBizService {
 
     @Autowired
     private MedicalReportBizService medicalReportBizService;
+
+    @Autowired
+    private StudentFacade studentFacade;
 
     /**
      * 获取学生列表
@@ -289,6 +295,9 @@ public class StudentBizService {
         // 判断是否要修改委会行政区域
         isUpdateCommitteeCode(student, user);
         StudentDTO studentDTO = studentService.updateStudent(student);
+
+        // 更新医院学生信息
+        studentFacade.updateHospitalStudentRecordNo(studentDTO.getId(),studentDTO.getCommitteeCode(), studentDTO.getRecordNo());
         studentDTO.setScreeningCount(student.getScreeningCount())
                 .setQuestionnaireCount(student.getQuestionnaireCount());
         // 就诊次数

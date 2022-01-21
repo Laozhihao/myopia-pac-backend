@@ -12,6 +12,8 @@ import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
+import com.wupol.myopia.business.core.hospital.domain.model.HospitalStudent;
+import com.wupol.myopia.business.core.hospital.service.HospitalStudentService;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
@@ -41,6 +43,7 @@ import com.wupol.myopia.business.core.system.service.TemplateDistrictService;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -95,6 +98,9 @@ public class StudentFacade {
 
     @Resource
     private SchoolStudentService schoolStudentService;
+
+    @Autowired
+    private HospitalStudentService hospitalStudentService;
 
 
     /**
@@ -998,5 +1004,25 @@ public class StudentFacade {
             }
         });
         schoolStudentService.updateBatchById(schoolStudents);
+    }
+
+    /**
+     * 更新医院学生信息
+     *
+     * @param studentId     学生Id
+     * @param committeeCode 行政编码
+     * @param recordNo      用户编号
+     */
+    public void updateHospitalStudentRecordNo(Integer studentId, Long committeeCode, String recordNo) {
+        List<HospitalStudent> hospitalStudentList = hospitalStudentService.getByStudentId(studentId);
+        if (CollectionUtils.isEmpty(hospitalStudentList)) {
+            return;
+        }
+        hospitalStudentList.forEach(hospitalStudent -> {
+            hospitalStudent.setCommitteeCode(committeeCode);
+            hospitalStudent.setRecordNo(recordNo);
+        });
+        hospitalStudentService.updateBatchById(hospitalStudentList);
+
     }
 }
