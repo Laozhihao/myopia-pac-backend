@@ -163,10 +163,15 @@ public class HospitalAggService {
         Student oldStudent = Objects.nonNull(studentVo.getStudentId()) ?
                 studentService.getStudentById(studentVo.getStudentId()) :
                 studentService.getByIdCard(idCard);
-        if ((Objects.nonNull(oldStudent) && isCheckNameAndIDCard)
-                && (!(idCard.equals(oldStudent.getIdCard())
-                && oldStudent.getName().equals(studentVo.getName())))) {
-            throw new BusinessException("学生的身份证与姓名不匹配");
+        // 新生儿修改信息不进行校验
+        if (!(Objects.nonNull(oldStudent)
+                && studentVo.getIsNewbornWithoutIdCard().equals(false)
+                && oldStudent.getIsNewbornWithoutIdCard().equals(true))) {
+            if ((Objects.nonNull(oldStudent) && isCheckNameAndIDCard)
+                    && (!(idCard.equals(oldStudent.getIdCard())
+                    && oldStudent.getName().equals(studentVo.getName())))) {
+                throw new BusinessException("学生的身份证与姓名不匹配");
+            }
         }
 
         // 设置学校信息
