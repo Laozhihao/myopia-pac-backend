@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.common.utils.util;
 
 import lombok.experimental.UtilityClass;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @Classname PatientAgeUtil
@@ -40,22 +41,22 @@ public final class PatientAgeUtil {
      * @return
      */
     public String getAgeRange(int range) {
-        String result = "6~12M";
+        String result = StringUtils.EMPTY;
         switch (range) {
             case 1:
-                result = "6~12M";
+                result = "6-12M";
                 break;
             case 2:
-                result = "1~3Y";
+                result = "1-3Y";
                 break;
             case 3:
-                result = "3~6Y";
+                result = "3-6Y";
                 break;
             case 4:
-                result = "6~20Y";
+                result = "6-20Y";
                 break;
             case 5:
-                result = "20~100Y";
+                result = "20-100Y";
                 break;
         }
         return result;
