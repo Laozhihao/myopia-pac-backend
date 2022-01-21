@@ -218,6 +218,18 @@ public class ScreeningPlanController {
     }
 
     /**
+     * 获取计划学校的年级情况（有计划）
+     *
+     * @param screeningPlanId 计划ID
+     * @param schoolId        学校ID
+     * @return List<SchoolGradeVo>
+     */
+    @GetMapping("grades/haveResult/{screeningPlanId}/{schoolId}")
+    public List<SchoolGradeVO> getGradesInfo(@PathVariable Integer screeningPlanId, @PathVariable Integer schoolId) {
+        return screeningPlanSchoolStudentFacadeService.getByPlanIdAndSchoolIdAndId(screeningPlanId, schoolId);
+    }
+
+    /**
      * 新增筛查学校
      *
      * @param screeningPlanId      筛查计划ID

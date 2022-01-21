@@ -1,12 +1,10 @@
 package com.wupol.myopia.business.aggregation.screening.service;
 
-import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.framework.core.util.StringUtils;
 import com.wupol.myopia.business.aggregation.screening.domain.vos.SchoolGradeVO;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
-import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolClassDTO;
@@ -23,9 +21,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
-import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -68,27 +65,7 @@ public class ScreeningPlanSchoolStudentFacadeService {
     public List<SchoolGradeVO> getSchoolGradeVoByPlanIdAndSchoolId(Integer screeningPlanId, Integer schoolId) {
         //1. 获取该计划学校的筛查学生所有年级、班级
         List<GradeClassesDTO> gradeClasses = screeningPlanSchoolStudentService.selectSchoolGradeVoByPlanIdAndSchoolId(screeningPlanId, schoolId);
-        //2. 根据年级分组
-        Map<Integer, List<GradeClassesDTO>> graderIdClasses = gradeClasses.stream().collect(Collectors.groupingBy(GradeClassesDTO::getGradeId));
-        //3. 组装SchoolGradeVo数据
-        return graderIdClasses.keySet().stream().map(gradeId -> {
-            SchoolGradeVO vo = new SchoolGradeVO();
-            vo.setUniqueId(UUID.randomUUID().toString());
-            List<GradeClassesDTO> gradeClassesDTOS = graderIdClasses.get(gradeId);
-            // 查询并设置年级名称
-            vo.setId(gradeId)
-                    .setName(schoolGradeService.getGradeNameById(gradeId));
-            // 查询并设置班级名称
-            vo.setClasses(gradeClassesDTOS.stream().map(dto -> {
-                SchoolClassDTO schoolClass = new SchoolClassDTO();
-                schoolClass.setUniqueId(UUID.randomUUID().toString());
-                schoolClass.setId(dto.getClassId())
-                        .setName(schoolClassService.getClassNameById(dto.getClassId()))
-                        .setGradeId(gradeId);
-                return schoolClass;
-            }).collect(Collectors.toList()));
-            return vo;
-        }).collect(Collectors.toList());
+        return getSchoolGradeVOS(gradeClasses);
     }
 
     /**
@@ -150,5 +127,49 @@ public class ScreeningPlanSchoolStudentFacadeService {
 
     }
 
+    /**
+     * 获取计划中的学校年级情况(有数据)
+     *
+     * @param planId   筛查计划
+     * @param schoolId 学校Id
+     * @return List<SchoolGradeVO>
+     */
+    public List<SchoolGradeVO> getByPlanIdAndSchoolIdAndId(Integer planId, Integer schoolId) {
+        List<Integer> planStudentIds = visionScreeningResultService.getByPlanIdAndSchoolId(planId, schoolId);
+        if (CollectionUtils.isEmpty(planStudentIds)) {
+            return null;
+        }
+        return getSchoolGradeVOS(screeningPlanSchoolStudentService.getByPlanIdAndSchoolIdAndId(planId, schoolId, planStudentIds))
+    }
+
+    /**
+     * 封装年级信息
+     *
+     * @param gradeClasses 年级
+     * @return List<SchoolGradeVO>
+     */
+    private List<SchoolGradeVO> getSchoolGradeVOS(List<GradeClassesDTO> gradeClasses) {
+        //2. 根据年级分组
+        Map<Integer, List<GradeClassesDTO>> graderIdClasses = gradeClasses.stream().collect(Collectors.groupingBy(GradeClassesDTO::getGradeId));
+        //3. 组装SchoolGradeVo数据
+        return graderIdClasses.keySet().stream().map(gradeId -> {
+            SchoolGradeVO vo = new SchoolGradeVO();
+            vo.setUniqueId(UUID.randomUUID().toString());
+            List<GradeClassesDTO> gradeClassesDTOS = graderIdClasses.get(gradeId);
+            // 查询并设置年级名称
+            vo.setId(gradeId)
+                    .setName(schoolGradeService.getGradeNameById(gradeId));
+            // 查询并设置班级名称
+            vo.setClasses(gradeClassesDTOS.stream().map(dto -> {
+                SchoolClassDTO schoolClass = new SchoolClassDTO();
+                schoolClass.setUniqueId(UUID.randomUUID().toString());
+                schoolClass.setId(dto.getClassId())
+                        .setName(schoolClassService.getClassNameById(dto.getClassId()))
+                        .setGradeId(gradeId);
+                return schoolClass;
+            }).collect(Collectors.toList()));
+            return vo;
+        }).collect(Collectors.toList());
+    }
 
 }

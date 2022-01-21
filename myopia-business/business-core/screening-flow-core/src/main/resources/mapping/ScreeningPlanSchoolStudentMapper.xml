@@ -368,4 +368,16 @@
         order by create_time desc
         limit 1
     </select>
+
+    <select id="getByPlanIdAndSchoolIdAndId" resultMap="GradeClassesDTO">
+        select grade_id, grade_name, class_id, class_name
+        from m_screening_plan_school_student
+                where screening_plan_id = #{planId}
+                  and school_id = #{schoolId}
+                  and id in
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+        group by grade_id, class_id
+    </select>
 </mapper>
