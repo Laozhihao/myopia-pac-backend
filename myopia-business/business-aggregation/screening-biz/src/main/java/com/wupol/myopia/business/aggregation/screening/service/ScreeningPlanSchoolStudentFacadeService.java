@@ -139,7 +139,7 @@ public class ScreeningPlanSchoolStudentFacadeService {
         if (CollectionUtils.isEmpty(planStudentIds)) {
             return null;
         }
-        return getSchoolGradeVOS(screeningPlanSchoolStudentService.getByPlanIdAndSchoolIdAndId(planId, schoolId, planStudentIds))
+        return getSchoolGradeVOS(screeningPlanSchoolStudentService.getByPlanIdAndSchoolIdAndId(planId, schoolId, planStudentIds));
     }
 
     /**
