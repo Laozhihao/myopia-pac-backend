@@ -85,7 +85,7 @@ public class ReceiptListService extends BaseService<ReceiptListMapper, ReceiptLi
      * @param receiptList
      * @param user
      */
-    public void saveOrUpdateReceiptList(ReceiptList receiptList, CurrentUser user) {
+    public Integer saveOrUpdateReceiptList(ReceiptList receiptList, CurrentUser user) {
         if (Objects.isNull(receiptList.getId())) {
             // 保证一个检查记录只有一条回执信息
             ReceiptList oldReceiptList = findOne(new ReceiptList().setPreschoolCheckRecordId(receiptList.getPreschoolCheckRecordId()));
@@ -96,6 +96,7 @@ public class ReceiptListService extends BaseService<ReceiptListMapper, ReceiptLi
         receiptList.setFromHospitalId(user.getOrgId());
         receiptList.setFromDoctorId(hospitalDoctorService.getDetailsByUserId(user.getId()).getId());
         saveOrUpdate(receiptList);
+        return receiptList.getId();
     }
 
     /**
