@@ -167,7 +167,7 @@ public class ReportController {
     @GetMapping("/school/student/archives")
     public ApiResult<String> syncExportSchoolStudentArchives(
                                                              String planStudentIds,
-                                                             @NotNull(message = "班级ID不能为空") Integer classId,
+                                                             Integer classId,
                                                              @NotNull(message = "年级ID不能为空") Integer gradeId,
                                                              @NotNull(message = "学校ID不能为空") Integer schoolId,
                                                              @NotNull(message = "筛查机构ID不能为空") Integer screeningOrgId,
