@@ -7,6 +7,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreenin
 import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Map;
 
@@ -224,13 +225,13 @@ public class EyeDataUtil {
         return "--";
     }
 
-    public static String computerRightAxial(VisionScreeningResult visionScreeningResult){
-        if (visionScreeningResult!=null
-                &&visionScreeningResult.getComputerOptometry()!=null
-                &&visionScreeningResult.getComputerOptometry().getRightEyeData()!=null
-                &&visionScreeningResult.getComputerOptometry().getRightEyeData().getAxial()!=null){
+    public static String computerRightAxial(VisionScreeningResult visionScreeningResult) {
+        if (visionScreeningResult != null
+                && visionScreeningResult.getComputerOptometry() != null
+                && visionScreeningResult.getComputerOptometry().getRightEyeData() != null
+                && visionScreeningResult.getComputerOptometry().getRightEyeData().getAxial() != null) {
 
-            return visionScreeningResult.getComputerOptometry().getRightEyeData().getAxial().toString();
+            return visionScreeningResult.getComputerOptometry().getRightEyeData().getAxial().setScale(0, RoundingMode.DOWN).toString();
         }
 
         return "--";
