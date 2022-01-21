@@ -46,14 +46,14 @@ public class VsDataExcelService extends BaseExportExcelFileService {
             exportDTO.setPatientPno(report.getPatientPno());
             exportDTO.setCheckMode(CheckModeEnum.getName(report.getCheckMode()));
             exportDTO.setCheckType(CheckTypeEnum.getName(report.getCheckType()));
-            exportDTO.setRightSph(VS666Util.getDisplayValue(report.getRightSph()));
-            exportDTO.setRightCyl(VS666Util.getDisplayValue(report.getRightCyl()));
+            exportDTO.setRightSph(formatDate(report.getRightSph()));
+            exportDTO.setRightCyl(formatDate(report.getRightCyl()));
             exportDTO.setRightAxsi(report.getRightAxsi());
-            exportDTO.setRightPa(VS666Util.getDisplayValue(report.getRightPa()));
-            exportDTO.setLeftSph(VS666Util.getDisplayValue(report.getLeftSph()));
-            exportDTO.setLeftCyl(VS666Util.getDisplayValue(report.getLeftCyl()));
+            exportDTO.setRightPa(formatDate(report.getRightPa()));
+            exportDTO.setLeftSph(formatDate(report.getLeftSph()));
+            exportDTO.setLeftCyl(formatDate(report.getLeftCyl()));
             exportDTO.setLeftAxsi(report.getLeftAxsi());
-            exportDTO.setLeftPa(VS666Util.getDisplayValue(report.getLeftPa()));
+            exportDTO.setLeftPa(formatDate(report.getLeftPa()));
             exportDTO.setRightPr(report.getRightPr());
             exportDTO.setLeftPr(report.getLeftPr());
             exportDTO.setRightAxsiV(report.getRightAxsiV());
@@ -89,5 +89,17 @@ public class VsDataExcelService extends BaseExportExcelFileService {
         return null;
     }
 
+    /**
+     * 格式化数据
+     *
+     * @param val 值
+     * @return 值
+     */
+    private String formatDate(Double val) {
+        if (val >= 0d) {
+            return "+" + VS666Util.getDisplayValue(val);
+        }
+        return String.valueOf(VS666Util.getDisplayValue(val));
+    }
 
 }
