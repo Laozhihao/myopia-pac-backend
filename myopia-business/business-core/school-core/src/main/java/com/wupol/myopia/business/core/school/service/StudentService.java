@@ -485,7 +485,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         }
         String recordNo;
         Student studentRecordNo = getOneByCommitteeCode(committeeCode);
-        if (Objects.isNull(studentRecordNo)) {
+        if (Objects.isNull(studentRecordNo) || Objects.isNull(studentRecordNo.getRecordNo())) {
             recordNo = committeeCode + "00001";
         } else {
             recordNo = String.valueOf(Long.parseLong(studentRecordNo.getRecordNo()) + 1);
