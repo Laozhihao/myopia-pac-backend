@@ -255,6 +255,7 @@ public class HospitalAggService {
      * @param studentVo
      * @return
      */
+    @Transactional(rollbackFor = Exception.class)
     public ApiResult<Integer> saveStudentArchive(HospitalStudentVO studentVo, CurrentUser user) {
         Integer hospitalId = user.getOrgId();
         studentVo.setHospitalId(hospitalId);
