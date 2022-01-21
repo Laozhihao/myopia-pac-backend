@@ -1,17 +1,17 @@
 package com.wupol.myopia.business.core.hospital.domain.dto;
 
 import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.experimental.Accessors;
 
 /**
  * 医院返回题
  *
  * @author Simple4H
  */
-@Getter
-@Setter
+@Accessors(chain = true)
+@Data
 @EqualsAndHashCode(callSuper = false)
 public class HospitalResponseDTO extends Hospital {
 
@@ -49,4 +49,9 @@ public class HospitalResponseDTO extends Hospital {
      * 关联筛查机构的名称
      */
     private String associateScreeningOrgName;
+
+    /**
+     * 该医院下的医生总人数
+     */
+    private Integer doctorTotalNum;
 }
