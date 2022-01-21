@@ -115,18 +115,18 @@ public class GeneratePdfFileService {
     }
 
     /**
-    * @Description: 导出筛查计划下的PDF报告
-    * @Param: [saveDirectory, planId, schoolId]
-    * @return: void
-    * @Author: 钓猫的小鱼
-    * @Date: 2021/12/30
-    */
-    public void generateScreeningPlanSchoolReportPdfFile(String saveDirectory, Integer planId,Integer schoolId) {
+     * @Description: 导出筛查计划下的PDF报告
+     * @Param: [saveDirectory, planId, schoolId]
+     * @return: void
+     * @Author: 钓猫的小鱼
+     * @Date: 2021/12/30
+     */
+    public void generateScreeningPlanSchoolReportPdfFile(String saveDirectory, Integer planId, Integer schoolId) {
         Assert.hasLength(saveDirectory, BizMsgConstant.SAVE_DIRECTORY_EMPTY);
         Assert.notNull(planId, BizMsgConstant.PLAN_ID_IS_EMPTY);
         List<Integer> schoolIdList = statConclusionService.getSchoolIdByPlanId(planId);
 
-        if (!schoolIdList.contains(schoolId)){
+        if (!schoolIdList.contains(schoolId)) {
             throw new BusinessException("学校ID不在筛检计划中");
         }
         generateSchoolScreeningReportPdfFile(saveDirectory, null, planId, schoolId);
@@ -279,7 +279,7 @@ public class GeneratePdfFileService {
 
         Integer templateId = templateDistrictService.getByDistrictId(districtService.getProvinceId(org.getDistrictId()));
 
-        String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.STUDENT_ARCHIVES_HTML_URL, htmlUrlHost, planId, schoolId, templateId, planStudentIds);
+        String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.STUDENT_ARCHIVES_HTML_URL, htmlUrlHost, planId, schoolId, templateId, planStudentIds, gradeId, classId);
         Assert.isTrue(HtmlToPdfUtil.convertArchives(schoolPdfHtmlUrl, Paths.get(fileSavePath).toString()), "【生成学校档案卡PDF文件异常】：" + school.getName());
     }
 
