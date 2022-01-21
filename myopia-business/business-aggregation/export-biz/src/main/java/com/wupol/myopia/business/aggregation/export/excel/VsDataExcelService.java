@@ -39,7 +39,7 @@ public class VsDataExcelService extends BaseExportExcelFileService {
             exportDTO.setId(report.getPatientId());
             exportDTO.setPatientName(report.getPatientName());
             exportDTO.setPatientGender(GenderEnum.getName(report.getPatientGender()));
-            exportDTO.setPatientAgeGroup(PatientAgeUtil.getAgeRange(report.getPatientAge()));
+            exportDTO.setPatientAgeGroup(PatientAgeUtil.getAgeRange(report.getPatientAgeGroup()));
             exportDTO.setPatientOrg(report.getPatientOrg());
             exportDTO.setPatientDept(report.getPatientDept());
             exportDTO.setPatientPno(report.getPatientPno());
