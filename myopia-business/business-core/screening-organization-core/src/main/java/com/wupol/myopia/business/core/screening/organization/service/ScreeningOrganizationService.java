@@ -240,7 +240,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @param id   筛查机构ID
      * @return 是否重复
      */
-    public Boolean checkScreeningOrgName(String name, Integer id) {
+    public boolean checkScreeningOrgName(String name, Integer id) {
         return !baseMapper.getByNameAndNeId(name, id).isEmpty();
     }
 

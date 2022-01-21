@@ -26,6 +26,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -92,7 +93,7 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
     }
 
     public User getByPhone(String phone) {
-        List<User> users = oauthServiceClient.getUserBatchByPhones(Arrays.asList(phone), SystemCode.HOSPITAL_CLIENT.getCode());
+        List<User> users = oauthServiceClient.getUserBatchByPhones(Collections.singletonList(phone), SystemCode.HOSPITAL_CLIENT.getCode());
         return CollectionUtils.isEmpty(users) ? null : users.get(0);
     }
 
@@ -310,6 +311,17 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
     public List<DoctorDTO> getDoctorVoList(DoctorQuery query)  {
         List<DoctorDTO> list = baseMapper.getDoctorVoList(query);
         return createDTOList(list);
+    }
+
+    /**
+     * 根据医院ID统计
+     *
+     * @param hospitalId 医院ID
+     * @return int 总数
+     **/
+    public int countByHospitalId(Integer hospitalId) {
+        Assert.notNull(hospitalId, "hospitalId不能为空");
+        return count(new Doctor().setHospitalId(hospitalId));
     }
 
 }

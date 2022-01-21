@@ -9,6 +9,7 @@ import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.api.management.domain.vo.ScreeningOrganizationStaffVO;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OrganizationStaffRequestDTO;
@@ -16,19 +17,18 @@ import com.wupol.myopia.business.core.screening.organization.domain.dto.Screenin
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationStaffQueryDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.StaffResetPasswordRequestDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
-import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationAdmin;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationAdminService;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationStaffService;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.io.IOException;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -53,8 +53,6 @@ public class ScreeningOrganizationStaffController {
 
     @Resource
     private ScreeningOrganizationService screeningOrganizationService;
-    @Resource
-    private ScreeningOrganizationAdminService screeningOrganizationAdminService;
 
     /**
      * 筛查人员列表
@@ -78,22 +76,22 @@ public class ScreeningOrganizationStaffController {
      * @return 账号密码 {@link UsernameAndPasswordDTO}
      */
     @PostMapping()
-    public UsernameAndPasswordDTO insertOrganizationStaff(@RequestBody @Valid ScreeningOrganizationStaffQueryDTO screeningOrganizationStaff) {
+    public ScreeningOrganizationStaffVO insertOrganizationStaff(@RequestBody @Valid ScreeningOrganizationStaffQueryDTO screeningOrganizationStaff) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         if (Objects.nonNull(user.getScreeningOrgId())) {
             screeningOrganizationStaff.setScreeningOrgId(user.getScreeningOrgId());
         }
-        //如果不是管理员
-        if (!user.isPlatformAdminUser()){
+        // 非平台管理员
+        if (!user.isPlatformAdminUser()) {
             ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(user.getScreeningOrgId());
-            List<ScreeningOrganizationAdmin> orgList = screeningOrganizationAdminService.getListOrgList(user.getScreeningOrgId());
-            if (orgList.size()>=screeningOrganization.getAccountNum()){
-                return null;
-            }
+            int totalNum = screeningOrganizationStaffService.countByScreeningOrgId(screeningOrganizationStaff.getScreeningOrgId());
+            Assert.isTrue(totalNum >= screeningOrganization.getAccountNum(), "超过人数限制");
         }
         screeningOrganizationStaff.setCreateUserId(user.getId());
         screeningOrganizationStaff.setGovDeptId(user.getOrgId());
-        return screeningOrganizationStaffService.saveOrganizationStaff(screeningOrganizationStaff);
+        UsernameAndPasswordDTO usernameAndPasswordDTO = screeningOrganizationStaffService.saveOrganizationStaff(screeningOrganizationStaff);
+        int totalNum = screeningOrganizationStaffService.countByScreeningOrgId(screeningOrganizationStaff.getScreeningOrgId());
+        return ScreeningOrganizationStaffVO.parseFromUsernameAndPasswordDTO(usernameAndPasswordDTO).setScreeningStaffTotalNum(totalNum);
     }
 
     /**

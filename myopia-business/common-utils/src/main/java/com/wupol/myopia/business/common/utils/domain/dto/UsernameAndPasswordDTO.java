@@ -1,12 +1,14 @@
 package com.wupol.myopia.business.common.utils.domain.dto;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * 账号密码
  *
  * @author Simple4H
  */
+@NoArgsConstructor
 @Data
 public class UsernameAndPasswordDTO {
 
