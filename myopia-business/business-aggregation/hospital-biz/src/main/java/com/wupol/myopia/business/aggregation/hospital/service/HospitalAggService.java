@@ -192,9 +192,6 @@ public class HospitalAggService {
         if (Objects.nonNull(studentVo.getTown())) {
             studentVo.setTownId(studentVo.getTown().getId());
         }
-        if (Objects.nonNull(studentVo.getCommittee())) {
-            studentVo.setCommitteeCode(districtService.getById(studentVo.getCommittee().getId()).getCode());
-        }
 
         // 如果管理端没有该学生信息, 则先到管理端创建,再到医院端创建
         if (Objects.isNull(oldStudent)) {
@@ -225,7 +222,18 @@ public class HospitalAggService {
             studentVo.setStudentId(studentId);
         } else {
             studentVo.setRecordNo(oldStudent.getRecordNo());
-            studentVo.setFamilyInfo(oldStudent.getFamilyInfo());
+            studentVo.setCommitteeCode(oldStudent.getCommitteeCode());
+            // 0-6岁更新孩子非新生儿，且多端是新生儿，则更新多端学生信息
+            if (studentVo.getIsNewbornWithoutIdCard().equals(false) && oldStudent.getIsNewbornWithoutIdCard().equals(true)) {
+                oldStudent.setFamilyInfo(studentVo.getFamilyInfo());
+                oldStudent.setIsNewbornWithoutIdCard(false);
+                oldStudent.setBirthday(studentVo.getBirthday());
+                oldStudent.setGender(studentVo.getGender());
+                oldStudent.setParentPhone(studentVo.getParentPhone());
+                oldStudent.setIdCard(studentVo.getIdCard());
+                oldStudent.setName(studentVo.getName());
+                studentService.updateStudent(oldStudent);
+            }
         }
 
         // 如果是新增学生，则将创建时间与更新时间设置成当前
