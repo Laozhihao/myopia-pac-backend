@@ -64,6 +64,7 @@ public class VsDataExcelService extends BaseExportExcelFileService {
             exportDTO.setRedReflectLeft(report.getRedReflectLeft());
             exportDTO.setPd(report.getPd());
             exportDTO.setCheckResult(report.getCheckResult());
+            exportDTOS.add(exportDTO);
         });
         return exportDTOS;
     }
