@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Created with IntelliJ IDEA.
@@ -61,10 +62,11 @@ public class SysUtilService {
     public void isExport(String key){
         Map<String,Object> result = JSON.parseObject(redisUtil.get(key).toString(),HashMap.class);
 
-        if (result.isEmpty()){
+        if (Objects.isNull(result) || result.isEmpty()){
             Map<String,Object> param  = new HashMap<>(2);
             param.put(COUNT,1);
             redisUtil.cSet(key,param);
+            return;
         }
         int count = (Integer)result.get(COUNT);
         if (count>=CALL_COUNT){
