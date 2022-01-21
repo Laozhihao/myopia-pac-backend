@@ -168,7 +168,7 @@ public class ReportController {
     public ApiResult<String> syncExportSchoolStudentArchives(
                                                              String planStudentIds,
                                                              Integer classId,
-                                                             @NotNull(message = "年级ID不能为空") Integer gradeId,
+                                                             Integer gradeId,
                                                              @NotNull(message = "学校ID不能为空") Integer schoolId,
                                                              @NotNull(message = "筛查机构ID不能为空") Integer screeningOrgId,
                                                              @NotNull(message = "筛查计划ID不能为空") Integer planId) {
