@@ -13,3 +13,5 @@ INSERT INTO `o_permission`(`id`, `name`, `menu_btn_name`, `api_url`, `is_menu`, 
 
 
 INSERT INTO `o_permission`(`id`, `name`, `menu_btn_name`, `api_url`, `is_menu`, `is_page`, `order`, `pid`, `system_code`) VALUES (607, '获取筛查计划有数据的学校（筛查记录）', 'planHavaDataSchool', 'get:/management/screeningPlan/screeningPlan/schools/**/**', 0, 0, 106, 30, 1);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (608, '获取计划学校的年级情况（有计划）', 'haveResultGrades', 'get:/management/screeningPlan/grades/haveResult/**/**', 0, 0, 0, 27, 1);
+

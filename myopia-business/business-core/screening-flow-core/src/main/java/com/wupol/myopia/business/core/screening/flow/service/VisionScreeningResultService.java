@@ -264,6 +264,17 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         return schoolClassMap.get(vo.getId()).get(0).getName();
     }
 
+    /**
+     * 通过学校Id和计划Id获取信息
+     *
+     * @param planId   计划Id
+     * @param schoolId 学校Id
+     * @return List<Integer>
+     */
+    public List<Integer> getByPlanIdAndSchoolId(Integer planId, Integer schoolId) {
+        return baseMapper.getByPlanIdAndSchoolId(planId, schoolId);
+    }
+
 
 
     /**

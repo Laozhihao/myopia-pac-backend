@@ -40,15 +40,15 @@ public interface VisionScreeningResultMapper extends BaseMapper<VisionScreeningR
 
     VisionScreeningResult getLatestByPlanStudentIds(@Param("planStudentIds") List<Integer> planStudentIds);
 
-    List<VisionScreeningResult> getByStudentIds( @Param("planId") Integer planId,@Param("studentIds") List<Integer> studentIds);
+    List<VisionScreeningResult> getByStudentIds(@Param("planId") Integer planId, @Param("studentIds") List<Integer> studentIds);
 
     /**
-    * @Description: 获取筛查计划下的学校
-    * @Param: [planId, orgId]
-    * @return: java.util.List<com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningSchoolDTO>
-    * @Author: 钓猫的小鱼
-    * @Date: 2022/1/20
-    */
+     * @Description: 获取筛查计划下的学校
+     * @Param: [planId, orgId]
+     * @return: java.util.List<com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningSchoolDTO>
+     * @Author: 钓猫的小鱼
+     * @Date: 2022/1/20
+     */
     List<ScreeningSGCDTO> getSchoolInfoByPlanIdAndOrgId(@Param("planId") Integer planId, @Param("orgId") Integer orgId);
 
     /**
@@ -69,6 +69,7 @@ public interface VisionScreeningResultMapper extends BaseMapper<VisionScreeningR
      */
     List<ScreeningSGCDTO> getClassInfoByPlanIdAndOrgId(@Param("planId") Integer planId, @Param("orgId") Integer orgId, @Param("schoolId") Integer schoolId, @Param("gradeId") Integer gradeId);
 
+    List<Integer> getByPlanIdAndSchoolId(@Param("planId") Integer planId, @Param("schoolId") Integer schoolId);
 
 
 

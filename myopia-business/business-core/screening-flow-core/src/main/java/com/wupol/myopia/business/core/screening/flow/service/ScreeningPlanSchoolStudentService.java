@@ -440,4 +440,16 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     public List<ScreeningStudentDTO> getScreeningNoticeResultStudent(Integer planId, Integer schoolId, Integer gradeId, Integer classId, List<Integer> planStudentId, String planStudentName) {
         return baseMapper.getScreeningNoticeResultStudent(planId, schoolId, gradeId, classId, planStudentId, planStudentName);
     }
+
+    /**
+     * 获取班级信息
+     *
+     * @param planId   计划Id
+     * @param schoolId 学校Id
+     * @param ids      ids
+     * @return List<GradeClassesDTO>
+     */
+    public List<GradeClassesDTO> getByPlanIdAndSchoolIdAndId(Integer planId, Integer schoolId, List<Integer> ids) {
+        return baseMapper.getByPlanIdAndSchoolIdAndId(planId, schoolId, ids);
+    }
 }
