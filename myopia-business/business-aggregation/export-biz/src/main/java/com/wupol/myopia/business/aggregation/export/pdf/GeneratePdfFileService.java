@@ -270,6 +270,8 @@ public class GeneratePdfFileService {
 
         Integer schoolId = exportCondition.getSchoolId();
         Integer planId = exportCondition.getPlanId();
+        Integer gradeId = exportCondition.getGradeId();
+        Integer classId = exportCondition.getClassId();
         String planStudentIds = exportCondition.getPlanStudentIds();
         School school = schoolService.getById(schoolId);
         // 获取筛查机构的模板

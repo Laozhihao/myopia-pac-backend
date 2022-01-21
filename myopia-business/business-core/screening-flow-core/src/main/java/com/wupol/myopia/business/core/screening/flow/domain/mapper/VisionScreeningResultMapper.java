@@ -49,7 +49,7 @@ public interface VisionScreeningResultMapper extends BaseMapper<VisionScreeningR
     * @Author: 钓猫的小鱼
     * @Date: 2022/1/20
     */
-    List<ScreeningSGCDTO> getSchoolInforByPlanIdAndOrgId(@Param("planId") Integer planId, @Param("orgId") Integer orgId);
+    List<ScreeningSGCDTO> getSchoolInfoByPlanIdAndOrgId(@Param("planId") Integer planId, @Param("orgId") Integer orgId);
 
     /**
      * @Description: 获取筛查计划下学校的年级
@@ -58,7 +58,7 @@ public interface VisionScreeningResultMapper extends BaseMapper<VisionScreeningR
      * @Author: 钓猫的小鱼
      * @Date: 2022/1/20
      */
-    List<ScreeningSGCDTO> getGradeInforByPlanIdAndOrgId(@Param("planId") Integer planId, @Param("orgId") Integer orgId, @Param("schoolId") Integer schoolId);
+    List<ScreeningSGCDTO> getGradeInfoByPlanIdAndOrgId(@Param("planId") Integer planId, @Param("orgId") Integer orgId, @Param("schoolId") Integer schoolId);
 
     /**
      * @Description: 获取筛查计划下的班级
@@ -67,7 +67,7 @@ public interface VisionScreeningResultMapper extends BaseMapper<VisionScreeningR
      * @Author: 钓猫的小鱼
      * @Date: 2022/1/20
      */
-    List<ScreeningSGCDTO> getClassInforByPlanIdAndOrgId(@Param("planId") Integer planId, @Param("orgId") Integer orgId, @Param("schoolId") Integer schoolId, @Param("gradeId") Integer gradeId);
+    List<ScreeningSGCDTO> getClassInfoByPlanIdAndOrgId(@Param("planId") Integer planId, @Param("orgId") Integer orgId, @Param("schoolId") Integer schoolId, @Param("gradeId") Integer gradeId);
 
 
 

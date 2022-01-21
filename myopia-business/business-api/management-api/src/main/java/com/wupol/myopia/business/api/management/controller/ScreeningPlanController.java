@@ -523,12 +523,14 @@ public class ScreeningPlanController {
      * @Author: 钓猫的小鱼
      * @Date: 2022/1/20
      */
-    @GetMapping("screeningPlan/schools/{planId}/{orgId}")
-    public Object queryScreeningPlanSchoolsInfo(@PathVariable Integer plandId,@PathVariable Integer orgId) {
+    @GetMapping("/screeningPlan/schools/{planId}/{orgId}")
+    public List<ScreeningSGCDTO>  queryScreeningPlanSchoolsInfo(@PathVariable Integer plandId,@PathVariable Integer orgId) {
         // 任务状态判断
-        List<ScreeningSGCDTO> screeningSGCDTOS = visionScreeningResultService.getSchoolInforByPlanIdAndOrgId(plandId,orgId);
+        screeningExportService.validateExist(plandId);
 
-        return ApiResult.success(screeningSGCDTOS);
+        List<ScreeningSGCDTO> screeningSGCDTOS =   visionScreeningResultService.getSchoolInfoHaveDataByPlanIdAndOrgId(plandId,orgId);
+
+        return screeningSGCDTOS;
     }
 
     /**
@@ -538,10 +540,10 @@ public class ScreeningPlanController {
      * @Author: 钓猫的小鱼
      * @Date: 2022/1/20
      */
-    @GetMapping("screeningPlan/schools/{planId}/{orgId}/{schoolId}")
+    @GetMapping("/screeningPlan/schools/{planId}/{orgId}/{schoolId}")
     public Object queryScreeningPlanSchoolsInfo(@PathVariable Integer plandId,@PathVariable Integer orgId,@PathVariable Integer schoolId) {
         // 任务状态判断
-        List<ScreeningSGCDTO> screeningSchoolDTOS = visionScreeningResultService.getSchoolInforByPlanIdAndOrgId(plandId,orgId,schoolId);
+        List<ScreeningSGCDTO> screeningSchoolDTOS = visionScreeningResultService.getSchoolInfoHaveDataByPlanIdAndOrgId(plandId,orgId,schoolId);
 
         return ApiResult.success(screeningSchoolDTOS);
     }
@@ -554,10 +556,10 @@ public class ScreeningPlanController {
      * @Author: 钓猫的小鱼
      * @Date: 2022/1/20
      */
-    @GetMapping("screeningPlan/schools/{planId}/{orgId}/{schoolId}/{gradeId}")
+    @GetMapping("/screeningPlan/schools/{planId}/{orgId}/{schoolId}/{gradeId}")
     public Object queryScreeningPlanSchoolsInfo(@PathVariable Integer plandId,@PathVariable Integer orgId,@PathVariable Integer schoolId,@PathVariable Integer gradeId) {
         // 任务状态判断
-        List<ScreeningSGCDTO> screeningSGCDTOS = visionScreeningResultService.getSchoolInforByPlanIdAndOrgId(plandId,orgId,schoolId,gradeId);
+        List<ScreeningSGCDTO> screeningSGCDTOS = visionScreeningResultService.getSchoolInfoHaveDataByPlanIdAndOrgId(plandId,orgId,schoolId,gradeId);
 
         return ApiResult.success(screeningSGCDTOS);
     }

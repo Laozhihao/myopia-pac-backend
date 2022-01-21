@@ -177,6 +177,7 @@ public class ReportController {
             throw new BusinessException("所选学生无筛查数据");
         }
 
+
         String key =  String.format(RedisConstant.FILE_EXPORT_EXCEL_ARCHIVES_COUNT,
                 "syncExportSchoolStudentArchives",CurrentUserUtil.getCurrentUser().getId(),planId, schoolId, planStudentIds);
         sysUtilService.isNoPlatformRepeatExport(key);

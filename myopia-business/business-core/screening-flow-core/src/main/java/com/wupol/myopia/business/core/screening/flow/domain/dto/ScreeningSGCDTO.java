@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
 import lombok.Data;
 
 /**
@@ -10,8 +11,11 @@ import lombok.Data;
  * @Description:
  */
 @Data
-public class ScreeningSGCDTO {
-    private String id;
+public class ScreeningSGCDTO extends ScreeningPlanSchool {
+    private Integer id;
 
     private String name;
+
+
+
 }
