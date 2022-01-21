@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * @Author wulizhou
@@ -43,6 +44,12 @@ public class PreschoolHospitalStudentController {
     public ApiResult<HospitalStudentVO> getStudent(@PathVariable("id") Integer id) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         return getStudentResult(hospitalAggService.getStudentById(user.getOrgId(), id));
+    }
+
+    @GetMapping("/list")
+    public List<HospitalStudentVO> getStudentVOList(String nameLike) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        return hospitalAggService.getStudentVOList(nameLike, user.getOrgId());
     }
 
     private ApiResult<HospitalStudentVO> getStudentResult(TwoTuple<HospitalStudentVO, Boolean> studentInfo) {

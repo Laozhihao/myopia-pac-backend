@@ -269,6 +269,18 @@ public class HospitalAggService {
     }
 
     /**
+     * 模糊搜索医院下学生
+     * @param nameLike
+     * @param orgId
+     * @return
+     */
+     public List<HospitalStudentVO> getStudentVOList(String nameLike, Integer orgId) {
+         HospitalStudentQuery query = new HospitalStudentQuery();
+         query.setNameLike(nameLike).setHospitalId(orgId);
+         return getHospitalStudentVoList(query);
+     }
+
+   /**
      * 设置医院端的学生信息的学校及地址信息
      *
      * @param studentList 学生信息列表

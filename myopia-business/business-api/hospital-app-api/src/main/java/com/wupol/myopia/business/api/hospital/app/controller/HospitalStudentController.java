@@ -6,7 +6,6 @@ import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.hospital.domain.vo.HospitalStudentVO;
 import com.wupol.myopia.business.aggregation.hospital.service.HospitalAggService;
-import com.wupol.myopia.business.core.hospital.domain.query.HospitalStudentQuery;
 import com.wupol.myopia.business.core.hospital.service.HospitalStudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
@@ -50,10 +49,7 @@ public class HospitalStudentController {
 
     @GetMapping("/list")
     public List<HospitalStudentVO> getStudentVOList(String nameLike) {
-        CurrentUser user = CurrentUserUtil.getCurrentUser();
-        HospitalStudentQuery query = new HospitalStudentQuery();
-        query.setNameLike(nameLike).setHospitalId(user.getOrgId());
-        return hospitalAggService.getHospitalStudentVoList(query);
+        return hospitalAggService.getStudentVOList(nameLike, CurrentUserUtil.getCurrentUser().getOrgId());
     }
 
     @PostMapping()
