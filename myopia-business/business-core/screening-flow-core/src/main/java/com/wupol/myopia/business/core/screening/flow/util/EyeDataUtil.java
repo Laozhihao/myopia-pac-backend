@@ -353,7 +353,7 @@ public class EyeDataUtil {
                 &&visionScreeningResult.getVisionData().getRightEyeData()!=null
                 &&visionScreeningResult.getVisionData().getRightEyeData().getCorrectedVision()!=null){
 
-            return visionScreeningResult.getVisionData().getRightEyeData().getCorrectedVision().toString();
+            return visionScreeningResult.getVisionData().getRightEyeData().getCorrectedVision().setScale(0, RoundingMode.DOWN).toString();
         }
 
         return "--";
@@ -365,7 +365,8 @@ public class EyeDataUtil {
                 &&visionScreeningResult.getVisionData().getRightEyeData()!=null
                 &&visionScreeningResult.getVisionData().getRightEyeData().getNakedVision()!=null){
 
-            return visionScreeningResult.getVisionData().getRightEyeData().getNakedVision().toString();
+
+            return visionScreeningResult.getVisionData().getRightEyeData().getNakedVision().setScale(0, RoundingMode.DOWN).toString();
         }
 
         return "--";

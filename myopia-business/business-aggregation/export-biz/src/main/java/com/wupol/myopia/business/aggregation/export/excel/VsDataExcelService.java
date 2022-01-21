@@ -96,9 +96,9 @@ public class VsDataExcelService extends BaseExportExcelFileService {
      */
     private String formatDate(Double val) {
         if (val >= 0d) {
-            return "+" + VS666Util.getDisplayValue(val);
+            return "+" + new BigDecimal(VS666Util.getDisplayValue(val)).setScale(2,BigDecimal.ROUND_HALF_UP).toString;
         }
-        return String.valueOf(VS666Util.getDisplayValue(val));
+        return new BigDecimal(VS666Util.getDisplayValue(val)).setScale(2,BigDecimal.ROUND_HALF_UP).toString;
     }
 
 }
