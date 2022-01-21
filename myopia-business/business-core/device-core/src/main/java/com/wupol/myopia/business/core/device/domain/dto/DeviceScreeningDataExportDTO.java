@@ -68,14 +68,14 @@ public class DeviceScreeningDataExportDTO implements Serializable {
      * 右眼球镜
      */
     @ExcelProperty("球镜（右）")
-    private Double rightSph;
+    private String rightSph;
 
 
     /**
      * 右眼柱镜
      */
     @ExcelProperty("柱镜（右）")
-    private Double rightCyl;
+    private String rightCyl;
 
 
     /**
@@ -89,20 +89,20 @@ public class DeviceScreeningDataExportDTO implements Serializable {
      * 右眼等效球镜度
      */
     @ExcelProperty("等效球镜（右）")
-    private Double rightPa;
+    private String rightPa;
 
 
     /**
      * 左眼球镜
      */
     @ExcelProperty("球镜（左）")
-    private Double leftSph;
+    private String leftSph;
 
     /**
      * 左眼柱镜
      */
     @ExcelProperty("柱镜（左）")
-    private Double leftCyl;
+    private String leftCyl;
 
     /**
      * 左眼轴位
@@ -114,7 +114,7 @@ public class DeviceScreeningDataExportDTO implements Serializable {
      * 左眼等效球镜度
      */
     @ExcelProperty("等效球镜（左）")
-    private Double leftPa;
+    private String leftPa;
 
 
     /**
