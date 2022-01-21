@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.core.screening.organization.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.StringUtils;
 import com.wupol.myopia.base.constant.SystemCode;
@@ -197,17 +196,6 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         int screeningStaffTotalNum = screeningOrganizationStaffService.count(new ScreeningOrganizationStaff().setScreeningOrgId(id));
         return org.setLastCountDate(new Date())
                 .setScreeningStaffTotalNum(screeningStaffTotalNum);
-    }
-
-    /**
-     * 分页查询
-     *
-     * @param page  分页
-     * @param query 条件
-     * @return {@link IPage} 分页结果
-     */
-    public IPage<ScreeningOrganization> getByPage(Page<?> page, ScreeningOrganizationQueryDTO query) {
-        return baseMapper.getByPage(page, query);
     }
 
     /**
