@@ -48,7 +48,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.text.ParseException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -110,7 +109,7 @@ public class ScreeningOrganizationBizService {
             throw new BusinessException("名字不能为空");
         }
 
-        if (screeningOrganizationService.checkScreeningOrgName(name, null)) {
+        if (Boolean.TRUE.equals(screeningOrganizationService.checkScreeningOrgName(name, null))) {
             throw new BusinessException("筛查机构名称不能重复");
         }
         screeningOrganizationService.save(screeningOrganization);
