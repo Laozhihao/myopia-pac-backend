@@ -12,8 +12,7 @@ import java.io.Serializable;
 public class DeviceScreeningDataExportDTO implements Serializable {
 
     @ExcelProperty("ID")
-    private Integer id;
-
+    private String id;
 
     @ExcelProperty("姓名")
     private String patientName;
