@@ -22,11 +22,6 @@ public class DeviceScreeningDataExportDTO implements Serializable {
      */
     @ExcelProperty("性别")
     private String patientGender;
-    /**
-     * 受检者月龄
-     */
-    @ExcelProperty("年龄")
-    private Integer patientAge;
 
     /**
      * 受检者年龄段(未知=-1,1=(0M,12M] 2=(12M,36M], 3=(3y,6Y], 4=(6Y-20Y], 5=(20Y,100Y])
