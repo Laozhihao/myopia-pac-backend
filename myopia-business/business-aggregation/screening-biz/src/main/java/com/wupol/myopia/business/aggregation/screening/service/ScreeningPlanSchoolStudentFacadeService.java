@@ -23,10 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -85,6 +82,7 @@ public class ScreeningPlanSchoolStudentFacadeService {
         IPage<ScreeningStudentDTO> studentDTOIPage = screeningPlanSchoolStudentService.selectPageByQuery(page, query);
         List<ScreeningStudentDTO> screeningStudentDTOS = studentDTOIPage.getRecords();
         List<VisionScreeningResult> resultList  = visionScreeningResultService.getByPlanStudentIds(screeningStudentDTOS.stream().map(ScreeningStudentDTO::getPlanStudentId).collect(Collectors.toList()));
+        // TODO：改为Map<Integer, VisionScreeningResult>，取初筛数据
         Map<Integer,List<VisionScreeningResult>> visionScreeningResultsGroup = resultList.stream().collect(Collectors.groupingBy(VisionScreeningResult::getStudentId));
 
         //作者：钓猫的小鱼。  描述：给学生扩展类赋值
@@ -105,6 +103,7 @@ public class ScreeningPlanSchoolStudentFacadeService {
     */
     public void setStudentEyeInfo(ScreeningStudentDTO studentEyeInfo, Map<Integer,List<VisionScreeningResult>> visionScreeningResultsGroup) {
         VisionScreeningResult visionScreeningResult = EyeDataUtil.getVisionScreeningResult(studentEyeInfo,visionScreeningResultsGroup);
+        studentEyeInfo.setHasScreening(Objects.nonNull(visionScreeningResult));
         //是否戴镜情况
         studentEyeInfo.setGlassesTypeDes(EyeDataUtil.glassesType(visionScreeningResult));
 
