@@ -40,10 +40,7 @@ import org.springframework.util.CollectionUtils;
 
 
 import javax.annotation.Resource;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
+import java.io.*;
 import java.net.*;
 import java.nio.file.Paths;
 import java.util.*;
@@ -393,32 +390,20 @@ public class ScreeningPlanStudentBizService {
      * @param savePath 存放地址
      */
     public static void downloadFile(String fileUrl,String savePath) throws Exception {
-        File file=new File(savePath);
-        log.info("savePath:{}",savePath);
-        //判断文件是否存在，不存在则创建文件
-        if(!file.exists()){
-            file.createNewFile();
-        }
+
         URL url = new URL(fileUrl);
-        HttpURLConnection urlCon = (HttpURLConnection) url.openConnection();
-        urlCon.setConnectTimeout(6000);
-        urlCon.setReadTimeout(6000);
-        int code = urlCon.getResponseCode();
-        if (code != HttpURLConnection.HTTP_OK) {
-            throw new Exception("文件读取失败");
+        URLConnection conn = url.openConnection();
+        InputStream inputStream = conn.getInputStream();
+        FileOutputStream fileOutputStream = new FileOutputStream(savePath);
+
+        int bytesum = 0;
+        int byteread;
+        byte[] buffer = new byte[1024];
+        while ((byteread = inputStream.read(buffer)) != -1) {
+            bytesum += byteread;
+            System.out.println(bytesum);
+            fileOutputStream.write(buffer, 0, byteread);
         }
-        DataInputStream in = new DataInputStream(urlCon.getInputStream());
-        DataOutputStream out = new DataOutputStream(new FileOutputStream(savePath));
-        byte[] buffer = new byte[2048];
-        int count;
-        while ((count = in.read(buffer)) > 0) {
-            out.write(buffer, 0, count);
-        }
-        try {
-            out.close();
-            in.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        fileOutputStream.close();
     }
 }
