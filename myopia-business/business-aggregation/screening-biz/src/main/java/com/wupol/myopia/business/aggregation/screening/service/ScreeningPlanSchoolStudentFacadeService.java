@@ -85,14 +85,14 @@ public class ScreeningPlanSchoolStudentFacadeService {
 
         IPage<ScreeningStudentDTO> studentDTOIPage = screeningPlanSchoolStudentService.selectPageByQuery(page, query);
         List<ScreeningStudentDTO> screeningStudentDTOS = studentDTOIPage.getRecords();
-        List<VisionScreeningResult> resultList  = visionScreeningResultService.getByPlanStudentIds(screeningStudentDTOS.stream().map(s->s.getPlanStudentId()).collect(Collectors.toList()));
+        List<VisionScreeningResult> resultList  = visionScreeningResultService.getByPlanStudentIds(screeningStudentDTOS.stream().map(ScreeningStudentDTO::getPlanStudentId).collect(Collectors.toList()));
         Map<Integer,List<VisionScreeningResult>> visionScreeningResultsGroup = resultList.stream().collect(Collectors.groupingBy(VisionScreeningResult::getStudentId));
 
         //作者：钓猫的小鱼。  描述：给学生扩展类赋值
         studentDTOIPage.getRecords().forEach(studentDTO -> {
             studentDTO.setNationDesc(NationEnum.getName(studentDTO.getNation()))
                         .setAddress(districtService.getAddressDetails(studentDTO.getProvinceCode(), studentDTO.getCityCode(), studentDTO.getAreaCode(), studentDTO.getTownCode(), studentDTO.getAddress()));
-            setStudentEyeInfor(studentDTO,visionScreeningResultsGroup);
+            setStudentEyeInfo(studentDTO, visionScreeningResultsGroup);
         });
         return studentDTOIPage;
     }
@@ -104,26 +104,26 @@ public class ScreeningPlanSchoolStudentFacadeService {
     * @Author: 钓猫的小鱼
     * @Date: 2022/1/5
     */
-    public void setStudentEyeInfor(ScreeningStudentDTO studentEyeInfor,Map<Integer,List<VisionScreeningResult>> visionScreeningResultsGroup){
-        VisionScreeningResult visionScreeningResult = EyeDataUtil.getVisionScreeningResult(studentEyeInfor,visionScreeningResultsGroup);
+    public void setStudentEyeInfo(ScreeningStudentDTO studentEyeInfo, Map<Integer,List<VisionScreeningResult>> visionScreeningResultsGroup) {
+        VisionScreeningResult visionScreeningResult = EyeDataUtil.getVisionScreeningResult(studentEyeInfo,visionScreeningResultsGroup);
         //是否戴镜情况
-        studentEyeInfor.setGlassesTypeDes(EyeDataUtil.glassesType(visionScreeningResult));
+        studentEyeInfo.setGlassesTypeDes(EyeDataUtil.glassesType(visionScreeningResult));
 
         //裸视力
         String nakedVision = EyeDataUtil.visionRightDataToStr(visionScreeningResult)+"/"+EyeDataUtil.visionLeftDataToStr(visionScreeningResult);
-        studentEyeInfor.setNakedVision(nakedVision);
+        studentEyeInfo.setNakedVision(nakedVision);
         //矫正 视力
-        String correctedVision = EyeDataUtil.correcteRightDataToStr(visionScreeningResult)+"/"+EyeDataUtil.correcteLeftDataToStr(visionScreeningResult);
-        studentEyeInfor.setCorrectedVision(correctedVision);
+        String correctedVision = EyeDataUtil.correctedRightDataToStr(visionScreeningResult)+"/"+EyeDataUtil.correctedLeftDataToStr(visionScreeningResult);
+        studentEyeInfo.setCorrectedVision(correctedVision);
         //球镜
-        studentEyeInfor.setRSph(EyeDataUtil.computerRightSphNULL(visionScreeningResult));
-        studentEyeInfor.setLSph(EyeDataUtil.computerLeftSphNull(visionScreeningResult));
+        studentEyeInfo.setRSph(EyeDataUtil.computerRightSphNULL(visionScreeningResult));
+        studentEyeInfo.setLSph(EyeDataUtil.computerLeftSphNull(visionScreeningResult));
         //柱镜
-        studentEyeInfor.setRCyl(EyeDataUtil.computerRightCylNull(visionScreeningResult));
-        studentEyeInfor.setLCyl(EyeDataUtil.computerLeftCylNull(visionScreeningResult));
+        studentEyeInfo.setRCyl(EyeDataUtil.computerRightCylNull(visionScreeningResult));
+        studentEyeInfo.setLCyl(EyeDataUtil.computerLeftCylNull(visionScreeningResult));
         //眼轴
         String axial = EyeDataUtil.computerRightAxial(visionScreeningResult)+"/"+EyeDataUtil.computerLeftAxial(visionScreeningResult);
-        studentEyeInfor.setAxial(axial);
+        studentEyeInfo.setAxial(axial);
 
     }
 
