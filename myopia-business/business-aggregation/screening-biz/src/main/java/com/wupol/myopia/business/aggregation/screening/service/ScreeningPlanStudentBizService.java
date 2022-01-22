@@ -275,7 +275,7 @@ public class ScreeningPlanStudentBizService {
                         log.info("response:{}", JSONObject.toJSONString(pdfResponseDTO));
                         try {
                             downloadFile(pdfResponseDTO.getUrl(),
-                                    fileSaveParentPath + appendName + SCREENING_NAME + "/" +
+                                    fileSaveParentPath +
                                             schoolMap.get(schoolEntry.getKey()) + SCREENING_NAME + "/" +
                                             gradeMap.get(gradeEntry.getKey()).getName() + SCREENING_NAME + "/" +
                                             classMap.get(classEntry.getKey()).getName() + SCREENING_NAME + "/" +
