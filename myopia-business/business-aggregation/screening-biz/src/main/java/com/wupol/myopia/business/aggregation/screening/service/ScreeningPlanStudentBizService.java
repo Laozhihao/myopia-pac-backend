@@ -243,10 +243,11 @@ public class ScreeningPlanStudentBizService {
                                 Objects.nonNull(planStudentIdStr) ? planStudentIdStr : StringUtils.EMPTY,
                                 isSchoolClient);
                         String uuid = UUID.randomUUID().toString();
-                        PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(screeningNoticeResultHtmlUrl, "档案卡" + uuid, uuid);
+                        String fileName = "档案卡" + uuid;
+                        PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(screeningNoticeResultHtmlUrl, fileName, uuid);
                         log.info("response:{}", JSONObject.toJSONString(pdfResponseDTO));
                         try {
-                            downloadFile(pdfResponseDTO.getUrl(), fileSaveParentPath + planEntry.getKey() + "/" + schoolEntry.getKey() + "/" + gradeEntry.getKey() + "/" + classEntry + "/");
+                            downloadFile(pdfResponseDTO.getUrl(), fileSaveParentPath + planEntry.getKey() + "/" + schoolEntry.getKey() + "/" + gradeEntry.getKey() + "/" + classEntry + "/" + fileName + ".pdf");
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -393,6 +394,7 @@ public class ScreeningPlanStudentBizService {
      */
     public static void downloadFile(String fileUrl,String savePath) throws Exception {
         File file=new File(savePath);
+        log.info("savePath:{}",savePath);
         //判断文件是否存在，不存在则创建文件
         if(!file.exists()){
             file.createNewFile();
