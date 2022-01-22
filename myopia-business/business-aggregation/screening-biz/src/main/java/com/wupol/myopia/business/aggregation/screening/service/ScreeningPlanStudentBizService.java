@@ -255,40 +255,7 @@ public class ScreeningPlanStudentBizService {
         }
         File zip = ZipUtil.zip(fileSaveParentPath);
         log.info("zip file name:{}, path:{}",zip.getName(),zip.getPath());
-//        log.info("fileId:{}",s3Utils.uploadFileToS3(zip));
-//        noticeService.sendExportSuccessNotice(userId, userId, "fileName", s3Utils.uploadFileToS3(zip));
-
-//        String screeningNoticeResultHtmlUrl = String.format(SCREENING_NOTICE_RESULT_HTML_URL,
-//                htmlUrlHost,
-//                planId,
-//                Objects.nonNull(schoolId) ? schoolId : StringUtils.EMPTY,
-//                Objects.nonNull(gradeId) ? gradeId : StringUtils.EMPTY,
-//                Objects.nonNull(classId) ? classId : StringUtils.EMPTY,
-//                Objects.nonNull(orgId) ? orgId : StringUtils.EMPTY,
-//                Objects.nonNull(planStudentIdStr) ? planStudentIdStr : StringUtils.EMPTY,
-//                isSchoolClient);
-//        log.info("导出URL:{}", screeningNoticeResultHtmlUrl);
-//        PdfResponseDTO responseDTO = html2PdfService.syncGeneratorPDF(screeningNoticeResultHtmlUrl, fileName, uuid);
-//
-//        String fileName = pdfGeneratorVO.getFileName();
-//        Integer userId = pdfGeneratorVO.getUserId();
-//        String bucket = responseDTO.getBucket();
-//        String s3key = responseDTO.getS3key();
-//
-//        // 保存到resourceFile
-//        ResourceFile resourceFile = new ResourceFile();
-//        resourceFile.setFileName(fileName);
-//        resourceFile.setBucket(bucket);
-//        resourceFile.setS3Key(s3key);
-//
-//        resourceFileService.save(resourceFile);
-//        noticeService.sendExportSuccessNotice(userId, userId, fileName, resourceFile.getId());
-//
-//        if (responseDTO.getStatus().equals(false)) {
-//            // 错误删除时候删除缓存信息
-//            redisUtil.del(uuid);
-//            throw new BusinessException("异步导出学生报告异常");
-//        }
+        noticeService.sendExportSuccessNotice(userId, userId, "fileName", s3Utils.uploadFileToS3(zip));
     }
 
     /**
@@ -392,7 +359,6 @@ public class ScreeningPlanStudentBizService {
      */
     public static void downloadFile(String fileUrl,String savePath) throws Exception {
 
-        log.info("savePath:{}", savePath);
         File file = new File(savePath);
         File parentFile = file.getParentFile();
         if(!parentFile.exists()){
@@ -406,14 +372,10 @@ public class ScreeningPlanStudentBizService {
         URLConnection conn = url.openConnection();
         InputStream inputStream = conn.getInputStream();
         FileOutputStream fileOutputStream = new FileOutputStream(savePath);
-
-        int bytesum = 0;
-        int byteread;
+        int byteRead;
         byte[] buffer = new byte[1024];
-        while ((byteread = inputStream.read(buffer)) != -1) {
-            bytesum += byteread;
-            System.out.println(bytesum);
-            fileOutputStream.write(buffer, 0, byteread);
+        while ((byteRead = inputStream.read(buffer)) != -1) {
+            fileOutputStream.write(buffer, 0, byteRead);
         }
         fileOutputStream.close();
     }
