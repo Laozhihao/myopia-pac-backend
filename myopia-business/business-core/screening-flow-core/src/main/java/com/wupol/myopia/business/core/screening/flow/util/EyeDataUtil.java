@@ -24,7 +24,7 @@ public class EyeDataUtil {
 
     public static StudentVisionScreeningResultExportDTO setStudentData(ScreeningStudentDTO studentDTO, VisionScreeningResult visionScreeningResult) {
         StudentVisionScreeningResultExportDTO studentVisionScreeningResultExportDTO = new StudentVisionScreeningResultExportDTO();
-        studentVisionScreeningResultExportDTO.setId(studentDTO.getId());
+        studentVisionScreeningResultExportDTO.setScreeningCode(studentDTO.getScreeningCode());
         //姓名
         studentVisionScreeningResultExportDTO.setStudentName(EyeDataUtil.name(studentDTO));
         //学号
