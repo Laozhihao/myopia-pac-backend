@@ -108,8 +108,8 @@ public class DoctorController {
             int totalNum = doctorService.countByHospitalId(doctor.getHospitalId());
             Assert.isTrue(totalNum < hospital.getAccountNum(), "超过人数限制");
         }
-        int totalNum = doctorService.countByHospitalId(doctor.getHospitalId());
         UsernameAndPasswordDTO usernameAndPasswordDTO = doctorService.saveDoctor(doctor);
+        int totalNum = doctorService.countByHospitalId(doctor.getHospitalId());
         return DoctorVO.parseFromUsernameAndPasswordDTO(usernameAndPasswordDTO).setDoctorTotalNum(totalNum);
     }
 
