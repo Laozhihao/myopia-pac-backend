@@ -253,7 +253,7 @@ public class ScreeningPlanStudentBizService {
             }
         }
         File zip = ZipUtil.zip(fileSaveParentPath);
-        log.info("fileId:{}",s3Utils.uploadFileToS3(zip));
+//        log.info("fileId:{}",s3Utils.uploadFileToS3(zip));
 //        noticeService.sendExportSuccessNotice(userId, userId, "fileName", s3Utils.uploadFileToS3(zip));
 
 //        String screeningNoticeResultHtmlUrl = String.format(SCREENING_NOTICE_RESULT_HTML_URL,
