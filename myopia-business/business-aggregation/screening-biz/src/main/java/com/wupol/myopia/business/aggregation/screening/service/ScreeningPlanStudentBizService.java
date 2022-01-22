@@ -98,6 +98,8 @@ public class ScreeningPlanStudentBizService {
      */
     public static final String SCREENING_NOTICE_RESULT_HTML_URL = "%s?planId=%d&schoolId=%s&gradeId=%s&classId=%s&orgId=%s&planStudentIdStr=%s&isSchoolClient=%s&noticeReport=1";
 
+    private static final String SCREENING_NAME = "筛查结构通知书";
+
     /**
      * 更新筛查学生
      *
@@ -227,6 +229,13 @@ public class ScreeningPlanStudentBizService {
 
         Map<Integer, List<ScreeningStudentDTO>> planGroup = screeningStudentDTOS.stream().collect(Collectors.groupingBy(ScreeningStudentDTO::getPlanId));
 
+        String appendName;
+        if (isSchoolClient) {
+            appendName = schoolService.getById(schoolId).getName();
+        } else {
+            appendName = screeningOrganizationService.getById(orgId).getName();
+        }
+
         for (Map.Entry<Integer, List<ScreeningStudentDTO>> planEntry : planGroup.entrySet()) {
             List<ScreeningStudentDTO> planList = planEntry.getValue();
             if (CollectionUtils.isEmpty(planList)) {
@@ -263,15 +272,15 @@ public class ScreeningPlanStudentBizService {
                                 Objects.nonNull(planStudentIdStr) ? planStudentIdStr : StringUtils.EMPTY,
                                 isSchoolClient);
                         String uuid = UUID.randomUUID().toString();
-                        String fileName = "档案卡";
+                        String fileName = SCREENING_NAME;
                         PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(screeningNoticeResultHtmlUrl, fileName, uuid);
                         log.info("response:{}", JSONObject.toJSONString(pdfResponseDTO));
                         try {
                             downloadFile(pdfResponseDTO.getUrl(),
-                                    fileSaveParentPath + plan.getTitle() + "/" +
-                                            schoolMap.get(schoolEntry.getKey()) + "/" +
-                                            gradeMap.get(gradeEntry.getKey()).getName() + "/" +
-                                            classMap.get(classEntry.getKey()).getName() + "/" +
+                                    fileSaveParentPath + appendName + SCREENING_NAME + "/" +
+                                            schoolMap.get(schoolEntry.getKey()) + SCREENING_NAME + "/" +
+                                            gradeMap.get(gradeEntry.getKey()).getName() + SCREENING_NAME + "/" +
+                                            classMap.get(classEntry.getKey()).getName() + SCREENING_NAME + "/" +
                                             fileName + ".pdf");
                         } catch (Exception e) {
                             log.error("Exception",e);
@@ -280,13 +289,13 @@ public class ScreeningPlanStudentBizService {
                 }
             }
         }
-        File zip = ZipUtil.zip(fileSaveParentPath);
-        log.info("zip file name:{}, path:{}",zip.getName(),zip.getPath());
+        File renameFile = FileUtil.rename(ZipUtil.zip(fileSaveParentPath), appendName + SCREENING_NAME, true);
         try {
-            noticeService.sendExportSuccessNotice(userId, userId, "fileName", s3Utils.uploadFileToS3(zip));
+            noticeService.sendExportSuccessNotice(userId, userId, appendName + SCREENING_NAME, s3Utils.uploadFileToS3(renameFile));
         } catch (UtilException e) {
             throw new BusinessException("发送通知异常");
         }
+        // TODO: 删除文件
     }
 
     /**
