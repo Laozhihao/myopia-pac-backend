@@ -447,17 +447,15 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      *
      * @param pageRequest      分页请求
      * @param schoolQueryDTO   条件
-     * @param resultDistrictId 行政区域结果
+     * @param districtId 行政区域id
      * @param userIds          用户ID
      * @param districtCode     行政区域-省Code
      * @return IPage<SchoolResponseDTO>
      */
     public IPage<SchoolResponseDTO> getSchoolListByCondition(PageRequest pageRequest, SchoolQueryDTO schoolQueryDTO,
-                                                             TwoTuple<Integer, Integer> resultDistrictId,
+                                                             Integer districtId,
                                                              List<Integer> userIds, Integer districtCode) {
-        return baseMapper.getSchoolListByCondition(pageRequest.toPage(), schoolQueryDTO.getName(),
-                schoolQueryDTO.getSchoolNo(), schoolQueryDTO.getType(),schoolQueryDTO.getCooperationType(),schoolQueryDTO.getStartTimes(),schoolQueryDTO.getEndTimes(),
-                resultDistrictId.getFirst(), userIds, resultDistrictId.getSecond(), districtCode,schoolQueryDTO.getExpireDayGt(),schoolQueryDTO.getExpireDayLe());
+        return baseMapper.getSchoolListByCondition(pageRequest.toPage(), schoolQueryDTO, districtId, districtCode, userIds);
     }
 
     public String getNameById(Integer id) {

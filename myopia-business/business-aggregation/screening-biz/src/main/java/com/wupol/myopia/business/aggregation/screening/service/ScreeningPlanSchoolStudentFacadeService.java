@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -52,8 +53,6 @@ public class ScreeningPlanSchoolStudentFacadeService {
 
     @Autowired
     private VisionScreeningResultService visionScreeningResultService;
-
-
 
     /**
      * 获取计划中的学校年级情况
@@ -137,7 +136,7 @@ public class ScreeningPlanSchoolStudentFacadeService {
     public List<SchoolGradeVO> getByPlanIdAndSchoolIdAndId(Integer planId, Integer schoolId) {
         List<Integer> planStudentIds = visionScreeningResultService.getByPlanIdAndSchoolId(planId, schoolId);
         if (CollectionUtils.isEmpty(planStudentIds)) {
-            return null;
+            return Collections.emptyList();
         }
         return getSchoolGradeVOS(screeningPlanSchoolStudentService.getByPlanIdAndSchoolIdAndId(planId, schoolId, planStudentIds));
     }
