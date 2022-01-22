@@ -14,18 +14,22 @@ import com.wupol.myopia.business.core.common.service.Html2PdfService;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.common.util.S3Utils;
 import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
+import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.StudentDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.system.service.NoticeService;
@@ -84,6 +88,10 @@ public class ScreeningPlanStudentBizService {
     private NoticeService noticeService;
     @Resource
     private S3Utils s3Utils;
+    @Resource
+    private ScreeningPlanService screeningPlanService;
+    @Resource
+    private SchoolClassService schoolClassService;
 
     /**
      * 筛查通知结果页面地址
@@ -201,9 +209,23 @@ public class ScreeningPlanStudentBizService {
                                   Integer orgId, String planStudentIdStr, Boolean isSchoolClient, Integer userId) {
 
         List<ScreeningStudentDTO> screeningStudentDTOS = getScreeningNoticeResultStudent(planId, schoolId, gradeId, classId, orgId, planStudentIdStr, isSchoolClient, null);
-        Map<Integer, List<ScreeningStudentDTO>> planGroup = screeningStudentDTOS.stream().collect(Collectors.groupingBy(ScreeningStudentDTO::getPlanId));
+        if (CollectionUtils.isEmpty(screeningStudentDTOS)) {
+            return;
+        }
         String fileSaveParentPath = getFileSaveParentPath() + UUID.randomUUID() + "/";
 
+        ScreeningPlan plan = screeningPlanService.getById(planId);
+
+        List<Integer> schoolIds = screeningStudentDTOS.stream().map(ScreeningStudentDTO::getSchoolId).collect(Collectors.toList());
+        Map<Integer, String> schoolMap = schoolService.getByIds(schoolIds).stream().collect(Collectors.toMap(School::getId, School::getName));
+
+        List<Integer> gradeIds = screeningStudentDTOS.stream().map(ScreeningStudentDTO::getGradeId).collect(Collectors.toList());
+        Map<Integer, SchoolGrade> gradeMap = schoolGradeService.getGradeMapByIds(gradeIds);
+
+        List<Integer> classIds = screeningStudentDTOS.stream().map(ScreeningStudentDTO::getClassId).collect(Collectors.toList());
+        Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(classIds);
+
+        Map<Integer, List<ScreeningStudentDTO>> planGroup = screeningStudentDTOS.stream().collect(Collectors.groupingBy(ScreeningStudentDTO::getPlanId));
 
         for (Map.Entry<Integer, List<ScreeningStudentDTO>> planEntry : planGroup.entrySet()) {
             List<ScreeningStudentDTO> planList = planEntry.getValue();
@@ -241,11 +263,16 @@ public class ScreeningPlanStudentBizService {
                                 Objects.nonNull(planStudentIdStr) ? planStudentIdStr : StringUtils.EMPTY,
                                 isSchoolClient);
                         String uuid = UUID.randomUUID().toString();
-                        String fileName = "档案卡" + uuid;
+                        String fileName = "档案卡";
                         PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(screeningNoticeResultHtmlUrl, fileName, uuid);
                         log.info("response:{}", JSONObject.toJSONString(pdfResponseDTO));
                         try {
-                            downloadFile(pdfResponseDTO.getUrl(), fileSaveParentPath + planEntry.getKey() + "/" + schoolEntry.getKey() + "/" + gradeEntry.getKey() + "/" + classEntry.getKey() + "/" + fileName + ".pdf");
+                            downloadFile(pdfResponseDTO.getUrl(),
+                                    fileSaveParentPath + plan.getTitle() + "/" +
+                                            schoolMap.get(schoolEntry.getKey()) + "/" +
+                                            gradeMap.get(gradeEntry.getKey()).getName() + "/" +
+                                            classMap.get(classEntry.getKey()).getName() + "/" +
+                                            fileName + ".pdf");
                         } catch (Exception e) {
                             log.error("Exception",e);
                         }
