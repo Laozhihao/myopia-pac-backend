@@ -388,7 +388,10 @@
                mspss.screening_code,
                mspss.grade_name        as gradeName,
                mspss.class_name        as className,
-               mspss.birthday          as birthday
+               mspss.birthday          as birthday,
+               mspss.school_id as schoolId,
+               mspss.grade_id as gradeId,
+               mspss.class_id as classId
         from m_screening_plan_school_student mspss
                 where mspss.screening_plan_id = #{planId}
         <if test="schoolId != null">
