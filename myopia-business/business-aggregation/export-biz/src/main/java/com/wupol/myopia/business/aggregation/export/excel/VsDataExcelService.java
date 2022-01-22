@@ -11,6 +11,7 @@ import com.wupol.myopia.business.core.device.domain.dto.DeviceReportPrintRespons
 import com.wupol.myopia.business.core.device.domain.dto.DeviceScreeningDataExportDTO;
 import com.wupol.myopia.business.core.device.service.DeviceScreeningDataService;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -50,11 +51,11 @@ public class VsDataExcelService extends BaseExportExcelFileService {
             exportDTO.setCheckType(CheckTypeEnum.getName(report.getCheckType()));
             exportDTO.setRightSph(formatDate(report.getRightSph()));
             exportDTO.setRightCyl(formatDate(report.getRightCyl()));
-            exportDTO.setRightAxsi(report.getRightAxsi());
+            exportDTO.setRightAxsi(formatAxsi(report.getRightAxsi()));
             exportDTO.setRightPa(formatDate(report.getRightPa()));
             exportDTO.setLeftSph(formatDate(report.getLeftSph()));
             exportDTO.setLeftCyl(formatDate(report.getLeftCyl()));
-            exportDTO.setLeftAxsi(report.getLeftAxsi());
+            exportDTO.setLeftAxsi(formatAxsi(report.getLeftAxsi()));
             exportDTO.setLeftPa(formatDate(report.getLeftPa()));
             exportDTO.setRightPr(report.getRightPr());
             exportDTO.setLeftPr(report.getLeftPr());
@@ -108,5 +109,19 @@ public class VsDataExcelService extends BaseExportExcelFileService {
         }
         return valStr;
     }
+
+    /**
+     * 格式化轴位
+     *
+     * @param val 值
+     * @return 格式化轴位
+     */
+    private String formatAxsi(Double val) {
+        if (Objects.isNull(val)) {
+            return StringUtils.EMPTY;
+        }
+        return new BigDecimal(val).setScale(0, RoundingMode.DOWN).toString();
+    }
+
 
 }
