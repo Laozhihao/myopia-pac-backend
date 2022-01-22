@@ -22,13 +22,9 @@ import java.util.Set;
  */
 public interface SchoolMapper extends BaseMapper<School> {
 
-    IPage<SchoolResponseDTO> getSchoolListByCondition(@Param("page") Page<?> page, @Param("name") String name,
-                                                      @Param("schoolNo") String schoolNo, @Param("type") Integer type,
-                                                      @Param("cooperationType") Integer cooperationType,@Param("startTimes") String startTimes,
-                                                      @Param("endTimes") String endTimes,
-                                                      @Param("districtId") Integer districtId, @Param("userIds") List<Integer> userIds,
-                                                      @Param("districtIdPre") Integer districtIdPre, @Param("districtCode") Integer districtCode,@Param("expireDayGt") Integer expireDayGt
-            , @Param("expireDayLe") Integer expireDayLe);
+    IPage<SchoolResponseDTO> getSchoolListByCondition(@Param("page") Page<?> page, @Param("query") SchoolQueryDTO query,
+                                                      @Param("districtId") Integer districtId, @Param("districtCode") Integer districtCode,
+                                                      @Param("userIds") List<Integer> userIds);
 
     List<School> getByQuery(SchoolQueryDTO query);
 

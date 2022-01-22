@@ -47,7 +47,10 @@ import javax.validation.ValidationException;
 import javax.validation.constraints.NotBlank;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -529,55 +532,6 @@ public class ScreeningPlanController {
 
 
     /**
-     * @Description: 获取筛查数据下的学校信息
-     * @Param: [plandId, orgId]
-     * @return: java.util.List<com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanSchoolDTO>
-     * @Author: 钓猫的小鱼
-     * @Date: 2022/1/20
-     */
-    @GetMapping("/screeningPlan/schools/{planId}/{orgId}")
-    public List<ScreeningSGCDTO>  queryScreeningPlanSchoolsInfo(@PathVariable Integer plandId,@PathVariable Integer orgId) {
-        // 任务状态判断
-        screeningExportService.validateExist(plandId);
-
-        List<ScreeningSGCDTO> screeningSGCDTOS =   visionScreeningResultService.getSchoolInfoHaveDataByPlanIdAndOrgId(plandId,orgId);
-
-        return screeningSGCDTOS;
-    }
-
-    /**
-     * @Description: 获取筛查数据下的学校信息
-     * @Param: [plandId, orgId]
-     * @return: java.util.List<com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanSchoolDTO>
-     * @Author: 钓猫的小鱼
-     * @Date: 2022/1/20
-     */
-    @GetMapping("/screeningPlan/schools/{planId}/{orgId}/{schoolId}")
-    public Object queryScreeningPlanSchoolsInfo(@PathVariable Integer plandId,@PathVariable Integer orgId,@PathVariable Integer schoolId) {
-        // 任务状态判断
-        List<ScreeningSGCDTO> screeningSchoolDTOS = visionScreeningResultService.getSchoolInfoHaveDataByPlanIdAndOrgId(plandId,orgId,schoolId);
-
-        return ApiResult.success(screeningSchoolDTOS);
-    }
-
-
-    /**
-     * @Description: 获取筛查数据下的学校信息
-     * @Param: [plandId, orgId]
-     * @return: java.util.List<com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanSchoolDTO>
-     * @Author: 钓猫的小鱼
-     * @Date: 2022/1/20
-     */
-    @GetMapping("/screeningPlan/schools/{planId}/{orgId}/{schoolId}/{gradeId}")
-    public Object queryScreeningPlanSchoolsInfo(@PathVariable Integer plandId,@PathVariable Integer orgId,@PathVariable Integer schoolId,@PathVariable Integer gradeId) {
-        // 任务状态判断
-        List<ScreeningSGCDTO> screeningSGCDTOS = visionScreeningResultService.getSchoolInfoHaveDataByPlanIdAndOrgId(plandId,orgId,schoolId,gradeId);
-
-        return ApiResult.success(screeningSGCDTOS);
-    }
-
-
-    /**
      * 获取计划学校
      *
      * @param screeningPlanId 计划ID
@@ -588,5 +542,4 @@ public class ScreeningPlanController {
         // 任务状态判断
         return screeningPlanSchoolService.getHaveResultSchool(screeningPlanId, schoolName);
     }
-
 }

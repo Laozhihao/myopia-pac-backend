@@ -72,35 +72,35 @@
         select ms.*
         from m_school ms
                 where ms.status != 2
-        <if test="districtIdPre != null">
+        <if test="districtCode != null">
             and ms.district_province_code = #{districtCode}
         </if>
-        <if test="name != null and name != ''">
-            and ms.name like CONCAT('%', #{name}, '%')
+        <if test="query.name != null and query.name != ''">
+            and ms.name like CONCAT('%', #{query.name}, '%')
         </if>
-        <if test="schoolNo != null and schoolNo != ''">
-            and ms.school_no like CONCAT('%', #{schoolNo}, '%')
+        <if test="query.schoolNo != null and query.schoolNo != ''">
+            and ms.school_no like CONCAT('%', #{query.schoolNo}, '%')
         </if>
-        <if test="type != null">
-            and ms.type = #{type}
+        <if test="query.type != null">
+            and ms.type = #{query.type}
         </if>
         <if test="districtId != null">
             and ms.district_id = #{districtId}
         </if>
-        <if test="cooperationType != null and cooperationType != ''">
-            and ms.cooperation_type = #{cooperationType}
+        <if test="query.cooperationType != null">
+            and ms.cooperation_type = #{query.cooperationType}
         </if>
-        <if test="startTimes !=null and startTimes !=''">
-            and ms.cooperation_end_time &gt;= #{startTimes}
+        <if test="@Ognl@isNotEmpty(query.cooperationEndTimeGe)">
+            and ms.cooperation_end_time &gt;= #{query.cooperationEndTimeGe}
         </if>
-        <if test="endTimes !=null and endTimes !=''">
-            and ms.cooperation_end_time &lt;= #{endTimes}
+        <if test="@Ognl@isNotEmpty(query.cooperationEndTimeLe)">
+            and ms.cooperation_end_time &lt;= #{query.cooperationEndTimeLe}
         </if>
-        <if test="@Ognl@isNotEmpty(expireDayGt) and expireDayGt != -1">
-            and LEAST(DATEDIFF(ms.cooperation_end_time, ms.cooperation_start_time),DATEDIFF(ms.cooperation_end_time, now())) &gt; #{expireDayGt}
+        <if test="@Ognl@isNotEmpty(query.expireDayGt) and query.expireDayGt != -1">
+            and LEAST(DATEDIFF(ms.cooperation_end_time, ms.cooperation_start_time),DATEDIFF(ms.cooperation_end_time, now())) &gt; #{query.expireDayGt}
         </if>
-        <if test="@Ognl@isNotEmpty(expireDayLe) and expireDayLe != -1">
-            and LEAST(DATEDIFF(ms.cooperation_end_time, ms.cooperation_start_time),DATEDIFF(ms.cooperation_end_time, now())) &lt;= #{expireDayLe}
+        <if test="@Ognl@isNotEmpty(query.expireDayLe) and query.expireDayLe != -1">
+            and LEAST(DATEDIFF(ms.cooperation_end_time, ms.cooperation_start_time),DATEDIFF(ms.cooperation_end_time, now())) &lt;= #{query.expireDayLe}
         </if>
         <if test="userIds != null and userIds.size() != 0">
             and ms.create_user_id in
