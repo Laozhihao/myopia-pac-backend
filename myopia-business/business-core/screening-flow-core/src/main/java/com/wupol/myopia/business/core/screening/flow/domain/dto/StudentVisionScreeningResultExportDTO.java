@@ -24,7 +24,7 @@ public class StudentVisionScreeningResultExportDTO implements Serializable {
 
 
     @ExcelProperty("编码")
-    private Integer id;
+    private Long screeningCode;
 
     @ExcelProperty("学号")
     private String studentNo;
