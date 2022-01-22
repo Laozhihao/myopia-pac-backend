@@ -14,8 +14,11 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 导出vs666数据
@@ -95,10 +98,15 @@ public class VsDataExcelService extends BaseExportExcelFileService {
      * @return 值
      */
     private String formatDate(Double val) {
-        if (val >= 0d) {
-            return "+" + new BigDecimal(VS666Util.getDisplayValue(val)).setScale(2,BigDecimal.ROUND_HALF_UP).toString;
+        Double displayValue = VS666Util.getDisplayValue(val);
+        if (Objects.isNull(displayValue)) {
+            return "--";
         }
-        return new BigDecimal(VS666Util.getDisplayValue(val)).setScale(2,BigDecimal.ROUND_HALF_UP).toString;
+        String valStr = new BigDecimal(displayValue).setScale(2, RoundingMode.HALF_UP).toString();
+        if (val >= 0d) {
+            return "+" + valStr;
+        }
+        return valStr;
     }
 
 }
