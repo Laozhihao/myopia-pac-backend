@@ -216,8 +216,6 @@ public class ScreeningPlanStudentBizService {
         }
         String fileSaveParentPath = getFileSaveParentPath() + UUID.randomUUID() + "/";
 
-        ScreeningPlan plan = screeningPlanService.getById(planId);
-
         List<Integer> schoolIds = screeningStudentDTOS.stream().map(ScreeningStudentDTO::getSchoolId).collect(Collectors.toList());
         Map<Integer, String> schoolMap = schoolService.getByIds(schoolIds).stream().collect(Collectors.toMap(School::getId, School::getName));
 
@@ -289,13 +287,15 @@ public class ScreeningPlanStudentBizService {
                 }
             }
         }
-        File renameFile = FileUtil.rename(ZipUtil.zip(fileSaveParentPath), appendName + SCREENING_NAME, true);
+        File renameFile = FileUtil.rename(ZipUtil.zip(fileSaveParentPath), appendName + SCREENING_NAME + ".zip", true);
         try {
             noticeService.sendExportSuccessNotice(userId, userId, appendName + SCREENING_NAME, s3Utils.uploadFileToS3(renameFile));
         } catch (UtilException e) {
+            noticeService.sendExportFailNotice(userId, userId, appendName + SCREENING_NAME);
             throw new BusinessException("发送通知异常");
+        } finally {
+            FileUtil.del(fileSaveParentPath);
         }
-        // TODO: 删除文件
     }
 
     /**
