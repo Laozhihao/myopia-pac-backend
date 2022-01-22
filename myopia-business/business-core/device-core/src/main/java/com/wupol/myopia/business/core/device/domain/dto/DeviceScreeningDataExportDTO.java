@@ -77,7 +77,7 @@ public class DeviceScreeningDataExportDTO implements Serializable {
      * 右眼轴位
      */
     @ExcelProperty("轴位（右）")
-    private Double rightAxsi;
+    private String rightAxsi;
 
 
     /**
@@ -103,7 +103,7 @@ public class DeviceScreeningDataExportDTO implements Serializable {
      * 左眼轴位
      */
     @ExcelProperty("轴位（左）")
-    private Double leftAxsi;
+    private String leftAxsi;
 
     /**
      * 左眼等效球镜度
