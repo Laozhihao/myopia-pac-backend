@@ -52,11 +52,11 @@ public class VsDataExcelService extends BaseExportExcelFileService {
             exportDTO.setRightSph(formatDate(report.getRightSph()));
             exportDTO.setRightCyl(formatDate(report.getRightCyl()));
             exportDTO.setRightAxsi(formatAxsi(report.getRightAxsi()));
-            exportDTO.setRightPa(formatDate(report.getRightPa()));
+            exportDTO.setRightPa(formatPa(report.getRightPa()));
             exportDTO.setLeftSph(formatDate(report.getLeftSph()));
             exportDTO.setLeftCyl(formatDate(report.getLeftCyl()));
             exportDTO.setLeftAxsi(formatAxsi(report.getLeftAxsi()));
-            exportDTO.setLeftPa(formatDate(report.getLeftPa()));
+            exportDTO.setLeftPa(formatPa(report.getLeftPa()));
             exportDTO.setRightPr(report.getRightPr());
             exportDTO.setLeftPr(report.getLeftPr());
             exportDTO.setRightAxsiV(report.getRightAxsiV());
@@ -123,5 +123,20 @@ public class VsDataExcelService extends BaseExportExcelFileService {
         return new BigDecimal(val).setScale(0, RoundingMode.DOWN).toString();
     }
 
-
+    /**
+     * 格式化等效球镜
+     *
+     * @param val 值
+     * @return 值
+     */
+    private String formatPa(Double val) {
+        if (Objects.isNull(val)) {
+            return "--";
+        }
+        String valStr = new BigDecimal(val).setScale(2, RoundingMode.HALF_UP).toString();
+        if (val >= 0d) {
+            return "+" + valStr;
+        }
+        return valStr;
+    }
 }
