@@ -391,6 +391,7 @@ public class ScreeningPlanStudentBizService {
      */
     public static void downloadFile(String fileUrl,String savePath) throws Exception {
 
+        log.info("savePath:{}", savePath);
         File file = new File(savePath);
         if (!file.exists()) {
             file.createNewFile();
