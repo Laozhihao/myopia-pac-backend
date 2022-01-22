@@ -246,7 +246,7 @@ public class ScreeningPlanStudentBizService {
                         try {
                             downloadFile(pdfResponseDTO.getUrl(), fileSaveParentPath + planEntry.getKey() + "/" + schoolEntry.getKey() + "/" + gradeEntry.getKey() + "/" + classEntry.getKey() + "/" + fileName + ".pdf");
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            log.error("Exception",e);
                         }
                     }
                 }
@@ -390,6 +390,11 @@ public class ScreeningPlanStudentBizService {
      * @param savePath 存放地址
      */
     public static void downloadFile(String fileUrl,String savePath) throws Exception {
+
+        File file = new File(savePath);
+        if (!file.exists()) {
+            file.createNewFile();
+        }
 
         URL url = new URL(fileUrl);
         URLConnection conn = url.openConnection();
