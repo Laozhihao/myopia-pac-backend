@@ -40,11 +40,11 @@ import org.springframework.util.CollectionUtils;
 
 
 import javax.annotation.Resource;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.io.FileOutputStream;
+import java.net.*;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -245,15 +245,10 @@ public class ScreeningPlanStudentBizService {
                         String uuid = UUID.randomUUID().toString();
                         PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(screeningNoticeResultHtmlUrl, "档案卡" + uuid, uuid);
                         log.info("response:{}", JSONObject.toJSONString(pdfResponseDTO));
-                        URL url = null;
                         try {
-                            url = new URL(pdfResponseDTO.getUrl());
-                        } catch (MalformedURLException e) {
+                            downloadFile(pdfResponseDTO.getUrl(), fileSaveParentPath + planEntry.getKey() + "/" + schoolEntry.getKey() + "/" + gradeEntry.getKey() + "/" + classEntry + "/");
+                        } catch (Exception e) {
                             e.printStackTrace();
-                        }
-                        File file = FileUtil.file(url);
-                        if (!file.renameTo(new File(fileSaveParentPath))){
-                            throw new BusinessException("异常");
                         }
                     }
                 }
@@ -389,5 +384,39 @@ public class ScreeningPlanStudentBizService {
      **/
     public String getFileSaveParentPath() {
         return Paths.get(pdfSavePath, UUID.randomUUID().toString()).toString();
+    }
+
+    /**
+     * 文件下载
+     * @param fileUrl 下载路径
+     * @param savePath 存放地址
+     */
+    public static void downloadFile(String fileUrl,String savePath) throws Exception {
+        File file=new File(savePath);
+        //判断文件是否存在，不存在则创建文件
+        if(!file.exists()){
+            file.createNewFile();
+        }
+        URL url = new URL(fileUrl);
+        HttpURLConnection urlCon = (HttpURLConnection) url.openConnection();
+        urlCon.setConnectTimeout(6000);
+        urlCon.setReadTimeout(6000);
+        int code = urlCon.getResponseCode();
+        if (code != HttpURLConnection.HTTP_OK) {
+            throw new Exception("文件读取失败");
+        }
+        DataInputStream in = new DataInputStream(urlCon.getInputStream());
+        DataOutputStream out = new DataOutputStream(new FileOutputStream(savePath));
+        byte[] buffer = new byte[2048];
+        int count;
+        while ((count = in.read(buffer)) > 0) {
+            out.write(buffer, 0, count);
+        }
+        try {
+            out.close();
+            in.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
