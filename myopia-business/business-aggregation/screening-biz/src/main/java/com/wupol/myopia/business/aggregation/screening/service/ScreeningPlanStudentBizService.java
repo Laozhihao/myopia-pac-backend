@@ -1,6 +1,8 @@
 package com.wupol.myopia.business.aggregation.screening.service;
 
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ZipUtil;
+import com.alibaba.fastjson.JSONObject;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.base.domain.vo.PdfGeneratorVO;
@@ -39,8 +41,10 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -239,20 +243,24 @@ public class ScreeningPlanStudentBizService {
                                 Objects.nonNull(planStudentIdStr) ? planStudentIdStr : StringUtils.EMPTY,
                                 isSchoolClient);
                         String uuid = UUID.randomUUID().toString();
-                        PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(screeningNoticeResultHtmlUrl, "档案卡", uuid);
+                        PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(screeningNoticeResultHtmlUrl, "档案卡" + uuid, uuid);
+                        log.info("response:{}", JSONObject.toJSONString(pdfResponseDTO));
+                        URL url = null;
                         try {
-                            File file = new File(new URI(pdfResponseDTO.getUrl()));
-                            if (file.renameTo(new File(fileSaveParentPath))){
-                                throw new BusinessException("异常");
-                            }
-                        } catch (URISyntaxException e) {
+                            url = new URL(pdfResponseDTO.getUrl());
+                        } catch (MalformedURLException e) {
                             e.printStackTrace();
+                        }
+                        File file = FileUtil.file(url);
+                        if (!file.renameTo(new File(fileSaveParentPath))){
+                            throw new BusinessException("异常");
                         }
                     }
                 }
             }
         }
         File zip = ZipUtil.zip(fileSaveParentPath);
+        log.info("zip file name:{}, path:{}",zip.getName(),zip.getPath());
 //        log.info("fileId:{}",s3Utils.uploadFileToS3(zip));
 //        noticeService.sendExportSuccessNotice(userId, userId, "fileName", s3Utils.uploadFileToS3(zip));
 
