@@ -247,7 +247,7 @@ public class ScreeningPlanStudentBizService {
                         PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(screeningNoticeResultHtmlUrl, fileName, uuid);
                         log.info("response:{}", JSONObject.toJSONString(pdfResponseDTO));
                         try {
-                            downloadFile(pdfResponseDTO.getUrl(), fileSaveParentPath + planEntry.getKey() + "/" + schoolEntry.getKey() + "/" + gradeEntry.getKey() + "/" + classEntry + "/" + fileName + ".pdf");
+                            downloadFile(pdfResponseDTO.getUrl(), fileSaveParentPath + planEntry.getKey() + "/" + schoolEntry.getKey() + "/" + gradeEntry.getKey() + "/" + classEntry.getKey() + "/" + fileName + ".pdf");
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
