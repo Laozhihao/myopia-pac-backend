@@ -36,6 +36,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 
@@ -393,6 +394,10 @@ public class ScreeningPlanStudentBizService {
 
         log.info("savePath:{}", savePath);
         File file = new File(savePath);
+        File parentFile = file.getParentFile();
+        if(!parentFile.exists()){
+            parentFile.mkdirs();
+        }
         if (!file.exists()) {
             file.createNewFile();
         }
