@@ -173,7 +173,7 @@ public interface RedisConstant {
     /**
      * 学校端筛查数据
      */
-    String FILE_EXCEL_SCHOOL_PLAN = "file:export:plan:school:screening:%s-%s-%s";
+    String FILE_EXCEL_SCHOOL_PLAN = "export:file:export:plan:school:screening:%s-%s-%s";
 
     /**
      * 导出筛查计划

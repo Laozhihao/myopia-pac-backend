@@ -39,13 +39,15 @@ public class ExportStrategy {
         ExportFileService exportFileService = getExportFileService(serviceName);
         // 数据校验
         exportFileService.validateBeforeExport(exportCondition);
-        // 导出限制
-        String key = "doExport:" + exportFileService.getLockKey(exportCondition);
-        sysUtilService.isNoPlatformRepeatExport(key);
+
         // 尝试获锁
-        if (Boolean.FALSE.equals(exportFileService.tryLock(exportFileService.getLockKey(exportCondition)))) {
+        String lockKey = exportFileService.getLockKey(exportCondition);
+        if (Boolean.FALSE.equals(exportFileService.tryLock(lockKey))) {
             throw new BusinessException("正在导出中，请勿重复导出");
         }
+        // 导出限制
+        String key = "doExport:" + lockKey;
+        sysUtilService.isNoPlatformRepeatExport(key, lockKey);
         // 设置进队列
         redisUtil.lSet(RedisConstant.FILE_EXPORT_LIST, new QueueInfo(exportCondition, serviceName));
     }
@@ -80,8 +82,9 @@ public class ExportStrategy {
     public String syncExport(ExportCondition exportCondition, String serviceName) {
         ExportFileService exportFileService = getExportFileService(serviceName);
 
-        String key = "syncExport:"+exportFileService.getLockKey(exportCondition);
-        sysUtilService.isNoPlatformRepeatExport(key);
+        String lockKey = exportFileService.getLockKey(exportCondition);
+        String key = "syncExport:"+ lockKey;
+        sysUtilService.isNoPlatformRepeatExport(key, lockKey);
         return exportFileService.syncExport(exportCondition);
     }
 }

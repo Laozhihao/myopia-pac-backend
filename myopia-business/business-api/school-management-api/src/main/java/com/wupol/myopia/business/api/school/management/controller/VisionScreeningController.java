@@ -205,7 +205,7 @@ public class VisionScreeningController {
         String key = String.format(RedisConstant.FILE_EXPORT_PLAN_DATA, planId, 0, schoolId, currentUser.getId());
         checkIsExport(key);
         // 导出限制
-        sysUtilService.isNoPlatformRepeatExport(String.format(RedisConstant.FILE_EXCEL_SCHOOL_PLAN, planId, schoolId, currentUser.getId()));
+        sysUtilService.isNoPlatformRepeatExport(String.format(RedisConstant.FILE_EXCEL_SCHOOL_PLAN, planId, schoolId, currentUser.getId()), key);
         // 获取文件需显示的名称
         excelFacade.generateVisionScreeningResult(currentUser.getId(), statConclusionExportDTOs, true, exportFileNamePrefix, key);
         return ApiResult.success();
