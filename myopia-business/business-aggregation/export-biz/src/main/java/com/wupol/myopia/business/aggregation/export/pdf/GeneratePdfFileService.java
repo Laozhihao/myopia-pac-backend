@@ -188,7 +188,6 @@ public class GeneratePdfFileService {
     public void generateScreeningOrgArchivesPdfFile(String saveDirectory, ExportCondition exportCondition) {
         Assert.hasLength(saveDirectory, BizMsgConstant.SAVE_DIRECTORY_EMPTY);
         Assert.notNull(exportCondition.getPlanId(), BizMsgConstant.PLAN_ID_IS_EMPTY);
-        Assert.notNull(exportCondition.getSchoolId(), BizMsgConstant.SCHOOL_ID_IS_EMPTY);
         generateSchoolArchivesPdfFile(saveDirectory, exportCondition);
     }
 
@@ -207,13 +206,20 @@ public class GeneratePdfFileService {
 
         Assert.hasLength(saveDirectory, BizMsgConstant.SAVE_DIRECTORY_EMPTY);
         Assert.notNull(planId, BizMsgConstant.PLAN_ID_IS_EMPTY);
-        Assert.notNull(schoolId, "学校ID不能为空");
-        School school = schoolService.getById(schoolId);
+
+        ScreeningPlan plan = screeningPlanService.getById(planId);
 
         // 获取筛查机构的模板
-        ScreeningOrganization org = screeningOrganizationService.getById(screeningPlanService.getById(planId).getScreeningOrgId());
+        ScreeningOrganization org = screeningOrganizationService.getById(plan.getScreeningOrgId());
         Integer templateId = templateDistrictService.getByDistrictId(districtService.getProvinceId(org.getDistrictId()));
 
+        if (Objects.isNull(schoolId)) {
+            String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.SCHOOL_ARCHIVES_HTML_URL, htmlUrlHost, planId, schoolId, templateId, gradeId, classId, planStudentIds);
+            String dir = saveDirectory + "/" + plan.getTitle();
+            Assert.isTrue(HtmlToPdfUtil.convertArchives(schoolPdfHtmlUrl, Paths.get(dir, plan.getTitle() + "档案卡" + ".pdf").toString()), "【生成学校档案卡PDF文件异常】：" + plan.getTitle());
+            return;
+        }
+        School school = schoolService.getById(schoolId);
         // 特殊处理
         if (ObjectsUtil.allNotNull(gradeId, classId)) {
             SchoolGrade schoolGrade = schoolGradeService.getById(gradeId);
