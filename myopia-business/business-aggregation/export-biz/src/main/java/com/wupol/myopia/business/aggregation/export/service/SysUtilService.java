@@ -42,9 +42,9 @@ public class SysUtilService {
      * @Author: 钓猫的小鱼
      * @Date: 2022/1/17
      */
-    public void isNoPlatformRepeatExport(String key){
+    public void isNoPlatformRepeatExport(String key, String lockKey) {
         if (!CurrentUserUtil.getCurrentUser().isPlatformAdminUser()){
-            isExport(key);
+            isExport(key, lockKey);
         }
     }
 
@@ -55,7 +55,7 @@ public class SysUtilService {
     * @Author: 钓猫的小鱼
     * @Date: 2022/1/4
     */
-    public void isExport(String key){
+    public void isExport(String key, String localKey){
         Object object = redisUtil.get(key);
 
         if (Objects.isNull(object)) {
@@ -67,6 +67,9 @@ public class SysUtilService {
         Map<String, Integer> result = JSON.parseObject(JSON.toJSONString(object), HashMap.class);
         int count = result.get(COUNT);
         if (count >= CALL_COUNT){
+            if (Objects.nonNull(redisUtil.get(localKey))) {
+                redisUtil.del(localKey);
+            }
             throw new BusinessException("今天的次数已用完，请明天再操作！！！");
         }
         count = count + 1;
