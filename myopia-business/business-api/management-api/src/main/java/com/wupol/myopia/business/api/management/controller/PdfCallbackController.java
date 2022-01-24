@@ -67,9 +67,4 @@ public class PdfCallbackController {
         log.info(JSONObject.toJSONString(responseDTO));
     }
 
-    @GetMapping("getCallbackUrl")
-    public void getCallbackUrl() {
-        log.info(callbackUrl);
-    }
-
 }
