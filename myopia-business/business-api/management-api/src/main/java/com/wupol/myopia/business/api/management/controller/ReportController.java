@@ -120,9 +120,12 @@ public class ReportController {
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @GetMapping("/screeningOrg/archives")
-    public void exportScreeningOrgArchives(@NotNull(message = "筛查计划ID不能为空") Integer planId, @NotNull(message = "筛查机构ID不能为空") Integer screeningOrgId,
-                                           @NotNull(message = "筛查机构ID不能为空") Integer schoolId, Integer classId,
-                                           Integer gradeId, @RequestParam(value="planStudentIds", required = false) String planStudentIds) throws IOException {
+    public void exportScreeningOrgArchives(@NotNull(message = "筛查计划ID不能为空") Integer planId,
+                                           @NotNull(message = "筛查机构ID不能为空") Integer screeningOrgId,
+                                           Integer schoolId,
+                                           Integer classId,
+                                           Integer gradeId,
+                                           @RequestParam(value="planStudentIds", required = false) String planStudentIds) throws IOException {
         ExportCondition exportCondition = new ExportCondition()
                 .setPlanId(planId)
                 .setScreeningOrgId(screeningOrgId)
