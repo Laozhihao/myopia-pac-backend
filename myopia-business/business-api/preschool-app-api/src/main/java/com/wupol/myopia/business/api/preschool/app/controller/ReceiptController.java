@@ -54,7 +54,7 @@ public class ReceiptController {
     }
 
     /**
-     * 保存转诊单
+     * 保存回执单
      * @param receiptList
      * @return
      */
