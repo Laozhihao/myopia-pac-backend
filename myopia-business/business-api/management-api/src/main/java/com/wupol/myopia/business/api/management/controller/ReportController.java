@@ -135,7 +135,6 @@ public class ReportController {
                 .setGradeId(gradeId)
                 .setPlanStudentIds(planStudentIds);
 
-
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.SCREENING_ORG_ARCHIVES_SERVICE);
     }
 
@@ -161,7 +160,6 @@ public class ReportController {
                 throw new BusinessException("所选学生无筛查数据");
             }
         }
-
 
         ExportCondition exportCondition = new ExportCondition()
                 .setPlanId(planId)

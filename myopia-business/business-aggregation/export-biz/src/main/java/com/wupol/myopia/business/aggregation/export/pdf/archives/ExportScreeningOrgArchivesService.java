@@ -12,9 +12,12 @@ import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Objects;
 
 /**
  * 导出筛查机构的档案卡（压缩包中包含多个学校的PDF文件）
@@ -35,6 +38,8 @@ public class ExportScreeningOrgArchivesService extends BaseExportPdfFileService 
     private SchoolClassService schoolClassService;
     @Autowired
     private SchoolGradeService schoolGradeService;
+    @Autowired
+    private ScreeningPlanService screeningPlanService;
 
     /**
      * 生成文件
@@ -56,9 +61,16 @@ public class ExportScreeningOrgArchivesService extends BaseExportPdfFileService 
      **/
     @Override
     public String getFileName(ExportCondition exportCondition) {
+        Integer schoolId = exportCondition.getSchoolId();
+        Integer planId = exportCondition.getPlanId();
+        if (Objects.isNull(schoolId)) {
+            return screeningPlanService.getById(planId).getTitle();
+        }
+
         Integer gradeId = exportCondition.getGradeId();
         Integer classId = exportCondition.getClassId();
-        School school = schoolService.getById(exportCondition.getSchoolId());
+
+        School school = schoolService.getById(schoolId);
         if (ObjectsUtil.allNotNull(gradeId, classId)) {
             return String.format(PDFFileNameConstant.GRADE_CLASS_PDF_FILE_NAME,
                     school.getName(),
