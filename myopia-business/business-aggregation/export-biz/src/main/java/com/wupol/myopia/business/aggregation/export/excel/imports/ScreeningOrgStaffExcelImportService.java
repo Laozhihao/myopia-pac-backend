@@ -9,6 +9,8 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.IOUtils;
 import com.wupol.myopia.base.util.PasswordAndUsernameGenerator;
 import com.wupol.myopia.base.util.RegularUtils;
+import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
+import com.wupol.myopia.business.aggregation.export.excel.domain.StaffImportEnum;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationStaffDTO;
@@ -48,6 +50,9 @@ public class ScreeningOrgStaffExcelImportService {
     @Resource
     private OauthServiceClient oauthServiceClient;
 
+    @Resource
+    private ExcelFacade excelFacade;
+
     /**
      * 导入机构人员
      *
@@ -61,50 +66,52 @@ public class ScreeningOrgStaffExcelImportService {
             throw new BusinessException("机构ID不能为空");
         }
 
-        String fileName = IOUtils.getTempPath() + multipartFile.getName() + "_" + System.currentTimeMillis() + CommonConst.FILE_SUFFIX;
-        File file = new File(fileName);
-        try {
-            FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
-        } catch (IOException e) {
-            log.error("导入人员数据异常:", e);
-            throw new BusinessException("导入人员数据异常");
-        }
-        // 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
-        List<Map<Integer, String>> listMap;
-        try {
-            listMap = EasyExcel.read(fileName).sheet().doReadSync();
-        } catch (ExcelAnalysisException excelAnalysisException) {
-            log.error("导入机构人员异常", excelAnalysisException);
-            throw new BusinessException("解析文件格式异常");
-        } catch (Exception e) {
-            log.error("导入机构人员异常", e);
-            throw new BusinessException("解析Excel文件异常");
-        }
-        if (!listMap.isEmpty()) { // 去头部
-            listMap.remove(0);
-        }
+        List<Map<Integer, String>> listMap = excelFacade.readExcel(multipartFile);
+
+//        String fileName = IOUtils.getTempPath() + multipartFile.getName() + "_" + System.currentTimeMillis() + CommonConst.FILE_SUFFIX;
+//        File file = new File(fileName);
+//        try {
+//            FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
+//        } catch (IOException e) {
+//            log.error("导入人员数据异常:", e);
+//            throw new BusinessException("导入人员数据异常");
+//        }
+//        // 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
+//        List<Map<Integer, String>> listMap;
+//        try {
+//            listMap = EasyExcel.read(fileName).sheet().doReadSync();
+//        } catch (ExcelAnalysisException excelAnalysisException) {
+//            log.error("导入机构人员异常", excelAnalysisException);
+//            throw new BusinessException("解析文件格式异常");
+//        } catch (Exception e) {
+//            log.error("导入机构人员异常", e);
+//            throw new BusinessException("解析Excel文件异常");
+//        }
+//        if (!listMap.isEmpty()) { // 去头部
+//            listMap.remove(0);
+//        }
 
         preCheckStaff(screeningOrgId, listMap);
 
         // excel格式：序号	姓名	性别	身份证号	手机号码	说明
         List<UserDTO> userList = new ArrayList<>();
         for (Map<Integer, String> item : listMap) {
-            if (StringUtils.isBlank(item.get(StaffImportEnum.NAME.index))) {
+            if (StringUtils.isBlank(item.get(StaffImportEnum.NAME.getIndex()))) {
                 break;
             }
             checkStaffInfo(item);
             UserDTO userDTO = new UserDTO();
-            userDTO.setRealName(item.get(StaffImportEnum.NAME.index))
-                    .setGender(GenderEnum.getType(item.get(StaffImportEnum.GENDER.index)))
-                    .setIdCard(item.get(StaffImportEnum.ID_CARD.index))
-                    .setPhone(item.get(StaffImportEnum.PHONE.index))
+            userDTO.setRealName(item.get(StaffImportEnum.NAME.getIndex()))
+                    .setGender(GenderEnum.getType(item.get(StaffImportEnum.GENDER.getIndex())))
+                    .setIdCard(item.get(StaffImportEnum.ID_CARD.getIndex()))
+                    .setPhone(item.get(StaffImportEnum.PHONE.getIndex()))
                     .setCreateUserId(currentUser.getId())
                     .setIsLeader(0)
-                    .setPassword(PasswordAndUsernameGenerator.getScreeningUserPwd(item.get(StaffImportEnum.PHONE.index), item.get(StaffImportEnum.ID_CARD.index)))
-                    .setUsername(item.get(StaffImportEnum.PHONE.index))
+                    .setPassword(PasswordAndUsernameGenerator.getScreeningUserPwd(item.get(StaffImportEnum.PHONE.getIndex()), item.get(StaffImportEnum.ID_CARD.getIndex())))
+                    .setUsername(item.get(StaffImportEnum.PHONE.getIndex()))
                     .setOrgId(screeningOrgId).setSystemCode(SystemCode.SCREENING_CLIENT.getCode());
-            if (null != item.get(StaffImportEnum.REMARK.index)) {
-                userDTO.setRemark(item.get(StaffImportEnum.REMARK.index));
+            if (null != item.get(StaffImportEnum.REMARK.getIndex())) {
+                userDTO.setRemark(item.get(StaffImportEnum.REMARK.getIndex()));
             }
             userList.add(userDTO);
         }
@@ -134,7 +141,7 @@ public class ScreeningOrgStaffExcelImportService {
      */
     private void preCheckStaff(Integer screeningOrgId, List<Map<Integer, String>> listMap) {
         // 收集身份证号码
-        List<String> idCards = listMap.stream().map(s -> s.get(StaffImportEnum.ID_CARD.index)).collect(Collectors.toList());
+        List<String> idCards = listMap.stream().map(s -> s.get(StaffImportEnum.ID_CARD.getIndex())).collect(Collectors.toList());
         if (idCards.stream().distinct().count() < idCards.size()) {
             throw new BusinessException("身份证号码重复");
         }
@@ -157,34 +164,5 @@ public class ScreeningOrgStaffExcelImportService {
         Assert.isTrue(StringUtils.isNotBlank(item.get(1)) && !GenderEnum.getType(item.get(1)).equals(GenderEnum.UNKNOWN.type), "性别异常");
         Assert.isTrue(StringUtils.isNotBlank(item.get(2)) && IdcardUtil.isValidCard(item.get(2)), "身份证异常");
         Assert.isTrue(StringUtils.isNotBlank(item.get(3)) && Pattern.matches(RegularUtils.REGULAR_MOBILE, item.get(3)), "手机号码异常");
-    }
-
-    /**
-     * 筛查人员导出实体
-     */
-    public enum StaffImportEnum {
-        NAME(0, "姓名"),
-        GENDER(1, "性别"),
-        ID_CARD(2, "身份证号"),
-        PHONE(3, "手机号码"),
-        REMARK(4, "备注");
-
-        /**
-         * 列标
-         **/
-        private final Integer index;
-        /**
-         * 名称
-         **/
-        private final String name;
-
-        StaffImportEnum(Integer index, String name) {
-            this.index = index;
-            this.name = name;
-        }
-
-        public String getName() {
-            return this.name;
-        }
     }
 }
