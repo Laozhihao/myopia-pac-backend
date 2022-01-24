@@ -294,7 +294,7 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
      * @Author: 钓猫的小鱼
      * @Date: 2021/12/29
      */
-    @GetMapping("/plan/export/schoolInfor")
+    @GetMapping("/plan/export/schoolInfo")
     public ApiResult getScreeningPlanExportDoAndSync(Integer screeningPlanId, @RequestParam(defaultValue = "0") Integer screeningOrgId,
                                                 @RequestParam(required = false) Integer schoolId,
                                                 @RequestParam(required = false) Integer gradeId,
