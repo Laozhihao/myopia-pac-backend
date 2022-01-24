@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.aggregation.export.excel.imports;
 
-import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelStudentService;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ImportExcelEnum;
 import com.wupol.myopia.business.common.utils.util.FileUtils;
@@ -37,9 +36,6 @@ public class PlanStudentExcelImportService {
 
     @Resource
     private ExcelStudentService excelStudentService;
-
-    @Resource
-    private ExcelFacade excelFacade;
 
     /**
      * 导入筛查学生信息

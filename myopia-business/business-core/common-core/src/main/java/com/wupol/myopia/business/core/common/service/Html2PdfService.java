@@ -50,10 +50,10 @@ public class Html2PdfService {
      *
      * @param url      文件URL
      * @param fileName 文件名
-     * @param UUID     uuid
+     * @param uuid     uuid
      */
-    public PdfResponseDTO asyncGeneratorPDF(String url, String fileName, String UUID) {
-        HttpEntity<String> request = getStringHttpEntity(url, fileName, UUID);
+    public PdfResponseDTO asyncGeneratorPDF(String url, String fileName, String uuid) {
+        HttpEntity<String> request = getStringHttpEntity(url, fileName, uuid);
         return restTemplate.postForObject(asyncRequestUrl, request, PdfResponseDTO.class);
     }
 
@@ -62,11 +62,11 @@ public class Html2PdfService {
      *
      * @param url      文件URL
      * @param fileName 文件名
-     * @param UUID     uuid
+     * @param uuid     uuid
      * @return PdfResponseDTO
      */
-    public PdfResponseDTO syncGeneratorPDF(String url, String fileName, String UUID) {
-        HttpEntity<String> request = getStringHttpEntity(url, fileName, UUID);
+    public PdfResponseDTO syncGeneratorPDF(String url, String fileName, String uuid) {
+        HttpEntity<String> request = getStringHttpEntity(url, fileName, uuid);
         return restTemplate.postForObject(syncRequestUrl, request, PdfResponseDTO.class);
     }
 
@@ -76,18 +76,18 @@ public class Html2PdfService {
      *
      * @param url      文件URL
      * @param fileName 文件名
-     * @param UUID     uuid
+     * @param uuid     uuid
      * @return HttpEntity<String>
      */
-    private HttpEntity<String> getStringHttpEntity(String url, String fileName, String UUID) {
+    private HttpEntity<String> getStringHttpEntity(String url, String fileName, String uuid) {
         PdfRequestDTO requestDTO = new PdfRequestDTO();
         requestDTO.setUrl(url);
         requestDTO.setOutput(fileName);
         requestDTO.setBucket(bucket);
 
         requestDTO.setRegion(region);
-        requestDTO.setKeyPrefix(prefix + "/" + DateFormatUtil.format(new Date(), DateFormatUtil.FORMAT_ONLY_DATE) + "/" + UUID + "/");
-        requestDTO.setUuid(UUID);
+        requestDTO.setKeyPrefix(prefix + "/" + DateFormatUtil.format(new Date(), DateFormatUtil.FORMAT_ONLY_DATE) + "/" + uuid + "/");
+        requestDTO.setUuid(uuid);
         requestDTO.setTimeout(90);
         requestDTO.setCallbackUrl(callbackUrl);
 
