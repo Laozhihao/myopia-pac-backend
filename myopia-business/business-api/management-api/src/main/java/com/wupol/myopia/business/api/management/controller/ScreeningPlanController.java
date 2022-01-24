@@ -424,7 +424,7 @@ public class ScreeningPlanController {
      * @Author: 钓猫的小鱼
      * @Date: 2021/12/29
      */
-    @GetMapping("/plan/export/studentInfor")
+    @GetMapping("/plan/export/studentInfo")
     public ApiResult getScreeningPlanExportDoAndSync(Integer screeningPlanId, @RequestParam(defaultValue = "0") Integer screeningOrgId,
                                                   @RequestParam Integer schoolId,
                                                   @RequestParam(required = false) Integer gradeId,
