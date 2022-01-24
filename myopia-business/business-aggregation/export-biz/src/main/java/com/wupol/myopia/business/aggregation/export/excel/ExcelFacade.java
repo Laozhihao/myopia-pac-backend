@@ -14,7 +14,6 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.*;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ImportExcelEnum;
-import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.util.S3Utils;
@@ -104,8 +103,6 @@ public class ExcelFacade {
     private RedisUtil redisUtil;
     @Autowired
     private SchoolStudentService schoolStudentService;
-    @Autowired
-    private VisionScreeningBizService visionScreeningBizService;
 
     /**
      * 导入学生
@@ -470,16 +467,20 @@ public class ExcelFacade {
      * @param statConclusionExportDTOs
      * @return
      */
-    private List<VisionScreeningResultExportDTO> genVisionScreeningResultExportVos(List<StatConclusionExportDTO> statConclusionExportDTOs) {
+    public List<VisionScreeningResultExportDTO> genVisionScreeningResultExportVos(List<StatConclusionExportDTO> statConclusionExportDTOs) {
         Map<Boolean, List<StatConclusionExportDTO>> isRescreenMap = statConclusionExportDTOs.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getIsRescreen));
         Map<Integer, StatConclusionExportDTO> rescreenPlanStudentIdVoMap = isRescreenMap.getOrDefault(true, Collections.emptyList()).stream().collect(Collectors.toMap(StatConclusionExportDTO::getScreeningPlanSchoolStudentId, Function.identity(), (x, y) -> x));
         List<VisionScreeningResultExportDTO> exportVos = new ArrayList<>();
         List<StatConclusionExportDTO> vos = isRescreenMap.getOrDefault(false, Collections.emptyList());
-        for (int i = 0; i < vos.size(); i++) {
-            StatConclusionExportDTO vo = vos.get(i);
+        for (StatConclusionExportDTO vo : vos) {
             VisionScreeningResultExportDTO exportVo = new VisionScreeningResultExportDTO();
             BeanUtils.copyProperties(vo, exportVo);
-            exportVo.setId(i + 1).setGenderDesc(GenderEnum.getName(vo.getGender())).setNationDesc(StringUtils.defaultString(NationEnum.getName(vo.getNation()))).setGlassesTypeDesc(StringUtils.defaultIfBlank(GlassesTypeEnum.getDescByCode(vo.getGlassesType()), "--")).setIsRescreenDesc("否").setWarningLevelDesc(StringUtils.defaultIfBlank(WarningLevel.getDesc(vo.getWarningLevel()), "--")).setParentPhone(vo.getParentPhone()).setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(), vo.getAreaCode(), vo.getTownCode(), vo.getAddress()));
+            exportVo.setGenderDesc(GenderEnum.getName(vo.getGender()))
+                    .setNationDesc(StringUtils.defaultString(NationEnum.getName(vo.getNation())))
+                    .setGlassesTypeDesc(StringUtils.defaultIfBlank(GlassesTypeEnum.getDescByCode(vo.getGlassesType()), "--"))
+                    .setIsRescreenDesc("否").setWarningLevelDesc(StringUtils.defaultIfBlank(WarningLevel.getDesc(vo.getWarningLevel()), "--"))
+                    .setParentPhone(vo.getParentPhone())
+                    .setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(), vo.getAreaCode(), vo.getTownCode(), vo.getAddress()));
             genScreeningData(vo, exportVo);
             genReScreeningData(rescreenPlanStudentIdVoMap, vo, exportVo);
             generateDate(vo, exportVo);
@@ -952,4 +953,5 @@ public class ExcelFacade {
             throw new BusinessException("身份证" + idCard + "年级不能为空");
         }
     }
+
 }

@@ -15,6 +15,9 @@ import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
 import com.wupol.myopia.business.core.government.validator.GovDeptAddValidatorGroup;
 import com.wupol.myopia.business.core.government.validator.GovDeptUpdateValidatorGroup;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeDeptOrgService;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
@@ -27,9 +30,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.validation.ValidationException;
 import javax.validation.constraints.NotNull;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -50,6 +51,10 @@ public class GovDeptController {
     private UserService userService;
     @Resource
     private OauthServiceClient oauthServiceClient;
+    @Autowired
+    private ScreeningNoticeDeptOrgService noticeDeptOrgService;
+    @Autowired
+    private ScreeningNoticeService screeningNoticeService;
 
     /**
      * 获取部门列表
@@ -102,10 +107,34 @@ public class GovDeptController {
         }
         try {
             govDeptService.saveGovDept(govDept.setCreateUserId(currentUser.getId()));
+            //新增部门获取上级发布的历史通知
+            Set<Integer> lists = new HashSet<>();
+            Set<Integer> govList = findByParentIds(lists,govDept.getPid());
+            if (!govList.isEmpty()){
+                List<ScreeningNotice> list = screeningNoticeService.getNoticeByReleaseOrgId(govList,ScreeningNotice.TYPE_GOV_DEPT);
+                noticeDeptOrgService.saveScreeningNotice(list,govDept.getId(),govDept.getDistrictId());
+            }
         } catch (DuplicateKeyException e) {
             throw new BusinessException("已经存在该部门名称");
         }
         return govDept;
+    }
+
+    /**
+     * 根据部门父id获取所有上级部门
+     * @param list
+     * @param id
+     * @return
+     */
+
+    private Set<Integer> findByParentIds(Set<Integer> list,Integer id) {
+        GovDept govDept =  govDeptService.getById(id);
+        list.add(govDept.getId());
+        if (govDept.getPid() == -1){
+            return list;
+        }
+        findByParentIds(list,govDept.getPid());
+        return list;
     }
 
     /**

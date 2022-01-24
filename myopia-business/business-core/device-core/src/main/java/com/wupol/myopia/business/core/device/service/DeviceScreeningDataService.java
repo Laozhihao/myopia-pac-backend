@@ -6,10 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.framework.core.util.StringUtils;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.core.device.domain.dto.DeviceReportPrintResponseDTO;
-import com.wupol.myopia.business.core.device.domain.dto.DeviceScreenDataDTO;
-import com.wupol.myopia.business.core.device.domain.dto.DeviceScreeningDataAndOrgDTO;
-import com.wupol.myopia.business.core.device.domain.dto.DeviceScreeningDataQueryDTO;
+import com.wupol.myopia.business.core.device.domain.dto.*;
 import com.wupol.myopia.business.core.device.domain.mapper.DeviceScreeningDataMapper;
 import com.wupol.myopia.business.core.device.domain.model.Device;
 import com.wupol.myopia.business.core.device.domain.model.DeviceScreeningData;
@@ -112,4 +109,9 @@ public class DeviceScreeningDataService extends BaseService<DeviceScreeningDataM
         }
         return baseMapper.selectWithMutiConditions(screeningOrgId, deviceSn, deviceScreenDataDTOList);
     }
+
+    public List<DeviceScreeningDataExportDTO> findByDataList(List<Integer> ids) {
+        return baseMapper.selectExcelData(ids);
+    }
+
 }

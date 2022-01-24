@@ -78,4 +78,50 @@ public class ScreeningStudentDTO extends StudentDO {
      * 学生编码
      */
     private Long screeningCode;
+
+
+    /**
+     * 裸视力 右/左
+     */
+    private String nakedVision;
+
+    /**
+     * 矫正 右/左
+     */
+    private String correctedVision;
+
+    /**
+     * 球镜 右
+     */
+    private String rSph;
+
+    /**
+     * 球镜 左
+     */
+    private String lSph;
+
+    /**
+     * 柱镜 右
+     */
+    private String rCyl;
+    /**
+     * 柱镜 左
+     */
+    private String lCyl;
+
+
+    /**
+     * 轴位 右/左
+     */
+    private String axial;
+
+    /**
+     * 戴镜情况
+     */
+    private String glassesTypeDes;
+
+    /**
+     * 是否已经筛查过
+     **/
+    private Boolean hasScreening;
 }

@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
@@ -8,6 +9,7 @@ import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
+import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
 import com.wupol.myopia.business.aggregation.screening.domain.vos.SchoolGradeVO;
@@ -25,10 +27,7 @@ import com.wupol.myopia.business.core.school.domain.model.SchoolAdmin;
 import com.wupol.myopia.business.core.school.service.SchoolAdminService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.*;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningTaskOrgService;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningTaskService;
+import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.system.service.NoticeService;
@@ -43,6 +42,7 @@ import javax.validation.Valid;
 import javax.validation.ValidationException;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -89,6 +89,8 @@ public class ScreeningPlanController {
     private ScreeningPlanSchoolStudentFacadeService screeningPlanSchoolStudentFacadeService;
     @Autowired
     private ScreeningExportService screeningExportService;
+    @Autowired
+    private VisionScreeningResultService visionScreeningResultService;
 
     /**
      * 新增
@@ -191,6 +193,8 @@ public class ScreeningPlanController {
         return screeningPlanSchoolService.getSchoolVoListsByPlanId(screeningPlanId, schoolName);
     }
 
+
+
     /**
      * 获取指定计划下学校信息
      *
@@ -215,6 +219,18 @@ public class ScreeningPlanController {
         // 任务状态判断
         screeningExportService.validateExist(screeningPlanId);
         return screeningPlanSchoolStudentFacadeService.getSchoolGradeVoByPlanIdAndSchoolId(screeningPlanId, schoolId);
+    }
+
+    /**
+     * 获取计划学校的年级情况（有计划）
+     *
+     * @param screeningPlanId 计划ID
+     * @param schoolId        学校ID
+     * @return List<SchoolGradeVo>
+     */
+    @GetMapping("grades/haveResult/{screeningPlanId}/{schoolId}")
+    public List<SchoolGradeVO> getGradesInfo(@PathVariable Integer screeningPlanId, @PathVariable Integer schoolId) {
+        return screeningPlanSchoolStudentFacadeService.getByPlanIdAndSchoolIdAndId(screeningPlanId, schoolId);
     }
 
     /**
@@ -401,4 +417,51 @@ public class ScreeningPlanController {
         screeningPlanStudentBizService.updatePlanStudent(requestDTO);
     }
 
+    /**
+     * @Description: 学生筛查信息
+     * @Param: [筛查计划ID, 筛查机构ID, 学校ID, 年级ID, 班级ID]
+     * @return: void
+     * @Author: 钓猫的小鱼
+     * @Date: 2021/12/29
+     */
+    @GetMapping("/plan/export/studentInfo")
+    public ApiResult getScreeningPlanExportDoAndSync(Integer screeningPlanId, @RequestParam(defaultValue = "0") Integer screeningOrgId,
+                                                  @RequestParam Integer schoolId,
+                                                  @RequestParam(required = false) Integer gradeId,
+                                                  @RequestParam(required = false) Integer classId) throws IOException {
+
+        ExportCondition exportCondition = new ExportCondition()
+                .setPlanId(screeningPlanId)
+                .setScreeningOrgId(screeningOrgId)
+                .setSchoolId(schoolId)
+                .setGradeId(gradeId)
+                .setClassId(classId)
+                .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
+
+        if (Objects.isNull(classId)){
+            exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.EXPORT_VISION_SCREENING_RESULT_EXCEL_SERVICE);
+            return ApiResult.success();
+        }
+        String path = exportStrategy.syncExport(exportCondition, ExportReportServiceNameConstant.EXPORT_VISION_SCREENING_RESULT_EXCEL_SERVICE);
+        return ApiResult.success(path);
+    }
+
+    /**
+    * @Description: 学生筛查信息
+    * @Param: [计划ID, 学生ID]
+    * @return: java.lang.Object
+    * @Author: 钓猫的小鱼
+    * @Date: 2022/1/12
+    */
+    @GetMapping("/getStudentEyeByStudentId")
+    public ApiResult getStudentEyeByStudentId(@RequestParam Integer planId,@RequestParam Integer studentId) {
+        List<Integer> studentIds = Collections.singletonList(studentId);
+        List<VisionScreeningResult> visionScreeningResults =  visionScreeningResultService.getByStudentIds(planId,studentIds);
+        if (visionScreeningResults.isEmpty()){
+            return ApiResult.success();
+        }
+        VisionScreeningResult visionScreeningResult = visionScreeningResults.get(0);
+
+        return ApiResult.success(visionScreeningResult);
+    }
 }

@@ -14,6 +14,7 @@ import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.aggregation.export.service.SysUtilService;
 import com.wupol.myopia.business.aggregation.screening.domain.vos.SchoolGradeVO;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningExportService;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanSchoolStudentFacadeService;
@@ -89,6 +90,9 @@ public class VisionScreeningController {
 
     @Resource
     private ExportStrategy exportStrategy;
+
+    @Resource
+    private SysUtilService sysUtilService;
 
     /**
      * 获取学校计划
@@ -196,6 +200,8 @@ public class VisionScreeningController {
         statConclusionExportDTOs.forEach(vo -> vo.setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(), vo.getAreaCode(), vo.getTownCode(), vo.getAddress())));
         String key = String.format(RedisConstant.FILE_EXPORT_PLAN_DATA, planId, 0, schoolId, currentUser.getId());
         checkIsExport(key);
+        // 导出限制
+        sysUtilService.isNoPlatformRepeatExport(String.format(RedisConstant.FILE_EXCEL_SCHOOL_PLAN, planId, schoolId, currentUser.getId()), key);
         // 获取文件需显示的名称
         excelFacade.generateVisionScreeningResult(currentUser.getId(), statConclusionExportDTOs, true, exportFileNamePrefix, key);
         return ApiResult.success();
