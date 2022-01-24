@@ -3,13 +3,13 @@ package com.wupol.myopia.business.aggregation.export.excel.imports;
 import cn.hutool.core.util.IdcardUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
-import com.wupol.myopia.business.common.utils.util.IdCardUtil;
 import com.wupol.myopia.base.util.ListUtil;
 import com.wupol.myopia.base.util.RegularUtils;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
+import com.wupol.myopia.business.common.utils.util.IdCardUtil;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolClassExportDTO;
@@ -115,41 +115,8 @@ public class StudentExcelImportService {
             if (Objects.nonNull(studentMap.get(idCard))) {
                 throw new BusinessException("身份证" + idCard + "在系统中重复");
             }
-            student.setName(item.get(0))
-                    .setGender(Objects.nonNull(item.get(1)) ? GenderEnum.getType(item.get(1)) : IdCardUtil.getGender(idCard))
-                    .setBirthday(Objects.nonNull(item.get(2)) ? DateFormatUtil.parseDate(item.get(2), DateFormatUtil.FORMAT_ONLY_DATE2) : IdCardUtil.getBirthDay(idCard))
-                    .setNation(NationEnum.getCode(item.get(3))).setGradeType(GradeCodeEnum.getByName(item.get(5 - offset)).getType())
-                    .setSno((item.get(7 - offset)))
-                    .setIdCard(idCard)
-                    .setParentPhone(item.get(9 - offset))
-                    .setCreateUserId(createUserId);
-            student.setProvinceCode(districtService.getCodeByName(item.get(10 - offset)));
-            student.setCityCode(districtService.getCodeByName(item.get(11 - offset)));
-            student.setAreaCode(districtService.getCodeByName(item.get(12 - offset)));
-            student.setTownCode(districtService.getCodeByName(item.get(13 - offset)));
-            student.setAddress(item.get(14 - offset));
-            // 通过学校编号获取改学校的年级信息
-            List<SchoolGradeExportDTO> schoolGradeExportVOS = schoolGradeMaps.get(isSameSchool ? schoolNo : item.get(4));
-            // 转换成年级Maps，年级名称作为Key
-            Map<String, SchoolGradeExportDTO> gradeMaps = schoolGradeExportVOS.stream().collect(Collectors.toMap(SchoolGradeExportDTO::getName, Function.identity()));
-            // 年级信息
-            SchoolGradeExportDTO schoolGradeExportDTO = gradeMaps.get(item.get(5 - offset));
-            Assert.notNull(schoolGradeExportDTO, "年级数据异常");
-            // 设置年级ID
-            student.setGradeId(schoolGradeExportDTO.getId());
-            // 获取年级内的班级信息
-            List<SchoolClassExportDTO> classExportVOS = schoolGradeExportDTO.getChild();
-            // 转换成班级Maps 把班级名称作为key
-            Map<String, Integer> classExportMaps = classExportVOS.stream().collect(Collectors.toMap(SchoolClassExportDTO::getName, SchoolClassExportDTO::getId));
-            Integer classId = classExportMaps.get(item.get(6 - offset));
-            Assert.notNull(classId, "班级数据为空");
-            // 设置班级信息
-            student.setClassId(classId);
-            if (isSameSchool) {
-                student.setSchoolId(schoolId);
-            } else {
-                student.setSchoolId(schoolMap.get((item.get(4 - offset))));
-            }
+            setStudentInfo(createUserId, offset, item, student, idCard);
+            setStudentSchoolInfo(schoolId, isSameSchool, offset, schoolNo, schoolMap, schoolGradeMaps, item, student);
             importList.add(student);
         }
         // 通过身份证获取已经删除的学生
@@ -164,6 +131,70 @@ public class StudentExcelImportService {
         });
         studentService.saveOrUpdateBatch(importList);
     }
+
+    /**
+     * 设置学生基本信息
+     *
+     * @param createUserId 创建人
+     * @param offset       偏移量
+     * @param item         导入信息
+     * @param student      学生
+     * @param idCard       身份证
+     * @throws ParseException
+     */
+    private void setStudentInfo(Integer createUserId, int offset, Map<Integer, String> item, Student student, String idCard) throws ParseException {
+        student.setName(item.get(0))
+                .setGender(Objects.nonNull(item.get(1)) ? GenderEnum.getType(item.get(1)) : IdCardUtil.getGender(idCard))
+                .setBirthday(Objects.nonNull(item.get(2)) ? DateFormatUtil.parseDate(item.get(2), DateFormatUtil.FORMAT_ONLY_DATE2) : IdCardUtil.getBirthDay(idCard))
+                .setNation(NationEnum.getCode(item.get(3))).setGradeType(GradeCodeEnum.getByName(item.get(5 - offset)).getType())
+                .setSno((item.get(7 - offset)))
+                .setIdCard(idCard)
+                .setParentPhone(item.get(9 - offset))
+                .setCreateUserId(createUserId);
+        student.setProvinceCode(districtService.getCodeByName(item.get(10 - offset)));
+        student.setCityCode(districtService.getCodeByName(item.get(11 - offset)));
+        student.setAreaCode(districtService.getCodeByName(item.get(12 - offset)));
+        student.setTownCode(districtService.getCodeByName(item.get(13 - offset)));
+        student.setAddress(item.get(14 - offset));
+    }
+
+    /**
+     * 学生学生学校信息
+     *
+     * @param schoolId        学校Id
+     * @param isSameSchool    是否相同学校
+     * @param offset          偏移量
+     * @param schoolNo        学校编号
+     * @param schoolMap       学校Map
+     * @param schoolGradeMaps 班级Map
+     * @param item            导入信息
+     * @param student         学生
+     */
+    private void setStudentSchoolInfo(Integer schoolId, boolean isSameSchool, int offset, String schoolNo, Map<String, Integer> schoolMap, Map<String, List<SchoolGradeExportDTO>> schoolGradeMaps, Map<Integer, String> item, Student student) {
+        // 通过学校编号获取改学校的年级信息
+        List<SchoolGradeExportDTO> schoolGradeExportVOS = schoolGradeMaps.get(isSameSchool ? schoolNo : item.get(4));
+        // 转换成年级Maps，年级名称作为Key
+        Map<String, SchoolGradeExportDTO> gradeMaps = schoolGradeExportVOS.stream().collect(Collectors.toMap(SchoolGradeExportDTO::getName, Function.identity()));
+        // 年级信息
+        SchoolGradeExportDTO schoolGradeExportDTO = gradeMaps.get(item.get(5 - offset));
+        Assert.notNull(schoolGradeExportDTO, "年级数据异常");
+        // 设置年级ID
+        student.setGradeId(schoolGradeExportDTO.getId());
+        // 获取年级内的班级信息
+        List<SchoolClassExportDTO> classExportVOS = schoolGradeExportDTO.getChild();
+        // 转换成班级Maps 把班级名称作为key
+        Map<String, Integer> classExportMaps = classExportVOS.stream().collect(Collectors.toMap(SchoolClassExportDTO::getName, SchoolClassExportDTO::getId));
+        Integer classId = classExportMaps.get(item.get(6 - offset));
+        Assert.notNull(classId, "班级数据为空");
+        // 设置班级信息
+        student.setClassId(classId);
+        if (isSameSchool) {
+            student.setSchoolId(schoolId);
+        } else {
+            student.setSchoolId(schoolMap.get((item.get(4 - offset))));
+        }
+    }
+
 
     /**
      * 前置校验

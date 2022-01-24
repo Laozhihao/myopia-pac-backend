@@ -116,8 +116,8 @@ public class SchoolStudentExcelImportService {
                     item.get(SchoolStudentImportEnum.ID_CARD.getIndex()), item.get(SchoolStudentImportEnum.GENDER.getIndex()),
                     item.get(SchoolStudentImportEnum.BIRTHDAY.getIndex()), item.get(SchoolStudentImportEnum.GRADE_NAME.getIndex()));
 
-            extracted(createUserId, schoolId, item, schoolStudent);
-            extracted(schoolId, schoolGradeMaps, item, schoolStudent);
+            setSchoolStudentInfo(createUserId, schoolId, item, schoolStudent);
+            setSchoolStudentClassInfo(schoolId, schoolGradeMaps, item, schoolStudent);
             // 更新管理端
             Integer managementStudentId = updateManagementStudent(schoolStudent);
             schoolStudent.setStudentId(managementStudentId);
@@ -136,7 +136,7 @@ public class SchoolStudentExcelImportService {
      * @param schoolStudent 学校端学生
      * @throws ParseException 日期转换异常
      */
-    private void extracted(Integer createUserId, Integer schoolId, Map<Integer, String> item, SchoolStudent schoolStudent) throws ParseException {
+    private void setSchoolStudentInfo(Integer createUserId, Integer schoolId, Map<Integer, String> item, SchoolStudent schoolStudent) throws ParseException {
         schoolStudent.setName(item.get(SchoolStudentImportEnum.NAME.getIndex()))
                 .setGender(Objects.nonNull(item.get(SchoolStudentImportEnum.GENDER.getIndex())) ? GenderEnum.getType(item.get(SchoolStudentImportEnum.GENDER.getIndex())) : IdCardUtil.getGender(item.get(SchoolStudentImportEnum.ID_CARD.getIndex())))
                 .setBirthday(Objects.nonNull(item.get(SchoolStudentImportEnum.BIRTHDAY.getIndex())) ? DateFormatUtil.parseDate(item.get(SchoolStudentImportEnum.BIRTHDAY.getIndex()), DateFormatUtil.FORMAT_ONLY_DATE2) : IdCardUtil.getBirthDay(item.get(SchoolStudentImportEnum.ID_CARD.getIndex())))
@@ -163,7 +163,7 @@ public class SchoolStudentExcelImportService {
      * @param item            导入信息
      * @param schoolStudent   学校端学生
      */
-    private void extracted(Integer schoolId, Map<Integer, List<SchoolGradeExportDTO>> schoolGradeMaps, Map<Integer, String> item, SchoolStudent schoolStudent) {
+    private void setSchoolStudentClassInfo(Integer schoolId, Map<Integer, List<SchoolGradeExportDTO>> schoolGradeMaps, Map<Integer, String> item, SchoolStudent schoolStudent) {
         // 通过学校编号获取改学校的年级信息
         List<SchoolGradeExportDTO> schoolGradeExportVOS = schoolGradeMaps.get(schoolId);
         // 转换成年级Maps，年级名称作为Key
