@@ -16,7 +16,6 @@ import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportSer
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
 import com.wupol.myopia.business.api.management.service.StudentBizService;
-import com.wupol.myopia.business.api.management.service.SysUtilService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.interfaces.HasName;
 import com.wupol.myopia.business.core.common.service.DistrictService;
@@ -75,8 +74,6 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
     private StudentFacade studentFacade;
     @Autowired
     private ExportStrategy exportStrategy;
-    @Autowired
-    private SysUtilService sysUtilService;
     /**
      * 获取档案卡列表
      *
@@ -119,7 +116,7 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
     /**
      * 筛查通知-导出筛查数据（screeningOrgId、districtId与schoolId不能同时为0）
      * <p>这个接口需要考虑到筛查机构为单点的情况，为单点筛查机构，筛查通知Id可以为空
-     * 单点筛查机构没有筛查通知</p>
+     * 单点筛查机构没有筛查通知，但其筛查计划ID不能为空</p>
      *
      * @param screeningNoticeId 筛查通知Id
      * @param screeningOrgId    筛查机构ID，默认0
@@ -140,7 +137,7 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
         String exportFileNamePrefix = "";
         boolean isSchoolExport = false;
 
-        // 是否单点机构
+        // 是否单点筛查机构
         if (currentUser.isScreeningUser() || (currentUser.isHospitalUser() && (Objects.nonNull(currentUser.getScreeningOrgId())))
                 && ScreeningOrgConfigTypeEnum.CONFIG_TYPE_1.getType().equals(screeningOrganizationService.getById(currentUser.getScreeningOrgId()).getConfigType())) {
             exportFileNamePrefix = checkNotNullAndGetName(screeningOrganizationService.getById(currentUser.getScreeningOrgId()), "筛查机构");
@@ -240,16 +237,18 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
      */
     private void validateExportParams(Integer screeningNoticeId, Integer screeningOrgId,
                                       Integer districtId, Integer schoolId,Integer planId) {
+        // 筛查计划与筛查机构一对一，属于相同维度
         if (Objects.nonNull(planId)) {
             return;
         }
+        // 筛查通知属于大维度，需要再细到下面子维度
         ScreeningNotice screeningNotice = screeningNoticeService.getById(screeningNoticeId);
         if (Objects.isNull(screeningNotice)) {
             throw new BusinessException("筛查通知不存在");
         }
         List<Integer> needCheckIdList = Arrays.asList(screeningOrgId, districtId, schoolId);
         if (needCheckIdList.stream().filter(i -> !CommonConst.DEFAULT_ID.equals(i)).count() != 1) {
-            throw new BusinessException("必须选择层级、学校或筛查机构中一个维度");
+            throw new BusinessException("必须选择行政区域、学校或筛查机构中一个维度");
         }
     }
 
@@ -311,16 +310,9 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
 
         if (classId==null){
 
-            String key =  String.format(RedisConstant.FILE_EXPORT_EXCEL_COUNT,
-                    "getScreeningPlanExportDoAndSync",exportCondition.getApplyExportFileUserId(), exportCondition.getPlanId(), exportCondition.getSchoolId(), exportCondition.getClassId(), exportCondition.getGradeId());
-            sysUtilService.isNoPlatformRepeatExport(key);
-
             exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.EXPOR_TPLAN_STUDENT_DATA_EXCEL_SERVICE);
             return ApiResult.success();
         }else {
-            String key =  String.format(RedisConstant.FILE_EXPORT_EXCEL_COUNT,
-                    "getScreeningPlanExportDoAndSync",exportCondition.getApplyExportFileUserId(), exportCondition.getPlanId(), exportCondition.getSchoolId(), exportCondition.getClassId(), exportCondition.getGradeId());
-            sysUtilService.isNoPlatformRepeatExport(key);
 
             String path = exportStrategy.syncExport(exportCondition, ExportReportServiceNameConstant.EXPOR_TPLAN_STUDENT_DATA_EXCEL_SERVICE);
             return ApiResult.success(path);

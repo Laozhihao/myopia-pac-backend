@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.api.management.service;
+package com.wupol.myopia.business.aggregation.export.service;
 
 import com.alibaba.fastjson.JSON;
 import com.wupol.myopia.base.cache.RedisUtil;
@@ -43,7 +43,6 @@ public class SysUtilService {
      * @Date: 2022/1/17
      */
     public void isNoPlatformRepeatExport(String key){
-
         if (!CurrentUserUtil.getCurrentUser().isPlatformAdminUser()){
             isExport(key);
         }

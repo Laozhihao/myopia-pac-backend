@@ -60,7 +60,6 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
             noticeKeyContent = getNoticeKeyContent(exportCondition);
             // 3.获取数据，生成List
             List data = getExcelData(exportCondition);
-
             // 4.生成导出的文件
             excelFile = generateExcelFile(fileName, data);
             // 5.上传文件

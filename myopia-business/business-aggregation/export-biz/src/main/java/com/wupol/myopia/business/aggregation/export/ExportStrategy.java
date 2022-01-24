@@ -8,6 +8,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.interfaces.ExportFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.QueueInfo;
+import com.wupol.myopia.business.aggregation.export.service.SysUtilService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,9 @@ public class ExportStrategy {
     Map<String, ExportFileService> exportFileServiceMap = new ConcurrentHashMap<>(8);
 
     @Autowired
+    private SysUtilService sysUtilService;
+
+    @Autowired
     private RedisUtil redisUtil;
 
 
@@ -41,6 +45,8 @@ public class ExportStrategy {
         if (Boolean.FALSE.equals(exportFileService.tryLock(exportFileService.getLockKey(exportCondition)))) {
             throw new BusinessException("正在导出中，请勿重复导出");
         }
+        String key = "doExport:"+exportFileService.getLockKey(exportCondition);
+        sysUtilService.isNoPlatformRepeatExport(key);
         // 设置进队列
         redisUtil.lSet(RedisConstant.FILE_EXPORT_LIST, new QueueInfo(exportCondition, serviceName));
     }
@@ -74,6 +80,9 @@ public class ExportStrategy {
      */
     public String syncExport(ExportCondition exportCondition, String serviceName) {
         ExportFileService exportFileService = getExportFileService(serviceName);
+
+        String key = "syncExport:"+exportFileService.getLockKey(exportCondition);
+        sysUtilService.isNoPlatformRepeatExport(key);
         return exportFileService.syncExport(exportCondition);
     }
 }
