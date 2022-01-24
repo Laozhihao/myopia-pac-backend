@@ -149,7 +149,7 @@ public class ReportController {
                                                              String planStudentIds,
                                                              Integer classId,
                                                              Integer gradeId,
-                                                             @NotNull(message = "学校ID不能为空") Integer schoolId,
+                                                             Integer schoolId,
                                                              @NotNull(message = "筛查机构ID不能为空") Integer screeningOrgId,
                                                              @NotNull(message = "筛查计划ID不能为空") Integer planId) {
         if (StringUtils.isNotBlank(planStudentIds)) {
