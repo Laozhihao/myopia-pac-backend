@@ -81,14 +81,10 @@ public class ScreeningOrganizationController {
         } else {
             // 默认合作信息
             screeningOrganization.initCooperationInfo();
+            screeningOrganization.setAccountNum(ScreeningOrganization.ACCOUNT_NUM);
         }
         screeningOrganization.setStatus(screeningOrganization.getCooperationStopStatus());
-        UsernameAndPasswordDTO usernameAndPasswordDTO = screeningOrganizationBizService.saveScreeningOrganization(screeningOrganization);
-        // 非平台管理员屏蔽账号密码信息
-        if (!user.isPlatformAdminUser()) {
-            usernameAndPasswordDTO.setNoDisplay();
-        }
-        return usernameAndPasswordDTO;
+        return screeningOrganizationBizService.saveScreeningOrganization(screeningOrganization);
     }
 
     /**
@@ -108,6 +104,7 @@ public class ScreeningOrganizationController {
             // 非平台管理员无法更新合作信息
             screeningOrganization.clearCooperationInfo();
             screeningOrganization.setStatus(null);
+            screeningOrganization.setAccountNum(null);
         }
         ScreeningOrgResponseDTO screeningOrgResponseDTO = screeningOrganizationBizService.updateScreeningOrganization(user, screeningOrganization);
         // 若为平台管理员且修改了用户名，则回显账户名
@@ -154,7 +151,7 @@ public class ScreeningOrganizationController {
      * @return 机构列表
      */
     @GetMapping("list")
-    public IPage<ScreeningOrgResponseDTO> getScreeningOrganizationList(PageRequest pageRequest, ScreeningOrganizationQueryDTO query) {
+    public IPage<ScreeningOrgResponseDTO> getScreeningOrganizationList(PageRequest pageRequest, ScreeningOrganizationQueryDTO query){
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         return screeningOrganizationBizService.getScreeningOrganizationList(pageRequest, query, user);
     }

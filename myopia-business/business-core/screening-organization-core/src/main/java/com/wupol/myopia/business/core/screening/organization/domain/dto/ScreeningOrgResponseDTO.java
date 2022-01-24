@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 import java.util.Date;
 
@@ -12,6 +13,7 @@ import java.util.Date;
  *
  * @author Simple4H
  */
+@Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class ScreeningOrgResponseDTO extends ScreeningOrganization {
@@ -60,4 +62,9 @@ public class ScreeningOrgResponseDTO extends ScreeningOrganization {
      * 筛查通知文件URL
      */
     private String noticeResultFileUrl;
+
+    /**
+     * 该机构下筛查人员总人数
+     */
+    private Integer screeningStaffTotalNum;
 }

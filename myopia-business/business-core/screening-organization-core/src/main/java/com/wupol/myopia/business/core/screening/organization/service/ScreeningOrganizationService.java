@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.core.screening.organization.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.StringUtils;
 import com.wupol.myopia.base.constant.SystemCode;
@@ -23,6 +22,7 @@ import com.wupol.myopia.business.core.screening.organization.domain.dto.Screenin
 import com.wupol.myopia.business.core.screening.organization.domain.mapper.ScreeningOrganizationMapper;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationAdmin;
+import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationStaff;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
 import com.wupol.myopia.oauth.sdk.domain.response.Organization;
@@ -55,6 +55,8 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     private DistrictService districtService;
     @Autowired
     private ResourceFileService resourceFileService;
+    @Autowired
+    private ScreeningOrganizationStaffService screeningOrganizationStaffService;
 
     /**
      * 父账号
@@ -194,17 +196,16 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      */
     public ScreeningOrgResponseDTO getScreeningOrgDetails(Integer id) {
         ScreeningOrgResponseDTO org = baseMapper.getOrgById(id);
-        if (null == org) {
-            throw new BusinessException("数据异常");
-        }
+        Assert.notNull(org, "不存在该筛查机构");
         if (Objects.isNull(org.getResultNoticeConfig())) {
             org.setResultNoticeConfig(new ResultNoticeConfig());
         } else {
             org.setNoticeResultFileUrl(Objects.nonNull(org.getResultNoticeConfig().getQrCodeFileId()) ?
                     resourceFileService.getResourcePath(org.getResultNoticeConfig().getQrCodeFileId()) : StringUtils.EMPTY);
         }
-        org.setLastCountDate(new Date());
-        return org;
+        int screeningStaffTotalNum = screeningOrganizationStaffService.count(new ScreeningOrganizationStaff().setScreeningOrgId(id));
+        return org.setLastCountDate(new Date())
+                .setScreeningStaffTotalNum(screeningStaffTotalNum);
     }
 
     /**
@@ -260,7 +261,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @param id   筛查机构ID
      * @return 是否重复
      */
-    public Boolean checkScreeningOrgName(String name, Integer id) {
+    public boolean checkScreeningOrgName(String name, Integer id) {
         return !baseMapper.getByNameAndNeId(name, id).isEmpty();
     }
 
@@ -272,10 +273,8 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @param districtId  行政区域
      * @return 筛查机构列表
      */
-    public IPage<ScreeningOrgResponseDTO> getByCondition(PageRequest pageRequest, ScreeningOrganizationQueryDTO query, Integer districtId) {
-        return baseMapper.getScreeningOrganizationListByCondition(
-                pageRequest.toPage(), query.getName(), query.getType(), query.getConfigType(), districtId,
-                query.getGovDeptId(), query.getPhone(), query.getStatus());
+    public IPage<ScreeningOrgResponseDTO> getByCondition(PageRequest pageRequest, ScreeningOrganizationQueryDTO query, Integer districtId){
+        return baseMapper.getScreeningOrganizationListByCondition(pageRequest.toPage(), districtId, query);
     }
 
     /**

@@ -44,6 +44,8 @@ public class ScreeningOrganization extends AddressCode implements Serializable, 
 
     private static final long serialVersionUID = 1L;
 
+    public static final Integer ACCOUNT_NUM = 5;
+
     /**
      * id
      */
@@ -107,6 +109,11 @@ public class ScreeningOrganization extends AddressCode implements Serializable, 
      * 说明
      */
     private String remark;
+
+    /**
+     * 筛查人员账号数量
+     */
+    private Integer accountNum;
 
     /**
      * 告知书配置

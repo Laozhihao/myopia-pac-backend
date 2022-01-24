@@ -157,6 +157,16 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     public IPage<ScreeningStudentDTO> selectPageByQuery(Page<ScreeningStudentDTO> page, ScreeningStudentQueryDTO query) {
         return baseMapper.selectPageByQuery(page, query);
     }
+    /**
+    * @Description: 导出学生筛查数据
+    * @Param: [query]
+    * @return: java.util.List<com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO>
+    * @Author: 钓猫的小鱼
+    * @Date: 2022/1/6
+    */
+    public List<ScreeningStudentDTO> selectListByQuery(ScreeningStudentQueryDTO query) {
+        return baseMapper.selectListByQuery(query);
+    }
 
     /**
      * 根据身份证号获取筛查学生
@@ -418,5 +428,17 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      */
     public List<ScreeningStudentDTO> getScreeningNoticeResultStudent(Integer planId, Integer schoolId, Integer gradeId, Integer classId, List<Integer> planStudentId, String planStudentName) {
         return baseMapper.getScreeningNoticeResultStudent(planId, schoolId, gradeId, classId, planStudentId, planStudentName);
+    }
+
+    /**
+     * 获取班级信息
+     *
+     * @param planId   计划Id
+     * @param schoolId 学校Id
+     * @param ids      ids
+     * @return List<GradeClassesDTO>
+     */
+    public List<GradeClassesDTO> getByPlanIdAndSchoolIdAndId(Integer planId, Integer schoolId, List<Integer> ids) {
+        return baseMapper.getByPlanIdAndSchoolIdAndId(planId, schoolId, ids);
     }
 }
