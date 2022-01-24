@@ -81,6 +81,9 @@ public class ScreeningPlanSchoolStudentFacadeService {
 
         IPage<ScreeningStudentDTO> studentDTOIPage = screeningPlanSchoolStudentService.selectPageByQuery(page, query);
         List<ScreeningStudentDTO> screeningStudentDTOS = studentDTOIPage.getRecords();
+        if (CollectionUtils.isEmpty(screeningStudentDTOS)) {
+            return studentDTOIPage;
+        }
         List<VisionScreeningResult> resultList  = visionScreeningResultService.getByPlanStudentIds(screeningStudentDTOS.stream().map(ScreeningStudentDTO::getPlanStudentId).collect(Collectors.toList()));
         // TODO：改为Map<Integer, VisionScreeningResult>，取初筛数据
         Map<Integer,List<VisionScreeningResult>> visionScreeningResultsGroup = resultList.stream().collect(Collectors.groupingBy(VisionScreeningResult::getStudentId));
