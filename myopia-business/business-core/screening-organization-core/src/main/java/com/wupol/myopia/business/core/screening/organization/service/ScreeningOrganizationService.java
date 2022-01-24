@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.screening.organization.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.StringUtils;
 import com.wupol.myopia.base.constant.SystemCode;
@@ -12,8 +13,10 @@ import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
+import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccountListDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationQueryDTO;
@@ -51,6 +54,8 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     private OauthServiceClient oauthServiceClient;
     @Autowired
     private DistrictService districtService;
+    @Autowired
+    private ResourceFileService resourceFileService;
     @Autowired
     private ScreeningOrganizationStaffService screeningOrganizationStaffService;
 
@@ -193,9 +198,26 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     public ScreeningOrgResponseDTO getScreeningOrgDetails(Integer id) {
         ScreeningOrgResponseDTO org = baseMapper.getOrgById(id);
         Assert.notNull(org, "不存在该筛查机构");
+        if (Objects.isNull(org.getResultNoticeConfig())) {
+            org.setResultNoticeConfig(new ResultNoticeConfig());
+        } else {
+            org.setNoticeResultFileUrl(Objects.nonNull(org.getResultNoticeConfig().getQrCodeFileId()) ?
+                    resourceFileService.getResourcePath(org.getResultNoticeConfig().getQrCodeFileId()) : StringUtils.EMPTY);
+        }
         int screeningStaffTotalNum = screeningOrganizationStaffService.count(new ScreeningOrganizationStaff().setScreeningOrgId(id));
         return org.setLastCountDate(new Date())
                 .setScreeningStaffTotalNum(screeningStaffTotalNum);
+    }
+
+    /**
+     * 分页查询
+     *
+     * @param page  分页
+     * @param query 条件
+     * @return {@link IPage} 分页结果
+     */
+    public IPage<ScreeningOrganization> getByPage(Page<?> page, ScreeningOrganizationQueryDTO query) {
+        return baseMapper.getByPage(page, query);
     }
 
     /**
@@ -352,6 +374,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
 
     /**
      * 处理机构状态，将已过合作时间但未处理为禁止的机构设置为禁止
+     *
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
@@ -371,6 +394,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
 
     /**
      * 获取状态未更新的机构（已到合作开始时间未启用，已到合作结束时间未停止）
+     *
      * @return
      */
     public List<ScreeningOrganization> getUnhandleOrganization(Date date) {
@@ -379,6 +403,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
 
     /**
      * CAS更新机构状态，当且仅当源状态为sourceStatus，且限定id
+     *
      * @param id
      * @param targetStatus
      * @param sourceStatus
@@ -390,8 +415,9 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
 
     /**
      * 获取指定合作结束时间的筛查机构信息
-     * @param start     开始时间早于该时间才处理
-     * @param end       指定结束时间，精确到天
+     *
+     * @param start 开始时间早于该时间才处理
+     * @param end   指定结束时间，精确到天
      * @return
      */
     public List<ScreeningOrganization> getByCooperationEndTime(Date start, Date end) {
@@ -400,12 +426,29 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
 
     /**
      * 检验筛查机构合作信息是否合法
+     *
      * @param screeningOrganization
      */
-    public void checkScreeningOrganizationCooperation(ScreeningOrganization screeningOrganization)  {
+    public void checkScreeningOrganizationCooperation(ScreeningOrganization screeningOrganization) {
         if (!screeningOrganization.checkCooperation()) {
             throw new BusinessException("合作信息非法，请确认");
         }
+    }
+
+    /**
+     * 更新结果通知配置
+     *
+     * @param id                 筛查机构Id
+     * @param resultNoticeConfig 结果通知
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void updateResultNoticeConfig(Integer id, ResultNoticeConfig resultNoticeConfig) {
+        ScreeningOrganization org = getById(id);
+        if (Objects.isNull(org)) {
+            throw new BusinessException("数据异常");
+        }
+        org.setResultNoticeConfig(resultNoticeConfig);
+        updateById(org);
     }
 
 }

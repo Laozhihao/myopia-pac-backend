@@ -29,6 +29,8 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
 
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
+    @Autowired
+    private VisionScreeningResultService visionScreeningResultService;
 
     /**
      * 根据学校ID获取筛查计划的学校
@@ -100,7 +102,6 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
      */
     public List<ScreeningPlanSchoolDTO> getSchoolVoListsByPlanId(Integer screeningPlanId, String schoolName) {
         List<ScreeningPlanSchoolDTO> screeningPlanSchools = baseMapper.selectVoListByPlanId(screeningPlanId,schoolName);
-
         Map<Integer, Long> schoolIdStudentCountMap = screeningPlanSchoolStudentService.getSchoolStudentCountByScreeningPlanId(screeningPlanId);
         screeningPlanSchools.forEach(vo -> vo.setStudentCount(schoolIdStudentCountMap.getOrDefault(vo.getSchoolId(), (long) 0).intValue()));
         return screeningPlanSchools;
@@ -210,4 +211,19 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
         return baseMapper.getResponseBySchoolId(pageRequest.toPage(), schoolId);
     }
 
+    /**
+     * 通过筛查计划ID获取所有关联的学校vo信息(有筛查数据)
+     *
+     * @param screeningPlanId 筛查计划ID
+     * @param schoolName      学校名称
+     * @return List<ScreeningPlanSchoolDTO>
+     */
+    public List<ScreeningPlanSchoolDTO> getHaveResultSchool(Integer screeningPlanId, String schoolName) {
+        List<ScreeningPlanSchoolDTO> schoolList = getSchoolVoListsByPlanId(screeningPlanId, schoolName);
+        List<Integer> schoolIds = visionScreeningResultService.getBySchoolIdPlanId(screeningPlanId);
+        if (org.springframework.util.CollectionUtils.isEmpty(schoolIds)) {
+            return new ArrayList<>();
+        }
+        return schoolList.stream().filter(s -> schoolIds.contains(s.getSchoolId())).collect(Collectors.toList());
+    }
 }

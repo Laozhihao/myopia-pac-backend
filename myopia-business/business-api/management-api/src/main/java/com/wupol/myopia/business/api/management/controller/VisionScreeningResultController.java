@@ -14,8 +14,8 @@ import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.aggregation.export.service.SysUtilService;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
-import com.wupol.myopia.business.api.management.service.StudentBizService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.interfaces.HasName;
 import com.wupol.myopia.business.core.common.service.DistrictService;
@@ -67,13 +67,14 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
     @Autowired
     private ExcelFacade excelFacade;
     @Autowired
-    private StudentBizService studentBizService;
-    @Autowired
     private RedisUtil redisUtil;
     @Autowired
     private StudentFacade studentFacade;
     @Autowired
     private ExportStrategy exportStrategy;
+    @Autowired
+    private SysUtilService sysUtilService;
+
     /**
      * 获取档案卡列表
      *
@@ -168,7 +169,8 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
         // 重复导出
         String key = String.format(RedisConstant.FILE_EXPORT_NOTICE_DATA, screeningNoticeId, screeningOrgId, districtId, schoolId, planId, currentUser.getId());
         checkIsExport(key);
-
+        // 导出限制
+        sysUtilService.isNoPlatformRepeatExport(String.format(RedisConstant.FILE_SCREENING_NOTICE_DATE, screeningNoticeId, screeningOrgId, districtId, schoolId, planId, currentUser.getId()), key);
         statConclusionExportVos.forEach(vo -> vo.setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(), vo.getAreaCode(), vo.getTownCode(), vo.getAddress())));
         // 获取文件需显示的名称
         excelFacade.generateVisionScreeningResult(currentUser.getId(), statConclusionExportVos, isSchoolExport, exportFileNamePrefix, key);
@@ -210,6 +212,8 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
         statConclusionExportDTOs.forEach(vo -> vo.setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(), vo.getAreaCode(), vo.getTownCode(), vo.getAddress())));
         String key = String.format(RedisConstant.FILE_EXPORT_PLAN_DATA, screeningPlanId,screeningOrgId,schoolId, currentUser.getId());
         checkIsExport(key);
+        // 导出限制
+        sysUtilService.isNoPlatformRepeatExport(String.format(RedisConstant.FILE_PLAN_SCREENING_DATE, screeningPlanId, screeningOrgId, schoolId, currentUser.getId()), key);
         // 获取文件需显示的名称
         excelFacade.generateVisionScreeningResult(currentUser.getId(), statConclusionExportDTOs, isSchoolExport, exportFileNamePrefix, key);
         return ApiResult.success();

@@ -114,3 +114,4 @@ white-list:
   - "/management/screeningResult/list-result"
   # 健康检查接口
   - "/actuator/health"
+  - "/management/screeningPlan/screeningNoticeResult"
