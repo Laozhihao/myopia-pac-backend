@@ -119,6 +119,7 @@
         <foreach collection="ids" open="(" close=")" separator="," item="id">
             #{id}
         </foreach>
+        order by create_time desc
     </select>
 
     <select id="selectPageByQuery" resultMap="DataAndOrgNameMap">

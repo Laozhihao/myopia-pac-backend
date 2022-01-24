@@ -119,4 +119,9 @@ public class ScreeningStudentDTO extends StudentDO {
      * 戴镜情况
      */
     private String glassesTypeDes;
+
+    /**
+     * 是否已经筛查过
+     **/
+    private Boolean hasScreening;
 }

@@ -578,7 +578,7 @@ public class RedisUtil {
     * @Author: 钓猫的小鱼
     * @Date: 2022/1/4
     */
-    public boolean cSet(String key, Map<String,Object> param) {
+    public boolean cSet(String key, Map<String,Integer> param) {
 
         try {
             long current=System.currentTimeMillis();//当前时间毫秒数

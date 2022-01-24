@@ -4,11 +4,11 @@ import com.alibaba.fastjson.JSON;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.CurrentUserUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Created with IntelliJ IDEA.
@@ -57,20 +57,22 @@ public class SysUtilService {
     * @Date: 2022/1/4
     */
     public void isExport(String key){
-        Map<String,Object> result = JSON.parseObject(redisUtil.get(key).toString(),HashMap.class);
+        Object object = redisUtil.get(key);
 
-        if (result.isEmpty()){
-            Map<String,Object> param  = new HashMap<>(2);
-            param.put(COUNT,1);
+        if (Objects.isNull(object)) {
+            Map<String, Integer> param  = new HashMap<>(2);
+            param.put(COUNT, 1);
             redisUtil.cSet(key,param);
+            return;
         }
-        int count = (Integer)result.get(COUNT);
-        if (count>=CALL_COUNT){
+        Map<String, Integer> result = JSON.parseObject(JSON.toJSONString(object), HashMap.class);
+        int count = result.get(COUNT);
+        if (count >= CALL_COUNT){
             throw new BusinessException("今天的次数已用完，请明天再操作！！！");
         }
-        count = count+1;
-        result.put(COUNT,count);
-        redisUtil.cSet(key,result);
+        count = count + 1;
+        result.put(COUNT, count);
+        redisUtil.cSet(key, result);
     }
 
 }

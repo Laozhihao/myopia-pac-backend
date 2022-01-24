@@ -5,10 +5,13 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudent
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentVisionScreeningResultExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Created with IntelliJ IDEA.
@@ -22,7 +25,7 @@ public class EyeDataUtil {
 
     public static StudentVisionScreeningResultExportDTO setStudentData(ScreeningStudentDTO studentDTO, VisionScreeningResult visionScreeningResult) {
         StudentVisionScreeningResultExportDTO studentVisionScreeningResultExportDTO = new StudentVisionScreeningResultExportDTO();
-        studentVisionScreeningResultExportDTO.setId(studentDTO.getId());
+        studentVisionScreeningResultExportDTO.setScreeningCode(Objects.nonNull(studentDTO.getScreeningCode()) ? studentDTO.getScreeningCode().toString() : StringUtils.EMPTY);
         //姓名
         studentVisionScreeningResultExportDTO.setStudentName(EyeDataUtil.name(studentDTO));
         //学号
@@ -47,18 +50,18 @@ public class EyeDataUtil {
         //右眼裸视力
         studentVisionScreeningResultExportDTO.setRightReScreenNakedVisions(EyeDataUtil.visionRightDataToStr(visionScreeningResult));
         //有眼矫正视力
-        studentVisionScreeningResultExportDTO.setRightReScreenCorrectedVisions(EyeDataUtil.correcteRightDataToStr(visionScreeningResult));
+        studentVisionScreeningResultExportDTO.setRightReScreenCorrectedVisions(EyeDataUtil.correctedRightDataToStr(visionScreeningResult));
 
         //左眼裸视力
         studentVisionScreeningResultExportDTO.setLeftReScreenNakedVisions(EyeDataUtil.visionLeftDataToStr(visionScreeningResult));
         //左眼矫正视力
-        studentVisionScreeningResultExportDTO.setLeftReScreenCorrectedVisions(EyeDataUtil.correcteLeftDataToStr(visionScreeningResult));
+        studentVisionScreeningResultExportDTO.setLeftReScreenCorrectedVisions(EyeDataUtil.correctedLeftDataToStr(visionScreeningResult));
 
         //右眼球镜
         studentVisionScreeningResultExportDTO.setRightReScreenSphs(EyeDataUtil.computerRightSph(visionScreeningResult));
         //右眼柱镜
         studentVisionScreeningResultExportDTO.setRightReScreenCyls(EyeDataUtil.computerRightCyl(visionScreeningResult));
-        //右眼轴为
+        //右眼轴向
         studentVisionScreeningResultExportDTO.setRightReScreenAxials(EyeDataUtil.computerRightAxial(visionScreeningResult));
         studentVisionScreeningResultExportDTO.setRightReScreenSphericalEquivalents(EyeDataUtil.rightReScreenSph(visionScreeningResult));
 
@@ -66,7 +69,7 @@ public class EyeDataUtil {
         studentVisionScreeningResultExportDTO.setLeftReScreenSphs(EyeDataUtil.computerLeftSph(visionScreeningResult));
         //左眼柱镜
         studentVisionScreeningResultExportDTO.setLeftReScreenCyls(EyeDataUtil.computerLeftCyl(visionScreeningResult));
-        //左眼州为
+        //左眼轴向
         studentVisionScreeningResultExportDTO.setLeftReScreenAxials(EyeDataUtil.computerLeftAxial(visionScreeningResult));
         studentVisionScreeningResultExportDTO.setLeftReScreenSphericalEquivalents(EyeDataUtil.leftReScreenSph(visionScreeningResult));
 
@@ -80,20 +83,13 @@ public class EyeDataUtil {
 
             return "--";
         }
-        if (visionScreeningResult.getComputerOptometry().getLeftEyeData().getSph()==null){
-
-            return "球镜为null";
+        BigDecimal sph = visionScreeningResult.getComputerOptometry().getLeftEyeData().getSph();
+        BigDecimal cyl = visionScreeningResult.getComputerOptometry().getLeftEyeData().getCyl();
+        if (Objects.isNull(sph) || Objects.isNull(cyl)){
+            return "--";
         }
-        if (visionScreeningResult.getComputerOptometry().getLeftEyeData().getCyl()==null){
-
-            return "柱镜为null";
-        }
-
-        BigDecimal cyl = visionScreeningResult.getComputerOptometry().getLeftEyeData().getCyl().divide(new BigDecimal(2),2,BigDecimal.ROUND_HALF_UP);
-
-        BigDecimal resulr = visionScreeningResult.getComputerOptometry().getLeftEyeData().getSph().add(cyl);
-
-        return resulr.toString();
+        BigDecimal halfCyl = cyl.divide(new BigDecimal(2),2,BigDecimal.ROUND_HALF_UP);
+        return sph.add(halfCyl).toString();
     }
 
     /**
@@ -108,20 +104,13 @@ public class EyeDataUtil {
 
             return "--";
         }
-        if (visionScreeningResult.getComputerOptometry().getRightEyeData().getSph()==null){
-
-            return "球镜为null";
+        BigDecimal sph = visionScreeningResult.getComputerOptometry().getRightEyeData().getSph();
+        BigDecimal cyl = visionScreeningResult.getComputerOptometry().getRightEyeData().getCyl();
+        if (Objects.isNull(sph) || Objects.isNull(cyl)){
+            return "--";
         }
-        if (visionScreeningResult.getComputerOptometry().getRightEyeData().getCyl()==null){
-
-            return "柱镜为null";
-        }
-
-        BigDecimal cyl = visionScreeningResult.getComputerOptometry().getRightEyeData().getCyl().divide(new BigDecimal(2),2,BigDecimal.ROUND_HALF_UP);
-
-        BigDecimal resulr = visionScreeningResult.getComputerOptometry().getRightEyeData().getSph().add(cyl);
-
-        return resulr.toString();
+        BigDecimal halfCyl = cyl.divide(new BigDecimal(2),2,BigDecimal.ROUND_HALF_UP);
+        return sph.add(halfCyl).toString();
     }
 
     public static String className(ScreeningStudentDTO screeningStudentDTO){
@@ -218,19 +207,19 @@ public class EyeDataUtil {
                 &&visionScreeningResult.getComputerOptometry().getLeftEyeData()!=null
                 &&visionScreeningResult.getComputerOptometry().getLeftEyeData().getAxial()!=null){
 
-            return visionScreeningResult.getComputerOptometry().getLeftEyeData().getAxial().toString();
+            return visionScreeningResult.getComputerOptometry().getLeftEyeData().getAxial().setScale(0, RoundingMode.DOWN).toString();
         }
 
         return "--";
     }
 
-    public static String computerRightAxial(VisionScreeningResult visionScreeningResult){
-        if (visionScreeningResult!=null
-                &&visionScreeningResult.getComputerOptometry()!=null
-                &&visionScreeningResult.getComputerOptometry().getRightEyeData()!=null
-                &&visionScreeningResult.getComputerOptometry().getRightEyeData().getAxial()!=null){
+    public static String computerRightAxial(VisionScreeningResult visionScreeningResult) {
+        if (visionScreeningResult != null
+                && visionScreeningResult.getComputerOptometry() != null
+                && visionScreeningResult.getComputerOptometry().getRightEyeData() != null
+                && visionScreeningResult.getComputerOptometry().getRightEyeData().getAxial() != null) {
 
-            return visionScreeningResult.getComputerOptometry().getRightEyeData().getAxial().toString();
+            return visionScreeningResult.getComputerOptometry().getRightEyeData().getAxial().setScale(0, RoundingMode.DOWN).toString();
         }
 
         return "--";
@@ -334,25 +323,25 @@ public class EyeDataUtil {
     }
 
 
-    public static String correcteLeftDataToStr(VisionScreeningResult visionScreeningResult){
+    public static String correctedLeftDataToStr(VisionScreeningResult visionScreeningResult){
         if (visionScreeningResult!=null
                 &&visionScreeningResult.getVisionData()!=null
                 &&visionScreeningResult.getVisionData().getLeftEyeData()!=null
                 &&visionScreeningResult.getVisionData().getLeftEyeData().getCorrectedVision()!=null){
 
-            return visionScreeningResult.getVisionData().getLeftEyeData().getCorrectedVision().toString();
+            return visionScreeningResult.getVisionData().getLeftEyeData().getCorrectedVision().setScale(1, RoundingMode.DOWN).toString();
         }
 
         return "--";
     }
 
-    public static String correcteRightDataToStr(VisionScreeningResult visionScreeningResult){
+    public static String correctedRightDataToStr(VisionScreeningResult visionScreeningResult){
         if (visionScreeningResult!=null
                 &&visionScreeningResult.getVisionData()!=null
                 &&visionScreeningResult.getVisionData().getRightEyeData()!=null
                 &&visionScreeningResult.getVisionData().getRightEyeData().getCorrectedVision()!=null){
 
-            return visionScreeningResult.getVisionData().getRightEyeData().getCorrectedVision().toString();
+            return visionScreeningResult.getVisionData().getRightEyeData().getCorrectedVision().setScale(1, RoundingMode.DOWN).toString();
         }
 
         return "--";
@@ -364,7 +353,7 @@ public class EyeDataUtil {
                 &&visionScreeningResult.getVisionData().getRightEyeData()!=null
                 &&visionScreeningResult.getVisionData().getRightEyeData().getNakedVision()!=null){
 
-            return visionScreeningResult.getVisionData().getRightEyeData().getNakedVision().toString();
+            return visionScreeningResult.getVisionData().getRightEyeData().getNakedVision().setScale(1, RoundingMode.DOWN).toString();
         }
 
         return "--";
@@ -372,7 +361,7 @@ public class EyeDataUtil {
 
     public static String visionLeftDataToStr(VisionScreeningResult visionScreeningResult){
         if (resultData(visionScreeningResult)){
-            return visionScreeningResult.getVisionData().getLeftEyeData().getNakedVision().toString();
+            return visionScreeningResult.getVisionData().getLeftEyeData().getNakedVision().setScale(1, RoundingMode.DOWN).toString();
         }
         return "--";
     }
@@ -393,11 +382,14 @@ public class EyeDataUtil {
     }
 
     private static String setSphCyl(BigDecimal bigDecimal){
-        int r=bigDecimal.compareTo(BigDecimal.ZERO);
-        if (r>0||r==0){
-            return "+"+bigDecimal.toString();
+        if (Objects.isNull(bigDecimal)) {
+            return "--";
         }
-        return bigDecimal.toString();
+        int r = bigDecimal.compareTo(BigDecimal.ZERO);
+        if (r >= 0){
+            return "+" + bigDecimal.setScale(2, RoundingMode.DOWN).toString();
+        }
+        return bigDecimal.setScale(2, RoundingMode.DOWN).toString();
     }
 
 }

@@ -12,8 +12,7 @@ import java.io.Serializable;
 public class DeviceScreeningDataExportDTO implements Serializable {
 
     @ExcelProperty("ID")
-    private Integer id;
-
+    private String id;
 
     @ExcelProperty("姓名")
     private String patientName;
@@ -23,11 +22,6 @@ public class DeviceScreeningDataExportDTO implements Serializable {
      */
     @ExcelProperty("性别")
     private String patientGender;
-    /**
-     * 受检者月龄
-     */
-    @ExcelProperty("年龄")
-    private Integer patientAge;
 
     /**
      * 受检者年龄段(未知=-1,1=(0M,12M] 2=(12M,36M], 3=(3y,6Y], 4=(6Y-20Y], 5=(20Y,100Y])
@@ -69,53 +63,53 @@ public class DeviceScreeningDataExportDTO implements Serializable {
      * 右眼球镜
      */
     @ExcelProperty("球镜（右）")
-    private Double rightSph;
+    private String rightSph;
 
 
     /**
      * 右眼柱镜
      */
     @ExcelProperty("柱镜（右）")
-    private Double rightCyl;
+    private String rightCyl;
 
 
     /**
      * 右眼轴位
      */
     @ExcelProperty("轴位（右）")
-    private Double rightAxsi;
+    private String rightAxsi;
 
 
     /**
      * 右眼等效球镜度
      */
     @ExcelProperty("等效球镜（右）")
-    private Double rightPa;
+    private String rightPa;
 
 
     /**
      * 左眼球镜
      */
     @ExcelProperty("球镜（左）")
-    private Double leftSph;
+    private String leftSph;
 
     /**
      * 左眼柱镜
      */
     @ExcelProperty("柱镜（左）")
-    private Double leftCyl;
+    private String leftCyl;
 
     /**
      * 左眼轴位
      */
     @ExcelProperty("轴位（左）")
-    private Double leftAxsi;
+    private String leftAxsi;
 
     /**
      * 左眼等效球镜度
      */
     @ExcelProperty("等效球镜（左）")
-    private Double leftPa;
+    private String leftPa;
 
 
     /**

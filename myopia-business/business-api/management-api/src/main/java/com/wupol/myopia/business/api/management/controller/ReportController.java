@@ -167,8 +167,8 @@ public class ReportController {
     @GetMapping("/school/student/archives")
     public ApiResult<String> syncExportSchoolStudentArchives(
                                                              String planStudentIds,
-                                                             @NotNull(message = "班级ID不能为空") Integer classId,
-                                                             @NotNull(message = "年级ID不能为空") Integer gradeId,
+                                                             Integer classId,
+                                                             Integer gradeId,
                                                              @NotNull(message = "学校ID不能为空") Integer schoolId,
                                                              @NotNull(message = "筛查机构ID不能为空") Integer screeningOrgId,
                                                              @NotNull(message = "筛查计划ID不能为空") Integer planId) {
@@ -176,6 +176,7 @@ public class ReportController {
         if (CollectionUtils.isEmpty(visionScreeningResultService.getByPlanStudentIds(planStudentIdList))) {
             throw new BusinessException("所选学生无筛查数据");
         }
+
 
         String key =  String.format(RedisConstant.FILE_EXPORT_EXCEL_ARCHIVES_COUNT,
                 "syncExportSchoolStudentArchives",CurrentUserUtil.getCurrentUser().getId(),planId, schoolId, planStudentIds);

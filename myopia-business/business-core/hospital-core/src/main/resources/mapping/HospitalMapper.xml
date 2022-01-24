@@ -103,12 +103,6 @@
         <if test="@Ognl@isNotEmpty(query.cooperationEndTimeLe)">
             and h.cooperation_end_time &lt;= #{query.cooperationEndTimeLe}
         </if>
-        <if test="query.startTime !=null and query.startTime !=''">
-            and h.cooperation_end_time &gt;= #{query.startTime}
-        </if>
-        <if test="query.endTime !=null and query.endTime !=''">
-            and h.cooperation_end_time &lt;= #{query.endTime}
-        </if>
         <if test="query.serviceType != null">
             and h.service_type = #{query.serviceType}
         </if>

@@ -28,6 +28,7 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -337,6 +338,17 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         LambdaQueryWrapper<ScreeningOrganizationStaff> screeningOrganizationStaffLambdaQueryWrapper = new LambdaQueryWrapper<>();
         screeningOrganizationStaffLambdaQueryWrapper.setEntity(screeningOrganizationStaff);
         return baseMapper.selectList(screeningOrganizationStaffLambdaQueryWrapper);
+    }
+
+    /**
+     * 根据筛查机构ID统计
+     *
+     * @param screeningOrgId 筛查
+     * @return int
+     **/
+    public int countByScreeningOrgId(Integer screeningOrgId) {
+        Assert.notNull(screeningOrgId, "screeningOrgId不能为空");
+        return count(new ScreeningOrganizationStaff().setScreeningOrgId(screeningOrgId));
     }
 
 }

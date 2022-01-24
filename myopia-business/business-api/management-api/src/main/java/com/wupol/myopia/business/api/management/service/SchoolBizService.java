@@ -221,7 +221,7 @@ public class SchoolBizService {
 
         // 查询
         IPage<SchoolResponseDTO> schoolDtoIPage = schoolService.getSchoolListByCondition(pageRequest,
-                schoolQueryDTO, resultDistrictId, userIds, resultDistrictId.getSecond());
+                schoolQueryDTO, resultDistrictId.getFirst(), userIds, resultDistrictId.getSecond());
 
         List<SchoolResponseDTO> schools = schoolDtoIPage.getRecords();
 

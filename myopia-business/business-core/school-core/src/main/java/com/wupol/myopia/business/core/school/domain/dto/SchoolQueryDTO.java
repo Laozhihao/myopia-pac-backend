@@ -7,6 +7,7 @@ import lombok.experimental.Accessors;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -51,10 +52,23 @@ public class SchoolQueryDTO extends School {
      * 过期时间大于expireDayGt天
      */
     private Integer expireDayGt;
+
     /**
      * 过期时间小于等于expireDayLe天
      */
     private Integer expireDayLe;
+
+    /**
+     * 过期时间大于等于cooperationEndTimeGe
+     */
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    private Date cooperationEndTimeGe;
+
+    /**
+     * 过期时间小于等于cooperationEndTimeLe
+     */
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    private Date cooperationEndTimeLe;
 
     public Boolean getNeedCheckHavePlan() {
         return !Objects.isNull(needCheckHavePlan) && needCheckHavePlan;
