@@ -11,6 +11,7 @@ import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.api.management.service.SysUtilService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
@@ -172,9 +173,11 @@ public class ReportController {
                                                              @NotNull(message = "学校ID不能为空") Integer schoolId,
                                                              @NotNull(message = "筛查机构ID不能为空") Integer screeningOrgId,
                                                              @NotNull(message = "筛查计划ID不能为空") Integer planId) {
-        List<Integer> planStudentIdList = Arrays.stream(planStudentIds.split(",")).map(Integer::valueOf).collect(Collectors.toList());
-        if (CollectionUtils.isEmpty(visionScreeningResultService.getByPlanStudentIds(planStudentIdList))) {
-            throw new BusinessException("所选学生无筛查数据");
+        if (StringUtils.isNotBlank(planStudentIds)) {
+            List<Integer> planStudentIdList = Arrays.stream(planStudentIds.split(",")).map(Integer::valueOf).collect(Collectors.toList());
+            if (CollectionUtils.isEmpty(visionScreeningResultService.getByPlanStudentIds(planStudentIdList))) {
+                throw new BusinessException("所选学生无筛查数据");
+            }
         }
 
 
