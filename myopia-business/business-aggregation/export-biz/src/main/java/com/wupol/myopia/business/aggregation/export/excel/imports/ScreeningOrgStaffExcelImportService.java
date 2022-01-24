@@ -1,25 +1,20 @@
 package com.wupol.myopia.business.aggregation.export.excel.imports;
 
 import cn.hutool.core.util.IdcardUtil;
-import com.alibaba.excel.EasyExcel;
-import com.alibaba.excel.exception.ExcelAnalysisException;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
-import com.wupol.myopia.base.util.IOUtils;
 import com.wupol.myopia.base.util.PasswordAndUsernameGenerator;
 import com.wupol.myopia.base.util.RegularUtils;
-import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.aggregation.export.excel.domain.StaffImportEnum;
-import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
+import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationStaffDTO;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationStaffService;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -27,8 +22,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -50,9 +43,6 @@ public class ScreeningOrgStaffExcelImportService {
     @Resource
     private OauthServiceClient oauthServiceClient;
 
-    @Resource
-    private ExcelFacade excelFacade;
-
     /**
      * 导入机构人员
      *
@@ -66,33 +56,9 @@ public class ScreeningOrgStaffExcelImportService {
             throw new BusinessException("机构ID不能为空");
         }
 
-        List<Map<Integer, String>> listMap = excelFacade.readExcel(multipartFile);
-
-//        String fileName = IOUtils.getTempPath() + multipartFile.getName() + "_" + System.currentTimeMillis() + CommonConst.FILE_SUFFIX;
-//        File file = new File(fileName);
-//        try {
-//            FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
-//        } catch (IOException e) {
-//            log.error("导入人员数据异常:", e);
-//            throw new BusinessException("导入人员数据异常");
-//        }
-//        // 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
-//        List<Map<Integer, String>> listMap;
-//        try {
-//            listMap = EasyExcel.read(fileName).sheet().doReadSync();
-//        } catch (ExcelAnalysisException excelAnalysisException) {
-//            log.error("导入机构人员异常", excelAnalysisException);
-//            throw new BusinessException("解析文件格式异常");
-//        } catch (Exception e) {
-//            log.error("导入机构人员异常", e);
-//            throw new BusinessException("解析Excel文件异常");
-//        }
-//        if (!listMap.isEmpty()) { // 去头部
-//            listMap.remove(0);
-//        }
+        List<Map<Integer, String>> listMap = FileUtils.readExcel(multipartFile);
 
         preCheckStaff(screeningOrgId, listMap);
-
         // excel格式：序号	姓名	性别	身份证号	手机号码	说明
         List<UserDTO> userList = new ArrayList<>();
         for (Map<Integer, String> item : listMap) {

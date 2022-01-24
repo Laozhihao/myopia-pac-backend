@@ -5,10 +5,10 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.ListUtil;
 import com.wupol.myopia.base.util.RegularUtils;
-import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
+import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.common.utils.util.IdCardUtil;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
@@ -52,9 +52,6 @@ public class StudentExcelImportService {
     @Resource
     private DistrictService districtService;
 
-    @Resource
-    private ExcelFacade excelFacade;
-
 
     /**
      * 导入学生
@@ -64,7 +61,7 @@ public class StudentExcelImportService {
      * @throws BusinessException 异常
      */
     public void importStudent(Integer createUserId, MultipartFile multipartFile, Integer schoolId) throws ParseException {
-        List<Map<Integer, String>> listMap = excelFacade.readExcel(multipartFile);
+        List<Map<Integer, String>> listMap = FileUtils.readExcel(multipartFile);
         if (CollectionUtils.isEmpty(listMap)) {
             return;
         }
