@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.screening.organization.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.StringUtils;
 import com.wupol.myopia.base.constant.SystemCode;
@@ -197,15 +198,26 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     public ScreeningOrgResponseDTO getScreeningOrgDetails(Integer id) {
         ScreeningOrgResponseDTO org = baseMapper.getOrgById(id);
         Assert.notNull(org, "不存在该筛查机构");
-        int screeningStaffTotalNum = screeningOrganizationStaffService.count(new ScreeningOrganizationStaff().setScreeningOrgId(id));
         if (Objects.isNull(org.getResultNoticeConfig())) {
             org.setResultNoticeConfig(new ResultNoticeConfig());
         } else {
             org.setNoticeResultFileUrl(Objects.nonNull(org.getResultNoticeConfig().getQrCodeFileId()) ?
                     resourceFileService.getResourcePath(org.getResultNoticeConfig().getQrCodeFileId()) : StringUtils.EMPTY);
         }
+        int screeningStaffTotalNum = screeningOrganizationStaffService.count(new ScreeningOrganizationStaff().setScreeningOrgId(id));
         return org.setLastCountDate(new Date())
                 .setScreeningStaffTotalNum(screeningStaffTotalNum);
+    }
+
+    /**
+     * 分页查询
+     *
+     * @param page  分页
+     * @param query 条件
+     * @return {@link IPage} 分页结果
+     */
+    public IPage<ScreeningOrganization> getByPage(Page<?> page, ScreeningOrganizationQueryDTO query) {
+        return baseMapper.getByPage(page, query);
     }
 
     /**

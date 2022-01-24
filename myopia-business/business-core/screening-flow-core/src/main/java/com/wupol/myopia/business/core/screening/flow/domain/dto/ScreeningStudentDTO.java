@@ -90,6 +90,7 @@ public class ScreeningStudentDTO extends StudentDO {
      */
     private String noticeQrCodeFileUrl;
 
+
     /**
      * 裸视力 右/左
      */
