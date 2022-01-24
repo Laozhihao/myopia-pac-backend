@@ -110,7 +110,8 @@ public class ScreeningDataFormatUtils {
      * @return String
      */
     public static String generateSingleEyeDegree(Object val) {
-        return Objects.nonNull(val) ? val + "°" : "--";
+        DecimalFormat decimalFormat = new DecimalFormat("0");
+        return Objects.nonNull(val) ? decimalFormat.format(val) + "°" : "--";
     }
 
     /**
