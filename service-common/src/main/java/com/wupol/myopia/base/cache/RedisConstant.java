@@ -180,6 +180,11 @@ public interface RedisConstant {
      */
     String FILE_EXPORT_PLAN_SCREENING_DATA = "file:export:plan:%s-%s-%s-%s-%s-%s";
 
+    /**
+     * 导出档案卡
+     */
+    String FILE_EXPORT_PLAN_ARCHIVES_DATA = "file:export:archives:%s-%s-%s-%s-%s-%s-%s";
+
 
 
 }
