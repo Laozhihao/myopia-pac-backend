@@ -225,17 +225,7 @@ public class ScreeningPlanStudentBizService {
 
         Map<Integer, List<ScreeningStudentDTO>> planGroup = screeningStudentDTOS.stream().collect(Collectors.groupingBy(ScreeningStudentDTO::getPlanId));
 
-        String appendName;
-        if (isSchoolClient) {
-            appendName = schoolService.getById(schoolId).getName();
-        } else {
-            if (Objects.nonNull(schoolId)) {
-                appendName = schoolService.getById(schoolId).getName();
-            } else {
-                appendName = screeningOrganizationService.getById(orgId).getName();
-            }
-        }
-
+        String appendName = getAppendName(schoolId, orgId, isSchoolClient);
         for (Map.Entry<Integer, List<ScreeningStudentDTO>> planEntry : planGroup.entrySet()) {
             List<ScreeningStudentDTO> planList = planEntry.getValue();
             if (CollectionUtils.isEmpty(planList)) {
@@ -298,6 +288,28 @@ public class ScreeningPlanStudentBizService {
         } finally {
             FileUtil.del(fileSaveParentPath);
         }
+    }
+
+    /**
+     * 获取文件名
+     *
+     * @param schoolId       学校Id
+     * @param orgId          机构Id
+     * @param isSchoolClient 是否学校端
+     * @return 文件名
+     */
+    private String getAppendName(Integer schoolId, Integer orgId, Boolean isSchoolClient) {
+        String appendName;
+        if (Boolean.TRUE.equals(isSchoolClient)) {
+            appendName = schoolService.getById(schoolId).getName();
+        } else {
+            if (Objects.nonNull(schoolId)) {
+                appendName = schoolService.getById(schoolId).getName();
+            } else {
+                appendName = screeningOrganizationService.getById(orgId).getName();
+            }
+        }
+        return appendName;
     }
 
     /**
