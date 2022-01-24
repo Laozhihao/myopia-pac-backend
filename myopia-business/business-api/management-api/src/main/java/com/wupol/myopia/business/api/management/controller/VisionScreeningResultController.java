@@ -15,7 +15,7 @@ import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
-import com.wupol.myopia.business.api.management.service.SysUtilService;
+import com.wupol.myopia.business.api.management.service.StudentBizService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.interfaces.HasName;
 import com.wupol.myopia.business.core.common.service.DistrictService;
@@ -67,13 +67,13 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
     @Autowired
     private ExcelFacade excelFacade;
     @Autowired
+    private StudentBizService studentBizService;
+    @Autowired
     private RedisUtil redisUtil;
     @Autowired
     private StudentFacade studentFacade;
     @Autowired
     private ExportStrategy exportStrategy;
-    @Autowired
-    private SysUtilService sysUtilService;
     /**
      * 获取档案卡列表
      *
@@ -310,16 +310,9 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
 
         if (classId==null){
 
-            String key =  String.format(RedisConstant.FILE_EXPORT_EXCEL_COUNT,
-                    "getScreeningPlanExportDoAndSync",exportCondition.getApplyExportFileUserId(), exportCondition.getPlanId(), exportCondition.getSchoolId(), exportCondition.getClassId(), exportCondition.getGradeId());
-            sysUtilService.isNoPlatformRepeatExport(key);
-
             exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.EXPOR_TPLAN_STUDENT_DATA_EXCEL_SERVICE);
             return ApiResult.success();
         }else {
-            String key =  String.format(RedisConstant.FILE_EXPORT_EXCEL_COUNT,
-                    "getScreeningPlanExportDoAndSync",exportCondition.getApplyExportFileUserId(), exportCondition.getPlanId(), exportCondition.getSchoolId(), exportCondition.getClassId(), exportCondition.getGradeId());
-            sysUtilService.isNoPlatformRepeatExport(key);
 
             String path = exportStrategy.syncExport(exportCondition, ExportReportServiceNameConstant.EXPOR_TPLAN_STUDENT_DATA_EXCEL_SERVICE);
             return ApiResult.success(path);
