@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.aggregation.export.pdf.archives;
 
+import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.BaseExportPdfFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.GeneratePdfFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.PDFFileNameConstant;
@@ -49,7 +50,14 @@ public class SyncExportStudentArchivesService extends BaseExportPdfFileService {
 
     @Override
     public String getLockKey(ExportCondition exportCondition) {
-        return null;
+        return String.format(RedisConstant.FILE_EXPORT_PLAN_ARCHIVES_DATA,
+                exportCondition.getPlanId(),
+                exportCondition.getScreeningOrgId(),
+                exportCondition.getApplyExportFileUserId(),
+                exportCondition.getSchoolId(),
+                exportCondition.getClassId(),
+                exportCondition.getGradeId(),
+                exportCondition.getPlanStudentIds());
     }
 
 }

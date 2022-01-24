@@ -526,7 +526,6 @@ public class ScreeningAppService {
         School school = schoolService.getById(schoolId);
 
         schoolStudent.setStudentId(student.getId());
-        schoolStudent.setSchoolNo(school.getSchoolNo());
         schoolStudent.setSchoolId(schoolId);
         schoolStudent.setCreateUserId(student.getCreateUserId());
         schoolStudent.setSno(sno);

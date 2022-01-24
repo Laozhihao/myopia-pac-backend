@@ -10,7 +10,6 @@
         id,
         student_id,
         school_id,
-        school_no,
         create_user_id,
         sno,
         grade_id,

@@ -5,7 +5,7 @@
     <parent>
         <artifactId>myopia-pac-backend</artifactId>
         <groupId>com.wupol.myopia</groupId>
-        <version>MP-2.3.0</version>
+        <version>MP-2.3.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>myopia-business</artifactId>
