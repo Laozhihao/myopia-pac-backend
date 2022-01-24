@@ -90,7 +90,9 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         Integer screeningOrgId = exportCondition.getScreeningOrgId();
         Integer schoolId = exportCondition.getSchoolId();
         Integer userId = exportCondition.getApplyExportFileUserId();
-        return String.format(RedisConstant.FILE_EXPORT_PLAN_DATA, screeningPlanId,screeningOrgId,schoolId, userId);
+        Integer gradeId = exportCondition.getGradeId();
+        Integer classId = exportCondition.getClassId();
+        return String.format(RedisConstant.FILE_EXPORT_PLAN_SCREENING_DATA, screeningPlanId, screeningOrgId, schoolId, userId, gradeId, classId);
     }
 
     @Override
