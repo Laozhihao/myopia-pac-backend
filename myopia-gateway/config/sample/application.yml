@@ -25,7 +25,7 @@ spring:
           /preschool/app/parent/parentStudent/report/visits/detail, /preschool/app/parent/parentStudent/report/screening/detail,
           /preschool/app/management/common/fileUpload, /preschool/app/management/district/child/**, /preschool/app/management/school/getSchools/schoolName,
           /preschool/app/management/schoolGrade/all, /preschool/app/management/schoolClass/all, /preschool/app/parent/parentStudent/report/screening/list/,
-          /preschool/app/app/screening/student/findOneById, /hospital/app/management/common/app/version/latest
+          /preschool/app/app/screening/student/findOneById, /preschool/app/management/common/app/version/latest
         filters:
         - StripPrefix=2
 
