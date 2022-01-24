@@ -38,7 +38,7 @@ public class ExcelNoticeKeyContentConstant {
     /**
      * 筛查数据 Excel 导出通知消息的关键内容
      */
-    public final String PLAN_STUDENT_EXCEL_NOTICE_KEY_CONTENT = "%s在%s至%s的%s%s筛查学生数据表";
+    public final String PLAN_STUDENT_EXCEL_NOTICE_KEY_CONTENT = "%s在%s至%s的%s%s学生数据表";
 
     /**
      * 学生预警跟踪档案 Excel 导出通知消息的关键内容
@@ -49,6 +49,6 @@ public class ExcelNoticeKeyContentConstant {
      * 学生 Excel 导出通知消息的关键内容
      *  作者钓猫的小鱼
      */
-    public final String EXPORT_PLAN_STUDENT_DATA = "%s学生数据表";
+    public final String EXPORT_PLAN_STUDENT_DATA = "%s筛查数据表";
 
 }
