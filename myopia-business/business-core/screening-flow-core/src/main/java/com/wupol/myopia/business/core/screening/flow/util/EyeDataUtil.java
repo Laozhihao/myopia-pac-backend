@@ -5,6 +5,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudent
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentVisionScreeningResultExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -24,7 +25,7 @@ public class EyeDataUtil {
 
     public static StudentVisionScreeningResultExportDTO setStudentData(ScreeningStudentDTO studentDTO, VisionScreeningResult visionScreeningResult) {
         StudentVisionScreeningResultExportDTO studentVisionScreeningResultExportDTO = new StudentVisionScreeningResultExportDTO();
-        studentVisionScreeningResultExportDTO.setScreeningCode(studentDTO.getScreeningCode());
+        studentVisionScreeningResultExportDTO.setScreeningCode(Objects.nonNull(studentDTO.getScreeningCode()) ? studentDTO.getScreeningCode().toString() : StringUtils.EMPTY);
         //姓名
         studentVisionScreeningResultExportDTO.setStudentName(EyeDataUtil.name(studentDTO));
         //学号
