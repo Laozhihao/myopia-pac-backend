@@ -229,7 +229,11 @@ public class ScreeningPlanStudentBizService {
         if (isSchoolClient) {
             appendName = schoolService.getById(schoolId).getName();
         } else {
-            appendName = screeningOrganizationService.getById(orgId).getName();
+            if (Objects.nonNull(schoolId)) {
+                appendName = schoolService.getById(schoolId).getName();
+            } else {
+                appendName = screeningOrganizationService.getById(orgId).getName();
+            }
         }
 
         for (Map.Entry<Integer, List<ScreeningStudentDTO>> planEntry : planGroup.entrySet()) {
