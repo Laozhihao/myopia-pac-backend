@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.screening.organization.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.StringUtils;
 import com.wupol.myopia.base.constant.SystemCode;
