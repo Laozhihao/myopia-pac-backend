@@ -3,6 +3,7 @@ package com.wupol.myopia.business.aggregation.screening.service;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ZipUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.base.domain.vo.PdfGeneratorVO;
@@ -25,11 +26,9 @@ import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.StudentDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.system.service.NoticeService;
@@ -40,13 +39,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.vistel.Interface.exception.UtilException;
 import org.springframework.util.CollectionUtils;
 
-
 import javax.annotation.Resource;
-import java.io.*;
-import java.net.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -89,8 +89,6 @@ public class ScreeningPlanStudentBizService {
     @Resource
     private S3Utils s3Utils;
     @Resource
-    private ScreeningPlanService screeningPlanService;
-    @Resource
     private SchoolClassService schoolClassService;
 
     /**
@@ -98,7 +96,7 @@ public class ScreeningPlanStudentBizService {
      */
     public static final String SCREENING_NOTICE_RESULT_HTML_URL = "%s?planId=%d&schoolId=%s&gradeId=%s&classId=%s&orgId=%s&planStudentIdStr=%s&isSchoolClient=%s&noticeReport=1";
 
-    private static final String SCREENING_NAME = "筛查结构通知书";
+    private static final String SCREENING_NAME = "筛查结果通知书";
 
     /**
      * 更新筛查学生
@@ -231,7 +229,11 @@ public class ScreeningPlanStudentBizService {
         if (isSchoolClient) {
             appendName = schoolService.getById(schoolId).getName();
         } else {
-            appendName = screeningOrganizationService.getById(orgId).getName();
+            if (Objects.nonNull(schoolId)) {
+                appendName = schoolService.getById(schoolId).getName();
+            } else {
+                appendName = screeningOrganizationService.getById(orgId).getName();
+            }
         }
 
         for (Map.Entry<Integer, List<ScreeningStudentDTO>> planEntry : planGroup.entrySet()) {
@@ -281,7 +283,7 @@ public class ScreeningPlanStudentBizService {
                                             classMap.get(classEntry.getKey()).getName() + SCREENING_NAME + "/" +
                                             fileName + ".pdf");
                         } catch (Exception e) {
-                            log.error("Exception",e);
+                            log.error("Exception", e);
                         }
                     }
                 }
@@ -394,14 +396,15 @@ public class ScreeningPlanStudentBizService {
 
     /**
      * 文件下载
-     * @param fileUrl 下载路径
+     *
+     * @param fileUrl  下载路径
      * @param savePath 存放地址
      */
-    public static void downloadFile(String fileUrl,String savePath) throws Exception {
+    public static void downloadFile(String fileUrl, String savePath) throws Exception {
 
         File file = new File(savePath);
         File parentFile = file.getParentFile();
-        if(!parentFile.exists()){
+        if (!parentFile.exists()) {
             parentFile.mkdirs();
         }
         if (!file.exists()) {
