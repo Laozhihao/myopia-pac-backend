@@ -539,33 +539,4 @@ public class ScreeningPlanController {
         return ApiResult.success(visionScreeningResult);
 
     }
-
-    /**
-     * 通过条件获取筛查学生
-     *
-     * @param planId           计划Id
-     * @param schoolId         学校Id
-     * @param gradeId          年级Id
-     * @param classId          班级Id
-     * @param planStudentIdStr 筛查学生Ids
-     * @param planStudentName  筛查学生名称
-     * @return List<ScreeningStudentDTO>
-     */
-    @GetMapping("screeningNoticeResult/list")
-    public List<ScreeningStudentDTO> getScreeningNoticeResultLists(@NotBlank(message = "计划Id不能为空") Integer planId, Integer schoolId, Integer gradeId, Integer classId, String planStudentIdStr, String planStudentName) {
-        return screeningPlanStudentBizService.getScreeningStudentDTOS(planId, schoolId, gradeId, classId, planStudentIdStr, planStudentName);
-    }
-
-
-    /**
-     * 获取计划学校
-     *
-     * @param screeningPlanId 计划ID
-     * @return List<ScreeningPlanSchoolVo>
-     */
-    @GetMapping("schools/haveResult/{screeningPlanId}")
-    public List<ScreeningPlanSchoolDTO> getHaveResultSchool(@PathVariable Integer screeningPlanId, String schoolName) {
-        // 任务状态判断
-        return screeningPlanSchoolService.getHaveResultSchool(screeningPlanId, schoolName);
-    }
 }
