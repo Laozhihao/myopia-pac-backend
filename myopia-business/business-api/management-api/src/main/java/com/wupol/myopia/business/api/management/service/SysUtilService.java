@@ -28,10 +28,6 @@ public class SysUtilService {
      * 每天下载次数
      */
     private final int CALL_COUNT = 2;
-    /**
-     * 非平台管理员
-     */
-    private final int NOPLATFORM = 1;
 
     private final RedisUtil redisUtil;
 
@@ -47,7 +43,8 @@ public class SysUtilService {
      * @Date: 2022/1/17
      */
     public void isNoPlatformRepeatExport(String key){
-        if (CurrentUserUtil.getCurrentUser().getUserType()==NOPLATFORM){
+
+        if (!CurrentUserUtil.getCurrentUser().isPlatformAdminUser()){
             isExport(key);
         }
     }
