@@ -3,6 +3,7 @@ package com.wupol.myopia.business.aggregation.export.excel.imports;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelStudentService;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ImportExcelEnum;
+import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
@@ -51,25 +52,7 @@ public class PlanStudentExcelImportService {
     @Transactional(rollbackFor = Exception.class)
     public void importScreeningSchoolStudents(Integer userId, MultipartFile multipartFile, ScreeningPlan screeningPlan, Integer schoolId) throws IOException {
 
-        List<Map<Integer, String>> listMap = excelFacade.readExcel(multipartFile);
-//        String fileName = IOUtils.getTempPath() + multipartFile.getName() + "_" + System.currentTimeMillis() + CommonConst.FILE_SUFFIX;
-//        File file = new File(fileName);
-//        FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
-//        // 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
-//        List<Map<Integer, String>> listMap;
-//        try {
-//            listMap = EasyExcel.read(fileName).sheet().doReadSync();
-//        } catch (ExcelAnalysisException excelAnalysisException) {
-//            log.error("导入筛查学生数据异常", excelAnalysisException);
-//            throw new BusinessException("解析文件格式异常");
-//        } catch (Exception e) {
-//            log.error("导入筛查学生数据异常", e);
-//            throw new BusinessException("解析Excel文件异常");
-//        }
-//        if (!listMap.isEmpty()) {
-//            // 去头部
-//            listMap.remove(0);
-//        }
+        List<Map<Integer, String>> listMap = FileUtils.readExcel(multipartFile);
         if (CollectionUtils.isEmpty(listMap)) {
             // 无数据，直接返回
             return;

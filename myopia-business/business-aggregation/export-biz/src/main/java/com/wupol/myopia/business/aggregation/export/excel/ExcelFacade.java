@@ -200,34 +200,6 @@ public class ExcelFacade {
 
 
     /**
-     * 读取Excel数据
-     *
-     * @param multipartFile Excel文件
-     * @return java.util.List<java.util.Map < java.lang.Integer, java.lang.String>>
-     **/
-    public List<Map<Integer, String>> readExcel(MultipartFile multipartFile) {
-        String fileName = IOUtils.getTempPath() + multipartFile.getName() + "_" + System.currentTimeMillis() + CommonConst.FILE_SUFFIX;
-        File file = new File(fileName);
-        try {
-            FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
-        } catch (IOException e) {
-            log.error("导入学生数据异常:", e);
-            throw new BusinessException("导入学生数据异常");
-        }
-        // 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
-        try {
-            List<Map<Integer, String>> listMap = EasyExcel.read(fileName).sheet().doReadSync();
-            if (!CollectionUtils.isEmpty(listMap)) {
-                listMap.remove(0);
-            }
-            return listMap;
-        } catch (Exception e) {
-            log.error("导入学生数据异常:", e);
-            throw new BusinessException("Excel解析异常");
-        }
-    }
-
-    /**
      * 导出统计报表 - 数据对比表
      *
      * @param userId     用户ID

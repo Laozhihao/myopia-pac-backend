@@ -3,13 +3,13 @@ package com.wupol.myopia.business.aggregation.export.excel.imports;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
-import com.wupol.myopia.business.aggregation.export.excel.domain.SchoolStudentImportEnum;
-import com.wupol.myopia.business.common.utils.util.IdCardUtil;
 import com.wupol.myopia.base.util.ListUtil;
-import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
+import com.wupol.myopia.business.aggregation.export.excel.domain.SchoolStudentImportEnum;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
+import com.wupol.myopia.business.common.utils.util.FileUtils;
+import com.wupol.myopia.business.common.utils.util.IdCardUtil;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolClassExportDTO;
@@ -31,6 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -60,9 +61,6 @@ public class SchoolStudentExcelImportService {
     @Resource
     private SchoolStudentService schoolStudentService;
 
-    @Resource
-    private ExcelFacade excelFacade;
-
     /**
      * 导入学校学生
      *
@@ -73,11 +71,10 @@ public class SchoolStudentExcelImportService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void importSchoolStudent(Integer createUserId, MultipartFile multipartFile, Integer schoolId) throws ParseException {
-        List<Map<Integer, String>> listMap = excelFacade.readExcel(multipartFile);
+        List<Map<Integer, String>> listMap = FileUtils.readExcel(multipartFile);
         if (CollectionUtils.isEmpty(listMap)) {
             return;
         }
-
         School school = schoolService.getById(schoolId);
 
         // 收集身份证号码、学号
@@ -100,6 +97,7 @@ public class SchoolStudentExcelImportService {
         // 年级信息通过学校Id分组
         Map<Integer, List<SchoolGradeExportDTO>> schoolGradeMaps = grades.stream().collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolId));
 
+        List<SchoolStudent> schoolStudents = new ArrayList<>();
         for (Map<Integer, String> item : listMap) {
             SchoolStudent schoolStudent;
             SchoolStudent deletedSchoolStudent = deletedStudentMap.get(item.get(SchoolStudentImportEnum.ID_CARD.getIndex()));
@@ -115,46 +113,73 @@ public class SchoolStudentExcelImportService {
                     item.get(SchoolStudentImportEnum.ID_CARD.getIndex()), item.get(SchoolStudentImportEnum.GENDER.getIndex()),
                     item.get(SchoolStudentImportEnum.BIRTHDAY.getIndex()), item.get(SchoolStudentImportEnum.GRADE_NAME.getIndex()));
 
-            schoolStudent.setName(item.get(SchoolStudentImportEnum.NAME.getIndex()))
-                    .setGender(Objects.nonNull(item.get(SchoolStudentImportEnum.GENDER.getIndex())) ? GenderEnum.getType(item.get(SchoolStudentImportEnum.GENDER.getIndex())) : IdCardUtil.getGender(item.get(SchoolStudentImportEnum.ID_CARD.getIndex())))
-                    .setBirthday(Objects.nonNull(item.get(SchoolStudentImportEnum.BIRTHDAY.getIndex())) ? DateFormatUtil.parseDate(item.get(SchoolStudentImportEnum.BIRTHDAY.getIndex()), DateFormatUtil.FORMAT_ONLY_DATE2) : IdCardUtil.getBirthDay(item.get(SchoolStudentImportEnum.ID_CARD.getIndex())))
-                    .setNation(NationEnum.getCode(item.get(SchoolStudentImportEnum.NATION.getIndex())))
-                    .setGradeType(GradeCodeEnum.getByName(item.get(SchoolStudentImportEnum.GRADE_NAME.getIndex())).getType())
-                    .setSno((item.get(SchoolStudentImportEnum.SNO.getIndex())))
-                    .setIdCard(item.get(SchoolStudentImportEnum.ID_CARD.getIndex()))
-                    .setParentPhone(item.get(SchoolStudentImportEnum.PHONE.getIndex()))
-                    .setCreateUserId(createUserId)
-                    .setSchoolId(schoolId)
-                    .setStatus(CommonConst.STATUS_NOT_DELETED);
-            schoolStudent.setProvinceCode(districtService.getCodeByName(item.get(SchoolStudentImportEnum.PROVINCE_NAME.getIndex())));
-            schoolStudent.setCityCode(districtService.getCodeByName(item.get(SchoolStudentImportEnum.CITY_NAME.getIndex())));
-            schoolStudent.setAreaCode(districtService.getCodeByName(item.get(SchoolStudentImportEnum.AREA_NAME.getIndex())));
-            schoolStudent.setTownCode(districtService.getCodeByName(item.get(SchoolStudentImportEnum.TOWN_NAME.getIndex())));
-            schoolStudent.setAddress(item.get(SchoolStudentImportEnum.ADDRESS.getIndex()));
-            // 通过学校编号获取改学校的年级信息
-            List<SchoolGradeExportDTO> schoolGradeExportVOS = schoolGradeMaps.get(schoolId);
-            // 转换成年级Maps，年级名称作为Key
-            Map<String, SchoolGradeExportDTO> gradeMaps = schoolGradeExportVOS.stream().collect(Collectors.toMap(SchoolGradeExportDTO::getName, Function.identity()));
-            // 年级信息
-            SchoolGradeExportDTO schoolGradeExportDTO = gradeMaps.get(item.get(SchoolStudentImportEnum.GRADE_NAME.getIndex()));
-            Assert.notNull(schoolGradeExportDTO, "年级数据异常");
-            // 设置年级ID
-            schoolStudent.setGradeId(schoolGradeExportDTO.getId());
-            schoolStudent.setGradeName(item.get(SchoolStudentImportEnum.GRADE_NAME.getIndex()));
-            // 获取年级内的班级信息
-            List<SchoolClassExportDTO> classExportVOS = schoolGradeExportDTO.getChild();
-            // 转换成班级Maps 把班级名称作为key
-            Map<String, Integer> classExportMaps = classExportVOS.stream().collect(Collectors.toMap(SchoolClassExportDTO::getName, SchoolClassExportDTO::getId));
-            Integer classId = classExportMaps.get(item.get(SchoolStudentImportEnum.CLASS_NAME.getIndex()));
-            Assert.notNull(classId, "班级数据为空");
-            // 设置班级信息
-            schoolStudent.setClassId(classId);
-            schoolStudent.setClassName(item.get(SchoolStudentImportEnum.CLASS_NAME.getIndex()));
+            setSchoolStudentInfo(createUserId, schoolId, item, schoolStudent);
+            setSchoolStudentClassInfo(schoolId, schoolGradeMaps, item, schoolStudent);
             // 更新管理端
             Integer managementStudentId = updateManagementStudent(schoolStudent);
             schoolStudent.setStudentId(managementStudentId);
-            schoolStudentService.saveOrUpdate(schoolStudent);
+            schoolStudents.add(schoolStudent);
         }
+        schoolStudentService.saveOrUpdateBatch(schoolStudents);
+    }
+
+
+    /**
+     * 设置学生基本信息
+     *
+     * @param createUserId  创建人
+     * @param schoolId      学校Id
+     * @param item          导入信息
+     * @param schoolStudent 学校端学生
+     * @throws ParseException 日期转换异常
+     */
+    private void setSchoolStudentInfo(Integer createUserId, Integer schoolId, Map<Integer, String> item, SchoolStudent schoolStudent) throws ParseException {
+        schoolStudent.setName(item.get(SchoolStudentImportEnum.NAME.getIndex()))
+                .setGender(Objects.nonNull(item.get(SchoolStudentImportEnum.GENDER.getIndex())) ? GenderEnum.getType(item.get(SchoolStudentImportEnum.GENDER.getIndex())) : IdCardUtil.getGender(item.get(SchoolStudentImportEnum.ID_CARD.getIndex())))
+                .setBirthday(Objects.nonNull(item.get(SchoolStudentImportEnum.BIRTHDAY.getIndex())) ? DateFormatUtil.parseDate(item.get(SchoolStudentImportEnum.BIRTHDAY.getIndex()), DateFormatUtil.FORMAT_ONLY_DATE2) : IdCardUtil.getBirthDay(item.get(SchoolStudentImportEnum.ID_CARD.getIndex())))
+                .setNation(NationEnum.getCode(item.get(SchoolStudentImportEnum.NATION.getIndex())))
+                .setGradeType(GradeCodeEnum.getByName(item.get(SchoolStudentImportEnum.GRADE_NAME.getIndex())).getType())
+                .setSno((item.get(SchoolStudentImportEnum.SNO.getIndex())))
+                .setIdCard(item.get(SchoolStudentImportEnum.ID_CARD.getIndex()))
+                .setParentPhone(item.get(SchoolStudentImportEnum.PHONE.getIndex()))
+                .setCreateUserId(createUserId)
+                .setSchoolId(schoolId)
+                .setStatus(CommonConst.STATUS_NOT_DELETED);
+        schoolStudent.setProvinceCode(districtService.getCodeByName(item.get(SchoolStudentImportEnum.PROVINCE_NAME.getIndex())));
+        schoolStudent.setCityCode(districtService.getCodeByName(item.get(SchoolStudentImportEnum.CITY_NAME.getIndex())));
+        schoolStudent.setAreaCode(districtService.getCodeByName(item.get(SchoolStudentImportEnum.AREA_NAME.getIndex())));
+        schoolStudent.setTownCode(districtService.getCodeByName(item.get(SchoolStudentImportEnum.TOWN_NAME.getIndex())));
+        schoolStudent.setAddress(item.get(SchoolStudentImportEnum.ADDRESS.getIndex()));
+    }
+
+    /**
+     * 设置学生年级班级信息
+     *
+     * @param schoolId        学校Id
+     * @param schoolGradeMaps 年级Map
+     * @param item            导入信息
+     * @param schoolStudent   学校端学生
+     */
+    private void setSchoolStudentClassInfo(Integer schoolId, Map<Integer, List<SchoolGradeExportDTO>> schoolGradeMaps, Map<Integer, String> item, SchoolStudent schoolStudent) {
+        // 通过学校编号获取改学校的年级信息
+        List<SchoolGradeExportDTO> schoolGradeExportVOS = schoolGradeMaps.get(schoolId);
+        // 转换成年级Maps，年级名称作为Key
+        Map<String, SchoolGradeExportDTO> gradeMaps = schoolGradeExportVOS.stream().collect(Collectors.toMap(SchoolGradeExportDTO::getName, Function.identity()));
+        // 年级信息
+        SchoolGradeExportDTO schoolGradeExportDTO = gradeMaps.get(item.get(SchoolStudentImportEnum.GRADE_NAME.getIndex()));
+        Assert.notNull(schoolGradeExportDTO, "年级数据异常");
+        // 设置年级ID
+        schoolStudent.setGradeId(schoolGradeExportDTO.getId());
+        schoolStudent.setGradeName(item.get(SchoolStudentImportEnum.GRADE_NAME.getIndex()));
+        // 获取年级内的班级信息
+        List<SchoolClassExportDTO> classExportVOS = schoolGradeExportDTO.getChild();
+        // 转换成班级Maps 把班级名称作为key
+        Map<String, Integer> classExportMaps = classExportVOS.stream().collect(Collectors.toMap(SchoolClassExportDTO::getName, SchoolClassExportDTO::getId));
+        Integer classId = classExportMaps.get(item.get(SchoolStudentImportEnum.CLASS_NAME.getIndex()));
+        Assert.notNull(classId, "班级数据为空");
+        // 设置班级信息
+        schoolStudent.setClassId(classId);
+        schoolStudent.setClassName(item.get(SchoolStudentImportEnum.CLASS_NAME.getIndex()));
     }
 
     /**
