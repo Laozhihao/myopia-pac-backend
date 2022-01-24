@@ -103,7 +103,7 @@ public class VsDataExcelService extends BaseExportExcelFileService {
         if (Objects.isNull(displayValue)) {
             return "--";
         }
-        String valStr = new BigDecimal(displayValue).setScale(2, RoundingMode.HALF_UP).toString();
+        String valStr = BigDecimal.valueOf(displayValue).setScale(2, RoundingMode.HALF_UP).toString();
         if (val >= 0d) {
             return "+" + valStr;
         }
@@ -120,7 +120,7 @@ public class VsDataExcelService extends BaseExportExcelFileService {
         if (Objects.isNull(val)) {
             return StringUtils.EMPTY;
         }
-        return new BigDecimal(val).setScale(0, RoundingMode.DOWN).toString();
+        return BigDecimal.valueOf(val).setScale(0, RoundingMode.DOWN).toString();
     }
 
     /**
@@ -133,7 +133,7 @@ public class VsDataExcelService extends BaseExportExcelFileService {
         if (Objects.isNull(val)) {
             return "--";
         }
-        String valStr = new BigDecimal(val).setScale(2, RoundingMode.HALF_UP).toString();
+        String valStr = BigDecimal.valueOf(val).setScale(2, RoundingMode.HALF_UP).toString();
         if (val >= 0d) {
             return "+" + valStr;
         }
