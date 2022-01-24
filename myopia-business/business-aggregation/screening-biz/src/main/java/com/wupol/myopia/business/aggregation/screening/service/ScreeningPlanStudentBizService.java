@@ -226,7 +226,7 @@ public class ScreeningPlanStudentBizService {
         Map<Integer, List<ScreeningStudentDTO>> planGroup = screeningStudentDTOS.stream().collect(Collectors.groupingBy(ScreeningStudentDTO::getPlanId));
 
         String appendName;
-        if (isSchoolClient) {
+        if (Boolean.TRUE.equals(isSchoolClient)) {
             appendName = schoolService.getById(schoolId).getName();
         } else {
             if (Objects.nonNull(schoolId)) {
