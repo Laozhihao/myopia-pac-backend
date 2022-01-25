@@ -45,6 +45,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import javax.validation.ValidationException;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Collections;
@@ -427,7 +428,7 @@ public class ScreeningPlanController {
      * @return List<ScreeningStudentDTO>
      */
     @GetMapping("screeningNoticeResult")
-    public List<ScreeningStudentDTO> getScreeningNoticeResultStudent(@NotBlank(message = "计划Id不能为空") Integer planId, Integer schoolId, Integer gradeId, Integer classId, Integer orgId, String planStudentIdStr, @NotBlank(message = "查询类型不能为空") Boolean isSchoolClient, String planStudentName) {
+    public List<ScreeningStudentDTO> getScreeningNoticeResultStudent(@NotNull(message = "计划Id不能为空") Integer planId, Integer schoolId, Integer gradeId, Integer classId, Integer orgId, String planStudentIdStr, @NotBlank(message = "查询类型不能为空") Boolean isSchoolClient, String planStudentName) {
         return screeningPlanStudentBizService.getScreeningNoticeResultStudent(planId, schoolId, gradeId, classId, orgId, planStudentIdStr, isSchoolClient, planStudentName);
     }
 
@@ -442,7 +443,7 @@ public class ScreeningPlanController {
      * @param planStudentIdStr 筛查学生Ids
      */
     @GetMapping("screeningNoticeResult/asyncGeneratorPDF")
-    public void asyncGeneratorPDF(Integer planId, Integer schoolId, Integer gradeId, Integer classId, Integer orgId, String planStudentIdStr) {
+    public void asyncGeneratorPDF(@NotNull(message = "计划Id不能为空")Integer planId, Integer schoolId, Integer gradeId, Integer classId, Integer orgId, String planStudentIdStr) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         screeningPlanStudentBizService.asyncGeneratorPDF(planId, schoolId, gradeId, classId, orgId, planStudentIdStr, false, user.getId());
     }
@@ -458,7 +459,7 @@ public class ScreeningPlanController {
      * @param planStudentIdStr 筛查学生Ids
      */
     @GetMapping("screeningNoticeResult/syncGeneratorPDF")
-    public PdfResponseDTO syncGeneratorPDF(Integer planId, Integer schoolId, Integer gradeId, Integer classId, Integer orgId, String planStudentIdStr) {
+    public PdfResponseDTO syncGeneratorPDF(@NotBlank(message = "计划Id不能为空")Integer planId, Integer schoolId, Integer gradeId, Integer classId, Integer orgId, String planStudentIdStr) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         return screeningPlanStudentBizService.syncGeneratorPDF(planId, schoolId, gradeId, classId, orgId, planStudentIdStr, false, user.getId());
     }
