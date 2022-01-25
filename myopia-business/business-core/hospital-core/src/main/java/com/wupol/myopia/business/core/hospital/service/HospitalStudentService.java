@@ -167,11 +167,15 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
     /**
      * 获取学生类型
      *
-     * @param clientIdStr  登录用户
+     * @param clientIdStr 登录用户
      * @param studentType 学生类型
      * @return Integer
      */
     public Integer getStudentType(String clientIdStr, Integer studentType) {
+        if (StringUtils.isBlank(clientIdStr)) {
+            return null;
+        }
+        log.info("clientIdStr:{}", clientIdStr);
         Integer clientId = Integer.valueOf(clientIdStr);
         if (Objects.isNull(studentType)) {
             // 医院端
