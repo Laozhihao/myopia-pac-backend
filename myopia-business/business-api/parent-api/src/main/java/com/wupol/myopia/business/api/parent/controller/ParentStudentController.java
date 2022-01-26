@@ -23,7 +23,6 @@ import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
-import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -309,6 +308,17 @@ public class ParentStudentController {
     @GetMapping("getStudentInfo/{studentId}")
     public StudentDTO getStudentInfo(@PathVariable("studentId") Integer studentId) {
         return parentStudentBizService.getStudentInfo(studentId);
+    }
+
+    /**
+     * 通过committeeCode获取区域
+     *
+     * @param committeeCode committeeCode
+     * @return 区域
+     */
+    @GetMapping("getCommitteeList")
+    public List<District> getCommitteeLists(@NotNull(message = "committeeCode不能为空") Long committeeCode) {
+        return districtService.getDistrictPositionDetail(committeeCode);
     }
 
 }
