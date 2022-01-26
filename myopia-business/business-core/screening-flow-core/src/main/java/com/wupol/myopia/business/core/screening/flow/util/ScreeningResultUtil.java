@@ -186,7 +186,7 @@ public class ScreeningResultUtil {
      * @param age  年龄
      * @return TwoTuple<List < RefractoryResultItems>, Integer> left-验光仪检查数据 right-预警级别
      */
-    public static TwoTuple<List<RefractoryResultItems>, Integer> packageRefractoryResult(ComputerOptometryDO date, Integer age) {
+    public static TwoTuple<List<RefractoryResultItems>, Integer> packageRefractoryResult(ComputerOptometryDO date, Integer age, VisionDataDO visionData) {
 
         List<RefractoryResultItems> items = new ArrayList<>();
         Integer maxType = 0;
@@ -203,6 +203,14 @@ public class ScreeningResultUtil {
         RefractoryResultItems seItems = new RefractoryResultItems();
         seItems.setTitle("等效球镜SE");
 
+        BigDecimal leftNakedVision = null;
+        BigDecimal rightNakedVision = null;
+        if (Objects.nonNull(visionData)
+                && ObjectsUtil.allNotNull(visionData.getLeftEyeData(), visionData.getRightEyeData())) {
+            leftNakedVision = visionData.getLeftEyeData().getNakedVision();
+            rightNakedVision = visionData.getRightEyeData().getNakedVision();
+        }
+
         if (Objects.nonNull(date)) {
             // 左眼数据
             ComputerOptometryDO.ComputerOptometry leftEyeData = date.getLeftEyeData();
@@ -215,7 +223,8 @@ public class ScreeningResultUtil {
             BigDecimal leftAxial = leftEyeData.getAxial();
             BigDecimal rightAxial = date.getRightEyeData().getAxial();
 
-            maxType = packageRefractoryResult(age, items, maxType, sphItems, cylItems, axialItems, seItems, leftSph, leftCyl, rightSph, rightCyl, leftAxial, rightAxial);
+            maxType = packageRefractoryResult(age, items, maxType, sphItems, cylItems, axialItems, seItems,
+                    leftSph, leftCyl, rightSph, rightCyl, leftAxial, rightAxial, leftNakedVision, rightNakedVision);
             return new TwoTuple<>(items, maxType);
         }
         items.add(seItems);
@@ -227,25 +236,27 @@ public class ScreeningResultUtil {
     /**
      * 验光仪检查结果
      *
-     * @param age        年龄
-     * @param items      验光仪检查结果对象
-     * @param maxType    最严重的级别
-     * @param sphItems   球镜对象
-     * @param cylItems   柱镜对象
-     * @param axialItems 轴位对象
-     * @param seItems    等效球镜对象
-     * @param leftSph    左眼球镜
-     * @param leftCyl    左眼柱镜
-     * @param rightSph   右眼球镜
-     * @param rightCyl   右眼柱镜
-     * @param leftAxial  左眼轴位
-     * @param rightAxial 右眼轴位
+     * @param age              年龄
+     * @param items            验光仪检查结果对象
+     * @param maxType          最严重的级别
+     * @param sphItems         球镜对象
+     * @param cylItems         柱镜对象
+     * @param axialItems       轴位对象
+     * @param seItems          等效球镜对象
+     * @param leftSph          左眼球镜
+     * @param leftCyl          左眼柱镜
+     * @param rightSph         右眼球镜
+     * @param rightCyl         右眼柱镜
+     * @param leftAxial        左眼轴位
+     * @param rightAxial       右眼轴位
+     * @param leftNakedVision  左眼裸眼视力
+     * @param rightNakedVision 右眼裸眼视力
      * @return 最严重的级别
      */
     public static Integer packageRefractoryResult(Integer age, List<RefractoryResultItems> items, Integer maxType,
                                                   RefractoryResultItems sphItems, RefractoryResultItems cylItems, RefractoryResultItems axialItems,
                                                   RefractoryResultItems seItems, BigDecimal leftSph, BigDecimal leftCyl, BigDecimal rightSph, BigDecimal rightCyl,
-                                                  BigDecimal leftAxial, BigDecimal rightAxial) {
+                                                  BigDecimal leftAxial, BigDecimal rightAxial, BigDecimal leftNakedVision, BigDecimal rightNakedVision) {
         // 左眼球镜
         if (Objects.nonNull(leftSph)) {
             sphItems.setOs(packageSpnItem(leftSph));
@@ -280,17 +291,19 @@ public class ScreeningResultUtil {
         }
         items.add(axialItems);
 
-        // 左眼等效球镜SE
-        if (Objects.nonNull(leftSph) && Objects.nonNull(leftCyl)) {
-            TwoTuple<Integer, RefractoryResultItems.Item> result = packageSeItem(leftSph, leftCyl, age, maxType);
-            maxType = result.getFirst();
-            seItems.setOs(result.getSecond());
-        }
-        // 右眼等效球镜SE
-        if (Objects.nonNull(rightSph) && Objects.nonNull(rightCyl)) {
-            TwoTuple<Integer, RefractoryResultItems.Item> result = packageSeItem(rightSph, rightCyl, age, maxType);
-            maxType = result.getFirst();
-            seItems.setOd(result.getSecond());
+        if (ObjectsUtil.allNotNull(leftNakedVision, rightNakedVision)) {
+            // 左眼等效球镜SE
+            if (Objects.nonNull(leftSph) && Objects.nonNull(leftCyl)) {
+                TwoTuple<Integer, RefractoryResultItems.Item> result = packageSeItem(leftSph, leftCyl, age, maxType, leftNakedVision);
+                maxType = result.getFirst();
+                seItems.setOs(result.getSecond());
+            }
+            // 右眼等效球镜SE
+            if (Objects.nonNull(rightSph) && Objects.nonNull(rightCyl)) {
+                TwoTuple<Integer, RefractoryResultItems.Item> result = packageSeItem(rightSph, rightCyl, age, maxType, rightNakedVision);
+                maxType = result.getFirst();
+                seItems.setOd(result.getSecond());
+            }
         }
         items.add(seItems);
         return maxType;
@@ -306,11 +319,11 @@ public class ScreeningResultUtil {
      * @return TwoTuple<Integer, RefractoryResultItems.Item>
      */
     public static TwoTuple<Integer, RefractoryResultItems.Item> packageSeItem(BigDecimal spn, BigDecimal cyl,
-                                                                              Integer age, Integer maxType) {
+                                                                              Integer age, Integer maxType, BigDecimal nakedVision) {
         RefractoryResultItems.Item sphItems = new RefractoryResultItems.Item();
         // 等效球镜SE
         sphItems.setVision(calculationSE(spn, cyl));
-        TwoTuple<String, Integer> leftSphType = getSphTypeName(spn, cyl, age);
+        TwoTuple<String, Integer> leftSphType = getSphTypeName(spn, cyl, age, nakedVision);
         sphItems.setTypeName(leftSphType.getFirst());
         Integer type = leftSphType.getSecond();
         // 取最大的type
@@ -690,12 +703,13 @@ public class ScreeningResultUtil {
     /**
      * 获取球镜typeName
      *
-     * @param sph 球镜
-     * @param cyl 柱镜
-     * @param age 年龄
+     * @param sph         球镜
+     * @param cyl         柱镜
+     * @param age         年龄
+     * @param nakedVision 裸眼视力
      * @return TwoTuple<> left-球镜中文 right-预警级别(重新封装的一层)
      */
-    public static TwoTuple<String, Integer> getSphTypeName(BigDecimal sph, BigDecimal cyl, Integer age) {
+    public static TwoTuple<String, Integer> getSphTypeName(BigDecimal sph, BigDecimal cyl, Integer age, BigDecimal nakedVision) {
         BigDecimal se = calculationSE(sph, cyl);
         if (Objects.isNull(se)) {
             return new TwoTuple<>();
@@ -703,7 +717,7 @@ public class ScreeningResultUtil {
         BigDecimal seVal = se.abs().multiply(new BigDecimal("100")).setScale(0, RoundingMode.DOWN);
         if (se.compareTo(new BigDecimal("0.00")) <= 0) {
             // 近视
-            MyopiaLevelEnum myopiaWarningLevel = StatUtil.getMyopiaWarningLevel(sph.floatValue(), cyl.floatValue());
+            MyopiaLevelEnum myopiaWarningLevel = StatUtil.getMyopiaWarningLevel(sph.floatValue(), cyl.floatValue(), age, nakedVision.floatValue());
             String str;
             if (se.compareTo(new BigDecimal("-0.50")) < 0) {
                 str = "近视" + seVal + "度";
