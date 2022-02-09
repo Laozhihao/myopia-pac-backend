@@ -200,6 +200,7 @@ public class ParentStudentBizService {
             throw new BusinessException("家长信息异常");
         }
         setStudentAddress(student);
+        studentService.updateStudentReportNo(student);
         StudentDTO studentDTO = studentService.updateStudent(student);
         // 更新医院学生信息
         studentFacade.updateHospitalStudentRecordNo(studentDTO.getId(), studentDTO.getCommitteeCode(), studentDTO.getRecordNo());
