@@ -15,8 +15,8 @@ import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
+import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
-import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
@@ -212,7 +212,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * 重置密码
      *
      * @param username 用户名
-     * @param userId OAuth2 的userId
+     * @param userId   OAuth2 的userId
      * @return 账号密码
      */
     private UsernameAndPasswordDTO resetOAuthPassword(String username, Integer userId) {
@@ -446,17 +446,15 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      *
      * @param pageRequest      分页请求
      * @param schoolQueryDTO   条件
-     * @param resultDistrictId 行政区域结果
+     * @param districtId 行政区域id
      * @param userIds          用户ID
      * @param districtCode     行政区域-省Code
      * @return IPage<SchoolResponseDTO>
      */
     public IPage<SchoolResponseDTO> getSchoolListByCondition(PageRequest pageRequest, SchoolQueryDTO schoolQueryDTO,
-                                                             TwoTuple<Integer, Integer> resultDistrictId,
+                                                             Integer districtId,
                                                              List<Integer> userIds, Integer districtCode) {
-        return baseMapper.getSchoolListByCondition(pageRequest.toPage(), schoolQueryDTO.getName(),
-                schoolQueryDTO.getSchoolNo(), schoolQueryDTO.getType(),
-                resultDistrictId.getFirst(), userIds, resultDistrictId.getSecond(), districtCode);
+        return baseMapper.getSchoolListByCondition(pageRequest.toPage(), schoolQueryDTO, districtId, districtCode, userIds);
     }
 
     public String getNameById(Integer id) {
@@ -470,6 +468,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
 
     /**
      * 获取状态未更新的学校（已到合作开始时间未启用，已到合作结束时间未停止）
+     *
      * @return
      */
     public List<School> getUnhandleSchool(Date date) {
@@ -478,6 +477,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
 
     /**
      * CAS更新机构状态，当且仅当源状态为sourceStatus，且限定id
+     *
      * @param id
      * @param targetStatus
      * @param sourceStatus
@@ -496,8 +496,9 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
 
     /**
      * 获取指定合作结束时间的学校信息
-     * @param start     开始时间早于该时间才处理
-     * @param end       指定结束时间，精确到天
+     *
+     * @param start 开始时间早于该时间才处理
+     * @param end   指定结束时间，精确到天
      * @return
      */
     public List<School> getByCooperationEndTime(Date start, Date end) {
@@ -518,11 +519,28 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
 
     /**
      * 检验学校合作信息是否合法
+     *
      * @param school
      */
-    public void checkSchoolCooperation(School school)  {
+    public void checkSchoolCooperation(School school) {
         if (!school.checkCooperation()) {
             throw new BusinessException("合作信息非法，请确认");
         }
+    }
+
+    /**
+     * 更新结果通知
+     *
+     * @param id                 学校Id
+     * @param resultNoticeConfig 结果通知
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void updateResultNoticeConfig(Integer id, ResultNoticeConfig resultNoticeConfig) {
+        School school = getBySchoolId(id);
+        if (Objects.isNull(school)) {
+            throw new BusinessException("学校数据异常");
+        }
+        school.setResultNoticeConfig(resultNoticeConfig);
+        updateById(school);
     }
 }

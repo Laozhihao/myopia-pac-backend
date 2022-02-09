@@ -54,16 +54,16 @@ public class ReceiptController {
     }
 
     /**
-     * 保存转诊单
+     * 保存回执单
      * @param receiptList
      * @return
      */
     @PostMapping()
-    public void saveOrUpdate(@RequestBody @Valid ReceiptList receiptList) {
+    public Integer saveOrUpdate(@RequestBody @Valid ReceiptList receiptList) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         PreschoolCheckRecord preschoolCheckRecord = preschoolCheckRecordService.checkOrgOperation(user.getOrgId(), receiptList.getPreschoolCheckRecordId());
         receiptList.setStudentId(preschoolCheckRecord.getStudentId());
-        receiptListService.saveOrUpdateReceiptList(receiptList, user);
+        return receiptListService.saveOrUpdateReceiptList(receiptList, user);
     }
 
 }

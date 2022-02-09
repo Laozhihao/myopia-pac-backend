@@ -68,6 +68,7 @@
         LEFT JOIN h_medical_report mr ON hs.student_id = mr.student_id and hs.hospital_id = mr.hospital_id
         <include refid="Base_Where_Clause"/>
         group by hs.student_id
+        order by create_time desc
     </select>
 
     <select id="getByList" resultMap="HospitalStudentMap">

@@ -31,6 +31,16 @@ public class HospitalReportRequestDTO {
     private String doctorName;
 
     /**
+     * 医院名称
+     */
+    private String hospitalName;
+
+    /**
+     * 状态
+     */
+    private Boolean status;
+
+    /**
      * 检查开始时间
      */
     @DateTimeFormat(pattern = "yyyy-MM-dd")
@@ -42,8 +52,4 @@ public class HospitalReportRequestDTO {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date reportEndTIme;
 
-    /**
-     * 就诊医院
-     */
-    private String hospitalName;
 }

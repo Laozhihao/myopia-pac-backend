@@ -47,11 +47,11 @@ public class ReferralController {
     }
 
     @PostMapping
-    public void saveOrUpdate(@RequestBody @Valid ReferralRecord record) {
+    public Integer saveOrUpdate(@RequestBody @Valid ReferralRecord record) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         PreschoolCheckRecord preschoolCheckRecord = preschoolCheckRecordService.checkOrgOperation(user.getOrgId(), record.getPreschoolCheckRecordId());
         record.setStudentId(preschoolCheckRecord.getStudentId());
-        referralRecordService.saveOrUpdateReferral(record, user);
+        return referralRecordService.saveOrUpdateReferral(record, user);
     }
 
 }

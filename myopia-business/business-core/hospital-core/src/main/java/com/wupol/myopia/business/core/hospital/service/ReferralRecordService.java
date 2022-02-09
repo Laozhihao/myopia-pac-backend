@@ -69,7 +69,7 @@ public class ReferralRecordService extends BaseService<ReferralRecordMapper, Ref
      * @param record
      * @param user
      */
-    public void saveOrUpdateReferral(ReferralRecord record, CurrentUser user) {
+    public Integer saveOrUpdateReferral(ReferralRecord record, CurrentUser user) {
         if (Objects.isNull(record.getId())) {
             // 保证一个检查记录只有一条转诊信息
             ReferralRecord oldReferral = findOne(new ReferralRecord().setPreschoolCheckRecordId(record.getPreschoolCheckRecordId()));
@@ -81,6 +81,7 @@ public class ReferralRecordService extends BaseService<ReferralRecordMapper, Ref
         record.setFromDoctorId(hospitalDoctorService.getDetailsByUserId(user.getId()).getId());
         record.setConclusion(PreschoolCheckRecordUtil.referralConclusion(record));
         saveOrUpdate(record);
+        return record.getId();
     }
 
 }

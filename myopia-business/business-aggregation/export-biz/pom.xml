@@ -50,7 +50,7 @@
         </dependency>
         <dependency>
             <groupId>com.wupol.myopia</groupId>
-            <artifactId>screening-app-api</artifactId>
+            <artifactId>device-core</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

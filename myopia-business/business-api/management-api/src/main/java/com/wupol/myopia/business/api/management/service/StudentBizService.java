@@ -49,6 +49,7 @@ import com.wupol.myopia.business.core.screening.organization.service.ScreeningOr
 import com.wupol.myopia.business.core.system.service.TemplateDistrictService;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -353,6 +354,7 @@ public class StudentBizService {
                     && !CollectionUtils.isEmpty((reportConclusion.getReport().getImageIdList()))) {
                 report.setImageFileUrl(resourceFileService.getBatchResourcePath(reportConclusion.getReport().getImageIdList()));
             }
+            report.setCheckStatus(DateUtils.isSameDay(report.getCreateTime(), new Date()));
         });
     }
 

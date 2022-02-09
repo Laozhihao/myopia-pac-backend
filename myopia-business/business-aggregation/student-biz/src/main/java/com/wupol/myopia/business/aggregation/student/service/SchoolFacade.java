@@ -4,8 +4,10 @@ import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.Student;
@@ -49,6 +51,9 @@ public class SchoolFacade {
     @Resource
     private OauthServiceClient oauthServiceClient;
 
+    @Resource
+    private ResourceFileService resourceFileService;
+
     /**
      * 获取学校详情
      *
@@ -70,6 +75,10 @@ public class SchoolFacade {
         }
         // 统计学生数
         responseDTO.setStudentCount(studentCount);
+        ResultNoticeConfig resultNoticeConfig = school.getResultNoticeConfig();
+        if (Objects.nonNull(resultNoticeConfig) && Objects.nonNull(resultNoticeConfig.getQrCodeFileId())) {
+            responseDTO.setNoticeResultFileUrl(resourceFileService.getResourcePath(resultNoticeConfig.getQrCodeFileId()));
+        }
         return responseDTO;
     }
 
