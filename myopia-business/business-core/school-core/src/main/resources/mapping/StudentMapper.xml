@@ -8,6 +8,7 @@
     </resultMap>
 
     <resultMap id="BaseResultMapDTO" type="com.wupol.myopia.business.core.school.domain.dto.StudentDTO">
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="family_info" property="familyInfo"/>
     </resultMap>
 
     <resultMap id="StudentExtraDTOMap" type="com.wupol.myopia.business.core.school.domain.dto.StudentExtraDTO">

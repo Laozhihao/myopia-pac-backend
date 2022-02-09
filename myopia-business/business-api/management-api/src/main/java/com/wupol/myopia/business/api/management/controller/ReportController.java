@@ -9,6 +9,7 @@ import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportSer
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
@@ -52,6 +53,7 @@ public class ReportController {
                 .setNotificationId(notificationId)
                 .setDistrictId(districtId)
                 .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
+
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.DISTRICT_SCREENING_REPORT_SERVICE);
     }
 
@@ -68,6 +70,7 @@ public class ReportController {
         if (Objects.isNull(notificationId) && Objects.isNull(planId)) {
             throw new BusinessException("筛查通知ID或者筛查计划ID不能为空");
         }
+
         ExportCondition exportCondition = new ExportCondition()
                 .setNotificationId(notificationId)
                 .setPlanId(planId)
@@ -89,6 +92,7 @@ public class ReportController {
                 .setPlanId(planId)
                 .setScreeningOrgId(screeningOrgId)
                 .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
+
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.SCREENING_ORG_SCREENING_REPORT_SERVICE);
     }
 
@@ -116,16 +120,21 @@ public class ReportController {
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @GetMapping("/screeningOrg/archives")
-    public void exportScreeningOrgArchives(@NotNull(message = "筛查计划ID不能为空") Integer planId, @NotNull(message = "筛查机构ID不能为空") Integer screeningOrgId,
-                                           @NotNull(message = "筛查机构ID不能为空") Integer schoolId, Integer classId,
-                                           Integer gradeId, @RequestParam(value="planStudentIds", required = false) String planStudentIds) throws IOException {
+    public void exportScreeningOrgArchives(@NotNull(message = "筛查计划ID不能为空") Integer planId,
+                                           @NotNull(message = "筛查机构ID不能为空") Integer screeningOrgId,
+                                           Integer schoolId,
+                                           Integer classId,
+                                           Integer gradeId,
+                                           @RequestParam(value="planStudentIds", required = false) String planStudentIds) throws IOException {
         ExportCondition exportCondition = new ExportCondition()
-                .setPlanId(planId).setScreeningOrgId(screeningOrgId)
+                .setPlanId(planId)
+                .setScreeningOrgId(screeningOrgId)
                 .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId())
                 .setSchoolId(schoolId)
                 .setClassId(classId)
                 .setGradeId(gradeId)
                 .setPlanStudentIds(planStudentIds);
+
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.SCREENING_ORG_ARCHIVES_SERVICE);
     }
 
@@ -138,17 +147,52 @@ public class ReportController {
      * @return 文件URL
      */
     @GetMapping("/school/student/archives")
-    public ApiResult<String> syncExportSchoolStudentArchives(@RequestParam(value = "planStudentIds") String planStudentIds,
-                                                             @RequestParam(value = "schoolId") Integer schoolId,
-                                                             @RequestParam(value = "planId") Integer planId) {
-        List<Integer> planStudentIdList = Arrays.stream(planStudentIds.split(",")).map(Integer::valueOf).collect(Collectors.toList());
-        if (CollectionUtils.isEmpty(visionScreeningResultService.getByPlanStudentIds(planStudentIdList))) {
-            throw new BusinessException("所选学生无筛查数据");
+    public ApiResult<String> syncExportSchoolStudentArchives(
+                                                             String planStudentIds,
+                                                             Integer classId,
+                                                             Integer gradeId,
+                                                             Integer schoolId,
+                                                             @NotNull(message = "筛查机构ID不能为空") Integer screeningOrgId,
+                                                             @NotNull(message = "筛查计划ID不能为空") Integer planId) {
+        if (StringUtils.isNotBlank(planStudentIds)) {
+            List<Integer> planStudentIdList = Arrays.stream(planStudentIds.split(",")).map(Integer::valueOf).collect(Collectors.toList());
+            if (CollectionUtils.isEmpty(visionScreeningResultService.getByPlanStudentIds(planStudentIdList))) {
+                throw new BusinessException("所选学生无筛查数据");
+            }
         }
+
         ExportCondition exportCondition = new ExportCondition()
-                .setPlanStudentIds(planStudentIds)
+                .setPlanId(planId)
+                .setScreeningOrgId(screeningOrgId)
+                .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId())
                 .setSchoolId(schoolId)
-                .setPlanId(planId);
+                .setClassId(classId)
+                .setGradeId(gradeId)
+                .setPlanStudentIds(planStudentIds);
+
         return ApiResult.success(exportStrategy.syncExport(exportCondition, ExportReportServiceNameConstant.STUDENT_ARCHIVES_SERVICE));
     }
+
+
+    /**
+    * @Description: 导出学校筛查报告PDF
+    * @Param: [筛检计划ID, 筛查机构ID, 学校ID]
+    * @return: void
+    * @Author: 钓猫的小鱼
+    * @Date: 2021/12/30
+    */
+    @GetMapping("/screeningOrg/export/school")
+    public void getScreeningPlanSchool(@NotNull(message = "筛查计划ID不能为空") Integer planId,
+                                       @NotNull(message = "筛查机构ID不能为空") Integer screeningOrgId,
+                                       Integer schoolId) throws IOException {
+
+        ExportCondition exportCondition = new ExportCondition()
+                .setPlanId(planId)
+                .setScreeningOrgId(screeningOrgId)
+                .setSchoolId(schoolId)
+                .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
+
+        exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.SCREENING_PLAN);
+    }
+
 }

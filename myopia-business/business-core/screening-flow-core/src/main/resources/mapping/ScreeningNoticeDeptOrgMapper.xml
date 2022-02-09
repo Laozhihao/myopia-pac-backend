@@ -58,7 +58,7 @@
                 </if>
             </trim>
         </where>
-        order by msndo.create_time desc
+        order by msn.release_time desc
     </select>
 
     <select id="selectByAcceptIdAndType" resultType="com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice">

@@ -45,6 +45,7 @@ public class ExportScreeningOrgScreeningReportService extends BaseExportPdfFileS
         generateReportPdfService.generateScreeningPlanReportPdfFile(fileSavePath, exportCondition.getPlanId());
         // 各个学校详情
         generateReportPdfService.generateScreeningOrgScreeningReportPdfFile(fileSavePath, exportCondition.getPlanId());
+
     }
 
     /**
@@ -56,6 +57,7 @@ public class ExportScreeningOrgScreeningReportService extends BaseExportPdfFileS
     @Override
     public String getFileName(ExportCondition exportCondition) {
         ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(exportCondition.getScreeningOrgId());
+
         return String.format(PDFFileNameConstant.REPORT_PDF_FILE_NAME, screeningOrganization.getName());
     }
 

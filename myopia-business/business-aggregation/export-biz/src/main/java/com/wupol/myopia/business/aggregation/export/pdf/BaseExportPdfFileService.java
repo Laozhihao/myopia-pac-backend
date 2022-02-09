@@ -125,6 +125,7 @@ public abstract class BaseExportPdfFileService extends BaseExportFileService {
             String fileSavePath = getFileSavePath(parentPath, fileName);
             // 4.生成导出的文件
             generatePdfFile(exportCondition, fileSavePath, fileName);
+
             return resourceFileService.getResourcePath(s3Utils.uploadS3AndGetResourceFile(fileSavePath, fileName).getId());
         } catch (Exception e) {
             String requestData = JSON.toJSONString(exportCondition);

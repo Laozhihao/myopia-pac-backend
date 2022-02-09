@@ -66,6 +66,9 @@ public class ScreeningOrganizationExportDTO implements Serializable {
     @ExcelProperty({TOP_HEADER, "说明"})
     private String remark;
 
+    @ExcelProperty({TOP_HEADER, "筛查人员账号数量"})
+    private Integer accountNum;
+
     @ExcelProperty({TOP_HEADER, "创建时间"})
     private String createTime;
 }
