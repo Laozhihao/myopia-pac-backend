@@ -60,15 +60,15 @@ public class BusinessUtil {
         int days = period.getDays();
 
         // 6岁<*【6岁】
-        if (years >= 6 && (months > 0 || days > 0)) {
+        if (years > 6 || (years == 6 && (months > 0 || days > 0))) {
             return Arrays.asList(MonthAgeEnum.YEAR6.getId());
-        } else if (years == 5 && (months > 0 || days > 0)) {
+        } else if (years > 5 || (years == 5 && (months > 0 || days > 0))) {
             // 5岁＜*≤6岁：【5岁】【6岁】
             return Arrays.asList(MonthAgeEnum.YEAR5.getId(), MonthAgeEnum.YEAR6.getId());
-        } else if (years == 4 && (months > 0 || days > 0)) {
+        } else if (years > 4 || (years == 4 && (months > 0 || days > 0))) {
             // 4岁＜*≤5岁：【4岁】【5岁】
             return Arrays.asList(MonthAgeEnum.YEAR4.getId(), MonthAgeEnum.YEAR5.getId());
-        } else if (years == 3 && (months > 0 || days > 15)) {
+        } else if (years == 4 || (years == 3 && (months > 0 || days > 15))) {
             // 36月龄15天＜*≤4岁：【36月龄】【4岁】
             return Arrays.asList(MonthAgeEnum.MONTH36.getId(), MonthAgeEnum.YEAR4.getId());
         } else if ((years * 12 + months > 35) || (years * 12 + months == 35 && days > 15)) {
