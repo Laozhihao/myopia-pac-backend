@@ -2,7 +2,6 @@ package com.wupol.myopia.business.api.parent.domain.dto;
 
 import com.wupol.myopia.business.api.parent.domain.dos.ScreeningReportDetailDO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
-import com.wupol.myopia.business.core.school.domain.model.Student;
 import lombok.Getter;
 import lombok.Setter;
 

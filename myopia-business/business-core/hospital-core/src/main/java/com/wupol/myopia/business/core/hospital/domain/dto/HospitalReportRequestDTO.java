@@ -51,4 +51,5 @@ public class HospitalReportRequestDTO {
      */
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date reportEndTIme;
+
 }

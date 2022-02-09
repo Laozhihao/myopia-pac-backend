@@ -42,8 +42,8 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.function.Function;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
 
 /**
  * 统一处理 Excel 上传/下载
@@ -55,16 +55,13 @@ import java.util.stream.Collectors;
 @Service
 public class ExcelFacade {
 
-    @Resource
+    @Autowired
     private DistrictService districtService;
-
-    @Resource
+    @Autowired
     private NoticeService noticeService;
-
     @Resource
     private S3Utils s3Utils;
-
-    @Resource
+    @Autowired
     private RedisUtil redisUtil;
 
     @Autowired
