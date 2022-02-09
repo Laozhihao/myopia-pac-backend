@@ -415,14 +415,16 @@ public class ScreeningPlanStudentBizService {
         File file = new File(savePath);
         File parentFile = file.getParentFile();
         if (!parentFile.exists()) {
-            if (parentFile.mkdirs()) {
-                log.error("创建文件失败");
+            if (!parentFile.mkdirs()) {
+                log.error("创建文件夹失败");
             }
         }
         FileOutputStream fileOutputStream = null;
         try {
             if (!file.exists()) {
-                file.createNewFile();
+                if (!file.createNewFile()) {
+                    log.error("创建文件失败");
+                }
             }
 
             URL url = new URL(fileUrl);
