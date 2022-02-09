@@ -42,9 +42,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Paths;
@@ -412,26 +410,36 @@ public class ScreeningPlanStudentBizService {
      * @param fileUrl  下载路径
      * @param savePath 存放地址
      */
-    public static void downloadFile(String fileUrl, String savePath) throws Exception {
+    public static void downloadFile(String fileUrl, String savePath) throws IOException {
 
         File file = new File(savePath);
         File parentFile = file.getParentFile();
         if (!parentFile.exists()) {
-            parentFile.mkdirs();
+            if (parentFile.mkdirs()) {
+                log.error("创建文件失败");
+            }
         }
-        if (!file.exists()) {
-            file.createNewFile();
-        }
+        FileOutputStream fileOutputStream = null;
+        try {
+            if (!file.exists()) {
+                file.createNewFile();
+            }
 
-        URL url = new URL(fileUrl);
-        URLConnection conn = url.openConnection();
-        InputStream inputStream = conn.getInputStream();
-        FileOutputStream fileOutputStream = new FileOutputStream(savePath);
-        int byteRead;
-        byte[] buffer = new byte[1024];
-        while ((byteRead = inputStream.read(buffer)) != -1) {
-            fileOutputStream.write(buffer, 0, byteRead);
+            URL url = new URL(fileUrl);
+            URLConnection conn = url.openConnection();
+            InputStream inputStream = conn.getInputStream();
+            fileOutputStream = new FileOutputStream(savePath);
+            int byteRead;
+            byte[] buffer = new byte[1024];
+            while ((byteRead = inputStream.read(buffer)) != -1) {
+                fileOutputStream.write(buffer, 0, byteRead);
+            }
+        } catch (IOException e) {
+            throw new BusinessException("创建文件异常");
+        } finally {
+            if (Objects.nonNull(fileOutputStream)) {
+                fileOutputStream.close();
+            }
         }
-        fileOutputStream.close();
     }
 }
