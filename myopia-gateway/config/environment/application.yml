@@ -128,3 +128,6 @@ white-list:
   - "/school/student/**"
   - "/school/student/screening/list/{studentId}"
   - "/school/vision/screening/list"
+  # 回调地址
+  - "/management/pdf/callback"
+  - "/management/screeningPlan/screeningNoticeResult"

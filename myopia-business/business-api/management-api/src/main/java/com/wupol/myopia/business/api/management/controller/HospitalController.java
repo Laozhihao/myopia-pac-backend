@@ -15,10 +15,14 @@ import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.hospital.domain.dto.HospitalResponseDTO;
+import com.wupol.myopia.business.core.hospital.domain.model.Doctor;
 import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
 import com.wupol.myopia.business.core.hospital.domain.query.HospitalQuery;
+import com.wupol.myopia.business.core.hospital.service.HospitalDoctorService;
 import com.wupol.myopia.business.core.hospital.service.HospitalService;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccountListDTO;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -46,6 +50,9 @@ public class HospitalController {
     @Resource
     private ExportStrategy exportStrategy;
 
+    @Autowired
+    private HospitalDoctorService hospitalDoctorService;
+
     /**
      * 保存医院
      *
@@ -62,6 +69,7 @@ public class HospitalController {
         } else { // 非平台管理员默认为合作医院
             hospital.setIsCooperation(CommonConst.IS_COOPERATION);
             hospital.initCooperationInfo();     // 默认合作信息
+            hospital.setAccountNum(Hospital.ACCOUNT_NUM);
         }
         hospital.setStatus(hospital.getCooperationStopStatus());
         UsernameAndPasswordDTO usernameAndPasswordDTO = hospitalService.saveHospital(hospital);
@@ -89,6 +97,7 @@ public class HospitalController {
             // 非平台管理员无法更新合作信息
             hospital.clearCooperationInfo();
             hospital.setStatus(null);
+            hospital.setAccountNum(null);
         }
         return hospitalBizService.updateHospital(hospital);
     }
@@ -112,8 +121,11 @@ public class HospitalController {
      * @return 医院实体
      */
     @GetMapping("{id}")
-    public Hospital getHospital(@PathVariable("id") Integer id) {
-        return hospitalService.getById(id);
+    public HospitalResponseDTO getHospital(@PathVariable("id") Integer id) {
+        Hospital hospital = hospitalService.getById(id);
+        HospitalResponseDTO hospitalResponse = new HospitalResponseDTO();
+        BeanUtils.copyProperties(hospital, hospitalResponse);
+        return hospitalResponse.setDoctorTotalNum(hospitalDoctorService.count(new Doctor().setHospitalId(id)));
     }
 
     /**

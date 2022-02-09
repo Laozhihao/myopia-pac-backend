@@ -192,6 +192,19 @@
         <if test="requestDTO.reportStartTime != null and requestDTO.reportEndTIme != null">
             and report.create_time between #{requestDTO.reportStartTime} and #{requestDTO.reportEndTIme}
         </if>
+        <if test="requestDTO.hospitalName != null and requestDTO.hospitalName != ''">
+            and mh.name like CONCAT('%', #{requestDTO.hospitalName}, '%')
+        </if>
+        <if test="requestDTO.status != null">
+            <choose>
+                <when test="requestDTO.status == true">
+                    and date_format(report.create_time, '%Y-%m-%d') = date_format(now(), '%Y-%m-%d')
+                </when>
+                <when test="requestDTO.status == false">
+                    and date_format(report.create_time, '%Y-%m-%d') != date_format(now(), '%Y-%m-%d')
+                </when>
+            </choose>
+        </if>
         order by report.create_time desc
     </select>
 

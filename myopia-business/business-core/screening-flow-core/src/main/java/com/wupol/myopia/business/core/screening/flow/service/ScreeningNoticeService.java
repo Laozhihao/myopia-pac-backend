@@ -221,4 +221,5 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
         Optional<ScreeningNotice> screeningNoticeOptional = screeningNoticeList.stream().findFirst();
         return screeningNoticeOptional.orElse(null);
     }
+
 }

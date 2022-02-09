@@ -21,6 +21,17 @@ import java.util.Set;
 @Service
 public class VisionScreeningResultService extends BaseService<VisionScreeningResultMapper, VisionScreeningResult> {
 
+   /***
+   * @Description: 学生ID集合
+   * @Param: [studentIds]
+   * @return: java.util.List<com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult>
+   * @Author: 钓猫的小鱼
+   * @Date: 2022/1/12
+   */
+    public List<VisionScreeningResult> getByStudentIds(Integer planId,List<Integer> studentIds) {
+        return baseMapper.getByStudentIds(planId,studentIds);
+    }
+
     /**
      * 通过StudentId获取筛查结果
      *
@@ -167,6 +178,22 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
     public List<VisionScreeningResult> getByPlanStudentIds(List<Integer> planStudentIds) {
         return baseMapper.getByPlanStudentIds(planStudentIds);
     }
+
+    public List<Integer> getBySchoolIdPlanId(Integer planId) {
+        return baseMapper.getBySchoolIdPlanId(planId);
+    }
+
+    /**
+     * 通过学校Id和计划Id获取信息
+     *
+     * @param planId   计划Id
+     * @param schoolId 学校Id
+     * @return List<Integer>
+     */
+    public List<Integer> getByPlanIdAndSchoolId(Integer planId, Integer schoolId) {
+        return baseMapper.getByPlanIdAndSchoolId(planId, schoolId);
+    }
+
 
     /**
      * 通过筛查学生查询最新筛查结果

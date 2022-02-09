@@ -118,7 +118,15 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
     public List<StatConclusionExportDTO> getExportVoByScreeningPlanIdAndSchoolId(Integer screeningPlanId, Integer schoolId) {
         return baseMapper.selectExportVoByScreeningPlanIdAndSchoolId(screeningPlanId, schoolId);
     }
-
+    /**
+     * 根据筛查计划ID与学校Id查出导出的筛查数据
+     * @param screeningPlanId
+     * @param schoolId
+     * @return
+     */
+    public List<StatConclusionExportDTO> selectExportVoByScreeningPlanIdAndSchoolIdAndGradeIdAndClassId(Integer screeningPlanId, Integer schoolId, Integer gradeId, Integer classId) {
+        return baseMapper.selectExportVoByScreeningPlanIdAndSchoolIdAndGradeIdAndClassId(screeningPlanId, schoolId,gradeId,classId);
+    }
     /**
      * 根据筛查通知ID与学校Id查出报告的筛查数据
      * @param screeningNoticeId
@@ -148,6 +156,17 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
      */
     public List<StatConclusionExportDTO> getExportVoByScreeningPlanIdAndScreeningOrgId(Integer screeningPlanId, Integer screeningOrgId) {
         return baseMapper.selectExportVoByScreeningPlanIdAndScreeningOrgId(screeningPlanId, screeningOrgId);
+    }
+
+    /**
+     * @Description:
+     * @Param: [screeningPlanId, screeningOrgId, 学校ID, 年级名称, 班级名称]
+     * @return: java.util.List<com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionExportDTO>
+     * @Author: 钓猫的小鱼
+     * @Date: 2021/12/31
+     */
+    public List<StatConclusionExportDTO> selectExportVoBySPlanIdAndSOrgIdAndSChoolIdAndGradeNameAndClassanme(Integer screeningPlanId, Integer screeningOrgId, Integer schoolId, Integer gradeId, Integer classId) {
+        return baseMapper.selectExportVoBySPlanIdAndSOrgIdAndSChoolIdAndGradeNameAndClassanme(screeningPlanId,screeningOrgId,schoolId,gradeId,classId);
     }
 
     /**
@@ -274,5 +293,6 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
     public StatConclusion getByPlanStudentId(Integer planStudentId) {
         return baseMapper.getByPlanStudentId(planStudentId);
     }
+
 }
 

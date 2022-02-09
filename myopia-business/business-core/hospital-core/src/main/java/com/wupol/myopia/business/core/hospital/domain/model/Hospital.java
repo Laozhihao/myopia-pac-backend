@@ -35,6 +35,8 @@ public class Hospital extends AddressCooperation implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    public static final Integer ACCOUNT_NUM = 7;
+
     /**
      * id
      */
@@ -119,6 +121,11 @@ public class Hospital extends AddressCooperation implements Serializable {
     private String remark;
 
     /**
+     * 账号数量
+     */
+    private Integer accountNum;
+
+    /**
      * 是否合作医院 0-否 1-是
      */
     private Integer isCooperation;
@@ -138,7 +145,6 @@ public class Hospital extends AddressCooperation implements Serializable {
     /**
      * 服务类型（配置），0：居民健康系统(默认)、1：0-6岁眼保健、2：0-6岁眼保健+居民健康系统
      */
-    @NotNull(message = "配置类型不能为空")
     private Integer serviceType;
 
     /**

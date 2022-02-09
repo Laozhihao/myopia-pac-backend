@@ -44,5 +44,4 @@ public class HospitalQuery extends Hospital {
      */
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     private Date cooperationEndTimeLe;
-
 }

@@ -132,6 +132,30 @@
         </foreach>
     </select>
 
+    <select id="getBySchoolIdPlanId" resultType="java.lang.Integer">
+        select school_id
+        from m_vision_screening_result
+        where plan_id = #{planId}
+        group by school_id
+    </select>
+
+    <select id="getByStudentIds" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_vision_screening_result
+        where plan_id = #{planId} and student_id in
+        <foreach collection="studentIds" item="studentId" index="index" open="(" close=")" separator=",">
+             #{studentId}
+        </foreach>
+    </select>
+
+    <select id="getByPlanIdAndSchoolId" resultType="java.lang.Integer">
+        select screening_plan_school_student_id
+        from m_vision_screening_result
+        where plan_id = #{planId}
+          and school_id = #{schoolId}
+    </select>
+
     <select id="getLatestByPlanStudentIds" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
