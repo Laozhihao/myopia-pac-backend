@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.base.constant.CooperationTimeTypeEnum;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.common.utils.domain.model.NotificationConfig;
+import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;
 import com.wupol.myopia.business.common.utils.interfaces.HasName;
 import com.wupol.myopia.business.core.common.domain.model.AddressCooperation;
 import com.wupol.myopia.business.core.school.constant.SchoolEnum;
@@ -105,6 +106,12 @@ public class School extends AddressCooperation implements Serializable, HasName 
      * 说明
      */
     private String remark;
+
+    /**
+     * 结果通知配置
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private ResultNoticeConfig resultNoticeConfig;
 
     /**
      * 创建时间

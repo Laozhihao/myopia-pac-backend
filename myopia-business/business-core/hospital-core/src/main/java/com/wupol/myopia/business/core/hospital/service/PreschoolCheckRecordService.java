@@ -17,8 +17,8 @@ import com.wupol.myopia.business.core.hospital.domain.mapper.PreschoolCheckRecor
 import com.wupol.myopia.business.core.hospital.domain.model.PreschoolCheckRecord;
 import com.wupol.myopia.business.core.hospital.domain.query.PreschoolCheckRecordQuery;
 import com.wupol.myopia.business.core.hospital.util.HospitalUtil;
-import lombok.extern.log4j.Log4j2;
 import com.wupol.myopia.business.core.hospital.util.PreschoolCheckRecordUtil;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;

@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @Author wulizhou
@@ -47,8 +46,8 @@ public class DoctorController {
      */
     @GetMapping("/{id}")
     public DoctorDTO getDoctor(@PathVariable("id") Integer id) {
-        baseService.checkId(id);
-        return baseService.getDetails(id);
+        doctorService.checkId(id);
+        return doctorService.getDetails(id);
     }
 
     /**
@@ -110,8 +109,8 @@ public class DoctorController {
      */
     @PutMapping
     public UsernameAndPasswordDTO updateDoctor(@RequestBody @Valid DoctorDTO doctor) {
-        baseService.checkId(doctor.getId());
-        return baseService.updateDoctor(doctor);
+        doctorService.checkId(doctor.getId());
+        return doctorService.updateDoctor(doctor);
     }
 
     /**
@@ -122,8 +121,8 @@ public class DoctorController {
      */
     @PutMapping("/status")
     public User updateDoctorStatus(@RequestBody @Valid StatusRequest statusRequest) {
-        baseService.checkId(statusRequest.getId());
-        return baseService.updateStatus(statusRequest);
+        doctorService.checkId(statusRequest.getId());
+        return doctorService.updateStatus(statusRequest);
     }
 
     /**
@@ -134,8 +133,8 @@ public class DoctorController {
      */
     @PutMapping("/reset")
     public UsernameAndPasswordDTO resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
-        baseService.checkId(request.getId());
-        return baseService.resetPassword(request);
+        doctorService.checkId(request.getId());
+        return doctorService.resetPassword(request);
     }
 
 }
