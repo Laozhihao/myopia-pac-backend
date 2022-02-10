@@ -160,6 +160,9 @@
                     <include refid="DoctorIdWhere" />
                     )
                 </if>
+                <if test="query.isGroupByStudent">
+                    group by pcr.student_id
+                </if>
             </trim>
         </where>
         order by pcr.update_time desc

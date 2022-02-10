@@ -36,6 +36,11 @@ public class PreschoolCheckRecordQuery extends PreschoolCheckRecordDTO {
      */
     private List<Integer> monthAges;
 
+    /**
+     * 是否取以学生维度获取检查信息
+     */
+    private Boolean isGroupByStudent = false;
+
     public void setStartDate(Long startDate) {
         checkDateStart = new Date(startDate);
     }

@@ -197,6 +197,7 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
         if (Objects.nonNull(checkRecord.getOcularInspection())) dbCheckRecord.setOcularInspection(checkRecord.getOcularInspection());
         if (Objects.nonNull(checkRecord.getMonocularMaskingAversionTest())) dbCheckRecord.setMonocularMaskingAversionTest(checkRecord.getMonocularMaskingAversionTest());
         if (Objects.nonNull(checkRecord.getGuideContent())) dbCheckRecord.setGuideContent(checkRecord.getGuideContent());
+        dbCheckRecord.setUpdateTime(new Date());
         addConclusionAndStatus(dbCheckRecord);
         if (!updateById(dbCheckRecord)) {
             throw new BusinessException("修改失败");
