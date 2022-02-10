@@ -43,6 +43,7 @@ public class CheckRecordController {
         // 限定医院，时间
         query.setHospitalId(user.getOrgId());
         query.setUpdateTime(new Date());
+        query.setIsGroupByStudent(true);
         return preschoolCheckRecordService.getList(pageRequest, query);
     }
 
