@@ -42,8 +42,7 @@ public class CheckRecordController {
         PreschoolCheckRecordQuery query = new PreschoolCheckRecordQuery();
         // 限定医院，时间
         query.setHospitalId(user.getOrgId());
-        query.setCheckDateStart(new Date());
-        query.setCheckDateEnd(new Date());
+        query.setUpdateTime(new Date());
         return preschoolCheckRecordService.getList(pageRequest, query);
     }
 
