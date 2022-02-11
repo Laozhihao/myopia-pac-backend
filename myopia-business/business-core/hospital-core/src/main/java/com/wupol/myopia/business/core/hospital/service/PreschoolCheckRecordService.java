@@ -225,7 +225,7 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
         });
         records.forEach(record -> {
             // 检查大于3天，无法修改
-            if (DateUtil.betweenDay(record.getCreateTime(), now) > 3 || !canCheckMonthAge.contains(record.getMonthAge())) {
+            if (DateUtil.betweenDay(record.getCreateTime(), now) > 3) {
                 monthAgeStatusDTOS.get(record.getMonthAge()).setStatus(MonthAgeStatusEnum.AGE_STAGE_STATUS_CANNOT_UPDATE.getStatus())
                         .setPreschoolCheckRecordId(record.getId());
             } else {
@@ -337,11 +337,11 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
      * @param studentIds
      * @return
      */
-    public Map<Integer, Integer> getStudentCheckCount(List<Integer> studentIds) {
+    public Map<Integer, Integer> getStudentCheckCount(Integer hospitalId, List<Integer> studentIds) {
         if (CollectionUtils.isEmpty(studentIds)) {
             return MapUtils.EMPTY_SORTED_MAP;
         }
-        return baseMapper.getStudentCheckCount(studentIds).stream().collect(
+        return baseMapper.getStudentCheckCount(hospitalId, studentIds).stream().collect(
                 Collectors.toMap(StudentPreschoolCheckDTO::getStudentId, StudentPreschoolCheckDTO::getCount));
     }
 

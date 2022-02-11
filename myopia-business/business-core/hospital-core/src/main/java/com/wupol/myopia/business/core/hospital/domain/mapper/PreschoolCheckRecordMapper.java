@@ -55,6 +55,6 @@ public interface PreschoolCheckRecordMapper extends BaseMapper<PreschoolCheckRec
      * @param studentIds
      * @return
      */
-    List<StudentPreschoolCheckDTO> getStudentCheckCount(@Param("studentIds") List<Integer> studentIds);
+    List<StudentPreschoolCheckDTO> getStudentCheckCount(@Param("hospitalId")Integer hospitalId, @Param("studentIds") List<Integer> studentIds);
 
 }
