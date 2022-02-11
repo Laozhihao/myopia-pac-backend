@@ -195,6 +195,9 @@
 
     <select id="getStudentCheckCount" resultMap="StudentCheckCountDTO">
         select student_id, count(DISTINCT month_age) as count from h_preschool_check_record
+        <if test="@Ognl@isNotEmpty(hospitalId)">
+            where `hospital_id` = #{hospitalId}
+        </if>
         group by student_id
         HAVING student_id in
         <foreach collection="studentIds" item="studentId" index="index" open="(" close=")" separator=",">

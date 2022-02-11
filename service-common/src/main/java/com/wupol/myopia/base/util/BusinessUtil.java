@@ -113,8 +113,8 @@ public class BusinessUtil {
         } else if (DateUtil.betweenDay(birthday, now) > 45) {
             // 45天＜*≤2月龄15天：【满月】、【3月龄】
             return Arrays.asList(MonthAgeEnum.MONTH1.getId(), MonthAgeEnum.MONTH3.getId());
-        } else if (days > 15) {
-            // 45天＜*≤2月龄15天：【满月】、【3月龄】
+        } else if (DateUtil.betweenDay(birthday, now) > 15) {
+            // 15天＜*≤45天：【满月】
             return Arrays.asList(MonthAgeEnum.MONTH1.getId());
         } else {
             // 0＜*≤15天：【新生儿】

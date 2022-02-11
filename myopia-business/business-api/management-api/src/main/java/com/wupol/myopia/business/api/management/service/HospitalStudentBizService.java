@@ -88,7 +88,7 @@ public class HospitalStudentBizService {
         LinkedHashMap<Integer, Long> reportMap = reportList.stream().collect(Collectors.groupingBy(ReportAndRecordDO::getStudentId, LinkedHashMap::new, Collectors.counting()));
 
         // 获取学生检查数
-        Map<Integer, Integer> studentCheckCount = preschoolCheckRecordService.getStudentCheckCount(studentIds);
+        Map<Integer, Integer> studentCheckCount = preschoolCheckRecordService.getStudentCheckCount(requestDTO.getHospitalId(), studentIds);
 
         hospitalStudentList.forEach(hospitalStudent -> {
             hospitalStudent.setSchoolName(schoolMap.get(hospitalStudent.getSchoolId()));
