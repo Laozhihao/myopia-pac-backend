@@ -38,13 +38,6 @@ public class BusinessUtil {
         return true;
     }
 
-    public static void main(String[] args) {
-        List<Integer> canCheckMonthAgeByDate = getCanCheckMonthAgeByDate(new Date(1528300800000L));
-        System.out.println(canCheckMonthAgeByDate.get(0));
-        System.out.println(canCheckMonthAgeByDate.get(1));
-
-    }
-
     /**
      * 获取用户可做的月龄检查
      *
