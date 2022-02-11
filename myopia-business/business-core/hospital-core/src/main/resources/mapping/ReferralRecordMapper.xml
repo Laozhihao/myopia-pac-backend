@@ -56,7 +56,7 @@
         <include refid="Base_Where_Clause" />
     </select>
 
-    <select id="getByStudentId" resultMap="BaseResultMap">
+    <select id="getByStudentId" resultMap="ReferralDO">
         select
         rr.*, rr.update_time as apply_time, h.name as from_hospital, d.name as from_doctor
         from h_referral_record rr
