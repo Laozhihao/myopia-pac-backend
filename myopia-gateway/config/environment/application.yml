@@ -15,7 +15,7 @@ spring:
         - StripPrefix=1
 
       - id: route_doctor
-        uri: lb://myopia-oauth
+        uri: lb://myopia-business
         predicates:
         - Path=/preschool/app/doctor/**
         filters:
