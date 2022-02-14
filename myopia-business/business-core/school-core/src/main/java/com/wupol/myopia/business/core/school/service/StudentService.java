@@ -3,6 +3,7 @@ package com.wupol.myopia.business.core.school.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
+import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
@@ -485,7 +486,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         }
         String recordNo;
         Student studentRecordNo = getOneByCommitteeCode(committeeCode);
-        if (Objects.isNull(studentRecordNo)) {
+        if (Objects.isNull(studentRecordNo) || Objects.isNull(studentRecordNo.getRecordNo())) {
             recordNo = committeeCode + "00001";
         } else {
             recordNo = String.valueOf(Long.parseLong(studentRecordNo.getRecordNo()) + 1);
@@ -533,5 +534,26 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      */
     public Student getByCondition(String condition, String name) {
         return baseMapper.getByCondition(condition, name);
+    }
+
+    /**
+     * 判断是否更新ReportNo
+     *
+     * @param student 学生
+     */
+    public void updateStudentReportNo(Student student) {
+        Student oldStudent = baseMapper.getStudentById(student.getId());
+
+        // 行政区域为空或者编码为空则更新
+        if (ObjectsUtil.hasNull(oldStudent.getCommitteeCode(), oldStudent.getRecordNo())
+                && Objects.nonNull(student.getCommitteeCode())) {
+            student.setRecordNo(getRecordNo(student.getCommitteeCode()));
+            return;
+        }
+        // 新、旧行政区域不同则更新
+        if (ObjectsUtil.allNotNull(oldStudent.getCommitteeCode(), student.getCommitteeCode())
+                && !oldStudent.getCommitteeCode().equals(student.getCommitteeCode())) {
+            student.setRecordNo(getRecordNo(student.getCommitteeCode()));
+        }
     }
 }

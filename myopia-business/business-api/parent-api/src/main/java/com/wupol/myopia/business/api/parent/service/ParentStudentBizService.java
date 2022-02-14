@@ -122,9 +122,8 @@ public class ParentStudentBizService {
             return responseDTO;
         }
         List<ParentStudentDTO> parentStudentDTOS = studentService.countParentStudent(studentIds);
-        parentStudentDTOS.forEach(student -> {
-            student.setAvatarUrl(Objects.isNull(student.getAvatarFileId()) ? StringUtils.EMPTY : resourceFileService.getResourcePath(student.getAvatarFileId()));
-        });
+        parentStudentDTOS.forEach(student -> student.setAvatarUrl(Objects.isNull(student.getAvatarFileId())
+                ? StringUtils.EMPTY : resourceFileService.getResourcePath(student.getAvatarFileId())));
         responseDTO.setTotal(parentStudentDTOS.size());
         responseDTO.setItem(parentStudentDTOS);
         return responseDTO;
@@ -201,7 +200,10 @@ public class ParentStudentBizService {
             throw new BusinessException("家长信息异常");
         }
         setStudentAddress(student);
+        studentService.updateStudentReportNo(student);
         StudentDTO studentDTO = studentService.updateStudent(student);
+        // 更新医院学生信息
+        studentFacade.updateHospitalStudentRecordNo(studentDTO.getId(), studentDTO.getCommitteeCode(), studentDTO.getRecordNo());
         // 绑定孩子
         Integer studentId = student.getId();
         bindStudent(parent, studentId);
@@ -258,6 +260,9 @@ public class ParentStudentBizService {
             studentDTO.setAvatar(resourceFileService.getResourcePath(studentDTO.getAvatarFileId()));
         }
         studentDTO.setToken(getQrCode(studentId));
+        if (Objects.nonNull(studentDTO.getCommitteeCode())) {
+            studentDTO.setCommitteeLists(districtService.getDistrictPositionDetail(studentDTO.getCommitteeCode()));
+        }
         return studentDTO;
     }
 
@@ -445,7 +450,7 @@ public class ParentStudentBizService {
         responseDTO.setVisionResultItems(ScreeningResultUtil.packageVisionResult(visionData, age));
 
         // 验光仪检查结果
-        TwoTuple<List<RefractoryResultItems>, Integer> refractoryResult = ScreeningResultUtil.packageRefractoryResult(result.getComputerOptometry(), age);
+        TwoTuple<List<RefractoryResultItems>, Integer> refractoryResult = ScreeningResultUtil.packageRefractoryResult(result.getComputerOptometry(), age, visionData);
         responseDTO.setRefractoryResultItems(refractoryResult.getFirst());
 
         // 生物测量
@@ -755,7 +760,9 @@ public class ParentStudentBizService {
                 StringUtils.isNotBlank(refractionData.getComputerRightDS()) ? new BigDecimal(refractionData.getComputerRightDS()) : null,
                 StringUtils.isNotBlank(refractionData.getComputerRightDC()) ? new BigDecimal(refractionData.getComputerRightDC()) : null,
                 StringUtils.isNotBlank(refractionData.getComputerLeftAxis()) ? new BigDecimal(refractionData.getComputerLeftAxis()) : null,
-                StringUtils.isNotBlank(refractionData.getComputerRightAxis()) ? new BigDecimal(refractionData.getComputerRightAxis()) : null);
+                StringUtils.isNotBlank(refractionData.getComputerRightAxis()) ? new BigDecimal(refractionData.getComputerRightAxis()) : null,
+                StringUtils.isNotBlank(visionData.getLeftRawVision()) ? new BigDecimal(visionData.getLeftRawVision()) : null,
+                StringUtils.isNotBlank(visionData.getRightRawVision()) ? new BigDecimal(visionData.getRightRawVision()) : null);
         reportDTO.setRefractoryResultItems(Lists.newArrayList(sphItems, cylItems, axialItems, seItems));
     }
 }

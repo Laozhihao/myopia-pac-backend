@@ -310,4 +310,15 @@ public class ParentStudentController {
         return parentStudentBizService.getStudentInfo(studentId);
     }
 
+    /**
+     * 通过committeeCode获取区域
+     *
+     * @param committeeCode committeeCode
+     * @return 区域
+     */
+    @GetMapping("getCommitteeList")
+    public List<District> getCommitteeLists(@NotNull(message = "committeeCode不能为空") Long committeeCode) {
+        return districtService.getDistrictPositionDetail(committeeCode);
+    }
+
 }
