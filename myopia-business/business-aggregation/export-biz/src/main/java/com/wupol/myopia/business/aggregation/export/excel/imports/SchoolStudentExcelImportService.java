@@ -127,6 +127,7 @@ public class SchoolStudentExcelImportService {
             setSchoolStudentInfo(createUserId, schoolId, item, schoolStudent);
             setSchoolStudentClassInfo(schoolId, schoolGradeMaps, item, schoolStudent);
             // 更新管理端
+            schoolStudent.checkStudentInfo();
             Integer managementStudentId = updateManagementStudent(schoolStudent);
             schoolStudent.setStudentId(managementStudentId);
             schoolStudents.add(schoolStudent);
@@ -152,6 +153,7 @@ public class SchoolStudentExcelImportService {
                 .setGradeType(GradeCodeEnum.getByName(item.get(SchoolStudentImportEnum.GRADE_NAME.getIndex())).getType())
                 .setSno((item.get(SchoolStudentImportEnum.SNO.getIndex())))
                 .setIdCard(item.get(SchoolStudentImportEnum.ID_CARD.getIndex()))
+                .setPassport(item.get(SchoolStudentImportEnum.PASSPORT.getIndex()))
                 .setParentPhone(item.get(SchoolStudentImportEnum.PHONE.getIndex()))
                 .setCreateUserId(createUserId)
                 .setSchoolId(schoolId)
@@ -200,15 +202,15 @@ public class SchoolStudentExcelImportService {
      * @param snoList 学号
      */
     private void checkIdCard(List<String> idCards, List<String> snoList) {
-        if (CollectionUtils.isEmpty(idCards)) {
-            throw new BusinessException("身份证为空");
-        }
+
         if (CollectionUtils.isEmpty(snoList)) {
             throw new BusinessException("学号为空");
         }
-        List<String> idCardDuplicate = ListUtil.getDuplicateElements(idCards);
-        if (!CollectionUtils.isEmpty(idCardDuplicate)) {
-            throw new BusinessException("身份证号码：" + String.join(",", idCardDuplicate) + "重复");
+        if (!CollectionUtils.isEmpty(idCards)) {
+            List<String> idCardDuplicate = ListUtil.getDuplicateElements(idCards);
+            if (!CollectionUtils.isEmpty(idCardDuplicate)) {
+                throw new BusinessException("身份证号码：" + String.join(",", idCardDuplicate) + "重复");
+            }
         }
         List<String> snoDuplicate = ListUtil.getDuplicateElements(snoList);
         if (!CollectionUtils.isEmpty(snoDuplicate)) {
@@ -279,6 +281,7 @@ public class SchoolStudentExcelImportService {
         managementStudent.setAreaCode(schoolStudent.getAreaCode());
         managementStudent.setTownCode(schoolStudent.getTownCode());
         managementStudent.setAddress(schoolStudent.getAddress());
+        managementStudent.setPassport(schoolStudent.getPassport());
         managementStudent.setStatus(CommonConst.STATUS_NOT_DELETED);
         studentService.updateStudent(managementStudent);
         return managementStudent.getId();

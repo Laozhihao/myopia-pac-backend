@@ -120,18 +120,25 @@
         <include refid="Base_Column_List"/>
         from m_school_student where school_id = #{schoolId}
                                 and status = 0
-                                and (id_card in
-        <foreach collection="idCards" item="idCard" index="index" open="(" close=")" separator=",">
-            #{idCard}
-        </foreach>
-        or sno in
-        <foreach collection="snos" item="sno" index="index" open="(" close=")" separator=",">
-            #{sno}
-        </foreach>
-        or passport in
-        <foreach collection="passports" item="passport" index="index" open="(" close=")" separator=",">
-            #{passport}
-        </foreach>
+                                and (
+        <if test="snos != null and snos.size() != 0">
+            sno in
+            <foreach collection="snos" item="sno" index="index" open="(" close=")" separator=",">
+                #{sno}
+            </foreach>
+        </if>
+        <if test="idCards != null and idCards.size() != 0">
+            or id_card in
+            <foreach collection="idCards" item="idCard" index="index" open="(" close=")" separator=",">
+                #{idCard}
+            </foreach>
+        </if>
+        <if test="passports != null and passports.size() != 0">
+            or passport in
+            <foreach collection="passports" item="passport" index="index" open="(" close=")" separator=",">
+                #{passport}
+            </foreach>
+        </if>
         )
     </select>
 
@@ -169,10 +176,18 @@
         <include refid="Base_Column_List"/>
         from m_school_student where school_id = #{schoolId}
                                 and status = 2
-                                and id_card in
-        <foreach collection="idCards" item="idCard" index="index" open="(" close=")" separator=",">
-            #{idCard}
-        </foreach>
+        <if test="idCards != null and idCards.size() != 0">
+            and id_card in
+            <foreach collection="idCards" item="idCard" index="index" open="(" close=")" separator=",">
+                #{idCard}
+            </foreach>
+        </if>
+        <if test="passports != null and passports.size() != 0">
+            and passport in
+            <foreach collection="passports" item="passport" index="index" open="(" close=")" separator=",">
+                #{passport}
+            </foreach>
+        </if>
     </select>
 
     <select id="getByIdCardAndSnoAndPassport" resultMap="BaseResultMap">

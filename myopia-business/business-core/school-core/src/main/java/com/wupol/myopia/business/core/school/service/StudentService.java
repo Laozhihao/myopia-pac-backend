@@ -578,9 +578,10 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @return Student
      */
     public Student getByIdCardAndPassport(String idCard, String passport, Integer id) {
-         if (CollectionUtils.isEmpty(baseMapper.checkByIdCardAndPassport(idCard, passport, id))) {
+        List<Student> collection = baseMapper.checkByIdCardAndPassport(idCard, passport, id);
+        if (CollectionUtils.isEmpty(collection)) {
              return null;
          }
-         return baseMapper.checkByIdCardAndPassport(idCard, passport, id).get(0);
+         return collection.get(0);
     }
 }
