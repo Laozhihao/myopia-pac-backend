@@ -425,4 +425,18 @@
         </foreach>
         group by grade_id, class_id
     </select>
+
+    <select id="getByIdCardAndPassport" resultMap="BaseResultMap">
+        select *
+        from m_screening_plan_school_student where 0 = 0
+        <if test="idCard != null and idCard != ''">
+            and id_card = #{idCard}
+        </if>
+        <if test="passport != null and passport != ''">
+            and passport = #{passport}
+        </if>
+        <if test="id != null">
+            and id != #{id}
+        </if>
+    </select>
 </mapper>

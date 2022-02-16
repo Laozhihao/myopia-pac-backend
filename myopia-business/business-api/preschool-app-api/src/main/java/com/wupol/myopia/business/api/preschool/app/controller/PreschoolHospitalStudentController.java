@@ -59,6 +59,7 @@ public class PreschoolHospitalStudentController {
 
     @PostMapping()
     public ApiResult<Integer> saveStudentArchive(@RequestBody @Valid HospitalStudentVO studentVo) {
+        studentVo.checkStudentInfo();
         studentVo.setProvince(null);
         studentVo.setCity(null);
         studentVo.setArea(null);

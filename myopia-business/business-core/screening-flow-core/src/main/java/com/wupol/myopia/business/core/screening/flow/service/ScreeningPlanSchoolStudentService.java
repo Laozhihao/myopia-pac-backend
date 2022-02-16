@@ -452,4 +452,8 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     public List<ScreeningPlanSchoolStudent> getByCondition(String condition, String name) {
         return baseMapper.getByCondition(condition, name);
     }
+
+    public List<ScreeningPlanSchoolStudent> getByIdCardAndPassport(String idCard, String passport, Integer id) {
+        return baseMapper.getByIdCardAndPassport(idCard, passport, id);
+    }
 }
