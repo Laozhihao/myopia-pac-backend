@@ -50,7 +50,7 @@ public class PreSchoolNoticeService {
      */
     public void timedTaskSendMsg() {
         // 获取学生
-        DateTime startDate = DateUtil.offsetMonth(new Date(), -145);
+        DateTime startDate = DateUtil.offsetMonth(new Date(), -144);
         List<HospitalStudent> hospitalStudents = hospitalStudentService.getByStudentType(startDate);
         if (CollectionUtils.isEmpty(hospitalStudents)) {
             return;
