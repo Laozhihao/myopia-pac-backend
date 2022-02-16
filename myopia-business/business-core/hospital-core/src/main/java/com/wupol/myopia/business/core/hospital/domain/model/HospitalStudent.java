@@ -4,11 +4,13 @@ import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.base.domain.vo.FamilyInfoVO;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.RegularUtils;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.Range;
 
 import javax.validation.constraints.NotBlank;
@@ -75,8 +77,7 @@ public class HospitalStudent implements Serializable {
     private Integer nation;
 
     /** 身份证号码 */
-    @Pattern(regexp = RegularUtils.REGULAR_ID_CARD, message = "身份证格式错误")
-    @NotNull(message = "身份证号码不能为空")
+    @TableField(typeHandler = JacksonTypeHandler.class)
     private String idCard;
 
     /** 家长手机号码 */
@@ -140,10 +141,28 @@ public class HospitalStudent implements Serializable {
      */
     private Integer studentType;
 
+    /**
+     * 护照
+     */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
+    private String passport;
+
 
     public HospitalStudent(Integer hospitalId, Integer studentId) {
         this.studentId = studentId;
         this.hospitalId = hospitalId;
+    }
+
+    /**
+     * 检查学生信息是否正确
+     * <p>
+     *     身份证和护照二选一
+     * </p>
+     */
+    public void checkStudentInfo() {
+        if (StringUtils.isAllBlank(idCard, passport) || (StringUtils.isNotBlank(idCard) && StringUtils.isNotBlank(passport))) {
+            throw new BusinessException("身份证、护照信息异常");
+        }
     }
 
 }
