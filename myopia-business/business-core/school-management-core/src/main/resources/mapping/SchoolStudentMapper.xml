@@ -36,6 +36,7 @@
         myopia_level,
         hyperopia_level,
         astigmatism_level,
+        passport,
         create_time,
         update_time
     </sql>
@@ -60,6 +61,12 @@
         </if>
         <if test="requestDTO.visionLabel != null">
             and vision_label = #{requestDTO.visionLabel}
+        </if>
+        <if test="requestDTO.idCard != null and requestDTO.idCard != ''">
+            and id_card like CONCAT('%', #{requestDTO.idCard}, '%')
+        </if>
+        <if test="requestDTO.passport != null and requestDTO.passport != ''">
+            and passport like CONCAT('%', #{requestDTO.passport}, '%')
         </if>
         order by create_time desc
     </select>
@@ -162,5 +169,31 @@
         <foreach collection="idCards" item="idCard" index="index" open="(" close=")" separator=",">
             #{idCard}
         </foreach>
+    </select>
+
+    <select id="getByIdCardAndSnoAndPassport" resultMap="BaseResultMap">
+        select *
+        from m_school_student where (id_card = #{idCard}
+                or sno = #{sno} or passport = #{passport})
+                                and school_id = #{schoolId}
+        <if test="id != null">
+            and id != #{id}
+        </if>
+        and status = 0
+    </select>
+
+    <select id="getByIdCardAndPassport" resultMap="BaseResultMap">
+        select *
+        from m_school_student
+                where 0 = 0
+        <if test="idCard != null and idCard != ''">
+            and id_card = #{idCard}
+        </if>
+        <if test="passport != null and passport != ''">
+            and passport = #{passport}
+        </if>
+        and school_id = #{schoolId}
+                order by create_time desc
+                limit 1
     </select>
 </mapper>

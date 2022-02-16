@@ -75,8 +75,7 @@ public class HospitalStudent implements Serializable {
     private Integer nation;
 
     /** 身份证号码 */
-    @Pattern(regexp = RegularUtils.REGULAR_ID_CARD, message = "身份证格式错误")
-    @NotNull(message = "身份证号码不能为空")
+    @TableField(typeHandler = JacksonTypeHandler.class)
     private String idCard;
 
     /** 家长手机号码 */
@@ -139,6 +138,12 @@ public class HospitalStudent implements Serializable {
      * 学生类型 1-医院端 2-0到6岁 3医院和0到6
      */
     private Integer studentType;
+
+    /**
+     * 护照
+     */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
+    private String passport;
 
 
     public HospitalStudent(Integer hospitalId, Integer studentId) {

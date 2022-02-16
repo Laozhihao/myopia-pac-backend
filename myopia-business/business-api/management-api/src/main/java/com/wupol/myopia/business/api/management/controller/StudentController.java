@@ -28,6 +28,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreening
 import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentCardResponseVO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -75,13 +76,12 @@ public class StudentController {
      * @return 新增数量
      */
     @PostMapping()
+    @Transactional(rollbackFor = Exception.class)
     public Integer saveStudent(@RequestBody @Valid Student student) {
+        student.checkStudentInfo();
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         student.setCreateUserId(user.getId());
-        if (StringUtils.isBlank(student.getIdCard())) {
-            throw new BusinessException("身份证不能为空");
-        }
-        return studentService.saveStudent(student);
+        return studentFacade.saveStudentAndSchoolStudent(student);
     }
 
     /**
@@ -92,6 +92,7 @@ public class StudentController {
      */
     @PutMapping()
     public StudentDTO updateStudent(@RequestBody @Valid Student student) {
+        student.checkStudentInfo();
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         student.setCreateUserId(user.getId());
         return studentBizService.updateStudentReturnCountInfo(student, user);

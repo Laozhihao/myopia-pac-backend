@@ -21,4 +21,14 @@ public class HospitalStudentRequestDTO {
      * 姓名
      */
     private String name;
+
+    /**
+     * 身份证
+     */
+    private String idCard;
+
+    /**
+     * 护照
+     */
+    private String passport;
 }

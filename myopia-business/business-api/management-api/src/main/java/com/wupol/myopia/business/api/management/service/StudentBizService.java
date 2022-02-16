@@ -290,7 +290,6 @@ public class StudentBizService {
      */
     @Transactional(rollbackFor = Exception.class)
     public StudentDTO updateStudentReturnCountInfo(Student student, CurrentUser user) {
-        haveIdCardOrCode(student);
         // 判断是否要修改委会行政区域
         isUpdateCommitteeCode(student, user);
         StudentDTO studentDTO = studentService.updateStudent(student);

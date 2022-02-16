@@ -238,7 +238,7 @@ public class SchoolStudentExcelImportService {
      */
     public Integer updateManagementStudent(SchoolStudent schoolStudent) {
         // 通过身份证在管理端查找学生
-        Student managementStudent = studentService.getAllByIdCard(schoolStudent.getIdCard());
+        Student managementStudent = studentService.getByIdCardAndPassport(schoolStudent.getIdCard(),schoolStudent.getPassport(),schoolStudent.getStudentId());
 
         // 如果为空新增，否则是更新
         if (Objects.isNull(managementStudent)) {
