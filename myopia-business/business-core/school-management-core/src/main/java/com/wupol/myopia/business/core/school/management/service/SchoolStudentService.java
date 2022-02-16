@@ -157,7 +157,7 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
      * @return List<SchoolStudent>
      */
     public List<SchoolStudent> getDeletedByIdCard(List<String> idCards, List<String> passports, Integer schoolId) {
-        return baseMapper.getDeletedByIdCardsAndPassports(idCards, passport, schoolId);
+        return baseMapper.getDeletedByIdCardsAndPassports(idCards, passports, schoolId);
     }
 
     /**
