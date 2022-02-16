@@ -71,3 +71,6 @@ alter table m_student
 
 alter table h_hospital_student
     modify record_no varchar(32) null comment '检查建档编码';
+
+create index h_hospital_student_status_student_type_index
+    on h_hospital_student (status, student_type);

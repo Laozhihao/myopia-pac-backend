@@ -205,7 +205,7 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
      *
      * @return List<HospitalStudent>
      */
-    public List<HospitalStudent> getByStudentType() {
-        return baseMapper.getPreschoolByStudentType();
+    public List<HospitalStudent> getByStudentType(Date startDate) {
+        return baseMapper.getPreschoolByStudentType(startDate);
     }
 }
