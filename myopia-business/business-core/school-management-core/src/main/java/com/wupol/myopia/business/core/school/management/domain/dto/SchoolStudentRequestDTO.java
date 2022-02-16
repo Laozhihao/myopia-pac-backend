@@ -21,4 +21,8 @@ public class SchoolStudentRequestDTO {
     private Integer classId;
 
     private Integer visionLabel;
+
+    private String idCard;
+
+    private String passport;
 }

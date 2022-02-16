@@ -36,6 +36,7 @@
         myopia_level,
         hyperopia_level,
         astigmatism_level,
+        passport,
         create_time,
         update_time
     </sql>
