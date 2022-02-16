@@ -97,8 +97,8 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
      * @param schoolId 学校Id
      * @return List<SchoolStudent>
      */
-    public List<SchoolStudent> getByIdCardOrSno(List<String> idCards, List<String> snos, Integer schoolId) {
-        return baseMapper.getByIdCardOrSno(idCards, snos, schoolId);
+    public List<SchoolStudent> getByIdCardAndSnoAndPassports(List<String> idCards, List<String> snos, List<String> passports, Integer schoolId) {
+        return baseMapper.getByIdCardAndSnoAndPassports(idCards, snos, passports, schoolId);
     }
 
     /**
@@ -151,12 +151,13 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
     /**
      * 通过身份证获取已经删除的学生
      *
-     * @param idCards  身份证
-     * @param schoolId 学校Id
+     * @param idCards   身份证
+     * @param schoolId  学校Id
+     * @param passports 护照
      * @return List<SchoolStudent>
      */
-    public List<SchoolStudent> getDeletedByIdCard(List<String> idCards, Integer schoolId) {
-        return baseMapper.getDeletedByIdCard(idCards, schoolId);
+    public List<SchoolStudent> getDeletedByIdCard(List<String> idCards, List<String> passports, Integer schoolId) {
+        return baseMapper.getDeletedByIdCardsAndPassports(idCards, passport, schoolId);
     }
 
     /**

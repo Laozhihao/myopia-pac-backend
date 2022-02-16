@@ -115,7 +115,7 @@
         </if>
     </select>
 
-    <select id="getByIdCardOrSno" resultMap="BaseResultMap">
+    <select id="getByIdCardAndSnoAndPassports" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
         from m_school_student where school_id = #{schoolId}
@@ -127,6 +127,10 @@
         or sno in
         <foreach collection="snos" item="sno" index="index" open="(" close=")" separator=",">
             #{sno}
+        </foreach>
+        or passport in
+        <foreach collection="passports" item="passport" index="index" open="(" close=")" separator=",">
+            #{passport}
         </foreach>
         )
     </select>
@@ -160,7 +164,7 @@
         limit 1
     </select>
 
-    <select id="getDeletedByIdCard" resultMap="BaseResultMap">
+    <select id="getDeletedByIdCardsAndPassports" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
         from m_school_student where school_id = #{schoolId}

@@ -63,6 +63,9 @@ public class SchoolStudentExcelImportService {
 
     /**
      * 导入学校学生
+     * <p>
+     * 这个方法有两个Map，第一个Map是判断数据是否重复，第二个Map是将删除的重新启用
+     * </p>
      *
      * @param createUserId  创建人
      * @param multipartFile 文件
@@ -80,15 +83,18 @@ public class SchoolStudentExcelImportService {
         // 收集身份证号码、学号
         List<String> idCards = listMap.stream().map(s -> s.get(SchoolStudentImportEnum.ID_CARD.getIndex())).filter(Objects::nonNull).collect(Collectors.toList());
         List<String> snos = listMap.stream().map(s -> s.get(SchoolStudentImportEnum.SNO.getIndex())).filter(Objects::nonNull).collect(Collectors.toList());
+        List<String> passports = listMap.stream().map(s -> s.get(SchoolStudentImportEnum.PASSPORT.getIndex())).filter(Objects::nonNull).collect(Collectors.toList());
         checkIdCard(idCards, snos);
 
         // 获取学校学生
-        List<SchoolStudent> studentList = schoolStudentService.getByIdCardOrSno(idCards, snos, schoolId);
+        List<SchoolStudent> studentList = schoolStudentService.getByIdCardAndSnoAndPassports(idCards, snos, passports, schoolId);
         Map<String, SchoolStudent> snoMap = studentList.stream().collect(Collectors.toMap(SchoolStudent::getSno, Function.identity()));
         Map<String, SchoolStudent> idCardMap = studentList.stream().collect(Collectors.toMap(SchoolStudent::getIdCard, Function.identity()));
+        Map<String, SchoolStudent> passPortMap = studentList.stream().collect(Collectors.toMap(SchoolStudent::getPassport, Function.identity()));
 
-        List<SchoolStudent> deletedSchoolStudents = schoolStudentService.getDeletedByIdCard(idCards, schoolId);
-        Map<String, SchoolStudent> deletedStudentMap = deletedSchoolStudents.stream().collect(Collectors.toMap(SchoolStudent::getIdCard, Function.identity()));
+        List<SchoolStudent> deletedSchoolStudents = schoolStudentService.getDeletedByIdCard(idCards, passports, schoolId);
+        Map<String, SchoolStudent> deletedIdCardStudentMap = deletedSchoolStudents.stream().collect(Collectors.toMap(SchoolStudent::getIdCard, Function.identity()));
+        Map<String, SchoolStudent> deletedPassportStudentMap = deletedSchoolStudents.stream().collect(Collectors.toMap(SchoolStudent::getPassport, Function.identity()));
 
         // 收集年级信息
         List<SchoolGradeExportDTO> grades = schoolGradeService.getBySchoolIds(Lists.newArrayList(school.getId()));
@@ -100,7 +106,9 @@ public class SchoolStudentExcelImportService {
         List<SchoolStudent> schoolStudents = new ArrayList<>();
         for (Map<Integer, String> item : listMap) {
             SchoolStudent schoolStudent;
-            SchoolStudent deletedSchoolStudent = deletedStudentMap.get(item.get(SchoolStudentImportEnum.ID_CARD.getIndex()));
+            // 查看是否已经删除，优先取身份证，再取护照号
+            SchoolStudent deletedSchoolStudent = deletedIdCardStudentMap.get(item.get(SchoolStudentImportEnum.ID_CARD.getIndex()));
+            deletedSchoolStudent = Objects.isNull(deletedSchoolStudent) ? deletedPassportStudentMap.get(item.get(SchoolStudentImportEnum.PASSPORT.getIndex())) : deletedSchoolStudent;
             if (Objects.isNull(deletedSchoolStudent)) {
                 schoolStudent = new SchoolStudent();
             } else {
@@ -109,9 +117,12 @@ public class SchoolStudentExcelImportService {
             if (StringUtils.isBlank(item.get(SchoolStudentImportEnum.NAME.getIndex()))) {
                 break;
             }
-            checkIsExist(snoMap, idCardMap, item.get(SchoolStudentImportEnum.SNO.getIndex()),
-                    item.get(SchoolStudentImportEnum.ID_CARD.getIndex()), item.get(SchoolStudentImportEnum.GENDER.getIndex()),
-                    item.get(SchoolStudentImportEnum.BIRTHDAY.getIndex()), item.get(SchoolStudentImportEnum.GRADE_NAME.getIndex()));
+            schoolStudent.setStatus(CommonConst.STATUS_NOT_DELETED);
+
+            checkIsExist(snoMap, idCardMap, passPortMap,
+                    item.get(SchoolStudentImportEnum.SNO.getIndex()), item.get(SchoolStudentImportEnum.ID_CARD.getIndex()),
+                    item.get(SchoolStudentImportEnum.GENDER.getIndex()), item.get(SchoolStudentImportEnum.BIRTHDAY.getIndex()),
+                    item.get(SchoolStudentImportEnum.GRADE_NAME.getIndex()), item.get(SchoolStudentImportEnum.PASSPORT.getIndex()));
 
             setSchoolStudentInfo(createUserId, schoolId, item, schoolStudent);
             setSchoolStudentClassInfo(schoolId, schoolGradeMaps, item, schoolStudent);
@@ -208,13 +219,16 @@ public class SchoolStudentExcelImportService {
     /**
      * 学校端-学生是否存在
      *
-     * @param snoMap    学号Map
-     * @param idCardMap 身份证Map
-     * @param sno       学号
-     * @param idCard    身份证
+     * @param snoMap      学号Map
+     * @param idCardMap   身份证Map
+     * @param passPortMap 护照
+     * @param sno         学号
+     * @param idCard      身份证
+     * @param passport
      */
     private void checkIsExist(Map<String, SchoolStudent> snoMap, Map<String, SchoolStudent> idCardMap,
-                              String sno, String idCard, String gender, String birthday, String gradeName) {
+                              Map<String, SchoolStudent> passPortMap, String sno, String idCard,
+                              String gender, String birthday, String gradeName, String passport) {
 
         if (StringUtils.isAllBlank(sno, idCard)) {
             throw new BusinessException("学号或身份证为空");
@@ -228,6 +242,9 @@ public class SchoolStudentExcelImportService {
         if (StringUtils.isBlank(gradeName)) {
             throw new BusinessException("身份证" + idCard + "年级不能为空");
         }
+        if (Objects.nonNull(passPortMap.get(passport))) {
+            throw new BusinessException("护照" + passport + "在系统中重复");
+        }
     }
 
     /**
@@ -238,7 +255,7 @@ public class SchoolStudentExcelImportService {
      */
     public Integer updateManagementStudent(SchoolStudent schoolStudent) {
         // 通过身份证在管理端查找学生
-        Student managementStudent = studentService.getByIdCardAndPassport(schoolStudent.getIdCard(),schoolStudent.getPassport(),schoolStudent.getStudentId());
+        Student managementStudent = studentService.getByIdCardAndPassport(schoolStudent.getIdCard(), schoolStudent.getPassport(), schoolStudent.getStudentId());
 
         // 如果为空新增，否则是更新
         if (Objects.isNull(managementStudent)) {
