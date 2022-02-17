@@ -15,9 +15,12 @@ import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolClassExportDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeExportDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
+import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
+import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
@@ -58,6 +61,9 @@ public class StudentExcelImportService {
 
     @Resource
     private SchoolStudentService schoolStudentService;
+
+    @Resource
+    private SchoolClassService schoolClassService;
 
 
     /**
@@ -292,14 +298,20 @@ public class StudentExcelImportService {
         List<String> allSnoList = importList.stream().map(Student::getSno).collect(Collectors.toList());
         List<String> duplicateSnoList = ListUtil.getDuplicateElements(allSnoList);
 
-        // 过滤掉学号为空的和学号重复的
+        // 过滤掉学号为空的和学号重复的，班级、年级为空的
         List<Student> studentList = importList.stream()
                 .filter(s -> StringUtils.isNotBlank(s.getSno()))
-                .filter(s ->!duplicateSnoList.contains(s.getSno()))
+                .filter(s -> !duplicateSnoList.contains(s.getSno()))
+                .filter(s -> Objects.nonNull(s.getGradeId()))
+                .filter(s -> Objects.nonNull(s.getClassId()))
                 .collect(Collectors.toList());
         if (CollectionUtils.isEmpty(studentList)) {
             return;
         }
+
+        Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(studentList.stream().map(Student::getClassId).collect(Collectors.toList()));
+        Map<Integer, SchoolGrade> gradeMap = schoolGradeService.getGradeMapByIds(studentList.stream().map(Student::getGradeId).collect(Collectors.toList()));
+
         List<SchoolStudent> addSchoolStudentList = new ArrayList<>();
 
         // 通过学校分组
@@ -326,6 +338,8 @@ public class StudentExcelImportService {
                 BeanUtils.copyProperties(s, schoolStudent);
                 schoolStudent.setId(null);
                 schoolStudent.setStudentId(s.getId());
+                schoolStudent.setGradeName(gradeMap.get(s.getGradeId()).getName());
+                schoolStudent.setClassName(classMap.get(s.getClassId()).getName());
                 addSchoolStudentList.add(schoolStudent);
             });
         }

@@ -19,10 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -170,6 +167,9 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      * @return Map<Integer, SchoolGrade>
      */
     public Map<Integer, SchoolGrade> getGradeMapByIds(List<Integer> ids) {
+        if (CollectionUtils.isEmpty(ids)) {
+            return new HashMap<>();
+        }
         return getByIds(ids).stream()
                 .collect(Collectors.toMap(SchoolGrade::getId, Function.identity()));
     }
