@@ -3,7 +3,6 @@ package com.wupol.myopia.business.aggregation.export.excel.imports;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
-import com.wupol.myopia.base.util.ListUtil;
 import com.wupol.myopia.business.aggregation.export.excel.domain.SchoolStudentImportEnum;
 import com.wupol.myopia.business.aggregation.export.utils.CommonCheck;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
@@ -11,6 +10,7 @@ import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
 import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.common.utils.util.IdCardUtil;
+import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolClassExportDTO;
@@ -118,7 +118,14 @@ public class SchoolStudentExcelImportService {
                     item.get(SchoolStudentImportEnum.GENDER.getIndex()), item.get(SchoolStudentImportEnum.PASSPORT.getIndex()));
 
             setSchoolStudentInfo(createUserId, schoolId, item, schoolStudent);
-            setSchoolStudentClassInfo(schoolId, schoolGradeMaps, item, schoolStudent);
+            String gradeName = item.get(SchoolStudentImportEnum.GRADE_NAME.getIndex());
+            String className = item.get(SchoolStudentImportEnum.CLASS_NAME.getIndex());
+            TwoTuple<Integer, Integer> gradeClassInfo = getSchoolStudentClassInfo(schoolId, schoolGradeMaps, gradeName, className);
+            schoolStudent.setGradeId(gradeClassInfo.getFirst());
+            schoolStudent.setGradeName(gradeName);
+            schoolStudent.setClassId(gradeClassInfo.getSecond());
+            schoolStudent.setClassName(className);
+
             // 更新管理端
             schoolStudent.checkStudentInfo();
             Integer managementStudentId = updateManagementStudent(schoolStudent);
@@ -163,29 +170,25 @@ public class SchoolStudentExcelImportService {
      *
      * @param schoolId        学校Id
      * @param schoolGradeMaps 年级Map
-     * @param item            导入信息
-     * @param schoolStudent   学校端学生
      */
-    private void setSchoolStudentClassInfo(Integer schoolId, Map<Integer, List<SchoolGradeExportDTO>> schoolGradeMaps, Map<Integer, String> item, SchoolStudent schoolStudent) {
+    public TwoTuple<Integer, Integer> getSchoolStudentClassInfo(Integer schoolId, Map<Integer, List<SchoolGradeExportDTO>> schoolGradeMaps,
+                                                                 String gradeName, String className) {
         // 通过学校编号获取改学校的年级信息
         List<SchoolGradeExportDTO> schoolGradeExportVOS = schoolGradeMaps.get(schoolId);
         // 转换成年级Maps，年级名称作为Key
         Map<String, SchoolGradeExportDTO> gradeMaps = schoolGradeExportVOS.stream().collect(Collectors.toMap(SchoolGradeExportDTO::getName, Function.identity()));
         // 年级信息
-        SchoolGradeExportDTO schoolGradeExportDTO = gradeMaps.get(item.get(SchoolStudentImportEnum.GRADE_NAME.getIndex()));
+        SchoolGradeExportDTO schoolGradeExportDTO = gradeMaps.get(gradeName);
         Assert.notNull(schoolGradeExportDTO, "年级数据异常");
-        // 设置年级ID
-        schoolStudent.setGradeId(schoolGradeExportDTO.getId());
-        schoolStudent.setGradeName(item.get(SchoolStudentImportEnum.GRADE_NAME.getIndex()));
+
         // 获取年级内的班级信息
         List<SchoolClassExportDTO> classExportVOS = schoolGradeExportDTO.getChild();
         // 转换成班级Maps 把班级名称作为key
         Map<String, Integer> classExportMaps = classExportVOS.stream().collect(Collectors.toMap(SchoolClassExportDTO::getName, SchoolClassExportDTO::getId));
-        Integer classId = classExportMaps.get(item.get(SchoolStudentImportEnum.CLASS_NAME.getIndex()));
+        Integer classId = classExportMaps.get(className);
+        Integer gradeId = schoolGradeExportDTO.getId();
         Assert.notNull(classId, "班级数据为空");
-        // 设置班级信息
-        schoolStudent.setClassId(classId);
-        schoolStudent.setClassName(item.get(SchoolStudentImportEnum.CLASS_NAME.getIndex()));
+        return new TwoTuple<>(gradeId, classId);
     }
 
     /**
