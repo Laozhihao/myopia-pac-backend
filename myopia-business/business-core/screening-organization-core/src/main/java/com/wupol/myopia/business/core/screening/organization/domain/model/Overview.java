@@ -3,7 +3,7 @@ package com.wupol.myopia.business.core.screening.organization.domain.model;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.wupol.myopia.business.core.common.domain.model.Cooperation;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -21,7 +21,7 @@ import java.util.Date;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @TableName("m_overview")
-public class Overview implements Serializable {
+public class Overview extends Cooperation implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -87,42 +87,13 @@ public class Overview implements Serializable {
     private Integer screeningOrganizationLimitNum;
 
     /**
-     * 合作类型，0-合作 1-试用
-     */
-    private Boolean cooperationType;
-
-    /**
-     * 合作期限类型，-1-自定义 0-30天 1-60天 2-180天 3-1年 4-2年 5-3年
-     */
-    private Boolean cooperationTimeType;
-
-    /**
-     * 合作开始时间
-     */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date cooperationStartTime;
-
-    /**
-     * 合作结束时间
-     */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date cooperationEndTime;
-
-    /**
-     * 状态 0-启用 1-禁止 2-删除
-     */
-    private Integer status;
-
-    /**
      * 创建时间
      */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 
     /**
      * 更新时间
      */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
 
 
