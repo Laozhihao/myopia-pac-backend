@@ -38,8 +38,6 @@ public class SchoolStudent extends AddressCode implements Serializable {
      * 学生Id
      */
     private Integer studentId;
-
-    private String schoolNo;
     
     /**
      * 学校Id

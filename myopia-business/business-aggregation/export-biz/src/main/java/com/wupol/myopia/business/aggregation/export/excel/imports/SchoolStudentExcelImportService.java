@@ -31,10 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -163,6 +160,7 @@ public class SchoolStudentExcelImportService {
         schoolStudent.setAreaCode(districtService.getCodeByName(item.get(SchoolStudentImportEnum.AREA_NAME.getIndex())));
         schoolStudent.setTownCode(districtService.getCodeByName(item.get(SchoolStudentImportEnum.TOWN_NAME.getIndex())));
         schoolStudent.setAddress(item.get(SchoolStudentImportEnum.ADDRESS.getIndex()));
+        schoolStudent.setUpdateTime(new Date());
     }
 
     /**
@@ -238,13 +236,13 @@ public class SchoolStudentExcelImportService {
         if (Objects.nonNull(snoMap.get(sno))) {
             throw new BusinessException("学号" + sno + "在系统中重复");
         }
-        if (Objects.nonNull(idCardMap.get(idCard))) {
+        if (Objects.nonNull(idCard) && Objects.nonNull(idCardMap.get(idCard))) {
             throw new BusinessException("身份证" + idCard + "在系统中重复");
         }
         if (StringUtils.isBlank(gradeName)) {
             throw new BusinessException("身份证" + idCard + "年级不能为空");
         }
-        if (Objects.nonNull(passPortMap.get(passport))) {
+        if (Objects.nonNull(passport) && Objects.nonNull(passPortMap.get(passport))) {
             throw new BusinessException("护照" + passport + "在系统中重复");
         }
     }
@@ -257,7 +255,7 @@ public class SchoolStudentExcelImportService {
      */
     public Integer updateManagementStudent(SchoolStudent schoolStudent) {
         // 通过身份证在管理端查找学生
-        Student managementStudent = studentService.getByIdCardAndPassport(schoolStudent.getIdCard(), schoolStudent.getPassport(), schoolStudent.getStudentId());
+        Student managementStudent = studentService.getByIdCardAndPassport(schoolStudent.getIdCard(), schoolStudent.getPassport(), null);
 
         // 如果为空新增，否则是更新
         if (Objects.isNull(managementStudent)) {
@@ -283,6 +281,7 @@ public class SchoolStudentExcelImportService {
         managementStudent.setAddress(schoolStudent.getAddress());
         managementStudent.setPassport(schoolStudent.getPassport());
         managementStudent.setStatus(CommonConst.STATUS_NOT_DELETED);
+        managementStudent.setUpdateTime(new Date());
         studentService.updateStudent(managementStudent);
         return managementStudent.getId();
     }
