@@ -174,20 +174,25 @@
     <select id="getDeletedByIdCardsAndPassports" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
-        from m_school_student where school_id = #{schoolId}
-                                and status = 2
+        from m_school_student where (
         <if test="idCards != null and idCards.size() != 0">
-            and id_card in
+            id_card in
             <foreach collection="idCards" item="idCard" index="index" open="(" close=")" separator=",">
                 #{idCard}
             </foreach>
         </if>
+        <if test="idCards != null and idCards.size() != 0 and passports != null and passports.size() != 0">
+            or
+        </if>
         <if test="passports != null and passports.size() != 0">
-            and passport in
+            passport in
             <foreach collection="passports" item="passport" index="index" open="(" close=")" separator=",">
                 #{passport}
             </foreach>
         </if>
+        )
+                and school_id = #{schoolId}
+                and status = 2
     </select>
 
     <select id="getByIdCardAndSnoAndPassport" resultMap="BaseResultMap">
