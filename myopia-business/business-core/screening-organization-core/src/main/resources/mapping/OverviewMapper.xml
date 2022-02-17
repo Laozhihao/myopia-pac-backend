@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.business.core.screening.organization.domain.mapper.OverviewMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.screening.organization.domain.model.Overview">
+    </resultMap>
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(name)">and `name` = #{name}</if>
+                <if test="@Ognl@isNotEmpty(contactPerson)">and `contact_person` = #{contactPerson}</if>
+                <if test="@Ognl@isNotEmpty(phone)">and `phone` = #{phone}</if>
+                <if test="@Ognl@isNotEmpty(explain)">and `explain` = #{explain}</if>
+                <if test="@Ognl@isNotEmpty(districtId)">and `district_id` = #{districtId}</if>
+                <if test="@Ognl@isNotEmpty(districtDetail)">and `district_detail` = #{districtDetail}</if>
+                <if test="@Ognl@isNotEmpty(configType)">and `config_type` = #{configType}</if>
+                <if test="@Ognl@isNotEmpty(hospitalServiceType)">and `hospital_service_type` = #{hospitalServiceType}</if>
+                <if test="@Ognl@isNotEmpty(hospitalLimitNum)">and `hospital_limit_num` = #{hospitalLimitNum}</if>
+                <if test="@Ognl@isNotEmpty(screeningOrganizationConfigType)">and `screening_organization_config_type` = #{screeningOrganizationConfigType}</if>
+                <if test="@Ognl@isNotEmpty(screeningOrganizationLimitNum)">and `screening_organization_limit_num` = #{screeningOrganizationLimitNum}</if>
+                <if test="@Ognl@isNotEmpty(cooperationType)">and `cooperation_type` = #{cooperationType}</if>
+                <if test="@Ognl@isNotEmpty(cooperationTimeType)">and `cooperation_time_type` = #{cooperationTimeType}</if>
+                <if test="@Ognl@isNotEmpty(cooperationStartTime)">and `cooperation_start_time` = #{cooperationStartTime}</if>
+                <if test="@Ognl@isNotEmpty(cooperationEndTime)">and `cooperation_end_time` = #{cooperationEndTime}</if>
+                <if test="@Ognl@isNotEmpty(status)">and `status` = #{status}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+                <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
+            </trim>
+        </where>
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, name, contact_person, phone, explain, district_id, district_detail, config_type, hospital_service_type, hospital_limit_num, screening_organization_config_type, screening_organization_limit_num, cooperation_type, cooperation_time_type, cooperation_start_time, cooperation_end_time, status, create_time, update_time
+    </sql>
+
+</mapper>
