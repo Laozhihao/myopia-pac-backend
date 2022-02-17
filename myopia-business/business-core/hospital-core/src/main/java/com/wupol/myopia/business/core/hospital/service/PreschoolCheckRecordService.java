@@ -148,7 +148,7 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
      * @param monthAge
      * @return
      */
-    public PreschoolCheckRecord get(Integer hospitalId, Integer studentId, Integer monthAge) {
+    public PreschoolCheckRecord getRecord(Integer hospitalId, Integer studentId, Integer monthAge) {
         Assert.notNull(hospitalId, "hospitalId不能为空");
         Assert.notNull(studentId, "studentId不能为空");
         Assert.notNull(monthAge, "monthAge不能为空");
@@ -174,7 +174,7 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
         PreschoolCheckRecord dbCheckRecord;
         if (Objects.isNull(checkRecord.getId())) {
             // 一个患者在一个医院下指定月龄只能做一次检查
-            dbCheckRecord = get(checkRecord.getHospitalId(), checkRecord.getStudentId(), checkRecord.getMonthAge());
+            dbCheckRecord = getRecord(checkRecord.getHospitalId(), checkRecord.getStudentId(), checkRecord.getMonthAge());
             if (Objects.isNull(dbCheckRecord)) {
                 addConclusionAndStatus(checkRecord);
                 save(checkRecord);
@@ -183,20 +183,20 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
         } else {
             dbCheckRecord = getById(checkRecord.getId(), checkRecord.getHospitalId());
         }
-        if (Objects.nonNull(checkRecord.getIsReferral())) dbCheckRecord.setIsReferral(checkRecord.getIsReferral());
-        if (Objects.nonNull(checkRecord.getFromReferral())) dbCheckRecord.setFromReferral(checkRecord.getFromReferral());
-        if (Objects.nonNull(checkRecord.getOuterEye())) dbCheckRecord.setOuterEye(checkRecord.getOuterEye());
-        if (Objects.nonNull(checkRecord.getVisionData())) dbCheckRecord.setVisionData(checkRecord.getVisionData());
-        if (Objects.nonNull(checkRecord.getRefractionData())) dbCheckRecord.setRefractionData(checkRecord.getRefractionData());
-        if (Objects.nonNull(checkRecord.getEyeDiseaseFactor())) dbCheckRecord.setEyeDiseaseFactor(checkRecord.getEyeDiseaseFactor());
-        if (Objects.nonNull(checkRecord.getLightReaction())) dbCheckRecord.setLightReaction(checkRecord.getLightReaction());
-        if (Objects.nonNull(checkRecord.getBlinkReflex())) dbCheckRecord.setBlinkReflex(checkRecord.getBlinkReflex());
-        if (Objects.nonNull(checkRecord.getRedBallTest())) dbCheckRecord.setRedBallTest(checkRecord.getRedBallTest());
-        if (Objects.nonNull(checkRecord.getVisualBehaviorObservation())) dbCheckRecord.setVisualBehaviorObservation(checkRecord.getVisualBehaviorObservation());
-        if (Objects.nonNull(checkRecord.getRedReflex())) dbCheckRecord.setRedReflex(checkRecord.getRedReflex());
-        if (Objects.nonNull(checkRecord.getOcularInspection())) dbCheckRecord.setOcularInspection(checkRecord.getOcularInspection());
-        if (Objects.nonNull(checkRecord.getMonocularMaskingAversionTest())) dbCheckRecord.setMonocularMaskingAversionTest(checkRecord.getMonocularMaskingAversionTest());
-        if (Objects.nonNull(checkRecord.getGuideContent())) dbCheckRecord.setGuideContent(checkRecord.getGuideContent());
+        if (Objects.nonNull(checkRecord.getIsReferral())) {dbCheckRecord.setIsReferral(checkRecord.getIsReferral());}
+        if (Objects.nonNull(checkRecord.getFromReferral())) {dbCheckRecord.setFromReferral(checkRecord.getFromReferral());}
+        if (Objects.nonNull(checkRecord.getOuterEye())) {dbCheckRecord.setOuterEye(checkRecord.getOuterEye());}
+        if (Objects.nonNull(checkRecord.getVisionData())) {dbCheckRecord.setVisionData(checkRecord.getVisionData());}
+        if (Objects.nonNull(checkRecord.getRefractionData())) {dbCheckRecord.setRefractionData(checkRecord.getRefractionData());}
+        if (Objects.nonNull(checkRecord.getEyeDiseaseFactor())) {dbCheckRecord.setEyeDiseaseFactor(checkRecord.getEyeDiseaseFactor());}
+        if (Objects.nonNull(checkRecord.getLightReaction())) {dbCheckRecord.setLightReaction(checkRecord.getLightReaction());}
+        if (Objects.nonNull(checkRecord.getBlinkReflex())) {dbCheckRecord.setBlinkReflex(checkRecord.getBlinkReflex());}
+        if (Objects.nonNull(checkRecord.getRedBallTest())) {dbCheckRecord.setRedBallTest(checkRecord.getRedBallTest());}
+        if (Objects.nonNull(checkRecord.getVisualBehaviorObservation())) {dbCheckRecord.setVisualBehaviorObservation(checkRecord.getVisualBehaviorObservation());}
+        if (Objects.nonNull(checkRecord.getRedReflex())) {dbCheckRecord.setRedReflex(checkRecord.getRedReflex());}
+        if (Objects.nonNull(checkRecord.getOcularInspection())) {dbCheckRecord.setOcularInspection(checkRecord.getOcularInspection());}
+        if (Objects.nonNull(checkRecord.getMonocularMaskingAversionTest())) {dbCheckRecord.setMonocularMaskingAversionTest(checkRecord.getMonocularMaskingAversionTest());}
+        if (Objects.nonNull(checkRecord.getGuideContent())) {dbCheckRecord.setGuideContent(checkRecord.getGuideContent());}
         dbCheckRecord.setUpdateTime(new Date());
         addConclusionAndStatus(dbCheckRecord);
         if (!updateById(dbCheckRecord)) {
