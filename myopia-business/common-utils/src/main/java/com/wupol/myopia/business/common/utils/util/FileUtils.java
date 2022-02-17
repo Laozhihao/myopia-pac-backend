@@ -5,20 +5,18 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.IOUtils;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.Date;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Slf4j
 public final class FileUtils {
@@ -52,6 +50,43 @@ public final class FileUtils {
         } catch (Exception e) {
             log.error("导入数据异常:", e);
             throw new BusinessException("Excel解析异常");
+        }
+    }
+
+    /**
+     * 文件下载
+     *
+     * @param fileUrl  下载路径
+     * @param savePath 存放地址
+     */
+    public static void downloadFile(String fileUrl, String savePath) throws IOException {
+
+        File file = new File(savePath);
+        File parentFile = file.getParentFile();
+        if (!parentFile.exists() && !parentFile.mkdirs()) {
+            log.error("创建文件夹失败");
+        }
+        FileOutputStream fileOutputStream = null;
+        try {
+            if (!file.exists() && !file.createNewFile()) {
+                log.error("创建文件失败");
+            }
+
+            URL url = new URL(fileUrl);
+            URLConnection conn = url.openConnection();
+            InputStream inputStream = conn.getInputStream();
+            fileOutputStream = new FileOutputStream(savePath);
+            int byteRead;
+            byte[] buffer = new byte[1024];
+            while ((byteRead = inputStream.read(buffer)) != -1) {
+                fileOutputStream.write(buffer, 0, byteRead);
+            }
+        } catch (IOException e) {
+            throw new BusinessException("创建文件异常");
+        } finally {
+            if (Objects.nonNull(fileOutputStream)) {
+                fileOutputStream.close();
+            }
         }
     }
 

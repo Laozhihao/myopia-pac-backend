@@ -9,6 +9,7 @@ import com.wupol.myopia.business.core.hospital.domain.query.DoctorQuery;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * 医院-医生，Mapper接口
@@ -29,5 +30,9 @@ public interface DoctorMapper extends BaseMapper<Doctor> {
     DoctorDTO getByUserId(@Param("userId") Integer userId);
 
     List<DoctorDTO> getAll();
+
+    List<Doctor> getByIds(@Param("ids") Set<Integer> doctorIds);
+
+    List<Doctor> getByHospitalIdAndName(@Param("hospitalId") Integer hospitalId, @Param("name") String name);
 
 }

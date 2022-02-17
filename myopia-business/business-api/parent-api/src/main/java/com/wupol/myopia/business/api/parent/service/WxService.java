@@ -127,7 +127,7 @@ public class WxService {
         parentService.save(parent);
         // 新增用户
         UserDTO userDTO = new UserDTO();
-        userDTO.setUsername(wxUserInfo.getOpenId()).setPassword(parent.getHashKey()).setGender(wxUserInfo.getSex()).setOrgId(-1).setSystemCode(SystemCode.PATENT_CLIENT.getCode());
+        userDTO.setUsername(wxUserInfo.getOpenId()).setPassword(parent.getHashKey()).setGender(wxUserInfo.getSex()).setOrgId(-1).setSystemCode(SystemCode.PARENT_CLIENT.getCode());
         User user = oauthServiceClient.addUser(userDTO);
         // 更新家长
         parentService.updateById(new Parent()
@@ -152,7 +152,7 @@ public class WxService {
         userDTO.setId(parent.getUserId())
                 .setPhone(wxLoginInfo.getPhone())
                 .setUsername(wxLoginInfo.getPhone())
-                .setSystemCode(SystemCode.PATENT_CLIENT.getCode())
+                .setSystemCode(SystemCode.PARENT_CLIENT.getCode())
                 .setPassword(parent.getHashKey());
         try {
             oauthServiceClient.updateUser(userDTO);
@@ -160,7 +160,7 @@ public class WxService {
             // TODO: 临时还原异常现场，排查是否为系统bug
             String message = e.getMessage();
             if ("已经存在该手机号码".equals(message)) {
-                List<User> userList = oauthServiceClient.getUserBatchByPhones(Lists.newArrayList(wxLoginInfo.getPhone()),SystemCode.PATENT_CLIENT.getCode());
+                List<User> userList = oauthServiceClient.getUserBatchByPhones(Lists.newArrayList(wxLoginInfo.getPhone()),SystemCode.PARENT_CLIENT.getCode());
                 User existUser = userList.get(0);
                 Parent existParent = parentService.findOne(new Parent().setUserId(existUser.getId()));
                 if (Objects.isNull(existParent)) {

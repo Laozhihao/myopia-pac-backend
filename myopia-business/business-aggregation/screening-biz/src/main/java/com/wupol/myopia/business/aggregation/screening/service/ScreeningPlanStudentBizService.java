@@ -11,6 +11,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.ListUtil;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
 import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;
+import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.core.common.service.Html2PdfService;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.common.util.S3Utils;
@@ -44,6 +45,7 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.Resource;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
@@ -266,7 +268,7 @@ public class ScreeningPlanStudentBizService {
                         PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(screeningNoticeResultHtmlUrl, fileName, uuid);
                         log.info("response:{}", JSONObject.toJSONString(pdfResponseDTO));
                         try {
-                            downloadFile(pdfResponseDTO.getUrl(),
+                            FileUtils.downloadFile(pdfResponseDTO.getUrl(),
                                     fileSaveParentPath +
                                             schoolMap.get(schoolEntry.getKey()) + SCREENING_NAME + "/" +
                                             gradeMap.get(gradeEntry.getKey()).getName() + SCREENING_NAME + "/" +
@@ -404,34 +406,5 @@ public class ScreeningPlanStudentBizService {
      **/
     public String getFileSaveParentPath() {
         return Paths.get(pdfSavePath, UUID.randomUUID().toString()).toString();
-    }
-
-    /**
-     * 文件下载
-     *
-     * @param fileUrl  下载路径
-     * @param savePath 存放地址
-     */
-    public static void downloadFile(String fileUrl, String savePath) throws Exception {
-
-        File file = new File(savePath);
-        File parentFile = file.getParentFile();
-        if (!parentFile.exists()) {
-            parentFile.mkdirs();
-        }
-        if (!file.exists()) {
-            file.createNewFile();
-        }
-
-        URL url = new URL(fileUrl);
-        URLConnection conn = url.openConnection();
-        InputStream inputStream = conn.getInputStream();
-        FileOutputStream fileOutputStream = new FileOutputStream(savePath);
-        int byteRead;
-        byte[] buffer = new byte[1024];
-        while ((byteRead = inputStream.read(buffer)) != -1) {
-            fileOutputStream.write(buffer, 0, byteRead);
-        }
-        fileOutputStream.close();
     }
 }

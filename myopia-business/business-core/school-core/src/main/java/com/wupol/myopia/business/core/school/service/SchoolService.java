@@ -17,7 +17,6 @@ import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
-import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
@@ -468,26 +467,6 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     }
 
     /**
-     * 处理学校状态
-     *
-     * @return
-     */
-    @Transactional(rollbackFor = Exception.class)
-    public int handleSchoolStatus(Date date) {
-        List<School> schools = getUnhandleSchool(date);
-        int result = 0;
-        for (School school : schools) {
-            // 更新机构状态成功
-            if (updateSchoolStatus(school.getId(), school.getCooperationStopStatus(), school.getStatus()) > 0) {
-                // 更新oauth上机构的状态（同时影响筛查管理端跟筛查端）
-                oauthServiceClient.updateOrganization(new Organization(school.getId(), SystemCode.SCHOOL_CLIENT, UserType.OTHER, school.getCooperationStopStatus()));
-                result++;
-            }
-        }
-        return result;
-    }
-
-    /**
      * 获取状态未更新的学校（已到合作开始时间未启用，已到合作结束时间未停止）
      *
      * @return
@@ -504,8 +483,15 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @param sourceStatus
      * @return
      */
+    @Transactional
     public int updateSchoolStatus(Integer id, Integer targetStatus, Integer sourceStatus) {
-        return baseMapper.updateSchoolStatus(id, targetStatus, sourceStatus);
+        // 更新机构状态成功
+        int result = baseMapper.updateSchoolStatus(id, targetStatus, sourceStatus);
+        if (result > 0) {
+            // 更新oauth上机构的状态
+            oauthServiceClient.updateOrganization(new Organization(id, SystemCode.SCHOOL_CLIENT, UserType.OTHER, targetStatus));
+        }
+        return result;
     }
 
     /**

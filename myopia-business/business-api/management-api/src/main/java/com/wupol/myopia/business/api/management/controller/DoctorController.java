@@ -2,8 +2,6 @@ package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.CurrentUser;
-import com.wupol.myopia.base.domain.ResultCode;
-import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.api.management.domain.vo.DoctorVO;
@@ -25,7 +23,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @Author wulizhou
@@ -43,21 +40,13 @@ public class DoctorController {
     private HospitalService hospitalService;
 
     /**
-     * TODO wulizhou 用于修复医生账号问题
-     */
-    @PostMapping("/repair")
-    public void repair() {
-        doctorService.repair(CurrentUserUtil.getCurrentUser().getId());
-    }
-
-    /**
      * 获取医生详情
      * @param id
      * @return
      */
     @GetMapping("/{id}")
     public DoctorDTO getDoctor(@PathVariable("id") Integer id) {
-        checkId(id);
+        doctorService.checkId(id);
         return doctorService.getDetails(id);
     }
 
@@ -120,7 +109,7 @@ public class DoctorController {
      */
     @PutMapping
     public UsernameAndPasswordDTO updateDoctor(@RequestBody @Valid DoctorDTO doctor) {
-        checkId(doctor.getId());
+        doctorService.checkId(doctor.getId());
         return doctorService.updateDoctor(doctor);
     }
 
@@ -132,7 +121,7 @@ public class DoctorController {
      */
     @PutMapping("/status")
     public User updateDoctorStatus(@RequestBody @Valid StatusRequest statusRequest) {
-        checkId(statusRequest.getId());
+        doctorService.checkId(statusRequest.getId());
         return doctorService.updateStatus(statusRequest);
     }
 
@@ -144,18 +133,8 @@ public class DoctorController {
      */
     @PutMapping("/reset")
     public UsernameAndPasswordDTO resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
-        checkId(request.getId());
+        doctorService.checkId(request.getId());
         return doctorService.resetPassword(request);
-    }
-
-    private void checkId(Integer id) {
-        CurrentUser user = CurrentUserUtil.getCurrentUser();
-        if (user.isHospitalUser()) {
-            Doctor doctor = doctorService.getById(id);
-            if (Objects.isNull(doctor) || !user.getOrgId().equals(doctor.getHospitalId())) {
-                throw new BusinessException("非法请求", ResultCode.USER_ACCESS_UNAUTHORIZED.getCode());
-            }
-        }
     }
 
 }

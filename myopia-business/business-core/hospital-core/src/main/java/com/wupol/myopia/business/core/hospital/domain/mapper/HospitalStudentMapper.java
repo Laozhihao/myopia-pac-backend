@@ -10,6 +10,7 @@ import com.wupol.myopia.business.core.hospital.domain.model.HospitalStudent;
 import com.wupol.myopia.business.core.hospital.domain.query.HospitalStudentQuery;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -33,4 +34,8 @@ public interface HospitalStudentMapper extends BaseMapper<HospitalStudent> {
     HospitalStudentResponseDTO getByHospitalStudentId(@Param("id") Integer id);
 
     List<HospitalStudent> getByStudentId(@Param("studentId") Integer studentId);
+
+    HospitalStudentResponseDTO getByHospitalIdAndStudentId(@Param("hospitalId") Integer hospitalId, @Param("studentId") Integer studentId);
+
+    List<HospitalStudent> getPreschoolByStudentType(@Param("startDate") Date startDate);
 }

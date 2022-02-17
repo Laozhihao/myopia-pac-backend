@@ -3,6 +3,7 @@ package com.wupol.myopia.business.core.school.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
+import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
@@ -479,18 +480,18 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @param committeeCode 委会行政区域
      * @return RecordNo
      */
-    public Long getRecordNo(Long committeeCode) {
+    public String getRecordNo(Long committeeCode) {
         if (Objects.isNull(committeeCode)) {
             throw new BusinessException("委会行政区域code不能为空");
         }
         String recordNo;
-        Student studentRecordNo = getOneByRecordNo(committeeCode);
-        if (Objects.isNull(studentRecordNo)) {
-            recordNo = String.format("%s%05d", committeeCode, 1);
+        Student studentRecordNo = getOneByCommitteeCode(committeeCode);
+        if (Objects.isNull(studentRecordNo) || Objects.isNull(studentRecordNo.getRecordNo())) {
+            recordNo = committeeCode + "00001";
         } else {
-            recordNo = String.valueOf(studentRecordNo.getRecordNo() + 1);
+            recordNo = String.valueOf(Long.parseLong(studentRecordNo.getRecordNo()) + 1);
         }
-        return Long.valueOf(recordNo);
+        return recordNo;
     }
 
     /**
@@ -499,8 +500,8 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @param recordNo 检查建档编码
      * @return 学生
      */
-    public Student getOneByRecordNo(Long recordNo) {
-        return baseMapper.getOneByRecordNo(recordNo);
+    public Student getOneByCommitteeCode(Long recordNo) {
+        return baseMapper.getOneByCommitteeCode(recordNo);
     }
 
     /**
@@ -511,5 +512,48 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      */
     public Student getAllByIdCard(String idCard) {
         return baseMapper.getAllByIdCard(idCard);
+    }
+
+    /**
+     * 检查学生身份证号码是否重复
+     *
+     * @param idCard 身份证号码
+     * @param id     学生ID
+     * @return 是否重复
+     */
+    public boolean checkIdCardAndId(String idCard, Integer id) {
+        return baseMapper.getByCardIdAndNotId(idCard, id).size() > 0;
+    }
+
+    /**
+     * 通过条件获取学生
+     *
+     * @param condition 条件
+     * @param name      名称
+     * @return 学生
+     */
+    public Student getByCondition(String condition, String name) {
+        return baseMapper.getByCondition(condition, name);
+    }
+
+    /**
+     * 判断是否更新ReportNo
+     *
+     * @param student 学生
+     */
+    public void updateStudentReportNo(Student student) {
+        Student oldStudent = baseMapper.getStudentById(student.getId());
+
+        // 行政区域为空或者编码为空则更新
+        if (ObjectsUtil.hasNull(oldStudent.getCommitteeCode(), oldStudent.getRecordNo())
+                && Objects.nonNull(student.getCommitteeCode())) {
+            student.setRecordNo(getRecordNo(student.getCommitteeCode()));
+            return;
+        }
+        // 新、旧行政区域不同则更新
+        if (ObjectsUtil.allNotNull(oldStudent.getCommitteeCode(), student.getCommitteeCode())
+                && !oldStudent.getCommitteeCode().equals(student.getCommitteeCode())) {
+            student.setRecordNo(getRecordNo(student.getCommitteeCode()));
+        }
     }
 }

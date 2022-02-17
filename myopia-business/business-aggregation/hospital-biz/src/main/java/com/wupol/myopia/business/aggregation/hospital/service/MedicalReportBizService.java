@@ -162,7 +162,7 @@ public class MedicalReportBizService {
             Integer doctorSignFileId = reportConclusionData.getSignFileId();
             responseDTO.setStudent(packageStudentInfo(student));
 
-            responseDTO.setReport(packageReportInfo(reportId, reportConclusionData.getReport(), doctorSignFileId, report.getDoctorId()));
+            responseDTO.setReport(packageReportInfo(reportId, reportConclusionData, doctorSignFileId, report.getDoctorId()));
             responseDTO.setHospitalName(reportConclusionData.getHospitalName());
         }
         // 检查单
@@ -198,14 +198,15 @@ public class MedicalReportBizService {
      * 报告-设置报告、医生信息
      *
      * @param reportId         报告ID
-     * @param reportInfo       固化报告
+     * @param reportConclusion 固化报告
      * @param doctorSignFileId 医生签名资源ID
      * @param doctorId         医生Id
      * @return {@link StudentVisitReportResponseDTO.ReportInfo}
      */
-    private StudentVisitReportResponseDTO.ReportInfo packageReportInfo(Integer reportId, ReportConclusion.ReportInfo reportInfo,
+    private StudentVisitReportResponseDTO.ReportInfo packageReportInfo(Integer reportId, ReportConclusion reportConclusion,
                                                                        Integer doctorSignFileId, Integer doctorId) {
         StudentVisitReportResponseDTO.ReportInfo reportResult = new StudentVisitReportResponseDTO.ReportInfo();
+        ReportConclusion.ReportInfo reportInfo = reportConclusion.getReport();
         if (Objects.nonNull(reportInfo)) {
             reportResult.setReportId(reportId);
             reportResult.setNo(reportInfo.getNo());
@@ -225,6 +226,7 @@ public class MedicalReportBizService {
                 reportResult.setDoctorName(doctor.getName());
             }
         }
+        reportResult.setHospitalName(reportConclusion.getHospitalName());
         return reportResult;
     }
 
