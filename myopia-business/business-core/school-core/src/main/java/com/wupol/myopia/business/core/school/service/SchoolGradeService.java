@@ -279,6 +279,20 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
     }
 
     /**
+     * 封装学校班级、年级信息
+     *
+     * @param schoolIds 学校Id
+     * @return Map<Integer, List < SchoolGradeExportDTO>>
+     */
+    public Map<Integer, List<SchoolGradeExportDTO>> getGradeAndClassMap(List<Integer> schoolIds) {
+        // 收集年级信息
+        List<SchoolGradeExportDTO> grades = getBySchoolIds(schoolIds);
+        packageGradeInfo(grades);
+        // 年级信息通过学校Id分组
+        return grades.stream().collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolId));
+    }
+
+    /**
      * 封装年级班级信息
      *
      * @param grades 年级列表

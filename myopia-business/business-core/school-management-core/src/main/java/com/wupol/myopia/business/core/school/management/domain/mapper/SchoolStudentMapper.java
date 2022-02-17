@@ -42,4 +42,6 @@ public interface SchoolStudentMapper extends BaseMapper<SchoolStudent> {
     List<SchoolStudent> getByIdCardAndSnoAndPassport(@Param("id") Integer id, @Param("idCard") String idCard, @Param("sno") String sno, @Param("passport") String passport, @Param("schoolId") Integer schoolId);
 
     SchoolStudent getByIdCardAndPassport(@Param("idCard") String idCard, @Param("passport") String passport, @Param("schoolId") Integer schoolId);
+
+    List<SchoolStudent> getAllByIdCardAndSnoAndPassports(@Param("idCards") List<String> idCards, @Param("snos") List<String> snos, @Param("passports") List<String> passports, @Param("schoolId") Integer schoolId);
 }

@@ -16,11 +16,15 @@ import com.wupol.myopia.business.core.school.domain.dto.SchoolClassExportDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeExportDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.Student;
+import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
+import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -52,6 +56,9 @@ public class StudentExcelImportService {
     @Resource
     private DistrictService districtService;
 
+    @Resource
+    private SchoolStudentService schoolStudentService;
+
 
     /**
      * 导入学生
@@ -60,6 +67,7 @@ public class StudentExcelImportService {
      * @param multipartFile 导入文件
      * @throws BusinessException 异常
      */
+    @Transactional(rollbackFor = Exception.class)
     public void importStudent(Integer createUserId, MultipartFile multipartFile, Integer schoolId) throws ParseException {
         List<Map<Integer, String>> listMap = FileUtils.readExcel(multipartFile);
         if (CollectionUtils.isEmpty(listMap)) {
@@ -156,6 +164,8 @@ public class StudentExcelImportService {
             }
         }
         studentService.saveOrUpdateBatch(importList);
+        // 插入学校端
+        insertSchoolStudent(importList);
     }
 
     /**
@@ -270,5 +280,55 @@ public class StudentExcelImportService {
         Assert.isTrue(StringUtils.isNotBlank(item.get(6 - offset)), "学生班级不能为空");
         Assert.isTrue(StringUtils.isBlank(item.get(8 - offset)) || (StringUtils.isNotBlank(item.get(8 - offset)) && Pattern.matches(RegularUtils.REGULAR_ID_CARD, item.get(8 - offset))), "学生身份证" + item.get(8 - offset) + "异常");
         Assert.isTrue(StringUtils.isBlank(item.get(10 - offset)) || Pattern.matches(RegularUtils.REGULAR_MOBILE, item.get(10 - offset)), "学生手机号码" + item.get(10 - offset) + "异常");
+    }
+
+    /**
+     * 插入学校端学生
+     *
+     * @param importList 多端学生列表
+     */
+    public void insertSchoolStudent(List<Student> importList) {
+        // 获取学号重复的
+        List<String> allSnoList = importList.stream().map(Student::getSno).collect(Collectors.toList());
+        List<String> duplicateSnoList = ListUtil.getDuplicateElements(allSnoList);
+
+        // 过滤掉学号为空的和学号重复的
+        List<Student> studentList = importList.stream()
+                .filter(s -> StringUtils.isNotBlank(s.getSno()))
+                .filter(s ->!duplicateSnoList.contains(s.getSno()))
+                .collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(studentList)) {
+            return;
+        }
+        List<SchoolStudent> addSchoolStudentList = new ArrayList<>();
+
+        // 通过学校分组
+        Map<Integer, List<Student>> studentMap = studentList.stream().collect(Collectors.groupingBy(Student::getSchoolId));
+        for (Map.Entry<Integer, List<Student>> entry : studentMap.entrySet()) {
+            Integer schoolId = entry.getKey();
+            List<Student> students = entry.getValue();
+
+            List<String> idCardList = students.stream().map(Student::getIdCard).collect(Collectors.toList());
+            List<String> snoList = students.stream().map(Student::getSno).collect(Collectors.toList());
+            List<String> passportList = students.stream().map(Student::getPassport).collect(Collectors.toList());
+            List<SchoolStudent> schoolStudentList = schoolStudentService.getAllByIdCardAndSnoAndPassports(idCardList, snoList, passportList, schoolId);
+
+
+            // 过滤学号、身份证、护照已经存在的
+            List<Student> needAddList = students.stream()
+                    .filter(student -> schoolStudentList.stream().noneMatch(schoolStudent -> schoolStudent.getSno().equals(student.getSno())))
+                    .filter(student -> schoolStudentList.stream().noneMatch(schoolStudent -> (Objects.nonNull(schoolStudent.getIdCard()) && schoolStudent.getIdCard().equals(student.getIdCard()))))
+                    .filter(student -> schoolStudentList.stream().noneMatch(schoolStudent -> (Objects.nonNull(schoolStudent.getPassport()) && schoolStudent.getPassport().equals(student.getPassport()))))
+                    .collect(Collectors.toList());
+
+            needAddList.forEach(s -> {
+                SchoolStudent schoolStudent = new SchoolStudent();
+                BeanUtils.copyProperties(s, schoolStudent);
+                schoolStudent.setId(null);
+                schoolStudent.setStudentId(s.getId());
+                addSchoolStudentList.add(schoolStudent);
+            });
+        }
+        schoolStudentService.saveBatch(addSchoolStudentList);
     }
 }

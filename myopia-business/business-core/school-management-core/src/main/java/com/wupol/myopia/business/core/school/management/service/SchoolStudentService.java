@@ -102,7 +102,7 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
     }
 
     /**
-     * 通过身份证获取学生
+     * 通过身份证获取学生(没删除的)
      *
      * @param idCards  身份证
      * @param schoolId 学校Id
@@ -185,6 +185,19 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
      */
     public SchoolStudent getByIdCardAndPassport(String idCard, String passport, Integer schoolId) {
         return baseMapper.getByIdCardAndPassport(idCard, passport, schoolId);
+    }
+
+    /**
+     * 通过身份证、学号、护照获取学生(包括删除的)
+     *
+     * @param idCards   身份证
+     * @param snoList   学号
+     * @param passports 护照
+     * @param schoolId  学校Id
+     * @return List<SchoolStudent>
+     */
+    public List<SchoolStudent> getAllByIdCardAndSnoAndPassports(List<String> idCards, List<String> snoList, List<String> passports, Integer schoolId) {
+        return baseMapper.getAllByIdCardAndSnoAndPassports(idCards, snoList, passports, schoolId);
     }
 
 

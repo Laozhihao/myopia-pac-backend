@@ -5,6 +5,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.ListUtil;
 import com.wupol.myopia.business.aggregation.export.excel.domain.SchoolStudentImportEnum;
+import com.wupol.myopia.business.aggregation.export.utils.CommonCheck;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
@@ -81,24 +82,20 @@ public class SchoolStudentExcelImportService {
         List<String> idCards = listMap.stream().map(s -> s.get(SchoolStudentImportEnum.ID_CARD.getIndex())).filter(Objects::nonNull).collect(Collectors.toList());
         List<String> snos = listMap.stream().map(s -> s.get(SchoolStudentImportEnum.SNO.getIndex())).filter(Objects::nonNull).collect(Collectors.toList());
         List<String> passports = listMap.stream().map(s -> s.get(SchoolStudentImportEnum.PASSPORT.getIndex())).filter(Objects::nonNull).collect(Collectors.toList());
-        checkIdCard(idCards, snos);
+        CommonCheck.checkHaveDuplicate(idCards, snos, passports);
 
-        // 获取学校学生
+        // 获取已经存在的学校学生（判断是否重复）
         List<SchoolStudent> studentList = schoolStudentService.getByIdCardAndSnoAndPassports(idCards, snos, passports, schoolId);
         Map<String, SchoolStudent> snoMap = studentList.stream().collect(Collectors.toMap(SchoolStudent::getSno, Function.identity()));
         Map<String, SchoolStudent> idCardMap = studentList.stream().collect(Collectors.toMap(SchoolStudent::getIdCard, Function.identity()));
         Map<String, SchoolStudent> passPortMap = studentList.stream().collect(Collectors.toMap(SchoolStudent::getPassport, Function.identity()));
 
+        // 获取已经删除的学生（重新启用删除的学生）
         List<SchoolStudent> deletedSchoolStudents = schoolStudentService.getDeletedByIdCard(idCards, passports, schoolId);
         Map<String, SchoolStudent> deletedIdCardStudentMap = deletedSchoolStudents.stream().collect(Collectors.toMap(SchoolStudent::getIdCard, Function.identity()));
         Map<String, SchoolStudent> deletedPassportStudentMap = deletedSchoolStudents.stream().collect(Collectors.toMap(SchoolStudent::getPassport, Function.identity()));
 
-        // 收集年级信息
-        List<SchoolGradeExportDTO> grades = schoolGradeService.getBySchoolIds(Lists.newArrayList(school.getId()));
-        schoolGradeService.packageGradeInfo(grades);
-
-        // 年级信息通过学校Id分组
-        Map<Integer, List<SchoolGradeExportDTO>> schoolGradeMaps = grades.stream().collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolId));
+        Map<Integer, List<SchoolGradeExportDTO>> schoolGradeMaps = schoolGradeService.getGradeAndClassMap(Lists.newArrayList(school.getId()));
 
         List<SchoolStudent> schoolStudents = new ArrayList<>();
         for (Map<Integer, String> item : listMap) {
@@ -118,8 +115,7 @@ public class SchoolStudentExcelImportService {
 
             checkIsExist(snoMap, idCardMap, passPortMap,
                     item.get(SchoolStudentImportEnum.SNO.getIndex()), item.get(SchoolStudentImportEnum.ID_CARD.getIndex()),
-                    item.get(SchoolStudentImportEnum.GENDER.getIndex()), item.get(SchoolStudentImportEnum.BIRTHDAY.getIndex()),
-                    item.get(SchoolStudentImportEnum.GRADE_NAME.getIndex()), item.get(SchoolStudentImportEnum.PASSPORT.getIndex()));
+                    item.get(SchoolStudentImportEnum.GENDER.getIndex()), item.get(SchoolStudentImportEnum.PASSPORT.getIndex()));
 
             setSchoolStudentInfo(createUserId, schoolId, item, schoolStudent);
             setSchoolStudentClassInfo(schoolId, schoolGradeMaps, item, schoolStudent);
@@ -131,7 +127,6 @@ public class SchoolStudentExcelImportService {
         }
         schoolStudentService.saveOrUpdateBatch(schoolStudents);
     }
-
 
     /**
      * 设置学生基本信息
@@ -194,29 +189,6 @@ public class SchoolStudentExcelImportService {
     }
 
     /**
-     * 检查身份证、学号是否重复
-     *
-     * @param idCards 身份证
-     * @param snoList 学号
-     */
-    private void checkIdCard(List<String> idCards, List<String> snoList) {
-
-        if (CollectionUtils.isEmpty(snoList)) {
-            throw new BusinessException("学号为空");
-        }
-        if (!CollectionUtils.isEmpty(idCards)) {
-            List<String> idCardDuplicate = ListUtil.getDuplicateElements(idCards);
-            if (!CollectionUtils.isEmpty(idCardDuplicate)) {
-                throw new BusinessException("身份证号码：" + String.join(",", idCardDuplicate) + "重复");
-            }
-        }
-        List<String> snoDuplicate = ListUtil.getDuplicateElements(snoList);
-        if (!CollectionUtils.isEmpty(snoDuplicate)) {
-            throw new BusinessException("学号：" + String.join(",", snoDuplicate) + "重复");
-        }
-    }
-
-    /**
      * 学校端-学生是否存在
      *
      * @param snoMap      学号Map
@@ -224,11 +196,11 @@ public class SchoolStudentExcelImportService {
      * @param passPortMap 护照
      * @param sno         学号
      * @param idCard      身份证
-     * @param passport
+     * @param passport    护照信息
      */
     private void checkIsExist(Map<String, SchoolStudent> snoMap, Map<String, SchoolStudent> idCardMap,
                               Map<String, SchoolStudent> passPortMap, String sno, String idCard,
-                              String gender, String birthday, String gradeName, String passport) {
+                              String gradeName, String passport) {
 
         if (StringUtils.isAllBlank(sno, idCard)) {
             throw new BusinessException("学号或身份证为空");
