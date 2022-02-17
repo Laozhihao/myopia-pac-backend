@@ -584,4 +584,24 @@ public class StudentService extends BaseService<StudentMapper, Student> {
          }
          return collection.get(0);
     }
+
+    /**
+     * 通过护照获取学生
+     *
+     * @param passport 护照
+     * @return 是否重复
+     */
+    public List<Student> getByPassportAndStatus(List<String> passport) {
+        return baseMapper.getByPassportAndStatus(passport, CommonConst.STATUS_NOT_DELETED);
+    }
+
+    /**
+     * 通过护照获取学生
+     *
+     * @param passport 护照
+     * @return 是否重复
+     */
+    public List<Student> getDeletedByPassportAndStatus(List<String> passport) {
+        return baseMapper.getByPassportAndStatus(passport, CommonConst.STATUS_IS_DELETED);
+    }
 }

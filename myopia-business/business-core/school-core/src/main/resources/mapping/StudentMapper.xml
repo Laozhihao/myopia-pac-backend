@@ -360,4 +360,14 @@
             and id != #{id}
         </if>
     </select>
+
+    <select id="getByPassportAndStatus" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_student where m_student.passport in
+        <foreach collection="passports" item="passport" index="index" open="(" close=")" separator=",">
+            #{passport}
+        </foreach>
+        and status = #{status}
+    </select>
 </mapper>
