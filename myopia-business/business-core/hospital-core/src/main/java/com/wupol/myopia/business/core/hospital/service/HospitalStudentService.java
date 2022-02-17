@@ -188,12 +188,12 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
             }
         } else {
             // 学生类型是医院端，当前登录用户为0到6岁，则更新
-            if (studentType.equals(1) && SystemCode.PRESCHOOL_CLIENT.getCode().equals(clientId)) {
+            if (StudentTypeEnum.HOSPITAL_TYPE.getType().equals(studentType) && SystemCode.PRESCHOOL_CLIENT.getCode().equals(clientId)) {
                 return StudentTypeEnum.HOSPITAL_AND_PRESCHOOL.getType();
             }
 
             // 学生类型是0到6岁，当前登录用户为医院端，则更新
-            if (studentType.equals(2) && SystemCode.HOSPITAL_CLIENT.getCode().equals(clientId)) {
+            if (StudentTypeEnum.PRESCHOOL_TYPE.getType().equals(studentType) && SystemCode.HOSPITAL_CLIENT.getCode().equals(clientId)) {
                 return StudentTypeEnum.HOSPITAL_AND_PRESCHOOL.getType();
             }
         }
