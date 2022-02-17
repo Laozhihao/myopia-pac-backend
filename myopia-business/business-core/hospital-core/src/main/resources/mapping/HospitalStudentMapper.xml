@@ -109,10 +109,11 @@
 
     <select id="getPreschoolByStudentType" resultMap="BaseResultMap">
         select *
-        from (select *
+        from (select id, name, student_id, birthday
               from h_hospital_student
               where status = 0
                 and (student_type = 2 or student_type = 3)
+                and birthday <![CDATA[<= #{startDate}]]>
               order by create_time desc) as tmp
         group by tmp.student_id
     </select>
