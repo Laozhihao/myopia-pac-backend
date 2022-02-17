@@ -31,8 +31,8 @@ public interface DoctorMapper extends BaseMapper<Doctor> {
 
     List<DoctorDTO> getAll();
 
-    List<Doctor> getDoctorNameByIds(@Param("ids") Set<Integer> doctorIds);
+    List<Doctor> getByIds(@Param("ids") Set<Integer> doctorIds);
 
-    List<Doctor> getDoctorIdByName(@Param("hospitalId") Integer hospitalId, @Param("name") String name);
+    List<Doctor> getByHospitalIdAndName(@Param("hospitalId") Integer hospitalId, @Param("name") String name);
 
 }

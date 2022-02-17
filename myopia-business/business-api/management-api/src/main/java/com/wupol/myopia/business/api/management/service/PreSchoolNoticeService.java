@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.service;
 
+import cn.hutool.core.date.DateTime;
 import com.alibaba.fastjson.JSONObject;
 import com.wupol.framework.api.service.VistelToolsService;
 import com.wupol.framework.sms.domain.dto.MsgData;
@@ -7,6 +8,7 @@ import com.wupol.framework.sms.domain.dto.SmsResult;
 import com.wupol.myopia.base.constant.MonthAgeEnum;
 import com.wupol.myopia.base.domain.vo.FamilyInfoVO;
 import com.wupol.myopia.base.util.BusinessUtil;
+import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.core.hospital.domain.model.HospitalStudent;
 import com.wupol.myopia.business.core.hospital.domain.model.PreschoolCheckRecord;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -47,7 +50,8 @@ public class PreSchoolNoticeService {
      */
     public void timedTaskSendMsg() {
         // 获取学生
-        List<HospitalStudent> hospitalStudents = hospitalStudentService.getByStudentType();
+        DateTime startDate = DateUtil.offsetMonth(new Date(), -144);
+        List<HospitalStudent> hospitalStudents = hospitalStudentService.getByStudentType(startDate);
         if (CollectionUtils.isEmpty(hospitalStudents)) {
             return;
         }

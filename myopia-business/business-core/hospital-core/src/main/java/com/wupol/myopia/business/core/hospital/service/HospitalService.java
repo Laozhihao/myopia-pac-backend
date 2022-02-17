@@ -271,7 +271,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      * @param sourceStatus
      * @return
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public int updateHospitalStatus(Integer id, Integer targetStatus, Integer sourceStatus) {
         // 更新机构状态成功
         int result = baseMapper.updateHospitalStatus(id, targetStatus, sourceStatus);
