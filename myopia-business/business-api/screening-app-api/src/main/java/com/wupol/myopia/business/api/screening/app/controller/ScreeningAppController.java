@@ -349,18 +349,6 @@ public class ScreeningAppController {
     }
 
     /**
-     * 保存身高体重数据
-     *
-     * @return
-     */
-    @PostMapping("/eye/addHeightAndWeight")
-    public void addHeightAndWeight(@Valid @RequestBody HeightAndWeightDataDTO heightAndWeightDataDTO) {
-        if (heightAndWeightDataDTO.isValid()) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(heightAndWeightDataDTO);
-        }
-    }
-
-    /**
      * 随机获取学生复测质量控制
      *
      * @param
@@ -423,7 +411,7 @@ public class ScreeningAppController {
             log.error("根据orgId = [{}]，以及schoolId = [{}] 无法找到计划。", CurrentUserUtil.getCurrentUser().getOrgId(), appStudentDTO.getSchoolId());
             return ApiResult.failure(ErrorEnum.UNKNOWN_ERROR.getMessage());
         }
-        screeningPlanBizService.insertWithStudent(CurrentUserUtil.getCurrentUser(), student, appStudentDTO.getGrade(), appStudentDTO.getClazz(), appStudentDTO.getSchoolName(), school.getSchoolNo(), school.getDistrictId(), appStudentDTO.getSchoolId().intValue(), currentPlan);
+        screeningPlanBizService.insertWithStudent(CurrentUserUtil.getCurrentUser(), student, appStudentDTO.getGrade(), appStudentDTO.getClazz(), appStudentDTO.getSchoolName(), school.getSchoolNo(), school.getDistrictId(), appStudentDTO.getSchoolId().intValue(), currentPlan,appStudentDTO.getPassport());
         return ApiResult.success();
     }
 
@@ -580,21 +568,6 @@ public class ScreeningAppController {
             return new OtherEyeDiseasesDTO();
         }
         return OtherEyeDiseasesDTO.getInstance(screeningResult.getOtherEyeDiseases(), screeningResult.getSystemicDiseaseSymptom());
-    }
-
-    /**
-     * 获取身高体重检查数据
-     * @Author tastyb
-     * @param planStudentId 筛查计划学生ID
-     * @return com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDTO
-     **/
-    @GetMapping("/getHeightAndWeightData/{planStudentId}")
-    public HeightAndWeightDataDTO getHeightAndWeightData(@PathVariable Integer planStudentId) {
-        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentId(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId());
-        if (Objects.isNull(screeningResult)) {
-            return new HeightAndWeightDataDTO();
-        }
-        return HeightAndWeightDataDTO.getInstance(screeningResult.getHeightAndWeightData());
     }
 
     /**

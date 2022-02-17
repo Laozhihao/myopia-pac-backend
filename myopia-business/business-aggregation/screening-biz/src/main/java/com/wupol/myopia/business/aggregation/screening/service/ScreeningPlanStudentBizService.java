@@ -113,6 +113,12 @@ public class ScreeningPlanStudentBizService {
         planSchoolStudent.setGender(requestDTO.getGender());
         planSchoolStudent.setStudentAge(requestDTO.getStudentAge());
         planSchoolStudent.setBirthday(requestDTO.getBirthday());
+        planSchoolStudent.setIdCard(idCard);
+        planSchoolStudent.setPassport(passport);
+        planSchoolStudent.setSchoolId(requestDTO.getSchoolId());
+        planSchoolStudent.setClassId(requestDTO.getClassId());
+        planSchoolStudent.setGradeId(requestDTO.getGradeId());
+        planSchoolStudent.setPassport(requestDTO.getPassport());
         if (StringUtils.isNotBlank(requestDTO.getParentPhone())) {
             planSchoolStudent.setParentPhone(requestDTO.getParentPhone());
         }
@@ -126,6 +132,12 @@ public class ScreeningPlanStudentBizService {
         student.setName(requestDTO.getName());
         student.setGender(requestDTO.getGender());
         student.setBirthday(requestDTO.getBirthday());
+        student.setPassport(passport);
+        student.setIdCard(idCard);
+        student.setSchoolId(requestDTO.getSchoolId());
+        student.setClassId(requestDTO.getClassId());
+        student.setGradeId(requestDTO.getGradeId());
+        student.setPassport(requestDTO.getPassport());
         if (StringUtils.isNotBlank(requestDTO.getParentPhone())) {
             student.setParentPhone(requestDTO.getParentPhone());
         }

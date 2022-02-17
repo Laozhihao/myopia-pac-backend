@@ -341,6 +341,7 @@ public class ScreeningAppService {
                 .setCreateUserId(currentUser.getId())
                 .setParentPhone(appStudentDTO.getStudentPhone())
                 .setStatus(0)
+                .setPassport(appStudentDTO.getPassport())
                 .setSchoolId(schoolId.intValue());
         return student;
     }
@@ -544,6 +545,7 @@ public class ScreeningAppService {
         schoolStudent.setCityCode(student.getCityCode());
         schoolStudent.setAreaCode(student.getAreaCode());
         schoolStudent.setTownCode(student.getTownCode());
+        schoolStudent.setPassport(student.getPassport());
         schoolStudentService.saveOrUpdate(schoolStudent);
     }
 
