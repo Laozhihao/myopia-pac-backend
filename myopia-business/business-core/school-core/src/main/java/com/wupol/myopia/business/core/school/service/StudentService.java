@@ -314,7 +314,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
                 studentQueryDTO.getSno(), studentQueryDTO.getIdCard(), studentQueryDTO.getName(),
                 studentQueryDTO.getParentPhone(), studentQueryDTO.getGender(), conditionalFilter.getFirst(),
                 conditionalFilter.getSecond(), studentQueryDTO.getStartScreeningTime(), studentQueryDTO.getEndScreeningTime(),
-                studentQueryDTO.getSchoolName(), studentQueryDTO.getSchoolId(), studentQueryDTO.getGradeId(), studentQueryDTO.getClassId());
+                studentQueryDTO.getSchoolName(), studentQueryDTO.getSchoolId(), studentQueryDTO.getGradeId(), studentQueryDTO.getClassId(), studentQueryDTO.getPassport());
     }
 
     /**

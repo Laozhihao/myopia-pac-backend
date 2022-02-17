@@ -75,12 +75,10 @@ public class ExportVisionScreeningResultExcelService extends BaseExportExcelFile
 
         List<StudentVisionScreeningResultExportDTO> studentVisionScreeningResultExportDTOS = new ArrayList<>();
         screeningStudentDTOS.forEach(studentDTO -> {
-
             studentDTO.setNationDesc(NationEnum.getName(studentDTO.getNation()))
                     .setAddress(districtService.getAddressDetails(studentDTO.getProvinceCode(), studentDTO.getCityCode(), studentDTO.getAreaCode(), studentDTO.getTownCode(), studentDTO.getAddress()));
-
-            VisionScreeningResult visionScreeningResult = EyeDataUtil.getVisionScreeningResult(studentDTO,visionScreeningResultsGroup);
-            studentVisionScreeningResultExportDTOS.add(EyeDataUtil.setStudentData( studentDTO, visionScreeningResult)) ;
+            VisionScreeningResult visionScreeningResult = EyeDataUtil.getVisionScreeningResult(studentDTO, visionScreeningResultsGroup);
+            studentVisionScreeningResultExportDTOS.add(EyeDataUtil.setStudentData(studentDTO, visionScreeningResult));
         });
         //对年级排序
         studentVisionScreeningResultExportDTOS.sort(Comparator.comparing((StudentVisionScreeningResultExportDTO planSchoolStudent) ->

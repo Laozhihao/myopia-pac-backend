@@ -134,6 +134,9 @@
         <if test="schoolName != null and schoolName != ''">
             and school.name like CONCAT('%', #{schoolName}, '%')
         </if>
+        <if test="passport != null and passport != ''">
+            and ms.passport like CONCAT('%', #{passport}, '%')
+        </if>
         order by ms.create_time desc
     </select>
 

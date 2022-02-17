@@ -134,4 +134,9 @@ public class ScreeningStudentDTO extends StudentDO {
      * 是否已经筛查过
      **/
     private Boolean hasScreening;
+
+    /**
+     * 护照
+     */
+    private String passport;
 }
