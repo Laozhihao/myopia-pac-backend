@@ -357,7 +357,7 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
         if (CollectionUtils.isEmpty(doctorIds)) {
             return MapUtils.EMPTY_SORTED_MAP;
         }
-        return baseMapper.getDoctorNameByIds(doctorIds).stream().collect(Collectors.toMap(Doctor::getId, Doctor::getName));
+        return baseMapper.getByIds(doctorIds).stream().collect(Collectors.toMap(Doctor::getId, Doctor::getName));
     }
 
     /**
@@ -370,7 +370,7 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
         if (StringUtils.isBlank(name)) {
             return SetUtils.EMPTY_SET;
         }
-        return baseMapper.getDoctorIdByName(hospitalId, name).stream().map(Doctor::getId).collect(Collectors.toSet());
+        return baseMapper.getByHospitalIdAndName(hospitalId, name).stream().map(Doctor::getId).collect(Collectors.toSet());
     }
 
 }

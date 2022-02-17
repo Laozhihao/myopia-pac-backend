@@ -66,7 +66,7 @@ public class HospitalUtil {
      * @return
      */
     public static String getName(Set<Integer> ids, Map<Integer, String> idAndNameMap, String separator) {
-        String collect = ids.stream().map(id -> idAndNameMap.get(id)).filter(name -> StringUtils.isNotBlank(name)).collect(Collectors.joining(separator));
+        String collect = ids.stream().map(idAndNameMap::get).filter(StringUtils::isNotBlank).collect(Collectors.joining(separator));
         return StringUtils.isBlank(collect) ? null : collect;
     }
 

@@ -323,7 +323,7 @@
         where id_card = #{idCard}
     </select>
 
-    <select id="checkIdCardAndId" resultMap="BaseResultMap">
+    <select id="getByCardIdAndNotId" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
         from m_student

@@ -14,7 +14,15 @@ spring:
         filters:
         - StripPrefix=1
 
-      - id: route_business
+      - id: route_doctor
+        uri: lb://myopia-business
+        predicates:
+        - Path=/preschool/app/doctor/**
+        filters:
+        - StripPrefix=1
+        - PrefixPath=/hospital
+
+      - id: route_app
         uri: lb://myopia-business
         predicates:
         - Path= >

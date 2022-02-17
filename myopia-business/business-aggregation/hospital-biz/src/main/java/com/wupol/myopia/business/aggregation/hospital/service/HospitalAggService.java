@@ -165,8 +165,8 @@ public class HospitalAggService {
                 studentService.getByIdCard(idCard);
         // 新生儿修改信息不进行校验
         if (!(Objects.nonNull(oldStudent)
-                && studentVo.getIsNewbornWithoutIdCard().equals(false)
-                && oldStudent.getIsNewbornWithoutIdCard().equals(true))) {
+                && Boolean.FALSE.equals(studentVo.getIsNewbornWithoutIdCard())
+                && Boolean.TRUE.equals(oldStudent.getIsNewbornWithoutIdCard()))) {
             if ((Objects.nonNull(oldStudent) && isCheckNameAndIDCard)
                     && (!(idCard.equals(oldStudent.getIdCard())
                     && oldStudent.getName().equals(studentVo.getName())))) {

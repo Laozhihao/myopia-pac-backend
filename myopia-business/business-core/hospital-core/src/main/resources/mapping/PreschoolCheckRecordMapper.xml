@@ -123,11 +123,11 @@
                 <if test="@Ognl@isNotEmpty(query.hospitalName)">and h.`name` like CONCAT('%', #{query.hospitalName}, '%')</if>
                 <if test="@Ognl@isNotEmpty(query.toHospital)">and rr.`to_hospital` like CONCAT('%', #{query.toHospital}, '%')</if>
                 <if test="@Ognl@isNotEmpty(query.referralStatus)">and rr.`referral_status` = #{query.referralStatus}</if>
-                <if test="@Ognl@isNotEmpty(query.checkDateStart)">and Date(pcr.`create_time`) &lt;= Date(#{query.checkDateStart})</if>
-                <if test="@Ognl@isNotEmpty(query.checkDateEnd)">and Date(pcr.`create_time`) &gt;= Date(#{query.checkDateEnd})</if>
+                <if test="@Ognl@isNotEmpty(query.checkDateStart)">and Date(pcr.`update_time`) &gt;=  Date(#{query.checkDateStart})</if>
+                <if test="@Ognl@isNotEmpty(query.checkDateEnd)">and Date(pcr.`update_time`) &lt;= Date(#{query.checkDateEnd})</if>
                 <if test="@Ognl@isNotEmpty(query.updateTime)">and Date(pcr.`update_time`) = Date(#{query.updateTime})</if>
-                <if test="@Ognl@isNotEmpty(query.isToReferral) and query.isToReferral == 0">and pcr.to_referral_id is null</if>
-                <if test="@Ognl@isNotEmpty(query.isToReferral) and query.isToReferral == 1">and pcr.to_referral_id is not null</if>
+                <if test="@Ognl@isNotEmpty(query.isToReferral) and query.isToReferral == 0">and rr.id is null</if>
+                <if test="@Ognl@isNotEmpty(query.isToReferral) and query.isToReferral == 1">and rr.id is not null</if>
                 <if test="@Ognl@isNotEmpty(query.monthAges)">and pcr.`month_age` in
                     <foreach collection="query.monthAges" item="item" index="index" open="(" close=")" separator=",">
                         #{item}
