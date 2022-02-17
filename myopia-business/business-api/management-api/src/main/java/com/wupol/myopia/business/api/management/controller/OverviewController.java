@@ -22,6 +22,7 @@ import com.wupol.myopia.business.core.hospital.service.HospitalDoctorService;
 import com.wupol.myopia.business.core.hospital.service.HospitalService;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccountListDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.model.Overview;
+import com.wupol.myopia.business.core.screening.organization.service.OverviewService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -51,6 +52,9 @@ public class OverviewController {
     @Autowired
     private HospitalDoctorService hospitalDoctorService;
 
+    @Autowired
+    private OverviewService overviewService;
+
     /**
      * 保存医院
      *
@@ -60,22 +64,13 @@ public class OverviewController {
     @PostMapping
     public UsernameAndPasswordDTO saveOverview(@RequestBody @Valid Overview overview) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        hospital.setCreateUserId(user.getId());
-        hospital.setGovDeptId(user.getOrgId());
-        if (user.isPlatformAdminUser()) {
-            hospitalService.checkHospitalCooperation(hospital);
-        } else { // 非平台管理员默认为合作医院
-            hospital.setIsCooperation(CommonConst.IS_COOPERATION);
-            hospital.initCooperationInfo();     // 默认合作信息
-            hospital.setAccountNum(Hospital.ACCOUNT_NUM);
-        }
-        hospital.setStatus(hospital.getCooperationStopStatus());
-        UsernameAndPasswordDTO usernameAndPasswordDTO = hospitalService.saveHospital(hospital);
-        // 非平台管理员屏蔽账号密码信息
-        if (!user.isPlatformAdminUser()) {
-            usernameAndPasswordDTO.setNoDisplay();
-        }
-        return usernameAndPasswordDTO;
+        CurrentUserUtil.isNeedPlatformAdminUser(user);
+        overview.setCreateUserId(user.getId());
+        overview.setGovDeptId(user.getOrgId());
+        // 检验总览机构合作信息
+        overviewService.checkOverviewCooperation(overview);
+        overview.setStatus(overview.getCooperationStopStatus());
+        return hospitalService.saveHospital(hospital);
     }
 
     /**
@@ -125,17 +120,6 @@ public class OverviewController {
     public IPage<HospitalResponseDTO> getOverviewList(PageRequest pageRequest, HospitalQuery query) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         return hospitalBizService.getHospitalList(pageRequest, query, user);
-    }
-
-    /**
-     * 更新医院状态
-     *
-     * @param statusRequest 请求入参
-     * @return 更新医院
-     */
-    @PutMapping("status")
-    public Integer updateStatus(@RequestBody @Valid StatusRequest statusRequest) {
-        return hospitalService.updateStatus(statusRequest);
     }
 
     /**

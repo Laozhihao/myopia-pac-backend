@@ -7,7 +7,9 @@ import com.wupol.myopia.business.core.common.domain.model.Cooperation;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.hibernate.validator.constraints.Length;
 
+import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -32,23 +34,38 @@ public class Overview extends Cooperation implements Serializable {
     private Integer id;
 
     /**
+     * 创建人ID
+     */
+    private Integer createUserId;
+
+    /**
+     * 部门id
+     */
+    private Integer govDeptId;
+
+    /**
      * 总览机构名称
      */
+    @NotBlank(message = "总览机构名称不能为空")
+    @Length(max = 20)
     private String name;
 
     /**
      * 联系人
      */
+    @Length(max = 15)
     private String contactPerson;
 
     /**
      * 联系方式
      */
+    @Length(max = 11)
     private String phone;
 
     /**
      * 说明
      */
+    @Length(max = 50)
     private String explain;
 
     /**
