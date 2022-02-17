@@ -168,7 +168,7 @@ public class HospitalAggService {
                 && Boolean.FALSE.equals(studentVo.getIsNewbornWithoutIdCard())
                 && Boolean.TRUE.equals(oldStudent.getIsNewbornWithoutIdCard()))) {
             if ((Objects.nonNull(oldStudent) && isCheckNameAndIDCard)
-                    && (!(oldStudent.getIdCard().equals(idCard)
+                    && (!(idCard.equals(oldStudent.getIdCard())
                     && oldStudent.getName().equals(studentVo.getName())))) {
                 throw new BusinessException("学生的身份证与姓名不匹配");
             }

@@ -92,7 +92,7 @@ public class PreschoolCheckRecordUtil {
             conclusion.add(specialMedical);
         }
         String diseaseMedical = record.getDiseaseMedical().stream().filter(base -> base.getId() > 0).map(BaseValue::getName).collect(Collectors.joining("、"));
-        if (StringUtils.isNotBlank(specialMedical)){
+        if (StringUtils.isNotBlank(diseaseMedical)){
             conclusion.add(diseaseMedical);
         }
         return String.join("，", conclusion);
