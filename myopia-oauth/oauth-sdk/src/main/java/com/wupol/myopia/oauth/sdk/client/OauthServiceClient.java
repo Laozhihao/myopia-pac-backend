@@ -184,14 +184,14 @@ public interface OauthServiceClient {
     void addHospitalUserAssociatedScreeningOrgAdminRole(@RequestParam("hospitalId") Integer hospitalId, @RequestParam("associateScreeningOrgId") Integer associateScreeningOrgId);
 
     /**
-     * 更新医生用户的角色
+     * 更新医院相关用户的角色
      *
      * @param hospitalId 医院ID
      * @param serviceType 服务类型
      * @return void
      **/
-    @PutMapping("/oauth/user/doctor/role")
-    void updateDoctorRole(@RequestParam("hospitalId") Integer hospitalId, @RequestParam("serviceType") Integer serviceType);
+    @PutMapping("/oauth/user/hospital/role")
+    void updateHospitalRole(@RequestParam("hospitalId") Integer hospitalId, @RequestParam("serviceType") Integer serviceType);
 
     /**
      * 获取角色列表

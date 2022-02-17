@@ -133,7 +133,12 @@ public class HospitalStudent implements Serializable {
     /**
      * 检查建档编码
      */
-    private Long recordNo;
+    private String recordNo;
+
+    /**
+     * 学生类型 1-医院端 2-0到6岁 3医院和0到6
+     */
+    private Integer studentType;
 
 
     public HospitalStudent(Integer hospitalId, Integer studentId) {

@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.api.hospital.app.domain.vo;
+package com.wupol.myopia.business.aggregation.hospital.domain.vo;
 
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.hospital.domain.dos.HospitalStudentDO;
@@ -22,6 +22,8 @@ public class HospitalStudentVO extends HospitalStudentDO {
     private District area;
     /** 乡/镇 */
     private District town;
+    /** 委会类型 */
+    private District committee;
     /** 学校 */
     private School school;
     /** 班级 */

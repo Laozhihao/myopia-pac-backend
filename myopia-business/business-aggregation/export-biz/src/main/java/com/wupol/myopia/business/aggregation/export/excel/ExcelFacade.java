@@ -21,6 +21,7 @@ import com.wupol.myopia.business.core.system.service.NoticeService;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +34,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+
 /**
  * 统一处理 Excel 上传/下载
  *
@@ -43,16 +45,13 @@ import java.util.stream.Collectors;
 @Service
 public class ExcelFacade {
 
-    @Resource
+    @Autowired
     private DistrictService districtService;
-
-    @Resource
+    @Autowired
     private NoticeService noticeService;
-
     @Resource
     private S3Utils s3Utils;
-
-    @Resource
+    @Autowired
     private RedisUtil redisUtil;
 
     /**

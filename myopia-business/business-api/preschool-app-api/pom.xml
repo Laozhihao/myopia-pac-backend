@@ -15,22 +15,17 @@
     <dependencies>
         <dependency>
             <groupId>com.wupol.myopia</groupId>
-            <artifactId>screening-flow-core</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.wupol.myopia</groupId>
-            <artifactId>school-core</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.wupol.myopia</groupId>
             <artifactId>common-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.wupol.myopia</groupId>
             <artifactId>hospital-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>hospital-biz</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

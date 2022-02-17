@@ -68,6 +68,7 @@
         LEFT JOIN h_medical_report mr ON hs.student_id = mr.student_id and hs.hospital_id = mr.hospital_id
         <include refid="Base_Where_Clause"/>
         group by hs.student_id
+        order by create_time desc
     </select>
 
     <select id="getByList" resultMap="HospitalStudentMap">
@@ -96,5 +97,24 @@
         select *
         from h_hospital_student
         where student_id = #{studentId}
+    </select>
+
+    <select id="getByHospitalIdAndStudentId" resultMap="HospitalStudentMap">
+        select *
+        from h_hospital_student
+        where hospital_id = #{hospitalId}
+        and student_id = #{studentId}
+    </select>
+
+
+    <select id="getPreschoolByStudentType" resultMap="BaseResultMap">
+        select *
+        from (select id, name, student_id, birthday
+              from h_hospital_student
+              where status = 0
+                and (student_type = 2 or student_type = 3)
+                and birthday <![CDATA[<= #{startDate}]]>
+              order by create_time desc) as tmp
+        group by tmp.student_id
     </select>
 </mapper>

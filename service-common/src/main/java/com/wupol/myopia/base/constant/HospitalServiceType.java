@@ -17,7 +17,7 @@ public enum HospitalServiceType {
     /** 医院端用 */
     RESIDENT(0, "居民健康系统"),
     PRESCHOOL(1, "0-6岁眼保健系统"),
-    SCREENING_ORGANIZATION(2, "0-6岁眼保健+居民健康系统");
+    RESIDENT_PRESCHOOL(2, "0-6岁眼保健+居民健康系统");
 
     /**
      * 类型
