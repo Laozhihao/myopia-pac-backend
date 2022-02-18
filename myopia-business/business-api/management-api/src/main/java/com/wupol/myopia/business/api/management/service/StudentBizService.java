@@ -184,7 +184,9 @@ public class StudentBizService {
             // 筛查信息
             studentWarningArchiveVO.setScreeningDate(conclusion.getUpdateTime());
             ScreeningPlan screeningPlan = screeningPlanService.getById(conclusion.getPlanId());
-            studentWarningArchiveVO.setScreeningTitle(screeningPlan.getTitle());
+            if (Objects.nonNull(screeningPlan)) {
+                studentWarningArchiveVO.setScreeningTitle(screeningPlan.getTitle());
+            }
             // 就诊情况
             setVisitInfo(studentWarningArchiveVO, conclusion);
             // 课桌椅信息
