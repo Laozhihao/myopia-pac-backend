@@ -40,5 +40,5 @@ public class HtmlPageUrlConstant {
     /**
      * 学生二维码HTML页面地址
      */
-    public static final String STUDENT_QRCODE_HTML_URL = "%s?planId=%d&schoolId=%d&templateId=%d&gradeId=%d&classId=%d&planStudentIds=%s";
+    public static final String STUDENT_QRCODE_HTML_URL = "%s?screeningPlanId=%d&schoolId=%d&gradeId=%d&classId=%d&planStudentIds=%s&type=%d";
 }

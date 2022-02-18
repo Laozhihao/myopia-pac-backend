@@ -367,6 +367,8 @@ public class ScreeningPlanController {
      */
     @GetMapping("/export/QRCode")
     public Map<String, String> downloadQRCodeFile(@Valid ScreeningPlanSchoolStudent schoolClassInfo, Integer type) {
+
+        System.out.println("-------------CurrentUserUtil.getCurrentUser().getId()------------:"+CurrentUserUtil.getCurrentUser().getId());
         return screeningExportService.getQrCodeFile(schoolClassInfo, type);
     }
 

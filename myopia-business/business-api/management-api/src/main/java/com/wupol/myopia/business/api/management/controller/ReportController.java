@@ -208,17 +208,20 @@ public class ReportController {
                                           Integer gradeId,
                                           Integer classId,
                                           String planStudentIds,
+                                          Integer type,
                                           boolean syncExport
                                           ) throws IOException {
 
         ExportCondition exportCondition = new ExportCondition()
-                .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId())
-//                .setApplyExportFileUserId(1)
+//                .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId())
+                .setApplyExportFileUserId(1)
                 .setPlanId(screeningPlanId)
                 .setSchoolId(schoolId)
                 .setGradeId(gradeId)
                 .setClassId(classId)
-                .setPlanStudentIds(planStudentIds);
+                .setPlanStudentIds(planStudentIds)
+                .setType(type)
+                ;
         if (syncExport){
             return ApiResult.success(exportStrategy.syncExport(exportCondition, ExportReportServiceNameConstant.EXPORT_QRCODE_SCREENIN_SERVICE));
         }

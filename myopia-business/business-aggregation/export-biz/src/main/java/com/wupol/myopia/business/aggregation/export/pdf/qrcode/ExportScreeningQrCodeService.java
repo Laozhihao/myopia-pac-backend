@@ -64,7 +64,7 @@ public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
     @Override
     public void generatePdfFile(ExportCondition exportCondition, String fileSavePath, String fileName) {
         List<ScreeningStudentDTO> screeningStudentDTOS = getStudentData(exportCondition);
-        generateReportPdfService.generateExportScreenQrcodePdfFile(screeningStudentDTOS,exportCondition,fileSavePath,fileName);
+        generateReportPdfService.generateExportScreenQrcodePdfFile(screeningStudentDTOS,exportCondition,fileSavePath,fileName,exportCondition.getType());
     }
 
     @Override
@@ -119,7 +119,6 @@ public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
             List<String> pladnStudentIdsTemp = Arrays.asList(",");
             pladnStudentIds= pladnStudentIdsTemp.stream().map(Integer::parseInt).collect(Collectors.toList());
         }
-
 
         // 2. 处理参数
         List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.selectBySchoolGradeAndClass(
