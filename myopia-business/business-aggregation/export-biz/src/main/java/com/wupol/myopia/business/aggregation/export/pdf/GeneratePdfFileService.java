@@ -1,7 +1,5 @@
 package com.wupol.myopia.business.aggregation.export.pdf;
 
-import cn.hutool.extra.qrcode.QrCodeUtil;
-import cn.hutool.extra.qrcode.QrConfig;
 import com.alibaba.fastjson.JSONObject;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.domain.PdfResponseDTO;
@@ -11,11 +9,7 @@ import com.wupol.myopia.business.aggregation.export.pdf.constant.HtmlPageUrlCons
 import com.wupol.myopia.business.aggregation.export.pdf.constant.PDFFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.PlanSchoolGradeVO;
-import com.wupol.myopia.business.aggregation.screening.constant.QrCodeConstant;
-import com.wupol.myopia.business.aggregation.screening.service.ScreeningExportService;
 import com.wupol.myopia.business.common.utils.constant.BizMsgConstant;
-import com.wupol.myopia.business.common.utils.constant.CommonConst;
-import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.common.utils.util.HtmlToPdfUtil;
 import com.wupol.myopia.business.core.common.service.DistrictService;
@@ -42,10 +36,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
-import java.awt.*;
 import java.nio.file.Paths;
-import java.util.*;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -79,8 +74,8 @@ public class GeneratePdfFileService {
     private SchoolGradeService schoolGradeService;
     @Autowired
     private SchoolClassService schoolClassService;
-    @Autowired
-    private ScreeningExportService screeningExportService;
+//    @Autowired
+//    private ScreeningExportService screeningExportService;
     @Autowired
     private Html2PdfService html2PdfService;
     /**
@@ -325,10 +320,7 @@ public class GeneratePdfFileService {
             String dir = fileSavePath + "/" + fileName + "/" + screeningStudentDTO.getSchoolName() + "/" + screeningStudentDTO.getGradeName();
             String uuid = UUID.randomUUID().toString();
 
-            System.out.println("---------schoolPdfHtmlUrl-------------"+schoolPdfHtmlUrl);
-            System.out.println("---------dir-------------"+dir);
-
-            PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(schoolPdfHtmlUrl, fileName, uuid);
+            PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(schoolPdfHtmlUrl, fileName+".pdf", uuid);
             log.info("response:{}", JSONObject.toJSONString(pdfResponseDTO));
             try {
                 FileUtils.downloadFile(pdfResponseDTO.getUrl(),dir+"/"+fileName + ".pdf");

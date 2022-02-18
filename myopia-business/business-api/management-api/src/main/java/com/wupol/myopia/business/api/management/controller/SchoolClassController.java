@@ -40,22 +40,6 @@ public class SchoolClassController {
         return schoolClassService.saveClass(schoolClass);
     }
 
-
-    /**
-     * 保存班级
-     * @param gradeId
-     * @param classNames
-     * @return
-     */
-    @PostMapping("/saveClass")
-    public void saveClass(
-            @NotNull(message = "学校ID不能为空") Integer schoolId,
-            @NotNull(message = "年级ID不能为空") Integer gradeId,
-            @NotNull(message = "班级ID不能为空")String classNames) {
-        CurrentUser user = CurrentUserUtil.getCurrentUser();
-        schoolClassService.saveClass(user.getId(),schoolId,gradeId,classNames);
-    }
-
     /**
      * 删除班级
      *

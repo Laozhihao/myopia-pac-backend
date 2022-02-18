@@ -46,10 +46,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -370,17 +367,7 @@ public class ScreeningPlanController {
         return screeningExportService.getQrCodeFile(schoolClassInfo, type);
     }
 
-    /**
-     * 导出筛查计划的学生二维码信息
-     *
-     * @param schoolClassInfo 参与筛查计划的学生
-     * @param type            1-二维码 2-VS666 3-学生编码二维码
-     * @return pdf的URL
-     */
-    @GetMapping("/student/QRCode")
-    public List<ScreeningStudentDTO> studentQRCodeFile(@Valid ScreeningPlanSchoolStudent schoolClassInfo, Integer type) {
-        return screeningExportService.studentQRCodeFile(schoolClassInfo, type);
-    }
+
 
     /**
      * 导出筛查计划的学生告知书
@@ -392,6 +379,8 @@ public class ScreeningPlanController {
     public Map<String, String> downloadNoticeFile(@Valid ScreeningPlanSchoolStudent schoolClassInfo) {
         return screeningExportService.getNoticeFile(schoolClassInfo, null);
     }
+
+
 
     /**
      * 创建虚拟学生
@@ -550,5 +539,47 @@ public class ScreeningPlanController {
 
         return ApiResult.success(visionScreeningResult);
 
+    }
+
+    /**
+     * 获取筛查计划的学生二维码数据
+     * @param screeningPlanId
+     * @param schoolId
+     * @param gradeId
+     * @param classId
+     * @param planStudentIds
+     * @param type
+     * @return
+     */
+    @GetMapping("/student/QRCode")
+    public List<ScreeningStudentDTO> studentQRCodeFile(@NotNull(message = "筛查计划ID不能为空") Integer screeningPlanId,
+            @NotNull(message = "学校ID不能为空") Integer schoolId, Integer gradeId, Integer classId, String planStudentIds,
+            Integer type) {
+        List<Integer> studentIds =null;
+        if (planStudentIds!=null){
+            List<String> pladnStudentIdsTemp = Arrays.asList(",");
+            studentIds= pladnStudentIdsTemp.stream().map(Integer::parseInt).collect(Collectors.toList());
+        }
+        return screeningExportService.studentQRCodeFile(screeningPlanId, schoolId,gradeId,classId,studentIds,type);
+    }
+
+    /**
+     * 告知书数据
+     * @param screeningPlanId
+     * @param schoolId
+     * @param gradeId
+     * @param classId
+     * @param planStudentIds
+     * @return
+     */
+    @GetMapping("/student/notice")
+    public Map<String, Object> studentNoticeData(@NotNull(message = "筛查计划ID不能为空") Integer screeningPlanId,
+                                                 @NotNull(message = "学校ID不能为空") Integer schoolId, Integer gradeId, Integer classId, String planStudentIds) {
+        List<Integer> studentIds =null;
+        if (planStudentIds!=null){
+            List<String> pladnStudentIdsTemp = Arrays.asList(",");
+            studentIds= pladnStudentIdsTemp.stream().map(Integer::parseInt).collect(Collectors.toList());
+        }
+        return screeningExportService.getNoticeData(screeningPlanId, schoolId,gradeId,classId,studentIds);
     }
 }

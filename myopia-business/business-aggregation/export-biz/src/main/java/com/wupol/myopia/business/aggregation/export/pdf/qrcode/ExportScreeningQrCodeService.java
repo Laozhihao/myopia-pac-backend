@@ -2,12 +2,7 @@ package com.wupol.myopia.business.aggregation.export.pdf.qrcode;
 
 import cn.hutool.extra.qrcode.QrCodeUtil;
 import cn.hutool.extra.qrcode.QrConfig;
-import com.alibaba.fastjson.JSON;
-import com.wupol.framework.utils.FreemarkerUtil;
-import com.wupol.framework.utils.PdfUtil;
 import com.wupol.myopia.base.cache.RedisConstant;
-import com.wupol.myopia.base.exception.BusinessException;
-import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.aggregation.export.pdf.BaseExportPdfFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.GeneratePdfFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.PDFFileNameConstant;
@@ -21,9 +16,7 @@ import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
-import com.wupol.myopia.business.core.screening.flow.constant.PDFTemplateConst;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,8 +24,7 @@ import org.springframework.util.Assert;
 
 import javax.annotation.Resource;
 import java.awt.*;
-import java.io.File;
-import java.util.*;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 

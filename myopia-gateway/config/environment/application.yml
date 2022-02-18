@@ -140,4 +140,3 @@ white-list:
   - "/management/pdf/callback"
   - "/management/screeningPlan/screeningNoticeResult"
   - "/management/screeningPlan/student/QRCode"
-  - "/management/report/screeningOrg/qrcode"
