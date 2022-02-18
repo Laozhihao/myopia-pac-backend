@@ -55,4 +55,12 @@ public class ExportReportServiceNameConstant {
     public final String EXPORT_VISION_SCREENING_RESULT_EXCEL_SERVICE = "exportVisionScreeningResultExcelService";
 
 
+
+    /**
+     * 导出筛检计划下学校学生的筛查数据
+     *  作者：钓猫的小鱼
+     */
+    public final String EXPORT_QRCODE_SCREENIN_SERVICE = "screeningQrCodeService";
+
+
 }

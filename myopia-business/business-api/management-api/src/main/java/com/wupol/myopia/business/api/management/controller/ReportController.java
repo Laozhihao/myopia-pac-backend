@@ -195,4 +195,37 @@ public class ReportController {
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.SCREENING_PLAN);
     }
 
+    /**
+     * @Description: 导出学校筛查报告PDF
+     * @Param: [筛检计划ID, 筛查机构ID, 学校ID]
+     * @return: void
+     * @Author: 钓猫的小鱼
+     * @Date: 2021/12/30
+     */
+    @GetMapping("/screeningOrg/qrcode")
+    public ApiResult<String> getScreeningStudentQrCode(@NotNull(message = "筛查计划ID不能为空") Integer screeningPlanId,
+                                          @NotNull(message = "学校ID不能为空") Integer schoolId,
+                                          Integer gradeId,
+                                          Integer classId,
+                                          String planStudentIds,
+                                          boolean syncExport
+                                          ) throws IOException {
+
+        ExportCondition exportCondition = new ExportCondition()
+                .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId())
+//                .setApplyExportFileUserId(1)
+                .setPlanId(screeningPlanId)
+                .setSchoolId(schoolId)
+                .setGradeId(gradeId)
+                .setClassId(classId)
+                .setPlanStudentIds(planStudentIds);
+        if (syncExport){
+            return ApiResult.success(exportStrategy.syncExport(exportCondition, ExportReportServiceNameConstant.EXPORT_QRCODE_SCREENIN_SERVICE));
+        }
+        exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.EXPORT_QRCODE_SCREENIN_SERVICE);
+        return ApiResult.success();
+    }
+
+
+
 }

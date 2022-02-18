@@ -2,6 +2,7 @@ package com.wupol.myopia.business.aggregation.screening.service;
 
 import cn.hutool.extra.qrcode.QrCodeUtil;
 import cn.hutool.extra.qrcode.QrConfig;
+import com.alibaba.fastjson.JSON;
 import com.wupol.framework.core.util.StringUtils;
 import com.wupol.framework.utils.FreemarkerUtil;
 import com.wupol.framework.utils.PdfUtil;
@@ -13,6 +14,7 @@ import com.wupol.myopia.business.aggregation.screening.constant.QrCodeConstant;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.domain.model.NotificationConfig;
+import com.wupol.myopia.business.common.utils.util.HtmlToPdfUtil;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.common.util.S3Utils;
 import com.wupol.myopia.business.core.school.domain.model.School;
@@ -37,10 +39,9 @@ import javax.annotation.Resource;
 import javax.validation.ValidationException;
 import java.awt.*;
 import java.io.File;
-import java.util.HashMap;
+import java.nio.file.Paths;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
 /**
  * 筛查导出相关
@@ -87,6 +88,10 @@ public class ScreeningExportService {
     @Resource
     private S3Utils s3Utils;
 
+    @Value("${report.pdf.save-path}")
+    public String pdfSavePath;
+    @Resource
+    private ScreeningPlanStudentBizService screeningPlanStudentBizService;
     /**
      * 导出筛查计划的学生告知书
      *
@@ -174,6 +179,7 @@ public class ScreeningExportService {
                 }
                 student.setQrCodeUrl(QrCodeUtil.generateAsBase64(content, config, "jpg"));
             });
+
             // 3. 处理pdf报告参数
             Map<String, Object> models = new HashMap<>(16);
             models.put("students", students);
@@ -189,6 +195,28 @@ public class ScreeningExportService {
         } catch (Exception e) {
             throw new BusinessException("生成PDF文件失败", e);
         }
+    }
+
+    public List<ScreeningStudentDTO> studentQRCodeFile(ScreeningPlanSchoolStudent schoolClassInfo, Integer type) {
+        // 2. 处理参数
+        List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.selectBySchoolGradeAndClass(
+                schoolClassInfo.getScreeningPlanId(), schoolClassInfo.getSchoolId(),
+                schoolClassInfo.getGradeId(), schoolClassInfo.getClassId(),null);
+        QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white).setMargin(1);
+        students.forEach(student -> {
+            student.setGenderDesc(GenderEnum.getName(student.getGender()));
+            String content;
+            if (CommonConst.EXPORT_SCREENING_QRCODE.equals(type)) {
+                content = String.format(QrCodeConstant.SCREENING_CODE_QR_CONTENT_FORMAT_RULE, student.getPlanStudentId());
+            } else if (CommonConst.EXPORT_VS666.equals(type)) {
+                content = setVs666QrCodeRule(student);
+            } else {
+                content = String.format(QrCodeConstant.QR_CODE_CONTENT_FORMAT_RULE, student.getPlanStudentId());
+            }
+            student.setQrCodeUrl(QrCodeUtil.generateAsBase64(content, config, "jpg"));
+        });
+
+        return students;
     }
 
     /**
@@ -253,7 +281,7 @@ public class ScreeningExportService {
      * @param student 学生信息
      * @return 二维码
      */
-    private String setVs666QrCodeRule(ScreeningStudentDTO student) {
+    public String setVs666QrCodeRule(ScreeningStudentDTO student) {
         return String.format(QrCodeConstant.VS666_QR_CODE_CONTENT_FORMAT_RULE,
                 String.format(QrCodeConstant.GENERATE_VS666_ID, student.getPlanId(), student.getPlanStudentId()),
                 student.getName(),

@@ -17,6 +17,7 @@ import com.wupol.myopia.business.common.utils.domain.dto.SchoolAgeDTO;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.core.school.domain.dto.SchoolDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolQueryDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
@@ -91,6 +92,35 @@ public class SchoolController {
     }
 
     /**
+     * 新增学校
+     *
+     * @param school 学校实体
+     * @return 账号密码 {@link UsernameAndPasswordDTO}
+     */
+    @PostMapping("saveSchool")
+    public UsernameAndPasswordDTO saveSchoolDTO(@RequestBody @Valid SchoolDTO school) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        school.setCreateUserId(user.getId());
+        school.setGovDeptId(user.getOrgId());
+        if (user.isPlatformAdminUser()) {
+            schoolService.checkSchoolCooperation(school);
+        } else {
+            // 默认合作信息
+            school.initCooperationInfo();
+        }
+        if (user.isHospitalUser()) {
+            school.setGovDeptId(user.getScreeningOrgId());
+        }
+        school.setStatus(school.getCooperationStopStatus());
+        UsernameAndPasswordDTO nameAndPassword = schoolService.saveSchoolDTO(school);
+        // 非平台管理员屏蔽账号密码信息
+        if (!user.isPlatformAdminUser()) {
+            nameAndPassword.setNoDisplay();
+        }
+        return nameAndPassword;
+    }
+
+    /**
      * 更新学校
      *
      * @param school 学校实体
@@ -110,6 +140,7 @@ public class SchoolController {
         }
         return schoolFacade.updateSchool(school);
     }
+
 
     /**
      * 通过ID获取学校详情

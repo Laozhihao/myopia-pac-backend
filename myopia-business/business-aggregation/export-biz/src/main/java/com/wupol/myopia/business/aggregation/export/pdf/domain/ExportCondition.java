@@ -52,4 +52,6 @@ public class ExportCondition {
      *  VS666数据
      */
     private List<Integer> ids;
+
+    private Integer type;
 }

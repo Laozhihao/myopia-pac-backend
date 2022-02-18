@@ -139,3 +139,5 @@ white-list:
   # 回调地址
   - "/management/pdf/callback"
   - "/management/screeningPlan/screeningNoticeResult"
+  - "/management/screeningPlan/student/QRCode"
+  - "/management/report/screeningOrg/qrcode"

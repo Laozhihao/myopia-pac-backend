@@ -1,5 +1,7 @@
 package com.wupol.myopia.business.aggregation.export.pdf;
 
+import cn.hutool.extra.qrcode.QrCodeUtil;
+import cn.hutool.extra.qrcode.QrConfig;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateUtil;
@@ -7,7 +9,11 @@ import com.wupol.myopia.business.aggregation.export.pdf.constant.HtmlPageUrlCons
 import com.wupol.myopia.business.aggregation.export.pdf.constant.PDFFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.PlanSchoolGradeVO;
+import com.wupol.myopia.business.aggregation.screening.constant.QrCodeConstant;
+import com.wupol.myopia.business.aggregation.screening.service.ScreeningExportService;
 import com.wupol.myopia.business.common.utils.constant.BizMsgConstant;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.util.HtmlToPdfUtil;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.domain.model.School;
@@ -17,6 +23,7 @@ import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.GradeClassesDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
@@ -31,7 +38,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import java.awt.*;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -68,7 +77,8 @@ public class GeneratePdfFileService {
     private SchoolGradeService schoolGradeService;
     @Autowired
     private SchoolClassService schoolClassService;
-
+    @Autowired
+    private ScreeningExportService screeningExportService;
     /**
      * 生成筛查报告PDF文件 - 行政区域
      *
@@ -289,6 +299,34 @@ public class GeneratePdfFileService {
         String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.STUDENT_ARCHIVES_HTML_URL, htmlUrlHost, planId, schoolId, templateId, planStudentIds, gradeId, Objects.nonNull(classId) ? classId : StringUtils.EMPTY);
         Assert.isTrue(HtmlToPdfUtil.convertArchives(schoolPdfHtmlUrl, Paths.get(fileSavePath).toString()), "【生成学校档案卡PDF文件异常】：" + school.getName());
     }
+
+    /**
+     * 导出学生二维码
+     * @param exportCondition
+     * @param fileSavePath
+     * @param fileName
+     */
+    public void generateExportScreenQrcodePdfFile(List<ScreeningStudentDTO> students,ExportCondition exportCondition, String fileSavePath, String fileName){
+
+        Map<Integer, List<ScreeningStudentDTO>> mapGroup = students.stream().collect(Collectors.groupingBy(t -> t.getClassId()));
+        for (Integer classId:mapGroup.keySet()){
+
+            ScreeningStudentDTO screeningStudentDTO = mapGroup.get(classId).get(0);
+            String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.STUDENT_QRCODE_HTML_URL,
+                    htmlUrlHost,exportCondition.getPlanId(), exportCondition.getSchoolId(), 0, exportCondition.getGradeId(), exportCondition.getClassId(), exportCondition.getPlanStudentIds());
+            String dir = fileSavePath + "/" + fileName + "/" + screeningStudentDTO.getSchoolName() + "/" + screeningStudentDTO.getGradeName();
+            Assert.isTrue(HtmlToPdfUtil.convert(schoolPdfHtmlUrl, Paths.get(dir, fileName + ".pdf").toString()), "【生成学校档案卡PDF文件异常】：" + fileName);
+        }
+
+    }
+
+    public String syncExportScreenQrcodePdfFile(ExportCondition exportCondition, String fileSavePath, String fileName) {
+        String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.STUDENT_QRCODE_HTML_URL, htmlUrlHost,
+                exportCondition.getPlanId(), exportCondition.getSchoolId(), "", exportCondition.getGradeId(), exportCondition.getClassId(), exportCondition.getPlanStudentIds());
+        Assert.isTrue(HtmlToPdfUtil.convert(schoolPdfHtmlUrl, Paths.get(fileSavePath, fileName + ".pdf").toString()), "【生成学校档案卡PDF文件异常】：" + fileName);
+        return fileSavePath+"/"+fileName;
+    }
+
 
 
 }

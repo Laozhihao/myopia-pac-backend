@@ -15,9 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.lang.reflect.Array;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -46,6 +45,35 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
             throw new BusinessException("班级名称重复");
         }
         return baseMapper.insert(schoolClass);
+    }
+
+    /**
+     *
+     * @param userId
+     * @param schoolId
+     * @param gradeId
+     * @param classNames
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void saveClass(Integer userId,Integer schoolId,Integer gradeId,String classNames) {
+        List<String> names = Arrays.asList(classNames.split(","));
+        List<SchoolClass> schoolClasses = baseMapper.getByNamesNeId( names,gradeId, schoolId);
+        if (!CollectionUtils.isEmpty(schoolClasses)) {
+            throw new BusinessException("班级名称重复");
+        }
+
+        List<SchoolClass> schoolClassSave = new ArrayList<>();
+        for (String name:names){
+            SchoolClass schoolClass = new SchoolClass();
+            schoolClass.setSchoolId(schoolId);
+            schoolClass.setGradeId(gradeId);
+            schoolClass.setName(name);
+            schoolClass.setCreateUserId(userId);
+            schoolClassSave.add(schoolClass);
+        }
+
+        this.saveOrUpdateBatch(schoolClassSave);
     }
 
     /**

@@ -12,6 +12,7 @@ import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelSe
 import com.wupol.myopia.business.aggregation.export.excel.imports.PlanStudentExcelImportService;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.aggregation.export.pdf.qrcode.ExportScreeningQrCodeService;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
 import com.wupol.myopia.business.aggregation.screening.domain.vos.SchoolGradeVO;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningExportService;
@@ -94,8 +95,8 @@ public class ScreeningPlanController {
     private ScreeningExportService screeningExportService;
     @Autowired
     private VisionScreeningResultService visionScreeningResultService;
-
-
+    @Autowired
+    private ExportScreeningQrCodeService exportScreeningQrCodeService;
     /**
      * 新增
      *
@@ -368,6 +369,31 @@ public class ScreeningPlanController {
     public Map<String, String> downloadQRCodeFile(@Valid ScreeningPlanSchoolStudent schoolClassInfo, Integer type) {
         return screeningExportService.getQrCodeFile(schoolClassInfo, type);
     }
+
+    /**
+     * 导出筛查计划的学生二维码信息
+     *
+     * @param schoolClassInfo 参与筛查计划的学生
+     * @param type            1-二维码 2-VS666 3-学生编码二维码
+     * @return pdf的URL
+     */
+    @GetMapping("/student/QRCode")
+    public List<ScreeningStudentDTO> studentQRCodeFile(@Valid ScreeningPlanSchoolStudent schoolClassInfo, Integer type) {
+        return screeningExportService.studentQRCodeFile(schoolClassInfo, type);
+    }
+
+    /**
+     * 导出筛查计划的学生二维码信息
+     *
+     * @param schoolClassInfo 参与筛查计划的学生
+     * @param type            1-二维码 2-VS666 3-学生编码二维码
+     * @return pdf的URL
+     */
+//    @GetMapping("/student/QRCode")
+//    public List<ScreeningStudentDTO> studentQRCodeFile(ExportCondition exportCondition) {
+//        return exportScreeningQrCodeService.getStudentData(exportCondition);
+//    }
+
 
     /**
      * 导出筛查计划的学生告知书

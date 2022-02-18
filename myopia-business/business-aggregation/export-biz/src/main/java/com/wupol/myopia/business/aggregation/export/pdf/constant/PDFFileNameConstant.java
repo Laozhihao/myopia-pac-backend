@@ -13,6 +13,11 @@ public class PDFFileNameConstant {
     /**
      * PDF报告文件名
      */
+    public static final String REPORT_RQCODE_FILE_NAME = "%s%s%s二维码";
+
+    /**
+     * PDF报告文件名
+     */
     public static final String REPORT_PDF_FILE_NAME = "%s筛查报告";
     /**
      * PDF档案卡文件名

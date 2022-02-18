@@ -192,6 +192,17 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     }
 
     /**
+     * 根据年级班级ID获取筛查学生
+     *
+     * @param gradeId
+     * @param classId
+     * @return
+     */
+    public List<ScreeningStudentDTO> selectBySchoolGradeAndClass(Integer screeningPlanId, Integer schoolId,Integer gradeId, Integer classId,List<Integer> studentIds) {
+        return baseMapper.selectBySchoolGradeAndClass(screeningPlanId, schoolId,gradeId, classId,studentIds);
+    }
+
+    /**
      * 根据查询条件获取当前进行中的计划的学生
      *
      * @param screeningStudentQuery 查询条件

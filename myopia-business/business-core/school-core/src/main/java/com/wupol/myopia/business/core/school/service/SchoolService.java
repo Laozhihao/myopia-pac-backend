@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.school.service;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -20,8 +21,7 @@ import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
-import com.wupol.myopia.business.core.school.domain.dto.SchoolQueryDTO;
-import com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO;
+import com.wupol.myopia.business.core.school.domain.dto.*;
 import com.wupol.myopia.business.core.school.domain.mapper.SchoolMapper;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolAdmin;
@@ -83,12 +83,62 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         District district = districtService.getById(school.getDistrictId());
         Assert.notNull(district, "无效行政区域");
         school.setDistrictProvinceCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
+
         baseMapper.insert(school);
         // oauth系统中增加学校状态信息
         oauthServiceClient.addOrganization(new Organization(school.getId(), SystemCode.SCHOOL_CLIENT,
                 UserType.OTHER, school.getStatus()));
         initGradeAndClass(school.getId(), school.getType(), school.getCreateUserId());
         return generateAccountAndPassword(school, StringUtils.EMPTY);
+    }
+
+    /**
+     * 新增学校
+     *
+     * @param schoolDTO 学校扩展实体
+     * @return UsernameAndPasswordDto 账号密码
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public UsernameAndPasswordDTO saveSchoolDTO(SchoolDTO schoolDTO) {
+        Assert.hasLength(schoolDTO.getSchoolNo(), "学校编号不能为空");
+        Assert.notNull(schoolDTO.getDistrictId(), "行政区域ID不能为空");
+        if (checkSchoolName(schoolDTO.getName(), null)) {
+            throw new BusinessException("学校名称重复，请确认");
+        }
+        District district = districtService.getById(schoolDTO.getDistrictId());
+        Assert.notNull(district, "无效行政区域");
+        schoolDTO.setDistrictProvinceCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
+        baseMapper.insert(schoolDTO);
+
+        List<SchoolGradeDTO> schoolGradeDTOS = schoolDTO.getGradeDTOs();
+
+        /**
+         * TODO:由于要获取年级ID，左右在for循环中进行批量操作，时候再优化
+         */
+        for (SchoolGradeDTO schoolGradeDTO:schoolGradeDTOS){
+            SchoolGrade schoolGrade = new SchoolGrade();
+            BeanUtil.copyProperties(schoolGradeDTO,schoolGrade);
+            schoolGradeService.saveOrUpdate(schoolGrade);
+
+            List<String> names = Arrays.asList(schoolGradeDTO.getClassNames().split(","));
+
+            List<SchoolClass> schoolClassesTemp = new ArrayList<>();
+            for (String name:names){
+                SchoolClass schoolClass = new SchoolClass();
+                schoolClass.setSchoolId(schoolDTO.getId());
+                schoolClass.setGradeId(schoolGrade.getId());
+                schoolClass.setName(name);
+                schoolClass.setCreateUserId(schoolDTO.getCreateUserId());
+                schoolClassesTemp.add(schoolClass);
+            }
+            schoolClassService.saveOrUpdateBatch(schoolClassesTemp);
+        }
+
+        // oauth系统中增加学校状态信息
+        oauthServiceClient.addOrganization(new Organization(schoolDTO.getId(), SystemCode.SCHOOL_CLIENT,
+                UserType.OTHER, schoolDTO.getStatus()));
+        initGradeAndClass(schoolDTO.getId(), schoolDTO.getType(), schoolDTO.getCreateUserId());
+        return generateAccountAndPassword(schoolDTO, StringUtils.EMPTY);
     }
 
 
