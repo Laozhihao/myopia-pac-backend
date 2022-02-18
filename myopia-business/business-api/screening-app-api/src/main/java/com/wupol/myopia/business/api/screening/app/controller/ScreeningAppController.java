@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.AppQueryQrCodeParams;
@@ -646,6 +647,11 @@ public class ScreeningAppController {
      */
     @GetMapping("/export/QRCode")
     public Map<String, String> exportQRCode(@Valid AppQueryQrCodeParams appQueryQrCodeParams) {
-        return screeningExportService.getQrCodeAndStudentInfo(appQueryQrCodeParams);
+        try {
+            return screeningExportService.getQrCodeAndStudentInfo(appQueryQrCodeParams);
+        } catch (Exception e) {
+            log.error("获取二维码异常", e);
+            throw new BusinessException("获取二维码异常");
+        }
     }
 }
