@@ -77,6 +77,12 @@
         <if test="requestDTO.name != null and requestDTO.name != ''">
             and name like CONCAT('%', #{requestDTO.name}, '%')
         </if>
+        <if test="requestDTO.idCard != null and requestDTO.idCard != ''">
+            and id_card like CONCAT('%', #{requestDTO.idCard}, '%')
+        </if>
+        <if test="requestDTO.passport != null and requestDTO.passport != ''">
+            and h_hospital_student.passport like CONCAT('%', #{requestDTO.passport}, '%')
+        </if>
         and status = 0
         order by create_time desc
     </select>

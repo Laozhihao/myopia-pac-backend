@@ -107,12 +107,27 @@ public class ScreeningPlanStudentBizService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void updatePlanStudent(UpdatePlanStudentRequestDTO requestDTO) {
+        requestDTO.checkStudentInfo();
+        String idCard = requestDTO.getIdCard();
+        String passport = requestDTO.getPassport();
+        Integer planStudentId = requestDTO.getPlanStudentId();
         // 更新计划学生信息
-        ScreeningPlanSchoolStudent planSchoolStudent = screeningPlanSchoolStudentService.getById(requestDTO.getPlanStudentId());
+        ScreeningPlanSchoolStudent planSchoolStudent = screeningPlanSchoolStudentService.getById(planStudentId);
+
+        // 身份证或护照是否已经存在
+        if (!CollectionUtils.isEmpty(screeningPlanSchoolStudentService.getByIdCardAndPassport(idCard, passport, planStudentId))) {
+            throw new BusinessException("身份证或护照重复，请检查");
+        }
+
         planSchoolStudent.setStudentName(requestDTO.getName());
         planSchoolStudent.setGender(requestDTO.getGender());
         planSchoolStudent.setStudentAge(requestDTO.getStudentAge());
         planSchoolStudent.setBirthday(requestDTO.getBirthday());
+        planSchoolStudent.setIdCard(idCard);
+        planSchoolStudent.setPassport(passport);
+        planSchoolStudent.setSchoolId(requestDTO.getSchoolId());
+        planSchoolStudent.setClassId(requestDTO.getClassId());
+        planSchoolStudent.setGradeId(requestDTO.getGradeId());
         if (StringUtils.isNotBlank(requestDTO.getParentPhone())) {
             planSchoolStudent.setParentPhone(requestDTO.getParentPhone());
         }
@@ -126,31 +141,18 @@ public class ScreeningPlanStudentBizService {
         student.setName(requestDTO.getName());
         student.setGender(requestDTO.getGender());
         student.setBirthday(requestDTO.getBirthday());
+        student.setPassport(passport);
+        student.setIdCard(idCard);
+        student.setSchoolId(requestDTO.getSchoolId());
+        student.setClassId(requestDTO.getClassId());
+        student.setGradeId(requestDTO.getGradeId());
         if (StringUtils.isNotBlank(requestDTO.getParentPhone())) {
             student.setParentPhone(requestDTO.getParentPhone());
         }
         if (StringUtils.isNotBlank(requestDTO.getSno())) {
             student.setSno(requestDTO.getSno());
         }
-        studentService.updateById(student);
-
-        // 更新学校端学生
-        List<SchoolStudent> schoolStudents = schoolStudentService.getByStudentId(studentId);
-        if (CollectionUtils.isEmpty(schoolStudents)) {
-            return;
-        }
-        schoolStudents.forEach(schoolStudent -> {
-            schoolStudent.setName(requestDTO.getName());
-            schoolStudent.setGender(requestDTO.getGender());
-            schoolStudent.setBirthday(requestDTO.getBirthday());
-            if (StringUtils.isNotBlank(requestDTO.getParentPhone())) {
-                schoolStudent.setParentPhone(requestDTO.getParentPhone());
-            }
-            if (StringUtils.isNotBlank(requestDTO.getSno())) {
-                schoolStudent.setSno(requestDTO.getSno());
-            }
-        });
-        schoolStudentService.updateBatchById(schoolStudents);
+        studentService.updateStudent(student);
     }
 
     /**

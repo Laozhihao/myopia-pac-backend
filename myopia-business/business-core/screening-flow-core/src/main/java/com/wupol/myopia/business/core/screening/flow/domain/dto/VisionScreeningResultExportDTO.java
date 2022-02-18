@@ -53,6 +53,9 @@ public class VisionScreeningResultExportDTO implements Serializable {
     @ExcelProperty("学校编码")
     private String schoolNo;
 
+    @ExcelProperty("身份证/护照")
+    private String paperwork;
+
     @ExcelProperty("学校名称")
     private String schoolName;
 

@@ -29,7 +29,7 @@ public interface SchoolStudentMapper extends BaseMapper<SchoolStudent> {
 
     List<SchoolStudent> getBySchoolIdAndGradeId(@Param("schoolId") Integer schoolId, @Param("gradeId") Integer gradeId);
 
-    List<SchoolStudent> getByIdCardOrSno(@Param("idCards") List<String> idCards, @Param("snos") List<String> snos, @Param("schoolId") Integer schoolId);
+    List<SchoolStudent> getByIdCardAndSnoAndPassports(@Param("idCards") List<String> idCards, @Param("snos") List<String> snos, @Param("passports") List<String> passports, @Param("schoolId") Integer schoolId);
 
     List<SchoolStudent> getByIdCards(@Param("idCards") List<String> idCards, @Param("schoolId") Integer schoolId);
 
@@ -37,5 +37,11 @@ public interface SchoolStudentMapper extends BaseMapper<SchoolStudent> {
 
     SchoolStudent getDeletedByIdCardAndSno(@Param("idCard") String idCard, @Param("sno") String sno, @Param("schoolId") Integer schoolId);
 
-    List<SchoolStudent> getDeletedByIdCard(@Param("idCards") List<String> idCards, @Param("schoolId") Integer schoolId);
+    List<SchoolStudent> getDeletedByIdCardsAndPassports(@Param("idCards") List<String> idCards, @Param("passports") List<String> passports,@Param("schoolId") Integer schoolId);
+
+    List<SchoolStudent> getByIdCardAndSnoAndPassport(@Param("id") Integer id, @Param("idCard") String idCard, @Param("sno") String sno, @Param("passport") String passport, @Param("schoolId") Integer schoolId);
+
+    SchoolStudent getByIdCardAndPassport(@Param("idCard") String idCard, @Param("passport") String passport, @Param("schoolId") Integer schoolId);
+
+    List<SchoolStudent> getAllByIdCardAndSnoAndPassports(@Param("idCards") List<String> idCards, @Param("snos") List<String> snos, @Param("passports") List<String> passports, @Param("schoolId") Integer schoolId);
 }

@@ -175,4 +175,9 @@ public class StatConclusionExportDTO extends StatConclusion {
 
     @TableField(typeHandler = JacksonTypeHandler.class)
     private OtherEyeDiseasesDO otherEyeDiseases;
+
+    /**
+     * 护照
+     */
+    private String passport;
 }

@@ -15,12 +15,13 @@ public enum SchoolStudentImportEnum {
     CLASS_NAME(5, "班级"),
     SNO(6, "学号"),
     ID_CARD(7, "身份证号"),
-    PHONE(8, "手机号码"),
-    PROVINCE_NAME(9, "省"),
-    CITY_NAME(10, "市"),
-    AREA_NAME(11, "县"),
-    TOWN_NAME(12, "镇"),
-    ADDRESS(13, "地址");
+    PASSPORT(8, "护照"),
+    PHONE(9, "手机号码"),
+    PROVINCE_NAME(10, "省"),
+    CITY_NAME(11, "市"),
+    AREA_NAME(12, "县"),
+    TOWN_NAME(13, "镇"),
+    ADDRESS(14, "地址");
 
     /**
      * 列标
