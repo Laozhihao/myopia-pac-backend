@@ -81,12 +81,12 @@ public class Overview extends Cooperation implements Serializable {
     /**
      * 配置类型，0：配置筛查机构、1：配置医院、2：配置筛查机构+医院
      */
-    private Boolean configType;
+    private Integer configType;
 
     /**
      * 医院服务类型（配置），0：居民健康系统(默认)、1：0-6岁眼保健、2：0-6岁眼保健+居民健康系统
      */
-    private Boolean hospitalServiceType;
+    private Integer hospitalServiceType;
 
     /**
      * 医院限制数量
