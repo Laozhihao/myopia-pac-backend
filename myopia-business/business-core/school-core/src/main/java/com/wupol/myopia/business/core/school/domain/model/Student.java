@@ -97,6 +97,7 @@ public class Student extends AddressCode implements Serializable {
     /**
      * 身份证号码
      */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private String idCard;
 
     /**
@@ -238,6 +239,12 @@ public class Student extends AddressCode implements Serializable {
     private String recordNo;
 
     /**
+     * 护照
+     */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
+    private String passport;
+
+    /**
      * 上传筛查学生时，判断学生需更新信息是否一致
      * 由于只有部分字段，所以不使用equals
      *
@@ -308,8 +315,20 @@ public class Student extends AddressCode implements Serializable {
      * 检查身份证
      */
     public void checkIdCard() {
-        if (!RegularUtils.isIdCard(idCard)) {
+        if (StringUtils.isNotBlank(idCard) && !RegularUtils.isIdCard(idCard)) {
             throw new BusinessException("身份证信息异常");
+        }
+    }
+
+    /**
+     * 检查学生信息是否正确
+     * <p>
+     *     身份证和护照二选一
+     * </p>
+     */
+    public void checkStudentInfo() {
+        if (StringUtils.isAllBlank(idCard, passport) || (StringUtils.isNotBlank(idCard) && StringUtils.isNotBlank(passport))) {
+            throw new BusinessException("身份证、护照信息异常");
         }
     }
 }

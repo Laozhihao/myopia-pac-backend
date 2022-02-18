@@ -35,6 +35,9 @@ public class StudentVisionScreeningResultExportDTO implements Serializable {
     @ExcelProperty({EXCEL_TITLE, "性别"})
     private String genderDesc;
 
+    @ExcelProperty({EXCEL_TITLE, "身份证/护照"})
+    private String paperwork;
+
     @ExcelProperty({EXCEL_TITLE, "年级"})
     private String gradeName;
 

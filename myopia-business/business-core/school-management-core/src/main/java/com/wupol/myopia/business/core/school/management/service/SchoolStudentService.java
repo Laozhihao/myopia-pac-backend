@@ -97,12 +97,12 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
      * @param schoolId 学校Id
      * @return List<SchoolStudent>
      */
-    public List<SchoolStudent> getByIdCardOrSno(List<String> idCards, List<String> snos, Integer schoolId) {
-        return baseMapper.getByIdCardOrSno(idCards, snos, schoolId);
+    public List<SchoolStudent> getByIdCardAndSnoAndPassports(List<String> idCards, List<String> snos, List<String> passports, Integer schoolId) {
+        return baseMapper.getByIdCardAndSnoAndPassports(idCards, snos, passports, schoolId);
     }
 
     /**
-     * 通过身份证获取学生
+     * 通过身份证获取学生(没删除的)
      *
      * @param idCards  身份证
      * @param schoolId 学校Id
@@ -151,11 +151,54 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
     /**
      * 通过身份证获取已经删除的学生
      *
-     * @param idCards  身份证
-     * @param schoolId 学校Id
+     * @param idCards   身份证
+     * @param schoolId  学校Id
+     * @param passports 护照
      * @return List<SchoolStudent>
      */
-    public List<SchoolStudent> getDeletedByIdCard(List<String> idCards, Integer schoolId) {
-        return baseMapper.getDeletedByIdCard(idCards, schoolId);
+    public List<SchoolStudent> getDeletedByIdCard(List<String> idCards, List<String> passports, Integer schoolId) {
+        return baseMapper.getDeletedByIdCardsAndPassports(idCards, passports, schoolId);
     }
+
+    /**
+     * 学号、身份证、护照是否重复
+     *
+     * @param id       id
+     * @param idCard   身份证
+     * @param sno      学号
+     * @param passport 护照
+     * @param schoolId 学校Id
+     * @return true-没有重复 false-存在重复
+     */
+    public Boolean getByIdCardAndSnoAndPassport(Integer id, String idCard, String sno, String passport, Integer schoolId) {
+        List<SchoolStudent> studentList = baseMapper.getByIdCardAndSnoAndPassport(id, idCard, sno, passport, schoolId);
+        return CollectionUtils.isEmpty(studentList);
+    }
+
+    /**
+     * 通过身份证、护照获取学生信息
+     *
+     * @param idCard   身份证
+     * @param passport 护照
+     * @param schoolId 学校Id
+     * @return true-没有重复 false-存在重复
+     */
+    public SchoolStudent getByIdCardAndPassport(String idCard, String passport, Integer schoolId) {
+        return baseMapper.getByIdCardAndPassport(idCard, passport, schoolId);
+    }
+
+    /**
+     * 通过身份证、学号、护照获取学生(包括删除的)
+     *
+     * @param idCards   身份证
+     * @param snoList   学号
+     * @param passports 护照
+     * @param schoolId  学校Id
+     * @return List<SchoolStudent>
+     */
+    public List<SchoolStudent> getAllByIdCardAndSnoAndPassports(List<String> idCards, List<String> snoList, List<String> passports, Integer schoolId) {
+        return baseMapper.getAllByIdCardAndSnoAndPassports(idCards, snoList, passports, schoolId);
+    }
+
+
 }

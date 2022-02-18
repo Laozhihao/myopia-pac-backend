@@ -21,11 +21,9 @@ import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.hospital.domain.model.Doctor;
-import com.wupol.myopia.business.core.hospital.domain.model.HospitalStudent;
 import com.wupol.myopia.business.core.hospital.domain.model.MedicalReport;
 import com.wupol.myopia.business.core.hospital.domain.model.ReportConclusion;
 import com.wupol.myopia.business.core.hospital.service.HospitalDoctorService;
-import com.wupol.myopia.business.core.hospital.service.HospitalStudentService;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentQueryDTO;
@@ -292,7 +290,6 @@ public class StudentBizService {
      */
     @Transactional(rollbackFor = Exception.class)
     public StudentDTO updateStudentReturnCountInfo(Student student, CurrentUser user) {
-        haveIdCardOrCode(student);
         // 判断是否要修改委会行政区域
         isUpdateCommitteeCode(student, user);
         StudentDTO studentDTO = studentService.updateStudent(student);

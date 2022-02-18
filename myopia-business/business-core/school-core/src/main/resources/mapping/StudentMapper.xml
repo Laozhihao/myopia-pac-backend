@@ -72,7 +72,7 @@
     <sql id="Base_Column_List">
         id, create_user_id, sno, grade_id, grade_type, class_id, name, gender, birthday, nation, id_card, parent_phone, mp_parent_phone, province_code, city_code, area_code, town_code,
         address, avatar_file_id, current_situation, vision_label, last_screening_time, remark, status, glasses_type,is_myopia,is_hyperopia,is_astigmatism,create_time, update_time,school_id,
-        myopia_level, hyperopia_level, astigmatism_level,is_newborn_without_id_card,family_info,committee_code,record_no
+        myopia_level, hyperopia_level, astigmatism_level,is_newborn_without_id_card,family_info,committee_code,record_no,passport
     </sql>
 
     <select id="getStudentListByCondition" resultMap="BaseResultMapDTO">
@@ -133,6 +133,9 @@
         </if>
         <if test="schoolName != null and schoolName != ''">
             and school.name like CONCAT('%', #{schoolName}, '%')
+        </if>
+        <if test="passport != null and passport != ''">
+            and ms.passport like CONCAT('%', #{passport}, '%')
         </if>
         order by ms.create_time desc
     </select>
@@ -336,9 +339,35 @@
         <include refid="Base_Column_List"/>
         from m_student
         where (id_card = #{condition}
-                or sno = #{condition})
+                or sno = #{condition}
+                or passport = #{condition})
           and name = #{name}
         order by create_time desc
         limit 1
+    </select>
+
+    <select id="checkByIdCardAndPassport" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_student where 0=0
+        <if test="idCard != null and idCard != ''">
+            and id_card = #{idCard}
+        </if>
+        <if test="passport != null and passport != ''">
+            and passport = #{passport}
+        </if>
+        <if test="id != null">
+            and id != #{id}
+        </if>
+    </select>
+
+    <select id="getByPassportAndStatus" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_student where m_student.passport in
+        <foreach collection="passports" item="passport" index="index" open="(" close=")" separator=",">
+            #{passport}
+        </foreach>
+        and status = #{status}
     </select>
 </mapper>

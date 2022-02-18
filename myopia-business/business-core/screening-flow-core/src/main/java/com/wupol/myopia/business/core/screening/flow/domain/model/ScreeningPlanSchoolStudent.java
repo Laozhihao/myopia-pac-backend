@@ -199,5 +199,10 @@ public class ScreeningPlanSchoolStudent implements Serializable {
      */
     private Long screeningCode;
 
+    /**
+     * 护照
+     */
+    private String passport;
+
 
 }

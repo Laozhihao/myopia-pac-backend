@@ -125,9 +125,8 @@ public class ScreeningStudentDTO extends StudentDO {
      * 轴位 右/左
      */
     private String axial;
-
     /**
-     * 戴镜情况
+     * 戴镜类型描述
      */
     private String glassesTypeDes;
 
@@ -135,4 +134,9 @@ public class ScreeningStudentDTO extends StudentDO {
      * 是否已经筛查过
      **/
     private Boolean hasScreening;
+
+    /**
+     * 护照
+     */
+    private String passport;
 }

@@ -387,6 +387,7 @@ public class ScreeningAppController {
      */
     @PostMapping("/student/save")
     public ApiResult saveStudent(@RequestBody AppStudentDTO appStudentDTO) throws ParseException {
+        appStudentDTO.checkStudentInfo();
         appStudentDTO.setDeptId(CurrentUserUtil.getCurrentUser().getOrgId());
         ApiResult apiResult = screeningAppService.validStudentParam(appStudentDTO);
         if (apiResult != null) {

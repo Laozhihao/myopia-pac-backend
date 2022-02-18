@@ -105,5 +105,4 @@ public class ReferralRecord implements Serializable {
      */
     private Date createTime;
 
-
 }

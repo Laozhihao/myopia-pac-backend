@@ -2,10 +2,12 @@ package com.wupol.myopia.business.core.school.management.domain.model;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.core.common.domain.model.AddressCode;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.Range;
 
 import javax.validation.constraints.NotBlank;
@@ -36,7 +38,7 @@ public class SchoolStudent extends AddressCode implements Serializable {
      * 学生Id
      */
     private Integer studentId;
-
+    
     /**
      * 学校Id
      */
@@ -106,7 +108,7 @@ public class SchoolStudent extends AddressCode implements Serializable {
     /**
      * 身份证号码
      */
-    @NotBlank(message = "身份证不能为空")
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private String idCard;
 
     /**
@@ -162,6 +164,12 @@ public class SchoolStudent extends AddressCode implements Serializable {
     private Integer astigmatismLevel;
 
     /**
+     * 护照
+     */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
+    private String passport;
+
+    /**
      * 创建时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -172,5 +180,17 @@ public class SchoolStudent extends AddressCode implements Serializable {
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
+
+    /**
+     * 检查学生信息是否正确
+     * <p>
+     *     身份证和护照二选一
+     * </p>
+     */
+    public void checkStudentInfo() {
+        if (StringUtils.isAllBlank(idCard, passport) || (StringUtils.isNotBlank(idCard) && StringUtils.isNotBlank(passport))) {
+            throw new BusinessException("身份证、护照信息异常");
+        }
+    }
 
 }

@@ -24,7 +24,8 @@ public interface StudentMapper extends BaseMapper<Student> {
                                                 @Param("gender") Integer gender, @Param("gradeIds") List<Integer> gradeIds,
                                                 @Param("visionLabels") List<Integer> visionLabels, @Param("startScreeningTime") Date startScreeningTime,
                                                 @Param("endScreeningTime") Date endScreeningTime, @Param("schoolName") String schoolName,
-                                                @Param("schoolId") Integer schoolId, @Param("gradeId") Integer gradeId, @Param("classId") Integer classId);
+                                                @Param("schoolId") Integer schoolId, @Param("gradeId") Integer gradeId, @Param("classId") Integer classId,
+                                                @Param("passport") String passport);
 
     List<Student> getByQuery(StudentQueryDTO query);
 
@@ -69,4 +70,8 @@ public interface StudentMapper extends BaseMapper<Student> {
     List<Student> getByCardIdAndNotId(@Param("cardId") String cardId, @Param("id") Integer id);
 
     Student getByCondition(@Param("condition") String condition, @Param("name") String name);
+
+    List<Student> checkByIdCardAndPassport(@Param("idCard") String idCard, @Param("passport") String passport, @Param("id") Integer id);
+
+    List<Student> getByPassportAndStatus(@Param("passports") List<String> passports, @Param("status") Integer status);
 }

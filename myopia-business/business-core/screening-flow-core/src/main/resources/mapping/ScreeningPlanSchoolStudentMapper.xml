@@ -55,7 +55,7 @@
     <sql id="Base_Column_List">
         id, src_screening_notice_id, screening_task_id, screening_plan_id, screening_org_id, plan_district_id, school_district_id, school_id, school_name,
         grade_id, grade_name, grade_type, class_id, class_name, student_id, id_card, birthday, gender, student_age,
-        student_situation, student_no, student_name, create_time, province_code, city_code,area_code,town_code, address, parent_phone,nation,artificial,screening_code
+        student_situation, student_no, student_name, create_time, province_code, city_code,area_code,town_code, address, parent_phone,nation,artificial,screening_code,passport
     </sql>
 
     <select id="selectStudentInfoWithResult"
@@ -110,6 +110,7 @@
                mspss.grade_id,
                mspss.class_id,
                mspss.id as planSutdhentId,
+               mspss.passport,
                ms.name   as school_name,
                sg.name   as gradeName,
                sc.name   as className,
@@ -147,6 +148,9 @@
                 <if test="param.screeningCode != null and param.screeningCode != ''">
                     and mspss.`screening_code` like CONCAT('%', #{param.screeningCode}, '%')
                 </if>
+                <if test="param.passport != null and param.passport != ''">
+                    and mspss.`passport` like CONCAT('%', #{param.passport}, '%')
+                </if>
             </trim>
         </where>
     </select>
@@ -167,6 +171,7 @@
         mspss.parent_phone,
         mspss.grade_id,
         mspss.class_id,
+        mspss.passport,
         ms.name   as school_name,
         sg.name   as gradeName,
         sc.name   as className,
@@ -398,6 +403,16 @@
         limit 1
     </select>
 
+    <select id="getByCondition" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_plan_school_student
+        where (id_card = #{condition}
+                or screening_code = #{condition}
+                or student_no = #{condition})
+          and student_name = #{name}
+    </select>
+
     <select id="getScreeningNoticeResultStudent" resultMap="ScreeningStudentDTO">
         select mspss.student_name      as name,
                mspss.student_no        as sno,
@@ -447,13 +462,17 @@
         group by grade_id, class_id
     </select>
 
-    <select id="getByCondition" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from m_screening_plan_school_student
-        where (id_card = #{condition}
-                or screening_code = #{condition}
-                or student_no = #{condition})
-          and student_name = #{name}
+    <select id="getByIdCardAndPassport" resultMap="BaseResultMap">
+        select *
+        from m_screening_plan_school_student where 0 = 0
+        <if test="idCard != null and idCard != ''">
+            and id_card = #{idCard}
+        </if>
+        <if test="passport != null and passport != ''">
+            and passport = #{passport}
+        </if>
+        <if test="id != null">
+            and id != #{id}
+        </if>
     </select>
 </mapper>

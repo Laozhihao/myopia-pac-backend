@@ -92,4 +92,9 @@ public class ScreeningStudentQueryDTO extends StudentExtraDTO {
      * 筛查编号
      */
     private Long screeningCode;
+
+    /**
+     * 护照
+     */
+    private String passport;
 }

@@ -367,8 +367,6 @@ public class ScreeningPlanController {
      */
     @GetMapping("/export/QRCode")
     public Map<String, String> downloadQRCodeFile(@Valid ScreeningPlanSchoolStudent schoolClassInfo, Integer type) {
-
-        System.out.println("-------------CurrentUserUtil.getCurrentUser().getId()------------:"+CurrentUserUtil.getCurrentUser().getId());
         return screeningExportService.getQrCodeFile(schoolClassInfo, type);
     }
 
@@ -383,19 +381,6 @@ public class ScreeningPlanController {
     public List<ScreeningStudentDTO> studentQRCodeFile(@Valid ScreeningPlanSchoolStudent schoolClassInfo, Integer type) {
         return screeningExportService.studentQRCodeFile(schoolClassInfo, type);
     }
-
-    /**
-     * 导出筛查计划的学生二维码信息
-     *
-     * @param schoolClassInfo 参与筛查计划的学生
-     * @param type            1-二维码 2-VS666 3-学生编码二维码
-     * @return pdf的URL
-     */
-//    @GetMapping("/student/QRCode")
-//    public List<ScreeningStudentDTO> studentQRCodeFile(ExportCondition exportCondition) {
-//        return exportScreeningQrCodeService.getStudentData(exportCondition);
-//    }
-
 
     /**
      * 导出筛查计划的学生告知书
@@ -564,5 +549,6 @@ public class ScreeningPlanController {
         VisionScreeningResult visionScreeningResult = visionScreeningResults.get(0);
 
         return ApiResult.success(visionScreeningResult);
+
     }
 }
