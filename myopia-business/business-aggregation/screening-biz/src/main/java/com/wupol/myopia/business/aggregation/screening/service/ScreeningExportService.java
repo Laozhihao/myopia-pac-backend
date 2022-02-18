@@ -2,6 +2,7 @@ package com.wupol.myopia.business.aggregation.screening.service;
 
 import cn.hutool.extra.qrcode.QrCodeUtil;
 import cn.hutool.extra.qrcode.QrConfig;
+import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.StringUtils;
 import com.wupol.framework.utils.FreemarkerUtil;
 import com.wupol.framework.utils.PdfUtil;
@@ -10,6 +11,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.aggregation.screening.constant.QrCodeConstant;
+import com.wupol.myopia.business.aggregation.screening.domain.dto.AppQueryQrCodeParams;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.domain.model.NotificationConfig;
@@ -37,10 +39,8 @@ import javax.annotation.Resource;
 import javax.validation.ValidationException;
 import java.awt.*;
 import java.io.File;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
 /**
  * 筛查导出相关
@@ -189,6 +189,36 @@ public class ScreeningExportService {
         } catch (Exception e) {
             throw new BusinessException("生成PDF文件失败", e);
         }
+    }
+
+    /**
+     * 导出指定学生的筛查二维码
+     *
+     * @param params
+     * @return
+     */
+    public Map<String, String> getQrCodeAndStudentInfo(AppQueryQrCodeParams params) {
+        List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.getScreeningNoticeResultStudent(params.getScreeningPlanId(), null, null, null, Collections.singletonList(params.getStudentId()), null);
+        if (CollectionUtils.isEmpty(students)) {
+            throw new BusinessException("学生Id不存在");
+        }
+        ScreeningStudentDTO student = students.get(0);
+        student.setGenderDesc(GenderEnum.getName(student.getGender()));
+        int type = params.getType();
+        Map<String, String> result = new HashMap<>();
+        result.put("name", student.getName());
+        result.put("gender", student.getGenderDesc());
+        result.put("gradeName", student.getGradeName());
+        result.put("className", student.getClassName());
+        QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white).setMargin(1);
+        if (CommonConst.EXPORT_SCREENING_QRCODE.equals(type)) {
+            result.put("qrCodeUrl", QrCodeUtil.generateAsBase64(String.format(QrCodeConstant.SCREENING_CODE_QR_CONTENT_FORMAT_RULE, student.getPlanStudentId()), config, "jpg"));
+        } else if (CommonConst.EXPORT_VS666.equals(type)) {
+            result.put("qrCodeUrl", QrCodeUtil.generateAsBase64(setVs666QrCodeRule(student), config, "jpg"));
+        } else {
+            result.put("qrCodeUrl", QrCodeUtil.generateAsBase64(String.format(QrCodeConstant.QR_CODE_CONTENT_FORMAT_RULE, student.getPlanStudentId()), config, "jpg"));
+        }
+        return result;
     }
 
     /**

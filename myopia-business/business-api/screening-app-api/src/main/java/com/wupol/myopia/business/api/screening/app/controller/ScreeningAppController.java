@@ -6,7 +6,9 @@ import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.aggregation.screening.domain.dto.AppQueryQrCodeParams;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
+import com.wupol.myopia.business.aggregation.screening.service.ScreeningExportService;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanStudentBizService;
 import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
 import com.wupol.myopia.business.api.screening.app.domain.dto.*;
@@ -92,6 +94,8 @@ public class ScreeningAppController {
     private VisionScreeningResultService visionScreeningResultService;
     @Autowired
     private ScreeningPlanStudentBizService screeningPlanStudentBizService;
+    @Autowired
+    private ScreeningExportService screeningExportService;
 
     /**
      * 模糊查询某个筛查机构下的学校的
@@ -634,4 +638,14 @@ public class ScreeningAppController {
         screeningPlanStudentBizService.updatePlanStudent(requestDTO);
     }
 
+    /**
+     * 获取指定学生的二维码
+     *
+     * @param appQueryQrCodeParams
+     * @return
+     */
+    @GetMapping("/export/QRCode")
+    public Map<String, String> exportQRCode(@Valid AppQueryQrCodeParams appQueryQrCodeParams) {
+        return screeningExportService.getQrCodeAndStudentInfo(appQueryQrCodeParams);
+    }
 }
