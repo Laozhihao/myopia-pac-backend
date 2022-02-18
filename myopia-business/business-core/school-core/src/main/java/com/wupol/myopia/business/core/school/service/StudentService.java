@@ -604,4 +604,15 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     public List<Student> getDeletedByPassportAndStatus(List<String> passport) {
         return baseMapper.getByPassportAndStatus(passport, CommonConst.STATUS_IS_DELETED);
     }
+
+    /**
+     * 通过身份证、护照获取学生
+     *
+     * @param idCards   身份证
+     * @param passports 护照
+     * @return 是否重复
+     */
+    public List<Student> getByIdCardsAndPassports(List<String> idCards, List<String> passports) {
+        return baseMapper.getByIdCardsAndPassports(idCards, passports);
+    }
 }

@@ -370,4 +370,23 @@
         </foreach>
         and status = #{status}
     </select>
+
+    <select id="getByIdCardsAndPassports" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_student
+                where 0 = 0
+        <if test="idCards != null and idCards.size() != 0">
+            and id_card in
+            <foreach collection="idCards" item="idCard" index="index" open="(" close=")" separator=",">
+                #{idCard}
+            </foreach>
+        </if>
+        <if test="passports != null and passports.size() != 0">
+            and passport in
+            <foreach collection="passports" item="passport" index="index" open="(" close=")" separator=",">
+                #{passport}
+            </foreach>
+        </if>
+    </select>
 </mapper>

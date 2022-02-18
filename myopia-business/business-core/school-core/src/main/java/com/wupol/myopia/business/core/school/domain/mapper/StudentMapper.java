@@ -74,4 +74,6 @@ public interface StudentMapper extends BaseMapper<Student> {
     List<Student> checkByIdCardAndPassport(@Param("idCard") String idCard, @Param("passport") String passport, @Param("id") Integer id);
 
     List<Student> getByPassportAndStatus(@Param("passports") List<String> passports, @Param("status") Integer status);
+
+    List<Student> getByIdCardsAndPassports(@Param("idCards") List<String> idCards, @Param("passports") List<String> passports);
 }
