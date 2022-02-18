@@ -11,6 +11,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.ListUtil;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
 import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;
+import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.core.common.service.Html2PdfService;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.common.util.S3Utils;
@@ -42,7 +43,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Paths;
@@ -266,7 +270,7 @@ public class ScreeningPlanStudentBizService {
                         PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(screeningNoticeResultHtmlUrl, fileName, uuid);
                         log.info("response:{}", JSONObject.toJSONString(pdfResponseDTO));
                         try {
-                            downloadFile(pdfResponseDTO.getUrl(),
+                            FileUtils.downloadFile(pdfResponseDTO.getUrl(),
                                     fileSaveParentPath +
                                             schoolMap.get(schoolEntry.getKey()) + SCREENING_NAME + "/" +
                                             gradeMap.get(gradeEntry.getKey()).getName() + SCREENING_NAME + "/" +
@@ -404,46 +408,5 @@ public class ScreeningPlanStudentBizService {
      **/
     public String getFileSaveParentPath() {
         return Paths.get(pdfSavePath, UUID.randomUUID().toString()).toString();
-    }
-
-    /**
-     * 文件下载
-     *
-     * @param fileUrl  下载路径
-     * @param savePath 存放地址
-     */
-    public static void downloadFile(String fileUrl, String savePath) throws IOException {
-
-        File file = new File(savePath);
-        File parentFile = file.getParentFile();
-        if (!parentFile.exists()) {
-            if (!parentFile.mkdirs()) {
-                log.error("创建文件夹失败");
-            }
-        }
-        FileOutputStream fileOutputStream = null;
-        try {
-            if (!file.exists()) {
-                if (!file.createNewFile()) {
-                    log.error("创建文件失败");
-                }
-            }
-
-            URL url = new URL(fileUrl);
-            URLConnection conn = url.openConnection();
-            InputStream inputStream = conn.getInputStream();
-            fileOutputStream = new FileOutputStream(savePath);
-            int byteRead;
-            byte[] buffer = new byte[1024];
-            while ((byteRead = inputStream.read(buffer)) != -1) {
-                fileOutputStream.write(buffer, 0, byteRead);
-            }
-        } catch (IOException e) {
-            throw new BusinessException("创建文件异常");
-        } finally {
-            if (Objects.nonNull(fileOutputStream)) {
-                fileOutputStream.close();
-            }
-        }
     }
 }

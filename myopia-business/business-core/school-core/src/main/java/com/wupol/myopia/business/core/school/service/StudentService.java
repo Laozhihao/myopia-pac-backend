@@ -522,7 +522,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @return 是否重复
      */
     public boolean checkIdCardAndId(String idCard, Integer id) {
-        return baseMapper.checkIdCardAndId(idCard, id).size() > 0;
+        return baseMapper.getByCardIdAndNotId(idCard, id).size() > 0;
     }
 
     /**
