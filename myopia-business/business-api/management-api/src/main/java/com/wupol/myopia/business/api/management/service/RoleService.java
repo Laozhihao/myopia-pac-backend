@@ -17,6 +17,8 @@ import com.wupol.myopia.business.core.government.domain.dto.GovDeptDTO;
 import com.wupol.myopia.business.core.government.domain.dto.GovDistrictDTO;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
+import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
+import com.wupol.myopia.business.core.hospital.service.HospitalService;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
@@ -51,6 +53,8 @@ public class RoleService {
     private GovDeptService govDeptService;
     @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
+    @Autowired
+    private HospitalService hospitalService;
 
     /**
      * 获取角色列表 - 分页
@@ -310,14 +314,26 @@ public class RoleService {
      */
     private List<Integer> getScreeningOrgIds(Integer templateType) {
         Integer configType = TemplateConfigType.TEMPLATE_TO_ORG_CONFIG_TYPE.get(templateType);
-        if (Objects.isNull(templateType)) {
-            return new ArrayList<>();
-        }
         List<ScreeningOrganization> orgList = screeningOrganizationService.getByConfigType(configType);
         if (CollectionUtils.isEmpty(orgList)) {
             return new ArrayList<>();
         }
         return orgList.stream().map(ScreeningOrganization::getId).collect(Collectors.toList());
+    }
+
+    /**
+     * 通过模板Id获取医院Ids
+     *
+     * @param templateType 模板
+     * @return 医院Ids
+     */
+    private List<Integer> getHospitalIds(Integer templateType) {
+        Integer configType = TemplateConfigType.TEMPLATE_TO_HOSPITAL_CONFIG_TYPE.get(templateType);
+        List<Hospital> hospitals = hospitalService.getByServiceType(configType);
+        if (CollectionUtils.isEmpty(hospitals)) {
+            return new ArrayList<>();
+        }
+        return hospitals.stream().map(Hospital::getId).collect(Collectors.toList());
     }
 
     /**
@@ -330,8 +346,13 @@ public class RoleService {
         if (PermissionTemplateType.isGovTemplate(templateType)) {
             return getGovIds(templateType);
         }
+        // 筛查机构管理平台相关
         if (Objects.nonNull(TemplateConfigType.TEMPLATE_TO_ORG_CONFIG_TYPE.get(templateType))) {
             return getScreeningOrgIds(templateType);
+        }
+        // 医院管理平台相关
+        if (Objects.nonNull(TemplateConfigType.TEMPLATE_TO_HOSPITAL_CONFIG_TYPE.get(templateType))) {
+            return getHospitalIds(templateType);
         }
         return new ArrayList<>();
     }

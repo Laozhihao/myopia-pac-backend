@@ -47,4 +47,9 @@ public class SchoolResponseDTO extends School {
      */
     private boolean displayUsername = false;
 
+    /**
+     * 筛查通知文件URL
+     */
+    private String noticeResultFileUrl;
+
 }

@@ -109,7 +109,7 @@ public class ScreeningOrganizationBizService {
             throw new BusinessException("名字不能为空");
         }
 
-        if (screeningOrganizationService.checkScreeningOrgName(name, null)) {
+        if (Boolean.TRUE.equals(screeningOrganizationService.checkScreeningOrgName(name, null))) {
             throw new BusinessException("筛查机构名称不能重复");
         }
         screeningOrganizationService.save(screeningOrganization);
@@ -289,7 +289,7 @@ public class ScreeningOrganizationBizService {
      */
     public IPage<ScreeningOrgResponseDTO> getScreeningOrganizationList(PageRequest pageRequest,
                                                                        ScreeningOrganizationQueryDTO query,
-                                                                       CurrentUser currentUser) {
+                                                                       CurrentUser currentUser){
         Integer districtId = districtBizService.filterQueryDistrictId(currentUser, query.getDistrictId());
 
         // 查询

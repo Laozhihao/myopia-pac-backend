@@ -261,9 +261,9 @@ public class UserController {
      * @param serviceType 服务类型
      * @return void
      **/
-    @PutMapping("/doctor/role")
-    public void updateDoctorRole(@NotNull(message = "hospitalId不能为空") Integer hospitalId,
+    @PutMapping("/hospital/role")
+    public void updateHospitalRole(@NotNull(message = "hospitalId不能为空") Integer hospitalId,
                                  @NotNull(message = "serviceType不能为空") Integer serviceType) {
-        userService.updateDoctorRoleBatch(hospitalId, serviceType);
+        userService.updateHospitalRoleBatch(hospitalId, serviceType);
     }
 }

@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -99,6 +100,10 @@ public class DeviceUploadDataService {
         Map<Integer, ScreeningPlanSchoolStudent> planStudentMap = screeningPlanStudents.stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getId, Function.identity()));
         deviceScreenDataDTOList.forEach(deviceScreenDataDTO -> {
             ScreeningPlanSchoolStudent screeningPlanSchoolStudent = planStudentMap.get(Integer.valueOf(deviceScreenDataDTO.getPatientId()));
+            if (Objects.isNull(screeningPlanSchoolStudent)) {
+                log.error("上传数据异常，学生Id:{}", Integer.valueOf(deviceScreenDataDTO.getPatientId()));
+                throw new BusinessException("学生数据异常");
+            }
             ComputerOptometryDTO computerOptometryDTO = getComputerOptometryDTO(deviceScreenDataDTO, screeningPlanSchoolStudent);
             visionScreeningBizService.saveOrUpdateStudentScreenData(computerOptometryDTO);
         });
@@ -175,7 +180,9 @@ public class DeviceUploadDataService {
         Integer bindingScreeningOrgId = device.getBindingScreeningOrgId();
         String deviceSn = device.getDeviceSn();
         //查询筛查机构是否过期
-        ScreeningOrganization screeningOrganization = screeningOrganizationService.findOne(new ScreeningOrganization().setId(bindingScreeningOrgId).setStatus(CommonConst.STATUS_NOT_DELETED));
+        ScreeningOrganization so = new ScreeningOrganization().setId(bindingScreeningOrgId);
+        so.setStatus(CommonConst.STATUS_NOT_DELETED);
+        ScreeningOrganization screeningOrganization = screeningOrganizationService.findOne(so);
         if (screeningOrganization == null) {
             throw new BusinessException("无法找到筛查机构或该筛查机构已过期");
         }

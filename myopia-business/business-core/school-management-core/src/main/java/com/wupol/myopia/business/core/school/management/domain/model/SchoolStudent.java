@@ -44,12 +44,6 @@ public class SchoolStudent extends AddressCode implements Serializable {
     private Integer schoolId;
 
     /**
-     * 学校编码
-     */
-    @NotBlank(message = "学校编码不能为空")
-    private String schoolNo;
-
-    /**
      * 创建人ID
      */
     private Integer createUserId;

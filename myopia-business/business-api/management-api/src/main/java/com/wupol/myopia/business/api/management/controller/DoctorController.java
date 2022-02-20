@@ -2,24 +2,27 @@ package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.CurrentUser;
-import com.wupol.myopia.base.domain.ResultCode;
-import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.api.management.domain.vo.DoctorVO;
 import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.hospital.domain.dto.DoctorDTO;
 import com.wupol.myopia.business.core.hospital.domain.model.Doctor;
+import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
 import com.wupol.myopia.business.core.hospital.domain.query.DoctorQuery;
 import com.wupol.myopia.business.core.hospital.service.HospitalDoctorService;
+import com.wupol.myopia.business.core.hospital.service.HospitalService;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import javax.validation.Valid;
-import java.util.Objects;
+import java.util.List;
 
 /**
  * @Author wulizhou
@@ -32,15 +35,9 @@ import java.util.Objects;
 public class DoctorController {
 
     @Autowired
-    private HospitalDoctorService baseService;
-
-    /**
-     * TODO wulizhou 用于修复医生账号问题
-     */
-    @PostMapping("/repair")
-    public void repair() {
-        baseService.repair(CurrentUserUtil.getCurrentUser().getId());
-    }
+    private HospitalDoctorService doctorService;
+    @Resource
+    private HospitalService hospitalService;
 
     /**
      * 获取医生详情
@@ -49,8 +46,8 @@ public class DoctorController {
      */
     @GetMapping("/{id}")
     public DoctorDTO getDoctor(@PathVariable("id") Integer id) {
-        checkId(id);
-        return baseService.getDetails(id);
+        doctorService.checkId(id);
+        return doctorService.getDetails(id);
     }
 
     /**
@@ -66,7 +63,19 @@ public class DoctorController {
         if (user.isHospitalUser()) {
             query.setHospitalId(user.getOrgId());
         }
-        return baseService.getPage(pageRequest, query);
+        return doctorService.getPage(pageRequest, query);
+    }
+
+    /**
+     * 查询当前医院有多少医生
+     *
+     * @param hospitalId 医院id
+     * @return
+     */
+    @GetMapping("/findDoctorNum")
+    public int  findDoctorNum(Integer hospitalId) {
+        List<Doctor> doctorList = doctorService.findByList(new Doctor().setHospitalId(hospitalId));
+        return doctorList.size();
     }
 
     /**
@@ -82,7 +91,15 @@ public class DoctorController {
         if (user.isHospitalUser()) {
             doctor.setHospitalId(user.getOrgId());
         }
-        return baseService.saveDoctor(doctor);
+        // 非平台管理员
+        if (!user.isPlatformAdminUser()) {
+            Hospital hospital = hospitalService.getById(doctor.getHospitalId());
+            int totalNum = doctorService.countByHospitalId(doctor.getHospitalId());
+            Assert.isTrue(totalNum < hospital.getAccountNum(), "超过人数限制");
+        }
+        UsernameAndPasswordDTO usernameAndPasswordDTO = doctorService.saveDoctor(doctor);
+        int totalNum = doctorService.countByHospitalId(doctor.getHospitalId());
+        return DoctorVO.parseFromUsernameAndPasswordDTO(usernameAndPasswordDTO).setDoctorTotalNum(totalNum);
     }
 
     /**
@@ -92,8 +109,8 @@ public class DoctorController {
      */
     @PutMapping
     public UsernameAndPasswordDTO updateDoctor(@RequestBody @Valid DoctorDTO doctor) {
-        checkId(doctor.getId());
-        return baseService.updateDoctor(doctor);
+        doctorService.checkId(doctor.getId());
+        return doctorService.updateDoctor(doctor);
     }
 
     /**
@@ -104,8 +121,8 @@ public class DoctorController {
      */
     @PutMapping("/status")
     public User updateDoctorStatus(@RequestBody @Valid StatusRequest statusRequest) {
-        checkId(statusRequest.getId());
-        return baseService.updateStatus(statusRequest);
+        doctorService.checkId(statusRequest.getId());
+        return doctorService.updateStatus(statusRequest);
     }
 
     /**
@@ -116,18 +133,8 @@ public class DoctorController {
      */
     @PutMapping("/reset")
     public UsernameAndPasswordDTO resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
-        checkId(request.getId());
-        return baseService.resetPassword(request);
-    }
-
-    private void checkId(Integer id) {
-        CurrentUser user = CurrentUserUtil.getCurrentUser();
-        if (user.isHospitalUser()) {
-            Doctor doctor = baseService.getById(id);
-            if (Objects.isNull(doctor) || !user.getOrgId().equals(doctor.getHospitalId())) {
-                throw new BusinessException("非法请求", ResultCode.USER_ACCESS_UNAUTHORIZED.getCode());
-            }
-        }
+        doctorService.checkId(request.getId());
+        return doctorService.resetPassword(request);
     }
 
 }

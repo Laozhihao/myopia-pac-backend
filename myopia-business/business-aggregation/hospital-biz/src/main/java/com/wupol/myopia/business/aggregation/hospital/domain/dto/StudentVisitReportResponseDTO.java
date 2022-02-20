@@ -120,5 +120,10 @@ public class StudentVisitReportResponseDTO {
          * 医生名字
          */
         private String doctorName;
+
+        /**
+         * 医院名称
+         */
+        private String hospitalName;
     }
 }
