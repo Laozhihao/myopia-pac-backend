@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.aggregation.export.excel;
 
+import cn.hutool.core.date.DateUtil;
 import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.ObjectsUtil;
@@ -22,6 +23,7 @@ import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +53,8 @@ public class ExcelStudentService {
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     @Autowired
     private SchoolStudentExcelImportService schoolStudentExcelImportService;
+    @Autowired
+    private ScreeningPlanService screeningPlanService;
 
     @Transactional(rollbackFor = Exception.class)
     public void insertByUpload(Integer userId, List<Map<Integer, String>> listMap, ScreeningPlan screeningPlan, Integer schoolId) {
@@ -68,15 +72,15 @@ public class ExcelStudentService {
 
         // 获取计划下已经存在的筛查学生
         List<ScreeningPlanSchoolStudent> existPlanSchoolStudentList = screeningPlanSchoolStudentService.getByScreeningPlanId(screeningPlan.getId());
-        Map<String, ScreeningPlanSchoolStudent> existPlanStudentIdCardMap = existPlanSchoolStudentList.stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getIdCard, Function.identity()));
-        Map<String, ScreeningPlanSchoolStudent> existPlanStudentPassportMap = existPlanSchoolStudentList.stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getPassport, Function.identity()));
-        Map<Long, ScreeningPlanSchoolStudent> existPlanStudentScreeningCodeMap = existPlanSchoolStudentList.stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getScreeningCode, Function.identity()));
-        List<Long> existScreeningCode = existPlanSchoolStudentList.stream().map(ScreeningPlanSchoolStudent::getScreeningCode).collect(Collectors.toList());
+        Map<String, ScreeningPlanSchoolStudent> existPlanStudentIdCardMap = existPlanSchoolStudentList.stream().filter(s -> StringUtils.isNotBlank(s.getIdCard())).collect(Collectors.toMap(ScreeningPlanSchoolStudent::getIdCard, Function.identity()));
+        Map<String, ScreeningPlanSchoolStudent> existPlanStudentPassportMap = existPlanSchoolStudentList.stream().filter(s -> StringUtils.isNotBlank(s.getPassport())).collect(Collectors.toMap(ScreeningPlanSchoolStudent::getPassport, Function.identity()));
+        Map<Long, ScreeningPlanSchoolStudent> existPlanStudentScreeningCodeMap = existPlanSchoolStudentList.stream().filter(s -> Objects.nonNull(s.getScreeningCode())).collect(Collectors.toMap(ScreeningPlanSchoolStudent::getScreeningCode, Function.identity()));
+        List<Long> existScreeningCode = existPlanSchoolStudentList.stream().map(ScreeningPlanSchoolStudent::getScreeningCode).filter(Objects::nonNull).collect(Collectors.toList());
 
         // 获取已经存在的多端学生
-        List<Student> existManagementStudentList = studentService.getByIdCardsAndPassports(idCardList, passportList);
-        Map<String, Student> existManagementStudentIdCardMap = existManagementStudentList.stream().collect(Collectors.toMap(Student::getIdCard, Function.identity()));
-        Map<String, Student> existManagementStudentPassportMap = existManagementStudentList.stream().collect(Collectors.toMap(Student::getPassport, Function.identity()));
+        List<Student> existManagementStudentList = studentService.getByIdCardsOrPassports(idCardList, passportList);
+        Map<String, Student> existManagementStudentIdCardMap = existManagementStudentList.stream().filter(s -> StringUtils.isNotBlank(s.getIdCard())).collect(Collectors.toMap(Student::getIdCard, Function.identity()));
+        Map<String, Student> existManagementStudentPassportMap = existManagementStudentList.stream().filter(s -> StringUtils.isNotBlank(s.getPassport())).collect(Collectors.toMap(Student::getPassport, Function.identity()));
 
         // 检查数据中是否有重复数据
         CommonCheck.checkHaveDuplicate(idCardList, snoList, passportList);
@@ -106,6 +110,9 @@ public class ExcelStudentService {
                 birthday = StringUtils.isBlank(item.get(ImportExcelEnum.BIRTHDAY.getIndex())) ? IdCardUtil.getBirthDay(item.get(ImportExcelEnum.ID_CARD.getIndex())) : DateFormatUtil.parseDate(item.get(ImportExcelEnum.BIRTHDAY.getIndex()), DateFormatUtil.FORMAT_ONLY_DATE2);
             } catch (ParseException e) {
                 throw new BusinessException("学生姓名为:" + studentName + "日期转换异常");
+            }
+            if (StringUtils.isNoneBlank(idCard, passport)) {
+                passport = null;
             }
             // 班级年级信息
             TwoTuple<Integer, Integer> gradeClassInfo = schoolStudentExcelImportService.getSchoolStudentClassInfo(schoolId, schoolGradeMaps, gradeName, className);
@@ -170,39 +177,44 @@ public class ExcelStudentService {
                 }
             }
         }
-        updateOrSave(existPlanStudentIdCardMap, existPlanStudentPassportMap, managementStudentList, planStudentList2, managementStudentList2, planStudentList3, managementStudentList3, virtualStudentList);
-    }
-
-    private void updateOrSave(Map<String, ScreeningPlanSchoolStudent> existPlanStudentIdCardMap, Map<String, ScreeningPlanSchoolStudent> existPlanStudentPassportMap, List<Student> managementStudentList, List<ScreeningPlanSchoolStudent> planStudentList2, List<Student> managementStudentList2, List<ScreeningPlanSchoolStudent> planStudentList3, List<Student> managementStudentList3, List<ScreeningPlanSchoolStudent> virtualStudentList) {
-        if (CollectionUtils.isEmpty(managementStudentList)) {
-            abc(managementStudentList, existPlanStudentIdCardMap, existPlanStudentPassportMap);
+        if (!CollectionUtils.isEmpty(managementStudentList)) {
+            abc(managementStudentList, existPlanStudentIdCardMap, existPlanStudentPassportMap, screeningPlan, school);
         }
 
-        if (CollectionUtils.isEmpty(managementStudentList3)) {
-            abc(managementStudentList3, existPlanStudentIdCardMap, existPlanStudentPassportMap);
+        if (!CollectionUtils.isEmpty(managementStudentList3)) {
+            abc(managementStudentList3, existPlanStudentIdCardMap, existPlanStudentPassportMap, screeningPlan, school);
         }
 
-        if (CollectionUtils.isEmpty(planStudentList3)) {
+        if (!CollectionUtils.isEmpty(planStudentList3)) {
             screeningPlanSchoolStudentService.saveOrUpdateBatch(planStudentList3);
         }
 
-        if (CollectionUtils.isEmpty(virtualStudentList)) {
+        if (!CollectionUtils.isEmpty(virtualStudentList)) {
             screeningPlanSchoolStudentService.saveOrUpdateBatch(virtualStudentList);
         }
-        if (CollectionUtils.isEmpty(planStudentList2)) {
+        if (!CollectionUtils.isEmpty(planStudentList2)) {
             screeningPlanSchoolStudentService.saveOrUpdateBatch(planStudentList2);
         }
-        if (CollectionUtils.isEmpty(managementStudentList2)) {
+        if (!CollectionUtils.isEmpty(managementStudentList2)) {
             studentService.saveOrUpdateBatch(managementStudentList2);
         }
     }
 
-    private void abc(List<Student> managementStudentList, Map<String, ScreeningPlanSchoolStudent> existPlanStudentIdCardMap, Map<String, ScreeningPlanSchoolStudent> existPlanStudentPassportMap) {
+    private void abc(List<Student> managementStudentList, Map<String, ScreeningPlanSchoolStudent> existPlanStudentIdCardMap,
+                     Map<String, ScreeningPlanSchoolStudent> existPlanStudentPassportMap, ScreeningPlan plan, School school) {
         List<ScreeningPlanSchoolStudent> list = new ArrayList<>();
         studentService.saveOrUpdateBatch(managementStudentList);
         managementStudentList.forEach(student -> {
             ScreeningPlanSchoolStudent planStudent = getPlanStudent(existPlanStudentIdCardMap, existPlanStudentPassportMap, student.getIdCard(), student.getPassport());
+            planStudent.setScreeningPlanId(plan.getId());
             planStudent.setStudentId(student.getId());
+            planStudent.setSrcScreeningNoticeId(plan.getSrcScreeningNoticeId());
+            planStudent.setScreeningTaskId(plan.getScreeningTaskId());
+            planStudent.setStudentAge(DateUtil.ageOfNow(student.getBirthday()));
+            planStudent.setSchoolName(school.getName());
+            planStudent.setSchoolId(school.getId());
+            planStudent.setSchoolDistrictId(school.getDistrictId());
+            planStudent.setPlanDistrictId(plan.getDistrictId());
             packagePlanStudent2(student, planStudent);
             list.add(planStudent);
         });
@@ -283,7 +295,9 @@ public class ExcelStudentService {
         }
         // excel格式：姓名、性别、出生日期、民族(1：汉族  2：蒙古族  3：藏族  4：壮族  5:回族  6:其他  )、学校编号、年级、班级、学号、身份证号、手机号码、省、市、县区、镇/街道、居住地址
         listMap.forEach(item -> {
-            if (ObjectsUtil.hasNull(item.getOrDefault(ImportExcelEnum.NAME.getIndex(), null), item.getOrDefault(ImportExcelEnum.GRADE.getIndex(), null), item.getOrDefault(ImportExcelEnum.CLASS.getIndex(), null))) {
+            if (ObjectsUtil.hasNull(item.getOrDefault(ImportExcelEnum.NAME.getIndex(), null),
+                    item.getOrDefault(ImportExcelEnum.GRADE.getIndex(), null),
+                    item.getOrDefault(ImportExcelEnum.CLASS.getIndex(), null))) {
                 throw new BusinessException("存在必填项无填写");
             }
             if (Objects.isNull(item.getOrDefault(ImportExcelEnum.ID_CARD.getIndex(), null)) && Objects.isNull(item.getOrDefault(ImportExcelEnum.GENDER.getIndex(), null))) {

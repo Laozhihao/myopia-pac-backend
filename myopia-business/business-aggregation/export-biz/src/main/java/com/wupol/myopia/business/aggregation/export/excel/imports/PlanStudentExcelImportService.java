@@ -17,6 +17,7 @@ import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -53,12 +54,7 @@ public class PlanStudentExcelImportService {
             // 无数据，直接返回
             return;
         }
-        // 这里是Excel的一个小坑
-        List<Map<Integer, String>> resultList = listMap.stream().filter(s ->
-                        s.get(ImportExcelEnum.SCREENING_CODE.getIndex()) != null
-                                || StringUtils.isNotBlank(s.get(ImportExcelEnum.ID_CARD.getIndex())))
-                .collect(Collectors.toList());
-        excelStudentService.insertByUpload(userId, resultList, screeningPlan, schoolId);
+        excelStudentService.insertByUpload(userId, listMap, screeningPlan, schoolId);
         screeningPlanService.updateStudentNumbers(userId, screeningPlan.getId(), screeningPlanSchoolStudentService.getCountByScreeningPlanId(screeningPlan.getId()));
     }
 }

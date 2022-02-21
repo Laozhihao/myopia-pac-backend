@@ -371,19 +371,22 @@
         and status = #{status}
     </select>
 
-    <select id="getByIdCardsAndPassports" resultMap="BaseResultMap">
+    <select id="getByIdCardsOrPassports" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
         from m_student
-                where 0 = 0
+                where
         <if test="idCards != null and idCards.size() != 0">
-            and id_card in
+            id_card in
             <foreach collection="idCards" item="idCard" index="index" open="(" close=")" separator=",">
                 #{idCard}
             </foreach>
         </if>
+        <if test="idCards != null and idCards.size() != 0 and passports != null and passports.size() != 0">
+            or
+        </if>
         <if test="passports != null and passports.size() != 0">
-            and passport in
+            passport in
             <foreach collection="passports" item="passport" index="index" open="(" close=")" separator=",">
                 #{passport}
             </foreach>

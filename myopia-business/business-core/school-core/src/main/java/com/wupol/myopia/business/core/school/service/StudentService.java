@@ -612,7 +612,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @param passports 护照
      * @return 是否重复
      */
-    public List<Student> getByIdCardsAndPassports(List<String> idCards, List<String> passports) {
-        return baseMapper.getByIdCardsAndPassports(idCards, passports);
+    public List<Student> getByIdCardsOrPassports(List<String> idCards, List<String> passports) {
+        return baseMapper.getByIdCardsOrPassports(idCards, passports);
     }
 }
