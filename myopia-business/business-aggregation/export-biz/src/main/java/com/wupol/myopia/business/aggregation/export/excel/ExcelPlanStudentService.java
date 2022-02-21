@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
  **/
 @Log4j2
 @Service
-public class ExcelStudentService {
+public class ExcelPlanStudentService {
 
     @Autowired
     private StudentService studentService;
@@ -99,12 +99,12 @@ public class ExcelStudentService {
             Integer nation = StringUtils.isBlank(item.get(ImportExcelEnum.NATION.getIndex())) ? null : NationEnum.getCode(item.get(ImportExcelEnum.NATION.getIndex()));
             Date birthday;
             if (StringUtils.isNotBlank(idCard) && !IdcardUtil.isValidCard(idCard)) {
-                throw new BusinessException("身份证异常");
+                throw new BusinessException("上传失败" + idCard + "身份证异常");
             }
             try {
                 birthday = StringUtils.isBlank(item.get(ImportExcelEnum.BIRTHDAY.getIndex())) ? IdCardUtil.getBirthDay(item.get(ImportExcelEnum.ID_CARD.getIndex())) : DateFormatUtil.parseDate(item.get(ImportExcelEnum.BIRTHDAY.getIndex()), DateFormatUtil.FORMAT_ONLY_DATE2);
             } catch (ParseException e) {
-                throw new BusinessException("学生姓名为:" + studentName + "日期转换异常");
+                throw new BusinessException(getErrorMsgDate(idCard, passport, screeningCode) + "日期转换异常");
             }
             if (StringUtils.isNoneBlank(idCard, passport)) {
                 passport = null;
@@ -119,7 +119,7 @@ public class ExcelStudentService {
             }
             // 检查筛查编码是否存在
             if (!existScreeningCode.contains(Long.valueOf(screeningCode))) {
-                throw new BusinessException("上传失败：筛查编码在计划中不存在");
+                throw new BusinessException("上传失败：筛查编码:" + screeningCode + "在计划中不存在");
             }
             // 是否带着证件号一起上传
             if (StringUtils.isAllBlank(idCard, passport)) {
@@ -176,7 +176,7 @@ public class ExcelStudentService {
 
     private void notScrenningCodeUpload(Integer userId, Map<String, ScreeningPlanSchoolStudent> existPlanStudentIdCardMap, Map<String, ScreeningPlanSchoolStudent> existPlanStudentPassportMap, Map<String, Student> existManagementStudentIdCardMap, Map<String, Student> existManagementStudentPassportMap, List<Student> noScreeningCodeManagementStudentList, String idCard, String passport, String sno, Integer gender, String studentName, Integer nation, Date birthday, TwoTuple<Integer, Integer> gradeClassInfo, Integer gradeType) {
         if (StringUtils.isAllBlank(idCard, passport)) {
-            throw new BusinessException("上传失败：身份证、护照信息异常-0001");
+            throw new BusinessException("上传失败：身份证、护照信息异常");
         }
         TwoTuple<Student, ScreeningPlanSchoolStudent> twoTuple = getStudentAndPlanStudent(existPlanStudentIdCardMap, existPlanStudentPassportMap, existManagementStudentIdCardMap, existManagementStudentPassportMap, idCard, passport);
         Student student = twoTuple.getFirst();
@@ -213,7 +213,7 @@ public class ExcelStudentService {
             for (ScreeningPlanSchoolStudent planSchoolStudent : noPaperworkPlanStudents) {
                 Student student = getStudent(idCardMap, passportMap, planSchoolStudent.getIdCard(), planSchoolStudent.getPassport());
                 if (Objects.isNull(student.getId())) {
-                    throw new BusinessException("数据异常");
+                    throw new BusinessException("学生数据异常");
                 }
                 planSchoolStudent.setStudentId(student.getId());
             }
@@ -455,6 +455,18 @@ public class ExcelStudentService {
             planSchoolStudent = new ScreeningPlanSchoolStudent();
         }
         return planSchoolStudent;
+    }
+
+    /**
+     * 获取有值的数据
+     *
+     * @param idCard        身份证
+     * @param passport      护照
+     * @param screeningCode 编码
+     * @return 数据
+     */
+    private String getErrorMsgDate(String idCard, String passport, String screeningCode) {
+        return "身份证/护照/筛查编码：" + (StringUtils.isNotBlank(idCard) ? idCard : StringUtils.isNotBlank(passport) ? passport : screeningCode);
     }
 
 }

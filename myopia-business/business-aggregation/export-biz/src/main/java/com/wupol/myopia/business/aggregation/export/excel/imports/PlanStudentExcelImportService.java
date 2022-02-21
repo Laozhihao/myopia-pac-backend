@@ -1,13 +1,11 @@
 package com.wupol.myopia.business.aggregation.export.excel.imports;
 
-import com.wupol.myopia.business.aggregation.export.excel.ExcelStudentService;
-import com.wupol.myopia.business.aggregation.export.excel.constant.ImportExcelEnum;
+import com.wupol.myopia.business.aggregation.export.excel.ExcelPlanStudentService;
 import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -17,8 +15,6 @@ import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * 筛查学生
@@ -36,7 +32,7 @@ public class PlanStudentExcelImportService {
     private ScreeningPlanService screeningPlanService;
 
     @Resource
-    private ExcelStudentService excelStudentService;
+    private ExcelPlanStudentService excelPlanStudentService;
 
     /**
      * 导入筛查学生信息
@@ -54,7 +50,7 @@ public class PlanStudentExcelImportService {
             // 无数据，直接返回
             return;
         }
-        excelStudentService.insertByUpload(userId, listMap, screeningPlan, schoolId);
+        excelPlanStudentService.insertByUpload(userId, listMap, screeningPlan, schoolId);
         screeningPlanService.updateStudentNumbers(userId, screeningPlan.getId(), screeningPlanSchoolStudentService.getCountByScreeningPlanId(screeningPlan.getId()));
     }
 }
