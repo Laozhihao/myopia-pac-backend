@@ -135,12 +135,15 @@ public class PlanStudentExcelImportService {
             } catch (ParseException e) {
                 throw new BusinessException(getErrorMsgDate(idCard, passport, screeningCode) + "日期转换异常");
             }
+            // 如果同时存在身份证和护照，优先取身份证
             if (StringUtils.isNoneBlank(idCard, passport)) {
                 passport = null;
             }
             // 班级年级信息
             TwoTuple<Integer, Integer> gradeClassInfo = schoolStudentExcelImportService.getSchoolStudentClassInfo(schoolId, schoolGradeMaps, gradeName, className);
             Integer gradeType = GradeCodeEnum.getByName(gradeName).getType();
+            // 检查学号
+            checkSno(existPlanSchoolStudentList, sno, idCard, passport);
             // 是否带筛查编码一起上传
             if (StringUtils.isBlank(screeningCode)) {
                 notScrenningCodeUpload(userId, existPlanStudentIdCardMap, existPlanStudentPassportMap, existManagementStudentIdCardMap, existManagementStudentPassportMap, noScreeningCodeManagementStudentList, idCard, passport, sno, gender, studentName, nation, birthday, gradeClassInfo, gradeType);
@@ -221,8 +224,7 @@ public class PlanStudentExcelImportService {
      * @param planSchoolStudent 筛查学生
      */
     private void checkPaperworkInfo(String idCard, String passport, ScreeningPlanSchoolStudent planSchoolStudent) {
-        if ((StringUtils.isNoneBlank(idCard, planSchoolStudent.getIdCard()) && !StringUtils.equals(idCard, planSchoolStudent.getIdCard()))
-                || StringUtils.isNoneBlank(passport, planSchoolStudent.getPassport()) && !StringUtils.equals(passport, planSchoolStudent.getPassport())) {
+        if ((StringUtils.isNoneBlank(idCard, planSchoolStudent.getIdCard()) && !StringUtils.equals(idCard, planSchoolStudent.getIdCard())) || StringUtils.isNoneBlank(passport, planSchoolStudent.getPassport()) && !StringUtils.equals(passport, planSchoolStudent.getPassport())) {
             throw new BusinessException("上传失败：系统绑定的证件号与上传的不一致");
         }
         if (StringUtils.isNoneBlank(idCard, planSchoolStudent.getPassport()) || StringUtils.isNoneBlank(passport, planSchoolStudent.getIdCard())) {
@@ -283,8 +285,7 @@ public class PlanStudentExcelImportService {
      * @param plan                        计划
      * @param school                      学校
      */
-    private void saveStudentAndPlanStudent(List<Student> managementStudentList, Map<String, ScreeningPlanSchoolStudent> existPlanStudentIdCardMap,
-                                           Map<String, ScreeningPlanSchoolStudent> existPlanStudentPassportMap, ScreeningPlan plan, School school) {
+    private void saveStudentAndPlanStudent(List<Student> managementStudentList, Map<String, ScreeningPlanSchoolStudent> existPlanStudentIdCardMap, Map<String, ScreeningPlanSchoolStudent> existPlanStudentPassportMap, ScreeningPlan plan, School school) {
         List<ScreeningPlanSchoolStudent> list = new ArrayList<>();
         studentService.saveOrUpdateBatch(managementStudentList);
         managementStudentList.forEach(student -> {
@@ -403,9 +404,7 @@ public class PlanStudentExcelImportService {
         }
         // excel格式：姓名、性别、出生日期、民族(1：汉族  2：蒙古族  3：藏族  4：壮族  5:回族  6:其他  )、学校编号、年级、班级、学号、身份证号、手机号码、省、市、县区、镇/街道、居住地址
         listMap.forEach(item -> {
-            if (ObjectsUtil.hasNull(item.getOrDefault(ImportExcelEnum.NAME.getIndex(), null),
-                    item.getOrDefault(ImportExcelEnum.GRADE.getIndex(), null),
-                    item.getOrDefault(ImportExcelEnum.CLASS.getIndex(), null))) {
+            if (ObjectsUtil.hasNull(item.getOrDefault(ImportExcelEnum.NAME.getIndex(), null), item.getOrDefault(ImportExcelEnum.GRADE.getIndex(), null), item.getOrDefault(ImportExcelEnum.STUDENT_NO.getIndex(), null), item.getOrDefault(ImportExcelEnum.CLASS.getIndex(), null))) {
                 throw new BusinessException("存在必填项无填写");
             }
             if (Objects.isNull(item.getOrDefault(ImportExcelEnum.ID_CARD.getIndex(), null)) && Objects.isNull(item.getOrDefault(ImportExcelEnum.GENDER.getIndex(), null))) {
@@ -425,15 +424,9 @@ public class PlanStudentExcelImportService {
      * @param passport                          护照
      * @return first-多端学生 second-筛查学生
      */
-    private TwoTuple<Student, ScreeningPlanSchoolStudent> getStudentAndPlanStudent(Map<String, ScreeningPlanSchoolStudent> existPlanStudentIdCardMap,
-                                                                                   Map<String, ScreeningPlanSchoolStudent> existPlanStudentPassportMap,
-                                                                                   Map<String, Student> existManagementStudentIdCardMap,
-                                                                                   Map<String, Student> existManagementStudentPassportMap,
-                                                                                   String idCard,
-                                                                                   String passport) {
+    private TwoTuple<Student, ScreeningPlanSchoolStudent> getStudentAndPlanStudent(Map<String, ScreeningPlanSchoolStudent> existPlanStudentIdCardMap, Map<String, ScreeningPlanSchoolStudent> existPlanStudentPassportMap, Map<String, Student> existManagementStudentIdCardMap, Map<String, Student> existManagementStudentPassportMap, String idCard, String passport) {
 
-        return new TwoTuple<>(getStudent(existManagementStudentIdCardMap, existManagementStudentPassportMap, idCard, passport),
-                getPlanStudent(existPlanStudentIdCardMap, existPlanStudentPassportMap, idCard, passport));
+        return new TwoTuple<>(getStudent(existManagementStudentIdCardMap, existManagementStudentPassportMap, idCard, passport), getPlanStudent(existPlanStudentIdCardMap, existPlanStudentPassportMap, idCard, passport));
     }
 
     /**
@@ -445,10 +438,7 @@ public class PlanStudentExcelImportService {
      * @param passport                          护照
      * @return 学生
      */
-    private Student getStudent(Map<String, Student> existManagementStudentIdCardMap,
-                               Map<String, Student> existManagementStudentPassportMap,
-                               String idCard,
-                               String passport) {
+    private Student getStudent(Map<String, Student> existManagementStudentIdCardMap, Map<String, Student> existManagementStudentPassportMap, String idCard, String passport) {
         Student student;
         if (Objects.nonNull(idCard)) {
             student = existManagementStudentIdCardMap.get(idCard);
@@ -470,10 +460,7 @@ public class PlanStudentExcelImportService {
      * @param passport                    护照
      * @return 筛查学生
      */
-    private ScreeningPlanSchoolStudent getPlanStudent(Map<String, ScreeningPlanSchoolStudent> existPlanStudentIdCardMap,
-                                                      Map<String, ScreeningPlanSchoolStudent> existPlanStudentPassportMap,
-                                                      String idCard,
-                                                      String passport) {
+    private ScreeningPlanSchoolStudent getPlanStudent(Map<String, ScreeningPlanSchoolStudent> existPlanStudentIdCardMap, Map<String, ScreeningPlanSchoolStudent> existPlanStudentPassportMap, String idCard, String passport) {
         ScreeningPlanSchoolStudent planSchoolStudent;
         if (Objects.nonNull(idCard)) {
             planSchoolStudent = existPlanStudentIdCardMap.get(idCard);
@@ -496,5 +483,27 @@ public class PlanStudentExcelImportService {
      */
     private String getErrorMsgDate(String idCard, String passport, String screeningCode) {
         return "身份证/护照/筛查编码：" + (StringUtils.isNotBlank(idCard) ? idCard : StringUtils.isNotBlank(passport) ? passport : screeningCode);
+    }
+
+    /**
+     * 校验学号是否重复
+     *
+     * @param existPlanSchoolStudentList 已经存在的学生
+     * @param sno                        学号
+     * @param idCard                     身份证
+     * @param passport                   护照
+     */
+    private void checkSno(List<ScreeningPlanSchoolStudent> existPlanSchoolStudentList, String sno, String idCard, String passport) {
+        if (CollectionUtils.isEmpty(existPlanSchoolStudentList)) {
+            return;
+        }
+        for (ScreeningPlanSchoolStudent s : existPlanSchoolStudentList) {
+            // 学号是否被使用
+            if (StringUtils.equals(sno, s.getStudentNo()) && ((StringUtils.isNotBlank(idCard) && !StringUtils.equals(idCard, s.getIdCard()))
+                    || (StringUtils.isNotBlank(passport) && !StringUtils.equals(passport, s.getPassport())))) {
+
+                throw new BusinessException("学号:" + sno + "重复");
+            }
+        }
     }
 }
