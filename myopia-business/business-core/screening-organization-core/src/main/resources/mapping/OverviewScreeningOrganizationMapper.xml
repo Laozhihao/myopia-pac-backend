@@ -22,4 +22,12 @@
         overview_id, screening_organization_id, create_time
     </sql>
 
+    <insert id="batchSave">
+        insert into m_overview_screening_organization (overview_id, screening_organization_id)
+        values
+        <foreach collection="screeningOrganizationIds" item="screeningOrganizationId" index="index" separator=",">
+            (#{overviewId}, #{screeningOrganizationId})
+        </foreach>
+    </insert>
+
 </mapper>

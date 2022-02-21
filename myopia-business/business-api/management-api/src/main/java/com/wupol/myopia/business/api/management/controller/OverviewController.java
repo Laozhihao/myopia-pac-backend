@@ -13,6 +13,7 @@ import com.wupol.myopia.business.core.hospital.domain.dto.HospitalResponseDTO;
 import com.wupol.myopia.business.core.hospital.domain.query.HospitalQuery;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccountListDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OverviewDTO;
+import com.wupol.myopia.business.core.screening.organization.domain.dto.OverviewRequestDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.model.Overview;
 import com.wupol.myopia.business.core.screening.organization.service.OverviewService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,9 +46,9 @@ public class OverviewController {
      * @return
      */
     @PostMapping
-    public UsernameAndPasswordDTO saveOverview(@RequestBody @Valid OverviewDTO overview) {
+    public UsernameAndPasswordDTO saveOverview(@RequestBody @Valid OverviewRequestDTO overview) {
         initOverview(overview);
-        return overviewBizService.saveOverview(overview);
+        return overviewService.saveOverview(overview);
     }
 
     /**
@@ -57,9 +58,9 @@ public class OverviewController {
      * @return 总览机构实体
      */
     @PutMapping
-    public HospitalResponseDTO updateOverview(@RequestBody @Valid Overview overview) {
+    public OverviewDTO updateOverview(@RequestBody @Valid OverviewRequestDTO overview) {
         initOverview(overview);
-        return null;
+        return overviewService.updateOverview(overview);
     }
 
     /**

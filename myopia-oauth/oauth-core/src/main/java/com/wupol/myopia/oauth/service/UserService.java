@@ -520,10 +520,26 @@ public class UserService extends BaseService<UserMapper, User> {
         userList.forEach(x -> updateScreeningOrgRolePermission(orgConfigType, x.getId()));
     }
 
+    /**
+     * 更新医院管理员权限
+     * @param serviceType
+     * @param hospitalId
+     */
     private void updateHospitalAdminRolePermission(Integer serviceType, Integer hospitalId) {
         Assert.notNull(serviceType, "配置类型不能为空");
         Assert.notNull(hospitalId, "医院ID不能为空");
         roleService.updateRolePermissionByHospital(hospitalId, PermissionTemplateType.getTemplateTypeByHospitalAdminServiceType(serviceType));
+    }
+
+    /**
+     * 更新总览机构管理员权限
+     * @param configType
+     * @param overviewId
+     */
+    public void updateOverviewAdminRolePermission(Integer configType, Integer overviewId) {
+        Assert.notNull(configType, "配置类型不能为空");
+        Assert.notNull(overviewId, "总览机构ID不能为空");
+        roleService.updateRolePermissionByOverview(overviewId, PermissionTemplateType.getTemplateTypeByOverviewAdminServiceType(configType));
     }
 
     /**
