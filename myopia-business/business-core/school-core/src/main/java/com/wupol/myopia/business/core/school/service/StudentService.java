@@ -613,6 +613,9 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @return 是否重复
      */
     public List<Student> getByIdCardsOrPassports(List<String> idCards, List<String> passports) {
+        if (CollectionUtils.isEmpty(idCards) && CollectionUtils.isEmpty(passports)) {
+            return new ArrayList<>();
+        }
         return baseMapper.getByIdCardsOrPassports(idCards, passports);
     }
 }

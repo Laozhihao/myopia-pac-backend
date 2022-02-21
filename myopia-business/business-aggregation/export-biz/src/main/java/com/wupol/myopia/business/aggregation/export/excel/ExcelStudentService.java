@@ -13,6 +13,7 @@ import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
 import com.wupol.myopia.business.common.utils.util.IdCardUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeExportDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
@@ -116,6 +117,7 @@ public class ExcelStudentService {
             }
             // 班级年级信息
             TwoTuple<Integer, Integer> gradeClassInfo = schoolStudentExcelImportService.getSchoolStudentClassInfo(schoolId, schoolGradeMaps, gradeName, className);
+            Integer gradeType = GradeCodeEnum.getByName(gradeName).getType();
 
             // 是否带筛查编码一起上传
             if (StringUtils.isBlank(screeningCode)) {
@@ -124,7 +126,7 @@ public class ExcelStudentService {
                 }
                 TwoTuple<Student, ScreeningPlanSchoolStudent> twoTuple = getStudentAndPlanStudent(existPlanStudentIdCardMap, existPlanStudentPassportMap, existManagementStudentIdCardMap, existManagementStudentPassportMap, idCard, passport);
                 Student student = twoTuple.getFirst();
-                packageManagementStudent(idCard, passport, sno, gender, studentName, nation, birthday, gradeClassInfo, student);
+                packageManagementStudent(idCard, passport, sno, gender, studentName, nation, birthday, gradeClassInfo, gradeType, student);
                 managementStudentList.add(student);
             } else {
 
@@ -149,7 +151,7 @@ public class ExcelStudentService {
                         Student student = getStudent(existManagementStudentIdCardMap, existManagementStudentPassportMap, idCard, passport);
                         // 不存在
                         if (Objects.isNull(student.getId())) {
-                            packageManagementStudent(idCard, passport, sno, gender, studentName, nation, birthday, gradeClassInfo, student);
+                            packageManagementStudent(idCard, passport, sno, gender, studentName, nation, birthday, gradeClassInfo, gradeType, student);
                             managementStudentList3.add(student);
                         } else {
                             // 已经存在，不更新多端学生
@@ -159,14 +161,14 @@ public class ExcelStudentService {
                         }
                     } else {
                         // 判断绑定的证件号是否一致
-                        if ((StringUtils.isNoneBlank(idCard, planSchoolStudent.getIdCard()) && StringUtils.equals(idCard, planSchoolStudent.getIdCard()))
-                                || StringUtils.isNoneBlank(passport, planSchoolStudent.getPassport()) && StringUtils.equals(passport, planSchoolStudent.getPassport())) {
+                        if ((StringUtils.isNoneBlank(idCard, planSchoolStudent.getIdCard()) && !StringUtils.equals(idCard, planSchoolStudent.getIdCard()))
+                                || StringUtils.isNoneBlank(passport, planSchoolStudent.getPassport()) && !StringUtils.equals(passport, planSchoolStudent.getPassport())) {
                             throw new BusinessException("上传失败：系统绑定的证件号与上传的不一致");
                         }
                         // 更新学生和筛查学生
                         TwoTuple<Student, ScreeningPlanSchoolStudent> twoTuple = getStudentAndPlanStudent(existPlanStudentIdCardMap, existPlanStudentPassportMap, existManagementStudentIdCardMap, existManagementStudentPassportMap, idCard, passport);
                         Student student = twoTuple.getFirst();
-                        packageManagementStudent(idCard, passport, sno, gender, studentName, nation, birthday, gradeClassInfo, student);
+                        packageManagementStudent(idCard, passport, sno, gender, studentName, nation, birthday, gradeClassInfo, gradeType, student);
 
                         ScreeningPlanSchoolStudent planStudent = twoTuple.getSecond();
                         packagePlanStudent(idCard, passport, sno, gender, studentName, nation, birthday, gradeClassInfo, planStudent);
@@ -211,8 +213,10 @@ public class ExcelStudentService {
             planStudent.setSrcScreeningNoticeId(plan.getSrcScreeningNoticeId());
             planStudent.setScreeningTaskId(plan.getScreeningTaskId());
             planStudent.setStudentAge(DateUtil.ageOfNow(student.getBirthday()));
+            planStudent.setScreeningOrgId(plan.getScreeningOrgId());
             planStudent.setSchoolName(school.getName());
             planStudent.setSchoolId(school.getId());
+            planStudent.setGradeType(student.getGradeType());
             planStudent.setSchoolDistrictId(school.getDistrictId());
             planStudent.setPlanDistrictId(plan.getDistrictId());
             packagePlanStudent2(student, planStudent);
@@ -221,7 +225,7 @@ public class ExcelStudentService {
         screeningPlanSchoolStudentService.saveOrUpdateBatch(list);
     }
 
-    private void packageManagementStudent(String idCard, String passport, String sno, Integer gender, String studentName, Integer nation, Date birthday, TwoTuple<Integer, Integer> gradeClassInfo, Student student) {
+    private void packageManagementStudent(String idCard, String passport, String sno, Integer gender, String studentName, Integer nation, Date birthday, TwoTuple<Integer, Integer> gradeClassInfo, Integer gradeType, Student student) {
         student.setIdCard(idCard);
         student.setPassport(passport);
         student.setName(studentName);
@@ -231,6 +235,7 @@ public class ExcelStudentService {
         student.setGradeId(gradeClassInfo.getFirst());
         student.setClassId(gradeClassInfo.getSecond());
         student.setSno(sno);
+        student.setGradeType(gradeType);
     }
 
     private void packagePlanStudent(String idCard, String passport, String sno, Integer gender, String studentName, Integer nation, Date birthday, TwoTuple<Integer, Integer> gradeClassInfo, ScreeningPlanSchoolStudent planStudent) {
