@@ -199,6 +199,9 @@ public class StudentExcelImportService {
         student.setAreaCode(districtService.getCodeByName(item.get(13 - offset)));
         student.setTownCode(districtService.getCodeByName(item.get(14 - offset)));
         student.setAddress(item.get(15 - offset));
+        if (StringUtils.isNoneBlank(idCard, passport)) {
+            student.setPassport(null);
+        }
     }
 
     /**

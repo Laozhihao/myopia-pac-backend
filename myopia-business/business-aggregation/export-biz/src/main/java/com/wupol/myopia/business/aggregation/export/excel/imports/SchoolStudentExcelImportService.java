@@ -163,6 +163,9 @@ public class SchoolStudentExcelImportService {
         schoolStudent.setTownCode(districtService.getCodeByName(item.get(SchoolStudentImportEnum.TOWN_NAME.getIndex())));
         schoolStudent.setAddress(item.get(SchoolStudentImportEnum.ADDRESS.getIndex()));
         schoolStudent.setUpdateTime(new Date());
+        if (StringUtils.isNoneBlank(schoolStudent.getIdCard(), schoolStudent.getPassport())) {
+            schoolStudent.setPassport(null);
+        }
     }
 
     /**
