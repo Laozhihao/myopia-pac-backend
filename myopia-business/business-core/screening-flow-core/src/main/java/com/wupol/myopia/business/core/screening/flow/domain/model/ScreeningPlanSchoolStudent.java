@@ -204,5 +204,8 @@ public class ScreeningPlanSchoolStudent implements Serializable {
      */
     private String passport;
 
-
+    /**
+     * 是否mock
+     */
+    private Integer mockStatus;
 }
