@@ -60,10 +60,7 @@ public class StudentExcelImportService {
     private DistrictService districtService;
 
     @Resource
-    private SchoolStudentService schoolStudentService;
-
-    @Resource
-    private SchoolClassService schoolClassService;
+    private CommonImportService commonImportService;
 
 
     /**
@@ -171,7 +168,7 @@ public class StudentExcelImportService {
         }
         studentService.saveOrUpdateBatch(importList);
         // 插入学校端
-        insertSchoolStudent(importList);
+        commonImportService.insertSchoolStudent(importList);
     }
 
     /**
@@ -289,63 +286,5 @@ public class StudentExcelImportService {
         Assert.isTrue(StringUtils.isNotBlank(item.get(6 - offset)), "学生班级不能为空");
         Assert.isTrue(StringUtils.isBlank(item.get(8 - offset)) || (StringUtils.isNotBlank(item.get(8 - offset)) && Pattern.matches(RegularUtils.REGULAR_ID_CARD, item.get(8 - offset))), "学生身份证" + item.get(8 - offset) + "异常");
         Assert.isTrue(StringUtils.isBlank(item.get(10 - offset)) || Pattern.matches(RegularUtils.REGULAR_MOBILE, item.get(10 - offset)), "学生手机号码" + item.get(10 - offset) + "异常");
-    }
-
-    /**
-     * 插入学校端学生
-     *
-     * @param importList 多端学生列表
-     */
-    public void insertSchoolStudent(List<Student> importList) {
-        // 获取学号重复的
-        List<String> allSnoList = importList.stream().map(Student::getSno).collect(Collectors.toList());
-        List<String> duplicateSnoList = ListUtil.getDuplicateElements(allSnoList);
-
-        // 过滤掉学号为空的和学号重复的，班级、年级为空的
-        List<Student> studentList = importList.stream()
-                .filter(s -> StringUtils.isNotBlank(s.getSno()))
-                .filter(s -> !duplicateSnoList.contains(s.getSno()))
-                .filter(s -> Objects.nonNull(s.getGradeId()))
-                .filter(s -> Objects.nonNull(s.getClassId()))
-                .collect(Collectors.toList());
-        if (CollectionUtils.isEmpty(studentList)) {
-            return;
-        }
-
-        Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(studentList.stream().map(Student::getClassId).collect(Collectors.toList()));
-        Map<Integer, SchoolGrade> gradeMap = schoolGradeService.getGradeMapByIds(studentList.stream().map(Student::getGradeId).collect(Collectors.toList()));
-
-        List<SchoolStudent> addSchoolStudentList = new ArrayList<>();
-
-        // 通过学校分组
-        Map<Integer, List<Student>> studentMap = studentList.stream().collect(Collectors.groupingBy(Student::getSchoolId));
-        for (Map.Entry<Integer, List<Student>> entry : studentMap.entrySet()) {
-            Integer schoolId = entry.getKey();
-            List<Student> students = entry.getValue();
-
-            List<String> idCardList = students.stream().map(Student::getIdCard).collect(Collectors.toList());
-            List<String> snoList = students.stream().map(Student::getSno).collect(Collectors.toList());
-            List<String> passportList = students.stream().map(Student::getPassport).collect(Collectors.toList());
-            List<SchoolStudent> schoolStudentList = schoolStudentService.getAllByIdCardAndSnoAndPassports(idCardList, snoList, passportList, schoolId);
-
-
-            // 过滤学号、身份证、护照已经存在的
-            List<Student> needAddList = students.stream()
-                    .filter(student -> schoolStudentList.stream().noneMatch(schoolStudent -> schoolStudent.getSno().equals(student.getSno())))
-                    .filter(student -> schoolStudentList.stream().noneMatch(schoolStudent -> (Objects.nonNull(schoolStudent.getIdCard()) && schoolStudent.getIdCard().equals(student.getIdCard()))))
-                    .filter(student -> schoolStudentList.stream().noneMatch(schoolStudent -> (Objects.nonNull(schoolStudent.getPassport()) && schoolStudent.getPassport().equals(student.getPassport()))))
-                    .collect(Collectors.toList());
-
-            needAddList.forEach(s -> {
-                SchoolStudent schoolStudent = new SchoolStudent();
-                BeanUtils.copyProperties(s, schoolStudent);
-                schoolStudent.setId(null);
-                schoolStudent.setStudentId(s.getId());
-                schoolStudent.setGradeName(gradeMap.get(s.getGradeId()).getName());
-                schoolStudent.setClassName(classMap.get(s.getClassId()).getName());
-                addSchoolStudentList.add(schoolStudent);
-            });
-        }
-        schoolStudentService.saveBatch(addSchoolStudentList);
     }
 }
