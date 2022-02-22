@@ -82,7 +82,7 @@ public class SchoolStudentExcelImportService {
         List<String> idCards = listMap.stream().map(s -> s.get(SchoolStudentImportEnum.ID_CARD.getIndex())).filter(Objects::nonNull).collect(Collectors.toList());
         List<String> snos = listMap.stream().map(s -> s.get(SchoolStudentImportEnum.SNO.getIndex())).filter(Objects::nonNull).collect(Collectors.toList());
         List<String> passports = listMap.stream().map(s -> s.get(SchoolStudentImportEnum.PASSPORT.getIndex())).filter(Objects::nonNull).collect(Collectors.toList());
-        CommonCheck.checkHaveDuplicate(idCards, snos, passports);
+        CommonCheck.checkHaveDuplicate(idCards, snos, passports, true);
 
         // 获取已经存在的学校学生（判断是否重复）
         List<SchoolStudent> studentList = schoolStudentService.getByIdCardAndSnoAndPassports(idCards, snos, passports, schoolId);

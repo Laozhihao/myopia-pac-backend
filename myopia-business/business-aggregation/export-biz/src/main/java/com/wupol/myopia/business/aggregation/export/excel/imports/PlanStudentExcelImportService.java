@@ -110,7 +110,7 @@ public class PlanStudentExcelImportService {
         Map<String, Student> existManagementStudentIdCardMap = groupingMap.getFirst();
         Map<String, Student> existManagementStudentPassportMap = groupingMap.getSecond();
         // 检查数据中是否有重复数据
-        CommonCheck.checkHaveDuplicate(idCardList, snoList, passportList);
+        CommonCheck.checkHaveDuplicate(idCardList, snoList, passportList, false);
         // 获取班级信息
         Map<Integer, List<SchoolGradeExportDTO>> schoolGradeMaps = schoolGradeService.getGradeAndClassMap(Lists.newArrayList(school.getId()));
         List<Student> noScreeningCodeManagementStudentList = new ArrayList<>();
@@ -428,7 +428,7 @@ public class PlanStudentExcelImportService {
         }
         // excel格式：姓名、性别、出生日期、民族(1：汉族  2：蒙古族  3：藏族  4：壮族  5:回族  6:其他  )、学校编号、年级、班级、学号、身份证号、手机号码、省、市、县区、镇/街道、居住地址
         listMap.forEach(item -> {
-            if (ObjectsUtil.hasNull(item.getOrDefault(ImportExcelEnum.NAME.getIndex(), null), item.getOrDefault(ImportExcelEnum.GRADE.getIndex(), null), item.getOrDefault(ImportExcelEnum.STUDENT_NO.getIndex(), null), item.getOrDefault(ImportExcelEnum.CLASS.getIndex(), null))) {
+            if (ObjectsUtil.hasNull(item.getOrDefault(ImportExcelEnum.NAME.getIndex(), null), item.getOrDefault(ImportExcelEnum.GRADE.getIndex(), null), item.getOrDefault(ImportExcelEnum.CLASS.getIndex(), null))) {
                 throw new BusinessException("存在必填项无填写");
             }
             if (Objects.isNull(item.getOrDefault(ImportExcelEnum.ID_CARD.getIndex(), null)) && Objects.isNull(item.getOrDefault(ImportExcelEnum.GENDER.getIndex(), null))) {
@@ -518,7 +518,7 @@ public class PlanStudentExcelImportService {
      * @param passport                   护照
      */
     private void checkSno(List<ScreeningPlanSchoolStudent> existPlanSchoolStudentList, String sno, String idCard, String passport) {
-        if (CollectionUtils.isEmpty(existPlanSchoolStudentList)) {
+        if (CollectionUtils.isEmpty(existPlanSchoolStudentList) || StringUtils.isBlank(sno)) {
             return;
         }
         for (ScreeningPlanSchoolStudent s : existPlanSchoolStudentList) {
