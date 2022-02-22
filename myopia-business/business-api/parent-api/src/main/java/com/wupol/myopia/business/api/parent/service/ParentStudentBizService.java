@@ -138,7 +138,7 @@ public class ParentStudentBizService {
     public StudentDTO checkIdCard(CheckIdCardRequestDTO request) {
         String idCard = request.getIdCard();
         StudentDTO studentDTO = new StudentDTO();
-        Student student = studentService.getAllByIdCard(idCard);
+        Student student = studentService.getByIdCardAndPassport(idCard,idCard,null);
 
         if (null == student) {
             // 为空说明是新增
