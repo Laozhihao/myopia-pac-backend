@@ -2,23 +2,24 @@ package com.wupol.myopia.business.core.screening.organization.domain.dto;
 
 import com.wupol.myopia.business.core.screening.organization.domain.model.Overview;
 import lombok.Data;
-
-import java.util.List;
+import lombok.experimental.Accessors;
 
 /**
  * @Author wulizhou
- * @Date 2022/2/18 16:09
+ * @Date 2022/2/22 18:25
  */
 @Data
+@Accessors(chain = true)
 public class OverviewDTO extends Overview {
 
     /**
-     * 绑定医院ids
+     * 已绑定的医院数量
      */
-    private List<Integer> hospitalIds;
+    private Integer hospitalNum;
+
     /**
-     * 绑定筛查机构ids
+     * 已绑定的筛查机构数量
      */
-    private List<Integer> screeningOrganizationIds;
+    private Integer screeningOrganizationNum;
 
 }

@@ -4,12 +4,12 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.api.management.domain.dto.OverviewDetailDTO;
 import com.wupol.myopia.business.api.management.service.OverviewBizService;
 import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
-import com.wupol.myopia.business.core.hospital.domain.dto.HospitalResponseDTO;
 import com.wupol.myopia.business.core.hospital.domain.query.HospitalQuery;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccountListDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OverviewDTO;
@@ -58,9 +58,11 @@ public class OverviewController {
      * @return 总览机构实体
      */
     @PutMapping
-    public OverviewDTO updateOverview(@RequestBody @Valid OverviewRequestDTO overview) {
+    public OverviewDetailDTO updateOverview(@RequestBody @Valid OverviewRequestDTO overview) {
         initOverview(overview);
-        return overviewService.updateOverview(overview);
+        overviewService.updateOverview(overview);
+        // TODO wulizhou 返回当前数据列表所需数据
+        return null;
     }
 
     /**
@@ -70,7 +72,7 @@ public class OverviewController {
      * @return 总览机构实体
      */
     @GetMapping("{id}")
-    public HospitalResponseDTO getOverview(@PathVariable("id") Integer id) {
+    public OverviewDetailDTO getOverview(@PathVariable("id") Integer id) {
         return null;
     }
 
@@ -82,7 +84,7 @@ public class OverviewController {
      * @return 医院列表
      */
     @GetMapping("list")
-    public IPage<HospitalResponseDTO> getOverviewList(PageRequest pageRequest, HospitalQuery query) {
+    public IPage<OverviewDTO> getOverviewList(PageRequest pageRequest, HospitalQuery query) {
         return null;
     }
 
@@ -94,7 +96,7 @@ public class OverviewController {
      */
     @PutMapping("/admin/status")
     public boolean updateOverviewAdminUserStatus(@RequestBody @Valid StatusRequest statusRequest) {
-        return false;
+        return overviewService.updateOverviewAdminUserStatus(statusRequest);
     }
 
     /**
@@ -103,9 +105,9 @@ public class OverviewController {
      * @param request 请求入参
      * @return 账号密码 {@link UsernameAndPasswordDTO}
      */
-    @PostMapping("reset")
+    @PostMapping("/admin/reset")
     public UsernameAndPasswordDTO resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
-        return null;
+        return overviewService.resetPassword(request);
     }
 
     /**
@@ -116,7 +118,7 @@ public class OverviewController {
      */
     @GetMapping("/accountList/{overviewId}")
     public List<OrgAccountListDTO> getAccountList(@PathVariable("overviewId") Integer overviewId) {
-        return null;
+        return overviewService.getAccountList(overviewId);
     }
 
     /**
@@ -127,7 +129,7 @@ public class OverviewController {
      */
     @PostMapping("/add/account/{overviewId}")
     public UsernameAndPasswordDTO addAccount(@PathVariable("overviewId")  Integer overviewId) {
-        return null;
+        return overviewService.addOverviewAdminUserAccount(overviewId);
     }
 
     private Overview initOverview(Overview overview) {

@@ -5,12 +5,14 @@ import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.PasswordAndUsernameGenerator;
+import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
-import com.wupol.myopia.business.core.screening.organization.domain.dto.OverviewDTO;
+import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccountListDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OverviewRequestDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.mapper.OverviewMapper;
 import com.wupol.myopia.business.core.screening.organization.domain.model.Overview;
+import com.wupol.myopia.business.core.screening.organization.domain.model.OverviewAdmin;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
 import com.wupol.myopia.oauth.sdk.domain.response.Organization;
@@ -19,9 +21,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
-import java.util.Objects;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @Author wulizhou
@@ -68,10 +72,9 @@ public class OverviewService extends BaseService<OverviewMapper, Overview> {
      * 更新总览机构信息
      *
      * @param overview 总览机构实体类
-     * @return 总览机构实体类
      */
     @Transactional(rollbackFor = Exception.class)
-    public OverviewDTO updateOverview(OverviewRequestDTO overview) {
+    public void updateOverview(OverviewRequestDTO overview) {
         if (checkOverviewName(overview.getName(), overview.getId())) {
             throw new BusinessException("医院名字重复，请确认");
         }
@@ -94,24 +97,88 @@ public class OverviewService extends BaseService<OverviewMapper, Overview> {
             oauthServiceClient.updateOrganization(new Organization(overview.getId(), SystemCode.MANAGEMENT_CLIENT,
                     UserType.OVERVIEW, overview.getStatus()));
         }
-        // TODO wulizhou 返回当前数据列表所需数据
-        return null;
     }
 
     /**
-     * 更新医院管理员用户状态
+     * 更新总览机构管理员用户状态
      *
      * @param request 用户信息
      * @return boolean
      **/
     public boolean updateOverviewAdminUserStatus(StatusRequest request) {
-        HospitalAdmin hospitalAdmin = hospitalAdminService.findOne(new HospitalAdmin().setHospitalId(request.getId()).setUserId(request.getUserId()));
-        Assert.notNull(hospitalAdmin, "不存在该用户");
-        UserDTO user = new UserDTO();
-        user.setId(request.getUserId());
-        user.setStatus(request.getStatus());
-        oauthServiceClient.updateUser(user);
+        overviewAdminService.checkIdAndUserId(request.getId(), request.getUserId());
+        // TODO wulizhou 抽出来
+        UserDTO overviewAdmin = new UserDTO();
+        overviewAdmin.setId(request.getUserId());
+        overviewAdmin.setStatus(request.getStatus());
+        oauthServiceClient.updateUser(overviewAdmin);
         return true;
+    }
+
+    /**
+     * 重置密码
+     *
+     * @param request 请求参数
+     * @return 账号密码
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public UsernameAndPasswordDTO resetPassword(ResetPasswordRequest request) {
+        overviewAdminService.checkIdAndUserId(request.getId(), request.getUserId());
+        String password = PasswordAndUsernameGenerator.getOverviewAdminPwd();
+        oauthServiceClient.resetPwd(request.getUserId(), password);
+        return new UsernameAndPasswordDTO(request.getUsername(), password);
+    }
+
+    /**
+     * 总览机构管理员用户账号列表
+     *
+     * @param overviewId 总览机构Id
+     * @return List<OrgAccountListDTO>
+     */
+    public List<OrgAccountListDTO> getAccountList(Integer overviewId) {
+        List<OrgAccountListDTO> accountList = new LinkedList<>();
+        List<OverviewAdmin> overviewAdminList = overviewAdminService.findByList(new OverviewAdmin().setOverviewId(overviewId));
+        if (CollectionUtils.isEmpty(overviewAdminList)) {
+            return accountList;
+        }
+        // TODO wulizhou 抽取
+        List<Integer> userIds = overviewAdminList.stream().map(OverviewAdmin::getUserId).collect(Collectors.toList());
+        List<User> userList = oauthServiceClient.getUserBatchByUserIds(userIds);
+        Map<Integer, User> userMap = userList.stream().collect(Collectors.toMap(User::getId, Function.identity()));
+        overviewAdminList.forEach(adminUser -> {
+            User user = userMap.get(adminUser.getUserId());
+            OrgAccountListDTO account = new OrgAccountListDTO();
+            account.setUserId(adminUser.getUserId());
+            account.setOrgId(overviewId);
+            account.setUsername(user.getUsername());
+            account.setStatus(user.getStatus());
+            accountList.add(account);
+        });
+        return accountList;
+    }
+
+    /**
+     * 添加总览机构管理员账号账号
+     *
+     * @param overviewId 总览机构ID
+     * @return UsernameAndPasswordDTO
+     */
+    public UsernameAndPasswordDTO addOverviewAdminUserAccount(Integer overviewId) {
+        Overview overview = this.getById(overviewId);
+        if (Objects.isNull(overview)) {
+            throw new BusinessException("不存在该学校");
+        }
+        // 获取该总览机构已经有多少个账号
+        List<OverviewAdmin> overviewAdminList = overviewAdminService.findByList(new OverviewAdmin().setOverviewId(overviewId));
+        if (CollectionUtils.isEmpty(overviewAdminList)) {
+            throw new BusinessException("数据异常，无主账号");
+        }
+
+        // 获取主账号的账号名称
+        OverviewAdmin overviewAdmin = overviewAdminList.stream().sorted(Comparator.comparing(OverviewAdmin::getCreateTime)).collect(Collectors.toList()).get(0);
+        String mainUsername = oauthServiceClient.getUserDetailByUserId(overviewAdmin.getUserId()).getUsername();
+        String username = new StringBuilder(mainUsername).append("x").append(overviewAdminList.size()).toString();
+        return generateAccountAndPassword(overview, username);
     }
 
     /**

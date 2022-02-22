@@ -5,6 +5,7 @@ import com.wupol.myopia.business.core.screening.organization.domain.mapper.Overv
 import com.wupol.myopia.business.core.screening.organization.domain.model.OverviewAdmin;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 
 /**
@@ -32,5 +33,14 @@ public class OverviewAdminService extends BaseService<OverviewAdminMapper, Overv
         baseMapper.insert(overviewAdmin);
     }
 
+    /**
+     * 检查id跟对应的userId是否合法
+     * @param id
+     * @param userId
+     */
+    public void checkIdAndUserId(Integer id, Integer userId) {
+        OverviewAdmin overviewAdmin = this.findOne(new OverviewAdmin().setOverviewId(id).setUserId(userId));
+        Assert.notNull(overviewAdmin, "不存在该用户");
+    }
 
 }
