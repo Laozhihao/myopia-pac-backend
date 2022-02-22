@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
+import com.wupol.myopia.business.common.utils.domain.model.NotificationConfig;
 import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.StudentDO;
 import lombok.Data;
@@ -84,6 +85,9 @@ public class ScreeningStudentDTO extends StudentDO {
      * 结果通知配置
      */
     private ResultNoticeConfig resultNoticeConfig;
+
+
+    private NotificationConfig screeningOrgConfigs;
 
     /**
      * 结果通知配置文件URL

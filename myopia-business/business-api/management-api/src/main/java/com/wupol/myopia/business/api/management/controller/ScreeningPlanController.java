@@ -93,7 +93,7 @@ public class ScreeningPlanController {
     @Autowired
     private VisionScreeningResultService visionScreeningResultService;
     @Autowired
-    private ExportScreeningQrCodeService exportScreeningQrCodeService;
+    private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     /**
      * 新增
      *
@@ -219,6 +219,23 @@ public class ScreeningPlanController {
         // 任务状态判断
         screeningExportService.validateExist(screeningPlanId);
         return screeningPlanSchoolStudentFacadeService.getSchoolGradeVoByPlanIdAndSchoolId(screeningPlanId, schoolId);
+    }
+
+    /**
+     * 获取计划学校-年级-班级 下的学生
+     * @param screeningPlanId 筛查计划ID
+     * @param schoolId  学校ID
+     * @param gradeId 年级ID
+     * @param classId 班级ID
+     * @return
+     */
+    @GetMapping("students/{screeningPlanId}/{schoolId}/{gradeId}/{classId}")
+    public List<ScreeningPlanSchoolStudent> queryGradesInfo(@PathVariable Integer screeningPlanId, @PathVariable Integer schoolId,
+                                               @PathVariable Integer gradeId,@PathVariable Integer classId) {
+        // 任务状态判断
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getByPlanIdAndSchoolIdAndGradeIdAndClassId(screeningPlanId, schoolId,
+                gradeId, classId);
+        return screeningPlanSchoolStudents;
     }
 
     /**
@@ -552,11 +569,11 @@ public class ScreeningPlanController {
      * @return
      */
     @GetMapping("/student/QRCode")
-    public List<ScreeningStudentDTO> studentQRCodeFile(@NotNull(message = "筛查计划ID不能为空") Integer screeningPlanId,
+    public Object studentQRCodeFile(@NotNull(message = "筛查计划ID不能为空") Integer screeningPlanId,
             @NotNull(message = "学校ID不能为空") Integer schoolId, Integer gradeId, Integer classId, String planStudentIds,
             Integer type) {
         List<Integer> studentIds =null;
-        if (planStudentIds!=null){
+        if (planStudentIds!=null&&!planStudentIds.equals("null")){
             List<String> pladnStudentIdsTemp = Arrays.asList(",");
             studentIds= pladnStudentIdsTemp.stream().map(Integer::parseInt).collect(Collectors.toList());
         }
@@ -574,9 +591,10 @@ public class ScreeningPlanController {
      */
     @GetMapping("/student/notice")
     public Map<String, Object> studentNoticeData(@NotNull(message = "筛查计划ID不能为空") Integer screeningPlanId,
-                                                 @NotNull(message = "学校ID不能为空") Integer schoolId, Integer gradeId, Integer classId, String planStudentIds) {
+                                                 @NotNull(message = "学校ID不能为空") Integer schoolId, Integer gradeId,
+                                                 Integer classId, String planStudentIds) {
         List<Integer> studentIds =null;
-        if (planStudentIds!=null){
+        if (planStudentIds!=null&&!planStudentIds.equals("null")){
             List<String> pladnStudentIdsTemp = Arrays.asList(",");
             studentIds= pladnStudentIdsTemp.stream().map(Integer::parseInt).collect(Collectors.toList());
         }

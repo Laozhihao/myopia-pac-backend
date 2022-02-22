@@ -111,7 +111,6 @@ public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
             List<String> pladnStudentIdsTemp = Arrays.asList(",");
             pladnStudentIds= pladnStudentIdsTemp.stream().map(Integer::parseInt).collect(Collectors.toList());
         }
-
         // 2. 处理参数
         List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.selectBySchoolGradeAndClass(
                 exportCondition.getPlanId(), exportCondition.getSchoolId(),

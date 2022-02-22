@@ -150,51 +150,36 @@ public class ScreeningExportService {
 
     public Map<String, Object> getNoticeData(Integer screeningPlanId, Integer schoolId,Integer gradeId,Integer classId,List<Integer> studentIds) {
         // 1. 校验
-
+//        validateExistAndAuthorize(screeningPlanId, CommonConst.STATUS_NOT_RELEASE);
         // 2. 处理参数
         School school = schoolService.getBySchoolId(schoolId);
-        String gradeName = "";
-        SchoolGrade schoolGrade = schoolGradeService.getById(classId);
-        if (schoolGrade!=null){
-            gradeName = schoolGrade.getName();
-        }
-        String className = "";
-        SchoolClass schoolClass = schoolClassService.getById(gradeId);
-        if (schoolClass!=null){
-            className = schoolClass.getName();
-        }
-        String classDisplay = String.format("%s%s%s", school.getName(),gradeName, className);
-        String fileName = String.format("%s-%s-告知书", classDisplay, DateFormatUtil.formatNow(DateFormatUtil.FORMAT_TIME_WITHOUT_LINE));
-        ScreeningPlan plan = screeningPlanService.getById(screeningPlanId);
+        SchoolGrade schoolGrade = schoolGradeService.getById(gradeId);
+        SchoolClass schoolClass = schoolClassService.getById(classId);
 
+        String classDisplay = String.format("%s%s", schoolGrade.getName(), schoolClass.getName());
+        String fileName = String.format("%s-%s-告知书", classDisplay, DateFormatUtil.formatNow(DateFormatUtil.FORMAT_TIME_WITHOUT_LINE));
+
+        ScreeningPlan plan = screeningPlanService.getById(screeningPlanId);
         List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.selectBySchoolGradeAndClass(screeningPlanId, schoolId, gradeId,classId,studentIds);
         QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white).setMargin(1);
         students.forEach(student -> {
             student.setQrCodeUrl(QrCodeUtil.generateAsBase64(String.format(QrCodeConstant.QR_CODE_CONTENT_FORMAT_RULE, student.getPlanStudentId()), config, "jpg"));
             student.setGenderDesc(GenderEnum.getName(student.getGender()));
+            student.setScreeningOrgConfigs(school.getNotificationConfig());
         });
-
-
         NotificationConfig notificationConfig;
         // 如果学校Id不为空，说明是学校端进行的导出，使用学校自己的告知书配置
-//        if (Objects.nonNull(schoolId)) {
-//            notificationConfig = school.getNotificationConfig();
-//        } else {
-//            ScreeningOrgResponseDTO screeningOrganization = screeningOrganizationService.getScreeningOrgDetails(plan.getScreeningOrgId());
-//            notificationConfig = screeningOrganization.getNotificationConfig();
-//        }
-
-        ScreeningOrgResponseDTO screeningOrganization = screeningOrganizationService.getScreeningOrgDetails(plan.getScreeningOrgId());
-        notificationConfig = screeningOrganization.getNotificationConfig();
-
+        if (Objects.nonNull(schoolId)) {
+            notificationConfig = school.getNotificationConfig();
+        } else {
+            ScreeningOrgResponseDTO screeningOrganization = screeningOrganizationService.getScreeningOrgDetails(plan.getScreeningOrgId());
+            notificationConfig = screeningOrganization.getNotificationConfig();
+        }
         Map<String, Object> models = new HashMap<>(16);
-        models.put("screeningOrgConfigs", notificationConfig);
+        models.put("screeningOrgConfigs", school.getNotificationConfig());
         models.put("students", students);
         models.put("classDisplay", classDisplay);
         models.put("schoolName", school.getName());
-        models.put("gradeName", gradeName);
-        models.put("className", className);
-        models.put("fileName", fileName);
         if (Objects.nonNull(notificationConfig)
                 && Objects.nonNull(notificationConfig.getQrCodeFileId())
                 && !notificationConfig.getQrCodeFileId().equals(DEFAULT_FILE_ID)
@@ -203,7 +188,6 @@ public class ScreeningExportService {
         } else {
             models.put("qrCodeFile", DEFAULT_IMAGE_PATH);
         }
-
         return models;
     }
 

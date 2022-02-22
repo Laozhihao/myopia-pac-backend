@@ -307,23 +307,20 @@ public class GeneratePdfFileService {
      */
     public void generateExportScreenQrcodePdfFile(List<ScreeningStudentDTO> students,ExportCondition exportCondition, String fileSavePath, String fileName,Integer type){
 
-        Map<Integer, List<ScreeningStudentDTO>> mapGroup = students.stream().collect(Collectors.groupingBy(t -> t.getClassId()));
-        for (Integer classId:mapGroup.keySet()){
-
-            ScreeningStudentDTO screeningStudentDTO = mapGroup.get(classId).get(0);
+        for(ScreeningStudentDTO screeningStudentDTO:students){
             String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.STUDENT_QRCODE_HTML_URL,htmlUrlHost,
                     exportCondition.getPlanId(), exportCondition.getSchoolId(),
                     Objects.nonNull( exportCondition.getGradeId()) ? exportCondition.getGradeId() : StringUtils.EMPTY,
                     Objects.nonNull( exportCondition.getClassId()) ? exportCondition.getClassId() : StringUtils.EMPTY,
                     Objects.nonNull(exportCondition.getPlanStudentIds()) ? exportCondition.getPlanStudentIds() : StringUtils.EMPTY,
                     type);
-            String dir = fileSavePath + "/" + fileName + "/" + screeningStudentDTO.getSchoolName() + "/" + screeningStudentDTO.getGradeName();
-            String uuid = UUID.randomUUID().toString();
 
+            String dir =  Paths.get(fileSavePath,fileName,screeningStudentDTO.getSchoolName(),screeningStudentDTO.getGradeName()).toString();
+            String uuid = UUID.randomUUID().toString();
             PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(schoolPdfHtmlUrl, fileName+".pdf", uuid);
             log.info("response:{}", JSONObject.toJSONString(pdfResponseDTO));
             try {
-                FileUtils.downloadFile(pdfResponseDTO.getUrl(),dir+"/"+fileName + ".pdf");
+                FileUtils.downloadFile(pdfResponseDTO.getUrl(), Paths.get(dir,fileName)+".pdf");
             } catch (Exception e) {
                 log.error("Exception", e);
             }
