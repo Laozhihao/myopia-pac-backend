@@ -132,3 +132,5 @@ white-list:
   - "/actuator/health"
   - "/management/screeningPlan/screeningNoticeResult"
   - "/management/screeningPlan/student/QRCode"
+  - "/management/screeningPlan/student/notice"
+  - "/management/report/screeningOrg/qrcode"

@@ -208,7 +208,7 @@ public class ReportController {
                                           Integer gradeId,
                                           Integer classId,
                                           String planStudentIds,
-                                          Integer type,
+                                          @NotNull(message = "TypeID不能为空") Integer type,
                                           boolean syncExport
                                           ) throws IOException {
 

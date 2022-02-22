@@ -2,6 +2,7 @@ package com.wupol.myopia.business.aggregation.export.pdf.qrcode;
 
 import cn.hutool.extra.qrcode.QrCodeUtil;
 import cn.hutool.extra.qrcode.QrConfig;
+import com.alibaba.csp.sentinel.util.StringUtil;
 import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.BaseExportPdfFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.GeneratePdfFileService;
@@ -107,9 +108,8 @@ public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
 
     public List<ScreeningStudentDTO> getStudentData(ExportCondition exportCondition){
         List<Integer> pladnStudentIds =null;
-        if (exportCondition.getPlanStudentIds()!=null){
-            List<String> pladnStudentIdsTemp = Arrays.asList(",");
-            pladnStudentIds= pladnStudentIdsTemp.stream().map(Integer::parseInt).collect(Collectors.toList());
+        if (StringUtil.isNotEmpty(exportCondition.getPlanStudentIds())&&!exportCondition.getPlanStudentIds().equals("null")){
+            pladnStudentIds = Arrays.stream(exportCondition.getPlanStudentIds().split(",")).map(Integer::valueOf).collect(Collectors.toList());
         }
         // 2. 处理参数
         List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.selectBySchoolGradeAndClass(

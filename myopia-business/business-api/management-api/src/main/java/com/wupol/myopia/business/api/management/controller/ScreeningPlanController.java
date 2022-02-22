@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.controller;
 
+import com.alibaba.csp.sentinel.util.StringUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
@@ -573,9 +574,8 @@ public class ScreeningPlanController {
             @NotNull(message = "学校ID不能为空") Integer schoolId, Integer gradeId, Integer classId, String planStudentIds,
             Integer type) {
         List<Integer> studentIds =null;
-        if (planStudentIds!=null&&!planStudentIds.equals("null")){
-            List<String> pladnStudentIdsTemp = Arrays.asList(",");
-            studentIds= pladnStudentIdsTemp.stream().map(Integer::parseInt).collect(Collectors.toList());
+        if (StringUtil.isNotEmpty(planStudentIds)&&!planStudentIds.equals("null")){
+            studentIds = Arrays.stream(planStudentIds.split(",")).map(Integer::valueOf).collect(Collectors.toList());
         }
         return screeningExportService.studentQRCodeFile(screeningPlanId, schoolId,gradeId,classId,studentIds,type);
     }
@@ -594,9 +594,8 @@ public class ScreeningPlanController {
                                                  @NotNull(message = "学校ID不能为空") Integer schoolId, Integer gradeId,
                                                  Integer classId, String planStudentIds) {
         List<Integer> studentIds =null;
-        if (planStudentIds!=null&&!planStudentIds.equals("null")){
-            List<String> pladnStudentIdsTemp = Arrays.asList(",");
-            studentIds= pladnStudentIdsTemp.stream().map(Integer::parseInt).collect(Collectors.toList());
+        if (StringUtil.isNotEmpty(planStudentIds)&&!planStudentIds.equals("null")){
+            studentIds = Arrays.stream(planStudentIds.split(",")).map(Integer::valueOf).collect(Collectors.toList());
         }
         return screeningExportService.getNoticeData(screeningPlanId, schoolId,gradeId,classId,studentIds);
     }
