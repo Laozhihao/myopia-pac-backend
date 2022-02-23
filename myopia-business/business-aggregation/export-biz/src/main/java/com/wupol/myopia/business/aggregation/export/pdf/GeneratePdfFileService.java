@@ -307,7 +307,9 @@ public class GeneratePdfFileService {
      */
     public void generateExportScreenQrcodePdfFile(List<ScreeningStudentDTO> students,ExportCondition exportCondition, String fileSavePath, String fileName,Integer type){
 
-        for(ScreeningStudentDTO screeningStudentDTO:students){
+        Map<Integer, List<ScreeningStudentDTO>> mapGroup = students.stream().collect(Collectors.groupingBy(t -> t.getClassId()));
+        for (Integer classId:mapGroup.keySet()){
+            ScreeningStudentDTO screeningStudentDTO = mapGroup.get(classId).get(0);
             String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.STUDENT_QRCODE_HTML_URL,htmlUrlHost,
                     exportCondition.getPlanId(), exportCondition.getSchoolId(),
                     Objects.nonNull( exportCondition.getGradeId()) ? exportCondition.getGradeId() : StringUtils.EMPTY,
@@ -326,6 +328,25 @@ public class GeneratePdfFileService {
                 log.error("Exception", e);
             }
         }
+//        for(ScreeningStudentDTO screeningStudentDTO:students){
+//            String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.STUDENT_QRCODE_HTML_URL,htmlUrlHost,
+//                    exportCondition.getPlanId(), exportCondition.getSchoolId(),
+//                    Objects.nonNull( exportCondition.getGradeId()) ? exportCondition.getGradeId() : StringUtils.EMPTY,
+//                    Objects.nonNull( exportCondition.getClassId()) ? exportCondition.getClassId() : StringUtils.EMPTY,
+//                    Objects.nonNull(exportCondition.getPlanStudentIds()) ? exportCondition.getPlanStudentIds() : StringUtils.EMPTY,
+//                    type);
+//
+//            String dir =  Paths.get(fileSavePath,fileName,screeningStudentDTO.getSchoolName(),screeningStudentDTO.getGradeName()).toString();
+//            String uuid = UUID.randomUUID().toString();
+//            log.info("请求路径:{}", schoolPdfHtmlUrl);
+//            PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(schoolPdfHtmlUrl, fileName+".pdf", uuid);
+//            log.info("响应参数:{}", JSONObject.toJSONString(pdfResponseDTO));
+//            try {
+//                FileUtils.downloadFile(pdfResponseDTO.getUrl(), Paths.get(dir,fileName)+".pdf");
+//            } catch (Exception e) {
+//                log.error("Exception", e);
+//            }
+//        }
 
     }
 
