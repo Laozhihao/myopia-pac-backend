@@ -298,6 +298,7 @@
         select mspss.student_name      as name,
                mspss.student_no        as sno,
                mspss.school_name	   as schoolName,
+               mspss.grade_id          as gradeId,
                mspss.grade_name        as gradeName,
                mspss.class_name        as className,
                mspss.class_id          as classId,
