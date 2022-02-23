@@ -45,7 +45,7 @@ public class ScreeningPlanBizService {
      * @param schoolId
      * @param currentPlan
      */
-    public void insertWithStudent(CurrentUser currentUser, Student student, String gradeName, String clazzName, String schoolName, String schoolNo, Integer schoolDistrictId, Integer schoolId, ScreeningPlan currentPlan) {
+    public void insertWithStudent(CurrentUser currentUser, Student student, String gradeName, String clazzName, String schoolName, String schoolNo, Integer schoolDistrictId, Integer schoolId, ScreeningPlan currentPlan,String passport) {
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = new ScreeningPlanSchoolStudent();
         Long screeningCode = ScreeningCodeGenerator.nextId();
         screeningPlanSchoolStudent.setIdCard(student.getIdCard())
@@ -58,6 +58,7 @@ public class ScreeningPlanBizService {
                 .setSchoolId(schoolId)
                 .setSchoolName(schoolName)
                 .setStudentId(student.getId())
+                .setPassport(passport)
                 .setScreeningCode(screeningCode);
 
         screeningPlanSchoolStudent.setStudentName(student.getName())

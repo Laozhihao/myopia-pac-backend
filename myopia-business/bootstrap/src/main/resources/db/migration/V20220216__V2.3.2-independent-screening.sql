@@ -12,3 +12,6 @@ alter table m_screening_plan_school_student
 
 create unique index m_student_passport_uindex
     on m_student (passport);
+
+alter table m_vision_screening_result
+    add height_and_weight_data json DEFAULT NULL COMMENT '筛查结果--身高体重';

@@ -387,6 +387,17 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     }
 
     /**
+     * 筛查端更新学生
+     *
+     * @param student 学生实体
+     * @return 学生实体
+     */
+    public void updateScreenStudent(Student student) {
+        // 更新学生
+        baseMapper.updateById(student);
+    }
+
+    /**
      * 获取学生联系人电话
      *
      * @param studentIds
