@@ -196,11 +196,16 @@ public class ReportController {
     }
 
     /**
-     * @Description: 导出学校筛查报告PDF
-     * @Param: [筛检计划ID, 筛查机构ID, 学校ID]
-     * @return: void
-     * @Author: 钓猫的小鱼
-     * @Date: 2021/12/30
+     *
+     * @param screeningPlanId 筛查计划ID
+     * @param schoolId 学校ID
+     * @param gradeId 年级ID
+     * @param classId 班级ID
+     * @param planStudentIds 学生集会
+     * @param type
+     * @param syncExport
+     * @return
+     * @throws IOException
      */
     @GetMapping("/screeningOrg/qrcode")
     public ApiResult<String> getScreeningStudentQrCode(@NotNull(message = "筛查计划ID不能为空") Integer screeningPlanId,
