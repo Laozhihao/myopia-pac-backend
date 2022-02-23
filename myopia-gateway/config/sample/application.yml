@@ -134,3 +134,5 @@ white-list:
   - "/management/screeningPlan/student/QRCode"
   - "/management/screeningPlan/student/notice"
   - "/management/report/screeningOrg/qrcode"
+  - "/school/management/student/notice"
+  - "/school/management/student/QRCode"
