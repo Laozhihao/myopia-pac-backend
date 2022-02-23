@@ -199,7 +199,7 @@ public class ScreeningExportService {
      * @return
      */
     public List<Map<String, String>> getQrCodeAndStudentInfo(AppQueryQrCodeParams params) {
-        List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.getScreeningNoticeResultStudent(params.getScreeningPlanId(), params.getSchoolId(), params.getGradeId(), params.getClassId(), null, params.getStudentName());
+        List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.getScreeningNoticeResultStudent(null, params.getSchoolId(), params.getGradeId(), params.getClassId(), null, params.getStudentName());
         if (CollectionUtils.isEmpty(students)) {
             return null;
         }
@@ -211,13 +211,12 @@ public class ScreeningExportService {
             result.put("gender", student.getGenderDesc());
             result.put("gradeName", student.getGradeName());
             result.put("className", student.getClassName());
-            QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white).setMargin(1);
             if (CommonConst.EXPORT_SCREENING_QRCODE.equals(type)) {
-                result.put("qrCodeUrl", QrCodeUtil.generateAsBase64(String.format(QrCodeConstant.SCREENING_CODE_QR_CONTENT_FORMAT_RULE, student.getPlanStudentId()), config, "jpg"));
+                result.put("qrCodeContent", String.format(QrCodeConstant.SCREENING_CODE_QR_CONTENT_FORMAT_RULE, student.getPlanStudentId()));
             } else if (CommonConst.EXPORT_VS666.equals(type)) {
-                result.put("qrCodeUrl", QrCodeUtil.generateAsBase64(setVs666QrCodeRule(student), config, "jpg"));
+                result.put("qrCodeContent", setVs666QrCodeRule(student));
             } else {
-                result.put("qrCodeUrl", QrCodeUtil.generateAsBase64(String.format(QrCodeConstant.QR_CODE_CONTENT_FORMAT_RULE, student.getPlanStudentId()), config, "jpg"));
+                result.put("qrCodeContent", String.format(QrCodeConstant.QR_CODE_CONTENT_FORMAT_RULE, student.getPlanStudentId()));
             }
             return result;
         }).collect(Collectors.toList());

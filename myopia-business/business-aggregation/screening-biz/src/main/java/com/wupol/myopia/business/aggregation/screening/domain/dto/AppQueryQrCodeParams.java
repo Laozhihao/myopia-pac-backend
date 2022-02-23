@@ -7,11 +7,6 @@ import javax.validation.constraints.NotNull;
 
 @Data
 public class AppQueryQrCodeParams {
-    /**
-     * 筛查计划--计划id
-     */
-    @NotNull(message = "筛查计划ID不能为空")
-    private Integer screeningPlanId;
 
     /**
      * 学校ID
