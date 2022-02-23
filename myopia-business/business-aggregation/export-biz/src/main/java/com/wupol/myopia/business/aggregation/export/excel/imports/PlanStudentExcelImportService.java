@@ -324,7 +324,7 @@ public class PlanStudentExcelImportService {
             planStudent.setGradeType(student.getGradeType());
             planStudent.setSchoolDistrictId(school.getDistrictId());
             planStudent.setPlanDistrictId(plan.getDistrictId());
-            if (Objects.nonNull(planStudent.getScreeningCode())) {
+            if (Objects.isNull(planStudent.getScreeningCode())) {
                 planStudent.setScreeningCode(ScreeningCodeGenerator.nextId());
             }
             packagePlanStudentByStudent(student, planStudent);
