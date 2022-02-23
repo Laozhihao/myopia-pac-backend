@@ -27,17 +27,4 @@ public class HeightAndWeightDataDO extends AbstractDiagnosisResult implements Se
      * 体重
      */
     private BigDecimal weight;
-
-    @Data
-    @Accessors(chain = true)
-    public static class HeightAndWeightData implements Serializable {
-        /**
-         * 身高
-         */
-        private BigDecimal  height;
-        /**
-         * 体重
-         */
-        private BigDecimal weight;
-    }
 }
