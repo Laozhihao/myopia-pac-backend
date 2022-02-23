@@ -115,15 +115,21 @@
                sg.name   as gradeName,
                sc.name   as className,
                mspss.screening_code as screeningCode,
-               mspss.id             as planStudentId
+               mspss.id             as planStudentId,
+               mspss.screening_plan_id as planId,
+               mspss.screening_org_id
         FROM m_screening_plan_school_student mspss
         left join m_school ms on ms.id = mspss.school_id
         left join m_school_grade sg on sg.id = mspss.grade_id
         left join m_school_class sc on sc.id = mspss.class_id
         <where>
             <trim prefixOverrides="and">
-                AND mspss.screening_plan_id = #{param.screeningPlanId}
+                <if test="param.screeningPlanId != null">
+                    AND mspss.screening_plan_id = #{param.screeningPlanId}
+                </if>
+                <if test="param.schoolId != null">
                     AND mspss.school_id = #{param.schoolId}
+                </if>
                 <if test="param.nameLike != null and param.nameLike != ''">
                     and mspss.`student_name` like CONCAT('%', #{param.nameLike}, '%')
                 </if>
@@ -147,6 +153,21 @@
                 </if>
                 <if test="param.screeningCode != null and param.screeningCode != ''">
                     and mspss.`screening_code` like CONCAT('%', #{param.screeningCode}, '%')
+                </if>
+                <if test="param.passportLike != null and param.passportLike != ''">
+                    and mspss.`passport` like CONCAT('%', #{param.passportLike}, '%')
+                </if>
+                <if test="param.schoolNameLike != null and param.schoolNameLike != ''">
+                    and mspss.`schoolName` like CONCAT('%', #{param.schoolNameLike}, '%')
+                </if>
+                <if test="param.mockStatus != null">
+                    and mspss.mock_status = #{param.mockStatus}
+                </if>
+                <if test="param.planIds != null and param.planIds.size > 0">
+                    and mspss.screening_plan_id in
+                    <foreach collection="param.planIds" open="(" close=")" separator="," item="item">
+                        #{item}
+                    </foreach>
                 </if>
             </trim>
         </where>

@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import java.util.Date;
+
 /**
  * 学生DTO
  *
@@ -120,7 +122,6 @@ public class ScreeningStudentDTO extends StudentDO {
      */
     private String lCyl;
 
-
     /**
      * 轴位 右/左
      */
@@ -134,4 +135,23 @@ public class ScreeningStudentDTO extends StudentDO {
      * 是否已经筛查过
      **/
     private Boolean hasScreening;
+
+    /**
+     * 筛查机构名称
+     **/
+    private String screeningOrgName;
+
+    /**
+     * 开始时间
+     */
+    private Date startTime;
+
+    /**
+     * 结束时间
+     */
+    private Date endTime;
+    /**
+     * 筛查机构id
+     */
+    private Integer screeningOrgId;
 }
