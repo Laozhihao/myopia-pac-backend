@@ -315,11 +315,11 @@ public class GeneratePdfFileService {
                     Objects.nonNull(exportCondition.getPlanStudentIds()) ? exportCondition.getPlanStudentIds() : StringUtils.EMPTY,
                     type);
 
-            String dir =  Paths.get(fileSavePath,fileName,screeningStudentDTO.getSchoolName(),screeningStudentDTO.getGradeName()
-                    ,screeningStudentDTO.getClassName()).toString();
+            String dir =  Paths.get(fileSavePath,fileName,screeningStudentDTO.getSchoolName(),screeningStudentDTO.getGradeName()).toString();
             String uuid = UUID.randomUUID().toString();
+            log.info("请求路径:{}", schoolPdfHtmlUrl);
             PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(schoolPdfHtmlUrl, fileName+".pdf", uuid);
-            log.info("response:{}", JSONObject.toJSONString(pdfResponseDTO));
+            log.info("响应参数:{}", JSONObject.toJSONString(pdfResponseDTO));
             try {
                 FileUtils.downloadFile(pdfResponseDTO.getUrl(), Paths.get(dir,fileName)+".pdf");
             } catch (Exception e) {
