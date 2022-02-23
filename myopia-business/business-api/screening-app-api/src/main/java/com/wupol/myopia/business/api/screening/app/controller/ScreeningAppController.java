@@ -646,7 +646,7 @@ public class ScreeningAppController {
      * @return
      */
     @GetMapping("/export/QRCode")
-    public Map<String, String> exportQRCode(@Valid AppQueryQrCodeParams appQueryQrCodeParams) {
+    public List<Map<String, String>> exportQRCode(@Valid AppQueryQrCodeParams appQueryQrCodeParams) {
         try {
             return screeningExportService.getQrCodeAndStudentInfo(appQueryQrCodeParams);
         } catch (Exception e) {

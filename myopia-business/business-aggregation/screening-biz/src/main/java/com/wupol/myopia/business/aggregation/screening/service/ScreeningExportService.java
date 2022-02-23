@@ -41,6 +41,7 @@ import java.awt.*;
 import java.io.File;
 import java.util.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 筛查导出相关
@@ -197,28 +198,29 @@ public class ScreeningExportService {
      * @param params
      * @return
      */
-    public Map<String, String> getQrCodeAndStudentInfo(AppQueryQrCodeParams params) {
-        List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.getScreeningNoticeResultStudent(params.getScreeningPlanId(), null, null, null, Collections.singletonList(params.getStudentId()), null);
+    public List<Map<String, String>> getQrCodeAndStudentInfo(AppQueryQrCodeParams params) {
+        List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.getScreeningNoticeResultStudent(params.getScreeningPlanId(), params.getSchoolId(), params.getGradeId(), params.getClassId(), null, params.getStudentName());
         if (CollectionUtils.isEmpty(students)) {
-            throw new BusinessException("学生Id不存在");
+            return null;
         }
-        ScreeningStudentDTO student = students.get(0);
-        student.setGenderDesc(GenderEnum.getName(student.getGender()));
-        int type = params.getType();
-        Map<String, String> result = new HashMap<>();
-        result.put("name", student.getName());
-        result.put("gender", student.getGenderDesc());
-        result.put("gradeName", student.getGradeName());
-        result.put("className", student.getClassName());
-        QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white).setMargin(1);
-        if (CommonConst.EXPORT_SCREENING_QRCODE.equals(type)) {
-            result.put("qrCodeUrl", QrCodeUtil.generateAsBase64(String.format(QrCodeConstant.SCREENING_CODE_QR_CONTENT_FORMAT_RULE, student.getPlanStudentId()), config, "jpg"));
-        } else if (CommonConst.EXPORT_VS666.equals(type)) {
-            result.put("qrCodeUrl", QrCodeUtil.generateAsBase64(setVs666QrCodeRule(student), config, "jpg"));
-        } else {
-            result.put("qrCodeUrl", QrCodeUtil.generateAsBase64(String.format(QrCodeConstant.QR_CODE_CONTENT_FORMAT_RULE, student.getPlanStudentId()), config, "jpg"));
-        }
-        return result;
+        return students.stream().map(student -> {
+            student.setGenderDesc(GenderEnum.getName(student.getGender()));
+            int type = params.getType();
+            Map<String, String> result = new HashMap<>();
+            result.put("name", student.getName());
+            result.put("gender", student.getGenderDesc());
+            result.put("gradeName", student.getGradeName());
+            result.put("className", student.getClassName());
+            QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white).setMargin(1);
+            if (CommonConst.EXPORT_SCREENING_QRCODE.equals(type)) {
+                result.put("qrCodeUrl", QrCodeUtil.generateAsBase64(String.format(QrCodeConstant.SCREENING_CODE_QR_CONTENT_FORMAT_RULE, student.getPlanStudentId()), config, "jpg"));
+            } else if (CommonConst.EXPORT_VS666.equals(type)) {
+                result.put("qrCodeUrl", QrCodeUtil.generateAsBase64(setVs666QrCodeRule(student), config, "jpg"));
+            } else {
+                result.put("qrCodeUrl", QrCodeUtil.generateAsBase64(String.format(QrCodeConstant.QR_CODE_CONTENT_FORMAT_RULE, student.getPlanStudentId()), config, "jpg"));
+            }
+            return result;
+        }).collect(Collectors.toList());
     }
 
     /**
