@@ -83,6 +83,15 @@ public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
         if (schoolClass!=null&&schoolClass.getName()!=null){
             className = schoolClass.getName();
         }
+        if (exportCondition.getType().equals(0)){
+            return String.format(PDFFileNameConstant.REPORT_NOTICE_RQCODE_FILE_NAME, schoolName,gradeName,className);
+        }else if (exportCondition.getType().equals(1)){
+            return String.format(PDFFileNameConstant.REPORT_SCREENING_RQCODE_FILE_NAME, schoolName,gradeName,className);
+        }else if (exportCondition.getType().equals(2)){
+            return String.format(PDFFileNameConstant.REPORT_VS666_RQCODE_FILE_NAME, schoolName,gradeName,className);
+        }else if (exportCondition.getType().equals(3)){
+            return String.format(PDFFileNameConstant.REPORT_FICT_RQCODE_FILE_NAME, schoolName,gradeName,className);
+        }
         return String.format(PDFFileNameConstant.REPORT_RQCODE_FILE_NAME, schoolName,gradeName,className);
     }
 
@@ -93,7 +102,8 @@ public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
                 exportCondition.getPlanId(),
                 exportCondition.getSchoolId(),
                 exportCondition.getGradeId(),
-                exportCondition.getClassId()
+                exportCondition.getClassId(),
+                exportCondition.getPlanStudentIds()
         );
     }
 

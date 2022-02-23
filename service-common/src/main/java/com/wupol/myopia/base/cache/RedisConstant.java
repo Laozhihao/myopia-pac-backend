@@ -198,6 +198,6 @@ public interface RedisConstant {
     /**
      * 导出PDF-区域-筛查机构
      */
-    String FILE_EXPORT_PDF_QRCODE_SCREENING = "file:export:pdf:qrcode:screening:%s-%s-%s-%s-%s";
+    String FILE_EXPORT_PDF_QRCODE_SCREENING = "file:export:pdf:qrcode:screening:%s-%s-%s-%s-%s-%s";
 
 }
