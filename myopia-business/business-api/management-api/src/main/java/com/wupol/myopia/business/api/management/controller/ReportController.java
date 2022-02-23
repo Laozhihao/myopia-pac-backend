@@ -217,8 +217,7 @@ public class ReportController {
                                           ) throws IOException {
 
         ExportCondition exportCondition = new ExportCondition()
-//                .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId())
-                .setApplyExportFileUserId(1)
+                .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId())
                 .setPlanId(screeningPlanId)
                 .setSchoolId(schoolId)
                 .setGradeId(gradeId)
