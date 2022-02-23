@@ -85,6 +85,7 @@ public class HospitalWorkbenchPatientController {
      */
     @PutMapping
     public void updateHospitalStudent(@RequestBody HospitalStudent hospitalStudent) {
+        hospitalStudent.checkStudentInfo();
         hospitalStudentService.updateById(hospitalStudent);
     }
 
