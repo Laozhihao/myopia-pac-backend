@@ -453,13 +453,11 @@ public class ScreeningPlanStudentBizService {
             screeningPlanLambdaQueryWrapper.lt(ScreeningPlan::getStartTime, mockPlanStudentQueryDTO.getEndScreeningTime()).ge(ScreeningPlan::getEndTime, mockPlanStudentQueryDTO.getStartScreeningTime());
         }
         Set<Integer> screeningPlanIds = null;
-        Map<Integer, ScreeningPlan> screeningPlanMap = null;
         //如果筛查时间以及筛查机构的查询条件存在的话,对screenPlan进行查询
         if (StringUtils.isNotBlank(screeningPlanLambdaQueryWrapper.getCustomSqlSegment())) {
             List<ScreeningPlan> screeningPlans = screeningPlanService.getBaseMapper().selectList(screeningPlanLambdaQueryWrapper);
-            screeningPlanMap = screeningPlans.stream().collect(Collectors.toMap(ScreeningPlan::getId, Function.identity(), (v1, v2) -> v2));
-            screeningPlanIds = screeningPlanMap.keySet();
-            if (com.alibaba.excel.util.CollectionUtils.isEmpty(screeningPlanIds)) {
+            screeningPlanIds = screeningPlans.stream().map(ScreeningPlan::getId).collect(Collectors.toSet());
+            if (CollectionUtils.isEmpty(screeningPlanIds)) {
                 // 可以直接返回空
                 return new Page<>();
             }
@@ -490,16 +488,11 @@ public class ScreeningPlanStudentBizService {
             Set<Integer> orgIdSet = records.stream().map(ScreeningStudentDTO::getScreeningOrgId).collect(Collectors.toSet());
             orgIdMap = screeningOrganizationService.getByIds(orgIdSet).stream().collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization::getName, (v1, v2) -> v2));
         }
-        if (MapUtils.isEmpty(screeningPlanMap)) {
-            Set<Integer> planIdSet = records.stream().map(ScreeningStudentDTO::getPlanId).collect(Collectors.toSet());
-            screeningPlanMap = screeningPlanService.getByIds(planIdSet).stream().collect(Collectors.toMap(ScreeningPlan::getId, Function.identity(), (v1, v2) -> v2));
-        }
 
         //作者：钓猫的小鱼。  描述：给学生扩展类赋值
         for (ScreeningStudentDTO studentDTO : screeningPlanIPage.getRecords()) {
             studentDTO.setNationDesc(NationEnum.getName(studentDTO.getNation()))
                     .setAddress(districtService.getAddressDetails(studentDTO.getProvinceCode(), studentDTO.getCityCode(), studentDTO.getAreaCode(), studentDTO.getTownCode(), studentDTO.getAddress()));
-            studentDTO.setStartTime(screeningPlanMap.get(studentDTO.getPlanId()).getStartTime()).setEndTime(screeningPlanMap.get(studentDTO.getPlanId()).getEndTime());
             studentDTO.setScreeningOrgName(orgIdMap.get(studentDTO.getScreeningOrgId()));
             setStudentEyeInfo(studentDTO, visionScreeningResultsGroup);
         }
@@ -535,6 +528,9 @@ public class ScreeningPlanStudentBizService {
         //眼轴
         String axial = EyeDataUtil.computerRightAxial(visionScreeningResult) + "/" + EyeDataUtil.computerLeftAxial(visionScreeningResult);
         studentEyeInfo.setAxial(axial);
+
+        //设置筛查时间
+        studentEyeInfo.setScreeningTime(visionScreeningResult.getCreateTime());
 
     }
 }

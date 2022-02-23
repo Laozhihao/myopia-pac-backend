@@ -142,14 +142,10 @@ public class ScreeningStudentDTO extends StudentDO {
     private String screeningOrgName;
 
     /**
-     * 开始时间
+     * 筛查时间
      */
-    private Date startTime;
+    private Date screeningTime;
 
-    /**
-     * 结束时间
-     */
-    private Date endTime;
     /**
      * 筛查机构id
      */
