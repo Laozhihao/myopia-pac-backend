@@ -76,9 +76,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         if (Objects.isNull(user)) {
             throw new AuthenticationCredentialsNotFoundException("账号或密码错误!");
         }
-//        if (!organizationService.getOrgStatus(user.getOrgId(), user.getSystemCode(), user.getUserType())) {
-//            throw new AccountExpiredException("该账号未在服务期内，请联系管理员！");
-//        }
+        if (!organizationService.getOrgStatus(user.getOrgId(), user.getSystemCode(), user.getUserType())) {
+            throw new AccountExpiredException("该账号未在服务期内，请联系管理员！");
+        }
         return user;
     }
 
