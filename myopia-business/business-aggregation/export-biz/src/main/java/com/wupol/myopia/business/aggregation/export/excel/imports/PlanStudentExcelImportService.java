@@ -171,6 +171,10 @@ public class PlanStudentExcelImportService {
             ScreeningPlanSchoolStudent planSchoolStudent = existPlanStudentScreeningCodeMap.get(Long.valueOf(screeningCode));
             // 筛查编码没绑定证件号
             if (StringUtils.isAllBlank(planSchoolStudent.getIdCard(), planSchoolStudent.getPassport())) {
+                ScreeningPlanSchoolStudent planStudent = getPlanStudent(existPlanStudentIdCardMap, existPlanStudentPassportMap, idCard, passport);
+                if (Objects.nonNull(planStudent) && !planStudent.getScreeningCode().equals(planSchoolStudent.getScreeningCode())) {
+                    throw new BusinessException("筛查编码" + screeningCode + "信息异常：身份证/护照重复");
+                }
                 notBindPaperworkUpload(userId, existManagementStudentIdCardMap, existManagementStudentPassportMap, noPaperworkHaveStudentPlanStudents, noPaperworkStudents, noPaperworkPlanStudents, idCard, passport, sno, gender, studentName, nation, birthday, gradeClassInfo, gradeType, planSchoolStudent, phone, school);
                 continue;
             }
@@ -539,8 +543,7 @@ public class PlanStudentExcelImportService {
         }
         for (ScreeningPlanSchoolStudent s : existPlanSchoolStudentList) {
             // 学号是否被使用
-            if (StringUtils.equals(sno, s.getStudentNo()) && ((StringUtils.isNotBlank(idCard) && !StringUtils.equals(idCard, s.getIdCard()))
-                    || (StringUtils.isNotBlank(passport) && !StringUtils.equals(passport, s.getPassport())))) {
+            if (StringUtils.equals(sno, s.getStudentNo()) && ((StringUtils.isNotBlank(idCard) && !StringUtils.equals(idCard, s.getIdCard())) || (StringUtils.isNotBlank(passport) && !StringUtils.equals(passport, s.getPassport())))) {
                 throw new BusinessException("学号:" + sno + "重复");
             }
         }
