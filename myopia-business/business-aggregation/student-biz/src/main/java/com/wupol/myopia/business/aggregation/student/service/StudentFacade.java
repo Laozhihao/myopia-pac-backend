@@ -1092,8 +1092,10 @@ public class StudentFacade {
             throw new BusinessException("学号、身份证、护照重复");
         }
         schoolStudent.setSchoolId(schoolId);
-        schoolStudent.setGradeName(schoolGradeService.getById(schoolStudent.getGradeId()).getName());
+        SchoolGrade grade = schoolGradeService.getById(schoolStudent.getGradeId());
+        schoolStudent.setGradeName(grade.getName());
         schoolStudent.setClassName(schoolClassService.getById(schoolStudent.getClassId()).getName());
+        schoolStudent.setGradeType(GradeCodeEnum.getByCode(grade.getGradeCode()).getType());
 
         SchoolStudent havaDeletedStudent = schoolStudentService.getByIdCardAndPassport(schoolStudent.getIdCard(), schoolStudent.getPassport(), schoolId);
         if (Objects.nonNull(havaDeletedStudent)) {
