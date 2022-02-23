@@ -148,7 +148,7 @@ public class ScreeningExportService {
         }
     }
 
-    public Map<String, Object> getNoticeData(Integer screeningPlanId, Integer schoolId,Integer gradeId,Integer classId,List<Integer> studentIds,boolean isSchool) {
+    public Map<String, Object> getNoticeData(Integer screeningPlanId, Integer schoolId,Integer gradeId,Integer classId,List<Integer> studentIds,boolean isSchoolClient) {
         // 1. 校验
 //        validateExistAndAuthorize(screeningPlanId, CommonConst.STATUS_NOT_RELEASE);
         // 2. 处理参数
@@ -162,7 +162,7 @@ public class ScreeningExportService {
 
         NotificationConfig notificationConfig;
         // 如果学校Id不为空，说明是学校端进行的导出，使用学校自己的告知书配置
-        if (isSchool) {
+        if (isSchoolClient) {
             ScreeningOrgResponseDTO screeningOrganization = screeningOrganizationService.getScreeningOrgDetails(plan.getScreeningOrgId());
             notificationConfig = screeningOrganization.getNotificationConfig();
         } else {
