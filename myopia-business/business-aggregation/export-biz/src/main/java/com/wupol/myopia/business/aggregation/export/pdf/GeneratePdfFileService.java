@@ -315,7 +315,8 @@ public class GeneratePdfFileService {
                     Objects.nonNull(exportCondition.getPlanStudentIds()) ? exportCondition.getPlanStudentIds() : StringUtils.EMPTY,
                     type);
 
-            String dir =  Paths.get(fileSavePath,fileName,screeningStudentDTO.getSchoolName(),screeningStudentDTO.getGradeName()).toString();
+            String dir =  Paths.get(fileSavePath,fileName,screeningStudentDTO.getSchoolName(),screeningStudentDTO.getGradeName()
+                    ,screeningStudentDTO.getClassName()).toString();
             String uuid = UUID.randomUUID().toString();
             PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(schoolPdfHtmlUrl, fileName+".pdf", uuid);
             log.info("response:{}", JSONObject.toJSONString(pdfResponseDTO));

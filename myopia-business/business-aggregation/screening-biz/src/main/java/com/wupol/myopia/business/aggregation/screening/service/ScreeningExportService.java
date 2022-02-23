@@ -152,11 +152,20 @@ public class ScreeningExportService {
         // 1. 校验
 //        validateExistAndAuthorize(screeningPlanId, CommonConst.STATUS_NOT_RELEASE);
         // 2. 处理参数
+        String gradeName = "";
         School school = schoolService.getBySchoolId(schoolId);
-        SchoolGrade schoolGrade = schoolGradeService.getById(gradeId);
-        SchoolClass schoolClass = schoolClassService.getById(classId);
+        if (Objects.nonNull(gradeId)){
+            SchoolGrade schoolGrade = schoolGradeService.getById(gradeId);
+            gradeName = schoolGrade.getName();
+        }
+        String className = "";
+        if (Objects.nonNull(classId)){
+            SchoolClass schoolClass = schoolClassService.getById(classId);
+            className = schoolClass.getName();
+        }
 
-        String classDisplay = String.format("%s%s", schoolGrade.getName(), schoolClass.getName());
+
+        String classDisplay = String.format("%s%s", gradeName, className);
         String fileName = String.format("%s-%s-告知书", classDisplay, DateFormatUtil.formatNow(DateFormatUtil.FORMAT_TIME_WITHOUT_LINE));
         ScreeningPlan plan = screeningPlanService.getById(screeningPlanId);
 
