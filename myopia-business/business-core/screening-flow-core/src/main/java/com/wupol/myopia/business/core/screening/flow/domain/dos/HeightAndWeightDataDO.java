@@ -22,11 +22,11 @@ public class HeightAndWeightDataDO extends AbstractDiagnosisResult implements Se
     /**
      * 身高
      */
-    private String height;
+    private BigDecimal height;
     /**
      * 体重
      */
-    private String weight;
+    private BigDecimal weight;
 
     @Data
     @Accessors(chain = true)
@@ -34,10 +34,10 @@ public class HeightAndWeightDataDO extends AbstractDiagnosisResult implements Se
         /**
          * 身高
          */
-        private String  height;
+        private BigDecimal  height;
         /**
          * 体重
          */
-        private String weight;
+        private BigDecimal weight;
     }
 }

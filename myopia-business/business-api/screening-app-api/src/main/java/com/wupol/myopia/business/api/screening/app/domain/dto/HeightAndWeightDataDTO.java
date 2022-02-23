@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.ObjectUtils;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 
 /**
@@ -22,11 +23,11 @@ public class HeightAndWeightDataDTO extends ScreeningResultBasicData {
     /**
      * 身高
      */
-    private String height;
+    private BigDecimal height;
     /**
      * 体重
      */
-    private String weight;
+    private BigDecimal weight;
 
     @Override
     public VisionScreeningResult buildScreeningResultData(VisionScreeningResult visionScreeningResult) {
@@ -46,8 +47,8 @@ public class HeightAndWeightDataDTO extends ScreeningResultBasicData {
             return null;
         }
         HeightAndWeightDataDTO heightAndWeightDataDTO = new HeightAndWeightDataDTO();
-            heightAndWeightDataDTO.setHeight(heightAndWeightDataDO.getHeight());
-            heightAndWeightDataDTO.setWeight(heightAndWeightDataDO.getWeight());
+        heightAndWeightDataDTO.setHeight(heightAndWeightDataDO.getHeight());
+        heightAndWeightDataDTO.setWeight(heightAndWeightDataDO.getWeight());
         return heightAndWeightDataDTO;
     }
 
