@@ -328,11 +328,17 @@ public class GeneratePdfFileService {
 
     }
 
-    public String syncExportScreenQrcodePdfFile(ExportCondition exportCondition, String fileSavePath, String fileName) {
-        String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.STUDENT_QRCODE_HTML_URL, htmlUrlHost,
-                exportCondition.getPlanId(), exportCondition.getSchoolId(), "", exportCondition.getGradeId(), exportCondition.getClassId(), exportCondition.getPlanStudentIds());
-        Assert.isTrue(HtmlToPdfUtil.convert(schoolPdfHtmlUrl, Paths.get(fileSavePath, fileName + ".pdf").toString()), "【生成学校档案卡PDF文件异常】：" + fileName);
-        return fileSavePath+"/"+fileName;
+    public String syncExportScreenQrcodePdfFile(ExportCondition exportCondition, String fileSavePath, String fileName,Integer type) {
+
+        String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.STUDENT_QRCODE_HTML_URL,htmlUrlHost,
+                exportCondition.getPlanId(), exportCondition.getSchoolId(),
+                Objects.nonNull( exportCondition.getGradeId()) ? exportCondition.getGradeId() : StringUtils.EMPTY,
+                Objects.nonNull( exportCondition.getClassId()) ? exportCondition.getClassId() : StringUtils.EMPTY,
+                Objects.nonNull(exportCondition.getPlanStudentIds()) ? exportCondition.getPlanStudentIds() : StringUtils.EMPTY,
+                type);
+        String uuid = UUID.randomUUID().toString();
+        PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(schoolPdfHtmlUrl, fileName+".pdf", uuid);
+        return pdfResponseDTO.getUrl();
     }
 
 

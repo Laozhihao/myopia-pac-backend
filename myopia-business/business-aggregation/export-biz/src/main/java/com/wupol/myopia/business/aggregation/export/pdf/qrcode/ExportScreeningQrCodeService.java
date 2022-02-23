@@ -102,7 +102,7 @@ public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
     public String syncExport(ExportCondition exportCondition) {
         String fileSavePath = getFileSaveParentPath();
         String fileName = getFileName(exportCondition);
-        return generateReportPdfService.syncExportScreenQrcodePdfFile(exportCondition,fileSavePath,fileName);
+        return generateReportPdfService.syncExportScreenQrcodePdfFile(exportCondition,fileSavePath,fileName,exportCondition.getType());
     }
 
 
