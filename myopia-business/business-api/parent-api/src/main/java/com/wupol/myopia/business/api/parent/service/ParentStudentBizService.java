@@ -558,7 +558,7 @@ public class ParentStudentBizService {
      * @return StudentDTO
      */
     public StudentDTO getByIdCard(String idCard, Integer userId) {
-        Student student = studentService.getByIdCardAndPassport(idCard, idCard, null);
+        Student student = studentService.findByIdCardAndPassport(idCard);
         if (Objects.isNull(student)) {
             Parent parent = parentService.getParentByUserId(userId);
             StudentDTO studentDTO = new StudentDTO();

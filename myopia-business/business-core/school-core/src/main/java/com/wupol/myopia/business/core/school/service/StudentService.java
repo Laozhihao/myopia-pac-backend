@@ -580,9 +580,9 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     public Student getByIdCardAndPassport(String idCard, String passport, Integer id) {
         List<Student> collection = baseMapper.checkByIdCardAndPassport(idCard, passport, id);
         if (CollectionUtils.isEmpty(collection)) {
-             return null;
-         }
-         return collection.get(0);
+            return null;
+        }
+        return collection.get(0);
     }
 
     /**
@@ -618,4 +618,15 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         }
         return baseMapper.getByIdCardsOrPassports(idCards, passports);
     }
+
+    /**
+     * 通过身份证件或护照查询学生
+     *
+     * @param info 条件
+     * @return 学生
+     */
+    public Student findByIdCardAndPassport(String info) {
+        return baseMapper.findByIdCardAndPassport(info);
+    }
+
 }
