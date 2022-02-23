@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.controller;
 
+import com.alibaba.csp.sentinel.util.StringUtil;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
@@ -203,7 +204,6 @@ public class ReportController {
      * @param classId 班级ID
      * @param planStudentIds 学生集会
      * @param type
-     * @param syncExport
      * @return
      * @throws IOException
      */
@@ -213,8 +213,7 @@ public class ReportController {
                                           Integer gradeId,
                                           Integer classId,
                                           String planStudentIds,
-                                          @NotNull(message = "TypeID不能为空") Integer type,
-                                          boolean syncExport
+                                          @NotNull(message = "TypeID不能为空") Integer type
                                           ) throws IOException {
 
         ExportCondition exportCondition = new ExportCondition()
@@ -226,7 +225,7 @@ public class ReportController {
                 .setPlanStudentIds(planStudentIds)
                 .setType(type)
                 ;
-        if (syncExport){
+        if (classId!=null|| StringUtil.isNotEmpty(planStudentIds)){
             return ApiResult.success(exportStrategy.syncExport(exportCondition, ExportReportServiceNameConstant.EXPORT_QRCODE_SCREENIN_SERVICE));
         }
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.EXPORT_QRCODE_SCREENIN_SERVICE);

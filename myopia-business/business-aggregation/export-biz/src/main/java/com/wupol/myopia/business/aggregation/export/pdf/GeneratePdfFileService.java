@@ -338,6 +338,7 @@ public class GeneratePdfFileService {
                 type);
         String uuid = UUID.randomUUID().toString();
         PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(schoolPdfHtmlUrl, fileName+".pdf", uuid);
+        log.info("response:{}", JSONObject.toJSONString(pdfResponseDTO));
         return pdfResponseDTO.getUrl();
     }
 
