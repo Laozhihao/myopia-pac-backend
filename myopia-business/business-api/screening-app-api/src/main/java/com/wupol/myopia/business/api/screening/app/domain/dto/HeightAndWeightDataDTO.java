@@ -46,12 +46,8 @@ public class HeightAndWeightDataDTO extends ScreeningResultBasicData {
             return null;
         }
         HeightAndWeightDataDTO heightAndWeightDataDTO = new HeightAndWeightDataDTO();
-        if (Objects.nonNull(heightAndWeightDataDO.getHeight())) {
             heightAndWeightDataDTO.setHeight(heightAndWeightDataDO.getHeight());
-        }
-        if (Objects.nonNull(heightAndWeightDataDO.getWeight())) {
             heightAndWeightDataDTO.setWeight(heightAndWeightDataDO.getWeight());
-        }
         return heightAndWeightDataDTO;
     }
 
