@@ -68,6 +68,8 @@ public class StudentScreeningProgressVO {
     private Integer fundusStatus;
     /** 其他眼病 */
     private Integer otherStatus;
+    /** 身高体重 */
+    private Integer heightWeightStatus;
     /** 是否有异常 */
     private Boolean hasAbnormal;
     /** 是否初诊有异常 */
@@ -94,7 +96,7 @@ public class StudentScreeningProgressVO {
         // 筛查结果为空则返回默认值
         if (Objects.isNull(screeningResult)) {
             return studentScreeningProgressVO.setVisionStatus(UNCHECK_MUST).setEyePositionStatus(UNCHECK_MUST).setSliLampStatus(isKindergarten ? UNCHECK : UNCHECK_MUST).setDiopterStatus(isKindergarten ? UNCHECK : UNCHECK_MUST)
-                    .setPupillaryOptometryStatus(UNCHECK).setBiometricsStatus(UNCHECK).setPressureStatus(UNCHECK).setFundusStatus(UNCHECK).setOtherStatus(UNCHECK).setResult(false).setHasAbnormal(false);
+                    .setPupillaryOptometryStatus(UNCHECK).setBiometricsStatus(UNCHECK).setPressureStatus(UNCHECK).setFundusStatus(UNCHECK).setOtherStatus(UNCHECK).setHeightWeightStatus(UNCHECK).setResult(false).setHasAbnormal(false);
         }
         // 默认完成了所有必要检查
         isAllMustCheckDone.set(true);
@@ -112,6 +114,7 @@ public class StudentScreeningProgressVO {
         studentScreeningProgressVO.setPressureStatus(getProgress(screeningResult.getEyePressureData(), !isKindergarten && firstCheckAbnormal));
         studentScreeningProgressVO.setFundusStatus(getProgress(screeningResult.getFundusData(), false));
         studentScreeningProgressVO.setOtherStatus(getProgress(screeningResult.getOtherEyeDiseases(), false));
+        studentScreeningProgressVO.setHeightWeightStatus(getProgress(screeningResult.getHeightAndWeightData(),false));
         studentScreeningProgressVO.setResult(isAllMustCheckDone.get());
         studentScreeningProgressVO.setHasAbnormal(hasAbnormalInSubsequentCheck.get() || firstCheckAbnormal);
         studentScreeningProgressVO.setFirstCheckAbnormal(isKindergarten ? firstCheckAbnormal : hasAbnormalInFirstCheck.get());

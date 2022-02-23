@@ -126,6 +126,7 @@ public class ScreeningPlanStudentBizService {
         planSchoolStudent.setGender(requestDTO.getGender());
         planSchoolStudent.setStudentAge(requestDTO.getStudentAge());
         planSchoolStudent.setBirthday(requestDTO.getBirthday());
+        planSchoolStudent.setPassport(requestDTO.getPassport());
         if (StringUtils.isNotBlank(requestDTO.getParentPhone())) {
             planSchoolStudent.setParentPhone(requestDTO.getParentPhone());
         }
@@ -139,6 +140,7 @@ public class ScreeningPlanStudentBizService {
         student.setName(requestDTO.getName());
         student.setGender(requestDTO.getGender());
         student.setBirthday(requestDTO.getBirthday());
+        student.setPassport(requestDTO.getPassport());
         if (StringUtils.isNotBlank(requestDTO.getParentPhone())) {
             student.setParentPhone(requestDTO.getParentPhone());
         }
