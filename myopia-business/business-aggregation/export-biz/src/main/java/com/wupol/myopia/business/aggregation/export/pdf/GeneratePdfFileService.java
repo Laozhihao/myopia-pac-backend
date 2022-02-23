@@ -313,7 +313,7 @@ public class GeneratePdfFileService {
             Map<Integer, List<ScreeningStudentDTO>> classGroup = gradeStudents.stream().collect(Collectors.groupingBy(t -> t.getClassId()));
             for (Integer classId:classGroup.keySet()){
                 List<ScreeningStudentDTO> classStudents  = classGroup.get(classId);
-                ScreeningStudentDTO screeningStudentDTO  = classStudents.get(classId);
+                ScreeningStudentDTO screeningStudentDTO  = classStudents.get(0);
 
                 String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.STUDENT_QRCODE_HTML_URL,htmlUrlHost,
                         exportCondition.getPlanId(), exportCondition.getSchoolId(),gradeId,classId,
