@@ -120,6 +120,6 @@ public class HospitalWorkbenchPatientController {
      */
     @GetMapping("/report/list")
     public IPage<ReportAndRecordDO> getReportList(@Validated PageRequest pageRequest, @NotNull(message = "学生Id不能为空") Integer studentId) {
-        return studentBizService.getReportList(pageRequest, studentId, CurrentUserUtil.getCurrentUser());
+        return studentBizService.getReportList(pageRequest, studentId, CurrentUserUtil.getCurrentUser(), null);
     }
 }

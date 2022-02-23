@@ -198,11 +198,12 @@ public class StudentController {
      *
      * @param pageRequest 分页请求
      * @param studentId   学生Id
+     * @param hospitalId  医院Id
      * @return List<MedicalReportDO>
      */
     @GetMapping("/report/list")
-    public IPage<ReportAndRecordDO> getReportList(PageRequest pageRequest, @NotNull(message = "学生Id不能为空") Integer studentId) {
-        return studentBizService.getReportList(pageRequest, studentId, CurrentUserUtil.getCurrentUser());
+    public IPage<ReportAndRecordDO> getReportList(PageRequest pageRequest, @NotNull(message = "学生Id不能为空") Integer studentId, Integer hospitalId) {
+        return studentBizService.getReportList(pageRequest, studentId, CurrentUserUtil.getCurrentUser(), hospitalId);
     }
 
     /**
