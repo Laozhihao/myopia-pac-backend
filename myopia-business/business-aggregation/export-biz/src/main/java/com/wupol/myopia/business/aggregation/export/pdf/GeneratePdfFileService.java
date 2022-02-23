@@ -321,11 +321,12 @@ public class GeneratePdfFileService {
                         type);
                 String dir =  Paths.get(fileSavePath,fileName,screeningStudentDTO.getSchoolName(),screeningStudentDTO.getGradeName()).toString();
                 String uuid = UUID.randomUUID().toString();
+
                 log.info("请求路径:{}", schoolPdfHtmlUrl);
-                PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(schoolPdfHtmlUrl, fileName+".pdf", uuid);
+                PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(schoolPdfHtmlUrl, fileName+"("+screeningStudentDTO.getClassName()+").pdf", uuid);
                 log.info("响应参数:{}", JSONObject.toJSONString(pdfResponseDTO));
                 try {
-                    FileUtils.downloadFile(pdfResponseDTO.getUrl(), Paths.get(dir,fileName)+".pdf");
+                    FileUtils.downloadFile(pdfResponseDTO.getUrl(), Paths.get(dir,fileName+"("+screeningStudentDTO.getClassName()+")")+".pdf");
                 } catch (Exception e) {
                     log.error("Exception", e);
                 }

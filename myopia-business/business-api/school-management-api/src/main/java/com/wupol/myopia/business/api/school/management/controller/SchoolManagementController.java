@@ -1,10 +1,12 @@
 package com.wupol.myopia.business.api.school.management.controller;
 
+import com.alibaba.csp.sentinel.util.StringUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.aggregation.screening.service.ScreeningExportService;
 import com.wupol.myopia.business.aggregation.student.service.SchoolFacade;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
@@ -16,11 +18,16 @@ import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 学校端-学校管理
@@ -41,7 +48,8 @@ public class SchoolManagementController {
 
     @Resource
     private SchoolFacade schoolFacade;
-
+    @Autowired
+    private ScreeningExportService screeningExportService;
     /**
      * 保存班级
      *
@@ -191,5 +199,25 @@ public class SchoolManagementController {
     @PutMapping("/school")
     public SchoolResponseDTO updateSchool(@RequestBody @Valid School school) {
         return schoolFacade.updateSchool(school);
+    }
+    /**
+     * 告知书数据
+     * @param screeningPlanId
+     * @param schoolId
+     * @param gradeId
+     * @param classId
+     * @param planStudentIds
+     * @return
+     */
+    @GetMapping("/student/notice")
+    public Map<String, Object> studentNoticeData(@NotNull(message = "筛查计划ID不能为空") Integer screeningPlanId,
+                                                 @NotNull(message = "学校ID不能为空") Integer schoolId, Integer gradeId,
+                                                 Integer classId, String planStudentIds,
+                                                 boolean isSchoolClient) {
+        List<Integer> studentIds =null;
+        if (StringUtil.isNotEmpty(planStudentIds)&&!planStudentIds.equals("null")){
+            studentIds = Arrays.stream(planStudentIds.split(",")).map(Integer::valueOf).collect(Collectors.toList());
+        }
+        return screeningExportService.getNoticeData(screeningPlanId, schoolId,gradeId,classId,studentIds,isSchoolClient);
     }
 }
