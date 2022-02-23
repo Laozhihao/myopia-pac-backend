@@ -15,17 +15,11 @@ import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolClassExportDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeExportDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
-import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
-import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.domain.model.Student;
-import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
-import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
-import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -98,7 +92,11 @@ public class StudentExcelImportService {
         List<String> idCards = listMap.stream().map(s -> s.get(8 - offset)).filter(Objects::nonNull).collect(Collectors.toList());
 
         // 收集护照
-        List<String> passports = listMap.stream().map(s -> s.get(9 - offset)).filter(Objects::nonNull).collect(Collectors.toList());
+        List<String> passports = listMap.stream().map(s -> s.get(9 - offset)).filter(Objects::nonNull).peek(passport -> {
+            if (passport.length() < 7) {
+                throw new BusinessException("护照" + passport + "异常");
+            }
+        }).collect(Collectors.toList());
 
         // 数据预校验
         preCheckStudent(schools, idCards);

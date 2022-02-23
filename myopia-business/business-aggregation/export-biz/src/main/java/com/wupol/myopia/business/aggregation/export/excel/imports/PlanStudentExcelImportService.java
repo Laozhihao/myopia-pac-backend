@@ -409,6 +409,9 @@ public class PlanStudentExcelImportService {
 
             String passport = item.getOrDefault(ImportExcelEnum.PASSPORT.getIndex(), null);
             if (StringUtils.isNotBlank(passport)) {
+                if (passport.length() < 7) {
+                    throw new BusinessException("护照"+passport + "格式异常");
+                }
                 passportList.add(passport);
             }
 

@@ -81,7 +81,11 @@ public class SchoolStudentExcelImportService {
         // 收集身份证号码、学号
         List<String> idCards = listMap.stream().map(s -> s.get(SchoolStudentImportEnum.ID_CARD.getIndex())).filter(Objects::nonNull).collect(Collectors.toList());
         List<String> snos = listMap.stream().map(s -> s.get(SchoolStudentImportEnum.SNO.getIndex())).filter(Objects::nonNull).collect(Collectors.toList());
-        List<String> passports = listMap.stream().map(s -> s.get(SchoolStudentImportEnum.PASSPORT.getIndex())).filter(Objects::nonNull).collect(Collectors.toList());
+        List<String> passports = listMap.stream().map(s -> s.get(SchoolStudentImportEnum.PASSPORT.getIndex())).filter(Objects::nonNull).peek(passport -> {
+            if (passport.length() < 7) {
+                throw new BusinessException("护照" + passport + "异常");
+            }
+        }).collect(Collectors.toList());
         CommonCheck.checkHaveDuplicate(idCards, snos, passports, true);
 
         // 获取已经存在的学校学生（判断是否重复）
@@ -175,7 +179,7 @@ public class SchoolStudentExcelImportService {
      * @param schoolGradeMaps 年级Map
      */
     public TwoTuple<Integer, Integer> getSchoolStudentClassInfo(Integer schoolId, Map<Integer, List<SchoolGradeExportDTO>> schoolGradeMaps,
-                                                                 String gradeName, String className) {
+                                                                String gradeName, String className) {
         // 通过学校编号获取改学校的年级信息
         List<SchoolGradeExportDTO> schoolGradeExportVOS = schoolGradeMaps.get(schoolId);
         // 转换成年级Maps，年级名称作为Key
