@@ -148,7 +148,7 @@ public class ScreeningExportService {
         }
     }
 
-    public Map<String, Object> getNoticeData(Integer screeningPlanId, Integer schoolId,Integer gradeId,Integer classId,List<Integer> studentIds) {
+    public Map<String, Object> getNoticeData(Integer screeningPlanId, Integer schoolId,Integer gradeId,Integer classId,List<Integer> studentIds,boolean isSchool) {
         // 1. 校验
 //        validateExistAndAuthorize(screeningPlanId, CommonConst.STATUS_NOT_RELEASE);
         // 2. 处理参数
@@ -158,25 +158,26 @@ public class ScreeningExportService {
 
         String classDisplay = String.format("%s%s", schoolGrade.getName(), schoolClass.getName());
         String fileName = String.format("%s-%s-告知书", classDisplay, DateFormatUtil.formatNow(DateFormatUtil.FORMAT_TIME_WITHOUT_LINE));
-
         ScreeningPlan plan = screeningPlanService.getById(screeningPlanId);
+
+        NotificationConfig notificationConfig;
+        // 如果学校Id不为空，说明是学校端进行的导出，使用学校自己的告知书配置
+        if (isSchool) {
+            ScreeningOrgResponseDTO screeningOrganization = screeningOrganizationService.getScreeningOrgDetails(plan.getScreeningOrgId());
+            notificationConfig = screeningOrganization.getNotificationConfig();
+        } else {
+            notificationConfig = school.getNotificationConfig();
+        }
         List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.selectBySchoolGradeAndClass(screeningPlanId, schoolId, gradeId,classId,studentIds);
         QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white).setMargin(1);
         students.forEach(student -> {
             student.setQrCodeUrl(QrCodeUtil.generateAsBase64(String.format(QrCodeConstant.QR_CODE_CONTENT_FORMAT_RULE, student.getPlanStudentId()), config, "jpg"));
             student.setGenderDesc(GenderEnum.getName(student.getGender()));
-            student.setScreeningOrgConfigs(school.getNotificationConfig());
+            student.setScreeningOrgConfigs(notificationConfig);
         });
-        NotificationConfig notificationConfig;
-        // 如果学校Id不为空，说明是学校端进行的导出，使用学校自己的告知书配置
-        if (Objects.nonNull(schoolId)) {
-            notificationConfig = school.getNotificationConfig();
-        } else {
-            ScreeningOrgResponseDTO screeningOrganization = screeningOrganizationService.getScreeningOrgDetails(plan.getScreeningOrgId());
-            notificationConfig = screeningOrganization.getNotificationConfig();
-        }
+
         Map<String, Object> models = new HashMap<>(16);
-        models.put("screeningOrgConfigs", school.getNotificationConfig());
+        models.put("screeningOrgConfigs", notificationConfig);
         models.put("students", students);
         models.put("classDisplay", classDisplay);
         models.put("schoolName", school.getName());
