@@ -82,7 +82,7 @@
         from h_doctor
     </select>
 
-    <select id="getDoctorNameByIds" resultMap="BaseResultMap">
+    <select id="getByIds" resultMap="BaseResultMap">
         select *
         from h_doctor
         where id in
@@ -91,7 +91,7 @@
         </foreach>
     </select>
 
-    <select id="getDoctorIdByName" resultMap="BaseResultMap">
+    <select id="getByHospitalIdAndName" resultMap="BaseResultMap">
         select *
         from h_doctor
         <where>
