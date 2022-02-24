@@ -8,6 +8,7 @@ import com.wupol.myopia.business.core.screening.organization.domain.model.Overvi
 import com.wupol.myopia.business.core.screening.organization.domain.query.OverviewQuery;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -33,5 +34,13 @@ public interface OverviewMapper extends BaseMapper<Overview> {
      * @return
      */
     IPage<OverviewDTO> getOverviewListByCondition(@Param("page") Page<?> page, @Param("query") OverviewQuery query);
+
+    /**
+     * 获取状态未更新的总览机构，即：<br/>
+     * 已过期未设置过停用状态，已开始未设置启用状态
+     * @param date
+     * @return
+     */
+    List<Overview> getByCooperationTimeAndStatus(@Param("date") Date date);
 
 }

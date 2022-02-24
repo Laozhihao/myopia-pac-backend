@@ -257,6 +257,16 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     }
 
     /**
+     * 通过医院名称及行政区域（同省级下）获取医院列表
+     * @param name
+     * @param districtId
+     * @return
+     */
+    public List<HospitalResponseDTO> getList(String name, Integer districtId) {
+        return null;
+    }
+
+    /**
      * 获取状态未更新的医院（已到合作开始时间未启用，已到合作结束时间未停止）
      * @return
      */

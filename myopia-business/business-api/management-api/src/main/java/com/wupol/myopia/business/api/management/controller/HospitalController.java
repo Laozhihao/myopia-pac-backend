@@ -223,6 +223,17 @@ public class HospitalController {
     }
 
     /**
+     * 通过医院名称及行政区域（同省级下）获取医院列表
+     * @param name
+     * @param districtId
+     * @return
+     */
+    @GetMapping("/getList")
+    public List<HospitalResponseDTO> getList(String name, Integer districtId) {
+        return hospitalService.getList(name, districtId);
+    }
+
+    /**
      * 处理医院历史数据，给医院管理员账号绑定角色
      *
      * @return void

@@ -98,4 +98,15 @@
         order by create_time desc
     </select>
 
+    <select id="getByCooperationTimeAndStatus" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_hospital
+        <!-- 已过期但状态为可用 或 已开始合作但状态为停用 -->
+        where
+        (cooperation_end_time &lt; #{date} and `status` = 0)
+        or
+        (cooperation_start_time &lt; #{date} and cooperation_end_time &gt; #{date} and `status` = 1)
+    </select>
+
 </mapper>

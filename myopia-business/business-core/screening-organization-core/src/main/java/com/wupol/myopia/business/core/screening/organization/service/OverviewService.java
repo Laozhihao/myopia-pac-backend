@@ -232,6 +232,42 @@ public class OverviewService extends BaseService<OverviewMapper, Overview> {
     }
 
     /**
+     * 获取状态未更新的医院（已到合作开始时间未启用，已到合作结束时间未停止）
+     * @return
+     */
+    public List<Hospital> getUnhandleHospital(Date date) {
+        return baseMapper.getByCooperationTimeAndStatus(date);
+    }
+
+    /**
+     * CAS更新机构状态，当且仅当源状态为sourceStatus，且限定id
+     * @param id
+     * @param targetStatus
+     * @param sourceStatus
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public int updateHospitalStatus(Integer id, Integer targetStatus, Integer sourceStatus) {
+        // 更新机构状态成功
+        int result = baseMapper.updateHospitalStatus(id, targetStatus, sourceStatus);
+        if (result > 0) {
+            // 更新oauth上机构的状态
+            oauthServiceClient.updateOrganization(new Organization(id, SystemCode.MANAGEMENT_CLIENT, UserType.HOSPITAL_ADMIN, targetStatus));
+        }
+        return result;
+    }
+
+    /**
+     * 获取指定合作结束时间的医院信息
+     * @param start     开始时间早于该时间才处理
+     * @param end       指定结束时间，精确到天
+     * @return
+     */
+    public List<Hospital> getByCooperationEndTime(Date start, Date end) {
+        return baseMapper.getByCooperationEndTime(start, end);
+    }
+
+    /**
      * 检验总览机构合作信息是否合法
      * @param overview
      */
