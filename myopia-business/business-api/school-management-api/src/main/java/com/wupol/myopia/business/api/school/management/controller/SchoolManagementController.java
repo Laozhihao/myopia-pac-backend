@@ -217,7 +217,7 @@ public class SchoolManagementController {
      * @param classId 班级ID
      * @return
      */
-    @GetMapping("/students/{screeningPlanId}/{schoolId}/{gradeId}/{classId}")
+    @GetMapping("/screeningPlan/students/{screeningPlanId}/{schoolId}/{gradeId}/{classId}")
     public List<ScreeningPlanSchoolStudent> queryGradesInfo(@PathVariable Integer screeningPlanId, @PathVariable Integer schoolId,
                                                             @PathVariable Integer gradeId, @PathVariable Integer classId) {
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getByPlanIdAndSchoolIdAndGradeIdAndClassId(screeningPlanId, schoolId,
