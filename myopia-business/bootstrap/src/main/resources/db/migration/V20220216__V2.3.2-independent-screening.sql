@@ -12,3 +12,7 @@ alter table m_screening_plan_school_student
 
 alter table m_screening_organization
     add qr_code_config varchar(16) default '' not null comment '二维码配置, 英文逗号分隔, 1-普通二维码, 2-vs666, 3-虚拟二维码';
+
+alter table m_vision_screening_result
+    add height_and_weight_data json DEFAULT NULL COMMENT '筛查结果--身高体重';
+

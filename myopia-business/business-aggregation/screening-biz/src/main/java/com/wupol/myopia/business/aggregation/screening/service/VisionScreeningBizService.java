@@ -191,7 +191,7 @@ public class VisionScreeningBizService {
         student.setAstigmatismLevel(statConclusion.getAstigmatismLevel());
         student.setHyperopiaLevel(statConclusion.getHyperopiaLevel());
         student.setMyopiaLevel(statConclusion.getMyopiaLevel());
-        studentService.updateStudent(student);
+        studentService.updateScreenStudent(student);
     }
 
     /**
