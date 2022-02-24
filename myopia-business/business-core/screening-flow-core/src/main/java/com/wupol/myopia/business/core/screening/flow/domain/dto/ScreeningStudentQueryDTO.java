@@ -103,6 +103,10 @@ public class ScreeningStudentQueryDTO extends StudentExtraDTO {
      */
     private String schoolNameLike;
     /**
+     * 身份证或者护照
+     */
+    private String idCardOrPassportLike;
+    /**
      * 虚拟学生状态
      */
     private Integer mockStatus;

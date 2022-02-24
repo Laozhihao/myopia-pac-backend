@@ -471,8 +471,7 @@ public class ScreeningPlanStudentBizService {
                 .setMockStatus(MockStudentStatusConstant.MOCK)
                 .setSnoLike(mockPlanStudentQueryDTO.getSnoLike())
                 .setPhoneLike(mockPlanStudentQueryDTO.getPhoneLike())
-                .setNameLike(mockPlanStudentQueryDTO.getNameLike())
-                .setIdCardLike(mockPlanStudentQueryDTO.getIdCardLike())
+                .setIdCardOrPassportLike(mockPlanStudentQueryDTO.getIdCardOrPassportLike())
                 .setPassportLike(mockPlanStudentQueryDTO.getPassportLike())
                 .setSchoolNameLike(mockPlanStudentQueryDTO.getSchoolNameLike())
                 .setGender(mockPlanStudentQueryDTO.getGender());

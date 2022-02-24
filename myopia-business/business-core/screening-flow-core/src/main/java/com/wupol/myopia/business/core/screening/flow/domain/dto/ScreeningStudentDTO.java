@@ -33,6 +33,11 @@ public class ScreeningStudentDTO extends StudentDO {
     private String schoolName;
 
     /**
+     * 护照
+     */
+    private String passport;
+
+    /**
      * 学校ID
      */
     private Integer schoolId;

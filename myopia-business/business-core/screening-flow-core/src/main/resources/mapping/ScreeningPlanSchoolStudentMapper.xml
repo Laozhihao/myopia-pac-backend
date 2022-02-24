@@ -117,7 +117,8 @@
                mspss.screening_code as screeningCode,
                mspss.id             as planStudentId,
                mspss.screening_plan_id as planId,
-               mspss.screening_org_id
+               mspss.screening_org_id,
+               mspss.passport
         FROM m_screening_plan_school_student mspss
         left join m_school ms on ms.id = mspss.school_id
         left join m_school_grade sg on sg.id = mspss.grade_id
@@ -168,6 +169,9 @@
                     <foreach collection="param.planIds" open="(" close=")" separator="," item="item">
                         #{item}
                     </foreach>
+                </if>
+                <if test="param.idCardOrPassportLike != null and param.idCardOrPassportLike != ''">
+                    and (mspss.`id_card` like CONCAT('%', #{param.idCardOrPassportLike}, '%') or mspss.`passport` like CONCAT('%', #{param.idCardOrPassportLike}, '%'))
                 </if>
             </trim>
         </where>

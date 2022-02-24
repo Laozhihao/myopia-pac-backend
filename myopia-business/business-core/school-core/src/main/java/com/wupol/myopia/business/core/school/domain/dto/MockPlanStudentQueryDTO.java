@@ -19,14 +19,7 @@ import java.util.List;
  */
 @Data
 public class MockPlanStudentQueryDTO {
-    /**
-     * 名称
-     */
-    private String nameLike;
-    /**
-     * 身份证
-     */
-    private String idCardLike;
+
     /**
      * 护照
      */
@@ -66,4 +59,9 @@ public class MockPlanStudentQueryDTO {
      */
     @Null
     private List<Integer> screeningOrgIds;
+
+    /**
+     * 身份证或者passport
+     */
+    private String idCardOrPassportLike;
 }
