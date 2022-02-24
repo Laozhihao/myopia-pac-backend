@@ -151,6 +151,9 @@
                 <if test="param.passport != null and param.passport != ''">
                     and mspss.`passport` like CONCAT('%', #{param.passport}, '%')
                 </if>
+                <if test="param.idCardOrPassportLike != null and param.idCardOrPassportLike != ''">
+                    and (mspss.id_card like CONCAT('%', #{param.idCardOrPassportLike}, '%') or mspss.passport like CONCAT('%', #{param.idCardOrPassportLike}, '%'))
+                </if>
             </trim>
         </where>
     </select>

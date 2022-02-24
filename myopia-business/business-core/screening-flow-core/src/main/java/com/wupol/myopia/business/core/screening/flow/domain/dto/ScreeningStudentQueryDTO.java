@@ -97,4 +97,9 @@ public class ScreeningStudentQueryDTO extends StudentExtraDTO {
      * 护照
      */
     private String passport;
+
+    /**
+     * 身份证/护照
+     */
+    private String idCardOrPassportLike;
 }
