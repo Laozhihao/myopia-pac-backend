@@ -259,11 +259,17 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     /**
      * 通过医院名称及行政区域（同省级下）获取医院列表
      * @param name
-     * @param districtId
+     * @param provinceDistrictCode
      * @return
      */
-    public List<HospitalResponseDTO> getList(String name, Integer districtId) {
-        return null;
+    public List<HospitalResponseDTO> getProvinceList(String name, Long provinceDistrictCode) {
+        // 获取省级行政区域ID
+        List<HospitalResponseDTO> hospitals = baseMapper.getListByProvinceCodeAndNameLike(name, provinceDistrictCode);
+        hospitals.forEach(hospital -> {
+            // 行政区域名称
+            hospital.setDistrictName(districtService.getDistrictName(hospital.getDistrictDetail()));
+        });
+        return hospitals;
     }
 
     /**

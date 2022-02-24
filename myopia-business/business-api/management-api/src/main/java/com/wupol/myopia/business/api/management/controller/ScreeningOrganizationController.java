@@ -385,7 +385,7 @@ public class ScreeningOrganizationController {
      * @return java.util.List<com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization>
      **/
     @GetMapping("/province/list")
-    public List<ScreeningOrganization> getListByProvinceCodeAndNameLike(@NotBlank(message = "筛查机构名称不能为空") String name,
+    public List<ScreeningOrgResponseDTO> getListByProvinceCodeAndNameLike(@NotBlank(message = "筛查机构名称不能为空") String name,
                                                                         @NotNull(message = "省行政区域编码不能为空") Long provinceDistrictCode) {
         return screeningOrganizationService.getListByProvinceCodeAndNameLike(name, provinceDistrictCode);
     }

@@ -247,12 +247,17 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      *
      * @param screeningOrgNameLike 筛查机构名称
      * @param provinceDistrictCode 省行政区域编码，如：110000000
-     * @return java.util.List<com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization>
+     * @return java.util.List<ScreeningOrgResponseDTO>
      **/
-    public List<ScreeningOrganization> getListByProvinceCodeAndNameLike(String screeningOrgNameLike, Long provinceDistrictCode) {
+    public List<ScreeningOrgResponseDTO> getListByProvinceCodeAndNameLike(String screeningOrgNameLike, Long provinceDistrictCode) {
         Assert.hasText(screeningOrgNameLike, "筛查机构名称不能为空");
         Assert.notNull(provinceDistrictCode, "省行政区域编码不能为空");
-        return baseMapper.getListByProvinceCodeAndNameLike(screeningOrgNameLike, provinceDistrictCode);
+        List<ScreeningOrgResponseDTO> records = baseMapper.getListByProvinceCodeAndNameLike(screeningOrgNameLike, provinceDistrictCode);
+        records.forEach(record -> {
+            // 行政区域名称
+            record.setDistrictName(districtService.getDistrictName(record.getDistrictDetail()));
+        });
+        return records;
     }
 
     /**

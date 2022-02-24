@@ -23,10 +23,13 @@ import com.wupol.myopia.business.core.hospital.service.HospitalService;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccountListDTO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.List;
 
@@ -35,6 +38,7 @@ import java.util.List;
  *
  * @author Simple4H
  */
+@Validated
 @ResponseResultBody
 @CrossOrigin
 @RestController
@@ -225,12 +229,13 @@ public class HospitalController {
     /**
      * 通过医院名称及行政区域（同省级下）获取医院列表
      * @param name
-     * @param districtId
+     * @param provinceDistrictCode
      * @return
      */
-    @GetMapping("/getList")
-    public List<HospitalResponseDTO> getList(String name, Integer districtId) {
-        return hospitalService.getList(name, districtId);
+    @GetMapping("/province/list")
+    public List<HospitalResponseDTO> getProvinceList(@NotBlank(message = "筛查机构名称不能为空") String name,
+                                                     @NotNull(message = "省行政区域编码不能为空") Long provinceDistrictCode) {
+        return hospitalService.getProvinceList(name, provinceDistrictCode);
     }
 
     /**

@@ -6,7 +6,9 @@ import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
 import com.wupol.myopia.business.core.hospital.service.HospitalService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
+import com.wupol.myopia.business.core.screening.organization.domain.model.Overview;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
+import com.wupol.myopia.business.core.screening.organization.service.OverviewService;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.system.service.NoticeService;
 import org.apache.commons.lang3.time.DateFormatUtils;
@@ -36,6 +38,9 @@ public class NoticeBizService {
     @Autowired
     private HospitalService hospitalService;
 
+    @Autowired
+    private OverviewService overviewService;
+
     /**
      * 发送合作即将到期通知
      * @param beforeDay 通知提醒提前天数
@@ -57,6 +62,11 @@ public class NoticeBizService {
         List<Hospital> hospitals = hospitalService.getByCooperationEndTime(now, cooperationEndTime);
         for (Hospital hospital : hospitals) {
             sendNotice(hospital.getName(), hospital.getCooperationEndTime());
+        }
+        // 发送即将到期总览机构通知
+        List<Overview> overviews = overviewService.getByCooperationEndTime(now, cooperationEndTime);
+        for (Overview overview : overviews) {
+            sendNotice(overview.getName(), overview.getCooperationEndTime());
         }
     }
 

@@ -138,7 +138,7 @@
         where name like concat('%', #{name}, '%')
     </select>
 
-    <select id="getListByProvinceCodeAndNameLike" resultMap="BaseResultMap">
+    <select id="getListByProvinceCodeAndNameLike" resultMap="BaseResponseMap">
         select
         <include refid="Base_Column_List"/>
         from m_screening_organization

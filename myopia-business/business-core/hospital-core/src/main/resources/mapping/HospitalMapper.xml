@@ -168,4 +168,19 @@
         Date(cooperation_end_time) = Date(#{end})
     </select>
 
+    <select id="getListByProvinceCodeAndNameLike" resultMap="BaseResponseMap">
+        select *
+        from m_hospital
+        <where>
+            <trim prefixOverrides="and">
+                <if test="name != null and name != ''">
+                    and `name` like CONCAT('%', #{name}, '%')
+                </if>
+                <if test="provinceDistrictCode != null">
+                    and json_extract(cast(district_detail as json) ,'$[0].code') = #{provinceDistrictCode}
+                </if>
+            </trim>
+        </where>
+    </select>
+
 </mapper>
