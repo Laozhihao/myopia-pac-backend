@@ -457,4 +457,17 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     public List<ScreeningPlanSchoolStudent> getByIdCardAndPassport(String idCard, String passport, Integer id) {
         return baseMapper.getByIdCardAndPassport(idCard, passport, id);
     }
+
+    /**
+     * 通过学生Ids删除筛查学生
+     * <p>删库操作，谨慎使用</p>
+     *
+     * @param studentIds 学生Id
+     */
+    public void deleteByStudentIds(List<Integer> studentIds) {
+        if (CollectionUtils.isEmpty(studentIds)) {
+            return;
+        }
+        baseMapper.deleteByStudentIds(studentIds);
+    }
 }

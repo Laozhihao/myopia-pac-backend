@@ -8,16 +8,22 @@ import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ImportExcelEnum;
+import com.wupol.myopia.business.aggregation.export.excel.domain.UnbindScreeningStudentDTO;
 import com.wupol.myopia.business.aggregation.export.utils.CommonCheck;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
 import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.common.utils.util.IdCardUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.core.hospital.domain.model.HospitalStudent;
+import com.wupol.myopia.business.core.hospital.service.HospitalStudentService;
+import com.wupol.myopia.business.core.parent.domain.model.ParentStudent;
+import com.wupol.myopia.business.core.parent.service.ParentStudentService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeExportDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.Student;
+import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
@@ -30,6 +36,7 @@ import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResu
 import com.wupol.myopia.business.core.screening.flow.util.ScreeningCodeGenerator;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -73,6 +80,15 @@ public class PlanStudentExcelImportService {
 
     @Resource
     private VisionScreeningResultService visionScreeningResultService;
+
+    @Resource
+    private ParentStudentService parentStudentService;
+
+    @Resource
+    private HospitalStudentService hospitalStudentService;
+
+    @Resource
+    private SchoolStudentService schoolStudentService;
 
     /**
      * 导入筛查学生信息
@@ -126,6 +142,7 @@ public class PlanStudentExcelImportService {
         List<Student> noPaperworkStudents = new ArrayList<>();
         List<ScreeningPlanSchoolStudent> virtualStudentList = new ArrayList<>();
         List<ScreeningPlanSchoolStudent> noPaperworkPlanStudents = new ArrayList<>();
+        List<UnbindScreeningStudentDTO> unbindList = new ArrayList<>();
         for (Map<Integer, String> item : listMap) {
             String screeningCode = item.get(ImportExcelEnum.SCREENING_CODE.getIndex());
             String gradeName = item.get(ImportExcelEnum.GRADE.getIndex());
@@ -169,7 +186,7 @@ public class PlanStudentExcelImportService {
             }
             // 是否带着证件号一起上传
             if (StringUtils.isAllBlank(idCard, passport)) {
-                notPaperworkUpload(existPlanStudentScreeningCodeMap, virtualStudentList, screeningCode, idCard, passport, sno, gender, studentName, nation, birthday, gradeClassInfo, phone, school);
+                notPaperworkUpload(existPlanStudentScreeningCodeMap, virtualStudentList, screeningCode, idCard, passport, sno, gender, studentName, nation, birthday, gradeClassInfo, phone, school, gradeType);
                 continue;
             }
             // 筛查编码是否绑定身份证或护照
@@ -183,17 +200,30 @@ public class PlanStudentExcelImportService {
                 notBindPaperworkUpload(userId, existManagementStudentIdCardMap, existManagementStudentPassportMap, noPaperworkHaveStudentPlanStudents, noPaperworkStudents, noPaperworkPlanStudents, idCard, passport, sno, gender, studentName, nation, birthday, gradeClassInfo, gradeType, planSchoolStudent, phone, school);
                 continue;
             }
-            havePaperworkUpload(userId, existPlanStudentIdCardMap, existPlanStudentPassportMap, existManagementStudentIdCardMap, existManagementStudentPassportMap, havePaperworkPlanStudent, havePaperworkStudent, idCard, passport, sno, gender, studentName, nation, birthday, gradeClassInfo, gradeType, planSchoolStudent, school, phone);
+            havePaperworkUpload(userId, existPlanStudentIdCardMap, existPlanStudentPassportMap, existManagementStudentIdCardMap, existManagementStudentPassportMap, havePaperworkPlanStudent, havePaperworkStudent, idCard, passport, sno, gender, studentName, nation, birthday, gradeClassInfo, gradeType, planSchoolStudent, school, phone, unbindList);
         }
-        updateOrSaveStudentInfo(screeningPlan, school, existPlanStudentIdCardMap, existPlanStudentPassportMap, noScreeningCodeManagementStudentList, havePaperworkPlanStudent, havePaperworkStudent, noPaperworkHaveStudentPlanStudents, noPaperworkStudents, virtualStudentList, noPaperworkPlanStudents);
+        updateOrSaveStudentInfo(screeningPlan, school, existPlanStudentIdCardMap, existPlanStudentPassportMap, noScreeningCodeManagementStudentList, havePaperworkPlanStudent, havePaperworkStudent, noPaperworkHaveStudentPlanStudents, noPaperworkStudents, virtualStudentList, noPaperworkPlanStudents, unbindList, existManagementStudentIdCardMap, existManagementStudentPassportMap);
     }
 
     /**
      * 存在证件信息上传
      */
-    private void havePaperworkUpload(Integer userId, Map<String, ScreeningPlanSchoolStudent> existPlanStudentIdCardMap, Map<String, ScreeningPlanSchoolStudent> existPlanStudentPassportMap, Map<String, Student> existManagementStudentIdCardMap, Map<String, Student> existManagementStudentPassportMap, List<ScreeningPlanSchoolStudent> havePaperworkPlanStudent, List<Student> havePaperworkStudent, String idCard, String passport, String sno, Integer gender, String studentName, Integer nation, Date birthday, TwoTuple<Integer, Integer> gradeClassInfo, Integer gradeType, ScreeningPlanSchoolStudent planSchoolStudent, School school, String phone) {
+    private void havePaperworkUpload(Integer userId, Map<String, ScreeningPlanSchoolStudent> existPlanStudentIdCardMap,
+                                     Map<String, ScreeningPlanSchoolStudent> existPlanStudentPassportMap,
+                                     Map<String, Student> existManagementStudentIdCardMap,
+                                     Map<String, Student> existManagementStudentPassportMap,
+                                     List<ScreeningPlanSchoolStudent> havePaperworkPlanStudent,
+                                     List<Student> havePaperworkStudent,
+                                     String idCard, String passport, String sno, Integer gender, String studentName,
+                                     Integer nation, Date birthday, TwoTuple<Integer, Integer> gradeClassInfo, Integer gradeType,
+                                     ScreeningPlanSchoolStudent planSchoolStudent, School school, String phone,
+                                     List<UnbindScreeningStudentDTO> unbindList) {
         // 判断绑定的证件号是否一致
-        checkPaperworkInfo(idCard, passport, planSchoolStudent);
+        UnbindScreeningStudentDTO unbindScreeningStudentDTO = checkPaperworkInfo(idCard, passport, planSchoolStudent, sno, gender, studentName, nation, birthday, gradeClassInfo, school, phone, gradeType);
+        if (Objects.nonNull(unbindScreeningStudentDTO)) {
+            unbindList.add(unbindScreeningStudentDTO);
+            return;
+        }
         isSamePaperwork(userId, existPlanStudentIdCardMap, existPlanStudentPassportMap, existManagementStudentIdCardMap, existManagementStudentPassportMap, havePaperworkPlanStudent, havePaperworkStudent, idCard, passport, sno, gender, studentName, nation, birthday, gradeClassInfo, gradeType, school, phone);
     }
 
@@ -205,7 +235,7 @@ public class PlanStudentExcelImportService {
         packageManagementStudent(idCard, passport, sno, gender, studentName, nation, birthday, gradeClassInfo, gradeType, userId, school.getId(), student, phone);
 
         ScreeningPlanSchoolStudent planStudent = twoTuple.getSecond();
-        packagePlanStudent(idCard, passport, sno, gender, studentName, nation, birthday, gradeClassInfo, planStudent, phone, school);
+        packagePlanStudent(idCard, passport, sno, gender, studentName, nation, birthday, gradeClassInfo, planStudent, phone, school, gradeType);
 
         havePaperworkStudent.add(student);
         havePaperworkPlanStudent.add(planStudent);
@@ -217,7 +247,7 @@ public class PlanStudentExcelImportService {
     private void notBindPaperworkUpload(Integer userId, Map<String, Student> existManagementStudentIdCardMap, Map<String, Student> existManagementStudentPassportMap, List<ScreeningPlanSchoolStudent> noPaperworkHaveStudentPlanStudents, List<Student> noPaperworkStudents, List<ScreeningPlanSchoolStudent> noPaperworkPlanStudents, String idCard, String passport, String sno, Integer gender, String studentName, Integer nation, Date birthday, TwoTuple<Integer, Integer> gradeClassInfo, Integer gradeType, ScreeningPlanSchoolStudent planSchoolStudent, String phone, School school) {
         // 是否在系统中存在
         Student student = getStudent(existManagementStudentIdCardMap, existManagementStudentPassportMap, idCard, passport);
-        packagePlanStudent(idCard, passport, sno, gender, studentName, nation, birthday, gradeClassInfo, planSchoolStudent, phone, school);
+        packagePlanStudent(idCard, passport, sno, gender, studentName, nation, birthday, gradeClassInfo, planSchoolStudent, phone, school, gradeType);
         // 不存在
         if (Objects.isNull(student.getId())) {
             packageManagementStudent(idCard, passport, sno, gender, studentName, nation, birthday, gradeClassInfo, gradeType, userId, school.getId(), student, phone);
@@ -232,9 +262,9 @@ public class PlanStudentExcelImportService {
     /**
      * 没有证件信息的上传
      */
-    private void notPaperworkUpload(Map<Long, ScreeningPlanSchoolStudent> existPlanStudentScreeningCodeMap, List<ScreeningPlanSchoolStudent> virtualStudentList, String screeningCode, String idCard, String passport, String sno, Integer gender, String studentName, Integer nation, Date birthday, TwoTuple<Integer, Integer> gradeClassInfo, String phone, School school) {
+    private void notPaperworkUpload(Map<Long, ScreeningPlanSchoolStudent> existPlanStudentScreeningCodeMap, List<ScreeningPlanSchoolStudent> virtualStudentList, String screeningCode, String idCard, String passport, String sno, Integer gender, String studentName, Integer nation, Date birthday, TwoTuple<Integer, Integer> gradeClassInfo, String phone, School school, Integer gradeType) {
         ScreeningPlanSchoolStudent planSchoolStudent = existPlanStudentScreeningCodeMap.get(Long.valueOf(screeningCode));
-        packagePlanStudent(idCard, passport, sno, gender, studentName, nation, birthday, gradeClassInfo, planSchoolStudent, phone, school);
+        packagePlanStudent(idCard, passport, sno, gender, studentName, nation, birthday, gradeClassInfo, planSchoolStudent, phone, school, gradeType);
         virtualStudentList.add(planSchoolStudent);
     }
 
@@ -258,19 +288,37 @@ public class PlanStudentExcelImportService {
      * @param passport          护照
      * @param planSchoolStudent 筛查学生
      */
-    private void checkPaperworkInfo(String idCard, String passport, ScreeningPlanSchoolStudent planSchoolStudent) {
-        if ((StringUtils.isNoneBlank(idCard, planSchoolStudent.getIdCard()) && !StringUtils.equals(idCard, planSchoolStudent.getIdCard())) || StringUtils.isNoneBlank(passport, planSchoolStudent.getPassport()) && !StringUtils.equals(passport, planSchoolStudent.getPassport())) {
-            throw new BusinessException("上传失败：系统绑定的证件号与上传的不一致");
+    private UnbindScreeningStudentDTO checkPaperworkInfo(String idCard, String passport, ScreeningPlanSchoolStudent planSchoolStudent, String sno, Integer gender, String studentName, Integer nation, Date birthday, TwoTuple<Integer, Integer> gradeClassInfo, School school, String phone, Integer gradeType) {
+        String oldIdCard = planSchoolStudent.getIdCard();
+        String oldPassport = planSchoolStudent.getPassport();
+        if ((StringUtils.isNoneBlank(idCard, oldIdCard) && !StringUtils.equals(idCard, oldIdCard)) || StringUtils.isNoneBlank(passport, oldPassport) && !StringUtils.equals(passport, oldPassport)) {
+            packagePlanStudent(idCard, passport, sno, gender, studentName, nation, birthday, gradeClassInfo, planSchoolStudent, phone, school, gradeType);
+            return new UnbindScreeningStudentDTO(oldIdCard, oldPassport, planSchoolStudent);
+//            throw new BusinessException("上传失败：系统绑定的证件号与上传的不一致");
         }
-        if (StringUtils.isNoneBlank(idCard, planSchoolStudent.getPassport()) || StringUtils.isNoneBlank(passport, planSchoolStudent.getIdCard())) {
-            throw new BusinessException("上传失败：系统绑定的证件号与上传的不一致");
+        if (StringUtils.isNoneBlank(idCard, oldPassport) || StringUtils.isNoneBlank(passport, oldIdCard)) {
+            packagePlanStudent(idCard, passport, sno, gender, studentName, nation, birthday, gradeClassInfo, planSchoolStudent, phone, school, gradeType);
+            return new UnbindScreeningStudentDTO(oldIdCard, oldPassport, planSchoolStudent);
+//            throw new BusinessException("上传失败：系统绑定的证件号与上传的不一致");
         }
+        return null;
     }
 
     /**
      * 更新获取插入学校学生、多端学生、筛查学生
      */
-    private void updateOrSaveStudentInfo(ScreeningPlan screeningPlan, School school, Map<String, ScreeningPlanSchoolStudent> existPlanStudentIdCardMap, Map<String, ScreeningPlanSchoolStudent> existPlanStudentPassportMap, List<Student> noScreeningCodeManagementStudentList, List<ScreeningPlanSchoolStudent> havePaperworkPlanStudent, List<Student> havePaperworkStudent, List<ScreeningPlanSchoolStudent> noPaperworkHaveStudentPlanStudents, List<Student> noPaperworkStudents, List<ScreeningPlanSchoolStudent> virtualStudentList, List<ScreeningPlanSchoolStudent> noPaperworkPlanStudents) {
+    private void updateOrSaveStudentInfo(ScreeningPlan screeningPlan, School school, Map<String, ScreeningPlanSchoolStudent> existPlanStudentIdCardMap,
+                                         Map<String, ScreeningPlanSchoolStudent> existPlanStudentPassportMap,
+                                         List<Student> noScreeningCodeManagementStudentList,
+                                         List<ScreeningPlanSchoolStudent> havePaperworkPlanStudent,
+                                         List<Student> havePaperworkStudent,
+                                         List<ScreeningPlanSchoolStudent> noPaperworkHaveStudentPlanStudents,
+                                         List<Student> noPaperworkStudents,
+                                         List<ScreeningPlanSchoolStudent> virtualStudentList,
+                                         List<ScreeningPlanSchoolStudent> noPaperworkPlanStudents,
+                                         List<UnbindScreeningStudentDTO> unbindList,
+                                         Map<String, Student> existManagementStudentIdCardMap,
+                                         Map<String, Student> existManagementStudentPassportMap) {
         if (!CollectionUtils.isEmpty(noScreeningCodeManagementStudentList)) {
             saveStudentAndPlanStudent(noScreeningCodeManagementStudentList, existPlanStudentIdCardMap, existPlanStudentPassportMap, screeningPlan, school);
         }
@@ -290,6 +338,9 @@ public class PlanStudentExcelImportService {
             studentService.saveOrUpdateBatch(havePaperworkStudent);
             // 插入学校端
             commonImportService.insertSchoolStudent(havePaperworkStudent);
+        }
+        if (!CollectionUtils.isEmpty(unbindList)) {
+            abc(unbindList, screeningPlan, existManagementStudentIdCardMap, existManagementStudentPassportMap);
         }
     }
 
@@ -385,7 +436,7 @@ public class PlanStudentExcelImportService {
     /**
      * 设置计划学生
      */
-    private void packagePlanStudent(String idCard, String passport, String sno, Integer gender, String studentName, Integer nation, Date birthday, TwoTuple<Integer, Integer> gradeClassInfo, ScreeningPlanSchoolStudent planStudent, String phone, School school) {
+    private void packagePlanStudent(String idCard, String passport, String sno, Integer gender, String studentName, Integer nation, Date birthday, TwoTuple<Integer, Integer> gradeClassInfo, ScreeningPlanSchoolStudent planStudent, String phone, School school, Integer gradeType) {
         planStudent.setIdCard(idCard);
         planStudent.setPassport(passport);
         planStudent.setStudentName(studentName);
@@ -399,6 +450,7 @@ public class PlanStudentExcelImportService {
         planStudent.setSchoolId(school.getId());
         planStudent.setSchoolName(school.getName());
         planStudent.setSchoolDistrictId(school.getDistrictId());
+        planStudent.setGradeType(gradeType);
     }
 
     /**
@@ -595,10 +647,93 @@ public class PlanStudentExcelImportService {
             VisionScreeningResult result = visionMap.get(planStudent.getId());
             if (Objects.nonNull(result)) {
                 result.setStudentId(planStudent.getStudentId());
-                result.setSchoolId(planStudent.getStudentId());
+                result.setSchoolId(planStudent.getSchoolId());
                 updateResultList.add(result);
             }
         });
         visionScreeningResultService.updateBatchById(updateResultList);
+    }
+
+    /**
+     * 解除绑定学生
+     */
+    private void abc(List<UnbindScreeningStudentDTO> unbindList, ScreeningPlan screeningPlan, Map<String, Student> existManagementStudentIdCardMap, Map<String, Student> existManagementStudentPassportMap) {
+        List<Integer> studentIds = studentService.getByIdCardsOrPassports(unbindList.stream().map(UnbindScreeningStudentDTO::getIdCard).collect(Collectors.toList()), unbindList.stream().map(UnbindScreeningStudentDTO::getPassport).collect(Collectors.toList())).stream().map(Student::getId).collect(Collectors.toList());
+        List<Integer> deletedStudent = new ArrayList<>();
+        Map<Integer, VisionScreeningResult> resultMap = visionScreeningResultService.getByStudentIds(studentIds).stream().collect(Collectors.toMap(VisionScreeningResult::getStudentId, Function.identity()));
+        Map<Integer, ParentStudent> parentStudentMap = parentStudentService.getByStudentIds(studentIds).stream().collect(Collectors.toMap(ParentStudent::getStudentId, Function.identity()));
+        Map<Integer, HospitalStudent> hospitalStudentMap = hospitalStudentService.getByStudentIds(studentIds).stream().collect(Collectors.toMap(HospitalStudent::getStudentId, Function.identity()));
+
+        List<ScreeningPlanSchoolStudent> noDateBindPlanStudent = new ArrayList<>();
+        List<ScreeningPlanSchoolStudent> haveDatePlanStudent = new ArrayList<>();
+        unbindList.forEach(s -> {
+            Integer studentId = s.getScreeningPlanSchoolStudent().getStudentId();
+            if (ObjectsUtil.allNull(resultMap.get(studentId), parentStudentMap.get(studentId), hospitalStudentMap.get(studentId))) {
+                deletedStudent.add(studentId);
+                noDateBindPlanStudent.add(s.getScreeningPlanSchoolStudent());
+            } else {
+                haveDatePlanStudent.add(s.getScreeningPlanSchoolStudent());
+            }
+        });
+        deletedUnbindStudent(noDateBindPlanStudent, deletedStudent, screeningPlan);
+        havaDateUnbindStudent(haveDatePlanStudent, existManagementStudentIdCardMap, existManagementStudentPassportMap, screeningPlan);
+    }
+
+    private void deletedUnbindStudent(List<ScreeningPlanSchoolStudent> noDateBindPlanStudent, List<Integer> deletedStudent, ScreeningPlan screeningPlan) {
+        if (CollectionUtils.isEmpty(noDateBindPlanStudent)) {
+            return;
+        }
+        log.error("删除学生逻辑");
+        screeningPlanSchoolStudentService.deleteByStudentIds(deletedStudent);
+        studentService.removeByIds(deletedStudent);
+        schoolStudentService.deleteByStudentIds(deletedStudent);
+        // TODO: 删除学校
+
+        List<Student> studentList = new ArrayList<>();
+        noDateBindPlanStudent.forEach(s -> {
+            Student student = new Student();
+            student.setName(s.getStudentName());
+            student.setSno(s.getStudentNo());
+            BeanUtils.copyProperties(s, student);
+            student.setId(null);
+            studentList.add(student);
+        });
+        studentService.saveOrUpdateBatch(studentList);
+        unbindStudentSaveOrUpdate(noDateBindPlanStudent, studentList);
+        updatePlanStudentAndVisionResult(screeningPlan, noDateBindPlanStudent);
+    }
+
+    private void havaDateUnbindStudent(List<ScreeningPlanSchoolStudent> haveDatePlanStudent, Map<String, Student> existManagementStudentIdCardMap, Map<String, Student> existManagementStudentPassportMap, ScreeningPlan screeningPlan) {
+        if (CollectionUtils.isEmpty(haveDatePlanStudent)) {
+            return;
+        }
+        log.error("解除绑定学生逻辑");
+        List<Student> studentList = new ArrayList<>();
+        haveDatePlanStudent.forEach(s -> {
+            Student student = getStudent(existManagementStudentIdCardMap, existManagementStudentPassportMap, s.getIdCard(), s.getPassport());
+            Integer studentId = student.getId();
+            BeanUtils.copyProperties(s, student);
+            student.setId(studentId);
+            student.setName(s.getStudentName());
+            student.setSno(s.getStudentNo());
+            studentList.add(student);
+        });
+        studentService.saveOrUpdateBatch(studentList);
+        unbindStudentSaveOrUpdate(haveDatePlanStudent, studentList);
+        updatePlanStudentAndVisionResult(screeningPlan, haveDatePlanStudent);
+    }
+
+    private void unbindStudentSaveOrUpdate(List<ScreeningPlanSchoolStudent> noDate, List<Student> studentList) {
+        Map<String, Integer> studentIdCardMap = studentList.stream().filter(s -> StringUtils.isNotBlank(s.getIdCard())).collect(Collectors.toMap(Student::getIdCard, Student::getId));
+        Map<String, Integer> studentPassportMap = studentList.stream().filter(s -> StringUtils.isNotBlank(s.getPassport())).collect(Collectors.toMap(Student::getPassport, Student::getId));
+        noDate.forEach(planStudent -> {
+            if (StringUtils.isNotBlank(planStudent.getIdCard())) {
+                planStudent.setStudentId(studentIdCardMap.get(planStudent.getIdCard()));
+            }
+            if (StringUtils.isNotBlank(planStudent.getPassport())) {
+                planStudent.setStudentId(studentPassportMap.get(planStudent.getPassport()));
+            }
+            planStudent.checkStudentInfo();
+        });
     }
 }

@@ -200,5 +200,18 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
         return baseMapper.getAllByIdCardAndSnoAndPassports(idCards, snoList, passports, schoolId);
     }
 
+    /**
+     * 通过学生Ids删除学校学生
+     * <p>删库操作，谨慎使用</p>
+     *
+     * @param studentIds 学生Id
+     */
+    public void deleteByStudentIds(List<Integer> studentIds) {
+        if (CollectionUtils.isEmpty(studentIds)) {
+            return;
+        }
+        baseMapper.deleteByStudentIds(studentIds);
+    }
+
 
 }

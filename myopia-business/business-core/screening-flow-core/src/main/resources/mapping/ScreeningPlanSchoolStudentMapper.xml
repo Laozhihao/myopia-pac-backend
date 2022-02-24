@@ -450,4 +450,12 @@
             and id != #{id}
         </if>
     </select>
+
+    <delete id="deleteByStudentIds">
+        delete
+        from m_screening_plan_school_student where student_id in
+        <foreach collection="studentIds" item="studentId" index="index" open="(" close=")" separator=",">
+            #{studentId}
+        </foreach>
+    </delete>
 </mapper>

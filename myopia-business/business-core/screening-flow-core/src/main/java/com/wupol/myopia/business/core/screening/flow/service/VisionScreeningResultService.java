@@ -11,10 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @Author HaoHao
@@ -30,8 +27,8 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
    * @Author: 钓猫的小鱼
    * @Date: 2022/1/12
    */
-    public List<VisionScreeningResult> getByStudentIds(Integer planId,List<Integer> studentIds) {
-        return baseMapper.getByStudentIds(planId,studentIds);
+    public List<VisionScreeningResult> getByStudentIdsAndPlanId(Integer planId, List<Integer> studentIds) {
+        return baseMapper.getByStudentIdsAndPlanId(planId,studentIds);
     }
 
     /**
@@ -212,5 +209,18 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
 
     public List<VisionScreeningResult> getByPlanId(Integer planId) {
         return baseMapper.getByPlanId(planId);
+    }
+
+    /**
+     * 通过学生Id获取结果
+     *
+     * @param studentIds 学生Ids
+     * @return List<VisionScreeningResult>
+     */
+    public List<VisionScreeningResult> getByStudentIds(List<Integer> studentIds) {
+        if (CollectionUtils.isEmpty(studentIds)) {
+            return new ArrayList<>();
+        }
+        return baseMapper.getByStudentIds(studentIds);
     }
 }

@@ -250,4 +250,13 @@
         </if>
         )
     </select>
+
+    <delete id="deleteByStudentIds">
+        delete
+        from m_school_student where student_id in
+        <foreach collection="studentIds" open="(" close=")" separator="," item="studentId">
+            #{studentId}
+        </foreach>
+    </delete>
+
 </mapper>

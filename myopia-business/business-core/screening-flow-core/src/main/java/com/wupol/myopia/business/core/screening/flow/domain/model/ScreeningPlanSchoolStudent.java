@@ -2,10 +2,12 @@ package com.wupol.myopia.business.core.screening.flow.domain.model;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.RegularUtils;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -203,6 +205,18 @@ public class ScreeningPlanSchoolStudent implements Serializable {
      * 护照
      */
     private String passport;
+
+    /**
+     * 检查学生信息是否正确
+     * <p>
+     *     身份证和护照二选一
+     * </p>
+     */
+    public void checkStudentInfo() {
+        if (StringUtils.isAllBlank(idCard, passport) || (StringUtils.isNotBlank(idCard) && StringUtils.isNotBlank(passport))) {
+            throw new BusinessException("身份证、护照信息异常");
+        }
+    }
 
 
 }

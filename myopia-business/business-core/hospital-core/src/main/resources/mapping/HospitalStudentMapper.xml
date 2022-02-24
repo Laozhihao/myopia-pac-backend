@@ -123,4 +123,12 @@
               order by create_time desc) as tmp
         group by tmp.student_id
     </select>
+
+    <select id="getByStudentIds" resultMap="BaseResultMap">
+        select *
+        from h_hospital_student where student_id in
+        <foreach collection="studentIds" item="studentId" index="index" open="(" close=")" separator=",">
+            #{studentId}
+        </foreach>
+    </select>
 </mapper>
