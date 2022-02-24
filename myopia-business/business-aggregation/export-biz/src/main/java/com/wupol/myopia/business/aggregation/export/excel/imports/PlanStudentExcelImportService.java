@@ -160,7 +160,7 @@ public class PlanStudentExcelImportService {
             checkSno(existPlanSchoolStudentList, sno, idCard, passport);
             // 是否带筛查编码一起上传
             if (StringUtils.isBlank(screeningCode)) {
-                notScrenningCodeUpload(userId, existPlanStudentIdCardMap, existPlanStudentPassportMap, existManagementStudentIdCardMap, existManagementStudentPassportMap, noScreeningCodeManagementStudentList, idCard, passport, sno, gender, studentName, nation, birthday, gradeClassInfo, gradeType, schoolId, phone);
+                notScreeningCodeUpload(userId, existPlanStudentIdCardMap, existPlanStudentPassportMap, existManagementStudentIdCardMap, existManagementStudentPassportMap, noScreeningCodeManagementStudentList, idCard, passport, sno, gender, studentName, nation, birthday, gradeClassInfo, gradeType, schoolId, phone);
                 continue;
             }
             // 检查筛查编码是否存在
@@ -188,9 +188,17 @@ public class PlanStudentExcelImportService {
         updateOrSaveStudentInfo(screeningPlan, school, existPlanStudentIdCardMap, existPlanStudentPassportMap, noScreeningCodeManagementStudentList, havePaperworkPlanStudent, havePaperworkStudent, noPaperworkHaveStudentPlanStudents, noPaperworkStudents, virtualStudentList, noPaperworkPlanStudents);
     }
 
+    /**
+     * 存在证件信息上传
+     */
     private void havePaperworkUpload(Integer userId, Map<String, ScreeningPlanSchoolStudent> existPlanStudentIdCardMap, Map<String, ScreeningPlanSchoolStudent> existPlanStudentPassportMap, Map<String, Student> existManagementStudentIdCardMap, Map<String, Student> existManagementStudentPassportMap, List<ScreeningPlanSchoolStudent> havePaperworkPlanStudent, List<Student> havePaperworkStudent, String idCard, String passport, String sno, Integer gender, String studentName, Integer nation, Date birthday, TwoTuple<Integer, Integer> gradeClassInfo, Integer gradeType, ScreeningPlanSchoolStudent planSchoolStudent, School school, String phone) {
         // 判断绑定的证件号是否一致
         checkPaperworkInfo(idCard, passport, planSchoolStudent);
+        isSamePaperwork(userId, existPlanStudentIdCardMap, existPlanStudentPassportMap, existManagementStudentIdCardMap, existManagementStudentPassportMap, havePaperworkPlanStudent, havePaperworkStudent, idCard, passport, sno, gender, studentName, nation, birthday, gradeClassInfo, gradeType, school, phone);
+    }
+
+    // 证件号一致
+    private void isSamePaperwork(Integer userId, Map<String, ScreeningPlanSchoolStudent> existPlanStudentIdCardMap, Map<String, ScreeningPlanSchoolStudent> existPlanStudentPassportMap, Map<String, Student> existManagementStudentIdCardMap, Map<String, Student> existManagementStudentPassportMap, List<ScreeningPlanSchoolStudent> havePaperworkPlanStudent, List<Student> havePaperworkStudent, String idCard, String passport, String sno, Integer gender, String studentName, Integer nation, Date birthday, TwoTuple<Integer, Integer> gradeClassInfo, Integer gradeType, School school, String phone) {
         // 更新学生和筛查学生
         TwoTuple<Student, ScreeningPlanSchoolStudent> twoTuple = getStudentAndPlanStudent(existPlanStudentIdCardMap, existPlanStudentPassportMap, existManagementStudentIdCardMap, existManagementStudentPassportMap, idCard, passport);
         Student student = twoTuple.getFirst();
@@ -203,6 +211,9 @@ public class PlanStudentExcelImportService {
         havePaperworkPlanStudent.add(planStudent);
     }
 
+    /**
+     * 筛查学生没绑定证件信息
+     */
     private void notBindPaperworkUpload(Integer userId, Map<String, Student> existManagementStudentIdCardMap, Map<String, Student> existManagementStudentPassportMap, List<ScreeningPlanSchoolStudent> noPaperworkHaveStudentPlanStudents, List<Student> noPaperworkStudents, List<ScreeningPlanSchoolStudent> noPaperworkPlanStudents, String idCard, String passport, String sno, Integer gender, String studentName, Integer nation, Date birthday, TwoTuple<Integer, Integer> gradeClassInfo, Integer gradeType, ScreeningPlanSchoolStudent planSchoolStudent, String phone, School school) {
         // 是否在系统中存在
         Student student = getStudent(existManagementStudentIdCardMap, existManagementStudentPassportMap, idCard, passport);
@@ -218,13 +229,19 @@ public class PlanStudentExcelImportService {
         noPaperworkHaveStudentPlanStudents.add(planSchoolStudent);
     }
 
+    /**
+     * 没有证件信息的上传
+     */
     private void notPaperworkUpload(Map<Long, ScreeningPlanSchoolStudent> existPlanStudentScreeningCodeMap, List<ScreeningPlanSchoolStudent> virtualStudentList, String screeningCode, String idCard, String passport, String sno, Integer gender, String studentName, Integer nation, Date birthday, TwoTuple<Integer, Integer> gradeClassInfo, String phone, School school) {
         ScreeningPlanSchoolStudent planSchoolStudent = existPlanStudentScreeningCodeMap.get(Long.valueOf(screeningCode));
         packagePlanStudent(idCard, passport, sno, gender, studentName, nation, birthday, gradeClassInfo, planSchoolStudent, phone, school);
         virtualStudentList.add(planSchoolStudent);
     }
 
-    private void notScrenningCodeUpload(Integer userId, Map<String, ScreeningPlanSchoolStudent> existPlanStudentIdCardMap, Map<String, ScreeningPlanSchoolStudent> existPlanStudentPassportMap, Map<String, Student> existManagementStudentIdCardMap, Map<String, Student> existManagementStudentPassportMap, List<Student> noScreeningCodeManagementStudentList, String idCard, String passport, String sno, Integer gender, String studentName, Integer nation, Date birthday, TwoTuple<Integer, Integer> gradeClassInfo, Integer gradeType, Integer schoolId, String phone) {
+    /**
+     * 没有筛查编码的上传
+     */
+    private void notScreeningCodeUpload(Integer userId, Map<String, ScreeningPlanSchoolStudent> existPlanStudentIdCardMap, Map<String, ScreeningPlanSchoolStudent> existPlanStudentPassportMap, Map<String, Student> existManagementStudentIdCardMap, Map<String, Student> existManagementStudentPassportMap, List<Student> noScreeningCodeManagementStudentList, String idCard, String passport, String sno, Integer gender, String studentName, Integer nation, Date birthday, TwoTuple<Integer, Integer> gradeClassInfo, Integer gradeType, Integer schoolId, String phone) {
         if (StringUtils.isAllBlank(idCard, passport)) {
             throw new BusinessException("上传失败：身份证、护照信息异常");
         }
