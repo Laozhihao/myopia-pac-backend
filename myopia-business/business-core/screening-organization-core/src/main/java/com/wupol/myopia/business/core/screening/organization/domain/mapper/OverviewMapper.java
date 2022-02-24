@@ -43,4 +43,21 @@ public interface OverviewMapper extends BaseMapper<Overview> {
      */
     List<Overview> getByCooperationTimeAndStatus(@Param("date") Date date);
 
+    /**
+     * CAS更新总览机构状态
+     * @param id
+     * @param targetStatus
+     * @param sourceStatus
+     * @return
+     */
+    int updateOverviewStatus(@Param("id") Integer id, @Param("targetStatus") Integer targetStatus, @Param("sourceStatus")Integer sourceStatus);
+
+    /**
+     * 获取指定合作结束时间的医院信息
+     * @param start     开始时间早于该时间才处理
+     * @param end       指定结束时间，精确到天
+     * @return
+     */
+    List<Overview> getByCooperationEndTime(@Param("start") Date start, @Param("end") Date end);
+
 }
