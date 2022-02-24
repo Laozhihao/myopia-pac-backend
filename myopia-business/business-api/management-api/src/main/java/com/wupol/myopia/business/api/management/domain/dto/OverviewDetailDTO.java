@@ -29,7 +29,7 @@ public class OverviewDetailDTO extends OverviewDTO {
      * 已绑定的医院数量
      * @return
      */
-    public Integer getHospitalNum() {
+    public Long getHospitalNum() {
         return Objects.nonNull(super.getHospitalNum()) ? super.getHospitalNum() : CollectionUtils.isEmpty(hospitals) ? 0 : hospitals.size();
     }
 
@@ -37,7 +37,7 @@ public class OverviewDetailDTO extends OverviewDTO {
      * 已绑定的筛查机构数量
      * @return
      */
-    public Integer getScreeningOrganizationNum() {
+    public Long getScreeningOrganizationNum() {
         return Objects.nonNull(super.getScreeningOrganizationNum()) ? super.getScreeningOrganizationNum() : CollectionUtils.isEmpty(screeningOrganizations) ? 0 : screeningOrganizations.size();
     }
 

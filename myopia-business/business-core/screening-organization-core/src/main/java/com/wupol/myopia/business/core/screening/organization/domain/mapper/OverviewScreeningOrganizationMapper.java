@@ -23,4 +23,11 @@ public interface OverviewScreeningOrganizationMapper extends BaseMapper<Overview
      */
     int batchSave(@Param("overviewId") Integer overviewId, @Param("screeningOrganizationIds") List<Integer> screeningOrganizationIds);
 
+    /**
+     * 指定总览机构ID集获取绑定信息
+     * @param overviewIds
+     * @return
+     */
+    List<OverviewScreeningOrganization> getListByOverviewIds(@Param("overviewIds") List<Integer> overviewIds);
+
 }

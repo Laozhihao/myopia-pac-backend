@@ -1,5 +1,7 @@
 package com.wupol.myopia.business.core.screening.organization.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -9,10 +11,12 @@ import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccountListDTO;
+import com.wupol.myopia.business.core.screening.organization.domain.dto.OverviewDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OverviewRequestDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.mapper.OverviewMapper;
 import com.wupol.myopia.business.core.screening.organization.domain.model.Overview;
 import com.wupol.myopia.business.core.screening.organization.domain.model.OverviewAdmin;
+import com.wupol.myopia.business.core.screening.organization.domain.query.OverviewQuery;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
 import com.wupol.myopia.oauth.sdk.domain.response.Organization;
@@ -100,33 +104,13 @@ public class OverviewService extends BaseService<OverviewMapper, Overview> {
     }
 
     /**
-     * 更新总览机构管理员用户状态
-     *
-     * @param request 用户信息
-     * @return boolean
-     **/
-    public boolean updateOverviewAdminUserStatus(StatusRequest request) {
-        overviewAdminService.checkIdAndUserId(request.getId(), request.getUserId());
-        // TODO wulizhou 抽出来
-        UserDTO overviewAdmin = new UserDTO();
-        overviewAdmin.setId(request.getUserId());
-        overviewAdmin.setStatus(request.getStatus());
-        oauthServiceClient.updateUser(overviewAdmin);
-        return true;
-    }
-
-    /**
-     * 重置密码
-     *
-     * @param request 请求参数
-     * @return 账号密码
+     * 获取总览机构列表
+     * @param page
+     * @param query
+     * @return
      */
-    @Transactional(rollbackFor = Exception.class)
-    public UsernameAndPasswordDTO resetPassword(ResetPasswordRequest request) {
-        overviewAdminService.checkIdAndUserId(request.getId(), request.getUserId());
-        String password = PasswordAndUsernameGenerator.getOverviewAdminPwd();
-        oauthServiceClient.resetPwd(request.getUserId(), password);
-        return new UsernameAndPasswordDTO(request.getUsername(), password);
+    public IPage<OverviewDTO> getOverviewListByCondition(Page<?> page, OverviewQuery query) {
+        return baseMapper.getOverviewListByCondition(page, query);
     }
 
     /**
@@ -155,6 +139,36 @@ public class OverviewService extends BaseService<OverviewMapper, Overview> {
             accountList.add(account);
         });
         return accountList;
+    }
+
+    /**
+     * 更新总览机构管理员用户状态
+     *
+     * @param request 用户信息
+     * @return boolean
+     **/
+    public boolean updateOverviewAdminUserStatus(StatusRequest request) {
+        overviewAdminService.checkIdAndUserId(request.getId(), request.getUserId());
+        // TODO wulizhou 抽出来
+        UserDTO overviewAdmin = new UserDTO();
+        overviewAdmin.setId(request.getUserId());
+        overviewAdmin.setStatus(request.getStatus());
+        oauthServiceClient.updateUser(overviewAdmin);
+        return true;
+    }
+
+    /**
+     * 重置密码
+     *
+     * @param request 请求参数
+     * @return 账号密码
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public UsernameAndPasswordDTO resetPassword(ResetPasswordRequest request) {
+        overviewAdminService.checkIdAndUserId(request.getId(), request.getUserId());
+        String password = PasswordAndUsernameGenerator.getOverviewAdminPwd();
+        oauthServiceClient.resetPwd(request.getUserId(), password);
+        return new UsernameAndPasswordDTO(request.getUsername(), password);
     }
 
     /**

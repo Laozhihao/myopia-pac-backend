@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Author wulizhou
@@ -48,6 +48,37 @@ public class OverviewScreeningOrganizationService extends BaseService<OverviewSc
             return 0;
         }
         return baseMapper.batchSave(overviewId, screeningOrganizationIds);
+    }
+
+    /**
+     * 获取指定总览机构集所绑定的医院数量
+     * @param overviewIds
+     * @return
+     */
+    public Map<Integer, Long> getOverviewScreeningOrganizationNum(List<Integer> overviewIds) {
+        if (CollectionUtils.isEmpty(overviewIds)) {
+            return Collections.EMPTY_MAP;
+        }
+        return baseMapper.getListByOverviewIds(overviewIds).stream()
+                .collect(Collectors.groupingBy(OverviewScreeningOrganization::getOverviewId, Collectors.counting()));
+    }
+
+    /**
+     * 获取指定总览机构所绑定的医院id集
+     * @param overviewId
+     * @return
+     */
+    public List<Integer> getScreeningOrganizationIdByOverviewId(Integer overviewId) {
+        return getByOverviewId(overviewId).stream().map(OverviewScreeningOrganization::getScreeningOrganizationId).collect(Collectors.toList());
+    }
+
+    /**
+     * 获取指定总览机构的绑定信息
+     * @param overviewId
+     * @return
+     */
+    public List<OverviewScreeningOrganization> getByOverviewId(Integer overviewId) {
+        return baseMapper.getListByOverviewIds(Arrays.asList(overviewId));
     }
 
 }

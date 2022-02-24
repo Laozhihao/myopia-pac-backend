@@ -18,9 +18,20 @@ import java.util.List;
  */
 public interface OverviewMapper extends BaseMapper<Overview> {
 
+    /**
+     * 获取指定名称且ID不为#{id}的数据
+     * @param name
+     * @param id
+     * @return
+     */
     List<Overview> getByNameNeId(@Param("name") String name, @Param("id") Integer id);
 
-    IPage<OverviewDTO> getOverviewListByCondition(@Param("page") Page<?> page, @Param("govDeptId") List<Integer> govDeptId,
-                                                  @Param("query") OverviewQuery query);
+    /**
+     * 获取总览机构列表
+     * @param page
+     * @param query
+     * @return
+     */
+    IPage<OverviewDTO> getOverviewListByCondition(@Param("page") Page<?> page, @Param("query") OverviewQuery query);
 
 }

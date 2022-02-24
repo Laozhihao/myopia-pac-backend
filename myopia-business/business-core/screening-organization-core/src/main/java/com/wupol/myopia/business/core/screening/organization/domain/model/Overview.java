@@ -66,7 +66,7 @@ public class Overview extends Cooperation implements Serializable {
      * 说明
      */
     @Length(max = 50)
-    private String explain;
+    private String illustrate;
 
     /**
      * 行政区域ID
@@ -94,7 +94,7 @@ public class Overview extends Cooperation implements Serializable {
     private Integer hospitalLimitNum;
 
     /**
-     * 筛查机构配置 0-省级配置 1-单点配置
+     * 筛查机构配置 0-省级配置 1-单点配置 2-VS666 3-单点配置+VS666
      */
     private Integer screeningOrganizationConfigType;
 

@@ -22,5 +22,11 @@ public interface OverviewHospitalMapper extends BaseMapper<OverviewHospital> {
      */
     int batchSave(@Param("overviewId") Integer overviewId, @Param("hospitalIds") List<Integer> hospitalIds);
 
+    /**
+     * 指定总览机构ID集获取绑定信息
+     * @param overviewIds
+     * @return
+     */
+    List<OverviewHospital> getListByOverviewIds(@Param("overviewIds") List<Integer> overviewIds);
 
 }

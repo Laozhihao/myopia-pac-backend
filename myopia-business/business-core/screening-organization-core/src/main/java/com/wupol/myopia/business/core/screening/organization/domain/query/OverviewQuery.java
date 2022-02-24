@@ -4,7 +4,6 @@ import com.wupol.myopia.business.core.screening.organization.domain.model.Overvi
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
@@ -35,13 +34,20 @@ public class OverviewQuery extends Overview {
     /**
      * 过期时间大于等于cooperationEndTimeGe
      */
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     private Date cooperationEndTimeGe;
 
     /**
      * 过期时间小于等于cooperationEndTimeLe
      */
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     private Date cooperationEndTimeLe;
+
+    public void setEndTimeGe(Long endTimeGe) {
+        cooperationEndTimeGe = new Date(endTimeGe);
+    }
+
+    public void setEndTimeLe(Long endTimeLe) {
+        cooperationEndTimeLe = new Date(endTimeLe);
+    }
+
 
 }

@@ -10,11 +10,11 @@ import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
-import com.wupol.myopia.business.core.hospital.domain.query.HospitalQuery;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccountListDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OverviewDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OverviewRequestDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.model.Overview;
+import com.wupol.myopia.business.core.screening.organization.domain.query.OverviewQuery;
 import com.wupol.myopia.business.core.screening.organization.service.OverviewService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -47,7 +47,7 @@ public class OverviewController {
      */
     @PostMapping
     public UsernameAndPasswordDTO saveOverview(@RequestBody @Valid OverviewRequestDTO overview) {
-        initOverview(overview);
+        initAndCheckOverview(overview);
         return overviewService.saveOverview(overview);
     }
 
@@ -59,10 +59,9 @@ public class OverviewController {
      */
     @PutMapping
     public OverviewDetailDTO updateOverview(@RequestBody @Valid OverviewRequestDTO overview) {
-        initOverview(overview);
+        initAndCheckOverview(overview);
         overviewService.updateOverview(overview);
-        // TODO wulizhou 返回当前数据列表所需数据
-        return null;
+        return getOverview(overview.getId());
     }
 
     /**
@@ -73,7 +72,7 @@ public class OverviewController {
      */
     @GetMapping("{id}")
     public OverviewDetailDTO getOverview(@PathVariable("id") Integer id) {
-        return null;
+        return overviewBizService.getDetail(id);
     }
 
     /**
@@ -84,8 +83,8 @@ public class OverviewController {
      * @return 医院列表
      */
     @GetMapping("list")
-    public IPage<OverviewDTO> getOverviewList(PageRequest pageRequest, HospitalQuery query) {
-        return null;
+    public IPage<OverviewDTO> getOverviewList(PageRequest pageRequest, OverviewQuery query) {
+        return overviewBizService.getOverviewList(pageRequest, query);
     }
 
     /**
@@ -105,7 +104,7 @@ public class OverviewController {
      * @param request 请求入参
      * @return 账号密码 {@link UsernameAndPasswordDTO}
      */
-    @PostMapping("/admin/reset")
+    @PutMapping("/admin/reset")
     public UsernameAndPasswordDTO resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
         return overviewService.resetPassword(request);
     }
@@ -132,7 +131,12 @@ public class OverviewController {
         return overviewService.addOverviewAdminUserAccount(overviewId);
     }
 
-    private Overview initOverview(Overview overview) {
+    /**
+     * 增加总览基本信息并校验
+     * @param overview
+     * @return
+     */
+    private Overview initAndCheckOverview(Overview overview) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         CurrentUserUtil.isNeedPlatformAdminUser(user);
         overview.setCreateUserId(user.getId());

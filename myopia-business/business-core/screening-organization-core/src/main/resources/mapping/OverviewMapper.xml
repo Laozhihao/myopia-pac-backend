@@ -6,7 +6,8 @@
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.screening.organization.domain.model.Overview">
     </resultMap>
 
-    <resultMap id="OverviewDTO" type="com.wupol.myopia.business.core.screening.organization.domain.dto.OverviewDTO" extends="BaseResultMap">
+    <resultMap id="OverviewDTO" type="com.wupol.myopia.business.core.screening.organization.domain.dto.OverviewDTO"
+               extends="BaseResultMap">
     </resultMap>
 
     <!-- 通用查询条件 -->
@@ -19,17 +20,25 @@
                 <if test="@Ognl@isNotEmpty(name)">and `name` = #{name}</if>
                 <if test="@Ognl@isNotEmpty(contactPerson)">and `contact_person` = #{contactPerson}</if>
                 <if test="@Ognl@isNotEmpty(phone)">and `phone` = #{phone}</if>
-                <if test="@Ognl@isNotEmpty(explain)">and `explain` = #{explain}</if>
+                <if test="@Ognl@isNotEmpty(illustrate)">and `illustrate` = #{illustrate}</if>
                 <if test="@Ognl@isNotEmpty(districtId)">and `district_id` = #{districtId}</if>
                 <if test="@Ognl@isNotEmpty(districtDetail)">and `district_detail` = #{districtDetail}</if>
                 <if test="@Ognl@isNotEmpty(configType)">and `config_type` = #{configType}</if>
-                <if test="@Ognl@isNotEmpty(hospitalServiceType)">and `hospital_service_type` = #{hospitalServiceType}</if>
+                <if test="@Ognl@isNotEmpty(hospitalServiceType)">and `hospital_service_type` = #{hospitalServiceType}
+                </if>
                 <if test="@Ognl@isNotEmpty(hospitalLimitNum)">and `hospital_limit_num` = #{hospitalLimitNum}</if>
-                <if test="@Ognl@isNotEmpty(screeningOrganizationConfigType)">and `screening_organization_config_type` = #{screeningOrganizationConfigType}</if>
-                <if test="@Ognl@isNotEmpty(screeningOrganizationLimitNum)">and `screening_organization_limit_num` = #{screeningOrganizationLimitNum}</if>
+                <if test="@Ognl@isNotEmpty(screeningOrganizationConfigType)">and `screening_organization_config_type` =
+                    #{screeningOrganizationConfigType}
+                </if>
+                <if test="@Ognl@isNotEmpty(screeningOrganizationLimitNum)">and `screening_organization_limit_num` =
+                    #{screeningOrganizationLimitNum}
+                </if>
                 <if test="@Ognl@isNotEmpty(cooperationType)">and `cooperation_type` = #{cooperationType}</if>
-                <if test="@Ognl@isNotEmpty(cooperationTimeType)">and `cooperation_time_type` = #{cooperationTimeType}</if>
-                <if test="@Ognl@isNotEmpty(cooperationStartTime)">and `cooperation_start_time` = #{cooperationStartTime}</if>
+                <if test="@Ognl@isNotEmpty(cooperationTimeType)">and `cooperation_time_type` = #{cooperationTimeType}
+                </if>
+                <if test="@Ognl@isNotEmpty(cooperationStartTime)">and `cooperation_start_time` =
+                    #{cooperationStartTime}
+                </if>
                 <if test="@Ognl@isNotEmpty(cooperationEndTime)">and `cooperation_end_time` = #{cooperationEndTime}</if>
                 <if test="@Ognl@isNotEmpty(status)">and `status` = #{status}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
@@ -40,7 +49,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, create_user_id, gov_dept_id, `name`, contact_person, phone, `explain`, district_id, district_detail, config_type, hospital_service_type, hospital_limit_num, screening_organization_config_type, screening_organization_limit_num, cooperation_type, cooperation_time_type, cooperation_start_time, cooperation_end_time, `status`, create_time, update_time
+        id, create_user_id, gov_dept_id, `name`, contact_person, phone, `illustrate`, district_id, district_detail, config_type, hospital_service_type, hospital_limit_num, screening_organization_config_type, screening_organization_limit_num, cooperation_type, cooperation_time_type, cooperation_start_time, cooperation_end_time, `status`, create_time, update_time
     </sql>
 
     <select id="getByNameNeId" resultMap="BaseResultMap">
@@ -53,8 +62,40 @@
     </select>
 
     <select id="getOverviewListByCondition" resultMap="OverviewDTO">
-        select <include refid="Base_Column_List"/>, hospitalNum, screeningOrganizationNum
+        select
+        <include refid="Base_Column_List"/>
         from m_overview
+        <where>
+            <trim prefixOverrides="and">
+                <if test="query.nameLike != null and query.nameLike != ''">
+                    and name like CONCAT('%', #{query.nameLike}, '%')
+                </if>
+                <if test="query.contactPersonLike != null and query.contactPersonLike != ''">
+                    and contact_person like CONCAT('%', #{query.contactPersonLike}, '%')
+                </if>
+                <if test="query.configType != null">
+                    and config_type = #{query.configType}
+                </if>
+                <if test="@Ognl@isNotEmpty(query.cooperationType)">
+                    and cooperation_type = #{query.cooperationType}
+                </if>
+                <if test="@Ognl@isNotEmpty(query.expireDayGt) and query.expireDayGt != -1">
+                    and LEAST(DATEDIFF(cooperation_end_time, cooperation_start_time),DATEDIFF(cooperation_end_time,
+                    now())) &gt; #{query.expireDayGt}
+                </if>
+                <if test="@Ognl@isNotEmpty(query.expireDayLe) and query.expireDayLe != -1">
+                    and LEAST(DATEDIFF(cooperation_end_time, cooperation_start_time),DATEDIFF(cooperation_end_time,
+                    now())) &lt;= #{query.expireDayLe}
+                </if>
+                <if test="@Ognl@isNotEmpty(query.cooperationEndTimeGe)">
+                    and cooperation_end_time &gt;= #{query.cooperationEndTimeGe}
+                </if>
+                <if test="@Ognl@isNotEmpty(query.cooperationEndTimeLe)">
+                    and cooperation_end_time &lt;= #{query.cooperationEndTimeLe}
+                </if>
+            </trim>
+        </where>
+        order by create_time desc
     </select>
 
 </mapper>

@@ -106,9 +106,6 @@
         <if test="@Ognl@isNotEmpty(query.cooperationEndTimeLe)">
             and h.cooperation_end_time &lt;= #{query.cooperationEndTimeLe}
         </if>
-        <if test="query.serviceType != null">
-            and h.service_type = #{query.serviceType}
-        </if>
         order by h.create_time desc
     </select>
 

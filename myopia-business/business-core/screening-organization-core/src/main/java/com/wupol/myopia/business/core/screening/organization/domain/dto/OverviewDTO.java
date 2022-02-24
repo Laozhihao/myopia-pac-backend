@@ -13,13 +13,18 @@ import lombok.experimental.Accessors;
 public class OverviewDTO extends Overview {
 
     /**
+     * 行政区域名
+     */
+    private String districtName;
+
+    /**
      * 已绑定的医院数量
      */
-    private Integer hospitalNum;
+    private Long hospitalNum;
 
     /**
      * 已绑定的筛查机构数量
      */
-    private Integer screeningOrganizationNum;
+    private Long screeningOrganizationNum;
 
 }
