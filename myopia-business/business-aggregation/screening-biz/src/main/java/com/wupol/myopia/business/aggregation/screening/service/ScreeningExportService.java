@@ -148,9 +148,17 @@ public class ScreeningExportService {
         }
     }
 
+    /**
+     *
+     * @param screeningPlanId 计划ID
+     * @param schoolId 学校ID
+     * @param gradeId 年级ID
+     * @param classId 班级ID
+     * @param studentIds 学生ID集合
+     * @param isSchoolClient true:学校端   fasle：管理端
+     * @return
+     */
     public Map<String, Object> getNoticeData(Integer screeningPlanId, Integer schoolId,Integer gradeId,Integer classId,List<Integer> studentIds,boolean isSchoolClient) {
-        // 1. 校验
-//        validateExistAndAuthorize(screeningPlanId, CommonConst.STATUS_NOT_RELEASE);
         // 2. 处理参数
         String gradeName = "";
         School school = schoolService.getBySchoolId(schoolId);
