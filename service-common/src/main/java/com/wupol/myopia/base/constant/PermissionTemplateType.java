@@ -117,7 +117,7 @@ public enum PermissionTemplateType {
      * @return com.wupol.myopia.base.constan.RoleType
      **/
     public static PermissionTemplateType getByType(Integer type) {
-        return Arrays.stream(values()).filter(roleType -> roleType.getType().equals(type))
+        return Arrays.stream(values()).filter(permissionTemplateType -> permissionTemplateType.getType().equals(type))
                 .findFirst().orElse(null);
     }
 
@@ -181,6 +181,17 @@ public enum PermissionTemplateType {
     public static boolean isHospitalAdminTemplate(Integer type) {
         return HOSPITAL_ADMIN.type.equals(type) || PRESCHOOL_ADMIN.type.equals(type)
                 || HOSPITAL_PRESCHOOL_ADMIN.type.equals(type);
+    }
+
+    /**
+     * 是否为总览机构管理员类型
+     *
+     * @param type 类型
+     * @return 是否总览机构管理员
+     */
+    public static boolean isOverviewAdminTemplate(Integer type) {
+        return OVERVIEW_SCREENING_ORG.type.equals(type) || OVERVIEW_HOSPITAL.type.equals(type)
+                || OVERVIEW_SCREENING_ORG_HOSPITAL.type.equals(type);
     }
 
     /**

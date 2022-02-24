@@ -20,7 +20,9 @@ import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
 import com.wupol.myopia.business.core.hospital.service.HospitalService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
+import com.wupol.myopia.business.core.screening.organization.domain.model.Overview;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
+import com.wupol.myopia.business.core.screening.organization.service.OverviewService;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
@@ -56,6 +58,8 @@ public class UserController {
     private SchoolService schoolService;
     @Autowired
     private HospitalService hospitalService;
+    @Autowired
+    private OverviewService overviewService;
 
     /**
      * 分页获取用户列表
@@ -148,6 +152,15 @@ public class UserController {
             }
             userVO.setOrgConfigType(hospital.getServiceType());
             return userVO.setOrgName(hospital.getName()).setDistrictId(hospital.getDistrictId());
+        }
+        // 管理端 - 总览机构管理员用户
+        if (SystemCode.MANAGEMENT_CLIENT.getCode().equals(user.getSystemCode()) && UserType.OVERVIEW.getType().equals(user.getUserType())) {
+            Overview overview = overviewService.getById(user.getOrgId());
+            userVO.setOrgConfigType(overview.getConfigType());
+            if (Objects.nonNull(overview.getDistrictId())) {
+                userVO.setDistrictDetail(districtService.getDistrictPositionDetailById(overview.getDistrictId()));
+            }
+            return userVO.setOrgName(overview.getName()).setDistrictId(overview.getDistrictId());
         }
         // 学校端
         if (SystemCode.SCHOOL_CLIENT.getCode().equals(user.getSystemCode())) {

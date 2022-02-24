@@ -221,6 +221,17 @@ public class OverviewService extends BaseService<OverviewMapper, Overview> {
     }
 
     /**
+     * 获取指定configType类型的总览机构
+     * @param configType
+     * @return
+     */
+    public List<Overview> getByConfigType(Integer configType) {
+        Overview query = new Overview();
+        query.setConfigType(configType);
+        return super.findByList(query);
+    }
+
+    /**
      * 检查总览机构名称是否重复
      *
      * @param overviewName 总览机构名称

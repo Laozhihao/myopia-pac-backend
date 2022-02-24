@@ -88,4 +88,13 @@ public class CurrentUser {
         return UserType.HOSPITAL_ADMIN.getType().equals(userType) && SystemCode.MANAGEMENT_CLIENT.getCode().equals(systemCode);
     }
 
+    /**
+     * 是否总览机构管理员用户
+     * @return
+     */
+    @JsonIgnore
+    public boolean isOverviewUser() {
+        return UserType.OVERVIEW.getType().equals(userType) && SystemCode.MANAGEMENT_CLIENT.getCode().equals(systemCode);
+    }
+
 }
