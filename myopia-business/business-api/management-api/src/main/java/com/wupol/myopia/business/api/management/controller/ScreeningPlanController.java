@@ -528,7 +528,7 @@ public class ScreeningPlanController {
     @GetMapping("/getStudentEyeByStudentId")
     public ApiResult getStudentEyeByStudentId(@RequestParam Integer planId,@RequestParam Integer studentId) {
         List<Integer> studentIds = Collections.singletonList(studentId);
-        List<VisionScreeningResult> visionScreeningResults =  visionScreeningResultService.getByStudentIds(planId,studentIds);
+        List<VisionScreeningResult> visionScreeningResults =  visionScreeningResultService.getByStudentIdsAndPlanId(planId,studentIds);
         if (visionScreeningResults.isEmpty()){
             return ApiResult.success();
         }
