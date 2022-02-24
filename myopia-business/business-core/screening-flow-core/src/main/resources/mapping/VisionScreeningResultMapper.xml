@@ -14,6 +14,7 @@
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="slit_lamp_data" property="slitLampData"/>
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="pupil_optometry_data" property="pupilOptometryData"/>
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="visual_loss_level_data" property="visualLossLevelData"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="height_and_weight_data" property="heightAndWeightData"/>
     </resultMap>
 
 
