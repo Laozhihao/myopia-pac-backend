@@ -31,10 +31,13 @@ import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
+import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.stat.domain.model.SchoolVisionStatistic;
 import com.wupol.myopia.business.core.stat.service.SchoolVisionStatisticService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
@@ -44,6 +47,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -97,6 +101,9 @@ public class VisionScreeningController {
 
     @Resource
     private SysUtilService sysUtilService;
+
+    @Autowired
+    private VisionScreeningResultService visionScreeningResultService;
 
     /**
      * 获取学校计划
@@ -365,5 +372,24 @@ public class VisionScreeningController {
     @GetMapping("screeningNoticeResult/list")
     public List<ScreeningStudentDTO> getScreeningNoticeResultLists(@NotBlank(message = "计划Id不能为空") Integer planId, Integer schoolId, Integer gradeId, Integer classId, String planStudentIdStr, String planStudentName) {
         return screeningPlanStudentBizService.getScreeningStudentDTOS(planId, schoolId, gradeId, classId, planStudentIdStr, planStudentName);
+    }
+
+    /**
+     * 学生详情
+     *
+     * @param planId
+     * @param studentId
+     * @return
+     */
+    @GetMapping("/getStudentEyeByStudentId")
+    public ApiResult getStudentEyeByStudentId(@RequestParam Integer planId, @RequestParam Integer studentId) {
+        List<Integer> studentIds = Collections.singletonList(studentId);
+        List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.getByStudentIds(planId, studentIds);
+        if (visionScreeningResults.isEmpty()) {
+            return ApiResult.success();
+        }
+        VisionScreeningResult visionScreeningResult = visionScreeningResults.get(0);
+
+        return ApiResult.success(visionScreeningResult);
     }
 }

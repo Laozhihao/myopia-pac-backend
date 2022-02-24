@@ -149,6 +149,7 @@ public class StudentFacade {
             item.setMyopiaLevel(statMap.get(result.getId()).getMyopiaLevel());
             item.setHyperopiaLevel(statMap.get(result.getId()).getHyperopiaLevel());
             item.setAstigmatismLevel(statMap.get(result.getId()).getAstigmatismLevel());
+            item.setPlanId(result.getPlanId());
             items.add(item);
         }
         responseDTO.setTotal(resultList.size());
