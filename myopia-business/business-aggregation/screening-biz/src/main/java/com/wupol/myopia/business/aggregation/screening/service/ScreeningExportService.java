@@ -199,7 +199,12 @@ public class ScreeningExportService {
      * @return
      */
     public List<Map<String, String>> getQrCodeAndStudentInfo(AppQueryQrCodeParams params) {
-        List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.getScreeningNoticeResultStudent(null, params.getSchoolId(), params.getGradeId(), params.getClassId(), null, params.getStudentName());
+        Set<Integer> currentPlanIds = screeningPlanService.getCurrentPlanIds(CurrentUserUtil.getCurrentUser().getOrgId());
+        if (CollectionUtils.isEmpty(currentPlanIds)) {
+            throw new BusinessException("当前无筛查计划");
+        }
+        Integer planId = new ArrayList<>(currentPlanIds).get(0);
+        List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.getScreeningNoticeResultStudent(planId, params.getSchoolId(), params.getGradeId(), params.getClassId(), null, params.getStudentName());
         if (CollectionUtils.isEmpty(students)) {
             return null;
         }
