@@ -209,4 +209,8 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
     public VisionScreeningResult getLatestByPlanStudentIds(List<Integer> planStudentIds) {
         return baseMapper.getLatestByPlanStudentIds(planStudentIds);
     }
+
+    public List<VisionScreeningResult> getByPlanId(Integer planId) {
+        return baseMapper.getByPlanId(planId);
+    }
 }

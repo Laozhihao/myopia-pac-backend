@@ -166,4 +166,10 @@
         order by create_time desc
         limit 1
     </select>
+
+    <select id="getByPlanId" resultMap="BaseResultMap">
+        select *
+        from m_vision_screening_result
+        where plan_id = #{planId}
+    </select>
 </mapper>

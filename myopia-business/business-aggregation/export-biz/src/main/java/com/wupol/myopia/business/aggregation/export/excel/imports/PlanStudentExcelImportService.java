@@ -23,8 +23,10 @@ import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
+import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.flow.util.ScreeningCodeGenerator;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
@@ -68,6 +70,9 @@ public class PlanStudentExcelImportService {
 
     @Resource
     private CommonImportService commonImportService;
+
+    @Resource
+    private VisionScreeningResultService visionScreeningResultService;
 
     /**
      * 导入筛查学生信息
@@ -253,16 +258,16 @@ public class PlanStudentExcelImportService {
             saveStudentAndPlanStudent(noScreeningCodeManagementStudentList, existPlanStudentIdCardMap, existPlanStudentPassportMap, screeningPlan, school);
         }
         if (!CollectionUtils.isEmpty(noPaperworkStudents)) {
-            updateOrSaveNoPaperworkStudent(noPaperworkStudents, noPaperworkPlanStudents);
+            updateOrSaveNoPaperworkStudent(noPaperworkStudents, noPaperworkPlanStudents, screeningPlan);
         }
         if (!CollectionUtils.isEmpty(noPaperworkHaveStudentPlanStudents)) {
-            screeningPlanSchoolStudentService.saveOrUpdateBatch(noPaperworkHaveStudentPlanStudents);
+            updatePlanStudentAndVisionResult(screeningPlan, noPaperworkHaveStudentPlanStudents);
         }
         if (!CollectionUtils.isEmpty(virtualStudentList)) {
-            screeningPlanSchoolStudentService.saveOrUpdateBatch(virtualStudentList);
+            updatePlanStudentAndVisionResult(screeningPlan, virtualStudentList);
         }
         if (!CollectionUtils.isEmpty(havePaperworkPlanStudent)) {
-            screeningPlanSchoolStudentService.saveOrUpdateBatch(havePaperworkPlanStudent);
+            updatePlanStudentAndVisionResult(screeningPlan, havePaperworkPlanStudent);
         }
         if (!CollectionUtils.isEmpty(havePaperworkStudent)) {
             studentService.saveOrUpdateBatch(havePaperworkStudent);
@@ -274,7 +279,7 @@ public class PlanStudentExcelImportService {
     /**
      * 更新没有证件的学生
      */
-    private void updateOrSaveNoPaperworkStudent(List<Student> noPaperworkStudents, List<ScreeningPlanSchoolStudent> noPaperworkPlanStudents) {
+    private void updateOrSaveNoPaperworkStudent(List<Student> noPaperworkStudents, List<ScreeningPlanSchoolStudent> noPaperworkPlanStudents, ScreeningPlan screeningPlan) {
         studentService.saveOrUpdateBatch(noPaperworkStudents);
         // 插入学校端
         commonImportService.insertSchoolStudent(noPaperworkStudents);
@@ -288,7 +293,7 @@ public class PlanStudentExcelImportService {
             }
             planSchoolStudent.setStudentId(student.getId());
         }
-        screeningPlanSchoolStudentService.saveOrUpdateBatch(noPaperworkPlanStudents);
+        updatePlanStudentAndVisionResult(screeningPlan, noPaperworkPlanStudents);
     }
 
     /**
@@ -338,7 +343,7 @@ public class PlanStudentExcelImportService {
         });
         // 插入学校端
         commonImportService.insertSchoolStudent(managementStudentList);
-        screeningPlanSchoolStudentService.saveOrUpdateBatch(list);
+        updatePlanStudentAndVisionResult(plan, list);
     }
 
     /**
@@ -547,5 +552,36 @@ public class PlanStudentExcelImportService {
                 throw new BusinessException("学号:" + sno + "重复");
             }
         }
+    }
+
+    /**
+     * 更新学生计划结果
+     *
+     * @param plan         计划
+     * @param planStudents 筛查学生
+     */
+    private void updatePlanStudentAndVisionResult(ScreeningPlan plan, List<ScreeningPlanSchoolStudent> planStudents) {
+        if (CollectionUtils.isEmpty(planStudents)) {
+            return;
+        }
+        screeningPlanSchoolStudentService.saveOrUpdateBatch(planStudents);
+        // 获取所有结果
+        List<VisionScreeningResult> resultList = visionScreeningResultService.getByPlanId(plan.getId());
+        if (CollectionUtils.isEmpty(resultList)) {
+            return;
+        }
+
+        List<VisionScreeningResult> updateResultList = new ArrayList<>();
+
+        Map<Integer, VisionScreeningResult> visionMap = resultList.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
+        planStudents.forEach(planStudent -> {
+            VisionScreeningResult result = visionMap.get(planStudent.getId());
+            if (Objects.nonNull(result)) {
+                result.setStudentId(planStudent.getStudentId());
+                result.setSchoolId(planStudent.getStudentId());
+                updateResultList.add(result);
+            }
+        });
+        visionScreeningResultService.updateBatchById(updateResultList);
     }
 }
