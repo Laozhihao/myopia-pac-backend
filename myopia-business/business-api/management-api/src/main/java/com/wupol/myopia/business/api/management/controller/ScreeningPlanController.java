@@ -230,7 +230,7 @@ public class ScreeningPlanController {
      * @param classId 班级ID
      * @return
      */
-    @GetMapping("students/{screeningPlanId}/{schoolId}/{gradeId}/{classId}")
+    @GetMapping("/students/students/{screeningPlanId}/{schoolId}/{gradeId}/{classId}")
     public List<ScreeningPlanSchoolStudent> queryGradesInfo(@PathVariable Integer screeningPlanId, @PathVariable Integer schoolId,
                                                @PathVariable Integer gradeId,@PathVariable Integer classId) {
 
