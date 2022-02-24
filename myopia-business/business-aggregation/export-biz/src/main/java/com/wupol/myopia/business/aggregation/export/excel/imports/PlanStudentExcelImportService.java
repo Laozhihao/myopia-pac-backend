@@ -202,7 +202,7 @@ public class PlanStudentExcelImportService {
             }
             havePaperworkUpload(userId, existPlanStudentIdCardMap, existPlanStudentPassportMap, existManagementStudentIdCardMap, existManagementStudentPassportMap, havePaperworkPlanStudent, havePaperworkStudent, idCard, passport, sno, gender, studentName, nation, birthday, gradeClassInfo, gradeType, planSchoolStudent, school, phone, unbindList);
         }
-        updateOrSaveStudentInfo(screeningPlan, school, existPlanStudentIdCardMap, existPlanStudentPassportMap, noScreeningCodeManagementStudentList, havePaperworkPlanStudent, havePaperworkStudent, noPaperworkHaveStudentPlanStudents, noPaperworkStudents, virtualStudentList, noPaperworkPlanStudents, unbindList, existManagementStudentIdCardMap, existManagementStudentPassportMap);
+        updateOrSaveStudentInfo(screeningPlan, school, existPlanStudentIdCardMap, existPlanStudentPassportMap, noScreeningCodeManagementStudentList, havePaperworkPlanStudent, havePaperworkStudent, noPaperworkHaveStudentPlanStudents, noPaperworkStudents, virtualStudentList, noPaperworkPlanStudents, unbindList, existManagementStudentIdCardMap, existManagementStudentPassportMap, userId);
     }
 
     /**
@@ -318,7 +318,7 @@ public class PlanStudentExcelImportService {
                                          List<ScreeningPlanSchoolStudent> noPaperworkPlanStudents,
                                          List<UnbindScreeningStudentDTO> unbindList,
                                          Map<String, Student> existManagementStudentIdCardMap,
-                                         Map<String, Student> existManagementStudentPassportMap) {
+                                         Map<String, Student> existManagementStudentPassportMap, Integer userId) {
         if (!CollectionUtils.isEmpty(noScreeningCodeManagementStudentList)) {
             saveStudentAndPlanStudent(noScreeningCodeManagementStudentList, existPlanStudentIdCardMap, existPlanStudentPassportMap, screeningPlan, school);
         }
@@ -340,7 +340,7 @@ public class PlanStudentExcelImportService {
             commonImportService.insertSchoolStudent(havePaperworkStudent);
         }
         if (!CollectionUtils.isEmpty(unbindList)) {
-            abc(unbindList, screeningPlan, existManagementStudentIdCardMap, existManagementStudentPassportMap);
+            abc(unbindList, screeningPlan, existManagementStudentIdCardMap, existManagementStudentPassportMap, userId);
         }
     }
 
@@ -657,7 +657,7 @@ public class PlanStudentExcelImportService {
     /**
      * 解除绑定学生
      */
-    private void abc(List<UnbindScreeningStudentDTO> unbindList, ScreeningPlan screeningPlan, Map<String, Student> existManagementStudentIdCardMap, Map<String, Student> existManagementStudentPassportMap) {
+    private void abc(List<UnbindScreeningStudentDTO> unbindList, ScreeningPlan screeningPlan, Map<String, Student> existManagementStudentIdCardMap, Map<String, Student> existManagementStudentPassportMap, Integer userId) {
         List<Integer> studentIds = studentService.getByIdCardsOrPassports(unbindList.stream().map(UnbindScreeningStudentDTO::getIdCard).collect(Collectors.toList()), unbindList.stream().map(UnbindScreeningStudentDTO::getPassport).collect(Collectors.toList())).stream().map(Student::getId).collect(Collectors.toList());
         List<Integer> deletedStudent = new ArrayList<>();
         Map<Integer, VisionScreeningResult> resultMap = visionScreeningResultService.getByStudentIds(studentIds).stream().collect(Collectors.toMap(VisionScreeningResult::getStudentId, Function.identity()));
@@ -675,11 +675,11 @@ public class PlanStudentExcelImportService {
                 haveDatePlanStudent.add(s.getScreeningPlanSchoolStudent());
             }
         });
-        deletedUnbindStudent(noDateBindPlanStudent, deletedStudent, screeningPlan);
-        havaDateUnbindStudent(haveDatePlanStudent, existManagementStudentIdCardMap, existManagementStudentPassportMap, screeningPlan);
+        deletedUnbindStudent(noDateBindPlanStudent, deletedStudent, screeningPlan, userId);
+        havaDateUnbindStudent(haveDatePlanStudent, existManagementStudentIdCardMap, existManagementStudentPassportMap, screeningPlan, userId);
     }
 
-    private void deletedUnbindStudent(List<ScreeningPlanSchoolStudent> noDateBindPlanStudent, List<Integer> deletedStudent, ScreeningPlan screeningPlan) {
+    private void deletedUnbindStudent(List<ScreeningPlanSchoolStudent> noDateBindPlanStudent, List<Integer> deletedStudent, ScreeningPlan screeningPlan, Integer userId) {
         if (CollectionUtils.isEmpty(noDateBindPlanStudent)) {
             return;
         }
@@ -694,6 +694,7 @@ public class PlanStudentExcelImportService {
             Student student = new Student();
             student.setName(s.getStudentName());
             student.setSno(s.getStudentNo());
+            student.setCreateUserId(userId);
             BeanUtils.copyProperties(s, student);
             student.setId(null);
             studentList.add(student);
@@ -703,7 +704,7 @@ public class PlanStudentExcelImportService {
         updatePlanStudentAndVisionResult(screeningPlan, noDateBindPlanStudent);
     }
 
-    private void havaDateUnbindStudent(List<ScreeningPlanSchoolStudent> haveDatePlanStudent, Map<String, Student> existManagementStudentIdCardMap, Map<String, Student> existManagementStudentPassportMap, ScreeningPlan screeningPlan) {
+    private void havaDateUnbindStudent(List<ScreeningPlanSchoolStudent> haveDatePlanStudent, Map<String, Student> existManagementStudentIdCardMap, Map<String, Student> existManagementStudentPassportMap, ScreeningPlan screeningPlan, Integer userId) {
         if (CollectionUtils.isEmpty(haveDatePlanStudent)) {
             return;
         }
@@ -716,6 +717,7 @@ public class PlanStudentExcelImportService {
             student.setId(studentId);
             student.setName(s.getStudentName());
             student.setSno(s.getStudentNo());
+            student.setCreateUserId(userId);
             studentList.add(student);
         });
         studentService.saveOrUpdateBatch(studentList);
