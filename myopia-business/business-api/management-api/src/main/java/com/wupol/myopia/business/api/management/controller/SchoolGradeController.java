@@ -7,6 +7,7 @@ import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
+import com.wupol.myopia.business.core.school.domain.dto.BatchSaveGradeRequestDTO;
 import com.wupol.myopia.business.core.school.domain.dto.GradeCode;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeItemsDTO;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
@@ -106,5 +107,10 @@ public class SchoolGradeController {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         schoolGrade.setCreateUserId(user.getId());
         return schoolGradeService.updateGrade(schoolGrade);
+    }
+
+    @PostMapping("batchSave")
+    public void batchSaveGrade(@RequestBody @Valid List<BatchSaveGradeRequestDTO> requestDTO) {
+        schoolGradeService.batchSaveGrade(requestDTO);
     }
 }

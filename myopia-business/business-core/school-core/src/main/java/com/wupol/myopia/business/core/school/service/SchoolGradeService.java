@@ -293,4 +293,25 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
         grades.forEach(g -> g.setChild(classMaps.get(g.getId())));
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    public void batchSaveGrade(List<BatchSaveGradeRequestDTO> requestDTO) {
+        if (CollectionUtils.isEmpty(requestDTO)) {
+            return;
+        }
+        requestDTO.forEach(grade -> {
+            SchoolGrade schoolGrade = grade.getSchoolGrade();
+            if (Objects.isNull(schoolGrade.getId())) {
+                schoolGrade.setCreateUserId(1);
+                saveOrUpdate(schoolGrade);
+            }
+            List<SchoolClass> schoolClassList = grade.getSchoolClass();
+            if (CollectionUtils.isEmpty(schoolClassList)) {
+                return;
+            }
+            schoolClassList.forEach(schoolClass -> {
+                schoolClass.setGradeId(schoolGrade.getId());
+            });
+            schoolClassService.batchUpdateOrSave(schoolClassList);
+        });
+    }
 }
