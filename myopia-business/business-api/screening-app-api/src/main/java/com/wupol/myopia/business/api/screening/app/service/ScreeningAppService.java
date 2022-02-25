@@ -355,7 +355,7 @@ public class ScreeningAppService {
     public AppUserInfo getUserInfoByUser(CurrentUser currentUser) {
         ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(currentUser.getOrgId());
         AppUserInfo appUserInfo = new AppUserInfo();
-        appUserInfo.setUsername(currentUser.getUsername());
+        appUserInfo.setUsername(currentUser.getRealName());
         appUserInfo.setUserId(currentUser.getId());
         appUserInfo.setDeptName(screeningOrganization.getName());
         appUserInfo.setDeptId(screeningOrganization.getId());
