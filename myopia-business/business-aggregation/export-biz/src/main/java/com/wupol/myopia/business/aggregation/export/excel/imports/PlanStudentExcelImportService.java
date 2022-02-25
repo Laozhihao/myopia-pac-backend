@@ -22,8 +22,11 @@ import com.wupol.myopia.business.core.parent.service.ParentStudentService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeExportDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
+import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
+import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
@@ -89,6 +92,9 @@ public class PlanStudentExcelImportService {
 
     @Resource
     private SchoolStudentService schoolStudentService;
+
+    @Resource
+    private SchoolClassService schoolClassService;
 
     /**
      * 导入筛查学生信息
@@ -294,12 +300,10 @@ public class PlanStudentExcelImportService {
         if ((StringUtils.isNoneBlank(idCard, oldIdCard) && !StringUtils.equals(idCard, oldIdCard)) || StringUtils.isNoneBlank(passport, oldPassport) && !StringUtils.equals(passport, oldPassport)) {
             packagePlanStudent(idCard, passport, sno, gender, studentName, nation, birthday, gradeClassInfo, planSchoolStudent, phone, school, gradeType);
             return new UnbindScreeningStudentDTO(oldIdCard, oldPassport, planSchoolStudent);
-//            throw new BusinessException("上传失败：系统绑定的证件号与上传的不一致");
         }
         if (StringUtils.isNoneBlank(idCard, oldPassport) || StringUtils.isNoneBlank(passport, oldIdCard)) {
             packagePlanStudent(idCard, passport, sno, gender, studentName, nation, birthday, gradeClassInfo, planSchoolStudent, phone, school, gradeType);
             return new UnbindScreeningStudentDTO(oldIdCard, oldPassport, planSchoolStudent);
-//            throw new BusinessException("上传失败：系统绑定的证件号与上传的不一致");
         }
         return null;
     }
@@ -386,6 +390,10 @@ public class PlanStudentExcelImportService {
      * @param school                      学校
      */
     private void saveStudentAndPlanStudent(List<Student> managementStudentList, Map<String, ScreeningPlanSchoolStudent> existPlanStudentIdCardMap, Map<String, ScreeningPlanSchoolStudent> existPlanStudentPassportMap, ScreeningPlan plan, School school) {
+
+        Map<Integer, SchoolGrade> gradeMap = schoolGradeService.getGradeMapByIds(managementStudentList.stream().map(Student::getGradeId).collect(Collectors.toList()));
+        Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(managementStudentList.stream().map(Student::getClassId).collect(Collectors.toList()));
+
         List<ScreeningPlanSchoolStudent> list = new ArrayList<>();
         studentService.saveOrUpdateBatch(managementStudentList);
         managementStudentList.forEach(student -> {
@@ -406,6 +414,8 @@ public class PlanStudentExcelImportService {
             if (Objects.isNull(planStudent.getScreeningCode())) {
                 planStudent.setScreeningCode(ScreeningCodeGenerator.nextId());
             }
+            planStudent.setGradeName(Objects.nonNull(student.getGradeId()) ? gradeMap.get(student.getGradeId()).getName() : null);
+            planStudent.setClassName(Objects.nonNull(student.getClassId()) ? classMap.get(student.getClassId()).getName() : null);
             packagePlanStudentByStudent(student, planStudent);
             list.add(planStudent);
         });
