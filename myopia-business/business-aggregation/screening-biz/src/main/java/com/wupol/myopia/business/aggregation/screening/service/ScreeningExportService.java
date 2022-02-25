@@ -214,8 +214,8 @@ public class ScreeningExportService {
             Map<String, String> result = new HashMap<>();
             result.put("name", student.getName());
             result.put("gender", student.getGenderDesc());
-            result.put("gradeName", student.getGradeName());
-            result.put("className", student.getClassName());
+            result.put("gradeName", Optional.ofNullable(schoolGradeService.getById(student.getGradeId())).orElse(new SchoolGrade()).getName());
+            result.put("className", Optional.ofNullable(schoolClassService.getById(student.getClassId())).orElse(new SchoolClass()).getName());
             if (CommonConst.EXPORT_SCREENING_QRCODE.equals(type)) {
                 result.put("qrCodeContent", String.format(QrCodeConstant.SCREENING_CODE_QR_CONTENT_FORMAT_RULE, student.getPlanStudentId()));
             } else if (CommonConst.EXPORT_VS666.equals(type)) {
