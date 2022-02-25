@@ -109,6 +109,11 @@ public class SchoolGradeController {
         return schoolGradeService.updateGrade(schoolGrade);
     }
 
+    /**
+     * 批量新增班级、年级
+     *
+     * @param requestDTO 入参
+     */
     @PostMapping("batchSave")
     public void batchSaveGrade(@RequestBody @Valid List<BatchSaveGradeRequestDTO> requestDTO) {
         schoolGradeService.batchSaveGrade(requestDTO, CurrentUserUtil.getCurrentUser().getId());

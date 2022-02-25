@@ -293,6 +293,12 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
         grades.forEach(g -> g.setChild(classMaps.get(g.getId())));
     }
 
+    /**
+     * 批量新增班级、年级
+     *
+     * @param requestDTO 请求入参
+     * @param userId     创建人
+     */
     @Transactional(rollbackFor = Exception.class)
     public void batchSaveGrade(List<BatchSaveGradeRequestDTO> requestDTO, Integer userId) {
         if (CollectionUtils.isEmpty(requestDTO)) {
@@ -309,7 +315,7 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
                 return;
             }
             schoolClassList.forEach(schoolClass -> {
-                schoolClass.setCreateUserId(userId)
+                schoolClass.setCreateUserId(userId);
                 schoolClass.setGradeId(schoolGrade.getId());
             });
             schoolClassService.batchUpdateOrSave(schoolClassList);
