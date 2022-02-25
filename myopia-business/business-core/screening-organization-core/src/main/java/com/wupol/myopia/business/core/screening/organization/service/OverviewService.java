@@ -2,14 +2,18 @@ package com.wupol.myopia.business.core.screening.organization.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.constant.UserType;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.PasswordAndUsernameGenerator;
 import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
+import com.wupol.myopia.business.core.common.constant.OrgCacheKey;
+import com.wupol.myopia.business.core.screening.organization.domain.dto.CacheOverviewInfoDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccountListDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OverviewDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OverviewRequestDTO;
@@ -22,6 +26,7 @@ import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
 import com.wupol.myopia.oauth.sdk.domain.response.Organization;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,6 +56,13 @@ public class OverviewService extends BaseService<OverviewMapper, Overview> {
     private OverviewScreeningOrganizationService overviewScreeningOrganizationService;
 
     /**
+     * 总览机构信息缓存时间
+     */
+    private static final long OVERVIEW_CACHE_SECOND_TIME = 3600L;
+    @Autowired
+    private RedisUtil redisUtil;
+
+     /**
      * 保存总览机构
      *
      * @param overview 总览机构实体类
@@ -82,10 +94,11 @@ public class OverviewService extends BaseService<OverviewMapper, Overview> {
         if (checkOverviewName(overview.getName(), overview.getId())) {
             throw new BusinessException("医院名字重复，请确认");
         }
-        // 1.更新总览机构信息，总览机构-医院关系记录,生成总览机构-筛查机构
+        // 1.更新总览机构信息，总览机构-医院关系记录,生成总览机构-筛查机构，清空缓存
         super.updateById(overview);
         overviewHospitalService.updateBindInfo(overview.getId(), overview.getHospitalIds());
         overviewScreeningOrganizationService.updateBindInfo(overview.getId(), overview.getScreeningOrganizationIds());
+        removeOverviewCache(overview.getId());
 
         // 2.更新总览机构的账号权限及名称
         Overview oldOverview = super.getById(overview.getId());
@@ -285,6 +298,80 @@ public class OverviewService extends BaseService<OverviewMapper, Overview> {
     public void checkOverviewCooperation(Overview overview)  {
         if (!overview.checkCooperation()) {
             throw new BusinessException("合作信息非法，请确认");
+        }
+    }
+
+    /**
+     * 清空总览机构简要信息
+     * @param overviewId
+     */
+    public void removeOverviewCache(Integer overviewId) {
+        String key = String.format(OrgCacheKey.ORG_OVERVIEW, overviewId);
+        redisUtil.del(key);
+    }
+
+    /**
+     * 获取总览机构简要信息
+     * @param overviewId
+     * @return
+     */
+    public CacheOverviewInfoDTO getSimpleOverviewInfo(Integer overviewId) {
+        // 从缓存获取
+        String key = String.format(OrgCacheKey.ORG_OVERVIEW, overviewId);
+        CacheOverviewInfoDTO cacheOverviewInfoDTO = (CacheOverviewInfoDTO)redisUtil.get(key);
+        if (Objects.isNull(cacheOverviewInfoDTO)) {
+            // 添加缓存
+            Overview overview = super.getById(overviewId);
+            cacheOverviewInfoDTO = new CacheOverviewInfoDTO();
+            BeanUtils.copyProperties(overview, cacheOverviewInfoDTO);
+            cacheOverviewInfoDTO.setHospitalIds(overviewHospitalService.getHospitalIdByOverviewId(overviewId));
+            cacheOverviewInfoDTO.setScreeningOrganizationIds(overviewScreeningOrganizationService.getScreeningOrganizationIdByOverviewId(overviewId));
+            redisUtil.set(key, cacheOverviewInfoDTO, OVERVIEW_CACHE_SECOND_TIME);
+        }
+        return cacheOverviewInfoDTO;
+    }
+
+    /**
+     * 获取指定总览机构绑定的医院Id集
+     * @param overviewId
+     * @return
+     */
+    public List<Integer> getBindHospital(Integer overviewId) {
+        return getSimpleOverviewInfo(overviewId).getHospitalIds();
+    }
+
+    /**
+     * 获取指定总览机构绑定的筛查机构Id集
+     * @param overviewId
+     * @return
+     */
+    public List<Integer> getBindScreeningOrganization(Integer overviewId) {
+        return getSimpleOverviewInfo(overviewId).getScreeningOrganizationIds();
+    }
+
+    /**
+     * 检验是否有权限进行操作
+     * @param user
+     * @param hospitalId
+     */
+    public void checkHospital(CurrentUser user, Integer hospitalId) {
+        if (user.isOverviewUser()) {
+            if (!getBindHospital(user.getOrgId()).contains(hospitalId)) {
+                throw new BusinessException("非法请求");
+            }
+        }
+    }
+
+    /**
+     * 检验是否有权限进行操作
+     * @param user
+     * @param screeningOrganizationId
+     */
+    public void checkScreeningOrganization(CurrentUser user, Integer screeningOrganizationId) {
+        if (user.isOverviewUser()) {
+            if (!getBindScreeningOrganization(user.getOrgId()).contains(screeningOrganizationId)) {
+                throw new BusinessException("非法请求");
+            }
         }
     }
 

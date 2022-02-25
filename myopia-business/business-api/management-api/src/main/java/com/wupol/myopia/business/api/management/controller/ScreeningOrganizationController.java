@@ -25,8 +25,10 @@ import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccou
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationQueryDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
+import com.wupol.myopia.business.core.screening.organization.service.OverviewService;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -61,6 +63,8 @@ public class ScreeningOrganizationController {
     private ExportStrategy exportStrategy;
     @Resource
     private OrgCooperationHospitalService orgCooperationHospitalService;
+    @Autowired
+    private OverviewService overviewService;
 
     /**
      * 新增筛查机构
@@ -153,6 +157,9 @@ public class ScreeningOrganizationController {
     @GetMapping("list")
     public IPage<ScreeningOrgResponseDTO> getScreeningOrganizationList(PageRequest pageRequest, ScreeningOrganizationQueryDTO query){
         CurrentUser user = CurrentUserUtil.getCurrentUser();
+        if (user.isOverviewUser()) {
+            query.setIds(overviewService.getBindScreeningOrganization(user.getOrgId()));
+        }
         return screeningOrganizationBizService.getScreeningOrganizationList(pageRequest, query, user);
     }
 

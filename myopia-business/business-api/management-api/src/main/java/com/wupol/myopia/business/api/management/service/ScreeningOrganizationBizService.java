@@ -291,7 +291,6 @@ public class ScreeningOrganizationBizService {
                                                                        ScreeningOrganizationQueryDTO query,
                                                                        CurrentUser currentUser){
         Integer districtId = districtBizService.filterQueryDistrictId(currentUser, query.getDistrictId());
-
         // 查询
         IPage<ScreeningOrgResponseDTO> orgLists = screeningOrganizationService.getByCondition(pageRequest, query, districtId);
 

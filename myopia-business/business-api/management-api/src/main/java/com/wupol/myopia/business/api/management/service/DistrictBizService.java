@@ -56,8 +56,8 @@ public class DistrictBizService {
      * @return 行政区域ID
      */
     public Integer filterQueryDistrictId(CurrentUser currentUser, Integer districtId) {
-        // 平台管理员行政区域的筛选条件
-        if (currentUser.isPlatformAdminUser()) {
+        // 平台管理员|总览机构行政区域的筛选条件
+        if (currentUser.isPlatformAdminUser() || currentUser.isOverviewUser()) {
             return districtId;
         }
         // 非平台管理员只能看到自己同级行政区域

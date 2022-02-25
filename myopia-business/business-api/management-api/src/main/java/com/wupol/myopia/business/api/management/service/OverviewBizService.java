@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.management.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.business.api.management.domain.dto.OverviewDetailDTO;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.service.DistrictService;
@@ -49,6 +50,9 @@ public class OverviewBizService {
 
     @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
+
+    @Autowired
+    private RedisUtil redisUtil;
 
     /**
      * 获取总览机构详情

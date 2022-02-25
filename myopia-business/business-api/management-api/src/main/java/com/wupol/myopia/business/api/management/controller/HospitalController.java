@@ -21,6 +21,7 @@ import com.wupol.myopia.business.core.hospital.domain.query.HospitalQuery;
 import com.wupol.myopia.business.core.hospital.service.HospitalDoctorService;
 import com.wupol.myopia.business.core.hospital.service.HospitalService;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccountListDTO;
+import com.wupol.myopia.business.core.screening.organization.service.OverviewService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -56,6 +57,9 @@ public class HospitalController {
 
     @Autowired
     private HospitalDoctorService hospitalDoctorService;
+
+    @Autowired
+    private OverviewService overviewService;
 
     /**
      * 保存医院
@@ -142,6 +146,9 @@ public class HospitalController {
     @GetMapping("list")
     public IPage<HospitalResponseDTO> getHospitalList(PageRequest pageRequest, HospitalQuery query) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
+        if (user.isOverviewUser()) {
+            query.setIds(overviewService.getBindHospital(user.getOrgId()));
+        }
         return hospitalBizService.getHospitalList(pageRequest, query, user);
     }
 
@@ -241,7 +248,7 @@ public class HospitalController {
     /**
      * 处理医院历史数据，给医院管理员账号绑定角色
      *
-     * @return void
+     * @return
      **/
     @PostMapping("/dealHistoryData")
     public void dealHistoryData() {
