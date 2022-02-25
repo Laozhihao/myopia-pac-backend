@@ -209,15 +209,15 @@ public class PlanStudentExcelImportService {
      * 存在证件信息上传
      */
     private void haveCredentialUpload(Integer userId, Map<String, ScreeningPlanSchoolStudent> existPlanStudentIdCardMap,
-                                     Map<String, ScreeningPlanSchoolStudent> existPlanStudentPassportMap,
-                                     Map<String, Student> existManagementStudentIdCardMap,
-                                     Map<String, Student> existManagementStudentPassportMap,
-                                     List<ScreeningPlanSchoolStudent> haveCredentialPlanStudent,
-                                     List<Student> haveCredentialStudent,
-                                     String idCard, String passport, String sno, Integer gender, String studentName,
-                                     Integer nation, Date birthday, TwoTuple<Integer, Integer> gradeClassInfo, Integer gradeType,
-                                     ScreeningPlanSchoolStudent planSchoolStudent, School school, String phone,
-                                     List<UnbindScreeningStudentDTO> unbindList) {
+                                      Map<String, ScreeningPlanSchoolStudent> existPlanStudentPassportMap,
+                                      Map<String, Student> existManagementStudentIdCardMap,
+                                      Map<String, Student> existManagementStudentPassportMap,
+                                      List<ScreeningPlanSchoolStudent> haveCredentialPlanStudent,
+                                      List<Student> haveCredentialStudent,
+                                      String idCard, String passport, String sno, Integer gender, String studentName,
+                                      Integer nation, Date birthday, TwoTuple<Integer, Integer> gradeClassInfo, Integer gradeType,
+                                      ScreeningPlanSchoolStudent planSchoolStudent, School school, String phone,
+                                      List<UnbindScreeningStudentDTO> unbindList) {
         // 判断绑定的证件号是否一致
         UnbindScreeningStudentDTO unbindScreeningStudentDTO = checkCredentialInfo(idCard, passport, planSchoolStudent, sno, gender, studentName, nation, birthday, gradeClassInfo, school, phone, gradeType);
         if (Objects.nonNull(unbindScreeningStudentDTO)) {
@@ -660,9 +660,9 @@ public class PlanStudentExcelImportService {
     private void unbindStudent(List<UnbindScreeningStudentDTO> unbindList, ScreeningPlan screeningPlan, Map<String, Student> existManagementStudentIdCardMap, Map<String, Student> existManagementStudentPassportMap, Integer userId) {
         List<Integer> studentIds = studentService.getByIdCardsOrPassports(unbindList.stream().map(UnbindScreeningStudentDTO::getIdCard).collect(Collectors.toList()), unbindList.stream().map(UnbindScreeningStudentDTO::getPassport).collect(Collectors.toList())).stream().map(Student::getId).collect(Collectors.toList());
         List<Integer> deletedStudent = new ArrayList<>();
-        Map<Integer, VisionScreeningResult> resultMap = visionScreeningResultService.getByStudentIds(studentIds).stream().collect(Collectors.toMap(VisionScreeningResult::getStudentId, Function.identity()));
-        Map<Integer, ParentStudent> parentStudentMap = parentStudentService.getByStudentIds(studentIds).stream().collect(Collectors.toMap(ParentStudent::getStudentId, Function.identity()));
-        Map<Integer, HospitalStudent> hospitalStudentMap = hospitalStudentService.getByStudentIds(studentIds).stream().collect(Collectors.toMap(HospitalStudent::getStudentId, Function.identity()));
+        Map<Integer, VisionScreeningResult> resultMap = visionScreeningResultService.getByStudentIds(studentIds).stream().collect(Collectors.toMap(VisionScreeningResult::getStudentId, Function.identity(), (s1, s2) -> s1));
+        Map<Integer, ParentStudent> parentStudentMap = parentStudentService.getByStudentIds(studentIds).stream().collect(Collectors.toMap(ParentStudent::getStudentId, Function.identity(), (s1, s2) -> s1));
+        Map<Integer, HospitalStudent> hospitalStudentMap = hospitalStudentService.getByStudentIds(studentIds).stream().collect(Collectors.toMap(HospitalStudent::getStudentId, Function.identity(), (s1, s2) -> s1));
 
         List<ScreeningPlanSchoolStudent> noDateBindPlanStudent = new ArrayList<>();
         List<ScreeningPlanSchoolStudent> haveDatePlanStudent = new ArrayList<>();

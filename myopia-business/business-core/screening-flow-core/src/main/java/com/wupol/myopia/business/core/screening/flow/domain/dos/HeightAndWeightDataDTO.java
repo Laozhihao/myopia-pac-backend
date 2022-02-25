@@ -1,7 +1,5 @@
-package com.wupol.myopia.business.api.screening.app.domain.dto;
+package com.wupol.myopia.business.core.screening.flow.domain.dos;
 
-import com.wupol.myopia.business.core.screening.flow.domain.dos.EyePressureDataDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultBasicData;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.Data;

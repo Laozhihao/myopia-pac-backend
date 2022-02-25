@@ -177,6 +177,12 @@ public class StatConclusionExportDTO extends StatConclusion {
     private OtherEyeDiseasesDO otherEyeDiseases;
 
     /**
+     * 身高体重
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private HeightAndWeightDataDTO heightAndWeightDataDTO;
+
+    /**
      * 护照
      */
     private String passport;
