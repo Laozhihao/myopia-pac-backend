@@ -256,10 +256,10 @@ public class PlanStudentExcelImportService {
         packagePlanStudent(idCard, passport, sno, gender, studentName, nation, birthday, gradeClassInfo, planSchoolStudent, phone, school, gradeType);
         // 不存在
         if (Objects.isNull(student.getId())) {
-            packageManagementStudent(idCard, passport, sno, gender, studentName, nation, birthday, gradeClassInfo, gradeType, userId, school.getId(), student, phone);
-            noCredentialStudents.add(student);
             noCredentialPlanStudents.add(planSchoolStudent);
         }
+        packageManagementStudent(idCard, passport, sno, gender, studentName, nation, birthday, gradeClassInfo, gradeType, userId, school.getId(), student, phone);
+        noCredentialStudents.add(student);
         // 已经存在，不更新多端学生
         planSchoolStudent.setStudentId(student.getId());
         noCredentialHaveStudentPlanStudents.add(planSchoolStudent);
