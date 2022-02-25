@@ -99,6 +99,7 @@
                mspss.student_no     as sno,
                mspss.student_name   as name,
                mspss.gender,
+               mspss.school_id,
                mspss.birthday,
                mspss.province_code,
                mspss.city_code,
@@ -174,6 +175,7 @@
                     and (mspss.`id_card` like CONCAT('%', #{param.idCardOrPassportLike}, '%') or mspss.`passport` like CONCAT('%', #{param.idCardOrPassportLike}, '%'))
                 </if>
             </trim>
+                order by id desc
         </where>
     </select>
 

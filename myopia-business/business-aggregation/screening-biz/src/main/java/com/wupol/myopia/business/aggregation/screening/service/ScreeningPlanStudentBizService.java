@@ -531,7 +531,8 @@ public class ScreeningPlanStudentBizService {
         studentEyeInfo.setAxial(axial);
 
         //设置筛查时间
-        studentEyeInfo.setScreeningTime(visionScreeningResult.getCreateTime());
-
+        if (visionScreeningResult != null) {
+            studentEyeInfo.setScreeningTime(visionScreeningResult.getCreateTime());
+        }
     }
 }
