@@ -294,14 +294,14 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void batchSaveGrade(List<BatchSaveGradeRequestDTO> requestDTO) {
+    public void batchSaveGrade(List<BatchSaveGradeRequestDTO> requestDTO, Integer userId) {
         if (CollectionUtils.isEmpty(requestDTO)) {
             return;
         }
         requestDTO.forEach(grade -> {
             SchoolGrade schoolGrade = grade.getSchoolGrade();
             if (Objects.isNull(schoolGrade.getId())) {
-                schoolGrade.setCreateUserId(1);
+                schoolGrade.setCreateUserId(userId);
                 saveOrUpdate(schoolGrade);
             }
             List<SchoolClass> schoolClassList = grade.getSchoolClass();
@@ -309,6 +309,7 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
                 return;
             }
             schoolClassList.forEach(schoolClass -> {
+                schoolClass.setCreateUserId(userId)
                 schoolClass.setGradeId(schoolGrade.getId());
             });
             schoolClassService.batchUpdateOrSave(schoolClassList);

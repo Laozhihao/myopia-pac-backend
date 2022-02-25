@@ -111,6 +111,6 @@ public class SchoolGradeController {
 
     @PostMapping("batchSave")
     public void batchSaveGrade(@RequestBody @Valid List<BatchSaveGradeRequestDTO> requestDTO) {
-        schoolGradeService.batchSaveGrade(requestDTO);
+        schoolGradeService.batchSaveGrade(requestDTO, CurrentUserUtil.getCurrentUser().getId());
     }
 }
