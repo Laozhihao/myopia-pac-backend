@@ -31,6 +31,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -266,7 +267,7 @@ public class ExcelFacade {
         if (Objects.isNull(height)) {
             return "--";
         }
-        return StringUtils.isNotBlank(String.valueOf(height)) ? String.valueOf(height) + "cm" : "--";
+        return StringUtils.isNotBlank(String.valueOf(height)) ? new BigDecimal(String.valueOf(height)).setScale(1, RoundingMode.DOWN) + "cm" : "--";
     }
 
     /**
@@ -279,7 +280,7 @@ public class ExcelFacade {
         if (Objects.isNull(weight)) {
             return "--";
         }
-        return StringUtils.isNotBlank(String.valueOf(weight)) ? String.valueOf(weight) + "kg" : "--";
+        return StringUtils.isNotBlank(String.valueOf(weight)) ? new BigDecimal(String.valueOf(weight)).setScale(1, RoundingMode.DOWN) + "kg" : "--";
     }
 
 }
