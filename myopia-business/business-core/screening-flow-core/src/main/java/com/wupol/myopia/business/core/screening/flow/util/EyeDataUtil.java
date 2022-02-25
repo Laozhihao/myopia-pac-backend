@@ -33,7 +33,7 @@ public class EyeDataUtil {
         //性别
         studentVisionScreeningResultExportDTO.setGenderDesc(EyeDataUtil.gender(studentDTO));
         // 证件信息
-        studentVisionScreeningResultExportDTO.setPaperwork(StringUtils.isNotBlank(studentDTO.getIdCard()) ? studentDTO.getIdCard() : studentDTO.getPassport());
+        studentVisionScreeningResultExportDTO.setCredential(StringUtils.isNotBlank(studentDTO.getIdCard()) ? studentDTO.getIdCard() : studentDTO.getPassport());
 
         //性别
         studentVisionScreeningResultExportDTO.setGradeName(EyeDataUtil.gradeName(studentDTO));

@@ -35,7 +35,7 @@ public class StudentExportDTO implements Serializable {
     private String gender;
 
     @ExcelProperty({TOP_HEADER, "身份证/护照"})
-    private String paperwork;
+    private String credential;
 
     @ExcelProperty({TOP_HEADER, "出生日期"})
     private String birthday;
