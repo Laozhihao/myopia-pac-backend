@@ -208,14 +208,17 @@ public class ScreeningExportService {
         if (CollectionUtils.isEmpty(students)) {
             return null;
         }
+        ScreeningStudentDTO first = students.get(0);
+        String gradeName = Optional.ofNullable(schoolGradeService.getById(first.getGradeId())).orElse(new SchoolGrade()).getName();
+        String className = Optional.ofNullable(schoolClassService.getById(first.getClassId())).orElse(new SchoolClass()).getName();
         return students.stream().map(student -> {
             student.setGenderDesc(GenderEnum.getName(student.getGender()));
             int type = params.getType();
             Map<String, String> result = new HashMap<>();
             result.put("name", student.getName());
             result.put("gender", student.getGenderDesc());
-            result.put("gradeName", Optional.ofNullable(schoolGradeService.getById(student.getGradeId())).orElse(new SchoolGrade()).getName());
-            result.put("className", Optional.ofNullable(schoolClassService.getById(student.getClassId())).orElse(new SchoolClass()).getName());
+            result.put("gradeName", gradeName);
+            result.put("className", className);
             if (CommonConst.EXPORT_SCREENING_QRCODE.equals(type)) {
                 result.put("qrCodeContent", String.format(QrCodeConstant.SCREENING_CODE_QR_CONTENT_FORMAT_RULE, student.getPlanStudentId()));
             } else if (CommonConst.EXPORT_VS666.equals(type)) {
