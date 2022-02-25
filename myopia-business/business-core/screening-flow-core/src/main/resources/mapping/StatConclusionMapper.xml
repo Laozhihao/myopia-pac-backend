@@ -18,7 +18,7 @@
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="biometric_data" property="biometricData" />
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="visual_loss_level_data" property="visualLossLevelData" />
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="other_eye_diseases" property="otherEyeDiseases" />
-        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="height_and_weight_data" property="heightAndWeightDataDTO" />
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="height_and_weight_data" property="heightAndWeightData" />
     </resultMap>
 
     <resultMap id="ReportVoResultMap" type="com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionReportDTO">

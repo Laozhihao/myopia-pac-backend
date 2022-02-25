@@ -180,7 +180,7 @@ public class StatConclusionExportDTO extends StatConclusion {
      * 身高体重
      */
     @TableField(typeHandler = JacksonTypeHandler.class)
-    private HeightAndWeightDataDTO heightAndWeightDataDTO;
+    private HeightAndWeightDataDTO heightAndWeightData;
 
     /**
      * 护照
