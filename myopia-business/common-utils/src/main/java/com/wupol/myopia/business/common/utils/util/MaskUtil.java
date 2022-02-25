@@ -19,7 +19,7 @@ public class MaskUtil {
         if (StringUtils.isBlank(idCard)) {
             return StringUtils.EMPTY;
         }
-        return StringUtils.overlay(idCard, getOverlay(idCard, 9), 4, idCard.length() - 4);
+        return StringUtils.overlay(idCard, getOverlay(9), 5, idCard.length() - 4);
     }
 
     /**
@@ -32,16 +32,15 @@ public class MaskUtil {
         if (StringUtils.isBlank(passport)) {
             return StringUtils.EMPTY;
         }
-        return StringUtils.overlay(passport, getOverlay(passport, 3), 1, passport.length() - 1);
+        return StringUtils.overlay(passport, getOverlay(3), 2, passport.length() - 1);
     }
 
     /**
      * 获取占位符
      *
-     * @param str 字符
      * @return 占位符
      */
-    private static String getOverlay(String str, Integer overlayInt) {
+    private static String getOverlay(Integer overlayInt) {
         StringBuilder overlay = new StringBuilder(StringUtils.EMPTY);
         for (int i = 0; i < overlayInt; i++) {
             overlay.append("*");
