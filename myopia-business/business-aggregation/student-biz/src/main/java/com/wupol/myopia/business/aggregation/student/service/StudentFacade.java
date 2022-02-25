@@ -134,6 +134,7 @@ public class StudentFacade {
         for (VisionScreeningResult result : resultList) {
             StudentScreeningResultItemsDTO item = new StudentScreeningResultItemsDTO();
             List<StudentResultDetailsDTO> resultDetail = packageDTO(result);
+            resultDetail.forEach(r -> r.setHeightAndWeightData(result.getHeightAndWeightData()));
             item.setDetails(resultDetail);
             item.setScreeningTitle(planMap.get(result.getPlanId()));
             item.setScreeningDate(result.getUpdateTime());
@@ -150,7 +151,7 @@ public class StudentFacade {
             item.setHyperopiaLevel(statMap.get(result.getId()).getHyperopiaLevel());
             item.setAstigmatismLevel(statMap.get(result.getId()).getAstigmatismLevel());
             item.setPlanId(result.getPlanId());
-            item.setHeightAndWeightData(result.getHeightAndWeightData());
+            item.setHasScreening(null != result.getVisionData() || null != result.getComputerOptometry() || null != result.getBiometricData() || null != result.getOtherEyeDiseases());
             items.add(item);
         }
         responseDTO.setTotal(resultList.size());

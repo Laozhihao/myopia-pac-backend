@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
-import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDO;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -82,7 +81,7 @@ public class StudentScreeningResultItemsDTO {
     private Integer planId;
 
     /**
-     * 身高体重
-     */
-    private HeightAndWeightDataDO heightAndWeightData;
+     * 是否已经筛查过
+     **/
+    private Boolean hasScreening;
 }
