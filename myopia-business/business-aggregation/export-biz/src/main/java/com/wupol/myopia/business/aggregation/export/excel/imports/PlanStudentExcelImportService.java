@@ -685,14 +685,16 @@ public class PlanStudentExcelImportService {
                 haveDatePlanStudent.add(s.getScreeningPlanSchoolStudent());
             }
         });
-        deletedUnbindStudent(noDateBindPlanStudent, deletedStudent, screeningPlan, userId);
+        deletedUnbindStudent(noDateBindPlanStudent, deletedStudent, screeningPlan, userId,existManagementStudentIdCardMap ,existManagementStudentPassportMap);
         havaDateUnbindStudent(haveDatePlanStudent, existManagementStudentIdCardMap, existManagementStudentPassportMap, screeningPlan, userId);
     }
 
     /**
      * 其他端没有数据，进行删除
      */
-    private void deletedUnbindStudent(List<ScreeningPlanSchoolStudent> noDateBindPlanStudent, List<Integer> deletedStudent, ScreeningPlan screeningPlan, Integer userId) {
+    private void deletedUnbindStudent(List<ScreeningPlanSchoolStudent> noDateBindPlanStudent, List<Integer> deletedStudent,
+                                      ScreeningPlan screeningPlan, Integer userId, Map<String, Student> existManagementStudentIdCardMap,
+                                      Map<String, Student> existManagementStudentPassportMap) {
         if (CollectionUtils.isEmpty(noDateBindPlanStudent)) {
             return;
         }
@@ -703,12 +705,13 @@ public class PlanStudentExcelImportService {
 
         List<Student> studentList = new ArrayList<>();
         noDateBindPlanStudent.forEach(s -> {
-            Student student = new Student();
+            Student student = getStudent(existManagementStudentIdCardMap, existManagementStudentPassportMap, s.getIdCard(), s.getPassport());
+            Integer studentId = student.getId();
             student.setName(s.getStudentName());
             student.setSno(s.getStudentNo());
             student.setCreateUserId(userId);
             BeanUtils.copyProperties(s, student);
-            student.setId(null);
+            student.setId(studentId);
             studentList.add(student);
         });
         studentService.saveOrUpdateBatch(studentList);
