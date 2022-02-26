@@ -106,9 +106,7 @@ public class ExportSchoolStudentExcelService extends BaseExportExcelFileService 
                     .setProvince(addressMap.getOrDefault(ExportAddressKey.PROVIDE, StringUtils.EMPTY))
                     .setCity(addressMap.getOrDefault(ExportAddressKey.CITY, StringUtils.EMPTY))
                     .setArea(addressMap.getOrDefault(ExportAddressKey.AREA, StringUtils.EMPTY))
-                    .setTown(addressMap.getOrDefault(ExportAddressKey.TOWN, StringUtils.EMPTY))
-                    // 优先取身份证
-                    .setIdCard(StringUtils.isNotBlank(item.getIdCard()) ? item.getIdCard() : item.getPassport());
+                    .setTown(addressMap.getOrDefault(ExportAddressKey.TOWN, StringUtils.EMPTY));
             if (Objects.nonNull(visitMap.get(item.getStudentId()))) {
                 exportVo.setVisitsCount(visitMap.get(item.getStudentId()).size());
             } else {
