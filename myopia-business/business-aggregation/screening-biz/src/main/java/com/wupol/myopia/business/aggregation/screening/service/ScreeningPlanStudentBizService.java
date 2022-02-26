@@ -9,7 +9,7 @@ import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.base.domain.vo.PdfGeneratorVO;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.ListUtil;
-import com.wupol.myopia.business.aggregation.screening.domain.dto.CredentialModificationHandler;
+import com.wupol.myopia.business.aggregation.screening.handler.CredentialModificationHandler;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
 import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;
 import com.wupol.myopia.business.common.utils.util.FileUtils;

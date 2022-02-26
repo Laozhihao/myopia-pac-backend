@@ -112,6 +112,7 @@ public class ScreeningPlanSchoolStudent implements Serializable {
      * 筛查计划--参与筛查的学生身份证号码
      */
     @Pattern(regexp = RegularUtils.REGULAR_ID_CARD, message = "身份证格式错误")
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private String idCard;
 
     /**
@@ -204,6 +205,7 @@ public class ScreeningPlanSchoolStudent implements Serializable {
     /**
      * 护照
      */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private String passport;
 
     /**

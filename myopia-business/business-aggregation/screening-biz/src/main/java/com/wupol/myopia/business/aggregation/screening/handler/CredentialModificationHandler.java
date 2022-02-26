@@ -1,6 +1,10 @@
-package com.wupol.myopia.business.aggregation.screening.domain.dto;
+package com.wupol.myopia.business.aggregation.screening.handler;
 
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.business.aggregation.screening.domain.dto.CredentialType;
+import com.wupol.myopia.business.aggregation.screening.domain.dto.CredentialTypeAndContent;
+import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
+import com.wupol.myopia.business.aggregation.screening.service.CommonImportServiceCopy;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
@@ -11,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -29,11 +34,11 @@ public class CredentialModificationHandler {
     private StudentService studentService;
     @Resource
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
-
-
+    @Resource
+    private CommonImportServiceCopy commonImportServiceCopy;
 
     /**
-     *
+     * 获取处理结果
      * @param oldCredential
      * @param newCredential
      * @return
@@ -80,10 +85,6 @@ public class CredentialModificationHandler {
 
     /**
      * 因为证件号的关系更新student
-     * @param oldIdCard
-     * @param oldPassport
-     * @param newIdCard
-     * @param newPassport
      * @param updatePlanStudentRequestDTO
      * @param screeningPlanSchoolStudent
      */
@@ -119,7 +120,7 @@ public class CredentialModificationHandler {
      * @param newIdCard
      * @return
      */
-    public ProcessResult getResult(String oldIdCard, String oldPassport, String newIdCard, String newPassport) {
+    private ProcessResult getResult(String oldIdCard, String oldPassport, String newIdCard, String newPassport) {
         CredentialTypeAndContent oldCredential = CredentialTypeAndContent.getInstance(oldIdCard, oldPassport);
         CredentialTypeAndContent newCredential = CredentialTypeAndContent.getInstance(newIdCard, newPassport);
         return getProcessResult(oldCredential, newCredential);
@@ -130,14 +131,12 @@ public class CredentialModificationHandler {
      *
      * @param credentialTypeAndContent
      */
-    public void discardStudent(CredentialTypeAndContent credentialTypeAndContent) {
+    private void discardStudent(CredentialTypeAndContent credentialTypeAndContent) {
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getByIdCardAndPassport(credentialTypeAndContent.getIdCard(), credentialTypeAndContent.getPassport(), null);
         if (CollectionUtils.isEmpty(screeningPlanSchoolStudents)) {
             //todo 删除学生数据?????
         }
     }
-
-
 
 
     /**
@@ -152,7 +151,7 @@ public class CredentialModificationHandler {
         if (existStudentByCredentialNO == null) {
             //新增数据
             Student newStudent = createNewStudent(updatePlanStudentRequestDTO);
-            //todo 同步到学校
+            commonImportServiceCopy.insertSchoolStudent(Arrays.asList(newStudent));
             return newStudent;
         }
         return updateStudent(credentialTypeAndContent, existStudentByCredentialNO, updatePlanStudentRequestDTO);
@@ -204,6 +203,7 @@ public class CredentialModificationHandler {
         student.setCreateUserId(updatePlanStudentRequestDTO.getUserId());
         student.setSchoolId(updatePlanStudentRequestDTO.getSchoolId());
         student.setParentPhone(updatePlanStudentRequestDTO.getParentPhone());
+        student.setSchoolId(updatePlanStudentRequestDTO.getSchoolId());
         student.setUpdateTime(new Date());
         studentService.saveStudent(student);
         return student;

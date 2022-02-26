@@ -83,12 +83,12 @@ public class UpdatePlanStudentRequestDTO {
             throw new BusinessException("身份证、护照信息异常,不能同时为空");
         }
 
-        if (passport == null) {
-            passport = StringUtils.EMPTY;
+        if (StringUtils.isBlank(passport)) {
+            passport = null;
         }
 
-        if (idCard == null) {
-            idCard = StringUtils.EMPTY;
+        if (StringUtils.isBlank(idCard)) {
+            idCard = null;
         }
 
     }
