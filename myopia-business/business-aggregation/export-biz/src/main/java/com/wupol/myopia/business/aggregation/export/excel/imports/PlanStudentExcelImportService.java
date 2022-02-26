@@ -224,6 +224,13 @@ public class PlanStudentExcelImportService {
                                       Integer nation, Date birthday, TwoTuple<Integer, Integer> gradeClassInfo, Integer gradeType,
                                       ScreeningPlanSchoolStudent planSchoolStudent, School school, String phone,
                                       List<UnbindScreeningStudentDTO> unbindList) {
+        // 通过证件信息获取系统中已经存在的筛查学生
+        ScreeningPlanSchoolStudent existPlanStudent = getPlanStudent(existPlanStudentIdCardMap, existPlanStudentPassportMap, idCard, passport);
+        // 如果上一步中的筛查学生与上传的筛查学生筛查编码对应不上，说明这个证件信息已经被使用了
+        if (Objects.nonNull(existPlanStudent.getScreeningCode()) && !planSchoolStudent.getScreeningCode().equals(existPlanStudent.getScreeningCode())) {
+            throw new BusinessException(getErrorMsgDate(idCard, passport, planSchoolStudent.getScreeningCode().toString()) + "已经存在系统中，请确认");
+        }
+
         // 判断绑定的证件号是否一致
         UnbindScreeningStudentDTO unbindScreeningStudentDTO = checkCredentialInfo(idCard, passport, planSchoolStudent, sno, gender, studentName, nation, birthday, gradeClassInfo, school, phone, gradeType);
         if (Objects.nonNull(unbindScreeningStudentDTO)) {
@@ -233,7 +240,9 @@ public class PlanStudentExcelImportService {
         isSameCredential(userId, existPlanStudentIdCardMap, existPlanStudentPassportMap, existManagementStudentIdCardMap, existManagementStudentPassportMap, haveCredentialPlanStudent, haveCredentialStudent, idCard, passport, sno, gender, studentName, nation, birthday, gradeClassInfo, gradeType, school, phone);
     }
 
-    // 证件号一致
+    /**
+     * 证件号一致
+     */
     private void isSameCredential(Integer userId, Map<String, ScreeningPlanSchoolStudent> existPlanStudentIdCardMap, Map<String, ScreeningPlanSchoolStudent> existPlanStudentPassportMap, Map<String, Student> existManagementStudentIdCardMap, Map<String, Student> existManagementStudentPassportMap, List<ScreeningPlanSchoolStudent> haveCredentialPlanStudent, List<Student> haveCredentialStudent, String idCard, String passport, String sno, Integer gender, String studentName, Integer nation, Date birthday, TwoTuple<Integer, Integer> gradeClassInfo, Integer gradeType, School school, String phone) {
         // 更新学生和筛查学生
         TwoTuple<Student, ScreeningPlanSchoolStudent> twoTuple = getStudentAndPlanStudent(existPlanStudentIdCardMap, existPlanStudentPassportMap, existManagementStudentIdCardMap, existManagementStudentPassportMap, idCard, passport);
@@ -758,5 +767,9 @@ public class PlanStudentExcelImportService {
             }
             planStudent.checkStudentInfo();
         });
+    }
+
+    public void checkAbc() {
+
     }
 }
