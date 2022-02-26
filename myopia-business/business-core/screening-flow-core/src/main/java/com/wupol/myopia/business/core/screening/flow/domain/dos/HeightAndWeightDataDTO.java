@@ -1,11 +1,11 @@
-package com.wupol.myopia.business.api.screening.app.domain.dto;
+package com.wupol.myopia.business.core.screening.flow.domain.dos;
 
-import com.wupol.myopia.business.core.screening.flow.domain.dos.EyePressureDataDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDO;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultBasicData;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.math.BigDecimal;
@@ -17,8 +17,10 @@ import java.util.Objects;
  * @Author tastyb
  * @Date 2022/2/16
  **/
+@JsonIgnoreProperties(ignoreUnknown = true)
 @EqualsAndHashCode(callSuper = true)
 @Data
+@Accessors(chain = true)
 public class HeightAndWeightDataDTO extends ScreeningResultBasicData {
     /**
      * 身高

@@ -8,6 +8,7 @@ import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
 import com.wupol.myopia.business.common.utils.constant.WarningLevel;
+import com.wupol.myopia.business.common.utils.util.MaskUtil;
 import com.wupol.myopia.business.common.utils.util.VisionUtil;
 import com.wupol.myopia.business.core.common.constant.ExportAddressKey;
 import com.wupol.myopia.business.core.common.domain.model.District;
@@ -107,8 +108,7 @@ public class ExportSchoolStudentExcelService extends BaseExportExcelFileService 
                     .setCity(addressMap.getOrDefault(ExportAddressKey.CITY, StringUtils.EMPTY))
                     .setArea(addressMap.getOrDefault(ExportAddressKey.AREA, StringUtils.EMPTY))
                     .setTown(addressMap.getOrDefault(ExportAddressKey.TOWN, StringUtils.EMPTY))
-                    // 优先取身份证
-                    .setIdCard(StringUtils.isNotBlank(item.getIdCard()) ? item.getIdCard() : item.getPassport());
+                    .setCredential(StringUtils.isNotBlank(item.getIdCard()) ? MaskUtil.maskIdCard(item.getIdCard()) : MaskUtil.maskPassport(item.getPassport()));
             if (Objects.nonNull(visitMap.get(item.getStudentId()))) {
                 exportVo.setVisitsCount(visitMap.get(item.getStudentId()).size());
             } else {

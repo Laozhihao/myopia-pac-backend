@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.screening.flow.util;
 
 import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
+import com.wupol.myopia.business.common.utils.util.MaskUtil;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentVisionScreeningResultExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
@@ -33,7 +34,7 @@ public class EyeDataUtil {
         //性别
         studentVisionScreeningResultExportDTO.setGenderDesc(EyeDataUtil.gender(studentDTO));
         // 证件信息
-        studentVisionScreeningResultExportDTO.setPaperwork(StringUtils.isNotBlank(studentDTO.getIdCard()) ? studentDTO.getIdCard() : studentDTO.getPassport());
+        studentVisionScreeningResultExportDTO.setCredential(StringUtils.isNotBlank(studentDTO.getIdCard()) ? MaskUtil.maskIdCard(studentDTO.getIdCard()) : MaskUtil.maskPassport(studentDTO.getPassport()));
 
         //性别
         studentVisionScreeningResultExportDTO.setGradeName(EyeDataUtil.gradeName(studentDTO));
