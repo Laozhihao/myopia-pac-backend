@@ -409,6 +409,8 @@ public class ScreeningPlanController {
 
     @PostMapping("/update/planStudent")
     public void updatePlanStudent(@RequestBody UpdatePlanStudentRequestDTO requestDTO) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        requestDTO.setUserId(user.getId());
         screeningPlanStudentBizService.updatePlanStudent(requestDTO);
     }
 

@@ -590,11 +590,14 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @return Student
      */
     public Student getByIdCardAndPassport(String idCard, String passport, Integer id) {
-        List<Student> collection = baseMapper.checkByIdCardAndPassport(idCard, passport, id);
-        if (CollectionUtils.isEmpty(collection)) {
+        List<Student> students = baseMapper.checkByIdCardAndPassport(idCard, passport, id);
+        final int size = org.apache.commons.collections4.CollectionUtils.size(students);
+        if (size == 0) {
             return null;
+        } else if (size != 1) {
+            throw new BusinessException("student表存在重复证件号,重复证件号 id = " + idCard + ", passport = " + passport);
         }
-        return collection.get(0);
+        return students.get(0);
     }
 
     /**

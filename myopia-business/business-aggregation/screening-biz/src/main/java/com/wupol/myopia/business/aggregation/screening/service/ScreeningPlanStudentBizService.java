@@ -9,6 +9,7 @@ import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.base.domain.vo.PdfGeneratorVO;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.ListUtil;
+import com.wupol.myopia.business.aggregation.screening.domain.dto.CredentialModificationHandler;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
 import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;
 import com.wupol.myopia.business.common.utils.util.FileUtils;
@@ -18,13 +19,9 @@ import com.wupol.myopia.business.core.common.util.S3Utils;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
-import com.wupol.myopia.business.core.school.domain.model.Student;
-import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
-import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
-import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.StudentDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
@@ -44,11 +41,6 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -63,13 +55,8 @@ public class ScreeningPlanStudentBizService {
 
     @Value("${report.html.url-host}")
     public String htmlUrlHost;
-
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
-    @Autowired
-    private StudentService studentService;
-    @Resource
-    private SchoolStudentService schoolStudentService;
     @Resource
     private SchoolService schoolService;
     @Resource
@@ -92,6 +79,9 @@ public class ScreeningPlanStudentBizService {
     private S3Utils s3Utils;
     @Resource
     private SchoolClassService schoolClassService;
+    @Resource
+    private CredentialModificationHandler credentialModificationHandler;
+
 
     /**
      * 筛查通知结果页面地址
@@ -108,52 +98,16 @@ public class ScreeningPlanStudentBizService {
     @Transactional(rollbackFor = Exception.class)
     public void updatePlanStudent(UpdatePlanStudentRequestDTO requestDTO) {
         requestDTO.checkStudentInfo();
-        String idCard = requestDTO.getIdCard();
-        String passport = requestDTO.getPassport();
-        Integer planStudentId = requestDTO.getPlanStudentId();
-        // 更新计划学生信息
-        ScreeningPlanSchoolStudent planSchoolStudent = screeningPlanSchoolStudentService.getById(planStudentId);
-
-        // 身份证或护照是否已经存在
-        if (!CollectionUtils.isEmpty(screeningPlanSchoolStudentService.getByIdCardAndPassport(idCard, passport, planStudentId))) {
+        // 身份证或护照是否在同一计划下已经绑定了数据
+        if (!CollectionUtils.isEmpty(screeningPlanSchoolStudentService.getByIdCardAndPassport(requestDTO.getIdCard(), requestDTO.getPassport(), requestDTO.getPlanStudentId()))) {
             throw new BusinessException("身份证或护照重复，请检查");
         }
-
-        planSchoolStudent.setStudentName(requestDTO.getName());
-        planSchoolStudent.setGender(requestDTO.getGender());
-        planSchoolStudent.setStudentAge(requestDTO.getStudentAge());
-        planSchoolStudent.setBirthday(requestDTO.getBirthday());
-        planSchoolStudent.setIdCard(idCard);
-        planSchoolStudent.setPassport(passport);
-        planSchoolStudent.setSchoolId(requestDTO.getSchoolId());
-        planSchoolStudent.setClassId(requestDTO.getClassId());
-        planSchoolStudent.setGradeId(requestDTO.getGradeId());
-        if (StringUtils.isNotBlank(requestDTO.getParentPhone())) {
-            planSchoolStudent.setParentPhone(requestDTO.getParentPhone());
-        }
-        if (StringUtils.isNotBlank(requestDTO.getSno())) {
-            planSchoolStudent.setStudentNo(requestDTO.getSno());
-        }
-        screeningPlanSchoolStudentService.updateById(planSchoolStudent);
-        // 更新原始学生信息
-        Integer studentId = planSchoolStudent.getStudentId();
-        Student student = studentService.getById(studentId);
-        student.setName(requestDTO.getName());
-        student.setGender(requestDTO.getGender());
-        student.setBirthday(requestDTO.getBirthday());
-        student.setPassport(passport);
-        student.setIdCard(idCard);
-        student.setSchoolId(requestDTO.getSchoolId());
-        student.setClassId(requestDTO.getClassId());
-        student.setGradeId(requestDTO.getGradeId());
-        if (StringUtils.isNotBlank(requestDTO.getParentPhone())) {
-            student.setParentPhone(requestDTO.getParentPhone());
-        }
-        if (StringUtils.isNotBlank(requestDTO.getSno())) {
-            student.setSno(requestDTO.getSno());
-        }
-        studentService.updateStudent(student);
+        // 获取计划学生
+        ScreeningPlanSchoolStudent screeningPlanSchoolStudent = requestDTO.handlePlanStudentData(screeningPlanSchoolStudentService.getById(requestDTO.getPlanStudentId()));
+        // 按证件号的变化来变更
+        credentialModificationHandler.updateStudentByCredentialNO(requestDTO,screeningPlanSchoolStudent);
     }
+
 
     /**
      * 通过条件获取筛查学生
