@@ -46,6 +46,7 @@
                 <if test="@Ognl@isNotEmpty(parentPhone)">and `parent_phone` = #{parentPhone}</if>
                 <if test="@Ognl@isNotEmpty(nation)">and `nation` = #{nation}</if>
                 <if test="@Ognl@isNotEmpty(artificial)">and `artificial` = #{artificial}</if>
+                <if test="@Ognl@isNotEmpty(mockStatus)">and `mock_status` = #{mockStatus}</if>
                 <if test="@Ognl@isNotEmpty(screeningCode)">and `screening_code` = #{screeningCode}</if>
             </trim>
         </where>
@@ -54,8 +55,8 @@
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         id, src_screening_notice_id, screening_task_id, screening_plan_id, screening_org_id, plan_district_id, school_district_id, school_id, school_name,
-        grade_id, grade_name, grade_type, class_id, class_name, student_id, id_card, birthday, gender, student_age,
-        student_situation, student_no, student_name, create_time, province_code, city_code,area_code,town_code, address, parent_phone,nation,artificial,screening_code,passport
+        grade_id, grade_name, grade_type, class_id, class_name, student_id, id_card, birthday, gender, student_age,mock_status,passport,
+        student_situation, student_no, student_name, create_time, province_code, city_code,area_code,town_code, address, parent_phone,nation,artificial,screening_code
     </sql>
 
     <select id="selectStudentInfoWithResult"
@@ -98,6 +99,7 @@
                mspss.student_no     as sno,
                mspss.student_name   as name,
                mspss.gender,
+               mspss.school_id,
                mspss.birthday,
                mspss.province_code,
                mspss.city_code,
@@ -110,20 +112,26 @@
                mspss.grade_id,
                mspss.class_id,
                mspss.id as planSutdhentId,
-               mspss.passport,
                ms.name   as school_name,
                sg.name   as gradeName,
                sc.name   as className,
                mspss.screening_code as screeningCode,
-               mspss.id             as planStudentId
+               mspss.id             as planStudentId,
+               mspss.screening_plan_id as planId,
+               mspss.screening_org_id,
+               mspss.passport
         FROM m_screening_plan_school_student mspss
         left join m_school ms on ms.id = mspss.school_id
         left join m_school_grade sg on sg.id = mspss.grade_id
         left join m_school_class sc on sc.id = mspss.class_id
         <where>
             <trim prefixOverrides="and">
-                AND mspss.screening_plan_id = #{param.screeningPlanId}
+                <if test="param.screeningPlanId != null">
+                    AND mspss.screening_plan_id = #{param.screeningPlanId}
+                </if>
+                <if test="param.schoolId != null">
                     AND mspss.school_id = #{param.schoolId}
+                </if>
                 <if test="param.nameLike != null and param.nameLike != ''">
                     and mspss.`student_name` like CONCAT('%', #{param.nameLike}, '%')
                 </if>
@@ -148,13 +156,26 @@
                 <if test="param.screeningCode != null and param.screeningCode != ''">
                     and mspss.`screening_code` like CONCAT('%', #{param.screeningCode}, '%')
                 </if>
-                <if test="param.passport != null and param.passport != ''">
-                    and mspss.`passport` like CONCAT('%', #{param.passport}, '%')
+                <if test="param.passportLike != null and param.passportLike != ''">
+                    and mspss.`passport` like CONCAT('%', #{param.passportLike}, '%')
+                </if>
+                <if test="param.schoolNameLike != null and param.schoolNameLike != ''">
+                    and ms.`name` like CONCAT('%', #{param.schoolNameLike}, '%')
+                </if>
+                <if test="param.mockStatus != null">
+                    and mspss.mock_status = #{param.mockStatus}
+                </if>
+                <if test="param.planIds != null and param.planIds.size > 0">
+                    and mspss.screening_plan_id in
+                    <foreach collection="param.planIds" open="(" close=")" separator="," item="item">
+                        #{item}
+                    </foreach>
                 </if>
                 <if test="param.idCardOrPassportLike != null and param.idCardOrPassportLike != ''">
-                    and (mspss.id_card like CONCAT('%', #{param.idCardOrPassportLike}, '%') or mspss.passport like CONCAT('%', #{param.idCardOrPassportLike}, '%'))
+                    and (mspss.`id_card` like CONCAT('%', #{param.idCardOrPassportLike}, '%') or mspss.`passport` like CONCAT('%', #{param.idCardOrPassportLike}, '%'))
                 </if>
             </trim>
+                order by mspss.id desc
         </where>
     </select>
 

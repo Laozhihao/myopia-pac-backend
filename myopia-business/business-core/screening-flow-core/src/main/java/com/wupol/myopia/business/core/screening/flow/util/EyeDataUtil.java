@@ -381,7 +381,7 @@ public class EyeDataUtil {
         if(visionScreeningResults==null||visionScreeningResults.isEmpty()){
             return null;
         }
-        return visionScreeningResults.get(0);
+        return visionScreeningResults.get(visionScreeningResults.size() - 1);
     }
 
     private static String setSphCyl(BigDecimal bigDecimal){

@@ -206,7 +206,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         if (CollectionUtils.isEmpty(currentPlanIds)) {
             return new Page<>(page, size);
         }
-        screeningStudentQuery.setPlanIds(new ArrayList<>(currentPlanIds));
+        screeningStudentQuery.setPlanIds(currentPlanIds);
         return selectPlanStudentListByPage(page, size, screeningStudentQuery);
     }
 
