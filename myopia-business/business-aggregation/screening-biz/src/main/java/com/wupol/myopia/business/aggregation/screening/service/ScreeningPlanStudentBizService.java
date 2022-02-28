@@ -9,8 +9,8 @@ import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.base.domain.vo.PdfGeneratorVO;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.ListUtil;
-import com.wupol.myopia.business.aggregation.screening.handler.CredentialModificationHandler;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
+import com.wupol.myopia.business.aggregation.screening.handler.CredentialModificationHandler;
 import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;
 import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.core.common.service.Html2PdfService;
@@ -19,9 +19,11 @@ import com.wupol.myopia.business.core.common.util.S3Utils;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
+import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
+import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.StudentDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
@@ -81,6 +83,8 @@ public class ScreeningPlanStudentBizService {
     private SchoolClassService schoolClassService;
     @Resource
     private CredentialModificationHandler credentialModificationHandler;
+    @Resource
+    private StudentService studentService;
 
 
     /**
@@ -362,5 +366,21 @@ public class ScreeningPlanStudentBizService {
      **/
     public String getFileSaveParentPath() {
         return Paths.get(pdfSavePath, UUID.randomUUID().toString()).toString();
+    }
+
+    /**
+     * 删除学生
+     *
+     * @param planStudentId 筛查学生Id
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void deletedPlanStudentById(Integer planStudentId) {
+        ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(planStudentId);
+        if (Objects.isNull(planStudent)) {
+            throw new BusinessException("数据异常");
+        }
+        Student student = studentService.getByIdCardAndPassport(planStudent.getIdCard(), planStudent.getPassport(), null);
+        credentialModificationHandler.deletedStudent(student.getId(), student.getSchoolId());
+        screeningPlanSchoolStudentService.removeById(planStudentId);
     }
 }

@@ -539,4 +539,14 @@ public class ScreeningPlanController {
         return ApiResult.success(visionScreeningResult);
 
     }
+
+    /**
+     * 删除学生
+     *
+     * @param planStudentId 筛查学生Id
+     */
+    @PostMapping("/update/planStudent/{planStudentId}")
+    public void deletedPlanStudentById(@PathVariable @NotNull(message = "筛查学生Id不能为空") Integer planStudentId) {
+        screeningPlanStudentBizService.deletedPlanStudentById(planStudentId);
+    }
 }

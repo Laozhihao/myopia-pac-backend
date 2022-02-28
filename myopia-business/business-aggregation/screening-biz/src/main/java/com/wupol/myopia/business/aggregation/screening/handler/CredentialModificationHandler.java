@@ -271,7 +271,7 @@ public class CredentialModificationHandler {
      *
      * @param studentId 学生Id
      */
-    private void deletedStudent(Integer studentId, Integer schoolId) {
+    public void deletedStudent(Integer studentId, Integer schoolId) {
         List<Integer> studentIds = Lists.newArrayList(studentId);
         Map<Integer, SchoolStudent> schoolStudentMap = schoolStudentService.getByStudentIdsAndSchoolId(studentIds, schoolId).stream().collect(Collectors.toMap(SchoolStudent::getStudentId, Function.identity(), (s1, s2) -> s1));
         Map<Integer, VisionScreeningResult> resultMap = visionScreeningResultService.getByStudentIds(studentIds).stream().collect(Collectors.toMap(VisionScreeningResult::getStudentId, Function.identity(), (s1, s2) -> s1));
