@@ -38,7 +38,8 @@
         astigmatism_level,
         passport,
         create_time,
-        update_time
+        update_time,
+        source_client
     </sql>
 
     <select id="getList"
@@ -259,4 +260,14 @@
         </foreach>
     </delete>
 
+    <select id="getByStudentIdsAndSchoolId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school_student
+                where student_id in
+        <foreach collection="studentIds" item="studentId" index="index" open="(" close=")" separator=",">
+            #{studentId}
+        </foreach>
+        and school_id = #{schoolId}
+    </select>
 </mapper>

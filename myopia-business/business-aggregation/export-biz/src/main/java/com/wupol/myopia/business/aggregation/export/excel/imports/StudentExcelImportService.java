@@ -8,6 +8,7 @@ import com.wupol.myopia.base.util.RegularUtils;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
+import com.wupol.myopia.business.common.utils.constant.SourceClientEnum;
 import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.common.utils.util.IdCardUtil;
 import com.wupol.myopia.business.core.common.service.DistrictService;
@@ -166,7 +167,7 @@ public class StudentExcelImportService {
         }
         studentService.saveOrUpdateBatch(importList);
         // 插入学校端
-        commonImportService.insertSchoolStudent(importList);
+        commonImportService.insertSchoolStudent(importList, SourceClientEnum.MANAGEMENT.type);
     }
 
     /**

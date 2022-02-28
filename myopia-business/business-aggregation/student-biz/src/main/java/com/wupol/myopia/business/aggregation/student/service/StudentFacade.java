@@ -6,10 +6,7 @@ import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.student.constant.VisionScreeningConst;
 import com.wupol.myopia.business.aggregation.student.domain.vo.VisionInfoVO;
-import com.wupol.myopia.business.common.utils.constant.CommonConst;
-import com.wupol.myopia.business.common.utils.constant.HyperopiaLevelEnum;
-import com.wupol.myopia.business.common.utils.constant.MyopiaLevelEnum;
-import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
+import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
@@ -1096,6 +1093,7 @@ public class StudentFacade {
         schoolStudent.setGradeName(grade.getName());
         schoolStudent.setClassName(schoolClassService.getById(schoolStudent.getClassId()).getName());
         schoolStudent.setGradeType(GradeCodeEnum.getByCode(grade.getGradeCode()).getType());
+        schoolStudent.setSourceClient(SourceClientEnum.MANAGEMENT.type);
 
         SchoolStudent havaDeletedStudent = schoolStudentService.getByIdCardAndPassport(schoolStudent.getIdCard(), schoolStudent.getPassport(), schoolId);
         if (Objects.nonNull(havaDeletedStudent)) {

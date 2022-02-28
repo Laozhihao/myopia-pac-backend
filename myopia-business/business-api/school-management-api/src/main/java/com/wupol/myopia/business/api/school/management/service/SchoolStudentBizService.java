@@ -5,6 +5,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.excel.imports.SchoolStudentExcelImportService;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.common.utils.constant.SourceClientEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
@@ -101,6 +102,7 @@ public class SchoolStudentBizService {
         // 更新管理端的数据
         Integer managementStudentId = schoolStudentExcelImportService.updateManagementStudent(schoolStudent);
         schoolStudent.setStudentId(managementStudentId);
+        schoolStudent.setSourceClient(SourceClientEnum.SCHOOL.type);
 
         schoolStudentService.saveOrUpdate(schoolStudent);
         return schoolStudent;

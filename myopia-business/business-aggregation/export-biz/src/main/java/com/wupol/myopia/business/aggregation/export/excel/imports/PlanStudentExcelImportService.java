@@ -12,6 +12,7 @@ import com.wupol.myopia.business.aggregation.export.excel.domain.UnbindScreening
 import com.wupol.myopia.business.aggregation.export.utils.CommonCheck;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
+import com.wupol.myopia.business.common.utils.constant.SourceClientEnum;
 import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.common.utils.util.IdCardUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
@@ -25,6 +26,7 @@ import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.domain.model.Student;
+import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
@@ -350,10 +352,10 @@ public class PlanStudentExcelImportService {
         if (!CollectionUtils.isEmpty(haveCredentialStudent)) {
             studentService.saveOrUpdateBatch(haveCredentialStudent);
             // 插入学校端
-            commonImportService.insertSchoolStudent(haveCredentialStudent);
+            commonImportService.insertSchoolStudent(haveCredentialStudent, SourceClientEnum.MANAGEMENT.type);
         }
         if (!CollectionUtils.isEmpty(unbindList)) {
-            unbindStudent(unbindList, screeningPlan, existManagementStudentIdCardMap, existManagementStudentPassportMap, userId);
+            unbindStudent(unbindList, screeningPlan, existManagementStudentIdCardMap, existManagementStudentPassportMap, userId, school);
         }
     }
 
@@ -363,7 +365,7 @@ public class PlanStudentExcelImportService {
     private void updateOrSaveNoCredentialStudent(List<Student> noCredentialStudents, List<ScreeningPlanSchoolStudent> noCredentialPlanStudents, ScreeningPlan screeningPlan) {
         studentService.saveOrUpdateBatch(noCredentialStudents);
         // 插入学校端
-        commonImportService.insertSchoolStudent(noCredentialStudents);
+        commonImportService.insertSchoolStudent(noCredentialStudents, SourceClientEnum.MANAGEMENT.type);
         TwoTuple<Map<String, Student>, Map<String, Student>> groupingStudentMap = groupingByIdCardAndPassport(noCredentialStudents);
         Map<String, Student> idCardMap = groupingStudentMap.getFirst();
         Map<String, Student> passportMap = groupingStudentMap.getSecond();
@@ -429,7 +431,7 @@ public class PlanStudentExcelImportService {
             list.add(planStudent);
         });
         // 插入学校端
-        commonImportService.insertSchoolStudent(managementStudentList);
+        commonImportService.insertSchoolStudent(managementStudentList, SourceClientEnum.MANAGEMENT.type);
         updatePlanStudentAndVisionResult(plan, list);
     }
 
@@ -676,25 +678,26 @@ public class PlanStudentExcelImportService {
     /**
      * 解除绑定学生
      */
-    private void unbindStudent(List<UnbindScreeningStudentDTO> unbindList, ScreeningPlan screeningPlan, Map<String, Student> existManagementStudentIdCardMap, Map<String, Student> existManagementStudentPassportMap, Integer userId) {
+    private void unbindStudent(List<UnbindScreeningStudentDTO> unbindList, ScreeningPlan screeningPlan, Map<String, Student> existManagementStudentIdCardMap, Map<String, Student> existManagementStudentPassportMap, Integer userId, School school) {
         List<Integer> studentIds = studentService.getByIdCardsOrPassports(unbindList.stream().map(UnbindScreeningStudentDTO::getIdCard).collect(Collectors.toList()), unbindList.stream().map(UnbindScreeningStudentDTO::getPassport).collect(Collectors.toList())).stream().map(Student::getId).collect(Collectors.toList());
         List<Integer> deletedStudent = new ArrayList<>();
         Map<Integer, VisionScreeningResult> resultMap = visionScreeningResultService.getByStudentIds(studentIds).stream().collect(Collectors.toMap(VisionScreeningResult::getStudentId, Function.identity(), (s1, s2) -> s1));
         Map<Integer, ParentStudent> parentStudentMap = parentStudentService.getByStudentIds(studentIds).stream().collect(Collectors.toMap(ParentStudent::getStudentId, Function.identity(), (s1, s2) -> s1));
         Map<Integer, HospitalStudent> hospitalStudentMap = hospitalStudentService.getByStudentIds(studentIds).stream().collect(Collectors.toMap(HospitalStudent::getStudentId, Function.identity(), (s1, s2) -> s1));
+        Map<Integer, SchoolStudent> schoolStudentMap = schoolStudentService.getByStudentIdsAndSchoolId(studentIds, school.getId()).stream().collect(Collectors.toMap(SchoolStudent::getStudentId, Function.identity(), (s1, s2) -> s1));
 
         List<ScreeningPlanSchoolStudent> noDateBindPlanStudent = new ArrayList<>();
         List<ScreeningPlanSchoolStudent> haveDatePlanStudent = new ArrayList<>();
         unbindList.forEach(s -> {
             Integer studentId = s.getScreeningPlanSchoolStudent().getStudentId();
-            if (ObjectsUtil.allNull(resultMap.get(studentId), parentStudentMap.get(studentId), hospitalStudentMap.get(studentId))) {
+            if (ObjectsUtil.allNull(resultMap.get(studentId), parentStudentMap.get(studentId), hospitalStudentMap.get(studentId)) && commonImportService.isCanDeletedSchoolStudent(schoolStudentMap, studentId)) {
                 deletedStudent.add(studentId);
                 noDateBindPlanStudent.add(s.getScreeningPlanSchoolStudent());
             } else {
                 haveDatePlanStudent.add(s.getScreeningPlanSchoolStudent());
             }
         });
-        deletedUnbindStudent(noDateBindPlanStudent, deletedStudent, screeningPlan, userId,existManagementStudentIdCardMap ,existManagementStudentPassportMap);
+        deletedUnbindStudent(noDateBindPlanStudent, deletedStudent, screeningPlan, userId, existManagementStudentIdCardMap, existManagementStudentPassportMap);
         havaDateUnbindStudent(haveDatePlanStudent, existManagementStudentIdCardMap, existManagementStudentPassportMap, screeningPlan, userId);
     }
 

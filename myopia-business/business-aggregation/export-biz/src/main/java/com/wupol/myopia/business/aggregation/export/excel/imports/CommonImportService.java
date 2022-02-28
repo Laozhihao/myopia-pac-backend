@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.aggregation.export.excel.imports;
 
 import com.wupol.myopia.base.util.ListUtil;
+import com.wupol.myopia.business.common.utils.constant.SourceClientEnum;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.domain.model.Student;
@@ -40,9 +41,10 @@ public class CommonImportService {
     /**
      * 插入学校端学生
      *
-     * @param importList 多端学生列表
+     * @param importList   多端学生列表
+     * @param sourceClient 来源客户端
      */
-    public void insertSchoolStudent(List<Student> importList) {
+    public void insertSchoolStudent(List<Student> importList, Integer sourceClient) {
         // 获取学号重复的
         List<String> allSnoList = importList.stream().map(Student::getSno).collect(Collectors.toList());
         List<String> duplicateSnoList = ListUtil.getDuplicateElements(allSnoList);
@@ -89,9 +91,25 @@ public class CommonImportService {
                 schoolStudent.setStudentId(s.getId());
                 schoolStudent.setGradeName(gradeMap.get(s.getGradeId()).getName());
                 schoolStudent.setClassName(classMap.get(s.getClassId()).getName());
+                schoolStudent.setSourceClient(sourceClient);
                 addSchoolStudentList.add(schoolStudent);
             });
         }
         schoolStudentService.saveBatch(addSchoolStudentList);
+    }
+
+    /**
+     * 判断是否能删除学校端的学生
+     *
+     * @param schoolStudentMap 学校端学生集合
+     * @param studentId        学生Id
+     * @return true-能删除 fasle-不能删除
+     */
+    public boolean isCanDeletedSchoolStudent(Map<Integer, SchoolStudent> schoolStudentMap, Integer studentId) {
+        SchoolStudent schoolStudent = schoolStudentMap.get(studentId);
+        if (Objects.isNull(schoolStudent)) {
+            return true;
+        }
+        return SourceClientEnum.SCREENING_PLAN.type.equals(schoolStudent.getSourceClient());
     }
 }

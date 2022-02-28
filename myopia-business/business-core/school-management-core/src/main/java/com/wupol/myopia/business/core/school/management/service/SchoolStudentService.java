@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -211,6 +212,20 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
             return;
         }
         baseMapper.deleteByStudentIds(studentIds);
+    }
+
+    /**
+     * 通过学生ids获取学校学生
+     *
+     * @param studentIds 学生ids
+     * @param schoolId   学校Id
+     * @return List<SchoolStudent>
+     */
+    public List<SchoolStudent> getByStudentIdsAndSchoolId(List<Integer> studentIds, Integer schoolId) {
+        if (CollectionUtils.isEmpty(studentIds)) {
+            return new ArrayList<>();
+        }
+        return baseMapper.getByStudentIdsAndSchoolId(studentIds, schoolId);
     }
 
 
