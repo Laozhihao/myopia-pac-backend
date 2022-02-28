@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.screening.organization.domain.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import java.util.Date;
@@ -85,6 +86,7 @@ public class CacheOverviewInfoDTO {
      * 是否可以再增加绑定医院
      * @return
      */
+    @JsonIgnore
     public boolean isCanAddHospital() {
         return hospitalLimitNum > hospitalIds.size();
     }
@@ -93,6 +95,7 @@ public class CacheOverviewInfoDTO {
      * 是否可以再增加绑定筛查机构
      * @return
      */
+    @JsonIgnore
     public boolean isCanAddScreeningOrganization() {
         return screeningOrganizationLimitNum > screeningOrganizationIds.size();
     }

@@ -31,18 +31,15 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanS
 import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationQueryDTO;
-import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
-import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationAdmin;
-import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationStaff;
-import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationAdminService;
-import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
-import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationStaffService;
+import com.wupol.myopia.business.core.screening.organization.domain.model.*;
+import com.wupol.myopia.business.core.screening.organization.service.*;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
 import com.wupol.myopia.oauth.sdk.domain.response.Organization;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -94,6 +91,10 @@ public class ScreeningOrganizationBizService {
     private DeviceReportTemplateService deviceReportTemplateService;
     @Resource
     private ScreeningOrgBindDeviceReportService screeningOrgBindDeviceReportService;
+    @Autowired
+    private OverviewScreeningOrganizationService overviewScreeningOrganizationService;
+    @Autowired
+    private OverviewService overviewService;
 
     /**
      * 保存筛查机构
@@ -102,7 +103,7 @@ public class ScreeningOrganizationBizService {
      * @return UsernameAndPasswordDTO 账号密码
      */
     @Transactional(rollbackFor = Exception.class)
-    public UsernameAndPasswordDTO saveScreeningOrganization(ScreeningOrganization screeningOrganization) {
+    public UsernameAndPasswordDTO saveScreeningOrganization(ScreeningOrganization screeningOrganization, CurrentUser user) {
 
         String name = screeningOrganization.getName();
         if (StringUtils.isBlank(name)) {
@@ -113,6 +114,11 @@ public class ScreeningOrganizationBizService {
             throw new BusinessException("筛查机构名称不能重复");
         }
         screeningOrganizationService.save(screeningOrganization);
+        if (user.isOverviewUser()) {
+            // 总览机构：保存总览机构-筛查机构关系，更新缓存信息
+            overviewScreeningOrganizationService.save(new OverviewScreeningOrganization().setOverviewId(user.getOrgId()).setScreeningOrganizationId(screeningOrganization.getId()));
+            overviewService.removeOverviewCache(user.getOrgId());
+        }
         // 同步到oauth机构状态
         oauthServiceClient.addOrganization(new Organization(screeningOrganization.getId(), SystemCode.MANAGEMENT_CLIENT,
                 UserType.SCREENING_ORGANIZATION_ADMIN, screeningOrganization.getStatus()));
@@ -274,7 +280,7 @@ public class ScreeningOrganizationBizService {
      * @param response    请求
      */
     private void setCanUpdate(CurrentUser currentUser, ScreeningOrgResponseDTO response) {
-        if (currentUser.isPlatformAdminUser() || response.getCreateUserId().equals(currentUser.getId())) {
+        if (currentUser.isPlatformAdminUser() || currentUser.isOverviewUser() || response.getCreateUserId().equals(currentUser.getId())) {
             response.setCanUpdate(true);
         }
     }

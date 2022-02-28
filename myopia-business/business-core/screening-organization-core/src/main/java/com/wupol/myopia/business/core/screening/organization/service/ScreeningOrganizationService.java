@@ -247,12 +247,13 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      *
      * @param screeningOrgNameLike 筛查机构名称
      * @param provinceDistrictCode 省行政区域编码，如：110000000
+     * @param configType
      * @return java.util.List<ScreeningOrgResponseDTO>
      **/
-    public List<ScreeningOrgResponseDTO> getListByProvinceCodeAndNameLike(String screeningOrgNameLike, Long provinceDistrictCode) {
+    public List<ScreeningOrgResponseDTO> getListByProvinceCodeAndNameLike(String screeningOrgNameLike, Long provinceDistrictCode, Integer configType) {
         Assert.hasText(screeningOrgNameLike, "筛查机构名称不能为空");
         Assert.notNull(provinceDistrictCode, "省行政区域编码不能为空");
-        List<ScreeningOrgResponseDTO> records = baseMapper.getListByProvinceCodeAndNameLike(screeningOrgNameLike, provinceDistrictCode);
+        List<ScreeningOrgResponseDTO> records = baseMapper.getListByProvinceCodeAndNameLike(screeningOrgNameLike, provinceDistrictCode, configType);
         records.forEach(record -> {
             // 行政区域名称
             record.setDistrictName(districtService.getDistrictName(record.getDistrictDetail()));

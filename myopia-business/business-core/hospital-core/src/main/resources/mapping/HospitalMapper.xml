@@ -179,11 +179,14 @@
         from m_hospital
         <where>
             <trim prefixOverrides="and">
-                <if test="name != null and name != ''">
+                <if test="@Ognl@isNotEmpty(name)">
                     and `name` like CONCAT('%', #{name}, '%')
                 </if>
                 <if test="provinceDistrictCode != null">
                     and json_extract(cast(district_detail as json) ,'$[0].code') = #{provinceDistrictCode}
+                </if>
+                <if test="@Ognl@isNotEmpty(serviceType)">
+                  and `service_type` = #{serviceType}
                 </if>
             </trim>
         </where>

@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
@@ -14,12 +15,14 @@ import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.hospital.domain.dto.HospitalResponseDTO;
 import com.wupol.myopia.business.core.hospital.domain.model.Doctor;
 import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
 import com.wupol.myopia.business.core.hospital.domain.query.HospitalQuery;
 import com.wupol.myopia.business.core.hospital.service.HospitalDoctorService;
 import com.wupol.myopia.business.core.hospital.service.HospitalService;
+import com.wupol.myopia.business.core.screening.organization.domain.dto.CacheOverviewInfoDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccountListDTO;
 import com.wupol.myopia.business.core.screening.organization.service.OverviewService;
 import org.springframework.beans.BeanUtils;
@@ -61,6 +64,9 @@ public class HospitalController {
     @Autowired
     private OverviewService overviewService;
 
+    @Autowired
+    private DistrictService districtService;
+
     /**
      * 保存医院
      *
@@ -74,18 +80,23 @@ public class HospitalController {
         hospital.setGovDeptId(user.getOrgId());
         if (user.isPlatformAdminUser()) {
             hospitalService.checkHospitalCooperation(hospital);
-        } else { // 非平台管理员默认为合作医院
+        } else if (user.isOverviewUser()) {
+            // 总览机构
+            CacheOverviewInfoDTO overview = overviewService.getSimpleOverviewInfo(user.getOrgId());
+            // 绑定医院已达上线或不在同一个省级行政区域下
+            if ((!overview.isCanAddHospital()) || (!districtService.isSameProvince(hospital.getDistrictId(), overview.getDistrictId()))) {
+                throw new BusinessException("非法请求！");
+            }
             hospital.setIsCooperation(CommonConst.IS_COOPERATION);
-            hospital.initCooperationInfo();     // 默认合作信息
+            hospital.initCooperationInfo(overview.getCooperationType(), overview.getCooperationTimeType(),
+                    overview.getCooperationStartTime(), overview.getCooperationEndTime());
+            hospital.setServiceType(overview.getHospitalServiceType());
             hospital.setAccountNum(Hospital.ACCOUNT_NUM);
+        } else {
+            throw new BusinessException("非法的用户类型");
         }
         hospital.setStatus(hospital.getCooperationStopStatus());
-        UsernameAndPasswordDTO usernameAndPasswordDTO = hospitalService.saveHospital(hospital);
-        // 非平台管理员屏蔽账号密码信息
-        if (!user.isPlatformAdminUser()) {
-            usernameAndPasswordDTO.setNoDisplay();
-        }
-        return usernameAndPasswordDTO;
+        return hospitalBizService.saveHospital(hospital, user);
     }
 
     /**
@@ -97,15 +108,17 @@ public class HospitalController {
     @PutMapping
     public HospitalResponseDTO updateHospital(@RequestBody @Valid Hospital hospital) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
+        overviewService.checkHospital(user, hospital.getId());
         if (user.isPlatformAdminUser()){
             hospitalService.checkHospitalCooperation(hospital);
             // 设置医院状态
             hospital.setStatus(hospital.getCooperationStopStatus());
         } else {
-            // 非平台管理员无法更新合作信息
+            // 非平台管理员无法更新以下信息
             hospital.clearCooperationInfo();
             hospital.setStatus(null);
             hospital.setAccountNum(null);
+            hospital.setServiceType(null);
         }
         return hospitalBizService.updateHospital(hospital);
     }
@@ -119,6 +132,7 @@ public class HospitalController {
     @DeleteMapping("{id}")
     public Integer deletedHospital(@PathVariable("id") Integer id) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
+        overviewService.checkHospital(user, id);
         return hospitalService.deletedHospital(id, user.getId(), user.getOrgId());
     }
 
@@ -130,6 +144,7 @@ public class HospitalController {
      */
     @GetMapping("{id}")
     public HospitalResponseDTO getHospital(@PathVariable("id") Integer id) {
+        overviewService.checkHospital(CurrentUserUtil.getCurrentUser(), id);
         Hospital hospital = hospitalService.getById(id);
         HospitalResponseDTO hospitalResponse = new HospitalResponseDTO();
         BeanUtils.copyProperties(hospital, hospitalResponse);
@@ -160,6 +175,7 @@ public class HospitalController {
      */
     @PutMapping("status")
     public Integer updateStatus(@RequestBody @Valid StatusRequest statusRequest) {
+        overviewService.checkHospital(CurrentUserUtil.getCurrentUser(), statusRequest.getId());
         return hospitalService.updateStatus(statusRequest);
     }
 
@@ -171,6 +187,7 @@ public class HospitalController {
      */
     @PutMapping("/admin/status")
     public boolean updateHospitalAdminUserStatus(@RequestBody @Valid StatusRequest statusRequest) {
+        overviewService.checkHospital(CurrentUserUtil.getCurrentUser(), statusRequest.getId());
         return hospitalService.updateHospitalAdminUserStatus(statusRequest);
     }
 
@@ -182,6 +199,7 @@ public class HospitalController {
      */
     @PostMapping("reset")
     public UsernameAndPasswordDTO resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
+        overviewService.checkHospital(CurrentUserUtil.getCurrentUser(), request.getId());
         return hospitalService.resetPassword(request);
     }
 
@@ -209,6 +227,7 @@ public class HospitalController {
      */
     @GetMapping("/accountList/{hospitalId}")
     public List<OrgAccountListDTO> getAccountList(@PathVariable("hospitalId") Integer hospitalId) {
+        overviewService.checkHospital(CurrentUserUtil.getCurrentUser(), hospitalId);
         return hospitalBizService.getAccountList(hospitalId);
     }
 
@@ -220,6 +239,7 @@ public class HospitalController {
      */
     @PostMapping("/add/account/{hospitalId}")
     public UsernameAndPasswordDTO addAccount(@PathVariable("hospitalId")  Integer hospitalId) {
+        overviewService.checkHospital(CurrentUserUtil.getCurrentUser(), hospitalId);
         return hospitalBizService.addHospitalAdminUserAccount(hospitalId);
     }
 
@@ -237,22 +257,14 @@ public class HospitalController {
      * 通过医院名称及行政区域（同省级下）获取医院列表
      * @param name
      * @param provinceDistrictCode
+     * @param serviceType
      * @return
      */
     @GetMapping("/province/list")
     public List<HospitalResponseDTO> getProvinceList(@NotBlank(message = "筛查机构名称不能为空") String name,
-                                                     @NotNull(message = "省行政区域编码不能为空") Long provinceDistrictCode) {
-        return hospitalService.getProvinceList(name, provinceDistrictCode);
-    }
-
-    /**
-     * 处理医院历史数据，给医院管理员账号绑定角色
-     *
-     * @return
-     **/
-    @PostMapping("/dealHistoryData")
-    public void dealHistoryData() {
-        hospitalBizService.dealHistoryData();
+                                                     @NotNull(message = "省行政区域编码不能为空") Long provinceDistrictCode,
+                                                     Integer serviceType) {
+        return hospitalService.getProvinceList(name, provinceDistrictCode, serviceType);
     }
 
 }

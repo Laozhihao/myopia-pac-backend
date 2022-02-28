@@ -149,6 +149,7 @@
         <include refid="Base_Column_List"/>
         from m_screening_organization
         where name like concat('%', #{name}, '%') and json_extract(cast(district_detail as json) ,'$[0].code') = #{provinceDistrictCode}
+        <if test="@Ognl@isNotEmpty(configType)">and `config_type` = #{configType}</if>
     </select>
 
     <select id="getByConfigType" resultMap="BaseResultMap">

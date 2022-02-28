@@ -6,7 +6,9 @@ import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
+import com.wupol.myopia.business.core.screening.organization.domain.model.Overview;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
+import com.wupol.myopia.business.core.screening.organization.service.OverviewService;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,6 +29,8 @@ public class DistrictBizService {
     private ScreeningOrganizationService screeningOrganizationService;
     @Autowired
     private DistrictService districtService;
+    @Autowired
+    private OverviewService overviewService;
 
     /**
      * 获取非平台管理员用户的行政区域
@@ -42,6 +46,11 @@ public class DistrictBizService {
         if (currentUser.isScreeningUser() || (currentUser.isHospitalUser() && (Objects.nonNull(currentUser.getScreeningOrgId())))) {
             ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(currentUser.getScreeningOrgId());
             return districtService.getById(screeningOrganization.getDistrictId());
+        }
+        // 总览机构
+        if (currentUser.isOverviewUser()) {
+            Overview overview = overviewService.getById(currentUser.getOrgId());
+            return districtService.getById(overview.getDistrictId());
         }
         throw new BusinessException("无效用户类型");
     }
