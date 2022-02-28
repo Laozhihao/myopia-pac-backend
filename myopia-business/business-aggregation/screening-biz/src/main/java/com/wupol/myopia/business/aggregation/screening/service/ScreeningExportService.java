@@ -12,6 +12,7 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.aggregation.screening.constant.QrCodeConstant;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.AppQueryQrCodeParams;
+import com.wupol.myopia.business.aggregation.screening.domain.vos.QrCodeInfo;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.domain.model.NotificationConfig;
@@ -198,7 +199,7 @@ public class ScreeningExportService {
      * @param params
      * @return
      */
-    public List<Map<String, String>> getQrCodeAndStudentInfo(AppQueryQrCodeParams params, Integer orgId) {
+    public List<QrCodeInfo> getQrCodeAndStudentInfo(AppQueryQrCodeParams params, Integer orgId) {
         Set<Integer> currentPlanIds = screeningPlanService.getCurrentPlanIds(orgId);
         if (CollectionUtils.isEmpty(currentPlanIds)) {
             throw new BusinessException("当前无筛查计划");
@@ -212,13 +213,13 @@ public class ScreeningExportService {
         return students.stream().map(student -> {
             student.setGenderDesc(GenderEnum.getName(student.getGender()));
             int type = params.getType();
-            Map<String, String> result = new HashMap<>();
-            result.put("name", student.getName());
-            result.put("gender", student.getGenderDesc());
-            result.put("gradeName", gradeName);
-            result.put("className", className);
-            result.put("qrCodeContent", getQrCodeContent(student, type));
-            return result;
+            QrCodeInfo info = new QrCodeInfo();
+            info.setName(student.getName());
+            info.setGender(student.getGenderDesc());
+            info.setGradeName(gradeName);
+            info.setClassName(className);
+            info.setQrCodeContent(getQrCodeContent(student, type));
+            return info;
         }).collect(Collectors.toList());
     }
 
