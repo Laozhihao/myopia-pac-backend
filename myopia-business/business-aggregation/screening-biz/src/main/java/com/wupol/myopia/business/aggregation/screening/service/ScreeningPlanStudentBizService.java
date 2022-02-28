@@ -127,6 +127,8 @@ public class ScreeningPlanStudentBizService {
         }
         // 获取计划学生
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = requestDTO.handlePlanStudentData(screeningPlanSchoolStudentService.getById(requestDTO.getPlanStudentId()));
+        // 检查学号是否重复
+        checkStudentSno(screeningPlanSchoolStudent);
         // 按证件号的变化来变更
         credentialModificationHandler.updateStudentByCredentialNO(requestDTO,screeningPlanSchoolStudent);
     }
@@ -516,5 +518,16 @@ public class ScreeningPlanStudentBizService {
         if (visionScreeningResult != null) {
             studentEyeInfo.setScreeningTime(visionScreeningResult.getCreateTime());
         }
+    }
+
+    /**
+     * 检查学号是否重复
+     *
+     * @param screeningPlanSchoolStudent 计划学生
+     */
+    public void checkStudentSno(ScreeningPlanSchoolStudent screeningPlanSchoolStudent) {
+        List<ScreeningPlanSchoolStudent> existPlanSchoolStudentList = screeningPlanSchoolStudentService.getByScreeningPlanId(screeningPlanSchoolStudent.getScreeningPlanId());
+        // 检查学号
+        screeningPlanSchoolStudentService.checkSno(existPlanSchoolStudentList, screeningPlanSchoolStudent.getStudentNo(), screeningPlanSchoolStudent.getIdCard(), screeningPlanSchoolStudent.getPassport(), screeningPlanSchoolStudent.getSchoolId());
     }
 }

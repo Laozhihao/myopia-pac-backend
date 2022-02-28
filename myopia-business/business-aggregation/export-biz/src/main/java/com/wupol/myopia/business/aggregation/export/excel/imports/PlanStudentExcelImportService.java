@@ -182,7 +182,7 @@ public class PlanStudentExcelImportService {
             TwoTuple<Integer, Integer> gradeClassInfo = schoolStudentExcelImportService.getSchoolStudentClassInfo(schoolId, schoolGradeMaps, gradeName, className);
             Integer gradeType = GradeCodeEnum.getByName(gradeName).getType();
             // 检查学号
-            checkSno(existPlanSchoolStudentList, sno, idCard, passport, schoolId);
+            screeningPlanSchoolStudentService.checkSno(existPlanSchoolStudentList, sno, idCard, passport, schoolId);
             // 是否带筛查编码一起上传
             if (StringUtils.isBlank(screeningCode)) {
                 notScreeningCodeUpload(userId, existPlanStudentIdCardMap, existPlanStudentPassportMap, existManagementStudentIdCardMap, existManagementStudentPassportMap, noScreeningCodeManagementStudentList, idCard, passport, sno, gender, studentName, nation, birthday, gradeClassInfo, gradeType, schoolId, phone);
@@ -622,27 +622,6 @@ public class PlanStudentExcelImportService {
      */
     private String getErrorMsgDate(String idCard, String passport, String screeningCode) {
         return "身份证/护照/筛查编码：" + (StringUtils.isNotBlank(idCard) ? idCard : StringUtils.isNotBlank(passport) ? passport : screeningCode);
-    }
-
-    /**
-     * 校验学号是否重复
-     *
-     * @param existPlanSchoolStudentList 已经存在的学生
-     * @param sno                        学号
-     * @param idCard                     身份证
-     * @param passport                   护照
-     * @param schoolId                   学校Id
-     */
-    private void checkSno(List<ScreeningPlanSchoolStudent> existPlanSchoolStudentList, String sno, String idCard, String passport, Integer schoolId) {
-        if (CollectionUtils.isEmpty(existPlanSchoolStudentList) || StringUtils.isBlank(sno)) {
-            return;
-        }
-        for (ScreeningPlanSchoolStudent s : existPlanSchoolStudentList) {
-            // 学号是否被使用
-            if (StringUtils.equals(sno, s.getStudentNo()) && schoolId.equals(s.getSchoolId()) && ((StringUtils.isNotBlank(idCard) && !StringUtils.equals(idCard, s.getIdCard())) || (StringUtils.isNotBlank(passport) && !StringUtils.equals(passport, s.getPassport())))) {
-                throw new BusinessException("学号:" + sno + "重复");
-            }
-        }
     }
 
     /**

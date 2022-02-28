@@ -16,6 +16,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanS
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentScreeningProgressVO;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentVO;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -470,5 +471,26 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
             return;
         }
         baseMapper.deleteByStudentIds(studentIds);
+    }
+
+    /**
+     * 校验学号是否重复
+     *
+     * @param existPlanSchoolStudentList 已经存在的学生
+     * @param sno                        学号
+     * @param idCard                     身份证
+     * @param passport                   护照
+     * @param schoolId                   学校Id
+     */
+    public void checkSno(List<ScreeningPlanSchoolStudent> existPlanSchoolStudentList, String sno, String idCard, String passport, Integer schoolId) {
+        if (org.springframework.util.CollectionUtils.isEmpty(existPlanSchoolStudentList) || StringUtils.isBlank(sno)) {
+            return;
+        }
+        for (ScreeningPlanSchoolStudent s : existPlanSchoolStudentList) {
+            // 学号是否被使用
+            if (StringUtils.equals(sno, s.getStudentNo()) && schoolId.equals(s.getSchoolId()) && ((StringUtils.isNotBlank(idCard) && !StringUtils.equals(idCard, s.getIdCard())) || (StringUtils.isNotBlank(passport) && !StringUtils.equals(passport, s.getPassport())))) {
+                throw new BusinessException("学号:" + sno + "重复");
+            }
+        }
     }
 }
