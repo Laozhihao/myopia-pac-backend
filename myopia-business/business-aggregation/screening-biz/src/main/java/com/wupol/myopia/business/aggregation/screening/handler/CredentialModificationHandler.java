@@ -151,6 +151,10 @@ public class CredentialModificationHandler {
      * @param credentialTypeAndContent
      */
     private void discardStudent(CredentialTypeAndContent credentialTypeAndContent) {
+        if (credentialTypeAndContent == null) {
+            log.info("根据证件号更新计划学生后, 没有旧的证件号的学生需要删除.");
+            return;
+        }
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getByIdCardAndPassport(credentialTypeAndContent.getIdCard(), credentialTypeAndContent.getPassport(), null);
         if (CollectionUtils.isEmpty(screeningPlanSchoolStudents)) {
             if (Objects.nonNull(credentialTypeAndContent.getCredentialType())) {
