@@ -1,0 +1,1 @@
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code, create_time, update_time) VALUES (682, '删除筛查计划学生', 'deletedPlanStudent', 'post:/management/screeningPlan/deleted/planStudent/**', 0, 0, 1, 27, 1, '2022-02-28 18:37:33', '2022-02-28 18:37:33');
