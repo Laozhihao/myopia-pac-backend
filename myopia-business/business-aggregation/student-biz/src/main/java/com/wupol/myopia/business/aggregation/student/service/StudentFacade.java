@@ -41,6 +41,7 @@ import com.wupol.myopia.business.core.screening.organization.service.ScreeningOr
 import com.wupol.myopia.business.core.system.constants.TemplateConstants;
 import com.wupol.myopia.business.core.system.service.TemplateDistrictService;
 import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -151,7 +152,7 @@ public class StudentFacade {
             item.setHyperopiaLevel(statMap.get(result.getId()).getHyperopiaLevel());
             item.setAstigmatismLevel(statMap.get(result.getId()).getAstigmatismLevel());
             item.setPlanId(result.getPlanId());
-            item.setHasScreening(null != result.getVisionData() || null != result.getComputerOptometry() || null != result.getBiometricData() || null != result.getOtherEyeDiseases());
+            item.setHasScreening(ObjectUtils.anyNotNull(result.getVisionData(), result.getComputerOptometry(), result.getBiometricData(), result.getOtherEyeDiseases()));
             items.add(item);
         }
         responseDTO.setTotal(resultList.size());
