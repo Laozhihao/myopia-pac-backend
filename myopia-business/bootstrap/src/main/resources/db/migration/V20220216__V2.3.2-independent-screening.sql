@@ -18,3 +18,6 @@ alter table m_vision_screening_result
 
 alter table m_school_student
     add source_client tinyint default 0 null comment '源客户端 0-多端 1-学校端 2-筛查计划';
+
+alter table h_hospital_student
+    modify id_card varchar(32) null comment '身份证号码';
