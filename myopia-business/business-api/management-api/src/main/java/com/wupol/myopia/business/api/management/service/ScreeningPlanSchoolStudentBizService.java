@@ -71,7 +71,7 @@ public class ScreeningPlanSchoolStudentBizService {
                 classItem.forEach(schoolClass -> {
                     List<Student> mockStudentList = new ArrayList<>(studentTotal);
                     List<ScreeningPlanSchoolStudent> mockPlanStudentList = new ArrayList<>(studentTotal);
-                    mockStudent(studentTotal, school, schoolGrade, schoolClass, mockStudentList, currentUser);
+//                    mockStudent(studentTotal, school, schoolGrade, schoolClass, mockStudentList, currentUser);
                     mockPlanStudent(studentTotal, school, plan, schoolGrade, schoolClass, mockStudentList, mockPlanStudentList);
                 });
             });
@@ -125,6 +125,7 @@ public class ScreeningPlanSchoolStudentBizService {
                                  MockStudentRequestDTO.GradeItem schoolGrade, MockStudentRequestDTO.ClassItem schoolClass,
                                  List<Student> mockStudentList, List<ScreeningPlanSchoolStudent> mockPlanStudentList) {
         for (int i = 0; i < studentTotal; i++) {
+            Long screeningCode = ScreeningCodeGenerator.nextId();
             ScreeningPlanSchoolStudent planSchoolStudent = new ScreeningPlanSchoolStudent();
             planSchoolStudent.setSrcScreeningNoticeId(plan.getSrcScreeningNoticeId());
             planSchoolStudent.setScreeningTaskId(plan.getScreeningTaskId());
@@ -138,16 +139,16 @@ public class ScreeningPlanSchoolStudentBizService {
             planSchoolStudent.setGradeName(schoolGrade.getGradeName());
             planSchoolStudent.setClassId(schoolClass.getClassId());
             planSchoolStudent.setClassName(schoolClass.getClassName());
-            planSchoolStudent.setStudentId(mockStudentList.get(i).getId());
+            planSchoolStudent.setStudentId(0);
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByName(schoolGrade.getGradeName());
             planSchoolStudent.setGradeType(gradeCodeEnum.getType());
             Date date = getDateByGrade(gradeCodeEnum);
             planSchoolStudent.setBirthday(date);
             planSchoolStudent.setGender(GenderEnum.MALE.type);
             planSchoolStudent.setStudentAge(DateUtil.ageOfNow(date));
-            planSchoolStudent.setStudentName(mockStudentList.get(i).getName());
+            planSchoolStudent.setStudentName(String.valueOf(screeningCode));
             planSchoolStudent.setArtificial(1);
-            planSchoolStudent.setScreeningCode(Long.valueOf(mockStudentList.get(i).getName()));
+            planSchoolStudent.setScreeningCode(screeningCode);
             mockPlanStudentList.add(planSchoolStudent);
         }
         screeningPlanSchoolStudentService.batchUpdateOrSave(mockPlanStudentList);

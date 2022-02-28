@@ -707,7 +707,6 @@ public class PlanStudentExcelImportService {
         if (CollectionUtils.isEmpty(noDateBindPlanStudent)) {
             return;
         }
-        log.error("删除学生逻辑");
         screeningPlanSchoolStudentService.deleteByStudentIds(deletedStudent);
         studentService.removeByIds(deletedStudent);
         schoolStudentService.deleteByStudentIds(deletedStudent);
@@ -735,7 +734,6 @@ public class PlanStudentExcelImportService {
         if (CollectionUtils.isEmpty(haveDatePlanStudent)) {
             return;
         }
-        log.error("解除绑定学生逻辑");
         List<Student> studentList = new ArrayList<>();
         haveDatePlanStudent.forEach(s -> {
             Student student = getStudent(existManagementStudentIdCardMap, existManagementStudentPassportMap, s.getIdCard(), s.getPassport());
@@ -767,9 +765,5 @@ public class PlanStudentExcelImportService {
             }
             planStudent.checkStudentInfo();
         });
-    }
-
-    public void checkAbc() {
-
     }
 }

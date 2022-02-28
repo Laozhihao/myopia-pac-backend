@@ -1,23 +1,33 @@
 package com.wupol.myopia.business.aggregation.screening.handler;
 
+import com.google.common.collect.Lists;
+import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.CredentialType;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.CredentialTypeAndContent;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
 import com.wupol.myopia.business.aggregation.screening.service.CommonImportServiceCopy;
+import com.wupol.myopia.business.core.hospital.domain.model.HospitalStudent;
+import com.wupol.myopia.business.core.hospital.service.HospitalStudentService;
+import com.wupol.myopia.business.core.parent.domain.model.ParentStudent;
+import com.wupol.myopia.business.core.parent.service.ParentStudentService;
 import com.wupol.myopia.business.core.school.domain.model.Student;
+import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
+import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @Classname CredentialMotificationDTO
@@ -29,6 +39,7 @@ import java.util.List;
 @Getter
 @Setter
 @Service
+@Slf4j
 public class CredentialModificationHandler {
     @Resource
     private StudentService studentService;
@@ -36,6 +47,14 @@ public class CredentialModificationHandler {
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     @Resource
     private CommonImportServiceCopy commonImportServiceCopy;
+    @Resource
+    private VisionScreeningResultService visionScreeningResultService;
+    @Resource
+    private ParentStudentService parentStudentService;
+    @Resource
+    private HospitalStudentService hospitalStudentService;
+    @Resource
+    private SchoolStudentService schoolStudentService;
 
     /**
      * 获取处理结果
@@ -134,7 +153,12 @@ public class CredentialModificationHandler {
     private void discardStudent(CredentialTypeAndContent credentialTypeAndContent) {
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getByIdCardAndPassport(credentialTypeAndContent.getIdCard(), credentialTypeAndContent.getPassport(), null);
         if (CollectionUtils.isEmpty(screeningPlanSchoolStudents)) {
-            //todo 删除学生数据?????
+            if (Objects.nonNull(credentialTypeAndContent.getCredentialType())) {
+                Student student = studentService.getByIdCardAndPassport(credentialTypeAndContent.getIdCard(), credentialTypeAndContent.getPassport(), null);
+                if (Objects.nonNull(student)) {
+                    deletedStudent(student.getId());
+                }
+            }
         }
     }
 
@@ -224,15 +248,30 @@ public class CredentialModificationHandler {
         }
     }
 
-
-
-
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
     public static class ProcessResult {
         private CredentialTypeAndContent updateCredential;
         private CredentialTypeAndContent discardCredential;
+    }
+
+    /**
+     * 删除多端学生
+     *
+     * @param studentId 学生Id
+     */
+    private void deletedStudent(Integer studentId) {
+        List<Integer> studentIds = Lists.newArrayList(studentId);
+        Map<Integer, VisionScreeningResult> resultMap = visionScreeningResultService.getByStudentIds(studentIds).stream().collect(Collectors.toMap(VisionScreeningResult::getStudentId, Function.identity(), (s1, s2) -> s1));
+        Map<Integer, ParentStudent> parentStudentMap = parentStudentService.getByStudentIds(studentIds).stream().collect(Collectors.toMap(ParentStudent::getStudentId, Function.identity(), (s1, s2) -> s1));
+        Map<Integer, HospitalStudent> hospitalStudentMap = hospitalStudentService.getByStudentIds(studentIds).stream().collect(Collectors.toMap(HospitalStudent::getStudentId, Function.identity(), (s1, s2) -> s1));
+        if (ObjectsUtil.allNull(resultMap.get(studentId), parentStudentMap.get(studentId), hospitalStudentMap.get(studentId))) {
+            log.info("删除学生逻辑");
+            screeningPlanSchoolStudentService.deleteByStudentIds(studentIds);
+            studentService.removeByIds(studentIds);
+            schoolStudentService.deleteByStudentIds(studentIds);
+        }
     }
 
 }
