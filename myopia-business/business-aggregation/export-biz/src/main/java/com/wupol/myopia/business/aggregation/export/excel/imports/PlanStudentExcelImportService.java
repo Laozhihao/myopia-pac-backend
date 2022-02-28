@@ -352,7 +352,7 @@ public class PlanStudentExcelImportService {
         if (!CollectionUtils.isEmpty(haveCredentialStudent)) {
             studentService.saveOrUpdateBatch(haveCredentialStudent);
             // 插入学校端
-            commonImportService.insertSchoolStudent(haveCredentialStudent, SourceClientEnum.MANAGEMENT.type);
+            commonImportService.insertSchoolStudent(haveCredentialStudent, SourceClientEnum.SCREENING_PLAN.type);
         }
         if (!CollectionUtils.isEmpty(unbindList)) {
             unbindStudent(unbindList, screeningPlan, existManagementStudentIdCardMap, existManagementStudentPassportMap, userId, school);
@@ -365,7 +365,7 @@ public class PlanStudentExcelImportService {
     private void updateOrSaveNoCredentialStudent(List<Student> noCredentialStudents, List<ScreeningPlanSchoolStudent> noCredentialPlanStudents, ScreeningPlan screeningPlan) {
         studentService.saveOrUpdateBatch(noCredentialStudents);
         // 插入学校端
-        commonImportService.insertSchoolStudent(noCredentialStudents, SourceClientEnum.MANAGEMENT.type);
+        commonImportService.insertSchoolStudent(noCredentialStudents, SourceClientEnum.SCREENING_PLAN.type);
         TwoTuple<Map<String, Student>, Map<String, Student>> groupingStudentMap = groupingByIdCardAndPassport(noCredentialStudents);
         Map<String, Student> idCardMap = groupingStudentMap.getFirst();
         Map<String, Student> passportMap = groupingStudentMap.getSecond();
@@ -431,7 +431,7 @@ public class PlanStudentExcelImportService {
             list.add(planStudent);
         });
         // 插入学校端
-        commonImportService.insertSchoolStudent(managementStudentList, SourceClientEnum.MANAGEMENT.type);
+        commonImportService.insertSchoolStudent(managementStudentList, SourceClientEnum.SCREENING_PLAN.type);
         updatePlanStudentAndVisionResult(plan, list);
     }
 
@@ -726,6 +726,7 @@ public class PlanStudentExcelImportService {
             studentList.add(student);
         });
         studentService.saveOrUpdateBatch(studentList);
+        commonImportService.insertSchoolStudent(studentList, SourceClientEnum.SCREENING_PLAN.type);
         unbindStudentSaveOrUpdate(noDateBindPlanStudent, studentList);
         updatePlanStudentAndVisionResult(screeningPlan, noDateBindPlanStudent);
     }
@@ -749,6 +750,7 @@ public class PlanStudentExcelImportService {
             studentList.add(student);
         });
         studentService.saveOrUpdateBatch(studentList);
+        commonImportService.insertSchoolStudent(studentList, SourceClientEnum.SCREENING_PLAN.type);
         unbindStudentSaveOrUpdate(haveDatePlanStudent, studentList);
         updatePlanStudentAndVisionResult(screeningPlan, haveDatePlanStudent);
     }
