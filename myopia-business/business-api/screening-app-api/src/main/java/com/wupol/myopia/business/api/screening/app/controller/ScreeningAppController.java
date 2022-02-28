@@ -675,7 +675,7 @@ public class ScreeningAppController {
     @GetMapping("/export/QRCode")
     public List<Map<String, String>> exportQRCode(@Valid AppQueryQrCodeParams appQueryQrCodeParams) {
         try {
-            return screeningExportService.getQrCodeAndStudentInfo(appQueryQrCodeParams);
+            return screeningExportService.getQrCodeAndStudentInfo(appQueryQrCodeParams, CurrentUserUtil.getCurrentUser().getOrgId());
         } catch (Exception e) {
             log.error("获取二维码异常", e);
             throw new BusinessException("获取二维码异常");
