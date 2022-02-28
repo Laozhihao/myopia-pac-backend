@@ -169,12 +169,12 @@ public class HospitalAggService {
                 && Boolean.FALSE.equals(studentVo.getIsNewbornWithoutIdCard())
                 && Boolean.TRUE.equals(oldStudent.getIsNewbornWithoutIdCard()))) {
             if ((Objects.nonNull(oldStudent) && isCheckNameAndIDCard)) {
-                if (StringUtils.isNotBlank(oldStudent.getIdCard())
+                if (StringUtils.isNoneBlank(idCard, oldStudent.getIdCard())
                         && !(StringUtils.equals(idCard, oldStudent.getIdCard())
                         && StringUtils.equals(oldStudent.getName(), studentVo.getName()))) {
                     throw new BusinessException("学生的身份证与姓名不匹配");
                 }
-                if (StringUtils.isNotBlank(oldStudent.getPassport())
+                if (StringUtils.isNoneBlank(passport, oldStudent.getPassport())
                         && !(StringUtils.equals(passport, oldStudent.getPassport())
                         && StringUtils.equals(oldStudent.getName(), studentVo.getName()))) {
                     throw new BusinessException("学生的护照与姓名不匹配");
