@@ -47,7 +47,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -375,21 +374,13 @@ public class VisionScreeningController {
     }
 
     /**
-     * 学生详情
+     * 学生筛查数据
      *
-     * @param planId
-     * @param studentId
+     * @param resultId
      * @return
      */
-    @GetMapping("/getStudentEyeByStudentId")
-    public ApiResult getStudentEyeByStudentId(@RequestParam Integer planId, @RequestParam Integer studentId) {
-        List<Integer> studentIds = Collections.singletonList(studentId);
-        List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.getByStudentIds(planId, studentIds);
-        if (visionScreeningResults.isEmpty()) {
-            return ApiResult.success();
-        }
-        VisionScreeningResult visionScreeningResult = visionScreeningResults.get(0);
-
-        return ApiResult.success(visionScreeningResult);
+    @GetMapping("/studentData")
+    public VisionScreeningResult studentData(@RequestParam Integer resultId) {
+        return visionScreeningResultService.getById(resultId);
     }
 }
