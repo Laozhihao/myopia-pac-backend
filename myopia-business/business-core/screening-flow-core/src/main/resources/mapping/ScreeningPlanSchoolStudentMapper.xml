@@ -175,7 +175,7 @@
                     and (mspss.`id_card` like CONCAT('%', #{param.idCardOrPassportLike}, '%') or mspss.`passport` like CONCAT('%', #{param.idCardOrPassportLike}, '%'))
                 </if>
             </trim>
-                order by id desc
+                order by mspss.id desc
         </where>
     </select>
 

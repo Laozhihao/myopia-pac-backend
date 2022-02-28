@@ -452,7 +452,7 @@ public class ScreeningPlanStudentBizService {
         }
         //如果有筛查日期
         if (mockPlanStudentQueryDTO.getEndScreeningTime() != null && mockPlanStudentQueryDTO.getStartScreeningTime() != null) {
-            screeningPlanLambdaQueryWrapper.lt(ScreeningPlan::getStartTime, mockPlanStudentQueryDTO.getEndScreeningTime()).ge(ScreeningPlan::getEndTime, mockPlanStudentQueryDTO.getStartScreeningTime());
+            screeningPlanLambdaQueryWrapper.le(ScreeningPlan::getStartTime, mockPlanStudentQueryDTO.getStartScreeningTime()).ge(ScreeningPlan::getEndTime, mockPlanStudentQueryDTO.getEndScreeningTime());
         }
         Set<Integer> screeningPlanIds = null;
         //如果筛查时间以及筛查机构的查询条件存在的话,对screenPlan进行查询
@@ -483,15 +483,13 @@ public class ScreeningPlanStudentBizService {
         }
         //04.补充额外信息
         List<VisionScreeningResult> resultList = visionScreeningResultService.getByPlanStudentIds(screeningStudentDTOS.stream().map(ScreeningStudentDTO::getPlanStudentId).collect(Collectors.toList()));
-        Map<Integer, List<VisionScreeningResult>> visionScreeningResultsGroup = resultList.stream().collect(Collectors.groupingBy(VisionScreeningResult::getStudentId));
-
+        Map<Integer, VisionScreeningResult> visionScreeningResultsGroup = resultList.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
         List<ScreeningStudentDTO> records = screeningPlanIPage.getRecords();
         if (MapUtils.isEmpty(orgIdMap)) {
             Set<Integer> orgIdSet = records.stream().map(ScreeningStudentDTO::getScreeningOrgId).collect(Collectors.toSet());
             orgIdMap = screeningOrganizationService.getByIds(orgIdSet).stream().collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization::getName, (v1, v2) -> v2));
         }
 
-        //作者：钓猫的小鱼。  描述：给学生扩展类赋值
         for (ScreeningStudentDTO studentDTO : screeningPlanIPage.getRecords()) {
             studentDTO.setNationDesc(NationEnum.getName(studentDTO.getNation()))
                     .setAddress(districtService.getAddressDetails(studentDTO.getProvinceCode(), studentDTO.getCityCode(), studentDTO.getAreaCode(), studentDTO.getTownCode(), studentDTO.getAddress()));
@@ -509,8 +507,11 @@ public class ScreeningPlanStudentBizService {
      * @Author: 钓猫的小鱼
      * @Date: 2022/1/5
      */
-    public void setStudentEyeInfo(ScreeningStudentDTO studentEyeInfo, Map<Integer, List<VisionScreeningResult>> visionScreeningResultsGroup) {
-        VisionScreeningResult visionScreeningResult = EyeDataUtil.getVisionScreeningResult(studentEyeInfo, visionScreeningResultsGroup);
+    public void setStudentEyeInfo(ScreeningStudentDTO studentEyeInfo, Map<Integer, VisionScreeningResult> visionScreeningResultsMap) {
+        VisionScreeningResult visionScreeningResult = null;
+        if (!CollectionUtils.isEmpty(visionScreeningResultsMap)) {
+            visionScreeningResult = visionScreeningResultsMap.get(studentEyeInfo.getPlanStudentId());
+        }
         studentEyeInfo.setHasScreening(Objects.nonNull(visionScreeningResult));
         //是否戴镜情况
         studentEyeInfo.setGlassesTypeDes(EyeDataUtil.glassesType(visionScreeningResult));
