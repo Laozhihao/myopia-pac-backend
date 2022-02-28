@@ -160,7 +160,7 @@
                     and mspss.`passport` like CONCAT('%', #{param.passportLike}, '%')
                 </if>
                 <if test="param.schoolNameLike != null and param.schoolNameLike != ''">
-                    and mspss.`schoolName` like CONCAT('%', #{param.schoolNameLike}, '%')
+                    and ms.`name` like CONCAT('%', #{param.schoolNameLike}, '%')
                 </if>
                 <if test="param.mockStatus != null">
                     and mspss.mock_status = #{param.mockStatus}
