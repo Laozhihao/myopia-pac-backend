@@ -394,8 +394,11 @@
                mspss.class_id as classId
         from m_screening_plan_school_student mspss
             where 1 = 1
-        <if test="planId != null">
-            and mspss.screening_plan_id = #{planId}
+        <if test="planIds != null">
+            and mspss.screening_plan_id in
+            <foreach collection="planIds" open="(" close=")" separator="," item="item">
+                #{item}
+            </foreach>
         </if>
         <if test="schoolId != null">
             and mspss.school_id = #{schoolId}
