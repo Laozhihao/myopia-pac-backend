@@ -28,6 +28,10 @@ public class MockPlanStudentQueryDTO {
      * 学号
      */
     private String snoLike;
+    /**
+     * 姓名
+     */
+    private String nameLike;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @JsonFormat(pattern = "yyyy-MM-dd")
@@ -36,7 +40,6 @@ public class MockPlanStudentQueryDTO {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date endScreeningTime;
-
     /**
      * 手机号
      */
@@ -59,7 +62,6 @@ public class MockPlanStudentQueryDTO {
      */
     @Null
     private List<Integer> screeningOrgIds;
-
     /**
      * 身份证或者passport
      */
