@@ -208,9 +208,8 @@ public class ScreeningExportService {
         if (CollectionUtils.isEmpty(students)) {
             return null;
         }
-        ScreeningStudentDTO first = students.get(0);
-        String gradeName = Optional.ofNullable(schoolGradeService.getById(first.getGradeId())).orElse(new SchoolGrade()).getName();
-        String className = Optional.ofNullable(schoolClassService.getById(first.getClassId())).orElse(new SchoolClass()).getName();
+        String gradeName = Optional.ofNullable(schoolGradeService.getById(params.getGradeId())).orElse(new SchoolGrade()).getName();
+        String className = Optional.ofNullable(schoolClassService.getById(params.getClassId())).orElse(new SchoolClass()).getName();
         return students.stream().map(student -> {
             student.setGenderDesc(GenderEnum.getName(student.getGender()));
             int type = params.getType();
