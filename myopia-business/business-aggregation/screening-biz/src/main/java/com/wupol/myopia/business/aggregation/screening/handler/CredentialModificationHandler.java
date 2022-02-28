@@ -18,6 +18,7 @@ import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
@@ -56,6 +57,8 @@ public class CredentialModificationHandler {
     private HospitalStudentService hospitalStudentService;
     @Resource
     private SchoolStudentService schoolStudentService;
+    @Resource
+    private ScreeningPlanService screeningPlanService;
 
     /**
      * 获取处理结果
@@ -127,6 +130,8 @@ public class CredentialModificationHandler {
             screeningPlanSchoolStudent.setStudentId(updateStudent.getId());
         }
         screeningPlanSchoolStudentService.updateById(screeningPlanSchoolStudent);
+        // 更新筛查结果
+        visionScreeningResultService.updatePlanStudentAndVisionResult(screeningPlanService.getById(screeningPlanSchoolStudent.getScreeningPlanId()), Lists.newArrayList(screeningPlanSchoolStudent));
         discardStudent(processResult.getDiscardCredential());
     }
 

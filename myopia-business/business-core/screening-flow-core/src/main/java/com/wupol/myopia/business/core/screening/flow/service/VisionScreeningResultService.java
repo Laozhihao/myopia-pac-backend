@@ -6,12 +6,17 @@ import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.VisionScreeningResultMapper;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @Author HaoHao
@@ -19,6 +24,9 @@ import java.util.*;
  */
 @Service
 public class VisionScreeningResultService extends BaseService<VisionScreeningResultMapper, VisionScreeningResult> {
+
+    @Resource
+    private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
 
    /***
    * @Description: 学生ID集合
@@ -222,5 +230,36 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
             return new ArrayList<>();
         }
         return baseMapper.getByStudentIds(studentIds);
+    }
+
+    /**
+     * 更新学生计划结果
+     *
+     * @param plan         计划
+     * @param planStudents 筛查学生
+     */
+    public void updatePlanStudentAndVisionResult(ScreeningPlan plan, List<ScreeningPlanSchoolStudent> planStudents) {
+        if (CollectionUtils.isEmpty(planStudents)) {
+            return;
+        }
+        screeningPlanSchoolStudentService.saveOrUpdateBatch(planStudents);
+        // 获取所有结果
+        List<VisionScreeningResult> resultList = getByPlanId(plan.getId());
+        if (CollectionUtils.isEmpty(resultList)) {
+            return;
+        }
+
+        List<VisionScreeningResult> updateResultList = new ArrayList<>();
+
+        Map<Integer, VisionScreeningResult> visionMap = resultList.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
+        planStudents.forEach(planStudent -> {
+            VisionScreeningResult result = visionMap.get(planStudent.getId());
+            if (Objects.nonNull(result)) {
+                result.setStudentId(planStudent.getStudentId());
+                result.setSchoolId(planStudent.getSchoolId());
+                updateResultList.add(result);
+            }
+        });
+        updateBatchById(updateResultList);
     }
 }

@@ -341,13 +341,13 @@ public class PlanStudentExcelImportService {
             updateOrSaveNoCredentialStudent(noCredentialStudents, noCredentialPlanStudents, screeningPlan);
         }
         if (!CollectionUtils.isEmpty(noCredentialHaveStudentPlanStudents)) {
-            updatePlanStudentAndVisionResult(screeningPlan, noCredentialHaveStudentPlanStudents);
+            visionScreeningResultService.updatePlanStudentAndVisionResult(screeningPlan, noCredentialHaveStudentPlanStudents);
         }
         if (!CollectionUtils.isEmpty(virtualStudentList)) {
-            updatePlanStudentAndVisionResult(screeningPlan, virtualStudentList);
+            visionScreeningResultService.updatePlanStudentAndVisionResult(screeningPlan, virtualStudentList);
         }
         if (!CollectionUtils.isEmpty(haveCredentialPlanStudent)) {
-            updatePlanStudentAndVisionResult(screeningPlan, haveCredentialPlanStudent);
+            visionScreeningResultService.updatePlanStudentAndVisionResult(screeningPlan, haveCredentialPlanStudent);
         }
         if (!CollectionUtils.isEmpty(haveCredentialStudent)) {
             studentService.saveOrUpdateBatch(haveCredentialStudent);
@@ -376,7 +376,7 @@ public class PlanStudentExcelImportService {
             }
             planSchoolStudent.setStudentId(student.getId());
         }
-        updatePlanStudentAndVisionResult(screeningPlan, noCredentialPlanStudents);
+        visionScreeningResultService.updatePlanStudentAndVisionResult(screeningPlan, noCredentialPlanStudents);
     }
 
     /**
@@ -432,7 +432,7 @@ public class PlanStudentExcelImportService {
         });
         // 插入学校端
         commonImportService.insertSchoolStudent(managementStudentList, SourceClientEnum.SCREENING_PLAN.type);
-        updatePlanStudentAndVisionResult(plan, list);
+        visionScreeningResultService.updatePlanStudentAndVisionResult(plan, list);
     }
 
     /**
@@ -645,37 +645,6 @@ public class PlanStudentExcelImportService {
     }
 
     /**
-     * 更新学生计划结果
-     *
-     * @param plan         计划
-     * @param planStudents 筛查学生
-     */
-    private void updatePlanStudentAndVisionResult(ScreeningPlan plan, List<ScreeningPlanSchoolStudent> planStudents) {
-        if (CollectionUtils.isEmpty(planStudents)) {
-            return;
-        }
-        screeningPlanSchoolStudentService.saveOrUpdateBatch(planStudents);
-        // 获取所有结果
-        List<VisionScreeningResult> resultList = visionScreeningResultService.getByPlanId(plan.getId());
-        if (CollectionUtils.isEmpty(resultList)) {
-            return;
-        }
-
-        List<VisionScreeningResult> updateResultList = new ArrayList<>();
-
-        Map<Integer, VisionScreeningResult> visionMap = resultList.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
-        planStudents.forEach(planStudent -> {
-            VisionScreeningResult result = visionMap.get(planStudent.getId());
-            if (Objects.nonNull(result)) {
-                result.setStudentId(planStudent.getStudentId());
-                result.setSchoolId(planStudent.getSchoolId());
-                updateResultList.add(result);
-            }
-        });
-        visionScreeningResultService.updateBatchById(updateResultList);
-    }
-
-    /**
      * 解除绑定学生
      */
     private void unbindStudent(List<UnbindScreeningStudentDTO> unbindList, ScreeningPlan screeningPlan, Map<String, Student> existManagementStudentIdCardMap, Map<String, Student> existManagementStudentPassportMap, Integer userId, School school) {
@@ -728,7 +697,7 @@ public class PlanStudentExcelImportService {
         studentService.saveOrUpdateBatch(studentList);
         commonImportService.insertSchoolStudent(studentList, SourceClientEnum.SCREENING_PLAN.type);
         unbindStudentSaveOrUpdate(noDateBindPlanStudent, studentList);
-        updatePlanStudentAndVisionResult(screeningPlan, noDateBindPlanStudent);
+        visionScreeningResultService.updatePlanStudentAndVisionResult(screeningPlan, noDateBindPlanStudent);
     }
 
     /**
@@ -752,7 +721,7 @@ public class PlanStudentExcelImportService {
         studentService.saveOrUpdateBatch(studentList);
         commonImportService.insertSchoolStudent(studentList, SourceClientEnum.SCREENING_PLAN.type);
         unbindStudentSaveOrUpdate(haveDatePlanStudent, studentList);
-        updatePlanStudentAndVisionResult(screeningPlan, haveDatePlanStudent);
+        visionScreeningResultService.updatePlanStudentAndVisionResult(screeningPlan, haveDatePlanStudent);
     }
 
     /**
