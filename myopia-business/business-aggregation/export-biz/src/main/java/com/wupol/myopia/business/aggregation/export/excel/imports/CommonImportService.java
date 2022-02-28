@@ -97,19 +97,4 @@ public class CommonImportService {
         }
         schoolStudentService.saveBatch(addSchoolStudentList);
     }
-
-    /**
-     * 判断是否能删除学校端的学生
-     *
-     * @param schoolStudentMap 学校端学生集合
-     * @param studentId        学生Id
-     * @return true-能删除 fasle-不能删除
-     */
-    public boolean isCanDeletedSchoolStudent(Map<Integer, SchoolStudent> schoolStudentMap, Integer studentId) {
-        SchoolStudent schoolStudent = schoolStudentMap.get(studentId);
-        if (Objects.isNull(schoolStudent)) {
-            return true;
-        }
-        return SourceClientEnum.SCREENING_PLAN.type.equals(schoolStudent.getSourceClient());
-    }
 }

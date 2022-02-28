@@ -12,6 +12,7 @@ import com.wupol.myopia.business.core.hospital.service.HospitalStudentService;
 import com.wupol.myopia.business.core.parent.domain.model.ParentStudent;
 import com.wupol.myopia.business.core.parent.service.ParentStudentService;
 import com.wupol.myopia.business.core.school.domain.model.Student;
+import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
@@ -160,7 +161,7 @@ public class CredentialModificationHandler {
             if (Objects.nonNull(credentialTypeAndContent.getCredentialType())) {
                 Student student = studentService.getByIdCardAndPassport(credentialTypeAndContent.getIdCard(), credentialTypeAndContent.getPassport(), null);
                 if (Objects.nonNull(student)) {
-                    deletedStudent(student.getId());
+                    deletedStudent(student.getId(),student.getSchoolId());
                 }
             }
         }
@@ -265,17 +266,17 @@ public class CredentialModificationHandler {
      *
      * @param studentId 学生Id
      */
-    private void deletedStudent(Integer studentId) {
+    private void deletedStudent(Integer studentId, Integer schoolId) {
         List<Integer> studentIds = Lists.newArrayList(studentId);
+        Map<Integer, SchoolStudent> schoolStudentMap = schoolStudentService.getByStudentIdsAndSchoolId(studentIds, schoolId).stream().collect(Collectors.toMap(SchoolStudent::getStudentId, Function.identity(), (s1, s2) -> s1));
         Map<Integer, VisionScreeningResult> resultMap = visionScreeningResultService.getByStudentIds(studentIds).stream().collect(Collectors.toMap(VisionScreeningResult::getStudentId, Function.identity(), (s1, s2) -> s1));
         Map<Integer, ParentStudent> parentStudentMap = parentStudentService.getByStudentIds(studentIds).stream().collect(Collectors.toMap(ParentStudent::getStudentId, Function.identity(), (s1, s2) -> s1));
         Map<Integer, HospitalStudent> hospitalStudentMap = hospitalStudentService.getByStudentIds(studentIds).stream().collect(Collectors.toMap(HospitalStudent::getStudentId, Function.identity(), (s1, s2) -> s1));
-        if (ObjectsUtil.allNull(resultMap.get(studentId), parentStudentMap.get(studentId), hospitalStudentMap.get(studentId))) {
+        if (ObjectsUtil.allNull(resultMap.get(studentId), parentStudentMap.get(studentId), hospitalStudentMap.get(studentId))&& schoolStudentService.isCanDeletedSchoolStudent(schoolStudentMap, studentId)) {
             log.info("删除学生逻辑");
             screeningPlanSchoolStudentService.deleteByStudentIds(studentIds);
             studentService.removeByIds(studentIds);
             schoolStudentService.deleteByStudentIds(studentIds);
         }
     }
-
 }

@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.school.management.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.business.common.utils.constant.SourceClientEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentListResponseDTO;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentRequestDTO;
@@ -14,6 +15,8 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * 学校端-学生服务
@@ -226,6 +229,21 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
             return new ArrayList<>();
         }
         return baseMapper.getByStudentIdsAndSchoolId(studentIds, schoolId);
+    }
+
+    /**
+     * 判断是否能删除学校端的学生
+     *
+     * @param schoolStudentMap 学校端学生集合
+     * @param studentId        学生Id
+     * @return true-能删除 fasle-不能删除
+     */
+    public boolean isCanDeletedSchoolStudent(Map<Integer, SchoolStudent> schoolStudentMap, Integer studentId) {
+        SchoolStudent schoolStudent = schoolStudentMap.get(studentId);
+        if (Objects.isNull(schoolStudent)) {
+            return true;
+        }
+        return SourceClientEnum.SCREENING_PLAN.type.equals(schoolStudent.getSourceClient());
     }
 
 

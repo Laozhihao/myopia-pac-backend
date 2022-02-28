@@ -690,7 +690,7 @@ public class PlanStudentExcelImportService {
         List<ScreeningPlanSchoolStudent> haveDatePlanStudent = new ArrayList<>();
         unbindList.forEach(s -> {
             Integer studentId = s.getScreeningPlanSchoolStudent().getStudentId();
-            if (ObjectsUtil.allNull(resultMap.get(studentId), parentStudentMap.get(studentId), hospitalStudentMap.get(studentId)) && commonImportService.isCanDeletedSchoolStudent(schoolStudentMap, studentId)) {
+            if (ObjectsUtil.allNull(resultMap.get(studentId), parentStudentMap.get(studentId), hospitalStudentMap.get(studentId)) && schoolStudentService.isCanDeletedSchoolStudent(schoolStudentMap, studentId)) {
                 deletedStudent.add(studentId);
                 noDateBindPlanStudent.add(s.getScreeningPlanSchoolStudent());
             } else {
