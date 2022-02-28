@@ -27,6 +27,7 @@ import org.springframework.util.CollectionUtils;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @Classname VisionScreeningBizService2
@@ -170,6 +171,7 @@ public class VisionScreeningBizService {
 
     /**
      * 更新学生数据
+     *
      * @param visionScreeningResult
      * @param statConclusion
      */
@@ -178,7 +180,7 @@ public class VisionScreeningBizService {
         Integer studentId = visionScreeningResult.getStudentId();
         Student student = studentService.getById(studentId);
         if (student == null) {
-            throw new ManagementUncheckedException("无法通过id找到student，id = " + studentId);
+            return;
         }
         //填充数据
         student.setIsAstigmatism(statConclusion.getIsAstigmatism());
@@ -224,7 +226,7 @@ public class VisionScreeningBizService {
      */
     private void setIsBindMq(StatConclusion statConclusion) {
         Student student = studentService.getById(statConclusion.getStudentId());
-        statConclusion.setIsBindMp(StringUtils.isNotBlank(student.getMpParentPhone()));
+        statConclusion.setIsBindMp(Objects.isNull(student) ? Boolean.FALSE : StringUtils.isNotBlank(student.getMpParentPhone()));
     }
 
 }
