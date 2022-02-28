@@ -217,13 +217,7 @@ public class ScreeningExportService {
             result.put("gender", student.getGenderDesc());
             result.put("gradeName", gradeName);
             result.put("className", className);
-            if (CommonConst.EXPORT_SCREENING_QRCODE.equals(type)) {
-                result.put("qrCodeContent", String.format(QrCodeConstant.SCREENING_CODE_QR_CONTENT_FORMAT_RULE, student.getPlanStudentId()));
-            } else if (CommonConst.EXPORT_VS666.equals(type)) {
-                result.put("qrCodeContent", setVs666QrCodeRule(student));
-            } else {
-                result.put("qrCodeContent", String.format(QrCodeConstant.QR_CODE_CONTENT_FORMAT_RULE, student.getPlanStudentId()));
-            }
+            result.put("qrCodeContent", getQrCodeContent(student, type));
             return result;
         }).collect(Collectors.toList());
     }
@@ -300,5 +294,21 @@ public class ScreeningExportService {
                 StringUtils.getDefaultIfBlank(student.getSchoolName(), "null"),
                 StringUtils.isEmpty(student.getGradeName()) ? "null" : student.getGradeName() + student.getClassName(),
                 StringUtils.getDefaultIfBlank(student.getIdCard(), "null"));
+    }
+
+    /**
+     * 获取二维码内容
+     *
+     * @param type
+     * @return
+     */
+    private String getQrCodeContent(ScreeningStudentDTO student, Integer type) {
+        if (CommonConst.EXPORT_SCREENING_QRCODE.equals(type)) {
+            return String.format(QrCodeConstant.SCREENING_CODE_QR_CONTENT_FORMAT_RULE, student.getPlanStudentId());
+        } else if (CommonConst.EXPORT_VS666.equals(type)) {
+            return setVs666QrCodeRule(student);
+        }
+
+        return String.format(QrCodeConstant.QR_CODE_CONTENT_FORMAT_RULE, student.getPlanStudentId());
     }
 }
