@@ -205,7 +205,7 @@ public class ScreeningExportService {
         }
         List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.getScreeningNoticeResultStudent(new ArrayList<>(currentPlanIds), params.getSchoolId(), params.getGradeId(), params.getClassId(), null, params.getStudentName());
         if (CollectionUtils.isEmpty(students)) {
-            return null;
+            return Collections.emptyList();
         }
         String gradeName = Optional.ofNullable(schoolGradeService.getById(params.getGradeId())).orElse(new SchoolGrade()).getName();
         String className = Optional.ofNullable(schoolClassService.getById(params.getClassId())).orElse(new SchoolClass()).getName();
