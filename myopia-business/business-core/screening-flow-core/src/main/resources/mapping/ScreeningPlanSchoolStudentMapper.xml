@@ -98,6 +98,7 @@
         SELECT mspss.student_id     as id,
                mspss.student_no     as sno,
                mspss.student_name   as name,
+               vsc.update_time as screeningTime,
                mspss.gender,
                mspss.school_id,
                mspss.birthday,
@@ -124,6 +125,7 @@
         left join m_school ms on ms.id = mspss.school_id
         left join m_school_grade sg on sg.id = mspss.grade_id
         left join m_school_class sc on sc.id = mspss.class_id
+        left join m_vision_screening_result vsc on vsc.screening_plan_school_student_id = mspss.id
         <where>
             <trim prefixOverrides="and">
                 <if test="param.screeningPlanId != null">
@@ -170,6 +172,9 @@
                     <foreach collection="param.planIds" open="(" close=")" separator="," item="item">
                         #{item}
                     </foreach>
+                </if>
+                <if test="param.endScreeningTime != null and param.startScreeningTime != null">
+                  and   vsc.update_time between  #{param.startScreeningTime} and #{param.endScreeningTime}
                 </if>
                 <if test="param.idCardOrPassportLike != null and param.idCardOrPassportLike != ''">
                     and (mspss.`id_card` like CONCAT('%', #{param.idCardOrPassportLike}, '%') or mspss.`passport` like CONCAT('%', #{param.idCardOrPassportLike}, '%'))

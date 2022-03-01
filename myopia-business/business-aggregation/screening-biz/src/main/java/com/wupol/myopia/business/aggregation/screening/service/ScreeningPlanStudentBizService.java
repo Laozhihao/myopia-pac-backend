@@ -456,6 +456,8 @@ public class ScreeningPlanStudentBizService {
         Page<ScreeningStudentDTO> page = (Page<ScreeningStudentDTO>) pageRequest.toPage();
         ScreeningStudentQueryDTO screeningStudentQueryDTO = new ScreeningStudentQueryDTO();
         screeningStudentQueryDTO.setPlanIds(screeningPlanIds)
+                .setStartScreeningTime(mockPlanStudentQueryDTO.getStartScreeningTime())
+                .setEndScreeningTime(mockPlanStudentQueryDTO.getEndScreeningTime())
                 .setMockStatus(MockStudentStatusConstant.MOCK)
                 .setSnoLike(mockPlanStudentQueryDTO.getSnoLike())
                 .setNameLike(mockPlanStudentQueryDTO.getNameLike())
@@ -520,10 +522,6 @@ public class ScreeningPlanStudentBizService {
         String axial = EyeDataUtil.computerRightAxial(visionScreeningResult) + "/" + EyeDataUtil.computerLeftAxial(visionScreeningResult);
         studentEyeInfo.setAxial(axial);
 
-        //设置筛查时间
-        if (visionScreeningResult != null) {
-            studentEyeInfo.setScreeningTime(visionScreeningResult.getCreateTime());
-        }
     }
 
     /**
