@@ -162,10 +162,13 @@ public class CredentialModificationHandler {
             return;
         }
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getByIdCardAndPassport(credentialTypeAndContent.getIdCard(), credentialTypeAndContent.getPassport(), null);
-        if (CollectionUtils.isEmpty(screeningPlanSchoolStudents) && Objects.nonNull(credentialTypeAndContent.getCredentialType())) {
-            Student student = studentService.getByIdCardAndPassport(credentialTypeAndContent.getIdCard(), credentialTypeAndContent.getPassport(), null);
-            if (Objects.nonNull(student)) {
-                deletedStudent(student.getId(), student.getSchoolId());
+        if (CollectionUtils.isEmpty(screeningPlanSchoolStudents)) {
+            Integer screeningPlanId = screeningPlanSchoolStudents.get(0).getScreeningPlanId();
+            if (Objects.nonNull(credentialTypeAndContent.getCredentialType())) {
+                Student student = studentService.getByIdCardAndPassport(credentialTypeAndContent.getIdCard(), credentialTypeAndContent.getPassport(), null);
+                if (Objects.nonNull(student)) {
+                    deletedStudent(student.getId(), student.getSchoolId(), screeningPlanId);
+                }
             }
         }
     }
@@ -268,15 +271,18 @@ public class CredentialModificationHandler {
      * 删除多端学生
      *
      * @param studentId 学生Id
+     * @param planId    计划Id
      */
-    public void deletedStudent(Integer studentId, Integer schoolId) {
+    public void deletedStudent(Integer studentId, Integer schoolId, Integer planId) {
         List<Integer> studentIds = Lists.newArrayList(studentId);
+        Map<Integer, ScreeningPlanSchoolStudent> planStudentMap = screeningPlanSchoolStudentService.getByNePlanId(planId).stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getStudentId, Function.identity(), (s1, s2) -> s1));
         Map<Integer, SchoolStudent> schoolStudentMap = schoolStudentService.getByStudentIdsAndSchoolId(studentIds, schoolId).stream().collect(Collectors.toMap(SchoolStudent::getStudentId, Function.identity(), (s1, s2) -> s1));
         Map<Integer, VisionScreeningResult> resultMap = visionScreeningResultService.getByStudentIds(studentIds).stream().collect(Collectors.toMap(VisionScreeningResult::getStudentId, Function.identity(), (s1, s2) -> s1));
         Map<Integer, ParentStudent> parentStudentMap = parentStudentService.getByStudentIds(studentIds).stream().collect(Collectors.toMap(ParentStudent::getStudentId, Function.identity(), (s1, s2) -> s1));
         Map<Integer, HospitalStudent> hospitalStudentMap = hospitalStudentService.getByStudentIds(studentIds).stream().collect(Collectors.toMap(HospitalStudent::getStudentId, Function.identity(), (s1, s2) -> s1));
-        if (ObjectsUtil.allNull(resultMap.get(studentId), parentStudentMap.get(studentId), hospitalStudentMap.get(studentId))&& schoolStudentService.isCanDeletedSchoolStudent(schoolStudentMap, studentId)) {
-            log.info("删除学生逻辑");
+        if (ObjectsUtil.allNull(resultMap.get(studentId), parentStudentMap.get(studentId), hospitalStudentMap.get(studentId), planStudentMap.get(studentId))
+                && schoolStudentService.isCanDeletedSchoolStudent(schoolStudentMap, studentId)
+                && studentService.isCanDeletedStudent(studentId)) {
             screeningPlanSchoolStudentService.deleteByStudentIds(studentIds);
             studentService.removeByIds(studentIds);
             schoolStudentService.deleteByStudentIds(studentIds);

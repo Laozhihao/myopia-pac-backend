@@ -64,4 +64,6 @@ public interface ScreeningPlanSchoolStudentMapper extends BaseMapper<ScreeningPl
     void deleteByStudentIds(@Param("studentIds") List<Integer> studentIds);
 
     List<ScreeningPlanSchoolStudent> getByIds(@Param("ids") List<Integer> ids);
+
+    List<ScreeningPlanSchoolStudent> getByNePlanId(@Param("planId") Integer planId);
 }

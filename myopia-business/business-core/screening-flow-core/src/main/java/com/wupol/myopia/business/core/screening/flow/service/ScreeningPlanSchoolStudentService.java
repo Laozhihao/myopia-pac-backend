@@ -503,4 +503,14 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     public List<ScreeningPlanSchoolStudent> getByIds(List<Integer> ids) {
         return baseMapper.getByIds(ids);
     }
+
+    /**
+     * 获取筛查学生列表
+     *
+     * @param planId 计划Id
+     * @return List<ScreeningPlanSchoolStudent>
+     */
+    public List<ScreeningPlanSchoolStudent> getByNePlanId(Integer planId) {
+        return baseMapper.getByNePlanId(planId);
+    }
 }

@@ -406,7 +406,7 @@ public class ScreeningPlanStudentBizService {
         }
         Student student = studentService.getByIdCardAndPassport(planStudent.getIdCard(), planStudent.getPassport(), null);
         if (Objects.nonNull(student)) {
-            credentialModificationHandler.deletedStudent(student.getId(), student.getSchoolId());
+            credentialModificationHandler.deletedStudent(student.getId(), student.getSchoolId(), planStudent.getScreeningPlanId());
         }
         screeningPlanSchoolStudentService.removeById(planStudentId);
     }

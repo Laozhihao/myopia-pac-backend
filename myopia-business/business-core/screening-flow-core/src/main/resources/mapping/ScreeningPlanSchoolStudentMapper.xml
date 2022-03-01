@@ -499,4 +499,10 @@
             #{id}
         </foreach>
     </select>
+
+    <select id="getByNePlanId" resultMap="BaseResultMap">
+        select *
+        from m_screening_plan_school_student
+        where screening_plan_id != #{planId}
+    </select>
 </mapper>

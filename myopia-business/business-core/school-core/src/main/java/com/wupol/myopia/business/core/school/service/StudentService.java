@@ -9,6 +9,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.QrCodeCacheKey;
+import com.wupol.myopia.business.common.utils.constant.SourceClientEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
@@ -645,6 +646,20 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      */
     public Student findByIdCardAndPassport(String info) {
         return baseMapper.findByIdCardAndPassport(info);
+    }
+
+    /**
+     * 判断是否能删除多端的学生
+     *
+     * @param studentId 学生Id
+     * @return true-能删除 false-不能删除
+     */
+    public boolean isCanDeletedStudent(Integer studentId) {
+        Student student = getById(studentId);
+        if (Objects.isNull(student)) {
+            return true;
+        }
+        return SourceClientEnum.SCREENING_PLAN.type.equals(student.getSourceClient());
     }
 
 }
