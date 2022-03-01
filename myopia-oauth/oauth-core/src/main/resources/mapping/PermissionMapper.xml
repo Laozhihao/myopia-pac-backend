@@ -127,7 +127,5 @@
         from o_district_permission odp
                      left join o_permission op on op.id = odp.permission_id
         where odp.district_level = #{districtLevel}
-          and (op.menu_btn_name = 'virtualScreeningQrcode' or op.menu_btn_name = 'vsScreeningQrcode' or
-               op.menu_btn_name = 'screeningQrcode')
     </select>
 </mapper>
