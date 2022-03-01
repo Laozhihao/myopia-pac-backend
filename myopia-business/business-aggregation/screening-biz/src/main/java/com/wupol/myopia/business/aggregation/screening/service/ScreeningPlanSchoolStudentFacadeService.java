@@ -108,7 +108,7 @@ public class ScreeningPlanSchoolStudentFacadeService {
     public void setStudentEyeInfo(ScreeningStudentDTO studentEyeInfo, Map<Integer, VisionScreeningResult> visionScreeningResultsGroup) {
         VisionScreeningResult visionScreeningResult = null;
         if (!CollectionUtils.isEmpty(visionScreeningResultsGroup)) {
-            visionScreeningResult = visionScreeningResultsGroup.get(studentEyeInfo.getScreeningOrgId());
+            visionScreeningResult = visionScreeningResultsGroup.get(studentEyeInfo.getPlanStudentId());
         }
         studentEyeInfo.setHasScreening(Objects.nonNull(visionScreeningResult));
         //是否戴镜情况
