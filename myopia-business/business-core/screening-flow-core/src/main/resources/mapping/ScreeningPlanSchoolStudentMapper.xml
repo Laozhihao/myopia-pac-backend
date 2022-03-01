@@ -393,7 +393,13 @@
                mspss.grade_id as gradeId,
                mspss.class_id as classId
         from m_screening_plan_school_student mspss
-                where mspss.screening_plan_id = #{planId}
+            where 1 = 1
+        <if test="planIds != null">
+            and mspss.screening_plan_id in
+            <foreach collection="planIds" open="(" close=")" separator="," item="item">
+                #{item}
+            </foreach>
+        </if>
         <if test="schoolId != null">
             and mspss.school_id = #{schoolId}
         </if>

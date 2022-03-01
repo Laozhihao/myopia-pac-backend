@@ -44,11 +44,6 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -398,7 +393,7 @@ public class ScreeningPlanStudentBizService {
      */
     public List<ScreeningStudentDTO> getScreeningStudentDTOS(Integer planId, Integer schoolId, Integer gradeId, Integer classId, String planStudentIdStr, String planStudentName) {
         List<Integer> planStudentId = ListUtil.str2List(planStudentIdStr);
-        return screeningPlanSchoolStudentService.getScreeningNoticeResultStudent(planId, schoolId, gradeId, classId, CollectionUtils.isEmpty(planStudentId) ? null : planStudentId, planStudentName);
+        return screeningPlanSchoolStudentService.getScreeningNoticeResultStudent(Collections.singletonList(planId), schoolId, gradeId, classId, CollectionUtils.isEmpty(planStudentId) ? null : planStudentId, planStudentName);
     }
 
     /**

@@ -74,4 +74,14 @@ public class StudentScreeningResultItemsDTO {
      * 散光等级
      */
     private Integer astigmatismLevel;
+
+    /**
+     * 筛查计划id
+     */
+    private Integer planId;
+
+    /**
+     * 是否已经筛查过
+     **/
+    private Boolean hasScreening;
 }
