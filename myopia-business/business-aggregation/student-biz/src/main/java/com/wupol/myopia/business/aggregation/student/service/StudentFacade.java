@@ -161,7 +161,7 @@ public class StudentFacade {
             item.setAstigmatismLevel(statMap.get(result.getId()).getAstigmatismLevel());
             item.setPlanId(result.getPlanId());
             item.setHasScreening(ObjectUtils.anyNotNull(result.getVisionData(), result.getComputerOptometry(), result.getBiometricData(), result.getOtherEyeDiseases()));
-            item.setScreeningCode(screeningCodeMap.get(result.getId()));
+            item.setScreeningCode(screeningCodeMap.get(result.getScreeningPlanSchoolStudentId()));
             items.add(item);
         }
         responseDTO.setTotal(resultList.size());
