@@ -400,8 +400,14 @@ public class ScreeningPlanStudentBizService {
         if (Objects.isNull(planStudent)) {
             throw new BusinessException("数据异常");
         }
+        VisionScreeningResult result = visionScreeningResultService.getByPlanStudentId(planStudent.getId());
+        if (Objects.nonNull(result)) {
+            throw new BusinessException("存在筛查记录，不能删除");
+        }
         Student student = studentService.getByIdCardAndPassport(planStudent.getIdCard(), planStudent.getPassport(), null);
-        credentialModificationHandler.deletedStudent(student.getId(), student.getSchoolId());
+        if (Objects.nonNull(student)) {
+            credentialModificationHandler.deletedStudent(student.getId(), student.getSchoolId());
+        }
         screeningPlanSchoolStudentService.removeById(planStudentId);
     }
 
