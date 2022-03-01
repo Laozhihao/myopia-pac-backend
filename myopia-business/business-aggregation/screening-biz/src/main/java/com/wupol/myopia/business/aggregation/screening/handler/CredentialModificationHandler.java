@@ -162,12 +162,10 @@ public class CredentialModificationHandler {
             return;
         }
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getByIdCardAndPassport(credentialTypeAndContent.getIdCard(), credentialTypeAndContent.getPassport(), null);
-        if (CollectionUtils.isEmpty(screeningPlanSchoolStudents)) {
-            if (Objects.nonNull(credentialTypeAndContent.getCredentialType())) {
-                Student student = studentService.getByIdCardAndPassport(credentialTypeAndContent.getIdCard(), credentialTypeAndContent.getPassport(), null);
-                if (Objects.nonNull(student)) {
-                    deletedStudent(student.getId(),student.getSchoolId());
-                }
+        if (CollectionUtils.isEmpty(screeningPlanSchoolStudents) && Objects.nonNull(credentialTypeAndContent.getCredentialType())) {
+            Student student = studentService.getByIdCardAndPassport(credentialTypeAndContent.getIdCard(), credentialTypeAndContent.getPassport(), null);
+            if (Objects.nonNull(student)) {
+                deletedStudent(student.getId(), student.getSchoolId());
             }
         }
     }

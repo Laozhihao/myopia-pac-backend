@@ -180,7 +180,7 @@ public class VisionScreeningBizService {
         Integer studentId = visionScreeningResult.getStudentId();
         Student student = studentService.getById(studentId);
         if (student == null) {
-            return;
+            throw new ManagementUncheckedException("无法通过id找到student，id = " + studentId);
         }
         //填充数据
         student.setIsAstigmatism(statConclusion.getIsAstigmatism());
