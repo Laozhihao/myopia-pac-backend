@@ -1044,6 +1044,7 @@ public class StudentFacade {
      * @param student 学生信息
      * @return 学生Id
      */
+    @Transactional(rollbackFor = Exception.class)
     public Integer saveStudentAndSchoolStudent(Student student) {
         Integer studentId = saveStudent(student);
         if (Objects.isNull(student.getSchoolId()) || StringUtils.isBlank(student.getSno())) {

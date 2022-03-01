@@ -70,7 +70,6 @@ public class StudentController {
      * @return 新增数量
      */
     @PostMapping()
-    @Transactional(rollbackFor = Exception.class)
     public Integer saveStudent(@RequestBody @Valid Student student) {
         student.checkStudentInfo();
         CurrentUser user = CurrentUserUtil.getCurrentUser();
