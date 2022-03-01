@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.aggregation.screening.service;
 
 import com.wupol.myopia.base.util.ListUtil;
+import com.wupol.myopia.business.common.utils.constant.SourceClientEnum;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.domain.model.Student;
@@ -89,6 +90,7 @@ public class CommonImportServiceCopy {
                 schoolStudent.setStudentId(s.getId());
                 schoolStudent.setGradeName(gradeMap.get(s.getGradeId()).getName());
                 schoolStudent.setClassName(classMap.get(s.getClassId()).getName());
+                schoolStudent.setSourceClient(SourceClientEnum.SCREENING_PLAN.type);
                 addSchoolStudentList.add(schoolStudent);
             });
         }
