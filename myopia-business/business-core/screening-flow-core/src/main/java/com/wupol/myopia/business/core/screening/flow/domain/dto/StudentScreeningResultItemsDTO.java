@@ -74,4 +74,9 @@ public class StudentScreeningResultItemsDTO {
      * 散光等级
      */
     private Integer astigmatismLevel;
+
+    /**
+     * 筛查编码
+     */
+    private Long screeningCode;
 }

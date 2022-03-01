@@ -54,10 +54,7 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -138,6 +135,10 @@ public class StudentFacade {
         List<StatConclusion> statConclusionList = statConclusionService.getByResultIds(resultIds);
         Map<Integer, StatConclusion> statMap = statConclusionList.stream().collect(Collectors.toMap(StatConclusion::getResultId, Function.identity()));
 
+        // 获取筛查学生
+        Set<Integer> planStudentIds = resultList.stream().map(VisionScreeningResult::getScreeningPlanSchoolStudentId).collect(Collectors.toSet());
+        Map<Integer, Long> screeningCodeMap = screeningPlanSchoolStudentService.getByIds(planStudentIds).stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getId, ScreeningPlanSchoolStudent::getScreeningCode));
+
         for (VisionScreeningResult result : resultList) {
             StudentScreeningResultItemsDTO item = new StudentScreeningResultItemsDTO();
             List<StudentResultDetailsDTO> resultDetail = packageDTO(result);
@@ -156,6 +157,7 @@ public class StudentFacade {
             item.setMyopiaLevel(statMap.get(result.getId()).getMyopiaLevel());
             item.setHyperopiaLevel(statMap.get(result.getId()).getHyperopiaLevel());
             item.setAstigmatismLevel(statMap.get(result.getId()).getAstigmatismLevel());
+            item.setScreeningCode(screeningCodeMap.get(result.getId()));
             items.add(item);
         }
         responseDTO.setTotal(resultList.size());
