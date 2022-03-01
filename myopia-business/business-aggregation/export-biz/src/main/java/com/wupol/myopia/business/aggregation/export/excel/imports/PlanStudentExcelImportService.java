@@ -586,6 +586,7 @@ public class PlanStudentExcelImportService {
         }
         if (Objects.isNull(student)) {
             student = new Student();
+            student.setSourceClient(SourceClientEnum.SCREENING_PLAN.type);
         }
         return student;
     }
@@ -675,6 +676,7 @@ public class PlanStudentExcelImportService {
             student.setCreateUserId(userId);
             BeanUtils.copyProperties(s, student);
             student.setId(studentId);
+            student.setSourceClient(SourceClientEnum.SCREENING_PLAN.type);
             studentList.add(student);
         });
         studentService.saveOrUpdateBatch(studentList);
@@ -699,6 +701,7 @@ public class PlanStudentExcelImportService {
             student.setName(s.getStudentName());
             student.setSno(s.getStudentNo());
             student.setCreateUserId(userId);
+            student.setSourceClient(SourceClientEnum.SCREENING_PLAN.type);
             studentList.add(student);
         });
         studentService.saveOrUpdateBatch(studentList);
