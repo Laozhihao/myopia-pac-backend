@@ -45,7 +45,8 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
         if (!CollectionUtils.isEmpty(schoolClasses)) {
             throw new BusinessException("班级名称重复");
         }
-        return baseMapper.insert(schoolClass);
+        baseMapper.insert(schoolClass);
+        return schoolClass.getId();
     }
 
     /**
