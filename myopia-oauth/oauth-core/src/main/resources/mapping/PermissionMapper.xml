@@ -122,4 +122,10 @@
         <foreach collection="roleIds" open="(" close=")" separator="," item="item">#{item}</foreach>
     </select>
 
+    <select id="getPermissionByDistrictLevel" resultType="java.lang.String">
+        select op.menu_btn_name
+        from o_district_permission odp
+                     left join o_permission op on op.id = odp.permission_id
+        where odp.district_level = #{districtLevel}
+    </select>
 </mapper>

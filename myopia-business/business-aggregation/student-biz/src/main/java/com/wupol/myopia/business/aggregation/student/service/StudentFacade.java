@@ -43,6 +43,7 @@ import com.wupol.myopia.business.core.screening.organization.service.ScreeningOr
 import com.wupol.myopia.business.core.system.constants.TemplateConstants;
 import com.wupol.myopia.business.core.system.service.TemplateDistrictService;
 import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -142,6 +143,7 @@ public class StudentFacade {
         for (VisionScreeningResult result : resultList) {
             StudentScreeningResultItemsDTO item = new StudentScreeningResultItemsDTO();
             List<StudentResultDetailsDTO> resultDetail = packageDTO(result);
+            resultDetail.forEach(r -> r.setHeightAndWeightData(result.getHeightAndWeightData()));
             item.setDetails(resultDetail);
             item.setScreeningTitle(planMap.get(result.getPlanId()));
             item.setScreeningDate(result.getUpdateTime());
@@ -157,6 +159,8 @@ public class StudentFacade {
             item.setMyopiaLevel(statMap.get(result.getId()).getMyopiaLevel());
             item.setHyperopiaLevel(statMap.get(result.getId()).getHyperopiaLevel());
             item.setAstigmatismLevel(statMap.get(result.getId()).getAstigmatismLevel());
+            item.setPlanId(result.getPlanId());
+            item.setHasScreening(ObjectUtils.anyNotNull(result.getVisionData(), result.getComputerOptometry(), result.getBiometricData(), result.getOtherEyeDiseases()));
             item.setScreeningCode(screeningCodeMap.get(result.getId()));
             items.add(item);
         }

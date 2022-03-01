@@ -377,7 +377,7 @@ public class ScreeningPlanStudentBizService {
      */
     public List<ScreeningStudentDTO> getScreeningStudentDTOS(Integer planId, Integer schoolId, Integer gradeId, Integer classId, String planStudentIdStr, String planStudentName) {
         List<Integer> planStudentId = ListUtil.str2List(planStudentIdStr);
-        return screeningPlanSchoolStudentService.getScreeningNoticeResultStudent(planId, schoolId, gradeId, classId, CollectionUtils.isEmpty(planStudentId) ? null : planStudentId, planStudentName);
+        return screeningPlanSchoolStudentService.getScreeningNoticeResultStudent(Collections.singletonList(planId), schoolId, gradeId, classId, CollectionUtils.isEmpty(planStudentId) ? null : planStudentId, planStudentName);
     }
 
     /**

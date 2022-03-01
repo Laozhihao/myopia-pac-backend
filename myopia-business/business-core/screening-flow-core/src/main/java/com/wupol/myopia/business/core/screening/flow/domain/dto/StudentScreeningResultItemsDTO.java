@@ -76,6 +76,16 @@ public class StudentScreeningResultItemsDTO {
     private Integer astigmatismLevel;
 
     /**
+     * 筛查计划id
+     */
+    private Integer planId;
+
+    /**
+     * 是否已经筛查过
+     **/
+    private Boolean hasScreening;
+
+    /**
      * 筛查编码
      */
     private Long screeningCode;

@@ -21,4 +21,6 @@ public class ScreeningPlanPageDTO extends ScreeningPlan {
     private String govDeptName;
     /** 筛查机构名称 */
     private String screeningOrgName;
+    /** 筛查机构二维码配置 */
+    private String qrCodeConfig;
 }
