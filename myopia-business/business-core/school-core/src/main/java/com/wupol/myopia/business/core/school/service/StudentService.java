@@ -590,6 +590,9 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @return Student
      */
     public Student getByIdCardAndPassport(String idCard, String passport, Integer id) {
+        if (StringUtils.isAllBlank(idCard, passport)) {
+            return null;
+        }
         List<Student> students = baseMapper.checkByIdCardAndPassport(idCard, passport, id);
         final int size = org.apache.commons.collections4.CollectionUtils.size(students);
         if (size == 0) {
