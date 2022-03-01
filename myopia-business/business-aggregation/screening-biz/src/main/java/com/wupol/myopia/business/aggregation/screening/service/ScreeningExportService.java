@@ -166,15 +166,7 @@ public class ScreeningExportService {
             QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white).setMargin(1);
             students.forEach(student -> {
                 student.setGenderDesc(GenderEnum.getName(student.getGender()));
-                String content;
-                if (CommonConst.EXPORT_SCREENING_QRCODE.equals(type)) {
-                    content = String.format(QrCodeConstant.SCREENING_CODE_QR_CONTENT_FORMAT_RULE, student.getPlanStudentId());
-                } else if (CommonConst.EXPORT_VS666.equals(type)) {
-                    content = setVs666QrCodeRule(student);
-                } else {
-                    content = String.format(QrCodeConstant.QR_CODE_CONTENT_FORMAT_RULE, student.getPlanStudentId());
-                }
-                student.setQrCodeUrl(QrCodeUtil.generateAsBase64(content, config, "jpg"));
+                student.setQrCodeUrl(QrCodeUtil.generateAsBase64(getQrCodeContent(student, type), config, "jpg"));
             });
             // 3. 处理pdf报告参数
             Map<String, Object> models = new HashMap<>(16);
