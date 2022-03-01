@@ -108,10 +108,11 @@ public class CredentialModificationHandler {
 
     /**
      * 因为证件号的关系更新student
+     *
      * @param updatePlanStudentRequestDTO
      * @param screeningPlanSchoolStudent
      */
-    public void updateStudentByCredentialNO(UpdatePlanStudentRequestDTO updatePlanStudentRequestDTO, ScreeningPlanSchoolStudent screeningPlanSchoolStudent){
+    public void updateStudentByCredentialNO(UpdatePlanStudentRequestDTO updatePlanStudentRequestDTO, ScreeningPlanSchoolStudent screeningPlanSchoolStudent) {
         if (screeningPlanSchoolStudent == null) {
             throw new BusinessException("业务异常,screeningPlanSchoolStudent 不能为空");
         }
@@ -119,7 +120,7 @@ public class CredentialModificationHandler {
         if (StringUtils.isNotBlank(screeningPlanSchoolStudent.getIdCard()) && StringUtils.isNotBlank(screeningPlanSchoolStudent.getPassport())) {
             throw new BusinessException("业务异常: id 和 passport同时存在, screeningPlanSchoolStudentId = " + screeningPlanSchoolStudent.getId());
         }
-        CredentialModificationHandler.ProcessResult processResult =  getResult(screeningPlanSchoolStudent.getIdCard(), screeningPlanSchoolStudent.getPassport(), updatePlanStudentRequestDTO.getIdCard(), updatePlanStudentRequestDTO.getPassport());
+        CredentialModificationHandler.ProcessResult processResult = getResult(screeningPlanSchoolStudent.getIdCard(), screeningPlanSchoolStudent.getPassport(), updatePlanStudentRequestDTO.getIdCard(), updatePlanStudentRequestDTO.getPassport());
         //从多端学生中查找数据
         Student existStudentByCredentialNO = getExistStudentByCredentialNO(processResult.getUpdateCredential());
         //更新或者插入多端学生
@@ -132,7 +133,7 @@ public class CredentialModificationHandler {
         screeningPlanSchoolStudentService.updateById(screeningPlanSchoolStudent);
         // 更新筛查结果
         visionScreeningResultService.updatePlanStudentAndVisionResult(screeningPlanService.getById(screeningPlanSchoolStudent.getScreeningPlanId()), Lists.newArrayList(screeningPlanSchoolStudent));
-        discardStudent(processResult.getDiscardCredential());
+        discardStudent(processResult.getDiscardCredential(), screeningPlanSchoolStudent.getScreeningPlanId());
     }
 
 
@@ -156,19 +157,16 @@ public class CredentialModificationHandler {
      *
      * @param credentialTypeAndContent
      */
-    private void discardStudent(CredentialTypeAndContent credentialTypeAndContent) {
+    private void discardStudent(CredentialTypeAndContent credentialTypeAndContent, Integer screeningPlanId) {
         if (credentialTypeAndContent == null) {
             log.info("根据证件号更新计划学生后, 没有旧的证件号的学生需要删除.");
             return;
         }
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getByIdCardAndPassport(credentialTypeAndContent.getIdCard(), credentialTypeAndContent.getPassport(), null);
-        if (CollectionUtils.isEmpty(screeningPlanSchoolStudents)) {
-            Integer screeningPlanId = screeningPlanSchoolStudents.get(0).getScreeningPlanId();
-            if (Objects.nonNull(credentialTypeAndContent.getCredentialType())) {
-                Student student = studentService.getByIdCardAndPassport(credentialTypeAndContent.getIdCard(), credentialTypeAndContent.getPassport(), null);
-                if (Objects.nonNull(student)) {
-                    deletedStudent(student.getId(), student.getSchoolId(), screeningPlanId);
-                }
+        if (CollectionUtils.isEmpty(screeningPlanSchoolStudents) && Objects.nonNull(credentialTypeAndContent.getCredentialType())) {
+            Student student = studentService.getByIdCardAndPassport(credentialTypeAndContent.getIdCard(), credentialTypeAndContent.getPassport(), null);
+            if (Objects.nonNull(student)) {
+                deletedStudent(student.getId(), student.getSchoolId(), screeningPlanId);
             }
         }
     }
