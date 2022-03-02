@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.wupol.myopia.base.constant.AuthConstants;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -18,6 +19,7 @@ import java.util.Objects;
  * @Author HaoHao
  * @Date 2020/12/27
  **/
+@Log4j2
 @Component
 public class CurrentUserUtil {
 
@@ -37,6 +39,7 @@ public class CurrentUserUtil {
         if (StringUtils.isBlank(payload)) {
             throw new BusinessException("请登录");
         }
+        log.info("当前登录用户信息：{}", payload);
         String user = JSON.parseObject(payload).getString(AuthConstants.JWT_USER_INFO_KEY);
         CurrentUser currentUser = JSON.parseObject(user, CurrentUser.class);
         if (Objects.isNull(currentUser)) {
