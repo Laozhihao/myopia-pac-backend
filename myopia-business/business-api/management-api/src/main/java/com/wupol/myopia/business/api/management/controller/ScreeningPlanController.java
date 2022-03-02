@@ -409,6 +409,8 @@ public class ScreeningPlanController {
 
     @PostMapping("/update/planStudent")
     public void updatePlanStudent(@RequestBody UpdatePlanStudentRequestDTO requestDTO) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        requestDTO.setUserId(user.getId());
         screeningPlanStudentBizService.updatePlanStudent(requestDTO);
     }
 
@@ -528,7 +530,7 @@ public class ScreeningPlanController {
     @GetMapping("/getStudentEyeByStudentId")
     public ApiResult getStudentEyeByStudentId(@RequestParam Integer planId,@RequestParam Integer studentId) {
         List<Integer> studentIds = Collections.singletonList(studentId);
-        List<VisionScreeningResult> visionScreeningResults =  visionScreeningResultService.getByStudentIds(planId,studentIds);
+        List<VisionScreeningResult> visionScreeningResults =  visionScreeningResultService.getByStudentIdsAndPlanId(planId,studentIds);
         if (visionScreeningResults.isEmpty()){
             return ApiResult.success();
         }
@@ -536,5 +538,15 @@ public class ScreeningPlanController {
 
         return ApiResult.success(visionScreeningResult);
 
+    }
+
+    /**
+     * 删除学生
+     *
+     * @param planStudentId 筛查学生Id
+     */
+    @DeleteMapping("/deleted/planStudent/{planStudentId}")
+    public void deletedPlanStudentById(@PathVariable @NotNull(message = "筛查学生Id不能为空") Integer planStudentId) {
+        screeningPlanStudentBizService.deletedPlanStudentById(planStudentId);
     }
 }

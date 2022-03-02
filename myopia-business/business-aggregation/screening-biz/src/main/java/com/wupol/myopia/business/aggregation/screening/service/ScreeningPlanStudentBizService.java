@@ -3,6 +3,10 @@ package com.wupol.myopia.business.aggregation.screening.service;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ZipUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.common.collect.Lists;
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.domain.PdfResponseDTO;
@@ -10,30 +14,42 @@ import com.wupol.myopia.base.domain.vo.PdfGeneratorVO;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.ListUtil;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
+import com.wupol.myopia.business.aggregation.screening.handler.CredentialModificationHandler;
+import com.wupol.myopia.business.common.utils.constant.NationEnum;
 import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;
+import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.FileUtils;
+import com.wupol.myopia.business.core.common.constant.MockStudentStatusConstant;
+import com.wupol.myopia.business.core.common.domain.model.DeletedArchive;
+import com.wupol.myopia.business.core.common.service.DeletedArchiveService;
+import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.service.Html2PdfService;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.common.util.S3Utils;
+import com.wupol.myopia.business.core.school.domain.dto.MockPlanStudentQueryDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.domain.model.Student;
-import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
-import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.StudentDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentQueryDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
+import com.wupol.myopia.business.core.screening.flow.util.EyeDataUtil;
+import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.system.service.NoticeService;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,6 +62,7 @@ import javax.annotation.Resource;
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -58,13 +75,8 @@ public class ScreeningPlanStudentBizService {
 
     @Value("${report.html.url-host}")
     public String htmlUrlHost;
-
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
-    @Autowired
-    private StudentService studentService;
-    @Resource
-    private SchoolStudentService schoolStudentService;
     @Resource
     private SchoolService schoolService;
     @Resource
@@ -87,6 +99,17 @@ public class ScreeningPlanStudentBizService {
     private S3Utils s3Utils;
     @Resource
     private SchoolClassService schoolClassService;
+    @Resource
+    private ScreeningPlanService screeningPlanService;
+    @Resource
+    private DistrictService districtService;
+    @Resource
+    private CredentialModificationHandler credentialModificationHandler;
+    @Resource
+    private StudentService studentService;
+    @Resource
+    private DeletedArchiveService deletedArchiveService;
+
 
     /**
      * 筛查通知结果页面地址
@@ -102,53 +125,19 @@ public class ScreeningPlanStudentBizService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void updatePlanStudent(UpdatePlanStudentRequestDTO requestDTO) {
-        // 更新计划学生信息
-        ScreeningPlanSchoolStudent planSchoolStudent = screeningPlanSchoolStudentService.getById(requestDTO.getPlanStudentId());
-        planSchoolStudent.setStudentName(requestDTO.getName());
-        planSchoolStudent.setGender(requestDTO.getGender());
-        planSchoolStudent.setStudentAge(requestDTO.getStudentAge());
-        planSchoolStudent.setBirthday(requestDTO.getBirthday());
-        planSchoolStudent.setPassport(requestDTO.getPassport());
-        if (StringUtils.isNotBlank(requestDTO.getParentPhone())) {
-            planSchoolStudent.setParentPhone(requestDTO.getParentPhone());
+        requestDTO.checkStudentInfo();
+        // 身份证或护照是否在同一计划下已经绑定了数据
+        if (!CollectionUtils.isEmpty(screeningPlanSchoolStudentService.getByIdCardAndPassport(requestDTO.getIdCard(), requestDTO.getPassport(), requestDTO.getPlanStudentId()))) {
+            throw new BusinessException("身份证或护照重复，请检查");
         }
-        if (StringUtils.isNotBlank(requestDTO.getSno())) {
-            planSchoolStudent.setStudentNo(requestDTO.getSno());
-        }
-        screeningPlanSchoolStudentService.updateById(planSchoolStudent);
-        // 更新原始学生信息
-        Integer studentId = planSchoolStudent.getStudentId();
-        Student student = studentService.getById(studentId);
-        student.setName(requestDTO.getName());
-        student.setGender(requestDTO.getGender());
-        student.setBirthday(requestDTO.getBirthday());
-        student.setPassport(requestDTO.getPassport());
-        if (StringUtils.isNotBlank(requestDTO.getParentPhone())) {
-            student.setParentPhone(requestDTO.getParentPhone());
-        }
-        if (StringUtils.isNotBlank(requestDTO.getSno())) {
-            student.setSno(requestDTO.getSno());
-        }
-        studentService.updateById(student);
-
-        // 更新学校端学生
-        List<SchoolStudent> schoolStudents = schoolStudentService.getByStudentId(studentId);
-        if (CollectionUtils.isEmpty(schoolStudents)) {
-            return;
-        }
-        schoolStudents.forEach(schoolStudent -> {
-            schoolStudent.setName(requestDTO.getName());
-            schoolStudent.setGender(requestDTO.getGender());
-            schoolStudent.setBirthday(requestDTO.getBirthday());
-            if (StringUtils.isNotBlank(requestDTO.getParentPhone())) {
-                schoolStudent.setParentPhone(requestDTO.getParentPhone());
-            }
-            if (StringUtils.isNotBlank(requestDTO.getSno())) {
-                schoolStudent.setSno(requestDTO.getSno());
-            }
-        });
-        schoolStudentService.updateBatchById(schoolStudents);
+        // 获取计划学生
+        ScreeningPlanSchoolStudent screeningPlanSchoolStudent = requestDTO.handlePlanStudentData(screeningPlanSchoolStudentService.getById(requestDTO.getPlanStudentId()));
+        // 检查学号是否重复
+        checkStudentSno(screeningPlanSchoolStudent);
+        // 按证件号的变化来变更
+        credentialModificationHandler.updateStudentByCredentialNO(requestDTO,screeningPlanSchoolStudent);
     }
+
 
     /**
      * 通过条件获取筛查学生
@@ -403,5 +392,167 @@ public class ScreeningPlanStudentBizService {
      **/
     public String getFileSaveParentPath() {
         return Paths.get(pdfSavePath, UUID.randomUUID().toString()).toString();
+    }
+
+    /**
+     * 删除学生
+     *
+     * @param planStudentId 筛查学生Id
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void deletedPlanStudentById(Integer planStudentId) {
+        ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(planStudentId);
+        if (Objects.isNull(planStudent)) {
+            throw new BusinessException("数据异常");
+        }
+        VisionScreeningResult result = visionScreeningResultService.getByPlanStudentId(planStudent.getId());
+        if (Objects.nonNull(result)) {
+            throw new BusinessException("存在筛查记录，不能删除");
+        }
+        Student student = studentService.getByIdCardAndPassport(planStudent.getIdCard(), planStudent.getPassport(), null);
+        if (Objects.nonNull(student)) {
+            credentialModificationHandler.deletedStudent(student.getId(), student.getSchoolId(), planStudent.getScreeningPlanId());
+        }
+        archiveDeletedStudent(Lists.newArrayList(planStudentId));
+        screeningPlanSchoolStudentService.removeById(planStudentId);
+    }
+
+    /**
+     * 存档删除学生
+     *
+     * @param planStudentIds 学生Id
+     */
+    private void archiveDeletedStudent(List<Integer> planStudentIds) {
+        List<ScreeningPlanSchoolStudent> planStudents = screeningPlanSchoolStudentService.getByIds(planStudentIds);
+        if (!CollectionUtils.isEmpty(planStudents)) {
+            DeletedArchive deletedArchive = new DeletedArchive();
+            deletedArchive.setType(DeletedArchive.PLAN_STUDENT_TYPE);
+            deletedArchive.setContent(JSONObject.toJSONString(planStudents));
+            deletedArchiveService.save(deletedArchive);
+        }
+    }
+
+    /**
+     * 分页查询MockPlanStudent的数据
+     *
+     * @param pageRequest
+     * @param mockPlanStudentQueryDTO
+     * @return
+     */
+    public IPage<ScreeningStudentDTO> getMockPlanStudentList(PageRequest pageRequest, MockPlanStudentQueryDTO mockPlanStudentQueryDTO) {
+
+        //01.根据orgName模糊查找所有的orgIds
+        Set<Integer> orgIds = null;
+        Map<Integer, String> orgIdMap = null;
+        if (StringUtils.isNotBlank(mockPlanStudentQueryDTO.getScreeningOrgNameLike())) {
+            List<ScreeningOrganization> screeningOrganizations = screeningOrganizationService.getByNameLike(mockPlanStudentQueryDTO.getScreeningOrgNameLike());
+            orgIdMap = screeningOrganizations.stream().collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization::getName, (v1, v2) -> v2));
+            orgIds = orgIdMap.keySet();
+            if (com.alibaba.excel.util.CollectionUtils.isEmpty(orgIds)) {
+                // 可以直接返回空
+                return new Page<>();
+            }
+        }
+        //02.根据orgIds查找筛查计划信息
+        LambdaQueryWrapper<ScreeningPlan> screeningPlanLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        if (org.apache.commons.collections4.CollectionUtils.isNotEmpty(orgIds)) {
+            //如果是空的话, 说明没有搜索orgIds的情况
+            screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getScreeningOrgId, orgIds);
+        }
+        //如果有筛查日期
+        if (mockPlanStudentQueryDTO.getEndScreeningTime() != null && mockPlanStudentQueryDTO.getStartScreeningTime() != null) {
+            screeningPlanLambdaQueryWrapper.le(ScreeningPlan::getStartTime, mockPlanStudentQueryDTO.getStartScreeningTime()).ge(ScreeningPlan::getEndTime, mockPlanStudentQueryDTO.getEndScreeningTime());
+        }
+        Set<Integer> screeningPlanIds = null;
+        //如果筛查时间以及筛查机构的查询条件存在的话,对screenPlan进行查询
+        if (StringUtils.isNotBlank(screeningPlanLambdaQueryWrapper.getCustomSqlSegment())) {
+            List<ScreeningPlan> screeningPlans = screeningPlanService.getBaseMapper().selectList(screeningPlanLambdaQueryWrapper);
+            screeningPlanIds = screeningPlans.stream().map(ScreeningPlan::getId).collect(Collectors.toSet());
+            if (CollectionUtils.isEmpty(screeningPlanIds)) {
+                // 可以直接返回空
+                return new Page<>();
+            }
+        }
+        //03.分页查询screeningPlanStudent表
+        Page<ScreeningStudentDTO> page = (Page<ScreeningStudentDTO>) pageRequest.toPage();
+        ScreeningStudentQueryDTO screeningStudentQueryDTO = new ScreeningStudentQueryDTO();
+        screeningStudentQueryDTO.setPlanIds(screeningPlanIds)
+                .setStartScreeningTime(mockPlanStudentQueryDTO.getStartScreeningTime())
+                .setEndScreeningTime(mockPlanStudentQueryDTO.getEndScreeningTime())
+                .setMockStatus(MockStudentStatusConstant.MOCK)
+                .setSnoLike(mockPlanStudentQueryDTO.getSnoLike())
+                .setNameLike(mockPlanStudentQueryDTO.getNameLike())
+                .setPhoneLike(mockPlanStudentQueryDTO.getPhoneLike())
+                .setIdCardOrPassportLike(mockPlanStudentQueryDTO.getIdCardOrPassportLike())
+                .setPassportLike(mockPlanStudentQueryDTO.getPassportLike())
+                .setSchoolNameLike(mockPlanStudentQueryDTO.getSchoolNameLike())
+                .setGender(mockPlanStudentQueryDTO.getGender());
+        IPage<ScreeningStudentDTO> screeningPlanIPage = screeningPlanSchoolStudentService.selectPageByQuery(page, screeningStudentQueryDTO);
+        List<ScreeningStudentDTO> screeningStudentDTOS = screeningPlanIPage.getRecords();
+        if (CollectionUtils.isEmpty(screeningStudentDTOS)) {
+            return screeningPlanIPage;
+        }
+        //04.补充额外信息
+        List<VisionScreeningResult> resultList = visionScreeningResultService.getByPlanStudentIds(screeningStudentDTOS.stream().map(ScreeningStudentDTO::getPlanStudentId).collect(Collectors.toList()));
+        Map<Integer, VisionScreeningResult> visionScreeningResultsGroup = resultList.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
+        List<ScreeningStudentDTO> records = screeningPlanIPage.getRecords();
+        if (MapUtils.isEmpty(orgIdMap)) {
+            Set<Integer> orgIdSet = records.stream().map(ScreeningStudentDTO::getScreeningOrgId).collect(Collectors.toSet());
+            orgIdMap = screeningOrganizationService.getByIds(orgIdSet).stream().collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization::getName, (v1, v2) -> v2));
+        }
+
+        for (ScreeningStudentDTO studentDTO : screeningPlanIPage.getRecords()) {
+            studentDTO.setNationDesc(NationEnum.getName(studentDTO.getNation()))
+                    .setAddress(districtService.getAddressDetails(studentDTO.getProvinceCode(), studentDTO.getCityCode(), studentDTO.getAreaCode(), studentDTO.getTownCode(), studentDTO.getAddress()));
+            studentDTO.setScreeningOrgName(orgIdMap.get(studentDTO.getScreeningOrgId()));
+            setStudentEyeInfo(studentDTO, visionScreeningResultsGroup);
+        }
+        return screeningPlanIPage;
+    }
+
+
+    /**
+     * @Description: 给学生扩展类赋值
+     * @Param: [studentEyeInfor]
+     * @return: void
+     * @Author: 钓猫的小鱼
+     * @Date: 2022/1/5
+     */
+    public void setStudentEyeInfo(ScreeningStudentDTO studentEyeInfo, Map<Integer, VisionScreeningResult> visionScreeningResultsMap) {
+        VisionScreeningResult visionScreeningResult = null;
+        if (!CollectionUtils.isEmpty(visionScreeningResultsMap)) {
+            visionScreeningResult = visionScreeningResultsMap.get(studentEyeInfo.getPlanStudentId());
+        }
+        studentEyeInfo.setHasScreening(Objects.nonNull(visionScreeningResult));
+        //是否戴镜情况
+        studentEyeInfo.setGlassesTypeDes(EyeDataUtil.glassesType(visionScreeningResult));
+
+        //裸视力
+        String nakedVision = EyeDataUtil.visionRightDataToStr(visionScreeningResult) + "/" + EyeDataUtil.visionLeftDataToStr(visionScreeningResult);
+        studentEyeInfo.setNakedVision(nakedVision);
+        //矫正 视力
+        String correctedVision = EyeDataUtil.correctedRightDataToStr(visionScreeningResult) + "/" + EyeDataUtil.correctedLeftDataToStr(visionScreeningResult);
+        studentEyeInfo.setCorrectedVision(correctedVision);
+        //球镜
+        studentEyeInfo.setRSph(EyeDataUtil.computerRightSphNULL(visionScreeningResult));
+        studentEyeInfo.setLSph(EyeDataUtil.computerLeftSphNull(visionScreeningResult));
+        //柱镜
+        studentEyeInfo.setRCyl(EyeDataUtil.computerRightCylNull(visionScreeningResult));
+        studentEyeInfo.setLCyl(EyeDataUtil.computerLeftCylNull(visionScreeningResult));
+        //眼轴
+        String axial = EyeDataUtil.computerRightAxial(visionScreeningResult) + "/" + EyeDataUtil.computerLeftAxial(visionScreeningResult);
+        studentEyeInfo.setAxial(axial);
+
+    }
+
+    /**
+     * 检查学号是否重复
+     *
+     * @param screeningPlanSchoolStudent 计划学生
+     */
+    public void checkStudentSno(ScreeningPlanSchoolStudent screeningPlanSchoolStudent) {
+        List<ScreeningPlanSchoolStudent> existPlanSchoolStudentList = screeningPlanSchoolStudentService.getByScreeningPlanId(screeningPlanSchoolStudent.getScreeningPlanId());
+        // 检查学号
+        screeningPlanSchoolStudentService.checkSno(existPlanSchoolStudentList, screeningPlanSchoolStudent.getStudentNo(), screeningPlanSchoolStudent.getIdCard(), screeningPlanSchoolStudent.getPassport(), screeningPlanSchoolStudent.getSchoolId());
     }
 }

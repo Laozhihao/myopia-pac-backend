@@ -140,7 +140,7 @@
         group by school_id
     </select>
 
-    <select id="getByStudentIds" resultMap="BaseResultMap">
+    <select id="getByStudentIdsAndPlanId" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
         from m_vision_screening_result
@@ -166,5 +166,20 @@
         </foreach>
         order by create_time desc
         limit 1
+    </select>
+
+    <select id="getByPlanId" resultMap="BaseResultMap">
+        select *
+        from m_vision_screening_result
+        where plan_id = #{planId}
+    </select>
+
+    <select id="getByStudentIds" resultMap="BaseResultMap">
+        select *
+        from m_vision_screening_result
+                where student_id in
+        <foreach collection="studentIds" item="studentId" index="index" open="(" close=")" separator=",">
+            #{studentId}
+        </foreach>
     </select>
 </mapper>

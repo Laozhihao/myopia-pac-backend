@@ -3,10 +3,12 @@ package com.wupol.myopia.business.api.school.management.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.excel.imports.SchoolStudentExcelImportService;
+import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.common.utils.constant.SourceClientEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
-import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentListResponseDTO;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentRequestDTO;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
@@ -47,13 +49,7 @@ public class SchoolStudentBizService {
     private SchoolStudentExcelImportService schoolStudentExcelImportService;
 
     @Resource
-    private SchoolGradeService schoolGradeService;
-
-    @Resource
-    private SchoolClassService schoolClassService;
-
-    @Resource
-    private SchoolService schoolService;
+    private StudentFacade studentFacade;
 
     /**
      * 获取学生列表
@@ -101,20 +97,13 @@ public class SchoolStudentBizService {
      */
     @Transactional(rollbackFor = Exception.class)
     public SchoolStudent saveStudent(SchoolStudent schoolStudent, Integer schoolId) {
-
-        if (!schoolStudentService.checkIdCardAndSno(schoolStudent.getId(), schoolStudent.getIdCard(), schoolStudent.getSno(), schoolId)) {
-            throw new BusinessException("学号、身份证是重复");
-        }
-
-        School school = schoolService.getById(schoolId);
-        schoolStudent.setSchoolId(schoolId);
-
-        schoolStudent.setGradeName(schoolGradeService.getById(schoolStudent.getGradeId()).getName());
-        schoolStudent.setClassName(schoolClassService.getById(schoolStudent.getClassId()).getName());
+        studentFacade.setSchoolStudentInfo(schoolStudent, schoolId);
 
         // 更新管理端的数据
         Integer managementStudentId = schoolStudentExcelImportService.updateManagementStudent(schoolStudent);
         schoolStudent.setStudentId(managementStudentId);
+        schoolStudent.setSourceClient(SourceClientEnum.SCHOOL.type);
+
         schoolStudentService.saveOrUpdate(schoolStudent);
         return schoolStudent;
     }

@@ -9,6 +9,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.QrCodeCacheKey;
+import com.wupol.myopia.business.common.utils.constant.SourceClientEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
@@ -112,8 +113,8 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             student.setGradeType(GradeCodeEnum.getByCode(grade.getGradeCode()).getType());
         }
         // 检查学生身份证是否重复
-        if (checkIdCard(student.getIdCard(), null)) {
-            throw new BusinessException("学生身份证重复");
+        if (checkIdCardAndPassport(student.getIdCard(), student.getPassport(), null)) {
+            throw new BusinessException("学生身份证、护照重复");
         }
         baseMapper.insert(student);
         return student.getId();
@@ -314,7 +315,8 @@ public class StudentService extends BaseService<StudentMapper, Student> {
                 studentQueryDTO.getSno(), studentQueryDTO.getIdCard(), studentQueryDTO.getName(),
                 studentQueryDTO.getParentPhone(), studentQueryDTO.getGender(), conditionalFilter.getFirst(),
                 conditionalFilter.getSecond(), studentQueryDTO.getStartScreeningTime(), studentQueryDTO.getEndScreeningTime(),
-                studentQueryDTO.getSchoolName(), studentQueryDTO.getSchoolId(), studentQueryDTO.getGradeId(), studentQueryDTO.getClassId());
+                studentQueryDTO.getSchoolName(), studentQueryDTO.getSchoolId(), studentQueryDTO.getGradeId(), studentQueryDTO.getClassId(), studentQueryDTO.getPassport(),
+                studentQueryDTO.getIdCardOrPassportLike());
     }
 
     /**
@@ -362,7 +364,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         }
 
         // 检查学生身份证是否重复
-        if (checkIdCard(student.getIdCard(), student.getId())) {
+        if (checkIdCardAndPassport(student.getIdCard(), student.getPassport(), student.getId())) {
             throw new BusinessException("学生身份证重复");
         }
 
@@ -567,4 +569,97 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             student.setRecordNo(getRecordNo(student.getCommitteeCode()));
         }
     }
+
+    /**
+     * 检查学生身份证号码、护照是否重复
+     *
+     * @param idCard   身份证号码
+     * @param id       学生ID
+     * @param passport 护照
+     * @return 是否重复
+     */
+    public boolean checkIdCardAndPassport(String idCard, String passport, Integer id) {
+        return baseMapper.checkByIdCardAndPassport(idCard, passport, id).size() > 0;
+    }
+
+    /**
+     * 检查学生身份证号码、护照是否重复
+     *
+     * @param idCard   身份证号码
+     * @param id       学生ID
+     * @param passport 护照
+     * @return Student
+     */
+    public Student getByIdCardAndPassport(String idCard, String passport, Integer id) {
+        if (StringUtils.isAllBlank(idCard, passport)) {
+            return null;
+        }
+        List<Student> students = baseMapper.checkByIdCardAndPassport(idCard, passport, id);
+        final int size = org.apache.commons.collections4.CollectionUtils.size(students);
+        if (size == 0) {
+            return null;
+        } else if (size != 1) {
+            throw new BusinessException("student表存在重复证件号,重复证件号 id = " + idCard + ", passport = " + passport);
+        }
+        return students.get(0);
+    }
+
+    /**
+     * 通过护照获取学生
+     *
+     * @param passport 护照
+     * @return 是否重复
+     */
+    public List<Student> getByPassportAndStatus(List<String> passport) {
+        return baseMapper.getByPassportAndStatus(passport, CommonConst.STATUS_NOT_DELETED);
+    }
+
+    /**
+     * 通过护照获取学生
+     *
+     * @param passport 护照
+     * @return 是否重复
+     */
+    public List<Student> getDeletedByPassportAndStatus(List<String> passport) {
+        return baseMapper.getByPassportAndStatus(passport, CommonConst.STATUS_IS_DELETED);
+    }
+
+    /**
+     * 通过身份证、护照获取学生
+     *
+     * @param idCards   身份证
+     * @param passports 护照
+     * @return 是否重复
+     */
+    public List<Student> getByIdCardsOrPassports(List<String> idCards, List<String> passports) {
+        if (CollectionUtils.isEmpty(idCards) && CollectionUtils.isEmpty(passports)) {
+            return new ArrayList<>();
+        }
+        return baseMapper.getByIdCardsOrPassports(idCards, passports);
+    }
+
+    /**
+     * 通过身份证件或护照查询学生
+     *
+     * @param info 条件
+     * @return 学生
+     */
+    public Student findByIdCardAndPassport(String info) {
+        return baseMapper.findByIdCardAndPassport(info);
+    }
+
+    /**
+     * 判断是否能删除多端的学生
+     *
+     * @param studentId 学生Id
+     * @return true-能删除 false-不能删除
+     */
+    public boolean isCanDeletedStudent(Integer studentId) {
+        Student student = getById(studentId);
+        if (Objects.isNull(student)) {
+            return true;
+        }
+        return SourceClientEnum.SCREENING_PLAN.type.equals(student.getSourceClient());
+    }
+
 }

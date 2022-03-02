@@ -2,11 +2,13 @@ package com.wupol.myopia.business.api.screening.app.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.aggregation.export.excel.imports.CommonImportService;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.AppQueryQrCodeParams;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
 import com.wupol.myopia.business.aggregation.screening.domain.vos.QrCodeInfo;
@@ -23,6 +25,7 @@ import com.wupol.myopia.business.api.screening.app.enums.SysEnum;
 import com.wupol.myopia.business.api.screening.app.service.ScreeningAppService;
 import com.wupol.myopia.business.api.screening.app.service.ScreeningPlanBizService;
 import com.wupol.myopia.business.common.utils.constant.EyeDiseasesEnum;
+import com.wupol.myopia.business.common.utils.constant.SourceClientEnum;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
@@ -31,6 +34,7 @@ import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ComputerOptometryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultSearchDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentQueryDTO;
@@ -98,6 +102,8 @@ public class ScreeningAppController {
     private ScreeningPlanStudentBizService screeningPlanStudentBizService;
     @Autowired
     private ScreeningExportService screeningExportService;
+    @Autowired
+    private CommonImportService commonImportService;
 
     /**
      * 模糊查询某个筛查机构下的学校的
@@ -405,6 +411,7 @@ public class ScreeningAppController {
      */
     @PostMapping("/student/save")
     public ApiResult saveStudent(@RequestBody AppStudentDTO appStudentDTO) throws ParseException {
+        appStudentDTO.checkStudentInfo();
         appStudentDTO.setDeptId(CurrentUserUtil.getCurrentUser().getOrgId());
         ApiResult apiResult = screeningAppService.validStudentParam(appStudentDTO);
         if (apiResult != null) {
@@ -418,6 +425,7 @@ public class ScreeningAppController {
         try {
             studentService.saveStudent(student);
             screeningAppService.insertSchoolStudent(student);
+            commonImportService.insertSchoolStudent(Lists.newArrayList(student), SourceClientEnum.SCREENING_APP.type);
             //获取当前的计划
         } catch (Exception e) {
             // app 就是这么干的。

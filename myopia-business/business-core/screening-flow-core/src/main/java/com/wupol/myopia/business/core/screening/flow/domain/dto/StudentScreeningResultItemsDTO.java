@@ -84,4 +84,9 @@ public class StudentScreeningResultItemsDTO {
      * 是否已经筛查过
      **/
     private Boolean hasScreening;
+
+    /**
+     * 筛查编码
+     */
+    private Long screeningCode;
 }

@@ -38,8 +38,6 @@ public class SchoolStudent extends AddressCode implements Serializable {
      * 学生Id
      */
     private Integer studentId;
-
-    private String schoolNo;
     
     /**
      * 学校Id
@@ -182,6 +180,11 @@ public class SchoolStudent extends AddressCode implements Serializable {
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
+
+    /**
+     * 学生来源客户端
+     */
+    private Integer sourceClient;
 
     /**
      * 检查学生信息是否正确

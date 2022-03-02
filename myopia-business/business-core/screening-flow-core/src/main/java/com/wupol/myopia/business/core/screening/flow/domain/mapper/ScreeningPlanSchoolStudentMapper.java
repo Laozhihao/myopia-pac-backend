@@ -53,9 +53,17 @@ public interface ScreeningPlanSchoolStudentMapper extends BaseMapper<ScreeningPl
 
     ScreeningPlanSchoolStudent getLastByStudentId(@Param("studentId") Integer studentId);
 
-    List<ScreeningPlanSchoolStudent> getByCondition(@Param("condition") String condition, @Param("name") String name);
+    List<ScreeningPlanSchoolStudent> getByCondition(@Param("condition") String condition, @Param("name") String name, @Param("studentId") Integer studentId);
 
-    List<ScreeningStudentDTO> getScreeningNoticeResultStudent(@Param("planIds") List<Integer> planIds, @Param("schoolId") Integer schoolId, @Param("gradeId") Integer gradeId, @Param("classId") Integer classId, @Param("planStudentId") List<Integer> planStudentId,@Param("planStudentName") String planStudentName);
+    List<ScreeningStudentDTO> getScreeningNoticeResultStudent(@Param("planIds") List<Integer> planIds, @Param("schoolId") Integer schoolId, @Param("gradeId") Integer gradeId, @Param("classId") Integer classId, @Param("planStudentId") List<Integer> planStudentId, @Param("planStudentName") String planStudentName);
 
     List<GradeClassesDTO> getByPlanIdAndSchoolIdAndId(@Param("planId") Integer planId, @Param("schoolId") Integer schoolId, @Param("ids") List<Integer> ids);
+
+    List<ScreeningPlanSchoolStudent> getByIdCardAndPassport(@Param("idCard") String idCard, @Param("passport") String passport, @Param("id") Integer id);
+
+    void deleteByStudentIds(@Param("studentIds") List<Integer> studentIds);
+
+    List<ScreeningPlanSchoolStudent> getByIds(@Param("ids") List<Integer> ids);
+
+    List<ScreeningPlanSchoolStudent> getByNePlanId(@Param("planId") Integer planId);
 }

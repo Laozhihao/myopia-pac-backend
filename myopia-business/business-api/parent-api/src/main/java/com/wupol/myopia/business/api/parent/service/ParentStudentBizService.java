@@ -226,7 +226,7 @@ public class ParentStudentBizService {
             throw new BusinessException("家长信息异常");
         }
         // 保存孩子
-        Integer studentId = studentService.saveStudent(student);
+        Integer studentId = studentFacade.saveStudentAndSchoolStudent(student);
         // 绑定孩子
         bindStudent(parent, studentId);
         updateOtherInfo(studentId, parent.getPhone());
@@ -558,7 +558,7 @@ public class ParentStudentBizService {
      * @return StudentDTO
      */
     public StudentDTO getByIdCard(String idCard, Integer userId) {
-        Student student = studentService.getAllByIdCard(idCard);
+        Student student = studentService.findByIdCardAndPassport(idCard);
         if (Objects.isNull(student)) {
             Parent parent = parentService.getParentByUserId(userId);
             StudentDTO studentDTO = new StudentDTO();
@@ -591,11 +591,15 @@ public class ParentStudentBizService {
     public ScreeningReportInfoResponseDTO getScreeningReportByCondition(String condition, String name) {
         ScreeningReportInfoResponseDTO responseDTO = new ScreeningReportInfoResponseDTO();
 
+        Integer studentId = null;
         // 查询学生
         Student student = studentService.getByCondition(condition, name);
-        List<ScreeningPlanSchoolStudent> planStudents = screeningPlanSchoolStudentService.getByCondition(condition, name);
+        if (Objects.nonNull(student)) {
+            studentId = student.getId();
+        }
+        List<ScreeningPlanSchoolStudent> planStudents = screeningPlanSchoolStudentService.getByCondition(condition, name, studentId);
         if (Objects.isNull(student) && CollectionUtils.isEmpty(planStudents)) {
-            throw new BusinessException("该学生筛查编号/身份证/学籍号/姓名错误");
+            throw new BusinessException("该学生筛查编号/身份证/护照/学籍号/姓名错误");
         }
         responseDTO.setStudentId(Objects.nonNull(student) ? student.getId() : planStudents.get(0).getStudentId());
 

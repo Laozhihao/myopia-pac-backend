@@ -77,7 +77,7 @@ public class HospitalStudent implements Serializable {
     private Integer nation;
 
     /** 身份证号码 */
-    @TableField(typeHandler = JacksonTypeHandler.class)
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private String idCard;
 
     /** 家长手机号码 */

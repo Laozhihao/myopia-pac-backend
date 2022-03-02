@@ -184,7 +184,9 @@ public class StudentBizService {
             // 筛查信息
             studentWarningArchiveVO.setScreeningDate(conclusion.getUpdateTime());
             ScreeningPlan screeningPlan = screeningPlanService.getById(conclusion.getPlanId());
-            studentWarningArchiveVO.setScreeningTitle(screeningPlan.getTitle());
+            if (Objects.nonNull(screeningPlan)) {
+                studentWarningArchiveVO.setScreeningTitle(screeningPlan.getTitle());
+            }
             // 就诊情况
             setVisitInfo(studentWarningArchiveVO, conclusion);
             // 课桌椅信息
@@ -290,7 +292,6 @@ public class StudentBizService {
      */
     @Transactional(rollbackFor = Exception.class)
     public StudentDTO updateStudentReturnCountInfo(Student student, CurrentUser user) {
-        haveIdCardOrCode(student);
         // 判断是否要修改委会行政区域
         isUpdateCommitteeCode(student, user);
         StudentDTO studentDTO = studentService.updateStudent(student);
@@ -316,10 +317,10 @@ public class StudentBizService {
      * @param pageRequest 分页请求
      * @param studentId   学生ID
      * @param currentUser 登录用户
+     * @param hospitalId  医院Id
      * @return List<MedicalReportDO>
      */
-    public IPage<ReportAndRecordDO> getReportList(PageRequest pageRequest, Integer studentId, CurrentUser currentUser) {
-        Integer hospitalId = null;
+    public IPage<ReportAndRecordDO> getReportList(PageRequest pageRequest, Integer studentId, CurrentUser currentUser, Integer hospitalId) {
         if (!currentUser.isPlatformAdminUser()) {
             hospitalId = currentUser.getOrgId();
         }
