@@ -173,7 +173,7 @@ public class SchoolStudentController {
      * @param file 导入文件
      */
     @PostMapping("/import")
-    public Object importStudent(MultipartFile file) throws ParseException {
+    public Object importStudent(MultipartFile file) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         schoolStudentExcelImportService.importSchoolStudent(currentUser.getId(), file, currentUser.getOrgId());
         return ApiResult.success();

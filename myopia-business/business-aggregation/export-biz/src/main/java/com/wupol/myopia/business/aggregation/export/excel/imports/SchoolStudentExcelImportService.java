@@ -68,10 +68,9 @@ public class SchoolStudentExcelImportService {
      * @param createUserId  创建人
      * @param multipartFile 文件
      * @param schoolId      学校Id
-     * @throws ParseException 转换异常
      */
     @Transactional(rollbackFor = Exception.class)
-    public void importSchoolStudent(Integer createUserId, MultipartFile multipartFile, Integer schoolId) throws ParseException {
+    public void importSchoolStudent(Integer createUserId, MultipartFile multipartFile, Integer schoolId) {
         List<Map<Integer, String>> listMap = FileUtils.readExcel(multipartFile);
         if (CollectionUtils.isEmpty(listMap)) {
             return;
@@ -146,12 +145,11 @@ public class SchoolStudentExcelImportService {
      * @param schoolId      学校Id
      * @param item          导入信息
      * @param schoolStudent 学校端学生
-     * @throws ParseException 日期转换异常
      */
-    private void setSchoolStudentInfo(Integer createUserId, Integer schoolId, Map<Integer, String> item, SchoolStudent schoolStudent) throws ParseException {
+    private void setSchoolStudentInfo(Integer createUserId, Integer schoolId, Map<Integer, String> item, SchoolStudent schoolStudent) {
         schoolStudent.setName(item.get(SchoolStudentImportEnum.NAME.getIndex()))
                 .setGender(Objects.nonNull(item.get(SchoolStudentImportEnum.GENDER.getIndex())) ? GenderEnum.getType(item.get(SchoolStudentImportEnum.GENDER.getIndex())) : IdCardUtil.getGender(item.get(SchoolStudentImportEnum.ID_CARD.getIndex())))
-                .setBirthday(Objects.nonNull(item.get(SchoolStudentImportEnum.BIRTHDAY.getIndex())) ? DateFormatUtil.parseDate(item.get(SchoolStudentImportEnum.BIRTHDAY.getIndex()), DateFormatUtil.FORMAT_ONLY_DATE2) : IdCardUtil.getBirthDay(item.get(SchoolStudentImportEnum.ID_CARD.getIndex())))
+
                 .setNation(NationEnum.getCode(item.get(SchoolStudentImportEnum.NATION.getIndex())))
                 .setGradeType(GradeCodeEnum.getByName(item.get(SchoolStudentImportEnum.GRADE_NAME.getIndex())).getType())
                 .setSno((item.get(SchoolStudentImportEnum.SNO.getIndex())))
@@ -169,6 +167,11 @@ public class SchoolStudentExcelImportService {
         schoolStudent.setUpdateTime(new Date());
         if (StringUtils.isNoneBlank(schoolStudent.getIdCard(), schoolStudent.getPassport())) {
             schoolStudent.setPassport(null);
+        }
+        try {
+            schoolStudent.setBirthday(Objects.nonNull(item.get(SchoolStudentImportEnum.BIRTHDAY.getIndex())) ? DateFormatUtil.parseDate(item.get(SchoolStudentImportEnum.BIRTHDAY.getIndex()), DateFormatUtil.FORMAT_ONLY_DATE2) : IdCardUtil.getBirthDay(item.get(SchoolStudentImportEnum.ID_CARD.getIndex())));
+        } catch (ParseException e) {
+            throw new BusinessException("生日格式异常");
         }
     }
 
