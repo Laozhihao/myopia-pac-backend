@@ -62,7 +62,7 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
         // 判断是否给学生使用
         List<Student> students = studentService.getStudentsByClassId(classId);
         if (!students.isEmpty()) {
-            throw new BusinessException("当前年级被学生依赖，不能删除");
+            throw new BusinessException("当前班级被学生依赖，不能删除");
         }
 
         SchoolClass schoolClass = new SchoolClass();
