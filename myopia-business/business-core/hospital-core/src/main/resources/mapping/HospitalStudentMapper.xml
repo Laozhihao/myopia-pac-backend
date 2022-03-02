@@ -77,6 +77,12 @@
         <if test="requestDTO.name != null and requestDTO.name != ''">
             and name like CONCAT('%', #{requestDTO.name}, '%')
         </if>
+        <if test="requestDTO.idCard != null and requestDTO.idCard != ''">
+            and id_card like CONCAT('%', #{requestDTO.idCard}, '%')
+        </if>
+        <if test="requestDTO.passport != null and requestDTO.passport != ''">
+            and h_hospital_student.passport like CONCAT('%', #{requestDTO.passport}, '%')
+        </if>
         and status = 0
         order by create_time desc
     </select>
@@ -116,5 +122,13 @@
                 and birthday <![CDATA[<= #{startDate}]]>
               order by create_time desc) as tmp
         group by tmp.student_id
+    </select>
+
+    <select id="getByStudentIds" resultMap="BaseResultMap">
+        select *
+        from h_hospital_student where student_id in
+        <foreach collection="studentIds" item="studentId" index="index" open="(" close=")" separator=",">
+            #{studentId}
+        </foreach>
     </select>
 </mapper>

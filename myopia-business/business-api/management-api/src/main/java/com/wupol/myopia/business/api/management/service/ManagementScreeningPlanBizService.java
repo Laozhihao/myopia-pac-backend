@@ -64,6 +64,7 @@ public class ManagementScreeningPlanBizService {
         if (StringUtils.isNotBlank(query.getCreatorNameLike()) && screeningRelatedFacade.initCreateUserIdsAndReturnIsEmpty(query)) {
             return new Page<>();
         }
+
         if (StringUtils.isNotBlank(query.getScreeningOrgNameLike())) {
             List<Integer> orgIds = screeningOrganizationService.getByNameLike(query.getScreeningOrgNameLike()).stream().map(ScreeningOrganization::getId).collect(Collectors.toList());
             if (CollectionUtils.isEmpty(orgIds)) {
@@ -78,10 +79,16 @@ public class ManagementScreeningPlanBizService {
         Map<Integer, String> govDeptIdNameMap = org.springframework.util.CollectionUtils.isEmpty(allGovDeptIds) ? Collections.emptyMap() : govDeptService.getByIds(allGovDeptIds).stream().collect(Collectors.toMap(GovDept::getId, GovDept::getName));
         List<Integer> userIds = screeningPlanIPage.getRecords().stream().map(ScreeningPlan::getCreateUserId).distinct().collect(Collectors.toList());
         Map<Integer, String> userIdNameMap = oauthServiceClient.getUserBatchByIds(userIds).stream().collect(Collectors.toMap(User::getId, User::getRealName));
-        screeningPlanIPage.getRecords().forEach(vo -> vo.setCreatorName(userIdNameMap.getOrDefault(vo.getCreateUserId(), ""))
-                .setDistrictName(districtService.getDistrictNameByDistrictId(vo.getDistrictId()))
-                .setGovDeptName(govDeptIdNameMap.getOrDefault(vo.getGovDeptId(), ""))
-                .setScreeningOrgName(screeningOrganizationService.getNameById(vo.getScreeningOrgId())));
+        List<Integer> screeningOrgIds = screeningPlanIPage.getRecords().stream().map(ScreeningPlan::getScreeningOrgId).collect(Collectors.toList());
+        Map<Integer, ScreeningOrganization> orgMap = CollectionUtils.isEmpty(screeningOrgIds) ? new HashMap<>() : screeningOrganizationService.getByIds(screeningOrgIds).stream().collect(Collectors.toMap(ScreeningOrganization::getId, x -> x));
+        screeningPlanIPage.getRecords().forEach(vo -> {
+            ScreeningOrganization org = orgMap.get(vo.getScreeningOrgId());
+            vo.setCreatorName(userIdNameMap.getOrDefault(vo.getCreateUserId(), ""))
+                    .setDistrictName(districtService.getDistrictNameByDistrictId(vo.getDistrictId()))
+                    .setGovDeptName(govDeptIdNameMap.getOrDefault(vo.getGovDeptId(), ""))
+                    .setScreeningOrgName(Objects.nonNull(org) ? org.getName() : "")
+                    .setQrCodeConfig(Objects.nonNull(org) ? org.getQrCodeConfig() : "");
+        });
         return screeningPlanIPage;
     }
 

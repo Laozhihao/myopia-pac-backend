@@ -2,7 +2,6 @@ package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.CurrentUser;
-import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
@@ -23,11 +22,10 @@ import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentQueryDTO;
 import com.wupol.myopia.business.core.school.domain.model.Student;
-import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningResultResponseDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentCardResponseVO;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -49,9 +47,6 @@ import java.util.Objects;
 @RestController
 @RequestMapping("/management/student")
 public class StudentController {
-
-    @Autowired
-    private StudentService studentService;
 
     @Autowired
     private StudentBizService studentBizService;
@@ -76,12 +71,10 @@ public class StudentController {
      */
     @PostMapping()
     public Integer saveStudent(@RequestBody @Valid Student student) {
+        student.checkStudentInfo();
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         student.setCreateUserId(user.getId());
-        if (StringUtils.isBlank(student.getIdCard())) {
-            throw new BusinessException("身份证不能为空");
-        }
-        return studentService.saveStudent(student);
+        return studentFacade.saveStudentAndSchoolStudent(student);
     }
 
     /**
@@ -92,6 +85,7 @@ public class StudentController {
      */
     @PutMapping()
     public StudentDTO updateStudent(@RequestBody @Valid Student student) {
+        student.checkStudentInfo();
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         student.setCreateUserId(user.getId());
         return studentBizService.updateStudentReturnCountInfo(student, user);
@@ -203,11 +197,12 @@ public class StudentController {
      *
      * @param pageRequest 分页请求
      * @param studentId   学生Id
+     * @param hospitalId  医院Id
      * @return List<MedicalReportDO>
      */
     @GetMapping("/report/list")
-    public IPage<ReportAndRecordDO> getReportList(PageRequest pageRequest, @NotNull(message = "学生Id不能为空") Integer studentId) {
-        return studentBizService.getReportList(pageRequest, studentId, CurrentUserUtil.getCurrentUser());
+    public IPage<ReportAndRecordDO> getReportList(PageRequest pageRequest, @NotNull(message = "学生Id不能为空") Integer studentId, Integer hospitalId) {
+        return studentBizService.getReportList(pageRequest, studentId, CurrentUserUtil.getCurrentUser(), hospitalId);
     }
 
     /**

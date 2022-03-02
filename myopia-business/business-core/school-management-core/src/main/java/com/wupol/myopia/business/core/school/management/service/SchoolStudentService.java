@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.school.management.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.business.common.utils.constant.SourceClientEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentListResponseDTO;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentRequestDTO;
@@ -12,7 +13,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * 学校端-学生服务
@@ -97,12 +101,12 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
      * @param schoolId 学校Id
      * @return List<SchoolStudent>
      */
-    public List<SchoolStudent> getByIdCardOrSno(List<String> idCards, List<String> snos, Integer schoolId) {
-        return baseMapper.getByIdCardOrSno(idCards, snos, schoolId);
+    public List<SchoolStudent> getByIdCardAndSnoAndPassports(List<String> idCards, List<String> snos, List<String> passports, Integer schoolId) {
+        return baseMapper.getByIdCardAndSnoAndPassports(idCards, snos, passports, schoolId);
     }
 
     /**
-     * 通过身份证获取学生
+     * 通过身份证获取学生(没删除的)
      *
      * @param idCards  身份证
      * @param schoolId 学校Id
@@ -151,11 +155,96 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
     /**
      * 通过身份证获取已经删除的学生
      *
-     * @param idCards  身份证
-     * @param schoolId 学校Id
+     * @param idCards   身份证
+     * @param schoolId  学校Id
+     * @param passports 护照
      * @return List<SchoolStudent>
      */
-    public List<SchoolStudent> getDeletedByIdCard(List<String> idCards, Integer schoolId) {
-        return baseMapper.getDeletedByIdCard(idCards, schoolId);
+    public List<SchoolStudent> getDeletedByIdCard(List<String> idCards, List<String> passports, Integer schoolId) {
+        return baseMapper.getDeletedByIdCardsAndPassports(idCards, passports, schoolId);
     }
+
+    /**
+     * 学号、身份证、护照是否重复
+     *
+     * @param id       id
+     * @param idCard   身份证
+     * @param sno      学号
+     * @param passport 护照
+     * @param schoolId 学校Id
+     * @return true-没有重复 false-存在重复
+     */
+    public Boolean getByIdCardAndSnoAndPassport(Integer id, String idCard, String sno, String passport, Integer schoolId) {
+        List<SchoolStudent> studentList = baseMapper.getByIdCardAndSnoAndPassport(id, idCard, sno, passport, schoolId);
+        return CollectionUtils.isEmpty(studentList);
+    }
+
+    /**
+     * 通过身份证、护照获取学生信息
+     *
+     * @param idCard   身份证
+     * @param passport 护照
+     * @param schoolId 学校Id
+     * @return true-没有重复 false-存在重复
+     */
+    public SchoolStudent getByIdCardAndPassport(String idCard, String passport, Integer schoolId) {
+        return baseMapper.getByIdCardAndPassport(idCard, passport, schoolId);
+    }
+
+    /**
+     * 通过身份证、学号、护照获取学生(包括删除的)
+     *
+     * @param idCards   身份证
+     * @param snoList   学号
+     * @param passports 护照
+     * @param schoolId  学校Id
+     * @return List<SchoolStudent>
+     */
+    public List<SchoolStudent> getAllByIdCardAndSnoAndPassports(List<String> idCards, List<String> snoList, List<String> passports, Integer schoolId) {
+        return baseMapper.getAllByIdCardAndSnoAndPassports(idCards, snoList, passports, schoolId);
+    }
+
+    /**
+     * 通过学生Ids删除学校学生
+     * <p>删库操作，谨慎使用</p>
+     *
+     * @param studentIds 学生Id
+     */
+    public void deleteByStudentIds(List<Integer> studentIds) {
+        if (CollectionUtils.isEmpty(studentIds)) {
+            return;
+        }
+        baseMapper.deleteByStudentIds(studentIds);
+    }
+
+    /**
+     * 通过学生ids获取学校学生
+     *
+     * @param studentIds 学生ids
+     * @param schoolId   学校Id
+     * @return List<SchoolStudent>
+     */
+    public List<SchoolStudent> getByStudentIdsAndSchoolId(List<Integer> studentIds, Integer schoolId) {
+        if (CollectionUtils.isEmpty(studentIds)) {
+            return new ArrayList<>();
+        }
+        return baseMapper.getByStudentIdsAndSchoolId(studentIds, schoolId);
+    }
+
+    /**
+     * 判断是否能删除学校端的学生
+     *
+     * @param schoolStudentMap 学校端学生集合
+     * @param studentId        学生Id
+     * @return true-能删除 fasle-不能删除
+     */
+    public boolean isCanDeletedSchoolStudent(Map<Integer, SchoolStudent> schoolStudentMap, Integer studentId) {
+        SchoolStudent schoolStudent = schoolStudentMap.get(studentId);
+        if (Objects.isNull(schoolStudent)) {
+            return true;
+        }
+        return SourceClientEnum.SCREENING_PLAN.type.equals(schoolStudent.getSourceClient());
+    }
+
+
 }

@@ -19,6 +19,7 @@ import lombok.experimental.Accessors;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
@@ -149,6 +150,12 @@ public class ScreeningOrganization extends AddressCooperation implements Seriali
      */
     @TableField(exist = false)
     private String districtDetailName;
+
+    /**
+     * 二维码配置, 英文逗号分隔, 1-普通二维码, 2-vs666, 3-虚拟二维码
+     */
+    @Pattern(regexp = "|[1-3](,[1-3]){0,2}", message = "qrCodeConfig不合法")
+    private String qrCodeConfig;
 
     /**
      * 转化成ScreeningOrganizationExportDTO

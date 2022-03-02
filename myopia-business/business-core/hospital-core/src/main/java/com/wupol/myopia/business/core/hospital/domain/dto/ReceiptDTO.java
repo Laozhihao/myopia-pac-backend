@@ -45,6 +45,11 @@ public class ReceiptDTO extends ReceiptList implements HasParentInfoInterface {
     private String idCard;
 
     /**
+     * 护照
+     */
+    private String passport;
+
+    /**
      * 家长姓名
      */
     private String parentName;

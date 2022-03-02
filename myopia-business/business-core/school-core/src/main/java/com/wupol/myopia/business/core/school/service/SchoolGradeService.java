@@ -19,10 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -170,10 +167,25 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      * @return Map<Integer, SchoolGrade>
      */
     public Map<Integer, SchoolGrade> getGradeMapByIds(List<Integer> ids) {
+        if (CollectionUtils.isEmpty(ids)) {
+            return new HashMap<>();
+        }
         return getByIds(ids).stream()
                 .collect(Collectors.toMap(SchoolGrade::getId, Function.identity()));
     }
 
+    /**
+     * 批量通过id获取实体
+     * @param id
+     * @return
+     */
+    public SchoolGrade getGradeById(Integer id) {
+        if (id == null) {
+            return null;
+        }
+        Optional<SchoolGrade> schoolGradeOptional = getByIds(Arrays.asList(id)).stream().findFirst();
+        return schoolGradeOptional.isPresent() ? schoolGradeOptional.get() : null;
+    }
     /**
      * 批量通过id获取名称
      *
@@ -276,6 +288,20 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
     public String getGradeNameById(Integer id) {
         SchoolGrade grade = this.getById(id);
         return Objects.nonNull(grade) ? grade.getName() : "";
+    }
+
+    /**
+     * 封装学校班级、年级信息
+     *
+     * @param schoolIds 学校Id
+     * @return Map<Integer, List < SchoolGradeExportDTO>>
+     */
+    public Map<Integer, List<SchoolGradeExportDTO>> getGradeAndClassMap(List<Integer> schoolIds) {
+        // 收集年级信息
+        List<SchoolGradeExportDTO> grades = getBySchoolIds(schoolIds);
+        packageGradeInfo(grades);
+        // 年级信息通过学校Id分组
+        return grades.stream().collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolId));
     }
 
     /**

@@ -35,6 +35,11 @@ public class ReferralDTO extends ReferralDO implements HasParentInfoInterface {
     private String recordNo;
 
     /**
+     * 护照
+     */
+    private String passport;
+
+    /**
      * 生日
      */
     private Date birthday;

@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.parent.service;
 
+import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.core.parent.domain.mapper.ParentStudentMapper;
@@ -8,6 +9,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -49,5 +51,18 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      */
     public List<Integer> getStudentIdByParentId(Integer parentId) {
         return baseMapper.getByParentId(parentId);
+    }
+
+    /**
+     * 通过学生Id获取学生
+     *
+     * @param studentIds 学生Ids
+     * @return List<ParentStudent>
+     */
+    public List<ParentStudent> getByStudentIds(List<Integer> studentIds) {
+        if (CollectionUtils.isEmpty(studentIds)) {
+            return new ArrayList<>();
+        }
+        return baseMapper.getByStudentIds(studentIds);
     }
 }
