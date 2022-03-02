@@ -7,6 +7,7 @@ import com.wupol.myopia.business.aggregation.screening.domain.dto.CredentialType
 import com.wupol.myopia.business.aggregation.screening.domain.dto.CredentialTypeAndContent;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
 import com.wupol.myopia.business.aggregation.screening.service.CommonImportServiceCopy;
+import com.wupol.myopia.business.common.utils.constant.SourceClientEnum;
 import com.wupol.myopia.business.core.hospital.domain.model.HospitalStudent;
 import com.wupol.myopia.business.core.hospital.service.HospitalStudentService;
 import com.wupol.myopia.business.core.parent.domain.model.ParentStudent;
@@ -239,6 +240,7 @@ public class CredentialModificationHandler {
         student.setParentPhone(updatePlanStudentRequestDTO.getParentPhone());
         student.setSchoolId(updatePlanStudentRequestDTO.getSchoolId());
         student.setUpdateTime(new Date());
+        student.setSourceClient(SourceClientEnum.SCREENING_PLAN.type);
         studentService.saveStudent(student);
         return student;
     }
