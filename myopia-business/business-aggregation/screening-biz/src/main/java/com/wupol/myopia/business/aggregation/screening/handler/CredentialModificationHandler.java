@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.aggregation.screening.handler;
 
-import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -8,8 +7,6 @@ import com.wupol.myopia.business.aggregation.screening.domain.dto.CredentialType
 import com.wupol.myopia.business.aggregation.screening.domain.dto.CredentialTypeAndContent;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
 import com.wupol.myopia.business.aggregation.screening.service.CommonImportServiceCopy;
-import com.wupol.myopia.business.core.common.domain.model.DeletedArchive;
-import com.wupol.myopia.business.core.common.service.DeletedArchiveService;
 import com.wupol.myopia.business.core.hospital.domain.model.HospitalStudent;
 import com.wupol.myopia.business.core.hospital.service.HospitalStudentService;
 import com.wupol.myopia.business.core.parent.domain.model.ParentStudent;
@@ -62,8 +59,6 @@ public class CredentialModificationHandler {
     private SchoolStudentService schoolStudentService;
     @Resource
     private ScreeningPlanService screeningPlanService;
-    @Resource
-    private DeletedArchiveService deletedArchiveService;
 
     /**
      * 获取处理结果
@@ -287,25 +282,9 @@ public class CredentialModificationHandler {
         if (ObjectsUtil.allNull(resultMap.get(studentId), parentStudentMap.get(studentId), hospitalStudentMap.get(studentId), planStudentMap.get(studentId))
                 && schoolStudentService.isCanDeletedSchoolStudent(schoolStudentMap, studentId)
                 && studentService.isCanDeletedStudent(studentId)) {
-            archiveDeletedStudent(studentIds);
             screeningPlanSchoolStudentService.deleteByStudentIds(studentIds);
             studentService.removeByIds(studentIds);
             schoolStudentService.deleteByStudentIds(studentIds);
-        }
-    }
-
-    /**
-     * 存档删除学生
-     *
-     * @param studentIds 学生Id
-     */
-    private void archiveDeletedStudent(List<Integer> studentIds) {
-        List<ScreeningPlanSchoolStudent> planStudents = screeningPlanSchoolStudentService.getByStudentIds(studentIds);
-        if (!CollectionUtils.isEmpty(planStudents)) {
-            DeletedArchive deletedArchive = new DeletedArchive();
-            deletedArchive.setType(DeletedArchive.PLAN_STUDENT_TYPE);
-            deletedArchive.setContent(JSONObject.toJSONString(planStudents));
-            deletedArchiveService.save(deletedArchive);
         }
     }
 }

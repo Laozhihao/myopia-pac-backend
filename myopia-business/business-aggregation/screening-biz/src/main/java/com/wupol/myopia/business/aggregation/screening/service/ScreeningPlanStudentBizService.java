@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.common.collect.Lists;
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.domain.PdfResponseDTO;
@@ -19,6 +20,8 @@ import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.core.common.constant.MockStudentStatusConstant;
+import com.wupol.myopia.business.core.common.domain.model.DeletedArchive;
+import com.wupol.myopia.business.core.common.service.DeletedArchiveService;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.service.Html2PdfService;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
@@ -104,6 +107,8 @@ public class ScreeningPlanStudentBizService {
     private CredentialModificationHandler credentialModificationHandler;
     @Resource
     private StudentService studentService;
+    @Resource
+    private DeletedArchiveService deletedArchiveService;
 
 
     /**
@@ -408,7 +413,23 @@ public class ScreeningPlanStudentBizService {
         if (Objects.nonNull(student)) {
             credentialModificationHandler.deletedStudent(student.getId(), student.getSchoolId(), planStudent.getScreeningPlanId());
         }
+        archiveDeletedStudent(Lists.newArrayList(planStudentId));
         screeningPlanSchoolStudentService.removeById(planStudentId);
+    }
+
+    /**
+     * 存档删除学生
+     *
+     * @param planStudentIds 学生Id
+     */
+    private void archiveDeletedStudent(List<Integer> planStudentIds) {
+        List<ScreeningPlanSchoolStudent> planStudents = screeningPlanSchoolStudentService.getByIds(planStudentIds);
+        if (!CollectionUtils.isEmpty(planStudents)) {
+            DeletedArchive deletedArchive = new DeletedArchive();
+            deletedArchive.setType(DeletedArchive.PLAN_STUDENT_TYPE);
+            deletedArchive.setContent(JSONObject.toJSONString(planStudents));
+            deletedArchiveService.save(deletedArchive);
+        }
     }
 
     /**
