@@ -48,6 +48,8 @@ import com.wupol.myopia.business.core.screening.organization.domain.model.Screen
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationStaff;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationStaffService;
+import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
+import com.wupol.myopia.oauth.sdk.domain.response.User;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -55,6 +57,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import java.text.ParseException;
 import java.util.*;
 import java.util.function.Function;
@@ -94,6 +97,8 @@ public class ScreeningAppService {
     private RedisUtil redisUtil;
     @Autowired
     private SchoolStudentService schoolStudentService;
+    @Resource
+    private OauthServiceClient oauthServiceClient;
 
     /**
      * 获取学生复测数据
@@ -354,8 +359,9 @@ public class ScreeningAppService {
      */
     public AppUserInfo getUserInfoByUser(CurrentUser currentUser) {
         ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(currentUser.getOrgId());
+        User user = oauthServiceClient.getUserDetailByUserId(currentUser.getId());
         AppUserInfo appUserInfo = new AppUserInfo();
-        appUserInfo.setUsername(currentUser.getUsername());
+        appUserInfo.setUsername(user.getRealName());
         appUserInfo.setUserId(currentUser.getId());
         appUserInfo.setDeptName(screeningOrganization.getName());
         appUserInfo.setDeptId(screeningOrganization.getId());
