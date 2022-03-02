@@ -63,10 +63,9 @@ public class StudentExcelImportService {
      *
      * @param createUserId  创建人userID
      * @param multipartFile 导入文件
-     * @throws BusinessException 异常
      */
     @Transactional(rollbackFor = Exception.class)
-    public void importStudent(Integer createUserId, MultipartFile multipartFile, Integer schoolId) throws ParseException {
+    public void importStudent(Integer createUserId, MultipartFile multipartFile, Integer schoolId) {
         List<Map<Integer, String>> listMap = FileUtils.readExcel(multipartFile);
         if (CollectionUtils.isEmpty(listMap)) {
             return;
@@ -178,12 +177,11 @@ public class StudentExcelImportService {
      * @param item         导入信息
      * @param student      学生
      * @param idCard       身份证
-     * @throws ParseException
      */
-    private void setStudentInfo(Integer createUserId, int offset, Map<Integer, String> item, Student student, String idCard, String passport) throws ParseException {
+    private void setStudentInfo(Integer createUserId, int offset, Map<Integer, String> item, Student student, String idCard, String passport){
         student.setName(item.get(0))
                 .setGender(Objects.nonNull(item.get(1)) ? GenderEnum.getType(item.get(1)) : IdCardUtil.getGender(idCard))
-                .setBirthday(Objects.nonNull(item.get(2)) ? DateFormatUtil.parseDate(item.get(2), DateFormatUtil.FORMAT_ONLY_DATE2) : IdCardUtil.getBirthDay(idCard))
+
                 .setNation(NationEnum.getCode(item.get(3))).setGradeType(GradeCodeEnum.getByName(item.get(5 - offset)).getType())
                 .setSno((item.get(7 - offset)))
                 .setIdCard(idCard)
@@ -197,6 +195,11 @@ public class StudentExcelImportService {
         student.setAddress(item.get(15 - offset));
         if (StringUtils.isNoneBlank(idCard, passport)) {
             student.setPassport(null);
+        }
+        try {
+            student.setBirthday(Objects.nonNull(item.get(2)) ? DateFormatUtil.parseDate(item.get(2), DateFormatUtil.FORMAT_ONLY_DATE2) : IdCardUtil.getBirthDay(idCard));
+        } catch (ParseException e) {
+            throw new BusinessException("生日格式异常");
         }
     }
 
