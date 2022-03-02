@@ -226,7 +226,7 @@ public class ParentStudentBizService {
             throw new BusinessException("家长信息异常");
         }
         // 保存孩子
-        Integer studentId = studentService.saveStudent(student);
+        Integer studentId = studentFacade.saveStudentAndSchoolStudent(student);
         // 绑定孩子
         bindStudent(parent, studentId);
         updateOtherInfo(studentId, parent.getPhone());

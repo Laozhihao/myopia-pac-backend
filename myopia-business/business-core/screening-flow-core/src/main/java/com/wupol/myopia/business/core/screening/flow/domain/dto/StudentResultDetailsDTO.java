@@ -84,7 +84,7 @@ public class StudentResultDetailsDTO {
     /**
      * 眼部疾病
      */
-    private List<String> eyeDiseases;
+    private String eyeDiseases;
 
     /**
      * 是否远视

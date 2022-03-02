@@ -64,6 +64,10 @@ public class ManagementScreeningPlanBizService {
         if (StringUtils.isNotBlank(query.getCreatorNameLike()) && screeningRelatedFacade.initCreateUserIdsAndReturnIsEmpty(query)) {
             return new Page<>();
         }
+        List<ScreeningPlan> records = page.getRecords();
+        if (CollectionUtils.isEmpty(records)) {
+            return new Page<>();
+        }
         if (StringUtils.isNotBlank(query.getScreeningOrgNameLike())) {
             List<Integer> orgIds = screeningOrganizationService.getByNameLike(query.getScreeningOrgNameLike()).stream().map(ScreeningOrganization::getId).collect(Collectors.toList());
             if (CollectionUtils.isEmpty(orgIds)) {

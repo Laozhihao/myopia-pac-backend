@@ -55,7 +55,10 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -277,9 +280,20 @@ public class StudentFacade {
      */
     private void packageOtherEyeDiseasesResult(VisionScreeningResult result, StudentResultDetailsDTO leftDetails, StudentResultDetailsDTO rightDetails) {
         // 左眼--眼部疾病
-        leftDetails.setEyeDiseases(result.getOtherEyeDiseases().getLeftEyeData().getEyeDiseases());
+        leftDetails.setEyeDiseases(getEyeDiseases(result.getOtherEyeDiseases().getLeftEyeData().getEyeDiseases(), result.getSystemicDiseaseSymptom()));
         // 右眼--眼部疾病
-        rightDetails.setEyeDiseases(result.getOtherEyeDiseases().getRightEyeData().getEyeDiseases());
+        rightDetails.setEyeDiseases(getEyeDiseases(result.getOtherEyeDiseases().getRightEyeData().getEyeDiseases(), result.getSystemicDiseaseSymptom()));
+    }
+
+    /**
+     * 获取疾病描述
+     *
+     * @param eyeDiseases            眼部疾病
+     * @param systemicDiseaseSymptom 全身病
+     * @return 疾病描述
+     */
+    private String getEyeDiseases(List<String> eyeDiseases, String systemicDiseaseSymptom) {
+        return CollectionUtils.isEmpty(eyeDiseases) ? systemicDiseaseSymptom : StringUtils.isEmpty(systemicDiseaseSymptom) ? String.join("、", eyeDiseases) : String.join("、", eyeDiseases) + "、" + systemicDiseaseSymptom;
     }
 
     /**
