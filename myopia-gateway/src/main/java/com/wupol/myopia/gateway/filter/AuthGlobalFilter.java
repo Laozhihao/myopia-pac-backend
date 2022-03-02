@@ -8,7 +8,6 @@ import com.wupol.myopia.base.constant.AuthConstants;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.ResultCode;
 import lombok.SneakyThrows;
-import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +34,6 @@ import java.nio.charset.StandardCharsets;
  * @Author HaoHao
  * @Date 2020/12/15
  **/
-@Log4j2
 @Component
 public class AuthGlobalFilter implements GlobalFilter, Ordered {
 
@@ -68,7 +66,6 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
             return response.writeWith(Mono.just(buffer));
         }
         // 把用户信息并设置到Header中去
-        log.info("当前登录用户信息：{}", payload);
         ServerHttpRequest request = exchange.getRequest().mutate()
                 .header(AuthConstants.JWT_PAYLOAD_KEY, payload)
                 .build();
