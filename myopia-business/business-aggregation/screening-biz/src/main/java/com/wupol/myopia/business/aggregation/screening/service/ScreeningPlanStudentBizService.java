@@ -19,7 +19,7 @@ import com.wupol.myopia.business.common.utils.constant.NationEnum;
 import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.FileUtils;
-import com.wupol.myopia.business.core.common.constant.MockStudentStatusConstant;
+import com.wupol.myopia.business.core.common.constant.ArtificialStatusConstant;
 import com.wupol.myopia.business.core.common.domain.model.DeletedArchive;
 import com.wupol.myopia.business.core.common.service.DeletedArchiveService;
 import com.wupol.myopia.business.core.common.service.DistrictService;
@@ -479,7 +479,7 @@ public class ScreeningPlanStudentBizService {
         screeningStudentQueryDTO.setPlanIds(screeningPlanIds)
                 .setStartScreeningTime(mockPlanStudentQueryDTO.getStartScreeningTime())
                 .setEndScreeningTime(mockPlanStudentQueryDTO.getEndScreeningTime())
-                .setMockStatus(MockStudentStatusConstant.MOCK)
+                .setArtificial(ArtificialStatusConstant.Artificial)
                 .setSnoLike(mockPlanStudentQueryDTO.getSnoLike())
                 .setNameLike(mockPlanStudentQueryDTO.getNameLike())
                 .setPhoneLike(mockPlanStudentQueryDTO.getPhoneLike())

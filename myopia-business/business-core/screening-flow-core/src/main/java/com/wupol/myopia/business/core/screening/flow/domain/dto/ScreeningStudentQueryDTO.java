@@ -106,8 +106,9 @@ public class ScreeningStudentQueryDTO extends StudentExtraDTO {
      * 身份证或者护照
      */
     private String idCardOrPassportLike;
+
     /**
-     * 虚拟学生状态
+     * 0-非人造的、1-人造的
      */
-    private Integer mockStatus;
+    private Integer artificial;
 }
