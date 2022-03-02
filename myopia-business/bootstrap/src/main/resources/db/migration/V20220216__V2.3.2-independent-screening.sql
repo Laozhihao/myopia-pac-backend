@@ -27,3 +27,12 @@ alter table h_hospital_student
 
 alter table m_student
     add source_client tinyint default 0 null comment '源客户端 0-多端 1-学校端 2-筛查计划';
+
+create table m_deleted_archive
+(
+    id          int auto_increment
+        primary key,
+    type        int                                 not null comment '数据类型 1-多端学生 2-筛查学生 3-学校端学生',
+    content     json                                null comment '内容',
+    create_time timestamp default CURRENT_TIMESTAMP not null comment '创建时间'
+) comment '删除信息归档表';

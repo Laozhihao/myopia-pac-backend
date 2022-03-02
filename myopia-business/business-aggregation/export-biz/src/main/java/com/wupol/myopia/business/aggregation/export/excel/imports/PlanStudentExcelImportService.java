@@ -16,6 +16,7 @@ import com.wupol.myopia.business.common.utils.constant.SourceClientEnum;
 import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.common.utils.util.IdCardUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.core.common.constant.MockStudentStatusConstant;
 import com.wupol.myopia.business.core.hospital.domain.model.HospitalStudent;
 import com.wupol.myopia.business.core.hospital.service.HospitalStudentService;
 import com.wupol.myopia.business.core.parent.domain.model.ParentStudent;
@@ -427,6 +428,7 @@ public class PlanStudentExcelImportService {
             }
             planStudent.setGradeName(Objects.nonNull(student.getGradeId()) ? gradeMap.get(student.getGradeId()).getName() : null);
             planStudent.setClassName(Objects.nonNull(student.getClassId()) ? classMap.get(student.getClassId()).getName() : null);
+            planStudent.setMockStatus(MockStudentStatusConstant.NOT_MOCK);
             packagePlanStudentByStudent(student, planStudent);
             list.add(planStudent);
         });
