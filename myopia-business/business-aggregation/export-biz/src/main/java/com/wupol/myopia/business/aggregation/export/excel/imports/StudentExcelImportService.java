@@ -177,7 +177,6 @@ public class StudentExcelImportService {
      * @param item         导入信息
      * @param student      学生
      * @param idCard       身份证
-     * @throws ParseException
      */
     private void setStudentInfo(Integer createUserId, int offset, Map<Integer, String> item, Student student, String idCard, String passport){
         student.setName(item.get(0))
