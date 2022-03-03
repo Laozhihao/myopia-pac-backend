@@ -417,12 +417,11 @@ public class ScreeningPlanStudentBizService {
      * @return
      */
     public IPage<ScreeningStudentDTO> getMockPlanStudentList(PageRequest pageRequest, MockPlanStudentQueryDTO mockPlanStudentQueryDTO) {
-
         //01.根据orgName 模糊查找所有的计划id
-        Set<Integer> screeningPlanIds = getPlanInfo(mockPlanStudentQueryDTO);
+        Set<Integer> screeningPlanIds = getPlanIds(mockPlanStudentQueryDTO);
+        mockPlanStudentQueryDTO.setScreeningPlanIds(screeningPlanIds);
         //02.分页查询screeningPlanStudent表
         Page<ScreeningStudentDTO> page = (Page<ScreeningStudentDTO>) pageRequest.toPage();
-        mockPlanStudentQueryDTO.setScreeningPlanIds(screeningPlanIds);
         ScreeningStudentQueryDTO screeningStudentQueryDTO = ScreeningStudentQueryDTO.getScreeningStudentQueryDTO(mockPlanStudentQueryDTO);
         IPage<ScreeningStudentDTO> screeningPlanIPage = screeningPlanSchoolStudentService.selectPageByQuery(page, screeningStudentQueryDTO);
         //03.补充分页后的其他数据
@@ -446,7 +445,7 @@ public class ScreeningPlanStudentBizService {
             return screeningStudentDTOS;
         }
         List<VisionScreeningResult> resultList = visionScreeningResultService.getByPlanStudentIds(screeningStudentDTOS.stream().map(ScreeningStudentDTO::getPlanStudentId).collect(Collectors.toList()));
-        Map<Integer, VisionScreeningResult> visionScreeningResultsGroup = resultList.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
+        Map<Integer, VisionScreeningResult> planStudentVisionResultMap = resultList.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
 
         Set<Integer> orgIdSet = screeningStudentDTOS.stream().map(ScreeningStudentDTO::getScreeningOrgId).collect(Collectors.toSet());
         Map<Integer, String> orgIdMap = screeningOrganizationService.getByIds(orgIdSet).stream().collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization::getName, (v1, v2) -> v2));
@@ -455,7 +454,7 @@ public class ScreeningPlanStudentBizService {
             studentDTO.setNationDesc(NationEnum.getName(studentDTO.getNation()))
                     .setAddress(districtService.getAddressDetails(studentDTO.getProvinceCode(), studentDTO.getCityCode(), studentDTO.getAreaCode(), studentDTO.getTownCode(), studentDTO.getAddress()));
             studentDTO.setScreeningOrgName(orgIdMap.get(studentDTO.getScreeningOrgId()));
-            setStudentEyeInfo(studentDTO, visionScreeningResultsGroup);
+            setStudentEyeInfo(studentDTO, planStudentVisionResultMap);
         }
         return screeningStudentDTOS;
     }
@@ -465,7 +464,7 @@ public class ScreeningPlanStudentBizService {
      *
      * @return
      */
-    private Set<Integer> getPlanInfo(MockPlanStudentQueryDTO mockPlanStudentQueryDTO) {
+    private Set<Integer> getPlanIds(MockPlanStudentQueryDTO mockPlanStudentQueryDTO) {
         Set<Integer> orgIds = null;
         if (StringUtils.isNotBlank(mockPlanStudentQueryDTO.getScreeningOrgNameLike())) {
             List<ScreeningOrganization> screeningOrganizations = screeningOrganizationService.getByNameLike(mockPlanStudentQueryDTO.getScreeningOrgNameLike());
