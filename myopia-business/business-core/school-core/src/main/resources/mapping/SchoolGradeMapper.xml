@@ -91,4 +91,14 @@
           and grade_code = #{code}
           and status = 0
     </select>
+
+    <select id="getByGradeNames" resultMap="BaseResultMap">
+        select *
+        from m_school_grade where school_id = #{schoolId}
+                              and status = 0
+                              and name in
+        <foreach collection="gradeNames" open="(" close=")" separator="," item="gradeName">
+            #{gradeName}
+        </foreach>
+    </select>
 </mapper>

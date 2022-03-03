@@ -8,6 +8,7 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.student.service.SchoolFacade;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
+import com.wupol.myopia.business.core.school.domain.dto.BatchSaveGradeRequestDTO;
 import com.wupol.myopia.business.core.school.domain.dto.GradeCode;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeItemsDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO;
@@ -191,5 +192,15 @@ public class SchoolManagementController {
     @PutMapping("/school")
     public SchoolResponseDTO updateSchool(@RequestBody @Valid School school) {
         return schoolFacade.updateSchool(school);
+    }
+
+    /**
+     * 批量新增班级、年级
+     *
+     * @param requestDTO 入参
+     */
+    @PostMapping("/grades/batchSave")
+    public void batchSaveGrade(@RequestBody @Valid List<BatchSaveGradeRequestDTO> requestDTO) {
+        schoolGradeService.batchSaveGrade(requestDTO, CurrentUserUtil.getCurrentUser().getId());
     }
 }

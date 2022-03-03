@@ -87,4 +87,14 @@
             and id != #{id}
         </if>
     </select>
+
+    <select id="getByNames" resultMap="BaseResultMap">
+        select *
+        from m_school_class where school_id = #{schoolId}
+                              and status = 0
+                              and name in
+        <foreach collection="names" item="name" index="index" open="(" close=")" separator=",">
+            #{name}
+        </foreach>
+    </select>
 </mapper>

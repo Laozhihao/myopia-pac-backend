@@ -46,7 +46,8 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
         if (!CollectionUtils.isEmpty(schoolClasses)) {
             throw new BusinessException("班级名称重复");
         }
-        return baseMapper.insert(schoolClass);
+        baseMapper.insert(schoolClass);
+        return schoolClass.getId();
     }
 
     /**
@@ -62,7 +63,7 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
         // 判断是否给学生使用
         List<Student> students = studentService.getStudentsByClassId(classId);
         if (!students.isEmpty()) {
-            throw new BusinessException("当前年级被学生依赖，不能删除");
+            throw new BusinessException("当前班级被学生依赖，不能删除");
         }
 
         SchoolClass schoolClass = new SchoolClass();
@@ -192,6 +193,17 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
     public String getClassNameById(Integer id) {
         SchoolClass classById = this.getById(id);
         return Objects.nonNull(classById) ? classById.getName() : "";
+    }
+
+    /**
+     * 通过名称获取班级
+     *
+     * @param schoolId 学校Id
+     * @param names    名称
+     * @return List<SchoolClass>
+     */
+    public List<SchoolClass> getByNames(Integer schoolId, List<String> names) {
+        return baseMapper.getByNames(schoolId, names);
     }
 
 }
