@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.api.management.domain.dto;
 
+import com.wupol.myopia.business.aggregation.hospital.domain.vo.HospitalStudentVO;
 import com.wupol.myopia.business.core.hospital.domain.dto.MonthAgeStatusDTO;
-import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -18,7 +18,7 @@ public class StudentPreschoolCheckRecordDTO {
     /**
      * 学生信息
      */
-    private StudentDTO student;
+    private HospitalStudentVO student;
 
     /**
      * 年龄段对应的检查的状态

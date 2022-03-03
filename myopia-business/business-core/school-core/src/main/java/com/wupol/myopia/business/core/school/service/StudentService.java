@@ -9,6 +9,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.QrCodeCacheKey;
+import com.wupol.myopia.business.common.utils.constant.SourceClientEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
@@ -314,7 +315,8 @@ public class StudentService extends BaseService<StudentMapper, Student> {
                 studentQueryDTO.getSno(), studentQueryDTO.getIdCard(), studentQueryDTO.getName(),
                 studentQueryDTO.getParentPhone(), studentQueryDTO.getGender(), conditionalFilter.getFirst(),
                 conditionalFilter.getSecond(), studentQueryDTO.getStartScreeningTime(), studentQueryDTO.getEndScreeningTime(),
-                studentQueryDTO.getSchoolName(), studentQueryDTO.getSchoolId(), studentQueryDTO.getGradeId(), studentQueryDTO.getClassId(), studentQueryDTO.getPassport());
+                studentQueryDTO.getSchoolName(), studentQueryDTO.getSchoolId(), studentQueryDTO.getGradeId(), studentQueryDTO.getClassId(), studentQueryDTO.getPassport(),
+                studentQueryDTO.getIdCardOrPassportLike());
     }
 
     /**
@@ -384,6 +386,17 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             resultStudent.setAvatar(resourceFileService.getResourcePath(resultStudent.getAvatarFileId()));
         }
         return resultStudent;
+    }
+
+    /**
+     * 筛查端更新学生
+     *
+     * @param student 学生实体
+     * @return 学生实体
+     */
+    public void updateScreenStudent(Student student) {
+        // 更新学生
+        baseMapper.updateById(student);
     }
 
     /**
@@ -578,11 +591,17 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @return Student
      */
     public Student getByIdCardAndPassport(String idCard, String passport, Integer id) {
-        List<Student> collection = baseMapper.checkByIdCardAndPassport(idCard, passport, id);
-        if (CollectionUtils.isEmpty(collection)) {
-             return null;
-         }
-         return collection.get(0);
+        if (StringUtils.isAllBlank(idCard, passport)) {
+            return null;
+        }
+        List<Student> students = baseMapper.checkByIdCardAndPassport(idCard, passport, id);
+        final int size = org.apache.commons.collections4.CollectionUtils.size(students);
+        if (size == 0) {
+            return null;
+        } else if (size != 1) {
+            throw new BusinessException("student表存在重复证件号,重复证件号 id = " + idCard + ", passport = " + passport);
+        }
+        return students.get(0);
     }
 
     /**
@@ -604,4 +623,43 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     public List<Student> getDeletedByPassportAndStatus(List<String> passport) {
         return baseMapper.getByPassportAndStatus(passport, CommonConst.STATUS_IS_DELETED);
     }
+
+    /**
+     * 通过身份证、护照获取学生
+     *
+     * @param idCards   身份证
+     * @param passports 护照
+     * @return 是否重复
+     */
+    public List<Student> getByIdCardsOrPassports(List<String> idCards, List<String> passports) {
+        if (CollectionUtils.isEmpty(idCards) && CollectionUtils.isEmpty(passports)) {
+            return new ArrayList<>();
+        }
+        return baseMapper.getByIdCardsOrPassports(idCards, passports);
+    }
+
+    /**
+     * 通过身份证件或护照查询学生
+     *
+     * @param info 条件
+     * @return 学生
+     */
+    public Student findByIdCardAndPassport(String info) {
+        return baseMapper.findByIdCardAndPassport(info);
+    }
+
+    /**
+     * 判断是否能删除多端的学生
+     *
+     * @param studentId 学生Id
+     * @return true-能删除 false-不能删除
+     */
+    public boolean isCanDeletedStudent(Integer studentId) {
+        Student student = getById(studentId);
+        if (Objects.isNull(student)) {
+            return true;
+        }
+        return SourceClientEnum.SCREENING_PLAN.type.equals(student.getSourceClient());
+    }
+
 }

@@ -25,4 +25,9 @@ public class SchoolStudentRequestDTO {
     private String idCard;
 
     private String passport;
+
+    /**
+     * 身份证/护照
+     */
+    private String idCardOrPassportLike;
 }

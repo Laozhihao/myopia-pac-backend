@@ -62,4 +62,15 @@ public class PermissionController {
     public boolean deletePermission(@PathVariable("permissionId") Integer permissionId) {
         return permissionService.removeById(permissionId);
     }
+
+    /**
+     * 通过筛查结构的ConfigType获取权限
+     *
+     * @param configType 配置
+     * @return List<String>
+     */
+    @GetMapping("/organization/{configType}")
+    public List<String> getPermissionByConfigType(@PathVariable("configType") Integer configType) {
+        return permissionService.getPermissionByConfigType(configType);
+    }
 }

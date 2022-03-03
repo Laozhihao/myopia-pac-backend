@@ -44,7 +44,7 @@
     </sql>
 
     <select id="getDetail" resultMap="ReferralDTO">
-        select rr.*, rr.update_time as apply_time, hs.`name` as student_name, hs.gender, hs.record_no, hs.birthday, hs.id_card, hs.family_info, pcr.month_age,
+        select rr.*, rr.update_time as apply_time, hs.`name` as student_name, hs.passport, hs.gender, hs.record_no, hs.birthday, hs.id_card, hs.family_info, pcr.month_age,
         h.name as from_hospital, d.name as from_doctor
         from h_referral_record rr
         INNER JOIN h_hospital_student hs

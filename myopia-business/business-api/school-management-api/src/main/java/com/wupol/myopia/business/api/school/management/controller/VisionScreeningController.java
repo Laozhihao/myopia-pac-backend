@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.api.school.management.controller;
 
-import com.alibaba.csp.sentinel.util.StringUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.cache.RedisConstant;
@@ -32,10 +31,13 @@ import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
+import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.stat.domain.model.SchoolVisionStatistic;
 import com.wupol.myopia.business.core.stat.service.SchoolVisionStatisticService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
@@ -45,11 +47,9 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * 视力筛查
@@ -100,6 +100,9 @@ public class VisionScreeningController {
 
     @Resource
     private SysUtilService sysUtilService;
+
+    @Autowired
+    private VisionScreeningResultService visionScreeningResultService;
 
     /**
      * 获取学校计划
@@ -370,4 +373,14 @@ public class VisionScreeningController {
         return screeningPlanStudentBizService.getScreeningStudentDTOS(planId, schoolId, gradeId, classId, planStudentIdStr, planStudentName);
     }
 
+    /**
+     * 学生筛查数据
+     *
+     * @param resultId
+     * @return
+     */
+    @GetMapping("/studentData")
+    public VisionScreeningResult studentData(@RequestParam Integer resultId) {
+        return visionScreeningResultService.getById(resultId);
+    }
 }

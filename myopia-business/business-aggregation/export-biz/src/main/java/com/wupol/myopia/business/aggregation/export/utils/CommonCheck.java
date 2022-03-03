@@ -16,14 +16,16 @@ public class CommonCheck {
     /**
      * 检查身份证、学号、护照是否重复
      *
-     * @param idCards 身份证
-     * @param snoList 学号
+     * @param idCards  身份证
+     * @param snoList  学号
+     * @param isSchool 是否学校端
      */
-    public static void checkHaveDuplicate(List<String> idCards, List<String> snoList, List<String> passports) {
+    public static void checkHaveDuplicate(List<String> idCards, List<String> snoList, List<String> passports, Boolean isSchool) {
 
-        if (CollectionUtils.isEmpty(snoList)) {
+        if (isSchool && CollectionUtils.isEmpty(snoList)) {
             throw new BusinessException("学号为空");
         }
+
         if (!CollectionUtils.isEmpty(idCards)) {
             List<String> duplicateList = ListUtil.getDuplicateElements(idCards);
             if (!CollectionUtils.isEmpty(duplicateList)) {

@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.CollectionUtils;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.utils.constant.ContrastTypeEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
@@ -15,6 +16,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanS
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentScreeningProgressVO;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentVO;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -220,7 +222,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         if (CollectionUtils.isEmpty(currentPlanIds)) {
             return new Page<>(page, size);
         }
-        screeningStudentQuery.setPlanIds(new ArrayList<>(currentPlanIds));
+        screeningStudentQuery.setPlanIds(currentPlanIds);
         return selectPlanStudentListByPage(page, size, screeningStudentQuery);
     }
 
@@ -433,16 +435,16 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     /**
      * 通过条件获取筛查学生
      *
-     * @param planId        计划Id
-     * @param schoolId      学校Id
-     * @param gradeId       年级Id
-     * @param classId       班级Id
-     * @param planStudentId 筛查学生Id
+     * @param planIds         计划Id
+     * @param schoolId        学校Id
+     * @param gradeId         年级Id
+     * @param classId         班级Id
+     * @param planStudentId   筛查学生Id
      * @param planStudentName 学生名称
      * @return List<ScreeningStudentDTO>
      */
-    public List<ScreeningStudentDTO> getScreeningNoticeResultStudent(Integer planId, Integer schoolId, Integer gradeId, Integer classId, List<Integer> planStudentId, String planStudentName) {
-        return baseMapper.getScreeningNoticeResultStudent(planId, schoolId, gradeId, classId, planStudentId, planStudentName);
+    public List<ScreeningStudentDTO> getScreeningNoticeResultStudent(List<Integer> planIds, Integer schoolId, Integer gradeId, Integer classId, List<Integer> planStudentId, String planStudentName) {
+        return baseMapper.getScreeningNoticeResultStudent(planIds, schoolId, gradeId, classId, planStudentId, planStudentName);
     }
 
     /**
@@ -462,13 +464,68 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      *
      * @param condition 条件
      * @param name      名字
+     * @param studentId 学生Id
      * @return 筛查学生
      */
-    public List<ScreeningPlanSchoolStudent> getByCondition(String condition, String name) {
-        return baseMapper.getByCondition(condition, name);
+    public List<ScreeningPlanSchoolStudent> getByCondition(String condition, String name, Integer studentId) {
+        return baseMapper.getByCondition(condition, name, studentId);
     }
 
     public List<ScreeningPlanSchoolStudent> getByIdCardAndPassport(String idCard, String passport, Integer id) {
         return baseMapper.getByIdCardAndPassport(idCard, passport, id);
+    }
+
+    /**
+     * 通过学生Ids删除筛查学生
+     * <p>删库操作，谨慎使用</p>
+     *
+     * @param studentIds 学生Id
+     */
+    public void deleteByStudentIds(List<Integer> studentIds) {
+        if (CollectionUtils.isEmpty(studentIds)) {
+            return;
+        }
+        baseMapper.deleteByStudentIds(studentIds);
+    }
+
+    /**
+     * 校验学号是否重复
+     *
+     * @param existPlanSchoolStudentList 已经存在的学生
+     * @param sno                        学号
+     * @param idCard                     身份证
+     * @param passport                   护照
+     * @param schoolId                   学校Id
+     */
+    public void checkSno(List<ScreeningPlanSchoolStudent> existPlanSchoolStudentList, String sno, String idCard, String passport, Integer schoolId) {
+        if (org.springframework.util.CollectionUtils.isEmpty(existPlanSchoolStudentList) || StringUtils.isBlank(sno)) {
+            return;
+        }
+        for (ScreeningPlanSchoolStudent s : existPlanSchoolStudentList) {
+            // 学号是否被使用
+            if (StringUtils.equals(sno, s.getStudentNo()) && schoolId.equals(s.getSchoolId()) && ((StringUtils.isNotBlank(idCard) && !StringUtils.equals(idCard, s.getIdCard())) || (StringUtils.isNotBlank(passport) && !StringUtils.equals(passport, s.getPassport())))) {
+                throw new BusinessException("学号:" + sno + "重复");
+            }
+        }
+    }
+
+    /**
+     * 根据计划学生查找数据
+     *
+     * @param ids id
+     * @return List<ScreeningPlanSchoolStudent>
+     */
+    public List<ScreeningPlanSchoolStudent> getByIds(List<Integer> ids) {
+        return baseMapper.getByIds(ids);
+    }
+
+    /**
+     * 获取筛查学生列表
+     *
+     * @param planId 计划Id
+     * @return List<ScreeningPlanSchoolStudent>
+     */
+    public List<ScreeningPlanSchoolStudent> getByNePlanId(Integer planId) {
+        return baseMapper.getByNePlanId(planId);
     }
 }

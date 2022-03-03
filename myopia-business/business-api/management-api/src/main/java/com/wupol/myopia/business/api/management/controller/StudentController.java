@@ -70,7 +70,6 @@ public class StudentController {
      * @return 新增数量
      */
     @PostMapping()
-    @Transactional(rollbackFor = Exception.class)
     public Integer saveStudent(@RequestBody @Valid Student student) {
         student.checkStudentInfo();
         CurrentUser user = CurrentUserUtil.getCurrentUser();
@@ -143,10 +142,9 @@ public class StudentController {
      * 导入学生列表
      *
      * @param file 导入文件
-     * @throws ParseException 转换异常
      */
     @PostMapping("/import")
-    public void importStudent(MultipartFile file, Integer schoolId) throws ParseException {
+    public void importStudent(MultipartFile file, Integer schoolId) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         studentExcelImportService.importStudent(currentUser.getId(), file, schoolId);
     }
@@ -198,11 +196,12 @@ public class StudentController {
      *
      * @param pageRequest 分页请求
      * @param studentId   学生Id
+     * @param hospitalId  医院Id
      * @return List<MedicalReportDO>
      */
     @GetMapping("/report/list")
-    public IPage<ReportAndRecordDO> getReportList(PageRequest pageRequest, @NotNull(message = "学生Id不能为空") Integer studentId) {
-        return studentBizService.getReportList(pageRequest, studentId, CurrentUserUtil.getCurrentUser());
+    public IPage<ReportAndRecordDO> getReportList(PageRequest pageRequest, @NotNull(message = "学生Id不能为空") Integer studentId, Integer hospitalId) {
+        return studentBizService.getReportList(pageRequest, studentId, CurrentUserUtil.getCurrentUser(), hospitalId);
     }
 
     /**

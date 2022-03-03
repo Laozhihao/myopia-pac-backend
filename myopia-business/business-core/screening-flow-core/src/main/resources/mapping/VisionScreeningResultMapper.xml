@@ -14,6 +14,7 @@
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="slit_lamp_data" property="slitLampData"/>
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="pupil_optometry_data" property="pupilOptometryData"/>
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="visual_loss_level_data" property="visualLossLevelData"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="height_and_weight_data" property="heightAndWeightData"/>
     </resultMap>
 
 
@@ -43,7 +44,7 @@
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         id,screening_plan_school_student_id, task_id, student_id, create_user_id, screening_org_id, school_id, plan_id, district_id, vision_data,computer_optometry, biometric_data,  other_eye_diseases, is_double_screen, update_time, create_time,
-        ocular_inspection_data, eye_pressure_data, fundus_data, slit_lamp_data, pupil_optometry_data, visual_loss_level_data, systemic_disease_symptom
+        ocular_inspection_data, eye_pressure_data, fundus_data, slit_lamp_data, pupil_optometry_data, visual_loss_level_data, systemic_disease_symptom, height_and_weight_data
     </sql>
 
     <select id="getSchoolIdByTaskId" resultType="java.lang.Integer">
@@ -139,7 +140,7 @@
         group by school_id
     </select>
 
-    <select id="getByStudentIds" resultMap="BaseResultMap">
+    <select id="getByStudentIdsAndPlanId" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
         from m_vision_screening_result
@@ -165,5 +166,20 @@
         </foreach>
         order by create_time desc
         limit 1
+    </select>
+
+    <select id="getByPlanId" resultMap="BaseResultMap">
+        select *
+        from m_vision_screening_result
+        where plan_id = #{planId}
+    </select>
+
+    <select id="getByStudentIds" resultMap="BaseResultMap">
+        select *
+        from m_vision_screening_result
+                where student_id in
+        <foreach collection="studentIds" item="studentId" index="index" open="(" close=")" separator=",">
+            #{studentId}
+        </foreach>
     </select>
 </mapper>

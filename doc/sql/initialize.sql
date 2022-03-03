@@ -754,6 +754,7 @@ CREATE TABLE `m_screening_plan_school_student`  (
   `nation` tinyint(4) DEFAULT NULL COMMENT '民族 0-汉族',
   `parent_phone` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '家长手机号码',
   `school_no` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '学校编号',
+  `mock_status`   tinyint  default 0  NOT NULL comment 'mock状态, 0mock, -1 非mock',
   `artificial`              int              default 0                 null comment '0-非人造的、1-人造的',
   `screening_code`          bigint                                     null comment '筛查编号',
   constraint m_screening_plan_school_student_screening_code_uindex

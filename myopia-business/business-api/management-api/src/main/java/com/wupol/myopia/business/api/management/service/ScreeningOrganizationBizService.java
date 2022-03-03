@@ -493,4 +493,14 @@ public class ScreeningOrganizationBizService {
         }
         return screeningOrganizationService.generateAccountAndPassword(screeningOrganization, ScreeningOrganizationService.CHILD_ACCOUNT, username);
     }
+
+    /**
+     * 通过机构类型获取权限
+     *
+     * @param configType 配置
+     * @return List<String>
+     */
+    public List<String> getPermissionByConfigType(Integer configType) {
+        return oauthServiceClient.getPermissionByConfigType(configType);
+    }
 }

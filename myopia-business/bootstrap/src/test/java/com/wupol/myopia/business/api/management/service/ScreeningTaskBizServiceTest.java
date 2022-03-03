@@ -29,7 +29,7 @@ public class ScreeningTaskBizServiceTest {
         user.setId(5);
         user.setOrgId(1);
         user.setSystemCode(1);
-        user.setUsername("wlz");
+        user.setRealName("wlz");
         user.setRoleTypes(Arrays.asList(0));
         List<ScreeningTask> tasks = screeningTaskBizService.getScreeningTaskByUser(user);
         System.out.println(tasks);

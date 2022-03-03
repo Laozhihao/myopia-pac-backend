@@ -182,6 +182,11 @@ public class SchoolStudent extends AddressCode implements Serializable {
     private Date updateTime;
 
     /**
+     * 学生来源客户端
+     */
+    private Integer sourceClient;
+
+    /**
      * 检查学生信息是否正确
      * <p>
      *     身份证和护照二选一

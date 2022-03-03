@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.api.management.controller;
 
-import com.alibaba.csp.sentinel.util.StringUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
@@ -13,7 +12,6 @@ import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelSe
 import com.wupol.myopia.business.aggregation.export.excel.imports.PlanStudentExcelImportService;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
-import com.wupol.myopia.business.aggregation.export.pdf.qrcode.ExportScreeningQrCodeService;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
 import com.wupol.myopia.business.aggregation.screening.domain.vos.SchoolGradeVO;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningExportService;
@@ -557,6 +555,16 @@ public class ScreeningPlanController {
 
         return ApiResult.success(visionScreeningResult);
 
+    }
+
+    /**
+     * 删除学生
+     *
+     * @param planStudentId 筛查学生Id
+     */
+    @DeleteMapping("/deleted/planStudent/{planStudentId}")
+    public void deletedPlanStudentById(@PathVariable @NotNull(message = "筛查学生Id不能为空") Integer planStudentId) {
+        screeningPlanStudentBizService.deletedPlanStudentById(planStudentId);
     }
 
     /**

@@ -25,6 +25,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -94,8 +95,8 @@ public class ScreeningPlanSchoolStudentFacadeService {
             return studentDTOIPage;
         }
         List<VisionScreeningResult> resultList  = visionScreeningResultService.getByPlanStudentIds(screeningStudentDTOS.stream().map(ScreeningStudentDTO::getPlanStudentId).collect(Collectors.toList()));
-        // TODO：改为Map<Integer, VisionScreeningResult>，取初筛数据
-        Map<Integer,List<VisionScreeningResult>> visionScreeningResultsGroup = resultList.stream().collect(Collectors.groupingBy(VisionScreeningResult::getStudentId));
+        // TODO：改为Map<Integer, VisionScreeningResult>
+        Map<Integer,VisionScreeningResult> visionScreeningResultsGroup = resultList.stream().filter(visionScreeningResult -> !visionScreeningResult.getIsDoubleScreen()).collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
 
         //作者：钓猫的小鱼。  描述：给学生扩展类赋值
         studentDTOIPage.getRecords().forEach(studentDTO -> {
@@ -113,8 +114,11 @@ public class ScreeningPlanSchoolStudentFacadeService {
     * @Author: 钓猫的小鱼
     * @Date: 2022/1/5
     */
-    public void setStudentEyeInfo(ScreeningStudentDTO studentEyeInfo, Map<Integer,List<VisionScreeningResult>> visionScreeningResultsGroup) {
-        VisionScreeningResult visionScreeningResult = EyeDataUtil.getVisionScreeningResult(studentEyeInfo,visionScreeningResultsGroup);
+    public void setStudentEyeInfo(ScreeningStudentDTO studentEyeInfo, Map<Integer, VisionScreeningResult> visionScreeningResultsGroup) {
+        VisionScreeningResult visionScreeningResult = null;
+        if (!CollectionUtils.isEmpty(visionScreeningResultsGroup)) {
+            visionScreeningResult = visionScreeningResultsGroup.get(studentEyeInfo.getPlanStudentId());
+        }
         studentEyeInfo.setHasScreening(Objects.nonNull(visionScreeningResult));
         //是否戴镜情况
         studentEyeInfo.setGlassesTypeDes(EyeDataUtil.glassesType(visionScreeningResult));

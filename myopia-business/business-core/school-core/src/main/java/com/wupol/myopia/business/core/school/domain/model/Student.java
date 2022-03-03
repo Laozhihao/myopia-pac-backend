@@ -245,6 +245,11 @@ public class Student extends AddressCode implements Serializable {
     private String passport;
 
     /**
+     * 学生来源客户端
+     */
+    private Integer sourceClient;
+
+    /**
      * 上传筛查学生时，判断学生需更新信息是否一致
      * 由于只有部分字段，所以不使用equals
      *

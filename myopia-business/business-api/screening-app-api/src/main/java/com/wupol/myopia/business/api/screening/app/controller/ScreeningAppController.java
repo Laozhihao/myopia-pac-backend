@@ -2,11 +2,17 @@ package com.wupol.myopia.business.api.screening.app.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.aggregation.export.excel.imports.CommonImportService;
+import com.wupol.myopia.business.aggregation.screening.domain.dto.AppQueryQrCodeParams;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
+import com.wupol.myopia.business.aggregation.screening.domain.vos.QrCodeInfo;
+import com.wupol.myopia.business.aggregation.screening.service.ScreeningExportService;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanStudentBizService;
 import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
 import com.wupol.myopia.business.api.screening.app.domain.dto.*;
@@ -19,6 +25,7 @@ import com.wupol.myopia.business.api.screening.app.enums.SysEnum;
 import com.wupol.myopia.business.api.screening.app.service.ScreeningAppService;
 import com.wupol.myopia.business.api.screening.app.service.ScreeningPlanBizService;
 import com.wupol.myopia.business.common.utils.constant.EyeDiseasesEnum;
+import com.wupol.myopia.business.common.utils.constant.SourceClientEnum;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
@@ -27,6 +34,7 @@ import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ComputerOptometryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultSearchDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentQueryDTO;
@@ -92,6 +100,10 @@ public class ScreeningAppController {
     private VisionScreeningResultService visionScreeningResultService;
     @Autowired
     private ScreeningPlanStudentBizService screeningPlanStudentBizService;
+    @Autowired
+    private ScreeningExportService screeningExportService;
+    @Autowired
+    private CommonImportService commonImportService;
 
     /**
      * 模糊查询某个筛查机构下的学校的
@@ -349,6 +361,18 @@ public class ScreeningAppController {
     }
 
     /**
+     * 保存身高体重数据
+     *
+     * @return
+     */
+    @PostMapping("/eye/addHeightAndWeight")
+    public void addHeightAndWeight(@Valid @RequestBody HeightAndWeightDataDTO heightAndWeightDataDTO) {
+        if (heightAndWeightDataDTO.isValid()) {
+            visionScreeningBizService.saveOrUpdateStudentScreenData(heightAndWeightDataDTO);
+        }
+    }
+
+    /**
      * 随机获取学生复测质量控制
      *
      * @param
@@ -401,6 +425,7 @@ public class ScreeningAppController {
         try {
             studentService.saveStudent(student);
             screeningAppService.insertSchoolStudent(student);
+            commonImportService.insertSchoolStudent(Lists.newArrayList(student), SourceClientEnum.SCREENING_APP.type);
             //获取当前的计划
         } catch (Exception e) {
             // app 就是这么干的。
@@ -412,7 +437,7 @@ public class ScreeningAppController {
             log.error("根据orgId = [{}]，以及schoolId = [{}] 无法找到计划。", CurrentUserUtil.getCurrentUser().getOrgId(), appStudentDTO.getSchoolId());
             return ApiResult.failure(ErrorEnum.UNKNOWN_ERROR.getMessage());
         }
-        screeningPlanBizService.insertWithStudent(CurrentUserUtil.getCurrentUser(), student, appStudentDTO.getGrade(), appStudentDTO.getClazz(), appStudentDTO.getSchoolName(), school.getSchoolNo(), school.getDistrictId(), appStudentDTO.getSchoolId().intValue(), currentPlan);
+        screeningPlanBizService.insertWithStudent(CurrentUserUtil.getCurrentUser(), student, appStudentDTO.getGrade(), appStudentDTO.getClazz(), appStudentDTO.getSchoolName(), school.getSchoolNo(), school.getDistrictId(), appStudentDTO.getSchoolId().intValue(), currentPlan,appStudentDTO.getPassport());
         return ApiResult.success();
     }
 
@@ -572,6 +597,21 @@ public class ScreeningAppController {
     }
 
     /**
+     * 获取身高体重检查数据
+     * @Author tastyb
+     * @param planStudentId 筛查计划学生ID
+     * @return com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDTO
+     **/
+    @GetMapping("/getHeightAndWeightData/{planStudentId}")
+    public HeightAndWeightDataDTO getHeightAndWeightData(@PathVariable Integer planStudentId) {
+        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentId(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId());
+        if (Objects.isNull(screeningResult)) {
+            return new HeightAndWeightDataDTO();
+        }
+        return HeightAndWeightDataDTO.getInstance(screeningResult.getHeightAndWeightData());
+    }
+
+    /**
      * 获取所有筛查数据
      *
      * @param planStudentId 筛查计划学生ID
@@ -635,4 +675,19 @@ public class ScreeningAppController {
         screeningPlanStudentBizService.updatePlanStudent(requestDTO);
     }
 
+    /**
+     * 获取指定学生的二维码
+     *
+     * @param appQueryQrCodeParams
+     * @return
+     */
+    @GetMapping("/export/QRCode")
+    public List<QrCodeInfo> exportQRCode(@Valid AppQueryQrCodeParams appQueryQrCodeParams) {
+        try {
+            return screeningExportService.getQrCodeAndStudentInfo(appQueryQrCodeParams, CurrentUserUtil.getCurrentUser().getOrgId());
+        } catch (Exception e) {
+            log.error("获取二维码异常", e);
+            throw new BusinessException("获取二维码异常");
+        }
+    }
 }

@@ -8,6 +8,7 @@ import com.wupol.myopia.base.util.RegularUtils;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
+import com.wupol.myopia.business.common.utils.constant.SourceClientEnum;
 import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.common.utils.util.IdCardUtil;
 import com.wupol.myopia.business.core.common.service.DistrictService;
@@ -15,17 +16,11 @@ import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolClassExportDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeExportDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
-import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
-import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.domain.model.Student;
-import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
-import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
-import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -60,10 +55,7 @@ public class StudentExcelImportService {
     private DistrictService districtService;
 
     @Resource
-    private SchoolStudentService schoolStudentService;
-
-    @Resource
-    private SchoolClassService schoolClassService;
+    private CommonImportService commonImportService;
 
 
     /**
@@ -71,10 +63,9 @@ public class StudentExcelImportService {
      *
      * @param createUserId  创建人userID
      * @param multipartFile 导入文件
-     * @throws BusinessException 异常
      */
     @Transactional(rollbackFor = Exception.class)
-    public void importStudent(Integer createUserId, MultipartFile multipartFile, Integer schoolId) throws ParseException {
+    public void importStudent(Integer createUserId, MultipartFile multipartFile, Integer schoolId) {
         List<Map<Integer, String>> listMap = FileUtils.readExcel(multipartFile);
         if (CollectionUtils.isEmpty(listMap)) {
             return;
@@ -101,7 +92,11 @@ public class StudentExcelImportService {
         List<String> idCards = listMap.stream().map(s -> s.get(8 - offset)).filter(Objects::nonNull).collect(Collectors.toList());
 
         // 收集护照
-        List<String> passports = listMap.stream().map(s -> s.get(9 - offset)).filter(Objects::nonNull).collect(Collectors.toList());
+        List<String> passports = listMap.stream().map(s -> s.get(9 - offset)).filter(Objects::nonNull).peek(passport -> {
+            if (passport.length() < 7) {
+                throw new BusinessException("护照" + passport + "异常");
+            }
+        }).collect(Collectors.toList());
 
         // 数据预校验
         preCheckStudent(schools, idCards);
@@ -171,7 +166,7 @@ public class StudentExcelImportService {
         }
         studentService.saveOrUpdateBatch(importList);
         // 插入学校端
-        insertSchoolStudent(importList);
+        commonImportService.insertSchoolStudent(importList, SourceClientEnum.MANAGEMENT.type);
     }
 
     /**
@@ -182,12 +177,11 @@ public class StudentExcelImportService {
      * @param item         导入信息
      * @param student      学生
      * @param idCard       身份证
-     * @throws ParseException
      */
-    private void setStudentInfo(Integer createUserId, int offset, Map<Integer, String> item, Student student, String idCard, String passport) throws ParseException {
+    private void setStudentInfo(Integer createUserId, int offset, Map<Integer, String> item, Student student, String idCard, String passport){
         student.setName(item.get(0))
                 .setGender(Objects.nonNull(item.get(1)) ? GenderEnum.getType(item.get(1)) : IdCardUtil.getGender(idCard))
-                .setBirthday(Objects.nonNull(item.get(2)) ? DateFormatUtil.parseDate(item.get(2), DateFormatUtil.FORMAT_ONLY_DATE2) : IdCardUtil.getBirthDay(idCard))
+
                 .setNation(NationEnum.getCode(item.get(3))).setGradeType(GradeCodeEnum.getByName(item.get(5 - offset)).getType())
                 .setSno((item.get(7 - offset)))
                 .setIdCard(idCard)
@@ -199,6 +193,14 @@ public class StudentExcelImportService {
         student.setAreaCode(districtService.getCodeByName(item.get(13 - offset)));
         student.setTownCode(districtService.getCodeByName(item.get(14 - offset)));
         student.setAddress(item.get(15 - offset));
+        if (StringUtils.isNoneBlank(idCard, passport)) {
+            student.setPassport(null);
+        }
+        try {
+            student.setBirthday(Objects.nonNull(item.get(2)) ? DateFormatUtil.parseDate(item.get(2), DateFormatUtil.FORMAT_ONLY_DATE2) : IdCardUtil.getBirthDay(idCard));
+        } catch (ParseException e) {
+            throw new BusinessException("生日格式异常");
+        }
     }
 
     /**
@@ -286,63 +288,5 @@ public class StudentExcelImportService {
         Assert.isTrue(StringUtils.isNotBlank(item.get(6 - offset)), "学生班级不能为空");
         Assert.isTrue(StringUtils.isBlank(item.get(8 - offset)) || (StringUtils.isNotBlank(item.get(8 - offset)) && Pattern.matches(RegularUtils.REGULAR_ID_CARD, item.get(8 - offset))), "学生身份证" + item.get(8 - offset) + "异常");
         Assert.isTrue(StringUtils.isBlank(item.get(10 - offset)) || Pattern.matches(RegularUtils.REGULAR_MOBILE, item.get(10 - offset)), "学生手机号码" + item.get(10 - offset) + "异常");
-    }
-
-    /**
-     * 插入学校端学生
-     *
-     * @param importList 多端学生列表
-     */
-    public void insertSchoolStudent(List<Student> importList) {
-        // 获取学号重复的
-        List<String> allSnoList = importList.stream().map(Student::getSno).collect(Collectors.toList());
-        List<String> duplicateSnoList = ListUtil.getDuplicateElements(allSnoList);
-
-        // 过滤掉学号为空的和学号重复的，班级、年级为空的
-        List<Student> studentList = importList.stream()
-                .filter(s -> StringUtils.isNotBlank(s.getSno()))
-                .filter(s -> !duplicateSnoList.contains(s.getSno()))
-                .filter(s -> Objects.nonNull(s.getGradeId()))
-                .filter(s -> Objects.nonNull(s.getClassId()))
-                .collect(Collectors.toList());
-        if (CollectionUtils.isEmpty(studentList)) {
-            return;
-        }
-
-        Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(studentList.stream().map(Student::getClassId).collect(Collectors.toList()));
-        Map<Integer, SchoolGrade> gradeMap = schoolGradeService.getGradeMapByIds(studentList.stream().map(Student::getGradeId).collect(Collectors.toList()));
-
-        List<SchoolStudent> addSchoolStudentList = new ArrayList<>();
-
-        // 通过学校分组
-        Map<Integer, List<Student>> studentMap = studentList.stream().collect(Collectors.groupingBy(Student::getSchoolId));
-        for (Map.Entry<Integer, List<Student>> entry : studentMap.entrySet()) {
-            Integer schoolId = entry.getKey();
-            List<Student> students = entry.getValue();
-
-            List<String> idCardList = students.stream().map(Student::getIdCard).collect(Collectors.toList());
-            List<String> snoList = students.stream().map(Student::getSno).collect(Collectors.toList());
-            List<String> passportList = students.stream().map(Student::getPassport).collect(Collectors.toList());
-            List<SchoolStudent> schoolStudentList = schoolStudentService.getAllByIdCardAndSnoAndPassports(idCardList, snoList, passportList, schoolId);
-
-
-            // 过滤学号、身份证、护照已经存在的
-            List<Student> needAddList = students.stream()
-                    .filter(student -> schoolStudentList.stream().noneMatch(schoolStudent -> schoolStudent.getSno().equals(student.getSno())))
-                    .filter(student -> schoolStudentList.stream().noneMatch(schoolStudent -> (Objects.nonNull(schoolStudent.getIdCard()) && schoolStudent.getIdCard().equals(student.getIdCard()))))
-                    .filter(student -> schoolStudentList.stream().noneMatch(schoolStudent -> (Objects.nonNull(schoolStudent.getPassport()) && schoolStudent.getPassport().equals(student.getPassport()))))
-                    .collect(Collectors.toList());
-
-            needAddList.forEach(s -> {
-                SchoolStudent schoolStudent = new SchoolStudent();
-                BeanUtils.copyProperties(s, schoolStudent);
-                schoolStudent.setId(null);
-                schoolStudent.setStudentId(s.getId());
-                schoolStudent.setGradeName(gradeMap.get(s.getGradeId()).getName());
-                schoolStudent.setClassName(classMap.get(s.getClassId()).getName());
-                addSchoolStudentList.add(schoolStudent);
-            });
-        }
-        schoolStudentService.saveBatch(addSchoolStudentList);
     }
 }

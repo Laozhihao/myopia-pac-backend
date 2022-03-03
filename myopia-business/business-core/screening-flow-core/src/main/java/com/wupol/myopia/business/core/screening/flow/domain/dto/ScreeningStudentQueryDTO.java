@@ -9,6 +9,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 /**
  * 学生查询
@@ -86,7 +87,7 @@ public class ScreeningStudentQueryDTO extends StudentExtraDTO {
     /**
      * 筛查计划ID集合
      */
-    private List<Integer> planIds;
+    private Set<Integer> planIds;
 
     /**
      * 筛查编号
@@ -96,5 +97,17 @@ public class ScreeningStudentQueryDTO extends StudentExtraDTO {
     /**
      * 护照
      */
-    private String passport;
+    private String passportLike;
+    /**
+     * 学校名称
+     */
+    private String schoolNameLike;
+    /**
+     * 身份证或者护照
+     */
+    private String idCardOrPassportLike;
+    /**
+     * 虚拟学生状态
+     */
+    private Integer mockStatus;
 }

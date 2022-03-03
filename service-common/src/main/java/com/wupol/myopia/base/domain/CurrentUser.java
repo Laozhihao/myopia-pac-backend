@@ -32,9 +32,9 @@ public class CurrentUser {
     private Integer screeningOrgId;
 
     /**
-     * 用户名（账号）
+     * 真实姓名
      */
-    private String username;
+    private String realName;
 
     /**
      * 系统编号
