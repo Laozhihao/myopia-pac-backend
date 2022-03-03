@@ -173,7 +173,7 @@
                     </foreach>
                 </if>
                 <if test="param.endScreeningTime != null and param.startScreeningTime != null">
-                  and   vsc.update_time between  #{param.startScreeningTime} and #{param.endScreeningTime}
+                  and   ( #{param.startScreeningTime} &lt;= vsc.update_time  and  vsc.update_time &lt; #{param.endScreeningTime} )
                 </if>
                 <if test="param.idCardOrPassportLike != null and param.idCardOrPassportLike != ''">
                     and (mspss.`id_card` like CONCAT('%', #{param.idCardOrPassportLike}, '%') or mspss.`passport` like CONCAT('%', #{param.idCardOrPassportLike}, '%'))
