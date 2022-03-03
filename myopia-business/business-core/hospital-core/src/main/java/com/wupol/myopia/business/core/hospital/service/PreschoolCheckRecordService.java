@@ -219,8 +219,13 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
         Date now = new Date();
         Map<Integer, MonthAgeStatusDTO> monthAgeStatusDTOS = initMonthAgeStatusMap();
 
-        // 如果大于等于20岁，则返回全部可更新的状态
-        if ((now.getYear() - birthday.getYear()) >= 20) {
+        // 如果 40~45岁的，则返回全部可更新的状态
+        int age = now.getYear() - birthday.getYear();
+        if (45 >= age && age >= 40) {
+            // 先把全部修改成可点击，再把有数据的修改成可更新
+            for (Integer key : monthAgeStatusDTOS.keySet()) {
+                monthAgeStatusDTOS.get(key).setStatus(MonthAgeStatusEnum.AGE_STAGE_STATUS_NOT_DATA.getStatus());
+            }
             records.forEach(record -> {
                 monthAgeStatusDTOS.get(record.getMonthAge()).setStatus(MonthAgeStatusEnum.AGE_STAGE_STATUS_CAN_UPDATE.getStatus())
                         .setPreschoolCheckRecordId(record.getId());
