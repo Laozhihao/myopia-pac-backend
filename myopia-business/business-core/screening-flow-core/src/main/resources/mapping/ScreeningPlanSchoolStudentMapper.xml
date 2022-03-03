@@ -46,7 +46,6 @@
                 <if test="@Ognl@isNotEmpty(parentPhone)">and `parent_phone` = #{parentPhone}</if>
                 <if test="@Ognl@isNotEmpty(nation)">and `nation` = #{nation}</if>
                 <if test="@Ognl@isNotEmpty(artificial)">and `artificial` = #{artificial}</if>
-                <if test="@Ognl@isNotEmpty(mockStatus)">and `mock_status` = #{mockStatus}</if>
                 <if test="@Ognl@isNotEmpty(screeningCode)">and `screening_code` = #{screeningCode}</if>
             </trim>
         </where>
@@ -55,7 +54,7 @@
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         id, src_screening_notice_id, screening_task_id, screening_plan_id, screening_org_id, plan_district_id, school_district_id, school_id, school_name,
-        grade_id, grade_name, grade_type, class_id, class_name, student_id, id_card, birthday, gender, student_age,mock_status,passport,
+        grade_id, grade_name, grade_type, class_id, class_name, student_id, id_card, birthday, gender, student_age,passport,
         student_situation, student_no, student_name, create_time, province_code, city_code,area_code,town_code, address, parent_phone,nation,artificial,screening_code
     </sql>
 
@@ -164,8 +163,8 @@
                 <if test="param.schoolNameLike != null and param.schoolNameLike != ''">
                     and ms.`name` like CONCAT('%', #{param.schoolNameLike}, '%')
                 </if>
-                <if test="param.mockStatus != null">
-                    and mspss.mock_status = #{param.mockStatus}
+                <if test="param.artificial != null">
+                    and mspss.artificial = #{param.artificial}
                 </if>
                 <if test="param.planIds != null and param.planIds.size > 0">
                     and mspss.screening_plan_id in
@@ -174,7 +173,7 @@
                     </foreach>
                 </if>
                 <if test="param.endScreeningTime != null and param.startScreeningTime != null">
-                  and   vsc.update_time between  #{param.startScreeningTime} and #{param.endScreeningTime}
+                  and   ( #{param.startScreeningTime} &lt;= vsc.update_time  and  vsc.update_time &lt; #{param.endScreeningTime} )
                 </if>
                 <if test="param.idCardOrPassportLike != null and param.idCardOrPassportLike != ''">
                     and (mspss.`id_card` like CONCAT('%', #{param.idCardOrPassportLike}, '%') or mspss.`passport` like CONCAT('%', #{param.idCardOrPassportLike}, '%'))
