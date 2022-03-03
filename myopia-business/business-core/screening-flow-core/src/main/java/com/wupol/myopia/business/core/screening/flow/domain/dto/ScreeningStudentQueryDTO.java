@@ -2,7 +2,7 @@ package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.wupol.myopia.business.core.common.constant.MockStudentStatusConstant;
+import com.wupol.myopia.business.core.common.constant.ArtificialStatusConstant;
 import com.wupol.myopia.business.core.school.domain.dto.MockPlanStudentQueryDTO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -127,7 +127,7 @@ public class ScreeningStudentQueryDTO extends StudentExtraDTO {
         screeningStudentQueryDTO.setPlanIds(mockPlanStudentQueryDTO.getScreeningPlanIds())
                 .setStartScreeningTime(mockPlanStudentQueryDTO.getStartScreeningTime())
                 .setEndScreeningTime(mockPlanStudentQueryDTO.getEndScreeningTime())
-                .setMockStatus(MockStudentStatusConstant.MOCK)
+                .setArtificial(ArtificialStatusConstant.Artificial)
                 .setSnoLike(mockPlanStudentQueryDTO.getSnoLike())
                 .setNameLike(mockPlanStudentQueryDTO.getNameLike())
                 .setPhoneLike(mockPlanStudentQueryDTO.getPhoneLike())
