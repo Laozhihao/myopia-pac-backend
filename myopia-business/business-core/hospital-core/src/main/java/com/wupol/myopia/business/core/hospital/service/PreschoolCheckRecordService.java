@@ -220,7 +220,7 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
         Map<Integer, MonthAgeStatusDTO> monthAgeStatusDTOS = initMonthAgeStatusMap();
 
         // 如果大于等于20岁，则返回全部可更新的状态
-        if (birthday.getYear() >= 20) {
+        if ((now.getYear() - birthday.getYear()) >= 20) {
             records.forEach(record -> {
                 monthAgeStatusDTOS.get(record.getMonthAge()).setStatus(MonthAgeStatusEnum.AGE_STAGE_STATUS_CAN_UPDATE.getStatus())
                         .setPreschoolCheckRecordId(record.getId());
