@@ -9,6 +9,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import javax.validation.constraints.Null;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @Classname MockPlanStudentQueryDTO
@@ -66,4 +67,10 @@ public class MockPlanStudentQueryDTO {
      * 身份证或者passport
      */
     private String idCardOrPassportLike;
+
+    /**
+     * 计划ID(方便入参, 不接受controller入参)
+     */
+    @Null
+    private Set<Integer> screeningPlanIds;
 }

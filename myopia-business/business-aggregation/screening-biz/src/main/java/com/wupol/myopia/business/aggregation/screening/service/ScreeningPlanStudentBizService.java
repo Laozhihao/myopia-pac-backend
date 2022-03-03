@@ -49,7 +49,6 @@ import com.wupol.myopia.business.core.screening.organization.domain.model.Screen
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.system.service.NoticeService;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -440,17 +439,62 @@ public class ScreeningPlanStudentBizService {
      * @return
      */
     public IPage<ScreeningStudentDTO> getMockPlanStudentList(PageRequest pageRequest, MockPlanStudentQueryDTO mockPlanStudentQueryDTO) {
+        //01.根据orgName 模糊查找所有的计划id
+        Set<Integer> screeningPlanIds = getPlanIds(mockPlanStudentQueryDTO);
+        mockPlanStudentQueryDTO.setScreeningPlanIds(screeningPlanIds);
+        //02.分页查询screeningPlanStudent表
+        Page<ScreeningStudentDTO> page = (Page<ScreeningStudentDTO>) pageRequest.toPage();
+        ScreeningStudentQueryDTO screeningStudentQueryDTO = ScreeningStudentQueryDTO.getScreeningStudentQueryDTO(mockPlanStudentQueryDTO);
+        IPage<ScreeningStudentDTO> screeningPlanIPage = screeningPlanSchoolStudentService.selectPageByQuery(page, screeningStudentQueryDTO);
+        //03.补充分页后的其他数据
+        List<ScreeningStudentDTO> screeningStudentDTOS = screeningPlanIPage.getRecords();
+        if (CollectionUtils.isEmpty(screeningStudentDTOS)) {
+            return screeningPlanIPage;
+        }
+        //04.补充额外信息
+        supplementData(screeningStudentDTOS);
+        return screeningPlanIPage;
+    }
 
-        //01.根据orgName模糊查找所有的orgIds
+    /**
+     * 补充数据
+     *
+     * @param screeningStudentDTOS
+     * @return
+     */
+    private List<ScreeningStudentDTO> supplementData(List<ScreeningStudentDTO> screeningStudentDTOS) {
+        if (CollectionUtils.isEmpty(screeningStudentDTOS)) {
+            return screeningStudentDTOS;
+        }
+        List<VisionScreeningResult> resultList = visionScreeningResultService.getByPlanStudentIds(screeningStudentDTOS.stream().map(ScreeningStudentDTO::getPlanStudentId).collect(Collectors.toList()));
+        Map<Integer, VisionScreeningResult> planStudentVisionResultMap = resultList.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
+
+        Set<Integer> orgIdSet = screeningStudentDTOS.stream().map(ScreeningStudentDTO::getScreeningOrgId).collect(Collectors.toSet());
+        Map<Integer, String> orgIdMap = screeningOrganizationService.getByIds(orgIdSet).stream().collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization::getName, (v1, v2) -> v2));
+
+        for (ScreeningStudentDTO studentDTO : screeningStudentDTOS) {
+            studentDTO.setNationDesc(NationEnum.getName(studentDTO.getNation()))
+                    .setAddress(districtService.getAddressDetails(studentDTO.getProvinceCode(), studentDTO.getCityCode(), studentDTO.getAreaCode(), studentDTO.getTownCode(), studentDTO.getAddress()));
+            studentDTO.setScreeningOrgName(orgIdMap.get(studentDTO.getScreeningOrgId()));
+            setStudentEyeInfo(studentDTO, planStudentVisionResultMap);
+        }
+        return screeningStudentDTOS;
+    }
+
+    /**
+     * 获取计划学生
+     *
+     * @return
+     */
+    private Set<Integer> getPlanIds(MockPlanStudentQueryDTO mockPlanStudentQueryDTO) {
         Set<Integer> orgIds = null;
-        Map<Integer, String> orgIdMap = null;
         if (StringUtils.isNotBlank(mockPlanStudentQueryDTO.getScreeningOrgNameLike())) {
             List<ScreeningOrganization> screeningOrganizations = screeningOrganizationService.getByNameLike(mockPlanStudentQueryDTO.getScreeningOrgNameLike());
-            orgIdMap = screeningOrganizations.stream().collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization::getName, (v1, v2) -> v2));
+            Map<Integer, String> orgIdMap = screeningOrganizations.stream().collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization::getName, (v1, v2) -> v2));
             orgIds = orgIdMap.keySet();
-            if (com.alibaba.excel.util.CollectionUtils.isEmpty(orgIds)) {
+            if (CollectionUtils.isEmpty(orgIdMap)) {
                 // 可以直接返回空
-                return new Page<>();
+                return null;
             }
         }
         //02.根据orgIds查找筛查计划信息
@@ -459,55 +503,11 @@ public class ScreeningPlanStudentBizService {
             //如果是空的话, 说明没有搜索orgIds的情况
             screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getScreeningOrgId, orgIds);
         }
-        //如果有筛查日期
-        if (mockPlanStudentQueryDTO.getEndScreeningTime() != null && mockPlanStudentQueryDTO.getStartScreeningTime() != null) {
-            screeningPlanLambdaQueryWrapper.le(ScreeningPlan::getStartTime, mockPlanStudentQueryDTO.getStartScreeningTime()).ge(ScreeningPlan::getEndTime, mockPlanStudentQueryDTO.getEndScreeningTime());
-        }
-        Set<Integer> screeningPlanIds = null;
-        //如果筛查时间以及筛查机构的查询条件存在的话,对screenPlan进行查询
         if (StringUtils.isNotBlank(screeningPlanLambdaQueryWrapper.getCustomSqlSegment())) {
             List<ScreeningPlan> screeningPlans = screeningPlanService.getBaseMapper().selectList(screeningPlanLambdaQueryWrapper);
-            screeningPlanIds = screeningPlans.stream().map(ScreeningPlan::getId).collect(Collectors.toSet());
-            if (CollectionUtils.isEmpty(screeningPlanIds)) {
-                // 可以直接返回空
-                return new Page<>();
-            }
+            return screeningPlans.stream().map(ScreeningPlan::getId).collect(Collectors.toSet());
         }
-        //03.分页查询screeningPlanStudent表
-        Page<ScreeningStudentDTO> page = (Page<ScreeningStudentDTO>) pageRequest.toPage();
-        ScreeningStudentQueryDTO screeningStudentQueryDTO = new ScreeningStudentQueryDTO();
-        screeningStudentQueryDTO.setPlanIds(screeningPlanIds)
-                .setStartScreeningTime(mockPlanStudentQueryDTO.getStartScreeningTime())
-                .setEndScreeningTime(mockPlanStudentQueryDTO.getEndScreeningTime())
-                .setArtificial(ArtificialStatusConstant.Artificial)
-                .setSnoLike(mockPlanStudentQueryDTO.getSnoLike())
-                .setNameLike(mockPlanStudentQueryDTO.getNameLike())
-                .setPhoneLike(mockPlanStudentQueryDTO.getPhoneLike())
-                .setIdCardOrPassportLike(mockPlanStudentQueryDTO.getIdCardOrPassportLike())
-                .setPassportLike(mockPlanStudentQueryDTO.getPassportLike())
-                .setSchoolNameLike(mockPlanStudentQueryDTO.getSchoolNameLike())
-                .setGender(mockPlanStudentQueryDTO.getGender());
-        IPage<ScreeningStudentDTO> screeningPlanIPage = screeningPlanSchoolStudentService.selectPageByQuery(page, screeningStudentQueryDTO);
-        List<ScreeningStudentDTO> screeningStudentDTOS = screeningPlanIPage.getRecords();
-        if (CollectionUtils.isEmpty(screeningStudentDTOS)) {
-            return screeningPlanIPage;
-        }
-        //04.补充额外信息
-        List<VisionScreeningResult> resultList = visionScreeningResultService.getByPlanStudentIds(screeningStudentDTOS.stream().map(ScreeningStudentDTO::getPlanStudentId).collect(Collectors.toList()));
-        Map<Integer, VisionScreeningResult> visionScreeningResultsGroup = resultList.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
-        List<ScreeningStudentDTO> records = screeningPlanIPage.getRecords();
-        if (MapUtils.isEmpty(orgIdMap)) {
-            Set<Integer> orgIdSet = records.stream().map(ScreeningStudentDTO::getScreeningOrgId).collect(Collectors.toSet());
-            orgIdMap = screeningOrganizationService.getByIds(orgIdSet).stream().collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization::getName, (v1, v2) -> v2));
-        }
-
-        for (ScreeningStudentDTO studentDTO : screeningPlanIPage.getRecords()) {
-            studentDTO.setNationDesc(NationEnum.getName(studentDTO.getNation()))
-                    .setAddress(districtService.getAddressDetails(studentDTO.getProvinceCode(), studentDTO.getCityCode(), studentDTO.getAreaCode(), studentDTO.getTownCode(), studentDTO.getAddress()));
-            studentDTO.setScreeningOrgName(orgIdMap.get(studentDTO.getScreeningOrgId()));
-            setStudentEyeInfo(studentDTO, visionScreeningResultsGroup);
-        }
-        return screeningPlanIPage;
+        return null;
     }
 
 

@@ -2,6 +2,8 @@ package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.wupol.myopia.business.core.common.constant.MockStudentStatusConstant;
+import com.wupol.myopia.business.core.school.domain.dto.MockPlanStudentQueryDTO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -111,4 +113,28 @@ public class ScreeningStudentQueryDTO extends StudentExtraDTO {
      * 0-非人造的、1-人造的
      */
     private Integer artificial;
+
+    /**
+     * 创建ScreeningStudentQueryDTO, 当入参为null时, 返回null;
+     * @param mockPlanStudentQueryDTO
+     * @return
+     */
+    public static ScreeningStudentQueryDTO getScreeningStudentQueryDTO(MockPlanStudentQueryDTO mockPlanStudentQueryDTO) {
+        if (mockPlanStudentQueryDTO == null) {
+            return null;
+        }
+        ScreeningStudentQueryDTO screeningStudentQueryDTO = new ScreeningStudentQueryDTO();
+        screeningStudentQueryDTO.setPlanIds(mockPlanStudentQueryDTO.getScreeningPlanIds())
+                .setStartScreeningTime(mockPlanStudentQueryDTO.getStartScreeningTime())
+                .setEndScreeningTime(mockPlanStudentQueryDTO.getEndScreeningTime())
+                .setMockStatus(MockStudentStatusConstant.MOCK)
+                .setSnoLike(mockPlanStudentQueryDTO.getSnoLike())
+                .setNameLike(mockPlanStudentQueryDTO.getNameLike())
+                .setPhoneLike(mockPlanStudentQueryDTO.getPhoneLike())
+                .setIdCardOrPassportLike(mockPlanStudentQueryDTO.getIdCardOrPassportLike())
+                .setPassportLike(mockPlanStudentQueryDTO.getPassportLike())
+                .setSchoolNameLike(mockPlanStudentQueryDTO.getSchoolNameLike())
+                .setGender(mockPlanStudentQueryDTO.getGender());
+        return screeningStudentQueryDTO;
+    }
 }
