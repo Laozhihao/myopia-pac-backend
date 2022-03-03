@@ -339,8 +339,9 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
             if (CollectionUtils.isEmpty(schoolClassList)) {
                 return;
             }
+            Integer gradeId = schoolGrade.getId();
             List<String> classNameList = schoolClassList.stream().map(SchoolClass::getName).collect(Collectors.toList());
-            if (!CollectionUtils.isEmpty(schoolClassService.getByNames(schoolId, classNameList))) {
+            if (!CollectionUtils.isEmpty(schoolClassService.getByGradeIdAndNames(schoolId, gradeId, classNameList))) {
                 throw new BusinessException("班级名称存在重复");
             }
             schoolClassList.forEach(schoolClass -> {
@@ -348,7 +349,8 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
                     throw new BusinessException("班级名称不能为空");
                 }
                 schoolClass.setCreateUserId(userId);
-                schoolClass.setGradeId(schoolGrade.getId());
+
+                schoolClass.setGradeId(gradeId);
             });
             schoolClassService.batchUpdateOrSave(schoolClassList);
         });
