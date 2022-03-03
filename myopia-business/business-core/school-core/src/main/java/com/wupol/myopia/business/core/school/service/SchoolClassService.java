@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -126,6 +127,9 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
      * @return Map<Integer, SchoolClass>
      */
     public Map<Integer, SchoolClass> getClassMapByIds(List<Integer> ids) {
+        if (CollectionUtils.isEmpty(ids)) {
+            return new HashMap<>();
+        }
         return baseMapper.selectBatchIds(ids).stream()
                 .collect(Collectors.toMap(SchoolClass::getId, Function.identity()));
     }

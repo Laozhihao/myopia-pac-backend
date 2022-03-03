@@ -62,7 +62,7 @@ private static StrategyConfig getStrategyConfig() {
 
 ## Dev环境启动项目
 ### 准备
-#### 安装依赖环境【可从OneDrive下载对应安装包：OneDrive>产品&研发>文档>近视防控项目>工程依赖安装包】
+#### 安装依赖环境【可从微盘下载对应安装包：广州团队共享 > 近视防控项目 > 部署启动系统工具包】
 - 下载并运行 Nacos 【运行：直接双击安装包bin目录下的startup_standalone.cmd文件（仅限Windows环境）】
 - 下载 Sentinel dashboard 的jar包，运行：
  ```bash
@@ -74,19 +74,26 @@ private static StrategyConfig getStrategyConfig() {
  ```
 - 其他：Redis、MySQL数据库、Maven、JDK1.8
 
+#### 配置MAVEN私库
+在maven的settings.xml文件中配置私服的账号密码地址
+
 #### 配置环境变量
 1. AWS_REGION : S3的REGION
 2. AWS_ACCESS_KEY_ID : S3的AccessKey
 3. AWS_SECRET_ACCESS_KEY : S3的SecretKey
 
+#### 安装并连接VPN
+- 访问maven私服需要连接VPN
+- 安装包可从微盘下载
+
 #### 修改配置文件
-1. copy对应微服务sample/setting目录下的配置文件到resource目录下
-2. 修改配置文件中数据库、Redis、Nacos等参数值
+1. copy对应微服务config/sample目录下的配置文件到resource目录下
+2. 修改配置文件application.yml中数据库、Redis、Nacos等参数值
 
 #### 初始化数据库
 1. 执行对应服务resource/db/migration目录下的SQL
 2. 如果开启flyway自动执行，则不用手动执行（建议开发环境首次自动执行初始化完后，关闭自动执行）
-3. 注意，myopia-business服务的m_district表数据过多，其初始化SQL放在了“OneDrive>产品&研发>文档>近视防控项目>工程依赖安装包”目录下的m_district.sql
+3. 注意：myopia-business服务的m_district表数据过多，没放在flyway的初始化SQL中，可从“微盘 > 广州团队共享 > 近视防控项目 > 部署启动系统工具包”下载 m_district.sql 初始 m_district 表
 
 ### 启动
 1. 同步maven依赖（根目录myopia-pac-backend下执行）

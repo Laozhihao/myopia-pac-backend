@@ -1,6 +1,7 @@
 package com.wupol.myopia.base.util;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,6 +24,9 @@ public class ListUtil {
      * @return 重复的元素
      */
     public static <T> List<T> getDuplicateElements(List<T> list) {
+        if (CollectionUtils.isEmpty(list)) {
+            return new ArrayList<>();
+        }
         return list.stream()
                 .collect(Collectors.toMap(e -> e, e -> 1, Integer::sum))
                 .entrySet().stream()

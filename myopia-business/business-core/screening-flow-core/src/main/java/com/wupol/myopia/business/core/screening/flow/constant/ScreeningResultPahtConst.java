@@ -102,4 +102,8 @@ public class ScreeningResultPahtConst {
     public final String PATH_VLLD_RIGHT_LEVEL = "$.visualLossLevelData.rightEyeData.level";
     public final String PATH_VLLD_LEFT_LEVEL = "$.visualLossLevelData.leftEyeData.level";
 
+    // 身高体重
+    public final String PATH_HW_HEIGHT = "$.heightAndWeightData.height";
+    public final String PATH_HW_WEIGHT = "$.heightAndWeightData.weight";
+
 }

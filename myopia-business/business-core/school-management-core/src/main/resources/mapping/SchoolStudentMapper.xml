@@ -36,8 +36,10 @@
         myopia_level,
         hyperopia_level,
         astigmatism_level,
+        passport,
         create_time,
-        update_time
+        update_time,
+        source_client
     </sql>
 
     <select id="getList"
@@ -61,6 +63,16 @@
         <if test="requestDTO.visionLabel != null">
             and vision_label = #{requestDTO.visionLabel}
         </if>
+        <if test="requestDTO.idCard != null and requestDTO.idCard != ''">
+            and id_card like CONCAT('%', #{requestDTO.idCard}, '%')
+        </if>
+        <if test="requestDTO.passport != null and requestDTO.passport != ''">
+            and passport like CONCAT('%', #{requestDTO.passport}, '%')
+        </if>
+        <if test="requestDTO.idCardOrPassportLike != null and requestDTO.idCardOrPassportLike != ''">
+            and (id_card like CONCAT('%', #{requestDTO.idCardOrPassportLike}, '%') or passport like CONCAT('%', #{requestDTO.idCardOrPassportLike}, '%'))
+        </if>
+        
         order by create_time desc
     </select>
 
@@ -108,19 +120,30 @@
         </if>
     </select>
 
-    <select id="getByIdCardOrSno" resultMap="BaseResultMap">
+    <select id="getByIdCardAndSnoAndPassports" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
         from m_school_student where school_id = #{schoolId}
                                 and status = 0
-                                and (id_card in
-        <foreach collection="idCards" item="idCard" index="index" open="(" close=")" separator=",">
-            #{idCard}
-        </foreach>
-        or sno in
-        <foreach collection="snos" item="sno" index="index" open="(" close=")" separator=",">
-            #{sno}
-        </foreach>
+                                and (
+        <if test="snos != null and snos.size() != 0">
+            sno in
+            <foreach collection="snos" item="sno" index="index" open="(" close=")" separator=",">
+                #{sno}
+            </foreach>
+        </if>
+        <if test="idCards != null and idCards.size() != 0">
+            or id_card in
+            <foreach collection="idCards" item="idCard" index="index" open="(" close=")" separator=",">
+                #{idCard}
+            </foreach>
+        </if>
+        <if test="passports != null and passports.size() != 0">
+            or passport in
+            <foreach collection="passports" item="passport" index="index" open="(" close=")" separator=",">
+                #{passport}
+            </foreach>
+        </if>
         )
     </select>
 
@@ -153,14 +176,98 @@
         limit 1
     </select>
 
-    <select id="getDeletedByIdCard" resultMap="BaseResultMap">
+    <select id="getDeletedByIdCardsAndPassports" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school_student where (
+        <if test="idCards != null and idCards.size() != 0">
+            id_card in
+            <foreach collection="idCards" item="idCard" index="index" open="(" close=")" separator=",">
+                #{idCard}
+            </foreach>
+        </if>
+        <if test="idCards != null and idCards.size() != 0 and passports != null and passports.size() != 0">
+            or
+        </if>
+        <if test="passports != null and passports.size() != 0">
+            passport in
+            <foreach collection="passports" item="passport" index="index" open="(" close=")" separator=",">
+                #{passport}
+            </foreach>
+        </if>
+        )
+                and school_id = #{schoolId}
+                and status = 2
+    </select>
+
+    <select id="getByIdCardAndSnoAndPassport" resultMap="BaseResultMap">
+        select *
+        from m_school_student where (id_card = #{idCard}
+                or sno = #{sno} or passport = #{passport})
+                                and school_id = #{schoolId}
+        <if test="id != null">
+            and id != #{id}
+        </if>
+        and status = 0
+    </select>
+
+    <select id="getByIdCardAndPassport" resultMap="BaseResultMap">
+        select *
+        from m_school_student
+                where 0 = 0
+        <if test="idCard != null and idCard != ''">
+            and id_card = #{idCard}
+        </if>
+        <if test="passport != null and passport != ''">
+            and passport = #{passport}
+        </if>
+        and school_id = #{schoolId}
+                order by create_time desc
+                limit 1
+    </select>
+
+    <select id="getAllByIdCardAndSnoAndPassports" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
         from m_school_student where school_id = #{schoolId}
-                                and status = 2
-                                and id_card in
-        <foreach collection="idCards" item="idCard" index="index" open="(" close=")" separator=",">
-            #{idCard}
+                                and (
+        <if test="snos != null and snos.size() != 0">
+            sno in
+            <foreach collection="snos" item="sno" index="index" open="(" close=")" separator=",">
+                #{sno}
+            </foreach>
+        </if>
+        <if test="idCards != null and idCards.size() != 0">
+            or id_card in
+            <foreach collection="idCards" item="idCard" index="index" open="(" close=")" separator=",">
+                #{idCard}
+            </foreach>
+        </if>
+        <if test="passports != null and passports.size() != 0">
+            or passport in
+            <foreach collection="passports" item="passport" index="index" open="(" close=")" separator=",">
+                #{passport}
+            </foreach>
+        </if>
+        )
+    </select>
+
+    <delete id="deleteByStudentIds">
+        delete
+        from m_school_student where student_id in
+        <foreach collection="studentIds" open="(" close=")" separator="," item="studentId">
+            #{studentId}
         </foreach>
+    </delete>
+
+    <select id="getByStudentIdsAndSchoolId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school_student
+                where student_id in
+        <foreach collection="studentIds" item="studentId" index="index" open="(" close=")" separator=",">
+            #{studentId}
+        </foreach>
+        and school_id = #{schoolId}
     </select>
 </mapper>

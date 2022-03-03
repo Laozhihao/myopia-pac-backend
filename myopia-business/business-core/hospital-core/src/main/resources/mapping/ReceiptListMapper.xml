@@ -36,7 +36,7 @@
     </sql>
 
     <select id="getDetail" resultMap="ReceiptDTO">
-        select rl.*, hs.`name` as student_name, hs.gender, hs.record_no, hs.birthday, hs.id_card, hs.family_info,
+        select rl.*, hs.`name` as student_name, hs.passport, hs.gender, hs.record_no, hs.birthday, hs.id_card, hs.family_info,
         h.`name` as from_hospital, d.`name` as from_doctor, pcr.month_age
         from h_receipt_list rl
         INNER JOIN h_hospital_student hs

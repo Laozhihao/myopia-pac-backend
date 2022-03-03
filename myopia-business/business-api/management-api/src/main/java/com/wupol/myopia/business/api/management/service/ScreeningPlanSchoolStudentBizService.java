@@ -8,6 +8,8 @@ import com.wupol.myopia.business.api.management.domain.dto.MockStudentRequestDTO
 import com.wupol.myopia.business.api.management.domain.dto.PlanStudentRequestDTO;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
+import com.wupol.myopia.business.common.utils.constant.SourceClientEnum;
+import com.wupol.myopia.business.core.common.constant.MockStudentStatusConstant;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.Student;
@@ -101,6 +103,7 @@ public class ScreeningPlanSchoolStudentBizService {
             student.setClassId(schoolClass.getClassId());
             student.setName(String.valueOf(ScreeningCodeGenerator.nextId()));
             student.setGender(GenderEnum.MALE.type);
+            student.setSourceClient(SourceClientEnum.SCREENING_PLAN.type);
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByName(schoolGrade.getGradeName());
             Date date = getDateByGrade(gradeCodeEnum);
             student.setGradeType(gradeCodeEnum.getType());
@@ -147,6 +150,7 @@ public class ScreeningPlanSchoolStudentBizService {
             planSchoolStudent.setStudentAge(DateUtil.ageOfNow(date));
             planSchoolStudent.setStudentName(mockStudentList.get(i).getName());
             planSchoolStudent.setArtificial(1);
+            planSchoolStudent.setMockStatus(MockStudentStatusConstant.MOCK);
             planSchoolStudent.setScreeningCode(Long.valueOf(mockStudentList.get(i).getName()));
             mockPlanStudentList.add(planSchoolStudent);
         }

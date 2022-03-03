@@ -442,4 +442,15 @@ public class ScreeningOrganizationController {
         screeningOrganizationService.updateResultNoticeConfig(id, resultNoticeConfig);
     }
 
+    /**
+     * 通过机构类型获取权限
+     *
+     * @param configType 配置
+     * @return List<String>
+     */
+    @GetMapping("getPermission/{configType}")
+    public List<String> getPermissionByConfigType(@PathVariable @NotNull(message = "配置不能为空") Integer configType) {
+        return screeningOrganizationBizService.getPermissionByConfigType(configType);
+    }
+
 }

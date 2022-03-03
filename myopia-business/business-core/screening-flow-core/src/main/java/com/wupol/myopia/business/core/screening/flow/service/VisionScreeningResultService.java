@@ -6,13 +6,17 @@ import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.VisionScreeningResultMapper;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
+import javax.annotation.Resource;
 import java.io.IOException;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @Author HaoHao
@@ -21,6 +25,9 @@ import java.util.Set;
 @Service
 public class VisionScreeningResultService extends BaseService<VisionScreeningResultMapper, VisionScreeningResult> {
 
+    @Resource
+    private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
+
    /***
    * @Description: 学生ID集合
    * @Param: [studentIds]
@@ -28,8 +35,8 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
    * @Author: 钓猫的小鱼
    * @Date: 2022/1/12
    */
-    public List<VisionScreeningResult> getByStudentIds(Integer planId,List<Integer> studentIds) {
-        return baseMapper.getByStudentIds(planId,studentIds);
+    public List<VisionScreeningResult> getByStudentIdsAndPlanId(Integer planId, List<Integer> studentIds) {
+        return baseMapper.getByStudentIdsAndPlanId(planId,studentIds);
     }
 
     /**
@@ -176,6 +183,9 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
      * @return 筛查结果
      */
     public List<VisionScreeningResult> getByPlanStudentIds(List<Integer> planStudentIds) {
+        if (CollectionUtils.isEmpty(planStudentIds)) {
+            return Collections.emptyList();
+        }
         return baseMapper.getByPlanStudentIds(planStudentIds);
     }
 
@@ -203,5 +213,53 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
      */
     public VisionScreeningResult getLatestByPlanStudentIds(List<Integer> planStudentIds) {
         return baseMapper.getLatestByPlanStudentIds(planStudentIds);
+    }
+
+    public List<VisionScreeningResult> getByPlanId(Integer planId) {
+        return baseMapper.getByPlanId(planId);
+    }
+
+    /**
+     * 通过学生Id获取结果
+     *
+     * @param studentIds 学生Ids
+     * @return List<VisionScreeningResult>
+     */
+    public List<VisionScreeningResult> getByStudentIds(List<Integer> studentIds) {
+        if (CollectionUtils.isEmpty(studentIds)) {
+            return new ArrayList<>();
+        }
+        return baseMapper.getByStudentIds(studentIds);
+    }
+
+    /**
+     * 更新学生计划结果
+     *
+     * @param plan         计划
+     * @param planStudents 筛查学生
+     */
+    public void updatePlanStudentAndVisionResult(ScreeningPlan plan, List<ScreeningPlanSchoolStudent> planStudents) {
+        if (CollectionUtils.isEmpty(planStudents)) {
+            return;
+        }
+        screeningPlanSchoolStudentService.saveOrUpdateBatch(planStudents);
+        // 获取所有结果
+        List<VisionScreeningResult> resultList = getByPlanId(plan.getId());
+        if (CollectionUtils.isEmpty(resultList)) {
+            return;
+        }
+
+        List<VisionScreeningResult> updateResultList = new ArrayList<>();
+
+        Map<Integer, VisionScreeningResult> visionMap = resultList.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
+        planStudents.forEach(planStudent -> {
+            VisionScreeningResult result = visionMap.get(planStudent.getId());
+            if (Objects.nonNull(result)) {
+                result.setStudentId(planStudent.getStudentId());
+                result.setSchoolId(planStudent.getSchoolId());
+                updateResultList.add(result);
+            }
+        });
+        updateBatchById(updateResultList);
     }
 }
