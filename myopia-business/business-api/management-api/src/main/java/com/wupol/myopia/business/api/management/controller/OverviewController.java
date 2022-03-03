@@ -10,6 +10,7 @@ import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.core.screening.organization.domain.dto.CacheOverviewInfoDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccountListDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OverviewDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OverviewRequestDTO;
@@ -85,6 +86,19 @@ public class OverviewController {
     @GetMapping("list")
     public IPage<OverviewDTO> getOverviewList(PageRequest pageRequest, OverviewQuery query) {
         return overviewBizService.getOverviewList(pageRequest, query);
+    }
+
+    /**
+     * 获取当前登录用户的总览机构信息
+     * @return
+     */
+    @GetMapping("/current/info")
+    public CacheOverviewInfoDTO getOverviewInfo() {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        if (user.isOverviewUser()) {
+            return overviewService.getSimpleOverviewInfo(user.getOrgId());
+        }
+        return null;
     }
 
     /**
