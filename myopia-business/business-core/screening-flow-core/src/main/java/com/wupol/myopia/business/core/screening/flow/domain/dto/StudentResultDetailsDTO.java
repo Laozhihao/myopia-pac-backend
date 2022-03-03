@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
+import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDO;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -83,10 +84,15 @@ public class StudentResultDetailsDTO {
     /**
      * 眼部疾病
      */
-    private List<String> eyeDiseases;
+    private String eyeDiseases;
 
     /**
      * 是否远视
      */
     private Boolean isHyperopia;
+
+    /**
+     * 身高体重
+     */
+    private HeightAndWeightDataDO heightAndWeightData;
 }

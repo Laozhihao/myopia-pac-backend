@@ -35,6 +35,11 @@ public class PreschoolCheckRecordDTO extends PreschoolCheckRecord implements Has
      * id信息
      */
     private String idCard;
+
+    /**
+     * 护照
+     */
+    private String passport;
     /**
      * 家长名称
      */

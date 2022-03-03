@@ -2,6 +2,7 @@ package com.wupol.myopia.oauth.service;
 
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.RegExpUtil;
+import com.wupol.myopia.oauth.constant.OrgScreeningMap;
 import com.wupol.myopia.oauth.domain.mapper.PermissionMapper;
 import com.wupol.myopia.oauth.domain.model.Permission;
 import org.springframework.stereotype.Service;
@@ -96,6 +97,16 @@ public class PermissionService extends BaseService<PermissionMapper, Permission>
             return new ArrayList<>();
         }
         return baseMapper.selectByRoleIds(roleIds);
+    }
+
+    /**
+     * 通过筛查结构的ConfigType获取权限
+     *
+     * @param configType 配置
+     * @return List<String>
+     */
+    public List<String> getPermissionByConfigType(Integer configType) {
+        return baseMapper.getPermissionByDistrictLevel(OrgScreeningMap.ORG_CONFIG_TYPE_TO_TEMPLATE.get(configType));
     }
 
 }

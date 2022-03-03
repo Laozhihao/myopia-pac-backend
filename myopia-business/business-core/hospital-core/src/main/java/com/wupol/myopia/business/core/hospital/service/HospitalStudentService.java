@@ -18,10 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -207,5 +204,18 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
      */
     public List<HospitalStudent> getByStudentType(Date startDate) {
         return baseMapper.getPreschoolByStudentType(startDate);
+    }
+
+    /**
+     * 通过学生Id获取学生
+     *
+     * @param studentIds 学生Ids
+     * @return List<HospitalStudent>
+     */
+    public List<HospitalStudent> getByStudentIds(List<Integer> studentIds) {
+        if (CollectionUtils.isEmpty(studentIds)) {
+            return new ArrayList<>();
+        }
+        return baseMapper.getByStudentIds(studentIds);
     }
 }

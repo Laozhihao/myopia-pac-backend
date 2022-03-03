@@ -51,6 +51,7 @@ public class ParentPreschoolController {
      */
     @PutMapping("")
     public StudentDTO updateParentStudent(@RequestBody Student student) {
+        student.checkStudentInfo();
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         return parentStudentBizService.updateStudent(currentUser, student);
     }
@@ -63,6 +64,7 @@ public class ParentPreschoolController {
      */
     @PostMapping("")
     public Integer saveParentStudent(@RequestBody Student student) {
+        student.checkStudentInfo();
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         return parentStudentBizService.saveRecordStudent(student, currentUser);
     }

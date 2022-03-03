@@ -18,4 +18,6 @@ public interface ParentStudentMapper extends BaseMapper<ParentStudent> {
 
     List<Integer> getByParentId(@Param("parentId") Integer parentId);
 
+    List<ParentStudent> getByStudentIds(@Param("studentIds") List<Integer> studentIds);
+
 }

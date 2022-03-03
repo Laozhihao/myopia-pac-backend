@@ -67,4 +67,9 @@ public class ScreeningOrgResponseDTO extends ScreeningOrganization {
      * 该机构下筛查人员总人数
      */
     private Integer screeningStaffTotalNum;
+
+    /**
+     * 二维码配置, 英文逗号分隔, 1-普通二维码, 2-vs666, 3-虚拟二维码
+     */
+    private String qrCodeConfig;
 }

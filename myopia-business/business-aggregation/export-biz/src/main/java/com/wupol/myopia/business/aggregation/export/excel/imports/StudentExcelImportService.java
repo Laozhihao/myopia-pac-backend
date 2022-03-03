@@ -8,6 +8,7 @@ import com.wupol.myopia.base.util.RegularUtils;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
+import com.wupol.myopia.business.common.utils.constant.SourceClientEnum;
 import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.common.utils.util.IdCardUtil;
 import com.wupol.myopia.business.core.common.service.DistrictService;
@@ -21,6 +22,7 @@ import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -52,15 +54,18 @@ public class StudentExcelImportService {
     @Resource
     private DistrictService districtService;
 
+    @Resource
+    private CommonImportService commonImportService;
+
 
     /**
      * 导入学生
      *
      * @param createUserId  创建人userID
      * @param multipartFile 导入文件
-     * @throws BusinessException 异常
      */
-    public void importStudent(Integer createUserId, MultipartFile multipartFile, Integer schoolId) throws ParseException {
+    @Transactional(rollbackFor = Exception.class)
+    public void importStudent(Integer createUserId, MultipartFile multipartFile, Integer schoolId) {
         List<Map<Integer, String>> listMap = FileUtils.readExcel(multipartFile);
         if (CollectionUtils.isEmpty(listMap)) {
             return;
@@ -86,6 +91,13 @@ public class StudentExcelImportService {
         // 收集身份证号码
         List<String> idCards = listMap.stream().map(s -> s.get(8 - offset)).filter(Objects::nonNull).collect(Collectors.toList());
 
+        // 收集护照
+        List<String> passports = listMap.stream().map(s -> s.get(9 - offset)).filter(Objects::nonNull).peek(passport -> {
+            if (passport.length() < 7) {
+                throw new BusinessException("护照" + passport + "异常");
+            }
+        }).collect(Collectors.toList());
+
         // 数据预校验
         preCheckStudent(schools, idCards);
 
@@ -97,7 +109,27 @@ public class StudentExcelImportService {
         Map<String, List<SchoolGradeExportDTO>> schoolGradeMaps = grades.stream().collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolNo));
 
         // 通过身份证获取学生
-        Map<String, Student> studentMap = studentService.getByIdCardsAndStatus(idCards).stream().collect(Collectors.toMap(Student::getIdCard, Function.identity()));
+        Map<String, Student> studentMap = new HashMap<>();
+        Map<String, Student> passportMap = new HashMap<>();
+
+        // 通过护照获取学生
+        Map<String, Integer> deletedIdCardMap = new HashMap<>();
+        Map<String, Integer> deletedPassportMap = new HashMap<>();
+
+        if (!CollectionUtils.isEmpty(idCards)) {
+            studentMap = studentService.getByIdCardsAndStatus(idCards).stream().collect(Collectors.toMap(Student::getIdCard, Function.identity()));
+
+            // 通过身份证获取已经删除的学生
+            List<Student> deleteIdCardStudent = studentService.getDeleteStudentByIdCard(idCards);
+            deletedIdCardMap = deleteIdCardStudent.stream().collect(Collectors.toMap(Student::getIdCard, Student::getId));
+        }
+        if (!CollectionUtils.isEmpty(passports)) {
+            passportMap = studentService.getByPassportAndStatus(passports).stream().collect(Collectors.toMap(Student::getPassport, Function.identity()));
+
+            // 通过护照获取已经删除的学生
+            List<Student> deletePassportStudent = studentService.getDeletedByPassportAndStatus(passports);
+            deletedPassportMap = deletePassportStudent.stream().collect(Collectors.toMap(Student::getPassport, Student::getId));
+        }
 
         List<Student> importList = new ArrayList<>();
         for (Map<Integer, String> item : listMap) {
@@ -109,24 +141,32 @@ public class StudentExcelImportService {
             // Excel 格式： 姓名	性别	出生日期	民族   学校编号(同个学校时没有该列，后面的左移一列)   年级	班级	学号	身份证号	手机号码	省	市	县区	镇/街道	详细
             // 民族取值：1-汉族  2-蒙古族  3-藏族  4-壮族  5-回族  6-其他
             String idCard = item.get(8 - offset);
-            if (Objects.nonNull(studentMap.get(idCard))) {
+            String passport = item.get(9 - offset);
+            if (Objects.nonNull(idCard) && Objects.nonNull(studentMap.get(idCard))) {
                 throw new BusinessException("身份证" + idCard + "在系统中重复");
             }
-            setStudentInfo(createUserId, offset, item, student, idCard);
+            if (Objects.nonNull(passport) && Objects.nonNull(passportMap.get(passport))) {
+                throw new BusinessException("护照" + passport + "在系统中重复");
+            }
+            setStudentInfo(createUserId, offset, item, student, idCard, passport);
             setStudentSchoolInfo(schoolId, isSameSchool, offset, schoolNo, schoolMap, schoolGradeMaps, item, student);
+            student.checkStudentInfo();
             importList.add(student);
         }
-        // 通过身份证获取已经删除的学生
-        List<Student> deleteStudent = studentService.getDeleteStudentByIdCard(idCards);
-        Map<String, Integer> deletedMap = deleteStudent.stream().collect(Collectors.toMap(Student::getIdCard, Student::getId));
-        importList.forEach(student -> {
-            if (Objects.nonNull(deletedMap.get(student.getIdCard()))) {
-                student.setId(deletedMap.get(student.getIdCard()));
+        // 将删除的学生重新启用
+        for (Student student : importList) {
+            if (Objects.nonNull(student.getIdCard()) && Objects.nonNull(deletedIdCardMap.get(student.getIdCard()))) {
+                student.setId(deletedIdCardMap.get(student.getIdCard()));
                 student.setStatus(CommonConst.STATUS_NOT_DELETED);
             }
-
-        });
+            if (Objects.nonNull(student.getPassport()) && Objects.nonNull(deletedPassportMap.get(student.getPassport()))) {
+                student.setId(deletedPassportMap.get(student.getPassport()));
+                student.setStatus(CommonConst.STATUS_NOT_DELETED);
+            }
+        }
         studentService.saveOrUpdateBatch(importList);
+        // 插入学校端
+        commonImportService.insertSchoolStudent(importList, SourceClientEnum.MANAGEMENT.type);
     }
 
     /**
@@ -137,22 +177,30 @@ public class StudentExcelImportService {
      * @param item         导入信息
      * @param student      学生
      * @param idCard       身份证
-     * @throws ParseException
      */
-    private void setStudentInfo(Integer createUserId, int offset, Map<Integer, String> item, Student student, String idCard) throws ParseException {
+    private void setStudentInfo(Integer createUserId, int offset, Map<Integer, String> item, Student student, String idCard, String passport){
         student.setName(item.get(0))
                 .setGender(Objects.nonNull(item.get(1)) ? GenderEnum.getType(item.get(1)) : IdCardUtil.getGender(idCard))
-                .setBirthday(Objects.nonNull(item.get(2)) ? DateFormatUtil.parseDate(item.get(2), DateFormatUtil.FORMAT_ONLY_DATE2) : IdCardUtil.getBirthDay(idCard))
+
                 .setNation(NationEnum.getCode(item.get(3))).setGradeType(GradeCodeEnum.getByName(item.get(5 - offset)).getType())
                 .setSno((item.get(7 - offset)))
                 .setIdCard(idCard)
-                .setParentPhone(item.get(9 - offset))
-                .setCreateUserId(createUserId);
-        student.setProvinceCode(districtService.getCodeByName(item.get(10 - offset)));
-        student.setCityCode(districtService.getCodeByName(item.get(11 - offset)));
-        student.setAreaCode(districtService.getCodeByName(item.get(12 - offset)));
-        student.setTownCode(districtService.getCodeByName(item.get(13 - offset)));
-        student.setAddress(item.get(14 - offset));
+                .setParentPhone(item.get(10 - offset))
+                .setCreateUserId(createUserId)
+                .setPassport(passport);
+        student.setProvinceCode(districtService.getCodeByName(item.get(11 - offset)));
+        student.setCityCode(districtService.getCodeByName(item.get(12 - offset)));
+        student.setAreaCode(districtService.getCodeByName(item.get(13 - offset)));
+        student.setTownCode(districtService.getCodeByName(item.get(14 - offset)));
+        student.setAddress(item.get(15 - offset));
+        if (StringUtils.isNoneBlank(idCard, passport)) {
+            student.setPassport(null);
+        }
+        try {
+            student.setBirthday(Objects.nonNull(item.get(2)) ? DateFormatUtil.parseDate(item.get(2), DateFormatUtil.FORMAT_ONLY_DATE2) : IdCardUtil.getBirthDay(idCard));
+        } catch (ParseException e) {
+            throw new BusinessException("生日格式异常");
+        }
     }
 
     /**
@@ -202,6 +250,9 @@ public class StudentExcelImportService {
     private void preCheckStudent(List<School> schools, List<String> idCards) {
         Assert.isTrue(!CollectionUtils.isEmpty(schools), "学校编号异常");
 
+        if (CollectionUtils.isEmpty(idCards)) {
+            return;
+        }
         List<String> notLegalIdCards = new ArrayList<>();
         idCards.forEach(s -> {
             if (!IdcardUtil.isValidCard(s)) {
@@ -235,7 +286,7 @@ public class StudentExcelImportService {
         }
         Assert.isTrue(StringUtils.isNotBlank(item.get(5 - offset)), "学生年级不能为空");
         Assert.isTrue(StringUtils.isNotBlank(item.get(6 - offset)), "学生班级不能为空");
-        Assert.isTrue(StringUtils.isNotBlank(item.get(8 - offset)) && Pattern.matches(RegularUtils.REGULAR_ID_CARD, item.get(8 - offset)), "学生身份证" + item.get(8 - offset) + "异常");
-        Assert.isTrue(StringUtils.isBlank(item.get(9 - offset)) || Pattern.matches(RegularUtils.REGULAR_MOBILE, item.get(9 - offset)), "学生手机号码" + item.get(9 - offset) + "异常");
+        Assert.isTrue(StringUtils.isBlank(item.get(8 - offset)) || (StringUtils.isNotBlank(item.get(8 - offset)) && Pattern.matches(RegularUtils.REGULAR_ID_CARD, item.get(8 - offset))), "学生身份证" + item.get(8 - offset) + "异常");
+        Assert.isTrue(StringUtils.isBlank(item.get(10 - offset)) || Pattern.matches(RegularUtils.REGULAR_MOBILE, item.get(10 - offset)), "学生手机号码" + item.get(10 - offset) + "异常");
     }
 }

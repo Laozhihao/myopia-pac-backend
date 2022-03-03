@@ -1,6 +1,8 @@
 package com.wupol.myopia.business.api.screening.app.domain.dto;
 
+import com.wupol.myopia.base.exception.BusinessException;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 
 
 @Data
@@ -115,5 +117,22 @@ public class AppStudentDTO {
      *
      */
     private Long userId;
+
+    /**
+     * 护照
+     */
+    private String passport;
+
+    /**
+     * 检查学生信息是否正确
+     * <p>
+     *     身份证和护照二选一
+     * </p>
+     */
+    public void checkStudentInfo() {
+        if (StringUtils.isAllBlank(idCard, passport) || (StringUtils.isNotBlank(idCard) && StringUtils.isNotBlank(passport))) {
+            throw new BusinessException("身份证、护照信息异常");
+        }
+    }
 
 }
