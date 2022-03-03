@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * 总览账号查询
@@ -42,11 +43,16 @@ public class OverviewQuery extends Overview {
     private Date cooperationEndTimeLe;
 
     public void setEndTimeGe(Long endTimeGe) {
-        cooperationEndTimeGe = new Date(endTimeGe);
+        if (Objects.nonNull(endTimeGe)) {
+            cooperationEndTimeGe = new Date(endTimeGe);
+        }
+
     }
 
     public void setEndTimeLe(Long endTimeLe) {
-        cooperationEndTimeLe = new Date(endTimeLe);
+        if (Objects.nonNull(endTimeLe)) {
+            cooperationEndTimeLe = new Date(endTimeLe);
+        }
     }
 
 
