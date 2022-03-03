@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.core.school.domain.dto;
 
 import com.wupol.myopia.business.core.school.domain.model.School;
-import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import lombok.Data;
 
 import java.util.List;

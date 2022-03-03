@@ -3,7 +3,6 @@ package com.wupol.myopia.business.aggregation.screening.service;
 import cn.hutool.extra.qrcode.QrCodeUtil;
 import cn.hutool.extra.qrcode.QrConfig;
 import com.wupol.framework.core.util.CollectionUtils;
-import com.alibaba.fastjson.JSON;
 import com.wupol.framework.core.util.StringUtils;
 import com.wupol.framework.utils.FreemarkerUtil;
 import com.wupol.framework.utils.PdfUtil;
@@ -17,7 +16,6 @@ import com.wupol.myopia.business.aggregation.screening.domain.vos.QrCodeInfo;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.domain.model.NotificationConfig;
-import com.wupol.myopia.business.common.utils.util.HtmlToPdfUtil;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.common.util.S3Utils;
 import com.wupol.myopia.business.core.school.domain.model.School;
@@ -42,10 +40,9 @@ import javax.annotation.Resource;
 import javax.validation.ValidationException;
 import java.awt.*;
 import java.io.File;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 筛查导出相关
@@ -363,7 +360,7 @@ public class ScreeningExportService {
      * @param student 学生信息
      * @return 二维码
      */
-    private String setVs666QrCodeRule(ScreeningStudentDTO student) {
+    public String setVs666QrCodeRule(ScreeningStudentDTO student) {
         return String.format(QrCodeConstant.VS666_QR_CODE_CONTENT_FORMAT_RULE,
                 String.format(QrCodeConstant.GENERATE_VS666_ID, student.getPlanId(), student.getPlanStudentId()),
                 student.getName(),
