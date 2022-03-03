@@ -199,11 +199,12 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
      * 通过名称获取班级
      *
      * @param schoolId 学校Id
+     * @param gradeId  年级Id
      * @param names    名称
      * @return List<SchoolClass>
      */
-    public List<SchoolClass> getByNames(Integer schoolId, List<String> names) {
-        return baseMapper.getByNames(schoolId, names);
+    public List<SchoolClass> getByGradeIdAndNames(Integer schoolId, Integer gradeId, List<String> names) {
+        return baseMapper.getByGradeIdAndNames(schoolId, gradeId, names);
     }
 
 }
