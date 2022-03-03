@@ -195,4 +195,15 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
         return Objects.nonNull(classById) ? classById.getName() : "";
     }
 
+    /**
+     * 通过名称获取班级
+     *
+     * @param schoolId 学校Id
+     * @param names    名称
+     * @return List<SchoolClass>
+     */
+    public List<SchoolClass> getByNames(Integer schoolId, List<String> names) {
+        return baseMapper.getByNames(schoolId, names);
+    }
+
 }

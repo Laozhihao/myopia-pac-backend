@@ -46,4 +46,6 @@ public interface SchoolGradeMapper extends BaseMapper<SchoolGrade> {
 
     Integer countBySchoolIdAndCode(@Param("schoolId") Integer schoolId, @Param("code") String code);
 
+    List<SchoolGrade> getByGradeNames(@Param("schoolId") Integer schoolId, @Param("gradeNames") List<String> gradeNames);
+
 }
