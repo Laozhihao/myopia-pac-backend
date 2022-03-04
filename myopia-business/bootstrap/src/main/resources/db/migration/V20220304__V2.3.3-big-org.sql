@@ -11,7 +11,7 @@ CREATE TABLE `m_overview`  (
   `config_type` tinyint(1) NOT NULL DEFAULT 0 COMMENT '配置类型，0：配置筛查机构、1：配置医院、2：配置筛查机构+医院',
   `hospital_service_type` tinyint(1) NOT NULL DEFAULT 0 COMMENT '医院服务类型（配置），0：居民健康系统(默认)、1：0-6岁眼保健、2：0-6岁眼保健+居民健康系统',
   `hospital_limit_num` int(11) NOT NULL DEFAULT 0 COMMENT '医院限制数量',
-  `screening_organization_config_type` tinyint(4) NOT NULL COMMENT '筛查机构配置 0-省级配置 1-单点配置 2-VS666 3-单点配置+VS666',
+  `screening_organization_config_type` tinyint(4) NOT NULL DEFAULT 0 COMMENT '筛查机构配置 0-省级配置 1-单点配置 2-VS666 3-单点配置+VS666',
   `screening_organization_limit_num` int(11) NOT NULL DEFAULT 0 COMMENT '筛查机构限制数量',
   `cooperation_type` tinyint(1) NULL DEFAULT NULL COMMENT '合作类型，0-合作 1-试用',
   `cooperation_time_type` tinyint(1) NULL DEFAULT NULL COMMENT '合作期限类型，-1-自定义 0-30天 1-60天 2-180天 3-1年 4-2年 5-3年',
