@@ -40,8 +40,8 @@ import javax.annotation.Resource;
 import javax.validation.ValidationException;
 import java.awt.*;
 import java.io.File;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -146,6 +146,67 @@ public class ScreeningExportService {
     }
 
     /**
+     *
+     * @param screeningPlanId 计划ID
+     * @param schoolId 学校ID
+     * @param gradeId 年级ID
+     * @param classId 班级ID
+     * @param studentIds 学生ID集合
+     * @param isSchoolClient true:学校端   fasle：管理端
+     * @return
+     */
+    public Map<String, Object> getNoticeData(Integer screeningPlanId, Integer schoolId,Integer gradeId,Integer classId,List<Integer> studentIds,boolean isSchoolClient) {
+        // 2. 处理参数
+        String gradeName = "";
+        School school = schoolService.getBySchoolId(schoolId);
+        if (Objects.nonNull(gradeId)){
+            SchoolGrade schoolGrade = schoolGradeService.getById(gradeId);
+            gradeName = schoolGrade.getName();
+        }
+        String className = "";
+        if (Objects.nonNull(classId)){
+            SchoolClass schoolClass = schoolClassService.getById(classId);
+            className = schoolClass.getName();
+        }
+
+
+        String classDisplay = String.format("%s%s", gradeName, className);
+        String fileName = String.format("%s-%s-告知书", classDisplay, DateFormatUtil.formatNow(DateFormatUtil.FORMAT_TIME_WITHOUT_LINE));
+        ScreeningPlan plan = screeningPlanService.getById(screeningPlanId);
+
+        NotificationConfig notificationConfig;
+        // 如果学校Id不为空，说明是学校端进行的导出，使用学校自己的告知书配置
+        if (isSchoolClient) {
+            ScreeningOrgResponseDTO screeningOrganization = screeningOrganizationService.getScreeningOrgDetails(plan.getScreeningOrgId());
+            notificationConfig = screeningOrganization.getNotificationConfig();
+        } else {
+            notificationConfig = school.getNotificationConfig();
+        }
+        List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.selectBySchoolGradeAndClass(screeningPlanId, schoolId, gradeId,classId,studentIds);
+        QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white).setMargin(1);
+        students.forEach(student -> {
+            student.setQrCodeUrl(QrCodeUtil.generateAsBase64(String.format(QrCodeConstant.QR_CODE_CONTENT_FORMAT_RULE, student.getPlanStudentId()), config, "jpg"));
+            student.setGenderDesc(GenderEnum.getName(student.getGender()));
+            student.setScreeningOrgConfigs(notificationConfig);
+        });
+
+        Map<String, Object> models = new HashMap<>(16);
+        models.put("screeningOrgConfigs", notificationConfig);
+        models.put("students", students);
+        models.put("classDisplay", classDisplay);
+        models.put("schoolName", school.getName());
+        if (Objects.nonNull(notificationConfig)
+                && Objects.nonNull(notificationConfig.getQrCodeFileId())
+                && !notificationConfig.getQrCodeFileId().equals(DEFAULT_FILE_ID)
+        ) {
+            models.put("qrCodeFile", resourceFileService.getResourcePath(notificationConfig.getQrCodeFileId()));
+        } else {
+            models.put("qrCodeFile", DEFAULT_IMAGE_PATH);
+        }
+        return models;
+    }
+
+    /**
      * 导出筛查计划的学生二维码信息
      *
      * @param schoolClassInfo 参与筛查计划的学生
@@ -168,6 +229,7 @@ public class ScreeningExportService {
                 student.setGenderDesc(GenderEnum.getName(student.getGender()));
                 student.setQrCodeUrl(QrCodeUtil.generateAsBase64(getQrCodeContent(student, type), config, "jpg"));
             });
+
             // 3. 处理pdf报告参数
             Map<String, Object> models = new HashMap<>(16);
             models.put("students", students);
@@ -183,6 +245,27 @@ public class ScreeningExportService {
         } catch (Exception e) {
             throw new BusinessException("生成PDF文件失败", e);
         }
+    }
+
+    public List<ScreeningStudentDTO> studentQRCodeFile(Integer screeningPlanId,Integer schoolId, Integer gradeId,Integer classId,List<Integer> planStudentIds,Integer type) {
+        // 2. 处理参数
+        List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.selectBySchoolGradeAndClass(
+                screeningPlanId, schoolId,gradeId, classId,planStudentIds);
+        QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white).setMargin(1);
+        students.forEach(student -> {
+            student.setGenderDesc(GenderEnum.getName(student.getGender()));
+            String content;
+            if (CommonConst.EXPORT_SCREENING_QRCODE.equals(type)) {
+                content = String.format(QrCodeConstant.SCREENING_CODE_QR_CONTENT_FORMAT_RULE, student.getPlanStudentId());
+            } else if (CommonConst.EXPORT_VS666.equals(type)) {
+                content = setVs666QrCodeRule(student);
+            } else {
+                content = String.format(QrCodeConstant.QR_CODE_CONTENT_FORMAT_RULE, student.getPlanStudentId());
+            }
+            student.setQrCodeUrl(QrCodeUtil.generateAsBase64(content, config, "jpg"));
+        });
+
+        return students;
     }
 
     /**
@@ -277,7 +360,7 @@ public class ScreeningExportService {
      * @param student 学生信息
      * @return 二维码
      */
-    private String setVs666QrCodeRule(ScreeningStudentDTO student) {
+    public String setVs666QrCodeRule(ScreeningStudentDTO student) {
         return String.format(QrCodeConstant.VS666_QR_CODE_CONTENT_FORMAT_RULE,
                 String.format(QrCodeConstant.GENERATE_VS666_ID, student.getPlanId(), student.getPlanStudentId()),
                 student.getName(),

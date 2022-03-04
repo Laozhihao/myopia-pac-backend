@@ -1,8 +1,5 @@
 package com.wupol.myopia.business.aggregation.screening.domain.dto;
 
-import com.wupol.myopia.business.common.utils.util.TwoTuple;
-import org.apache.commons.lang3.StringUtils;
-
 /**
  * @Classname StudentIdCardOrPassportType
  * @Description 证件号码

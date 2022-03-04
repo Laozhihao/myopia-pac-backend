@@ -91,6 +91,30 @@
         group by grade_id, class_id
     </select>
 
+    <select id="selectStudentVoByPlanIdAndSchoolIdAndGradeIdAndClassId" resultMap="ScreeningStudentDTO">
+        SELECT mspss.student_id     as id,
+               mspss.student_no     as sno,
+               mspss.student_name   as name,
+               mspss.gender,
+               mspss.birthday,
+               mspss.province_code,
+               mspss.city_code,
+               mspss.area_code,
+               mspss.town_code,
+               mspss.address,
+               mspss.id_card,
+               mspss.nation,
+               mspss.parent_phone,
+               mspss.grade_id,
+               mspss.class_id,
+               mspss.id as planSutdhentId,
+               mspss.passport,
+               mspss.screening_code as screeningCode,
+               mspss.id             as planStudentId
+        FROM m_screening_plan_school_student mspss
+        where screening_plan_id = #{screeningPlanId} and school_id = #{schoolId} and grade_id = #{gradeId} and class_id = #{classId}
+        group by grade_id, class_id
+    </select>
 
 
     <select id="selectPageByQuery" resultMap="ScreeningStudentDTO" parameterType="java.util.Map">
@@ -297,6 +321,38 @@
         where mspss.screening_plan_id = #{screeningPlanId}
           and mspss.grade_id = #{gradeId}
           and mspss.class_id = #{classId}
+    </select>
+    <select id="selectBySchoolGradeAndClass" resultMap="ScreeningStudentDTO" parameterType="java.util.Map">
+        select mspss.student_name      as name,
+               mspss.student_no        as sno,
+               mspss.school_name	   as schoolName,
+               mspss.grade_id          as gradeId,
+               mspss.grade_name        as gradeName,
+               mspss.class_name        as className,
+               mspss.class_id          as classId,
+               mspss.gender,
+               mspss.student_id        as id,
+               mspss.screening_plan_id as planId,
+               mspss.id                as planStudentId,
+               mspss.student_age       as age,
+               mspss.screening_code
+        from m_screening_plan_school_student mspss
+        where mspss.screening_plan_id = #{screeningPlanId}
+        <if test="schoolId != null">
+            and mspss.school_id = #{schoolId}
+        </if>
+        <if test="gradeId != null">
+            and mspss.grade_id = #{gradeId}
+        </if>
+        <if test="classId != null">
+            and mspss.class_id = #{classId}
+        </if>
+        <if test="studentIds != null">
+            and mspss.student_id in
+            <foreach collection="studentIds" open="(" close=")" separator="," item="studentId">
+                #{studentId}
+            </foreach>
+        </if>
     </select>
 
     <select id="findByStudentId" resultMap="BaseResultMap">

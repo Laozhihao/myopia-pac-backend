@@ -65,6 +65,14 @@ public class ScreeningPlanSchoolStudentFacadeService {
         return getSchoolGradeVOS(gradeClasses);
     }
 
+    public List<ScreeningStudentDTO> getStudentVoByPlanIdAndSchoolIdAndGradeIdAndClassId(Integer screeningPlanId, Integer schoolId,Integer gradeId,Integer classId) {
+        //1. 获取该计划学校的筛查学生所有年级、班级
+        List<ScreeningStudentDTO> studentDTOS = screeningPlanSchoolStudentService.selectStudentVoByPlanIdAndSchoolIdAndGradeIdAndClassId(screeningPlanId, schoolId,gradeId,classId);
+
+        return studentDTOS;
+    }
+
+
     /**
      * 分页获取筛查计划的学校学生数据
      *

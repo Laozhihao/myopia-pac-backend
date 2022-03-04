@@ -1,6 +1,8 @@
 package com.wupol.myopia.business.aggregation.export.pdf;
 
+import com.alibaba.fastjson.JSONObject;
 import com.wupol.framework.core.util.ObjectsUtil;
+import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.HtmlPageUrlConstant;
@@ -8,8 +10,10 @@ import com.wupol.myopia.business.aggregation.export.pdf.constant.PDFFileNameCons
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.PlanSchoolGradeVO;
 import com.wupol.myopia.business.common.utils.constant.BizMsgConstant;
+import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.common.utils.util.HtmlToPdfUtil;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.common.service.Html2PdfService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
@@ -17,6 +21,7 @@ import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.GradeClassesDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
@@ -35,6 +40,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -68,7 +74,10 @@ public class GeneratePdfFileService {
     private SchoolGradeService schoolGradeService;
     @Autowired
     private SchoolClassService schoolClassService;
-
+//    @Autowired
+//    private ScreeningExportService screeningExportService;
+    @Autowired
+    private Html2PdfService html2PdfService;
     /**
      * 生成筛查报告PDF文件 - 行政区域
      *
@@ -289,6 +298,56 @@ public class GeneratePdfFileService {
         String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.STUDENT_ARCHIVES_HTML_URL, htmlUrlHost, planId, schoolId, templateId, planStudentIds, gradeId, Objects.nonNull(classId) ? classId : StringUtils.EMPTY);
         Assert.isTrue(HtmlToPdfUtil.convertArchives(schoolPdfHtmlUrl, Paths.get(fileSavePath).toString()), "【生成学校档案卡PDF文件异常】：" + school.getName());
     }
+
+    /**
+     * 导出学生二维码
+     * @param exportCondition
+     * @param fileSavePath
+     * @param fileName
+     */
+    public void generateExportScreenQrcodePdfFile(List<ScreeningStudentDTO> students,ExportCondition exportCondition, String fileSavePath, String fileName,Integer type){
+
+        Map<Integer, List<ScreeningStudentDTO>> gradeGroup = students.stream().collect(Collectors.groupingBy(t -> t.getGradeId()));
+        for (Integer gradeId:gradeGroup.keySet()){
+            List<ScreeningStudentDTO> gradeStudents = gradeGroup.get(gradeId);
+            Map<Integer, List<ScreeningStudentDTO>> classGroup = gradeStudents.stream().collect(Collectors.groupingBy(t -> t.getClassId()));
+            for (Integer classId:classGroup.keySet()){
+                List<ScreeningStudentDTO> classStudents  = classGroup.get(classId);
+                ScreeningStudentDTO screeningStudentDTO  = classStudents.get(0);
+
+                String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.STUDENT_QRCODE_HTML_URL,htmlUrlHost,
+                        exportCondition.getPlanId(), exportCondition.getSchoolId(),gradeId,classId,
+                        Objects.nonNull(exportCondition.getPlanStudentIds()) ? exportCondition.getPlanStudentIds() : StringUtils.EMPTY,
+                        type);
+                String dir =  Paths.get(fileSavePath,fileName,screeningStudentDTO.getSchoolName(),screeningStudentDTO.getGradeName()).toString();
+                String uuid = UUID.randomUUID().toString();
+
+                log.info("请求路径:{}", schoolPdfHtmlUrl);
+                PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(schoolPdfHtmlUrl, fileName+"("+screeningStudentDTO.getClassName()+").pdf", uuid);
+                log.info("响应参数:{}", JSONObject.toJSONString(pdfResponseDTO));
+                try {
+                    FileUtils.downloadFile(pdfResponseDTO.getUrl(), Paths.get(dir,fileName+"("+screeningStudentDTO.getClassName()+")")+".pdf");
+                } catch (Exception e) {
+                    log.error("Exception", e);
+                }
+            }
+        }
+    }
+
+    public String syncExportScreenQrcodePdfFile(ExportCondition exportCondition, String fileSavePath, String fileName,Integer type) {
+
+        String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.STUDENT_QRCODE_HTML_URL,htmlUrlHost,
+                exportCondition.getPlanId(), exportCondition.getSchoolId(),
+                Objects.nonNull( exportCondition.getGradeId()) ? exportCondition.getGradeId() : StringUtils.EMPTY,
+                Objects.nonNull( exportCondition.getClassId()) ? exportCondition.getClassId() : StringUtils.EMPTY,
+                Objects.nonNull(exportCondition.getPlanStudentIds()) ? exportCondition.getPlanStudentIds() : StringUtils.EMPTY,
+                type);
+        String uuid = UUID.randomUUID().toString();
+        PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(schoolPdfHtmlUrl, fileName+".pdf", uuid);
+        log.info("response:{}", JSONObject.toJSONString(pdfResponseDTO));
+        return pdfResponseDTO.getUrl();
+    }
+
 
 
 }
