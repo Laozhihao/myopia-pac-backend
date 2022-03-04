@@ -209,10 +209,6 @@ public class ScreeningPlanSchoolStudent implements Serializable {
     private String passport;
 
     /**
-     * 是否mock
-     */
-    private Integer mockStatus;
-    /**
      * 检查学生信息是否正确
      * <p>
      *     身份证和护照二选一
