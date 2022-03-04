@@ -323,11 +323,6 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
             return;
         }
         Integer schoolId = requestDTO.get(0).getSchoolGrade().getSchoolId();
-        List<String> gradeNameList = requestDTO.stream().map(s -> s.getSchoolGrade().getName()).collect(Collectors.toList());
-
-        if (!CollectionUtils.isEmpty(getByGradeNames(schoolId, gradeNameList))) {
-            throw new BusinessException("年级名称存在重复");
-        }
 
         requestDTO.forEach(grade -> {
             SchoolGrade schoolGrade = grade.getSchoolGrade();
@@ -354,16 +349,5 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
             });
             schoolClassService.batchUpdateOrSave(schoolClassList);
         });
-    }
-
-    /**
-     * 通过名称获取班级
-     *
-     * @param schoolId  学校Id
-     * @param gradeName 班级名称
-     * @return List<SchoolGrade>
-     */
-    private List<SchoolGrade> getByGradeNames(Integer schoolId, List<String> gradeName) {
-        return baseMapper.getByGradeNames(schoolId, gradeName);
     }
 }
