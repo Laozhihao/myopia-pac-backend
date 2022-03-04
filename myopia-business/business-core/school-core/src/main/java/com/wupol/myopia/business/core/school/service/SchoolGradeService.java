@@ -167,20 +167,6 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
     }
 
     /**
-     * 批量通过id获取实体
-     *
-     * @param id
-     * @return
-     */
-    public SchoolGrade getGradeById(Integer id) {
-        if (id == null) {
-            return null;
-        }
-        Optional<SchoolGrade> schoolGradeOptional = getByIds(Arrays.asList(id)).stream().findFirst();
-        return schoolGradeOptional.isPresent() ? schoolGradeOptional.get() : null;
-    }
-
-    /**
      * 批量通过id获取名称
      *
      * @param ids ids
