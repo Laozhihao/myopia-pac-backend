@@ -218,22 +218,36 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
     public Map<Integer, MonthAgeStatusDTO> getStudentCheckStatus(Date birthday, List<PreschoolCheckRecord> records) {
         Date now = new Date();
         Map<Integer, MonthAgeStatusDTO> monthAgeStatusDTOS = initMonthAgeStatusMap();
-        List<Integer> canCheckMonthAge = BusinessUtil.getCanCheckMonthAgeByDate(birthday);
-        // 设置当前可检查年龄段为AGE_STAGE_STATUS_NOT_DATA状态
-        canCheckMonthAge.forEach(monthAge -> {
-            monthAgeStatusDTOS.get(monthAge).setStatus(MonthAgeStatusEnum.AGE_STAGE_STATUS_NOT_DATA.getStatus());
-        });
-        records.forEach(record -> {
-            // 检查大于3天，无法修改
-            if (DateUtil.betweenDay(record.getCreateTime(), now) > 3) {
-                monthAgeStatusDTOS.get(record.getMonthAge()).setStatus(MonthAgeStatusEnum.AGE_STAGE_STATUS_CANNOT_UPDATE.getStatus())
-                        .setPreschoolCheckRecordId(record.getId());
-            } else {
-                // 已检查，可修改
+
+        // 如果 40~45岁的，则返回全部可更新的状态
+        int age = now.getYear() - birthday.getYear();
+        if (45 >= age && age >= 40) {
+            // 先把全部修改成可点击，再把有数据的修改成可更新
+            for (Integer key : monthAgeStatusDTOS.keySet()) {
+                monthAgeStatusDTOS.get(key).setStatus(MonthAgeStatusEnum.AGE_STAGE_STATUS_NOT_DATA.getStatus());
+            }
+            records.forEach(record -> {
                 monthAgeStatusDTOS.get(record.getMonthAge()).setStatus(MonthAgeStatusEnum.AGE_STAGE_STATUS_CAN_UPDATE.getStatus())
                         .setPreschoolCheckRecordId(record.getId());
-            }
-        });
+            });
+        } else {
+            List<Integer> canCheckMonthAge = BusinessUtil.getCanCheckMonthAgeByDate(birthday);
+            // 设置当前可检查年龄段为AGE_STAGE_STATUS_NOT_DATA状态
+            canCheckMonthAge.forEach(monthAge -> {
+                monthAgeStatusDTOS.get(monthAge).setStatus(MonthAgeStatusEnum.AGE_STAGE_STATUS_NOT_DATA.getStatus());
+            });
+            records.forEach(record -> {
+                // 检查大于3天，无法修改
+                if (DateUtil.betweenDay(record.getCreateTime(), now) > 3) {
+                    monthAgeStatusDTOS.get(record.getMonthAge()).setStatus(MonthAgeStatusEnum.AGE_STAGE_STATUS_CANNOT_UPDATE.getStatus())
+                            .setPreschoolCheckRecordId(record.getId());
+                } else {
+                    // 已检查，可修改
+                    monthAgeStatusDTOS.get(record.getMonthAge()).setStatus(MonthAgeStatusEnum.AGE_STAGE_STATUS_CAN_UPDATE.getStatus())
+                            .setPreschoolCheckRecordId(record.getId());
+                }
+            });
+        }
         return monthAgeStatusDTOS;
     }
 
