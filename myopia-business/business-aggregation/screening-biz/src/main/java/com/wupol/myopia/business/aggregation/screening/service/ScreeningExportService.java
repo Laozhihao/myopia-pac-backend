@@ -177,10 +177,10 @@ public class ScreeningExportService {
         NotificationConfig notificationConfig;
         // 如果学校Id不为空，说明是学校端进行的导出，使用学校自己的告知书配置
         if (isSchoolClient) {
+            notificationConfig = school.getNotificationConfig();
+        } else {
             ScreeningOrgResponseDTO screeningOrganization = screeningOrganizationService.getScreeningOrgDetails(plan.getScreeningOrgId());
             notificationConfig = screeningOrganization.getNotificationConfig();
-        } else {
-            notificationConfig = school.getNotificationConfig();
         }
         List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.selectBySchoolGradeAndClass(screeningPlanId, schoolId, gradeId,classId,studentIds);
         QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white).setMargin(1);
