@@ -101,7 +101,7 @@ public interface RedisConstant {
     /**
      * 导出PDF-筛查机构
      */
-    String FILE_EXPORT_PDF_ORG_SCREENING = "file:export:pdf:org:screening:%s-%s-%s";
+    String FILE_EXPORT_PDF_ORG_SCREENING = "file:export:pdf:org:screening:%s-%s-%s-%s";
 
     /**
      * 导出PDF-学校筛查
