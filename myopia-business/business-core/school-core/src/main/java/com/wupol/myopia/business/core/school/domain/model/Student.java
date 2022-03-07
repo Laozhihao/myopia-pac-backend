@@ -284,13 +284,14 @@ public class Student extends AddressCode implements Serializable {
     /**
      * 生日是否超出限制
      *
-     * @return true-是 false-否
      */
-    public boolean checkBirthdayExceedLimit() {
+    public void checkBirthdayExceedLimit() {
         // 1970-01-01 毫秒时间戳
         Date beforeDate = new Date(-28800000L);
         Date afterDate = new Date(2145888000000L);
-        return Objects.nonNull(birthday) && (birthday.before(beforeDate) || birthday.after(afterDate));
+        if (Objects.nonNull(birthday) && (birthday.before(beforeDate) || birthday.after(afterDate))) {
+            throw new BusinessException("生日超出限制，请确认");
+        }
     }
 
     /**

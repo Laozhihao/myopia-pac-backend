@@ -455,4 +455,16 @@ public class DateUtil extends cn.hutool.core.date.DateUtil {
                 Math.max(0, (int) betweenDay(start, end));
     }
 
+    /**
+     * 生日是否超出限制
+     *
+     * @return true-是 false-否
+     */
+    public boolean checkBirthdayExceedLimit(Date date) {
+        // 1970-01-01 毫秒时间戳
+        Date beforeDate = new Date(-28800000L);
+        Date afterDate = new Date(2145888000000L);
+        return Objects.nonNull(date) && (date.before(beforeDate) || date.after(afterDate));
+    }
+
 }

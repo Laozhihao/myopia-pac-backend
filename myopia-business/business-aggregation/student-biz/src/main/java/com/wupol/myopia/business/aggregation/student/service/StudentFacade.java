@@ -1082,9 +1082,7 @@ public class StudentFacade {
     @Transactional(rollbackFor = Exception.class)
     public Integer saveStudent(Student student) {
         // 检查学生年龄
-        if (student.checkBirthdayExceedLimit()) {
-            throw new BusinessException("学生年龄太大");
-        }
+        student.checkBirthdayExceedLimit();
         // 设置学龄
         if (null != student.getGradeId()) {
             SchoolGrade grade = schoolGradeService.getById(student.getGradeId());

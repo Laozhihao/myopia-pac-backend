@@ -133,6 +133,7 @@ public class SchoolStudentExcelImportService {
             schoolStudent.checkStudentInfo();
             Integer managementStudentId = updateManagementStudent(schoolStudent);
             schoolStudent.setStudentId(managementStudentId);
+            schoolStudent.checkBirthdayExceedLimit();
             schoolStudents.add(schoolStudent);
         }
         schoolStudentService.saveOrUpdateBatch(schoolStudents);

@@ -103,9 +103,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     @Transactional(rollbackFor = Exception.class)
     public Integer saveStudent(Student student) {
         // 检查学生年龄
-        if (student.checkBirthdayExceedLimit()) {
-            throw new BusinessException("学生年龄太大");
-        }
+        student.checkBirthdayExceedLimit();
         student.checkIdCard();
         // 设置学龄
         if (null != student.getGradeId()) {
@@ -353,9 +351,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     public StudentDTO updateStudent(Student student) {
 
         // 检查学生年龄
-        if (student.checkBirthdayExceedLimit()) {
-            throw new BusinessException("学生年龄太大");
-        }
+        student.checkBirthdayExceedLimit();
 
         // 设置学龄
         if (null != student.getGradeId()) {

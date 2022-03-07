@@ -151,6 +151,7 @@ public class StudentExcelImportService {
             setStudentInfo(createUserId, offset, item, student, idCard, passport);
             setStudentSchoolInfo(schoolId, isSameSchool, offset, schoolNo, schoolMap, schoolGradeMaps, item, student);
             student.checkStudentInfo();
+            student.checkBirthdayExceedLimit();
             importList.add(student);
         }
         // 将删除的学生重新启用

@@ -14,6 +14,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * 学校-学生表
@@ -195,6 +196,19 @@ public class SchoolStudent extends AddressCode implements Serializable {
     public void checkStudentInfo() {
         if (StringUtils.isAllBlank(idCard, passport) || (StringUtils.isNotBlank(idCard) && StringUtils.isNotBlank(passport))) {
             throw new BusinessException("身份证、护照信息异常");
+        }
+    }
+
+    /**
+     * 生日是否超出限制
+     *
+     */
+    public void checkBirthdayExceedLimit() {
+        // 1970-01-01 毫秒时间戳
+        Date beforeDate = new Date(-28800000L);
+        Date afterDate = new Date(2145888000000L);
+        if (Objects.nonNull(birthday) && (birthday.before(beforeDate) || birthday.after(afterDate))) {
+            throw new BusinessException("生日超出限制，请确认");
         }
     }
 
