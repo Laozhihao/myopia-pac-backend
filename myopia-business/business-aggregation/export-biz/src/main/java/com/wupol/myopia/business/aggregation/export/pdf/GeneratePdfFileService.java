@@ -78,6 +78,8 @@ public class GeneratePdfFileService {
 //    private ScreeningExportService screeningExportService;
     @Autowired
     private Html2PdfService html2PdfService;
+    @Autowired
+    private GeneratePdfFileService generateReportPdfService;
     /**
      * 生成筛查报告PDF文件 - 行政区域
      *
@@ -121,7 +123,12 @@ public class GeneratePdfFileService {
         Assert.hasLength(saveDirectory, BizMsgConstant.SAVE_DIRECTORY_EMPTY);
         Assert.notNull(planId, BizMsgConstant.PLAN_ID_IS_EMPTY);
         List<Integer> schoolIdList = statConclusionService.getSchoolIdByPlanId(planId);
-        generateSchoolScreeningReportPdfFileBatch(saveDirectory, null, planId, schoolIdList);
+        if (schoolIdList.isEmpty()){
+            // 所有学校汇总
+            generateReportPdfService.generateScreeningPlanReportPdfFile(saveDirectory, planId);
+        }else {
+            generateSchoolScreeningReportPdfFileBatch(saveDirectory, null, planId, schoolIdList);
+        }
     }
 
     /**
