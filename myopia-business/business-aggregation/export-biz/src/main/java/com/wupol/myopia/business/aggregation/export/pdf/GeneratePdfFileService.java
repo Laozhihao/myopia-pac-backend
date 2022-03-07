@@ -122,9 +122,6 @@ public class GeneratePdfFileService {
     public void generateScreeningOrgScreeningReportPdfFile(String saveDirectory, Integer planId,Integer schoolId) {
         Assert.hasLength(saveDirectory, BizMsgConstant.SAVE_DIRECTORY_EMPTY);
         Assert.notNull(planId, BizMsgConstant.PLAN_ID_IS_EMPTY);
-
-//        List<Integer> schoolIdList = statConclusionService.getSchoolIdByPlanId(planId);
-//        generateSchoolScreeningReportPdfFileBatch(saveDirectory, null, planId, schoolIdList);
         generateSchoolScreeningReportPdfFile(saveDirectory, null, planId, schoolId);
     }
 
