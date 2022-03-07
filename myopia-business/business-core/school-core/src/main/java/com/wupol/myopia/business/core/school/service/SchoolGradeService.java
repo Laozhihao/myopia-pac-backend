@@ -333,7 +333,6 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
                     throw new BusinessException("班级名称不能为空");
                 }
                 schoolClass.setCreateUserId(userId);
-
                 schoolClass.setGradeId(gradeId);
             });
             schoolClassService.batchUpdateOrSave(schoolClassList);
