@@ -116,6 +116,9 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
 
         // 获取年级
         List<SchoolGradeItemsDTO> schoolGrades = baseMapper.getAllBySchoolId(schoolId);
+        if(CollectionUtils.isEmpty(schoolGrades)) {
+            return new ArrayList<>();
+        }
         Map<Integer, String> gradeMap = schoolGrades.stream().collect(Collectors.toMap(SchoolGradeItemsDTO::getId, SchoolGradeItemsDTO::getName));
 
         // 获取班级，并且封装成Map
