@@ -49,9 +49,11 @@ public class ExportScreeningOrgScreeningReportService extends BaseExportPdfFileS
     public void generatePdfFile(ExportCondition exportCondition, String fileSavePath, String fileName) {
         // 所有学校汇总
         generateReportPdfService.generateScreeningPlanReportPdfFile(fileSavePath, exportCondition.getPlanId());
-        // 各个学校详情
-        generateReportPdfService.generateScreeningOrgScreeningReportPdfFile(fileSavePath, exportCondition.getPlanId(),exportCondition.getSchoolId());
-
+        List<Integer> schoolIdList = statConclusionService.getSchoolIdByPlanId(exportCondition.getPlanId());
+        if (schoolIdList.contains(exportCondition.getSchoolId())){
+            // 各个学校详情
+            generateReportPdfService.generateScreeningOrgScreeningReportPdfFile(fileSavePath, exportCondition.getPlanId(),exportCondition.getSchoolId());
+        }
     }
 
     /**
@@ -71,10 +73,7 @@ public class ExportScreeningOrgScreeningReportService extends BaseExportPdfFileS
     public void validateBeforeExport(ExportCondition exportCondition) {
         Assert.notNull(exportCondition.getPlanId(), "筛查计划ID不能为空");
         Assert.notNull(exportCondition.getSchoolId(), "学校ID不能为空");
-        List<Integer> schoolIdList = statConclusionService.getSchoolIdByPlanId(exportCondition.getPlanId());
-        if (!schoolIdList.contains(exportCondition.getSchoolId())){
-            throw new BusinessException("暂无筛查数据，无法导出筛查报告");
-        }
+
     }
     @Override
     public String getLockKey(ExportCondition exportCondition) {
