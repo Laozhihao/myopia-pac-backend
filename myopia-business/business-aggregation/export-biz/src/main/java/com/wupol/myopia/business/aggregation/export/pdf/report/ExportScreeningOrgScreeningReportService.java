@@ -35,8 +35,6 @@ public class ExportScreeningOrgScreeningReportService extends BaseExportPdfFileS
     private GeneratePdfFileService generateReportPdfService;
     @Autowired
     private StatConclusionService statConclusionService;
-    @Autowired
-    private SchoolService schoolService;
     /**
      * 生成文件
      *
