@@ -468,12 +468,15 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @param userId              创建人
      * @param saveGradeRequestDTO 班级年级
      */
-    public void initGradeAndClass(Integer schoolId, Integer userId, List<BatchSaveGradeRequestDTO> saveGradeRequestDTO) {
+    @Transactional(rollbackFor = Exception.class)
+    public void generateGradeAndClass(Integer schoolId, Integer userId, List<BatchSaveGradeRequestDTO> saveGradeRequestDTO) {
         if (CollectionUtils.isEmpty(saveGradeRequestDTO)) {
             return;
         }
         saveGradeRequestDTO.forEach(item -> {
-            item.getSchoolGrade().setSchoolId(schoolId);
+            SchoolGrade schoolGrade = item.getSchoolGrade();
+            schoolGrade.setSchoolId(schoolId);
+            schoolGrade.setGradeCode(GradeCodeEnum.getByCode(schoolGrade.getName()).getCode());
             List<SchoolClass> schoolClassList = item.getSchoolClass();
             if (!CollectionUtils.isEmpty(schoolClassList)) {
                 schoolClassList.forEach(schoolClass -> {
