@@ -88,29 +88,29 @@ public class SchoolController {
         if (!user.isPlatformAdminUser()) {
             nameAndPassword.setNoDisplay();
         }
-        schoolService.initGradeAndClass(requestDTO.getId(), requestDTO.getCreateUserId(), requestDTO.getBatchSaveGradeList());
+        schoolService.generateGradeAndClass(requestDTO.getId(), requestDTO.getCreateUserId(), requestDTO.getBatchSaveGradeList());
         return nameAndPassword;
     }
 
     /**
      * 更新学校
      *
-     * @param school 学校实体
+     * @param requestDTO 学校实体
      * @return 学校实体
      */
     @PutMapping()
-    public SchoolResponseDTO updateSchool(@RequestBody @Valid School school) {
+    public SchoolResponseDTO updateSchool(@RequestBody @Valid SaveSchoolRequestDTO requestDTO) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         if (user.isPlatformAdminUser()){
-            schoolService.checkSchoolCooperation(school);
+            schoolService.checkSchoolCooperation(requestDTO);
             // 设置学校状态
-            school.setStatus(school.getCooperationStopStatus());
+            requestDTO.setStatus(requestDTO.getCooperationStopStatus());
         } else {
             // 非平台管理员无法更新合作信息
-            school.clearCooperationInfo();
-            school.setStatus(null);
+            requestDTO.clearCooperationInfo();
+            requestDTO.setStatus(null);
         }
-        return schoolFacade.updateSchool(school);
+        return schoolFacade.updateSchool(requestDTO);
     }
 
 
