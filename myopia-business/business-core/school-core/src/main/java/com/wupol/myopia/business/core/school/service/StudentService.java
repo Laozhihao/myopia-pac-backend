@@ -104,7 +104,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     @Transactional(rollbackFor = Exception.class)
     public Integer saveStudent(Student student) {
         // 检查学生年龄
-        DateUtil.checkBirthdayThrowException(student.getBirthday());
+        DateUtil.checkBirthday(student.getBirthday());
         student.checkIdCard();
         // 设置学龄
         if (null != student.getGradeId()) {
@@ -352,7 +352,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     public StudentDTO updateStudent(Student student) {
 
         // 检查学生年龄
-        DateUtil.checkBirthdayThrowException(student.getBirthday());
+        DateUtil.checkBirthday(student.getBirthday());
 
         // 设置学龄
         if (null != student.getGradeId()) {

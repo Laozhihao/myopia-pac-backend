@@ -132,9 +132,9 @@ public class SchoolStudentExcelImportService {
 
             // 更新管理端
             schoolStudent.checkStudentInfo();
+            DateUtil.checkBirthday(schoolStudent.getBirthday());
             Integer managementStudentId = updateManagementStudent(schoolStudent);
             schoolStudent.setStudentId(managementStudentId);
-            DateUtil.checkBirthdayThrowException(schoolStudent.getBirthday());
             schoolStudents.add(schoolStudent);
         }
         schoolStudentService.saveOrUpdateBatch(schoolStudents);

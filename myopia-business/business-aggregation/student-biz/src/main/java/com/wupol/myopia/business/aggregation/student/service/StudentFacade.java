@@ -1082,7 +1082,7 @@ public class StudentFacade {
     @Transactional(rollbackFor = Exception.class)
     public Integer saveStudent(Student student) {
         // 检查学生年龄
-        com.wupol.myopia.base.util.DateUtil.checkBirthdayThrowException(student.getBirthday());
+        com.wupol.myopia.base.util.DateUtil.checkBirthday(student.getBirthday());
         // 设置学龄
         if (null != student.getGradeId()) {
             SchoolGrade grade = schoolGradeService.getById(student.getGradeId());

@@ -171,11 +171,8 @@ public class PlanStudentExcelImportService {
                 throw new BusinessException("上传失败" + phone + "手机异常");
             }
             try {
-                String birthDayStr = item.get(ImportExcelEnum.BIRTHDAY.getIndex());
-                birthday = StringUtils.isBlank(birthDayStr) ? IdCardUtil.getBirthDay(item.get(ImportExcelEnum.ID_CARD.getIndex())) : DateFormatUtil.parseDate(birthDayStr, DateFormatUtil.FORMAT_ONLY_DATE2);
-                if (com.wupol.myopia.base.util.DateUtil.checkBirthdayExceedLimit(birthday)) {
-                    throw new BusinessException(birthDayStr + "生日超出限制");
-                }
+                birthday = StringUtils.isBlank(item.get(ImportExcelEnum.BIRTHDAY.getIndex())) ? IdCardUtil.getBirthDay(item.get(ImportExcelEnum.ID_CARD.getIndex())) : DateFormatUtil.parseDate(item.get(ImportExcelEnum.BIRTHDAY.getIndex()), DateFormatUtil.FORMAT_ONLY_DATE2);
+                com.wupol.myopia.base.util.DateUtil.checkBirthday(birthday);
             } catch (ParseException e) {
                 throw new BusinessException(getErrorMsgDate(idCard, passport, screeningCode) + "日期转换异常");
             }

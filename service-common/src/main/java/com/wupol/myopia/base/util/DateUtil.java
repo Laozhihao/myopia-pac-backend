@@ -459,23 +459,14 @@ public class DateUtil extends cn.hutool.core.date.DateUtil {
     /**
      * 生日是否超出限制
      *
+     * @param date 生日
      */
-    public void checkBirthdayThrowException(Date date) {
-        if (checkBirthdayExceedLimit(date)) {
-            throw new BusinessException("生日超出限制，请确认");
-        }
-    }
-
-    /**
-     * 生日是否超出限制
-     *
-     * @return true-是 false-否
-     */
-    public boolean checkBirthdayExceedLimit(Date date) {
+    public void checkBirthday(Date date) {
         // 1970-01-01 毫秒时间戳
         Date beforeDate = new Date(-28800000L);
         Date afterDate = new Date(2145888000000L);
-        return Objects.nonNull(date) && (date.before(beforeDate) || date.after(afterDate));
+        if (Objects.nonNull(date) && (date.before(beforeDate) || date.after(afterDate))) {
+            throw new BusinessException(DateFormatUtil.format(date, DateFormatUtil.FORMAT_ONLY_DATE2) + "生日超出限制，请确认");
+        }
     }
-
 }
