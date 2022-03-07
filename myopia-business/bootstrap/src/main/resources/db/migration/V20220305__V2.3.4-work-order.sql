@@ -14,9 +14,13 @@ CREATE TABLE `m_work_order` (
   `create_user_id` int(11) NOT NULL COMMENT '创建人ID',
   `term` tinyint(4) NOT NULL COMMENT '提交页面 0-绑定页面 1-档案页面',
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `old_data` json DEFAULT NULL COMMENT '旧学生信息',
+  `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `old_data` json DEFAULT NULL COMMENT '对比结果',
   `content` varchar(255) DEFAULT NULL COMMENT '留言内容',
   `grade_type` tinyint(4) DEFAULT NULL COMMENT '学龄段',
+  `parent_phone` varchar(16) NOT NULL COMMENT '家长手机号码',
+  `wx_nickname` varchar(100) NOT NULL COMMENT '微信昵称',
+  `screening_begin_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '筛查开始时间',
+  `screening_end_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '筛查结束时间',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

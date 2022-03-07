@@ -114,5 +114,27 @@ public class WorkOrder implements Serializable {
      */
     private Integer gradeType;
 
+    /**
+     * 家长手机号码
+     */
+    private String parentPhone;
+
+    /**
+     * 微信昵称
+     */
+    private String wxNickname;
+
+    /**
+     * 筛查开始时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date screeningBeginTime;
+
+    /**
+     * 筛查结束时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date screeningEndTime;
+
 
 }

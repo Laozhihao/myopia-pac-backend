@@ -28,13 +28,17 @@
                 <if test="@Ognl@isNotEmpty(oldData)">and `old_data` = #{oldData}</if>
                 <if test="@Ognl@isNotEmpty(content)">and `content` = #{content}</if>
                 <if test="@Ognl@isNotEmpty(gradeType)">and `grade_type` = #{gradeType}</if>
+                <if test="@Ognl@isNotEmpty(parentPhone)">and `parent_phone` = #{parentPhone}</if>
+                <if test="@Ognl@isNotEmpty(wxNickname)">and `wx_nickname` = #{wxNickname}</if>
+                <if test="@Ognl@isNotEmpty(screeningBeginTime)">and `screening_begin_time` = #{screeningBeginTime}</if>
+                <if test="@Ognl@isNotEmpty(screeningEndTime)">and `screening_end_time` = #{screeningEndTime}</if>
             </trim>
         </where>
     </sql>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, name, gender, passport, id_card, birthday, school_id, grade_id, class_id, sno, status, create_user_id, term, create_time, update_time, old_data, content, grade_type
+        id, name, gender, passport, id_card, birthday, school_id, grade_id, class_id, sno, status, create_user_id, term, create_time, update_time, old_data, content, grade_type, parent_phone, wx_nickname, screening_begin_time, screening_end_time
     </sql>
 
 </mapper>
