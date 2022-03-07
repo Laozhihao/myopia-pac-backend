@@ -322,7 +322,7 @@ public class GeneratePdfFileService {
                         type);
                 String dir =null;
                 if (StringUtils.isNotBlank(gradeNameTmp)){
-                    dir =  Paths.get(fileSavePath,fileName,gradeNameTmp).toString();
+                    dir =  Paths.get(fileSavePath,fileName).toString();
                 }else {
                     dir =  Paths.get(fileSavePath,fileName,screeningStudentDTO.getGradeName()).toString();
                 }
