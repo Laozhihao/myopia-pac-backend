@@ -319,7 +319,8 @@ public class GeneratePdfFileService {
                         exportCondition.getPlanId(), exportCondition.getSchoolId(),gradeId,classId,
                         Objects.nonNull(exportCondition.getPlanStudentIds()) ? exportCondition.getPlanStudentIds() : StringUtils.EMPTY,
                         type);
-                String dir =  Paths.get(fileSavePath,fileName,screeningStudentDTO.getSchoolName(),screeningStudentDTO.getGradeName()).toString();
+//                String dir =  Paths.get(fileSavePath,fileName,screeningStudentDTO.getSchoolName(),screeningStudentDTO.getGradeName()).toString();
+                String dir =  Paths.get(fileSavePath,fileName).toString();
                 String uuid = UUID.randomUUID().toString();
 
                 log.info("请求路径:{}", schoolPdfHtmlUrl);
