@@ -42,22 +42,21 @@ public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     @Resource
     private ScreeningExportService screeningExportService;
-
     @Resource
     private SchoolService schoolService;
-
     @Resource
     private SchoolGradeService schoolGradeService;
-
     @Resource
     private SchoolClassService schoolClassService;
     @Autowired
     private GeneratePdfFileService generateReportPdfService;
 
+    private String gradeNameTmp;
+
     @Override
     public void generatePdfFile(ExportCondition exportCondition, String fileSavePath, String fileName) {
         List<ScreeningStudentDTO> screeningStudentDTOS = getStudentData(exportCondition);
-        generateReportPdfService.generateExportScreenQrcodePdfFile(screeningStudentDTOS,exportCondition,fileSavePath,fileName,exportCondition.getType());
+        generateReportPdfService.generateExportScreenQrcodePdfFile(screeningStudentDTOS,exportCondition,fileSavePath,fileName,exportCondition.getType(),gradeNameTmp);
     }
 
     @Override
@@ -77,6 +76,7 @@ public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
         SchoolGrade schoolGrade = schoolGradeService.getById(exportCondition.getGradeId());
         if (schoolGrade!=null&&schoolGrade.getName()!=null){
             gradeName = schoolGrade.getName();
+            gradeNameTmp = schoolGrade.getName();
         }
         String className = "";
         SchoolClass schoolClass = schoolClassService.getById(exportCondition.getClassId());
@@ -107,6 +107,10 @@ public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
         );
     }
 
+    @Override
+    public String getFileSaveParentPath() {
+        return super.getFileSaveParentPath();
+    }
 
     @Override
     public String syncExport(ExportCondition exportCondition) {
