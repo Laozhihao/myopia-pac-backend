@@ -305,8 +305,8 @@ public class GeneratePdfFileService {
      * @param fileSavePath
      * @param fileName
      */
-    public void generateExportScreenQrcodePdfFile(List<ScreeningStudentDTO> students,ExportCondition exportCondition, String fileSavePath, String fileName,Integer type){
-
+    public void generateExportScreenQrcodePdfFile(List<ScreeningStudentDTO> students,ExportCondition exportCondition, String fileSavePath,
+                                                  String fileName,Integer type,String gradeNameTmp){
         Map<Integer, List<ScreeningStudentDTO>> gradeGroup = students.stream().collect(Collectors.groupingBy(t -> t.getGradeId()));
         for (Integer gradeId:gradeGroup.keySet()){
             List<ScreeningStudentDTO> gradeStudents = gradeGroup.get(gradeId);
@@ -319,10 +319,13 @@ public class GeneratePdfFileService {
                         exportCondition.getPlanId(), exportCondition.getSchoolId(),gradeId,classId,
                         Objects.nonNull(exportCondition.getPlanStudentIds()) ? exportCondition.getPlanStudentIds() : StringUtils.EMPTY,
                         type);
-//                String dir =  Paths.get(fileSavePath,fileName,screeningStudentDTO.getSchoolName(),screeningStudentDTO.getGradeName()).toString();
-                String dir =  Paths.get(fileSavePath,fileName,/*screeningStudentDTO.getSchoolName(),*/screeningStudentDTO.getGradeName()).toString();
+                String dir =null;
+                if (StringUtils.isNotBlank(gradeNameTmp)){
+                    dir =  Paths.get(fileSavePath,fileName,gradeNameTmp).toString();
+                }else {
+                    dir =  Paths.get(fileSavePath,fileName,screeningStudentDTO.getGradeName()).toString();
+                }
                 String uuid = UUID.randomUUID().toString();
-
                 log.info("请求路径:{}", schoolPdfHtmlUrl);
                 PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(schoolPdfHtmlUrl, fileName+"("+screeningStudentDTO.getClassName()+").pdf", uuid);
                 log.info("响应参数:{}", JSONObject.toJSONString(pdfResponseDTO));
