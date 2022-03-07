@@ -88,8 +88,11 @@ public class ReportController {
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @GetMapping("/screeningOrg/export")
-    public void exportScreeningOrgReport(@NotNull(message = "筛查计划ID不能为空") Integer planId, @NotNull(message = "筛查机构ID不能为空") Integer screeningOrgId) throws IOException {
+    public void exportScreeningOrgReport(@NotNull(message = "筛查计划ID不能为空") Integer planId,
+                                         @NotNull(message = "筛查机构ID不能为空") Integer screeningOrgId,
+                                         @NotNull(message = "学校ID不能为空") Integer schoolId) throws IOException {
         ExportCondition exportCondition = new ExportCondition()
+                .setSchoolId(schoolId)
                 .setPlanId(planId)
                 .setScreeningOrgId(screeningOrgId)
                 .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
