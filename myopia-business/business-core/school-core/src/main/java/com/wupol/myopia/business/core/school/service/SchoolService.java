@@ -19,11 +19,13 @@ import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
+import com.wupol.myopia.business.core.school.domain.dto.BatchSaveGradeRequestDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolQueryDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO;
 import com.wupol.myopia.business.core.school.domain.mapper.SchoolMapper;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolAdmin;
+import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.domain.vo.SchoolGradeClassVO;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
@@ -59,6 +61,9 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     @Resource
     private DistrictService districtService;
 
+    @Resource
+    private SchoolGradeService schoolGradeService;
+
     /**
      * 新增学校
      *
@@ -80,7 +85,6 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         // oauth系统中增加学校状态信息
         oauthServiceClient.addOrganization(new Organization(school.getId(), SystemCode.SCHOOL_CLIENT,
                 UserType.OTHER, school.getStatus()));
-//        initGradeAndClass(school.getId(), school.getType(), school.getCreateUserId());
         return generateAccountAndPassword(school, StringUtils.EMPTY);
     }
 
@@ -455,5 +459,28 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         }
         school.setResultNoticeConfig(resultNoticeConfig);
         updateById(school);
+    }
+
+    /**
+     * 初始化班级年级
+     *
+     * @param schoolId            学校Id
+     * @param userId              创建人
+     * @param saveGradeRequestDTO 班级年级
+     */
+    public void initGradeAndClass(Integer schoolId, Integer userId, List<BatchSaveGradeRequestDTO> saveGradeRequestDTO) {
+        if (CollectionUtils.isEmpty(saveGradeRequestDTO)) {
+            return;
+        }
+        saveGradeRequestDTO.forEach(item -> {
+            item.getSchoolGrade().setSchoolId(schoolId);
+            List<SchoolClass> schoolClassList = item.getSchoolClass();
+            if (!CollectionUtils.isEmpty(schoolClassList)) {
+                schoolClassList.forEach(schoolClass -> {
+                    schoolClass.setSchoolId(schoolId);
+                });
+            }
+        });
+        schoolGradeService.batchSaveGrade(saveGradeRequestDTO, userId);
     }
 }
