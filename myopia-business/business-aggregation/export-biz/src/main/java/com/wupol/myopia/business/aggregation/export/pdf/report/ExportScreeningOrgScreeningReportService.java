@@ -41,8 +41,10 @@ public class ExportScreeningOrgScreeningReportService extends BaseExportPdfFileS
      **/
     @Override
     public void generatePdfFile(ExportCondition exportCondition, String fileSavePath, String fileName) {
+        // 所有学校汇总
+        generateReportPdfService.generateScreeningPlanReportPdfFile(fileSavePath, exportCondition.getPlanId());
         // 各个学校详情
-        generateReportPdfService.generateScreeningOrgScreeningReportPdfFile(fileSavePath, exportCondition.getPlanId());
+        generateReportPdfService.generateScreeningOrgScreeningReportPdfFile(fileSavePath, exportCondition.getPlanId(),exportCondition.getSchoolId());
 
     }
 
@@ -71,6 +73,8 @@ public class ExportScreeningOrgScreeningReportService extends BaseExportPdfFileS
         return String.format(RedisConstant.FILE_EXPORT_PDF_ORG_SCREENING,
                 exportCondition.getApplyExportFileUserId(),
                 exportCondition.getPlanId(),
-                exportCondition.getScreeningOrgId());
+                exportCondition.getScreeningOrgId(),
+                exportCondition.getSchoolId()
+        );
     }
 }

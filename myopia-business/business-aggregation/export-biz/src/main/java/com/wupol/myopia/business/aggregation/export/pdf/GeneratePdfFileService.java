@@ -119,16 +119,13 @@ public class GeneratePdfFileService {
      * @param saveDirectory 保存目录
      * @param planId        筛查计划ID
      **/
-    public void generateScreeningOrgScreeningReportPdfFile(String saveDirectory, Integer planId) {
+    public void generateScreeningOrgScreeningReportPdfFile(String saveDirectory, Integer planId,Integer schoolId) {
         Assert.hasLength(saveDirectory, BizMsgConstant.SAVE_DIRECTORY_EMPTY);
         Assert.notNull(planId, BizMsgConstant.PLAN_ID_IS_EMPTY);
-        List<Integer> schoolIdList = statConclusionService.getSchoolIdByPlanId(planId);
-        if (schoolIdList.isEmpty()){
-            // 所有学校汇总
-            generateReportPdfService.generateScreeningPlanReportPdfFile(saveDirectory, planId);
-        }else {
-            generateSchoolScreeningReportPdfFileBatch(saveDirectory, null, planId, schoolIdList);
-        }
+
+//        List<Integer> schoolIdList = statConclusionService.getSchoolIdByPlanId(planId);
+//        generateSchoolScreeningReportPdfFileBatch(saveDirectory, null, planId, schoolIdList);
+        generateSchoolScreeningReportPdfFile(saveDirectory, null, planId, schoolId);
     }
 
     /**
