@@ -3,6 +3,7 @@ package com.wupol.myopia.business.aggregation.export.excel.imports;
 import cn.hutool.core.util.IdcardUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
+import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.base.util.ListUtil;
 import com.wupol.myopia.base.util.RegularUtils;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
@@ -151,7 +152,7 @@ public class StudentExcelImportService {
             setStudentInfo(createUserId, offset, item, student, idCard, passport);
             setStudentSchoolInfo(schoolId, isSameSchool, offset, schoolNo, schoolMap, schoolGradeMaps, item, student);
             student.checkStudentInfo();
-            student.checkBirthdayExceedLimit();
+            DateUtil.checkBirthdayThrowException(student.getBirthday());
             importList.add(student);
         }
         // 将删除的学生重新启用

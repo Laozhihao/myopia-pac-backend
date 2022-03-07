@@ -7,6 +7,7 @@ import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.QrCodeCacheKey;
 import com.wupol.myopia.business.common.utils.constant.SourceClientEnum;
@@ -103,7 +104,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     @Transactional(rollbackFor = Exception.class)
     public Integer saveStudent(Student student) {
         // 检查学生年龄
-        student.checkBirthdayExceedLimit();
+        DateUtil.checkBirthdayThrowException(student.getBirthday());
         student.checkIdCard();
         // 设置学龄
         if (null != student.getGradeId()) {
@@ -351,7 +352,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     public StudentDTO updateStudent(Student student) {
 
         // 检查学生年龄
-        student.checkBirthdayExceedLimit();
+        DateUtil.checkBirthdayThrowException(student.getBirthday());
 
         // 设置学龄
         if (null != student.getGradeId()) {
