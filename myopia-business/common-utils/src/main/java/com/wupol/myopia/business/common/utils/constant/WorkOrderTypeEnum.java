@@ -13,8 +13,7 @@ import java.util.Objects;
  */
 @Getter
 public enum WorkOrderTypeEnum {
-    STUDENT_INFO(1,"学生信息")
-    ,;
+    STUDENT_INFO(1,"学生信息");
 
     /**
      * 工单类型编码
