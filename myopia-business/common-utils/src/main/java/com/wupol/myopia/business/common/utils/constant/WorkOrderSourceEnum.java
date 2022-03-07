@@ -13,8 +13,8 @@ import java.util.Objects;
  */
 @Getter
 public enum WorkOrderSourceEnum {
-    BIND_PAGE(0,"绑定页面","无法绑定孩子信息，提示错误"),
-    ARCHIVES_PAGE(1,"档案页面","没有办法看到孩子的筛查报告"),;
+    BIND_PAGE(0,"绑定页面"),
+    ARCHIVES_PAGE(1,"档案页面");
     /**
      * 工单来源编码
      */
@@ -25,18 +25,12 @@ public enum WorkOrderSourceEnum {
      */
     public final String desc;
 
-    /**
-     * 工单来源内容
-     */
-    public final String content;
-
-    WorkOrderSourceEnum(Integer code, String desc, String content) {
+    WorkOrderSourceEnum(Integer code, String desc) {
         this.code = code;
         this.desc = desc;
-        this.content = content;
     }
 
-    public static WorkOrderSourceEnum get(Integer code){
+    public static WorkOrderSourceEnum getByCode(Integer code){
         return Arrays.stream(WorkOrderSourceEnum.values())
                 .filter(item->item.code.equals(code))
                 .findFirst()
@@ -47,21 +41,11 @@ public enum WorkOrderSourceEnum {
         if (Objects.isNull(code)) {
             return StringUtils.EMPTY;
         }
-        WorkOrderSourceEnum workOrderSource = get(code);
+        WorkOrderSourceEnum workOrderSource = getByCode(code);
         if (Objects.isNull(workOrderSource)) {
             return StringUtils.EMPTY;
         }
         return workOrderSource.getDesc();
     }
 
-    public static String getContentByCode(Integer code){
-        if (Objects.isNull(code)) {
-            return StringUtils.EMPTY;
-        }
-        WorkOrderSourceEnum workOrderSource = get(code);
-        if (Objects.isNull(workOrderSource)) {
-            return StringUtils.EMPTY;
-        }
-        return workOrderSource.getContent();
-    }
 }

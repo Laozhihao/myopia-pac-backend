@@ -13,9 +13,8 @@ import java.util.Objects;
  */
 @Getter
 public enum WorkOrderStatusEnum {
-    PROCESSED(0,"已处理","已解决，请重新操作"),
-    UNTREATED(1,"未处理","已收到反馈，正在处理中，请稍后"),
-    ;
+    PROCESSED(0,"已处理"),
+    UNTREATED(1,"未处理");
     /**
      * 工单状态编码
      */
@@ -26,19 +25,12 @@ public enum WorkOrderStatusEnum {
      */
     public final String desc;
 
-    /**
-     * 工单状态内容
-     */
-    public final String content;
-
-
-    WorkOrderStatusEnum(Integer code, String desc, String content) {
+    WorkOrderStatusEnum(Integer code, String desc) {
         this.code = code;
         this.desc = desc;
-        this.content = content;
     }
 
-    public static WorkOrderStatusEnum get(Integer code){
+    public static WorkOrderStatusEnum getByCode(Integer code){
         return Arrays.stream(WorkOrderStatusEnum.values())
                 .filter(item->item.code.equals(code))
                 .findFirst()
@@ -49,21 +41,11 @@ public enum WorkOrderStatusEnum {
         if (Objects.isNull(code)) {
             return StringUtils.EMPTY;
         }
-        WorkOrderStatusEnum workOrderStatus = get(code);
+        WorkOrderStatusEnum workOrderStatus = getByCode(code);
         if (Objects.isNull(workOrderStatus)) {
             return StringUtils.EMPTY;
         }
         return workOrderStatus.getDesc();
     }
 
-    public static String getContentByCode(Integer code){
-        if (Objects.isNull(code)) {
-            return StringUtils.EMPTY;
-        }
-        WorkOrderStatusEnum workOrderStatus = get(code);
-        if (Objects.isNull(workOrderStatus)) {
-            return StringUtils.EMPTY;
-        }
-        return workOrderStatus.getContent();
-    }
 }

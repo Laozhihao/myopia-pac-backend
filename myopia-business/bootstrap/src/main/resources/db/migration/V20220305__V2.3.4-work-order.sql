@@ -20,7 +20,7 @@ CREATE TABLE `m_work_order` (
   `grade_type` tinyint(4) DEFAULT NULL COMMENT '学龄段',
   `parent_phone` varchar(16) NOT NULL COMMENT '家长手机号码',
   `wx_nickname` varchar(100) NOT NULL COMMENT '微信昵称',
-  `screening_begin_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '筛查开始时间',
-  `screening_end_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '筛查结束时间',
+  `screening_begin_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT '筛查开始时间',
+  `screening_end_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT '筛查结束时间',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
