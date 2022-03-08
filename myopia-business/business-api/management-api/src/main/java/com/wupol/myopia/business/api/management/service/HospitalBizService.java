@@ -134,7 +134,7 @@ public class HospitalBizService {
      */
     public IPage<HospitalResponseDTO> getHospitalList(PageRequest pageRequest, HospitalQuery query, CurrentUser user) {
         List<Integer> govOrgIds = new ArrayList<>();
-        if (!user.isPlatformAdminUser()) {
+        if (user.isGovDeptUser()) {
             govOrgIds = govDeptService.getAllSubordinate(user.getOrgId());
         }
         IPage<HospitalResponseDTO> hospitalListsPage = hospitalService.getHospitalListByCondition(pageRequest.toPage(), govOrgIds, query);
