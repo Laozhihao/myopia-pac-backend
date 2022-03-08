@@ -262,7 +262,9 @@ public class HospitalBizService {
             }
         }
         // 医生用户
-        oauthServiceClient.updateHospitalRole(newHospital.getId(), newHospital.getServiceType());
+        if (Objects.nonNull(newHospital.getServiceType())) {
+            oauthServiceClient.updateHospitalRole(newHospital.getId(), newHospital.getServiceType());
+        }
     }
 
     /**
