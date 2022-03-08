@@ -32,4 +32,6 @@ public class HospitalStudentVO extends HospitalStudentDO {
     private SchoolGrade schoolGrade;
     /** 民族中文 */
     private String nationName;
+    /** 年龄 */
+    private String birthdayInfo;
 }

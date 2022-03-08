@@ -1,7 +1,13 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
 
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.wupol.framework.core.util.DateConvertUtils;
+import com.wupol.myopia.base.util.DateFormatUtil;
+import com.wupol.myopia.business.core.common.constant.ArtificialStatusConstant;
+import com.wupol.myopia.business.core.school.domain.dto.MockPlanStudentQueryDTO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -9,6 +15,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 /**
  * 学生查询
@@ -86,10 +93,60 @@ public class ScreeningStudentQueryDTO extends StudentExtraDTO {
     /**
      * 筛查计划ID集合
      */
-    private List<Integer> planIds;
+    private Set<Integer> planIds;
 
     /**
      * 筛查编号
      */
     private Long screeningCode;
+
+    /**
+     * 护照
+     */
+    private String passportLike;
+    /**
+     * 学校名称
+     */
+    private String schoolNameLike;
+    /**
+     * 身份证或者护照
+     */
+    private String idCardOrPassportLike;
+
+    /**
+     * 0-非人造的、1-人造的
+     */
+    private Integer artificial;
+
+    /**
+     * 创建ScreeningStudentQueryDTO, 当入参为null时, 返回null;
+     * @param mockPlanStudentQueryDTO
+     * @return
+     */
+    public static ScreeningStudentQueryDTO getScreeningStudentQueryDTO(MockPlanStudentQueryDTO mockPlanStudentQueryDTO) {
+        if (mockPlanStudentQueryDTO == null) {
+            return null;
+        }
+        //处理下时间
+        Date endScreeningTime = mockPlanStudentQueryDTO.getEndScreeningTime();
+        if (endScreeningTime != null) {
+            //时间过来是 2001-01-01 00:00:00
+            //实际上应该增加一天  2001-01-02 00:00:00
+            endScreeningTime = DateUtil.offsetDay(endScreeningTime, 1);
+        }
+
+        ScreeningStudentQueryDTO screeningStudentQueryDTO = new ScreeningStudentQueryDTO();
+        screeningStudentQueryDTO.setPlanIds(mockPlanStudentQueryDTO.getScreeningPlanIds())
+                .setStartScreeningTime(mockPlanStudentQueryDTO.getStartScreeningTime())
+                .setEndScreeningTime(endScreeningTime)
+                .setArtificial(ArtificialStatusConstant.Artificial)
+                .setSnoLike(mockPlanStudentQueryDTO.getSnoLike())
+                .setNameLike(mockPlanStudentQueryDTO.getNameLike())
+                .setPhoneLike(mockPlanStudentQueryDTO.getPhoneLike())
+                .setIdCardOrPassportLike(mockPlanStudentQueryDTO.getIdCardOrPassportLike())
+                .setPassportLike(mockPlanStudentQueryDTO.getPassportLike())
+                .setSchoolNameLike(mockPlanStudentQueryDTO.getSchoolNameLike())
+                .setGender(mockPlanStudentQueryDTO.getGender());
+        return screeningStudentQueryDTO;
+    }
 }

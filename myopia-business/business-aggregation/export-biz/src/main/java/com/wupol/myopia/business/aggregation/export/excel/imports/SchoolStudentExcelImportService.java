@@ -3,13 +3,15 @@ package com.wupol.myopia.business.aggregation.export.excel.imports;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
-import com.wupol.myopia.base.util.ListUtil;
+import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.excel.domain.SchoolStudentImportEnum;
+import com.wupol.myopia.business.aggregation.export.utils.CommonCheck;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
 import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.common.utils.util.IdCardUtil;
+import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolClassExportDTO;
@@ -31,10 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -63,14 +62,16 @@ public class SchoolStudentExcelImportService {
 
     /**
      * 导入学校学生
+     * <p>
+     * 这个方法有两个Map，第一个Map是判断数据是否重复，第二个Map是将删除的重新启用
+     * </p>
      *
      * @param createUserId  创建人
      * @param multipartFile 文件
      * @param schoolId      学校Id
-     * @throws ParseException 转换异常
      */
     @Transactional(rollbackFor = Exception.class)
-    public void importSchoolStudent(Integer createUserId, MultipartFile multipartFile, Integer schoolId) throws ParseException {
+    public void importSchoolStudent(Integer createUserId, MultipartFile multipartFile, Integer schoolId) {
         List<Map<Integer, String>> listMap = FileUtils.readExcel(multipartFile);
         if (CollectionUtils.isEmpty(listMap)) {
             return;
@@ -80,27 +81,32 @@ public class SchoolStudentExcelImportService {
         // 收集身份证号码、学号
         List<String> idCards = listMap.stream().map(s -> s.get(SchoolStudentImportEnum.ID_CARD.getIndex())).filter(Objects::nonNull).collect(Collectors.toList());
         List<String> snos = listMap.stream().map(s -> s.get(SchoolStudentImportEnum.SNO.getIndex())).filter(Objects::nonNull).collect(Collectors.toList());
-        checkIdCard(idCards, snos);
+        List<String> passports = listMap.stream().map(s -> s.get(SchoolStudentImportEnum.PASSPORT.getIndex())).filter(Objects::nonNull).peek(passport -> {
+            if (passport.length() < 7) {
+                throw new BusinessException("护照" + passport + "异常");
+            }
+        }).collect(Collectors.toList());
+        CommonCheck.checkHaveDuplicate(idCards, snos, passports, true);
 
-        // 获取学校学生
-        List<SchoolStudent> studentList = schoolStudentService.getByIdCardOrSno(idCards, snos, schoolId);
+        // 获取已经存在的学校学生（判断是否重复）
+        List<SchoolStudent> studentList = schoolStudentService.getByIdCardAndSnoAndPassports(idCards, snos, passports, schoolId);
         Map<String, SchoolStudent> snoMap = studentList.stream().collect(Collectors.toMap(SchoolStudent::getSno, Function.identity()));
         Map<String, SchoolStudent> idCardMap = studentList.stream().collect(Collectors.toMap(SchoolStudent::getIdCard, Function.identity()));
+        Map<String, SchoolStudent> passPortMap = studentList.stream().collect(Collectors.toMap(SchoolStudent::getPassport, Function.identity()));
 
-        List<SchoolStudent> deletedSchoolStudents = schoolStudentService.getDeletedByIdCard(idCards, schoolId);
-        Map<String, SchoolStudent> deletedStudentMap = deletedSchoolStudents.stream().collect(Collectors.toMap(SchoolStudent::getIdCard, Function.identity()));
+        // 获取已经删除的学生（重新启用删除的学生）
+        List<SchoolStudent> deletedSchoolStudents = schoolStudentService.getDeletedByIdCard(idCards, passports, schoolId);
+        Map<String, SchoolStudent> deletedIdCardStudentMap = deletedSchoolStudents.stream().collect(Collectors.toMap(SchoolStudent::getIdCard, Function.identity()));
+        Map<String, SchoolStudent> deletedPassportStudentMap = deletedSchoolStudents.stream().collect(Collectors.toMap(SchoolStudent::getPassport, Function.identity()));
 
-        // 收集年级信息
-        List<SchoolGradeExportDTO> grades = schoolGradeService.getBySchoolIds(Lists.newArrayList(school.getId()));
-        schoolGradeService.packageGradeInfo(grades);
-
-        // 年级信息通过学校Id分组
-        Map<Integer, List<SchoolGradeExportDTO>> schoolGradeMaps = grades.stream().collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolId));
+        Map<Integer, List<SchoolGradeExportDTO>> schoolGradeMaps = schoolGradeService.getGradeAndClassMap(Lists.newArrayList(school.getId()));
 
         List<SchoolStudent> schoolStudents = new ArrayList<>();
         for (Map<Integer, String> item : listMap) {
             SchoolStudent schoolStudent;
-            SchoolStudent deletedSchoolStudent = deletedStudentMap.get(item.get(SchoolStudentImportEnum.ID_CARD.getIndex()));
+            // 查看是否已经删除，优先取身份证，再取护照号
+            SchoolStudent deletedSchoolStudent = deletedIdCardStudentMap.get(item.get(SchoolStudentImportEnum.ID_CARD.getIndex()));
+            deletedSchoolStudent = Objects.isNull(deletedSchoolStudent) ? deletedPassportStudentMap.get(item.get(SchoolStudentImportEnum.PASSPORT.getIndex())) : deletedSchoolStudent;
             if (Objects.isNull(deletedSchoolStudent)) {
                 schoolStudent = new SchoolStudent();
             } else {
@@ -109,20 +115,30 @@ public class SchoolStudentExcelImportService {
             if (StringUtils.isBlank(item.get(SchoolStudentImportEnum.NAME.getIndex()))) {
                 break;
             }
-            checkIsExist(snoMap, idCardMap, item.get(SchoolStudentImportEnum.SNO.getIndex()),
-                    item.get(SchoolStudentImportEnum.ID_CARD.getIndex()), item.get(SchoolStudentImportEnum.GENDER.getIndex()),
-                    item.get(SchoolStudentImportEnum.BIRTHDAY.getIndex()), item.get(SchoolStudentImportEnum.GRADE_NAME.getIndex()));
+            schoolStudent.setStatus(CommonConst.STATUS_NOT_DELETED);
+
+            checkIsExist(snoMap, idCardMap, passPortMap,
+                    item.get(SchoolStudentImportEnum.SNO.getIndex()), item.get(SchoolStudentImportEnum.ID_CARD.getIndex()),
+                    item.get(SchoolStudentImportEnum.GENDER.getIndex()), item.get(SchoolStudentImportEnum.PASSPORT.getIndex()));
 
             setSchoolStudentInfo(createUserId, schoolId, item, schoolStudent);
-            setSchoolStudentClassInfo(schoolId, schoolGradeMaps, item, schoolStudent);
+            String gradeName = item.get(SchoolStudentImportEnum.GRADE_NAME.getIndex());
+            String className = item.get(SchoolStudentImportEnum.CLASS_NAME.getIndex());
+            TwoTuple<Integer, Integer> gradeClassInfo = getSchoolStudentClassInfo(schoolId, schoolGradeMaps, gradeName, className);
+            schoolStudent.setGradeId(gradeClassInfo.getFirst());
+            schoolStudent.setGradeName(gradeName);
+            schoolStudent.setClassId(gradeClassInfo.getSecond());
+            schoolStudent.setClassName(className);
+
             // 更新管理端
+            schoolStudent.checkStudentInfo();
+            DateUtil.checkBirthday(schoolStudent.getBirthday());
             Integer managementStudentId = updateManagementStudent(schoolStudent);
             schoolStudent.setStudentId(managementStudentId);
             schoolStudents.add(schoolStudent);
         }
         schoolStudentService.saveOrUpdateBatch(schoolStudents);
     }
-
 
     /**
      * 设置学生基本信息
@@ -131,16 +147,16 @@ public class SchoolStudentExcelImportService {
      * @param schoolId      学校Id
      * @param item          导入信息
      * @param schoolStudent 学校端学生
-     * @throws ParseException 日期转换异常
      */
-    private void setSchoolStudentInfo(Integer createUserId, Integer schoolId, Map<Integer, String> item, SchoolStudent schoolStudent) throws ParseException {
+    private void setSchoolStudentInfo(Integer createUserId, Integer schoolId, Map<Integer, String> item, SchoolStudent schoolStudent) {
         schoolStudent.setName(item.get(SchoolStudentImportEnum.NAME.getIndex()))
                 .setGender(Objects.nonNull(item.get(SchoolStudentImportEnum.GENDER.getIndex())) ? GenderEnum.getType(item.get(SchoolStudentImportEnum.GENDER.getIndex())) : IdCardUtil.getGender(item.get(SchoolStudentImportEnum.ID_CARD.getIndex())))
-                .setBirthday(Objects.nonNull(item.get(SchoolStudentImportEnum.BIRTHDAY.getIndex())) ? DateFormatUtil.parseDate(item.get(SchoolStudentImportEnum.BIRTHDAY.getIndex()), DateFormatUtil.FORMAT_ONLY_DATE2) : IdCardUtil.getBirthDay(item.get(SchoolStudentImportEnum.ID_CARD.getIndex())))
+
                 .setNation(NationEnum.getCode(item.get(SchoolStudentImportEnum.NATION.getIndex())))
                 .setGradeType(GradeCodeEnum.getByName(item.get(SchoolStudentImportEnum.GRADE_NAME.getIndex())).getType())
                 .setSno((item.get(SchoolStudentImportEnum.SNO.getIndex())))
                 .setIdCard(item.get(SchoolStudentImportEnum.ID_CARD.getIndex()))
+                .setPassport(item.get(SchoolStudentImportEnum.PASSPORT.getIndex()))
                 .setParentPhone(item.get(SchoolStudentImportEnum.PHONE.getIndex()))
                 .setCreateUserId(createUserId)
                 .setSchoolId(schoolId)
@@ -150,6 +166,15 @@ public class SchoolStudentExcelImportService {
         schoolStudent.setAreaCode(districtService.getCodeByName(item.get(SchoolStudentImportEnum.AREA_NAME.getIndex())));
         schoolStudent.setTownCode(districtService.getCodeByName(item.get(SchoolStudentImportEnum.TOWN_NAME.getIndex())));
         schoolStudent.setAddress(item.get(SchoolStudentImportEnum.ADDRESS.getIndex()));
+        schoolStudent.setUpdateTime(new Date());
+        if (StringUtils.isNoneBlank(schoolStudent.getIdCard(), schoolStudent.getPassport())) {
+            schoolStudent.setPassport(null);
+        }
+        try {
+            schoolStudent.setBirthday(Objects.nonNull(item.get(SchoolStudentImportEnum.BIRTHDAY.getIndex())) ? DateFormatUtil.parseDate(item.get(SchoolStudentImportEnum.BIRTHDAY.getIndex()), DateFormatUtil.FORMAT_ONLY_DATE2) : IdCardUtil.getBirthDay(item.get(SchoolStudentImportEnum.ID_CARD.getIndex())));
+        } catch (ParseException e) {
+            throw new BusinessException("生日格式异常");
+        }
     }
 
     /**
@@ -157,64 +182,40 @@ public class SchoolStudentExcelImportService {
      *
      * @param schoolId        学校Id
      * @param schoolGradeMaps 年级Map
-     * @param item            导入信息
-     * @param schoolStudent   学校端学生
      */
-    private void setSchoolStudentClassInfo(Integer schoolId, Map<Integer, List<SchoolGradeExportDTO>> schoolGradeMaps, Map<Integer, String> item, SchoolStudent schoolStudent) {
+    public TwoTuple<Integer, Integer> getSchoolStudentClassInfo(Integer schoolId, Map<Integer, List<SchoolGradeExportDTO>> schoolGradeMaps,
+                                                                String gradeName, String className) {
         // 通过学校编号获取改学校的年级信息
         List<SchoolGradeExportDTO> schoolGradeExportVOS = schoolGradeMaps.get(schoolId);
         // 转换成年级Maps，年级名称作为Key
         Map<String, SchoolGradeExportDTO> gradeMaps = schoolGradeExportVOS.stream().collect(Collectors.toMap(SchoolGradeExportDTO::getName, Function.identity()));
         // 年级信息
-        SchoolGradeExportDTO schoolGradeExportDTO = gradeMaps.get(item.get(SchoolStudentImportEnum.GRADE_NAME.getIndex()));
-        Assert.notNull(schoolGradeExportDTO, "年级数据异常");
-        // 设置年级ID
-        schoolStudent.setGradeId(schoolGradeExportDTO.getId());
-        schoolStudent.setGradeName(item.get(SchoolStudentImportEnum.GRADE_NAME.getIndex()));
+        SchoolGradeExportDTO schoolGradeExportDTO = gradeMaps.get(gradeName);
+        Assert.notNull(schoolGradeExportDTO, "年级数据:" + gradeName + "异常");
+
         // 获取年级内的班级信息
         List<SchoolClassExportDTO> classExportVOS = schoolGradeExportDTO.getChild();
         // 转换成班级Maps 把班级名称作为key
         Map<String, Integer> classExportMaps = classExportVOS.stream().collect(Collectors.toMap(SchoolClassExportDTO::getName, SchoolClassExportDTO::getId));
-        Integer classId = classExportMaps.get(item.get(SchoolStudentImportEnum.CLASS_NAME.getIndex()));
-        Assert.notNull(classId, "班级数据为空");
-        // 设置班级信息
-        schoolStudent.setClassId(classId);
-        schoolStudent.setClassName(item.get(SchoolStudentImportEnum.CLASS_NAME.getIndex()));
-    }
-
-    /**
-     * 检查身份证、学号是否重复
-     *
-     * @param idCards 身份证
-     * @param snoList 学号
-     */
-    private void checkIdCard(List<String> idCards, List<String> snoList) {
-        if (CollectionUtils.isEmpty(idCards)) {
-            throw new BusinessException("身份证为空");
-        }
-        if (CollectionUtils.isEmpty(snoList)) {
-            throw new BusinessException("学号为空");
-        }
-        List<String> idCardDuplicate = ListUtil.getDuplicateElements(idCards);
-        if (!CollectionUtils.isEmpty(idCardDuplicate)) {
-            throw new BusinessException("身份证号码：" + String.join(",", idCardDuplicate) + "重复");
-        }
-        List<String> snoDuplicate = ListUtil.getDuplicateElements(snoList);
-        if (!CollectionUtils.isEmpty(snoDuplicate)) {
-            throw new BusinessException("学号：" + String.join(",", snoDuplicate) + "重复");
-        }
+        Integer classId = classExportMaps.get(className);
+        Integer gradeId = schoolGradeExportDTO.getId();
+        Assert.notNull(classId, "班级数据:" + className + "异常");
+        return new TwoTuple<>(gradeId, classId);
     }
 
     /**
      * 学校端-学生是否存在
      *
-     * @param snoMap    学号Map
-     * @param idCardMap 身份证Map
-     * @param sno       学号
-     * @param idCard    身份证
+     * @param snoMap      学号Map
+     * @param idCardMap   身份证Map
+     * @param passPortMap 护照
+     * @param sno         学号
+     * @param idCard      身份证
+     * @param passport    护照信息
      */
     private void checkIsExist(Map<String, SchoolStudent> snoMap, Map<String, SchoolStudent> idCardMap,
-                              String sno, String idCard, String gender, String birthday, String gradeName) {
+                              Map<String, SchoolStudent> passPortMap, String sno, String idCard,
+                              String gradeName, String passport) {
 
         if (StringUtils.isAllBlank(sno, idCard)) {
             throw new BusinessException("学号或身份证为空");
@@ -222,11 +223,14 @@ public class SchoolStudentExcelImportService {
         if (Objects.nonNull(snoMap.get(sno))) {
             throw new BusinessException("学号" + sno + "在系统中重复");
         }
-        if (Objects.nonNull(idCardMap.get(idCard))) {
+        if (Objects.nonNull(idCard) && Objects.nonNull(idCardMap.get(idCard))) {
             throw new BusinessException("身份证" + idCard + "在系统中重复");
         }
         if (StringUtils.isBlank(gradeName)) {
             throw new BusinessException("身份证" + idCard + "年级不能为空");
+        }
+        if (Objects.nonNull(passport) && Objects.nonNull(passPortMap.get(passport))) {
+            throw new BusinessException("护照" + passport + "在系统中重复");
         }
     }
 
@@ -238,7 +242,7 @@ public class SchoolStudentExcelImportService {
      */
     public Integer updateManagementStudent(SchoolStudent schoolStudent) {
         // 通过身份证在管理端查找学生
-        Student managementStudent = studentService.getAllByIdCard(schoolStudent.getIdCard());
+        Student managementStudent = studentService.getByIdCardAndPassport(schoolStudent.getIdCard(), schoolStudent.getPassport(), null);
 
         // 如果为空新增，否则是更新
         if (Objects.isNull(managementStudent)) {
@@ -262,7 +266,9 @@ public class SchoolStudentExcelImportService {
         managementStudent.setAreaCode(schoolStudent.getAreaCode());
         managementStudent.setTownCode(schoolStudent.getTownCode());
         managementStudent.setAddress(schoolStudent.getAddress());
+        managementStudent.setPassport(schoolStudent.getPassport());
         managementStudent.setStatus(CommonConst.STATUS_NOT_DELETED);
+        managementStudent.setUpdateTime(new Date());
         studentService.updateStudent(managementStudent);
         return managementStudent.getId();
     }

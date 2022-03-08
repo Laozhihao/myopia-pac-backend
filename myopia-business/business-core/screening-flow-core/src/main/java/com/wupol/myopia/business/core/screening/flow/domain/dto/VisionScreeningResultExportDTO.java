@@ -53,6 +53,9 @@ public class VisionScreeningResultExportDTO implements Serializable {
     @ExcelProperty("学校编码")
     private String schoolNo;
 
+    @ExcelProperty("身份证/护照")
+    private String credential;
+
     @ExcelProperty("学校名称")
     private String schoolName;
 
@@ -109,6 +112,11 @@ public class VisionScreeningResultExportDTO implements Serializable {
     private String computerOptometryDiagnosis;
     @ExcelProperty({TOP_HEADER, "电脑验光", "屈光结果"})
     private String computerOptometryResult;
+
+    @ExcelProperty({TOP_HEADER, "体测检查", "身高"})
+    private String height;
+    @ExcelProperty({TOP_HEADER, "体测检查", "体重"})
+    private String weight;
 
     @ExcelProperty({TOP_HEADER, "裂隙灯", "左眼"})
     private String slitLampLeftEye;

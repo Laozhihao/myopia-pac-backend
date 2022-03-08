@@ -338,4 +338,13 @@ public interface OauthServiceClient {
     @PostMapping("/oauth/organization")
     Organization addOrganization(@RequestBody Organization organization);
 
+    /**
+     * 通过机构类型获取权限
+     *
+     * @param configType 配置
+     * @return List<String>
+     */
+    @GetMapping("/oauth/permission/organization/{configType}")
+    List<String> getPermissionByConfigType(@PathVariable("configType") Integer configType);
+
 }

@@ -108,6 +108,12 @@ public class VisionScreeningResult implements Serializable {
     private EyePressureDataDO eyePressureData;
 
     /**
+     * 筛查结果--身高体重
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private HeightAndWeightDataDO heightAndWeightData;
+
+    /**
      * 筛查结果--眼底
      */
     @TableField(typeHandler = JacksonTypeHandler.class)

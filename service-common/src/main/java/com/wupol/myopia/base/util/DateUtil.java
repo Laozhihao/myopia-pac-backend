@@ -3,6 +3,7 @@ package com.wupol.myopia.base.util;
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUnit;
+import com.wupol.myopia.base.exception.BusinessException;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
@@ -455,4 +456,17 @@ public class DateUtil extends cn.hutool.core.date.DateUtil {
                 Math.max(0, (int) betweenDay(start, end));
     }
 
+    /**
+     * 生日是否超出限制
+     *
+     * @param date 生日
+     */
+    public void checkBirthday(Date date) {
+        // 1970-01-01 毫秒时间戳
+        Date beforeDate = new Date(-28800000L);
+        Date afterDate = new Date(2145888000000L);
+        if (Objects.nonNull(date) && (date.before(beforeDate) || date.after(afterDate))) {
+            throw new BusinessException(DateFormatUtil.format(date, DateFormatUtil.FORMAT_ONLY_DATE2) + "生日超出限制，请确认");
+        }
+    }
 }

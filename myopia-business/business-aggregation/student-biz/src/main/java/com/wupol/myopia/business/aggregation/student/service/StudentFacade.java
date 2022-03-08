@@ -3,21 +3,23 @@ package com.wupol.myopia.business.aggregation.student.service;
 import cn.hutool.core.date.DateUtil;
 import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.ObjectsUtil;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.student.constant.VisionScreeningConst;
 import com.wupol.myopia.business.aggregation.student.domain.vo.VisionInfoVO;
-import com.wupol.myopia.business.common.utils.constant.CommonConst;
-import com.wupol.myopia.business.common.utils.constant.HyperopiaLevelEnum;
-import com.wupol.myopia.business.common.utils.constant.MyopiaLevelEnum;
-import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
+import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.hospital.domain.model.HospitalStudent;
 import com.wupol.myopia.business.core.hospital.service.HospitalStudentService;
+import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
+import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
+import com.wupol.myopia.business.core.school.service.SchoolClassService;
+import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.AppStudentCardResponseDTO;
@@ -41,6 +43,7 @@ import com.wupol.myopia.business.core.screening.organization.service.ScreeningOr
 import com.wupol.myopia.business.core.system.constants.TemplateConstants;
 import com.wupol.myopia.business.core.system.service.TemplateDistrictService;
 import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -102,6 +105,11 @@ public class StudentFacade {
     @Autowired
     private HospitalStudentService hospitalStudentService;
 
+    @Autowired
+    private SchoolGradeService schoolGradeService;
+
+    @Autowired
+    private SchoolClassService schoolClassService;
 
     /**
      * 获取学生筛查档案
@@ -131,9 +139,14 @@ public class StudentFacade {
         List<StatConclusion> statConclusionList = statConclusionService.getByResultIds(resultIds);
         Map<Integer, StatConclusion> statMap = statConclusionList.stream().collect(Collectors.toMap(StatConclusion::getResultId, Function.identity()));
 
+        // 获取筛查学生
+        List<Integer> planStudentIds = resultList.stream().map(VisionScreeningResult::getScreeningPlanSchoolStudentId).collect(Collectors.toList());
+        Map<Integer, Long> screeningCodeMap = screeningPlanSchoolStudentService.getByIds(planStudentIds).stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getId, ScreeningPlanSchoolStudent::getScreeningCode));
+
         for (VisionScreeningResult result : resultList) {
             StudentScreeningResultItemsDTO item = new StudentScreeningResultItemsDTO();
             List<StudentResultDetailsDTO> resultDetail = packageDTO(result);
+            resultDetail.forEach(r -> r.setHeightAndWeightData(result.getHeightAndWeightData()));
             item.setDetails(resultDetail);
             item.setScreeningTitle(planMap.get(result.getPlanId()));
             item.setScreeningDate(result.getUpdateTime());
@@ -149,6 +162,9 @@ public class StudentFacade {
             item.setMyopiaLevel(statMap.get(result.getId()).getMyopiaLevel());
             item.setHyperopiaLevel(statMap.get(result.getId()).getHyperopiaLevel());
             item.setAstigmatismLevel(statMap.get(result.getId()).getAstigmatismLevel());
+            item.setPlanId(result.getPlanId());
+            item.setHasScreening(ObjectUtils.anyNotNull(result.getVisionData(), result.getComputerOptometry(), result.getBiometricData(), result.getOtherEyeDiseases()));
+            item.setScreeningCode(screeningCodeMap.get(result.getScreeningPlanSchoolStudentId()));
             items.add(item);
         }
         responseDTO.setTotal(resultList.size());
@@ -264,9 +280,20 @@ public class StudentFacade {
      */
     private void packageOtherEyeDiseasesResult(VisionScreeningResult result, StudentResultDetailsDTO leftDetails, StudentResultDetailsDTO rightDetails) {
         // 左眼--眼部疾病
-        leftDetails.setEyeDiseases(result.getOtherEyeDiseases().getLeftEyeData().getEyeDiseases());
+        leftDetails.setEyeDiseases(getEyeDiseases(result.getOtherEyeDiseases().getLeftEyeData().getEyeDiseases(), result.getSystemicDiseaseSymptom()));
         // 右眼--眼部疾病
-        rightDetails.setEyeDiseases(result.getOtherEyeDiseases().getRightEyeData().getEyeDiseases());
+        rightDetails.setEyeDiseases(getEyeDiseases(result.getOtherEyeDiseases().getRightEyeData().getEyeDiseases(), result.getSystemicDiseaseSymptom()));
+    }
+
+    /**
+     * 获取疾病描述
+     *
+     * @param eyeDiseases            眼部疾病
+     * @param systemicDiseaseSymptom 全身病
+     * @return 疾病描述
+     */
+    private String getEyeDiseases(List<String> eyeDiseases, String systemicDiseaseSymptom) {
+        return CollectionUtils.isEmpty(eyeDiseases) ? systemicDiseaseSymptom : StringUtils.isEmpty(systemicDiseaseSymptom) ? String.join("、", eyeDiseases) : String.join("、", eyeDiseases) + "、" + systemicDiseaseSymptom;
     }
 
     /**
@@ -664,7 +691,7 @@ public class StudentFacade {
         }
 
         // 右眼
-        if (Objects.nonNull(visionData) && Objects.nonNull(visionData.getRightEyeData()) &&  Objects.nonNull(computerOptometry) && Objects.nonNull(computerOptometry.getRightEyeData())
+        if (Objects.nonNull(visionData) && Objects.nonNull(visionData.getRightEyeData()) && Objects.nonNull(computerOptometry) && Objects.nonNull(computerOptometry.getRightEyeData())
                 && ObjectsUtil.allNotNull(computerOptometry.getRightEyeData().getSph(), computerOptometry.getRightEyeData().getCyl(), visionData.getRightEyeData().getNakedVision())) {
             right.setMyopia(StatUtil.isMyopia(computerOptometry.getRightEyeData().getSph().floatValue(), computerOptometry.getRightEyeData().getCyl().floatValue(), age, visionData.getRightEyeData().getNakedVision().floatValue()));
             right.setFarsightedness(StatUtil.isHyperopia(computerOptometry.getRightEyeData().getSph().floatValue(), computerOptometry.getRightEyeData().getCyl().floatValue(), age));
@@ -1023,6 +1050,75 @@ public class StudentFacade {
             hospitalStudent.setRecordNo(recordNo);
         });
         hospitalStudentService.updateBatchById(hospitalStudentList);
-
     }
+
+    /**
+     * 保存学生，同步到学校端
+     *
+     * @param student 学生信息
+     * @return 学生Id
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public Integer saveStudentAndSchoolStudent(Student student) {
+        Integer studentId = saveStudent(student);
+        if (Objects.isNull(student.getSchoolId()) || StringUtils.isBlank(student.getSno())) {
+            return studentId;
+        }
+        SchoolStudent schoolStudent = new SchoolStudent();
+        BeanUtils.copyProperties(student, schoolStudent);
+        schoolStudent.setId(null);
+        schoolStudent.setStudentId(studentId);
+        setSchoolStudentInfo(schoolStudent, student.getSchoolId());
+        schoolStudentService.saveOrUpdate(schoolStudent);
+        return studentId;
+    }
+
+    /**
+     * 新增学生
+     *
+     * @param student 学生实体类
+     * @return 新增数量
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public Integer saveStudent(Student student) {
+        // 检查学生年龄
+        com.wupol.myopia.base.util.DateUtil.checkBirthday(student.getBirthday());
+        // 设置学龄
+        if (null != student.getGradeId()) {
+            SchoolGrade grade = schoolGradeService.getById(student.getGradeId());
+            student.setGradeType(GradeCodeEnum.getByCode(grade.getGradeCode()).getType());
+        }
+        // 检查学生身份证是否重复
+        if (studentService.checkIdCardAndPassport(student.getIdCard(), student.getPassport(), null)) {
+            throw new BusinessException("学生身份证、护照重复");
+        }
+        studentService.save(student);
+        return student.getId();
+    }
+
+    /**
+     * 设置学生信息
+     *
+     * @param schoolStudent 学生
+     * @param schoolId      学校Id
+     */
+    public void setSchoolStudentInfo(SchoolStudent schoolStudent, Integer schoolId) {
+        schoolStudent.checkStudentInfo();
+        if (!schoolStudentService.getByIdCardAndSnoAndPassport(schoolStudent.getId(), schoolStudent.getIdCard(), schoolStudent.getSno(), schoolStudent.getPassport(), schoolId)) {
+            throw new BusinessException("学号、身份证、护照重复");
+        }
+        schoolStudent.setSchoolId(schoolId);
+        SchoolGrade grade = schoolGradeService.getById(schoolStudent.getGradeId());
+        schoolStudent.setGradeName(grade.getName());
+        schoolStudent.setClassName(schoolClassService.getById(schoolStudent.getClassId()).getName());
+        schoolStudent.setGradeType(GradeCodeEnum.getByCode(grade.getGradeCode()).getType());
+        schoolStudent.setSourceClient(SourceClientEnum.MANAGEMENT.type);
+
+        SchoolStudent havaDeletedStudent = schoolStudentService.getByIdCardAndPassport(schoolStudent.getIdCard(), schoolStudent.getPassport(), schoolId);
+        if (Objects.nonNull(havaDeletedStudent)) {
+            schoolStudent.setId(havaDeletedStudent.getId());
+            schoolStudent.setStatus(CommonConst.STATUS_NOT_DELETED);
+        }
+    }
+
 }

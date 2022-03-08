@@ -226,7 +226,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @param orgIds id列表
      * @return List<ScreeningOrganization>
      */
-    public List<ScreeningOrganization> getByIds(List<Integer> orgIds) {
+    public List<ScreeningOrganization> getByIds(Collection<Integer> orgIds) {
         return baseMapper.selectBatchIds(orgIds);
     }
 

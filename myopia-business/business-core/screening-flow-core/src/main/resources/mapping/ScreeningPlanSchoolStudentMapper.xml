@@ -54,7 +54,7 @@
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         id, src_screening_notice_id, screening_task_id, screening_plan_id, screening_org_id, plan_district_id, school_district_id, school_id, school_name,
-        grade_id, grade_name, grade_type, class_id, class_name, student_id, id_card, birthday, gender, student_age,
+        grade_id, grade_name, grade_type, class_id, class_name, student_id, id_card, birthday, gender, student_age,passport,
         student_situation, student_no, student_name, create_time, province_code, city_code,area_code,town_code, address, parent_phone,nation,artificial,screening_code
     </sql>
 
@@ -97,7 +97,9 @@
         SELECT mspss.student_id     as id,
                mspss.student_no     as sno,
                mspss.student_name   as name,
+               vsc.update_time as screeningTime,
                mspss.gender,
+               mspss.school_id,
                mspss.birthday,
                mspss.province_code,
                mspss.city_code,
@@ -114,15 +116,23 @@
                sg.name   as gradeName,
                sc.name   as className,
                mspss.screening_code as screeningCode,
-               mspss.id             as planStudentId
+               mspss.id             as planStudentId,
+               mspss.screening_plan_id as planId,
+               mspss.screening_org_id,
+               mspss.passport
         FROM m_screening_plan_school_student mspss
         left join m_school ms on ms.id = mspss.school_id
         left join m_school_grade sg on sg.id = mspss.grade_id
         left join m_school_class sc on sc.id = mspss.class_id
+        left join m_vision_screening_result vsc on vsc.screening_plan_school_student_id = mspss.id
         <where>
             <trim prefixOverrides="and">
-                AND mspss.screening_plan_id = #{param.screeningPlanId}
+                <if test="param.screeningPlanId != null">
+                    AND mspss.screening_plan_id = #{param.screeningPlanId}
+                </if>
+                <if test="param.schoolId != null">
                     AND mspss.school_id = #{param.schoolId}
+                </if>
                 <if test="param.nameLike != null and param.nameLike != ''">
                     and mspss.`student_name` like CONCAT('%', #{param.nameLike}, '%')
                 </if>
@@ -147,7 +157,29 @@
                 <if test="param.screeningCode != null and param.screeningCode != ''">
                     and mspss.`screening_code` like CONCAT('%', #{param.screeningCode}, '%')
                 </if>
+                <if test="param.passportLike != null and param.passportLike != ''">
+                    and mspss.`passport` like CONCAT('%', #{param.passportLike}, '%')
+                </if>
+                <if test="param.schoolNameLike != null and param.schoolNameLike != ''">
+                    and ms.`name` like CONCAT('%', #{param.schoolNameLike}, '%')
+                </if>
+                <if test="param.artificial != null">
+                    and mspss.artificial = #{param.artificial}
+                </if>
+                <if test="param.planIds != null and param.planIds.size > 0">
+                    and mspss.screening_plan_id in
+                    <foreach collection="param.planIds" open="(" close=")" separator="," item="item">
+                        #{item}
+                    </foreach>
+                </if>
+                <if test="param.endScreeningTime != null and param.startScreeningTime != null">
+                  and   ( #{param.startScreeningTime} &lt;= vsc.update_time  and  vsc.update_time &lt; #{param.endScreeningTime} )
+                </if>
+                <if test="param.idCardOrPassportLike != null and param.idCardOrPassportLike != ''">
+                    and (mspss.`id_card` like CONCAT('%', #{param.idCardOrPassportLike}, '%') or mspss.`passport` like CONCAT('%', #{param.idCardOrPassportLike}, '%'))
+                </if>
             </trim>
+                order by mspss.id desc
         </where>
     </select>
 
@@ -167,6 +199,7 @@
         mspss.parent_phone,
         mspss.grade_id,
         mspss.class_id,
+        mspss.passport,
         ms.name   as school_name,
         sg.name   as gradeName,
         sc.name   as className,
@@ -367,6 +400,19 @@
         limit 1
     </select>
 
+    <select id="getByCondition" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_plan_school_student
+                where (id_card = #{condition}
+                or screening_code = #{condition}
+                or student_no = #{condition}
+        <if test="studentId != null">
+            or student_id = #{studentId}
+        </if>)
+            and student_name = #{name}
+    </select>
+
     <select id="getScreeningNoticeResultStudent" resultMap="ScreeningStudentDTO">
         select mspss.student_name      as name,
                mspss.student_no        as sno,
@@ -383,7 +429,13 @@
                mspss.grade_id as gradeId,
                mspss.class_id as classId
         from m_screening_plan_school_student mspss
-                where mspss.screening_plan_id = #{planId}
+            where 1 = 1
+        <if test="planIds != null">
+            and mspss.screening_plan_id in
+            <foreach collection="planIds" open="(" close=")" separator="," item="item">
+                #{item}
+            </foreach>
+        </if>
         <if test="schoolId != null">
             and mspss.school_id = #{schoolId}
         </if>
@@ -416,13 +468,40 @@
         group by grade_id, class_id
     </select>
 
-    <select id="getByCondition" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
+    <select id="getByIdCardAndPassport" resultMap="BaseResultMap">
+        select *
+        from m_screening_plan_school_student where 0 = 0
+        <if test="idCard != null and idCard != ''">
+            and id_card = #{idCard}
+        </if>
+        <if test="passport != null and passport != ''">
+            and passport = #{passport}
+        </if>
+        <if test="id != null">
+            and id != #{id}
+        </if>
+    </select>
+
+    <delete id="deleteByStudentIds">
+        delete
+        from m_screening_plan_school_student where student_id in
+        <foreach collection="studentIds" item="studentId" index="index" open="(" close=")" separator=",">
+            #{studentId}
+        </foreach>
+    </delete>
+
+    <select id="getByIds" resultMap="BaseResultMap">
+        select *
         from m_screening_plan_school_student
-        where (id_card = #{condition}
-                or screening_code = #{condition}
-                or student_no = #{condition})
-          and student_name = #{name}
+                where id in
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="getByNePlanId" resultMap="BaseResultMap">
+        select *
+        from m_screening_plan_school_student
+        where screening_plan_id != #{planId}
     </select>
 </mapper>

@@ -323,7 +323,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      * @param ids 筛查计划Id
      * @return List<ScreeningPlan>
      */
-    public List<ScreeningPlan> getByIds(List<Integer> ids) {
+    public List<ScreeningPlan> getByIds(Collection<Integer> ids) {
         return baseMapper.getByIds(ids);
     }
 

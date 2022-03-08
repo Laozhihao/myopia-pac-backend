@@ -43,4 +43,6 @@ public interface PermissionMapper extends BaseMapper<Permission> {
 
     List<Permission> selectByRoleIds(@Param("roleIds") List<Integer> roleIds);
 
+    List<String> getPermissionByDistrictLevel(@Param("districtLevel") Integer districtLevel);
+
 }

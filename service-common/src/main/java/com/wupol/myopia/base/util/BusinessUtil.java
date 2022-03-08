@@ -61,9 +61,15 @@ public class BusinessUtil {
         } else if ((years * 12 + months > 35) || (years * 12 + months == 35 && days > 15)) {
             // 35月龄15天＜*≤36月龄15天：【36月龄】
             return Collections.singletonList(MonthAgeEnum.MONTH36.getId());
+        } else if ((years * 12 + months > 30) || (years * 12 + months == 30 && days > 15)) {
+            // 30月龄15天＜*≤35月龄15天【30月龄】、【36月龄】
+            return Arrays.asList(MonthAgeEnum.MONTH30.getId(), MonthAgeEnum.MONTH36.getId());
+        } else if ((years * 12 + months > 29) || (years * 12 + months == 29 && days > 15)) {
+            // 29月龄15天＜*≤30月龄15天【30月龄】
+            return Collections.singletonList(MonthAgeEnum.MONTH30.getId());
         } else if (years == 2 && (months > 0 || days > 15)) {
-            // 24月龄15天＜*≤35月龄15天：【24月龄】、【36月龄】
-            return Arrays.asList(MonthAgeEnum.MONTH24.getId(), MonthAgeEnum.MONTH36.getId());
+            // 24月龄15天＜*≤29月龄15天：【24月龄】、【30月龄】
+            return Arrays.asList(MonthAgeEnum.MONTH24.getId(), MonthAgeEnum.MONTH30.getId());
         } else if ((years * 12 + months > 23) || (years * 12 + months == 23 && days > 15)) {
             // 23月龄15天＜*≤24月龄15天：【24月龄】
             return Collections.singletonList(MonthAgeEnum.MONTH24.getId());

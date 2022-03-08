@@ -226,4 +226,5 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
         }
         return schoolList.stream().filter(s -> schoolIds.contains(s.getSchoolId())).collect(Collectors.toList());
     }
+
 }
