@@ -296,7 +296,7 @@ public class GeneratePdfFileService {
 
         Integer templateId = templateDistrictService.getByDistrictId(districtService.getProvinceId(org.getDistrictId()));
 
-        String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.STUDENT_ARCHIVES_HTML_URL, htmlUrlHost, planId, schoolId, templateId, planStudentIds, gradeId, Objects.nonNull(classId) ? classId : StringUtils.EMPTY);
+        String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.STUDENT_ARCHIVES_HTML_URL, htmlUrlHost, planId, schoolId, templateId, StringUtils.isNotBlank(planStudentIds) ? planStudentIds : StringUtils.EMPTY, gradeId, Objects.nonNull(classId) ? classId : StringUtils.EMPTY);
         Assert.isTrue(HtmlToPdfUtil.convertArchives(schoolPdfHtmlUrl, Paths.get(fileSavePath).toString()), "【生成学校档案卡PDF文件异常】：" + school.getName());
     }
 
