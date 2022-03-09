@@ -1,10 +1,13 @@
 package com.wupol.myopia.business.api.device.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.business.aggregation.screening.domain.dto.LightBoxDataRequestDTO;
 import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
 import com.wupol.myopia.business.api.device.domain.dto.DeviceUploadDTO;
+import com.wupol.myopia.business.api.device.domain.result.DeviceUploadResult;
 import com.wupol.myopia.business.api.device.util.CheckResultUtil;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.util.VS666Util;
@@ -256,5 +259,21 @@ public class DeviceUploadDataService {
                 deviceScreenDataDTO.getPatientId() +
                 DELIMITER_CHAR +
                 deviceScreenDataDTO.getCheckTime();
+    }
+
+    public DeviceUploadResult uploadLightBoxData(LightBoxDataRequestDTO requestDTO) {
+        String deviceSn = requestDTO.getDeviceSn();
+        //先查找设备编码是否存在
+        Device device = deviceService.getDeviceByDeviceSn(deviceSn);
+        //如果不存在报错
+        if (Objects.isNull(device)) {
+            return DeviceUploadResult.FAILURE("无法找到设备:" + deviceSn);
+        }
+        ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(device.getBindingScreeningOrgId());
+        if (Objects.isNull(screeningOrganization) || CommonConst.STATUS_IS_DELETED.equals(screeningOrganization.getStatus())) {
+            return DeviceUploadResult.FAILURE("无法找到筛查机构或该筛查机构已过期");
+        }
+        log.info(JSONObject.toJSONString(requestDTO));
+        return DeviceUploadResult.SUCCESS;
     }
 }
