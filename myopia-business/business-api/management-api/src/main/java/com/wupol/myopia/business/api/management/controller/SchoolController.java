@@ -88,7 +88,6 @@ public class SchoolController {
         if (!user.isPlatformAdminUser()) {
             nameAndPassword.setNoDisplay();
         }
-        schoolService.generateGradeAndClass(requestDTO.getId(), requestDTO.getCreateUserId(), requestDTO.getBatchSaveGradeList());
         return nameAndPassword;
     }
 
