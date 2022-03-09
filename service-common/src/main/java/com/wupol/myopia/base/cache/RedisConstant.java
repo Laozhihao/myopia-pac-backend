@@ -109,6 +109,12 @@ public interface RedisConstant {
     String FILE_EXPORT_PDF_ARCHIVES_SCHOOL = "file:export:pdf:archives:school:%s-%s-%s";
 
     /**
+     * 导出PDF-区域筛查
+     */
+    String FILE_EXPORT_PDF_ARCHIVES_DISTRICT = "file:export:pdf:archives:district:%s-%s-%s-%s-%s-%s";
+
+
+    /**
      * 导出PDF-机构筛查
      */
     String FILE_EXPORT_PDF_ARCHIVES_ORG = "file:export:pdf:archives:org:%s-%s-%s-%s-%s-%s";

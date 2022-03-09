@@ -126,7 +126,8 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
      * @return ApiResult.success();
      */
     @GetMapping("/export")
-    public Object getScreeningNoticeExportData(Integer screeningNoticeId, @RequestParam(defaultValue = "0") Integer screeningOrgId,
+    public Object getScreeningNoticeExportData(Integer screeningNoticeId,
+                                               @RequestParam(defaultValue = "0") Integer screeningOrgId,
                                                @RequestParam(defaultValue = "0") Integer districtId,
                                                @RequestParam(defaultValue = "0") Integer schoolId,
                                                @RequestParam(defaultValue = "0") Integer planId) throws IOException, UtilException {

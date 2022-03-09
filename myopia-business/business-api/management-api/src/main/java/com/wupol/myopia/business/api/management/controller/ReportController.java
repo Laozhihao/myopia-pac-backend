@@ -108,12 +108,30 @@ public class ReportController {
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @GetMapping("/school/archives")
-    public void exportSchoolArchives(@NotNull(message = "筛查计划ID不能为空") Integer planId, @NotNull(message = "学校ID不能为空") Integer schoolId) throws IOException {
+    public void exportSchoolArchives(@NotNull(message = "筛查计划ID不能为空") Integer planId,
+                                     @NotNull(message = "学校ID不能为空") Integer schoolId) throws IOException {
         ExportCondition exportCondition = new ExportCondition()
                 .setPlanId(planId)
                 .setSchoolId(schoolId)
                 .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.SCHOOL_ARCHIVES_SERVICE);
+    }
+
+    /**
+     * 导出行政区域档案卡
+     *
+     * @param noticeId 筛查通知ID
+     * @param districtId 行政区域ID
+     * @return com.wupol.myopia.base.domain.ApiResult
+     **/
+    @GetMapping("/district/archives")
+    public void exportDistrictArchives(@NotNull(message = "筛查通知ID不能为空") Integer noticeId,
+                                     @NotNull(message = "行政区域ID不能为空") Integer districtId) throws IOException {
+        ExportCondition exportCondition = new ExportCondition()
+                .setNotificationId(noticeId)
+                .setDistrictId(districtId)
+                .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
+        exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.EXPORT_DISTRICT_ARCHIVES_SERVICE);
     }
 
     /**

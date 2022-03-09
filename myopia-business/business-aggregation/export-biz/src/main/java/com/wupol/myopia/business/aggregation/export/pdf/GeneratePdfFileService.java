@@ -22,6 +22,7 @@ import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.GradeClassesDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.screeningPlanSchoolStudentDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
@@ -37,10 +38,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -202,6 +200,25 @@ public class GeneratePdfFileService {
     }
 
     /**
+     * 生成档案卡PDF文件 - 行政区域
+     *
+     * @param saveDirectory   保存目录
+     * @param exportCondition 条件
+     **/
+    public void generateDistrictArchivesPdfFile(String saveDirectory, ExportCondition exportCondition) {
+        List<screeningPlanSchoolStudentDTO> statConclusionExportVos = new ArrayList<>();
+        List<Integer> childDistrictIds = districtService.getSpecificDistrictTreeAllDistrictIds(exportCondition.getDistrictId());
+        statConclusionExportVos = statConclusionService.getExportVoByScreeningNoticeIdAndDistrictIdsAndGroupBy(exportCondition.getNotificationId(), childDistrictIds);
+        statConclusionExportVos.forEach(item->{
+            exportCondition.setPlanId(item.getScreeningPlanId());
+            exportCondition.setSchoolId(item.getSchoolId());
+            exportCondition.setGradeId(item.getGradeId());
+            exportCondition.setClassId(item.getClassId());
+            generateSchoolArchivesPdfFile(saveDirectory,exportCondition);
+        });
+    }
+
+    /**
      * 生成档案卡PDF文件 - 学校
      *
      * @param saveDirectory   保存目录
@@ -220,15 +237,15 @@ public class GeneratePdfFileService {
         ScreeningPlan plan = screeningPlanService.getById(planId);
 
         // 获取筛查机构的模板
-        ScreeningOrganization org = screeningOrganizationService.getById(plan.getScreeningOrgId());
-        Integer templateId = templateDistrictService.getByDistrictId(districtService.getProvinceId(org.getDistrictId()));
+        //ScreeningOrganization org = screeningOrganizationService.getById(plan.getScreeningOrgId());
+        Integer templateId = templateDistrictService.getByDistrictId(districtService.getProvinceId(plan.getDistrictId()));
 
-        if (Objects.isNull(schoolId)) {
+        /*if (Objects.isNull(schoolId)) {
             String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.SCHOOL_ARCHIVES_HTML_URL, htmlUrlHost, planId, schoolId, templateId, gradeId, classId, planStudentIds);
             String dir = saveDirectory + "/" + plan.getTitle();
             Assert.isTrue(HtmlToPdfUtil.convertArchives(schoolPdfHtmlUrl, Paths.get(dir, plan.getTitle() + "档案卡" + ".pdf").toString()), "【生成学校档案卡PDF文件异常】：" + plan.getTitle());
             return;
-        }
+        }*/
         School school = schoolService.getById(schoolId);
         // 特殊处理
         if (ObjectsUtil.allNotNull(gradeId, classId)) {
