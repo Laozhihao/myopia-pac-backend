@@ -139,3 +139,4 @@ white-list:
   # 回调地址
   - "/management/pdf/callback"
   - "/management/screeningPlan/screeningNoticeResult"
+  - "/api/lightBox/uploadData"
