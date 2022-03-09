@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.device.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.LightBoxDataRequestDTO;
 import com.wupol.myopia.business.api.device.domain.dto.DeviceUploadDTO;
@@ -50,8 +51,9 @@ public class DeviceUploadDataController {
 
 
     @PostMapping("/lightBox/uploadData")
-    public void uploadLightBoxData(@RequestBody @Valid LightBoxDataRequestDTO requestDTO) {
+    public ApiResult uploadLightBoxData(@RequestBody @Valid LightBoxDataRequestDTO requestDTO) {
         deviceUploadDataService.uploadLightBoxData(requestDTO);
+        return ApiResult.success();
     }
 
 }

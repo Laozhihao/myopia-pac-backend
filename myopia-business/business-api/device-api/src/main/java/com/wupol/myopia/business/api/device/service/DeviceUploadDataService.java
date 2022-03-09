@@ -1,15 +1,19 @@
 package com.wupol.myopia.business.api.device.service;
 
+import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.LightBoxDataRequestDTO;
 import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
+import com.wupol.myopia.business.api.device.domain.dto.BusinessType1;
 import com.wupol.myopia.business.api.device.domain.dto.DeviceUploadDTO;
 import com.wupol.myopia.business.api.device.domain.result.DeviceUploadResult;
 import com.wupol.myopia.business.api.device.util.CheckResultUtil;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.common.utils.constant.GlassesTypeEnum;
+import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
 import com.wupol.myopia.business.common.utils.util.VS666Util;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceScreenDataDTO;
 import com.wupol.myopia.business.core.device.domain.model.Device;
@@ -17,9 +21,12 @@ import com.wupol.myopia.business.core.device.domain.model.DeviceSourceData;
 import com.wupol.myopia.business.core.device.service.DeviceScreeningDataService;
 import com.wupol.myopia.business.core.device.service.DeviceService;
 import com.wupol.myopia.business.core.device.service.DeviceSourceDataService;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ComputerOptometryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
+import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import lombok.extern.log4j.Log4j2;
@@ -62,6 +69,9 @@ public class DeviceUploadDataService {
     private DeviceScreeningDataService deviceScreeningDataService;
     @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
+
+    @Autowired
+    private VisionScreeningResultService visionScreeningResultService;
 
     /**
      * 处理studentId
@@ -276,16 +286,78 @@ public class DeviceUploadDataService {
         if (StringUtils.isBlank(dataStr)) {
             throw new BusinessException("数据不能为空");
         }
-        DeviceSourceData data = new DeviceSourceData();
-        data.setDeviceType(device.getType());
-        data.setDeviceId(device.getId());
-        data.setDeviceCode(device.getDeviceCode());
-        data.setDeviceSn(device.getDeviceSn());
-        data.setSrcData(requestDTO.getData());
-        data.setScreeningOrgId(screeningOrganization.getId());
-        data.setScreeningTime(new Date());
+        List<BusinessType1> businessType1s = JSONObject.parseArray(dataStr, BusinessType1.class);
+        businessType1s.forEach(a->{
+            Integer planStudentId = a.getPlanStudentId();
+            ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(planStudentId);
+            if (Objects.isNull(planStudent)) {
+                throw new BusinessException("学生信息异常");
+            }
+            if (!planStudent.getScreeningOrgId().equals(screeningOrganization.getId())) {
+                throw new BusinessException("筛查学生与筛查机构不匹配");
+            }
+            DeviceSourceData data = new DeviceSourceData();
+            data.setDeviceType(device.getType());
+            data.setPatientId(String.valueOf(planStudentId));
+            data.setDeviceId(device.getId());
+            data.setDeviceCode(device.getDeviceCode());
+            data.setDeviceSn(device.getDeviceSn());
+            data.setSrcData(dataStr);
+            data.setScreeningOrgId(screeningOrganization.getId());
+            data.setScreeningTime(Objects.nonNull(a.getScreeningTime()) ? DateUtil.date(a.getScreeningTime()) : new Date());
+            deviceSourceDataService.save(data);
 
-        deviceSourceDataService.save();
+            VisionScreeningResult result = visionScreeningResultService.getByPlanStudentId(planStudentId);
+
+            if (Objects.isNull(result)) {
+                result = new VisionScreeningResult();
+                result.setTaskId(planStudent.getScreeningTaskId());
+                result.setScreeningOrgId(planStudent.getScreeningOrgId());
+                result.setSchoolId(planStudent.getSchoolId());
+                result.setScreeningPlanSchoolStudentId(planStudent.getId());
+                result.setCreateUserId(-1);
+                result.setStudentId(planStudent.getStudentId());
+                result.setPlanId(planStudent.getScreeningPlanId());
+                result.setDistrictId(planStudent.getPlanDistrictId());
+            }
+            VisionDataDO visionDataDO = new VisionDataDO();
+            visionDataDO.setRightEyeData(getAbc(a, false));
+            visionDataDO.setLeftEyeData(getAbc(a, true));
+            visionDataDO.setIsCooperative(0);
+            visionDataDO.setCreateUserId(-1);
+            result.setVisionData(visionDataDO);
+            result.setUpdateTime(new Date());
+            visionScreeningResultService.saveOrUpdate(result);
+        });
+
         log.info(JSONObject.toJSONString(requestDTO));
+    }
+
+    private VisionDataDO.VisionData getAbc(BusinessType1 businessType1, boolean isLeft) {
+        VisionDataDO.VisionData visionData = new VisionDataDO.VisionData();
+        try {
+            if (isLeft) {
+                visionData.setLateriality(0);
+                visionData.setCorrectedVision(StringUtils.isBlank(businessType1.getLeftCorrectedVision()) ? null : new BigDecimal(businessType1.getLeftCorrectedVision()));
+                visionData.setNakedVision(StringUtils.isBlank(businessType1.getLeftNakedVision()) ? null : new BigDecimal(businessType1.getLeftNakedVision()));
+                if (Objects.nonNull(visionData.getCorrectedVision())) {
+                    visionData.setGlassesType(GlassesTypeEnum.FRAME_GLASSES.code);
+                } else {
+                    visionData.setGlassesType(GlassesTypeEnum.NOT_WEARING.code);
+                }
+                return visionData;
+            }
+            visionData.setLateriality(1);
+            visionData.setCorrectedVision(StringUtils.isBlank(businessType1.getRightCorrectedVision()) ? null : new BigDecimal(businessType1.getRightCorrectedVision()));
+            visionData.setNakedVision(StringUtils.isBlank(businessType1.getRightNakedVision()) ? null : new BigDecimal(businessType1.getRightNakedVision()));
+            if (Objects.nonNull(visionData.getCorrectedVision())) {
+                visionData.setGlassesType(GlassesTypeEnum.FRAME_GLASSES.code);
+            } else {
+                visionData.setGlassesType(GlassesTypeEnum.NOT_WEARING.code);
+            }
+        } catch (NumberFormatException e) {
+            throw new BusinessException("数据格式异常");
+        }
+        return visionData;
     }
 }

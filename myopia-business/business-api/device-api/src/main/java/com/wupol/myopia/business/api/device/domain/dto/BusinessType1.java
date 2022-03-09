@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.aggregation.screening.domain.dto;
+package com.wupol.myopia.business.api.device.domain.dto;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -21,4 +21,6 @@ public class BusinessType1 {
     private String leftCorrectedVision;
 
     private String rightCorrectedVision;
+
+    private Long screeningTime;
 }
