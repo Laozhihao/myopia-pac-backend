@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.aggregation.export.excel;
 
+import com.alibaba.excel.write.merge.OnceAbsoluteMergeStrategy;
 import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.ExcelUtil;
@@ -31,7 +32,7 @@ import java.util.Objects;
  *
  * @Author: 钓猫的小鱼
  * @Date: 2021/12/30/17:13
- * @Description: 帮新谋重构的代码，不知道是干啥用
+ * @Description: 帮新谋重构的代码，不知道是干啥用 ps:筛查计划-筛查数据导出
  */
 @Log4j2
 @Service("exportPlanStudentDataExcelService")
@@ -99,7 +100,11 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
     public File generateExcelFile(String fileName, List data) throws IOException {
         List<StatConclusionExportDTO> statConclusionExportDTOs = data;
         List<VisionScreeningResultExportDTO> visionScreeningResultExportVos = excelFacade.genVisionScreeningResultExportVos(statConclusionExportDTOs);
-        return ExcelUtil.exportListToExcel(fileName, visionScreeningResultExportVos, getHeadClass());
+        //return ExcelUtil.exportListToExcel(fileName, visionScreeningResultExportVos, getHeadClass());
+        OnceAbsoluteMergeStrategy mergeStrategy = new OnceAbsoluteMergeStrategy(0, 1, 20, 21);
+
+        String folder = "测试目录1"+"/"+"测试目录2";
+        return ExcelUtil.exportListToExcelWithFolder(folder,fileName,visionScreeningResultExportVos,mergeStrategy,getHeadClass());
     }
 
     /**
