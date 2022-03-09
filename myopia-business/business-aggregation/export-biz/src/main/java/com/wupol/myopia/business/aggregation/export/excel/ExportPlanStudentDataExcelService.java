@@ -100,7 +100,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
     public File generateExcelFile(String fileName, List data) throws IOException {
         List<StatConclusionExportDTO> statConclusionExportDTOs = data;
         List<VisionScreeningResultExportDTO> visionScreeningResultExportVos = excelFacade.genVisionScreeningResultExportVos(statConclusionExportDTOs);
-        return ExcelUtil.exportListToExcel("测试文件夹"+"\\"+fileName, visionScreeningResultExportVos, getHeadClass());
+        return ExcelUtil.exportListToExcel("测试文件夹"+"//"+fileName, visionScreeningResultExportVos, getHeadClass());
       /*  OnceAbsoluteMergeStrategy mergeStrategy = new OnceAbsoluteMergeStrategy(0, 1, 20, 21);
         String folder = "测试目录1"+"/"+"测试目录2";
         return ExcelUtil.exportListToExcelWithFolder(folder,fileName,visionScreeningResultExportVos,mergeStrategy,getHeadClass());
