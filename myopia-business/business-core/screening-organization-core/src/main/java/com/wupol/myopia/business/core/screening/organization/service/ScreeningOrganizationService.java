@@ -17,7 +17,7 @@ import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
-import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccountListDTO;
+import com.wupol.myopia.business.core.common.domain.dto.OrgAccountListDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationQueryDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.mapper.ScreeningOrganizationMapper;

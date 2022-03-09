@@ -23,7 +23,7 @@ import com.wupol.myopia.business.core.hospital.domain.query.HospitalQuery;
 import com.wupol.myopia.business.core.hospital.service.HospitalDoctorService;
 import com.wupol.myopia.business.core.hospital.service.HospitalService;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.CacheOverviewInfoDTO;
-import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccountListDTO;
+import com.wupol.myopia.business.core.common.domain.dto.OrgAccountListDTO;
 import com.wupol.myopia.business.core.screening.organization.service.OverviewService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;

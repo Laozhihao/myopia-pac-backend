@@ -20,7 +20,7 @@ import com.wupol.myopia.business.core.hospital.domain.query.HospitalQuery;
 import com.wupol.myopia.business.core.hospital.service.HospitalAdminService;
 import com.wupol.myopia.business.core.hospital.service.HospitalService;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
-import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccountListDTO;
+import com.wupol.myopia.business.core.common.domain.dto.OrgAccountListDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.model.OverviewHospital;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.OverviewHospitalService;
