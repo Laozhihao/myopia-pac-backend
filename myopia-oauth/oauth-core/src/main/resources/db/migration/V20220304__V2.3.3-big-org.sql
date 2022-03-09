@@ -12,3 +12,7 @@ INSERT INTO `o_permission`(`id`, `name`, `menu_btn_name`, `api_url`, `is_menu`, 
 INSERT INTO `o_permission`(`id`, `name`, `menu_btn_name`, `api_url`, `is_menu`, `is_page`, `order`, `pid`, `system_code`) VALUES (761, '获取当前登录总览机构信息(医院)', 'getCurrentOverviewInfoByHospital', 'get:/management/overview/current/info', 0, 0, 7, 12, 1);
 INSERT INTO `o_permission`(`id`, `name`, `menu_btn_name`, `api_url`, `is_menu`, `is_page`, `order`, `pid`, `system_code`) VALUES (762, '获取当前登录总览机构信息(筛查机构)', 'getCurrentOverviewInfoByScreeningOrg', 'get:/management/overview/current/info', 0, 0, 7, 2, 1);
 INSERT INTO `o_permission` (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code, create_time,update_time)VALUES (763, '筛查二维码', 'reportScreeningOrgQrcode', 'get:/management/report/screeningOrg/qrcode', 0, 0, 1, 27, 1,'2022-03-04 10:24:17', '2022-03-04 10:24:17');
+
+delete from o_permission where id in (343,344,369);
+delete from o_district_permission where permission_id in (343,344,369);
+delete from o_role_permission where permission_id in (343,344,369);
