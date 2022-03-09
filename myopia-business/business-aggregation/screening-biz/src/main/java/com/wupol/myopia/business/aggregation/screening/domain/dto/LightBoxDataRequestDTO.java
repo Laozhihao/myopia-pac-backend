@@ -23,5 +23,5 @@ public class LightBoxDataRequestDTO {
     private Integer businessType;
 
     @NotNull(message = "不能为空")
-    private Object data;
+    private String data;
 }

@@ -13,6 +13,7 @@ import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.util.VS666Util;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceScreenDataDTO;
 import com.wupol.myopia.business.core.device.domain.model.Device;
+import com.wupol.myopia.business.core.device.domain.model.DeviceSourceData;
 import com.wupol.myopia.business.core.device.service.DeviceScreeningDataService;
 import com.wupol.myopia.business.core.device.service.DeviceService;
 import com.wupol.myopia.business.core.device.service.DeviceSourceDataService;
@@ -22,15 +23,13 @@ import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchool
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -261,19 +260,32 @@ public class DeviceUploadDataService {
                 deviceScreenDataDTO.getCheckTime();
     }
 
-    public DeviceUploadResult uploadLightBoxData(LightBoxDataRequestDTO requestDTO) {
+    public void uploadLightBoxData(LightBoxDataRequestDTO requestDTO) {
         String deviceSn = requestDTO.getDeviceSn();
         //先查找设备编码是否存在
         Device device = deviceService.getDeviceByDeviceSn(deviceSn);
         //如果不存在报错
         if (Objects.isNull(device)) {
-            return DeviceUploadResult.FAILURE("无法找到设备:" + deviceSn);
+            throw new BusinessException("无法找到设备:" + deviceSn);
         }
         ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(device.getBindingScreeningOrgId());
         if (Objects.isNull(screeningOrganization) || CommonConst.STATUS_IS_DELETED.equals(screeningOrganization.getStatus())) {
-            return DeviceUploadResult.FAILURE("无法找到筛查机构或该筛查机构已过期");
+            throw new BusinessException("无法找到筛查机构或该筛查机构已过期");
         }
+        String dataStr = requestDTO.getData();
+        if (StringUtils.isBlank(dataStr)) {
+            throw new BusinessException("数据不能为空");
+        }
+        DeviceSourceData data = new DeviceSourceData();
+        data.setDeviceType(device.getType());
+        data.setDeviceId(device.getId());
+        data.setDeviceCode(device.getDeviceCode());
+        data.setDeviceSn(device.getDeviceSn());
+        data.setSrcData(requestDTO.getData());
+        data.setScreeningOrgId(screeningOrganization.getId());
+        data.setScreeningTime(new Date());
+
+        deviceSourceDataService.save();
         log.info(JSONObject.toJSONString(requestDTO));
-        return DeviceUploadResult.SUCCESS;
     }
 }
