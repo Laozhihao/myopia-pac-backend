@@ -50,7 +50,7 @@ public class DeviceUploadDataController {
     }
 
 
-    @PostMapping("/lightBox/uploadData")
+    @PostMapping("/device/uploadData")
     public ApiResult uploadLightBoxData(@RequestBody @Valid LightBoxDataRequestDTO requestDTO) {
         deviceUploadDataService.uploadLightBoxData(requestDTO);
         return ApiResult.success();

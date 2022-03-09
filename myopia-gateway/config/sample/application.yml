@@ -131,4 +131,4 @@ white-list:
   # 健康检查接口
   - "/actuator/health"
   - "/management/screeningPlan/screeningNoticeResult"
-  - "/api/lightBox/uploadData"
+  - "/api/device/uploadData"
