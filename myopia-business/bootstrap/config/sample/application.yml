@@ -148,6 +148,9 @@ vistel:
 
 ### 报告相关
 report:
+  file:
+    temp:
+      save-path: /app/excel/
   pdf:
     save-path: /app/pdf/
     async-request-url: http://t-nodejs-pdf-generator.internal/pdf/single-async
@@ -155,9 +158,7 @@ report:
     callbackUrl: https://00c5-240e-3b1-21a-2a70-6d1f-6132-cebb-9349.ngrok.io/management/pdf/callback
   html:
     url-host: http://8.135.35.154:7002
-file:
-  temp:
-    save-path: /app/excel/
+
 
 ### 健康监控 - actuator 配置
 management:
