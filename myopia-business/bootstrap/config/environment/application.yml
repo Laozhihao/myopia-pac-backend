@@ -161,9 +161,9 @@ vistel:
     remoteAddress: ${VISTEL_TOOLS_URI}
 
 ### 报告相关
-report:
-  pdf:
-    save-path: /app/pdf/
+file:
+  temp:
+    save-path: /app/file/
     # 异步请求URL
     async-request-url: ${VISTEL_PDF_GENERATOR_ASYNC}
     # 同步请求URL
