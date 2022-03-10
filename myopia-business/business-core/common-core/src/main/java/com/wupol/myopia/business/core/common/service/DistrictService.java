@@ -248,6 +248,16 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     }
 
     /**
+     * 判断两个区域是否归于同个顶级行政区域
+     * @param districtId
+     * @param otherDistrictIdOther
+     * @return
+     */
+    public boolean isSameProvince(Integer districtId, Integer otherDistrictIdOther) {
+        return getProvinceId(districtId).equals(getProvinceId(otherDistrictIdOther));
+    }
+
+    /**
      * 获取指定行政区域所属省份的所有行政区域的id列表
      *
      * @param districtId 行政区域ID

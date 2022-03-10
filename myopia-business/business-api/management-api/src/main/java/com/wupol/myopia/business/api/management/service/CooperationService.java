@@ -4,7 +4,9 @@ import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
 import com.wupol.myopia.business.core.hospital.service.HospitalService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
+import com.wupol.myopia.business.core.screening.organization.domain.model.Overview;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
+import com.wupol.myopia.business.core.screening.organization.service.OverviewService;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,8 +30,11 @@ public class CooperationService {
     @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
 
+    @Autowired
+    private OverviewService overviewService;
+
     /**
-     * 处理医院状态
+     * 更新医院状态
      * @return
      */
     public int handleHospitalStatus(Date date) {
@@ -42,7 +47,7 @@ public class CooperationService {
     }
 
     /**
-     * 处理学校状态
+     * 更新学校状态
      * @return
      */
     public int handleSchoolStatus(Date date) {
@@ -55,7 +60,7 @@ public class CooperationService {
     }
 
     /**
-     * 处理机构状态，将已过合作时间但未处理为禁止的机构设置为禁止
+     * 更新筛查机构状态
      * @return
      */
     public int handleOrganizationStatus(Date date) {
@@ -67,5 +72,18 @@ public class CooperationService {
         return result;
     }
 
+    /**
+     * 更新总览机构状态
+     * @param date
+     * @return
+     */
+    public int handleOverviewStatus(Date date) {
+        List<Overview> overviews = overviewService.getUnhandleOverview(date);
+        int result = 0;
+        for (Overview overview : overviews) {
+            result += overviewService.updateOverviewStatus(overview.getId(), overview.getCooperationStopStatus(), overview.getStatus());
+        }
+        return result;
+    }
 
 }

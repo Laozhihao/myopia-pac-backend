@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.business.core.screening.organization.domain.mapper.OverviewHospitalMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.screening.organization.domain.model.OverviewHospital">
+    </resultMap>
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(overviewId)">and `overview_id` = #{overviewId}</if>
+                <if test="@Ognl@isNotEmpty(hospitalId)">and `hospital_id` = #{hospitalId}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+            </trim>
+        </where>
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        overview_id, hospital_id, create_time
+    </sql>
+
+    <insert id="batchSave">
+        insert into m_overview_hospital (overview_id, hospital_id)
+        values
+        <foreach collection="hospitalIds" item="hospitalId" index="index" separator=",">
+            (#{overviewId}, #{hospitalId})
+        </foreach>
+    </insert>
+
+    <select id="getListByOverviewIds" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_overview_hospital
+        where `overview_id` in
+        <foreach collection="overviewIds" open="(" close=")" separator="," item="item">
+            #{item}
+        </foreach>
+    </select>
+
+</mapper>

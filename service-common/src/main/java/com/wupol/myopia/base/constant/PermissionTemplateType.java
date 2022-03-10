@@ -41,11 +41,30 @@ public enum PermissionTemplateType {
 
     /** 医院APP */
     HOSPITAL_RESIDENT_APP(11, "居民健康APP权限集合包", RoleType.RESIDENT_DOCTOR.getType(), SystemCode.HOSPITAL_CLIENT.getCode()),
-    HOSPITAL_PRESCHOOL_APP(12, "0-6岁眼保健APP权限集合包", RoleType.PRESCHOOL_DOCTOR.getType(), SystemCode.HOSPITAL_CLIENT.getCode());
+    HOSPITAL_PRESCHOOL_APP(12, "0-6岁眼保健APP权限集合包", RoleType.PRESCHOOL_DOCTOR.getType(), SystemCode.HOSPITAL_CLIENT.getCode()),
 
+    /** 总览机构管理员 */
+    OVERVIEW_SCREENING_ORG(15, "数据总览-筛查机构集合包", RoleType.OVERVIEW_ADMIN.getType(), SystemCode.MANAGEMENT_CLIENT.getCode()),
+    OVERVIEW_HOSPITAL(16, "数据总览-医院集合包", RoleType.OVERVIEW_ADMIN.getType(), SystemCode.MANAGEMENT_CLIENT.getCode()),
+    OVERVIEW_SCREENING_ORG_HOSPITAL(17, "数据总览-筛查机构+医院集合包", RoleType.OVERVIEW_ADMIN.getType(), SystemCode.MANAGEMENT_CLIENT.getCode()),
+
+
+    ;
+
+    /**
+     * 居民眼健康系统APP/眼保健系统APP
+     */
     private static final ImmutableMap<Integer, PermissionTemplateType> HOSPITAL_PERMISSION_TEMPLATE_TYPE_MAP;
 
+    /**
+     * 医院管理员
+     */
     private static final ImmutableMap<Integer, PermissionTemplateType> HOSPITAL_ADMIN_PERMISSION_TEMPLATE_TYPE_MAP;
+
+    /**
+     * 总览机构管理员
+     */
+    private static final ImmutableMap<Integer, PermissionTemplateType> OVERVIEW_PERMISSION_TEMPLATE_TYPE_MAP;
 
     static {
         HOSPITAL_PERMISSION_TEMPLATE_TYPE_MAP = ImmutableMap.of(
@@ -58,6 +77,13 @@ public enum PermissionTemplateType {
                 HospitalServiceType.RESIDENT.getType(), HOSPITAL_ADMIN,
                 HospitalServiceType.PRESCHOOL.getType(), PRESCHOOL_ADMIN,
                 HospitalServiceType.RESIDENT_PRESCHOOL.getType(), HOSPITAL_PRESCHOOL_ADMIN);
+    }
+
+    static {
+        OVERVIEW_PERMISSION_TEMPLATE_TYPE_MAP  = ImmutableMap.of(
+                OverviewConfigType.SCREENING_ORG.getType(), OVERVIEW_SCREENING_ORG,
+                OverviewConfigType.HOSPITAL.getType(), OVERVIEW_HOSPITAL,
+                OverviewConfigType.SCREENING_ORG_HOSPITAL.getType(), OVERVIEW_SCREENING_ORG_HOSPITAL);
     }
 
     /**
@@ -91,7 +117,7 @@ public enum PermissionTemplateType {
      * @return com.wupol.myopia.base.constan.RoleType
      **/
     public static PermissionTemplateType getByType(Integer type) {
-        return Arrays.stream(values()).filter(roleType -> roleType.getType().equals(type))
+        return Arrays.stream(values()).filter(permissionTemplateType -> permissionTemplateType.getType().equals(type))
                 .findFirst().orElse(null);
     }
 
@@ -158,6 +184,17 @@ public enum PermissionTemplateType {
     }
 
     /**
+     * 是否为总览机构管理员类型
+     *
+     * @param type 类型
+     * @return 是否总览机构管理员
+     */
+    public static boolean isOverviewAdminTemplate(Integer type) {
+        return OVERVIEW_SCREENING_ORG.type.equals(type) || OVERVIEW_HOSPITAL.type.equals(type)
+                || OVERVIEW_SCREENING_ORG_HOSPITAL.type.equals(type);
+    }
+
+    /**
      * 根据医院服务类型获取权限模板类型
      *
      * @param hospitalServiceType 医院服务类型
@@ -199,6 +236,17 @@ public enum PermissionTemplateType {
     public static Integer getRoleTypeByHospitalAdminServiceType(Integer hospitalServiceType) {
         Assert.notNull(hospitalServiceType, "医院服务类型不能为空");
         return HOSPITAL_ADMIN_PERMISSION_TEMPLATE_TYPE_MAP.get(hospitalServiceType).getRoleType();
+    }
+
+    /**
+     * 根据总览机构配置类型获取权限模板类型
+     *
+     * @param overviewConfigType 总览机构配置类型
+     * @return java.lang.Integer
+     **/
+    public static Integer getTemplateTypeByOverviewAdminServiceType(Integer overviewConfigType) {
+        Assert.notNull(overviewConfigType, "总览机构配置类型不能为空");
+        return OVERVIEW_PERMISSION_TEMPLATE_TYPE_MAP.get(overviewConfigType).getType();
     }
 
 }

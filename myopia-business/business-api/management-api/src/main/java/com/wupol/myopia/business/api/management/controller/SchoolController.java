@@ -22,7 +22,7 @@ import com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanResponseDTO;
-import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccountListDTO;
+import com.wupol.myopia.business.core.common.domain.dto.OrgAccountListDTO;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
