@@ -58,6 +58,12 @@ public class ScreeningOrganizationStaff implements Serializable {
      */
     private Integer signFileId;
 
+
+    /**
+     * 筛查人员类型（0普通筛查人员，1自动生成的筛查人员）
+     */
+    private Integer type;
+
     /**
      * 创建时间
      */

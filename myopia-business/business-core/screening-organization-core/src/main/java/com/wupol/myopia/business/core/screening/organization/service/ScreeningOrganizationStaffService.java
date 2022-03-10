@@ -11,6 +11,7 @@ import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.PasswordAndUsernameGenerator;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
@@ -63,31 +64,45 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         UserDTO userQuery = new UserDTO();
 
         // 搜索条件
-        userQuery.setCurrent(request.getCurrent())
-                .setSize(request.getSize())
-                .setOrgId(request.getScreeningOrgId())
+        userQuery.setOrgId(request.getScreeningOrgId())
                 .setRealName(request.getName())
                 .setIdCard(request.getIdCard())
                 .setPhone(request.getPhone())
                 .setSystemCode(SystemCode.SCREENING_CLIENT.getCode());
         // 获取筛查人员
-        Page<User> page = oauthServiceClient.getUserListPage(userQuery);
-        List<User> resultLists = JSONObject.parseArray(JSONObject.toJSONString(page.getRecords()), User.class);
+        List<User> list = oauthServiceClient.getUserList(userQuery);
+        List<User> resultLists = JSONObject.parseArray(JSONObject.toJSONString(list), User.class);
         if (CollectionUtils.isEmpty(resultLists)) {
             return new Page<>(request.getCurrent(), request.getSize());
         }
         // 封装DTO，回填多端管理的ID
         List<Integer> userIds = resultLists.stream().map(User::getId).collect(Collectors.toList());
-        Map<Integer, ScreeningOrganizationStaff> staffSnMaps = getStaffsByUserIds(userIds)
+        Page page1 = new Page();
+        page1.setCurrent(request.getCurrent());
+        page1.setSize(request.getSize());
+        ScreeningOrganizationStaffQueryDTO staffQueryDTO = new ScreeningOrganizationStaffQueryDTO();
+        CurrentUser users = CurrentUserUtil.getCurrentUser();
+        staffQueryDTO.setUserIds(userIds);
+        staffQueryDTO.setType(1);
+        //如果为非平台管理员
+        if (!users.isPlatformAdminUser()){
+            staffQueryDTO.setType(0);
+        }
+        IPage<ScreeningOrganizationStaff> page = getByPage(page1,staffQueryDTO);
+        Map<Integer, ScreeningOrganizationStaff> staffSnMaps = page.getRecords()
                 .stream().collect(Collectors.toMap(ScreeningOrganizationStaff::getUserId, Function.identity()));
         List<ScreeningOrgStaffUserDTO> screeningOrgStaffUserDTOList = resultLists.stream().map(user -> {
             ScreeningOrgStaffUserDTO screeningOrgStaffUserDTO = new ScreeningOrgStaffUserDTO(user);
             ScreeningOrganizationStaff staff = staffSnMaps.get(user.getId());
-            screeningOrgStaffUserDTO.setStaffId(staff.getId());
-            if (Objects.nonNull(staff.getSignFileId())) {
-                screeningOrgStaffUserDTO.setSignFileUrl(resourceFileService.getResourcePath(staff.getSignFileId()));
-            }
+            if (staff != null){
+                screeningOrgStaffUserDTO.setStaffId(staff.getId());
+                if (Objects.nonNull(staff.getSignFileId())) {
+                    screeningOrgStaffUserDTO.setSignFileUrl(resourceFileService.getResourcePath(staff.getSignFileId()));
+                }
             return screeningOrgStaffUserDTO;
+            }else{
+                return null;
+            }
         }).collect(Collectors.toList());
         return new Page<ScreeningOrgStaffUserDTO>(page.getCurrent(), page.getSize(), page.getTotal()).setRecords(screeningOrgStaffUserDTOList);
     }
@@ -99,24 +114,24 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      * @return UsernameAndPasswordDto 账号密码
      */
     @Transactional(rollbackFor = Exception.class)
-    public UsernameAndPasswordDTO saveOrganizationStaff(ScreeningOrganizationStaffQueryDTO staffQuery) {
+    public UsernameAndPasswordDTO saveOrganizationStaff(ScreeningOrganizationStaffQueryDTO staffQuery,String userName) {
+        if (staffQuery.getType() == null || staffQuery.getType()==0){
+            // 检查身份证号码是否重复
+            List<User> checkIdCards = oauthServiceClient.getUserBatchByIdCards(Lists.newArrayList(staffQuery.getIdCard()),
+                    SystemCode.SCREENING_CLIENT.getCode(), staffQuery.getScreeningOrgId());
+            if (!CollectionUtils.isEmpty(checkIdCards)) {
+                throw new BusinessException("身份证已经被使用！");
+            }
 
-        // 检查身份证号码是否重复
-        List<User> checkIdCards = oauthServiceClient.getUserBatchByIdCards(Lists.newArrayList(staffQuery.getIdCard()),
-                SystemCode.SCREENING_CLIENT.getCode(), staffQuery.getScreeningOrgId());
-        if (!CollectionUtils.isEmpty(checkIdCards)) {
-            throw new BusinessException("身份证已经被使用！");
+            // 检查手机号码是否重复
+            List<User> checkPhones = oauthServiceClient.getUserBatchByPhones(Lists.newArrayList(staffQuery.getPhone()),
+                    SystemCode.SCREENING_CLIENT.getCode());
+            if (!CollectionUtils.isEmpty(checkPhones)) {
+                throw new BusinessException("手机号码已经被使用");
+            }
         }
-
-        // 检查手机号码是否重复
-        List<User> checkPhones = oauthServiceClient.getUserBatchByPhones(Lists.newArrayList(staffQuery.getPhone()),
-                SystemCode.SCREENING_CLIENT.getCode());
-        if (!CollectionUtils.isEmpty(checkPhones)) {
-            throw new BusinessException("手机号码已经被使用");
-        }
-
         // 生成账号密码
-        TwoTuple<UsernameAndPasswordDTO, Integer> tuple = generateAccountAndPassword(staffQuery);
+        TwoTuple<UsernameAndPasswordDTO, Integer> tuple = generateAccountAndPassword(staffQuery,userName);
         staffQuery.setUserId(tuple.getSecond());
         save(staffQuery);
         return tuple.getFirst();
@@ -201,9 +216,14 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
     @Transactional(rollbackFor = Exception.class)
     public UsernameAndPasswordDTO resetPassword(StaffResetPasswordRequestDTO request) {
         ScreeningOrganizationStaff staff = baseMapper.selectById(request.getStaffId());
-        String password = PasswordAndUsernameGenerator.getScreeningUserPwd(request.getPhone(), request.getIdCard());
-        String username = request.getPhone();
-        oauthServiceClient.resetPwd(staff.getUserId(), password);
+        User user = oauthServiceClient.getUserDetailByUserId(staff.getUserId());
+        String password = "scry12345678";
+        String username = user.getUsername();
+        if (staff.getType()!=1){
+            password = PasswordAndUsernameGenerator.getScreeningUserPwd(request.getPhone(), request.getIdCard());
+            username = request.getPhone();
+            oauthServiceClient.resetPwd(staff.getUserId(), password);
+        }
         return new UsernameAndPasswordDTO(username, password);
     }
 
@@ -219,14 +239,21 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      *
      * @return TwoTuple<UsernameAndPasswordDto, Integer> 账号密码,Id
      */
-    private TwoTuple<UsernameAndPasswordDTO, Integer> generateAccountAndPassword(ScreeningOrganizationStaffQueryDTO staff) {
+    private TwoTuple<UsernameAndPasswordDTO, Integer> generateAccountAndPassword(ScreeningOrganizationStaffQueryDTO staff,String userName) {
         TwoTuple<UsernameAndPasswordDTO, Integer> tuple = new TwoTuple<>();
-
-        String password = PasswordAndUsernameGenerator.getScreeningUserPwd(staff.getPhone(), staff.getIdCard());
-        String username = staff.getPhone();
+        String password = null;
+        String username = null;
+        UserDTO userDTO = new UserDTO();
+        //如果是创建机构时自动新增的人员
+        if (staff.getType()==1){
+            password = "scry12345678";
+            username = userName;
+        }else{
+            password = PasswordAndUsernameGenerator.getScreeningUserPwd(staff.getPhone(), staff.getIdCard());
+            username = staff.getPhone();
+        }
         tuple.setFirst(new UsernameAndPasswordDTO(username, password));
 
-        UserDTO userDTO = new UserDTO();
         userDTO.setOrgId(staff.getScreeningOrgId())
                 .setUsername(username)
                 .setPassword(password)
@@ -237,7 +264,6 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
                 .setPhone(staff.getPhone())
                 .setIdCard(staff.getIdCard())
                 .setRemark(staff.getRemark());
-
         User user = oauthServiceClient.addMultiSystemUser(userDTO);
         tuple.setSecond(user.getId());
         return tuple;
@@ -262,8 +288,8 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      * @param orgId 组织id
      * @return List<ScreeningOrganizationStaff>
      */
-    public List<ScreeningOrganizationStaff> getByOrgId(Integer orgId) {
-        return baseMapper.getByOrgId(orgId);
+    public List<ScreeningOrganizationStaff> getByOrgId(Integer orgId,Integer type) {
+        return baseMapper.getByOrgId(orgId,type);
     }
 
     /**
@@ -272,8 +298,8 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      * @param orgIds 组织id
      * @return List<ScreeningOrganizationStaff>
      */
-    public List<ScreeningOrganizationStaff> getStaffListsByOrgIds(List<Integer> orgIds) {
-        return baseMapper.getByOrgIds(orgIds);
+    public List<ScreeningOrganizationStaff> getStaffListsByOrgIds(List<Integer> orgIds,Boolean type) {
+        return baseMapper.getByOrgIds(orgIds,type);
     }
 
     /**
@@ -282,8 +308,8 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      * @param orgIds orgIds
      * @return Map<Integer, List < ScreeningOrganizationStaff>>
      */
-    public Map<Integer, List<ScreeningOrganizationStaff>> getOrgStaffMapByIds(List<Integer> orgIds) {
-        return getStaffListsByOrgIds(orgIds).stream()
+    public Map<Integer, List<ScreeningOrganizationStaff>> getOrgStaffMapByIds(List<Integer> orgIds,Boolean type) {
+        return getStaffListsByOrgIds(orgIds,type).stream()
                 .collect(Collectors.groupingBy(ScreeningOrganizationStaff::getScreeningOrgId));
 
     }
@@ -306,7 +332,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      * @return {@link IPage} 分页结果
      */
     public IPage<ScreeningOrganizationStaff> getByPage(Page<?> page, ScreeningOrganizationStaffQueryDTO query) {
-        return baseMapper.getByPage(page, query);
+        return baseMapper.getByPage(page, query.getUserIds(),query.getType());
     }
 
     /**

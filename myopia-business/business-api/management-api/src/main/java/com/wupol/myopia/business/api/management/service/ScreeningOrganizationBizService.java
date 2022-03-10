@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.management.service;
 
 import cn.hutool.core.lang.Assert;
+import com.amazonaws.services.dynamodbv2.xspec.S;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.constant.UserType;
@@ -31,6 +32,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanS
 import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationQueryDTO;
+import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationStaffQueryDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.model.*;
 import com.wupol.myopia.business.core.screening.organization.service.*;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
@@ -125,7 +127,18 @@ public class ScreeningOrganizationBizService {
         // 为筛查机构新增设备报告模板
         DeviceReportTemplate template = deviceReportTemplateService.getSortFirstTemplate();
         screeningOrgBindDeviceReportService.orgBindReportTemplate(template.getId(), screeningOrganization.getId(), screeningOrganization.getName());
-        return screeningOrganizationService.generateAccountAndPassword(screeningOrganization, ScreeningOrganizationService.PARENT_ACCOUNT, null);
+
+        UsernameAndPasswordDTO usernameAndPasswordDTO = screeningOrganizationService.generateAccountAndPassword(screeningOrganization, ScreeningOrganizationService.PARENT_ACCOUNT, null);
+
+        ScreeningOrganizationStaffQueryDTO screeningOrganizationStaffQueryDTO = new ScreeningOrganizationStaffQueryDTO();
+        screeningOrganizationStaffQueryDTO.setScreeningOrgId(screeningOrganization.getId());
+        screeningOrganizationStaffQueryDTO.setCreateUserId(user.getId());
+        screeningOrganizationStaffQueryDTO.setGovDeptId(user.getOrgId());
+        screeningOrganizationStaffQueryDTO.setType(1);
+        screeningOrganizationStaffQueryDTO.setRealName("筛查人员TA");
+        screeningOrganizationStaffService.saveOrganizationStaff(screeningOrganizationStaffQueryDTO,usernameAndPasswordDTO.getUsername());
+
+        return usernameAndPasswordDTO;
     }
 
     /**
@@ -305,11 +318,10 @@ public class ScreeningOrganizationBizService {
         if (CollectionUtils.isEmpty(orgListsRecords)) {
             return orgLists;
         }
-
         // 获取筛查人员信息
         Map<Integer, List<ScreeningOrganizationStaff>> staffMaps = screeningOrganizationStaffService
                 .getOrgStaffMapByIds(orgListsRecords.stream().map(ScreeningOrganization::getId)
-                        .collect(Collectors.toList()));
+                        .collect(Collectors.toList()),currentUser.isPlatformAdminUser());
         // 获取已有任务的机构ID列表
         List<Integer> haveTaskOrgIds = getHaveTaskOrgIds(query);
 

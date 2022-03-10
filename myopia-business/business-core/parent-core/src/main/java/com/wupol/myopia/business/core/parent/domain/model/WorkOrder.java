@@ -10,6 +10,8 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import javax.validation.constraints.NotNull;
+
 /**
  * 工单实体
  * @Author xjl
@@ -29,12 +31,14 @@ public class WorkOrder implements Serializable {
     /**
      * 学生姓名
      */
+    @NotNull(message = "学生姓名不能为空")
     private String name;
 
     /**
      * 性别 0-男 1-女
      */
-    private Boolean gender;
+    @NotNull(message = "学生性别不能为空")
+    private Integer gender;
 
     /**
      * 护照
@@ -49,22 +53,26 @@ public class WorkOrder implements Serializable {
     /**
      * 出生日期
      */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @NotNull(message = "出生日期不能为空")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date birthday;
 
     /**
      * 学校ID
      */
+    @NotNull(message = "学校不能为空")
     private Integer schoolId;
 
     /**
      * 年级ID
      */
+    @NotNull(message = "年级不能为空")
     private Integer gradeId;
 
     /**
      * 班级ID
      */
+    @NotNull(message = "班级不能为空")
     private Integer classId;
 
     /**
@@ -127,14 +135,17 @@ public class WorkOrder implements Serializable {
     /**
      * 筛查开始时间
      */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @NotNull(message = "筛查日期不能为空")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date screeningBeginTime;
 
     /**
      * 筛查结束时间
      */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @NotNull(message = "筛查日期不能为空")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date screeningEndTime;
+
 
 
 }

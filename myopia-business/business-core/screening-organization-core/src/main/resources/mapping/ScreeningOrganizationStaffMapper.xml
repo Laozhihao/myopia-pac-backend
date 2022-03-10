@@ -19,7 +19,6 @@
                 <if test="@Ognl@isNotEmpty(remark)">and `remark` = #{remark}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
                 <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
-
             </trim>
         </where>
     </sql>
@@ -33,7 +32,16 @@
         select
         <include refid="Base_Column_List"/>
         from m_screening_organization_staff
-        <include refid="Base_Where_Clause"/>
+        where 1=1
+        <if test="@Ognl@isNotEmpty(userIds)">
+            and  user_id in
+            <foreach collection="userIds" item="id" index="index" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </if>
+        <if test="type ==0">
+        and type != 1
+        </if>
     </select>
 
     <select id="getByOrgId" resultMap="BaseResultMap">
@@ -41,6 +49,9 @@
         <include refid="Base_Column_List"/>
         from m_screening_organization_staff
         where screening_org_id = #{orgId}
+        <if test="type!=1">
+            and type != 1
+        </if>
     </select>
 
     <select id="getByOrgIds" resultMap="BaseResultMap">
@@ -51,6 +62,9 @@
         <foreach collection="orgIds" item="id" index="index" open="(" close=")" separator=",">
             #{id}
         </foreach>
+        <if test="!type">
+            and type != 1
+        </if>
     </select>
 
     <select id="getByUserIds" resultMap="BaseResultMap">
@@ -61,5 +75,6 @@
         <foreach collection="userIds" item="id" index="index" open="(" close=")" separator=",">
             #{id}
         </foreach>
+        and type != 1
     </select>
 </mapper>

@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.constant.SystemCode;
+import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelNoticeKeyContentConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
@@ -45,8 +47,12 @@ public class ExportScreeningOrganizationStaffExcelService extends BaseExportExce
 
         Integer screeningOrgId = exportCondition.getScreeningOrgId();
         String orgName = screeningOrganizationService.getById(screeningOrgId).getName();
-
-        List<ScreeningOrganizationStaff> staffLists = screeningOrganizationStaffService.getByOrgId(screeningOrgId);
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        int type = 0;
+        if (currentUser.isPlatformAdminUser()){
+            type = 1;
+        }
+        List<ScreeningOrganizationStaff> staffLists = screeningOrganizationStaffService.getByOrgId(screeningOrgId,type);
         UserDTO userQuery = new UserDTO();
         userQuery.setSize(staffLists.size())
                 .setCurrent(1)

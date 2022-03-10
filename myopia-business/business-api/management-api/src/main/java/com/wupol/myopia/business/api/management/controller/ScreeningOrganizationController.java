@@ -85,6 +85,7 @@ public class ScreeningOrganizationController {
 
         if (user.isPlatformAdminUser()) {
             screeningOrganizationService.checkScreeningOrganizationCooperation(screeningOrganization);
+
         } else {
             screeningOrganization.setAccountNum(ScreeningOrganization.ACCOUNT_NUM);
             if (user.isGovDeptUser()) {

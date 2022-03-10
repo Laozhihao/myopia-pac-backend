@@ -88,7 +88,8 @@ public class ScreeningOrganizationStaffController {
         }
         screeningOrganizationStaff.setCreateUserId(user.getId());
         screeningOrganizationStaff.setGovDeptId(user.getOrgId());
-        UsernameAndPasswordDTO usernameAndPasswordDTO = screeningOrganizationStaffService.saveOrganizationStaff(screeningOrganizationStaff);
+        screeningOrganizationStaff.setType(0);
+        UsernameAndPasswordDTO usernameAndPasswordDTO = screeningOrganizationStaffService.saveOrganizationStaff(screeningOrganizationStaff,null);
         int totalNum = screeningOrganizationStaffService.countByScreeningOrgId(screeningOrganizationStaff.getScreeningOrgId());
         return ScreeningOrganizationStaffVO.parseFromUsernameAndPasswordDTO(usernameAndPasswordDTO).setScreeningStaffTotalNum(totalNum);
     }

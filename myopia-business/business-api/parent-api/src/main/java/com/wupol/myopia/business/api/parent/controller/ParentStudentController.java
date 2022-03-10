@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.parent.controller;
 
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.hospital.domain.dto.StudentVisitReportResponseDTO;
@@ -16,6 +17,8 @@ import com.wupol.myopia.business.core.hospital.domain.dto.EyeHealthyReportRespon
 import com.wupol.myopia.business.core.hospital.domain.dto.PreschoolCheckRecordDTO;
 import com.wupol.myopia.business.core.hospital.service.PreschoolCheckRecordService;
 import com.wupol.myopia.business.core.parent.domain.dto.CheckIdCardRequestDTO;
+import com.wupol.myopia.business.core.parent.domain.model.WorkOrder;
+import com.wupol.myopia.business.core.parent.service.WorkOrderService;
 import com.wupol.myopia.business.core.school.domain.dto.CountParentStudentResponseDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeItemsDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
@@ -23,6 +26,7 @@ import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -51,6 +55,8 @@ public class ParentStudentController {
     private ParentStudentBizService parentStudentBizService;
     @Resource
     private PreschoolCheckRecordService preschoolCheckRecordService;
+    @Resource
+    private WorkOrderService workOrderService;
 
     /**
      * 获取孩子统计、孩子列表
@@ -321,4 +327,27 @@ public class ParentStudentController {
         return districtService.getDistrictPositionDetail(committeeCode);
     }
 
+    /**
+     * 新建工单
+     * @param workOrder
+     */
+    @PostMapping("addWorkerOrder")
+    public void addWorkOrder(@RequestBody @Validated WorkOrder workOrder){
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        workOrder.setCreateUserId(user.getId());
+        if (StringUtils.isBlank(workOrder.getIdCard()) && StringUtils.isBlank(workOrder.getPassport())){
+            throw new BusinessException("身份证或者护照信息不能为空！");
+        }
+        workOrder.setStatus(1);
+        workOrderService.save(workOrder);
+    }
+
+    /**
+     * 工单列表
+     */
+    @GetMapping("workOrderList")
+    public List<WorkOrder> workOrderList(){
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        return workOrderService.findByUserId(user.getId());
+    }
 }

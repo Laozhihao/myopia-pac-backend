@@ -5,6 +5,8 @@ import com.wupol.myopia.business.core.parent.domain.mapper.WorkOrderMapper;
 import com.wupol.myopia.business.core.parent.domain.model.WorkOrder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * 工单业务类
  * @Author xjl
@@ -12,5 +14,10 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class WorkOrderService extends BaseService<WorkOrderMapper, WorkOrder> {
+
+    public List<WorkOrder> findByUserId(Integer userId) {
+        return baseMapper.findByUserId(userId);
+    }
+
 
 }
