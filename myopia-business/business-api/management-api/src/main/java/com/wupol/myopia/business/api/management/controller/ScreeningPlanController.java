@@ -605,7 +605,7 @@ public class ScreeningPlanController {
                                                  Integer classId, String planStudentIds,
                                                  boolean isSchoolClient) {
         List<Integer> studentIds =null;
-        if (StringUtil.isNotEmpty(planStudentIds)){
+        if (StringUtil.isNotEmpty(planStudentIds)&&!planStudentIds.equals("null")){
             studentIds = Arrays.stream(planStudentIds.split(",")).map(Integer::valueOf).collect(Collectors.toList());
         }
         return screeningExportService.getNoticeData(screeningPlanId, schoolId,gradeId,classId,studentIds,isSchoolClient);
