@@ -325,7 +325,7 @@
     <select id="selectBySchoolGradeAndClass" resultMap="ScreeningStudentDTO" parameterType="java.util.Map">
         select mspss.student_name      as name,
                mspss.student_no        as sno,
-               mspss.school_name	   as schoolName,
+               mspss.school_name       as schoolName,
                mspss.grade_id          as gradeId,
                mspss.grade_name        as gradeName,
                mspss.class_name        as className,
@@ -335,6 +335,7 @@
                mspss.screening_plan_id as planId,
                mspss.id                as planStudentId,
                mspss.student_age       as age,
+               mspss.birthday          as birthday,
                mspss.screening_code
         from m_screening_plan_school_student mspss
         where mspss.screening_plan_id = #{screeningPlanId}

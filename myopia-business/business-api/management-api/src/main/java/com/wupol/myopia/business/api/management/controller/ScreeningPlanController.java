@@ -580,13 +580,13 @@ public class ScreeningPlanController {
      */
     @GetMapping("/student/QRCode")
     public Object studentQRCodeFile(@NotNull(message = "筛查计划ID不能为空") Integer screeningPlanId,
-            @NotNull(message = "学校ID不能为空") Integer schoolId, Integer gradeId, Integer classId, String planStudentIds,
-            Integer type) {
-        List<Integer> studentIds =null;
-        if (StringUtil.isNotEmpty(planStudentIds)&&!planStudentIds.equals("null")){
+                                    @NotNull(message = "学校ID不能为空") Integer schoolId, Integer gradeId, Integer classId, String planStudentIds,
+                                    Integer type) {
+        List<Integer> studentIds = null;
+        if (StringUtil.isNotEmpty(planStudentIds) && !planStudentIds.equals("null")) {
             studentIds = Arrays.stream(planStudentIds.split(",")).map(Integer::valueOf).collect(Collectors.toList());
         }
-        return screeningExportService.studentQRCodeFile(screeningPlanId, schoolId,gradeId,classId,studentIds,type);
+        return screeningExportService.studentQRCodeFile(screeningPlanId, schoolId, gradeId, classId, studentIds, type);
     }
 
     /**
