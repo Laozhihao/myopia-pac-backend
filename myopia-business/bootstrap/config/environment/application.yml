@@ -161,9 +161,8 @@ vistel:
     remoteAddress: ${VISTEL_TOOLS_URI}
 
 ### 报告相关
-file:
-  temp:
-    save-path: /app/file/
+report:
+  pdf:
     # 异步请求URL
     async-request-url: ${VISTEL_PDF_GENERATOR_ASYNC}
     # 同步请求URL
@@ -172,6 +171,11 @@ file:
   # 筛查报告前端工程访问域名
   html:
     url-host: ${VISTEL_MYOPIA_PAC_REPORT_BASE_URI}
+file:
+  temp:
+    save-path: /app/file/
+
+
 
 ### 健康监控 - actuator 配置
 management:
