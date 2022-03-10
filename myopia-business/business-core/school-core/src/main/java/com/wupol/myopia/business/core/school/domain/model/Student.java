@@ -282,18 +282,6 @@ public class Student extends AddressCode implements Serializable {
     }
 
     /**
-     * 生日是否超出限制
-     *
-     * @return true-是 false-否
-     */
-    public boolean checkBirthdayExceedLimit() {
-        // 1970-01-01 毫秒时间戳
-        Date beforeDate = new Date(-28800000L);
-        Date afterDate = new Date(2145888000000L);
-        return Objects.nonNull(birthday) && (birthday.before(beforeDate) || birthday.after(afterDate));
-    }
-
-    /**
      * 获取学生模板
      *
      * @return 0-幼儿园版本 1-中小学版本

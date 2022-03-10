@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.controller;
 
+import com.alibaba.csp.sentinel.util.StringUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
@@ -45,10 +46,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -94,7 +92,8 @@ public class ScreeningPlanController {
     private ScreeningExportService screeningExportService;
     @Autowired
     private VisionScreeningResultService visionScreeningResultService;
-
+    @Autowired
+    private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     /**
      * 新增
      *
@@ -220,6 +219,23 @@ public class ScreeningPlanController {
         // 任务状态判断
         screeningExportService.validateExist(screeningPlanId);
         return screeningPlanSchoolStudentFacadeService.getSchoolGradeVoByPlanIdAndSchoolId(screeningPlanId, schoolId);
+    }
+
+    /**
+     * 获取计划学校-年级-班级 下的学生
+     * @param screeningPlanId 筛查计划ID
+     * @param schoolId  学校ID
+     * @param gradeId 年级ID
+     * @param classId 班级ID
+     * @return
+     */
+    @GetMapping("students/{screeningPlanId}/{schoolId}/{gradeId}/{classId}")
+    public List<ScreeningPlanSchoolStudent> queryGradesInfo(@PathVariable Integer screeningPlanId, @PathVariable Integer schoolId,
+                                               @PathVariable Integer gradeId,@PathVariable Integer classId) {
+
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getByPlanIdAndSchoolIdAndGradeIdAndClassId(screeningPlanId, schoolId,
+                gradeId, classId);
+        return screeningPlanSchoolStudents;
     }
 
     /**
@@ -359,6 +375,7 @@ public class ScreeningPlanController {
     /**
      * 导出筛查计划的学生二维码信息
      *
+     * //TODO 当前这个二维码导出，在其他地方有使用，考虑是否删除
      * @param schoolClassInfo 参与筛查计划的学生
      * @param type            1-二维码 2-VS666 3-学生编码二维码
      * @return pdf的URL
@@ -367,6 +384,8 @@ public class ScreeningPlanController {
     public Map<String, String> downloadQRCodeFile(@Valid ScreeningPlanSchoolStudent schoolClassInfo, Integer type) {
         return screeningExportService.getQrCodeFile(schoolClassInfo, type);
     }
+
+
 
     /**
      * 导出筛查计划的学生告知书
@@ -378,6 +397,8 @@ public class ScreeningPlanController {
     public Map<String, String> downloadNoticeFile(@Valid ScreeningPlanSchoolStudent schoolClassInfo) {
         return screeningExportService.getNoticeFile(schoolClassInfo, null);
     }
+
+
 
     /**
      * 创建虚拟学生
@@ -409,8 +430,6 @@ public class ScreeningPlanController {
 
     @PostMapping("/update/planStudent")
     public void updatePlanStudent(@RequestBody UpdatePlanStudentRequestDTO requestDTO) {
-        CurrentUser user = CurrentUserUtil.getCurrentUser();
-        requestDTO.setUserId(user.getId());
         screeningPlanStudentBizService.updatePlanStudent(requestDTO);
     }
 
@@ -548,5 +567,47 @@ public class ScreeningPlanController {
     @DeleteMapping("/deleted/planStudent/{planStudentId}")
     public void deletedPlanStudentById(@PathVariable @NotNull(message = "筛查学生Id不能为空") Integer planStudentId) {
         screeningPlanStudentBizService.deletedPlanStudentById(planStudentId);
+    }
+
+    /**
+     * 获取筛查计划的学生二维码数据
+     * @param screeningPlanId
+     * @param schoolId
+     * @param gradeId
+     * @param classId
+     * @param planStudentIds
+     * @param type
+     * @return
+     */
+    @GetMapping("/student/QRCode")
+    public Object studentQRCodeFile(@NotNull(message = "筛查计划ID不能为空") Integer screeningPlanId,
+            @NotNull(message = "学校ID不能为空") Integer schoolId, Integer gradeId, Integer classId, String planStudentIds,
+            Integer type) {
+        List<Integer> studentIds =null;
+        if (StringUtil.isNotEmpty(planStudentIds)){
+            studentIds = Arrays.stream(planStudentIds.split(",")).map(Integer::valueOf).collect(Collectors.toList());
+        }
+        return screeningExportService.studentQRCodeFile(screeningPlanId, schoolId,gradeId,classId,studentIds,type);
+    }
+
+    /**
+     * 告知书数据
+     * @param screeningPlanId
+     * @param schoolId
+     * @param gradeId
+     * @param classId
+     * @param planStudentIds
+     * @return
+     */
+    @GetMapping("/student/notice")
+    public Map<String, Object> studentNoticeData(@NotNull(message = "筛查计划ID不能为空") Integer screeningPlanId,
+                                                 @NotNull(message = "学校ID不能为空") Integer schoolId, Integer gradeId,
+                                                 Integer classId, String planStudentIds,
+                                                 boolean isSchoolClient) {
+        List<Integer> studentIds =null;
+        if (StringUtil.isNotEmpty(planStudentIds)&&!planStudentIds.equals("null")){
+            studentIds = Arrays.stream(planStudentIds.split(",")).map(Integer::valueOf).collect(Collectors.toList());
+        }
+        return screeningExportService.getNoticeData(screeningPlanId, schoolId,gradeId,classId,studentIds,isSchoolClient);
     }
 }

@@ -158,6 +158,7 @@ public class ScreeningOrganizationController {
         return screeningOrganizationService.getScreeningOrgDetails(id);
     }
 
+
     /**
      * 删除筛查机构
      *

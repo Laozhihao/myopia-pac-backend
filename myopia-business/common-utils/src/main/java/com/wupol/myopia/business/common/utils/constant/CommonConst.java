@@ -135,6 +135,11 @@ public class CommonConst {
      */
     public final String SEND_SMS_TO_PARENT_MESSAGE = "【青少年近视防控】%s近视筛查结果：左眼%s，右眼%s，%s";
 
+
+    /**
+     * 导出告知书
+     */
+    public final Integer EXPORT_NOTICE = 0;
     /**
      * 导出二维码
      */

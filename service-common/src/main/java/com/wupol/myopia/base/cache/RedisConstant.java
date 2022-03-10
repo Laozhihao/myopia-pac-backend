@@ -101,7 +101,7 @@ public interface RedisConstant {
     /**
      * 导出PDF-筛查机构
      */
-    String FILE_EXPORT_PDF_ORG_SCREENING = "file:export:pdf:org:screening:%s-%s-%s";
+    String FILE_EXPORT_PDF_ORG_SCREENING = "file:export:pdf:org:screening:%s-%s-%s-%s";
 
     /**
      * 导出PDF-学校筛查
@@ -194,5 +194,10 @@ public interface RedisConstant {
      * 筛查计划-导出筛查数据
      */
     String FILE_PLAN_SCREENING_DATE = "export:file:export:plan:screening:data:%s-%s-%s-%s";
+
+    /**
+     * 导出PDF-区域-筛查机构
+     */
+    String FILE_EXPORT_PDF_QRCODE_SCREENING = "file:export:pdf:qrcode:screening:%s-%s-%s-%s-%s-%s";
 
 }
