@@ -98,8 +98,8 @@ public class VisionScreeningService {
         // 筛查机构
         List<Integer> orgIds = schoolPlanList.stream().map(ScreeningListResponseDTO::getScreeningOrgId).collect(Collectors.toList());
         List<ScreeningOrgResponseDTO> screeningOrgDetails = screeningOrganizationService.getScreeningOrgDetails(orgIds);
-        Map<Integer, String> orgMap = screeningOrgDetails.stream().collect(Collectors
-                .toMap(ScreeningOrganization::getId, ScreeningOrganization::getName));
+        Map<Integer, ScreeningOrganization> orgMap = screeningOrgDetails.stream().collect(Collectors
+                .toMap(ScreeningOrganization::getId, Function.identity()));
 
         // 获取学校告知书
         School school = schoolService.getBySchoolId(schoolId);
@@ -125,7 +125,8 @@ public class VisionScreeningService {
                 schoolPlan.setRealScreeningNumbers(0);
             }
 
-            schoolPlan.setScreeningOrgName(orgMap.get(schoolPlan.getScreeningOrgId()));
+            schoolPlan.setScreeningOrgName(orgMap.get(schoolPlan.getScreeningOrgId()).getName());
+            schoolPlan.setQrCodeConfig(orgMap.get(schoolPlan.getScreeningOrgId()).getQrCodeConfig());
 
             // 设置告知书配置
             NotificationConfig notificationConfig = school.getNotificationConfig();
