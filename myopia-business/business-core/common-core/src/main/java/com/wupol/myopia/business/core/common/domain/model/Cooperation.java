@@ -115,6 +115,17 @@ public abstract class Cooperation {
     }
 
     /**
+     * 初始化合作默认信息
+     */
+    public void initCooperationInfo(Integer cooperationType, Integer cooperationTimeType,
+                                    Date cooperationStartTime, Date cooperationEndTime) {
+        this.cooperationType = cooperationType;                         // 合作
+        this.cooperationTimeType = cooperationTimeType;               // 合作1年
+        this.cooperationStartTime = cooperationStartTime;
+        this.cooperationEndTime = cooperationEndTime;
+    }
+
+    /**
      * 清除合作信息
      */
     public void clearCooperationInfo() {

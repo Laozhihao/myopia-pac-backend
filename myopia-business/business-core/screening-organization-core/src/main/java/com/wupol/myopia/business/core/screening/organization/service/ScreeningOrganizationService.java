@@ -17,7 +17,7 @@ import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
-import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccountListDTO;
+import com.wupol.myopia.business.core.common.domain.dto.OrgAccountListDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationQueryDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.mapper.ScreeningOrganizationMapper;
@@ -247,12 +247,18 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      *
      * @param screeningOrgNameLike 筛查机构名称
      * @param provinceDistrictCode 省行政区域编码，如：110000000
-     * @return java.util.List<com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization>
+     * @param configType
+     * @return java.util.List<ScreeningOrgResponseDTO>
      **/
-    public List<ScreeningOrganization> getListByProvinceCodeAndNameLike(String screeningOrgNameLike, Long provinceDistrictCode) {
+    public List<ScreeningOrgResponseDTO> getListByProvinceCodeAndNameLike(String screeningOrgNameLike, Long provinceDistrictCode, Integer configType) {
         Assert.hasText(screeningOrgNameLike, "筛查机构名称不能为空");
         Assert.notNull(provinceDistrictCode, "省行政区域编码不能为空");
-        return baseMapper.getListByProvinceCodeAndNameLike(screeningOrgNameLike, provinceDistrictCode);
+        List<ScreeningOrgResponseDTO> records = baseMapper.getListByProvinceCodeAndNameLike(screeningOrgNameLike, provinceDistrictCode, configType);
+        records.forEach(record -> {
+            // 行政区域名称
+            record.setDistrictName(districtService.getDistrictName(record.getDistrictDetail()));
+        });
+        return records;
     }
 
     /**

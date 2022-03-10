@@ -23,7 +23,11 @@ public enum RoleType {
 
     /** 医院端APP角色类型 */
     RESIDENT_DOCTOR(5,"居民健康医生类型角色"),
-    PRESCHOOL_DOCTOR(6,"0-6岁眼检查医生类型角色");
+    PRESCHOOL_DOCTOR(6,"0-6岁眼检查医生类型角色"),
+
+    OVERVIEW_ADMIN(7, "总览机构管理员类型角色"),
+
+    ;
 
     /**
      * 类型

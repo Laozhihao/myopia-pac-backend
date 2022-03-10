@@ -14,6 +14,7 @@ import com.wupol.myopia.business.core.school.domain.mapper.SchoolGradeMapper;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.domain.model.Student;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -99,13 +100,7 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
             return schoolGrades;
         }
         // 获取班级，并且封装成Map
-        Map<Integer, List<SchoolClassDTO>> classMaps = schoolClassService
-                .getByGradeIds(schoolGrades
-                        .getRecords()
-                        .stream()
-                        .map(SchoolGradeItemsDTO::getId)
-                        .collect(Collectors.toList()), schoolId).stream()
-                .collect(Collectors.groupingBy(SchoolClassDTO::getGradeId));
+        Map<Integer, List<SchoolClassDTO>> classMaps = schoolClassService.getByGradeIds(schoolGrades.getRecords().stream().map(SchoolGradeItemsDTO::getId).collect(Collectors.toList()), schoolId).stream().collect(Collectors.groupingBy(SchoolClassDTO::getGradeId));
 
         schoolGrades.getRecords().forEach(g -> g.setChild(classMaps.get(g.getId())));
         return schoolGrades;
@@ -121,15 +116,16 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
 
         // 获取年级
         List<SchoolGradeItemsDTO> schoolGrades = baseMapper.getAllBySchoolId(schoolId);
+        if(CollectionUtils.isEmpty(schoolGrades)) {
+            return new ArrayList<>();
+        }
         Map<Integer, String> gradeMap = schoolGrades.stream().collect(Collectors.toMap(SchoolGradeItemsDTO::getId, SchoolGradeItemsDTO::getName));
 
         // 获取班级，并且封装成Map
-        Map<Integer, List<SchoolClassDTO>> classMaps = schoolClassService.getByGradeIds(schoolGrades.stream()
-                        .map(SchoolGradeItemsDTO::getId).collect(Collectors.toList()), schoolId).stream().peek(schoolClass -> {
-                    schoolClass.setUniqueId(UUID.randomUUID().toString());
-                    schoolClass.setGradeName(gradeMap.get(schoolClass.getGradeId()));
-                })
-                .collect(Collectors.groupingBy(SchoolClassDTO::getGradeId));
+        Map<Integer, List<SchoolClassDTO>> classMaps = schoolClassService.getByGradeIds(schoolGrades.stream().map(SchoolGradeItemsDTO::getId).collect(Collectors.toList()), schoolId).stream().peek(schoolClass -> {
+            schoolClass.setUniqueId(UUID.randomUUID().toString());
+            schoolClass.setGradeName(gradeMap.get(schoolClass.getGradeId()));
+        }).collect(Collectors.groupingBy(SchoolClassDTO::getGradeId));
         schoolGrades.forEach(g -> {
             g.setChild(classMaps.get(g.getId()));
             g.setUniqueId(UUID.randomUUID().toString());
@@ -170,22 +166,9 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
         if (CollectionUtils.isEmpty(ids)) {
             return new HashMap<>();
         }
-        return getByIds(ids).stream()
-                .collect(Collectors.toMap(SchoolGrade::getId, Function.identity()));
+        return getByIds(ids).stream().collect(Collectors.toMap(SchoolGrade::getId, Function.identity()));
     }
 
-    /**
-     * 批量通过id获取实体
-     * @param id
-     * @return
-     */
-    public SchoolGrade getGradeById(Integer id) {
-        if (id == null) {
-            return null;
-        }
-        Optional<SchoolGrade> schoolGradeOptional = getByIds(Arrays.asList(id)).stream().findFirst();
-        return schoolGradeOptional.isPresent() ? schoolGradeOptional.get() : null;
-    }
     /**
      * 批量通过id获取名称
      *
@@ -197,8 +180,7 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
             return Maps.newHashMap();
         }
         List<Integer> distinctIds = ids.stream().distinct().collect(Collectors.toList());
-        return baseMapper.selectBatchIds(distinctIds).stream()
-                .collect(Collectors.toMap(SchoolGrade::getId, SchoolGrade::getName));
+        return baseMapper.selectBatchIds(distinctIds).stream().collect(Collectors.toMap(SchoolGrade::getId, SchoolGrade::getName));
     }
 
     /**
@@ -221,8 +203,7 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
     public List<SchoolGrade> getBySchoolName(String schoolName) {
         SchoolQueryDTO schoolQueryDTO = new SchoolQueryDTO();
         schoolQueryDTO.setName(schoolName);
-        Integer schoolId = schoolService.getBy(schoolQueryDTO).stream()
-                .findFirst().orElseThrow(() -> new BusinessException("未找到该学校")).getId();
+        Integer schoolId = schoolService.getBy(schoolQueryDTO).stream().findFirst().orElseThrow(() -> new BusinessException("未找到该学校")).getId();
         SchoolGradeQueryDTO schoolGradeQueryDTO = new SchoolGradeQueryDTO();
         schoolGradeQueryDTO.setSchoolId(schoolId);
         return getBy(schoolGradeQueryDTO);
@@ -319,4 +300,42 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
         grades.forEach(g -> g.setChild(classMaps.get(g.getId())));
     }
 
+    /**
+     * 批量新增班级、年级
+     *
+     * @param requestDTO 请求入参
+     * @param userId     创建人
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void batchSaveGrade(List<BatchSaveGradeRequestDTO> requestDTO, Integer userId) {
+        if (CollectionUtils.isEmpty(requestDTO)) {
+            return;
+        }
+        Integer schoolId = requestDTO.get(0).getSchoolGrade().getSchoolId();
+
+        requestDTO.forEach(grade -> {
+            SchoolGrade schoolGrade = grade.getSchoolGrade();
+            if (Objects.isNull(schoolGrade.getId())) {
+                schoolGrade.setCreateUserId(userId);
+                saveOrUpdate(schoolGrade);
+            }
+            List<SchoolClass> schoolClassList = grade.getSchoolClass();
+            if (CollectionUtils.isEmpty(schoolClassList)) {
+                return;
+            }
+            Integer gradeId = schoolGrade.getId();
+            List<String> classNameList = schoolClassList.stream().map(SchoolClass::getName).collect(Collectors.toList());
+            if (!CollectionUtils.isEmpty(schoolClassService.getByGradeIdAndNames(schoolId, gradeId, classNameList))) {
+                throw new BusinessException("班级名称存在重复");
+            }
+            schoolClassList.forEach(schoolClass -> {
+                if (StringUtils.isBlank(schoolClass.getName())) {
+                    throw new BusinessException("班级名称不能为空");
+                }
+                schoolClass.setCreateUserId(userId);
+                schoolClass.setGradeId(gradeId);
+            });
+            schoolClassService.batchUpdateOrSave(schoolClassList);
+        });
+    }
 }

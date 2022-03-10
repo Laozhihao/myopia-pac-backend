@@ -17,6 +17,9 @@ import java.util.List;
  */
 public interface ScreeningPlanSchoolStudentMapper extends BaseMapper<ScreeningPlanSchoolStudent> {
 
+    List<ScreeningStudentDTO> selectStudentVoByPlanIdAndSchoolIdAndGradeIdAndClassId(@Param("screeningPlanId") Integer screeningPlanId, @Param("schoolId") Integer schoolId,
+                                                                                     @Param("gradeId") Integer gradeId,@Param("classId") Integer classId);
+
     List<GradeClassesDTO> selectSchoolGradeVoByPlanIdAndSchoolId(@Param("screeningPlanId") Integer screeningPlanId, @Param("schoolId") Integer schoolId);
 
     IPage<ScreeningStudentDTO> selectPageByQuery(@Param("page") Page<ScreeningStudentDTO> page, @Param("param") ScreeningStudentQueryDTO query);
@@ -26,6 +29,8 @@ public interface ScreeningPlanSchoolStudentMapper extends BaseMapper<ScreeningPl
     List<ScreeningPlanSchoolStudent> selectByIdCards(@Param("screeningPlanId") Integer screeningPlanId, @Param("schoolId") Integer schoolId, @Param("idCards") List<String> idCards);
 
     List<ScreeningStudentDTO> selectByGradeAndClass(@Param("screeningPlanId") Integer screeningPlanId, @Param("gradeId") Integer gradeId, @Param("classId") Integer classId);
+
+    List<ScreeningStudentDTO> selectBySchoolGradeAndClass(@Param("screeningPlanId") Integer screeningPlanId,@Param("schoolId") Integer schoolId, @Param("gradeId") Integer gradeId, @Param("classId") Integer classId,@Param("studentIds") List<Integer> studentIds);
 
     List<StudentScreeningInfoWithResultDTO> selectStudentInfoWithResult(@Param("data") ScreeningResultSearchDTO screeningResultSearchDTO);
 

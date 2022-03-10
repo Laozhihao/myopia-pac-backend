@@ -349,16 +349,17 @@ public class ScheduledTasksExecutor {
     }
 
     /**
-     * 合作状态处理：包含机构、医院、学校<br/>
+     * 合作状态处理：包含机构、医院、学校、总览机构<br/>
      * 每5分执行
      */
     @Scheduled(cron = "0 0/5 * * * ?")
     public void cooperationStatusHandle() {
-        log.debug("开始进行机构（筛查机构、学校、医院）状态处理");
+        log.debug("开始进行机构（筛查机构、学校、医院、总览机构）状态更新");
         Date date = new Date();
-        log.debug("本次任务共处理筛查机构状态{}条", cooperationService.handleOrganizationStatus(date));
-        log.debug("本次任务共处理学校状态{}条", cooperationService.handleSchoolStatus(date));
-        log.debug("本次任务共处理医院状态{}条", cooperationService.handleHospitalStatus(date));
+        log.debug("本次任务共更新筛查机构状态{}条", cooperationService.handleOrganizationStatus(date));
+        log.debug("本次任务共更新学校状态{}条", cooperationService.handleSchoolStatus(date));
+        log.debug("本次任务共更新医院状态{}条", cooperationService.handleHospitalStatus(date));
+        log.debug("本次任务共更新总览机构状态{}条", cooperationService.handleOverviewStatus(date));
     }
 
     /**

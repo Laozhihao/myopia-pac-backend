@@ -106,8 +106,11 @@
         <if test="@Ognl@isNotEmpty(query.cooperationEndTimeLe)">
             and h.cooperation_end_time &lt;= #{query.cooperationEndTimeLe}
         </if>
-        <if test="query.serviceType != null">
-            and h.service_type = #{query.serviceType}
+        <if test="query.ids != null and query.ids.size() != 0">
+            and h.id in
+            <foreach collection="query.ids" item="hospitalId" index="index" open="(" close=")" separator=",">
+                #{hospitalId}
+            </foreach>
         </if>
         order by h.create_time desc
     </select>
@@ -169,6 +172,24 @@
         from m_hospital
         where cooperation_start_time &lt; #{start} and
         Date(cooperation_end_time) = Date(#{end})
+    </select>
+
+    <select id="getListByProvinceCodeAndNameLike" resultMap="BaseResponseMap">
+        select *
+        from m_hospital
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(name)">
+                    and `name` like CONCAT('%', #{name}, '%')
+                </if>
+                <if test="provinceDistrictCode != null">
+                    and json_extract(cast(district_detail as json) ,'$[0].code') = #{provinceDistrictCode}
+                </if>
+                <if test="@Ognl@isNotEmpty(serviceType)">
+                  and `service_type` = #{serviceType}
+                </if>
+            </trim>
+        </where>
     </select>
 
 </mapper>

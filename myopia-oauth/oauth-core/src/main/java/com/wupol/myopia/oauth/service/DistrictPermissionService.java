@@ -65,11 +65,12 @@ public class DistrictPermissionService extends BaseService<DistrictPermissionMap
      * @return void
      **/
     private void updateRolePermission(List<Integer> orgIds, Integer templateType, List<Integer> permissionIds) {
-        PermissionTemplateType  districtPermission = PermissionTemplateType.getByType(templateType);
+        PermissionTemplateType districtPermission = PermissionTemplateType.getByType(templateType);
         Assert.notNull(districtPermission, "权限模板类型不能为空");
-        // 为政府人员和筛查机构管理员\医院管理员的权限模板时，需要传入指定的机构ID
+        // 为政府人员和筛查机构管理员\医院管理员\总览机构的权限模板时，需要传入指定的机构ID
         if ((CollectionUtils.isEmpty(orgIds)) && (PermissionTemplateType.isGovTemplate(templateType)
-                || PermissionTemplateType.isScreeningOrgTemplate(templateType) || PermissionTemplateType.isHospitalAdminTemplate(templateType))) {
+                || PermissionTemplateType.isScreeningOrgTemplate(templateType) || PermissionTemplateType.isHospitalAdminTemplate(templateType)
+                || PermissionTemplateType.isOverviewAdminTemplate(templateType))) {
             return ;
         }
         RoleDTO roleDTO = new RoleDTO();

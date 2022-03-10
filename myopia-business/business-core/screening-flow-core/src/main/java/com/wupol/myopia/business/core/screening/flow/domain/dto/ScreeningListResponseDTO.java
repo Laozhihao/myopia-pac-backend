@@ -89,4 +89,9 @@ public class ScreeningListResponseDTO {
      * 二维码文件地址
      */
     private String qrCodeFileUrl;
+
+    /**
+     * 二维码配置, 英文逗号分隔, 1-普通二维码, 2-vs666, 3-虚拟二维码
+     */
+    private String qrCodeConfig;
 }

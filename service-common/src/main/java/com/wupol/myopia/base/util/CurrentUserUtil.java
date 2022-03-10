@@ -3,6 +3,7 @@ package com.wupol.myopia.base.util;
 import com.alibaba.fastjson.JSON;
 import com.wupol.myopia.base.constant.AuthConstants;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.domain.ResultCode;
 import com.wupol.myopia.base.exception.BusinessException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -44,4 +45,11 @@ public class CurrentUserUtil {
         }
         return currentUser;
     }
+
+    public static void isNeedPlatformAdminUser(CurrentUser user) {
+        if (!user.isPlatformAdminUser()) {
+            throw new BusinessException(ResultCode.USER_ACCESS_UNAUTHORIZED.getMessage(), ResultCode.USER_ACCESS_UNAUTHORIZED.getCode());
+        }
+    }
+
 }

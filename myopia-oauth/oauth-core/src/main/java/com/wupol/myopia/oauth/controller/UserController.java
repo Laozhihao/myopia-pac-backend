@@ -266,4 +266,18 @@ public class UserController {
                                  @NotNull(message = "serviceType不能为空") Integer serviceType) {
         userService.updateHospitalRoleBatch(hospitalId, serviceType);
     }
+
+    /**
+     * 更新总览机构用户的角色
+     *
+     * @param overviewId 医院ID
+     * @param configType 服务类型
+     * @return void
+     **/
+    @PutMapping("/overview/role")
+    public void updateOverviewRole(@NotNull(message = "overviewId不能为空") Integer overviewId,
+                                   @NotNull(message = "configType不能为空") Integer configType) {
+        userService.updateOverviewAdminRolePermission(configType, overviewId);
+    }
+
 }
