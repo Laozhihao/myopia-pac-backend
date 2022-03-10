@@ -67,7 +67,7 @@ public abstract class BaseExportPdfFileService extends BaseExportFileService {
             }
         } finally {
             // 8.删除临时文件
-//            deleteTempFile(parentPath);
+            deleteTempFile(parentPath);
             // 9.释放锁
             unlock(getLockKey(exportCondition));
         }
