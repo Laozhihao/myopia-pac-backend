@@ -65,9 +65,10 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
 
             // 2.获取文件保存父目录路径
             parentPath = getFileSaveParentPath();
+            log.info("文件保存父目录路径=========="+parentPath);
             // 3.获取文件保存路径
             String fileSavePath = getFileSavePath(parentPath, fileName);
-
+            log.info("文件保存路径=========="+parentPath);
             // 2.获取通知的关键内容
             noticeKeyContent = getNoticeKeyContent(exportCondition);
             // 3.获取数据，生成List
