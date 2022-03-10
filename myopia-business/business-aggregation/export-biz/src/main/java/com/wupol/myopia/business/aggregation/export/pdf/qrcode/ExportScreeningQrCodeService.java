@@ -195,11 +195,9 @@ public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
                         dir = Paths.get(fileSavePath,fileName,temp).toString();
                     }
                 }
-
                 String uuid = UUID.randomUUID().toString();
                 log.info("请求路径:{}", studentQrCodePdfHtmlUrl);
                 String className = String.format(PDFFileNameConstant.REPORT_NOTICE_QR_CODE_FILE_NAME, "","",screeningStudentDTO.getClassName())+".pdf";
-
                 PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(studentQrCodePdfHtmlUrl, className, uuid);
                 log.info("响应参数:{}", JSONObject.toJSONString(pdfResponseDTO));
                 try {
