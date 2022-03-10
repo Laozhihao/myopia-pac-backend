@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.aggregation.export.excel;
 
+import cn.hutool.core.util.ZipUtil;
 import com.alibaba.fastjson.JSON;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.ExcelUtil;
@@ -14,6 +15,7 @@ import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -21,6 +23,7 @@ import org.springframework.util.StringUtils;
 import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -32,6 +35,9 @@ import java.util.stream.Collectors;
 @Log4j2
 @Service
 public abstract class BaseExportExcelFileService extends BaseExportFileService {
+
+    @Value("${file.temp.save-path}")
+    public String excelSavePath;
 
     @Autowired
     private DistrictService districtService;
@@ -52,17 +58,27 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
 
         File excelFile = null;
         String noticeKeyContent = null;
+        String parentPath = null;
         try {
             // 1.获取文件名
             String fileName = getFileName(exportCondition);
+
+            // 2.获取文件保存父目录路径
+            parentPath = getFileSaveParentPath();
+            // 3.获取文件保存路径
+            String fileSavePath = getFileSavePath(parentPath, fileName);
+
             // 2.获取通知的关键内容
             noticeKeyContent = getNoticeKeyContent(exportCondition);
             // 3.获取数据，生成List
             List data = getExcelData(exportCondition);
             // 4.生成导出的文件
             excelFile = generateExcelFile(fileName, data);
+
+            File file = compressFile(fileSavePath);
+
             // 5.上传文件
-            Integer fileId = uploadFile(excelFile);
+            Integer fileId = uploadFile(file);
             // 6.发送成功通知
             sendSuccessNotice(exportCondition.getApplyExportFileUserId(), noticeKeyContent, fileId);
         } catch (Exception e) {
@@ -80,6 +96,36 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
             // 8.释放锁
             unlock(getLockKey(exportCondition));
         }
+    }
+
+    /**
+     * 压缩文件
+     *
+     * @param fileSavePath 文件保存路径
+     * @return java.io.File
+     **/
+    public File compressFile(String fileSavePath) {
+        return ZipUtil.zip(fileSavePath);
+    }
+
+    /**
+     * 获取文件保存父目录路径
+     *
+     * @return java.lang.String
+     **/
+    public String getFileSaveParentPath() {
+        return Paths.get(excelSavePath, UUID.randomUUID().toString()).toString();
+    }
+
+    /**
+     * 获取文件保存路径
+     *
+     * @param parentPath 文件名
+     * @param fileName   文件名
+     * @return java.lang.String
+     **/
+    public String getFileSavePath(String parentPath, String fileName) {
+        return Paths.get(parentPath, fileName).toString();
     }
 
     /**
