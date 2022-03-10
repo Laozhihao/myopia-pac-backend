@@ -4,6 +4,10 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.parent.domain.model.WorkOrder">
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="old_data" property="oldData"/>
+    </resultMap>
+    <resultMap id="BaseResultMapDTO" type="com.wupol.myopia.business.core.parent.domain.dto.WorkOrderDTO">
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="old_data" property="oldData"/>
     </resultMap>
 
     <!-- 通用查询条件 -->
@@ -40,5 +44,27 @@
     <sql id="Base_Column_List">
         id, name, gender, passport, id_card, birthday, school_id, grade_id, class_id, sno, status, create_user_id, term, create_time, update_time, old_data, content, grade_type, parent_phone, wx_nickname, screening_begin_time, screening_end_time
     </sql>
+
+    <select id="getByPage" resultMap="BaseResultMapDTO">
+        select *
+        from m_work_order
+        where 1=1
+        <if test="name != null and name != ''">
+            and name like CONCAT('%', #{name}, '%')
+        </if>
+        <if test="idCardOrPassport != null and idCardOrPassport != ''">
+            and (id_card = #{idCardOrPassport} or passport = #{idCardOrPassport})
+        </if>
+        <if test="schoolIds !=null and schoolIds.size() != 0">
+            and school_id in
+            <foreach collection="schoolIds" open="(" close=")" separator="," item="schoolId">
+                #{schoolId}
+            </foreach>
+        </if>
+        <if test="startTime != null and endTime != null">
+            and (create_time between #{startTime} and #{endTime})
+        </if>
+
+    </select>
 
 </mapper>
