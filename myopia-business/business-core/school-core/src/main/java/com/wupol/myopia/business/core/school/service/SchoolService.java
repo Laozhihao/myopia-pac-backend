@@ -83,6 +83,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         District district = districtService.getById(school.getDistrictId());
         Assert.notNull(district, "无效行政区域");
         school.setDistrictProvinceCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
+
         baseMapper.insert(school);
         // oauth系统中增加学校状态信息
         oauthServiceClient.addOrganization(new Organization(school.getId(), SystemCode.SCHOOL_CLIENT,
@@ -90,7 +91,6 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         initGradeAndClass(school.getId(), school.getType(), school.getCreateUserId());
         return generateAccountAndPassword(school, StringUtils.EMPTY);
     }
-
 
     /**
      * 删除学校

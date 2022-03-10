@@ -87,4 +87,19 @@
             and id != #{id}
         </if>
     </select>
+
+    <select id="getByNamesNeId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school_class
+        where school_id = #{schoolId}
+        and grade_id = #{gradeId}
+        and status = 0
+        <if test="classNames != null and classNames.size() != 0">
+            and  name In
+            <foreach collection="classNames" item="className" index="index" open="(" close=")" separator=",">
+                #{className}
+            </foreach>
+        </if>
+    </select>
 </mapper>

@@ -111,6 +111,7 @@ public class SchoolController {
         return schoolFacade.updateSchool(school);
     }
 
+
     /**
      * 通过ID获取学校详情
      *

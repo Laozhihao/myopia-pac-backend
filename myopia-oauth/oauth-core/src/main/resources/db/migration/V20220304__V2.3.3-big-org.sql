@@ -1,0 +1,18 @@
+INSERT INTO `o_permission`(`id`, `name`, `menu_btn_name`, `api_url`, `is_menu`, `is_page`, `order`, `pid`, `system_code`) VALUES (750, '数据总览机构管理', 'multiOverview', NULL, 1, 1, 7, 1, 1);
+INSERT INTO `o_permission`(`id`, `name`, `menu_btn_name`, `api_url`, `is_menu`, `is_page`, `order`, `pid`, `system_code`) VALUES (751, '总览机构列表', 'getOverviewList', 'get:/management/overview/list', 0, 0, 2, 750, 1);
+INSERT INTO `o_permission`(`id`, `name`, `menu_btn_name`, `api_url`, `is_menu`, `is_page`, `order`, `pid`, `system_code`) VALUES (752, '总览机构修改', 'updateOverview', 'put:/management/overview', 0, 0, 1, 750, 1);
+INSERT INTO `o_permission`(`id`, `name`, `menu_btn_name`, `api_url`, `is_menu`, `is_page`, `order`, `pid`, `system_code`) VALUES (753, '新增总览机构', 'addOverview', 'post:/management/overview', 0, 0, 1, 750, 1);
+INSERT INTO `o_permission`(`id`, `name`, `menu_btn_name`, `api_url`, `is_menu`, `is_page`, `order`, `pid`, `system_code`) VALUES (754, '查看总览机构账号', 'getOverviewAccountList', 'get:/management/overview/accountList/**', 0, 0, 1, 750, 1);
+INSERT INTO `o_permission`(`id`, `name`, `menu_btn_name`, `api_url`, `is_menu`, `is_page`, `order`, `pid`, `system_code`) VALUES (755, '增加总览机构账号', 'addOverviewAccount', 'post:/management/overview/add/account/**', 0, 0, 1, 750, 1);
+INSERT INTO `o_permission`(`id`, `name`, `menu_btn_name`, `api_url`, `is_menu`, `is_page`, `order`, `pid`, `system_code`) VALUES (756, '重置密码', 'resetOverviewAccountPwd', 'put:/management/overview/admin/reset', 0, 0, 1, 750, 1);
+INSERT INTO `o_permission`(`id`, `name`, `menu_btn_name`, `api_url`, `is_menu`, `is_page`, `order`, `pid`, `system_code`) VALUES (757, '启用/停用', 'updateOverviewAccountStatus', 'put:/management/overview/admin/status', 0, 0, 1, 750, 1);
+INSERT INTO `o_permission`(`id`, `name`, `menu_btn_name`, `api_url`, `is_menu`, `is_page`, `order`, `pid`, `system_code`) VALUES (758, '总览机构详情', 'getOverviewDetail', 'get:/management/overview/**', 0, 0, 1, 750, 1);
+INSERT INTO `o_permission`(`id`, `name`, `menu_btn_name`, `api_url`, `is_menu`, `is_page`, `order`, `pid`, `system_code`) VALUES (759, '通过医院名称及行政区域（同省级下）获取医院列表', 'getHospitalProvinceList', 'get:/management/hospital/province/list', 0, 0, 7, 750, 1);
+INSERT INTO `o_permission`(`id`, `name`, `menu_btn_name`, `api_url`, `is_menu`, `is_page`, `order`, `pid`, `system_code`) VALUES (760, '通过筛查机构名称及行政区域（同省级下）获取筛查机构列表', 'getScreeningOrgProvinceList', 'get:/management/screeningOrganization/province/list', 0, 0, 8, 750, 1);
+INSERT INTO `o_permission`(`id`, `name`, `menu_btn_name`, `api_url`, `is_menu`, `is_page`, `order`, `pid`, `system_code`) VALUES (761, '获取当前登录总览机构信息(医院)', 'getCurrentOverviewInfoByHospital', 'get:/management/overview/current/info', 0, 0, 7, 12, 1);
+INSERT INTO `o_permission`(`id`, `name`, `menu_btn_name`, `api_url`, `is_menu`, `is_page`, `order`, `pid`, `system_code`) VALUES (762, '获取当前登录总览机构信息(筛查机构)', 'getCurrentOverviewInfoByScreeningOrg', 'get:/management/overview/current/info', 0, 0, 7, 2, 1);
+INSERT INTO `o_permission` (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code, create_time,update_time)VALUES (763, '筛查二维码', 'reportScreeningOrgQrcode', 'get:/management/report/screeningOrg/qrcode', 0, 0, 1, 27, 1,'2022-03-04 10:24:17', '2022-03-04 10:24:17');
+
+delete from o_permission where id in (343,344,369);
+delete from o_district_permission where permission_id in (343,344,369);
+delete from o_role_permission where permission_id in (343,344,369);
