@@ -98,6 +98,12 @@
         <if test="@Ognl@isNotEmpty(query.expireDayLe) and query.expireDayLe != -1">
             and LEAST(DATEDIFF(cooperation_end_time, cooperation_start_time), DATEDIFF(cooperation_end_time, now())) &lt;= #{query.expireDayLe}
         </if>
+        <if test="query.ids != null and query.ids.size() != 0">
+            and mso.id in
+            <foreach collection="query.ids" item="screeningOrganizationId" index="index" open="(" close=")" separator=",">
+                #{screeningOrganizationId}
+            </foreach>
+        </if>
         order by mso.create_time desc
     </select>
 
@@ -138,11 +144,12 @@
         where name like concat('%', #{name}, '%')
     </select>
 
-    <select id="getListByProvinceCodeAndNameLike" resultMap="BaseResultMap">
+    <select id="getListByProvinceCodeAndNameLike" resultMap="BaseResponseMap">
         select
         <include refid="Base_Column_List"/>
         from m_screening_organization
         where name like concat('%', #{name}, '%') and json_extract(cast(district_detail as json) ,'$[0].code') = #{provinceDistrictCode}
+        <if test="@Ognl@isNotEmpty(configType)">and `config_type` = #{configType}</if>
     </select>
 
     <select id="getByConfigType" resultMap="BaseResultMap">

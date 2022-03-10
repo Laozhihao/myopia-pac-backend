@@ -156,6 +156,10 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         return baseMapper.selectSchoolGradeVoByPlanIdAndSchoolId(screeningPlanId, schoolId);
     }
 
+    public List<ScreeningStudentDTO> selectStudentVoByPlanIdAndSchoolIdAndGradeIdAndClassId(Integer screeningPlanId, Integer schoolId,Integer gradeId,Integer classId) {
+        return baseMapper.selectStudentVoByPlanIdAndSchoolIdAndGradeIdAndClassId(screeningPlanId, schoolId,gradeId,classId);
+    }
+
     public IPage<ScreeningStudentDTO> selectPageByQuery(Page<ScreeningStudentDTO> page, ScreeningStudentQueryDTO query) {
         return baseMapper.selectPageByQuery(page, query);
     }
@@ -191,6 +195,17 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      */
     public List<ScreeningStudentDTO> getByGradeAndClass(Integer screeningPlanId, Integer gradeId, Integer classId) {
         return baseMapper.selectByGradeAndClass(screeningPlanId, gradeId, classId);
+    }
+
+    /**
+     * 根据年级班级ID获取筛查学生
+     *
+     * @param gradeId
+     * @param classId
+     * @return
+     */
+    public List<ScreeningStudentDTO> selectBySchoolGradeAndClass(Integer screeningPlanId, Integer schoolId,Integer gradeId, Integer classId,List<Integer> studentIds) {
+        return baseMapper.selectBySchoolGradeAndClass(screeningPlanId, schoolId,gradeId, classId,studentIds);
     }
 
     /**

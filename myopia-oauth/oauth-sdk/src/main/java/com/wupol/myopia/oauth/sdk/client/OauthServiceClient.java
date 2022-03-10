@@ -194,6 +194,16 @@ public interface OauthServiceClient {
     void updateHospitalRole(@RequestParam("hospitalId") Integer hospitalId, @RequestParam("serviceType") Integer serviceType);
 
     /**
+     * 更新总览机构用户的角色
+     *
+     * @param overviewId 医院ID
+     * @param configType 服务类型
+     * @return void
+     **/
+    @PutMapping("/oauth/user/overview/role")
+    void updateOverviewIdRole(@RequestParam("overviewId") Integer overviewId, @RequestParam("configType") Integer configType);
+
+    /**
      * 获取角色列表
      *
      * @param param 查询参数

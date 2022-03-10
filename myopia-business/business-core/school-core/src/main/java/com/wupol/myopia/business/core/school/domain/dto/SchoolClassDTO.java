@@ -20,4 +20,6 @@ public class SchoolClassDTO extends SchoolClass {
      * 唯一Id
      */
     private String uniqueId;
+
+    private String schoolNames;
 }

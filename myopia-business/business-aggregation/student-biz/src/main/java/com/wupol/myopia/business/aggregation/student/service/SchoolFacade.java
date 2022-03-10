@@ -14,6 +14,7 @@ import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
+import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
@@ -36,6 +37,9 @@ public class SchoolFacade {
 
     @Resource
     private SchoolService schoolService;
+    @Resource
+    private SchoolGradeService schoolGradeService;
+
 
     @Resource
     private DistrictService districtService;
@@ -97,6 +101,7 @@ public class SchoolFacade {
         }
         District district = districtService.getById(schoolRequestDTO.getDistrictId());
         schoolRequestDTO.setDistrictProvinceCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
+        //更新学校
         schoolService.updateById(schoolRequestDTO);
         // 新增
         schoolService.generateGradeAndClass(schoolRequestDTO.getId(), schoolRequestDTO.getCreateUserId(), schoolRequestDTO.getBatchSaveGradeList());

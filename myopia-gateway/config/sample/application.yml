@@ -131,3 +131,8 @@ white-list:
   # 健康检查接口
   - "/actuator/health"
   - "/management/screeningPlan/screeningNoticeResult"
+  - "/management/screeningPlan/student/QRCode"
+  - "/management/screeningPlan/student/notice"
+  - "/management/report/screeningOrg/qrcode"
+  - "/school/management/student/notice"
+  - "/school/management/student/QRCode"

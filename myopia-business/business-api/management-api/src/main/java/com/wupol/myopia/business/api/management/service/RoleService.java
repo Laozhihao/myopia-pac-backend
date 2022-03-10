@@ -19,7 +19,9 @@ import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
 import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
 import com.wupol.myopia.business.core.hospital.service.HospitalService;
+import com.wupol.myopia.business.core.screening.organization.domain.model.Overview;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
+import com.wupol.myopia.business.core.screening.organization.service.OverviewService;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.request.RoleDTO;
@@ -55,6 +57,8 @@ public class RoleService {
     private ScreeningOrganizationService screeningOrganizationService;
     @Autowired
     private HospitalService hospitalService;
+    @Autowired
+    private OverviewService overviewService;
 
     /**
      * 获取角色列表 - 分页
@@ -337,6 +341,21 @@ public class RoleService {
     }
 
     /**
+     * 通过模板Id获取总览机构Ids
+     *
+     * @param templateType 模板
+     * @return 总览机构Ids
+     */
+    private List<Integer> getOverviewIds(Integer templateType) {
+        Integer configType = TemplateConfigType.TEMPLATE_TO_OVERVIEW_CONFIG_TYPE.get(templateType);
+        List<Overview> overviews = overviewService.getByConfigType(configType);
+        if (CollectionUtils.isEmpty(overviews)) {
+            return new ArrayList<>();
+        }
+        return overviews.stream().map(Overview::getId).collect(Collectors.toList());
+    }
+
+    /**
      * 获取机构ID集
      *
      * @param templateType 模板类型
@@ -353,6 +372,10 @@ public class RoleService {
         // 医院管理平台相关
         if (Objects.nonNull(TemplateConfigType.TEMPLATE_TO_HOSPITAL_CONFIG_TYPE.get(templateType))) {
             return getHospitalIds(templateType);
+        }
+        // 总览机构平台相关
+        if (Objects.nonNull(TemplateConfigType.TEMPLATE_TO_OVERVIEW_CONFIG_TYPE.get(templateType))) {
+            return getOverviewIds(templateType);
         }
         return new ArrayList<>();
     }
