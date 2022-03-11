@@ -175,8 +175,6 @@ public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
                         Objects.nonNull(exportCondition.getPlanStudentIds()) ? exportCondition.getPlanStudentIds() : StringUtils.EMPTY,
                         type);
 
-                //String dir = StringUtils.isNotBlank(gradeNameTmp) ? Paths.get(fileSavePath,fileName).toString() : Paths.get(fileSavePath,fileName,screeningStudentDTO.getGradeName()).toString();
-
                 String dir = null;
                 String className = null;
                 if(StringUtils.isNotBlank(gradeNameTmp)){
