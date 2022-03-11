@@ -106,8 +106,10 @@ public class WorkOrderBizService {
     public boolean disposeOfWordOrder(WorkOrderRequestDTO workOrderRequestDTO) {
         // 学生原始信息
         StudentDTO studentDTO = studentService.getStudentById(workOrderRequestDTO.getStudentId());
-        // 待修改筛查记录
+        // 待修改筛查记录 修改screening_plan_school_student_id
         VisionScreeningResult visionScreeningResult = visionScreeningResultService.getById(workOrderRequestDTO.getScreeningId());
+
+
 
         // 是否更新学校信息
         if (workOrderRequestDTO.getSchoolId()!=studentDTO.getSchoolId()){
@@ -120,6 +122,7 @@ public class WorkOrderBizService {
 
         }
 
+        // 工单信息修改
 
 
 
