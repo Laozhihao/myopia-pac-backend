@@ -438,7 +438,7 @@ public class StudentFacade {
 
         cardInfoVO.setName(studentInfo.getName());
         cardInfoVO.setBirthday(studentInfo.getBirthday());
-        cardInfoVO.setIdCard(studentInfo.getIdCard());
+        cardInfoVO.setIdCard(StringUtils.isNotBlank(studentInfo.getIdCard()) ? studentInfo.getIdCard() : studentInfo.getPassport());
         cardInfoVO.setGender(studentInfo.getGender());
         cardInfoVO.setAge(DateUtil.ageOfNow(studentInfo.getBirthday()));
         cardInfoVO.setSno(studentInfo.getSno());
