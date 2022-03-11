@@ -19,9 +19,11 @@ public interface ScreeningOrganizationStaffMapper extends BaseMapper<ScreeningOr
 
     IPage<ScreeningOrganizationStaff> getByPage(@Param("page") Page<?> page, @Param("userIds") List<Integer> userIds,@Param("type") Integer type);
 
-    List<ScreeningOrganizationStaff> getByOrgId(@Param("orgId") Integer orgId,@Param("type") Integer type);
+    List<ScreeningOrganizationStaff> getByOrgId(@Param("orgId") Integer orgId);
 
     List<ScreeningOrganizationStaff> getByOrgIds(@Param("orgIds") List<Integer> orgIds,@Param("type") Boolean type);
 
     List<ScreeningOrganizationStaff> getByUserIds(@Param("userIds") List<Integer> userIds);
+
+    ScreeningOrganizationStaff getByUserId(@Param("userId") Integer userId);
 }

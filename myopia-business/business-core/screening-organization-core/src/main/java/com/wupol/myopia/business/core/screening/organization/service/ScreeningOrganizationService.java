@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.screening.organization.service;
 
+import com.amazonaws.services.dynamodbv2.xspec.NULL;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.framework.core.util.CollectionUtils;
@@ -185,6 +186,12 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      */
     private UsernameAndPasswordDTO resetOAuthPassword(Integer userId, String username) {
         String password = PasswordAndUsernameGenerator.getScreeningAdminPwd();
+        ScreeningOrganizationStaff screeningOrganizationStaff =  screeningOrganizationStaffService.getStaffsByUserId(userId);
+        if (screeningOrganizationStaff != null){
+            if (screeningOrganizationStaff.getType() ==1){
+                password = ScreeningOrganizationStaff.PASSWORD;
+            }
+        }
         oauthServiceClient.resetPwd(userId, password);
         return new UsernameAndPasswordDTO(username, password);
     }

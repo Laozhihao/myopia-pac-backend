@@ -32,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -91,7 +92,8 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         IPage<ScreeningOrganizationStaff> page = getByPage(page1,staffQueryDTO);
         Map<Integer, ScreeningOrganizationStaff> staffSnMaps = page.getRecords()
                 .stream().collect(Collectors.toMap(ScreeningOrganizationStaff::getUserId, Function.identity()));
-        List<ScreeningOrgStaffUserDTO> screeningOrgStaffUserDTOList = resultLists.stream().map(user -> {
+        List<ScreeningOrgStaffUserDTO> screeningOrgStaffUserDTOList = new ArrayList<>();
+        for (User user : resultLists){
             ScreeningOrgStaffUserDTO screeningOrgStaffUserDTO = new ScreeningOrgStaffUserDTO(user);
             ScreeningOrganizationStaff staff = staffSnMaps.get(user.getId());
             if (staff != null){
@@ -99,11 +101,9 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
                 if (Objects.nonNull(staff.getSignFileId())) {
                     screeningOrgStaffUserDTO.setSignFileUrl(resourceFileService.getResourcePath(staff.getSignFileId()));
                 }
-            return screeningOrgStaffUserDTO;
-            }else{
-                return null;
+                screeningOrgStaffUserDTOList.add(screeningOrgStaffUserDTO);
             }
-        }).collect(Collectors.toList());
+        }
         return new Page<ScreeningOrgStaffUserDTO>(page.getCurrent(), page.getSize(), page.getTotal()).setRecords(screeningOrgStaffUserDTOList);
     }
 
@@ -246,7 +246,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         UserDTO userDTO = new UserDTO();
         //如果是创建机构时自动新增的人员
         if (staff.getType()==1){
-            password = "scry12345678";
+            password = ScreeningOrganizationStaff.PASSWORD;
             username = userName;
         }else{
             password = PasswordAndUsernameGenerator.getScreeningUserPwd(staff.getPhone(), staff.getIdCard());
@@ -288,8 +288,8 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      * @param orgId 组织id
      * @return List<ScreeningOrganizationStaff>
      */
-    public List<ScreeningOrganizationStaff> getByOrgId(Integer orgId,Integer type) {
-        return baseMapper.getByOrgId(orgId,type);
+    public List<ScreeningOrganizationStaff> getByOrgId(Integer orgId) {
+        return baseMapper.getByOrgId(orgId);
     }
 
     /**
@@ -322,6 +322,16 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      */
     public List<ScreeningOrganizationStaff> getStaffsByUserIds(List<Integer> userIds) {
         return baseMapper.getByUserIds(userIds);
+    }
+
+    /**
+     * 通过用户id获取人员信息
+     * @param userId
+     * @return
+     */
+    public ScreeningOrganizationStaff getStaffsByUserId(Integer userId){
+
+        return baseMapper.getByUserId(userId);
     }
 
     /**
@@ -374,7 +384,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      **/
     public int countByScreeningOrgId(Integer screeningOrgId) {
         Assert.notNull(screeningOrgId, "screeningOrgId不能为空");
-        return count(new ScreeningOrganizationStaff().setScreeningOrgId(screeningOrgId));
+        return count(new ScreeningOrganizationStaff().setScreeningOrgId(screeningOrgId).setType(0));
     }
 
 }

@@ -47,12 +47,7 @@ public class ExportScreeningOrganizationStaffExcelService extends BaseExportExce
 
         Integer screeningOrgId = exportCondition.getScreeningOrgId();
         String orgName = screeningOrganizationService.getById(screeningOrgId).getName();
-        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        int type = 0;
-        if (currentUser.isPlatformAdminUser()){
-            type = 1;
-        }
-        List<ScreeningOrganizationStaff> staffLists = screeningOrganizationStaffService.getByOrgId(screeningOrgId,type);
+        List<ScreeningOrganizationStaff> staffLists = screeningOrganizationStaffService.getByOrgId(screeningOrgId);
         UserDTO userQuery = new UserDTO();
         userQuery.setSize(staffLists.size())
                 .setCurrent(1)

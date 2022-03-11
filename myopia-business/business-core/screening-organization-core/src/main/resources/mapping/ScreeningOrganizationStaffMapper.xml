@@ -49,9 +49,7 @@
         <include refid="Base_Column_List"/>
         from m_screening_organization_staff
         where screening_org_id = #{orgId}
-        <if test="type!=1">
-            and type != 1
-        </if>
+        and type != 1
     </select>
 
     <select id="getByOrgIds" resultMap="BaseResultMap">
@@ -76,5 +74,12 @@
             #{id}
         </foreach>
         and type != 1
+    </select>
+
+    <select id="getByUserId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_organization_staff
+        where user_id = #{userId}
     </select>
 </mapper>
