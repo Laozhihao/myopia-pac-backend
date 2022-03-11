@@ -6,6 +6,8 @@ import com.wupol.myopia.business.aggregation.export.pdf.BaseExportPdfFileService
 import com.wupol.myopia.business.aggregation.export.pdf.GeneratePdfFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.PDFFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
@@ -13,6 +15,9 @@ import com.wupol.myopia.business.core.screening.organization.service.ScreeningOr
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
+
+import java.util.List;
 
 /**
  * 导出筛查机构的筛查报告
@@ -30,7 +35,6 @@ public class ExportScreeningOrgScreeningReportService extends BaseExportPdfFileS
     private GeneratePdfFileService generateReportPdfService;
     @Autowired
     private StatConclusionService statConclusionService;
-
     /**
      * 生成文件
      *
@@ -43,9 +47,11 @@ public class ExportScreeningOrgScreeningReportService extends BaseExportPdfFileS
     public void generatePdfFile(ExportCondition exportCondition, String fileSavePath, String fileName) {
         // 所有学校汇总
         generateReportPdfService.generateScreeningPlanReportPdfFile(fileSavePath, exportCondition.getPlanId());
-        // 各个学校详情
-        generateReportPdfService.generateScreeningOrgScreeningReportPdfFile(fileSavePath, exportCondition.getPlanId());
-
+        List<Integer> schoolIdList = statConclusionService.getSchoolIdByPlanId(exportCondition.getPlanId());
+        if (schoolIdList.contains(exportCondition.getSchoolId())){
+            // 各个学校详情
+            generateReportPdfService.generateScreeningOrgScreeningReportPdfFile(fileSavePath, exportCondition.getPlanId(),exportCondition.getSchoolId());
+        }
     }
 
     /**
@@ -63,16 +69,17 @@ public class ExportScreeningOrgScreeningReportService extends BaseExportPdfFileS
 
     @Override
     public void validateBeforeExport(ExportCondition exportCondition) {
-        int total = statConclusionService.count(new StatConclusion().setPlanId(exportCondition.getPlanId()));
-        if (total == 0) {
-            throw new BusinessException("暂无筛查数据，无法导出筛查报告");
-        }
+        Assert.notNull(exportCondition.getPlanId(), "筛查计划ID不能为空");
+        Assert.notNull(exportCondition.getSchoolId(), "学校ID不能为空");
+
     }
     @Override
     public String getLockKey(ExportCondition exportCondition) {
         return String.format(RedisConstant.FILE_EXPORT_PDF_ORG_SCREENING,
                 exportCondition.getApplyExportFileUserId(),
                 exportCondition.getPlanId(),
-                exportCondition.getScreeningOrgId());
+                exportCondition.getScreeningOrgId(),
+                exportCondition.getSchoolId()
+        );
     }
 }

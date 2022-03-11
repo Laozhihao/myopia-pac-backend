@@ -3,6 +3,7 @@ package com.wupol.myopia.business.aggregation.export.excel.imports;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
+import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.excel.domain.SchoolStudentImportEnum;
 import com.wupol.myopia.business.aggregation.export.utils.CommonCheck;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
@@ -131,6 +132,7 @@ public class SchoolStudentExcelImportService {
 
             // 更新管理端
             schoolStudent.checkStudentInfo();
+            DateUtil.checkBirthday(schoolStudent.getBirthday());
             Integer managementStudentId = updateManagementStudent(schoolStudent);
             schoolStudent.setStudentId(managementStudentId);
             schoolStudents.add(schoolStudent);
