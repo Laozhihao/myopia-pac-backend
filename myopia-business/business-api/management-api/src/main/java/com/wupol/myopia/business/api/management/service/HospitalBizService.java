@@ -20,7 +20,7 @@ import com.wupol.myopia.business.core.hospital.domain.query.HospitalQuery;
 import com.wupol.myopia.business.core.hospital.service.HospitalAdminService;
 import com.wupol.myopia.business.core.hospital.service.HospitalService;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
-import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccountListDTO;
+import com.wupol.myopia.business.core.common.domain.dto.OrgAccountListDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.model.OverviewHospital;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.OverviewHospitalService;
@@ -134,7 +134,7 @@ public class HospitalBizService {
      */
     public IPage<HospitalResponseDTO> getHospitalList(PageRequest pageRequest, HospitalQuery query, CurrentUser user) {
         List<Integer> govOrgIds = new ArrayList<>();
-        if (!user.isPlatformAdminUser()) {
+        if (user.isGovDeptUser()) {
             govOrgIds = govDeptService.getAllSubordinate(user.getOrgId());
         }
         IPage<HospitalResponseDTO> hospitalListsPage = hospitalService.getHospitalListByCondition(pageRequest.toPage(), govOrgIds, query);
@@ -262,7 +262,9 @@ public class HospitalBizService {
             }
         }
         // 医生用户
-        oauthServiceClient.updateHospitalRole(newHospital.getId(), newHospital.getServiceType());
+        if (Objects.nonNull(newHospital.getServiceType())) {
+            oauthServiceClient.updateHospitalRole(newHospital.getId(), newHospital.getServiceType());
+        }
     }
 
     /**

@@ -17,12 +17,13 @@ import com.wupol.myopia.business.common.utils.domain.dto.SchoolAgeDTO;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.core.school.domain.dto.SaveSchoolRequestDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolQueryDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanResponseDTO;
-import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccountListDTO;
+import com.wupol.myopia.business.core.common.domain.dto.OrgAccountListDTO;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
@@ -64,25 +65,25 @@ public class SchoolController {
     /**
      * 新增学校
      *
-     * @param school 学校实体
+     * @param requestDTO 学校实体
      * @return 账号密码 {@link UsernameAndPasswordDTO}
      */
     @PostMapping()
-    public UsernameAndPasswordDTO saveSchool(@RequestBody @Valid School school) {
+    public UsernameAndPasswordDTO saveSchool(@RequestBody @Valid SaveSchoolRequestDTO requestDTO) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        school.setCreateUserId(user.getId());
-        school.setGovDeptId(user.getOrgId());
+        requestDTO.setCreateUserId(user.getId());
+        requestDTO.setGovDeptId(user.getOrgId());
         if (user.isPlatformAdminUser()) {
-            schoolService.checkSchoolCooperation(school);
+            schoolService.checkSchoolCooperation(requestDTO);
         } else {
             // 默认合作信息
-            school.initCooperationInfo();
+            requestDTO.initCooperationInfo();
         }
         if (user.isHospitalUser()) {
-            school.setGovDeptId(user.getScreeningOrgId());
+            requestDTO.setGovDeptId(user.getScreeningOrgId());
         }
-        school.setStatus(school.getCooperationStopStatus());
-        UsernameAndPasswordDTO nameAndPassword = schoolService.saveSchool(school);
+        requestDTO.setStatus(requestDTO.getCooperationStopStatus());
+        UsernameAndPasswordDTO nameAndPassword = schoolService.saveSchool(requestDTO);
         // 非平台管理员屏蔽账号密码信息
         if (!user.isPlatformAdminUser()) {
             nameAndPassword.setNoDisplay();
@@ -93,22 +94,22 @@ public class SchoolController {
     /**
      * 更新学校
      *
-     * @param school 学校实体
+     * @param requestDTO 学校实体
      * @return 学校实体
      */
     @PutMapping()
-    public SchoolResponseDTO updateSchool(@RequestBody @Valid School school) {
+    public SchoolResponseDTO updateSchool(@RequestBody @Valid SaveSchoolRequestDTO requestDTO) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         if (user.isPlatformAdminUser()){
-            schoolService.checkSchoolCooperation(school);
+            schoolService.checkSchoolCooperation(requestDTO);
             // 设置学校状态
-            school.setStatus(school.getCooperationStopStatus());
+            requestDTO.setStatus(requestDTO.getCooperationStopStatus());
         } else {
             // 非平台管理员无法更新合作信息
-            school.clearCooperationInfo();
-            school.setStatus(null);
+            requestDTO.clearCooperationInfo();
+            requestDTO.setStatus(null);
         }
-        return schoolFacade.updateSchool(school);
+        return schoolFacade.updateSchool(requestDTO);
     }
 
 

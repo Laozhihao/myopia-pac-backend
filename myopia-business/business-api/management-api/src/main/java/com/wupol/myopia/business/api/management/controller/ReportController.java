@@ -88,8 +88,11 @@ public class ReportController {
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @GetMapping("/screeningOrg/export")
-    public void exportScreeningOrgReport(@NotNull(message = "筛查计划ID不能为空") Integer planId, @NotNull(message = "筛查机构ID不能为空") Integer screeningOrgId) throws IOException {
+    public void exportScreeningOrgReport(@NotNull(message = "筛查计划ID不能为空") Integer planId,
+                                         @NotNull(message = "筛查机构ID不能为空") Integer screeningOrgId,
+                                         @NotNull(message = "学校ID不能为空") Integer schoolId) throws IOException {
         ExportCondition exportCondition = new ExportCondition()
+                .setSchoolId(schoolId)
                 .setPlanId(planId)
                 .setScreeningOrgId(screeningOrgId)
                 .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
@@ -226,9 +229,9 @@ public class ReportController {
                 .setType(type)
                 ;
         if (classId!=null|| StringUtil.isNotEmpty(planStudentIds)){
-            return ApiResult.success(exportStrategy.syncExport(exportCondition, ExportReportServiceNameConstant.EXPORT_QRCODE_SCREENIN_SERVICE));
+            return ApiResult.success(exportStrategy.syncExport(exportCondition, ExportReportServiceNameConstant.EXPORT_QRCODE_SCREENING_SERVICE));
         }
-        exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.EXPORT_QRCODE_SCREENIN_SERVICE);
+        exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.EXPORT_QRCODE_SCREENING_SERVICE);
         return ApiResult.success();
     }
 
