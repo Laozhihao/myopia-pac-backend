@@ -102,7 +102,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         List<VisionScreeningResultExportDTO> visionScreeningResultExportVos = excelFacade.genVisionScreeningResultExportVos(statConclusionExportDTOs);
        // return ExcelUtil.exportListToExcel(fileName, visionScreeningResultExportVos, getHeadClass());
         OnceAbsoluteMergeStrategy mergeStrategy = new OnceAbsoluteMergeStrategy(0, 1, 20, 21);
-        String folder = "测试目录1"+"/"+"测试目录2";
+        String folder = fileName+"/测试目录1"+"/测试目录2";
         return ExcelUtil.exportListToExcelWithFolder(folder,fileName,visionScreeningResultExportVos,mergeStrategy,getHeadClass());
     }
 

@@ -36,8 +36,8 @@ import java.util.stream.Collectors;
 @Service
 public abstract class BaseExportExcelFileService extends BaseExportFileService {
 
-    @Value("${file.temp.save-path}")
-    public String excelSavePath;
+
+    public static String excelSavePath = "/tmp/export/";
 
     @Autowired
     private DistrictService districtService;
@@ -62,27 +62,18 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
         try {
             // 1.获取文件名
             String fileName = getFileName(exportCondition);
-
-            // 2.获取文件保存父目录路径
-            parentPath = getFileSaveParentPath();
-            log.info("文件保存父目录路径=========="+parentPath);
-            // 3.获取文件保存路径
-            String fileSavePath = getFileSavePath(parentPath, fileName);
-            log.info("文件保存路径=========="+fileSavePath);
             // 2.获取通知的关键内容
             noticeKeyContent = getNoticeKeyContent(exportCondition);
             // 3.获取数据，生成List
             List data = getExcelData(exportCondition);
-
             // 4.生成导出的文件
             excelFile = generateExcelFile(fileName, data);
-            log.info("全路径=====  "+excelFile.getPath()+" " + excelFile.getParentFile().getPath()+" "+excelFile.getAbsolutePath());
-
-            File file = compressFile("/tmp/export/数据表");
-
-            // 5.上传文件
+            //log.info("全路径=====  "+excelFile.getPath()+" " + excelFile.getParentFile().getPath()+" "+excelFile.getAbsolutePath());
+            // 5.压缩文件
+            File file = compressFile(excelSavePath+fileName);
+            // 6.上传文件
             Integer fileId = uploadFile(file);
-            // 6.发送成功通知
+            // 7.发送成功通知
             sendSuccessNotice(exportCondition.getApplyExportFileUserId(), noticeKeyContent, fileId);
         } catch (Exception e) {
             String requestData = JSON.toJSONString(exportCondition);
