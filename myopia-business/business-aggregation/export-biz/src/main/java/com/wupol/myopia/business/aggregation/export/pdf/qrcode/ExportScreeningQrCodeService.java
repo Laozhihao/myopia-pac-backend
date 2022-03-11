@@ -94,16 +94,15 @@ public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
         if (schoolClass!=null&&schoolClass.getName()!=null){
             className = schoolClass.getName();
         }
+
         if (exportCondition.getType().equals(CommonConst.EXPORT_NOTICE)){
             return String.format(PDFFileNameConstant.REPORT_NOTICE_QR_CODE_FILE_NAME, schoolName,gradeName,className);
-        }else if (exportCondition.getType().equals(CommonConst.EXPORT_QRCODE)){
-            return String.format(PDFFileNameConstant.REPORT_SCREENING_QR_CODE_FILE_NAME, schoolName,gradeName,className);
         }else if (exportCondition.getType().equals(CommonConst.EXPORT_VS666)){
             return String.format(PDFFileNameConstant.REPORT_VS666_QR_CODE_FILE_NAME, schoolName,gradeName,className);
         }else if (exportCondition.getType().equals(CommonConst.EXPORT_SCREENING_QRCODE)){
             return String.format(PDFFileNameConstant.REPORT_FICTITIOUS_QR_CODE_FILE_NAME, schoolName,gradeName,className);
         }
-        throw new BusinessException("暂无筛查数据，无法导出筛查报告");
+        return String.format(PDFFileNameConstant.REPORT_SCREENING_QR_CODE_FILE_NAME, schoolName,gradeName,className);
     }
 
     @Override
@@ -199,10 +198,7 @@ public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
                         className = String.format(PDFFileNameConstant.REPORT_FICTITIOUS_QR_CODE_FILE_NAME, "","",screeningStudentDTO.getClassName())+".pdf";
                     }
                 }
-
                 String uuid = UUID.randomUUID().toString();
-                log.info("请求路径:{}", studentQrCodePdfHtmlUrl);
-
                 PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(studentQrCodePdfHtmlUrl, className, uuid);
                 log.info("响应参数:{}", JSONObject.toJSONString(pdfResponseDTO));
                 try {
