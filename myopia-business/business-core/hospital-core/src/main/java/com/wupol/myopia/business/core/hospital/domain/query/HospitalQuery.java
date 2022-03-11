@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * 医院查询
@@ -44,4 +45,10 @@ public class HospitalQuery extends Hospital {
      */
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     private Date cooperationEndTimeLe;
+
+    /**
+     * 限定医院Id集
+     */
+    private List<Integer> ids;
+
 }

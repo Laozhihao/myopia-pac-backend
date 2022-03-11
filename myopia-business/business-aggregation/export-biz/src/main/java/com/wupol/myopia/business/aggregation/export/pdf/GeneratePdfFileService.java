@@ -1,6 +1,8 @@
 package com.wupol.myopia.business.aggregation.export.pdf;
 
+import com.alibaba.fastjson.JSONObject;
 import com.wupol.framework.core.util.ObjectsUtil;
+import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.HtmlPageUrlConstant;
@@ -8,8 +10,10 @@ import com.wupol.myopia.business.aggregation.export.pdf.constant.PDFFileNameCons
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.PlanSchoolGradeVO;
 import com.wupol.myopia.business.common.utils.constant.BizMsgConstant;
+import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.common.utils.util.HtmlToPdfUtil;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.common.service.Html2PdfService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
@@ -17,6 +21,7 @@ import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.GradeClassesDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
@@ -35,6 +40,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -108,11 +114,10 @@ public class GeneratePdfFileService {
      * @param saveDirectory 保存目录
      * @param planId        筛查计划ID
      **/
-    public void generateScreeningOrgScreeningReportPdfFile(String saveDirectory, Integer planId) {
+    public void generateScreeningOrgScreeningReportPdfFile(String saveDirectory, Integer planId,Integer schoolId) {
         Assert.hasLength(saveDirectory, BizMsgConstant.SAVE_DIRECTORY_EMPTY);
         Assert.notNull(planId, BizMsgConstant.PLAN_ID_IS_EMPTY);
-        List<Integer> schoolIdList = statConclusionService.getSchoolIdByPlanId(planId);
-        generateSchoolScreeningReportPdfFileBatch(saveDirectory, null, planId, schoolIdList);
+        generateSchoolScreeningReportPdfFile(saveDirectory, null, planId, schoolId);
     }
 
     /**
@@ -286,7 +291,7 @@ public class GeneratePdfFileService {
 
         Integer templateId = templateDistrictService.getByDistrictId(districtService.getProvinceId(org.getDistrictId()));
 
-        String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.STUDENT_ARCHIVES_HTML_URL, htmlUrlHost, planId, schoolId, templateId, planStudentIds, gradeId, Objects.nonNull(classId) ? classId : StringUtils.EMPTY);
+        String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.STUDENT_ARCHIVES_HTML_URL, htmlUrlHost, planId, schoolId, templateId, StringUtils.isNotBlank(planStudentIds) ? planStudentIds : StringUtils.EMPTY, gradeId, Objects.nonNull(classId) ? classId : StringUtils.EMPTY);
         Assert.isTrue(HtmlToPdfUtil.convertArchives(schoolPdfHtmlUrl, Paths.get(fileSavePath).toString()), "【生成学校档案卡PDF文件异常】：" + school.getName());
     }
 

@@ -217,6 +217,20 @@ public class RoleService extends BaseService<RoleMapper, Role> {
     }
 
     /**
+     * 更新指定总览机构的角色权限
+     * @param overviewId
+     * @param templateType
+     */
+    @Transactional
+    public void updateRolePermissionByOverview(Integer overviewId, Integer templateType) {
+        RoleDTO query = new RoleDTO();
+        query.setOrgId(overviewId).setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode())
+                .setRoleType(RoleType.OVERVIEW_ADMIN.getType());
+        List<Role> roleList = getRoleList(query);
+        roleList.forEach(role -> updateRolePermission(role.getId(), templateType));
+    }
+
+    /**
      * 更新角色的权限
      * @param roleId
      * @param templateType

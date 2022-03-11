@@ -137,7 +137,7 @@ public class UserService extends BaseService<UserMapper, User> {
     }
 
     /**
-     * 管理端创建其他系统的用户(医院端医生用户、学校端老师用户、筛查端筛查人员用户、平台-筛查管理员、平台-医院管理员)
+     * 管理端创建其他系统的用户(医院端医生用户、学校端老师用户、筛查端筛查人员用户、平台-筛查管理员、平台-医院管理员、平台-总览机构管理员)
      *
      * @param userDTO 用户数据
      * @return com.wupol.myopia.oauth.domain.model.User
@@ -151,7 +151,7 @@ public class UserService extends BaseService<UserMapper, User> {
         save(user.setPassword(new BCryptPasswordEncoder().encode(userDTO.getPassword())));
         userDTO.setId(user.getId());
         // 创建角色
-        // 1. 筛查机构管理员、医院管理员角色
+        // 1. 筛查机构管理员、医院管理员、角色
         if (SystemCode.MANAGEMENT_CLIENT.getCode().equals(userDTO.getSystemCode())) {
             createPlatformOrgAdminRole(userDTO);
             return userDTO;
@@ -197,31 +197,42 @@ public class UserService extends BaseService<UserMapper, User> {
      * @return void
      **/
     private void createPlatformOrgAdminRole(UserDTO userDTO) {
-        // 非平台机构管理员则忽略，这里仅创建筛查机构管理员、医院管理员角色
+        // 非平台机构管理员则忽略，这里仅创建筛查机构管理员、医院管理员、总览机构角色
         Integer userType = userDTO.getUserType();
         Integer systemCode = userDTO.getSystemCode();
         if (!SystemCode.MANAGEMENT_CLIENT.getCode().equals(systemCode) || !UserType.isPlatformOrgAdminUser(userType)) {
             return;
         }
-        boolean isScreeningOrgAdmin = UserType.SCREENING_ORGANIZATION_ADMIN.getType().equals(userType);
-        Integer roleType = isScreeningOrgAdmin ? RoleType.SCREENING_ORGANIZATION.getType() : RoleType.HOSPITAL_ADMIN.getType();
-        Integer userId = userDTO.getId();
+        Integer roleType = UserType.getRoleTypeByMultiSystemUserType(userType);
         // 已经存在该机构的角色，则直接给用户绑定该角色，一个机构下仅生成一个角色。（获取第一个是为了兼容历史数据：一个机构下有多个角色）
         Role role = roleService.getOrgFirstOneRole(userDTO.getOrgId(), systemCode, roleType);
         if (Objects.nonNull(role)) {
-            userRoleService.save(new UserRole().setUserId(userId).setRoleId(role.getId()));
+            userRoleService.save(new UserRole().setUserId(userDTO.getId()).setRoleId(role.getId()));
+            // 医院绑定机构
             bindScreeningPermission(userDTO.getAssociateScreeningOrgId(), userDTO.getId());
             return;
         }
-        // 生成筛查机构管理员角色
-        if (isScreeningOrgAdmin) {
-            generateScreeningOrgAdminUserRole(userDTO);
-            return;
+        switch (UserType.getByType(userType)) {
+            case SCREENING_ORGANIZATION_ADMIN : {
+                // 生成筛查机构管理员角色
+                generateScreeningOrgAdminUserRole(userDTO);
+                break;
+            }
+            case HOSPITAL_ADMIN:{
+                // 生成医院管理员角色
+                generateHospitalAdminUserRole(userDTO);
+                // 给医院绑定关联筛查机构的角色
+                bindScreeningPermission(userDTO.getAssociateScreeningOrgId(), userDTO.getId());
+                break;
+            }
+            case OVERVIEW:{
+                // 生成总览机构管理员角色
+                generateOverviewAdminUserRole(userDTO);
+                break;
+            }
+            default:
+                break;
         }
-        // 生成医院管理员角色
-        generateHospitalAdminUserRole(userDTO);
-        // 给医院绑定关联筛查机构的角色
-        bindScreeningPermission(userDTO.getAssociateScreeningOrgId(), userDTO.getId());
     }
 
     private void bindScreeningPermission(Integer associateScreeningOrgId, Integer userId) {
@@ -290,7 +301,9 @@ public class UserService extends BaseService<UserMapper, User> {
         // 更新角色
         if (SystemCode.MANAGEMENT_CLIENT.getCode().equals(user.getSystemCode()) && UserType.SCREENING_ORGANIZATION_ADMIN.getType().equals(user.getUserType())) {
             // 更新筛查机构管理员权限
-            updateScreeningOrgAdminRolePermission(user.getOrgConfigType(), user.getOrgId());
+            if (Objects.nonNull(user.getOrgConfigType())) {
+                updateScreeningOrgAdminRolePermission(user.getOrgConfigType(), user.getOrgId());
+            }
         } else if (SystemCode.HOSPITAL_CLIENT.getCode().equals(user.getSystemCode())) {
             // 更新医生角色
             updateDoctorRole(userId, user.getOrgId(), user.getOrgConfigType());
@@ -445,6 +458,18 @@ public class UserService extends BaseService<UserMapper, User> {
     }
 
     /**
+     * 生成总览机构管理员角色并初始其化权限
+     *
+     * @param userDTO userDTO
+     * @return boolean 是否成功
+     */
+    private void generateOverviewAdminUserRole(UserDTO userDTO) {
+        Integer orgConfigType = userDTO.getOrgConfigType();
+        Assert.notNull(orgConfigType, "总览机构配置类型为空");
+        generateUserRole(userDTO, PermissionTemplateType.getTemplateTypeByOverviewAdminServiceType(orgConfigType), RoleType.OVERVIEW_ADMIN.getType(), userDTO.getUsername());
+    }
+
+    /**
      * 生成用户角色
      *
      * @param userDTO 用户信息
@@ -497,10 +522,26 @@ public class UserService extends BaseService<UserMapper, User> {
         userList.forEach(x -> updateScreeningOrgRolePermission(orgConfigType, x.getId()));
     }
 
+    /**
+     * 更新医院管理员权限
+     * @param serviceType
+     * @param hospitalId
+     */
     private void updateHospitalAdminRolePermission(Integer serviceType, Integer hospitalId) {
         Assert.notNull(serviceType, "配置类型不能为空");
         Assert.notNull(hospitalId, "医院ID不能为空");
         roleService.updateRolePermissionByHospital(hospitalId, PermissionTemplateType.getTemplateTypeByHospitalAdminServiceType(serviceType));
+    }
+
+    /**
+     * 更新总览机构管理员权限
+     * @param configType
+     * @param overviewId
+     */
+    public void updateOverviewAdminRolePermission(Integer configType, Integer overviewId) {
+        Assert.notNull(configType, "配置类型不能为空");
+        Assert.notNull(overviewId, "总览机构ID不能为空");
+        roleService.updateRolePermissionByOverview(overviewId, PermissionTemplateType.getTemplateTypeByOverviewAdminServiceType(configType));
     }
 
     /**

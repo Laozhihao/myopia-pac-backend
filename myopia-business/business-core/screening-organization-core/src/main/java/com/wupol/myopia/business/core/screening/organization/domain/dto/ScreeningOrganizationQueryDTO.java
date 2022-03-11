@@ -8,6 +8,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 筛查机构查询
@@ -54,4 +55,10 @@ public class ScreeningOrganizationQueryDTO extends ScreeningOrganization {
      */
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     private Date cooperationEndTimeLe;
+
+    /**
+     * 限定筛查机构Id集
+     */
+    private List<Integer> ids;
+
 }
