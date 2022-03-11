@@ -199,13 +199,14 @@ public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
                         className = String.format(PDFFileNameConstant.REPORT_FICTITIOUS_QR_CODE_FILE_NAME, "","",screeningStudentDTO.getClassName())+".pdf";
                     }
                 }
-                log.info("文件件保存路径:{}");
+
                 String uuid = UUID.randomUUID().toString();
                 log.info("请求路径:{}", studentQrCodePdfHtmlUrl);
 
                 PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(studentQrCodePdfHtmlUrl, className, uuid);
                 log.info("响应参数:{}", JSONObject.toJSONString(pdfResponseDTO));
                 try {
+                    log.info("文件件保存路径:{}",dir);
                     FileUtils.downloadFile(pdfResponseDTO.getUrl(), Paths.get(dir,className).toString());
                 } catch (Exception e) {
                     log.error("Exception", e);
