@@ -104,7 +104,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         List<StatConclusionExportDTO> statConclusionExportDTOs = data;
         List<VisionScreeningResultExportDTO> visionScreeningResultExportVos = excelFacade.genVisionScreeningResultExportVos(statConclusionExportDTOs);
         OnceAbsoluteMergeStrategy mergeStrategy = new OnceAbsoluteMergeStrategy(0, 1, 20, 21);
-        List<District> districtPositionDetailById = districtService.getDistrictPositionDetailById(exportCondition.getDistrictId());
+        List<District> districtPositionDetailById = districtService.getDistrictPositionDetailById(215);
         log.info("层级===="+districtPositionDetailById.toString());
         //如果schoolId为null则证明是导出整个计划下的筛查数据
         if (Objects.isNull(exportCondition.getSchoolId())){
