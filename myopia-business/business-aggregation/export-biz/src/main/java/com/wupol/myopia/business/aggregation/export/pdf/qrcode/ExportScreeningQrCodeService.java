@@ -181,20 +181,16 @@ public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
                     className = String.format(PDFFileNameConstant.REPORT_FICTITIOUS_QR_CODE_FILE_NAME, "",gradeNameTmp,screeningStudentDTO.getClassName())+".pdf";
                 }else {
                     if (exportCondition.getType().equals(CommonConst.EXPORT_NOTICE)){
-                        String temp = String.format(PDFFileNameConstant.REPORT_NOTICE_QR_CODE_FILE_NAME, "",screeningStudentDTO.getGradeName(),"");
-                        dir = Paths.get(fileSavePath,fileName,temp).toString();
+                        dir = getDirPath(fileSavePath, fileName, screeningStudentDTO, PDFFileNameConstant.REPORT_NOTICE_QR_CODE_FILE_NAME);
                         className = String.format(PDFFileNameConstant.REPORT_NOTICE_QR_CODE_FILE_NAME, "","",screeningStudentDTO.getClassName())+".pdf";
                     }else if (exportCondition.getType().equals(CommonConst.EXPORT_QRCODE)){
-                        String temp = String.format(PDFFileNameConstant.REPORT_SCREENING_QR_CODE_FILE_NAME, "",screeningStudentDTO.getGradeName(),"");
-                        dir =   Paths.get(fileSavePath,fileName,temp).toString();
+                        dir = getDirPath(fileSavePath, fileName, screeningStudentDTO, PDFFileNameConstant.REPORT_SCREENING_QR_CODE_FILE_NAME);
                         className = String.format(PDFFileNameConstant.REPORT_SCREENING_QR_CODE_FILE_NAME, "","",screeningStudentDTO.getClassName())+".pdf";
                     }else if (exportCondition.getType().equals(CommonConst.EXPORT_VS666)){
-                        String temp = String.format(PDFFileNameConstant.REPORT_VS666_QR_CODE_FILE_NAME, "",screeningStudentDTO.getGradeName(),"");
-                        dir =   Paths.get(fileSavePath,fileName,temp).toString();
+                        dir = getDirPath(fileSavePath, fileName, screeningStudentDTO, PDFFileNameConstant.REPORT_VS666_QR_CODE_FILE_NAME);
                         className = String.format(PDFFileNameConstant.REPORT_VS666_QR_CODE_FILE_NAME, "","",screeningStudentDTO.getClassName())+".pdf";
                     }else if (exportCondition.getType().equals(CommonConst.EXPORT_SCREENING_QRCODE)){
-                        String temp = String.format(PDFFileNameConstant.REPORT_FICTITIOUS_QR_CODE_FILE_NAME, "",screeningStudentDTO.getGradeName(),"");
-                        dir = Paths.get(fileSavePath,fileName,temp).toString();
+                        dir = getDirPath(fileSavePath, fileName, screeningStudentDTO, PDFFileNameConstant.REPORT_FICTITIOUS_QR_CODE_FILE_NAME);
                         className = String.format(PDFFileNameConstant.REPORT_FICTITIOUS_QR_CODE_FILE_NAME, "","",screeningStudentDTO.getClassName())+".pdf";
                     }
                 }
@@ -209,6 +205,19 @@ public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
                 }
             }
         }
+    }
+
+    /**
+     * 获取文件路径
+     * @param fileSavePath 保存路径
+     * @param fileName 文件名称
+     * @param screeningStudentDTO 学生文件信息
+     * @param reportNoticeQrCodeFileName PDF报告文件名
+     * @return 文件路径
+     */
+    private String getDirPath(String fileSavePath, String fileName, ScreeningStudentDTO screeningStudentDTO, String reportNoticeQrCodeFileName) {
+        String temp = String.format(reportNoticeQrCodeFileName, "", screeningStudentDTO.getGradeName(), "");
+        return Paths.get(fileSavePath, fileName, temp).toString();
     }
 
     public String syncExportScreenQrcodePdfFile(ExportCondition exportCondition, String fileName,Integer type) {
