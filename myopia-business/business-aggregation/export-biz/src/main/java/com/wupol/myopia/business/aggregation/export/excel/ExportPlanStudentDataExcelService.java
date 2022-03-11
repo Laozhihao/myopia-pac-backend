@@ -7,6 +7,7 @@ import com.wupol.myopia.base.util.ExcelUtil;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelNoticeKeyContentConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
@@ -25,7 +26,9 @@ import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Created with IntelliJ IDEA.
@@ -97,11 +100,20 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
     }
 
     @Override
-    public File generateExcelFile(String fileName, List data) throws IOException {
+    public File generateExcelFile(String fileName, List data,ExportCondition exportCondition) throws IOException {
         List<StatConclusionExportDTO> statConclusionExportDTOs = data;
         List<VisionScreeningResultExportDTO> visionScreeningResultExportVos = excelFacade.genVisionScreeningResultExportVos(statConclusionExportDTOs);
-       // return ExcelUtil.exportListToExcel(fileName, visionScreeningResultExportVos, getHeadClass());
         OnceAbsoluteMergeStrategy mergeStrategy = new OnceAbsoluteMergeStrategy(0, 1, 20, 21);
+        List<District> districtPositionDetailById = districtService.getDistrictPositionDetailById(exportCondition.getDistrictId());
+        log.info("层级===="+districtPositionDetailById.toString());
+        //如果schoolId为null则证明是导出整个计划下的筛查数据
+        if (Objects.isNull(exportCondition.getSchoolId())){
+            Map<Integer, List<StatConclusionExportDTO>> collectMap = statConclusionExportDTOs.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getSchoolId));
+            collectMap.forEach((key,value)->{
+                District district = districtService.getById(exportCondition.getDistrictId());
+                String districtFullName = districtService.getTopDistrictName(district.getCode());
+            });
+        }
         String folder = fileName+"/测试目录1"+"/测试目录2";
         return ExcelUtil.exportListToExcelWithFolder(folder,fileName,visionScreeningResultExportVos,mergeStrategy,getHeadClass());
     }

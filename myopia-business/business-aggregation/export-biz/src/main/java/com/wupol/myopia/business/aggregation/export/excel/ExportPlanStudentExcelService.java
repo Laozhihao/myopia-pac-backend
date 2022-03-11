@@ -137,7 +137,7 @@ public class ExportPlanStudentExcelService extends BaseExportExcelFileService {
     }
 
     @Override
-    public File generateExcelFile(String fileName, List data) throws IOException {
+    public File generateExcelFile(String fileName, List data,ExportCondition exportCondition) throws IOException {
 
         List<PlanStudentExportDTO> exportList = data;
         ScreeningPlanSchoolStudent planSchoolStudent = screeningPlanSchoolStudentService.getOneByStudentName(exportList.get(0).getName());

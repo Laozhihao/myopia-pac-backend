@@ -67,7 +67,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
             // 3.获取数据，生成List
             List data = getExcelData(exportCondition);
             // 4.生成导出的文件
-            excelFile = generateExcelFile(fileName, data);
+            generateExcelFile(fileName, data,exportCondition);
             //log.info("全路径=====  "+excelFile.getPath()+" " + excelFile.getParentFile().getPath()+" "+excelFile.getAbsolutePath());
             // 5.压缩文件
             File file = compressFile(excelSavePath+fileName);
@@ -155,7 +155,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
      * @param data Excel数据
      * @return java.io.File
      **/
-    public File generateExcelFile(String fileName, List data) throws IOException {
+    public File generateExcelFile(String fileName, List data,ExportCondition exportCondition) throws IOException {
         return ExcelUtil.exportListToExcel(fileName, data, getHeadClass());
     }
 
@@ -217,7 +217,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
             // 3.获取数据，生成List
             List data = getExcelData(exportCondition);
             // 2.获取文件保存父目录路径
-            excelFile = generateExcelFile(fileName, data);
+            excelFile = generateExcelFile(fileName, data,exportCondition);
             return resourceFileService.getResourcePath(s3Utils.uploadS3AndGetResourceFile(excelFile.getAbsolutePath(), excelFile.getName()).getId());
         } catch (Exception e) {
             String requestData = JSON.toJSONString(exportCondition);
