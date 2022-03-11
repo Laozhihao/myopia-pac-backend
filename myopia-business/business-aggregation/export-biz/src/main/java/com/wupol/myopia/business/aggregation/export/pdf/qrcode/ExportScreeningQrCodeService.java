@@ -199,6 +199,7 @@ public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
                         className = String.format(PDFFileNameConstant.REPORT_FICTITIOUS_QR_CODE_FILE_NAME, "","",screeningStudentDTO.getClassName())+".pdf";
                     }
                 }
+                log.info("文件件保存路径:{}");
                 String uuid = UUID.randomUUID().toString();
                 log.info("请求路径:{}", studentQrCodePdfHtmlUrl);
 
