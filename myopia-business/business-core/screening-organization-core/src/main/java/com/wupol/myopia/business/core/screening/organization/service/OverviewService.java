@@ -13,8 +13,9 @@ import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.core.common.constant.OrgCacheKey;
+import com.wupol.myopia.business.core.common.domain.dto.OrgAccountListDTO;
+import com.wupol.myopia.business.core.common.service.UserCommonService;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.CacheOverviewInfoDTO;
-import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccountListDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OverviewDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OverviewRequestDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.mapper.OverviewMapper;
@@ -33,7 +34,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -54,6 +54,9 @@ public class OverviewService extends BaseService<OverviewMapper, Overview> {
 
     @Autowired
     private OverviewScreeningOrganizationService overviewScreeningOrganizationService;
+
+    @Autowired
+    private UserCommonService userCommonService;
 
     /**
      * 总览机构信息缓存时间
@@ -133,25 +136,13 @@ public class OverviewService extends BaseService<OverviewMapper, Overview> {
      * @return List<OrgAccountListDTO>
      */
     public List<OrgAccountListDTO> getAccountList(Integer overviewId) {
-        List<OrgAccountListDTO> accountList = new LinkedList<>();
+
         List<OverviewAdmin> overviewAdminList = overviewAdminService.findByList(new OverviewAdmin().setOverviewId(overviewId));
         if (CollectionUtils.isEmpty(overviewAdminList)) {
-            return accountList;
+            return Collections.emptyList();
         }
-        // TODO wulizhou 抽取
         List<Integer> userIds = overviewAdminList.stream().map(OverviewAdmin::getUserId).collect(Collectors.toList());
-        List<User> userList = oauthServiceClient.getUserBatchByUserIds(userIds);
-        Map<Integer, User> userMap = userList.stream().collect(Collectors.toMap(User::getId, Function.identity()));
-        overviewAdminList.forEach(adminUser -> {
-            User user = userMap.get(adminUser.getUserId());
-            OrgAccountListDTO account = new OrgAccountListDTO();
-            account.setUserId(adminUser.getUserId());
-            account.setOrgId(overviewId);
-            account.setUsername(user.getUsername());
-            account.setStatus(user.getStatus());
-            accountList.add(account);
-        });
-        return accountList;
+        return userCommonService.getAccountListByUserIds(overviewId, userIds);
     }
 
     /**
@@ -162,12 +153,7 @@ public class OverviewService extends BaseService<OverviewMapper, Overview> {
      **/
     public boolean updateOverviewAdminUserStatus(StatusRequest request) {
         overviewAdminService.checkIdAndUserId(request.getId(), request.getUserId());
-        // TODO wulizhou 抽出来
-        UserDTO overviewAdmin = new UserDTO();
-        overviewAdmin.setId(request.getUserId());
-        overviewAdmin.setStatus(request.getStatus());
-        oauthServiceClient.updateUser(overviewAdmin);
-        return true;
+        return userCommonService.updateAdminUserStatus(request.getUserId(), request.getStatus());
     }
 
     /**

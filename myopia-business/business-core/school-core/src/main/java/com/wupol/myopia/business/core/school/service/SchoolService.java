@@ -3,7 +3,6 @@ package com.wupol.myopia.business.core.school.service;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.constant.UserType;
@@ -20,6 +19,8 @@ import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
+import com.wupol.myopia.business.core.school.domain.dto.BatchSaveGradeRequestDTO;
+import com.wupol.myopia.business.core.school.domain.dto.SaveSchoolRequestDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolQueryDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO;
 import com.wupol.myopia.business.core.school.domain.mapper.SchoolMapper;
@@ -56,16 +57,13 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     private SchoolAdminService schoolAdminService;
 
     @Resource
-    private SchoolGradeService schoolGradeService;
-
-    @Resource
-    private SchoolClassService schoolClassService;
-
-    @Resource
     private OauthServiceClient oauthServiceClient;
 
     @Resource
     private DistrictService districtService;
+
+    @Resource
+    private SchoolGradeService schoolGradeService;
 
     /**
      * 新增学校
@@ -74,7 +72,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @return UsernameAndPasswordDto 账号密码
      */
     @Transactional(rollbackFor = Exception.class)
-    public UsernameAndPasswordDTO saveSchool(School school) {
+    public UsernameAndPasswordDTO saveSchool(SaveSchoolRequestDTO school) {
         Assert.hasLength(school.getSchoolNo(), "学校编号不能为空");
         Assert.notNull(school.getDistrictId(), "行政区域ID不能为空");
         if (checkSchoolName(school.getName(), null)) {
@@ -88,7 +86,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         // oauth系统中增加学校状态信息
         oauthServiceClient.addOrganization(new Organization(school.getId(), SystemCode.SCHOOL_CLIENT,
                 UserType.OTHER, school.getStatus()));
-        initGradeAndClass(school.getId(), school.getType(), school.getCreateUserId());
+        generateGradeAndClass(school.getId(), school.getCreateUserId(), school.getBatchSaveGradeList());
         return generateAccountAndPassword(school, StringUtils.EMPTY);
     }
 
@@ -329,67 +327,6 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     }
 
     /**
-     * 初始化学校年级和班级信息
-     *
-     * @param schoolId     学校ID
-     * @param type         学校类型
-     * @param createUserId 创建人
-     */
-    private void initGradeAndClass(Integer schoolId, Integer type, Integer createUserId) {
-        List<SchoolGrade> schoolGrades = new ArrayList<>();
-        switch (type) {
-            case 0:
-                // 小学
-                schoolGrades = initGrade(SchoolAge.PRIMARY.code, schoolId, createUserId);
-                break;
-            case 1:
-                // 初级中学
-                schoolGrades = initGrade(SchoolAge.JUNIOR.code, schoolId, createUserId);
-                break;
-            case 2:
-                // 高级中学
-                schoolGrades = initGrade(SchoolAge.HIGH.code, schoolId, createUserId);
-                break;
-            case 3:
-                // 完全中学
-                schoolGrades = Lists.newArrayList(Iterables.concat(
-                        initGrade(SchoolAge.JUNIOR.code, schoolId, createUserId),
-                        initGrade(SchoolAge.HIGH.code, schoolId, createUserId)));
-                break;
-            case 4:
-                // 九年一贯制学校
-                schoolGrades = Lists.newArrayList(Iterables.concat(
-                        initGrade(SchoolAge.PRIMARY.code, schoolId, createUserId),
-                        initGrade(SchoolAge.JUNIOR.code, schoolId, createUserId)));
-                break;
-            case 5:
-            case 7:
-                // 其他
-                // 十二年一贯制学校
-                schoolGrades = Lists.newArrayList(Iterables.concat(
-                        initGrade(SchoolAge.PRIMARY.code, schoolId, createUserId),
-                        initGrade(SchoolAge.JUNIOR.code, schoolId, createUserId),
-                        initGrade(SchoolAge.HIGH.code, schoolId, createUserId)));
-                break;
-            case 6:
-                // 职业高中
-                schoolGrades = initGrade(SchoolAge.VOCATIONAL_HIGH.code, schoolId, createUserId);
-                break;
-            case 8:
-                // 幼儿园
-                schoolGrades = initGrade(SchoolAge.KINDERGARTEN.code, schoolId, createUserId);
-                break;
-            default:
-                break;
-        }
-        if (!CollectionUtils.isEmpty(schoolGrades) && schoolGradeService.saveBatch(schoolGrades)) {
-            // 批量新增班级
-            List<Integer> schoolGradeIds = schoolGrades.stream().map(SchoolGrade::getId).collect(Collectors.toList());
-            batchCreateClass(createUserId, schoolId, schoolGradeIds);
-        }
-    }
-
-    /**
      * 根据类型初始化班级信息
      *
      * @param type         类型 {@link SchoolAge}
@@ -401,24 +338,6 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         return GradeCodeEnum.gradeByMap.get(type).stream()
                 .map(s -> new SchoolGrade(createUserId, schoolId, s.getCode(), s.getName()))
                 .collect(Collectors.toList());
-    }
-
-    /**
-     * 批量新增班级信息
-     *
-     * @param createUserId 创建人
-     * @param schoolId     学校ID
-     * @param gradeIds     年级ids
-     */
-    private void batchCreateClass(Integer createUserId, Integer schoolId, List<Integer> gradeIds) {
-
-        gradeIds.forEach(g -> {
-            ArrayList<SchoolClass> schoolClasses = Lists.newArrayList(
-                    new SchoolClass(g, createUserId, schoolId, "1班", 35),
-                    new SchoolClass(g, createUserId, schoolId, "2班", 35),
-                    new SchoolClass(g, createUserId, schoolId, "3班", 35));
-            schoolClassService.saveBatch(schoolClasses);
-        });
     }
 
     /**
@@ -444,11 +363,11 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     /**
      * 通过条件获取学习列表
      *
-     * @param pageRequest      分页请求
-     * @param schoolQueryDTO   条件
-     * @param districtId 行政区域id
-     * @param userIds          用户ID
-     * @param districtCode     行政区域-省Code
+     * @param pageRequest    分页请求
+     * @param schoolQueryDTO 条件
+     * @param districtId     行政区域id
+     * @param userIds        用户ID
+     * @param districtCode   行政区域-省Code
      * @return IPage<SchoolResponseDTO>
      */
     public IPage<SchoolResponseDTO> getSchoolListByCondition(PageRequest pageRequest, SchoolQueryDTO schoolQueryDTO,
@@ -478,10 +397,10 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     /**
      * CAS更新机构状态，当且仅当源状态为sourceStatus，且限定id
      *
-     * @param id
-     * @param targetStatus
-     * @param sourceStatus
-     * @return
+     * @param id           学校Id
+     * @param targetStatus 目标Status
+     * @param sourceStatus 原始Status
+     * @return int
      */
     @Transactional
     public int updateSchoolStatus(Integer id, Integer targetStatus, Integer sourceStatus) {
@@ -499,7 +418,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      *
      * @param start 开始时间早于该时间才处理
      * @param end   指定结束时间，精确到天
-     * @return
+     * @return List<School>
      */
     public List<School> getByCooperationEndTime(Date start, Date end) {
         return baseMapper.getByCooperationEndTime(start, end);
@@ -520,7 +439,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     /**
      * 检验学校合作信息是否合法
      *
-     * @param school
+     * @param school 学校
      */
     public void checkSchoolCooperation(School school) {
         if (!school.checkCooperation()) {
@@ -542,5 +461,31 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         }
         school.setResultNoticeConfig(resultNoticeConfig);
         updateById(school);
+    }
+
+    /**
+     * 初始化班级年级
+     *
+     * @param schoolId            学校Id
+     * @param userId              创建人
+     * @param saveGradeRequestDTO 班级年级
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void generateGradeAndClass(Integer schoolId, Integer userId, List<BatchSaveGradeRequestDTO> saveGradeRequestDTO) {
+        if (CollectionUtils.isEmpty(saveGradeRequestDTO)) {
+            return;
+        }
+        saveGradeRequestDTO.forEach(item -> {
+            SchoolGrade schoolGrade = item.getSchoolGrade();
+            schoolGrade.setSchoolId(schoolId);
+            schoolGrade.setGradeCode(GradeCodeEnum.getByName(schoolGrade.getName()).getCode());
+            List<SchoolClass> schoolClassList = item.getSchoolClass();
+            if (!CollectionUtils.isEmpty(schoolClassList)) {
+                schoolClassList.forEach(schoolClass -> {
+                    schoolClass.setSchoolId(schoolId);
+                });
+            }
+        });
+        schoolGradeService.batchSaveGrade(saveGradeRequestDTO, userId);
     }
 }

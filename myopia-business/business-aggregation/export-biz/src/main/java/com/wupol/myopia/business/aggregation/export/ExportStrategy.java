@@ -47,7 +47,7 @@ public class ExportStrategy {
             throw new BusinessException("正在导出中，请勿重复导出");
         }
         // 导出限制(不做限制)
-        if (!serviceName.equals(ExportReportServiceNameConstant.EXPORT_QRCODE_SCREENIN_SERVICE)){
+        if (!serviceName.equals(ExportReportServiceNameConstant.EXPORT_QRCODE_SCREENING_SERVICE)){
             String key = "doExport:" + lockKey;
             sysUtilService.isNoPlatformRepeatExport(key, lockKey);
         }
@@ -87,7 +87,7 @@ public class ExportStrategy {
 
         String lockKey = exportFileService.getLockKey(exportCondition);
 
-        if (!serviceName.equals(ExportReportServiceNameConstant.EXPORT_QRCODE_SCREENIN_SERVICE)){
+        if (!serviceName.equals(ExportReportServiceNameConstant.EXPORT_QRCODE_SCREENING_SERVICE)){
             String key = "syncExport:"+ lockKey;
             sysUtilService.isNoPlatformRepeatExport(key, lockKey);
         }

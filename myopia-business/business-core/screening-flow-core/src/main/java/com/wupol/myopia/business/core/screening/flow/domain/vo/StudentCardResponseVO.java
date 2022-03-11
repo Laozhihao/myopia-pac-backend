@@ -28,6 +28,11 @@ public class StudentCardResponseVO {
     private HaiNanCardDetail haiNanCardDetail;
 
     /**
+     * 近视筛查结果
+     */
+    private MyopiaScreeningResultCardDetail myopiaScreeningResultCardDetail;
+
+    /**
      * 0-幼儿园 1-中学生
      */
     private Integer status;

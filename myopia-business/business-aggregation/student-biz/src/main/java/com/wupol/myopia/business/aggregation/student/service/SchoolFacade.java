@@ -8,6 +8,7 @@ import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
+import com.wupol.myopia.business.core.school.domain.dto.SaveSchoolRequestDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.Student;
@@ -89,38 +90,38 @@ public class SchoolFacade {
     /**
      * 更新学校
      *
-     * @param school 学校实体类
+     * @param schoolRequestDTO 学校实体类
      * @return 学校实体类
      */
     @Transactional(rollbackFor = Exception.class)
-    public SchoolResponseDTO updateSchool(School school) {
-        Integer schoolId = school.getId();
-        if (schoolService.checkSchoolName(school.getName(), schoolId)) {
+    public SchoolResponseDTO updateSchool(SaveSchoolRequestDTO schoolRequestDTO) {
+        Integer schoolId = schoolRequestDTO.getId();
+        if (schoolService.checkSchoolName(schoolRequestDTO.getName(), schoolId)) {
             throw new BusinessException("学校名称重复，请确认");
         }
-        District district = districtService.getById(school.getDistrictId());
-        school.setDistrictProvinceCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
+        District district = districtService.getById(schoolRequestDTO.getDistrictId());
+        schoolRequestDTO.setDistrictProvinceCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
         //更新学校
-        schoolService.updateById(school);
-
+        schoolService.updateById(schoolRequestDTO);
+        // 新增
+        schoolService.generateGradeAndClass(schoolRequestDTO.getId(), schoolRequestDTO.getCreateUserId(), schoolRequestDTO.getBatchSaveGradeList());
         // 同步到oauth机构状态
-        if (Objects.nonNull(school.getStatus())) {
-            oauthServiceClient.updateOrganization(new Organization(school.getId(), SystemCode.SCHOOL_CLIENT,
-                    UserType.OTHER, school.getStatus()));
+        if (Objects.nonNull(schoolRequestDTO.getStatus())) {
+            oauthServiceClient.updateOrganization(new Organization(schoolRequestDTO.getId(), SystemCode.SCHOOL_CLIENT,
+                    UserType.OTHER, schoolRequestDTO.getStatus()));
         }
         // 更新筛查计划中的学校
-        screeningPlanSchoolService.updateSchoolNameBySchoolId(schoolId, school.getName());
+        screeningPlanSchoolService.updateSchoolNameBySchoolId(schoolId, schoolRequestDTO.getName());
         School newSchool = schoolService.getById(schoolId);
         SchoolResponseDTO schoolResponseDTO = new SchoolResponseDTO();
         BeanUtils.copyProperties(newSchool, schoolResponseDTO);
         schoolResponseDTO.setDistrictName(districtService.getDistrictName(newSchool.getDistrictDetail()));
         schoolResponseDTO.setAddressDetail(districtService.getAddressDetails(newSchool.getProvinceCode(), newSchool.getCityCode(), newSchool.getAreaCode(), newSchool.getTownCode(), newSchool.getAddress()));
         // 判断是否能更新
-        schoolResponseDTO.setCanUpdate(newSchool.getGovDeptId().equals(school.getGovDeptId()));
-        schoolResponseDTO.setStudentCount(school.getStudentCount())
-                .setScreeningCount(school.getScreeningCount())
-                .setCreateUser(school.getCreateUser());
+        schoolResponseDTO.setCanUpdate(newSchool.getGovDeptId().equals(schoolRequestDTO.getGovDeptId()));
+        schoolResponseDTO.setStudentCount(schoolRequestDTO.getStudentCount())
+                .setScreeningCount(schoolRequestDTO.getScreeningCount())
+                .setCreateUser(schoolRequestDTO.getCreateUser());
         return schoolResponseDTO;
     }
-
 }
