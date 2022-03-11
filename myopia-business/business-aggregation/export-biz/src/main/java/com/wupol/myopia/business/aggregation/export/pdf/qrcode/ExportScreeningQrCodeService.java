@@ -220,6 +220,13 @@ public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
         return Paths.get(fileSavePath, fileName, temp).toString();
     }
 
+    /**
+     * 同步导出筛查报告
+     * @param exportCondition 传入参数
+     * @param fileName 文件名称
+     * @param type 文件类型
+     * @return
+     */
     public String syncExportScreenQrcodePdfFile(ExportCondition exportCondition, String fileName,Integer type) {
 
         String studentQrCodePdfHtmlUrl = String.format(HtmlPageUrlConstant.STUDENT_QRCODE_HTML_URL,htmlUrlHost,
