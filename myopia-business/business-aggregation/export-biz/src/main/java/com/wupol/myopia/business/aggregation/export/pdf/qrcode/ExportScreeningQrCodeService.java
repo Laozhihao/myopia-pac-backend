@@ -181,6 +181,7 @@ public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
                 String className = null;
                 if(StringUtils.isNotBlank(gradeNameTmp)){
                     dir = Paths.get(fileSavePath,fileName).toString();
+                    className = String.format(PDFFileNameConstant.REPORT_FICTITIOUS_QR_CODE_FILE_NAME, "",gradeNameTmp,screeningStudentDTO.getClassName())+".pdf";
                 }else {
                     if (exportCondition.getType().equals(CommonConst.EXPORT_NOTICE)){
                         String temp = String.format(PDFFileNameConstant.REPORT_NOTICE_QR_CODE_FILE_NAME, "",screeningStudentDTO.getGradeName(),"");
