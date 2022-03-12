@@ -102,13 +102,15 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
 
     @Override
     public File generateExcelFile(String fileName, List data,ExportCondition exportCondition) throws IOException {
+        data.forEach(item->{
+            log.info("数据："+item);
+        });
         List<StatConclusionExportDTO> statConclusionExportDTOs = data;
         List<VisionScreeningResultExportDTO> visionScreeningResultExportVos = excelFacade.genVisionScreeningResultExportVos(statConclusionExportDTOs);
         OnceAbsoluteMergeStrategy mergeStrategy = new OnceAbsoluteMergeStrategy(0, 1, 20, 21);
 
         //如果schoolId为null则证明是导出整个计划下的筛查数据
         ScreeningPlan plan = screeningPlanService.getById(exportCondition.getPlanId());
-        exportCondition.setSchoolId(null);
         if (Objects.isNull(exportCondition.getSchoolId())){
             Map<Integer, List<StatConclusionExportDTO>> collectMap = statConclusionExportDTOs.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getSchoolId));
             collectMap.forEach((key,value)->{
@@ -135,6 +137,8 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
 
             });
         }
+
+
         return null;
     }
 
