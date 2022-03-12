@@ -220,6 +220,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
             log.info("数据=="+data);
             // 2.获取文件保存父目录路径
             excelFile = generateExcelFile(fileName, data,exportCondition);
+            log.info("excelFile=="+excelFile);
             return resourceFileService.getResourcePath(s3Utils.uploadS3AndGetResourceFile(excelFile.getAbsolutePath(), excelFile.getName()).getId());
         } catch (Exception e) {
             String requestData = JSON.toJSONString(exportCondition);
