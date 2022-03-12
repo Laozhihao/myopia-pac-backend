@@ -195,12 +195,14 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
                 log.info("班级："+schoolClass.getName());
                 log.info("key="+key +"===value="+value);
                 log.info("导出文件目录路径======"+folders);
-                try {
+
                     //生成文件
-                    ExcelUtil.exportListToExcelWithFolder(folders,fileName,visionScreeningResultExportVos,mergeStrategy,getHeadClass());
+                try {
+                    ExcelUtil.exportListToExcelWithFolder(folders, fileName, visionScreeningResultExportVos, mergeStrategy, getHeadClass());
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
+
             });
         }
         return null;
