@@ -221,6 +221,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
             return resourceFileService.getResourcePath(s3Utils.uploadS3AndGetResourceFile(excelFile.getAbsolutePath(), excelFile.getName()).getId());
         } catch (Exception e) {
             String requestData = JSON.toJSONString(exportCondition);
+            log.info("异常=="+e.getMessage());
             log.error("【生成Excel异常】{}", requestData, e);
             // 发送失败通知
             throw new BusinessException("导出数据异常");
