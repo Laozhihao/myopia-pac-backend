@@ -108,6 +108,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
 
         //如果schoolId为null则证明是导出整个计划下的筛查数据
         ScreeningPlan plan = screeningPlanService.getById(exportCondition.getPlanId());
+        exportCondition.setSchoolId(null);
         if (Objects.isNull(exportCondition.getSchoolId())){
             Map<Integer, List<StatConclusionExportDTO>> collectMap = statConclusionExportDTOs.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getSchoolId));
             collectMap.forEach((key,value)->{
@@ -120,6 +121,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
                 folder.set("/"+plan.getTitle());
                 folder.set("/"+school.getName());
                 String folders = folder.toString();
+                log.info("导出文件目录路径======"+folders);
                 try {
                     //生成文件
                     ExcelUtil.exportListToExcelWithFolder(folders,fileName,visionScreeningResultExportVos,mergeStrategy,getHeadClass());
