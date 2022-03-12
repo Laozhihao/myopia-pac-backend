@@ -68,6 +68,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         Integer gradeId = exportCondition.getGradeId();
         Integer classId = exportCondition.getClassId();
 
+        log.info("参数==="+exportCondition);
 
         List<StatConclusionExportDTO> statConclusionExportDTOs  = statConclusionService.selectExportVoBySPlanIdAndSOrgIdAndSChoolIdAndGradeNameAndClassanme(screeningPlanId, screeningOrgId,schoolId,gradeId,classId);
         statConclusionExportDTOs.forEach(vo -> vo.setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(), vo.getAreaCode(), vo.getTownCode(), vo.getAddress())));
