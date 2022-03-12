@@ -524,6 +524,18 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         return baseMapper.getAllByIdCard(idCard);
     }
 
+
+
+    /**
+     * 通过护照查找学生(包括删除的)
+     *
+     * @param passport 身份证
+     * @return Student
+     */
+    public Student getAllByPassport(String passport) {
+        return baseMapper.getAllByPassport(passport);
+    }
+
     /**
      * 检查学生身份证号码是否重复
      *

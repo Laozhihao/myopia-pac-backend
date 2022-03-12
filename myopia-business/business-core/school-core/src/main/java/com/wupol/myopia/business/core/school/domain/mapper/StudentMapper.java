@@ -78,4 +78,6 @@ public interface StudentMapper extends BaseMapper<Student> {
     List<Student> getByIdCardsOrPassports(@Param("idCards") List<String> idCards, @Param("passports") List<String> passports);
 
     Student findByIdCardAndPassport(@Param("info") String info);
+
+    Student getAllByPassport(@Param("passport") String passport);
 }

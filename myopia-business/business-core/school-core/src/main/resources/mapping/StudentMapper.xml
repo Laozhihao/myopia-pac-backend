@@ -331,6 +331,13 @@
         where id_card = #{idCard}
     </select>
 
+    <select id="getAllByPassport" resultType="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_student
+        where passport = #{passport}
+    </select>
+
     <select id="getByCardIdAndNotId" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
