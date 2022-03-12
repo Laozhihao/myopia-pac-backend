@@ -177,6 +177,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
                 StringBuffer folder = new StringBuffer();
                 folder.append(fileName);
                 districtPositionDetailById.forEach(item->{
+                    log.info("区域="+item.getName());
                     folder.append("/"+item.getName());
                 });
                 School school = schoolService.getById(exportCondition.getSchoolId());
@@ -186,6 +187,11 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
                 folder.append("/"+grade.getName());
                 folder.append("/"+schoolClass.getName());
                 String folders = folder.toString();
+                log.info("学校："+school.getName());
+                log.info("年级："+grade.getName());
+                log.info("班级："+schoolClass.getName());
+                log.info("key="+key +"===value="+value);
+                log.info("导出文件目录路径======"+folders);
                 try {
                     //生成文件
                     ExcelUtil.exportListToExcelWithFolder(folders,fileName,visionScreeningResultExportVos,mergeStrategy,getHeadClass());
