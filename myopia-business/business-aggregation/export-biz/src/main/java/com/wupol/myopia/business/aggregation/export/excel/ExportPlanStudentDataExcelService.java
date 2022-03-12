@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 /**
@@ -104,18 +105,31 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         List<StatConclusionExportDTO> statConclusionExportDTOs = data;
         List<VisionScreeningResultExportDTO> visionScreeningResultExportVos = excelFacade.genVisionScreeningResultExportVos(statConclusionExportDTOs);
         OnceAbsoluteMergeStrategy mergeStrategy = new OnceAbsoluteMergeStrategy(0, 1, 20, 21);
-        List<District> districtPositionDetailById = districtService.getDistrictPositionDetailById(215);
-        log.info("层级===="+districtPositionDetailById.toString());
+
         //如果schoolId为null则证明是导出整个计划下的筛查数据
+        ScreeningPlan plan = screeningPlanService.getById(exportCondition.getPlanId());
         if (Objects.isNull(exportCondition.getSchoolId())){
             Map<Integer, List<StatConclusionExportDTO>> collectMap = statConclusionExportDTOs.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getSchoolId));
             collectMap.forEach((key,value)->{
-                District district = districtService.getById(exportCondition.getDistrictId());
-                String districtFullName = districtService.getTopDistrictName(district.getCode());
+                List<District> districtPositionDetailById = districtService.getDistrictPositionDetailById(215);
+                AtomicReference<String> folder = new AtomicReference<>(fileName);
+                districtPositionDetailById.forEach(item->{
+                    folder.set("/"+item.getName());
+                });
+                School school = schoolService.getById(key);
+                folder.set("/"+plan.getTitle());
+                folder.set("/"+school.getName());
+                String folders = folder.toString();
+                try {
+                    //生成文件
+                    ExcelUtil.exportListToExcelWithFolder(folders,fileName,visionScreeningResultExportVos,mergeStrategy,getHeadClass());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+
             });
         }
-        String folder = fileName+"/测试目录1"+"/测试目录2";
-        return ExcelUtil.exportListToExcelWithFolder(folder,fileName,visionScreeningResultExportVos,mergeStrategy,getHeadClass());
+        return null;
     }
 
     /**

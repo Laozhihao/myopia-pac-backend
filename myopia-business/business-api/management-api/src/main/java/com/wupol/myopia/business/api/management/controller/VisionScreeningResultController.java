@@ -303,7 +303,9 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
     public ApiResult getScreeningPlanExportDoAndSync(Integer screeningPlanId, @RequestParam(defaultValue = "0") Integer screeningOrgId,
                                                 @RequestParam(required = false) Integer schoolId,
                                                 @RequestParam(required = false) Integer gradeId,
-                                                @RequestParam(required = false) Integer classId) throws IOException {
+                                                @RequestParam(required = false) Integer classId,
+                                                     @RequestParam(required = false) Integer districtId
+                                                     ) throws IOException {
 
         ExportCondition exportCondition = new ExportCondition()
                 .setPlanId(screeningPlanId)
@@ -311,6 +313,7 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
                 .setSchoolId(schoolId)
                 .setGradeId(gradeId)
                 .setClassId(classId)
+                .setDistrictId(districtId)
                 .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
 
         if (classId==null){
