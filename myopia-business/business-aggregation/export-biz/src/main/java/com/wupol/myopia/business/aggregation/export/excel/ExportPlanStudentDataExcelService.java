@@ -10,6 +10,8 @@ import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
+import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
@@ -115,7 +117,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
             Map<Integer, List<StatConclusionExportDTO>> collectMap = statConclusionExportDTOs.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getSchoolId));
             collectMap.forEach((key,value)->{
                 log.info("key="+key +"===value="+value);
-                List<District> districtPositionDetailById = districtService.getDistrictPositionDetailById(215);
+                List<District> districtPositionDetailById = districtService.getDistrictPositionDetailById(exportCondition.getDistrictId());
                 StringBuffer folder = new StringBuffer();
                 folder.append(fileName);
                 districtPositionDetailById.forEach(item->{
@@ -138,7 +140,60 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
             });
         }
 
+        //如果年级id不为null,且班级id为null，则以年级维度导出
+        if (Objects.nonNull(exportCondition.getGradeId()) && Objects.isNull(exportCondition.getClassId())){
 
+            Map<Integer, List<StatConclusionExportDTO>> collectMap = statConclusionExportDTOs.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getGradeId));
+
+            collectMap.forEach((key,value)->{
+                List<District> districtPositionDetailById = districtService.getDistrictPositionDetailById(exportCondition.getDistrictId());
+                StringBuffer folder = new StringBuffer();
+                folder.append(fileName);
+                districtPositionDetailById.forEach(item->{
+                    folder.append("/"+item.getName());
+                });
+                School school = schoolService.getById(exportCondition.getSchoolId());
+                SchoolGrade grade = schoolGradeService.getById(key);
+                folder.append("/"+school.getName());
+                folder.append("/"+grade.getName());
+                String folders = folder.toString();
+                try {
+                    //生成文件
+                    ExcelUtil.exportListToExcelWithFolder(folders,fileName,visionScreeningResultExportVos,mergeStrategy,getHeadClass());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        }
+
+
+        //如果年级id不为null,且班级id不为null，则以班级维度导出
+        if (Objects.nonNull(exportCondition.getGradeId()) && Objects.nonNull(exportCondition.getClassId())){
+
+            Map<Integer, List<StatConclusionExportDTO>> collectMap = statConclusionExportDTOs.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getGradeId));
+
+            collectMap.forEach((key,value)->{
+                List<District> districtPositionDetailById = districtService.getDistrictPositionDetailById(exportCondition.getDistrictId());
+                StringBuffer folder = new StringBuffer();
+                folder.append(fileName);
+                districtPositionDetailById.forEach(item->{
+                    folder.append("/"+item.getName());
+                });
+                School school = schoolService.getById(exportCondition.getSchoolId());
+                SchoolGrade grade = schoolGradeService.getById(exportCondition.getGradeId());
+                SchoolClass schoolClass = schoolClassService.getById(key);
+                folder.append("/"+school.getName());
+                folder.append("/"+grade.getName());
+                folder.append("/"+schoolClass.getName());
+                String folders = folder.toString();
+                try {
+                    //生成文件
+                    ExcelUtil.exportListToExcelWithFolder(folders,fileName,visionScreeningResultExportVos,mergeStrategy,getHeadClass());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        }
         return null;
     }
 
