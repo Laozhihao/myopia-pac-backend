@@ -2,6 +2,8 @@ package com.wupol.myopia.business.aggregation.screening.service;
 
 import cn.hutool.extra.qrcode.QrCodeUtil;
 import cn.hutool.extra.qrcode.QrConfig;
+import com.lowagie.text.DocumentException;
+import com.vistel.Interface.exception.UtilException;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.StringUtils;
 import com.wupol.framework.utils.FreemarkerUtil;
@@ -10,6 +12,7 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateFormatUtil;
+import com.wupol.myopia.business.aggregation.screening.domain.dto.ScreeningQrCodeDTO;
 import com.wupol.myopia.business.common.utils.constant.QrCodeConstant;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.AppQueryQrCodeParams;
 import com.wupol.myopia.business.aggregation.screening.domain.vos.QrCodeInfo;
@@ -33,6 +36,7 @@ import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchool
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
+import freemarker.template.TemplateException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -41,6 +45,7 @@ import javax.annotation.Resource;
 import javax.validation.ValidationException;
 import java.awt.*;
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -123,23 +128,9 @@ public class ScreeningExportService {
                 ScreeningOrgResponseDTO screeningOrganization = screeningOrganizationService.getScreeningOrgDetails(plan.getScreeningOrgId());
                 notificationConfig = screeningOrganization.getNotificationConfig();
             }
-            Map<String, Object> models = new HashMap<>(16);
-            models.put("screeningOrgConfigs", notificationConfig);
-            models.put("students", students);
-            models.put("classDisplay", classDisplay);
-            models.put("schoolName", school.getName());
-            if (Objects.nonNull(notificationConfig)
-                    && Objects.nonNull(notificationConfig.getQrCodeFileId())
-                    && !notificationConfig.getQrCodeFileId().equals(DEFAULT_FILE_ID)
-            ) {
-                models.put("qrCodeFile", resourceFileService.getResourcePath(notificationConfig.getQrCodeFileId()));
-            } else {
-                models.put("qrCodeFile", DEFAULT_IMAGE_PATH);
-            }
+            Map<String, Object> models = getQrCodeInfoMap(school, classDisplay, students, notificationConfig);
             // 3. 生成并上传覆盖pdf。S3上路径：myopia/pdf/{date}/{file}。获取地址1天失效
-            File file = PdfUtil.generatePdfFromContent(FreemarkerUtil.generateHtmlString(PDFTemplateConst.NOTICE_TEMPLATE_PATH, models), hostUrl, fileName);
-            Map<String, String> resultMap = new HashMap<>(16);
-            resultMap.put("url", s3Utils.getPdfUrl(file.getName(), file));
+            Map<String, String> resultMap = uploadQrCodePdf(fileName, models);
             return resultMap;
         } catch (Exception e) {
             throw new BusinessException("生成PDF文件失败", e);
@@ -147,8 +138,49 @@ public class ScreeningExportService {
     }
 
     /**
+     * 生成并上传覆盖pdf。S3上路径：myopia/pdf/{date}/{file}。获取地址1天失效
+     * @param fileName 文件名称
+     * @param models 二维码信息
+     * @return
+     * @throws DocumentException
+     * @throws IOException
+     * @throws TemplateException
+     * @throws UtilException
+     */
+    private Map<String, String> uploadQrCodePdf(String fileName, Map<String, Object> models) throws DocumentException, IOException, TemplateException, UtilException {
+        File file = PdfUtil.generatePdfFromContent(FreemarkerUtil.generateHtmlString(PDFTemplateConst.NOTICE_TEMPLATE_PATH, models), hostUrl, fileName);
+        Map<String, String> resultMap = new HashMap<>();
+        resultMap.put("url", s3Utils.getPdfUrl(file.getName(), file));
+        return resultMap;
+    }
+
+    /**
+     * 我二维码返回参数
+     * @param school 学校
+     * @param classDisplay 班级
+     * @param students 学生列表
+     * @param notificationConfig 通知配置
+     * @return 二维码返回参数
+     */
+    private Map<String, Object> getQrCodeInfoMap(School school, String classDisplay, List<ScreeningStudentDTO> students, NotificationConfig notificationConfig) {
+        Map<String, Object> models = new HashMap<>();
+        models.put("screeningOrgConfigs", notificationConfig);
+        models.put("students", students);
+        models.put("classDisplay", classDisplay);
+        models.put("schoolName", school.getName());
+        if (Objects.nonNull(notificationConfig)
+                && Objects.nonNull(notificationConfig.getQrCodeFileId())
+                && !notificationConfig.getQrCodeFileId().equals(DEFAULT_FILE_ID)
+        ) {
+            models.put("qrCodeFile", resourceFileService.getResourcePath(notificationConfig.getQrCodeFileId()));
+        } else {
+            models.put("qrCodeFile", DEFAULT_IMAGE_PATH);
+        }
+        return models;
+    }
+
+    /**
      *
-     * TODO：建议method返回值尽量不用map，改为用实体，方便维护、拓展
      * @param screeningPlanId 计划ID
      * @param schoolId 学校ID
      * @param gradeId 年级ID
@@ -157,7 +189,7 @@ public class ScreeningExportService {
      * @param isSchoolClient true:学校端   fasle：管理端
      * @return
      */
-    public Map<String, Object> getNoticeData(Integer screeningPlanId, Integer schoolId,Integer gradeId,Integer classId,List<Integer> studentIds,boolean isSchoolClient) {
+    public ScreeningQrCodeDTO getNoticeData(Integer screeningPlanId, Integer schoolId, Integer gradeId, Integer classId, List<Integer> studentIds, boolean isSchoolClient) {
         // 2. 处理参数
         String gradeName = "";
         School school = schoolService.getBySchoolId(schoolId);
@@ -171,6 +203,7 @@ public class ScreeningExportService {
             className = schoolClass.getName();
         }
         String classDisplay = String.format("%s%s", gradeName, className);
+
         ScreeningPlan plan = screeningPlanService.getById(screeningPlanId);
         NotificationConfig notificationConfig;
         // 如果学校Id不为空，说明是学校端进行的导出，使用学校自己的告知书配置
@@ -187,21 +220,31 @@ public class ScreeningExportService {
             student.setGenderDesc(GenderEnum.getName(student.getGender()));
             student.setScreeningOrgConfigs(notificationConfig);
         });
+        return getScreeningQrCodeDTO(school, classDisplay, notificationConfig, students);
+    }
 
-        Map<String, Object> models = new HashMap<>(16);
-        models.put("screeningOrgConfigs", notificationConfig);
-        models.put("students", students);
-        models.put("classDisplay", classDisplay);
-        models.put("schoolName", school.getName());
+    /**
+     * 筛查二维码返回数据
+     * @param school 学校
+     * @param classDisplay 班级
+     * @param notificationConfig 通知配置
+     * @param students 学生集合信息
+     * @return
+     */
+    private ScreeningQrCodeDTO getScreeningQrCodeDTO(School school, String classDisplay, NotificationConfig notificationConfig, List<ScreeningStudentDTO> students) {
+        ScreeningQrCodeDTO screeningQrCodeDTO = new ScreeningQrCodeDTO();
+        screeningQrCodeDTO.setNotificationConfig(notificationConfig);
+        screeningQrCodeDTO.setStudents(students);
+        screeningQrCodeDTO.setClassDisplay(classDisplay);
+        screeningQrCodeDTO.setSchoolName(school.getName());
         if (Objects.nonNull(notificationConfig)
                 && Objects.nonNull(notificationConfig.getQrCodeFileId())
-                && !notificationConfig.getQrCodeFileId().equals(DEFAULT_FILE_ID)
-        ) {
-            models.put("qrCodeFile", resourceFileService.getResourcePath(notificationConfig.getQrCodeFileId()));
+                && !notificationConfig.getQrCodeFileId().equals(DEFAULT_FILE_ID)) {
+            screeningQrCodeDTO.setQrCodeFile(resourceFileService.getResourcePath(notificationConfig.getQrCodeFileId()));
         } else {
-            models.put("qrCodeFile", DEFAULT_IMAGE_PATH);
+            screeningQrCodeDTO.setQrCodeFile(DEFAULT_IMAGE_PATH);
         }
-        return models;
+        return screeningQrCodeDTO;
     }
 
     /**
@@ -276,7 +319,7 @@ public class ScreeningExportService {
             } else {
                 content = String.format(QrCodeConstant.QR_CODE_CONTENT_FORMAT_RULE, student.getPlanStudentId());
             }
-            //TODO 调整内容就好，上完线在来处理
+            //TODO 调整内容就好，上完线在来处理，需要和前段对接
             student.setQrCodeUrl(QrCodeUtil.generateAsBase64(content, config, "jpg"));
         });
 
