@@ -114,14 +114,16 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
             collectMap.forEach((key,value)->{
                 log.info("key="+key +"===value="+value);
                 List<District> districtPositionDetailById = districtService.getDistrictPositionDetailById(215);
-                AtomicReference<String> folder = new AtomicReference<>(fileName);
+                StringBuffer folder = new StringBuffer();
+                folder.append(fileName);
                 districtPositionDetailById.forEach(item->{
                     log.info("区域="+item.getName());
-                    folder.set("/"+item.getName());
+                    folder.append("/"+item.getName());
                 });
                 School school = schoolService.getById(key);
-                folder.set("/"+plan.getTitle());
-                folder.set("/"+school.getName());
+                folder.append("/"+plan.getTitle());
+                folder.append("/"+school.getName());
+                log.info("学校："+school.getName());
                 String folders = folder.toString();
                 log.info("导出文件目录路径======"+folders);
                 try {
