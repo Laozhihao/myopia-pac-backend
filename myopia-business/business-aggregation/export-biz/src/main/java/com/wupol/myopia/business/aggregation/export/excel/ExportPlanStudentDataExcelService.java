@@ -112,9 +112,11 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         if (Objects.isNull(exportCondition.getSchoolId())){
             Map<Integer, List<StatConclusionExportDTO>> collectMap = statConclusionExportDTOs.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getSchoolId));
             collectMap.forEach((key,value)->{
+                log.info("key="+key +"===value="+value);
                 List<District> districtPositionDetailById = districtService.getDistrictPositionDetailById(215);
                 AtomicReference<String> folder = new AtomicReference<>(fileName);
                 districtPositionDetailById.forEach(item->{
+                    log.info("区域="+item.getName());
                     folder.set("/"+item.getName());
                 });
                 School school = schoolService.getById(key);
