@@ -111,14 +111,13 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
             log.info("数据："+item);
         });
         List<StatConclusionExportDTO> statConclusionExportDTOs = data;
-        log.info("11111"+statConclusionExportDTOs);
         OnceAbsoluteMergeStrategy mergeStrategy = new OnceAbsoluteMergeStrategy(0, 1, 20, 21);
-        log.info("22222");
         //如果schoolId为null则证明是导出整个计划下的筛查数据
         ScreeningPlan plan = screeningPlanService.getById(exportCondition.getPlanId());
         log.info("33333");
         if (Objects.isNull(exportCondition.getSchoolId())){
             Map<Integer, List<StatConclusionExportDTO>> collectMap = statConclusionExportDTOs.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getSchoolId));
+            log.info("44444");
             collectMap.forEach((key,value)->{
                 log.info("key="+key +"===value="+value);
                 List<District> districtPositionDetailById = districtService.getDistrictPositionDetailById(215);
