@@ -115,13 +115,14 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         //如果schoolId为null则证明是导出整个计划下的筛查数据
         ScreeningPlan plan = screeningPlanService.getById(exportCondition.getPlanId());
         log.info("33333"+exportCondition);
+        StringBuffer folder = new StringBuffer();
         if (Objects.isNull(exportCondition.getSchoolId())){
 
             Map<Integer, List<StatConclusionExportDTO>> collectMap = statConclusionExportDTOs.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getSchoolId));
             collectMap.forEach((key,value)->{
                 log.info("key="+key +"===value="+value);
                 List<District> districtPositionDetailById = districtService.getDistrictPositionDetailById(215);
-                StringBuffer folder = new StringBuffer();
+
                 folder.append(fileName);
                 districtPositionDetailById.forEach(item->{
                     log.info("区域="+item.getName());
@@ -135,7 +136,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
                 log.info("导出文件目录路径======"+folders);
                 try {
                     //生成文件
-                    ExcelUtil.exportListToExcelWithFolder(folders,fileName,excelFacade.genVisionScreeningResultExportVos(value),mergeStrategy,getHeadClass());
+                    File file = ExcelUtil.exportListToExcelWithFolder(folders, fileName, excelFacade.genVisionScreeningResultExportVos(value), mergeStrategy, getHeadClass());
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -152,7 +153,6 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
             collectMap.forEach((key,value)->{
                 log.info("6666");
                 List<District> districtPositionDetailById = districtService.getDistrictPositionDetailById(215);
-                StringBuffer folder = new StringBuffer();
                 folder.append(fileName);
                 districtPositionDetailById.forEach(item->{
                     folder.append("/"+item.getName());
@@ -181,7 +181,6 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
 
             collectMap.forEach((key,value)->{
                 List<District> districtPositionDetailById = districtService.getDistrictPositionDetailById(215);
-                StringBuffer folder = new StringBuffer();
                 folder.append(fileName);
                 districtPositionDetailById.forEach(item->{
                     log.info("区域="+item.getName());
