@@ -116,9 +116,8 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         ScreeningPlan plan = screeningPlanService.getById(exportCondition.getPlanId());
         log.info("33333"+exportCondition);
         if (Objects.isNull(exportCondition.getSchoolId())){
-            log.info("44444");
+
             Map<Integer, List<StatConclusionExportDTO>> collectMap = statConclusionExportDTOs.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getSchoolId));
-            log.info("55555");
             collectMap.forEach((key,value)->{
                 log.info("key="+key +"===value="+value);
                 List<District> districtPositionDetailById = districtService.getDistrictPositionDetailById(215);
@@ -147,6 +146,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         //如果年级id不为null,且班级id为null，则以年级维度导出
         if (Objects.nonNull(exportCondition.getGradeId()) && Objects.isNull(exportCondition.getClassId())){
 
+            log.info("4444");
             Map<Integer, List<StatConclusionExportDTO>> collectMap = statConclusionExportDTOs.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getGradeId));
 
             collectMap.forEach((key,value)->{
