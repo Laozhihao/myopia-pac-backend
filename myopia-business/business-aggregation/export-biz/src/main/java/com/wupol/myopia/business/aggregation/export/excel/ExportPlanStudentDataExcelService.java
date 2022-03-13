@@ -116,8 +116,9 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         ScreeningPlan plan = screeningPlanService.getById(exportCondition.getPlanId());
         log.info("33333"+statConclusionExportDTOs);
         if (Objects.isNull(exportCondition.getSchoolId())){
-            Map<Integer, List<StatConclusionExportDTO>> collectMap = statConclusionExportDTOs.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getSchoolId));
             log.info("44444");
+            Map<Integer, List<StatConclusionExportDTO>> collectMap = statConclusionExportDTOs.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getSchoolId));
+            log.info("55555");
             collectMap.forEach((key,value)->{
                 log.info("key="+key +"===value="+value);
                 List<District> districtPositionDetailById = districtService.getDistrictPositionDetailById(215);
