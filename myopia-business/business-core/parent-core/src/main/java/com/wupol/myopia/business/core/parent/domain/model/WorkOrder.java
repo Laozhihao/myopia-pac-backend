@@ -1,10 +1,14 @@
 package com.wupol.myopia.business.core.parent.domain.model;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
+
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
+import com.wupol.myopia.business.core.parent.domain.dos.StudentDO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -34,7 +38,7 @@ public class WorkOrder implements Serializable {
     /**
      * 性别 0-男 1-女
      */
-    private Boolean gender;
+    private Integer gender;
 
     /**
      * 护照
@@ -49,7 +53,7 @@ public class WorkOrder implements Serializable {
     /**
      * 出生日期
      */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date birthday;
 
     /**
@@ -100,9 +104,10 @@ public class WorkOrder implements Serializable {
     private Date updateTime;
 
     /**
-     * 对比结果
+     * oldData
      */
-    private String oldData;
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private StudentDO oldData;
 
     /**
      * 留言内容
@@ -127,13 +132,13 @@ public class WorkOrder implements Serializable {
     /**
      * 筛查开始时间
      */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date screeningBeginTime;
 
     /**
      * 筛查结束时间
      */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date screeningEndTime;
 
 
