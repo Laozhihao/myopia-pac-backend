@@ -163,8 +163,10 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
                 folder.append("/"+grade.getName());
                 String folders = folder.toString();
                 try {
+
                     //生成文件
                     ExcelUtil.exportListToExcelWithFolder(folders,fileName,excelFacade.genVisionScreeningResultExportVos(value),mergeStrategy,getHeadClass());
+                    log.info("7777");
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
