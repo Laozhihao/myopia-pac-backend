@@ -231,9 +231,8 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         Integer classId = exportCondition.getClassId();
         String className = "";
         if (Objects.nonNull(classId)) {
-            className = schoolClassService.getById(gradeId).getName();
+            className = schoolClassService.getById(classId).getName();
         }
-        log.info("班级："+className);
         return schoolName+gradeName+className;
     }
 
