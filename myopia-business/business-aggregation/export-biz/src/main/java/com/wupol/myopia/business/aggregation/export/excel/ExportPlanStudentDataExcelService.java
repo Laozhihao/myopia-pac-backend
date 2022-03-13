@@ -201,6 +201,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
      */
     private String getFileNameTitle(ExportCondition exportCondition){
 
+
         //如果学校id和筛查计划id都为空，则是以区域维度导出
         if (Objects.isNull(exportCondition.getSchoolId()) && Objects.isNull(exportCondition.getPlanId())){
             List<District> districtPositionDetailById = districtService.getDistrictPositionDetailById(215);
@@ -217,7 +218,6 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
             return plan.getTitle();
         }
 
-
         String schoolName = "";
         if(Objects.nonNull(exportCondition.getSchoolId())){
             School school = schoolService.getById(exportCondition.getSchoolId());
@@ -233,6 +233,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         if (Objects.nonNull(classId)) {
             className = schoolClassService.getById(gradeId).getName();
         }
+        log.info("班级："+className);
         return schoolName+gradeName+className;
     }
 
