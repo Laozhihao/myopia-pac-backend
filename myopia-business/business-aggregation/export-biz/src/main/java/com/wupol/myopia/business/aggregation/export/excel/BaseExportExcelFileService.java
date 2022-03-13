@@ -67,8 +67,8 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
             // 3.获取数据，生成List
             List data = getExcelData(exportCondition);
             // 4.生成导出的文件
-            generateExcelFile(fileName, data,exportCondition);
-            //log.info("全路径=====  "+excelFile.getPath()+" " + excelFile.getParentFile().getPath()+" "+excelFile.getAbsolutePath());
+            excelFile = generateExcelFile(fileName, data, exportCondition);
+            log.info("全路径=====  "+excelFile.getPath()+" " + excelFile.getParentFile().getPath()+" "+excelFile.getAbsolutePath());
             // 5.压缩文件
             File file = compressFile(excelSavePath+fileName);
             // 6.上传文件
