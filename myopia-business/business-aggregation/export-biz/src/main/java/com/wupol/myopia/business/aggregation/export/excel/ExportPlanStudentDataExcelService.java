@@ -111,7 +111,6 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
             log.info("数据："+item);
         });
         List<StatConclusionExportDTO> statConclusionExportDTOs = data;
-        List<VisionScreeningResultExportDTO> visionScreeningResultExportVos = excelFacade.genVisionScreeningResultExportVos(statConclusionExportDTOs);
         OnceAbsoluteMergeStrategy mergeStrategy = new OnceAbsoluteMergeStrategy(0, 1, 20, 21);
 
         //如果schoolId为null则证明是导出整个计划下的筛查数据
@@ -135,7 +134,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
                 log.info("导出文件目录路径======"+folders);
                 try {
                     //生成文件
-                    ExcelUtil.exportListToExcelWithFolder(folders,fileName,visionScreeningResultExportVos,mergeStrategy,getHeadClass());
+                    ExcelUtil.exportListToExcelWithFolder(folders,fileName,excelFacade.genVisionScreeningResultExportVos(value),mergeStrategy,getHeadClass());
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -162,7 +161,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
                 String folders = folder.toString();
                 try {
                     //生成文件
-                    ExcelUtil.exportListToExcelWithFolder(folders,fileName,visionScreeningResultExportVos,mergeStrategy,getHeadClass());
+                    ExcelUtil.exportListToExcelWithFolder(folders,fileName,excelFacade.genVisionScreeningResultExportVos(value),mergeStrategy,getHeadClass());
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -192,7 +191,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
                 String folders = folder.toString();
                     //生成文件
                 try {
-                    ExcelUtil.exportListToExcelWithFolder(folders, fileName, visionScreeningResultExportVos, mergeStrategy, getHeadClass());
+                    ExcelUtil.exportListToExcelWithFolder(folders,fileName,excelFacade.genVisionScreeningResultExportVos(value),mergeStrategy,getHeadClass());
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
