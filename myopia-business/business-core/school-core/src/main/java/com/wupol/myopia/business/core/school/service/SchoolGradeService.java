@@ -116,6 +116,9 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
 
         // 获取年级
         List<SchoolGradeItemsDTO> schoolGrades = baseMapper.getAllBySchoolId(schoolId);
+        if(CollectionUtils.isEmpty(schoolGrades)) {
+            return new ArrayList<>();
+        }
         Map<Integer, String> gradeMap = schoolGrades.stream().collect(Collectors.toMap(SchoolGradeItemsDTO::getId, SchoolGradeItemsDTO::getName));
 
         // 获取班级，并且封装成Map
@@ -164,20 +167,6 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
             return new HashMap<>();
         }
         return getByIds(ids).stream().collect(Collectors.toMap(SchoolGrade::getId, Function.identity()));
-    }
-
-    /**
-     * 批量通过id获取实体
-     *
-     * @param id
-     * @return
-     */
-    public SchoolGrade getGradeById(Integer id) {
-        if (id == null) {
-            return null;
-        }
-        Optional<SchoolGrade> schoolGradeOptional = getByIds(Arrays.asList(id)).stream().findFirst();
-        return schoolGradeOptional.isPresent() ? schoolGradeOptional.get() : null;
     }
 
     /**
@@ -344,7 +333,6 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
                     throw new BusinessException("班级名称不能为空");
                 }
                 schoolClass.setCreateUserId(userId);
-
                 schoolClass.setGradeId(gradeId);
             });
             schoolClassService.batchUpdateOrSave(schoolClassList);

@@ -375,6 +375,7 @@ public class ScreeningPlanController {
     /**
      * 导出筛查计划的学生二维码信息
      *
+     * //TODO 当前这个二维码导出，在其他地方有使用，考虑是否删除
      * @param schoolClassInfo 参与筛查计划的学生
      * @param type            1-二维码 2-VS666 3-学生编码二维码
      * @return pdf的URL
@@ -583,7 +584,7 @@ public class ScreeningPlanController {
             @NotNull(message = "学校ID不能为空") Integer schoolId, Integer gradeId, Integer classId, String planStudentIds,
             Integer type) {
         List<Integer> studentIds =null;
-        if (StringUtil.isNotEmpty(planStudentIds)&&!planStudentIds.equals("null")){
+        if (StringUtil.isNotEmpty(planStudentIds)){
             studentIds = Arrays.stream(planStudentIds.split(",")).map(Integer::valueOf).collect(Collectors.toList());
         }
         return screeningExportService.studentQRCodeFile(screeningPlanId, schoolId,gradeId,classId,studentIds,type);

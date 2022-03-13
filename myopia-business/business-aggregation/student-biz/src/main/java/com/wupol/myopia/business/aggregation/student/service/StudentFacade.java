@@ -55,10 +55,7 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -533,8 +530,35 @@ public class StudentFacade {
             Integer status = studentInfo.getSchoolAgeStatus();
             responseDTO.setStatus(status);
             responseDTO.setHaiNanCardDetail(packageHaiNanCardDetail(visionScreeningResult, age, status));
+        }else if (templateId.equals(TemplateConstants.SCREENING_TEMPLATE)) {
+            //儿童青少年近视筛查结果记录表
+            Integer status = studentInfo.getSchoolAgeStatus();
+            responseDTO.setStatus(status);
+            responseDTO.setMyopiaScreeningResultCardDetail(packageMyopiaScreeningResultCardDetail(visionScreeningResult,responseDTO));
         }
         return responseDTO;
+    }
+
+    /**
+     * 青少年近视筛查结果
+     *
+     * @param result 筛查结果
+     * @return 儿童青少年近视筛查结果记录表
+     */
+    private MyopiaScreeningResultCardDetail packageMyopiaScreeningResultCardDetail(VisionScreeningResult result,StudentCardResponseVO responseDTO){
+        MyopiaScreeningResultCardDetail details = new MyopiaScreeningResultCardDetail();
+        if (Objects.isNull(result)) {
+            return details;
+        }
+        BeanUtils.copyProperties(result, details);
+
+        details.setVisionSignPicUrl(getVisionCreateUserSignPicUrl(result));
+        details.setComputerSignPicUrl(getComputerCreateUserSignPicUrl(result));
+
+        String ageInfo = com.wupol.myopia.base.util.DateUtil.getAgeInfo(responseDTO.getInfo().getBirthday(),new Date());
+        details.setAgeInfo(ageInfo);
+
+        return details;
     }
 
     /**
@@ -748,7 +772,46 @@ public class StudentFacade {
         }
         return ListUtils.retainAll(Lists.newArrayList("内显斜", "外显斜", "内隐斜", "外隐斜", "垂直斜视"), otherEyeDiseasesList);
     }
-
+    /**
+     * 获取筛查用户签名
+     *
+     * @param visionScreeningResult 筛查数据
+     * @return java.lang.String
+     **/
+    private String getVisionCreateUserSignPicUrl(VisionScreeningResult visionScreeningResult){
+        if (Objects.isNull(visionScreeningResult)) {
+            return null;
+        }
+        // 优先取眼位的医生签名
+        VisionDataDO visionData = visionScreeningResult.getVisionData();
+        if (Objects.nonNull(visionData) && Objects.nonNull(visionData.getCreateUserId())) {
+            String signPicUrl = getSignPicUrl(visionData.getCreateUserId());
+            if (StringUtils.isNotEmpty(signPicUrl)) {
+                return signPicUrl;
+            }
+        }
+        return null;
+    }
+    /**
+     * 获取筛查用户签名
+     *
+     * @param visionScreeningResult 筛查数据
+     * @return java.lang.String
+     **/
+    private String getComputerCreateUserSignPicUrl(VisionScreeningResult visionScreeningResult){
+        if (Objects.isNull(visionScreeningResult)) {
+            return null;
+        }
+        // 优先取眼位的医生签名
+        ComputerOptometryDO computerOptometry = visionScreeningResult.getComputerOptometry();
+        if (Objects.nonNull(computerOptometry) && Objects.nonNull(computerOptometry.getCreateUserId())) {
+            String signPicUrl = getSignPicUrl(computerOptometry.getCreateUserId());
+            if (StringUtils.isNotEmpty(signPicUrl)) {
+                return signPicUrl;
+            }
+        }
+        return null;
+    }
     /**
      * 获取签名访问地址
      *
@@ -1082,9 +1145,7 @@ public class StudentFacade {
     @Transactional(rollbackFor = Exception.class)
     public Integer saveStudent(Student student) {
         // 检查学生年龄
-        if (student.checkBirthdayExceedLimit()) {
-            throw new BusinessException("学生年龄太大");
-        }
+        com.wupol.myopia.base.util.DateUtil.checkBirthday(student.getBirthday());
         // 设置学龄
         if (null != student.getGradeId()) {
             SchoolGrade grade = schoolGradeService.getById(student.getGradeId());

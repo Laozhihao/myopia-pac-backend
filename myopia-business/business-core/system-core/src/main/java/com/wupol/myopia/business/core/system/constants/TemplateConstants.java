@@ -16,4 +16,8 @@ public interface TemplateConstants {
      * 学生档案卡-海南省学生眼疾病筛查单
      */
     Integer HAI_NAN_TEMPLATE = 2;
+    /**
+     * 学生档案卡-近视筛查结果记录表
+     */
+    Integer SCREENING_TEMPLATE = 9;
 }

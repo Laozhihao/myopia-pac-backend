@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.ApiResult;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
@@ -55,12 +56,13 @@ public class HospitalWorkbenchPatientController {
      */
     @GetMapping("list")
     public IPage<HospitalStudentResponseDTO> getByList(@Validated PageRequest pageRequest, HospitalStudentRequestDTO requestDTO) {
-        if (CurrentUserUtil.getCurrentUser().isPlatformAdminUser()) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        if (user.isHospitalUser()) {
+            requestDTO.setHospitalId(CurrentUserUtil.getCurrentUser().getOrgId());
+        } else {
             if (Objects.isNull(requestDTO.getHospitalId())) {
                 throw new BusinessException("医院Id不能为空");
             }
-        } else {
-            requestDTO.setHospitalId(CurrentUserUtil.getCurrentUser().getOrgId());
         }
         return hospitalStudentBizService.getHospitalStudent(pageRequest, requestDTO);
     }

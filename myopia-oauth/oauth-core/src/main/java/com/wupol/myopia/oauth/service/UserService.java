@@ -301,7 +301,9 @@ public class UserService extends BaseService<UserMapper, User> {
         // 更新角色
         if (SystemCode.MANAGEMENT_CLIENT.getCode().equals(user.getSystemCode()) && UserType.SCREENING_ORGANIZATION_ADMIN.getType().equals(user.getUserType())) {
             // 更新筛查机构管理员权限
-            updateScreeningOrgAdminRolePermission(user.getOrgConfigType(), user.getOrgId());
+            if (Objects.nonNull(user.getOrgConfigType())) {
+                updateScreeningOrgAdminRolePermission(user.getOrgConfigType(), user.getOrgId());
+            }
         } else if (SystemCode.HOSPITAL_CLIENT.getCode().equals(user.getSystemCode())) {
             // 更新医生角色
             updateDoctorRole(userId, user.getOrgId(), user.getOrgConfigType());
