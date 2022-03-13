@@ -107,16 +107,13 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
 
     @Override
     public File generateExcelFile(String fileName, List data,ExportCondition exportCondition) throws IOException {
-        data.forEach(item->{
-            log.info("数据："+item);
-        });
+
         List<StatConclusionExportDTO> statConclusionExportDTOs = data;
         OnceAbsoluteMergeStrategy mergeStrategy = new OnceAbsoluteMergeStrategy(0, 1, 20, 21);
-        //如果schoolId为null则证明是导出整个计划下的筛查数据
+        //如果schoolId为null则证明是导出整个计划下的筛查数据 或 schoolId不为null且年级和班级id为null，则都以学校维度导出
         ScreeningPlan plan = screeningPlanService.getById(exportCondition.getPlanId());
-        log.info("33333"+exportCondition);
         StringBuffer folder = new StringBuffer();
-        if (Objects.isNull(exportCondition.getSchoolId())){
+        if (Objects.isNull(exportCondition.getSchoolId()) || (Objects.nonNull(exportCondition.getSchoolId()) && (Objects.isNull(exportCondition.getGradeId())&& Objects.isNull(exportCondition.getClassId())))){
 
             Map<Integer, List<StatConclusionExportDTO>> collectMap = statConclusionExportDTOs.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getSchoolId));
             collectMap.forEach((key,value)->{
@@ -140,18 +137,13 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-
             });
         }
-
         //如果年级id不为null,且班级id为null，则以年级维度导出
         if (Objects.nonNull(exportCondition.getGradeId()) && Objects.isNull(exportCondition.getClassId())){
 
-            log.info("4444");
             Map<Integer, List<StatConclusionExportDTO>> collectMap = statConclusionExportDTOs.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getGradeId));
-            log.info("5555");
             collectMap.forEach((key,value)->{
-                log.info("6666");
                 List<District> districtPositionDetailById = districtService.getDistrictPositionDetailById(215);
                 folder.append(fileName);
                 districtPositionDetailById.forEach(item->{
@@ -166,14 +158,11 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
 
                     //生成文件
                     ExcelUtil.exportListToExcelWithFolder(folders,fileName,excelFacade.genVisionScreeningResultExportVos(value),mergeStrategy,getHeadClass());
-                    log.info("7777");
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
             });
         }
-
-
         //如果年级id不为null,且班级id不为null，则以班级维度导出
         if (Objects.nonNull(exportCondition.getGradeId()) && Objects.nonNull(exportCondition.getClassId())){
 
