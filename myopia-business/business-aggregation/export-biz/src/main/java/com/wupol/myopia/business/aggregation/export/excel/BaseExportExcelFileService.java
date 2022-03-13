@@ -221,7 +221,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
             // 2.获取文件保存父目录路径
             excelFile = generateExcelFile(fileName, data,exportCondition);
 
-            // 5.压缩文件
+            // 4.压缩文件
             File file = compressFile(excelSavePath+fileName);
 
             log.info("excelFile=="+excelFile);

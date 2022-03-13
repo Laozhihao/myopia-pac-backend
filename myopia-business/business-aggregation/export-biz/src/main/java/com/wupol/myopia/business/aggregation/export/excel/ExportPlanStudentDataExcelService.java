@@ -149,7 +149,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
             Map<Integer, List<StatConclusionExportDTO>> collectMap = statConclusionExportDTOs.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getGradeId));
 
             collectMap.forEach((key,value)->{
-                List<District> districtPositionDetailById = districtService.getDistrictPositionDetailById(exportCondition.getDistrictId());
+                List<District> districtPositionDetailById = districtService.getDistrictPositionDetailById(215);
                 StringBuffer folder = new StringBuffer();
                 folder.append(fileName);
                 districtPositionDetailById.forEach(item->{
@@ -190,12 +190,6 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
                 folder.append("/"+grade.getName());
                 folder.append("/"+schoolClass.getName());
                 String folders = folder.toString();
-                log.info("学校："+school.getName());
-                log.info("年级："+grade.getName());
-                log.info("班级："+schoolClass.getName());
-                log.info("key="+key +"===value="+value);
-                log.info("导出文件目录路径======"+folders);
-
                     //生成文件
                 try {
                     ExcelUtil.exportListToExcelWithFolder(folders, fileName, visionScreeningResultExportVos, mergeStrategy, getHeadClass());
@@ -214,6 +208,23 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
      * @return
      */
     private String getFileNameTitle(ExportCondition exportCondition){
+
+        //如果学校id和筛查计划id都为空，则是以区域维度导出
+        if (Objects.isNull(exportCondition.getSchoolId()) && Objects.isNull(exportCondition.getPlanId())){
+            List<District> districtPositionDetailById = districtService.getDistrictPositionDetailById(215);
+            StringBuffer folder = new StringBuffer();
+            districtPositionDetailById.forEach(item->{
+                folder.append("/"+item.getName());
+            });
+            return folder.toString();
+        }
+
+        //如果学校id为空,筛查计划id不为空，则是以筛查计划维度导出
+        if (Objects.isNull(exportCondition.getSchoolId()) && Objects.nonNull(exportCondition.getPlanId())){
+            ScreeningPlan plan = screeningPlanService.getById(exportCondition.getPlanId());
+            return plan.getTitle();
+        }
+
 
         String schoolName = "";
         if(Objects.nonNull(exportCondition.getSchoolId())){
