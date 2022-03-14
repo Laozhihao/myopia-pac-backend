@@ -114,12 +114,9 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         ScreeningPlan plan = screeningPlanService.getById(exportCondition.getPlanId());
         StringBuffer folder = new StringBuffer();
         if (Objects.isNull(exportCondition.getSchoolId()) || (Objects.nonNull(exportCondition.getSchoolId()) && (Objects.isNull(exportCondition.getGradeId())&& Objects.isNull(exportCondition.getClassId())))){
-
             Map<Integer, List<StatConclusionExportDTO>> collectMap = statConclusionExportDTOs.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getSchoolId));
             collectMap.forEach((key,value)->{
-                log.info("key="+key +"===value="+value);
-                List<District> districtPositionDetailById = districtService.getDistrictPositionDetailById(215);
-
+                List<District> districtPositionDetailById = districtService.getDistrictPositionDetailById(exportCondition.getDistrictId());
                 folder.append(fileName);
                 districtPositionDetailById.forEach(item->{
                     log.info("区域="+item.getName());
@@ -133,7 +130,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
                 log.info("导出文件目录路径======"+folders);
                 try {
                     //生成文件
-                    File file = ExcelUtil.exportListToExcelWithFolder(folders, fileName, excelFacade.genVisionScreeningResultExportVos(value), mergeStrategy, getHeadClass());
+                    ExcelUtil.exportListToExcelWithFolder(folders, fileName, excelFacade.genVisionScreeningResultExportVos(value), mergeStrategy, getHeadClass());
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -144,7 +141,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
 
             Map<Integer, List<StatConclusionExportDTO>> collectMap = statConclusionExportDTOs.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getGradeId));
             collectMap.forEach((key,value)->{
-                List<District> districtPositionDetailById = districtService.getDistrictPositionDetailById(215);
+                List<District> districtPositionDetailById = districtService.getDistrictPositionDetailById(exportCondition.getDistrictId());
                 folder.append(fileName);
                 districtPositionDetailById.forEach(item->{
                     folder.append("/"+item.getName());
@@ -155,7 +152,6 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
                 folder.append("/"+grade.getName());
                 String folders = folder.toString();
                 try {
-
                     //生成文件
                     ExcelUtil.exportListToExcelWithFolder(folders,fileName,excelFacade.genVisionScreeningResultExportVos(value),mergeStrategy,getHeadClass());
                 } catch (IOException e) {
@@ -165,11 +161,9 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         }
         //如果年级id不为null,且班级id不为null，则以班级维度导出
         if (Objects.nonNull(exportCondition.getGradeId()) && Objects.nonNull(exportCondition.getClassId())){
-
             Map<Integer, List<StatConclusionExportDTO>> collectMap = statConclusionExportDTOs.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getClassId));
-
             collectMap.forEach((key,value)->{
-                List<District> districtPositionDetailById = districtService.getDistrictPositionDetailById(215);
+                List<District> districtPositionDetailById = districtService.getDistrictPositionDetailById(exportCondition.getDistrictId());
                 folder.append(fileName);
                 districtPositionDetailById.forEach(item->{
                     log.info("区域="+item.getName());
