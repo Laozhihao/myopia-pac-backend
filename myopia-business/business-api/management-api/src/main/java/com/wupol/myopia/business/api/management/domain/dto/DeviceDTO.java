@@ -103,6 +103,11 @@ public class DeviceDTO {
     private String remark;
 
     /**
+     * 类型
+     */
+    private String type;
+
+    /**
      * 筛查机构ID集
      */
     private List<Integer> screeningOrgIds;
