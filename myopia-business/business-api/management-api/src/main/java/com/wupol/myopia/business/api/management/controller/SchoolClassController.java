@@ -58,10 +58,11 @@ public class SchoolClassController {
      * @return 班级实体
      */
     @PutMapping()
-    public SchoolClass updateClass(@RequestBody @Valid SchoolClass schoolClass) {
+    public Integer updateClass(@RequestBody @Valid SchoolClass schoolClass) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         schoolClass.setCreateUserId(user.getId());
-        return schoolClassService.updateClass(schoolClass);
+        schoolClassService.updateClass(schoolClass);
+        return schoolClass.getId();
     }
 
     /**

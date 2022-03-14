@@ -4,6 +4,7 @@ import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.interfaces.ExportFileService;
+import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.QueueInfo;
 import com.wupol.myopia.business.aggregation.export.service.SysUtilService;
@@ -45,9 +46,11 @@ public class ExportStrategy {
         if (Boolean.FALSE.equals(exportFileService.tryLock(lockKey))) {
             throw new BusinessException("正在导出中，请勿重复导出");
         }
-        // 导出限制
-        String key = "doExport:" + lockKey;
-        sysUtilService.isNoPlatformRepeatExport(key, lockKey);
+        // 导出限制(不做限制)
+        if (!serviceName.equals(ExportReportServiceNameConstant.EXPORT_QRCODE_SCREENING_SERVICE)){
+            String key = "doExport:" + lockKey;
+            sysUtilService.isNoPlatformRepeatExport(key, lockKey);
+        }
         // 设置进队列
         redisUtil.lSet(RedisConstant.FILE_EXPORT_LIST, new QueueInfo(exportCondition, serviceName));
     }
@@ -83,8 +86,11 @@ public class ExportStrategy {
         ExportFileService exportFileService = getExportFileService(serviceName);
 
         String lockKey = exportFileService.getLockKey(exportCondition);
-        String key = "syncExport:"+ lockKey;
-        sysUtilService.isNoPlatformRepeatExport(key, lockKey);
+
+        if (!serviceName.equals(ExportReportServiceNameConstant.EXPORT_QRCODE_SCREENING_SERVICE)){
+            String key = "syncExport:"+ lockKey;
+            sysUtilService.isNoPlatformRepeatExport(key, lockKey);
+        }
         return exportFileService.syncExport(exportCondition);
     }
 }

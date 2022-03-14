@@ -33,6 +33,8 @@ public class PasswordAndUsernameGenerator {
     private final String HOSPITAL_ADMIN_PWD_PREFIX = "y";
     /** 筛查机构管理端的管理员用户密码前缀 */
     private final String SCREENING_ORG_ADMIN_PWD_PREFIX = "s";
+    /** 总览机构管理员用户密码前缀 */
+    private final String OVERVIEW_ADMIN_PWD_PREFIX = "zl";
 
     /** 用户名 */
     private final String USERNAME = "jsfk%s%d";
@@ -123,6 +125,16 @@ public class PasswordAndUsernameGenerator {
     }
 
     /**
+     * 获取总览机构管理员用户名
+     *
+     * @param sequence 序号
+     * @return java.lang.String
+     **/
+    public static String getOverviewAdminUserName(int sequence) {
+        return String.format(USERNAME, OVERVIEW_ADMIN_PWD_PREFIX, sequence);
+    }
+
+    /**
      * 获取医生默认密码
      * @param phone
      * @return
@@ -130,6 +142,16 @@ public class PasswordAndUsernameGenerator {
     public static String getDoctorPwd(String phone, Date date) {
         // 手机号码后5位+创建日期的日（01-31），合计7位数
         return StrUtil.subSuf(phone, -DOCTOR_PWD_SUB_LENGTH) + DateFormatUtil.format(date, DateFormatUtil.FORMAT_ONLY_DAY);
+    }
+
+    /**
+     * 总览机构管理员用户密码
+     *
+     * @return java.lang.String
+     **/
+    public static String getOverviewAdminPwd() {
+        // 开头字母zl + 11位字母或数字
+        return OVERVIEW_ADMIN_PWD_PREFIX + RandomUtil.randomNumbers(PASSWORD_SUFFIX_RANDOM_LENGTH);
     }
 
 }

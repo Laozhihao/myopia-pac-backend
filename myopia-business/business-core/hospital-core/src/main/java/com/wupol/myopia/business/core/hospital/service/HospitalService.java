@@ -257,6 +257,23 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     }
 
     /**
+     * 通过医院名称及行政区域（同省级下）获取医院列表
+     * @param name
+     * @param provinceDistrictCode
+     * @param serviceType
+     * @return
+     */
+    public List<HospitalResponseDTO> getProvinceList(String name, Long provinceDistrictCode, Integer serviceType) {
+        // 获取省级行政区域ID
+        List<HospitalResponseDTO> hospitals = baseMapper.getListByProvinceCodeAndNameLike(name, provinceDistrictCode, serviceType);
+        hospitals.forEach(hospital -> {
+            // 行政区域名称
+            hospital.setDistrictName(districtService.getDistrictName(hospital.getDistrictDetail()));
+        });
+        return hospitals;
+    }
+
+    /**
      * 获取状态未更新的医院（已到合作开始时间未启用，已到合作结束时间未停止）
      * @return
      */

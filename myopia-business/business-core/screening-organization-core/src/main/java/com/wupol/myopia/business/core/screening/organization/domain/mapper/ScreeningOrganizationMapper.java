@@ -31,7 +31,8 @@ public interface ScreeningOrganizationMapper extends BaseMapper<ScreeningOrganiz
 
     List<ScreeningOrganization> getByName(@Param("name") String name);
 
-    List<ScreeningOrganization> getListByProvinceCodeAndNameLike(@Param("name") String name, @Param("provinceDistrictCode") Long provinceDistrictCode);
+    List<ScreeningOrgResponseDTO> getListByProvinceCodeAndNameLike(@Param("name") String name, @Param("provinceDistrictCode") Long provinceDistrictCode,
+                                                                   @Param("configType") Integer configType);
 
     List<ScreeningOrganization> getByConfigType(@Param("configType") Integer configType);
 

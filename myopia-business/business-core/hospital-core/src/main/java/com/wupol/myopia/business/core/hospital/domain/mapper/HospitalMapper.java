@@ -36,4 +36,14 @@ public interface HospitalMapper extends BaseMapper<Hospital> {
 
     List<Hospital> getByCooperationEndTime(@Param("start") Date start, @Param("end") Date end);
 
+    /**
+     * 指定医院名称且限定行政区域获取列表
+     * @param name
+     * @param provinceDistrictCode
+     * @param serviceType
+     * @return
+     */
+    List<HospitalResponseDTO> getListByProvinceCodeAndNameLike(@Param("name") String name, @Param("provinceDistrictCode") Long provinceDistrictCode,
+                                                               @Param("serviceType") Integer serviceType);
+
 }
