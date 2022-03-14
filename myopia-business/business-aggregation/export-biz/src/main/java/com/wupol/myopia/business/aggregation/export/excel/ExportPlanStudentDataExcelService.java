@@ -151,7 +151,6 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
     }
 
     private void createScreeningDateExcel(String fileName, List data,ExportCondition exportCondition,Map<Integer, List<StatConclusionExportDTO>> collectMap,String filePath){
-        List<StatConclusionExportDTO> statConclusionExportDTOs = data;
         OnceAbsoluteMergeStrategy mergeStrategy = new OnceAbsoluteMergeStrategy(0, 1, 20, 21);
         ScreeningPlan plan = screeningPlanService.getById(exportCondition.getPlanId());
         List<District> districtPositionDetailById = districtService.getDistrictPositionDetailById(exportCondition.getDistrictId());
