@@ -15,12 +15,12 @@ import javax.validation.constraints.NotNull;
 @Setter
 public class DeviceDataRequestDTO {
 
-    @NotBlank(message = "不能为空")
+    @NotBlank(message = "设备编码不能为空")
     private String deviceSn;
 
-    @NotNull(message = "不能为空")
+    @NotNull(message = "业务类型不能为空")
     private Integer businessType;
 
-    @NotNull(message = "不能为空")
+    @NotBlank(message = "数据不能为空")
     private String data;
 }

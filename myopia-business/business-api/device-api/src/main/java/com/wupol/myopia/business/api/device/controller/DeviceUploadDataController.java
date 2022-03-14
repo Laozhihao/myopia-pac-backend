@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.DeviceDataRequestDTO;
+import com.wupol.myopia.business.api.device.config.DeviceDataFactory;
 import com.wupol.myopia.business.api.device.domain.dto.DeviceUploadDTO;
 import com.wupol.myopia.business.api.device.domain.result.DeviceUploadResult;
 import com.wupol.myopia.business.api.device.service.DeviceUploadDataService;
@@ -30,9 +31,6 @@ public class DeviceUploadDataController {
     @Autowired
     private DeviceUploadDataService deviceUploadDataService;
 
-    @Autowired
-    private IDeviceDataService iDeviceDataService;
-
     /**
      * 上传数据
      *
@@ -55,8 +53,9 @@ public class DeviceUploadDataController {
 
 
     @PostMapping("/device/uploadData")
-    public ApiResult uploadLightBoxData(@RequestBody @Valid DeviceDataRequestDTO requestDTO) {
-        iDeviceDataService.uploadDate(requestDTO);
+    public ApiResult<String> uploadLightBoxData(@RequestBody @Valid DeviceDataRequestDTO requestDTO) {
+        IDeviceDataService deviceDataService = DeviceDataFactory.getDeviceDataService(requestDTO.getBusinessType());
+        deviceDataService.uploadDate(requestDTO);
         return ApiResult.success();
     }
 

@@ -4,6 +4,7 @@ import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.DeviceDataRequestDTO;
+import com.wupol.myopia.business.api.device.domain.constant.BusinessTypeEnum;
 import com.wupol.myopia.business.api.device.domain.dto.VisionDataVO;
 import com.wupol.myopia.business.api.device.service.IDeviceDataService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
@@ -22,6 +23,7 @@ import com.wupol.myopia.business.core.screening.organization.service.ScreeningOr
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
@@ -55,6 +57,7 @@ public class VisionDataServiceImpl implements IDeviceDataService {
 
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void uploadDate(DeviceDataRequestDTO requestDTO) {
 
         String deviceSn = requestDTO.getDeviceSn();
@@ -118,12 +121,17 @@ public class VisionDataServiceImpl implements IDeviceDataService {
 
         log.info(JSONObject.toJSONString(requestDTO));
     }
-    
+
+    @Override
+    public Integer getBusinessType() {
+        return BusinessTypeEnum.VISION_DATA.getType();
+    }
+
     private VisionDataDO.VisionData generateData(VisionDataVO visionDataVO, boolean isLeft) {
         VisionDataDO.VisionData visionData = new VisionDataDO.VisionData();
         try {
             if (isLeft) {
-                visionData.setLateriality(0);
+                visionData.setLateriality(CommonConst.LEFT_EYE);
                 visionData.setCorrectedVision(StringUtils.isBlank(visionDataVO.getLeftCorrectedVision()) ? null : new BigDecimal(visionDataVO.getLeftCorrectedVision()));
                 visionData.setNakedVision(StringUtils.isBlank(visionDataVO.getLeftNakedVision()) ? null : new BigDecimal(visionDataVO.getLeftNakedVision()));
                 if (Objects.nonNull(visionData.getCorrectedVision())) {
@@ -133,7 +141,7 @@ public class VisionDataServiceImpl implements IDeviceDataService {
                 }
                 return visionData;
             }
-            visionData.setLateriality(1);
+            visionData.setLateriality(CommonConst.RIGHT_EYE);
             visionData.setCorrectedVision(StringUtils.isBlank(visionDataVO.getRightCorrectedVision()) ? null : new BigDecimal(visionDataVO.getRightCorrectedVision()));
             visionData.setNakedVision(StringUtils.isBlank(visionDataVO.getRightNakedVision()) ? null : new BigDecimal(visionDataVO.getRightNakedVision()));
             if (Objects.nonNull(visionData.getCorrectedVision())) {
