@@ -105,7 +105,7 @@ public class DeviceDTO {
     /**
      * 类型
      */
-    private String type;
+    private Integer type;
 
     /**
      * 筛查机构ID集
