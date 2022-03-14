@@ -149,6 +149,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
                 });
                 School school = schoolService.getById(exportCondition.getSchoolId());
                 SchoolGrade grade = schoolGradeService.getById(key);
+                folder.append("/"+plan.getTitle());
                 folder.append("/"+school.getName());
                 folder.append("/"+grade.getName());
                 String folders = folder.toString();
@@ -174,6 +175,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
                 School school = schoolService.getById(exportCondition.getSchoolId());
                 SchoolGrade grade = schoolGradeService.getById(exportCondition.getGradeId());
                 SchoolClass schoolClass = schoolClassService.getById(key);
+                folder.append("/"+plan.getTitle());
                 folder.append("/"+school.getName());
                 folder.append("/"+grade.getName());
                 folder.append("/"+schoolClass.getName());
