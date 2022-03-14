@@ -113,7 +113,7 @@ public class ExcelFacade {
                     School school = schoolService.getBySchoolId(orDefault.get(0).getSchoolId());
                     List<District> districtPositionDetailById = districtService.getDistrictPositionDetailById(school.getDistrictId());
                     folder.append(filePath);
-                    folder.append(fileName);
+                    folder.append("/"+fileName);
                     districtPositionDetailById.forEach(item->{
                         log.info("区域="+item.getName());
                         folder.append("/"+item.getName());
