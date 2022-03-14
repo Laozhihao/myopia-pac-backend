@@ -10,12 +10,13 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateFormatUtil;
-import com.wupol.myopia.business.aggregation.screening.constant.QrCodeConstant;
+import com.wupol.myopia.business.common.utils.constant.QrCodeConstant;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.AppQueryQrCodeParams;
 import com.wupol.myopia.business.aggregation.screening.domain.vos.QrCodeInfo;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.domain.model.NotificationConfig;
+import com.wupol.myopia.business.common.utils.util.QrcodeUtil;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.common.util.S3Utils;
 import com.wupol.myopia.business.core.school.domain.model.School;
@@ -147,6 +148,7 @@ public class ScreeningExportService {
 
     /**
      *
+     * TODO：建议method返回值尽量不用map，改为用实体，方便维护、拓展
      * @param screeningPlanId 计划ID
      * @param schoolId 学校ID
      * @param gradeId 年级ID
@@ -168,12 +170,8 @@ public class ScreeningExportService {
             SchoolClass schoolClass = schoolClassService.getById(classId);
             className = schoolClass.getName();
         }
-
-
         String classDisplay = String.format("%s%s", gradeName, className);
-        String fileName = String.format("%s-%s-告知书", classDisplay, DateFormatUtil.formatNow(DateFormatUtil.FORMAT_TIME_WITHOUT_LINE));
         ScreeningPlan plan = screeningPlanService.getById(screeningPlanId);
-
         NotificationConfig notificationConfig;
         // 如果学校Id不为空，说明是学校端进行的导出，使用学校自己的告知书配置
         if (isSchoolClient) {
@@ -227,7 +225,11 @@ public class ScreeningExportService {
             QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white).setMargin(1);
             students.forEach(student -> {
                 student.setGenderDesc(GenderEnum.getName(student.getGender()));
-                student.setQrCodeUrl(QrCodeUtil.generateAsBase64(getQrCodeContent(student, type), config, "jpg"));
+                student.setQrCodeUrl(QrCodeUtil.generateAsBase64(QrcodeUtil.getQrCodeContent(
+                        student.getPlanId(), student.getPlanStudentId(),
+                        student.getName(),student.getAge(),student.getGender(),student.getParentPhone(),student.getSchoolName(),
+                        student.getGradeName(),student.getClassName(),student.getIdCard(),
+                        type), config, "jpg"));
             });
 
             // 3. 处理pdf报告参数
@@ -247,6 +249,16 @@ public class ScreeningExportService {
         }
     }
 
+    /**
+     * 获取学生二维码
+     * @param screeningPlanId 筛查计划ID
+     * @param schoolId 学校ID
+     * @param gradeId 年级ID
+     * @param classId 班级ID
+     * @param planStudentIds 学生ID
+     * @param type 3：导出虚拟二维码 2：EXPORT_VS666 其他：筛查二维码
+     * @return
+     */
     public List<ScreeningStudentDTO> studentQRCodeFile(Integer screeningPlanId,Integer schoolId, Integer gradeId,Integer classId,List<Integer> planStudentIds,Integer type) {
         // 2. 处理参数
         List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.selectBySchoolGradeAndClass(
@@ -258,10 +270,13 @@ public class ScreeningExportService {
             if (CommonConst.EXPORT_SCREENING_QRCODE.equals(type)) {
                 content = String.format(QrCodeConstant.SCREENING_CODE_QR_CONTENT_FORMAT_RULE, student.getPlanStudentId());
             } else if (CommonConst.EXPORT_VS666.equals(type)) {
-                content = setVs666QrCodeRule(student);
+                content = QrcodeUtil.setVs666QrCodeRule(student.getPlanId(), student.getPlanStudentId(),
+                        student.getName(),student.getAge(),student.getGender(),student.getParentPhone(),student.getSchoolName(),
+                        student.getGradeName(),student.getClassName(),student.getIdCard());
             } else {
                 content = String.format(QrCodeConstant.QR_CODE_CONTENT_FORMAT_RULE, student.getPlanStudentId());
             }
+            //TODO 调整内容就好，上完线在来处理
             student.setQrCodeUrl(QrCodeUtil.generateAsBase64(content, config, "jpg"));
         });
 
@@ -293,7 +308,11 @@ public class ScreeningExportService {
             info.setGender(student.getGenderDesc());
             info.setGradeName(gradeName);
             info.setClassName(className);
-            info.setQrCodeContent(getQrCodeContent(student, type));
+            info.setQrCodeContent(QrcodeUtil.getQrCodeContent(
+                    student.getPlanId(), student.getPlanStudentId(),
+                    student.getName(),student.getAge(),student.getGender(),student.getParentPhone(),student.getSchoolName(),
+                    student.getGradeName(),student.getClassName(),student.getIdCard(),
+                    type));
             return info;
         }).collect(Collectors.toList());
     }
@@ -352,39 +371,5 @@ public class ScreeningExportService {
             throw new BusinessException("查无该计划");
         }
         return screeningPlan;
-    }
-
-    /**
-     * 获取VS666格式所需要的二维码
-     *
-     * @param student 学生信息
-     * @return 二维码
-     */
-    public String setVs666QrCodeRule(ScreeningStudentDTO student) {
-        return String.format(QrCodeConstant.VS666_QR_CODE_CONTENT_FORMAT_RULE,
-                String.format(QrCodeConstant.GENERATE_VS666_ID, student.getPlanId(), student.getPlanStudentId()),
-                student.getName(),
-                GenderEnum.getEnGenderDesc(student.getGender()),
-                student.getAge(),
-                StringUtils.getDefaultIfBlank(student.getParentPhone(), "null"),
-                StringUtils.getDefaultIfBlank(student.getSchoolName(), "null"),
-                StringUtils.isEmpty(student.getGradeName()) ? "null" : student.getGradeName() + student.getClassName(),
-                StringUtils.getDefaultIfBlank(student.getIdCard(), "null"));
-    }
-
-    /**
-     * 获取二维码内容
-     *
-     * @param type
-     * @return
-     */
-    private String getQrCodeContent(ScreeningStudentDTO student, Integer type) {
-        if (CommonConst.EXPORT_SCREENING_QRCODE.equals(type)) {
-            return String.format(QrCodeConstant.SCREENING_CODE_QR_CONTENT_FORMAT_RULE, student.getPlanStudentId());
-        } else if (CommonConst.EXPORT_VS666.equals(type)) {
-            return setVs666QrCodeRule(student);
-        }
-
-        return String.format(QrCodeConstant.QR_CODE_CONTENT_FORMAT_RULE, student.getPlanStudentId());
     }
 }

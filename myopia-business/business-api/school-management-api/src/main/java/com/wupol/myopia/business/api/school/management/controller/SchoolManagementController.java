@@ -249,9 +249,9 @@ public class SchoolManagementController {
                 .setType(type)
                 ;
         if (classId!=null|| StringUtil.isNotEmpty(planStudentIds)){
-            return ApiResult.success(exportStrategy.syncExport(exportCondition, ExportReportServiceNameConstant.EXPORT_QRCODE_SCREENIN_SERVICE));
+            return ApiResult.success(exportStrategy.syncExport(exportCondition, ExportReportServiceNameConstant.EXPORT_QRCODE_SCREENING_SERVICE));
         }
-        exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.EXPORT_QRCODE_SCREENIN_SERVICE);
+        exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.EXPORT_QRCODE_SCREENING_SERVICE);
         return ApiResult.success();
     }
 

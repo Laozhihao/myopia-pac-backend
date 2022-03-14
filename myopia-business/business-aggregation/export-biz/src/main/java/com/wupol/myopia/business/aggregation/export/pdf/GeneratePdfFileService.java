@@ -72,12 +72,7 @@ public class GeneratePdfFileService {
     private SchoolGradeService schoolGradeService;
     @Autowired
     private SchoolClassService schoolClassService;
-//    @Autowired
-//    private ScreeningExportService screeningExportService;
-    @Autowired
-    private Html2PdfService html2PdfService;
-    @Autowired
-    private GeneratePdfFileService generateReportPdfService;
+
     /**
      * 生成筛查报告PDF文件 - 行政区域
      *
@@ -307,63 +302,9 @@ public class GeneratePdfFileService {
 
         Integer templateId = templateDistrictService.getByDistrictId(districtService.getProvinceId(org.getDistrictId()));
 
-        String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.STUDENT_ARCHIVES_HTML_URL, htmlUrlHost, planId, schoolId, templateId, planStudentIds, gradeId, Objects.nonNull(classId) ? classId : StringUtils.EMPTY);
+        String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.STUDENT_ARCHIVES_HTML_URL, htmlUrlHost, planId, schoolId, templateId, StringUtils.isNotBlank(planStudentIds) ? planStudentIds : StringUtils.EMPTY, gradeId, Objects.nonNull(classId) ? classId : StringUtils.EMPTY);
         Assert.isTrue(HtmlToPdfUtil.convertArchives(schoolPdfHtmlUrl, Paths.get(fileSavePath).toString()), "【生成学校档案卡PDF文件异常】：" + school.getName());
     }
-
-    /**
-     * 导出学生二维码
-     * @param exportCondition
-     * @param fileSavePath
-     * @param fileName
-     */
-    public void generateExportScreenQrcodePdfFile(List<ScreeningStudentDTO> students,ExportCondition exportCondition, String fileSavePath,
-                                                  String fileName,Integer type,String gradeNameTmp){
-        Map<Integer, List<ScreeningStudentDTO>> gradeGroup = students.stream().collect(Collectors.groupingBy(t -> t.getGradeId()));
-        for (Integer gradeId:gradeGroup.keySet()){
-            List<ScreeningStudentDTO> gradeStudents = gradeGroup.get(gradeId);
-            Map<Integer, List<ScreeningStudentDTO>> classGroup = gradeStudents.stream().collect(Collectors.groupingBy(t -> t.getClassId()));
-            for (Integer classId:classGroup.keySet()){
-                List<ScreeningStudentDTO> classStudents  = classGroup.get(classId);
-                ScreeningStudentDTO screeningStudentDTO  = classStudents.get(0);
-
-                String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.STUDENT_QRCODE_HTML_URL,htmlUrlHost,
-                        exportCondition.getPlanId(), exportCondition.getSchoolId(),gradeId,classId,
-                        Objects.nonNull(exportCondition.getPlanStudentIds()) ? exportCondition.getPlanStudentIds() : StringUtils.EMPTY,
-                        type);
-                String dir =null;
-                if (StringUtils.isNotBlank(gradeNameTmp)){
-                    dir =  Paths.get(fileSavePath,fileName).toString();
-                }else {
-                    dir =  Paths.get(fileSavePath,fileName,screeningStudentDTO.getGradeName()).toString();
-                }
-                String uuid = UUID.randomUUID().toString();
-                log.info("请求路径:{}", schoolPdfHtmlUrl);
-                PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(schoolPdfHtmlUrl, fileName+"("+screeningStudentDTO.getClassName()+").pdf", uuid);
-                log.info("响应参数:{}", JSONObject.toJSONString(pdfResponseDTO));
-                try {
-                    FileUtils.downloadFile(pdfResponseDTO.getUrl(), Paths.get(dir,fileName+"("+screeningStudentDTO.getClassName()+")")+".pdf");
-                } catch (Exception e) {
-                    log.error("Exception", e);
-                }
-            }
-        }
-    }
-
-    public String syncExportScreenQrcodePdfFile(ExportCondition exportCondition, String fileSavePath, String fileName,Integer type) {
-
-        String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.STUDENT_QRCODE_HTML_URL,htmlUrlHost,
-                exportCondition.getPlanId(), exportCondition.getSchoolId(),
-                Objects.nonNull( exportCondition.getGradeId()) ? exportCondition.getGradeId() : StringUtils.EMPTY,
-                Objects.nonNull( exportCondition.getClassId()) ? exportCondition.getClassId() : StringUtils.EMPTY,
-                Objects.nonNull(exportCondition.getPlanStudentIds()) ? exportCondition.getPlanStudentIds() : StringUtils.EMPTY,
-                type);
-        String uuid = UUID.randomUUID().toString();
-        PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(schoolPdfHtmlUrl, fileName+".pdf", uuid);
-        log.info("response:{}", JSONObject.toJSONString(pdfResponseDTO));
-        return pdfResponseDTO.getUrl();
-    }
-
 
 
 }

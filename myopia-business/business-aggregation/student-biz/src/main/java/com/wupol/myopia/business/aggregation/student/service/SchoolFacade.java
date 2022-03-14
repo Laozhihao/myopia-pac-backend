@@ -97,6 +97,7 @@ public class SchoolFacade {
         }
         District district = districtService.getById(schoolRequestDTO.getDistrictId());
         schoolRequestDTO.setDistrictProvinceCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
+        //更新学校
         schoolService.updateById(schoolRequestDTO);
         // 新增
         schoolService.generateGradeAndClass(schoolRequestDTO.getId(), schoolRequestDTO.getCreateUserId(), schoolRequestDTO.getBatchSaveGradeList());

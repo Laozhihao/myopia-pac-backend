@@ -88,6 +88,17 @@
         </if>
     </select>
 
+<<<<<<<<< Temporary merge branch 1
+    <select id="getByGradeIdAndNames" resultMap="BaseResultMap">
+        select *
+        from m_school_class where school_id = #{schoolId}
+                              and status = 0
+                              and grade_id = #{gradeId}
+                              and name in
+        <foreach collection="names" item="name" index="index" open="(" close=")" separator=",">
+            #{name}
+        </foreach>
+=========
     <select id="getByNamesNeId" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
@@ -101,16 +112,6 @@
                 #{className}
             </foreach>
         </if>
-    </select>
-
-    <select id="getByGradeIdAndNames" resultMap="BaseResultMap">
-        select *
-        from m_school_class where school_id = #{schoolId}
-                              and status = 0
-                              and grade_id = #{gradeId}
-                              and name in
-        <foreach collection="names" item="name" index="index" open="(" close=")" separator=",">
-            #{name}
-        </foreach>
+>>>>>>>>> Temporary merge branch 2
     </select>
 </mapper>

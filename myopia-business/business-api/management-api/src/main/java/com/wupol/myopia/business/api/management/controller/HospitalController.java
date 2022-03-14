@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
@@ -23,10 +24,11 @@ import com.wupol.myopia.business.core.hospital.domain.query.HospitalQuery;
 import com.wupol.myopia.business.core.hospital.service.HospitalDoctorService;
 import com.wupol.myopia.business.core.hospital.service.HospitalService;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.CacheOverviewInfoDTO;
-import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccountListDTO;
+import com.wupol.myopia.business.core.common.domain.dto.OrgAccountListDTO;
 import com.wupol.myopia.business.core.screening.organization.service.OverviewService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -163,6 +165,9 @@ public class HospitalController {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         if (user.isOverviewUser()) {
             query.setIds(overviewService.getBindHospital(user.getOrgId()));
+            if (CollectionUtils.isEmpty(query.getIds())) {
+                return new Page<>(pageRequest.getCurrent(), pageRequest.getSize());
+            }
         }
         return hospitalBizService.getHospitalList(pageRequest, query, user);
     }

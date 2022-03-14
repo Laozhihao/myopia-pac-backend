@@ -20,6 +20,7 @@ import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.dto.BatchSaveGradeRequestDTO;
+import com.wupol.myopia.business.core.school.domain.dto.SaveSchoolRequestDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolQueryDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO;
 import com.wupol.myopia.business.core.school.domain.mapper.SchoolMapper;
@@ -71,7 +72,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @return UsernameAndPasswordDto 账号密码
      */
     @Transactional(rollbackFor = Exception.class)
-    public UsernameAndPasswordDTO saveSchool(School school) {
+    public UsernameAndPasswordDTO saveSchool(SaveSchoolRequestDTO school) {
         Assert.hasLength(school.getSchoolNo(), "学校编号不能为空");
         Assert.notNull(school.getDistrictId(), "行政区域ID不能为空");
         if (checkSchoolName(school.getName(), null)) {
@@ -85,6 +86,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         // oauth系统中增加学校状态信息
         oauthServiceClient.addOrganization(new Organization(school.getId(), SystemCode.SCHOOL_CLIENT,
                 UserType.OTHER, school.getStatus()));
+        generateGradeAndClass(school.getId(), school.getCreateUserId(), school.getBatchSaveGradeList());
         return generateAccountAndPassword(school, StringUtils.EMPTY);
     }
 
@@ -476,7 +478,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         saveGradeRequestDTO.forEach(item -> {
             SchoolGrade schoolGrade = item.getSchoolGrade();
             schoolGrade.setSchoolId(schoolId);
-            schoolGrade.setGradeCode(GradeCodeEnum.getByCode(schoolGrade.getName()).getCode());
+            schoolGrade.setGradeCode(GradeCodeEnum.getByName(schoolGrade.getName()).getCode());
             List<SchoolClass> schoolClassList = item.getSchoolClass();
             if (!CollectionUtils.isEmpty(schoolClassList)) {
                 schoolClassList.forEach(schoolClass -> {
