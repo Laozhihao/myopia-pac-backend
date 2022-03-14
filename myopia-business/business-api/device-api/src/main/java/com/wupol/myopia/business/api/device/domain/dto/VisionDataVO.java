@@ -10,7 +10,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class BusinessType1 {
+public class VisionDataVO {
 
     private Integer planStudentId;
 

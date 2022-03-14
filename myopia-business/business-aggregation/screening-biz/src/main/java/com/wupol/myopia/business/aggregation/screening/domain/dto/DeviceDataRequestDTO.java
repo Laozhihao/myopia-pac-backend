@@ -5,7 +5,6 @@ import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.util.List;
 
 /**
  * 灯箱数据上传DTO
@@ -14,7 +13,7 @@ import java.util.List;
  */
 @Getter
 @Setter
-public class LightBoxDataRequestDTO {
+public class DeviceDataRequestDTO {
 
     @NotBlank(message = "不能为空")
     private String deviceSn;

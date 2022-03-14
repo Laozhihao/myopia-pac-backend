@@ -3,10 +3,11 @@ package com.wupol.myopia.business.api.device.controller;
 import com.alibaba.fastjson.JSON;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.exception.BusinessException;
-import com.wupol.myopia.business.aggregation.screening.domain.dto.LightBoxDataRequestDTO;
+import com.wupol.myopia.business.aggregation.screening.domain.dto.DeviceDataRequestDTO;
 import com.wupol.myopia.business.api.device.domain.dto.DeviceUploadDTO;
 import com.wupol.myopia.business.api.device.domain.result.DeviceUploadResult;
 import com.wupol.myopia.business.api.device.service.DeviceUploadDataService;
+import com.wupol.myopia.business.api.device.service.IDeviceDataService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +29,9 @@ public class DeviceUploadDataController {
 
     @Autowired
     private DeviceUploadDataService deviceUploadDataService;
+
+    @Autowired
+    private IDeviceDataService iDeviceDataService;
 
     /**
      * 上传数据
@@ -51,8 +55,8 @@ public class DeviceUploadDataController {
 
 
     @PostMapping("/device/uploadData")
-    public ApiResult uploadLightBoxData(@RequestBody @Valid LightBoxDataRequestDTO requestDTO) {
-        deviceUploadDataService.uploadLightBoxData(requestDTO);
+    public ApiResult uploadLightBoxData(@RequestBody @Valid DeviceDataRequestDTO requestDTO) {
+        iDeviceDataService.uploadDate(requestDTO);
         return ApiResult.success();
     }
 
