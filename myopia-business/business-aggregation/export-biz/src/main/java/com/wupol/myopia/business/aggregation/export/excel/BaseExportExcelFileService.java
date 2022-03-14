@@ -69,7 +69,8 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
             // 4.生成导出的文件
             generateExcelFile(fileName, data, exportCondition);
             // 5.压缩文件
-            excelFile = compressFile(excelSavePath+fileName);
+            excelFile = ExcelUtil.zip(excelSavePath, fileName);
+           // excelFile = compressFile(excelSavePath+fileName);
             // 6.上传文件
             Integer fileId = uploadFile(excelFile);
             // 7.发送成功通知
