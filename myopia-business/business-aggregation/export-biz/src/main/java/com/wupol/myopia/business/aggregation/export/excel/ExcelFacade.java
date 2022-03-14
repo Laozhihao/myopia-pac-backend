@@ -92,7 +92,6 @@ public class ExcelFacade {
     @Async
     public void generateVisionScreeningResult(Integer userId, List<StatConclusionExportDTO> statConclusionExportDTOs, boolean isSchoolExport, String districtOrSchoolName, String redisKey) throws IOException, UtilException {
         // 设置导出的文件名
-        StringBuffer folder = new StringBuffer();
         String fileName = String.format("%s-筛查数据", districtOrSchoolName);
         String content = String.format(CommonConst.EXPORT_MESSAGE_CONTENT_SUCCESS, districtOrSchoolName + "筛查数据", new Date());
         log.info("导出筛查结果文件: {}", fileName);
@@ -106,7 +105,7 @@ public class ExcelFacade {
             String filePath = String.format("%s-%s", System.currentTimeMillis(), UUID.randomUUID());
             Map<String, List<StatConclusionExportDTO>> schoolNameMap = statConclusionExportDTOs.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getSchoolName));
             schoolNameMap.keySet().forEach(schoolName -> {
-
+                StringBuffer folder = new StringBuffer();
                 List<StatConclusionExportDTO> orDefault = schoolNameMap.getOrDefault(schoolName, Collections.emptyList());
                 //学校的区域id，以及该区域的上层id
                 if (Objects.nonNull(orDefault) && orDefault.size()>0){
