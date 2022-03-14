@@ -6,6 +6,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotic
 import com.wupol.myopia.business.core.stat.domain.model.SchoolVisionStatistic;
 import lombok.Data;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.apache.commons.collections4.CollectionUtils;
 
@@ -23,6 +24,12 @@ public class ScreeningSchoolVisionStatisticVO extends ScreeningBasicResult {
      */
     private Set<Item> contents;
 
+    /**
+     * 行政区域ID
+     */
+    private Integer districtId;
+
+
     @Getter
     @Accessors(chain = true)
     public static class Item {
@@ -32,9 +39,10 @@ public class ScreeningSchoolVisionStatisticVO extends ScreeningBasicResult {
         private String screeningRangeName;
 
         /**
-         * 行政区域
+         * 行政区域名字
          */
         private String districtName;
+
 
         /**
          * 私有构造方法
@@ -265,6 +273,7 @@ public class ScreeningSchoolVisionStatisticVO extends ScreeningBasicResult {
         screeningSchoolVisionStatisticVO.setBasicData(screeningNotice);
         //设置统计数据
         screeningSchoolVisionStatisticVO.setItemData(schoolVisionStatistics,schoolIdDistrictNameMap);
+        screeningSchoolVisionStatisticVO.setDistrictId(screeningNotice.getDistrictId());
         return screeningSchoolVisionStatisticVO;
     }
 
