@@ -214,21 +214,15 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
         try {
             // 1.获取文件名
             String fileName = getFileName(exportCondition);
-            log.info("文件名=="+fileName);
             // 3.获取数据，生成List
             List data = getExcelData(exportCondition);
-            log.info("数据=="+data);
             // 2.获取文件保存父目录路径
             excelFile = generateExcelFile(fileName, data,exportCondition);
-
             // 4.压缩文件
-            File file = compressFile(excelSavePath+fileName);
-
-            log.info("excelFile=="+excelFile);
+            File  file = ExcelUtil.zip(excelSavePath, fileName);
             return resourceFileService.getResourcePath(s3Utils.uploadS3AndGetResourceFile(file.getAbsolutePath(), file.getName()).getId());
         } catch (Exception e) {
             String requestData = JSON.toJSONString(exportCondition);
-            log.info("异常=="+e.getMessage());
             log.error("【生成Excel异常】{}", requestData, e);
             // 发送失败通知
             throw new BusinessException("导出数据异常");
