@@ -143,7 +143,6 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
                 folder.append("/"+school.getName());
                 folder.append("/"+grade.getName());
                 folder.append("/"+schoolClass.getName());
-                String folders = folder.toString();
                 createScreeningDateExcel(fileName,data,exportCondition,collectMap,folder.toString());
             });
         }
@@ -159,6 +158,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
             districtPositionDetailById.forEach(item->{
                 folder.append("/"+item.getName());
             });
+            folder.append("/"+fileName);
             folder.append("/"+plan.getTitle());
             folder.append("/"+filePath);
             try {
