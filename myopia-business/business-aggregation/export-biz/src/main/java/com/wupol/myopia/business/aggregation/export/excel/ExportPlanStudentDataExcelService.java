@@ -110,9 +110,10 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
 
         List<StatConclusionExportDTO> statConclusionExportDTOs = data;
         OnceAbsoluteMergeStrategy mergeStrategy = new OnceAbsoluteMergeStrategy(0, 1, 20, 21);
-        //如果schoolId为null则证明是导出整个计划下的筛查数据 或 schoolId不为null且年级和班级id为null，则都以学校维度导出
+
+        //如果年级id和班级id都为null，则都以学校维度导出
         ScreeningPlan plan = screeningPlanService.getById(exportCondition.getPlanId());
-        if (Objects.isNull(exportCondition.getSchoolId()) || (Objects.nonNull(exportCondition.getSchoolId()) && (Objects.isNull(exportCondition.getGradeId())&& Objects.isNull(exportCondition.getClassId())))){
+        if (Objects.isNull(exportCondition.getGradeId())&& Objects.isNull(exportCondition.getClassId())){
             Map<Integer, List<StatConclusionExportDTO>> collectMap = statConclusionExportDTOs.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getSchoolId));
             collectMap.forEach((key,value)->{
                 StringBuffer folder = new StringBuffer();
