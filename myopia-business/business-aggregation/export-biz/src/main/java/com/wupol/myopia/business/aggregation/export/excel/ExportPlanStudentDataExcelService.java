@@ -155,10 +155,10 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         List<District> districtPositionDetailById = districtService.getDistrictPositionDetailById(exportCondition.getDistrictId());
         collectMap.forEach((key,value)->{
             StringBuffer folder = new StringBuffer();
+            folder.append("/"+fileName);
             districtPositionDetailById.forEach(item->{
                 folder.append("/"+item.getName());
             });
-            folder.append("/"+fileName);
             folder.append("/"+plan.getTitle());
             folder.append("/"+filePath);
             try {

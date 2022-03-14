@@ -218,7 +218,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
             // 2.获取文件保存父目录路径
             excelFile = generateExcelFile(fileName, data,exportCondition);
             // 4.压缩文件
-            File  file = compressFile(excelSavePath+fileName);;
+            File file = compressFile(excelSavePath+fileName);;
             return resourceFileService.getResourcePath(s3Utils.uploadS3AndGetResourceFile(file.getAbsolutePath(), file.getName()).getId());
         } catch (Exception e) {
             String requestData = JSON.toJSONString(exportCondition);
