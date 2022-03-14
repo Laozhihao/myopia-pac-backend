@@ -237,15 +237,9 @@ public class GeneratePdfFileService {
         ScreeningPlan plan = screeningPlanService.getById(planId);
 
         // 获取筛查机构的模板
-        //ScreeningOrganization org = screeningOrganizationService.getById(plan.getScreeningOrgId());
         Integer templateId = templateDistrictService.getByDistrictId(districtService.getProvinceId(plan.getDistrictId()));
 
-        /*if (Objects.isNull(schoolId)) {
-            String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.SCHOOL_ARCHIVES_HTML_URL, htmlUrlHost, planId, schoolId, templateId, gradeId, classId, planStudentIds);
-            String dir = saveDirectory + "/" + plan.getTitle();
-            Assert.isTrue(HtmlToPdfUtil.convertArchives(schoolPdfHtmlUrl, Paths.get(dir, plan.getTitle() + "档案卡" + ".pdf").toString()), "【生成学校档案卡PDF文件异常】：" + plan.getTitle());
-            return;
-        }*/
+
         School school = schoolService.getById(schoolId);
         // 特殊处理
         if (ObjectsUtil.allNotNull(gradeId, classId)) {

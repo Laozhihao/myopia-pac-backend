@@ -109,10 +109,21 @@ public class ReportController {
      **/
     @GetMapping("/school/archives")
     public void exportSchoolArchives(@NotNull(message = "筛查计划ID不能为空") Integer planId,
-                                     @NotNull(message = "学校ID不能为空") Integer schoolId) throws IOException {
+                                     @NotNull(message = "学校ID不能为空") Integer schoolId,
+                                     Integer classId,
+                                     Integer gradeId,
+                                     @NotNull(message = "筛查机构ID不能为空") Integer screeningOrgId,
+                                     Integer districtId,
+                                     @RequestParam(value="planStudentIds", required = false) String planStudentIds)
+            throws IOException {
         ExportCondition exportCondition = new ExportCondition()
                 .setPlanId(planId)
                 .setSchoolId(schoolId)
+                .setClassId(classId)
+                .setGradeId(gradeId)
+                .setPlanStudentIds(planStudentIds)
+                .setScreeningOrgId(screeningOrgId)
+                .setDistrictId(districtId)
                 .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.SCHOOL_ARCHIVES_SERVICE);
     }
