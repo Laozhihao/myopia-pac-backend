@@ -45,7 +45,7 @@ public class StudentQueryDTO extends StudentExtraDTO {
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private Date birthday;
+    private Date birthdayLike;
 
     /**
      * 年级ids 逗号隔开
