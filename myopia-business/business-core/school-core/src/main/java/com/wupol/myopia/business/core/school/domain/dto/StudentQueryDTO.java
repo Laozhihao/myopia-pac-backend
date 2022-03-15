@@ -43,6 +43,10 @@ public class StudentQueryDTO extends StudentExtraDTO {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date endScreeningTime;
 
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private Date birthday;
+
     /**
      * 年级ids 逗号隔开
      */
