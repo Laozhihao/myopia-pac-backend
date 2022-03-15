@@ -84,10 +84,10 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         ScreeningOrganizationStaffQueryDTO staffQueryDTO = new ScreeningOrganizationStaffQueryDTO();
         CurrentUser users = CurrentUserUtil.getCurrentUser();
         staffQueryDTO.setUserIds(userIds);
-        staffQueryDTO.setType(1);
+        staffQueryDTO.setType(ScreeningOrganizationStaff.AUTO_CREATE_SCREENING_PERSONNEL);
         //如果为非平台管理员
         if (!users.isPlatformAdminUser()){
-            staffQueryDTO.setType(0);
+            staffQueryDTO.setType(ScreeningOrganizationStaff.GENERAL_SCREENING_PERSONNEL);
         }
         IPage<ScreeningOrganizationStaff> page = getByPage(page1,staffQueryDTO);
         Map<Integer, ScreeningOrganizationStaff> staffSnMaps = page.getRecords()
@@ -115,7 +115,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      */
     @Transactional(rollbackFor = Exception.class)
     public UsernameAndPasswordDTO saveOrganizationStaff(ScreeningOrganizationStaffQueryDTO staffQuery) {
-        if (staffQuery.getType() == null || staffQuery.getType()==0){
+        if (staffQuery.getType() == null || staffQuery.getType()==ScreeningOrganizationStaff.GENERAL_SCREENING_PERSONNEL){
             // 检查身份证号码是否重复
             List<User> checkIdCards = oauthServiceClient.getUserBatchByIdCards(Lists.newArrayList(staffQuery.getIdCard()),
                     SystemCode.SCREENING_CLIENT.getCode(), staffQuery.getScreeningOrgId());
@@ -219,7 +219,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         User user = oauthServiceClient.getUserDetailByUserId(staff.getUserId());
         String password = ScreeningOrganizationStaff.AUTO_CREATE_STAFF_DEFAULT_PASSWORD;
         String username = user.getUsername();
-        if (staff.getType()!=1){
+        if (staff.getType()!=ScreeningOrganizationStaff.AUTO_CREATE_SCREENING_PERSONNEL){
             password = PasswordAndUsernameGenerator.getScreeningUserPwd(request.getPhone(), request.getIdCard());
             username = request.getPhone();
             oauthServiceClient.resetPwd(staff.getUserId(), password);
@@ -245,7 +245,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         String username;
         UserDTO userDTO = new UserDTO();
         //如果是创建机构时自动新增的人员
-        if (staff.getType()==1){
+        if (staff.getType()==ScreeningOrganizationStaff.AUTO_CREATE_SCREENING_PERSONNEL){
             password = ScreeningOrganizationStaff.AUTO_CREATE_STAFF_DEFAULT_PASSWORD;
             username = staff.getUserName();
         }else{
@@ -384,7 +384,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      **/
     public int countByScreeningOrgId(Integer screeningOrgId) {
         Assert.notNull(screeningOrgId, "screeningOrgId不能为空");
-        return count(new ScreeningOrganizationStaff().setScreeningOrgId(screeningOrgId).setType(0));
+        return count(new ScreeningOrganizationStaff().setScreeningOrgId(screeningOrgId).setType(ScreeningOrganizationStaff.GENERAL_SCREENING_PERSONNEL));
     }
 
 }

@@ -188,7 +188,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         String password = PasswordAndUsernameGenerator.getScreeningAdminPwd();
         ScreeningOrganizationStaff screeningOrganizationStaff =  screeningOrganizationStaffService.getStaffsByUserId(userId);
         if (screeningOrganizationStaff != null){
-            if (screeningOrganizationStaff.getType() ==1){
+            if (screeningOrganizationStaff.getType() == ScreeningOrganizationStaff.AUTO_CREATE_SCREENING_PERSONNEL){
                 password = ScreeningOrganizationStaff.AUTO_CREATE_STAFF_DEFAULT_PASSWORD;
             }
         }

@@ -24,3 +24,6 @@ CREATE TABLE `m_work_order` (
   `screening_end_time` timestamp NULL DEFAULT NULL COMMENT '筛查结束时间',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+alter table m_screening_organization_staff
+    add type tinyint(1) NOT NULL DEFAULT '0' COMMENT '筛查人员类型（0普通筛查人员，1自动生成的筛查人员）';

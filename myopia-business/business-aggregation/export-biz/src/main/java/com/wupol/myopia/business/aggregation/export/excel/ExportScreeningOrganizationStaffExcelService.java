@@ -4,8 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.constant.SystemCode;
-import com.wupol.myopia.base.domain.CurrentUser;
-import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelNoticeKeyContentConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
