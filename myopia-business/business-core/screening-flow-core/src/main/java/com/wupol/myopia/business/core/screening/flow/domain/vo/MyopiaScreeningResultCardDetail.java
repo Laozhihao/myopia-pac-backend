@@ -9,9 +9,9 @@ import lombok.Setter;
 import java.util.List;
 
 /**
- * 海南省学生眼疾病筛查单
+ * 学生档案卡-近视筛查结果记录表
  *
- * @author Simple4H
+ * @author 钓猫的小鱼
  */
 @Getter
 @Setter
