@@ -204,7 +204,6 @@ public class GeneratePdfFileService {
         List<screeningPlanSchoolStudentDTO> statConclusionExportVos = new ArrayList<>();
         List<Integer> childDistrictIds = districtService.getSpecificDistrictTreeAllDistrictIds(exportCondition.getDistrictId());
         statConclusionExportVos = statConclusionService.getExportVoByScreeningNoticeIdAndDistrictIdsAndGroupBy(exportCondition.getNotificationId(), childDistrictIds);
-        log.info("区域档案卡数据==="+statConclusionExportVos);
         statConclusionExportVos.forEach(item->{
             ExportCondition exportCondition1 = new ExportCondition();
             exportCondition1.setPlanId(item.getScreeningPlanId());
@@ -244,10 +243,6 @@ public class GeneratePdfFileService {
             String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.SCHOOL_ARCHIVES_HTML_URL, htmlUrlHost, planId, schoolId, templateId, gradeId, classId, planStudentIds);
             String schoolReportFileName = String.format(PDFFileNameConstant.ARCHIVES_PDF_FILE_NAME_GRADE_CLASS, school.getName(), schoolGrade.getName(), schoolClass.getName());
             String dir = saveDirectory + "/" + school.getName() + "/" + schoolGrade.getName() + "/" + schoolClass.getName();
-            log.info("schoolPdfHtmlUrl="+schoolPdfHtmlUrl);
-            log.info("dir="+dir);
-            log.info("schoolReportFileName="+schoolReportFileName);
-            log.info("school.getName="+school.getName());
             Assert.isTrue(HtmlToPdfUtil.convertArchives(schoolPdfHtmlUrl, Paths.get(dir, schoolReportFileName + ".pdf").toString()), "【生成学校档案卡PDF文件异常】：" + school.getName());
         } else {
             // 获取年纪班级信息
