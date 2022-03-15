@@ -76,49 +76,22 @@ public class VisionDataServiceImpl implements IDeviceDataService {
             throw new BusinessException("数据不能为空");
         }
         List<VisionDataVO> visionDataVOS = JSONObject.parseArray(dataStr, VisionDataVO.class);
-        visionDataVOS.forEach(a -> {
-            Integer planStudentId = a.getPlanStudentId();
+        visionDataVOS.forEach(visionDataVO -> {
+            Integer planStudentId = visionDataVO.getPlanStudentId();
             ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(planStudentId);
             if (Objects.isNull(planStudent)) {
                 throw new BusinessException("学生信息异常");
             }
-            if (!planStudent.getScreeningOrgId().equals(screeningOrganization.getId())) {
+            Integer orgId = screeningOrganization.getId();
+            if (!planStudent.getScreeningOrgId().equals(orgId)) {
                 throw new BusinessException("筛查学生与筛查机构不匹配");
             }
-            DeviceSourceData data = new DeviceSourceData();
-            data.setDeviceType(device.getType());
-            data.setPatientId(String.valueOf(planStudentId));
-            data.setDeviceId(device.getId());
-            data.setDeviceCode(device.getDeviceCode());
-            data.setDeviceSn(device.getDeviceSn());
-            data.setSrcData(dataStr);
-            data.setScreeningOrgId(screeningOrganization.getId());
-            data.setScreeningTime(Objects.nonNull(a.getScreeningTime()) ? DateUtil.date(a.getScreeningTime()) : new Date());
-            deviceSourceDataService.save(data);
-
-            VisionScreeningResult result = visionScreeningResultService.getByPlanStudentId(planStudentId);
-
-            if (Objects.isNull(result)) {
-                result = new VisionScreeningResult();
-                result.setTaskId(planStudent.getScreeningTaskId());
-                result.setScreeningOrgId(planStudent.getScreeningOrgId());
-                result.setSchoolId(planStudent.getSchoolId());
-                result.setScreeningPlanSchoolStudentId(planStudent.getId());
-                result.setCreateUserId(-1);
-                result.setStudentId(planStudent.getStudentId());
-                result.setPlanId(planStudent.getScreeningPlanId());
-                result.setDistrictId(planStudent.getPlanDistrictId());
-            }
-            VisionDataDO visionDataDO = new VisionDataDO();
-            visionDataDO.setRightEyeData(generateData(a, false));
-            visionDataDO.setLeftEyeData(generateData(a, true));
-            visionDataDO.setIsCooperative(0);
-            visionDataDO.setCreateUserId(-1);
-            result.setVisionData(visionDataDO);
-            result.setUpdateTime(new Date());
-            visionScreeningResultService.saveOrUpdate(result);
+            Long screeningTime = visionDataVO.getScreeningTime();
+            // 保存原始数据
+            saveDeviceData(device, dataStr, planStudentId, orgId, screeningTime);
+            // 更新或新增筛查学生结果
+            saveOrUpdateScreeningResult(visionDataVO, planStudent);
         });
-
         log.info(JSONObject.toJSONString(requestDTO));
     }
 
@@ -127,6 +100,64 @@ public class VisionDataServiceImpl implements IDeviceDataService {
         return BusinessTypeEnum.VISION_DATA.getType();
     }
 
+    /**
+     * 保存原始信息
+     *
+     * @param device        设备信息
+     * @param dataStr       数据
+     * @param planStudentId 筛查学生
+     * @param orgId         筛查机构
+     * @param screeningTime 筛查时间
+     */
+    private void saveDeviceData(Device device, String dataStr, Integer planStudentId, Integer orgId, Long screeningTime) {
+        DeviceSourceData data = new DeviceSourceData();
+        data.setDeviceType(device.getType());
+        data.setPatientId(String.valueOf(planStudentId));
+        data.setDeviceId(device.getId());
+        data.setDeviceCode(device.getDeviceCode());
+        data.setDeviceSn(device.getDeviceSn());
+        data.setSrcData(dataStr);
+        data.setScreeningOrgId(orgId);
+        data.setScreeningTime(Objects.nonNull(screeningTime) ? DateUtil.date(screeningTime) : new Date());
+        deviceSourceDataService.save(data);
+    }
+
+    /**
+     * 保存或更新筛查结果
+     *
+     * @param visionDataVO 上传数据实体
+     * @param planStudent  筛查学生
+     */
+    private void saveOrUpdateScreeningResult(VisionDataVO visionDataVO, ScreeningPlanSchoolStudent planStudent) {
+        VisionScreeningResult result = visionScreeningResultService.getByPlanStudentId(visionDataVO.getPlanStudentId());
+        if (Objects.isNull(result)) {
+            result = new VisionScreeningResult();
+            result.setTaskId(planStudent.getScreeningTaskId());
+            result.setScreeningOrgId(planStudent.getScreeningOrgId());
+            result.setSchoolId(planStudent.getSchoolId());
+            result.setScreeningPlanSchoolStudentId(planStudent.getId());
+            result.setCreateUserId(-1);
+            result.setStudentId(planStudent.getStudentId());
+            result.setPlanId(planStudent.getScreeningPlanId());
+            result.setDistrictId(planStudent.getPlanDistrictId());
+        }
+        VisionDataDO visionDataDO = new VisionDataDO();
+        visionDataDO.setRightEyeData(generateData(visionDataVO, false));
+        visionDataDO.setLeftEyeData(generateData(visionDataVO, true));
+        visionDataDO.setIsCooperative(0);
+        visionDataDO.setCreateUserId(-1);
+        result.setVisionData(visionDataDO);
+        result.setUpdateTime(new Date());
+        visionScreeningResultService.saveOrUpdate(result);
+    }
+
+    /**
+     * 生成数据
+     *
+     * @param visionDataVO 上传数据实体
+     * @param isLeft       是否左眼
+     * @return VisionDataDO.VisionData
+     */
     private VisionDataDO.VisionData generateData(VisionDataVO visionDataVO, boolean isLeft) {
         VisionDataDO.VisionData visionData = new VisionDataDO.VisionData();
         try {
