@@ -206,9 +206,10 @@ public class GeneratePdfFileService {
         statConclusionExportVos = statConclusionService.getExportVoByScreeningNoticeIdAndDistrictIdsAndGroupBy(exportCondition.getNotificationId(), childDistrictIds);
         log.info("区域档案卡数据==="+statConclusionExportVos);
         statConclusionExportVos.forEach(item->{
-            exportCondition.setPlanId(item.getScreeningPlanId());
-            exportCondition.setSchoolId(item.getSchoolId());
-            generateSchoolArchivesPdfFile(saveDirectory,exportCondition);
+            ExportCondition exportCondition1 = new ExportCondition();
+            exportCondition1.setPlanId(item.getScreeningPlanId());
+            exportCondition1.setSchoolId(item.getSchoolId());
+            generateSchoolArchivesPdfFile(saveDirectory,exportCondition1);
         });
 
     }
