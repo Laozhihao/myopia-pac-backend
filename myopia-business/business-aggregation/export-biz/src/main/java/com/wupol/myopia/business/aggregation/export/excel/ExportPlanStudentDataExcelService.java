@@ -117,7 +117,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
                 StringBuffer folder = new StringBuffer();
                 School school = schoolService.getById(key);
                 folder.append("/"+school.getName());
-                createScreeningDateExcel(fileName,data,exportCondition,collectMap,folder.toString());
+                createScreeningDateExcel(fileName,exportCondition,collectMap,folder.toString());
             });
         }
         //如果年级id不为null,且班级id为null，则以年级维度导出
@@ -129,7 +129,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
                 SchoolGrade grade = schoolGradeService.getById(key);
                 folder.append("/"+school.getName());
                 folder.append("/"+grade.getName());
-                createScreeningDateExcel(fileName,data,exportCondition,collectMap,folder.toString());
+                createScreeningDateExcel(fileName,exportCondition,collectMap,folder.toString());
             });
         }
         //如果年级id不为null,且班级id不为null，则以班级维度导出
@@ -143,13 +143,13 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
                 folder.append("/"+school.getName());
                 folder.append("/"+grade.getName());
                 folder.append("/"+schoolClass.getName());
-                createScreeningDateExcel(fileName,data,exportCondition,collectMap,folder.toString());
+                createScreeningDateExcel(fileName,exportCondition,collectMap,folder.toString());
             });
         }
         return null;
     }
 
-    private void createScreeningDateExcel(String fileName, List data,ExportCondition exportCondition,Map<Integer, List<StatConclusionExportDTO>> collectMap,String filePath){
+    private void createScreeningDateExcel(String fileName,ExportCondition exportCondition,Map<Integer, List<StatConclusionExportDTO>> collectMap,String filePath){
         OnceAbsoluteMergeStrategy mergeStrategy = new OnceAbsoluteMergeStrategy(0, 1, 20, 21);
         ScreeningPlan plan = screeningPlanService.getById(exportCondition.getPlanId());
         List<District> districtPositionDetailById = districtService.getDistrictPositionDetailById(exportCondition.getDistrictId());

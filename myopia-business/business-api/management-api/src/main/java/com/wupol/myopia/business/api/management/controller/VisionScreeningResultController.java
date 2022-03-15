@@ -294,7 +294,7 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
 
     /**
      * @Description: 导出文件
-     * @Param: [筛查计划ID, 筛查机构ID, 学校ID, 年级ID, 班级ID]
+     * @Param: [筛查计划ID, 筛查机构ID, 学校ID, 年级ID, 班级ID，行政区域ID]
      * @return: void
      * @Author: 钓猫的小鱼
      * @Date: 2021/12/29
