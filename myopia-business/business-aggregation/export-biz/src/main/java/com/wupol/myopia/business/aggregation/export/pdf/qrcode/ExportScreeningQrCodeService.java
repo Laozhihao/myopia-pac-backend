@@ -123,7 +123,11 @@ public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
         return syncExportScreeningQrCodePdfFile(exportCondition,fileName,exportCondition.getType());
     }
 
-
+    /**
+     * 获取学数据
+     * @param exportCondition
+     * @return
+     */
     public List<ScreeningStudentDTO> getStudentData(ExportCondition exportCondition){
         List<Integer> pladnStudentIds =null;
         if (StringUtil.isNotEmpty(exportCondition.getPlanStudentIds())&&!"null".equals(exportCondition.getPlanStudentIds())){
@@ -208,7 +212,7 @@ public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
     }
 
     /**
-     * 获取文件路径
+     * 文件路径
      * @param fileSavePath 保存路径
      * @param fileName 文件名称
      * @param screeningStudentDTO 学生文件信息
