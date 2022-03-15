@@ -227,6 +227,7 @@ public class GeneratePdfFileService {
         Integer gradeId = exportCondition.getGradeId();
         Integer classId = exportCondition.getClassId();
         String planStudentIds = exportCondition.getPlanStudentIds();
+        log.info("planStudentIds==="+planStudentIds);
 
         Assert.hasLength(saveDirectory, BizMsgConstant.SAVE_DIRECTORY_EMPTY);
         Assert.notNull(planId, BizMsgConstant.PLAN_ID_IS_EMPTY);
