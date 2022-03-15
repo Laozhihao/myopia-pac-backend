@@ -189,7 +189,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         ScreeningOrganizationStaff screeningOrganizationStaff =  screeningOrganizationStaffService.getStaffsByUserId(userId);
         if (screeningOrganizationStaff != null){
             if (screeningOrganizationStaff.getType() ==1){
-                password = ScreeningOrganizationStaff.PASSWORD;
+                password = ScreeningOrganizationStaff.AUTO_CREATE_STAFF_DEFAULT_PASSWORD;
             }
         }
         oauthServiceClient.resetPwd(userId, password);

@@ -134,9 +134,10 @@ public class ScreeningOrganizationBizService {
         screeningOrganizationStaffQueryDTO.setScreeningOrgId(screeningOrganization.getId());
         screeningOrganizationStaffQueryDTO.setCreateUserId(user.getId());
         screeningOrganizationStaffQueryDTO.setGovDeptId(user.getOrgId());
-        screeningOrganizationStaffQueryDTO.setType(1);
-        screeningOrganizationStaffQueryDTO.setRealName("筛查人员TA");
-        screeningOrganizationStaffService.saveOrganizationStaff(screeningOrganizationStaffQueryDTO,usernameAndPasswordDTO.getUsername());
+        screeningOrganizationStaffQueryDTO.setType(ScreeningOrganizationStaff.AUTO_CREATE_SCREENING_PERSONNEL);
+        screeningOrganizationStaffQueryDTO.setRealName(ScreeningOrganizationStaff.AUTO_CREATE_STAFF_DEFAULT_NAME);
+        screeningOrganizationStaffQueryDTO.setUserName(usernameAndPasswordDTO.getUsername());
+        screeningOrganizationStaffService.saveOrganizationStaff(screeningOrganizationStaffQueryDTO);
 
         return usernameAndPasswordDTO;
     }

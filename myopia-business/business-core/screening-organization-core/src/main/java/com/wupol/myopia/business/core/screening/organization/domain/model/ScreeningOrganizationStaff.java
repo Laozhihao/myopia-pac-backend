@@ -25,7 +25,26 @@ public class ScreeningOrganizationStaff implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    public static final String PASSWORD = "scry12345678";
+    /**
+     * 自动创建的筛查人员默认账号密码
+     */
+    public static final String AUTO_CREATE_STAFF_DEFAULT_PASSWORD = "scry12345678";
+
+    /**
+     * 自动创建筛查人员名称
+     */
+    public static final String AUTO_CREATE_STAFF_DEFAULT_NAME = "筛查人员TA";
+
+    /**
+     * 筛查人员类型(普通筛查人员)
+     */
+    public static final int GENERAL_SCREENING_PERSONNEL = 0;
+
+    /**
+     * 筛查人员类型(自动创建筛查人员)
+     */
+    public static final int AUTO_CREATE_SCREENING_PERSONNEL = 1;
+
 
     /**
      * id

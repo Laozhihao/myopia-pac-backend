@@ -114,7 +114,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      * @return UsernameAndPasswordDto 账号密码
      */
     @Transactional(rollbackFor = Exception.class)
-    public UsernameAndPasswordDTO saveOrganizationStaff(ScreeningOrganizationStaffQueryDTO staffQuery,String userName) {
+    public UsernameAndPasswordDTO saveOrganizationStaff(ScreeningOrganizationStaffQueryDTO staffQuery) {
         if (staffQuery.getType() == null || staffQuery.getType()==0){
             // 检查身份证号码是否重复
             List<User> checkIdCards = oauthServiceClient.getUserBatchByIdCards(Lists.newArrayList(staffQuery.getIdCard()),
@@ -131,7 +131,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
             }
         }
         // 生成账号密码
-        TwoTuple<UsernameAndPasswordDTO, Integer> tuple = generateAccountAndPassword(staffQuery,userName);
+        TwoTuple<UsernameAndPasswordDTO, Integer> tuple = generateAccountAndPassword(staffQuery);
         staffQuery.setUserId(tuple.getSecond());
         save(staffQuery);
         return tuple.getFirst();
@@ -217,7 +217,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
     public UsernameAndPasswordDTO resetPassword(StaffResetPasswordRequestDTO request) {
         ScreeningOrganizationStaff staff = baseMapper.selectById(request.getStaffId());
         User user = oauthServiceClient.getUserDetailByUserId(staff.getUserId());
-        String password = "scry12345678";
+        String password = ScreeningOrganizationStaff.AUTO_CREATE_STAFF_DEFAULT_PASSWORD;
         String username = user.getUsername();
         if (staff.getType()!=1){
             password = PasswordAndUsernameGenerator.getScreeningUserPwd(request.getPhone(), request.getIdCard());
@@ -239,15 +239,15 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      *
      * @return TwoTuple<UsernameAndPasswordDto, Integer> 账号密码,Id
      */
-    private TwoTuple<UsernameAndPasswordDTO, Integer> generateAccountAndPassword(ScreeningOrganizationStaffQueryDTO staff,String userName) {
+    private TwoTuple<UsernameAndPasswordDTO, Integer> generateAccountAndPassword(ScreeningOrganizationStaffQueryDTO staff) {
         TwoTuple<UsernameAndPasswordDTO, Integer> tuple = new TwoTuple<>();
-        String password = null;
-        String username = null;
+        String password;
+        String username;
         UserDTO userDTO = new UserDTO();
         //如果是创建机构时自动新增的人员
         if (staff.getType()==1){
-            password = ScreeningOrganizationStaff.PASSWORD;
-            username = userName;
+            password = ScreeningOrganizationStaff.AUTO_CREATE_STAFF_DEFAULT_PASSWORD;
+            username = staff.getUserName();
         }else{
             password = PasswordAndUsernameGenerator.getScreeningUserPwd(staff.getPhone(), staff.getIdCard());
             username = staff.getPhone();
