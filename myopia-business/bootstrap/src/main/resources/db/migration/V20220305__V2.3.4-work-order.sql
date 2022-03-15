@@ -24,3 +24,9 @@ CREATE TABLE `m_work_order` (
   `screening_end_time` timestamp NULL DEFAULT NULL COMMENT '筛查结束时间',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT INTO `m_template` (`id`, `type`, `name`, `create_time`, `update_time`) VALUES (9, 1, '学生档案卡-近视筛查结果记录表', '2022-03-04 15:41:24', '2022-03-04 15:41:27');
+UPDATE m_template	SET `name`='筛查报告-学校维度样板1' WHERE `name`='筛查报告-模板1';
+UPDATE m_template	SET `name`='筛查报告-计划维度样板1' WHERE `name`='筛查报告-模板2';
+UPDATE m_template	SET `name`='筛查报告-区域维度样板1' WHERE `name`='筛查报告-模板3';
+DELETE FROM m_template WHERE `name`='筛查报告-模板4'
