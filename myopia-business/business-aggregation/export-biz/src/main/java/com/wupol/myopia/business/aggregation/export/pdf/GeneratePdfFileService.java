@@ -204,6 +204,7 @@ public class GeneratePdfFileService {
         List<screeningPlanSchoolStudentDTO> statConclusionExportVos = new ArrayList<>();
         List<Integer> childDistrictIds = districtService.getSpecificDistrictTreeAllDistrictIds(exportCondition.getDistrictId());
         statConclusionExportVos = statConclusionService.getExportVoByScreeningNoticeIdAndDistrictIdsAndGroupBy(exportCondition.getNotificationId(), childDistrictIds);
+        log.info("区域档案卡数据==="+statConclusionExportVos);
         statConclusionExportVos.forEach(item->{
             exportCondition.setPlanId(item.getScreeningPlanId());
             exportCondition.setSchoolId(item.getSchoolId());
