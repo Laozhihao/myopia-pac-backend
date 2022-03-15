@@ -50,7 +50,7 @@ public class ExportScreeningOrgScreeningReportService extends BaseExportPdfFileS
         List<Integer> schoolIdList = statConclusionService.getSchoolIdByPlanId(exportCondition.getPlanId());
         if (schoolIdList.contains(exportCondition.getSchoolId())){
             // 各个学校详情
-            generateReportPdfService.generateScreeningOrgScreeningReportPdfFile(fileSavePath, exportCondition.getPlanId(),exportCondition.getSchoolId());
+            generateReportPdfService.generateScreeningOrgScreeningReportPdfFile(fileSavePath, exportCondition.getPlanId());
         }
     }
 
