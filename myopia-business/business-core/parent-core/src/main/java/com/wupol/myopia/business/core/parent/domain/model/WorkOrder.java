@@ -146,5 +146,10 @@ public class WorkOrder implements Serializable {
      */
     private Boolean isNotice;
 
+    /**
+     * 修改筛查记录id
+     */
+    private Integer screeningId;
+
 
 }

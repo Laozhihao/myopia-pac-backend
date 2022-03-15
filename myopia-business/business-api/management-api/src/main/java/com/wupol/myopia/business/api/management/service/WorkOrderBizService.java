@@ -84,7 +84,7 @@ public class WorkOrderBizService {
      */
     public IPage<WorkOrderDTO> getWorkOrderList(PageRequest pageRequest, WorkOrderQueryDTO workOrderQueryDTO) {
         // 模糊查询学校id组装
-        if (!StringUtils.isEmpty(workOrderQueryDTO.getSchoolName())) {
+        if (StringUtils.isNotBlank(workOrderQueryDTO.getSchoolName())) {
             List<School> schoolList = schoolService.getBySchoolName(workOrderQueryDTO.getSchoolName());
             if (!CollectionUtils.isEmpty(schoolList)) {
                 List<Integer> schoolIds = schoolList.stream().map(School::getId).collect(Collectors.toList());
@@ -142,7 +142,7 @@ public class WorkOrderBizService {
 
         Student student = null;
         // 工单身份证是否存在
-        if (StringUtils.isNotEmpty(workOrderRequestDTO.getIdCard())) {
+        if (StringUtils.isNotBlank(workOrderRequestDTO.getIdCard())) {
             // 无修改身份证/护照直接更新多端学生信息
             if (StringUtils.equals(workOrderRequestDTO.getIdCard(), studentDTO.getIdCard())) {
                 packageManagementStudent(studentDTO, workOrderRequestDTO);
@@ -151,7 +151,7 @@ public class WorkOrderBizService {
             }
             student = studentService.getAllByIdCard(workOrderRequestDTO.getIdCard());
         }
-        if (StringUtils.isNotEmpty(workOrderRequestDTO.getPassport())) {
+        if (StringUtils.isNotBlank(workOrderRequestDTO.getPassport())) {
             if (StringUtils.equals(workOrderRequestDTO.getPassport(), studentDTO.getPassport())){
                 packageManagementStudent(studentDTO, workOrderRequestDTO);
                 studentService.updateStudent(studentDTO);
@@ -275,9 +275,10 @@ public class WorkOrderBizService {
         SmsResult smsResult = vistelToolsService.sendMsg(msgData);
         // 检查
         checkSendMsgStatus(smsResult, msgData, workOrder);
+
         workOrder.setContent(workOrderRequestDTO.getContent());
         workOrder.setStatus(WorkOrderStatusEnum.PROCESSED.code);
-
+        workOrder.setScreeningId(workOrderRequestDTO.getScreeningId());
         workOrder.setOldData(studentDO);
         workOrderService.updateById(workOrder);
     }
