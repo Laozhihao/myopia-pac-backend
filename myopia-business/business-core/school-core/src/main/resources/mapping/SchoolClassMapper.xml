@@ -88,7 +88,6 @@
         </if>
     </select>
 
-
     <select id="getByGradeIdAndNames" resultMap="BaseResultMap">
         select *
         from m_school_class where school_id = #{schoolId}
@@ -113,6 +112,5 @@
                 #{className}
             </foreach>
         </if>
-
     </select>
 </mapper>
