@@ -585,7 +585,7 @@ public class ScreeningPlanController {
             @NotNull(message = "学校ID不能为空") Integer schoolId, Integer gradeId, Integer classId, String planStudentIds,
             Integer type) {
         List<Integer> studentIds =null;
-        if (StringUtil.isNotEmpty(planStudentIds)){
+        if (StringUtil.isNotEmpty(planStudentIds)&&!"null".equals(planStudentIds)){
             studentIds = Arrays.stream(planStudentIds.split(",")).map(Integer::valueOf).collect(Collectors.toList());
         }
         return screeningExportService.studentQRCodeFile(screeningPlanId, schoolId,gradeId,classId,studentIds,type);
@@ -606,7 +606,7 @@ public class ScreeningPlanController {
                                                 Integer classId, String planStudentIds,
                                                 boolean isSchoolClient) {
         List<Integer> studentIds =null;
-        if (StringUtil.isNotEmpty(planStudentIds)&&!planStudentIds.equals("null")){
+        if (StringUtil.isNotEmpty(planStudentIds)&&!"null".equals(planStudentIds)){
             studentIds = Arrays.stream(planStudentIds.split(",")).map(Integer::valueOf).collect(Collectors.toList());
         }
         return screeningExportService.getNoticeData(screeningPlanId, schoolId,gradeId,classId,studentIds,isSchoolClient);

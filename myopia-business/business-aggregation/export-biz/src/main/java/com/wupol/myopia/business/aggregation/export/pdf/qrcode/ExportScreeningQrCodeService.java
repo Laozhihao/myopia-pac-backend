@@ -67,7 +67,7 @@ public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
     @Override
     public void generatePdfFile(ExportCondition exportCondition, String fileSavePath, String fileName) {
         List<ScreeningStudentDTO> screeningStudentDTOs = getStudentData(exportCondition);
-        generateExportScreenQrcodePdfFile(screeningStudentDTOs,exportCondition,fileSavePath,fileName,exportCondition.getType(),gradeNameTmp);
+        generateExportScreeningQrCodePdfFile(screeningStudentDTOs,exportCondition,fileSavePath,fileName,exportCondition.getType(),gradeNameTmp);
     }
 
     @Override
@@ -120,13 +120,13 @@ public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
     @Override
     public String syncExport(ExportCondition exportCondition) {
         String fileName = getFileName(exportCondition);
-        return syncExportScreenQrcodePdfFile(exportCondition,fileName,exportCondition.getType());
+        return syncExportScreeningQrCodePdfFile(exportCondition,fileName,exportCondition.getType());
     }
 
 
     public List<ScreeningStudentDTO> getStudentData(ExportCondition exportCondition){
         List<Integer> pladnStudentIds =null;
-        if (StringUtil.isNotEmpty(exportCondition.getPlanStudentIds())){
+        if (StringUtil.isNotEmpty(exportCondition.getPlanStudentIds())&&!"null".equals(exportCondition.getPlanStudentIds())){
             pladnStudentIds = Arrays.stream(exportCondition.getPlanStudentIds().split(",")).map(Integer::valueOf).collect(Collectors.toList());
         }
         // 2. 处理参数
@@ -158,7 +158,7 @@ public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
      * @param fileSavePath
      * @param fileName
      */
-    public void generateExportScreenQrcodePdfFile(List<ScreeningStudentDTO> students,ExportCondition exportCondition, String fileSavePath,
+    public void generateExportScreeningQrCodePdfFile(List<ScreeningStudentDTO> students,ExportCondition exportCondition, String fileSavePath,
                                                   String fileName,Integer type,String gradeNameTmp){
 
         Map<Integer, List<ScreeningStudentDTO>> gradeGroup = students.stream().collect(Collectors.groupingBy(ScreeningStudentDTO::getGradeId));
@@ -227,7 +227,7 @@ public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
      * @param type 文件类型
      * @return
      */
-    public String syncExportScreenQrcodePdfFile(ExportCondition exportCondition, String fileName,Integer type) {
+    public String syncExportScreeningQrCodePdfFile(ExportCondition exportCondition, String fileName,Integer type) {
 
         String studentQrCodePdfHtmlUrl = String.format(HtmlPageUrlConstant.STUDENT_QRCODE_HTML_URL,htmlUrlHost,
                 exportCondition.getPlanId(), exportCondition.getSchoolId(),

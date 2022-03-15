@@ -5,7 +5,6 @@ import cn.hutool.extra.qrcode.QrConfig;
 import com.lowagie.text.DocumentException;
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.framework.core.util.CollectionUtils;
-import com.wupol.framework.core.util.StringUtils;
 import com.wupol.framework.utils.FreemarkerUtil;
 import com.wupol.framework.utils.PdfUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
@@ -264,6 +263,7 @@ public class ScreeningExportService {
             SchoolGrade schoolGrade = schoolGradeService.getById(schoolClassInfo.getGradeId());
             String classDisplay = String.format("%s%s", schoolGrade.getName(), schoolClass.getName());
             String fileName = String.format("%s-%s-二维码", classDisplay, DateFormatUtil.formatNow(DateFormatUtil.FORMAT_TIME_WITHOUT_LINE));
+
             List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.getByGradeAndClass(schoolClassInfo.getScreeningPlanId(), schoolClassInfo.getGradeId(), schoolClassInfo.getClassId());
             QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white).setMargin(1);
             students.forEach(student -> {
