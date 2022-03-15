@@ -31,7 +31,10 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanS
 import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationQueryDTO;
-import com.wupol.myopia.business.core.screening.organization.domain.model.*;
+import com.wupol.myopia.business.core.screening.organization.domain.model.OverviewScreeningOrganization;
+import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
+import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationAdmin;
+import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationStaff;
 import com.wupol.myopia.business.core.screening.organization.service.*;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;

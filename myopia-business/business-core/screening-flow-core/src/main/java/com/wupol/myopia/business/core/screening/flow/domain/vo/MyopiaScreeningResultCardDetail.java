@@ -1,12 +1,9 @@
 package com.wupol.myopia.business.core.screening.flow.domain.vo;
 
-import com.wupol.myopia.business.common.utils.constant.HyperopiaLevelEnum;
-import com.wupol.myopia.business.common.utils.constant.MyopiaLevelEnum;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.List;
 
 /**
  * 学生档案卡-近视筛查结果记录表

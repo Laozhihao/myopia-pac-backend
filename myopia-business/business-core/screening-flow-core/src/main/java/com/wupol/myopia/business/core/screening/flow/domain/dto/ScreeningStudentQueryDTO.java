@@ -1,11 +1,8 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
 
-import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.wupol.framework.core.util.DateConvertUtils;
-import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.core.common.constant.ArtificialStatusConstant;
 import com.wupol.myopia.business.core.school.domain.dto.MockPlanStudentQueryDTO;
 import lombok.Data;
