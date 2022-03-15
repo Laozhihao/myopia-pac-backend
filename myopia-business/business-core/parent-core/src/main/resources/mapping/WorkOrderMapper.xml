@@ -36,13 +36,14 @@
                 <if test="@Ognl@isNotEmpty(wxNickname)">and `wx_nickname` = #{wxNickname}</if>
                 <if test="@Ognl@isNotEmpty(screeningBeginTime)">and `screening_begin_time` = #{screeningBeginTime}</if>
                 <if test="@Ognl@isNotEmpty(screeningEndTime)">and `screening_end_time` = #{screeningEndTime}</if>
+                <if test="@Ognl@isNotEmpty(isNotice)">and `is_notice` = #{isNotice}</if>
             </trim>
         </where>
     </sql>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, name, gender, passport, id_card, birthday, school_id, grade_id, class_id, sno, status, create_user_id, term, create_time, update_time, old_data, content, grade_type, parent_phone, wx_nickname, screening_begin_time, screening_end_time
+        id, name, gender, passport, id_card, birthday, school_id, grade_id, class_id, sno, status, create_user_id, term, create_time, update_time, old_data, content, grade_type, parent_phone, wx_nickname, screening_begin_time, screening_end_time, isNotice
     </sql>
 
     <select id="getByPage" resultMap="BaseResultMapDTO">
@@ -55,6 +56,9 @@
         <if test="idCardOrPassport != null and idCardOrPassport != ''">
             and (id_card = #{idCardOrPassport} or passport = #{idCardOrPassport})
         </if>
+        <if test="status !=null">
+            and status = #{status}
+        </if>
         <if test="schoolIds !=null and schoolIds.size() != 0">
             and school_id in
             <foreach collection="schoolIds" open="(" close=")" separator="," item="schoolId">
@@ -64,7 +68,7 @@
         <if test="startTime != null and endTime != null">
             and (create_time between #{startTime} and #{endTime})
         </if>
-
+        order by create_time desc
     </select>
 
 </mapper>

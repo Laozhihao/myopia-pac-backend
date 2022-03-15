@@ -171,6 +171,11 @@ public class CommonConst {
     public final String SEND_SMS_PRESCHOOL_NOTICE = "【青少年近视防控】%s家长您好，请及时到保健院为孩子做%s眼保健检查。";
 
     /**
+     * 短信通知-工单处理完成
+     */
+    public final String SEND_SMS_WORD_ORDER_DISPOSE_NOTICE = "【儿童青少年近视防控】您申请的工单已处理完毕，请在公众号查看工单反馈结果。";
+
+    /**
      *  Excel格式
      */
     public static final String FILE_SUFFIX = ".xlsx";

@@ -141,5 +141,10 @@ public class WorkOrder implements Serializable {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date screeningEndTime;
 
+    /**
+     * 是否发送短信通知 0-否 1-是
+     */
+    private Boolean isNotice;
+
 
 }

@@ -1,10 +1,7 @@
 package com.wupol.myopia.business.core.parent.domain.dto;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.wupol.myopia.business.core.parent.domain.model.WorkOrder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
@@ -15,10 +12,19 @@ import java.util.List;
  * @Author xjl
  * @Date 2022/3/7
  */
-@EqualsAndHashCode(callSuper = true)
 @Data
-public class WorkOrderQueryDTO extends WorkOrder {
+public class WorkOrderQueryDTO {
 
+
+    /**
+     * 学生姓名
+     */
+    private String name;
+
+    /**
+     * 状态 0-已处理 1-未处理 2-无法处理
+     */
+    private Integer status;
 
     /**
      * 护照或身份证号

@@ -331,7 +331,7 @@
         where id_card = #{idCard}
     </select>
 
-    <select id="getAllByPassport" resultType="BaseResultMap">
+    <select id="getAllByPassport" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
         from m_student

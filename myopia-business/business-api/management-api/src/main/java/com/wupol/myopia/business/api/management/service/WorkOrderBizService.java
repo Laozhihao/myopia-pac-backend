@@ -1,18 +1,23 @@
 package com.wupol.myopia.business.api.management.service;
-import cn.hutool.core.lang.Assert;
+
 import com.alibaba.excel.util.CollectionUtils;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.framework.api.service.VistelToolsService;
+import com.wupol.framework.sms.domain.dto.MsgData;
+import com.wupol.framework.sms.domain.dto.SmsResult;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.WorkOrderStatusEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.AgeUtil;
 import com.wupol.myopia.business.common.utils.util.SerializationUtil;
+import com.wupol.myopia.business.core.parent.domain.dos.StudentDO;
 import com.wupol.myopia.business.core.parent.domain.dto.WorkOrderDTO;
 import com.wupol.myopia.business.core.parent.domain.dto.WorkOrderQueryDTO;
 import com.wupol.myopia.business.core.parent.domain.dto.WorkOrderRequestDTO;
 import com.wupol.myopia.business.core.parent.domain.model.WorkOrder;
 import com.wupol.myopia.business.core.parent.service.WorkOrderService;
-import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
@@ -22,18 +27,19 @@ import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
-import com.wupol.myopia.business.core.screening.flow.util.ScreeningCodeGenerator;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -41,10 +47,12 @@ import java.util.stream.Collectors;
 
 /**
  * 工单
+ *
  * @Author xjl
  * @Date 2022/3/8
  */
 @Service
+@Log4j2
 public class WorkOrderBizService {
 
     @Autowired
@@ -63,28 +71,31 @@ public class WorkOrderBizService {
     private ScreeningPlanService screeningPlanService;
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
+    @Resource
+    private VistelToolsService vistelToolsService;
 
 
     /**
      * 获取工单列表
+     *
      * @param pageRequest
      * @param workOrderQueryDTO
      * @return
      */
     public IPage<WorkOrderDTO> getWorkOrderList(PageRequest pageRequest, WorkOrderQueryDTO workOrderQueryDTO) {
         // 模糊查询学校id组装
-        if (!StringUtils.isEmpty(workOrderQueryDTO.getSchoolName())){
-            List<School> schoolList = schoolService.getBySchoolName(workOrderQueryDTO.getName());
+        if (!StringUtils.isEmpty(workOrderQueryDTO.getSchoolName())) {
+            List<School> schoolList = schoolService.getBySchoolName(workOrderQueryDTO.getSchoolName());
             if (!CollectionUtils.isEmpty(schoolList)) {
                 List<Integer> schoolIds = schoolList.stream().map(School::getId).collect(Collectors.toList());
                 workOrderQueryDTO.setSchoolIds(schoolIds);
             }
         }
         // 分页结果
-        IPage<WorkOrderDTO> workOrderDTOIPage= workOrderService.getWorkOrderLists(pageRequest, workOrderQueryDTO);
+        IPage<WorkOrderDTO> workOrderDTOIPage = workOrderService.getWorkOrderLists(pageRequest, workOrderQueryDTO);
         // 组装年级班级信息
         List<WorkOrderDTO> records = workOrderDTOIPage.getRecords();
-        if (!CollectionUtils.isEmpty(records)){
+        if (!CollectionUtils.isEmpty(records)) {
 
             List<Integer> schoolIds = records.stream().map(WorkOrder::getSchoolId).collect(Collectors.toList());
             List<School> schoolList = schoolService.getByIds(schoolIds);
@@ -96,19 +107,19 @@ public class WorkOrderBizService {
             Map<Integer, String> schoolMap = null;
             Map<Integer, String> gradeMap = null;
             Map<Integer, String> classMap = null;
-            if (CollectionUtils.isEmpty(schoolList)) {
+            if (!CollectionUtils.isEmpty(schoolList)) {
                 schoolMap = schoolList.stream().collect(Collectors.toMap(School::getId, School::getName));
             }
-            if (CollectionUtils.isEmpty(schoolGradeList)) {
+            if (!CollectionUtils.isEmpty(schoolGradeList)) {
                 gradeMap = schoolGradeList.stream().collect(Collectors.toMap(SchoolGrade::getId, SchoolGrade::getName));
             }
-            if (CollectionUtils.isEmpty(schoolClassList)) {
+            if (!CollectionUtils.isEmpty(schoolClassList)) {
                 classMap = schoolClassList.stream().collect(Collectors.toMap(SchoolClass::getId, SchoolClass::getName));
             }
-            for (WorkOrderDTO record : records) {
-                record.setSchoolName(Objects.isNull(schoolMap)?null:schoolMap.get(record.getSchoolId()));
-                record.setGradeName(Objects.isNull(gradeMap)?null:gradeMap.get(record.getGradeId()));
-                record.setSchoolName(Objects.isNull(classMap)?null:classMap.get(record.getClassId()));
+            for (WorkOrderDTO workOrderDTO : records) {
+                workOrderDTO.setSchoolName(Objects.isNull(schoolMap) ? null : schoolMap.get(workOrderDTO.getSchoolId()));
+                workOrderDTO.setGradeName(Objects.isNull(gradeMap) ? null : gradeMap.get(workOrderDTO.getGradeId()));
+                workOrderDTO.setClassName(Objects.isNull(classMap) ? null : classMap.get(workOrderDTO.getClassId()));
             }
         }
         return workOrderDTOIPage;
@@ -116,120 +127,127 @@ public class WorkOrderBizService {
 
     /**
      * 处理工单
+     *
      * @param workOrderRequestDTO
      * @return
      */
+    @Transactional(rollbackFor = Exception.class)
     public void disposeOfWordOrder(WorkOrderRequestDTO workOrderRequestDTO) {
         School school = schoolService.getBySchoolId(workOrderRequestDTO.getSchoolId());
-        if (Objects.isNull(school)){
+        if (Objects.isNull(school)) {
             throw new BusinessException("学校不存在");
         }
         // 多端学生原始信息
         StudentDTO studentDTO = studentService.getStudentById(workOrderRequestDTO.getStudentId());
 
-        packageManagementStudent(studentDTO,workOrderRequestDTO);
-
-        // 无修改身份证/护照直接更新多端学生信息
-        if (StringUtils.equals(workOrderRequestDTO.getIdCard(),studentDTO.getIdCard())||StringUtils.equals(workOrderRequestDTO.getPassport(),studentDTO.getPassport())){
-            studentService.updateStudent(studentDTO);
+        Student student = null;
+        // 工单身份证是否存在
+        if (StringUtils.isNotEmpty(workOrderRequestDTO.getIdCard())) {
+            // 无修改身份证/护照直接更新多端学生信息
+            if (StringUtils.equals(workOrderRequestDTO.getIdCard(), studentDTO.getIdCard())) {
+                packageManagementStudent(studentDTO, workOrderRequestDTO);
+                studentService.updateStudent(studentDTO);
+                return;
+            }
+            student = studentService.getAllByIdCard(workOrderRequestDTO.getIdCard());
+        }
+        if (StringUtils.isNotEmpty(workOrderRequestDTO.getPassport())) {
+            if (StringUtils.equals(workOrderRequestDTO.getPassport(), studentDTO.getPassport())){
+                packageManagementStudent(studentDTO, workOrderRequestDTO);
+                studentService.updateStudent(studentDTO);
+                return;
+            }
+            student = studentService.getAllByPassport(workOrderRequestDTO.getPassport());
         }
 
         // 待修改筛查记录
-        if (Objects.isNull(workOrderRequestDTO.getScreeningId())){
+        if (Objects.isNull(workOrderRequestDTO.getScreeningId())) {
             throw new BusinessException("筛查记录id为空");
         }
         VisionScreeningResult visionScreeningResult = visionScreeningResultService.getById(workOrderRequestDTO.getScreeningId());
-        if (Objects.isNull(visionScreeningResult)){
+        if (Objects.isNull(visionScreeningResult)) {
             throw new BusinessException("筛查记录不存在");
         }
 
-        // 工单身份证是否存在
-        if (StringUtils.isNotEmpty(workOrderRequestDTO.getIdCard())) {
-            Student student = studentService.getAllByIdCard(workOrderRequestDTO.getIdCard());
-            // 不存在工单身份证
-            if (Objects.isNull(student)){
-                //  新增学生
-                Student saveStudent = new Student();
-                BeanUtils.copyProperties(studentDTO, saveStudent);
-                saveStudent.setId(null);
-                Integer saveStudentId = studentService.saveStudent(saveStudent);
-
-                // 新增筛查学生 screening_plan_school_student
-                ScreeningPlanSchoolStudent screeningPlanSchoolStudent = new ScreeningPlanSchoolStudent();
-                ScreeningPlan screeningPlan = screeningPlanService.getById(visionScreeningResult.getPlanId());
-                if (Objects.isNull(screeningPlan)){
-                    throw new BusinessException("筛查结果中筛查计划不存在");
-                }
-                Long screeningCode = ScreeningCodeGenerator.nextId();
-                screeningPlanSchoolStudent.setIdCard(workOrderRequestDTO.getIdCard())
-                        .setSrcScreeningNoticeId(screeningPlan.getSrcScreeningNoticeId())
-                        .setScreeningTaskId(screeningPlan.getScreeningTaskId())
-                        .setScreeningPlanId(screeningPlan.getId())
-                        .setPlanDistrictId(screeningPlan.getDistrictId())
-                        .setSchoolDistrictId(school.getDistrictId())
-                        .setSchoolId(workOrderRequestDTO.getSchoolId())
-                        .setSchoolName(school.getName())
-                        .setStudentId(saveStudent.getId())
-                        .setPassport(workOrderRequestDTO.getPassport())
-                        .setScreeningCode(screeningCode)
-                        .setStudentName(saveStudent.getName())
-                        .setGradeId(saveStudent.getGradeId())
-                        .setClassId(saveStudent.getClassId())
-                        .setBirthday(saveStudent.getBirthday())
-                        .setGender(saveStudent.getGender())
-                        .setStudentAge(AgeUtil.countAge(saveStudent.getBirthday()))
-                        .setStudentSituation(SerializationUtil.serializeWithoutException(saveStudent))
-                        .setStudentNo(saveStudent.getSno());
-                screeningPlanSchoolStudentService.save(screeningPlanSchoolStudent);
-
-                // 修改筛查记录
-                visionScreeningResult.setStudentId(saveStudentId);
-                visionScreeningResult.setDistrictId(school.getDistrictId());
-                visionScreeningResult.setSchoolId(workOrderRequestDTO.getSchoolId());
-                visionScreeningResult.setScreeningPlanSchoolStudentId(screeningPlanSchoolStudent.getId());
-
-                visionScreeningResultService.updateById(visionScreeningResult);
-                return;
-            }
-            // 更新身份证学生的基础信息 筛查记录表的筛查学校id层级学生id 筛查学生表的层级学校id
-            packageManagementStudent(student,workOrderRequestDTO);
-            visionScreeningResult.setSchoolId(workOrderRequestDTO.getSchoolId())
-                    .setDistrictId(school.getDistrictId())
-                    .setStudentId(student.getId());
-            screeningPlanSchoolStudentService.
-
-
+        // 不存在工单身份证
+        if (Objects.isNull(student)) {
+            //  新增学生
+            Student saveStudent = saveManagementStudent(studentDTO,workOrderRequestDTO);
+            // 修改筛查学生
+            updateStudentAndScreeningPlanSchoolStudentAndVisionScreeningResult(school, saveStudent, visionScreeningResult);
+            return;
         }
-
-
-        if (StringUtils.isNotEmpty(workOrderRequestDTO.getPassport())){
-            studentService.getAllByPassport(workOrderRequestDTO.getPassport());
-        }
-
-        // 工单信息修改
-        WorkOrder workOrder = workOrderService.getById(workOrderRequestDTO.getWorkOrderId());
-        if (Objects.isNull(workOrder)){
-            throw new BusinessException("工单不存在");
-        }
-        workOrder.setContent(workOrderRequestDTO.getContent());
-        workOrder.setStatus(WorkOrderStatusEnum.PROCESSED.code);
-        workOrderService.updateById(workOrder);
+        // 更新身份证学生的基础信息 筛查记录表的筛查学校id层级学生id 筛查学生表的层级学校id
+        packageManagementStudent(student, workOrderRequestDTO);
+        updateStudentAndScreeningPlanSchoolStudentAndVisionScreeningResult(school, student, visionScreeningResult);
+        student.setStatus(CommonConst.STATUS_NOT_DELETED);
+        studentService.updateById(student);
 
     }
 
     /**
+     * 保存多端学生信息
+     * @param studentDTO
+     * @param workOrderRequestDTO
+     * @return
+     */
+    private Student saveManagementStudent(StudentDTO studentDTO, WorkOrderRequestDTO workOrderRequestDTO) {
+        Student saveStudent = new Student();
+        BeanUtils.copyProperties(studentDTO, saveStudent);
+        packageManagementStudent(saveStudent,workOrderRequestDTO);
+        saveStudent.setId(null);
+        studentService.saveStudent(saveStudent);
+        return saveStudent;
+    }
+
+    /**
+     * 更新筛查记录，筛查学生
+     *
+     * @param school
+     * @param student
+     * @param visionScreeningResult
+     */
+    private void updateStudentAndScreeningPlanSchoolStudentAndVisionScreeningResult(School school, Student student, VisionScreeningResult visionScreeningResult) {
+        ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getById(visionScreeningResult.getScreeningPlanSchoolStudentId());
+        screeningPlanSchoolStudent.setIdCard(student.getIdCard())
+                .setSchoolDistrictId(school.getDistrictId())
+                .setSchoolId(school.getId())
+                .setSchoolName(school.getName())
+                .setStudentId(student.getId())
+                .setPassport(student.getPassport())
+                .setStudentName(student.getName())
+                .setGradeId(student.getGradeId())
+                .setClassId(student.getClassId())
+                .setBirthday(student.getBirthday())
+                .setGender(student.getGender())
+                .setStudentAge(AgeUtil.countAge(student.getBirthday()))
+                .setStudentSituation(SerializationUtil.serializeWithoutException(student))
+                .setStudentNo(student.getSno());
+        screeningPlanSchoolStudentService.updateById(screeningPlanSchoolStudent);
+
+        visionScreeningResult.setSchoolId(school.getId())
+                .setDistrictId(school.getDistrictId())
+                .setStudentId(student.getId());
+        visionScreeningResultService.updateById(visionScreeningResult);
+
+
+    }
+
+
+    /**
      * 多端学生打包
+     *
      * @param student
      * @param workOrderRequestDTO
      */
     private void packageManagementStudent(Student student, WorkOrderRequestDTO workOrderRequestDTO) {
-        if (StringUtils.isNotEmpty(workOrderRequestDTO.getPassport())){
+        if (StringUtils.isNotEmpty(workOrderRequestDTO.getPassport())) {
             student.setPassport(workOrderRequestDTO.getPassport());
         }
-        if (StringUtils.isNotEmpty(workOrderRequestDTO.getIdCard())){
+        if (StringUtils.isNotEmpty(workOrderRequestDTO.getIdCard())) {
             student.setIdCard(workOrderRequestDTO.getIdCard());
         }
-        if (StringUtils.isNotEmpty(workOrderRequestDTO.getSno())){
+        if (StringUtils.isNotEmpty(workOrderRequestDTO.getSno())) {
             student.setSno(workOrderRequestDTO.getSno());
         }
         student.setName(workOrderRequestDTO.getName());
@@ -238,5 +256,44 @@ public class WorkOrderBizService {
         student.setSchoolId(workOrderRequestDTO.getSchoolId());
         student.setGradeId(workOrderRequestDTO.getGradeId());
         student.setClassId(workOrderRequestDTO.getClassId());
+    }
+
+
+    /**
+     * 更新工单信息
+     *
+     * @param workOrderRequestDTO
+     */
+    public void updateWorkOrderAndSendSMS(StudentDO studentDO,WorkOrderRequestDTO workOrderRequestDTO) {
+
+        WorkOrder workOrder = workOrderService.getById(workOrderRequestDTO.getWorkOrderId());
+        if (Objects.isNull(workOrder)) {
+            throw new BusinessException("工单不存在");
+        }
+        // 发送短信
+        MsgData msgData = new MsgData(workOrder.getParentPhone(), "+86", CommonConst.SEND_SMS_WORD_ORDER_DISPOSE_NOTICE);
+        SmsResult smsResult = vistelToolsService.sendMsg(msgData);
+        // 检查
+        checkSendMsgStatus(smsResult, msgData, workOrder);
+        workOrder.setContent(workOrderRequestDTO.getContent());
+        workOrder.setStatus(WorkOrderStatusEnum.PROCESSED.code);
+
+        workOrder.setOldData(studentDO);
+        workOrderService.updateById(workOrder);
+    }
+
+    /**
+     * 检查是否发送成功
+     *
+     * @param smsResult
+     * @param msgData
+     * @param workOrder
+     */
+    private void checkSendMsgStatus(SmsResult smsResult, MsgData msgData, WorkOrder workOrder) {
+        if (smsResult.isSuccessful()) {
+            workOrder.setIsNotice(true);
+        } else {
+            log.error("发送通知到手机号码错误，提交信息:{}, 异常信息:{}", JSONObject.toJSONString(msgData), smsResult);
+        }
     }
 }

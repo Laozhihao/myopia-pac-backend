@@ -5,10 +5,14 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.api.management.service.WorkOrderBizService;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.core.parent.domain.dos.StudentDO;
 import com.wupol.myopia.business.core.parent.domain.dto.WorkOrderDTO;
 import com.wupol.myopia.business.core.parent.domain.dto.WorkOrderQueryDTO;
 import com.wupol.myopia.business.core.parent.domain.dto.WorkOrderRequestDTO;
+import com.wupol.myopia.business.core.school.domain.model.Student;
+import com.wupol.myopia.business.core.school.service.StudentService;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,6 +32,8 @@ public class WorkOrderController {
 
     @Autowired
     private WorkOrderBizService workOrderBizService;
+    @Autowired
+    private StudentService studentService;
 
 
     /**
@@ -43,14 +49,25 @@ public class WorkOrderController {
 
     }
 
+    /**
+     * 工单处理
+     * @param workOrderRequestDTO
+     * @return
+     */
     @PutMapping("/dispose")
     public boolean disposeOfWordOrder(@RequestBody @Valid WorkOrderRequestDTO workOrderRequestDTO){
 
         if (StringUtils.isAllBlank(workOrderRequestDTO.getIdCard(),workOrderRequestDTO.getPassport())){
             throw new BusinessException("身份证和护照不可全部为空");
         }
+        // 旧数据保存
+        Student student = studentService.getById(workOrderRequestDTO.getStudentId());
+        StudentDO studentDO = new StudentDO();
+        BeanUtils.copyProperties(student,studentDO);
+
         workOrderBizService.disposeOfWordOrder(workOrderRequestDTO);
-        // 发送处理成功短信
+        // 更新工单状态发送短信
+        workOrderBizService.updateWorkOrderAndSendSMS(studentDO,workOrderRequestDTO);
         return true;
     }
 
