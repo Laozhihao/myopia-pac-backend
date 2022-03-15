@@ -2,16 +2,20 @@ package com.wupol.myopia.business.api.management.controller;
 
 import com.alibaba.csp.sentinel.util.StringUtil;
 import com.wupol.myopia.base.domain.ApiResult;
+import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.core.common.service.Html2PdfService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +25,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -41,6 +46,11 @@ public class ReportController {
     @Autowired
     private VisionScreeningResultService visionScreeningResultService;
 
+    @Autowired
+    private Html2PdfService html2PdfService;
+
+    @Value("${report.html.url-host}")
+    public String htmlUrlHost;
     /**
      * 导出区域的筛查报告 TODO: 权限校验、导出次数限制
      *
@@ -235,6 +245,13 @@ public class ReportController {
         return ApiResult.success();
     }
 
+    @GetMapping("abc")
+    public ApiResult<String> abc(Integer referralId, boolean isHospital) {
+        String abc= "%s/?referralId=%s&isHospital=%s&token=%s";
+        String url = String.format(abc, htmlUrlHost, referralId, isHospital, CurrentUserUtil.getUserToken());
+        PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(url, "abc.pdf", UUID.randomUUID().toString());
+        return ApiResult.success(pdfResponseDTO.getUrl());
+    }
 
 
 }

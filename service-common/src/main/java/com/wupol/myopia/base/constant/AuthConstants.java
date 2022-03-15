@@ -31,6 +31,11 @@ public interface AuthConstants {
     String JWT_PAYLOAD_KEY = "payload";
 
     /**
+     * JWT载体key
+     */
+    String JWT_TOKEN = "token";
+
+    /**
      * 客户端ID key
      */
     String CLIENT_ID_KEY = "client_id";

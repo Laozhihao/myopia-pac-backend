@@ -68,6 +68,7 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
         // 把用户信息并设置到Header中去
         ServerHttpRequest request = exchange.getRequest().mutate()
                 .header(AuthConstants.JWT_PAYLOAD_KEY, payload)
+                .header(AuthConstants.JWT_TOKEN, token)
                 .build();
         exchange = exchange.mutate().request(request).build();
         return chain.filter(exchange);
