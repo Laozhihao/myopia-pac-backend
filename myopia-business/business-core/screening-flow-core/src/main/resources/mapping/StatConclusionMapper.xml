@@ -153,7 +153,7 @@
         AND msc.district_id IN
         <foreach collection="districtIds" item="id" index="index" open="(" close=")" separator=",">#{id}</foreach>
         ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
-        <!--GROUP BY mspss.screening_plan_id,mspss.school_id,mspss.grade_id,mspss.class_id-->
+        GROUP BY mspss.screening_plan_id, mspss.school_id, mspss.grade_id, mspss.class_id
     </select>
 
     <select id="selectExportVoByScreeningNoticeIdAndSchoolId" resultMap="ExportVoResultMap"

@@ -205,19 +205,14 @@ public class GeneratePdfFileService {
         List<Integer> childDistrictIds = districtService.getSpecificDistrictTreeAllDistrictIds(exportCondition.getDistrictId());
         statConclusionExportVos = statConclusionService.getExportVoByScreeningNoticeIdAndDistrictIdsAndGroupBy(exportCondition.getNotificationId(), childDistrictIds);
         log.info("区域档案卡数据==="+statConclusionExportVos);
-      /*  statConclusionExportVos.forEach(item->{
+        statConclusionExportVos.forEach(item->{
             exportCondition.setPlanId(item.getScreeningPlanId());
             exportCondition.setSchoolId(item.getSchoolId());
             exportCondition.setGradeId(item.getGradeId());
             exportCondition.setClassId(item.getClassId());
             generateSchoolArchivesPdfFile(saveDirectory,exportCondition);
-        });*/
-        screeningPlanSchoolStudentDTO screeningPlanSchoolStudentDTO = statConclusionExportVos.get(0);
-        exportCondition.setPlanId(screeningPlanSchoolStudentDTO.getScreeningPlanId());
-        exportCondition.setSchoolId(screeningPlanSchoolStudentDTO.getSchoolId());
-        exportCondition.setGradeId(screeningPlanSchoolStudentDTO.getGradeId());
-        exportCondition.setClassId(screeningPlanSchoolStudentDTO.getClassId());
-        generateSchoolArchivesPdfFile(saveDirectory,exportCondition);
+        });
+
     }
 
     /**
