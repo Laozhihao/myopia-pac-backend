@@ -208,8 +208,6 @@ public class GeneratePdfFileService {
         statConclusionExportVos.forEach(item->{
             exportCondition.setPlanId(item.getScreeningPlanId());
             exportCondition.setSchoolId(item.getSchoolId());
-            exportCondition.setGradeId(item.getGradeId());
-            exportCondition.setClassId(item.getClassId());
             generateSchoolArchivesPdfFile(saveDirectory,exportCondition);
         });
 
