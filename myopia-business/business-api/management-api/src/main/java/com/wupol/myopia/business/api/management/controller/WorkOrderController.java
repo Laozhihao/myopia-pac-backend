@@ -26,7 +26,7 @@ import javax.validation.Valid;
 @ResponseResultBody
 @CrossOrigin
 @RestController
-@RequestMapping("/management/workTable")
+@RequestMapping("/management/workOrder")
 public class WorkOrderController {
 
 
