@@ -286,6 +286,11 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
         return object.getName();
     }
 
+    /**
+     * 获取学生筛查计划档案卡
+     * @param planStudentId
+     * @return
+     */
     @GetMapping("/screening/planStudent/card/{planStudentId}")
     public AppStudentCardResponseDTO getResultByPlanStudentId(@PathVariable("planStudentId") Integer planStudentId) {
         return studentFacade.getCardDetailByPlanStudentId(planStudentId);
