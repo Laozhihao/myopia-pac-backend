@@ -142,7 +142,7 @@
             and (ms.id_card like CONCAT('%', #{idCardOrPassportLike}, '%') or
                  ms.passport like CONCAT('%', #{idCardOrPassportLike}, '%'))
         </if>
-        <if test="birthdayLike !=null">
+        <if test="birthdayLike !=null and birthdayLike != ''">
             and ms.birthday like CONCAT(#{birthdayLike}, '%')
         </if>
         order by ms.create_time desc

@@ -152,7 +152,7 @@ public class WorkOrderBizService {
             student = studentService.getAllByIdCard(workOrderRequestDTO.getIdCard());
         }
         if (StringUtils.isNotBlank(workOrderRequestDTO.getPassport())) {
-            if (StringUtils.equals(workOrderRequestDTO.getPassport(), studentDTO.getPassport())){
+            if (StringUtils.equals(workOrderRequestDTO.getPassport(), studentDTO.getPassport())) {
                 packageManagementStudent(studentDTO, workOrderRequestDTO);
                 studentService.updateStudent(studentDTO);
                 return;
@@ -172,7 +172,7 @@ public class WorkOrderBizService {
         // 不存在工单身份证
         if (Objects.isNull(student)) {
             //  新增学生
-            Student saveStudent = saveManagementStudent(studentDTO,workOrderRequestDTO);
+            Student saveStudent = saveManagementStudent(studentDTO, workOrderRequestDTO);
             // 修改筛查学生
             updateStudentAndScreeningPlanSchoolStudentAndVisionScreeningResult(school, saveStudent, visionScreeningResult);
             return;
@@ -187,6 +187,7 @@ public class WorkOrderBizService {
 
     /**
      * 保存多端学生信息
+     *
      * @param studentDTO
      * @param workOrderRequestDTO
      * @return
@@ -194,7 +195,7 @@ public class WorkOrderBizService {
     private Student saveManagementStudent(StudentDTO studentDTO, WorkOrderRequestDTO workOrderRequestDTO) {
         Student saveStudent = new Student();
         BeanUtils.copyProperties(studentDTO, saveStudent);
-        packageManagementStudent(saveStudent,workOrderRequestDTO);
+        packageManagementStudent(saveStudent, workOrderRequestDTO);
         saveStudent.setId(null);
         studentService.saveStudent(saveStudent);
         return saveStudent;
@@ -264,7 +265,7 @@ public class WorkOrderBizService {
      *
      * @param workOrderRequestDTO
      */
-    public void updateWorkOrderAndSendSMS(StudentDO studentDO,WorkOrderRequestDTO workOrderRequestDTO) {
+    public void updateWorkOrderAndSendSMS(StudentDO studentDO, WorkOrderRequestDTO workOrderRequestDTO) {
 
         WorkOrder workOrder = workOrderService.getById(workOrderRequestDTO.getWorkOrderId());
         if (Objects.isNull(workOrder)) {
@@ -276,11 +277,15 @@ public class WorkOrderBizService {
         // 检查
         checkSendMsgStatus(smsResult, msgData, workOrder);
 
-        workOrder.setContent(workOrderRequestDTO.getContent());
-        workOrder.setStatus(WorkOrderStatusEnum.PROCESSED.code);
-        workOrder.setScreeningId(workOrderRequestDTO.getScreeningId());
-        workOrder.setOldData(studentDO);
-        workOrderService.updateById(workOrder);
+        studentDO.setScreeningCode(workOrderRequestDTO.getScreeningCode())
+                .setScreeningDate(workOrderRequestDTO.getScreeningDate())
+                .setScreeningTitle(workOrderRequestDTO.getScreeningTitle());
+
+
+        workOrderService.updateById(workOrder.setContent(workOrderRequestDTO.getContent())
+                .setStatus(WorkOrderStatusEnum.PROCESSED.code)
+                .setScreeningId(workOrderRequestDTO.getScreeningId())
+                .setOldData(studentDO));
     }
 
     /**

@@ -87,4 +87,21 @@ public class WorkOrderRequestDTO {
      */
     private Integer screeningId;
 
+    /**
+     * 筛查编号
+     */
+    private Long screeningCode;
+
+    /**
+     * 筛查日期
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @NotNull(message = "筛查日期不能为空")
+    private Date screeningDate;
+
+    /**
+     * 筛查标题
+     */
+    private String screeningTitle;
+
 }

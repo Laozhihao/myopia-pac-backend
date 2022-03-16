@@ -2,7 +2,9 @@ package com.wupol.myopia.business.core.parent.domain.dos;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 /**
@@ -10,6 +12,7 @@ import java.util.Date;
  * @Date 2022/3/8 16:23
  */
 @Data
+@Accessors(chain = true)
 public class StudentDO {
     /**
      * id
@@ -92,5 +95,21 @@ public class StudentDO {
      * 护照
      */
     private String passport;
+
+    /**
+     * 筛查编号
+     */
+    private Long screeningCode;
+
+    /**
+     * 筛查日期
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private Date screeningDate;
+
+    /**
+     * 筛查标题
+     */
+    private String screeningTitle;
 
 }
