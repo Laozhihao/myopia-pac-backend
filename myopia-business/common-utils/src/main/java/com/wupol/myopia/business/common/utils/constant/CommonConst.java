@@ -173,7 +173,7 @@ public class CommonConst {
     /**
      * 短信通知-工单处理完成
      */
-    public final String SEND_SMS_WORD_ORDER_DISPOSE_NOTICE = "【儿童青少年近视防控】您申请的工单已处理完毕，请在公众号查看工单反馈结果。";
+    public final String SEND_SMS_WORD_ORDER_DISPOSE_NOTICE = "【青少年近视防控】您申请的工单已处理完毕，请在公众号查看工单反馈结果。";
 
     /**
      *  Excel格式
