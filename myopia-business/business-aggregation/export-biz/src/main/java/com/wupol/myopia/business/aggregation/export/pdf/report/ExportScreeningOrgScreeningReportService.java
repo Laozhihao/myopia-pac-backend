@@ -45,7 +45,7 @@ public class ExportScreeningOrgScreeningReportService extends BaseExportPdfFileS
      **/
     @Override
     public void generatePdfFile(ExportCondition exportCondition, String fileSavePath, String fileName) {
-        // 所有学校汇总
+        // 所有学校汇总 如果后期需要以整个计划导出，则可用该注释代码
         // generateReportPdfService.generateScreeningPlanReportPdfFile(fileSavePath, exportCondition.getPlanId());
         List<Integer> schoolIdList = statConclusionService.getSchoolIdByPlanId(exportCondition.getPlanId());
         if (schoolIdList.contains(exportCondition.getSchoolId())){
