@@ -102,7 +102,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
     }
 
     @Override
-    public File generateExcelFile(String fileName, List data,ExportCondition exportCondition) throws IOException {
+    public File generateExcelFile(String fileName, List data,ExportCondition exportCondition){
 
         List<StatConclusionExportDTO> statConclusionExportDTOs = data;
 
