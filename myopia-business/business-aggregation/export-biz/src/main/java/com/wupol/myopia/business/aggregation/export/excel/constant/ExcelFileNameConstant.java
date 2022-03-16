@@ -16,6 +16,16 @@ public class ExcelFileNameConstant {
     public final String SCREENING_ORG_EXCEL_FILE_NAME = "%s筛查机构数据表";
 
     /**
+     * 区域 Excel 文件名
+     */
+    public final String DISTRICT_EXCEL_FILE_NAME = "%s区域数据表";
+
+    /**
+     * 学校 Excel 文件名
+     */
+    public final String SCHOOL_EXCEL_FILE_NAME = "%s学校数据表";
+
+    /**
      * 医院 Excel 文件名
      */
     public final String HOSPITAL_FILE_NAME = "医院-";

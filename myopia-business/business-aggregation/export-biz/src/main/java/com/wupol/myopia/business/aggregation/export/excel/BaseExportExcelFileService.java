@@ -68,7 +68,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
             // 4.生成导出的文件
             generateExcelFile(fileName, data, exportCondition);
             // 5.压缩文件
-            excelFile = compressFile(excelSavePath+fileName);
+            excelFile = compressFile(excelSavePath+getPackageFileName(exportCondition));
             // 6.上传文件
             Integer fileId = uploadFile(excelFile);
             // 7.发送成功通知
@@ -146,6 +146,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
      **/
     public abstract List getExcelData(ExportCondition exportCondition);
 
+
     /**
      * 生成Excel文件
      *
@@ -180,6 +181,16 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
      */
     Map<Integer, User> getUserMapByIds(Set<Integer> userIds) {
         return oauthServiceClient.getUserBatchByIds(new ArrayList<>(userIds)).stream().collect(Collectors.toMap(User::getId, Function.identity()));
+    }
+
+    /**
+     * 获取压缩包名
+     *
+     * @param exportCondition 导出条件
+     * @return java.lang.String
+     **/
+    String getPackageFileName(ExportCondition exportCondition) {
+        return null;
     }
 
     /**

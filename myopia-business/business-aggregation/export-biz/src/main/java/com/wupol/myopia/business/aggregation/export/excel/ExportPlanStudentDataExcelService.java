@@ -20,6 +20,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.VisionScreeningR
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
+import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,6 +32,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import static com.wupol.myopia.business.aggregation.export.excel.constant.ExcelFileNameConstant.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -54,6 +57,8 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
     private SchoolGradeService schoolGradeService;
     @Resource
     private SchoolClassService schoolClassService;
+    @Resource
+    private ScreeningOrganizationService screeningOrganizationService;
 
     @Autowired
     private ExcelFacade excelFacade;
@@ -102,70 +107,111 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
     }
 
     @Override
-    public File generateExcelFile(String fileName, List data,ExportCondition exportCondition){
+    public File generateExcelFile(String fileName, List data,ExportCondition exportCondition) throws IOException {
 
         List<StatConclusionExportDTO> statConclusionExportDTOs = data;
+        OnceAbsoluteMergeStrategy mergeStrategy = new OnceAbsoluteMergeStrategy(0, 1, 20, 21);
+        ScreeningPlan plan = screeningPlanService.getById(exportCondition.getPlanId());
+        List<District> districtPositionDetailById = districtService.getDistrictPositionDetailById(exportCondition.getDistrictId());
+        Map<Integer, List<StatConclusionExportDTO>> schoolMap = statConclusionExportDTOs.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getSchoolId));
+        District district = districtService.getById(exportCondition.getDistrictId());
+        Map<Integer, List<StatConclusionExportDTO>> gradeMap = statConclusionExportDTOs.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getGradeId));
 
-        //如果年级id和班级id都为null，则都以学校维度导出
-        if (Objects.isNull(exportCondition.getGradeId())&& Objects.isNull(exportCondition.getClassId())){
-            Map<Integer, List<StatConclusionExportDTO>> collectMap = statConclusionExportDTOs.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getSchoolId));
-            collectMap.forEach((key,value)->{
+
+        //1.学校id为null,区域id为null,筛查计划id不为null按计划维度导出
+        if (Objects.isNull(exportCondition.getSchoolId()) && Objects.isNull(exportCondition.getDistrictId()) && Objects.nonNull(exportCondition.getPlanId())){
+            schoolMap.forEach((key,value)->{
                 StringBuffer folder = new StringBuffer();
-                School school = schoolService.getById(key);
-                folder.append("/"+school.getName());
-                createScreeningDateExcel(fileName,exportCondition,collectMap,folder.toString());
+                String packageFileName = getPackageFileName(exportCondition);
+                folder.append(packageFileName);
+                folder.append("/"+packageFileName);
+                try {
+                    //生成文件
+                    ExcelUtil.exportListToExcelWithFolder(folder.toString(), fileName, excelFacade.genVisionScreeningResultExportVos(value), mergeStrategy, getHeadClass());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             });
         }
-        //如果年级id不为null,且班级id为null，则以年级维度导出
-        if (Objects.nonNull(exportCondition.getGradeId()) && Objects.isNull(exportCondition.getClassId())){
-            Map<Integer, List<StatConclusionExportDTO>> collectMap = statConclusionExportDTOs.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getGradeId));
-            collectMap.forEach((key,value)->{
+
+        //2.学校id为null,筛查计划id为null,区域id不为null，按区域维度导出
+        if (Objects.isNull(exportCondition.getSchoolId()) && Objects.isNull(exportCondition.getPlanId()) && Objects.isNull(exportCondition.getDistrictId())){
+            schoolMap.forEach((key,value)->{
                 StringBuffer folder = new StringBuffer();
-                School school = schoolService.getById(exportCondition.getSchoolId());
+                String packageFileName = getPackageFileName(exportCondition);
+                folder.append(packageFileName);
+                try {
+                    folder.append("/"+String.format(PLAN_STUDENT_FILE_NAME,district.getName()));
+                    //生成文件
+                    ExcelUtil.exportListToExcelWithFolder(folder.toString(), fileName, excelFacade.genVisionScreeningResultExportVos(value), mergeStrategy, getHeadClass());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        }
+
+        //3.学校id不为null,年级id、班级id为null，则以学校维度导出
+        if (Objects.nonNull(exportCondition.getSchoolId()) && Objects.isNull(exportCondition.getGradeId()) && Objects.isNull(exportCondition.getClassId())){
+            School school = schoolService.getById(exportCondition.getSchoolId());
+
+            //先导出整个学校数据
+            StringBuffer folder = new StringBuffer();
+            folder.append("/"+String.format(PLAN_STUDENT_FILE_NAME,school.getName()));
+            ExcelUtil.exportListToExcelWithFolder(folder.toString(), String.format(PLAN_STUDENT_FILE_NAME,school.getName()), excelFacade.genVisionScreeningResultExportVos(schoolMap.get(exportCondition.getSchoolId())), mergeStrategy, getHeadClass());
+
+            //再导出年级数据
+            gradeMap.forEach((key,value)->{
                 SchoolGrade grade = schoolGradeService.getById(key);
-                folder.append("/"+school.getName());
-                folder.append("/"+grade.getName());
-                createScreeningDateExcel(fileName,exportCondition,collectMap,folder.toString());
+                StringBuffer gradeFolder = new StringBuffer();
+                gradeFolder.append("/"+String.format(PLAN_STUDENT_FILE_NAME,grade.getName()));
+                try {
+                    ExcelUtil.exportListToExcelWithFolder(folder.toString()+ gradeFolder, String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName()), excelFacade.genVisionScreeningResultExportVos(schoolMap.get(exportCondition.getSchoolId())), mergeStrategy, getHeadClass());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+               //再导出该年级的班级数据
+                Map<Integer, List<StatConclusionExportDTO>> collect = value.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getClassId));
+                collect.forEach((classKey,classValue) ->{
+                    SchoolClass schoolClass = schoolClassService.getById(key);
+                    try {
+                        ExcelUtil.exportListToExcelWithFolder(folder.toString(), String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName()+schoolClass.getName()), excelFacade.genVisionScreeningResultExportVos(schoolMap.get(exportCondition.getSchoolId())), mergeStrategy, getHeadClass());
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
             });
         }
-        //如果年级id不为null,且班级id不为null，则以班级维度导出
-        if (Objects.nonNull(exportCondition.getGradeId()) && Objects.nonNull(exportCondition.getClassId())){
-            Map<Integer, List<StatConclusionExportDTO>> collectMap = statConclusionExportDTOs.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getClassId));
-            collectMap.forEach((key,value)->{
-                StringBuffer folder = new StringBuffer();
-                School school = schoolService.getById(exportCondition.getSchoolId());
-                SchoolGrade grade = schoolGradeService.getById(exportCondition.getGradeId());
-                SchoolClass schoolClass = schoolClassService.getById(key);
-                folder.append("/"+school.getName());
-                folder.append("/"+grade.getName());
-                folder.append("/"+schoolClass.getName());
-                createScreeningDateExcel(fileName,exportCondition,collectMap,folder.toString());
+
+        //4.学校id不为null,年级id不为null、班级id为null，则以年级维度导出
+        if (Objects.nonNull(exportCondition.getSchoolId()) && Objects.nonNull(exportCondition.getGradeId()) && Objects.isNull(exportCondition.getClassId())){
+            School school = schoolService.getById(exportCondition.getSchoolId());
+            SchoolGrade schoolGrade = schoolGradeService.getById(exportCondition.getGradeId());
+            StringBuffer folder = new StringBuffer();
+            folder.append("/"+String.format(PLAN_STUDENT_FILE_NAME,school.getName()+schoolGrade.getName()));
+            //导出年级数据
+            gradeMap.forEach((key,value)->{
+                SchoolGrade grade = schoolGradeService.getById(key);
+                StringBuffer gradeFolder = new StringBuffer();
+                gradeFolder.append("/"+String.format(PLAN_STUDENT_FILE_NAME,grade.getName()));
+                try {
+                    ExcelUtil.exportListToExcelWithFolder(folder.toString()+ gradeFolder, String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName()), excelFacade.genVisionScreeningResultExportVos(schoolMap.get(exportCondition.getSchoolId())), mergeStrategy, getHeadClass());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                //再导出该年级的班级数据
+                Map<Integer, List<StatConclusionExportDTO>> collect = value.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getClassId));
+                collect.forEach((classKey,classValue) ->{
+                    SchoolClass schoolClass = schoolClassService.getById(key);
+                    try {
+                        ExcelUtil.exportListToExcelWithFolder(folder.toString(), String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName()+schoolClass.getName()), excelFacade.genVisionScreeningResultExportVos(schoolMap.get(exportCondition.getSchoolId())), mergeStrategy, getHeadClass());
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
             });
         }
         return null;
     }
-
-    private void createScreeningDateExcel(String fileName,ExportCondition exportCondition,Map<Integer, List<StatConclusionExportDTO>> collectMap,String filePath){
-        OnceAbsoluteMergeStrategy mergeStrategy = new OnceAbsoluteMergeStrategy(0, 1, 20, 21);
-        ScreeningPlan plan = screeningPlanService.getById(exportCondition.getPlanId());
-        List<District> districtPositionDetailById = districtService.getDistrictPositionDetailById(exportCondition.getDistrictId());
-        collectMap.forEach((key,value)->{
-            StringBuffer folder = new StringBuffer();
-            folder.append(fileName);
-            districtPositionDetailById.forEach(item->{
-                folder.append("/"+item.getName());
-            });
-            folder.append("/"+plan.getTitle());
-            folder.append("/"+filePath);
-            try {
-                //生成文件
-                ExcelUtil.exportListToExcelWithFolder(folder.toString(), fileName, excelFacade.genVisionScreeningResultExportVos(value), mergeStrategy, getHeadClass());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
-    }
-
 
 
     /**
@@ -174,40 +220,18 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
      * @return
      */
     private String getFileNameTitle(ExportCondition exportCondition){
+        School school = schoolService.getById(exportCondition.getSchoolId());
 
-
-        //如果学校id和筛查计划id都为空，则是以区域维度导出
-        if (Objects.isNull(exportCondition.getSchoolId()) && Objects.isNull(exportCondition.getPlanId())){
-            List<District> districtPositionDetailById = districtService.getDistrictPositionDetailById(215);
-            StringBuffer folder = new StringBuffer();
-            districtPositionDetailById.forEach(item->{
-                folder.append("/"+item.getName());
-            });
-            return folder.toString();
+        //1.获取计划维度导出文件名
+        if (Objects.isNull(exportCondition.getSchoolId()) && Objects.isNull(exportCondition.getDistrictId()) && Objects.nonNull(exportCondition.getPlanId())){
+            return String.format(PLAN_STUDENT_FILE_NAME,school.getName());
         }
-
-        //如果学校id为空,筛查计划id不为空，则是以筛查计划维度导出
-        if (Objects.isNull(exportCondition.getSchoolId()) && Objects.nonNull(exportCondition.getPlanId())){
-            ScreeningPlan plan = screeningPlanService.getById(exportCondition.getPlanId());
-            return plan.getTitle();
+        //2.获取区域维度导出文件名
+        if (Objects.isNull(exportCondition.getSchoolId()) && Objects.isNull(exportCondition.getPlanId()) && Objects.nonNull(exportCondition.getDistrictId())){
+            return String.format(PLAN_STUDENT_FILE_NAME,school.getName());
         }
 
-        String schoolName = "";
-        if(Objects.nonNull(exportCondition.getSchoolId())){
-            School school = schoolService.getById(exportCondition.getSchoolId());
-            schoolName = school.getName();
-        }
-        String gradeName = "";
-        Integer gradeId = exportCondition.getGradeId();
-        if (Objects.nonNull(gradeId)) {
-            gradeName = schoolGradeService.getById(gradeId).getName();
-        }
-        Integer classId = exportCondition.getClassId();
-        String className = "";
-        if (Objects.nonNull(classId)) {
-            className = schoolClassService.getById(classId).getName();
-        }
-        return schoolName+gradeName+className;
+        return "";
     }
 
     @Override
@@ -217,4 +241,38 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
             throw new BusinessException("筛查计划不存在");
         }
     }
+
+    /**
+     * 获取压缩包名
+     *
+     * @param exportCondition 导出条件
+     * @return java.lang.String
+     **/
+    @Override
+    public String getPackageFileName(ExportCondition exportCondition){
+
+        //计划压缩包名
+        if (Objects.isNull(exportCondition.getSchoolId()) && Objects.isNull(exportCondition.getDistrictId()) && Objects.nonNull(exportCondition.getPlanId())){
+            String screeningOrgName = screeningOrganizationService.getNameById(exportCondition.getScreeningOrgId());
+            return String.format(SCREENING_ORG_EXCEL_FILE_NAME, screeningOrgName);
+        }
+
+        //区域压缩包名
+        if (Objects.isNull(exportCondition.getSchoolId()) && Objects.isNull(exportCondition.getPlanId()) && Objects.nonNull(exportCondition.getDistrictId())){
+            List<District> districtPositionDetailById = districtService.getDistrictPositionDetailById(exportCondition.getDistrictId());
+            StringBuffer folder = new StringBuffer();
+            districtPositionDetailById.forEach(item->{
+                folder.append(item.getName());
+            });
+            return String.format(DISTRICT_EXCEL_FILE_NAME,folder);
+        }
+
+        //学校压缩包名
+        if (Objects.nonNull(exportCondition.getSchoolId()) && Objects.isNull(exportCondition.getGradeId()) && Objects.isNull(exportCondition.getClassId())){
+            School school = schoolService.getById(exportCondition.getSchoolId());
+            return String.format(SCHOOL_EXCEL_FILE_NAME,school.getName());
+        }
+
+      return "";
+  }
 }

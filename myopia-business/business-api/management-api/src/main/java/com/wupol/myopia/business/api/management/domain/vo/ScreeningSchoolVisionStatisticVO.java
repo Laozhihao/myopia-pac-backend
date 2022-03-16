@@ -45,6 +45,7 @@ public class ScreeningSchoolVisionStatisticVO extends ScreeningBasicResult {
          */
         private Integer districtId;
 
+
         /**
          * 私有构造方法
          */
@@ -193,7 +194,7 @@ public class ScreeningSchoolVisionStatisticVO extends ScreeningBasicResult {
         private Integer schoolId;
 
         /**
-         * 学校id
+         * 筛查计划id
          */
         private Integer screeningPlanId;
 
