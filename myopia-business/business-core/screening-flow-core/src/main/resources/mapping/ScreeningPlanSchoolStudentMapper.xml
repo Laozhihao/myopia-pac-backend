@@ -93,7 +93,7 @@
                 mspss.class_name
         from m_screening_plan_school_student mspss
         join m_vision_screening_result mvsr
-                on  mspss.student_id = mvsr.screening_plan_school_student_id
+                on  mspss.id = mvsr.screening_plan_school_student_id
                 and mspss.screening_plan_id = mvsr.plan_id
                 and mspss.school_id = mvsr.school_id
         where mspss.screening_plan_id = #{screeningPlanId} and mspss.school_id = #{schoolId}
@@ -496,7 +496,7 @@
                mspss.class_id as classId
         from m_screening_plan_school_student mspss
         join m_vision_screening_result mvsr
-        on  mspss.student_id = mvsr.screening_plan_school_student_id
+        on  mspss.id = mvsr.screening_plan_school_student_id
         and mspss.screening_plan_id = mvsr.plan_id
         and mspss.school_id = mvsr.school_id
             where 1 = 1
