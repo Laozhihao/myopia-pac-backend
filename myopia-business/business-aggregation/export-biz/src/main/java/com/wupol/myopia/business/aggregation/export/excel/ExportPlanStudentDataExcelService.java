@@ -175,7 +175,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
                 collect.forEach((classKey,classValue) ->{
                     SchoolClass schoolClass = schoolClassService.getById(key);
                     try {
-                        ExcelUtil.exportListToExcelWithFolder(folder.toString(), String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName()+schoolClass.getName()), excelFacade.genVisionScreeningResultExportVos(schoolMap.get(exportCondition.getSchoolId())), mergeStrategy, getHeadClass());
+                        ExcelUtil.exportListToExcelWithFolder(folder.toString()+ gradeFolder, String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName()+schoolClass.getName()), excelFacade.genVisionScreeningResultExportVos(schoolMap.get(exportCondition.getSchoolId())), mergeStrategy, getHeadClass());
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
