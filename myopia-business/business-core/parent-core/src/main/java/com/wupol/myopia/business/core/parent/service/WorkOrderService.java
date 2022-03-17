@@ -25,7 +25,7 @@ public class WorkOrderService extends BaseService<WorkOrderMapper, WorkOrder> {
             for (WorkOrder workOrder : list){
                 if (workOrder.getViewStatus() == WorkOrder.USER_VIEW_STATUS_UNREAD){
                     workOrder.setViewStatus(WorkOrder.USER_VIEW_STATUS_READ);
-                    baseMapper.insert(workOrder);
+                    baseMapper.updateById(workOrder);
                 }
             }
         }
