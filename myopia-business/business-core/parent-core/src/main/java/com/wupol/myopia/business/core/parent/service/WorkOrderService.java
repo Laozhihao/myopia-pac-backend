@@ -19,9 +19,6 @@ import java.util.List;
 @Service
 public class WorkOrderService extends BaseService<WorkOrderMapper, WorkOrder> {
 
-    @Resource
-    private ParentService parentService;
-
     public List<WorkOrder> findByUserId(Integer userId) {
         List<WorkOrder> list = baseMapper.findByUserId(userId);
         if (list.size()>0){
@@ -35,10 +32,8 @@ public class WorkOrderService extends BaseService<WorkOrderMapper, WorkOrder> {
         return list;
     }
 
-    public void addWorkOrder (WorkOrder workOrder, CurrentUser user){
-        workOrder.setCreateUserId(user.getId());
+    public void addWorkOrder (WorkOrder workOrder,Parent parent){
         workOrder.setStatus(1);
-        Parent parent = parentService.getParentByUserId(user.getId());
         if (parent != null && StringUtils.isNotBlank(parent.getWxNickname())){
             workOrder.setWxNickname(parent.getWxNickname());
         }

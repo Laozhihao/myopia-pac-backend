@@ -17,7 +17,9 @@ import com.wupol.myopia.business.core.hospital.domain.dto.EyeHealthyReportRespon
 import com.wupol.myopia.business.core.hospital.domain.dto.PreschoolCheckRecordDTO;
 import com.wupol.myopia.business.core.hospital.service.PreschoolCheckRecordService;
 import com.wupol.myopia.business.core.parent.domain.dto.CheckIdCardRequestDTO;
+import com.wupol.myopia.business.core.parent.domain.model.Parent;
 import com.wupol.myopia.business.core.parent.domain.model.WorkOrder;
+import com.wupol.myopia.business.core.parent.service.ParentService;
 import com.wupol.myopia.business.core.parent.service.WorkOrderService;
 import com.wupol.myopia.business.core.school.domain.dto.CountParentStudentResponseDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeItemsDTO;
@@ -57,7 +59,8 @@ public class ParentStudentController {
     private PreschoolCheckRecordService preschoolCheckRecordService;
     @Resource
     private WorkOrderService workOrderService;
-
+    @Resource
+    private ParentService parentService;
     /**
      * 获取孩子统计、孩子列表
      *
@@ -334,10 +337,12 @@ public class ParentStudentController {
     @PostMapping("addWorkerOrder")
     public void addWorkOrder(@RequestBody @Validated WorkOrder workOrder){
         CurrentUser user = CurrentUserUtil.getCurrentUser();
+        workOrder.setCreateUserId(user.getId());
         if (StringUtils.isBlank(workOrder.getIdCard()) && StringUtils.isBlank(workOrder.getPassport())){
             throw new BusinessException("身份证或者护照信息不能为空！");
         }
-        workOrderService.addWorkOrder(workOrder,user);
+        Parent parent = parentService.getParentByUserId(user.getId());
+        workOrderService.addWorkOrder(workOrder,parent);
     }
 
     /**
