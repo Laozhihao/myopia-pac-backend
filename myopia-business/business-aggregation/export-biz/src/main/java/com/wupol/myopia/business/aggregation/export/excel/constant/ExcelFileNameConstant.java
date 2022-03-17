@@ -18,7 +18,7 @@ public class ExcelFileNameConstant {
     /**
      * 区域 Excel 文件名
      */
-    public final String DISTRICT_EXCEL_FILE_NAME = "%s区域数据表";
+    public final String DISTRICT_EXCEL_FILE_NAME = "%s区域筛查数据表";
 
     /**
      * 学校 Excel 文件名
