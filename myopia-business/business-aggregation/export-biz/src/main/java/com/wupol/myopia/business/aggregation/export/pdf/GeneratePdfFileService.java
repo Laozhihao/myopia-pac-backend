@@ -203,6 +203,7 @@ public class GeneratePdfFileService {
     public void generateDistrictArchivesPdfFile(String saveDirectory, ExportCondition exportCondition) {
         List<screeningPlanSchoolStudentDTO> statConclusionExportVos = new ArrayList<>();
         List<Integer> childDistrictIds = districtService.getSpecificDistrictTreeAllDistrictIds(exportCondition.getDistrictId());
+        log.info("行政区域：====="+childDistrictIds);
         statConclusionExportVos = statConclusionService.getExportVoByScreeningNoticeIdAndDistrictIdsAndGroupBy(exportCondition.getNotificationId(), childDistrictIds);
         statConclusionExportVos.forEach(item->{
             ExportCondition exportCondition1 = new ExportCondition();

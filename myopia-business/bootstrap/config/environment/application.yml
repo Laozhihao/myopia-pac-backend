@@ -173,7 +173,7 @@ report:
     url-host: ${VISTEL_MYOPIA_PAC_REPORT_BASE_URI}
 file:
   temp:
-    save-path: f:/pdf/
+    save-path: /app/temp
 
 
 
