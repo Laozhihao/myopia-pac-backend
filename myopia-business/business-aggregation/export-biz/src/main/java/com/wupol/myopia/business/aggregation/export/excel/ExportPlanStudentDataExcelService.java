@@ -188,6 +188,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
             School school = schoolService.getById(exportCondition.getSchoolId());
             SchoolGrade schoolGrade = schoolGradeService.getById(exportCondition.getGradeId());
             StringBuffer folder = new StringBuffer();
+            folder.append(getPackageFileName(exportCondition));
             folder.append("/"+String.format(PLAN_STUDENT_FILE_NAME,school.getName()+schoolGrade.getName()));
             //导出年级数据
             gradeMap.forEach((key,value)->{
@@ -274,6 +275,14 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
             return String.format(SCHOOL_EXCEL_FILE_NAME,school.getName());
         }
 
-      return "";
+        //年级压缩包名
+        if (Objects.nonNull(exportCondition.getSchoolId()) && Objects.nonNull(exportCondition.getGradeId()) && Objects.isNull(exportCondition.getClassId())){
+            School school = schoolService.getById(exportCondition.getSchoolId());
+            SchoolGrade grade = schoolGradeService.getById(exportCondition.getGradeId());
+            return String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName());
+        }
+
+
+            return "";
   }
 }
