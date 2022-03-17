@@ -10,6 +10,9 @@ import com.wupol.myopia.business.aggregation.export.excel.domain.StaffImportEnum
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationStaffDTO;
+import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
+import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationStaff;
+import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationStaffService;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
@@ -99,6 +102,8 @@ public class ScreeningOrgStaffExcelImportService {
         screeningOrganizationStaffService.saveBatch(importList);
     }
 
+    @Resource
+    private ScreeningOrganizationService screeningOrganizationService;
     /**
      * 筛查人员前置校验
      *
@@ -121,7 +126,15 @@ public class ScreeningOrgStaffExcelImportService {
         Assert.isTrue(CollectionUtils.isEmpty(checkPhones), "手机号码已经被使用，请确认！");
 
 
-        List<User> checkUser = oauthServiceClient.getUserBatchByPhones(phones, SystemCode.SCREENING_CLIENT.getCode());
+        //获取筛查机构人员数量限制
+        ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(screeningOrgId);
+        List<Integer> orgIdList = new ArrayList<>();
+        orgIdList.add(screeningOrgId);
+        //获取目前筛查机构人员数量
+        List<ScreeningOrganizationStaff> staffListsByOrgIds = screeningOrganizationStaffService.getStaffListsByOrgIds(orgIdList);
+        if (!(staffListsByOrgIds.size() < screeningOrganization.getAccountNum())){
+            throw new BusinessException("账号数量已达上限，请联系管理员!");
+        }
 
     }
 
