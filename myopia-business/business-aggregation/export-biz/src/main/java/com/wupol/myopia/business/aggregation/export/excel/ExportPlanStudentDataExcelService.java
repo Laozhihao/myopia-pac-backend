@@ -120,9 +120,9 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
 
         //1.学校id为null,区域id为null,筛查计划id不为null按计划维度导出
         if (Objects.isNull(exportCondition.getSchoolId()) && Objects.isNull(exportCondition.getDistrictId()) && Objects.nonNull(exportCondition.getPlanId())){
+            String packageFileName = getPackageFileName(exportCondition);
             schoolMap.forEach((key,value)->{
                 StringBuffer folder = new StringBuffer();
-                String packageFileName = getPackageFileName(exportCondition);
                 folder.append(packageFileName);
                 folder.append("/"+packageFileName);
                 try {
@@ -136,9 +136,10 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
 
         //2.学校id为null,筛查计划id为null,区域id不为null，按区域维度导出
         if (Objects.isNull(exportCondition.getSchoolId()) && Objects.isNull(exportCondition.getPlanId()) && Objects.isNull(exportCondition.getDistrictId())){
+            String packageFileName = getPackageFileName(exportCondition);
+            log.info("区域维度压缩包名："+packageFileName);
             schoolMap.forEach((key,value)->{
                 StringBuffer folder = new StringBuffer();
-                String packageFileName = getPackageFileName(exportCondition);
                 folder.append(packageFileName);
                 try {
                     folder.append("/"+String.format(PLAN_STUDENT_FILE_NAME,district.getName()));
