@@ -136,6 +136,12 @@ public class ScreeningOrgStaffExcelImportService {
             throw new BusinessException("账号数量已达上限，请联系管理员!");
         }
 
+        if (listMap.size()>screeningOrganization.getAccountNum()){
+            throw new BusinessException("您已超出限制数据（筛查人员账号数量限制："+screeningOrganization.getAccountNum()+"个），操作失败！\n" +
+                    "如需增加筛查人员账号数量，请联系管理员！");
+        }
+
+
     }
 
     /**
