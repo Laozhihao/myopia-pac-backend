@@ -112,7 +112,6 @@ public class ExcelFacade {
                     folder.append(filePath);
                     folder.append("/"+fileName);
                 }
-
                 List<VisionScreeningResultExportDTO> visionScreeningResultExportVos = genVisionScreeningResultExportVos(orDefault);
                 visionScreeningResultExportVos.sort(Comparator.comparing((VisionScreeningResultExportDTO exportDTO) -> Integer.valueOf(GradeCodeEnum.getByName(exportDTO.getGradeName()).getCode())));
                 String excelFileName = String.format("%s筛查学生数据", schoolName);
