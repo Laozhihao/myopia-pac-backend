@@ -2,6 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.wupol.myopia.business.core.parent.domain.mapper.WorkOrderMapper">
 
+
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.parent.domain.model.WorkOrder">
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="old_data" property="oldData"/>
@@ -9,6 +10,7 @@
     <resultMap id="BaseResultMapDTO" type="com.wupol.myopia.business.core.parent.domain.dto.WorkOrderDTO">
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="old_data" property="oldData"/>
     </resultMap>
+
 
     <!-- 通用查询条件 -->
     <sql id="Base_Where_Clause">
@@ -43,7 +45,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, name, gender, passport, id_card, birthday, school_id, grade_id, class_id, sno, status, create_user_id, term, create_time, update_time, old_data, content, grade_type, parent_phone, wx_nickname, screening_begin_time, screening_end_time, isNotice
+        id, `name`, gender, passport, id_card, birthday, school_id, grade_id, class_id, sno, status, create_user_id, term, create_time, update_time, old_data, content, grade_type, parent_phone, wx_nickname, screening_begin_time, screening_end_time, isNotice
     </sql>
 
     <select id="getByPage" resultMap="BaseResultMapDTO">
