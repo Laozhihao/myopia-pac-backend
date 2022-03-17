@@ -91,8 +91,10 @@ public class WorkOrderBizService {
                 workOrderQueryDTO.setSchoolIds(schoolIds);
             }
         }
+
         // 分页结果
         IPage<WorkOrderDTO> workOrderDTOIPage = workOrderService.getWorkOrderLists(pageRequest, workOrderQueryDTO);
+
         // 组装年级班级信息
         List<WorkOrderDTO> records = workOrderDTOIPage.getRecords();
         if (!CollectionUtils.isEmpty(records)) {
@@ -134,8 +136,9 @@ public class WorkOrderBizService {
     @Transactional(rollbackFor = Exception.class)
     public void disposeOfWordOrder(WorkOrderRequestDTO workOrderRequestDTO) {
         School school = schoolService.getBySchoolId(workOrderRequestDTO.getSchoolId());
+
         if (Objects.isNull(school)) {
-            throw new BusinessException("学校不存在");
+            throw new BusinessException("该学校不存在");
         }
         // 多端学生原始信息
         StudentDTO studentDTO = studentService.getStudentById(workOrderRequestDTO.getStudentId());
@@ -182,7 +185,6 @@ public class WorkOrderBizService {
         updateStudentAndScreeningPlanSchoolStudentAndVisionScreeningResult(school, student, visionScreeningResult);
 
 
-
     }
 
     /**
@@ -210,7 +212,7 @@ public class WorkOrderBizService {
      */
     private void updateStudentAndScreeningPlanSchoolStudentAndVisionScreeningResult(School school, Student student, VisionScreeningResult visionScreeningResult) {
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getById(visionScreeningResult.getScreeningPlanSchoolStudentId());
-        if (Objects.isNull(screeningPlanSchoolStudent)){
+        if (Objects.isNull(screeningPlanSchoolStudent)) {
             throw new BusinessException("筛查学生不存在");
         }
         screeningPlanSchoolStudent.setIdCard(student.getIdCard())
