@@ -119,7 +119,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
 
 
         //1.学校id为null,区域id为null,筛查计划id不为null按计划维度导出
-        if (Objects.isNull(exportCondition.getSchoolId()) && Objects.isNull(exportCondition.getDistrictId()) && Objects.nonNull(exportCondition.getPlanId())){
+        if (Objects.isNull(exportCondition.getSchoolId()) && Objects.nonNull(exportCondition.getDistrictId()) && Objects.nonNull(exportCondition.getPlanId()) && Objects.nonNull(exportCondition.getScreeningOrgId())){
             String packageFileName = getPackageFileName(exportCondition);
             log.info("筛查计划压缩包名："+packageFileName);
             schoolMap.forEach((key,value)->{
@@ -211,7 +211,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         SchoolGrade grade = schoolGradeService.getById(exportCondition.getGradeId());
         String nameById = screeningOrganizationService.getNameById(exportCondition.getScreeningOrgId());
         //.获取计划维度导出文件名
-        if (Objects.isNull(exportCondition.getSchoolId()) && Objects.isNull(exportCondition.getDistrictId()) && Objects.nonNull(exportCondition.getPlanId())){
+        if (Objects.isNull(exportCondition.getSchoolId()) && Objects.nonNull(exportCondition.getDistrictId()) && Objects.nonNull(exportCondition.getPlanId()) && Objects.nonNull(exportCondition.getScreeningOrgId())){
             return String.format(PLAN_STUDENT_FILE_NAME,nameById);
         }
         //.获取学校导出文件名
@@ -246,7 +246,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
     public String getPackageFileName(ExportCondition exportCondition){
 
         //计划压缩包名
-        if (Objects.isNull(exportCondition.getSchoolId()) && Objects.isNull(exportCondition.getDistrictId()) && Objects.nonNull(exportCondition.getPlanId())){
+        if (Objects.isNull(exportCondition.getSchoolId()) && Objects.nonNull(exportCondition.getDistrictId()) && Objects.nonNull(exportCondition.getPlanId()) && Objects.nonNull(exportCondition.getScreeningOrgId())){
             String screeningOrgName = screeningOrganizationService.getNameById(exportCondition.getScreeningOrgId());
             return String.format(SCREENING_ORG_EXCEL_FILE_NAME, screeningOrgName);
         }
