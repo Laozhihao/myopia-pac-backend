@@ -334,12 +334,19 @@ public class ParentStudentController {
     @PostMapping("addWorkerOrder")
     public void addWorkOrder(@RequestBody @Validated WorkOrder workOrder){
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        workOrder.setCreateUserId(user.getId());
         if (StringUtils.isBlank(workOrder.getIdCard()) && StringUtils.isBlank(workOrder.getPassport())){
             throw new BusinessException("身份证或者护照信息不能为空！");
         }
-        workOrder.setStatus(1);
-        workOrderService.save(workOrder);
+        workOrderService.addWorkOrder(workOrder,user);
+    }
+
+    /**
+     * 工单查看状态
+     */
+    @GetMapping("workOrderState")
+    public int workOrderState(){
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        return workOrderService.workOrderState(user.getId());
     }
 
     /**

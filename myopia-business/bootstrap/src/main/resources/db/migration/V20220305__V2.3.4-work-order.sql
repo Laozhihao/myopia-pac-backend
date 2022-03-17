@@ -27,3 +27,6 @@ CREATE TABLE `m_work_order` (
 
 alter table m_screening_organization_staff
     add type tinyint(1) NOT NULL DEFAULT '0' COMMENT '筛查人员类型（0普通筛查人员，1自动生成的筛查人员）';
+
+alter table m_work_order
+    add view_status tinyint(1) NOT NULL DEFAULT '0' COMMENT '用户查看工单处理状态（0未读，1已读）';

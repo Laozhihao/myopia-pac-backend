@@ -24,6 +24,15 @@ import javax.validation.constraints.NotNull;
 public class WorkOrder implements Serializable {
 
     private static final long serialVersionUID = 1L;
+    /**
+     * 用户查看工单状态(未读)
+     */
+    public static final int USER_VIEW_STATUS_UNREAD = 0;
+
+    /**
+     * 用户查看工单状态(已读)
+     */
+    public static final int USER_VIEW_STATUS_READ = 1;
 
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
@@ -84,6 +93,11 @@ public class WorkOrder implements Serializable {
      * 状态 0-已处理 1-未处理 2-无法处理
      */
     private Integer status;
+
+    /**
+     * 用户查看工单处理状态（0未读，1已读）
+     */
+    private Integer viewStatus;
 
     /**
      * 创建人ID
