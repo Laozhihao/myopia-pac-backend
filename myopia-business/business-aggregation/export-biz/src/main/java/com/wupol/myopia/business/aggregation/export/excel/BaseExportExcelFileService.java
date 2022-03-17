@@ -220,6 +220,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
     @Override
     public String syncExport(ExportCondition exportCondition) {
         File excelFile = null;
+        File file = null;
         try {
             // 1.获取文件名
             String fileName = getFileName(exportCondition);
@@ -228,7 +229,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
             // 2.获取文件保存父目录路径
             excelFile = generateExcelFile(fileName, data,exportCondition);
             // 4.压缩文件
-            File file = compressFile(excelSavePath+fileName);;
+            file = compressFile(excelSavePath+fileName);;
             return resourceFileService.getResourcePath(s3Utils.uploadS3AndGetResourceFile(file.getAbsolutePath(), file.getName()).getId());
         } catch (Exception e) {
             String requestData = JSON.toJSONString(exportCondition);
@@ -237,8 +238,8 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
             throw new BusinessException("导出数据异常");
         } finally {
             // 5.删除临时文件
-            if (Objects.nonNull(excelFile)) {
-                deleteTempFile(excelFile.getPath());
+            if (Objects.nonNull(file)) {
+                deleteTempFile(file.getPath());
             }
         }
     }
