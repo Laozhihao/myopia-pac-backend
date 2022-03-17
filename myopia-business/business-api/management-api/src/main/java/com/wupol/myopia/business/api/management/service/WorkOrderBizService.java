@@ -160,28 +160,28 @@ public class WorkOrderBizService {
             student = studentService.getAllByPassport(workOrderRequestDTO.getPassport());
         }
 
+        // 不存在工单身份证
+        if (Objects.isNull(student)) {
+            //  新增学生
+            student = saveManagementStudent(studentDTO, workOrderRequestDTO);
+        }
+        // 更新身份证学生的基础信息
+        packageManagementStudent(student, workOrderRequestDTO);
+        student.setStatus(CommonConst.STATUS_NOT_DELETED);
+        studentService.updateById(student);
+
         // 待修改筛查记录
         if (Objects.isNull(workOrderRequestDTO.getScreeningId())) {
-            throw new BusinessException("筛查记录id为空");
+            return;
         }
         VisionScreeningResult visionScreeningResult = visionScreeningResultService.getById(workOrderRequestDTO.getScreeningId());
         if (Objects.isNull(visionScreeningResult)) {
             throw new BusinessException("筛查记录不存在");
         }
-
-        // 不存在工单身份证
-        if (Objects.isNull(student)) {
-            //  新增学生
-            Student saveStudent = saveManagementStudent(studentDTO, workOrderRequestDTO);
-            // 修改筛查学生
-            updateStudentAndScreeningPlanSchoolStudentAndVisionScreeningResult(school, saveStudent, visionScreeningResult);
-            return;
-        }
-        // 更新身份证学生的基础信息 筛查记录表的筛查学校id层级学生id 筛查学生表的层级学校id
-        packageManagementStudent(student, workOrderRequestDTO);
+        // 筛查记录表的筛查学校id层级学生id 筛查学生表的层级学校id
         updateStudentAndScreeningPlanSchoolStudentAndVisionScreeningResult(school, student, visionScreeningResult);
-        student.setStatus(CommonConst.STATUS_NOT_DELETED);
-        studentService.updateById(student);
+
+
 
     }
 
@@ -210,6 +210,9 @@ public class WorkOrderBizService {
      */
     private void updateStudentAndScreeningPlanSchoolStudentAndVisionScreeningResult(School school, Student student, VisionScreeningResult visionScreeningResult) {
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getById(visionScreeningResult.getScreeningPlanSchoolStudentId());
+        if (Objects.isNull(screeningPlanSchoolStudent)){
+            throw new BusinessException("筛查学生不存在");
+        }
         screeningPlanSchoolStudent.setIdCard(student.getIdCard())
                 .setSchoolDistrictId(school.getDistrictId())
                 .setSchoolId(school.getId())
