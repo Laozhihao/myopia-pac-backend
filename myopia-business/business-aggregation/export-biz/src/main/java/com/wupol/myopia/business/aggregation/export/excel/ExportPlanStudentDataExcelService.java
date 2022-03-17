@@ -92,7 +92,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
 
     @Override
     public String getFileName(ExportCondition exportCondition) {
-        return getFileNameTitle(exportCondition)+ExcelFileNameConstant.PLAN_STUDENT_FILE_NAME;
+        return getFileNameTitle(exportCondition);
     }
 
     @Override
@@ -173,7 +173,6 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
             School school = schoolService.getById(exportCondition.getSchoolId());
             SchoolGrade schoolGrade = schoolGradeService.getById(exportCondition.getGradeId());
             StringBuffer folder = new StringBuffer();
-            log.info("年级压缩包名："+getPackageFileName(exportCondition));
             folder.append(getPackageFileName(exportCondition));
             //导出年级数据
             gradeMap.forEach((key,value)->{
@@ -209,10 +208,10 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
     private String getFileNameTitle(ExportCondition exportCondition){
         School school = schoolService.getById(exportCondition.getSchoolId());
         SchoolGrade grade = schoolGradeService.getById(exportCondition.getGradeId());
-        String nameById = screeningOrganizationService.getNameById(exportCondition.getScreeningOrgId());
+        String screeningOrg = screeningOrganizationService.getNameById(exportCondition.getScreeningOrgId());
         //.获取计划维度导出文件名
         if (Objects.isNull(exportCondition.getSchoolId()) && Objects.nonNull(exportCondition.getDistrictId()) && Objects.nonNull(exportCondition.getPlanId()) && Objects.nonNull(exportCondition.getScreeningOrgId())){
-            return String.format(PLAN_STUDENT_FILE_NAME,nameById);
+            return String.format(PLAN_STUDENT_FILE_NAME,screeningOrg);
         }
         //.获取学校导出文件名
         if (Objects.nonNull(exportCondition.getSchoolId()) && Objects.isNull(exportCondition.getGradeId()) && Objects.isNull(exportCondition.getClassId())){
