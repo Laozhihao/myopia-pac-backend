@@ -221,13 +221,14 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
     public String syncExport(ExportCondition exportCondition) {
         File excelFile = null;
         File file = null;
+        String fileName = null;
         try {
             // 1.获取文件名
-            String fileName = getFileName(exportCondition);
+            fileName = getFileName(exportCondition);
             // 3.获取数据，生成List
             List data = getExcelData(exportCondition);
             // 2.获取文件保存父目录路径
-            excelFile = generateExcelFile(fileName, data,exportCondition);
+            generateExcelFile(fileName, data,exportCondition);
             // 4.压缩文件
             file = compressFile(excelSavePath+fileName);;
             return resourceFileService.getResourcePath(s3Utils.uploadS3AndGetResourceFile(file.getAbsolutePath(), file.getName()).getId());
@@ -239,7 +240,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
         } finally {
             // 5.删除临时文件
             if (Objects.nonNull(file)) {
-                deleteTempFile(file.getPath());
+                deleteTempFile(excelSavePath+fileName);
             }
         }
     }
