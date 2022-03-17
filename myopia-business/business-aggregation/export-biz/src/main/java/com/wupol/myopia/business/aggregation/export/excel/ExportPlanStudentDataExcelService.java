@@ -111,10 +111,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
 
         List<StatConclusionExportDTO> statConclusionExportDTOs = data;
         OnceAbsoluteMergeStrategy mergeStrategy = new OnceAbsoluteMergeStrategy(0, 1, 20, 21);
-        ScreeningPlan plan = screeningPlanService.getById(exportCondition.getPlanId());
-        List<District> districtPositionDetailById = districtService.getDistrictPositionDetailById(exportCondition.getDistrictId());
         Map<Integer, List<StatConclusionExportDTO>> schoolMap = statConclusionExportDTOs.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getSchoolId));
-        District district = districtService.getById(exportCondition.getDistrictId());
         Map<Integer, List<StatConclusionExportDTO>> gradeMap = statConclusionExportDTOs.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getGradeId));
 
 

@@ -56,7 +56,7 @@ public class ExportDistrictArchivesService extends BaseExportPdfFileService {
 
         List<ScreeningTask> byList = screeningTaskService.findByList(new ScreeningTask()
                 .setDistrictId(exportCondition.getDistrictId())
-                .setScreeningNoticeId(exportCondition.getScreeningOrgId())
+                .setScreeningNoticeId(exportCondition.getNotificationId())
         );
         List<Integer> taskIds = byList.stream().map(item -> {
             return item.getId();

@@ -57,7 +57,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
 
         File excelFile = null;
         String noticeKeyContent = null;
-        String parentPath = null;
+
         try {
             // 1.获取文件名
             String fileName = getFileName(exportCondition);
@@ -82,9 +82,8 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
             }
         } finally {
             // 7.删除临时文件
-            if (Objects.nonNull(excelSavePath+getPackageFileName(exportCondition))) {
-                deleteTempFile(excelSavePath+getPackageFileName(exportCondition));
-            }
+            deleteTempFile(excelSavePath+getPackageFileName(exportCondition));
+
             // 8.释放锁
             unlock(getLockKey(exportCondition));
         }
