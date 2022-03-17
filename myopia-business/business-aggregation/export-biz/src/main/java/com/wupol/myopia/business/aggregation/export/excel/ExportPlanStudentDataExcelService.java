@@ -187,7 +187,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
                 //再导出该年级的班级数据
                 Map<Integer, List<StatConclusionExportDTO>> collect = value.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getClassId));
                 collect.forEach((classKey,classValue) ->{
-                    SchoolClass schoolClass = schoolClassService.getById(key);
+                    SchoolClass schoolClass = schoolClassService.getById(classKey);
                     try {
                         ExcelUtil.exportListToExcelWithFolder(folder.toString()+ gradeFolder, String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName()+schoolClass.getName()), excelFacade.genVisionScreeningResultExportVos(classValue), mergeStrategy, getHeadClass());
                     } catch (IOException e) {
