@@ -152,7 +152,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
                 StringBuffer gradeFolder = new StringBuffer();
                 gradeFolder.append("/"+String.format(PLAN_STUDENT_FILE_NAME,grade.getName()));
                 try {
-                    ExcelUtil.exportListToExcelWithFolder(folder.toString()+ gradeFolder, String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName()), excelFacade.genVisionScreeningResultExportVos(schoolMap.get(key)), mergeStrategy, getHeadClass());
+                    ExcelUtil.exportListToExcelWithFolder(folder.toString()+ gradeFolder, String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName()), excelFacade.genVisionScreeningResultExportVos(value), mergeStrategy, getHeadClass());
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -161,7 +161,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
                 collect.forEach((classKey,classValue) ->{
                     SchoolClass schoolClass = schoolClassService.getById(classKey);
                     try {
-                        ExcelUtil.exportListToExcelWithFolder(folder.toString()+ gradeFolder, String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName()+schoolClass.getName()), excelFacade.genVisionScreeningResultExportVos(schoolMap.get(classKey)), mergeStrategy, getHeadClass());
+                        ExcelUtil.exportListToExcelWithFolder(folder.toString()+ gradeFolder, String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName()+schoolClass.getName()), excelFacade.genVisionScreeningResultExportVos(value), mergeStrategy, getHeadClass());
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -180,7 +180,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
                 StringBuffer gradeFolder = new StringBuffer();
                 gradeFolder.append("/"+String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName()));
                 try {
-                    ExcelUtil.exportListToExcelWithFolder(folder.toString()+ gradeFolder, String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName()), excelFacade.genVisionScreeningResultExportVos(schoolMap.get(key)), mergeStrategy, getHeadClass());
+                    ExcelUtil.exportListToExcelWithFolder(folder.toString()+ gradeFolder, String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName()), excelFacade.genVisionScreeningResultExportVos(value), mergeStrategy, getHeadClass());
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -189,7 +189,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
                 collect.forEach((classKey,classValue) ->{
                     SchoolClass schoolClass = schoolClassService.getById(key);
                     try {
-                        ExcelUtil.exportListToExcelWithFolder(folder.toString()+ gradeFolder, String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName()+schoolClass.getName()), excelFacade.genVisionScreeningResultExportVos(schoolMap.get(classKey)), mergeStrategy, getHeadClass());
+                        ExcelUtil.exportListToExcelWithFolder(folder.toString()+ gradeFolder, String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName()+schoolClass.getName()), excelFacade.genVisionScreeningResultExportVos(value), mergeStrategy, getHeadClass());
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
