@@ -92,7 +92,7 @@ public class ExcelFacade {
     @Async
     public void generateVisionScreeningResult(Integer userId, List<StatConclusionExportDTO> statConclusionExportDTOs, boolean isSchoolExport, String districtOrSchoolName, String redisKey) throws IOException, UtilException {
         // 设置导出的文件名
-        String fileName = String.format("%s-筛查数据", districtOrSchoolName);
+        String fileName = String.format("%s筛查学生数据表", districtOrSchoolName);
         String content = String.format(CommonConst.EXPORT_MESSAGE_CONTENT_SUCCESS, districtOrSchoolName + "筛查数据", new Date());
         log.info("导出筛查结果文件: {}", fileName);
         OnceAbsoluteMergeStrategy mergeStrategy = new OnceAbsoluteMergeStrategy(0, 1, 20, 21);
@@ -109,19 +109,13 @@ public class ExcelFacade {
                 List<StatConclusionExportDTO> orDefault = schoolNameMap.getOrDefault(schoolName, Collections.emptyList());
                 //学校的区域id，以及该区域的上层id
                 if (Objects.nonNull(orDefault) && orDefault.size()>0){
-                    School school = schoolService.getBySchoolId(orDefault.get(0).getSchoolId());
-                    List<District> districtPositionDetailById = districtService.getDistrictPositionDetailById(school.getDistrictId());
                     folder.append(filePath);
                     folder.append("/"+fileName);
-                    districtPositionDetailById.forEach(item->{
-                        log.info("区域="+item.getName());
-                        folder.append("/"+item.getName());
-                    });
                 }
 
                 List<VisionScreeningResultExportDTO> visionScreeningResultExportVos = genVisionScreeningResultExportVos(orDefault);
                 visionScreeningResultExportVos.sort(Comparator.comparing((VisionScreeningResultExportDTO exportDTO) -> Integer.valueOf(GradeCodeEnum.getByName(exportDTO.getGradeName()).getCode())));
-                String excelFileName = String.format("%s-筛查数据", schoolName);
+                String excelFileName = String.format("%s筛查学生数据", schoolName);
                 try {
                     ExcelUtil.exportListToExcelWithFolder(folder.toString(), excelFileName, visionScreeningResultExportVos, mergeStrategy, VisionScreeningResultExportDTO.class);
                 } catch (Exception e) {
