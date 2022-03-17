@@ -119,7 +119,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
 
 
         //1.学校id为null,区域id为null,筛查计划id不为null按计划维度导出
-        if (Objects.isNull(exportCondition.getSchoolId()) && Objects.nonNull(exportCondition.getDistrictId()) && Objects.nonNull(exportCondition.getPlanId()) && Objects.nonNull(exportCondition.getScreeningOrgId()) && Objects.nonNull(exportCondition.getClassId())){
+        if (Objects.isNull(exportCondition.getSchoolId()) && Objects.nonNull(exportCondition.getDistrictId()) && Objects.nonNull(exportCondition.getPlanId()) && Objects.nonNull(exportCondition.getScreeningOrgId()) && Objects.isNull(exportCondition.getClassId())){
             String packageFileName = getPackageFileName(exportCondition);
             schoolMap.forEach((key,value)->{
                 StringBuffer folder = new StringBuffer();
