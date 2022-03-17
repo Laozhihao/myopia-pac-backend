@@ -87,7 +87,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
     @Override
     public String getNoticeKeyContent(ExportCondition exportCondition) {
 
-        return String.format(ExcelNoticeKeyContentConstant.EXPORT_PLAN_STUDENT_DATA, getFileNameTitle(exportCondition));
+        return String.format(getFileNameTitle(exportCondition));
     }
 
     @Override
