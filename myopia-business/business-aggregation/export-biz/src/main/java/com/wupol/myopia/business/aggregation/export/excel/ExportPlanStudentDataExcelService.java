@@ -199,13 +199,13 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         if (Objects.nonNull(exportCondition.getClassId())){
             Map<Integer, List<StatConclusionExportDTO>> classMap = statConclusionExportDTOs.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getClassId));
             classMap.forEach((classKey,classValue) ->{
+                log.info("classKey========================="+classKey);
                 StringBuffer folder = new StringBuffer();
                 folder.append(getPackageFileName(exportCondition));
                 folder.append("/"+getPackageFileName(exportCondition));
                 School school = schoolService.getById(exportCondition.getSchoolId());
                 SchoolGrade schoolGrade = schoolGradeService.getById(exportCondition.getGradeId());
                 SchoolClass schoolClass = schoolClassService.getById(exportCondition.getClassId());
-                log.info("文件名："+String.format(PLAN_STUDENT_FILE_NAME,school.getName()+schoolGrade.getName()+schoolClass.getName()));
                 try {
                     ExcelUtil.exportListToExcelWithFolder(folder.toString(), String.format(PLAN_STUDENT_FILE_NAME,school.getName()+schoolGrade.getName()+schoolClass.getName()), excelFacade.genVisionScreeningResultExportVos(schoolMap.get(exportCondition.getSchoolId())), mergeStrategy, getHeadClass());
                 } catch (IOException e) {
