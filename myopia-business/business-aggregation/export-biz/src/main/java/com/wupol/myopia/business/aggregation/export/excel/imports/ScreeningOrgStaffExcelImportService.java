@@ -119,6 +119,10 @@ public class ScreeningOrgStaffExcelImportService {
         Assert.isTrue(phones.size() == phones.stream().distinct().count(), "手机号码重复");
         List<User> checkPhones = oauthServiceClient.getUserBatchByPhones(phones, SystemCode.SCREENING_CLIENT.getCode());
         Assert.isTrue(CollectionUtils.isEmpty(checkPhones), "手机号码已经被使用，请确认！");
+
+
+        List<User> checkUser = oauthServiceClient.getUserBatchByPhones(phones, SystemCode.SCREENING_CLIENT.getCode());
+
     }
 
     /**

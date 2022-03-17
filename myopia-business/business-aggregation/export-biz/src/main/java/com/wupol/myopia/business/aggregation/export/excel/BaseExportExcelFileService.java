@@ -82,8 +82,8 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
             }
         } finally {
             // 7.删除临时文件
-            if (Objects.nonNull(excelFile)) {
-                deleteTempFile(excelFile.getPath());
+            if (Objects.nonNull(excelSavePath+getPackageFileName(exportCondition))) {
+                deleteTempFile(excelSavePath+getPackageFileName(exportCondition));
             }
             // 8.释放锁
             unlock(getLockKey(exportCondition));
