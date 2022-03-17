@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 public class WorkOrderService extends BaseService<WorkOrderMapper, WorkOrder> {
 
     /**
-     * 获取工单列表
+     * 获取工单列表分页结果
      * @param pageRequest
      * @param workOrderQueryDTO
      * @return IPage<WorkOrder> {@link IPage}
