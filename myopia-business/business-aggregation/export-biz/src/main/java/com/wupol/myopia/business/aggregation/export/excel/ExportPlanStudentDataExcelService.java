@@ -224,7 +224,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
      */
     private String getFileNameTitle(ExportCondition exportCondition){
         School school = schoolService.getById(exportCondition.getSchoolId());
-
+        SchoolGrade grade = schoolGradeService.getById(exportCondition.getGradeId());
         //1.获取计划维度导出文件名
         if (Objects.isNull(exportCondition.getSchoolId()) && Objects.isNull(exportCondition.getDistrictId()) && Objects.nonNull(exportCondition.getPlanId())){
             return String.format(PLAN_STUDENT_FILE_NAME,school.getName());
@@ -233,8 +233,18 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         if (Objects.isNull(exportCondition.getSchoolId()) && Objects.isNull(exportCondition.getPlanId()) && Objects.nonNull(exportCondition.getDistrictId())){
             return String.format(PLAN_STUDENT_FILE_NAME,school.getName());
         }
+        //3.获取学校导出文件名
+        if (Objects.nonNull(exportCondition.getSchoolId()) && Objects.isNull(exportCondition.getGradeId()) && Objects.isNull(exportCondition.getClassId())){
+            return String.format(PLAN_STUDENT_FILE_NAME,school.getName());
+        }
+        //4.获取年级导出文件名
+        if (Objects.nonNull(exportCondition.getSchoolId()) && Objects.nonNull(exportCondition.getGradeId()) && Objects.isNull(exportCondition.getClassId())){
+            return String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName());
 
-        return "";
+        }
+
+
+            return "";
     }
 
     @Override
