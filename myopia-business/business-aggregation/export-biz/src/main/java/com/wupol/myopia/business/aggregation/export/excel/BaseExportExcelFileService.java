@@ -122,6 +122,8 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
         }
     }
 
+
+
     /**
      * 压缩文件
      *
@@ -251,7 +253,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
 
     @Override
     public String syncExport(ExportCondition exportCondition) {
-        File file = null;
+        File excelFile = null;
         String fileName = null;
         try {
             // 1.获取文件名
@@ -259,10 +261,8 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
             // 3.获取数据，生成List
             List data = getExcelData(exportCondition);
             // 2.获取文件保存父目录路径
-            generateExcelFile(fileName, data,exportCondition);
-            // 4.压缩文件
-            file = compressFile(excelSavePath+fileName);;
-            return resourceFileService.getResourcePath(s3Utils.uploadS3AndGetResourceFile(file.getAbsolutePath(), file.getName()).getId());
+            excelFile = syncFileDispose(isPackage(),exportCondition,fileName,data);
+            return resourceFileService.getResourcePath(s3Utils.uploadS3AndGetResourceFile(excelFile.getAbsolutePath(), excelFile.getName()).getId());
         } catch (Exception e) {
             String requestData = JSON.toJSONString(exportCondition);
             log.error("【生成Excel异常】{}", requestData, e);
@@ -270,9 +270,17 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
             throw new BusinessException("导出数据异常");
         } finally {
             // 5.删除临时文件
-            if (Objects.nonNull(file)) {
-                deleteTempFile(excelSavePath+fileName);
+            if (Objects.nonNull(excelFile)) {
+                deleteTempFile(excelFile.getPath());
             }
+        }
+    }
+
+    public File syncFileDispose(boolean isPackage,ExportCondition exportCondition,String fileName,List data) throws IOException {
+        if (isPackage){
+            return new File(excelSavePath + "/" +getPackageFileName(exportCondition));
+        }else {
+            return generateExcelFile(fileName, data, exportCondition);
         }
     }
 }

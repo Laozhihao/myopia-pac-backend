@@ -202,7 +202,6 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
             classMap.forEach((classKey,classValue) ->{
                 StringBuffer folder = new StringBuffer();
                 folder.append(getPackageFileName(exportCondition));
-                folder.append("/"+getPackageFileName(exportCondition));
                 School school = schoolService.getById(exportCondition.getSchoolId());
                 SchoolGrade schoolGrade = schoolGradeService.getById(exportCondition.getGradeId());
                 SchoolClass schoolClass = schoolClassService.getById(exportCondition.getClassId());
