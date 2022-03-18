@@ -6,7 +6,10 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.framework.api.service.VistelToolsService;
 import com.wupol.framework.sms.domain.dto.MsgData;
 import com.wupol.framework.sms.domain.dto.SmsResult;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.WorkOrderStatusEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
@@ -30,7 +33,6 @@ import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
@@ -68,11 +70,12 @@ public class WorkOrderBizService {
     @Autowired
     private VisionScreeningResultService visionScreeningResultService;
     @Autowired
-    private ScreeningPlanService screeningPlanService;
-    @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     @Resource
     private VistelToolsService vistelToolsService;
+    @Autowired
+    private StudentFacade studentFacade;
+
 
 
     /**
@@ -198,8 +201,10 @@ public class WorkOrderBizService {
         Student saveStudent = new Student();
         BeanUtils.copyProperties(studentDTO, saveStudent);
         packageManagementStudent(saveStudent, workOrderRequestDTO);
-        saveStudent.setId(null);
-        studentService.saveStudent(saveStudent);
+        saveStudent.checkStudentInfo();
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        saveStudent.setCreateUserId(user.getId());
+        saveStudent.setId(studentFacade.saveStudentAndSchoolStudent(saveStudent));
         return saveStudent;
     }
 
