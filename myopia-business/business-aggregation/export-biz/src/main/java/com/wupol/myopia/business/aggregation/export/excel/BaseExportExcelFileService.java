@@ -36,6 +36,8 @@ import java.util.stream.Collectors;
 public abstract class BaseExportExcelFileService extends BaseExportFileService {
 
 
+    public static ThreadLocal<String> localVar = new ThreadLocal<String>();
+
     public static String excelSavePath = "/tmp/export/";
 
     @Autowired
@@ -81,7 +83,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
         } finally {
             // 7.删除临时文件
             if (isPackage()){
-                deleteTempFile(excelSavePath+getPackageFileName(exportCondition));
+                deleteTempFile(excelSavePath+localVar.get());
             }else {
                 if (Objects.nonNull(excelFile)){
                     deleteTempFile(excelFile.getPath());
@@ -111,7 +113,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
      **/
     public File fileDispose(boolean isPackage,ExportCondition exportCondition,String fileName,List data) throws IOException {
         if (isPackage){
-          return compressFile(excelSavePath+getPackageFileName(exportCondition));
+          return compressFile(excelSavePath+localVar.get());
         }else {
             return generateExcelFile(fileName, data, exportCondition);
         }
