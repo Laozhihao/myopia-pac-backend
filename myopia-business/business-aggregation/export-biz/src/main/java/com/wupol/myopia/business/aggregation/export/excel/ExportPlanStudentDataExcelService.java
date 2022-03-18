@@ -280,6 +280,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         //学校压缩包名
         if (Objects.nonNull(exportCondition.getSchoolId()) && Objects.isNull(exportCondition.getGradeId()) && Objects.isNull(exportCondition.getClassId())){
             String format =UUID.randomUUID() + "/" + String.format(SCHOOL_EXCEL_FILE_NAME,school.getName());
+            log.info("当前线程："+Thread.currentThread().getName());
             localVar.set(format);
             return format;
         }
