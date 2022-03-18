@@ -4,7 +4,10 @@ import com.alibaba.excel.write.merge.OnceAbsoluteMergeStrategy;
 import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.ExcelUtil;
+import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelFileNameConstant;
+import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelNoticeKeyContentConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
@@ -29,7 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static com.wupol.myopia.business.aggregation.export.excel.constant.ExcelFileNameConstant.*;
@@ -196,7 +198,6 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
 
         //如果班级不为null,则以班级维度导出
         if (Objects.nonNull(exportCondition.getClassId())){
-            AtomicReference<File> file = null;
             Map<Integer, List<StatConclusionExportDTO>> classMap = statConclusionExportDTOs.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getClassId));
             classMap.forEach((classKey,classValue) ->{
                 StringBuffer folder = new StringBuffer();
@@ -204,12 +205,11 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
                 try {
                     log.info("文件生成路径："+folder.toString());
                     log.info("文件名："+getFileNameTitle(exportCondition));
-                file.set(ExcelUtil.exportListToExcelWithFolder(folder.toString(), getFileNameTitle(exportCondition), excelFacade.genVisionScreeningResultExportVos(schoolMap.get(exportCondition.getSchoolId())), mergeStrategy, getHeadClass()));
+                ExcelUtil.exportListToExcelWithFolder(folder.toString(), getFileNameTitle(exportCondition), excelFacade.genVisionScreeningResultExportVos(schoolMap.get(exportCondition.getSchoolId())), mergeStrategy, getHeadClass());
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
             });
-            return file.get();
         }
         return null;
     }

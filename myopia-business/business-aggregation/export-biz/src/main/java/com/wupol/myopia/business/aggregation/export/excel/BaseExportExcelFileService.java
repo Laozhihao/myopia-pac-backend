@@ -258,10 +258,10 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
         try {
             // 1.获取文件名
             fileName = getFileName(exportCondition);
-            // 3.获取数据，生成List
+            // 2.获取数据，生成List
             List data = getExcelData(exportCondition);
-            // 2.获取文件保存父目录路径
-            excelFile = generateExcelFile(fileName, data, exportCondition);
+            // 3.获取文件保存父目录路径
+            excelFile = syncFileDispose(isPackage(),exportCondition,fileName,data);
             return resourceFileService.getResourcePath(s3Utils.uploadS3AndGetResourceFile(excelFile.getAbsolutePath(), excelFile.getName()).getId());
         } catch (Exception e) {
             String requestData = JSON.toJSONString(exportCondition);
@@ -276,4 +276,16 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
         }
     }
 
+    public File syncFileDispose(boolean isPackage,ExportCondition exportCondition,String fileName,List data) throws IOException {
+        if (isPackage){
+            generateExcelFile(fileName, data, exportCondition);
+            log.info("文件获取路径："+excelSavePath + localVar.get());
+            log.info("文件名："+fileName);
+            File file = new File(excelSavePath + localVar.get()+"/"+fileName+".xlsx");
+            localVar.remove();
+            return file;
+        }else {
+            return generateExcelFile(fileName, data, exportCondition);
+        }
+    }
 }
