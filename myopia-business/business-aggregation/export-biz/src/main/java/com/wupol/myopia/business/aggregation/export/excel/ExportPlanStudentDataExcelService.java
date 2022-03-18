@@ -273,6 +273,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         if (Objects.isNull(exportCondition.getSchoolId()) && Objects.nonNull(exportCondition.getDistrictId()) && Objects.nonNull(exportCondition.getPlanId()) && Objects.nonNull(exportCondition.getScreeningOrgId())){
             String screeningOrgName = screeningOrganizationService.getNameById(exportCondition.getScreeningOrgId());
             String format =UUID.randomUUID() + "/" + String.format(SCREENING_ORG_EXCEL_FILE_NAME, screeningOrgName);
+            log.info("当前线程："+Thread.currentThread().getName());
             localVar.set(format);
             return format;
         }
@@ -289,6 +290,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         if (Objects.nonNull(exportCondition.getSchoolId()) && Objects.nonNull(exportCondition.getGradeId()) && Objects.isNull(exportCondition.getClassId())){
             String format =UUID.randomUUID() + "/" + String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName());
             localVar.set(format);
+            log.info("当前线程："+Thread.currentThread().getName());
             return format;
         }
 
@@ -296,6 +298,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         if (Objects.nonNull(exportCondition.getClassId())){
             String format =UUID.randomUUID() + "/" + String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName()+schoolClass.getName());
             localVar.set(format);
+            log.info("当前线程："+Thread.currentThread().getName());
             return format;
         }
 
