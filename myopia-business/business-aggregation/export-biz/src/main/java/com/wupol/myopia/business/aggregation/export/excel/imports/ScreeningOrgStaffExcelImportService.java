@@ -127,20 +127,7 @@ public class ScreeningOrgStaffExcelImportService {
         Assert.isTrue(CollectionUtils.isEmpty(checkPhones), "手机号码已经被使用，请确认！");
 
 
-        //获取筛查机构人员数量限制
-        ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(screeningOrgId);
-        List<Integer> orgIdList = new ArrayList<>();
-        orgIdList.add(screeningOrgId);
-        //获取目前筛查机构人员数量
-        List<ScreeningOrganizationStaff> staffListsByOrgIds = screeningOrganizationStaffService.getStaffListsByOrgIds(orgIdList);
-        if (!(staffListsByOrgIds.size() < screeningOrganization.getAccountNum())){
-            throw new BusinessException("账号数量已达上限，请联系管理员!");
-        }
-
-        if (listMap.size()>screeningOrganization.getAccountNum()){
-            throw new BusinessException("您已超出限制数据（筛查人员账号数量限制："+screeningOrganization.getAccountNum()+"个），操作失败！\n" +
-                    "如需增加筛查人员账号数量，请联系管理员！");
-        }
+        screeningOrganizationStaffService.checkScreeningOrganizationStaffAmount(screeningOrgId,listMap);
 
 
     }
