@@ -65,13 +65,11 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
             noticeKeyContent = getNoticeKeyContent(exportCondition);
             // 3.获取数据，生成List
             List data = getExcelData(exportCondition);
-            // 4.生成导出的文件
-            generateExcelFile(fileName, data, exportCondition);
-            // 5.压缩文件
-            excelFile = compressFile(excelSavePath+getPackageFileName(exportCondition));
-            // 6.上传文件
+            // 4.数据处理
+            excelFile = fileDispose(isPackage(), exportCondition, fileName, data);
+            // 5.上传文件
             Integer fileId = uploadFile(excelFile);
-            // 7.发送成功通知
+            // 6.发送成功通知
             sendSuccessNotice(exportCondition.getApplyExportFileUserId(), noticeKeyContent, fileId);
         } catch (Exception e) {
             String requestData = JSON.toJSONString(exportCondition);
@@ -82,10 +80,40 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
             }
         } finally {
             // 7.删除临时文件
-            deleteTempFile(excelSavePath+getPackageFileName(exportCondition));
-
+            if (isPackage()){
+                deleteTempFile(excelSavePath+getPackageFileName(exportCondition));
+            }else {
+                if (Objects.nonNull(excelFile)){
+                    deleteTempFile(excelFile.getPath());
+                }
+            }
             // 8.释放锁
             unlock(getLockKey(exportCondition));
+        }
+    }
+
+
+    /**
+     * 开关
+     *
+     * @param
+     * @return java.io.File
+     **/
+    public Boolean isPackage(){
+       return false;
+    }
+
+    /**
+     * 文件处理
+     *
+     * @param isPackage 是否压缩
+     * @return java.io.File
+     **/
+    public File fileDispose(boolean isPackage,ExportCondition exportCondition,String fileName,List data) throws IOException {
+        if (isPackage){
+          return compressFile(excelSavePath+getPackageFileName(exportCondition));
+        }else {
+            return generateExcelFile(fileName, data, exportCondition);
         }
     }
 
