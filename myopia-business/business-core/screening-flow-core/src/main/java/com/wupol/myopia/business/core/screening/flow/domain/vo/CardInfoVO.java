@@ -78,4 +78,9 @@ public class CardInfoVO {
      * 不配合个数
      */
     private Integer countNotCooperate;
+
+    /**
+     * 民族描述
+     */
+    private String nationDesc;
 }

@@ -29,9 +29,9 @@ public class MyopiaScreeningResultCardDetail {
      */
     private String ageInfo;
     /**
-     * 医生签名
+     * 班主任签名
      */
-    private String doctorSignature;
+    private String teacherSignature;
 
     /**
      * 签名图片访问地址（视力筛查）
