@@ -46,6 +46,8 @@ public class ScreeningOrgStaffExcelImportService {
     @Resource
     private OauthServiceClient oauthServiceClient;
 
+    @Resource
+    private ScreeningOrganizationService screeningOrganizationService;
     /**
      * 导入机构人员
      *
@@ -102,8 +104,7 @@ public class ScreeningOrgStaffExcelImportService {
         screeningOrganizationStaffService.saveBatch(importList);
     }
 
-    @Resource
-    private ScreeningOrganizationService screeningOrganizationService;
+
     /**
      * 筛查人员前置校验
      *
