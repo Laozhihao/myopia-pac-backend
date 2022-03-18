@@ -271,22 +271,22 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         //计划压缩包名
         if (Objects.isNull(exportCondition.getSchoolId()) && Objects.nonNull(exportCondition.getDistrictId()) && Objects.nonNull(exportCondition.getPlanId()) && Objects.nonNull(exportCondition.getScreeningOrgId())){
             String screeningOrgName = screeningOrganizationService.getNameById(exportCondition.getScreeningOrgId());
-            return String.format(SCREENING_ORG_EXCEL_FILE_NAME, screeningOrgName + UUID.randomUUID());
+            return UUID.randomUUID() + "/" + String.format(SCREENING_ORG_EXCEL_FILE_NAME, screeningOrgName);
         }
 
         //学校压缩包名
         if (Objects.nonNull(exportCondition.getSchoolId()) && Objects.isNull(exportCondition.getGradeId()) && Objects.isNull(exportCondition.getClassId())){
-            return String.format(SCHOOL_EXCEL_FILE_NAME,school.getName()+UUID.randomUUID());
+            return UUID.randomUUID() + "/" + String.format(SCHOOL_EXCEL_FILE_NAME,school.getName());
         }
 
         //年级压缩包名
         if (Objects.nonNull(exportCondition.getSchoolId()) && Objects.nonNull(exportCondition.getGradeId()) && Objects.isNull(exportCondition.getClassId())){
-            return String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName()+UUID.randomUUID());
+            return UUID.randomUUID() + "/" + String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName());
         }
 
         //班级压缩包名
         if (Objects.nonNull(exportCondition.getClassId())){
-            return String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName()+schoolClass.getName()+UUID.randomUUID());
+            return UUID.randomUUID() + "/" + String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName()+schoolClass.getName());
         }
 
             return "";
