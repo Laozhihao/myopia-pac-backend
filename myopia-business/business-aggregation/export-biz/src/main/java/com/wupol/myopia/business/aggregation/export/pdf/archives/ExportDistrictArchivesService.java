@@ -11,6 +11,7 @@ import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningTaskService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
  * @Date 2022/3/8 10:35
  * @Version 1.0
  **/
+@Slf4j
 @Service("exportDistrictArchivesService")
 public class ExportDistrictArchivesService extends BaseExportPdfFileService {
 
@@ -63,10 +65,11 @@ public class ExportDistrictArchivesService extends BaseExportPdfFileService {
             return item.getId();
         }).collect(Collectors.toList());
 
+
         if (CollectionUtils.isEmpty(taskIds)){
             throw new BusinessException("该区域下暂无筛查任务，无法导出档案卡");
         }
-        int total = visionScreeningBizService.getScreeningResult(exportCondition.getDistrictId(), taskIds);
+        int total = visionScreeningBizService.getScreeningResult(districtIdList, taskIds);
         if (total <= 0) {
             throw new BusinessException("该区域下暂无筛查学生数据，无法导出档案卡");
         }

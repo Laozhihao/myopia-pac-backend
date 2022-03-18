@@ -238,10 +238,10 @@ public class VisionScreeningBizService {
     /**
      * 获取筛查区域
      *
-     * @param districtId 结论
+     * @param districtIds 行政区域ids
      */
-    public int getScreeningResult(Integer districtId, List<Integer> taskIds) {
-        int resultCount  = visionScreeningResultMapper.selectScreeningResultByDistrictIdAndTaskId(districtId,taskIds);
+    public int getScreeningResult(List<Integer> districtIds, List<Integer> taskIds) {
+        int resultCount  = visionScreeningResultMapper.selectScreeningResultByDistrictIdAndTaskId(districtIds,taskIds);
         return resultCount;
     }
 }

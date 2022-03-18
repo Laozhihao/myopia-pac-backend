@@ -194,7 +194,10 @@
             #{taskId}
         </foreach>
         and
-            district_id = #{districtId}
+            district_id in
+        <foreach collection="districtIds" item="districtId" index="index" open="(" close=")" separator=",">
+            #{districtId}
+        </foreach>
         and
             is_double_screen = 0
     </select>
