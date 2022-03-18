@@ -278,7 +278,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
 
     public File syncFileDispose(boolean isPackage,ExportCondition exportCondition,String fileName,List data) throws IOException {
         if (isPackage){
-            return new File(excelSavePath + "/" +getPackageFileName(exportCondition));
+            return new File(excelSavePath + "/" +getPackageFileName(exportCondition)+"/"+fileName);
         }else {
             return generateExcelFile(fileName, data, exportCondition);
         }
