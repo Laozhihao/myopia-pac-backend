@@ -281,7 +281,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
             generateExcelFile(fileName, data, exportCondition);
             log.info("文件获取路径："+excelSavePath + localVar.get());
             log.info("文件名："+fileName);
-            File file = new File(excelSavePath + localVar.get() + "/" + fileName);
+            File file = new File(excelSavePath + localVar.get());
             localVar.remove();
             return file;
         }else {
