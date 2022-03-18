@@ -278,6 +278,8 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
 
     public File syncFileDispose(boolean isPackage,ExportCondition exportCondition,String fileName,List data) throws IOException {
         if (isPackage){
+            log.info("文件获取路径："+excelSavePath + localVar.get());
+            log.info("文件名："+fileName);
             File file = new File(excelSavePath + localVar.get() + "/" + fileName);
             localVar.remove();
             return file;
