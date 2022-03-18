@@ -64,7 +64,6 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
     @Autowired
     private ExcelFacade excelFacade;
 
-    public String packageUUID= "";
 
     @Override
     public List<StatConclusionExportDTO> getExcelData(ExportCondition exportCondition) {
