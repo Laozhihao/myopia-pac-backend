@@ -307,4 +307,16 @@ public class WorkOrderBizService {
             log.error("发送通知到手机号码错误，提交信息:{}, 异常信息:{}", JSONObject.toJSONString(msgData), smsResult);
         }
     }
+
+    /**
+     * 获取旧数据
+     * @param studentId
+     * @return
+     */
+    public StudentDO getOldData(Integer studentId) {
+        StudentDTO student = studentService.getStudentById(studentId);
+        StudentDO studentDO = new StudentDO();
+        BeanUtils.copyProperties(student,studentDO);
+        return studentDO;
+    }
 }

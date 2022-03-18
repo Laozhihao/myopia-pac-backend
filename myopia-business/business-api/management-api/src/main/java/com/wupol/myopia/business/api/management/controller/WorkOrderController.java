@@ -61,9 +61,7 @@ public class WorkOrderController {
             throw new BusinessException("身份证和护照不可全部为空");
         }
         // 旧数据保存
-        Student student = studentService.getById(workOrderRequestDTO.getStudentId());
-        StudentDO studentDO = new StudentDO();
-        BeanUtils.copyProperties(student,studentDO);
+        StudentDO studentDO = workOrderBizService.getOldData(workOrderRequestDTO.getStudentId());
 
         workOrderBizService.disposeOfWordOrder(workOrderRequestDTO);
         // 更新工单状态发送短信

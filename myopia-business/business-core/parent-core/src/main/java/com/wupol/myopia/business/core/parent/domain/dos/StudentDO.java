@@ -35,6 +35,21 @@ public class StudentDO {
     private Integer gradeId;
 
     /**
+     * 年级名称
+     */
+    private String gradeName;
+
+    /**
+     * 班级名称
+     */
+    private String className;
+
+    /**
+     * 学校名称
+     */
+    private String schoolName;
+
+    /**
      * 学龄段
      */
     private Integer gradeType;
