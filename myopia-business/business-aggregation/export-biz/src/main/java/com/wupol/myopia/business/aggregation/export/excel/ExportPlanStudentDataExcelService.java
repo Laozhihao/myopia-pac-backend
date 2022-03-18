@@ -198,19 +198,18 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
 
         //如果班级不为null,则以班级维度导出
         if (Objects.nonNull(exportCondition.getClassId())){
-            Map<Integer, List<StatConclusionExportDTO>> classMap = statConclusionExportDTOs.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getClassId));
-            classMap.forEach((classKey,classValue) ->{
-                StringBuffer folder = new StringBuffer();
-                folder.append(excelSavePath);
-                folder.append(getPackageFileName(exportCondition));
-                try {
-                    log.info("文件生成路径："+folder.toString());
-                    log.info("文件名："+getFileNameTitle(exportCondition));
-                ExcelUtil.exportListToExcelWithFolder(folder.toString(), getFileNameTitle(exportCondition), excelFacade.genVisionScreeningResultExportVos(schoolMap.get(exportCondition.getSchoolId())), mergeStrategy, getHeadClass());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            });
+            File file = null;
+            StringBuffer folder = new StringBuffer();
+            folder.append(excelSavePath);
+            folder.append(getPackageFileName(exportCondition));
+            log.info("文件生成路径："+folder.toString());
+            log.info("文件名："+getFileNameTitle(exportCondition));
+            try {
+                file = ExcelUtil.exportListToExcelWithFolder(folder.toString(), getFileNameTitle(exportCondition), excelFacade.genVisionScreeningResultExportVos(data), mergeStrategy, getHeadClass());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            return file;
         }
         return null;
     }
