@@ -12,8 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Alix
@@ -72,4 +74,19 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
         return baseMapper.countByNoticeIdAndGovId(screeningNoticeId, govDeptId) > 0;
     }
 
+    @Resource
+    private ScreeningTaskMapper screeningTaskMapper;
+
+    /**
+     * 获取筛查任务
+     *
+     * @param districtIdList 行政区域ids
+     * @param notificationId 筛查通知id
+     */
+    public List<ScreeningTask> getScreeningTaskByDistrictIdAndNotificationId(List<Integer> districtIdList,Integer notificationId) {
+
+        List<ScreeningTask> screeningTaskList = screeningTaskMapper.getScreeningTaskByDistrictIdAndNotificationId(districtIdList,notificationId);
+
+        return  screeningTaskList;
+    }
 }

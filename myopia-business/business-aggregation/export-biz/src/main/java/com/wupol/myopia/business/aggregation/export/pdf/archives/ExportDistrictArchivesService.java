@@ -12,6 +12,7 @@ import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningTaskService;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -54,16 +55,19 @@ public class ExportDistrictArchivesService extends BaseExportPdfFileService {
     @Override
     public void validateBeforeExport(ExportCondition exportCondition) {
 
-        List<ScreeningTask> byList = screeningTaskService.findByList(new ScreeningTask()
-                .setDistrictId(exportCondition.getDistrictId())
-                .setScreeningNoticeId(exportCondition.getNotificationId())
-        );
-        List<Integer> taskIds = byList.stream().map(item -> {
+        //获取筛查任务
+        List<Integer> districtIdList = districtService.getSpecificDistrictTreeAllDistrictIds(exportCondition.getDistrictId());
+        List<ScreeningTask> screeningTaskList = screeningTaskService.getScreeningTaskByDistrictIdAndNotificationId(districtIdList, exportCondition.getNotificationId());
+
+        List<Integer> taskIds = screeningTaskList.stream().map(item -> {
             return item.getId();
         }).collect(Collectors.toList());
 
+        if (CollectionUtils.isEmpty(taskIds)){
+            throw new BusinessException("该区域下暂无筛查任务，无法导出档案卡");
+        }
         int total = visionScreeningBizService.getScreeningResult(exportCondition.getDistrictId(), taskIds);
-        if (total == 0) {
+        if (total <= 0) {
             throw new BusinessException("该区域下暂无筛查学生数据，无法导出档案卡");
         }
     }
