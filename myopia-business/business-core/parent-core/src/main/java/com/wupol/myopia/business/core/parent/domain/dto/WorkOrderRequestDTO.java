@@ -96,7 +96,6 @@ public class WorkOrderRequestDTO {
      * 筛查日期
      */
     @JsonFormat(pattern = "yyyy-MM-dd")
-    @NotNull(message = "筛查日期不能为空")
     private Date screeningDate;
 
     /**
