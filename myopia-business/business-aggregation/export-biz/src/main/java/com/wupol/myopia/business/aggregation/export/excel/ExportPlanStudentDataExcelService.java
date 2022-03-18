@@ -201,6 +201,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
             Map<Integer, List<StatConclusionExportDTO>> classMap = statConclusionExportDTOs.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getClassId));
             classMap.forEach((classKey,classValue) ->{
                 StringBuffer folder = new StringBuffer();
+                folder.append(excelSavePath);
                 folder.append(getPackageFileName(exportCondition));
                 try {
                     log.info("文件生成路径："+folder.toString());
