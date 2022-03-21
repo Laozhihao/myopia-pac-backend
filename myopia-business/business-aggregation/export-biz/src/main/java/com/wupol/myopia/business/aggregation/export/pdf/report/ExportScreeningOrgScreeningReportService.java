@@ -8,7 +8,9 @@ import com.wupol.myopia.business.aggregation.export.pdf.constant.PDFFileNameCons
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
@@ -17,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -35,6 +38,8 @@ public class ExportScreeningOrgScreeningReportService extends BaseExportPdfFileS
     private GeneratePdfFileService generateReportPdfService;
     @Autowired
     private StatConclusionService statConclusionService;
+    @Resource
+    private ScreeningPlanService screeningPlanService;
     /**
      * 生成文件
      *
@@ -63,8 +68,8 @@ public class ExportScreeningOrgScreeningReportService extends BaseExportPdfFileS
     @Override
     public String getFileName(ExportCondition exportCondition) {
         ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(exportCondition.getScreeningOrgId());
-
-        return String.format(PDFFileNameConstant.REPORT_PDF_FILE_NAME, screeningOrganization.getName());
+        ScreeningPlan screeningPlan = screeningPlanService.getById(exportCondition.getPlanId());
+        return String.format(PDFFileNameConstant.REPORT_PDF_FILE_NAME, screeningOrganization.getName(),screeningPlan.getTitle());
     }
 
     @Override
