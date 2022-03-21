@@ -19,5 +19,5 @@ public interface TemplateConstants {
     /**
      * 学生档案卡-近视筛查结果记录表
      */
-    Integer SCREENING_TEMPLATE = 9;
+    Integer SCREENING_TEMPLATE = 3;
 }

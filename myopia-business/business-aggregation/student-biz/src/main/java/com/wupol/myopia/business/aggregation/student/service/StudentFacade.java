@@ -551,7 +551,14 @@ public class StudentFacade {
         if (Objects.isNull(result)) {
             return details;
         }
+
         BeanUtils.copyProperties(result, details);
+
+        details.setVisionResults(setVisionResult(result.getVisionData()));
+        details.setRefractoryResults(setRefractoryResults(result.getComputerOptometry()));
+        // 佩戴眼镜的类型随便取一个都行，两只眼睛的数据是一样
+
+        setClassType(result, details);
 
         details.setVisionSignPicUrl(getVisionCreateUserSignPicUrl(result));
         details.setComputerSignPicUrl(getComputerCreateUserSignPicUrl(result));
@@ -563,6 +570,21 @@ public class StudentFacade {
     }
 
     /**
+     * 设置戴镜类型
+     * @param result
+     * @param details
+     */
+    private void setClassType(VisionScreeningResult result, MyopiaScreeningResultCardDetail details) {
+        CardDetailsVO.GlassesTypeObj glassesTypeObj = new CardDetailsVO.GlassesTypeObj();
+        VisionDataDO visionData = result.getVisionData();
+        if (Objects.nonNull(visionData)) {
+            glassesTypeObj.setType(visionData.getLeftEyeData().getGlassesType());
+            details.setGlassesTypeObj(glassesTypeObj);
+        }
+        details.setGlassesTypeObj(glassesTypeObj);
+    }
+
+    /**
      * 设置视力信息
      *
      * @param result 筛查结果
@@ -571,10 +593,11 @@ public class StudentFacade {
      */
     private CardDetailsVO packageCardDetail(VisionScreeningResult result, Integer age) {
         CardDetailsVO details = new CardDetailsVO();
-        VisionDataDO visionData = result.getVisionData();
+
 
         // 佩戴眼镜的类型随便取一个都行，两只眼睛的数据是一样
         CardDetailsVO.GlassesTypeObj glassesTypeObj = new CardDetailsVO.GlassesTypeObj();
+        VisionDataDO visionData = result.getVisionData();
         if (Objects.nonNull(visionData)) {
             glassesTypeObj.setType(visionData.getLeftEyeData().getGlassesType());
             details.setGlassesTypeObj(glassesTypeObj);

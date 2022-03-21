@@ -5,6 +5,8 @@ import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 /**
  * 学生档案卡-近视筛查结果记录表
  *
@@ -13,16 +15,19 @@ import lombok.Setter;
 @Getter
 @Setter
 public class MyopiaScreeningResultCardDetail {
-
+    /**
+     * 佩戴眼镜的类型： @{link com.wupol.myopia.business.common.constant.WearingGlassesSituation}
+     */
+    private CardDetailsVO.GlassesTypeObj glassesTypeObj;
     /**
      * 筛查结果--视力检查结果
      */
-    private VisionDataDO visionData;
+    private List<CardDetailsVO.VisionResult> visionResults;
 
     /**
-     * 筛查结果--电脑验光
+     * 验光仪检查结果
      */
-    private ComputerOptometryDO computerOptometry;
+    private List<CardDetailsVO.RefractoryResult> refractoryResults;
 
     /**
      * 扩展年龄
