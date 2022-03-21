@@ -145,3 +145,4 @@ white-list:
   - "/school/management/student/notice"
   - "/school/management/student/QRCode"
   - "/api/device/uploadData"
+  - "/api/device/bmi"
