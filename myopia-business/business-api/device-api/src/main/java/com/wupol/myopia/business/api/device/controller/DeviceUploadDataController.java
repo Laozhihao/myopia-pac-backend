@@ -64,9 +64,8 @@ public class DeviceUploadDataController {
 
     @PostMapping("/device/bmi")
     public Object uploadBMI(@RequestBody @Valid ScalesRequestDTO requestDTO) {
+        log.info("Data:{}", JSONObject.toJSONString(requestDTO));
         return deviceUploadDataService.bodyFatScaleUpload(requestDTO);
-//        log.info("Data:{}", JSONObject.toJSONString(requestDTO));
-//        return new ScalesResponseDTO("1", "success");
     }
 
 }
