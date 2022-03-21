@@ -1,11 +1,14 @@
 package com.wupol.myopia.business.api.device.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.DeviceDataRequestDTO;
 import com.wupol.myopia.business.api.device.config.DeviceDataFactory;
 import com.wupol.myopia.business.api.device.domain.dto.DeviceUploadDTO;
+import com.wupol.myopia.business.api.device.domain.dto.ScalesRequestDTO;
+import com.wupol.myopia.business.api.device.domain.dto.ScalesResponseDTO;
 import com.wupol.myopia.business.api.device.domain.result.DeviceUploadResult;
 import com.wupol.myopia.business.api.device.service.DeviceUploadDataService;
 import com.wupol.myopia.business.api.device.service.IDeviceDataService;
@@ -57,6 +60,12 @@ public class DeviceUploadDataController {
         IDeviceDataService deviceDataService = DeviceDataFactory.getDeviceDataService(requestDTO.getBusinessType());
         deviceDataService.uploadDate(requestDTO);
         return ApiResult.success();
+    }
+
+    @PostMapping("/device/bmi")
+    public Object uploadBMI(@RequestBody @Valid ScalesRequestDTO requestDTO) {
+        log.info("Data:{}", JSONObject.toJSONString(requestDTO));
+        return new ScalesResponseDTO("1", "success");
     }
 
 }
