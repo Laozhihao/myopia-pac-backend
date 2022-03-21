@@ -46,8 +46,7 @@ import java.util.stream.Collectors;
 @Service
 @Log4j2
 public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrganizationStaffMapper, ScreeningOrganizationStaff> {
-    @Resource
-    private ScreeningOrganizationStaff screeningOrganizationStaff;
+
     @Resource
     private ScreeningOrganizationStaffService screeningOrganizationStaffService;
     @Resource
@@ -251,7 +250,9 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      * 批量新增, 自动生成编号
      */
     public void saveBatch(List<ScreeningOrganizationStaffDTO> list) {
-        if (CollectionUtils.isEmpty(list)) return;
+        if (CollectionUtils.isEmpty(list)) {
+            return;
+        }
         // 通过screeningOrgId获取机构
         ScreeningOrganization organization = screeningOrganizationService.getById(list.get(0).getScreeningOrgId());
         if (null == organization) {
@@ -366,7 +367,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
     public void checkScreeningOrganizationStaffAmount(Integer screeningOrgId,List<Map<Integer, String>> listMap){
 
         ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(screeningOrgId);
-        int totalNum = screeningOrganizationStaffService.countByScreeningOrgId(screeningOrganizationStaff.getScreeningOrgId());
+        int totalNum = screeningOrganizationStaffService.countByScreeningOrgId(screeningOrgId);
         Assert.isTrue(totalNum < screeningOrganization.getAccountNum(), "账号数量已达上限，请联系管理员!");
 
         if (CollectionUtils.isNotEmpty(listMap)){
