@@ -138,7 +138,7 @@ public class ExportVisionScreeningResultExcelService extends BaseExportExcelFile
         Integer classId = exportCondition.getClassId();
         String className = "";
         if (Objects.nonNull(classId)) {
-            className = schoolClassService.getById(gradeId).getName();
+            className = schoolClassService.getById(classId).getName();
         }
         return school.getName()+gradeName+className;
     }
