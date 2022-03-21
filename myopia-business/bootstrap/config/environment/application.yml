@@ -163,7 +163,6 @@ vistel:
 ### 报告相关
 report:
   pdf:
-    save-path: /app/pdf/
     # 异步请求URL
     async-request-url: ${VISTEL_PDF_GENERATOR_ASYNC}
     # 同步请求URL
@@ -172,6 +171,11 @@ report:
   # 筛查报告前端工程访问域名
   html:
     url-host: ${VISTEL_MYOPIA_PAC_REPORT_BASE_URI}
+file:
+  temp:
+    save-path: /tmp/export/
+
+
 
 ### 健康监控 - actuator 配置
 management:

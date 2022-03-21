@@ -98,7 +98,7 @@ public class ExportVisionScreeningResultExcelService extends BaseExportExcelFile
 
     @Override
     public String getFileName(ExportCondition exportCondition) {
-        return getFileNameTitle(exportCondition)+ ExcelFileNameConstant.PLAN_STUDENT_FILE_NAME;
+        return String.format(ExcelFileNameConstant.PLAN_STUDENT_FILE_NAME,getFileNameTitle(exportCondition));
     }
 
     @Override
@@ -138,7 +138,7 @@ public class ExportVisionScreeningResultExcelService extends BaseExportExcelFile
         Integer classId = exportCondition.getClassId();
         String className = "";
         if (Objects.nonNull(classId)) {
-            className = schoolClassService.getById(gradeId).getName();
+            className = schoolClassService.getById(classId).getName();
         }
         return school.getName()+gradeName+className;
     }

@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.aggregation.export.excel;
 
+import cn.hutool.core.util.ZipUtil;
 import com.alibaba.fastjson.JSON;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.ExcelUtil;
@@ -14,6 +15,7 @@ import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -21,6 +23,7 @@ import org.springframework.util.StringUtils;
 import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -32,6 +35,12 @@ import java.util.stream.Collectors;
 @Log4j2
 @Service
 public abstract class BaseExportExcelFileService extends BaseExportFileService {
+
+
+    public static ThreadLocal<String> localVar = new ThreadLocal<>();
+
+    @Value("${file.temp.save-path}")
+    public String excelSavePath;
 
     @Autowired
     private DistrictService districtService;
@@ -52,6 +61,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
 
         File excelFile = null;
         String noticeKeyContent = null;
+
         try {
             // 1.获取文件名
             String fileName = getFileName(exportCondition);
@@ -59,8 +69,8 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
             noticeKeyContent = getNoticeKeyContent(exportCondition);
             // 3.获取数据，生成List
             List data = getExcelData(exportCondition);
-            // 4.生成导出的文件
-            excelFile = generateExcelFile(fileName, data);
+            // 4.数据处理
+            excelFile = fileDispose(isPackage(), exportCondition, fileName, data);
             // 5.上传文件
             Integer fileId = uploadFile(excelFile);
             // 6.发送成功通知
@@ -74,12 +84,76 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
             }
         } finally {
             // 7.删除临时文件
-            if (Objects.nonNull(excelFile)) {
-                deleteTempFile(excelFile.getPath());
+            if (isPackage()){
+                deleteTempFile(excelSavePath+localVar.get());
+                localVar.remove();
+            }else {
+                if (Objects.nonNull(excelFile)){
+                    deleteTempFile(excelFile.getPath());
+                }
             }
             // 8.释放锁
             unlock(getLockKey(exportCondition));
         }
+    }
+
+
+    /**
+     * 开关
+     *
+     * @param
+     * @return java.io.File
+     **/
+    public Boolean isPackage(){
+       return false;
+    }
+
+    /**
+     * 文件处理
+     *
+     * @param isPackage 是否压缩
+     * @return java.io.File
+     **/
+    public File fileDispose(boolean isPackage,ExportCondition exportCondition,String fileName,List data) throws IOException {
+        if (isPackage){
+            generateExcelFile(fileName, data, exportCondition);
+            File file = compressFile(excelSavePath + localVar.get());
+            return file;
+        }else {
+            return generateExcelFile(fileName, data, exportCondition);
+        }
+    }
+
+
+
+    /**
+     * 压缩文件
+     *
+     * @param fileSavePath 文件保存路径
+     * @return java.io.File
+     **/
+    public File compressFile(String fileSavePath) {
+        return ZipUtil.zip(fileSavePath);
+    }
+
+    /**
+     * 获取文件保存父目录路径
+     *
+     * @return java.lang.String
+     **/
+    public String getFileSaveParentPath() {
+        return Paths.get(excelSavePath, UUID.randomUUID().toString()).toString();
+    }
+
+    /**
+     * 获取文件保存路径
+     *
+     * @param parentPath 文件名
+     * @param fileName   文件名
+     * @return java.lang.String
+     **/
+    public String getFileSavePath(String parentPath, String fileName) {
+        return Paths.get(parentPath, fileName).toString();
     }
 
     /**
@@ -108,6 +182,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
      **/
     public abstract List getExcelData(ExportCondition exportCondition);
 
+
     /**
      * 生成Excel文件
      *
@@ -115,7 +190,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
      * @param data Excel数据
      * @return java.io.File
      **/
-    public File generateExcelFile(String fileName, List data) throws IOException {
+    public File generateExcelFile(String fileName, List data,ExportCondition exportCondition) throws IOException {
         return ExcelUtil.exportListToExcel(fileName, data, getHeadClass());
     }
 
@@ -145,6 +220,16 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
     }
 
     /**
+     * 获取压缩包名
+     *
+     * @param exportCondition 导出条件
+     * @return java.lang.String
+     **/
+    String getPackageFileName(ExportCondition exportCondition) {
+        return null;
+    }
+
+    /**
      * 获取省市区
      *
      * @param item AddressCode
@@ -171,13 +256,14 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
     @Override
     public String syncExport(ExportCondition exportCondition) {
         File excelFile = null;
+        String fileName = null;
         try {
             // 1.获取文件名
-            String fileName = getFileName(exportCondition);
-            // 3.获取数据，生成List
+            fileName = getFileName(exportCondition);
+            // 2.获取数据，生成List
             List data = getExcelData(exportCondition);
-            // 2.获取文件保存父目录路径
-            excelFile = generateExcelFile(fileName, data);
+            // 3.获取文件保存父目录路径
+            excelFile = generateExcelFile(fileName, data, exportCondition);
             return resourceFileService.getResourcePath(s3Utils.uploadS3AndGetResourceFile(excelFile.getAbsolutePath(), excelFile.getName()).getId());
         } catch (Exception e) {
             String requestData = JSON.toJSONString(exportCondition);
@@ -191,4 +277,5 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
             }
         }
     }
+
 }

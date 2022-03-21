@@ -6,6 +6,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotic
 import com.wupol.myopia.business.core.stat.domain.model.SchoolVisionStatistic;
 import lombok.Data;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.apache.commons.collections4.CollectionUtils;
 
@@ -23,6 +24,9 @@ public class ScreeningSchoolVisionStatisticVO extends ScreeningBasicResult {
      */
     private Set<Item> contents;
 
+
+
+    @Data
     @Getter
     @Accessors(chain = true)
     public static class Item {
@@ -32,9 +36,15 @@ public class ScreeningSchoolVisionStatisticVO extends ScreeningBasicResult {
         private String screeningRangeName;
 
         /**
-         * 行政区域
+         * 行政区域名字
          */
         private String districtName;
+
+        /**
+         * 行政区域ID
+         */
+        private Integer districtId;
+
 
         /**
          * 私有构造方法
@@ -184,7 +194,7 @@ public class ScreeningSchoolVisionStatisticVO extends ScreeningBasicResult {
         private Integer schoolId;
 
         /**
-         * 学校id
+         * 筛查计划id
          */
         private Integer screeningPlanId;
 
@@ -201,7 +211,7 @@ public class ScreeningSchoolVisionStatisticVO extends ScreeningBasicResult {
          * @param screeningNoticeId
          * @return
          */
-        public static Item getInstance(SchoolVisionStatistic schoolVisionStatistic, String schoolDistrictName, Integer screeningNoticeId) {
+        public static Item getInstance(SchoolVisionStatistic schoolVisionStatistic, String schoolDistrictName, Integer screeningNoticeId,Integer districtId) {
             Item item = new Item();
             item.screeningNum = schoolVisionStatistic.getPlanScreeningNumbers();
             item.screeningOrgName = schoolVisionStatistic.getScreeningOrgName();
@@ -230,6 +240,7 @@ public class ScreeningSchoolVisionStatisticVO extends ScreeningBasicResult {
             item.focusTargetsNum = schoolVisionStatistic.getFocusTargetsNumbers();
             item.screeningRangeName = schoolVisionStatistic.getSchoolName();
             item.districtName = schoolDistrictName;
+            item.districtId = districtId;
             item.schoolId = schoolVisionStatistic.getSchoolId();
             item.screeningNoticeId = screeningNoticeId;
             item.screeningOrgId = schoolVisionStatistic.getScreeningOrgId();
@@ -280,7 +291,7 @@ public class ScreeningSchoolVisionStatisticVO extends ScreeningBasicResult {
         contents = schoolVisionStatistics.stream().map(schoolVisionStatistic -> {
             Integer districtId = schoolVisionStatistic.getDistrictId();
             String schoolDistrictName = schoolIdDistrictNameMap.get(districtId);
-            return Item.getInstance(schoolVisionStatistic,schoolDistrictName,getScreeningNoticeId());
+            return Item.getInstance(schoolVisionStatistic,schoolDistrictName,getScreeningNoticeId(),districtId);
                 }
         ).collect(Collectors.toSet());
     }

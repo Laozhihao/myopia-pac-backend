@@ -10,9 +10,12 @@ import com.wupol.myopia.base.util.ListUtil;
 import com.wupol.myopia.base.util.ScreeningDataFormatUtils;
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.util.MaskUtil;
+import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.util.S3Utils;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
+import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningResultPahtConst;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningDataContrastDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionExportDTO;
@@ -73,6 +76,8 @@ public class ExcelFacade {
         noticeService.createExportNotice(userId, userId, content, content, s3Utils.uploadFileToS3(file), CommonConst.NOTICE_STATION_LETTER);
     }
 
+    @Resource
+    private SchoolService schoolService;
     /**
      * 导出筛查数据
      *
@@ -87,7 +92,7 @@ public class ExcelFacade {
     @Async
     public void generateVisionScreeningResult(Integer userId, List<StatConclusionExportDTO> statConclusionExportDTOs, boolean isSchoolExport, String districtOrSchoolName, String redisKey) throws IOException, UtilException {
         // 设置导出的文件名
-        String fileName = String.format("%s-筛查数据", districtOrSchoolName);
+        String fileName = String.format("%s筛查学生数据表", districtOrSchoolName);
         String content = String.format(CommonConst.EXPORT_MESSAGE_CONTENT_SUCCESS, districtOrSchoolName + "筛查数据", new Date());
         log.info("导出筛查结果文件: {}", fileName);
         OnceAbsoluteMergeStrategy mergeStrategy = new OnceAbsoluteMergeStrategy(0, 1, 20, 21);
@@ -97,20 +102,27 @@ public class ExcelFacade {
             File excelFile = ExcelUtil.exportListToExcel(fileName, visionScreeningResultExportVos, mergeStrategy, VisionScreeningResultExportDTO.class);
             noticeService.createExportNotice(userId, userId, content, content, s3Utils.uploadFileToS3(excelFile), CommonConst.NOTICE_STATION_LETTER);
         } else {
-            String folder = String.format("%s-%s", System.currentTimeMillis(), UUID.randomUUID());
+            String filePath = String.format("%s-%s", System.currentTimeMillis(), UUID.randomUUID());
             Map<String, List<StatConclusionExportDTO>> schoolNameMap = statConclusionExportDTOs.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getSchoolName));
             schoolNameMap.keySet().forEach(schoolName -> {
-                List<VisionScreeningResultExportDTO> visionScreeningResultExportVos = genVisionScreeningResultExportVos(schoolNameMap.getOrDefault(schoolName, Collections.emptyList()));
+                StringBuffer folder = new StringBuffer();
+                List<StatConclusionExportDTO> orDefault = schoolNameMap.getOrDefault(schoolName, Collections.emptyList());
+                //学校的区域id，以及该区域的上层id
+                if (Objects.nonNull(orDefault) && orDefault.size()>0){
+                    folder.append(filePath);
+                    folder.append("/"+fileName);
+                }
+                List<VisionScreeningResultExportDTO> visionScreeningResultExportVos = genVisionScreeningResultExportVos(orDefault);
                 visionScreeningResultExportVos.sort(Comparator.comparing((VisionScreeningResultExportDTO exportDTO) -> Integer.valueOf(GradeCodeEnum.getByName(exportDTO.getGradeName()).getCode())));
-                String excelFileName = String.format("%s-筛查数据", schoolName);
+                String excelFileName = String.format("%s筛查学生数据", schoolName);
                 try {
-                    ExcelUtil.exportListToExcelWithFolder(folder, excelFileName, visionScreeningResultExportVos, mergeStrategy, VisionScreeningResultExportDTO.class);
+                    ExcelUtil.exportListToExcelWithFolder(folder.toString(), excelFileName, visionScreeningResultExportVos, mergeStrategy, VisionScreeningResultExportDTO.class);
                 } catch (Exception e) {
                     redisUtil.del(redisKey);
                     log.error(e);
                 }
             });
-            File zipFile = ExcelUtil.zip(folder, fileName);
+            File zipFile = ExcelUtil.zip(filePath, fileName);
             noticeService.createExportNotice(userId, userId, content, content, s3Utils.uploadFileToS3(zipFile), CommonConst.NOTICE_STATION_LETTER);
         }
         redisUtil.del(redisKey);
@@ -136,7 +148,8 @@ public class ExcelFacade {
                     .setIsRescreenDesc("否").setWarningLevelDesc(StringUtils.defaultIfBlank(WarningLevel.getDesc(vo.getWarningLevel()), "--"))
                     .setParentPhone(vo.getParentPhone())
                     .setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(), vo.getAreaCode(), vo.getTownCode(), vo.getAddress()))
-                    .setCredential(StringUtils.isNotBlank(vo.getIdCard()) ? MaskUtil.maskIdCard(vo.getIdCard()) : MaskUtil.maskPassport(vo.getPassport()));
+                    .setCredential(StringUtils.isNotBlank(vo.getIdCard()) ? MaskUtil.maskIdCard(vo.getIdCard()) : MaskUtil.maskPassport(vo.getPassport()))
+                    .setIsValid(Boolean.TRUE.equals(vo.getIsValid()) ? "有效" : "无效");
             genScreeningData(vo, exportVo);
             genReScreeningData(rescreenPlanStudentIdVoMap, vo, exportVo);
             generateDate(vo, exportVo);
