@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.device.service.impl;
 
 import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.DeviceDataRequestDTO;
 import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
@@ -10,15 +11,14 @@ import com.wupol.myopia.business.api.device.domain.dto.VisionDataVO;
 import com.wupol.myopia.business.api.device.service.IDeviceDataService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GlassesTypeEnum;
+import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
 import com.wupol.myopia.business.core.device.domain.model.Device;
 import com.wupol.myopia.business.core.device.domain.model.DeviceSourceData;
 import com.wupol.myopia.business.core.device.service.DeviceService;
 import com.wupol.myopia.business.core.device.service.DeviceSourceDataService;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
-import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import lombok.extern.slf4j.Slf4j;
@@ -140,6 +140,11 @@ public class VisionDataServiceImpl implements IDeviceDataService {
         visionDataDTO.setCreateUserId(-1);
         visionDataDTO.setPlanStudentId(String.valueOf(planStudent.getId()));
         visionDataDTO.setSchoolId(String.valueOf(planStudent.getSchoolId()));
+        if (ObjectsUtil.allNotNull(visionDataDTO.getLeftCorrectedVision(), visionDataDTO.getRightCorrectedVision())) {
+            visionDataDTO.setGlassesType(WearingGlassesSituation.WEARING_FRAME_GLASSES_TYPE);
+        } else {
+            visionDataDTO.setGlassesType(WearingGlassesSituation.NOT_WEARING_GLASSES_TYPE);
+        }
         visionScreeningBizService.saveOrUpdateStudentScreenData(visionDataDTO);
     }
 }
