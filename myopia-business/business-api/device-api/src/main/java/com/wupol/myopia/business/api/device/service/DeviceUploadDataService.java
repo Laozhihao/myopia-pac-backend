@@ -4,7 +4,7 @@ import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
-import com.wupol.myopia.business.api.device.domain.dto.DeviceUploadDTO;
+import com.wupol.myopia.business.api.device.domain.dto.*;
 import com.wupol.myopia.business.api.device.util.CheckResultUtil;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.util.VS666Util;
@@ -13,21 +13,22 @@ import com.wupol.myopia.business.core.device.domain.model.Device;
 import com.wupol.myopia.business.core.device.service.DeviceScreeningDataService;
 import com.wupol.myopia.business.core.device.service.DeviceService;
 import com.wupol.myopia.business.core.device.service.DeviceSourceDataService;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ComputerOptometryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
+import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -45,7 +46,9 @@ public class DeviceUploadDataService {
      */
     private static final Integer DEVICE_UPLOAD_DEFAULT_USER_ID = 0;
 
-    /**分割符*/
+    /**
+     * 分割符
+     */
     private static final String DELIMITER_CHAR = "-";
 
     @Autowired
@@ -60,6 +63,8 @@ public class DeviceUploadDataService {
     private DeviceScreeningDataService deviceScreeningDataService;
     @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
+    @Autowired
+    private VisionScreeningResultService visionScreeningResultService;
 
     /**
      * 处理studentId
@@ -243,18 +248,60 @@ public class DeviceUploadDataService {
      * @return 唯一keyString
      */
     private String getUnikeyString(DeviceScreenDataDTO deviceScreenDataDTO) {
-        if (ObjectsUtil.hasNull(deviceScreenDataDTO.getScreeningOrgId(), deviceScreenDataDTO.getDeviceSn(),
-                deviceScreenDataDTO.getPatientId(), deviceScreenDataDTO.getCheckTime())) {
-            throw new BusinessException(String.format("获取唯一key失败,存在参数为空,screeningOrgId = %s , deviceSn = %s, patientId = %s, checkTime = %s",
-                    deviceScreenDataDTO.getScreeningOrgId(), deviceScreenDataDTO.getDeviceSn(),
-                    deviceScreenDataDTO.getPatientId(), deviceScreenDataDTO.getCheckTime()));
+        if (ObjectsUtil.hasNull(deviceScreenDataDTO.getScreeningOrgId(), deviceScreenDataDTO.getDeviceSn(), deviceScreenDataDTO.getPatientId(), deviceScreenDataDTO.getCheckTime())) {
+            throw new BusinessException(String.format("获取唯一key失败,存在参数为空,screeningOrgId = %s , deviceSn = %s, patientId = %s, checkTime = %s", deviceScreenDataDTO.getScreeningOrgId(), deviceScreenDataDTO.getDeviceSn(), deviceScreenDataDTO.getPatientId(), deviceScreenDataDTO.getCheckTime()));
         }
-        return deviceScreenDataDTO.getScreeningOrgId() +
-                DELIMITER_CHAR +
-                deviceScreenDataDTO.getDeviceSn() +
-                DELIMITER_CHAR +
-                deviceScreenDataDTO.getPatientId() +
-                DELIMITER_CHAR +
-                deviceScreenDataDTO.getCheckTime();
+        return deviceScreenDataDTO.getScreeningOrgId() + DELIMITER_CHAR + deviceScreenDataDTO.getDeviceSn() + DELIMITER_CHAR + deviceScreenDataDTO.getPatientId() + DELIMITER_CHAR + deviceScreenDataDTO.getCheckTime();
+    }
+
+    public ScalesResponseDTO bodyFatScaleUpload(ScalesRequestDTO requestDTO) {
+        if (!StringUtils.equals("webResults", requestDTO.getAction())) {
+            return new ScalesResponseDTO("0", "事件类型异常，请确认");
+        }
+        Device device = deviceService.getDeviceByDeviceSn(requestDTO.getDeviceID());
+        if (Objects.isNull(device)) {
+            return new ScalesResponseDTO("0", "无法找到设备:" + requestDTO.getDeviceID());
+        }
+        ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(device.getBindingScreeningOrgId());
+        if (Objects.isNull(screeningOrganization) || CommonConst.STATUS_IS_DELETED.equals(screeningOrganization.getStatus())) {
+            return new ScalesResponseDTO("0", "无法找到筛查机构或该筛查机构已过期");
+        }
+        List<ScalesData> datas = requestDTO.getDatas();
+        if (CollectionUtils.isEmpty(datas)) {
+            return new ScalesResponseDTO("0", "数据为空");
+        }
+        for (ScalesData data : datas) {
+            String uid = data.getUid();
+            if (StringUtils.isBlank(uid)) {
+                return new ScalesResponseDTO("0", "uid数据为空");
+            }
+            ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(uid);
+            if (Objects.isNull(planStudent)) {
+                return new ScalesResponseDTO("0", "uid找不到学生数据");
+            }
+            VisionScreeningResult result = visionScreeningResultService.getByPlanStudentId(planStudent.getId());
+            if (Objects.isNull(result)) {
+                result = new VisionScreeningResult();
+                result.setTaskId(planStudent.getScreeningTaskId());
+                result.setScreeningOrgId(planStudent.getScreeningOrgId());
+                result.setSchoolId(planStudent.getSchoolId());
+                result.setScreeningPlanSchoolStudentId(planStudent.getId());
+                result.setCreateUserId(-1);
+                result.setStudentId(planStudent.getStudentId());
+                result.setPlanId(planStudent.getScreeningPlanId());
+                result.setDistrictId(planStudent.getPlanDistrictId());
+            }
+            BmiData bmiData = data.getBmi();
+            if (Objects.isNull(bmiData)) {
+                return new ScalesResponseDTO("0", "身体质量指数值为空");
+            }
+            HeightAndWeightDataDTO heightAndWeightDataDTO = new HeightAndWeightDataDTO();
+            heightAndWeightDataDTO.setHeight(new BigDecimal(bmiData.getHeight()));
+            heightAndWeightDataDTO.setWeight(new BigDecimal(bmiData.getWeight()));
+            heightAndWeightDataDTO.setBmi(new BigDecimal(bmiData.getBmi()));
+            result.setUpdateTime(new Date());
+            visionScreeningResultService.saveOrUpdate(heightAndWeightDataDTO.buildScreeningResultData(result));
+        }
+        return new ScalesResponseDTO("1", "success");
     }
 }

@@ -146,3 +146,6 @@ white-list:
   - "/school/management/student/QRCode"
   - "/api/device/uploadData"
   - "/api/device/bmi"
+  - "/management/report/referral/pdf"
+  - "/management/report/examine/pdf"
+  - "/management/report/receipt/pdf"

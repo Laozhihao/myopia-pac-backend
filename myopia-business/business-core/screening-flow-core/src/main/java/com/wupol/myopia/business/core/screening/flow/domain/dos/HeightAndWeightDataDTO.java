@@ -31,11 +31,17 @@ public class HeightAndWeightDataDTO extends ScreeningResultBasicData {
      */
     private BigDecimal weight;
 
+    /**
+     * 身体质量指数值
+     */
+    private BigDecimal bmi;
+
     @Override
     public VisionScreeningResult buildScreeningResultData(VisionScreeningResult visionScreeningResult) {
         HeightAndWeightDataDO heightAndWeightDataDO = new HeightAndWeightDataDO();
         heightAndWeightDataDO.setHeight(height);
         heightAndWeightDataDO.setWeight(weight);
+        heightAndWeightDataDO.setBmi(bmi);
         heightAndWeightDataDO.setCreateUserId(getCreateUserId());
         return visionScreeningResult.setHeightAndWeightData(heightAndWeightDataDO);
     }

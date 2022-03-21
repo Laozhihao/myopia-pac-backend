@@ -2,7 +2,6 @@ package com.wupol.myopia.business.api.management.controller;
 
 import com.alibaba.csp.sentinel.util.StringUtil;
 import com.wupol.myopia.base.domain.ApiResult;
-import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
@@ -10,6 +9,7 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.api.management.constant.ReportConst;
 import com.wupol.myopia.business.core.common.service.Html2PdfService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import lombok.extern.log4j.Log4j2;
@@ -245,13 +245,53 @@ public class ReportController {
         return ApiResult.success();
     }
 
-    @GetMapping("abc")
-    public ApiResult<String> abc(Integer referralId, boolean isHospital) {
-        String abc= "%s/?referralId=%s&isHospital=%s&token=%s";
-        String url = String.format(abc, htmlUrlHost, referralId, isHospital, CurrentUserUtil.getUserToken());
-        PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(url, "abc.pdf", UUID.randomUUID().toString());
+    /**
+     * 转诊单
+     *
+     * @param referralId 转诊单id
+     * @param isHospital 是否医院
+     * @return pdf文件
+     */
+    @GetMapping("referral/pdf")
+    public ApiResult<String> referralPdf(Integer referralId, boolean isHospital) {
+        PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(
+                String.format(ReportConst.REFERRAL_PDF_URL, htmlUrlHost, referralId, isHospital, CurrentUserUtil.getUserToken()),
+                "转诊单.pdf",
+                UUID.randomUUID().toString());
         return ApiResult.success(pdfResponseDTO.getUrl());
     }
 
+
+    /**
+     * 检查记录表
+     *
+     * @param examineId  Id
+     * @param isHospital 是否医院
+     * @return pdf文件
+     */
+    @GetMapping("examine/pdf")
+    public ApiResult<String> examinePdf(Integer examineId, boolean isHospital) {
+        PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(
+                String.format(ReportConst.EXAMINE_PDF_URL, htmlUrlHost, examineId, isHospital, CurrentUserUtil.getUserToken()),
+                "检查记录表.pdf",
+                UUID.randomUUID().toString());
+        return ApiResult.success(pdfResponseDTO.getUrl());
+    }
+
+    /**
+     * 回执单
+     *
+     * @param receiptId  回执单Id
+     * @param isHospital 是否医院
+     * @return pdf文件
+     */
+    @GetMapping("receipt/pdf")
+    public ApiResult<String> receiptPdf(Integer receiptId, boolean isHospital) {
+        PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(
+                String.format(ReportConst.RECEIPT_PDF_URL, htmlUrlHost, receiptId, isHospital, CurrentUserUtil.getUserToken()),
+                "回执单.pdf",
+                UUID.randomUUID().toString());
+        return ApiResult.success(pdfResponseDTO.getUrl());
+    }
 
 }

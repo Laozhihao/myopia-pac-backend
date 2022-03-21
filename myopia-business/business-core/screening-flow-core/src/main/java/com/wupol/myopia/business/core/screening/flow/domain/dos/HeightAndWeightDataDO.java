@@ -27,4 +27,9 @@ public class HeightAndWeightDataDO extends AbstractDiagnosisResult implements Se
      * 体重
      */
     private BigDecimal weight;
+
+    /**
+     * 身体质量指数值
+     */
+    private BigDecimal bmi;
 }

@@ -3,6 +3,7 @@ package com.wupol.myopia.business.api.device.domain.dto;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 /**
@@ -14,40 +15,11 @@ import java.util.List;
 @Setter
 public class ScalesRequestDTO {
 
+    @NotBlank(message = "事件类型不能为空")
     private String action;
 
+    @NotBlank(message = "设备Id不能为空")
     private String deviceID;
 
     private List<ScalesData> datas;
-
-    @Getter
-    @Setter
-    static class ScalesData {
-
-        private String UID;
-
-        private String name;
-
-        private String age;
-
-        private String sex;
-
-        private String headImgStr;
-
-        private String occurTime;
-
-        private BmiData BMI;
-    }
-
-    @Getter
-    @Setter
-    static class BmiData {
-        private String height;
-
-        private String weight;
-
-        private String bmi;
-    }
-
-
 }
