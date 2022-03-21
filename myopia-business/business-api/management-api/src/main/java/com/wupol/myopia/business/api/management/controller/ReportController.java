@@ -257,18 +257,20 @@ public class ReportController {
     public ApiResult<String> preSchoolPdf(@NotNull(message = "type不能为空") Integer type,
                                           @NotNull(message = "id不能为空") Integer id) {
         Integer clientId = Integer.valueOf(CurrentUserUtil.getCurrentUser().getClientId());
-        boolean isHospital = SystemCode.HOSPITAL_CLIENT.getCode().equals(clientId) || SystemCode.PRESCHOOL_CLIENT.getCode().equals(clientId);
+        String userToken = CurrentUserUtil.getUserToken();
 
+        boolean isHospital = SystemCode.HOSPITAL_CLIENT.getCode().equals(clientId) || SystemCode.PRESCHOOL_CLIENT.getCode().equals(clientId);
         String url = StringUtils.EMPTY;
+
         switch (type) {
             case 0:
-                url = String.format(ReportConst.REFERRAL_PDF_URL, htmlUrlHost, id, isHospital, CurrentUserUtil.getUserToken());
+                url = String.format(ReportConst.REFERRAL_PDF_URL, htmlUrlHost, id, isHospital, userToken);
                 break;
             case 1:
-                url = String.format(ReportConst.EXAMINE_PDF_URL, htmlUrlHost, id, isHospital, CurrentUserUtil.getUserToken());
+                url = String.format(ReportConst.EXAMINE_PDF_URL, htmlUrlHost, id, isHospital, userToken);
                 break;
             case 2:
-                url = String.format(ReportConst.RECEIPT_PDF_URL, htmlUrlHost, id, isHospital, CurrentUserUtil.getUserToken());
+                url = String.format(ReportConst.RECEIPT_PDF_URL, htmlUrlHost, id, isHospital, userToken);
                 break;
             default:
         }
