@@ -125,7 +125,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
                 School school = schoolService.getById(key);
                 StringBuffer folder = new StringBuffer();
                 folder.append(packageFileName);
-                folder.append("/"+packageFileName);
+                folder.append("/"+getFileNameTitle(exportCondition));
                 try {
                     //生成文件
                     ExcelUtil.exportListToExcelWithFolder(folder.toString(), String.format(PLAN_STUDENT_FILE_NAME,school.getName()), excelFacade.genVisionScreeningResultExportVos(value), mergeStrategy, getHeadClass());
