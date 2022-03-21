@@ -49,7 +49,6 @@ import java.util.stream.Collectors;
 
 /**
  * 工单
- *
  * @Author xjl
  * @Date 2022/3/8
  */
@@ -81,9 +80,9 @@ public class WorkOrderBizService {
     /**
      * 获取工单列表
      *
-     * @param pageRequest
-     * @param workOrderQueryDTO
-     * @return
+     * @param pageRequest 分页参数
+     * @param workOrderQueryDTO 查询参数
+     * @return 工单分页
      */
     public IPage<WorkOrderDTO> getWorkOrderList(PageRequest pageRequest, WorkOrderQueryDTO workOrderQueryDTO) {
         // 模糊查询学校id组装
@@ -133,8 +132,8 @@ public class WorkOrderBizService {
     /**
      * 处理工单
      *
-     * @param workOrderRequestDTO
-     * @return
+     * @param workOrderRequestDTO 工单处理请求参数
+     *
      */
     @Transactional(rollbackFor = Exception.class)
     public void disposeOfWordOrder(WorkOrderRequestDTO workOrderRequestDTO) {
@@ -185,17 +184,18 @@ public class WorkOrderBizService {
             throw new BusinessException("筛查记录不存在");
         }
         // 筛查记录表的筛查学校id层级学生id 筛查学生表的层级学校id
-        updateStudentAndScreeningPlanSchoolStudentAndVisionScreeningResult(school, student, visionScreeningResult);
+        updateScreeningPlanSchoolStudentAndVisionScreeningResult(school, student, visionScreeningResult);
 
 
     }
 
+
     /**
      * 保存多端学生信息
      *
-     * @param studentDTO
-     * @param workOrderRequestDTO
-     * @return
+     * @param studentDTO 学生信息
+     * @param workOrderRequestDTO 工单请求参数
+     * @return 学生信息
      */
     private Student saveManagementStudent(StudentDTO studentDTO, WorkOrderRequestDTO workOrderRequestDTO) {
         Student saveStudent = new Student();
@@ -211,11 +211,11 @@ public class WorkOrderBizService {
     /**
      * 更新筛查记录，筛查学生
      *
-     * @param school
-     * @param student
-     * @param visionScreeningResult
+     * @param school 学校信息
+     * @param student 学生信息
+     * @param visionScreeningResult 视力筛查结果
      */
-    private void updateStudentAndScreeningPlanSchoolStudentAndVisionScreeningResult(School school, Student student, VisionScreeningResult visionScreeningResult) {
+    private void updateScreeningPlanSchoolStudentAndVisionScreeningResult(School school, Student student, VisionScreeningResult visionScreeningResult) {
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getById(visionScreeningResult.getScreeningPlanSchoolStudentId());
         if (Objects.isNull(screeningPlanSchoolStudent)) {
             throw new BusinessException("筛查学生不存在");
@@ -248,8 +248,8 @@ public class WorkOrderBizService {
     /**
      * 多端学生打包
      *
-     * @param student
-     * @param workOrderRequestDTO
+     * @param student 学生信息
+     * @param workOrderRequestDTO 工单请求
      */
     private void packageManagementStudent(Student student, WorkOrderRequestDTO workOrderRequestDTO) {
         if (StringUtils.isNotEmpty(workOrderRequestDTO.getPassport())) {
@@ -273,7 +273,7 @@ public class WorkOrderBizService {
     /**
      * 更新工单信息
      *
-     * @param workOrderRequestDTO
+     * @param workOrderRequestDTO 工单请求
      */
     public void updateWorkOrderAndSendSMS(StudentDO studentDO, WorkOrderRequestDTO workOrderRequestDTO) {
 
@@ -291,19 +291,17 @@ public class WorkOrderBizService {
                 .setScreeningDate(workOrderRequestDTO.getScreeningDate())
                 .setScreeningTitle(workOrderRequestDTO.getScreeningTitle());
 
-
-        workOrderService.updateById(workOrder.setContent(workOrderRequestDTO.getContent())
-                .setStatus(WorkOrderStatusEnum.PROCESSED.code)
-                .setScreeningId(workOrderRequestDTO.getScreeningId())
+        BeanUtils.copyProperties(workOrderRequestDTO,workOrder);
+        workOrderService.updateById(workOrder.setStatus(WorkOrderStatusEnum.PROCESSED.code)
                 .setOldData(studentDO));
     }
 
     /**
      * 检查是否发送成功
      *
-     * @param smsResult
-     * @param msgData
-     * @param workOrder
+     * @param smsResult sms结果
+     * @param msgData 信息
+     * @param workOrder 工单
      */
     private void checkSendMsgStatus(SmsResult smsResult, MsgData msgData, WorkOrder workOrder) {
         if (smsResult.isSuccessful()) {
@@ -315,8 +313,8 @@ public class WorkOrderBizService {
 
     /**
      * 获取旧数据
-     * @param studentId
-     * @return
+     * @param studentId 学生id
+     * @return 学生信息
      */
     public StudentDO getOldData(Integer studentId) {
         StudentDTO student = studentService.getStudentById(studentId);
