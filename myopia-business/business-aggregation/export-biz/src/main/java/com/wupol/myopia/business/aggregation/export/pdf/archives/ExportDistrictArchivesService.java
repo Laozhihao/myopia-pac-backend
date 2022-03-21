@@ -61,10 +61,7 @@ public class ExportDistrictArchivesService extends BaseExportPdfFileService {
         List<Integer> districtIdList = districtService.getSpecificDistrictTreeAllDistrictIds(exportCondition.getDistrictId());
         List<ScreeningTask> screeningTaskList = screeningTaskService.getScreeningTaskByDistrictIdAndNotificationId(districtIdList, exportCondition.getNotificationId());
 
-        List<Integer> taskIds = screeningTaskList.stream().map(item -> {
-            return item.getId();
-        }).collect(Collectors.toList());
-
+        List<Integer> taskIds = screeningTaskList.stream().map(ScreeningTask::getId).collect(Collectors.toList());
 
         if (CollectionUtils.isEmpty(taskIds)){
             throw new BusinessException("该区域下暂无筛查任务，无法导出档案卡");
