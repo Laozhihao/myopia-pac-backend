@@ -17,6 +17,7 @@ import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResu
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.validation.constraints.NotBlank;
 import java.util.Objects;
 
 /**
@@ -66,18 +67,23 @@ public class ExportScreeningOrgArchivesService extends BaseExportPdfFileService 
         if (Objects.isNull(schoolId)) {
             return screeningPlanService.getById(planId).getTitle();
         }
+        School school = schoolService.getById(schoolId);
 
         Integer gradeId = exportCondition.getGradeId();
         Integer classId = exportCondition.getClassId();
 
-        School school = schoolService.getById(schoolId);
-        if (ObjectsUtil.allNotNull(gradeId, classId)) {
-            return String.format(PDFFileNameConstant.GRADE_CLASS_PDF_FILE_NAME,
-                    school.getName(),
-                    schoolGradeService.getById(gradeId).getName(),
-                    schoolClassService.getById(classId).getName());
+        String gradeName = "";
+        if (Objects.nonNull(gradeId)){
+            gradeName = schoolGradeService.getById(gradeId).getName();
         }
-        return String.format(PDFFileNameConstant.ALL_SCHOOL_PDF_FILE_NAME, school.getName());
+
+        String className = "";
+        if (Objects.nonNull(gradeId)){
+            className = schoolClassService.getById(classId).getName();
+        }
+
+
+        return String.format(PDFFileNameConstant.ARCHIVES_PDF_FILE_NAME_STUDENT, school.getName()+gradeName+className);
     }
 
     @Override
