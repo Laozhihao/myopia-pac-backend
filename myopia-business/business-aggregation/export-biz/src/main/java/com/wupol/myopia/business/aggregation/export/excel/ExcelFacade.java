@@ -148,7 +148,8 @@ public class ExcelFacade {
                     .setIsRescreenDesc("否").setWarningLevelDesc(StringUtils.defaultIfBlank(WarningLevel.getDesc(vo.getWarningLevel()), "--"))
                     .setParentPhone(vo.getParentPhone())
                     .setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(), vo.getAreaCode(), vo.getTownCode(), vo.getAddress()))
-                    .setCredential(StringUtils.isNotBlank(vo.getIdCard()) ? MaskUtil.maskIdCard(vo.getIdCard()) : MaskUtil.maskPassport(vo.getPassport()));
+                    .setCredential(StringUtils.isNotBlank(vo.getIdCard()) ? MaskUtil.maskIdCard(vo.getIdCard()) : MaskUtil.maskPassport(vo.getPassport()))
+                    .setIsValid(Boolean.TRUE.equals(vo.getIsValid()) ? "有效" : "无效");
             genScreeningData(vo, exportVo);
             genReScreeningData(rescreenPlanStudentIdVoMap, vo, exportVo);
             generateDate(vo, exportVo);
