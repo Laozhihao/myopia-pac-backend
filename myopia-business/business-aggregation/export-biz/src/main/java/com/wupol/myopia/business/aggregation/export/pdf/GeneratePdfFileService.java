@@ -240,10 +240,9 @@ public class GeneratePdfFileService {
         // 特殊处理
         if (Objects.nonNull(gradeId)) {
             SchoolGrade schoolGrade = schoolGradeService.getById(gradeId);
-            SchoolClass schoolClass = schoolClassService.getById(classId);
             String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.SCHOOL_ARCHIVES_HTML_URL, htmlUrlHost, planId, schoolId, templateId, gradeId, classId, planStudentIds);
-            String schoolReportFileName = String.format(PDFFileNameConstant.ARCHIVES_PDF_FILE_NAME_GRADE_CLASS, school.getName(), schoolGrade.getName(), schoolClass.getName());
-            String dir = saveDirectory + "/" + school.getName() + "/" + schoolGrade.getName() + "/" + schoolClass.getName();
+            String schoolReportFileName = String.format(PDFFileNameConstant.ARCHIVES_PDF_FILE_NAME_GRADE_CLASS, school.getName(), schoolGrade.getName(), "");
+            String dir = saveDirectory + "/" + school.getName() + "/" + schoolGrade.getName() + "/";
             Assert.isTrue(HtmlToPdfUtil.convertArchives(schoolPdfHtmlUrl, Paths.get(dir, schoolReportFileName + ".pdf").toString()), "【生成学校档案卡PDF文件异常】：" + school.getName());
         } else {
             // 获取年纪班级信息

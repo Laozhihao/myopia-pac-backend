@@ -138,13 +138,11 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         //3.学校id不为null,年级id、班级id为null，则以学校维度导出
         if (Objects.nonNull(exportCondition.getSchoolId()) && Objects.isNull(exportCondition.getGradeId()) && Objects.isNull(exportCondition.getClassId())){
             School school = schoolService.getById(exportCondition.getSchoolId());
-
             //先导出整个学校数据
             StringBuffer folder = new StringBuffer();
             folder.append(getPackageFileName(exportCondition));
             folder.append("/"+String.format(PLAN_STUDENT_FILE_NAME,school.getName()));
             ExcelUtil.exportListToExcelWithFolder(folder.toString(), String.format(PLAN_STUDENT_FILE_NAME,school.getName()), excelFacade.genVisionScreeningResultExportVos(schoolMap.get(exportCondition.getSchoolId())), mergeStrategy, getHeadClass());
-
             //再导出年级数据
             gradeMap.forEach((key,value)->{
                 SchoolGrade grade = schoolGradeService.getById(key);
