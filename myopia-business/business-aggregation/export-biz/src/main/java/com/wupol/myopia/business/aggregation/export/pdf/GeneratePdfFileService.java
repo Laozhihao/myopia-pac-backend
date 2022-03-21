@@ -238,7 +238,7 @@ public class GeneratePdfFileService {
 
         School school = schoolService.getById(schoolId);
         // 特殊处理
-        if (ObjectsUtil.allNotNull(gradeId, classId)) {
+        if (Objects.nonNull(gradeId)) {
             SchoolGrade schoolGrade = schoolGradeService.getById(gradeId);
             SchoolClass schoolClass = schoolClassService.getById(classId);
             String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.SCHOOL_ARCHIVES_HTML_URL, htmlUrlHost, planId, schoolId, templateId, gradeId, classId, planStudentIds);
