@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.management.controller;
 
 import com.alibaba.csp.sentinel.util.StringUtil;
+import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -246,52 +247,35 @@ public class ReportController {
     }
 
     /**
-     * 转诊单
+     * 0-6岁PDF
      *
-     * @param referralId 转诊单id
-     * @param isHospital 是否医院
+     * @param type 类型 0-转诊单 1-检查记录表 2-回执单
+     * @param id   id
      * @return pdf文件
      */
-    @GetMapping("referral/pdf")
-    public ApiResult<String> referralPdf(Integer referralId, boolean isHospital) {
-        PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(
-                String.format(ReportConst.REFERRAL_PDF_URL, htmlUrlHost, referralId, isHospital, CurrentUserUtil.getUserToken()),
-                "转诊单.pdf",
-                UUID.randomUUID().toString());
-        return ApiResult.success(pdfResponseDTO.getUrl());
-    }
+    @GetMapping("preSchool/pdf")
+    public ApiResult<String> preSchoolPdf(@NotNull(message = "type不能为空") Integer type,
+                                          @NotNull(message = "id不能为空") Integer id) {
+        Integer clientId = Integer.valueOf(CurrentUserUtil.getCurrentUser().getClientId());
+        boolean isHospital = SystemCode.HOSPITAL_CLIENT.getCode().equals(clientId) || SystemCode.PRESCHOOL_CLIENT.getCode().equals(clientId);
 
-
-    /**
-     * 检查记录表
-     *
-     * @param examineId  Id
-     * @param isHospital 是否医院
-     * @return pdf文件
-     */
-    @GetMapping("examine/pdf")
-    public ApiResult<String> examinePdf(Integer examineId, boolean isHospital) {
-        PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(
-                String.format(ReportConst.EXAMINE_PDF_URL, htmlUrlHost, examineId, isHospital, CurrentUserUtil.getUserToken()),
-                "检查记录表.pdf",
-                UUID.randomUUID().toString());
-        return ApiResult.success(pdfResponseDTO.getUrl());
-    }
-
-    /**
-     * 回执单
-     *
-     * @param receiptId  回执单Id
-     * @param isHospital 是否医院
-     * @return pdf文件
-     */
-    @GetMapping("receipt/pdf")
-    public ApiResult<String> receiptPdf(Integer receiptId, boolean isHospital) {
-        PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(
-                String.format(ReportConst.RECEIPT_PDF_URL, htmlUrlHost, receiptId, isHospital, CurrentUserUtil.getUserToken()),
-                "回执单.pdf",
-                UUID.randomUUID().toString());
-        return ApiResult.success(pdfResponseDTO.getUrl());
+        String url = StringUtils.EMPTY;
+        switch (type) {
+            case 0:
+                url = String.format(ReportConst.REFERRAL_PDF_URL, htmlUrlHost, id, isHospital, CurrentUserUtil.getUserToken());
+                break;
+            case 1:
+                url = String.format(ReportConst.EXAMINE_PDF_URL, htmlUrlHost, id, isHospital, CurrentUserUtil.getUserToken());
+                break;
+            case 2:
+                url = String.format(ReportConst.RECEIPT_PDF_URL, htmlUrlHost, id, isHospital, CurrentUserUtil.getUserToken());
+                break;
+            default:
+        }
+        if (StringUtils.isBlank(url)) {
+            return ApiResult.failure("URL为空");
+        }
+        return ApiResult.success(html2PdfService.syncGeneratorPDF(url, "报告.pdf", UUID.randomUUID().toString()).getUrl());
     }
 
 }
