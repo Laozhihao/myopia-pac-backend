@@ -69,6 +69,8 @@ public class ExportScreeningOrgScreeningReportService extends BaseExportPdfFileS
     public String getFileName(ExportCondition exportCondition) {
         ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(exportCondition.getScreeningOrgId());
         ScreeningPlan screeningPlan = screeningPlanService.getById(exportCondition.getPlanId());
+        log.info("筛查机构："+screeningOrganization.getName());
+        log.info("筛查计划："+screeningPlan.getTitle());
         return String.format(PDFFileNameConstant.REPORT_PDF_FILE_NAME, screeningOrganization.getName(),screeningPlan.getTitle());
     }
 

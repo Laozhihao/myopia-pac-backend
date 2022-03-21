@@ -86,6 +86,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
             // 7.删除临时文件
             if (isPackage()){
                 deleteTempFile(excelSavePath+localVar.get());
+                localVar.remove();
             }else {
                 if (Objects.nonNull(excelFile)){
                     deleteTempFile(excelFile.getPath());
@@ -117,7 +118,6 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
         if (isPackage){
             generateExcelFile(fileName, data, exportCondition);
             File file = compressFile(excelSavePath + localVar.get());
-            localVar.remove();
             return file;
         }else {
             return generateExcelFile(fileName, data, exportCondition);
