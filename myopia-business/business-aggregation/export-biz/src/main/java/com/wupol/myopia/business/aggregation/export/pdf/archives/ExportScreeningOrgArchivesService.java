@@ -78,7 +78,7 @@ public class ExportScreeningOrgArchivesService extends BaseExportPdfFileService 
         }
 
         String className = "";
-        if (Objects.nonNull(gradeId)){
+        if (Objects.nonNull(classId)){
             className = schoolClassService.getById(classId).getName();
         }
 
