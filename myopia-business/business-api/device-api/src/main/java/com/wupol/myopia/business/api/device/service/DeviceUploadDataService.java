@@ -16,9 +16,7 @@ import com.wupol.myopia.business.core.device.service.DeviceSourceDataService;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ComputerOptometryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
-import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
-import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import lombok.extern.log4j.Log4j2;
@@ -63,8 +61,6 @@ public class DeviceUploadDataService {
     private DeviceScreeningDataService deviceScreeningDataService;
     @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
-    @Autowired
-    private VisionScreeningResultService visionScreeningResultService;
 
     /**
      * 处理studentId
@@ -279,18 +275,6 @@ public class DeviceUploadDataService {
             if (Objects.isNull(planStudent)) {
                 return new ScalesResponseDTO("0", "uid找不到学生数据");
             }
-            VisionScreeningResult result = visionScreeningResultService.getByPlanStudentId(planStudent.getId());
-            if (Objects.isNull(result)) {
-                result = new VisionScreeningResult();
-                result.setTaskId(planStudent.getScreeningTaskId());
-                result.setScreeningOrgId(planStudent.getScreeningOrgId());
-                result.setSchoolId(planStudent.getSchoolId());
-                result.setScreeningPlanSchoolStudentId(planStudent.getId());
-                result.setCreateUserId(-1);
-                result.setStudentId(planStudent.getStudentId());
-                result.setPlanId(planStudent.getScreeningPlanId());
-                result.setDistrictId(planStudent.getPlanDistrictId());
-            }
             BmiData bmiData = data.getBmi();
             if (Objects.isNull(bmiData)) {
                 return new ScalesResponseDTO("0", "身体质量指数值为空");
@@ -299,8 +283,11 @@ public class DeviceUploadDataService {
             heightAndWeightDataDTO.setHeight(new BigDecimal(bmiData.getHeight()));
             heightAndWeightDataDTO.setWeight(new BigDecimal(bmiData.getWeight()));
             heightAndWeightDataDTO.setBmi(new BigDecimal(bmiData.getBmi()));
-            result.setUpdateTime(new Date());
-            visionScreeningResultService.saveOrUpdate(heightAndWeightDataDTO.buildScreeningResultData(result));
+            heightAndWeightDataDTO.setDeptId(planStudent.getScreeningOrgId());
+            heightAndWeightDataDTO.setCreateUserId(-1);
+            heightAndWeightDataDTO.setPlanStudentId(String.valueOf(planStudent.getId()));
+            heightAndWeightDataDTO.setSchoolId(String.valueOf(planStudent.getSchoolId()));
+            visionScreeningBizService.saveOrUpdateStudentScreenData(heightAndWeightDataDTO);
         }
         return new ScalesResponseDTO("1", "success");
     }

@@ -4,6 +4,7 @@ import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.DeviceDataRequestDTO;
+import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
 import com.wupol.myopia.business.api.device.domain.constant.BusinessTypeEnum;
 import com.wupol.myopia.business.api.device.domain.dto.VisionDataVO;
 import com.wupol.myopia.business.api.device.service.IDeviceDataService;
@@ -14,8 +15,8 @@ import com.wupol.myopia.business.core.device.domain.model.DeviceSourceData;
 import com.wupol.myopia.business.core.device.service.DeviceService;
 import com.wupol.myopia.business.core.device.service.DeviceSourceDataService;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
-import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
@@ -53,7 +54,7 @@ public class VisionDataServiceImpl implements IDeviceDataService {
     private ScreeningOrganizationService screeningOrganizationService;
 
     @Resource
-    private VisionScreeningResultService visionScreeningResultService;
+    private VisionScreeningBizService visionScreeningBizService;
 
 
     @Override
@@ -129,60 +130,16 @@ public class VisionDataServiceImpl implements IDeviceDataService {
      * @param planStudent  筛查学生
      */
     private void saveOrUpdateScreeningResult(VisionDataVO visionDataVO, ScreeningPlanSchoolStudent planStudent) {
-        VisionScreeningResult result = visionScreeningResultService.getByPlanStudentId(visionDataVO.getPlanStudentId());
-        if (Objects.isNull(result)) {
-            result = new VisionScreeningResult();
-            result.setTaskId(planStudent.getScreeningTaskId());
-            result.setScreeningOrgId(planStudent.getScreeningOrgId());
-            result.setSchoolId(planStudent.getSchoolId());
-            result.setScreeningPlanSchoolStudentId(planStudent.getId());
-            result.setCreateUserId(-1);
-            result.setStudentId(planStudent.getStudentId());
-            result.setPlanId(planStudent.getScreeningPlanId());
-            result.setDistrictId(planStudent.getPlanDistrictId());
-        }
-        VisionDataDO visionDataDO = new VisionDataDO();
-        visionDataDO.setRightEyeData(generateData(visionDataVO, false));
-        visionDataDO.setLeftEyeData(generateData(visionDataVO, true));
-        visionDataDO.setIsCooperative(0);
-        visionDataDO.setCreateUserId(-1);
-        result.setVisionData(visionDataDO);
-        result.setUpdateTime(new Date());
-        visionScreeningResultService.saveOrUpdate(result);
-    }
-
-    /**
-     * 生成数据
-     *
-     * @param visionDataVO 上传数据实体
-     * @param isLeft       是否左眼
-     * @return VisionDataDO.VisionData
-     */
-    private VisionDataDO.VisionData generateData(VisionDataVO visionDataVO, boolean isLeft) {
-        VisionDataDO.VisionData visionData = new VisionDataDO.VisionData();
-        try {
-            if (isLeft) {
-                visionData.setLateriality(CommonConst.LEFT_EYE);
-                visionData.setCorrectedVision(StringUtils.isBlank(visionDataVO.getLeftCorrectedVision()) ? null : new BigDecimal(visionDataVO.getLeftCorrectedVision()));
-                visionData.setNakedVision(StringUtils.isBlank(visionDataVO.getLeftNakedVision()) ? null : new BigDecimal(visionDataVO.getLeftNakedVision()));
-                if (Objects.nonNull(visionData.getCorrectedVision())) {
-                    visionData.setGlassesType(GlassesTypeEnum.FRAME_GLASSES.code);
-                } else {
-                    visionData.setGlassesType(GlassesTypeEnum.NOT_WEARING.code);
-                }
-                return visionData;
-            }
-            visionData.setLateriality(CommonConst.RIGHT_EYE);
-            visionData.setCorrectedVision(StringUtils.isBlank(visionDataVO.getRightCorrectedVision()) ? null : new BigDecimal(visionDataVO.getRightCorrectedVision()));
-            visionData.setNakedVision(StringUtils.isBlank(visionDataVO.getRightNakedVision()) ? null : new BigDecimal(visionDataVO.getRightNakedVision()));
-            if (Objects.nonNull(visionData.getCorrectedVision())) {
-                visionData.setGlassesType(GlassesTypeEnum.FRAME_GLASSES.code);
-            } else {
-                visionData.setGlassesType(GlassesTypeEnum.NOT_WEARING.code);
-            }
-        } catch (NumberFormatException e) {
-            throw new BusinessException("数据格式异常");
-        }
-        return visionData;
+        VisionDataDTO visionDataDTO = new VisionDataDTO();
+        visionDataDTO.setRightNakedVision(StringUtils.isNotBlank(visionDataVO.getRightNakedVision()) ? new BigDecimal(visionDataVO.getRightNakedVision()) : null);
+        visionDataDTO.setRightCorrectedVision(StringUtils.isNotBlank(visionDataVO.getRightCorrectedVision()) ? new BigDecimal(visionDataVO.getRightCorrectedVision()) : null);
+        visionDataDTO.setLeftNakedVision(StringUtils.isNotBlank(visionDataVO.getLeftNakedVision()) ? new BigDecimal(visionDataVO.getLeftNakedVision()) : null);
+        visionDataDTO.setLeftCorrectedVision(StringUtils.isNotBlank(visionDataVO.getLeftCorrectedVision()) ? new BigDecimal(visionDataVO.getLeftCorrectedVision()) : null);
+        visionDataDTO.setIsCooperative(0);
+        visionDataDTO.setDeptId(planStudent.getScreeningOrgId());
+        visionDataDTO.setCreateUserId(-1);
+        visionDataDTO.setPlanStudentId(String.valueOf(planStudent.getId()));
+        visionDataDTO.setSchoolId(String.valueOf(planStudent.getSchoolId()));
+        visionScreeningBizService.saveOrUpdateStudentScreenData(visionDataDTO);
     }
 }
