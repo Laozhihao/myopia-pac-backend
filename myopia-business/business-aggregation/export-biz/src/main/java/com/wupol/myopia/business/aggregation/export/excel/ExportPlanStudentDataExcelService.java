@@ -130,7 +130,8 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
             //先导出整个学校数据
             String folder = Paths.get(filePath,String.format(PLAN_STUDENT_FILE_NAME,school.getName())).toString();
             log.info("文件生成路径："+folder);
-            makerExcel(folder, String.format(PLAN_STUDENT_FILE_NAME,school.getName()), excelFacade.genVisionScreeningResultExportVos(schoolMap.get(exportCondition.getSchoolId())));
+             File file = makerExcel(folder, String.format(PLAN_STUDENT_FILE_NAME,school.getName()), excelFacade.genVisionScreeningResultExportVos(schoolMap.get(exportCondition.getSchoolId())));
+             log.info("文件实际路径："+file.getPath());
             //再导出年级数据
             gradeMap.forEach((key,value)->{
                 SchoolGrade grade = schoolGradeService.getById(key);
