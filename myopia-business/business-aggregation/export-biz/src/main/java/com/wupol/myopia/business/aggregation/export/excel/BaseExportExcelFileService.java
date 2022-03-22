@@ -118,6 +118,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
     public File fileDispose(boolean isPackage,ExportCondition exportCondition,String filePath,String fileName,List data) throws IOException {
         if (isPackage){
             generateExcelFile(filePath, data, exportCondition);
+            log.info("文件打包路径："+filePath);
             return compressFile(filePath);
         }else {
             return generateExcelFile(fileName, data, exportCondition);
