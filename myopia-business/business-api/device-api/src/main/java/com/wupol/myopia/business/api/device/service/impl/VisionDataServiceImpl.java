@@ -4,6 +4,7 @@ import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.base.util.ValidatorUtils;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.DeviceDataRequestDTO;
 import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
 import com.wupol.myopia.business.api.device.domain.constant.BusinessTypeEnum;
@@ -77,6 +78,7 @@ public class VisionDataServiceImpl implements IDeviceDataService {
         }
         List<VisionDataVO> visionDataVOS = JSONObject.parseArray(dataStr, VisionDataVO.class);
         visionDataVOS.forEach(visionDataVO -> {
+            ValidatorUtils.validate(visionDataVO);
             Integer planStudentId = Objects.nonNull(visionDataVO.getPlanStudentId()) ? visionDataVO.getPlanStudentId() : parsePlanStudentId(visionDataVO.getUid());
             log.info("planStudentId:{}", planStudentId);
             ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(planStudentId);

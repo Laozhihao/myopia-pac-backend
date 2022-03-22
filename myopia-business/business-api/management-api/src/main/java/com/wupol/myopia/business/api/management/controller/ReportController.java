@@ -302,7 +302,7 @@ public class ReportController {
             url = String.format(ReportConst.RECEIPT_PDF_URL, htmlUrlHost, id, isHospital, userToken);
         }
         if (StringUtils.isBlank(url)) {
-            return ApiResult.failure("URL为空");
+            return ApiResult.failure("根据Type找不到对应URL");
         }
         return ApiResult.success(html2PdfService.syncGeneratorPDF(url, "报告.pdf", UUID.randomUUID().toString()).getUrl());
     }
