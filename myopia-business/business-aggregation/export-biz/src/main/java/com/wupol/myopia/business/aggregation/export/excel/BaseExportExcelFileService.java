@@ -63,7 +63,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
             // 1.获取文件名
             String fileName = getFileName(exportCondition);
             // 2.获取文件保存父目录路径
-            parentPath = getFileSaveParentPath();
+            parentPath = getUUID();
             // 3.获取文件保存路径
             String fileSavePath = getFileSavePath(parentPath, fileName);
             // 2.获取通知的关键内容
@@ -85,7 +85,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
             }
         } finally {
             // 7.删除临时文件
-            deleteTempFile(parentPath);
+            deleteTempFile(excelSavePath+parentPath);
             // 8.释放锁
             unlock(getLockKey(exportCondition));
         }
@@ -112,7 +112,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
         if (isPackage){
             generateExcelFile(filePath, data, exportCondition);
             log.info("文件打包路径："+filePath);
-            return compressFile(filePath);
+            return compressFile(excelSavePath+filePath);
         }else {
             return generateExcelFile(fileName, data, exportCondition);
         }
