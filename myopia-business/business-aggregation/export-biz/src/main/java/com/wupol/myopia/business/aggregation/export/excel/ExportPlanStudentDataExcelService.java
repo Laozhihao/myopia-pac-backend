@@ -107,7 +107,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
     }
 
     @Override
-    public File generateExcelFile(String fileName, List data,ExportCondition exportCondition){
+    public File generateExcelFile(String filePath, List data,ExportCondition exportCondition){
 
         List<StatConclusionExportDTO> statConclusionExportDTOs = data;
         Map<Integer, List<StatConclusionExportDTO>> schoolMap = statConclusionExportDTOs.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getSchoolId));
@@ -165,7 +165,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
 
         //如果班级不为null,则以班级维度导出
         if (Objects.nonNull(exportCondition.getClassId())){
-            return  makerExcel(fileName, getFileNameTitle(exportCondition), excelFacade.genVisionScreeningResultExportVos(data));
+            return  makerExcel(filePath, getFileNameTitle(exportCondition), excelFacade.genVisionScreeningResultExportVos(data));
         }
         return null;
     }
