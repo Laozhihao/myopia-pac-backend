@@ -116,7 +116,6 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
 
         //1.学校id为null,区域id为null,筛查计划id不为null按计划维度导出
         if (Objects.isNull(exportCondition.getSchoolId()) && Objects.nonNull(exportCondition.getDistrictId()) && Objects.nonNull(exportCondition.getPlanId()) && Objects.nonNull(exportCondition.getScreeningOrgId()) && Objects.isNull(exportCondition.getClassId())){
-
             schoolMap.forEach((key,value)->{
                 School school = schoolService.getById(key);
                 String path = Paths.get(filePath, getFileNameTitle(exportCondition)).toString();
@@ -129,21 +128,11 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
             School school = schoolService.getById(exportCondition.getSchoolId());
             //先导出整个学校数据
             String folder = Paths.get(filePath,String.format(PLAN_STUDENT_FILE_NAME,school.getName())).toString();
-            log.info("文件生成路径："+folder);
-             File file = makerExcel(folder, String.format(PLAN_STUDENT_FILE_NAME,school.getName()), excelFacade.genVisionScreeningResultExportVos(schoolMap.get(exportCondition.getSchoolId())));
-             log.info("文件实际路径："+file.getPath());
+            makerExcel(folder, String.format(PLAN_STUDENT_FILE_NAME,school.getName()), excelFacade.genVisionScreeningResultExportVos(schoolMap.get(exportCondition.getSchoolId())));
             //再导出年级数据
             gradeMap.forEach((key,value)->{
                 SchoolGrade grade = schoolGradeService.getById(key);
-                String gradeFolder = String.format(PLAN_STUDENT_FILE_NAME,grade.getName());
-                String path = Paths.get(folder,gradeFolder).toString();
-                makerExcel(path, String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName()), excelFacade.genVisionScreeningResultExportVos(value));
-                //再导出该年级的班级数据
-                Map<Integer, List<StatConclusionExportDTO>> collect = value.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getClassId));
-                collect.forEach((classKey,classValue) ->{
-                    SchoolClass schoolClass = schoolClassService.getById(classKey);
-                    makerExcel(path, String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName()+schoolClass.getName()), excelFacade.genVisionScreeningResultExportVos(classValue));
-                });
+                excelGraderAndClassData(key,value,String.format(PLAN_STUDENT_FILE_NAME,grade.getName()),filePath,school);
             });
         }
 
@@ -153,15 +142,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
             //导出年级数据
             gradeMap.forEach((key,value)->{
                 SchoolGrade grade = schoolGradeService.getById(key);
-                String gradeFolder = String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName());
-                String folder = Paths.get(filePath,gradeFolder).toString();
-                makerExcel(folder, String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName()), excelFacade.genVisionScreeningResultExportVos(value));
-                //再导出该年级的班级数据
-                Map<Integer, List<StatConclusionExportDTO>> collect = value.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getClassId));
-                collect.forEach((classKey,classValue) ->{
-                    SchoolClass schoolClass = schoolClassService.getById(classKey);
-                    makerExcel(folder, String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName()+schoolClass.getName()), excelFacade.genVisionScreeningResultExportVos(classValue));
-                });
+                excelGraderAndClassData(key,value,String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName()),filePath,school);
             });
         }
 
@@ -173,13 +154,16 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
     }
 
 
-    public void excelGraderAndClassData(Map<Integer, List<StatConclusionExportDTO>> gradeMap,String path,String filePath){
-        gradeMap.forEach((key,value)->{
-            SchoolGrade grade = schoolGradeService.getById(key);
-            String gradeFolder = String.format(PLAN_STUDENT_FILE_NAME,path);
-            String folder = Paths.get(filePath,gradeFolder).toString();
 
-
+    public void excelGraderAndClassData(Integer key,List<StatConclusionExportDTO> value,String gradeFolder,String filePath,School school){
+        SchoolGrade grade = schoolGradeService.getById(key);
+        String path = Paths.get(filePath,gradeFolder).toString();
+        makerExcel(path, gradeFolder, excelFacade.genVisionScreeningResultExportVos(value));
+        //再导出该年级的班级数据
+        Map<Integer, List<StatConclusionExportDTO>> collect = value.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getClassId));
+        collect.forEach((classKey,classValue) ->{
+            SchoolClass schoolClass = schoolClassService.getById(classKey);
+            makerExcel(path, String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName()+schoolClass.getName()), excelFacade.genVisionScreeningResultExportVos(classValue));
         });
     }
 
