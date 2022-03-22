@@ -15,6 +15,8 @@ import com.wupol.myopia.business.core.parent.service.ParentStudentService;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
+import com.wupol.myopia.business.core.school.service.SchoolClassService;
+import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
@@ -60,6 +62,10 @@ public class CredentialModificationHandler {
     private SchoolStudentService schoolStudentService;
     @Resource
     private ScreeningPlanService screeningPlanService;
+    @Resource
+    private SchoolClassService schoolClassService;
+    @Resource
+    private SchoolGradeService schoolGradeService;
 
     /**
      * 获取处理结果
@@ -132,6 +138,8 @@ public class CredentialModificationHandler {
             screeningPlanSchoolStudent.setPassport(updateStudent.getPassport());
             screeningPlanSchoolStudent.setStudentId(updateStudent.getId());
         }
+        screeningPlanSchoolStudent.setClassName(schoolClassService.getById(updatePlanStudentRequestDTO.getClassId()).getName());
+        screeningPlanSchoolStudent.setGradeName(schoolGradeService.getById(updatePlanStudentRequestDTO.getGradeId()).getName());
         screeningPlanSchoolStudentService.updateById(screeningPlanSchoolStudent);
         // 更新筛查结果
         visionScreeningResultService.updatePlanStudentAndVisionResult(screeningPlanService.getById(screeningPlanSchoolStudent.getScreeningPlanId()), Lists.newArrayList(screeningPlanSchoolStudent));

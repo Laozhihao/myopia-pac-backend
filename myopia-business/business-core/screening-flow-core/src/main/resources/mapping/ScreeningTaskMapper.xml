@@ -81,4 +81,19 @@
         where screening_notice_id = #{noticeId}
           and gov_dept_id = #{govId}
     </select>
+
+
+    <select id="getScreeningTaskByDistrictIdAndNotificationId" resultType="com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask">
+       select
+          <include refid="Base_Column_List"/>
+       from
+          m_screening_task
+        where
+        district_id in
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+        and
+        screening_notice_id = #{notificationId}
+    </select>
 </mapper>

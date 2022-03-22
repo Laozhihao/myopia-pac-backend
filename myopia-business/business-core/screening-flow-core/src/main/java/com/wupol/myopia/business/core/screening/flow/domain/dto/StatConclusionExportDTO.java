@@ -70,7 +70,7 @@ public class StatConclusionExportDTO extends StatConclusion {
     private Integer gradeId;
 
     /**
-     * 筛查计划--年级ID
+     * 筛查计划--班级ID
      */
     private Integer classId;
 

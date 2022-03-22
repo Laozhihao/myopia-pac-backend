@@ -265,4 +265,14 @@ public class SchoolManagementController {
         return ApiResult.success();
     }
 
+
+    /**
+     * 批量新增班级、年级
+     *
+     * @param requestDTO 入参
+     */
+    @PostMapping("/grades/batchSave")
+    public void batchSaveGrade(@RequestBody @Valid List<BatchSaveGradeRequestDTO> requestDTO) {
+        schoolGradeService.batchSaveGrade(requestDTO, CurrentUserUtil.getCurrentUser().getId());
+    }
 }

@@ -49,6 +49,8 @@ import java.util.stream.Collectors;
 public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrganizationStaffMapper, ScreeningOrganizationStaff> {
 
     @Resource
+    private ScreeningOrganizationStaffService screeningOrganizationStaffService;
+    @Resource
     private ScreeningOrganizationService screeningOrganizationService;
     @Resource
     private OauthServiceClient oauthServiceClient;
@@ -273,7 +275,9 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      * 批量新增, 自动生成编号
      */
     public void saveBatch(List<ScreeningOrganizationStaffDTO> list) {
-        if (CollectionUtils.isEmpty(list)) return;
+        if (CollectionUtils.isEmpty(list)) {
+            return;
+        }
         // 通过screeningOrgId获取机构
         ScreeningOrganization organization = screeningOrganizationService.getById(list.get(0).getScreeningOrgId());
         if (null == organization) {
@@ -385,6 +389,29 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
     public int countByScreeningOrgId(Integer screeningOrgId) {
         Assert.notNull(screeningOrgId, "screeningOrgId不能为空");
         return count(new ScreeningOrganizationStaff().setScreeningOrgId(screeningOrgId).setType(ScreeningOrganizationStaff.GENERAL_SCREENING_PERSONNEL));
+    }
+
+
+
+    /**
+     * 校验筛查机构人员数量
+     *
+     * @param screeningOrgId 筛查
+     * @return int
+     **/
+    public void checkScreeningOrganizationStaffAmount(Integer screeningOrgId,List<Map<Integer, String>> listMap){
+
+        ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(screeningOrgId);
+        int totalNum = screeningOrganizationStaffService.countByScreeningOrgId(screeningOrgId);
+        Assert.isTrue(totalNum < screeningOrganization.getAccountNum(), "账号数量已达上限，请联系管理员!");
+
+        if (CollectionUtils.isNotEmpty(listMap)){
+            if (listMap.size()>screeningOrganization.getAccountNum()){
+                throw new BusinessException("您已超出限制数据（筛查人员账号数量限制："+screeningOrganization.getAccountNum()+"个），操作失败！\n" +
+                        "如需增加筛查人员账号数量，请联系管理员！");
+            }
+        }
+
     }
 
 }
