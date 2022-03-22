@@ -12,6 +12,8 @@ import lombok.Setter;
 @Setter
 public class VisionDataVO {
 
+    private Integer uId;
+
     /**
      * 筛查学生Id
      */

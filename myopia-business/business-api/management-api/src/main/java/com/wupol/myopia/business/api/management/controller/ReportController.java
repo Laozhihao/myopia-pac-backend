@@ -21,6 +21,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.Arrays;
@@ -282,8 +283,8 @@ public class ReportController {
      * @param id   id
      * @return pdf文件
      */
-    @GetMapping("preSchool/pdf")
-    public ApiResult<String> preSchoolPdf(@NotNull(message = "type不能为空") Integer type,
+    @GetMapping("preschool/pdf")
+    public ApiResult<String> preSchoolPdf(@NotBlank(message = "type不能为空") String type,
                                           @NotNull(message = "id不能为空") Integer id) {
         Integer clientId = Integer.valueOf(CurrentUserUtil.getCurrentUser().getClientId());
         String userToken = CurrentUserUtil.getUserToken();
@@ -291,17 +292,14 @@ public class ReportController {
         boolean isHospital = SystemCode.HOSPITAL_CLIENT.getCode().equals(clientId) || SystemCode.PRESCHOOL_CLIENT.getCode().equals(clientId);
         String url = StringUtils.EMPTY;
 
-        switch (type) {
-            case 0:
-                url = String.format(ReportConst.REFERRAL_PDF_URL, htmlUrlHost, id, isHospital, userToken);
-                break;
-            case 1:
-                url = String.format(ReportConst.EXAMINE_PDF_URL, htmlUrlHost, id, isHospital, userToken);
-                break;
-            case 2:
-                url = String.format(ReportConst.RECEIPT_PDF_URL, htmlUrlHost, id, isHospital, userToken);
-                break;
-            default:
+        if (StringUtils.equals(ReportConst.TYPE_REFERRAL, type)) {
+            url = String.format(ReportConst.REFERRAL_PDF_URL, htmlUrlHost, id, isHospital, userToken);
+        }
+        if (StringUtils.equals(ReportConst.TYPE_EXAMINE, type)) {
+            url = String.format(ReportConst.EXAMINE_PDF_URL, htmlUrlHost, id, isHospital, userToken);
+        }
+        if (StringUtils.equals(ReportConst.TYPE_RECEIPT, type)) {
+            url = String.format(ReportConst.RECEIPT_PDF_URL, htmlUrlHost, id, isHospital, userToken);
         }
         if (StringUtils.isBlank(url)) {
             return ApiResult.failure("URL为空");

@@ -8,7 +8,6 @@ import com.wupol.myopia.business.aggregation.screening.domain.dto.DeviceDataRequ
 import com.wupol.myopia.business.api.device.config.DeviceDataFactory;
 import com.wupol.myopia.business.api.device.domain.dto.DeviceUploadDTO;
 import com.wupol.myopia.business.api.device.domain.dto.ScalesRequestDTO;
-import com.wupol.myopia.business.api.device.domain.dto.ScalesResponseDTO;
 import com.wupol.myopia.business.api.device.domain.result.DeviceUploadResult;
 import com.wupol.myopia.business.api.device.service.DeviceUploadDataService;
 import com.wupol.myopia.business.api.device.service.IDeviceDataService;
@@ -62,6 +61,12 @@ public class DeviceUploadDataController {
         return ApiResult.success();
     }
 
+    /**
+     * 体脂秤数据上传
+     *
+     * @param requestDTO 入参
+     * @return ScalesResponseDTO
+     */
     @PostMapping("/device/bmi")
     public Object uploadBMI(@RequestBody @Valid ScalesRequestDTO requestDTO) {
         log.info("Data:{}", JSONObject.toJSONString(requestDTO));

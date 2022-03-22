@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * TODO:
+ * 体重信息
  *
  * @author Simple4H
  */

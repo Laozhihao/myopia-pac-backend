@@ -10,7 +10,6 @@ import com.wupol.myopia.business.api.device.domain.constant.BusinessTypeEnum;
 import com.wupol.myopia.business.api.device.domain.dto.VisionDataVO;
 import com.wupol.myopia.business.api.device.service.IDeviceDataService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
-import com.wupol.myopia.business.common.utils.constant.GlassesTypeEnum;
 import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
 import com.wupol.myopia.business.core.device.domain.model.Device;
 import com.wupol.myopia.business.core.device.domain.model.DeviceSourceData;
@@ -99,6 +98,20 @@ public class VisionDataServiceImpl implements IDeviceDataService {
     @Override
     public Integer getBusinessType() {
         return BusinessTypeEnum.VISION_DATA.getType();
+    }
+
+    @Override
+    public Integer parsePlanStudentId(String uId) {
+        int index = uId.indexOf("@");
+        String prefix = uId.substring(index - 2, index);
+        if (StringUtils.equals("SA", prefix) || StringUtils.equals("SV", prefix)) {
+            return Integer.valueOf(uId.substring(index, uId.length() - 1));
+        }
+        if (StringUtils.equals("VS", prefix)) {
+            String s = StringUtils.substringBetween(uId, "@", ",");
+            return Integer.valueOf(s.substring(s.indexOf("_"), s.length() - 1));
+        }
+        return null;
     }
 
     /**

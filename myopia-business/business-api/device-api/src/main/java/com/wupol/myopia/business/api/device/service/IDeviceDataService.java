@@ -22,4 +22,6 @@ public interface IDeviceDataService {
      * @return 业务类型 {@link com.wupol.myopia.business.api.device.domain.constant.BusinessTypeEnum}
      */
     Integer getBusinessType();
+
+    Integer parsePlanStudentId(String uId);
 }

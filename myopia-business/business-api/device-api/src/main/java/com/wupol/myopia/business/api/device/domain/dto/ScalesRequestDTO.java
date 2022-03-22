@@ -7,7 +7,7 @@ import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 /**
- * TODO:
+ * 体脂秤入参
  *
  * @author Simple4H
  */

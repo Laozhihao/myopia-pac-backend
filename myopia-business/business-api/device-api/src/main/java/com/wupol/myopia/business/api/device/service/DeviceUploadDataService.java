@@ -26,7 +26,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -250,6 +253,13 @@ public class DeviceUploadDataService {
         return deviceScreenDataDTO.getScreeningOrgId() + DELIMITER_CHAR + deviceScreenDataDTO.getDeviceSn() + DELIMITER_CHAR + deviceScreenDataDTO.getPatientId() + DELIMITER_CHAR + deviceScreenDataDTO.getCheckTime();
     }
 
+    /**
+     * 体脂秤数据上传
+     *
+     * @param requestDTO 入参
+     * @return ScalesResponseDTO
+     */
+    @Transactional(rollbackFor = Exception.class)
     public ScalesResponseDTO bodyFatScaleUpload(ScalesRequestDTO requestDTO) {
         if (!StringUtils.equals("webResults", requestDTO.getAction())) {
             return new ScalesResponseDTO("0", "事件类型异常，请确认");
