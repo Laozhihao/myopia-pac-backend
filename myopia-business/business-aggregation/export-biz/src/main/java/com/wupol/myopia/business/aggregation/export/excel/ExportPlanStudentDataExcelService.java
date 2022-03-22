@@ -92,7 +92,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
 
     @Override
     public String getFileName(ExportCondition exportCondition) {
-        return getFileNameTitle(exportCondition);
+        return getPackageFileName(exportCondition);
     }
 
     @Override
@@ -165,8 +165,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
 
         //如果班级不为null,则以班级维度导出
         if (Objects.nonNull(exportCondition.getClassId())){
-            String folder = Paths.get(excelSavePath,getPackageFileName(exportCondition)).toString();
-            return  makerExcel(folder, getFileNameTitle(exportCondition), excelFacade.genVisionScreeningResultExportVos(data));
+            return  makerExcel(fileName, getFileNameTitle(exportCondition), excelFacade.genVisionScreeningResultExportVos(data));
         }
         return null;
     }
@@ -237,32 +236,27 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         //计划压缩包名
         if (Objects.isNull(exportCondition.getSchoolId()) && Objects.nonNull(exportCondition.getDistrictId()) && Objects.nonNull(exportCondition.getPlanId()) && Objects.nonNull(exportCondition.getScreeningOrgId())){
             String screeningOrgName = screeningOrganizationService.getNameById(exportCondition.getScreeningOrgId());
-            String format =UUID.randomUUID() + "/" + String.format(SCREENING_ORG_EXCEL_FILE_NAME, screeningOrgName);
-            localVar.set(format);
+            String format =String.format(SCREENING_ORG_EXCEL_FILE_NAME, screeningOrgName);
             return format;
         }
 
         //学校压缩包名
         if (Objects.nonNull(exportCondition.getSchoolId()) && Objects.isNull(exportCondition.getGradeId()) && Objects.isNull(exportCondition.getClassId())){
-            String format =UUID.randomUUID() + "/" + String.format(SCHOOL_EXCEL_FILE_NAME,school.getName());
-            localVar.set(format);
+            String format =String.format(SCHOOL_EXCEL_FILE_NAME,school.getName());
             return format;
         }
 
         //年级压缩包名
         if (Objects.nonNull(exportCondition.getSchoolId()) && Objects.nonNull(exportCondition.getGradeId()) && Objects.isNull(exportCondition.getClassId())){
-            String format =UUID.randomUUID() + "/" + String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName());
-            localVar.set(format);
+            String format =String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName());
             return format;
         }
 
         //班级压缩包名
         if (Objects.nonNull(exportCondition.getClassId())){
-            String format =UUID.randomUUID() + "/" + String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName()+schoolClass.getName());
-            localVar.set(format);
+            String format =String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName()+schoolClass.getName());
             return format;
         }
-
             return "";
   }
 

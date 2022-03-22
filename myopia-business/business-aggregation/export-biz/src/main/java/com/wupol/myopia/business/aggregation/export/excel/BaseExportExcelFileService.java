@@ -37,8 +37,6 @@ import java.util.stream.Collectors;
 public abstract class BaseExportExcelFileService extends BaseExportFileService {
 
 
-    public static ThreadLocal<String> localVar = new ThreadLocal<>();
-
     @Value("${file.temp.save-path}")
     public String excelSavePath;
 
@@ -61,16 +59,20 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
 
         File excelFile = null;
         String noticeKeyContent = null;
-
+        String parentPath = null;
         try {
             // 1.获取文件名
             String fileName = getFileName(exportCondition);
+            // 2.获取文件保存父目录路径
+            parentPath = getFileSaveParentPath();
+            // 3.获取文件保存路径
+            String fileSavePath = getFileSavePath(parentPath, fileName);
             // 2.获取通知的关键内容
             noticeKeyContent = getNoticeKeyContent(exportCondition);
             // 3.获取数据，生成List
             List data = getExcelData(exportCondition);
             // 4.数据处理
-            excelFile = fileDispose(isPackage(), exportCondition, fileName, data);
+            excelFile = fileDispose(isPackage(), exportCondition, fileSavePath,fileName, data);
             // 5.上传文件
             Integer fileId = uploadFile(excelFile);
             // 6.发送成功通知
@@ -85,8 +87,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
         } finally {
             // 7.删除临时文件
             if (isPackage()){
-                deleteTempFile(excelSavePath+localVar.get());
-                localVar.remove();
+                deleteTempFile(parentPath);
             }else {
                 if (Objects.nonNull(excelFile)){
                     deleteTempFile(excelFile.getPath());
@@ -114,14 +115,9 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
      * @param isPackage 是否压缩
      * @return java.io.File
      **/
-    public File fileDispose(boolean isPackage,ExportCondition exportCondition,String fileName,List data) throws IOException {
-        if (isPackage){
-            generateExcelFile(fileName, data, exportCondition);
-            File file = compressFile(excelSavePath + localVar.get());
-            return file;
-        }else {
-            return generateExcelFile(fileName, data, exportCondition);
-        }
+    public File fileDispose(boolean isPackage,ExportCondition exportCondition,String filePath,String fileName,List data) throws IOException {
+        return isPackage ? compressFile(filePath) : generateExcelFile(fileName, data, exportCondition);
+
     }
 
 
@@ -256,10 +252,9 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
     @Override
     public String syncExport(ExportCondition exportCondition) {
         File excelFile = null;
-        String fileName = null;
         try {
             // 1.获取文件名
-            fileName = getFileName(exportCondition);
+            String fileName = getFileName(exportCondition);
             // 2.获取数据，生成List
             List data = getExcelData(exportCondition);
             // 3.获取文件保存父目录路径
