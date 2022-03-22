@@ -3,7 +3,6 @@ package com.wupol.myopia.business.aggregation.screening.service;
 import cn.hutool.extra.qrcode.QrCodeUtil;
 import cn.hutool.extra.qrcode.QrConfig;
 import com.wupol.framework.core.util.CollectionUtils;
-import com.wupol.framework.core.util.StringUtils;
 import com.wupol.framework.utils.FreemarkerUtil;
 import com.wupol.framework.utils.PdfUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
@@ -227,8 +226,8 @@ public class ScreeningExportService {
                 student.setGenderDesc(GenderEnum.getName(student.getGender()));
                 student.setQrCodeUrl(QrCodeUtil.generateAsBase64(QrcodeUtil.getQrCodeContent(
                         student.getPlanId(), student.getPlanStudentId(),
-                        student.getName(),student.getAge(),student.getGender(),student.getParentPhone(),student.getSchoolName(),
-                        student.getGradeName(),student.getClassName(),student.getIdCard(),
+                        student.getAge(),student.getGender(),student.getParentPhone(),
+                        student.getIdCard(),
                         type), config, "jpg"));
             });
 
@@ -271,8 +270,8 @@ public class ScreeningExportService {
                 content = String.format(QrCodeConstant.SCREENING_CODE_QR_CONTENT_FORMAT_RULE, student.getPlanStudentId());
             } else if (CommonConst.EXPORT_VS666.equals(type)) {
                 content = QrcodeUtil.setVs666QrCodeRule(student.getPlanId(), student.getPlanStudentId(),
-                        student.getName(),student.getAge(),student.getGender(),student.getParentPhone(),student.getSchoolName(),
-                        student.getGradeName(),student.getClassName(),student.getIdCard());
+                        student.getAge(),student.getGender(),student.getParentPhone(),
+                        student.getIdCard());
             } else {
                 content = String.format(QrCodeConstant.QR_CODE_CONTENT_FORMAT_RULE, student.getPlanStudentId());
             }
@@ -310,8 +309,8 @@ public class ScreeningExportService {
             info.setClassName(className);
             info.setQrCodeContent(QrcodeUtil.getQrCodeContent(
                     student.getPlanId(), student.getPlanStudentId(),
-                    student.getName(),student.getAge(),student.getGender(),student.getParentPhone(),student.getSchoolName(),
-                    student.getGradeName(),student.getClassName(),student.getIdCard(),
+                    student.getAge(),student.getGender(),student.getParentPhone(),
+                    student.getIdCard(),
                     type));
             return info;
         }).collect(Collectors.toList());

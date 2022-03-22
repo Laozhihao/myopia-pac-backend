@@ -8,7 +8,6 @@ import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.pdf.BaseExportPdfFileService;
-import com.wupol.myopia.business.aggregation.export.pdf.GeneratePdfFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.HtmlPageUrlConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.PDFFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
@@ -142,8 +141,8 @@ public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
                 content = String.format(QrCodeConstant.SCREENING_CODE_QR_CONTENT_FORMAT_RULE, student.getPlanStudentId());
             } else if (CommonConst.EXPORT_VS666.equals(exportCondition.getType())) {
                 content = QrcodeUtil.setVs666QrCodeRule(student.getPlanId(), student.getPlanStudentId(),
-                        student.getName(),student.getAge(),student.getGender(),student.getParentPhone(),student.getSchoolName(),
-                        student.getGradeName(),student.getClassName(),student.getIdCard());
+                        student.getAge(),student.getGender(),student.getParentPhone(),
+                        student.getIdCard());
             } else {
                 content = String.format(QrCodeConstant.QR_CODE_CONTENT_FORMAT_RULE, student.getPlanStudentId());
             }
