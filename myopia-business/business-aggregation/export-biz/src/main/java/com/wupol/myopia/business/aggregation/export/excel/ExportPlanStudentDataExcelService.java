@@ -172,6 +172,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         try {
             return  ExcelUtil.exportListToExcelWithFolder(folder,filePath, data, mergeStrategy, getHeadClass());
         } catch (IOException e) {
+            log.error("【Excel生成异常】{}", data, e);
             e.printStackTrace();
         }
         return null;
@@ -232,26 +233,23 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         //计划压缩包名
         if (Objects.isNull(exportCondition.getSchoolId()) && Objects.nonNull(exportCondition.getDistrictId()) && Objects.nonNull(exportCondition.getPlanId()) && Objects.nonNull(exportCondition.getScreeningOrgId())){
             String screeningOrgName = screeningOrganizationService.getNameById(exportCondition.getScreeningOrgId());
-            String format =String.format(SCREENING_ORG_EXCEL_FILE_NAME, screeningOrgName);
-            return format;
+            return String.format(SCREENING_ORG_EXCEL_FILE_NAME, screeningOrgName);
         }
 
         //学校压缩包名
         if (Objects.nonNull(exportCondition.getSchoolId()) && Objects.isNull(exportCondition.getGradeId()) && Objects.isNull(exportCondition.getClassId())){
-            String format =String.format(SCHOOL_EXCEL_FILE_NAME,school.getName());
-            return format;
+            return String.format(SCHOOL_EXCEL_FILE_NAME,school.getName());
+
         }
 
         //年级压缩包名
         if (Objects.nonNull(exportCondition.getSchoolId()) && Objects.nonNull(exportCondition.getGradeId()) && Objects.isNull(exportCondition.getClassId())){
-            String format =String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName());
-            return format;
+            return String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName());
         }
 
         //班级压缩包名
         if (Objects.nonNull(exportCondition.getClassId())){
-            String format =String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName()+schoolClass.getName());
-            return format;
+            return String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName()+schoolClass.getName());
         }
             return "";
   }
