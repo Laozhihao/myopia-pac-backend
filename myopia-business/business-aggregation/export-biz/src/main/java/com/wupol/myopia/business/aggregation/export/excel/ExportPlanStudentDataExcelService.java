@@ -107,7 +107,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
 
     @Override
     public File generateExcelFile(String fileName, List data,ExportCondition exportCondition) throws IOException {
-
+        exportCondition.setScreeningOrgId(22);
         List<StatConclusionExportDTO> statConclusionExportDTOs = data;
         OnceAbsoluteMergeStrategy mergeStrategy = new OnceAbsoluteMergeStrategy(0, 1, 20, 21);
         Map<Integer, List<StatConclusionExportDTO>> schoolMap = statConclusionExportDTOs.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getSchoolId));
