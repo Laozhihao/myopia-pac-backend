@@ -33,6 +33,9 @@ public class DeviceUploadDataController {
     @Autowired
     private DeviceUploadDataService deviceUploadDataService;
 
+    @Autowired
+    private IDeviceDataService iDeviceDataService;
+
     /**
      * 上传数据
      *

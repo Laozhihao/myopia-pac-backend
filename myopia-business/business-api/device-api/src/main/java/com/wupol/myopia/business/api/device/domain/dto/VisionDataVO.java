@@ -12,7 +12,7 @@ import lombok.Setter;
 @Setter
 public class VisionDataVO {
 
-    private Integer uId;
+    private String qrCodeInfo;
 
     /**
      * 筛查学生Id

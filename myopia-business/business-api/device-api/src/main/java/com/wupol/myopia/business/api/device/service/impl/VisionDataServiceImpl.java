@@ -77,7 +77,7 @@ public class VisionDataServiceImpl implements IDeviceDataService {
         }
         List<VisionDataVO> visionDataVOS = JSONObject.parseArray(dataStr, VisionDataVO.class);
         visionDataVOS.forEach(visionDataVO -> {
-            Integer planStudentId = visionDataVO.getPlanStudentId();
+            Integer planStudentId = Objects.nonNull(visionDataVO.getPlanStudentId()) ? visionDataVO.getPlanStudentId() : parsePlanStudentId(visionDataVO.getQrCodeInfo());
             ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(planStudentId);
             if (Objects.isNull(planStudent)) {
                 throw new BusinessException("学生信息异常");
@@ -102,14 +102,18 @@ public class VisionDataServiceImpl implements IDeviceDataService {
 
     @Override
     public Integer parsePlanStudentId(String uId) {
-        int index = uId.indexOf("@");
-        String prefix = uId.substring(index - 2, index);
-        if (StringUtils.equals("SA", prefix) || StringUtils.equals("SV", prefix)) {
-            return Integer.valueOf(uId.substring(index, uId.length() - 1));
-        }
-        if (StringUtils.equals("VS", prefix)) {
-            String s = StringUtils.substringBetween(uId, "@", ",");
-            return Integer.valueOf(s.substring(s.indexOf("_"), s.length() - 1));
+        try {
+            int index = uId.indexOf("@");
+            String prefix = uId.substring(index - 2, index);
+            if (StringUtils.equals("SA", prefix) || StringUtils.equals("SV", prefix)) {
+                return Integer.valueOf(uId.substring(index + 1));
+            }
+            if (StringUtils.equals("VS", prefix)) {
+                String s = StringUtils.substringBetween(uId, "@", ",");
+                return Integer.valueOf(s.substring(s.indexOf("_") + 1));
+            }
+        } catch (Exception e) {
+            throw new BusinessException("二维码解析异常");
         }
         return null;
     }
