@@ -64,7 +64,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
             // 1.获取文件名
             String fileName = getFileName(exportCondition);
             // 2.获取文件保存父目录路径
-            parentPath = getFileSaveParentPath();
+            parentPath = getUUID();
             // 3.获取文件保存路径
             String fileSavePath = getFileSavePath(parentPath, fileName);
             // 2.获取通知的关键内容
@@ -86,13 +86,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
             }
         } finally {
             // 7.删除临时文件
-            if (isPackage()){
-                deleteTempFile(parentPath);
-            }else {
-                if (Objects.nonNull(excelFile)){
-                    deleteTempFile(excelFile.getPath());
-                }
-            }
+            deleteTempFile(excelSavePath+parentPath);
             // 8.释放锁
             unlock(getLockKey(exportCondition));
         }
@@ -145,6 +139,15 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
      **/
     public String getFileSaveParentPath() {
         return Paths.get(excelSavePath, UUID.randomUUID().toString()).toString();
+    }
+
+    /**
+     * 获取文件保存父目录路径
+     *
+     * @return java.lang.String
+     **/
+    public String getUUID() {
+        return UUID.randomUUID().toString();
     }
 
     /**
