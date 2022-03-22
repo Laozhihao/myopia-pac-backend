@@ -173,7 +173,6 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
             return  ExcelUtil.exportListToExcelWithFolder(folder,filePath, data, mergeStrategy, getHeadClass());
         } catch (IOException e) {
             log.error("【Excel生成异常】{}", data, e);
-            e.printStackTrace();
         }
         return null;
     }
