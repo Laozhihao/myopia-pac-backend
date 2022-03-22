@@ -64,7 +64,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
             // 1.获取文件名
             String fileName = getFileName(exportCondition);
             // 2.获取文件保存父目录路径
-            parentPath = getUUID();
+            parentPath = getFileSaveParentPath();
             // 3.获取文件保存路径
             String fileSavePath = getFileSavePath(parentPath, fileName);
             // 2.获取通知的关键内容
@@ -86,7 +86,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
             }
         } finally {
             // 7.删除临时文件
-            deleteTempFile(excelSavePath+parentPath);
+            deleteTempFile(parentPath);
             // 8.释放锁
             unlock(getLockKey(exportCondition));
         }
