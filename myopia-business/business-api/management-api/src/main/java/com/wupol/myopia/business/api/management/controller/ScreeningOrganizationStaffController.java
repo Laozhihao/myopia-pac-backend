@@ -82,9 +82,7 @@ public class ScreeningOrganizationStaffController {
         }
         // 非平台管理员
         if (!user.isPlatformAdminUser()) {
-            ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(user.getScreeningOrgId());
-            int totalNum = screeningOrganizationStaffService.countByScreeningOrgId(screeningOrganizationStaff.getScreeningOrgId());
-            Assert.isTrue(totalNum < screeningOrganization.getAccountNum(), "超过人数限制");
+          screeningOrganizationStaffService.checkScreeningOrganizationStaffAmount(user.getScreeningOrgId(),null);
         }
         screeningOrganizationStaff.setCreateUserId(user.getId());
         screeningOrganizationStaff.setGovDeptId(user.getOrgId());

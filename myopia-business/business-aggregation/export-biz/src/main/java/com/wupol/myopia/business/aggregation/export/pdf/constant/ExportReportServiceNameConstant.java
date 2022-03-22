@@ -27,6 +27,11 @@ public class ExportReportServiceNameConstant {
      */
     public final String SCHOOL_ARCHIVES_SERVICE = "schoolArchivesService";
     /**
+     * 行政区域档案卡
+     */
+    public final String EXPORT_DISTRICT_ARCHIVES_SERVICE = "exportDistrictArchivesService";
+
+    /**
      * 筛查机构档案卡
      */
     public final String SCREENING_ORG_ARCHIVES_SERVICE = "screeningOrgArchivesService";

@@ -182,4 +182,23 @@
             #{studentId}
         </foreach>
     </select>
+
+    <select id="selectScreeningResultByDistrictIdAndTaskId" resultType="java.lang.Integer">
+        select
+            count(*)
+        from
+            m_vision_screening_result
+        where
+            task_id in
+        <foreach collection="taskIds" item="taskId" index="index" open="(" close=")" separator=",">
+            #{taskId}
+        </foreach>
+        and
+            district_id in
+        <foreach collection="districtIds" item="districtId" index="index" open="(" close=")" separator=",">
+            #{districtId}
+        </foreach>
+        and
+            is_double_screen = 0
+    </select>
 </mapper>
