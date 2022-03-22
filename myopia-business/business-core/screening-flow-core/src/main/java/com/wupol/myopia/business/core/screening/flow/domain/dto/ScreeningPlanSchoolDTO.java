@@ -15,4 +15,7 @@ import lombok.experimental.Accessors;
 public class ScreeningPlanSchoolDTO extends ScreeningPlanSchool {
     /** 筛查学生数 */
     private Integer studentCount;
+
+    /** 实际筛查学生数 */
+    private Integer practicalStudentCount;
 }

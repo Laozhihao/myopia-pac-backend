@@ -24,4 +24,6 @@ public interface ScreeningTaskMapper extends BaseMapper<ScreeningTask> {
     IPage<ScreeningTaskPageDTO> selectPageByQuery(@Param("page") Page<ScreeningTask> page, @Param("param") ScreeningTaskQueryDTO query);
 
     Integer countByNoticeIdAndGovId(@Param("noticeId") Integer noticeId, @Param("govId") Integer govId);
+
+    List<ScreeningTask> getScreeningTaskByDistrictIdAndNotificationId(@Param("ids") List<Integer> districtIdList, @Param("notificationId") Integer notificationId);
 }

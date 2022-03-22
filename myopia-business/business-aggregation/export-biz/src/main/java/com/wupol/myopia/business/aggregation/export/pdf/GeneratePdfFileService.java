@@ -1,8 +1,8 @@
 package com.wupol.myopia.business.aggregation.export.pdf;
 
-import com.alibaba.fastjson.JSONObject;
-import com.wupol.framework.core.util.ObjectsUtil;
-import com.wupol.myopia.base.domain.PdfResponseDTO;
+
+import com.wupol.framework.core.util.CollectionUtils;
+
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.HtmlPageUrlConstant;
@@ -10,18 +10,16 @@ import com.wupol.myopia.business.aggregation.export.pdf.constant.PDFFileNameCons
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.PlanSchoolGradeVO;
 import com.wupol.myopia.business.common.utils.constant.BizMsgConstant;
-import com.wupol.myopia.business.common.utils.util.FileUtils;
+
 import com.wupol.myopia.business.common.utils.util.HtmlToPdfUtil;
 import com.wupol.myopia.business.core.common.service.DistrictService;
-import com.wupol.myopia.business.core.common.service.Html2PdfService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
-import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
-import com.wupol.myopia.business.core.school.service.SchoolClassService;
-import com.wupol.myopia.business.core.school.service.SchoolGradeService;
+
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.GradeClassesDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO;
+
+import com.wupol.myopia.business.core.screening.flow.domain.dto.screeningPlanSchoolStudentDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
@@ -37,10 +35,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -70,10 +65,7 @@ public class GeneratePdfFileService {
     private TemplateDistrictService templateDistrictService;
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
-    @Autowired
-    private SchoolGradeService schoolGradeService;
-    @Autowired
-    private SchoolClassService schoolClassService;
+
 
     /**
      * 生成筛查报告PDF文件 - 行政区域
@@ -197,6 +189,26 @@ public class GeneratePdfFileService {
     }
 
     /**
+     * 生成档案卡PDF文件 - 行政区域
+     *
+     * @param saveDirectory   保存目录
+     * @param exportCondition 条件
+     **/
+    public void generateDistrictArchivesPdfFile(String saveDirectory, ExportCondition exportCondition) {
+        List<screeningPlanSchoolStudentDTO> statConclusionExportVos = new ArrayList<>();
+        List<Integer> childDistrictIds = districtService.getSpecificDistrictTreeAllDistrictIds(exportCondition.getDistrictId());
+        log.info("行政区域：====="+childDistrictIds);
+        statConclusionExportVos = statConclusionService.getExportVoByScreeningNoticeIdAndDistrictIdsAndGroupBy(exportCondition.getNotificationId(), childDistrictIds);
+        statConclusionExportVos.forEach(item->{
+            ExportCondition exportCondition1 = new ExportCondition();
+            exportCondition1.setPlanId(item.getScreeningPlanId());
+            exportCondition1.setSchoolId(item.getSchoolId());
+            generateSchoolArchivesPdfFile(saveDirectory,exportCondition1);
+        });
+
+    }
+
+    /**
      * 生成档案卡PDF文件 - 学校
      *
      * @param saveDirectory   保存目录
@@ -206,8 +218,6 @@ public class GeneratePdfFileService {
         Integer planId = exportCondition.getPlanId();
         Integer schoolId = exportCondition.getSchoolId();
         Integer gradeId = exportCondition.getGradeId();
-        Integer classId = exportCondition.getClassId();
-        String planStudentIds = exportCondition.getPlanStudentIds();
 
         Assert.hasLength(saveDirectory, BizMsgConstant.SAVE_DIRECTORY_EMPTY);
         Assert.notNull(planId, BizMsgConstant.PLAN_ID_IS_EMPTY);
@@ -215,37 +225,38 @@ public class GeneratePdfFileService {
         ScreeningPlan plan = screeningPlanService.getById(planId);
 
         // 获取筛查机构的模板
-        ScreeningOrganization org = screeningOrganizationService.getById(plan.getScreeningOrgId());
-        Integer templateId = templateDistrictService.getByDistrictId(districtService.getProvinceId(org.getDistrictId()));
+        Integer templateId = templateDistrictService.getByDistrictId(districtService.getProvinceId(plan.getDistrictId()));
 
-        if (Objects.isNull(schoolId)) {
-            String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.SCHOOL_ARCHIVES_HTML_URL, htmlUrlHost, planId, schoolId, templateId, gradeId, classId, planStudentIds);
-            String dir = saveDirectory + "/" + plan.getTitle();
-            Assert.isTrue(HtmlToPdfUtil.convertArchives(schoolPdfHtmlUrl, Paths.get(dir, plan.getTitle() + "档案卡" + ".pdf").toString()), "【生成学校档案卡PDF文件异常】：" + plan.getTitle());
-            return;
-        }
+
         School school = schoolService.getById(schoolId);
-        // 特殊处理
-        if (ObjectsUtil.allNotNull(gradeId, classId)) {
-            SchoolGrade schoolGrade = schoolGradeService.getById(gradeId);
-            SchoolClass schoolClass = schoolClassService.getById(classId);
-            String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.SCHOOL_ARCHIVES_HTML_URL, htmlUrlHost, planId, schoolId, templateId, gradeId, classId, planStudentIds);
-            String schoolReportFileName = String.format(PDFFileNameConstant.ARCHIVES_PDF_FILE_NAME_GRADE_CLASS, school.getName(), schoolGrade.getName(), schoolClass.getName());
-            String dir = saveDirectory + "/" + school.getName() + "/" + schoolGrade.getName() + "/" + schoolClass.getName();
-            Assert.isTrue(HtmlToPdfUtil.convertArchives(schoolPdfHtmlUrl, Paths.get(dir, schoolReportFileName + ".pdf").toString()), "【生成学校档案卡PDF文件异常】：" + school.getName());
+        // 年級維度
+        if (Objects.nonNull(gradeId)) {
+            List<PlanSchoolGradeVO> gradeAndClass = getGradeAndClass(planId, schoolId);
+            if (CollectionUtils.isNotEmpty(gradeAndClass)){
+                gradeAndClass.stream().forEach(item ->{
+                    if (item.getId().equals(gradeId)){
+                        makerPDF(saveDirectory, planId, schoolId, templateId, school, item);
+                    }
+                });
+            }
         } else {
+            //其他維度
             // 获取年纪班级信息
             List<PlanSchoolGradeVO> gradeAndClass = getGradeAndClass(planId, schoolId);
 
             for (PlanSchoolGradeVO gradeVO : gradeAndClass) {
-                gradeVO.getClasses().forEach(schoolClass -> {
-                    String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.SCHOOL_ARCHIVES_HTML_URL, htmlUrlHost, planId, schoolId, templateId, gradeVO.getId(), schoolClass.getId(), "");
-                    String schoolReportFileName = String.format(PDFFileNameConstant.ARCHIVES_PDF_FILE_NAME_GRADE_CLASS, school.getName(), gradeVO.getGradeName(), schoolClass.getName());
-                    String dir = saveDirectory + "/" + school.getName() + "/" + gradeVO.getGradeName() + "/" + schoolClass.getName();
-                    Assert.isTrue(HtmlToPdfUtil.convertArchives(schoolPdfHtmlUrl, Paths.get(dir, schoolReportFileName + ".pdf").toString()), "【生成学校档案卡PDF文件异常】：" + school.getName());
-                });
+                makerPDF(saveDirectory, planId, schoolId, templateId, school, gradeVO);
             }
         }
+    }
+
+    private void makerPDF(String saveDirectory, Integer planId, Integer schoolId, Integer templateId, School school, PlanSchoolGradeVO item) {
+        item.getClasses().forEach(schoolClass -> {
+        String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.SCHOOL_ARCHIVES_HTML_URL, htmlUrlHost, planId, schoolId, templateId, item.getId(), schoolClass.getId(), "");
+        String schoolReportFileName = String.format(PDFFileNameConstant.ARCHIVES_PDF_FILE_NAME_GRADE_CLASS, school.getName(), item.getGradeName(), schoolClass.getName());
+        String dir = saveDirectory + "/" + school.getName() + "/" + item.getGradeName() + "/" + schoolClass.getName();
+        Assert.isTrue(HtmlToPdfUtil.convertArchives(schoolPdfHtmlUrl, Paths.get(dir, schoolReportFileName + ".pdf").toString()), "【生成学校档案卡PDF文件异常】：" + school.getName());
+    });
     }
 
     public List<PlanSchoolGradeVO> getGradeAndClass(Integer screeningPlanId, Integer schoolId) {
