@@ -132,7 +132,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
             //再导出年级数据
             gradeMap.forEach((key,value)->{
                 SchoolGrade grade = schoolGradeService.getById(key);
-                excelGraderAndClassData(key,value,Paths.get(folder,String.format(PLAN_STUDENT_FILE_NAME,grade.getName())).toString(),filePath,school);
+                excelGraderAndClassData(key,value,String.format(PLAN_STUDENT_FILE_NAME,grade.getName()),filePath,school);
             });
         }
 
@@ -170,7 +170,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
     public File makerExcel(String folder,String filePath,List<VisionScreeningResultExportDTO> data){
         OnceAbsoluteMergeStrategy mergeStrategy = new OnceAbsoluteMergeStrategy(0, 1, 20, 21);
         try {
-            return  ExcelUtil.exportListToExcelWithFolder(folder, filePath, data, mergeStrategy, getHeadClass());
+            return  ExcelUtil.exportListToExcelWithFolder(folder,filePath, data, mergeStrategy, getHeadClass());
         } catch (IOException e) {
             e.printStackTrace();
         }
