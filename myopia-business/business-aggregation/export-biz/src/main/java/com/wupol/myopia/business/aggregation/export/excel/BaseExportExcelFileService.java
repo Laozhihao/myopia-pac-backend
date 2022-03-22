@@ -57,7 +57,6 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
     @Override
     public void export(ExportCondition exportCondition) {
 
-        File excelFile = null;
         String noticeKeyContent = null;
         String parentPath = null;
         try {
@@ -72,7 +71,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
             // 3.获取数据，生成List
             List data = getExcelData(exportCondition);
             // 4.数据处理
-            excelFile = fileDispose(isPackage(), exportCondition, fileSavePath,fileName, data);
+            File excelFile = fileDispose(isPackage(), exportCondition, fileSavePath,fileName, data);
             // 5.上传文件
             Integer fileId = uploadFile(excelFile);
             // 6.发送成功通知
