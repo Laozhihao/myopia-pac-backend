@@ -152,7 +152,8 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
             //导出年级数据
             gradeMap.forEach((key,value)->{
                 SchoolGrade grade = schoolGradeService.getById(key);
-                String folder = Paths.get(filePath,String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName())).toString();
+                String gradeFolder = String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName());
+                String folder = Paths.get(filePath,gradeFolder).toString();
                 makerExcel(folder, String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName()), excelFacade.genVisionScreeningResultExportVos(value));
                 //再导出该年级的班级数据
                 Map<Integer, List<StatConclusionExportDTO>> collect = value.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getClassId));
@@ -170,6 +171,16 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         return null;
     }
 
+
+    public void excelGraderAndClassData(Map<Integer, List<StatConclusionExportDTO>> gradeMap,String path,String filePath){
+        gradeMap.forEach((key,value)->{
+            SchoolGrade grade = schoolGradeService.getById(key);
+            String gradeFolder = String.format(PLAN_STUDENT_FILE_NAME,path);
+            String folder = Paths.get(filePath,gradeFolder).toString();
+
+
+        });
+    }
 
     public File makerExcel(String folder,String filePath,List<VisionScreeningResultExportDTO> data){
         OnceAbsoluteMergeStrategy mergeStrategy = new OnceAbsoluteMergeStrategy(0, 1, 20, 21);
