@@ -89,7 +89,7 @@ public class ScreeningPlanStudentBizService {
     private ResourceFileService resourceFileService;
     @Resource
     private VisionScreeningResultService visionScreeningResultService;
-    @Value("${report.pdf.save-path}")
+    @Value("${file.temp.save-path}")
     public String pdfSavePath;
     @Resource
     private NoticeService noticeService;

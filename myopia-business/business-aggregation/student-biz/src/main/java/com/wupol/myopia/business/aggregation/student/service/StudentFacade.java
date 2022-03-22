@@ -7,6 +7,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.student.constant.VisionScreeningConst;
 import com.wupol.myopia.business.aggregation.student.domain.vo.VisionInfoVO;
 import com.wupol.myopia.business.common.utils.constant.*;
+import com.wupol.myopia.business.common.utils.util.MaskUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
@@ -438,7 +439,7 @@ public class StudentFacade {
 
         cardInfoVO.setName(studentInfo.getName());
         cardInfoVO.setBirthday(studentInfo.getBirthday());
-        cardInfoVO.setIdCard(studentInfo.getIdCard());
+        cardInfoVO.setIdCard(StringUtils.isNotBlank(studentInfo.getIdCard()) ? MaskUtil.maskIdCard(studentInfo.getIdCard()) : MaskUtil.maskPassport(studentInfo.getPassport()));
         cardInfoVO.setGender(studentInfo.getGender());
         cardInfoVO.setAge(DateUtil.ageOfNow(studentInfo.getBirthday()));
         cardInfoVO.setSno(studentInfo.getSno());

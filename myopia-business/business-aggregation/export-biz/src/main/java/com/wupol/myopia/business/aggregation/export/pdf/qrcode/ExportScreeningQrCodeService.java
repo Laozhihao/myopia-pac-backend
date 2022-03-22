@@ -86,7 +86,7 @@ public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
         SchoolGrade schoolGrade = schoolGradeService.getById(exportCondition.getGradeId());
         if (schoolGrade!=null&&schoolGrade.getName()!=null){
             gradeName = schoolGrade.getName();
-            gradeNameTmp = schoolGrade.getName();
+            gradeNameTmp = gradeName;
         }
         String className = "";
         SchoolClass schoolClass = schoolClassService.getById(exportCondition.getClassId());

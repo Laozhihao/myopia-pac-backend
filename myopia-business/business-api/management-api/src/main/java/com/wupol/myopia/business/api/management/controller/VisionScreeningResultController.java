@@ -18,6 +18,7 @@ import com.wupol.myopia.business.aggregation.export.service.SysUtilService;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.interfaces.HasName;
+import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.AppStudentCardResponseDTO;
@@ -126,7 +127,8 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
      * @return ApiResult.success();
      */
     @GetMapping("/export")
-    public Object getScreeningNoticeExportData(Integer screeningNoticeId, @RequestParam(defaultValue = "0") Integer screeningOrgId,
+    public Object getScreeningNoticeExportData(Integer screeningNoticeId,
+                                               @RequestParam(defaultValue = "0") Integer screeningOrgId,
                                                @RequestParam(defaultValue = "0") Integer districtId,
                                                @RequestParam(defaultValue = "0") Integer schoolId,
                                                @RequestParam(defaultValue = "0") Integer planId) throws IOException, UtilException {
@@ -152,7 +154,13 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
                 statConclusionExportVos = statConclusionService.getExportVoByScreeningNoticeIdAndScreeningOrgId(screeningNoticeId, screeningOrgId);
             }
             if (!CommonConst.DEFAULT_ID.equals(districtId)) {
-                exportFileNamePrefix = checkNotNullAndGetName(districtService.getById(districtId), "行政区域");
+                List<District> districtPositionDetailById = districtService.getDistrictPositionDetailById(districtId);
+                StringBuffer folder = new StringBuffer();
+                districtPositionDetailById.forEach(item->{
+                    folder.append(item.getName());
+                });
+                checkNotNullAndGetName(districtService.getById(districtId), "行政区域");
+                exportFileNamePrefix = folder.toString();
                 // 合计的要包括自己层级的筛查数据
                 List<Integer> childDistrictIds = districtService.getSpecificDistrictTreeAllDistrictIds(districtId);
                 statConclusionExportVos = statConclusionService.getExportVoByScreeningNoticeIdAndDistrictIds(screeningNoticeId, childDistrictIds);
@@ -298,7 +306,7 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
 
     /**
      * @Description: 导出文件
-     * @Param: [筛查计划ID, 筛查机构ID, 学校ID, 年级ID, 班级ID]
+     * @Param: [筛查计划ID, 筛查机构ID, 学校ID, 年级ID, 班级ID，行政区域ID]
      * @return: void
      * @Author: 钓猫的小鱼
      * @Date: 2021/12/29
@@ -307,7 +315,9 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
     public ApiResult getScreeningPlanExportDoAndSync(Integer screeningPlanId, @RequestParam(defaultValue = "0") Integer screeningOrgId,
                                                 @RequestParam(required = false) Integer schoolId,
                                                 @RequestParam(required = false) Integer gradeId,
-                                                @RequestParam(required = false) Integer classId) throws IOException {
+                                                @RequestParam(required = false) Integer classId,
+                                                     @RequestParam(required = false) Integer districtId
+                                                     ) throws IOException {
 
         ExportCondition exportCondition = new ExportCondition()
                 .setPlanId(screeningPlanId)
@@ -315,6 +325,7 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
                 .setSchoolId(schoolId)
                 .setGradeId(gradeId)
                 .setClassId(classId)
+                .setDistrictId(districtId)
                 .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
 
         if (classId==null){
