@@ -14,7 +14,6 @@ import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
-import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
@@ -37,9 +36,6 @@ public class SchoolFacade {
 
     @Resource
     private SchoolService schoolService;
-    @Resource
-    private SchoolGradeService schoolGradeService;
-
 
     @Resource
     private DistrictService districtService;

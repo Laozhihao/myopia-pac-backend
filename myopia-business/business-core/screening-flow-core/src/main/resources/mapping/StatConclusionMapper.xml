@@ -26,6 +26,13 @@
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="computer_optometry" property="computerOptometry" />
     </resultMap>
 
+    <resultMap id="ScreeningPlanSchoolStudentVoResultMap" type="com.wupol.myopia.business.core.screening.flow.domain.dto.screeningPlanSchoolStudentDTO">
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="screening_plan_id" property="screeningPlanId" />
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="school_id" property="schoolId" />
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="grade_id" property="gradeId" />
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="class_id" property="classId" />
+    </resultMap>
+
     <resultMap id="PlanAndSchoolMap" type="com.wupol.myopia.business.core.screening.flow.domain.dto.ScreenPlanSchoolDTO">
     </resultMap>
 
@@ -100,7 +107,8 @@
         mspss.student_no, mspss.id_card, mspss.parent_phone, mspss.province_code, mspss.city_code, mspss.town_code, mspss.area_code, mspss.address,
         mvsr.vision_data, mvsr.computer_optometry, msc.glasses_type, msc.warning_level, msc.is_rescreen, msc.screening_plan_school_student_id,
         mvsr.ocular_inspection_data,mvsr.eye_pressure_data,mvsr.fundus_data,mvsr.slit_lamp_data,mvsr.pupil_optometry_data,mvsr.visual_loss_level_data,
-        mvsr.systemic_disease_symptom,mvsr.biometric_data,mvsr.other_eye_diseases, mspss.grade_id, mspss.class_id, msc.myopia_level,msc.hyperopia_level,msc.astigmatism_level,mspss.student_id,msc.create_time,msc.report_id,mspss.passport, mvsr.height_and_weight_data
+        mvsr.systemic_disease_symptom,mvsr.biometric_data,mvsr.other_eye_diseases, mspss.grade_id, mspss.class_id, msc.myopia_level,msc.hyperopia_level,msc.astigmatism_level,mspss.student_id,msc.create_time,msc.report_id,mspss.passport, mvsr.height_and_weight_data,
+        msc.is_valid
     </sql>
 
     <select id="selectLastOne" resultMap="BaseResultMap" parameterType="java.util.Map">
@@ -134,6 +142,20 @@
         AND msc.district_id IN
         <foreach collection="districtIds" item="id" index="index" open="(" close=")" separator=",">#{id}</foreach>
         ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
+    </select>
+
+    <select id="selectExportVoByScreeningNoticeIdAndDistrictIdsAndGroupBy" resultMap="ScreeningPlanSchoolStudentVoResultMap" parameterType="java.util.Map">
+        SELECT
+        mspss.screening_plan_id,mspss.school_id,mspss.grade_id,mspss.class_id
+        FROM m_stat_conclusion msc
+        LEFT JOIN m_vision_screening_result mvsr ON msc.result_id = mvsr.id
+        LEFT JOIN m_screening_plan_school_student mspss ON msc.screening_plan_school_student_id = mspss.id
+        WHERE msc.src_screening_notice_id = #{screeningNoticeId}
+        AND msc.district_id IN
+        <foreach collection="districtIds" item="id" index="index" open="(" close=")" separator=",">#{id}</foreach>
+        GROUP BY mspss.screening_plan_id, mspss.school_id, mspss.grade_id, mspss.class_id
+        ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
+
     </select>
 
     <select id="selectExportVoByScreeningNoticeIdAndSchoolId" resultMap="ExportVoResultMap"
