@@ -205,16 +205,6 @@ public class SchoolManagementController {
     }
 
     /**
-     * 批量新增班级、年级
-     *
-     * @param requestDTO 入参
-     */
-    @PostMapping("/grades/batchSave")
-    public void batchSaveGrade(@RequestBody @Valid List<BatchSaveGradeRequestDTO> requestDTO) {
-        schoolGradeService.batchSaveGrade(requestDTO, CurrentUserUtil.getCurrentUser().getId());
-    }
-
-    /**
      * 获取计划学校-年级-班级 下的学生
      * @param screeningPlanId 筛查计划ID
      * @param schoolId  学校ID
@@ -265,7 +255,6 @@ public class SchoolManagementController {
         return ApiResult.success();
     }
 
-
     /**
      * 批量新增班级、年级
      *
@@ -275,4 +264,5 @@ public class SchoolManagementController {
     public void batchSaveGrade(@RequestBody @Valid List<BatchSaveGradeRequestDTO> requestDTO) {
         schoolGradeService.batchSaveGrade(requestDTO, CurrentUserUtil.getCurrentUser().getId());
     }
+
 }
