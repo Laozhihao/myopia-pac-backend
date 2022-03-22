@@ -70,11 +70,11 @@ public class VisionDataServiceImpl implements IDeviceDataService {
         }
         ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(device.getBindingScreeningOrgId());
         if (Objects.isNull(screeningOrganization) || CommonConst.STATUS_IS_DELETED.equals(screeningOrganization.getStatus())) {
-            throw new BusinessException("无法找到筛查机构或该筛查机构已过期");
+            throw new BusinessException("无法找到筛查机构或该筛查机构已过期！");
         }
         String dataStr = requestDTO.getData();
         if (StringUtils.isBlank(dataStr)) {
-            throw new BusinessException("数据不能为空");
+            throw new BusinessException("数据不能为空！");
         }
         List<VisionDataVO> visionDataVOS = JSONObject.parseArray(dataStr, VisionDataVO.class);
         visionDataVOS.forEach(visionDataVO -> {
@@ -83,11 +83,11 @@ public class VisionDataServiceImpl implements IDeviceDataService {
             log.info("planStudentId:{}", planStudentId);
             ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(planStudentId);
             if (Objects.isNull(planStudent)) {
-                throw new BusinessException("学生信息异常");
+                throw new BusinessException("不能通过该Id找到学生信息，请确认！");
             }
             Integer orgId = screeningOrganization.getId();
             if (!planStudent.getScreeningOrgId().equals(orgId)) {
-                throw new BusinessException("筛查学生与筛查机构不匹配");
+                throw new BusinessException("筛查学生与筛查机构不匹配！");
             }
             Long screeningTime = visionDataVO.getScreeningTime();
             // 保存原始数据
