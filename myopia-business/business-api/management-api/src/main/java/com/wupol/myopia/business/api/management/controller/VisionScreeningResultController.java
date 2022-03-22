@@ -324,7 +324,6 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
                 .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
 
         if (classId==null){
-            exportCondition.setScreeningOrgId(22);
             exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.EXPOR_TPLAN_STUDENT_DATA_EXCEL_SERVICE);
             return ApiResult.success();
         }else {
