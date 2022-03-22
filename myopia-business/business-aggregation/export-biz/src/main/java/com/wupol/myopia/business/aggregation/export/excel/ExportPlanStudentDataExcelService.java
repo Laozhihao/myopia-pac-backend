@@ -132,7 +132,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
             //再导出年级数据
             gradeMap.forEach((key,value)->{
                 SchoolGrade grade = schoolGradeService.getById(key);
-                excelGraderAndClassData(key,value,String.format(PLAN_STUDENT_FILE_NAME,grade.getName()),filePath,school);
+                excelGraderAndClassData(key,value,String.format(PLAN_STUDENT_FILE_NAME,grade.getName()),folder,school);
             });
         }
 
