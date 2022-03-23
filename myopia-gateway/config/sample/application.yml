@@ -138,4 +138,4 @@ white-list:
   - "/school/management/student/QRCode"
   - "/api/device/uploadData"
   - "/api/device/bmi"
-  - "/management/report/preSchool/pdf"
+  - "/management/report/pdf"

@@ -146,4 +146,4 @@ white-list:
   - "/school/management/student/QRCode"
   - "/api/device/uploadData"
   - "/api/device/bmi"
-  - "/management/report/preschool/pdf"
+  - "/management/report/pdf"

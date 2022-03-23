@@ -282,7 +282,7 @@ public class ReportController {
      * @param id   id
      * @return pdf文件
      */
-    @GetMapping("preschool/pdf")
+    @GetMapping("pdf")
     public ApiResult<String> preSchoolPdf(@NotBlank(message = "type不能为空") String type,
                                           @NotNull(message = "id不能为空") Integer id) {
         Integer clientId = Integer.valueOf(CurrentUserUtil.getCurrentUser().getClientId());
