@@ -11,6 +11,11 @@ import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportSer
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.api.management.constant.ReportConst;
 import com.wupol.myopia.business.core.common.service.Html2PdfService;
+import com.wupol.myopia.business.core.hospital.domain.dto.PreschoolCheckRecordDTO;
+import com.wupol.myopia.business.core.hospital.domain.dto.ReferralDTO;
+import com.wupol.myopia.business.core.hospital.service.PreschoolCheckRecordService;
+import com.wupol.myopia.business.core.hospital.service.ReceiptListService;
+import com.wupol.myopia.business.core.hospital.service.ReferralRecordService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
@@ -52,6 +57,16 @@ public class ReportController {
 
     @Value("${report.html.url-host}")
     public String htmlUrlHost;
+
+    @Autowired
+    private ReferralRecordService referralRecordService;
+
+    @Autowired
+    private PreschoolCheckRecordService preschoolCheckRecordService;
+
+    @Autowired
+    private ReceiptListService receiptListService;
+
     /**
      * 导出区域的筛查报告 TODO: 权限校验、导出次数限制
      *
@@ -292,12 +307,21 @@ public class ReportController {
         String url = StringUtils.EMPTY;
 
         if (StringUtils.equals(ReportConst.TYPE_REFERRAL, type)) {
+            if (Objects.isNull(referralRecordService.getDetailById(id))) {
+                throw new BusinessException("找不到该转诊单");
+            }
             url = String.format(ReportConst.REFERRAL_PDF_URL, htmlUrlHost, id, isHospital, userToken);
         }
         if (StringUtils.equals(ReportConst.TYPE_EXAMINE, type)) {
+            if (Objects.isNull(preschoolCheckRecordService.getDetail(id))) {
+                throw new BusinessException("找不到该检查记录表");
+            }
             url = String.format(ReportConst.EXAMINE_PDF_URL, htmlUrlHost, id, isHospital, userToken);
         }
         if (StringUtils.equals(ReportConst.TYPE_RECEIPT, type)) {
+            if (Objects.isNull(receiptListService.getDetailById(id))) {
+                throw new BusinessException("找不到该回执单");
+            }
             url = String.format(ReportConst.RECEIPT_PDF_URL, htmlUrlHost, id, isHospital, userToken);
         }
         if (StringUtils.isBlank(url)) {

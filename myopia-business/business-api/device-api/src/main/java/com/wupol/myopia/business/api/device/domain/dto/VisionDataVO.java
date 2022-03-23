@@ -14,7 +14,15 @@ import javax.validation.constraints.NotBlank;
 @Setter
 public class VisionDataVO {
 
+    /**
+     * 用户Id
+     */
     private String uid;
+
+    /**
+     * 戴镜类型
+     */
+    private Integer glassesType;
 
     /**
      * 筛查学生Id
@@ -24,13 +32,11 @@ public class VisionDataVO {
     /**
      * 左裸眼视力
      */
-    @NotBlank(message = "左眼裸眼视力不能为空")
     private String leftNakedVision;
 
     /**
      * 右裸眼视力
      */
-    @NotBlank(message = "右眼裸眼视力不能为空")
     private String rightNakedVision;
 
     /**

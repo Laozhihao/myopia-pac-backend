@@ -158,10 +158,14 @@ public class VisionDataServiceImpl implements IDeviceDataService {
         visionDataDTO.setCreateUserId(-1);
         visionDataDTO.setPlanStudentId(String.valueOf(planStudent.getId()));
         visionDataDTO.setSchoolId(String.valueOf(planStudent.getSchoolId()));
-        if (ObjectsUtil.allNotNull(visionDataDTO.getLeftCorrectedVision(), visionDataDTO.getRightCorrectedVision())) {
-            visionDataDTO.setGlassesType(WearingGlassesSituation.WEARING_FRAME_GLASSES_TYPE);
+        if (Objects.nonNull(visionDataVO.getGlassesType())) {
+            visionDataDTO.setGlassesType(WearingGlassesSituation.getType(visionDataVO.getGlassesType()));
         } else {
-            visionDataDTO.setGlassesType(WearingGlassesSituation.NOT_WEARING_GLASSES_TYPE);
+            if (ObjectsUtil.allNotNull(visionDataDTO.getLeftCorrectedVision(), visionDataDTO.getRightCorrectedVision())) {
+                visionDataDTO.setGlassesType(WearingGlassesSituation.WEARING_FRAME_GLASSES_TYPE);
+            } else {
+                visionDataDTO.setGlassesType(WearingGlassesSituation.NOT_WEARING_GLASSES_TYPE);
+            }
         }
         visionScreeningBizService.saveOrUpdateStudentScreenData(visionDataDTO);
     }
