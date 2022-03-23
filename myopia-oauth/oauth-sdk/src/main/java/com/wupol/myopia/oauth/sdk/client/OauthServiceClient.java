@@ -18,7 +18,7 @@ import java.util.List;
  * @Author HaoHao
  * @Date 2020/12/11
  **/
-@FeignClient(name = "myopia-oauth", url = "https://api.weixin.qq.com", decode404 = true, fallbackFactory = OauthServiceFallbackFactory.class, configuration = OauthServiceFeignConfig.class)
+@FeignClient(name = "myopia-oauth", decode404 = true, fallbackFactory = OauthServiceFallbackFactory.class, configuration = OauthServiceFeignConfig.class)
 public interface OauthServiceClient {
 
     /**

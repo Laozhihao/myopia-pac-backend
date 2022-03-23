@@ -3,6 +3,7 @@ package com.wupol.myopia.base.util;
 import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.core.exceptions.MybatisPlusException;
+import com.baomidou.mybatisplus.core.toolkit.Assert;
 import com.baomidou.mybatisplus.core.toolkit.StringPool;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.generator.AutoGenerator;
@@ -12,10 +13,15 @@ import com.baomidou.mybatisplus.generator.config.po.TableInfo;
 import com.baomidou.mybatisplus.generator.config.rules.DateType;
 import com.baomidou.mybatisplus.generator.config.rules.NamingStrategy;
 import com.baomidou.mybatisplus.generator.engine.FreemarkerTemplateEngine;
+import com.google.common.collect.ImmutableMap;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 
 /**
@@ -30,21 +36,34 @@ import java.util.Scanner;
 public class MybatisPlusGenerator {
 
     /**
-     * 服务名
+     * 父包路径，如：com.wupol.myopia
      */
-    private static String serviceAliasName;
+    private static String parentPackage;
     /**
-     * 模块名
+     * 类文件保存目录，如：F:/wupol/myopia-pac-backend/myopia-business/business-core/hospital-core/src/main/java
      */
-    private static String moduleName;
+    private static String classOutPutDir;
     /**
-     * 类基础包路径
+     * 资源文件保存目录，如：F:/wupol/myopia-pac-backend/myopia-business/business-core/hospital-core/src/main/resources
      */
-    private static String classBasePackage;
+    private static String resourcesOutPutDir;
+
     /**
-     * 资源基础包路径
+     * business服务的core模块map集
      */
-    private static String resourcesBasePackage;
+    private static final Map<Integer, CoreModule> CORE_MAP =  ImmutableMap.<Integer, CoreModule>builder()
+            .put(1, new CoreModule("common-core", "common"))
+            .put(2, new CoreModule("device-core", "device"))
+            .put(3, new CoreModule("government-core", "government"))
+            .put(4, new CoreModule("hospital-core", "hospital"))
+            .put(5, new CoreModule("parent-core", "parent"))
+            .put(6, new CoreModule("school-core", "school"))
+            .put(7, new CoreModule("school-management-core", "school.management"))
+            .put(8, new CoreModule("screening-flow-core", "screening.flow"))
+            .put(9, new CoreModule("screening-organization-core", "screening.organization"))
+            .put(10, new CoreModule("stat-core", "stat"))
+            .put(11, new CoreModule("system-core", "system"))
+            .build();
 
     public static void main(String[] args) {
         AutoGenerator mpg = new AutoGenerator();
@@ -85,9 +104,9 @@ public class MybatisPlusGenerator {
         getBasePackagePath();
         //全局配置
         GlobalConfig gc = new GlobalConfig();
-        gc.setAuthor("jacob")
+        gc.setAuthor(scanner("Author"))
                 // 文件输出的根路径，和后面指定的包路径组成文件的最终保存路径 "F:/wupol/myopia-pac-backend/myopia-business/management/src/main/java"
-                .setOutputDir(classBasePackage)
+                .setOutputDir(classOutPutDir)
                 // 是否覆盖同名文件，默认是false
                 .setFileOverride(false)
                 // 是否支持AR模式【即MP自带封装好的crud方法】，不需要ActiveRecord特性的请改为false
@@ -121,21 +140,13 @@ public class MybatisPlusGenerator {
     private static DataSourceConfig getDataSourceConfig() {
         // 数据源配置【数据库地址】
         DataSourceConfig dsc = new DataSourceConfig();
-//        dsc.setTypeConvert(new MySqlTypeConvert() {
-//            // 自定义数据库表字段类型转换【可选】
-//            @Override
-//            public DbColumnType processTypeConvert(GlobalConfig globalConfig,String fieldType) {
-//                System.out.println("转换类型：" + fieldType);
-//                // 注意！！processTypeConvert 存在默认类型转换，如果不是你要的效果请自定义返回、非如下直接返回。
-//                return (DbColumnType) super.processTypeConvert(globalConfig,fieldType);
-//            }
-//        });
         // Mysql
         dsc.setDbType(DbType.MYSQL)
-                .setUrl("jdbc:mysql://localhost:3306/myopia_business?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=GMT%2B8")
+//                .setUrl("jdbc:mysql://localhost:3306/myopia_business?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=GMT%2B8")
+                .setUrl("jdbc:mysql://localhost:3306/myopia_shanxi?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=GMT%2B8")
                 .setDriverName("com.mysql.cj.jdbc.Driver")
                 .setUsername("root")
-                .setPassword("Crescent1!");
+                .setPassword("laozh0111");
         return dsc;
     }
 
@@ -145,14 +156,15 @@ public class MybatisPlusGenerator {
         // 2、优先以InjectionConfig自定义配置中指定的保存路径为准，若没有则以这里的为准
         // 3、如果设置了路径，即使TemplateConfig中配置了不生成该模块，依然会生成一个空文件夹
         PackageConfig pc = new PackageConfig();
-        pc.setParent("com.wupol.myopia" + (StringUtils.isNotBlank(serviceAliasName) ? "." + serviceAliasName : ""))
+        // parent值如："com.wupol.myopia"
+        pc.setParent(parentPackage)
                 .setEntity("domain.model")
                 .setMapper("domain.mapper")
                 //.setService("service") //不生成service接口模块，不需要生成的模块则不需要设置包名
                 .setServiceImpl("service")
                 .setController("controller")
                 //.setXml("mapping") //会在Parent+ModuleName+Xml的目录下生成，并不是在resources
-                .setModuleName(moduleName);
+                .setModuleName(null);
         //.setPathInfo(null);
         return pc;
     }
@@ -194,7 +206,7 @@ public class MybatisPlusGenerator {
                 // 需要生成的表，多个英文逗号分割
                 .setInclude(scanner("表名").split(","))
                 // 此处可以修改为您的表前缀
-                .setTablePrefix("o_")
+                .setTablePrefix(scanner("表前缀（business为m_，oauth为o_）"))
                 // 排除生成的表
                 // strategy.setExclude(new String[]{"test"});
                 // 自定义实体，公共字段
@@ -213,18 +225,6 @@ public class MybatisPlusGenerator {
                 //实体类是否使用Lombok注解，true则没有get/set方法
                 .setEntityLombokModel(true)
                 .setControllerMappingHyphenStyle(false);
-            /*strategy.setSkipView(false);
-            strategy.setFieldPrefix("");
-            strategy.setEntityBooleanColumnRemoveIsPrefix(true);
-            strategy.setVersionFieldName(null);
-            strategy.setLogicDeleteFieldName(null);
-            strategy.setTableFillList(null);*/
-        // 【实体】是否生成字段常量（默认 false）
-        // public static final String ID = "test_id";
-        // strategy.setEntityColumnConstant(true);
-        // 【实体】是否为构建者模型（默认 false），Lombok的@Data已经可以代替
-        // public User setName(String name) {this.name = name; return this;}
-        // strategy.setEntityBuilderModel(true);
         return strategy;
     }
 
@@ -242,79 +242,80 @@ public class MybatisPlusGenerator {
             @Override
             public String outputFile(TableInfo tableInfo) {
                 // 自定义输入文件名称
-                return resourcesBasePackage + "/mapping/" + tableInfo.getEntityName() + "Mapper" + StringPool.DOT_XML;
+                return resourcesOutPutDir + "/mapping/" + tableInfo.getEntityName() + "Mapper" + StringPool.DOT_XML;
             }
         });
         cfg.setFileOutConfigList(focList);
-
-//        InjectionConfig cfg = new InjectionConfig() {
-//            @Override
-//            public void initMap() {
-//                Map<String, Object> map = new HashMap<String, Object>();
-//                map.put("abc", this.getConfig().getGlobalConfig().getAuthor() + "-mp");
-//                this.setMap(map);
-//            }
-//        };
-//        cfg.setMap(null);
-//        cfg.setConfig(null);
-//        cfg.setFileCreate(null);
-//
-//        // 自定义 xxList.jsp 生成
-//        List<FileOutConfig> focList = new ArrayList<>();
-//        focList.add(new FileOutConfig("/template/list.jsp.vm") {
-//            @Override
-//            public String outputFile(TableInfo tableInfo) {
-//                // 自定义输入文件名称
-//                return "D://my_" + tableInfo.getEntityName() + ".jsp";
-//            }
-//        });
-//        cfg.setFileOutConfigList(focList);
-//        mpg.setCfg(cfg);
-
-//        // 调整 xml生成目录
-//        focList.add(new FileOutConfig("/templates/mapper.xml.vm") {
-//            @Override
-//            public String outputFile(TableInfo tableInfo) {
-//                return "/develop/code/xml/" + tableInfo.getEntityName() + ".xml";
-//            }
-//        });
-//        cfg.setFileOutConfigList(focList);
-//        mpg.setCfg(cfg);
         return cfg;
     }
 
     /**
      * 读取控制台内容
-     */
-    private static String scanner(String tip) {
+     *
+     * @param tipSuffix 提示语后缀
+     * @return java.lang.String
+     **/
+    private static String scanner(String tipSuffix) {
+        return scanner("请输入", tipSuffix);
+    }
+    /**
+     * 读取控制台内容
+     *
+     * @param tipPrefix 提示语前缀
+     * @param tipSuffix 提示语后缀
+     * @return java.lang.String
+     **/
+    private static String scanner(String tipPrefix, String tipSuffix) {
+        System.out.println(tipPrefix + tipSuffix + "：");
+        return scanner();
+    }
+
+    private static String scanner() {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("请输入" + tip + "：");
         if (scanner.hasNext()) {
             String ipt = scanner.next();
             if (StringUtils.isNotBlank(ipt)) {
                 return ipt;
             }
         }
-        throw new MybatisPlusException("请输入正确的" + tip + "！");
+        throw new MybatisPlusException("请正确输入！");
     }
 
     /**
      * 获取基础包路径
      **/
     private static void getBasePackagePath() {
-        String serviceAndModuleName = scanner("微服务名（为多module的服务则输入“服务名/模块名”）");
-        String[] nameArray = serviceAndModuleName.split("/");
-        String[] array = nameArray[0].split("-");
-        String name = array.length >= 2 ? array[1] : array[0];
-        if (nameArray.length >= 2) {
-            moduleName = nameArray[1];
-            serviceAliasName = name;
+        String serviceAndModuleName;
+        String parentPackageSuffix;
+        int serviceType = Integer.parseInt(scanner("请选择", "微服务模块，输入对应编号（1：myopia-business，2：myopia-oauth，3：myopia-migrate-data）"));
+        if (serviceType == 1) {
+            String coreModuleListStr = CORE_MAP.entrySet().stream().map(x -> x.getKey() + "：" + x.getValue().getModuleName()).collect(Collectors.joining("，", "（", "）"));
+            int moduleType = Integer.parseInt(scanner("请选择","core模块，输入对应编号" + coreModuleListStr ));
+            CoreModule coreModule = CORE_MAP.get(moduleType);
+            Assert.notNull(coreModule, "请选择正确的core模块！");
+            serviceAndModuleName = "myopia-business/business-core/" + coreModule.getModuleName();
+            parentPackageSuffix = "business.core." + coreModule.getParentPackageSuffix();
+        } else if (serviceType == 2) {
+            serviceAndModuleName = "myopia-oauth/oauth-core";
+            parentPackageSuffix = "oauth";
+        } else if (serviceType == 3) {
+            serviceAndModuleName = "myopia-migrate-data";
+            parentPackageSuffix = "migrate";
         } else {
-            moduleName = name;
-            serviceAliasName = null;
+            throw new MybatisPlusException("请选择正确的微服务模块！");
         }
-        // 根包名，如 F:/wupol/myopia-pac-backend/myopia-business/management/src/main/java  myopia-oauth
-        classBasePackage = System.getProperty("user.dir") + "/" + serviceAndModuleName + "/src/main/java";
-        resourcesBasePackage = System.getProperty("user.dir") + "/" + serviceAndModuleName + "/src/main/resources";
+        // 根包路径，如：com.wupol.myopia.oauth、com.wupol.myopia.business.core.parent
+        parentPackage = "com.wupol.myopia." + parentPackageSuffix;
+        // 生成的类文件保存目录，如 F:/wupol/myopia-pac-backend/myopia-business/business-core/hospital-core/src/main/java
+        classOutPutDir = System.getProperty("user.dir") + "/" + serviceAndModuleName + "/src/main/java";
+        resourcesOutPutDir = System.getProperty("user.dir") + "/" + serviceAndModuleName + "/src/main/resources";
     }
+
+}
+
+@AllArgsConstructor
+@Getter
+class CoreModule {
+    private String moduleName;
+    private String parentPackageSuffix;
 }

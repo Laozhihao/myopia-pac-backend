@@ -11,12 +11,18 @@ import org.springframework.stereotype.Service;
  **/
 @Slf4j
 @Service
-public class MigrateData {
+public class MigrateDataService {
 
     @Autowired
     private SchoolService schoolService;
+    @Autowired
+    private SysStudentEyeService sysStudentEyeService;
+    @Autowired
+    private SysStudentService sysStudentService;
 
     public void action() {
         log.debug(schoolService.getById(1).getName());
+        log.debug(sysStudentEyeService.getById("1634776604969995901").getStudentName());
+        log.debug(sysStudentService.getById("1634611634249358571").getStudentName());
     }
 }

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.migrate.domain.mapper.SysStudentEyeMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.migrate.domain.model.SysStudentEye">
+    </resultMap>
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(eyeId)">and `eye_id` = #{eyeId}</if>
+                <if test="@Ognl@isNotEmpty(studentId)">and `student_id` = #{studentId}</if>
+                <if test="@Ognl@isNotEmpty(studentName)">and `student_name` = #{studentName}</if>
+                <if test="@Ognl@isNotEmpty(studentPhone)">and `student_phone` = #{studentPhone}</if>
+                <if test="@Ognl@isNotEmpty(studentIdcard)">and `student_idcard` = #{studentIdcard}</if>
+                <if test="@Ognl@isNotEmpty(studentSex)">and `student_sex` = #{studentSex}</if>
+                <if test="@Ognl@isNotEmpty(studentBirthday)">and `student_birthday` = #{studentBirthday}</if>
+                <if test="@Ognl@isNotEmpty(studentProvince)">and `student_province` = #{studentProvince}</if>
+                <if test="@Ognl@isNotEmpty(studentCity)">and `student_city` = #{studentCity}</if>
+                <if test="@Ognl@isNotEmpty(studentRegion)">and `student_region` = #{studentRegion}</if>
+                <if test="@Ognl@isNotEmpty(schoolName)">and `school_name` = #{schoolName}</if>
+                <if test="@Ognl@isNotEmpty(splicing)">and `splicing` = #{splicing}</if>
+                <if test="@Ognl@isNotEmpty(schoolGrade)">and `school_grade` = #{schoolGrade}</if>
+                <if test="@Ognl@isNotEmpty(schoolClazz)">and `school_clazz` = #{schoolClazz}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+                <if test="@Ognl@isNotEmpty(schoolId)">and `school_id` = #{schoolId}</if>
+                <if test="@Ognl@isNotEmpty(deptId)">and `dept_id` = #{deptId}</if>
+                <if test="@Ognl@isNotEmpty(deptName)">and `dept_name` = #{deptName}</if>
+                <if test="@Ognl@isNotEmpty(userId)">and `user_id` = #{userId}</if>
+                <if test="@Ognl@isNotEmpty(lSph)">and `l_sph` = #{lSph}</if>
+                <if test="@Ognl@isNotEmpty(lCyl)">and `l_cyl` = #{lCyl}</if>
+                <if test="@Ognl@isNotEmpty(lAxial)">and `l_axial` = #{lAxial}</if>
+                <if test="@Ognl@isNotEmpty(rSph)">and `r_sph` = #{rSph}</if>
+                <if test="@Ognl@isNotEmpty(rCyl)">and `r_cyl` = #{rCyl}</if>
+                <if test="@Ognl@isNotEmpty(rAxial)">and `r_axial` = #{rAxial}</if>
+                <if test="@Ognl@isNotEmpty(lLsl)">and `l_lsl` = #{lLsl}</if>
+                <if test="@Ognl@isNotEmpty(rLsl)">and `r_lsl` = #{rLsl}</if>
+                <if test="@Ognl@isNotEmpty(lJzsl)">and `l_jzsl` = #{lJzsl}</if>
+                <if test="@Ognl@isNotEmpty(rJzsl)">and `r_jzsl` = #{rJzsl}</if>
+                <if test="@Ognl@isNotEmpty(lLcj)">and `l_lcj` = #{lLcj}</if>
+                <if test="@Ognl@isNotEmpty(rLcj)">and `r_lcj` = #{rLcj}</if>
+                <if test="@Ognl@isNotEmpty(lQg)">and `l_qg` = #{lQg}</if>
+                <if test="@Ognl@isNotEmpty(rQg)">and `r_qg` = #{rQg}</if>
+                <if test="@Ognl@isNotEmpty(lSe)">and `l_se` = #{lSe}</if>
+                <if test="@Ognl@isNotEmpty(rSe)">and `r_se` = #{rSe}</if>
+                <if test="@Ognl@isNotEmpty(lYz)">and `l_yz` = #{lYz}</if>
+                <if test="@Ognl@isNotEmpty(rYz)">and `r_yz` = #{rYz}</if>
+                <if test="@Ognl@isNotEmpty(glasses)">and `glasses` = #{glasses}</if>
+                <if test="@Ognl@isNotEmpty(positive)">and `positive` = #{positive}</if>
+                <if test="@Ognl@isNotEmpty(diseaseEye)">and `disease_eye` = #{diseaseEye}</if>
+                <if test="@Ognl@isNotEmpty(lDisease)">and `l_disease` = #{lDisease}</if>
+                <if test="@Ognl@isNotEmpty(rDisease)">and `r_disease` = #{rDisease}</if>
+                <if test="@Ognl@isNotEmpty(lDxsph)">and `l_dxsph` = #{lDxsph}</if>
+                <if test="@Ognl@isNotEmpty(rDxsph)">and `r_dxsph` = #{rDxsph}</if>
+                <if test="@Ognl@isNotEmpty(isMyopia)">and `is_myopia` = #{isMyopia}</if>
+                <if test="@Ognl@isNotEmpty(low)">and `low` = #{low}</if>
+                <if test="@Ognl@isNotEmpty(myopia)">and `myopia` = #{myopia}</if>
+                <if test="@Ognl@isNotEmpty(visionUserId)">and `vision_user_id` = #{visionUserId}</if>
+                <if test="@Ognl@isNotEmpty(optometryUserId)">and `optometry_user_id` = #{optometryUserId}</if>
+                <if test="@Ognl@isNotEmpty(biologyUserId)">and `biology_user_id` = #{biologyUserId}</if>
+                <if test="@Ognl@isNotEmpty(diseaseUserId)">and `disease_user_id` = #{diseaseUserId}</if>
+                <if test="@Ognl@isNotEmpty(no)">and `no` = #{no}</if>
+                <if test="@Ognl@isNotEmpty(printTime)">and `print_time` = #{printTime}</if>
+                <if test="@Ognl@isNotEmpty(myopiaWarningLevel)">and `myopia_warning_level` = #{myopiaWarningLevel}</if>
+                <if test="@Ognl@isNotEmpty(hyperopiaReserve)">and `hyperopia_reserve` = #{hyperopiaReserve}</if>
+                <if test="@Ognl@isNotEmpty(hyperopiaWarningLevel)">and `hyperopia_warning_level` = #{hyperopiaWarningLevel}</if>
+                <if test="@Ognl@isNotEmpty(model)">and `model` = #{model}</if>
+                <if test="@Ognl@isNotEmpty(sectionCorrect)">and `section_correct` = #{sectionCorrect}</if>
+                <if test="@Ognl@isNotEmpty(times)">and `times` = #{times}</if>
+                <if test="@Ognl@isNotEmpty(lslWarningLevel)">and `lsl_warning_level` = #{lslWarningLevel}</if>
+                <if test="@Ognl@isNotEmpty(astigmatismWarningLevel)">and `astigmatism_warning_level` = #{astigmatismWarningLevel}</if>
+                <if test="@Ognl@isNotEmpty(astigmatismLevel)">and `astigmatism_level` = #{astigmatismLevel}</if>
+                <if test="@Ognl@isNotEmpty(schoolTimes)">and `school_times` = #{schoolTimes}</if>
+                <if test="@Ognl@isNotEmpty(isAbnormal)">and `is_abnormal` = #{isAbnormal}</if>
+                <if test="@Ognl@isNotEmpty(diyDisease)">and `diy_disease` = #{diyDisease}</if>
+            </trim>
+        </where>
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        eye_id, student_id, student_name, student_phone, student_idcard, student_sex, student_birthday, student_province, student_city, student_region, school_name, splicing, school_grade, school_clazz, create_time, school_id, dept_id, dept_name, user_id, l_sph, l_cyl, l_axial, r_sph, r_cyl, r_axial, l_lsl, r_lsl, l_jzsl, r_jzsl, l_lcj, r_lcj, l_qg, r_qg, l_se, r_se, l_yz, r_yz, glasses, positive, disease_eye, l_disease, r_disease, l_dxsph, r_dxsph, is_myopia, low, myopia, vision_user_id, optometry_user_id, biology_user_id, disease_user_id, no, print_time, myopia_warning_level, hyperopia_reserve, hyperopia_warning_level, model, section_correct, times, lsl_warning_level, astigmatism_warning_level, astigmatism_level, school_times, is_abnormal, diy_disease
+    </sql>
+
+</mapper>
