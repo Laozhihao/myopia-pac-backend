@@ -147,3 +147,4 @@ white-list:
   - "/api/device/uploadData"
   - "/api/device/bmi"
   - "/management/report/pdf"
+  - "/api/getUserInfo"
