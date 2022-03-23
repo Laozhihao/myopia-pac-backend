@@ -6,13 +6,19 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
 import com.wupol.myopia.business.api.device.domain.dto.*;
 import com.wupol.myopia.business.api.device.util.CheckResultUtil;
+import com.wupol.myopia.business.api.device.util.ParsePlanStudentUtils;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.util.VS666Util;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceScreenDataDTO;
 import com.wupol.myopia.business.core.device.domain.model.Device;
 import com.wupol.myopia.business.core.device.service.DeviceScreeningDataService;
 import com.wupol.myopia.business.core.device.service.DeviceService;
 import com.wupol.myopia.business.core.device.service.DeviceSourceDataService;
+import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
+import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
+import com.wupol.myopia.business.core.school.service.SchoolClassService;
+import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ComputerOptometryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
@@ -64,6 +70,10 @@ public class DeviceUploadDataService {
     private DeviceScreeningDataService deviceScreeningDataService;
     @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
+    @Autowired
+    private SchoolGradeService schoolGradeService;
+    @Autowired
+    private SchoolClassService schoolClassService;
 
     /**
      * 处理studentId
@@ -301,4 +311,42 @@ public class DeviceUploadDataService {
         }
         return new ScalesResponseDTO("1", "success");
     }
+
+    /**
+     * 获取学生信息
+     *
+     * @param request 请求入参
+     * @return UserInfoResponseDTO
+     */
+    public UserInfoResponseDTO getUserInfo(UserInfoRequestDTO request) {
+        String deviceSn = request.getDeviceSn();
+        String uid = request.getUid();
+
+        Device device = deviceService.getDeviceByDeviceSn(deviceSn);
+        if (Objects.isNull(device)) {
+            throw new BusinessException("无法找到设备:" + deviceSn);
+        }
+        ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(device.getBindingScreeningOrgId());
+        if (Objects.isNull(screeningOrganization) || CommonConst.STATUS_IS_DELETED.equals(screeningOrganization.getStatus())) {
+            throw new BusinessException("无法找到筛查机构或该筛查机构已过期");
+        }
+        Integer planStudentId = ParsePlanStudentUtils.parsePlanStudentId(uid);
+        ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(planStudentId);
+        if (Objects.isNull(planStudent)) {
+            throw new BusinessException("用户信息异常");
+        }
+        Integer orgId = screeningOrganization.getId();
+        if (!planStudent.getScreeningOrgId().equals(orgId)) {
+            throw new BusinessException("筛查学生与筛查机构不匹配！");
+        }
+
+        SchoolGrade schoolGrade = schoolGradeService.getById(planStudent.getGradeId());
+        SchoolClass schoolClass = schoolClassService.getById(planStudent.getClassId());
+        return new UserInfoResponseDTO(planStudent.getStudentName(),
+                GenderEnum.getName(planStudent.getGender()),
+                Objects.nonNull(schoolGrade) ? schoolGrade.getName() : StringUtils.EMPTY,
+                Objects.nonNull(schoolClass) ? schoolClass.getName() : StringUtils.EMPTY);
+
+    }
+
 }

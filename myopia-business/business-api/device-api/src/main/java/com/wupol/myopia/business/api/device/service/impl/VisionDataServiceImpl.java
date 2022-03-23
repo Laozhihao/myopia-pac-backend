@@ -10,6 +10,7 @@ import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBi
 import com.wupol.myopia.business.api.device.domain.constant.BusinessTypeEnum;
 import com.wupol.myopia.business.api.device.domain.dto.VisionDataVO;
 import com.wupol.myopia.business.api.device.service.IDeviceDataService;
+import com.wupol.myopia.business.api.device.util.ParsePlanStudentUtils;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
 import com.wupol.myopia.business.core.device.domain.model.Device;
@@ -79,7 +80,7 @@ public class VisionDataServiceImpl implements IDeviceDataService {
         List<VisionDataVO> visionDataVOS = JSONObject.parseArray(dataStr, VisionDataVO.class);
         visionDataVOS.forEach(visionDataVO -> {
             ValidatorUtils.validate(visionDataVO);
-            Integer planStudentId = Objects.nonNull(visionDataVO.getPlanStudentId()) ? visionDataVO.getPlanStudentId() : parsePlanStudentId(visionDataVO.getUid());
+            Integer planStudentId = Objects.nonNull(visionDataVO.getPlanStudentId()) ? visionDataVO.getPlanStudentId() : ParsePlanStudentUtils.parsePlanStudentId(visionDataVO.getUid());
             log.info("planStudentId:{}", planStudentId);
             ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(planStudentId);
             if (Objects.isNull(planStudent)) {
@@ -101,22 +102,6 @@ public class VisionDataServiceImpl implements IDeviceDataService {
     @Override
     public Integer getBusinessType() {
         return BusinessTypeEnum.VISION_DATA.getType();
-    }
-
-    @Override
-    public Integer parsePlanStudentId(String uid) {
-        try {
-            if (uid.startsWith("SA@") || uid.startsWith("SV@")) {
-                return Integer.valueOf(uid.substring(uid.indexOf("@") + 1));
-            }
-            if (uid.startsWith("[VS@")) {
-                String s = StringUtils.substringBetween(uid, "@", ",");
-                return Integer.valueOf(s.substring(s.indexOf("_") + 1));
-            }
-        } catch (Exception e) {
-            throw new BusinessException("二维码解析异常");
-        }
-        return Integer.valueOf(uid);
     }
 
     /**

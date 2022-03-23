@@ -23,5 +23,4 @@ public interface IDeviceDataService {
      */
     Integer getBusinessType();
 
-    Integer parsePlanStudentId(String uId);
 }

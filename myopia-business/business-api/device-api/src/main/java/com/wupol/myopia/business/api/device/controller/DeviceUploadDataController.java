@@ -8,6 +8,8 @@ import com.wupol.myopia.business.aggregation.screening.domain.dto.DeviceDataRequ
 import com.wupol.myopia.business.api.device.config.DeviceDataFactory;
 import com.wupol.myopia.business.api.device.domain.dto.DeviceUploadDTO;
 import com.wupol.myopia.business.api.device.domain.dto.ScalesRequestDTO;
+import com.wupol.myopia.business.api.device.domain.dto.UserInfoRequestDTO;
+import com.wupol.myopia.business.api.device.domain.dto.UserInfoResponseDTO;
 import com.wupol.myopia.business.api.device.domain.result.DeviceUploadResult;
 import com.wupol.myopia.business.api.device.service.DeviceUploadDataService;
 import com.wupol.myopia.business.api.device.service.IDeviceDataService;
@@ -32,9 +34,6 @@ public class DeviceUploadDataController {
 
     @Autowired
     private DeviceUploadDataService deviceUploadDataService;
-
-    @Autowired
-    private IDeviceDataService iDeviceDataService;
 
     /**
      * 上传数据
@@ -75,5 +74,17 @@ public class DeviceUploadDataController {
         log.info("Data:{}", JSONObject.toJSONString(requestDTO));
         return deviceUploadDataService.bodyFatScaleUpload(requestDTO);
     }
+
+    /**
+     * 获取学生信息
+     *
+     * @param request 请求入参
+     * @return ApiResult<UserInfoResponseDTO>
+     */
+    @GetMapping("getUserInfo")
+    public ApiResult<UserInfoResponseDTO> getInfo(@Valid UserInfoRequestDTO request) {
+        return ApiResult.success(deviceUploadDataService.getUserInfo(request));
+    }
+
 
 }
