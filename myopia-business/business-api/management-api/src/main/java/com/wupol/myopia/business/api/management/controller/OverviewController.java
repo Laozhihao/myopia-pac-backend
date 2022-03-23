@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.myopia.base.constant.OverviewConfigType;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
@@ -10,8 +11,8 @@ import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
-import com.wupol.myopia.business.core.screening.organization.domain.dto.CacheOverviewInfoDTO;
 import com.wupol.myopia.business.core.common.domain.dto.OrgAccountListDTO;
+import com.wupol.myopia.business.core.screening.organization.domain.dto.CacheOverviewInfoDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OverviewDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OverviewRequestDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.model.Overview;
@@ -21,7 +22,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 总览机构控制层
@@ -150,7 +153,7 @@ public class OverviewController {
      * @param overview
      * @return
      */
-    private Overview initAndCheckOverview(Overview overview) {
+    private Overview initAndCheckOverview(OverviewRequestDTO overview) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         CurrentUserUtil.isNeedPlatformAdminUser(user);
         overview.setCreateUserId(user.getId());
@@ -159,7 +162,22 @@ public class OverviewController {
         overviewService.checkOverviewCooperation(overview);
         // 设置状态
         overview.setStatus(overview.getCooperationStopStatus());
+        clearOverview(overview);
         return overview;
+    }
+
+    private void clearOverview(OverviewRequestDTO overview) {
+        if (Objects.nonNull(overview.getConfigType())) {
+            // 配置筛查机构时，去除医院绑定信息
+            if (OverviewConfigType.SCREENING_ORG.getType().equals(overview.getConfigType())) {
+                overview.setHospitalIds(Collections.emptyList());
+                overview.setHospitalLimitNum(0);
+                // 配置医院机构时，去除筛查机构绑定信息
+            } else if (OverviewConfigType.HOSPITAL.getType().equals(overview.getConfigType())) {
+                overview.setScreeningOrganizationIds(Collections.emptyList());
+                overview.setScreeningOrganizationLimitNum(0);
+            }
+        }
     }
 
 }
