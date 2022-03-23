@@ -178,11 +178,9 @@ public class OverviewController {
         // 配置筛查机构时，去除医院绑定信息
         if (OverviewConfigType.SCREENING_ORG.getType().equals(overview.getConfigType())) {
             overview.setHospitalIds(Collections.emptyList());
-            overview.setHospitalLimitNum(0);
             // 配置医院机构时，去除筛查机构绑定信息
         } else if (OverviewConfigType.HOSPITAL.getType().equals(overview.getConfigType())) {
             overview.setScreeningOrganizationIds(Collections.emptyList());
-            overview.setScreeningOrganizationLimitNum(0);
         }
     }
 
