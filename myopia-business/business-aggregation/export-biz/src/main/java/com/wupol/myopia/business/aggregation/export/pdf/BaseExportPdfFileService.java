@@ -25,7 +25,7 @@ import java.util.UUID;
 @Service
 public abstract class BaseExportPdfFileService extends BaseExportFileService {
 
-    @Value("${report.pdf.save-path}")
+    @Value("${file.temp.save-path}")
     public String pdfSavePath;
 
     @Autowired

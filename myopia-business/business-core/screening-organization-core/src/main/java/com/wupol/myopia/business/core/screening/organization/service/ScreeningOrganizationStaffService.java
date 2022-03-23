@@ -31,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -46,6 +47,8 @@ import java.util.stream.Collectors;
 @Log4j2
 public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrganizationStaffMapper, ScreeningOrganizationStaff> {
 
+    @Resource
+    private ScreeningOrganizationStaffService screeningOrganizationStaffService;
     @Resource
     private ScreeningOrganizationService screeningOrganizationService;
     @Resource
@@ -247,7 +250,9 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      * 批量新增, 自动生成编号
      */
     public void saveBatch(List<ScreeningOrganizationStaffDTO> list) {
-        if (CollectionUtils.isEmpty(list)) return;
+        if (CollectionUtils.isEmpty(list)) {
+            return;
+        }
         // 通过screeningOrgId获取机构
         ScreeningOrganization organization = screeningOrganizationService.getById(list.get(0).getScreeningOrgId());
         if (null == organization) {
@@ -349,6 +354,28 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
     public int countByScreeningOrgId(Integer screeningOrgId) {
         Assert.notNull(screeningOrgId, "screeningOrgId不能为空");
         return count(new ScreeningOrganizationStaff().setScreeningOrgId(screeningOrgId));
+    }
+
+
+
+    /**
+     * 校验筛查机构人员数量
+     *
+     * @param screeningOrgId 筛查
+     * @return int
+     **/
+    public void checkScreeningOrganizationStaffAmount(Integer screeningOrgId,List<Map<Integer, String>> listMap){
+
+        ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(screeningOrgId);
+        int totalNum = screeningOrganizationStaffService.countByScreeningOrgId(screeningOrgId);
+        Assert.isTrue(totalNum < screeningOrganization.getAccountNum(), "账号数量已达上限，请联系管理员!");
+
+        if (CollectionUtils.isNotEmpty(listMap) && listMap.size()>screeningOrganization.getAccountNum()){
+            throw new BusinessException("您已超出限制数据（筛查人员账号数量限制："+screeningOrganization.getAccountNum()+"个），操作失败！\n" +
+                    "如需增加筛查人员账号数量，请联系管理员！");
+        }
+
+
     }
 
 }

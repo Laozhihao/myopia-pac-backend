@@ -11,7 +11,9 @@ import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.builder.ScreeningResultBuilder;
 import com.wupol.myopia.business.core.screening.flow.domain.builder.StatConclusionBuilder;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultBasicData;
+import com.wupol.myopia.business.core.screening.flow.domain.mapper.VisionScreeningResultMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
@@ -24,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -52,6 +55,9 @@ public class VisionScreeningBizService {
     private SchoolGradeService schoolGradeService;
     @Autowired
     private SchoolStudentService schoolStudentService;
+
+    @Resource
+    private VisionScreeningResultMapper visionScreeningResultMapper;
 
     /**
      * 保存学生眼镜信息
@@ -229,4 +235,13 @@ public class VisionScreeningBizService {
         statConclusion.setIsBindMp(Objects.isNull(student) ? Boolean.FALSE : StringUtils.isNotBlank(student.getMpParentPhone()));
     }
 
+    /**
+     * 获取筛查区域
+     *
+     * @param districtIds 行政区域ids
+     */
+    public int getScreeningResult(List<Integer> districtIds, List<Integer> taskIds) {
+        int resultCount  = visionScreeningResultMapper.selectScreeningResultByDistrictIdAndTaskId(districtIds,taskIds);
+        return resultCount;
+    }
 }
