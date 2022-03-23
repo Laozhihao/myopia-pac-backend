@@ -528,4 +528,8 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     public List<ScreeningPlanSchoolStudent> getByNePlanId(Integer planId) {
         return baseMapper.getByNePlanId(planId);
     }
+
+    public List<GradeClassesDTO> getGradeByPlanIdAndSchoolId(Integer screeningPlanId, Integer schoolId) {
+        return baseMapper.getGradeByPlanIdAndSchoolId(screeningPlanId, schoolId);
+    }
 }

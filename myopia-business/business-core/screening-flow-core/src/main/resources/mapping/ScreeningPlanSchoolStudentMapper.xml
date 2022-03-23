@@ -574,4 +574,12 @@
         from m_screening_plan_school_student
         where screening_plan_id != #{planId}
     </select>
+
+    <select id="getGradeByPlanIdAndSchoolId" resultMap="GradeClassesDTO">
+        select *
+        from m_screening_plan_school_student
+        where school_id = #{schoolId}
+          and screening_plan_id = #{planId}
+        group by grade_id, class_id
+    </select>
 </mapper>

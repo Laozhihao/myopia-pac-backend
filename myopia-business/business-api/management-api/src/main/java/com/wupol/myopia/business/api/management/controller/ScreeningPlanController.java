@@ -610,4 +610,18 @@ public class ScreeningPlanController {
         }
         return screeningExportService.getNoticeData(screeningPlanId, schoolId,gradeId,classId,studentIds,isSchoolClient);
     }
+
+    /**
+     * 获取计划学校的年级情况
+     *
+     * @param screeningPlanId 计划ID
+     * @param schoolId        学校ID
+     * @return List<SchoolGradeVo>
+     */
+    @GetMapping("grades/all/{screeningPlanId}/{schoolId}")
+    public List<SchoolGradeVO> getAllGradesInfo(@PathVariable Integer screeningPlanId, @PathVariable Integer schoolId) {
+        // 任务状态判断
+        screeningExportService.validateExist(screeningPlanId);
+        return screeningPlanSchoolStudentFacadeService.getGradeByPlanIdAndSchoolId(screeningPlanId, schoolId);
+    }
 }
