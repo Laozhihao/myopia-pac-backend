@@ -159,7 +159,11 @@ public class VisionDataServiceImpl implements IDeviceDataService {
         visionDataDTO.setPlanStudentId(String.valueOf(planStudent.getId()));
         visionDataDTO.setSchoolId(String.valueOf(planStudent.getSchoolId()));
         if (Objects.nonNull(visionDataVO.getGlassesType())) {
-            visionDataDTO.setGlassesType(WearingGlassesSituation.getType(visionDataVO.getGlassesType()));
+            try {
+                visionDataDTO.setGlassesType(WearingGlassesSituation.getType(visionDataVO.getGlassesType()));
+            } catch (Exception e) {
+                throw new BusinessException("戴镜类型异常，请确认");
+            }
         } else {
             if (ObjectsUtil.allNotNull(visionDataDTO.getLeftCorrectedVision(), visionDataDTO.getRightCorrectedVision())) {
                 visionDataDTO.setGlassesType(WearingGlassesSituation.WEARING_FRAME_GLASSES_TYPE);
