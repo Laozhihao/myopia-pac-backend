@@ -1,0 +1,1 @@
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code, create_time, update_time) VALUES (850, '筛查计划获取学生班级信息', 'screeningPlanAllGrade', 'get:/management/screeningPlan/grades/all/**/**', 0, 0, 1, 27, 1, '2022-03-23 11:23:17', '2022-03-23 11:23:27');
