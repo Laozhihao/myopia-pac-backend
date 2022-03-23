@@ -211,7 +211,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
             org.setNoticeResultFileUrl(Objects.nonNull(org.getResultNoticeConfig().getQrCodeFileId()) ?
                     resourceFileService.getResourcePath(org.getResultNoticeConfig().getQrCodeFileId()) : StringUtils.EMPTY);
         }
-        int screeningStaffTotalNum = screeningOrganizationStaffService.count(new ScreeningOrganizationStaff().setScreeningOrgId(id));
+        int screeningStaffTotalNum = screeningOrganizationStaffService.count(new ScreeningOrganizationStaff().setScreeningOrgId(id).setType(ScreeningOrganizationStaff.GENERAL_SCREENING_PERSONNEL));
         return org.setLastCountDate(new Date())
                 .setScreeningStaffTotalNum(screeningStaffTotalNum);
     }
