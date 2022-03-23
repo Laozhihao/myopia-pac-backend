@@ -166,6 +166,10 @@ public class OverviewController {
         return overview;
     }
 
+    /**
+     * 修正数据
+     * @param overview
+     */
     private void clearOverview(OverviewRequestDTO overview) {
         if (Objects.nonNull(overview.getConfigType())) {
             // 配置筛查机构时，去除医院绑定信息
