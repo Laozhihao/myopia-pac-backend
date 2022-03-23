@@ -402,7 +402,7 @@ public class ScreeningPlanStudentBizService {
     public void deletedPlanStudentById(Integer planStudentId) {
         ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(planStudentId);
         if (Objects.isNull(planStudent)) {
-            throw new BusinessException("数据异常");
+            throw new BusinessException("筛查学生异常数据异常");
         }
         VisionScreeningResult result = visionScreeningResultService.getByPlanStudentId(planStudent.getId());
         if (Objects.nonNull(result)) {

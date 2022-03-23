@@ -151,7 +151,7 @@ public class MedicalReportBizService {
         // 报告
         MedicalReport report = medicalReportService.getById(reportId);
         if (null == report) {
-            throw new BusinessException("数据异常");
+            throw new BusinessException("报告数据异常");
         }
         // 获取固化报告
         ReportConclusion reportConclusionData = getReportConclusion(report);
