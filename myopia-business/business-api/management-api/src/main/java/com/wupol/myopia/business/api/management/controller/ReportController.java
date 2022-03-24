@@ -12,6 +12,7 @@ import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.api.management.constant.ReportConst;
 import com.wupol.myopia.business.core.common.service.Html2PdfService;
 import com.wupol.myopia.business.core.hospital.domain.dto.PreschoolCheckRecordDTO;
+import com.wupol.myopia.business.core.hospital.domain.dto.ReceiptDTO;
 import com.wupol.myopia.business.core.hospital.domain.dto.ReferralDTO;
 import com.wupol.myopia.business.core.hospital.service.PreschoolCheckRecordService;
 import com.wupol.myopia.business.core.hospital.service.ReceiptListService;
@@ -319,7 +320,8 @@ public class ReportController {
             url = String.format(ReportConst.EXAMINE_PDF_URL, htmlUrlHost, id, isHospital, userToken);
         }
         if (StringUtils.equals(ReportConst.TYPE_RECEIPT, type)) {
-            if (Objects.isNull(receiptListService.getDetailById(id))) {
+            ReceiptDTO receipt = receiptListService.getDetail(new ReceiptDTO().setPreschoolCheckRecordId(id));
+            if (Objects.isNull(receipt) || Objects.isNull(receiptListService.getDetailById(receipt.getId()))) {
                 throw new BusinessException("找不到该回执单");
             }
             url = String.format(ReportConst.RECEIPT_PDF_URL, htmlUrlHost, id, isHospital, userToken);
