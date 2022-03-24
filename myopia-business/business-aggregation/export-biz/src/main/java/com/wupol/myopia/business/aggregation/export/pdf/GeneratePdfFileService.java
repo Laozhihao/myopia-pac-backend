@@ -32,7 +32,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -294,8 +293,13 @@ public class GeneratePdfFileService {
                                  Integer classId, String className, String planStudentIds) {
         String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.SCHOOL_ARCHIVES_HTML_URL, htmlUrlHost, planId, schoolId, templateId, gradeId, classId, planStudentIds);
         String schoolReportFileName = String.format(PDFFileNameConstant.ARCHIVES_PDF_FILE_NAME_GRADE_CLASS, schoolName, gradeName, className);
-        String fileName = Paths.get(saveDirectory, schoolName, gradeName, className, schoolReportFileName + ".pdf").toString();
-        Assert.isTrue(HtmlToPdfUtil.convertArchives(schoolPdfHtmlUrl, fileName), "【生成学校档案卡PDF文件异常】：" + schoolName);
+        String fileDir;
+        if (Objects.nonNull(classId) || StringUtils.isNotBlank(planStudentIds)) {
+            fileDir = Paths.get(saveDirectory) + ".pdf";
+        } else {
+            fileDir = Paths.get(saveDirectory, schoolName, gradeName, className, schoolReportFileName + ".pdf").toString();
+        }
+        Assert.isTrue(HtmlToPdfUtil.convertArchives(schoolPdfHtmlUrl, fileDir), "【生成学校档案卡PDF文件异常】：" + schoolName);
     }
 
     public List<PlanSchoolGradeVO> getGradeAndClass(Integer screeningPlanId, Integer schoolId) {
@@ -347,6 +351,7 @@ public class GeneratePdfFileService {
 
     /**
      * 通过班级、筛查学生Id生成PDF文件（没有分层，单一个文件）
+     *
      * @param saveDirectory  保存路径
      * @param planId         计划Id
      * @param templateId     计划Id

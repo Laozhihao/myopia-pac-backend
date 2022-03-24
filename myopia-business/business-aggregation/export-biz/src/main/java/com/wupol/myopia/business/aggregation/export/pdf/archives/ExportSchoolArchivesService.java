@@ -101,7 +101,7 @@ public class ExportSchoolArchivesService extends BaseExportPdfFileService {
             String fileSavePath = getFileSavePath(parentPath, fileName);
             // 4.生成导出的文件
             generatePdfFile(exportCondition, fileSavePath, fileName);
-            return resourceFileService.getResourcePath(s3Utils.uploadS3AndGetResourceFile(fileSavePath, fileName).getId());
+            return resourceFileService.getResourcePath(s3Utils.uploadS3AndGetResourceFile(fileSavePath + ".pdf", fileName).getId());
         } catch (Exception e) {
             String requestData = JSON.toJSONString(exportCondition);
             log.error("【生成报告异常】{}", requestData, e);
