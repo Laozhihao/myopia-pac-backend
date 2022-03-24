@@ -218,6 +218,7 @@ public class CredentialModificationHandler {
         student.setSchoolId(updatePlanStudentRequestDTO.getSchoolId());
         student.setClassId(updatePlanStudentRequestDTO.getClassId());
         student.setGradeId(updatePlanStudentRequestDTO.getGradeId());
+        student.setNation(updatePlanStudentRequestDTO.getNation());
         if (StringUtils.isNotBlank(updatePlanStudentRequestDTO.getParentPhone())) {
             student.setParentPhone(updatePlanStudentRequestDTO.getParentPhone());
         }
@@ -249,6 +250,7 @@ public class CredentialModificationHandler {
         student.setSchoolId(updatePlanStudentRequestDTO.getSchoolId());
         student.setUpdateTime(new Date());
         student.setSourceClient(SourceClientEnum.SCREENING_PLAN.type);
+        student.setNation(updatePlanStudentRequestDTO.getNation());
         studentService.saveStudent(student);
         return student;
     }
