@@ -559,7 +559,6 @@ public class StudentFacade {
         details.setVisionResults(setVisionResult(result.getVisionData()));
         details.setRefractoryResults(setRefractoryResults(result.getComputerOptometry()));
         // 佩戴眼镜的类型随便取一个都行，两只眼睛的数据是一样
-
         setClassType(result, details);
 
         details.setVisionSignPicUrl(getVisionCreateUserSignPicUrl(result));
