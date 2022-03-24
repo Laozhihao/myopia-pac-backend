@@ -93,6 +93,9 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
         // 方便前端模板渲染复用
         if (Objects.nonNull(resultId)) {
             VisionScreeningResult visionScreeningResult = visionScreeningResultService.getById(resultId);
+            if (visionScreeningResult==null){
+                throw new BusinessException("无法找到该筛查结果");
+            }
             return Lists.newArrayList(studentFacade.getStudentCardResponseDTO(visionScreeningResult));
         }
         ScreeningPlan screeningPlan = screeningPlanService.getById(planId);

@@ -450,6 +450,7 @@ public class StudentFacade {
         cardInfoVO.setGradeName(studentInfo.getGradeName());
         cardInfoVO.setDistrictName(districtService.getDistrictName(studentInfo.getSchoolDistrictName()));
         cardInfoVO.setNationDesc(NationEnum.getName(studentInfo.getNation()));
+        cardInfoVO.setPassport(studentInfo.getPassport());
         return cardInfoVO;
     }
 
