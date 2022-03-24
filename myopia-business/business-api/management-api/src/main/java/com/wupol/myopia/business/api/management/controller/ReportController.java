@@ -11,9 +11,7 @@ import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportSer
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.api.management.constant.ReportConst;
 import com.wupol.myopia.business.core.common.service.Html2PdfService;
-import com.wupol.myopia.business.core.hospital.domain.dto.PreschoolCheckRecordDTO;
 import com.wupol.myopia.business.core.hospital.domain.dto.ReceiptDTO;
-import com.wupol.myopia.business.core.hospital.domain.dto.ReferralDTO;
 import com.wupol.myopia.business.core.hospital.service.PreschoolCheckRecordService;
 import com.wupol.myopia.business.core.hospital.service.ReceiptListService;
 import com.wupol.myopia.business.core.hospital.service.ReferralRecordService;
@@ -130,18 +128,17 @@ public class ReportController {
     /**
      * 导出学校档案卡
      *
-     * @param planId 筛查计划ID
+     * @param planId   筛查计划ID
      * @param schoolId 学校ID
-     * @return com.wupol.myopia.base.domain.ApiResult
+     * @return ApiResult<String> com.wupol.myopia.base.domain.ApiResult
      **/
     @GetMapping("/school/archives")
-    public void exportSchoolArchives(@NotNull(message = "筛查计划ID不能为空") Integer planId,
+    public ApiResult<String> exportSchoolArchives(@NotNull(message = "筛查计划ID不能为空") Integer planId,
                                      @NotNull(message = "学校ID不能为空") Integer schoolId,
                                      Integer classId,
                                      Integer gradeId,
                                      Integer districtId,
-                                     @RequestParam(value="planStudentIds", required = false) String planStudentIds)
-            throws IOException {
+                                     @RequestParam(value = "planStudentIds", required = false) String planStudentIds) throws IOException {
         ExportCondition exportCondition = new ExportCondition()
                 .setPlanId(planId)
                 .setSchoolId(schoolId)
@@ -150,7 +147,12 @@ public class ReportController {
                 .setPlanStudentIds(planStudentIds)
                 .setDistrictId(districtId)
                 .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
+        // 班级和筛查学生为空，同步导出
+        if (Objects.nonNull(classId) || StringUtils.isNotBlank(planStudentIds)) {
+            return ApiResult.success(exportStrategy.syncExport(exportCondition, ExportReportServiceNameConstant.SCHOOL_ARCHIVES_SERVICE));
+        }
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.SCHOOL_ARCHIVES_SERVICE);
+        return ApiResult.success();
     }
 
     /**
