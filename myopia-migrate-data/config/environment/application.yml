@@ -78,7 +78,7 @@ spring:
         data_source_db:
           url: jdbc:mysql://${SOURCE_DATABASE_HOST}:${SOURCE_DATABASE_PORT}/${SOURCE_DATABASE_NAME}?zeroDateTimeBehavior=CONVERT_TO_NULL&useUnicode=true&characterEncoding=${DATABASE_CHARSET}&autoReconnect=true&useSSL=false&serverTimezone=GMT%2B8
           username: ${SOURCE_DATABASE_USER}
-            password: ${SOURCE_DATABASE_PASSWORD}
+          password: ${SOURCE_DATABASE_PASSWORD}
           driver-class-name: com.mysql.cj.jdbc.Driver
 
   flyway:
