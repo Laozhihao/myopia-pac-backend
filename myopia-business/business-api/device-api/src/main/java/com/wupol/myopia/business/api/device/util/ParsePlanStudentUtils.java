@@ -19,9 +19,9 @@ public class ParsePlanStudentUtils {
                 String s = StringUtils.substringBetween(uid, "@", ",");
                 return Integer.valueOf(s.substring(s.indexOf("_") + 1));
             }
+            return Integer.valueOf(uid);
         } catch (Exception e) {
             throw new BusinessException("二维码解析异常");
         }
-        return Integer.valueOf(uid);
     }
 }

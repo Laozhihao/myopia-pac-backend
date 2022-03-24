@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.device.service;
 
+import cn.hutool.core.codec.Base64;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -320,7 +321,7 @@ public class DeviceUploadDataService {
      */
     public UserInfoResponseDTO getUserInfo(UserInfoRequestDTO request) {
         String deviceSn = request.getDeviceSn();
-        String uid = request.getUid();
+        String uid = Base64.decodeStr(request.getUid());
 
         Device device = deviceService.getDeviceByDeviceSn(deviceSn);
         if (Objects.isNull(device)) {
