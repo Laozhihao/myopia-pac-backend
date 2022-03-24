@@ -139,7 +139,6 @@ public class ReportController {
                                      @NotNull(message = "学校ID不能为空") Integer schoolId,
                                      Integer classId,
                                      Integer gradeId,
-                                     @NotNull(message = "筛查机构ID不能为空") Integer screeningOrgId,
                                      Integer districtId,
                                      @RequestParam(value="planStudentIds", required = false) String planStudentIds)
             throws IOException {
@@ -149,7 +148,6 @@ public class ReportController {
                 .setClassId(classId)
                 .setGradeId(gradeId)
                 .setPlanStudentIds(planStudentIds)
-                .setScreeningOrgId(screeningOrgId)
                 .setDistrictId(districtId)
                 .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.SCHOOL_ARCHIVES_SERVICE);
