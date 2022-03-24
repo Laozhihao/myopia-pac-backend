@@ -237,7 +237,7 @@ public class GeneratePdfFileService {
         School school = schoolService.getById(schoolId);
 
         // 班级Id或计划学生Id不为空，则直接导出文件，不需要分层
-        if (!(Objects.isNull(classId) && StringUtils.isBlank(planStudentIds))) {
+        if (Objects.nonNull(classId) || StringUtils.isNotBlank(planStudentIds)) {
             generateScreeningSchoolArchivesCard(saveDirectory, planId, templateId, school.getId(), gradeId, classId, planStudentIds);
             return;
         }
@@ -271,7 +271,7 @@ public class GeneratePdfFileService {
      * @param gradeVO       班级年级VO
      */
     private void makerPDF(String saveDirectory, Integer planId, Integer templateId, School school, PlanSchoolGradeVO gradeVO) {
-        gradeVO.getClasses().forEach(schoolClass -> generatePdfFile(saveDirectory, planId, templateId, school.getId(), school.getName(), gradeVO.getId(), gradeVO.getGradeName(), schoolClass.getId(), schoolClass.getName(), StringUtils.EMPTY));
+        gradeVO.getClasses().forEach(schoolClass -> generatePdfFile(saveDirectory, planId, templateId, school.getId(), school.getName(), gradeVO.getId(), gradeVO.getGradeName(), schoolClass.getId(), schoolClass.getName(), StringUtils.EMPTY, false));
     }
 
     /**
@@ -287,17 +287,18 @@ public class GeneratePdfFileService {
      * @param classId        班级Id
      * @param className      班级名称
      * @param planStudentIds 筛查学生
+     * @param isSync         是否同步导出
      */
     private void generatePdfFile(String saveDirectory, Integer planId, Integer templateId,
                                  Integer schoolId, String schoolName, Integer gradeId, String gradeName,
-                                 Integer classId, String className, String planStudentIds) {
+                                 Integer classId, String className, String planStudentIds, boolean isSync) {
         String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.SCHOOL_ARCHIVES_HTML_URL, htmlUrlHost, planId, schoolId, templateId, gradeId, classId, planStudentIds);
         String schoolReportFileName = String.format(PDFFileNameConstant.ARCHIVES_PDF_FILE_NAME_GRADE_CLASS, schoolName, gradeName, className);
         String fileDir;
-        if (Objects.isNull(classId) && StringUtils.isBlank(planStudentIds)) {
-            fileDir = Paths.get(saveDirectory, schoolName, gradeName, className, schoolReportFileName + ".pdf").toString();
-        } else {
+        if (isSync) {
             fileDir = Paths.get(saveDirectory) + ".pdf";
+        } else {
+            fileDir = Paths.get(saveDirectory, schoolName, gradeName, className, schoolReportFileName + ".pdf").toString();
         }
         Assert.isTrue(HtmlToPdfUtil.convertArchives(schoolPdfHtmlUrl, fileDir), "【生成学校档案卡PDF文件异常】：" + schoolName);
     }
@@ -361,7 +362,7 @@ public class GeneratePdfFileService {
      * @param planStudentIds 筛查学生Id
      */
     private void generateScreeningSchoolArchivesCard(String saveDirectory, Integer planId, Integer templateId, Integer schoolId, Integer gradeId, Integer classId, String planStudentIds) {
-        generatePdfFile(saveDirectory, planId, templateId, schoolId, StringUtils.EMPTY, gradeId, StringUtils.EMPTY, classId, StringUtils.EMPTY, planStudentIds);
+        generatePdfFile(saveDirectory, planId, templateId, schoolId, StringUtils.EMPTY, gradeId, StringUtils.EMPTY, classId, StringUtils.EMPTY, planStudentIds, true);
     }
 
 
