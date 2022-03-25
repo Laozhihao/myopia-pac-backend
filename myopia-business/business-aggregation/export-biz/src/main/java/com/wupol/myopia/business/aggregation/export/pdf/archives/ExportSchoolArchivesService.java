@@ -12,7 +12,6 @@ import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
-import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +25,6 @@ import java.util.Objects;
  * @Date 2021/3/24
  **/
 @Service("schoolArchivesService")
-@Log4j2
 public class ExportSchoolArchivesService extends BaseExportPdfFileService {
 
     @Autowired
