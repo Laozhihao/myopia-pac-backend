@@ -5,6 +5,7 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.base.util.RegularUtils;
 import com.wupol.myopia.business.aggregation.hospital.domain.dto.StudentVisitReportResponseDTO;
 import com.wupol.myopia.business.api.parent.domain.dos.CountReportItemsDO;
 import com.wupol.myopia.business.api.parent.domain.dos.ReportCountResponseDO;
@@ -340,6 +341,9 @@ public class ParentStudentController {
         workOrder.setCreateUserId(user.getId());
         if (StringUtils.isBlank(workOrder.getIdCard()) && StringUtils.isBlank(workOrder.getPassport())){
             throw new BusinessException("身份证或者护照信息不能为空！");
+        }
+        if (StringUtils.isNotBlank(workOrder.getIdCard()) && !RegularUtils.isIdCard(workOrder.getIdCard())) {
+            throw new BusinessException("证件号填写错误，请重新填写！");
         }
         Parent parent = parentService.getParentByUserId(user.getId());
         workOrderService.addWorkOrder(workOrder,parent);
