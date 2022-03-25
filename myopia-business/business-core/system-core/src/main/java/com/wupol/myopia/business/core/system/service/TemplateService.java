@@ -75,12 +75,15 @@ public class TemplateService extends BaseService<TemplateMapper, Template> {
      * @return boolean 是否成功
      */
     @Transactional(rollbackFor = Exception.class)
-    public Boolean districtBindArchives(TemplateBindRequestDTO request) {
+    public Boolean districtBind(TemplateBindRequestDTO request) {
 
         Integer templateId = request.getTemplateId();
         List<TemplateBindItemDTO> bindItemDTOS = request.getDistrictInfo();
 
-        templateDistrictService.remove(new TemplateDistrict().setTemplateId(templateId));
+        if (bindItemDTOS==null){
+            templateDistrictService.remove(new TemplateDistrict().setTemplateId(templateId));
+        }
+
         List<Integer> districtIds = bindItemDTOS.stream().map(TemplateBindItemDTO::getDistrictId).collect(Collectors.toList());
         if (!CollectionUtils.isEmpty(districtIds)) {
             // 批量删除
@@ -91,27 +94,6 @@ public class TemplateService extends BaseService<TemplateMapper, Template> {
         return true;
     }
 
-    /**
-     * 绑定区域（报告绑定区域）
-     *
-     * @param request 入参
-     * @return boolean 是否成功
-     */
-    @Transactional(rollbackFor = Exception.class)
-    public Boolean districtBindReport(TemplateBindRequestDTO request) {
-
-        Integer templateId = request.getTemplateId();
-        List<TemplateBindItemDTO> bindItemDTOS = request.getDistrictInfo();
-
-        List<Integer> districtIds = bindItemDTOS.stream().map(TemplateBindItemDTO::getDistrictId).collect(Collectors.toList());
-        if (!CollectionUtils.isEmpty(districtIds)) {
-            //删除现有模板绑定数据
-            templateDistrictService.batchDelete(templateId,districtIds);
-            // 批量插入
-            templateDistrictService.batchInsert(templateId, bindItemDTOS);
-        }
-        return true;
-    }
 
     /**
      * 检查是否一个省是否绑定一个模板
