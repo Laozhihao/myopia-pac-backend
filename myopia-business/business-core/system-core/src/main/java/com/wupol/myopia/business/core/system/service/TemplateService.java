@@ -80,16 +80,14 @@ public class TemplateService extends BaseService<TemplateMapper, Template> {
         Integer templateId = request.getTemplateId();
         List<TemplateBindItemDTO> bindItemDTOS = request.getDistrictInfo();
 
-        if (bindItemDTOS==null){
-            templateDistrictService.remove(new TemplateDistrict().setTemplateId(templateId));
-        }
-
         List<Integer> districtIds = bindItemDTOS.stream().map(TemplateBindItemDTO::getDistrictId).collect(Collectors.toList());
         if (!CollectionUtils.isEmpty(districtIds)) {
             // 批量删除
             templateDistrictService.batchDelete(templateId,districtIds);
             // 批量插入
             templateDistrictService.batchInsert(templateId, bindItemDTOS);
+        }else {
+            templateDistrictService.remove(new TemplateDistrict().setTemplateId(templateId));
         }
         return true;
     }
