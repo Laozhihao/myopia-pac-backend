@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.management.service;
 
 import com.alibaba.excel.util.CollectionUtils;
+
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.framework.api.service.VistelToolsService;
@@ -36,6 +37,7 @@ import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchool
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -93,6 +95,7 @@ public class WorkOrderBizService {
                 workOrderQueryDTO.setSchoolIds(schoolIds);
             }
         }
+        workOrderQueryDTO.setEndTime(DateUtils.addDays(workOrderQueryDTO.getEndTime(),1));
 
         // 分页结果
         IPage<WorkOrderDTO> workOrderDTOIPage = workOrderService.getWorkOrderLists(pageRequest, workOrderQueryDTO);
