@@ -96,7 +96,7 @@ public class Html2PdfService {
         config.setDisplayHeaderFooter(true);
         config.setHeaderTemplate("<div></div>");
         config.setFooterTemplate("<h1>Page <span class='pageNumber'></span> of <span class='totalPages'></span></h1>");
-        config.setMargin("{\"bottom\":\"10cm\",\"left\":\"10cm\"}");
+        config.setMargin("{ \"bottom\": \"10cm\"}");
         requestDTO.setConfig(config);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
