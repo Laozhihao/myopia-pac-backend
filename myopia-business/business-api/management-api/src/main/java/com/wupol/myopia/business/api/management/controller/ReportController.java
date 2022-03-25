@@ -147,10 +147,6 @@ public class ReportController {
                 .setPlanStudentIds(planStudentIds)
                 .setDistrictId(districtId)
                 .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
-        // 班级和筛查学生为空，同步导出
-        if (Objects.nonNull(classId) || StringUtils.isNotBlank(planStudentIds)) {
-            return ApiResult.success(exportStrategy.syncExport(exportCondition, ExportReportServiceNameConstant.SCHOOL_ARCHIVES_SERVICE));
-        }
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.SCHOOL_ARCHIVES_SERVICE);
         return ApiResult.success();
     }
