@@ -83,7 +83,7 @@ public class TemplateService extends BaseService<TemplateMapper, Template> {
         List<Integer> districtIds = bindItemDTOS.stream().map(TemplateBindItemDTO::getDistrictId).collect(Collectors.toList());
         if (!CollectionUtils.isEmpty(districtIds)) {
             // 批量删除
-            templateDistrictService.deletedByDistrictIds(districtIds);
+            templateDistrictService.batchDelete(templateId,districtIds);
             // 批量插入
             templateDistrictService.batchInsert(templateId, bindItemDTOS);
         }
@@ -111,9 +111,6 @@ public class TemplateService extends BaseService<TemplateMapper, Template> {
         }
         return true;
     }
-
-
-
 
     /**
      * 检查是否一个省是否绑定一个模板
