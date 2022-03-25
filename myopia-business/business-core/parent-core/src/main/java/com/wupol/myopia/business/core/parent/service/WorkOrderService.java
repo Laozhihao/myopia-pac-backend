@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.core.parent.service;
 
-import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.core.parent.domain.mapper.WorkOrderMapper;
 import com.wupol.myopia.business.core.parent.domain.model.Parent;
@@ -8,7 +7,6 @@ import com.wupol.myopia.business.core.parent.domain.model.WorkOrder;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import java.util.List;
 
 /**
