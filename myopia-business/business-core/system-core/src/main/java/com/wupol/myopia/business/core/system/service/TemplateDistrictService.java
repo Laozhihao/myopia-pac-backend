@@ -58,6 +58,15 @@ public class TemplateDistrictService extends BaseService<TemplateDistrictMapper,
     }
 
     /**
+     * 批量删除
+     * @param templateId 模板ID
+     * @param items 区域ID
+     */
+    public void batchDelete(Integer templateId, List<Integer> items) {
+        baseMapper.batchDelete(templateId, items);
+    }
+
+    /**
      * 通过行政区域获取模版Id
      *
      * @param districtId 行政区域
