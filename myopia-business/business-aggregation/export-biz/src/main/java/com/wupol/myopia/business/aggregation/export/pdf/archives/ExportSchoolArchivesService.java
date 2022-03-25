@@ -1,13 +1,11 @@
 package com.wupol.myopia.business.aggregation.export.pdf.archives;
 
-import com.alibaba.fastjson.JSON;
 import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.pdf.BaseExportPdfFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.GeneratePdfFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.PDFFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
-import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
@@ -19,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import javax.validation.constraints.NotBlank;
 import java.util.Objects;
 
 /**
@@ -41,8 +38,6 @@ public class ExportSchoolArchivesService extends BaseExportPdfFileService {
 
     @Resource
     private SchoolGradeService schoolGradeService;
-    @Resource
-    private ResourceFileService resourceFileService;
     /**
      * 生成文件
      *
@@ -87,40 +82,5 @@ public class ExportSchoolArchivesService extends BaseExportPdfFileService {
                 exportCondition.getApplyExportFileUserId(),
                 exportCondition.getSchoolId(),
                 exportCondition.getPlanId());
-    }
-
-    @Override
-    public String syncExport(ExportCondition exportCondition) {
-        String parentPath = null;
-        try {
-            // 1.获取文件名
-            String fileName = getSyncFileName(exportCondition);
-            // 2.获取文件保存父目录路径
-            parentPath = getFileSaveParentPath();
-            // 3.获取文件保存路径
-            String fileSavePath = getFileSavePath(parentPath, fileName);
-            // 4.生成导出的文件
-            generatePdfFile(exportCondition, fileSavePath, fileName);
-            return resourceFileService.getResourcePath(s3Utils.uploadS3AndGetResourceFile(fileSavePath + ".pdf", fileName).getId());
-        } catch (Exception e) {
-            String requestData = JSON.toJSONString(exportCondition);
-            log.error("【生成报告异常】{}", requestData, e);
-            // 发送失败通知
-            throw new BusinessException("导出数据异常");
-        } finally {
-            // 5.删除临时文件
-            deleteTempFile(parentPath);
-        }
-    }
-
-    /**
-     * 获取文件名
-     *
-     * @param exportCondition 导出条件
-     * @return java.lang.String
-     **/
-    public String getSyncFileName(ExportCondition exportCondition) {
-        School school = schoolService.getById(exportCondition.getSchoolId());
-        return String.format(PDFFileNameConstant.ARCHIVES_PDF_FILE_NAME, school.getName());
     }
 }
