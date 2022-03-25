@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.system.service;
 
 import com.google.common.collect.Maps;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.core.system.domain.dto.TemplateBindItemDTO;
 import com.wupol.myopia.business.core.system.domain.dto.TemplateBindRequestDTO;
 import com.wupol.myopia.business.core.system.domain.dto.TemplateResponseDTO;
@@ -29,6 +30,8 @@ public class TemplateService extends BaseService<TemplateMapper, Template> {
 
     @Resource
     private TemplateDistrictService templateDistrictService;
+    @Resource
+    private TemplateService templateService;
 
     /**
      * 获取模板列表
@@ -79,13 +82,15 @@ public class TemplateService extends BaseService<TemplateMapper, Template> {
         Integer templateId = request.getTemplateId();
         List<TemplateBindItemDTO> bindItemDTOS = request.getDistrictInfo();
 
-        templateDistrictService.remove(new TemplateDistrict().setTemplateId(templateId));
+
         List<Integer> districtIds = bindItemDTOS.stream().map(TemplateBindItemDTO::getDistrictId).collect(Collectors.toList());
+
         if (!CollectionUtils.isEmpty(districtIds)) {
-            // 批量删除
-            templateDistrictService.batchDelete(templateId,districtIds);
+            batchDelete(districtIds);
             // 批量插入
             templateDistrictService.batchInsert(templateId, bindItemDTOS);
+        }else {
+            templateDistrictService.remove(new TemplateDistrict().setTemplateId(templateId));
         }
         return true;
     }
@@ -131,5 +136,14 @@ public class TemplateService extends BaseService<TemplateMapper, Template> {
         // 判断两个list是否有相同元素
         return !Collections.disjoint(list.stream().map(TemplateBindItemDTO::getDistrictId).collect(Collectors.toList()),
                 allDistrict.stream().map(TemplateDistrict::getDistrictId).collect(Collectors.toList()));
+    }
+
+    /**
+     * 解除档案卡绑定区域
+     * @param districtIds
+     */
+    public void batchDelete(List<Integer> districtIds){
+
+        baseMapper.deletedArchivesByDistrictIds(districtIds);
     }
 }

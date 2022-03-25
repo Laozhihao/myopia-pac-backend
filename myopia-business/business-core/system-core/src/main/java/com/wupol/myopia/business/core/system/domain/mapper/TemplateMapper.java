@@ -15,4 +15,6 @@ public interface TemplateMapper extends BaseMapper<Template> {
 
     List<Template> getByType(@Param("type") Integer type);
 
+    void deletedArchivesByDistrictIds(@Param("districtIds") List<Integer> districtIds);
+
 }
