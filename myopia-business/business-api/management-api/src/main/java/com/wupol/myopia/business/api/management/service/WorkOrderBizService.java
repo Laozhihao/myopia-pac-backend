@@ -95,7 +95,9 @@ public class WorkOrderBizService {
                 workOrderQueryDTO.setSchoolIds(schoolIds);
             }
         }
-        workOrderQueryDTO.setEndTime(DateUtils.addDays(workOrderQueryDTO.getEndTime(),1));
+        if (Objects.nonNull(workOrderQueryDTO.getEndTime())) {
+            workOrderQueryDTO.setEndTime(DateUtils.addDays(workOrderQueryDTO.getEndTime(),1));
+        }
 
         // 分页结果
         IPage<WorkOrderDTO> workOrderDTOIPage = workOrderService.getWorkOrderLists(pageRequest, workOrderQueryDTO);
