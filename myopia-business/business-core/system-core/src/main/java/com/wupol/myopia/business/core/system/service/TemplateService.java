@@ -67,6 +67,28 @@ public class TemplateService extends BaseService<TemplateMapper, Template> {
         }
         return responses;
     }
+    /**
+     * 绑定区域（档案卡绑定区域）
+     *
+     * @param request 入参
+     * @return boolean 是否成功
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean districtBindArchives(TemplateBindRequestDTO request) {
+
+        Integer templateId = request.getTemplateId();
+        List<TemplateBindItemDTO> bindItemDTOS = request.getDistrictInfo();
+
+        templateDistrictService.remove(new TemplateDistrict().setTemplateId(templateId));
+        List<Integer> districtIds = bindItemDTOS.stream().map(TemplateBindItemDTO::getDistrictId).collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(districtIds)) {
+            // 批量删除
+            templateDistrictService.deletedByDistrictIds(districtIds);
+            // 批量插入
+            templateDistrictService.batchInsert(templateId, bindItemDTOS);
+        }
+        return true;
+    }
 
     /**
      * 绑定区域（档案卡绑定区域）
@@ -75,7 +97,7 @@ public class TemplateService extends BaseService<TemplateMapper, Template> {
      * @return boolean 是否成功
      */
     @Transactional(rollbackFor = Exception.class)
-    public Boolean districtBind(TemplateBindRequestDTO request) {
+    public Boolean districtBindReport(TemplateBindRequestDTO request) {
 
         Integer templateId = request.getTemplateId();
         List<TemplateBindItemDTO> bindItemDTOS = request.getDistrictInfo();
@@ -89,6 +111,8 @@ public class TemplateService extends BaseService<TemplateMapper, Template> {
         }
         return true;
     }
+
+
 
 
     /**
