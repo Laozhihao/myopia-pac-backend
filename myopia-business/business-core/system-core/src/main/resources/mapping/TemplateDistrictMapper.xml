@@ -56,7 +56,7 @@
     <insert id="batchDelete">
         delete
         from m_template_district
-        where #{templateId} and district_id in
+        where template_id = #{templateId} and district_id in
         <foreach collection="items" item="id" index="index" open="(" close=")" separator=",">
             #{id}
         </foreach>
