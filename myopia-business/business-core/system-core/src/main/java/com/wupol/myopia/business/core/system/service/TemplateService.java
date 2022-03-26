@@ -143,7 +143,13 @@ public class TemplateService extends BaseService<TemplateMapper, Template> {
      * @param districtIds
      */
     public void batchDelete(List<Integer> districtIds){
+        // 根据类型查模板(档案卡)
+        List<Template> templateList = baseMapper.getByType(CommonConst.TYPE_TEMPLATE_STUDENT_ARCHIVES);
+        List<Integer> templateIds = templateList.stream().map(Template::getId).collect(Collectors.toList());
 
-        baseMapper.deletedArchivesByDistrictIds(districtIds);
+        for (Integer templateId:templateIds){
+            templateDistrictService.batchDelete(templateId,districtIds);
+        }
+
     }
 }

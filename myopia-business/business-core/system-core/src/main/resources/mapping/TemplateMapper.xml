@@ -35,14 +35,4 @@
         from m_template
         where type = #{type}
     </select>
-
-    <delete id="deletedArchivesByDistrictIds">
-        DELETE FROM m_template_district WHERE id IN (SELECT archives.id FROM
-        (SELECT * FROM m_template_district WHERE template_id IN (SELECT id FROM m_template WHERE type = 1)) AS archives
-        WHERE archives.district_id IN (459)
-        <foreach collection="districtIds" item="id" index="index" open="(" close=")" separator=",">
-            #{id}
-        </foreach>
-        )
-    </delete>
 </mapper>
