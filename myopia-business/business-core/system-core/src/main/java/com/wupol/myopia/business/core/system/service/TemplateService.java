@@ -82,7 +82,6 @@ public class TemplateService extends BaseService<TemplateMapper, Template> {
         Integer templateId = request.getTemplateId();
         List<TemplateBindItemDTO> bindItemDTOS = request.getDistrictInfo();
 
-
         List<Integer> districtIds = bindItemDTOS.stream().map(TemplateBindItemDTO::getDistrictId).collect(Collectors.toList());
         templateDistrictService.remove(new TemplateDistrict().setTemplateId(templateId));
         if (!CollectionUtils.isEmpty(districtIds)) {
