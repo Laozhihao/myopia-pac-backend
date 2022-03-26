@@ -22,6 +22,8 @@ public interface TemplateDistrictMapper extends BaseMapper<TemplateDistrict> {
 
     void batchDelete(@Param("templateId") Integer templateIds, @Param("items") List<Integer> items);
 
+    void batchDeleteTemplateIdsAndDistrictIds(@Param("templateIds") List<Integer> templateIds, @Param("districtIds") List<Integer> districtIds);
+
     List<TemplateDistrict> getByTemplateIds(@Param("templateIds") List<Integer> templateIds);
 
     Integer getByDistrictId(@Param("districtId") Integer districtId);

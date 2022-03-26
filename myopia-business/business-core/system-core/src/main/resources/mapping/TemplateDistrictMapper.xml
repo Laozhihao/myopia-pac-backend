@@ -53,14 +53,27 @@
         </foreach>
     </insert>
 
-    <insert id="batchDelete">
+    <delete id="batchDelete">
         delete
         from m_template_district
         where template_id = #{templateId} and district_id in
         <foreach collection="items" item="id" index="index" open="(" close=")" separator=",">
             #{id}
         </foreach>
-    </insert>
+    </delete>
+
+    <delete id="batchDeleteTemplateIdsAndDistrictIds">
+        delete
+        from m_template_district
+        where template_id in
+        <foreach collection="templateIds" item="templateId" index="index" open="(" close=")" separator=",">
+            #{templateId}
+        </foreach>
+        and district_id in
+        <foreach collection="districtIds" item="districtId" index="index" open="(" close=")" separator=",">
+            #{districtId}
+        </foreach>
+    </delete>
 
 
     <select id="getByTemplateIds" resultMap="BaseResultMap">
