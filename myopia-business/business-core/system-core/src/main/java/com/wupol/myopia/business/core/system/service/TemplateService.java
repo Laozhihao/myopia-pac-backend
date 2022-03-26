@@ -146,7 +146,7 @@ public class TemplateService extends BaseService<TemplateMapper, Template> {
         // 根据类型查模板(档案卡)
         List<Template> templateList = baseMapper.getByType(CommonConst.TYPE_TEMPLATE_STUDENT_ARCHIVES);
         List<Integer> templateIds = templateList.stream().map(Template::getId).collect(Collectors.toList());
-
+        //TODO 此处需要优化，老婆生孩子没顾得上
         for (Integer templateId:templateIds){
             templateDistrictService.batchDelete(templateId,districtIds);
         }
