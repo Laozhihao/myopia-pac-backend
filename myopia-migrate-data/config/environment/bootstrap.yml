@@ -4,7 +4,7 @@ spring:
   jackson:
     serialization:
       write-dates-as-timestamps: true
-  # 即使指定了配置中心，本地还是要在application.properties中定义配置参数，否则启动不了
+  # 即使指定了配置中心，本地还是要在application.yml中定义配置参数，否则启动不了
   cloud:
     nacos:
       config:

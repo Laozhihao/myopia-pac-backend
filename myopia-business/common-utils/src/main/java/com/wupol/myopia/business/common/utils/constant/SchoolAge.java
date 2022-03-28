@@ -1,13 +1,21 @@
 package com.wupol.myopia.business.common.utils.constant;
 
 
+import com.wupol.framework.core.util.DateFormatUtil;
 import com.wupol.myopia.business.common.utils.domain.dto.SchoolAgeDTO;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
+/**
+ * 学龄相关
+ *
+ * @author Simple4H
+ */
 public enum SchoolAge {
+    /** 学龄 */
     KINDERGARTEN(5, "幼儿园"),
     PRIMARY(0, "小学"),
     JUNIOR(1, "初中"),
@@ -76,5 +84,20 @@ public enum SchoolAge {
      */
     public static Boolean isPrimaryAndKindergarten(Integer schoolAge) {
         return KINDERGARTEN.code.equals(schoolAge) || PRIMARY.code.equals(schoolAge);
+    }
+
+    /**
+     * 通过学龄类型获取生日
+     *
+     * @param schoolAgeType 学龄类型
+     * @return 生日
+     */
+    public static Date getBirthdayBySchoolAgeType(Integer schoolAgeType) {
+        // 幼儿园
+        if (KINDERGARTEN.code.equals(schoolAgeType)) {
+            return DateFormatUtil.parse("2017-1-1", DateFormatUtil.FORMAT_ONLY_DATE);
+        }
+        // 中小学
+        return DateFormatUtil.parse("2010-1-1", DateFormatUtil.FORMAT_ONLY_DATE);
     }
 }

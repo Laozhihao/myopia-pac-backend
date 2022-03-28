@@ -1,12 +1,13 @@
-package com.wupol.myopia.business.api.screening.app.domain.dto;
+package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultBasicData;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 import org.apache.commons.lang3.ObjectUtils;
 
 import javax.validation.constraints.NotBlank;
@@ -18,6 +19,8 @@ import java.util.Objects;
  * @Date 2021/1/22 16:37
  * @Author by jacob
  */
+@Accessors(chain = true)
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class VisionDataDTO extends ScreeningResultBasicData {
 
@@ -66,6 +69,11 @@ public class VisionDataDTO extends ScreeningResultBasicData {
         return visionScreeningResult.setVisionData(visionDataDO);
     }
 
+    /**
+     * 至少有一个数据不为空，则视为有效数据
+     *
+     * @return boolean
+     **/
     public boolean isValid() {
         return ObjectUtils.anyNotNull(rightNakedVision, leftNakedVision, rightCorrectedVision, leftCorrectedVision);
     }

@@ -127,12 +127,12 @@ public class ScreeningPlanController {
             ScreeningTask screeningTask = screeningTaskService.getById(screeningPlanDTO.getScreeningTaskId());
             screeningPlanDTO.setSrcScreeningNoticeId(screeningTask.getScreeningNoticeId()).setDistrictId(screeningTask.getDistrictId()).setGovDeptId(screeningTask.getGovDeptId());
         } else {
-            // 用户自己新建的筛查计划需设置districtIdmanagement/screeningNotice
+            // 用户自己新建的筛查计划需设置districtId
             ScreeningOrganization organization = screeningOrganizationService.getById(user.getScreeningOrgId());
             screeningPlanDTO.setDistrictId(organization.getDistrictId());
         }
         screeningPlanDTO.setCreateUserId(user.getId());
-        screeningPlanService.saveOrUpdateWithSchools(user, screeningPlanDTO, true);
+        screeningPlanService.saveOrUpdateWithSchools(user.getId(), screeningPlanDTO, true);
     }
 
     /**
@@ -158,9 +158,8 @@ public class ScreeningPlanController {
         if (DateUtil.isDateBeforeToday(screeningPlanDTO.getStartTime())) {
             throw new ValidationException(BizMsgConstant.VALIDATION_START_TIME_ERROR);
         }
-        CurrentUser user = CurrentUserUtil.getCurrentUser();
         screeningPlanDTO.setScreeningOrgId(screeningPlan.getScreeningOrgId());
-        screeningPlanService.saveOrUpdateWithSchools(user, screeningPlanDTO, false);
+        screeningPlanService.saveOrUpdateWithSchools(CurrentUserUtil.getCurrentUser().getId(), screeningPlanDTO, false);
     }
 
     /**

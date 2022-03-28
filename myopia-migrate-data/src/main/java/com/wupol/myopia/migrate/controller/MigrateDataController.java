@@ -26,6 +26,6 @@ public class MigrateDataController {
      **/
     @GetMapping()
     public void migrateData() {
-        migrateDataService.action();
+        migrateDataService.migrateData();
     }
 }

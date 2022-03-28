@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.migrate.domain.mapper.SysGradeClassMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.migrate.domain.model.SysGradeClass">
+    </resultMap>
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(sort)">and `sort` = #{sort}</if>
+                <if test="@Ognl@isNotEmpty(schoolId)">and `school_id` = #{schoolId}</if>
+                <if test="@Ognl@isNotEmpty(grade)">and `grade` = #{grade}</if>
+                <if test="@Ognl@isNotEmpty(clazz)">and `clazz` = #{clazz}</if>
+                <if test="@Ognl@isNotEmpty(clazzNum)">and `clazz_num` = #{clazzNum}</if>
+                <if test="@Ognl@isNotEmpty(screenNum)">and `screen_num` = #{screenNum}</if>
+                <if test="@Ognl@isNotEmpty(myopiaNum)">and `myopia_num` = #{myopiaNum}</if>
+                <if test="@Ognl@isNotEmpty(myopiaRatio)">and `myopia_ratio` = #{myopiaRatio}</if>
+                <if test="@Ognl@isNotEmpty(mildPoorEyesight)">and `mild_poor_eyesight` = #{mildPoorEyesight}</if>
+                <if test="@Ognl@isNotEmpty(normalPoorEyesight)">and `normal_poor_eyesight` = #{normalPoorEyesight}</if>
+                <if test="@Ognl@isNotEmpty(moderatePoorEyesight)">and `moderate_poor_eyesight` = #{moderatePoorEyesight}</if>
+                <if test="@Ognl@isNotEmpty(severePoorEyesight)">and `severe_poor_eyesight` = #{severePoorEyesight}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+                <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
+                <if test="@Ognl@isNotEmpty(isEash)">and `is_eash` = #{isEash}</if>
+            </trim>
+        </where>
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, sort, school_id, grade, clazz, clazz_num, screen_num, myopia_num, myopia_ratio, mild_poor_eyesight, normal_poor_eyesight, moderate_poor_eyesight, severe_poor_eyesight, create_time, update_time, is_eash
+    </sql>
+
+</mapper>

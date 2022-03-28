@@ -38,6 +38,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightD
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ComputerOptometryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultSearchDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentQueryDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.VisionDataDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;

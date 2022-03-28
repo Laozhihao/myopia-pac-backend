@@ -1,14 +1,20 @@
 package com.wupol.myopia.migrate.domain.model;
 
-import com.baomidou.mybatisplus.annotation.TableName;
+import cn.hutool.core.util.IdcardUtil;
 import com.baomidou.mybatisplus.annotation.IdType;
-import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.wupol.myopia.business.aggregation.export.excel.constant.ImportExcelEnum;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import com.fasterxml.jackson.annotation.JsonFormat;
+import org.apache.commons.lang3.StringUtils;
+
+import java.io.Serializable;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 视力筛查
@@ -348,5 +354,21 @@ public class SysStudentEye implements Serializable {
      */
     private String diyDisease;
 
-
+    /**
+     * 转为Map
+     *
+     * @return java.util.Map<java.lang.Integer,java.lang.String>
+     **/
+    public Map<Integer, String> convertToMap() {
+        Map<Integer, String> studentInfoMap = new HashMap<>(8);
+        studentInfoMap.put(ImportExcelEnum.NAME.getIndex(), getStudentName());
+        studentInfoMap.put(ImportExcelEnum.GENDER.getIndex(), getStudentSex());
+        studentInfoMap.put(ImportExcelEnum.GRADE.getIndex(), getSchoolGrade());
+        studentInfoMap.put(ImportExcelEnum.CLASS.getIndex(), getSchoolClazz());
+        studentInfoMap.put(ImportExcelEnum.PHONE.getIndex(), getStudentPhone());
+        if (StringUtils.isNotBlank(getStudentIdcard()) && IdcardUtil.isValidCard(getStudentIdcard())) {
+            studentInfoMap.put(ImportExcelEnum.ID_CARD.getIndex(), getStudentIdcard());
+        }
+        return studentInfoMap;
+    }
 }
