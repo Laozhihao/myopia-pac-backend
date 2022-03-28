@@ -261,9 +261,7 @@ public class WorkOrderBizService {
         if (StringUtils.isNotEmpty(workOrderRequestDTO.getIdCard())) {
             student.setIdCard(workOrderRequestDTO.getIdCard());
         }
-        if (StringUtils.isNotEmpty(workOrderRequestDTO.getSno())) {
-            student.setSno(workOrderRequestDTO.getSno());
-        }
+        student.setSno(StringUtils.isNotEmpty(workOrderRequestDTO.getSno())?workOrderRequestDTO.getSno():null);
         student.setName(workOrderRequestDTO.getName());
         student.setGender(workOrderRequestDTO.getGender());
         student.setBirthday(workOrderRequestDTO.getBirthday());
@@ -296,6 +294,8 @@ public class WorkOrderBizService {
 
         BeanUtils.copyProperties(workOrderRequestDTO,workOrder);
         workOrderService.updateById(workOrder.setStatus(WorkOrderStatusEnum.PROCESSED.code)
+                .setPassport(StringUtils.isBlank(workOrder.getPassport())?null:workOrder.getPassport())
+                .setIdCard(StringUtils.isBlank(workOrder.getIdCard())?null:workOrder.getIdCard())
                 .setOldData(studentDO));
     }
 
