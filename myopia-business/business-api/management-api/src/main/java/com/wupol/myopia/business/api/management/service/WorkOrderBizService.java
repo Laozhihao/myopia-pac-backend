@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.api.management.service;
 
 import com.alibaba.excel.util.CollectionUtils;
-
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.framework.api.service.VistelToolsService;
@@ -16,8 +15,6 @@ import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.WorkOrderStatusEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
-import com.wupol.myopia.business.common.utils.util.AgeUtil;
-import com.wupol.myopia.business.common.utils.util.SerializationUtil;
 import com.wupol.myopia.business.core.parent.domain.dos.StudentDO;
 import com.wupol.myopia.business.core.parent.domain.dto.WorkOrderDTO;
 import com.wupol.myopia.business.core.parent.domain.dto.WorkOrderQueryDTO;
@@ -46,7 +43,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -103,19 +99,8 @@ public class WorkOrderBizService {
             workOrderQueryDTO.setEndTime(DateUtils.addDays(workOrderQueryDTO.getEndTime(), 1));
         }
 
-
         // 分页结果
         IPage<WorkOrderDTO> workOrderDTOIPage = workOrderService.getWorkOrderLists(pageRequest, workOrderQueryDTO);
-
-        // 无参数查询返回空数据结构
-        if (queryCheckIsAllNull(workOrderQueryDTO)) {
-            return workOrderDTOIPage.setRecords(new ArrayList<>())
-                    .setCurrent(0)
-                    .setSize(0)
-                    .setPages(0)
-                    .setTotal(0);
-        }
-
 
         // 组装年级班级信息
         List<WorkOrderDTO> records = workOrderDTOIPage.getRecords();
@@ -147,20 +132,6 @@ public class WorkOrderBizService {
             }
         }
         return workOrderDTOIPage;
-    }
-
-    private Boolean queryCheckIsAllNull(WorkOrderQueryDTO workOrderQueryDTO) {
-        if (Objects.nonNull(workOrderQueryDTO.getEndTime()) ||
-                StringUtils.isNotBlank(workOrderQueryDTO.getSchoolName()) ||
-                StringUtils.isNotBlank(workOrderQueryDTO.getIdCardOrPassport()) ||
-                StringUtils.isNotBlank(workOrderQueryDTO.getName()) ||
-                Objects.nonNull(workOrderQueryDTO.getStartTime()) ||
-                Objects.nonNull(workOrderQueryDTO.getStatus()) ||
-                Objects.nonNull(workOrderQueryDTO.getSchoolIds())
-        ) {
-            return false;
-        }
-        return true;
     }
 
     /**
