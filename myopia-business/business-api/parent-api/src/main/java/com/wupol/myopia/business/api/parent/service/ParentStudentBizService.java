@@ -52,6 +52,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
@@ -590,25 +591,15 @@ public class ParentStudentBizService {
      */
     public ScreeningReportInfoResponseDTO getScreeningReportByCondition(String condition, String name) {
         ScreeningReportInfoResponseDTO responseDTO = new ScreeningReportInfoResponseDTO();
-
-        Integer studentId = null;
         // 查询学生
         Student student = studentService.getByCondition(condition, name);
-        if (Objects.nonNull(student)) {
-            studentId = student.getId();
-        }
-        List<ScreeningPlanSchoolStudent> planStudents = screeningPlanSchoolStudentService.getByCondition(condition, name, studentId);
-        if (Objects.isNull(student) && CollectionUtils.isEmpty(planStudents)) {
-            throw new BusinessException("该学生筛查编号/身份证/护照/学籍号/姓名错误");
-        }
-        responseDTO.setStudentId(Objects.nonNull(student) ? student.getId() : planStudents.get(0).getStudentId());
-
+        Assert.notNull(student, "该学生筛查编号/身份证/护照/学籍号/姓名错误");
+        responseDTO.setStudentId(student.getId());
+        List<ScreeningPlanSchoolStudent> planStudents = screeningPlanSchoolStudentService.getByStudentId(student.getId());
         // 查询报告
         if (!CollectionUtils.isEmpty(planStudents)) {
             VisionScreeningResult result = visionScreeningResultService.getLatestByPlanStudentIds(planStudents.stream().map(ScreeningPlanSchoolStudent::getId).collect(Collectors.toList()));
-            if (Objects.nonNull(result)) {
-                responseDTO.setReportId(result.getId());
-            }
+            responseDTO.setReportId(Objects.nonNull(result) ? result.getId() : null);
         }
         return responseDTO;
     }

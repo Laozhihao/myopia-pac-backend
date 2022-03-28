@@ -1,15 +1,13 @@
 package com.wupol.myopia.business.api.parent.domain.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 /**
  * 条件获取筛查记录
  *
  * @author Simple4H
  */
-@Getter
-@Setter
+@Data
 public class ScreeningReportInfoResponseDTO {
 
     /**
