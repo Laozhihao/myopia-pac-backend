@@ -591,10 +591,14 @@ public class ParentStudentBizService {
      */
     public ScreeningReportInfoResponseDTO getScreeningReportByCondition(String condition, String name) {
         ScreeningReportInfoResponseDTO responseDTO = new ScreeningReportInfoResponseDTO();
-        // 查询学生
+        // 查询学生，若根据身份证/护照/学籍号没找到对应学生，进一步作为筛查编号到计划中查找（此时以管理端学生的姓名为准）
         Student student = studentService.getByCondition(condition, name);
-        Assert.notNull(student, "该学生筛查编号/身份证/护照/学籍号/姓名错误");
-        responseDTO.setStudentId(student.getId());
+        if (Objects.isNull(student)) {
+            ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getByScreeningCodeStr(condition);
+            Assert.notNull(screeningPlanSchoolStudent, "该学生筛查编号/身份证/护照/学籍号/姓名错误");
+            student = studentService.findOne(new Student().setId(screeningPlanSchoolStudent.getStudentId()).setName(name));
+            Assert.notNull(student, "该学生筛查编号/身份证/护照/学籍号/姓名错误");
+        }
         List<ScreeningPlanSchoolStudent> planStudents = screeningPlanSchoolStudentService.getByStudentId(student.getId());
         // 查询报告
         if (!CollectionUtils.isEmpty(planStudents)) {
