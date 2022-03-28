@@ -345,7 +345,7 @@ public class ParentStudentController {
         if (StringUtils.isNotBlank(workOrder.getIdCard()) && !RegularUtils.isIdCard(workOrder.getIdCard())) {
             throw new BusinessException("证件号填写错误，请重新填写！");
         }
-        if (StringUtils.isNotBlank(workOrder.getPassport()) && !RegularUtils.isPassport(workOrder.getPassport())) {
+        if (StringUtils.isNotBlank(workOrder.getPassport()) && workOrder.getPassport().length()<8) {
             throw new BusinessException("护照填写错误，请重新填写！");
         }
         Parent parent = parentService.getParentByUserId(user.getId());
