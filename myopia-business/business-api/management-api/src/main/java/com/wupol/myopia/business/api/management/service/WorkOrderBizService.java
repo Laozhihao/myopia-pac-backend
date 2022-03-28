@@ -10,6 +10,7 @@ import com.wupol.framework.sms.domain.dto.SmsResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.base.util.RegularUtils;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.WorkOrderStatusEnum;
@@ -206,7 +207,15 @@ public class WorkOrderBizService {
         Student saveStudent = new Student();
         BeanUtils.copyProperties(studentDTO, saveStudent);
         packageManagementStudent(saveStudent, workOrderRequestDTO);
-        saveStudent.checkStudentInfo();
+        // 验证身份证
+        if (StringUtils.isNotBlank(workOrderRequestDTO.getIdCard()) && !RegularUtils.isIdCard(workOrderRequestDTO.getIdCard())) {
+            throw new BusinessException("证件号填写错误，请重新填写！");
+        }
+        // 验证护照
+        if (StringUtils.isNotBlank(workOrderRequestDTO.getPassport()) && workOrderRequestDTO.getPassport().length()<8) {
+            throw new BusinessException("护照填写错误，请重新填写！");
+        }
+
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         saveStudent.setCreateUserId(user.getId());
         saveStudent.setId(studentFacade.saveStudentAndSchoolStudent(saveStudent));
