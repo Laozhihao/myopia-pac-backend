@@ -3,6 +3,7 @@ package com.wupol.myopia.business.api.device.service;
 import cn.hutool.core.codec.Base64;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.ObjectsUtil;
+import com.wupol.myopia.base.domain.ResultCode;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
 import com.wupol.myopia.business.api.device.domain.dto.*;
@@ -325,20 +326,20 @@ public class DeviceUploadDataService {
 
         Device device = deviceService.getDeviceByDeviceSn(deviceSn);
         if (Objects.isNull(device)) {
-            throw new BusinessException("无法找到设备:" + deviceSn);
+            throw new BusinessException("无法找到设备:" + deviceSn, ResultCode.DATA_UPLOAD_DEVICE_ERROR.getCode());
         }
         ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(device.getBindingScreeningOrgId());
         if (Objects.isNull(screeningOrganization) || CommonConst.STATUS_IS_DELETED.equals(screeningOrganization.getStatus())) {
-            throw new BusinessException("无法找到筛查机构或该筛查机构已过期");
+            throw new BusinessException("无法找到筛查机构或该筛查机构已过期！", ResultCode.DATA_UPLOAD_SCREENING_ORG_ERROR.getCode());
         }
         Integer planStudentId = ParsePlanStudentUtils.parsePlanStudentId(uid);
         ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(planStudentId);
         if (Objects.isNull(planStudent)) {
-            throw new BusinessException("用户信息异常");
+            throw new BusinessException("不能通过该uid找到学生信息，请确认！", ResultCode.DATA_UPLOAD_PLAN_STUDENT_ERROR.getCode());
         }
         Integer orgId = screeningOrganization.getId();
         if (!planStudent.getScreeningOrgId().equals(orgId)) {
-            throw new BusinessException("筛查学生与筛查机构不匹配！");
+            throw new BusinessException("筛查学生与筛查机构不匹配！", ResultCode.DATA_UPLOAD_PLAN_STUDENT_MATCH_ERROR.getCode());
         }
 
         SchoolGrade schoolGrade = schoolGradeService.getById(planStudent.getGradeId());
