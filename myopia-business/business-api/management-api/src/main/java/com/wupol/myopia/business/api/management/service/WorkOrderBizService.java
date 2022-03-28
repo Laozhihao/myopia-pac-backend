@@ -46,6 +46,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -53,6 +54,7 @@ import java.util.stream.Collectors;
 
 /**
  * 工单
+ *
  * @Author xjl
  * @Date 2022/3/8
  */
@@ -80,15 +82,15 @@ public class WorkOrderBizService {
     private StudentFacade studentFacade;
 
 
-
     /**
      * 获取工单列表
      *
-     * @param pageRequest 分页参数
+     * @param pageRequest       分页参数
      * @param workOrderQueryDTO 查询参数
      * @return 工单分页
      */
     public IPage<WorkOrderDTO> getWorkOrderList(PageRequest pageRequest, WorkOrderQueryDTO workOrderQueryDTO) {
+
         // 模糊查询学校id组装
         if (StringUtils.isNotBlank(workOrderQueryDTO.getSchoolName())) {
             List<School> schoolList = schoolService.getBySchoolName(workOrderQueryDTO.getSchoolName());
@@ -98,11 +100,22 @@ public class WorkOrderBizService {
             }
         }
         if (Objects.nonNull(workOrderQueryDTO.getEndTime())) {
-            workOrderQueryDTO.setEndTime(DateUtils.addDays(workOrderQueryDTO.getEndTime(),1));
+            workOrderQueryDTO.setEndTime(DateUtils.addDays(workOrderQueryDTO.getEndTime(), 1));
         }
+
 
         // 分页结果
         IPage<WorkOrderDTO> workOrderDTOIPage = workOrderService.getWorkOrderLists(pageRequest, workOrderQueryDTO);
+
+        // 无参数查询返回空数据结构
+        if (queryCheckIsAllNull(workOrderQueryDTO)) {
+            return workOrderDTOIPage.setRecords(new ArrayList<>())
+                    .setCurrent(0)
+                    .setSize(0)
+                    .setPages(0)
+                    .setTotal(0);
+        }
+
 
         // 组装年级班级信息
         List<WorkOrderDTO> records = workOrderDTOIPage.getRecords();
@@ -136,11 +149,24 @@ public class WorkOrderBizService {
         return workOrderDTOIPage;
     }
 
+    private Boolean queryCheckIsAllNull(WorkOrderQueryDTO workOrderQueryDTO) {
+        if (Objects.nonNull(workOrderQueryDTO.getEndTime()) ||
+                StringUtils.isNotBlank(workOrderQueryDTO.getSchoolName()) ||
+                StringUtils.isNotBlank(workOrderQueryDTO.getIdCardOrPassport()) ||
+                StringUtils.isNotBlank(workOrderQueryDTO.getName()) ||
+                Objects.nonNull(workOrderQueryDTO.getStartTime()) ||
+                Objects.nonNull(workOrderQueryDTO.getStatus()) ||
+                Objects.nonNull(workOrderQueryDTO.getSchoolIds())
+        ) {
+            return false;
+        }
+        return true;
+    }
+
     /**
      * 处理工单
      *
      * @param workOrderRequestDTO 工单处理请求参数
-     *
      */
     @Transactional(rollbackFor = Exception.class)
     public void disposeOfWordOrder(WorkOrderRequestDTO workOrderRequestDTO) {
@@ -200,7 +226,7 @@ public class WorkOrderBizService {
     /**
      * 保存多端学生信息
      *
-     * @param studentDTO 学生信息
+     * @param studentDTO          学生信息
      * @param workOrderRequestDTO 工单请求参数
      * @return 学生信息
      */
@@ -213,7 +239,7 @@ public class WorkOrderBizService {
             throw new BusinessException("证件号填写错误，请重新填写！");
         }
         // 验证护照
-        if (StringUtils.isNotBlank(workOrderRequestDTO.getPassport()) && workOrderRequestDTO.getPassport().length()<8) {
+        if (StringUtils.isNotBlank(workOrderRequestDTO.getPassport()) && workOrderRequestDTO.getPassport().length() < 8) {
             throw new BusinessException("护照填写错误，请重新填写！");
         }
 
@@ -226,7 +252,7 @@ public class WorkOrderBizService {
     /**
      * 更新筛查记录，筛查学生
      *
-     * @param student 学生信息
+     * @param student               学生信息
      * @param visionScreeningResult 视力筛查结果
      */
     private void updateScreeningPlanSchoolStudentAndVisionScreeningResult(Student student, VisionScreeningResult visionScreeningResult) {
@@ -244,7 +270,7 @@ public class WorkOrderBizService {
     /**
      * 多端学生打包
      *
-     * @param student 学生信息
+     * @param student             学生信息
      * @param workOrderRequestDTO 工单请求
      */
     private void packageManagementStudent(Student student, WorkOrderRequestDTO workOrderRequestDTO) {
@@ -254,7 +280,7 @@ public class WorkOrderBizService {
         if (StringUtils.isNotEmpty(workOrderRequestDTO.getIdCard())) {
             student.setIdCard(workOrderRequestDTO.getIdCard());
         }
-        student.setSno(StringUtils.isNotEmpty(workOrderRequestDTO.getSno())?workOrderRequestDTO.getSno():null);
+        student.setSno(StringUtils.isNotEmpty(workOrderRequestDTO.getSno()) ? workOrderRequestDTO.getSno() : null);
         student.setName(workOrderRequestDTO.getName());
         student.setGender(workOrderRequestDTO.getGender());
         student.setBirthday(workOrderRequestDTO.getBirthday());
@@ -285,10 +311,10 @@ public class WorkOrderBizService {
                 .setScreeningDate(workOrderRequestDTO.getScreeningDate())
                 .setScreeningTitle(workOrderRequestDTO.getScreeningTitle());
 
-        BeanUtils.copyProperties(workOrderRequestDTO,workOrder);
+        BeanUtils.copyProperties(workOrderRequestDTO, workOrder);
         workOrderService.updateById(workOrder.setStatus(WorkOrderStatusEnum.PROCESSED.code)
-                .setPassport(StringUtils.isBlank(workOrder.getPassport())?null:workOrder.getPassport())
-                .setIdCard(StringUtils.isBlank(workOrder.getIdCard())?null:workOrder.getIdCard())
+                .setPassport(StringUtils.isBlank(workOrder.getPassport()) ? null : workOrder.getPassport())
+                .setIdCard(StringUtils.isBlank(workOrder.getIdCard()) ? null : workOrder.getIdCard())
                 .setOldData(studentDO));
     }
 
@@ -296,7 +322,7 @@ public class WorkOrderBizService {
      * 检查是否发送成功
      *
      * @param smsResult sms结果
-     * @param msgData 信息
+     * @param msgData   信息
      * @param workOrder 工单
      */
     private void checkSendMsgStatus(SmsResult smsResult, MsgData msgData, WorkOrder workOrder) {
@@ -309,6 +335,7 @@ public class WorkOrderBizService {
 
     /**
      * 获取旧数据
+     *
      * @param studentId 学生id
      * @return 学生信息
      */
