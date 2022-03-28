@@ -293,7 +293,7 @@ public class DeviceUploadDataService {
             if (StringUtils.isBlank(uid)) {
                 return new ScalesResponseDTO("0", "uid数据为空");
             }
-            ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(uid);
+            ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(ParsePlanStudentUtils.parsePlanStudentId(uid));
             if (Objects.isNull(planStudent)) {
                 return new ScalesResponseDTO("0", "uid找不到学生数据");
             }
