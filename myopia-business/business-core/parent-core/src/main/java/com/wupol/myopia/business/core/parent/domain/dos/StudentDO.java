@@ -73,8 +73,7 @@ public class StudentDO implements Serializable {
     /**
      * 出生日期
      */
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    private Date birthday;
+    private String birthday;
 
     /**
      * 民族 0-汉族

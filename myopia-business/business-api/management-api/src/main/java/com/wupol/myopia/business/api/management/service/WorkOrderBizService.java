@@ -10,6 +10,7 @@ import com.wupol.framework.sms.domain.dto.SmsResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.RegularUtils;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
@@ -189,8 +190,8 @@ public class WorkOrderBizService {
         if (Objects.isNull(visionScreeningResult)) {
             throw new BusinessException("筛查记录不存在");
         }
-        // 筛查记录表的筛查学校id层级学生id 筛查学生表的层级学校id
-        updateScreeningPlanSchoolStudentAndVisionScreeningResult(school, student, visionScreeningResult);
+        // 筛查记录表学生id 筛查学生表的学生id更改
+        updateScreeningPlanSchoolStudentAndVisionScreeningResult(student, visionScreeningResult);
 
 
     }
@@ -225,35 +226,16 @@ public class WorkOrderBizService {
     /**
      * 更新筛查记录，筛查学生
      *
-     * @param school 学校信息
      * @param student 学生信息
      * @param visionScreeningResult 视力筛查结果
      */
-    private void updateScreeningPlanSchoolStudentAndVisionScreeningResult(School school, Student student, VisionScreeningResult visionScreeningResult) {
+    private void updateScreeningPlanSchoolStudentAndVisionScreeningResult(Student student, VisionScreeningResult visionScreeningResult) {
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getById(visionScreeningResult.getScreeningPlanSchoolStudentId());
         if (Objects.isNull(screeningPlanSchoolStudent)) {
             throw new BusinessException("筛查学生不存在");
         }
-        screeningPlanSchoolStudent.setIdCard(student.getIdCard())
-                .setSchoolDistrictId(school.getDistrictId())
-                .setSchoolId(school.getId())
-                .setSchoolName(school.getName())
-                .setStudentId(student.getId())
-                .setPassport(student.getPassport())
-                .setStudentName(student.getName())
-                .setGradeId(student.getGradeId())
-                .setClassId(student.getClassId())
-                .setBirthday(student.getBirthday())
-                .setGender(student.getGender())
-                .setStudentAge(AgeUtil.countAge(student.getBirthday()))
-                .setStudentSituation(SerializationUtil.serializeWithoutException(student))
-                .setStudentNo(student.getSno());
-        screeningPlanSchoolStudentService.updateById(screeningPlanSchoolStudent);
-
-        visionScreeningResult.setSchoolId(school.getId())
-                .setDistrictId(school.getDistrictId())
-                .setStudentId(student.getId());
-        visionScreeningResultService.updateById(visionScreeningResult);
+        screeningPlanSchoolStudentService.updateById(screeningPlanSchoolStudent.setStudentId(student.getId()));
+        visionScreeningResultService.updateById(visionScreeningResult.setStudentId(student.getId()));
 
 
     }
@@ -333,7 +315,24 @@ public class WorkOrderBizService {
     public StudentDO getOldData(Integer studentId) {
         StudentDTO student = studentService.getStudentById(studentId);
         StudentDO studentDO = new StudentDO();
-        BeanUtils.copyProperties(student,studentDO);
+        studentDO.setAddress(student.getAddress())
+                .setBirthday(DateFormatUtil.format(student.getBirthday(), DateFormatUtil.FORMAT_ONLY_DATE))
+                .setClassId(student.getClassId())
+                .setClassName(student.getClassName())
+                .setGender(student.getGender())
+                .setGradeId(student.getGradeId())
+                .setGradeName(student.getGradeName())
+                .setGradeType(student.getGradeType())
+                .setId(student.getId())
+                .setIdCard(student.getIdCard())
+                .setMpParentPhone(student.getMpParentPhone())
+                .setName(student.getName())
+                .setNation(student.getNation())
+                .setParentPhone(student.getParentPhone())
+                .setPassport(student.getPassport())
+                .setSchoolId(student.getSchoolId())
+                .setSchoolName(student.getSchoolName())
+                .setSno(student.getSno());
         return studentDO;
     }
 }
