@@ -41,6 +41,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -245,13 +246,15 @@ public class WorkOrderBizService {
      * @param workOrderRequestDTO 工单请求
      */
     private void packageManagementStudent(Student student, WorkOrderRequestDTO workOrderRequestDTO) {
-        if (StringUtils.isNotEmpty(workOrderRequestDTO.getPassport())) {
-            student.setPassport(workOrderRequestDTO.getPassport());
-        }
+        Assert.isTrue(!StringUtils.isAllBlank(workOrderRequestDTO.getIdCard(), workOrderRequestDTO.getPassport()), "身份证和护照不能全部为空");
         if (StringUtils.isNotEmpty(workOrderRequestDTO.getIdCard())) {
             student.setIdCard(workOrderRequestDTO.getIdCard());
+            student.setPassport(null);
+        } else {
+            student.setIdCard(null);
+            student.setPassport(workOrderRequestDTO.getPassport());
         }
-        student.setSno(StringUtils.isNotEmpty(workOrderRequestDTO.getSno()) ? workOrderRequestDTO.getSno() : null);
+        student.setSno(StringUtils.equals(workOrderRequestDTO.getSno(), student.getSno()) ? null : workOrderRequestDTO.getSno());
         student.setName(workOrderRequestDTO.getName());
         student.setGender(workOrderRequestDTO.getGender());
         student.setBirthday(workOrderRequestDTO.getBirthday());
