@@ -86,17 +86,8 @@
     </select>
 
     <select id="selectSchoolGradeVoByPlanIdAndSchoolId" resultMap="GradeClassesDTO">
-        select
-                mspss.grade_id,
-                mspss.grade_name,
-                mspss.class_id,
-                mspss.class_name
-        from m_screening_plan_school_student mspss
-        join m_vision_screening_result mvsr
-                on  mspss.id = mvsr.screening_plan_school_student_id
-                and mspss.screening_plan_id = mvsr.plan_id
-                and mspss.school_id = mvsr.school_id
-        where mspss.screening_plan_id = #{screeningPlanId} and mspss.school_id = #{schoolId}
+        select grade_id, grade_name, class_id, class_name from m_screening_plan_school_student
+        where screening_plan_id = #{screeningPlanId} and school_id = #{schoolId}
         group by grade_id, class_id
     </select>
 
