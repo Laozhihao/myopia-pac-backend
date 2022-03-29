@@ -178,7 +178,8 @@ public class WorkOrderBizService {
         // 更新身份证学生的基础信息
         packageManagementStudent(student, workOrderRequestDTO);
         student.setStatus(CommonConst.STATUS_NOT_DELETED);
-        studentService.updateById(student);
+
+        studentService.updateStudent(student);
 
         // 待修改筛查记录
         if (Objects.isNull(workOrderRequestDTO.getScreeningId())) {
