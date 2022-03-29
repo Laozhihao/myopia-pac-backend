@@ -42,7 +42,9 @@ import com.wupol.myopia.business.core.screening.organization.domain.model.Screen
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationStaffService;
 import com.wupol.myopia.business.core.system.constants.TemplateConstants;
+import com.wupol.myopia.business.core.system.domain.model.Template;
 import com.wupol.myopia.business.core.system.service.TemplateDistrictService;
+import com.wupol.myopia.business.core.system.service.TemplateService;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -108,6 +110,9 @@ public class StudentFacade {
 
     @Autowired
     private SchoolClassService schoolClassService;
+
+    @Autowired
+    private TemplateService templateService;
 
     /**
      * 获取学生筛查档案
@@ -310,14 +315,18 @@ public class StudentFacade {
     }
 
     /**
-     * 获取机构使用的模板
+     * 获取机构使用的档案卡模板
      *
      * @param screeningOrgId 筛查机构Id
      * @return 模板Id
      */
     private Integer getTemplateId(Integer screeningOrgId) {
         ScreeningOrganization org = screeningOrganizationService.getById(screeningOrgId);
-        return templateDistrictService.getByDistrictId(districtService.getProvinceId(org.getDistrictId()));
+
+        // 根据类型查模板(档案卡)
+        List<Template> templateList = templateService.getArchives();
+        List<Integer> templateIds = templateList.stream().map(Template::getId).collect(Collectors.toList());
+        return templateDistrictService.getArchivesByDistrictId(districtService.getProvinceId(org.getDistrictId()),templateIds);
     }
 
     /**

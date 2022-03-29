@@ -27,4 +27,6 @@ public interface TemplateDistrictMapper extends BaseMapper<TemplateDistrict> {
     List<TemplateDistrict> getByTemplateIds(@Param("templateIds") List<Integer> templateIds);
 
     Integer getByDistrictId(@Param("districtId") Integer districtId);
+
+    Integer getByDistrictIdAndTemplateIds(@Param("districtId") Integer districtId,@Param("templateIds") List<Integer> templateIds);
 }

@@ -91,4 +91,13 @@
         from m_template_district
         where district_id = #{districtId}
     </select>
+
+    <select id="getByDistrictIdAndTemplateIds" resultType="java.lang.Integer">
+        select template_id
+        from m_template_district
+        where district_id = #{districtId} and template_id in
+        <foreach collection="templateIds" open="(" close=")" separator="," item="templateId">
+            #{templateId}
+        </foreach>
+    </select>
 </mapper>
