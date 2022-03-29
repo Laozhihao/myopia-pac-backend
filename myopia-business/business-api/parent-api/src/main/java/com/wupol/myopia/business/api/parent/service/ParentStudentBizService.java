@@ -599,6 +599,7 @@ public class ParentStudentBizService {
             student = studentService.findOne(new Student().setId(screeningPlanSchoolStudent.getStudentId()).setName(name));
             Assert.notNull(student, "该学生筛查编号/身份证/护照/学籍号/姓名错误");
         }
+        responseDTO.setStudentId(student.getId());
         List<ScreeningPlanSchoolStudent> planStudents = screeningPlanSchoolStudentService.getByStudentId(student.getId());
         // 查询报告
         if (!CollectionUtils.isEmpty(planStudents)) {
