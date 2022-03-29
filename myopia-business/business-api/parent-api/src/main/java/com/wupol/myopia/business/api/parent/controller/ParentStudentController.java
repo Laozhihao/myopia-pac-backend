@@ -5,6 +5,7 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.base.util.RegularUtils;
 import com.wupol.myopia.business.aggregation.hospital.domain.dto.StudentVisitReportResponseDTO;
 import com.wupol.myopia.business.api.parent.domain.dos.CountReportItemsDO;
@@ -349,6 +350,7 @@ public class ParentStudentController {
             throw new BusinessException("护照填写错误，请重新填写！");
         }
         Parent parent = parentService.getParentByUserId(user.getId());
+        DateUtil.checkBirthday(workOrder.getBirthday());
         workOrderService.addWorkOrder(workOrder,parent);
     }
 
