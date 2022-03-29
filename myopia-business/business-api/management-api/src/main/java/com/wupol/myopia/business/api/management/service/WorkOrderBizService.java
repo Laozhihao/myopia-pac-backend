@@ -287,10 +287,20 @@ public class WorkOrderBizService {
                 .setScreeningTitle(workOrderRequestDTO.getScreeningTitle());
 
         BeanUtils.copyProperties(workOrderRequestDTO, workOrder);
-        workOrderService.updateById(workOrder.setStatus(WorkOrderStatusEnum.PROCESSED.code)
-                .setPassport(StringUtils.isBlank(workOrder.getPassport()) ? null : workOrder.getPassport())
-                .setIdCard(StringUtils.isBlank(workOrder.getIdCard()) ? null : workOrder.getIdCard())
-                .setOldData(studentDO));
+        workOrder.setStatus(WorkOrderStatusEnum.PROCESSED.code)
+                .setOldData(studentDO);
+        if (StringUtils.isNotBlank(studentDO.getIdCard())){
+            workOrder.setIdCard(StringUtils.isBlank(workOrder.getIdCard()) ? null : workOrder.getIdCard());
+        }else {
+            workOrder.setIdCard(null);
+        }
+        if (StringUtils.isNotBlank(studentDO.getPassport())){
+            workOrder.setPassport(StringUtils.isBlank(workOrder.getPassport()) ? null : workOrder.getPassport());
+        }else {
+            workOrder.setPassport(null);
+        }
+
+        workOrderService.updateById(workOrder);
     }
 
     /**
