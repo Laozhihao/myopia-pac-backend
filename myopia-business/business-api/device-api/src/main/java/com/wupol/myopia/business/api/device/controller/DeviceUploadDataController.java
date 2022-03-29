@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.device.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.wupol.framework.domain.ThreeTuple;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.DeviceDataRequestDTO;
@@ -12,12 +13,15 @@ import com.wupol.myopia.business.api.device.domain.dto.UserInfoRequestDTO;
 import com.wupol.myopia.business.api.device.domain.dto.UserInfoResponseDTO;
 import com.wupol.myopia.business.api.device.domain.result.DeviceUploadResult;
 import com.wupol.myopia.business.api.device.service.DeviceUploadDataService;
+import com.wupol.myopia.business.api.device.service.FkrDataService;
 import com.wupol.myopia.business.api.device.service.IDeviceDataService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.math.BigDecimal;
 
 
 /**
@@ -34,6 +38,9 @@ public class DeviceUploadDataController {
 
     @Autowired
     private DeviceUploadDataService deviceUploadDataService;
+
+    @Autowired
+    private FkrDataService fkrDataService;
 
     /**
      * 上传数据
@@ -86,5 +93,10 @@ public class DeviceUploadDataController {
         return ApiResult.success(deviceUploadDataService.getUserInfo(request));
     }
 
+    @PostMapping("fkr710/upload")
+    public ApiResult abc(@RequestBody String str) {
+        fkrDataService.uploadData(str);
+        return ApiResult.success();
+    }
 
 }

@@ -344,7 +344,7 @@ public class DeviceUploadDataService {
      * @param deviceSn 设备唯一标识
      * @return 设备
      */
-    private Device getDevice(String deviceSn) {
+    public Device getDevice(String deviceSn) {
         Device device = deviceService.getDeviceByDeviceSn(deviceSn);
         if (Objects.isNull(device)) {
             throw new BusinessException("无法找到设备:" + deviceSn, ResultCode.DATA_UPLOAD_DEVICE_ERROR.getCode());
@@ -358,7 +358,7 @@ public class DeviceUploadDataService {
      * @param device 设备
      * @return 筛查机构
      */
-    private ScreeningOrganization getScreeningOrganization(Device device) {
+    public ScreeningOrganization getScreeningOrganization(Device device) {
         ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(device.getBindingScreeningOrgId());
         if (Objects.isNull(screeningOrganization) || CommonConst.STATUS_IS_DELETED.equals(screeningOrganization.getStatus())) {
             throw new BusinessException("无法找到筛查机构或该筛查机构已过期！", ResultCode.DATA_UPLOAD_SCREENING_ORG_ERROR.getCode());
