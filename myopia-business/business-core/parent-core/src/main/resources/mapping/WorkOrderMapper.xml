@@ -6,9 +6,11 @@
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.parent.domain.model.WorkOrder">
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="old_data" property="oldData"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="new_data" property="newData"/>
     </resultMap>
     <resultMap id="BaseResultMapDTO" type="com.wupol.myopia.business.core.parent.domain.dto.WorkOrderDTO">
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="old_data" property="oldData"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="new_data" property="newData"/>
     </resultMap>
 
 

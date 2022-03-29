@@ -110,6 +110,12 @@ public class WorkOrder implements Serializable {
     private StudentDO oldData;
 
     /**
+     * oldData
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private StudentDO newData;
+
+    /**
      * 留言内容
      */
     private String content;

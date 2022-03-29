@@ -24,5 +24,6 @@ CREATE TABLE `m_work_order` (
   `screening_end_time` timestamp NULL DEFAULT NULL COMMENT '筛查结束时间',
   `is_notice` tinyint(4) DEFAULT '0' COMMENT '是否发送短信通知 0-否 1-是',
   `screening_id` int(11) DEFAULT NULL COMMENT '修改筛查记录id',
+  `new_data` json DEFAULT NULL COMMENT '新数据',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4;

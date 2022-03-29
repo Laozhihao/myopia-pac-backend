@@ -63,9 +63,10 @@ public class WorkOrderController {
         // 旧数据保存
         StudentDO studentDO = workOrderBizService.getOldData(workOrderRequestDTO.getStudentId());
 
-        workOrderBizService.disposeOfWordOrder(workOrderRequestDTO);
+        Student student = workOrderBizService.disposeOfWordOrder(workOrderRequestDTO);
+
         // 更新工单状态发送短信
-        workOrderBizService.updateWorkOrderAndSendSMS(studentDO,workOrderRequestDTO);
+        workOrderBizService.updateWorkOrderAndSendSMS(student,studentDO,workOrderRequestDTO);
         return true;
     }
 

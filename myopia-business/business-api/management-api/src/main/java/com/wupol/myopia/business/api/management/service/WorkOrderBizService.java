@@ -141,7 +141,7 @@ public class WorkOrderBizService {
      * @param workOrderRequestDTO 工单处理请求参数
      */
     @Transactional(rollbackFor = Exception.class)
-    public void disposeOfWordOrder(WorkOrderRequestDTO workOrderRequestDTO) {
+    public Student disposeOfWordOrder(WorkOrderRequestDTO workOrderRequestDTO) {
         School school = schoolService.getBySchoolId(workOrderRequestDTO.getSchoolId());
 
         if (Objects.isNull(school)) {
@@ -157,7 +157,7 @@ public class WorkOrderBizService {
             if (StringUtils.equals(workOrderRequestDTO.getIdCard(), studentDTO.getIdCard())) {
                 packageManagementStudent(studentDTO, workOrderRequestDTO);
                 studentService.updateStudent(studentDTO);
-                return;
+                return studentDTO;
             }
             student = studentService.getAllByIdCard(workOrderRequestDTO.getIdCard());
         }
@@ -165,7 +165,7 @@ public class WorkOrderBizService {
             if (StringUtils.equals(workOrderRequestDTO.getPassport(), studentDTO.getPassport())) {
                 packageManagementStudent(studentDTO, workOrderRequestDTO);
                 studentService.updateStudent(studentDTO);
-                return;
+                return studentDTO;
             }
             student = studentService.getAllByPassport(workOrderRequestDTO.getPassport());
         }
@@ -183,7 +183,7 @@ public class WorkOrderBizService {
 
         // 待修改筛查记录
         if (Objects.isNull(workOrderRequestDTO.getScreeningId())) {
-            return;
+            return student;
         }
         VisionScreeningResult visionScreeningResult = visionScreeningResultService.getById(workOrderRequestDTO.getScreeningId());
         if (Objects.isNull(visionScreeningResult)) {
@@ -192,6 +192,7 @@ public class WorkOrderBizService {
         // 筛查记录表学生id 筛查学生表的学生id更改
         updateScreeningPlanSchoolStudentAndVisionScreeningResult(student, visionScreeningResult);
 
+        return student;
 
     }
 
@@ -270,7 +271,7 @@ public class WorkOrderBizService {
      *
      * @param workOrderRequestDTO 工单请求
      */
-    public void updateWorkOrderAndSendSMS(StudentDO studentDO, WorkOrderRequestDTO workOrderRequestDTO) {
+    public void updateWorkOrderAndSendSMS(Student student,StudentDO studentDO, WorkOrderRequestDTO workOrderRequestDTO) {
 
         WorkOrder workOrder = workOrderService.getById(workOrderRequestDTO.getWorkOrderId());
         if (Objects.isNull(workOrder)) {
@@ -286,21 +287,56 @@ public class WorkOrderBizService {
                 .setScreeningDate(workOrderRequestDTO.getScreeningDate())
                 .setScreeningTitle(workOrderRequestDTO.getScreeningTitle());
 
-        BeanUtils.copyProperties(workOrderRequestDTO, workOrder);
+        StudentDO newData = getNewData(student);
         workOrder.setStatus(WorkOrderStatusEnum.PROCESSED.code)
+                .setNewData(newData)
                 .setOldData(studentDO);
-        if (StringUtils.isNotBlank(studentDO.getIdCard())){
-            workOrder.setIdCard(StringUtils.isBlank(workOrder.getIdCard()) ? null : workOrder.getIdCard());
-        }else {
-            workOrder.setIdCard(null);
-        }
-        if (StringUtils.isNotBlank(studentDO.getPassport())){
-            workOrder.setPassport(StringUtils.isBlank(workOrder.getPassport()) ? null : workOrder.getPassport());
-        }else {
-            workOrder.setPassport(null);
-        }
 
         workOrderService.updateById(workOrder);
+    }
+
+    /**
+     * 打包新学生数据
+     * @param student
+     * @return
+     */
+    private StudentDO getNewData(Student student) {
+        StudentDO studentDO = new StudentDO();
+        BeanUtils.copyProperties(student,studentDO);
+        if (Objects.nonNull(student.getSchoolId())) {
+            School school = schoolService.getBySchoolId(student.getSchoolId());
+            if (Objects.nonNull(school)){
+                studentDO.setSchoolName(school.getName());
+            }
+        }
+        if (Objects.nonNull(student.getGradeId())){
+            SchoolGrade schoolGrade = schoolGradeService.getById(student.getGradeId());
+            if (Objects.nonNull(schoolGrade)){
+                studentDO.setGradeName(schoolGrade.getName());
+            }
+        }
+        if (Objects.nonNull(student.getClassId())){
+            SchoolClass schoolClass = schoolClassService.getById(student.getClassId());
+            if (Objects.nonNull(schoolClass)){
+                studentDO.setClassName(schoolClass.getName());
+            }
+        }
+        studentDO.setAddress(student.getAddress())
+                .setBirthday(DateFormatUtil.format(student.getBirthday(), DateFormatUtil.FORMAT_ONLY_DATE))
+                .setClassId(student.getClassId())
+                .setGender(student.getGender())
+                .setGradeId(student.getGradeId())
+                .setGradeType(student.getGradeType())
+                .setId(student.getId())
+                .setIdCard(student.getIdCard())
+                .setMpParentPhone(student.getMpParentPhone())
+                .setName(student.getName())
+                .setNation(student.getNation())
+                .setParentPhone(student.getParentPhone())
+                .setPassport(student.getPassport())
+                .setSchoolId(student.getSchoolId())
+                .setSno(student.getSno());
+        return studentDO;
     }
 
     /**
