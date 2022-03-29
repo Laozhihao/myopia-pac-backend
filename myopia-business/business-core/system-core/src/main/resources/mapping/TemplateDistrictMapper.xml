@@ -86,10 +86,12 @@
         </foreach>
     </select>
 
-    <select id="getByDistrictId" resultType="java.lang.Integer">
+    <select id="getArchivesByDistrictId" resultType="java.lang.Integer">
         select template_id
-        from m_template_district
-        where district_id = #{districtId}
+        from m_template_district mtd
+                 left join m_template mt on mt.id = mtd.template_id
+        where mtd.district_id = #{districtId}
+          and mt.type = 1
     </select>
 
     <select id="getByDistrictIdAndTemplateIds" resultType="java.lang.Integer">
