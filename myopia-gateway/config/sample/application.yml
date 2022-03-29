@@ -140,3 +140,4 @@ white-list:
   - "/api/device/bmi"
   - "/management/report/pdf"
   - "/api/getUserInfo"
+  - "/api/fkr710/upload"
