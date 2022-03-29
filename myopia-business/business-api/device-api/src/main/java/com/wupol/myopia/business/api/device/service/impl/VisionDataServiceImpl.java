@@ -10,6 +10,7 @@ import com.wupol.myopia.business.aggregation.screening.domain.dto.DeviceDataRequ
 import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
 import com.wupol.myopia.business.api.device.domain.constant.BusinessTypeEnum;
 import com.wupol.myopia.business.api.device.domain.dto.VisionDataVO;
+import com.wupol.myopia.business.api.device.service.DeviceUploadDataService;
 import com.wupol.myopia.business.api.device.service.IDeviceDataService;
 import com.wupol.myopia.business.api.device.util.ParsePlanStudentUtils;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
@@ -58,6 +59,9 @@ public class VisionDataServiceImpl implements IDeviceDataService {
     @Resource
     private VisionScreeningBizService visionScreeningBizService;
 
+    @Resource
+    private DeviceUploadDataService deviceUploadDataService;
+
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -82,17 +86,10 @@ public class VisionDataServiceImpl implements IDeviceDataService {
             ValidatorUtils.validate(visionDataVO);
             Integer planStudentId = Objects.nonNull(visionDataVO.getPlanStudentId()) ? visionDataVO.getPlanStudentId() : ParsePlanStudentUtils.parsePlanStudentId(visionDataVO.getUid());
             log.info("planStudentId:{}", planStudentId);
-            ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(planStudentId);
-            if (Objects.isNull(planStudent)) {
-                throw new BusinessException("不能通过该uid找到学生信息，请确认！", ResultCode.DATA_UPLOAD_PLAN_STUDENT_ERROR.getCode());
-            }
-            Integer orgId = screeningOrganization.getId();
-            if (!planStudent.getScreeningOrgId().equals(orgId)) {
-                throw new BusinessException("筛查学生与筛查机构不匹配！", ResultCode.DATA_UPLOAD_PLAN_STUDENT_MATCH_ERROR.getCode());
-            }
+            ScreeningPlanSchoolStudent planStudent = deviceUploadDataService.getScreeningPlanSchoolStudent(screeningOrganization, planStudentId);
             Long screeningTime = visionDataVO.getScreeningTime();
             // 保存原始数据
-            saveDeviceData(device, dataStr, planStudentId, orgId, screeningTime);
+            saveDeviceData(device, dataStr, planStudentId, screeningOrganization.getId(), screeningTime);
             // 更新或新增筛查学生结果
             saveOrUpdateScreeningResult(visionDataVO, planStudent);
         });

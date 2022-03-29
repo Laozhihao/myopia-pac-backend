@@ -324,23 +324,10 @@ public class DeviceUploadDataService {
         String deviceSn = request.getDeviceSn();
         String uid = Base64.decodeStr(request.getUid());
 
-        Device device = deviceService.getDeviceByDeviceSn(deviceSn);
-        if (Objects.isNull(device)) {
-            throw new BusinessException("无法找到设备:" + deviceSn, ResultCode.DATA_UPLOAD_DEVICE_ERROR.getCode());
-        }
-        ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(device.getBindingScreeningOrgId());
-        if (Objects.isNull(screeningOrganization) || CommonConst.STATUS_IS_DELETED.equals(screeningOrganization.getStatus())) {
-            throw new BusinessException("无法找到筛查机构或该筛查机构已过期！", ResultCode.DATA_UPLOAD_SCREENING_ORG_ERROR.getCode());
-        }
+        Device device = getDevice(deviceSn);
+        ScreeningOrganization screeningOrganization = getScreeningOrganization(device);
         Integer planStudentId = ParsePlanStudentUtils.parsePlanStudentId(uid);
-        ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(planStudentId);
-        if (Objects.isNull(planStudent)) {
-            throw new BusinessException("不能通过该uid找到学生信息，请确认！", ResultCode.DATA_UPLOAD_PLAN_STUDENT_ERROR.getCode());
-        }
-        Integer orgId = screeningOrganization.getId();
-        if (!planStudent.getScreeningOrgId().equals(orgId)) {
-            throw new BusinessException("筛查学生与筛查机构不匹配！", ResultCode.DATA_UPLOAD_PLAN_STUDENT_MATCH_ERROR.getCode());
-        }
+        ScreeningPlanSchoolStudent planStudent = getScreeningPlanSchoolStudent(screeningOrganization, planStudentId);
 
         SchoolGrade schoolGrade = schoolGradeService.getById(planStudent.getGradeId());
         SchoolClass schoolClass = schoolClassService.getById(planStudent.getClassId());
@@ -349,6 +336,53 @@ public class DeviceUploadDataService {
                 Objects.nonNull(schoolGrade) ? schoolGrade.getName() : StringUtils.EMPTY,
                 Objects.nonNull(schoolClass) ? schoolClass.getName() : StringUtils.EMPTY);
 
+    }
+
+    /**
+     * 获取设备
+     *
+     * @param deviceSn 设备唯一标识
+     * @return 设备
+     */
+    private Device getDevice(String deviceSn) {
+        Device device = deviceService.getDeviceByDeviceSn(deviceSn);
+        if (Objects.isNull(device)) {
+            throw new BusinessException("无法找到设备:" + deviceSn, ResultCode.DATA_UPLOAD_DEVICE_ERROR.getCode());
+        }
+        return device;
+    }
+
+    /**
+     * 通过设备获取筛查机构
+     *
+     * @param device 设备
+     * @return 筛查机构
+     */
+    private ScreeningOrganization getScreeningOrganization(Device device) {
+        ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(device.getBindingScreeningOrgId());
+        if (Objects.isNull(screeningOrganization) || CommonConst.STATUS_IS_DELETED.equals(screeningOrganization.getStatus())) {
+            throw new BusinessException("无法找到筛查机构或该筛查机构已过期！", ResultCode.DATA_UPLOAD_SCREENING_ORG_ERROR.getCode());
+        }
+        return screeningOrganization;
+    }
+
+    /**
+     * 获取筛查学生
+     *
+     * @param screeningOrganization 筛查机构
+     * @param planStudentId         筛查学生Id
+     * @return 筛查学生
+     */
+    public ScreeningPlanSchoolStudent getScreeningPlanSchoolStudent(ScreeningOrganization screeningOrganization, Integer planStudentId) {
+        ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(planStudentId);
+        if (Objects.isNull(planStudent)) {
+            throw new BusinessException("不能通过该uid找到学生信息，请确认！", ResultCode.DATA_UPLOAD_PLAN_STUDENT_ERROR.getCode());
+        }
+        Integer orgId = screeningOrganization.getId();
+        if (!planStudent.getScreeningOrgId().equals(orgId)) {
+            throw new BusinessException("筛查学生与筛查机构不匹配！", ResultCode.DATA_UPLOAD_PLAN_STUDENT_MATCH_ERROR.getCode());
+        }
+        return planStudent;
     }
 
 }
