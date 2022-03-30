@@ -307,5 +307,14 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
         return baseMapper.getByPlanStudentId(planStudentId);
     }
 
+    /**
+     * 通过筛查结果id获取
+     * @param resultId
+     * @return
+     */
+    public StatConclusion getByResultId(Integer resultId){
+        return baseMapper.getByResultId(resultId);
+    }
+
 }
 

@@ -281,6 +281,15 @@
           AND id > #{statConclusionId}
         LIMIT 1
     </select>
+    <select id="getByResultId" resultMap="BaseResultMap">
+        select
+                *
+        from
+            m_stat_conclusion
+        where
+            result_id = #{resultId}
+        LIMIT 1
+    </select>
 
     <select id="getByResultIds" resultMap="BaseResultMap">
         select

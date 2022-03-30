@@ -31,8 +31,10 @@ import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
+import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
@@ -77,6 +79,8 @@ public class WorkOrderBizService {
     private VistelToolsService vistelToolsService;
     @Autowired
     private StudentFacade studentFacade;
+    @Autowired
+    private StatConclusionService statConclusionService;
 
 
     /**
@@ -190,7 +194,18 @@ public class WorkOrderBizService {
             throw new BusinessException("筛查记录不存在");
         }
         // 筛查记录表学生id 筛查学生表的学生id更改
-        updateScreeningPlanSchoolStudentAndVisionScreeningResult(student, visionScreeningResult);
+        ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getById(visionScreeningResult.getScreeningPlanSchoolStudentId());
+        if (Objects.isNull(screeningPlanSchoolStudent)) {
+            throw new BusinessException("筛查学生不存在");
+        }
+        StatConclusion statConclusion = statConclusionService.getByResultId(visionScreeningResult.getId());
+
+        if (Objects.isNull(statConclusion)){
+            throw new BusinessException("筛查结果结论不存在");
+        }
+        statConclusionService.updateById(statConclusion.setStudentId(student.getId()));
+        screeningPlanSchoolStudentService.updateById(screeningPlanSchoolStudent.setStudentId(student.getId()));
+        visionScreeningResultService.updateById(visionScreeningResult.setStudentId(student.getId()));
 
         return student;
 
@@ -221,23 +236,6 @@ public class WorkOrderBizService {
         saveStudent.setCreateUserId(user.getId());
         saveStudent.setId(studentFacade.saveStudentAndSchoolStudent(saveStudent));
         return saveStudent;
-    }
-
-    /**
-     * 更新筛查记录，筛查学生
-     *
-     * @param student               学生信息
-     * @param visionScreeningResult 视力筛查结果
-     */
-    private void updateScreeningPlanSchoolStudentAndVisionScreeningResult(Student student, VisionScreeningResult visionScreeningResult) {
-        ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getById(visionScreeningResult.getScreeningPlanSchoolStudentId());
-        if (Objects.isNull(screeningPlanSchoolStudent)) {
-            throw new BusinessException("筛查学生不存在");
-        }
-        screeningPlanSchoolStudentService.updateById(screeningPlanSchoolStudent.setStudentId(student.getId()));
-        visionScreeningResultService.updateById(visionScreeningResult.setStudentId(student.getId()));
-
-
     }
 
 
@@ -290,6 +288,7 @@ public class WorkOrderBizService {
         StudentDO newData = getNewData(student);
         workOrder.setStatus(WorkOrderStatusEnum.PROCESSED.code)
                 .setNewData(newData)
+                .setContent(workOrderRequestDTO.getContent())
                 .setOldData(studentDO);
 
         workOrderService.updateById(workOrder);
