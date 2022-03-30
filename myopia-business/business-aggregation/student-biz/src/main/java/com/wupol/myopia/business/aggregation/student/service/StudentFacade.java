@@ -851,6 +851,9 @@ public class StudentFacade {
     private String getSignPicUrl(Integer screeningOrgStaffUserId) {
         Assert.notNull(screeningOrgStaffUserId, "筛查人员的用户ID为空");
         ScreeningOrganizationStaff screeningOrganizationStaff = screeningOrganizationStaffService.findOne(new ScreeningOrganizationStaff().setUserId(screeningOrgStaffUserId));
+        if (Objects.isNull(screeningOrganizationStaff)) {
+            return StringUtils.EMPTY;
+        }
         return resourceFileService.getResourcePath(screeningOrganizationStaff.getSignFileId());
     }
 
