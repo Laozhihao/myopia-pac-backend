@@ -333,7 +333,7 @@ public class WorkOrderBizService {
                 .setParentPhone(student.getParentPhone())
                 .setPassport(student.getPassport())
                 .setSchoolId(student.getSchoolId())
-                .setSno(student.getSno());
+                .setSno(StringUtils.isBlank(student.getSno())?null:student.getSno());
         return studentDO;
     }
 
@@ -378,7 +378,7 @@ public class WorkOrderBizService {
                 .setPassport(student.getPassport())
                 .setSchoolId(student.getSchoolId())
                 .setSchoolName(student.getSchoolName())
-                .setSno(student.getSno());
+                .setSno(StringUtils.isBlank(student.getSno())?null:student.getSno());
         return studentDO;
     }
 }
