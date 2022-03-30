@@ -254,7 +254,7 @@ public class WorkOrderBizService {
             student.setIdCard(null);
             student.setPassport(workOrderRequestDTO.getPassport());
         }
-        student.setSno(StringUtils.isBlank(workOrderRequestDTO.getSno()) ? null : workOrderRequestDTO.getSno());
+        student.setSno(StringUtils.isBlank(workOrderRequestDTO.getSno()) ? "" : workOrderRequestDTO.getSno());
         student.setName(workOrderRequestDTO.getName());
         student.setGender(workOrderRequestDTO.getGender());
         student.setBirthday(workOrderRequestDTO.getBirthday());
