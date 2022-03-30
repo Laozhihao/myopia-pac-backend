@@ -21,7 +21,7 @@ public class WorkOrderService extends BaseService<WorkOrderMapper, WorkOrder> {
         List<WorkOrder> list = baseMapper.findByUserId(userId);
         if (list.size()>0){
             for (WorkOrder workOrder : list){
-                if (workOrder.getViewStatus() == WorkOrder.USER_VIEW_STATUS_UNREAD){
+                if (workOrder.getStatus() != 1 && workOrder.getViewStatus() == WorkOrder.USER_VIEW_STATUS_UNREAD){
                     workOrder.setViewStatus(WorkOrder.USER_VIEW_STATUS_READ);
                     baseMapper.updateById(workOrder);
                 }
@@ -42,7 +42,7 @@ public class WorkOrderService extends BaseService<WorkOrderMapper, WorkOrder> {
       List<WorkOrder> list =  baseMapper.findByUserId(userId);
       if (list.size()>0){
           for (WorkOrder workOrder: list){
-              if (workOrder.getViewStatus() == WorkOrder.USER_VIEW_STATUS_UNREAD){
+              if (workOrder.getStatus() != 1 && workOrder.getViewStatus() == WorkOrder.USER_VIEW_STATUS_UNREAD){
                   return WorkOrder.USER_VIEW_STATUS_UNREAD;
               }
           }
