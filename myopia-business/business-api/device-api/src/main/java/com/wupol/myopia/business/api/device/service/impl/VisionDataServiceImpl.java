@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.api.device.service.impl;
 
-import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.domain.ResultCode;
@@ -16,12 +15,9 @@ import com.wupol.myopia.business.api.device.util.ParsePlanStudentUtils;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
 import com.wupol.myopia.business.core.device.domain.model.Device;
-import com.wupol.myopia.business.core.device.domain.model.DeviceSourceData;
 import com.wupol.myopia.business.core.device.service.DeviceService;
-import com.wupol.myopia.business.core.device.service.DeviceSourceDataService;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -43,12 +38,6 @@ import java.util.Objects;
 @Slf4j
 @Service
 public class VisionDataServiceImpl implements IDeviceDataService {
-
-    @Resource
-    private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
-
-    @Resource
-    private DeviceSourceDataService deviceSourceDataService;
 
     @Resource
     private DeviceService deviceService;
@@ -89,7 +78,7 @@ public class VisionDataServiceImpl implements IDeviceDataService {
             ScreeningPlanSchoolStudent planStudent = deviceUploadDataService.getScreeningPlanSchoolStudent(screeningOrganization, planStudentId);
             Long screeningTime = visionDataVO.getScreeningTime();
             // 保存原始数据
-            saveDeviceData(device, dataStr, planStudentId, screeningOrganization.getId(), screeningTime);
+            deviceUploadDataService.saveDeviceData(device, dataStr, planStudentId, screeningOrganization.getId(), screeningTime);
             // 更新或新增筛查学生结果
             saveOrUpdateScreeningResult(visionDataVO, planStudent);
         });
@@ -99,28 +88,6 @@ public class VisionDataServiceImpl implements IDeviceDataService {
     @Override
     public Integer getBusinessType() {
         return BusinessTypeEnum.VISION_DATA.getType();
-    }
-
-    /**
-     * 保存原始信息
-     *
-     * @param device        设备信息
-     * @param dataStr       数据
-     * @param planStudentId 筛查学生
-     * @param orgId         筛查机构
-     * @param screeningTime 筛查时间
-     */
-    private void saveDeviceData(Device device, String dataStr, Integer planStudentId, Integer orgId, Long screeningTime) {
-        DeviceSourceData data = new DeviceSourceData();
-        data.setDeviceType(device.getType());
-        data.setPatientId(String.valueOf(planStudentId));
-        data.setDeviceId(device.getId());
-        data.setDeviceCode(device.getDeviceCode());
-        data.setDeviceSn(device.getDeviceSn());
-        data.setSrcData(dataStr);
-        data.setScreeningOrgId(orgId);
-        data.setScreeningTime(Objects.nonNull(screeningTime) ? DateUtil.date(screeningTime) : new Date());
-        deviceSourceDataService.save(data);
     }
 
     /**

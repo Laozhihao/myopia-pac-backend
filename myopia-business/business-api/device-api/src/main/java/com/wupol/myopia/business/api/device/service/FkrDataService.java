@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * TODO:
@@ -42,6 +43,8 @@ public class FkrDataService {
         Device device = deviceUploadDataService.getDevice(deviceSN);
         ScreeningOrganization screeningOrganization = deviceUploadDataService.getScreeningOrganization(device);
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = deviceUploadDataService.getScreeningPlanSchoolStudent(screeningOrganization, planStudentId);
+        // 保存原始数据
+        deviceUploadDataService.saveDeviceData(device, JSONObject.toJSONString(data), planStudentId, screeningOrganization.getId(), new Date().getTime());
         visionScreeningBizService.saveOrUpdateStudentScreenData(getComputerOptometryDTO(leftData, rightData, screeningPlanSchoolStudent));
     }
 

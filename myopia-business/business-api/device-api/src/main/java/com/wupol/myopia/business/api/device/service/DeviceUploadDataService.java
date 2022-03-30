@@ -1,6 +1,8 @@
 package com.wupol.myopia.business.api.device.service;
 
 import cn.hutool.core.codec.Base64;
+import cn.hutool.core.date.DateUtil;
+import com.alibaba.fastjson.JSONObject;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.domain.ResultCode;
@@ -14,6 +16,7 @@ import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.util.VS666Util;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceScreenDataDTO;
 import com.wupol.myopia.business.core.device.domain.model.Device;
+import com.wupol.myopia.business.core.device.domain.model.DeviceSourceData;
 import com.wupol.myopia.business.core.device.service.DeviceScreeningDataService;
 import com.wupol.myopia.business.core.device.service.DeviceService;
 import com.wupol.myopia.business.core.device.service.DeviceSourceDataService;
@@ -34,10 +37,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -293,7 +293,8 @@ public class DeviceUploadDataService {
             if (StringUtils.isBlank(uid)) {
                 return new ScalesResponseDTO("0", "uid数据为空");
             }
-            ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(ParsePlanStudentUtils.parsePlanStudentId(uid));
+            Integer parsePlanStudentId = ParsePlanStudentUtils.parsePlanStudentId(uid);
+            ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(parsePlanStudentId);
             if (Objects.isNull(planStudent)) {
                 return new ScalesResponseDTO("0", "uid找不到学生数据");
             }
@@ -301,6 +302,8 @@ public class DeviceUploadDataService {
             if (Objects.isNull(bmiData)) {
                 return new ScalesResponseDTO("0", "身体质量指数值为空");
             }
+            // 保存原始数据
+            saveDeviceData(device, JSONObject.toJSONString(data), parsePlanStudentId, screeningOrganization.getId(), new Date().getTime());
             HeightAndWeightDataDTO heightAndWeightDataDTO = new HeightAndWeightDataDTO();
             heightAndWeightDataDTO.setHeight(new BigDecimal(bmiData.getHeight()));
             heightAndWeightDataDTO.setWeight(new BigDecimal(bmiData.getWeight()));
@@ -383,6 +386,28 @@ public class DeviceUploadDataService {
             throw new BusinessException("筛查学生与筛查机构不匹配！", ResultCode.DATA_UPLOAD_PLAN_STUDENT_MATCH_ERROR.getCode());
         }
         return planStudent;
+    }
+
+    /**
+     * 保存原始信息
+     *
+     * @param device        设备信息
+     * @param dataStr       数据
+     * @param planStudentId 筛查学生
+     * @param orgId         筛查机构
+     * @param screeningTime 筛查时间
+     */
+    public void saveDeviceData(Device device, String dataStr, Integer planStudentId, Integer orgId, Long screeningTime) {
+        DeviceSourceData data = new DeviceSourceData();
+        data.setDeviceType(device.getType());
+        data.setPatientId(String.valueOf(planStudentId));
+        data.setDeviceId(device.getId());
+        data.setDeviceCode(device.getDeviceCode());
+        data.setDeviceSn(device.getDeviceSn());
+        data.setSrcData(dataStr);
+        data.setScreeningOrgId(orgId);
+        data.setScreeningTime(Objects.nonNull(screeningTime) ? DateUtil.date(screeningTime) : new Date());
+        deviceSourceDataService.save(data);
     }
 
 }
