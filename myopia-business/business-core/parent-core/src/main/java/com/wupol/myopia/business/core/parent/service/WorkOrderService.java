@@ -45,7 +45,7 @@ public class WorkOrderService extends BaseService<WorkOrderMapper, WorkOrder> {
         if (!CollectionUtils.isEmpty(list)){
             //当查看工单列表的时候修改已读状态
             for (WorkOrder workOrder : list){
-                if (workOrder.getStatus().equals(WorkOrderStatusEnum.PROCESSED.code) && workOrder.getViewStatus() == WorkOrder.USER_VIEW_STATUS_UNREAD){
+                if (WorkOrderStatusEnum.PROCESSED.code.equals(workOrder.getStatus()) && workOrder.getViewStatus() == WorkOrder.USER_VIEW_STATUS_UNREAD){
                     workOrder.setViewStatus(WorkOrder.USER_VIEW_STATUS_READ);
                     baseMapper.updateById(workOrder);
                 }
@@ -60,7 +60,7 @@ public class WorkOrderService extends BaseService<WorkOrderMapper, WorkOrder> {
      * @param parent
      */
     public void addWorkOrder (WorkOrder workOrder,Parent parent){
-        workOrder.setStatus(1);
+        workOrder.setStatus(WorkOrderStatusEnum.UNTREATED.code);
         if (parent != null && StringUtils.isNotBlank(parent.getWxNickname())){
             workOrder.setWxNickname(parent.getWxNickname());
         }
@@ -77,7 +77,7 @@ public class WorkOrderService extends BaseService<WorkOrderMapper, WorkOrder> {
       if (!CollectionUtils.isEmpty(list)){
           //当前用户所提交的工单中如果有一个已处理未查看就返回未读的状态
           for (WorkOrder workOrder: list){
-              if (workOrder.getStatus().equals(WorkOrderStatusEnum.PROCESSED.code) && workOrder.getViewStatus() == WorkOrder.USER_VIEW_STATUS_UNREAD){
+              if (WorkOrderStatusEnum.PROCESSED.code.equals(workOrder.getStatus()) && workOrder.getViewStatus() == WorkOrder.USER_VIEW_STATUS_UNREAD){
                   return WorkOrder.USER_VIEW_STATUS_UNREAD;
               }
           }
