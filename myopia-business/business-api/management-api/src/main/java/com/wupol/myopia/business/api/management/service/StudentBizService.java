@@ -263,7 +263,7 @@ public class StudentBizService {
      */
     private Integer getTemplateId(Integer screeningOrgId) {
         ScreeningOrganization org = screeningOrganizationService.getById(screeningOrgId);
-        return templateDistrictService.getByDistrictId(districtService.getProvinceId(org.getDistrictId()));
+        return templateDistrictService.getArchivesByDistrictId(districtService.getProvinceId(org.getDistrictId()));
     }
 
 

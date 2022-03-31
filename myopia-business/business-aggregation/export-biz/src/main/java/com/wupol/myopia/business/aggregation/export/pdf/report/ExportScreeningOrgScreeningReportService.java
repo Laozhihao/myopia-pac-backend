@@ -1,15 +1,11 @@
 package com.wupol.myopia.business.aggregation.export.pdf.report;
 
 import com.wupol.myopia.base.cache.RedisConstant;
-import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.pdf.BaseExportPdfFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.GeneratePdfFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.PDFFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
-import com.wupol.myopia.business.core.school.domain.model.School;
-import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
-import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
@@ -51,7 +47,6 @@ public class ExportScreeningOrgScreeningReportService extends BaseExportPdfFileS
     @Override
     public void generatePdfFile(ExportCondition exportCondition, String fileSavePath, String fileName) {
         // 所有学校汇总 如果后期需要以整个计划导出，则可用该注释代码
-        // generateReportPdfService.generateScreeningPlanReportPdfFile(fileSavePath, exportCondition.getPlanId());
         List<Integer> schoolIdList = statConclusionService.getSchoolIdByPlanId(exportCondition.getPlanId());
         if (schoolIdList.contains(exportCondition.getSchoolId())){
             // 各个学校详情

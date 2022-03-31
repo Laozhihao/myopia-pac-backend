@@ -4,10 +4,12 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionQueryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.VisionScreeningResultMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -27,6 +29,9 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
 
     @Resource
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
+
+    @Resource
+    private StatConclusionService statConclusionService;
 
    /***
    * @Description: 学生ID集合
@@ -244,14 +249,26 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         }
         screeningPlanSchoolStudentService.saveOrUpdateBatch(planStudents);
         // 获取所有结果
-        List<VisionScreeningResult> resultList = getByPlanId(plan.getId());
+        Integer planId = plan.getId();
+        List<VisionScreeningResult> resultList = getByPlanId(planId);
         if (CollectionUtils.isEmpty(resultList)) {
             return;
         }
 
-        List<VisionScreeningResult> updateResultList = new ArrayList<>();
+        // 获取所有的筛查数据结论
+        StatConclusionQueryDTO statConclusionQueryDTO = new StatConclusionQueryDTO();
+        statConclusionQueryDTO.setPlanId(planId);
+        List<StatConclusion> statConclusionList = statConclusionService.listByQuery(statConclusionQueryDTO);
+        if (CollectionUtils.isEmpty(statConclusionList)) {
+            return;
+        }
+        Map<Integer, StatConclusion> statConclusionMap = statConclusionList.stream().collect(Collectors.toMap(StatConclusion::getResultId, Function.identity()));
 
-        Map<Integer, VisionScreeningResult> visionMap = resultList.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
+        List<VisionScreeningResult> updateResultList = new ArrayList<>();
+        List<StatConclusion> updateStatConclusionList = new ArrayList<>();
+
+        Map<Integer, VisionScreeningResult> visionMap = resultList.stream()
+                .collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
         planStudents.forEach(planStudent -> {
             VisionScreeningResult result = visionMap.get(planStudent.getId());
             if (Objects.nonNull(result)) {
@@ -259,7 +276,15 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
                 result.setSchoolId(planStudent.getSchoolId());
                 updateResultList.add(result);
             }
+            StatConclusion statConclusion = statConclusionMap.get(result.getId());
+            if (Objects.nonNull(statConclusion)) {
+                statConclusion.setScreeningPlanSchoolStudentId(planStudent.getId());
+                statConclusion.setStudentId(planStudent.getStudentId());
+                statConclusion.setSchoolId(planStudent.getSchoolId());
+                updateStatConclusionList.add(statConclusion);
+            }
         });
         updateBatchById(updateResultList);
+        statConclusionService.updateBatchById(updateStatConclusionList);
     }
 }

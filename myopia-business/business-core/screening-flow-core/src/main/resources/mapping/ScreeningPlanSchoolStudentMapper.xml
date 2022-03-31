@@ -457,19 +457,6 @@
         limit 1
     </select>
 
-    <select id="getByCondition" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from m_screening_plan_school_student
-                where (id_card = #{condition}
-                or screening_code = #{condition}
-                or student_no = #{condition}
-        <if test="studentId != null">
-            or student_id = #{studentId}
-        </if>)
-            and student_name = #{name}
-    </select>
-
     <select id="getScreeningNoticeResultStudent" resultMap="ScreeningStudentDTO">
         select mspss.student_name      as name,
                mspss.student_no        as sno,

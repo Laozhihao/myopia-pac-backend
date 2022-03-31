@@ -11,7 +11,7 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class PDFFileNameConstant {
     /**
-     * PDF报告文件名
+     * PDF告知书
      */
     public static final String REPORT_NOTICE_QR_CODE_FILE_NAME = "%s%s%s告知书";
     public static final String REPORT_SCREENING_QR_CODE_FILE_NAME = "%s%s%s筛查二维码";
