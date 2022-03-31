@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.core.screening.organization.domain.dto;
 
-import com.amazonaws.services.dynamodbv2.xspec.S;
 import com.wupol.myopia.base.util.RegularUtils;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationStaff;
 import lombok.Data;

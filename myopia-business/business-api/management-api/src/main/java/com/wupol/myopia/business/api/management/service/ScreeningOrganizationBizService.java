@@ -321,7 +321,7 @@ public class ScreeningOrganizationBizService {
         // 获取筛查人员信息
         Map<Integer, List<ScreeningOrganizationStaff>> staffMaps = screeningOrganizationStaffService
                 .getOrgStaffMapByIds(orgListsRecords.stream().map(ScreeningOrganization::getId)
-                        .collect(Collectors.toList()),currentUser.isPlatformAdminUser());
+                        .collect(Collectors.toList()),currentUser.isPlatformAdminUser() ? null : ScreeningOrganizationStaff.GENERAL_SCREENING_PERSONNEL);
         // 获取已有任务的机构ID列表
         List<Integer> haveTaskOrgIds = getHaveTaskOrgIds(query);
 

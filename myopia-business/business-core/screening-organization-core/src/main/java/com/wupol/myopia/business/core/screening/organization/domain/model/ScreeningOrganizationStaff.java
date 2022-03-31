@@ -7,9 +7,11 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.springframework.util.Assert;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * 机构-人员表
@@ -96,6 +98,16 @@ public class ScreeningOrganizationStaff implements Serializable {
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
+
+    /**
+     * 是否为自动生成的筛查人员
+     *
+     * @return boolean
+     **/
+    public static boolean isAutoCreateScreeningStaff(Integer type) {
+        Assert.notNull(type, "筛查人员类型为空");
+        return type == AUTO_CREATE_SCREENING_PERSONNEL;
+    }
 
 
 }

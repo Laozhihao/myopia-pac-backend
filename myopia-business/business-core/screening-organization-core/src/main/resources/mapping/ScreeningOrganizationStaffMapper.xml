@@ -39,8 +39,8 @@
                 #{id}
             </foreach>
         </if>
-        <if test="type ==0">
-        and type != 1
+        <if test="type != null">
+        and type = #{type}
         </if>
     </select>
 
@@ -60,8 +60,8 @@
         <foreach collection="orgIds" item="id" index="index" open="(" close=")" separator=",">
             #{id}
         </foreach>
-        <if test="!type">
-            and type != 1
+        <if test="type != null">
+            and type = #{type}
         </if>
     </select>
 

@@ -64,7 +64,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      * @param request 请求入参
      * @return Page<UserExtDTO> {@link Page}
      */
-    public IPage<ScreeningOrgStaffUserDTO> getOrganizationStaffList(PageRequest pageRequest,OrganizationStaffRequestDTO request) {
+    public IPage<ScreeningOrgStaffUserDTO> getOrganizationStaffList(PageRequest pageRequest,OrganizationStaffRequestDTO request,CurrentUser users) {
         UserDTO userQuery = new UserDTO();
 
         // 搜索条件
@@ -82,9 +82,8 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         // 封装DTO，回填多端管理的ID
         List<Integer> userIds = resultLists.stream().map(User::getId).collect(Collectors.toList());
         ScreeningOrganizationStaffQueryDTO staffQueryDTO = new ScreeningOrganizationStaffQueryDTO();
-        CurrentUser users = CurrentUserUtil.getCurrentUser();
         staffQueryDTO.setUserIds(userIds);
-        staffQueryDTO.setType(users.isPlatformAdminUser() ? ScreeningOrganizationStaff.AUTO_CREATE_SCREENING_PERSONNEL : ScreeningOrganizationStaff.GENERAL_SCREENING_PERSONNEL);
+        staffQueryDTO.setType(users.isPlatformAdminUser() ? null : ScreeningOrganizationStaff.GENERAL_SCREENING_PERSONNEL);
         IPage<ScreeningOrganizationStaff> page = getByPage(pageRequest.toPage(),staffQueryDTO);
         Map<Integer, ScreeningOrganizationStaff> staffSnMaps = page.getRecords()
                 .stream().collect(Collectors.toMap(ScreeningOrganizationStaff::getUserId, Function.identity()));
@@ -215,7 +214,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         User user = oauthServiceClient.getUserDetailByUserId(staff.getUserId());
         String password = ScreeningOrganizationStaff.AUTO_CREATE_STAFF_DEFAULT_PASSWORD;
         String username = user.getUsername();
-        if (staff.getType()!=ScreeningOrganizationStaff.AUTO_CREATE_SCREENING_PERSONNEL){
+        if (!ScreeningOrganizationStaff.isAutoCreateScreeningStaff(staff.getType())){
             password = PasswordAndUsernameGenerator.getScreeningUserPwd(request.getPhone(), request.getIdCard());
             username = request.getPhone();
             oauthServiceClient.resetPwd(staff.getUserId(), password);
@@ -241,7 +240,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         String username;
         UserDTO userDTO = new UserDTO();
         //如果是创建机构时自动新增的人员
-        if (staff.getType()==ScreeningOrganizationStaff.AUTO_CREATE_SCREENING_PERSONNEL){
+        if (ScreeningOrganizationStaff.isAutoCreateScreeningStaff(staff.getType())){
             password = ScreeningOrganizationStaff.AUTO_CREATE_STAFF_DEFAULT_PASSWORD;
             username = staff.getUserName();
         }else{
@@ -296,7 +295,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      * @param orgIds 组织id
      * @return List<ScreeningOrganizationStaff>
      */
-    public List<ScreeningOrganizationStaff> getStaffListsByOrgIds(List<Integer> orgIds,Boolean type) {
+    public List<ScreeningOrganizationStaff> getStaffListsByOrgIds(List<Integer> orgIds,Integer type) {
         return baseMapper.getByOrgIds(orgIds,type);
     }
 
@@ -306,7 +305,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      * @param orgIds orgIds
      * @return Map<Integer, List < ScreeningOrganizationStaff>>
      */
-    public Map<Integer, List<ScreeningOrganizationStaff>> getOrgStaffMapByIds(List<Integer> orgIds,Boolean type) {
+    public Map<Integer, List<ScreeningOrganizationStaff>> getOrgStaffMapByIds(List<Integer> orgIds,Integer type) {
         return getStaffListsByOrgIds(orgIds,type).stream()
                 .collect(Collectors.groupingBy(ScreeningOrganizationStaff::getScreeningOrgId));
 

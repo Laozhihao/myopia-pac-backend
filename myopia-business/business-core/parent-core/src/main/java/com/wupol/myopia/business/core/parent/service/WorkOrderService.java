@@ -19,10 +19,16 @@ import java.util.List;
 @Service
 public class WorkOrderService extends BaseService<WorkOrderMapper, WorkOrder> {
 
+    /**
+     * 工单列表
+     * @param createUserId
+     * @return
+     */
     @Transactional(rollbackFor = Exception.class)
     public List<WorkOrder> findByCreateUserId(Integer createUserId) {
         List<WorkOrder> list = baseMapper.findByCreateUserId(createUserId);
         if (CollectionUtils.isEmpty(list)){
+            //当查看工单列表的时候修改已读状态
             for (WorkOrder workOrder : list){
                 if (workOrder.getStatus() != 1 && workOrder.getViewStatus() == WorkOrder.USER_VIEW_STATUS_UNREAD){
                     workOrder.setViewStatus(WorkOrder.USER_VIEW_STATUS_READ);
@@ -33,6 +39,11 @@ public class WorkOrderService extends BaseService<WorkOrderMapper, WorkOrder> {
         return list;
     }
 
+    /**
+     * 新建工单
+     * @param workOrder
+     * @param parent
+     */
     public void addWorkOrder (WorkOrder workOrder,Parent parent){
         workOrder.setStatus(1);
         if (parent != null && StringUtils.isNotBlank(parent.getWxNickname())){
@@ -41,9 +52,15 @@ public class WorkOrderService extends BaseService<WorkOrderMapper, WorkOrder> {
         baseMapper.insert(workOrder);
     }
 
+    /**
+     * 工单查看状态
+     * @param createUserId
+     * @return
+     */
     public int workOrderState(Integer createUserId){
       List<WorkOrder> list =  baseMapper.findByCreateUserId(createUserId);
       if (CollectionUtils.isEmpty(list)){
+          //当前用户所提交的工单中如果有一个已处理未查看就返回未读的状态
           for (WorkOrder workOrder: list){
               if (workOrder.getStatus() != 1 && workOrder.getViewStatus() == WorkOrder.USER_VIEW_STATUS_UNREAD){
                   return WorkOrder.USER_VIEW_STATUS_UNREAD;

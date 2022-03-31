@@ -7,7 +7,6 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateUtil;
-import com.wupol.myopia.base.util.RegularUtils;
 import com.wupol.myopia.business.aggregation.hospital.domain.dto.StudentVisitReportResponseDTO;
 import com.wupol.myopia.business.api.parent.domain.dos.CountReportItemsDO;
 import com.wupol.myopia.business.api.parent.domain.dos.ReportCountResponseDO;

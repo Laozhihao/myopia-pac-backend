@@ -52,9 +52,6 @@ public class ScreeningOrganizationStaffController {
     @Autowired
     private ExportStrategy exportStrategy;
 
-    @Resource
-    private ScreeningOrganizationService screeningOrganizationService;
-
     /**
      * 筛查人员列表
      *
@@ -67,7 +64,7 @@ public class ScreeningOrganizationStaffController {
         if (Objects.nonNull(user.getScreeningOrgId())) {
             request.setScreeningOrgId(user.getScreeningOrgId());
         }
-        return screeningOrganizationStaffService.getOrganizationStaffList(pageRequest,request);
+        return screeningOrganizationStaffService.getOrganizationStaffList(pageRequest,request,user);
     }
 
     /**
