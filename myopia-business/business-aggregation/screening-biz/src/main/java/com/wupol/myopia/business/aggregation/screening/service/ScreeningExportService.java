@@ -17,6 +17,7 @@ import com.wupol.myopia.business.aggregation.screening.domain.dto.AppQueryQrCode
 import com.wupol.myopia.business.aggregation.screening.domain.vos.QrCodeInfo;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
+import com.wupol.myopia.business.common.utils.constant.QrCodeConstant;
 import com.wupol.myopia.business.common.utils.domain.model.NotificationConfig;
 import com.wupol.myopia.business.common.utils.util.QrcodeUtil;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;

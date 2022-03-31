@@ -58,13 +58,46 @@ public class TemplateDistrictService extends BaseService<TemplateDistrictMapper,
     }
 
     /**
+     * 批量删除
+     * @param templateId 模板ID集合
+     * @param districtIds 区域ID集合
+     */
+    public void batchDelete(Integer templateId, List<Integer> districtIds) {
+        baseMapper.batchDelete(templateId,districtIds);
+    }
+
+
+    /**
+     * 批量删除
+     * @param templateIds 模板ID集合
+     * @param districtIds 区域ID集合
+     */
+    public void batchDeleteTemplateIdsAndDistrictIds(List<Integer> templateIds, List<Integer> districtIds) {
+        baseMapper.batchDeleteTemplateIdsAndDistrictIds(templateIds,districtIds);
+    }
+
+
+    /**
      * 通过行政区域获取模版Id
      *
      * @param districtId 行政区域
      * @return 模版Id
      */
-    public Integer getByDistrictId(Integer districtId) {
-        Integer templateId = baseMapper.getByDistrictId(districtId);
+    public Integer getArchivesByDistrictId(Integer districtId) {
+        Integer templateId = baseMapper.getArchivesByDistrictId(districtId);
+        if (Objects.isNull(templateId)) {
+            return TemplateConstants.GLOBAL_TEMPLATE;
+        }
+        return templateId;
+    }
+    /**
+     * 通过行政区域获取模版Id
+     *
+     * @param districtId 行政区域
+     * @return 模版Id
+     */
+    public Integer getArchivesByDistrictId(Integer districtId, List<Integer> templateIds) {
+        Integer templateId = baseMapper.getByDistrictIdAndTemplateIds(districtId,templateIds);
         if (Objects.isNull(templateId)) {
             return TemplateConstants.GLOBAL_TEMPLATE;
         }

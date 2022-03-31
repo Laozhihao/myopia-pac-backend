@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.system.service;
 
 import com.google.common.collect.Maps;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.core.system.domain.dto.TemplateBindItemDTO;
 import com.wupol.myopia.business.core.system.domain.dto.TemplateBindRequestDTO;
 import com.wupol.myopia.business.core.system.domain.dto.TemplateResponseDTO;
@@ -29,6 +30,8 @@ public class TemplateService extends BaseService<TemplateMapper, Template> {
 
     @Resource
     private TemplateDistrictService templateDistrictService;
+    @Resource
+    private TemplateService templateService;
 
     /**
      * 获取模板列表
@@ -67,24 +70,44 @@ public class TemplateService extends BaseService<TemplateMapper, Template> {
         }
         return responses;
     }
-
     /**
-     * 绑定区域
+     * 绑定区域（档案卡绑定区域）
      *
      * @param request 入参
      * @return boolean 是否成功
      */
     @Transactional(rollbackFor = Exception.class)
-    public Boolean districtBind(TemplateBindRequestDTO request) {
+    public Boolean districtBindArchives(TemplateBindRequestDTO request) {
 
         Integer templateId = request.getTemplateId();
         List<TemplateBindItemDTO> bindItemDTOS = request.getDistrictInfo();
 
-        templateDistrictService.remove(new TemplateDistrict().setTemplateId(templateId));
         List<Integer> districtIds = bindItemDTOS.stream().map(TemplateBindItemDTO::getDistrictId).collect(Collectors.toList());
+        templateDistrictService.remove(new TemplateDistrict().setTemplateId(templateId));
         if (!CollectionUtils.isEmpty(districtIds)) {
-            // 批量删除
-            templateDistrictService.deletedByDistrictIds(districtIds);
+            batchDelete(districtIds);
+            // 批量插入
+            templateDistrictService.batchInsert(templateId, bindItemDTOS);
+        }
+        return true;
+    }
+
+    /**
+     * 绑定区域（档案卡绑定区域）
+     *
+     * @param request 入参
+     * @return boolean 是否成功
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean districtBindReport(TemplateBindRequestDTO request) {
+
+        Integer templateId = request.getTemplateId();
+        List<TemplateBindItemDTO> bindItemDTOS = request.getDistrictInfo();
+
+        List<Integer> districtIds = bindItemDTOS.stream().map(TemplateBindItemDTO::getDistrictId).collect(Collectors.toList());
+        // 批量删除
+        templateDistrictService.remove(new TemplateDistrict().setTemplateId(templateId));
+        if (!CollectionUtils.isEmpty(districtIds)) {
             // 批量插入
             templateDistrictService.batchInsert(templateId, bindItemDTOS);
         }
@@ -111,4 +134,27 @@ public class TemplateService extends BaseService<TemplateMapper, Template> {
         return !Collections.disjoint(list.stream().map(TemplateBindItemDTO::getDistrictId).collect(Collectors.toList()),
                 allDistrict.stream().map(TemplateDistrict::getDistrictId).collect(Collectors.toList()));
     }
+
+    /**
+     * 解除档案卡绑定区域
+     * @param districtIds
+     */
+    public void batchDelete(List<Integer> districtIds){
+        // 根据类型查模板(档案卡)
+        List<Template> templateList = getArchives();
+        List<Integer> templateIds = templateList.stream().map(Template::getId).collect(Collectors.toList());
+        templateDistrictService.batchDeleteTemplateIdsAndDistrictIds(templateIds,districtIds);
+
+    }
+
+    /**
+     * 获取所有档案卡
+     * @return
+     */
+    public List<Template> getArchives(){
+        // 根据类型查模板(档案卡)
+        List<Template> templateList = baseMapper.getByType(CommonConst.TYPE_TEMPLATE_STUDENT_ARCHIVES);
+        return templateList;
+    }
+
 }

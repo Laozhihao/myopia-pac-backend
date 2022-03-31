@@ -42,6 +42,6 @@ public class ScreeningReportController {
      */
     @PutMapping("save")
     public Boolean save(@RequestBody TemplateBindRequestDTO request) {
-        return templateService.districtBind(request);
+        return templateService.districtBindReport(request);
     }
 }

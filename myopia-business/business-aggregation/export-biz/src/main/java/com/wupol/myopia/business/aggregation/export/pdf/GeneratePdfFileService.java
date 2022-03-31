@@ -225,7 +225,7 @@ public class GeneratePdfFileService {
         ScreeningPlan plan = screeningPlanService.getById(planId);
 
         // 获取筛查机构的模板
-        Integer templateId = templateDistrictService.getByDistrictId(districtService.getProvinceId(plan.getDistrictId()));
+        Integer templateId = templateDistrictService.getArchivesByDistrictId(districtService.getProvinceId(plan.getDistrictId()));
 
 
         School school = schoolService.getById(schoolId);
@@ -300,7 +300,7 @@ public class GeneratePdfFileService {
         // 获取筛查机构的模板
         ScreeningOrganization org = screeningOrganizationService.getById(screeningPlanService.getById(planId).getScreeningOrgId());
 
-        Integer templateId = templateDistrictService.getByDistrictId(districtService.getProvinceId(org.getDistrictId()));
+        Integer templateId = templateDistrictService.getArchivesByDistrictId(districtService.getProvinceId(org.getDistrictId()));
 
         String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.STUDENT_ARCHIVES_HTML_URL, htmlUrlHost, planId, schoolId, templateId, StringUtils.isNotBlank(planStudentIds) ? planStudentIds : StringUtils.EMPTY, gradeId, Objects.nonNull(classId) ? classId : StringUtils.EMPTY);
         Assert.isTrue(HtmlToPdfUtil.convertArchives(schoolPdfHtmlUrl, Paths.get(fileSavePath).toString()), "【生成学校档案卡PDF文件异常】：" + school.getName());

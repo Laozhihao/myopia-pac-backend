@@ -23,7 +23,7 @@ spring:
     ### sentinel dashboard
     sentinel:
       transport:
-        dashboard: localhost:8858
+        dashboard: localhost:8080
       # 取消Sentinel控制台懒加载
       eager: true
     time-zone: Asia/Shanghai
@@ -47,7 +47,7 @@ spring:
       url: jdbc:mysql://localhost:3306/myopia?useUnicode=true&characterEncoding=utf8&autoReconnect=true&useSSL=false&serverTimezone=GMT%2B8
       driver-class-name: com.mysql.cj.jdbc.Driver
       username: root
-      password: 123456
+      password: 1234567890
       ### 连接池配置
       initial-size: 2
       min-idle: 1
