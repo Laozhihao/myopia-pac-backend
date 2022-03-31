@@ -90,7 +90,7 @@ public class WorkOrderBizService {
      * @param workOrderQueryDTO 查询参数
      * @return 工单分页
      */
-    public IPage<WorkOrderDTO> getWorkOrderList(PageRequest pageRequest, WorkOrderQueryDTO workOrderQueryDTO) {
+    public IPage<WorkOrderDTO> getWorkOrderPage(PageRequest pageRequest, WorkOrderQueryDTO workOrderQueryDTO) {
 
         // 模糊查询学校id组装
         if (StringUtils.isNotBlank(workOrderQueryDTO.getSchoolName())) {
@@ -105,7 +105,7 @@ public class WorkOrderBizService {
         }
 
         // 分页结果
-        IPage<WorkOrderDTO> workOrderDTOIPage = workOrderService.getWorkOrderLists(pageRequest, workOrderQueryDTO);
+        IPage<WorkOrderDTO> workOrderDTOIPage = workOrderService.getWorkOrderPage(pageRequest, workOrderQueryDTO);
 
         // 组装年级班级信息
         List<WorkOrderDTO> records = workOrderDTOIPage.getRecords();
@@ -269,6 +269,7 @@ public class WorkOrderBizService {
      *
      * @param workOrderRequestDTO 工单请求
      */
+    @Transactional(rollbackFor = Exception.class)
     public void updateWorkOrderAndSendSMS(Student student,StudentDO studentDO, WorkOrderRequestDTO workOrderRequestDTO) {
 
         WorkOrder workOrder = workOrderService.getById(workOrderRequestDTO.getWorkOrderId());
@@ -380,5 +381,19 @@ public class WorkOrderBizService {
                 .setSchoolName(student.getSchoolName())
                 .setSno(StringUtils.isBlank(student.getSno())?null:student.getSno());
         return studentDO;
+    }
+
+    /**
+     * 处理工单
+     * @param workOrderRequestDTO
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void dispose(WorkOrderRequestDTO workOrderRequestDTO) {
+        // 旧数据保存
+        StudentDO studentDO = getOldData(workOrderRequestDTO.getStudentId());
+        Student student = disposeOfWordOrder(workOrderRequestDTO);
+        // 更新工单状态发送短信
+        updateWorkOrderAndSendSMS(student,studentDO,workOrderRequestDTO);
+
     }
 }

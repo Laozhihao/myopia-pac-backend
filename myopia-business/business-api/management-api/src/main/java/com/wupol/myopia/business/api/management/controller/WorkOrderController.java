@@ -5,14 +5,10 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.api.management.service.WorkOrderBizService;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
-import com.wupol.myopia.business.core.parent.domain.dos.StudentDO;
 import com.wupol.myopia.business.core.parent.domain.dto.WorkOrderDTO;
 import com.wupol.myopia.business.core.parent.domain.dto.WorkOrderQueryDTO;
 import com.wupol.myopia.business.core.parent.domain.dto.WorkOrderRequestDTO;
-import com.wupol.myopia.business.core.school.domain.model.Student;
-import com.wupol.myopia.business.core.school.service.StudentService;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,12 +25,8 @@ import javax.validation.Valid;
 @RequestMapping("/management/workOrder")
 public class WorkOrderController {
 
-
     @Autowired
     private WorkOrderBizService workOrderBizService;
-    @Autowired
-    private StudentService studentService;
-
 
     /**
      * 获取工单列表
@@ -43,9 +35,9 @@ public class WorkOrderController {
      * @return 工单列表
      */
     @GetMapping("/list")
-    public IPage<WorkOrderDTO> getWorkOrderList(PageRequest pageRequest, WorkOrderQueryDTO workOrderQueryDTO){
+    public IPage<WorkOrderDTO> getWorkOrderPage(PageRequest pageRequest, WorkOrderQueryDTO workOrderQueryDTO){
 
-        return workOrderBizService.getWorkOrderList(pageRequest,workOrderQueryDTO);
+        return workOrderBizService.getWorkOrderPage(pageRequest,workOrderQueryDTO);
 
     }
 
@@ -60,13 +52,7 @@ public class WorkOrderController {
         if (StringUtils.isAllBlank(workOrderRequestDTO.getIdCard(),workOrderRequestDTO.getPassport())){
             throw new BusinessException("身份证和护照不可全部为空");
         }
-        // 旧数据保存
-        StudentDO studentDO = workOrderBizService.getOldData(workOrderRequestDTO.getStudentId());
-
-        Student student = workOrderBizService.disposeOfWordOrder(workOrderRequestDTO);
-
-        // 更新工单状态发送短信
-        workOrderBizService.updateWorkOrderAndSendSMS(student,studentDO,workOrderRequestDTO);
+        workOrderBizService.dispose(workOrderRequestDTO);
         return true;
     }
 

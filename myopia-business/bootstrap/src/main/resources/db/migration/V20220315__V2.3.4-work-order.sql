@@ -15,7 +15,7 @@ CREATE TABLE `m_work_order` (
   `term` tinyint(4) NOT NULL COMMENT '提交页面 0-绑定页面 1-档案页面',
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `old_data` json DEFAULT NULL COMMENT '对比结果',
+  `old_data` json DEFAULT NULL COMMENT '工单选中的学生被处理前的数据快照',
   `content` varchar(255) DEFAULT NULL COMMENT '留言内容',
   `grade_type` tinyint(4) DEFAULT NULL COMMENT '学龄段',
   `parent_phone` varchar(16) NOT NULL COMMENT '家长手机号码',
@@ -24,6 +24,6 @@ CREATE TABLE `m_work_order` (
   `screening_end_time` timestamp NULL DEFAULT NULL COMMENT '筛查结束时间',
   `is_notice` tinyint(4) DEFAULT '0' COMMENT '是否发送短信通知 0-否 1-是',
   `screening_id` int(11) DEFAULT NULL COMMENT '修改筛查记录id',
-  `new_data` json DEFAULT NULL COMMENT '新数据',
+  `new_data` json DEFAULT NULL COMMENT '工单选中的学生被处理后的数据快照',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4;

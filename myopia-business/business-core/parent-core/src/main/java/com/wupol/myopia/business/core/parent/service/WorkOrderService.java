@@ -23,7 +23,7 @@ public class WorkOrderService extends BaseService<WorkOrderMapper, WorkOrder> {
      * @param workOrderQueryDTO
      * @return IPage<WorkOrder> {@link IPage}
      */
-    public IPage<WorkOrderDTO> getWorkOrderLists(PageRequest pageRequest, WorkOrderQueryDTO workOrderQueryDTO) {
+    public IPage<WorkOrderDTO> getWorkOrderPage(PageRequest pageRequest, WorkOrderQueryDTO workOrderQueryDTO) {
         return this.baseMapper.getByPage(pageRequest.toPage(),workOrderQueryDTO.getName(),workOrderQueryDTO.getIdCardOrPassport(),
                 workOrderQueryDTO.getSchoolIds(),workOrderQueryDTO.getStartTime(),workOrderQueryDTO.getEndTime(),workOrderQueryDTO.getStatus());
     }
