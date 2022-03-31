@@ -49,4 +49,9 @@ public class ScreeningOrganizationStaffDTO extends ScreeningOrganizationStaff {
      */
     private String organizationName;
 
+    /**
+     * 自动生成筛查人员账号名称
+     */
+    private String userName;
+
 }
