@@ -12,6 +12,7 @@ import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.api.management.domain.vo.ScreeningOrganizationStaffVO;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
+import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OrganizationStaffRequestDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgStaffUserDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationStaffQueryDTO;
@@ -61,12 +62,12 @@ public class ScreeningOrganizationStaffController {
      * @return 机构人员列表
      */
     @GetMapping("list")
-    public IPage<ScreeningOrgStaffUserDTO> getOrganizationStaffList(@Valid OrganizationStaffRequestDTO request) {
+    public IPage<ScreeningOrgStaffUserDTO> getOrganizationStaffList(PageRequest pageRequest, @Valid OrganizationStaffRequestDTO request) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         if (Objects.nonNull(user.getScreeningOrgId())) {
             request.setScreeningOrgId(user.getScreeningOrgId());
         }
-        return screeningOrganizationStaffService.getOrganizationStaffList(request);
+        return screeningOrganizationStaffService.getOrganizationStaffList(pageRequest,request);
     }
 
     /**

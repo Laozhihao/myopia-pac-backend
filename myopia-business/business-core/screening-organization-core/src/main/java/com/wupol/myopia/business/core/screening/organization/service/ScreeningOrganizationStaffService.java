@@ -15,6 +15,7 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.PasswordAndUsernameGenerator;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
+import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.domain.model.ResourceFile;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
@@ -63,7 +64,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      * @param request 请求入参
      * @return Page<UserExtDTO> {@link Page}
      */
-    public IPage<ScreeningOrgStaffUserDTO> getOrganizationStaffList(OrganizationStaffRequestDTO request) {
+    public IPage<ScreeningOrgStaffUserDTO> getOrganizationStaffList(PageRequest pageRequest,OrganizationStaffRequestDTO request) {
         UserDTO userQuery = new UserDTO();
 
         // 搜索条件
@@ -80,18 +81,11 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         }
         // 封装DTO，回填多端管理的ID
         List<Integer> userIds = resultLists.stream().map(User::getId).collect(Collectors.toList());
-        Page page1 = new Page();
-        page1.setCurrent(request.getCurrent());
-        page1.setSize(request.getSize());
         ScreeningOrganizationStaffQueryDTO staffQueryDTO = new ScreeningOrganizationStaffQueryDTO();
         CurrentUser users = CurrentUserUtil.getCurrentUser();
         staffQueryDTO.setUserIds(userIds);
-        staffQueryDTO.setType(ScreeningOrganizationStaff.AUTO_CREATE_SCREENING_PERSONNEL);
-        //如果为非平台管理员
-        if (!users.isPlatformAdminUser()){
-            staffQueryDTO.setType(ScreeningOrganizationStaff.GENERAL_SCREENING_PERSONNEL);
-        }
-        IPage<ScreeningOrganizationStaff> page = getByPage(page1,staffQueryDTO);
+        staffQueryDTO.setType(users.isPlatformAdminUser() ? ScreeningOrganizationStaff.AUTO_CREATE_SCREENING_PERSONNEL : ScreeningOrganizationStaff.GENERAL_SCREENING_PERSONNEL);
+        IPage<ScreeningOrganizationStaff> page = getByPage(pageRequest.toPage(),staffQueryDTO);
         Map<Integer, ScreeningOrganizationStaff> staffSnMaps = page.getRecords()
                 .stream().collect(Collectors.toMap(ScreeningOrganizationStaff::getUserId, Function.identity()));
         List<ScreeningOrgStaffUserDTO> screeningOrgStaffUserDTOList = new ArrayList<>();
