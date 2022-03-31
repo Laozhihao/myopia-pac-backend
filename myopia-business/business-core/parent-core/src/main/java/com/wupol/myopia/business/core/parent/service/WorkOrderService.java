@@ -41,7 +41,7 @@ public class WorkOrderService extends BaseService<WorkOrderMapper, WorkOrder> {
     @Transactional(rollbackFor = Exception.class)
     public List<WorkOrder> findByCreateUserId(Integer createUserId) {
         List<WorkOrder> list = baseMapper.findByCreateUserId(createUserId);
-        if (CollectionUtils.isEmpty(list)){
+        if (!CollectionUtils.isEmpty(list)){
             //当查看工单列表的时候修改已读状态
             for (WorkOrder workOrder : list){
                 if (workOrder.getStatus() != 1 && workOrder.getViewStatus() == WorkOrder.USER_VIEW_STATUS_UNREAD){
@@ -73,7 +73,7 @@ public class WorkOrderService extends BaseService<WorkOrderMapper, WorkOrder> {
      */
     public int workOrderState(Integer createUserId){
       List<WorkOrder> list =  baseMapper.findByCreateUserId(createUserId);
-      if (CollectionUtils.isEmpty(list)){
+      if (!CollectionUtils.isEmpty(list)){
           //当前用户所提交的工单中如果有一个已处理未查看就返回未读的状态
           for (WorkOrder workOrder: list){
               if (workOrder.getStatus() != 1 && workOrder.getViewStatus() == WorkOrder.USER_VIEW_STATUS_UNREAD){
