@@ -40,3 +40,6 @@ UPDATE m_template	SET `name`='筛查报告-学校维度样板1' WHERE `name`='�
 UPDATE m_template	SET `name`='筛查报告-计划维度样板1' WHERE `name`='筛查报告-模板2';
 UPDATE m_template	SET `name`='筛查报告-区域维度样板1' WHERE `name`='筛查报告-模板3';
 DELETE FROM m_template WHERE `name`='筛查报告-模板4';
+
+alter table m_device
+    add type int default 0 null comment '类型 0-默认 1-vs666 2-灯箱 3-体脂秤' after status;
