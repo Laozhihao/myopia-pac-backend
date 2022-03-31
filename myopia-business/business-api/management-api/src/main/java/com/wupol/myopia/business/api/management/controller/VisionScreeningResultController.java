@@ -93,6 +93,9 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
         // 方便前端模板渲染复用
         if (Objects.nonNull(resultId)) {
             VisionScreeningResult visionScreeningResult = visionScreeningResultService.getById(resultId);
+            if (visionScreeningResult==null){
+                throw new BusinessException("无法找到该筛查结果");
+            }
             return Lists.newArrayList(studentFacade.getStudentCardResponseDTO(visionScreeningResult));
         }
         ScreeningPlan screeningPlan = screeningPlanService.getById(planId);
@@ -294,6 +297,11 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
         return object.getName();
     }
 
+    /**
+     * 获取学生筛查计划档案卡
+     * @param planStudentId
+     * @return
+     */
     @GetMapping("/screening/planStudent/card/{planStudentId}")
     public AppStudentCardResponseDTO getResultByPlanStudentId(@PathVariable("planStudentId") Integer planStudentId) {
         return studentFacade.getCardDetailByPlanStudentId(planStudentId);

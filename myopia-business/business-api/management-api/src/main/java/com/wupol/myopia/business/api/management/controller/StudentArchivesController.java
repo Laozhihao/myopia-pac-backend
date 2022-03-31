@@ -42,6 +42,6 @@ public class StudentArchivesController {
      */
     @PutMapping("save")
     public Boolean save(@RequestBody TemplateBindRequestDTO request) {
-        return templateService.districtBind(request);
+        return templateService.districtBindArchives(request);
     }
 }

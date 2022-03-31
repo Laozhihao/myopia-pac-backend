@@ -24,18 +24,36 @@
 ## 项目目录结构与说明
 ### 目录结构
 - myopia-pac-backend  --- 根目录，聚合所有微服务
-    - base-service    --- 服务公共模块
+    - service-common  --- 服务公共模块
     - myopia-business --- 核心业务服务
-        - bootstrap   --- 启动模块
-        - common      --- 底层公共模块，各个端共用的业务功能
-        - hospital    --- 医院端模块
-        - management  --- 管理端模块
-        - parent      --- 家长端模块
-        - school      --- 学校端模块
-        - screening   --- 筛查端模块
-    - myopia-device   --- 采集设备数据服务
+        - bootstrap                 --- 启动模块
+        - business-aggregation      --- 中间聚合层模块
+        - business-api              --- 业务api层
+            - common-api                --- 各个业务系统公用api
+            - device-api                --- 设备数据采集api
+            - hospital-app-api          --- 医院端（居民健康）APP api
+            - management-api            --- 综合管理平台api
+            - parent-api                --- 家长端api
+            - preschool-app-api         --- 0~6岁APP api
+            - school-management-api     --- 学校管理平台api
+            - screening-app-api         --- 筛查APP api
+        - business-core             --- 基础业务功能层
+            - common-core               --- 公共基础功能模块
+            - device-core               --- 设备相关模块
+            - government-core           --- 政府相关模块
+            - hospital-core             --- 医院相关模块
+            - parent-core               --- 家长相关模块
+            - school-core               --- 学校相关模块
+            - school-management-core    --- 学校管理平台相关模块
+            - screening-flow-core       --- 筛查相关模块
+            - screening-organization-core   --- 筛查机构相关模块
+            - stat-core                 --- 统计相关模块
+            - system-core               --- 系统设置相关模块
+        - common-utils              --- 公共工具模块
     - myopia-gateway  --- 网关服务
     - myopia-oauth    --- 授权中心服务
+        - oauth-core                --- 核心功能模块
+        - oauth-sdk                 --- SDK模块
     
 ### 说明
 - 核心业务服务myopia-business的配置文件全部放启动模块bootstrap的resource目录下

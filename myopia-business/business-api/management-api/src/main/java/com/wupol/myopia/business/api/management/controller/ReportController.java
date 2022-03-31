@@ -7,6 +7,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
+import com.wupol.myopia.business.aggregation.export.pdf.archives.SyncExportStudentScreeningArchivesService;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.api.management.constant.ReportConst;
@@ -65,6 +66,9 @@ public class ReportController {
 
     @Autowired
     private ReceiptListService receiptListService;
+
+    @Autowired
+    private SyncExportStudentScreeningArchivesService syncExportStudentScreeningArchivesService;
 
     /**
      * 导出区域的筛查报告 TODO: 权限校验、导出次数限制
@@ -327,5 +331,19 @@ public class ReportController {
         }
         return ApiResult.success(html2PdfService.syncGeneratorPDF(url, "报告.pdf", UUID.randomUUID().toString()).getUrl());
     }
+    /**
+     *
+     * 学生档案卡路径
+     * @param resultId 结果ID
+     * @param templateId 模板ID
+     * @return
+     */
+    @GetMapping("/student/archivesUrl")
+    public ApiResult<String> syncExportArchivesPdfUrl(@NotNull(message = "结果ID") Integer resultId,
+                                                       @NotNull(message = "模板ID") Integer templateId){
+
+        return ApiResult.success(syncExportStudentScreeningArchivesService.generateArchivesPdfUrl(resultId,templateId));
+    }
+
 
 }

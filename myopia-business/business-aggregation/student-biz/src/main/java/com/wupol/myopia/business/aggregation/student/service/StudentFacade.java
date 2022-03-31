@@ -43,6 +43,7 @@ import com.wupol.myopia.business.core.screening.organization.service.ScreeningOr
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationStaffService;
 import com.wupol.myopia.business.core.system.constants.TemplateConstants;
 import com.wupol.myopia.business.core.system.service.TemplateDistrictService;
+import com.wupol.myopia.business.core.system.service.TemplateService;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -109,6 +110,9 @@ public class StudentFacade {
     @Autowired
     private SchoolClassService schoolClassService;
 
+    @Autowired
+    private TemplateService templateService;
+
     /**
      * 获取学生筛查档案
      *
@@ -139,6 +143,7 @@ public class StudentFacade {
 
         // 获取筛查学生
         List<Integer> planStudentIds = resultList.stream().map(VisionScreeningResult::getScreeningPlanSchoolStudentId).collect(Collectors.toList());
+
         Map<Integer, Long> screeningCodeMap = screeningPlanSchoolStudentService.getByIds(planStudentIds).stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getId, ScreeningPlanSchoolStudent::getScreeningCode));
 
         for (VisionScreeningResult result : resultList) {
@@ -317,7 +322,7 @@ public class StudentFacade {
      */
     private Integer getTemplateId(Integer screeningOrgId) {
         ScreeningOrganization org = screeningOrganizationService.getById(screeningOrgId);
-        return templateDistrictService.getByDistrictId(districtService.getProvinceId(org.getDistrictId()));
+        return templateDistrictService.getArchivesByDistrictId(districtService.getProvinceId(org.getDistrictId()));
     }
 
     /**
@@ -449,6 +454,8 @@ public class StudentFacade {
         cardInfoVO.setClassName(studentInfo.getClassName());
         cardInfoVO.setGradeName(studentInfo.getGradeName());
         cardInfoVO.setDistrictName(districtService.getDistrictName(studentInfo.getSchoolDistrictName()));
+        cardInfoVO.setNationDesc(NationEnum.getName(studentInfo.getNation()));
+        cardInfoVO.setPassport(studentInfo.getPassport());
         return cardInfoVO;
     }
 
@@ -551,7 +558,13 @@ public class StudentFacade {
         if (Objects.isNull(result)) {
             return details;
         }
+
         BeanUtils.copyProperties(result, details);
+
+        details.setVisionResults(setVisionResult(result.getVisionData()));
+        details.setRefractoryResults(setRefractoryResults(result.getComputerOptometry()));
+        // 佩戴眼镜的类型随便取一个都行，两只眼睛的数据是一样
+        setClassType(result, details);
 
         details.setVisionSignPicUrl(getVisionCreateUserSignPicUrl(result));
         details.setComputerSignPicUrl(getComputerCreateUserSignPicUrl(result));
@@ -563,6 +576,21 @@ public class StudentFacade {
     }
 
     /**
+     * 设置戴镜类型
+     * @param result
+     * @param details
+     */
+    private void setClassType(VisionScreeningResult result, MyopiaScreeningResultCardDetail details) {
+        CardDetailsVO.GlassesTypeObj glassesTypeObj = new CardDetailsVO.GlassesTypeObj();
+        VisionDataDO visionData = result.getVisionData();
+        if (Objects.nonNull(visionData)) {
+            glassesTypeObj.setType(visionData.getLeftEyeData().getGlassesType());
+            details.setGlassesTypeObj(glassesTypeObj);
+        }
+        details.setGlassesTypeObj(glassesTypeObj);
+    }
+
+    /**
      * 设置视力信息
      *
      * @param result 筛查结果
@@ -571,10 +599,11 @@ public class StudentFacade {
      */
     private CardDetailsVO packageCardDetail(VisionScreeningResult result, Integer age) {
         CardDetailsVO details = new CardDetailsVO();
-        VisionDataDO visionData = result.getVisionData();
+
 
         // 佩戴眼镜的类型随便取一个都行，两只眼睛的数据是一样
         CardDetailsVO.GlassesTypeObj glassesTypeObj = new CardDetailsVO.GlassesTypeObj();
+        VisionDataDO visionData = result.getVisionData();
         if (Objects.nonNull(visionData)) {
             glassesTypeObj.setType(visionData.getLeftEyeData().getGlassesType());
             details.setGlassesTypeObj(glassesTypeObj);

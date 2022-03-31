@@ -142,6 +142,9 @@
             and (ms.id_card like CONCAT('%', #{idCardOrPassportLike}, '%') or
                  ms.passport like CONCAT('%', #{idCardOrPassportLike}, '%'))
         </if>
+        <if test="birthdayLike !=null and birthdayLike != ''">
+            and ms.birthday like CONCAT(#{birthdayLike}, '%')
+        </if>
         order by ms.create_time desc
     </select>
 
@@ -329,6 +332,13 @@
         <include refid="Base_Column_List"/>
         from m_student
         where id_card = #{idCard}
+    </select>
+
+    <select id="getAllByPassport" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_student
+        where passport = #{passport}
     </select>
 
     <select id="getByCardIdAndNotId" resultMap="BaseResultMap">
