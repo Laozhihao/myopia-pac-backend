@@ -1,10 +1,14 @@
 package com.wupol.myopia.business.core.parent.domain.model;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
+
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
+import com.wupol.myopia.business.core.parent.domain.dos.StudentDO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -122,9 +126,16 @@ public class WorkOrder implements Serializable {
     private Date updateTime;
 
     /**
-     * 对比结果
+     * oldData
      */
-    private String oldData;
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private StudentDO oldData;
+
+    /**
+     * newData
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private StudentDO newData;
 
     /**
      * 留言内容
@@ -159,6 +170,16 @@ public class WorkOrder implements Serializable {
     @NotNull(message = "筛查日期不能为空")
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date screeningEndTime;
+
+    /**
+     * 是否发送短信通知 0-否 1-是
+     */
+    private Boolean isNotice;
+
+    /**
+     * 修改筛查记录id
+     */
+    private Integer screeningId;
 
 
 

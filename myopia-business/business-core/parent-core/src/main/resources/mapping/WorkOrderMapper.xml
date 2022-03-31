@@ -2,9 +2,17 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.wupol.myopia.business.core.parent.domain.mapper.WorkOrderMapper">
 
+
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.parent.domain.model.WorkOrder">
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="old_data" property="oldData"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="new_data" property="newData"/>
     </resultMap>
+    <resultMap id="BaseResultMapDTO" type="com.wupol.myopia.business.core.parent.domain.dto.WorkOrderDTO">
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="old_data" property="oldData"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="new_data" property="newData"/>
+    </resultMap>
+
 
     <!-- 通用查询条件 -->
     <sql id="Base_Where_Clause">
@@ -33,14 +41,44 @@
                 <if test="@Ognl@isNotEmpty(wxNickname)">and `wx_nickname` = #{wxNickname}</if>
                 <if test="@Ognl@isNotEmpty(screeningBeginTime)">and `screening_begin_time` = #{screeningBeginTime}</if>
                 <if test="@Ognl@isNotEmpty(screeningEndTime)">and `screening_end_time` = #{screeningEndTime}</if>
+                <if test="@Ognl@isNotEmpty(isNotice)">and `is_notice` = #{isNotice}</if>
             </trim>
         </where>
     </sql>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, name, gender, passport, id_card, birthday, school_id, grade_id, class_id, sno, status,view_status, create_user_id, term, create_time, update_time, old_data, content, grade_type, parent_phone, wx_nickname, screening_begin_time, screening_end_time
+        id, name, gender, passport, id_card, birthday, school_id, grade_id, class_id, sno, status,view_status, create_user_id, term, create_time, update_time, old_data, content, grade_type, parent_phone, wx_nickname, screening_begin_time, screening_end_time, is_notice
     </sql>
+
+    <select id="getByPage" resultMap="BaseResultMapDTO">
+        select *
+        from m_work_order
+        where 1=1
+        <if test="name != null and name != ''">
+            and name like CONCAT('%', #{name}, '%')
+        </if>
+
+        <if test="idCardOrPassport != null and idCardOrPassport != ''">
+            and (id_card = #{idCardOrPassport} or passport = #{idCardOrPassport})
+        </if>
+
+        <if test="status !=null">
+            and status = #{status}
+        </if>
+
+        <if test="schoolIds !=null and schoolIds.size() != 0">
+            and school_id in
+            <foreach collection="schoolIds" open="(" close=")" separator="," item="schoolId">
+                #{schoolId}
+            </foreach>
+        </if>
+
+        <if test="startTime != null and endTime != null">
+            and (create_time between #{startTime} and #{endTime})
+        </if>
+        order by create_time desc
+    </select>
 
     <select id="findByCreateUserId" resultMap="BaseResultMap">
         select
