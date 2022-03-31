@@ -13,6 +13,7 @@ import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelSe
 import com.wupol.myopia.business.aggregation.export.excel.imports.PlanStudentExcelImportService;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.aggregation.screening.domain.dto.ScreeningQrCodeDTO;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
 import com.wupol.myopia.business.aggregation.screening.domain.vos.SchoolGradeVO;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningExportService;
@@ -584,7 +585,7 @@ public class ScreeningPlanController {
             @NotNull(message = "学校ID不能为空") Integer schoolId, Integer gradeId, Integer classId, String planStudentIds,
             Integer type) {
         List<Integer> studentIds =null;
-        if (StringUtil.isNotEmpty(planStudentIds)){
+        if (StringUtil.isNotEmpty(planStudentIds)&&!"null".equals(planStudentIds)){
             studentIds = Arrays.stream(planStudentIds.split(",")).map(Integer::valueOf).collect(Collectors.toList());
         }
         return screeningExportService.studentQRCodeFile(screeningPlanId, schoolId,gradeId,classId,studentIds,type);
@@ -600,12 +601,12 @@ public class ScreeningPlanController {
      * @return
      */
     @GetMapping("/student/notice")
-    public Map<String, Object> studentNoticeData(@NotNull(message = "筛查计划ID不能为空") Integer screeningPlanId,
-                                                 @NotNull(message = "学校ID不能为空") Integer schoolId, Integer gradeId,
-                                                 Integer classId, String planStudentIds,
-                                                 boolean isSchoolClient) {
+    public ScreeningQrCodeDTO studentNoticeData(@NotNull(message = "筛查计划ID不能为空") Integer screeningPlanId,
+                                                @NotNull(message = "学校ID不能为空") Integer schoolId, Integer gradeId,
+                                                Integer classId, String planStudentIds,
+                                                boolean isSchoolClient) {
         List<Integer> studentIds =null;
-        if (StringUtil.isNotEmpty(planStudentIds)&&!planStudentIds.equals("null")){
+        if (StringUtil.isNotEmpty(planStudentIds)&&!"null".equals(planStudentIds)){
             studentIds = Arrays.stream(planStudentIds.split(",")).map(Integer::valueOf).collect(Collectors.toList());
         }
         return screeningExportService.getNoticeData(screeningPlanId, schoolId,gradeId,classId,studentIds,isSchoolClient);
