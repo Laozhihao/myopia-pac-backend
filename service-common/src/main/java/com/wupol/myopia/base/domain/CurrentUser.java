@@ -56,6 +56,8 @@ public class CurrentUser {
      */
     private String clientId;
 
+    private String token;
+
     /**
      * 是否平台管理员
      */

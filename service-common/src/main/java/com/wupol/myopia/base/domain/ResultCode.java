@@ -21,12 +21,19 @@ public enum ResultCode {
     USER_ACCESS_UNAUTHORIZED (401, "访问未授权"),
     TOKEN_INVALID_OR_EXPIRED(403, "token无效或已过期"),
 
+    DATA_UPLOAD_DEVICE_ERROR(5001,"无法找到设备"),
+    DATA_UPLOAD_SCREENING_ORG_ERROR(5002,"筛查机构异常"),
+    DATA_UPLOAD_DATA_EMPTY_ERROR(5003,"数据不能为空"),
+
+    DATA_UPLOAD_PLAN_STUDENT_ERROR(6001, "筛查学生异常"),
+    DATA_UPLOAD_PLAN_STUDENT_MATCH_ERROR(6002, "学生筛查机构匹配异常"),
+
     ;
 
     /** 业务异常码 */
-    private Integer code;
+    private final Integer code;
     /** 业务异常信息描述 */
-    private String message;
+    private final String message;
 
     ResultCode(Integer code, String message) {
         this.code = code;

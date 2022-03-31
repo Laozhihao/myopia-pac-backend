@@ -517,6 +517,10 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         return baseMapper.getByNePlanId(planId);
     }
 
+    public List<GradeClassesDTO> getGradeByPlanIdAndSchoolId(Integer screeningPlanId, Integer schoolId) {
+        return baseMapper.getGradeByPlanIdAndSchoolId(screeningPlanId, schoolId);
+    }
+
     /**
      * 根据筛查编号字符串获取
      *

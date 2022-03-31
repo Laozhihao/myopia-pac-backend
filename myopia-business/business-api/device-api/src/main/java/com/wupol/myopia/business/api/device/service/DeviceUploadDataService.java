@@ -1,33 +1,43 @@
 package com.wupol.myopia.business.api.device.service;
 
+import cn.hutool.core.codec.Base64;
+import cn.hutool.core.date.DateUtil;
+import com.alibaba.fastjson.JSONObject;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.ObjectsUtil;
+import com.wupol.myopia.base.domain.ResultCode;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
-import com.wupol.myopia.business.api.device.domain.dto.DeviceUploadDTO;
+import com.wupol.myopia.business.api.device.domain.dto.*;
 import com.wupol.myopia.business.api.device.util.CheckResultUtil;
+import com.wupol.myopia.business.api.device.util.ParsePlanStudentUtils;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.util.VS666Util;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceScreenDataDTO;
 import com.wupol.myopia.business.core.device.domain.model.Device;
+import com.wupol.myopia.business.core.device.domain.model.DeviceSourceData;
 import com.wupol.myopia.business.core.device.service.DeviceScreeningDataService;
 import com.wupol.myopia.business.core.device.service.DeviceService;
 import com.wupol.myopia.business.core.device.service.DeviceSourceDataService;
+import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
+import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
+import com.wupol.myopia.business.core.school.service.SchoolClassService;
+import com.wupol.myopia.business.core.school.service.SchoolGradeService;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ComputerOptometryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -45,7 +55,9 @@ public class DeviceUploadDataService {
      */
     private static final Integer DEVICE_UPLOAD_DEFAULT_USER_ID = 0;
 
-    /**分割符*/
+    /**
+     * 分割符
+     */
     private static final String DELIMITER_CHAR = "-";
 
     @Autowired
@@ -60,6 +72,10 @@ public class DeviceUploadDataService {
     private DeviceScreeningDataService deviceScreeningDataService;
     @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
+    @Autowired
+    private SchoolGradeService schoolGradeService;
+    @Autowired
+    private SchoolClassService schoolClassService;
 
     /**
      * 处理studentId
@@ -243,18 +259,155 @@ public class DeviceUploadDataService {
      * @return 唯一keyString
      */
     private String getUnikeyString(DeviceScreenDataDTO deviceScreenDataDTO) {
-        if (ObjectsUtil.hasNull(deviceScreenDataDTO.getScreeningOrgId(), deviceScreenDataDTO.getDeviceSn(),
-                deviceScreenDataDTO.getPatientId(), deviceScreenDataDTO.getCheckTime())) {
-            throw new BusinessException(String.format("获取唯一key失败,存在参数为空,screeningOrgId = %s , deviceSn = %s, patientId = %s, checkTime = %s",
-                    deviceScreenDataDTO.getScreeningOrgId(), deviceScreenDataDTO.getDeviceSn(),
-                    deviceScreenDataDTO.getPatientId(), deviceScreenDataDTO.getCheckTime()));
+        if (ObjectsUtil.hasNull(deviceScreenDataDTO.getScreeningOrgId(), deviceScreenDataDTO.getDeviceSn(), deviceScreenDataDTO.getPatientId(), deviceScreenDataDTO.getCheckTime())) {
+            throw new BusinessException(String.format("获取唯一key失败,存在参数为空,screeningOrgId = %s , deviceSn = %s, patientId = %s, checkTime = %s", deviceScreenDataDTO.getScreeningOrgId(), deviceScreenDataDTO.getDeviceSn(), deviceScreenDataDTO.getPatientId(), deviceScreenDataDTO.getCheckTime()));
         }
-        return deviceScreenDataDTO.getScreeningOrgId() +
-                DELIMITER_CHAR +
-                deviceScreenDataDTO.getDeviceSn() +
-                DELIMITER_CHAR +
-                deviceScreenDataDTO.getPatientId() +
-                DELIMITER_CHAR +
-                deviceScreenDataDTO.getCheckTime();
+        return deviceScreenDataDTO.getScreeningOrgId() + DELIMITER_CHAR + deviceScreenDataDTO.getDeviceSn() + DELIMITER_CHAR + deviceScreenDataDTO.getPatientId() + DELIMITER_CHAR + deviceScreenDataDTO.getCheckTime();
     }
+
+    /**
+     * 体脂秤数据上传
+     *
+     * @param requestDTO 入参
+     * @return ScalesResponseDTO
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public ScalesResponseDTO bodyFatScaleUpload(ScalesRequestDTO requestDTO) {
+        if (!StringUtils.equals("webResults", requestDTO.getAction())) {
+            return new ScalesResponseDTO("0", "事件类型异常，请确认");
+        }
+        Device device = deviceService.getDeviceByDeviceSn(requestDTO.getDeviceID());
+        if (Objects.isNull(device)) {
+            return new ScalesResponseDTO("0", "无法找到设备:" + requestDTO.getDeviceID());
+        }
+        ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(device.getBindingScreeningOrgId());
+        if (Objects.isNull(screeningOrganization) || CommonConst.STATUS_IS_DELETED.equals(screeningOrganization.getStatus())) {
+            return new ScalesResponseDTO("0", "无法找到筛查机构或该筛查机构已过期");
+        }
+        List<ScalesData> datas = requestDTO.getDatas();
+        if (CollectionUtils.isEmpty(datas)) {
+            return new ScalesResponseDTO("0", "数据为空");
+        }
+        for (ScalesData data : datas) {
+            String uid = data.getUid();
+            if (StringUtils.isBlank(uid)) {
+                return new ScalesResponseDTO("0", "uid数据为空");
+            }
+            Integer parsePlanStudentId = ParsePlanStudentUtils.parsePlanStudentId(uid);
+            ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(parsePlanStudentId);
+            if (Objects.isNull(planStudent)) {
+                return new ScalesResponseDTO("0", "uid找不到学生数据");
+            }
+            BmiData bmiData = data.getBmi();
+            if (Objects.isNull(bmiData)) {
+                return new ScalesResponseDTO("0", "身体质量指数值为空");
+            }
+            // 保存原始数据
+            saveDeviceData(device, JSONObject.toJSONString(data), parsePlanStudentId, screeningOrganization.getId(), new Date().getTime());
+            HeightAndWeightDataDTO heightAndWeightDataDTO = new HeightAndWeightDataDTO();
+            heightAndWeightDataDTO.setHeight(new BigDecimal(bmiData.getHeight()));
+            heightAndWeightDataDTO.setWeight(new BigDecimal(bmiData.getWeight()));
+            heightAndWeightDataDTO.setBmi(new BigDecimal(bmiData.getBmi()));
+            heightAndWeightDataDTO.setDeptId(planStudent.getScreeningOrgId());
+            heightAndWeightDataDTO.setCreateUserId(-1);
+            heightAndWeightDataDTO.setPlanStudentId(String.valueOf(planStudent.getId()));
+            heightAndWeightDataDTO.setSchoolId(String.valueOf(planStudent.getSchoolId()));
+            visionScreeningBizService.saveOrUpdateStudentScreenData(heightAndWeightDataDTO);
+        }
+        return new ScalesResponseDTO("1", "success");
+    }
+
+    /**
+     * 获取学生信息
+     *
+     * @param request 请求入参
+     * @return UserInfoResponseDTO
+     */
+    public UserInfoResponseDTO getUserInfo(UserInfoRequestDTO request) {
+        String deviceSn = request.getDeviceSn();
+        String uid = Base64.decodeStr(request.getUid());
+
+        Device device = getDevice(deviceSn);
+        ScreeningOrganization screeningOrganization = getScreeningOrganization(device);
+        Integer planStudentId = ParsePlanStudentUtils.parsePlanStudentId(uid);
+        ScreeningPlanSchoolStudent planStudent = getScreeningPlanSchoolStudent(screeningOrganization, planStudentId);
+
+        SchoolGrade schoolGrade = schoolGradeService.getById(planStudent.getGradeId());
+        SchoolClass schoolClass = schoolClassService.getById(planStudent.getClassId());
+        return new UserInfoResponseDTO(planStudent.getStudentName(),
+                GenderEnum.getName(planStudent.getGender()),
+                Objects.nonNull(schoolGrade) ? schoolGrade.getName() : StringUtils.EMPTY,
+                Objects.nonNull(schoolClass) ? schoolClass.getName() : StringUtils.EMPTY);
+
+    }
+
+    /**
+     * 获取设备
+     *
+     * @param deviceSn 设备唯一标识
+     * @return 设备
+     */
+    public Device getDevice(String deviceSn) {
+        Device device = deviceService.getDeviceByDeviceSn(deviceSn);
+        if (Objects.isNull(device)) {
+            throw new BusinessException("无法找到设备:" + deviceSn, ResultCode.DATA_UPLOAD_DEVICE_ERROR.getCode());
+        }
+        return device;
+    }
+
+    /**
+     * 通过设备获取筛查机构
+     *
+     * @param device 设备
+     * @return 筛查机构
+     */
+    public ScreeningOrganization getScreeningOrganization(Device device) {
+        ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(device.getBindingScreeningOrgId());
+        if (Objects.isNull(screeningOrganization) || CommonConst.STATUS_IS_DELETED.equals(screeningOrganization.getStatus())) {
+            throw new BusinessException("无法找到筛查机构或该筛查机构已过期！", ResultCode.DATA_UPLOAD_SCREENING_ORG_ERROR.getCode());
+        }
+        return screeningOrganization;
+    }
+
+    /**
+     * 获取筛查学生
+     *
+     * @param screeningOrganization 筛查机构
+     * @param planStudentId         筛查学生Id
+     * @return 筛查学生
+     */
+    public ScreeningPlanSchoolStudent getScreeningPlanSchoolStudent(ScreeningOrganization screeningOrganization, Integer planStudentId) {
+        ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(planStudentId);
+        if (Objects.isNull(planStudent)) {
+            throw new BusinessException("不能通过该uid找到学生信息，请确认！", ResultCode.DATA_UPLOAD_PLAN_STUDENT_ERROR.getCode());
+        }
+        Integer orgId = screeningOrganization.getId();
+        if (!planStudent.getScreeningOrgId().equals(orgId)) {
+            throw new BusinessException("筛查学生与筛查机构不匹配！", ResultCode.DATA_UPLOAD_PLAN_STUDENT_MATCH_ERROR.getCode());
+        }
+        return planStudent;
+    }
+
+    /**
+     * 保存原始信息
+     *
+     * @param device        设备信息
+     * @param dataStr       数据
+     * @param planStudentId 筛查学生
+     * @param orgId         筛查机构
+     * @param screeningTime 筛查时间
+     */
+    public void saveDeviceData(Device device, String dataStr, Integer planStudentId, Integer orgId, Long screeningTime) {
+        DeviceSourceData data = new DeviceSourceData();
+        data.setDeviceType(device.getType());
+        data.setPatientId(String.valueOf(planStudentId));
+        data.setDeviceId(device.getId());
+        data.setDeviceCode(device.getDeviceCode());
+        data.setDeviceSn(device.getDeviceSn());
+        data.setSrcData(dataStr);
+        data.setScreeningOrgId(orgId);
+        data.setScreeningTime(Objects.nonNull(screeningTime) ? DateUtil.date(screeningTime) : new Date());
+        deviceSourceDataService.save(data);
+    }
+
 }

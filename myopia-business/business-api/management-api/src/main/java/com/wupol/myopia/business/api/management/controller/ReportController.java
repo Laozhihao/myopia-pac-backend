@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.management.controller;
 
 import com.alibaba.csp.sentinel.util.StringUtil;
+import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
@@ -9,19 +10,28 @@ import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.pdf.archives.SyncExportStudentScreeningArchivesService;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.api.management.constant.ReportConst;
+import com.wupol.myopia.business.core.common.service.Html2PdfService;
+import com.wupol.myopia.business.core.hospital.domain.dto.ReceiptDTO;
+import com.wupol.myopia.business.core.hospital.service.PreschoolCheckRecordService;
+import com.wupol.myopia.business.core.hospital.service.ReceiptListService;
+import com.wupol.myopia.business.core.hospital.service.ReferralRecordService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -41,6 +51,21 @@ public class ReportController {
 
     @Autowired
     private VisionScreeningResultService visionScreeningResultService;
+
+    @Autowired
+    private Html2PdfService html2PdfService;
+
+    @Value("${report.html.url-host}")
+    public String htmlUrlHost;
+
+    @Autowired
+    private ReferralRecordService referralRecordService;
+
+    @Autowired
+    private PreschoolCheckRecordService preschoolCheckRecordService;
+
+    @Autowired
+    private ReceiptListService receiptListService;
 
     @Autowired
     private SyncExportStudentScreeningArchivesService syncExportStudentScreeningArchivesService;
@@ -107,18 +132,17 @@ public class ReportController {
     /**
      * 导出学校档案卡
      *
-     * @param planId 筛查计划ID
+     * @param planId   筛查计划ID
      * @param schoolId 学校ID
-     * @return com.wupol.myopia.base.domain.ApiResult
+     * @return ApiResult<String> com.wupol.myopia.base.domain.ApiResult
      **/
     @GetMapping("/school/archives")
-    public void exportSchoolArchives(@NotNull(message = "筛查计划ID不能为空") Integer planId,
+    public ApiResult<String> exportSchoolArchives(@NotNull(message = "筛查计划ID不能为空") Integer planId,
                                      @NotNull(message = "学校ID不能为空") Integer schoolId,
                                      Integer classId,
                                      Integer gradeId,
                                      Integer districtId,
-                                     @RequestParam(value="planStudentIds", required = false) String planStudentIds)
-            throws IOException {
+                                     @RequestParam(value = "planStudentIds", required = false) String planStudentIds) throws IOException {
         ExportCondition exportCondition = new ExportCondition()
                 .setPlanId(planId)
                 .setSchoolId(schoolId)
@@ -128,6 +152,7 @@ public class ReportController {
                 .setDistrictId(districtId)
                 .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.SCHOOL_ARCHIVES_SERVICE);
+        return ApiResult.success();
     }
 
     /**
@@ -266,7 +291,46 @@ public class ReportController {
         return ApiResult.success();
     }
 
+    /**
+     * 0-6岁PDF
+     *
+     * @param type 类型 0-转诊单 1-检查记录表 2-回执单
+     * @param id   id
+     * @return pdf文件
+     */
+    @GetMapping("pdf")
+    public ApiResult<String> preSchoolPdf(@NotBlank(message = "type不能为空") String type,
+                                          @NotNull(message = "id不能为空") Integer id) {
+        Integer clientId = Integer.valueOf(CurrentUserUtil.getCurrentUser().getClientId());
+        String userToken = CurrentUserUtil.getUserToken();
 
+        boolean isHospital = SystemCode.HOSPITAL_CLIENT.getCode().equals(clientId) || SystemCode.PRESCHOOL_CLIENT.getCode().equals(clientId);
+        String url = StringUtils.EMPTY;
+
+        if (StringUtils.equals(ReportConst.TYPE_REFERRAL, type)) {
+            if (Objects.isNull(referralRecordService.getDetailById(id))) {
+                throw new BusinessException("找不到该转诊单");
+            }
+            url = String.format(ReportConst.REFERRAL_PDF_URL, htmlUrlHost, id, isHospital, userToken);
+        }
+        if (StringUtils.equals(ReportConst.TYPE_EXAMINE, type)) {
+            if (Objects.isNull(preschoolCheckRecordService.getDetail(id))) {
+                throw new BusinessException("找不到该检查记录表");
+            }
+            url = String.format(ReportConst.EXAMINE_PDF_URL, htmlUrlHost, id, isHospital, userToken);
+        }
+        if (StringUtils.equals(ReportConst.TYPE_RECEIPT, type)) {
+            ReceiptDTO receipt = receiptListService.getDetail(new ReceiptDTO().setPreschoolCheckRecordId(id));
+            if (Objects.isNull(receipt) || Objects.isNull(receiptListService.getDetailById(receipt.getId()))) {
+                throw new BusinessException("找不到该回执单");
+            }
+            url = String.format(ReportConst.RECEIPT_PDF_URL, htmlUrlHost, id, isHospital, userToken);
+        }
+        if (StringUtils.isBlank(url)) {
+            return ApiResult.failure("根据Type找不到对应URL");
+        }
+        return ApiResult.success(html2PdfService.syncGeneratorPDF(url, "报告.pdf", UUID.randomUUID().toString()).getUrl());
+    }
     /**
      *
      * 学生档案卡路径

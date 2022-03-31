@@ -1,10 +1,19 @@
 package com.wupol.myopia.business.api.device.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.business.aggregation.screening.domain.dto.DeviceDataRequestDTO;
+import com.wupol.myopia.business.api.device.config.DeviceDataFactory;
 import com.wupol.myopia.business.api.device.domain.dto.DeviceUploadDTO;
+import com.wupol.myopia.business.api.device.domain.dto.ScalesRequestDTO;
+import com.wupol.myopia.business.api.device.domain.dto.UserInfoRequestDTO;
+import com.wupol.myopia.business.api.device.domain.dto.UserInfoResponseDTO;
 import com.wupol.myopia.business.api.device.domain.result.DeviceUploadResult;
 import com.wupol.myopia.business.api.device.service.DeviceUploadDataService;
+import com.wupol.myopia.business.api.device.service.FkrDataService;
+import com.wupol.myopia.business.api.device.service.IDeviceDataService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +36,9 @@ public class DeviceUploadDataController {
     @Autowired
     private DeviceUploadDataService deviceUploadDataService;
 
+    @Autowired
+    private FkrDataService fkrDataService;
+
     /**
      * 上传数据
      *
@@ -45,6 +57,49 @@ public class DeviceUploadDataController {
             return DeviceUploadResult.FAILURE;
         }
         return DeviceUploadResult.SUCCESS;
+    }
+
+
+    @PostMapping("/device/uploadData")
+    public ApiResult<String> uploadLightBoxData(@RequestBody @Valid DeviceDataRequestDTO requestDTO) {
+        IDeviceDataService deviceDataService = DeviceDataFactory.getDeviceDataService(requestDTO.getBusinessType());
+        deviceDataService.uploadDate(requestDTO);
+        return ApiResult.success();
+    }
+
+    /**
+     * 体脂秤数据上传
+     *
+     * @param requestDTO 入参
+     * @return ScalesResponseDTO
+     */
+    @PostMapping("/device/bmi")
+    public Object uploadBMI(@RequestBody @Valid ScalesRequestDTO requestDTO) {
+        log.info("Data:{}", JSONObject.toJSONString(requestDTO));
+        return deviceUploadDataService.bodyFatScaleUpload(requestDTO);
+    }
+
+    /**
+     * 获取学生信息
+     *
+     * @param request 请求入参
+     * @return ApiResult<UserInfoResponseDTO>
+     */
+    @GetMapping("getUserInfo")
+    public ApiResult<UserInfoResponseDTO> getInfo(@Valid UserInfoRequestDTO request) {
+        return ApiResult.success(deviceUploadDataService.getUserInfo(request));
+    }
+
+    /**
+     * FKR710 数据上传
+     *
+     * @param str 数据
+     * @return 结果
+     */
+    @PostMapping("fkr710/upload")
+    public ApiResult frkUpload(@RequestBody String str) {
+        fkrDataService.uploadData(str);
+        return ApiResult.success();
     }
 
 }

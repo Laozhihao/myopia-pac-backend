@@ -56,7 +56,7 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
         PreschoolCheckRecordDTO details = baseMapper.getDetail(id);
         if (Objects.isNull(details)) {
             log.error("获取报告数据异常, 报告Id:{}", id);
-            throw new BusinessException("数据异常");
+            throw new BusinessException("眼保健数据异常");
         }
         // 设置家长信息
         HospitalUtil.setParentInfo(details);
