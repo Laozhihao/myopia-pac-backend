@@ -1,5 +1,7 @@
 package com.wupol.myopia.base.util;
 
+import org.springframework.util.CollectionUtils;
+
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -21,7 +23,7 @@ public class ValidatorUtils {
      */
     public static void validate(Object obj, Class<?>... groups) {
         Set<ConstraintViolation<Object>> resultSet = validator.validate(obj, groups);
-        if (resultSet.size() > 0) {
+        if (!CollectionUtils.isEmpty(resultSet)) {
             //如果存在错误结果，则将其解析并进行拼凑后异常抛出
             List<String> errorMessageList = resultSet.stream().map(ConstraintViolation::getMessage).collect(Collectors.toList());
             StringBuilder errorMessage = new StringBuilder();
