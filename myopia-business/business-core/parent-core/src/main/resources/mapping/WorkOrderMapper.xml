@@ -29,6 +29,7 @@
                 <if test="@Ognl@isNotEmpty(classId)">and `class_id` = #{classId}</if>
                 <if test="@Ognl@isNotEmpty(sno)">and `sno` = #{sno}</if>
                 <if test="@Ognl@isNotEmpty(status)">and `status` = #{status}</if>
+                <if test="@Ognl@isNotEmpty(viewStatus)">and `view_status` = #{viewStatus}</if>
                 <if test="@Ognl@isNotEmpty(createUserId)">and `create_user_id` = #{createUserId}</if>
                 <if test="@Ognl@isNotEmpty(term)">and `term` = #{term}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
@@ -47,7 +48,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, `name`, gender, passport, id_card, birthday, school_id, grade_id, class_id, sno, status, create_user_id, term, create_time, update_time, old_data, content, grade_type, parent_phone, wx_nickname, screening_begin_time, screening_end_time, is_notice
+        id, name, gender, passport, id_card, birthday, school_id, grade_id, class_id, sno, status,view_status, create_user_id, term, create_time, update_time, old_data, content, grade_type, parent_phone, wx_nickname, screening_begin_time, screening_end_time, is_notice
     </sql>
 
     <select id="getByPage" resultMap="BaseResultMapDTO">
@@ -77,6 +78,14 @@
             and (create_time between #{startTime} and #{endTime})
         </if>
         order by create_time desc
+    </select>
+
+    <select id="findByCreateUserId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_work_order
+        where create_user_id = #{createUserId}
+        ORDER BY create_time desc
     </select>
 
 </mapper>

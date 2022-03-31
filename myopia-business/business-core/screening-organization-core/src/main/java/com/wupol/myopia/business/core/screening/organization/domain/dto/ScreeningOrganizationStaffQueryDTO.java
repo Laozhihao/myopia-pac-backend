@@ -4,6 +4,8 @@ package com.wupol.myopia.business.core.screening.organization.domain.dto;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.List;
+
 /**
  * 筛查机构人员查询
  *
@@ -19,4 +21,6 @@ public class ScreeningOrganizationStaffQueryDTO extends ScreeningOrganizationSta
     private String nameLike;
     /** 手机号码 */
     private String phoneLike;
+    /** 用户id*/
+    private List<Integer> userIds;
 }

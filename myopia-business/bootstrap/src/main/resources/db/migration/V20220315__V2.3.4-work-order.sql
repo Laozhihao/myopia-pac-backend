@@ -27,3 +27,10 @@ CREATE TABLE `m_work_order` (
   `new_data` json DEFAULT NULL COMMENT '工单选中的学生被处理后的数据快照',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4;
+
+
+alter table m_screening_organization_staff
+    add type tinyint(1) NOT NULL DEFAULT '0' COMMENT '筛查人员类型（0普通筛查人员，1自动生成的筛查人员）';
+
+alter table m_work_order
+    add view_status tinyint(1) NOT NULL DEFAULT '0' COMMENT '用户查看工单处理状态（0未读，1已读）';

@@ -20,6 +20,8 @@ import java.util.List;
 public interface WorkOrderMapper extends BaseMapper<WorkOrder> {
 
 
+    List<WorkOrder> findByCreateUserId(@Param("createUserId") Integer createUserId);
+
     /**
      * 查询工单分页结果
      * @param page

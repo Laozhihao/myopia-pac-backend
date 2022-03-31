@@ -14,6 +14,8 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import javax.validation.constraints.NotNull;
+
 /**
  * 工单实体
  * @Author xjl
@@ -26,6 +28,15 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 public class WorkOrder implements Serializable {
 
     private static final long serialVersionUID = 1L;
+    /**
+     * 用户查看工单状态(未读)
+     */
+    public static final int USER_VIEW_STATUS_UNREAD = 0;
+
+    /**
+     * 用户查看工单状态(已读)
+     */
+    public static final int USER_VIEW_STATUS_READ = 1;
 
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
@@ -33,11 +44,13 @@ public class WorkOrder implements Serializable {
     /**
      * 学生姓名
      */
+    @NotNull(message = "学生姓名不能为空")
     private String name;
 
     /**
      * 性别 0-男 1-女
      */
+    @NotNull(message = "学生性别不能为空")
     private Integer gender;
 
     /**
@@ -53,22 +66,26 @@ public class WorkOrder implements Serializable {
     /**
      * 出生日期
      */
+    @NotNull(message = "出生日期不能为空")
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date birthday;
 
     /**
      * 学校ID
      */
+    @NotNull(message = "学校不能为空")
     private Integer schoolId;
 
     /**
      * 年级ID
      */
+    @NotNull(message = "年级不能为空")
     private Integer gradeId;
 
     /**
      * 班级ID
      */
+    @NotNull(message = "班级不能为空")
     private Integer classId;
 
     /**
@@ -80,6 +97,11 @@ public class WorkOrder implements Serializable {
      * 状态 0-已处理 1-未处理 2-无法处理
      */
     private Integer status;
+
+    /**
+     * 用户查看工单处理状态（0未读，1已读）
+     */
+    private Integer viewStatus;
 
     /**
      * 创建人ID
@@ -110,7 +132,7 @@ public class WorkOrder implements Serializable {
     private StudentDO oldData;
 
     /**
-     * oldData
+     * newData
      */
     @TableField(typeHandler = JacksonTypeHandler.class)
     private StudentDO newData;
@@ -138,12 +160,14 @@ public class WorkOrder implements Serializable {
     /**
      * 筛查开始时间
      */
+    @NotNull(message = "筛查日期不能为空")
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date screeningBeginTime;
 
     /**
      * 筛查结束时间
      */
+    @NotNull(message = "筛查日期不能为空")
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date screeningEndTime;
 
@@ -156,6 +180,7 @@ public class WorkOrder implements Serializable {
      * 修改筛查记录id
      */
     private Integer screeningId;
+
 
 
 }
