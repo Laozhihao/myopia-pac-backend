@@ -44,6 +44,11 @@ public class StudentQueryDTO extends StudentExtraDTO {
     private Date endScreeningTime;
 
     /**
+     * 出生日期
+     */
+    private String birthdayLike;
+
+    /**
      * 年级ids 逗号隔开
      */
     private String gradeIds;

@@ -120,4 +120,11 @@ public interface StatConclusionMapper extends BaseMapper<StatConclusion> {
     IPage<StudentTrackWarningResponseDTO> getTrackList(@Param("page") Page<?> page, @Param("requestDTO") StudentTrackWarningRequestDTO requestDTO, @Param("schoolId") Integer schoolId);
 
     StatConclusion getByPlanStudentId(@Param("planStudentId") Integer planStudentId);
+
+    /**
+     * 根据筛查结果id获取数据（取第一条）
+     * @param resultId
+     * @return
+     */
+    StatConclusion getByResultId(@Param("resultId") Integer resultId);
 }

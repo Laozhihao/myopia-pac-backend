@@ -315,7 +315,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
                 studentQueryDTO.getParentPhone(), studentQueryDTO.getGender(), conditionalFilter.getFirst(),
                 conditionalFilter.getSecond(), studentQueryDTO.getStartScreeningTime(), studentQueryDTO.getEndScreeningTime(),
                 studentQueryDTO.getSchoolName(), studentQueryDTO.getSchoolId(), studentQueryDTO.getGradeId(), studentQueryDTO.getClassId(), studentQueryDTO.getPassport(),
-                studentQueryDTO.getIdCardOrPassportLike());
+                studentQueryDTO.getIdCardOrPassportLike(),studentQueryDTO.getBirthdayLike());
     }
 
     /**
@@ -522,6 +522,18 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      */
     public Student getAllByIdCard(String idCard) {
         return baseMapper.getAllByIdCard(idCard);
+    }
+
+
+
+    /**
+     * 通过护照查找学生(包括删除的)
+     *
+     * @param passport 身份证
+     * @return Student
+     */
+    public Student getAllByPassport(String passport) {
+        return baseMapper.getAllByPassport(passport);
     }
 
     /**

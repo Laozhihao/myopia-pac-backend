@@ -12,11 +12,13 @@ import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.api.management.domain.vo.ScreeningOrganizationStaffVO;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
+import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OrganizationStaffRequestDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgStaffUserDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationStaffQueryDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.StaffResetPasswordRequestDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
+import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationStaff;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationStaffService;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
@@ -50,9 +52,6 @@ public class ScreeningOrganizationStaffController {
     @Autowired
     private ExportStrategy exportStrategy;
 
-    @Resource
-    private ScreeningOrganizationService screeningOrganizationService;
-
     /**
      * 筛查人员列表
      *
@@ -60,12 +59,12 @@ public class ScreeningOrganizationStaffController {
      * @return 机构人员列表
      */
     @GetMapping("list")
-    public IPage<ScreeningOrgStaffUserDTO> getOrganizationStaffList(@Valid OrganizationStaffRequestDTO request) {
+    public IPage<ScreeningOrgStaffUserDTO> getOrganizationStaffList(PageRequest pageRequest, @Valid OrganizationStaffRequestDTO request) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         if (Objects.nonNull(user.getScreeningOrgId())) {
             request.setScreeningOrgId(user.getScreeningOrgId());
         }
-        return screeningOrganizationStaffService.getOrganizationStaffList(request);
+        return screeningOrganizationStaffService.getOrganizationStaffList(pageRequest,request,user);
     }
 
     /**
@@ -86,6 +85,7 @@ public class ScreeningOrganizationStaffController {
         }
         screeningOrganizationStaff.setCreateUserId(user.getId());
         screeningOrganizationStaff.setGovDeptId(user.getOrgId());
+        screeningOrganizationStaff.setType(ScreeningOrganizationStaff.GENERAL_SCREENING_PERSONNEL);
         UsernameAndPasswordDTO usernameAndPasswordDTO = screeningOrganizationStaffService.saveOrganizationStaff(screeningOrganizationStaff);
         int totalNum = screeningOrganizationStaffService.countByScreeningOrgId(screeningOrganizationStaff.getScreeningOrgId());
         return ScreeningOrganizationStaffVO.parseFromUsernameAndPasswordDTO(usernameAndPasswordDTO).setScreeningStaffTotalNum(totalNum);
