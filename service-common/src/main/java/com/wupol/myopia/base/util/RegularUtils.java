@@ -29,11 +29,6 @@ public class RegularUtils {
     public final String REGULAR_TELEPHONE = "(0\\d{2,3}-[1-9]\\d{5,7})";
 
     /**
-     * 护照正则
-     */
-    public final String REGULAR_PASSPORT = "/^1[45][0-9]{7}$|(^[P|p|S|s]\\d{7}$)|(^[S|s|G|g|E|e]\\d{8}$)|";
-
-    /**
      * 校验手机号
      *
      * @param phone 手机号
@@ -56,13 +51,6 @@ public class RegularUtils {
     public static boolean isIdCard(String idCard) {
         if (StringUtils.isNotBlank(idCard)) {
             return Pattern.matches(REGULAR_ID_CARD, idCard);
-        }
-        return false;
-    }
-
-    public static boolean isPassport(String passport){
-        if (StringUtils.isNotBlank(passport)){
-            return Pattern.matches(REGULAR_PASSPORT,passport);
         }
         return false;
     }
