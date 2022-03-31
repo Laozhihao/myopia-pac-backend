@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.parent.controller;
 
+import cn.hutool.core.util.IdcardUtil;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -343,14 +344,14 @@ public class ParentStudentController {
         if (StringUtils.isBlank(workOrder.getIdCard()) && StringUtils.isBlank(workOrder.getPassport())){
             throw new BusinessException("身份证或者护照信息不能为空！");
         }
-        if (StringUtils.isNotBlank(workOrder.getIdCard()) && !RegularUtils.isIdCard(workOrder.getIdCard())) {
+        if (StringUtils.isNotBlank(workOrder.getIdCard()) && !IdcardUtil.isValidCard(workOrder.getIdCard())) {
             throw new BusinessException("证件号填写错误，请重新填写！");
         }
         if (StringUtils.isNotBlank(workOrder.getPassport()) && workOrder.getPassport().length()<8) {
             throw new BusinessException("护照填写错误，请重新填写！");
         }
-        Parent parent = parentService.getParentByUserId(user.getId());
         DateUtil.checkBirthday(workOrder.getBirthday());
+        Parent parent = parentService.getParentByUserId(user.getId());
         workOrderService.addWorkOrder(workOrder,parent);
     }
 
