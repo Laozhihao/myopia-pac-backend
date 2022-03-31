@@ -1,7 +1,7 @@
 package com.wupol.myopia.migrate.controller;
 
 import com.wupol.myopia.base.handler.ResponseResultBody;
-import com.wupol.myopia.migrate.service.MigrateDataService;
+import com.wupol.myopia.migrate.service.migrate.MigrateDataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

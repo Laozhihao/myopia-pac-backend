@@ -1,17 +1,15 @@
 package com.wupol.myopia.migrate.domain.model;
 
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
-import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
-
-import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
-import com.wupol.myopia.migrate.domain.dto.ScreeningOrgDTO;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * 部门表
@@ -109,12 +107,4 @@ public class SysDept implements Serializable {
      * 修改人
      */
     private String updateUser;
-
-
-    public ScreeningOrgDTO convertToScreeningOrgDTO() {
-        // TODO：赋值，合作周期取？
-        ScreeningOrgDTO screeningOrgDTO = new ScreeningOrgDTO();
-        screeningOrgDTO.setName(simpleName);
-        return screeningOrgDTO;
-    }
 }

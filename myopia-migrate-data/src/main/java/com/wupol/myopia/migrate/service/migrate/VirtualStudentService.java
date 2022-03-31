@@ -1,4 +1,4 @@
-package com.wupol.myopia.migrate.service;
+package com.wupol.myopia.migrate.service.migrate;
 
 import cn.hutool.core.date.DateUtil;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;

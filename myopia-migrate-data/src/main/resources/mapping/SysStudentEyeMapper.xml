@@ -5,6 +5,8 @@
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.wupol.myopia.migrate.domain.model.SysStudentEye">
     </resultMap>
+    <resultMap id="SimpleMap" type="com.wupol.myopia.migrate.domain.model.SysStudentEyeSimple">
+    </resultMap>
 
     <!-- 通用查询条件 -->
     <sql id="Base_Where_Clause">
@@ -83,5 +85,16 @@
     <sql id="Base_Column_List">
         eye_id, student_id, student_name, student_phone, student_idcard, student_sex, student_birthday, student_province, student_city, student_region, school_name, splicing, school_grade, school_clazz, create_time, school_id, dept_id, dept_name, user_id, l_sph, l_cyl, l_axial, r_sph, r_cyl, r_axial, l_lsl, r_lsl, l_jzsl, r_jzsl, l_lcj, r_lcj, l_qg, r_qg, l_se, r_se, l_yz, r_yz, glasses, positive, disease_eye, l_disease, r_disease, l_dxsph, r_dxsph, is_myopia, low, myopia, vision_user_id, optometry_user_id, biology_user_id, disease_user_id, no, print_time, myopia_warning_level, hyperopia_reserve, hyperopia_warning_level, model, section_correct, times, lsl_warning_level, astigmatism_warning_level, astigmatism_level, school_times, is_abnormal, diy_disease
     </sql>
+
+    <select id="getSimpleDataList" resultMap="SimpleMap">
+        SELECT
+               eye_id, student_id, school_id, school_name, create_time
+        FROM
+             sys_student_eye
+        WHERE
+                dept_id = #{deptId}
+        ORDER BY
+                 create_time ASC
+    </select>
 
 </mapper>
