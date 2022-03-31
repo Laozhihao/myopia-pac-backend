@@ -370,6 +370,6 @@ public class ParentStudentController {
     @GetMapping("workOrderList")
     public List<WorkOrder> workOrderList(){
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        return workOrderService.findByUserId(user.getId());
+        return workOrderService.findByCreateUserId(user.getId());
     }
 }

@@ -15,5 +15,5 @@ import java.util.List;
 public interface WorkOrderMapper extends BaseMapper<WorkOrder> {
 
 
-    List<WorkOrder> findByUserId(@Param("userId") Integer userId);
+    List<WorkOrder> findByCreateUserId(@Param("createUserId") Integer createUserId);
 }

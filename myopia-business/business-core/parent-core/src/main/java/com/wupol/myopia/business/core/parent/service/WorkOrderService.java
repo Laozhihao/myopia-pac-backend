@@ -1,11 +1,13 @@
 package com.wupol.myopia.business.core.parent.service;
 
+import com.alibaba.excel.util.CollectionUtils;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.core.parent.domain.mapper.WorkOrderMapper;
 import com.wupol.myopia.business.core.parent.domain.model.Parent;
 import com.wupol.myopia.business.core.parent.domain.model.WorkOrder;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -17,9 +19,10 @@ import java.util.List;
 @Service
 public class WorkOrderService extends BaseService<WorkOrderMapper, WorkOrder> {
 
-    public List<WorkOrder> findByUserId(Integer userId) {
-        List<WorkOrder> list = baseMapper.findByUserId(userId);
-        if (list.size()>0){
+    @Transactional(rollbackFor = Exception.class)
+    public List<WorkOrder> findByCreateUserId(Integer createUserId) {
+        List<WorkOrder> list = baseMapper.findByCreateUserId(createUserId);
+        if (CollectionUtils.isEmpty(list)){
             for (WorkOrder workOrder : list){
                 if (workOrder.getStatus() != 1 && workOrder.getViewStatus() == WorkOrder.USER_VIEW_STATUS_UNREAD){
                     workOrder.setViewStatus(WorkOrder.USER_VIEW_STATUS_READ);
@@ -38,9 +41,9 @@ public class WorkOrderService extends BaseService<WorkOrderMapper, WorkOrder> {
         baseMapper.insert(workOrder);
     }
 
-    public int workOrderState(Integer userId){
-      List<WorkOrder> list =  baseMapper.findByUserId(userId);
-      if (list.size()>0){
+    public int workOrderState(Integer createUserId){
+      List<WorkOrder> list =  baseMapper.findByCreateUserId(createUserId);
+      if (CollectionUtils.isEmpty(list)){
           for (WorkOrder workOrder: list){
               if (workOrder.getStatus() != 1 && workOrder.getViewStatus() == WorkOrder.USER_VIEW_STATUS_UNREAD){
                   return WorkOrder.USER_VIEW_STATUS_UNREAD;
