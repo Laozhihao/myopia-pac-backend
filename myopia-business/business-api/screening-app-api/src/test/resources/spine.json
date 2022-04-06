@@ -1,18 +1,18 @@
 {
   "chest": {
-    "select": 2,
-    "option": 1
+    "type": 2,
+    "value": 1
   },
   "waist": {
-    "select": 2,
-    "option": 1
+    "type": 2,
+    "value": 1
   },
   "chestWaist": {
-    "select": 2,
-    "option": 1
+    "type": 2,
+    "value": 1
   },
   "entirety": {
-    "select": 2,
-    "option": 1
+    "type": 2,
+    "value": 1
   }
 }
