@@ -13,6 +13,7 @@ import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @Author HaoHao
@@ -138,6 +139,36 @@ public class VisionScreeningResult implements Serializable {
     private VisualLossLevelDataDO visualLossLevelData;
 
     /**
+     * 筛查结果--龋齿
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private SaprodontiaDataDO saprodontiaData;
+
+    /**
+     * 筛查结果--脊柱
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private SpineDataDO spineData;
+
+    /**
+     * 筛查结果--血压
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private BloodPressureDataDO bloodPressureData;
+
+    /**
+     * 筛查结果--疾病史(汉字)
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private List<String> diseasesHistoryData;
+
+    /**
+     * 筛查结果--隐私项
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private PrivacyDataDO privacyData;
+
+    /**
      * 筛查结果--全身疾病在眼部的表现
      */
     private String systemicDiseaseSymptom;
@@ -151,6 +182,11 @@ public class VisionScreeningResult implements Serializable {
      * 是否发送短信通知 0-否 1-是
      */
     private Boolean isNotice;
+
+    /**
+     * 筛查类型--来自筛查计划，筛查计划强一致 （0：视力筛查，1；常见病） app：常见病新增 2022-04-07
+     */
+    private Integer screeningType;
 
     /**
      * 创建时间
