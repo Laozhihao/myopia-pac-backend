@@ -184,6 +184,11 @@ public class VisionScreeningResult implements Serializable {
     private Boolean isNotice;
 
     /**
+     * 筛查类型--来自筛查计划，筛查计划强一致 （0：视力筛查，1；常见病） app：常见病新增 2022-04-07
+     */
+    private Integer screeningType;
+
+    /**
      * 创建时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

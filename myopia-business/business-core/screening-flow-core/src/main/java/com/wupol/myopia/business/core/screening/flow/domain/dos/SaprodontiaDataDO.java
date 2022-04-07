@@ -39,23 +39,4 @@ public class SaprodontiaDataDO {
          */
         private String permanent;
     }
-
-    /**
-     * 牙齿的缺陷类型可选项
-     */
-    @Getter
-    @AllArgsConstructor
-    public enum Type {
-        D("d", "龋"),
-        M("m", "失"),
-        F("f", "补");
-
-        private final String name;
-
-        private final String flag;
-
-        public static Type getByFlag(String flag) {
-            return flag == null ? null : Arrays.stream(values()).filter((item) -> flag.equals(item.flag)).findFirst().orElse(null);
-        }
-    }
 }
