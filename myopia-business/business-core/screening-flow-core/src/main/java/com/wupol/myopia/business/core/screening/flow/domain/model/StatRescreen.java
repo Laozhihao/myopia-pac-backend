@@ -52,6 +52,11 @@ public class StatRescreen implements Serializable {
     private Integer schoolId;
 
     /**
+     * 0-视力筛查 1-常见病
+     */
+    private Integer type;
+
+    /**
      * 筛查日期
      */
     private Date screeningTime;
@@ -100,5 +105,15 @@ public class StatRescreen implements Serializable {
      * 统计时间
      */
     private Date createTime;
+
+    /**
+     * 体格复查人数
+     */
+    private Integer physiqueRescreenNum;
+
+    /**
+     * 体格复查指数
+     */
+    private Integer physiqueIndexNum;
 
 }
