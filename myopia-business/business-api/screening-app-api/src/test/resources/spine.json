@@ -1,0 +1,18 @@
+{
+  "chest": {
+    "type": 2,
+    "level": 1
+  },
+  "waist": {
+    "type": 2,
+    "level": 1
+  },
+  "chestWaist": {
+    "type": 2,
+    "level": 1
+  },
+  "entirety": {
+    "type": 2,
+    "level": 1
+  }
+}
