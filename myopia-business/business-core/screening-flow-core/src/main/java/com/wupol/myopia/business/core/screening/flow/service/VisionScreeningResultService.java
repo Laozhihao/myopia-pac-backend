@@ -287,4 +287,34 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         updateBatchById(updateResultList);
         statConclusionService.updateBatchById(updateStatConclusionList);
     }
+
+    /**
+     * 通过计划id，学校id获取复查学生数据
+     *
+     * @param planId    计划Id
+     * @param schoolIds 学校Id
+     * @return List<VisionScreeningResult>
+     */
+    public List<VisionScreeningResult> getRescreenBySchoolIds(Integer planId, List<Integer> schoolIds) {
+        if (CollectionUtils.isEmpty(schoolIds)) {
+            return new ArrayList<>();
+        }
+        return baseMapper.getRescreenBySchoolIds(planId, schoolIds);
+    }
+
+    /**
+     * 通过计划id，学校id获取复查学生数据
+     *
+     * @param planId    计划Id
+     * @param schoolIds 学校Id
+     * @return List<VisionScreeningResult>
+     */
+    public Map<Integer, List<VisionScreeningResult>> getMapRescreenBySchoolIds(Integer planId, List<Integer> schoolIds) {
+        List<VisionScreeningResult> results = getRescreenBySchoolIds(planId, schoolIds);
+        if (CollectionUtils.isEmpty(results)) {
+            return new HashMap<>();
+        }
+        return results.stream().collect(Collectors.groupingBy(VisionScreeningResult::getSchoolId));
+    }
+
 }

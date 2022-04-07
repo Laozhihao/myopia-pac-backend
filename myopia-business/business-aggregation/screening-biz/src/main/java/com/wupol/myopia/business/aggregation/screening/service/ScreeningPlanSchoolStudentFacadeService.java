@@ -153,7 +153,7 @@ public class ScreeningPlanSchoolStudentFacadeService {
      * @param gradeClasses 年级
      * @return List<SchoolGradeVO>
      */
-    private List<SchoolGradeVO> getSchoolGradeVOS(List<GradeClassesDTO> gradeClasses) {
+    public List<SchoolGradeVO> getSchoolGradeVOS(List<GradeClassesDTO> gradeClasses) {
         //2. 根据年级分组
         Map<Integer, List<GradeClassesDTO>> graderIdClasses = gradeClasses.stream().collect(Collectors.groupingBy(GradeClassesDTO::getGradeId));
         //3. 组装SchoolGradeVo数据

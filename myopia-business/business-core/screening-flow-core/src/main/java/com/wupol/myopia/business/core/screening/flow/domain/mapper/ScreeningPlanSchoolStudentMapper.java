@@ -18,7 +18,7 @@ import java.util.List;
 public interface ScreeningPlanSchoolStudentMapper extends BaseMapper<ScreeningPlanSchoolStudent> {
 
     List<ScreeningStudentDTO> selectStudentVoByPlanIdAndSchoolIdAndGradeIdAndClassId(@Param("screeningPlanId") Integer screeningPlanId, @Param("schoolId") Integer schoolId,
-                                                                                     @Param("gradeId") Integer gradeId,@Param("classId") Integer classId);
+                                                                                     @Param("gradeId") Integer gradeId, @Param("classId") Integer classId);
 
     List<GradeClassesDTO> selectSchoolGradeVoByPlanIdAndSchoolId(@Param("screeningPlanId") Integer screeningPlanId, @Param("schoolId") Integer schoolId);
 
@@ -30,7 +30,7 @@ public interface ScreeningPlanSchoolStudentMapper extends BaseMapper<ScreeningPl
 
     List<ScreeningStudentDTO> selectByGradeAndClass(@Param("screeningPlanId") Integer screeningPlanId, @Param("gradeId") Integer gradeId, @Param("classId") Integer classId);
 
-    List<ScreeningStudentDTO> selectBySchoolGradeAndClass(@Param("screeningPlanId") Integer screeningPlanId,@Param("schoolId") Integer schoolId, @Param("gradeId") Integer gradeId, @Param("classId") Integer classId,@Param("studentIds") List<Integer> studentIds);
+    List<ScreeningStudentDTO> selectBySchoolGradeAndClass(@Param("screeningPlanId") Integer screeningPlanId, @Param("schoolId") Integer schoolId, @Param("gradeId") Integer gradeId, @Param("classId") Integer classId, @Param("studentIds") List<Integer> studentIds);
 
     List<StudentScreeningInfoWithResultDTO> selectStudentInfoWithResult(@Param("data") ScreeningResultSearchDTO screeningResultSearchDTO);
 
@@ -71,4 +71,6 @@ public interface ScreeningPlanSchoolStudentMapper extends BaseMapper<ScreeningPl
     List<ScreeningPlanSchoolStudent> getByNePlanId(@Param("planId") Integer planId);
 
     List<GradeClassesDTO> getGradeByPlanIdAndSchoolId(@Param("planId") Integer planId, @Param("schoolId") Integer schoolId);
+
+    List<ScreeningPlanSchoolStudent> getReviewStudentList(@Param("planId") Integer planId, @Param("orgId") Integer orgId, @Param("schoolId") Integer schoolId, @Param("gradeId") Integer gradeId, @Param("classId") Integer classId);
 }

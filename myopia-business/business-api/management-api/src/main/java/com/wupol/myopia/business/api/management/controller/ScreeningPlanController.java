@@ -22,9 +22,11 @@ import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanStud
 import com.wupol.myopia.business.api.management.domain.dto.MockStudentRequestDTO;
 import com.wupol.myopia.business.api.management.domain.dto.PlanStudentRequestDTO;
 import com.wupol.myopia.business.api.management.service.ManagementScreeningPlanBizService;
+import com.wupol.myopia.business.api.management.service.ReviewInformService;
 import com.wupol.myopia.business.api.management.service.ScreeningPlanSchoolStudentBizService;
 import com.wupol.myopia.business.common.utils.constant.BizMsgConstant;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.school.domain.model.SchoolAdmin;
 import com.wupol.myopia.business.core.school.service.SchoolAdminService;
@@ -38,6 +40,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -61,6 +64,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/management/screeningPlan")
 @Slf4j
+@Validated
 public class ScreeningPlanController {
 
     @Autowired
@@ -95,6 +99,9 @@ public class ScreeningPlanController {
     private VisionScreeningResultService visionScreeningResultService;
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
+    @Autowired
+    private ReviewInformService reviewInformService;
+
     /**
      * 新增
      *
@@ -224,15 +231,16 @@ public class ScreeningPlanController {
 
     /**
      * 获取计划学校-年级-班级 下的学生
+     *
      * @param screeningPlanId 筛查计划ID
-     * @param schoolId  学校ID
-     * @param gradeId 年级ID
-     * @param classId 班级ID
+     * @param schoolId        学校ID
+     * @param gradeId         年级ID
+     * @param classId         班级ID
      * @return
      */
     @GetMapping("students/{screeningPlanId}/{schoolId}/{gradeId}/{classId}")
     public List<ScreeningPlanSchoolStudent> queryGradesInfo(@PathVariable Integer screeningPlanId, @PathVariable Integer schoolId,
-                                               @PathVariable Integer gradeId,@PathVariable Integer classId) {
+                                                            @PathVariable Integer gradeId, @PathVariable Integer classId) {
 
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getByPlanIdAndSchoolIdAndGradeIdAndClassId(screeningPlanId, schoolId,
                 gradeId, classId);
@@ -375,8 +383,9 @@ public class ScreeningPlanController {
 
     /**
      * 导出筛查计划的学生二维码信息
-     *
+     * <p>
      * //TODO 当前这个二维码导出，在其他地方有使用，考虑是否删除
+     *
      * @param schoolClassInfo 参与筛查计划的学生
      * @param type            1-二维码 2-VS666 3-学生编码二维码
      * @return pdf的URL
@@ -385,7 +394,6 @@ public class ScreeningPlanController {
     public Map<String, String> downloadQRCodeFile(@Valid ScreeningPlanSchoolStudent schoolClassInfo, Integer type) {
         return screeningExportService.getQrCodeFile(schoolClassInfo, type);
     }
-
 
 
     /**
@@ -398,7 +406,6 @@ public class ScreeningPlanController {
     public Map<String, String> downloadNoticeFile(@Valid ScreeningPlanSchoolStudent schoolClassInfo) {
         return screeningExportService.getNoticeFile(schoolClassInfo, null);
     }
-
 
 
     /**
@@ -462,7 +469,7 @@ public class ScreeningPlanController {
      * @param planStudentIdStr 筛查学生Ids
      */
     @GetMapping("screeningNoticeResult/asyncGeneratorPDF")
-    public void asyncGeneratorPDF(@NotNull(message = "计划Id不能为空")Integer planId, Integer schoolId, Integer gradeId, Integer classId, Integer orgId, String planStudentIdStr) {
+    public void asyncGeneratorPDF(@NotNull(message = "计划Id不能为空") Integer planId, Integer schoolId, Integer gradeId, Integer classId, Integer orgId, String planStudentIdStr) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         screeningPlanStudentBizService.asyncGeneratorPDF(planId, schoolId, gradeId, classId, orgId, planStudentIdStr, false, user.getId());
     }
@@ -478,7 +485,7 @@ public class ScreeningPlanController {
      * @param planStudentIdStr 筛查学生Ids
      */
     @GetMapping("screeningNoticeResult/syncGeneratorPDF")
-    public PdfResponseDTO syncGeneratorPDF(@NotBlank(message = "计划Id不能为空")Integer planId, Integer schoolId, Integer gradeId, Integer classId, Integer orgId, String planStudentIdStr) {
+    public PdfResponseDTO syncGeneratorPDF(@NotBlank(message = "计划Id不能为空") Integer planId, Integer schoolId, Integer gradeId, Integer classId, Integer orgId, String planStudentIdStr) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         return screeningPlanStudentBizService.syncGeneratorPDF(planId, schoolId, gradeId, classId, orgId, planStudentIdStr, false, user.getId());
     }
@@ -520,9 +527,9 @@ public class ScreeningPlanController {
      */
     @GetMapping("/plan/export/studentInfo")
     public ApiResult getScreeningPlanExportDoAndSync(Integer screeningPlanId, @RequestParam(defaultValue = "0") Integer screeningOrgId,
-                                                  @RequestParam Integer schoolId,
-                                                  @RequestParam(required = false) Integer gradeId,
-                                                  @RequestParam(required = false) Integer classId) throws IOException {
+                                                     @RequestParam Integer schoolId,
+                                                     @RequestParam(required = false) Integer gradeId,
+                                                     @RequestParam(required = false) Integer classId) throws IOException {
 
         ExportCondition exportCondition = new ExportCondition()
                 .setPlanId(screeningPlanId)
@@ -532,7 +539,7 @@ public class ScreeningPlanController {
                 .setClassId(classId)
                 .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
 
-        if (Objects.isNull(classId)){
+        if (Objects.isNull(classId)) {
             exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.EXPORT_VISION_SCREENING_RESULT_EXCEL_SERVICE);
             return ApiResult.success();
         }
@@ -541,17 +548,17 @@ public class ScreeningPlanController {
     }
 
     /**
-    * @Description: 学生筛查信息
-    * @Param: [计划ID, 学生ID]
-    * @return: java.lang.Object
-    * @Author: 钓猫的小鱼
-    * @Date: 2022/1/12
-    */
+     * @Description: 学生筛查信息
+     * @Param: [计划ID, 学生ID]
+     * @return: java.lang.Object
+     * @Author: 钓猫的小鱼
+     * @Date: 2022/1/12
+     */
     @GetMapping("/getStudentEyeByStudentId")
-    public ApiResult getStudentEyeByStudentId(@RequestParam Integer planId,@RequestParam Integer studentId) {
+    public ApiResult getStudentEyeByStudentId(@RequestParam Integer planId, @RequestParam Integer studentId) {
         List<Integer> studentIds = Collections.singletonList(studentId);
-        List<VisionScreeningResult> visionScreeningResults =  visionScreeningResultService.getByStudentIdsAndPlanId(planId,studentIds);
-        if (visionScreeningResults.isEmpty()){
+        List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.getByStudentIdsAndPlanId(planId, studentIds);
+        if (visionScreeningResults.isEmpty()) {
             return ApiResult.success();
         }
         VisionScreeningResult visionScreeningResult = visionScreeningResults.get(0);
@@ -572,6 +579,7 @@ public class ScreeningPlanController {
 
     /**
      * 获取筛查计划的学生二维码数据
+     *
      * @param screeningPlanId
      * @param schoolId
      * @param gradeId
@@ -582,17 +590,18 @@ public class ScreeningPlanController {
      */
     @GetMapping("/student/QRCode")
     public Object studentQRCodeFile(@NotNull(message = "筛查计划ID不能为空") Integer screeningPlanId,
-            @NotNull(message = "学校ID不能为空") Integer schoolId, Integer gradeId, Integer classId, String planStudentIds,
-            Integer type) {
-        List<Integer> studentIds =null;
-        if (StringUtil.isNotEmpty(planStudentIds)&&!"null".equals(planStudentIds)){
+                                    @NotNull(message = "学校ID不能为空") Integer schoolId, Integer gradeId, Integer classId, String planStudentIds,
+                                    Integer type) {
+        List<Integer> studentIds = null;
+        if (StringUtil.isNotEmpty(planStudentIds) && !"null".equals(planStudentIds)) {
             studentIds = Arrays.stream(planStudentIds.split(",")).map(Integer::valueOf).collect(Collectors.toList());
         }
-        return screeningExportService.studentQRCodeFile(screeningPlanId, schoolId,gradeId,classId,studentIds,type);
+        return screeningExportService.studentQRCodeFile(screeningPlanId, schoolId, gradeId, classId, studentIds, type);
     }
 
     /**
      * 告知书数据
+     *
      * @param screeningPlanId
      * @param schoolId
      * @param gradeId
@@ -605,11 +614,11 @@ public class ScreeningPlanController {
                                                 @NotNull(message = "学校ID不能为空") Integer schoolId, Integer gradeId,
                                                 Integer classId, String planStudentIds,
                                                 boolean isSchoolClient) {
-        List<Integer> studentIds =null;
-        if (StringUtil.isNotEmpty(planStudentIds)&&!"null".equals(planStudentIds)){
+        List<Integer> studentIds = null;
+        if (StringUtil.isNotEmpty(planStudentIds) && !"null".equals(planStudentIds)) {
             studentIds = Arrays.stream(planStudentIds.split(",")).map(Integer::valueOf).collect(Collectors.toList());
         }
-        return screeningExportService.getNoticeData(screeningPlanId, schoolId,gradeId,classId,studentIds,isSchoolClient);
+        return screeningExportService.getNoticeData(screeningPlanId, schoolId, gradeId, classId, studentIds, isSchoolClient);
     }
 
     /**
@@ -625,4 +634,75 @@ public class ScreeningPlanController {
         screeningExportService.validateExist(screeningPlanId);
         return screeningPlanSchoolStudentFacadeService.getGradeByPlanIdAndSchoolId(screeningPlanId, schoolId);
     }
+
+    /**
+     * 获取学校
+     *
+     * @param planId 筛查计划
+     * @param orgId  机构Id
+     * @return List<ScreeningPlanSchoolStudent>
+     */
+    @GetMapping("/review/getSchool/{planId}/{orgId}")
+    public List<ScreeningPlanSchoolStudent> reviewGetSchools(@PathVariable("planId") Integer planId, @PathVariable("orgId") Integer orgId) {
+        return reviewInformService.getReviewSchools(planId, orgId);
+    }
+
+
+    /**
+     * 获取复查年级班级
+     *
+     * @param planId   计划Id
+     * @param orgId    机构Id
+     * @param schoolId 学校Id
+     * @return List<SchoolGradeVO>
+     */
+    @GetMapping("/review/getGrades/{planId}/{orgId}/{schoolId}")
+    public List<SchoolGradeVO> reviewGetGrade(@PathVariable("planId") Integer planId,
+                                              @PathVariable("orgId") Integer orgId,
+                                              @PathVariable("schoolId") Integer schoolId) {
+        return reviewInformService.getReviewGrade(planId, orgId, schoolId);
+    }
+
+    /**
+     * 获取复查告知书数据
+     *
+     * @param planId   筛查计划Id
+     * @param orgId    机构Id
+     * @param schoolId 学校Id
+     * @param gradeId  年级Id
+     * @param classId  班级Id
+     * @return List<ReviewInformExportDataDTO>
+     */
+    @GetMapping("/review/getExportData")
+    public Object getExportData(Integer planId, Integer orgId, Integer schoolId,
+                                Integer gradeId, Integer classId) {
+        return reviewInformService.getExportData(planId, orgId, schoolId, gradeId, classId);
+
+    }
+
+    /**
+     * 导出复查通知书
+     *
+     * @param planId   筛查计划Id
+     * @param orgId    机构Id
+     * @param type     类型
+     * @param schoolId 学校Id
+     * @param gradeId  年级Id
+     * @param classId  班级Id
+     * @return ApiResult<String>
+     */
+    @GetMapping("/review/export")
+    public ApiResult<String> reviewExport(@NotNull(message = "计划Id不能为空") Integer planId,
+                                          @NotNull(message = "机构Id不能为空") Integer orgId,
+                                          @NotNull(message = "typeId不能为空") Integer type,
+                                          @NotNull(message = "学校Id不能为空") Integer schoolId, Integer gradeId, Integer classId) {
+
+        // 如果是班级纬度的，同步导出
+        if (ExportTypeConst.CLASS.equals(type)) {
+            return ApiResult.success(reviewInformService.syncExportReview(planId, orgId, schoolId, gradeId, classId));
+        }
+        reviewInformService.asyncExportReview(planId, orgId, schoolId, gradeId, classId, type);
+        return ApiResult.success();
+    }
+
 }
