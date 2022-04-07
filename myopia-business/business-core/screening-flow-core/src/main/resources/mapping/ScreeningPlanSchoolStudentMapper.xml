@@ -86,17 +86,8 @@
     </select>
 
     <select id="selectSchoolGradeVoByPlanIdAndSchoolId" resultMap="GradeClassesDTO">
-        select
-                mspss.grade_id,
-                mspss.grade_name,
-                mspss.class_id,
-                mspss.class_name
-        from m_screening_plan_school_student mspss
-        join m_vision_screening_result mvsr
-                on  mspss.id = mvsr.screening_plan_school_student_id
-                and mspss.screening_plan_id = mvsr.plan_id
-                and mspss.school_id = mvsr.school_id
-        where mspss.screening_plan_id = #{screeningPlanId} and mspss.school_id = #{schoolId}
+        select grade_id, grade_name, class_id, class_name from m_screening_plan_school_student
+        where screening_plan_id = #{screeningPlanId} and school_id = #{schoolId}
         group by grade_id, class_id
     </select>
 
@@ -466,19 +457,6 @@
         limit 1
     </select>
 
-    <select id="getByCondition" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from m_screening_plan_school_student
-                where (id_card = #{condition}
-                or screening_code = #{condition}
-                or student_no = #{condition}
-        <if test="studentId != null">
-            or student_id = #{studentId}
-        </if>)
-            and student_name = #{name}
-    </select>
-
     <select id="getScreeningNoticeResultStudent" resultMap="ScreeningStudentDTO">
         select mspss.student_name      as name,
                mspss.student_no        as sno,
@@ -573,5 +551,13 @@
         select *
         from m_screening_plan_school_student
         where screening_plan_id != #{planId}
+    </select>
+
+    <select id="getGradeByPlanIdAndSchoolId" resultMap="GradeClassesDTO">
+        select *
+        from m_screening_plan_school_student
+        where school_id = #{schoolId}
+          and screening_plan_id = #{planId}
+        group by grade_id, class_id
     </select>
 </mapper>

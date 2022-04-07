@@ -459,18 +459,6 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         return baseMapper.getByPlanIdAndSchoolIdAndId(planId, schoolId, ids);
     }
 
-    /**
-     * 通过条件获取筛查学生
-     *
-     * @param condition 条件
-     * @param name      名字
-     * @param studentId 学生Id
-     * @return 筛查学生
-     */
-    public List<ScreeningPlanSchoolStudent> getByCondition(String condition, String name, Integer studentId) {
-        return baseMapper.getByCondition(condition, name, studentId);
-    }
-
     public List<ScreeningPlanSchoolStudent> getByIdCardAndPassport(String idCard, String passport, Integer id) {
         return baseMapper.getByIdCardAndPassport(idCard, passport, id);
     }
@@ -527,5 +515,23 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      */
     public List<ScreeningPlanSchoolStudent> getByNePlanId(Integer planId) {
         return baseMapper.getByNePlanId(planId);
+    }
+
+    public List<GradeClassesDTO> getGradeByPlanIdAndSchoolId(Integer screeningPlanId, Integer schoolId) {
+        return baseMapper.getGradeByPlanIdAndSchoolId(screeningPlanId, schoolId);
+    }
+
+    /**
+     * 根据筛查编号字符串获取
+     *
+     * @param screeningCodeStr 筛查编号字符串
+     * @return com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent
+     **/
+    public ScreeningPlanSchoolStudent getByScreeningCodeStr(String screeningCodeStr) {
+        try {
+            return findOne(new ScreeningPlanSchoolStudent().setScreeningCode(Long.parseLong(screeningCodeStr)));
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 }

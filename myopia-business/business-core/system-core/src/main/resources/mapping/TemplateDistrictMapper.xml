@@ -53,6 +53,29 @@
         </foreach>
     </insert>
 
+    <delete id="batchDelete">
+        delete
+        from m_template_district
+        where template_id = #{templateId} and district_id in
+        <foreach collection="items" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="batchDeleteTemplateIdsAndDistrictIds">
+        delete
+        from m_template_district
+        where template_id in
+        <foreach collection="templateIds" item="templateId" index="index" open="(" close=")" separator=",">
+            #{templateId}
+        </foreach>
+        and district_id in
+        <foreach collection="districtIds" item="districtId" index="index" open="(" close=")" separator=",">
+            #{districtId}
+        </foreach>
+    </delete>
+
+
     <select id="getByTemplateIds" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
@@ -63,9 +86,20 @@
         </foreach>
     </select>
 
-    <select id="getByDistrictId" resultType="java.lang.Integer">
+    <select id="getArchivesByDistrictId" resultType="java.lang.Integer">
+        select template_id
+        from m_template_district mtd
+                 left join m_template mt on mt.id = mtd.template_id
+        where mtd.district_id = #{districtId}
+          and mt.type = 1
+    </select>
+
+    <select id="getByDistrictIdAndTemplateIds" resultType="java.lang.Integer">
         select template_id
         from m_template_district
-        where district_id = #{districtId}
+        where district_id = #{districtId} and template_id in
+        <foreach collection="templateIds" open="(" close=")" separator="," item="templateId">
+            #{templateId}
+        </foreach>
     </select>
 </mapper>

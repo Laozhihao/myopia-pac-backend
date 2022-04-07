@@ -29,7 +29,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, device_sn, device_code, salesperson_name, salesperson_phone, binding_screening_org_id, customer_name, customer_phone, sale_date, remark, status, update_time, create_time
+        id, device_sn, device_code, salesperson_name, salesperson_phone, binding_screening_org_id, customer_name, customer_phone, sale_date, remark, status, type, update_time, create_time
     </sql>
 
     <select id="getPageByLikeQuery" resultMap="BaseResultMap">

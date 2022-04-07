@@ -62,6 +62,11 @@ public class UpdatePlanStudentRequestDTO {
     @Null
     private Integer userId;
 
+    /**
+     * 民族
+     */
+    private Integer nation;
+
     public Date getBirthday() {
         if (Objects.nonNull(birthday) || Objects.isNull(studentAge)) {
             return birthday;
@@ -117,6 +122,7 @@ public class UpdatePlanStudentRequestDTO {
         if (StringUtils.isNotBlank(getSno())) {
             screeningPlanSchoolStudent.setStudentNo(getSno());
         }
+        screeningPlanSchoolStudent.setNation(getNation());
         return screeningPlanSchoolStudent;
     }
 }

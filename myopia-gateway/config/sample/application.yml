@@ -54,7 +54,7 @@ spring:
     # sentinel dashboard
     sentinel:
       transport:
-        dashboard: localhost:8858
+        dashboard: localhost:8080
       # 取消Sentinel控制台懒加载
       eager: true
 
@@ -141,3 +141,8 @@ white-list:
   - "/management/report/screeningOrg/qrcode"
   - "/school/management/student/notice"
   - "/school/management/student/QRCode"
+  - "/api/device/uploadData"
+  - "/api/device/bmi"
+  - "/management/report/pdf"
+  - "/api/getUserInfo"
+  - "/api/fkr710/upload"

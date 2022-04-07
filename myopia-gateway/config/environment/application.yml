@@ -149,3 +149,8 @@ white-list:
   - "/management/report/screeningOrg/qrcode"
   - "/school/management/student/notice"
   - "/school/management/student/QRCode"
+  - "/api/device/uploadData"
+  - "/api/device/bmi"
+  - "/management/report/pdf"
+  - "/api/getUserInfo"
+  - "/api/fkr710/upload"

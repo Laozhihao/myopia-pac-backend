@@ -76,6 +76,11 @@ public class Device implements Serializable {
     private Integer status;
 
     /**
+     * 类型 0-默认 1-vs666 2-灯箱
+     */
+    private Integer type;
+
+    /**
      * 更新时间
      */
     private Date updateTime;

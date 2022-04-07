@@ -19,7 +19,6 @@ import com.wupol.myopia.business.common.utils.constant.NationEnum;
 import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.FileUtils;
-import com.wupol.myopia.business.core.common.constant.ArtificialStatusConstant;
 import com.wupol.myopia.business.core.common.domain.model.DeletedArchive;
 import com.wupol.myopia.business.core.common.service.DeletedArchiveService;
 import com.wupol.myopia.business.core.common.service.DistrictService;
@@ -402,7 +401,7 @@ public class ScreeningPlanStudentBizService {
     public void deletedPlanStudentById(Integer planStudentId) {
         ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(planStudentId);
         if (Objects.isNull(planStudent)) {
-            throw new BusinessException("数据异常");
+            throw new BusinessException("筛查学生异常数据异常");
         }
         VisionScreeningResult result = visionScreeningResultService.getByPlanStudentId(planStudent.getId());
         if (Objects.nonNull(result)) {

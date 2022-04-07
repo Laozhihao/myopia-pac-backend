@@ -1,10 +1,13 @@
 package com.wupol.myopia.business.core.screening.flow.domain.vo;
 
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import lombok.Getter;
 import lombok.ToString;
+
+import java.util.Objects;
 
 /**
  * @Description
@@ -97,6 +100,9 @@ public class StudentVO {
      * @param screeningPlanSchoolStudent 筛查学生信息
      */
     public static StudentVO getInstance(ScreeningPlanSchoolStudent screeningPlanSchoolStudent) {
+        if (Objects.isNull(screeningPlanSchoolStudent)) {
+            throw new BusinessException("找不到该筛查学生，请确认!");
+        }
         StudentVO studentVO = new StudentVO();
         studentVO.studentId = screeningPlanSchoolStudent.getId().toString();
         studentVO.sex = GenderEnum.getName(screeningPlanSchoolStudent.getGender());

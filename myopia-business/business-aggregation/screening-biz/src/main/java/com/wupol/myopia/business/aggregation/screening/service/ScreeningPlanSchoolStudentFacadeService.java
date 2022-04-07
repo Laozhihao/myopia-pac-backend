@@ -177,4 +177,17 @@ public class ScreeningPlanSchoolStudentFacadeService {
         }).collect(Collectors.toList());
     }
 
+    /**
+     * 获取计划中的学校年级情况
+     *
+     * @param screeningPlanId 筛查计划
+     * @param schoolId        学校Id
+     * @return List<SchoolGradeVO>
+     */
+    public List<SchoolGradeVO> getGradeByPlanIdAndSchoolId(Integer screeningPlanId, Integer schoolId) {
+        //1. 获取该计划学校的筛查学生所有年级、班级
+        List<GradeClassesDTO> gradeClasses = screeningPlanSchoolStudentService.getGradeByPlanIdAndSchoolId(screeningPlanId, schoolId);
+        return getSchoolGradeVOS(gradeClasses);
+    }
+
 }

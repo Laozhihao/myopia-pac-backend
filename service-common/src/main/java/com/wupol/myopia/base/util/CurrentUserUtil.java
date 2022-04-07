@@ -52,4 +52,13 @@ public class CurrentUserUtil {
         }
     }
 
+    public static String getUserToken () {
+        ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (servletRequestAttributes == null) {
+            throw new BusinessException("请登录");
+        }
+        HttpServletRequest request = servletRequestAttributes.getRequest();
+        return request.getHeader(AuthConstants.JWT_TOKEN);
+    }
+
 }
