@@ -3,9 +3,7 @@ package com.wupol.myopia.business.core.screening.flow.domain.dos;
 import lombok.Data;
 
 /**
- * 血压
- *
- * @Description
+ * @Description 血压
  * @Date 2021/4/06 16:50
  * @Author xz
  */
