@@ -39,6 +39,6 @@ public class SpineDataDO {
         /**
          * 程度 1 ，2， 3
          */
-        private Integer value;
+        private Integer level;
     }
 }
