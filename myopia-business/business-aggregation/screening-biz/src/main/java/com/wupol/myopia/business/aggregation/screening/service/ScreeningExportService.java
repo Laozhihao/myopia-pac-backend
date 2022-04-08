@@ -11,9 +11,8 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateFormatUtil;
-import com.wupol.myopia.business.aggregation.screening.domain.dto.ScreeningQrCodeDTO;
-import com.wupol.myopia.business.common.utils.constant.QrCodeConstant;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.AppQueryQrCodeParams;
+import com.wupol.myopia.business.aggregation.screening.domain.dto.ScreeningQrCodeDTO;
 import com.wupol.myopia.business.aggregation.screening.domain.vos.QrCodeInfo;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
@@ -37,6 +36,7 @@ import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanServic
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import freemarker.template.TemplateException;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -216,7 +216,7 @@ public class ScreeningExportService {
         List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.selectBySchoolGradeAndClass(screeningPlanId, schoolId, gradeId,classId,studentIds);
         QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white).setMargin(1);
         students.forEach(student -> {
-            student.setQrCodeUrl(QrCodeUtil.generateAsBase64(String.format(QrCodeConstant.QR_CODE_CONTENT_FORMAT_RULE, student.getPlanStudentId()), config, "jpg"));
+            student.setQrCodeUrl(QrCodeUtil.generateAsBase64(QrcodeUtil.setVs666QrCodeRule(screeningPlanId, student.getPlanStudentId(), student.getAge(), student.getGender(), student.getParentPhone(), student.getIdCard()), config, "jpg"));
             student.setGenderDesc(GenderEnum.getName(student.getGender()));
             student.setScreeningOrgConfigs(notificationConfig);
         });
@@ -242,7 +242,7 @@ public class ScreeningExportService {
                 && !notificationConfig.getQrCodeFileId().equals(DEFAULT_FILE_ID)) {
             screeningQrCodeDTO.setQrCodeFile(resourceFileService.getResourcePath(notificationConfig.getQrCodeFileId()));
         } else {
-            screeningQrCodeDTO.setQrCodeFile(DEFAULT_IMAGE_PATH);
+            screeningQrCodeDTO.setQrCodeFile(StringUtils.EMPTY);
         }
         return screeningQrCodeDTO;
     }
@@ -310,16 +310,9 @@ public class ScreeningExportService {
         QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white).setMargin(1);
         students.forEach(student -> {
             student.setGenderDesc(GenderEnum.getName(student.getGender()));
-            String content;
-            if (CommonConst.EXPORT_SCREENING_QRCODE.equals(type)) {
-                content = String.format(QrCodeConstant.SCREENING_CODE_QR_CONTENT_FORMAT_RULE, student.getPlanStudentId());
-            } else if (CommonConst.EXPORT_VS666.equals(type)) {
-                content = QrcodeUtil.setVs666QrCodeRule(student.getPlanId(), student.getPlanStudentId(),
-                        student.getAge(),student.getGender(),student.getParentPhone(),
-                        student.getIdCard());
-            } else {
-                content = String.format(QrCodeConstant.QR_CODE_CONTENT_FORMAT_RULE, student.getPlanStudentId());
-            }
+            String content = QrcodeUtil.getQrCodeContent(student.getPlanId(), student.getPlanStudentId(),
+                    student.getAge(), student.getGender(), student.getParentPhone(),
+                    student.getIdCard(), type);
             //TODO 调整内容就好，上完线在来处理，需要和前段对接
             student.setQrCodeUrl(QrCodeUtil.generateAsBase64(content, config, "jpg"));
         });
