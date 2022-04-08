@@ -199,7 +199,7 @@ public class SchoolStudentExcelImportService {
         Map<String, Integer> classExportMaps = classExportVOS.stream().collect(Collectors.toMap(SchoolClassExportDTO::getName, SchoolClassExportDTO::getId));
         Integer classId = classExportMaps.get(className);
         Integer gradeId = schoolGradeExportDTO.getId();
-        Assert.notNull(classId, "班级数据:" + className + "异常");
+        Assert.notNull(classId, "不存在该班级:" + className);
         return new TwoTuple<>(gradeId, classId);
     }
 
