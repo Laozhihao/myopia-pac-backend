@@ -6,14 +6,12 @@ import com.alibaba.csp.sentinel.util.StringUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.domain.PdfResponseDTO;
-import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.pdf.BaseExportPdfFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.HtmlPageUrlConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.PDFFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
-import com.wupol.myopia.business.common.utils.constant.QrCodeConstant;
 import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.common.utils.util.QrcodeUtil;
 import com.wupol.myopia.business.core.common.service.Html2PdfService;
@@ -139,16 +137,9 @@ public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
         QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white).setMargin(1);
         students.forEach(student -> {
             student.setGenderDesc(GenderEnum.getName(student.getGender()));
-            String content;
-            if (CommonConst.EXPORT_SCREENING_QRCODE.equals(exportCondition.getType())) {
-                content = String.format(QrCodeConstant.SCREENING_CODE_QR_CONTENT_FORMAT_RULE, student.getPlanStudentId());
-            } else if (CommonConst.EXPORT_VS666.equals(exportCondition.getType())) {
-                content = QrcodeUtil.setVs666QrCodeRule(student.getPlanId(), student.getPlanStudentId(),
-                        student.getAge(),student.getGender(),student.getParentPhone(),
-                        student.getIdCard());
-            } else {
-                content = String.format(QrCodeConstant.QR_CODE_CONTENT_FORMAT_RULE, student.getPlanStudentId());
-            }
+            String content = QrcodeUtil.getQrCodeContent(student.getPlanId(), student.getPlanStudentId(),
+                    student.getAge(), student.getGender(), student.getParentPhone(),
+                    student.getIdCard(), exportCondition.getType());
             student.setQrCodeUrl(QrCodeUtil.generateAsBase64(content, config, "jpg"));
         });
 

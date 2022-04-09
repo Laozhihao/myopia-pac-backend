@@ -9,26 +9,24 @@ public class QrcodeUtil {
 
     /**
      * 获取二维码内容
-     * @param planId 筛查计划ID
+     *
+     * @param planId        筛查计划ID
      * @param planStudentId 学生ID
-     * @param age 学生年龄
-     * @param gender 学生性别
-     * @param parentPhone 家长手机号
-     * @param idCard 身份证
-     * @param type 类型
-     * @return
+     * @param age           学生年龄
+     * @param gender        学生性别
+     * @param parentPhone   家长手机号
+     * @param idCard        身份证
+     * @param type          类型
+     * @return 二维码内容
      */
-    public  static String getQrCodeContent(Integer planId, Integer planStudentId,
-                                           Integer age, Integer gender,
-                                           String parentPhone, String idCard, Integer type) {
+    public static String getQrCodeContent(Integer planId, Integer planStudentId, Integer age, Integer gender,
+                                          String parentPhone, String idCard, Integer type) {
         if (CommonConst.EXPORT_SCREENING_QRCODE.equals(type)) {
             return String.format(QrCodeConstant.SCREENING_CODE_QR_CONTENT_FORMAT_RULE, planStudentId);
         } else if (CommonConst.EXPORT_VS666.equals(type)) {
             return setVs666QrCodeRule(planId, planStudentId,
-                    age,gender,parentPhone, idCard);
+                    age, gender, parentPhone, idCard);
         }
-
-
         return String.format(QrCodeConstant.QR_CODE_CONTENT_FORMAT_RULE, planStudentId);
     }
 
