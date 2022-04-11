@@ -42,5 +42,25 @@
     <sql id="Base_Column_List">
         user_id, user_category_id, avatar, username, nikename, password, salt, birthday, sex, email, phone, role_id, dept_id, school_id, status, aut_image, create_time, create_user, update_time, update_user, last_login_time, last_login_ip, load_login_ip, role_menu
     </sql>
+    
+    <select id="findMostStaffNameByDeptId" resultType="string" parameterType="string">
+        SELECT
+               username
+        FROM
+             (
+             SELECT
+                    su.username,
+                    count( * ) AS total
+             FROM
+                  sys_user su
+                      LEFT JOIN sys_student_eye sse ON sse.user_id = su.user_id
+             WHERE
+                     sse.dept_id = #{deptId}
+             GROUP BY
+                      su.user_id
+             ) AS temp
+        ORDER BY
+                 total DESC
+    </select>
 
 </mapper>

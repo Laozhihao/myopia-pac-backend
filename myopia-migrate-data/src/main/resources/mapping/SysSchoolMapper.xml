@@ -34,7 +34,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        school_id, name, num, province, region, city, sort, state, description, create_time, update_time, province_code, region_code, city_code, area_code, point_code, school_code, entrance_time
+        school_id, name, num, province, region, city, sort, state, description, create_time, update_time, province_code, region_code, city_code, area_code, point_code, school_code
     </sql>
 
 </mapper>

@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.school.constant;
 
 
 import com.google.common.collect.Lists;
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.List;
  * @Author Chikong
  * @Date 2020-12-22
  */
+@Getter
 public enum SchoolEnum {
     /** 住宿类型 */
     LODGE_ALL(0, "全部住校"),
@@ -43,14 +45,14 @@ public enum SchoolEnum {
      **/
     private final String name;
 
-    private static final List<SchoolEnum> schoolLodge = Lists.newArrayList(SchoolEnum.LODGE_ALL,
+    private static final List<SchoolEnum> SCHOOL_LODGE = Lists.newArrayList(SchoolEnum.LODGE_ALL,
             SchoolEnum.LODGE_PART, SchoolEnum.LODGE_NON);
 
-    private static final List<SchoolEnum> schoolType = Lists.newArrayList(SchoolEnum.TYPE_PRIMARY,
+    private static final List<SchoolEnum> SCHOOL_TYPE = Lists.newArrayList(SchoolEnum.TYPE_PRIMARY,
             SchoolEnum.TYPE_MIDDLE, SchoolEnum.TYPE_HIGH, SchoolEnum.TYPE_INTEGRATED_MIDDLE,
             SchoolEnum.TYPE_9, SchoolEnum.TYPE_12, SchoolEnum.TYPE_VOCATIONAL, SchoolEnum.TYPE_OTHER,TYPE_KINDERGARTEN);
 
-    private static final List<SchoolEnum> schoolKind = Lists.newArrayList(SchoolEnum.KIND_1,
+    private static final List<SchoolEnum> SCHOOL_KIND = Lists.newArrayList(SchoolEnum.KIND_1,
             SchoolEnum.KIND_2, SchoolEnum.KIND_3);
 
     SchoolEnum(Integer type, String name) {
@@ -65,7 +67,7 @@ public enum SchoolEnum {
      * @return
      */
     public static SchoolEnum getByType(Integer type) {
-        return SchoolEnum.schoolType.stream().filter(x -> x.type.equals(type)).findFirst().orElse(null);
+        return SchoolEnum.SCHOOL_TYPE.stream().filter(x -> x.type.equals(type)).findFirst().orElse(null);
     }
 
     /**
@@ -75,7 +77,7 @@ public enum SchoolEnum {
      * @return 描述
      */
     public static String getLodgeName(Integer type) {
-        return schoolLodge.stream()
+        return SCHOOL_LODGE.stream()
                 .filter(item -> item.type.equals(type))
                 .map(SchoolEnum::getName)
                 .findFirst().orElse(StringUtils.EMPTY);
@@ -88,7 +90,7 @@ public enum SchoolEnum {
      * @return 描述
      */
     public static String getTypeName(Integer type) {
-        return schoolType.stream()
+        return SCHOOL_TYPE.stream()
                 .filter(item -> item.type.equals(type))
                 .map(SchoolEnum::getName)
                 .findFirst().orElse(StringUtils.EMPTY);
@@ -101,18 +103,10 @@ public enum SchoolEnum {
      * @return 描述
      */
     public static String getKindName(Integer type) {
-        return schoolKind.stream()
+        return SCHOOL_KIND.stream()
                 .filter(item -> item.type.equals(type))
                 .map(SchoolEnum::getName)
                 .findFirst().orElse(StringUtils.EMPTY);
-    }
-
-    public Integer getType() {
-        return this.type;
-    }
-
-    public String getName() {
-        return this.name;
     }
 }
 

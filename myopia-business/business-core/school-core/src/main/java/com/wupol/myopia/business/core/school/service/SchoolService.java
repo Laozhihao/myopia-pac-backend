@@ -488,4 +488,24 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         });
         schoolGradeService.batchSaveGrade(saveGradeRequestDTO, userId);
     }
+
+    /**
+     * 获取最新学校编号
+     *
+     * @param districtAreaCode  区/镇/县的行政区域编号，如：210103000
+     * @param areaType          片区类型，如：2-中片区
+     * @param monitorType       监测点类型，如：1-城区
+     * @return java.lang.String
+     **/
+    public String getLatestSchoolNo(String districtAreaCode, Integer areaType, Integer monitorType) {
+        List<School> schoolList = findByList(new School().setDistrictAreaCode(Long.valueOf(districtAreaCode)));
+        // 学校编号（10位） = 省（2位）+ 市（2位）+ 片区（1位）+ 区/镇/县（2位）+ 监测点（1位） + 自增序号（2位）
+        String schoolNoPrefix = districtAreaCode.substring(0, 4) + areaType + districtAreaCode.substring(4, 6) + monitorType;
+        if (CollectionUtils.isEmpty(schoolList)) {
+            return schoolNoPrefix + "01";
+        }
+        String maxSchoolNo = String.valueOf(schoolList.stream().mapToLong(s -> Long.parseLong(s.getSchoolNo())).max().orElse(1000000000));
+        String newTotal = String.format("%02d", Integer.parseInt(maxSchoolNo.substring(maxSchoolNo.length() - 2)) + 1);
+        return schoolNoPrefix + newTotal;
+    }
 }

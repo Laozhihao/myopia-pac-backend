@@ -1,7 +1,7 @@
 package com.wupol.myopia.migrate.controller;
 
 import com.wupol.myopia.base.handler.ResponseResultBody;
-import com.wupol.myopia.migrate.service.migrate.MigrateDataService;
+import com.wupol.myopia.migrate.service.migrate.MigrateDataHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class MigrateDataController {
 
     @Autowired
-    private MigrateDataService migrateDataService;
+    private MigrateDataHandler migrateDataHandler;
 
     /**
      * 数据迁移
@@ -26,6 +26,6 @@ public class MigrateDataController {
      **/
     @GetMapping()
     public void migrateData() {
-        migrateDataService.migrateData();
+        migrateDataHandler.migrateData();
     }
 }

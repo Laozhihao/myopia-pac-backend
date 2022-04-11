@@ -8,6 +8,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.OtherEyeDiseases
 import com.wupol.myopia.business.core.screening.flow.domain.dto.VisionDataDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
+import com.wupol.myopia.migrate.domain.dos.ScreeningDataDO;
 import com.wupol.myopia.migrate.domain.model.SysStudentEye;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,9 @@ import java.util.stream.Collectors;
 
 /**
  * 迁移筛查数据
+ * 注意：
+ *      1.如何合并生物测量数据？
+ *      2.如何合并常见病筛查数据？新的筛查计划？
  *
  * @Author HaoHao
  * @Date 2022/3/30
@@ -34,32 +38,48 @@ public class MigrateScreeningDataService {
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
 
     /**
-     * 迁移筛查结果数据
+     * 逐个学校迁移筛查数据
      *
-     * @param sysStudentEyeList
-     * @param schoolId
-     * @param screeningOrgId
-     * @param userId
-     * @param planId
-     * @param sysStudentIdAndScreeningCodeMap
+     * @param screeningDataList 筛查数据（多个计划的）
      * @return void
      **/
     @Transactional(rollbackFor = Exception.class)
-    public void migrateScreeningResult(List<SysStudentEye> sysStudentEyeList, Integer schoolId, Integer screeningOrgId, Integer userId, Integer planId,
-                                        Map<String, String> sysStudentIdAndScreeningCodeMap) {
+    public void migrateScreeningDataBySchool(List<ScreeningDataDO> screeningDataList) {
+        screeningDataList.forEach(screeningDataDO -> migrateScreeningDataByStudent(screeningDataDO.getSysStudentEyeList(),
+                screeningDataDO.getSchoolId(),
+                screeningDataDO.getScreeningOrgId(),
+                screeningDataDO.getScreeningStaffUserId(),
+                screeningDataDO.getPlanId(),
+                screeningDataDO.getSysStudentIdAndScreeningCodeMap()));
+    }
+
+    /**
+     * 逐个学生迁移筛查结果数据
+     *
+     * @param sysStudentEyeList                 待迁移学生筛查数据（同个学校的）
+     * @param schoolId                          新的学校ID
+     * @param screeningOrgId                    新的筛查机构ID
+     * @param screeningStaffUserId              筛查人员用户ID
+     * @param planId                            筛查计划ID
+     * @param sysStudentIdAndScreeningCodeMap   学生ID和学生筛查编号对应 map
+     * @return void
+     **/
+    private void migrateScreeningDataByStudent(List<SysStudentEye> sysStudentEyeList, Integer schoolId, Integer screeningOrgId,
+                                               Integer screeningStaffUserId, Integer planId,
+                                               Map<String, String> sysStudentIdAndScreeningCodeMap) {
         List<ScreeningPlanSchoolStudent> planStudentList = screeningPlanSchoolStudentService.findByList(new ScreeningPlanSchoolStudent().setScreeningPlanId(planId).setSchoolId(schoolId));
         Map<String, Integer> certificateAndPlanStudentIdMap = planStudentList.stream().collect(Collectors.toMap(x -> StringUtils.isNotBlank(x.getIdCard()) ? x.getIdCard() : String.valueOf(x.getScreeningCode()), ScreeningPlanSchoolStudent::getId));
         // 遍历逐个学生迁移筛查数据
         sysStudentEyeList.forEach(sysStudentEye -> {
             String planStudentId = String.valueOf(getPlanStudentId(sysStudentEye, sysStudentIdAndScreeningCodeMap, certificateAndPlanStudentIdMap));
             // 视力
-            migrateVisionData(schoolId, screeningOrgId, userId, planStudentId, sysStudentEye);
+            migrateVisionData(schoolId, screeningOrgId, screeningStaffUserId, planStudentId, sysStudentEye);
             // 屈光
-            migrateComputerOptometryData(schoolId, screeningOrgId, userId, planStudentId, sysStudentEye);
-            // 生物测量
+            migrateComputerOptometryData(schoolId, screeningOrgId, screeningStaffUserId, planStudentId, sysStudentEye);
+            // TODO: 生物测量
 
             // 其他眼病
-            migrateOtherEyeDiseases(schoolId, screeningOrgId, userId, planStudentId, sysStudentEye);
+            migrateOtherEyeDiseases(schoolId, screeningOrgId, screeningStaffUserId, planStudentId, sysStudentEye);
         });
     }
 

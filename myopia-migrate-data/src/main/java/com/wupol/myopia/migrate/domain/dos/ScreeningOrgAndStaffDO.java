@@ -21,7 +21,7 @@ public class ScreeningOrgAndStaffDO {
 
     private Integer districtId;
 
-    private Integer screeningStaffId;
+    private Integer screeningStaffUserId;
 
     private String screeningStaffName;
 }
