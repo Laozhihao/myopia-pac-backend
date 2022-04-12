@@ -52,7 +52,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
@@ -595,9 +594,9 @@ public class ParentStudentBizService {
         Student student = studentService.getByCondition(condition, name);
         if (Objects.isNull(student)) {
             ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getByScreeningCodeStr(condition);
-            Assert.notNull(screeningPlanSchoolStudent, "该学生筛查编号/身份证/护照/学籍号/姓名错误");
+            checkStudent(screeningPlanSchoolStudent, condition, name);
             student = studentService.findOne(new Student().setId(screeningPlanSchoolStudent.getStudentId()).setName(name));
-            Assert.notNull(student, "该学生筛查编号/身份证/护照/学籍号/姓名错误");
+            checkStudent(student, condition, name);
         }
         responseDTO.setStudentId(student.getId());
         List<ScreeningPlanSchoolStudent> planStudents = screeningPlanSchoolStudentService.getByStudentId(student.getId());
@@ -607,6 +606,21 @@ public class ParentStudentBizService {
             responseDTO.setReportId(Objects.nonNull(result) ? result.getId() : null);
         }
         return responseDTO;
+    }
+
+    /**
+     * 检查是否存在该学生
+     *
+     * @param studentInfo   学生信息
+     * @param condition     学生唯一标志
+     * @param name          姓名
+     * @return void
+     **/
+    private void checkStudent(Object studentInfo, String condition, String name) {
+        if (Objects.isNull(studentInfo)) {
+            log.error("该学生筛查编号/身份证/护照/学籍号/姓名错误：{}，{}", condition, name);
+            throw new BusinessException("该学生筛查编号/身份证/护照/学籍号/姓名错误");
+        }
     }
 
     /**
