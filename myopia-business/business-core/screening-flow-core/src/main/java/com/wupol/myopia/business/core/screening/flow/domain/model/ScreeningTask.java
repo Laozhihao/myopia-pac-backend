@@ -100,5 +100,8 @@ public class ScreeningTask implements Serializable {
      */
     private Date operateTime;
 
-
+    /**
+     * 筛查类型（0：视力筛查，1；常见病）
+     */
+    private Integer screeningType;
 }
