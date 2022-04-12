@@ -191,7 +191,7 @@ public class SchoolStudentExcelImportService {
         Map<String, SchoolGradeExportDTO> gradeMaps = schoolGradeExportVOS.stream().collect(Collectors.toMap(SchoolGradeExportDTO::getName, Function.identity()));
         // 年级信息
         SchoolGradeExportDTO schoolGradeExportDTO = gradeMaps.get(gradeName);
-        Assert.notNull(schoolGradeExportDTO, "年级数据:" + gradeName + "异常");
+        Assert.notNull(schoolGradeExportDTO, "不存在该年级：" + gradeName);
 
         // 获取年级内的班级信息
         List<SchoolClassExportDTO> classExportVOS = schoolGradeExportDTO.getChild();
@@ -199,7 +199,7 @@ public class SchoolStudentExcelImportService {
         Map<String, Integer> classExportMaps = classExportVOS.stream().collect(Collectors.toMap(SchoolClassExportDTO::getName, SchoolClassExportDTO::getId));
         Integer classId = classExportMaps.get(className);
         Integer gradeId = schoolGradeExportDTO.getId();
-        Assert.notNull(classId, "班级数据:" + className + "异常");
+        Assert.notNull(classId, "不存在该班级:" + className);
         return new TwoTuple<>(gradeId, classId);
     }
 
