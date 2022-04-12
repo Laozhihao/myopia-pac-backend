@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.aggregation.screening.service;
 
+import com.wupol.myopia.business.common.utils.constant.GlassesTypeEnum;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
@@ -10,6 +11,8 @@ import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.builder.ScreeningResultBuilder;
 import com.wupol.myopia.business.core.screening.flow.domain.builder.StatConclusionBuilder;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultBasicData;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.VisionScreeningResultMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
@@ -28,6 +31,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -67,26 +71,82 @@ public class VisionScreeningBizService {
      */
     @Transactional(rollbackFor = Exception.class)
     public TwoTuple<VisionScreeningResult, StatConclusion> saveOrUpdateStudentScreenData(ScreeningResultBasicData screeningResultBasicData) {
+        // 1: 根据筛查计划获得 初筛和复测数据
+        // 2: 本次检查数据如果是复测，要验证是否符合初筛条件
         TwoTuple<VisionScreeningResult, VisionScreeningResult> allFirstAndSecondResult = getAllFirstAndSecondResult(screeningResultBasicData);
-        VisionScreeningResult currentVisionScreeningResult = allFirstAndSecondResult.getFirst();
+        VisionScreeningResult currentVisionScreeningResult;
+        if (screeningResultBasicData.getIsState() != 0) {
+            verifyScreening(allFirstAndSecondResult.getFirst());
+            currentVisionScreeningResult = allFirstAndSecondResult.getSecond();
+        } else {
+            currentVisionScreeningResult = allFirstAndSecondResult.getFirst();
+        }
+        // 获取了筛查计划
         currentVisionScreeningResult = getScreeningResult(screeningResultBasicData, currentVisionScreeningResult);
-        allFirstAndSecondResult.setFirst(currentVisionScreeningResult);
         //更新vision_result表
-        visionScreeningResultService.saveOrUpdateStudentScreenData(allFirstAndSecondResult.getFirst());
-        //更新statConclusion表
+        visionScreeningResultService.saveOrUpdateStudentScreenData(currentVisionScreeningResult);
+        //更新statConclusion表（获取的初筛或复测的数据）
         StatConclusion statConclusion = statConclusionService.saveOrUpdateStudentScreenData(getScreeningConclusionResult(allFirstAndSecondResult));
         // 更新是否绑定手机号码
         setIsBindMq(statConclusion);
-        //更新学生表的数据
-        this.updateStudentVisionData(allFirstAndSecondResult.getFirst(),statConclusion);
-        updateSchoolStudent(statConclusion,allFirstAndSecondResult.getFirst().getUpdateTime());
+        //更新学生表的数据（复测覆盖了初筛的结论）
+        this.updateStudentVisionData(currentVisionScreeningResult, statConclusion);
+        updateSchoolStudent(statConclusion, currentVisionScreeningResult.getUpdateTime());
         //返回最近一次的statConclusion
         TwoTuple<VisionScreeningResult, StatConclusion> visionScreeningResultStatConclusionTwoTuple = new TwoTuple<>();
-        visionScreeningResultStatConclusionTwoTuple.setFirst(allFirstAndSecondResult.getFirst());
+        visionScreeningResultStatConclusionTwoTuple.setFirst(currentVisionScreeningResult);
         visionScreeningResultStatConclusionTwoTuple.setSecond(statConclusion);
         return visionScreeningResultStatConclusionTwoTuple;
     }
 
+    /**
+     * 验证复测规则
+     *
+     * @param firstResult 第一次筛查结果
+     * @return
+     */
+    private void verifyScreening(VisionScreeningResult firstResult) {
+        VisionDataDO visionData = firstResult.getVisionData();
+        ComputerOptometryDO computerOptometry = firstResult.getComputerOptometry();
+        // 裸眼视力
+        if (Objects.isNull(firstResult.getVisionData()) ||
+                Objects.isNull(visionData.getLeftEyeData()) ||
+                Objects.isNull(visionData.getLeftEyeData().getNakedVision()) ||
+                Objects.isNull(visionData.getRightEyeData()) ||
+                Objects.isNull(visionData.getRightEyeData().getNakedVision())
+
+        ) {
+            throw new ManagementUncheckedException("需要完成裸眼视力检查");
+        }
+        // 检查矫正视力
+        if (GlassesTypeEnum.NOT_WEARING.code.equals(visionData.getLeftEyeData().getGlassesType())
+                && (Objects.isNull(visionData.getLeftEyeData().getCorrectedVision()) ||
+                Objects.isNull(visionData.getRightEyeData().getCorrectedVision()))) {
+            throw new ManagementUncheckedException("需要完成矫正视力检查");
+        }
+        // 球镜 柱镜 轴位
+        if (Objects.isNull(computerOptometry)) {
+            throw new ManagementUncheckedException("需要完成电脑验光检查");
+        }
+        // 球镜
+        if (Objects.isNull(computerOptometry.getLeftEyeData()) ||
+                computerOptometry.getLeftEyeData().getSph().compareTo(BigDecimal.ZERO) == 0
+                || Objects.isNull(computerOptometry.getRightEyeData())
+                || computerOptometry.getRightEyeData().getSph().compareTo(BigDecimal.ZERO) == 0) {
+            throw new ManagementUncheckedException("需要完成球镜检查");
+        }
+        if (computerOptometry.getLeftEyeData().getCyl().compareTo(BigDecimal.ZERO) == 0
+                || computerOptometry.getRightEyeData().getCyl().compareTo(BigDecimal.ZERO) == 0) {
+            throw new ManagementUncheckedException("需要完成柱镜检查");
+        }
+        if (computerOptometry.getLeftEyeData().getAxial().compareTo(BigDecimal.ZERO) == 0
+                || computerOptometry.getRightEyeData().getAxial().compareTo(BigDecimal.ZERO) == 0) {
+            throw new ManagementUncheckedException("需要完成轴位检查");
+        }
+        if (Objects.isNull(firstResult.getHeightAndWeightData())) {
+            throw new ManagementUncheckedException("需要完成体重检查");
+        }
+    }
 
     /**
      * 获取统计数据
@@ -106,7 +166,7 @@ public class VisionScreeningBizService {
         //需要新增
         SchoolGrade schoolGrade = schoolGradeService.getById(screeningPlanSchoolStudent.getGradeId());
         StatConclusionBuilder statConclusionBuilder = StatConclusionBuilder.getStatConclusionBuilder();
-        statConclusion = statConclusionBuilder.setCurrentVisionScreeningResult(currentVisionScreeningResult,secondVisionScreeningResult).setStatConclusion(statConclusion)
+        statConclusion = statConclusionBuilder.setCurrentVisionScreeningResult(currentVisionScreeningResult, secondVisionScreeningResult).setStatConclusion(statConclusion)
                 .setScreeningPlanSchoolStudent(screeningPlanSchoolStudent).setGradeCode(schoolGrade.getGradeCode())
                 .build();
         return statConclusion;
@@ -120,7 +180,7 @@ public class VisionScreeningBizService {
      * @return VisionScreeningResult
      * @throws IOException 异常
      */
-    public VisionScreeningResult getScreeningResult(ScreeningResultBasicData screeningResultBasicData, VisionScreeningResult visionScreeningResult){
+    public VisionScreeningResult getScreeningResult(ScreeningResultBasicData screeningResultBasicData, VisionScreeningResult visionScreeningResult) {
         //获取VisionScreeningResult以及ScreeningPlanSchoolStudent
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = getScreeningPlanSchoolStudent(screeningResultBasicData);
         //构建ScreeningResult
@@ -131,9 +191,9 @@ public class VisionScreeningBizService {
      * 取出历史初筛和复筛的数据
      *
      * @param screeningResultBasicData 学生基本信息
-     * @return com.wupol.myopia.business.common.utils.util.TwoTuple<com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult,com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult>
+     * @return com.wupol.myopia.business.common.utils.util.TwoTuple<com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult, com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult>
      **/
-    public  TwoTuple<VisionScreeningResult, VisionScreeningResult> getAllFirstAndSecondResult(ScreeningResultBasicData screeningResultBasicData) {
+    public TwoTuple<VisionScreeningResult, VisionScreeningResult> getAllFirstAndSecondResult(ScreeningResultBasicData screeningResultBasicData) {
         ScreeningPlanSchoolStudent screeningPlanSchoolStudentQueryDTO = new ScreeningPlanSchoolStudent().setScreeningOrgId(screeningResultBasicData.getDeptId()).setId(screeningResultBasicData.getPlanStudentId());
         //倒叙取出来最新的一条
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.findOne(screeningPlanSchoolStudentQueryDTO);
@@ -172,7 +232,7 @@ public class VisionScreeningBizService {
             throw new ManagementUncheckedException("无法找到screeningPlanSchoolStudent");
         }
         // 获取已经存在的数据
-        return  screeningPlanSchoolStudent;
+        return screeningPlanSchoolStudent;
     }
 
     /**
@@ -213,7 +273,7 @@ public class VisionScreeningBizService {
         if (CollectionUtils.isEmpty(schoolStudents)) {
             return;
         }
-        schoolStudents.forEach(schoolStudent->{
+        schoolStudents.forEach(schoolStudent -> {
             schoolStudent.setGlassesType(statConclusion.getGlassesType());
             schoolStudent.setLastScreeningTime(lastScreeningTime);
             schoolStudent.setVisionLabel(statConclusion.getWarningLevel());
@@ -241,7 +301,7 @@ public class VisionScreeningBizService {
      * @param districtIds 行政区域ids
      */
     public int getScreeningResult(List<Integer> districtIds, List<Integer> taskIds) {
-        int resultCount  = visionScreeningResultMapper.selectScreeningResultByDistrictIdAndTaskId(districtIds,taskIds);
+        int resultCount = visionScreeningResultMapper.selectScreeningResultByDistrictIdAndTaskId(districtIds, taskIds);
         return resultCount;
     }
 }

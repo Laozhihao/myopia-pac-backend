@@ -97,6 +97,8 @@ public class StatConclusionBuilder {
         this.setHyperopiaLevel();
         this.setAstigmatismLevel();
         return statConclusion;
+
+        /******有待更新 常见病的结论******/
     }
 
     /**

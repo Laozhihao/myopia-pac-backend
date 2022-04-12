@@ -141,7 +141,7 @@ public class ScreeningAppController {
     /**
      * 获取班级名称
      *
-     * @param gradeId  年级ID
+     * @param gradeId 年级ID
      * @return
      */
     @GetMapping("/school/findAllClazzNameBySchoolNameAndGradeName")
@@ -161,9 +161,9 @@ public class ScreeningAppController {
     /**
      * 获取学校年级班级对应的学生名称
      *
-     * @param schoolId  学校名称
-     * @param gradeId   年级名称
-     * @param classId   班级名称
+     * @param schoolId 学校名称
+     * @param gradeId  年级名称
+     * @param classId  班级名称
      * @return
      */
     @GetMapping("/school/findAllStudentName")
@@ -253,8 +253,8 @@ public class ScreeningAppController {
      */
     @PostMapping("/uploadSignPic")
     public ApiResult uploadUserAutographImageWithUser(@RequestParam(value = "deptId") Long deptId,
-                                              @RequestParam(value = "userId") Long userId,
-                                              @RequestParam(value = "file") MultipartFile file) {
+                                                      @RequestParam(value = "userId") Long userId,
+                                                      @RequestParam(value = "file") MultipartFile file) {
         return ApiResult.success(screeningAppService.uploadSignPic(CurrentUserUtil.getCurrentUser(), file));
     }
 
@@ -276,7 +276,7 @@ public class ScreeningAppController {
      */
     @PostMapping("/recognitionFace")
     public void recognitionFace(Integer deptId, MultipartFile file) {
-       // 暂时不用
+        // 暂时不用
     }
 
     /**
@@ -402,7 +402,7 @@ public class ScreeningAppController {
      */
     @PostMapping("/eye/updateReviewResult")
     public void updateReviewResult(Integer eyeId) {
-      //暂时不用
+        //暂时不用
     }
 
     /**
@@ -438,7 +438,7 @@ public class ScreeningAppController {
             log.error("根据orgId = [{}]，以及schoolId = [{}] 无法找到计划。", CurrentUserUtil.getCurrentUser().getOrgId(), appStudentDTO.getSchoolId());
             return ApiResult.failure(ErrorEnum.UNKNOWN_ERROR.getMessage());
         }
-        screeningPlanBizService.insertWithStudent(CurrentUserUtil.getCurrentUser(), student, appStudentDTO.getGrade(), appStudentDTO.getClazz(), appStudentDTO.getSchoolName(), school.getSchoolNo(), school.getDistrictId(), appStudentDTO.getSchoolId().intValue(), currentPlan,appStudentDTO.getPassport());
+        screeningPlanBizService.insertWithStudent(CurrentUserUtil.getCurrentUser(), student, appStudentDTO.getGrade(), appStudentDTO.getClazz(), appStudentDTO.getSchoolName(), school.getSchoolNo(), school.getDistrictId(), appStudentDTO.getSchoolId().intValue(), currentPlan, appStudentDTO.getPassport());
         return ApiResult.success();
     }
 
@@ -464,8 +464,8 @@ public class ScreeningAppController {
      * 获取班级总的筛查进度：汇总统计+每个学生的进度
      *
      * @param schoolId 学校名称
-     * @param gradeId 年级名称
-     * @param classId 班级名称
+     * @param gradeId  年级名称
+     * @param classId  班级名称
      * @param isFilter 是否启用过滤条件
      * @return com.wupol.myopia.business.api.screening.app.domain.vo.ClassScreeningProgress
      **/
@@ -599,9 +599,10 @@ public class ScreeningAppController {
 
     /**
      * 获取身高体重检查数据
-     * @Author tastyb
+     *
      * @param planStudentId 筛查计划学生ID
      * @return com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDTO
+     * @Author tastyb
      **/
     @GetMapping("/getHeightAndWeightData/{planStudentId}")
     public HeightAndWeightDataDTO getHeightAndWeightData(@PathVariable Integer planStudentId) {
@@ -672,7 +673,7 @@ public class ScreeningAppController {
      * @return void
      **/
     @PostMapping("/update/planStudent")
-    public void updatePlanStudent(@RequestBody@Valid UpdatePlanStudentRequestDTO requestDTO) {
+    public void updatePlanStudent(@RequestBody @Valid UpdatePlanStudentRequestDTO requestDTO) {
         screeningPlanStudentBizService.updatePlanStudent(requestDTO);
     }
 
@@ -689,6 +690,67 @@ public class ScreeningAppController {
         } catch (Exception e) {
             log.error("获取二维码异常", e);
             throw new BusinessException("获取二维码异常");
+        }
+    }
+
+    /**
+     * 常见病：龋齿数据保存
+     *
+     * @param saprodontiaDTO saprodontiaDTO
+     */
+    @PostMapping("/saprodontia")
+    public void addSaprodontia(@Valid @RequestBody SaprodontiaDTO saprodontiaDTO) {
+        if (saprodontiaDTO.isValid()) {
+            visionScreeningBizService.saveOrUpdateStudentScreenData(saprodontiaDTO);
+        }
+    }
+
+    /**
+     * 常见病：脊柱数据保存
+     *
+     * @param spineDTO spineDto
+     */
+    @PostMapping("/spine")
+    public void addSpine(@Valid @RequestBody SpineDTO spineDTO) {
+        if (spineDTO.isValid()) {
+            visionScreeningBizService.saveOrUpdateStudentScreenData(spineDTO);
+        }
+    }
+
+    /**
+     * 常见病：血压数据保存
+     *
+     * @param bloodPressureDTO bloodPressureDTO
+     */
+    @PostMapping("/bloodPressure")
+    public void addBloodPressure(@Valid @RequestBody BloodPressureDTO bloodPressureDTO) {
+        if (bloodPressureDTO.isValid()) {
+            visionScreeningBizService.saveOrUpdateStudentScreenData(bloodPressureDTO);
+        }
+    }
+
+    /**
+     * 常见病：疾病史保存
+     *
+     * @param diseasesHistoryDTO diseasesHistoryDTO
+     */
+    @PostMapping("/diseasesHistory")
+    public void addDiseasesHistory(@Valid @RequestBody DiseasesHistoryDTO diseasesHistoryDTO) {
+        if (diseasesHistoryDTO.isValid()) {
+            visionScreeningBizService.saveOrUpdateStudentScreenData(diseasesHistoryDTO);
+        }
+    }
+
+
+    /**
+     * 常见病：疾病保存
+     *
+     * @param privacyDTO privacyDTO
+     */
+    @PostMapping("/privacy")
+    public void addPrivacy(@Valid @RequestBody PrivacyDTO privacyDTO) {
+        if (privacyDTO.isValid()) {
+            visionScreeningBizService.saveOrUpdateStudentScreenData(privacyDTO);
         }
     }
 }
