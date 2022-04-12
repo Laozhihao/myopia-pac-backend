@@ -18,3 +18,5 @@ ALTER TABLE m_screening_task ADD screening_type tinyint(1) NOT NULL default 0 CO
 alter table m_screening_plan_school modify quality_controller_name varchar(25) DEFAULT NULL COMMENT '机构质控员名字';
 -- 筛查计划关联的学校表字段quality_controller_commander必填改为非必填
 alter table m_screening_plan_school modify quality_controller_commander varchar(25) DEFAULT NULL COMMENT '机构质控员队长';
+-- 将筛查通知表的数据迁移到筛查通知通知到的部门或者机构表
+INSERT into m_screening_notice_dept_org (screening_notice_id,district_id,accept_org_id,operation_status,operator_id,create_time) SELECT id,district_id,gov_dept_id,3,create_user_id,create_time FROM m_screening_notice;
