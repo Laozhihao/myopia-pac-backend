@@ -605,11 +605,8 @@ public class StatUtil {
         if (ObjectsUtil.hasNull(nakedVision,age) || age < 3 ){
             return null;
         }
-        int key = age;
-        if (age > 6){
-            key=7;
-        }
-        switch (key){
+        age = age >6 ?7:age;
+        switch (age){
             case 3:
                 return nakedVision3(nakedVision);
             case 4:
@@ -758,7 +755,7 @@ public class StatUtil {
             }
         }
 
-        return null;
+        return WarningLevel.NORMAL;
     }
 
     private static WarningLevel refractiveDataFarsighted45(BigDecimal se){
@@ -1087,6 +1084,9 @@ public class StatUtil {
      * @param age 年龄 （精确到半岁）
      * @param gender 性别
      */
+    public static TwoTuple<Boolean,Boolean> isOverweightAndObesity(String weight,String height,String age,Integer gender){
+        return isOverweightAndObesity(new BigDecimal(weight),new BigDecimal(height),age,gender);
+    }
     public static TwoTuple<Boolean,Boolean> isOverweightAndObesity(BigDecimal weight,BigDecimal height,String age,Integer gender){
         BigDecimal bmi = bmi(weight, height);
         StandardTableData.OverweightAndObesityData data = StandardTableData.getOverweightAndObesityData(age, gender);
@@ -1099,8 +1099,11 @@ public class StatUtil {
      *  是否生长迟缓
      * @param gender 性别
      * @param age 年龄 （精确到半岁）
-     * @param height 身高
+     * @param height 身高 cm
      */
+    public static Boolean isStunting(Integer gender,String age,String height){
+        return isStunting(gender,age,new BigDecimal(height));
+    }
     public static Boolean isStunting(Integer gender,String age,BigDecimal height){
         StandardTableData.StuntingData stuntingData = StandardTableData.getStuntingData(age, gender);
         return BigDecimalUtil.lessThanAndEqual(height,stuntingData.getHeight());
@@ -1113,6 +1116,9 @@ public class StatUtil {
      * @param age 年龄 （精确到半岁）
      * @param gender 性别
      */
+    public static Boolean isWasting(String weight,String height,String age,Integer gender){
+        return isWasting(new BigDecimal(weight),new BigDecimal(height),age,gender);
+    }
     public static Boolean isWasting(BigDecimal weight,BigDecimal height,String age,Integer gender){
         BigDecimal bmi = bmi(weight, height);
         StandardTableData.WastingData wastingData = StandardTableData.getWastingData(age, gender);
