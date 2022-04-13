@@ -262,8 +262,9 @@ public class StatConclusionBuilder {
     }
 
     private void setRefractiveError() {
-        boolean isRefractiveError = StatUtil.isRefractiveError(basicData.isAstigmatism != null ? basicData.isAstigmatism : false, statConclusion.getIsMyopia() != null ? statConclusion.getIsMyopia() : false, statConclusion.getIsHyperopia() != null ? statConclusion.getIsHyperopia() : false);
-        statConclusion.setIsRefractiveError(isRefractiveError);
+        boolean leftRefractiveError = StatUtil.isRefractiveError(basicData.leftSph,basicData.leftCyl,basicData.age);
+        boolean rightRefractiveError = StatUtil.isRefractiveError(basicData.rightSph,basicData.rightCyl,basicData.age);
+        statConclusion.setIsRefractiveError(leftRefractiveError || rightRefractiveError);
     }
 
     private void setMyopia() {
