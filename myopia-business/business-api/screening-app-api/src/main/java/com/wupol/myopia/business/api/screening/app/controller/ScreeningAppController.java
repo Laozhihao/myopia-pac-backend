@@ -706,6 +706,21 @@ public class ScreeningAppController {
     }
 
     /**
+     * 获取龋齿数据
+     *
+     * @param planStudentId 筛查计划学生ID
+     * @return com.wupol.myopia.business.core.screening.flow.domain.dos.SaprodontiaDataDO
+     **/
+    @GetMapping("/getSaprodontia/{planStudentId}")
+    public SaprodontiaDTO getSaprodontia(@PathVariable Integer planStudentId) {
+        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentId(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId());
+        if (Objects.isNull(screeningResult)) {
+            return new SaprodontiaDTO();
+        }
+        return SaprodontiaDTO.getInstance(screeningResult.getSaprodontiaData());
+    }
+
+    /**
      * 常见病：脊柱数据保存
      *
      * @param spineDTO spineDto
@@ -715,6 +730,21 @@ public class ScreeningAppController {
         if (spineDTO.isValid()) {
             visionScreeningBizService.saveOrUpdateStudentScreenData(spineDTO);
         }
+    }
+
+    /**
+     * 获取脊柱数据
+     *
+     * @param planStudentId 筛查计划学生ID
+     * @return com.wupol.myopia.business.core.screening.flow.domain.dos.SpineDataDO
+     **/
+    @GetMapping("/getSpine/{planStudentId}")
+    public SpineDTO getSpine(@PathVariable Integer planStudentId) {
+        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentId(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId());
+        if (Objects.isNull(screeningResult)) {
+            return new SpineDTO();
+        }
+        return SpineDTO.getInstance(screeningResult.getSpineData());
     }
 
     /**
@@ -730,6 +760,22 @@ public class ScreeningAppController {
     }
 
     /**
+     * 获取血压数据
+     *
+     * @param planStudentId 筛查计划学生ID
+     * @return com.wupol.myopia.business.core.screening.flow.domain.dos.BloodPressureDataDO
+     **/
+    @GetMapping("/getBloodPressure/{planStudentId}")
+    public BloodPressureDTO getBloodPressure(@PathVariable Integer planStudentId) {
+        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentId(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId());
+        if (Objects.isNull(screeningResult)) {
+            return new BloodPressureDTO();
+        }
+        return BloodPressureDTO.getInstance(screeningResult.getBloodPressureData());
+    }
+
+
+    /**
      * 常见病：疾病史保存
      *
      * @param diseasesHistoryDTO diseasesHistoryDTO
@@ -739,6 +785,21 @@ public class ScreeningAppController {
         if (diseasesHistoryDTO.isValid()) {
             visionScreeningBizService.saveOrUpdateStudentScreenData(diseasesHistoryDTO);
         }
+    }
+
+    /**
+     * 获取疾病史数据
+     *
+     * @param planStudentId 筛查计划学生ID
+     * @return com.wupol.myopia.business.core.screening.flow.domain.dos.BloodPressureDataDO
+     **/
+    @GetMapping("/getBloodPressure/{planStudentId}")
+    public DiseasesHistoryDTO getDiseasesHistory(@PathVariable Integer planStudentId) {
+        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentId(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId());
+        if (Objects.isNull(screeningResult)) {
+            return new DiseasesHistoryDTO();
+        }
+        return DiseasesHistoryDTO.getInstance(screeningResult.getDiseasesHistoryData());
     }
 
 
@@ -752,5 +813,20 @@ public class ScreeningAppController {
         if (privacyDTO.isValid()) {
             visionScreeningBizService.saveOrUpdateStudentScreenData(privacyDTO);
         }
+    }
+
+    /**
+     * 获取疾病史数据
+     *
+     * @param planStudentId 筛查计划学生ID
+     * @return com.wupol.myopia.business.core.screening.flow.domain.dos.BloodPressureDataDO
+     **/
+    @GetMapping("/getBloodPressure/{planStudentId}")
+    public DiseasesHistoryDTO getDiseasesHistory(@PathVariable Integer planStudentId) {
+        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentId(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId());
+        if (Objects.isNull(screeningResult)) {
+            return new DiseasesHistoryDTO();
+        }
+        return DiseasesHistoryDTO.getInstance(screeningResult.getDiseasesHistoryData());
     }
 }

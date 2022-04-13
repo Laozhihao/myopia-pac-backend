@@ -32,4 +32,13 @@ public class DiseasesHistoryDTO extends ScreeningResultBasicData {
         // 暂时不需要验证，如果为空就是正常的
         return true;
     }
+
+    public static DiseasesHistoryDTO getInstance(List<String> diseases) {
+        if (Objects.isNull(diseases)) {
+            return null;
+        }
+        DiseasesHistoryDTO diseasesHistoryDTO = new DiseasesHistoryDTO();
+        diseasesHistoryDTO.setDiseases(diseases);
+        return diseasesHistoryDTO;
+    }
 }
