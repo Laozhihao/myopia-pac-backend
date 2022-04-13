@@ -121,4 +121,9 @@ public class ScreeningPlan implements Serializable {
      * 筛查类型（0：视力筛查，1；常见病） app：常见病新增 2022-04-07
      */
     private Integer screeningType;
+
+    /**
+     * 修改筛查结束时间状态（0：未修改，1；已修改）
+     */
+    private Integer updateScreeningEndTimeStatus;
 }
