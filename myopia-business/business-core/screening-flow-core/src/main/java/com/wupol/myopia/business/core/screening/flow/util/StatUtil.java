@@ -920,7 +920,7 @@ public class StatUtil {
     }
 
     /**
-     * 建议就诊：满足小学及以上 且戴眼镜
+     * 建议就诊：满足小学及以上 且 裸眼视力<4.9 且戴眼镜
      * @param nakedVision 裸眼视力
      * @param correctedVision 矫正视力
      */
@@ -940,7 +940,7 @@ public class StatUtil {
     }
 
     /**
-     * 建议就诊：满足小学及以上 且 未戴眼镜
+     * 建议就诊：满足小学及以上 且 裸眼视力<4.9且 未戴眼镜
      * @param nakedVision 裸眼视力
      * @param se 等效球镜
      * @param cyl 柱镜
@@ -983,13 +983,13 @@ public class StatUtil {
 
 
     /**
-     *
+     * 建议就诊：满足小学及以上 且 裸眼视力>=4.9
      * @param nakedVision 裸眼视力
      * @param se 等效球镜
      * @param age 年龄
      */
     public static Boolean primarySchoolAndAbove(BigDecimal nakedVision ,BigDecimal se, Integer age){
-        if (ObjectsUtil.allNotNull(nakedVision,se)){
+        if (ObjectsUtil.allNotNull(nakedVision,se) && BigDecimalUtil.lessThanAndEqual(nakedVision, "4.9") ){
 
             if (age != null && age >=6){
                 return BigDecimalUtil.moreThanAndEqual(se,"2.00");
