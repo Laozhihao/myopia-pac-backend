@@ -16,7 +16,7 @@ import java.util.Arrays;
 @Data
 public class DeviationDO {
     /**
-     * 视光检查误差
+     * 视力或屈光检查误差误差
      */
     private VisionOrOptometryDeviation visionOrOptometryDeviation;
 
@@ -33,7 +33,7 @@ public class DeviationDO {
         private VisionOrOptometryDeviationEnum type;
 
         /**
-         * 视光检查误差 说明
+         * 视力或屈光检查误差说明
          */
         private String remark;
     }
