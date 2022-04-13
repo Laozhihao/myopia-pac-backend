@@ -15,11 +15,9 @@ import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometr
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultBasicData;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.VisionScreeningResultMapper;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask;
-import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
-import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
+import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import lombok.extern.log4j.Log4j2;
@@ -59,9 +57,10 @@ public class VisionScreeningBizService {
     private SchoolGradeService schoolGradeService;
     @Autowired
     private SchoolStudentService schoolStudentService;
-
     @Resource
     private VisionScreeningResultMapper visionScreeningResultMapper;
+    @Autowired
+    private ScreeningPlanService screeningPlanService;
 
     /**
      * 保存学生眼镜信息
@@ -83,6 +82,16 @@ public class VisionScreeningBizService {
         }
         // 获取了筛查计划
         currentVisionScreeningResult = getScreeningResult(screeningResultBasicData, currentVisionScreeningResult);
+
+        ScreeningPlan screeningPlan = screeningPlanService.findOne(new ScreeningPlan().setId(currentVisionScreeningResult.getPlanId()));
+        ScreeningPlanSchoolStudent screeningPlanSchoolStudent = getScreeningPlanSchoolStudent(screeningResultBasicData);
+        if (screeningResultBasicData.getIsState() != 0) {
+            // 初筛数据清空未检查说明
+            screeningPlanSchoolStudent.setState(0);
+            screeningPlanSchoolStudentService.updateById(screeningPlanSchoolStudent);
+        }
+        // 设置类型，来自筛查计划
+        currentVisionScreeningResult.setScreeningType(screeningPlan.getScreeningType());
         //更新vision_result表
         visionScreeningResultService.saveOrUpdateStudentScreenData(currentVisionScreeningResult);
         //更新statConclusion表（获取的初筛或复测的数据）
@@ -99,13 +108,14 @@ public class VisionScreeningBizService {
         return visionScreeningResultStatConclusionTwoTuple;
     }
 
+
     /**
      * 验证复测规则
      *
      * @param firstResult 第一次筛查结果
      * @return
      */
-    private void verifyScreening(VisionScreeningResult firstResult) {
+    public void verifyScreening(VisionScreeningResult firstResult) {
         VisionDataDO visionData = firstResult.getVisionData();
         ComputerOptometryDO computerOptometry = firstResult.getComputerOptometry();
         // 裸眼视力
@@ -186,6 +196,7 @@ public class VisionScreeningBizService {
         //构建ScreeningResult
         return new ScreeningResultBuilder().setVisionScreeningResult(visionScreeningResult).setIsDoubleScreen(screeningResultBasicData.getIsState() == 1).setScreeningResultBasicData(screeningResultBasicData).setScreeningPlanSchoolStudent(screeningPlanSchoolStudent).build();
     }
+
 
     /**
      * 取出历史初筛和复筛的数据
