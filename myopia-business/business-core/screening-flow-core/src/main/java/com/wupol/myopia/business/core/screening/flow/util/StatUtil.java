@@ -27,6 +27,9 @@ import java.util.Objects;
 @UtilityClass
 public class StatUtil {
 
+    private static final String MINUS_3 = "-3.00";
+    private static final String MINUS_0_5 = "-0.50";
+    private static final String MINUS_6 = "-6.00";
 
     /**
      * 初筛数据完整性判断
@@ -47,7 +50,7 @@ public class StatUtil {
      * <p>
      * 数据是否有效或者完整
      *
-     * @param visionData 视力筛查结果
+     * @param visionData        视力筛查结果
      * @param computerOptometry 电脑验光数据
      */
     public static boolean isCompletedData(VisionDataDO visionData, ComputerOptometryDO computerOptometry) {
@@ -70,23 +73,25 @@ public class StatUtil {
      * 判断是否视力低下
      *
      * @param nakedVision 裸眼视力
-     * @param age 年龄
+     * @param age         年龄
      */
     public static Boolean isLowVision(Float nakedVision, Integer age) {
         if (nakedVision == null || age == null || age < 0) {
-            return null;
+            return Boolean.FALSE;
         }
-        return isLowVision(nakedVision.toString(),age);
+        return isLowVision(nakedVision.toString(), age);
     }
+
     public static Boolean isLowVision(String nakedVision, Integer age) {
         if (StrUtil.isBlank(nakedVision) || age == null || age < 0) {
-            return null;
+            return Boolean.FALSE;
         }
-        return isLowVision(new BigDecimal(nakedVision),age);
+        return isLowVision(new BigDecimal(nakedVision), age);
     }
+
     public static Boolean isLowVision(BigDecimal nakedVision, Integer age) {
         if (nakedVision == null || age == null || age < 0) {
-            return null;
+            return Boolean.FALSE;
         }
         if (age > 0 && age < 3 && BigDecimalUtil.lessThanAndEqual(nakedVision,"4.6")) {
             return true;
@@ -113,27 +118,28 @@ public class StatUtil {
         if (nakedVision == null || age == null || age < 6) {
             return null;
         }
-        return getNakedVisionWarningLevel(nakedVision.toString(),age);
+        return getNakedVisionWarningLevel(nakedVision.toString(), age);
     }
 
     public static WarningLevel getNakedVisionWarningLevel(String nakedVision, Integer age) {
         if (StrUtil.isBlank(nakedVision) || age == null || age < 6) {
             return null;
         }
-        return getNakedVisionWarningLevel(new BigDecimal(nakedVision),age);
+        return getNakedVisionWarningLevel(new BigDecimal(nakedVision), age);
     }
+
     public static WarningLevel getNakedVisionWarningLevel(BigDecimal nakedVision, Integer age) {
         if (nakedVision == null || age == null || age < 6) {
             return null;
         }
 
-        if (BigDecimalUtil.equal(nakedVision,"4.9")) {
+        if (BigDecimalUtil.decimalEqual(nakedVision, "4.9")) {
             return WarningLevel.ONE;
         }
-        if (BigDecimalUtil.isBetweenAll(nakedVision,"4.6","4.8")) {
+        if (BigDecimalUtil.isBetweenAll(nakedVision, "4.6", "4.8")) {
             return WarningLevel.TWO;
         }
-        if (BigDecimalUtil.lessThanAndEqual(nakedVision,"4.5")) {
+        if (BigDecimalUtil.lessThanAndEqual(nakedVision, "4.5")) {
             return WarningLevel.THREE;
         }
 
@@ -145,7 +151,7 @@ public class StatUtil {
      *
      * @param sphere      球镜
      * @param cylinder    柱镜
-     * @param age 年龄
+     * @param age         年龄
      * @param nakedVision 裸眼视力
      */
     public static boolean isMyopia(Float sphere, Float cylinder, Integer age, Float nakedVision) {
@@ -196,105 +202,115 @@ public class StatUtil {
 
     /**
      * 是否屈光不正
+     *
      * @param sphere 球镜
-     * @param cyl 柱镜
-     * @param age 年龄
+     * @param cyl    柱镜
+     * @param age    年龄
      */
-    public static Boolean isRefractiveError(Float sphere,Float cyl,Integer age){
-        if(sphere == null || cyl==null || age == null){
+    public static Boolean isRefractiveError(Float sphere, Float cyl, Integer age) {
+        if (sphere == null || cyl == null || age == null) {
             return Boolean.FALSE;
         }
-        return isRefractiveError(sphere.toString(),cyl.toString(),age);
+        return isRefractiveError(sphere.toString(), cyl.toString(), age);
     }
 
-    public static Boolean isRefractiveError(BigDecimal sphere,BigDecimal cyl,Integer age){
-        if(sphere == null || cyl==null || age == null){
+    public static Boolean isRefractiveError(BigDecimal sphere, BigDecimal cyl, Integer age) {
+        if (sphere == null || cyl == null || age == null) {
             return Boolean.FALSE;
         }
-        return isRefractiveError(sphere.toString(),cyl.toString(),age);
+        return isRefractiveError(sphere.toString(), cyl.toString(), age);
     }
-    public static Boolean isRefractiveError(String sphere,String cyl,Integer age){
+
+    public static Boolean isRefractiveError(String sphere, String cyl, Integer age) {
         BigDecimal se = getSphericalEquivalent(sphere, cyl);
-        age = age == null ? 0:age;
-        switch (age){
+        age = age == null ? 0 : age;
+        switch (age) {
             case 2:
-                return refractiveError2(se,cyl);
+                return refractiveError2(se, cyl);
             case 3:
             case 4:
-                return refractiveError34(se,cyl);
+                return refractiveError34(se, cyl);
             case 5:
             case 6:
-                return refractiveError56(se,cyl);
+                return refractiveError56(se, cyl);
             default:
-                return null;
+                return Boolean.FALSE;
         }
     }
 
-    private static Boolean refractiveError34(BigDecimal se,String cyl){
-        return (se != null && (BigDecimalUtil.lessThan(se,"-3.00") || BigDecimalUtil.moreThan(se,"4.00")))
-                || (StrUtil.isNotBlank(cyl) && BigDecimalUtil.moreThan(new BigDecimal(cyl).abs(),new BigDecimal("2.00").abs()));
+    private static Boolean refractiveError34(BigDecimal se, String cyl) {
+        return (se != null && (BigDecimalUtil.lessThan(se, MINUS_3) || BigDecimalUtil.moreThan(se, "4.00")))
+                || (StrUtil.isNotBlank(cyl) && BigDecimalUtil.moreThan(new BigDecimal(cyl).abs(), new BigDecimal("2.00").abs()));
     }
 
-    private static Boolean refractiveError56(BigDecimal se,String cyl){
-        return (se != null && (BigDecimalUtil.lessThan(se,"-3.50") || BigDecimalUtil.moreThan(se,"4.50") ))
-                || ( StrUtil.isNotBlank(cyl) && BigDecimalUtil.moreThan(new BigDecimal(cyl).abs(),new BigDecimal("1.50").abs()));
+    private static Boolean refractiveError56(BigDecimal se, String cyl) {
+        return (se != null && (BigDecimalUtil.lessThan(se, "-3.50") || BigDecimalUtil.moreThan(se, "4.50")))
+                || (StrUtil.isNotBlank(cyl) && BigDecimalUtil.moreThan(new BigDecimal(cyl).abs(), new BigDecimal("1.50").abs()));
     }
 
-    private static Boolean refractiveError2(BigDecimal se,String cyl){
-        return (se != null && (BigDecimalUtil.lessThan(se,"-1.50") ||BigDecimalUtil.moreThan(se,"3.50")))
-                || (StrUtil.isNotBlank(cyl) &&BigDecimalUtil.moreThan(new BigDecimal(cyl).abs(),new BigDecimal("2.00").abs()));
+    private static Boolean refractiveError2(BigDecimal se, String cyl) {
+        return (se != null && (BigDecimalUtil.lessThan(se, "-1.50") || BigDecimalUtil.moreThan(se, "3.50")))
+                || (StrUtil.isNotBlank(cyl) && BigDecimalUtil.moreThan(new BigDecimal(cyl).abs(), new BigDecimal("2.00").abs()));
     }
 
 
     /**
-     *  1、计入矫正
-     *  2、未佩戴眼镜计入未矫
-     * @param leftNakedVision 左眼裸视
+     * 1、计入矫正
+     * 2、未佩戴眼镜计入未矫
+     *
+     * @param leftNakedVision  左眼裸视
      * @param rightNakedVision 右眼裸视
      */
-    public static Boolean correction(Float leftNakedVision,Float rightNakedVision){
-        return leftNakedVision < 4.9f || rightNakedVision <4.9f;
+    public static Boolean correction(Float leftNakedVision, Float rightNakedVision) {
+        return leftNakedVision < 4.9f || rightNakedVision < 4.9f;
     }
+
     /**
      * 3、计入足矫
+     *
      * @param wearingGlasses 戴镜
-     * @param leftVision 左眼视力
-     * @param rightVision 右眼视力
+     * @param leftVision     左眼视力
+     * @param rightVision    右眼视力
      */
-    public static Boolean footOrthosis(Boolean wearingGlasses,Float leftVision,Float rightVision){
-        return wearingGlasses && leftVision < 4.9f && rightVision <4.9f;
+    public static Boolean footOrthosis(Boolean wearingGlasses, Float leftVision, Float rightVision) {
+        return wearingGlasses && leftVision < 4.9f && rightVision < 4.9f;
     }
+
     /**
      * 4、计入欠矫
+     *
      * @param wearingGlasses 戴镜
-     * @param leftVision 左眼视力
-     * @param rightVision 右眼视力
+     * @param leftVision     左眼视力
+     * @param rightVision    右眼视力
      */
-    public static Boolean undercorrection(Boolean wearingGlasses,Float leftVision,Float rightVision){
-        return wearingGlasses && (leftVision <= 4.9f || rightVision <=4.9f);
+    public static Boolean undercorrection(Boolean wearingGlasses, Float leftVision, Float rightVision) {
+        return wearingGlasses && (leftVision <= 4.9f || rightVision <= 4.9f);
     }
 
     /**
      * 屈光参差：双眼球镜度（远视、近视）差值>1.50D
-     * @param leftSph 左眼球镜度
+     *
+     * @param leftSph  左眼球镜度
      * @param rightSph 右眼球镜度
      */
-    public static Boolean isAnisometropiaVision(String leftSph,String rightSph){
-        if (StrUtil.isNotBlank(leftSph) && StrUtil.isNotBlank(rightSph)){
+    public static boolean isAnisometropiaVision(String leftSph, String rightSph) {
+        if (StrUtil.isNotBlank(leftSph) && StrUtil.isNotBlank(rightSph)) {
             BigDecimal diffSph = new BigDecimal(leftSph).abs().subtract(new BigDecimal(rightSph).abs()).abs();
-            return BigDecimalUtil.moreThan(diffSph,"1.50");
+            return BigDecimalUtil.moreThan(diffSph, "1.50");
         }
         return Boolean.FALSE;
     }
+
     /**
      * 屈光参差：双眼柱镜度（散光）差值>1.00D
-     * @param leftCyl 左眼柱镜度
+     *
+     * @param leftCyl  左眼柱镜度
      * @param rightCyl 右眼柱镜度
      */
-    public static Boolean isAnisometropiaAstigmatism(String leftCyl,String rightCyl){
-        if (StrUtil.isNotBlank(leftCyl) && StrUtil.isNotBlank(rightCyl)){
+    public static Boolean isAnisometropiaAstigmatism(String leftCyl, String rightCyl) {
+        if (StrUtil.isNotBlank(leftCyl) && StrUtil.isNotBlank(rightCyl)) {
             BigDecimal diffCyl = new BigDecimal(leftCyl).abs().subtract(new BigDecimal(rightCyl).abs()).abs();
-            return BigDecimalUtil.moreThan(diffCyl,"1.00");
+            return BigDecimalUtil.moreThan(diffCyl, "1.00");
         }
         return Boolean.FALSE;
     }
@@ -306,7 +322,7 @@ public class StatUtil {
      * @return
      */
     public boolean isAstigmatism(String cyl) {
-        return StrUtil.isNotBlank(cyl) && BigDecimalUtil.moreThanAndEqual(new BigDecimal(cyl).abs(),"0.50") ;
+        return StrUtil.isNotBlank(cyl) && BigDecimalUtil.moreThanAndEqual(new BigDecimal(cyl).abs(), "0.50");
     }
 
     /**
@@ -337,32 +353,34 @@ public class StatUtil {
     public static AstigmatismLevelEnum getAstigmatismWarningLevel(Float cyl) {
         return getAstigmatismWarningLevel(cyl.toString());
     }
+
     public static AstigmatismLevelEnum getAstigmatismWarningLevel(String cyl) {
         if (StrUtil.isBlank(cyl)) {
             return null;
         }
         return getAstigmatismWarningLevel(new BigDecimal(cyl));
     }
+
     public static AstigmatismLevelEnum getAstigmatismWarningLevel(BigDecimal cyl) {
         if (cyl == null) {
             return null;
         }
         BigDecimal cylAbs = cyl.abs();
 
-        if (BigDecimalUtil.isBetweenAll(cylAbs,"0.50","2.00")) {
+        if (BigDecimalUtil.isBetweenAll(cylAbs, "0.50", "2.00")) {
             return AstigmatismLevelEnum.ASTIGMATISM_LEVEL_LIGHT;
         }
-        if (BigDecimalUtil.isBetweenRight(cylAbs,"2.00","4.00")) {
+        if (BigDecimalUtil.isBetweenRight(cylAbs, "2.00", "4.00")) {
             return AstigmatismLevelEnum.ASTIGMATISM_LEVEL_MIDDLE;
         }
-        if (BigDecimalUtil.moreThan(cylAbs,"4.00")) {
+        if (BigDecimalUtil.moreThan(cylAbs, "4.00")) {
             return AstigmatismLevelEnum.ASTIGMATISM_LEVEL_HIGH;
         }
         return AstigmatismLevelEnum.ZERO;
     }
 
     public static Integer getAstigmatismLevel(Float cyl) {
-        if (cyl == null){
+        if (cyl == null) {
             return null;
         }
         AstigmatismLevelEnum astigmatismWarningLevel = getAstigmatismWarningLevel(cyl.toString());
@@ -382,33 +400,35 @@ public class StatUtil {
      * @return
      */
     public static Boolean isHyperopia(Float sphere, Float cylinder, Integer age) {
-        if (ObjectsUtil.allNotNull(sphere,cylinder,age)){
-            return isHyperopia(sphere.toString(),cylinder.toString(),age);
+        if (ObjectsUtil.allNotNull(sphere, cylinder, age)) {
+            return isHyperopia(sphere.toString(), cylinder.toString(), age);
         }
         return Boolean.FALSE;
     }
+
     public static Boolean isHyperopia(String sphere, String cylinder, Integer age) {
-        return isHyperopia(new BigDecimal(sphere),new BigDecimal(cylinder),age);
+        return isHyperopia(new BigDecimal(sphere), new BigDecimal(cylinder), age);
     }
+
     public static Boolean isHyperopia(BigDecimal sphere, BigDecimal cylinder, Integer age) {
         if (Objects.isNull(age)) {
             return false;
         }
         BigDecimal se = getSphericalEquivalent(sphere, cylinder);
-        if (se == null){
+        if (se == null) {
             return false;
         }
 
-        if (age < 4 && BigDecimalUtil.moreThan(se,"3.00")) {
+        if (age < 4 && BigDecimalUtil.moreThan(se, "3.00")) {
             return true;
         }
-        if ((age < 6 && age >= 4) && BigDecimalUtil.moreThan(se,"2.00")) {
+        if ((age < 6 && age >= 4) && BigDecimalUtil.moreThan(se, "2.00")) {
             return true;
         }
-        if ((age < 8 && age >= 6) && BigDecimalUtil.moreThan(se,"1.50")) {
+        if ((age < 8 && age >= 6) && BigDecimalUtil.moreThan(se, "1.50")) {
             return true;
         }
-        if (age >= 8 && BigDecimalUtil.moreThan(se,"0.50")) {
+        if (age >= 8 && BigDecimalUtil.moreThan(se, "0.50")) {
             return true;
         }
         HyperopiaLevelEnum hyperopiaWarningLevel = getHyperopiaWarningLevel(sphere, cylinder, age);
@@ -435,27 +455,29 @@ public class StatUtil {
      * @return
      */
     public static HyperopiaLevelEnum getHyperopiaWarningLevel(Float sphere, Float cylinder, Integer age) {
-        return getHyperopiaWarningLevel(sphere.toString(),cylinder.toString(),age);
+        return getHyperopiaWarningLevel(sphere.toString(), cylinder.toString(), age);
     }
+
     public static HyperopiaLevelEnum getHyperopiaWarningLevel(String sphere, String cylinder, Integer age) {
-        return getHyperopiaWarningLevel(new BigDecimal(sphere),new BigDecimal(cylinder),age);
+        return getHyperopiaWarningLevel(new BigDecimal(sphere), new BigDecimal(cylinder), age);
     }
+
     public static HyperopiaLevelEnum getHyperopiaWarningLevel(BigDecimal sphere, BigDecimal cylinder, Integer age) {
         if (sphere == null || cylinder == null || age == null) {
             return null;
         }
         BigDecimal se = getSphericalEquivalent(sphere, cylinder);
-        if (se == null){
+        if (se == null) {
             return null;
         }
         if (age >= 12) {
-            if (BigDecimalUtil.isBetweenRight(se,"0.50","3.00")) {
+            if (BigDecimalUtil.isBetweenRight(se, "0.50", "3.00")) {
                 return HyperopiaLevelEnum.HYPEROPIA_LEVEL_LIGHT;
             }
-            if (BigDecimalUtil.isBetweenRight(se,"3.00","6.00")) {
+            if (BigDecimalUtil.isBetweenRight(se, "3.00", "6.00")) {
                 return HyperopiaLevelEnum.HYPEROPIA_LEVEL_MIDDLE;
             }
-            if (BigDecimalUtil.moreThan(se,"6.00")) {
+            if (BigDecimalUtil.moreThan(se, "6.00")) {
                 return HyperopiaLevelEnum.HYPEROPIA_LEVEL_HIGH;
             }
             return HyperopiaLevelEnum.ZERO;
@@ -472,7 +494,7 @@ public class StatUtil {
      * @return Integer
      */
     public static Integer getHyperopiaLevel(Float sphere, Float cylinder, Integer age) {
-        if (sphere == null || cylinder == null || age == null){
+        if (sphere == null || cylinder == null || age == null) {
             return null;
         }
         HyperopiaLevelEnum hyperopiaWarningLevel = getHyperopiaWarningLevel(sphere.toString(), cylinder.toString(), age);
@@ -485,48 +507,49 @@ public class StatUtil {
 
     /**
      * 近视预警级别
-     * @param sphere 球镜
-     * @param cylinder 柱镜
-     * @param age 年龄
+     *
+     * @param sphere      球镜
+     * @param cylinder    柱镜
+     * @param age         年龄
      * @param nakedVision 裸眼视力
      */
     public static MyopiaLevelEnum getMyopiaWarningLevel(Float sphere, Float cylinder, Integer age, Float nakedVision) {
-        if (ObjectsUtil.hasNull(sphere, cylinder,nakedVision)) {
+        if (ObjectsUtil.hasNull(sphere, cylinder, nakedVision)) {
             return null;
         }
-        return getMyopiaWarningLevel(sphere.toString(),cylinder.toString(),age,nakedVision.toString());
+        return getMyopiaWarningLevel(sphere.toString(), cylinder.toString(), age, nakedVision.toString());
     }
 
     public static MyopiaLevelEnum getMyopiaWarningLevel(String sphere, String cylinder, Integer age, String nakedVision) {
-        if (ObjectsUtil.hasNull(sphere, cylinder,nakedVision)) {
+        if (ObjectsUtil.hasNull(sphere, cylinder, nakedVision)) {
             return null;
         }
-        return getMyopiaWarningLevel(new BigDecimal(sphere),new BigDecimal(cylinder),age,new BigDecimal(nakedVision));
+        return getMyopiaWarningLevel(new BigDecimal(sphere), new BigDecimal(cylinder), age, new BigDecimal(nakedVision));
     }
 
     public static MyopiaLevelEnum getMyopiaWarningLevel(BigDecimal sphere, BigDecimal cylinder, Integer age, BigDecimal nakedVision) {
         BigDecimal se = getSphericalEquivalent(sphere, cylinder);
-        if (se == null){
+        if (se == null) {
             return null;
         }
 
         if (ObjectsUtil.allNotNull(age, nakedVision)
-                && ((age < 6 && BigDecimalUtil.lessThan(nakedVision,"4.9")) || (age >= 6 && BigDecimalUtil.lessThan(nakedVision,"5.0")))
-                && BigDecimalUtil.lessThan(se,"-0.5")){
+                && ((age < 6 && BigDecimalUtil.lessThan(nakedVision, "4.9")) || (age >= 6 && BigDecimalUtil.lessThan(nakedVision, "5.0")))
+                && BigDecimalUtil.lessThan(se, "-0.5")) {
 
             return MyopiaLevelEnum.SCREENING_MYOPIA;
         }
 
-        if (BigDecimalUtil.isBetweenRight(se,"-0.50","0.75")) {
+        if (BigDecimalUtil.isBetweenRight(se, MINUS_0_5, "0.75")) {
             return MyopiaLevelEnum.MYOPIA_LEVEL_EARLY;
         }
-        if (BigDecimalUtil.isBetweenLeft(se,"-3.00","-0.50")) {
+        if (BigDecimalUtil.isBetweenLeft(se, MINUS_3, MINUS_0_5)) {
             return MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT;
         }
-        if (BigDecimalUtil.isBetweenLeft(se,"-6.00","-3.00")) {
+        if (BigDecimalUtil.isBetweenLeft(se, MINUS_6, MINUS_3)) {
             return MyopiaLevelEnum.MYOPIA_LEVEL_MIDDLE;
         }
-        if (BigDecimalUtil.lessThan(se,"-6.00")) {
+        if (BigDecimalUtil.lessThan(se, MINUS_6)) {
             return MyopiaLevelEnum.MYOPIA_LEVEL_HIGH;
         }
 
@@ -536,23 +559,26 @@ public class StatUtil {
 
     /**
      * 近视预警级别Level
-     * @param sphere 球镜
-     * @param cylinder 柱镜
-     * @param age 年龄
+     *
+     * @param sphere      球镜
+     * @param cylinder    柱镜
+     * @param age         年龄
      * @param nakedVision 裸眼视力
      */
     public static Integer getMyopiaLevel(Float sphere, Float cylinder, Integer age, Float nakedVision) {
-        if (ObjectsUtil.hasNull(sphere, cylinder,nakedVision)) {
+        if (ObjectsUtil.hasNull(sphere, cylinder, nakedVision)) {
             return null;
         }
-        return getMyopiaLevel(sphere.toString(),cylinder.toString(),age,nakedVision.toString());
+        return getMyopiaLevel(sphere.toString(), cylinder.toString(), age, nakedVision.toString());
     }
+
     public static Integer getMyopiaLevel(String sphere, String cylinder, Integer age, String nakedVision) {
-        if (ObjectsUtil.hasNull(sphere, cylinder,nakedVision)) {
+        if (ObjectsUtil.hasNull(sphere, cylinder, nakedVision)) {
             return null;
         }
-        return getMyopiaLevel(new BigDecimal(sphere),new BigDecimal(cylinder),age,new BigDecimal(nakedVision));
+        return getMyopiaLevel(new BigDecimal(sphere), new BigDecimal(cylinder), age, new BigDecimal(nakedVision));
     }
+
     public static Integer getMyopiaLevel(BigDecimal sphere, BigDecimal cylinder, Integer age, BigDecimal nakedVision) {
         MyopiaLevelEnum myopiaWarningLevel = getMyopiaWarningLevel(sphere, cylinder, age, nakedVision);
         if (Objects.nonNull(myopiaWarningLevel)) {
@@ -574,17 +600,19 @@ public class StatUtil {
         }
         return cylinder.divide(new BigDecimal(2)).add(sphere);
     }
+
     public static BigDecimal getSphericalEquivalent(Float sphere, Float cylinder) {
-        if (ObjectsUtil.hasNull(sphere,cylinder)){
+        if (ObjectsUtil.hasNull(sphere, cylinder)) {
             return null;
         }
-        return getSphericalEquivalent(sphere.toString(),cylinder.toString());
+        return getSphericalEquivalent(sphere.toString(), cylinder.toString());
     }
+
     public static BigDecimal getSphericalEquivalent(String sphere, String cylinder) {
-        if (ObjectsUtil.hasNull(sphere,cylinder)){
+        if (ObjectsUtil.hasNull(sphere, cylinder)) {
             return null;
         }
-        return getSphericalEquivalent(new BigDecimal(sphere),new BigDecimal(cylinder));
+        return getSphericalEquivalent(new BigDecimal(sphere), new BigDecimal(cylinder));
     }
 
 
@@ -592,21 +620,23 @@ public class StatUtil {
 
     /**
      * 裸眼视力数据
+     *
      * @param nakedVision 裸眼视力
-     * @param age 年龄
+     * @param age         年龄
      */
-    public static WarningLevel nakedVision(String nakedVision,Integer age){
-        if (StrUtil.isBlank(nakedVision) || age == null ){
+    public static WarningLevel nakedVision(String nakedVision, Integer age) {
+        if (StrUtil.isBlank(nakedVision) || age == null) {
             return null;
         }
-        return nakedVision(new BigDecimal(nakedVision),age);
+        return nakedVision(new BigDecimal(nakedVision), age);
     }
-    public static WarningLevel nakedVision(BigDecimal nakedVision,Integer age){
-        if (ObjectsUtil.hasNull(nakedVision,age) || age < 3 ){
+
+    public static WarningLevel nakedVision(BigDecimal nakedVision, Integer age) {
+        if (ObjectsUtil.hasNull(nakedVision, age) || age < 3) {
             return null;
         }
-        age = age >6 ?7:age;
-        switch (age){
+        age = age > 6 ? 7 : age;
+        switch (age) {
             case 3:
                 return nakedVision3(nakedVision);
             case 4:
@@ -620,59 +650,63 @@ public class StatUtil {
                 return null;
         }
     }
-    private static WarningLevel nakedVision3(BigDecimal nakedVision){
-        if (BigDecimalUtil.lessThan(nakedVision,"4.5")){
+
+    private static WarningLevel nakedVision3(BigDecimal nakedVision) {
+        if (BigDecimalUtil.lessThan(nakedVision, "4.5")) {
             return WarningLevel.THREE;
         }
-        if (BigDecimalUtil.lessThan(nakedVision,"4.6")){
+        if (BigDecimalUtil.lessThan(nakedVision, "4.6")) {
             return WarningLevel.TWO;
         }
-        if (BigDecimalUtil.lessThan(nakedVision,"4.7")){
+        if (BigDecimalUtil.lessThan(nakedVision, "4.7")) {
             return WarningLevel.ONE;
         }
-        if (BigDecimalUtil.lessThan(nakedVision,"4.8")){
+        if (BigDecimalUtil.lessThan(nakedVision, "4.8")) {
             return WarningLevel.ZERO;
         }
         return null;
     }
-    private static WarningLevel nakedVision4(BigDecimal nakedVision){
-        if (BigDecimalUtil.lessThan(nakedVision,"4.6")){
+
+    private static WarningLevel nakedVision4(BigDecimal nakedVision) {
+        if (BigDecimalUtil.lessThan(nakedVision, "4.6")) {
             return WarningLevel.THREE;
         }
-        if (BigDecimalUtil.lessThan(nakedVision,"4.7")){
+        if (BigDecimalUtil.lessThan(nakedVision, "4.7")) {
             return WarningLevel.TWO;
         }
-        if (BigDecimalUtil.lessThan(nakedVision,"4.8")){
+        if (BigDecimalUtil.lessThan(nakedVision, "4.8")) {
             return WarningLevel.ONE;
         }
-        if (BigDecimalUtil.lessThan(nakedVision,"4.9")){
+        if (BigDecimalUtil.lessThan(nakedVision, "4.9")) {
             return WarningLevel.ZERO;
         }
         return null;
     }
-    private static WarningLevel nakedVision5(BigDecimal nakedVision){
-        if (BigDecimalUtil.lessThan(nakedVision,"4.7")){
+
+    private static WarningLevel nakedVision5(BigDecimal nakedVision) {
+        if (BigDecimalUtil.lessThan(nakedVision, "4.7")) {
             return WarningLevel.THREE;
         }
-        if (BigDecimalUtil.lessThan(nakedVision,"4.8")){
+        if (BigDecimalUtil.lessThan(nakedVision, "4.8")) {
             return WarningLevel.TWO;
         }
-        if (BigDecimalUtil.lessThan(nakedVision,"4.9")){
+        if (BigDecimalUtil.lessThan(nakedVision, "4.9")) {
             return WarningLevel.ONE;
         }
-        if (BigDecimalUtil.lessThan(nakedVision,"5.0")){
+        if (BigDecimalUtil.lessThan(nakedVision, "5.0")) {
             return WarningLevel.ZERO;
         }
         return null;
     }
-    private static WarningLevel nakedVisionMoreThanAndEqual6(BigDecimal nakedVision){
-        if (BigDecimalUtil.lessThan(nakedVision,"4.7")){
+
+    private static WarningLevel nakedVisionMoreThanAndEqual6(BigDecimal nakedVision) {
+        if (BigDecimalUtil.lessThan(nakedVision, "4.7")) {
             return WarningLevel.THREE;
         }
-        if (BigDecimalUtil.lessThan(nakedVision,"4.9")){
+        if (BigDecimalUtil.lessThan(nakedVision, "4.9")) {
             return WarningLevel.TWO;
         }
-        if (BigDecimalUtil.lessThan(nakedVision,"5.0")){
+        if (BigDecimalUtil.lessThan(nakedVision, "5.0")) {
             return WarningLevel.ONE;
         }
 
@@ -682,38 +716,40 @@ public class StatUtil {
 
     /**
      * 屈光数据
-     *  1、近视：se 不能为空
-     *  2、远视：se和age 不能为空
-     *  3、散光：cyl 不能为空
-     * @param se 等效球镜
-     * @param cyl 柱镜
-     * @param age 年龄
+     * 1、近视：se 不能为空
+     * 2、远视：se和age 不能为空
+     * 3、散光：cyl 不能为空
+     *
+     * @param se   等效球镜
+     * @param cyl  柱镜
+     * @param age  年龄
      * @param type 类型 （近视-0、散光-1、远视-2）
      */
-    public static WarningLevel refractiveData(BigDecimal se,BigDecimal cyl,Integer age,Integer type){
-         switch (type){
-             case 0:
+    public static WarningLevel refractiveData(BigDecimal se, BigDecimal cyl, Integer age, Integer type) {
+        switch (type) {
+            case 0:
                 return refractiveDataMyopia(se);
-             case 1:
-                 return refractiveDataAstigmatism(cyl);
-             case 2:
-                 return refractiveDataFarsighted(se,age);
-             default:
-                 return null;
-         }
+            case 1:
+                return refractiveDataAstigmatism(cyl);
+            case 2:
+                return refractiveDataFarsighted(se, age);
+            default:
+                return null;
+        }
     }
-    private static WarningLevel refractiveDataMyopia(BigDecimal se){
-        if(se != null){
-            if (BigDecimalUtil.isBetweenAll(se,"-0.50","-0.25")) {
+
+    private static WarningLevel refractiveDataMyopia(BigDecimal se) {
+        if (se != null) {
+            if (BigDecimalUtil.isBetweenAll(se, MINUS_0_5, "-0.25")) {
                 return WarningLevel.ZERO;
             }
-            if (BigDecimalUtil.isBetweenLeft(se,"-3.00","-0.50")) {
+            if (BigDecimalUtil.isBetweenLeft(se, MINUS_3, MINUS_0_5)) {
                 return WarningLevel.ONE;
             }
-            if (BigDecimalUtil.isBetweenLeft(se,"-6.00","-3.00")) {
+            if (BigDecimalUtil.isBetweenLeft(se, MINUS_6, MINUS_3)) {
                 return WarningLevel.TWO;
             }
-            if (BigDecimalUtil.lessThan(se,"-6.00")) {
+            if (BigDecimalUtil.lessThan(se, MINUS_6)) {
                 return WarningLevel.THREE;
             }
         }
@@ -721,36 +757,39 @@ public class StatUtil {
 
     }
 
-    private static WarningLevel refractiveDataFarsighted(BigDecimal se,Integer age){
-        if(age != null){
-           age = age < 3 ? 2:age >= 8 ? 8:age;
-           switch (age){
-               case 3:
-                   return refractiveDataFarsighted3(se);
-               case 4:
-               case 5:
-                   return refractiveDataFarsighted45(se);
-               case 6:
-               case 7:
-                   return refractiveDataFarsighted67(se);
-               case 8:
-                   return refractiveDataFarsightedMoreThanAndEqual8(se);
-               default:
-                   return null;
-           }
+    private static WarningLevel refractiveDataFarsighted(BigDecimal se, Integer age) {
+        if (age != null) {
+            int key = age;
+            if (age >= 8) {
+                key = 8;
+            }
+            switch (key) {
+                case 3:
+                    return refractiveDataFarsighted3(se);
+                case 4:
+                case 5:
+                    return refractiveDataFarsighted45(se);
+                case 6:
+                case 7:
+                    return refractiveDataFarsighted67(se);
+                case 8:
+                    return refractiveDataFarsightedMoreThanAndEqual8(se);
+                default:
+                    return null;
+            }
         }
         return null;
     }
 
-    private static WarningLevel refractiveDataFarsighted3(BigDecimal se){
-        if (se != null){
-            if (BigDecimalUtil.isBetweenRight(se,"4.00","6.00")){
+    private static WarningLevel refractiveDataFarsighted3(BigDecimal se) {
+        if (se != null) {
+            if (BigDecimalUtil.isBetweenRight(se, "4.00", "6.00")) {
                 return WarningLevel.ONE;
             }
-            if (BigDecimalUtil.isBetweenRight(se,"6.00","9.00")){
+            if (BigDecimalUtil.isBetweenRight(se, "6.00", "9.00")) {
                 return WarningLevel.TWO;
             }
-            if (BigDecimalUtil.moreThan(se,"9.00")){
+            if (BigDecimalUtil.moreThan(se, "9.00")) {
                 return WarningLevel.THREE;
             }
         }
@@ -758,80 +797,83 @@ public class StatUtil {
         return WarningLevel.NORMAL;
     }
 
-    private static WarningLevel refractiveDataFarsighted45(BigDecimal se){
-        if (se != null){
-            if (BigDecimalUtil.isBetweenRight(se,"2.00","5.00")){
+    private static WarningLevel refractiveDataFarsighted45(BigDecimal se) {
+        if (se != null) {
+            if (BigDecimalUtil.isBetweenRight(se, "2.00", "5.00")) {
                 return WarningLevel.ONE;
             }
-            if (BigDecimalUtil.isBetweenRight(se,"5.00","8.00")){
+            if (BigDecimalUtil.isBetweenRight(se, "5.00", "8.00")) {
                 return WarningLevel.TWO;
             }
-            if (BigDecimalUtil.moreThan(se,"8.00")){
+            if (BigDecimalUtil.moreThan(se, "8.00")) {
                 return WarningLevel.THREE;
             }
         }
         return null;
     }
 
-    private static WarningLevel refractiveDataFarsighted67(BigDecimal se){
-        if (se != null){
-            if (BigDecimalUtil.isBetweenRight(se,"1.50","4.50")){
+    private static WarningLevel refractiveDataFarsighted67(BigDecimal se) {
+        if (se != null) {
+            if (BigDecimalUtil.isBetweenRight(se, "1.50", "4.50")) {
                 return WarningLevel.ONE;
             }
-            if (BigDecimalUtil.isBetweenRight(se,"4.50","7.50")){
+            if (BigDecimalUtil.isBetweenRight(se, "4.50", "7.50")) {
                 return WarningLevel.TWO;
             }
-            if (BigDecimalUtil.moreThan(se,"7.50")){
+            if (BigDecimalUtil.moreThan(se, "7.50")) {
                 return WarningLevel.THREE;
             }
         }
         return null;
     }
 
-    private static WarningLevel refractiveDataFarsightedMoreThanAndEqual8(BigDecimal se){
-        if (se != null){
-            if (BigDecimalUtil.isBetweenRight(se,"0.50","3.00")){
+    private static WarningLevel refractiveDataFarsightedMoreThanAndEqual8(BigDecimal se) {
+        if (se != null) {
+            if (BigDecimalUtil.isBetweenRight(se, "0.50", "3.00")) {
                 return WarningLevel.ONE;
             }
-            if (BigDecimalUtil.isBetweenRight(se,"3.00","6.00")){
+            if (BigDecimalUtil.isBetweenRight(se, "3.00", "6.00")) {
                 return WarningLevel.TWO;
             }
-            if (BigDecimalUtil.moreThan(se,"6.00")){
+            if (BigDecimalUtil.moreThan(se, "6.00")) {
                 return WarningLevel.THREE;
             }
         }
         return null;
     }
 
-    private static WarningLevel refractiveDataAstigmatism(BigDecimal cyl){
-        if(cyl != null){
-            if (BigDecimalUtil.isBetweenLeft(cyl.abs(),"0.25","0.50")) {
+    private static WarningLevel refractiveDataAstigmatism(BigDecimal cyl) {
+        if (cyl != null) {
+            if (BigDecimalUtil.isBetweenLeft(cyl.abs(), "0.25", "0.50")) {
                 return WarningLevel.ZERO;
             }
-            if (BigDecimalUtil.isBetweenAll(cyl.abs(),"0.50","2.00")) {
+            if (BigDecimalUtil.isBetweenAll(cyl.abs(), "0.50", "2.00")) {
                 return WarningLevel.ONE;
             }
-            if (BigDecimalUtil.isBetweenRight(cyl.abs(),"2.00","4.00")) {
+            if (BigDecimalUtil.isBetweenRight(cyl.abs(), "2.00", "4.00")) {
                 return WarningLevel.TWO;
             }
-            if (BigDecimalUtil.moreThan(cyl.abs(),"4.00")) {
+            if (BigDecimalUtil.moreThan(cyl.abs(), "4.00")) {
                 return WarningLevel.THREE;
             }
         }
         return null;
     }
+
     /**
      * 远视储备不足（也纳入0级预警中）
+     *
      * @param se 等效球镜
      */
-    public static WarningLevel insufficientFarsightednessReserve(String se){
-        if (StrUtil.isNotBlank(se)){
+    public static WarningLevel insufficientFarsightednessReserve(String se) {
+        if (StrUtil.isNotBlank(se)) {
             return insufficientFarsightednessReserve(new BigDecimal(se));
         }
         return null;
     }
-    public static WarningLevel insufficientFarsightednessReserve(BigDecimal se){
-        if (se != null && BigDecimalUtil.isBetweenAll(se,"0.00","1.00")){
+
+    public static WarningLevel insufficientFarsightednessReserve(BigDecimal se) {
+        if (se != null && BigDecimalUtil.isBetweenAll(se, "0.00", "1.00")) {
             return WarningLevel.ZERO_SP;
         }
         return null;
@@ -842,46 +884,50 @@ public class StatUtil {
 
     /**
      * 满足幼儿园判断条件 （双眼视力相差2行及以上）
-     * @param leftNakedVision 左眼裸视
+     *
+     * @param leftNakedVision  左眼裸视
      * @param rightNakedVision 右眼裸视
-     * @param age 年龄
+     * @param age              年龄
      */
-    public static Boolean kindergartenCondition1(BigDecimal leftNakedVision,BigDecimal rightNakedVision,Integer age){
-        return ObjectsUtil.allNotNull(leftNakedVision,rightNakedVision,age)
-                && age< 7
-                && BigDecimalUtil.moreThanAndEqual(leftNakedVision.abs().subtract(rightNakedVision.abs()).abs(),"0.2");
+    public static Boolean kindergartenCondition1(BigDecimal leftNakedVision, BigDecimal rightNakedVision, Integer age) {
+        return ObjectsUtil.allNotNull(leftNakedVision, rightNakedVision, age)
+                && age < 7
+                && BigDecimalUtil.moreThanAndEqual(leftNakedVision.abs().subtract(rightNakedVision.abs()).abs(), "0.2");
     }
+
     /**
      * 满足幼儿园判断条件 (裸眼视力在 *＜5岁  视力≤4.8 ; 5≤*＜7  视力≤4.9 )
+     *
      * @param nakedVision 裸眼视力
-     * @param age 年龄
+     * @param age         年龄
      */
-    public static Boolean kindergartenCondition2(BigDecimal nakedVision,Integer age){
-        return ObjectsUtil.allNotNull(nakedVision,age)
-                && ((age < 5 && BigDecimalUtil.lessThanAndEqual(nakedVision,"4.8"))
-                || ((age>=5 && age <7)  && BigDecimalUtil.lessThanAndEqual(nakedVision,"4.9")));
+    public static Boolean kindergartenCondition2(BigDecimal nakedVision, Integer age) {
+        return ObjectsUtil.allNotNull(nakedVision, age)
+                && ((age < 5 && BigDecimalUtil.lessThanAndEqual(nakedVision, "4.8"))
+                || ((age >= 5 && age < 7) && BigDecimalUtil.lessThanAndEqual(nakedVision, "4.9")));
 
     }
 
     /**
      * 建议就诊： 满足幼儿园判断 且 戴镜
-     * @param age 年龄
+     *
+     * @param age             年龄
      * @param correctedVision 矫正视力
      */
-    public static Integer kindergartenWearingGlasses(Integer age,BigDecimal correctedVision){
+    public static Integer kindergartenWearingGlasses(Integer age, BigDecimal correctedVision) {
         //欠矫者
-        Boolean wearingGlassesCondition2 =  age<5 &&  BigDecimalUtil.lessThanAndEqual(correctedVision,"4.8");
-        Boolean wearingGlassesCondition3 =  age >= 5 && BigDecimalUtil.lessThanAndEqual(correctedVision, "4.9");
+        Boolean wearingGlassesCondition2 = age < 5 && BigDecimalUtil.lessThanAndEqual(correctedVision, "4.8");
+        Boolean wearingGlassesCondition3 = age >= 5 && BigDecimalUtil.lessThanAndEqual(correctedVision, "4.9");
 
         //足矫者
-        Boolean wearingGlassesCondition4 = age<5 &&  BigDecimalUtil.moreThan(correctedVision,"4.8");
+        Boolean wearingGlassesCondition4 = age < 5 && BigDecimalUtil.moreThan(correctedVision, "4.8");
         Boolean wearingGlassesCondition5 = age >= 5 && BigDecimalUtil.moreThan(correctedVision, "4.9");
 
 
-        if (wearingGlassesCondition2 || wearingGlassesCondition3){
+        if (wearingGlassesCondition2 || wearingGlassesCondition3) {
             return 1;
         }
-        if (wearingGlassesCondition4 || wearingGlassesCondition5){
+        if (wearingGlassesCondition4 || wearingGlassesCondition5) {
             return 2;
         }
 
@@ -890,29 +936,30 @@ public class StatUtil {
 
     /**
      * 建议就诊： 满足幼儿园判断 且 未戴镜
-     * @param se 等效球镜
-     * @param cyl 柱镜
-     * @param leftSph 左眼球镜度
+     *
+     * @param se       等效球镜
+     * @param cyl      柱镜
+     * @param leftSph  左眼球镜度
      * @param rightSph 右眼球镜度
      */
-    public static Integer kindergartenWithoutGlasses(BigDecimal se,BigDecimal cyl,
-                                                     String leftSph,String rightSph){
+    public static Integer kindergartenWithoutGlasses(BigDecimal se, BigDecimal cyl,
+                                                     String leftSph, String rightSph) {
 
-        boolean withoutGlassesCondition1  =  se != null;
-        boolean withoutGlassesCondition2  =  cyl != null;
+        boolean withoutGlassesCondition1 = se != null;
+        boolean withoutGlassesCondition2 = cyl != null;
 
         if (withoutGlassesCondition1 && withoutGlassesCondition2
-                && BigDecimalUtil.isBetweenLeft(se,"0.00","2.00")
-                && BigDecimalUtil.lessThanAndEqual(cyl.abs(),"1.50")) {
+                && BigDecimalUtil.isBetweenLeft(se, "0.00", "2.00")
+                && BigDecimalUtil.lessThanAndEqual(cyl.abs(), "1.50")) {
             return 3;
         }
 
-        if (withoutGlassesCondition1 && BigDecimalUtil.lessThan(se,"0.00")){
+        if (withoutGlassesCondition1 && BigDecimalUtil.lessThan(se, "0.00")) {
             return 4;
         }
-        Boolean withoutGlassesCondition3 = withoutGlassesCondition1 && (BigDecimalUtil.moreThan(se,"2.00") ||BigDecimalUtil.moreThan(se,"0.00"));
-        Boolean withoutGlassesCondition4 = withoutGlassesCondition2 && BigDecimalUtil.moreThan(cyl.abs(),"1.50");
-        if (withoutGlassesCondition3 || withoutGlassesCondition4 || isAnisometropiaVision(leftSph,rightSph)){
+        boolean withoutGlassesCondition3 = withoutGlassesCondition1 && (BigDecimalUtil.moreThan(se, "2.00") || BigDecimalUtil.moreThan(se, "0.00"));
+        boolean withoutGlassesCondition4 = withoutGlassesCondition2 && BigDecimalUtil.moreThan(cyl.abs(), "1.50");
+        if (withoutGlassesCondition3 || withoutGlassesCondition4 || isAnisometropiaVision(leftSph, rightSph)) {
             return 5;
         }
 
@@ -921,18 +968,19 @@ public class StatUtil {
 
     /**
      * 建议就诊：满足小学及以上 且 裸眼视力<4.9 且戴眼镜
-     * @param nakedVision 裸眼视力
+     *
+     * @param nakedVision     裸眼视力
      * @param correctedVision 矫正视力
      */
-    public static Boolean primarySchoolAndAboveWearingGlasses(BigDecimal nakedVision ,BigDecimal correctedVision){
-        if (ObjectsUtil.allNotNull(nakedVision,correctedVision)){
+    public static Boolean primarySchoolAndAboveWearingGlasses(BigDecimal nakedVision, BigDecimal correctedVision) {
+        if (ObjectsUtil.allNotNull(nakedVision, correctedVision)) {
             Boolean wearingGlassesCondition1 = BigDecimalUtil.lessThan(nakedVision, "4.9");
             Boolean wearingGlassesCondition2 = BigDecimalUtil.lessThan(correctedVision, "4.9");
             Boolean wearingGlassesCondition3 = BigDecimalUtil.moreThanAndEqual(correctedVision, "4.9");
-            if (wearingGlassesCondition1 && wearingGlassesCondition2){
+            if (wearingGlassesCondition1 && wearingGlassesCondition2) {
                 return Boolean.TRUE;
             }
-            if (wearingGlassesCondition1 && wearingGlassesCondition3){
+            if (wearingGlassesCondition1 && wearingGlassesCondition3) {
                 return Boolean.FALSE;
             }
         }
@@ -941,41 +989,48 @@ public class StatUtil {
 
     /**
      * 建议就诊：满足小学及以上 且 裸眼视力<4.9且 未戴眼镜
+     *
      * @param nakedVision 裸眼视力
-     * @param se 等效球镜
-     * @param cyl 柱镜
-     * @param schoolType 学校类型
+     * @param se          等效球镜
+     * @param cyl         柱镜
+     * @param schoolType  学校类型
      */
-    public static Boolean primarySchoolAndAboveWithoutGlasses(BigDecimal nakedVision ,BigDecimal se,BigDecimal cyl, Integer schoolType){
-        if (ObjectsUtil.allNotNull(nakedVision,schoolType,se,cyl)){
+    public static Boolean primarySchoolAndAboveWithoutGlasses(BigDecimal nakedVision, BigDecimal se, BigDecimal cyl, Integer schoolType) {
+        if (ObjectsUtil.allNull(nakedVision, schoolType, se, cyl)) {
+            return Boolean.FALSE;
+        }
 
-            Boolean condition = BigDecimalUtil.lessThan(nakedVision, "4.9");
-            if (!condition){
-                return Boolean.FALSE;
+        boolean condition = BigDecimalUtil.lessThan(nakedVision, "4.9");
+        if (condition) {
+            return getSchoolType(se, cyl, schoolType);
+        } else {
+            return Boolean.FALSE;
+        }
+    }
+
+    private static Boolean getSchoolType(BigDecimal se, BigDecimal cyl, Integer schoolType) {
+        if (SchoolEnum.TYPE_PRIMARY.getType().equals(schoolType)) {
+            Boolean withoutGlassesCondition1 = BigDecimalUtil.isBetweenLeft(se, "0.00", "2.00");
+            Boolean withoutGlassesCondition2 = BigDecimalUtil.lessThan(cyl.abs(), "1.50");
+            if (withoutGlassesCondition1 && withoutGlassesCondition2) {
+                return Boolean.TRUE;
             }
-            if (SchoolEnum.TYPE_PRIMARY.getType().equals(schoolType)){
-                Boolean withoutGlassesCondition1 = BigDecimalUtil.isBetweenLeft(se, "0.00","2.00");
-                Boolean withoutGlassesCondition2 = BigDecimalUtil.lessThan(cyl.abs(), "1.50");
-                if (withoutGlassesCondition1 && withoutGlassesCondition2){
-                    return Boolean.TRUE;
-                }
 
-                if (BigDecimalUtil.lessThan(se,"0.00")
-                        || BigDecimalUtil.moreThanAndEqual(se,"2.00")
-                        || BigDecimalUtil.moreThan(cyl.abs(),"1.50")) {
-                    return Boolean.TRUE;
-                }
-            }else {
-                Boolean withoutGlassesCondition1 = BigDecimalUtil.isBetweenLeft(se, "-0.50","3.00");
-                Boolean withoutGlassesCondition2 = BigDecimalUtil.lessThan(cyl.abs(), "1.5");
-                if (withoutGlassesCondition1 && withoutGlassesCondition2){
-                    return Boolean.TRUE;
-                }
-                if (BigDecimalUtil.lessThan(se,"-0.50")
-                        || BigDecimalUtil.moreThanAndEqual(se,"3.00")
-                        || BigDecimalUtil.moreThan(cyl.abs(),"1.50")) {
-                    return Boolean.TRUE;
-                }
+            if (BigDecimalUtil.lessThan(se, "0.00")
+                    || BigDecimalUtil.moreThanAndEqual(se, "2.00")
+                    || BigDecimalUtil.moreThan(cyl.abs(), "1.50")) {
+                return Boolean.TRUE;
+            }
+        } else {
+            Boolean withoutGlassesCondition1 = BigDecimalUtil.isBetweenLeft(se, MINUS_0_5, "3.00");
+            Boolean withoutGlassesCondition2 = BigDecimalUtil.lessThan(cyl.abs(), "1.5");
+            if (withoutGlassesCondition1 && withoutGlassesCondition2) {
+                return Boolean.TRUE;
+            }
+            if (BigDecimalUtil.lessThan(se, MINUS_0_5)
+                    || BigDecimalUtil.moreThanAndEqual(se, "3.00")
+                    || BigDecimalUtil.moreThan(cyl.abs(), "1.50")) {
+                return Boolean.TRUE;
             }
         }
         return Boolean.FALSE;
@@ -984,20 +1039,19 @@ public class StatUtil {
 
     /**
      * 建议就诊：满足小学及以上 且 裸眼视力>=4.9
+     *
      * @param nakedVision 裸眼视力
-     * @param se 等效球镜
-     * @param age 年龄
+     * @param se          等效球镜
+     * @param age         年龄
      */
-    public static Boolean primarySchoolAndAbove(BigDecimal nakedVision ,BigDecimal se, Integer age){
-        if (ObjectsUtil.allNotNull(nakedVision,se) && BigDecimalUtil.lessThanAndEqual(nakedVision, "4.9") ){
+    public static Boolean primarySchoolAndAbove(BigDecimal nakedVision, BigDecimal se, Integer age) {
+        if (ObjectsUtil.allNotNull(nakedVision, se) && BigDecimalUtil.lessThanAndEqual(nakedVision, "4.9")) {
 
-            if (age != null && age >=6){
-                return BigDecimalUtil.moreThanAndEqual(se,"2.00");
+            if (age != null && age >= 6) {
+                return BigDecimalUtil.moreThanAndEqual(se, "2.00");
             }
 
-            if (BigDecimalUtil.moreThanAndEqual(se,"0.00")){
-                return true;
-            }else {
+            if (BigDecimalUtil.moreThanAndEqual(se, "0.00")) {
                 return true;
             }
         }
@@ -1009,12 +1063,13 @@ public class StatUtil {
 
     /**
      * 建议课桌椅高度的计算方式：
+     *
      * @param height 身高
      */
-    public static TwoTuple<Integer,Integer> calculateDeskAndChairHigh(Integer height){
-        BigDecimal desk = new BigDecimal(height.toString()).multiply(new BigDecimal("0.43"),new MathContext(0, RoundingMode.HALF_UP));
-        BigDecimal chair = new BigDecimal(height.toString()).multiply(new BigDecimal("0.24"),new MathContext(0, RoundingMode.HALF_UP));
-        return new TwoTuple<>(desk.intValue(),chair.intValue());
+    public static TwoTuple<Integer, Integer> calculateDeskAndChairHigh(Integer height) {
+        BigDecimal desk = new BigDecimal(height.toString()).multiply(new BigDecimal("0.43"), new MathContext(0, RoundingMode.HALF_UP));
+        BigDecimal chair = new BigDecimal(height.toString()).multiply(new BigDecimal("0.24"), new MathContext(0, RoundingMode.HALF_UP));
+        return new TwoTuple<>(desk.intValue(), chair.intValue());
     }
 
 
@@ -1022,104 +1077,113 @@ public class StatUtil {
 
     /**
      * 复测：视力筛查 发生率
-     * @param itemErrorNumList 错误项次数集合
+     *
+     * @param itemErrorNumList                错误项次数集合
      * @param wearingGlassesIndicatorTotalNum 戴镜复测指标数的总和（包括左右眼裸眼视力、左右眼戴镜视力、左右眼等效球镜度数共6项）
-     * @param wearingGlassesRetestNum 戴镜复测人数
+     * @param wearingGlassesRetestNum         戴镜复测人数
      * @param withoutGlassesIndicatorTotalNum 非戴镜复测指标数的总和（包括左右眼裸眼视力、左右眼等效球镜度数共4项）
-     * @param withoutGlassesRetestNum 非戴镜复测人数
+     * @param withoutGlassesRetestNum         非戴镜复测人数
      */
     public static BigDecimal visionScreeningRetest(List<Integer> itemErrorNumList,
-                                                   Integer wearingGlassesIndicatorTotalNum,Integer wearingGlassesRetestNum,
-                                                   Integer withoutGlassesIndicatorTotalNum,Integer withoutGlassesRetestNum){
+                                                   Integer wearingGlassesIndicatorTotalNum, Integer wearingGlassesRetestNum,
+                                                   Integer withoutGlassesIndicatorTotalNum, Integer withoutGlassesRetestNum) {
 
         int dividedSum = itemErrorNumList.stream().mapToInt(Integer::intValue).sum();
         int denominatorSum = wearingGlassesIndicatorTotalNum * wearingGlassesRetestNum + withoutGlassesIndicatorTotalNum * withoutGlassesRetestNum;
-        return new BigDecimal(dividedSum).divide(new BigDecimal(denominatorSum),2,RoundingMode.HALF_UP);
+        return new BigDecimal(dividedSum).divide(new BigDecimal(denominatorSum), 2, RoundingMode.HALF_UP);
     }
 
     /**
      * 复测：常见病筛查 发生率
-     * @param itemErrorNumList 错误项次数集合
+     *
+     * @param itemErrorNumList                错误项次数集合
      * @param wearingGlassesIndicatorTotalNum 戴镜复测指标数的总和（包括身高、体重、左右眼裸眼视力、左右眼戴镜视力、左右眼等效球镜度数共8项）
-     * @param wearingGlassesRetestNum 戴镜复测人数
+     * @param wearingGlassesRetestNum         戴镜复测人数
      * @param withoutGlassesIndicatorTotalNum 非戴镜复测指标数的总和（包括身高、体重、左右眼裸眼视力、左右眼等效球镜度数共6项）
-     * @param withoutGlassesRetestNum 非戴镜复测人数
+     * @param withoutGlassesRetestNum         非戴镜复测人数
      */
     public static BigDecimal commonDiseaseScreeningRetest(List<Integer> itemErrorNumList,
-                                                   Integer wearingGlassesIndicatorTotalNum,Integer wearingGlassesRetestNum,
-                                                   Integer withoutGlassesIndicatorTotalNum,Integer withoutGlassesRetestNum){
+                                                          Integer wearingGlassesIndicatorTotalNum, Integer wearingGlassesRetestNum,
+                                                          Integer withoutGlassesIndicatorTotalNum, Integer withoutGlassesRetestNum) {
 
         int molecularSum = itemErrorNumList.stream().mapToInt(Integer::intValue).sum();
         int denominatorSum = wearingGlassesIndicatorTotalNum * wearingGlassesRetestNum + withoutGlassesIndicatorTotalNum * withoutGlassesRetestNum;
-        return new BigDecimal(molecularSum).divide(new BigDecimal(denominatorSum),2,RoundingMode.HALF_UP);
+        return new BigDecimal(molecularSum).divide(new BigDecimal(denominatorSum), 2, RoundingMode.HALF_UP);
     }
-
 
 
     //=================8、常见病相关指标【占比：保留2位小数点】
 
     /**
      * 求占比（保留2位小数点）
-     * @param molecular 分子
+     *
+     * @param molecular   分子
      * @param denominator 分母
      */
-    public static BigDecimal  percentage(Integer molecular,Integer denominator){
-        return new BigDecimal(molecular).divide(new BigDecimal(denominator),2,RoundingMode.HALF_UP);
+    public static BigDecimal percentage(Integer molecular, Integer denominator) {
+        return new BigDecimal(molecular).divide(new BigDecimal(denominator), 2, RoundingMode.HALF_UP);
     }
 
     /**
      * BMI = 体重/身高*身高
+     *
      * @param weight 体重 kg
      * @param height 身高 m
      */
-    public static BigDecimal bmi(BigDecimal weight,BigDecimal height){
+    public static BigDecimal bmi(BigDecimal weight, BigDecimal height) {
         BigDecimal heightSquare = height.multiply(height);
-        return weight.divide(heightSquare,1,RoundingMode.HALF_UP);
+        return weight.divide(heightSquare, 1, RoundingMode.HALF_UP);
     }
 
     /**
      * 是否超重/是否肥胖
+     *
      * @param weight 体重 kg
      * @param height 身高 m
-     * @param age 年龄 （精确到半岁）
+     * @param age    年龄 （精确到半岁）
      * @param gender 性别
      */
-    public static TwoTuple<Boolean,Boolean> isOverweightAndObesity(String weight,String height,String age,Integer gender){
-        return isOverweightAndObesity(new BigDecimal(weight),new BigDecimal(height),age,gender);
+    public static TwoTuple<Boolean, Boolean> isOverweightAndObesity(String weight, String height, String age, Integer gender) {
+        return isOverweightAndObesity(new BigDecimal(weight), new BigDecimal(height), age, gender);
     }
-    public static TwoTuple<Boolean,Boolean> isOverweightAndObesity(BigDecimal weight,BigDecimal height,String age,Integer gender){
+
+    public static TwoTuple<Boolean, Boolean> isOverweightAndObesity(BigDecimal weight, BigDecimal height, String age, Integer gender) {
         BigDecimal bmi = bmi(weight, height);
         StandardTableData.OverweightAndObesityData data = StandardTableData.getOverweightAndObesityData(age, gender);
         Boolean overweight = BigDecimalUtil.isBetweenLeft(bmi, data.getOverweight(), data.getObesity());
         Boolean obesity = BigDecimalUtil.moreThanAndEqual(bmi, data.getObesity());
-        return new TwoTuple<>(overweight,obesity);
+        return new TwoTuple<>(overweight, obesity);
     }
 
     /**
-     *  是否生长迟缓
+     * 是否生长迟缓
+     *
      * @param gender 性别
-     * @param age 年龄 （精确到半岁）
+     * @param age    年龄 （精确到半岁）
      * @param height 身高 cm
      */
-    public static Boolean isStunting(Integer gender,String age,String height){
-        return isStunting(gender,age,new BigDecimal(height));
+    public static Boolean isStunting(Integer gender, String age, String height) {
+        return isStunting(gender, age, new BigDecimal(height));
     }
-    public static Boolean isStunting(Integer gender,String age,BigDecimal height){
+
+    public static Boolean isStunting(Integer gender, String age, BigDecimal height) {
         StandardTableData.StuntingData stuntingData = StandardTableData.getStuntingData(age, gender);
-        return BigDecimalUtil.lessThanAndEqual(height,stuntingData.getHeight());
+        return BigDecimalUtil.lessThanAndEqual(height, stuntingData.getHeight());
     }
 
     /**
      * 是否消瘦
+     *
      * @param weight 体重 kg
      * @param height 身高 m
-     * @param age 年龄 （精确到半岁）
+     * @param age    年龄 （精确到半岁）
      * @param gender 性别
      */
-    public static Boolean isWasting(String weight,String height,String age,Integer gender){
-        return isWasting(new BigDecimal(weight),new BigDecimal(height),age,gender);
+    public static Boolean isWasting(String weight, String height, String age, Integer gender) {
+        return isWasting(new BigDecimal(weight), new BigDecimal(height), age, gender);
     }
-    public static Boolean isWasting(BigDecimal weight,BigDecimal height,String age,Integer gender){
+
+    public static Boolean isWasting(BigDecimal weight, BigDecimal height, String age, Integer gender) {
         BigDecimal bmi = bmi(weight, height);
         StandardTableData.WastingData wastingData = StandardTableData.getWastingData(age, gender);
         Boolean mild = BigDecimalUtil.isBetweenAll(bmi, wastingData.getMild()[0], wastingData.getMild()[1]);
@@ -1129,55 +1193,51 @@ public class StatUtil {
 
     /**
      * 是否血压偏高
-     *  7～17岁男、女儿童青少年凡收缩压和（或）舒张压≥同性别、同年龄、同身高百分位血压P95者为血压偏高。
-     *  18岁男女青少年参考成人标准，收缩压≥140 mmHg和（或）舒张压≥90 mmHg者为血压偏高。
-     * @param sbp 收缩压
-     * @param dbp 舒张压
+     * 7～17岁男、女儿童青少年凡收缩压和（或）舒张压≥同性别、同年龄、同身高百分位血压P95者为血压偏高。
+     * 18岁男女青少年参考成人标准，收缩压≥140 mmHg和（或）舒张压≥90 mmHg者为血压偏高。
+     *
+     * @param sbp    收缩压
+     * @param dbp    舒张压
      * @param gender 性别
-     * @param age 年龄
+     * @param age    年龄
      */
-    public static Boolean isHighBloodPressure(Integer sbp,Integer dbp,Integer gender,Integer age){
-        if (age >= 7 & age <= 17){
+    public static boolean isHighBloodPressure(Integer sbp, Integer dbp, Integer gender, Integer age) {
+        if (age >= 7 && age <= 17) {
             StandardTableData.BloodPressureData bloodPressureData = StandardTableData.getBloodPressureData(age, gender);
             return sbp >= bloodPressureData.getSbp() && dbp >= bloodPressureData.getDbp();
         }
-        if (age == 18){
+        if (age == 18) {
             return sbp >= 140 && dbp >= 90;
         }
 
-        return null;
+        return Boolean.FALSE;
     }
 
     /**
      * 获取年龄
-     *   返回值：Integer:年龄的整数（四舍五入），String：精确到半岁
+     * 返回值：Integer:年龄的整数（四舍五入），String：精确到半岁
+     *
      * @param birthday 生日
      * @return
      */
-    public static TwoTuple<Integer,String> getAge(Date birthday){
+    public static TwoTuple<Integer, String> getAge(Date birthday) {
         LocalDate localDate = DateUtil.convertToLocalDate(birthday, ZoneId.systemDefault());
         Period between = Period.between(localDate, LocalDate.now());
         int years = between.getYears();
         int months = between.getMonths();
         String ageStr = "";
-        if (months >=6){
-            ageStr = years+".5";
+        if (months >= 6) {
+            ageStr = years + ".5";
             years++;
-        }else {
-            ageStr = years+".0";
+        } else {
+            ageStr = years + ".0";
         }
-        return new TwoTuple<>(years,ageStr);
+        return new TwoTuple<>(years, ageStr);
     }
 
 
+    //======================= 旧 ：暂时不删，通过业务代码修改再去删除或者过期
 
-
-
-
-
-
-
-    //======================= TODO 旧 ：暂时不删，通过业务代码修改再去删除或者过期
     /**
      * 获取近视等级描述（严重的眼球）
      *
