@@ -3,7 +3,9 @@ package com.wupol.myopia.business.core.screening.flow.domain.dos;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
+import lombok.experimental.Accessors;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
 /**
@@ -16,26 +18,41 @@ public class DeviationDO {
     /**
      * 视光检查误差
      */
-    private EyesightDeviationEnum eyesightDeviation;
+    private VisionOrOptometryDeviation visionOrOptometryDeviation;
 
-    /**
-     * 视光检查误差 说明
-     */
-    private String eyesightDeviationRemark;
 
     /**
      * 身高体重误差
      */
-    private HeightWeightDeviationEnum heightWeightDeviation;
+    private HeightWeightDeviation heightWeightDeviation;
 
-    /**
-     * 身高体重误差 说明
-     */
-    private String heightWeightDeviationRemark;
+    @Data
+    @Accessors(chain = true)
+    public static class VisionOrOptometryDeviation implements Serializable {
+
+        private VisionOrOptometryDeviationEnum type;
+
+        /**
+         * 视光检查误差 说明
+         */
+        private String remark;
+    }
+
+    @Data
+    @Accessors(chain = true)
+    public static class HeightWeightDeviation implements Serializable {
+
+        private HeightWeightDeviationEnum type;
+
+        /**
+         * 身高体重误差 说明
+         */
+        private String remark;
+    }
 
     @Getter
     @AllArgsConstructor
-    public enum EyesightDeviationEnum {
+    public enum VisionOrOptometryDeviationEnum {
         ONE(1, "测量仪器问题"),
         TWO(2, "学生配合问题"),
         THREE(3, "学生眼睛疲劳影像"),
@@ -43,7 +60,7 @@ public class DeviationDO {
         private final Integer code;
         private final String name;
 
-        public static EyesightDeviationEnum getByCode(Integer code) {
+        public static VisionOrOptometryDeviationEnum getByCode(Integer code) {
             return code == null ? null : Arrays.stream(values()).filter((item) -> code.equals(item.code)).findFirst().orElse(null);
         }
     }
