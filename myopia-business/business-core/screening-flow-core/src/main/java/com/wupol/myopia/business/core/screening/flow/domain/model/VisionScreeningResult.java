@@ -169,6 +169,14 @@ public class VisionScreeningResult implements Serializable {
     private PrivacyDataDO privacyData;
 
     /**
+     *
+     * 筛查不准确说明
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private DeviationDO deviationData;
+
+
+    /**
      * 筛查结果--全身疾病在眼部的表现
      */
     private String systemicDiseaseSymptom;

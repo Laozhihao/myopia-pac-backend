@@ -52,7 +52,7 @@ public class ScreeningResultUtil {
         // 获取左右眼的裸眼视力
         BigDecimal leftNakedVision = visionData.getLeftEyeData().getNakedVision();
         BigDecimal rightNakedVision = visionData.getRightEyeData().getNakedVision();
-        if (Objects.isNull(leftNakedVision) && Objects.isNull(rightNakedVision)) {
+        if (ObjectsUtil.allNull(leftNakedVision, rightNakedVision)) {
             return "";
         }
 
@@ -1166,7 +1166,7 @@ public class ScreeningResultUtil {
         BigDecimal rightSe = StatUtil.getSphericalEquivalent(rightSph, rightCyl);
         BigDecimal anisometropia = getAnisometropia(leftSe, rightSe);
         Boolean differenceTwoLines = isDifferenceTwoLines(leftNakedVision, rightNakedVision);
-        if (Objects.isNull(anisometropia)) {
+        if (Objects.isNull(anisometropia) || ObjectsUtil.hasNull(leftNakedVision, rightNakedVision)) {
             return null;
         }
         // 如果都满足，则取等效球镜低的一个

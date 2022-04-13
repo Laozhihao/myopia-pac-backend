@@ -56,14 +56,12 @@ public class ScreeningPlanSchool implements Serializable {
     /**
      * 机构质控员名字
      */
-    @NotBlank
     @Length(max = 15)
     private String qualityControllerName;
 
     /**
      * 机构质控员队长
      */
-    @NotBlank
     @Length(max = 15)
     private String qualityControllerCommander;
 
