@@ -34,6 +34,7 @@ import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.DeviationDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ComputerOptometryDTO;
@@ -854,8 +855,8 @@ public class ScreeningAppController {
      * @param planStudentId 筛查计划学生ID
      * @return boolean
      **/
-    @GetMapping("/noExamine/{planStudentId}")
-    public boolean noExamine(@PathVariable Integer planStudentId, @RequestParam(value = "state", defaultValue = "0") Integer state) {
+    @PutMapping("/noExamine/{planStudentId}")
+    public boolean addNoExamine(@PathVariable Integer planStudentId, @RequestParam(value = "state", defaultValue = "0") Integer state) {
         ScreeningPlanSchoolStudent screeningPlan = screeningPlanSchoolStudentService.findOne(new ScreeningPlanSchoolStudent().setScreeningPlanId(planStudentId));
         Assert.notNull(screeningPlan,"不存在筛查计划");
         screeningPlan.setState(state);
@@ -865,14 +866,15 @@ public class ScreeningAppController {
     /**
      * 筛查不准确说明
      *
-     * @param planStudentId 筛查计划学生ID
+     * @param deviationDTO 筛查计划学生ID
      * @return boolean
      **/
-    @GetMapping("/inaccurate/{planStudentId}")
-    public boolean inaccurate(@PathVariable Integer planStudentId, @RequestParam(value = "state", defaultValue = "0") Integer state) {
-        ScreeningPlanSchoolStudent screeningPlan = screeningPlanSchoolStudentService.findOne(new ScreeningPlanSchoolStudent().setScreeningPlanId(planStudentId));
-        Assert.notNull(screeningPlan,"不存在筛查计划");
-        screeningPlan.setState(state);
-        return screeningPlanSchoolStudentService.updateById(screeningPlan);
+    @PostMapping("/inaccurate/{planStudentId}")
+    public void addInaccurate(@Valid @RequestBody DeviationDTO deviationDTO) {
+        if (deviationDTO.isValid()) {
+            // 只是复测数据
+            deviationDTO.setIsState(1);
+            visionScreeningBizService.saveOrUpdateStudentScreenData(deviationDTO);
+        }
     }
 }
