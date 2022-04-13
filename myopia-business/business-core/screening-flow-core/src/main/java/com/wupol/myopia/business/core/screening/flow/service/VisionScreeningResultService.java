@@ -275,13 +275,13 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
                 result.setStudentId(planStudent.getStudentId());
                 result.setSchoolId(planStudent.getSchoolId());
                 updateResultList.add(result);
-            }
-            StatConclusion statConclusion = statConclusionMap.get(result.getId());
-            if (Objects.nonNull(statConclusion)) {
-                statConclusion.setScreeningPlanSchoolStudentId(planStudent.getId());
-                statConclusion.setStudentId(planStudent.getStudentId());
-                statConclusion.setSchoolId(planStudent.getSchoolId());
-                updateStatConclusionList.add(statConclusion);
+                StatConclusion statConclusion = statConclusionMap.get(result.getId());
+                if (Objects.nonNull(statConclusion)) {
+                    statConclusion.setScreeningPlanSchoolStudentId(planStudent.getId());
+                    statConclusion.setStudentId(planStudent.getStudentId());
+                    statConclusion.setSchoolId(planStudent.getSchoolId());
+                    updateStatConclusionList.add(statConclusion);
+                }
             }
         });
         updateBatchById(updateResultList);
