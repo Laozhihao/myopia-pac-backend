@@ -28,13 +28,14 @@
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
                 <if test="@Ognl@isNotEmpty(operatorId)">and `operator_id` = #{operatorId}</if>
                 <if test="@Ognl@isNotEmpty(operateTime)">and `operate_time` = #{operateTime}</if>
+                <if test="@Ognl@isNotEmpty(screeningType)">and `screening_type` = #{screeningType}</if>
             </trim>
         </where>
     </sql>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, title, content, start_time, end_time, type, gov_dept_id, district_id, screening_task_id, release_status, release_time, operation_version, create_user_id, create_time, operator_id, operate_time
+        id, title, content, start_time, end_time, type, gov_dept_id, district_id, screening_task_id, release_status, release_time, operation_version, create_user_id, create_time, operator_id, operate_time,screening_type
     </sql>
 
     <update id="release">

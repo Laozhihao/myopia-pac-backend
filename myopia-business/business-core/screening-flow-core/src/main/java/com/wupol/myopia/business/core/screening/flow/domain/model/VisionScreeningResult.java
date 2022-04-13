@@ -175,6 +175,7 @@ public class VisionScreeningResult implements Serializable {
     @TableField(typeHandler = JacksonTypeHandler.class)
     private DeviationDO deviationData;
 
+
     /**
      * 筛查结果--全身疾病在眼部的表现
      */
