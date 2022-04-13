@@ -15,7 +15,7 @@ public enum MyopiaLevelEnum {
     MYOPIA_LEVEL_EARLY(2, "近视前期"),
     MYOPIA_LEVEL_LIGHT(3, "低度近视"),
     MYOPIA_LEVEL_MIDDLE(4, "中度近视"),
-    MYOPIA_LEVEL_HIGH(5, "重度近视");
+    MYOPIA_LEVEL_HIGH(5, "高度近视");
 
     public final Integer code;
     public final String desc;
