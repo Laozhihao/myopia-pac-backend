@@ -33,6 +33,9 @@ public class DeviationDO {
      */
     private String heightWeightDeviationRemark;
 
+    /**
+     *
+     */
     @Getter
     @AllArgsConstructor
     public enum EyesightDeviation {

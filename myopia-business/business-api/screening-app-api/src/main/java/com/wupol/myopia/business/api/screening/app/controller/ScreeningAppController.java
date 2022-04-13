@@ -849,13 +849,27 @@ public class ScreeningAppController {
     }
 
     /**
-     * 未做检查说明
+     * 不能检查原因
      *
      * @param planStudentId 筛查计划学生ID
      * @return boolean
      **/
     @GetMapping("/noExamine/{planStudentId}")
     public boolean noExamine(@PathVariable Integer planStudentId, @RequestParam(value = "state", defaultValue = "0") Integer state) {
+        ScreeningPlanSchoolStudent screeningPlan = screeningPlanSchoolStudentService.findOne(new ScreeningPlanSchoolStudent().setScreeningPlanId(planStudentId));
+        Assert.notNull(screeningPlan,"不存在筛查计划");
+        screeningPlan.setState(state);
+        return screeningPlanSchoolStudentService.updateById(screeningPlan);
+    }
+
+    /**
+     * 筛查不准确说明
+     *
+     * @param planStudentId 筛查计划学生ID
+     * @return boolean
+     **/
+    @GetMapping("/inaccurate/{planStudentId}")
+    public boolean inaccurate(@PathVariable Integer planStudentId, @RequestParam(value = "state", defaultValue = "0") Integer state) {
         ScreeningPlanSchoolStudent screeningPlan = screeningPlanSchoolStudentService.findOne(new ScreeningPlanSchoolStudent().setScreeningPlanId(planStudentId));
         Assert.notNull(screeningPlan,"不存在筛查计划");
         screeningPlan.setState(state);
