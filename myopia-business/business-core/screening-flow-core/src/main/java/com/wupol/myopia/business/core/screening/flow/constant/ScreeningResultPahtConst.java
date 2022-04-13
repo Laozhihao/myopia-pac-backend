@@ -106,4 +106,8 @@ public class ScreeningResultPahtConst {
     public final String PATH_HW_HEIGHT = "$.heightAndWeightData.height";
     public final String PATH_HW_WEIGHT = "$.heightAndWeightData.weight";
 
+    /** 戴镜情况 两只眼，默认取左眼*/
+    public final String PATH_GLASSES_TYPE = "$.visionData.leftEyeData.glassesType";
+
+
 }
