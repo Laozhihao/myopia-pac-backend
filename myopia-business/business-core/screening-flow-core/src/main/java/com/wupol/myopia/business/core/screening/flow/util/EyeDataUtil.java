@@ -52,7 +52,7 @@ public class EyeDataUtil {
         studentVisionScreeningResultExportDTO.setGlassesType(EyeDataUtil.glassesType(visionScreeningResult));
         //右眼裸视力
         studentVisionScreeningResultExportDTO.setRightReScreenNakedVisions(EyeDataUtil.visionRightDataToStr(visionScreeningResult));
-        //有眼矫正视力
+        //右眼矫正视力
         studentVisionScreeningResultExportDTO.setRightReScreenCorrectedVisions(EyeDataUtil.correctedRightDataToStr(visionScreeningResult));
 
         //左眼裸视力
@@ -393,6 +393,27 @@ public class EyeDataUtil {
             return "+" + bigDecimal.setScale(2, RoundingMode.DOWN).toString();
         }
         return bigDecimal.setScale(2, RoundingMode.DOWN).toString();
+    }
+
+    public static String height(VisionScreeningResult visionScreeningResult) {
+        if (visionScreeningResult != null
+                && visionScreeningResult.getHeightAndWeightData() != null
+                && visionScreeningResult.getHeightAndWeightData().getHeight() != null) {
+
+            return visionScreeningResult.getHeightAndWeightData().getHeight().setScale(0, RoundingMode.DOWN).toString();
+        }
+
+        return "--";
+    }
+    public static String weight(VisionScreeningResult visionScreeningResult) {
+        if (visionScreeningResult != null
+                && visionScreeningResult.getHeightAndWeightData() != null
+                && visionScreeningResult.getHeightAndWeightData().getWeight() != null) {
+
+            return visionScreeningResult.getHeightAndWeightData().getWeight().setScale(0, RoundingMode.DOWN).toString();
+        }
+
+        return "--";
     }
 
 }

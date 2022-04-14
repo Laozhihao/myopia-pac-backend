@@ -287,4 +287,17 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         updateBatchById(updateResultList);
         statConclusionService.updateBatchById(updateStatConclusionList);
     }
+
+    /**
+     * 获取学生初筛/复测（默认初测）
+     * @param planId 计划ID
+     * @param screeningPlanSchoolStudentId 学生ID
+     * @param isDoubleScreen false：初测  true：复测
+     * @return
+     */
+    public VisionScreeningResult getIsDoubleScreeningResult(Integer planId, Integer screeningPlanSchoolStudentId,boolean isDoubleScreen) {
+        VisionScreeningResult visionScreeningResultQuery = new VisionScreeningResult().setPlanId(planId).setScreeningPlanSchoolStudentId(screeningPlanSchoolStudentId).setIsDoubleScreen(isDoubleScreen);
+        QueryWrapper<VisionScreeningResult> queryWrapper = getQueryWrapper(visionScreeningResultQuery);
+        return getOne(queryWrapper);
+    }
 }

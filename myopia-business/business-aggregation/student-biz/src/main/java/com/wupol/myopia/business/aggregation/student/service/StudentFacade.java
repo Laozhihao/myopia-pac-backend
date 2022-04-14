@@ -23,10 +23,7 @@ import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.AppStudentCardResponseDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentResultDetailsDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningResultItemsDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningResultResponseDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
@@ -36,6 +33,8 @@ import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchool
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
+import com.wupol.myopia.business.core.screening.flow.util.EyeDataUtil;
+import com.wupol.myopia.business.core.screening.flow.util.RetestResultUtil;
 import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationStaff;
@@ -43,7 +42,6 @@ import com.wupol.myopia.business.core.screening.organization.service.ScreeningOr
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationStaffService;
 import com.wupol.myopia.business.core.system.constants.TemplateConstants;
 import com.wupol.myopia.business.core.system.service.TemplateDistrictService;
-import com.wupol.myopia.business.core.system.service.TemplateService;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -110,8 +108,20 @@ public class StudentFacade {
     @Autowired
     private SchoolClassService schoolClassService;
 
-    @Autowired
-    private TemplateService templateService;
+
+    /**
+     * 获取学生复测卡
+     * @param plandStudentId 计划学生ID
+     * @param plandId 计划ID
+     * @return
+     */
+    public RetestResultCard getRetestResult(Integer plandStudentId, Integer plandId){
+
+        VisionScreeningResult screeningResult = visionScreeningResultService.getIsDoubleScreeningResult(plandId, plandStudentId,false);
+        VisionScreeningResult retestResult = visionScreeningResultService.getIsDoubleScreeningResult(plandId, plandStudentId,true);
+
+        return RetestResultUtil.retestResultCard(screeningResult,retestResult);
+    }
 
     /**
      * 获取学生筛查档案
@@ -148,9 +158,20 @@ public class StudentFacade {
 
         for (VisionScreeningResult result : resultList) {
             StudentScreeningResultItemsDTO item = new StudentScreeningResultItemsDTO();
+            ScreeningInfoDTO screeningInfoDTO  = new ScreeningInfoDTO();
+
             List<StudentResultDetailsDTO> resultDetail = packageDTO(result);
             resultDetail.forEach(r -> r.setHeightAndWeightData(result.getHeightAndWeightData()));
-            item.setDetails(resultDetail);
+            //设置视力信息
+            screeningInfoDTO.setVision(resultDetail);
+            //设置常见病信息
+            ScreeningInfoDTO.CommonDesease commonDesease = getCommonDesease(result);
+            screeningInfoDTO.setCommonDesease(commonDesease);
+            //设置复测信息
+            ScreeningInfoDTO.Rescreening rescreening = rescreeningResult(result);
+            screeningInfoDTO.setRescreening(rescreening);
+
+            item.setDetails(screeningInfoDTO);
             item.setScreeningTitle(planMap.get(result.getPlanId()));
             item.setScreeningDate(result.getUpdateTime());
             // 佩戴眼镜的类型随便取一个都行，两只眼睛的数据是一样的
@@ -168,11 +189,114 @@ public class StudentFacade {
             item.setPlanId(result.getPlanId());
             item.setHasScreening(ObjectUtils.anyNotNull(result.getVisionData(), result.getComputerOptometry(), result.getBiometricData(), result.getOtherEyeDiseases()));
             item.setScreeningCode(screeningCodeMap.get(result.getScreeningPlanSchoolStudentId()));
+            //筛查类型
+            item.setScreeningType(result.getScreeningType());
+            //筛查机构名称
+            item.setScreeningOrgName(getScreeningOrganizationName(result.getScreeningOrgId()));
+
             items.add(item);
         }
         responseDTO.setTotal(resultList.size());
         responseDTO.setItems(items);
         return responseDTO;
+    }
+
+    /**
+     * 设置复测
+     * @param result
+     */
+    private ScreeningInfoDTO.Rescreening rescreeningResult(VisionScreeningResult result) {
+
+        ScreeningInfoDTO.Rescreening.ScreeningResult screeningResult = visionScreeningResult(result);
+        ScreeningInfoDTO.Rescreening rescreening = new  ScreeningInfoDTO.Rescreening();
+
+        //复测结果
+        VisionScreeningResult visionScreeningResult = visionScreeningResultService.getIsDoubleScreeningResult(result.getPlanId(), result.getScreeningPlanSchoolStudentId(),true);
+
+        rescreening.setDoubleCount(0);
+        rescreening.setErrorCount(0);
+
+        ScreeningInfoDTO.Rescreening.ScreeningContent screeningContent = new ScreeningInfoDTO.Rescreening.ScreeningContent();
+
+        if (visionScreeningResult!=null){
+            ScreeningInfoDTO.Rescreening.ScreeningResult rescreeningResult = visionScreeningResult(visionScreeningResult);
+            rescreening.setScreeningResult(screeningResult);//计算后的初筛
+            rescreening.setRescreeningResult(rescreeningResult);//计算后的复测
+            rescreening.setDeviationDO(visionScreeningResult.getDeviationData());
+            rescreening.setScreeningContent(screeningContent);//复测内容
+            rescreening.setDeviationDO(visionScreeningResult.getDeviationData());//误差说明
+
+            screeningContent.setVisionData(visionScreeningResult.getVisionData());
+            screeningContent.setComputerOptometry(visionScreeningResult.getComputerOptometry());
+            screeningContent.setHeightAndWeightData(visionScreeningResult.getHeightAndWeightData());
+        }else {
+            rescreening.setScreeningResult(screeningResult);//计算后的初筛
+            rescreening.setRescreeningResult(null);//计算后的复测
+            rescreening.setDeviationDO(null);
+            rescreening.setScreeningContent(screeningContent);//复测内容
+            rescreening.setDeviationDO(null);//误差说明
+
+            screeningContent.setVisionData(null);
+            screeningContent.setComputerOptometry(null);
+            screeningContent.setHeightAndWeightData(null);
+        }
+
+//        if (visionScreeningResult!=null){
+//            ScreeningInfoDTO.Rescreening.ScreeningResult rescreeningResult = visionScreeningResult(visionScreeningResult);
+//
+//            rescreening.setScreeningResult(screeningResult);//计算后的初筛
+//            rescreening.setRescreeningResult(rescreeningResult);//计算后的复测
+//
+//            screeningContent.setVisionData(visionScreeningResult.getVisionData());
+//            screeningContent.setComputerOptometry(visionScreeningResult.getComputerOptometry());
+//            screeningContent.setHeightAndWeightData(visionScreeningResult.getHeightAndWeightData());
+//
+//            rescreening.setScreeningContent(screeningContent);//复测内容
+//            rescreening.setDeviationDO(visionScreeningResult.getDeviationData());//误差说明
+//        }
+
+        return rescreening;
+    }
+
+    private ScreeningInfoDTO.Rescreening.ScreeningResult visionScreeningResult(VisionScreeningResult visionScreeningResult) {
+        ScreeningInfoDTO.Rescreening.ScreeningResult result = new ScreeningInfoDTO.Rescreening.ScreeningResult();
+        result.setGlassesTypeDesc(EyeDataUtil.glassesType(visionScreeningResult));
+        result.setNakedVisions(EyeDataUtil.visionRightDataToStr(visionScreeningResult)+"/"+EyeDataUtil.visionLeftDataToStr(visionScreeningResult));
+        result.setCorrectedVisions(EyeDataUtil.visionRightDataToStr(visionScreeningResult)+"/"+EyeDataUtil.correctedLeftDataToStr(visionScreeningResult));
+        result.setSphs(EyeDataUtil.computerRightSph(visionScreeningResult)+"/"+EyeDataUtil.computerLeftSph(visionScreeningResult));
+        result.setCyls(EyeDataUtil.computerRightCyl(visionScreeningResult)+"/"+EyeDataUtil.computerLeftCyl(visionScreeningResult));
+        result.setAxials(EyeDataUtil.computerRightAxial(visionScreeningResult)+"/"+EyeDataUtil.computerLeftAxial(visionScreeningResult));
+        result.setHeight(EyeDataUtil.height(visionScreeningResult));
+        result.setWeight(EyeDataUtil.weight(visionScreeningResult));
+        return  result;
+    }
+
+    /**
+     *
+     * 筛查机构名称[参考getTemplateId（）写法]
+     * @param screeningOrgId 筛查机构Id
+     * @return 筛查机构名称
+     */
+    private String getScreeningOrganizationName(Integer screeningOrgId) {
+        ScreeningOrganization org = screeningOrganizationService.getById(screeningOrgId);
+        return org.getName();
+    }
+
+    /**
+     * 设置常见病信息
+     * @param result
+     * @return
+     */
+    private ScreeningInfoDTO.CommonDesease getCommonDesease(VisionScreeningResult result) {
+        ScreeningInfoDTO.CommonDesease commonDesease = new  ScreeningInfoDTO.CommonDesease();
+        commonDesease.setSaprodontiaData(result.getSaprodontiaData());
+        commonDesease.setSpineData(result.getSpineData());
+        commonDesease.setBloodPressureData(result.getBloodPressureData());
+        commonDesease.setDiseasesHistoryData(result.getDiseasesHistoryData());
+        commonDesease.setPrivacyData(result.getPrivacyData());
+        commonDesease.setSystemicDiseaseSymptom(result.getSystemicDiseaseSymptom());
+        commonDesease.setHeightAndWeightData(result.getHeightAndWeightData());
+        return commonDesease;
     }
 
     /**
