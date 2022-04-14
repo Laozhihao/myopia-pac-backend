@@ -76,6 +76,8 @@ public class ScreeningNoticeController {
         if (!screeningNoticeService.save(screeningNotice)) {
             throw new BusinessException("创建失败");
         }
+        //创建通知在m_screening_notice_dept_org里面插入当前数据
+        screeningNoticeDeptOrgService.saveSelfRelease(screeningNotice);
     }
 
     /**
@@ -190,7 +192,6 @@ public class ScreeningNoticeController {
     @GetMapping("page")
     public IPage<ScreeningNoticeVO> queryInfo(ScreeningNoticeQueryDTO query, PageRequest pageRequest) throws IOException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        query.setReleaseStatus(CommonConst.STATUS_RELEASE);
         if (user.isGovDeptUser()) {
             query.setType(0);
             query.setGovDeptId(user.getOrgId());
@@ -214,6 +215,8 @@ public class ScreeningNoticeController {
         if (!screeningNoticeService.removeById(id)) {
             throw new BusinessException("删除失败，请重试");
         }
+        screeningNoticeDeptOrgService.deleteScreeningNotice(id);
+
     }
 
     /**
