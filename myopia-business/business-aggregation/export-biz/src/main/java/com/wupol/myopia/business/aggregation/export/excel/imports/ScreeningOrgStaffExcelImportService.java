@@ -56,7 +56,7 @@ public class ScreeningOrgStaffExcelImportService {
      * @param screeningOrgId 筛查机构id
      * @throws BusinessException io异常
      */
-    public void importScreeningOrganizationStaff(CurrentUser currentUser, MultipartFile multipartFile, Integer screeningOrgId) {
+    public void importScreeningOrganizationStaff(CurrentUser currentUser, MultipartFile multipartFile, Integer screeningOrgId,int totalNum,int accountNum) {
         if (null == screeningOrgId) {
             throw new BusinessException("机构ID不能为空");
         }
@@ -85,6 +85,12 @@ public class ScreeningOrgStaffExcelImportService {
                 userDTO.setRemark(item.get(StaffImportEnum.REMARK.getIndex()));
             }
             userList.add(userDTO);
+        }
+        if (!currentUser.isPlatformAdminUser()) {
+            if (userList.size()>(accountNum-totalNum)){
+                throw new BusinessException("您已超出限制数据（筛查人员账号数量限制："+accountNum+"个），操作失败！\n" +
+                        "如需增加筛查人员账号数量，请联系管理员！");
+            }
         }
         List<ScreeningOrganizationStaffDTO> importList = userList.stream().map(item -> {
             ScreeningOrganizationStaffDTO staff = new ScreeningOrganizationStaffDTO();

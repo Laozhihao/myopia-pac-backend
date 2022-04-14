@@ -51,6 +51,8 @@ public class ScreeningOrganizationStaffController {
 
     @Autowired
     private ExportStrategy exportStrategy;
+    @Resource
+    private ScreeningOrganizationService screeningOrganizationService;
 
     /**
      * 筛查人员列表
@@ -165,7 +167,9 @@ public class ScreeningOrganizationStaffController {
         if (Objects.nonNull(currentUser.getScreeningOrgId())) {
             screeningOrgId = currentUser.getScreeningOrgId();
         }
-        screeningOrgStaffExcelImportService.importScreeningOrganizationStaff(currentUser, file, screeningOrgId);
+        int totalNum = screeningOrganizationStaffService.countByScreeningOrgId(screeningOrgId);
+        ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(screeningOrgId);
+        screeningOrgStaffExcelImportService.importScreeningOrganizationStaff(currentUser, file, screeningOrgId,totalNum,screeningOrganization.getAccountNum());
     }
 
 }
