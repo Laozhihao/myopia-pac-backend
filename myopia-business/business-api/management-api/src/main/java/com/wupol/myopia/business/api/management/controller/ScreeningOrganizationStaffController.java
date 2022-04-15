@@ -17,17 +17,13 @@ import com.wupol.myopia.business.core.screening.organization.domain.dto.Organiza
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgStaffUserDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationStaffQueryDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.StaffResetPasswordRequestDTO;
-import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationStaff;
-import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationStaffService;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.Objects;
@@ -51,8 +47,6 @@ public class ScreeningOrganizationStaffController {
 
     @Autowired
     private ExportStrategy exportStrategy;
-    @Resource
-    private ScreeningOrganizationService screeningOrganizationService;
 
     /**
      * 筛查人员列表
@@ -167,9 +161,7 @@ public class ScreeningOrganizationStaffController {
         if (Objects.nonNull(currentUser.getScreeningOrgId())) {
             screeningOrgId = currentUser.getScreeningOrgId();
         }
-        int totalNum = screeningOrganizationStaffService.countByScreeningOrgId(screeningOrgId);
-        ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(screeningOrgId);
-        screeningOrgStaffExcelImportService.importScreeningOrganizationStaff(currentUser, file, screeningOrgId,totalNum,screeningOrganization.getAccountNum());
+        screeningOrgStaffExcelImportService.importScreeningOrganizationStaff(currentUser, file, screeningOrgId);
     }
 
 }
