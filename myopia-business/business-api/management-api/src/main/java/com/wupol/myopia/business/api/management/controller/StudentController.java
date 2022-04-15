@@ -22,8 +22,8 @@ import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentQueryDTO;
 import com.wupol.myopia.business.core.school.domain.model.Student;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.RetestResultCard;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningResultResponseDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.vo.RescreenCardVO;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentCardResponseVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
@@ -175,8 +175,8 @@ public class StudentController {
      * @return 学生筛查档案
      */
     @GetMapping("/screening/{id}")
-    public StudentScreeningResultResponseDTO getScreeningList(@PathVariable("id") Integer id) {
-        return studentFacade.getScreeningList(id);
+    public StudentScreeningResultResponseDTO getScreeningList(PageRequest pageReques,@PathVariable("id") Integer id) {
+        return studentFacade.getScreeningList(pageReques,id);
     }
 
     /**
@@ -186,8 +186,8 @@ public class StudentController {
      * @return 复测卡
      */
     @GetMapping("/screeningResult")
-    public RetestResultCard getRetestResult(@NotNull(message = "学生Id不能为空") Integer plandStudentId,
-                                                 @NotNull(message = "计划Id不能为空") Integer plandId ) {
+    public RescreenCardVO getRetestResult(@NotNull(message = "学生Id不能为空") Integer plandStudentId,
+                                          @NotNull(message = "计划Id不能为空") Integer plandId ) {
         return studentFacade.getRetestResult(plandStudentId,plandId);
     }
 

@@ -246,7 +246,6 @@ public class EyeDataUtil {
                 &&visionScreeningResult.getComputerOptometry()!=null
                 &&visionScreeningResult.getComputerOptometry().getLeftEyeData()!=null
                 &&visionScreeningResult.getComputerOptometry().getLeftEyeData().getCyl()!=null){
-
             return visionScreeningResult.getComputerOptometry().getLeftEyeData().getCyl().toString();
         }
 
@@ -395,25 +394,201 @@ public class EyeDataUtil {
         return bigDecimal.setScale(2, RoundingMode.DOWN).toString();
     }
 
-    public static String height(VisionScreeningResult visionScreeningResult) {
+
+    /**
+     * 判断戴镜是否为空
+     * @param visionScreeningResult
+     * @return
+     */
+    public static Integer glassTypeDesc(VisionScreeningResult visionScreeningResult) {
         if (visionScreeningResult != null
-                && visionScreeningResult.getHeightAndWeightData() != null
-                && visionScreeningResult.getHeightAndWeightData().getHeight() != null) {
-
-            return visionScreeningResult.getHeightAndWeightData().getHeight().setScale(0, RoundingMode.DOWN).toString();
+                && visionScreeningResult.getVisionData() != null
+                && visionScreeningResult.getVisionData().getRightEyeData() != null) {
+            return  visionScreeningResult.getVisionData().getRightEyeData().getGlassesType();
         }
-
-        return "--";
+        return null;
     }
-    public static String weight(VisionScreeningResult visionScreeningResult) {
+
+    /**
+     * 判断右眼裸视力
+     * @param visionScreeningResult
+     * @return
+     */
+    public static BigDecimal rightNakedVision(VisionScreeningResult visionScreeningResult) {
         if (visionScreeningResult != null
-                && visionScreeningResult.getHeightAndWeightData() != null
-                && visionScreeningResult.getHeightAndWeightData().getWeight() != null) {
-
-            return visionScreeningResult.getHeightAndWeightData().getWeight().setScale(0, RoundingMode.DOWN).toString();
+                && visionScreeningResult.getVisionData() != null
+                && visionScreeningResult.getVisionData().getRightEyeData() != null) {
+            return  visionScreeningResult.getVisionData().getRightEyeData().getNakedVision();
         }
-
-        return "--";
+        return null;
     }
+
+    /**
+     * 判断左眼裸视力
+     * @param visionScreeningResult
+     * @return
+     */
+    public static BigDecimal leftNakedVision(VisionScreeningResult visionScreeningResult) {
+        if (visionScreeningResult != null
+                && visionScreeningResult.getVisionData() != null
+                && visionScreeningResult.getVisionData().getLeftEyeData() != null) {
+            return  visionScreeningResult.getVisionData().getLeftEyeData().getNakedVision();
+        }
+        return null;
+    }
+
+    /**
+     * 判断右眼裸视力
+     * @param visionScreeningResult
+     * @return
+     */
+    public static BigDecimal rightCorrectedVision(VisionScreeningResult visionScreeningResult) {
+        if (visionScreeningResult != null
+                && visionScreeningResult.getVisionData() != null
+                && visionScreeningResult.getVisionData().getRightEyeData() != null) {
+            return  visionScreeningResult.getVisionData().getRightEyeData().getCorrectedVision();
+        }
+        return null;
+    }
+
+    /**
+     * 判断左眼裸视力
+     * @param visionScreeningResult
+     * @return
+     */
+    public static BigDecimal leftCorrectedVision(VisionScreeningResult visionScreeningResult) {
+        if (visionScreeningResult != null
+                && visionScreeningResult.getVisionData() != null
+                && visionScreeningResult.getVisionData().getLeftEyeData() != null) {
+            return  visionScreeningResult.getVisionData().getLeftEyeData().getCorrectedVision();
+        }
+        return null;
+    }
+
+    /**
+     * 判断右眼球镜
+     * @param visionScreeningResult
+     * @return
+     */
+    public static BigDecimal rightSph(VisionScreeningResult visionScreeningResult) {
+        if (visionScreeningResult != null
+                && visionScreeningResult.getComputerOptometry() != null
+                && visionScreeningResult.getComputerOptometry().getRightEyeData() != null) {
+            return  visionScreeningResult.getComputerOptometry().getRightEyeData().getSph();
+        }
+        return null;
+    }
+    /**
+     * 判断右眼柱镜
+     * @param visionScreeningResult
+     * @return
+     */
+    public static BigDecimal rightCyl(VisionScreeningResult visionScreeningResult) {
+        if (visionScreeningResult != null
+                && visionScreeningResult.getComputerOptometry() != null
+                && visionScreeningResult.getComputerOptometry().getRightEyeData() != null) {
+            return  visionScreeningResult.getComputerOptometry().getRightEyeData().getCyl();
+        }
+        return null;
+    }
+    /**
+     * 判断右眼轴位
+     * @param visionScreeningResult
+     * @return
+     */
+    public static BigDecimal rightAxial(VisionScreeningResult visionScreeningResult) {
+        if (visionScreeningResult != null
+                && visionScreeningResult.getComputerOptometry() != null
+                && visionScreeningResult.getComputerOptometry().getRightEyeData() != null) {
+            return  visionScreeningResult.getComputerOptometry().getRightEyeData().getAxial();
+        }
+        return null;
+    }
+
+    /**
+     * 判断左眼球镜
+     * @param visionScreeningResult
+     * @return
+     */
+    public static BigDecimal leftSph(VisionScreeningResult visionScreeningResult) {
+        if (visionScreeningResult != null
+                && visionScreeningResult.getComputerOptometry() != null
+                && visionScreeningResult.getComputerOptometry().getLeftEyeData() != null) {
+            return  visionScreeningResult.getComputerOptometry().getLeftEyeData().getSph();
+        }
+        return null;
+    }
+    /**
+     * 判断左眼柱镜
+     * @param visionScreeningResult
+     * @return
+     */
+    public static BigDecimal leftCyl(VisionScreeningResult visionScreeningResult) {
+        if (visionScreeningResult != null
+                && visionScreeningResult.getComputerOptometry() != null
+                && visionScreeningResult.getComputerOptometry().getLeftEyeData() != null) {
+            return  visionScreeningResult.getComputerOptometry().getLeftEyeData().getCyl();
+        }
+        return null;
+    }
+    /**
+     * 判断左眼轴位
+     * @param visionScreeningResult
+     * @return
+     */
+    public static BigDecimal leftAxial(VisionScreeningResult visionScreeningResult) {
+        if (visionScreeningResult != null
+                && visionScreeningResult.getComputerOptometry() != null
+                && visionScreeningResult.getComputerOptometry().getLeftEyeData() != null) {
+            return  visionScreeningResult.getComputerOptometry().getLeftEyeData().getAxial();
+        }
+        return null;
+    }
+
+    /**
+     * 判断左眼轴位
+     * @param visionScreeningResult
+     * @return
+     */
+    public static BigDecimal height(VisionScreeningResult visionScreeningResult) {
+        if (visionScreeningResult != null
+                && visionScreeningResult.getHeightAndWeightData() != null) {
+            return  visionScreeningResult.getHeightAndWeightData().getHeight();
+        }
+        return null;
+    }
+
+    /**
+     * 判断左眼轴位
+     * @param visionScreeningResult
+     * @return
+     */
+    public static BigDecimal weight(VisionScreeningResult visionScreeningResult) {
+        if (visionScreeningResult != null
+                &&visionScreeningResult.getHeightAndWeightData() != null) {
+            return  visionScreeningResult.getHeightAndWeightData().getWeight();
+        }
+        return null;
+    }
+
+    /**
+     * 计算 等效球镜
+     *
+     * @param sph 球镜
+     * @param cyl 柱镜
+     * @return 等效球镜
+     */
+    public static BigDecimal calculationSE(BigDecimal sph, BigDecimal cyl) {
+        if (Objects.isNull(sph) || Objects.isNull(cyl)) {
+            return null;
+        }
+        return sph.add(cyl.multiply(new BigDecimal("0.5")))
+                .setScale(2, RoundingMode.HALF_UP);
+    }
+
+
+
+
+
 
 }

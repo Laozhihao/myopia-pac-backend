@@ -5,6 +5,7 @@ package com.wupol.myopia.business.core.screening.flow.domain.dto;/*
  * @Des:
  */
 
+import com.amazonaws.services.dynamodbv2.xspec.B;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
@@ -45,74 +46,73 @@ public class ScreeningInfoDTO {
         /**
          * 错误次数
          */
-        private Integer errorCount;
-        /**
-         * 初筛内容(计算后)
-         */
-        private ScreeningResult screeningResult;
+        private Integer deviationCount;
         /**
          * 复测内容（计算后）
          */
-        private ScreeningResult rescreeningResult;
+        private ReScreeningResult rescreeningResult;
         /**
          * 误差说明
          */
-        private DeviationDO deviationDO;
-        /**
-         * 复测内容
-         */
-        private ScreeningContent screeningContent;
+        private DeviationDO deviation;
 
         /**
-         * 计算后内容
+         * 计算后内容（复测）
          */
         @Data
-        public static class ScreeningContent implements Serializable{
-            /**
-             * 筛查结果--视力检查结果
-             */
-            private VisionDataDO visionData;
-
-            /**
-             * 筛查结果--电脑验光
-             */
-            private ComputerOptometryDO computerOptometry;
-
-            /**
-             * 筛查结果--身高体重
-             */
-            private HeightAndWeightDataDO heightAndWeightData;
-
-        }
-
-        /**
-         * 计算后内容
-         */
-        @Data
-        public static class ScreeningResult implements Serializable{
+        public static class ReScreeningResult implements Serializable{
             /** 戴镜情况 */
             private String glassesTypeDesc;
 
-            /** 裸眼（右/左） */
-            private String nakedVisions;
+            /** 裸眼（右） */
+            private ScreeningDeviation rightNakedVision;
 
-            /** 矫正（右/左） */
-            private String correctedVisions;
+            /** 矫正（右） */
+            private ScreeningDeviation rightCorrectedVision;
 
-            /** 球镜（右/左） */
-            private String sphs;
+            /** 球镜（右） */
+            private ScreeningDeviation rightSph;
 
-            /** 柱镜（右/左） */
-            private String cyls;
+            /** 柱镜（右） */
+            private ScreeningDeviation rightCyl;
 
-            /** 轴位（右/左） */
-            private String axials;
+            /** 轴位（右） */
+            private ScreeningDeviation rightAxial;
+
+            /** 裸眼（左） */
+            private ScreeningDeviation leftNakedVision;
+
+            /** 矫正（左） */
+            private ScreeningDeviation leftCorrectedVision;
+
+            /** 球镜（左） */
+            private ScreeningDeviation lefttSph;
+
+            /** 柱镜（左） */
+            private ScreeningDeviation lefttCyl;
+
+            /** 轴位（左） */
+            private ScreeningDeviation leftAxial;
+
+
 
             /** 身高 */
-            private String height;
+            private ScreeningDeviation height;
 
             /** 体重 */
-            private String weight;
+            private ScreeningDeviation weight;
+
+            @Data
+            public static class ScreeningDeviation implements Serializable {
+                /**
+                 *
+                 */
+                private BigDecimal content;
+                /**
+                 * 是否错误
+                 */
+                private int type;
+            }
 
         }
     }

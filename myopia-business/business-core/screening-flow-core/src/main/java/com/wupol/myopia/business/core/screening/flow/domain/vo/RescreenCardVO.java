@@ -1,6 +1,7 @@
-package com.wupol.myopia.business.core.screening.flow.domain.dto;
+package com.wupol.myopia.business.core.screening.flow.domain.vo;
 
 import com.wupol.myopia.business.core.screening.flow.domain.dos.DeviationDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningInfoDTO;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -15,7 +16,12 @@ import java.util.Date;
  */
 
 @Data
-public class RetestResultCard {
+public class RescreenCardVO {
+    /**
+     * 常见病编码
+     */
+    private String commonDeseaseCode;
+
     /**
      * 视力筛查
      */
@@ -40,10 +46,9 @@ public class RetestResultCard {
          */
         private ComputerOptometryResult computerOptometryResult;
         /**
-         *
-         * 筛查不准确说明
+         * 视力或屈光检查误差误差
          */
-        private DeviationDO deviationData;
+        private DeviationDO.VisionOrOptometryDeviation visionOrOptometryDeviation;
         /**
          * 质控人员
          */
@@ -81,7 +86,7 @@ public class RetestResultCard {
                 /**
                  * 裸眼视力-复测
                  */
-                private BigDecimal nakedVisionDiff;
+                private BigDecimal nakedVisionDeviation;
 
                 /**
                  * 矫正视力
@@ -94,7 +99,7 @@ public class RetestResultCard {
                 /**
                  * 矫正视力-复测
                  */
-                private BigDecimal correctedVisionDiff;
+                private BigDecimal correctedVisionDeviation;
             }
 
         }
@@ -108,28 +113,28 @@ public class RetestResultCard {
             /**
              * 球镜(右眼)
              */
-            private BigDecimal rightSph;
+            private BigDecimal rightSE;
             /**
              * 球镜(右眼)-复测
              */
-            private BigDecimal rightSphRetest;
+            private BigDecimal rightSERetest;
             /**
              * 球镜(右眼)-差值
              */
-            private BigDecimal rightSphDiff;
+            private BigDecimal rightSEDeviation;
 
             /**
              * 球镜(左眼)
              */
-            private BigDecimal leftSph;
+            private BigDecimal leftSE;
             /**
              * 球镜(左眼)-复测
              */
-            private BigDecimal leftSphRetest;
+            private BigDecimal leftSERetest;
             /**
-             * 球镜(右眼)-差值
+             * 球镜(左眼)-复测
              */
-            private BigDecimal leftSphDiff;
+            private BigDecimal leftSEDeviation;
 
         }
     }
@@ -161,16 +166,16 @@ public class RetestResultCard {
             /**
              * 身高-复测
              */
-            private BigDecimal heightRetest;
+            private BigDecimal heightRescreen;
             /**
              * 身高-误差
              */
-            private BigDecimal heightDiff;
+            private BigDecimal heightDeviation;
 
             /**
              * 身高-误差原因
              */
-            private String heightRemark;
+            private String heightDeviationRemark;
 
             /**
              * 体重
@@ -179,29 +184,18 @@ public class RetestResultCard {
             /**
              * 体重-复测
              */
-            private BigDecimal weightRetest;
+            private BigDecimal weightRescreen;
             /**
              * 体重-误差
              */
-            private BigDecimal weightDiff;
+            private BigDecimal weightDeviation;
 
             /**
              * 体重-误差原因
              */
-            private String weightRemark;
+            private String weightDeviationRemark;
 
         }
     }
-
-
-
-
-
-
-
-
-
-
-
 
 }
