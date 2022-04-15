@@ -99,10 +99,4 @@ public class SysGradeClass implements Serializable {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
 
-    /**
-     * 是否为毕业班（0否  1是）
-     */
-    private Integer isEash;
-
-
 }
