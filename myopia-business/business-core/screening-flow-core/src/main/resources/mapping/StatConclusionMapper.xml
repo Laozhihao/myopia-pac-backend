@@ -153,6 +153,15 @@
         WHERE msc.plan_id = #{screeningPlanId}
     </select>
 
+    <select id="selectVoByScreeningPlanIds" resultMap="VoResultMap" parameterType="java.util.Map">
+        SELECT msc.*, mvsr.school_id
+        FROM m_stat_conclusion msc
+        LEFT JOIN m_vision_screening_result mvsr ON msc.result_id = mvsr.id
+        WHERE msc.plan_id in
+        <foreach collection="screeningPlanIds" item="id" index="index" open="(" close=")" separator=",">#{id}</foreach>
+
+    </select>
+
     <select id="selectExportVoByScreeningNoticeIdAndDistrictIds" resultMap="ExportVoResultMap" parameterType="java.util.Map">
         SELECT
         <include refid="Export_Vo_List" />

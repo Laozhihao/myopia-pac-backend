@@ -312,6 +312,9 @@ public class StatConclusionBuilder {
 
 
     private void setRecommendVisit() {
+        OtherEyeDiseasesDO otherEyeDiseases = currentVisionScreeningResult.getOtherEyeDiseases();
+        Boolean otherEyeDiseasesNormal = Objects.nonNull(otherEyeDiseases)? otherEyeDiseases.isNormal():null;
+
         boolean isRecommendVisit = ScreeningResultUtil.getDoctorAdvice(
                 basicData.getLeftNakedVision(),basicData.getRightNakedVision(),
                 basicData.getLeftCorrectVision(),basicData.getRightCorrectVision(),
@@ -587,7 +590,6 @@ public class StatConclusionBuilder {
         private Integer nakedVisionWarningLevel;
         private Integer myopiaWarningLevel;
         private Integer glassesType;
-        private Boolean otherEyeDiseasesNormal;
 
 
         private BasicData() {

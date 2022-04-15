@@ -80,6 +80,11 @@ public class ScheduledTasksExecutor {
     @Autowired
     private PreSchoolNoticeService preSchoolNoticeService;
 
+    @Autowired
+    private DistrictStatisticTask districtStatisticTask;
+    @Autowired
+    private SchoolStatisticTask schoolStatisticTask;
+
     /**
      * 筛查数据统计
      */
@@ -92,6 +97,12 @@ public class ScheduledTasksExecutor {
             return;
         }
         statisticByPlanIds(yesterdayScreeningPlanIds);
+
+        //按区域统计
+        districtStatisticTask.districtStatistics(yesterdayScreeningPlanIds);
+
+        //按学校统计
+        schoolStatisticTask.schoolStatistics(yesterdayScreeningPlanIds);
     }
 
     /**

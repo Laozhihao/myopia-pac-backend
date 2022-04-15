@@ -1,6 +1,12 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dos;
 
+import cn.hutool.core.collection.CollectionUtil;
+import com.google.common.collect.Lists;
 import lombok.Data;
+
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @Description 脊柱弯曲
@@ -41,4 +47,23 @@ public class SpineDataDO {
          */
         private Integer level;
     }
+
+    public boolean isSpinalCurvature(){
+        List<SpineItem> list = Lists.newArrayList();
+        if (chest != null){
+            list.add(chest);
+        }
+        if (waist != null){
+            list.add(waist);
+        }
+        if (chestWaist != null){
+            list.add(chestWaist);
+        }
+        if (entirety != null){
+            list.add(entirety);
+        }
+        Set<SpineItem> spineItemSet = list.stream().filter(item -> !item.getType().equals(1)).collect(Collectors.toSet());
+        return CollectionUtil.isNotEmpty(spineItemSet);
+    }
+
 }

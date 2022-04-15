@@ -20,7 +20,9 @@
                 <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
                 <if test="@Ognl@isNotEmpty(screeningNoticeId)">and `screening_notice_id` = #{screeningNoticeId}</if>
                 <if test="@Ognl@isNotEmpty(screeningTaskId)">and `screening_task_id` = #{screeningTaskId}</if>
+                <if test="@Ognl@isNotEmpty(screeningPlanId)">and `screening_plan_id` = #{screeningPlanId}</if>
                 <if test="@Ognl@isNotEmpty(screeningType)">and `screening_type` = #{screeningType}</if>
+                <if test="@Ognl@isNotEmpty(schoolId)">and `school_id` = #{schoolId}</if>
                 <if test="@Ognl@isNotEmpty(schoolType)">and `school_type` = #{schoolType}</if>
                 <if test="@Ognl@isNotEmpty(districtId)">and `district_id` = #{districtId}</if>
                 <if test="@Ognl@isNotEmpty(isTotal)">and `is_total` = #{isTotal}</if>
@@ -31,8 +33,8 @@
     </sql>
 
     <sql id="Base_Column_List">
-        id,screening_notice_id,screening_task_id,
-        screening_type,school_type,school_num,
+        id,screening_notice_id,screening_task_id,screening_plan_id
+        screening_type,school_id,school_type,school_num,
         district_id,plan_screening_num,real_screening_num,
         completion_ratio,valid_screening_num,is_total,
         vision_analysis,rescreen_situation,vision_warning,

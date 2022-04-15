@@ -145,7 +145,7 @@ public class VisionScreeningBizService {
         VisionScreeningResult currentVisionScreeningResult = null;
         VisionScreeningResult anotherVisionScreeningResult = null;
         for (VisionScreeningResult visionScreeningResult : visionScreeningResults) {
-            if (visionScreeningResult.getIsDoubleScreen() == (screeningResultBasicData.getIsState() == 1)) {
+            if (visionScreeningResult.getIsDoubleScreen().equals(screeningResultBasicData.getIsState() == 1)) {
                 currentVisionScreeningResult = visionScreeningResult;
             } else {
                 anotherVisionScreeningResult = visionScreeningResult;

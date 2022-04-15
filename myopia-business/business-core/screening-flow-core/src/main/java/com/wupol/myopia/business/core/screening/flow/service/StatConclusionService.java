@@ -68,6 +68,12 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
         return baseMapper.selectList(queryWrapper);
     }
 
+    public List<StatConclusion> getBySrcScreeningNoticeIds(List<Integer> screeningNoticeIds) {
+        LambdaQueryWrapper<StatConclusion> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(StatConclusion::getSrcScreeningNoticeId, screeningNoticeIds);
+        return baseMapper.selectList(queryWrapper);
+    }
+
     /**
      * 根据筛查计划获取筛查结论Vo列表
      * @param screeningPlanId
@@ -75,6 +81,10 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
      */
     public List<StatConclusionDTO> getVoByScreeningPlanId(Integer screeningPlanId) {
         return baseMapper.selectVoByScreeningPlanId(screeningPlanId);
+    }
+
+    public List<StatConclusionDTO> getVoByScreeningPlanIds(List<Integer> screeningPlanIds) {
+        return baseMapper.selectVoByScreeningPlanIds(screeningPlanIds);
     }
 
 
