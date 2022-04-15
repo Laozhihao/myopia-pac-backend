@@ -40,6 +40,11 @@ public class PrimarySchoolAndAboveResultVO {
     private Item totalData;
 
     /**
+     * 当前级的数据
+     */
+    private Item currentData;
+
+    /**
      * 下级的数据列表，如果没有的话，为null
      */
     private Set<Item> childDataSet;

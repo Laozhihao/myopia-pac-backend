@@ -211,6 +211,7 @@ public class StatManagementController {
      * @param districtId
      * @return
      */
+    @Deprecated
     @GetMapping("/district/screening-vision-result")
     public ScreeningVisionStatisticVO getDistrictVisionStatistic(
             @RequestParam Integer districtId, @RequestParam Integer noticeId) throws IOException {
@@ -227,6 +228,7 @@ public class StatManagementController {
      * @param districtId
      * @return
      */
+    @Deprecated
     @GetMapping("/district/screening-monitor-result")
     public DistrictScreeningMonitorStatisticVO getDistrictMonitorStatistic(
             @RequestParam Integer districtId, @RequestParam Integer noticeId) throws IOException {
@@ -245,6 +247,7 @@ public class StatManagementController {
      * @param districtId
      * @return
      */
+    @Deprecated
     @GetMapping("/school/screening-vision-result")
     public ScreeningSchoolVisionStatisticVO getSchoolVisionStatistic(@RequestParam Integer districtId, @RequestParam Integer noticeId) {
         // 获取当前层级下，所有参与任务的学校
@@ -263,6 +266,7 @@ public class StatManagementController {
      * @return
      * @throws IOException
      */
+    @Deprecated
     @GetMapping("/school/screening-monitor-result")
     public SchoolScreeningMonitorStatisticVO getSchoolMonitorStatistic(@RequestParam Integer districtId, @RequestParam Integer noticeId) throws IOException {
         // 获取当前层级下，所有参与任务的学校
@@ -478,5 +482,77 @@ public class StatManagementController {
         //获取数据
         return ScreeningSchoolVisionStatisticVO.getInstance(schoolVisionStatistics, schoolIdDistrictNameMap, notice);
     }
+
+    /**
+     * 按区域-幼儿园
+     * @author hang.yuan
+     * @date 2022/4/7
+     */
+    @GetMapping("/district/kindergartenResult")
+    public KindergartenResultVO getKindergartenResult(@RequestParam Integer districtId,
+                                                      @RequestParam Integer noticeId) {
+        return statService.getKindergartenResult(districtId,noticeId);
+    }
+
+    /**
+     * 按区域-小学及以上
+     * @author hang.yuan
+     * @date 2022/4/7
+     */
+    @GetMapping("/district/primarySchoolAndAboveResult")
+    public PrimarySchoolAndAboveResultVO getPrimarySchoolAndAboveResult(@RequestParam Integer districtId,
+                                                                        @RequestParam Integer noticeId) {
+
+        return statService.getPrimarySchoolAndAboveResult(districtId,noticeId);
+    }
+
+    /**
+     *  按区域-合计详情
+     * @author hang.yuan
+     * @date 2022/4/7
+     */
+    @GetMapping("/district/screeningResultTotalDetail")
+    public ScreeningResultStatisticDetailVO getScreeningResultTotalDetail(@RequestParam Integer districtId,
+                                                                          @RequestParam Integer noticeId) {
+
+        return statService.getScreeningResultTotalDetail(districtId,noticeId);
+    }
+
+
+    /**
+     * 按学校-幼儿园
+     * @author hang.yuan
+     * @date 2022/4/7
+     */
+    @GetMapping("/school/kindergartenResult")
+    public SchoolKindergartenResultVO getSchoolKindergartenResult(@RequestParam Integer districtId,
+                                                                  @RequestParam Integer noticeId) {
+
+        return statService.getSchoolKindergartenResult(districtId,noticeId);
+    }
+
+    /**
+     * 按学校-小学及以上
+     * @author hang.yuan
+     * @date 2022/4/7
+     */
+    @GetMapping("/school/primarySchoolAndAboveResult")
+    public SchoolPrimarySchoolAndAboveResultVO getSchoolPrimarySchoolAndAboveResult(@RequestParam Integer districtId,
+                                                                                    @RequestParam Integer noticeId) {
+
+        return statService.getSchoolPrimarySchoolAndAboveResult(districtId,noticeId);
+    }
+
+    /**
+     * 按学校-查看详情
+     * @author hang.yuan
+     * @date 2022/4/7
+     */
+    @GetMapping("/school/schoolStatisticDetail")
+    public SchoolResultDetailVO getSchoolStatisticDetail(@RequestParam Integer screeningPlanId,
+                                                         @RequestParam Integer schoolId) {
+        return statService.getSchoolStatisticDetail(screeningPlanId,schoolId);
+    }
+
 
 }

@@ -40,6 +40,11 @@ public class KindergartenResultVO {
     private Item totalData;
 
     /**
+     * 当前级的数据
+     */
+    private Item currentData;
+
+    /**
      * 下级的数据列表，如果没有的话，为null
      */
     private Set<Item> childDataSet;
@@ -114,12 +119,12 @@ public class KindergartenResultVO {
         /**
          * 幼儿园--远视储备不足人数（默认0）
          */
-        private Integer insufficientFarsightednessReserveNum;
+        private Integer myopiaLevelInsufficientNum;
 
         /**
          * 幼儿园--远视储备不足率
          */
-        private BigDecimal insufficientFarsightednessReserveRatio;
+        private BigDecimal myopiaLevelInsufficientNumRatio;
 
         /**
          * 建议就诊数量（默认0）

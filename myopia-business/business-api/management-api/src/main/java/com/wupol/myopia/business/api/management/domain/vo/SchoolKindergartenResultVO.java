@@ -105,12 +105,12 @@ public class SchoolKindergartenResultVO {
         /**
          * 幼儿园--远视储备不足人数（默认0）
          */
-        private Integer insufficientFarsightednessReserveNum;
+        private Integer myopiaLevelInsufficientNum;
 
         /**
          * 幼儿园--远视储备不足率
          */
-        private BigDecimal insufficientFarsightednessReserveRatio;
+        private BigDecimal myopiaLevelInsufficientNumRatio;
 
         /**
          * 建议就诊数量（默认0）

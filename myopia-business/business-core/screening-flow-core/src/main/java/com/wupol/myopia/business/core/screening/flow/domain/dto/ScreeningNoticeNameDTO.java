@@ -31,4 +31,9 @@ public class ScreeningNoticeNameDTO {
      * 通知标题
      */
     private String noticeTitle;
+
+    /**
+     * 筛查类型
+     */
+    private String screeningType;
 }

@@ -1,8 +1,8 @@
 package com.wupol.myopia.business.core.stat.domain.dos;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
@@ -11,6 +11,7 @@ import java.math.BigDecimal;
  * @author hang.yuan 2022/4/13 15:13
  */
 @Data
+@Accessors(chain = true)
 public class KindergartenVisionAnalysisDO implements VisionAnalysis {
     /**
      * 视力低下人数（默认0）
@@ -55,12 +56,12 @@ public class KindergartenVisionAnalysisDO implements VisionAnalysis {
     /**
      * 幼儿园--远视储备不足人数（默认0）
      */
-    private Integer insufficientFarsightednessReserveNum;
+    private Integer myopiaLevelInsufficientNum;
 
     /**
      * 幼儿园--远视储备不足率
      */
-    private BigDecimal insufficientFarsightednessReserveRatio;
+    private BigDecimal myopiaLevelInsufficientNumRatio;
 
     /**
      * 戴镜人数（默认0）

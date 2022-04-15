@@ -2,18 +2,14 @@ package com.wupol.myopia.business.api.management.service;
 
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.api.management.domain.dto.*;
-import com.wupol.myopia.business.api.management.domain.vo.DistrictScreeningMonitorStatisticVO;
-import com.wupol.myopia.business.api.management.domain.vo.FocusObjectsStatisticVO;
-import com.wupol.myopia.business.api.management.domain.vo.RescreenReportVO;
-import com.wupol.myopia.business.api.management.domain.vo.ScreeningVisionStatisticVO;
-import com.wupol.myopia.business.common.utils.constant.ContrastTypeEnum;
-import com.wupol.myopia.business.common.utils.constant.GenderEnum;
-import com.wupol.myopia.business.common.utils.constant.SchoolAge;
-import com.wupol.myopia.business.common.utils.constant.WarningLevel;
+import com.wupol.myopia.business.api.management.domain.vo.*;
+import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
@@ -32,6 +28,7 @@ import com.wupol.myopia.business.core.stat.domain.dto.WarningInfo.WarningLevelIn
 import com.wupol.myopia.business.core.stat.domain.model.DistrictAttentiveObjectsStatistic;
 import com.wupol.myopia.business.core.stat.domain.model.DistrictMonitorStatistic;
 import com.wupol.myopia.business.core.stat.domain.model.DistrictVisionStatistic;
+import com.wupol.myopia.business.core.stat.domain.model.SchoolVisionStatistic;
 import com.wupol.myopia.business.core.stat.service.DistrictAttentiveObjectsStatisticService;
 import com.wupol.myopia.business.core.stat.service.DistrictMonitorStatisticService;
 import com.wupol.myopia.business.core.stat.service.DistrictVisionStatisticService;
@@ -674,8 +671,8 @@ public class StatService {
      */
     private AverageVision calculateAverageVision(List<StatConclusion> statConclusions) {
         int size = statConclusions.size();
-        double sumVisionL = statConclusions.stream().mapToDouble(StatConclusion::getVisionL).sum();
-        double sumVisionR = statConclusions.stream().mapToDouble(StatConclusion::getVisionR).sum();
+        double sumVisionL = statConclusions.stream().mapToDouble(sc->sc.getVisionL().doubleValue()).sum();
+        double sumVisionR = statConclusions.stream().mapToDouble(sc->sc.getVisionR().doubleValue()).sum();
         float avgVisionL = round2Digits(sumVisionL / size);
         float avgVisionR = round2Digits(sumVisionR / size);
         return AverageVision.builder().averageVisionLeft(avgVisionL).averageVisionRight(avgVisionR).build();
@@ -1048,6 +1045,52 @@ public class StatService {
         return String.format("%s，%s 至 %s", title, startDate, endDate);
     }
 
+    public KindergartenResultVO getKindergartenResult(Integer districtId, Integer noticeId) {
+        ScreeningNotice screeningNotice = screeningNoticeService.getById(noticeId);
+        if (screeningNotice == null) {
+            throw new BusinessException(BizMsgConstant.CAN_NOT_FIND_NOTICE);
+        }
+        return null;
+    }
+
+    public PrimarySchoolAndAboveResultVO getPrimarySchoolAndAboveResult(Integer districtId, Integer noticeId) {
+        ScreeningNotice screeningNotice = screeningNoticeService.getById(noticeId);
+        if (screeningNotice == null) {
+            throw new BusinessException(BizMsgConstant.CAN_NOT_FIND_NOTICE);
+        }
+        return null;
+    }
+
+    public ScreeningResultStatisticDetailVO getScreeningResultTotalDetail(Integer districtId, Integer noticeId) {
+        ScreeningNotice screeningNotice = screeningNoticeService.getById(noticeId);
+        if (screeningNotice == null) {
+            throw new BusinessException(BizMsgConstant.CAN_NOT_FIND_NOTICE);
+        }
+        return null;
+    }
+
+    public SchoolKindergartenResultVO getSchoolKindergartenResult(Integer districtId, Integer noticeId) {
+        // 获取当前层级下，所有参与任务的学校
+        ScreeningNotice screeningNotice = screeningNoticeService.getReleasedNoticeById(noticeId);
+//        List<SchoolVisionStatistic> schoolVisionStatistics = schoolVisionStatisticBizService.getStatisticDtoByNoticeIdAndOrgId(screeningNotice.getId(),
+//                CurrentUserUtil.getCurrentUser(),
+//                districtService.getSpecificDistrictTreeAllDistrictIds(districtId));
+        return null;
+    }
+
+    public SchoolPrimarySchoolAndAboveResultVO getSchoolPrimarySchoolAndAboveResult(Integer districtId, Integer noticeId) {
+        // 获取当前层级下，所有参与任务的学校
+        ScreeningNotice screeningNotice = screeningNoticeService.getReleasedNoticeById(noticeId);
+//        List<SchoolVisionStatistic> schoolVisionStatistics = schoolVisionStatisticBizService.getStatisticDtoByNoticeIdAndOrgId(screeningNotice.getId(),
+//                CurrentUserUtil.getCurrentUser(),
+//                districtService.getSpecificDistrictTreeAllDistrictIds(districtId));
+        return null;
+    }
+
+    public SchoolResultDetailVO getSchoolStatisticDetail(Integer screeningPlanId, Integer schoolId) {
+        return null;
+    }
+
 
     /**
      * 平均视力
@@ -1249,7 +1292,7 @@ public class StatService {
      */
     private List<StatConclusion> getRescreenInfo(Date screeningTime, Integer planId, Integer schoolId) {
         LocalDate startDate = DateUtil.convertToLocalDate(DateUtil.getStartTime(screeningTime), DateUtil.ZONE_UTC_8);
-        LocalDate endDate = startDate.plusDays(1l);
+        LocalDate endDate = startDate.plusDays(1L);
         StatConclusionQueryDTO query = new StatConclusionQueryDTO();
         query.setStartTime(startDate)
                 .setEndTime(endDate)

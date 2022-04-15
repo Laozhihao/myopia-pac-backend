@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.stat.domain.dos;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
 
@@ -10,6 +11,7 @@ import java.math.BigDecimal;
  * @author hang.yuan 2022/4/13 15:23
  */
 @Data
+@Accessors(chain = true)
 public class PrimarySchoolAndAboveVisionAnalysisDO implements VisionAnalysis {
     /**
      * 视力低下人数（默认0）

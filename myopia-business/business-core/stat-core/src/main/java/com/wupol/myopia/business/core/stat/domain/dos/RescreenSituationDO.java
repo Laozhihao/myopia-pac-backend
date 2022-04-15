@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.stat.domain.dos;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -11,6 +12,7 @@ import java.math.BigDecimal;
  * @author hang.yuan 2022/4/13 15:21
  */
 @Data
+@Accessors(chain = true)
 public class RescreenSituationDO implements Serializable {
 
     /**

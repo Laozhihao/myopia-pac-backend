@@ -43,9 +43,19 @@ public class ScreeningResultStatistic implements Serializable {
     private Integer screeningTaskId;
 
     /**
+     * 筛查计划Id
+     */
+    private Integer screeningPlanId;
+
+    /**
      * 筛查类型 （0-视力筛查、1-常见病筛查）
      */
     private Integer screeningType;
+
+    /**
+     * 学校ID
+     */
+    private Integer schoolId;
 
     /**
      * 学校类型 0-小学,1-初级中学,2-高级中学,3-完全中学,4-九年一贯制学校,5-十二年一贯制学校,6-职业高中,7-其他,8-幼儿园
