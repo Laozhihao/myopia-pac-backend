@@ -5,9 +5,11 @@ import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * 处理后筛查数据（包括学校ID）
@@ -15,6 +17,7 @@ import java.util.Date;
  * @Date 2021/3/5
  **/
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
 public class StatConclusionExportDTO extends StatConclusion {
@@ -186,4 +189,41 @@ public class StatConclusionExportDTO extends StatConclusion {
      * 护照
      */
     private String passport;
+
+    /**
+     * 筛查结果--龋齿
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private SaprodontiaDataDO saprodontiaData;
+
+    /**
+     * 筛查结果--脊柱
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private SpineDataDO spineData;
+
+    /**
+     * 筛查结果--血压
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private BloodPressureDataDO bloodPressureData;
+
+    /**
+     * 筛查结果--疾病史(汉字)
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private List<String> diseasesHistoryData;
+
+    /**
+     * 筛查结果--隐私项
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private PrivacyDataDO privacyData;
+
+    /**
+     *
+     * 筛查不准确说明
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private DeviationDO deviationData;
 }

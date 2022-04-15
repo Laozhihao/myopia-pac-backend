@@ -2,6 +2,8 @@ package com.wupol.myopia.business.core.stat.domain.dto;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 /**
  * @Description
  * @Date 2021/3/18 15:06
@@ -49,11 +51,11 @@ public class BigScreenStatDataDTO {
     /**
      * 左眼视力
      */
-    private Float visionL;
+    private BigDecimal visionL;
     /**
      * 右眼视力
      */
-    private Float visionR;
+    private BigDecimal visionR;
     /**
      * 城市地区id
      */
