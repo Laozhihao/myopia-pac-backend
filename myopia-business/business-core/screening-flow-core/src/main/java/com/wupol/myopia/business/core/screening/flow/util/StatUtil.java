@@ -379,7 +379,7 @@ public class StatUtil {
         return AstigmatismLevelEnum.ZERO;
     }
 
-    public static Integer getAstigmatismLevel(Float cyl) {
+    public static Integer getAstigmatismLevel(BigDecimal cyl) {
         if (cyl == null) {
             return null;
         }
@@ -493,11 +493,11 @@ public class StatUtil {
      * @param age      年龄
      * @return Integer
      */
-    public static Integer getHyperopiaLevel(Float sphere, Float cylinder, Integer age) {
+    public static Integer getHyperopiaLevel(BigDecimal sphere, BigDecimal cylinder, Integer age) {
         if (sphere == null || cylinder == null || age == null) {
             return null;
         }
-        HyperopiaLevelEnum hyperopiaWarningLevel = getHyperopiaWarningLevel(sphere.toString(), cylinder.toString(), age);
+        HyperopiaLevelEnum hyperopiaWarningLevel = getHyperopiaWarningLevel(sphere, cylinder, age);
         if (Objects.nonNull(hyperopiaWarningLevel)) {
             return hyperopiaWarningLevel.code;
         }
@@ -589,7 +589,7 @@ public class StatUtil {
 
 
     /**
-     * 计算等效球镜
+     * 计算等效球镜 （球镜度+1/2柱镜度）
      *
      * @param sphere   球镜
      * @param cylinder 柱镜
@@ -1149,6 +1149,9 @@ public class StatUtil {
 
     public static TwoTuple<Boolean, Boolean> isOverweightAndObesity(BigDecimal weight, BigDecimal height, String age, Integer gender) {
         BigDecimal bmi = bmi(weight, height);
+        return isOverweightAndObesity(bmi,age,gender);
+    }
+    public static TwoTuple<Boolean, Boolean> isOverweightAndObesity(BigDecimal bmi,  String age, Integer gender) {
         StandardTableData.OverweightAndObesityData data = StandardTableData.getOverweightAndObesityData(age, gender);
         Boolean overweight = BigDecimalUtil.isBetweenLeft(bmi, data.getOverweight(), data.getObesity());
         Boolean obesity = BigDecimalUtil.moreThanAndEqual(bmi, data.getObesity());
@@ -1185,11 +1188,15 @@ public class StatUtil {
 
     public static Boolean isWasting(BigDecimal weight, BigDecimal height, String age, Integer gender) {
         BigDecimal bmi = bmi(weight, height);
+        return isWasting(bmi,age,gender);
+    }
+    public static Boolean isWasting(BigDecimal bmi, String age, Integer gender) {
         StandardTableData.WastingData wastingData = StandardTableData.getWastingData(age, gender);
         Boolean mild = BigDecimalUtil.isBetweenAll(bmi, wastingData.getMild()[0], wastingData.getMild()[1]);
         Boolean moderateAndHigh = BigDecimalUtil.lessThanAndEqual(bmi, wastingData.getModerateAndHigh());
         return mild || moderateAndHigh;
     }
+
 
     /**
      * 是否血压偏高
