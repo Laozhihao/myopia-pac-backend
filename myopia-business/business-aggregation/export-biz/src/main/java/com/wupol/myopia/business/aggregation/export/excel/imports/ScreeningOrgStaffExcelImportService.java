@@ -84,6 +84,7 @@ public class ScreeningOrgStaffExcelImportService {
             }
             userList.add(userDTO);
         }
+        screeningOrganizationStaffService.checkScreeningOrganizationStaffAmount(screeningOrgId,userList);
         List<ScreeningOrganizationStaffDTO> importList = userList.stream().map(item -> {
             ScreeningOrganizationStaffDTO staff = new ScreeningOrganizationStaffDTO();
             staff.setIdCard(item.getIdCard())
@@ -123,11 +124,6 @@ public class ScreeningOrgStaffExcelImportService {
         Assert.isTrue(phones.size() == phones.stream().distinct().count(), "手机号码重复");
         List<User> checkPhones = oauthServiceClient.getUserBatchByPhones(phones, SystemCode.SCREENING_CLIENT.getCode());
         Assert.isTrue(CollectionUtils.isEmpty(checkPhones), "手机号码已经被使用，请确认！");
-
-
-        screeningOrganizationStaffService.checkScreeningOrganizationStaffAmount(screeningOrgId,listMap);
-
-
     }
 
     /**

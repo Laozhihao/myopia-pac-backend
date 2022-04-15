@@ -391,7 +391,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      * @param screeningOrgId 筛查
      * @return int
      **/
-    public void checkScreeningOrganizationStaffAmount(Integer screeningOrgId,List<Map<Integer, String>> listMap){
+    public void checkScreeningOrganizationStaffAmount(Integer screeningOrgId,List<UserDTO> listMap){
 
         ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(screeningOrgId);
         int totalNum = screeningOrganizationStaffService.countByScreeningOrgId(screeningOrgId);
