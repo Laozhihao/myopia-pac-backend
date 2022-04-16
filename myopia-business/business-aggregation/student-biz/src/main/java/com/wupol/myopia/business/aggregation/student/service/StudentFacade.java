@@ -27,15 +27,9 @@ import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.constant.ReScreeningConstant;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
-import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
-import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
+import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.*;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
-import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
-import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
+import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.flow.util.EyeDataUtil;
 import com.wupol.myopia.business.core.screening.flow.util.ReScreeningCardUtil;
 import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
@@ -111,6 +105,9 @@ public class StudentFacade {
     @Autowired
     private SchoolClassService schoolClassService;
 
+    @Resource
+    private ScreeningPlanSchoolService screeningPlanSchoolService;
+
 
     /**
      * 获取学生复测卡
@@ -118,13 +115,21 @@ public class StudentFacade {
      * @param plandId 计划ID
      * @return
      */
-    public RescreenCardVO getRetestResult(Integer plandStudentId, Integer plandId){
+    public ReScreeningCardVO getRetestResult(Integer plandStudentId, Integer plandId){
 
         VisionScreeningResult screeningResult = visionScreeningResultService.getIsDoubleScreeningResult(plandId, plandStudentId,false);
         VisionScreeningResult retestResult = visionScreeningResultService.getIsDoubleScreeningResult(plandId, plandStudentId,true);
 
-        return ReScreeningCardUtil.retestResultCard(screeningResult,retestResult);
+        //质控员
+        String qualityControlName =null;
+        List<ScreeningPlanSchool> screeningPlanSchools = screeningPlanSchoolService.getSchoolListsByPlanId(plandId);
+        if (Objects.nonNull(screeningPlanSchools)){
+            qualityControlName = screeningPlanSchools.get(0).getQualityControllerName();
+        }
+
+        return ReScreeningCardUtil.retestResultCard(screeningResult,retestResult,qualityControlName);
     }
+
 
     /**
      * 获取学生筛查档案

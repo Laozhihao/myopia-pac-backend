@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.core.screening.flow.domain.vo;
 
 import com.wupol.myopia.business.core.screening.flow.domain.dos.DeviationDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningInfoDTO;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -16,11 +15,11 @@ import java.util.Date;
  */
 
 @Data
-public class RescreenCardVO {
+public class ReScreeningCardVO {
     /**
      * 常见病编码
      */
-    private String commonDeseaseCode;
+    private String commonDiseasesCode;
 
     /**
      * 视力筛查
@@ -29,7 +28,7 @@ public class RescreenCardVO {
     /**
      * 常见病筛查
      */
-    private CommonDesease commonDesease;
+    private CommonDiseases commonDiseases;
 
     @Data
     public static class Vision implements Serializable{
@@ -52,7 +51,7 @@ public class RescreenCardVO {
         /**
          * 质控人员
          */
-        private String qualityControlUser;
+        private String qualityControlName;
         /**
          * 创建时间
          */
@@ -84,7 +83,7 @@ public class RescreenCardVO {
                  */
                 private BigDecimal nakedVisionRetest;
                 /**
-                 * 裸眼视力-复测
+                 * 裸眼视力-差值
                  */
                 private BigDecimal nakedVisionDeviation;
 
@@ -97,7 +96,7 @@ public class RescreenCardVO {
                  */
                 private BigDecimal correctedVisionRetest;
                 /**
-                 * 矫正视力-复测
+                 * 矫正视力-差值
                  */
                 private BigDecimal correctedVisionDeviation;
             }
@@ -139,7 +138,7 @@ public class RescreenCardVO {
         }
     }
     @Data
-    public static class CommonDesease implements Serializable{
+    public static class CommonDiseases implements Serializable{
         /**
          * 身高和体格检查误差卡片
          */
@@ -148,7 +147,7 @@ public class RescreenCardVO {
         /**
          * 质控人员
          */
-        private String qualityControlUser;
+        private String qualityControlName;
         /**
          * 创建时间
          */
