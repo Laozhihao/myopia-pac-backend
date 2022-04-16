@@ -12,10 +12,10 @@ public class BloodPressureDataDO {
     /**
      * 舒张压
      */
-    private Float dbp;
+    private Integer dbp;
 
     /**
      * 收缩压
      */
-    private Float sbp;
+    private Integer sbp;
 }
