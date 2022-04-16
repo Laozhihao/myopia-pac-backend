@@ -28,7 +28,7 @@ public class ScreeningInfoDTO {
     /**
      * 常见病
      */
-    private CommonDesease commonDesease;
+    private CommonDiseases commonDiseases;
     /**
      * 复测信息
      */
@@ -121,7 +121,7 @@ public class ScreeningInfoDTO {
      * 常见病
      */
     @Data
-    public static class CommonDesease implements Serializable {
+    public static class CommonDiseases implements Serializable {
         /**
          * 筛查结果--龋齿
          */

@@ -23,6 +23,7 @@ import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentQueryDTO;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningResultResponseDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.ReScreeningCardVO;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentCardResponseVO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -175,7 +176,7 @@ public class StudentController {
      * @return 学生筛查档案
      */
     @GetMapping("/screening/{id}")
-    public StudentScreeningResultResponseDTO getScreeningList(PageRequest pageReques,@PathVariable("id") Integer id) {
+    public StudentScreeningResultResponseDTO getScreeningList(PageRequest pageReques, @PathVariable("id") Integer id) {
         return studentFacade.getScreeningList(pageReques,id);
     }
 

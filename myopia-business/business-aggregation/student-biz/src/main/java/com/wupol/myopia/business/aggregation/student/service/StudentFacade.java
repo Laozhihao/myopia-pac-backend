@@ -139,7 +139,7 @@ public class StudentFacade {
      */
     public  StudentScreeningResultResponseDTO getScreeningList(PageRequest pageRequest,Integer studentId) {
         StudentScreeningResultResponseDTO responseDTO = new StudentScreeningResultResponseDTO();
-        List<StudentScreeningResultItemsDTO> items = new ArrayList<>();
+        List<StudentScreeningResultItemsDTO> records = new ArrayList<>();
 
         // 通过学生id查询结果
         IPage<VisionScreeningResult> resultIPage = visionScreeningResultService.getByStudentIdWithPage(pageRequest,studentId);
@@ -147,9 +147,12 @@ public class StudentFacade {
         // 获取筛查计划
         List<Integer> planIds = resultIPage.getRecords().stream().map(VisionScreeningResult::getPlanId).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(planIds)) {
-            responseDTO.setItems(new ArrayList<>());
+            responseDTO.setRecords(new ArrayList<>());
             responseDTO.setTotal(0L);
-            return responseDTO;
+            responseDTO.setCurrent(0L);
+            responseDTO.setSize(0L);
+            responseDTO.setPages(0L);
+            return null;
         }
         List<ScreeningPlan> plans = screeningPlanService.getByIds(planIds);
         Map<Integer, String> planMap = plans.stream().collect(Collectors.toMap(ScreeningPlan::getId, ScreeningPlan::getTitle));
@@ -167,7 +170,10 @@ public class StudentFacade {
         //获取复测
         List<Integer> screeningPlanIds = resultIPage.getRecords().stream().map(VisionScreeningResult::getPlanId).collect(Collectors.toList());
         List<VisionScreeningResult> rescreeningVisionScreeningResultList = visionScreeningResultService.getIsDoubleScreeningResult(screeningPlanIds,studentId,true);
-        Map<Integer, VisionScreeningResult> rescreeningVisionScreeningResultMap = rescreeningVisionScreeningResultList.stream().collect(Collectors.toMap(VisionScreeningResult::getPlanId, Function.identity()));
+        Map<Integer, VisionScreeningResult> rescreeningVisionScreeningResultMap = null;
+        if (Objects.nonNull(rescreeningVisionScreeningResultList)){
+            rescreeningVisionScreeningResultMap = rescreeningVisionScreeningResultList.stream().collect(Collectors.toMap(VisionScreeningResult::getPlanId, Function.identity()));
+        }
 
         // 获取筛查学生
         List<Integer> planStudentIds = resultIPage.getRecords().stream().map(VisionScreeningResult::getScreeningPlanSchoolStudentId).collect(Collectors.toList());
@@ -182,11 +188,13 @@ public class StudentFacade {
             //设置视力信息
             screeningInfoDTO.setVision(resultDetail);
             //设置常见病信息
-            ScreeningInfoDTO.CommonDesease commonDesease = getCommonDesease(result);
-            screeningInfoDTO.setCommonDesease(commonDesease);
+            ScreeningInfoDTO.CommonDiseases commonDiseases = getCommonDiseases(result);
+            screeningInfoDTO.setCommonDiseases(commonDiseases);
             //设置复测信息
-            ScreeningInfoDTO.Rescreening rescreening = reScreeningResult(result,rescreeningVisionScreeningResultMap.get(result.getPlanId()));
-            screeningInfoDTO.setRescreening(rescreening);
+            if (Objects.nonNull(rescreeningVisionScreeningResultMap)){
+                ScreeningInfoDTO.Rescreening rescreening = reScreeningResult(result,rescreeningVisionScreeningResultMap.get(result.getPlanId()));
+                screeningInfoDTO.setRescreening(rescreening);
+            }
 
             item.setDetails(screeningInfoDTO);
             item.setScreeningTitle(planMap.get(result.getPlanId()));
@@ -211,10 +219,10 @@ public class StudentFacade {
             //筛查机构名称()
             item.setScreeningOrgName(getScreeningOrganizationName(screeningOrganizationMap.get(result.getScreeningOrgId())));
 
-            items.add(item);
+            records.add(item);
         }
-        responseDTO.setTotal(resultIPage.getTotal());
-        responseDTO.setItems(items);
+        BeanUtils.copyProperties(resultIPage,responseDTO);
+        responseDTO.setRecords(records);
         return responseDTO;
     }
 
@@ -378,16 +386,16 @@ public class StudentFacade {
      * @param result
      * @return
      */
-    private ScreeningInfoDTO.CommonDesease getCommonDesease(VisionScreeningResult result) {
-        ScreeningInfoDTO.CommonDesease commonDesease = new  ScreeningInfoDTO.CommonDesease();
-        commonDesease.setSaprodontiaData(result.getSaprodontiaData());
-        commonDesease.setSpineData(result.getSpineData());
-        commonDesease.setBloodPressureData(result.getBloodPressureData());
-        commonDesease.setDiseasesHistoryData(result.getDiseasesHistoryData());
-        commonDesease.setPrivacyData(result.getPrivacyData());
-        commonDesease.setSystemicDiseaseSymptom(result.getSystemicDiseaseSymptom());
-        commonDesease.setHeightAndWeightData(result.getHeightAndWeightData());
-        return commonDesease;
+    private ScreeningInfoDTO.CommonDiseases getCommonDiseases(VisionScreeningResult result) {
+        ScreeningInfoDTO.CommonDiseases commonDiseases = new  ScreeningInfoDTO.CommonDiseases();
+        commonDiseases.setSaprodontiaData(result.getSaprodontiaData());
+        commonDiseases.setSpineData(result.getSpineData());
+        commonDiseases.setBloodPressureData(result.getBloodPressureData());
+        commonDiseases.setDiseasesHistoryData(result.getDiseasesHistoryData());
+        commonDiseases.setPrivacyData(result.getPrivacyData());
+        commonDiseases.setSystemicDiseaseSymptom(result.getSystemicDiseaseSymptom());
+        commonDiseases.setHeightAndWeightData(result.getHeightAndWeightData());
+        return commonDiseases;
     }
 
     /**
