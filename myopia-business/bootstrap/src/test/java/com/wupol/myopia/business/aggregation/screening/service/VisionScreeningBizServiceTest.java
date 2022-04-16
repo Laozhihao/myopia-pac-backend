@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.aggregation.screening.service;
 
+import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wupol.myopia.business.api.screening.app.domain.dto.*;
@@ -8,6 +9,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.dos.BloodPressureDat
 import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ComputerOptometryDTO;
+import com.wupol.myopia.business.util.ResourceHelper;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -30,6 +32,7 @@ class VisionScreeningBizServiceTest {
     @Autowired
     private VisionScreeningBizService visionScreeningBizService;
 
+
     /**
      * 保存数据
      *
@@ -38,13 +41,13 @@ class VisionScreeningBizServiceTest {
     @Test
     void testSaveOrUpdateStudentScreenData() throws IOException {
         // 视力筛查
-        VisionDataDTO visionDataDTO = this.getObj("/json/visionData.json", VisionDataDTO.class);
+        VisionDataDTO visionDataDTO = JSON.parseObject(ResourceHelper.getResourceAsString(getClass(), "/json/visionData.json"), VisionDataDTO.class);
         if (visionDataDTO.isValid()) {
             visionScreeningBizService.saveOrUpdateStudentScreenData(visionDataDTO);
         } else {
             System.out.println("视力筛查数据异常");
         }
-        // 屈光
+        /*// 屈光
         ComputerOptometryDTO computerOptometryTO = this.getObj("/json/visionData.json", ComputerOptometryDTO.class);
         if (computerOptometryTO.isValid()) {
             visionScreeningBizService.saveOrUpdateStudentScreenData(computerOptometryTO);
@@ -96,24 +99,6 @@ class VisionScreeningBizServiceTest {
             visionScreeningBizService.saveOrUpdateStudentScreenData(privacyDTO);
         } else {
             System.out.println("个人隐私异常");
-        }
-    }
-
-
-
-    /**
-     * @param classPathStr
-     * @param clazz
-     * @return
-     * @throws IOException
-     */
-    private <T> T getObj(String classPathStr, Class<T> clazz) throws IOException {
-        File file = ResourceUtils.getFile("classpath:" + classPathStr);
-        String jsonStr = FileUtils.readFileToString(file);
-        // 转换
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false);
-        T obj = objectMapper.readValue(jsonStr, clazz);
-        return obj;
+        }*/
     }
 }

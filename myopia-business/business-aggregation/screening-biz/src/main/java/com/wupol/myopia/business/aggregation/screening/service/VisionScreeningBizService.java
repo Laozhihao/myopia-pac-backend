@@ -204,7 +204,7 @@ public class VisionScreeningBizService {
      * @param screeningResultBasicData 学生基本信息
      * @return com.wupol.myopia.business.common.utils.util.TwoTuple<com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult, com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult>
      **/
-    public TwoTuple<VisionScreeningResult, VisionScreeningResult> getAllFirstAndSecondResult(ScreeningResultBasicData screeningResultBasicData) {
+    public TwoTuple<VisionScreeningResult, VisionScreeningResult>  getAllFirstAndSecondResult(ScreeningResultBasicData screeningResultBasicData) {
         ScreeningPlanSchoolStudent screeningPlanSchoolStudentQueryDTO = new ScreeningPlanSchoolStudent().setScreeningOrgId(screeningResultBasicData.getDeptId()).setId(screeningResultBasicData.getPlanStudentId());
         //倒叙取出来最新的一条
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.findOne(screeningPlanSchoolStudentQueryDTO);
