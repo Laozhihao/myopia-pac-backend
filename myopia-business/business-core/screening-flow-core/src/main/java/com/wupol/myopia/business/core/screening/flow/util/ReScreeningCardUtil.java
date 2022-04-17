@@ -1,20 +1,16 @@
 package com.wupol.myopia.business.core.screening.flow.util;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
-import com.wupol.myopia.business.core.screening.flow.domain.vo.ReScreeningCardVO;
+import com.wupol.myopia.business.core.screening.flow.domain.vo.*;
 import lombok.experimental.UtilityClass;
 
 import java.math.BigDecimal;
 
 
-/*
+/**
  * @Author  钓猫的小鱼
  * @Date  2022/4/13 20:42
  * @Email: shuailong.wu@vistel.cn
  * @Des: 复测工具类
- */
-
-/**
- * @author wushuailong
  */
 @UtilityClass
 public class ReScreeningCardUtil {
@@ -68,11 +64,11 @@ public class ReScreeningCardUtil {
     public ReScreeningCardVO retestResultCard(VisionScreeningResult firstScreeningResult, VisionScreeningResult reScreeningResult,
                                               String qualityControlName){
         ReScreeningCardVO retestResultCard = new ReScreeningCardVO();
-        ReScreeningCardVO.Vision vision  = new ReScreeningCardVO.Vision();
+        VisionVO vision  = new VisionVO();
         //选取视力中左眼的戴镜类型
         vision.setGlassesType(reScreeningResult.getVisionData().getLeftEyeData().getGlassesType());
 
-        ReScreeningCardVO.Vision.VisionResult visionResult = new ReScreeningCardVO.Vision.VisionResult();
+        VisionResultVO visionResult = new VisionResultVO();
         visionResult.setRightEyeData(rightEyeData(firstScreeningResult, reScreeningResult));
         visionResult.setLeftEyeData(leftEyeData(firstScreeningResult, reScreeningResult));
 
@@ -84,9 +80,9 @@ public class ReScreeningCardUtil {
 
         retestResultCard.setVision(vision);
 
-        ReScreeningCardVO.CommonDiseases commonDiseases = new ReScreeningCardVO.CommonDiseases();
+        CommonDiseasesVO commonDiseases = new CommonDiseasesVO();
 
-        ReScreeningCardVO.CommonDiseases.HeightAndWeightResult heightAndWeightResult = new ReScreeningCardVO.CommonDiseases.HeightAndWeightResult();
+        CommonDiseasesVO.HeightAndWeightResult heightAndWeightResult = new CommonDiseasesVO.HeightAndWeightResult();
         heightAndWeightResult.setHeight(EyeDataUtil.height(firstScreeningResult));
         heightAndWeightResult.setHeightRescreen(EyeDataUtil.height(reScreeningResult));
         heightAndWeightResult.setHeightDeviation(subtractAbsBigDecimal(EyeDataUtil.height(firstScreeningResult),EyeDataUtil.height(reScreeningResult)));
@@ -110,8 +106,8 @@ public class ReScreeningCardUtil {
      * @param reScreeningResult 复测结果
      * @return 电脑验光结果
      */
-    public ReScreeningCardVO.Vision.ComputerOptometryResult computerOptometryResult(VisionScreeningResult firstScreeningResult, VisionScreeningResult reScreeningResult) {
-        ReScreeningCardVO.Vision.ComputerOptometryResult computerOptometryResult = new ReScreeningCardVO.Vision.ComputerOptometryResult();
+    public ComputerOptometryResultVO computerOptometryResult(VisionScreeningResult firstScreeningResult, VisionScreeningResult reScreeningResult) {
+        ComputerOptometryResultVO computerOptometryResult = new ComputerOptometryResultVO();
         computerOptometryResult.setRightSE(EyeDataUtil.calculationSE(EyeDataUtil.rightSph(firstScreeningResult),EyeDataUtil.rightCyl(firstScreeningResult)));
 
         computerOptometryResult.setRightSERetest(EyeDataUtil.calculationSE(EyeDataUtil.rightSph(reScreeningResult),EyeDataUtil.rightCyl(reScreeningResult)));
@@ -131,8 +127,8 @@ public class ReScreeningCardUtil {
      * @param reScreeningResult 复测结果
      * @return 左眼视力
      */
-    public ReScreeningCardVO.Vision.VisionResult.VisionData leftEyeData(VisionScreeningResult firstScreeningResult, VisionScreeningResult reScreeningResult) {
-        ReScreeningCardVO.Vision.VisionResult.VisionData leftEyeData = new  ReScreeningCardVO.Vision.VisionResult.VisionData();
+    public VisionResultVO.VisionData leftEyeData(VisionScreeningResult firstScreeningResult, VisionScreeningResult reScreeningResult) {
+        VisionResultVO.VisionData leftEyeData = new  VisionResultVO.VisionData();
         leftEyeData.setNakedVision(EyeDataUtil.leftNakedVision(firstScreeningResult));
         leftEyeData.setNakedVisionRetest(EyeDataUtil.leftNakedVision(reScreeningResult));
         leftEyeData.setNakedVisionDeviation(subtractAbsBigDecimal(EyeDataUtil.leftNakedVision(firstScreeningResult),EyeDataUtil.leftNakedVision(reScreeningResult)));
@@ -148,8 +144,8 @@ public class ReScreeningCardUtil {
      * @param reScreeningResult 复测结果
      * @return 右眼视力
      */
-    public ReScreeningCardVO.Vision.VisionResult.VisionData rightEyeData(VisionScreeningResult firstScreeningResult, VisionScreeningResult reScreeningResult) {
-        ReScreeningCardVO.Vision.VisionResult.VisionData rightEyeData = new  ReScreeningCardVO.Vision.VisionResult.VisionData();
+    public VisionResultVO.VisionData rightEyeData(VisionScreeningResult firstScreeningResult, VisionScreeningResult reScreeningResult) {
+        VisionResultVO.VisionData rightEyeData = new  VisionResultVO.VisionData();
         rightEyeData.setNakedVision(EyeDataUtil.rightNakedVision(firstScreeningResult));
         rightEyeData.setNakedVisionRetest(EyeDataUtil.rightNakedVision(reScreeningResult));
         rightEyeData.setNakedVisionDeviation(subtractAbsBigDecimal(EyeDataUtil.rightNakedVision(firstScreeningResult),EyeDataUtil.rightNakedVision(reScreeningResult)));

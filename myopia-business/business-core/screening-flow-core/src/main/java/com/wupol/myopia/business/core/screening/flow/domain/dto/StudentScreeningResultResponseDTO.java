@@ -38,8 +38,6 @@ public class StudentScreeningResultResponseDTO {
 
     private boolean hitCount;
 
-
-
     /**
      * 详情
      */
