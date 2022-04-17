@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.aggregation.screening.service;
+package com.wupol.myopia.business.api.screening.app.service;
 
 import com.alibaba.fastjson.JSON;
 import com.wupol.myopia.base.util.CurrentUserUtil;
@@ -8,7 +8,7 @@ import com.wupol.myopia.business.bootstrap.MyopiaBusinessApplication;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ComputerOptometryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -33,8 +33,8 @@ class ScreeningAppServiceTest {
     @Test
     void testGetVisionScreeningResultByPlanStudentIdAndState() {
         Integer isState = 0;
-        Integer planStudentId = 0;
-        Integer orgId = CurrentUserUtil.getCurrentUser().getOrgId();
+        Integer planStudentId = 19;
+        Integer orgId = 3;
         VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentIdAndState(planStudentId, orgId, isState);
         if (Objects.nonNull(screeningResult)) {
             System.out.println(JSON.toJSONString(screeningResult));

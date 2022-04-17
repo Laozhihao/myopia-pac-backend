@@ -7,6 +7,8 @@
   "createUserId": 3,
   "isState": 0,
   "isCooperative": 0,
-  "incident": false,
-  "age": 1
+  "diseases": [
+    "12",
+    "1231"
+  ]
 }

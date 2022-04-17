@@ -82,6 +82,9 @@ public class VisionScreeningBizService {
         }
         // 获取了筛查计划
         currentVisionScreeningResult = getScreeningResult(screeningResultBasicData, currentVisionScreeningResult);
+        if (Objects.isNull(allFirstAndSecondResult.getFirst())) {
+            allFirstAndSecondResult.setFirst(currentVisionScreeningResult);
+        }
 
         ScreeningPlan screeningPlan = screeningPlanService.findOne(new ScreeningPlan().setId(currentVisionScreeningResult.getPlanId()));
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = getScreeningPlanSchoolStudent(screeningResultBasicData);

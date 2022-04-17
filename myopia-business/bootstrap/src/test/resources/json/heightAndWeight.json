@@ -1,9 +1,12 @@
 {
-  "studentId": "",
-  "schoolId": "",
-  "deptId": "",
-  "userId": "",
-  "isState": "",
-  "height": 0,
-  "weight": 0
+  "studentId":3,
+  "schoolId": 4,
+  "deptId": 3,
+  "userId": 16,
+  "planStudentId": 19,
+  "createUserId": 3,
+  "isState": 0,
+  "isCooperative": 0,
+  "height": 120,
+  "weight": 250
 }

@@ -7,6 +7,11 @@
   "createUserId": 3,
   "isState": 0,
   "isCooperative": 0,
-  "dbp": 123.00,
-  "sbp": 123.0
+  "diagnosis": 0,
+  "rAxial": 0.002,
+  "lAxial": 0.002,
+  "lSph": 0.002,
+  "rSph": 0.002,
+  "rCyl": 0.002,
+  "lCyl": 0.002
 }

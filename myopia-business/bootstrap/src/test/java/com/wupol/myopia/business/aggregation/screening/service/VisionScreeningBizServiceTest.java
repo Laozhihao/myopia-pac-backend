@@ -47,58 +47,58 @@ class VisionScreeningBizServiceTest {
         } else {
             System.out.println("视力筛查数据异常");
         }
-        /*// 屈光
-        ComputerOptometryDTO computerOptometryTO = this.getObj("/json/visionData.json", ComputerOptometryDTO.class);
+        // 屈光
+        ComputerOptometryDTO computerOptometryTO = JSON.parseObject(ResourceHelper.getResourceAsString(getClass(), "/json/computerOptometry.json"), ComputerOptometryDTO.class);
         if (computerOptometryTO.isValid()) {
             visionScreeningBizService.saveOrUpdateStudentScreenData(computerOptometryTO);
         } else {
             System.out.println("屈光数据异常");
         }
         // 其他眼病
-        OtherEyeDiseasesDTO otherEyeDiseasesDTO = this.getObj("/json/visionData.json", OtherEyeDiseasesDTO.class);
+        OtherEyeDiseasesDTO otherEyeDiseasesDTO = JSON.parseObject(ResourceHelper.getResourceAsString(getClass(), "/json/otherEyeDiseases.json"), OtherEyeDiseasesDTO.class);
         visionScreeningBizService.saveOrUpdateStudentScreenData(otherEyeDiseasesDTO);
 
         // 龋齿检查
-        SaprodontiaDTO saprodontiaDTO = this.getObj("/json/visionData.json", SaprodontiaDTO.class);
+        SaprodontiaDTO saprodontiaDTO = JSON.parseObject(ResourceHelper.getResourceAsString(getClass(), "/json/otherEyeDiseases.json"), SaprodontiaDTO.class);
         if (computerOptometryTO.isValid()) {
             visionScreeningBizService.saveOrUpdateStudentScreenData(saprodontiaDTO);
         } else {
             System.out.println("龋齿检查异常");
         }
         // 身高检查
-        HeightAndWeightDataDTO heightAndWeightDataDTO = this.getObj("/json/visionData.json", HeightAndWeightDataDTO.class);
+        HeightAndWeightDataDTO heightAndWeightDataDTO = JSON.parseObject(ResourceHelper.getResourceAsString(getClass(), "/json/heightAndWeight.json"), HeightAndWeightDataDTO.class);
         if (heightAndWeightDataDTO.isValid()) {
             visionScreeningBizService.saveOrUpdateStudentScreenData(heightAndWeightDataDTO);
         } else {
             System.out.println("身高检查异常");
         }
         // 脊柱检查
-        SpineDTO spineDTO = this.getObj("/json/visionData.json", SpineDTO.class);
+        SpineDTO spineDTO = JSON.parseObject(ResourceHelper.getResourceAsString(getClass(), "/json/spine.json"), SpineDTO.class);
         if (spineDTO.isValid()) {
             visionScreeningBizService.saveOrUpdateStudentScreenData(spineDTO);
         } else {
             System.out.println("脊柱检查异常");
         }
         // 血压检查
-        BloodPressureDTO bloodPressureDTO = this.getObj("/json/visionData.json", BloodPressureDTO.class);
+        BloodPressureDTO bloodPressureDTO = JSON.parseObject(ResourceHelper.getResourceAsString(getClass(), "/json/bloodPressure.json"), BloodPressureDTO.class);
         if (bloodPressureDTO.isValid()) {
             visionScreeningBizService.saveOrUpdateStudentScreenData(bloodPressureDTO);
         } else {
             System.out.println("血压检查异常");
         }
         // 疾病史
-        DiseasesHistoryDTO diseasesHistoryDTO = this.getObj("/json/visionData.json", DiseasesHistoryDTO.class);
+        DiseasesHistoryDTO diseasesHistoryDTO = JSON.parseObject(ResourceHelper.getResourceAsString(getClass(), "/json/bloodPressure.json"), DiseasesHistoryDTO.class);
         if (diseasesHistoryDTO.isValid()) {
             visionScreeningBizService.saveOrUpdateStudentScreenData(diseasesHistoryDTO);
         } else {
             System.out.println("疾病史异常");
         }
         // 个人隐私
-        PrivacyDTO privacyDTO = this.getObj("/json/visionData.json", PrivacyDTO.class);
+        PrivacyDTO privacyDTO = JSON.parseObject(ResourceHelper.getResourceAsString(getClass(), "/json/bloodPressure.json"), PrivacyDTO.class);
         if (privacyDTO.isValid()) {
             visionScreeningBizService.saveOrUpdateStudentScreenData(privacyDTO);
         } else {
             System.out.println("个人隐私异常");
-        }*/
+        }
     }
 }
