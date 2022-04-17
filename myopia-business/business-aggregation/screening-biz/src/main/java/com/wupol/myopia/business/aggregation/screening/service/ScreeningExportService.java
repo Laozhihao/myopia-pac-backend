@@ -216,6 +216,7 @@ public class ScreeningExportService {
         List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.selectBySchoolGradeAndClass(screeningPlanId, schoolId, gradeId,classId,studentIds);
         QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white).setMargin(1);
         students.forEach(student -> {
+            student.setSchoolName(school.getName());
             student.setQrCodeUrl(QrCodeUtil.generateAsBase64(QrcodeUtil.setVs666QrCodeRule(screeningPlanId, student.getPlanStudentId(), student.getAge(), student.getGender(), student.getParentPhone(), student.getIdCard()), config, "jpg"));
             student.setGenderDesc(GenderEnum.getName(student.getGender()));
             student.setScreeningOrgConfigs(notificationConfig);
