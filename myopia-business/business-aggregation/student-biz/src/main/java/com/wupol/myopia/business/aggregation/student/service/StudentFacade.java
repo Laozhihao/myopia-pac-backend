@@ -152,7 +152,7 @@ public class StudentFacade {
             responseDTO.setCurrent(0L);
             responseDTO.setSize(0L);
             responseDTO.setPages(0L);
-            return null;
+            return responseDTO;
         }
         List<ScreeningPlan> plans = screeningPlanService.getByIds(planIds);
         Map<Integer, String> planMap = plans.stream().collect(Collectors.toMap(ScreeningPlan::getId, ScreeningPlan::getTitle));
