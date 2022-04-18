@@ -48,12 +48,12 @@ public class VisionDataDTO extends ScreeningResultBasicData {
     private BigDecimal leftNakedVision;
 
     /**
-     * 右眼等效球镜
+     * 夜戴角膜塑形镜的度数
      */
     @JsonProperty("r_ok_degree")
     private BigDecimal rightOkDegree;
     /**
-     * 左眼等效球镜
+     * 夜戴角膜塑形镜的度数
      */
     @JsonProperty("l_ok_degree")
     private BigDecimal leftOkDegree;

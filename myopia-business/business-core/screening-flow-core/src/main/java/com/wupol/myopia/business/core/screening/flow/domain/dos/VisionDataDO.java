@@ -57,7 +57,7 @@ public class VisionDataDO extends AbstractDiagnosisResult implements ScreeningRe
         private BigDecimal nakedVision;
 
         /**
-         * 夜戴角膜的度数
+         * 夜戴角膜塑形镜的度数
          */
         private BigDecimal okDegree;
 
