@@ -46,6 +46,7 @@ CREATE TABLE `m_screening_result_statistic` (
   `screening_task_id` int NOT NULL COMMENT '关联的任务id（is_total情况下，可能为0）',
   `screening_plan_id` int NOT NULL COMMENT '筛查计划id',
   `screening_type` tinyint NOT NULL COMMENT '筛查类型 （0-视力筛查、1-常见病筛查）',
+  `screening_org_id` int DEFAULT NULL COMMENT '筛查机构id',
   `school_id` int DEFAULT NULL COMMENT '学校ID',
   `school_type` tinyint NOT NULL COMMENT '学校类型 0-小学,1-初级中学,2-高级中学,3-完全中学,4-九年一贯制学校,5-十二年一贯制学校,6-职业高中,7-其他,8-幼儿园',
   `school_num` int DEFAULT NULL COMMENT '学校数',

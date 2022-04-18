@@ -21,7 +21,7 @@ public class QuestionnaireDO implements Serializable {
     /**
      * 小学及以上--校环境健康影响因素调查表率
      */
-    private BigDecimal envHealthInfluenceQuestionnaireRatio;
+    private String envHealthInfluenceQuestionnaireRatio;
 
     /**
      * 小学及以上--学校卫生工作基本情况调查表数【卫生行政部门填写】（默认0）
@@ -31,7 +31,7 @@ public class QuestionnaireDO implements Serializable {
     /**
      * 小学及以上--学校卫生工作基本情况调查表率【卫生行政部门填写】
      */
-    private BigDecimal schoolHealthWorkAdministrativeQuestionnaireRatio;
+    private String schoolHealthWorkAdministrativeQuestionnaireRatio;
 
     /**
      * 小学及以上--学校卫生工作基本情况调查表数【学校填写】（默认0）
@@ -41,7 +41,7 @@ public class QuestionnaireDO implements Serializable {
     /**
      * 小学及以上--学校卫生工作基本情况调查表率【学校填写】
      */
-    private BigDecimal schoolHealthWorkQuestionnaireRatio;
+    private String schoolHealthWorkQuestionnaireRatio;
 
     /**
      * 小学及以上--学生视力不良及脊柱弯曲异常影响因素专项调查表数（默认0）
@@ -51,7 +51,7 @@ public class QuestionnaireDO implements Serializable {
     /**
      * 小学及以上--学生视力不良及脊柱弯曲异常影响因素专项调查表率
      */
-    private BigDecimal poorVisionAndAbnormalCurvatureSpineQuestionnaireRatio;
+    private String poorVisionAndAbnormalCurvatureSpineQuestionnaireRatio;
 
     /**
      * 学生健康状况及影响因素调查表数（默认0）
@@ -61,5 +61,5 @@ public class QuestionnaireDO implements Serializable {
     /**
      * 学生健康状况及影响因素调查表率
      */
-    private BigDecimal healthStateQuestionnaireRatio;
+    private String healthStateQuestionnaireRatio;
 }

@@ -35,5 +35,5 @@ public class ScreeningNoticeNameDTO {
     /**
      * 筛查类型
      */
-    private String screeningType;
+    private Integer screeningType;
 }

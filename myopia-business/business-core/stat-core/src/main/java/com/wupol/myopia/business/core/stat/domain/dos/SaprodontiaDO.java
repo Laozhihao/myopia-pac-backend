@@ -21,7 +21,7 @@ public class SaprodontiaDO implements Serializable {
     /**
      * 小学及以上--无龋率
      */
-    private BigDecimal saprodontiaFreeRatio;
+    private String saprodontiaFreeRatio;
 
     /**
      * 小学及以上--龋均人数（默认0）
@@ -31,7 +31,7 @@ public class SaprodontiaDO implements Serializable {
     /**
      * 小学及以上--龋均率
      */
-    private BigDecimal dmftRatio;
+    private String dmftRatio;
 
     /**
      * 小学及以上--龋患人数（默认0）
@@ -41,7 +41,7 @@ public class SaprodontiaDO implements Serializable {
     /**
      * 小学及以上--龋患率
      */
-    private BigDecimal saprodontiaRatio;
+    private String saprodontiaRatio;
 
     /**
      * 小学及以上--龋失人数（默认0）
@@ -51,7 +51,7 @@ public class SaprodontiaDO implements Serializable {
     /**
      * 小学及以上--龋失率
      */
-    private BigDecimal saprodontiaLossRatio;
+    private String saprodontiaLossRatio;
 
     /**
      * 小学及以上--龋补人数（默认0）
@@ -61,7 +61,7 @@ public class SaprodontiaDO implements Serializable {
     /**
      * 小学及以上--龋补率
      */
-    private BigDecimal saprodontiaRepairRatio;
+    private String saprodontiaRepairRatio;
 
     /**
      * 小学及以上--龋患（失、补）人数（默认0）
@@ -71,7 +71,7 @@ public class SaprodontiaDO implements Serializable {
     /**
      * 小学及以上--龋患（失、补）率
      */
-    private BigDecimal saprodontiaLossAndRepairRatio;
+    private String saprodontiaLossAndRepairRatio;
 
     /**
      * 小学及以上--龋患（失、补）构成比（默认0）
@@ -81,5 +81,5 @@ public class SaprodontiaDO implements Serializable {
     /**
      * 小学及以上--龋患（失、补）构成比率
      */
-    private BigDecimal saprodontiaLossAndRepairTeethRatio;
+    private String saprodontiaLossAndRepairTeethRatio;
 }

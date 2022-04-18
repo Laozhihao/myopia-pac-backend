@@ -267,15 +267,24 @@ public class ScreeningResultStatisticBuilder {
     private static VisionWarningDO getVisionWarning(Integer visionLabel0Numbers, Integer visionLabel1Numbers, Integer visionLabel2Numbers, Integer visionLabel3Numbers, Integer visionLabelZeroSPNumbers, Integer keyWarningNumbers, int validScreeningNumbers) {
         VisionWarningDO visionWarning = new VisionWarningDO();
         visionWarning.setVisionLabel0Num(visionLabel0Numbers + visionLabelZeroSPNumbers)
-                .setVisionLabel0Ratio(MathUtil.divide(visionLabel0Numbers + visionLabelZeroSPNumbers, validScreeningNumbers))
+                .setVisionLabel0Ratio(ratio(visionLabel0Numbers + visionLabelZeroSPNumbers, validScreeningNumbers))
                 .setVisionLabel1Num(visionLabel1Numbers)
-                .setVisionLabel1Ratio(MathUtil.divide(visionLabel1Numbers, validScreeningNumbers))
+                .setVisionLabel1Ratio(ratio(visionLabel1Numbers, validScreeningNumbers))
                 .setVisionLabel2Num(visionLabel2Numbers)
-                .setVisionLabel2Ratio(MathUtil.divide(visionLabel2Numbers, validScreeningNumbers))
+                .setVisionLabel2Ratio(ratio(visionLabel2Numbers, validScreeningNumbers))
                 .setVisionLabel3Num(visionLabel3Numbers)
-                .setVisionLabel3Ratio(MathUtil.divide(visionLabel3Numbers, validScreeningNumbers))
+                .setVisionLabel3Ratio(ratio(visionLabel3Numbers, validScreeningNumbers))
                 .setVisionWarningNum(keyWarningNumbers);
         return visionWarning;
+    }
+
+    /**
+     * 占比
+     * @param numerator 分子
+     * @param denominator 分母
+     */
+    private static String ratio(Integer numerator, Integer denominator){
+        return MathUtil.divide(numerator, denominator).toString()+"%";
     }
 
     /**
@@ -288,29 +297,30 @@ public class ScreeningResultStatisticBuilder {
 
         if(Objects.equals(SchoolEnum.TYPE_KINDERGARTEN.getType(),type)){
             KindergartenVisionAnalysisDO visionAnalysis = new KindergartenVisionAnalysisDO();
-            visionAnalysis.setLowVisionNum(lowVisionNumber).setLowVisionRatio(MathUtil.divide(lowVisionNumber, validScreeningNumbers))
+            visionAnalysis.setLowVisionNum(lowVisionNumber)
+                    .setLowVisionRatio(ratio(lowVisionNumber, validScreeningNumbers))
                     .setAmetropiaNum(ametropiaNumber)
-                    .setAmetropiaRatio(MathUtil.divide(ametropiaNumber, validScreeningNumbers))
+                    .setAmetropiaRatio(ratio(ametropiaNumber, validScreeningNumbers))
                     .setAvgLeftVision(BigDecimal.valueOf(avgLeftVision))
                     .setAvgRightVision(BigDecimal.valueOf(avgRightVision))
                     .setWearingGlassesNum(wearingGlassNumber)
-                    .setWearingGlassesRatio(MathUtil.divide(wearingGlassNumber, validScreeningNumbers))
+                    .setWearingGlassesRatio(ratio(wearingGlassNumber, validScreeningNumbers))
                     .setMyopiaLevelInsufficientNum(visionLabelZeroSPNumbers)
                     .setTreatmentAdviceNum(treatmentAdviceNumber)
-                    .setTreatmentAdviceRatio(MathUtil.divide(treatmentAdviceNumber, validScreeningNumbers));
+                    .setTreatmentAdviceRatio(ratio(treatmentAdviceNumber, validScreeningNumbers));
             return visionAnalysis;
         }else {
             PrimarySchoolAndAboveVisionAnalysisDO visionAnalysis= new PrimarySchoolAndAboveVisionAnalysisDO();
             visionAnalysis.setLowVisionNum(lowVisionNumber)
-                    .setLowVisionRatio(MathUtil.divide(lowVisionNumber, validScreeningNumbers))
+                    .setLowVisionRatio(ratio(lowVisionNumber, validScreeningNumbers))
                     .setAvgLeftVision(BigDecimal.valueOf(avgLeftVision))
                     .setAvgRightVision(BigDecimal.valueOf(avgRightVision))
                     .setWearingGlassesNum(wearingGlassNumber)
-                    .setWearingGlassesRatio(MathUtil.divide(wearingGlassNumber, validScreeningNumbers))
+                    .setWearingGlassesRatio(ratio(wearingGlassNumber, validScreeningNumbers))
                     .setTreatmentAdviceNum(treatmentAdviceNumber)
-                    .setTreatmentAdviceRatio(MathUtil.divide(treatmentAdviceNumber, validScreeningNumbers))
+                    .setTreatmentAdviceRatio(ratio(treatmentAdviceNumber, validScreeningNumbers))
                     .setMyopiaNum(myopiaNumber)
-                    .setMyopiaRatio(MathUtil.divide(myopiaNumber, validScreeningNumbers))
+                    .setMyopiaRatio(ratio(myopiaNumber, validScreeningNumbers))
                     .setMyopiaLevelEarlyNum(myopiaLevelMap.getOrDefault(MyopiaLevelEnum.MYOPIA_LEVEL_EARLY.code,0L).intValue())
                     .setLowMyopiaNum(myopiaLevelMap.getOrDefault(MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.code,0L).intValue())
                     .setHighMyopiaNum(myopiaLevelMap.getOrDefault(MyopiaLevelEnum.MYOPIA_LEVEL_HIGH.code,0L).intValue())

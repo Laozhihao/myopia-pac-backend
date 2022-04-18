@@ -526,9 +526,10 @@ public class StatManagementController {
      */
     @GetMapping("/school/kindergartenResult")
     public SchoolKindergartenResultVO getSchoolKindergartenResult(@RequestParam Integer districtId,
-                                                                  @RequestParam Integer noticeId) {
+                                                                  @RequestParam Integer noticeId,
+                                                                  @RequestParam Integer planId) {
 
-        return statService.getSchoolKindergartenResult(districtId,noticeId);
+        return statService.getSchoolKindergartenResult(districtId,noticeId,planId);
     }
 
     /**
@@ -538,9 +539,10 @@ public class StatManagementController {
      */
     @GetMapping("/school/primarySchoolAndAboveResult")
     public SchoolPrimarySchoolAndAboveResultVO getSchoolPrimarySchoolAndAboveResult(@RequestParam Integer districtId,
-                                                                                    @RequestParam Integer noticeId) {
+                                                                                    @RequestParam Integer noticeId,
+                                                                                    @RequestParam Integer planId) {
 
-        return statService.getSchoolPrimarySchoolAndAboveResult(districtId,noticeId);
+        return statService.getSchoolPrimarySchoolAndAboveResult(districtId,noticeId,planId);
     }
 
     /**
@@ -550,8 +552,9 @@ public class StatManagementController {
      */
     @GetMapping("/school/schoolStatisticDetail")
     public SchoolResultDetailVO getSchoolStatisticDetail(@RequestParam Integer screeningPlanId,
+                                                         @RequestParam Integer screeningNoticeId,
                                                          @RequestParam Integer schoolId) {
-        return statService.getSchoolStatisticDetail(screeningPlanId,schoolId);
+        return statService.getSchoolStatisticDetail(screeningPlanId,screeningNoticeId,schoolId);
     }
 
 

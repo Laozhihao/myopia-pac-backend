@@ -23,7 +23,7 @@ public class RescreenSituationDO implements Serializable {
     /**
      * 复测率
      */
-    private BigDecimal retestRatio;
+    private String retestRatio;
 
     /**
      * 戴镜复测人数（默认0）
@@ -33,7 +33,7 @@ public class RescreenSituationDO implements Serializable {
     /**
      * 戴镜复测率
      */
-    private BigDecimal wearingGlassRetestRatio;
+    private String wearingGlassRetestRatio;
 
     /**
      * 非戴镜复测人数（默认0）
@@ -43,7 +43,7 @@ public class RescreenSituationDO implements Serializable {
     /**
      * 非戴镜复测率
      */
-    private BigDecimal withoutGlassRetestRatio;
+    private String withoutGlassRetestRatio;
 
     /**
      * 复测项次（默认0）
@@ -58,5 +58,5 @@ public class RescreenSituationDO implements Serializable {
     /**
      * 发生率
      */
-    private BigDecimal incidence;
+    private String incidence;
 }

@@ -21,7 +21,7 @@ public class KindergartenVisionAnalysisDO implements VisionAnalysis {
     /**
      * 视力低下比例（均为整数，如10.01%，数据库则是1001）
      */
-    private BigDecimal lowVisionRatio;
+    private String lowVisionRatio;
 
     /**
      * 平均左眼视力（小数点后二位，默认0.00）
@@ -41,7 +41,7 @@ public class KindergartenVisionAnalysisDO implements VisionAnalysis {
     /**
      * 幼儿园--屈光不正比例（均为整数，如10.01%，数据库则是1001）
      */
-    private BigDecimal ametropiaRatio;
+    private String ametropiaRatio;
 
     /**
      * 幼儿园--屈光参差人数（默认0）
@@ -51,7 +51,7 @@ public class KindergartenVisionAnalysisDO implements VisionAnalysis {
     /**
      * 幼儿园--屈光参差率
      */
-    private BigDecimal anisometropiaRatio;
+    private String anisometropiaRatio;
 
     /**
      * 幼儿园--远视储备不足人数（默认0）
@@ -61,7 +61,7 @@ public class KindergartenVisionAnalysisDO implements VisionAnalysis {
     /**
      * 幼儿园--远视储备不足率
      */
-    private BigDecimal myopiaLevelInsufficientNumRatio;
+    private String myopiaLevelInsufficientNumRatio;
 
     /**
      * 戴镜人数（默认0）
@@ -71,7 +71,7 @@ public class KindergartenVisionAnalysisDO implements VisionAnalysis {
     /**
      * 戴镜率（均为整数，如10.01%，数据库则是1001）
      */
-    private BigDecimal wearingGlassesRatio;
+    private String wearingGlassesRatio;
 
     /**
      * 建议就诊数量（默认0）
@@ -81,6 +81,11 @@ public class KindergartenVisionAnalysisDO implements VisionAnalysis {
     /**
      * 建议就诊比例（均为整数，如10.01%，数据库则是1001）
      */
-    private BigDecimal treatmentAdviceRatio;
+    private String treatmentAdviceRatio;
+
+    /**
+     * 学校类型
+     */
+    private Integer schoolType;
 
 }

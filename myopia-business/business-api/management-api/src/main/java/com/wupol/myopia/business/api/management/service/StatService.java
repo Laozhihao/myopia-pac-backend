@@ -95,6 +95,10 @@ public class StatService {
     private ScreeningPlanService screeningPlanService;
     @Autowired
     private ScreeningTaskBizService screeningTaskBizService;
+    @Autowired
+    private StatDistrictService statDistrictService;
+    @Autowired
+    private StatSchoolService statSchoolService;
 
     @Value("classpath:excel/ExportStatContrastTemplate.xlsx")
     private Resource exportStatContrastTemplate;
@@ -1046,49 +1050,32 @@ public class StatService {
     }
 
     public KindergartenResultVO getKindergartenResult(Integer districtId, Integer noticeId) {
-        ScreeningNotice screeningNotice = screeningNoticeService.getById(noticeId);
-        if (screeningNotice == null) {
-            throw new BusinessException(BizMsgConstant.CAN_NOT_FIND_NOTICE);
-        }
-        return null;
+        return statDistrictService.getKindergartenResult(districtId,noticeId);
+
     }
 
     public PrimarySchoolAndAboveResultVO getPrimarySchoolAndAboveResult(Integer districtId, Integer noticeId) {
-        ScreeningNotice screeningNotice = screeningNoticeService.getById(noticeId);
-        if (screeningNotice == null) {
-            throw new BusinessException(BizMsgConstant.CAN_NOT_FIND_NOTICE);
-        }
-        return null;
+        return statDistrictService.getPrimarySchoolAndAboveResult(districtId,noticeId);
+
     }
 
     public ScreeningResultStatisticDetailVO getScreeningResultTotalDetail(Integer districtId, Integer noticeId) {
-        ScreeningNotice screeningNotice = screeningNoticeService.getById(noticeId);
-        if (screeningNotice == null) {
-            throw new BusinessException(BizMsgConstant.CAN_NOT_FIND_NOTICE);
-        }
-        return null;
+        return statDistrictService.getScreeningResultTotalDetail(districtId,noticeId);
+
     }
 
-    public SchoolKindergartenResultVO getSchoolKindergartenResult(Integer districtId, Integer noticeId) {
-        // 获取当前层级下，所有参与任务的学校
-        ScreeningNotice screeningNotice = screeningNoticeService.getReleasedNoticeById(noticeId);
-//        List<SchoolVisionStatistic> schoolVisionStatistics = schoolVisionStatisticBizService.getStatisticDtoByNoticeIdAndOrgId(screeningNotice.getId(),
-//                CurrentUserUtil.getCurrentUser(),
-//                districtService.getSpecificDistrictTreeAllDistrictIds(districtId));
-        return null;
+    public SchoolKindergartenResultVO getSchoolKindergartenResult(Integer districtId, Integer noticeId,Integer planId) {
+        return statSchoolService.getSchoolKindergartenResult(districtId,noticeId,planId);
+
     }
 
-    public SchoolPrimarySchoolAndAboveResultVO getSchoolPrimarySchoolAndAboveResult(Integer districtId, Integer noticeId) {
-        // 获取当前层级下，所有参与任务的学校
-        ScreeningNotice screeningNotice = screeningNoticeService.getReleasedNoticeById(noticeId);
-//        List<SchoolVisionStatistic> schoolVisionStatistics = schoolVisionStatisticBizService.getStatisticDtoByNoticeIdAndOrgId(screeningNotice.getId(),
-//                CurrentUserUtil.getCurrentUser(),
-//                districtService.getSpecificDistrictTreeAllDistrictIds(districtId));
-        return null;
+    public SchoolPrimarySchoolAndAboveResultVO getSchoolPrimarySchoolAndAboveResult(Integer districtId, Integer noticeId,Integer planId) {
+        return statSchoolService.getSchoolPrimarySchoolAndAboveResult(districtId,noticeId,planId);
+
     }
 
-    public SchoolResultDetailVO getSchoolStatisticDetail(Integer screeningPlanId, Integer schoolId) {
-        return null;
+    public SchoolResultDetailVO getSchoolStatisticDetail(Integer screeningPlanId,Integer screeningNoticeId, Integer schoolId) {
+        return statSchoolService.getSchoolStatisticDetail(screeningPlanId,screeningNoticeId,schoolId);
     }
 
 

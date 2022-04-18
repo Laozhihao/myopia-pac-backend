@@ -21,7 +21,7 @@ public class PrimarySchoolAndAboveVisionAnalysisDO implements VisionAnalysis {
     /**
      * 视力低下比例（均为整数，如10.01%，数据库则是1001）
      */
-    private BigDecimal lowVisionRatio;
+    private String lowVisionRatio;
 
     /**
      * 平均左眼视力（小数点后二位，默认0.00）
@@ -41,7 +41,7 @@ public class PrimarySchoolAndAboveVisionAnalysisDO implements VisionAnalysis {
     /**
      * 小学及以上--近视比例（均为整数，如10.01%，数据库则是1001）
      */
-    private BigDecimal myopiaRatio;
+    private String myopiaRatio;
 
     /**
      * 小学及以上--近视前期人数（默认0）
@@ -51,7 +51,7 @@ public class PrimarySchoolAndAboveVisionAnalysisDO implements VisionAnalysis {
     /**
      * 小学及以上--近视前期率
      */
-    private BigDecimal myopiaLevelEarlyRatio;
+    private String myopiaLevelEarlyRatio;
 
     /**
      * 小学及以上--低度近视人数（默认0）
@@ -61,7 +61,7 @@ public class PrimarySchoolAndAboveVisionAnalysisDO implements VisionAnalysis {
     /**
      * 小学及以上--低度近视率
      */
-    private BigDecimal lowMyopiaRatio;
+    private String lowMyopiaRatio;
 
     /**
      * 小学及以上--高度近视人数（默认0）
@@ -70,7 +70,7 @@ public class PrimarySchoolAndAboveVisionAnalysisDO implements VisionAnalysis {
     /**
      * 小学及以上--高度近视率
      */
-    private BigDecimal highMyopiaRatio;
+    private String highMyopiaRatio;
 
     /**
      * 小学及以上--散光数人数（默认0）
@@ -80,7 +80,7 @@ public class PrimarySchoolAndAboveVisionAnalysisDO implements VisionAnalysis {
     /**
      * 小学及以上--散光数率
      */
-    private BigDecimal astigmatismRatio;
+    private String astigmatismRatio;
 
     /**
      * 戴镜人数（默认0）
@@ -90,7 +90,7 @@ public class PrimarySchoolAndAboveVisionAnalysisDO implements VisionAnalysis {
     /**
      * 戴镜率（均为整数，如10.01%，数据库则是1001）
      */
-    private BigDecimal wearingGlassesRatio;
+    private String wearingGlassesRatio;
 
 
     /**
@@ -101,7 +101,7 @@ public class PrimarySchoolAndAboveVisionAnalysisDO implements VisionAnalysis {
     /**
      * 小学及以上--夜戴角膜塑形镜率
      */
-    private BigDecimal nightWearingOrthokeratologyLensesRatio;
+    private String nightWearingOrthokeratologyLensesRatio;
 
     /**
      * 建议就诊数量（默认0）
@@ -111,6 +111,11 @@ public class PrimarySchoolAndAboveVisionAnalysisDO implements VisionAnalysis {
     /**
      * 建议就诊比例（均为整数，如10.01%，数据库则是1001）
      */
-    private BigDecimal treatmentAdviceRatio;
+    private String treatmentAdviceRatio;
+
+    /**
+     * 学校类型
+     */
+    private Integer schoolType;
 
 }

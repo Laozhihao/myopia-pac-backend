@@ -9,4 +9,9 @@ import java.io.Serializable;
  */
 
 public interface VisionAnalysis extends Serializable {
+
+    /**
+     * 学校类型
+     */
+    Integer getSchoolType();
 }

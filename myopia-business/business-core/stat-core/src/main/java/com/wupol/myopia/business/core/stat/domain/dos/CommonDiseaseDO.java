@@ -20,7 +20,7 @@ public class CommonDiseaseDO implements Serializable {
     /**
      * 小学及以上--超重率
      */
-    private BigDecimal overweightRatio;
+    private String overweightRatio;
 
     /**
      * 小学及以上--肥胖人数（默认0）
@@ -30,7 +30,7 @@ public class CommonDiseaseDO implements Serializable {
     /**
      * 小学及以上--肥胖率
      */
-    private BigDecimal obeseRatio;
+    private String obeseRatio;
 
     /**
      * 小学及以上--营养不良人数（默认0）
@@ -40,7 +40,7 @@ public class CommonDiseaseDO implements Serializable {
     /**
      * 小学及以上--营养不良率
      */
-    private BigDecimal malnourishedRatio;
+    private String malnourishedRatio;
 
     /**
      * 小学及以上--生长迟缓人数（默认0）
@@ -50,7 +50,7 @@ public class CommonDiseaseDO implements Serializable {
     /**
      * 小学及以上--生长迟缓率
      */
-    private BigDecimal growthRetardationRatio;
+    private String growthRetardationRatio;
 
     /**
      * 小学及以上--脊柱弯曲异常人数（默认0）
@@ -60,7 +60,7 @@ public class CommonDiseaseDO implements Serializable {
     /**
      * 小学及以上--脊柱弯曲异常率
      */
-    private BigDecimal abnormalSpineCurvatureRatio;
+    private String abnormalSpineCurvatureRatio;
 
     /**
      * 小学及以上--血压偏高人数（默认0）
@@ -70,7 +70,7 @@ public class CommonDiseaseDO implements Serializable {
     /**
      * 小学及以上--血压偏高率
      */
-    private BigDecimal highBloodPressureRatio;
+    private String highBloodPressureRatio;
 
     /**
      * 小学及以上--复查学生人数（默认0）
@@ -80,5 +80,5 @@ public class CommonDiseaseDO implements Serializable {
     /**
      * 小学及以上--复查学生率
      */
-    private BigDecimal reviewStudentRatio;
+    private String reviewStudentRatio;
 }

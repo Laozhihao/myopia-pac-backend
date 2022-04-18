@@ -28,7 +28,7 @@ public class VisionWarningDO implements Serializable {
     /**
      * 小学及以上--零级预警比例（均为整数，如10.01%，数据库则是1001）
      */
-    private BigDecimal visionLabel0Ratio;
+    private String visionLabel0Ratio;
 
     /**
      * 小学及以上--一级预警人数（默认0）
@@ -38,7 +38,7 @@ public class VisionWarningDO implements Serializable {
     /**
      * 小学及以上--一级预警比例（均为整数，如10.01%，数据库则是1001）
      */
-    private BigDecimal visionLabel1Ratio;
+    private String visionLabel1Ratio;
 
     /**
      * 小学及以上--二级预警人数（默认0）
@@ -48,7 +48,7 @@ public class VisionWarningDO implements Serializable {
     /**
      * 小学及以上--二级预警比例（均为整数，如10.01%，数据库则是1001）
      */
-    private BigDecimal visionLabel2Ratio;
+    private String visionLabel2Ratio;
 
     /**
      * 小学及以上--三级预警人数（默认0）
@@ -58,6 +58,6 @@ public class VisionWarningDO implements Serializable {
     /**
      * 小学及以上--三级预警比例（均为整数，如10.01%，数据库则是1001）
      */
-    private BigDecimal visionLabel3Ratio;
+    private String visionLabel3Ratio;
 
 }

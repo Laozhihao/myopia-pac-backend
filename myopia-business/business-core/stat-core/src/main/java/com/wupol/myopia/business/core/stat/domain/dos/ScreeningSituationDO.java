@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.stat.domain.dos;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -11,6 +12,7 @@ import java.math.BigDecimal;
  * @author hang.yuan 2022/4/13 16:43
  */
 @Data
+@Accessors(chain = true)
 public class ScreeningSituationDO implements Serializable {
     /**
      * 学校数
@@ -30,10 +32,15 @@ public class ScreeningSituationDO implements Serializable {
     /**
      * 完成率
      */
-    private BigDecimal finishRatio;
+    private String finishRatio;
 
     /**
      * 纳入统计的实际筛查学生数量（默认0）
      */
     private Integer validScreeningNum;
+
+    /**
+     * 纳入统计的实际筛查学生比例
+     */
+    private String validScreeningRatio;
 }
