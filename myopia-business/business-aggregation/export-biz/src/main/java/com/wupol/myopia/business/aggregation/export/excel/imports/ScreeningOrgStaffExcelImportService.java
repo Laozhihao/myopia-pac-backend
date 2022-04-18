@@ -10,8 +10,6 @@ import com.wupol.myopia.business.aggregation.export.excel.domain.StaffImportEnum
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationStaffDTO;
-import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
-import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationStaff;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationStaffService;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
@@ -86,6 +84,7 @@ public class ScreeningOrgStaffExcelImportService {
             }
             userList.add(userDTO);
         }
+        screeningOrganizationStaffService.checkScreeningOrganizationStaffAmount(screeningOrgId,userList);
         List<ScreeningOrganizationStaffDTO> importList = userList.stream().map(item -> {
             ScreeningOrganizationStaffDTO staff = new ScreeningOrganizationStaffDTO();
             staff.setIdCard(item.getIdCard())
@@ -125,11 +124,6 @@ public class ScreeningOrgStaffExcelImportService {
         Assert.isTrue(phones.size() == phones.stream().distinct().count(), "手机号码重复");
         List<User> checkPhones = oauthServiceClient.getUserBatchByPhones(phones, SystemCode.SCREENING_CLIENT.getCode());
         Assert.isTrue(CollectionUtils.isEmpty(checkPhones), "手机号码已经被使用，请确认！");
-
-
-        screeningOrganizationStaffService.checkScreeningOrganizationStaffAmount(screeningOrgId,listMap);
-
-
     }
 
     /**
