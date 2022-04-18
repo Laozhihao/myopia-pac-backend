@@ -12,7 +12,7 @@
   "rightNakedVision": 0.6,
   "leftNakedVision": 0.8,
   "diagnosis": 0,
-  "isState": 0,
+  "isState": 1,
   "leftSphericalEquivalent": 2.0,
   "rightSphericalEquivalent": 3.0
 }
