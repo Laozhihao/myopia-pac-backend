@@ -137,7 +137,7 @@ public class VisionScreeningBizService {
             throw new ManagementUncheckedException("需要完成裸眼视力检查");
         }
         // 检查矫正视力
-        if (GlassesTypeEnum.NOT_WEARING.code.equals(visionData.getLeftEyeData().getGlassesType())
+        if (!GlassesTypeEnum.NOT_WEARING.code.equals(visionData.getLeftEyeData().getGlassesType())
                 && (Objects.isNull(visionData.getLeftEyeData().getCorrectedVision()) ||
                 Objects.isNull(visionData.getRightEyeData().getCorrectedVision()))) {
             throw new ManagementUncheckedException("需要完成矫正视力检查");

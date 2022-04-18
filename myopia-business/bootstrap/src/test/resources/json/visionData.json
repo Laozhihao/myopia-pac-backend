@@ -1,18 +1,18 @@
 {
-  "studentId":3,
+  "studentId": 3,
   "schoolId": 4,
   "deptId": 3,
   "userId": 16,
   "planStudentId": 19,
   "createUserId": 3,
   "isCooperative": 0,
-  "glassesType": "夜戴角膜塑形镜",
-  "rightCorrectedVision": 0.2,
+  "glassesType": "没有佩戴眼镜",
+  "rightCorrectedVision": 0.5,
   "leftCorrectedVision": 0.4,
-  "rightNakedVision": 0.6,
-  "leftNakedVision": 0.8,
+  "rightNakedVision": null,
+  "leftNakedVision": null,
   "diagnosis": 0,
-  "isState": 1,
-  "leftSphericalEquivalent": 2.0,
-  "rightSphericalEquivalent": 3.0
+  "isState": 0,
+  "leftSphericalEquivalent": null,
+  "rightSphericalEquivalent": null
 }

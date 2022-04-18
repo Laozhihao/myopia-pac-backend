@@ -40,20 +40,14 @@ class VisionScreeningBizServiceTest {
      */
     @Test
     void testSaveOrUpdateStudentScreenData() throws IOException {
-        /*// 视力筛查
+        // 视力筛查
         VisionDataDTO visionDataDTO = JSON.parseObject(ResourceHelper.getResourceAsString(getClass(), "/json/visionData.json"), VisionDataDTO.class);
         if (visionDataDTO.isValid()) {
             visionScreeningBizService.saveOrUpdateStudentScreenData(visionDataDTO);
         } else {
             System.out.println("视力筛查数据异常");
-        }*/
-        ComputerOptometryDTO computerOptometryTO = JSON.parseObject(ResourceHelper.getResourceAsString(getClass(), "/json/computerOptometry.json"), ComputerOptometryDTO.class);
-        if (computerOptometryTO.isValid()) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(computerOptometryTO);
-        } else {
-            System.out.println("屈光数据异常");
         }
-        /*// 屈光
+        // 屈光
         ComputerOptometryDTO computerOptometryTO = JSON.parseObject(ResourceHelper.getResourceAsString(getClass(), "/json/computerOptometry.json"), ComputerOptometryDTO.class);
         if (computerOptometryTO.isValid()) {
             visionScreeningBizService.saveOrUpdateStudentScreenData(computerOptometryTO);
@@ -105,6 +99,6 @@ class VisionScreeningBizServiceTest {
             visionScreeningBizService.saveOrUpdateStudentScreenData(privacyDTO);
         } else {
             System.out.println("个人隐私异常");
-        }*/
+        }
     }
 }
