@@ -179,7 +179,8 @@ public class StudentFacade {
 
         // 获取筛查学生
         List<Integer> planStudentIds = resultList.stream().map(VisionScreeningResult::getScreeningPlanSchoolStudentId).collect(Collectors.toList());
-        Map<Integer, Long> screeningCodeMap = screeningPlanSchoolStudentService.getByIds(planStudentIds).stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getId, ScreeningPlanSchoolStudent::getScreeningCode));
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getByIds(planStudentIds);
+        Map<Integer, ScreeningPlanSchoolStudent> screeningPlanSchoolStudentMap = screeningPlanSchoolStudents.stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getId, Function.identity()));
 
         for (VisionScreeningResult result : resultList) {
             StudentScreeningResultItemsDTO item = new StudentScreeningResultItemsDTO();
@@ -207,7 +208,7 @@ public class StudentFacade {
             }
             item.setResultId(result.getId());
             item.setIsDoubleScreen(result.getIsDoubleScreen());
-            item.setTemplateId(getTemplateId(result.getScreeningOrgId()));
+//            item.setTemplateId(getTemplateId(result.getScreeningOrgId()));
             item.setOtherEyeDiseases(getOtherEyeDiseasesList(result));
             item.setWarningLevel(statMap.get(result.getId()).getWarningLevel());
             item.setMyopiaLevel(statMap.get(result.getId()).getMyopiaLevel());
@@ -215,7 +216,10 @@ public class StudentFacade {
             item.setAstigmatismLevel(statMap.get(result.getId()).getAstigmatismLevel());
             item.setPlanId(result.getPlanId());
             item.setHasScreening(ObjectUtils.anyNotNull(result.getVisionData(), result.getComputerOptometry(), result.getBiometricData(), result.getOtherEyeDiseases()));
-            item.setScreeningCode(screeningCodeMap.get(result.getScreeningPlanSchoolStudentId()));
+            if (Objects.nonNull(result.getScreeningPlanSchoolStudentId())&&Objects.nonNull(screeningPlanSchoolStudentMap.get(result.getScreeningPlanSchoolStudentId()))){
+                item.setScreeningCode(screeningPlanSchoolStudentMap.get(result.getScreeningPlanSchoolStudentId()).getScreeningCode());
+            }
+
             //筛查类型
             item.setScreeningType(result.getScreeningType());
             //筛查机构名称()
