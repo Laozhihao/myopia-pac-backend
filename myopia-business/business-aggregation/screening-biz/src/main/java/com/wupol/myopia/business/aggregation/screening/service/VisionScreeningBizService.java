@@ -121,6 +121,11 @@ public class VisionScreeningBizService {
     public void verifyScreening(VisionScreeningResult firstResult) {
         VisionDataDO visionData = firstResult.getVisionData();
         ComputerOptometryDO computerOptometry = firstResult.getComputerOptometry();
+        // 夜戴角膜镜不需要复测
+        if (visionData.getLeftEyeData().getGlassesType().equals(GlassesTypeEnum.ORTHOKERATOLOGY.code)
+                || visionData.getRightEyeData().getGlassesType().equals(GlassesTypeEnum.ORTHOKERATOLOGY.code)) {
+            throw new ManagementUncheckedException("夜戴角膜镜不需要复测");
+        }
         // 裸眼视力
         if (Objects.isNull(firstResult.getVisionData()) ||
                 Objects.isNull(visionData.getLeftEyeData()) ||
@@ -142,19 +147,15 @@ public class VisionScreeningBizService {
             throw new ManagementUncheckedException("需要完成电脑验光检查");
         }
         // 球镜
-        if (Objects.isNull(computerOptometry.getLeftEyeData()) ||
-                computerOptometry.getLeftEyeData().getSph().compareTo(BigDecimal.ZERO) == 0
-                || Objects.isNull(computerOptometry.getRightEyeData())
-                || computerOptometry.getRightEyeData().getSph().compareTo(BigDecimal.ZERO) == 0) {
+        if ((Objects.isNull(computerOptometry.getLeftEyeData()) || Objects.isNull(computerOptometry.getRightEyeData()))
+                || (Objects.isNull(computerOptometry.getLeftEyeData().getSph()) && Objects.isNull(computerOptometry.getRightEyeData().getSph()))) {
             throw new ManagementUncheckedException("需要完成球镜检查");
         }
-        if (computerOptometry.getLeftEyeData().getCyl().compareTo(BigDecimal.ZERO) == 0
-                || computerOptometry.getRightEyeData().getCyl().compareTo(BigDecimal.ZERO) == 0) {
+        if (Objects.isNull(computerOptometry.getLeftEyeData().getCyl()) && Objects.isNull(computerOptometry.getRightEyeData().getCyl())) {
             throw new ManagementUncheckedException("需要完成柱镜检查");
         }
-        if (computerOptometry.getLeftEyeData().getAxial().compareTo(BigDecimal.ZERO) == 0
-                || computerOptometry.getRightEyeData().getAxial().compareTo(BigDecimal.ZERO) == 0) {
-            throw new ManagementUncheckedException("需要完成轴位检查");
+        if (Objects.isNull(computerOptometry.getLeftEyeData().getAxial()) && Objects.isNull(computerOptometry.getRightEyeData().getAxial())) {
+            throw new ManagementUncheckedException("需要完成柱镜检查");
         }
         if (Objects.isNull(firstResult.getHeightAndWeightData())) {
             throw new ManagementUncheckedException("需要完成体重检查");
@@ -207,7 +208,7 @@ public class VisionScreeningBizService {
      * @param screeningResultBasicData 学生基本信息
      * @return com.wupol.myopia.business.common.utils.util.TwoTuple<com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult, com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult>
      **/
-    public TwoTuple<VisionScreeningResult, VisionScreeningResult>  getAllFirstAndSecondResult(ScreeningResultBasicData screeningResultBasicData) {
+    public TwoTuple<VisionScreeningResult, VisionScreeningResult> getAllFirstAndSecondResult(ScreeningResultBasicData screeningResultBasicData) {
         ScreeningPlanSchoolStudent screeningPlanSchoolStudentQueryDTO = new ScreeningPlanSchoolStudent().setScreeningOrgId(screeningResultBasicData.getDeptId()).setId(screeningResultBasicData.getPlanStudentId());
         //倒叙取出来最新的一条
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.findOne(screeningPlanSchoolStudentQueryDTO);
@@ -219,17 +220,16 @@ public class VisionScreeningBizService {
         VisionScreeningResult currentVisionScreeningResult = null;
         VisionScreeningResult anotherVisionScreeningResult = null;
         for (VisionScreeningResult visionScreeningResult : visionScreeningResults) {
-            if (!visionScreeningResult.getIsDoubleScreen() == (screeningResultBasicData.getIsState() == 1)) {
-                currentVisionScreeningResult = visionScreeningResult;
-            } else {
+            if (visionScreeningResult.getIsDoubleScreen()) {
                 anotherVisionScreeningResult = visionScreeningResult;
+            } else {
+                currentVisionScreeningResult = visionScreeningResult;
             }
         }
         TwoTuple<VisionScreeningResult, VisionScreeningResult> visionScreeningResultVisionScreeningResultTwoTuple = new TwoTuple<>();
         visionScreeningResultVisionScreeningResultTwoTuple.setFirst(currentVisionScreeningResult);
         visionScreeningResultVisionScreeningResultTwoTuple.setSecond(anotherVisionScreeningResult);
         return visionScreeningResultVisionScreeningResultTwoTuple;
-
     }
 
     /**

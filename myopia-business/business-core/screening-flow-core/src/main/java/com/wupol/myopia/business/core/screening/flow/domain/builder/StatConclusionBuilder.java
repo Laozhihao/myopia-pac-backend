@@ -370,8 +370,14 @@ public class StatConclusionBuilder {
         ComputerOptometryDO currentComputerOptometry = currentVisionScreeningResult.getComputerOptometry();
         ComputerOptometryDO anotherComputerOptometry = anotherVisionScreeningResult.getComputerOptometry();
         if (currentComputerOptometry != null && anotherComputerOptometry != null) {
-            errorNum += inRange(currentComputerOptometry.getLeftEyeData().getSph().add(currentComputerOptometry.getLeftEyeData().getCyl().divide(new BigDecimal(2))), anotherComputerOptometry.getLeftEyeData().getSph().add(anotherComputerOptometry.getLeftEyeData().getCyl().divide(new BigDecimal(2))), OTHERS_RANGE_VALUE);
-            errorNum += inRange(currentComputerOptometry.getRightEyeData().getSph().add(currentComputerOptometry.getRightEyeData().getCyl().divide(new BigDecimal(2))), anotherComputerOptometry.getRightEyeData().getSph().add(anotherComputerOptometry.getRightEyeData().getCyl().divide(new BigDecimal(2))), OTHERS_RANGE_VALUE);
+            if (Objects.nonNull(currentComputerOptometry.getLeftEyeData().getSph()) && Objects.nonNull(currentComputerOptometry.getLeftEyeData().getCyl())
+                    && Objects.nonNull(anotherComputerOptometry.getLeftEyeData().getSph()) && Objects.nonNull(anotherComputerOptometry.getLeftEyeData().getCyl())) {
+                errorNum += inRange(currentComputerOptometry.getLeftEyeData().getSph().add(currentComputerOptometry.getLeftEyeData().getCyl().divide(new BigDecimal(2))), anotherComputerOptometry.getLeftEyeData().getSph().add(anotherComputerOptometry.getLeftEyeData().getCyl().divide(new BigDecimal(2))), OTHERS_RANGE_VALUE);
+            }
+            if (Objects.nonNull(currentComputerOptometry.getRightEyeData().getSph()) && Objects.nonNull(currentComputerOptometry.getRightEyeData().getCyl()) &&
+                    Objects.nonNull(anotherComputerOptometry.getRightEyeData().getSph()) && Objects.nonNull(anotherComputerOptometry.getRightEyeData().getCyl())) {
+                errorNum += inRange(currentComputerOptometry.getRightEyeData().getSph().add(currentComputerOptometry.getRightEyeData().getCyl().divide(new BigDecimal(2))), anotherComputerOptometry.getRightEyeData().getSph().add(anotherComputerOptometry.getRightEyeData().getCyl().divide(new BigDecimal(2))), OTHERS_RANGE_VALUE);
+            }
         }
         return errorNum;
     }
