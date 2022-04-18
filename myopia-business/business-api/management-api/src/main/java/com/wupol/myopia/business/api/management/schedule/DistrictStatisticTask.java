@@ -16,7 +16,8 @@ import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanServic
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.stat.domain.model.CommonDiseaseScreeningResultStatistic;
 import com.wupol.myopia.business.core.stat.domain.model.VisionScreeningResultStatistic;
-import com.wupol.myopia.business.core.stat.service.ScreeningResultStatisticService;
+import com.wupol.myopia.business.core.stat.service.CommonDiseaseScreeningResultStatisticService;
+import com.wupol.myopia.business.core.stat.service.VisionScreeningResultStatisticService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +42,8 @@ public class DistrictStatisticTask {
     private final ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     private final ScreeningNoticeService screeningNoticeService;
     private final DistrictService districtService;
-    private final ScreeningResultStatisticService screeningResultStatisticService;
+    private final VisionScreeningResultStatisticService visionScreeningResultStatisticService;
+    private final CommonDiseaseScreeningResultStatisticService commonDiseaseScreeningResultStatisticService;
 
     /**
      * 按区域统计
@@ -65,14 +67,14 @@ public class DistrictStatisticTask {
         List<VisionScreeningResultStatistic> visionScreeningResultStatisticList = visionScreeningResultStatistic(screeningTypeStatConclusionMap);
         if (CollectionUtil.isNotEmpty(visionScreeningResultStatisticList)){
             for (VisionScreeningResultStatistic visionScreeningResultStatistic : visionScreeningResultStatisticList) {
-                screeningResultStatisticService.saveVisionScreeningResultStatistic(visionScreeningResultStatistic);
+                visionScreeningResultStatisticService.saveVisionScreeningResultStatistic(visionScreeningResultStatistic);
             }
         }
         //常见病筛查
         List<CommonDiseaseScreeningResultStatistic> commonDiseaseScreeningResultStatisticList = commonDiseaseScreeningResultStatistic(screeningTypeStatConclusionMap);
         if (CollectionUtil.isNotEmpty(commonDiseaseScreeningResultStatisticList)){
             for ( CommonDiseaseScreeningResultStatistic commonDiseaseScreeningResultStatistic : commonDiseaseScreeningResultStatisticList) {
-                screeningResultStatisticService.saveCommonDiseaseScreeningResultStatistic(commonDiseaseScreeningResultStatistic);
+                commonDiseaseScreeningResultStatisticService.saveCommonDiseaseScreeningResultStatistic(commonDiseaseScreeningResultStatistic);
             }
         }
 
