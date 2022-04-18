@@ -11,6 +11,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanQue
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanSchoolDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningPlanSchoolMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -109,6 +110,28 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
                 }
         );
         return screeningPlanSchools;
+    }
+
+    /**
+     * 查询筛查计划下有学生数据的学校
+     *
+     * @param screeningPlanId 筛查计划ID
+     * @param schoolName 学校名称
+     * @return List<ScreeningPlanSchoolDTO>
+     */
+    public List<ScreeningPlanSchoolDTO> querySchoolsInfoInPlanHavaStudent(Integer screeningPlanId, String schoolName) {
+        List<ScreeningPlanSchoolDTO> screeningPlanSchools = getSchoolVoListsByPlanId(screeningPlanId,schoolName);
+
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getByScreeningPlanId(screeningPlanId);
+        if (org.springframework.util.CollectionUtils.isEmpty(screeningPlanSchoolStudents)) {
+            return new ArrayList<>();
+        }
+
+        List<Integer> schoolIds = screeningPlanSchoolStudents.stream().map(ScreeningPlanSchoolStudent :: getSchoolId).collect(Collectors.toList());
+        if (org.springframework.util.CollectionUtils.isEmpty(schoolIds)) {
+            return new ArrayList<>();
+        }
+        return screeningPlanSchools.stream().filter(s -> schoolIds.contains(s.getSchoolId())).collect(Collectors.toList());
     }
 
     /**
