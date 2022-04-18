@@ -49,8 +49,18 @@ public class StudentScreeningProgressVO {
     private Integer schoolId;
     /** 年级id */
     private Integer gradeId;
-    /** 班级id */
+    /**
+     * 年级名称
+     */
+    private String gradeName;
+    /**
+     * 班级id
+     */
     private Integer classId;
+    /**
+     * 班级名称
+     */
+    private String className;
 
     /** 筛查结果，是否完成了筛查 */
     private Boolean result;
@@ -124,6 +134,8 @@ public class StudentScreeningProgressVO {
         studentScreeningProgressVO.setFirstCheckAbnormal(isKindergarten ? firstCheckAbnormal : hasAbnormalInFirstCheck.get());
         studentScreeningProgressVO.setGradeId(studentVO.getGradeId());
         studentScreeningProgressVO.setClassId(studentVO.getClassId());
+        studentScreeningProgressVO.setGradeName(studentVO.getGrade());
+        studentScreeningProgressVO.setClassName(studentVO.getClazz());
         isAllMustCheckDone.remove();
         hasAbnormalInFirstCheck.remove();
         hasAbnormalInSubsequentCheck.remove();
