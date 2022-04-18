@@ -25,5 +25,4 @@ public interface ScreeningTaskOrgMapper extends BaseMapper<ScreeningTaskOrg> {
 
     List<ScreeningTaskOrg> getByTaskId(@Param("taskId") Integer taskId);
 
-    ScreeningTaskOrg getOneByTaskIdAndOrgId(@Param("taskId") Integer taskId, @Param("orgId") Integer orgId);
-}
+    ScreeningTaskOrg getOneByTaskIdAndOrgId(@Param("taskId") Integer taskId, @Param("orgId") Integer orgId);}

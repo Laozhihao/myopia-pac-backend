@@ -2,18 +2,14 @@ package com.wupol.myopia.business.api.management.service;
 
 import com.alibaba.excel.util.CollectionUtils;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.common.utils.util.MathUtil;
 import com.wupol.myopia.business.core.hospital.domain.model.HospitalAdmin;
 import com.wupol.myopia.business.core.hospital.service.HospitalAdminService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskOrgDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNoticeDeptOrg;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTaskOrg;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeDeptOrgService;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningTaskOrgService;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningTaskService;
+import com.wupol.myopia.business.core.screening.flow.domain.model.*;
+import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationAdmin;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationAdminService;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
@@ -22,9 +18,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -50,6 +44,15 @@ public class ScreeningTaskOrgBizService {
     private ScreeningOrganizationService screeningOrganizationService;
     @Autowired
     private HospitalAdminService hospitalAdminService;
+    @Autowired
+    private ScreeningPlanService screeningPlanService;
+    @Autowired
+    private ScreeningPlanSchoolService screeningPlanSchoolService;
+    @Autowired
+    private VisionScreeningResultService visionScreeningResultService;
+    @Autowired
+    private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
+
 
 
     /**
@@ -134,8 +137,65 @@ public class ScreeningTaskOrgBizService {
             ScreeningTaskOrgDTO dto = new ScreeningTaskOrgDTO();
             BeanUtils.copyProperties(orgVo, dto);
             dto.setName(screeningOrganizationService.getNameById(orgVo.getScreeningOrgId()));
+            ScreeningPlan screeningPlan = screeningPlanService.getPlanByTaskId(orgVo.getScreeningTaskId(),orgVo.getScreeningOrgId());
+            List<ScreeningPlanSchool> schools =  screeningPlanSchoolService.getSchoolListsByPlanId(screeningPlan.getId());
+            dto.setScreeningSchoolNum(schools.size());
+            dto.setScreeningSituation(findByScreeningSituation(schools,screeningPlan));
+            //调查问卷暂时为0
+            dto.setQuestionnaire(getScreeningState(0,0,0,1));
             return dto;
         }).collect(Collectors.toList());
     }
 
+    private String findByScreeningSituation(List<ScreeningPlanSchool> schools, ScreeningPlan screeningPlan) {
+        //未开始
+        int notStart = 0;
+        //进行中
+        int underWay = 0;
+        //已结束
+        int end = 0;
+
+        for (ScreeningPlanSchool ps : schools){
+          List<Integer> list = visionScreeningResultService.getByPlanIdAndSchoolId(screeningPlan.getId(),ps.getSchoolId());
+          if (list.size()>0){
+              underWay++;
+          }else {
+              notStart++;
+          }
+        }
+        if (DateUtil.betweenDay(screeningPlan.getEndTime(),new Date())<0){
+            end = underWay + notStart;
+            notStart = 0;
+            underWay = 0;
+        }
+        return getScreeningState(notStart,underWay,end,0);
+    }
+
+    private String getScreeningState(int notStart,int underWay,int end,int type){
+        if (type==0){
+            return "未开始/进行中/已完成："+notStart+"/"+underWay+"/"+end;
+        }
+        return "未开始/已完成："+notStart+"/"+end;
+    }
+
+    public List<ScreeningTaskOrgDTO> getScreeningSchoolDetails(Integer screeningTaskId) {
+      List<ScreeningPlan> planList = screeningPlanService.getPlanByTaskIds(screeningTaskId);
+        return planList.stream().map(orgVo -> {
+            ScreeningTaskOrgDTO dto = new ScreeningTaskOrgDTO();
+            BeanUtils.copyProperties(orgVo, dto);
+            dto.setName(screeningOrganizationService.getNameById(orgVo.getScreeningOrgId()));
+            Map<Integer, Long> schoolIdStudentCountMap = screeningPlanSchoolStudentService.getSchoolStudentCountByScreeningPlanId(orgVo.getId());
+            dto.getScreeningPlanSchoolDTOS().forEach(vo -> {
+                        vo.setStudentCount(schoolIdStudentCountMap.getOrDefault(vo.getSchoolId(), (long) 0).intValue());
+                        vo.setPracticalStudentCount(visionScreeningResultService.getBySchoolIdAndOrgIdAndPlanId(vo.getSchoolId(), vo.getScreeningOrgId(), vo.getScreeningPlanId()).size());
+                        vo.setScreeningProportion(MathUtil.divide(vo.getPracticalStudentCount(),vo.getStudentCount()).toString()+"%");
+                        vo.setScreeningSituation(screeningPlanSchoolService.findSituation(vo.getSchoolId(),orgVo));
+                        vo.setQuestionnaireStudentCount(0);
+                        vo.setQuestionnaireProportion("0.00%");
+                        vo.setQuestionnaireSituation(ScreeningPlanSchool.notStart);
+                    }
+            );
+            return dto;
+        }).collect(Collectors.toList());
+    }
 }

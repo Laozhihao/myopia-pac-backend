@@ -47,4 +47,7 @@ public interface ScreeningPlanMapper extends BaseMapper<ScreeningPlan> {
 
     List<ScreeningPlan> getByIds(@Param("ids") Collection<Integer> ids);
 
+    ScreeningPlan getPlanByTaskId(@Param("screeningTaskId") Integer screeningTaskId,@Param("screeningOrgId")Integer screeningOrgId);
+
+    List<ScreeningPlan> getPlanByTaskIds(@Param("screeningTaskId")Integer screeningTaskId);
 }

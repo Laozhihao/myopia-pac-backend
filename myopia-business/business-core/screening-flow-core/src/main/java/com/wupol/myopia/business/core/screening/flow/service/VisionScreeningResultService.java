@@ -40,8 +40,8 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
    * @Author: 钓猫的小鱼
    * @Date: 2022/1/12
    */
-    public List<VisionScreeningResult> getByStudentIdsAndPlanId(Integer planId, List<Integer> studentIds) {
-        return baseMapper.getByStudentIdsAndPlanId(planId,studentIds);
+    public List<VisionScreeningResult> getByStudentIdsAndPlanId(Integer planId, List<Integer> studentIds,Integer screeningType) {
+        return baseMapper.getByStudentIdsAndPlanId(planId,studentIds,screeningType);
     }
 
     /**

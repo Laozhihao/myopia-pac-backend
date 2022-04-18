@@ -153,6 +153,7 @@
         <foreach collection="studentIds" item="studentId" index="index" open="(" close=")" separator=",">
              #{studentId}
         </foreach>
+        and screening_type = #{screeningType}
     </select>
 
     <select id="getByPlanIdAndSchoolId" resultType="java.lang.Integer">

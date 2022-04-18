@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * 筛查任务机构
@@ -27,4 +28,24 @@ public class ScreeningTaskOrgDTO extends ScreeningTaskOrg {
      * 筛查任务--结束时间
      */
     private Date endTime;
+
+    /**
+     * 筛查学校数量
+     */
+    private Integer screeningSchoolNum;
+
+    /**
+     * 筛查情况
+     */
+    private String screeningSituation;
+
+    /**
+     * 问卷情况
+     */
+    private String questionnaire;
+
+    /**
+     * 筛查学校情况
+     */
+    private List<ScreeningPlanSchoolDTO> screeningPlanSchoolDTOS;
 }

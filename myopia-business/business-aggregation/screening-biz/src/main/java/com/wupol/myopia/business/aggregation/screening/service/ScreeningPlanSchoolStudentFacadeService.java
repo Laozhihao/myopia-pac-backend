@@ -129,6 +129,8 @@ public class ScreeningPlanSchoolStudentFacadeService {
         //眼轴
         String axial = EyeDataUtil.computerRightAxial(visionScreeningResult)+"/"+EyeDataUtil.computerLeftAxial(visionScreeningResult);
         studentEyeInfo.setAxial(axial);
+        //是否复测
+        studentEyeInfo.setIsDoubleScreen(visionScreeningResult.getIsDoubleScreen());
 
     }
 

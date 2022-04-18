@@ -321,7 +321,7 @@ public class ScreeningPlanController {
         // 学校是否可新增：如果该机构相同时间段内已有该学校，不能新增
         LocalDate startTime = com.wupol.framework.core.util.DateUtil.fromDate(screeningPlan.getStartTime());
         LocalDate endTime = com.wupol.framework.core.util.DateUtil.fromDate(screeningPlan.getEndTime());
-        List<Integer> havePlanSchoolIds = screeningPlanSchoolService.getHavePlanSchoolIds(null, screeningPlan.getId(), screeningPlan.getScreeningOrgId(), startTime, endTime);
+        List<Integer> havePlanSchoolIds = screeningPlanSchoolService.getHavePlanSchoolIds(null, screeningPlan.getId(), screeningPlan.getScreeningOrgId(), startTime, endTime,screeningPlan.getScreeningType());
         if (schoolListsByPlanId.stream().anyMatch(screeningPlanSchool -> havePlanSchoolIds.contains(screeningPlanSchool.getSchoolId()))) {
             throw new ValidationException("该筛查机构相同时间段内计划已存在学校");
         }
@@ -433,6 +433,27 @@ public class ScreeningPlanController {
     public void updatePlanStudent(@RequestBody UpdatePlanStudentRequestDTO requestDTO) {
         screeningPlanStudentBizService.updatePlanStudent(requestDTO);
     }
+
+    /**
+     * 增加筛查时间
+     * @param screeningPlanDTO
+     */
+    @PostMapping("/increased/screeningTime")
+    public void updateScreeningEndTime(@RequestBody ScreeningPlanDTO screeningPlanDTO) {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        Assert.isTrue(Objects.nonNull(screeningPlanDTO.getId()), "计划Id不能为空");
+        Assert.isTrue(Objects.nonNull(screeningPlanDTO.getEndTime()), "结束时间不能为空");
+        ScreeningPlan screeningPlans = new ScreeningPlan();
+        screeningPlans.setId(screeningPlanDTO.getId());
+        ScreeningPlan screeningPlan = screeningPlanService.findOne(screeningPlans);
+        if (!currentUser.isPlatformAdminUser()){
+            screeningPlan.setUpdateScreeningEndTimeStatus(ScreeningPlan.MODIFIED);
+        }
+        screeningPlan.setEndTime(screeningPlanDTO.getEndTime());
+        screeningPlanService.updateById(screeningPlan);
+    }
+
+
 
     /**
      * 通过条件获取筛查学生
@@ -550,13 +571,22 @@ public class ScreeningPlanController {
     @GetMapping("/getStudentEyeByStudentId")
     public ApiResult getStudentEyeByStudentId(@RequestParam Integer planId,@RequestParam Integer studentId) {
         List<Integer> studentIds = Collections.singletonList(studentId);
-        List<VisionScreeningResult> visionScreeningResults =  visionScreeningResultService.getByStudentIdsAndPlanId(planId,studentIds);
-        if (visionScreeningResults.isEmpty()){
+        Map<String,Object> map = new HashMap<>();
+        map.put("vision",null);
+        map.put("commonDiseases",null);
+        List<VisionScreeningResult> visionScreeningResults =  visionScreeningResultService.getByStudentIdsAndPlanId(planId,studentIds,VisionScreeningResult.VISION_SCREENINGTYPE);
+        List<VisionScreeningResult> commonDiseasesScreeningResults =  visionScreeningResultService.getByStudentIdsAndPlanId(planId,studentIds,VisionScreeningResult.COMMON_DISEASES_SCREENINGTYPE);
+        if (visionScreeningResults.isEmpty() && commonDiseasesScreeningResults.isEmpty()){
             return ApiResult.success();
         }
-        VisionScreeningResult visionScreeningResult = visionScreeningResults.get(0);
+        if (!visionScreeningResults.isEmpty()){
+            map.put("vision",visionScreeningResults.get(0));
+        }
+        if (!commonDiseasesScreeningResults.isEmpty()){
+            map.put("commonDiseases",commonDiseasesScreeningResults.get(0));
+        }
 
-        return ApiResult.success(visionScreeningResult);
+        return ApiResult.success(map);
 
     }
 
