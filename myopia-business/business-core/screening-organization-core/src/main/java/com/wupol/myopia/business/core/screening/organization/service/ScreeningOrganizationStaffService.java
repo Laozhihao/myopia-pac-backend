@@ -11,7 +11,6 @@ import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.PasswordAndUsernameGenerator;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
@@ -392,13 +391,13 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      * @param screeningOrgId 筛查
      * @return int
      **/
-    public void checkScreeningOrganizationStaffAmount(Integer screeningOrgId,List<Map<Integer, String>> listMap){
+    public void checkScreeningOrganizationStaffAmount(Integer screeningOrgId,List<UserDTO> listMap){
 
         ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(screeningOrgId);
         int totalNum = screeningOrganizationStaffService.countByScreeningOrgId(screeningOrgId);
         Assert.isTrue(totalNum < screeningOrganization.getAccountNum(), "账号数量已达上限，请联系管理员!");
 
-        if (CollectionUtils.isNotEmpty(listMap) && listMap.size()>screeningOrganization.getAccountNum()){
+        if (CollectionUtils.isNotEmpty(listMap) && listMap.size()>(screeningOrganization.getAccountNum()-totalNum)){
             throw new BusinessException("您已超出限制数据（筛查人员账号数量限制："+screeningOrganization.getAccountNum()+"个），操作失败！\n" +
                     "如需增加筛查人员账号数量，请联系管理员！");
         }
