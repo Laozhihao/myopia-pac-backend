@@ -74,7 +74,7 @@ public class ReScreeningCardUtil {
 
         vision.setVisionResult(visionResult);
         vision.setComputerOptometryResult(computerOptometryResult(firstScreeningResult, reScreeningResult));
-        vision.setVisionOrOptometryDeviation(reScreeningResult.getDeviationData().getVisionOrOptometryDeviation());
+        vision.setVisionOrOptometryDeviation(EyeDataUtil.optometryDeviation(reScreeningResult));
         vision.setQualityControlName(qualityControlName);
         vision.setCreateTime(reScreeningResult.getCreateTime());
 
@@ -86,12 +86,12 @@ public class ReScreeningCardUtil {
         heightAndWeightResult.setHeight(EyeDataUtil.height(firstScreeningResult));
         heightAndWeightResult.setHeightRescreen(EyeDataUtil.height(reScreeningResult));
         heightAndWeightResult.setHeightDeviation(subtractAbsBigDecimal(EyeDataUtil.height(firstScreeningResult),EyeDataUtil.height(reScreeningResult)));
-        heightAndWeightResult.setHeightDeviationRemark(reScreeningResult.getDeviationData().getHeightWeightDeviation().getRemark());
+        heightAndWeightResult.setHeightDeviationRemark(EyeDataUtil.heightWeightDeviationRemark(reScreeningResult));
 
         heightAndWeightResult.setWeight(EyeDataUtil.weight(firstScreeningResult));
         heightAndWeightResult.setWeightRescreen(EyeDataUtil.weight(reScreeningResult));
         heightAndWeightResult.setWeightDeviation(subtractAbsBigDecimal(EyeDataUtil.weight(firstScreeningResult),EyeDataUtil.weight(reScreeningResult)));
-        heightAndWeightResult.setWeightDeviationRemark(reScreeningResult.getDeviationData().getHeightWeightDeviation().getRemark());
+        heightAndWeightResult.setWeightDeviationRemark(EyeDataUtil.heightWeightDeviationRemark(reScreeningResult));
 
         commonDiseases.setHeightAndWeightResult(heightAndWeightResult);
         commonDiseases.setQualityControlName(qualityControlName);

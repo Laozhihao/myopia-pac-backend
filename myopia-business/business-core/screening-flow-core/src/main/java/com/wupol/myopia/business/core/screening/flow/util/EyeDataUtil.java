@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.screening.flow.util;
 
 import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
 import com.wupol.myopia.business.common.utils.util.MaskUtil;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.DeviationDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentVisionScreeningResultExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
@@ -584,6 +585,32 @@ public class EyeDataUtil {
         }
         return sph.add(cyl.multiply(new BigDecimal("0.5")))
                 .setScale(2, RoundingMode.HALF_UP);
+    }
+    /**
+     * 电脑验光误差
+     * @param visionScreeningResult
+     * @return
+     */
+    public static DeviationDO.VisionOrOptometryDeviation optometryDeviation(VisionScreeningResult visionScreeningResult) {
+        if (visionScreeningResult != null
+                &&visionScreeningResult.getDeviationData() != null) {
+            return  visionScreeningResult.getDeviationData().getVisionOrOptometryDeviation();
+        }
+        return null;
+    }
+
+    /**
+     * 身高/体重误差说明
+     * @param visionScreeningResult 结果
+     * @return
+     */
+    public static String heightWeightDeviationRemark(VisionScreeningResult visionScreeningResult) {
+        if (visionScreeningResult != null
+                &&visionScreeningResult.getDeviationData() != null
+                &&visionScreeningResult.getDeviationData().getHeightWeightDeviation() != null) {
+            return  visionScreeningResult.getDeviationData().getHeightWeightDeviation().getRemark();
+        }
+        return null;
     }
 
 

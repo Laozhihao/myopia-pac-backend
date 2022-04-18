@@ -144,13 +144,15 @@ public class StudentFacade {
         // 通过学生id查询结果
         IPage<VisionScreeningResult> resultIPage = visionScreeningResultService.getByStudentIdWithPage(pageRequest,studentId);
 
+        List<VisionScreeningResult> resultList = resultIPage.getRecords();
+                
         // 获取筛查计划
-        List<Integer> planIds = resultIPage.getRecords().stream().map(VisionScreeningResult::getPlanId).collect(Collectors.toList());
+        List<Integer> planIds = resultList.stream().map(VisionScreeningResult::getPlanId).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(planIds)) {
             responseDTO.setRecords(new ArrayList<>());
             responseDTO.setTotal(0L);
-            responseDTO.setCurrent(0L);
-            responseDTO.setSize(0L);
+            responseDTO.setCurrent(Long.valueOf(pageRequest.getCurrent()));
+            responseDTO.setSize(Long.valueOf(pageRequest.getSize()));
             responseDTO.setPages(0L);
             return responseDTO;
         }
@@ -158,17 +160,17 @@ public class StudentFacade {
         Map<Integer, String> planMap = plans.stream().collect(Collectors.toMap(ScreeningPlan::getId, ScreeningPlan::getTitle));
 
         // 获取机构
-        List<Integer> screeningOrgId = resultIPage.getRecords().stream().map(VisionScreeningResult::getScreeningOrgId).collect(Collectors.toList());
+        List<Integer> screeningOrgId =  resultList.stream().map(VisionScreeningResult::getScreeningOrgId).collect(Collectors.toList());
         List<ScreeningOrganization> screeningOrganizations = screeningOrganizationService.getByIds(screeningOrgId);
         Map<Integer, ScreeningOrganization> screeningOrganizationMap = screeningOrganizations.stream().collect(Collectors.toMap(ScreeningOrganization::getId, Function.identity()));
 
         // 获取结论
-        List<Integer> resultIds = resultIPage.getRecords().stream().map(VisionScreeningResult::getId).collect(Collectors.toList());
+        List<Integer> resultIds = resultList.stream().map(VisionScreeningResult::getId).collect(Collectors.toList());
         List<StatConclusion> statConclusionList = statConclusionService.getByResultIds(resultIds);
         Map<Integer, StatConclusion> statMap = statConclusionList.stream().collect(Collectors.toMap(StatConclusion::getResultId, Function.identity()));
 
         //获取复测
-        List<Integer> screeningPlanIds = resultIPage.getRecords().stream().map(VisionScreeningResult::getPlanId).collect(Collectors.toList());
+        List<Integer> screeningPlanIds = resultList.stream().map(VisionScreeningResult::getPlanId).collect(Collectors.toList());
         List<VisionScreeningResult> rescreeningVisionScreeningResultList = visionScreeningResultService.getIsDoubleScreeningResult(screeningPlanIds,studentId,true);
         Map<Integer, VisionScreeningResult> rescreeningVisionScreeningResultMap = null;
         if (Objects.nonNull(rescreeningVisionScreeningResultList)){
@@ -176,10 +178,10 @@ public class StudentFacade {
         }
 
         // 获取筛查学生
-        List<Integer> planStudentIds = resultIPage.getRecords().stream().map(VisionScreeningResult::getScreeningPlanSchoolStudentId).collect(Collectors.toList());
+        List<Integer> planStudentIds = resultList.stream().map(VisionScreeningResult::getScreeningPlanSchoolStudentId).collect(Collectors.toList());
         Map<Integer, Long> screeningCodeMap = screeningPlanSchoolStudentService.getByIds(planStudentIds).stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getId, ScreeningPlanSchoolStudent::getScreeningCode));
 
-        for (VisionScreeningResult result : resultIPage.getRecords()) {
+        for (VisionScreeningResult result : resultList) {
             StudentScreeningResultItemsDTO item = new StudentScreeningResultItemsDTO();
             ScreeningInfoDTO screeningInfoDTO  = new ScreeningInfoDTO();
 
