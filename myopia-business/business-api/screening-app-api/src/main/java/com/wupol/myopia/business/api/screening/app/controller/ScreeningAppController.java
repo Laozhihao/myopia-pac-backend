@@ -857,7 +857,7 @@ public class ScreeningAppController {
      **/
     @PutMapping("/noExamine/{planStudentId}")
     public boolean addNoExamine(@PathVariable Integer planStudentId, @RequestParam(value = "state", defaultValue = "0") Integer state) {
-        ScreeningPlanSchoolStudent screeningPlan = screeningPlanSchoolStudentService.findOne(new ScreeningPlanSchoolStudent().setScreeningPlanId(planStudentId));
+        ScreeningPlanSchoolStudent screeningPlan = screeningPlanSchoolStudentService.findOne(new ScreeningPlanSchoolStudent().setId(planStudentId));
         Assert.notNull(screeningPlan,"不存在筛查计划");
         screeningPlan.setState(state);
         return screeningPlanSchoolStudentService.updateById(screeningPlan);

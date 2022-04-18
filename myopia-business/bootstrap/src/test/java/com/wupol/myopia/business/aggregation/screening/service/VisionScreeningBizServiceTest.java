@@ -35,11 +35,9 @@ class VisionScreeningBizServiceTest {
 
     /**
      * 保存数据
-     *
-     * @throws IOException IOException
      */
     @Test
-    void testSaveOrUpdateStudentScreenData() throws IOException {
+    void testSaveOrUpdateStudentScreenData() {
         // 视力筛查
         VisionDataDTO visionDataDTO = JSON.parseObject(ResourceHelper.getResourceAsString(getClass(), "/json/visionData.json"), VisionDataDTO.class);
         if (visionDataDTO.isValid()) {
