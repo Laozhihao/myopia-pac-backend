@@ -434,6 +434,8 @@ public class ScreeningPlanController {
         screeningPlanStudentBizService.updatePlanStudent(requestDTO);
     }
 
+
+
     /**
      * 增加筛查时间
      * @param screeningPlanDTO
@@ -451,6 +453,17 @@ public class ScreeningPlanController {
         }
         screeningPlan.setEndTime(screeningPlanDTO.getEndTime());
         screeningPlanService.updateById(screeningPlan);
+    }
+
+    /**
+     * 获取结束时间添加指定天数后的时间
+     * @param endTime
+     * @param days
+     * @return
+     */
+    @GetMapping("/getTncreaseDate")
+    public String getTncreaseDate(Date endTime,int days) {
+        return DateUtil.getTncreaseDate(endTime,days);
     }
 
 

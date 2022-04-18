@@ -47,5 +47,5 @@ public class ScreeningTaskOrgDTO extends ScreeningTaskOrg {
     /**
      * 筛查学校情况
      */
-    private List<ScreeningPlanSchoolDTO> screeningPlanSchoolDTOS;
+    private List<ScreeningPlanSchoolDTO> screeningPlanSchools;
 }

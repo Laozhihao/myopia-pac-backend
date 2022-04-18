@@ -185,7 +185,8 @@ public class ScreeningTaskOrgBizService {
             BeanUtils.copyProperties(orgVo, dto);
             dto.setName(screeningOrganizationService.getNameById(orgVo.getScreeningOrgId()));
             Map<Integer, Long> schoolIdStudentCountMap = screeningPlanSchoolStudentService.getSchoolStudentCountByScreeningPlanId(orgVo.getId());
-            dto.getScreeningPlanSchoolDTOS().forEach(vo -> {
+            dto.getScreeningPlanSchools().forEach(vo -> {
+                        vo.setSchoolName(screeningPlanSchoolService.getOneByPlanIdAndSchoolId(orgVo.getId(),vo.getSchoolId()).getSchoolName());
                         vo.setStudentCount(schoolIdStudentCountMap.getOrDefault(vo.getSchoolId(), (long) 0).intValue());
                         vo.setPracticalStudentCount(visionScreeningResultService.getBySchoolIdAndOrgIdAndPlanId(vo.getSchoolId(), vo.getScreeningOrgId(), vo.getScreeningPlanId()).size());
                         vo.setScreeningProportion(MathUtil.divide(vo.getPracticalStudentCount(),vo.getStudentCount()).toString()+"%");
