@@ -123,12 +123,12 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
         List<ScreeningPlanSchoolDTO> screeningPlanSchools = getSchoolVoListsByPlanId(screeningPlanId,schoolName);
 
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getByScreeningPlanId(screeningPlanId);
-        if (org.springframework.util.CollectionUtils.isEmpty(screeningPlanSchoolStudents)) {
+        if (CollectionUtils.isEmpty(screeningPlanSchoolStudents)) {
             return new ArrayList<>();
         }
 
         List<Integer> schoolIds = screeningPlanSchoolStudents.stream().map(ScreeningPlanSchoolStudent :: getSchoolId).collect(Collectors.toList());
-        if (org.springframework.util.CollectionUtils.isEmpty(schoolIds)) {
+        if (CollectionUtils.isEmpty(schoolIds)) {
             return new ArrayList<>();
         }
         return screeningPlanSchools.stream().filter(s -> schoolIds.contains(s.getSchoolId())).collect(Collectors.toList());

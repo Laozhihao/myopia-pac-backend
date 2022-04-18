@@ -518,7 +518,7 @@ public class ScreeningPlanController {
      * @param screeningPlanId 计划ID
      * @return List<ScreeningPlanSchoolVo>
      */
-    @GetMapping("schools/haveStudent/{screeningPlanId}")
+    @GetMapping("schools/haveResult/{screeningPlanId}")
     public List<ScreeningPlanSchoolDTO> getHaveResultSchool(@PathVariable Integer screeningPlanId, String schoolName) {
         // 任务状态判断
         return screeningPlanSchoolService.getHaveResultSchool(screeningPlanId, schoolName);
