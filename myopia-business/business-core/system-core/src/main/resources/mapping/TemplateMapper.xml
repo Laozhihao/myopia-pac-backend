@@ -5,6 +5,7 @@
         <!--@mbg.generated-->
         <!--@Table m_template-->
         <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="biz" jdbcType="TINYINT" property="biz"/>
         <result column="type" jdbcType="TINYINT" property="type"/>
         <result column="name" jdbcType="VARCHAR" property="name"/>
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
@@ -16,6 +17,7 @@
         <where>
             <trim prefixOverrides="and">
                 <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(biz)">and `biz` = #{biz}</if>
                 <if test="@Ognl@isNotEmpty(type)">and `type` = #{type}</if>
                 <if test="@Ognl@isNotEmpty(name)">and `name` = #{name}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
@@ -26,7 +28,7 @@
 
     <sql id="Base_Column_List">
         <!--@mbg.generated-->
-        id, `type`, `name`, create_time, update_time
+        id, `biz`, `type`, `name`, create_time, update_time
     </sql>
 
     <select id="getByType" resultMap="BaseResultMap">
