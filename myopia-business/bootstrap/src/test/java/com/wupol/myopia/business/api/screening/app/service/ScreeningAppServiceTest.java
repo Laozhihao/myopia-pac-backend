@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.screening.app.service;
 
 import com.alibaba.fastjson.JSON;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.api.screening.app.domain.vo.ClassScreeningProgress;
 import com.wupol.myopia.business.api.screening.app.enums.SysEnum;
 import com.wupol.myopia.business.api.screening.app.service.ScreeningAppService;
 import com.wupol.myopia.business.bootstrap.MyopiaBusinessApplication;
@@ -48,12 +49,13 @@ class ScreeningAppServiceTest {
      */
     @Test
     void testGetClassScreeningProgress() {
-        Integer schoolId = 0;
+        Integer schoolId = 3;
         Integer gradeId = 0;
         Integer classId = 0;
         Integer screeningOrgId = 0;
         Boolean isFilter = true;
         String studentName = null;
-        screeningAppService.getClassScreeningProgress(schoolId, gradeId, classId, CurrentUserUtil.getCurrentUser().getOrgId(), isFilter, studentName);
+        ClassScreeningProgress data = screeningAppService.getClassScreeningProgress(schoolId, gradeId, classId, CurrentUserUtil.getCurrentUser().getOrgId(), isFilter, studentName);
+        System.out.println(JSON.toJSONString(data));
     }
 }
