@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.stat.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.BeanCopyUtil;
@@ -45,7 +46,7 @@ public class ScreeningResultStatisticService extends BaseService<ScreeningResult
                                                                                            boolean isTotal, Integer screeningType, boolean isKindergarten)  {
         if (ObjectsUtil.allNotNull(noticeId,currentDistrictId)){
             List<ScreeningResultStatistic> screeningResultStatistics = new ArrayList<>();
-            Set<Integer> districtIds = null;
+            Set<Integer> districtIds = Sets.newHashSet();
             try {
                 districtIds = districtService.getChildDistrictIdsByDistrictId(currentDistrictId);
             } catch (IOException e) {

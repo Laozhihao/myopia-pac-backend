@@ -83,6 +83,13 @@ public class PrimarySchoolAndAboveResultDetailVO implements SchoolResultDetailVO
         }
     }
 
+    public void setBaseData(Integer screeningNoticeId,Integer districtId,Integer screeningType, String  rangeName) {
+        this.screeningType = screeningType;
+        this.districtId = districtId;
+        this.rangeName=rangeName;
+        this.screeningNoticeId=screeningNoticeId;
+    }
+
     public void setItemData(ScreeningResultStatistic screeningResultStatistic) {
 
         if (Objects.nonNull(screeningResultStatistic)) {

@@ -15,8 +15,7 @@ import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
 import com.wupol.myopia.business.core.stat.domain.model.ScreeningResultStatistic;
-import com.wupol.myopia.business.core.stat.service.CommonDiseaseScreeningResultStatisticService;
-import com.wupol.myopia.business.core.stat.service.VisionScreeningResultStatisticService;
+import com.wupol.myopia.business.core.stat.service.ScreeningResultStatisticService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,8 +38,7 @@ public class StatDistrictService {
 
     private final DistrictService districtService;
     private final ScreeningNoticeService screeningNoticeService;
-    private final VisionScreeningResultStatisticService visionScreeningResultStatisticService;
-    private final CommonDiseaseScreeningResultStatisticService commonDiseaseScreeningResultStatisticService;
+    private final ScreeningResultStatisticService screeningResultStatisticService;
 
     /**
      * 按区域-获取幼儿园数据
@@ -56,70 +54,27 @@ public class StatDistrictService {
         if (screeningNotice == null) {
             throw new BusinessException(BizMsgConstant.CAN_NOT_FIND_NOTICE);
         }
-        if (Objects.equals(0,screeningNotice.getScreeningType())){
-            return getVisionKindergartenResultVO(screeningNotice,districtId,noticeId);
-        }else {
-            return getCommonDiseaseKindergartenResultVO(screeningNotice,districtId,noticeId);
-        }
+        return getKindergartenResultVO(screeningNotice,districtId,noticeId);
     }
 
-    /**
-     * 按区域-视力筛查-幼儿园
-     */
-    public KindergartenResultVO getVisionKindergartenResultVO(ScreeningNotice screeningNotice,Integer districtId, Integer noticeId){
+    public KindergartenResultVO getKindergartenResultVO(ScreeningNotice screeningNotice,Integer districtId, Integer noticeId){
 
         //查找合计数据（当前层级 + 下级）
-        List<ScreeningResultStatistic> visionStatistics = visionScreeningResultStatisticService.getStatisticByNoticeIdAndCurrentChildDistrictIds(noticeId,districtId,Boolean.TRUE,0,Boolean.TRUE);
+        List<ScreeningResultStatistic> visionStatistics = getKindergartenResultList(noticeId, districtId, screeningNotice.getScreeningType());
         if (CollectionUtils.isEmpty(visionStatistics)) {
             return new KindergartenResultVO();
         }
         TwoTuple<String, Map<Integer, String>> districtInfo = districtInfo(districtId, visionStatistics);
-
         //查找当前层级的数据（非合计数据）
-        List<ScreeningResultStatistic> currentVisionStatistics = visionScreeningResultStatisticService.getStatisticByNoticeIdAndCurrentDistrictId(noticeId, districtId, Boolean.FALSE,0,Boolean.TRUE);
-        ScreeningResultStatistic currentVisionStatistic = null;
-        if (CollectionUtils.isNotEmpty(currentVisionStatistics)) {
-            currentVisionStatistic = currentVisionStatistics.stream().findFirst().orElse(null);
-        }
+        ScreeningResultStatistic currentVisionStatistic = currentVisionStatistic(districtId, noticeId, Boolean.TRUE);
         //构建数据
-        return getKindergartenResultVO(visionStatistics,districtId,districtInfo.getFirst(),screeningNotice,districtInfo.getSecond(),currentVisionStatistic);
-    }
-
-
-    /**
-     * 按区域-常见病-幼儿园
-     */
-    public KindergartenResultVO getCommonDiseaseKindergartenResultVO(ScreeningNotice screeningNotice,Integer districtId, Integer noticeId){
-        //查找合计数据（当前层级 + 下级）
-        List<ScreeningResultStatistic> visionStatistics = commonDiseaseScreeningResultStatisticService.getStatisticByNoticeIdAndCurrentChildDistrictIds(noticeId,districtId,Boolean.TRUE,1,Boolean.TRUE);
-        if (CollectionUtils.isEmpty(visionStatistics)) {
-            return new KindergartenResultVO();
-        }
-        TwoTuple<String, Map<Integer, String>> districtInfo = districtInfo(districtId, visionStatistics);
-
-        //查找当前层级的数据（非合计数据）
-        List<ScreeningResultStatistic> currentVisionStatistics = commonDiseaseScreeningResultStatisticService.getStatisticByNoticeIdAndCurrentDistrictId(noticeId, districtId, Boolean.FALSE,1,Boolean.TRUE);
-        ScreeningResultStatistic currentVisionStatistic = null;
-        if (CollectionUtils.isNotEmpty(currentVisionStatistics)) {
-            currentVisionStatistic = currentVisionStatistics.stream().findFirst().orElse(null);
-        }
-        //构建数据
-        return getKindergartenResultVO(visionStatistics,districtId,districtInfo.getFirst(),screeningNotice,districtInfo.getSecond(),currentVisionStatistic);
-    }
-
-    private KindergartenResultVO getKindergartenResultVO(List<ScreeningResultStatistic> visionStatistics,Integer districtId,
-                                                         String currentRangeName,ScreeningNotice screeningNotice,Map<Integer, String> districtIdNameMap,
-                                                         ScreeningResultStatistic currentVisionStatistic){
-
         KindergartenResultVO kindergartenResultVO = new KindergartenResultVO();
-        if(CollectionUtil.isEmpty(visionStatistics)){
-            return kindergartenResultVO;
-        }
-        kindergartenResultVO.setBasicData(districtId,currentRangeName,screeningNotice);
+        kindergartenResultVO.setBasicData(districtId,districtInfo.getFirst(),screeningNotice);
         kindergartenResultVO.setCurrentData(currentVisionStatistic);
-        kindergartenResultVO.setItemData(districtId,visionStatistics,districtIdNameMap);
+        kindergartenResultVO.setItemData(districtId,visionStatistics,districtInfo.getSecond());
         return kindergartenResultVO;
     }
+
 
     /**
      * 按区域-获取小学及以上数据
@@ -135,69 +90,36 @@ public class StatDistrictService {
         if (screeningNotice == null) {
             throw new BusinessException(BizMsgConstant.CAN_NOT_FIND_NOTICE);
         }
-        if (Objects.equals(0,screeningNotice.getScreeningType())){
-            return getVisionPrimarySchoolAndAboveResultVO(screeningNotice,districtId,noticeId);
-        }else {
-            return getCommonDiseasePrimarySchoolAndAboveResultVO(screeningNotice,districtId,noticeId);
-        }
+        return getPrimarySchoolAndAboveResultVO(screeningNotice,districtId,noticeId);
     }
 
-    /**
-     * 按区域-视力筛查-小学及以上
-     */
-    private PrimarySchoolAndAboveResultVO getVisionPrimarySchoolAndAboveResultVO(ScreeningNotice screeningNotice, Integer districtId, Integer noticeId) {
+
+    private PrimarySchoolAndAboveResultVO getPrimarySchoolAndAboveResultVO(ScreeningNotice screeningNotice, Integer districtId, Integer noticeId) {
         //查找合计数据（当前层级 + 下级）
-        List<ScreeningResultStatistic> visionStatistics = visionScreeningResultStatisticService.getStatisticByNoticeIdAndCurrentChildDistrictIds(noticeId,districtId,Boolean.TRUE,0,Boolean.FALSE);
+        List<ScreeningResultStatistic> visionStatistics = getPrimarySchoolAndAboveResultList(noticeId, districtId, screeningNotice.getScreeningType());
         if (CollectionUtils.isEmpty(visionStatistics)) {
             return new PrimarySchoolAndAboveResultVO();
         }
         TwoTuple<String, Map<Integer, String>> districtInfo = districtInfo(districtId, visionStatistics);
-
-        //查找当前层级的数据（非合计数据）
-        List<ScreeningResultStatistic> currentVisionStatistics = visionScreeningResultStatisticService.getStatisticByNoticeIdAndCurrentDistrictId(noticeId, districtId, Boolean.FALSE,0,Boolean.FALSE);
-        ScreeningResultStatistic currentVisionStatistic = null;
-        if (CollectionUtils.isNotEmpty(currentVisionStatistics)) {
-            currentVisionStatistic = currentVisionStatistics.stream().findFirst().orElse(null);
-        }
+        ScreeningResultStatistic currentVisionStatistic = currentVisionStatistic(districtId, noticeId, Boolean.FALSE);
         //构建数据
-        return getPrimarySchoolAndAboveResultVO(visionStatistics,districtId,districtInfo.getFirst(),screeningNotice,districtInfo.getSecond(),currentVisionStatistic);
-    }
-
-    /**
-     * 按区域-常见病-小学及以上
-     */
-    private PrimarySchoolAndAboveResultVO getCommonDiseasePrimarySchoolAndAboveResultVO(ScreeningNotice screeningNotice, Integer districtId, Integer noticeId) {
-        //查找合计数据（当前层级 + 下级）
-        List<ScreeningResultStatistic> visionStatistics = visionScreeningResultStatisticService.getStatisticByNoticeIdAndCurrentChildDistrictIds(noticeId,districtId,Boolean.TRUE,0,Boolean.FALSE);
-        if (CollectionUtils.isEmpty(visionStatistics)) {
-            return new PrimarySchoolAndAboveResultVO();
-        }
-        TwoTuple<String, Map<Integer, String>> districtInfo = districtInfo(districtId, visionStatistics);
-
-        //查找当前层级的数据（非合计数据）
-        List<ScreeningResultStatistic> currentVisionStatistics = visionScreeningResultStatisticService.getStatisticByNoticeIdAndCurrentDistrictId(noticeId, districtId, Boolean.FALSE,0,Boolean.FALSE);
-        ScreeningResultStatistic currentVisionStatistic = null;
-        if (CollectionUtils.isNotEmpty(currentVisionStatistics)) {
-            currentVisionStatistic = currentVisionStatistics.stream().findFirst().orElse(null);
-        }
-        //构建数据
-        return getPrimarySchoolAndAboveResultVO(visionStatistics,districtId,districtInfo.getFirst(),screeningNotice,districtInfo.getSecond(),currentVisionStatistic);
-    }
-
-
-
-    private PrimarySchoolAndAboveResultVO getPrimarySchoolAndAboveResultVO(List<ScreeningResultStatistic> visionStatistics,Integer districtId,
-                                                         String currentRangeName,ScreeningNotice screeningNotice,Map<Integer, String> districtIdNameMap,
-                                                         ScreeningResultStatistic currentVisionStatistic){
         PrimarySchoolAndAboveResultVO primarySchoolAndAboveResultVO = new PrimarySchoolAndAboveResultVO();
-        if(CollectionUtil.isEmpty(visionStatistics)){
-            return primarySchoolAndAboveResultVO;
-        }
-        primarySchoolAndAboveResultVO.setBasicData(districtId,currentRangeName,screeningNotice);
+        primarySchoolAndAboveResultVO.setBasicData(districtId,districtInfo.getFirst(),screeningNotice);
         primarySchoolAndAboveResultVO.setCurrentData(currentVisionStatistic);
-        primarySchoolAndAboveResultVO.setItemData(districtId,visionStatistics,districtIdNameMap);
+        primarySchoolAndAboveResultVO.setItemData(districtId,visionStatistics,districtInfo.getSecond());
         return primarySchoolAndAboveResultVO;
+
     }
+
+    private ScreeningResultStatistic currentVisionStatistic(Integer districtId, Integer noticeId, boolean isKindergarten) {
+        List<ScreeningResultStatistic> currentVisionStatistics = screeningResultStatisticService.getStatisticByNoticeIdAndCurrentDistrictId(noticeId, districtId, Boolean.FALSE, 0, isKindergarten);
+        ScreeningResultStatistic currentVisionStatistic = null;
+        if (CollectionUtils.isNotEmpty(currentVisionStatistics)) {
+            currentVisionStatistic = currentVisionStatistics.stream().findFirst().orElse(null);
+        }
+        return currentVisionStatistic;
+    }
+
 
     /**
      * 按区域-获取数据详情（合计）
@@ -213,22 +135,19 @@ public class StatDistrictService {
         if (screeningNotice == null) {
             throw new BusinessException(BizMsgConstant.CAN_NOT_FIND_NOTICE);
         }
-        if (Objects.equals(0,screeningNotice.getScreeningType())){
-            return getVisionScreeningResultStatisticDetailVO(screeningNotice,districtId,noticeId);
-        }else {
-            return getCommonDiseaseScreeningResultStatisticDetailVO(screeningNotice,districtId,noticeId);
-        }
+
+        return getScreeningResultStatisticDetailVO(screeningNotice,districtId,noticeId);
     }
 
     /**
      * 按区域-视力筛查-获取数据详情（合计）
      */
-    private ScreeningResultStatisticDetailVO getVisionScreeningResultStatisticDetailVO(ScreeningNotice screeningNotice, Integer districtId, Integer noticeId) {
-        //幼儿园 查找合计数据（当前层级 + 下级）
-        List<ScreeningResultStatistic> kindergartenVisionStatistics = visionScreeningResultStatisticService.getStatisticByNoticeIdAndCurrentChildDistrictIds(noticeId,districtId,Boolean.TRUE,0,Boolean.TRUE);
+    private ScreeningResultStatisticDetailVO getScreeningResultStatisticDetailVO(ScreeningNotice screeningNotice, Integer districtId, Integer noticeId) {
+        TwoTuple<List<ScreeningResultStatistic>, List<ScreeningResultStatistic>> screeningResult = getScreeningResult(noticeId, districtId, screeningNotice.getScreeningType());
 
-        //小学及以上 查找合计数据（当前层级 + 下级）
-        List<ScreeningResultStatistic> primarySchoolAndAboveVisionStatistics = visionScreeningResultStatisticService.getStatisticByNoticeIdAndCurrentChildDistrictIds(noticeId,districtId,Boolean.TRUE,0,Boolean.FALSE);
+        List<ScreeningResultStatistic> kindergartenVisionStatistics = screeningResult.getFirst();
+        List<ScreeningResultStatistic> primarySchoolAndAboveVisionStatistics = screeningResult.getSecond();
+
         if (CollectionUtils.isEmpty(kindergartenVisionStatistics) && CollectionUtil.isEmpty(primarySchoolAndAboveVisionStatistics)) {
             return new ScreeningResultStatisticDetailVO();
         }
@@ -242,46 +161,10 @@ public class StatDistrictService {
         }
 
         TwoTuple<String, Map<Integer, String>> districtInfo = districtInfo(districtId, statistics);
-
-        return getScreeningResultStatisticDetailVO(kindergartenVisionStatistics,primarySchoolAndAboveVisionStatistics,districtId,districtInfo.getFirst(),screeningNotice,districtInfo.getSecond());
-    }
-
-    /**
-     * 按区域-常见病筛查-获取数据详情（合计）
-     */
-    private ScreeningResultStatisticDetailVO getCommonDiseaseScreeningResultStatisticDetailVO(ScreeningNotice screeningNotice, Integer districtId, Integer noticeId) {
-        //幼儿园 查找合计数据（当前层级 + 下级）
-        List<ScreeningResultStatistic> kindergartenVisionStatistics = visionScreeningResultStatisticService.getStatisticByNoticeIdAndCurrentChildDistrictIds(noticeId,districtId,Boolean.TRUE,1,Boolean.TRUE);
-
-        //小学及以上 查找合计数据（当前层级 + 下级）
-        List<ScreeningResultStatistic> primarySchoolAndAboveVisionStatistics = visionScreeningResultStatisticService.getStatisticByNoticeIdAndCurrentChildDistrictIds(noticeId,districtId,Boolean.TRUE,1,Boolean.FALSE);
-        if (CollectionUtils.isEmpty(kindergartenVisionStatistics) && CollectionUtil.isEmpty(primarySchoolAndAboveVisionStatistics)) {
-            return new ScreeningResultStatisticDetailVO();
-        }
-        List<ScreeningResultStatistic> statistics=Lists.newArrayList();
-        if (CollectionUtil.isNotEmpty(kindergartenVisionStatistics)){
-            statistics.addAll(kindergartenVisionStatistics);
-        }
-        if (CollectionUtil.isNotEmpty(primarySchoolAndAboveVisionStatistics)){
-            statistics.addAll(primarySchoolAndAboveVisionStatistics);
-        }
-
-        TwoTuple<String, Map<Integer, String>> districtInfo = districtInfo(districtId, statistics);
-
-        return getScreeningResultStatisticDetailVO(kindergartenVisionStatistics,primarySchoolAndAboveVisionStatistics,districtId,districtInfo.getFirst(),screeningNotice,districtInfo.getSecond());
-    }
-
-    private ScreeningResultStatisticDetailVO getScreeningResultStatisticDetailVO(List<ScreeningResultStatistic> kindergartenVisionStatistics,
-                                                                                 List<ScreeningResultStatistic> primarySchoolAndAboveVisionStatistics,
-                                                                                 Integer districtId,String currentRangeName,ScreeningNotice screeningNotice,
-                                                                                 Map<Integer, String> districtIdNameMap){
 
         ScreeningResultStatisticDetailVO screeningResultStatisticDetailVO = new ScreeningResultStatisticDetailVO();
-        if(CollectionUtil.isEmpty(kindergartenVisionStatistics) && CollectionUtil.isEmpty(primarySchoolAndAboveVisionStatistics)){
-            return screeningResultStatisticDetailVO;
-        }
-        screeningResultStatisticDetailVO.setBasicData(districtId,currentRangeName,screeningNotice);
-        screeningResultStatisticDetailVO.setItemData(districtId,kindergartenVisionStatistics,primarySchoolAndAboveVisionStatistics);
+        screeningResultStatisticDetailVO.setBasicData(districtId,districtInfo.getFirst(),screeningNotice);
+        screeningResultStatisticDetailVO.setItemData(districtId, kindergartenVisionStatistics,primarySchoolAndAboveVisionStatistics);
         return screeningResultStatisticDetailVO;
 
     }
@@ -296,5 +179,21 @@ public class StatDistrictService {
         Map<Integer, String> districtIdNameMap = districts.stream().collect(Collectors.toMap(District::getId, District::getName));
         districtIdNameMap.put(districtId, currentRangeName);
         return new TwoTuple<>(currentRangeName,districtIdNameMap);
+    }
+
+    private List<ScreeningResultStatistic> getKindergartenResultList(Integer noticeId,Integer districtId,Integer screeningType){
+        return screeningResultStatisticService.getStatisticByNoticeIdAndCurrentChildDistrictIds(noticeId,districtId,Boolean.TRUE,screeningType,Boolean.TRUE);
+    }
+
+    private List<ScreeningResultStatistic> getPrimarySchoolAndAboveResultList(Integer noticeId,Integer districtId,Integer screeningType){
+        return screeningResultStatisticService.getStatisticByNoticeIdAndCurrentChildDistrictIds(noticeId,districtId,Boolean.TRUE,screeningType,Boolean.FALSE);
+    }
+
+    private TwoTuple<List<ScreeningResultStatistic>,List<ScreeningResultStatistic>> getScreeningResult(Integer noticeId,Integer districtId,Integer screeningType){
+        //幼儿园 查找合计数据（当前层级 + 下级）
+        List<ScreeningResultStatistic> kindergartenVisionStatistics = screeningResultStatisticService.getStatisticByNoticeIdAndCurrentChildDistrictIds(noticeId,districtId,Boolean.TRUE,screeningType,Boolean.TRUE);
+        //小学及以上 查找合计数据（当前层级 + 下级）
+        List<ScreeningResultStatistic> primarySchoolAndAboveVisionStatistics = screeningResultStatisticService.getStatisticByNoticeIdAndCurrentChildDistrictIds(noticeId,districtId,Boolean.TRUE,screeningType,Boolean.FALSE);
+        return new TwoTuple<>(kindergartenVisionStatistics,primarySchoolAndAboveVisionStatistics);
     }
 }
