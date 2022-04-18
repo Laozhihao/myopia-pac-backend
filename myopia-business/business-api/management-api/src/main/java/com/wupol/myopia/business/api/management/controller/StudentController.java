@@ -175,8 +175,8 @@ public class StudentController {
      * @param id 学生ID
      * @return 学生筛查档案
      */
-    @GetMapping("/screening/{id}")
-    public StudentScreeningResultResponseDTO getScreeningList(PageRequest pageReques, @PathVariable("id") Integer id) {
+    @GetMapping("/screening")
+    public StudentScreeningResultResponseDTO getScreeningList(PageRequest pageReques,@NotNull(message = "学生Id不能为空") Integer id) {
         return studentFacade.getScreeningList(pageReques,id);
     }
 
