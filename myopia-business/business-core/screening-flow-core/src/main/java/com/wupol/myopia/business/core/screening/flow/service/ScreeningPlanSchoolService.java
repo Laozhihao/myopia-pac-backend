@@ -122,12 +122,8 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
     public List<ScreeningPlanSchoolDTO> querySchoolsInfoInPlanHavaStudent(Integer screeningPlanId, String schoolName) {
         List<ScreeningPlanSchoolDTO> screeningPlanSchools = getSchoolVoListsByPlanId(screeningPlanId,schoolName);
 
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getByScreeningPlanId(screeningPlanId);
-        if (CollectionUtils.isEmpty(screeningPlanSchoolStudents)) {
-            return new ArrayList<>();
-        }
+        List<Integer> schoolIds = screeningPlanSchoolStudentService.findSchoolIdsByPlanId(screeningPlanId);
 
-        List<Integer> schoolIds = screeningPlanSchoolStudents.stream().map(ScreeningPlanSchoolStudent :: getSchoolId).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(schoolIds)) {
             return new ArrayList<>();
         }
@@ -248,7 +244,7 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
     public List<ScreeningPlanSchoolDTO> getHaveResultSchool(Integer screeningPlanId, String schoolName) {
         List<ScreeningPlanSchoolDTO> schoolList = getSchoolVoListsByPlanId(screeningPlanId, schoolName);
         List<Integer> schoolIds = visionScreeningResultService.getBySchoolIdPlanId(screeningPlanId);
-        if (org.springframework.util.CollectionUtils.isEmpty(schoolIds)) {
+        if (CollectionUtils.isEmpty(schoolIds)) {
             return new ArrayList<>();
         }
         return schoolList.stream().filter(s -> schoolIds.contains(s.getSchoolId())).collect(Collectors.toList());
