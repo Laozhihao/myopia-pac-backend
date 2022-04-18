@@ -1,7 +1,12 @@
 package com.wupol.myopia.business.api.management.domain.vo;
 
+import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.stat.domain.dos.*;
+import com.wupol.myopia.business.core.stat.domain.model.ScreeningResultStatistic;
 import lombok.Data;
+
+import java.util.Objects;
 
 /**
  * 小学及以上筛查数据结果
@@ -68,4 +73,32 @@ public class PrimarySchoolAndAboveResultDetailVO implements SchoolResultDetailVO
      */
     private QuestionnaireDO questionnaire;
 
+    public void setBaseData(ScreeningNotice screeningNotice, School school) {
+        if (Objects.nonNull(screeningNotice)){
+            this.screeningType=screeningNotice.getScreeningType();
+        }
+        if (Objects.nonNull(school)){
+            this.districtId=school.getDistrictId();
+            this.rangeName=school.getName();
+        }
+    }
+
+    public void setItemData(ScreeningResultStatistic screeningResultStatistic) {
+
+        if (Objects.nonNull(screeningResultStatistic)) {
+            ScreeningSituationDO screeningSituationDO = new ScreeningSituationDO();
+            screeningSituationDO.setPlanScreeningNum(screeningResultStatistic.getPlanScreeningNum())
+                    .setRealScreeningNum(screeningResultStatistic.getRealScreeningNum())
+                    .setFinishRatio("")
+                    .setValidScreeningNum(screeningResultStatistic.getValidScreeningNum());
+
+            this.screeningSituation=screeningSituationDO;
+            this.primarySchoolAndAboveVisionAnalysis=(PrimarySchoolAndAboveVisionAnalysisDO)screeningResultStatistic.getVisionAnalysis();
+            this.visionWarning=screeningResultStatistic.getVisionWarning();
+            this.rescreenSituation=screeningResultStatistic.getRescreenSituation();
+            this.saprodontia=screeningResultStatistic.getSaprodontia();
+            this.commonDisease=screeningResultStatistic.getCommonDisease();
+            this.questionnaire=screeningResultStatistic.getQuestionnaire();
+        }
+    }
 }

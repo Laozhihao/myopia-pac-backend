@@ -1,10 +1,20 @@
 package com.wupol.myopia.business.api.management.domain.vo;
 
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
+import com.wupol.myopia.business.core.stat.domain.dos.CommonDiseaseDO;
+import com.wupol.myopia.business.core.stat.domain.dos.PrimarySchoolAndAboveVisionAnalysisDO;
+import com.wupol.myopia.business.core.stat.domain.dos.SaprodontiaDO;
+import com.wupol.myopia.business.core.stat.domain.model.ScreeningResultStatistic;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.springframework.beans.BeanUtils;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 小学及以上筛查数据结果
@@ -25,9 +35,15 @@ public class SchoolPrimarySchoolAndAboveResultVO {
     private Integer screeningType;
 
     /**
+     *  是否幼儿园
+     */
+    private Boolean isKindergarten;
+
+    /**
      * 内容
      */
     private Set<Item> contents;
+
 
     @Data
     @Accessors(chain = true)
@@ -58,9 +74,19 @@ public class SchoolPrimarySchoolAndAboveResultVO {
         private Integer realScreeningNum;
 
         /**
+         *  实际筛查的学生比例（完成率）
+         */
+        private String finishRatio;
+
+        /**
          * 纳入统计的实际筛查学生数量（默认0）
          */
         private Integer validScreeningNum;
+
+        /**
+         * 纳入统计的实际筛查学生比例
+         */
+        private String validScreeningRatio;
 
         /**
          * 视力低下人数（默认0）
@@ -70,7 +96,7 @@ public class SchoolPrimarySchoolAndAboveResultVO {
         /**
          * 视力低下比例（均为整数，如10.01%，数据库则是1001）
          */
-        private BigDecimal lowVisionRatio;
+        private String lowVisionRatio;
 
         /**
          * 平均左眼视力（小数点后二位，默认0.00）
@@ -90,7 +116,7 @@ public class SchoolPrimarySchoolAndAboveResultVO {
         /**
          * 建议就诊比例（均为整数，如10.01%，数据库则是1001）
          */
-        private BigDecimal treatmentAdviceRatio;
+        private String treatmentAdviceRatio;
 
         /**
          * 小学及以上--近视人数（默认0）
@@ -100,7 +126,7 @@ public class SchoolPrimarySchoolAndAboveResultVO {
         /**
          * 小学及以上--近视比例（均为整数，如10.01%，数据库则是1001）
          */
-        private BigDecimal myopiaRatio;
+        private String myopiaRatio;
 
         /**
          *  视力筛查项
@@ -126,7 +152,7 @@ public class SchoolPrimarySchoolAndAboveResultVO {
         /**
          * 小学及以上--近视前期率
          */
-        private BigDecimal myopiaLevelEarlyRatio;
+        private String myopiaLevelEarlyRatio;
 
         /**
          * 小学及以上--低度近视人数（默认0）
@@ -136,7 +162,7 @@ public class SchoolPrimarySchoolAndAboveResultVO {
         /**
          * 小学及以上--低度近视率
          */
-        private BigDecimal lowMyopiaRatio;
+        private String lowMyopiaRatio;
 
         /**
          * 小学及以上--高度近视人数（默认0）
@@ -146,7 +172,7 @@ public class SchoolPrimarySchoolAndAboveResultVO {
         /**
          * 小学及以上--高度近视率
          */
-        private BigDecimal highMyopiaRatio;
+        private String highMyopiaRatio;
     }
 
     @Data
@@ -160,7 +186,7 @@ public class SchoolPrimarySchoolAndAboveResultVO {
         /**
          * 小学及以上--龋均率
          */
-        private BigDecimal dmftRatio;
+        private String dmftRatio;
 
         /**
          * 小学及以上--超重人数（默认0）
@@ -170,7 +196,7 @@ public class SchoolPrimarySchoolAndAboveResultVO {
         /**
          * 小学及以上--超重率
          */
-        private BigDecimal overweightRatio;
+        private String overweightRatio;
 
         /**
          * 小学及以上--肥胖人数（默认0）
@@ -180,7 +206,7 @@ public class SchoolPrimarySchoolAndAboveResultVO {
         /**
          * 小学及以上--肥胖率
          */
-        private BigDecimal obeseRatio;
+        private String obeseRatio;
 
         /**
          * 小学及以上--脊柱弯曲异常人数（默认0）
@@ -190,7 +216,7 @@ public class SchoolPrimarySchoolAndAboveResultVO {
         /**
          * 小学及以上--脊柱弯曲异常率
          */
-        private BigDecimal abnormalSpineCurvatureRatio;
+        private String abnormalSpineCurvatureRatio;
 
         /**
          * 小学及以上--血压偏高人数（默认0）
@@ -200,7 +226,7 @@ public class SchoolPrimarySchoolAndAboveResultVO {
         /**
          * 小学及以上--血压偏高率
          */
-        private BigDecimal highBloodPressureRatio;
+        private String highBloodPressureRatio;
 
         /**
          * 小学及以上--复查学生人数（默认0）
@@ -210,6 +236,64 @@ public class SchoolPrimarySchoolAndAboveResultVO {
         /**
          * 小学及以上--复查学生率
          */
-        private BigDecimal reviewStudentRatio;
+        private String reviewStudentRatio;
+    }
+
+    public void setBasicData(ScreeningNotice screeningNotice) {
+        if (Objects.nonNull(screeningNotice)){
+            this.screeningNoticeId = screeningNotice.getId();
+            this.screeningType = screeningNotice.getScreeningType();
+        }
+
+    }
+
+    public void setItemData(List<ScreeningResultStatistic> screeningResultStatistics, Map<Integer, String> schoolIdDistrictNameMap) {
+        // 下级数据
+        this.contents = screeningResultStatistics.stream()
+                .map(screeningResultStatistic -> {
+                    Integer districtId = screeningResultStatistic.getDistrictId();
+                    String schoolDistrictName = schoolIdDistrictNameMap.get(districtId);
+                    return getItem(screeningResultStatistic,schoolDistrictName,districtId);
+                })
+                .collect(Collectors.toSet());
+    }
+
+    private Item getItem(ScreeningResultStatistic screeningResultStatistic,
+                                                    String schoolDistrictName, Integer districtId){
+        Item item = new Item();
+        item.setScreeningRangeName("")
+                .setSchoolId(screeningResultStatistic.getSchoolId())
+                .setScreeningPlanId(screeningResultStatistic.getScreeningPlanId())
+                .setPlanScreeningNum(screeningResultStatistic.getPlanScreeningNum())
+                .setRealScreeningNum(screeningResultStatistic.getRealScreeningNum())
+                .setFinishRatio(screeningResultStatistic.getFinishRatio())
+                .setValidScreeningNum(screeningResultStatistic.getValidScreeningNum())
+                .setValidScreeningRatio(screeningResultStatistic.getValidScreeningRatio());
+
+        PrimarySchoolAndAboveVisionAnalysisDO visionAnalysis = (PrimarySchoolAndAboveVisionAnalysisDO)screeningResultStatistic.getVisionAnalysis();
+        item.setLowVisionNum(visionAnalysis.getLowVisionNum())
+                .setLowVisionRatio(visionAnalysis.getLowVisionRatio())
+                .setAvgLeftVision(visionAnalysis.getAvgLeftVision())
+                .setAvgRightVision(visionAnalysis.getAvgRightVision())
+                .setTreatmentAdviceNum(visionAnalysis.getTreatmentAdviceNum())
+                .setTreatmentAdviceRatio(visionAnalysis.getTreatmentAdviceRatio())
+                .setMyopiaNum(visionAnalysis.getMyopiaNum())
+                .setMyopiaRatio(visionAnalysis.getMyopiaRatio());
+
+        if (Objects.equals(0,screeningType)){
+            VisionItem visionItem = new VisionItem();
+            BeanUtils.copyProperties(visionAnalysis,visionAnalysis);
+            item.setVisionItem(visionItem);
+        }else {
+            SaprodontiaDO saprodontia = screeningResultStatistic.getSaprodontia();
+            CommonDiseaseDO commonDisease = screeningResultStatistic.getCommonDisease();
+            CommonDiseaseItem commonDiseaseItem= new CommonDiseaseItem();
+            commonDiseaseItem.setDmftNum(saprodontia.getDmftNum())
+                    .setDmftRatio(saprodontia.getDmftRatio());
+            BeanUtils.copyProperties(commonDisease,commonDiseaseItem);
+            item.setCommonDiseaseItem(commonDiseaseItem);
+        }
+
+        return item;
     }
 }

@@ -17,7 +17,8 @@ import com.wupol.myopia.business.core.screening.organization.domain.model.Screen
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.stat.domain.model.CommonDiseaseScreeningResultStatistic;
 import com.wupol.myopia.business.core.stat.domain.model.VisionScreeningResultStatistic;
-import com.wupol.myopia.business.core.stat.service.ScreeningResultStatisticService;
+import com.wupol.myopia.business.core.stat.service.CommonDiseaseScreeningResultStatisticService;
+import com.wupol.myopia.business.core.stat.service.VisionScreeningResultStatisticService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -40,7 +41,9 @@ public class SchoolStatisticTask {
     private final SchoolService schoolService;
     private final ScreeningOrganizationService screeningOrganizationService;
     private final ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
-    private final ScreeningResultStatisticService screeningResultStatisticService;
+    private final VisionScreeningResultStatisticService visionScreeningResultStatisticService;
+    private final CommonDiseaseScreeningResultStatisticService commonDiseaseScreeningResultStatisticService;
+
 
     /**
      * 按学校统计
@@ -60,14 +63,14 @@ public class SchoolStatisticTask {
         List<VisionScreeningResultStatistic> visionScreeningResultStatisticList = visionScreeningResultStatistic(screeningTypeStatConclusionMap);
         if (CollectionUtil.isNotEmpty(visionScreeningResultStatisticList)){
             for (VisionScreeningResultStatistic visionScreeningResultStatistic : visionScreeningResultStatisticList) {
-                screeningResultStatisticService.saveVisionScreeningResultStatistic(visionScreeningResultStatistic);
+                visionScreeningResultStatisticService.saveVisionScreeningResultStatistic(visionScreeningResultStatistic);
             }
         }
         //常见病筛查
         List<CommonDiseaseScreeningResultStatistic> commonDiseaseScreeningResultStatisticList = commonDiseaseScreeningResultStatistic(screeningTypeStatConclusionMap);
         if (CollectionUtil.isNotEmpty(commonDiseaseScreeningResultStatisticList)){
             for ( CommonDiseaseScreeningResultStatistic commonDiseaseScreeningResultStatistic : commonDiseaseScreeningResultStatisticList) {
-                screeningResultStatisticService.saveCommonDiseaseScreeningResultStatistic(commonDiseaseScreeningResultStatistic);
+                commonDiseaseScreeningResultStatisticService.saveCommonDiseaseScreeningResultStatistic(commonDiseaseScreeningResultStatistic);
             }
         }
 

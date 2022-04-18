@@ -1,10 +1,17 @@
 package com.wupol.myopia.business.api.management.domain.vo;
 
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
+import com.wupol.myopia.business.core.stat.domain.dos.KindergartenVisionAnalysisDO;
+import com.wupol.myopia.business.core.stat.domain.model.ScreeningResultStatistic;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 幼儿园筛查数据结果
@@ -23,6 +30,12 @@ public class SchoolKindergartenResultVO {
      * 筛查类型
      */
     private Integer screeningType;
+
+
+    /**
+     *  是否幼儿园
+     */
+    private Boolean isKindergarten;
 
     /**
      *  内容
@@ -58,9 +71,19 @@ public class SchoolKindergartenResultVO {
         private Integer realScreeningNum;
 
         /**
+         *  实际筛查的学生比例（完成率）
+         */
+        private String finishRatio;
+
+        /**
          * 纳入统计的实际筛查学生数量（默认0）
          */
         private Integer validScreeningNum;
+
+        /**
+         * 纳入统计的实际筛查学生比例
+         */
+        private String validScreeningRatio;
 
         /**
          * 视力低下人数（默认0）
@@ -70,7 +93,7 @@ public class SchoolKindergartenResultVO {
         /**
          * 视力低下比例（均为整数，如10.01%，数据库则是1001）
          */
-        private BigDecimal lowVisionRatio;
+        private String lowVisionRatio;
 
         /**
          * 平均左眼视力（小数点后二位，默认0.00）
@@ -90,7 +113,7 @@ public class SchoolKindergartenResultVO {
         /**
          * 幼儿园--屈光不正比例（均为整数，如10.01%，数据库则是1001）
          */
-        private BigDecimal ametropiaRatio;
+        private String ametropiaRatio;
 
         /**
          * 幼儿园--屈光参差人数（默认0）
@@ -100,7 +123,7 @@ public class SchoolKindergartenResultVO {
         /**
          * 幼儿园--屈光参差率
          */
-        private BigDecimal anisometropiaRatio;
+        private String anisometropiaRatio;
 
         /**
          * 幼儿园--远视储备不足人数（默认0）
@@ -110,7 +133,7 @@ public class SchoolKindergartenResultVO {
         /**
          * 幼儿园--远视储备不足率
          */
-        private BigDecimal myopiaLevelInsufficientNumRatio;
+        private String myopiaLevelInsufficientRatio;
 
         /**
          * 建议就诊数量（默认0）
@@ -120,8 +143,54 @@ public class SchoolKindergartenResultVO {
         /**
          * 建议就诊比例（均为整数，如10.01%，数据库则是1001）
          */
-        private BigDecimal treatmentAdviceRatio;
+        private String treatmentAdviceRatio;
 
     }
 
+    public void setBasicData(ScreeningNotice screeningNotice) {
+        if (Objects.nonNull(screeningNotice)){
+            this.screeningNoticeId = screeningNotice.getId();
+            this.screeningType = screeningNotice.getScreeningType();
+        }
+    }
+
+    public void setItemData(List<ScreeningResultStatistic> screeningResultStatistics, Map<Integer, String> schoolIdDistrictNameMap) {
+        // 下级数据 + 当前数据 + 合计数据
+       this.contents = screeningResultStatistics.stream()
+               .map(screeningResultStatistic -> {
+                    Integer districtId = screeningResultStatistic.getDistrictId();
+                    String schoolDistrictName = schoolIdDistrictNameMap.get(districtId);
+                    return getItem(screeningResultStatistic,schoolDistrictName,districtId);
+                })
+               .collect(Collectors.toSet());
+    }
+
+    private Item getItem(ScreeningResultStatistic screeningResultStatistic,
+                         String schoolDistrictName,Integer districtId){
+        Item item = new Item();
+        item.setScreeningRangeName("")
+                .setSchoolId(screeningResultStatistic.getSchoolId())
+                .setScreeningPlanId(screeningResultStatistic.getScreeningPlanId())
+                .setPlanScreeningNum(screeningResultStatistic.getPlanScreeningNum())
+                .setRealScreeningNum(screeningResultStatistic.getRealScreeningNum())
+                .setFinishRatio(screeningResultStatistic.getFinishRatio())
+                .setValidScreeningNum(screeningResultStatistic.getValidScreeningNum())
+                .setValidScreeningRatio("");
+
+        KindergartenVisionAnalysisDO visionAnalysis = (KindergartenVisionAnalysisDO)screeningResultStatistic.getVisionAnalysis();
+        item.setLowVisionNum(visionAnalysis.getLowVisionNum())
+                .setLowVisionRatio(visionAnalysis.getLowVisionRatio())
+                .setAvgLeftVision(visionAnalysis.getAvgLeftVision())
+                .setAvgRightVision(visionAnalysis.getAvgRightVision())
+                .setAmetropiaNum(visionAnalysis.getAmetropiaNum())
+                .setAmetropiaRatio(visionAnalysis.getAmetropiaRatio())
+                .setAnisometropiaNum(visionAnalysis.getAnisometropiaNum())
+                .setAnisometropiaRatio(visionAnalysis.getAnisometropiaRatio())
+                .setMyopiaLevelInsufficientNum(visionAnalysis.getMyopiaLevelInsufficientNum())
+                .setMyopiaLevelInsufficientRatio(visionAnalysis.getMyopiaLevelInsufficientNumRatio())
+                .setTreatmentAdviceNum(visionAnalysis.getTreatmentAdviceNum())
+                .setTreatmentAdviceRatio(visionAnalysis.getTreatmentAdviceRatio());
+
+        return item;
+    }
 }
