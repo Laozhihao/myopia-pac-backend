@@ -32,3 +32,12 @@ alter table m_stat_rescreen
 
 alter table m_stat_rescreen
     add physique_index_num int null comment '体格复查指数';
+
+alter table m_stat_rescreen
+    add physique_rescreen_item_num int null comment '体格-复测项次';
+
+alter table m_stat_rescreen
+    add physique_incorrect_item_num int null comment '体格-错误项次数';
+
+alter table m_stat_rescreen
+    add physique_incorrect_ratio float(10, 2) null comment '体格-错误率/发生率';

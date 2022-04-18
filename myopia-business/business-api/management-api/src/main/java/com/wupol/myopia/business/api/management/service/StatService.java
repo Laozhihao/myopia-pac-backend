@@ -1260,4 +1260,16 @@ public class StatService {
         return statConclusionService.listByQuery(query);
     }
 
+    private void composePhysiqueReScreenConclusion(StatRescreen statRescreen, List<StatConclusion> statConclusions) {
+
+//        long errorIndexNum = rescreenConclusions.stream().mapToLong(StatConclusion::getRescreenErrorNum).sum();
+        long errorIndexNum = 0L;
+        int total = statConclusions.size();
+        statRescreen.setPhysiqueRescreenNum((long) total);
+        statRescreen.setPhysiqueIndexNum(2L);
+        statRescreen.setPhysiqueRescreenItemNum(total * 2L);
+        statRescreen.setPhysiqueIncorrectItemNum(errorIndexNum);
+        statRescreen.setPhysiqueIncorrectRatio(convertToPercentage((float) (statRescreen.getPhysiqueIncorrectItemNum() / statRescreen.getPhysiqueRescreenItemNum())));
+    }
+
 }

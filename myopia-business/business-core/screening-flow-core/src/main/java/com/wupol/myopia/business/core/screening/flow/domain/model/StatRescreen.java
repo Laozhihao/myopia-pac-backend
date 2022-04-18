@@ -116,4 +116,19 @@ public class StatRescreen implements Serializable {
      */
     private Long physiqueIndexNum;
 
+    /**
+     * 体格复测项次
+     */
+    private Long physiqueRescreenItemNum;
+
+    /**
+     * 体格错误项次数
+     */
+    private Long physiqueIncorrectItemNum;
+
+    /**
+     * 体格错误率/发生率
+     */
+    private Float physiqueIncorrectRatio;
+
 }

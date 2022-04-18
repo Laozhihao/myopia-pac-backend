@@ -5,6 +5,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.StatRescreen;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @Author wulizhou
@@ -15,5 +16,7 @@ public interface StatRescreenMapper extends BaseMapper<StatRescreen> {
     int countByPlanAndSchool(@Param("planId") Integer planId, @Param("schoolId") Integer schoolId);
 
     int deleteByScreeningTime(@Param("screeningTime") Date screeningTime);
+
+    List<Date> getSchoolDate(@Param("planId") Integer planId, @Param("schoolId") Integer schoolId);
 
 }
