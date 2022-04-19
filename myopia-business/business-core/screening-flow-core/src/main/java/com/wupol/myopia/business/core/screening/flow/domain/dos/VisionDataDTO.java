@@ -48,15 +48,15 @@ public class VisionDataDTO extends ScreeningResultBasicData {
     private BigDecimal leftNakedVision;
 
     /**
-     * 右眼等效球镜
+     * 夜戴角膜塑形镜的度数
      */
-    @JsonProperty("r_se")
-    private BigDecimal rightSphericalEquivalent;
+    @JsonProperty("r_ok_degree")
+    private BigDecimal rightOkDegree;
     /**
-     * 左眼等效球镜
+     * 夜戴角膜塑形镜的度数
      */
-    @JsonProperty("l_se")
-    private BigDecimal leftSphericalEquivalent;
+    @JsonProperty("l_ok_degree")
+    private BigDecimal leftOkDegree;
 
     /**
      * 初步诊断结果：0-正常、1-（疑似）异常
@@ -104,14 +104,14 @@ public class VisionDataDTO extends ScreeningResultBasicData {
             visionDataDTO.setLeftNakedVision(leftEye.getNakedVision());
             visionDataDTO.setLeftCorrectedVision(leftEye.getCorrectedVision());
             visionDataDTO.setGlassesType(WearingGlassesSituation.getType(leftEye.getGlassesType()));
-            visionDataDTO.setLeftSphericalEquivalent(leftEye.getSphericalEquivalent());
+            visionDataDTO.setLeftOkDegree(leftEye.getOkDegree());
         }
         VisionDataDO.VisionData rightEye = visionDataDO.getRightEyeData();
         if (Objects.nonNull(rightEye)) {
             visionDataDTO.setRightNakedVision(rightEye.getNakedVision());
             visionDataDTO.setRightCorrectedVision(rightEye.getCorrectedVision());
             visionDataDTO.setGlassesType(WearingGlassesSituation.getType(rightEye.getGlassesType()));
-            visionDataDTO.setRightSphericalEquivalent(rightEye.getSphericalEquivalent());
+            visionDataDTO.setRightOkDegree(rightEye.getOkDegree());
         }
         visionDataDTO.setDiagnosis(visionDataDO.getDiagnosis());
         visionDataDTO.setIsCooperative(visionDataDO.getIsCooperative());
