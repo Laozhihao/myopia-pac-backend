@@ -491,7 +491,7 @@ public class ScreeningAppController {
         VisionScreeningResult screeningResult = visionScreeningResultService.findOne(new VisionScreeningResult().setScreeningPlanSchoolStudentId(planStudentId).setIsDoubleScreen(isState == 1));
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getById(planStudentId);
         StudentVO studentVO = StudentVO.getInstance(screeningPlanSchoolStudent);
-        return StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO);
+        return StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO,screeningPlanSchoolStudent);
     }
 
     /**

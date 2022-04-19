@@ -86,7 +86,7 @@ class ScreeningAppServiceTest {
         VisionScreeningResult screeningResult = visionScreeningResultService.findOne(new VisionScreeningResult().setScreeningPlanSchoolStudentId(planStudentId).setIsDoubleScreen(isState == 1));
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getById(planStudentId);
         StudentVO studentVO = StudentVO.getInstance(screeningPlanSchoolStudent);
-        System.out.println(JSON.toJSONString(StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO)));
+        System.out.println(JSON.toJSONString(StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO,screeningPlanSchoolStudent)));
     }
 
     /**

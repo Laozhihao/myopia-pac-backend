@@ -2,12 +2,14 @@ package com.wupol.myopia.business.core.screening.flow.domain.vo;
 
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.AbstractDiagnosisResult;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.Assert;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -84,6 +86,30 @@ public class StudentScreeningProgressVO {
     private Integer otherStatus;
     /** 身高体重 */
     private Integer heightWeightStatus;
+    /**
+     * 未做检查说明
+     */
+    private Integer stateStatus;
+    /**
+     * 龋齿
+     */
+    private Integer saprodontiaStatus;
+    /**
+     * 脊柱
+     */
+    private Integer spineStatus;
+    /**
+     * 血压
+     */
+    private Integer bloodPressureStatus;
+    /**
+     * 疾病史检查
+     */
+    private Integer diseasesHistoryStatus;
+    /**
+     * 个人隐私保存
+     */
+    private Integer privacyStatus;
     /** 是否有异常 */
     private Boolean hasAbnormal;
     /** 是否初诊有异常 */
@@ -102,7 +128,7 @@ public class StudentScreeningProgressVO {
      * @param studentVO 学生信息
      * @return com.wupol.myopia.business.core.screening.flow.domain.vo.StudentScreeningProgressVO
      **/
-    public static StudentScreeningProgressVO getInstanceWithDefault(VisionScreeningResult screeningResult, StudentVO studentVO) {
+    public static StudentScreeningProgressVO getInstanceWithDefault(VisionScreeningResult screeningResult, StudentVO studentVO, ScreeningPlanSchoolStudent screeningPlanSchoolStudent) {
         Assert.notNull(studentVO, "学生信息不能为空");
         StudentScreeningProgressVO studentScreeningProgressVO = new StudentScreeningProgressVO();
         BeanUtils.copyProperties(studentVO, studentScreeningProgressVO);
@@ -110,7 +136,10 @@ public class StudentScreeningProgressVO {
         // 筛查结果为空则返回默认值
         if (Objects.isNull(screeningResult)) {
             return studentScreeningProgressVO.setVisionStatus(UNCHECK_MUST).setEyePositionStatus(UNCHECK_MUST).setSliLampStatus(isKindergarten ? UNCHECK : UNCHECK_MUST).setDiopterStatus(isKindergarten ? UNCHECK : UNCHECK_MUST)
-                    .setPupillaryOptometryStatus(UNCHECK).setBiometricsStatus(UNCHECK).setPressureStatus(UNCHECK).setFundusStatus(UNCHECK).setOtherStatus(UNCHECK).setHeightWeightStatus(UNCHECK).setResult(false).setHasAbnormal(false);
+                    .setPupillaryOptometryStatus(UNCHECK).setBiometricsStatus(UNCHECK).setPressureStatus(UNCHECK).setFundusStatus(UNCHECK).setOtherStatus(UNCHECK)
+                    .setSaprodontiaStatus(UNCHECK).setSpineStatus(UNCHECK_MUST)
+                    .setBloodPressureStatus(UNCHECK).setDiseasesHistoryStatus(UNCHECK_MUST).setPrivacyStatus(UNCHECK)
+                    .setHeightWeightStatus(UNCHECK).setResult(false).setHasAbnormal(false);
         }
         // 默认完成了所有必要检查
         isAllMustCheckDone.set(true);
@@ -135,11 +164,36 @@ public class StudentScreeningProgressVO {
         studentScreeningProgressVO.setGradeId(studentVO.getGradeId());
         studentScreeningProgressVO.setClassId(studentVO.getClassId());
         studentScreeningProgressVO.setGradeName(studentVO.getGrade());
+
+        studentScreeningProgressVO.setStateStatus(screeningPlanSchoolStudent.getState());
+        studentScreeningProgressVO.setSaprodontiaStatus(getProgress(screeningResult.getSaprodontiaData(),false));
+        studentScreeningProgressVO.setSpineStatus(getProgress(screeningResult.getSpineData(),false));
+        studentScreeningProgressVO.setBloodPressureStatus(getProgress(screeningResult.getBloodPressureData(),false));
+        studentScreeningProgressVO.setDiseasesHistoryStatus(getDiseasesHistoryProgress(screeningResult.getDiseasesHistoryData()));
+        studentScreeningProgressVO.setPrivacyStatus(getProgress(screeningResult.getPrivacyData(),false));
+
         studentScreeningProgressVO.setClassName(studentVO.getClazz());
         isAllMustCheckDone.remove();
         hasAbnormalInFirstCheck.remove();
         hasAbnormalInSubsequentCheck.remove();
         return studentScreeningProgressVO;
+    }
+
+    /**
+     * 疾病史的异常判断
+     *
+     * @param diseases diseases
+     * @return int
+     */
+    private static int getDiseasesHistoryProgress(List<String> diseases) {
+        // 如果为null 是未检查，未空数组是已检查，且正常
+        if (Objects.isNull(diseases)) {
+            return UNCHECK;
+        } else if (diseases.isEmpty()) {
+            return NORMAL;
+        } else {
+            return ABNORMAL;
+        }
     }
 
     /**
