@@ -76,7 +76,7 @@ public class ReScreeningCardUtil {
         vision.setComputerOptometryResult(computerOptometryResult(firstScreeningResult, reScreeningResult));
         vision.setVisionOrOptometryDeviation(EyeDataUtil.optometryDeviation(reScreeningResult));
         vision.setQualityControlName(qualityControlName);
-        vision.setCreateTime(reScreeningResult.getCreateTime());
+        vision.setCreateTime(EyeDataUtil.createTime(reScreeningResult));
 
         retestResultCard.setVision(vision);
 
@@ -95,7 +95,7 @@ public class ReScreeningCardUtil {
 
         commonDiseases.setHeightAndWeightResult(heightAndWeightResult);
         commonDiseases.setQualityControlName(qualityControlName);
-        commonDiseases.setCreateTime(reScreeningResult.getCreateTime());
+        commonDiseases.setCreateTime(EyeDataUtil.createTime(reScreeningResult));
 
         retestResultCard.setCommonDiseases(commonDiseases);
         return retestResultCard;

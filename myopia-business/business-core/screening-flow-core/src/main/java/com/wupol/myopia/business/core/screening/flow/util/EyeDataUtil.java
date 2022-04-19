@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -642,6 +643,17 @@ public class EyeDataUtil {
         return null;
     }
 
+    /**
+     * 创建时间
+     * @param visionScreeningResult
+     * @return
+     */
+    public static Date createTime(VisionScreeningResult visionScreeningResult) {
+        if (visionScreeningResult != null) {
+            return  visionScreeningResult.getCreateTime();
+        }
+        return null;
+    }
 
 
 
