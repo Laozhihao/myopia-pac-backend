@@ -57,7 +57,7 @@ class VisionScreeningBizServiceTest {
         visionScreeningBizService.saveOrUpdateStudentScreenData(otherEyeDiseasesDTO);
 
         // 龋齿检查
-        SaprodontiaDTO saprodontiaDTO = JSON.parseObject(ResourceHelper.getResourceAsString(getClass(), "/json/otherEyeDiseases.json"), SaprodontiaDTO.class);
+        SaprodontiaDTO saprodontiaDTO = JSON.parseObject(ResourceHelper.getResourceAsString(getClass(), "/json/saprodontia.json"), SaprodontiaDTO.class);
         if (computerOptometryTO.isValid()) {
             visionScreeningBizService.saveOrUpdateStudentScreenData(saprodontiaDTO);
         } else {
@@ -85,14 +85,14 @@ class VisionScreeningBizServiceTest {
             System.out.println("血压检查异常");
         }
         // 疾病史
-        DiseasesHistoryDTO diseasesHistoryDTO = JSON.parseObject(ResourceHelper.getResourceAsString(getClass(), "/json/bloodPressure.json"), DiseasesHistoryDTO.class);
+        DiseasesHistoryDTO diseasesHistoryDTO = JSON.parseObject(ResourceHelper.getResourceAsString(getClass(), "/json/diseasesHistory.json"), DiseasesHistoryDTO.class);
         if (diseasesHistoryDTO.isValid()) {
             visionScreeningBizService.saveOrUpdateStudentScreenData(diseasesHistoryDTO);
         } else {
             System.out.println("疾病史异常");
         }
         // 个人隐私
-        PrivacyDTO privacyDTO = JSON.parseObject(ResourceHelper.getResourceAsString(getClass(), "/json/bloodPressure.json"), PrivacyDTO.class);
+        PrivacyDTO privacyDTO = JSON.parseObject(ResourceHelper.getResourceAsString(getClass(), "/json/privacy.json"), PrivacyDTO.class);
         if (privacyDTO.isValid()) {
             visionScreeningBizService.saveOrUpdateStudentScreenData(privacyDTO);
         } else {

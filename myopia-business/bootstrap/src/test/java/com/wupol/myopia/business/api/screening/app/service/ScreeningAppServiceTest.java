@@ -103,6 +103,9 @@ class ScreeningAppServiceTest {
         visionScreeningBizService.verifyScreening(screeningResult);
     }
 
+    /**
+     * 不能检查原因
+     */
     @Test
     void addNoExamine() {
         Integer planStudentId = 19;
@@ -114,6 +117,9 @@ class ScreeningAppServiceTest {
         System.out.println("成功");
     }
 
+    /**
+     * 筛查不准说明
+     */
     @Test
     void addInaccurate() {
         DeviationDTO deviationDTO = JSON.parseObject(ResourceHelper.getResourceAsString(getClass(), "/json/deviation.json"), DeviationDTO.class);

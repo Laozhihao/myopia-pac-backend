@@ -9,10 +9,10 @@
   "glassesType": "没有佩戴眼镜",
   "rightCorrectedVision": 0.5,
   "leftCorrectedVision": 0.4,
-  "rightNakedVision": null,
-  "leftNakedVision": null,
+  "rightNakedVision": 0.2,
+  "leftNakedVision": 0.2,
   "diagnosis": 0,
   "isState": 0,
-  "leftSphericalEquivalent": null,
-  "rightSphericalEquivalent": null
+  "leftSphericalEquivalent": 0.2,
+  "rightSphericalEquivalent": 0.2
 }
