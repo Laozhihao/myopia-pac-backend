@@ -25,7 +25,7 @@ INSERT into m_screening_notice_dept_org (screening_notice_id,district_id,accept_
 
 -- 筛查数据结论表 新增筛查类型字段
 ALTER TABLE m_stat_conclusion ADD screening_type TINYINT(3) DEFAULT 0 NOT NULL COMMENT '筛查类型：0-视力筛查、1-常见病';
-ALTER TABLE m_stat_conclusion ADD physique_rescreening_error_num INT UNSIGNED DEFAULT 0 NOT NULL COMMENT '体格复测错误项次';
+ALTER TABLE m_stat_conclusion ADD physique_rescreen_error_num INT UNSIGNED DEFAULT 0 NOT NULL COMMENT '体格复测错误项次';
 
 -- 筛查数据结论表新增常见病的字段
 ALTER TABLE m_stat_conclusion ADD is_saprodontia TINYINT(1) NULL COMMENT '是否龋齿';
@@ -67,4 +67,4 @@ CREATE TABLE `m_screening_result_statistic` (
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC COMMENT='筛查结果统计表'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC COMMENT='筛查结果统计表';
