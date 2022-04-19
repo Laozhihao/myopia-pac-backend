@@ -65,8 +65,14 @@ public class VisionScreeningResultExportDTO implements Serializable {
     @ExcelProperty({"地址", "地址", "地址"})
     private String address;
 
+    @ExcelProperty({"是否有做检查（未做检查的原因）", "是否有做检查（未做检查的原因）", "是否有做检查（未做检查的原因）"})
+    private String state;
+
     @ExcelProperty({"是否有效数据", "是否有效数据", "是否有效数据"})
     private String isValid;
+
+    @ExcelProperty({TOP_HEADER, "是否复测", "是否复测"})
+    private String isRescreenDesc;
 
     @ExcelProperty({TOP_HEADER, "33cm眼位", "内斜"})
     private String ocularInspectionSotropia;
@@ -201,9 +207,6 @@ public class VisionScreeningResultExportDTO implements Serializable {
 
     @ExcelProperty({TOP_HEADER, "预警级别", "预警级别"})
     private String warningLevelDesc;
-
-    @ExcelProperty({TOP_HEADER, "是否复测", "是否复测"})
-    private String isRescreenDesc;
 
     @ExcelProperty({TOP_HEADER2, "视力检查", "戴镜情况"})
     private String reScreenGlassesTypeDesc;

@@ -65,7 +65,111 @@ public class CommonDiseaseDataExportDTO implements Serializable {
     @ExcelProperty({"地址", "地址", "地址"})
     private String address;
 
+    @ExcelProperty({"是否有做检查（未做检查的原因）", "是否有做检查（未做检查的原因）", "是否有做检查（未做检查的原因）"})
+    private String state;
+
     @ExcelProperty({"是否有效数据", "是否有效数据", "是否有效数据"})
     private String isValid;
+
+    @ExcelProperty({TOP_HEADER, "是否复测", "是否复测"})
+    private String isRescreenDesc;
+
+    @ExcelProperty({TOP_HEADER, "视力检查", "戴镜情况"})
+    private String glassesTypeDesc;
+    @ExcelProperty({TOP_HEADER, "视力检查", "裸眼（右）"})
+    private String rightNakedVisions;
+    @ExcelProperty({TOP_HEADER, "视力检查", "裸眼（左）"})
+    private String leftNakedVisions;
+    @ExcelProperty({TOP_HEADER, "视力检查", "矫正（右）"})
+    private String rightCorrectedVisions;
+    @ExcelProperty({TOP_HEADER, "视力检查", "矫正（左）"})
+    private String leftCorrectedVisions;
+
+    @ExcelProperty({TOP_HEADER, "电脑验光", "球镜（右）"})
+    private String rightSphs;
+    @ExcelProperty({TOP_HEADER, "电脑验光", "柱镜（右）"})
+    private String rightCyls;
+    @ExcelProperty({TOP_HEADER, "电脑验光", "轴位（右）"})
+    private String rightAxials;
+    @ExcelProperty({TOP_HEADER, "电脑验光", "球镜（左）"})
+    private String leftSphs;
+    @ExcelProperty({TOP_HEADER, "电脑验光", "柱镜（左）"})
+    private String leftCyls;
+    @ExcelProperty({TOP_HEADER, "电脑验光", "轴位（左）"})
+    private String leftAxials;
+
+    @ExcelProperty({TOP_HEADER, "身高体重", "身高"})
+    private String height;
+    @ExcelProperty({TOP_HEADER, "身高体重", "体重"})
+    private String weight;
+
+
+    @ExcelProperty({TOP_HEADER, "龋齿检查", "乳牙 龋（d）：失（m）：0 补（f）"})
+    private String a;
+    @ExcelProperty({TOP_HEADER, "龋齿检查", "恒牙 龋（D）：失（M）：0 补（F）"})
+    private String b;
+
+    @ExcelProperty({TOP_HEADER, "脊柱弯曲", "胸段侧弯"})
+    private String c;
+    @ExcelProperty({TOP_HEADER, "脊柱弯曲", "胸腰段侧弯"})
+    private String d;
+    @ExcelProperty({TOP_HEADER, "脊柱弯曲", "腰段侧弯"})
+    private String e;
+    @ExcelProperty({TOP_HEADER, "脊柱弯曲", "前后弯曲"})
+    private String f;
+
+    @ExcelProperty({TOP_HEADER, "血压", "舒张压"})
+    private String g;
+    @ExcelProperty({TOP_HEADER, "血压", "收缩压"})
+    private String h;
+
+    @ExcelProperty({TOP_HEADER, "疾病史", "疾病史"})
+    private String i;
+    @ExcelProperty({TOP_HEADER, "个人隐私", "个人隐私"})
+    private String j;
+
+    @ExcelProperty({TOP_HEADER, "其他眼病", "眼部疾病左"})
+    private String otherEyeDiseasesLeftEyeDiseases;
+    @ExcelProperty({TOP_HEADER, "其他眼病", "眼部疾病右"})
+    private String otherEyeDiseasesRightEyeDiseases;
+    @ExcelProperty({TOP_HEADER, "其他眼病", "全身疾病在眼部的表现"})
+    private String otherEyeDiseasesSystemicDiseaseSymptom;
+    @ExcelProperty({TOP_HEADER, "其他眼病", "盲及视力损害分类（右）"})
+    private String rightOtherEyeDiseasesLevel;
+    @ExcelProperty({TOP_HEADER, "其他眼病", "盲及视力损害分类（左）"})
+    private String leftOtherEyeDiseasesLevel;
+
+
+    @ExcelProperty({TOP_HEADER2, "视力检查", "戴镜情况"})
+    private String reScreenGlassesTypeDesc;
+    @ExcelProperty({TOP_HEADER2, "视力检查", "裸眼（右）"})
+    private String rightReScreenNakedVisions;
+    @ExcelProperty({TOP_HEADER2, "视力检查", "裸眼（左）"})
+    private String leftReScreenNakedVisions;
+    @ExcelProperty({TOP_HEADER2, "视力检查", "矫正（右）"})
+    private String rightReScreenCorrectedVisions;
+    @ExcelProperty({TOP_HEADER2, "视力检查", "矫正（左）"})
+    private String leftReScreenCorrectedVisions;
+
+    @ExcelProperty({TOP_HEADER2, "电脑验光", "球镜（右）"})
+    private String rightReScreenSphs;
+    @ExcelProperty({TOP_HEADER2, "电脑验光", "球镜（左）"})
+    private String leftReScreenSphs;
+    @ExcelProperty({TOP_HEADER2, "电脑验光", "柱镜（右）"})
+    private String rightReScreenCyls;
+    @ExcelProperty({TOP_HEADER2, "电脑验光", "柱镜（左）"})
+    private String leftReScreenCyls;
+    @ExcelProperty({TOP_HEADER2, "电脑验光", "轴位（右）"})
+    private String rightReScreenAxials;
+    @ExcelProperty({TOP_HEADER2, "电脑验光", "轴位（左）"})
+    private String leftReScreenAxials;
+
+    @ExcelProperty({TOP_HEADER2, "身高体重", "身高"})
+    private String reHeight;
+    @ExcelProperty({TOP_HEADER2, "身高体重", "体重"})
+    private String reWeight;
+
+    @ExcelProperty({TOP_HEADER2, "误差结果说明", "误差结果说明"})
+    private String deviationData;
 
 }

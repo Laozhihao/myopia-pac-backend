@@ -5,7 +5,7 @@ import com.wupol.myopia.base.util.ListUtil;
 import com.wupol.myopia.base.util.ScreeningDataFormatUtils;
 import com.wupol.myopia.business.aggregation.export.service.IScreeningDataService;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
-import com.wupol.myopia.business.common.utils.constant.GlassesTypeEnum;
+import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
 import com.wupol.myopia.business.common.utils.constant.WarningLevel;
 import com.wupol.myopia.business.core.common.service.DistrictService;
@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -103,7 +102,7 @@ public class VisionScreeningDataServiceImpl implements IScreeningDataService {
     private void genReScreeningData(Map<Integer, StatConclusionExportDTO> rescreenPlanStudentIdDTOMap, StatConclusionExportDTO dto, VisionScreeningResultExportDTO exportDTO) {
         StatConclusionExportDTO rescreenVo = rescreenPlanStudentIdDTOMap.get(dto.getScreeningPlanSchoolStudentId());
         if (Objects.nonNull(rescreenVo)) {
-            exportDTO.setReScreenGlassesTypeDesc(getGlassesType(JSONPath.eval(rescreenVo, ScreeningResultPahtConst.PATH_GLASSES_TYPE)));
+            exportDTO.setReScreenGlassesTypeDesc(ScreeningDataFormatUtils.getGlassesType(JSONPath.eval(rescreenVo, ScreeningResultPahtConst.PATH_GLASSES_TYPE)));
             exportDTO.setLeftReScreenNakedVisions(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.LEFTEYE_NAKED_VISION)));
             exportDTO.setRightReScreenNakedVisions(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHTEYE_NAKED_VISION)));
             exportDTO.setLeftReScreenCorrectedVisions(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.LEFTEYE_CORRECTED_VISION)));
@@ -179,46 +178,7 @@ public class VisionScreeningDataServiceImpl implements IScreeningDataService {
         exportDTO.setLeftOtherEyeDiseasesLevel(ScreeningDataFormatUtils.levelDateFormat(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_VLLD_LEFT_LEVEL)));
         exportDTO.setRightOtherEyeDiseasesLevel(ScreeningDataFormatUtils.levelDateFormat(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_VLLD_RIGHT_LEVEL)));
 
-        exportDTO.setHeight(getHeight(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_HW_HEIGHT)));
-        exportDTO.setWeight(getWeight(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_HW_WEIGHT)));
-    }
-
-    /**
-     * 设置身高
-     *
-     * @param height 身高
-     * @return 身高
-     */
-    private String getHeight(Object height) {
-        if (Objects.isNull(height)) {
-            return "--";
-        }
-        return StringUtils.isNotBlank(String.valueOf(height)) ? new BigDecimal(String.valueOf(height)).setScale(1, RoundingMode.DOWN) + "cm" : "--";
-    }
-
-    /**
-     * 设置体重
-     *
-     * @param weight 体重
-     * @return 体重
-     */
-    private String getWeight(Object weight) {
-        if (Objects.isNull(weight)) {
-            return "--";
-        }
-        return StringUtils.isNotBlank(String.valueOf(weight)) ? new BigDecimal(String.valueOf(weight)).setScale(1, RoundingMode.DOWN) + "kg" : "--";
-    }
-
-    /**
-     * 获取戴镜类型
-     *
-     * @param obj 数据
-     * @return 戴镜类型
-     */
-    private String getGlassesType(Object obj) {
-        if (Objects.nonNull(obj)) {
-            StringUtils.defaultIfBlank(GlassesTypeEnum.getDescByCode((Integer) obj), "--");
-        }
-        return "--";
+        exportDTO.setHeight(ScreeningDataFormatUtils.getHeight(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_HW_HEIGHT)));
+        exportDTO.setWeight(ScreeningDataFormatUtils.getWeight(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_HW_WEIGHT)));
     }
 }

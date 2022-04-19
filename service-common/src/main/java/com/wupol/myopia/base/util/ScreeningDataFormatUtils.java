@@ -3,6 +3,7 @@ package com.wupol.myopia.base.util;
 import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.Objects;
 
@@ -152,5 +153,44 @@ public class ScreeningDataFormatUtils {
     public static String generateSingleSuffixUMStr(Object val) {
         DecimalFormat decimalFormat = new DecimalFormat("0.00");
         return (StringUtils.isNotBlank((CharSequence) val) ? decimalFormat.format(new BigDecimal((String) val)) + "um" : "--");
+    }
+
+    /**
+     * 设置身高
+     *
+     * @param height 身高
+     * @return 身高
+     */
+    public static String getHeight(Object height) {
+        if (Objects.isNull(height)) {
+            return "--";
+        }
+        return StringUtils.isNotBlank(String.valueOf(height)) ? new BigDecimal(String.valueOf(height)).setScale(1, RoundingMode.DOWN) + "cm" : "--";
+    }
+
+    /**
+     * 设置体重
+     *
+     * @param weight 体重
+     * @return 体重
+     */
+    public static String getWeight(Object weight) {
+        if (Objects.isNull(weight)) {
+            return "--";
+        }
+        return StringUtils.isNotBlank(String.valueOf(weight)) ? new BigDecimal(String.valueOf(weight)).setScale(1, RoundingMode.DOWN) + "kg" : "--";
+    }
+
+    /**
+     * 获取戴镜类型
+     *
+     * @param obj 数据
+     * @return 戴镜类型
+     */
+    public static String getGlassesType(Object obj) {
+        if (Objects.nonNull(obj)) {
+            StringUtils.defaultIfBlank(GlassesTypeEnum.getDescByCode((Integer) obj), "--");
+        }
+        return "--";
     }
 }
