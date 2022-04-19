@@ -88,10 +88,8 @@ public class VisionDataDTO extends ScreeningResultBasicData {
     }
 
     public boolean isValid() {
-        // 裸眼，矫正视力必填 ，夜戴角膜镜时等效球镜为必填
-        return ObjectUtils.anyNotNull(rightNakedVision, leftNakedVision, rightCorrectedVision, leftCorrectedVision) &&
-                (!WearingGlassesSituation.getKey(glassesType).equals(WearingGlassesSituation.WEARING_OVERNIGHT_ORTHOKERATOLOGY_KEY)
-                        || ObjectUtils.anyNotNull(rightOkDegree, leftOkDegree));
+        // 裸眼，矫正视力必填
+        return ObjectUtils.anyNotNull(rightNakedVision, leftNakedVision, rightCorrectedVision, leftCorrectedVision);
     }
 
     public static VisionDataDTO getInstance(VisionDataDO visionDataDO) {
