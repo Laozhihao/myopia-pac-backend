@@ -68,6 +68,15 @@ public class VisionScreeningResultExportDTO implements Serializable {
     @ExcelProperty("是否有效数据")
     private String isValid;
 
+    @ExcelProperty("眼压（右）")
+    private String rightEyePressureDate;
+    @ExcelProperty("眼压（左）")
+    private String leftEyePressureDate;
+    @ExcelProperty("眼底（右）")
+    private String rightFundusData;
+    @ExcelProperty("眼底（左）")
+    private String leftFundusData;
+
     @ExcelProperty({TOP_HEADER, "33cm眼位", "内斜"})
     private String ocularInspectionSotropia;
     @ExcelProperty({TOP_HEADER, "33cm眼位", "外斜"})
@@ -178,15 +187,6 @@ public class VisionScreeningResultExportDTO implements Serializable {
     private String rightBiometricVT;
     @ExcelProperty({TOP_HEADER, "生物测量", "玻璃体厚度VT（左）"})
     private String leftBiometricVT;
-
-    @ExcelProperty("眼压（右）")
-    private String rightEyePressureDate;
-    @ExcelProperty("眼压（左）")
-    private String leftEyePressureDate;
-    @ExcelProperty("眼底（右）")
-    private String rightFundusData;
-    @ExcelProperty("眼底（左）")
-    private String leftFundusData;
 
     @ExcelProperty({TOP_HEADER, "其他眼病", "眼部疾病左"})
     private String otherEyeDiseasesLeftEyeDiseases;

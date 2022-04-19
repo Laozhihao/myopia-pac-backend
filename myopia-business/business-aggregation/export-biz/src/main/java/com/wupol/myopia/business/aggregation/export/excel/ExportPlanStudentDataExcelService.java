@@ -60,9 +60,6 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
     @Resource
     private ScreeningOrganizationService screeningOrganizationService;
 
-    @Autowired
-    private ExcelFacade excelFacade;
-
 
     @Override
     public List<StatConclusionExportDTO> getExcelData(ExportCondition exportCondition) {
