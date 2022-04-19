@@ -1,30 +1,26 @@
 package com.wupol.myopia.business.aggregation.screening.service;
 
-import com.alibaba.fastjson.JSONObject;
-import com.google.common.collect.Sets;
-import com.wupol.framework.core.util.ObjectsUtil;
-import com.wupol.myopia.business.common.utils.constant.WarningLevel;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
+import cn.hutool.core.collection.CollectionUtil;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
+import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
+import com.wupol.myopia.business.core.school.service.SchoolGradeService;
+import com.wupol.myopia.business.core.screening.flow.domain.builder.StatConclusionBuilder;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
-import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -38,149 +34,104 @@ import java.util.stream.Collectors;
 public class StatConclusionBizService {
 
     private final ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
-
     private final VisionScreeningResultService visionScreeningResultService;
     private final StatConclusionService statConclusionService;
+    private final SchoolGradeService schoolGradeService;
 
     /**
-     * 筛查计划id - 筛查结果转筛查数据结论
-     * 1、m_screening_plan_school_student ： screeningOrgId  planStudentId（id） 获取最新的数据
-     *
-     * 2、m_vision_screening_result：screeningPlanId screeningOrgId planStudentId 获取筛查结果 （根据是否复筛，获得当前数据和复筛数据）
-     *
-     * 3、m_screening_plan_school_student ：screeningOrgId  planStudentId（id）获取最新的数据 ，构建VisionScreeningResult （没数据构建，有数据更新，更加前端传的数据是初筛还是复筛）
-     *
-     * 4、m_stat_conclusion ： resultId,  isDoubleScreen 获取筛查数据结论
-     *
-     * 5、m_school_grade ：gradeId 获取学校年级数据
-     *
-     * 6、数据大组装： StatConclusionBuilder.build() 基础数据， 视力相关的数据，身高体重相关的数据，龋齿，血压，脊柱，疾病史，隐私项
-     *
+     * 全部
      */
-
-    public void screeningToConclusion(){
-        //1.历史初筛和复筛的数据
-
-
+    public void screeningToConclusionAll(){
+        List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.list();
+        screeningToConclusion(visionScreeningResults);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-    public void screeningToConclusion(Integer planId){
-        //根据筛查计划Id 获取不是复测的筛查结果
-        List<VisionScreeningResult> visionScreeningResultList = visionScreeningResultService.getByPlanIdsOrderByUpdateTimeDesc(Sets.newHashSet(planId));
-        if (CollectionUtils.isEmpty(visionScreeningResultList)) {
+    /**
+     * 根据筛查计划Id 将筛查结果转为筛查数据结论
+     * @param planIds
+     */
+    public void screeningToConclusionByPlanIds(List<Integer> planIds){
+        if (CollectionUtil.isEmpty(planIds)){
             return;
         }
-        //筛查结果集 List To Map
-        Map<Integer, VisionScreeningResult> screeningResultMap = visionScreeningResultList.stream().collect(Collectors.toMap(VisionScreeningResult::getId, Function.identity()));
-
-        List<Integer> resultId = visionScreeningResultList.stream().map(VisionScreeningResult::getId).collect(Collectors.toList());
-        //筛查结果Id集合 获取筛查数据结论数据
-        List<StatConclusion> statConclusionList = statConclusionService.getByResultIds(resultId);
-
-        for (StatConclusion statConclusion : statConclusionList) {
-            VisionScreeningResult visionScreeningResult = screeningResultMap.get(statConclusion.getResultId());
-            if (Objects.nonNull(visionScreeningResult)) {
-                ComputerOptometryDO computerOptometry = visionScreeningResult.getComputerOptometry();
-                if (Objects.nonNull(computerOptometry)) {
-                    Integer age = statConclusion.getAge();
-                    ComputerOptometryDO.ComputerOptometry leftEyeData = computerOptometry.getLeftEyeData();
-                    ComputerOptometryDO.ComputerOptometry rightEyeData = computerOptometry.getRightEyeData();
-
-                    setMyopia(statConclusion, visionScreeningResult.getVisionData(), age, leftEyeData, rightEyeData);
-
-                    setVisionLevel(statConclusion, visionScreeningResult.getVisionData(), age);
-
-                    statConclusion.setUpdateTime(new Date());
-                }
-            }
-        }
-        statConclusionService.updateBatchById(statConclusionList);
+        List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.getByPlanIds(planIds);
+        screeningToConclusion(visionScreeningResults);
     }
 
+    private void screeningToConclusion(List<VisionScreeningResult> visionScreeningResults){
+        //1.历史初筛和复筛的数据
+        if (CollectionUtil.isEmpty(visionScreeningResults)){
+            return;
+        }
 
+        //2.筛查结果分组
+        Map<Integer, List<VisionScreeningResult>> visionScreeningResultMap = visionScreeningResults.stream().collect(Collectors.groupingBy(VisionScreeningResult::getPlanId));
+        Map<Integer, Map<Integer, TwoTuple<VisionScreeningResult, VisionScreeningResult>>> map = getMap(visionScreeningResultMap);
 
-    private void setVisionLevel(StatConclusion statConclusion, VisionDataDO visionData, Integer age) {
-        if (Objects.nonNull(visionData) && Objects.nonNull(age)) {
-            BigDecimal leftNV = visionData.getLeftEyeData().getNakedVision();
-            BigDecimal rightNV = visionData.getRightEyeData().getNakedVision();
-            Boolean isLeftLowVision;
-            Boolean isRightLowVision;
-            Integer leftCode = null;
-            Integer rightCode = null;
-            if (Objects.nonNull(leftNV)) {
-                isLeftLowVision = StatUtil.isLowVision(leftNV.floatValue(), age);
-                WarningLevel nakedVisionWarningLevel = StatUtil.getNakedVisionWarningLevel(leftNV.floatValue(), age);
-                leftCode = Objects.nonNull(nakedVisionWarningLevel) ? nakedVisionWarningLevel.code : null;
-            } else {
-                isLeftLowVision = null;
-            }
+        List<StatConclusion> statConclusionList=Lists.newArrayList();
 
-            if (Objects.nonNull(rightNV)) {
-                isRightLowVision = StatUtil.isLowVision(rightNV.floatValue(), age);
-                WarningLevel nakedVisionWarningLevel = StatUtil.getNakedVisionWarningLevel(rightNV.floatValue(), age);
-                rightCode = Objects.nonNull(nakedVisionWarningLevel) ? nakedVisionWarningLevel.code : null;
-            } else {
-                isRightLowVision = null;
-            }
+        map.keySet().forEach(planId->{
+            Map<Integer, TwoTuple<VisionScreeningResult, VisionScreeningResult>> typeMap = map.get(planId);
+            typeMap.forEach((type,tuple)-> screeningConclusionResult(tuple,statConclusionList));
+        });
 
-            if (ObjectsUtil.allNull(isLeftLowVision, isRightLowVision)) {
-                statConclusion.setIsLowVision(null);
-                statConclusion.setNakedVisionWarningLevel(null);
-            } else {
-                //是否视力低下
-                statConclusion.setIsLowVision(ObjectsUtil.allNotNull(isLeftLowVision, isRightLowVision) ? isLeftLowVision || isRightLowVision : Objects.nonNull(isLeftLowVision) ? isLeftLowVision : Boolean.TRUE.equals(isRightLowVision));
-                //裸眼视力预警级别
-                statConclusion.setNakedVisionWarningLevel(StatUtil.getSeriousLevel(leftCode, rightCode));
-            }
+        if(CollectionUtil.isNotEmpty(statConclusionList)){
+            statConclusionList.forEach(statConclusionService::saveOrUpdateStudentScreenData);
         }
     }
 
-    private void setMyopia(StatConclusion statConclusion, VisionDataDO visionData, Integer age, ComputerOptometryDO.ComputerOptometry leftEyeData, ComputerOptometryDO.ComputerOptometry rightEyeData) {
-        if (ObjectsUtil.allNotNull(leftEyeData, rightEyeData)) {
-            BigDecimal leftSpn = leftEyeData.getSph();
-            BigDecimal leftCyl = leftEyeData.getCyl();
-
-            BigDecimal rightSpn = rightEyeData.getSph();
-            BigDecimal rightCyl = rightEyeData.getCyl();
-
-            Integer leftMyopiaLevel = null;
-            Integer rightMyopiaLevel = null;
-            Integer seriousLevel = 0;
-
-            if (Objects.nonNull(visionData)
-                    && Objects.nonNull(age)
-                    && ObjectsUtil.allNotNull(visionData.getLeftEyeData(), visionData.getRightEyeData())
-                    && ObjectsUtil.allNotNull(visionData.getLeftEyeData().getNakedVision(), visionData.getRightEyeData().getNakedVision())) {
-                BigDecimal leftNV = visionData.getLeftEyeData().getNakedVision();
-                BigDecimal rightNV = visionData.getRightEyeData().getNakedVision();
-                if (ObjectsUtil.allNotNull(leftSpn, leftCyl)) {
-                    leftMyopiaLevel = StatUtil.getMyopiaLevel(leftSpn.setScale(2, RoundingMode.HALF_UP).floatValue(), leftCyl.setScale(2, RoundingMode.HALF_UP).floatValue(), age, leftNV.floatValue());
-                }
-                if (ObjectsUtil.allNotNull(rightSpn, rightCyl)) {
-                    rightMyopiaLevel = StatUtil.getMyopiaLevel(rightSpn.setScale(2, RoundingMode.HALF_UP).floatValue(), rightCyl.setScale(2, RoundingMode.HALF_UP).floatValue(), age, rightNV.floatValue());
-                }
-                if (!ObjectsUtil.allNull(leftMyopiaLevel, rightMyopiaLevel)) {
-                    seriousLevel = StatUtil.getSeriousLevel(leftMyopiaLevel, rightMyopiaLevel);
-                }
-            }
-            //近视预警等级
-            statConclusion.setMyopiaLevel(seriousLevel);
-            //是否近视
-            statConclusion.setIsMyopia(StatUtil.isMyopia(seriousLevel));
+    /**
+     * 筛查结论结果
+     */
+    private void screeningConclusionResult(TwoTuple<VisionScreeningResult, VisionScreeningResult> tuple,List<StatConclusion> statConclusionList){
+        VisionScreeningResult currentVisionScreeningResult = tuple.getFirst();
+        VisionScreeningResult secondVisionScreeningResult = tuple.getSecond();
+        result(statConclusionList, currentVisionScreeningResult, secondVisionScreeningResult);
+        if (secondVisionScreeningResult != null){
+            currentVisionScreeningResult=secondVisionScreeningResult;
+            result(statConclusionList, currentVisionScreeningResult, secondVisionScreeningResult);
         }
     }
 
+    private void result(List<StatConclusion> statConclusionList, VisionScreeningResult currentVisionScreeningResult, VisionScreeningResult secondVisionScreeningResult) {
+        ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getById(currentVisionScreeningResult.getScreeningPlanSchoolStudentId());
+        if (screeningPlanSchoolStudent == null) {
+            throw new ManagementUncheckedException("数据异常，无法根据id找到对应的ScreeningPlanSchoolStudent对象，id = " + currentVisionScreeningResult.getScreeningPlanSchoolStudentId());
+        }
+        // 根据是否复查，查找结论表
+        StatConclusion statConclusion = statConclusionService.getStatConclusion(currentVisionScreeningResult.getId(), currentVisionScreeningResult.getIsDoubleScreen());
+        //需要新增
+        SchoolGrade schoolGrade = schoolGradeService.getById(screeningPlanSchoolStudent.getGradeId());
+        StatConclusionBuilder statConclusionBuilder = StatConclusionBuilder.getStatConclusionBuilder();
+        statConclusion = statConclusionBuilder.setCurrentVisionScreeningResult(currentVisionScreeningResult,secondVisionScreeningResult)
+                .setStatConclusion(statConclusion)
+                .setScreeningPlanSchoolStudent(screeningPlanSchoolStudent)
+                .setGradeCode(schoolGrade.getGradeCode())
+                .build();
+        statConclusionList.add(statConclusion);
+    }
+
+    /**
+     *  map结构：筛查计划ID - 筛查类型 - 初筛/复筛数据
+     */
+    private Map<Integer, Map<Integer,TwoTuple<VisionScreeningResult,VisionScreeningResult>>> getMap(Map<Integer, List<VisionScreeningResult>> visionScreeningResultMap){
+        Map<Integer, Map<Integer,TwoTuple<VisionScreeningResult,VisionScreeningResult>>> map= Maps.newHashMap();
+        visionScreeningResultMap.forEach((planId,results)->{
+            Map<Integer, List<VisionScreeningResult>> typeMap = results.stream().collect(Collectors.groupingBy(VisionScreeningResult::getScreeningType));
+            Map<Integer, TwoTuple<VisionScreeningResult,VisionScreeningResult>> typeResult = Maps.newHashMap();
+            typeMap.forEach((type,list)->{
+                TwoTuple<VisionScreeningResult,VisionScreeningResult> result = new TwoTuple<>();
+                for (VisionScreeningResult visionScreeningResult : list) {
+                    if (visionScreeningResult.getIsDoubleScreen()) {
+                        result.setSecond(visionScreeningResult);
+                    }else {
+                        result.setFirst(visionScreeningResult);
+                    }
+                }
+                typeResult.put(type,result);
+            });
+            map.put(planId,typeResult);
+        });
+        return map;
+    }
 
 }

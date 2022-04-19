@@ -126,6 +126,16 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
     }
 
     /**
+     * 根据筛查计划ID集查询
+     * @param planIds
+     */
+    public List<VisionScreeningResult> getByPlanIds(List<Integer> planIds){
+        LambdaQueryWrapper<VisionScreeningResult> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(VisionScreeningResult::getPlanId, planIds);
+        return baseMapper.selectList(queryWrapper);
+    }
+
+    /**
      * 获取学生的最新筛查报告
      *
      * @param studentId 学生ID
