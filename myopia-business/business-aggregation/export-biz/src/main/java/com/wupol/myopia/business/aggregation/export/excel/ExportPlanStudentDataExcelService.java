@@ -78,8 +78,9 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
     }
 
     @Override
-    public Class getHeadClass() {
-        return VisionScreeningResultExportDTO.class;
+    public Class getHeadClass(ExportCondition exportCondition) {
+        IScreeningDataService screeningDataService = ScreeningDataFactory.getScreeningDataService(screeningPlanService.getById(exportCondition.getPlanId()).getScreeningType());
+        return screeningDataService.getExportClass();
     }
 
     @Override
