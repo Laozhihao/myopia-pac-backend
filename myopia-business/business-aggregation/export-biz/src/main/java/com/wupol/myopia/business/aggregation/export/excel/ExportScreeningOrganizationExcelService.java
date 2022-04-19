@@ -109,7 +109,7 @@ public class ExportScreeningOrganizationExcelService extends BaseExportExcelFile
      * @return java.lang.Class
      **/
     @Override
-    public Class getHeadClass() {
+    public Class getHeadClass(ExportCondition exportCondition) {
         return ScreeningOrganizationExportDTO.class;
     }
 

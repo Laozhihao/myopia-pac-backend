@@ -225,4 +225,15 @@
         and
             is_double_screen = 0
     </select>
+
+    <select id="getRescreenBySchoolIds" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_vision_screening_result where plan_id = #{planId}
+                                         and school_id in
+        <foreach collection="schoolIds" item="schoolId" index="index" open="(" close=")" separator=",">
+            #{schoolId}
+        </foreach>
+        and is_double_screen = true
+    </select>
 </mapper>

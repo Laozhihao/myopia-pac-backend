@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.core.screening.flow.service;
 
-import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -325,4 +324,34 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
     public List<VisionScreeningResult> getIsDoubleScreeningResult(List<Integer> planIds, Integer screeningPlanSchoolStudentId,boolean isDoubleScreen) {
         return baseMapper.getIsDoubleScreeningResult(planIds,screeningPlanSchoolStudentId,isDoubleScreen);
     }
+
+    /**
+     * 通过计划id，学校id获取复查学生数据
+     *
+     * @param planId    计划Id
+     * @param schoolIds 学校Id
+     * @return List<VisionScreeningResult>
+     */
+    public List<VisionScreeningResult> getRescreenBySchoolIds(Integer planId, List<Integer> schoolIds) {
+        if (CollectionUtils.isEmpty(schoolIds)) {
+            return new ArrayList<>();
+        }
+        return baseMapper.getRescreenBySchoolIds(planId, schoolIds);
+    }
+
+    /**
+     * 通过计划id，学校id获取复查学生数据
+     *
+     * @param planId    计划Id
+     * @param schoolIds 学校Id
+     * @return List<VisionScreeningResult>
+     */
+    public Map<Integer, List<VisionScreeningResult>> getMapRescreenBySchoolIds(Integer planId, List<Integer> schoolIds) {
+        List<VisionScreeningResult> results = getRescreenBySchoolIds(planId, schoolIds);
+        if (CollectionUtils.isEmpty(results)) {
+            return new HashMap<>();
+        }
+        return results.stream().collect(Collectors.groupingBy(VisionScreeningResult::getSchoolId));
+    }
+
 }

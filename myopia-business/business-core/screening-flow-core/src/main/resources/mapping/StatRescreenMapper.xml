@@ -12,4 +12,10 @@
         WHERE DATE(screening_time) = DATE(#{screeningTime})
     </delete>
 
+    <select id="getSchoolDate" resultType="java.util.Date">
+        select screening_time
+        from m_stat_rescreen
+        where plan_id = #{planId}
+          and school_id = #{schoolId};
+    </select>
 </mapper>

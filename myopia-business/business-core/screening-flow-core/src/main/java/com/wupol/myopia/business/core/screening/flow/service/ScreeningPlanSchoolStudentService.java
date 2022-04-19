@@ -545,4 +545,13 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
             return null;
         }
     }
+
+    /**
+     * 通过指定条件获取筛查学生
+     *
+     * @return List<ScreeningPlanSchoolStudent>
+     */
+    public List<ScreeningPlanSchoolStudent> getReviewStudentList(Integer planId, Integer orgId, Integer schoolId, Integer gradeId, Integer classId) {
+        return baseMapper.getReviewStudentList(planId, orgId, schoolId, gradeId, classId);
+    }
 }

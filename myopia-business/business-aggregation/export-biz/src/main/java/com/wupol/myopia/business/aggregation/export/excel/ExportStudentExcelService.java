@@ -137,7 +137,7 @@ public class ExportStudentExcelService extends BaseExportExcelFileService {
     }
 
     @Override
-    public Class getHeadClass() {
+    public Class getHeadClass(ExportCondition exportCondition) {
         return StudentExportDTO.class;
     }
 
