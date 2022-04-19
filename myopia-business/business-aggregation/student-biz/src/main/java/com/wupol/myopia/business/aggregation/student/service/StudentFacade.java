@@ -357,6 +357,8 @@ public class StudentFacade {
         //次数检查数据为8项
         rescreening.setDoubleCount(8);
         rescreening.setDeviationCount(deviationCount);
+        rescreening.setRescreeningResult(reScreeningResult);
+        rescreening.setDeviation(visionScreeningResult.getDeviationData());
 
         return rescreening;
     }

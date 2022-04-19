@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.screening.flow.service;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -322,8 +323,6 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
      * @return
      */
     public List<VisionScreeningResult> getIsDoubleScreeningResult(List<Integer> planIds, Integer screeningPlanSchoolStudentId,boolean isDoubleScreen) {
-
-
-        return null;
+        return baseMapper.getIsDoubleScreeningResult(planIds,screeningPlanSchoolStudentId,isDoubleScreen);
     }
 }
