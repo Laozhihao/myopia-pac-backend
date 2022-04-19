@@ -106,7 +106,7 @@ public class ExportPlanStudentExcelService extends BaseExportExcelFileService {
     }
 
     @Override
-    public Class getHeadClass() {
+    public Class getHeadClass(ExportCondition exportCondition) {
         return PlanStudentExportDTO.class;
     }
 
@@ -149,7 +149,7 @@ public class ExportPlanStudentExcelService extends BaseExportExcelFileService {
             List<PlanStudentExportDTO> classExport = gradeEntry.getValue();
             Map<String, List<PlanStudentExportDTO>> classMap = classExport.stream().collect(Collectors.groupingBy(PlanStudentExportDTO::getClassName));
             for (Map.Entry<String, List<PlanStudentExportDTO>> classEntry : classMap.entrySet()) {
-                filepath = ExcelUtil.exportListToExcelWithFolder(path + "/" + gradeEntry.getKey() + "/" + classEntry.getKey(), classEntry.getKey(), classEntry.getValue(), mergeStrategy, getHeadClass()).getAbsolutePath();
+                filepath = ExcelUtil.exportListToExcelWithFolder(path + "/" + gradeEntry.getKey() + "/" + classEntry.getKey(), classEntry.getKey(), classEntry.getValue(), mergeStrategy, getHeadClass(exportCondition)).getAbsolutePath();
             }
         }
         return ZipUtil.zip(StringUtils.substringBeforeLast(StringUtils.substringBeforeLast(StringUtils.substringBeforeLast(filepath, "/"), "/"), "/"));
