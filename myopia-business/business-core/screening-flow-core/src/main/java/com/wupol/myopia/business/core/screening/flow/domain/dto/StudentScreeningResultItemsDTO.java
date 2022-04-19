@@ -18,7 +18,10 @@ public class StudentScreeningResultItemsDTO {
     /**
      * 详情
      */
-    private List<StudentResultDetailsDTO> details;
+//    private List<StudentResultDetailsDTO> details;
+
+    private ScreeningInfoDTO details;
+
 
     /**
      * 筛查标题
@@ -89,4 +92,14 @@ public class StudentScreeningResultItemsDTO {
      * 筛查编码
      */
     private Long screeningCode;
+
+    /**
+     * 筛查类型
+     */
+    private Integer screeningType;
+    /**
+     * 筛查机构名称
+     */
+    private String screeningOrgName;
+
 }

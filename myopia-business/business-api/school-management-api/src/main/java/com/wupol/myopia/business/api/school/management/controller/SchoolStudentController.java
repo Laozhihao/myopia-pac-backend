@@ -103,8 +103,8 @@ public class SchoolStudentController {
      * @return StudentScreeningResultResponseDTO
      */
     @GetMapping("screening/list/{studentId}")
-    public StudentScreeningResultResponseDTO screeningList(@PathVariable("studentId") Integer studentId) {
-        return studentFacade.getScreeningList(studentId);
+    public StudentScreeningResultResponseDTO screeningList(PageRequest pageReques,@PathVariable("studentId") Integer studentId) {
+        return studentFacade.getScreeningList(pageReques,studentId);
     }
 
 

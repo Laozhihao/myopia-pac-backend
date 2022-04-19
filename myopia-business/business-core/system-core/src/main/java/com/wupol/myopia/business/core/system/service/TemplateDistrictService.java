@@ -90,17 +90,4 @@ public class TemplateDistrictService extends BaseService<TemplateDistrictMapper,
         }
         return templateId;
     }
-    /**
-     * 通过行政区域获取模版Id
-     *
-     * @param districtId 行政区域
-     * @return 模版Id
-     */
-    public Integer getArchivesByDistrictId(Integer districtId, List<Integer> templateIds) {
-        Integer templateId = baseMapper.getByDistrictIdAndTemplateIds(districtId,templateIds);
-        if (Objects.isNull(templateId)) {
-            return TemplateConstants.GLOBAL_TEMPLATE;
-        }
-        return templateId;
-    }
 }
