@@ -86,10 +86,10 @@ public class ScreeningInfoDTO {
             private ScreeningDeviation leftCorrectedVision;
 
             /** 球镜（左） */
-            private ScreeningDeviation lefttSph;
+            private ScreeningDeviation leftSph;
 
             /** 柱镜（左） */
-            private ScreeningDeviation lefttCyl;
+            private ScreeningDeviation leftCyl;
 
             /** 轴位（左） */
             private ScreeningDeviation leftAxial;

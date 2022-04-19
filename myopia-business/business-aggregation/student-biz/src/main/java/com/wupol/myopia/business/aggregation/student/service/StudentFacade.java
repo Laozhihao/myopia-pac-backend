@@ -316,7 +316,7 @@ public class StudentFacade {
 
         leftSph.setType(leftSphType);
         leftSph.setContent(EyeDataUtil.leftSph(visionScreeningResult));
-        reScreeningResult.setLefttSph(leftSph);
+        reScreeningResult.setLeftSph(leftSph);
 
         ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation leftCyl = new  ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation();
         int leftCylType = ReScreeningCardUtil.isDeviation(EyeDataUtil.leftCyl(result),
@@ -325,7 +325,7 @@ public class StudentFacade {
 
         leftCorrectedVision.setType(leftCylType);
         leftCorrectedVision.setContent(EyeDataUtil.leftCyl(visionScreeningResult));
-        reScreeningResult.setLefttCyl(leftCyl);
+        reScreeningResult.setLeftCyl(leftCyl);
 
         ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation leftAxial = new  ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation();
         int leftAxialType = ReScreeningCardUtil.isDeviation(EyeDataUtil.leftAxial(result),
