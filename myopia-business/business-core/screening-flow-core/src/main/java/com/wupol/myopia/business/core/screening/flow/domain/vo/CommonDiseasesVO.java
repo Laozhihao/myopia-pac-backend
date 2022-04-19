@@ -40,7 +40,7 @@ public class CommonDiseasesVO {
         /**
          * 身高-复测
          */
-        private BigDecimal heightRescreen;
+        private BigDecimal heightReScreen;
         /**
          * 身高-误差
          */
@@ -58,7 +58,7 @@ public class CommonDiseasesVO {
         /**
          * 体重-复测
          */
-        private BigDecimal weightRescreen;
+        private BigDecimal weightReScreen;
         /**
          * 体重-误差
          */

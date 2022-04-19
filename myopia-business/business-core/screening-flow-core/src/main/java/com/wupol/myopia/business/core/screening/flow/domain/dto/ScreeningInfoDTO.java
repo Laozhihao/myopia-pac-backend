@@ -5,12 +5,8 @@ package com.wupol.myopia.business.core.screening.flow.domain.dto;/*
  * @Des:
  */
 
-import com.amazonaws.services.dynamodbv2.xspec.B;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import lombok.Data;
-import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -105,7 +101,7 @@ public class ScreeningInfoDTO {
             @Data
             public static class ScreeningDeviation implements Serializable {
                 /**
-                 *
+                 * 内容
                  */
                 private BigDecimal content;
                 /**

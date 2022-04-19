@@ -13,28 +13,28 @@ import java.math.BigDecimal;
 @Data
 public class ComputerOptometryResultVO {
     /**
-     * 球镜(右眼)
+     * 等效球镜(右眼)
      */
     private BigDecimal rightSE;
     /**
-     * 球镜(右眼)-复测
+     * 等效球镜(右眼)-复测
      */
     private BigDecimal rightSERetest;
     /**
-     * 球镜(右眼)-差值
+     * 等效球镜(右眼)-差值
      */
     private BigDecimal rightSEDeviation;
 
     /**
-     * 球镜(左眼)
+     * 等效球镜(左眼)
      */
     private BigDecimal leftSE;
     /**
-     * 球镜(左眼)-复测
+     * 等效球镜(左眼)-复测
      */
     private BigDecimal leftSERetest;
     /**
-     * 球镜(左眼)-复测
+     * 等效球镜(左眼)-复测
      */
     private BigDecimal leftSEDeviation;
 }
