@@ -23,7 +23,7 @@ import java.util.Date;
         borderBottom = BorderStyle.THIN,
         borderLeft = BorderStyle.THIN,
         borderRight = BorderStyle.THIN,
-        borderTop= BorderStyle.THIN)
+        borderTop = BorderStyle.THIN)
 @HeadFontStyle(fontHeightInPoints = 11)
 @ContentStyle(horizontalAlignment = HorizontalAlignment.CENTER)
 // 将第1-2行的2-3列合并成一个单元格
@@ -37,35 +37,35 @@ public class VisionScreeningResultExportDTO implements Serializable {
     public static final String TOP_HEADER = "视力筛查";
     public static final String TOP_HEADER2 = "视力复测";
 
-    @ExcelProperty("{姓名}")
+    @ExcelProperty({"姓名", "姓名", "姓名"})
     private String studentName;
 
-    @ExcelProperty("{性别}")
+    @ExcelProperty({"性别", "性别", "性别"})
     private String genderDesc;
 
     @DateTimeFormat("yyyy/MM/dd")
-    @ExcelProperty("{出生日期}")
+    @ExcelProperty({"出生日期", "出生日期", "出生日期"})
     private Date birthday;
 
-    @ExcelProperty("{民族}")
+    @ExcelProperty({"民族", "民族", "民族"})
     private String nationDesc;
 
-    @ExcelProperty("{学校名称}")
+    @ExcelProperty({"学校名称", "学校名称", "学校名称"})
     private String schoolName;
 
-    @ExcelProperty("{年级}")
+    @ExcelProperty({"年级", "年级", "年级"})
     private String gradeName;
 
-    @ExcelProperty("{班级}")
+    @ExcelProperty({"班级", "班级", "班级"})
     private String className;
 
-    @ExcelProperty("{学号}")
+    @ExcelProperty({"学号", "学号", "学号"})
     private String studentNo;
 
-    @ExcelProperty("{地址}")
+    @ExcelProperty({"地址", "地址", "地址"})
     private String address;
 
-    @ExcelProperty("{是否有效数据}")
+    @ExcelProperty({"是否有效数据", "是否有效数据", "是否有效数据"})
     private String isValid;
 
     @ExcelProperty({TOP_HEADER, "33cm眼位", "内斜"})
@@ -179,13 +179,13 @@ public class VisionScreeningResultExportDTO implements Serializable {
     @ExcelProperty({TOP_HEADER, "生物测量", "玻璃体厚度VT（左）"})
     private String leftBiometricVT;
 
-    @ExcelProperty("{眼压（右）}")
+    @ExcelProperty({TOP_HEADER, "眼压（右）", "眼压（右）"})
     private String rightEyePressureDate;
-    @ExcelProperty("{眼压（左）}")
+    @ExcelProperty({TOP_HEADER, "眼压（右）", "眼压（左）"})
     private String leftEyePressureDate;
-    @ExcelProperty("{眼底（右）}")
+    @ExcelProperty({TOP_HEADER, "眼压（右）", "眼底（右）"})
     private String rightFundusData;
-    @ExcelProperty("{眼底（左）}")
+    @ExcelProperty({TOP_HEADER, "眼压（右）", "眼底（左）"})
     private String leftFundusData;
 
     @ExcelProperty({TOP_HEADER, "其他眼病", "眼部疾病左"})
