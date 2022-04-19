@@ -50,7 +50,7 @@ public class EyeDataUtil {
         studentVisionScreeningResultExportDTO.setAddress(EyeDataUtil.address(studentDTO));
 
         //戴镜情况
-        studentVisionScreeningResultExportDTO.setGlassesType(EyeDataUtil.glassesType(visionScreeningResult));
+        studentVisionScreeningResultExportDTO.setGlassesType(EyeDataUtil.glassesTypeString(visionScreeningResult));
         //右眼裸视力
         studentVisionScreeningResultExportDTO.setRightReScreenNakedVisions(EyeDataUtil.visionRightDataToStr(visionScreeningResult));
         //右眼矫正视力
@@ -192,7 +192,7 @@ public class EyeDataUtil {
 
         return "--";
     }
-    public static String glassesType(VisionScreeningResult visionScreeningResult){
+    public static String glassesTypeString(VisionScreeningResult visionScreeningResult){
         if (visionScreeningResult!=null
                 &&visionScreeningResult.getVisionData()!=null
                 &&visionScreeningResult.getVisionData().getRightEyeData()!=null
@@ -202,6 +202,21 @@ public class EyeDataUtil {
         }
 
         return "--";
+    }
+
+    /**
+     * 戴镜类型
+     * @param visionScreeningResult
+     * @return
+     */
+    public static Integer glassesType(VisionScreeningResult visionScreeningResult){
+        if (visionScreeningResult!=null
+                &&visionScreeningResult.getVisionData()!=null
+                &&visionScreeningResult.getVisionData().getRightEyeData()!=null){
+
+            return visionScreeningResult.getVisionData().getRightEyeData().getGlassesType();
+        }
+        return null;
     }
 
 

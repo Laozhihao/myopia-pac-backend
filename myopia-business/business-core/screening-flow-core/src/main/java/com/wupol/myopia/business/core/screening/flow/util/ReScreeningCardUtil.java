@@ -66,7 +66,7 @@ public class ReScreeningCardUtil {
         ReScreeningCardVO retestResultCard = new ReScreeningCardVO();
         VisionVO vision  = new VisionVO();
         //选取视力中左眼的戴镜类型
-        vision.setGlassesType(reScreeningResult.getVisionData().getLeftEyeData().getGlassesType());
+        vision.setGlassesType(EyeDataUtil.glassesType(reScreeningResult));
 
         VisionResultVO visionResult = new VisionResultVO();
         visionResult.setRightEyeData(rightEyeData(firstScreeningResult, reScreeningResult));
@@ -84,12 +84,12 @@ public class ReScreeningCardUtil {
 
         CommonDiseasesVO.HeightAndWeightResult heightAndWeightResult = new CommonDiseasesVO.HeightAndWeightResult();
         heightAndWeightResult.setHeight(EyeDataUtil.height(firstScreeningResult));
-        heightAndWeightResult.setHeightRescreen(EyeDataUtil.height(reScreeningResult));
+        heightAndWeightResult.setHeightReScreen(EyeDataUtil.height(reScreeningResult));
         heightAndWeightResult.setHeightDeviation(subtractAbsBigDecimal(EyeDataUtil.height(firstScreeningResult),EyeDataUtil.height(reScreeningResult)));
         heightAndWeightResult.setHeightDeviationRemark(EyeDataUtil.heightWeightDeviationRemark(reScreeningResult));
 
         heightAndWeightResult.setWeight(EyeDataUtil.weight(firstScreeningResult));
-        heightAndWeightResult.setWeightRescreen(EyeDataUtil.weight(reScreeningResult));
+        heightAndWeightResult.setWeightReScreen(EyeDataUtil.weight(reScreeningResult));
         heightAndWeightResult.setWeightDeviation(subtractAbsBigDecimal(EyeDataUtil.weight(firstScreeningResult),EyeDataUtil.weight(reScreeningResult)));
         heightAndWeightResult.setWeightDeviationRemark(EyeDataUtil.heightWeightDeviationRemark(reScreeningResult));
 
