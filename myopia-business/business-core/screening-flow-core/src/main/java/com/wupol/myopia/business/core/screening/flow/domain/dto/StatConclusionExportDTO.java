@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * 处理后筛查数据（包括学校ID）
@@ -183,7 +184,83 @@ public class StatConclusionExportDTO extends StatConclusion {
     private HeightAndWeightDataDTO heightAndWeightData;
 
     /**
+     * 筛查结果--龋齿
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private SaprodontiaDataDO saprodontiaData;
+
+    /**
+     * 筛查结果--脊柱
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private SpineDataDO spineData;
+
+    /**
+     * 筛查结果--血压
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private BloodPressureDataDO bloodPressureData;
+
+    /**
+     * 筛查结果--疾病史(汉字)
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private List<String> diseasesHistoryData;
+
+    /**
+     * 筛查结果--隐私项
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private PrivacyDataDO privacyData;
+
+    /**
+     *
+     * 筛查不准确说明
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private DeviationDO deviationData;
+
+    /**
      * 护照
      */
     private String passport;
+
+
+    /** --------------------- 常见病 --------------------- */
+    /**
+     * 筛查结果--龋齿
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private SaprodontiaDataDO saprodontiaData;
+
+    /**
+     * 筛查结果--脊柱
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private SpineDataDO spineData;
+
+    /**
+     * 筛查结果--血压
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private BloodPressureDataDO bloodPressureData;
+
+    /**
+     * 筛查结果--疾病史(汉字)
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private List<String> diseasesHistoryData;
+
+    /**
+     * 筛查结果--隐私项
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private PrivacyDataDO privacyData;
+
+    /**
+     *
+     * 筛查不准确说明
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private DeviationDO deviationData;
 }

@@ -159,4 +159,56 @@ public class StatConclusion implements Serializable {
      * 更新时间
      */
     private Date visionWarningUpdateTime;
+
+
+    /** --------------------- 常见病 --------------------- */
+    /**
+     * 筛查类型：0-视力筛查、1-常见病
+     */
+    private Integer screeningType;
+    /**
+     * 是否龋齿
+     */
+    private Boolean isSaprodontia;
+    /**
+     * 是否超重
+     */
+    private Boolean isOverweight;
+    /**
+     * 是否肥胖
+     */
+    private Boolean isObesity;
+    /**
+     * 是否营养不良
+     */
+    private Boolean isMalnutrition;
+    /**
+     * 是否生长迟缓
+     */
+    private Boolean isStunting;
+    /**
+     * 是否脊柱弯曲
+     */
+    private Boolean isSpinalCurvature;
+    /**
+     * 是否血压正常
+     */
+    private Boolean isNormalBloodPressure;
+    /**
+     * 是否有疾病史
+     */
+    private Boolean isDiseasesHistory;
+    /**
+     * 是否遗精
+     */
+    private Boolean isNocturnalEmission;
+    /**
+     * 是否初潮
+     */
+    private Boolean isMenarche;
+
+    /**
+     * 体格复测错误项次
+     */
+    private Integer physiqueRescreeningErrorNum;
 }

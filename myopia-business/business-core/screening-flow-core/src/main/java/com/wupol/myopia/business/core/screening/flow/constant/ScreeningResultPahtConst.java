@@ -109,5 +109,9 @@ public class ScreeningResultPahtConst {
     /** 戴镜情况 两只眼，默认取左眼*/
     public final String PATH_GLASSES_TYPE = "$.visionData.leftEyeData.glassesType";
 
+    // 血压
+    public final String PATH_BLOOD_PRESSURE_DBP = "$.blood_pressure_data.dbp";
+    public final String PATH_BLOOD_PRESSURE_SBP = "$.blood_pressure_data.sbp";
+
 
 }
