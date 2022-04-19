@@ -500,7 +500,7 @@ public class ScreeningAppController {
      * @param planStudentId 筛查计划学生ID
      * @return com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO
      **/
-    @GetMapping("/getComputerOptometryData/{planStudentId}")
+    @GetMapping("/computerOptometryData/{planStudentId}")
     public ComputerOptometryDTO getComputerOptometryData(@PathVariable Integer planStudentId, @RequestParam(value = "isState", defaultValue = "0") Integer isState) {
         VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentIdAndState(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId(), isState);
         if (Objects.isNull(screeningResult)) {
@@ -515,7 +515,7 @@ public class ScreeningAppController {
      * @param planStudentId 筛查计划学生ID
      * @return com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO
      **/
-    @GetMapping("/getVisionData/{planStudentId}")
+    @GetMapping("/visionData/{planStudentId}")
     public VisionDataDTO getVisionData(@PathVariable Integer planStudentId, @RequestParam(value = "isState", defaultValue = "0") Integer isState) {
         VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentIdAndState(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId(), isState);
         if (Objects.isNull(screeningResult)) {
@@ -591,9 +591,9 @@ public class ScreeningAppController {
      * @return com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO
      * @param isState isState
      **/
-    @GetMapping("/getOtherEyeDiseaseData/{planStudentId}")
+    @GetMapping("/otherEyeDiseaseData/{planStudentId}")
     public OtherEyeDiseasesDTO getOtherEyeDiseaseData(@PathVariable Integer planStudentId, @RequestParam(value = "isState", defaultValue = "0") Integer isState) {
-        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentIdAndState(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId(), isState);
+        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentIdAndState(planStudentId,CurrentUserUtil.getCurrentUser().getOrgId(), isState);
         if (Objects.isNull(screeningResult)) {
             return new OtherEyeDiseasesDTO();
         }
@@ -607,9 +607,9 @@ public class ScreeningAppController {
      * @return com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDTO
      * @Author tastyb
      **/
-    @GetMapping("/getHeightAndWeightData/{planStudentId}")
-    public HeightAndWeightDataDTO getHeightAndWeightData(@PathVariable Integer planStudentId) {
-        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentId(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId());
+    @GetMapping("/heightAndWeightData/{planStudentId}")
+    public HeightAndWeightDataDTO getHeightAndWeightData(@PathVariable Integer planStudentId,@RequestParam(value = "isState", defaultValue = "0") Integer isState) {
+        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentIdAndState(planStudentId,CurrentUserUtil.getCurrentUser().getOrgId(), isState);
         if (Objects.isNull(screeningResult)) {
             return new HeightAndWeightDataDTO();
         }
@@ -714,9 +714,9 @@ public class ScreeningAppController {
      * @param planStudentId 筛查计划学生ID
      * @return com.wupol.myopia.business.core.screening.flow.domain.dos.SaprodontiaDataDO
      **/
-    @GetMapping("/getSaprodontia/{planStudentId}")
-    public SaprodontiaDTO getSaprodontia(@PathVariable Integer planStudentId) {
-        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentId(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId());
+    @GetMapping("/saprodontia/{planStudentId}")
+    public SaprodontiaDTO getSaprodontia(@PathVariable Integer planStudentId, @RequestParam(value = "isState", defaultValue = "0") Integer isState) {
+        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentIdAndState(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId(), isState);
         if (Objects.isNull(screeningResult)) {
             return new SaprodontiaDTO();
         }
@@ -741,9 +741,9 @@ public class ScreeningAppController {
      * @param planStudentId 筛查计划学生ID
      * @return com.wupol.myopia.business.core.screening.flow.domain.dos.SpineDataDO
      **/
-    @GetMapping("/getSpine/{planStudentId}")
-    public SpineDTO getSpine(@PathVariable Integer planStudentId) {
-        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentId(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId());
+    @GetMapping("/spine/{planStudentId}")
+    public SpineDTO getSpine(@PathVariable Integer planStudentId, @RequestParam(value = "isState", defaultValue = "0") Integer isState) {
+        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentIdAndState(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId(), isState);
         if (Objects.isNull(screeningResult)) {
             return new SpineDTO();
         }
@@ -768,9 +768,9 @@ public class ScreeningAppController {
      * @param planStudentId 筛查计划学生ID
      * @return com.wupol.myopia.business.core.screening.flow.domain.dos.BloodPressureDataDO
      **/
-    @GetMapping("/getBloodPressure/{planStudentId}")
-    public BloodPressureDTO getBloodPressure(@PathVariable Integer planStudentId) {
-        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentId(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId());
+    @GetMapping("/bloodPressure/{planStudentId}")
+    public BloodPressureDTO getBloodPressure(@PathVariable Integer planStudentId, @RequestParam(value = "isState", defaultValue = "0") Integer isState) {
+        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentIdAndState(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId(), isState);
         if (Objects.isNull(screeningResult)) {
             return new BloodPressureDTO();
         }
@@ -796,9 +796,9 @@ public class ScreeningAppController {
      * @param planStudentId 筛查计划学生ID
      * @return com.wupol.myopia.business.core.screening.flow.domain.dos.BloodPressureDataDO
      **/
-    @GetMapping("/getDiseasesHistory/{planStudentId}")
-    public DiseasesHistoryDTO getDiseasesHistory(@PathVariable Integer planStudentId) {
-        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentId(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId());
+    @GetMapping("/diseasesHistory/{planStudentId}")
+    public DiseasesHistoryDTO getDiseasesHistory(@PathVariable Integer planStudentId, @RequestParam(value = "isState", defaultValue = "0") Integer isState) {
+        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentIdAndState(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId(), isState);
         if (Objects.isNull(screeningResult)) {
             return new DiseasesHistoryDTO();
         }
@@ -824,9 +824,9 @@ public class ScreeningAppController {
      * @param planStudentId 筛查计划学生ID
      * @return com.wupol.myopia.business.core.screening.flow.domain.dos.BloodPressureDataDO
      **/
-    @GetMapping("/getPrivacy/{planStudentId}")
-    public PrivacyDTO getPrivacy(@PathVariable Integer planStudentId) {
-        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentId(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId());
+    @GetMapping("/privacy/{planStudentId}")
+    public PrivacyDTO getPrivacy(@PathVariable Integer planStudentId, @RequestParam(value = "isState", defaultValue = "0") Integer isState) {
+        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentIdAndState(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId(), isState);
         if (Objects.isNull(screeningResult)) {
             return new PrivacyDTO();
         }

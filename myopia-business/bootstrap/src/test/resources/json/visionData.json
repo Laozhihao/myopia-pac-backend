@@ -13,6 +13,6 @@
   "leftNakedVision": 0.2,
   "diagnosis": 0,
   "isState": 0,
-  "leftSphericalEquivalent": 0.2,
-  "rightSphericalEquivalent": 0.2
+  "rightOkDegree": 0.2,
+  "leftOkDegree": 0.2
 }

@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.aggregation.screening.service;
 
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.common.utils.constant.GlassesTypeEnum;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
@@ -124,7 +125,7 @@ public class VisionScreeningBizService {
         // 夜戴角膜镜不需要复测
         if (visionData.getLeftEyeData().getGlassesType().equals(GlassesTypeEnum.ORTHOKERATOLOGY.code)
                 || visionData.getRightEyeData().getGlassesType().equals(GlassesTypeEnum.ORTHOKERATOLOGY.code)) {
-            throw new ManagementUncheckedException("夜戴角膜镜不需要复测");
+            throw new BusinessException("夜戴角膜镜不需要复测");
         }
         // 裸眼视力
         if (Objects.isNull(firstResult.getVisionData()) ||
@@ -134,31 +135,31 @@ public class VisionScreeningBizService {
                 Objects.isNull(visionData.getRightEyeData().getNakedVision())
 
         ) {
-            throw new ManagementUncheckedException("需要完成裸眼视力检查");
+            throw new BusinessException("需要完成裸眼视力检查");
         }
         // 检查矫正视力
         if (!GlassesTypeEnum.NOT_WEARING.code.equals(visionData.getLeftEyeData().getGlassesType())
                 && (Objects.isNull(visionData.getLeftEyeData().getCorrectedVision()) ||
                 Objects.isNull(visionData.getRightEyeData().getCorrectedVision()))) {
-            throw new ManagementUncheckedException("需要完成矫正视力检查");
+            throw new BusinessException("需要完成矫正视力检查");
         }
         // 球镜 柱镜 轴位
         if (Objects.isNull(computerOptometry)) {
-            throw new ManagementUncheckedException("需要完成电脑验光检查");
+            throw new BusinessException("需要完成电脑验光检查");
         }
         // 球镜
         if ((Objects.isNull(computerOptometry.getLeftEyeData()) || Objects.isNull(computerOptometry.getRightEyeData()))
                 || (Objects.isNull(computerOptometry.getLeftEyeData().getSph()) && Objects.isNull(computerOptometry.getRightEyeData().getSph()))) {
-            throw new ManagementUncheckedException("需要完成球镜检查");
+            throw new BusinessException("需要完成球镜检查");
         }
         if (Objects.isNull(computerOptometry.getLeftEyeData().getCyl()) && Objects.isNull(computerOptometry.getRightEyeData().getCyl())) {
-            throw new ManagementUncheckedException("需要完成柱镜检查");
+            throw new BusinessException("需要完成柱镜检查");
         }
         if (Objects.isNull(computerOptometry.getLeftEyeData().getAxial()) && Objects.isNull(computerOptometry.getRightEyeData().getAxial())) {
-            throw new ManagementUncheckedException("需要完成柱镜检查");
+            throw new BusinessException("需要完成柱镜检查");
         }
         if (Objects.isNull(firstResult.getHeightAndWeightData())) {
-            throw new ManagementUncheckedException("需要完成体重检查");
+            throw new BusinessException("需要完成体重检查");
         }
     }
 
