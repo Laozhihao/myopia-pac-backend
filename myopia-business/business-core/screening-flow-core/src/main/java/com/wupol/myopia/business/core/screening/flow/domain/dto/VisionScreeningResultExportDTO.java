@@ -71,7 +71,7 @@ public class VisionScreeningResultExportDTO implements Serializable {
     @ExcelProperty({"是否有效数据", "是否有效数据", "是否有效数据"})
     private String isValid;
 
-    @ExcelProperty({TOP_HEADER, "是否复测", "是否复测"})
+    @ExcelProperty({"是否复测", "是否复测", "是否复测"})
     private String isRescreenDesc;
 
     @ExcelProperty({TOP_HEADER, "33cm眼位", "内斜"})

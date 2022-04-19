@@ -71,7 +71,7 @@ public class CommonDiseaseDataExportDTO implements Serializable {
     @ExcelProperty({"是否有效数据", "是否有效数据", "是否有效数据"})
     private String isValid;
 
-    @ExcelProperty({TOP_HEADER, "是否复测", "是否复测"})
+    @ExcelProperty({"是否复测", "是否复测", "是否复测"})
     private String isRescreenDesc;
 
     @ExcelProperty({TOP_HEADER, "视力检查", "戴镜情况"})
@@ -102,7 +102,6 @@ public class CommonDiseaseDataExportDTO implements Serializable {
     private String height;
     @ExcelProperty({TOP_HEADER, "身高体重", "体重"})
     private String weight;
-
 
     @ExcelProperty({TOP_HEADER, "龋齿检查", "乳牙 龋（d）：失（m）：0 补（f）"})
     private String a;

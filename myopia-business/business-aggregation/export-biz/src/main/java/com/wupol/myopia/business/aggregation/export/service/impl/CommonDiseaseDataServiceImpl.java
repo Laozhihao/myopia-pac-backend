@@ -2,6 +2,7 @@ package com.wupol.myopia.business.aggregation.export.service.impl;
 
 import com.alibaba.fastjson.JSONPath;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
+import com.wupol.myopia.base.util.ListUtil;
 import com.wupol.myopia.base.util.ScreeningDataFormatUtils;
 import com.wupol.myopia.business.aggregation.export.service.IScreeningDataService;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
@@ -84,7 +85,14 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
                 .setRightCyls(ScreeningDataFormatUtils.generateSingleSuffixDStr(JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_CYL)))
                 .setLeftCyls(ScreeningDataFormatUtils.generateSingleSuffixDStr(JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_CYL)))
                 .setRightAxials(ScreeningDataFormatUtils.generateSingleEyeDegree(JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_AXIAL)))
-                .setLeftAxials(ScreeningDataFormatUtils.generateSingleEyeDegree(JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_AXIAL)));
+                .setLeftAxials(ScreeningDataFormatUtils.generateSingleEyeDegree(JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_AXIAL)))
+                .setHeight(ScreeningDataFormatUtils.getHeight(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_HW_HEIGHT)))
+                .setWeight(ScreeningDataFormatUtils.getWeight(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_HW_WEIGHT)))
+                .setOtherEyeDiseasesLeftEyeDiseases(ListUtil.objectList2Str(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_OED_LEFT_EYE_DISEASES)))
+                .setOtherEyeDiseasesRightEyeDiseases(ListUtil.objectList2Str(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_OED_RIGHT_EYE_DISEASES)))
+                .setOtherEyeDiseasesSystemicDiseaseSymptom((String) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_SYSTEMIC_DISEASE_SYMPTOM))
+                .setLeftOtherEyeDiseasesLevel(ScreeningDataFormatUtils.levelDateFormat(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_VLLD_LEFT_LEVEL)))
+                .setRightOtherEyeDiseasesLevel(ScreeningDataFormatUtils.levelDateFormat(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_VLLD_RIGHT_LEVEL)));
     }
 
     /**
@@ -108,9 +116,61 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
                     .setRightReScreenCyls(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHTEYE_CYL)))
                     .setLeftReScreenAxials(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.LEFTEYE_AXIAL)))
                     .setRightReScreenAxials(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHTEYE_AXIAL)))
-                    .setIsRescreenDesc("是");
+                    .setIsRescreenDesc("是")
+                    .setReHeight(ScreeningDataFormatUtils.getHeight(JSONPath.eval(rescreenVo, ScreeningResultPahtConst.PATH_HW_HEIGHT)))
+                    .setReWeight(ScreeningDataFormatUtils.getWeight(JSONPath.eval(rescreenVo, ScreeningResultPahtConst.PATH_HW_WEIGHT)))
+                    .setDeviationData("设备问题");
         }
     }
 
+    /**
+     * 龋齿数据
+     *
+     * @param dto       处理后筛查数据
+     * @param exportDTO 筛查数据导出
+     */
+    private void generateSaprodontiaData(StatConclusionExportDTO dto, CommonDiseaseDataExportDTO exportDTO) {
+
+//        exportDTO.setA()
+//                .setB();
+
+    }
+
+    /**
+     * 脊柱弯曲
+     *
+     * @param dto       处理后筛查数据
+     * @param exportDTO 筛查数据导出
+     */
+    private void generateSpineData(StatConclusionExportDTO dto, CommonDiseaseDataExportDTO exportDTO) {
+//        exportDTO.setC()
+//                .setD()
+//                .setE()
+//                .setF();
+
+    }
+
+    /**
+     * 血压
+     *
+     * @param dto       处理后筛查数据
+     * @param exportDTO 筛查数据导出
+     */
+    private void generateBloodPressureData(StatConclusionExportDTO dto, CommonDiseaseDataExportDTO exportDTO) {
+//        exportDTO.setG()
+//                .setH();
+    }
+
+    /**
+     * 疾病史和个人隐私
+     *
+     * @param dto       处理后筛查数据
+     * @param exportDTO 筛查数据导出
+     */
+    private void generatePrivacyDiseasesHistoryData(StatConclusionExportDTO dto, CommonDiseaseDataExportDTO exportDTO) {
+//        exportDTO.setI()
+//                .setJ();
+
+    }
 
 }

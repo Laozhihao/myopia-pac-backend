@@ -18,7 +18,12 @@
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="biometric_data" property="biometricData" />
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="visual_loss_level_data" property="visualLossLevelData" />
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="other_eye_diseases" property="otherEyeDiseases" />
-        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="height_and_weight_data" property="heightAndWeightData" />
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="saprodontia_data" property="saprodontiaData" />
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="spine_data" property="spineData" />
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="blood_pressure_data" property="bloodPressureData" />
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="diseases_history_data" property="diseasesHistoryData" />
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="privacy_data" property="privacyData" />
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="deviation_data" property="deviationData" />
     </resultMap>
 
     <resultMap id="ReportVoResultMap" type="com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionReportDTO">
@@ -108,7 +113,13 @@
         mvsr.vision_data, mvsr.computer_optometry, msc.glasses_type, msc.warning_level, msc.is_rescreen, msc.screening_plan_school_student_id,
         mvsr.ocular_inspection_data,mvsr.eye_pressure_data,mvsr.fundus_data,mvsr.slit_lamp_data,mvsr.pupil_optometry_data,mvsr.visual_loss_level_data,
         mvsr.systemic_disease_symptom,mvsr.biometric_data,mvsr.other_eye_diseases, mspss.grade_id, mspss.class_id, msc.myopia_level,msc.hyperopia_level,msc.astigmatism_level,mspss.student_id,msc.create_time,msc.report_id,mspss.passport, mvsr.height_and_weight_data,
-        msc.is_valid,mspss.screening_plan_id as planId
+        msc.is_valid,mspss.screening_plan_id as planId,
+        mvsr.saprodontia_data,
+        mvsr.spine_data,
+        mvsr.blood_pressure_data,
+        mvsr.diseases_history_data,
+        mvsr.privacy_data,
+        mvsr.deviation_data
     </sql>
 
     <select id="selectLastOne" resultMap="BaseResultMap" parameterType="java.util.Map">
