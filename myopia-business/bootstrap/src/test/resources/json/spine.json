@@ -1,4 +1,11 @@
 {
+  "studentId": 3,
+  "schoolId": 4,
+  "deptId": 3,
+  "userId": 16,
+  "planStudentId": 19,
+  "createUserId": 3,
+  "isCooperative": 0,
   "chest": {
     "type": 2,
     "level": 1

@@ -34,6 +34,7 @@ import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.DeviationDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ComputerOptometryDTO;
@@ -55,6 +56,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -141,7 +143,7 @@ public class ScreeningAppController {
     /**
      * 获取班级名称
      *
-     * @param gradeId  年级ID
+     * @param gradeId 年级ID
      * @return
      */
     @GetMapping("/school/findAllClazzNameBySchoolNameAndGradeName")
@@ -161,9 +163,9 @@ public class ScreeningAppController {
     /**
      * 获取学校年级班级对应的学生名称
      *
-     * @param schoolId  学校名称
-     * @param gradeId   年级名称
-     * @param classId   班级名称
+     * @param schoolId 学校名称
+     * @param gradeId  年级名称
+     * @param classId  班级名称
      * @return
      */
     @GetMapping("/school/findAllStudentName")
@@ -253,8 +255,8 @@ public class ScreeningAppController {
      */
     @PostMapping("/uploadSignPic")
     public ApiResult uploadUserAutographImageWithUser(@RequestParam(value = "deptId") Long deptId,
-                                              @RequestParam(value = "userId") Long userId,
-                                              @RequestParam(value = "file") MultipartFile file) {
+                                                      @RequestParam(value = "userId") Long userId,
+                                                      @RequestParam(value = "file") MultipartFile file) {
         return ApiResult.success(screeningAppService.uploadSignPic(CurrentUserUtil.getCurrentUser(), file));
     }
 
@@ -276,7 +278,7 @@ public class ScreeningAppController {
      */
     @PostMapping("/recognitionFace")
     public void recognitionFace(Integer deptId, MultipartFile file) {
-       // 暂时不用
+        // 暂时不用
     }
 
     /**
@@ -402,7 +404,7 @@ public class ScreeningAppController {
      */
     @PostMapping("/eye/updateReviewResult")
     public void updateReviewResult(Integer eyeId) {
-      //暂时不用
+        //暂时不用
     }
 
     /**
@@ -438,7 +440,7 @@ public class ScreeningAppController {
             log.error("根据orgId = [{}]，以及schoolId = [{}] 无法找到计划。", CurrentUserUtil.getCurrentUser().getOrgId(), appStudentDTO.getSchoolId());
             return ApiResult.failure(ErrorEnum.UNKNOWN_ERROR.getMessage());
         }
-        screeningPlanBizService.insertWithStudent(CurrentUserUtil.getCurrentUser(), student, appStudentDTO.getGrade(), appStudentDTO.getClazz(), appStudentDTO.getSchoolName(), school.getSchoolNo(), school.getDistrictId(), appStudentDTO.getSchoolId().intValue(), currentPlan,appStudentDTO.getPassport());
+        screeningPlanBizService.insertWithStudent(CurrentUserUtil.getCurrentUser(), student, appStudentDTO.getGrade(), appStudentDTO.getClazz(), appStudentDTO.getSchoolName(), school.getSchoolNo(), school.getDistrictId(), appStudentDTO.getSchoolId().intValue(), currentPlan, appStudentDTO.getPassport());
         return ApiResult.success();
     }
 
@@ -464,8 +466,8 @@ public class ScreeningAppController {
      * 获取班级总的筛查进度：汇总统计+每个学生的进度
      *
      * @param schoolId 学校名称
-     * @param gradeId 年级名称
-     * @param classId 班级名称
+     * @param gradeId  年级名称
+     * @param classId  班级名称
      * @param isFilter 是否启用过滤条件
      * @return com.wupol.myopia.business.api.screening.app.domain.vo.ClassScreeningProgress
      **/
@@ -473,8 +475,9 @@ public class ScreeningAppController {
     public ClassScreeningProgress getClassScreeningProgress(@NotNull(message = "学校ID不能为空") Integer schoolId,
                                                             @NotNull(message = "年级ID不能为空") Integer gradeId,
                                                             @NotNull(message = "班级ID不能为空") Integer classId,
+                                                            String studentName,
                                                             Boolean isFilter) {
-        return screeningAppService.getClassScreeningProgress(schoolId, gradeId, classId, CurrentUserUtil.getCurrentUser().getOrgId(), isFilter);
+        return screeningAppService.getClassScreeningProgress(schoolId, gradeId, classId, CurrentUserUtil.getCurrentUser().getOrgId(), isFilter, studentName);
     }
 
     /**
@@ -484,12 +487,11 @@ public class ScreeningAppController {
      * @return com.wupol.myopia.business.core.screening.flow.domain.vo.StudentScreeningProgressVO
      **/
     @GetMapping("/student/progress/{planStudentId}")
-    public StudentScreeningProgressVO getStudentScreeningProgress(@PathVariable Integer planStudentId) {
-        // TODO：考虑复筛？
-        VisionScreeningResult screeningResult = visionScreeningResultService.findOne(new VisionScreeningResult().setScreeningPlanSchoolStudentId(planStudentId).setIsDoubleScreen(false));
+    public StudentScreeningProgressVO getStudentScreeningProgress(@PathVariable Integer planStudentId,@RequestParam(value = "isState", defaultValue = "0") Integer isState) {
+        VisionScreeningResult screeningResult = visionScreeningResultService.findOne(new VisionScreeningResult().setScreeningPlanSchoolStudentId(planStudentId).setIsDoubleScreen(isState == 1));
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getById(planStudentId);
         StudentVO studentVO = StudentVO.getInstance(screeningPlanSchoolStudent);
-        return StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO);
+        return StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO,screeningPlanSchoolStudent);
     }
 
     /**
@@ -498,9 +500,9 @@ public class ScreeningAppController {
      * @param planStudentId 筛查计划学生ID
      * @return com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO
      **/
-    @GetMapping("/getComputerOptometryData/{planStudentId}")
-    public ComputerOptometryDTO getComputerOptometryData(@PathVariable Integer planStudentId) {
-        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentId(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId());
+    @GetMapping("/computerOptometryData/{planStudentId}")
+    public ComputerOptometryDTO getComputerOptometryData(@PathVariable Integer planStudentId, @RequestParam(value = "isState", defaultValue = "0") Integer isState) {
+        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentIdAndState(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId(), isState);
         if (Objects.isNull(screeningResult)) {
             return new ComputerOptometryDTO();
         }
@@ -513,9 +515,9 @@ public class ScreeningAppController {
      * @param planStudentId 筛查计划学生ID
      * @return com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO
      **/
-    @GetMapping("/getVisionData/{planStudentId}")
-    public VisionDataDTO getVisionData(@PathVariable Integer planStudentId) {
-        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentId(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId());
+    @GetMapping("/visionData/{planStudentId}")
+    public VisionDataDTO getVisionData(@PathVariable Integer planStudentId, @RequestParam(value = "isState", defaultValue = "0") Integer isState) {
+        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentIdAndState(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId(), isState);
         if (Objects.isNull(screeningResult)) {
             return new VisionDataDTO();
         }
@@ -587,10 +589,11 @@ public class ScreeningAppController {
      *
      * @param planStudentId 筛查计划学生ID
      * @return com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO
+     * @param isState isState
      **/
-    @GetMapping("/getOtherEyeDiseaseData/{planStudentId}")
-    public OtherEyeDiseasesDTO getOtherEyeDiseaseData(@PathVariable Integer planStudentId) {
-        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentId(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId());
+    @GetMapping("/otherEyeDiseaseData/{planStudentId}")
+    public OtherEyeDiseasesDTO getOtherEyeDiseaseData(@PathVariable Integer planStudentId, @RequestParam(value = "isState", defaultValue = "0") Integer isState) {
+        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentIdAndState(planStudentId,CurrentUserUtil.getCurrentUser().getOrgId(), isState);
         if (Objects.isNull(screeningResult)) {
             return new OtherEyeDiseasesDTO();
         }
@@ -599,13 +602,14 @@ public class ScreeningAppController {
 
     /**
      * 获取身高体重检查数据
-     * @Author tastyb
+     *
      * @param planStudentId 筛查计划学生ID
      * @return com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDTO
+     * @Author tastyb
      **/
-    @GetMapping("/getHeightAndWeightData/{planStudentId}")
-    public HeightAndWeightDataDTO getHeightAndWeightData(@PathVariable Integer planStudentId) {
-        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentId(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId());
+    @GetMapping("/heightAndWeightData/{planStudentId}")
+    public HeightAndWeightDataDTO getHeightAndWeightData(@PathVariable Integer planStudentId,@RequestParam(value = "isState", defaultValue = "0") Integer isState) {
+        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentIdAndState(planStudentId,CurrentUserUtil.getCurrentUser().getOrgId(), isState);
         if (Objects.isNull(screeningResult)) {
             return new HeightAndWeightDataDTO();
         }
@@ -672,7 +676,7 @@ public class ScreeningAppController {
      * @return void
      **/
     @PostMapping("/update/planStudent")
-    public void updatePlanStudent(@RequestBody@Valid UpdatePlanStudentRequestDTO requestDTO) {
+    public void updatePlanStudent(@RequestBody @Valid UpdatePlanStudentRequestDTO requestDTO) {
         screeningPlanStudentBizService.updatePlanStudent(requestDTO);
     }
 
@@ -689,6 +693,188 @@ public class ScreeningAppController {
         } catch (Exception e) {
             log.error("获取二维码异常", e);
             throw new BusinessException("获取二维码异常");
+        }
+    }
+
+    /**
+     * 常见病：龋齿数据保存
+     *
+     * @param saprodontiaDTO saprodontiaDTO
+     */
+    @PostMapping("/saprodontia")
+    public void addSaprodontia(@Valid @RequestBody SaprodontiaDTO saprodontiaDTO) {
+        if (saprodontiaDTO.isValid()) {
+            visionScreeningBizService.saveOrUpdateStudentScreenData(saprodontiaDTO);
+        }
+    }
+
+    /**
+     * 获取龋齿数据
+     *
+     * @param planStudentId 筛查计划学生ID
+     * @return com.wupol.myopia.business.core.screening.flow.domain.dos.SaprodontiaDataDO
+     **/
+    @GetMapping("/saprodontia/{planStudentId}")
+    public SaprodontiaDTO getSaprodontia(@PathVariable Integer planStudentId, @RequestParam(value = "isState", defaultValue = "0") Integer isState) {
+        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentIdAndState(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId(), isState);
+        if (Objects.isNull(screeningResult)) {
+            return new SaprodontiaDTO();
+        }
+        return SaprodontiaDTO.getInstance(screeningResult.getSaprodontiaData());
+    }
+
+    /**
+     * 常见病：脊柱数据保存
+     *
+     * @param spineDTO spineDto
+     */
+    @PostMapping("/spine")
+    public void addSpine(@Valid @RequestBody SpineDTO spineDTO) {
+        if (spineDTO.isValid()) {
+            visionScreeningBizService.saveOrUpdateStudentScreenData(spineDTO);
+        }
+    }
+
+    /**
+     * 获取脊柱数据
+     *
+     * @param planStudentId 筛查计划学生ID
+     * @return com.wupol.myopia.business.core.screening.flow.domain.dos.SpineDataDO
+     **/
+    @GetMapping("/spine/{planStudentId}")
+    public SpineDTO getSpine(@PathVariable Integer planStudentId, @RequestParam(value = "isState", defaultValue = "0") Integer isState) {
+        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentIdAndState(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId(), isState);
+        if (Objects.isNull(screeningResult)) {
+            return new SpineDTO();
+        }
+        return SpineDTO.getInstance(screeningResult.getSpineData());
+    }
+
+    /**
+     * 常见病：血压数据保存
+     *
+     * @param bloodPressureDTO bloodPressureDTO
+     */
+    @PostMapping("/bloodPressure")
+    public void addBloodPressure(@Valid @RequestBody BloodPressureDTO bloodPressureDTO) {
+        if (bloodPressureDTO.isValid()) {
+            visionScreeningBizService.saveOrUpdateStudentScreenData(bloodPressureDTO);
+        }
+    }
+
+    /**
+     * 获取血压数据
+     *
+     * @param planStudentId 筛查计划学生ID
+     * @return com.wupol.myopia.business.core.screening.flow.domain.dos.BloodPressureDataDO
+     **/
+    @GetMapping("/bloodPressure/{planStudentId}")
+    public BloodPressureDTO getBloodPressure(@PathVariable Integer planStudentId, @RequestParam(value = "isState", defaultValue = "0") Integer isState) {
+        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentIdAndState(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId(), isState);
+        if (Objects.isNull(screeningResult)) {
+            return new BloodPressureDTO();
+        }
+        return BloodPressureDTO.getInstance(screeningResult.getBloodPressureData());
+    }
+
+
+    /**
+     * 常见病：疾病史保存
+     *
+     * @param diseasesHistoryDTO diseasesHistoryDTO
+     */
+    @PostMapping("/diseasesHistory")
+    public void addDiseasesHistory(@Valid @RequestBody DiseasesHistoryDTO diseasesHistoryDTO) {
+        if (diseasesHistoryDTO.isValid()) {
+            visionScreeningBizService.saveOrUpdateStudentScreenData(diseasesHistoryDTO);
+        }
+    }
+
+    /**
+     * 获取疾病史数据
+     *
+     * @param planStudentId 筛查计划学生ID
+     * @return com.wupol.myopia.business.core.screening.flow.domain.dos.BloodPressureDataDO
+     **/
+    @GetMapping("/diseasesHistory/{planStudentId}")
+    public DiseasesHistoryDTO getDiseasesHistory(@PathVariable Integer planStudentId, @RequestParam(value = "isState", defaultValue = "0") Integer isState) {
+        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentIdAndState(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId(), isState);
+        if (Objects.isNull(screeningResult)) {
+            return new DiseasesHistoryDTO();
+        }
+        return DiseasesHistoryDTO.getInstance(screeningResult.getDiseasesHistoryData());
+    }
+
+
+    /**
+     * 常见病：个人隐私保存
+     *
+     * @param privacyDTO privacyDTO
+     */
+    @PostMapping("/privacy")
+    public void addPrivacy(@Valid @RequestBody PrivacyDTO privacyDTO) {
+        if (privacyDTO.isValid()) {
+            visionScreeningBizService.saveOrUpdateStudentScreenData(privacyDTO);
+        }
+    }
+
+    /**
+     * 获取个人隐私数据
+     *
+     * @param planStudentId 筛查计划学生ID
+     * @return com.wupol.myopia.business.core.screening.flow.domain.dos.BloodPressureDataDO
+     **/
+    @GetMapping("/privacy/{planStudentId}")
+    public PrivacyDTO getPrivacy(@PathVariable Integer planStudentId, @RequestParam(value = "isState", defaultValue = "0") Integer isState) {
+        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentIdAndState(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId(), isState);
+        if (Objects.isNull(screeningResult)) {
+            return new PrivacyDTO();
+        }
+        return PrivacyDTO.getInstance(screeningResult.getPrivacyData());
+    }
+
+    /**
+     * 是否可以复测
+     *
+     * @param planStudentId 筛查计划学生ID
+     * @return boolean
+     **/
+    @GetMapping("/checkRetest/{planStudentId}")
+    public boolean checkRetest(@PathVariable Integer planStudentId) {
+        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentId(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId());
+        if (Objects.isNull(screeningResult)) {
+            return false;
+        }
+        visionScreeningBizService.verifyScreening(screeningResult);
+        return true;
+    }
+
+    /**
+     * 不能检查原因
+     *
+     * @param planStudentId 筛查计划学生ID
+     * @return boolean
+     **/
+    @PutMapping("/noExamine/{planStudentId}")
+    public boolean addNoExamine(@PathVariable Integer planStudentId, @RequestParam(value = "state", defaultValue = "0") Integer state) {
+        ScreeningPlanSchoolStudent screeningPlan = screeningPlanSchoolStudentService.findOne(new ScreeningPlanSchoolStudent().setId(planStudentId));
+        Assert.notNull(screeningPlan,"不存在筛查计划");
+        screeningPlan.setState(state);
+        return screeningPlanSchoolStudentService.updateById(screeningPlan);
+    }
+
+    /**
+     * 筛查不准确说明
+     *
+     * @param deviationDTO 筛查计划学生ID
+     * @return boolean
+     **/
+    @PostMapping("/inaccurate/{planStudentId}")
+    public void addInaccurate(@Valid @RequestBody DeviationDTO deviationDTO) {
+        if (deviationDTO.isValid()) {
+            // 只是复测数据
+            deviationDTO.setIsState(1);
+            visionScreeningBizService.saveOrUpdateStudentScreenData(deviationDTO);
         }
     }
 }
