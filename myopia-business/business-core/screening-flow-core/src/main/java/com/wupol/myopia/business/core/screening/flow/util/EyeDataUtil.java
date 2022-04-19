@@ -613,6 +613,20 @@ public class EyeDataUtil {
         return null;
     }
 
+    /**
+     * 身高/体重误差说明
+     * @param visionScreeningResult 结果
+     * @return
+     */
+    public static DeviationDO deviationData(VisionScreeningResult visionScreeningResult) {
+        if (visionScreeningResult != null
+                &&visionScreeningResult.getDeviationData() != null
+        ) {
+            return  visionScreeningResult.getDeviationData();
+        }
+        return null;
+    }
+
 
 
 
