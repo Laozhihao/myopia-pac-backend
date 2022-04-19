@@ -119,7 +119,7 @@ public class ExportStudentWarningArchiveExcelService extends BaseExportExcelFile
     }
 
     @Override
-    public Class getHeadClass() {
+    public Class getHeadClass(ExportCondition exportCondition) {
         return StudentWarningArchive.class;
     }
 

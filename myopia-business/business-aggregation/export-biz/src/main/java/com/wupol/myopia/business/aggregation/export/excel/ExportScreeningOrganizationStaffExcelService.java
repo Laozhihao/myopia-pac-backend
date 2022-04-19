@@ -69,7 +69,7 @@ public class ExportScreeningOrganizationStaffExcelService extends BaseExportExce
     }
 
     @Override
-    public Class getHeadClass() {
+    public Class getHeadClass(ExportCondition exportCondition) {
         return ScreeningOrganizationStaffExportDTO.class;
     }
 

@@ -4,7 +4,9 @@ import com.alibaba.excel.write.merge.OnceAbsoluteMergeStrategy;
 import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.ExcelUtil;
+import com.wupol.myopia.business.aggregation.export.excel.config.ScreeningDataFactory;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.aggregation.export.service.IScreeningDataService;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
@@ -29,7 +31,6 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.wupol.myopia.business.aggregation.export.excel.constant.ExcelFileNameConstant.*;
@@ -59,9 +60,6 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
     @Resource
     private ScreeningOrganizationService screeningOrganizationService;
 
-    @Autowired
-    private ExcelFacade excelFacade;
-
 
     @Override
     public List<StatConclusionExportDTO> getExcelData(ExportCondition exportCondition) {
@@ -80,8 +78,9 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
     }
 
     @Override
-    public Class getHeadClass() {
-        return VisionScreeningResultExportDTO.class;
+    public Class getHeadClass(ExportCondition exportCondition) {
+        IScreeningDataService screeningDataService = ScreeningDataFactory.getScreeningDataService(screeningPlanService.getById(exportCondition.getPlanId()).getScreeningType());
+        return screeningDataService.getExportClass();
     }
 
     @Override
@@ -113,13 +112,16 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         Map<Integer, List<StatConclusionExportDTO>> schoolMap = statConclusionExportDTOs.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getSchoolId));
         Map<Integer, List<StatConclusionExportDTO>> gradeMap = statConclusionExportDTOs.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getGradeId));
 
+        Integer screeningType = screeningPlanService.getById(statConclusionExportDTOs.get(0).getPlanId()).getScreeningType();
+        IScreeningDataService screeningDataService = ScreeningDataFactory.getScreeningDataService(screeningType);
+
 
         //1.学校id为null,区域id为null,筛查计划id不为null按计划维度导出
         if (Objects.isNull(exportCondition.getSchoolId()) && Objects.nonNull(exportCondition.getDistrictId()) && Objects.nonNull(exportCondition.getPlanId()) && Objects.nonNull(exportCondition.getScreeningOrgId()) && Objects.isNull(exportCondition.getClassId())){
             schoolMap.forEach((key,value)->{
                 School school = schoolService.getById(key);
                 String path = Paths.get(filePath, getFileNameTitle(exportCondition)).toString();
-                makerExcel(path, String.format(PLAN_STUDENT_FILE_NAME,school.getName()), excelFacade.genVisionScreeningResultExportVos(value));
+                makerExcel(path, String.format(PLAN_STUDENT_FILE_NAME,school.getName()), screeningDataService.generateExportData(value), screeningDataService.getExportClass());
             });
         }
 
@@ -128,7 +130,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
             School school = schoolService.getById(exportCondition.getSchoolId());
             //先导出整个学校数据
             String folder = Paths.get(filePath,String.format(PLAN_STUDENT_FILE_NAME,school.getName())).toString();
-            makerExcel(folder, String.format(PLAN_STUDENT_FILE_NAME,school.getName()), excelFacade.genVisionScreeningResultExportVos(schoolMap.get(exportCondition.getSchoolId())));
+            makerExcel(folder, String.format(PLAN_STUDENT_FILE_NAME,school.getName()), screeningDataService.generateExportData(schoolMap.get(exportCondition.getSchoolId())), screeningDataService.getExportClass());
             //再导出年级数据
             gradeMap.forEach((key,value)->{
                 SchoolGrade grade = schoolGradeService.getById(key);
@@ -148,29 +150,32 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
 
         //如果班级不为null,则以班级维度导出
         if (Objects.nonNull(exportCondition.getClassId())){
-            return  makerExcel(filePath, getFileNameTitle(exportCondition), excelFacade.genVisionScreeningResultExportVos(data));
+            return  makerExcel(filePath, getFileNameTitle(exportCondition), screeningDataService.generateExportData(data), screeningDataService.getExportClass());
         }
         return null;
     }
 
 
-
     public void excelGraderAndClassData(Integer key,List<StatConclusionExportDTO> value,String gradeFolder,String filePath,School school){
+
+        Integer screeningType = screeningPlanService.getById(value.get(0).getPlanId()).getScreeningType();
+        IScreeningDataService screeningDataService = ScreeningDataFactory.getScreeningDataService(screeningType);
+
         SchoolGrade grade = schoolGradeService.getById(key);
         String path = Paths.get(filePath,gradeFolder).toString();
-        makerExcel(path, gradeFolder, excelFacade.genVisionScreeningResultExportVos(value));
+        makerExcel(path, gradeFolder, screeningDataService.generateExportData(value), screeningDataService.getExportClass());
         //再导出该年级的班级数据
         Map<Integer, List<StatConclusionExportDTO>> collect = value.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getClassId));
         collect.forEach((classKey,classValue) ->{
             SchoolClass schoolClass = schoolClassService.getById(classKey);
-            makerExcel(path, String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName()+schoolClass.getName()), excelFacade.genVisionScreeningResultExportVos(classValue));
+            makerExcel(path, String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName()+schoolClass.getName()), screeningDataService.generateExportData(classValue), screeningDataService.getExportClass());
         });
     }
 
-    public File makerExcel(String folder,String filePath,List<VisionScreeningResultExportDTO> data){
+    public File makerExcel(String folder,String filePath,List data, Class clazz){
         OnceAbsoluteMergeStrategy mergeStrategy = new OnceAbsoluteMergeStrategy(0, 1, 20, 21);
         try {
-            return  ExcelUtil.exportListToExcelWithFolder(folder,filePath, data, mergeStrategy, getHeadClass());
+            return  ExcelUtil.exportListToExcelWithFolder(folder,filePath, data, mergeStrategy, clazz);
         } catch (IOException e) {
             log.error("【Excel生成异常】{}", data, e);
         }
