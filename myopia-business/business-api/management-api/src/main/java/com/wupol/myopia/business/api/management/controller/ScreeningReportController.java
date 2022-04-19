@@ -2,13 +2,14 @@ package com.wupol.myopia.business.api.management.controller;
 
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.core.system.domain.dos.TemplateDO;
 import com.wupol.myopia.business.core.system.domain.dto.TemplateBindRequestDTO;
-import com.wupol.myopia.business.core.system.domain.dto.TemplateResponseDTO;
 import com.wupol.myopia.business.core.system.service.TemplateService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 筛查报告模板设置
@@ -30,7 +31,7 @@ public class ScreeningReportController {
      * @return 模板列表
      */
     @GetMapping("lists")
-    public List<TemplateResponseDTO> getLists() {
+    public Map<Integer, List<TemplateDO>> getLists() {
         return templateService.getTemplateLists(CommonConst.TYPE_TEMPLATE_SCREENING_REPORT);
     }
 

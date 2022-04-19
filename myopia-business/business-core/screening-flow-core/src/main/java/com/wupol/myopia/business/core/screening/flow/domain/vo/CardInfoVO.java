@@ -83,8 +83,14 @@ public class CardInfoVO {
      * 民族描述
      */
     private String nationDesc;
+
     /**
      * 护照号
      */
     private String passport;
+
+    /**
+     * 学龄段
+     */
+    private String schoolAge;
 }
