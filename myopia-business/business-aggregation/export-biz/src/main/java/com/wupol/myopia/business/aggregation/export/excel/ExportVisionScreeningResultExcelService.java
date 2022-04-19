@@ -87,7 +87,7 @@ public class ExportVisionScreeningResultExcelService extends BaseExportExcelFile
     }
 
     @Override
-    public Class getHeadClass() {
+    public Class getHeadClass(ExportCondition exportCondition) {
         return StudentVisionScreeningResultExportDTO.class;
     }
 

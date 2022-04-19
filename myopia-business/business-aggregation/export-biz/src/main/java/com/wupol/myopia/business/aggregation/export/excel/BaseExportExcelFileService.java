@@ -194,7 +194,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
      * @return java.io.File
      **/
     public File generateExcelFile(String fileName, List data,ExportCondition exportCondition) throws IOException {
-        return ExcelUtil.exportListToExcel(fileName, data, getHeadClass());
+        return ExcelUtil.exportListToExcel(fileName, data, getHeadClass(exportCondition));
     }
 
     /**
@@ -202,7 +202,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
      *
      * @return java.lang.Class
      **/
-    public abstract Class getHeadClass();
+    public abstract Class getHeadClass(ExportCondition exportCondition);
 
     /**
      * 获取通知的关键内容

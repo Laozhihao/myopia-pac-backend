@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.screening.flow.domain.builder;
 
 import com.wupol.framework.core.util.ObjectsUtil;
+import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
