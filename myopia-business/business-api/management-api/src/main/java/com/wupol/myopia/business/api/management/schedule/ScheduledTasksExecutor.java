@@ -1,5 +1,8 @@
 package com.wupol.myopia.business.api.management.schedule;
 
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.StrUtil;
+import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.CompareUtil;
 import com.wupol.myopia.base.util.DateUtil;
@@ -98,11 +101,42 @@ public class ScheduledTasksExecutor {
         }
         statisticByPlanIds(yesterdayScreeningPlanIds);
 
+        screeningResultStatisticByPlanIds(yesterdayScreeningPlanIds);
+    }
+
+    /**
+     * 根据指定日期生成筛查结果统计数据
+     * @param date 日期
+     */
+    public void statistic(String date,Integer planId){
+        if ((StrUtil.isBlank(date) && planId != null) || (StrUtil.isNotBlank(date)&& planId != null)){
+            log.info("通过筛查计划ID planId:{}生成筛查结果统计数据",planId);
+            screeningResultStatisticByPlanIds(Lists.newArrayList(planId));
+            return;
+        }
+
+        if (StrUtil.isNotBlank(date)&& planId == null){
+            log.info("通过日期 date:{} 生成筛查结果统计数据",date);
+            List<Integer> planIds = visionScreeningResultService.getScreeningPlanIdsByDate(date);
+            if (CollectionUtil.isEmpty(planIds)){
+                log.info("筛查数据统计：{}无筛查数据，无需统计",date);
+                return;
+            }
+            screeningResultStatisticByPlanIds(planIds);
+        }
+
+    }
+
+    private void screeningResultStatisticByPlanIds(List<Integer> screeningPlanIds){
         //按区域统计
-        districtStatisticTask.districtStatistics(yesterdayScreeningPlanIds);
+        districtStatisticTask.districtStatistics(screeningPlanIds);
 
         //按学校统计
-        schoolStatisticTask.schoolStatistics(yesterdayScreeningPlanIds);
+        schoolStatisticTask.schoolStatistics(screeningPlanIds);
+    }
+
+    public void statConclusionData(String date){
+
     }
 
     /**

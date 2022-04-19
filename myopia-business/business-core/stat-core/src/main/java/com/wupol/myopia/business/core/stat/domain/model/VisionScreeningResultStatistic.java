@@ -35,7 +35,7 @@ public class VisionScreeningResultStatistic implements Serializable {
     private Integer screeningTaskId;
 
     /**
-     * 筛查计划Id
+     * 筛查计划Id （is_total情况下，可能为0）
      */
     private Integer screeningPlanId;
 
@@ -101,6 +101,11 @@ public class VisionScreeningResultStatistic implements Serializable {
      * 纳入统计的实际筛查学生数量（默认0）
      */
     private Integer validScreeningNum;
+
+    /**
+     * 纳入统计的实际筛查学生比例
+     */
+    private Integer validScreeningRatio;
 
 
     /**

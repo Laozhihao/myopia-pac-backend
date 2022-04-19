@@ -20,6 +20,7 @@ import com.wupol.myopia.business.core.stat.domain.model.VisionScreeningResultSta
 import com.wupol.myopia.business.core.stat.service.CommonDiseaseScreeningResultStatisticService;
 import com.wupol.myopia.business.core.stat.service.VisionScreeningResultStatisticService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -32,6 +33,7 @@ import java.util.stream.Collectors;
  *
  * @author hang.yuan 2022/4/14 10:49
  */
+@Slf4j
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
 @Component
 public class SchoolStatisticTask {
@@ -53,6 +55,7 @@ public class SchoolStatisticTask {
         //根据筛查计划ID 获取筛查数据结论
         List<StatConclusionDTO> statConclusions = statConclusionService.getVoByScreeningPlanIds(yesterdayScreeningPlanIds);
         if(CollectionUtil.isEmpty(statConclusions)){
+            log.error("未找到筛查数据结论，planIds:{}",CollectionUtil.join(yesterdayScreeningPlanIds,","));
             return;
         }
 

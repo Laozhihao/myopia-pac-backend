@@ -318,8 +318,9 @@ public class StatManagementController {
      * 为了测试方便
      */
     @GetMapping("/trigger")
-    public void statTaskTrigger() {
-        scheduledTasksExecutor.statistic();
+    public void statTaskTrigger(@RequestParam(required = false) String date,
+                                @RequestParam(required = false) Integer planId) {
+        scheduledTasksExecutor.statistic(date,planId);
     }
 
     /**
@@ -526,8 +527,8 @@ public class StatManagementController {
      */
     @GetMapping("/school/kindergartenResult")
     public SchoolKindergartenResultVO getSchoolKindergartenResult(@RequestParam Integer districtId,
-                                                                  @RequestParam Integer noticeId,
-                                                                  @RequestParam Integer planId) {
+                                                                  @RequestParam(required = false) Integer noticeId,
+                                                                  @RequestParam(required = false) Integer planId) {
 
         return statService.getSchoolKindergartenResult(districtId,noticeId,planId);
     }
@@ -539,8 +540,8 @@ public class StatManagementController {
      */
     @GetMapping("/school/primarySchoolAndAboveResult")
     public SchoolPrimarySchoolAndAboveResultVO getSchoolPrimarySchoolAndAboveResult(@RequestParam Integer districtId,
-                                                                                    @RequestParam Integer noticeId,
-                                                                                    @RequestParam Integer planId) {
+                                                                                    @RequestParam(required = false) Integer noticeId,
+                                                                                    @RequestParam(required = false) Integer planId) {
 
         return statService.getSchoolPrimarySchoolAndAboveResult(districtId,noticeId,planId);
     }
@@ -551,8 +552,8 @@ public class StatManagementController {
      * @date 2022/4/7
      */
     @GetMapping("/school/schoolStatisticDetail")
-    public SchoolResultDetailVO getSchoolStatisticDetail(@RequestParam Integer screeningPlanId,
-                                                         @RequestParam Integer screeningNoticeId,
+    public SchoolResultDetailVO getSchoolStatisticDetail(@RequestParam(required = false) Integer screeningPlanId,
+                                                         @RequestParam(required = false) Integer screeningNoticeId,
                                                          @RequestParam Integer schoolId) {
         return statService.getSchoolStatisticDetail(screeningPlanId,screeningNoticeId,schoolId);
     }

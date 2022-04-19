@@ -34,14 +34,14 @@ public class ScreeningResultStatisticBuilder {
     /**
      * 按区域 - 视力筛查数据统计
      */
-    public static List<VisionScreeningResultStatistic> buildVisionScreening(Integer screeningNoticeId, Integer screeningTaskId,
+    public static List<VisionScreeningResultStatistic> buildVisionScreening(Integer screeningNoticeId, Integer screeningTaskId,Integer screeningPlanId,
                                                                             Integer districtId, Boolean isTotal, Integer planScreeningNum,
                                                                             List<StatConclusion> totalStatConclusions) {
 
         List<VisionScreeningResultStatistic> visionScreeningResultStatisticList= Lists.newArrayList();
         //幼儿园
         List<StatConclusion> kindergarten = totalStatConclusions.stream().filter(sc -> Objects.equals(SchoolAge.KINDERGARTEN.code, sc.getSchoolAge())).collect(Collectors.toList());
-        kindergartenVisionScreening(screeningNoticeId, screeningTaskId, districtId, isTotal, planScreeningNum, kindergarten,visionScreeningResultStatisticList);
+        kindergartenVisionScreening(screeningNoticeId, screeningTaskId, screeningPlanId,districtId, isTotal, planScreeningNum, kindergarten,visionScreeningResultStatisticList);
 
         //小学及以上
         List<StatConclusion> primarySchoolAndAbove = totalStatConclusions.stream().filter(sc -> !Objects.equals(SchoolAge.KINDERGARTEN.code, sc.getSchoolAge())).collect(Collectors.toList());
@@ -54,7 +54,7 @@ public class ScreeningResultStatisticBuilder {
      * 按区域 - 幼儿园视力筛查数据统计
      */
     private static void kindergartenVisionScreening(
-            Integer screeningNoticeId, Integer screeningTaskId,
+            Integer screeningNoticeId, Integer screeningTaskId,Integer screeningPlanId,
             Integer districtId, Boolean isTotal,Integer planScreeningNum,
             List<StatConclusion> totalStatConclusions,
             List<VisionScreeningResultStatistic> visionScreeningResultStatisticList){
@@ -74,6 +74,7 @@ public class ScreeningResultStatisticBuilder {
         VisionScreeningResultStatistic statistic = new VisionScreeningResultStatistic();
         statistic.setScreeningNoticeId(screeningNoticeId)
                 .setScreeningTaskId(screeningTaskId)
+                .setScreeningPlanId(screeningPlanId)
                 .setDistrictId(districtId)
                 .setIsTotal(isTotal)
                 .setFinishRatio(MathUtil.divide(realScreeningStudentNum, planScreeningNum))

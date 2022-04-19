@@ -51,6 +51,10 @@ public class DistrictStatisticTask {
     public void districtStatistics(List<Integer> yesterdayScreeningPlanIds) {
         //筛查计划ID 查找筛查通知ID
         List<Integer> screeningNoticeIds = screeningPlanService.getSrcScreeningNoticeIdsByIds(yesterdayScreeningPlanIds);
+        if(CollectionUtil.isEmpty(screeningNoticeIds)){
+            log.error("未找到筛查通知数据，planIds:{}",CollectionUtil.join(yesterdayScreeningPlanIds,","));
+            return;
+        }
 
         // 单点筛查（自己创建的筛查）机构创建的数据不需要统计
         screeningNoticeIds = screeningNoticeIds.stream().filter(id-> !CommonConst.DEFAULT_ID.equals(id)).collect(Collectors.toList());
@@ -119,14 +123,14 @@ public class DistrictStatisticTask {
             Integer provinceDistrictId = districtService.getProvinceId(screeningNotice.getDistrictId());
 
             //同一个筛查通知下不同地区筛查数据结论 ,根据地区分组
-            Map<Integer, List<StatConclusion>> districtStatConclusions = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getDistrictId));
+            Map<Integer, List<StatConclusion>> districtStatConclusionMap = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getDistrictId));
 
             if(Objects.equals(0,screeningNotice.getScreeningType())){
                 //根据地区生成视力筛查统计
-                genVisionStatisticsByDistrictId(screeningNoticeId, provinceDistrictId, districtPlanStudentCountMap, visionScreeningResultStatisticList, districtStatConclusions);
+                genVisionStatisticsByDistrictId(screeningNoticeId, provinceDistrictId, districtPlanStudentCountMap, visionScreeningResultStatisticList, districtStatConclusionMap);
             }else {
                 //根据地区生成常见病筛查统计
-                genCommonDiseaseStatisticsByDistrictId(screeningNoticeId, provinceDistrictId, districtPlanStudentCountMap, commonDiseaseScreeningResultStatisticList, districtStatConclusions);
+                genCommonDiseaseStatisticsByDistrictId(screeningNoticeId, provinceDistrictId, districtPlanStudentCountMap, commonDiseaseScreeningResultStatisticList, districtStatConclusionMap);
             }
 
         });
@@ -215,9 +219,10 @@ public class DistrictStatisticTask {
         }
         // 层级总的筛查数据不一定属于同一个任务，所以取默认0
         Integer screeningTaskId = CommonConst.DEFAULT_ID;
+        Integer screeningPlanId = CommonConst.DEFAULT_ID;
 
         if (Objects.nonNull(visionScreeningResultStatisticList)){
-            visionScreeningResultStatisticList.addAll(ScreeningResultStatisticBuilder.buildVisionScreening(screeningNoticeId, screeningTaskId, districtId, Boolean.TRUE, planStudentNum, totalStatConclusions));
+            visionScreeningResultStatisticList.addAll(ScreeningResultStatisticBuilder.buildVisionScreening(screeningNoticeId, screeningTaskId,screeningPlanId, districtId, Boolean.TRUE, planStudentNum, totalStatConclusions));
         }
         if (Objects.nonNull(commonDiseaseScreeningResultStatisticList)){
             commonDiseaseScreeningResultStatisticList.add(ScreeningResultStatisticBuilder.buildCommonDiseaseScreening(screeningNoticeId, screeningTaskId, districtId, Boolean.TRUE, planStudentNum, totalStatConclusions));
@@ -238,9 +243,10 @@ public class DistrictStatisticTask {
 
         // 层级自己的筛查数据肯定属于同一个任务，所以只取第一个的就可以
         Integer screeningTaskId = CollectionUtils.isEmpty(selfStatConclusions) ? CommonConst.DEFAULT_ID : selfStatConclusions.get(0).getTaskId();
+        Integer screeningPlanId = CollectionUtils.isEmpty(selfStatConclusions) ? CommonConst.DEFAULT_ID : selfStatConclusions.get(0).getPlanId();
 
         if (Objects.nonNull(visionScreeningResultStatisticList)){
-            visionScreeningResultStatisticList.addAll(ScreeningResultStatisticBuilder.buildVisionScreening(screeningNoticeId, screeningTaskId, districtId, Boolean.FALSE, planStudentNum, selfStatConclusions));
+            visionScreeningResultStatisticList.addAll(ScreeningResultStatisticBuilder.buildVisionScreening(screeningNoticeId, screeningTaskId,screeningPlanId, districtId, Boolean.FALSE, planStudentNum, selfStatConclusions));
         }
         if (Objects.nonNull(commonDiseaseScreeningResultStatisticList)){
             commonDiseaseScreeningResultStatisticList.add(ScreeningResultStatisticBuilder.buildCommonDiseaseScreening(screeningNoticeId, screeningTaskId, districtId, Boolean.FALSE, planStudentNum,selfStatConclusions));

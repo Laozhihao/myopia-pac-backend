@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.screening.flow.service;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
@@ -16,6 +17,8 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -83,6 +86,19 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         Date yesterdayStartTime = DateUtil.getYesterdayStartTime();
         Date yesterdayEndTime = DateUtil.getYesterdayEndTime();
         return baseMapper.getHaveSrcScreeningNoticePlanIdsByTime(yesterdayStartTime, yesterdayEndTime);
+    }
+
+    /**
+     * 通过指定的日期获取筛查计划ID集合
+     */
+    public List<Integer> getScreeningPlanIdsByDate(String dateStr){
+        if(StrUtil.isBlank(dateStr)){
+            dateStr= LocalDate.now().minusDays(1).toString();
+
+        }
+        LocalDateTime startTime = LocalDate.parse(dateStr).atTime(0, 0, 0,0);
+        LocalDateTime endTime = LocalDate.parse(dateStr).atTime(23, 59, 59,999);
+        return baseMapper.getHaveSrcScreeningNoticePlanIdsByTime(DateUtil.toDate(startTime),DateUtil.toDate(endTime));
     }
 
     /**
