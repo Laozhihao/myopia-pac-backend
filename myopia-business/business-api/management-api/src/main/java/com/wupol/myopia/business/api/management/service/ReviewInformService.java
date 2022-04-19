@@ -91,7 +91,7 @@ public class ReviewInformService {
     /**
      * 筛查通知结果页面地址
      */
-    public static final String RESCREEN_REVIEW_HTML_URL = "%s?planId=%s&orgId=%s&schoolId=%s&gradeId=%s&classId=%s";
+    public static final String RESCREEN_REVIEW_HTML_URL = "%s?planId=%s&schoolId=%s&gradeId=%s&classId=%s&orgId=%s&parentsInform=1";
 
 
     /**

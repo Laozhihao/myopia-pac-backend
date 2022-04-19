@@ -1,26 +1,36 @@
 package com.wupol.myopia.business.aggregation.export.service.impl;
 
 import com.alibaba.fastjson.JSONPath;
+import com.wupol.myopia.base.constant.SpineLevelEnum;
+import com.wupol.myopia.base.constant.SpineTypeEnum;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.base.util.ListUtil;
 import com.wupol.myopia.base.util.ScreeningDataFormatUtils;
 import com.wupol.myopia.business.aggregation.export.service.IScreeningDataService;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
+import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.screening.flow.constant.SaprodontiaType;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningResultPahtConst;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.DeviationDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.PrivacyDataDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.SaprodontiaDataDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.SpineDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.CommonDiseaseDataExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionExportDTO;
 import com.wupol.myopia.business.core.system.constants.ScreeningTypeConst;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 常见病
@@ -53,6 +63,11 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
             genScreeningData(vo, exportVo);
             // 组装复筛数据
             genReScreeningData(rescreenPlanStudentIdVoMap, vo, exportVo);
+            // 以下为常见病相关
+            generateSaprodontiaData(vo, exportVo);
+            generateSpineData(vo, exportVo);
+            generateBloodPressureData(vo, exportVo);
+            generatePrivacyDiseasesHistoryData(vo, exportVo);
             exportVos.add(exportVo);
         }
         return exportVos;
@@ -118,8 +133,7 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
                     .setRightReScreenAxials(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHTEYE_AXIAL)))
                     .setIsRescreenDesc("是")
                     .setReHeight(ScreeningDataFormatUtils.getHeight(JSONPath.eval(rescreenVo, ScreeningResultPahtConst.PATH_HW_HEIGHT)))
-                    .setReWeight(ScreeningDataFormatUtils.getWeight(JSONPath.eval(rescreenVo, ScreeningResultPahtConst.PATH_HW_WEIGHT)))
-                    .setDeviationData("设备问题");
+                    .setReWeight(ScreeningDataFormatUtils.getWeight(JSONPath.eval(rescreenVo, ScreeningResultPahtConst.PATH_HW_WEIGHT)));
         }
     }
 
@@ -130,10 +144,57 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
      * @param exportDTO 筛查数据导出
      */
     private void generateSaprodontiaData(StatConclusionExportDTO dto, CommonDiseaseDataExportDTO exportDTO) {
+        SaprodontiaDataDO saprodontiaData = dto.getSaprodontiaData();
+        if (Objects.isNull(saprodontiaData)) {
+            return;
+        }
+        TwoTuple<String, String> stringStringTwoTuple = generateSaprodontiaResult(saprodontiaData);
 
-//        exportDTO.setA()
-//                .setB();
+        exportDTO.setDeciduous(stringStringTwoTuple.getFirst())
+                .setPermanent(stringStringTwoTuple.getSecond());
+    }
 
+    /**
+     * 生成龋齿结论
+     *
+     * @param saprodontiaData 龋齿数据
+     * @return 结论
+     */
+    private TwoTuple<String, String> generateSaprodontiaResult(SaprodontiaDataDO saprodontiaData) {
+        List<SaprodontiaDataDO.SaprodontiaItem> above = saprodontiaData.getAbove();
+        List<SaprodontiaDataDO.SaprodontiaItem> underneath = saprodontiaData.getUnderneath();
+
+        List<SaprodontiaDataDO.SaprodontiaItem> saprodontiaItems = Stream.of(above, underneath).filter(Objects::nonNull).flatMap(Collection::stream).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(saprodontiaItems)) {
+            return new TwoTuple<>(StringUtils.EMPTY, StringUtils.EMPTY);
+        }
+        return groupToothByList(saprodontiaItems);
+    }
+
+    /**
+     * 通过牙齿类型分类
+     *
+     * @param saprodontiaItems 牙齿数据
+     * @return TwoTuple<String, String> First-乳牙 Second-恒牙
+     */
+    private TwoTuple<String, String> groupToothByList(List<SaprodontiaDataDO.SaprodontiaItem> saprodontiaItems) {
+        // 所有乳牙
+        List<String> deciduousList = saprodontiaItems.stream().filter(Objects::nonNull).map(SaprodontiaDataDO.SaprodontiaItem::getDeciduous).collect(Collectors.toList());
+        // 所有恒牙
+        List<String> permanentList = saprodontiaItems.stream().filter(Objects::nonNull).map(SaprodontiaDataDO.SaprodontiaItem::getPermanent).collect(Collectors.toList());
+        return new TwoTuple<>(countSaprodontiaNum(deciduousList), countSaprodontiaNum(permanentList));
+    }
+
+    /**
+     * 统计龋齿类型个数
+     *
+     * @param list 所有数据
+     * @return 结论
+     */
+    private String countSaprodontiaNum(List<String> list) {
+        return list.stream().filter(s -> SaprodontiaType.D.getName().equals(s)).count() + ":" +
+                list.stream().filter(s -> SaprodontiaType.M.getName().equals(s)).count() + ":" +
+                list.stream().filter(s -> SaprodontiaType.F.getName().equals(s)).count();
     }
 
     /**
@@ -143,10 +204,18 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
      * @param exportDTO 筛查数据导出
      */
     private void generateSpineData(StatConclusionExportDTO dto, CommonDiseaseDataExportDTO exportDTO) {
-//        exportDTO.setC()
-//                .setD()
-//                .setE()
-//                .setF();
+        SpineDataDO spineData = dto.getSpineData();
+        if (Objects.isNull(spineData)) {
+            return;
+        }
+        SpineDataDO.SpineItem chest = spineData.getChest();
+        SpineDataDO.SpineItem chestWaist = spineData.getChestWaist();
+        SpineDataDO.SpineItem waist = spineData.getWaist();
+        SpineDataDO.SpineItem entirety = spineData.getEntirety();
+        exportDTO.setChest(SpineTypeEnum.getTypeName(chest.getLevel()) + "、" + SpineLevelEnum.getLevelName(chest.getType()))
+                .setChestWaist(SpineTypeEnum.getTypeName(chestWaist.getLevel()) + "、" + SpineLevelEnum.getLevelName(chestWaist.getType()))
+                .setWaist(SpineTypeEnum.getTypeName(waist.getLevel()) + "、" + SpineLevelEnum.getLevelName(waist.getType()))
+                .setEntirety(SpineTypeEnum.getTypeName(entirety.getLevel()) + "、" + SpineLevelEnum.getLevelName(entirety.getType()));
 
     }
 
@@ -157,20 +226,33 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
      * @param exportDTO 筛查数据导出
      */
     private void generateBloodPressureData(StatConclusionExportDTO dto, CommonDiseaseDataExportDTO exportDTO) {
-//        exportDTO.setG()
-//                .setH();
+        exportDTO.setDbp(String.valueOf(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BLOOD_PRESSURE_DBP)))
+                .setSbp(String.valueOf(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BLOOD_PRESSURE_SBP)));
     }
 
     /**
-     * 疾病史和个人隐私
+     * 疾病史、个人隐私、误差结果说明
      *
      * @param dto       处理后筛查数据
      * @param exportDTO 筛查数据导出
      */
     private void generatePrivacyDiseasesHistoryData(StatConclusionExportDTO dto, CommonDiseaseDataExportDTO exportDTO) {
-//        exportDTO.setI()
-//                .setJ();
-
+        List<String> diseasesHistoryData = dto.getDiseasesHistoryData();
+        if (CollectionUtils.isEmpty(diseasesHistoryData)) {
+            exportDTO.setDiseasesHistory(String.join(",", diseasesHistoryData));
+        }
+        PrivacyDataDO privacyData = dto.getPrivacyData();
+        if (Objects.nonNull(privacyData)) {
+            if (privacyData.getHasIncident()) {
+                exportDTO.setPrivacyData("是 年龄：" + privacyData.getAge());
+            } else {
+                exportDTO.setPrivacyData("否");
+            }
+        }
+        DeviationDO deviationData = dto.getDeviationData();
+        if (Objects.nonNull(deviationData)) {
+            exportDTO.setDeviationData(deviationData.getHeightWeightDeviation().getRemark());
+        }
     }
 
 }

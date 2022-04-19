@@ -104,28 +104,28 @@ public class CommonDiseaseDataExportDTO implements Serializable {
     private String weight;
 
     @ExcelProperty({TOP_HEADER, "龋齿检查", "乳牙 龋（d）：失（m）：0 补（f）"})
-    private String a;
+    private String deciduous;
     @ExcelProperty({TOP_HEADER, "龋齿检查", "恒牙 龋（D）：失（M）：0 补（F）"})
-    private String b;
+    private String permanent;
 
     @ExcelProperty({TOP_HEADER, "脊柱弯曲", "胸段侧弯"})
-    private String c;
+    private String chest;
     @ExcelProperty({TOP_HEADER, "脊柱弯曲", "胸腰段侧弯"})
-    private String d;
+    private String chestWaist;
     @ExcelProperty({TOP_HEADER, "脊柱弯曲", "腰段侧弯"})
-    private String e;
+    private String waist;
     @ExcelProperty({TOP_HEADER, "脊柱弯曲", "前后弯曲"})
-    private String f;
+    private String entirety;
 
     @ExcelProperty({TOP_HEADER, "血压", "舒张压"})
-    private String g;
+    private String dbp;
     @ExcelProperty({TOP_HEADER, "血压", "收缩压"})
-    private String h;
+    private String sbp;
 
     @ExcelProperty({TOP_HEADER, "疾病史", "疾病史"})
-    private String i;
+    private String diseasesHistory;
     @ExcelProperty({TOP_HEADER, "个人隐私", "个人隐私"})
-    private String j;
+    private String privacyData;
 
     @ExcelProperty({TOP_HEADER, "其他眼病", "眼部疾病左"})
     private String otherEyeDiseasesLeftEyeDiseases;
