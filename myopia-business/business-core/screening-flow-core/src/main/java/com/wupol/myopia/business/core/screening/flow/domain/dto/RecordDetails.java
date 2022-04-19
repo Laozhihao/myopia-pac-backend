@@ -66,5 +66,10 @@ public class RecordDetails {
      */
     private String qualityControllerCommander;
 
+    /**
+     * 复查人数
+     */
+    private Integer rescreenNum;
+
 
 }

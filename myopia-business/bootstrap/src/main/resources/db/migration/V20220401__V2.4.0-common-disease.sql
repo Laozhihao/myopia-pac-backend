@@ -21,3 +21,23 @@ alter table m_screening_plan_school modify quality_controller_name varchar(25) D
 alter table m_screening_plan_school modify quality_controller_commander varchar(25) DEFAULT NULL COMMENT '机构质控员队长';
 -- 将筛查通知表的数据迁移到筛查通知通知到的部门或者机构表
 INSERT into m_screening_notice_dept_org (screening_notice_id,district_id,accept_org_id,operation_status,operator_id,create_time) SELECT id,district_id,gov_dept_id,3,create_user_id,create_time FROM m_screening_notice;
+
+
+-- 复查统计
+alter table m_stat_rescreen
+    add screening_type tinyint(1) default 0 null comment '0-视力筛查 1-常见病' after school_id;
+
+alter table m_stat_rescreen
+    add physique_rescreen_num int null comment '体格复查人数';
+
+alter table m_stat_rescreen
+    add physique_index_num int null comment '体格复查指数';
+
+alter table m_stat_rescreen
+    add physique_rescreen_item_num int null comment '体格-复测项次';
+
+alter table m_stat_rescreen
+    add physique_incorrect_item_num int null comment '体格-错误项次数';
+
+alter table m_stat_rescreen
+    add physique_incorrect_ratio float(10, 2) null comment '体格-错误率/发生率';

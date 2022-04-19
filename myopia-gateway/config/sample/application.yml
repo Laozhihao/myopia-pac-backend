@@ -141,3 +141,4 @@ white-list:
   - "/management/report/pdf"
   - "/api/getUserInfo"
   - "/api/fkr710/upload"
+  - "/management/screeningPlan/review/getExportData"
