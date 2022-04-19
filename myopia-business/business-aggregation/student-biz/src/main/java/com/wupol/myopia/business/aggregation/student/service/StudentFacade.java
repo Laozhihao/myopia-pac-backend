@@ -195,8 +195,7 @@ public class StudentFacade {
             screeningInfoDTO.setCommonDiseases(commonDiseases);
             //设置复测信息
             if (Objects.nonNull(rescreeningVisionScreeningResultMap)){
-                ScreeningInfoDTO.Rescreening rescreening = reScreeningResult(result,rescreeningVisionScreeningResultMap.get(result.getPlanId()));
-                screeningInfoDTO.setRescreening(rescreening);
+                screeningInfoDTO.setRescreening(reScreeningResult(result,rescreeningVisionScreeningResultMap.get(result.getPlanId())));
             }
 
             item.setDetails(screeningInfoDTO);
