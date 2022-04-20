@@ -27,8 +27,10 @@ public class StatRescreenController {
     private StatRescreenService statRescreenService;
 
     @GetMapping("/export")
-    public List<RescreenReportVO> export(@RequestParam Integer planId, @RequestParam Integer schoolId, @RequestParam String qualityControllerName, @RequestParam String qualityControllerCommander) {
-        return statService.getRescreenStatInfo(planId, schoolId, qualityControllerName, qualityControllerCommander);
+    public List<RescreenReportVO> export(@RequestParam Integer planId, @RequestParam Integer schoolId,
+                                         @RequestParam String qualityControllerName, @RequestParam String qualityControllerCommander,
+                                         @RequestParam Date screeningData) {
+        return statService.getRescreenStatInfo(planId, schoolId, qualityControllerName, qualityControllerCommander, screeningData);
     }
 
     @GetMapping("/manualStat")

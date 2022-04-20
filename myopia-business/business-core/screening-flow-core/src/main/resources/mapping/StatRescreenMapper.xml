@@ -18,4 +18,12 @@
         where plan_id = #{planId}
           and school_id = #{schoolId};
     </select>
+
+    <select id="getByPlanAndSchool" resultType="com.wupol.myopia.business.core.screening.flow.domain.model.StatRescreen">
+        select * from m_stat_conclusion where plan_id = #{planId}
+        and school_id = #{schoolId}
+        <if test="screeningTime != null">
+            and DATE(screeningTime) = DATE(#{screeningTime})
+        </if>
+    </select>
 </mapper>
