@@ -143,7 +143,7 @@ public class ScreeningAppController {
     /**
      * 获取班级名称
      *
-     * @param gradeId 年级ID
+     * @param gradeId  年级ID
      * @return
      */
     @GetMapping("/school/findAllClazzNameBySchoolNameAndGradeName")
@@ -255,8 +255,8 @@ public class ScreeningAppController {
      */
     @PostMapping("/uploadSignPic")
     public ApiResult uploadUserAutographImageWithUser(@RequestParam(value = "deptId") Long deptId,
-                                                      @RequestParam(value = "userId") Long userId,
-                                                      @RequestParam(value = "file") MultipartFile file) {
+                                              @RequestParam(value = "userId") Long userId,
+                                              @RequestParam(value = "file") MultipartFile file) {
         return ApiResult.success(screeningAppService.uploadSignPic(CurrentUserUtil.getCurrentUser(), file));
     }
 
@@ -440,7 +440,7 @@ public class ScreeningAppController {
             log.error("根据orgId = [{}]，以及schoolId = [{}] 无法找到计划。", CurrentUserUtil.getCurrentUser().getOrgId(), appStudentDTO.getSchoolId());
             return ApiResult.failure(ErrorEnum.UNKNOWN_ERROR.getMessage());
         }
-        screeningPlanBizService.insertWithStudent(CurrentUserUtil.getCurrentUser(), student, appStudentDTO.getGrade(), appStudentDTO.getClazz(), appStudentDTO.getSchoolName(), school.getSchoolNo(), school.getDistrictId(), appStudentDTO.getSchoolId().intValue(), currentPlan, appStudentDTO.getPassport());
+        screeningPlanBizService.insertWithStudent(CurrentUserUtil.getCurrentUser(), student, appStudentDTO.getGrade(), appStudentDTO.getClazz(), appStudentDTO.getSchoolName(), school.getSchoolNo(), school.getDistrictId(), appStudentDTO.getSchoolId().intValue(), currentPlan,appStudentDTO.getPassport());
         return ApiResult.success();
     }
 
@@ -501,8 +501,8 @@ public class ScreeningAppController {
      * @return com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO
      **/
     @GetMapping("/getComputerOptometryData/{planStudentId}")
-    public ComputerOptometryDTO getComputerOptometryData(@PathVariable Integer planStudentId, @RequestParam(value = "isState", defaultValue = "0") Integer isState) {
-        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentIdAndState(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId(), isState);
+    public ComputerOptometryDTO getComputerOptometryData(@PathVariable Integer planStudentId) {
+        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentId(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId());
         if (Objects.isNull(screeningResult)) {
             return new ComputerOptometryDTO();
         }

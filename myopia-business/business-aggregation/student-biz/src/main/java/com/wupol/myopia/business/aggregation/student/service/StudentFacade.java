@@ -210,10 +210,12 @@ public class StudentFacade {
             item.setIsDoubleScreen(result.getIsDoubleScreen());
             item.setTemplateId(getTemplateId(result.getScreeningOrgId()));
             item.setOtherEyeDiseases(getOtherEyeDiseasesList(result));
-            item.setWarningLevel(statMap.get(result.getId()).getWarningLevel());
-            item.setMyopiaLevel(statMap.get(result.getId()).getMyopiaLevel());
-            item.setHyperopiaLevel(statMap.get(result.getId()).getHyperopiaLevel());
-            item.setAstigmatismLevel(statMap.get(result.getId()).getAstigmatismLevel());
+            if (Objects.nonNull(statMap)&&Objects.nonNull(statMap.get(result.getId()))){
+                item.setWarningLevel(statMap.get(result.getId()).getWarningLevel());
+                item.setMyopiaLevel(statMap.get(result.getId()).getMyopiaLevel());
+                item.setHyperopiaLevel(statMap.get(result.getId()).getHyperopiaLevel());
+                item.setAstigmatismLevel(statMap.get(result.getId()).getAstigmatismLevel());
+            }
             item.setPlanId(result.getPlanId());
             item.setHasScreening(ObjectUtils.anyNotNull(result.getVisionData(), result.getComputerOptometry(), result.getBiometricData(), result.getOtherEyeDiseases()));
             if (Objects.nonNull(result.getScreeningPlanSchoolStudentId())&&Objects.nonNull(screeningPlanSchoolStudentMap.get(result.getScreeningPlanSchoolStudentId()))){
@@ -245,7 +247,7 @@ public class StudentFacade {
 
         ScreeningInfoDTO.Rescreening.ReScreeningResult reScreeningResult = new ScreeningInfoDTO.Rescreening.ReScreeningResult();
         //戴镜情况
-        reScreeningResult.setGlassesTypeDesc(GlassesTypeEnum.getDescByCode(EyeDataUtil.glassTypeDesc(reScreening)));
+        reScreeningResult.setGlassesTypeDesc(GlassesTypeEnum.getDescByCode(EyeDataUtil.glassesType(reScreening)));
 
         ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation rightNakedVision = new  ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation();
         int rightNakedVisionType = ReScreeningCardUtil.isDeviation(EyeDataUtil.rightNakedVision(result),
@@ -407,6 +409,8 @@ public class StudentFacade {
         commonDiseases.setHeightAndWeightData(result.getHeightAndWeightData());
         return commonDiseases;
     }
+
+    String a = "{\"normal\": true, \"diseases\": [\"我是疾病\", \"111\", \"1231\", \"2131\", \"123123122\"], \"diagnosis\": null, \"createUserId\": null}";
 
     /**
      * 封装结果

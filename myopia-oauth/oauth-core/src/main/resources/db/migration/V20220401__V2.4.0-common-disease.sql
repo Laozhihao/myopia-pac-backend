@@ -5,3 +5,7 @@ INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `o
 INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (833, '复测报告（二级）获取学校日期', 'sRescreenSchoolDate', 'get:/management/stat/rescreen/schoolDate', 0, 0, 0, 2, 1);
 INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (834, '复查报告（三级）获取学校日期', 'rescreenSchoolDate', 'get:/management/stat/rescreen/schoolDate', 0, 0, 0, 3, 1);
 INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES (835, '学生档案卡路径', 'workOrderStudentScreeningList', 'get:/management/student/screeningResult/**', 0, 0, 1, 811, 1);
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`,
+                          pid, system_code)
+VALUES
+    (841, '学生档案卡路径', 'workOrderStudentScreeningList', 'get:/management/student/screeningResult/**', 0, 0, 1, 811, 1);
