@@ -6,24 +6,17 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
- * @Description 血压
- * @Date 2021/4/06 16:50
- * @Author xz
+ * @Description 疾病史
+ * @Date 2021/4/012 16:50
+ * @Author by xz
  */
 @EqualsAndHashCode(callSuper = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Data
 @Accessors(chain = true)
-public class BloodPressureDataDO extends AbstractDiagnosisResult implements Serializable {
-    /**
-     * 舒张压
-     */
-    private Float dbp;
-
-    /**
-     * 收缩压
-     */
-    private Float sbp;
+public class DiseasesHistoryDO extends AbstractDiagnosisResult implements Serializable {
+    private List<String> diseases;
 }
