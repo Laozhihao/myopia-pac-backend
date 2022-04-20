@@ -1,11 +1,10 @@
 package com.wupol.myopia.business.core.system.service;
 
-import com.google.common.collect.Maps;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.core.system.domain.dos.TemplateDO;
 import com.wupol.myopia.business.core.system.domain.dto.TemplateBindItemDTO;
 import com.wupol.myopia.business.core.system.domain.dto.TemplateBindRequestDTO;
-import com.wupol.myopia.business.core.system.domain.dto.TemplateResponseDTO;
 import com.wupol.myopia.business.core.system.domain.mapper.TemplateMapper;
 import com.wupol.myopia.business.core.system.domain.model.Template;
 import com.wupol.myopia.business.core.system.domain.model.TemplateDistrict;
@@ -14,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -30,46 +28,28 @@ public class TemplateService extends BaseService<TemplateMapper, Template> {
 
     @Resource
     private TemplateDistrictService templateDistrictService;
-    @Resource
-    private TemplateService templateService;
 
     /**
      * 获取模板列表
      *
      * @param type 类型
-     * @return List<TemplateResponse>
-     */
-    public List<TemplateResponseDTO> getTemplateLists(Integer type) {
-
-        List<TemplateResponseDTO> responses = new ArrayList<>();
-
+     * @return java.util.Map<java.lang.Integer,java.util.List<com.wupol.myopia.business.core.system.domain.dos.TemplateDO>>
+     **/
+    public Map<Integer, List<TemplateDO>> getTemplateLists(Integer type) {
         // 根据类型查模板
         List<Template> templateList = baseMapper.getByType(type);
-
         if (CollectionUtils.isEmpty(templateList)) {
-            return responses;
+            return Collections.emptyMap();
         }
+        // 查询使用该模板的行政区域
+        List<TemplateDistrict> templateDistrictList = templateDistrictService.getByTemplateIds(templateList.stream().map(Template::getId).collect(Collectors.toList()));
+        Map<Integer, List<TemplateDistrict>> districtMaps = templateDistrictList.stream().collect(Collectors.groupingBy(TemplateDistrict::getTemplateId));
 
-        // 查询使用的省
-        Map<Integer, List<TemplateDistrict>> districtMaps = Maps.newHashMap();
-
-        List<TemplateDistrict> templateDistricts = templateDistrictService.getByTemplateIds(templateList.stream().map(Template::getId).collect(Collectors.toList()));
-        if (!CollectionUtils.isEmpty(templateDistricts)) {
-            districtMaps = templateDistricts.stream().collect(Collectors.groupingBy(TemplateDistrict::getTemplateId));
-        }
-
-        // 封装DTO
-        for (Template t : templateList) {
-            TemplateResponseDTO response = new TemplateResponseDTO();
-            response.setId(t.getId());
-            response.setName(t.getName());
-            if (null != districtMaps.get(t.getId())) {
-                response.setDistrictInfo(districtMaps.get(t.getId()));
-            }
-            responses.add(response);
-        }
-        return responses;
+        return templateList.stream()
+                .map(t -> TemplateDO.parseFromTemplate(t).setDistrictInfo(districtMaps.getOrDefault(t.getId(), null)))
+                .collect(Collectors.groupingBy(TemplateDO::getBiz));
     }
+
     /**
      * 绑定区域（档案卡绑定区域）
      *

@@ -69,8 +69,18 @@ public class VisionDataDTO extends ScreeningResultBasicData {
 
     @Override
     public VisionScreeningResult buildScreeningResultData(VisionScreeningResult visionScreeningResult) {
-        VisionDataDO.VisionData leftVisionData = new VisionDataDO.VisionData().setNakedVision(leftNakedVision).setCorrectedVision(leftCorrectedVision).setGlassesType(WearingGlassesSituation.getKey(glassesType)).setLateriality(CommonConst.LEFT_EYE);
-        VisionDataDO.VisionData rightVisionData = new VisionDataDO.VisionData().setNakedVision(rightNakedVision).setCorrectedVision(rightCorrectedVision).setGlassesType(WearingGlassesSituation.getKey(glassesType)).setLateriality(CommonConst.RIGHT_EYE);
+        VisionDataDO.VisionData leftVisionData = new VisionDataDO.VisionData()
+                .setNakedVision(leftNakedVision)
+                .setCorrectedVision(leftCorrectedVision)
+                .setGlassesType(WearingGlassesSituation.getKey(glassesType))
+                .setLateriality(CommonConst.LEFT_EYE)
+                .setOkDegree(leftOkDegree);
+        VisionDataDO.VisionData rightVisionData = new VisionDataDO.VisionData()
+                .setNakedVision(rightNakedVision)
+                .setCorrectedVision(rightCorrectedVision)
+                .setGlassesType(WearingGlassesSituation.getKey(glassesType))
+                .setLateriality(CommonConst.RIGHT_EYE)
+                .setOkDegree(rightOkDegree);
         VisionDataDO visionDataDO = new VisionDataDO().setRightEyeData(rightVisionData).setLeftEyeData(leftVisionData).setIsCooperative(isCooperative);
         visionDataDO.setDiagnosis(diagnosis);
         visionDataDO.setCreateUserId(getCreateUserId());
@@ -78,6 +88,7 @@ public class VisionDataDTO extends ScreeningResultBasicData {
     }
 
     public boolean isValid() {
+        // 裸眼，矫正视力必填
         return ObjectUtils.anyNotNull(rightNakedVision, leftNakedVision, rightCorrectedVision, leftCorrectedVision);
     }
 

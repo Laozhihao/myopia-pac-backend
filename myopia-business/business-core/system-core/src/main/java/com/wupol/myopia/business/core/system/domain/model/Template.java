@@ -11,6 +11,8 @@ import java.util.Date;
 
 /**
  * 模板表
+ *
+ * @author Simple4H
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -22,6 +24,11 @@ public class Template {
      */
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
+
+    /**
+     * 业务类型：1-视力筛查、2-常见病
+     */
+    private Integer biz;
 
     /**
      * 1-档案卡 2-筛查报告
