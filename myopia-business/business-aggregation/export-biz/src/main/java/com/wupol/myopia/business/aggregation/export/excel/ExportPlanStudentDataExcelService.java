@@ -225,6 +225,10 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
 
     @Override
     public void validateBeforeExport(ExportCondition exportCondition) {
+        Integer exportType = exportCondition.getExportType();
+        if (ExportTypeConst.District.equals(exportType)) {
+            return;
+        }
         ScreeningPlan screeningPlan = screeningPlanService.getById(exportCondition.getPlanId());
         if (Objects.isNull(screeningPlan)) {
             throw new BusinessException("筛查计划不存在");
