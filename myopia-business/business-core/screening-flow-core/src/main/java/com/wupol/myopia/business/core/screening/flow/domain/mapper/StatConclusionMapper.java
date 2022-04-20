@@ -76,8 +76,7 @@ public interface StatConclusionMapper extends BaseMapper<StatConclusion> {
                                                                                                       @Param("screeningOrgId") Integer screeningOrgId,
                                                                                                       @Param("schoolId") Integer schoolId,
                                                                                                       @Param("gradeId") Integer gradeId,
-                                                                                                      @Param("classId") Integer classId,
-                                                                                                      @Param("districtIds") List<Integer> districtIds);
+                                                                                                      @Param("classId") Integer classId);
 
 
     /**

@@ -28,7 +28,6 @@ import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -78,7 +77,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
             return statConclusionService.getExportVoByScreeningNoticeIdAndDistrictIds(notificationId, childDistrictIds);
         }
 
-        List<StatConclusionExportDTO> statConclusionExportDTOs  = statConclusionService.selectExportVoBySPlanIdAndSOrgIdAndSChoolIdAndGradeNameAndClassanme(screeningPlanId, screeningOrgId,schoolId,gradeId,classId,childDistrictIds);
+        List<StatConclusionExportDTO> statConclusionExportDTOs  = statConclusionService.selectExportVoBySPlanIdAndSOrgIdAndSChoolIdAndGradeNameAndClassanme(screeningPlanId, screeningOrgId,schoolId,gradeId,classId);
         statConclusionExportDTOs.forEach(vo ->
                 vo.setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(), vo.getAreaCode(), vo.getTownCode(), vo.getAddress())));
 

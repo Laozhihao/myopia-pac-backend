@@ -178,8 +178,8 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
      * @Author: 钓猫的小鱼
      * @Date: 2021/12/31
      */
-    public List<StatConclusionExportDTO> selectExportVoBySPlanIdAndSOrgIdAndSChoolIdAndGradeNameAndClassanme(Integer screeningPlanId, Integer screeningOrgId, Integer schoolId, Integer gradeId, Integer classId,List<Integer> districtIds) {
-        return baseMapper.selectExportVoBySPlanIdAndSOrgIdAndSChoolIdAndGradeNameAndClassanme(screeningPlanId,screeningOrgId,schoolId,gradeId,classId,districtIds);
+    public List<StatConclusionExportDTO> selectExportVoBySPlanIdAndSOrgIdAndSChoolIdAndGradeNameAndClassanme(Integer screeningPlanId, Integer screeningOrgId, Integer schoolId, Integer gradeId, Integer classId) {
+        return baseMapper.selectExportVoBySPlanIdAndSOrgIdAndSChoolIdAndGradeNameAndClassanme(screeningPlanId,screeningOrgId,schoolId,gradeId,classId);
     }
 
     /**
