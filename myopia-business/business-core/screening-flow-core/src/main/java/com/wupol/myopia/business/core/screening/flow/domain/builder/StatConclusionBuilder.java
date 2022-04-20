@@ -5,6 +5,7 @@ import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.OtherEyeDiseasesDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
@@ -97,6 +98,7 @@ public class StatConclusionBuilder {
         this.setMyopiaLevel();
         this.setHyperopiaLevel();
         this.setAstigmatismLevel();
+        this.setPhysiqueRescreenErrorNum();
         return statConclusion;
     }
 
@@ -595,5 +597,28 @@ public class StatConclusionBuilder {
                 basicData.otherEyeDiseasesNormal = otherEyeDiseases.isNormal();
             }
         }
+    }
+
+    private void setPhysiqueRescreenErrorNum() {
+        if (anotherVisionScreeningResult != null) {
+            statConclusion.setPhysiqueRescreenErrorNum(calculatePhysiqueRescreenErrorNum());
+        } else {
+            statConclusion.setPhysiqueRescreenErrorNum(0);
+        }
+    }
+
+    /**
+     * 身高体重错误项计算
+     *
+     * @return 身高体重错误项
+     */
+    private int calculatePhysiqueRescreenErrorNum() {
+        HeightAndWeightDataDO current = currentVisionScreeningResult.getHeightAndWeightData();
+        HeightAndWeightDataDO another = anotherVisionScreeningResult.getHeightAndWeightData();
+        if (ObjectsUtil.hasNull(current, another)) {
+            return 0;
+        }
+        return inRange(current.getHeight(), another.getHeight(), new BigDecimal("0.5"))
+                + inRange(current.getWeight(), another.getWeight(), new BigDecimal("0.1"));
     }
 }
