@@ -233,10 +233,10 @@ public class ReviewInformService {
 
     private String getHtmlUrl(Integer planKey, Integer orgId, Integer schoolKey, Integer gradeKey, Integer classKey) {
         return String.format(RESCREEN_REVIEW_HTML_URL, htmlUrlHost, planKey,
-                Objects.nonNull(orgId) ? orgId : StringUtils.EMPTY,
                 Objects.nonNull(schoolKey) ? schoolKey : StringUtils.EMPTY,
                 Objects.nonNull(gradeKey) ? gradeKey : StringUtils.EMPTY,
-                Objects.nonNull(classKey) ? classKey : StringUtils.EMPTY);
+                Objects.nonNull(classKey) ? classKey : StringUtils.EMPTY,
+                Objects.nonNull(orgId) ? orgId : StringUtils.EMPTY);
     }
 
     /**
