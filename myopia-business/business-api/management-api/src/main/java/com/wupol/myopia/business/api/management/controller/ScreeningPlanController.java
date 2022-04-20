@@ -183,7 +183,7 @@ public class ScreeningPlanController {
     }
 
     /**
-     * 获取计划学校
+     * 获取计划学校（计划中没有导入学生显示）
      *
      * @param screeningPlanId 计划ID
      * @return List<ScreeningPlanSchoolVo>
@@ -193,6 +193,19 @@ public class ScreeningPlanController {
         // 任务状态判断
         screeningExportService.validateExist(screeningPlanId);
         return screeningPlanSchoolService.getSchoolVoListsByPlanId(screeningPlanId, schoolName);
+    }
+
+    /**
+     * 获取计划学校（计划中没有导入学生不显示）
+     *
+     * @param screeningPlanId 计划ID
+     * @return List<ScreeningPlanSchoolVo>
+     */
+    @GetMapping("schools/haveStudents/{screeningPlanId}")
+    public List<ScreeningPlanSchoolDTO> querySchoolsInfoWithPlan(@PathVariable Integer screeningPlanId, String schoolName) {
+        // 任务状态判断
+        screeningExportService.validateExist(screeningPlanId);
+        return screeningPlanSchoolService.querySchoolsInfoInPlanHavaStudent(screeningPlanId, schoolName);
     }
 
     /**
