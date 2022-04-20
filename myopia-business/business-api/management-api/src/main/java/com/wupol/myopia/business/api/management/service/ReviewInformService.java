@@ -136,8 +136,12 @@ public class ReviewInformService {
 
         List<ScreeningPlanSchoolStudent> planSchoolStudents = getMatchRescreenResults(planId, orgId, schoolId, gradeId, classId);
 
-        // 获取筛查结果Map
-        Map<Integer, HeightAndWeightDataDO> heightAndWeightDataMap = visionScreeningResultService.getByPlanStudentIds(planSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getId).collect(Collectors.toList())).stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, VisionScreeningResult::getHeightAndWeightData));
+        // 获取体重筛查结果Map
+        List<VisionScreeningResult> resultList = visionScreeningResultService.getByPlanStudentIds(planSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getId).collect(Collectors.toList()));
+        Map<Integer, HeightAndWeightDataDO> heightAndWeightDataMap = resultList.stream().filter(plantStudent -> Objects.nonNull(plantStudent.getHeightAndWeightData())).collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, VisionScreeningResult::getHeightAndWeightData));
+
+        // 筛查时间
+        Map<Integer, Date> screeningDateMap = resultList.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, VisionScreeningResult::getCreateTime));
 
         List<ReviewInformExportDataDTO> exportDataDTOS = new ArrayList<>();
         planSchoolStudents.forEach(planSchoolStudent -> {
@@ -146,8 +150,11 @@ public class ReviewInformService {
             exportDataDTO.setPlanDate(screeningPlan.getCreateTime());
 
             HeightAndWeightDataDO heightAndWeightDataDO = heightAndWeightDataMap.get(planSchoolStudent.getId());
-            exportDataDTO.setWeight(heightAndWeightDataDO.getWeight().toString());
-            exportDataDTO.setHeight(heightAndWeightDataDO.getHeight().toString());
+            if (Objects.nonNull(heightAndWeightDataDO)) {
+                exportDataDTO.setWeight(heightAndWeightDataDO.getWeight().toString());
+                exportDataDTO.setHeight(heightAndWeightDataDO.getHeight().toString());
+            }
+            exportDataDTO.setScreeningDate(screeningDateMap.getOrDefault(planSchoolStudent.getId(), null));
             exportDataDTOS.add(exportDataDTO);
         });
         return exportDataDTOS;

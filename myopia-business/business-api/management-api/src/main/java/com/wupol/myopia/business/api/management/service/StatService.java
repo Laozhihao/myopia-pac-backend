@@ -35,6 +35,7 @@ import com.wupol.myopia.business.core.stat.domain.model.DistrictVisionStatistic;
 import com.wupol.myopia.business.core.stat.service.DistrictAttentiveObjectsStatisticService;
 import com.wupol.myopia.business.core.stat.service.DistrictMonitorStatisticService;
 import com.wupol.myopia.business.core.stat.service.DistrictVisionStatisticService;
+import com.wupol.myopia.business.core.system.constants.ScreeningTypeConst;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -1233,6 +1234,9 @@ public class StatService {
                         .setScreeningTime(screeningTime);
                 RescreenStat rescreenStat = this.composeRescreenConclusion(rescreenInfoByTime);
                 BeanUtils.copyProperties(rescreenStat, statRescreen);
+                if (ScreeningTypeConst.COMMON_DISEASE.equals(conclusion.getScreeningType())) {
+                    composePhysiqueReScreenConclusion(statRescreen, rescreenInfoByTime);
+                }
                 statRescreens.add(statRescreen);
             }
         });
@@ -1262,8 +1266,7 @@ public class StatService {
 
     private void composePhysiqueReScreenConclusion(StatRescreen statRescreen, List<StatConclusion> statConclusions) {
 
-//        long errorIndexNum = rescreenConclusions.stream().mapToLong(StatConclusion::getRescreenErrorNum).sum();
-        long errorIndexNum = 0L;
+        long errorIndexNum = statConclusions.stream().mapToLong(StatConclusion::getPhysiqueRescreenErrorNum).sum();
         int total = statConclusions.size();
         statRescreen.setPhysiqueRescreenNum((long) total);
         statRescreen.setPhysiqueIndexNum(2L);
