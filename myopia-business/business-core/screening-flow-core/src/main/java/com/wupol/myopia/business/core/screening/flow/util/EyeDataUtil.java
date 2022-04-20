@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.screening.flow.util;
 
+import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
 import com.wupol.myopia.business.common.utils.util.MaskUtil;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.DeviationDO;
@@ -636,7 +637,7 @@ public class EyeDataUtil {
      * @return 等效球镜
      */
     public static BigDecimal calculationSE(BigDecimal sph, BigDecimal cyl) {
-        if (Objects.isNull(sph) || Objects.isNull(cyl)) {
+        if (ObjectsUtil.hasNull(sph, cyl)) {
             return null;
         }
         return sph.add(cyl.multiply(new BigDecimal("0.5")))

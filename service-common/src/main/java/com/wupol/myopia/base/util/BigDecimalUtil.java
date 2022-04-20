@@ -1,6 +1,7 @@
 package com.wupol.myopia.base.util;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 /**
  * BigDecimal工具类
@@ -238,6 +239,32 @@ public class BigDecimalUtil {
     public static boolean isBetweenLeft(Double val, Double start, Double end) {
         return val.compareTo(start) >= 0 && val.compareTo(end) < 0;
     }
+    /**
+     * 视力是否误差
+     * @param firstScreening 视力误差
+     * @param reScreening 复测值
+     * @param standard 标准值
+     * @return 1：误差 0：没误差
+     */
+    public static int isDeviation(BigDecimal firstScreening,BigDecimal reScreening,BigDecimal standard){
+        BigDecimal result = subtractAbsBigDecimal(firstScreening, reScreening);
+        if (result.abs().compareTo(standard) > 0){
+            return 1;
+        }
+        return 0;
+    }
 
+    /**
+     * 绝对差值
+     * @param firstScreening 初测值
+     * @param reScreening 复测值
+     * @return 绝对差值
+     */
+    public static BigDecimal subtractAbsBigDecimal(BigDecimal firstScreening, BigDecimal reScreening) {
+        BigDecimal first = Optional.ofNullable(firstScreening).orElse(new BigDecimal("0"));
+        BigDecimal retest = Optional.ofNullable(reScreening).orElse(new BigDecimal("0"));
+
+        return first.abs().subtract(retest.abs());
+    }
 
 }

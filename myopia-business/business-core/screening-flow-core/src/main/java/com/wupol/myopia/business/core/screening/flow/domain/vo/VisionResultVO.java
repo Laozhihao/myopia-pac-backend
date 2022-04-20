@@ -32,7 +32,7 @@ public class VisionResultVO {
         /**
          * 裸眼视力-复测
          */
-        private BigDecimal nakedVisionRetest;
+        private BigDecimal nakedVisionReScreening;
         /**
          * 裸眼视力-差值
          */
@@ -45,7 +45,7 @@ public class VisionResultVO {
         /**
          * 矫正视力-复测
          */
-        private BigDecimal correctedVisionRetest;
+        private BigDecimal correctedVisionReScreening;
         /**
          * 矫正视力-差值
          */

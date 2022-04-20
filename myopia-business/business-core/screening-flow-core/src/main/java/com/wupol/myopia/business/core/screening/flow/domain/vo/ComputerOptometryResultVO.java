@@ -19,7 +19,7 @@ public class ComputerOptometryResultVO {
     /**
      * 等效球镜(右眼)-复测
      */
-    private BigDecimal rightSERetest;
+    private BigDecimal rightSEReScreening;
     /**
      * 等效球镜(右眼)-差值
      */
@@ -32,7 +32,7 @@ public class ComputerOptometryResultVO {
     /**
      * 等效球镜(左眼)-复测
      */
-    private BigDecimal leftSERetest;
+    private BigDecimal leftSEScreening;
     /**
      * 等效球镜(左眼)-复测
      */
