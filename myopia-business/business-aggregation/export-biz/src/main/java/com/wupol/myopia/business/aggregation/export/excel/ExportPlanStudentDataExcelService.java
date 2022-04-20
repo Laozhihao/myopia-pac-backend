@@ -7,6 +7,7 @@ import com.wupol.myopia.base.util.ExcelUtil;
 import com.wupol.myopia.business.aggregation.export.excel.config.ScreeningDataFactory;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.export.service.IScreeningDataService;
+import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
@@ -69,11 +70,12 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         Integer schoolId = exportCondition.getSchoolId();
         Integer gradeId = exportCondition.getGradeId();
         Integer classId = exportCondition.getClassId();
+        Integer notificationId = exportCondition.getNotificationId();
 
-        Integer districtId = exportCondition.getDistrictId();
-        List<Integer> childDistrictIds = new ArrayList<>();
-        if (Objects.nonNull(districtId)) {
-            childDistrictIds = districtService.getSpecificDistrictTreeAllDistrictIds(districtId);
+        if (ExportTypeConst.District.equals(exportCondition.getExportType())) {
+            Integer districtId = exportCondition.getDistrictId();
+            List<Integer> childDistrictIds = districtService.getSpecificDistrictTreeAllDistrictIds(districtId);
+            return statConclusionService.getExportVoByScreeningNoticeIdAndDistrictIds(notificationId, childDistrictIds);
         }
 
         List<StatConclusionExportDTO> statConclusionExportDTOs  = statConclusionService.selectExportVoBySPlanIdAndSOrgIdAndSChoolIdAndGradeNameAndClassanme(screeningPlanId, screeningOrgId,schoolId,gradeId,classId,childDistrictIds);
