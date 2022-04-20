@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import java.util.List;
+
 /**
  * @Author wulizhou
  * @Date 2021/5/21 10:09
@@ -27,5 +29,7 @@ public class RescreenReportVO extends StatRescreen {
      * 检测队长
      */
     private String qualityControllerCommander;
+
+    private List<Object> cardList;
 
 }

@@ -140,7 +140,7 @@ public class ScreeningPlanSchoolStudentFacadeService {
      * @return List<SchoolGradeVO>
      */
     public List<SchoolGradeVO> getByPlanIdAndSchoolIdAndId(Integer planId, Integer schoolId) {
-        List<Integer> planStudentIds = visionScreeningResultService.getByPlanIdAndSchoolId(planId, schoolId);
+        List<Integer> planStudentIds = visionScreeningResultService.getByPlanStudentIdPlanIdAndSchoolId(planId, schoolId);
         if (CollectionUtils.isEmpty(planStudentIds)) {
             return Collections.emptyList();
         }
