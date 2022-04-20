@@ -238,7 +238,7 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
      */
     private void generatePrivacyDiseasesHistoryData(StatConclusionExportDTO dto, CommonDiseaseDataExportDTO exportDTO) {
         List<String> diseasesHistoryData = dto.getDiseasesHistoryData();
-        if (CollectionUtils.isEmpty(diseasesHistoryData)) {
+        if (!CollectionUtils.isEmpty(diseasesHistoryData)) {
             exportDTO.setDiseasesHistory(String.join(",", diseasesHistoryData));
         }
         PrivacyDataDO privacyData = dto.getPrivacyData();
