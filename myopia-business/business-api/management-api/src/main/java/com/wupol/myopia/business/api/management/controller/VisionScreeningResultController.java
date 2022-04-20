@@ -321,7 +321,7 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
                                                      @RequestParam(required = false) Integer gradeId,
                                                      @RequestParam(required = false) Integer classId,
                                                      @RequestParam(required = false) Integer districtId,
-                                                     @RequestParam Integer type) throws IOException {
+                                                     @RequestParam Integer type, Integer screeningNoticeId) throws IOException {
         ExportCondition exportCondition = new ExportCondition()
                 .setPlanId(screeningPlanId)
                 .setScreeningOrgId(screeningOrgId)
@@ -329,6 +329,8 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
                 .setGradeId(gradeId)
                 .setClassId(classId)
                 .setDistrictId(districtId)
+                .setNotificationId(screeningNoticeId)
+                .setExportType(type)
                 .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
 
         // 班级同步导出
