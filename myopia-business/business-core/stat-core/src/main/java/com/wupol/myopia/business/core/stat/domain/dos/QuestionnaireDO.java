@@ -3,7 +3,6 @@ package com.wupol.myopia.business.core.stat.domain.dos;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 
 /**
  * 问卷情况

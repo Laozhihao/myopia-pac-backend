@@ -1,16 +1,12 @@
 package com.wupol.myopia.business.core.stat.domain.model;
 
 import cn.hutool.core.date.DatePattern;
-import cn.hutool.core.util.StrUtil;
-import com.amazonaws.services.dynamodbv2.xspec.S;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.wupol.myopia.business.common.utils.util.JsonUtil;
 import com.wupol.myopia.business.core.stat.domain.dos.*;
 import com.wupol.myopia.business.core.stat.handler.VisionAnalysisTypeHandler;
 import lombok.Data;
@@ -18,9 +14,7 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.Date;
-import java.util.Objects;
 
 /**
  * 筛查结果统计表
@@ -120,8 +114,6 @@ public class ScreeningResultStatistic implements Serializable {
     @TableField(typeHandler = VisionAnalysisTypeHandler.class)
     private VisionAnalysis visionAnalysis;
 
-//    private String visionAnalysis;
-
     /**
      * 复测情况
      */
@@ -165,23 +157,4 @@ public class ScreeningResultStatistic implements Serializable {
     @JsonFormat(pattern = DatePattern.NORM_DATETIME_PATTERN)
     private Date updateTime;
 
-
-    /*public void setVisionAnalysis(String visionAnalysis) {
-        if(visionAnalysisDO != null){
-            this.visionAnalysis= JsonUtil.objectToJsonString(visionAnalysisDO);
-        }
-    }
-
-    public VisionAnalysis getVisionAnalysis() {
-        if(StrUtil.isNotBlank(visionAnalysis)){
-            if (Objects.equals(8,schoolType)){
-                this.visionAnalysisDO=JsonUtil.jsonToObject(visionAnalysis,KindergartenVisionAnalysisDO.class);
-            }else {
-                this.visionAnalysisDO=JsonUtil.jsonToObject(visionAnalysis,PrimarySchoolAndAboveVisionAnalysisDO.class);
-            }
-        }
-
-        return visionAnalysisDO;
-
-    }*/
 }

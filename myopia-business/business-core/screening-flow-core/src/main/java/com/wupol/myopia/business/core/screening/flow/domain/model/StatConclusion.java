@@ -207,4 +207,9 @@ public class StatConclusion implements Serializable {
      * 是否初潮
      */
     private Boolean isMenarche;
+
+    /**
+     * 体格复测错误项次
+     */
+    private Integer physiqueRescreeningErrorNum;
 }

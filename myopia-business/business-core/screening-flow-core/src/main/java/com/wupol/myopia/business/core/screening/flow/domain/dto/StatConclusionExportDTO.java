@@ -190,6 +190,8 @@ public class StatConclusionExportDTO extends StatConclusion {
      */
     private String passport;
 
+
+    /** --------------------- 常见病 --------------------- */
     /**
      * 筛查结果--龋齿
      */
