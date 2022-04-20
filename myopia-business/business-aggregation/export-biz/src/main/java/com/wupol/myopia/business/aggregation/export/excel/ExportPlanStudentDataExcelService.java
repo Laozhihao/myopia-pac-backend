@@ -17,10 +17,13 @@ import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
+import com.wupol.myopia.business.core.system.constants.ScreeningTypeConst;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -59,6 +62,8 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
     private SchoolClassService schoolClassService;
     @Resource
     private ScreeningOrganizationService screeningOrganizationService;
+    @Resource
+    private ScreeningNoticeService screeningNoticeService;
 
 
     @Override
@@ -86,14 +91,21 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
 
     @Override
     public Class getHeadClass(ExportCondition exportCondition) {
-        IScreeningDataService screeningDataService = ScreeningDataFactory.getScreeningDataService(screeningPlanService.getById(exportCondition.getPlanId()).getScreeningType());
+        IScreeningDataService screeningDataService = ScreeningDataFactory.getScreeningDataService(getScreeningType(exportCondition));
         return screeningDataService.getExportClass();
     }
 
     @Override
     public String getNoticeKeyContent(ExportCondition exportCondition) {
-
-        return getFileNameTitle(exportCondition);
+        String suffix = StringUtils.EMPTY;
+        Integer screeningType = getScreeningType(exportCondition);
+        if (ScreeningTypeConst.VISION.equals(screeningType)) {
+            suffix = "【视力数据】";
+        }
+        if (ScreeningTypeConst.COMMON_DISEASE.equals(screeningType)) {
+            suffix = "【常见病数据】";
+        }
+        return getFileNameTitle(exportCondition) + suffix;
     }
 
     @Override
@@ -271,5 +283,22 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
     @Override
     public Boolean isPackage() {
         return true;
+    }
+
+    /**
+     * 获取筛查类型
+     *
+     * @param exportCondition 条件
+     * @return 筛查类型
+     */
+    private Integer getScreeningType(ExportCondition exportCondition) {
+        Integer screeningType;
+        // 如果是区域筛查导出的，取通知的screeningType
+        if (ExportTypeConst.District.equals(exportCondition.getExportType())) {
+            screeningType = screeningNoticeService.getById(exportCondition.getNotificationId()).getScreeningType();
+        } else {
+            screeningType = screeningPlanService.getById(exportCondition.getPlanId()).getScreeningType();
+        }
+        return screeningType;
     }
 }
