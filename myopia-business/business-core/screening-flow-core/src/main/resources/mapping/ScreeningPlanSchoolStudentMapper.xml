@@ -148,9 +148,10 @@
         left join m_school ms on ms.id = mspss.school_id
         left join m_school_grade sg on sg.id = mspss.grade_id
         left join m_school_class sc on sc.id = mspss.class_id
-        left join m_vision_screening_result vsc on vsc.screening_plan_school_student_id = mspss.id
+        right join m_vision_screening_result vsc on vsc.screening_plan_school_student_id = mspss.id
         <where>
             <trim prefixOverrides="and">
+                and vsc.is_double_screen = 0
                 <if test="param.screeningPlanId != null">
                     AND mspss.screening_plan_id = #{param.screeningPlanId}
                 </if>
