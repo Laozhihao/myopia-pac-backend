@@ -210,5 +210,10 @@ public class StatConclusion implements Serializable {
     /**
      * 体格复测错误项次
      */
-    private Integer physiqueRescreeningErrorNum;
+    private Integer physiqueRescreenErrorNum;
+
+    /**
+     * 是否复查
+     */
+    private Boolean isReview;
 }
