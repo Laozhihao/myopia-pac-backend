@@ -389,14 +389,15 @@
         limit 1
     </select>
 
-    <select id="selectExportVoBySPlanIdAndSOrgIdAndSChoolIdAndGradeNameAndClassanme" resultMap="ExportVoResultMap" parameterType="java.util.Map">
+    <select id="selectExportVoBySPlanIdAndSOrgIdAndSChoolIdAndGradeNameAndClassanme" resultMap="ExportVoResultMap"
+            parameterType="java.util.Map">
         SELECT
-        <include refid="Export_Vo_List" />
+        <include refid="Export_Vo_List"/>
         FROM m_stat_conclusion msc
-        LEFT JOIN m_vision_screening_result mvsr ON msc.result_id = mvsr.id
-        LEFT JOIN m_screening_plan_school_student mspss ON msc.screening_plan_school_student_id = mspss.id
+                 LEFT JOIN m_vision_screening_result mvsr ON msc.result_id = mvsr.id
+                 LEFT JOIN m_screening_plan_school_student mspss ON msc.screening_plan_school_student_id = mspss.id
         WHERE msc.plan_id = #{screeningPlanId}
-        AND mvsr.screening_org_id = #{screeningOrgId}
+          AND mvsr.screening_org_id = #{screeningOrgId}
         <if test="schoolId != null and schoolId != '' and schoolId != 0">
             AND mspss.school_id = #{schoolId}
         </if>
@@ -405,6 +406,12 @@
         </if>
         <if test="classId != null and classId != '' and classId != 0">
             AND mspss.class_id = #{classId}
+        </if>
+        <if test="districtIds != null and districtIds.size() != 0">
+            and msc.district_id IN
+            <foreach collection="districtIds" item="districtId" index="index" open="(" close=")" separator=",">
+                #{districtId}
+            </foreach>
         </if>
         ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
     </select>

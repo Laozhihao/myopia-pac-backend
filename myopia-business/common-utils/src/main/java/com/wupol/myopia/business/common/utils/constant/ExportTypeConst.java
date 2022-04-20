@@ -27,4 +27,9 @@ public interface ExportTypeConst {
      */
     Integer CLASS = 4;
 
+    /**
+     * 区域
+     */
+    Integer District = 5;
+
 }
