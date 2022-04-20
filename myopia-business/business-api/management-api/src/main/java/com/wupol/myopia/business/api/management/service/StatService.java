@@ -1266,12 +1266,11 @@ public class StatService {
 
     private void composePhysiqueReScreenConclusion(StatRescreen statRescreen, List<StatConclusion> statConclusions) {
 
-        long errorIndexNum = statConclusions.stream().mapToLong(StatConclusion::getPhysiqueRescreenErrorNum).sum();
         int total = statConclusions.size();
         statRescreen.setPhysiqueRescreenNum((long) total);
         statRescreen.setPhysiqueIndexNum(2L);
         statRescreen.setPhysiqueRescreenItemNum(total * 2L);
-        statRescreen.setPhysiqueIncorrectItemNum(errorIndexNum);
+        statRescreen.setPhysiqueIncorrectItemNum(statConclusions.stream().mapToLong(StatConclusion::getPhysiqueRescreenErrorNum).sum());
         statRescreen.setPhysiqueIncorrectRatio(convertToPercentage((float) (statRescreen.getPhysiqueIncorrectItemNum() / statRescreen.getPhysiqueRescreenItemNum())));
     }
 
