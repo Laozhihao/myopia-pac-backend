@@ -38,6 +38,7 @@ ALTER TABLE m_stat_conclusion ADD is_normal_blood_pressure TINYINT(1) NULL COMME
 ALTER TABLE m_stat_conclusion ADD is_diseases_history TINYINT(1) NULL COMMENT '是否有疾病史';
 ALTER TABLE m_stat_conclusion ADD is_nocturnal_emission TINYINT(1) NULL COMMENT '是否遗精';
 ALTER TABLE m_stat_conclusion ADD is_menarche TINYINT(1) NULL COMMENT '是否初潮';
+ALTER TABLE m_stat_conclusion ADD is_review TINYINT(1) NULL COMMENT '是否复查';
 
 
 -- 新增筛查数据结果统计表
