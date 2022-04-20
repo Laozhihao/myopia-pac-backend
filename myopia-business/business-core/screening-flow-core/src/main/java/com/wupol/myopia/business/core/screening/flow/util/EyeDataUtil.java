@@ -276,7 +276,7 @@ public class EyeDataUtil {
 
         return "--";
     }
-    
+
     public static String computerLeftCylNull(VisionScreeningResult visionScreeningResult){
         if (visionScreeningResult!=null
                 &&visionScreeningResult.getComputerOptometry()!=null
@@ -288,6 +288,11 @@ public class EyeDataUtil {
         return null;
     }
 
+    /**
+     * 右眼柱镜
+     * @param visionScreeningResult 筛查数据
+     * @return 右眼柱镜
+     */
     public static String computerRightCyl(VisionScreeningResult visionScreeningResult){
         if (visionScreeningResult!=null
                 &&visionScreeningResult.getComputerOptometry()!=null
@@ -299,6 +304,12 @@ public class EyeDataUtil {
 
         return "--";
     }
+
+    /**
+     * 右眼柱镜非空验证
+     * @param visionScreeningResult 筛查数据
+     * @return 右眼柱镜非空验证
+     */
     public static String computerRightCylNull(VisionScreeningResult visionScreeningResult){
         if (visionScreeningResult!=null
                 &&visionScreeningResult.getComputerOptometry()!=null
@@ -311,7 +322,11 @@ public class EyeDataUtil {
         return null;
     }
 
-
+    /**
+     * 左眼球镜
+     * @param visionScreeningResult 筛查数据
+     * @return 左眼球镜
+     */
     public static String computerLeftSph(VisionScreeningResult visionScreeningResult){
         if (visionScreeningResult!=null
                 &&visionScreeningResult.getComputerOptometry()!=null
@@ -335,8 +350,11 @@ public class EyeDataUtil {
         return null;
     }
 
-
-
+    /**
+     * 右眼球镜
+     * @param visionScreeningResult 筛查数据
+     * @return 右眼球镜
+     */
     public static String computerRightSph(VisionScreeningResult visionScreeningResult){
         if (visionScreeningResult!=null
                 &&visionScreeningResult.getComputerOptometry()!=null
@@ -348,7 +366,11 @@ public class EyeDataUtil {
 
         return "--";
     }
-
+    /**
+     * 右眼球镜非空验证
+     * @param visionScreeningResult 筛查数据
+     * @return 右眼球镜非空验证
+     */
     public static String computerRightSphNULL(VisionScreeningResult visionScreeningResult){
         if (visionScreeningResult!=null
                 &&visionScreeningResult.getComputerOptometry()!=null
@@ -359,7 +381,6 @@ public class EyeDataUtil {
         }
         return null;
     }
-
 
     public static String correctedLeftDataToStr(VisionScreeningResult visionScreeningResult){
         if (visionScreeningResult!=null
