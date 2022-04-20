@@ -169,7 +169,7 @@ public class StudentScreeningProgressVO {
         studentScreeningProgressVO.setSaprodontiaStatus(getProgress(screeningResult.getSaprodontiaData(),false));
         studentScreeningProgressVO.setSpineStatus(getProgress(screeningResult.getSpineData(),false));
         studentScreeningProgressVO.setBloodPressureStatus(getProgress(screeningResult.getBloodPressureData(),false));
-        studentScreeningProgressVO.setDiseasesHistoryStatus(getDiseasesHistoryProgress(screeningResult.getDiseasesHistoryData()));
+        studentScreeningProgressVO.setDiseasesHistoryStatus(getProgress(screeningResult.getDiseasesHistoryData(),false));
         studentScreeningProgressVO.setPrivacyStatus(getProgress(screeningResult.getPrivacyData(),false));
 
         studentScreeningProgressVO.setClassName(studentVO.getClazz());
@@ -177,23 +177,6 @@ public class StudentScreeningProgressVO {
         hasAbnormalInFirstCheck.remove();
         hasAbnormalInSubsequentCheck.remove();
         return studentScreeningProgressVO;
-    }
-
-    /**
-     * 疾病史的异常判断
-     *
-     * @param diseases diseases
-     * @return int
-     */
-    private static int getDiseasesHistoryProgress(List<String> diseases) {
-        // 如果为null 是未检查，未空数组是已检查，且正常
-        if (Objects.isNull(diseases)) {
-            return UNCHECK;
-        } else if (diseases.isEmpty()) {
-            return NORMAL;
-        } else {
-            return ABNORMAL;
-        }
     }
 
     /**

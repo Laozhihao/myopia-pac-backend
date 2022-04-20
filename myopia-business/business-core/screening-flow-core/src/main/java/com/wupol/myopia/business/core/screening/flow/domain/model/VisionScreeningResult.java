@@ -160,7 +160,7 @@ public class VisionScreeningResult implements Serializable {
      * 筛查结果--疾病史(汉字)
      */
     @TableField(typeHandler = JacksonTypeHandler.class)
-    private List<String> diseasesHistoryData;
+    private DiseasesHistoryDO diseasesHistoryData;
 
     /**
      * 筛查结果--隐私项

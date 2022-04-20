@@ -76,7 +76,6 @@ public class VisionScreeningBizService {
         TwoTuple<VisionScreeningResult, VisionScreeningResult> allFirstAndSecondResult = getAllFirstAndSecondResult(screeningResultBasicData);
         VisionScreeningResult currentVisionScreeningResult;
         if (screeningResultBasicData.getIsState() != 0) {
-            verifyScreening(allFirstAndSecondResult.getFirst());
             currentVisionScreeningResult = allFirstAndSecondResult.getSecond();
         } else {
             currentVisionScreeningResult = allFirstAndSecondResult.getFirst();
@@ -88,6 +87,11 @@ public class VisionScreeningBizService {
         }
 
         ScreeningPlan screeningPlan = screeningPlanService.findOne(new ScreeningPlan().setId(currentVisionScreeningResult.getPlanId()));
+        // 常见病才会验证条件
+        if (screeningPlan.getScreeningType() == 1 && screeningResultBasicData.getIsState() != 0) {
+            verifyScreening(allFirstAndSecondResult.getFirst());
+        }
+
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = getScreeningPlanSchoolStudent(screeningResultBasicData);
         if (screeningResultBasicData.getIsState() != 0) {
             // 初筛数据清空未检查说明
