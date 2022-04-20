@@ -13,10 +13,7 @@ import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.screening.flow.constant.SaprodontiaType;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningResultPahtConst;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.DeviationDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.PrivacyDataDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.SaprodontiaDataDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.SpineDataDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.CommonDiseaseDataExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionExportDTO;
 import com.wupol.myopia.business.core.system.constants.ScreeningTypeConst;
@@ -237,9 +234,10 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
      * @param exportDTO 筛查数据导出
      */
     private void generatePrivacyDiseasesHistoryData(StatConclusionExportDTO dto, CommonDiseaseDataExportDTO exportDTO) {
-        List<String> diseasesHistoryData = dto.getDiseasesHistoryData();
-        if (!CollectionUtils.isEmpty(diseasesHistoryData)) {
-            exportDTO.setDiseasesHistory(String.join(",", diseasesHistoryData));
+        DiseasesHistoryDO diseasesHistoryData = dto.getDiseasesHistoryData();
+
+        if (Objects.nonNull(diseasesHistoryData) && !CollectionUtils.isEmpty(diseasesHistoryData.getDiseases())) {
+            exportDTO.setDiseasesHistory(String.join(",", diseasesHistoryData.getDiseases()));
         }
         PrivacyDataDO privacyData = dto.getPrivacyData();
         if (Objects.nonNull(privacyData)) {

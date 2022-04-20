@@ -390,7 +390,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     public StudentScreeningProgressVO getStudentScreeningProgress(VisionScreeningResult screeningResult) {
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = getById(screeningResult.getScreeningPlanSchoolStudentId());
         StudentVO studentVO = StudentVO.getInstance(screeningPlanSchoolStudent);
-        return StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO,screeningPlanSchoolStudent);
+        return StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO, screeningPlanSchoolStudent);
     }
 
     /**
