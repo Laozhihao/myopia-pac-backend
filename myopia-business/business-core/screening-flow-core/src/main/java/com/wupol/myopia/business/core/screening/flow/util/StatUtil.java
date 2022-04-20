@@ -1213,7 +1213,7 @@ public class StatUtil {
             StandardTableData.BloodPressureData bloodPressureData = StandardTableData.getBloodPressureData(age, gender);
             return sbp >= bloodPressureData.getSbp() && dbp >= bloodPressureData.getDbp();
         }
-        if (age == 18) {
+        if (age >= 18) {
             return sbp >= 140 && dbp >= 90;
         }
 

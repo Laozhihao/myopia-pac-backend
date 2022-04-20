@@ -9,6 +9,7 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.aggregation.screening.service.StatConclusionBizService;
 import com.wupol.myopia.business.api.management.domain.dto.SchoolMonitorStatisticDTO;
 import com.wupol.myopia.business.api.management.domain.vo.*;
 import com.wupol.myopia.business.api.management.schedule.ScheduledTasksExecutor;
@@ -89,6 +90,8 @@ public class StatManagementController {
     private VisionScreeningResultService visionScreeningResultService;
     @Autowired
     private StatConclusionService statConclusionService;
+    @Autowired
+    private StatConclusionBizService statConclusionBizService;
 
     /**
      * 根据查找当前用户所处层级能够查找到的年度
@@ -323,6 +326,16 @@ public class StatManagementController {
         scheduledTasksExecutor.statistic(date,planId);
     }
 
+    @GetMapping("screeningToConclusion")
+    public void sc(@RequestParam(required = false) Integer planId,@RequestParam Boolean isAll){
+        if (planId != null && !isAll){
+            statConclusionBizService.screeningToConclusionByPlanIds(Lists.newArrayList(planId));
+        }
+        if (planId == null && isAll){
+            statConclusionBizService.screeningToConclusionAll();
+        }
+
+    }
     /**
      * 触发大屏统计（todo 为了测试方便）
      *

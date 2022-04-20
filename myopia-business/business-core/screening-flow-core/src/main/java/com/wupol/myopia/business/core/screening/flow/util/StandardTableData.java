@@ -1,9 +1,11 @@
 package com.wupol.myopia.business.core.screening.flow.util;
 
 import com.google.common.collect.Lists;
+import com.wupol.myopia.base.util.BigDecimalUtil;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -101,12 +103,12 @@ public class StandardTableData {
 
 
     public static OverweightAndObesityData getOverweightAndObesityData(String age,Integer gender){
-        return OVERWEIGHT_AND_OBESITY_DATA_LIST.stream()
-                .filter(data -> data.getAge().equals(age) && data.getGender().equals(gender))
+         String newAge = BigDecimalUtil.lessThan(new BigDecimal(age),"6.0")?"6.0":BigDecimalUtil.moreThan(new BigDecimal(age),"18.0")?"18.0":age;
+         return OVERWEIGHT_AND_OBESITY_DATA_LIST.stream()
+                .filter(data -> data.getAge().equals(newAge) && data.getGender().equals(gender))
                 .findFirst()
                 .orElse(null);
     }
-
 
     /**
      * 营养不良 （生长迟缓数据）
@@ -178,8 +180,9 @@ public class StandardTableData {
     }
 
     public static StuntingData getStuntingData(String age,Integer gender){
+        String newAge = BigDecimalUtil.lessThan(new BigDecimal(age),"6.0")?"6.0":BigDecimalUtil.moreThan(new BigDecimal(age),"17.5")?"17.5":age;
         return  STUNTING_DATA_LIST.stream()
-                .filter(data -> data.getAge().equals(age) && data.getGender().equals(gender))
+                .filter(data -> data.getAge().equals(newAge) && data.getGender().equals(gender))
                 .findFirst()
                 .orElse(null);
 
@@ -255,8 +258,9 @@ public class StandardTableData {
     }
 
     public static WastingData getWastingData(String age,Integer gender){
+        String newAge = BigDecimalUtil.lessThan(new BigDecimal(age),"6.0")?"6.0":BigDecimalUtil.moreThan(new BigDecimal(age),"17.5")?"17.5":age;
         return  WASTING_DATA_LIST.stream()
-                .filter(data -> data.getAge().equals(age) && data.getGender().equals(gender))
+                .filter(data -> data.getAge().equals(newAge) && data.getGender().equals(gender))
                 .findFirst()
                 .orElse(null);
 

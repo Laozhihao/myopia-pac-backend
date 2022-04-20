@@ -2,12 +2,14 @@ package com.wupol.myopia.business.core.screening.flow.domain.builder;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
@@ -18,6 +20,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.math.BigDecimal;
@@ -38,6 +41,7 @@ public class StatConclusionBuilder {
     private boolean isUpdate;
     private final BigDecimal othersRangeValue = new BigDecimal("1.0");
     private final BigDecimal aveRangeValue = new BigDecimal("0.5");
+    private final List<Integer> kindergartenList= Lists.newArrayList(GradeCodeEnum.ONE_KINDERGARTEN.getType(),GradeCodeEnum.TWO_KINDERGARTEN.getType(),GradeCodeEnum.THREE_KINDERGARTEN.getType());
     private String gradeCode;
 
     private StatConclusionBuilder() {
@@ -338,7 +342,7 @@ public class StatConclusionBuilder {
      */
     private int calculateErrorNum() {
         int errorNum = getNakedVisionErrorNum() + getCorrectedVisionErrorNum();
-        if (basicData.getIsWearingGlasses()) {
+        if (Objects.nonNull(basicData.getIsWearingGlasses()) && basicData.getIsWearingGlasses()) {
             errorNum += getSeErrorNum();
         }
         return errorNum;
@@ -442,13 +446,15 @@ public class StatConclusionBuilder {
      */
     private void setHeightAndWeightData() {
         HeightAndWeightDataDO heightAndWeightData = currentVisionScreeningResult.getHeightAndWeightData();
-        if (Objects.isNull(heightAndWeightData)){
+        if (kindergartenList.contains(screeningPlanSchoolStudent.getGradeType()) || Objects.isNull(heightAndWeightData) ){
             return;
         }
         TwoTuple<Integer, String> ageTuple = StatUtil.getAge(screeningPlanSchoolStudent.getBirthday());
         overweightAndObesity(heightAndWeightData.getBmi(),ageTuple.getSecond());
         malnutrition(heightAndWeightData.getBmi(),heightAndWeightData.getHeight(),ageTuple.getSecond());
     }
+
+
 
     /**
      * 超重/肥胖
@@ -480,7 +486,7 @@ public class StatConclusionBuilder {
      */
     private void setSaprodontiaData() {
         SaprodontiaDataDO saprodontiaData = currentVisionScreeningResult.getSaprodontiaData();
-        if (Objects.isNull(saprodontiaData)){
+        if (kindergartenList.contains(screeningPlanSchoolStudent.getGradeType()) ||Objects.isNull(saprodontiaData)){
             return;
         }
         Set<String> sets=Sets.newHashSet();
@@ -509,7 +515,7 @@ public class StatConclusionBuilder {
      */
     private void setSpineData() {
         SpineDataDO spineData = currentVisionScreeningResult.getSpineData();
-        if (Objects.isNull(spineData)){
+        if (kindergartenList.contains(screeningPlanSchoolStudent.getGradeType()) ||Objects.isNull(spineData)){
             return;
         }
         statConclusion.setIsSpinalCurvature(spineData.isSpinalCurvature());
@@ -520,11 +526,15 @@ public class StatConclusionBuilder {
      */
     private void setBloodPressureData() {
         BloodPressureDataDO bloodPressureData = currentVisionScreeningResult.getBloodPressureData();
-        if (Objects.isNull(bloodPressureData)){
+        if (kindergartenList.contains(screeningPlanSchoolStudent.getGradeType()) || Objects.isNull(bloodPressureData)){
             return;
         }
         TwoTuple<Integer, String> ageTuple = StatUtil.getAge(screeningPlanSchoolStudent.getBirthday());
-        boolean highBloodPressure = StatUtil.isHighBloodPressure(bloodPressureData.getSbp().intValue(), bloodPressureData.getDbp().intValue(), screeningPlanSchoolStudent.getGender(), ageTuple.getFirst());
+        Integer age = ageTuple.getFirst();
+        if (age < 7){
+            age = 7;
+        }
+        boolean highBloodPressure = StatUtil.isHighBloodPressure(bloodPressureData.getSbp().intValue(), bloodPressureData.getDbp().intValue(), screeningPlanSchoolStudent.getGender(), age);
         statConclusion.setIsNormalBloodPressure(highBloodPressure);
 
     }
@@ -534,7 +544,7 @@ public class StatConclusionBuilder {
      */
     private void setPrivacyData() {
         PrivacyDataDO privacyData = currentVisionScreeningResult.getPrivacyData();
-        if (Objects.isNull(privacyData)){
+        if (kindergartenList.contains(screeningPlanSchoolStudent.getGradeType()) ||Objects.isNull(privacyData)){
             return;
         }
         Integer gender = screeningPlanSchoolStudent.getGender();
@@ -550,11 +560,10 @@ public class StatConclusionBuilder {
      * 处理疾病史相关数据
      */
     private void setDiseasesHistoryData() {
-        List<String> diseasesHistoryData = currentVisionScreeningResult.getDiseasesHistoryData();
-        if (CollectionUtil.isEmpty(diseasesHistoryData)){
-            return;
+        DiseasesHistoryDO diseasesHistoryData = currentVisionScreeningResult.getDiseasesHistoryData();
+        if (Objects.nonNull(diseasesHistoryData) && CollectionUtil.isNotEmpty(diseasesHistoryData.getDiseases())){
+            statConclusion.setIsDiseasesHistory(Boolean.TRUE);
         }
-        statConclusion.setIsDiseasesHistory(Boolean.TRUE);
     }
 
 
