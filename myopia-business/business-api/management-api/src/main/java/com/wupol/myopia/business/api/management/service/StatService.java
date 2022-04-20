@@ -1192,9 +1192,9 @@ public class StatService {
      */
     public List<RescreenReportVO> getRescreenStatInfo(Integer planId, Integer schoolId,
                                                       String qualityControllerName, String qualityControllerCommander,
-                                                      Date screeningData) {
+                                                      Long screeningData) {
         List<RescreenReportVO> rrvos = new ArrayList<>();
-        List<StatRescreen> rescreens = statRescreenService.getByPlanAndSchool(planId, schoolId, screeningData);
+        List<StatRescreen> rescreens = statRescreenService.getByPlanAndSchool(planId, schoolId, Objects.nonNull(screeningData) ? new Date(screeningData) : null);
         if (CollectionUtils.isEmpty(rescreens)) {
             return rrvos;
         }

@@ -25,7 +25,7 @@ public class StatServiceTest {
 
     @Test
     public void testGetRescreenStatInfo() {
-        List<RescreenReportVO> rescreenStatInfo = statService.getRescreenStatInfo(118, 12, "吴某周", "吴队长", new Date());
+        List<RescreenReportVO> rescreenStatInfo = statService.getRescreenStatInfo(118, 12, "吴某周", "吴队长", 1627171200000L);
         System.out.println(JSON.toJSONString(rescreenStatInfo));
     }
 

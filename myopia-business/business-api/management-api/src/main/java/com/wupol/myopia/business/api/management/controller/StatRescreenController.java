@@ -29,7 +29,7 @@ public class StatRescreenController {
     @GetMapping("/export")
     public List<RescreenReportVO> export(@RequestParam Integer planId, @RequestParam Integer schoolId,
                                          @RequestParam String qualityControllerName, @RequestParam String qualityControllerCommander,
-                                         @RequestParam Date screeningData) {
+                                         @RequestParam(required = false) Long screeningData) {
         return statService.getRescreenStatInfo(planId, schoolId, qualityControllerName, qualityControllerCommander, screeningData);
     }
 
