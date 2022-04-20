@@ -1,7 +1,10 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dos;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
+import lombok.experimental.Accessors;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
@@ -10,8 +13,11 @@ import java.util.List;
  * @Date 2021/4/06 16:50
  * @Author by xz
  */
+@EqualsAndHashCode(callSuper = true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Data
-public class SaprodontiaDataDO {
+@Accessors(chain = true)
+public class SaprodontiaDataDO extends AbstractDiagnosisResult implements Serializable {
     /**
      * 上牙床
      */
