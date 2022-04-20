@@ -99,7 +99,7 @@ public class EyeDataUtil {
 
     /**
      * 等效球镜 = 球镜+柱镜/2
-     * @param visionScreeningResult
+     * @param visionScreeningResult 筛查数据
      * @return 等效球镜
      */
     public static String rightReScreenSph(VisionScreeningResult visionScreeningResult){
@@ -226,7 +226,11 @@ public class EyeDataUtil {
         return null;
     }
 
-
+    /**
+     * 左眼轴位
+     * @param visionScreeningResult 筛查数据
+     * @return 左眼轴位
+     */
     public static String computerLeftAxial(VisionScreeningResult visionScreeningResult){
         if (visionScreeningResult!=null
                 &&visionScreeningResult.getComputerOptometry()!=null
@@ -239,6 +243,11 @@ public class EyeDataUtil {
         return "--";
     }
 
+    /**
+     * 右眼轴位
+     * @param visionScreeningResult 筛查数据
+     * @return 右眼轴位
+     */
     public static String computerRightAxial(VisionScreeningResult visionScreeningResult) {
         if (visionScreeningResult != null
                 && visionScreeningResult.getComputerOptometry() != null
@@ -251,7 +260,11 @@ public class EyeDataUtil {
         return "--";
     }
 
-
+    /**
+     * 左眼柱镜
+     * @param visionScreeningResult 筛查数据
+     * @return 左眼柱镜
+     */
     public static String computerLeftCyl(VisionScreeningResult visionScreeningResult){
         if (visionScreeningResult!=null
                 &&visionScreeningResult.getComputerOptometry()!=null
@@ -263,7 +276,7 @@ public class EyeDataUtil {
 
         return "--";
     }
-
+    
     public static String computerLeftCylNull(VisionScreeningResult visionScreeningResult){
         if (visionScreeningResult!=null
                 &&visionScreeningResult.getComputerOptometry()!=null
@@ -415,6 +428,21 @@ public class EyeDataUtil {
             return "+" + bigDecimal.setScale(2, RoundingMode.DOWN).toString();
         }
         return bigDecimal.setScale(2, RoundingMode.DOWN).toString();
+    }
+
+
+    /**
+     * 判断戴镜是否为空
+     * @param visionScreeningResult 筛查结果
+     * @return 类型描述
+     */
+    public static Integer glassTypeDesc(VisionScreeningResult visionScreeningResult) {
+        if (visionScreeningResult != null
+                && visionScreeningResult.getVisionData() != null
+                && visionScreeningResult.getVisionData().getRightEyeData() != null) {
+            return  visionScreeningResult.getVisionData().getRightEyeData().getGlassesType();
+        }
+        return null;
     }
 
     /**
