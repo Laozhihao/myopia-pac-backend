@@ -607,7 +607,7 @@ public class ScreeningAppController {
      * @return com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDTO
      * @Author tastyb
      **/
-    @GetMapping("/heightAndWeightData/{planStudentId}")
+    @GetMapping("/getHeightAndWeightData/{planStudentId}")
     public HeightAndWeightDataDTO getHeightAndWeightData(@PathVariable Integer planStudentId,@RequestParam(value = "isState", defaultValue = "0") Integer isState) {
         VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentIdAndState(planStudentId,CurrentUserUtil.getCurrentUser().getOrgId(), isState);
         if (Objects.isNull(screeningResult)) {

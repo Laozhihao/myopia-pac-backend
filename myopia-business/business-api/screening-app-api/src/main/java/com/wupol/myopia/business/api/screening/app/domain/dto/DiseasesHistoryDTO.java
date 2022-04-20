@@ -2,6 +2,8 @@ package com.wupol.myopia.business.api.screening.app.domain.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.BloodPressureDataDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.DeviationDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.DiseasesHistoryDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultBasicData;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.Data;
@@ -25,7 +27,9 @@ public class DiseasesHistoryDTO extends ScreeningResultBasicData {
 
     @Override
     public VisionScreeningResult buildScreeningResultData(VisionScreeningResult visionScreeningResult) {
-        return visionScreeningResult.setDiseasesHistoryData(diseases);
+        DiseasesHistoryDO diseasesHistoryDO = new DiseasesHistoryDO();
+        diseasesHistoryDO.setDiseases(diseases);
+        return visionScreeningResult.setDiseasesHistoryData(diseasesHistoryDO);
     }
 
     public boolean isValid() {
@@ -33,12 +37,12 @@ public class DiseasesHistoryDTO extends ScreeningResultBasicData {
         return true;
     }
 
-    public static DiseasesHistoryDTO getInstance(List<String> diseases) {
-        if (Objects.isNull(diseases)) {
+    public static DiseasesHistoryDTO getInstance(DiseasesHistoryDO diseasesDo) {
+        if (Objects.isNull(diseasesDo)) {
             return null;
         }
         DiseasesHistoryDTO diseasesHistoryDTO = new DiseasesHistoryDTO();
-        diseasesHistoryDTO.setDiseases(diseases);
+        diseasesHistoryDTO.setDiseases(diseasesDo.getDiseases());
         return diseasesHistoryDTO;
     }
 }
