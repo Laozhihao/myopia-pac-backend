@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 /**
  * @Description 血压
@@ -20,10 +21,10 @@ public class BloodPressureDataDO extends AbstractDiagnosisResult implements Seri
     /**
      * 舒张压
      */
-    private Integer dbp;
+    private BigDecimal dbp;
 
     /**
      * 收缩压
      */
-    private Integer sbp;
+    private BigDecimal sbp;
 }
