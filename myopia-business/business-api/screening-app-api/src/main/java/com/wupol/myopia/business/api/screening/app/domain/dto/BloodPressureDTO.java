@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 
 /**
@@ -24,12 +25,12 @@ public class BloodPressureDTO  extends ScreeningResultBasicData {
     /**
      * 舒张压
      */
-    private Integer dbp;
+    private BigDecimal dbp;
 
     /**
      * 收缩压
      */
-    private Integer sbp;
+    private BigDecimal sbp;
 
     @Override
     public VisionScreeningResult buildScreeningResultData(VisionScreeningResult visionScreeningResult) {
