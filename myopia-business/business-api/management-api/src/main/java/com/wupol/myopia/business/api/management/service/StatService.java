@@ -1187,12 +1187,14 @@ public class StatService {
      * @param schoolId
      * @param qualityControllerName
      * @param qualityControllerCommander
+     * @param screeningData
      * @return
      */
-    public List<RescreenReportVO> getRescreenStatInfo(
-            Integer planId, Integer schoolId, String qualityControllerName, String qualityControllerCommander) {
+    public List<RescreenReportVO> getRescreenStatInfo(Integer planId, Integer schoolId,
+                                                      String qualityControllerName, String qualityControllerCommander,
+                                                      Long screeningData) {
         List<RescreenReportVO> rrvos = new ArrayList<>();
-        List<StatRescreen> rescreens = statRescreenService.getList(planId, schoolId);
+        List<StatRescreen> rescreens = statRescreenService.getByPlanAndSchool(planId, schoolId, Objects.nonNull(screeningData) ? new Date(screeningData) : null);
         if (CollectionUtils.isEmpty(rescreens)) {
             return rrvos;
         }
