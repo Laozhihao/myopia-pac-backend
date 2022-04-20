@@ -335,13 +335,11 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
 
         // 班级同步导出
         if (ExportTypeConst.CLASS.equals(type)) {
-            exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.EXPORT_PLAN_STUDENT_DATA_EXCEL_SERVICE);
-            return ApiResult.success();
-        } else {
-
             String path = exportStrategy.syncExport(exportCondition, ExportReportServiceNameConstant.EXPORT_PLAN_STUDENT_DATA_EXCEL_SERVICE);
             return ApiResult.success(path);
         }
+        exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.EXPORT_PLAN_STUDENT_DATA_EXCEL_SERVICE);
+        return ApiResult.success();
     }
 
 }
