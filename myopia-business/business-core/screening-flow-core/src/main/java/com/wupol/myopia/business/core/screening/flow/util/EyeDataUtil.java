@@ -417,21 +417,6 @@ public class EyeDataUtil {
         return bigDecimal.setScale(2, RoundingMode.DOWN).toString();
     }
 
-
-    /**
-     * 判断戴镜是否为空
-     * @param visionScreeningResult 筛查结果
-     * @return 类型描述
-     */
-    public static Integer glassTypeDesc(VisionScreeningResult visionScreeningResult) {
-        if (visionScreeningResult != null
-                && visionScreeningResult.getVisionData() != null
-                && visionScreeningResult.getVisionData().getRightEyeData() != null) {
-            return  visionScreeningResult.getVisionData().getRightEyeData().getGlassesType();
-        }
-        return null;
-    }
-
     /**
      * 判断右眼裸视力
      * @param visionScreeningResult 筛查结果
