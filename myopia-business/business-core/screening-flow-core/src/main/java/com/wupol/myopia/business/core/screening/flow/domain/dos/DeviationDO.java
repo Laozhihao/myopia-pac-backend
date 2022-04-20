@@ -1,7 +1,9 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dos;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 
@@ -13,8 +15,10 @@ import java.util.Arrays;
  * @Date 2021/4/012 16:50
  * @Author by xz
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Data
-public class DeviationDO {
+@Accessors(chain = true)
+public class DeviationDO implements Serializable{
     /**
      * 视力或屈光检查误差误差
      */
@@ -50,14 +54,35 @@ public class DeviationDO {
         private String remark;
     }
 
+    /**
+     * 视力或屈光检查误差误差
+     */
     @Getter
     @AllArgsConstructor
     public enum VisionOrOptometryDeviationEnum {
+        /**
+         * 测量仪器问题
+         */
         ONE(1, "测量仪器问题"),
+        /**
+         * 学生配合问题
+         */
         TWO(2, "学生配合问题"),
+        /**
+         * 学生眼睛疲劳影像
+         */
         THREE(3, "学生眼睛疲劳影像"),
+        /**
+         * 其他
+         */
         FOUR(4, "其他");
+        /**
+         * code
+         */
         private final Integer code;
+        /**
+         * name
+         */
         private final String name;
 
         public static VisionOrOptometryDeviationEnum getByCode(Integer code) {
@@ -65,14 +90,35 @@ public class DeviationDO {
         }
     }
 
+    /**
+     * 身高体重误差 说明
+     */
     @Getter
     @AllArgsConstructor
     public enum HeightWeightDeviationEnum {
+        /**
+         * 测量仪器问题
+         */
         ONE(1, "测量仪器问题"),
+        /**
+         * 穿着袜子或鞋子测量
+         */
         TWO(2, "穿着袜子或鞋子测量"),
+        /**
+         * 衣着重量问题
+         */
         THREE(3, "衣着重量问题"),
+        /**
+         * 其他
+         */
         FOUR(4, "其他");
+        /**
+         * code
+         */
         private final Integer code;
+        /**
+         * name
+         */
         private final String name;
 
         public static HeightWeightDeviationEnum getByCode(Integer code) {
