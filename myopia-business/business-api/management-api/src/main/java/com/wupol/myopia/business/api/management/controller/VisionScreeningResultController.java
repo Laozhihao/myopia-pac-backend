@@ -17,6 +17,7 @@ import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.export.service.SysUtilService;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
 import com.wupol.myopia.business.common.utils.interfaces.HasName;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
@@ -316,12 +317,11 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
      */
     @GetMapping("/plan/export/schoolInfo")
     public ApiResult getScreeningPlanExportDoAndSync(Integer screeningPlanId, @RequestParam(defaultValue = "0") Integer screeningOrgId,
-                                                @RequestParam(required = false) Integer schoolId,
-                                                @RequestParam(required = false) Integer gradeId,
-                                                @RequestParam(required = false) Integer classId,
-                                                     @RequestParam(required = false) Integer districtId
-                                                     ) throws IOException {
-
+                                                     @RequestParam(required = false) Integer schoolId,
+                                                     @RequestParam(required = false) Integer gradeId,
+                                                     @RequestParam(required = false) Integer classId,
+                                                     @RequestParam(required = false) Integer districtId,
+                                                     @RequestParam Integer type) throws IOException {
         ExportCondition exportCondition = new ExportCondition()
                 .setPlanId(screeningPlanId)
                 .setScreeningOrgId(screeningOrgId)
@@ -331,10 +331,11 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
                 .setDistrictId(districtId)
                 .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
 
-        if (classId==null){
+        // 班级同步导出
+        if (ExportTypeConst.CLASS.equals(type)) {
             exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.EXPORT_PLAN_STUDENT_DATA_EXCEL_SERVICE);
             return ApiResult.success();
-        }else {
+        } else {
 
             String path = exportStrategy.syncExport(exportCondition, ExportReportServiceNameConstant.EXPORT_PLAN_STUDENT_DATA_EXCEL_SERVICE);
             return ApiResult.success(path);

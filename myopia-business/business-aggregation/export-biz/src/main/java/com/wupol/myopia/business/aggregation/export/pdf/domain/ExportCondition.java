@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.aggregation.export.pdf.domain;
 
+import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -56,4 +57,10 @@ public class ExportCondition {
      * 类型ID
      */
     private Integer type;
+
+    /**
+     * 导出类型
+     * {@link ExportTypeConst}
+     */
+    private Integer exportType;
 }
