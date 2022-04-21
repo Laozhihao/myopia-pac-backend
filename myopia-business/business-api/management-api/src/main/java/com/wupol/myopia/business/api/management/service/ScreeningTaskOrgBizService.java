@@ -163,7 +163,7 @@ public class ScreeningTaskOrgBizService {
         int end = 0;
 
         for (ScreeningPlanSchool ps : schools){
-          List<Integer> list = visionScreeningResultService.getByPlanIdAndSchoolId(screeningPlan.getId(),ps.getSchoolId());
+          List<VisionScreeningResult> list = visionScreeningResultService.getByPlanIdAndSchoolId(screeningPlan.getId(),ps.getSchoolId());
           if (list.size()>0){
               underWay++;
           }else {

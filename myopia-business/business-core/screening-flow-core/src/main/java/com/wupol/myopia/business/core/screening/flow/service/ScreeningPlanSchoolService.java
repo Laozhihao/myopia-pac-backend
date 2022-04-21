@@ -15,6 +15,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningPlan
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -135,7 +136,7 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
         if (DateUtil.betweenDay(screeningPlan.getEndTime(),new Date())<0){
             return ScreeningPlanSchool.end;
         }
-            List<Integer> list = visionScreeningResultService.getByPlanIdAndSchoolId(screeningPlan.getId(),schoolId);
+            List<VisionScreeningResult> list = visionScreeningResultService.getByPlanIdAndSchoolId(screeningPlan.getId(),schoolId);
             if (list.size()>0){
                 return ScreeningPlanSchool.underWay;
             }else {
