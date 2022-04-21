@@ -1297,6 +1297,9 @@ public class StatService {
     private List<Object> abc(Map<String, List<VisionScreeningResult>> groupDate, Date screeningTime) {
         // 获取日期当天的数据
         List<VisionScreeningResult> resultList = groupDate.get(DateUtil.formatDate(screeningTime));
+        if (CollectionUtils.isEmpty(resultList)) {
+            return new ArrayList<>();
+        }
 
         // 获取复筛数据
         List<VisionScreeningResult> reScreenResults = resultList.stream().filter(VisionScreeningResult::getIsDoubleScreen).collect(Collectors.toList());

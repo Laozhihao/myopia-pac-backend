@@ -174,7 +174,7 @@
         </foreach>
     </select>
 
-    <select id="getByPlanIdAndSchoolId" resultType="java.lang.Integer">
+    <select id="getByPlanIdAndSchoolId" resultMap="BaseResultMap">
         select *
         from m_vision_screening_result
         where plan_id = #{planId}
