@@ -44,4 +44,19 @@ public class StatRescreenService extends BaseService<StatRescreenMapper, StatRes
         return baseMapper.deleteByScreeningTime(screeningTime);
     }
 
+    /**
+     * 获取学校日期
+     *
+     * @param planId   计划Id
+     * @param schoolId 学校Id
+     * @return 日期
+     */
+    public List<Date> getSchoolDate(Integer planId, Integer schoolId) {
+        return baseMapper.getSchoolDate(planId, schoolId);
+    }
+
+    public List<StatRescreen> getByPlanAndSchool(Integer planId, Integer schoolId, Date screeningTime) {
+        return baseMapper.getByPlanAndSchool(planId, schoolId, screeningTime);
+    }
+
 }

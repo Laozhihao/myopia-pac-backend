@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.common.utils.util;
 
 import com.wupol.myopia.business.common.utils.constant.AstigmatismLevelEnum;
-import com.wupol.myopia.business.common.utils.constant.GlassesTypeEnum;
+import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.common.utils.constant.HyperopiaLevelEnum;
 import com.wupol.myopia.business.common.utils.constant.MyopiaLevelEnum;
 import lombok.experimental.UtilityClass;

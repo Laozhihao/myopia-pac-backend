@@ -17,6 +17,7 @@ import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.export.service.SysUtilService;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
 import com.wupol.myopia.business.common.utils.interfaces.HasName;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
@@ -315,13 +316,12 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
      * @Date: 2021/12/29
      */
     @GetMapping("/plan/export/schoolInfo")
-    public ApiResult getScreeningPlanExportDoAndSync(Integer screeningPlanId, @RequestParam(defaultValue = "0") Integer screeningOrgId,
-                                                @RequestParam(required = false) Integer schoolId,
-                                                @RequestParam(required = false) Integer gradeId,
-                                                @RequestParam(required = false) Integer classId,
-                                                     @RequestParam(required = false) Integer districtId
-                                                     ) throws IOException {
-
+    public ApiResult getScreeningPlanExportDoAndSync(Integer screeningPlanId, @RequestParam() Integer screeningOrgId,
+                                                     @RequestParam(required = false) Integer schoolId,
+                                                     @RequestParam(required = false) Integer gradeId,
+                                                     @RequestParam(required = false) Integer classId,
+                                                     @RequestParam(required = false) Integer districtId,
+                                                     @RequestParam Integer type, Integer screeningNoticeId) throws IOException {
         ExportCondition exportCondition = new ExportCondition()
                 .setPlanId(screeningPlanId)
                 .setScreeningOrgId(screeningOrgId)
@@ -329,16 +329,17 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
                 .setGradeId(gradeId)
                 .setClassId(classId)
                 .setDistrictId(districtId)
+                .setNotificationId(screeningNoticeId)
+                .setExportType(type)
                 .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
 
-        if (classId==null){
-            exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.EXPOR_TPLAN_STUDENT_DATA_EXCEL_SERVICE);
-            return ApiResult.success();
-        }else {
-
-            String path = exportStrategy.syncExport(exportCondition, ExportReportServiceNameConstant.EXPOR_TPLAN_STUDENT_DATA_EXCEL_SERVICE);
+        // 班级同步导出
+        if (ExportTypeConst.CLASS.equals(type)) {
+            String path = exportStrategy.syncExport(exportCondition, ExportReportServiceNameConstant.EXPORT_PLAN_STUDENT_DATA_EXCEL_SERVICE);
             return ApiResult.success(path);
         }
+        exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.EXPORT_PLAN_STUDENT_DATA_EXCEL_SERVICE);
+        return ApiResult.success();
     }
 
 }

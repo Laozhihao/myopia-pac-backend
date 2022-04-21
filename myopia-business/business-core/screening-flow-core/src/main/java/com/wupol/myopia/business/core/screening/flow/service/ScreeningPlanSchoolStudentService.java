@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.screening.flow.service;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -543,5 +544,14 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         } catch (NumberFormatException e) {
             return null;
         }
+    }
+
+    /**
+     * 通过指定条件获取筛查学生
+     *
+     * @return List<ScreeningPlanSchoolStudent>
+     */
+    public List<ScreeningPlanSchoolStudent> getReviewStudentList(Integer planId, Integer orgId, Integer schoolId, Integer gradeId, Integer classId) {
+        return baseMapper.getReviewStudentList(planId, orgId, schoolId, gradeId, classId);
     }
 }

@@ -35,6 +35,7 @@ import com.wupol.myopia.business.core.stat.domain.model.DistrictVisionStatistic;
 import com.wupol.myopia.business.core.stat.service.DistrictAttentiveObjectsStatisticService;
 import com.wupol.myopia.business.core.stat.service.DistrictMonitorStatisticService;
 import com.wupol.myopia.business.core.stat.service.DistrictVisionStatisticService;
+import com.wupol.myopia.business.core.system.constants.ScreeningTypeConst;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -1186,12 +1187,14 @@ public class StatService {
      * @param schoolId
      * @param qualityControllerName
      * @param qualityControllerCommander
+     * @param screeningData
      * @return
      */
-    public List<RescreenReportVO> getRescreenStatInfo(
-            Integer planId, Integer schoolId, String qualityControllerName, String qualityControllerCommander) {
+    public List<RescreenReportVO> getRescreenStatInfo(Integer planId, Integer schoolId,
+                                                      String qualityControllerName, String qualityControllerCommander,
+                                                      Long screeningData) {
         List<RescreenReportVO> rrvos = new ArrayList<>();
-        List<StatRescreen> rescreens = statRescreenService.getList(planId, schoolId);
+        List<StatRescreen> rescreens = statRescreenService.getByPlanAndSchool(planId, schoolId, Objects.nonNull(screeningData) ? new Date(screeningData) : null);
         if (CollectionUtils.isEmpty(rescreens)) {
             return rrvos;
         }
@@ -1233,6 +1236,9 @@ public class StatService {
                         .setScreeningTime(screeningTime);
                 RescreenStat rescreenStat = this.composeRescreenConclusion(rescreenInfoByTime);
                 BeanUtils.copyProperties(rescreenStat, statRescreen);
+                if (ScreeningTypeConst.COMMON_DISEASE.equals(conclusion.getScreeningType())) {
+                    composePhysiqueReScreenConclusion(statRescreen, rescreenInfoByTime);
+                }
                 statRescreens.add(statRescreen);
             }
         });
@@ -1258,6 +1264,16 @@ public class StatService {
                 .setPlanId(planId)
                 .setSchoolId(schoolId);
         return statConclusionService.listByQuery(query);
+    }
+
+    private void composePhysiqueReScreenConclusion(StatRescreen statRescreen, List<StatConclusion> statConclusions) {
+
+        int total = statConclusions.size();
+        statRescreen.setPhysiqueRescreenNum((long) total);
+        statRescreen.setPhysiqueIndexNum(2L);
+        statRescreen.setPhysiqueRescreenItemNum(total * 2L);
+        statRescreen.setPhysiqueIncorrectItemNum(statConclusions.stream().mapToLong(StatConclusion::getPhysiqueRescreenErrorNum).sum());
+        statRescreen.setPhysiqueIncorrectRatio(convertToPercentage((float) (statRescreen.getPhysiqueIncorrectItemNum() / statRescreen.getPhysiqueRescreenItemNum())));
     }
 
 }

@@ -148,9 +148,10 @@
         left join m_school ms on ms.id = mspss.school_id
         left join m_school_grade sg on sg.id = mspss.grade_id
         left join m_school_class sc on sc.id = mspss.class_id
-        left join m_vision_screening_result vsc on vsc.screening_plan_school_student_id = mspss.id
+        right join m_vision_screening_result vsc on vsc.screening_plan_school_student_id = mspss.id
         <where>
             <trim prefixOverrides="and">
+                and vsc.is_double_screen = 0
                 <if test="param.screeningPlanId != null">
                     AND mspss.screening_plan_id = #{param.screeningPlanId}
                 </if>
@@ -563,5 +564,23 @@
         where school_id = #{schoolId}
           and screening_plan_id = #{planId}
         group by grade_id, class_id
+    </select>
+
+    <select id="getReviewStudentList" resultMap="BaseResultMap">
+        select *
+        from m_screening_plan_school_student mspss
+                 left join m_vision_screening_result mvsr on mspss.id = mvsr.screening_plan_school_student_id
+        where mvsr.plan_id = #{planId}
+          and mvsr.screening_org_id = #{orgId}
+        <if test="schoolId != null">
+            and mvsr.school_id = #{schoolId}
+        </if>
+        <if test="gradeId != null">
+            and mspss.grade_id = #{gradeId}
+        </if>
+        <if test="classId != null">
+            and mspss.class_id = #{classId}
+        </if>
+        and mvsr.is_double_screen = 0
     </select>
 </mapper>

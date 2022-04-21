@@ -73,4 +73,6 @@ public interface ScreeningPlanSchoolStudentMapper extends BaseMapper<ScreeningPl
     List<GradeClassesDTO> getGradeByPlanIdAndSchoolId(@Param("planId") Integer planId, @Param("schoolId") Integer schoolId);
 
     List<Integer> findSchoolIdsByPlanId(Integer planId);
+
+    List<ScreeningPlanSchoolStudent> getReviewStudentList(@Param("planId") Integer planId, @Param("orgId") Integer orgId, @Param("schoolId") Integer schoolId, @Param("gradeId") Integer gradeId, @Param("classId") Integer classId);
 }

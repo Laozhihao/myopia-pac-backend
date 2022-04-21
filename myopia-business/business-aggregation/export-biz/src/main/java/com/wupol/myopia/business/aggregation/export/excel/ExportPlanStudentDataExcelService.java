@@ -4,7 +4,10 @@ import com.alibaba.excel.write.merge.OnceAbsoluteMergeStrategy;
 import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.ExcelUtil;
+import com.wupol.myopia.business.aggregation.export.excel.config.ScreeningDataFactory;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.aggregation.export.service.IScreeningDataService;
+import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
@@ -13,12 +16,14 @@ import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionExportDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.VisionScreeningResultExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
+import com.wupol.myopia.business.core.system.constants.ScreeningTypeConst;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +34,6 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.wupol.myopia.business.aggregation.export.excel.constant.ExcelFileNameConstant.*;
@@ -43,7 +47,7 @@ import static com.wupol.myopia.business.aggregation.export.excel.constant.ExcelF
  */
 @Log4j2
 @Service("exportPlanStudentDataExcelService")
-public class ExportPlanStudentDataExcelService extends BaseExportExcelFileService{
+public class ExportPlanStudentDataExcelService extends BaseExportExcelFileService {
     @Autowired
     private StatConclusionService statConclusionService;
     @Autowired
@@ -58,9 +62,8 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
     private SchoolClassService schoolClassService;
     @Resource
     private ScreeningOrganizationService screeningOrganizationService;
-
-    @Autowired
-    private ExcelFacade excelFacade;
+    @Resource
+    private ScreeningNoticeService screeningNoticeService;
 
 
     @Override
@@ -71,8 +74,15 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         Integer schoolId = exportCondition.getSchoolId();
         Integer gradeId = exportCondition.getGradeId();
         Integer classId = exportCondition.getClassId();
+        Integer notificationId = exportCondition.getNotificationId();
 
-        List<StatConclusionExportDTO> statConclusionExportDTOs  = statConclusionService.selectExportVoBySPlanIdAndSOrgIdAndSChoolIdAndGradeNameAndClassanme(screeningPlanId, screeningOrgId,schoolId,gradeId,classId);
+        if (ExportTypeConst.District.equals(exportCondition.getExportType())) {
+            Integer districtId = exportCondition.getDistrictId();
+            List<Integer> childDistrictIds = districtService.getSpecificDistrictTreeAllDistrictIds(districtId);
+            return statConclusionService.getExportVoByScreeningNoticeIdAndDistrictIds(notificationId, childDistrictIds);
+        }
+
+        List<StatConclusionExportDTO> statConclusionExportDTOs = statConclusionService.selectExportVoBySPlanIdAndSOrgIdAndSChoolIdAndGradeNameAndClassanme(screeningPlanId, screeningOrgId, schoolId, gradeId, classId);
         statConclusionExportDTOs.forEach(vo ->
                 vo.setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(), vo.getAreaCode(), vo.getTownCode(), vo.getAddress())));
 
@@ -80,14 +90,22 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
     }
 
     @Override
-    public Class getHeadClass() {
-        return VisionScreeningResultExportDTO.class;
+    public Class getHeadClass(ExportCondition exportCondition) {
+        IScreeningDataService screeningDataService = ScreeningDataFactory.getScreeningDataService(getScreeningType(exportCondition));
+        return screeningDataService.getExportClass();
     }
 
     @Override
     public String getNoticeKeyContent(ExportCondition exportCondition) {
-
-        return getFileNameTitle(exportCondition);
+        String suffix = StringUtils.EMPTY;
+        Integer screeningType = getScreeningType(exportCondition);
+        if (ScreeningTypeConst.VISION.equals(screeningType)) {
+            suffix = "【视力数据】";
+        }
+        if (ScreeningTypeConst.COMMON_DISEASE.equals(screeningType)) {
+            suffix = "【常见病数据】";
+        }
+        return getFileNameTitle(exportCondition) + suffix;
     }
 
     @Override
@@ -107,70 +125,77 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
     }
 
     @Override
-    public File generateExcelFile(String filePath, List data,ExportCondition exportCondition){
+    public File generateExcelFile(String filePath, List data, ExportCondition exportCondition) {
 
         List<StatConclusionExportDTO> statConclusionExportDTOs = data;
         Map<Integer, List<StatConclusionExportDTO>> schoolMap = statConclusionExportDTOs.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getSchoolId));
         Map<Integer, List<StatConclusionExportDTO>> gradeMap = statConclusionExportDTOs.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getGradeId));
 
+        Integer exportType = exportCondition.getExportType();
+        Integer screeningType = screeningPlanService.getById(statConclusionExportDTOs.get(0).getPlanId()).getScreeningType();
+        IScreeningDataService screeningDataService = ScreeningDataFactory.getScreeningDataService(screeningType);
 
-        //1.学校id为null,区域id为null,筛查计划id不为null按计划维度导出
-        if (Objects.isNull(exportCondition.getSchoolId()) && Objects.nonNull(exportCondition.getDistrictId()) && Objects.nonNull(exportCondition.getPlanId()) && Objects.nonNull(exportCondition.getScreeningOrgId()) && Objects.isNull(exportCondition.getClassId())){
-            schoolMap.forEach((key,value)->{
+
+        // 按计划维度导出
+        if (ExportTypeConst.PLAN.equals(exportType)) {
+            schoolMap.forEach((key, value) -> {
                 School school = schoolService.getById(key);
                 String path = Paths.get(filePath, getFileNameTitle(exportCondition)).toString();
-                makerExcel(path, String.format(PLAN_STUDENT_FILE_NAME,school.getName()), excelFacade.genVisionScreeningResultExportVos(value));
+                makerExcel(path, String.format(PLAN_STUDENT_FILE_NAME, school.getName()), screeningDataService.generateExportData(value), screeningDataService.getExportClass());
             });
         }
 
-        //3.学校id不为null,年级id、班级id为null，则以学校维度导出
-        if (Objects.nonNull(exportCondition.getSchoolId()) && Objects.isNull(exportCondition.getGradeId()) && Objects.isNull(exportCondition.getClassId())){
+        // 学校维度导出
+        if (ExportTypeConst.SCHOOL.equals(exportType)) {
             School school = schoolService.getById(exportCondition.getSchoolId());
             //先导出整个学校数据
-            String folder = Paths.get(filePath,String.format(PLAN_STUDENT_FILE_NAME,school.getName())).toString();
-            makerExcel(folder, String.format(PLAN_STUDENT_FILE_NAME,school.getName()), excelFacade.genVisionScreeningResultExportVos(schoolMap.get(exportCondition.getSchoolId())));
+            String folder = Paths.get(filePath, String.format(PLAN_STUDENT_FILE_NAME, school.getName())).toString();
+            makerExcel(folder, String.format(PLAN_STUDENT_FILE_NAME, school.getName()), screeningDataService.generateExportData(schoolMap.get(exportCondition.getSchoolId())), screeningDataService.getExportClass());
             //再导出年级数据
-            gradeMap.forEach((key,value)->{
+            gradeMap.forEach((key, value) -> {
                 SchoolGrade grade = schoolGradeService.getById(key);
-                excelGraderAndClassData(key,value,String.format(PLAN_STUDENT_FILE_NAME,grade.getName()),folder,school);
+                excelGraderAndClassData(key, value, String.format(PLAN_STUDENT_FILE_NAME, grade.getName()), folder, school);
             });
         }
 
-        //4.学校id不为null,年级id不为null、班级id为null，则以年级维度导出
-        if (Objects.nonNull(exportCondition.getSchoolId()) && Objects.nonNull(exportCondition.getGradeId()) && Objects.isNull(exportCondition.getClassId())){
+        // 年级维度导出
+        if (ExportTypeConst.GRADE.equals(exportType)) {
             School school = schoolService.getById(exportCondition.getSchoolId());
             //导出年级数据
-            gradeMap.forEach((key,value)->{
+            gradeMap.forEach((key, value) -> {
                 SchoolGrade grade = schoolGradeService.getById(key);
-                excelGraderAndClassData(key,value,String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName()),filePath,school);
+                excelGraderAndClassData(key, value, String.format(PLAN_STUDENT_FILE_NAME, school.getName() + grade.getName()), filePath, school);
             });
         }
 
-        //如果班级不为null,则以班级维度导出
-        if (Objects.nonNull(exportCondition.getClassId())){
-            return  makerExcel(filePath, getFileNameTitle(exportCondition), excelFacade.genVisionScreeningResultExportVos(data));
+        // 班级、区域维度导出
+        if (ExportTypeConst.CLASS.equals(exportType) || ExportTypeConst.District.equals(exportType)) {
+            return makerExcel(filePath, getFileNameTitle(exportCondition), screeningDataService.generateExportData(data), screeningDataService.getExportClass());
         }
         return null;
     }
 
 
+    public void excelGraderAndClassData(Integer key, List<StatConclusionExportDTO> value, String gradeFolder, String filePath, School school) {
 
-    public void excelGraderAndClassData(Integer key,List<StatConclusionExportDTO> value,String gradeFolder,String filePath,School school){
+        Integer screeningType = screeningPlanService.getById(value.get(0).getPlanId()).getScreeningType();
+        IScreeningDataService screeningDataService = ScreeningDataFactory.getScreeningDataService(screeningType);
+
         SchoolGrade grade = schoolGradeService.getById(key);
-        String path = Paths.get(filePath,gradeFolder).toString();
-        makerExcel(path, gradeFolder, excelFacade.genVisionScreeningResultExportVos(value));
+        String path = Paths.get(filePath, gradeFolder).toString();
+        makerExcel(path, gradeFolder, screeningDataService.generateExportData(value), screeningDataService.getExportClass());
         //再导出该年级的班级数据
         Map<Integer, List<StatConclusionExportDTO>> collect = value.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getClassId));
-        collect.forEach((classKey,classValue) ->{
+        collect.forEach((classKey, classValue) -> {
             SchoolClass schoolClass = schoolClassService.getById(classKey);
-            makerExcel(path, String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName()+schoolClass.getName()), excelFacade.genVisionScreeningResultExportVos(classValue));
+            makerExcel(path, String.format(PLAN_STUDENT_FILE_NAME, school.getName() + grade.getName() + schoolClass.getName()), screeningDataService.generateExportData(classValue), screeningDataService.getExportClass());
         });
     }
 
-    public File makerExcel(String folder,String filePath,List<VisionScreeningResultExportDTO> data){
+    public File makerExcel(String folder, String filePath, List data, Class clazz) {
         OnceAbsoluteMergeStrategy mergeStrategy = new OnceAbsoluteMergeStrategy(0, 1, 20, 21);
         try {
-            return  ExcelUtil.exportListToExcelWithFolder(folder,filePath, data, mergeStrategy, getHeadClass());
+            return ExcelUtil.exportListToExcelWithFolder(folder, filePath, data, mergeStrategy, clazz);
         } catch (IOException e) {
             log.error("【Excel生成异常】{}", data, e);
         }
@@ -180,37 +205,42 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
 
     /**
      * 获取文件同步导出文件名称
+     *
      * @param exportCondition
      * @return
      */
-    private String getFileNameTitle(ExportCondition exportCondition){
+    private String getFileNameTitle(ExportCondition exportCondition) {
+        Integer exportType = exportCondition.getExportType();
         School school = schoolService.getById(exportCondition.getSchoolId());
         SchoolGrade grade = schoolGradeService.getById(exportCondition.getGradeId());
         SchoolClass schoolClass = schoolClassService.getById(exportCondition.getClassId());
+        Integer districtId = exportCondition.getDistrictId();
         String screeningOrg = screeningOrganizationService.getNameById(exportCondition.getScreeningOrgId());
-        //.获取计划维度导出文件名
-        if (Objects.isNull(exportCondition.getSchoolId()) && Objects.nonNull(exportCondition.getDistrictId()) && Objects.nonNull(exportCondition.getPlanId()) && Objects.nonNull(exportCondition.getScreeningOrgId())){
-            return String.format(PLAN_STUDENT_FILE_NAME,screeningOrg);
-        }
-        //.获取学校导出文件名
-        if (Objects.nonNull(exportCondition.getSchoolId()) && Objects.isNull(exportCondition.getGradeId()) && Objects.isNull(exportCondition.getClassId())){
-            return String.format(PLAN_STUDENT_FILE_NAME,school.getName());
-        }
-        //.获取年级导出文件名
-        if (Objects.nonNull(exportCondition.getSchoolId()) && Objects.nonNull(exportCondition.getGradeId()) && Objects.isNull(exportCondition.getClassId())){
-            return String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName());
 
+        if (ExportTypeConst.PLAN.equals(exportType)) {
+            return String.format(PLAN_STUDENT_FILE_NAME, screeningOrg);
         }
-        //.获取班级导出文件名
-        if (Objects.nonNull(exportCondition.getClassId())){
-            return String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName()+schoolClass.getName());
+        if (ExportTypeConst.SCHOOL.equals(exportType)) {
+            return String.format(PLAN_STUDENT_FILE_NAME, school.getName());
         }
-
-            return "";
+        if (ExportTypeConst.GRADE.equals(exportType)) {
+            return String.format(PLAN_STUDENT_FILE_NAME, school.getName() + grade.getName());
+        }
+        if (ExportTypeConst.CLASS.equals(exportType)) {
+            return String.format(PLAN_STUDENT_FILE_NAME, school.getName() + grade.getName() + schoolClass.getName());
+        }
+        if (ExportTypeConst.District.equals(exportType)) {
+            return String.format(PLAN_STUDENT_FILE_NAME, districtService.getById(districtId).getName());
+        }
+        return "";
     }
 
     @Override
-    public void validateBeforeExport(ExportCondition exportCondition){
+    public void validateBeforeExport(ExportCondition exportCondition) {
+        Integer exportType = exportCondition.getExportType();
+        if (ExportTypeConst.District.equals(exportType)) {
+            return;
+        }
         ScreeningPlan screeningPlan = screeningPlanService.getById(exportCondition.getPlanId());
         if (Objects.isNull(screeningPlan)) {
             throw new BusinessException("筛查计划不存在");
@@ -224,37 +254,51 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
      * @return java.lang.String
      **/
     @Override
-    public String getPackageFileName(ExportCondition exportCondition){
+    public String getPackageFileName(ExportCondition exportCondition) {
+        Integer exportType = exportCondition.getExportType();
+        Integer districtId = exportCondition.getDistrictId();
         School school = schoolService.getById(exportCondition.getSchoolId());
         SchoolGrade grade = schoolGradeService.getById(exportCondition.getGradeId());
         SchoolClass schoolClass = schoolClassService.getById(exportCondition.getClassId());
 
-        //计划压缩包名
-        if (Objects.isNull(exportCondition.getSchoolId()) && Objects.nonNull(exportCondition.getDistrictId()) && Objects.nonNull(exportCondition.getPlanId()) && Objects.nonNull(exportCondition.getScreeningOrgId())){
+        if (ExportTypeConst.PLAN.equals(exportType)) {
             String screeningOrgName = screeningOrganizationService.getNameById(exportCondition.getScreeningOrgId());
             return String.format(SCREENING_ORG_EXCEL_FILE_NAME, screeningOrgName);
         }
-
-        //学校压缩包名
-        if (Objects.nonNull(exportCondition.getSchoolId()) && Objects.isNull(exportCondition.getGradeId()) && Objects.isNull(exportCondition.getClassId())){
-            return String.format(SCHOOL_EXCEL_FILE_NAME,school.getName());
-
+        if (ExportTypeConst.SCHOOL.equals(exportType)) {
+            return String.format(SCHOOL_EXCEL_FILE_NAME, school.getName());
         }
-
-        //年级压缩包名
-        if (Objects.nonNull(exportCondition.getSchoolId()) && Objects.nonNull(exportCondition.getGradeId()) && Objects.isNull(exportCondition.getClassId())){
-            return String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName());
+        if (ExportTypeConst.GRADE.equals(exportType)) {
+            return String.format(PLAN_STUDENT_FILE_NAME, school.getName() + grade.getName());
         }
-
-        //班级压缩包名
-        if (Objects.nonNull(exportCondition.getClassId())){
-            return String.format(PLAN_STUDENT_FILE_NAME,school.getName()+grade.getName()+schoolClass.getName());
+        if (ExportTypeConst.CLASS.equals(exportType)) {
+            return String.format(PLAN_STUDENT_FILE_NAME, school.getName() + grade.getName() + schoolClass.getName());
         }
-            return "";
-  }
+        if (ExportTypeConst.District.equals(exportType)) {
+            return String.format(PLAN_STUDENT_FILE_NAME, districtService.getById(districtId).getName());
+        }
+        return "";
+    }
 
-  @Override
-  public Boolean isPackage(){
-      return true;
-  }
+    @Override
+    public Boolean isPackage() {
+        return true;
+    }
+
+    /**
+     * 获取筛查类型
+     *
+     * @param exportCondition 条件
+     * @return 筛查类型
+     */
+    private Integer getScreeningType(ExportCondition exportCondition) {
+        Integer screeningType;
+        // 如果是区域筛查导出的，取通知的screeningType
+        if (ExportTypeConst.District.equals(exportCondition.getExportType())) {
+            screeningType = screeningNoticeService.getById(exportCondition.getNotificationId()).getScreeningType();
+        } else {
+            screeningType = screeningPlanService.getById(exportCondition.getPlanId()).getScreeningType();
+        }
+        return screeningType;
+    }
 }

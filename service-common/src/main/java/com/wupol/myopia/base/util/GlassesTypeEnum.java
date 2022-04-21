@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.common.utils.constant;
+package com.wupol.myopia.base.util;
 
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;

@@ -2,8 +2,10 @@ package com.wupol.myopia.business.core.screening.flow.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionQueryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.VisionScreeningResultMapper;
@@ -53,6 +55,17 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
     public List<VisionScreeningResult> getByStudentId(Integer studentId) {
         return baseMapper.getByStudentId(studentId);
     }
+
+    /**
+     * 通过StudentId获取筛查结果
+     *
+     * @param studentId id
+     * @return List<ScreeningResult>
+     */
+    public IPage<VisionScreeningResult> getByStudentIdWithPage(PageRequest pageRequest,Integer studentId) {
+        return baseMapper.getByStudentIdWithPage(pageRequest.toPage(),studentId);
+    }
+
 
     /**
      * 获取筛查人员ID
@@ -287,4 +300,58 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         updateBatchById(updateResultList);
         statConclusionService.updateBatchById(updateStatConclusionList);
     }
+
+    /**
+     * 获取学生初筛/复测（默认初测）
+     * @param planId 计划ID
+     * @param screeningPlanSchoolStudentId 学生ID
+     * @param isDoubleScreen false：初测  true：复测
+     * @return
+     */
+    public VisionScreeningResult getIsDoubleScreeningResult(Integer planId, Integer screeningPlanSchoolStudentId,boolean isDoubleScreen) {
+        VisionScreeningResult visionScreeningResultQuery = new VisionScreeningResult().setPlanId(planId).setScreeningPlanSchoolStudentId(screeningPlanSchoolStudentId).setIsDoubleScreen(isDoubleScreen);
+        QueryWrapper<VisionScreeningResult> queryWrapper = getQueryWrapper(visionScreeningResultQuery);
+        return getOne(queryWrapper);
+    }
+
+    /**
+     * 获取学生初筛/复测（默认初测）
+     * @param planIds 计划ID集合
+     * @param screeningPlanSchoolStudentId 学生ID
+     * @param isDoubleScreen false：初测  true：复测
+     * @return
+     */
+    public List<VisionScreeningResult> getIsDoubleScreeningResult(List<Integer> planIds, Integer screeningPlanSchoolStudentId,boolean isDoubleScreen) {
+        return baseMapper.getIsDoubleScreeningResult(planIds,screeningPlanSchoolStudentId,isDoubleScreen);
+    }
+
+    /**
+     * 通过计划id，学校id获取复查学生数据
+     *
+     * @param planId    计划Id
+     * @param schoolIds 学校Id
+     * @return List<VisionScreeningResult>
+     */
+    public List<VisionScreeningResult> getRescreenBySchoolIds(Integer planId, List<Integer> schoolIds) {
+        if (CollectionUtils.isEmpty(schoolIds)) {
+            return new ArrayList<>();
+        }
+        return baseMapper.getRescreenBySchoolIds(planId, schoolIds);
+    }
+
+    /**
+     * 通过计划id，学校id获取复查学生数据
+     *
+     * @param planId    计划Id
+     * @param schoolIds 学校Id
+     * @return List<VisionScreeningResult>
+     */
+    public Map<Integer, List<VisionScreeningResult>> getMapRescreenBySchoolIds(Integer planId, List<Integer> schoolIds) {
+        List<VisionScreeningResult> results = getRescreenBySchoolIds(planId, schoolIds);
+        if (CollectionUtils.isEmpty(results)) {
+            return new HashMap<>();
+        }
+        return results.stream().collect(Collectors.groupingBy(VisionScreeningResult::getSchoolId));
+    }
+
 }

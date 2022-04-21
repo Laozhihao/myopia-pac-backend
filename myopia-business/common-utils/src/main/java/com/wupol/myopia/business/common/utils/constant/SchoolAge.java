@@ -7,12 +7,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * 学龄枚举类
+ *
+ * @author Simple4H
+ */
 public enum SchoolAge {
+
     KINDERGARTEN(5, "幼儿园"),
     PRIMARY(0, "小学"),
     JUNIOR(1, "初中"),
     HIGH(2, "高中"),
-    VOCATIONAL_HIGH(3, "职业高中");
+    VOCATIONAL_HIGH(3, "职业高中"),
+    COLLEGE(4, "大学");
 
     /**
      * 学龄段ID

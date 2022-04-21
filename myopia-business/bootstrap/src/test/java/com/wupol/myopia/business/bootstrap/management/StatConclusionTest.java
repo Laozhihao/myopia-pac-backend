@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.bootstrap.management;
 
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.bootstrap.MyopiaBusinessApplication;
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;

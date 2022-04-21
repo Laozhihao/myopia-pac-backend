@@ -143,7 +143,7 @@ public class ScreeningAppController {
     /**
      * 获取班级名称
      *
-     * @param gradeId 年级ID
+     * @param gradeId  年级ID
      * @return
      */
     @GetMapping("/school/findAllClazzNameBySchoolNameAndGradeName")
@@ -501,8 +501,8 @@ public class ScreeningAppController {
      * @return com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO
      **/
     @GetMapping("/getComputerOptometryData/{planStudentId}")
-    public ComputerOptometryDTO getComputerOptometryData(@PathVariable Integer planStudentId, @RequestParam(value = "isState", defaultValue = "0") Integer isState) {
-        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentIdAndState(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId(), isState);
+    public ComputerOptometryDTO getComputerOptometryData(@PathVariable Integer planStudentId) {
+        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentId(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId());
         if (Objects.isNull(screeningResult)) {
             return new ComputerOptometryDTO();
         }

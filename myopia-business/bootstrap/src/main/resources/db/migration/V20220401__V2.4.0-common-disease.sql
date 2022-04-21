@@ -71,3 +71,22 @@ CREATE TABLE `m_screening_result_statistic` (
   UNIQUE KEY `screening_result_statistic_district_unique` (`screening_notice_id`,`district_id`,`screening_type`,`is_total`) USING BTREE,
   UNIQUE KEY `screening_result_statistic_school_unique` (`screening_plan_id`,`screening_type`,`screening_org_id`,`school_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC COMMENT='筛查结果统计表';
+
+-- 复查统计
+alter table m_stat_rescreen
+    add screening_type tinyint(1) default 0 null comment '0-视力筛查 1-常见病' after school_id;
+
+alter table m_stat_rescreen
+    add physique_rescreen_num int null comment '体格复查人数';
+
+alter table m_stat_rescreen
+    add physique_index_num int null comment '体格复查指数';
+
+alter table m_stat_rescreen
+    add physique_rescreen_item_num int null comment '体格-复测项次';
+
+alter table m_stat_rescreen
+    add physique_incorrect_item_num int null comment '体格-错误项次数';
+
+alter table m_stat_rescreen
+    add physique_incorrect_ratio float(10, 2) null comment '体格-错误率/发生率';

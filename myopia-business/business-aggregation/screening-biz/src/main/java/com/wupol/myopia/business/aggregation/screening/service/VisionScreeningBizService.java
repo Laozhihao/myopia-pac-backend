@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.aggregation.screening.service;
 
 import com.wupol.myopia.base.exception.BusinessException;
-import com.wupol.myopia.business.common.utils.constant.GlassesTypeEnum;
+import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
