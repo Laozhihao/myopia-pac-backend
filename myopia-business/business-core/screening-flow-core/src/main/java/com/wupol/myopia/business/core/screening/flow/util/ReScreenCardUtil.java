@@ -14,7 +14,7 @@ import java.math.BigDecimal;
  * @Des: 复测工具类
  */
 @UtilityClass
-public class ReScreeningCardUtil {
+public class ReScreenCardUtil {
 
 
 
