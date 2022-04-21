@@ -14,6 +14,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanSch
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningPlanSchoolMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -143,6 +144,24 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
     }
 
     /**
+     * 查询筛查计划下有学生数据的学校
+     *
+     * @param screeningPlanId 筛查计划ID
+     * @param schoolName 学校名称
+     * @return List<ScreeningPlanSchoolDTO>
+     */
+    public List<ScreeningPlanSchoolDTO> querySchoolsInfoInPlanHavaStudent(Integer screeningPlanId, String schoolName) {
+        List<ScreeningPlanSchoolDTO> screeningPlanSchools = getSchoolVoListsByPlanId(screeningPlanId,schoolName);
+
+        List<Integer> schoolIds = screeningPlanSchoolStudentService.findSchoolIdsByPlanId(screeningPlanId);
+
+        if (CollectionUtils.isEmpty(schoolIds)) {
+            return new ArrayList<>();
+        }
+        return screeningPlanSchools.stream().filter(s -> schoolIds.contains(s.getSchoolId())).collect(Collectors.toList());
+    }
+
+    /**
      * 删除筛查计划中，除了指定学校ID的其它学校信息
      *
      * @param screeningPlanId 筛查计划ID
@@ -256,7 +275,7 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
     public List<ScreeningPlanSchoolDTO> getHaveResultSchool(Integer screeningPlanId, String schoolName) {
         List<ScreeningPlanSchoolDTO> schoolList = getSchoolVoListsByPlanId(screeningPlanId, schoolName);
         List<Integer> schoolIds = visionScreeningResultService.getBySchoolIdPlanId(screeningPlanId);
-        if (org.springframework.util.CollectionUtils.isEmpty(schoolIds)) {
+        if (CollectionUtils.isEmpty(schoolIds)) {
             return new ArrayList<>();
         }
         return schoolList.stream().filter(s -> schoolIds.contains(s.getSchoolId())).collect(Collectors.toList());

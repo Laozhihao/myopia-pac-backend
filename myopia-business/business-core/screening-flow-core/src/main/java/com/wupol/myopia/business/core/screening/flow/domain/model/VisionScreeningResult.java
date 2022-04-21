@@ -169,13 +169,21 @@ public class VisionScreeningResult implements Serializable {
      * 筛查结果--疾病史(汉字)
      */
     @TableField(typeHandler = JacksonTypeHandler.class)
-    private List<String> diseasesHistoryData;
+    private DiseasesHistoryDO diseasesHistoryData;
 
     /**
      * 筛查结果--隐私项
      */
     @TableField(typeHandler = JacksonTypeHandler.class)
     private PrivacyDataDO privacyData;
+
+    /**
+     *
+     * 筛查不准确说明
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private DeviationDO deviationData;
+
 
     /**
      * 筛查结果--全身疾病在眼部的表现
