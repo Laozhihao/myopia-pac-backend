@@ -1,8 +1,11 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.wupol.myopia.base.util.CurrentUserUtil;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.Objects;
 
 /**
  * @Description 筛查结果基本数据
@@ -40,6 +43,13 @@ public abstract class ScreeningResultBasicData implements ScreeningDataInterface
 
     public Integer getSchoolId() {
         return stringToInteger(schoolId);
+    }
+
+    public Integer getDeptId() {
+        if (Objects.isNull(deptId)) {
+            deptId = CurrentUserUtil.getCurrentUser().getOrgId();
+        }
+        return deptId;
     }
 
     private Integer stringToInteger(String value){
