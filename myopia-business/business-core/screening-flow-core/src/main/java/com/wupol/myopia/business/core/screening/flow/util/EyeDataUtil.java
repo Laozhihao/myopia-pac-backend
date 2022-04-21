@@ -579,6 +579,31 @@ public class EyeDataUtil {
         return sph.add(cyl.multiply(new BigDecimal("0.5")))
                 .setScale(2, RoundingMode.HALF_UP);
     }
+
+    /**
+     * 计算 等效球镜（右眼）
+     * @param visionScreenResult 筛查数据
+     * @return 计算 等效球镜（右眼）
+     */
+    public static BigDecimal rightSE(VisionScreeningResult visionScreenResult) {
+        BigDecimal sph = rightSph(visionScreenResult);
+        BigDecimal cyl = rightCyl(visionScreenResult);
+
+        return calculationSE(sph,cyl);
+    }
+
+    /**
+     * 计算 等效球镜（左眼）
+     * @param visionScreenResult 筛查数据
+     * @return 计算 等效球镜（右眼）
+     */
+    public static BigDecimal leftSE(VisionScreeningResult visionScreenResult) {
+        BigDecimal sph = leftSph(visionScreenResult);
+        BigDecimal cyl = leftCyl(visionScreenResult);
+
+        return calculationSE(sph,cyl);
+    }
+
     /**
      * 电脑验光误差
      * @param visionScreenResult 筛查结果
