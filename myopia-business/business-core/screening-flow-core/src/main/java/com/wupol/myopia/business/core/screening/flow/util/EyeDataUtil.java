@@ -440,7 +440,7 @@ public class EyeDataUtil {
 
 
     /**
-     * 判断戴镜是否为空
+     * 获取戴镜是否为空
      * @param visionScreeningResult 筛查结果
      * @return 类型描述
      */
@@ -450,7 +450,7 @@ public class EyeDataUtil {
     }
 
     /**
-     * 判断右眼裸视力
+     * 获取右眼裸视力
      * @param visionScreeningResult 筛查结果
      * @return 右眼裸视力
      */
@@ -460,7 +460,7 @@ public class EyeDataUtil {
     }
 
     /**
-     * 判断左眼裸视力
+     * 获取左眼裸视力
      * @param visionScreeningResult 筛查结果
      * @return 左眼裸视力
      */
@@ -470,7 +470,7 @@ public class EyeDataUtil {
     }
 
     /**
-     * 判断右眼裸视力
+     * 获取右眼裸视力
      * @param visionScreeningResult 筛查结果
      * @return 右眼戴镜视力
      */
@@ -480,7 +480,7 @@ public class EyeDataUtil {
     }
 
     /**
-     * 判断左眼裸视力
+     * 获取左眼裸视力
      * @param visionScreenResult 筛查结果
      * @return 左眼戴镜视力
      */
@@ -490,7 +490,7 @@ public class EyeDataUtil {
     }
 
     /**
-     * 判断右眼球镜
+     * 获取右眼球镜
      * @param visionScreenResult 筛查结果
      * @return 右眼球镜
      */
@@ -499,7 +499,7 @@ public class EyeDataUtil {
                 .map(ComputerOptometryDO.ComputerOptometry::getSph) .orElse(null);
     }
     /**
-     * 判断右眼柱镜
+     * 获取右眼柱镜
      * @param visionScreenResult 筛查结果
      * @return 右眼柱镜
      */
@@ -508,7 +508,7 @@ public class EyeDataUtil {
                 .map(ComputerOptometryDO.ComputerOptometry::getCyl) .orElse(null);
     }
     /**
-     * 判断右眼轴位
+     * 获取右眼轴位
      * @param visionScreenResult 筛查结果
      * @return 筛查轴位
      */
@@ -518,7 +518,7 @@ public class EyeDataUtil {
     }
 
     /**
-     * 判断左眼球镜
+     * 获取左眼球镜
      * @param visionScreenResult 筛查结果
      * @return 左眼球镜
      */
@@ -527,7 +527,7 @@ public class EyeDataUtil {
                 .map(ComputerOptometryDO.ComputerOptometry::getSph) .orElse(null);
     }
     /**
-     * 判断左眼柱镜
+     * 获取左眼柱镜
      * @param visionScreenResult 筛查结果
      * @return 左眼柱镜
      */
@@ -536,7 +536,7 @@ public class EyeDataUtil {
                 .map(ComputerOptometryDO.ComputerOptometry::getCyl) .orElse(null);
     }
     /**
-     * 判断左眼轴位
+     * 获取左眼轴位
      * @param visionScreenResult 筛查结果
      * @return 左眼轴位
      */
@@ -546,7 +546,7 @@ public class EyeDataUtil {
     }
 
     /**
-     * 判断左眼轴位
+     * 获取左眼轴位
      * @param visionScreenResult 筛查结果
      * @return 身高
      */
@@ -556,7 +556,7 @@ public class EyeDataUtil {
     }
 
     /**
-     * 判断左眼轴位
+     * 获取左眼轴位
      * @param visionScreenResult 筛查结果
      * @return 体重
      */

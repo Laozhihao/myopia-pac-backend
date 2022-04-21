@@ -248,10 +248,7 @@ public class BigDecimalUtil {
      */
     public static boolean isDeviation(BigDecimal firstScreening,BigDecimal reScreening,BigDecimal standard){
         BigDecimal result = subtractAbsBigDecimal(firstScreening, reScreening);
-        if (result.abs().compareTo(standard) > 0){
-            return true;
-        }
-        return false;
+        return result.abs().compareTo(standard) > 0;
     }
 
     /**
