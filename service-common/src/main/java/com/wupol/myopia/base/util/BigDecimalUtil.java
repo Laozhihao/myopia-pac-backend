@@ -244,14 +244,14 @@ public class BigDecimalUtil {
      * @param firstScreening 视力误差
      * @param reScreening 复测值
      * @param standard 标准值
-     * @return 1：误差 0：没误差
+     * @return true：误差 false：没误差
      */
-    public static int isDeviation(BigDecimal firstScreening,BigDecimal reScreening,BigDecimal standard){
+    public static boolean isDeviation(BigDecimal firstScreening,BigDecimal reScreening,BigDecimal standard){
         BigDecimal result = subtractAbsBigDecimal(firstScreening, reScreening);
         if (result.abs().compareTo(standard) > 0){
-            return 1;
+            return true;
         }
-        return 0;
+        return false;
     }
 
     /**
