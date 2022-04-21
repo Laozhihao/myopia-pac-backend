@@ -262,7 +262,7 @@ public class StudentFacade {
         commonDiseases.setSaprodontiaData(getSaprodontiaDataDODTO(result));
         commonDiseases.setSpineData(result.getSpineData());
         commonDiseases.setBloodPressureData(result.getBloodPressureData());
-//        commonDiseases.setDiseasesHistoryData(result.getDiseasesHistoryData());
+        commonDiseases.setDiseasesHistoryData(result.getDiseasesHistoryData());
         commonDiseases.setPrivacyData(result.getPrivacyData());
         commonDiseases.setSystemicDiseaseSymptom(result.getSystemicDiseaseSymptom());
         commonDiseases.setHeightAndWeightData(result.getHeightAndWeightData());
