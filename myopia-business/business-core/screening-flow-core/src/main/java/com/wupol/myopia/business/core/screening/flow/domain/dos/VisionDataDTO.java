@@ -88,8 +88,8 @@ public class VisionDataDTO extends ScreeningResultBasicData {
     }
 
     public boolean isValid() {
-        // 裸眼，矫正视力必填
-        return ObjectUtils.anyNotNull(rightNakedVision, leftNakedVision, rightCorrectedVision, leftCorrectedVision);
+        // 裸眼必填
+        return Objects.nonNull(rightNakedVision) && Objects.nonNull(leftNakedVision);
     }
 
     public static VisionDataDTO getInstance(VisionDataDO visionDataDO) {
