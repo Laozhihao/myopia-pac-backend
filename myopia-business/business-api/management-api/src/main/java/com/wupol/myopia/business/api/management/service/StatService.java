@@ -53,6 +53,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -102,6 +103,8 @@ public class StatService {
 
     @Value("classpath:excel/ExportStatContrastTemplate.xlsx")
     private Resource exportStatContrastTemplate;
+    @Autowired
+    private VisionScreeningResultService visionScreeningResultService;
 
     /**
      * 预警信息
@@ -1194,10 +1197,17 @@ public class StatService {
                                                       String qualityControllerName, String qualityControllerCommander,
                                                       Long screeningData) {
         List<RescreenReportVO> rrvos = new ArrayList<>();
+
         List<StatRescreen> rescreens = statRescreenService.getByPlanAndSchool(planId, schoolId, Objects.nonNull(screeningData) ? new Date(screeningData) : null);
         if (CollectionUtils.isEmpty(rescreens)) {
             return rrvos;
         }
+
+        // 获取筛查数据
+        List<VisionScreeningResult> resultList = visionScreeningResultService.getByPlanIdAndSchoolId(planId, schoolId);
+        // 通过日期分组 yyyy-MM-dd
+        Map<String, List<VisionScreeningResult>> groupDate = resultList.stream().collect(Collectors.groupingBy(s -> DateUtil.formatDate(s.getCreateTime())));
+
         String orgName = screeningOrganizationService.getNameById(rescreens.get(0).getScreeningOrgId());
         String schoolName = schoolService.getNameById(schoolId);
         rescreens.forEach(rescreen -> {
@@ -1206,7 +1216,8 @@ public class StatService {
             rrvo.setQualityControllerName(qualityControllerName)
                     .setQualityControllerCommander(qualityControllerCommander)
                     .setOrgName(orgName)
-                    .setSchoolName(schoolName);
+                    .setSchoolName(schoolName)
+                    .setCardList(abc(groupDate, rrvo.getScreeningTime()));
             rrvos.add(rrvo);
         });
         return rrvos;
@@ -1274,6 +1285,31 @@ public class StatService {
         statRescreen.setPhysiqueRescreenItemNum(total * 2L);
         statRescreen.setPhysiqueIncorrectItemNum(statConclusions.stream().mapToLong(StatConclusion::getPhysiqueRescreenErrorNum).sum());
         statRescreen.setPhysiqueIncorrectRatio(convertToPercentage((float) (statRescreen.getPhysiqueIncorrectItemNum() / statRescreen.getPhysiqueRescreenItemNum())));
+    }
+
+    /**
+     * 组装筛查检测卡
+     *
+     * @param groupDate     分组时间
+     * @param screeningTime 筛查时间
+     * @return 检测卡
+     */
+    private List<Object> abc(Map<String, List<VisionScreeningResult>> groupDate, Date screeningTime) {
+        // 获取日期当天的数据
+        List<VisionScreeningResult> resultList = groupDate.get(DateUtil.formatDate(screeningTime));
+
+        // 获取复筛数据
+        List<VisionScreeningResult> reScreenResults = resultList.stream().filter(VisionScreeningResult::getIsDoubleScreen).collect(Collectors.toList());
+
+        // 获取初筛数据
+        List<VisionScreeningResult> screeningResults = resultList.stream().filter(VisionScreeningResult::getIsDoubleScreen).collect(Collectors.toList());
+        Map<Integer, VisionScreeningResult> screeningResultMap = screeningResults.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
+
+        reScreenResults.forEach(reScreenResult -> {
+            VisionScreeningResult first = screeningResultMap.get(reScreenResult.getScreeningPlanSchoolStudentId());
+
+        });
+        return new ArrayList<>();
     }
 
 }
