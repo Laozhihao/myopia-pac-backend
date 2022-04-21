@@ -163,9 +163,9 @@ public class ScreeningAppController {
     /**
      * 获取学校年级班级对应的学生名称
      *
-     * @param schoolId 学校名称
-     * @param gradeId  年级名称
-     * @param classId  班级名称
+     * @param schoolId  学校名称
+     * @param gradeId   年级名称
+     * @param classId   班级名称
      * @return
      */
     @GetMapping("/school/findAllStudentName")
@@ -278,7 +278,7 @@ public class ScreeningAppController {
      */
     @PostMapping("/recognitionFace")
     public void recognitionFace(Integer deptId, MultipartFile file) {
-        // 暂时不用
+       // 暂时不用
     }
 
     /**
@@ -404,7 +404,7 @@ public class ScreeningAppController {
      */
     @PostMapping("/eye/updateReviewResult")
     public void updateReviewResult(Integer eyeId) {
-        //暂时不用
+      //暂时不用
     }
 
     /**
@@ -466,8 +466,8 @@ public class ScreeningAppController {
      * 获取班级总的筛查进度：汇总统计+每个学生的进度
      *
      * @param schoolId 学校名称
-     * @param gradeId  年级名称
-     * @param classId  班级名称
+     * @param gradeId 年级名称
+     * @param classId 班级名称
      * @param isFilter 是否启用过滤条件
      * @return com.wupol.myopia.business.api.screening.app.domain.vo.ClassScreeningProgress
      **/
@@ -589,7 +589,6 @@ public class ScreeningAppController {
      *
      * @param planStudentId 筛查计划学生ID
      * @return com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO
-     * @param isState isState
      **/
     @GetMapping("/getOtherEyeDiseaseData/{planStudentId}")
     public OtherEyeDiseasesDTO getOtherEyeDiseaseData(@PathVariable Integer planStudentId, @RequestParam(value = "isState", defaultValue = "0") Integer isState) {
