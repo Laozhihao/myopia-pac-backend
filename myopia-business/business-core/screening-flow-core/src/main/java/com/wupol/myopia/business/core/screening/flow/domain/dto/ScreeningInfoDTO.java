@@ -136,7 +136,7 @@ public class ScreeningInfoDTO {
         /**
          * 筛查结果--疾病史(汉字)
          */
-        private List<String> diseasesHistoryData;
+        private DiseasesHistoryDO diseasesHistoryData;
         /**
          * 筛查结果--隐私项
          */

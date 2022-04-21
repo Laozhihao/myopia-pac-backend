@@ -54,7 +54,7 @@ public class EyeDataUtil {
         studentVisionScreeningResultExportDTO.setGlassesType(EyeDataUtil.glassesTypeString(visionScreeningResult));
         //右眼裸视力
         studentVisionScreeningResultExportDTO.setRightReScreenNakedVisions(EyeDataUtil.visionRightDataToStr(visionScreeningResult));
-        //右眼矫正视力
+        //有眼矫正视力
         studentVisionScreeningResultExportDTO.setRightReScreenCorrectedVisions(EyeDataUtil.correctedRightDataToStr(visionScreeningResult));
 
         //左眼裸视力
@@ -226,7 +226,11 @@ public class EyeDataUtil {
         return null;
     }
 
-
+    /**
+     * 左眼轴位
+     * @param visionScreeningResult 筛查数据
+     * @return 左眼轴位
+     */
     public static String computerLeftAxial(VisionScreeningResult visionScreeningResult){
         if (visionScreeningResult!=null
                 &&visionScreeningResult.getComputerOptometry()!=null
@@ -239,6 +243,11 @@ public class EyeDataUtil {
         return "--";
     }
 
+    /**
+     * 右眼轴位
+     * @param visionScreeningResult 筛查数据
+     * @return 右眼轴位
+     */
     public static String computerRightAxial(VisionScreeningResult visionScreeningResult) {
         if (visionScreeningResult != null
                 && visionScreeningResult.getComputerOptometry() != null
@@ -251,7 +260,11 @@ public class EyeDataUtil {
         return "--";
     }
 
-
+    /**
+     * 左眼柱镜
+     * @param visionScreeningResult 筛查数据
+     * @return 左眼柱镜
+     */
     public static String computerLeftCyl(VisionScreeningResult visionScreeningResult){
         if (visionScreeningResult!=null
                 &&visionScreeningResult.getComputerOptometry()!=null
@@ -269,12 +282,18 @@ public class EyeDataUtil {
                 &&visionScreeningResult.getComputerOptometry()!=null
                 &&visionScreeningResult.getComputerOptometry().getLeftEyeData()!=null
                 &&visionScreeningResult.getComputerOptometry().getLeftEyeData().getCyl()!=null){
+
             return visionScreeningResult.getComputerOptometry().getLeftEyeData().getCyl().toString();
         }
 
         return null;
     }
 
+    /**
+     * 右眼柱镜
+     * @param visionScreeningResult 筛查数据
+     * @return 右眼柱镜
+     */
     public static String computerRightCyl(VisionScreeningResult visionScreeningResult){
         if (visionScreeningResult!=null
                 &&visionScreeningResult.getComputerOptometry()!=null
@@ -286,6 +305,12 @@ public class EyeDataUtil {
 
         return "--";
     }
+
+    /**
+     * 右眼柱镜非空验证
+     * @param visionScreeningResult 筛查数据
+     * @return 右眼柱镜非空验证
+     */
     public static String computerRightCylNull(VisionScreeningResult visionScreeningResult){
         if (visionScreeningResult!=null
                 &&visionScreeningResult.getComputerOptometry()!=null
@@ -298,7 +323,11 @@ public class EyeDataUtil {
         return null;
     }
 
-
+    /**
+     * 左眼球镜
+     * @param visionScreeningResult 筛查数据
+     * @return 左眼球镜
+     */
     public static String computerLeftSph(VisionScreeningResult visionScreeningResult){
         if (visionScreeningResult!=null
                 &&visionScreeningResult.getComputerOptometry()!=null
@@ -322,8 +351,11 @@ public class EyeDataUtil {
         return null;
     }
 
-
-
+    /**
+     * 右眼球镜
+     * @param visionScreeningResult 筛查数据
+     * @return 右眼球镜
+     */
     public static String computerRightSph(VisionScreeningResult visionScreeningResult){
         if (visionScreeningResult!=null
                 &&visionScreeningResult.getComputerOptometry()!=null
@@ -335,7 +367,11 @@ public class EyeDataUtil {
 
         return "--";
     }
-
+    /**
+     * 右眼球镜非空验证
+     * @param visionScreeningResult 筛查数据
+     * @return 右眼球镜非空验证
+     */
     public static String computerRightSphNULL(VisionScreeningResult visionScreeningResult){
         if (visionScreeningResult!=null
                 &&visionScreeningResult.getComputerOptometry()!=null
@@ -415,21 +451,6 @@ public class EyeDataUtil {
             return "+" + bigDecimal.setScale(2, RoundingMode.DOWN).toString();
         }
         return bigDecimal.setScale(2, RoundingMode.DOWN).toString();
-    }
-
-
-    /**
-     * 判断戴镜是否为空
-     * @param visionScreeningResult 筛查结果
-     * @return 类型描述
-     */
-    public static Integer glassTypeDesc(VisionScreeningResult visionScreeningResult) {
-        if (visionScreeningResult != null
-                && visionScreeningResult.getVisionData() != null
-                && visionScreeningResult.getVisionData().getRightEyeData() != null) {
-            return  visionScreeningResult.getVisionData().getRightEyeData().getGlassesType();
-        }
-        return null;
     }
 
     /**

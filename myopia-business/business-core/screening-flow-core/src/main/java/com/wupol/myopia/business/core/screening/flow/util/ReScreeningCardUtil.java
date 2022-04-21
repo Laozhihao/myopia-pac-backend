@@ -24,7 +24,7 @@ public class ReScreeningCardUtil {
      */
     public int isDeviation(BigDecimal firstScreening,BigDecimal reScreening,BigDecimal standard){
         BigDecimal result = subtractAbsBigDecimal(firstScreening, reScreening);
-        if (result.abs().compareTo(standard) == 1){
+        if (result.abs().compareTo(standard) > 0){
             return 1;
         }
         return 0;
