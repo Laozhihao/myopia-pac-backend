@@ -1,16 +1,17 @@
 package com.wupol.myopia.business.core.screening.flow.constant;
 
-/*
+
+/**
  * @Author  钓猫的小鱼
  * @Date  2022/4/15 16:39
  * @Email: shuailong.wu@vistel.cn
- * @Des:
- */
-
-/**
- * @author wushuailong
+ * @Des: 复测工具类参数
  */
 public class ReScreenConstant {
+    /**
+     *  复测项
+     */
+    public static final Integer RESCREEN_NUM = 8;
     /**
      * 视力验光误差标准（行）
      */
