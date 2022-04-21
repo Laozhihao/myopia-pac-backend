@@ -7,6 +7,7 @@ import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
 import com.wupol.myopia.business.core.hospital.domain.model.HospitalAdmin;
 import com.wupol.myopia.business.core.hospital.service.HospitalAdminService;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanSchoolDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskOrgDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.service.*;
@@ -18,6 +19,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -138,9 +140,14 @@ public class ScreeningTaskOrgBizService {
             BeanUtils.copyProperties(orgVo, dto);
             dto.setName(screeningOrganizationService.getNameById(orgVo.getScreeningOrgId()));
             ScreeningPlan screeningPlan = screeningPlanService.getPlanByTaskId(orgVo.getScreeningTaskId(),orgVo.getScreeningOrgId());
-            List<ScreeningPlanSchool> schools =  screeningPlanSchoolService.getSchoolListsByPlanId(screeningPlan.getId());
-            dto.setScreeningSchoolNum(schools.size());
-            dto.setScreeningSituation(findByScreeningSituation(schools,screeningPlan));
+            if (screeningPlan != null){
+                List<ScreeningPlanSchool> schools =  screeningPlanSchoolService.getSchoolListsByPlanId(screeningPlan.getId());
+                dto.setScreeningSchoolNum(schools.size());
+                dto.setScreeningSituation(findByScreeningSituation(schools,screeningPlan));
+            }else {
+                dto.setScreeningSchoolNum(0);
+                dto.setScreeningSituation(getScreeningState(0,0,0,0));
+            }
             //调查问卷暂时为0
             dto.setQuestionnaire(getScreeningState(0,0,0,1));
             return dto;
@@ -179,24 +186,40 @@ public class ScreeningTaskOrgBizService {
     }
 
     public List<ScreeningTaskOrgDTO> getScreeningSchoolDetails(Integer screeningTaskId) {
-      List<ScreeningPlan> planList = screeningPlanService.getPlanByTaskIds(screeningTaskId);
-        return planList.stream().map(orgVo -> {
+        List<ScreeningTaskOrg> orgVoLists = screeningTaskOrgService.getOrgListsByTaskId(screeningTaskId);
+        return orgVoLists.stream().map(orgVo -> {
             ScreeningTaskOrgDTO dto = new ScreeningTaskOrgDTO();
             BeanUtils.copyProperties(orgVo, dto);
             dto.setName(screeningOrganizationService.getNameById(orgVo.getScreeningOrgId()));
-            Map<Integer, Long> schoolIdStudentCountMap = screeningPlanSchoolStudentService.getSchoolStudentCountByScreeningPlanId(orgVo.getId());
-            dto.getScreeningPlanSchools().forEach(vo -> {
-                        vo.setSchoolName(screeningPlanSchoolService.getOneByPlanIdAndSchoolId(orgVo.getId(),vo.getSchoolId()).getSchoolName());
-                        vo.setStudentCount(schoolIdStudentCountMap.getOrDefault(vo.getSchoolId(), (long) 0).intValue());
-                        vo.setPracticalStudentCount(visionScreeningResultService.getBySchoolIdAndOrgIdAndPlanId(vo.getSchoolId(), vo.getScreeningOrgId(), vo.getScreeningPlanId()).size());
-                        vo.setScreeningProportion(MathUtil.divide(vo.getPracticalStudentCount(),vo.getStudentCount()).toString()+"%");
-                        vo.setScreeningSituation(screeningPlanSchoolService.findSituation(vo.getSchoolId(),orgVo));
-                        vo.setQuestionnaireStudentCount(0);
-                        vo.setQuestionnaireProportion("0.00%");
-                        vo.setQuestionnaireSituation(ScreeningPlanSchool.notStart);
-                    }
-            );
+            ScreeningPlan plan = screeningPlanService.getPlanByTaskId(screeningTaskId,orgVo.getScreeningOrgId());
+            if (plan != null){
+                Map<Integer, Long> schoolIdStudentCountMap = screeningPlanSchoolStudentService.getSchoolStudentCountByScreeningPlanId(plan.getId());
+                List<ScreeningPlanSchool> screeningPlanSchools = screeningPlanSchoolService.getSchoolListsByPlanId(plan.getId());
+                if (!screeningPlanSchools.isEmpty()){
+                dto.setScreeningPlanSchools(getScreeningPlanSchools(screeningPlanSchools,schoolIdStudentCountMap,plan));
+                }
+            }
             return dto;
         }).collect(Collectors.toList());
+    }
+
+    private List<ScreeningPlanSchoolDTO> getScreeningPlanSchools(List<ScreeningPlanSchool> screeningPlanSchools,Map<Integer, Long> schoolIdStudentCountMap,ScreeningPlan screeningPlan){
+            return screeningPlanSchools.stream().map(vo -> {
+                ScreeningPlanSchoolDTO schoolDTO = new ScreeningPlanSchoolDTO();
+                schoolDTO.setSchoolName(screeningPlanSchoolService.getOneByPlanIdAndSchoolId(screeningPlan.getId(),vo.getSchoolId()).getSchoolName());
+                schoolDTO.setStudentCount(schoolIdStudentCountMap.getOrDefault(vo.getSchoolId(), (long) 0).intValue());
+                schoolDTO.setPracticalStudentCount(visionScreeningResultService.getBySchoolIdAndOrgIdAndPlanId(vo.getSchoolId(), vo.getScreeningOrgId(), vo.getScreeningPlanId()).size());
+                BigDecimal num = MathUtil.divide(schoolDTO.getPracticalStudentCount(),schoolDTO.getStudentCount());
+                if (num.equals(BigDecimal.ZERO)){
+                    schoolDTO.setScreeningProportion("0.00%");
+                }else {
+                    schoolDTO.setScreeningProportion(num.toString()+"%");
+                }
+                schoolDTO.setScreeningSituation(screeningPlanSchoolService.findSituation(vo.getSchoolId(),screeningPlan));
+                schoolDTO.setQuestionnaireStudentCount(0);
+                schoolDTO.setQuestionnaireProportion("0.00%");
+                schoolDTO.setQuestionnaireSituation(ScreeningPlanSchool.notStart);
+                return schoolDTO;
+            }).collect(Collectors.toList());
     }
 }

@@ -542,7 +542,9 @@ public class ScreeningPlanStudentBizService {
         String axial = EyeDataUtil.computerRightAxial(visionScreeningResult) + "/" + EyeDataUtil.computerLeftAxial(visionScreeningResult);
         studentEyeInfo.setAxial(axial);
         //是否复测
-        studentEyeInfo.setIsDoubleScreen(visionScreeningResult.getIsDoubleScreen());
+        if (visionScreeningResult!=null){
+            studentEyeInfo.setIsDoubleScreen(visionScreeningResult.getIsDoubleScreen());
+        }
 
     }
 

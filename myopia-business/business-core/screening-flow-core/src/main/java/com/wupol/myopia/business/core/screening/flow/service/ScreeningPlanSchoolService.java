@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -114,7 +115,12 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
         screeningPlanSchools.forEach(vo -> {
             vo.setStudentCount(schoolIdStudentCountMap.getOrDefault(vo.getSchoolId(), (long) 0).intValue());
             vo.setPracticalStudentCount(visionScreeningResultService.getBySchoolIdAndOrgIdAndPlanId(vo.getSchoolId(), vo.getScreeningOrgId(), vo.getScreeningPlanId()).size());
-            vo.setScreeningProportion(MathUtil.divide(vo.getPracticalStudentCount(),vo.getStudentCount()).toString()+"%");
+            BigDecimal num = MathUtil.divide(vo.getPracticalStudentCount(),vo.getStudentCount());
+            if (num.equals(BigDecimal.ZERO)){
+                vo.setScreeningProportion("0.00%");
+            }else {
+                vo.setScreeningProportion(num.toString()+"%");
+            }
             vo.setScreeningSituation(findSituation(vo.getSchoolId(),screeningPlan));
             vo.setQuestionnaireStudentCount(0);
             vo.setQuestionnaireProportion("0.00%");

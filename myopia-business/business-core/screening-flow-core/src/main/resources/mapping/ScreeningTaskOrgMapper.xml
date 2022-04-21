@@ -51,6 +51,9 @@
                 <if test="param.startCreateTime != null and param.endCreateTime != null">
                     and <![CDATA[ DATE(mst.`start_time`) < DATE(#{param.endCreateTime})]]> and <![CDATA[ DATE(mst.`end_time`) >= DATE(#{param.startCreateTime})]]>
                 </if>
+                <if test="@Ognl@isNotEmpty(param.screeningType)">
+                    and mst.screening_type = #{param.screeningType}
+                </if>
             </trim>
         </where>
     </select>

@@ -7,6 +7,7 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
@@ -38,6 +39,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.unit.DataUnit;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -46,6 +48,7 @@ import javax.validation.ValidationException;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -449,6 +452,9 @@ public class ScreeningPlanController {
         screeningPlans.setId(screeningPlanDTO.getId());
         ScreeningPlan screeningPlan = screeningPlanService.findOne(screeningPlans);
         if (!currentUser.isPlatformAdminUser()){
+            if (screeningPlan.getUpdateScreeningEndTimeStatus()==ScreeningPlan.MODIFIED){
+                throw new ValidationException("该计划已经增加过时间");
+            }
             screeningPlan.setUpdateScreeningEndTimeStatus(ScreeningPlan.MODIFIED);
         }
         screeningPlan.setEndTime(screeningPlanDTO.getEndTime());
@@ -462,8 +468,9 @@ public class ScreeningPlanController {
      * @return
      */
     @GetMapping("/getTncreaseDate")
-    public String getTncreaseDate(Date endTime,int days) {
-        return DateUtil.getTncreaseDate(endTime,days);
+    public Date getTncreaseDate(String endTime,int days) {
+        Assert.isTrue(Objects.nonNull(endTime), "结束时间不能为空");
+        return DateUtil.getTncreaseDate(DateUtil.parse(endTime),days);
     }
 
 
@@ -584,22 +591,17 @@ public class ScreeningPlanController {
     @GetMapping("/getStudentEyeByStudentId")
     public ApiResult getStudentEyeByStudentId(@RequestParam Integer planId,@RequestParam Integer studentId) {
         List<Integer> studentIds = Collections.singletonList(studentId);
-        Map<String,Object> map = new HashMap<>();
-        map.put("vision",null);
-        map.put("commonDiseases",null);
         List<VisionScreeningResult> visionScreeningResults =  visionScreeningResultService.getByStudentIdsAndPlanId(planId,studentIds,VisionScreeningResult.VISION_SCREENINGTYPE);
         List<VisionScreeningResult> commonDiseasesScreeningResults =  visionScreeningResultService.getByStudentIdsAndPlanId(planId,studentIds,VisionScreeningResult.COMMON_DISEASES_SCREENINGTYPE);
-        if (visionScreeningResults.isEmpty() && commonDiseasesScreeningResults.isEmpty()){
-            return ApiResult.success();
-        }
         if (!visionScreeningResults.isEmpty()){
-            map.put("vision",visionScreeningResults.get(0));
+            return ApiResult.success(visionScreeningResults.get(0));
         }
         if (!commonDiseasesScreeningResults.isEmpty()){
-            map.put("commonDiseases",commonDiseasesScreeningResults.get(0));
+            return ApiResult.success(commonDiseasesScreeningResults.get(0));
         }
+        return ApiResult.success(new VisionScreeningResult());
 
-        return ApiResult.success(map);
+
 
     }
 

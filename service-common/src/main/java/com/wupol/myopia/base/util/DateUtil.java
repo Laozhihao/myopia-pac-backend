@@ -474,10 +474,10 @@ public class DateUtil extends cn.hutool.core.date.DateUtil {
     /**
      * 指定日期加上指定天数
      */
-    public static String getTncreaseDate(Date date,int days){
+    public static Date getTncreaseDate(Date date,int days){
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
-        calendar.add(calendar.DATE,days);
-        return DateFormatUtil.format(calendar.getTime(),DateFormatUtil.FORMAT_DETAIL_TIME);
+        calendar.add(Calendar.DATE,days);
+        return calendar.getTime();
     }
 }

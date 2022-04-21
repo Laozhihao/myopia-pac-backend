@@ -47,14 +47,14 @@ public class ScreeningNoticeDeptOrgBizService {
      * @param pageRequest
      * @return
      */
-    public IPage<ScreeningNoticeVO> getPage(ScreeningNoticeQueryDTO query, PageRequest pageRequest) {
+    public IPage<ScreeningNoticeVO> getPage(ScreeningNoticeQueryDTO query, PageRequest pageRequest,Integer userId) {
         Page<ScreeningNotice> page = (Page<ScreeningNotice>) pageRequest.toPage();
         if (StringUtils.isNotBlank(query.getCreatorNameLike())){
             UserDTO userDTO = new UserDTO();
             userDTO.setUsername(query.getCreatorNameLike());
             List<User> list = oauthServiceClient.getUserListByName(userDTO);
-            List<Integer> userId = list.stream().map(item -> item.getId()).collect(Collectors.toList());
-            query.setCreateUserIds(userId);
+            List<Integer> userIdList = list.stream().map(item -> item.getId()).collect(Collectors.toList());
+            query.setCreateUserIds(userIdList);
         }
         IPage<ScreeningNoticeDTO> screeningNoticeIPage = screeningNoticeDeptOrgService.selectPageByQuery(page, query);
         List<Integer> allGovDeptIds = screeningNoticeIPage.getRecords().stream().filter(vo -> ScreeningNotice.TYPE_GOV_DEPT.equals(vo.getType())).map(ScreeningNoticeDTO::getAcceptOrgId).distinct().collect(Collectors.toList());
@@ -71,7 +71,7 @@ public class ScreeningNoticeDeptOrgBizService {
                 vo.setGovDeptName(govDeptIdNameMap.getOrDefault(vo.getAcceptOrgId(), ""));
             }
             //判断是否为当前用户创建的通知
-            if (vo.getAcceptOrgId().equals(query.getGovDeptId())){
+            if (vo.getCreateUserId().equals(userId)){
                 vo.setIsSelfRelease(ScreeningNotice.IS_SELF_RELEASE);
             }else{
                 vo.setIsSelfRelease(ScreeningNotice.IS_NOT_SELF_RELEASE);
