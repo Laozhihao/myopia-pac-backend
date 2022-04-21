@@ -131,7 +131,7 @@ public class ReScreenCardUtil {
      * @param reScreening 复测数据
      * @return 复测结果
      */
-    private ScreeningInfoDTO.Rescreening reScreeningResult(VisionScreeningResult result, VisionScreeningResult reScreening) {
+    public ScreeningInfoDTO.Rescreening reScreeningResult(VisionScreeningResult result, VisionScreeningResult reScreening) {
         int deviationCount =0;
 
         ScreeningInfoDTO.Rescreening rescreening = new  ScreeningInfoDTO.Rescreening();
