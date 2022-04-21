@@ -189,9 +189,9 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
      * @return 结论
      */
     private String countSaprodontiaNum(List<String> list) {
-        return list.stream().filter(s -> SaprodontiaType.D.getName().equals(s)).count() + ":" +
-                list.stream().filter(s -> SaprodontiaType.M.getName().equals(s)).count() + ":" +
-                list.stream().filter(s -> SaprodontiaType.F.getName().equals(s)).count();
+        return list.stream().filter(s -> StringUtils.equalsAny(s, SaprodontiaType.DECIDUOUS_D.getName(), SaprodontiaType.PERMANENT_D.getName())).count() + ":" +
+                list.stream().filter(s -> StringUtils.equalsAny(s, SaprodontiaType.DECIDUOUS_M.getName(), SaprodontiaType.PERMANENT_M.getName())).count() + ":" +
+                list.stream().filter(s -> StringUtils.equalsAny(s, SaprodontiaType.DECIDUOUS_F.getName(), SaprodontiaType.PERMANENT_F.getName())).count();
     }
 
     /**
