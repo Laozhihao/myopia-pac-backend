@@ -15,7 +15,7 @@ public class CommonDiseasesDTO {
     /**
      * 筛查结果--龋齿
      */
-    private SaprodontiaDataDO saprodontiaData;
+    private SaprodontiaDataDODTO saprodontiaData;
 
     /**
      * 筛查结果--脊柱

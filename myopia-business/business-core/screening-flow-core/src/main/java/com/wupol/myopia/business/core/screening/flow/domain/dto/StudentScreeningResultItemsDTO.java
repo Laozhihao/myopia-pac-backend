@@ -96,5 +96,9 @@ public class StudentScreeningResultItemsDTO {
      * 筛查机构名称
      */
     private String screeningOrgName;
+    /**
+     * 性别
+     */
+    private Integer gender;
 
 }
