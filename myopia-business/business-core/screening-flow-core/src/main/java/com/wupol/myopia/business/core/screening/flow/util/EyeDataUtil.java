@@ -627,7 +627,4 @@ public class EyeDataUtil {
                 .map(VisionDataDO.VisionData::getGlassesType) .orElse(null);
     }
 
-
-
-
 }

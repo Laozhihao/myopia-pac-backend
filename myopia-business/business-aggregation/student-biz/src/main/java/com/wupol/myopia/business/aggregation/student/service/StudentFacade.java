@@ -25,14 +25,13 @@ import com.wupol.myopia.business.core.school.management.service.SchoolStudentSer
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.StudentService;
-import com.wupol.myopia.business.core.screening.flow.constant.ReScreeningConstant;
+import com.wupol.myopia.business.core.screening.flow.constant.SaprodontiaType;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.*;
 import com.wupol.myopia.business.core.screening.flow.service.*;
-import com.wupol.myopia.business.core.screening.flow.util.EyeDataUtil;
-import com.wupol.myopia.business.core.screening.flow.util.ReScreeningCardUtil;
+import com.wupol.myopia.business.core.screening.flow.util.ReScreenCardUtil;
 import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationStaff;
@@ -128,7 +127,7 @@ public class StudentFacade {
             qualityControlName = screeningPlanSchools.get(0).getQualityControllerName();
         }
 
-        return ReScreeningCardUtil.retestResultCard(screeningResult,retestResult,qualityControlName);
+        return ReScreenCardUtil.reScreenResultCard(screeningResult,retestResult,qualityControlName);
     }
 
 
@@ -183,6 +182,9 @@ public class StudentFacade {
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getByIds(planStudentIds);
         Map<Integer, ScreeningPlanSchoolStudent> screeningPlanSchoolStudentMap = screeningPlanSchoolStudents.stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getId, Function.identity()));
 
+        // 获取学生信息
+        StudentDTO studentDTO = studentService.getStudentById(studentId);
+
         for (VisionScreeningResult result : resultList) {
             StudentScreeningResultItemsDTO item = new StudentScreeningResultItemsDTO();
             ScreeningInfoDTO screeningInfoDTO  = new ScreeningInfoDTO();
@@ -192,11 +194,11 @@ public class StudentFacade {
             //设置视力信息
             screeningInfoDTO.setVision(resultDetail);
             //设置常见病信息
-            ScreeningInfoDTO.CommonDiseases commonDiseases = getCommonDiseases(result);
+            CommonDiseasesDTO commonDiseases = getCommonDiseases(result);
             screeningInfoDTO.setCommonDiseases(commonDiseases);
             //设置复测信息
             if (Objects.nonNull(rescreeningVisionScreeningResultMap)){
-                screeningInfoDTO.setRescreening(reScreeningResult(result,rescreeningVisionScreeningResultMap.get(result.getPlanId())));
+                screeningInfoDTO.setRescreening(ReScreenCardUtil.reScreeningResult(result,rescreeningVisionScreeningResultMap.get(result.getPlanId())));
             }
 
             item.setDetails(screeningInfoDTO);
@@ -226,158 +228,14 @@ public class StudentFacade {
             item.setScreeningType(result.getScreeningType());
             //筛查机构名称()
             item.setScreeningOrgName(getScreeningOrganizationName(screeningOrganizationMap.get(result.getScreeningOrgId())));
+            //设置学生性别
+            item.setGender(studentDTO.getGender());
 
             records.add(item);
         }
         BeanUtils.copyProperties(resultIPage,responseDTO);
         responseDTO.setRecords(records);
         return responseDTO;
-    }
-
-    /**
-     * 设置复测
-     * @param result 初测数据
-     * @param reScreening 复测数据
-     * @return 复测结果
-     */
-    private ScreeningInfoDTO.Rescreening reScreeningResult(VisionScreeningResult result,VisionScreeningResult reScreening) {
-        int deviationCount =0;
-
-        ScreeningInfoDTO.Rescreening rescreening = new  ScreeningInfoDTO.Rescreening();
-
-        ScreeningInfoDTO.Rescreening.ReScreeningResult reScreeningResult = new ScreeningInfoDTO.Rescreening.ReScreeningResult();
-        //戴镜情况
-        reScreeningResult.setGlassesTypeDesc(GlassesTypeEnum.getDescByCode(EyeDataUtil.glassesType(reScreening)));
-
-        ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation rightNakedVision = new  ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation();
-        int rightNakedVisionType = ReScreeningCardUtil.isDeviation(EyeDataUtil.rightNakedVision(result),
-                EyeDataUtil.rightNakedVision(reScreening),new BigDecimal(ReScreeningConstant.VISION_DEVIATION));
-        deviationCount = getDeviationCount(deviationCount, rightNakedVisionType);
-
-        rightNakedVision.setType(rightNakedVisionType);
-        rightNakedVision.setContent(EyeDataUtil.rightNakedVision(reScreening));
-        reScreeningResult.setRightNakedVision(rightNakedVision);
-
-        ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation leftNakedVision = new  ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation();
-
-        int leftNakedVisionType = ReScreeningCardUtil.isDeviation(EyeDataUtil.leftNakedVision(result),
-                EyeDataUtil.leftNakedVision(reScreening),new BigDecimal(ReScreeningConstant.VISION_DEVIATION));
-        deviationCount = getDeviationCount(deviationCount, leftNakedVisionType);
-
-        leftNakedVision.setType(leftNakedVisionType);
-        leftNakedVision.setContent(EyeDataUtil.leftNakedVision(reScreening));
-        reScreeningResult.setLeftNakedVision(leftNakedVision);
-
-        ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation rightCorrectedVision = new  ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation();
-        int rightCorrectedVisionType = ReScreeningCardUtil.isDeviation(EyeDataUtil.rightCorrectedVision(result),
-                EyeDataUtil.rightCorrectedVision(reScreening),new BigDecimal(ReScreeningConstant.VISION_DEVIATION));
-        deviationCount = getDeviationCount(deviationCount, rightCorrectedVisionType);
-
-        rightCorrectedVision.setType(rightCorrectedVisionType);
-        rightCorrectedVision.setContent(EyeDataUtil.rightCorrectedVision(reScreening));
-        reScreeningResult.setRightCorrectedVision(rightCorrectedVision);
-
-        ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation leftCorrectedVision = new  ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation();
-        int leftCorrectedVisionType =ReScreeningCardUtil.isDeviation(EyeDataUtil.leftCorrectedVision(result),
-                EyeDataUtil.leftCorrectedVision(reScreening),new BigDecimal(ReScreeningConstant.VISION_DEVIATION));
-        deviationCount = getDeviationCount(deviationCount, leftCorrectedVisionType);
-
-        leftCorrectedVision.setType(leftCorrectedVisionType);
-        leftCorrectedVision.setContent(EyeDataUtil.leftCorrectedVision(reScreening));
-        reScreeningResult.setLeftCorrectedVision(leftCorrectedVision);
-
-        ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation rightSph = new  ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation();
-        int rightSphType = ReScreeningCardUtil.isDeviation(EyeDataUtil.rightSph(result),
-                EyeDataUtil.rightSph(reScreening),new BigDecimal(ReScreeningConstant.COMPUTEROPTOMETRY_DEVIATION));
-        deviationCount = getDeviationCount(deviationCount, rightSphType);
-
-        rightSph.setType(rightSphType);
-        rightSph.setContent(EyeDataUtil.rightSph(reScreening));
-        reScreeningResult.setRightSph(rightSph);
-
-        ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation rightCyl = new  ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation();
-        int rightCylType = ReScreeningCardUtil.isDeviation(EyeDataUtil.rightCyl(result),
-                EyeDataUtil.rightCyl(reScreening),new BigDecimal(ReScreeningConstant.COMPUTEROPTOMETRY_DEVIATION));
-        deviationCount = getDeviationCount(deviationCount, rightCylType);
-
-        rightCyl.setType(rightCylType);
-        rightCyl.setContent(EyeDataUtil.rightCyl(reScreening));
-        reScreeningResult.setRightCyl(rightCyl);
-
-        ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation rightAxial = new  ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation();
-        int rightAxialType = ReScreeningCardUtil.isDeviation(EyeDataUtil.rightAxial(result),
-                EyeDataUtil.rightAxial(reScreening),new BigDecimal(ReScreeningConstant.COMPUTEROPTOMETRY_DEVIATION));
-        deviationCount = getDeviationCount(deviationCount, rightAxialType);
-
-        rightAxial.setType(rightAxialType);
-        rightAxial.setContent(EyeDataUtil.rightAxial(reScreening));
-        reScreeningResult.setRightAxial(rightAxial);
-
-        ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation leftSph = new  ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation();
-        int leftSphType = ReScreeningCardUtil.isDeviation(EyeDataUtil.leftSph(result),
-                EyeDataUtil.leftSph(reScreening),new BigDecimal(ReScreeningConstant.COMPUTEROPTOMETRY_DEVIATION));
-        deviationCount = getDeviationCount(deviationCount, leftSphType);
-
-        leftSph.setType(leftSphType);
-        leftSph.setContent(EyeDataUtil.leftSph(reScreening));
-        reScreeningResult.setLeftSph(leftSph);
-
-        ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation leftCyl = new  ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation();
-        int leftCylType = ReScreeningCardUtil.isDeviation(EyeDataUtil.leftCyl(result),
-                EyeDataUtil.leftCyl(reScreening),new BigDecimal(ReScreeningConstant.COMPUTEROPTOMETRY_DEVIATION));
-        deviationCount = getDeviationCount(deviationCount, leftCylType);
-
-        leftCorrectedVision.setType(leftCylType);
-        leftCorrectedVision.setContent(EyeDataUtil.leftCyl(reScreening));
-        reScreeningResult.setLeftCyl(leftCyl);
-
-        ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation leftAxial = new  ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation();
-        int leftAxialType = ReScreeningCardUtil.isDeviation(EyeDataUtil.leftAxial(result),
-                EyeDataUtil.leftAxial(reScreening),new BigDecimal(ReScreeningConstant.COMPUTEROPTOMETRY_DEVIATION));
-        deviationCount = getDeviationCount(deviationCount, leftAxialType);
-
-        leftAxial.setType(leftAxialType);
-        leftAxial.setContent(EyeDataUtil.leftAxial(reScreening));
-        reScreeningResult.setLeftAxial(leftAxial);
-
-        ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation height = new  ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation();
-        int heightType = ReScreeningCardUtil.isDeviation(EyeDataUtil.height(result),
-                EyeDataUtil.height(reScreening),new BigDecimal(ReScreeningConstant.HEIGHT_DEVIATION));
-        deviationCount = getDeviationCount(deviationCount, heightType);
-
-        height.setType(heightType);
-        height.setContent(EyeDataUtil.height(reScreening));
-        reScreeningResult.setHeight(height);
-
-        ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation weight = new  ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation();
-        int weightType = ReScreeningCardUtil.isDeviation(EyeDataUtil.weight(result),
-                EyeDataUtil.weight(reScreening), new BigDecimal(ReScreeningConstant.WEIGHT_DEVIATION));
-        deviationCount = getDeviationCount(deviationCount, weightType);
-
-        weight.setType(weightType);
-        weight.setContent(EyeDataUtil.weight(reScreening));
-        reScreeningResult.setWeight(weight);
-
-        //次数检查数据为8项
-        rescreening.setDoubleCount(8);
-        rescreening.setDeviationCount(deviationCount);
-        rescreening.setRescreeningResult(reScreeningResult);
-        rescreening.setDeviation(EyeDataUtil.deviationData(reScreening));
-
-        return rescreening;
-    }
-
-    /**
-     *
-     * @param deviationCount 错误项
-     * @param type 1：错误 0 没有错误
-     * @return
-     */
-    private int getDeviationCount(int deviationCount, int type) {
-        if (type ==1 ){
-            deviationCount++;
-        }
-        return deviationCount;
     }
 
     /**
@@ -398,9 +256,10 @@ public class StudentFacade {
      * @param result
      * @return
      */
-    private ScreeningInfoDTO.CommonDiseases getCommonDiseases(VisionScreeningResult result) {
-        ScreeningInfoDTO.CommonDiseases commonDiseases = new  ScreeningInfoDTO.CommonDiseases();
-        commonDiseases.setSaprodontiaData(result.getSaprodontiaData());
+    private CommonDiseasesDTO getCommonDiseases(VisionScreeningResult result) {
+        CommonDiseasesDTO commonDiseases = new  CommonDiseasesDTO();
+
+        commonDiseases.setSaprodontiaData(getSaprodontiaDataDODTO(result));
         commonDiseases.setSpineData(result.getSpineData());
         commonDiseases.setBloodPressureData(result.getBloodPressureData());
 //        commonDiseases.setDiseasesHistoryData(result.getDiseasesHistoryData());
@@ -410,7 +269,72 @@ public class StudentFacade {
         return commonDiseases;
     }
 
-    String a = "{\"normal\": true, \"diseases\": [\"我是疾病\", \"111\", \"1231\", \"2131\", \"123123122\"], \"diagnosis\": null, \"createUserId\": null}";
+    private SaprodontiaDataDODTO getSaprodontiaDataDODTO(VisionScreeningResult result){
+
+        Optional.ofNullable(result) .map(VisionScreeningResult::getSaprodontiaData).orElse(null);
+
+        SaprodontiaDataDO saprodontiaDataDO = result.getSaprodontiaData();
+
+        List<SaprodontiaDataDO.SaprodontiaItem> above = saprodontiaDataDO.getAbove();
+        List<SaprodontiaDataDO.SaprodontiaItem> underneath = saprodontiaDataDO.getUnderneath();
+
+        List<SaprodontiaDataDO.SaprodontiaItem> items = new ArrayList<>();
+        items.addAll(above);
+        items.addAll(underneath);
+
+        return calculationTooth(items);
+    }
+
+    /**
+     * 计算乳牙/恒牙
+     * @param items
+     */
+    private SaprodontiaDataDODTO calculationTooth(List<SaprodontiaDataDO.SaprodontiaItem> items) {
+        SaprodontiaDataDODTO saprodontiaDataDODTO = new SaprodontiaDataDODTO();
+        int dCountDeciduous = 0;
+        int mCountDeciduous = 0;
+        int fFountDeciduous = 0;
+
+        int dFountPermanent = 0;
+        int mFountPermanent = 0;
+        int fFountPermanent = 0;
+        for (SaprodontiaDataDO.SaprodontiaItem item: items){
+            if (item.getDeciduous().equals(SaprodontiaType.D)){
+                dCountDeciduous++;
+            }
+            if (item.getDeciduous().equals(SaprodontiaType.M)){
+                mCountDeciduous++;
+            }
+            if (item.getDeciduous().equals(SaprodontiaType.F)){
+                fFountDeciduous++;
+            }
+
+            if (item.getPermanent().equals(SaprodontiaType.D)){
+                dFountPermanent++;
+            }
+            if (item.getPermanent().equals(SaprodontiaType.M)){
+                mFountPermanent++;
+            }
+            if (item.getPermanent().equals(SaprodontiaType.F)){
+                fFountPermanent++;
+            }
+        }
+
+        SaprodontiaStat deciduousTooth = new SaprodontiaStat();
+        deciduousTooth.setDCount(dCountDeciduous);
+        deciduousTooth.setFCount(mCountDeciduous);
+        deciduousTooth.setMCount(fFountDeciduous);
+
+        SaprodontiaStat permanentTooth = new SaprodontiaStat();
+        deciduousTooth.setDCount(dFountPermanent);
+        deciduousTooth.setFCount(mFountPermanent);
+        deciduousTooth.setMCount(fFountPermanent);
+
+        saprodontiaDataDODTO.setDeciduousTooth(deciduousTooth);
+        saprodontiaDataDODTO.setPermanentTooth(permanentTooth);
+
+        return saprodontiaDataDODTO;
+    }
 
     /**
      * 封装结果

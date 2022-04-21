@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.screening.flow.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.StatRescreenMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatRescreen;
 import io.jsonwebtoken.lang.Assert;
@@ -52,11 +53,11 @@ public class StatRescreenService extends BaseService<StatRescreenMapper, StatRes
      * @return 日期
      */
     public List<Date> getSchoolDate(Integer planId, Integer schoolId) {
-        return baseMapper.getSchoolDate(planId, schoolId);
+        return baseMapper.getSchoolDate(planId, schoolId, DateUtil.getYesterdayEndTime());
     }
 
     public List<StatRescreen> getByPlanAndSchool(Integer planId, Integer schoolId, Date screeningTime) {
-        return baseMapper.getByPlanAndSchool(planId, schoolId, screeningTime);
+        return baseMapper.getByPlanAndSchool(planId, schoolId, screeningTime, DateUtil.getYesterdayEndTime());
     }
 
 }

@@ -1,9 +1,12 @@
 package com.wupol.myopia.business.api.management.domain.vo;
 
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatRescreen;
+import com.wupol.myopia.business.core.screening.flow.domain.vo.ReScreeningCardVO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+
+import java.util.List;
 
 /**
  * @Author wulizhou
@@ -27,5 +30,7 @@ public class RescreenReportVO extends StatRescreen {
      * 检测队长
      */
     private String qualityControllerCommander;
+
+    private List<ReScreeningCardVO> cardList;
 
 }

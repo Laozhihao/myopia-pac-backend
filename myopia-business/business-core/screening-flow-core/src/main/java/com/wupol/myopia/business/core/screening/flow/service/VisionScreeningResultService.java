@@ -212,13 +212,29 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
     }
 
     /**
+     * 通过学校Id和计划Id获取筛查学生Id
+     *
+     * @param planId   计划Id
+     * @param schoolId 学校Id
+     * @return List<Integer>
+     */
+    public List<Integer> getByPlanStudentIdPlanIdAndSchoolId(Integer planId, Integer schoolId) {
+        List<VisionScreeningResult> resultList = baseMapper.getByPlanIdAndSchoolId(planId, schoolId);
+        if (CollectionUtils.isEmpty(resultList)) {
+            return new ArrayList<>();
+        }
+
+        return resultList.stream().map(VisionScreeningResult::getScreeningPlanSchoolStudentId).collect(Collectors.toList());
+    }
+
+    /**
      * 通过学校Id和计划Id获取信息
      *
      * @param planId   计划Id
      * @param schoolId 学校Id
      * @return List<Integer>
      */
-    public List<Integer> getByPlanIdAndSchoolId(Integer planId, Integer schoolId) {
+    public List<VisionScreeningResult> getByPlanIdAndSchoolId(Integer planId, Integer schoolId) {
         return baseMapper.getByPlanIdAndSchoolId(planId, schoolId);
     }
 
@@ -280,7 +296,8 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         List<VisionScreeningResult> updateResultList = new ArrayList<>();
         List<StatConclusion> updateStatConclusionList = new ArrayList<>();
 
-        Map<Integer, VisionScreeningResult> visionMap = resultList.stream()
+        // 过滤掉复筛的数据
+        Map<Integer, VisionScreeningResult> visionMap = resultList.stream().filter(result->!result.getIsDoubleScreen())
                 .collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
         planStudents.forEach(planStudent -> {
             VisionScreeningResult result = visionMap.get(planStudent.getId());
