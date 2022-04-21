@@ -21,12 +21,12 @@ public class ReScreenCardUtil {
 
     /**
      * 复测卡结果（同一个学生）
-     * @param firstScreeningResult 初筛结果(第一次)
+     * @param firstScreenResult 初筛结果(第一次)
      * @param reScreenResult 复测结果
      * @param qualityControlName 质控员
      * @return 复测卡结果
      */
-    public ReScreeningCardVO reScreenResultCard(VisionScreeningResult firstScreeningResult, VisionScreeningResult reScreenResult,
+    public ReScreeningCardVO reScreenResultCard(VisionScreeningResult firstScreenResult, VisionScreeningResult reScreenResult,
                                               String qualityControlName){
         ReScreeningCardVO reScreeningResultCard = new ReScreeningCardVO();
         VisionVO vision  = new VisionVO();
@@ -34,11 +34,11 @@ public class ReScreenCardUtil {
         vision.setGlassesType(EyeDataUtil.glassesType(reScreenResult));
 
         VisionResultVO visionResult = new VisionResultVO();
-        visionResult.setRightEyeData(rightEyeData(firstScreeningResult, reScreenResult));
-        visionResult.setLeftEyeData(leftEyeData(firstScreeningResult, reScreenResult));
+        visionResult.setRightEyeData(rightEyeData(firstScreenResult, reScreenResult));
+        visionResult.setLeftEyeData(leftEyeData(firstScreenResult, reScreenResult));
 
         vision.setVisionResult(visionResult);
-        vision.setComputerOptometryResult(computerOptometryResult(firstScreeningResult, reScreenResult));
+        vision.setComputerOptometryResult(computerOptometryResult(firstScreenResult, reScreenResult));
         vision.setVisionOrOptometryDeviation(EyeDataUtil.optometryDeviation(reScreenResult));
         vision.setQualityControlName(qualityControlName);
         vision.setCreateTime(EyeDataUtil.createTime(reScreenResult));
@@ -48,14 +48,14 @@ public class ReScreenCardUtil {
         CommonDiseasesVO commonDiseases = new CommonDiseasesVO();
 
         CommonDiseasesVO.HeightAndWeightResult heightAndWeightResult = new CommonDiseasesVO.HeightAndWeightResult();
-        heightAndWeightResult.setHeight(EyeDataUtil.height(firstScreeningResult));
+        heightAndWeightResult.setHeight(EyeDataUtil.height(firstScreenResult));
         heightAndWeightResult.setHeightReScreen(EyeDataUtil.height(reScreenResult));
-        heightAndWeightResult.setHeightDeviation(BigDecimalUtil.subtractAbsBigDecimal(EyeDataUtil.height(firstScreeningResult),EyeDataUtil.height(reScreenResult)));
+        heightAndWeightResult.setHeightDeviation(BigDecimalUtil.subtractAbsBigDecimal(EyeDataUtil.height(firstScreenResult),EyeDataUtil.height(reScreenResult)));
         heightAndWeightResult.setHeightDeviationRemark(EyeDataUtil.heightWeightDeviationRemark(reScreenResult));
 
-        heightAndWeightResult.setWeight(EyeDataUtil.weight(firstScreeningResult));
+        heightAndWeightResult.setWeight(EyeDataUtil.weight(firstScreenResult));
         heightAndWeightResult.setWeightReScreen(EyeDataUtil.weight(reScreenResult));
-        heightAndWeightResult.setWeightDeviation(BigDecimalUtil.subtractAbsBigDecimal(EyeDataUtil.weight(firstScreeningResult),EyeDataUtil.weight(reScreenResult)));
+        heightAndWeightResult.setWeightDeviation(BigDecimalUtil.subtractAbsBigDecimal(EyeDataUtil.weight(firstScreenResult),EyeDataUtil.weight(reScreenResult)));
         heightAndWeightResult.setWeightDeviationRemark(EyeDataUtil.heightWeightDeviationRemark(reScreenResult));
 
         commonDiseases.setHeightAndWeightResult(heightAndWeightResult);
