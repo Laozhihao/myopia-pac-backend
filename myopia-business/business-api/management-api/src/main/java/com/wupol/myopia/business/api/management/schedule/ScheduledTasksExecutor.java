@@ -16,7 +16,6 @@ import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
@@ -207,11 +206,11 @@ public class ScheduledTasksExecutor {
         //3. 分别处理每个学校的统计
         yesterdayScreeningPlanIds.forEach(screeningPlanId -> {
             //3.1 查出计划对应的筛查数据(结果)
-            List<StatConclusionDTO> statConclusions = statConclusionService.getVoByScreeningPlanId(screeningPlanId);
+            List<StatConclusion> statConclusions = statConclusionService.getVoByScreeningPlanId(screeningPlanId);
             if (CollectionUtils.isEmpty(statConclusions)) {
                 return;
             }
-            Map<Integer, List<StatConclusionDTO>> schoolIdStatConslusions = statConclusions.stream().collect(Collectors.groupingBy(StatConclusionDTO::getSchoolId));
+            Map<Integer, List<StatConclusion>> schoolIdStatConslusions = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolId));
             ScreeningPlan screeningPlan = screeningPlanService.getById(screeningPlanId);
             if (Objects.isNull(screeningPlan)) {
                 log.warn("按学校生成统计数据,筛查任务异常:{}", screeningPlanId);
@@ -222,11 +221,11 @@ public class ScheduledTasksExecutor {
             Map<Integer, Long> planSchoolStudentNum = screeningPlanSchoolStudentService.getByScreeningPlanId(screeningPlanId).stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getSchoolId, Collectors.counting()));
             //3.2 每个学校分别统计
             schoolIdStatConslusions.keySet().forEach(schoolId -> {
-                List<StatConclusionDTO> schoolStatConclusion = schoolIdStatConslusions.get(schoolId);
-                Map<Boolean, List<StatConclusionDTO>> isValidMap = schoolStatConclusion.stream().collect(Collectors.groupingBy(StatConclusion::getIsValid));
-                Map<Boolean, List<StatConclusionDTO>> isRescreenTotalMap = schoolStatConclusion.stream().collect(Collectors.groupingBy(StatConclusion::getIsRescreen));
-                List<StatConclusionDTO> validStatConclusions = isValidMap.getOrDefault(true, Collections.emptyList());
-                Map<Boolean, List<StatConclusionDTO>> isRescreenMap = validStatConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getIsRescreen));
+                List<StatConclusion> schoolStatConclusion = schoolIdStatConslusions.get(schoolId);
+                Map<Boolean, List<StatConclusion>> isValidMap = schoolStatConclusion.stream().collect(Collectors.groupingBy(StatConclusion::getIsValid));
+                Map<Boolean, List<StatConclusion>> isRescreenTotalMap = schoolStatConclusion.stream().collect(Collectors.groupingBy(StatConclusion::getIsRescreen));
+                List<StatConclusion> validStatConclusions = isValidMap.getOrDefault(true, Collections.emptyList());
+                Map<Boolean, List<StatConclusion>> isRescreenMap = validStatConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getIsRescreen));
                 int planSchoolScreeningNumbers = planSchoolStudentNum.getOrDefault(schoolId, 0L).intValue();
                 int reslScreeningNumbers = isRescreenTotalMap.getOrDefault(false, Collections.emptyList()).size();
                 schoolVisionStatistics.add(SchoolVisionStatisticBuilder.build(schoolIdMap.get(schoolId), screeningOrg, screeningPlan.getSrcScreeningNoticeId(), screeningPlan.getScreeningTaskId(), screeningPlanId, isRescreenMap.getOrDefault(false, Collections.emptyList()), reslScreeningNumbers, planSchoolScreeningNumbers));

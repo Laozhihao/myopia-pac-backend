@@ -79,8 +79,10 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
      * @param screeningPlanId
      * @return
      */
-    public List<StatConclusionDTO> getVoByScreeningPlanId(Integer screeningPlanId) {
-        return baseMapper.selectVoByScreeningPlanId(screeningPlanId);
+    public List<StatConclusion> getVoByScreeningPlanId(Integer screeningPlanId) {
+        LambdaQueryWrapper<StatConclusion> queryWrapper =new LambdaQueryWrapper<>();
+        queryWrapper.eq(StatConclusion::getPlanId,screeningPlanId);
+        return baseMapper.selectList(queryWrapper);
     }
 
     public List<StatConclusionDTO> getVoByScreeningPlanIds(List<Integer> screeningPlanIds) {

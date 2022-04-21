@@ -4,7 +4,6 @@ import com.wupol.myopia.business.common.utils.constant.MyopiaLevelEnum;
 import com.wupol.myopia.business.common.utils.constant.WarningLevel;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
 import com.wupol.myopia.business.core.school.domain.model.School;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.stat.domain.model.SchoolVisionStatistic;
@@ -24,7 +23,7 @@ import java.util.stream.Collectors;
 public class SchoolVisionStatisticBuilder {
 
     public static SchoolVisionStatistic build(School school, ScreeningOrganization screeningOrg, Integer screeningNoticeId, Integer screeningTaskId, Integer screeningPlanId,
-                                              List<StatConclusionDTO> statConclusions, Integer realScreeningNumber, Integer planScreeningNumbers) {
+                                              List<StatConclusion> statConclusions, Integer realScreeningNumber, Integer planScreeningNumbers) {
         SchoolVisionStatistic statistic = new SchoolVisionStatistic();
         Integer wearingGlassNumber =
                 (int) statConclusions.stream().filter(x -> x.getGlassesType() > 0).count();

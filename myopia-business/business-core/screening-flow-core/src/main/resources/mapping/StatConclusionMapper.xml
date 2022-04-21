@@ -4,8 +4,7 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion"></resultMap>
-    <!-- Vo查询映射结果 -->
-    <resultMap id="VoResultMap" type="com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionDTO"></resultMap>
+
     <!-- ExportVo查询映射结果 -->
     <resultMap id="ExportVoResultMap" type="com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionExportDTO">
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="vision_data" property="visionData" />
