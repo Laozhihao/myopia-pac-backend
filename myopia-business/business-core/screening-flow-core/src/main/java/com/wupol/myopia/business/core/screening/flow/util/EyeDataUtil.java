@@ -212,20 +212,6 @@ public class EyeDataUtil {
         return "--";
     }
 
-    /**
-     * 戴镜类型
-     * @param visionScreeningResult 筛查结果
-     * @return 戴镜类型
-     */
-    public static Integer glassesType(VisionScreeningResult visionScreeningResult){
-        if (visionScreeningResult!=null
-                &&visionScreeningResult.getVisionData()!=null
-                &&visionScreeningResult.getVisionData().getRightEyeData()!=null){
-
-            return visionScreeningResult.getVisionData().getRightEyeData().getGlassesType();
-        }
-        return null;
-    }
 
     /**
      * 左眼轴位
@@ -636,6 +622,15 @@ public class EyeDataUtil {
         return Optional.ofNullable(visionScreeningResult) .map(VisionScreeningResult::getCreateTime) .orElse(null);
     }
 
+    /**
+     * 戴镜类型
+     * @param visionScreeningResult 筛查结果
+     * @return 戴镜类型
+     */
+    public static Integer glassesType(VisionScreeningResult visionScreeningResult){
+        return Optional.ofNullable(visionScreeningResult) .map(VisionScreeningResult::getVisionData).map(VisionDataDO::getRightEyeData)
+                .map(VisionDataDO.VisionData::getGlassesType) .orElse(null);
+    }
 
 
 
