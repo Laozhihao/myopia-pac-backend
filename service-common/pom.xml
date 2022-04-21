@@ -143,6 +143,11 @@
             <artifactId>utils</artifactId>
             <version>${vistel.utils.version}</version>
         </dependency>
+        <!-- springboot 在2.3.0版本之后就没有引入validation对应的包，需要自行引入-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

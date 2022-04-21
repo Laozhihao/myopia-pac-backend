@@ -5,6 +5,7 @@ import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.constant.SchoolEnum;
 import com.wupol.myopia.business.core.school.domain.dto.SaveSchoolRequestDTO;
+import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
@@ -21,12 +22,14 @@ import com.wupol.myopia.migrate.service.SysStudentEyeService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -64,9 +67,9 @@ public class MigrateSchoolAndGradeClassService {
      *
      * @return com.wupol.myopia.migrate.domain.dos.SchoolAndGradeClassDO
      **/
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public SchoolAndGradeClassDO migrateSchoolAndGradeClass() {
-        log.info("====================  ......【1】开始-迁移-学校.....  ====================");
+        log.info("==  学校-开始.....  ==");
         Map<String, Integer> schoolMap = new HashMap<>(50);
         Map<String, Integer> gradeMap = new HashMap<>(200);
         Map<String, Integer> classMap = new HashMap<>(3000);
@@ -77,9 +80,7 @@ public class MigrateSchoolAndGradeClassService {
                 return;
             }
             // 迁移学校
-            SaveSchoolRequestDTO schoolDTO = getSaveSchoolRequestDTO(sysSchool);
-            schoolService.saveSchool(schoolDTO);
-            Integer schoolId = schoolDTO.getId();
+            Integer schoolId = saveSchool(sysSchool);
             String sysSchoolId = sysSchool.getSchoolId();
             schoolMap.put(sysSchoolId, schoolId);
             // 迁移年级、班级
@@ -99,8 +100,25 @@ public class MigrateSchoolAndGradeClassService {
                 classMap.putAll(newClassMap);
             });
         });
-        log.info("====================  ......【1】完成-迁移-学校.....  ====================");
+        log.info("==  学校-完成  ==");
         return new SchoolAndGradeClassDO(schoolMap, gradeMap, classMap);
+    }
+
+    /**
+     * 保存学校
+     *
+     * @param sysSchool 学校信息
+     * @return java.lang.Integer
+     **/
+    private Integer saveSchool(SysSchool sysSchool) {
+        // 存在同名的学校，则不新增
+        School school = schoolService.findOne(new School().setName(sysSchool.getName()));
+        if (Objects.nonNull(school)) {
+            return school.getId();
+        }
+        SaveSchoolRequestDTO schoolDTO = getSaveSchoolRequestDTO(sysSchool);
+        schoolService.saveSchool(schoolDTO);
+        return schoolDTO.getId();
     }
 
     /**

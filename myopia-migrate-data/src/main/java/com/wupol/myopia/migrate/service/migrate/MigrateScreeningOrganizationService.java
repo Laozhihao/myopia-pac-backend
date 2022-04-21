@@ -4,12 +4,14 @@ import com.alibaba.fastjson.JSON;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.device.domain.model.DeviceReportTemplate;
 import com.wupol.myopia.business.core.device.service.DeviceReportTemplateService;
 import com.wupol.myopia.business.core.device.service.ScreeningOrgBindDeviceReportService;
 import com.wupol.myopia.business.core.screening.organization.constant.ScreeningOrgConfigTypeEnum;
+import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationStaffQueryDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationStaff;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
@@ -31,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 迁移筛查机构数据
@@ -71,7 +74,7 @@ public class MigrateScreeningOrganizationService {
      **/
     @Transactional(rollbackFor = Exception.class)
     public List<ScreeningOrgAndStaffDO> migrateScreeningOrgAndScreeningStaff() {
-        log.info("====================  ......【2】开始-迁移-筛查机构.....  ====================");
+        log.info("==  筛查机构-开始.....  ==");
         List<SysDept> deptList = sysDeptService.findByList(new SysDept());
         List<ScreeningOrgAndStaffDO> screeningOrganizationList = new ArrayList<>();
         deptList.forEach(sysDept -> {
@@ -88,7 +91,7 @@ public class MigrateScreeningOrganizationService {
             screeningOrganizationList.add(packageScreeningOrgAndStaffDO(sysDept.getDeptId(), screeningOrganization.getId(), screeningOrganization.getName(),
                     screeningOrganization.getDistrictId(), screeningOrganizationStaff.getUserId()));
         });
-        log.info("====================  ......【2】完成-迁移-筛查机构.....  ====================");
+        log.info("==  筛查机构-完成  ==");
         return screeningOrganizationList;
     }
 
@@ -159,8 +162,10 @@ public class MigrateScreeningOrganizationService {
         if (StringUtils.isBlank(name)) {
             throw new BusinessException("名字不能为空");
         }
-        if (Boolean.TRUE.equals(screeningOrganizationService.checkScreeningOrgName(name, null))) {
-            throw new BusinessException("筛查机构名称不能重复");
+        // 存在同名的机构，则不新增
+        ScreeningOrganization existScreeningOrg = screeningOrganizationService.findOne(new ScreeningOrganization().setName(name));
+        if (Objects.nonNull(existScreeningOrg)) {
+            screeningOrganization = existScreeningOrg;
         }
         screeningOrganizationService.save(screeningOrganization);
         // 同步到oauth机构状态
@@ -169,6 +174,16 @@ public class MigrateScreeningOrganizationService {
         // 为筛查机构新增设备报告模板
         DeviceReportTemplate template = deviceReportTemplateService.getSortFirstTemplate();
         screeningOrgBindDeviceReportService.orgBindReportTemplate(template.getId(), screeningOrganization.getId(), screeningOrganization.getName());
-        screeningOrganizationService.generateAccountAndPassword(screeningOrganization, ScreeningOrganizationService.PARENT_ACCOUNT, null);
+        // 生成账号密码
+        UsernameAndPasswordDTO usernameAndPasswordDTO = screeningOrganizationService.generateAccountAndPassword(screeningOrganization, ScreeningOrganizationService.PARENT_ACCOUNT, null);
+        // 生成筛查人员
+        ScreeningOrganizationStaffQueryDTO screeningOrganizationStaffQueryDTO = new ScreeningOrganizationStaffQueryDTO();
+        screeningOrganizationStaffQueryDTO.setScreeningOrgId(screeningOrganization.getId());
+        screeningOrganizationStaffQueryDTO.setCreateUserId(1);
+        screeningOrganizationStaffQueryDTO.setGovDeptId(1);
+        screeningOrganizationStaffQueryDTO.setType(ScreeningOrganizationStaff.AUTO_CREATE_SCREENING_PERSONNEL);
+        screeningOrganizationStaffQueryDTO.setRealName(ScreeningOrganizationStaff.AUTO_CREATE_STAFF_DEFAULT_NAME);
+        screeningOrganizationStaffQueryDTO.setUserName(usernameAndPasswordDTO.getUsername());
+        screeningOrganizationStaffService.saveOrganizationStaff(screeningOrganizationStaffQueryDTO);
     }
 }

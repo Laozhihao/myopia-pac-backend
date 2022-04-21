@@ -16,6 +16,7 @@ import java.util.List;
  * TODO: 1.给表sys_student_eye表的dept_id字段加索引  2.上线后需要重置获取筛查机构、学校、筛查人员账号密码，修改筛查机构类型，新增筛查人员  3.创建时间一致性
  * TODO：4.学校补充街道、为其他类型的学校改为正确类型、修改学校属性（默认为公办）、片区（默认中片）、监测点（默认城区）
  * TODO：5.oauth和business建立分布式事务
+ * TODO：6.
  *
  * @Author HaoHao
  * @Date 2022/1/6
@@ -43,7 +44,7 @@ public class MigrateDataHandler {
      **/
     @Transactional(rollbackFor = Exception.class)
     public void migrateData() {
-        log.info("====================  开始-迁移数据.....  ====================");
+        log.info("==  开始-迁移数据.....  ==");
         // 1.迁移学校、年级、班级
         SchoolAndGradeClassDO schoolAndGradeClassDO = migrateSchoolAndGradeClassService.migrateSchoolAndGradeClass();
         // 2.迁移筛查机构、筛查人员
@@ -54,7 +55,7 @@ public class MigrateDataHandler {
         List<ScreeningDataDO> screeningDataList = migrateStudentService.migrateStudentByPlan(schoolAndGradeClassDO, planAndStudentList);
         // 5.迁移学生筛查数据
         migrateScreeningDataService.migrateScreeningDataBySchool(screeningDataList);
-        log.info("====================  完成-迁移数据-完成  ====================");
+        log.info("==  完成-迁移数据-完成  ==");
     }
 
 }
