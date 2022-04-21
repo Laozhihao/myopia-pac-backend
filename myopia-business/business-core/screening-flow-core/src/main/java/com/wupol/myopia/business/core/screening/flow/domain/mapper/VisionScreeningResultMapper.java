@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.screening.flow.domain.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.VisionScreeningResultDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import org.apache.ibatis.annotations.Param;
@@ -41,7 +42,7 @@ public interface VisionScreeningResultMapper extends BaseMapper<VisionScreeningR
 
     List<Integer> getBySchoolIdPlanId(@Param("planId") Integer planId);
 
-    List<VisionScreeningResult> getByStudentIdsAndPlanId(@Param("planId") Integer planId, @Param("studentIds") List<Integer> studentIds,@Param("screeningType") Integer screeningType);
+    List<VisionScreeningResult> getByStudentIdsAndPlanId(@Param("planId") Integer planId, @Param("studentIds") List<Integer> studentIds, @Param("isDoubleScreen") Integer isDoubleScreen);
 
     List<Integer> getByPlanIdAndSchoolId(@Param("planId") Integer planId, @Param("schoolId") Integer schoolId);
 
