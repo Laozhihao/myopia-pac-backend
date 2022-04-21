@@ -81,7 +81,7 @@ public class MigrateScreeningDataService {
             // 其他眼病
             migrateOtherEyeDiseases(schoolId, screeningOrgId, screeningStaffUserId, planStudentId, sysStudentEye);
 
-            // TODO：
+            // TODO：复测
         });
     }
 

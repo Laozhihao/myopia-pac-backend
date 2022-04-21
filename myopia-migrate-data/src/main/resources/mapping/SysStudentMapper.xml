@@ -59,4 +59,17 @@
         student_id, open_id, student_no, face_token, face_img, student_name, student_phone, id_card, birthday, sex, province, city, region, street, clan, address, school_adress, school_name, grade, clazz, create_time, update_time, school_id, dept_id, user_id, is_graduation, state, student_code, cache_key_school, review_state_school, review_state_grade, review_state_class, cache_key_grade, cache_key_class, review_state, review_body_state, review_body_state_school, review_body_state_grade, review_body_state_class, graduation_time
     </sql>
 
+    <select id="getAllGradeAndClassBySchoolId" parameterType="string" resultType="com.wupol.myopia.migrate.domain.model.SysGradeClass">
+        SELECT
+               grade,
+               clazz
+        FROM
+             sys_student
+        WHERE
+                school_id = #{schoolId}
+        GROUP BY
+                 grade,
+                 clazz
+    </select>
+
 </mapper>

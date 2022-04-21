@@ -16,9 +16,9 @@ import com.wupol.myopia.migrate.domain.dos.SchoolAndGradeClassDO;
 import com.wupol.myopia.migrate.domain.model.SysGradeClass;
 import com.wupol.myopia.migrate.domain.model.SysSchool;
 import com.wupol.myopia.migrate.domain.model.SysStudentEye;
-import com.wupol.myopia.migrate.service.SysGradeClassService;
 import com.wupol.myopia.migrate.service.SysSchoolService;
 import com.wupol.myopia.migrate.service.SysStudentEyeService;
+import com.wupol.myopia.migrate.service.SysStudentService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -50,8 +50,6 @@ public class MigrateSchoolAndGradeClassService {
     @Autowired
     private SysSchoolService sysSchoolService;
     @Autowired
-    private SysGradeClassService sysGradeClassService;
-    @Autowired
     private SysStudentEyeService sysStudentEyeService;
     @Autowired
     private SchoolService schoolService;
@@ -61,6 +59,8 @@ public class MigrateSchoolAndGradeClassService {
     private SchoolClassService schoolClassService;
     @Autowired
     private DistrictService districtService;
+    @Autowired
+    private SysStudentService sysStudentService;
 
     /**
      * 迁移学校、年级、班级数据
@@ -84,18 +84,17 @@ public class MigrateSchoolAndGradeClassService {
             String sysSchoolId = sysSchool.getSchoolId();
             schoolMap.put(sysSchoolId, schoolId);
             // 迁移年级、班级
-            List<SysGradeClass> gradeAndClassList = sysGradeClassService.findByList(new SysGradeClass().setSchoolId(sysSchoolId));
+            List<SysGradeClass> gradeAndClassList = sysStudentService.getAllGradeAndClassBySchoolId(sysSchoolId);
             Map<String, List<SysGradeClass>> gradeClassMap = gradeAndClassList.stream().collect(Collectors.groupingBy(SysGradeClass::getGrade));
             gradeClassMap.forEach((gradeName, classList) -> {
                 // 年级
-                SchoolGrade schoolGrade = new SchoolGrade().setSchoolId(schoolId).setName(gradeName).setCreateUserId(1).setGradeCode(GradeCodeEnum.getCodeBySort(classList.get(0).getSort()));
-                schoolGradeService.save(schoolGrade);
-                gradeMap.put(sysSchoolId + gradeName, schoolGrade.getId());
+                Integer gradeId = saveGrade(schoolId, gradeName);
+                gradeMap.put(sysSchoolId + gradeName, gradeId);
                 // 班级
                 List<SchoolClass> schoolClassList = classList.stream()
-                        .map(x -> new SchoolClass().setSchoolId(schoolId).setCreateUserId(1).setGradeId(schoolGrade.getId()).setName(x.getClazz()).setSeatCount(x.getClazzNum().intValue()))
+                        .map(x -> new SchoolClass().setSchoolId(schoolId).setCreateUserId(1).setGradeId(gradeId).setName(x.getClazz()))
                         .collect(Collectors.toList());
-                schoolClassService.saveBatch(schoolClassList);
+                schoolClassService.saveOrUpdateBatch(schoolClassList);
                 Map<String, Integer> newClassMap = schoolClassList.stream().collect(Collectors.toMap(x -> sysSchoolId + gradeName + x.getName(), SchoolClass::getId));
                 classMap.putAll(newClassMap);
             });
@@ -119,6 +118,27 @@ public class MigrateSchoolAndGradeClassService {
         SaveSchoolRequestDTO schoolDTO = getSaveSchoolRequestDTO(sysSchool);
         schoolService.saveSchool(schoolDTO);
         return schoolDTO.getId();
+    }
+
+    /**
+     * 保存年级
+     *
+     * @param schoolId 学校ID
+     * @param gradeName 年级名称
+     * @return java.lang.Integer
+     **/
+    private Integer saveGrade(Integer schoolId, String gradeName) {
+        SchoolGrade existGrade = schoolGradeService.findOne(new SchoolGrade().setSchoolId(schoolId).setName(gradeName));
+        if (Objects.nonNull(existGrade)) {
+            return existGrade.getId();
+        }
+        SchoolGrade schoolGrade = new SchoolGrade()
+                .setSchoolId(schoolId)
+                .setName(gradeName)
+                .setCreateUserId(1)
+                .setGradeCode(GradeCodeEnum.getByName(gradeName).getCode());
+        schoolGradeService.save(schoolGrade);
+        return schoolGrade.getId();
     }
 
     /**

@@ -15,7 +15,8 @@ import java.util.List;
  * @author Simple4H
  */
 public enum SchoolAge {
-    /** 学龄 */
+
+    UNKNOWN(-1, "未知"),
     KINDERGARTEN(5, "幼儿园"),
     PRIMARY(0, "小学"),
     JUNIOR(1, "初中"),
@@ -47,7 +48,7 @@ public enum SchoolAge {
         return Arrays.stream(SchoolAge.values())
                 .filter(item -> item.code.equals(code))
                 .findFirst()
-                .orElse(null);
+                .orElse(UNKNOWN);
     }
 
     /**
