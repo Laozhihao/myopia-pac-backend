@@ -28,6 +28,25 @@ public class VisionScreeningResult implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
+     * 复测
+     */
+    public static final Integer RETEST = 1;
+
+    /**
+     * 不是复测
+     */
+    public static final Integer NOT_RETEST = 0;
+
+    /**
+     * 视力筛查
+     */
+    public static final Integer VISION_SCREENINGTYPE = 0;
+    /**
+     * 常见病筛查
+     */
+    public static final Integer COMMON_DISEASES_SCREENINGTYPE = 1;
+
+    /**
      * 主键id
      */
     @TableId(value = "id", type = IdType.AUTO)

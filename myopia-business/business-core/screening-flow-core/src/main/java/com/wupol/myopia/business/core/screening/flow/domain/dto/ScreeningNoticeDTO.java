@@ -19,7 +19,7 @@ public class ScreeningNoticeDTO extends ScreeningNotice {
     private Integer acceptOrgId;
     /** 筛查通知--对应的screeningNoticeDeptOrgId*/
     private Integer screeningNoticeDeptOrgId;
-    /** 筛查通知--操作状态（0未读 1 是已读 2是已创建）*/
+    /** 筛查通知--操作状态（（0未发布 1 已发布 2 未创建 3已创建）*/
     private Integer operationStatus;
     /** 行政区域名称 */
     private String districtName;
@@ -27,4 +27,8 @@ public class ScreeningNoticeDTO extends ScreeningNotice {
     private String govDeptName;
     /** 筛查通知--该通知对应的筛查任务或筛查计划ID */
     private Integer screeningTaskPlanId;
+    /**
+     * 是否为自己创建（0否 ，1是）
+     */
+    private Integer isSelfRelease;
 }
