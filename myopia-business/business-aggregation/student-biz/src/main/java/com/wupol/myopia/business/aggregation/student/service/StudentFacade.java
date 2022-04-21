@@ -298,24 +298,26 @@ public class StudentFacade {
         int mFountPermanent = 0;
         int fFountPermanent = 0;
         for (SaprodontiaDataDO.SaprodontiaItem item: items){
-            if (item.getDeciduous().equals(SaprodontiaType.D)){
-                dCountDeciduous++;
-            }
-            if (item.getDeciduous().equals(SaprodontiaType.M)){
-                mCountDeciduous++;
-            }
-            if (item.getDeciduous().equals(SaprodontiaType.F)){
-                fFountDeciduous++;
-            }
+            if (item!=null){
+                if (item.getDeciduous().equals(SaprodontiaType.D)){
+                    dCountDeciduous++;
+                }
+                if (item.getDeciduous().equals(SaprodontiaType.M)){
+                    mCountDeciduous++;
+                }
+                if (item.getDeciduous().equals(SaprodontiaType.F)){
+                    fFountDeciduous++;
+                }
 
-            if (item.getPermanent().equals(SaprodontiaType.D)){
-                dFountPermanent++;
-            }
-            if (item.getPermanent().equals(SaprodontiaType.M)){
-                mFountPermanent++;
-            }
-            if (item.getPermanent().equals(SaprodontiaType.F)){
-                fFountPermanent++;
+                if (item.getPermanent().equals(SaprodontiaType.D)){
+                    dFountPermanent++;
+                }
+                if (item.getPermanent().equals(SaprodontiaType.M)){
+                    mFountPermanent++;
+                }
+                if (item.getPermanent().equals(SaprodontiaType.F)){
+                    fFountPermanent++;
+                }
             }
         }
 
