@@ -25,5 +25,6 @@
         <if test="screeningTime != null">
             and DATE(screening_time) = DATE(#{screeningTime})
         </if>
+        and create_time <![CDATA[ <= ]]> #{createTime}
     </select>
 </mapper>
