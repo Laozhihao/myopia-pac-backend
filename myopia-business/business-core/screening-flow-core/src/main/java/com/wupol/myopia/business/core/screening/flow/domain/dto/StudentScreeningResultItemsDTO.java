@@ -15,11 +15,6 @@ import java.util.List;
 @Setter
 public class StudentScreeningResultItemsDTO {
 
-    /**
-     * 详情
-     */
-//    private List<StudentResultDetailsDTO> details;
-
     private ScreeningInfoDTO details;
 
 
@@ -101,5 +96,9 @@ public class StudentScreeningResultItemsDTO {
      * 筛查机构名称
      */
     private String screeningOrgName;
+    /**
+     * 性别
+     */
+    private Integer gender;
 
 }
