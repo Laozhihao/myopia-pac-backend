@@ -283,7 +283,8 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         List<VisionScreeningResult> updateResultList = new ArrayList<>();
         List<StatConclusion> updateStatConclusionList = new ArrayList<>();
 
-        Map<Integer, VisionScreeningResult> visionMap = resultList.stream()
+        // 过滤掉复筛的数据
+        Map<Integer, VisionScreeningResult> visionMap = resultList.stream().filter(result->!result.getIsDoubleScreen())
                 .collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
         planStudents.forEach(planStudent -> {
             VisionScreeningResult result = visionMap.get(planStudent.getId());
