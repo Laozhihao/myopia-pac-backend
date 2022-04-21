@@ -24,7 +24,9 @@ import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.constant.StatClassLabel;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.*;
+import com.wupol.myopia.business.core.screening.flow.domain.vo.ReScreeningCardVO;
 import com.wupol.myopia.business.core.screening.flow.service.*;
+import com.wupol.myopia.business.core.screening.flow.util.ReScreenCardUtil;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.stat.domain.dto.WarningInfo;
@@ -1217,7 +1219,7 @@ public class StatService {
                     .setQualityControllerCommander(qualityControllerCommander)
                     .setOrgName(orgName)
                     .setSchoolName(schoolName)
-                    .setCardList(abc(groupDate, rrvo.getScreeningTime()));
+                    .setCardList(generateReScreenResultCard(groupDate, rrvo.getScreeningTime(), qualityControllerName));
             rrvos.add(rrvo);
         });
         return rrvos;
@@ -1288,18 +1290,19 @@ public class StatService {
     }
 
     /**
-     * 组装筛查检测卡
+     * 组装筛查复测卡
      *
      * @param groupDate     分组时间
      * @param screeningTime 筛查时间
      * @return 检测卡
      */
-    private List<Object> abc(Map<String, List<VisionScreeningResult>> groupDate, Date screeningTime) {
+    private List<ReScreeningCardVO> generateReScreenResultCard(Map<String, List<VisionScreeningResult>> groupDate, Date screeningTime, String qualityControllerName) {
         // 获取日期当天的数据
         List<VisionScreeningResult> resultList = groupDate.get(DateUtil.formatDate(screeningTime));
         if (CollectionUtils.isEmpty(resultList)) {
             return new ArrayList<>();
         }
+        List<ReScreeningCardVO> reScreeningCardVO = new ArrayList<>();
 
         // 获取复筛数据
         List<VisionScreeningResult> reScreenResults = resultList.stream().filter(VisionScreeningResult::getIsDoubleScreen).collect(Collectors.toList());
@@ -1310,9 +1313,9 @@ public class StatService {
 
         reScreenResults.forEach(reScreenResult -> {
             VisionScreeningResult first = screeningResultMap.get(reScreenResult.getScreeningPlanSchoolStudentId());
-
+            reScreeningCardVO.add(ReScreenCardUtil.reScreenResultCard(first, reScreenResult, qualityControllerName));
         });
-        return new ArrayList<>();
+        return reScreeningCardVO;
     }
 
 }

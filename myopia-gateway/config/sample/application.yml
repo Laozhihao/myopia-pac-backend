@@ -142,3 +142,4 @@ white-list:
   - "/api/getUserInfo"
   - "/api/fkr710/upload"
   - "/management/screeningPlan/review/getExportData"
+  - "/management/stat/rescreen/export"
