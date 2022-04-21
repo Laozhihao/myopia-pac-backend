@@ -107,7 +107,7 @@ public class ScreeningInfoDTO {
                 /**
                  * 是否错误
                  */
-                private int type;
+                private boolean type;
             }
 
         }

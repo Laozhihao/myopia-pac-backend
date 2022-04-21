@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.business.aggregation.student.constant.VisionScreeningConst;
 import com.wupol.myopia.business.aggregation.student.domain.vo.VisionInfoVO;
 import com.wupol.myopia.business.common.utils.constant.*;
@@ -127,7 +128,7 @@ public class StudentFacade {
             qualityControlName = screeningPlanSchools.get(0).getQualityControllerName();
         }
 
-        return ReScreeningCardUtil.retestResultCard(screeningResult,retestResult,qualityControlName);
+        return ReScreeningCardUtil.reScreenResultCard(screeningResult,retestResult,qualityControlName);
     }
 
 
@@ -249,7 +250,7 @@ public class StudentFacade {
         reScreeningResult.setGlassesTypeDesc(GlassesTypeEnum.getDescByCode(EyeDataUtil.glassesType(reScreening)));
 
         ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation rightNakedVision = new  ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation();
-        int rightNakedVisionType = ReScreeningCardUtil.isDeviation(EyeDataUtil.rightNakedVision(result),
+        boolean rightNakedVisionType = BigDecimalUtil.isDeviation(EyeDataUtil.rightNakedVision(result),
                 EyeDataUtil.rightNakedVision(reScreening),new BigDecimal(ReScreeningConstant.VISION_DEVIATION));
         deviationCount = getDeviationCount(deviationCount, rightNakedVisionType);
 
@@ -259,7 +260,7 @@ public class StudentFacade {
 
         ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation leftNakedVision = new  ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation();
 
-        int leftNakedVisionType = ReScreeningCardUtil.isDeviation(EyeDataUtil.leftNakedVision(result),
+        boolean leftNakedVisionType = BigDecimalUtil.isDeviation(EyeDataUtil.leftNakedVision(result),
                 EyeDataUtil.leftNakedVision(reScreening),new BigDecimal(ReScreeningConstant.VISION_DEVIATION));
         deviationCount = getDeviationCount(deviationCount, leftNakedVisionType);
 
@@ -268,7 +269,7 @@ public class StudentFacade {
         reScreeningResult.setLeftNakedVision(leftNakedVision);
 
         ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation rightCorrectedVision = new  ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation();
-        int rightCorrectedVisionType = ReScreeningCardUtil.isDeviation(EyeDataUtil.rightCorrectedVision(result),
+        boolean rightCorrectedVisionType = BigDecimalUtil.isDeviation(EyeDataUtil.rightCorrectedVision(result),
                 EyeDataUtil.rightCorrectedVision(reScreening),new BigDecimal(ReScreeningConstant.VISION_DEVIATION));
         deviationCount = getDeviationCount(deviationCount, rightCorrectedVisionType);
 
@@ -277,7 +278,7 @@ public class StudentFacade {
         reScreeningResult.setRightCorrectedVision(rightCorrectedVision);
 
         ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation leftCorrectedVision = new  ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation();
-        int leftCorrectedVisionType =ReScreeningCardUtil.isDeviation(EyeDataUtil.leftCorrectedVision(result),
+        boolean leftCorrectedVisionType =BigDecimalUtil.isDeviation(EyeDataUtil.leftCorrectedVision(result),
                 EyeDataUtil.leftCorrectedVision(reScreening),new BigDecimal(ReScreeningConstant.VISION_DEVIATION));
         deviationCount = getDeviationCount(deviationCount, leftCorrectedVisionType);
 
@@ -286,7 +287,7 @@ public class StudentFacade {
         reScreeningResult.setLeftCorrectedVision(leftCorrectedVision);
 
         ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation rightSph = new  ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation();
-        int rightSphType = ReScreeningCardUtil.isDeviation(EyeDataUtil.rightSph(result),
+        boolean rightSphType = BigDecimalUtil.isDeviation(EyeDataUtil.rightSph(result),
                 EyeDataUtil.rightSph(reScreening),new BigDecimal(ReScreeningConstant.COMPUTEROPTOMETRY_DEVIATION));
         deviationCount = getDeviationCount(deviationCount, rightSphType);
 
@@ -295,7 +296,7 @@ public class StudentFacade {
         reScreeningResult.setRightSph(rightSph);
 
         ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation rightCyl = new  ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation();
-        int rightCylType = ReScreeningCardUtil.isDeviation(EyeDataUtil.rightCyl(result),
+        boolean rightCylType = BigDecimalUtil.isDeviation(EyeDataUtil.rightCyl(result),
                 EyeDataUtil.rightCyl(reScreening),new BigDecimal(ReScreeningConstant.COMPUTEROPTOMETRY_DEVIATION));
         deviationCount = getDeviationCount(deviationCount, rightCylType);
 
@@ -304,7 +305,7 @@ public class StudentFacade {
         reScreeningResult.setRightCyl(rightCyl);
 
         ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation rightAxial = new  ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation();
-        int rightAxialType = ReScreeningCardUtil.isDeviation(EyeDataUtil.rightAxial(result),
+        boolean rightAxialType = BigDecimalUtil.isDeviation(EyeDataUtil.rightAxial(result),
                 EyeDataUtil.rightAxial(reScreening),new BigDecimal(ReScreeningConstant.COMPUTEROPTOMETRY_DEVIATION));
         deviationCount = getDeviationCount(deviationCount, rightAxialType);
 
@@ -313,7 +314,7 @@ public class StudentFacade {
         reScreeningResult.setRightAxial(rightAxial);
 
         ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation leftSph = new  ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation();
-        int leftSphType = ReScreeningCardUtil.isDeviation(EyeDataUtil.leftSph(result),
+        boolean leftSphType = BigDecimalUtil.isDeviation(EyeDataUtil.leftSph(result),
                 EyeDataUtil.leftSph(reScreening),new BigDecimal(ReScreeningConstant.COMPUTEROPTOMETRY_DEVIATION));
         deviationCount = getDeviationCount(deviationCount, leftSphType);
 
@@ -322,7 +323,7 @@ public class StudentFacade {
         reScreeningResult.setLeftSph(leftSph);
 
         ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation leftCyl = new  ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation();
-        int leftCylType = ReScreeningCardUtil.isDeviation(EyeDataUtil.leftCyl(result),
+        boolean leftCylType = BigDecimalUtil.isDeviation(EyeDataUtil.leftCyl(result),
                 EyeDataUtil.leftCyl(reScreening),new BigDecimal(ReScreeningConstant.COMPUTEROPTOMETRY_DEVIATION));
         deviationCount = getDeviationCount(deviationCount, leftCylType);
 
@@ -331,7 +332,7 @@ public class StudentFacade {
         reScreeningResult.setLeftCyl(leftCyl);
 
         ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation leftAxial = new  ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation();
-        int leftAxialType = ReScreeningCardUtil.isDeviation(EyeDataUtil.leftAxial(result),
+        boolean leftAxialType = BigDecimalUtil.isDeviation(EyeDataUtil.leftAxial(result),
                 EyeDataUtil.leftAxial(reScreening),new BigDecimal(ReScreeningConstant.COMPUTEROPTOMETRY_DEVIATION));
         deviationCount = getDeviationCount(deviationCount, leftAxialType);
 
@@ -340,7 +341,7 @@ public class StudentFacade {
         reScreeningResult.setLeftAxial(leftAxial);
 
         ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation height = new  ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation();
-        int heightType = ReScreeningCardUtil.isDeviation(EyeDataUtil.height(result),
+        boolean heightType = BigDecimalUtil.isDeviation(EyeDataUtil.height(result),
                 EyeDataUtil.height(reScreening),new BigDecimal(ReScreeningConstant.HEIGHT_DEVIATION));
         deviationCount = getDeviationCount(deviationCount, heightType);
 
@@ -349,7 +350,7 @@ public class StudentFacade {
         reScreeningResult.setHeight(height);
 
         ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation weight = new  ScreeningInfoDTO.Rescreening.ReScreeningResult.ScreeningDeviation();
-        int weightType = ReScreeningCardUtil.isDeviation(EyeDataUtil.weight(result),
+        boolean weightType = BigDecimalUtil.isDeviation(EyeDataUtil.weight(result),
                 EyeDataUtil.weight(reScreening), new BigDecimal(ReScreeningConstant.WEIGHT_DEVIATION));
         deviationCount = getDeviationCount(deviationCount, weightType);
 
@@ -372,8 +373,8 @@ public class StudentFacade {
      * @param type 1：错误 0 没有错误
      * @return
      */
-    private int getDeviationCount(int deviationCount, int type) {
-        if (type ==1 ){
+    private int getDeviationCount(int deviationCount, boolean type) {
+        if (type ){
             deviationCount++;
         }
         return deviationCount;
