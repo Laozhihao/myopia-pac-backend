@@ -491,7 +491,7 @@ public class EyeDataUtil {
 
     /**
      * 判断右眼球镜
-     * @param visionScreeningResult 筛查结果
+     * @param visionScreenResult 筛查结果
      * @return 右眼球镜
      */
     public static BigDecimal rightSph(VisionScreeningResult visionScreenResult) {
@@ -500,7 +500,7 @@ public class EyeDataUtil {
     }
     /**
      * 判断右眼柱镜
-     * @param visionScreeningResult 筛查结果
+     * @param visionScreenResult 筛查结果
      * @return 右眼柱镜
      */
     public static BigDecimal rightCyl(VisionScreeningResult visionScreenResult) {
@@ -557,7 +557,7 @@ public class EyeDataUtil {
 
     /**
      * 判断左眼轴位
-     * @param visionScreeningResult 筛查结果
+     * @param visionScreenResult 筛查结果
      * @return 体重
      */
     public static BigDecimal weight(VisionScreeningResult visionScreenResult) {
@@ -591,7 +591,7 @@ public class EyeDataUtil {
 
     /**
      * 身高/体重误差说明
-     * @param visionScreeningResult 筛查结果
+     * @param visionScreenResult 筛查结果
      * @return 身高/体重误差说明
      */
     public static String heightWeightDeviationRemark(VisionScreeningResult visionScreenResult) {
@@ -601,7 +601,7 @@ public class EyeDataUtil {
 
     /**
      * 误差结果
-     * @param visionScreeningResult 筛查结果
+     * @param visionScreenResult 筛查结果
      * @return 误差结果
      */
     public static DeviationDO deviationData(VisionScreeningResult visionScreenResult) {
@@ -610,7 +610,7 @@ public class EyeDataUtil {
 
     /**
      * 创建时间
-     * @param visionScreeningResult 筛查结果
+     * @param visionScreenResult 筛查结果
      * @return 创建时间
      */
     public static Date createTime(VisionScreeningResult visionScreenResult) {
@@ -619,7 +619,7 @@ public class EyeDataUtil {
 
     /**
      * 戴镜类型
-     * @param visionScreeningResult 筛查结果
+     * @param visionScreenResult 筛查结果
      * @return 戴镜类型
      */
     public static Integer glassesType(VisionScreeningResult visionScreenResult){
