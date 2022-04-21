@@ -70,34 +70,39 @@ public class StatSchoolService {
         // 获取当前层级下，所有参与任务的学校
         ScreeningNotice screeningNotice = screeningNoticeService.getReleasedNoticeById(noticeId);
         List<Integer> districtIds = districtService.getSpecificDistrictTreeAllDistrictIds(districtId);
-        List<ScreeningResultStatistic> screeningResultStatistics = getStatisticByNoticeIdAndDistrictId(noticeId, user, districtIds);
+        List<ScreeningResultStatistic> screeningResultStatistics = getStatisticByNoticeIdAndDistrictId(noticeId, user, districtIds,true);
         return getSchoolKindergartenResultVO(screeningResultStatistics,screeningNotice);
     }
 
     /**
      * 根据通知ID和区域ID获取筛查结果统计
      */
-    private List<ScreeningResultStatistic> getStatisticByNoticeIdAndDistrictId(Integer noticeId, CurrentUser user, List<Integer> districtIds){
+    private List<ScreeningResultStatistic> getStatisticByNoticeIdAndDistrictId(Integer noticeId, CurrentUser user, List<Integer> districtIds,boolean isKindergarten){
         if(ObjectsUtil.allNull(noticeId,user)){
             return Lists.newArrayList();
         }
         if(user.isGovDeptUser()){
             List<ScreeningPlan> screeningPlans = screeningPlanService.getAllPlanByNoticeId(noticeId);
-            return getStatisticByPlanIdsAndDistrictId(screeningPlans, districtIds);
+            return getStatisticByPlanIdsAndDistrictId(screeningPlans, districtIds,isKindergarten);
         }
 
         if (user.isScreeningUser() || (user.isHospitalUser() && (Objects.nonNull(user.getScreeningOrgId())))) {
             LambdaQueryWrapper<ScreeningResultStatistic> queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.eq(ScreeningResultStatistic::getScreeningNoticeId, noticeId);
-            queryWrapper.eq(ScreeningResultStatistic::getScreeningOrgId, user.getScreeningOrgId());
+            queryWrapper.eq(ScreeningResultStatistic::getScreeningNoticeId, noticeId)
+                    .eq(ScreeningResultStatistic::getScreeningOrgId, user.getScreeningOrgId())
+                    .in(ScreeningResultStatistic::getSchoolType,getSchoolType(isKindergarten));
             return screeningResultStatisticService.list(queryWrapper);
         }
 
         Set<Integer> noticeIds = new HashSet<>();
         noticeIds.add(noticeId);
         List<ScreeningPlan> screeningPlans = managementScreeningPlanBizService.getScreeningPlanByNoticeIdsAndUser(noticeIds, user);
-        return getStatisticByPlanIdsAndDistrictId(screeningPlans, districtIds);
+        return getStatisticByPlanIdsAndDistrictId(screeningPlans, districtIds,isKindergarten);
     }
+    private List<Integer> getSchoolType(boolean isKindergarten) {
+        return isKindergarten?Lists.newArrayList(8):Lists.newArrayList(0,1,2,3,4,5,6,7);
+    }
+
 
     /**
      * 按学校-获取幼儿园数据-筛查计划
@@ -110,14 +115,14 @@ public class StatSchoolService {
         ScreeningPlan screeningPlan = screeningPlanService.getById(planId);
         ScreeningNotice screeningNotice = screeningNoticeService.getById(screeningPlan.getSrcScreeningNoticeId());
         List<Integer> districtIds = districtService.getSpecificDistrictTreeAllDistrictIds(districtId);
-        List<ScreeningResultStatistic> screeningResultStatistics = getStatisticByPlanIdsAndDistrictId(Lists.newArrayList(screeningPlan), districtIds);
+        List<ScreeningResultStatistic> screeningResultStatistics = getStatisticByPlanIdsAndDistrictId(Lists.newArrayList(screeningPlan), districtIds,true);
         return getSchoolKindergartenResultVO(screeningResultStatistics,screeningNotice);
     }
 
     /**
      * 根据筛查计划ID和区域ID获取筛查结果统计
      */
-    private List<ScreeningResultStatistic> getStatisticByPlanIdsAndDistrictId(List<ScreeningPlan> screeningPlans, List<Integer> districtIds) {
+    private List<ScreeningResultStatistic> getStatisticByPlanIdsAndDistrictId(List<ScreeningPlan> screeningPlans, List<Integer> districtIds,boolean isKindergarten) {
         List<Integer> screeningOrgIds = screeningPlans.stream().map(ScreeningPlan::getScreeningOrgId).distinct().collect(Collectors.toList());
         List<Integer> planIds = screeningPlans.stream().map(ScreeningPlan::getId).distinct().collect(Collectors.toList());
         if (CollectionUtils.isEmpty(screeningOrgIds)) {
@@ -128,7 +133,8 @@ public class StatSchoolService {
             LambdaQueryWrapper<ScreeningResultStatistic> query = new LambdaQueryWrapper<>();
             query.in(CollectionUtils.isNotEmpty(districtIds), ScreeningResultStatistic::getDistrictId, districtIds)
                     .in(ScreeningResultStatistic::getScreeningPlanId, planIds)
-                    .in(ScreeningResultStatistic::getScreeningOrgId, screeningOrgIdList);
+                    .in(ScreeningResultStatistic::getScreeningOrgId, screeningOrgIdList)
+                    .in(ScreeningResultStatistic::getSchoolType,getSchoolType(isKindergarten));;
             statistics.addAll(screeningResultStatisticService.list(query));
         });
         return statistics;
@@ -186,7 +192,7 @@ public class StatSchoolService {
         // 获取当前层级下，所有参与任务的学校
         ScreeningNotice screeningNotice = screeningNoticeService.getReleasedNoticeById(noticeId);
         List<Integer> districtIds = districtService.getSpecificDistrictTreeAllDistrictIds(districtId);
-        List<ScreeningResultStatistic> screeningResultStatistics = getStatisticByNoticeIdAndDistrictId(noticeId, user, districtIds);
+        List<ScreeningResultStatistic> screeningResultStatistics = getStatisticByNoticeIdAndDistrictId(noticeId, user, districtIds,false);
         return getSchoolPrimarySchoolAndAboveResultVO(screeningResultStatistics,screeningNotice);
     }
 
@@ -204,7 +210,7 @@ public class StatSchoolService {
         ScreeningNotice screeningNotice = screeningNoticeService.getById(screeningPlan.getSrcScreeningNoticeId());
         List<Integer> districtIds = districtService.getSpecificDistrictTreeAllDistrictIds(districtId);
 
-        List<ScreeningResultStatistic> screeningResultStatistics = getStatisticByPlanIdsAndDistrictId(Lists.newArrayList(screeningPlan), districtIds);
+        List<ScreeningResultStatistic> screeningResultStatistics = getStatisticByPlanIdsAndDistrictId(Lists.newArrayList(screeningPlan), districtIds,false);
         return getSchoolPrimarySchoolAndAboveResultVO(screeningResultStatistics,screeningNotice);
     }
 

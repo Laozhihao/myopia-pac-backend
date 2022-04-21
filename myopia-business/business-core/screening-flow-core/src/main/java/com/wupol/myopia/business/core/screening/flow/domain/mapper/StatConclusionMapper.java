@@ -31,16 +31,6 @@ public interface StatConclusionMapper extends BaseMapper<StatConclusion> {
      */
     List<StatConclusion> listByQuery(StatConclusionQueryDTO query);
 
-    /**
-     * 根据筛查计划ID获取Vo列表
-     *
-     * @param screeningPlanId
-     * @return
-     */
-    List<StatConclusionDTO> selectVoByScreeningPlanId(@Param("screeningPlanId") Integer screeningPlanId);
-
-    List<StatConclusionDTO> selectVoByScreeningPlanIds(@Param("screeningPlanIds") List<Integer> screeningPlanIds);
-
     List<StatConclusionExportDTO> selectExportVoByScreeningNoticeIdAndDistrictIds(@Param("screeningNoticeId") Integer screeningNoticeId, @Param("districtIds") List<Integer> districtIds);
 
     List<screeningPlanSchoolStudentDTO> selectExportVoByScreeningNoticeIdAndDistrictIdsAndGroupBy(@Param("screeningNoticeId") Integer screeningNoticeId, @Param("districtIds") List<Integer> districtIds);

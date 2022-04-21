@@ -1,13 +1,11 @@
 package com.wupol.myopia.business.api.management.domain.bo;
 
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 统计结果流转实体
@@ -20,9 +18,14 @@ public class StatisticResultBO implements Serializable {
 
 
     /**
-     * 筛查通知
+     * 筛查通知ID
      */
-    private ScreeningNotice screeningNotice;
+    private Integer screeningNoticeId;
+
+    /**
+     * 筛查类型
+     */
+    private Integer screeningType;
 
     /**
      * 区域ID

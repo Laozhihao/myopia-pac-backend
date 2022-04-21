@@ -134,10 +134,6 @@ public class ScheduledTasksExecutor {
         schoolStatisticTask.schoolStatistics(screeningPlanIds);
     }
 
-    public void statConclusionData(String date){
-
-    }
-
     /**
      * 根据筛查计划ID进行筛查统计
      *
