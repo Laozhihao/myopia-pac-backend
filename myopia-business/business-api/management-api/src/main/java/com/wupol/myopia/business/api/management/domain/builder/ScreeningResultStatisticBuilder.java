@@ -1,8 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.builder;
 
-import com.google.common.collect.Lists;
 import com.wupol.myopia.business.common.utils.constant.MyopiaLevelEnum;
-import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.constant.WarningLevel;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
 import com.wupol.myopia.business.core.school.constant.SchoolEnum;
@@ -31,117 +29,6 @@ import java.util.stream.Collectors;
 @UtilityClass
 public class ScreeningResultStatisticBuilder {
 
-    /**
-     * 按区域 - 视力筛查数据统计
-     */
-    public static List<VisionScreeningResultStatistic> buildVisionScreening(Integer screeningNoticeId, Integer screeningTaskId,Integer screeningPlanId,
-                                                                            Integer districtId, Boolean isTotal, Integer planScreeningNum,
-                                                                            List<StatConclusion> totalStatConclusions) {
-
-        List<VisionScreeningResultStatistic> visionScreeningResultStatisticList= Lists.newArrayList();
-        //幼儿园
-        List<StatConclusion> kindergarten = totalStatConclusions.stream().filter(sc -> Objects.equals(SchoolAge.KINDERGARTEN.code, sc.getSchoolAge())).collect(Collectors.toList());
-        kindergartenVisionScreening(screeningNoticeId, screeningTaskId, screeningPlanId,districtId, isTotal, planScreeningNum, kindergarten,visionScreeningResultStatisticList);
-
-        //小学及以上
-        List<StatConclusion> primarySchoolAndAbove = totalStatConclusions.stream().filter(sc -> !Objects.equals(SchoolAge.KINDERGARTEN.code, sc.getSchoolAge())).collect(Collectors.toList());
-        primarySchoolAndAboveVisionScreening(screeningNoticeId, screeningTaskId, districtId, isTotal, planScreeningNum, primarySchoolAndAbove,visionScreeningResultStatisticList);
-
-        return visionScreeningResultStatisticList;
-    }
-
-    /**
-     * 按区域 - 幼儿园视力筛查数据统计
-     */
-    private static void kindergartenVisionScreening(
-            Integer screeningNoticeId, Integer screeningTaskId,Integer screeningPlanId,
-            Integer districtId, Boolean isTotal,Integer planScreeningNum,
-            List<StatConclusion> totalStatConclusions,
-            List<VisionScreeningResultStatistic> visionScreeningResultStatisticList){
-
-        //有效数据（初筛数据完整性判断）
-        Map<Boolean, List<StatConclusion>> isValidMap = totalStatConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getIsValid));
-
-        //复测数据
-        Map<Boolean, List<StatConclusion>> isRescreenTotalMap = totalStatConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getIsRescreen));
-
-        //纳入统计数据
-        List<StatConclusion> validStatConclusions = isValidMap.getOrDefault(Boolean.TRUE, Collections.emptyList());
-        Map<Boolean, List<StatConclusion>> isRescreenMap = validStatConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getIsRescreen));
-
-        Integer realScreeningStudentNum = isRescreenTotalMap.getOrDefault(Boolean.FALSE, Collections.emptyList()).size();
-
-        VisionScreeningResultStatistic statistic = new VisionScreeningResultStatistic();
-        statistic.setScreeningNoticeId(screeningNoticeId)
-                .setScreeningTaskId(screeningTaskId)
-                .setScreeningPlanId(screeningPlanId)
-                .setDistrictId(districtId)
-                .setIsTotal(isTotal)
-                .setFinishRatio(MathUtil.divide(realScreeningStudentNum, planScreeningNum))
-                .setPlanScreeningNum(planScreeningNum)
-                .setRealScreeningNum(realScreeningStudentNum);
-        visionScreeningResultStatisticList.add(statistic);
-
-    }
-
-    /**
-     * 按区域 - 小学及以上视力筛查数据统计
-     */
-    private static void primarySchoolAndAboveVisionScreening(Integer screeningNoticeId, Integer screeningTaskId,
-                                                                                       Integer districtId, Boolean isTotal,Integer planScreeningNum,
-                                                                                       List<StatConclusion> totalStatConclusions,
-                                                                                       List<VisionScreeningResultStatistic> visionScreeningResultStatisticList){
-        //有效数据（初筛数据完整性判断）
-        Map<Boolean, List<StatConclusion>> isValidMap = totalStatConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getIsValid));
-
-        //复测数据
-        Map<Boolean, List<StatConclusion>> isRescreenTotalMap = totalStatConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getIsRescreen));
-
-        //纳入统计数据
-        List<StatConclusion> validStatConclusions = isValidMap.getOrDefault(Boolean.TRUE, Collections.emptyList());
-        Map<Boolean, List<StatConclusion>> isRescreenMap = validStatConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getIsRescreen));
-
-        Integer realScreeningStudentNum = isRescreenTotalMap.getOrDefault(Boolean.FALSE, Collections.emptyList()).size();
-
-        VisionScreeningResultStatistic statistic = new VisionScreeningResultStatistic();
-        statistic.setScreeningNoticeId(screeningNoticeId)
-                .setScreeningTaskId(screeningTaskId)
-                .setDistrictId(districtId)
-                .setIsTotal(isTotal)
-                .setFinishRatio(MathUtil.divide(realScreeningStudentNum, planScreeningNum))
-                .setPlanScreeningNum(planScreeningNum)
-                .setRealScreeningNum(realScreeningStudentNum);
-        visionScreeningResultStatisticList.add(statistic);
-    }
-
-    /**
-     *  按区域 - 常见病筛查数据统计
-     */
-    public static CommonDiseaseScreeningResultStatistic buildCommonDiseaseScreening(Integer screeningNoticeId, Integer screeningTaskId,
-                                                                                    Integer districtId, Boolean isTotal, Integer planScreeningNum,
-                                                                                    List<StatConclusion> totalStatConclusions) {
-        CommonDiseaseScreeningResultStatistic statistic = new CommonDiseaseScreeningResultStatistic();
-        //有效数据（初筛数据完整性判断）
-        Map<Boolean, List<StatConclusion>> isValidMap = totalStatConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getIsValid));
-
-        //复测数据
-        Map<Boolean, List<StatConclusion>> isRescreenTotalMap = totalStatConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getIsRescreen));
-
-        //纳入统计数据
-        List<StatConclusion> validStatConclusions = isValidMap.getOrDefault(Boolean.TRUE, Collections.emptyList());
-        Map<Boolean, List<StatConclusion>> isRescreenMap = validStatConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getIsRescreen));
-
-        Integer realScreeningStudentNum = isRescreenTotalMap.getOrDefault(Boolean.FALSE, Collections.emptyList()).size();
-
-        statistic.setScreeningNoticeId(screeningNoticeId)
-                .setScreeningTaskId(screeningTaskId)
-                .setDistrictId(districtId)
-                .setIsTotal(isTotal)
-                .setFinishRatio(MathUtil.divide(realScreeningStudentNum, planScreeningNum))
-                .setPlanScreeningNum(planScreeningNum)
-                .setRealScreeningNum(realScreeningStudentNum);
-        return statistic;
-    }
 
 
     /**
@@ -284,7 +171,7 @@ public class ScreeningResultStatisticBuilder {
      * @param numerator 分子
      * @param denominator 分母
      */
-    private static String ratio(Integer numerator, Integer denominator){
+    public static String ratio(Integer numerator, Integer denominator){
         return MathUtil.divide(numerator, denominator).toString()+"%";
     }
 

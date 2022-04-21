@@ -168,7 +168,7 @@ public class StatConclusion implements Serializable {
      */
     private Integer screeningType;
     /**
-     * 是否龋齿
+     * 是否龋患
      */
     private Boolean isSaprodontia;
     /**
@@ -217,4 +217,31 @@ public class StatConclusion implements Serializable {
      * 是否复查
      */
     private Boolean isReview;
+
+    /**
+     *  是否屈光参差
+     */
+    private Boolean isAnisometropia;
+
+    /**
+     * 龋患牙齿数
+     */
+    private Integer saprodontiaTeeth;
+    /**
+     * 是否龋失
+     */
+    private Boolean isSaprodontiaLoss;
+    /**
+     * 龋失牙齿数
+     */
+    private Integer saprodontiaLossTeeth;
+    /**
+     * 是否龋补
+     */
+    private Boolean isSaprodontiaRepair;
+    /**
+     * 龋补牙齿数
+     */
+    private Integer saprodontiaRepairTeeth;
+
 }

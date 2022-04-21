@@ -95,7 +95,7 @@ public class VisionScreeningResultStatistic implements Serializable {
     /**
      * 完成率
      */
-    private BigDecimal finishRatio;
+    private String finishRatio;
 
     /**
      * 纳入统计的实际筛查学生数量（默认0）
@@ -105,7 +105,7 @@ public class VisionScreeningResultStatistic implements Serializable {
     /**
      * 纳入统计的实际筛查学生比例
      */
-    private Integer validScreeningRatio;
+    private String validScreeningRatio;
 
 
     /**
@@ -122,9 +122,6 @@ public class VisionScreeningResultStatistic implements Serializable {
      * 视力预警
      */
     private VisionWarningDO visionWarning;
-
-
-
 
 
 }

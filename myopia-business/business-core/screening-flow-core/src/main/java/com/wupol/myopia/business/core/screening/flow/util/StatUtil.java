@@ -1114,15 +1114,6 @@ public class StatUtil {
 
     //=================8、常见病相关指标【占比：保留2位小数点】
 
-    /**
-     * 求占比（保留2位小数点）
-     *
-     * @param molecular   分子
-     * @param denominator 分母
-     */
-    public static BigDecimal percentage(Integer molecular, Integer denominator) {
-        return new BigDecimal(molecular).divide(new BigDecimal(denominator), 2, RoundingMode.HALF_UP);
-    }
 
     /**
      * BMI = 体重/身高*身高

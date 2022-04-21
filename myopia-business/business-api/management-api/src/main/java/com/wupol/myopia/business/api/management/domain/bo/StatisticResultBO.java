@@ -18,23 +18,49 @@ import java.util.Map;
 @Accessors(chain = true)
 public class StatisticResultBO implements Serializable {
 
+
     /**
      * 筛查通知
      */
     private ScreeningNotice screeningNotice;
 
     /**
-     * 省级区域ID
+     * 区域ID
      */
-    private Integer provinceDistrictId;
+    private Integer districtId;
 
     /**
-     * 学校所在地区层级的计划学生总数
+     * 计划学生数
      */
-    private Map<Integer, Long> districtPlanStudentCountMap;
+    private Integer planStudentCount;
 
     /**
-     * 同一个筛查通知下不同地区筛查数据结论
+     * 筛查结果结论
      */
-    private Map<Integer, List<StatConclusion>> districtStatConclusionMap;
+    private List<StatConclusion> statConclusions;
+
+    /**
+     * 筛查任务ID
+     */
+    private Integer screeningTaskId;
+
+    /**
+     * 筛查计划ID
+     */
+    private Integer screeningPlanId;
+
+    /**
+     * 是否合计
+     */
+    private Boolean isTotal;
+
+    /**
+     * 学校ID
+     */
+    private Integer schoolId;
+
+    /**
+     * 学校类型
+     */
+    private Integer schoolType;
 }

@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.stat.domain.dos;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 
@@ -10,6 +11,7 @@ import java.io.Serializable;
  * @author hang.yuan 2022/4/13 15:38
  */
 @Data
+@Accessors(chain = true)
 public class QuestionnaireDO implements Serializable {
 
     /**

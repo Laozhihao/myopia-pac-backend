@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.stat.domain.dos;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 
@@ -10,6 +11,7 @@ import java.io.Serializable;
  * @author hang.yuan 2022/4/13 15:33
  */
 @Data
+@Accessors(chain = true)
 public class SaprodontiaDO implements Serializable {
 
     /**
@@ -23,7 +25,7 @@ public class SaprodontiaDO implements Serializable {
     private String saprodontiaFreeRatio;
 
     /**
-     * 小学及以上--龋均人数（默认0）
+     * 小学及以上--龋均数（默认0）
      */
     private Integer dmftNum;
 
