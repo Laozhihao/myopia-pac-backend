@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.core.screening.flow.util;
 import com.wupol.myopia.base.util.BigDecimalUtil;
-import com.wupol.myopia.business.common.utils.constant.GlassesTypeEnum;
+import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.constant.ReScreenConstant;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ReScreenDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
