@@ -684,11 +684,7 @@ public class ScreeningResultUtil {
      * @return 等效球镜
      */
     public static BigDecimal calculationSE(BigDecimal sph, BigDecimal cyl) {
-        if (Objects.isNull(sph) || Objects.isNull(cyl)) {
-            return null;
-        }
-        return sph.add(cyl.multiply(new BigDecimal("0.5")))
-                .setScale(2, RoundingMode.HALF_UP);
+        return EyeDataUtil.calculationSE(sph,cyl);
     }
 
     /**

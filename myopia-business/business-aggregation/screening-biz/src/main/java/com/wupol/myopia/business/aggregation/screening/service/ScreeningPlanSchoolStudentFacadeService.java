@@ -112,7 +112,7 @@ public class ScreeningPlanSchoolStudentFacadeService {
         }
         studentEyeInfo.setHasScreening(Objects.nonNull(visionScreeningResult));
         //是否戴镜情况
-        studentEyeInfo.setGlassesTypeDes(EyeDataUtil.glassesType(visionScreeningResult));
+        studentEyeInfo.setGlassesTypeDes(EyeDataUtil.glassesTypeString(visionScreeningResult));
 
         //裸视力
         String nakedVision = EyeDataUtil.visionRightDataToStr(visionScreeningResult)+"/"+EyeDataUtil.visionLeftDataToStr(visionScreeningResult);
