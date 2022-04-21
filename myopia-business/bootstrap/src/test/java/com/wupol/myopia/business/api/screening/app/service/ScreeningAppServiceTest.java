@@ -100,7 +100,7 @@ class ScreeningAppServiceTest {
         if (Objects.isNull(screeningResult)) {
             System.out.println("没有初筛");
         }
-        visionScreeningBizService.verifyScreening(screeningResult);
+        visionScreeningBizService.verifyScreening(screeningResult,false);
     }
 
     /**
