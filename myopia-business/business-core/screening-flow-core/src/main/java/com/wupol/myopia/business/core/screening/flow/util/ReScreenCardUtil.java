@@ -18,11 +18,6 @@ import java.math.BigDecimal;
  */
 @UtilityClass
 public class ReScreenCardUtil {
-
-
-
-
-
     /**
      * 复测卡结果（同一个学生）
      * @param firstScreeningResult 初筛结果(第一次)
