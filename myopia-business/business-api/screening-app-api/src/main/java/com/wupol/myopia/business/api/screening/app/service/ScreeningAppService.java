@@ -461,7 +461,7 @@ public class ScreeningAppService {
         List<StudentScreeningProgressVO> studentScreeningProgressList = screeningPlanSchoolStudentList.stream().map(planStudent -> {
             VisionScreeningResult screeningResult = planStudentVisionResultMap.get(planStudent.getId());
             StudentVO studentVO = StudentVO.getInstance(planStudent);
-            return StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO);
+            return StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO, planStudent);
         }).collect(Collectors.toList());
 
         // 异常的排前面
