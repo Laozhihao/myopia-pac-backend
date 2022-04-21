@@ -844,7 +844,8 @@ public class ScreeningAppController {
         if (Objects.isNull(screeningResult)) {
             return false;
         }
-        visionScreeningBizService.verifyScreening(screeningResult);
+        ScreeningPlan screeningPlan = screeningPlanService.findOne(new ScreeningPlan().setId(screeningResult.getPlanId()));
+        visionScreeningBizService.verifyScreening(screeningResult, screeningPlan.getScreeningType() == 1);
         return true;
     }
 
@@ -869,8 +870,14 @@ public class ScreeningAppController {
      * @return boolean
      **/
     @PostMapping("/inaccurate/{planStudentId}")
-    public void addInaccurate(@Valid @RequestBody DeviationDTO deviationDTO) {
+    public void addInaccurate(@Valid @RequestBody DeviationDTO deviationDTO,@PathVariable Integer planStudentId) {
         if (deviationDTO.isValid()) {
+            VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentId(planStudentId, deviationDTO.getDeptId());
+            if (Objects.isNull(screeningResult)) {
+                return;
+            }
+            ScreeningPlan screeningPlan = screeningPlanService.findOne(new ScreeningPlan().setId(screeningResult.getPlanId()));
+            visionScreeningBizService.verifyScreening(screeningResult, screeningPlan.getScreeningType() == 1);
             // 只是复测数据
             deviationDTO.setIsState(1);
             visionScreeningBizService.saveOrUpdateStudentScreenData(deviationDTO);

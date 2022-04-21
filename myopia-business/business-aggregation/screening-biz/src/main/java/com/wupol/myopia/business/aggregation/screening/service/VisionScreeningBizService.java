@@ -87,11 +87,9 @@ public class VisionScreeningBizService {
         }
 
         ScreeningPlan screeningPlan = screeningPlanService.findOne(new ScreeningPlan().setId(currentVisionScreeningResult.getPlanId()));
-        // 常见病才会验证条件
-        if (screeningPlan.getScreeningType() == 1 && screeningResultBasicData.getIsState() != 0) {
-            verifyScreening(allFirstAndSecondResult.getFirst());
+        if(screeningResultBasicData.getIsState() != 0){
+            verifyScreening(allFirstAndSecondResult.getFirst(), screeningPlan.getScreeningType() == 1);
         }
-
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = getScreeningPlanSchoolStudent(screeningResultBasicData);
         if (screeningResultBasicData.getIsState() != 0) {
             // 初筛数据清空未检查说明
@@ -121,9 +119,10 @@ public class VisionScreeningBizService {
      * 验证复测规则
      *
      * @param firstResult 第一次筛查结果
+     * @param checkHeight 是否验证身高体重
      * @return
      */
-    public void verifyScreening(VisionScreeningResult firstResult) {
+    public void verifyScreening(VisionScreeningResult firstResult, boolean checkHeight) {
         VisionDataDO visionData = firstResult.getVisionData();
         ComputerOptometryDO computerOptometry = firstResult.getComputerOptometry();
         // 夜戴角膜镜不需要复测
@@ -162,7 +161,7 @@ public class VisionScreeningBizService {
         if (Objects.isNull(computerOptometry.getLeftEyeData().getAxial()) && Objects.isNull(computerOptometry.getRightEyeData().getAxial())) {
             throw new BusinessException("需要完成柱镜检查");
         }
-        if (Objects.isNull(firstResult.getHeightAndWeightData())) {
+        if (checkHeight && Objects.isNull(firstResult.getHeightAndWeightData())) {
             throw new BusinessException("需要完成体重检查");
         }
     }
