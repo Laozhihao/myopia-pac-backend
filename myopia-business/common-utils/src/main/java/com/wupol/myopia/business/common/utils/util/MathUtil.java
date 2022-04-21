@@ -1,8 +1,11 @@
 package com.wupol.myopia.business.common.utils.util;
 
+import com.wupol.framework.core.util.ObjectsUtil;
 import lombok.experimental.UtilityClass;
+import org.springframework.util.Assert;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 
 /**
  * 计算工具
@@ -24,6 +27,16 @@ public class MathUtil {
         BigDecimal n = new BigDecimal(numerator);
         BigDecimal d = new BigDecimal(denominator);
         return n.multiply(hundred).divide(d, 2, BigDecimal.ROUND_HALF_UP);
+    }
+
+    public String ratio(Integer numerator, Integer denominator) {
+        Assert.isTrue(ObjectsUtil.allNotNull(numerator,denominator),"分子和分母不都为空");
+        DecimalFormat df = new DecimalFormat("0.00%");
+        if (numerator == 0 ||denominator == 0) {
+            return df.format(new BigDecimal("0"));
+        }
+        BigDecimal divide = new BigDecimal(numerator).divide(new BigDecimal(denominator), 4, BigDecimal.ROUND_HALF_UP);
+        return df.format(divide);
     }
 
     /**

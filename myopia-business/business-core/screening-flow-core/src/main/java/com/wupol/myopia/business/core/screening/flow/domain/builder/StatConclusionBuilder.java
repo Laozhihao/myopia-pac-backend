@@ -25,6 +25,7 @@ import org.apache.commons.collections4.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 筛查数据结论
@@ -115,7 +116,6 @@ public class StatConclusionBuilder {
         return statConclusion;
     }
 
-
     /**
      * 设置是否视力出现警告
      * 规则:
@@ -166,6 +166,17 @@ public class StatConclusionBuilder {
         this.setNakedVisionWarningLevel();
         this.setMyopiaWarningLevel();
         this.setVisionCorrection();
+        this.setAnisometropia();
+    }
+
+
+    /**
+     * 屈光参差
+     */
+    private void setAnisometropia() {
+        Boolean anisometropiaVision = StatUtil.isAnisometropiaVision(basicData.getLeftSph(), basicData.getRightSph());
+        Boolean anisometropiaAstigmatism = StatUtil.isAnisometropiaAstigmatism(basicData.getLeftCyl(), basicData.getRightCyl());
+        statConclusion.setIsAnisometropia(anisometropiaVision || anisometropiaAstigmatism);
     }
 
     /**
@@ -217,6 +228,7 @@ public class StatConclusionBuilder {
      * 设置视力的其他数据
      */
     private void setVisionOtherData() {
+        statConclusion.setIsWearingGlasses(basicData.getIsWearingGlasses());
         statConclusion.setGlassesType(basicData.getGlassesType());
         statConclusion.setVisionR(Optional.ofNullable(basicData.getRightNakedVision()).orElse(new BigDecimal("0.0")));
         statConclusion.setVisionL(Optional.ofNullable(basicData.getLeftNakedVision()).orElse(new BigDecimal("0.0")));
@@ -301,10 +313,9 @@ public class StatConclusionBuilder {
     }
 
     private void setHyperopia() {
-        Boolean isHyperopia = null;
+        Boolean isHyperopia = Boolean.FALSE;
         if (ObjectsUtil.allNotNull(basicData.getLeftHyperopiaWarningLevel(), basicData.getRightHyperopiaWarningLevel())) {
-            isHyperopia = StatUtil.isHyperopia(basicData.getLeftHyperopiaWarningLevel())
-                    || StatUtil.isHyperopia(basicData.getRightHyperopiaWarningLevel());
+            isHyperopia = StatUtil.isHyperopia(basicData.getLeftHyperopiaWarningLevel()) || StatUtil.isHyperopia(basicData.getRightHyperopiaWarningLevel());
         }
         statConclusion.setIsHyperopia(isHyperopia);
     }
@@ -324,6 +335,7 @@ public class StatConclusionBuilder {
                 basicData.getGlassesType(), basicData.getSchoolAge(), basicData.getAge(), otherEyeDiseasesNormal,
                 currentVisionScreeningResult.getComputerOptometry()).getIsRecommendVisit();
         statConclusion.setIsRecommendVisit(isRecommendVisit);
+        statConclusion.setIsReview(isRecommendVisit);
     }
 
     private void setRescreenErrorNum() {
@@ -446,6 +458,10 @@ public class StatConclusionBuilder {
     private void setHeightAndWeightData() {
         HeightAndWeightDataDO heightAndWeightData = currentVisionScreeningResult.getHeightAndWeightData();
         if (Objects.equals(SchoolAge.KINDERGARTEN.code,screeningPlanSchoolStudent.getGradeType()) || Objects.isNull(heightAndWeightData) ){
+            statConclusion.setIsObesity(Boolean.FALSE);
+            statConclusion.setIsOverweight(Boolean.FALSE);
+            statConclusion.setIsStunting(Boolean.FALSE);
+            statConclusion.setIsMalnutrition(Boolean.FALSE);
             return;
         }
         TwoTuple<Integer, String> ageTuple = StatUtil.getAge(screeningPlanSchoolStudent.getBirthday());
@@ -486,27 +502,45 @@ public class StatConclusionBuilder {
     private void setSaprodontiaData() {
         SaprodontiaDataDO saprodontiaData = currentVisionScreeningResult.getSaprodontiaData();
         if (Objects.equals(SchoolAge.KINDERGARTEN.code,screeningPlanSchoolStudent.getGradeType()) ||Objects.isNull(saprodontiaData)){
+            int teeth=0;
+            statConclusion.setIsSaprodontia(Boolean.FALSE);
+            statConclusion.setSaprodontiaTeeth(teeth);
+            statConclusion.setIsSaprodontiaLoss(Boolean.FALSE);
+            statConclusion.setSaprodontiaLossTeeth(teeth);
+            statConclusion.setIsSaprodontiaRepair(Boolean.FALSE);
+            statConclusion.setSaprodontiaRepairTeeth(teeth);
             return;
         }
-        Set<String> sets=Sets.newHashSet();
-        getSaprodontia(sets, saprodontiaData.getAbove());
-        getSaprodontia(sets, saprodontiaData.getUnderneath());
-        statConclusion.setIsSaprodontia(CollectionUtil.isNotEmpty(sets));
+        List<SaprodontiaDataDO.SaprodontiaItem> above = saprodontiaData.getAbove();
+        List<SaprodontiaDataDO.SaprodontiaItem> underneath = saprodontiaData.getUnderneath();
+        Set<SaprodontiaDataDO.SaprodontiaItem> saprodontias = getSaprodontia(getSaprodontiaItemList(above, underneath), Lists.newArrayList("d", "D"));
+        Set<SaprodontiaDataDO.SaprodontiaItem> saprodontiaLoss = getSaprodontia(getSaprodontiaItemList(above, underneath), Lists.newArrayList("m", "M"));
+        Set<SaprodontiaDataDO.SaprodontiaItem> saprodontiaRepair = getSaprodontia(getSaprodontiaItemList(above, underneath), Lists.newArrayList("f", "F"));
+        statConclusion.setIsSaprodontia(CollectionUtil.isNotEmpty(saprodontias));
+        statConclusion.setSaprodontiaTeeth(CollectionUtil.isNotEmpty(saprodontias)?saprodontias.size():0);
+        statConclusion.setIsSaprodontiaLoss(CollectionUtil.isNotEmpty(saprodontiaLoss));
+        statConclusion.setSaprodontiaLossTeeth(CollectionUtil.isNotEmpty(saprodontiaLoss)?saprodontias.size():0);
+        statConclusion.setIsSaprodontiaRepair(CollectionUtil.isNotEmpty(saprodontiaRepair));
+        statConclusion.setSaprodontiaRepairTeeth(CollectionUtil.isNotEmpty(saprodontiaRepair)?saprodontias.size():0);
     }
 
-    private void getSaprodontia(Set<String> sets, List<SaprodontiaDataDO.SaprodontiaItem> list) {
-        if (CollectionUtil.isNotEmpty(list)) {
-            for (SaprodontiaDataDO.SaprodontiaItem saprodontiaItem : list) {
-                String deciduous = saprodontiaItem.getDeciduous();
-                if (StrUtil.isNotBlank(deciduous)) {
-                    sets.add(deciduous);
-                }
-                String permanent = saprodontiaItem.getPermanent();
-                if (StrUtil.isNotBlank(permanent)) {
-                    sets.add(permanent);
-                }
-            }
+    private List<SaprodontiaDataDO.SaprodontiaItem> getSaprodontiaItemList(List<SaprodontiaDataDO.SaprodontiaItem> above,List<SaprodontiaDataDO.SaprodontiaItem> underneath){
+        List<SaprodontiaDataDO.SaprodontiaItem> list=Lists.newArrayList();
+        if (CollectionUtil.isNotEmpty(above)){
+            list.addAll(above);
         }
+        if (CollectionUtil.isNotEmpty(underneath)){
+            list.addAll(underneath);
+        }
+        return list;
+    }
+
+    private Set<SaprodontiaDataDO.SaprodontiaItem> getSaprodontia(List<SaprodontiaDataDO.SaprodontiaItem> list,List<String> itemList) {
+        if (CollectionUtil.isEmpty(list)) {
+            return Sets.newHashSet();
+        }
+
+        return list.stream().filter(s -> itemList.contains(s.getDeciduous()) || itemList.contains(s.getPermanent())).collect(Collectors.toSet());
     }
 
     /**
@@ -514,7 +548,8 @@ public class StatConclusionBuilder {
      */
     private void setSpineData() {
         SpineDataDO spineData = currentVisionScreeningResult.getSpineData();
-        if (Objects.equals(SchoolAge.KINDERGARTEN.code,screeningPlanSchoolStudent.getGradeType()) ||Objects.isNull(spineData)){
+        if (Objects.equals(SchoolAge.KINDERGARTEN.code,screeningPlanSchoolStudent.getGradeType()) || Objects.isNull(spineData)){
+            statConclusion.setIsSpinalCurvature(Boolean.FALSE);
             return;
         }
         statConclusion.setIsSpinalCurvature(spineData.isSpinalCurvature());
@@ -526,6 +561,7 @@ public class StatConclusionBuilder {
     private void setBloodPressureData() {
         BloodPressureDataDO bloodPressureData = currentVisionScreeningResult.getBloodPressureData();
         if (Objects.equals(SchoolAge.KINDERGARTEN.code,screeningPlanSchoolStudent.getGradeType()) || Objects.isNull(bloodPressureData)){
+            statConclusion.setIsNormalBloodPressure(Boolean.TRUE);
             return;
         }
         TwoTuple<Integer, String> ageTuple = StatUtil.getAge(screeningPlanSchoolStudent.getBirthday());
@@ -562,6 +598,8 @@ public class StatConclusionBuilder {
         DiseasesHistoryDO diseasesHistoryData = currentVisionScreeningResult.getDiseasesHistoryData();
         if (Objects.nonNull(diseasesHistoryData) && CollectionUtil.isNotEmpty(diseasesHistoryData.getDiseases())){
             statConclusion.setIsDiseasesHistory(Boolean.TRUE);
+        }else {
+            statConclusion.setIsDiseasesHistory(Boolean.FALSE);
         }
     }
 
@@ -660,6 +698,8 @@ public class StatConclusionBuilder {
             basicData.rightAstigmatismWarningLevel = StatUtil.getAstigmatismWarningLevel(basicData.getRightCyl());
             if (basicData.getLeftAstigmatismWarningLevel() != null && basicData.getRightAstigmatismWarningLevel() != null) {
                 basicData.isAstigmatism = StatUtil.isAstigmatism(basicData.getLeftAstigmatismWarningLevel()) || StatUtil.isAstigmatism(basicData.getRightAstigmatismWarningLevel());
+            }else {
+                basicData.setIsAstigmatism(Boolean.FALSE);
             }
             basicData.leftHyperopiaWarningLevel = StatUtil.getHyperopiaWarningLevel(basicData.getLeftSph(), basicData.getLeftCyl(), screeningPlanSchoolStudent.getStudentAge());
             basicData.rightHyperopiaWarningLevel = StatUtil.getHyperopiaWarningLevel(basicData.getRightSph(), basicData.getRightCyl(), screeningPlanSchoolStudent.getStudentAge());
@@ -729,6 +769,8 @@ public class StatConclusionBuilder {
             }
             if (CollectionUtils.isNotEmpty(warningLevelList)) {
                 basicData.myopiaWarningLevel = Collections.max(warningLevelList);
+            }else {
+                basicData.setMyopiaWarningLevel(MyopiaLevelEnum.ZERO.code);
             }
         }
 

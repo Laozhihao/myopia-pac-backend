@@ -244,4 +244,9 @@ public class StatConclusion implements Serializable {
      */
     private Integer saprodontiaRepairTeeth;
 
+    /**
+     * 是否戴镜
+     */
+    private Boolean isWearingGlasses;
+
 }

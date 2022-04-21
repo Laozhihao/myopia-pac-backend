@@ -55,6 +55,11 @@ public class VisionScreeningResultStatistic implements Serializable {
     private Integer schoolId;
 
     /**
+     * 筛查机构ID
+     */
+    private Integer screeningOrgId;
+
+    /**
      * 学校类型 0-小学,1-初级中学,2-高级中学,3-完全中学,4-九年一贯制学校,5-十二年一贯制学校,6-职业高中,7其他
      */
     private Integer schoolType;

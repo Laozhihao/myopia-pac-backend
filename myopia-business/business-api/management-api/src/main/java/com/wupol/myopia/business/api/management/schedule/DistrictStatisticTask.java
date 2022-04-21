@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.CompareUtil;
+import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.business.api.management.domain.bo.StatisticResultBO;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.WarningLevel;
@@ -22,7 +23,6 @@ import com.wupol.myopia.business.core.stat.domain.model.VisionScreeningResultSta
 import com.wupol.myopia.business.core.stat.service.ScreeningResultStatisticService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -93,7 +93,9 @@ public class DistrictStatisticTask {
     private List<VisionScreeningResultStatistic> visionScreeningResultStatistic(Map<Integer, List<StatConclusion>> screeningTypeStatConclusionMap){
         List<VisionScreeningResultStatistic> visionScreeningResultStatisticList= Lists.newArrayList();
         List<StatConclusion> statConclusions = screeningTypeStatConclusionMap.get(0);
-        statistic(statConclusions,visionScreeningResultStatisticList,null);
+        if (CollectionUtil.isNotEmpty(statConclusions)){
+            statistic(statConclusions,visionScreeningResultStatisticList,null);
+        }
         return visionScreeningResultStatisticList;
     }
 
@@ -103,7 +105,9 @@ public class DistrictStatisticTask {
     private List<CommonDiseaseScreeningResultStatistic> commonDiseaseScreeningResultStatistic(Map<Integer, List<StatConclusion>> screeningTypeStatConclusionMap){
         List<CommonDiseaseScreeningResultStatistic> commonDiseaseScreeningResultStatisticList =Lists.newArrayList();
         List<StatConclusion> statConclusions = screeningTypeStatConclusionMap.get(1);
-        statistic(statConclusions,null,commonDiseaseScreeningResultStatisticList);
+        if (CollectionUtil.isNotEmpty(statConclusions)){
+            statistic(statConclusions,null,commonDiseaseScreeningResultStatisticList);
+        }
         return commonDiseaseScreeningResultStatisticList;
     }
 
@@ -248,7 +252,7 @@ public class DistrictStatisticTask {
         // 层级总的筛查数据不一定属于同一个任务，所以取默认0
         totalStatistic.setScreeningTaskId(CommonConst.DEFAULT_ID)
                 .setScreeningPlanId(CommonConst.DEFAULT_ID)
-                .setIsTotal(Boolean.TRUE);
+                .setIsTotal(Boolean.TRUE).setSchoolId(-1).setScreeningOrgId(-1);
 
         if (Objects.nonNull(visionScreeningResultStatisticList)){
             visionScreeningResultStatisticList.addAll(buildVisionScreening(totalStatistic));
@@ -275,7 +279,7 @@ public class DistrictStatisticTask {
         Integer screeningPlanId = CollectionUtils.isEmpty(statConclusions) ? CommonConst.DEFAULT_ID : statConclusions.get(0).getPlanId();
         selfStatistic.setScreeningTaskId(screeningTaskId)
                 .setScreeningPlanId(screeningPlanId)
-                .setIsTotal(Boolean.FALSE);
+                .setIsTotal(Boolean.FALSE).setSchoolId(-1).setScreeningOrgId(-1);
 
         if (Objects.nonNull(visionScreeningResultStatisticList)){
             visionScreeningResultStatisticList.addAll(buildVisionScreening(selfStatistic));
@@ -315,99 +319,35 @@ public class DistrictStatisticTask {
         //有效数据（初筛数据完整性判断）
         Map<Boolean, List<StatConclusion>> isValidMap = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getIsValid));
 
-        //复测数据
-        Map<Boolean, List<StatConclusion>> isRescreenTotalMap = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getIsRescreen));
-
         //纳入统计数据
         List<StatConclusion> validStatConclusions = isValidMap.getOrDefault(Boolean.TRUE, Collections.emptyList());
+        Map<Boolean, List<StatConclusion>> isRescreenMap = validStatConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getIsRescreen));
+        int validScreeningNum = isRescreenMap.getOrDefault(Boolean.FALSE, Collections.emptyList()).size();
+
+        //复测数据
+        Map<Boolean, List<StatConclusion>> isRescreenTotalMap = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getIsRescreen));
+        //实际筛查人数
         Integer realScreeningStudentNum = isRescreenTotalMap.getOrDefault(Boolean.FALSE, Collections.emptyList()).size();
 
-        Map<Boolean, List<StatConclusion>> isRescreenMap = validStatConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getIsRescreen));
-        List<StatConclusion> firstScreening = isRescreenMap.getOrDefault(Boolean.FALSE, Collections.emptyList());
-        int validScreeningNum = firstScreening.size();
-        List<StatConclusion> rescreening = isRescreenMap.getOrDefault(Boolean.TRUE, Collections.emptyList());
-        int validRescreenNum = rescreening.size();
-        Integer rescreenNum = (int) statConclusions.stream().filter(StatConclusion::getIsRescreen).count();
-
-        Integer lowVisionNum = (int) statConclusions.stream().filter(StatConclusion::getIsLowVision).count();
-        Integer ametropiaNum = (int) statConclusions.stream().filter(StatConclusion::getIsRefractiveError).count();
-        Integer anisometropiaNum = (int) statConclusions.stream().filter(StatConclusion::getIsAnisometropia).count();
-        double avgLeftVision = statConclusions.stream().mapToDouble(sc->sc.getVisionL().doubleValue()).average().orElse(0);
-        double avgRightVision = statConclusions.stream().mapToDouble(sc->sc.getVisionR().doubleValue()).average().orElse(0);
-
-        Map<Integer, Long> visionLabelNumberMap = statConclusions.stream().filter(stat -> Objects.nonNull(stat.getWarningLevel())).collect(Collectors.groupingBy(StatConclusion::getWarningLevel, Collectors.counting()));
-
-        Integer visionLabelZeroSpNum = visionLabelNumberMap.getOrDefault(WarningLevel.ZERO_SP.code, 0L).intValue();
-        Integer wearingGlassNum = (int) statConclusions.stream().filter(sc -> sc.getGlassesType() > 0).count();
-        Integer treatmentAdviceNum = (int) statConclusions.stream().filter(StatConclusion::getIsRecommendVisit).count();
-
-
-        Integer wearingGlassRescreenNum = (int) statConclusions.stream().filter(sc->sc.getIsRescreen() && sc.getGlassesType() > 0).count();
-        Integer validWearingGlassRescreenNum = (int) statConclusions.stream().filter(sc->sc.getIsRescreen() && sc.getGlassesType() > 0 && sc.getIsValid()).count();
-
-        Integer withoutGlassRescreenNum = (int) statConclusions.stream().filter(sc->sc.getIsRescreen() && sc.getGlassesType() == 0).count();
-        Integer validWithoutGlassRescreenNum = (int) statConclusions.stream().filter(sc->sc.getIsRescreen() && sc.getGlassesType() == 0).count();
-
-        int schoolNum = (int)statConclusions.stream().map(StatConclusion::getSchoolId).count();
 
         VisionScreeningResultStatistic statistic = new VisionScreeningResultStatistic();
-        BeanUtils.copyProperties(totalStatistic,statistic);
-        Integer planScreeningNum = totalStatistic.getPlanStudentCount();
+        //设置基础数据
+        setBasicData(statConclusions,totalStatistic,realScreeningStudentNum,validScreeningNum,statistic);
 
+        //设置视力分析数据
         if (Objects.equals(totalStatistic.getSchoolType(),5)){
-            KindergartenVisionAnalysisDO visionAnalysisDO =new KindergartenVisionAnalysisDO();
-            visionAnalysisDO.setLowVisionNum(lowVisionNum)
-                    .setLowVisionRatio(ratio(lowVisionNum,validScreeningNum))
-                    .setAvgLeftVision(BigDecimal.valueOf(avgLeftVision)).setAvgRightVision(BigDecimal.valueOf(avgRightVision))
-                    .setAmetropiaNum(ametropiaNum).setAmetropiaRatio(ratio(ametropiaNum,validScreeningNum))
-                    .setAnisometropiaNum(anisometropiaNum).setAnisometropiaRatio(ratio(anisometropiaNum,validScreeningNum))
-                    .setMyopiaLevelInsufficientNum(visionLabelZeroSpNum).setMyopiaLevelInsufficientNumRatio(ratio(visionLabelZeroSpNum,validScreeningNum))
-                    .setWearingGlassesNum(wearingGlassNum).setWearingGlassesRatio(ratio(wearingGlassNum,validScreeningNum))
-                    .setTreatmentAdviceNum(treatmentAdviceNum).setTreatmentAdviceRatio(ratio(treatmentAdviceNum,validScreeningNum))
-                    .setSchoolType(8);
-            statistic.setVisionAnalysis(visionAnalysisDO);
+            setKindergartenVisionAnalysis(totalStatistic, statConclusions, validScreeningNum, statistic);
         }else {
-            PrimarySchoolAndAboveVisionAnalysisDO visionAnalysisDO = new PrimarySchoolAndAboveVisionAnalysisDO();
-            statistic.setVisionAnalysis(visionAnalysisDO);
+            setPrimarySchoolAndAboveVisionAnalysis(totalStatistic, statConclusions, validScreeningNum, statistic);
         }
-
-        setVisionWarning(validScreeningNum,visionLabelNumberMap, statistic);
-
-        setRescreenSituation(validRescreenNum, rescreenNum, wearingGlassRescreenNum, validWearingGlassRescreenNum,
-                withoutGlassRescreenNum, validWithoutGlassRescreenNum,statistic);
-
-        //基础数据
-        statistic.setScreeningNoticeId(totalStatistic.getScreeningNotice().getScreeningType())
-                .setScreeningTaskId(totalStatistic.getScreeningTaskId())
-                .setScreeningPlanId(totalStatistic.getScreeningPlanId())
-                .setScreeningType(totalStatistic.getScreeningNotice().getScreeningType())
-                .setIsTotal(totalStatistic.getIsTotal())
-                .setSchoolId(totalStatistic.getSchoolId())
-                .setSchoolType(totalStatistic.getSchoolType())
-                .setDistrictId(totalStatistic.getDistrictId())
-                .setCreateTime(new Date())
-                .setUpdateTime(statistic.getCreateTime());
-
-        statistic.setSchoolNum(schoolNum)
-                .setPlanScreeningNum(planScreeningNum)
-                .setRealScreeningNum(realScreeningStudentNum)
-                .setFinishRatio(ratio(realScreeningStudentNum,planScreeningNum))
-                .setValidScreeningNum(validScreeningNum)
-                .setValidScreeningRatio(ratio(validScreeningNum,realScreeningStudentNum));
+        //设置视力预警数据
+        setVisionWarning(validScreeningNum,statConclusions, statistic);
+        //设置复测情况数据
+        setRescreenSituation(statConclusions,isRescreenMap,statistic);
 
         visionScreeningResultStatisticList.add(statistic);
 
     }
-
-    public String ratio(Integer numerator, Integer denominator){
-        return MathUtil.divide(numerator, denominator).toString()+"%";
-    }
-
-    private Integer getKey(Integer schoolAge){
-        return Objects.equals(schoolAge,5)?schoolAge:0;
-    }
-
-
 
 
 
@@ -436,103 +376,153 @@ public class DistrictStatisticTask {
         //有效数据（初筛数据完整性判断）
         Map<Boolean, List<StatConclusion>> isValidMap = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getIsValid));
 
-        //复测数据
-        Map<Boolean, List<StatConclusion>> isRescreenTotalMap = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getIsRescreen));
-
         //纳入统计数据
         List<StatConclusion> validStatConclusions = isValidMap.getOrDefault(Boolean.TRUE, Collections.emptyList());
+        Map<Boolean, List<StatConclusion>> isRescreenMap = validStatConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getIsRescreen));
+        int validScreeningNum = isRescreenMap.getOrDefault(Boolean.FALSE, Collections.emptyList()).size();
+
+        //复测数据
+        Map<Boolean, List<StatConclusion>> isRescreenTotalMap = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getIsRescreen));
+        //实际筛查人数
         Integer realScreeningStudentNum = isRescreenTotalMap.getOrDefault(Boolean.FALSE, Collections.emptyList()).size();
 
-        Map<Boolean, List<StatConclusion>> isRescreenMap = validStatConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getIsRescreen));
-        List<StatConclusion> firstScreening = isRescreenMap.getOrDefault(Boolean.FALSE, Collections.emptyList());
-        int validScreeningNum = firstScreening.size();
-        List<StatConclusion> rescreening = isRescreenMap.getOrDefault(Boolean.TRUE, Collections.emptyList());
-        int validRescreenNum = rescreening.size();
-        Integer rescreenNum = (int) statConclusions.stream().filter(StatConclusion::getIsRescreen).count();
-
-        Integer lowVisionNum = (int) statConclusions.stream().filter(StatConclusion::getIsLowVision).count();
-        Integer ametropiaNum = (int) statConclusions.stream().filter(StatConclusion::getIsRefractiveError).count();
-        Integer anisometropiaNum = (int) statConclusions.stream().filter(StatConclusion::getIsAnisometropia).count();
-        double avgLeftVision = statConclusions.stream().mapToDouble(sc->sc.getVisionL().doubleValue()).average().orElse(0);
-        double avgRightVision = statConclusions.stream().mapToDouble(sc->sc.getVisionR().doubleValue()).average().orElse(0);
-
-        Map<Integer, Long> visionLabelNumberMap = statConclusions.stream().filter(stat -> Objects.nonNull(stat.getWarningLevel())).collect(Collectors.groupingBy(StatConclusion::getWarningLevel, Collectors.counting()));
-        Integer visionLabelZeroSpNum = visionLabelNumberMap.getOrDefault(WarningLevel.ZERO_SP.code, 0L).intValue();
-        Integer wearingGlassNum = (int) statConclusions.stream().filter(sc -> sc.getGlassesType() > 0).count();
-        Integer treatmentAdviceNum = (int) statConclusions.stream().filter(StatConclusion::getIsRecommendVisit).count();
-
-
-        Integer wearingGlassRescreenNum = (int) statConclusions.stream().filter(sc->sc.getIsRescreen() && sc.getGlassesType() > 0).count();
-        Integer validWearingGlassRescreenNum = (int) statConclusions.stream().filter(sc->sc.getIsRescreen() && sc.getGlassesType() > 0 && sc.getIsValid()).count();
-
-        Integer withoutGlassRescreenNum = (int) statConclusions.stream().filter(sc->sc.getIsRescreen() && sc.getGlassesType() == 0).count();
-        Integer validWithoutGlassRescreenNum = (int) statConclusions.stream().filter(sc->sc.getIsRescreen() && sc.getGlassesType() == 0).count();
-
-        int schoolNum = (int)statConclusions.stream().map(StatConclusion::getSchoolId).count();
 
         CommonDiseaseScreeningResultStatistic statistic = new CommonDiseaseScreeningResultStatistic();
-        BeanUtils.copyProperties(totalStatistic,statistic);
-        Integer planScreeningNum = totalStatistic.getPlanStudentCount();
+        //设置基础数据
+        setBasicData(statConclusions,totalStatistic,realScreeningStudentNum,validScreeningNum,statistic);
 
+        //设置视力分析数据
         if (Objects.equals(totalStatistic.getSchoolType(),5)){
-            setKindergartenVisionAnalysis(validScreeningNum, lowVisionNum, ametropiaNum, anisometropiaNum, avgLeftVision, avgRightVision, visionLabelZeroSpNum, wearingGlassNum, treatmentAdviceNum, statistic);
+            setKindergartenVisionAnalysis(totalStatistic, statConclusions, validScreeningNum, statistic);
         }else {
-            PrimarySchoolAndAboveVisionAnalysisDO visionAnalysisDO = new PrimarySchoolAndAboveVisionAnalysisDO();
-            statistic.setVisionAnalysis(visionAnalysisDO);
+            setPrimarySchoolAndAboveVisionAnalysis(totalStatistic, statConclusions, validScreeningNum, statistic);
         }
+        //设置视力预警数据
+        setVisionWarning(validScreeningNum,statConclusions, statistic);
+        //设置复测情况数据
+        setRescreenSituation(statConclusions,isRescreenMap,statistic);
 
-        setVisionWarning(validScreeningNum,visionLabelNumberMap, statistic);
-
-        setRescreenSituation(validRescreenNum, rescreenNum, wearingGlassRescreenNum,
-                validWearingGlassRescreenNum, withoutGlassRescreenNum, validWithoutGlassRescreenNum,statistic);
-
+        //设置龋齿数据
         setSaprodontia(statConclusions, realScreeningStudentNum, statistic);
-
+        //设置常见病数据
         setCommonDisease(statConclusions, realScreeningStudentNum, statistic);
-
+        //设置问卷调查数据
         setQuestionnaire(statistic);
-
-        //基础数据
-        statistic.setScreeningNoticeId(totalStatistic.getScreeningNotice().getScreeningType())
-                .setScreeningTaskId(totalStatistic.getScreeningTaskId())
-                .setScreeningPlanId(totalStatistic.getScreeningPlanId())
-                .setScreeningType(totalStatistic.getScreeningNotice().getScreeningType())
-                .setIsTotal(totalStatistic.getIsTotal())
-                .setSchoolId(totalStatistic.getSchoolId())
-                .setSchoolType(totalStatistic.getSchoolType())
-                .setDistrictId(totalStatistic.getDistrictId())
-                .setCreateTime(new Date())
-                .setUpdateTime(statistic.getCreateTime());
-
-        statistic.setSchoolNum(schoolNum)
-                .setPlanScreeningNum(planScreeningNum)
-                .setRealScreeningNum(realScreeningStudentNum)
-                .setFinishRatio(ratio(realScreeningStudentNum,planScreeningNum))
-                .setValidScreeningNum(validScreeningNum)
-                .setValidScreeningRatio(ratio(validScreeningNum,realScreeningStudentNum))
-                ;
 
         commonDiseaseScreeningResultStatisticList.add(statistic);
 
     }
 
-    private void setKindergartenVisionAnalysis(int validScreeningNum, Integer lowVisionNum, Integer ametropiaNum, Integer anisometropiaNum, double avgLeftVision, double avgRightVision, Integer visionLabelZeroSpNum, Integer wearingGlassNum, Integer treatmentAdviceNum, CommonDiseaseScreeningResultStatistic statistic) {
-        KindergartenVisionAnalysisDO visionAnalysisDO =new KindergartenVisionAnalysisDO();
+    /**
+     * 基础数据
+     */
+    private void setBasicData(List<StatConclusion> statConclusions,
+                              StatisticResultBO totalStatistic,
+                              Integer realScreeningStudentNum,Integer validScreeningNum,
+                              VisionScreeningResultStatistic statistic) {
+        Integer planScreeningNum = totalStatistic.getPlanStudentCount();
+        int schoolNum = (int)statConclusions.stream().filter(Objects::nonNull).map(StatConclusion::getSchoolId).count();
+        if (Objects.isNull(statistic.getId())){
+            statistic.setCreateTime(new Date());
+        }
+        statistic.setScreeningNoticeId(totalStatistic.getScreeningNotice().getId())
+                .setScreeningTaskId(totalStatistic.getScreeningTaskId())
+                .setScreeningPlanId(totalStatistic.getScreeningPlanId())
+                .setScreeningType(totalStatistic.getScreeningNotice().getScreeningType())
+                .setIsTotal(totalStatistic.getIsTotal())
+                .setSchoolId(totalStatistic.getSchoolId())
+                .setScreeningOrgId(totalStatistic.getScreeningOrgId())
+                .setSchoolType(totalStatistic.getSchoolType())
+                .setDistrictId(totalStatistic.getDistrictId())
+                .setSchoolNum(schoolNum)
+                .setPlanScreeningNum(planScreeningNum)
+                .setRealScreeningNum(realScreeningStudentNum)
+                .setFinishRatio(MathUtil.ratio(realScreeningStudentNum,planScreeningNum))
+                .setValidScreeningNum(validScreeningNum)
+                .setValidScreeningRatio(MathUtil.ratio(validScreeningNum,realScreeningStudentNum));
+    }
+
+    /**
+     * 设置小学及以上视力分析数据
+     */
+    private void setPrimarySchoolAndAboveVisionAnalysis(StatisticResultBO totalStatistic, List<StatConclusion> statConclusions, int validScreeningNum, VisionScreeningResultStatistic statistic) {
+        PrimarySchoolAndAboveVisionAnalysisDO visionAnalysisDO = new PrimarySchoolAndAboveVisionAnalysisDO();
+        Integer lowVisionNum = (int) statConclusions.stream().filter(Objects::nonNull).filter(StatConclusion::getIsLowVision).count();
+        List<BigDecimal> leftList = statConclusions.stream().map(StatConclusion::getVisionL).filter(Objects::nonNull).collect(Collectors.toList());
+        double leftSum = leftList.stream().mapToDouble(BigDecimal::doubleValue).sum();
+        double avgLeftVision =BigDecimalUtil.divide(String.valueOf(leftSum),String.valueOf(leftList.size()),1).doubleValue();
+        List<BigDecimal> rightList = statConclusions.stream().map(StatConclusion::getVisionR).filter(Objects::nonNull).collect(Collectors.toList());
+        double rightSum = rightList.stream().mapToDouble(BigDecimal::doubleValue).sum();
+        double avgRightVision = BigDecimalUtil.divide(String.valueOf(rightSum),String.valueOf(rightList.size()),1).doubleValue();
+
+        int myopiaNum = (int) statConclusions.stream().filter(Objects::nonNull).filter(StatConclusion::getIsMyopia).count();
+        int myopiaLevelEarlyNum = (int) statConclusions.stream().filter(Objects::nonNull).filter(sc->Objects.equals(2,sc.getMyopiaLevel())).count();
+        int lowMyopiaNum = (int) statConclusions.stream().filter(Objects::nonNull).filter(sc->Objects.equals(3,sc.getMyopiaLevel())).count();
+        int highMyopiaNum = (int) statConclusions.stream().filter(Objects::nonNull).filter(sc->Objects.equals(5,sc.getMyopiaLevel())).count();
+        int astigmatismNum =(int) statConclusions.stream().filter(sc->Objects.equals(Boolean.TRUE,sc.getIsAstigmatism())).count();
+        Integer wearingGlassNum = (int) statConclusions.stream().filter(sc-> Objects.equals(Boolean.TRUE,sc.getIsWearingGlasses()) && Objects.equals(Boolean.TRUE,sc.getIsValid())).count();
+        Integer nightWearingOrthokeratologyLensesNum = (int) statConclusions.stream().filter(Objects::nonNull).filter(sc-> Objects.equals(3,sc.getGlassesType())).count();
+        Integer treatmentAdviceNum = (int) statConclusions.stream().filter(Objects::nonNull).filter(StatConclusion::getIsRecommendVisit).count();
         visionAnalysisDO.setLowVisionNum(lowVisionNum)
-                .setLowVisionRatio(ratio(lowVisionNum,validScreeningNum))
+                .setLowVisionRatio(MathUtil.ratio(lowVisionNum,validScreeningNum))
                 .setAvgLeftVision(BigDecimal.valueOf(avgLeftVision)).setAvgRightVision(BigDecimal.valueOf(avgRightVision))
-                .setAmetropiaNum(ametropiaNum).setAmetropiaRatio(ratio(ametropiaNum,validScreeningNum))
-                .setAnisometropiaNum(anisometropiaNum).setAnisometropiaRatio(ratio(anisometropiaNum,validScreeningNum))
-                .setMyopiaLevelInsufficientNum(visionLabelZeroSpNum).setMyopiaLevelInsufficientNumRatio(ratio(visionLabelZeroSpNum,validScreeningNum))
-                .setWearingGlassesNum(wearingGlassNum).setWearingGlassesRatio(ratio(wearingGlassNum,validScreeningNum))
-                .setTreatmentAdviceNum(treatmentAdviceNum).setTreatmentAdviceRatio(ratio(treatmentAdviceNum,validScreeningNum))
-                .setSchoolType(8);
+                .setMyopiaNum(myopiaNum).setMyopiaRatio(MathUtil.ratio(myopiaNum,validScreeningNum))
+                .setMyopiaLevelEarlyNum(myopiaLevelEarlyNum).setMyopiaLevelEarlyRatio(MathUtil.ratio(myopiaLevelEarlyNum,validScreeningNum))
+                .setLowMyopiaNum(lowMyopiaNum).setLowMyopiaRatio(MathUtil.ratio(lowMyopiaNum,validScreeningNum))
+                .setHighMyopiaNum(highMyopiaNum).setHighMyopiaRatio(MathUtil.ratio(highMyopiaNum,validScreeningNum))
+                .setAstigmatismNum(astigmatismNum).setAstigmatismRatio(MathUtil.ratio(astigmatismNum,validScreeningNum))
+                .setWearingGlassesNum(wearingGlassNum).setWearingGlassesRatio(MathUtil.ratio(wearingGlassNum,validScreeningNum))
+                .setNightWearingOrthokeratologyLensesNum(nightWearingOrthokeratologyLensesNum).setNightWearingOrthokeratologyLensesRatio(MathUtil.ratio(nightWearingOrthokeratologyLensesNum,validScreeningNum))
+                .setTreatmentAdviceNum(treatmentAdviceNum).setTreatmentAdviceRatio(MathUtil.ratio(treatmentAdviceNum,validScreeningNum))
+                .setSchoolType(totalStatistic.getSchoolType());
+
         statistic.setVisionAnalysis(visionAnalysisDO);
     }
 
-    private void setVisionWarning(int validScreeningNum,Map<Integer, Long> visionLabelNumberMap,
+    /**
+     * 设置幼儿园视力分析数据
+     */
+    private void setKindergartenVisionAnalysis(StatisticResultBO totalStatistic, List<StatConclusion> statConclusions, int validScreeningNum, VisionScreeningResultStatistic statistic) {
+        KindergartenVisionAnalysisDO visionAnalysisDO =new KindergartenVisionAnalysisDO();
+        Map<Integer, Long> visionLabelNumberMap = statConclusions.stream().filter(Objects::nonNull).filter(stat -> Objects.nonNull(stat.getWarningLevel())).collect(Collectors.groupingBy(StatConclusion::getWarningLevel, Collectors.counting()));
+        Integer lowVisionNum = (int) statConclusions.stream().filter(Objects::nonNull).filter(StatConclusion::getIsLowVision).count();
+        Integer ametropiaNum = (int) statConclusions.stream().filter(Objects::nonNull).filter(StatConclusion::getIsRefractiveError).count();
+        Integer anisometropiaNum = (int) statConclusions.stream().filter(Objects::nonNull).filter(StatConclusion::getIsAnisometropia).count();
+        Integer wearingGlassNum = (int) statConclusions.stream().filter(Objects::nonNull).filter(StatConclusion::getIsWearingGlasses).count();
+        Integer treatmentAdviceNum = (int) statConclusions.stream().filter(Objects::nonNull).filter(StatConclusion::getIsRecommendVisit).count();
+        List<BigDecimal> leftList = statConclusions.stream().map(StatConclusion::getVisionL).filter(Objects::nonNull).collect(Collectors.toList());
+        double leftSum = leftList.stream().mapToDouble(BigDecimal::doubleValue).sum();
+        double avgLeftVision =BigDecimalUtil.divide(String.valueOf(leftSum),String.valueOf(leftList.size()),1).doubleValue();
+        List<BigDecimal> rightList = statConclusions.stream().map(StatConclusion::getVisionR).filter(Objects::nonNull).collect(Collectors.toList());
+        double rightSum = rightList.stream().mapToDouble(BigDecimal::doubleValue).sum();
+        double avgRightVision = BigDecimalUtil.divide(String.valueOf(rightSum),String.valueOf(rightList.size()),1).doubleValue();
+
+        Integer visionLabelZeroSpNum = visionLabelNumberMap.getOrDefault(WarningLevel.ZERO_SP.code, 0L).intValue();
+        visionAnalysisDO.setLowVisionNum(lowVisionNum)
+                .setLowVisionRatio(MathUtil.ratio(lowVisionNum,validScreeningNum))
+                .setAvgLeftVision(BigDecimal.valueOf(avgLeftVision)).setAvgRightVision(BigDecimal.valueOf(avgRightVision))
+                .setAmetropiaNum(ametropiaNum).setAmetropiaRatio(MathUtil.ratio(ametropiaNum,validScreeningNum))
+                .setAnisometropiaNum(anisometropiaNum).setAnisometropiaRatio(MathUtil.ratio(anisometropiaNum,validScreeningNum))
+                .setMyopiaLevelInsufficientNum(visionLabelZeroSpNum).setMyopiaLevelInsufficientNumRatio(MathUtil.ratio(visionLabelZeroSpNum,validScreeningNum))
+                .setWearingGlassesNum(wearingGlassNum).setWearingGlassesRatio(MathUtil.ratio(wearingGlassNum,validScreeningNum))
+                .setTreatmentAdviceNum(treatmentAdviceNum).setTreatmentAdviceRatio(MathUtil.ratio(treatmentAdviceNum,validScreeningNum))
+                .setSchoolType(totalStatistic.getSchoolType());
+        statistic.setVisionAnalysis(visionAnalysisDO);
+    }
+
+    private Integer getKey(Integer schoolAge){
+        return Objects.equals(schoolAge,5)?schoolAge:0;
+    }
+
+
+    /**
+     * 设置视力预警数据
+     */
+    private void setVisionWarning(int validScreeningNum,
+                                  List<StatConclusion> statConclusions,
                                   VisionScreeningResultStatistic statistic) {
         VisionWarningDO visionWarningDO = new VisionWarningDO();
+        Map<Integer, Long> visionLabelNumberMap = statConclusions.stream().filter(Objects::nonNull).filter(stat -> Objects.nonNull(stat.getWarningLevel())).collect(Collectors.groupingBy(StatConclusion::getWarningLevel, Collectors.counting()));
         Integer visionLabel0Num = visionLabelNumberMap.getOrDefault(WarningLevel.ZERO.code, 0L).intValue();
         Integer visionLabel1Num = visionLabelNumberMap.getOrDefault(WarningLevel.ONE.code, 0L).intValue();
         Integer visionLabel2Num = visionLabelNumberMap.getOrDefault(WarningLevel.TWO.code, 0L).intValue();
@@ -540,72 +530,87 @@ public class DistrictStatisticTask {
         Integer visionWarningNum =visionLabel0Num+visionLabel1Num+visionLabel2Num+visionLabel3Num;
 
         visionWarningDO.setVisionWarningNum(visionWarningNum)
-                .setVisionLabel0Num(visionLabel0Num).setVisionLabel0Ratio(ratio(visionLabel0Num,validScreeningNum))
-                .setVisionLabel1Num(visionLabel1Num).setVisionLabel1Ratio(ratio(visionLabel1Num,validScreeningNum))
-                .setVisionLabel2Num(visionLabel2Num).setVisionLabel2Ratio(ratio(visionLabel2Num,validScreeningNum))
-                .setVisionLabel3Num(visionLabel3Num).setVisionLabel3Ratio(ratio(visionLabel3Num,validScreeningNum));
+                .setVisionLabel0Num(visionLabel0Num).setVisionLabel0Ratio(MathUtil.ratio(visionLabel0Num,validScreeningNum))
+                .setVisionLabel1Num(visionLabel1Num).setVisionLabel1Ratio(MathUtil.ratio(visionLabel1Num,validScreeningNum))
+                .setVisionLabel2Num(visionLabel2Num).setVisionLabel2Ratio(MathUtil.ratio(visionLabel2Num,validScreeningNum))
+                .setVisionLabel3Num(visionLabel3Num).setVisionLabel3Ratio(MathUtil.ratio(visionLabel3Num,validScreeningNum));
         statistic.setVisionWarning(visionWarningDO);
     }
 
-    private RescreenSituationDO setRescreenSituation(int validRescreenNum, Integer rescreenNum, Integer wearingGlassRescreenNum,
-                                                     Integer validWearingGlassRescreenNum, Integer withoutGlassRescreenNum,
-                                                     Integer validWithoutGlassRescreenNum,VisionScreeningResultStatistic statistic) {
+    /**
+     * 设置复测数据
+     */
+    private RescreenSituationDO setRescreenSituation(List<StatConclusion> statConclusions,Map<Boolean, List<StatConclusion>> isRescreenMap,
+                                                     VisionScreeningResultStatistic statistic) {
         RescreenSituationDO rescreenSituationDO = new RescreenSituationDO();
-        rescreenSituationDO.setRetestNum(validRescreenNum).setRetestRatio(ratio(validRescreenNum, rescreenNum))
-                .setWearingGlassRetestNum(validWearingGlassRescreenNum).setWearingGlassRetestRatio(ratio(validWearingGlassRescreenNum, wearingGlassRescreenNum))
-                .setWithoutGlassRetestNum(validWithoutGlassRescreenNum).setWithoutGlassRetestRatio(ratio(validWithoutGlassRescreenNum, withoutGlassRescreenNum))
+        Integer wearingGlassRescreenNum = (int) statConclusions.stream().filter(Objects::nonNull).filter(sc->sc.getIsRescreen() && sc.getIsWearingGlasses() && sc.getIsValid()).count();
+        Integer withoutGlassRescreenNum = (int) statConclusions.stream().filter(Objects::nonNull).filter(sc->sc.getIsRescreen() && sc.getIsWearingGlasses()&& sc.getIsValid()).count();
+        Integer rescreenNum = (int) statConclusions.stream().filter(Objects::nonNull).filter(StatConclusion::getIsRescreen).count();
+        int validRescreenNum = isRescreenMap.getOrDefault(Boolean.TRUE, Collections.emptyList()).size();
+        rescreenSituationDO.setRetestNum(rescreenNum).setRetestRatio(MathUtil.ratio(rescreenNum, validRescreenNum))
+                .setWearingGlassRetestNum(wearingGlassRescreenNum).setWearingGlassRetestRatio(MathUtil.ratio(wearingGlassRescreenNum, validRescreenNum))
+                .setWithoutGlassRetestNum(withoutGlassRescreenNum).setWithoutGlassRetestRatio(MathUtil.ratio(wearingGlassRescreenNum, validRescreenNum))
                 .setRescreeningItemNum(0).setErrorItemNum(0).setIncidence("");
         statistic.setRescreenSituation(rescreenSituationDO);
         return rescreenSituationDO;
     }
 
+    /**
+     * 设置龋齿数据
+     */
     private void setSaprodontia(List<StatConclusion> statConclusions, Integer realScreeningStudentNum, CommonDiseaseScreeningResultStatistic statistic) {
         SaprodontiaDO saprodontiaDO = new SaprodontiaDO();
-        int saprodontiaFreeNum = (int)statConclusions.stream().filter(sc -> !sc.getIsSaprodontia() && !sc.getIsSaprodontiaLoss() && !sc.getIsSaprodontiaRepair()).count();
-        int saprodontiaNum = (int)statConclusions.stream().filter(StatConclusion::getIsSaprodontia).count();
-        int saprodontiaLossNum = (int)statConclusions.stream().filter(StatConclusion::getIsSaprodontiaLoss).count();
-        int saprodontiaRepairNum = (int)statConclusions.stream().filter(StatConclusion::getIsSaprodontiaRepair).count();
-        int saprodontiaLossAndRepairNum = (int)statConclusions.stream().filter(sc -> sc.getIsSaprodontiaLoss() && sc.getIsSaprodontiaRepair()).count();
+        int saprodontiaFreeNum = (int)statConclusions.stream().filter(Objects::nonNull).filter(sc -> !sc.getIsSaprodontia() && !sc.getIsSaprodontiaLoss() && !sc.getIsSaprodontiaRepair()).count();
+        int saprodontiaNum = (int)statConclusions.stream().filter(Objects::nonNull).filter(StatConclusion::getIsSaprodontia).count();
+        int saprodontiaLossNum = (int)statConclusions.stream().filter(Objects::nonNull).filter(StatConclusion::getIsSaprodontiaLoss).count();
+        int saprodontiaRepairNum = (int)statConclusions.stream().filter(Objects::nonNull).filter(StatConclusion::getIsSaprodontiaRepair).count();
+        int saprodontiaLossAndRepairNum = (int)statConclusions.stream().filter(Objects::nonNull).filter(sc -> sc.getIsSaprodontiaLoss() && sc.getIsSaprodontiaRepair()).count();
 
-        int dmftNum = statConclusions.stream()
+        int dmftNum = statConclusions.stream().filter(Objects::nonNull)
                 .filter(sc -> sc.getIsSaprodontiaLoss() && sc.getIsSaprodontiaRepair())
                 .mapToInt(sc -> sc.getSaprodontiaLossTeeth() + sc.getSaprodontiaRepairTeeth()).sum();
 
-        int sumTeeth = statConclusions.stream()
+        int sumTeeth = statConclusions.stream().filter(Objects::nonNull)
                 .filter(sc -> sc.getIsSaprodontiaLoss() && sc.getIsSaprodontiaRepair() && sc.getIsSaprodontia())
                 .mapToInt(sc -> sc.getSaprodontiaLossTeeth() + sc.getSaprodontiaRepairTeeth() + sc.getSaprodontiaTeeth()).sum();
 
         saprodontiaDO
-                .setSaprodontiaFreeNum(saprodontiaFreeNum).setSaprodontiaFreeRatio(ratio(saprodontiaFreeNum,realScreeningStudentNum))
-                .setDmftNum(dmftNum).setDmftRatio(ratio(dmftNum,realScreeningStudentNum))
-        .setSaprodontiaNum(saprodontiaNum).setSaprodontiaRatio(ratio(saprodontiaNum,realScreeningStudentNum))
-        .setSaprodontiaLossNum(saprodontiaLossNum).setSaprodontiaLossRatio(ratio(saprodontiaLossNum,realScreeningStudentNum))
-        .setSaprodontiaRepairNum(saprodontiaRepairNum).setSaprodontiaRepairRatio(ratio(saprodontiaRepairNum,realScreeningStudentNum))
-        .setSaprodontiaLossAndRepairNum(saprodontiaLossAndRepairNum).setSaprodontiaLossAndRepairRatio(ratio(saprodontiaLossAndRepairNum,realScreeningStudentNum))
-        .setSaprodontiaLossAndRepairTeethNum(dmftNum).setSaprodontiaLossAndRepairTeethRatio(ratio(dmftNum,sumTeeth));
+                .setSaprodontiaFreeNum(saprodontiaFreeNum).setSaprodontiaFreeRatio(MathUtil.ratio(saprodontiaFreeNum,realScreeningStudentNum))
+                .setDmftNum(dmftNum).setDmftRatio(MathUtil.ratio(dmftNum,realScreeningStudentNum))
+                .setSaprodontiaNum(saprodontiaNum).setSaprodontiaRatio(MathUtil.ratio(saprodontiaNum,realScreeningStudentNum))
+                .setSaprodontiaLossNum(saprodontiaLossNum).setSaprodontiaLossRatio(MathUtil.ratio(saprodontiaLossNum,realScreeningStudentNum))
+                .setSaprodontiaRepairNum(saprodontiaRepairNum).setSaprodontiaRepairRatio(MathUtil.ratio(saprodontiaRepairNum,realScreeningStudentNum))
+                .setSaprodontiaLossAndRepairNum(saprodontiaLossAndRepairNum).setSaprodontiaLossAndRepairRatio(MathUtil.ratio(saprodontiaLossAndRepairNum,realScreeningStudentNum))
+                .setSaprodontiaLossAndRepairTeethNum(dmftNum).setSaprodontiaLossAndRepairTeethRatio(MathUtil.ratio(dmftNum,sumTeeth));
         statistic.setSaprodontia(saprodontiaDO);
     }
 
+    /**
+     * 设置常见病数据
+     */
     private void setCommonDisease(List<StatConclusion> statConclusions, Integer realScreeningStudentNum, CommonDiseaseScreeningResultStatistic statistic) {
         CommonDiseaseDO commonDiseaseDO = new CommonDiseaseDO();
-        int overweightNum = (int)statConclusions.stream().filter(StatConclusion::getIsOverweight).count();
-        int obeseNum = (int)statConclusions.stream().filter(StatConclusion::getIsObesity).count();
-        int malnourishedNum = (int)statConclusions.stream().filter(StatConclusion::getIsMalnutrition).count();
-        int stuntingNum = (int)statConclusions.stream().filter(StatConclusion::getIsStunting).count();
-        int abnormalSpineCurvatureNum = (int)statConclusions.stream().filter(StatConclusion::getIsSpinalCurvature).count();
-        int highBloodPressureNum = (int)statConclusions.stream().filter(sc->!sc.getIsNormalBloodPressure()).count();
-        int reviewStudentNum = (int)statConclusions.stream().filter(StatConclusion::getIsRescreen).count();
-        commonDiseaseDO.setOverweightNum(overweightNum).setOverweightRatio(ratio(overweightNum,realScreeningStudentNum))
-        .setObeseNum(obeseNum).setObeseRatio(ratio(obeseNum,realScreeningStudentNum))
-        .setMalnourishedNum(malnourishedNum).setMalnourishedRatio(ratio(malnourishedNum,realScreeningStudentNum))
-        .setStuntingNum(stuntingNum).setStuntingRatio(ratio(stuntingNum,realScreeningStudentNum))
-        .setAbnormalSpineCurvatureNum(abnormalSpineCurvatureNum).setAbnormalSpineCurvatureRatio(ratio(abnormalSpineCurvatureNum,realScreeningStudentNum))
-        .setHighBloodPressureNum(highBloodPressureNum).setHighBloodPressureRatio(ratio(highBloodPressureNum,realScreeningStudentNum))
-        .setReviewStudentNum(reviewStudentNum).setReviewStudentRatio(ratio(reviewStudentNum,realScreeningStudentNum));
+        int overweightNum = (int)statConclusions.stream().filter(Objects::nonNull).filter(StatConclusion::getIsOverweight).count();
+        int obeseNum = (int)statConclusions.stream().filter(Objects::nonNull).filter(StatConclusion::getIsObesity).count();
+        int malnourishedNum = (int)statConclusions.stream().filter(Objects::nonNull).filter(StatConclusion::getIsMalnutrition).count();
+        int stuntingNum = (int)statConclusions.stream().filter(Objects::nonNull).filter(StatConclusion::getIsStunting).count();
+        int abnormalSpineCurvatureNum = (int)statConclusions.stream().filter(Objects::nonNull).filter(StatConclusion::getIsSpinalCurvature).count();
+        int highBloodPressureNum = (int)statConclusions.stream().filter(Objects::nonNull).filter(sc->!sc.getIsNormalBloodPressure()).count();
+        int reviewStudentNum = (int)statConclusions.stream().filter(Objects::nonNull).filter(StatConclusion::getIsRescreen).count();
+
+         commonDiseaseDO.setOverweightNum(overweightNum).setOverweightRatio(MathUtil.ratio(overweightNum,realScreeningStudentNum))
+            .setObeseNum(obeseNum).setObeseRatio(MathUtil.ratio(obeseNum,realScreeningStudentNum))
+            .setMalnourishedNum(malnourishedNum).setMalnourishedRatio(MathUtil.ratio(malnourishedNum,realScreeningStudentNum))
+            .setStuntingNum(stuntingNum).setStuntingRatio(MathUtil.ratio(stuntingNum,realScreeningStudentNum))
+            .setAbnormalSpineCurvatureNum(abnormalSpineCurvatureNum).setAbnormalSpineCurvatureRatio(MathUtil.ratio(abnormalSpineCurvatureNum,realScreeningStudentNum))
+            .setHighBloodPressureNum(highBloodPressureNum).setHighBloodPressureRatio(MathUtil.ratio(highBloodPressureNum,realScreeningStudentNum))
+            .setReviewStudentNum(reviewStudentNum).setReviewStudentRatio(MathUtil.ratio(reviewStudentNum,realScreeningStudentNum));
 
         statistic.setCommonDisease(commonDiseaseDO);
     }
-
+    /**
+     * 设置问卷调查数据
+     */
     private void setQuestionnaire(CommonDiseaseScreeningResultStatistic statistic) {
         QuestionnaireDO questionnaireDO = new QuestionnaireDO();
         Integer num=0;

@@ -68,7 +68,7 @@ public class ScreeningResultStatisticDetailVO {
         }
 
         if (CollectionUtil.isNotEmpty(primarySchoolAndAboveVisionStatistics)){
-            ScreeningResultStatistic primarySchoolAndAboveVisionStatistic = kindergartenVisionStatistics.stream().filter(vs -> Objects.equals(districtId, vs.getDistrictId())).findFirst().orElse(null);
+            ScreeningResultStatistic primarySchoolAndAboveVisionStatistic = primarySchoolAndAboveVisionStatistics.stream().filter(vs -> Objects.equals(districtId, vs.getDistrictId())).findFirst().orElse(null);
             if (primarySchoolAndAboveVisionStatistic != null){
                 String statRangeName = "合计";
                 this.primarySchoolAndAboveResultDetail = this.getPrimarySchoolAndAboveResultDetailVO(districtId, statRangeName, primarySchoolAndAboveVisionStatistic);

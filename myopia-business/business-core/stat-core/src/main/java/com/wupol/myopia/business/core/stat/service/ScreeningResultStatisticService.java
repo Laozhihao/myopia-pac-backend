@@ -155,7 +155,6 @@ public class ScreeningResultStatisticService extends BaseService<ScreeningResult
         queryWrapper.eq(ScreeningResultStatistic::getScreeningNoticeId, noticeId);
         queryWrapper.eq(ScreeningResultStatistic::getIsTotal, isTotal);
         queryWrapper.eq(ScreeningResultStatistic::getScreeningType, screeningType);
-        queryWrapper.isNull(ScreeningResultStatistic::getSchoolId);
         queryWrapper.in(ScreeningResultStatistic::getSchoolType,getSchoolType(isKindergarten));
         return queryWrapper;
     }

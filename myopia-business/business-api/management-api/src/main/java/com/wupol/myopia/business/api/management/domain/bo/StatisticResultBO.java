@@ -60,6 +60,10 @@ public class StatisticResultBO implements Serializable {
     private Integer schoolId;
 
     /**
+     * 筛查机构ID
+     */
+    private Integer screeningOrgId;
+    /**
      * 学校类型
      */
     private Integer schoolType;
