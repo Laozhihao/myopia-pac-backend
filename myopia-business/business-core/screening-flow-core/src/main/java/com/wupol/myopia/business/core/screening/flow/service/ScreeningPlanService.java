@@ -327,4 +327,8 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
         return baseMapper.getByIds(ids);
     }
 
+    public ScreeningPlan getPlanByTaskId(Integer screeningTaskId,Integer screeningOrgId) {
+
+        return  baseMapper.getPlanByTaskId(screeningTaskId,screeningOrgId);
+    }
 }

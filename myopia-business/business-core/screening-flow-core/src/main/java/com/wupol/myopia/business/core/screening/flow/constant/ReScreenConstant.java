@@ -20,7 +20,10 @@ public class ReScreenConstant {
      * 电脑验光误差标准
      */
     public static final String COMPUTEROPTOMETRY_DEVIATION = "0.5";
-
+    /**
+     * 等效球镜误差标准
+     */
+    public static final String SE_DEVIATION = "0.5";
     /**
      * 体重误差标准（kg）
      */
@@ -29,4 +32,6 @@ public class ReScreenConstant {
      * 升高误差标准（cm）
      */
     public static final String WEIGHT_DEVIATION = "0.1";
+
+
 }

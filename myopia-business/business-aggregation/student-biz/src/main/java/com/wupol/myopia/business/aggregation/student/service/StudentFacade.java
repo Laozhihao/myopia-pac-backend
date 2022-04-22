@@ -111,18 +111,18 @@ public class StudentFacade {
 
     /**
      * 获取学生复测卡
-     * @param plandStudentId 计划学生ID
-     * @param plandId 计划ID
-     * @return
+     * @param planStudentId 计划学生ID
+     * @param planId 计划ID
+     * @return 获取学生复测卡
      */
-    public ReScreeningCardVO getRetestResult(Integer plandStudentId, Integer plandId){
+    public ReScreeningCardVO getRetestResult(Integer planStudentId, Integer planId){
 
-        VisionScreeningResult screeningResult = visionScreeningResultService.getIsDoubleScreeningResult(plandId, plandStudentId,false);
-        VisionScreeningResult retestResult = visionScreeningResultService.getIsDoubleScreeningResult(plandId, plandStudentId,true);
+        VisionScreeningResult screeningResult = visionScreeningResultService.getIsDoubleScreeningResult(planId, planStudentId,false);
+        VisionScreeningResult retestResult = visionScreeningResultService.getIsDoubleScreeningResult(planId, planStudentId,true);
 
         //质控员
         String qualityControlName =null;
-        List<ScreeningPlanSchool> screeningPlanSchools = screeningPlanSchoolService.getSchoolListsByPlanId(plandId);
+        List<ScreeningPlanSchool> screeningPlanSchools = screeningPlanSchoolService.getSchoolListsByPlanId(planId);
         if (Objects.nonNull(screeningPlanSchools)){
             qualityControlName = screeningPlanSchools.get(0).getQualityControllerName();
         }
@@ -145,7 +145,7 @@ public class StudentFacade {
         IPage<VisionScreeningResult> resultIPage = visionScreeningResultService.getByStudentIdWithPage(pageRequest,studentId);
 
         List<VisionScreeningResult> resultList = resultIPage.getRecords();
-                
+
         // 获取筛查计划
         List<Integer> planIds = resultList.stream().map(VisionScreeningResult::getPlanId).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(planIds)) {
@@ -194,8 +194,7 @@ public class StudentFacade {
             //设置视力信息
             screeningInfoDTO.setVision(resultDetail);
             //设置常见病信息
-            CommonDiseasesDTO commonDiseases = getCommonDiseases(result);
-            screeningInfoDTO.setCommonDiseases(commonDiseases);
+            screeningInfoDTO.setCommonDiseases(getCommonDiseases(result));
             //设置复测信息
             if (Objects.nonNull(rescreeningVisionScreeningResultMap)){
                 screeningInfoDTO.setRescreening(ReScreenCardUtil.reScreeningResult(result,rescreeningVisionScreeningResultMap.get(result.getPlanId())));
@@ -262,25 +261,26 @@ public class StudentFacade {
         commonDiseases.setSaprodontiaData(getSaprodontiaDataDODTO(result));
         commonDiseases.setSpineData(result.getSpineData());
         commonDiseases.setBloodPressureData(result.getBloodPressureData());
-//        commonDiseases.setDiseasesHistoryData(result.getDiseasesHistoryData());
+        commonDiseases.setDiseasesHistoryData(result.getDiseasesHistoryData());
         commonDiseases.setPrivacyData(result.getPrivacyData());
         commonDiseases.setSystemicDiseaseSymptom(result.getSystemicDiseaseSymptom());
         commonDiseases.setHeightAndWeightData(result.getHeightAndWeightData());
         return commonDiseases;
     }
 
+    /**
+     * 合并上下牙床数据
+     * @param result 筛查数据
+     * @return 合并上下牙床数据
+     */
     private SaprodontiaDataDODTO getSaprodontiaDataDODTO(VisionScreeningResult result){
 
-        Optional.ofNullable(result) .map(VisionScreeningResult::getSaprodontiaData).orElse(null);
-
-        SaprodontiaDataDO saprodontiaDataDO = result.getSaprodontiaData();
-
-        List<SaprodontiaDataDO.SaprodontiaItem> above = saprodontiaDataDO.getAbove();
-        List<SaprodontiaDataDO.SaprodontiaItem> underneath = saprodontiaDataDO.getUnderneath();
-
         List<SaprodontiaDataDO.SaprodontiaItem> items = new ArrayList<>();
-        items.addAll(above);
-        items.addAll(underneath);
+
+        if (Objects.nonNull(result)&&Objects.nonNull(result.getSaprodontiaData())){
+            items.addAll(result.getSaprodontiaData().getAbove());
+            items.addAll(result.getSaprodontiaData().getUnderneath());
+        }
 
         return calculationTooth(items);
     }
@@ -299,24 +299,26 @@ public class StudentFacade {
         int mFountPermanent = 0;
         int fFountPermanent = 0;
         for (SaprodontiaDataDO.SaprodontiaItem item: items){
-            if (item.getDeciduous().equals(SaprodontiaType.D)){
-                dCountDeciduous++;
-            }
-            if (item.getDeciduous().equals(SaprodontiaType.M)){
-                mCountDeciduous++;
-            }
-            if (item.getDeciduous().equals(SaprodontiaType.F)){
-                fFountDeciduous++;
-            }
+            if (item!=null){
+                if (item.getDeciduous().equals(SaprodontiaType.DECIDUOUS_D)){
+                    dCountDeciduous++;
+                }
+                if (item.getDeciduous().equals(SaprodontiaType.DECIDUOUS_M)){
+                    mCountDeciduous++;
+                }
+                if (item.getDeciduous().equals(SaprodontiaType.DECIDUOUS_F)){
+                    fFountDeciduous++;
+                }
 
-            if (item.getPermanent().equals(SaprodontiaType.D)){
-                dFountPermanent++;
-            }
-            if (item.getPermanent().equals(SaprodontiaType.M)){
-                mFountPermanent++;
-            }
-            if (item.getPermanent().equals(SaprodontiaType.F)){
-                fFountPermanent++;
+                if (item.getPermanent().equals(SaprodontiaType.PERMANENT_D)){
+                    dFountPermanent++;
+                }
+                if (item.getPermanent().equals(SaprodontiaType.PERMANENT_M)){
+                    mFountPermanent++;
+                }
+                if (item.getPermanent().equals(SaprodontiaType.PERMANENT_F)){
+                    fFountPermanent++;
+                }
             }
         }
 

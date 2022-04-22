@@ -73,4 +73,9 @@ public class SchoolQueryDTO extends School {
     public Boolean getNeedCheckHavePlan() {
         return !Objects.isNull(needCheckHavePlan) && needCheckHavePlan;
     }
+
+    /**
+     * 筛查类型（0：视力筛查，1；常见病）
+     */
+    private Integer screeningType;
 }

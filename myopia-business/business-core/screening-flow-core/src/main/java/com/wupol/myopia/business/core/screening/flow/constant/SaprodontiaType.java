@@ -14,9 +14,12 @@ import java.util.Arrays;
 @Getter
 @AllArgsConstructor
 public enum SaprodontiaType {
-    D("d", "龋"),
-    M("m", "失"),
-    F("f", "补");
+    DECIDUOUS_D("d", "乳牙龋"),
+    DECIDUOUS_M("m", "乳牙失"),
+    DECIDUOUS_F("f", "乳牙补"),
+    PERMANENT_D("D", "恒牙龋"),
+    PERMANENT_M("M", "恒牙失"),
+    PERMANENT_F("F", "恒牙补");
 
     private final String name;
 

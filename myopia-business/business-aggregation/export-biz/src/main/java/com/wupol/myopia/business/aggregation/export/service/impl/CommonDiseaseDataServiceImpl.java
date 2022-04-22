@@ -102,9 +102,7 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
                 .setWeight(ScreeningDataFormatUtils.getWeight(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_HW_WEIGHT)))
                 .setOtherEyeDiseasesLeftEyeDiseases(ListUtil.objectList2Str(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_OED_LEFT_EYE_DISEASES)))
                 .setOtherEyeDiseasesRightEyeDiseases(ListUtil.objectList2Str(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_OED_RIGHT_EYE_DISEASES)))
-                .setOtherEyeDiseasesSystemicDiseaseSymptom((String) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_SYSTEMIC_DISEASE_SYMPTOM))
-                .setLeftOtherEyeDiseasesLevel(ScreeningDataFormatUtils.levelDateFormat(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_VLLD_LEFT_LEVEL)))
-                .setRightOtherEyeDiseasesLevel(ScreeningDataFormatUtils.levelDateFormat(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_VLLD_RIGHT_LEVEL)));
+                .setOtherEyeDiseasesSystemicDiseaseSymptom((String) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_SYSTEMIC_DISEASE_SYMPTOM));
     }
 
     /**
@@ -189,9 +187,9 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
      * @return 结论
      */
     private String countSaprodontiaNum(List<String> list) {
-        return list.stream().filter(s -> SaprodontiaType.D.getName().equals(s)).count() + ":" +
-                list.stream().filter(s -> SaprodontiaType.M.getName().equals(s)).count() + ":" +
-                list.stream().filter(s -> SaprodontiaType.F.getName().equals(s)).count();
+        return list.stream().filter(s -> StringUtils.equalsAny(s, SaprodontiaType.DECIDUOUS_D.getName(), SaprodontiaType.PERMANENT_D.getName())).count() + ":" +
+                list.stream().filter(s -> StringUtils.equalsAny(s, SaprodontiaType.DECIDUOUS_M.getName(), SaprodontiaType.PERMANENT_M.getName())).count() + ":" +
+                list.stream().filter(s -> StringUtils.equalsAny(s, SaprodontiaType.DECIDUOUS_F.getName(), SaprodontiaType.PERMANENT_F.getName())).count();
     }
 
     /**
@@ -209,10 +207,10 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
         SpineDataDO.SpineItem chestWaist = spineData.getChestWaist();
         SpineDataDO.SpineItem waist = spineData.getWaist();
         SpineDataDO.SpineItem entirety = spineData.getEntirety();
-        exportDTO.setChest(SpineTypeEnum.getTypeName(chest.getLevel()) + "、" + SpineLevelEnum.getLevelName(chest.getType()))
-                .setChestWaist(SpineTypeEnum.getTypeName(chestWaist.getLevel()) + "、" + SpineLevelEnum.getLevelName(chestWaist.getType()))
-                .setWaist(SpineTypeEnum.getTypeName(waist.getLevel()) + "、" + SpineLevelEnum.getLevelName(waist.getType()))
-                .setEntirety(SpineTypeEnum.getTypeName(entirety.getLevel()) + "、" + SpineLevelEnum.getLevelName(entirety.getType()));
+        exportDTO.setChest(SpineTypeEnum.getTypeName(chest.getType()) + "、" + SpineLevelEnum.getLevelName(chest.getLevel()))
+                .setChestWaist(SpineTypeEnum.getTypeName(chestWaist.getType()) + "、" + SpineLevelEnum.getLevelName(chestWaist.getLevel()))
+                .setWaist(SpineTypeEnum.getTypeName(waist.getType()) + "、" + SpineLevelEnum.getLevelName(waist.getLevel()))
+                .setEntirety(SpineTypeEnum.getTypeName(entirety.getType()) + "、" + SpineLevelEnum.getLevelName(entirety.getLevel()));
 
     }
 
@@ -223,8 +221,10 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
      * @param exportDTO 筛查数据导出
      */
     private void generateBloodPressureData(StatConclusionExportDTO dto, CommonDiseaseDataExportDTO exportDTO) {
-        exportDTO.setDbp(String.valueOf(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BLOOD_PRESSURE_DBP)))
-                .setSbp(String.valueOf(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BLOOD_PRESSURE_SBP)));
+        Object dbp = JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BLOOD_PRESSURE_DBP);
+        Object sbp = JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BLOOD_PRESSURE_SBP);
+        exportDTO.setDbp(Objects.nonNull(dbp) ? String.valueOf(dbp) : StringUtils.EMPTY)
+                .setSbp(Objects.nonNull(sbp) ? String.valueOf(sbp) : StringUtils.EMPTY);
     }
 
     /**
