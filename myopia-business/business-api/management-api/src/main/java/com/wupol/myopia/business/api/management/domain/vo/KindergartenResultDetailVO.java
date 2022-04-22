@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.vo;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.wupol.myopia.business.core.stat.domain.dos.KindergartenVisionAnalysisDO;
 import com.wupol.myopia.business.core.stat.domain.dos.RescreenSituationDO;
 import com.wupol.myopia.business.core.stat.domain.dos.ScreeningSituationDO;
@@ -18,6 +19,7 @@ import java.util.Objects;
  * @author hang.yuan 2022/4/7 17:29
  */
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Accessors(chain = true)
 public class KindergartenResultDetailVO implements Serializable, FrontTableId {
 

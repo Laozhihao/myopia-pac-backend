@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.vo;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.wupol.myopia.business.core.stat.domain.dos.*;
 import com.wupol.myopia.business.core.stat.domain.model.ScreeningResultStatistic;
 import lombok.Data;
@@ -15,6 +16,7 @@ import java.util.Objects;
  * @author hang.yuan 2022/4/7 17:32
  */
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Accessors(chain = true)
 public class PrimarySchoolAndAboveResultDetailVO implements Serializable,FrontTableId {
 

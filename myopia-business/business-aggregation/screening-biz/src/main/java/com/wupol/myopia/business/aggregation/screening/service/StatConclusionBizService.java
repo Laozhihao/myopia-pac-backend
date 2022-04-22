@@ -82,7 +82,7 @@ public class StatConclusionBizService {
 
     private void consumerMap(Map<Integer, List<VisionScreeningResult>> visionScreeningResultMap) {
         log.info("开始处理的筛查计划ID集合：planIds:{}",CollectionUtil.join(visionScreeningResultMap.keySet(),","));
-        long count = visionScreeningResultMap.values().stream().flatMap(List::stream).count();
+        int count = visionScreeningResultMap.values().stream().mapToInt(List::size).sum();
         log.info("筛查结果数据共{}条",count);
 
         Set<Integer> screeningPlanSchoolStudentIds = visionScreeningResultMap.values().stream().flatMap(List::stream).map(VisionScreeningResult::getScreeningPlanSchoolStudentId).collect(Collectors.toSet());
