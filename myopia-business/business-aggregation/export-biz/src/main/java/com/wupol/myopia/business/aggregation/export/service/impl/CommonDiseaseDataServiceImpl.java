@@ -223,8 +223,10 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
      * @param exportDTO 筛查数据导出
      */
     private void generateBloodPressureData(StatConclusionExportDTO dto, CommonDiseaseDataExportDTO exportDTO) {
-        exportDTO.setDbp(String.valueOf(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BLOOD_PRESSURE_DBP)))
-                .setSbp(String.valueOf(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BLOOD_PRESSURE_SBP)));
+        Object dbp = JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BLOOD_PRESSURE_DBP);
+        Object sbp = JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BLOOD_PRESSURE_SBP);
+        exportDTO.setDbp(Objects.nonNull(dbp) ? String.valueOf(dbp) : StringUtils.EMPTY)
+                .setSbp(Objects.nonNull(sbp) ? String.valueOf(sbp) : StringUtils.EMPTY);
     }
 
     /**
