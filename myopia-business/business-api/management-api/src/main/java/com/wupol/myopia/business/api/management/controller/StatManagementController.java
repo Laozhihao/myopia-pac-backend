@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.controller;
 
+import cn.hutool.core.collection.ListUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
@@ -318,7 +319,7 @@ public class StatManagementController {
     }
 
     /**
-     * 为了测试方便
+     * 筛查结果和筛查数据结论的数据转换为筛查结果统计数据 - 根据筛查计划日期或者筛查计划ID
      */
     @GetMapping("/trigger")
     public void statTaskTrigger(@RequestParam(required = false) String date,
@@ -326,13 +327,18 @@ public class StatManagementController {
         scheduledTasksExecutor.statistic(date,planId);
     }
 
+    /**
+     * 筛查结果数据转筛查数据结论
+     * @param planId 筛查计划ID, 不必填
+     * @param isAll 是否全部 (true-全部,false-不是全部) 必填
+     */
     @GetMapping("screeningToConclusion")
-    public void sc(@RequestParam(required = false) Integer planId,@RequestParam Boolean isAll){
+    public void screeningToConclusion(@RequestParam(required = false) Integer planId,@RequestParam Boolean isAll){
         if (planId != null && !isAll){
             statConclusionBizService.screeningToConclusionByPlanIds(Lists.newArrayList(planId));
         }
-        if (planId == null && isAll){
-            statConclusionBizService.screeningToConclusionAll();
+        if (isAll){
+            statConclusionBizService.screeningToConclusionAll(planId);
         }
 
     }
@@ -346,6 +352,9 @@ public class StatManagementController {
         bigScreeningStatService.statisticBigScreen();
     }
 
+    /**
+     * 筛查结果和筛查数据结论的数据转换为筛查结果统计数据-全部数据
+     */
     @GetMapping("/triggerAll")
     public void statTaskTriggerAll() {
         List<Integer> yesterdayScreeningPlanIds = screeningPlanService.list().stream().map(ScreeningPlan::getId).filter(id->Objects.nonNull(id) && id>=127).collect(Collectors.toList());
@@ -353,7 +362,13 @@ public class StatManagementController {
             log.info("筛查数据统计：历史无筛查数据，无需统计");
             return;
         }
-        scheduledTasksExecutor.screeningResultStatisticByPlanIds(yesterdayScreeningPlanIds);
+        log.info("共{}条筛查计划",yesterdayScreeningPlanIds.size());
+        List<List<Integer>> planIdsList = ListUtil.split(yesterdayScreeningPlanIds, 50);
+        for (int i = 0; i < planIdsList.size(); i++) {
+            log.info("分批执行中...{}/{}",i+1,planIdsList.size());
+            scheduledTasksExecutor.screeningResultStatisticByPlanIds(planIdsList.get(i));
+        }
+        log.info("数据处理完成");
     }
 
     @GetMapping("/triggerById/{planId}")

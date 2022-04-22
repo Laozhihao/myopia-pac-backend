@@ -24,7 +24,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
- * 筛查结论计算工具
+ * 筛查结论计算工具 (产品说判断结论时没数据不给任何值)
  */
 @UtilityClass
 public class StatUtil {
@@ -79,39 +79,36 @@ public class StatUtil {
      */
     public static Boolean isLowVision(Float nakedVision, Integer age) {
         if (nakedVision == null || age == null || age < 0) {
-            return Boolean.FALSE;
+            return null;
         }
         return isLowVision(nakedVision.toString(), age);
     }
 
     public static Boolean isLowVision(String nakedVision, Integer age) {
         if (StrUtil.isBlank(nakedVision) || age == null || age < 0) {
-            return Boolean.FALSE;
+            return null;
         }
         return isLowVision(new BigDecimal(nakedVision), age);
     }
 
     public static Boolean isLowVision(BigDecimal nakedVision, Integer age) {
         if (nakedVision == null || age == null || age < 0) {
-            return Boolean.FALSE;
+            return null;
         }
         if (age > 0 && age < 3 && BigDecimalUtil.lessThanAndEqual(nakedVision,"4.6")) {
             return true;
         }
-        if (age == 3 && BigDecimalUtil.lessThan(nakedVision,"4.7")) {
+        if (age == 3 && BigDecimalUtil.lessThanAndEqual(nakedVision,"4.7")) {
             return true;
         }
-        if (age == 4 && BigDecimalUtil.lessThan(nakedVision,"4.8")) {
+        if (age == 4 && BigDecimalUtil.lessThanAndEqual(nakedVision,"4.8")) {
             return true;
         }
-        if (age == 5 && BigDecimalUtil.lessThan(nakedVision,"4.9")) {
-            return true;
-        }
-        return age >= 6 &&  BigDecimalUtil.lessThan(nakedVision,"5.0");
+        return age >= 5 && BigDecimalUtil.lessThanAndEqual(nakedVision,"4.9");
     }
 
     /**
-     * 视力低下等级
+     * 视力低下等级 (TODO:是视力等级,还是预警等级)
      *
      * @param nakedVision 裸眼视力
      * @param age         年龄
@@ -144,9 +141,26 @@ public class StatUtil {
         if (BigDecimalUtil.lessThanAndEqual(nakedVision, "4.5")) {
             return WarningLevel.THREE;
         }
-
-        return null;
+        return WarningLevel.NORMAL;
     }
+
+    /**
+     * 平均视力 (初筛数据完整才使用)
+     * @param statConclusions
+     */
+    public static TwoTuple<BigDecimal,BigDecimal> calculateAverageVision(List<StatConclusion> statConclusions) {
+        statConclusions = statConclusions.stream().filter(sc->Objects.equals(Boolean.TRUE,sc.getIsValid())).collect(Collectors.toList());
+
+        int sumSize = statConclusions.size();
+        double sumVisionL = statConclusions.stream().mapToDouble(sc->sc.getVisionL().doubleValue()).sum();
+        BigDecimal avgVisionL = BigDecimalUtil.divide(String.valueOf(sumVisionL), String.valueOf(sumSize),1);
+
+        double sumVisionR = statConclusions.stream().mapToDouble(sc->sc.getVisionR().doubleValue()).sum();
+        BigDecimal avgVisionR = BigDecimalUtil.divide(String.valueOf(sumVisionR), String.valueOf(sumSize),1);
+
+        return new TwoTuple<>(avgVisionL,avgVisionR);
+    }
+
 
     /**
      * 是否近视
@@ -158,10 +172,10 @@ public class StatUtil {
      */
     public static boolean isMyopia(Float sphere, Float cylinder, Integer age, Float nakedVision) {
         if (Objects.nonNull(age)) {
-            if (age < 6 && nakedVision < 4.9f) {
+            if (age < 6 && Objects.nonNull(nakedVision) && BigDecimalUtil.lessThan(new BigDecimal(nakedVision),"4.9")) {
                 return true;
             }
-            if (Objects.nonNull(nakedVision) && age >= 6 && nakedVision < 5.0f) {
+            if (Objects.nonNull(nakedVision) && age >= 6 && BigDecimalUtil.lessThan(new BigDecimal(nakedVision),"5.0")) {
                 return true;
             }
         }
@@ -366,19 +380,22 @@ public class StatUtil {
      * @param cyl 柱镜
      */
     public static AstigmatismLevelEnum getAstigmatismWarningLevel(Float cyl) {
+        if(Objects.isNull(cyl)){
+            return AstigmatismLevelEnum.ZERO;
+        }
         return getAstigmatismWarningLevel(cyl.toString());
     }
 
     public static AstigmatismLevelEnum getAstigmatismWarningLevel(String cyl) {
         if (StrUtil.isBlank(cyl)) {
-            return null;
+            return AstigmatismLevelEnum.ZERO;
         }
         return getAstigmatismWarningLevel(new BigDecimal(cyl));
     }
 
     public static AstigmatismLevelEnum getAstigmatismWarningLevel(BigDecimal cyl) {
-        if (cyl == null) {
-            return null;
+        if (Objects.isNull(cyl)) {
+            return AstigmatismLevelEnum.ZERO;
         }
         BigDecimal cylAbs = cyl.abs();
 
@@ -541,14 +558,13 @@ public class StatUtil {
 
     public static MyopiaLevelEnum getMyopiaWarningLevel(BigDecimal sphere, BigDecimal cylinder, Integer age, BigDecimal nakedVision) {
         BigDecimal se = getSphericalEquivalent(sphere, cylinder);
-        if (se == null) {
+        if (Objects.isNull(se)) {
             return null;
         }
 
         if (ObjectsUtil.allNotNull(age, nakedVision)
                 && ((age < 6 && BigDecimalUtil.lessThan(nakedVision, "4.9")) || (age >= 6 && BigDecimalUtil.lessThan(nakedVision, "5.0")))
                 && BigDecimalUtil.lessThan(se, "-0.5")) {
-
             return MyopiaLevelEnum.SCREENING_MYOPIA;
         }
 
@@ -596,7 +612,7 @@ public class StatUtil {
         if (Objects.nonNull(myopiaWarningLevel)) {
             return myopiaWarningLevel.code;
         }
-        return MyopiaLevelEnum.ZERO.code;
+        return null;
     }
 
 
@@ -613,12 +629,6 @@ public class StatUtil {
         return cylinder.divide(new BigDecimal(2)).add(sphere);
     }
 
-    public static BigDecimal getSphericalEquivalent(Float sphere, Float cylinder) {
-        if (ObjectsUtil.hasNull(sphere, cylinder)) {
-            return null;
-        }
-        return getSphericalEquivalent(sphere.toString(), cylinder.toString());
-    }
 
     public static BigDecimal getSphericalEquivalent(String sphere, String cylinder) {
         if (ObjectsUtil.hasNull(sphere, cylinder)) {
@@ -1255,18 +1265,7 @@ public class StatUtil {
         return new TwoTuple<>(years, ageStr);
     }
 
-    public static TwoTuple<BigDecimal,BigDecimal> calculateAverageVision(List<StatConclusion> statConclusions) {
-        statConclusions = statConclusions.stream().filter(sc->Objects.equals(Boolean.TRUE,sc.getIsValid())).collect(Collectors.toList());
 
-        int sumSize = statConclusions.size();
-        double sumVisionL = statConclusions.stream().mapToDouble(sc->sc.getVisionL().doubleValue()).sum();
-        BigDecimal avgVisionL = BigDecimalUtil.divide(String.valueOf(sumVisionL), String.valueOf(sumSize),1);
-
-        double sumVisionR = statConclusions.stream().mapToDouble(sc->sc.getVisionR().doubleValue()).sum();
-        BigDecimal avgVisionR = BigDecimalUtil.divide(String.valueOf(sumVisionR), String.valueOf(sumSize),1);
-
-        return new TwoTuple<>(avgVisionL,avgVisionR);
-    }
 
 
     //======================= 旧 ：暂时不删，通过业务代码修改再去删除或者过期

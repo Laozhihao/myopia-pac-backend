@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -44,10 +45,16 @@ public class StatConclusionBizService {
     /**
      * 全部
      */
-    public void screeningToConclusionAll(){
-        LambdaQueryWrapper<VisionScreeningResult> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.ge(VisionScreeningResult::getPlanId,127);
-        List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.list(queryWrapper);
+    public void screeningToConclusionAll(Integer planId){
+        List<VisionScreeningResult> visionScreeningResults;
+        if(Objects.nonNull(planId)){
+            LambdaQueryWrapper<VisionScreeningResult> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.ge(VisionScreeningResult::getPlanId,planId);
+            visionScreeningResults = visionScreeningResultService.list(queryWrapper);
+        }else {
+            visionScreeningResults = visionScreeningResultService.list();
+        }
+
         screeningToConclusion(visionScreeningResults);
         log.info("success");
     }
@@ -69,14 +76,17 @@ public class StatConclusionBizService {
         if (CollectionUtil.isEmpty(visionScreeningResults)){
             return;
         }
-
         //2.筛查结果分组
         Map<Integer, List<VisionScreeningResult>> visionScreeningResultMap = visionScreeningResults.stream().collect(Collectors.groupingBy(VisionScreeningResult::getPlanId));
 
         List<Map<Integer, List<VisionScreeningResult>>> mapList = MapUtil.splitMap(visionScreeningResultMap, 30);
 
         log.info("共{}批次",mapList.size());
-        mapList.forEach(this::consumerMap);
+        for (int i = 0; i < mapList.size(); i++) {
+            log.info("分批执行中...{}/{}",i+1,mapList.size());
+            consumerMap(mapList.get(i));
+        }
+        log.info("数据处理完成");
 
     }
 
@@ -107,10 +117,9 @@ public class StatConclusionBizService {
         });
 
         if(CollectionUtil.isNotEmpty(statConclusionList)){
-            log.info("筛查数据结论数据共{}条",statConclusionList.size());
+            log.info("生成筛查数据结论数据{}条",statConclusionList.size());
             statConclusionService.batchUpdateOrSave(statConclusionList);
         }
-        log.info("完成处理");
     }
 
     /**
