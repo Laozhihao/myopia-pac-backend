@@ -1,7 +1,5 @@
 package com.wupol.myopia.business.api.management.domain.vo;
 
-import com.wupol.myopia.business.core.school.domain.model.School;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.stat.domain.dos.*;
 import com.wupol.myopia.business.core.stat.domain.model.ScreeningResultStatistic;
 import lombok.Data;
@@ -19,6 +17,8 @@ import java.util.Objects;
 @Data
 @Accessors(chain = true)
 public class PrimarySchoolAndAboveResultDetailVO implements Serializable {
+
+    private static final long serialVersionUID = 9L;
 
     /**
      * 所属的通知id

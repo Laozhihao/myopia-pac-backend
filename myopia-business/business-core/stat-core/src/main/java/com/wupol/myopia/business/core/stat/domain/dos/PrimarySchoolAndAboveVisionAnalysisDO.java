@@ -15,6 +15,9 @@ import java.math.BigDecimal;
 @Data
 @Accessors(chain = true)
 public class PrimarySchoolAndAboveVisionAnalysisDO implements VisionAnalysis {
+
+    private static final long serialVersionUID = 3L;
+
     /**
      * 视力低下人数（默认0）
      */

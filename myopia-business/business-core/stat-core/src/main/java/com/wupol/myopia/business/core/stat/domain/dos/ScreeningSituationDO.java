@@ -13,6 +13,8 @@ import java.io.Serializable;
 @Data
 @Accessors(chain = true)
 public class ScreeningSituationDO implements Serializable {
+
+    private static final long serialVersionUID = 1L;
     /**
      * 学校数
      */

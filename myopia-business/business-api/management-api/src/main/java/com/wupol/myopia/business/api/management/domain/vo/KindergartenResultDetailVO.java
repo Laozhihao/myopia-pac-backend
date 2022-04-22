@@ -20,6 +20,8 @@ import java.util.Objects;
 @Accessors(chain = true)
 public class KindergartenResultDetailVO implements Serializable {
 
+    private static final long serialVersionUID = 10L;
+
     /**
      * 所属的通知id
      */

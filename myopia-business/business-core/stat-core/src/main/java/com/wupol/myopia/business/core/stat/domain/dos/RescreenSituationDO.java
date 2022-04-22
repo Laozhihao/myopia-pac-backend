@@ -14,6 +14,8 @@ import java.io.Serializable;
 @Accessors(chain = true)
 public class RescreenSituationDO implements Serializable {
 
+    private static final long serialVersionUID = 4L;
+
     /**
      * 复测人数（默认0）
      */

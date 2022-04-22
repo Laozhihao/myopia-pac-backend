@@ -14,6 +14,8 @@ import java.io.Serializable;
 @Accessors(chain = true)
 public class VisionWarningDO implements Serializable {
 
+    private static final long serialVersionUID = 5L;
+
     /**
      * 小学及以上--视力预警人数
      */

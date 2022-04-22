@@ -14,6 +14,8 @@ import java.io.Serializable;
 @Accessors(chain = true)
 public class SaprodontiaDO implements Serializable {
 
+    private static final long serialVersionUID = 6L;
+
     /**
      * 小学及以上--无龋人数（默认0）
      */

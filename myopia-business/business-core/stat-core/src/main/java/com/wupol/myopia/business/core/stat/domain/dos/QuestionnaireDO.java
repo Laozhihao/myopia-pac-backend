@@ -14,6 +14,8 @@ import java.io.Serializable;
 @Accessors(chain = true)
 public class QuestionnaireDO implements Serializable {
 
+    private static final long serialVersionUID = 8L;
+
     /**
      * 小学及以上--校环境健康影响因素调查表数（默认0）
      */

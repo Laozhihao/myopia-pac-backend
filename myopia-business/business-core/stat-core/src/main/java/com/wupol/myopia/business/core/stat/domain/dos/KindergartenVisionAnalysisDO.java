@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Accessors(chain = true)
 public class KindergartenVisionAnalysisDO implements VisionAnalysis {
+    private static final long serialVersionUID = 2L;
     /**
      * 视力低下人数（默认0）
      */
