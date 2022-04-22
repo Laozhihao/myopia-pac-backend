@@ -5,11 +5,13 @@ package com.wupol.myopia.base.constant;
  *
  * @author Simple4H
  */
-public enum SpineTypeEnum {
+public enum SpineTypeEntiretyEnum {
 
-    ONE_TYPE(1, "无侧弯"),
-    TWO_TYPE(2, "左低右高"),
-    THREE_TYPE(3, "右低左高");
+    ONE_TYPE(1, "无前后弯曲异常"),
+    TWO_TYPE(2, "平背"),
+    THREE_TYPE(3, "前凸异常"),
+
+    FOUR_TYPE(4, "后凸异常");
 
     /**
      * 类型
@@ -20,7 +22,7 @@ public enum SpineTypeEnum {
      **/
     private final String name;
 
-    SpineTypeEnum(Integer type, String name) {
+    SpineTypeEntiretyEnum(Integer type, String name) {
         this.type = type;
         this.name = name;
     }

@@ -2,6 +2,7 @@ package com.wupol.myopia.business.aggregation.export.service.impl;
 
 import com.alibaba.fastjson.JSONPath;
 import com.wupol.myopia.base.constant.SpineLevelEnum;
+import com.wupol.myopia.base.constant.SpineTypeEntiretyEnum;
 import com.wupol.myopia.base.constant.SpineTypeEnum;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.base.util.ListUtil;
@@ -210,7 +211,7 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
         exportDTO.setChest(SpineTypeEnum.getTypeName(chest.getType()) + "、" + SpineLevelEnum.getLevelName(chest.getLevel()))
                 .setChestWaist(SpineTypeEnum.getTypeName(chestWaist.getType()) + "、" + SpineLevelEnum.getLevelName(chestWaist.getLevel()))
                 .setWaist(SpineTypeEnum.getTypeName(waist.getType()) + "、" + SpineLevelEnum.getLevelName(waist.getLevel()))
-                .setEntirety(SpineTypeEnum.getTypeName(entirety.getType()) + "、" + SpineLevelEnum.getLevelName(entirety.getLevel()));
+                .setEntirety(SpineTypeEntiretyEnum.getTypeName(entirety.getType()) + "、" + SpineLevelEnum.getLevelName(entirety.getLevel()));
 
     }
 
@@ -223,8 +224,8 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
     private void generateBloodPressureData(StatConclusionExportDTO dto, CommonDiseaseDataExportDTO exportDTO) {
         Object dbp = JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BLOOD_PRESSURE_DBP);
         Object sbp = JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BLOOD_PRESSURE_SBP);
-        exportDTO.setDbp(Objects.nonNull(dbp) ? String.valueOf(dbp) : StringUtils.EMPTY)
-                .setSbp(Objects.nonNull(sbp) ? String.valueOf(sbp) : StringUtils.EMPTY);
+        exportDTO.setDbp(Objects.nonNull(dbp) ? dbp + "mmHg": StringUtils.EMPTY)
+                .setSbp(Objects.nonNull(sbp) ? sbp + "mmHg": StringUtils.EMPTY);
     }
 
     /**

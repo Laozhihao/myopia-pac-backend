@@ -103,9 +103,9 @@ public class CommonDiseaseDataExportDTO implements Serializable {
     @ExcelProperty({TOP_HEADER, "身高体重", "体重"})
     private String weight;
 
-    @ExcelProperty({TOP_HEADER, "龋齿检查", "乳牙 龋（d）：失（m）：0 补（f）"})
+    @ExcelProperty({TOP_HEADER, "龋齿检查", "乳牙 龋（d）：失（m）：补（f）"})
     private String deciduous;
-    @ExcelProperty({TOP_HEADER, "龋齿检查", "恒牙 龋（D）：失（M）：0 补（F）"})
+    @ExcelProperty({TOP_HEADER, "龋齿检查", "恒牙 龋（D）：失（M）：补（F）"})
     private String permanent;
 
     @ExcelProperty({TOP_HEADER, "脊柱弯曲", "胸段侧弯"})
