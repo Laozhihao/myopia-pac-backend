@@ -18,4 +18,31 @@ public class ScreeningPlanSchoolDTO extends ScreeningPlanSchool {
 
     /** 实际筛查学生数 */
     private Integer practicalStudentCount;
+
+    /**
+     * 实际筛查占比
+     */
+    private String screeningProportion;
+    /**
+     * 筛查情况
+     */
+    private String ScreeningSituation;
+    /**
+     * 问卷学生数
+     */
+    private Integer questionnaireStudentCount;
+    /**
+     * 实际问卷占比
+     */
+    private String questionnaireProportion;
+
+    /**
+     * 问卷情况
+     */
+    private String questionnaireSituation;
+
+
+
+
+
 }

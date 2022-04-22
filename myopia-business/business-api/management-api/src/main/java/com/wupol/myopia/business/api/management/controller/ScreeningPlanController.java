@@ -33,10 +33,12 @@ import com.wupol.myopia.business.core.school.service.SchoolAdminService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.service.*;
+import com.wupol.myopia.business.core.screening.flow.util.ReScreenCardUtil;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.system.service.NoticeService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -342,7 +344,7 @@ public class ScreeningPlanController {
         // 学校是否可新增：如果该机构相同时间段内已有该学校，不能新增
         LocalDate startTime = com.wupol.framework.core.util.DateUtil.fromDate(screeningPlan.getStartTime());
         LocalDate endTime = com.wupol.framework.core.util.DateUtil.fromDate(screeningPlan.getEndTime());
-        List<Integer> havePlanSchoolIds = screeningPlanSchoolService.getHavePlanSchoolIds(null, screeningPlan.getId(), screeningPlan.getScreeningOrgId(), startTime, endTime);
+        List<Integer> havePlanSchoolIds = screeningPlanSchoolService.getHavePlanSchoolIds(null, screeningPlan.getId(), screeningPlan.getScreeningOrgId(), startTime, endTime,screeningPlan.getScreeningType());
         if (schoolListsByPlanId.stream().anyMatch(screeningPlanSchool -> havePlanSchoolIds.contains(screeningPlanSchool.getSchoolId()))) {
             throw new ValidationException("该筛查机构相同时间段内计划已存在学校");
         }
@@ -453,6 +455,44 @@ public class ScreeningPlanController {
     public void updatePlanStudent(@RequestBody UpdatePlanStudentRequestDTO requestDTO) {
         screeningPlanStudentBizService.updatePlanStudent(requestDTO);
     }
+
+
+
+    /**
+     * 增加筛查时间
+     * @param screeningPlanDTO
+     */
+    @PostMapping("/increased/screeningTime")
+    public void updateScreeningEndTime(@RequestBody ScreeningPlanDTO screeningPlanDTO) {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        Assert.isTrue(Objects.nonNull(screeningPlanDTO.getId()), "计划Id不能为空");
+        Assert.isTrue(Objects.nonNull(screeningPlanDTO.getEndTime()), "结束时间不能为空");
+        ScreeningPlan screeningPlans = new ScreeningPlan();
+        screeningPlans.setId(screeningPlanDTO.getId());
+        ScreeningPlan screeningPlan = screeningPlanService.findOne(screeningPlans);
+        if (!currentUser.isPlatformAdminUser()){
+            if (screeningPlan.getUpdateScreeningEndTimeStatus()==ScreeningPlan.MODIFIED){
+                throw new ValidationException("该计划已经增加过时间");
+            }
+            screeningPlan.setUpdateScreeningEndTimeStatus(ScreeningPlan.MODIFIED);
+        }
+        screeningPlan.setEndTime(screeningPlanDTO.getEndTime());
+        screeningPlanService.updateById(screeningPlan);
+    }
+
+    /**
+     * 获取结束时间添加指定天数后的时间
+     * @param endTime
+     * @param days
+     * @return
+     */
+    @GetMapping("/getTncreaseDate")
+    public Date getTncreaseDate(String endTime,int days) {
+        Assert.isTrue(Objects.nonNull(endTime), "结束时间不能为空");
+        return DateUtil.getTncreaseDate(DateUtil.parse(endTime),days);
+    }
+
+
 
     /**
      * 通过条件获取筛查学生
@@ -568,15 +608,13 @@ public class ScreeningPlanController {
      * @Date: 2022/1/12
      */
     @GetMapping("/getStudentEyeByStudentId")
-    public ApiResult getStudentEyeByStudentId(@RequestParam Integer planId, @RequestParam Integer studentId) {
+    public ApiResult getStudentEyeByStudentId(@RequestParam Integer planId,@RequestParam Integer studentId) {
         List<Integer> studentIds = Collections.singletonList(studentId);
-        List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.getByStudentIdsAndPlanId(planId, studentIds);
-        if (visionScreeningResults.isEmpty()) {
-            return ApiResult.success();
-        }
-        VisionScreeningResult visionScreeningResult = visionScreeningResults.get(0);
+        List<VisionScreeningResult> visionScreeningResults =  visionScreeningResultService.getByStudentIdsAndPlanId(planId,studentIds,VisionScreeningResult.NOT_RETEST);
+        List<VisionScreeningResult> doubleScreeningResults =  visionScreeningResultService.getByStudentIdsAndPlanId(planId,studentIds,VisionScreeningResult.RETEST);
+        return ApiResult.success(visionScreeningResultService.getStudentEyeByStudentId(visionScreeningResults,doubleScreeningResults));
 
-        return ApiResult.success(visionScreeningResult);
+
 
     }
 
