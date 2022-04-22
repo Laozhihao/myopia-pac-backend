@@ -35,10 +35,10 @@ public abstract class ScreeningResultBasicData implements ScreeningDataInterface
     /**
      * 默认是初筛，app设计如此
      */
-    private Integer isState=0;
+    private Integer isState = 0;
 
     public Integer getPlanStudentId() {
-       return stringToInteger(planStudentId);
+        return stringToInteger(planStudentId);
     }
 
     public Integer getSchoolId() {
@@ -59,11 +59,22 @@ public abstract class ScreeningResultBasicData implements ScreeningDataInterface
         return createUserId;
     }
 
-    private Integer stringToInteger(String value){
+    private Integer stringToInteger(String value) {
         if (StringUtils.isBlank(value)) {
             return null;
         }
         Double doubleData = Double.valueOf(value);
-        return (int)Math.ceil(doubleData);
+        return (int) Math.ceil(doubleData);
+    }
+
+    public Integer getIsState() {
+        if (Objects.isNull(isState)) {
+            isState = 0;
+        }
+        return isState;
+    }
+
+    public void setIsState(Integer isState) {
+        this.isState = isState;
     }
 }
