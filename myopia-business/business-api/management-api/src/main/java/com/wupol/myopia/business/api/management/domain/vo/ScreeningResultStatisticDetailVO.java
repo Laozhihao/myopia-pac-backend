@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.stat.domain.model.ScreeningResultStatistic;
 import lombok.Data;
+import org.springframework.beans.BeanUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -60,6 +61,7 @@ public class ScreeningResultStatisticDetailVO {
                             List<ScreeningResultStatistic> primarySchoolAndAboveVisionStatistics) {
         // 下级数据 + 当前数据 + 合计数据
         if(CollectionUtil.isNotEmpty(kindergartenVisionStatistics)){
+
             ScreeningResultStatistic kindergartenVisionStatistic = kindergartenVisionStatistics.stream().filter(vs -> Objects.equals(districtId, vs.getDistrictId())).findFirst().orElse(null);
             if (kindergartenVisionStatistic != null){
                 String statRangeName = "合计";

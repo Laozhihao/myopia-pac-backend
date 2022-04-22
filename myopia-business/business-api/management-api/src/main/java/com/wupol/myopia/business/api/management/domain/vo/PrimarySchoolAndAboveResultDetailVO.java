@@ -5,6 +5,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotic
 import com.wupol.myopia.business.core.stat.domain.dos.*;
 import com.wupol.myopia.business.core.stat.domain.model.ScreeningResultStatistic;
 import lombok.Data;
+import org.springframework.beans.BeanUtils;
 
 import java.util.Objects;
 
@@ -94,10 +95,8 @@ public class PrimarySchoolAndAboveResultDetailVO implements SchoolResultDetailVO
 
         if (Objects.nonNull(screeningResultStatistic)) {
             ScreeningSituationDO screeningSituationDO = new ScreeningSituationDO();
-            screeningSituationDO.setPlanScreeningNum(screeningResultStatistic.getPlanScreeningNum())
-                    .setRealScreeningNum(screeningResultStatistic.getRealScreeningNum())
-                    .setFinishRatio("")
-                    .setValidScreeningNum(screeningResultStatistic.getValidScreeningNum());
+            BeanUtils.copyProperties(screeningResultStatistic,screeningSituationDO);
+
 
             this.screeningSituation=screeningSituationDO;
             this.primarySchoolAndAboveVisionAnalysis=(PrimarySchoolAndAboveVisionAnalysisDO)screeningResultStatistic.getVisionAnalysis();

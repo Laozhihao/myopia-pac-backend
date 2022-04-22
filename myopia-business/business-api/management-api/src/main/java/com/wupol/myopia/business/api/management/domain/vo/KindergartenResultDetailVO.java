@@ -7,6 +7,7 @@ import com.wupol.myopia.business.core.stat.domain.dos.RescreenSituationDO;
 import com.wupol.myopia.business.core.stat.domain.dos.ScreeningSituationDO;
 import com.wupol.myopia.business.core.stat.domain.model.ScreeningResultStatistic;
 import lombok.Data;
+import org.springframework.beans.BeanUtils;
 
 import java.util.Objects;
 
@@ -74,11 +75,7 @@ public class KindergartenResultDetailVO implements SchoolResultDetailVO {
     public void setItemData(ScreeningResultStatistic screeningResultStatistic) {
         if (Objects.nonNull(screeningResultStatistic)){
             ScreeningSituationDO screeningSituationDO = new ScreeningSituationDO();
-            screeningSituationDO.setPlanScreeningNum(screeningResultStatistic.getPlanScreeningNum())
-                    .setRealScreeningNum(screeningResultStatistic.getRealScreeningNum())
-                    .setFinishRatio(screeningResultStatistic.getFinishRatio())
-                    .setValidScreeningNum(screeningResultStatistic.getValidScreeningNum())
-                    .setValidScreeningRatio(screeningResultStatistic.getValidScreeningRatio());
+            BeanUtils.copyProperties(screeningResultStatistic,screeningSituationDO);
 
             this.screeningSituation =screeningSituationDO;
             this.kindergartenVisionAnalysis = (KindergartenVisionAnalysisDO)screeningResultStatistic.getVisionAnalysis();
