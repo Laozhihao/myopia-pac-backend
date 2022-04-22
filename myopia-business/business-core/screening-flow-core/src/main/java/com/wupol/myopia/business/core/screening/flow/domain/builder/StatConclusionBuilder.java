@@ -414,11 +414,11 @@ public class StatConclusionBuilder {
         if (currentComputerOptometry != null && anotherComputerOptometry != null) {
             if (Objects.nonNull(currentComputerOptometry.getLeftEyeData().getSph()) && Objects.nonNull(currentComputerOptometry.getLeftEyeData().getCyl())
                     && Objects.nonNull(anotherComputerOptometry.getLeftEyeData().getSph()) && Objects.nonNull(anotherComputerOptometry.getLeftEyeData().getCyl())) {
-                errorNum += inRange(currentComputerOptometry.getLeftEyeData().getSph().add(currentComputerOptometry.getLeftEyeData().getCyl().divide(new BigDecimal(2))), anotherComputerOptometry.getLeftEyeData().getSph().add(anotherComputerOptometry.getLeftEyeData().getCyl().divide(new BigDecimal(2))), OTHERS_RANGE_VALUE);
+                errorNum += inRange(currentComputerOptometry.getLeftEyeData().getSph().add(currentComputerOptometry.getLeftEyeData().getCyl().divide(new BigDecimal(2))), anotherComputerOptometry.getLeftEyeData().getSph().add(anotherComputerOptometry.getLeftEyeData().getCyl().divide(new BigDecimal(2))), othersRangeValue);
             }
             if (Objects.nonNull(currentComputerOptometry.getRightEyeData().getSph()) && Objects.nonNull(currentComputerOptometry.getRightEyeData().getCyl()) &&
                     Objects.nonNull(anotherComputerOptometry.getRightEyeData().getSph()) && Objects.nonNull(anotherComputerOptometry.getRightEyeData().getCyl())) {
-                errorNum += inRange(currentComputerOptometry.getRightEyeData().getSph().add(currentComputerOptometry.getRightEyeData().getCyl().divide(new BigDecimal(2))), anotherComputerOptometry.getRightEyeData().getSph().add(anotherComputerOptometry.getRightEyeData().getCyl().divide(new BigDecimal(2))), OTHERS_RANGE_VALUE);
+                errorNum += inRange(currentComputerOptometry.getRightEyeData().getSph().add(currentComputerOptometry.getRightEyeData().getCyl().divide(new BigDecimal(2))), anotherComputerOptometry.getRightEyeData().getSph().add(anotherComputerOptometry.getRightEyeData().getCyl().divide(new BigDecimal(2))), othersRangeValue);
             }
         }
         return errorNum;
@@ -466,6 +466,159 @@ public class StatConclusionBuilder {
         this.gradeCode = gradeCode;
         return this;
     }
+
+    /**
+     * 处理身高体重相关的数据
+     *
+     */
+    private void setHeightAndWeightData() {
+        HeightAndWeightDataDO heightAndWeightData = currentVisionScreeningResult.getHeightAndWeightData();
+        if (Objects.equals(SchoolAge.KINDERGARTEN.code,screeningPlanSchoolStudent.getGradeType()) || Objects.isNull(heightAndWeightData) ){
+            statConclusion.setIsObesity(Boolean.FALSE);
+            statConclusion.setIsOverweight(Boolean.FALSE);
+            statConclusion.setIsStunting(Boolean.FALSE);
+            statConclusion.setIsMalnutrition(Boolean.FALSE);
+            return;
+        }
+        TwoTuple<Integer, String> ageTuple = StatUtil.getAge(screeningPlanSchoolStudent.getBirthday());
+        overweightAndObesity(heightAndWeightData.getBmi(),ageTuple.getSecond());
+        malnutrition(heightAndWeightData.getBmi(),heightAndWeightData.getHeight(),ageTuple.getSecond());
+    }
+
+
+
+    /**
+     * 超重/肥胖
+     * @param bmi 身体质量指数值
+     * @param age 年龄（精确到半岁）
+     */
+    private void overweightAndObesity(BigDecimal bmi,String age){
+        TwoTuple<Boolean, Boolean> overweightAndObesity = StatUtil.isOverweightAndObesity(bmi, age, screeningPlanSchoolStudent.getGender());
+        statConclusion.setIsOverweight(overweightAndObesity.getFirst());
+        statConclusion.setIsObesity(overweightAndObesity.getSecond());
+    }
+
+
+    /**
+     * 营养不良
+     * @param bmi 身体质量指数值
+     * @param height 身高
+     * @param age 年龄（精确到半岁）
+     */
+    private void malnutrition(BigDecimal bmi,BigDecimal height,String age){
+        Boolean wasting = StatUtil.isWasting(bmi, age, screeningPlanSchoolStudent.getGender());
+        Boolean stunting = StatUtil.isStunting(screeningPlanSchoolStudent.getGender(), age, height);
+        statConclusion.setIsStunting(stunting);
+        statConclusion.setIsMalnutrition(wasting && stunting);
+    }
+
+    /**
+     * 处理龋齿相关的数据
+     */
+    private void setSaprodontiaData() {
+        SaprodontiaDataDO saprodontiaData = currentVisionScreeningResult.getSaprodontiaData();
+        if (Objects.equals(SchoolAge.KINDERGARTEN.code,screeningPlanSchoolStudent.getGradeType()) ||Objects.isNull(saprodontiaData)){
+            int teeth=0;
+            statConclusion.setIsSaprodontia(Boolean.FALSE);
+            statConclusion.setSaprodontiaTeeth(teeth);
+            statConclusion.setIsSaprodontiaLoss(Boolean.FALSE);
+            statConclusion.setSaprodontiaLossTeeth(teeth);
+            statConclusion.setIsSaprodontiaRepair(Boolean.FALSE);
+            statConclusion.setSaprodontiaRepairTeeth(teeth);
+            return;
+        }
+        List<SaprodontiaDataDO.SaprodontiaItem> above = saprodontiaData.getAbove();
+        List<SaprodontiaDataDO.SaprodontiaItem> underneath = saprodontiaData.getUnderneath();
+        Set<SaprodontiaDataDO.SaprodontiaItem> saprodontias = getSaprodontia(getSaprodontiaItemList(above, underneath), Lists.newArrayList("d", "D"));
+        Set<SaprodontiaDataDO.SaprodontiaItem> saprodontiaLoss = getSaprodontia(getSaprodontiaItemList(above, underneath), Lists.newArrayList("m", "M"));
+        Set<SaprodontiaDataDO.SaprodontiaItem> saprodontiaRepair = getSaprodontia(getSaprodontiaItemList(above, underneath), Lists.newArrayList("f", "F"));
+        statConclusion.setIsSaprodontia(CollectionUtil.isNotEmpty(saprodontias));
+        statConclusion.setSaprodontiaTeeth(CollectionUtil.isNotEmpty(saprodontias)?saprodontias.size():0);
+        statConclusion.setIsSaprodontiaLoss(CollectionUtil.isNotEmpty(saprodontiaLoss));
+        statConclusion.setSaprodontiaLossTeeth(CollectionUtil.isNotEmpty(saprodontiaLoss)?saprodontias.size():0);
+        statConclusion.setIsSaprodontiaRepair(CollectionUtil.isNotEmpty(saprodontiaRepair));
+        statConclusion.setSaprodontiaRepairTeeth(CollectionUtil.isNotEmpty(saprodontiaRepair)?saprodontias.size():0);
+    }
+
+    private List<SaprodontiaDataDO.SaprodontiaItem> getSaprodontiaItemList(List<SaprodontiaDataDO.SaprodontiaItem> above,List<SaprodontiaDataDO.SaprodontiaItem> underneath){
+        List<SaprodontiaDataDO.SaprodontiaItem> list=Lists.newArrayList();
+        if (CollectionUtil.isNotEmpty(above)){
+            list.addAll(above);
+        }
+        if (CollectionUtil.isNotEmpty(underneath)){
+            list.addAll(underneath);
+        }
+        return list;
+    }
+
+    private Set<SaprodontiaDataDO.SaprodontiaItem> getSaprodontia(List<SaprodontiaDataDO.SaprodontiaItem> list,List<String> itemList) {
+        if (CollectionUtil.isEmpty(list)) {
+            return Sets.newHashSet();
+        }
+
+        return list.stream().filter(s -> itemList.contains(s.getDeciduous()) || itemList.contains(s.getPermanent())).collect(Collectors.toSet());
+    }
+
+    /**
+     * 处理脊柱相关数据
+     */
+    private void setSpineData() {
+        SpineDataDO spineData = currentVisionScreeningResult.getSpineData();
+        if (Objects.equals(SchoolAge.KINDERGARTEN.code,screeningPlanSchoolStudent.getGradeType()) || Objects.isNull(spineData)){
+            statConclusion.setIsSpinalCurvature(Boolean.FALSE);
+            return;
+        }
+        statConclusion.setIsSpinalCurvature(spineData.isSpinalCurvature());
+    }
+
+    /**
+     * 处理血压相关数据
+     */
+    private void setBloodPressureData() {
+        BloodPressureDataDO bloodPressureData = currentVisionScreeningResult.getBloodPressureData();
+        if (Objects.equals(SchoolAge.KINDERGARTEN.code,screeningPlanSchoolStudent.getGradeType()) || Objects.isNull(bloodPressureData)){
+            statConclusion.setIsNormalBloodPressure(Boolean.TRUE);
+            return;
+        }
+        TwoTuple<Integer, String> ageTuple = StatUtil.getAge(screeningPlanSchoolStudent.getBirthday());
+        Integer age = ageTuple.getFirst();
+        if (age < 7){
+            age = 7;
+        }
+        boolean highBloodPressure = StatUtil.isHighBloodPressure(bloodPressureData.getSbp().intValue(), bloodPressureData.getDbp().intValue(), screeningPlanSchoolStudent.getGender(), age);
+        statConclusion.setIsNormalBloodPressure(highBloodPressure);
+
+    }
+
+    /**
+     * 处理个人隐私相关数据
+     */
+    private void setPrivacyData() {
+        PrivacyDataDO privacyData = currentVisionScreeningResult.getPrivacyData();
+        if (Objects.equals(SchoolAge.KINDERGARTEN.code,screeningPlanSchoolStudent.getGradeType()) ||Objects.isNull(privacyData)){
+            return;
+        }
+        Integer gender = screeningPlanSchoolStudent.getGender();
+        if (Objects.equals(0,gender) ){
+            statConclusion.setIsNocturnalEmission(privacyData.getHasIncident());
+        }else {
+            statConclusion.setIsMenarche(privacyData.getHasIncident());
+        }
+
+    }
+
+    /**
+     * 处理疾病史相关数据
+     */
+    private void setDiseasesHistoryData() {
+        DiseasesHistoryDO diseasesHistoryData = currentVisionScreeningResult.getDiseasesHistoryData();
+        if (Objects.nonNull(diseasesHistoryData) && CollectionUtil.isNotEmpty(diseasesHistoryData.getDiseases())){
+            statConclusion.setIsDiseasesHistory(Boolean.TRUE);
+        }else {
+            statConclusion.setIsDiseasesHistory(Boolean.FALSE);
+        }
+    }
+
 
     /**
      * 基础数据
