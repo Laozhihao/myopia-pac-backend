@@ -94,8 +94,10 @@ public class StatConclusionBuilder {
         }
         // 设置视力相关的数据
         this.setVisionRelatedData();
+
         //身高体重
         this.setHeightAndWeightData();
+
         //龋齿
         this.setSaprodontiaData();
         //脊柱
