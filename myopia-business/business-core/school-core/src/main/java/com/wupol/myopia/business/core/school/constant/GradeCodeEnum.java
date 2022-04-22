@@ -1,11 +1,9 @@
 package com.wupol.myopia.business.core.school.constant;
 
-import com.google.common.collect.Lists;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
-import com.wupol.myopia.business.core.school.domain.dto.GradeCode;
 import lombok.Getter;
 
-import java.util.*;
+import java.util.Arrays;
 
 /**
  * 年级编码枚举类
@@ -14,6 +12,11 @@ import java.util.*;
  */
 @Getter
 public enum GradeCodeEnum {
+
+    /**
+     * 未知
+     */
+    UNKNOWN("未知", "-1", SchoolAge.UNKNOWN.code, "UNKNOWN"),
 
     /**
      * 小学
@@ -39,6 +42,14 @@ public enum GradeCodeEnum {
     ONE_HIGH_SCHOOL("高一", "21", SchoolAge.HIGH.code, "ONE_HIGH_SCHOOL"),
     TWO_HIGH_SCHOOL("高二", "22", SchoolAge.HIGH.code, "TWO_HIGH_SCHOOL"),
     THREE_HIGH_SCHOOL("高三", "23", SchoolAge.HIGH.code, "THREE_HIGH_SCHOOL"),
+
+    /**
+     * 大学
+     */
+    ONE_UNIVERSITY("大一", "41", SchoolAge.UNIVERSITY.code, "ONE_UNIVERSITY"),
+    TWO_UNIVERSITY("大二", "42", SchoolAge.UNIVERSITY.code, "TWO_UNIVERSITY"),
+    THREE_UNIVERSITY("大三", "43", SchoolAge.UNIVERSITY.code, "THREE_UNIVERSITY"),
+    FOUR_UNIVERSITY("大三", "44", SchoolAge.UNIVERSITY.code, "FOUR_UNIVERSITY"),
 
     /**
      * 职高
@@ -75,72 +86,12 @@ public enum GradeCodeEnum {
      */
     private final String enName;
 
+
     GradeCodeEnum(String name, String code, Integer type, String enName) {
         this.name = name;
         this.code = code;
         this.type = type;
         this.enName = enName;
-    }
-
-    public static final Map<Integer, List<GradeCodeEnum>> gradeByMap = new HashMap<>();
-
-    static {
-        gradeByMap.put(SchoolAge.PRIMARY.code, privateSchool());
-        gradeByMap.put(SchoolAge.JUNIOR.code, juniorSchool());
-        gradeByMap.put(SchoolAge.HIGH.code, highSchool());
-        gradeByMap.put(SchoolAge.VOCATIONAL_HIGH.code, vocationalHighSchool());
-        gradeByMap.put(SchoolAge.KINDERGARTEN.code, kindergartenSchool());
-    }
-
-    public static List<GradeCodeEnum> kindergartenSchool() {
-        return Lists.newArrayList(GradeCodeEnum.ONE_KINDERGARTEN, GradeCodeEnum.TWO_KINDERGARTEN,
-                GradeCodeEnum.THREE_KINDERGARTEN);
-    }
-
-    public static List<GradeCodeEnum> privateSchool() {
-        return Lists.newArrayList(GradeCodeEnum.ONE_PRIMARY_SCHOOL, GradeCodeEnum.TWO_PRIMARY_SCHOOL,
-                GradeCodeEnum.THREE_PRIMARY_SCHOOL, GradeCodeEnum.FOUR_PRIMARY_SCHOOL,
-                GradeCodeEnum.FIVE_PRIMARY_SCHOOL, GradeCodeEnum.SIX_PRIMARY_SCHOOL);
-    }
-
-    public static List<GradeCodeEnum> juniorSchool() {
-        return Lists.newArrayList(GradeCodeEnum.ONE_JUNIOR_SCHOOL, GradeCodeEnum.TWO_JUNIOR_SCHOOL,
-                GradeCodeEnum.THREE_JUNIOR_SCHOOL, GradeCodeEnum.FOUR_JUNIOR_SCHOOL);
-    }
-
-    public static List<GradeCodeEnum> highSchool() {
-        return Lists.newArrayList(GradeCodeEnum.ONE_HIGH_SCHOOL, GradeCodeEnum.TWO_HIGH_SCHOOL,
-                GradeCodeEnum.THREE_HIGH_SCHOOL);
-    }
-
-    public static List<GradeCodeEnum> vocationalHighSchool() {
-        return Lists.newArrayList(GradeCodeEnum.ONE_VOCATIONAL_HIGH_SCHOOL, GradeCodeEnum.TWO_VOCATIONAL_HIGH_SCHOOL,
-                GradeCodeEnum.THREE_VOCATIONAL_HIGH_SCHOOL);
-    }
-
-    public static List<GradeCode> getGradeCodeList() {
-        List<GradeCode> gradeCodeList = new ArrayList<>();
-        for (GradeCodeEnum value : values()) {
-            GradeCode gradeCode = new GradeCode();
-            gradeCode.setCode(value.getCode());
-            gradeCode.setName(value.getName());
-            gradeCode.setValue(value.toString());
-            gradeCodeList.add(gradeCode);
-        }
-        return gradeCodeList;
-    }
-
-    /**
-     * 根据类型获取描述
-     *
-     * @param code code
-     * @return 描述
-     */
-    public static String getName(String code) {
-        GradeCodeEnum h = Arrays.stream(GradeCodeEnum.values())
-                .filter(item -> item.code.equals(code))
-                .findFirst().orElse(null);
-        return Objects.nonNull(h) ? h.name : null;
     }
 
     /**
@@ -152,7 +103,7 @@ public enum GradeCodeEnum {
     public static GradeCodeEnum getByCode(String code) {
         return Arrays.stream(GradeCodeEnum.values())
                 .filter(item -> item.code.equals(code))
-                .findFirst().orElse(null);
+                .findFirst().orElse(UNKNOWN);
     }
 
     /**
@@ -164,6 +115,6 @@ public enum GradeCodeEnum {
     public static GradeCodeEnum getByName(String name) {
         return Arrays.stream(GradeCodeEnum.values())
                 .filter(item -> item.name.equals(name))
-                .findFirst().orElse(null);
+                .findFirst().orElse(UNKNOWN);
     }
 }

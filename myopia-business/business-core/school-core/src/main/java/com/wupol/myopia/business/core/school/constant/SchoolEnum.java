@@ -30,6 +30,7 @@ public enum SchoolEnum {
     TYPE_VOCATIONAL(6, "职业高中"),
     TYPE_OTHER(7, "其他"),
     TYPE_KINDERGARTEN(8, "幼儿园"),
+    TYPE_UNIVERSITY(9, "大学"),
 
     /** 学校性质 */
     KIND_1(0, "公办"),
@@ -50,7 +51,7 @@ public enum SchoolEnum {
 
     private static final List<SchoolEnum> SCHOOL_TYPE = Lists.newArrayList(SchoolEnum.TYPE_PRIMARY,
             SchoolEnum.TYPE_MIDDLE, SchoolEnum.TYPE_HIGH, SchoolEnum.TYPE_INTEGRATED_MIDDLE,
-            SchoolEnum.TYPE_9, SchoolEnum.TYPE_12, SchoolEnum.TYPE_VOCATIONAL, SchoolEnum.TYPE_OTHER,TYPE_KINDERGARTEN);
+            SchoolEnum.TYPE_9, SchoolEnum.TYPE_12, SchoolEnum.TYPE_VOCATIONAL, SchoolEnum.TYPE_OTHER, TYPE_KINDERGARTEN, TYPE_UNIVERSITY);
 
     private static final List<SchoolEnum> SCHOOL_KIND = Lists.newArrayList(SchoolEnum.KIND_1,
             SchoolEnum.KIND_2, SchoolEnum.KIND_3);
