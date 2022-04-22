@@ -4,8 +4,10 @@ import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.business.api.management.domain.bo.StatisticResultBO;
 import com.wupol.myopia.business.common.utils.constant.WarningLevel;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
+import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.constant.SchoolEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
+import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import com.wupol.myopia.business.core.stat.domain.dos.*;
 import com.wupol.myopia.business.core.stat.domain.model.CommonDiseaseScreeningResultStatistic;
 import com.wupol.myopia.business.core.stat.domain.model.VisionScreeningResultStatistic;
@@ -147,13 +149,7 @@ public class ScreeningResultStatisticBuilder {
     private void setPrimarySchoolAndAboveVisionAnalysis(StatisticResultBO totalStatistic, List<StatConclusion> statConclusions, int validScreeningNum, VisionScreeningResultStatistic statistic) {
         PrimarySchoolAndAboveVisionAnalysisDO visionAnalysisDO = new PrimarySchoolAndAboveVisionAnalysisDO();
         Integer lowVisionNum = (int) statConclusions.stream().map(StatConclusion::getIsLowVision).filter(Objects::nonNull).filter(Boolean::booleanValue).count();
-        List<BigDecimal> leftList = statConclusions.stream().map(StatConclusion::getVisionL).filter(Objects::nonNull).collect(Collectors.toList());
-        double leftSum = leftList.stream().mapToDouble(BigDecimal::doubleValue).sum();
-        double avgLeftVision = BigDecimalUtil.divide(String.valueOf(leftSum),String.valueOf(leftList.size()),1).doubleValue();
-        List<BigDecimal> rightList = statConclusions.stream().map(StatConclusion::getVisionR).filter(Objects::nonNull).collect(Collectors.toList());
-        double rightSum = rightList.stream().mapToDouble(BigDecimal::doubleValue).sum();
-        double avgRightVision = BigDecimalUtil.divide(String.valueOf(rightSum),String.valueOf(rightList.size()),1).doubleValue();
-
+        TwoTuple<BigDecimal, BigDecimal> tuple = StatUtil.calculateAverageVision(statConclusions);
         int myopiaNum = (int) statConclusions.stream().map(StatConclusion::getIsMyopia).filter(Objects::nonNull).filter(Boolean::booleanValue).count();
         int myopiaLevelEarlyNum = (int) statConclusions.stream().filter(sc->Objects.equals(2,sc.getMyopiaLevel())).count();
         int lowMyopiaNum = (int) statConclusions.stream().filter(sc->Objects.equals(3,sc.getMyopiaLevel())).count();
@@ -164,7 +160,7 @@ public class ScreeningResultStatisticBuilder {
         Integer treatmentAdviceNum = (int) statConclusions.stream().map(StatConclusion::getIsRecommendVisit).filter(Objects::nonNull).filter(Boolean::booleanValue).count();
         visionAnalysisDO.setLowVisionNum(lowVisionNum)
                 .setLowVisionRatio(MathUtil.ratio(lowVisionNum,validScreeningNum))
-                .setAvgLeftVision(BigDecimal.valueOf(avgLeftVision)).setAvgRightVision(BigDecimal.valueOf(avgRightVision))
+                .setAvgLeftVision(tuple.getFirst()).setAvgRightVision(tuple.getSecond())
                 .setMyopiaNum(myopiaNum).setMyopiaRatio(MathUtil.ratio(myopiaNum,validScreeningNum))
                 .setMyopiaLevelEarlyNum(myopiaLevelEarlyNum).setMyopiaLevelEarlyRatio(MathUtil.ratio(myopiaLevelEarlyNum,validScreeningNum))
                 .setLowMyopiaNum(lowMyopiaNum).setLowMyopiaRatio(MathUtil.ratio(lowMyopiaNum,validScreeningNum))
@@ -189,17 +185,11 @@ public class ScreeningResultStatisticBuilder {
         Integer anisometropiaNum = (int) statConclusions.stream().map(StatConclusion::getIsAnisometropia).filter(Objects::nonNull).filter(Boolean::booleanValue).count();
         Integer wearingGlassNum = (int) statConclusions.stream().map(StatConclusion::getIsWearingGlasses).filter(Objects::nonNull).filter(Boolean::booleanValue).count();
         Integer treatmentAdviceNum = (int) statConclusions.stream().map(StatConclusion::getIsRecommendVisit).filter(Objects::nonNull).filter(Boolean::booleanValue).count();
-        List<BigDecimal> leftList = statConclusions.stream().map(StatConclusion::getVisionL).filter(Objects::nonNull).collect(Collectors.toList());
-        double leftSum = leftList.stream().mapToDouble(BigDecimal::doubleValue).sum();
-        double avgLeftVision =BigDecimalUtil.divide(String.valueOf(leftSum),String.valueOf(leftList.size()),1).doubleValue();
-        List<BigDecimal> rightList = statConclusions.stream().map(StatConclusion::getVisionR).filter(Objects::nonNull).collect(Collectors.toList());
-        double rightSum = rightList.stream().mapToDouble(BigDecimal::doubleValue).sum();
-        double avgRightVision = BigDecimalUtil.divide(String.valueOf(rightSum),String.valueOf(rightList.size()),1).doubleValue();
-
+        TwoTuple<BigDecimal, BigDecimal> tuple = StatUtil.calculateAverageVision(statConclusions);
         Integer visionLabelZeroSpNum = visionLabelNumberMap.getOrDefault(WarningLevel.ZERO_SP.code, 0L).intValue();
         visionAnalysisDO.setLowVisionNum(lowVisionNum)
                 .setLowVisionRatio(MathUtil.ratio(lowVisionNum,validScreeningNum))
-                .setAvgLeftVision(BigDecimal.valueOf(avgLeftVision)).setAvgRightVision(BigDecimal.valueOf(avgRightVision))
+                .setAvgLeftVision(tuple.getFirst()).setAvgRightVision(tuple.getSecond())
                 .setAmetropiaNum(ametropiaNum).setAmetropiaRatio(MathUtil.ratio(ametropiaNum,validScreeningNum))
                 .setAnisometropiaNum(anisometropiaNum).setAnisometropiaRatio(MathUtil.ratio(anisometropiaNum,validScreeningNum))
                 .setMyopiaLevelInsufficientNum(visionLabelZeroSpNum).setMyopiaLevelInsufficientRatio(MathUtil.ratio(visionLabelZeroSpNum,validScreeningNum))
