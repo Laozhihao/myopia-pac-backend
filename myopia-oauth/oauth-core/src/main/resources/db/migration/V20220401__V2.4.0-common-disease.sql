@@ -33,4 +33,6 @@ VALUES
        (853, '按区域-查看详情', 'districtDetail', 'get:/management/screening-statistic/district/screeningResultTotalDetail', 0, 0, 1, 29, 1),
        (854, '按学校-幼儿园', 'getSchoolKindergartenStatistic', 'get:/management/screening-statistic/school/kindergartenResult', 0, 0, 1, 30, 1),
        (855, '按学校-小学及以上', 'getSchoolPrimaryAndAboveStatistic', 'get:/management/screening-statistic/school/primarySchoolAndAboveResult', 0, 0, 1, 30, 1),
-       (856, '按学校-查看详情', 'schoolDetail', 'get:/management/screening-statistic/school/schoolStatisticDetail', 0, 0, 1, 30, 1);
+       (856, '按学校-查看详情', 'schoolDetail', 'get:/management/screening-statistic/school/schoolStatisticDetail', 0, 0, 1, 30, 1),
+       (857, '筛查数据结论', '', 'get:/management/screening-statistic/screeningToConclusion', 0, 0, 1, 30, 1),
+       (858, '筛查结果统计', '', 'get:/management/screening-statistic/trigger', 0, 0, 1, 30, 1);

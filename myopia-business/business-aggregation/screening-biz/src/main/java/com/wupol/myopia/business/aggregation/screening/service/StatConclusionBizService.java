@@ -113,7 +113,9 @@ public class StatConclusionBizService {
 
         map.keySet().forEach(planId->{
             Map<String, TwoTuple<VisionScreeningResult, VisionScreeningResult>> typeMap = map.get(planId);
-            typeMap.forEach((type,tuple)-> screeningConclusionResult(tuple,statConclusionList,screeningPlanSchoolStudentMap,schoolGradeMap,statConclusionMap));
+            if (CollectionUtil.isNotEmpty(typeMap)){
+                typeMap.forEach((type,tuple)-> screeningConclusionResult(tuple,statConclusionList,screeningPlanSchoolStudentMap,schoolGradeMap,statConclusionMap));
+            }
         });
 
         if(CollectionUtil.isNotEmpty(statConclusionList)){
