@@ -34,7 +34,7 @@ import java.util.Date;
 public class CommonDiseaseDataExportDTO implements Serializable {
     private static final long serialVersionUID = 5454155825314635342L;
 
-    public static final String TOP_HEADER = "视力筛查";
+    public static final String TOP_HEADER = "初筛检查";
     public static final String TOP_HEADER2 = "视力复测";
 
     @ExcelProperty({"姓名", "姓名", "姓名"})
@@ -133,10 +133,6 @@ public class CommonDiseaseDataExportDTO implements Serializable {
     private String otherEyeDiseasesRightEyeDiseases;
     @ExcelProperty({TOP_HEADER, "其他眼病", "全身疾病在眼部的表现"})
     private String otherEyeDiseasesSystemicDiseaseSymptom;
-    @ExcelProperty({TOP_HEADER, "其他眼病", "盲及视力损害分类（右）"})
-    private String rightOtherEyeDiseasesLevel;
-    @ExcelProperty({TOP_HEADER, "其他眼病", "盲及视力损害分类（左）"})
-    private String leftOtherEyeDiseasesLevel;
 
 
     @ExcelProperty({TOP_HEADER2, "视力检查", "戴镜情况"})
