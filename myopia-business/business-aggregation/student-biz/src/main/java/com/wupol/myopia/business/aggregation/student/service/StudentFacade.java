@@ -144,7 +144,7 @@ public class StudentFacade {
         IPage<VisionScreeningResult> resultIPage = visionScreeningResultService.getByStudentIdWithPage(pageRequest,studentId);
 
         List<VisionScreeningResult> resultList = resultIPage.getRecords();
-                
+
         // 获取筛查计划
         List<Integer> planIds = resultList.stream().map(VisionScreeningResult::getPlanId).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(planIds)) {
@@ -193,8 +193,7 @@ public class StudentFacade {
             //设置视力信息
             screeningInfoDTO.setVision(resultDetail);
             //设置常见病信息
-            CommonDiseasesDTO commonDiseases = getCommonDiseases(result);
-            screeningInfoDTO.setCommonDiseases(commonDiseases);
+            screeningInfoDTO.setCommonDiseases(getCommonDiseases(result));
             //设置复测信息
             if (Objects.nonNull(rescreeningVisionScreeningResultMap)){
                 screeningInfoDTO.setRescreening(ReScreenCardUtil.reScreeningResult(result,rescreeningVisionScreeningResultMap.get(result.getPlanId())));
@@ -268,18 +267,19 @@ public class StudentFacade {
         return commonDiseases;
     }
 
+    /**
+     * 合并上下牙床数据
+     * @param result 筛查数据
+     * @return 合并上下牙床数据
+     */
     private SaprodontiaDataDODTO getSaprodontiaDataDODTO(VisionScreeningResult result){
 
-        Optional.ofNullable(result) .map(VisionScreeningResult::getSaprodontiaData).orElse(null);
-
-        SaprodontiaDataDO saprodontiaDataDO = result.getSaprodontiaData();
-
-        List<SaprodontiaDataDO.SaprodontiaItem> above = saprodontiaDataDO.getAbove();
-        List<SaprodontiaDataDO.SaprodontiaItem> underneath = saprodontiaDataDO.getUnderneath();
-
         List<SaprodontiaDataDO.SaprodontiaItem> items = new ArrayList<>();
-        items.addAll(above);
-        items.addAll(underneath);
+
+        if (Objects.nonNull(result)&&Objects.nonNull(result.getSaprodontiaData())){
+            items.addAll(result.getSaprodontiaData().getAbove());
+            items.addAll(result.getSaprodontiaData().getUnderneath());
+        }
 
         return calculationTooth(items);
     }
