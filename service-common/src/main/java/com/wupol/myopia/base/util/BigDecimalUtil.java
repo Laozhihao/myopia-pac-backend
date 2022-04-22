@@ -264,4 +264,15 @@ public class BigDecimalUtil {
         return first.abs().subtract(retest.abs());
     }
 
+    /**
+     * 保留2位小数
+     * @param value 输入值
+     * @return 保留2位小数
+     */
+    public static BigDecimal keep2DecimalPlaces(BigDecimal value) {
+       if (value!=null){
+           value.setScale(2,BigDecimal.ROUND_HALF_UP);
+       }
+       return null;
+    }
 }
