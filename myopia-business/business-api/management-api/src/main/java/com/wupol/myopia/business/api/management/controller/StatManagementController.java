@@ -356,13 +356,17 @@ public class StatManagementController {
      * 筛查结果和筛查数据结论的数据转换为筛查结果统计数据-全部数据
      */
     @GetMapping("/triggerAll")
-    public void statTaskTriggerAll() {
+    public void statTaskTriggerAll(@RequestParam(required = false) Integer planId) {
         List<Integer> yesterdayScreeningPlanIds = screeningPlanService.list().stream().map(ScreeningPlan::getId).filter(id->Objects.nonNull(id) && id>=127).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(yesterdayScreeningPlanIds)) {
             log.info("筛查数据统计：历史无筛查数据，无需统计");
             return;
         }
         log.info("共{}条筛查计划",yesterdayScreeningPlanIds.size());
+        Collections.sort(yesterdayScreeningPlanIds);
+        if(Objects.nonNull(planId)){
+            yesterdayScreeningPlanIds = yesterdayScreeningPlanIds.stream().filter(id->id>planId).collect(Collectors.toList());
+        }
         List<List<Integer>> planIdsList = ListUtil.split(yesterdayScreeningPlanIds, 50);
         for (int i = 0; i < planIdsList.size(); i++) {
             log.info("分批执行中...{}/{}",i+1,planIdsList.size());
