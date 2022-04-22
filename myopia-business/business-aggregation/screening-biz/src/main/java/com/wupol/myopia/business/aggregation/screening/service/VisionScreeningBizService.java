@@ -149,9 +149,6 @@ public class VisionScreeningBizService {
             throw new BusinessException("需要完成矫正视力检查");
         }
         // 球镜 柱镜 轴位
-        if (Objects.isNull(computerOptometry)) {
-            throw new BusinessException("需要完成电脑验光检查");
-        }
         // 球镜
         if ((Objects.isNull(computerOptometry.getLeftEyeData()) || Objects.isNull(computerOptometry.getRightEyeData()))
                 || (Objects.isNull(computerOptometry.getLeftEyeData().getSph()) && Objects.isNull(computerOptometry.getRightEyeData().getSph()))) {
