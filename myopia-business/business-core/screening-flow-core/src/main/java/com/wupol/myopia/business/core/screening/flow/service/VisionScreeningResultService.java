@@ -353,22 +353,22 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         int fFountPermanent = 0;
         for (SaprodontiaDataDO.SaprodontiaItem item: items){
             if (item != null){
-                if (item.getDeciduous().equals(SaprodontiaType.DECIDUOUS_D)){
+                if (item.getDeciduous().equals(SaprodontiaType.DECIDUOUS_D.getName())){
                     dCountDeciduous++;
                 }
-                if (item.getDeciduous().equals(SaprodontiaType.DECIDUOUS_M)){
+                if (item.getDeciduous().equals(SaprodontiaType.DECIDUOUS_M.getName())){
                     mCountDeciduous++;
                 }
-                if (item.getDeciduous().equals(SaprodontiaType.DECIDUOUS_F)){
+                if (item.getDeciduous().equals(SaprodontiaType.DECIDUOUS_F.getName())){
                     fFountDeciduous++;
                 }
-                if (item.getPermanent().equals(SaprodontiaType.PERMANENT_D)){
+                if (item.getPermanent().equals(SaprodontiaType.PERMANENT_D.getName())){
                     dFountPermanent++;
                 }
-                if (item.getPermanent().equals(SaprodontiaType.PERMANENT_M)){
+                if (item.getPermanent().equals(SaprodontiaType.PERMANENT_M.getName())){
                     mFountPermanent++;
                 }
-                if (item.getPermanent().equals(SaprodontiaType.PERMANENT_F)){
+                if (item.getPermanent().equals(SaprodontiaType.PERMANENT_F.getName())){
                     fFountPermanent++;
                 }
             }
@@ -380,9 +380,9 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         deciduousTooth.setMCount(fFountDeciduous);
 
         SaprodontiaStat permanentTooth = new SaprodontiaStat();
-        deciduousTooth.setDCount(dFountPermanent);
-        deciduousTooth.setFCount(mFountPermanent);
-        deciduousTooth.setMCount(fFountPermanent);
+        permanentTooth.setDCount(dFountPermanent);
+        permanentTooth.setFCount(mFountPermanent);
+        permanentTooth.setMCount(fFountPermanent);
 
         saprodontiaDataDTO.setDeciduousTooth(deciduousTooth);
         saprodontiaDataDTO.setPermanentTooth(permanentTooth);
