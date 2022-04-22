@@ -193,7 +193,7 @@ public class ReScreenCardUtil {
 
         ReScreenDTO.ReScreeningResult.ScreeningDeviation rightSE = new  ReScreenDTO.ReScreeningResult.ScreeningDeviation();
         boolean rightSEType = BigDecimalUtil.isDeviation(EyeDataUtil.rightSE(result),
-                EyeDataUtil.rightSE(reScreening),new BigDecimal(ReScreenConstant.COMPUTEROPTOMETRY_DEVIATION));
+                EyeDataUtil.rightSE(reScreening),new BigDecimal(ReScreenConstant.SE_DEVIATION));
         deviationCount = getDeviationCount(deviationCount, rightSEType);
 
         rightSE.setType(rightSEType);
@@ -220,7 +220,7 @@ public class ReScreenCardUtil {
 
         ReScreenDTO.ReScreeningResult.ScreeningDeviation leftSE = new  ReScreenDTO.ReScreeningResult.ScreeningDeviation();
         boolean leftSEType = BigDecimalUtil.isDeviation(EyeDataUtil.leftSE(result),
-                EyeDataUtil.leftSE(reScreening),new BigDecimal(ReScreenConstant.COMPUTEROPTOMETRY_DEVIATION));
+                EyeDataUtil.leftSE(reScreening),new BigDecimal(ReScreenConstant.SE_DEVIATION));
         deviationCount = getDeviationCount(deviationCount, leftSEType);
 
         leftSE.setType(leftSEType);

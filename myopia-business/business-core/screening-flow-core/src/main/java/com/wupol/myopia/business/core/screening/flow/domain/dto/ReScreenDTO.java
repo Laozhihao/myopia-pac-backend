@@ -84,6 +84,16 @@ public class ReScreenDTO {
         /** 体重 */
         private ScreeningDeviation weight;
 
+        /**
+         * 右眼等效球镜
+         */
+        private ScreeningDeviation rightSE;
+
+        /**
+         * 左眼等效球镜
+         */
+        private ScreeningDeviation leftSE;
+
         @Data
         public static class ScreeningDeviation implements Serializable {
             /**
