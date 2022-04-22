@@ -1,6 +1,8 @@
 package com.wupol.myopia.business.core.stat.domain.dos;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 
@@ -10,7 +12,9 @@ import java.io.Serializable;
  * @author hang.yuan 2022/4/13 15:33
  */
 @Data
-public class SaprodontiaDO implements Serializable {
+@JsonIgnoreProperties(ignoreUnknown = true)
+@Accessors(chain = true)
+public class SaprodontiaDO implements Serializable,FrontTableId {
 
     /**
      * 小学及以上--无龋人数（默认0）
@@ -23,7 +27,7 @@ public class SaprodontiaDO implements Serializable {
     private String saprodontiaFreeRatio;
 
     /**
-     * 小学及以上--龋均人数（默认0）
+     * 小学及以上--龋均数（默认0）
      */
     private Integer dmftNum;
 
@@ -81,4 +85,9 @@ public class SaprodontiaDO implements Serializable {
      * 小学及以上--龋患（失、补）构成比率
      */
     private String saprodontiaLossAndRepairTeethRatio;
+
+    @Override
+    public Integer getSerialVersionUID() {
+        return 6;
+    }
 }

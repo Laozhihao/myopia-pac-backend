@@ -1,12 +1,14 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dos;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Objects;
 
 /**
  * 眼压数据
@@ -32,4 +34,11 @@ public class HeightAndWeightDataDO extends AbstractDiagnosisResult implements Se
      * 身体质量指数值
      */
     private BigDecimal bmi;
+
+    public BigDecimal getBmi() {
+        if(Objects.nonNull(height) && Objects.nonNull(weight)){
+            return StatUtil.bmi(height,weight);
+        }
+        return bmi;
+    }
 }

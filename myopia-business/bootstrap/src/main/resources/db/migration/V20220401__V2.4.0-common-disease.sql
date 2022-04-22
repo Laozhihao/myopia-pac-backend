@@ -41,6 +41,15 @@ ALTER TABLE m_stat_conclusion ADD is_menarche TINYINT(1) NULL COMMENT '是否初
 ALTER TABLE m_stat_conclusion ADD is_review TINYINT(1) NULL COMMENT '是否复查';
 
 
+ALTER TABLE m_stat_conclusion ADD is_anisometropia TINYINT(1) NULL COMMENT '是否屈光参差';
+ALTER TABLE m_stat_conclusion MODIFY COLUMN is_saprodontia tinyint(1) NULL COMMENT '是否龋患';
+ALTER TABLE m_stat_conclusion ADD saprodontia_teeth INT NULL COMMENT '龋患牙齿数';
+ALTER TABLE m_stat_conclusion ADD is_saprodontia_loss TINYINT(1) NULL COMMENT '是否龋失';
+ALTER TABLE m_stat_conclusion ADD saprodontia_loss_teeth INT NULL COMMENT '龋失牙齿数';
+ALTER TABLE m_stat_conclusion ADD is_saprodontia_repair TINYINT(1) NULL COMMENT '是否龋补';
+ALTER TABLE m_stat_conclusion ADD saprodontia_repair_teeth INT NULL COMMENT '龋补牙齿数';
+
+
 -- 新增筛查数据结果统计表
 CREATE TABLE `m_screening_result_statistic` (
   `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT '主键id',

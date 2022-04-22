@@ -174,7 +174,11 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
                 year.equals(DateUtil.getYear(screeningPlan.getStartTime())) || year.equals(DateUtil.getYear(screeningPlan.getEndTime()))
         ).map(screeningPlan -> {
             ScreeningPlanNameDTO screeningTaskNameVO = new ScreeningPlanNameDTO();
-            screeningTaskNameVO.setPlanName(screeningPlan.getTitle()).setPlanId(screeningPlan.getId()).setScreeningStartTime(screeningPlan.getStartTime()).setScreeningEndTime(screeningPlan.getEndTime());
+            screeningTaskNameVO.setPlanName(screeningPlan.getTitle())
+                    .setPlanId(screeningPlan.getId())
+                    .setScreeningStartTime(screeningPlan.getStartTime())
+                    .setScreeningEndTime(screeningPlan.getEndTime())
+                    .setScreeningType(screeningPlan.getScreeningType());
             return screeningTaskNameVO;
         }).collect(Collectors.toList());
     }

@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.screening.flow.service;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -25,6 +26,8 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -106,6 +109,19 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
     }
 
     /**
+     * 通过指定的日期获取筛查计划ID集合
+     */
+    public List<Integer> getScreeningPlanIdsByDate(String dateStr){
+        if(StrUtil.isBlank(dateStr)){
+            dateStr= LocalDate.now().minusDays(1).toString();
+
+        }
+        LocalDateTime startTime = LocalDate.parse(dateStr).atTime(0, 0, 0,0);
+        LocalDateTime endTime = LocalDate.parse(dateStr).atTime(23, 59, 59,999);
+        return baseMapper.getHaveSrcScreeningNoticePlanIdsByTime(DateUtil.toDate(startTime),DateUtil.toDate(endTime));
+    }
+
+    /**
      * 根据筛查计划关联的存档的学生id
      *
      * @param screeningPlanSchoolStudentIds 计划的学生ID
@@ -127,6 +143,16 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         LambdaQueryWrapper<VisionScreeningResult> visionScreeningResultLambdaQueryWrapper = new LambdaQueryWrapper<>();
         visionScreeningResultLambdaQueryWrapper.eq(VisionScreeningResult::getIsDoubleScreen,false).in(VisionScreeningResult::getPlanId, planIds).orderByDesc(VisionScreeningResult::getUpdateTime);
         return baseMapper.selectList(visionScreeningResultLambdaQueryWrapper);
+    }
+
+    /**
+     * 根据筛查计划ID集查询
+     * @param planIds
+     */
+    public List<VisionScreeningResult> getByPlanIds(List<Integer> planIds){
+        LambdaQueryWrapper<VisionScreeningResult> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(VisionScreeningResult::getPlanId, planIds);
+        return baseMapper.selectList(queryWrapper);
     }
 
     /**

@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -90,11 +91,11 @@ public class StatConclusionTest {
 
             boolean isWearingGlasses = GlassesTypeEnum.NOT_WEARING.code == 0 ? false : true;
 
-            float leftCyl = leftData.getCyl().floatValue();
-            float rightCyl = rightData.getCyl().floatValue();
+            BigDecimal leftCyl = leftData.getCyl();
+            BigDecimal rightCyl = rightData.getCyl();
 
-            float leftSph = leftData.getSph().floatValue();
-            float rightSph = rightData.getSph().floatValue();
+            BigDecimal leftSph = leftData.getSph();
+            BigDecimal rightSph = rightData.getSph();
 
             AstigmatismLevelEnum leftAstigmatismWarningLevel = StatUtil.getAstigmatismWarningLevel(leftCyl);
             AstigmatismLevelEnum rightAstigmatismWarningLevel = StatUtil.getAstigmatismWarningLevel(rightCyl);
@@ -104,8 +105,8 @@ public class StatConclusionTest {
             HyperopiaLevelEnum rightHyperopiaWarningLevel =
                     StatUtil.getHyperopiaWarningLevel(rightSph, rightCyl, age);
 
-            float leftNakedVision = visionData.getLeftEyeData().getNakedVision().floatValue();
-            float rightNakedVision = visionData.getRightEyeData().getNakedVision().floatValue();
+            BigDecimal leftNakedVision = visionData.getLeftEyeData().getNakedVision();
+            BigDecimal rightNakedVision = visionData.getRightEyeData().getNakedVision();
             MyopiaLevelEnum leftMyopiaWarningLevel = StatUtil.getMyopiaWarningLevel(leftSph, leftCyl, age, leftNakedVision);
             MyopiaLevelEnum rightMyopiaWarningLevel = StatUtil.getMyopiaWarningLevel(rightSph, rightCyl, age, rightNakedVision);
 
@@ -136,9 +137,9 @@ public class StatConclusionTest {
             boolean isLowVision = StatUtil.isLowVision(visionData.getLeftEyeData().getNakedVision().floatValue(), age)
                     || StatUtil.isLowVision(visionData.getLeftEyeData().getNakedVision().floatValue(), age);
 
-            boolean isRefractiveError =
-                    StatUtil.isRefractiveError(isAstigmatism, isMyopia, isHyperopia);
-
+            boolean leftRefractiveError = StatUtil.isRefractiveError(leftSph, leftCyl, age);
+            boolean rightRefractiveError = StatUtil.isRefractiveError(rightSph, rightCyl, age);
+            boolean isRefractiveError = leftRefractiveError || rightRefractiveError;
             boolean isRecommendVisit = false;
 
             List<Integer> warningLevelList = new ArrayList() {

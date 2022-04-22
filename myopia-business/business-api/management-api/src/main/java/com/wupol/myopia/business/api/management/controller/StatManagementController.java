@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.controller;
 
+import cn.hutool.core.collection.ListUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
@@ -9,6 +10,7 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.aggregation.screening.service.StatConclusionBizService;
 import com.wupol.myopia.business.api.management.domain.dto.SchoolMonitorStatisticDTO;
 import com.wupol.myopia.business.api.management.domain.vo.*;
 import com.wupol.myopia.business.api.management.schedule.ScheduledTasksExecutor;
@@ -89,6 +91,8 @@ public class StatManagementController {
     private VisionScreeningResultService visionScreeningResultService;
     @Autowired
     private StatConclusionService statConclusionService;
+    @Autowired
+    private StatConclusionBizService statConclusionBizService;
 
     /**
      * 根据查找当前用户所处层级能够查找到的年度
@@ -211,6 +215,7 @@ public class StatManagementController {
      * @param districtId
      * @return
      */
+    @Deprecated
     @GetMapping("/district/screening-vision-result")
     public ScreeningVisionStatisticVO getDistrictVisionStatistic(
             @RequestParam Integer districtId, @RequestParam Integer noticeId) throws IOException {
@@ -227,6 +232,7 @@ public class StatManagementController {
      * @param districtId
      * @return
      */
+    @Deprecated
     @GetMapping("/district/screening-monitor-result")
     public DistrictScreeningMonitorStatisticVO getDistrictMonitorStatistic(
             @RequestParam Integer districtId, @RequestParam Integer noticeId) throws IOException {
@@ -245,6 +251,7 @@ public class StatManagementController {
      * @param districtId
      * @return
      */
+    @Deprecated
     @GetMapping("/school/screening-vision-result")
     public ScreeningSchoolVisionStatisticVO getSchoolVisionStatistic(@RequestParam Integer districtId, @RequestParam Integer noticeId) {
         // 获取当前层级下，所有参与任务的学校
@@ -263,6 +270,7 @@ public class StatManagementController {
      * @return
      * @throws IOException
      */
+    @Deprecated
     @GetMapping("/school/screening-monitor-result")
     public SchoolScreeningMonitorStatisticVO getSchoolMonitorStatistic(@RequestParam Integer districtId, @RequestParam Integer noticeId) throws IOException {
         // 获取当前层级下，所有参与任务的学校
@@ -311,13 +319,29 @@ public class StatManagementController {
     }
 
     /**
-     * 为了测试方便
+     * 筛查结果和筛查数据结论的数据转换为筛查结果统计数据 - 根据筛查计划日期或者筛查计划ID
      */
     @GetMapping("/trigger")
-    public void statTaskTrigger() {
-        scheduledTasksExecutor.statistic();
+    public void statTaskTrigger(@RequestParam(required = false) String date,
+                                @RequestParam(required = false) Integer planId) {
+        scheduledTasksExecutor.statistic(date,planId);
     }
 
+    /**
+     * 筛查结果数据转筛查数据结论
+     * @param planId 筛查计划ID, 不必填
+     * @param isAll 是否全部 (true-全部,false-不是全部) 必填
+     */
+    @GetMapping("screeningToConclusion")
+    public void screeningToConclusion(@RequestParam(required = false) Integer planId,@RequestParam Boolean isAll){
+        if (planId != null && !isAll){
+            statConclusionBizService.screeningToConclusionByPlanIds(Lists.newArrayList(planId));
+        }
+        if (isAll){
+            statConclusionBizService.screeningToConclusionAll(planId);
+        }
+
+    }
     /**
      * 触发大屏统计（todo 为了测试方便）
      *
@@ -328,14 +352,23 @@ public class StatManagementController {
         bigScreeningStatService.statisticBigScreen();
     }
 
+    /**
+     * 筛查结果和筛查数据结论的数据转换为筛查结果统计数据-全部数据
+     */
     @GetMapping("/triggerAll")
     public void statTaskTriggerAll() {
-        List<Integer> yesterdayScreeningPlanIds = screeningPlanService.list().stream().map(ScreeningPlan::getId).collect(Collectors.toList());
-        if (com.wupol.framework.core.util.CollectionUtils.isEmpty(yesterdayScreeningPlanIds)) {
+        List<Integer> yesterdayScreeningPlanIds = screeningPlanService.list().stream().map(ScreeningPlan::getId).filter(id->Objects.nonNull(id) && id>=127).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(yesterdayScreeningPlanIds)) {
             log.info("筛查数据统计：历史无筛查数据，无需统计");
             return;
         }
-        scheduledTasksExecutor.statisticByPlanIds(yesterdayScreeningPlanIds);
+        log.info("共{}条筛查计划",yesterdayScreeningPlanIds.size());
+        List<List<Integer>> planIdsList = ListUtil.split(yesterdayScreeningPlanIds, 50);
+        for (int i = 0; i < planIdsList.size(); i++) {
+            log.info("分批执行中...{}/{}",i+1,planIdsList.size());
+            scheduledTasksExecutor.screeningResultStatisticByPlanIds(planIdsList.get(i));
+        }
+        log.info("数据处理完成");
     }
 
     @GetMapping("/triggerById/{planId}")
@@ -478,5 +511,80 @@ public class StatManagementController {
         //获取数据
         return ScreeningSchoolVisionStatisticVO.getInstance(schoolVisionStatistics, schoolIdDistrictNameMap, notice);
     }
+
+    /**
+     * 按区域-幼儿园
+     * @author hang.yuan
+     * @date 2022/4/7
+     */
+    @GetMapping("/district/kindergartenResult")
+    public KindergartenResultVO getKindergartenResult(@RequestParam Integer districtId,
+                                                      @RequestParam Integer noticeId) {
+        return statService.getKindergartenResult(districtId,noticeId);
+    }
+
+    /**
+     * 按区域-小学及以上
+     * @author hang.yuan
+     * @date 2022/4/7
+     */
+    @GetMapping("/district/primarySchoolAndAboveResult")
+    public PrimarySchoolAndAboveResultVO getPrimarySchoolAndAboveResult(@RequestParam Integer districtId,
+                                                                        @RequestParam Integer noticeId) {
+
+        return statService.getPrimarySchoolAndAboveResult(districtId,noticeId);
+    }
+
+    /**
+     *  按区域-合计详情
+     * @author hang.yuan
+     * @date 2022/4/7
+     */
+    @GetMapping("/district/screeningResultTotalDetail")
+    public ScreeningResultStatisticDetailVO getScreeningResultTotalDetail(@RequestParam Integer districtId,
+                                                                          @RequestParam Integer noticeId) {
+
+        return statService.getScreeningResultTotalDetail(districtId,noticeId);
+    }
+
+
+    /**
+     * 按学校-幼儿园
+     * @author hang.yuan
+     * @date 2022/4/7
+     */
+    @GetMapping("/school/kindergartenResult")
+    public SchoolKindergartenResultVO getSchoolKindergartenResult(@RequestParam Integer districtId,
+                                                                  @RequestParam(required = false) Integer noticeId,
+                                                                  @RequestParam(required = false) Integer planId) {
+
+        return statService.getSchoolKindergartenResult(districtId,noticeId,planId);
+    }
+
+    /**
+     * 按学校-小学及以上
+     * @author hang.yuan
+     * @date 2022/4/7
+     */
+    @GetMapping("/school/primarySchoolAndAboveResult")
+    public SchoolPrimarySchoolAndAboveResultVO getSchoolPrimarySchoolAndAboveResult(@RequestParam Integer districtId,
+                                                                                    @RequestParam(required = false) Integer noticeId,
+                                                                                    @RequestParam(required = false) Integer planId) {
+
+        return statService.getSchoolPrimarySchoolAndAboveResult(districtId,noticeId,planId);
+    }
+
+    /**
+     * 按学校-查看详情
+     * @author hang.yuan
+     * @date 2022/4/7
+     */
+    @GetMapping("/school/schoolStatisticDetail")
+    public SchoolResultDetailVO getSchoolStatisticDetail(@RequestParam(required = false) Integer screeningPlanId,
+                                                         @RequestParam(required = false) Integer screeningNoticeId,
+                                                         @RequestParam Integer schoolId) {
+        return statService.getSchoolStatisticDetail(screeningPlanId,screeningNoticeId,schoolId);
+    }
+
 
 }
