@@ -24,6 +24,6 @@ public class StrUtil {
         if (Objects.isNull(strings) || strings.length == 0) {
             return StringUtils.EMPTY;
         }
-        return Arrays.stream(strings).filter(Objects::nonNull).collect(Collectors.joining(str));
+        return Arrays.stream(strings).filter(StringUtils::isNotBlank).collect(Collectors.joining(str));
     }
 }
