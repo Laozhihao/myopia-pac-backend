@@ -27,16 +27,6 @@ public class PrimarySchoolAndAboveResultVO {
 
 
     /**
-     * 筛查类型 （0-视力筛查、1-常见病筛查）
-     */
-    private Integer screeningType;
-
-    /**
-     *  是否幼儿园
-     */
-    private Boolean isKindergarten;
-
-    /**
      * 筛查范围、所属的地区id
      */
     private Integer districtId;
@@ -155,7 +145,15 @@ public class PrimarySchoolAndAboveResultVO {
          */
         private Integer screeningNoticeId;
 
+        /**
+         * 筛查类型 （0-视力筛查、1-常见病筛查）
+         */
+        private Integer screeningType;
 
+        /**
+         *  是否幼儿园
+         */
+        private Boolean isKindergarten;
     }
 
     @Data
@@ -258,13 +256,9 @@ public class PrimarySchoolAndAboveResultVO {
     }
 
 
-    public void setBasicData(Integer districtId, String currentRangeName, ScreeningNotice screeningNotice) {
-        this.isKindergarten=false;
+    public void setBasicData(Integer districtId, String currentRangeName) {
         this.districtId = districtId;
         this.rangeName = currentRangeName;
-        if (Objects.nonNull(screeningNotice)){
-            this.screeningType=screeningNotice.getScreeningType();
-        }
     }
 
     public void setItemData(Integer districtId, List<ScreeningResultStatistic> visionStatistics, Map<Integer, String> districtIdNameMap) {
@@ -291,7 +285,7 @@ public class PrimarySchoolAndAboveResultVO {
     private Item getItem(Integer districtId, String rangeName, ScreeningResultStatistic currentVisionStatistic) {
         Item item = new Item();
         BeanUtils.copyProperties(currentVisionStatistic,item);
-        item.setScreeningRangeName(rangeName).setDistrictId(districtId);
+        item.setScreeningRangeName(rangeName).setDistrictId(districtId).setIsKindergarten(Boolean.FALSE);
 
         PrimarySchoolAndAboveVisionAnalysisDO visionAnalysis = (PrimarySchoolAndAboveVisionAnalysisDO)currentVisionStatistic.getVisionAnalysis();
         BeanUtils.copyProperties(visionAnalysis,item);

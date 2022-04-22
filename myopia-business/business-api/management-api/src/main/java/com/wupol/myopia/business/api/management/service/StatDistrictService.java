@@ -69,7 +69,7 @@ public class StatDistrictService {
         ScreeningResultStatistic currentVisionStatistic = currentVisionStatistic(districtId, noticeId, Boolean.TRUE);
         //构建数据
         KindergartenResultVO kindergartenResultVO = new KindergartenResultVO();
-        kindergartenResultVO.setBasicData(districtId,districtInfo.getFirst(),screeningNotice);
+        kindergartenResultVO.setBasicData(districtId,districtInfo.getFirst());
         kindergartenResultVO.setCurrentData(currentVisionStatistic);
         kindergartenResultVO.setItemData(districtId,visionStatistics,districtInfo.getSecond());
         return kindergartenResultVO;
@@ -104,7 +104,7 @@ public class StatDistrictService {
         ScreeningResultStatistic currentVisionStatistic = currentVisionStatistic(districtId, noticeId, Boolean.FALSE);
         //构建数据
         PrimarySchoolAndAboveResultVO primarySchoolAndAboveResultVO = new PrimarySchoolAndAboveResultVO();
-        primarySchoolAndAboveResultVO.setBasicData(districtId,districtInfo.getFirst(),screeningNotice);
+        primarySchoolAndAboveResultVO.setBasicData(districtId,districtInfo.getFirst());
         primarySchoolAndAboveResultVO.setCurrentData(currentVisionStatistic);
         primarySchoolAndAboveResultVO.setItemData(districtId,visionStatistics,districtInfo.getSecond());
         return primarySchoolAndAboveResultVO;

@@ -23,17 +23,6 @@ import java.util.stream.Collectors;
 public class KindergartenResultVO {
 
 
-
-    /**
-     * 筛查类型
-     */
-    private Integer screeningType;
-
-    /**
-     *  是否幼儿园
-     */
-    private Boolean isKindergarten;
-
     /**
      * 筛查范围、所属的地区id
      */
@@ -165,16 +154,23 @@ public class KindergartenResultVO {
          */
         private Integer screeningNoticeId;
 
+        /**
+         * 筛查类型
+         */
+        private Integer screeningType;
+
+        /**
+         *  是否幼儿园
+         */
+        private Boolean isKindergarten;
+
+
     }
 
 
-    public void setBasicData(Integer districtId, String currentRangeName, ScreeningNotice screeningNotice) {
+    public void setBasicData(Integer districtId, String currentRangeName) {
         this.districtId = districtId;
         this.rangeName = currentRangeName;
-        this.isKindergarten=true;
-        if (Objects.nonNull(screeningNotice)){
-            this.screeningType=screeningNotice.getScreeningType();
-        }
     }
 
     public void setCurrentData(ScreeningResultStatistic currentVisionStatistic){
@@ -185,7 +181,7 @@ public class KindergartenResultVO {
     private Item getItem(Integer districtId,String rangeName, ScreeningResultStatistic currentVisionStatistic) {
         Item item = new Item();
         BeanUtils.copyProperties(currentVisionStatistic,item);
-        item.setScreeningRangeName(rangeName).setDistrictId(districtId);
+        item.setScreeningRangeName(rangeName).setDistrictId(districtId).setIsKindergarten(Boolean.TRUE);
 
         KindergartenVisionAnalysisDO visionAnalysis = (KindergartenVisionAnalysisDO)currentVisionStatistic.getVisionAnalysis();
         BeanUtils.copyProperties(visionAnalysis,item);
