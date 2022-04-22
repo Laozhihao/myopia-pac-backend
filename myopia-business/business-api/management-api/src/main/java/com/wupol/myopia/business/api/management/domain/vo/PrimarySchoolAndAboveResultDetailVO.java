@@ -5,8 +5,10 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotic
 import com.wupol.myopia.business.core.stat.domain.dos.*;
 import com.wupol.myopia.business.core.stat.domain.model.ScreeningResultStatistic;
 import lombok.Data;
+import lombok.experimental.Accessors;
 import org.springframework.beans.BeanUtils;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
@@ -15,7 +17,8 @@ import java.util.Objects;
  * @author hang.yuan 2022/4/7 17:32
  */
 @Data
-public class PrimarySchoolAndAboveResultDetailVO implements SchoolResultDetailVO {
+@Accessors(chain = true)
+public class PrimarySchoolAndAboveResultDetailVO implements Serializable {
 
     /**
      * 所属的通知id
@@ -82,6 +85,11 @@ public class PrimarySchoolAndAboveResultDetailVO implements SchoolResultDetailVO
             this.districtId=school.getDistrictId();
             this.rangeName=school.getName();
         }
+    }
+    public void setBaseData(Integer screeningType, Integer districtId, String rangeName) {
+        this.screeningType = screeningType;
+        this.districtId = districtId;
+        this.rangeName=rangeName;
     }
 
     public void setBaseData(Integer screeningNoticeId,Integer districtId,Integer screeningType, String  rangeName) {

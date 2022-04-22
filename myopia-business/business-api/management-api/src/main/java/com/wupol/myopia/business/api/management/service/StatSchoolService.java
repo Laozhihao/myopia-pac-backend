@@ -1,13 +1,15 @@
 package com.wupol.myopia.business.api.management.service;
 
-import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.CurrentUserUtil;
-import com.wupol.myopia.business.api.management.domain.vo.*;
+import com.wupol.myopia.business.api.management.domain.vo.SchoolKindergartenResultVO;
+import com.wupol.myopia.business.api.management.domain.vo.SchoolPrimarySchoolAndAboveResultVO;
+import com.wupol.myopia.business.api.management.domain.vo.SchoolResultDetailVO;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.school.constant.SchoolEnum;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
@@ -239,16 +241,10 @@ public class StatSchoolService {
     public SchoolResultDetailVO getSchoolStatisticDetail(Integer screeningPlanId, Integer screeningNoticeId,Integer schoolId) {
         if (Objects.nonNull(schoolId)){
             School school = schoolService.getById(schoolId);
-            boolean isKindergarten = Objects.equals(8, school.getType());
             CurrentUser user = CurrentUserUtil.getCurrentUser();
             if(Objects.isNull(user) && ObjectsUtil.allNotNull(screeningNoticeId,screeningPlanId) ){
-                if (isKindergarten){
-                    return  new KindergartenResultDetailVO();
-                }else {
-                    return  new PrimarySchoolAndAboveResultDetailVO();
-                }
+                return new SchoolResultDetailVO();
             }
-
             if (Objects.nonNull(screeningNoticeId)){
                 return getSchoolStatisticDetailByNoticeId(screeningNoticeId,school,user);
             }
@@ -264,7 +260,7 @@ public class StatSchoolService {
     private SchoolResultDetailVO getSchoolStatisticDetailByNoticeId(Integer screeningNoticeId,School school,CurrentUser user){
         ScreeningNotice screeningNotice = screeningNoticeService.getById(screeningNoticeId);
         List<ScreeningResultStatistic> screeningResultStatistics = getStatisticByNoticeIdAndSchoolId(screeningNoticeId, user,school.getId());
-        return getSchoolResultDetailVO(screeningResultStatistics,Objects.equals(8, school.getType()),screeningNotice,school);
+        return getSchoolResultDetailVO(screeningResultStatistics,Objects.equals(SchoolEnum.TYPE_KINDERGARTEN.getType(), school.getType()),screeningNotice,school);
 
     }
 
@@ -275,7 +271,7 @@ public class StatSchoolService {
         ScreeningPlan screeningPlan = screeningPlanService.getById(screeningPlanId);
         ScreeningNotice screeningNotice = screeningNoticeService.getById(screeningPlan.getSrcScreeningNoticeId());
         List<ScreeningResultStatistic> screeningResultStatistics = getStatisticByPlanIdsAndSchoolId(Lists.newArrayList(screeningPlan), school.getId());
-        return getSchoolResultDetailVO(screeningResultStatistics,Objects.equals(8, school.getType()),screeningNotice,school);
+        return getSchoolResultDetailVO(screeningResultStatistics,Objects.equals(SchoolEnum.TYPE_KINDERGARTEN.getType(), school.getType()),screeningNotice,school);
     }
 
     /**
@@ -329,21 +325,9 @@ public class StatSchoolService {
     private SchoolResultDetailVO getSchoolResultDetailVO(List<ScreeningResultStatistic> screeningResultStatistics,
                                                          boolean isKindergarten,ScreeningNotice screeningNotice,School school){
 
-        if(isKindergarten){
-            if (CollectionUtil.isNotEmpty(screeningResultStatistics)){
-                KindergartenResultDetailVO detailVO=new KindergartenResultDetailVO();
-                detailVO.setBaseData(screeningNotice,school);
-                detailVO.setItemData(screeningResultStatistics.get(0));
-                return detailVO;
-            }
-        }else {
-            if (CollectionUtil.isNotEmpty(screeningResultStatistics)){
-                PrimarySchoolAndAboveResultDetailVO detailVO = new PrimarySchoolAndAboveResultDetailVO();
-                detailVO.setBaseData(screeningNotice,school);
-                detailVO.setItemData(screeningResultStatistics.get(0));
-                return detailVO;
-            }
-        }
-        return null;
+        SchoolResultDetailVO schoolResultDetailVO = new SchoolResultDetailVO();
+        schoolResultDetailVO.setBaseData(screeningNotice,school);
+        schoolResultDetailVO.setItemData(isKindergarten,screeningResultStatistics);
+        return schoolResultDetailVO;
     }
 }

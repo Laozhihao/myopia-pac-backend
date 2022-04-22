@@ -21,9 +21,6 @@ import java.util.stream.Collectors;
 public class SchoolKindergartenResultVO {
 
 
-
-
-
     /**
      *  内容
      */
