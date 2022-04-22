@@ -243,6 +243,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @return
      */
     public Integer getProvinceId(Integer districtId) {
+        //TODO：只获取根级行政区域id，为啥要去遍历下级数据生成树结构
         District district = getProvinceDistrictTreePriorityCacheById(districtId);
         return district.getId();
     }

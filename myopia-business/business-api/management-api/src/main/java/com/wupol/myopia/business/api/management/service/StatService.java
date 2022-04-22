@@ -2,18 +2,17 @@ package com.wupol.myopia.business.api.management.service;
 
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.api.management.domain.dto.*;
-import com.wupol.myopia.business.api.management.domain.vo.DistrictScreeningMonitorStatisticVO;
-import com.wupol.myopia.business.api.management.domain.vo.FocusObjectsStatisticVO;
-import com.wupol.myopia.business.api.management.domain.vo.RescreenReportVO;
-import com.wupol.myopia.business.api.management.domain.vo.ScreeningVisionStatisticVO;
+import com.wupol.myopia.business.api.management.domain.vo.*;
 import com.wupol.myopia.business.common.utils.constant.ContrastTypeEnum;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.constant.WarningLevel;
+import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
@@ -102,6 +101,10 @@ public class StatService {
     private ScreeningPlanService screeningPlanService;
     @Autowired
     private ScreeningTaskBizService screeningTaskBizService;
+    @Autowired
+    private StatDistrictService statDistrictService;
+    @Autowired
+    private StatSchoolService statSchoolService;
 
     @Value("classpath:excel/ExportStatContrastTemplate.xlsx")
     private Resource exportStatContrastTemplate;
@@ -307,7 +310,7 @@ public class StatService {
                         .collect(Collectors.toList());
 
         RescreenStat rescreenStat = this.composeRescreenConclusion(rescreenConclusions);
-        AverageVision averageVision = this.calculateAverageVision(validConclusions);
+        TwoTuple<BigDecimal, BigDecimal> tuple = this.calculateAverageVision(validConclusions);
         int planScreeningNum = getPlanScreeningStudentNum(notificationId, validDistrictIds);
         return ScreeningClassStat.builder().notificationId(notificationId)
                 .screeningNum(planScreeningNum)
@@ -315,8 +318,8 @@ public class StatService {
                 .validScreeningNum(validFirstScreeningNum)
                 .screeningFinishedRatio(planScreeningNum > 0 ?
                         convertToPercentage(totalFirstScreeningNum * 1f / planScreeningNum) : 0)
-                .averageVisionLeft(new BigDecimal(String.valueOf(averageVision.getAverageVisionLeft())).setScale(1,BigDecimal.ROUND_HALF_UP).floatValue())
-                .averageVisionRight(new BigDecimal(String.valueOf(averageVision.getAverageVisionRight())).setScale(1,BigDecimal.ROUND_HALF_UP).floatValue())
+                .averageVisionLeft(tuple.getFirst().floatValue())
+                .averageVisionRight(tuple.getSecond().floatValue())
                 .tabGender(tabGender)
                 .tabSchoolAge(tabSchoolAge)
                 .rescreenStat(rescreenStat)
@@ -613,14 +616,14 @@ public class StatService {
 
         List<StatConclusion> rescreenConclusions =
                 resultConclusion.stream().filter(x -> x.getIsRescreen() && x.getIsValid()).collect(Collectors.toList());
-        AverageVision averageVision = this.calculateAverageVision(validConclusions);
+        TwoTuple<BigDecimal, BigDecimal> tuple = this.calculateAverageVision(validConclusions);
         RescreenStat rescreenStat = this.composeRescreenConclusion(rescreenConclusions);
         return ScreeningDataContrast.builder()
                 .screeningNum(planScreeningNum)
                 .actualScreeningNum(totalFirstScreeningNum)
                 .validScreeningNum(validFirstScreeningNum)
-                .averageVisionLeft(averageVision.getAverageVisionLeft())
-                .averageVisionRight(averageVision.getAverageVisionRight())
+                .averageVisionLeft(tuple.getFirst().floatValue())
+                .averageVisionRight(tuple.getSecond().floatValue())
                 .lowVisionNum(lowVisionNum)
                 .lowVisionRatio(convertToPercentage(lowVisionNum * 1f / validFirstScreeningNum))
                 .refractiveErrorRatio(convertToPercentage(refractiveErrorNum * 1f / validFirstScreeningNum))
@@ -678,13 +681,17 @@ public class StatService {
      * @param statConclusions
      * @return
      */
-    private AverageVision calculateAverageVision(List<StatConclusion> statConclusions) {
-        int size = statConclusions.size();
-        double sumVisionL = statConclusions.stream().mapToDouble(StatConclusion::getVisionL).sum();
-        double sumVisionR = statConclusions.stream().mapToDouble(StatConclusion::getVisionR).sum();
-        float avgVisionL = round2Digits(sumVisionL / size);
-        float avgVisionR = round2Digits(sumVisionR / size);
-        return AverageVision.builder().averageVisionLeft(avgVisionL).averageVisionRight(avgVisionR).build();
+    private TwoTuple<BigDecimal,BigDecimal> calculateAverageVision(List<StatConclusion> statConclusions) {
+        statConclusions = statConclusions.stream().filter(sc->Objects.equals(Boolean.TRUE,sc.getIsValid())).collect(Collectors.toList());
+
+        int sumSize = statConclusions.size();
+        double sumVisionL = statConclusions.stream().mapToDouble(sc->sc.getVisionL().doubleValue()).sum();
+        BigDecimal avgVisionL = BigDecimalUtil.divide(String.valueOf(sumVisionL), String.valueOf(sumSize),1);
+
+        double sumVisionR = statConclusions.stream().mapToDouble(sc->sc.getVisionR().doubleValue()).sum();
+        BigDecimal avgVisionR = BigDecimalUtil.divide(String.valueOf(sumVisionR), String.valueOf(sumSize),1);
+
+        return new TwoTuple<>(avgVisionL,avgVisionR);
     }
 
     /**
@@ -1054,6 +1061,35 @@ public class StatService {
         return String.format("%s，%s 至 %s", title, startDate, endDate);
     }
 
+    public KindergartenResultVO getKindergartenResult(Integer districtId, Integer noticeId) {
+        return statDistrictService.getKindergartenResult(districtId,noticeId);
+
+    }
+
+    public PrimarySchoolAndAboveResultVO getPrimarySchoolAndAboveResult(Integer districtId, Integer noticeId) {
+        return statDistrictService.getPrimarySchoolAndAboveResult(districtId,noticeId);
+
+    }
+
+    public ScreeningResultStatisticDetailVO getScreeningResultTotalDetail(Integer districtId, Integer noticeId) {
+        return statDistrictService.getScreeningResultTotalDetail(districtId,noticeId);
+
+    }
+
+    public SchoolKindergartenResultVO getSchoolKindergartenResult(Integer districtId, Integer noticeId,Integer planId) {
+        return statSchoolService.getSchoolKindergartenResult(districtId,noticeId,planId);
+
+    }
+
+    public SchoolPrimarySchoolAndAboveResultVO getSchoolPrimarySchoolAndAboveResult(Integer districtId, Integer noticeId,Integer planId) {
+        return statSchoolService.getSchoolPrimarySchoolAndAboveResult(districtId,noticeId,planId);
+
+    }
+
+    public SchoolResultDetailVO getSchoolStatisticDetail(Integer screeningPlanId,Integer screeningNoticeId, Integer schoolId) {
+        return statSchoolService.getSchoolStatisticDetail(screeningPlanId,screeningNoticeId,schoolId);
+    }
+
 
     /**
      * 平均视力
@@ -1268,7 +1304,7 @@ public class StatService {
      */
     private List<StatConclusion> getRescreenInfo(Date screeningTime, Integer planId, Integer schoolId) {
         LocalDate startDate = DateUtil.convertToLocalDate(DateUtil.getStartTime(screeningTime), DateUtil.ZONE_UTC_8);
-        LocalDate endDate = startDate.plusDays(1l);
+        LocalDate endDate = startDate.plusDays(1L);
         StatConclusionQueryDTO query = new StatConclusionQueryDTO();
         query.setStartTime(startDate)
                 .setEndTime(endDate)

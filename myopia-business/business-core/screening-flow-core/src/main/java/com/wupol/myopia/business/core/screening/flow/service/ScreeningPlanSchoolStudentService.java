@@ -112,6 +112,12 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         return baseMapper.findByPlanId(screeningPlanId);
     }
 
+    public List<ScreeningPlanSchoolStudent> getByScreeningPlanIds(List<Integer> screeningPlanIds) {
+        LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(ScreeningPlanSchoolStudent::getScreeningPlanId,screeningPlanIds);
+        return baseMapper.selectList(queryWrapper);
+    }
+
     /**
      * 根据计划ID获取所学校ID
      *
@@ -553,5 +559,9 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      */
     public List<ScreeningPlanSchoolStudent> getReviewStudentList(Integer planId, Integer orgId, Integer schoolId, Integer gradeId, Integer classId) {
         return baseMapper.getReviewStudentList(planId, orgId, schoolId, gradeId, classId);
+    }
+
+    public List<ScreeningPlanSchoolStudent> getByPlanIdIdCardAndPassport(Integer planId, String idCard, String passport, Integer id) {
+        return baseMapper.getByPlanIdIdCardAndPassport(planId, idCard, passport, id);
     }
 }

@@ -1,7 +1,7 @@
 package com.wupol.myopia.base.constant;
 
 /**
- * 合作类型
+ * 脊柱弯曲
  *
  * @author Simple4H
  */

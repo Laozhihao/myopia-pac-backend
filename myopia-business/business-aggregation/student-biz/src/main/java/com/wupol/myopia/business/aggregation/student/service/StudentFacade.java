@@ -31,6 +31,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.*;
 import com.wupol.myopia.business.core.screening.flow.service.*;
+import com.wupol.myopia.business.core.screening.flow.util.EyeDataUtil;
 import com.wupol.myopia.business.core.screening.flow.util.ReScreenCardUtil;
 import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
@@ -238,7 +239,6 @@ public class StudentFacade {
     }
 
     /**
-     *
      * 筛查机构名称[参考getTemplateId（）写法]
      * @param org 筛查机构
      * @return 筛查机构名称
@@ -258,7 +258,7 @@ public class StudentFacade {
     private CommonDiseasesDTO getCommonDiseases(VisionScreeningResult result) {
         CommonDiseasesDTO commonDiseases = new  CommonDiseasesDTO();
 
-        commonDiseases.setSaprodontiaData(getSaprodontiaDataDODTO(result));
+        commonDiseases.setSaprodontiaData(EyeDataUtil.getSaprodontiaDataDODTO(result));
         commonDiseases.setSpineData(result.getSpineData());
         commonDiseases.setBloodPressureData(result.getBloodPressureData());
         commonDiseases.setDiseasesHistoryData(result.getDiseasesHistoryData());
@@ -266,76 +266,6 @@ public class StudentFacade {
         commonDiseases.setSystemicDiseaseSymptom(result.getSystemicDiseaseSymptom());
         commonDiseases.setHeightAndWeightData(result.getHeightAndWeightData());
         return commonDiseases;
-    }
-
-    /**
-     * 合并上下牙床数据
-     * @param result 筛查数据
-     * @return 合并上下牙床数据
-     */
-    private SaprodontiaDataDODTO getSaprodontiaDataDODTO(VisionScreeningResult result){
-
-        List<SaprodontiaDataDO.SaprodontiaItem> items = new ArrayList<>();
-
-        if (Objects.nonNull(result)&&Objects.nonNull(result.getSaprodontiaData())){
-            items.addAll(result.getSaprodontiaData().getAbove());
-            items.addAll(result.getSaprodontiaData().getUnderneath());
-        }
-
-        return calculationTooth(items);
-    }
-
-    /**
-     * 计算乳牙/恒牙
-     * @param items
-     */
-    private SaprodontiaDataDODTO calculationTooth(List<SaprodontiaDataDO.SaprodontiaItem> items) {
-        SaprodontiaDataDODTO saprodontiaDataDODTO = new SaprodontiaDataDODTO();
-        int dCountDeciduous = 0;
-        int mCountDeciduous = 0;
-        int fFountDeciduous = 0;
-
-        int dFountPermanent = 0;
-        int mFountPermanent = 0;
-        int fFountPermanent = 0;
-        for (SaprodontiaDataDO.SaprodontiaItem item: items){
-            if (item!=null){
-                if (item.getDeciduous().equals(SaprodontiaType.DECIDUOUS_D)){
-                    dCountDeciduous++;
-                }
-                if (item.getDeciduous().equals(SaprodontiaType.DECIDUOUS_M)){
-                    mCountDeciduous++;
-                }
-                if (item.getDeciduous().equals(SaprodontiaType.DECIDUOUS_F)){
-                    fFountDeciduous++;
-                }
-
-                if (item.getPermanent().equals(SaprodontiaType.PERMANENT_D)){
-                    dFountPermanent++;
-                }
-                if (item.getPermanent().equals(SaprodontiaType.PERMANENT_M)){
-                    mFountPermanent++;
-                }
-                if (item.getPermanent().equals(SaprodontiaType.PERMANENT_F)){
-                    fFountPermanent++;
-                }
-            }
-        }
-
-        SaprodontiaStat deciduousTooth = new SaprodontiaStat();
-        deciduousTooth.setDCount(dCountDeciduous);
-        deciduousTooth.setFCount(mCountDeciduous);
-        deciduousTooth.setMCount(fFountDeciduous);
-
-        SaprodontiaStat permanentTooth = new SaprodontiaStat();
-        deciduousTooth.setDCount(dFountPermanent);
-        deciduousTooth.setFCount(mFountPermanent);
-        deciduousTooth.setMCount(fFountPermanent);
-
-        saprodontiaDataDODTO.setDeciduousTooth(deciduousTooth);
-        saprodontiaDataDODTO.setPermanentTooth(permanentTooth);
-
-        return saprodontiaDataDODTO;
     }
 
     /**

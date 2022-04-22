@@ -4,7 +4,6 @@ import com.wupol.myopia.business.common.utils.constant.MyopiaLevelEnum;
 import com.wupol.myopia.business.common.utils.constant.WarningLevel;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
 import com.wupol.myopia.business.core.school.domain.model.School;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.stat.domain.model.SchoolVisionStatistic;
@@ -24,7 +23,7 @@ import java.util.stream.Collectors;
 public class SchoolVisionStatisticBuilder {
 
     public static SchoolVisionStatistic build(School school, ScreeningOrganization screeningOrg, Integer screeningNoticeId, Integer screeningTaskId, Integer screeningPlanId,
-                                              List<StatConclusionDTO> statConclusions, Integer realScreeningNumber, Integer planScreeningNumbers) {
+                                              List<StatConclusion> statConclusions, Integer realScreeningNumber, Integer planScreeningNumbers) {
         SchoolVisionStatistic statistic = new SchoolVisionStatistic();
         Integer wearingGlassNumber =
                 (int) statConclusions.stream().filter(x -> x.getGlassesType() > 0).count();
@@ -45,8 +44,8 @@ public class SchoolVisionStatisticBuilder {
         Integer visionLabelZeroSPNumbers = visionLabelNumberMap.getOrDefault(WarningLevel.ZERO_SP.code, 0L).intValue();
         Integer keyWarningNumbers = visionLabel0Numbers + visionLabel1Numbers + visionLabel2Numbers + visionLabel3Numbers;
         Integer treatmentAdviceNumber = (int) statConclusions.stream().filter(StatConclusion::getIsRecommendVisit).count();
-        double avgLeftVision = statConclusions.stream().mapToDouble(StatConclusion::getVisionL).average().orElse(0);
-        double avgRightVision = statConclusions.stream().mapToDouble(StatConclusion::getVisionR).average().orElse(0);
+        double avgLeftVision = statConclusions.stream().mapToDouble(sc->sc.getVisionL().doubleValue()).average().orElse(0);
+        double avgRightVision = statConclusions.stream().mapToDouble(sc->sc.getVisionR().doubleValue()).average().orElse(0);
         int validScreeningNumbers = statConclusions.size();
         statistic.setSchoolId(school.getId()).setSchoolName(school.getName()).setSchoolType(school.getType())
                 .setScreeningOrgId(screeningOrg.getId()).setScreeningOrgName(screeningOrg.getName())

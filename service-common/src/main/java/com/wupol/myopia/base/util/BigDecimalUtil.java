@@ -17,8 +17,22 @@ public class BigDecimalUtil {
      * @param val2 值2
      * @return 是否满足
      */
-    public static Boolean lessThan(BigDecimal val1, String val2) {
+    public static boolean lessThan(BigDecimal val1, String val2) {
         return val1.compareTo(new BigDecimal(val2)) < 0;
+    }
+
+    /**
+     * 等于
+     *
+     * @param val1 值1
+     * @param val2 值2
+     */
+    public static boolean decimalEqual(BigDecimal val1, String val2) {
+        return val1.compareTo(new BigDecimal(val2)) == 0;
+    }
+
+    public static boolean decimalEqual(BigDecimal val1, BigDecimal val2) {
+        return val1.compareTo(val2) == 0;
     }
 
     /**
@@ -28,7 +42,7 @@ public class BigDecimalUtil {
      * @param val2 值2
      * @return 是否满足
      */
-    public static Boolean lessThanAndEqual(BigDecimal val1, String val2) {
+    public static boolean lessThanAndEqual(BigDecimal val1, String val2) {
         return val1.compareTo(new BigDecimal(val2)) <= 0;
     }
 
@@ -39,7 +53,7 @@ public class BigDecimalUtil {
      * @param val2 值2
      * @return 是否满足
      */
-    public static Boolean lessThanAndEqual(BigDecimal val1, BigDecimal val2) {
+    public static boolean lessThanAndEqual(BigDecimal val1, BigDecimal val2) {
         return val1.compareTo(val2) <= 0;
     }
 
@@ -72,7 +86,7 @@ public class BigDecimalUtil {
      * @param val2 值2
      * @return 是否满足
      */
-    public static Boolean moreThan(BigDecimal val1, String val2) {
+    public static boolean moreThan(BigDecimal val1, String val2) {
         return val1.compareTo(new BigDecimal(val2)) > 0;
     }
 
@@ -83,7 +97,7 @@ public class BigDecimalUtil {
      * @param val2 值2
      * @return 是否满足
      */
-    public static Boolean moreThan(BigDecimal val1, BigDecimal val2) {
+    public static boolean moreThan(BigDecimal val1, BigDecimal val2) {
         return val1.compareTo(val2) > 0;
     }
 
@@ -94,7 +108,7 @@ public class BigDecimalUtil {
      * @param val2 值2
      * @return 是否满足
      */
-    public static Boolean moreThanAndEqual(BigDecimal val1, String val2) {
+    public static boolean moreThanAndEqual(BigDecimal val1, String val2) {
         return val1.compareTo(new BigDecimal(val2)) >= 0;
     }
 
@@ -105,7 +119,7 @@ public class BigDecimalUtil {
      * @param val2 值2
      * @return 是否满足
      */
-    public static Boolean moreThanAndEqual(String val1, String val2) {
+    public static boolean moreThanAndEqual(String val1, String val2) {
         return new BigDecimal(val1).compareTo(new BigDecimal(val2)) >= 0;
     }
 
@@ -116,7 +130,7 @@ public class BigDecimalUtil {
      * @param val2 值2
      * @return 是否满足
      */
-    public static Boolean moreThanAndEqual(BigDecimal val1, BigDecimal val2) {
+    public static boolean moreThanAndEqual(BigDecimal val1, BigDecimal val2) {
         return val1.compareTo(val2) >= 0;
     }
 
@@ -128,7 +142,7 @@ public class BigDecimalUtil {
      * @param end   结束值
      * @return 是否在区间内
      */
-    public static Boolean isBetweenLeft(BigDecimal val, String start, String end) {
+    public static boolean isBetweenLeft(BigDecimal val, String start, String end) {
         return val.compareTo(new BigDecimal(start)) >= 0 && val.compareTo(new BigDecimal(end)) < 0;
     }
 
@@ -140,7 +154,7 @@ public class BigDecimalUtil {
      * @param end   结束值
      * @return 是否在区间内
      */
-    public static Boolean isBetweenRight(BigDecimal val, String start, String end) {
+    public static boolean isBetweenRight(BigDecimal val, String start, String end) {
         return val.compareTo(new BigDecimal(start)) > 0 && val.compareTo(new BigDecimal(end)) <= 0;
     }
 
@@ -264,4 +278,34 @@ public class BigDecimalUtil {
         return first.abs().subtract(retest.abs());
     }
 
+    /**
+     *
+     * @param v1 分子
+     * @param v2 分母
+     * @param scale 精确小数
+     */
+    public static BigDecimal divide(String v1, String v2, int scale) {
+        if (scale < 0) {
+            throw new IllegalArgumentException("The scale must be a positive integer or zero");
+        }
+        BigDecimal b1 = new BigDecimal(v1);
+        BigDecimal b2 = new BigDecimal(v2);
+        if (BigDecimal.ZERO.compareTo(b2) == 0){
+            return new BigDecimal("0.0");
+        }
+        return b1.divide(b2, scale, BigDecimal.ROUND_HALF_UP);
+    }
+
+
+    /**
+     * 保留2位小数
+     * @param value 输入值
+     * @return 保留2位小数
+     */
+    public static BigDecimal keep2DecimalPlaces(BigDecimal value) {
+       if (value!=null){
+           value.setScale(2,BigDecimal.ROUND_HALF_UP);
+       }
+       return null;
+    }
 }
