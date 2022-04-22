@@ -18,7 +18,7 @@ import java.util.List;
 public interface ScreeningPlanSchoolStudentMapper extends BaseMapper<ScreeningPlanSchoolStudent> {
 
     List<ScreeningStudentDTO> selectStudentVoByPlanIdAndSchoolIdAndGradeIdAndClassId(@Param("screeningPlanId") Integer screeningPlanId, @Param("schoolId") Integer schoolId,
-                                                                                     @Param("gradeId") Integer gradeId,@Param("classId") Integer classId);
+                                                                                     @Param("gradeId") Integer gradeId, @Param("classId") Integer classId);
 
     List<GradeClassesDTO> selectSchoolGradeVoByPlanIdAndSchoolId(@Param("screeningPlanId") Integer screeningPlanId, @Param("schoolId") Integer schoolId);
 
@@ -75,4 +75,6 @@ public interface ScreeningPlanSchoolStudentMapper extends BaseMapper<ScreeningPl
     List<Integer> findSchoolIdsByPlanId(Integer planId);
 
     List<ScreeningPlanSchoolStudent> getReviewStudentList(@Param("planId") Integer planId, @Param("orgId") Integer orgId, @Param("schoolId") Integer schoolId, @Param("gradeId") Integer gradeId, @Param("classId") Integer classId);
+
+    List<ScreeningPlanSchoolStudent> getByPlanIdIdCardAndPassport(@Param("planId") Integer planId, @Param("idCard") String idCard, @Param("passport") String passport, @Param("id") Integer id);
 }
