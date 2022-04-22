@@ -188,19 +188,8 @@ public class KindergartenResultVO {
         item.setScreeningRangeName(rangeName).setDistrictId(districtId);
 
         KindergartenVisionAnalysisDO visionAnalysis = (KindergartenVisionAnalysisDO)currentVisionStatistic.getVisionAnalysis();
+        BeanUtils.copyProperties(visionAnalysis,item);
 
-        item.setLowVisionNum(visionAnalysis.getLowVisionNum())
-                .setLowVisionRatio(visionAnalysis.getLowVisionRatio())
-                .setAvgLeftVision(visionAnalysis.getAvgLeftVision())
-                .setAvgRightVision(visionAnalysis.getAvgRightVision())
-                .setAmetropiaNum(visionAnalysis.getAmetropiaNum())
-                .setAmetropiaRatio(visionAnalysis.getAmetropiaRatio())
-                .setAnisometropiaNum(visionAnalysis.getAnisometropiaNum())
-                .setAnisometropiaRatio(visionAnalysis.getAnisometropiaRatio())
-                .setMyopiaLevelInsufficientNum(visionAnalysis.getMyopiaLevelInsufficientNum())
-                .setMyopiaLevelInsufficientRatio(visionAnalysis.getMyopiaLevelInsufficientRatio())
-                .setTreatmentAdviceNum(visionAnalysis.getTreatmentAdviceNum())
-                .setTreatmentAdviceRatio(visionAnalysis.getTreatmentAdviceRatio());
         return item;
 
     }
