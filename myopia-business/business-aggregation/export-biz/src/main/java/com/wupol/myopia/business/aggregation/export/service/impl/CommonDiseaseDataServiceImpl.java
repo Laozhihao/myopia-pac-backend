@@ -7,6 +7,7 @@ import com.wupol.myopia.base.constant.SpineTypeEnum;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.base.util.ListUtil;
 import com.wupol.myopia.base.util.ScreeningDataFormatUtils;
+import com.wupol.myopia.base.util.StrUtil;
 import com.wupol.myopia.business.aggregation.export.service.IScreeningDataService;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
@@ -56,7 +57,6 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
                     .setNationDesc(StringUtils.defaultString(NationEnum.getName(vo.getNation())))
                     .setGlassesTypeDesc(StringUtils.defaultIfBlank(GlassesTypeEnum.getDescByCode(vo.getGlassesType()), "--"))
                     .setIsRescreenDesc("否")
-                    .setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(), vo.getAreaCode(), vo.getTownCode(), vo.getAddress()))
                     .setIsValid(Boolean.TRUE.equals(vo.getIsValid()) ? "有效" : "无效");
             genScreeningData(vo, exportVo);
             // 组装复筛数据
@@ -127,8 +127,7 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
                     .setRightReScreenCyls(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHTEYE_CYL)))
                     .setLeftReScreenAxials(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.LEFTEYE_AXIAL)))
                     .setRightReScreenAxials(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHTEYE_AXIAL)))
-                    .setIsRescreenDesc("是")
-                    .setReHeight(ScreeningDataFormatUtils.getHeight(JSONPath.eval(rescreenVo, ScreeningResultPahtConst.PATH_HW_HEIGHT)))
+                    .setIsRescreenDesc("是").setReHeight(ScreeningDataFormatUtils.getHeight(JSONPath.eval(rescreenVo, ScreeningResultPahtConst.PATH_HW_HEIGHT)))
                     .setReWeight(ScreeningDataFormatUtils.getWeight(JSONPath.eval(rescreenVo, ScreeningResultPahtConst.PATH_HW_WEIGHT)));
         }
     }
@@ -146,8 +145,7 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
         }
         TwoTuple<String, String> stringStringTwoTuple = generateSaprodontiaResult(saprodontiaData);
 
-        exportDTO.setDeciduous(stringStringTwoTuple.getFirst())
-                .setPermanent(stringStringTwoTuple.getSecond());
+        exportDTO.setDeciduous(stringStringTwoTuple.getFirst()).setPermanent(stringStringTwoTuple.getSecond());
     }
 
     /**
@@ -188,9 +186,7 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
      * @return 结论
      */
     private String countSaprodontiaNum(List<String> list) {
-        return list.stream().filter(s -> StringUtils.equalsAny(s, SaprodontiaType.DECIDUOUS_D.getName(), SaprodontiaType.PERMANENT_D.getName())).count() + ":" +
-                list.stream().filter(s -> StringUtils.equalsAny(s, SaprodontiaType.DECIDUOUS_M.getName(), SaprodontiaType.PERMANENT_M.getName())).count() + ":" +
-                list.stream().filter(s -> StringUtils.equalsAny(s, SaprodontiaType.DECIDUOUS_F.getName(), SaprodontiaType.PERMANENT_F.getName())).count();
+        return list.stream().filter(s -> StringUtils.equalsAny(s, SaprodontiaType.DECIDUOUS_D.getName(), SaprodontiaType.PERMANENT_D.getName())).count() + ":" + list.stream().filter(s -> StringUtils.equalsAny(s, SaprodontiaType.DECIDUOUS_M.getName(), SaprodontiaType.PERMANENT_M.getName())).count() + ":" + list.stream().filter(s -> StringUtils.equalsAny(s, SaprodontiaType.DECIDUOUS_F.getName(), SaprodontiaType.PERMANENT_F.getName())).count();
     }
 
     /**
@@ -208,10 +204,10 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
         SpineDataDO.SpineItem chestWaist = spineData.getChestWaist();
         SpineDataDO.SpineItem waist = spineData.getWaist();
         SpineDataDO.SpineItem entirety = spineData.getEntirety();
-        exportDTO.setChest(SpineTypeEnum.getTypeName(chest.getType()) + "、" + SpineLevelEnum.getLevelName(chest.getLevel()))
-                .setChestWaist(SpineTypeEnum.getTypeName(chestWaist.getType()) + "、" + SpineLevelEnum.getLevelName(chestWaist.getLevel()))
-                .setWaist(SpineTypeEnum.getTypeName(waist.getType()) + "、" + SpineLevelEnum.getLevelName(waist.getLevel()))
-                .setEntirety(SpineTypeEntiretyEnum.getTypeName(entirety.getType()) + "、" + SpineLevelEnum.getLevelName(entirety.getLevel()));
+        exportDTO.setChest(StrUtil.spliceChar("、", SpineTypeEnum.getTypeName(chest.getType()), SpineLevelEnum.getLevelName(chest.getLevel())))
+                .setChestWaist(StrUtil.spliceChar("、", SpineTypeEnum.getTypeName(chestWaist.getType()), SpineLevelEnum.getLevelName(chestWaist.getLevel())))
+                .setWaist(StrUtil.spliceChar("、", SpineTypeEnum.getTypeName(waist.getType()), SpineLevelEnum.getLevelName(waist.getLevel())))
+                .setEntirety(StrUtil.spliceChar("、", SpineTypeEntiretyEnum.getTypeName(entirety.getType()), SpineLevelEnum.getLevelName(entirety.getLevel())));
 
     }
 
@@ -224,8 +220,7 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
     private void generateBloodPressureData(StatConclusionExportDTO dto, CommonDiseaseDataExportDTO exportDTO) {
         Object dbp = JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BLOOD_PRESSURE_DBP);
         Object sbp = JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BLOOD_PRESSURE_SBP);
-        exportDTO.setDbp(Objects.nonNull(dbp) ? dbp + "mmHg": StringUtils.EMPTY)
-                .setSbp(Objects.nonNull(sbp) ? sbp + "mmHg": StringUtils.EMPTY);
+        exportDTO.setDbp(Objects.nonNull(dbp) ? dbp + "mmHg" : StringUtils.EMPTY).setSbp(Objects.nonNull(sbp) ? sbp + "mmHg" : StringUtils.EMPTY);
     }
 
     /**
