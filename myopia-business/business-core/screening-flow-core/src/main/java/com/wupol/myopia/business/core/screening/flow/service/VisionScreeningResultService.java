@@ -329,17 +329,11 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
 
 
     public SaprodontiaDataDTO getSaprodontiaDataDTO(VisionScreeningResult result){
-
-        Optional.ofNullable(result) .map(VisionScreeningResult::getSaprodontiaData).orElse(null);
-
-        SaprodontiaDataDO saprodontiaDataDO = result.getSaprodontiaData();
-
-        List<SaprodontiaDataDO.SaprodontiaItem> above = saprodontiaDataDO.getAbove();
-        List<SaprodontiaDataDO.SaprodontiaItem> underneath = saprodontiaDataDO.getUnderneath();
-
         List<SaprodontiaDataDO.SaprodontiaItem> items = new ArrayList<>();
-        items.addAll(above);
-        items.addAll(underneath);
+        if (Objects.nonNull(result)&&Objects.nonNull(result.getSaprodontiaData())){
+            items.addAll(result.getSaprodontiaData().getAbove());
+            items.addAll(result.getSaprodontiaData().getUnderneath());
+        }
 
         return calculationTooth(items);
     }

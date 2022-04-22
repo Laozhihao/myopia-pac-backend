@@ -2,6 +2,9 @@ package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
 import lombok.Data;
 
+/**
+ * @author tastyb
+ */
 @Data
 public class SaprodontiaStat {
 
