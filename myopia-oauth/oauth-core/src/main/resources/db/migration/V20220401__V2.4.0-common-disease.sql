@@ -12,4 +12,5 @@ VALUES
        (855, '按学校-小学及以上', 'getSchoolPrimaryAndAboveStatistic', 'get:/management/screening-statistic/school/primarySchoolAndAboveResult', 0, 0, 1, 30, 1),
        (856, '按学校-查看详情', 'schoolDetail', 'get:/management/screening-statistic/school/schoolStatisticDetail', 0, 0, 1, 30, 1),
        (857, '筛查数据结论', '', 'get:/management/screening-statistic/screeningToConclusion', 0, 0, 1, 30, 1),
-       (858, '筛查结果统计', '', 'get:/management/screening-statistic/trigger', 0, 0, 1, 30, 1);
+       (858, '筛查结果统计', '', 'get:/management/screening-statistic/trigger', 0, 0, 1, 30, 1),
+       (859, '筛查结果统计-全部', '', 'get:/management/screening-statistic//triggerAll', 0, 0, 1, 30, 1);
