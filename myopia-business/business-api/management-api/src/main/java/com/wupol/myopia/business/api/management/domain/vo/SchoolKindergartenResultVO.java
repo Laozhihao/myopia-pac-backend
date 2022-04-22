@@ -1,15 +1,14 @@
 package com.wupol.myopia.business.api.management.domain.vo;
 
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.stat.domain.dos.KindergartenVisionAnalysisDO;
 import com.wupol.myopia.business.core.stat.domain.model.ScreeningResultStatistic;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.springframework.beans.BeanUtils;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -21,21 +20,9 @@ import java.util.stream.Collectors;
 @Data
 public class SchoolKindergartenResultVO {
 
-    /**
-     * 通知id
-     */
-    private Integer screeningNoticeId;
-
-    /**
-     * 筛查类型
-     */
-    private Integer screeningType;
 
 
-    /**
-     *  是否幼儿园
-     */
-    private Boolean isKindergarten;
+
 
     /**
      *  内容
@@ -145,14 +132,27 @@ public class SchoolKindergartenResultVO {
          */
         private String treatmentAdviceRatio;
 
+        /**
+         * 通知id
+         */
+        private Integer screeningNoticeId;
+
+        /**
+         * 筛查类型
+         */
+        private Integer screeningType;
+        /**
+         * 区域ID
+         */
+        private Integer districtId;
+        /**
+         *  是否幼儿园
+         */
+        private Boolean isKindergarten;
+
+
     }
 
-    public void setBasicData(ScreeningNotice screeningNotice) {
-        if (Objects.nonNull(screeningNotice)){
-            this.screeningNoticeId = screeningNotice.getId();
-            this.screeningType = screeningNotice.getScreeningType();
-        }
-    }
 
     public void setItemData(List<ScreeningResultStatistic> screeningResultStatistics, Map<Integer, String> schoolIdDistrictNameMap) {
         // 下级数据 + 当前数据 + 合计数据
@@ -168,29 +168,11 @@ public class SchoolKindergartenResultVO {
     private Item getItem(ScreeningResultStatistic screeningResultStatistic,
                          String schoolDistrictName,Integer districtId){
         Item item = new Item();
-        item.setScreeningRangeName("")
-                .setSchoolId(screeningResultStatistic.getSchoolId())
-                .setScreeningPlanId(screeningResultStatistic.getScreeningPlanId())
-                .setPlanScreeningNum(screeningResultStatistic.getPlanScreeningNum())
-                .setRealScreeningNum(screeningResultStatistic.getRealScreeningNum())
-                .setFinishRatio(screeningResultStatistic.getFinishRatio())
-                .setValidScreeningNum(screeningResultStatistic.getValidScreeningNum())
-                .setValidScreeningRatio("");
+        BeanUtils.copyProperties(screeningResultStatistic,item);
+        item.setScreeningRangeName(schoolDistrictName).setDistrictId(districtId).setIsKindergarten(Boolean.TRUE);
 
         KindergartenVisionAnalysisDO visionAnalysis = (KindergartenVisionAnalysisDO)screeningResultStatistic.getVisionAnalysis();
-        item.setLowVisionNum(visionAnalysis.getLowVisionNum())
-                .setLowVisionRatio(visionAnalysis.getLowVisionRatio())
-                .setAvgLeftVision(visionAnalysis.getAvgLeftVision())
-                .setAvgRightVision(visionAnalysis.getAvgRightVision())
-                .setAmetropiaNum(visionAnalysis.getAmetropiaNum())
-                .setAmetropiaRatio(visionAnalysis.getAmetropiaRatio())
-                .setAnisometropiaNum(visionAnalysis.getAnisometropiaNum())
-                .setAnisometropiaRatio(visionAnalysis.getAnisometropiaRatio())
-                .setMyopiaLevelInsufficientNum(visionAnalysis.getMyopiaLevelInsufficientNum())
-                .setMyopiaLevelInsufficientRatio(visionAnalysis.getMyopiaLevelInsufficientRatio())
-                .setTreatmentAdviceNum(visionAnalysis.getTreatmentAdviceNum())
-                .setTreatmentAdviceRatio(visionAnalysis.getTreatmentAdviceRatio());
-
+        BeanUtils.copyProperties(visionAnalysis,item);
         return item;
     }
 }

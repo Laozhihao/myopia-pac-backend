@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.api.management.domain.vo;
 
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.stat.domain.dos.CommonDiseaseDO;
 import com.wupol.myopia.business.core.stat.domain.dos.PrimarySchoolAndAboveVisionAnalysisDO;
 import com.wupol.myopia.business.core.stat.domain.dos.SaprodontiaDO;
@@ -24,20 +23,6 @@ import java.util.stream.Collectors;
 @Data
 public class SchoolPrimarySchoolAndAboveResultVO {
 
-    /**
-     * 通知id
-     */
-    private Integer screeningNoticeId;
-
-    /**
-     * 筛查类型
-     */
-    private Integer screeningType;
-
-    /**
-     *  是否幼儿园
-     */
-    private Boolean isKindergarten;
 
     /**
      * 内容
@@ -127,6 +112,26 @@ public class SchoolPrimarySchoolAndAboveResultVO {
          * 小学及以上--近视比例（均为整数，如10.01%，数据库则是1001）
          */
         private String myopiaRatio;
+
+        /**
+         * 通知id
+         */
+        private Integer screeningNoticeId;
+
+        /**
+         * 筛查类型
+         */
+        private Integer screeningType;
+
+        /**
+         *  是否幼儿园
+         */
+        private Boolean isKindergarten;
+
+        /**
+         * 区域ID
+         */
+        private Integer districtId;
 
         /**
          *  视力筛查项
@@ -239,13 +244,6 @@ public class SchoolPrimarySchoolAndAboveResultVO {
         private String reviewStudentRatio;
     }
 
-    public void setBasicData(ScreeningNotice screeningNotice) {
-        if (Objects.nonNull(screeningNotice)){
-            this.screeningNoticeId = screeningNotice.getId();
-            this.screeningType = screeningNotice.getScreeningType();
-        }
-
-    }
 
     public void setItemData(List<ScreeningResultStatistic> screeningResultStatistics, Map<Integer, String> schoolIdDistrictNameMap) {
         // 下级数据
@@ -261,28 +259,15 @@ public class SchoolPrimarySchoolAndAboveResultVO {
     private Item getItem(ScreeningResultStatistic screeningResultStatistic,
                                                     String schoolDistrictName, Integer districtId){
         Item item = new Item();
-        item.setScreeningRangeName("")
-                .setSchoolId(screeningResultStatistic.getSchoolId())
-                .setScreeningPlanId(screeningResultStatistic.getScreeningPlanId())
-                .setPlanScreeningNum(screeningResultStatistic.getPlanScreeningNum())
-                .setRealScreeningNum(screeningResultStatistic.getRealScreeningNum())
-                .setFinishRatio(screeningResultStatistic.getFinishRatio())
-                .setValidScreeningNum(screeningResultStatistic.getValidScreeningNum())
-                .setValidScreeningRatio(screeningResultStatistic.getValidScreeningRatio());
+        BeanUtils.copyProperties(screeningResultStatistic,item);
+        item.setScreeningRangeName(schoolDistrictName).setDistrictId(districtId).setIsKindergarten(Boolean.FALSE);
 
         PrimarySchoolAndAboveVisionAnalysisDO visionAnalysis = (PrimarySchoolAndAboveVisionAnalysisDO)screeningResultStatistic.getVisionAnalysis();
-        item.setLowVisionNum(visionAnalysis.getLowVisionNum())
-                .setLowVisionRatio(visionAnalysis.getLowVisionRatio())
-                .setAvgLeftVision(visionAnalysis.getAvgLeftVision())
-                .setAvgRightVision(visionAnalysis.getAvgRightVision())
-                .setTreatmentAdviceNum(visionAnalysis.getTreatmentAdviceNum())
-                .setTreatmentAdviceRatio(visionAnalysis.getTreatmentAdviceRatio())
-                .setMyopiaNum(visionAnalysis.getMyopiaNum())
-                .setMyopiaRatio(visionAnalysis.getMyopiaRatio());
+        BeanUtils.copyProperties(visionAnalysis,item);
 
-        if (Objects.equals(0,screeningType)){
+        if (Objects.equals(0,screeningResultStatistic.getScreeningType())){
             VisionItem visionItem = new VisionItem();
-            BeanUtils.copyProperties(visionAnalysis,visionAnalysis);
+            BeanUtils.copyProperties(visionAnalysis,visionItem);
             item.setVisionItem(visionItem);
         }else {
             SaprodontiaDO saprodontia = screeningResultStatistic.getSaprodontia();

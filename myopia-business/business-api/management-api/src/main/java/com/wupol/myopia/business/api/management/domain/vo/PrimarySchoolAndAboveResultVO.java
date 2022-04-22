@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.api.management.domain.vo;
 
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.stat.domain.dos.CommonDiseaseDO;
 import com.wupol.myopia.business.core.stat.domain.dos.PrimarySchoolAndAboveVisionAnalysisDO;
 import com.wupol.myopia.business.core.stat.domain.dos.SaprodontiaDO;

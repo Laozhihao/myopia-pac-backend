@@ -154,7 +154,6 @@ public class StatSchoolService {
         //获取学校的地区
         Map<Integer, String> schoolIdDistrictNameMap = districtService.getByIds(schoolDistrictIdList);
         //获取数据
-        schoolKindergartenResultVO.setBasicData(screeningNotice);
         schoolKindergartenResultVO.setItemData(screeningResultStatistics,schoolIdDistrictNameMap);
         return schoolKindergartenResultVO;
     }
@@ -228,7 +227,6 @@ public class StatSchoolService {
         //获取学校的地区
         Map<Integer, String> schoolIdDistrictNameMap = districtService.getByIds(schoolDistrictIdList);
         //获取数据
-        schoolPrimarySchoolAndAboveResultVO.setBasicData(screeningNotice);
         schoolPrimarySchoolAndAboveResultVO.setItemData(screeningResultStatistics,schoolIdDistrictNameMap);
         return schoolPrimarySchoolAndAboveResultVO;
     }
