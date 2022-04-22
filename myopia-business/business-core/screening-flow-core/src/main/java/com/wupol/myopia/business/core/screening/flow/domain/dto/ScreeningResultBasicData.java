@@ -52,6 +52,13 @@ public abstract class ScreeningResultBasicData implements ScreeningDataInterface
         return deptId;
     }
 
+    public Integer getCreateUserId() {
+        if (Objects.isNull(createUserId)) {
+            createUserId = CurrentUserUtil.getCurrentUser().getId();
+        }
+        return createUserId;
+    }
+
     private Integer stringToInteger(String value){
         if (StringUtils.isBlank(value)) {
             return null;

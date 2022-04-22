@@ -125,6 +125,9 @@ public class VisionScreeningBizService {
     public void verifyScreening(VisionScreeningResult firstResult, boolean checkHeight) {
         VisionDataDO visionData = firstResult.getVisionData();
         ComputerOptometryDO computerOptometry = firstResult.getComputerOptometry();
+        if (Objects.isNull(visionData) || Objects.isNull(computerOptometry)) {
+            throw new BusinessException("请完成初筛");
+        }
         // 夜戴角膜镜不需要复测
         if (visionData.getLeftEyeData().getGlassesType().equals(GlassesTypeEnum.ORTHOKERATOLOGY.code)
                 || visionData.getRightEyeData().getGlassesType().equals(GlassesTypeEnum.ORTHOKERATOLOGY.code)) {
