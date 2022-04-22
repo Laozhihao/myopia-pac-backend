@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * 字符串工具类
@@ -23,6 +24,6 @@ public class StrUtil {
         if (Objects.isNull(strings) || strings.length == 0) {
             return StringUtils.EMPTY;
         }
-        return String.join(str, Arrays.asList(strings));
+        return Arrays.stream(strings).filter(Objects::nonNull).collect(Collectors.joining(str));
     }
 }
