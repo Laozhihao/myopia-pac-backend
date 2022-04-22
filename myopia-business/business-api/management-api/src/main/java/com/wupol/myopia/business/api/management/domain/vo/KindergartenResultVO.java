@@ -1,7 +1,5 @@
 package com.wupol.myopia.business.api.management.domain.vo;
 
-import com.wupol.myopia.business.common.utils.util.MathUtil;
-import com.wupol.myopia.business.core.school.constant.SchoolEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.stat.domain.dos.KindergartenVisionAnalysisDO;
 import com.wupol.myopia.business.core.stat.domain.model.ScreeningResultStatistic;
@@ -24,10 +22,7 @@ import java.util.stream.Collectors;
 @Data
 public class KindergartenResultVO {
 
-    /**
-     * 通知id
-     */
-    private Integer screeningNoticeId;
+
 
     /**
      * 筛查类型
@@ -165,14 +160,19 @@ public class KindergartenResultVO {
          */
         private Integer districtId;
 
+        /**
+         * 通知id
+         */
+        private Integer screeningNoticeId;
+
     }
 
 
     public void setBasicData(Integer districtId, String currentRangeName, ScreeningNotice screeningNotice) {
         this.districtId = districtId;
         this.rangeName = currentRangeName;
+        this.isKindergarten=true;
         if (Objects.nonNull(screeningNotice)){
-            this.screeningNoticeId=screeningNotice.getId();
             this.screeningType=screeningNotice.getScreeningType();
         }
     }
@@ -187,22 +187,20 @@ public class KindergartenResultVO {
         BeanUtils.copyProperties(currentVisionStatistic,item);
         item.setScreeningRangeName(rangeName).setDistrictId(districtId);
 
-        if(Objects.equals(SchoolEnum.TYPE_KINDERGARTEN.getType(),currentVisionStatistic.getSchoolType())){
-            KindergartenVisionAnalysisDO visionAnalysis = (KindergartenVisionAnalysisDO)currentVisionStatistic.getVisionAnalysis();
+        KindergartenVisionAnalysisDO visionAnalysis = (KindergartenVisionAnalysisDO)currentVisionStatistic.getVisionAnalysis();
 
-            item.setLowVisionNum(visionAnalysis.getLowVisionNum())
-                    .setLowVisionRatio(visionAnalysis.getLowVisionRatio())
-                    .setAvgLeftVision(visionAnalysis.getAvgLeftVision())
-                    .setAvgRightVision(visionAnalysis.getAvgRightVision())
-                    .setAmetropiaNum(visionAnalysis.getAmetropiaNum())
-                    .setAmetropiaRatio(visionAnalysis.getAmetropiaRatio())
-                    .setAnisometropiaNum(visionAnalysis.getAnisometropiaNum())
-                    .setAnisometropiaRatio(visionAnalysis.getAnisometropiaRatio())
-                    .setMyopiaLevelInsufficientNum(visionAnalysis.getMyopiaLevelInsufficientNum())
-                    .setMyopiaLevelInsufficientRatio(visionAnalysis.getMyopiaLevelInsufficientRatio())
-                    .setTreatmentAdviceNum(visionAnalysis.getTreatmentAdviceNum())
-                    .setTreatmentAdviceRatio(visionAnalysis.getTreatmentAdviceRatio());
-        }
+        item.setLowVisionNum(visionAnalysis.getLowVisionNum())
+                .setLowVisionRatio(visionAnalysis.getLowVisionRatio())
+                .setAvgLeftVision(visionAnalysis.getAvgLeftVision())
+                .setAvgRightVision(visionAnalysis.getAvgRightVision())
+                .setAmetropiaNum(visionAnalysis.getAmetropiaNum())
+                .setAmetropiaRatio(visionAnalysis.getAmetropiaRatio())
+                .setAnisometropiaNum(visionAnalysis.getAnisometropiaNum())
+                .setAnisometropiaRatio(visionAnalysis.getAnisometropiaRatio())
+                .setMyopiaLevelInsufficientNum(visionAnalysis.getMyopiaLevelInsufficientNum())
+                .setMyopiaLevelInsufficientRatio(visionAnalysis.getMyopiaLevelInsufficientRatio())
+                .setTreatmentAdviceNum(visionAnalysis.getTreatmentAdviceNum())
+                .setTreatmentAdviceRatio(visionAnalysis.getTreatmentAdviceRatio());
         return item;
 
     }

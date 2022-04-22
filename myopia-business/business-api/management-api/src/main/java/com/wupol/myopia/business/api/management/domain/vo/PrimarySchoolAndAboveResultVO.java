@@ -24,10 +24,7 @@ import java.util.stream.Collectors;
 @Data
 public class PrimarySchoolAndAboveResultVO {
 
-    /**
-     * 所属的通知id
-     */
-    private Integer screeningNoticeId;
+
 
     /**
      * 筛查类型 （0-视力筛查、1-常见病筛查）
@@ -153,6 +150,11 @@ public class PrimarySchoolAndAboveResultVO {
          * 区域ID
          */
         private Integer districtId;
+        /**
+         * 所属的通知id
+         */
+        private Integer screeningNoticeId;
+
 
     }
 
@@ -257,10 +259,10 @@ public class PrimarySchoolAndAboveResultVO {
 
 
     public void setBasicData(Integer districtId, String currentRangeName, ScreeningNotice screeningNotice) {
+        this.isKindergarten=false;
         this.districtId = districtId;
         this.rangeName = currentRangeName;
         if (Objects.nonNull(screeningNotice)){
-            this.screeningNoticeId=screeningNotice.getId();
             this.screeningType=screeningNotice.getScreeningType();
         }
     }
