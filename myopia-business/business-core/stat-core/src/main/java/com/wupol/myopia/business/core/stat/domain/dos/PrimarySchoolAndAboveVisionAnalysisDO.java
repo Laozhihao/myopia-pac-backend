@@ -14,9 +14,7 @@ import java.math.BigDecimal;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Data
 @Accessors(chain = true)
-public class PrimarySchoolAndAboveVisionAnalysisDO implements VisionAnalysis {
-
-    private static final long serialVersionUID = 3L;
+public class PrimarySchoolAndAboveVisionAnalysisDO implements VisionAnalysis,FrontTableId {
 
     /**
      * 视力低下人数（默认0）
@@ -123,4 +121,8 @@ public class PrimarySchoolAndAboveVisionAnalysisDO implements VisionAnalysis {
      */
     private Integer schoolType;
 
+    @Override
+    public Integer getSerialVersionUID() {
+        return 3;
+    }
 }

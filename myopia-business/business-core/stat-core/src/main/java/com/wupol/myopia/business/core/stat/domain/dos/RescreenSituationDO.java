@@ -12,9 +12,8 @@ import java.io.Serializable;
  */
 @Data
 @Accessors(chain = true)
-public class RescreenSituationDO implements Serializable {
+public class RescreenSituationDO implements Serializable,FrontTableId {
 
-    private static final long serialVersionUID = 4L;
 
     /**
      * 复测人数（默认0）
@@ -60,4 +59,9 @@ public class RescreenSituationDO implements Serializable {
      * 发生率
      */
     private String incidence;
+
+    @Override
+    public Integer getSerialVersionUID() {
+        return 4;
+    }
 }

@@ -12,9 +12,8 @@ import java.io.Serializable;
  */
 @Data
 @Accessors(chain = true)
-public class CommonDiseaseDO implements Serializable {
+public class CommonDiseaseDO implements Serializable,FrontTableId {
 
-    private static final long serialVersionUID = 7L;
 
     /**
      * 小学及以上--超重人数（默认0）
@@ -85,4 +84,9 @@ public class CommonDiseaseDO implements Serializable {
      * 小学及以上--复查学生率
      */
     private String reviewStudentRatio;
+
+    @Override
+    public Integer getSerialVersionUID() {
+        return 7;
+    }
 }

@@ -12,9 +12,7 @@ import java.io.Serializable;
  */
 @Data
 @Accessors(chain = true)
-public class QuestionnaireDO implements Serializable {
-
-    private static final long serialVersionUID = 8L;
+public class QuestionnaireDO implements Serializable,FrontTableId {
 
     /**
      * 小学及以上--校环境健康影响因素调查表数（默认0）
@@ -65,4 +63,9 @@ public class QuestionnaireDO implements Serializable {
      * 学生健康状况及影响因素调查表率
      */
     private String healthStateQuestionnaireRatio;
+
+    @Override
+    public Integer getSerialVersionUID() {
+        return 8;
+    }
 }

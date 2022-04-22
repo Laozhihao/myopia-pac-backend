@@ -12,9 +12,7 @@ import java.io.Serializable;
  */
 @Data
 @Accessors(chain = true)
-public class VisionWarningDO implements Serializable {
-
-    private static final long serialVersionUID = 5L;
+public class VisionWarningDO implements Serializable,FrontTableId {
 
     /**
      * 小学及以上--视力预警人数
@@ -61,4 +59,8 @@ public class VisionWarningDO implements Serializable {
      */
     private String visionLabel3Ratio;
 
+    @Override
+    public Integer getSerialVersionUID() {
+        return 5;
+    }
 }

@@ -12,9 +12,7 @@ import java.io.Serializable;
  */
 @Data
 @Accessors(chain = true)
-public class SaprodontiaDO implements Serializable {
-
-    private static final long serialVersionUID = 6L;
+public class SaprodontiaDO implements Serializable,FrontTableId {
 
     /**
      * 小学及以上--无龋人数（默认0）
@@ -85,4 +83,9 @@ public class SaprodontiaDO implements Serializable {
      * 小学及以上--龋患（失、补）构成比率
      */
     private String saprodontiaLossAndRepairTeethRatio;
+
+    @Override
+    public Integer getSerialVersionUID() {
+        return 6;
+    }
 }

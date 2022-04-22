@@ -16,9 +16,7 @@ import java.util.Objects;
  */
 @Data
 @Accessors(chain = true)
-public class PrimarySchoolAndAboveResultDetailVO implements Serializable {
-
-    private static final long serialVersionUID = 9L;
+public class PrimarySchoolAndAboveResultDetailVO implements Serializable,FrontTableId {
 
     /**
      * 所属的通知id
@@ -98,5 +96,10 @@ public class PrimarySchoolAndAboveResultDetailVO implements Serializable {
             this.commonDisease=screeningResultStatistic.getCommonDisease();
             this.questionnaire=screeningResultStatistic.getQuestionnaire();
         }
+    }
+
+    @Override
+    public Integer getSerialVersionUID() {
+        return 9;
     }
 }

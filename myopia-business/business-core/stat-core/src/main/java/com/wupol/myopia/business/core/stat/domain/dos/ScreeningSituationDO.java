@@ -12,9 +12,8 @@ import java.io.Serializable;
  */
 @Data
 @Accessors(chain = true)
-public class ScreeningSituationDO implements Serializable {
+public class ScreeningSituationDO implements Serializable,FrontTableId {
 
-    private static final long serialVersionUID = 1L;
     /**
      * 学校数
      */
@@ -44,4 +43,9 @@ public class ScreeningSituationDO implements Serializable {
      * 纳入统计的实际筛查学生比例
      */
     private String validScreeningRatio;
+
+    @Override
+    public Integer getSerialVersionUID() {
+        return 1;
+    }
 }

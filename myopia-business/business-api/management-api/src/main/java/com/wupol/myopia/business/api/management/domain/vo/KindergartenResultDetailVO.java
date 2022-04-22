@@ -3,6 +3,7 @@ package com.wupol.myopia.business.api.management.domain.vo;
 import com.wupol.myopia.business.core.stat.domain.dos.KindergartenVisionAnalysisDO;
 import com.wupol.myopia.business.core.stat.domain.dos.RescreenSituationDO;
 import com.wupol.myopia.business.core.stat.domain.dos.ScreeningSituationDO;
+import com.wupol.myopia.business.core.stat.domain.dos.FrontTableId;
 import com.wupol.myopia.business.core.stat.domain.model.ScreeningResultStatistic;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -18,9 +19,7 @@ import java.util.Objects;
  */
 @Data
 @Accessors(chain = true)
-public class KindergartenResultDetailVO implements Serializable {
-
-    private static final long serialVersionUID = 10L;
+public class KindergartenResultDetailVO implements Serializable, FrontTableId {
 
     /**
      * 所属的通知id
@@ -75,5 +74,10 @@ public class KindergartenResultDetailVO implements Serializable {
             this.rescreenSituation=screeningResultStatistic.getRescreenSituation();
         }
 
+    }
+
+    @Override
+    public Integer getSerialVersionUID() {
+        return 10;
     }
 }
