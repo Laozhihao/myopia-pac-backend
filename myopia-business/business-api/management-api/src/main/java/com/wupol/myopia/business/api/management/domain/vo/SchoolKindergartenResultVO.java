@@ -187,7 +187,7 @@ public class SchoolKindergartenResultVO {
                 .setAnisometropiaNum(visionAnalysis.getAnisometropiaNum())
                 .setAnisometropiaRatio(visionAnalysis.getAnisometropiaRatio())
                 .setMyopiaLevelInsufficientNum(visionAnalysis.getMyopiaLevelInsufficientNum())
-                .setMyopiaLevelInsufficientRatio(visionAnalysis.getMyopiaLevelInsufficientNumRatio())
+                .setMyopiaLevelInsufficientRatio(visionAnalysis.getMyopiaLevelInsufficientRatio())
                 .setTreatmentAdviceNum(visionAnalysis.getTreatmentAdviceNum())
                 .setTreatmentAdviceRatio(visionAnalysis.getTreatmentAdviceRatio());
 

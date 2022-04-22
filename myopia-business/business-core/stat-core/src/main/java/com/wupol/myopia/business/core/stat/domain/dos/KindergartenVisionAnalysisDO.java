@@ -63,7 +63,7 @@ public class KindergartenVisionAnalysisDO implements VisionAnalysis {
     /**
      * 幼儿园--远视储备不足率
      */
-    private String myopiaLevelInsufficientNumRatio;
+    private String myopiaLevelInsufficientRatio;
 
     /**
      * 戴镜人数（默认0）

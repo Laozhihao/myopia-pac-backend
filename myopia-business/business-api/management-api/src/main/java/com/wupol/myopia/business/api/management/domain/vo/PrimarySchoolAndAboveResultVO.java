@@ -288,14 +288,8 @@ public class PrimarySchoolAndAboveResultVO {
 
     private Item getItem(Integer districtId, String rangeName, ScreeningResultStatistic currentVisionStatistic) {
         Item item = new Item();
-        item.setScreeningRangeName(rangeName)
-                .setSchoolNum(currentVisionStatistic.getSchoolNum())
-                .setPlanScreeningNum(currentVisionStatistic.getPlanScreeningNum())
-                .setRealScreeningNum(currentVisionStatistic.getRealScreeningNum())
-                .setFinishRatio(currentVisionStatistic.getFinishRatio())
-                .setValidScreeningNum(currentVisionStatistic.getValidScreeningNum())
-                .setValidScreeningRatio(currentVisionStatistic.getValidScreeningRatio())
-                .setDistrictId(districtId);
+        BeanUtils.copyProperties(currentVisionStatistic,item);
+        item.setScreeningRangeName(rangeName).setDistrictId(districtId);
 
         PrimarySchoolAndAboveVisionAnalysisDO visionAnalysis = (PrimarySchoolAndAboveVisionAnalysisDO)currentVisionStatistic.getVisionAnalysis();
         BeanUtils.copyProperties(visionAnalysis,item);

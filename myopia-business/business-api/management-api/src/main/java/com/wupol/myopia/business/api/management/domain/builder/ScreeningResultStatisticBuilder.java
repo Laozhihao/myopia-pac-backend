@@ -202,7 +202,7 @@ public class ScreeningResultStatisticBuilder {
                 .setAvgLeftVision(BigDecimal.valueOf(avgLeftVision)).setAvgRightVision(BigDecimal.valueOf(avgRightVision))
                 .setAmetropiaNum(ametropiaNum).setAmetropiaRatio(MathUtil.ratio(ametropiaNum,validScreeningNum))
                 .setAnisometropiaNum(anisometropiaNum).setAnisometropiaRatio(MathUtil.ratio(anisometropiaNum,validScreeningNum))
-                .setMyopiaLevelInsufficientNum(visionLabelZeroSpNum).setMyopiaLevelInsufficientNumRatio(MathUtil.ratio(visionLabelZeroSpNum,validScreeningNum))
+                .setMyopiaLevelInsufficientNum(visionLabelZeroSpNum).setMyopiaLevelInsufficientRatio(MathUtil.ratio(visionLabelZeroSpNum,validScreeningNum))
                 .setWearingGlassesNum(wearingGlassNum).setWearingGlassesRatio(MathUtil.ratio(wearingGlassNum,validScreeningNum))
                 .setTreatmentAdviceNum(treatmentAdviceNum).setTreatmentAdviceRatio(MathUtil.ratio(treatmentAdviceNum,validScreeningNum))
                 .setSchoolType(totalStatistic.getSchoolType());

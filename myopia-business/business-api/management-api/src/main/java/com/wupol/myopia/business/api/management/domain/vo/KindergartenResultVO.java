@@ -1,10 +1,13 @@
 package com.wupol.myopia.business.api.management.domain.vo;
 
+import com.wupol.myopia.business.common.utils.util.MathUtil;
+import com.wupol.myopia.business.core.school.constant.SchoolEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.stat.domain.dos.KindergartenVisionAnalysisDO;
 import com.wupol.myopia.business.core.stat.domain.model.ScreeningResultStatistic;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.springframework.beans.BeanUtils;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -181,16 +184,12 @@ public class KindergartenResultVO {
 
     private Item getItem(Integer districtId,String rangeName, ScreeningResultStatistic currentVisionStatistic) {
         Item item = new Item();
-        item.setScreeningRangeName(rangeName)
-                .setSchoolNum(currentVisionStatistic.getSchoolNum())
-                .setPlanScreeningNum(currentVisionStatistic.getPlanScreeningNum())
-                .setRealScreeningNum(currentVisionStatistic.getRealScreeningNum())
-                .setValidScreeningNum(currentVisionStatistic.getValidScreeningNum())
-                .setDistrictId(districtId);
+        BeanUtils.copyProperties(currentVisionStatistic,item);
+        item.setScreeningRangeName(rangeName).setDistrictId(districtId);
 
-
-        if(Objects.equals(8,currentVisionStatistic.getSchoolType())){
+        if(Objects.equals(SchoolEnum.TYPE_KINDERGARTEN.getType(),currentVisionStatistic.getSchoolType())){
             KindergartenVisionAnalysisDO visionAnalysis = (KindergartenVisionAnalysisDO)currentVisionStatistic.getVisionAnalysis();
+
             item.setLowVisionNum(visionAnalysis.getLowVisionNum())
                     .setLowVisionRatio(visionAnalysis.getLowVisionRatio())
                     .setAvgLeftVision(visionAnalysis.getAvgLeftVision())
@@ -200,7 +199,7 @@ public class KindergartenResultVO {
                     .setAnisometropiaNum(visionAnalysis.getAnisometropiaNum())
                     .setAnisometropiaRatio(visionAnalysis.getAnisometropiaRatio())
                     .setMyopiaLevelInsufficientNum(visionAnalysis.getMyopiaLevelInsufficientNum())
-                    .setMyopiaLevelInsufficientRatio(visionAnalysis.getMyopiaLevelInsufficientNumRatio())
+                    .setMyopiaLevelInsufficientRatio(visionAnalysis.getMyopiaLevelInsufficientRatio())
                     .setTreatmentAdviceNum(visionAnalysis.getTreatmentAdviceNum())
                     .setTreatmentAdviceRatio(visionAnalysis.getTreatmentAdviceRatio());
         }
