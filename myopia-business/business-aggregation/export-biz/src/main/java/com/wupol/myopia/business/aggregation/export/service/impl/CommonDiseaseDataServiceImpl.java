@@ -207,10 +207,10 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
         SpineDataDO.SpineItem chestWaist = spineData.getChestWaist();
         SpineDataDO.SpineItem waist = spineData.getWaist();
         SpineDataDO.SpineItem entirety = spineData.getEntirety();
-        exportDTO.setChest(SpineTypeEnum.getTypeName(chest.getLevel()) + "、" + SpineLevelEnum.getLevelName(chest.getType()))
-                .setChestWaist(SpineTypeEnum.getTypeName(chestWaist.getLevel()) + "、" + SpineLevelEnum.getLevelName(chestWaist.getType()))
-                .setWaist(SpineTypeEnum.getTypeName(waist.getLevel()) + "、" + SpineLevelEnum.getLevelName(waist.getType()))
-                .setEntirety(SpineTypeEnum.getTypeName(entirety.getLevel()) + "、" + SpineLevelEnum.getLevelName(entirety.getType()));
+        exportDTO.setChest(SpineTypeEnum.getTypeName(chest.getType()) + "、" + SpineLevelEnum.getLevelName(chest.getLevel()))
+                .setChestWaist(SpineTypeEnum.getTypeName(chestWaist.getType()) + "、" + SpineLevelEnum.getLevelName(chestWaist.getLevel()))
+                .setWaist(SpineTypeEnum.getTypeName(waist.getType()) + "、" + SpineLevelEnum.getLevelName(waist.getLevel()))
+                .setEntirety(SpineTypeEnum.getTypeName(entirety.getType()) + "、" + SpineLevelEnum.getLevelName(entirety.getLevel()));
 
     }
 
