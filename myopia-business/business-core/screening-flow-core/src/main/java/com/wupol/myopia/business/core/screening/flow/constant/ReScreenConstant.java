@@ -25,11 +25,6 @@ public class ReScreenConstant {
      */
     public static final String SE_DEVIATION = "0.5";
     /**
-     * 等效球镜误差标准（D）
-     */
-    public static final String SE_DEVIATION = "0.5";
-
-    /**
      * 体重误差标准（kg）
      */
     public static final String HEIGHT_DEVIATION = "0.5";
