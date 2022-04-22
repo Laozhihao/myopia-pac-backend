@@ -110,18 +110,18 @@ public class StudentFacade {
 
     /**
      * 获取学生复测卡
-     * @param plandStudentId 计划学生ID
-     * @param plandId 计划ID
-     * @return
+     * @param planStudentId 计划学生ID
+     * @param planId 计划ID
+     * @return 获取学生复测卡
      */
-    public ReScreeningCardVO getRetestResult(Integer plandStudentId, Integer plandId){
+    public ReScreeningCardVO getRetestResult(Integer planStudentId, Integer planId){
 
-        VisionScreeningResult screeningResult = visionScreeningResultService.getIsDoubleScreeningResult(plandId, plandStudentId,false);
-        VisionScreeningResult retestResult = visionScreeningResultService.getIsDoubleScreeningResult(plandId, plandStudentId,true);
+        VisionScreeningResult screeningResult = visionScreeningResultService.getIsDoubleScreeningResult(planId, planStudentId,false);
+        VisionScreeningResult retestResult = visionScreeningResultService.getIsDoubleScreeningResult(planId, planStudentId,true);
 
         //质控员
         String qualityControlName =null;
-        List<ScreeningPlanSchool> screeningPlanSchools = screeningPlanSchoolService.getSchoolListsByPlanId(plandId);
+        List<ScreeningPlanSchool> screeningPlanSchools = screeningPlanSchoolService.getSchoolListsByPlanId(planId);
         if (Objects.nonNull(screeningPlanSchools)){
             qualityControlName = screeningPlanSchools.get(0).getQualityControllerName();
         }

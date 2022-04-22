@@ -182,14 +182,14 @@ public class StudentController {
 
     /**
      * 获取学生复测卡
-     * @param plandStudentId 计划学生ID
-     * @param plandId 计划ID
+     * @param planStudentId 计划学生ID
+     * @param planId 计划ID
      * @return 复测卡
      */
     @GetMapping("/screeningResult")
-    public ReScreeningCardVO getRetestResult(@NotNull(message = "学生Id不能为空") Integer plandStudentId,
-                                             @NotNull(message = "计划Id不能为空") Integer plandId ) {
-        return studentFacade.getRetestResult(plandStudentId,plandId);
+    public ReScreeningCardVO getRetestResult(@NotNull(message = "学生Id不能为空") Integer planStudentId,
+                                             @NotNull(message = "计划Id不能为空") Integer planId ) {
+        return studentFacade.getRetestResult(planStudentId,planId);
     }
 
     /**
