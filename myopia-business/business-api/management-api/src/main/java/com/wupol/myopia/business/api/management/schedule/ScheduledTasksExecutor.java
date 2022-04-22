@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.schedule;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.CompareUtil;
@@ -126,7 +127,7 @@ public class ScheduledTasksExecutor {
 
     }
 
-    private void screeningResultStatisticByPlanIds(List<Integer> screeningPlanIds){
+    public void screeningResultStatisticByPlanIds(List<Integer> screeningPlanIds){
         //按区域统计
         districtStatisticTask.districtStatistics(screeningPlanIds);
 

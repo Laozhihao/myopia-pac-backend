@@ -265,7 +265,10 @@ public class BigDecimalUtil {
             throw new IllegalArgumentException("The scale must be a positive integer or zero");
         }
         BigDecimal b1 = new BigDecimal(v1);
-        BigDecimal b2 = new BigDecimal(v1);
+        BigDecimal b2 = new BigDecimal(v2);
+        if (BigDecimal.ZERO.compareTo(b2) == 0){
+            return new BigDecimal("0.0");
+        }
         return b1.divide(b2, scale, BigDecimal.ROUND_HALF_UP);
     }
 

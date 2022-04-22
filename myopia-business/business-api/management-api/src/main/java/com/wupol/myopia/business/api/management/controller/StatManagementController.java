@@ -348,12 +348,12 @@ public class StatManagementController {
 
     @GetMapping("/triggerAll")
     public void statTaskTriggerAll() {
-        List<Integer> yesterdayScreeningPlanIds = screeningPlanService.list().stream().map(ScreeningPlan::getId).collect(Collectors.toList());
-        if (com.wupol.framework.core.util.CollectionUtils.isEmpty(yesterdayScreeningPlanIds)) {
+        List<Integer> yesterdayScreeningPlanIds = screeningPlanService.list().stream().map(ScreeningPlan::getId).filter(id->Objects.nonNull(id) && id>=127).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(yesterdayScreeningPlanIds)) {
             log.info("筛查数据统计：历史无筛查数据，无需统计");
             return;
         }
-        scheduledTasksExecutor.statisticByPlanIds(yesterdayScreeningPlanIds);
+        scheduledTasksExecutor.screeningResultStatisticByPlanIds(yesterdayScreeningPlanIds);
     }
 
     @GetMapping("/triggerById/{planId}")
