@@ -27,6 +27,9 @@ public class UpdatePlanStudentRequestDTO {
     @NotNull(message = "性别不能为空")
     private Integer gender;
 
+    @NotNull(message = "计划Id不能为空")
+    private Integer planId;
+
     @NotNull(message = "年龄不能为空")
     private Integer studentAge;
 

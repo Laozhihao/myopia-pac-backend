@@ -585,4 +585,18 @@
         and mvsr.is_double_screen = 0
 <!--        and msc.is_review = 1-->
     </select>
+
+    <select id="getByPlanIdIdCardAndPassport" resultMap="BaseResultMap">
+        select *
+        from m_screening_plan_school_student where screening_plan_id = #{planId}
+        <if test="idCard != null and idCard != ''">
+            and id_card = #{idCard}
+        </if>
+        <if test="passport != null and passport != ''">
+            and passport = #{passport}
+        </if>
+        <if test="id != null">
+            and id != #{id}
+        </if>
+    </select>
 </mapper>
