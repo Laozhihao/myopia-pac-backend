@@ -56,12 +56,6 @@ public class KindergartenResultDetailVO implements Serializable {
     private RescreenSituationDO rescreenSituation;
 
 
-    public void setBaseData(Integer screeningType, Integer districtId, String rangeName) {
-        this.screeningType = screeningType;
-        this.districtId = districtId;
-        this.rangeName=rangeName;
-    }
-
     public void setBaseData(Integer screeningNoticeId,Integer districtId,Integer screeningType, String  rangeName) {
         this.screeningType = screeningType;
         this.districtId = districtId;

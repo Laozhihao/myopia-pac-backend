@@ -77,21 +77,6 @@ public class PrimarySchoolAndAboveResultDetailVO implements Serializable {
      */
     private QuestionnaireDO questionnaire;
 
-    public void setBaseData(ScreeningNotice screeningNotice, School school) {
-        if (Objects.nonNull(screeningNotice)){
-            this.screeningType=screeningNotice.getScreeningType();
-        }
-        if (Objects.nonNull(school)){
-            this.districtId=school.getDistrictId();
-            this.rangeName=school.getName();
-        }
-    }
-    public void setBaseData(Integer screeningType, Integer districtId, String rangeName) {
-        this.screeningType = screeningType;
-        this.districtId = districtId;
-        this.rangeName=rangeName;
-    }
-
     public void setBaseData(Integer screeningNoticeId,Integer districtId,Integer screeningType, String  rangeName) {
         this.screeningType = screeningType;
         this.districtId = districtId;
@@ -104,7 +89,6 @@ public class PrimarySchoolAndAboveResultDetailVO implements Serializable {
         if (Objects.nonNull(screeningResultStatistic)) {
             ScreeningSituationDO screeningSituationDO = new ScreeningSituationDO();
             BeanUtils.copyProperties(screeningResultStatistic,screeningSituationDO);
-
 
             this.screeningSituation=screeningSituationDO;
             this.primarySchoolAndAboveVisionAnalysis=(PrimarySchoolAndAboveVisionAnalysisDO)screeningResultStatistic.getVisionAnalysis();

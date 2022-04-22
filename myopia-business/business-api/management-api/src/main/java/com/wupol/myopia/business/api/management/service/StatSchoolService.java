@@ -326,8 +326,7 @@ public class StatSchoolService {
                                                          boolean isKindergarten,ScreeningNotice screeningNotice,School school){
 
         SchoolResultDetailVO schoolResultDetailVO = new SchoolResultDetailVO();
-        schoolResultDetailVO.setBaseData(screeningNotice,school);
-        schoolResultDetailVO.setItemData(isKindergarten,screeningResultStatistics);
+        schoolResultDetailVO.setItemData(isKindergarten,screeningNotice,school,screeningResultStatistics);
         return schoolResultDetailVO;
     }
 }
