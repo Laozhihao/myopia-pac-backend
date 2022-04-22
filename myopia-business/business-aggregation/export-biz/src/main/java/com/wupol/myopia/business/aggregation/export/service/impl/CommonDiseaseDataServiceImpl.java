@@ -7,6 +7,7 @@ import com.wupol.myopia.base.constant.SpineTypeEnum;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.base.util.ListUtil;
 import com.wupol.myopia.base.util.ScreeningDataFormatUtils;
+import com.wupol.myopia.base.util.StrUtil;
 import com.wupol.myopia.business.aggregation.export.service.IScreeningDataService;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
@@ -52,12 +53,7 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
             CommonDiseaseDataExportDTO exportVo = new CommonDiseaseDataExportDTO();
             BeanUtils.copyProperties(vo, exportVo);
             // 基本信息
-            exportVo.setGenderDesc(GenderEnum.getName(vo.getGender()))
-                    .setNationDesc(StringUtils.defaultString(NationEnum.getName(vo.getNation())))
-                    .setGlassesTypeDesc(StringUtils.defaultIfBlank(GlassesTypeEnum.getDescByCode(vo.getGlassesType()), "--"))
-                    .setIsRescreenDesc("否")
-                    .setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(), vo.getAreaCode(), vo.getTownCode(), vo.getAddress()))
-                    .setIsValid(Boolean.TRUE.equals(vo.getIsValid()) ? "有效" : "无效");
+            exportVo.setGenderDesc(GenderEnum.getName(vo.getGender())).setNationDesc(StringUtils.defaultString(NationEnum.getName(vo.getNation()))).setGlassesTypeDesc(StringUtils.defaultIfBlank(GlassesTypeEnum.getDescByCode(vo.getGlassesType()), "--")).setIsRescreenDesc("否").setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(), vo.getAreaCode(), vo.getTownCode(), vo.getAddress())).setIsValid(Boolean.TRUE.equals(vo.getIsValid()) ? "有效" : "无效");
             genScreeningData(vo, exportVo);
             // 组装复筛数据
             genReScreeningData(rescreenPlanStudentIdVoMap, vo, exportVo);
@@ -89,21 +85,7 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
      * @param exportDTO 筛查数据导出
      */
     private void genScreeningData(StatConclusionExportDTO dto, CommonDiseaseDataExportDTO exportDTO) {
-        exportDTO.setLeftNakedVisions(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_NAKED_VISION)))
-                .setRightNakedVisions(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_NAKED_VISION)))
-                .setLeftCorrectedVisions(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_CORRECTED_VISION)))
-                .setRightCorrectedVisions(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_CORRECTED_VISION)))
-                .setRightSphs(ScreeningDataFormatUtils.generateSingleSuffixDStr(JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_SPH)))
-                .setLeftSphs(ScreeningDataFormatUtils.generateSingleSuffixDStr(JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_SPH)))
-                .setRightCyls(ScreeningDataFormatUtils.generateSingleSuffixDStr(JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_CYL)))
-                .setLeftCyls(ScreeningDataFormatUtils.generateSingleSuffixDStr(JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_CYL)))
-                .setRightAxials(ScreeningDataFormatUtils.generateSingleEyeDegree(JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_AXIAL)))
-                .setLeftAxials(ScreeningDataFormatUtils.generateSingleEyeDegree(JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_AXIAL)))
-                .setHeight(ScreeningDataFormatUtils.getHeight(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_HW_HEIGHT)))
-                .setWeight(ScreeningDataFormatUtils.getWeight(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_HW_WEIGHT)))
-                .setOtherEyeDiseasesLeftEyeDiseases(ListUtil.objectList2Str(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_OED_LEFT_EYE_DISEASES)))
-                .setOtherEyeDiseasesRightEyeDiseases(ListUtil.objectList2Str(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_OED_RIGHT_EYE_DISEASES)))
-                .setOtherEyeDiseasesSystemicDiseaseSymptom((String) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_SYSTEMIC_DISEASE_SYMPTOM));
+        exportDTO.setLeftNakedVisions(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_NAKED_VISION))).setRightNakedVisions(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_NAKED_VISION))).setLeftCorrectedVisions(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_CORRECTED_VISION))).setRightCorrectedVisions(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_CORRECTED_VISION))).setRightSphs(ScreeningDataFormatUtils.generateSingleSuffixDStr(JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_SPH))).setLeftSphs(ScreeningDataFormatUtils.generateSingleSuffixDStr(JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_SPH))).setRightCyls(ScreeningDataFormatUtils.generateSingleSuffixDStr(JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_CYL))).setLeftCyls(ScreeningDataFormatUtils.generateSingleSuffixDStr(JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_CYL))).setRightAxials(ScreeningDataFormatUtils.generateSingleEyeDegree(JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_AXIAL))).setLeftAxials(ScreeningDataFormatUtils.generateSingleEyeDegree(JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_AXIAL))).setHeight(ScreeningDataFormatUtils.getHeight(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_HW_HEIGHT))).setWeight(ScreeningDataFormatUtils.getWeight(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_HW_WEIGHT))).setOtherEyeDiseasesLeftEyeDiseases(ListUtil.objectList2Str(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_OED_LEFT_EYE_DISEASES))).setOtherEyeDiseasesRightEyeDiseases(ListUtil.objectList2Str(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_OED_RIGHT_EYE_DISEASES))).setOtherEyeDiseasesSystemicDiseaseSymptom((String) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_SYSTEMIC_DISEASE_SYMPTOM));
     }
 
     /**
@@ -116,20 +98,7 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
     private void genReScreeningData(Map<Integer, StatConclusionExportDTO> rescreenPlanStudentIdDTOMap, StatConclusionExportDTO dto, CommonDiseaseDataExportDTO exportDTO) {
         StatConclusionExportDTO rescreenVo = rescreenPlanStudentIdDTOMap.get(dto.getScreeningPlanSchoolStudentId());
         if (Objects.nonNull(rescreenVo)) {
-            exportDTO.setReScreenGlassesTypeDesc(ScreeningDataFormatUtils.getGlassesType(JSONPath.eval(rescreenVo, ScreeningResultPahtConst.PATH_GLASSES_TYPE)))
-                    .setLeftReScreenNakedVisions(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.LEFTEYE_NAKED_VISION)))
-                    .setRightReScreenNakedVisions(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHTEYE_NAKED_VISION)))
-                    .setLeftReScreenCorrectedVisions(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.LEFTEYE_CORRECTED_VISION)))
-                    .setRightReScreenCorrectedVisions(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHTEYE_CORRECTED_VISION)))
-                    .setLeftReScreenSphs(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.LEFTEYE_SPH)))
-                    .setRightReScreenSphs(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHTEYE_SPH)))
-                    .setLeftReScreenCyls(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.LEFTEYE_CYL)))
-                    .setRightReScreenCyls(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHTEYE_CYL)))
-                    .setLeftReScreenAxials(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.LEFTEYE_AXIAL)))
-                    .setRightReScreenAxials(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHTEYE_AXIAL)))
-                    .setIsRescreenDesc("是")
-                    .setReHeight(ScreeningDataFormatUtils.getHeight(JSONPath.eval(rescreenVo, ScreeningResultPahtConst.PATH_HW_HEIGHT)))
-                    .setReWeight(ScreeningDataFormatUtils.getWeight(JSONPath.eval(rescreenVo, ScreeningResultPahtConst.PATH_HW_WEIGHT)));
+            exportDTO.setReScreenGlassesTypeDesc(ScreeningDataFormatUtils.getGlassesType(JSONPath.eval(rescreenVo, ScreeningResultPahtConst.PATH_GLASSES_TYPE))).setLeftReScreenNakedVisions(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.LEFTEYE_NAKED_VISION))).setRightReScreenNakedVisions(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHTEYE_NAKED_VISION))).setLeftReScreenCorrectedVisions(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.LEFTEYE_CORRECTED_VISION))).setRightReScreenCorrectedVisions(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHTEYE_CORRECTED_VISION))).setLeftReScreenSphs(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.LEFTEYE_SPH))).setRightReScreenSphs(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHTEYE_SPH))).setLeftReScreenCyls(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.LEFTEYE_CYL))).setRightReScreenCyls(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHTEYE_CYL))).setLeftReScreenAxials(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.LEFTEYE_AXIAL))).setRightReScreenAxials(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHTEYE_AXIAL))).setIsRescreenDesc("是").setReHeight(ScreeningDataFormatUtils.getHeight(JSONPath.eval(rescreenVo, ScreeningResultPahtConst.PATH_HW_HEIGHT))).setReWeight(ScreeningDataFormatUtils.getWeight(JSONPath.eval(rescreenVo, ScreeningResultPahtConst.PATH_HW_WEIGHT)));
         }
     }
 
@@ -146,8 +115,7 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
         }
         TwoTuple<String, String> stringStringTwoTuple = generateSaprodontiaResult(saprodontiaData);
 
-        exportDTO.setDeciduous(stringStringTwoTuple.getFirst())
-                .setPermanent(stringStringTwoTuple.getSecond());
+        exportDTO.setDeciduous(stringStringTwoTuple.getFirst()).setPermanent(stringStringTwoTuple.getSecond());
     }
 
     /**
@@ -188,9 +156,7 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
      * @return 结论
      */
     private String countSaprodontiaNum(List<String> list) {
-        return list.stream().filter(s -> StringUtils.equalsAny(s, SaprodontiaType.DECIDUOUS_D.getName(), SaprodontiaType.PERMANENT_D.getName())).count() + ":" +
-                list.stream().filter(s -> StringUtils.equalsAny(s, SaprodontiaType.DECIDUOUS_M.getName(), SaprodontiaType.PERMANENT_M.getName())).count() + ":" +
-                list.stream().filter(s -> StringUtils.equalsAny(s, SaprodontiaType.DECIDUOUS_F.getName(), SaprodontiaType.PERMANENT_F.getName())).count();
+        return list.stream().filter(s -> StringUtils.equalsAny(s, SaprodontiaType.DECIDUOUS_D.getName(), SaprodontiaType.PERMANENT_D.getName())).count() + ":" + list.stream().filter(s -> StringUtils.equalsAny(s, SaprodontiaType.DECIDUOUS_M.getName(), SaprodontiaType.PERMANENT_M.getName())).count() + ":" + list.stream().filter(s -> StringUtils.equalsAny(s, SaprodontiaType.DECIDUOUS_F.getName(), SaprodontiaType.PERMANENT_F.getName())).count();
     }
 
     /**
@@ -208,10 +174,10 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
         SpineDataDO.SpineItem chestWaist = spineData.getChestWaist();
         SpineDataDO.SpineItem waist = spineData.getWaist();
         SpineDataDO.SpineItem entirety = spineData.getEntirety();
-        exportDTO.setChest(SpineTypeEnum.getTypeName(chest.getType()) + "、" + SpineLevelEnum.getLevelName(chest.getLevel()))
-                .setChestWaist(SpineTypeEnum.getTypeName(chestWaist.getType()) + "、" + SpineLevelEnum.getLevelName(chestWaist.getLevel()))
-                .setWaist(SpineTypeEnum.getTypeName(waist.getType()) + "、" + SpineLevelEnum.getLevelName(waist.getLevel()))
-                .setEntirety(SpineTypeEntiretyEnum.getTypeName(entirety.getType()) + "、" + SpineLevelEnum.getLevelName(entirety.getLevel()));
+        exportDTO.setChest(StrUtil.spliceChar("、", SpineTypeEnum.getTypeName(chest.getType()), SpineLevelEnum.getLevelName(chest.getLevel())))
+                .setChestWaist(StrUtil.spliceChar("、", SpineTypeEnum.getTypeName(chestWaist.getType()), SpineLevelEnum.getLevelName(chestWaist.getLevel())))
+                .setWaist(StrUtil.spliceChar("、", SpineTypeEnum.getTypeName(waist.getType()), SpineLevelEnum.getLevelName(waist.getLevel())))
+                .setEntirety(StrUtil.spliceChar("、", SpineTypeEntiretyEnum.getTypeName(entirety.getType()), SpineLevelEnum.getLevelName(entirety.getLevel())));
 
     }
 
@@ -224,8 +190,7 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
     private void generateBloodPressureData(StatConclusionExportDTO dto, CommonDiseaseDataExportDTO exportDTO) {
         Object dbp = JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BLOOD_PRESSURE_DBP);
         Object sbp = JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BLOOD_PRESSURE_SBP);
-        exportDTO.setDbp(Objects.nonNull(dbp) ? dbp + "mmHg": StringUtils.EMPTY)
-                .setSbp(Objects.nonNull(sbp) ? sbp + "mmHg": StringUtils.EMPTY);
+        exportDTO.setDbp(Objects.nonNull(dbp) ? dbp + "mmHg" : StringUtils.EMPTY).setSbp(Objects.nonNull(sbp) ? sbp + "mmHg" : StringUtils.EMPTY);
     }
 
     /**
