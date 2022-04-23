@@ -287,9 +287,12 @@ public class ScreeningAppController {
      * @return
      */
     @PostMapping("/eye/addVision")
-    public void addStudentVision(@Valid @RequestBody VisionDataDTO visionDataDTO) {
+    public ApiResult addStudentVision(@Valid @RequestBody VisionDataDTO visionDataDTO) {
         if (visionDataDTO.isValid()) {
             visionScreeningBizService.saveOrUpdateStudentScreenData(visionDataDTO);
+            return ApiResult.success();
+        } else {
+            return ApiResult.failure("请输入正确的参数");
         }
     }
 
@@ -299,9 +302,12 @@ public class ScreeningAppController {
      * @return
      */
     @PostMapping("/eye/addComputer")
-    public void addStudentComputer(@Valid @RequestBody ComputerOptometryDTO computerOptometryDTO) {
+    public ApiResult addStudentComputer(@Valid @RequestBody ComputerOptometryDTO computerOptometryDTO) {
         if (computerOptometryDTO.isValid()) {
             visionScreeningBizService.saveOrUpdateStudentScreenData(computerOptometryDTO);
+            return ApiResult.success();
+        } else {
+            return ApiResult.failure("请输入正确的参数");
         }
     }
 
@@ -311,9 +317,12 @@ public class ScreeningAppController {
      * @return
      */
     @PostMapping("/eye/addBiology")
-    public void addStudentBiology(@Valid @RequestBody BiometricDataDTO biometricDataDTO) {
+    public ApiResult addStudentBiology(@Valid @RequestBody BiometricDataDTO biometricDataDTO) {
         if (biometricDataDTO.isValid()) {
             visionScreeningBizService.saveOrUpdateStudentScreenData(biometricDataDTO);
+            return ApiResult.success();
+        } else {
+            return ApiResult.failure("请输入正确的参数");
         }
     }
 
@@ -333,9 +342,12 @@ public class ScreeningAppController {
      * @return
      */
     @PostMapping("/eye/addMultiCheck")
-    public void addMultiCheck(@Valid @RequestBody MultiCheckDataDTO multiCheckDataDTO) {
+    public ApiResult addMultiCheck(@Valid @RequestBody MultiCheckDataDTO multiCheckDataDTO) {
         if (multiCheckDataDTO.isValid()) {
             visionScreeningBizService.saveOrUpdateStudentScreenData(multiCheckDataDTO);
+            return ApiResult.success();
+        } else {
+            return ApiResult.failure("请输入正确的参数");
         }
     }
 
@@ -345,9 +357,12 @@ public class ScreeningAppController {
      * @return
      */
     @PostMapping("/eye/addPupilOptometry")
-    public void addPupilOptometry(@Valid @RequestBody PupilOptometryDTO pupilOptometryDTO) {
+    public ApiResult addPupilOptometry(@Valid @RequestBody PupilOptometryDTO pupilOptometryDTO) {
         if (pupilOptometryDTO.isValid()) {
             visionScreeningBizService.saveOrUpdateStudentScreenData(pupilOptometryDTO);
+            return ApiResult.success();
+        } else {
+            return ApiResult.failure("请输入正确的参数");
         }
     }
 
@@ -357,9 +372,12 @@ public class ScreeningAppController {
      * @return
      */
     @PostMapping("/eye/addEyePressure")
-    public void addEyePressure(@Valid @RequestBody EyePressureDataDTO eyePressureDataDTO) {
+    public ApiResult addEyePressure(@Valid @RequestBody EyePressureDataDTO eyePressureDataDTO) {
         if (eyePressureDataDTO.isValid()) {
             visionScreeningBizService.saveOrUpdateStudentScreenData(eyePressureDataDTO);
+            return ApiResult.success();
+        } else {
+            return ApiResult.failure("请输入正确的参数");
         }
     }
 
@@ -369,9 +387,12 @@ public class ScreeningAppController {
      * @return
      */
     @PostMapping("/eye/addHeightAndWeight")
-    public void addHeightAndWeight(@Valid @RequestBody HeightAndWeightDataDTO heightAndWeightDataDTO) {
+    public ApiResult addHeightAndWeight(@Valid @RequestBody HeightAndWeightDataDTO heightAndWeightDataDTO) {
         if (heightAndWeightDataDTO.isValid()) {
             visionScreeningBizService.saveOrUpdateStudentScreenData(heightAndWeightDataDTO);
+            return ApiResult.success();
+        } else {
+            return ApiResult.failure("请输入正确的参数");
         }
     }
 
@@ -701,9 +722,12 @@ public class ScreeningAppController {
      * @param saprodontiaDTO saprodontiaDTO
      */
     @PostMapping("/saprodontia")
-    public void addSaprodontia(@Valid @RequestBody SaprodontiaDTO saprodontiaDTO) {
+    public ApiResult addSaprodontia(@Valid @RequestBody SaprodontiaDTO saprodontiaDTO) {
         if (saprodontiaDTO.isValid()) {
             visionScreeningBizService.saveOrUpdateStudentScreenData(saprodontiaDTO);
+            return ApiResult.success();
+        } else {
+            return ApiResult.failure("请输入正确的参数");
         }
     }
 
@@ -728,9 +752,12 @@ public class ScreeningAppController {
      * @param spineDTO spineDto
      */
     @PostMapping("/spine")
-    public void addSpine(@Valid @RequestBody SpineDTO spineDTO) {
+    public ApiResult addSpine(@Valid @RequestBody SpineDTO spineDTO) {
         if (spineDTO.isValid()) {
             visionScreeningBizService.saveOrUpdateStudentScreenData(spineDTO);
+            return ApiResult.success();
+        } else {
+            return ApiResult.failure("请输入正确的参数");
         }
     }
 
@@ -755,9 +782,12 @@ public class ScreeningAppController {
      * @param bloodPressureDTO bloodPressureDTO
      */
     @PostMapping("/bloodPressure")
-    public void addBloodPressure(@Valid @RequestBody BloodPressureDTO bloodPressureDTO) {
+    public ApiResult addBloodPressure(@Valid @RequestBody BloodPressureDTO bloodPressureDTO) {
         if (bloodPressureDTO.isValid()) {
             visionScreeningBizService.saveOrUpdateStudentScreenData(bloodPressureDTO);
+            return ApiResult.success();
+        } else {
+            return ApiResult.failure("请输入正确的参数");
         }
     }
 
@@ -783,9 +813,12 @@ public class ScreeningAppController {
      * @param diseasesHistoryDTO diseasesHistoryDTO
      */
     @PostMapping("/diseasesHistory")
-    public void addDiseasesHistory(@Valid @RequestBody DiseasesHistoryDTO diseasesHistoryDTO) {
+    public ApiResult addDiseasesHistory(@Valid @RequestBody DiseasesHistoryDTO diseasesHistoryDTO) {
         if (diseasesHistoryDTO.isValid()) {
             visionScreeningBizService.saveOrUpdateStudentScreenData(diseasesHistoryDTO);
+            return ApiResult.success();
+        } else {
+            return ApiResult.failure("请输入正确的参数");
         }
     }
 
@@ -811,9 +844,12 @@ public class ScreeningAppController {
      * @param privacyDTO privacyDTO
      */
     @PostMapping("/privacy")
-    public void addPrivacy(@Valid @RequestBody PrivacyDTO privacyDTO) {
+    public ApiResult addPrivacy(@Valid @RequestBody PrivacyDTO privacyDTO) {
         if (privacyDTO.isValid()) {
             visionScreeningBizService.saveOrUpdateStudentScreenData(privacyDTO);
+            return ApiResult.success();
+        } else {
+            return ApiResult.failure("请输入正确的参数");
         }
     }
 
