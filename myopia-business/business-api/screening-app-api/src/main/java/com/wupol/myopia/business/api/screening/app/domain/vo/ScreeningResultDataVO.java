@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.screening.app.domain.vo;
 
 import com.wupol.myopia.business.api.screening.app.domain.dto.*;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ComputerOptometryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
@@ -23,6 +24,7 @@ public class ScreeningResultDataVO {
     private PupilOptometryDTO pupilOptometryData;
     private EyePressureDataDTO eyePressureData;
     private OtherEyeDiseasesDTO otherEyeDiseasesData;
+    private HeightAndWeightDataDTO heightAndWeightDataDTO;
 
     public static ScreeningResultDataVO getInstance(VisionScreeningResult screeningResult) {
         if (Objects.isNull(screeningResult)) {
@@ -36,6 +38,7 @@ public class ScreeningResultDataVO {
         screeningResultDataVO.setPupilOptometryData(PupilOptometryDTO.getInstance(screeningResult.getPupilOptometryData()));
         screeningResultDataVO.setEyePressureData(EyePressureDataDTO.getInstance(screeningResult.getEyePressureData()));
         screeningResultDataVO.setOtherEyeDiseasesData(OtherEyeDiseasesDTO.getInstance(screeningResult.getOtherEyeDiseases(), screeningResult.getSystemicDiseaseSymptom()));
+        screeningResultDataVO.setHeightAndWeightDataDTO(HeightAndWeightDataDTO.getInstance(screeningResult.getHeightAndWeightData()));
         return screeningResultDataVO;
     }
 }
