@@ -134,6 +134,11 @@ public class SchoolPrimarySchoolAndAboveResultVO {
         private Integer districtId;
 
         /**
+         * 筛查机构
+         */
+        private Integer screeningOrgId;
+
+        /**
          *  视力筛查项
          */
         private VisionItem visionItem;
