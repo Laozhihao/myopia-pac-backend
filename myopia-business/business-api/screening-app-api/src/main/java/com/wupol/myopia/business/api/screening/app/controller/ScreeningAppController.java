@@ -522,8 +522,8 @@ public class ScreeningAppController {
      * @return com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO
      **/
     @GetMapping("/getComputerOptometryData/{planStudentId}")
-    public ComputerOptometryDTO getComputerOptometryData(@PathVariable Integer planStudentId) {
-        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentId(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId());
+    public ComputerOptometryDTO getComputerOptometryData(@PathVariable Integer planStudentId, @RequestParam(value = "isState", defaultValue = "0") Integer isState) {
+        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentIdAndState(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId(), isState);
         if (Objects.isNull(screeningResult)) {
             return new ComputerOptometryDTO();
         }
@@ -643,8 +643,8 @@ public class ScreeningAppController {
      * @return com.wupol.myopia.business.api.screening.app.domain.vo.ScreeningResultDataVO
      **/
     @GetMapping("/data/{planStudentId}")
-    public ScreeningResultDataVO getScreeningResultData(@PathVariable Integer planStudentId) {
-        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentId(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId());
+    public ScreeningResultDataVO getScreeningResultData(@PathVariable Integer planStudentId, @RequestParam(value = "isState", defaultValue = "0") Integer isState) {
+        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentIdAndState(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId(), isState);
         return ScreeningResultDataVO.getInstance(screeningResult);
     }
 
