@@ -87,12 +87,12 @@ public class StatConclusionBuilder {
         } else {
             statConclusion.setUpdateTime(new Date());
         }
+
+        this.setValid();
         // 设置视力相关的数据
         this.setVisionRelatedData();
-
         //身高体重
         this.setHeightAndWeightData();
-
         //龋齿
         this.setSaprodontiaData();
         //脊柱
@@ -103,13 +103,11 @@ public class StatConclusionBuilder {
         this.setDiseasesHistoryData();
         //隐私项
         this.setPrivacyData();
-
         this.setRefractiveError();
         this.setRecommendVisit();
         this.setMyopia();
         this.setLowVision();
         this.setWarningLevel();
-        this.setValid();
         this.setRescreenErrorNum();
         this.setWarningVision();
         this.setMyopiaLevel();
@@ -178,7 +176,10 @@ public class StatConclusionBuilder {
     private void setAnisometropia() {
         Boolean anisometropiaVision = StatUtil.isAnisometropiaVision(basicData.getLeftSph(), basicData.getRightSph());
         Boolean anisometropiaAstigmatism = StatUtil.isAnisometropiaAstigmatism(basicData.getLeftCyl(), basicData.getRightCyl());
-        statConclusion.setIsAnisometropia(anisometropiaVision || anisometropiaAstigmatism);
+        if (ObjectsUtil.hasNull(anisometropiaAstigmatism,anisometropiaAstigmatism)){
+            return;
+        }
+        statConclusion.setIsAnisometropia( anisometropiaVision || anisometropiaAstigmatism);
     }
 
     /**
@@ -190,7 +191,7 @@ public class StatConclusionBuilder {
                 && BigDecimalUtil.moreThanAndEqual(basicData.getRightNakedVision(),keyParam)
                 && BigDecimalUtil.moreThanAndEqual(basicData.getLeftNakedVision(),keyParam)) {
             statConclusion.setVisionCorrection(VisionCorrection.NORMAL.code);
-        } else if (!basicData.getIsWearingGlasses()) {
+        } else if (Objects.nonNull(basicData.getIsWearingGlasses()) && !basicData.getIsWearingGlasses()) {
             statConclusion.setVisionCorrection(VisionCorrection.UNCORRECTED.code);
         } else if (ObjectsUtil.allNotNull(basicData.getLeftCorrectVision(), basicData.getRightCorrectVision())
                 && BigDecimalUtil.moreThan(basicData.getLeftCorrectVision(),keyParam)) {
@@ -232,8 +233,8 @@ public class StatConclusionBuilder {
     private void setVisionOtherData() {
         statConclusion.setIsWearingGlasses(basicData.getIsWearingGlasses());
         statConclusion.setGlassesType(basicData.getGlassesType());
-        statConclusion.setVisionR(Optional.ofNullable(basicData.getRightNakedVision()).orElse(new BigDecimal("0.0")));
-        statConclusion.setVisionL(Optional.ofNullable(basicData.getLeftNakedVision()).orElse(new BigDecimal("0.0")));
+        statConclusion.setVisionR(Optional.ofNullable(basicData.getRightNakedVision()).orElse(null));
+        statConclusion.setVisionL(Optional.ofNullable(basicData.getLeftNakedVision()).orElse(null));
     }
 
     /**
@@ -283,39 +284,46 @@ public class StatConclusionBuilder {
      * 设置视力低下的数据
      */
     private void setLowVision() {
-        boolean isLeftResult = false;
-        boolean isrightResult = false;
+        Boolean isLeftResult = null;
+        Boolean isrightResult = null;
         if (basicData.getLeftNakedVision() != null) {
             isLeftResult = StatUtil.isLowVision(basicData.getLeftNakedVision(), basicData.getAge());
         }
         if (basicData.getRightNakedVision() != null) {
             isrightResult = StatUtil.isLowVision(basicData.getRightNakedVision(), basicData.getAge());
         }
-        boolean isLowVision = isLeftResult || isrightResult;
-        statConclusion.setIsLowVision(isLowVision);
+        if(ObjectsUtil.hasNull(isLeftResult,isrightResult)){
+            return;
+        }
+        statConclusion.setIsLowVision(isLeftResult || isrightResult);
     }
 
     private void setRefractiveError() {
-        boolean leftRefractiveError = StatUtil.isRefractiveError(basicData.getLeftSph(),basicData.getLeftCyl(),basicData.getAge());
-        boolean rightRefractiveError = StatUtil.isRefractiveError(basicData.getRightSph(),basicData.getRightCyl(),basicData.getAge());
-        statConclusion.setIsRefractiveError(leftRefractiveError || rightRefractiveError);
+        Boolean leftRefractiveError = StatUtil.isRefractiveError(basicData.getLeftSph(),basicData.getLeftCyl(),basicData.getAge());
+        Boolean rightRefractiveError = StatUtil.isRefractiveError(basicData.getRightSph(),basicData.getRightCyl(),basicData.getAge());
+        if (ObjectsUtil.hasNull(leftRefractiveError,rightRefractiveError)){
+            return;
+        }
+        statConclusion.setIsRefractiveError( leftRefractiveError || rightRefractiveError);
     }
 
     private void setMyopia() {
-        boolean isLeftMyopia = false;
-        boolean isrightMyopia = false;
+        Boolean isLeftMyopia = null;
+        Boolean isrightMyopia = null;
         if (basicData.getLeftMyopiaWarningLevel() != null) {
             isLeftMyopia = StatUtil.isMyopia(basicData.getLeftMyopiaWarningLevel());
         }
         if (basicData.getRightMyopiaWarningLevel() != null) {
             isrightMyopia = StatUtil.isMyopia(basicData.getRightMyopiaWarningLevel());
         }
-        boolean isMyopia = isLeftMyopia || isrightMyopia;
-        statConclusion.setIsMyopia(isMyopia);
+        if (ObjectsUtil.hasNull(isLeftMyopia,isrightMyopia)){
+            return;
+        }
+        statConclusion.setIsMyopia(isLeftMyopia || isrightMyopia);
     }
 
     private void setHyperopia() {
-        Boolean isHyperopia = Boolean.FALSE;
+        Boolean isHyperopia = null;
         if (ObjectsUtil.allNotNull(basicData.getLeftHyperopiaWarningLevel(), basicData.getRightHyperopiaWarningLevel())) {
             isHyperopia = StatUtil.isHyperopia(basicData.getLeftHyperopiaWarningLevel()) || StatUtil.isHyperopia(basicData.getRightHyperopiaWarningLevel());
         }
@@ -331,7 +339,7 @@ public class StatConclusionBuilder {
         OtherEyeDiseasesDO otherEyeDiseases = currentVisionScreeningResult.getOtherEyeDiseases();
         Boolean otherEyeDiseasesNormal = Objects.nonNull(otherEyeDiseases)? otherEyeDiseases.isNormal():null;
 
-        boolean isRecommendVisit = ScreeningResultUtil.getDoctorAdvice(
+        Boolean isRecommendVisit = ScreeningResultUtil.getDoctorAdvice(
                 basicData.getLeftNakedVision(),basicData.getRightNakedVision(),
                 basicData.getLeftCorrectVision(),basicData.getRightCorrectVision(),
                 basicData.getGlassesType(), basicData.getSchoolAge(), basicData.getAge(), otherEyeDiseasesNormal,
@@ -403,7 +411,7 @@ public class StatConclusionBuilder {
         int errorNum = 0;
         ComputerOptometryDO currentComputerOptometry = currentVisionScreeningResult.getComputerOptometry();
         ComputerOptometryDO anotherComputerOptometry = anotherVisionScreeningResult.getComputerOptometry();
-        if (currentComputerOptometry != null && anotherComputerOptometry != null) {
+        if (ObjectsUtil.allNotNull(currentComputerOptometry,anotherComputerOptometry)) {
             errorNum += inRange(currentComputerOptometry.getLeftEyeData().getSph().add(currentComputerOptometry.getLeftEyeData().getCyl().divide(new BigDecimal(2))), anotherComputerOptometry.getLeftEyeData().getSph().add(anotherComputerOptometry.getLeftEyeData().getCyl().divide(new BigDecimal(2))), othersRangeValue);
             errorNum += inRange(currentComputerOptometry.getRightEyeData().getSph().add(currentComputerOptometry.getRightEyeData().getCyl().divide(new BigDecimal(2))), anotherComputerOptometry.getRightEyeData().getSph().add(anotherComputerOptometry.getRightEyeData().getCyl().divide(new BigDecimal(2))), othersRangeValue);
         }
@@ -460,10 +468,6 @@ public class StatConclusionBuilder {
     private void setHeightAndWeightData() {
         HeightAndWeightDataDO heightAndWeightData = currentVisionScreeningResult.getHeightAndWeightData();
         if (Objects.equals(SchoolAge.KINDERGARTEN.code,screeningPlanSchoolStudent.getGradeType()) || Objects.isNull(heightAndWeightData) ){
-            statConclusion.setIsObesity(Boolean.FALSE);
-            statConclusion.setIsOverweight(Boolean.FALSE);
-            statConclusion.setIsStunting(Boolean.FALSE);
-            statConclusion.setIsMalnutrition(Boolean.FALSE);
             return;
         }
         TwoTuple<Integer, String> ageTuple = StatUtil.getAge(screeningPlanSchoolStudent.getBirthday());
@@ -480,8 +484,11 @@ public class StatConclusionBuilder {
      */
     private void overweightAndObesity(BigDecimal bmi,String age){
         TwoTuple<Boolean, Boolean> overweightAndObesity = StatUtil.isOverweightAndObesity(bmi, age, screeningPlanSchoolStudent.getGender());
-        statConclusion.setIsOverweight(overweightAndObesity.getFirst());
-        statConclusion.setIsObesity(overweightAndObesity.getSecond());
+        if (Objects.nonNull(overweightAndObesity)){
+            statConclusion.setIsOverweight(overweightAndObesity.getFirst());
+            statConclusion.setIsObesity(overweightAndObesity.getSecond());
+        }
+
     }
 
 
@@ -494,8 +501,15 @@ public class StatConclusionBuilder {
     private void malnutrition(BigDecimal bmi,BigDecimal height,String age){
         Boolean wasting = StatUtil.isWasting(bmi, age, screeningPlanSchoolStudent.getGender());
         Boolean stunting = StatUtil.isStunting(screeningPlanSchoolStudent.getGender(), age, height);
-        statConclusion.setIsStunting(stunting);
-        statConclusion.setIsMalnutrition(wasting && stunting);
+        if (Objects.nonNull(wasting)){
+            statConclusion.setIsStunting(stunting);
+            if (Objects.nonNull(stunting) ){
+                statConclusion.setIsMalnutrition(wasting && stunting);
+            }
+        }
+
+
+
     }
 
     /**
@@ -504,13 +518,6 @@ public class StatConclusionBuilder {
     private void setSaprodontiaData() {
         SaprodontiaDataDO saprodontiaData = currentVisionScreeningResult.getSaprodontiaData();
         if (Objects.equals(SchoolAge.KINDERGARTEN.code,screeningPlanSchoolStudent.getGradeType()) ||Objects.isNull(saprodontiaData)){
-            int teeth=0;
-            statConclusion.setIsSaprodontia(Boolean.FALSE);
-            statConclusion.setSaprodontiaTeeth(teeth);
-            statConclusion.setIsSaprodontiaLoss(Boolean.FALSE);
-            statConclusion.setSaprodontiaLossTeeth(teeth);
-            statConclusion.setIsSaprodontiaRepair(Boolean.FALSE);
-            statConclusion.setSaprodontiaRepairTeeth(teeth);
             return;
         }
         List<SaprodontiaDataDO.SaprodontiaItem> above = saprodontiaData.getAbove();
@@ -551,7 +558,6 @@ public class StatConclusionBuilder {
     private void setSpineData() {
         SpineDataDO spineData = currentVisionScreeningResult.getSpineData();
         if (Objects.equals(SchoolAge.KINDERGARTEN.code,screeningPlanSchoolStudent.getGradeType()) || Objects.isNull(spineData)){
-            statConclusion.setIsSpinalCurvature(Boolean.FALSE);
             return;
         }
         statConclusion.setIsSpinalCurvature(spineData.isSpinalCurvature());
@@ -563,7 +569,6 @@ public class StatConclusionBuilder {
     private void setBloodPressureData() {
         BloodPressureDataDO bloodPressureData = currentVisionScreeningResult.getBloodPressureData();
         if (Objects.equals(SchoolAge.KINDERGARTEN.code,screeningPlanSchoolStudent.getGradeType()) || Objects.isNull(bloodPressureData)){
-            statConclusion.setIsNormalBloodPressure(Boolean.TRUE);
             return;
         }
         TwoTuple<Integer, String> ageTuple = StatUtil.getAge(screeningPlanSchoolStudent.getBirthday());
@@ -600,8 +605,6 @@ public class StatConclusionBuilder {
         DiseasesHistoryDO diseasesHistoryData = currentVisionScreeningResult.getDiseasesHistoryData();
         if (Objects.nonNull(diseasesHistoryData) && CollectionUtil.isNotEmpty(diseasesHistoryData.getDiseases())){
             statConclusion.setIsDiseasesHistory(Boolean.TRUE);
-        }else {
-            statConclusion.setIsDiseasesHistory(Boolean.FALSE);
         }
     }
 
@@ -700,9 +703,8 @@ public class StatConclusionBuilder {
             basicData.rightAstigmatismWarningLevel = StatUtil.getAstigmatismWarningLevel(basicData.getRightCyl());
             if (basicData.getLeftAstigmatismWarningLevel() != null && basicData.getRightAstigmatismWarningLevel() != null) {
                 basicData.isAstigmatism = StatUtil.isAstigmatism(basicData.getLeftAstigmatismWarningLevel()) || StatUtil.isAstigmatism(basicData.getRightAstigmatismWarningLevel());
-            }else {
-                basicData.setIsAstigmatism(Boolean.FALSE);
             }
+
             basicData.leftHyperopiaWarningLevel = StatUtil.getHyperopiaWarningLevel(basicData.getLeftSph(), basicData.getLeftCyl(), screeningPlanSchoolStudent.getStudentAge());
             basicData.rightHyperopiaWarningLevel = StatUtil.getHyperopiaWarningLevel(basicData.getRightSph(), basicData.getRightCyl(), screeningPlanSchoolStudent.getStudentAge());
             basicData.leftMyopiaWarningLevel = StatUtil.getMyopiaWarningLevel(basicData.getLeftSph(), basicData.getLeftCyl(), basicData.getAge(), basicData.getLeftNakedVision());
@@ -771,8 +773,6 @@ public class StatConclusionBuilder {
             }
             if (CollectionUtils.isNotEmpty(warningLevelList)) {
                 basicData.myopiaWarningLevel = Collections.max(warningLevelList);
-            }else {
-                basicData.setMyopiaWarningLevel(MyopiaLevelEnum.ZERO.code);
             }
         }
 

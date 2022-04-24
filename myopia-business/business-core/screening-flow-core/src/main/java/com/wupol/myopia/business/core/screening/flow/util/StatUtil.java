@@ -114,7 +114,7 @@ public class StatUtil {
      * @param age         年龄
      */
     public static WarningLevel getNakedVisionWarningLevel(Float nakedVision, Integer age) {
-        if (nakedVision == null || age == null || age < 6) {
+        if (ObjectsUtil.hasNull(nakedVision,age) || age < 6) {
             return null;
         }
         return getNakedVisionWarningLevel(nakedVision.toString(), age);
@@ -128,7 +128,7 @@ public class StatUtil {
     }
 
     public static WarningLevel getNakedVisionWarningLevel(BigDecimal nakedVision, Integer age) {
-        if (nakedVision == null || age == null || age < 6) {
+        if (ObjectsUtil.hasNull(nakedVision,age) || age < 6) {
             return null;
         }
 
@@ -223,21 +223,17 @@ public class StatUtil {
      * @param cyl    柱镜
      * @param age    年龄
      */
-    public static Boolean isRefractiveError(Float sphere, Float cyl, Integer age) {
-        if (sphere == null || cyl == null || age == null) {
-            return Boolean.FALSE;
+    public static Boolean isRefractiveError(String sphere, String cyl, Integer age) {
+        if (StrUtil.isBlank(sphere) || StrUtil.isBlank(cyl)){
+            return null;
         }
-        return isRefractiveError(sphere.toString(), cyl.toString(), age);
+        return isRefractiveError(new BigDecimal(sphere), new BigDecimal(cyl), age);
     }
 
     public static Boolean isRefractiveError(BigDecimal sphere, BigDecimal cyl, Integer age) {
-        if (sphere == null || cyl == null || age == null) {
-            return Boolean.FALSE;
+        if (ObjectsUtil.hasNull(sphere,cyl,age)) {
+            return null;
         }
-        return isRefractiveError(sphere.toString(), cyl.toString(), age);
-    }
-
-    public static Boolean isRefractiveError(String sphere, String cyl, Integer age) {
         BigDecimal se = getSphericalEquivalent(sphere, cyl);
         age = age == null ? 0 : age;
         switch (age) {
@@ -250,23 +246,25 @@ public class StatUtil {
             case 6:
                 return refractiveError56(se, cyl);
             default:
-                return Boolean.FALSE;
+                return null;
         }
     }
 
-    private static Boolean refractiveError34(BigDecimal se, String cyl) {
-        return (se != null && (BigDecimalUtil.lessThan(se, MINUS_3) || BigDecimalUtil.moreThan(se, "4.00")))
-                || (StrUtil.isNotBlank(cyl) && BigDecimalUtil.moreThan(new BigDecimal(cyl).abs(), new BigDecimal("2.00").abs()));
+
+
+    private static Boolean refractiveError34(BigDecimal se, BigDecimal cyl) {
+        return (Objects.nonNull(se) && (BigDecimalUtil.lessThan(se, MINUS_3) || BigDecimalUtil.moreThan(se, "4.00")))
+                || (Objects.nonNull(cyl) && BigDecimalUtil.moreThan(cyl.abs(), new BigDecimal("2.00").abs()));
     }
 
-    private static Boolean refractiveError56(BigDecimal se, String cyl) {
-        return (se != null && (BigDecimalUtil.lessThan(se, "-3.50") || BigDecimalUtil.moreThan(se, "4.50")))
-                || (StrUtil.isNotBlank(cyl) && BigDecimalUtil.moreThan(new BigDecimal(cyl).abs(), new BigDecimal("1.50").abs()));
+    private static Boolean refractiveError56(BigDecimal se, BigDecimal cyl) {
+        return (Objects.nonNull(se) && (BigDecimalUtil.lessThan(se, "-3.50") || BigDecimalUtil.moreThan(se, "4.50")))
+                || (Objects.nonNull(cyl) && BigDecimalUtil.moreThan(cyl.abs(), new BigDecimal("1.50").abs()));
     }
 
-    private static Boolean refractiveError2(BigDecimal se, String cyl) {
-        return (se != null && (BigDecimalUtil.lessThan(se, "-1.50") || BigDecimalUtil.moreThan(se, "3.50")))
-                || (StrUtil.isNotBlank(cyl) && BigDecimalUtil.moreThan(new BigDecimal(cyl).abs(), new BigDecimal("2.00").abs()));
+    private static Boolean refractiveError2(BigDecimal se, BigDecimal cyl) {
+        return (Objects.nonNull(se) && (BigDecimalUtil.lessThan(se, "-1.50") || BigDecimalUtil.moreThan(se, "3.50")))
+                || (Objects.nonNull(cyl) && BigDecimalUtil.moreThan(cyl.abs(), new BigDecimal("2.00").abs()));
     }
 
 
@@ -309,11 +307,11 @@ public class StatUtil {
      * @param leftSph  左眼球镜度
      * @param rightSph 右眼球镜度
      */
-    public static boolean isAnisometropiaVision(String leftSph, String rightSph) {
+    public static Boolean isAnisometropiaVision(String leftSph, String rightSph) {
         if (StrUtil.isNotBlank(leftSph) && StrUtil.isNotBlank(rightSph)) {
             return isAnisometropiaVision(new BigDecimal(leftSph),new BigDecimal(rightSph));
         }
-        return Boolean.FALSE;
+        return null;
     }
 
     public static Boolean isAnisometropiaVision(BigDecimal leftSph, BigDecimal rightSph){
@@ -321,7 +319,7 @@ public class StatUtil {
             BigDecimal diffSph = leftSph.abs().subtract(rightSph.abs()).abs();
             return BigDecimalUtil.moreThan(diffSph, "1.50");
         }
-        return Boolean.FALSE;
+        return null;
     }
 
     /**
@@ -334,14 +332,14 @@ public class StatUtil {
         if (StrUtil.isNotBlank(leftCyl) && StrUtil.isNotBlank(rightCyl)) {
             return isAnisometropiaAstigmatism(new BigDecimal(leftCyl),new BigDecimal(rightCyl));
         }
-        return Boolean.FALSE;
+        return null;
     }
     public static Boolean isAnisometropiaAstigmatism(BigDecimal leftCyl, BigDecimal rightCyl) {
         if (ObjectsUtil.allNotNull(leftCyl,rightCyl)) {
             BigDecimal diffCyl = leftCyl.abs().subtract(rightCyl.abs()).abs();
             return BigDecimalUtil.moreThan(diffCyl, "1.00");
         }
-        return Boolean.FALSE;
+        return null;
     }
 
     /**
@@ -381,21 +379,21 @@ public class StatUtil {
      */
     public static AstigmatismLevelEnum getAstigmatismWarningLevel(Float cyl) {
         if(Objects.isNull(cyl)){
-            return AstigmatismLevelEnum.ZERO;
+            return null;
         }
         return getAstigmatismWarningLevel(cyl.toString());
     }
 
     public static AstigmatismLevelEnum getAstigmatismWarningLevel(String cyl) {
         if (StrUtil.isBlank(cyl)) {
-            return AstigmatismLevelEnum.ZERO;
+            return null;
         }
         return getAstigmatismWarningLevel(new BigDecimal(cyl));
     }
 
     public static AstigmatismLevelEnum getAstigmatismWarningLevel(BigDecimal cyl) {
         if (Objects.isNull(cyl)) {
-            return AstigmatismLevelEnum.ZERO;
+            return null;
         }
         BigDecimal cylAbs = cyl.abs();
 
@@ -416,7 +414,7 @@ public class StatUtil {
         if (Objects.nonNull(astigmatismWarningLevel)) {
             return astigmatismWarningLevel.code;
         }
-        return AstigmatismLevelEnum.ZERO.code;
+        return null;
     }
 
 
@@ -484,19 +482,25 @@ public class StatUtil {
      * @return
      */
     public static HyperopiaLevelEnum getHyperopiaWarningLevel(Float sphere, Float cylinder, Integer age) {
+        if (ObjectsUtil.hasNull(sphere,cylinder,age)) {
+            return null;
+        }
         return getHyperopiaWarningLevel(sphere.toString(), cylinder.toString(), age);
     }
 
     public static HyperopiaLevelEnum getHyperopiaWarningLevel(String sphere, String cylinder, Integer age) {
+        if (StrUtil.isBlank(sphere) || StrUtil.isBlank(cylinder) || age == null) {
+            return null;
+        }
         return getHyperopiaWarningLevel(new BigDecimal(sphere), new BigDecimal(cylinder), age);
     }
 
     public static HyperopiaLevelEnum getHyperopiaWarningLevel(BigDecimal sphere, BigDecimal cylinder, Integer age) {
-        if (sphere == null || cylinder == null || age == null) {
+        if (ObjectsUtil.hasNull(sphere,cylinder,age)) {
             return null;
         }
         BigDecimal se = getSphericalEquivalent(sphere, cylinder);
-        if (se == null) {
+        if (Objects.isNull(se)) {
             return null;
         }
         if (age >= 12) {
@@ -523,14 +527,14 @@ public class StatUtil {
      * @return Integer
      */
     public static Integer getHyperopiaLevel(BigDecimal sphere, BigDecimal cylinder, Integer age) {
-        if (sphere == null || cylinder == null || age == null) {
+        if (ObjectsUtil.hasNull(sphere,cylinder,age)) {
             return null;
         }
         HyperopiaLevelEnum hyperopiaWarningLevel = getHyperopiaWarningLevel(sphere, cylinder, age);
         if (Objects.nonNull(hyperopiaWarningLevel)) {
             return hyperopiaWarningLevel.code;
         }
-        return HyperopiaLevelEnum.ZERO.code;
+        return null;
     }
 
 
@@ -1144,6 +1148,9 @@ public class StatUtil {
      * @param height 身高 m
      */
     public static BigDecimal bmi(BigDecimal weight, BigDecimal height) {
+        if (ObjectsUtil.hasNull(weight,height)){
+            return null;
+        }
         BigDecimal heightSquare = height.multiply(height);
         return weight.divide(heightSquare, 1, RoundingMode.HALF_UP);
     }
@@ -1157,21 +1164,29 @@ public class StatUtil {
      * @param gender 性别
      */
     public static TwoTuple<Boolean, Boolean> isOverweightAndObesity(String weight, String height, String age, Integer gender) {
+        if (StrUtil.isBlank(weight) || StrUtil.isBlank(height) || StrUtil.isBlank(age) || Objects.isNull(gender)){
+            return null;
+        }
         return isOverweightAndObesity(new BigDecimal(weight), new BigDecimal(height), age, gender);
     }
 
     public static TwoTuple<Boolean, Boolean> isOverweightAndObesity(BigDecimal weight, BigDecimal height, String age, Integer gender) {
+        if (ObjectsUtil.hasNull(weight,height,gender) || StrUtil.isBlank(age)){
+            return null;
+        }
         BigDecimal bmi = bmi(weight, height);
         return isOverweightAndObesity(bmi,age,gender);
     }
     public static TwoTuple<Boolean, Boolean> isOverweightAndObesity(BigDecimal bmi,  String age, Integer gender) {
-        StandardTableData.OverweightAndObesityData data = StandardTableData.getOverweightAndObesityData(age, gender);
-        Boolean overweight=Boolean.FALSE;
-        Boolean obesity=Boolean.FALSE;
-        if(Objects.nonNull(data)){
-            overweight = BigDecimalUtil.isBetweenLeft(bmi, data.getOverweight(), data.getObesity());
-            obesity = BigDecimalUtil.moreThanAndEqual(bmi, data.getObesity());
+        if (ObjectsUtil.hasNull(bmi,gender) || StrUtil.isBlank(age)){
+            return null;
         }
+        StandardTableData.OverweightAndObesityData data = StandardTableData.getOverweightAndObesityData(age, gender);
+        if(Objects.isNull(data)){
+            return null;
+        }
+        Boolean overweight = BigDecimalUtil.isBetweenLeft(bmi, data.getOverweight(), data.getObesity());
+        Boolean obesity = BigDecimalUtil.moreThanAndEqual(bmi, data.getObesity());
         return new TwoTuple<>(overweight, obesity);
     }
 
@@ -1183,15 +1198,21 @@ public class StatUtil {
      * @param height 身高 cm
      */
     public static Boolean isStunting(Integer gender, String age, String height) {
+        if (StrUtil.isBlank(height)){
+            return null;
+        }
         return isStunting(gender, age, new BigDecimal(height));
     }
 
     public static Boolean isStunting(Integer gender, String age, BigDecimal height) {
-        StandardTableData.StuntingData stuntingData = StandardTableData.getStuntingData(age, gender);
-        if(Objects.nonNull(stuntingData)){
-            return BigDecimalUtil.lessThanAndEqual(height, stuntingData.getHeight());
+        if (ObjectsUtil.hasNull(gender,height) || StrUtil.isBlank(age)){
+            return null;
         }
-        return Boolean.FALSE;
+        StandardTableData.StuntingData stuntingData = StandardTableData.getStuntingData(age, gender);
+        if(Objects.isNull(stuntingData)){
+            return null;
+        }
+        return BigDecimalUtil.lessThanAndEqual(height, stuntingData.getHeight());
     }
 
     /**
@@ -1203,21 +1224,30 @@ public class StatUtil {
      * @param gender 性别
      */
     public static Boolean isWasting(String weight, String height, String age, Integer gender) {
+        if (StrUtil.isBlank(weight) || StrUtil.isBlank(height) ){
+            return null;
+        }
         return isWasting(new BigDecimal(weight), new BigDecimal(height), age, gender);
     }
 
     public static Boolean isWasting(BigDecimal weight, BigDecimal height, String age, Integer gender) {
+        if (ObjectsUtil.hasNull(weight,height)){
+            return null;
+        }
         BigDecimal bmi = bmi(weight, height);
         return isWasting(bmi,age,gender);
     }
     public static Boolean isWasting(BigDecimal bmi, String age, Integer gender) {
-        StandardTableData.WastingData wastingData = StandardTableData.getWastingData(age, gender);
-        if(Objects.nonNull(wastingData)){
-            Boolean mild = BigDecimalUtil.isBetweenAll(bmi, wastingData.getMild()[0], wastingData.getMild()[1]);
-            Boolean moderateAndHigh = BigDecimalUtil.lessThanAndEqual(bmi, wastingData.getModerateAndHigh());
-            return mild || moderateAndHigh;
+        if (ObjectsUtil.hasNull(bmi,gender) ||StrUtil.isBlank(age)){
+            return null;
         }
-        return Boolean.FALSE;
+        StandardTableData.WastingData wastingData = StandardTableData.getWastingData(age, gender);
+        if (Objects.isNull(wastingData)){
+            return null;
+        }
+        Boolean mild = BigDecimalUtil.isBetweenAll(bmi, wastingData.getMild()[0], wastingData.getMild()[1]);
+        Boolean moderateAndHigh = BigDecimalUtil.lessThanAndEqual(bmi, wastingData.getModerateAndHigh());
+        return mild || moderateAndHigh;
     }
 
 
@@ -1255,7 +1285,7 @@ public class StatUtil {
         Period between = Period.between(localDate, LocalDate.now());
         int years = between.getYears();
         int months = between.getMonths();
-        String ageStr = "";
+        String ageStr;
         if (months >= 6) {
             ageStr = years + ".5";
             years++;
@@ -1634,6 +1664,9 @@ public class StatUtil {
      * @return 视力
      */
     public Integer getSeriousLevel(Integer leftLevel, Integer rightLevel) {
+        if (ObjectsUtil.allNull(leftLevel,rightLevel)){
+            return null;
+        }
         if (Objects.isNull(leftLevel)) {
             return rightLevel;
         }

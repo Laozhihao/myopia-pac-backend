@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.builder;
 
-import com.wupol.myopia.base.util.BigDecimalUtil;
+import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.business.api.management.domain.bo.StatisticResultBO;
 import com.wupol.myopia.business.common.utils.constant.WarningLevel;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
@@ -32,6 +32,10 @@ public class ScreeningResultStatisticBuilder {
     public  void visionScreening(StatisticResultBO totalStatistic,
                                   List<StatConclusion> statConclusions,
                                   List<VisionScreeningResultStatistic> visionScreeningResultStatisticList){
+
+        if (ObjectsUtil.hasNull(totalStatistic,statConclusions,visionScreeningResultStatisticList)){
+            return;
+        }
 
         //有效数据（初筛数据完整性判断）
         Map<Boolean, List<StatConclusion>> isValidMap = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getIsValid));
@@ -106,8 +110,8 @@ public class ScreeningResultStatisticBuilder {
         setSaprodontia(statConclusions, realScreeningStudentNum, statistic);
         //设置常见病数据
         setCommonDisease(statConclusions, realScreeningStudentNum, statistic);
-        //设置问卷调查数据
-        setQuestionnaire(statistic);
+        //设置问卷调查数据(暂时没数据)
+        //setQuestionnaire(statistic);
 
         commonDiseaseScreeningResultStatisticList.add(statistic);
 
@@ -119,7 +123,8 @@ public class ScreeningResultStatisticBuilder {
      */
     private void setBasicData(List<StatConclusion> statConclusions,
                               StatisticResultBO totalStatistic,
-                              Integer realScreeningStudentNum, Integer validScreeningNum,
+                              Integer realScreeningStudentNum,
+                              Integer validScreeningNum,
                               VisionScreeningResultStatistic statistic) {
         Integer planScreeningNum = totalStatistic.getPlanStudentCount();
         int schoolNum = (int)statConclusions.stream().map(StatConclusion::getSchoolId).filter(Objects::nonNull).count();
@@ -181,7 +186,7 @@ public class ScreeningResultStatisticBuilder {
         KindergartenVisionAnalysisDO visionAnalysisDO =new KindergartenVisionAnalysisDO();
         Map<Integer, Long> visionLabelNumberMap = statConclusions.stream().filter(stat -> Objects.nonNull(stat.getWarningLevel())).collect(Collectors.groupingBy(StatConclusion::getWarningLevel, Collectors.counting()));
         Integer lowVisionNum = (int) statConclusions.stream().map(StatConclusion::getIsLowVision).filter(Objects::nonNull).filter(Boolean::booleanValue).count();
-        Integer ametropiaNum = (int) statConclusions.stream().map(StatConclusion::getIsRefractiveError).filter(Boolean::booleanValue).count();
+        Integer ametropiaNum = (int) statConclusions.stream().map(StatConclusion::getIsRefractiveError).filter(Objects::nonNull).filter(Boolean::booleanValue).count();
         Integer anisometropiaNum = (int) statConclusions.stream().map(StatConclusion::getIsAnisometropia).filter(Objects::nonNull).filter(Boolean::booleanValue).count();
         Integer wearingGlassNum = (int) statConclusions.stream().map(StatConclusion::getIsWearingGlasses).filter(Objects::nonNull).filter(Boolean::booleanValue).count();
         Integer treatmentAdviceNum = (int) statConclusions.stream().map(StatConclusion::getIsRecommendVisit).filter(Objects::nonNull).filter(Boolean::booleanValue).count();
