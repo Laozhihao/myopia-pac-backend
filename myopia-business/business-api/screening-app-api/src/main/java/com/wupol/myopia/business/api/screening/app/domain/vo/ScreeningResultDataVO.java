@@ -24,7 +24,7 @@ public class ScreeningResultDataVO {
     private PupilOptometryDTO pupilOptometryData;
     private EyePressureDataDTO eyePressureData;
     private OtherEyeDiseasesDTO otherEyeDiseasesData;
-    private HeightAndWeightDataDTO heightAndWeightDataDTO;
+    private HeightAndWeightDataDTO heightAndWeightData;
 
     public static ScreeningResultDataVO getInstance(VisionScreeningResult screeningResult) {
         if (Objects.isNull(screeningResult)) {
@@ -38,7 +38,7 @@ public class ScreeningResultDataVO {
         screeningResultDataVO.setPupilOptometryData(PupilOptometryDTO.getInstance(screeningResult.getPupilOptometryData()));
         screeningResultDataVO.setEyePressureData(EyePressureDataDTO.getInstance(screeningResult.getEyePressureData()));
         screeningResultDataVO.setOtherEyeDiseasesData(OtherEyeDiseasesDTO.getInstance(screeningResult.getOtherEyeDiseases(), screeningResult.getSystemicDiseaseSymptom()));
-        screeningResultDataVO.setHeightAndWeightDataDTO(HeightAndWeightDataDTO.getInstance(screeningResult.getHeightAndWeightData()));
+        screeningResultDataVO.setHeightAndWeightData(HeightAndWeightDataDTO.getInstance(screeningResult.getHeightAndWeightData()));
         return screeningResultDataVO;
     }
 }
