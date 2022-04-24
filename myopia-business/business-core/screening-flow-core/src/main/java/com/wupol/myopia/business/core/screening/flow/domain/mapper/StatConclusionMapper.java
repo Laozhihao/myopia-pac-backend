@@ -39,7 +39,7 @@ public interface StatConclusionMapper extends BaseMapper<StatConclusion> {
      */
     List<StatConclusionDTO> selectVoByScreeningPlanId(@Param("screeningPlanId") Integer screeningPlanId);
 
-    List<StatConclusionExportDTO> selectExportVoByScreeningNoticeIdAndDistrictIds(@Param("screeningNoticeId") Integer screeningNoticeId, @Param("districtIds") List<Integer> districtIds);
+    List<StatConclusionExportDTO> selectExportVoByScreeningNoticeIdAndDistrictIds(@Param("screeningNoticeId") Integer screeningNoticeId, @Param("districtIds") List<Integer> districtIds, @Param("isKindergarten") Boolean isKindergarten);
 
     List<screeningPlanSchoolStudentDTO> selectExportVoByScreeningNoticeIdAndDistrictIdsAndGroupBy(@Param("screeningNoticeId") Integer screeningNoticeId, @Param("districtIds") List<Integer> districtIds);
 
@@ -76,7 +76,8 @@ public interface StatConclusionMapper extends BaseMapper<StatConclusion> {
                                                                                                       @Param("screeningOrgId") Integer screeningOrgId,
                                                                                                       @Param("schoolId") Integer schoolId,
                                                                                                       @Param("gradeId") Integer gradeId,
-                                                                                                      @Param("classId") Integer classId);
+                                                                                                      @Param("classId") Integer classId,
+                                                                                                      @Param("isKindergarten") Boolean isKindergarten);
 
 
     /**

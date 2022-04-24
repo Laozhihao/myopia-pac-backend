@@ -92,11 +92,11 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
      * @param districtIds
      * @return
      */
-    public List<StatConclusionExportDTO> getExportVoByScreeningNoticeIdAndDistrictIds(Integer screeningNoticeId, List<Integer> districtIds) {
+    public List<StatConclusionExportDTO> getExportVoByScreeningNoticeIdAndDistrictIds(Integer screeningNoticeId, List<Integer> districtIds,Boolean isKindergarten) {
         if (CollectionUtils.isEmpty(districtIds)) {
             return Collections.emptyList();
         }
-        return baseMapper.selectExportVoByScreeningNoticeIdAndDistrictIds(screeningNoticeId, districtIds);
+        return baseMapper.selectExportVoByScreeningNoticeIdAndDistrictIds(screeningNoticeId, districtIds,isKindergarten);
     }
 
     /**
@@ -178,8 +178,8 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
      * @Author: 钓猫的小鱼
      * @Date: 2021/12/31
      */
-    public List<StatConclusionExportDTO> selectExportVoBySPlanIdAndSOrgIdAndSChoolIdAndGradeNameAndClassanme(Integer screeningPlanId, Integer screeningOrgId, Integer schoolId, Integer gradeId, Integer classId) {
-        return baseMapper.selectExportVoBySPlanIdAndSOrgIdAndSChoolIdAndGradeNameAndClassanme(screeningPlanId,screeningOrgId,schoolId,gradeId,classId);
+    public List<StatConclusionExportDTO> selectExportVoBySPlanIdAndSOrgIdAndSChoolIdAndGradeNameAndClassanme(Integer screeningPlanId, Integer screeningOrgId, Integer schoolId, Integer gradeId, Integer classId,Boolean isKindergarten) {
+        return baseMapper.selectExportVoBySPlanIdAndSOrgIdAndSChoolIdAndGradeNameAndClassanme(screeningPlanId,screeningOrgId,schoolId,gradeId,classId,isKindergarten);
     }
 
     /**
