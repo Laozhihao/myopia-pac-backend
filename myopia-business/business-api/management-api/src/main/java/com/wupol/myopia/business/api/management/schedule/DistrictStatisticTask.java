@@ -57,15 +57,21 @@ public class DistrictStatisticTask {
         //筛查计划ID 查找筛查通知ID
         List<Integer> screeningNoticeIds = screeningPlanService.getSrcScreeningNoticeIdsByIds(screeningPlanIds);
         if(CollectionUtil.isEmpty(screeningNoticeIds)){
-            log.error("未找到筛查通知数据，planIds:{}",CollectionUtil.join(screeningPlanIds,","));
+            log.error("按地区-未找到筛查通知数据，planIds:{}",CollectionUtil.join(screeningPlanIds,","));
             return;
         }
         screeningNoticeIds = screeningNoticeIds.stream().filter(id-> !CommonConst.DEFAULT_ID.equals(id)).collect(Collectors.toList());
-
+        if(CollectionUtil.isEmpty(screeningNoticeIds)){
+            log.error("按地区-未找到筛查通知数据，planIds:{}",CollectionUtil.join(screeningPlanIds,","));
+            return;
+        }
 
         //筛查通知ID 查出筛查数据结论
         List<StatConclusion> statConclusionList = statConclusionService.getBySrcScreeningNoticeIds(screeningNoticeIds);
-        if (CollectionUtil.isEmpty(statConclusionList)){return; }
+        if (CollectionUtil.isEmpty(statConclusionList)){
+            log.error("未找到筛查数据结论，screeningNoticeIds:{}",CollectionUtil.join(screeningNoticeIds,","));
+            return;
+        }
 
 
         List<VisionScreeningResultStatistic> visionScreeningResultStatisticList = Lists.newArrayList();
