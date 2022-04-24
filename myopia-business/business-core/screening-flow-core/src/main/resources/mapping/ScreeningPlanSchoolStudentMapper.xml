@@ -584,7 +584,7 @@
             and mspss.class_id = #{classId}
         </if>
         and mvsr.is_double_screen = 0
-<!--        and msc.is_review = 1-->
+       and msc.is_review = 1
     </select>
 
     <select id="getByPlanIdIdCardAndPassport" resultMap="BaseResultMap">
