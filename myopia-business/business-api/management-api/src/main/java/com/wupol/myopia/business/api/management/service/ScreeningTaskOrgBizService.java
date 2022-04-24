@@ -180,9 +180,9 @@ public class ScreeningTaskOrgBizService {
 
     private String getScreeningState(int notStart,int underWay,int end,int type){
         if (type==0){
-            return "未开始/进行中/已完成："+notStart+"/"+underWay+"/"+end;
+            return "未开始/进行中/已结束："+notStart+"/"+underWay+"/"+end;
         }
-        return "未开始/已完成："+notStart+"/"+end;
+        return "未开始/已结束："+notStart+"/"+end;
     }
 
     public List<ScreeningTaskOrgDTO> getScreeningSchoolDetails(Integer screeningTaskId) {
