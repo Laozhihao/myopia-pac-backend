@@ -167,7 +167,7 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
                 exportFileNamePrefix = folder.toString();
                 // 合计的要包括自己层级的筛查数据
                 List<Integer> childDistrictIds = districtService.getSpecificDistrictTreeAllDistrictIds(districtId);
-                statConclusionExportVos = statConclusionService.getExportVoByScreeningNoticeIdAndDistrictIds(screeningNoticeId, childDistrictIds);
+                statConclusionExportVos = statConclusionService.getExportVoByScreeningNoticeIdAndDistrictIds(screeningNoticeId, childDistrictIds, null);
             }
             if (!CommonConst.DEFAULT_ID.equals(schoolId)) {
                 exportFileNamePrefix = checkNotNullAndGetName(schoolService.getById(schoolId), "学校");
@@ -321,7 +321,8 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
                                                      @RequestParam(required = false) Integer gradeId,
                                                      @RequestParam(required = false) Integer classId,
                                                      @RequestParam(required = false) Integer districtId,
-                                                     @RequestParam Integer type, Integer screeningNoticeId) throws IOException {
+                                                     @RequestParam Integer type, Integer screeningNoticeId,
+                                                     @RequestParam(required = false) Boolean isKindergarten) throws IOException {
         ExportCondition exportCondition = new ExportCondition()
                 .setPlanId(screeningPlanId)
                 .setScreeningOrgId(screeningOrgId)
@@ -331,6 +332,7 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
                 .setDistrictId(districtId)
                 .setNotificationId(screeningNoticeId)
                 .setExportType(type)
+                .setIsKindergarten(isKindergarten)
                 .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
 
         // 班级同步导出

@@ -75,17 +75,17 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         Integer gradeId = exportCondition.getGradeId();
         Integer classId = exportCondition.getClassId();
         Integer notificationId = exportCondition.getNotificationId();
+        Boolean isKindergarten = exportCondition.getIsKindergarten();
 
         if (ExportTypeConst.District.equals(exportCondition.getExportType())) {
             Integer districtId = exportCondition.getDistrictId();
             List<Integer> childDistrictIds = districtService.getSpecificDistrictTreeAllDistrictIds(districtId);
-            return statConclusionService.getExportVoByScreeningNoticeIdAndDistrictIds(notificationId, childDistrictIds);
+            return statConclusionService.getExportVoByScreeningNoticeIdAndDistrictIds(notificationId, childDistrictIds, isKindergarten);
         }
 
-        List<StatConclusionExportDTO> statConclusionExportDTOs = statConclusionService.selectExportVoBySPlanIdAndSOrgIdAndSChoolIdAndGradeNameAndClassanme(screeningPlanId, screeningOrgId, schoolId, gradeId, classId);
+        List<StatConclusionExportDTO> statConclusionExportDTOs = statConclusionService.selectExportVoBySPlanIdAndSOrgIdAndSChoolIdAndGradeNameAndClassanme(screeningPlanId, screeningOrgId, schoolId, gradeId, classId, isKindergarten);
         statConclusionExportDTOs.forEach(vo ->
                 vo.setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(), vo.getAreaCode(), vo.getTownCode(), vo.getAddress())));
-
         return statConclusionExportDTOs;
     }
 
