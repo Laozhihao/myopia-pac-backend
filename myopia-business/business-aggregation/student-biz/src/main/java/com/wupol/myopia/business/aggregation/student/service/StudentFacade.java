@@ -145,7 +145,7 @@ public class StudentFacade {
         IPage<VisionScreeningResult> resultIPage = visionScreeningResultService.getByStudentIdWithPage(pageRequest,studentId);
 
         List<VisionScreeningResult> resultList = resultIPage.getRecords();
-                
+
         // 获取筛查计划
         List<Integer> planIds = resultList.stream().map(VisionScreeningResult::getPlanId).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(planIds)) {
@@ -210,7 +210,7 @@ public class StudentFacade {
             }
             item.setResultId(result.getId());
             item.setIsDoubleScreen(result.getIsDoubleScreen());
-            item.setTemplateId(getTemplateId(result.getScreeningOrgId()));
+            item.setTemplateId(getTemplateId(result.getScreeningOrgId(), result.getScreeningType()));
             item.setOtherEyeDiseases(getOtherEyeDiseasesList(result));
             if (Objects.nonNull(statMap)&&Objects.nonNull(statMap.get(result.getId()))){
                 item.setWarningLevel(statMap.get(result.getId()).getWarningLevel());
@@ -481,11 +481,12 @@ public class StudentFacade {
      * 获取机构使用的模板
      *
      * @param screeningOrgId 筛查机构Id
+     * @param screeningType  筛查类型
      * @return 模板Id
      */
-    private Integer getTemplateId(Integer screeningOrgId) {
+    private Integer getTemplateId(Integer screeningOrgId, Integer screeningType) {
         ScreeningOrganization org = screeningOrganizationService.getById(screeningOrgId);
-        return templateDistrictService.getArchivesByDistrictId(districtService.getProvinceId(org.getDistrictId()));
+        return templateDistrictService.getArchivesByDistrictId(districtService.getProvinceId(org.getDistrictId()), TemplateConstants.getTemplateBizTypeByScreeningType(screeningType));
     }
 
     /**
@@ -522,7 +523,7 @@ public class StudentFacade {
         cardInfoVO.setCountNotCooperate(getCountNotCooperate(visionScreeningResult));
         responseDTO.setInfo(cardInfoVO);
 
-        Integer templateId = getTemplateId(visionScreeningResult.getScreeningOrgId());
+        Integer templateId = getTemplateId(visionScreeningResult.getScreeningOrgId(), visionScreeningResult.getScreeningType());
         return generateCardDetail(visionScreeningResult, studentInfo, templateId, responseDTO);
     }
 
@@ -537,7 +538,7 @@ public class StudentFacade {
             return new ArrayList<>();
         }
         // 筛查结构的Id都相同，取第一个就行
-        Integer templateId = getTemplateId(resultList.get(0).getScreeningOrgId());
+        Integer templateId = getTemplateId(resultList.get(0).getScreeningOrgId(), resultList.get(0).getScreeningType());
 
         // 查询学生信息
         List<Integer> studentIds = resultList.stream().map(VisionScreeningResult::getStudentId).collect(Collectors.toList());
@@ -580,7 +581,7 @@ public class StudentFacade {
         }
         VisionScreeningResult visionScreeningResult = visionScreeningResultService.getById(result.getId());
 
-        responseDTO.setTemplateId(getTemplateId(visionScreeningResult.getScreeningOrgId()));
+        responseDTO.setTemplateId(getTemplateId(visionScreeningResult.getScreeningOrgId(), visionScreeningResult.getScreeningType()));
         responseDTO.setStudentCardResponseVO(Lists.newArrayList(getStudentCardResponseDTO(visionScreeningResult)));
         return responseDTO;
     }

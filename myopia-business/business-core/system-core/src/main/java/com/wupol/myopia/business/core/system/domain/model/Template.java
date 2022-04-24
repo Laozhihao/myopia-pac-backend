@@ -33,7 +33,7 @@ public class Template {
     /**
      * 1-档案卡 2-筛查报告
      */
-    private Byte type;
+    private Integer type;
 
     /**
      * 模板名称

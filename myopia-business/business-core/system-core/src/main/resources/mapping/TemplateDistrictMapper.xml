@@ -31,45 +31,15 @@
         id, template_id, district_id, district_name, create_time, update_time
     </sql>
 
-    <select id="getByTemplateId" resultType="com.wupol.myopia.business.core.system.domain.dto.TemplateBindItemDTO">
-        select mtd.district_id, mtd.district_name
-        from m_template_district mtd
-        where mtd.template_id = #{templateId}
-    </select>
-
-    <delete id="deletedByDistrictIds">
-        delete
-        from m_template_district
-                where district_id in
-        <foreach collection="districtIds" item="id" index="index" open="(" close=")" separator=",">
-            #{id}
-        </foreach>
-    </delete>
-
-    <insert id="batchInsert">
-        insert into m_template_district (template_id, district_id, district_name) values
-        <foreach collection="items" item="item" index="index" separator=",">
-            (#{templateId}, #{item.districtId}, #{item.districtName})
-        </foreach>
-    </insert>
-
-    <delete id="batchDelete">
-        delete
-        from m_template_district
-        where template_id = #{templateId} and district_id in
-        <foreach collection="items" item="id" index="index" open="(" close=")" separator=",">
-            #{id}
-        </foreach>
-    </delete>
-
-    <delete id="batchDeleteTemplateIdsAndDistrictIds">
-        delete
-        from m_template_district
-        where template_id in
-        <foreach collection="templateIds" item="templateId" index="index" open="(" close=")" separator=",">
-            #{templateId}
-        </foreach>
-        and district_id in
+    <delete id="deleteByTemplateTypeAndBizType">
+        DELETE mtd
+        FROM
+             m_template_district mtd
+                 LEFT JOIN m_template mt ON mtd.template_id = mt.id
+        WHERE
+              mt.biz = #{bizType}
+          AND mt.type = #{templateType}
+          AND mtd.district_id IN
         <foreach collection="districtIds" item="districtId" index="index" open="(" close=")" separator=",">
             #{districtId}
         </foreach>
@@ -86,20 +56,13 @@
         </foreach>
     </select>
 
-    <select id="getArchivesByDistrictId" resultType="java.lang.Integer">
+    <select id="getArchivesIdByDistrictId" resultType="java.lang.Integer">
         select template_id
         from m_template_district mtd
                  left join m_template mt on mt.id = mtd.template_id
         where mtd.district_id = #{districtId}
           and mt.type = 1
+          and mt.biz = #{bizType}
     </select>
 
-    <select id="getByDistrictIdAndTemplateIds" resultType="java.lang.Integer">
-        select template_id
-        from m_template_district
-        where district_id = #{districtId} and template_id in
-        <foreach collection="templateIds" open="(" close=")" separator="," item="templateId">
-            #{templateId}
-        </foreach>
-    </select>
 </mapper>

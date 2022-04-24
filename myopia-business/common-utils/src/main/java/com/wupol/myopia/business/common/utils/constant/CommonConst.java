@@ -46,16 +46,6 @@ public class CommonConst {
     public final Integer STATUS_NOTICE_CREATED = 3;
 
     /**
-     * 系统中心 类型 档案卡模版
-     */
-    public final Integer TYPE_TEMPLATE_STUDENT_ARCHIVES = 1;
-
-    /**
-     * 系统中心 类型 筛查报告模版
-     */
-    public final Integer TYPE_TEMPLATE_SCREENING_REPORT = 2;
-
-    /**
      * 筛查 未发布
      */
     public final Integer STATUS_NOT_RELEASE = 0;

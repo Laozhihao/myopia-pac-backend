@@ -6,9 +6,11 @@ import com.wupol.myopia.business.core.system.domain.dto.TemplateBindItemDTO;
 import com.wupol.myopia.business.core.system.domain.mapper.TemplateDistrictMapper;
 import com.wupol.myopia.business.core.system.domain.model.TemplateDistrict;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * 模板区域Service
@@ -29,65 +31,43 @@ public class TemplateDistrictService extends BaseService<TemplateDistrictMapper,
     }
 
     /**
-     * 通过templateID获取区域列表
+     * 批量绑定行政区域
      *
-     * @param templateId 模板ID
-     * @return List<TemplateDistrict>
+     * @param templateId    模板ID
+     * @param districtList  行政区域集
      */
-    public List<TemplateBindItemDTO> getByTemplateId(Integer templateId) {
-        return baseMapper.getByTemplateId(templateId);
+    public void bindDistrictBatch(Integer templateId, List<TemplateBindItemDTO> districtList) {
+        if (CollectionUtils.isEmpty(districtList)) {
+            return;
+        }
+        List<TemplateDistrict> templateDistrictList = districtList.stream().map(x -> new TemplateDistrict().setTemplateId(templateId).setDistrictId(x.getDistrictId()).setDistrictName(x.getDistrictName())).collect(Collectors.toList());
+        saveBatch(templateDistrictList);
     }
 
     /**
-     * 通过districtIds删除
+     * 解除指定的档案卡所绑定的区域
      *
-     * @param districtIds 区域ID List
+     * @param districtIds   行政区域集
+     * @param bizType       业务类型
+     * @return void
      */
-    public void deletedByDistrictIds(List<Integer> districtIds) {
-        baseMapper.deletedByDistrictIds(districtIds);
+    public void removeArchivesBindingDistrictBatch(List<Integer> districtIds, Integer bizType) {
+        if (CollectionUtils.isEmpty(districtIds)) {
+            return;
+        }
+        baseMapper.deleteByTemplateTypeAndBizType(TemplateConstants.TYPE_TEMPLATE_STUDENT_ARCHIVES, bizType, districtIds);
     }
 
     /**
-     * 批量插入
-     *
-     * @param templateId 模板ID
-     * @param items      详情
-     */
-    public void batchInsert(Integer templateId, List<TemplateBindItemDTO> items) {
-        baseMapper.batchInsert(templateId, items);
-    }
-
-    /**
-     * 批量删除
-     * @param templateId 模板ID集合
-     * @param districtIds 区域ID集合
-     */
-    public void batchDelete(Integer templateId, List<Integer> districtIds) {
-        baseMapper.batchDelete(templateId,districtIds);
-    }
-
-
-    /**
-     * 批量删除
-     * @param templateIds 模板ID集合
-     * @param districtIds 区域ID集合
-     */
-    public void batchDeleteTemplateIdsAndDistrictIds(List<Integer> templateIds, List<Integer> districtIds) {
-        baseMapper.batchDeleteTemplateIdsAndDistrictIds(templateIds,districtIds);
-    }
-
-
-    /**
-     * 通过行政区域获取模版Id
+     * 根据行政区域ID获取档案卡模板ID（同一业务类型下，1个行政区域只有1个模板）
      *
      * @param districtId 行政区域
+     * @param bizType    业务类型
      * @return 模版Id
      */
-    public Integer getArchivesByDistrictId(Integer districtId) {
-        Integer templateId = baseMapper.getArchivesByDistrictId(districtId);
-        if (Objects.isNull(templateId)) {
-            return TemplateConstants.GLOBAL_TEMPLATE;
-        }
-        return templateId;
+    public Integer getArchivesByDistrictId(Integer districtId, Integer bizType) {
+        Integer templateId = baseMapper.getArchivesIdByDistrictId(districtId, bizType);
+        return Objects.isNull(templateId) ? TemplateConstants.GLOBAL_TEMPLATE : templateId;
     }
+
 }
