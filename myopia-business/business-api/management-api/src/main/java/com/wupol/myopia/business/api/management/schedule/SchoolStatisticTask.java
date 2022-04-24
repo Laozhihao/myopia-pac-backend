@@ -55,7 +55,7 @@ public class SchoolStatisticTask {
         //根据筛查计划ID 获取筛查数据结论
         List<StatConclusion> statConclusions = statConclusionService.getByScreeningPlanIds(yesterdayScreeningPlanIds);
         if(CollectionUtil.isEmpty(statConclusions)){
-            log.error("未找到筛查数据结论，planIds:{}",CollectionUtil.join(yesterdayScreeningPlanIds,","));
+            log.error("按学校-未找到筛查数据结论，planIds:{}",CollectionUtil.join(yesterdayScreeningPlanIds,","));
             return;
         }
 
@@ -112,6 +112,7 @@ public class SchoolStatisticTask {
         //根据筛查计划ID 获取筛查计划数据
         List<ScreeningPlan> screeningPlans = screeningPlanService.getByIds(screeningPlanIds);
         if(CollectionUtil.isEmpty(screeningPlans)){
+            log.error("未找到筛查计划数据，screeningPlanIds:{}",CollectionUtil.join(screeningPlanIds,","));
             return;
         }
         Map<Integer, ScreeningPlan> screeningPlanMap = screeningPlans.stream().collect(Collectors.toMap(ScreeningPlan::getId, Function.identity()));
@@ -119,6 +120,7 @@ public class SchoolStatisticTask {
 
         List<ScreeningPlanSchoolStudent> planSchoolStudents = screeningPlanSchoolStudentService.getByScreeningPlanIds(Lists.newArrayList(screeningPlanIds));
         if (CollectionUtil.isEmpty(planSchoolStudents)){
+            log.error("未找到参与筛查计划的学生，screeningPlanIds:{}",CollectionUtil.join(screeningPlanIds,","));
             return;
         }
         Map<Integer, List<ScreeningPlanSchoolStudent>> planSchoolStudentMap = planSchoolStudents.stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getScreeningPlanId));

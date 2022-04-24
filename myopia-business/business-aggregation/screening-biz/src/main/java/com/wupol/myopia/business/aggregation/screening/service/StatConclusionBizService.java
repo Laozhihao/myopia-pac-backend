@@ -115,13 +115,13 @@ public class StatConclusionBizService {
         if (CollectionUtil.isNotEmpty(screeningPlanSchoolStudents)){
             Map<Integer, ScreeningPlanSchoolStudent> screeningPlanSchoolStudentMap = screeningPlanSchoolStudents.stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getId, Function.identity()));
             Set<Integer> gradeIds = screeningPlanSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getGradeId).collect(Collectors.toSet());
+            dataProcessBO.setScreeningPlanSchoolStudentMap(screeningPlanSchoolStudentMap);
 
             List<SchoolGrade> schoolGrades = schoolGradeService.getByIds(Lists.newArrayList(gradeIds));
             Map<Integer, SchoolGrade> schoolGradeMap = schoolGrades.stream().collect(Collectors.toMap(SchoolGrade::getId, Function.identity()));
-
-            dataProcessBO.setScreeningPlanSchoolStudentMap(screeningPlanSchoolStudentMap);
-            dataProcessBO.setSchoolGradeMap(schoolGradeMap);
-
+            if (CollectionUtil.isNotEmpty(schoolGrades)) {
+                dataProcessBO.setSchoolGradeMap(schoolGradeMap);
+            }
         }
 
         Set<Integer> resultIds = visionScreeningResultMap.values().stream().flatMap(List::stream).map(VisionScreeningResult::getId).collect(Collectors.toSet());
@@ -181,14 +181,10 @@ public class StatConclusionBizService {
             log.error("数据异常，无法根据id找到对应的ScreeningPlanSchoolStudent对象，id = {}" , currentVisionScreeningResult.getScreeningPlanSchoolStudentId());
             return;
         }
-        Map<String, StatConclusion> statConclusionMap = dataProcessBO.getStatConclusionMap();
-        if (CollectionUtil.isEmpty(statConclusionMap)){
-            return;
-        }
-        Map<Integer, SchoolGrade> schoolGradeMap = dataProcessBO.getSchoolGradeMap();
-        if (CollectionUtil.isEmpty(schoolGradeMap)){
-            return;
-        }
+        Map<String, StatConclusion> statConclusionMap = Optional.ofNullable(dataProcessBO.getStatConclusionMap()).orElse(Maps.newHashMap());
+
+        Map<Integer, SchoolGrade> schoolGradeMap = Optional.ofNullable(dataProcessBO.getSchoolGradeMap()).orElse(Maps.newHashMap());
+
         SchoolGrade schoolGrade = schoolGradeMap.get(screeningPlanSchoolStudent.getGradeId());
         String schoolGradeCode = Optional.ofNullable(schoolGrade).map(SchoolGrade::getGradeCode).orElse(null);
 

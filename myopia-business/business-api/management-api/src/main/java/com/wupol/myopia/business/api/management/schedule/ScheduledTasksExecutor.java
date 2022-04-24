@@ -145,11 +145,13 @@ public class ScheduledTasksExecutor {
     }
 
     public void screeningResultStatisticByPlanIds(List<Integer> screeningPlanIds){
-        //按区域统计
+        log.info("按区域统计开始==========>>>");
         districtStatisticTask.districtStatistics(screeningPlanIds);
+        log.info("按区域统计结束==========<<<");
 
-        //按学校统计
+        log.info("按学校统计开始==========>>>");
         schoolStatisticTask.schoolStatistics(screeningPlanIds);
+        log.info("按学校统计结束==========<<<");
     }
 
     /**

@@ -260,7 +260,7 @@ public class StatSchoolService {
     private SchoolResultDetailVO getSchoolStatisticDetailByNoticeId(Integer screeningNoticeId,School school,CurrentUser user){
         ScreeningNotice screeningNotice = screeningNoticeService.getById(screeningNoticeId);
         List<ScreeningResultStatistic> screeningResultStatistics = getStatisticByNoticeIdAndSchoolId(screeningNoticeId, user,school.getId());
-        return getSchoolResultDetailVO(screeningResultStatistics,Objects.equals(SchoolEnum.TYPE_KINDERGARTEN.getType(), school.getType()),screeningNotice,school);
+        return getSchoolResultDetailVO(screeningResultStatistics,Objects.equals(SchoolEnum.TYPE_KINDERGARTEN.getType(), school.getType()),screeningNotice,school,null);
 
     }
 
@@ -271,7 +271,7 @@ public class StatSchoolService {
         ScreeningPlan screeningPlan = screeningPlanService.getById(screeningPlanId);
         ScreeningNotice screeningNotice = screeningNoticeService.getById(screeningPlan.getSrcScreeningNoticeId());
         List<ScreeningResultStatistic> screeningResultStatistics = getStatisticByPlanIdsAndSchoolId(Lists.newArrayList(screeningPlan), school.getId());
-        return getSchoolResultDetailVO(screeningResultStatistics,Objects.equals(SchoolEnum.TYPE_KINDERGARTEN.getType(), school.getType()),screeningNotice,school);
+        return getSchoolResultDetailVO(screeningResultStatistics,Objects.equals(SchoolEnum.TYPE_KINDERGARTEN.getType(), school.getType()),screeningNotice,school,screeningPlan);
     }
 
     /**
@@ -323,10 +323,15 @@ public class StatSchoolService {
      * 获取学校筛查结果统计详情
      */
     private SchoolResultDetailVO getSchoolResultDetailVO(List<ScreeningResultStatistic> screeningResultStatistics,
-                                                         boolean isKindergarten,ScreeningNotice screeningNotice,School school){
+                                                         boolean isKindergarten,ScreeningNotice screeningNotice,School school,
+                                                         ScreeningPlan screeningPlan ){
 
         SchoolResultDetailVO schoolResultDetailVO = new SchoolResultDetailVO();
-        schoolResultDetailVO.setItemData(isKindergarten,screeningNotice,school,screeningResultStatistics);
+        if(Objects.nonNull(screeningNotice)){
+            schoolResultDetailVO.setItemData(isKindergarten,screeningNotice.getId(),screeningNotice.getScreeningType(),school,screeningResultStatistics);
+        }else {
+            schoolResultDetailVO.setItemData(isKindergarten,screeningPlan.getSrcScreeningNoticeId(),screeningPlan.getScreeningType(),school,screeningResultStatistics);
+        }
         return schoolResultDetailVO;
     }
 }

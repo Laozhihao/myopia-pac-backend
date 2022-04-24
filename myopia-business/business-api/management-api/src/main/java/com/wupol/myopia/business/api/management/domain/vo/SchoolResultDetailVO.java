@@ -31,20 +31,21 @@ public class SchoolResultDetailVO {
 
 
 
-    public void setItemData(boolean isKindergarten, ScreeningNotice screeningNotice, School school,
+    public void setItemData(boolean isKindergarten,Integer screeningNoticeId,
+                            Integer screeningType,School school,
                             List<ScreeningResultStatistic> screeningResultStatistics) {
 
         if(isKindergarten){
             if (CollectionUtil.isNotEmpty(screeningResultStatistics)){
                 KindergartenResultDetailVO detailVO=new KindergartenResultDetailVO();
-                detailVO.setBaseData(screeningNotice.getId(),school.getDistrictId(),screeningNotice.getScreeningType(),school.getName());
+                detailVO.setBaseData(screeningNoticeId,school.getDistrictId(),screeningType,school.getName());
                 detailVO.setItemData(screeningResultStatistics.get(0));
                 this.kindergartenResultDetail=detailVO;
             }
         }else {
             if (CollectionUtil.isNotEmpty(screeningResultStatistics)){
                 PrimarySchoolAndAboveResultDetailVO detailVO = new PrimarySchoolAndAboveResultDetailVO();
-                detailVO.setBaseData(screeningNotice.getId(),school.getDistrictId(),screeningNotice.getScreeningType(),school.getName());
+                detailVO.setBaseData(screeningNoticeId,school.getDistrictId(),screeningType,school.getName());
                 detailVO.setItemData(screeningResultStatistics.get(0));
                 this.primarySchoolAndAboveResultDetail=detailVO;
             }
