@@ -52,8 +52,8 @@ public class PrivacyDTO extends ScreeningResultBasicData {
             return null;
         }
         PrivacyDTO privacyDTO = new PrivacyDTO();
-        privacyDTO.setAge(privacyDTO.age);
-        privacyDTO.setHasIncident(privacyDTO.hasIncident);
+        privacyDTO.setAge(privacyDataDO.getAge());
+        privacyDTO.setHasIncident(privacyDataDO.getHasIncident());
         return privacyDTO;
     }
 }
