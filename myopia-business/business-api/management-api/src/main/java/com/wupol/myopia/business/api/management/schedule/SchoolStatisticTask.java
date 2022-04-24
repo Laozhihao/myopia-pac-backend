@@ -170,7 +170,7 @@ public class SchoolStatisticTask {
                     return;
                 }
 
-                statisticResultBO.setSchoolId(schoolId)
+                statisticResultBO.setSchoolId(schoolId).setIsTotal(Boolean.FALSE)
                         .setSchoolType(school.getType()).setDistrictId(school.getDistrictId())
                         .setPlanStudentCount(planSchoolScreeningNum);
 
@@ -185,6 +185,5 @@ public class SchoolStatisticTask {
 
         }
     }
-
 
 }

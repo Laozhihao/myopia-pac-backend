@@ -129,7 +129,6 @@ public class ScheduledTasksExecutor {
             if ((StrUtil.isBlank(date) && planId != null) || (StrUtil.isNotBlank(date)&& planId != null)){
                 log.info("通过筛查计划ID planId:{}生成筛查结果统计数据",planId);
                 screeningResultStatisticByPlanIds(Lists.newArrayList(planId));
-                return;
             }
 
             if (StrUtil.isNotBlank(date)&& planId == null){

@@ -176,7 +176,7 @@ public class StatConclusionBuilder {
     private void setAnisometropia() {
         Boolean anisometropiaVision = StatUtil.isAnisometropiaVision(basicData.getLeftSph(), basicData.getRightSph());
         Boolean anisometropiaAstigmatism = StatUtil.isAnisometropiaAstigmatism(basicData.getLeftCyl(), basicData.getRightCyl());
-        if (ObjectsUtil.hasNull(anisometropiaAstigmatism,anisometropiaAstigmatism)){
+        if (ObjectsUtil.hasNull(anisometropiaVision,anisometropiaAstigmatism)){
             return;
         }
         statConclusion.setIsAnisometropia( anisometropiaVision || anisometropiaAstigmatism);

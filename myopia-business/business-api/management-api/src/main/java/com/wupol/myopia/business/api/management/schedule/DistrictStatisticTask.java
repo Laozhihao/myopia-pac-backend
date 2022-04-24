@@ -188,9 +188,7 @@ public class DistrictStatisticTask {
                 .setStatConclusions(selfStatConclusions);
         genSelfStatistics(selfStatistic, visionScreeningResultStatisticList,commonDiseaseScreeningResultStatisticList);
 
-        if (CollectionUtil.isNotEmpty(totalStatConclusions)
-                && CollectionUtil.isNotEmpty(selfStatConclusions)
-                && totalStatConclusions.size() != selfStatConclusions.size()) {
+        if (totalStatConclusions.size() != selfStatConclusions.size()) {
             //递归统计下层级数据
             childDistricts.forEach(childDistrict -> genStatisticsByDistrictId(screeningNotice, childDistrict.getId(), districtPlanStudentCountMap, districtStatConclusions,visionScreeningResultStatisticList,commonDiseaseScreeningResultStatisticList ));
         }
