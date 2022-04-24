@@ -26,6 +26,7 @@ import com.wupol.myopia.business.api.screening.app.service.ScreeningAppService;
 import com.wupol.myopia.business.api.screening.app.service.ScreeningPlanBizService;
 import com.wupol.myopia.business.common.utils.constant.EyeDiseasesEnum;
 import com.wupol.myopia.business.common.utils.constant.SourceClientEnum;
+import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
@@ -36,6 +37,7 @@ import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.DeviationDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ComputerOptometryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultSearchDTO;
@@ -645,7 +647,19 @@ public class ScreeningAppController {
     @GetMapping("/data/{planStudentId}")
     public ScreeningResultDataVO getScreeningResultData(@PathVariable Integer planStudentId, @RequestParam(value = "isState", defaultValue = "0") Integer isState) {
         VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentIdAndState(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId(), isState);
-        return ScreeningResultDataVO.getInstance(screeningResult);
+        ScreeningResultDataVO result = ScreeningResultDataVO.getInstance(screeningResult);
+        if (isState == 1) {
+            VisionScreeningResult screeningResultFirst = screeningAppService.getVisionScreeningResultByPlanStudentIdAndState(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId(), 0);
+            ScreeningResultDataVO resultFirst = ScreeningResultDataVO.getInstance(screeningResultFirst);
+            if (Objects.isNull(result.getVisionData())) {
+                VisionDataDTO visionDataDTO = new VisionDataDTO();
+                visionDataDTO.setGlassesType(resultFirst.getVisionData().getGlassesType());
+                result.setVisionData(visionDataDTO);
+            } else {
+                result.getVisionData().setGlassesType(resultFirst.getVisionData().getGlassesType());
+            }
+        }
+        return result;
     }
 
     /**
