@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.stat.domain.dos;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -11,8 +12,9 @@ import java.math.BigDecimal;
  * @author hang.yuan 2022/4/13 15:13
  */
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Accessors(chain = true)
-public class KindergartenVisionAnalysisDO implements VisionAnalysis {
+public class KindergartenVisionAnalysisDO implements VisionAnalysis,FrontTableId {
     /**
      * 视力低下人数（默认0）
      */
@@ -61,7 +63,7 @@ public class KindergartenVisionAnalysisDO implements VisionAnalysis {
     /**
      * 幼儿园--远视储备不足率
      */
-    private String myopiaLevelInsufficientNumRatio;
+    private String myopiaLevelInsufficientRatio;
 
     /**
      * 戴镜人数（默认0）
@@ -88,4 +90,8 @@ public class KindergartenVisionAnalysisDO implements VisionAnalysis {
      */
     private Integer schoolType;
 
+    @Override
+    public Integer getSerialVersionUID() {
+        return 2;
+    }
 }

@@ -1,7 +1,7 @@
 package com.wupol.myopia.base.constant;
 
 /**
- * 合作类型
+ * 脊柱弯曲
  *
  * @author Simple4H
  */
@@ -9,7 +9,7 @@ public enum SpineTypeEnum {
 
     ONE_TYPE(1, "无侧弯"),
     TWO_TYPE(2, "左低右高"),
-    THREE_TYPE(3, "左高右低");
+    THREE_TYPE(3, "右低左高");
 
     /**
      * 类型

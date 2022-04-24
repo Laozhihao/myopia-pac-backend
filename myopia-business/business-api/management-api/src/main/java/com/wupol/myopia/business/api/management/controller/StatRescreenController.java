@@ -1,14 +1,18 @@
 package com.wupol.myopia.business.api.management.controller;
 
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.api.management.domain.vo.RescreenReportVO;
 import com.wupol.myopia.business.api.management.service.StatService;
 import com.wupol.myopia.business.core.screening.flow.service.StatRescreenService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @Author wulizhou
@@ -46,8 +50,12 @@ public class StatRescreenController {
      * @return 日期
      */
     @GetMapping("/schoolDate")
-    public List<Date> getSchoolDate(Integer planId, Integer schoolId) {
-        return statRescreenService.getSchoolDate(planId, schoolId);
+    public List<String> getSchoolDate(Integer planId, Integer schoolId) {
+        List<Date> schoolDate = statRescreenService.getSchoolDate(planId, schoolId);
+        if (CollectionUtils.isEmpty(schoolDate)) {
+            return new ArrayList<>();
+        }
+        return schoolDate.stream().map(DateUtil::formatDate).collect(Collectors.toList());
     }
 
 }

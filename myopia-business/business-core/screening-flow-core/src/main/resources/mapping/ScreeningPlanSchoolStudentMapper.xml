@@ -143,7 +143,8 @@
                mspss.id             as planStudentId,
                mspss.screening_plan_id as planId,
                mspss.screening_org_id,
-               mspss.passport
+               mspss.passport,
+               mspss.state
         FROM m_screening_plan_school_student mspss
         left join m_school ms on ms.id = mspss.school_id
         left join m_school_grade sg on sg.id = mspss.grade_id
@@ -583,6 +584,20 @@
             and mspss.class_id = #{classId}
         </if>
         and mvsr.is_double_screen = 0
-<!--        and msc.is_review = 1-->
+       and msc.is_review = 1
+    </select>
+
+    <select id="getByPlanIdIdCardAndPassport" resultMap="BaseResultMap">
+        select *
+        from m_screening_plan_school_student where screening_plan_id = #{planId}
+        <if test="idCard != null and idCard != ''">
+            and id_card = #{idCard}
+        </if>
+        <if test="passport != null and passport != ''">
+            and passport = #{passport}
+        </if>
+        <if test="id != null">
+            and id != #{id}
+        </if>
     </select>
 </mapper>

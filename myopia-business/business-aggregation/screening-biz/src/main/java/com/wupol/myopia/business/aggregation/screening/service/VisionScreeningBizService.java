@@ -30,7 +30,6 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -125,6 +124,9 @@ public class VisionScreeningBizService {
     public void verifyScreening(VisionScreeningResult firstResult, boolean checkHeight) {
         VisionDataDO visionData = firstResult.getVisionData();
         ComputerOptometryDO computerOptometry = firstResult.getComputerOptometry();
+        if (Objects.isNull(visionData) || Objects.isNull(computerOptometry)) {
+            throw new BusinessException("请完成初筛");
+        }
         // 夜戴角膜镜不需要复测
         if (visionData.getLeftEyeData().getGlassesType().equals(GlassesTypeEnum.ORTHOKERATOLOGY.code)
                 || visionData.getRightEyeData().getGlassesType().equals(GlassesTypeEnum.ORTHOKERATOLOGY.code)) {
@@ -147,9 +149,6 @@ public class VisionScreeningBizService {
             throw new BusinessException("需要完成矫正视力检查");
         }
         // 球镜 柱镜 轴位
-        if (Objects.isNull(computerOptometry)) {
-            throw new BusinessException("需要完成电脑验光检查");
-        }
         // 球镜
         if ((Objects.isNull(computerOptometry.getLeftEyeData()) || Objects.isNull(computerOptometry.getRightEyeData()))
                 || (Objects.isNull(computerOptometry.getLeftEyeData().getSph()) && Objects.isNull(computerOptometry.getRightEyeData().getSph()))) {

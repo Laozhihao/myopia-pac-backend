@@ -1,11 +1,17 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dos;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import cn.hutool.core.collection.CollectionUtil;
+import com.google.common.collect.Lists;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
+
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @Description 脊柱弯曲
@@ -40,7 +46,8 @@ public class SpineDataDO extends AbstractDiagnosisResult implements Serializable
     @Data
     public static class SpineItem {
         /**
-         * 1：无侧弯。2：左低右高。3：左高右低
+         * 非前后弯曲：1：无侧弯。2：左低右高。3：右低左高
+         * 前后弯曲：1：无前后弯曲异常。2：平背。3：前凸异常，4：后凸异常
          */
         private Integer type;
 
@@ -49,4 +56,23 @@ public class SpineDataDO extends AbstractDiagnosisResult implements Serializable
          */
         private Integer level;
     }
+
+    public boolean isSpinalCurvature(){
+        List<SpineItem> list = Lists.newArrayList();
+        if (chest != null){
+            list.add(chest);
+        }
+        if (waist != null){
+            list.add(waist);
+        }
+        if (chestWaist != null){
+            list.add(chestWaist);
+        }
+        if (entirety != null){
+            list.add(entirety);
+        }
+        Set<SpineItem> spineItemSet = list.stream().filter(item -> !item.getType().equals(1)).collect(Collectors.toSet());
+        return CollectionUtil.isNotEmpty(spineItemSet);
+    }
+
 }

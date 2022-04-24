@@ -1,6 +1,8 @@
 package com.wupol.myopia.business.core.stat.domain.dos;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 
@@ -10,7 +12,9 @@ import java.io.Serializable;
  * @author hang.yuan 2022/4/13 15:38
  */
 @Data
-public class QuestionnaireDO implements Serializable {
+@JsonIgnoreProperties(ignoreUnknown = true)
+@Accessors(chain = true)
+public class QuestionnaireDO implements Serializable,FrontTableId {
 
     /**
      * 小学及以上--校环境健康影响因素调查表数（默认0）
@@ -61,4 +65,9 @@ public class QuestionnaireDO implements Serializable {
      * 学生健康状况及影响因素调查表率
      */
     private String healthStateQuestionnaireRatio;
+
+    @Override
+    public Integer getSerialVersionUID() {
+        return 8;
+    }
 }

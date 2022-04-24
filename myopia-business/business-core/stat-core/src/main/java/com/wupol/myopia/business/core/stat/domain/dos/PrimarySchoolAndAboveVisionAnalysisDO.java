@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.stat.domain.dos;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -10,9 +11,11 @@ import java.math.BigDecimal;
  *
  * @author hang.yuan 2022/4/13 15:23
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Data
 @Accessors(chain = true)
-public class PrimarySchoolAndAboveVisionAnalysisDO implements VisionAnalysis {
+public class PrimarySchoolAndAboveVisionAnalysisDO implements VisionAnalysis,FrontTableId {
+
     /**
      * 视力低下人数（默认0）
      */
@@ -118,4 +121,8 @@ public class PrimarySchoolAndAboveVisionAnalysisDO implements VisionAnalysis {
      */
     private Integer schoolType;
 
+    @Override
+    public Integer getSerialVersionUID() {
+        return 3;
+    }
 }

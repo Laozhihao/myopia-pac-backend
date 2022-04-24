@@ -16,7 +16,7 @@ public enum AstigmatismLevelEnum {
     ZERO(0, "正常"),
     ASTIGMATISM_LEVEL_LIGHT(1, "低度散光"),
     ASTIGMATISM_LEVEL_MIDDLE(2, "中度散光"),
-    ASTIGMATISM_LEVEL_HIGH(3, "重度散光");
+    ASTIGMATISM_LEVEL_HIGH(3, "高度散光");
 
     public final Integer code;
     public final String desc;

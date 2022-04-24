@@ -31,6 +31,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.*;
 import com.wupol.myopia.business.core.screening.flow.service.*;
+import com.wupol.myopia.business.core.screening.flow.util.EyeDataUtil;
 import com.wupol.myopia.business.core.screening.flow.util.ReScreenCardUtil;
 import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
@@ -111,18 +112,18 @@ public class StudentFacade {
 
     /**
      * 获取学生复测卡
-     * @param plandStudentId 计划学生ID
-     * @param plandId 计划ID
-     * @return
+     * @param planStudentId 计划学生ID
+     * @param planId 计划ID
+     * @return 获取学生复测卡
      */
-    public ReScreeningCardVO getRetestResult(Integer plandStudentId, Integer plandId){
+    public ReScreeningCardVO getRetestResult(Integer planStudentId, Integer planId){
 
-        VisionScreeningResult screeningResult = visionScreeningResultService.getIsDoubleScreeningResult(plandId, plandStudentId,false);
-        VisionScreeningResult retestResult = visionScreeningResultService.getIsDoubleScreeningResult(plandId, plandStudentId,true);
+        VisionScreeningResult screeningResult = visionScreeningResultService.getIsDoubleScreeningResult(planId, planStudentId,false);
+        VisionScreeningResult retestResult = visionScreeningResultService.getIsDoubleScreeningResult(planId, planStudentId,true);
 
         //质控员
         String qualityControlName =null;
-        List<ScreeningPlanSchool> screeningPlanSchools = screeningPlanSchoolService.getSchoolListsByPlanId(plandId);
+        List<ScreeningPlanSchool> screeningPlanSchools = screeningPlanSchoolService.getSchoolListsByPlanId(planId);
         if (Objects.nonNull(screeningPlanSchools)){
             qualityControlName = screeningPlanSchools.get(0).getQualityControllerName();
         }
@@ -194,8 +195,7 @@ public class StudentFacade {
             //设置视力信息
             screeningInfoDTO.setVision(resultDetail);
             //设置常见病信息
-            CommonDiseasesDTO commonDiseases = getCommonDiseases(result);
-            screeningInfoDTO.setCommonDiseases(commonDiseases);
+            screeningInfoDTO.setCommonDiseases(getCommonDiseases(result));
             //设置复测信息
             if (Objects.nonNull(rescreeningVisionScreeningResultMap)){
                 screeningInfoDTO.setRescreening(ReScreenCardUtil.reScreeningResult(result,rescreeningVisionScreeningResultMap.get(result.getPlanId())));
@@ -239,7 +239,6 @@ public class StudentFacade {
     }
 
     /**
-     *
      * 筛查机构名称[参考getTemplateId（）写法]
      * @param org 筛查机构
      * @return 筛查机构名称
@@ -259,7 +258,7 @@ public class StudentFacade {
     private CommonDiseasesDTO getCommonDiseases(VisionScreeningResult result) {
         CommonDiseasesDTO commonDiseases = new  CommonDiseasesDTO();
 
-        commonDiseases.setSaprodontiaData(getSaprodontiaDataDODTO(result));
+        commonDiseases.setSaprodontiaData(EyeDataUtil.getSaprodontiaDataDODTO(result));
         commonDiseases.setSpineData(result.getSpineData());
         commonDiseases.setBloodPressureData(result.getBloodPressureData());
         commonDiseases.setDiseasesHistoryData(result.getDiseasesHistoryData());
@@ -267,75 +266,6 @@ public class StudentFacade {
         commonDiseases.setSystemicDiseaseSymptom(result.getSystemicDiseaseSymptom());
         commonDiseases.setHeightAndWeightData(result.getHeightAndWeightData());
         return commonDiseases;
-    }
-
-    private SaprodontiaDataDODTO getSaprodontiaDataDODTO(VisionScreeningResult result){
-
-        Optional.ofNullable(result) .map(VisionScreeningResult::getSaprodontiaData).orElse(null);
-
-        SaprodontiaDataDO saprodontiaDataDO = result.getSaprodontiaData();
-
-        List<SaprodontiaDataDO.SaprodontiaItem> above = saprodontiaDataDO.getAbove();
-        List<SaprodontiaDataDO.SaprodontiaItem> underneath = saprodontiaDataDO.getUnderneath();
-
-        List<SaprodontiaDataDO.SaprodontiaItem> items = new ArrayList<>();
-        items.addAll(above);
-        items.addAll(underneath);
-
-        return calculationTooth(items);
-    }
-
-    /**
-     * 计算乳牙/恒牙
-     * @param items
-     */
-    private SaprodontiaDataDODTO calculationTooth(List<SaprodontiaDataDO.SaprodontiaItem> items) {
-        SaprodontiaDataDODTO saprodontiaDataDODTO = new SaprodontiaDataDODTO();
-        int dCountDeciduous = 0;
-        int mCountDeciduous = 0;
-        int fFountDeciduous = 0;
-
-        int dFountPermanent = 0;
-        int mFountPermanent = 0;
-        int fFountPermanent = 0;
-        for (SaprodontiaDataDO.SaprodontiaItem item: items){
-            if (item!=null){
-                if (item.getDeciduous().equals(SaprodontiaType.DECIDUOUS_D)){
-                    dCountDeciduous++;
-                }
-                if (item.getDeciduous().equals(SaprodontiaType.DECIDUOUS_M)){
-                    mCountDeciduous++;
-                }
-                if (item.getDeciduous().equals(SaprodontiaType.DECIDUOUS_F)){
-                    fFountDeciduous++;
-                }
-
-                if (item.getPermanent().equals(SaprodontiaType.PERMANENT_D)){
-                    dFountPermanent++;
-                }
-                if (item.getPermanent().equals(SaprodontiaType.PERMANENT_M)){
-                    mFountPermanent++;
-                }
-                if (item.getPermanent().equals(SaprodontiaType.PERMANENT_F)){
-                    fFountPermanent++;
-                }
-            }
-        }
-
-        SaprodontiaStat deciduousTooth = new SaprodontiaStat();
-        deciduousTooth.setDCount(dCountDeciduous);
-        deciduousTooth.setFCount(mCountDeciduous);
-        deciduousTooth.setMCount(fFountDeciduous);
-
-        SaprodontiaStat permanentTooth = new SaprodontiaStat();
-        deciduousTooth.setDCount(dFountPermanent);
-        deciduousTooth.setFCount(mFountPermanent);
-        deciduousTooth.setMCount(fFountPermanent);
-
-        saprodontiaDataDODTO.setDeciduousTooth(deciduousTooth);
-        saprodontiaDataDODTO.setPermanentTooth(permanentTooth);
-
-        return saprodontiaDataDODTO;
     }
 
     /**

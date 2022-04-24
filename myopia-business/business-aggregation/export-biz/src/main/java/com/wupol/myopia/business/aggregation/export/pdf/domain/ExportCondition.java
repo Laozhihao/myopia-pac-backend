@@ -63,4 +63,9 @@ public class ExportCondition {
      * {@link ExportTypeConst}
      */
     private Integer exportType;
+
+    /**
+     * 是否幼儿园
+     */
+    private Boolean isKindergarten;
 }

@@ -125,7 +125,7 @@ public class ScreeningPlanStudentBizService {
     public void updatePlanStudent(UpdatePlanStudentRequestDTO requestDTO) {
         requestDTO.checkStudentInfo();
         // 身份证或护照是否在同一计划下已经绑定了数据
-        if (!CollectionUtils.isEmpty(screeningPlanSchoolStudentService.getByIdCardAndPassport(requestDTO.getIdCard(), requestDTO.getPassport(), requestDTO.getPlanStudentId()))) {
+        if (!CollectionUtils.isEmpty(screeningPlanSchoolStudentService.getByPlanIdIdCardAndPassport(requestDTO.getPlanId(), requestDTO.getIdCard(), requestDTO.getPassport(), requestDTO.getPlanStudentId()))) {
             throw new BusinessException("身份证或护照重复，请检查");
         }
         // 获取计划学生
@@ -466,7 +466,7 @@ public class ScreeningPlanStudentBizService {
             return screeningStudentDTOS;
         }
         List<VisionScreeningResult> resultList = visionScreeningResultService.getByPlanStudentIds(screeningStudentDTOS.stream().map(ScreeningStudentDTO::getPlanStudentId).collect(Collectors.toList()));
-        Map<Integer, VisionScreeningResult> planStudentVisionResultMap = resultList.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
+        Map<Integer, VisionScreeningResult> planStudentVisionResultMap = resultList.stream().filter(result->!result.getIsDoubleScreen()).collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
 
         Set<Integer> orgIdSet = screeningStudentDTOS.stream().map(ScreeningStudentDTO::getScreeningOrgId).collect(Collectors.toSet());
         Map<Integer, String> orgIdMap = screeningOrganizationService.getByIds(orgIdSet).stream().collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization::getName, (v1, v2) -> v2));
@@ -541,6 +541,10 @@ public class ScreeningPlanStudentBizService {
         //眼轴
         String axial = EyeDataUtil.computerRightAxial(visionScreeningResult) + "/" + EyeDataUtil.computerLeftAxial(visionScreeningResult);
         studentEyeInfo.setAxial(axial);
+        //是否复测
+        if (visionScreeningResult!=null){
+            studentEyeInfo.setIsDoubleScreen(visionScreeningResult.getIsDoubleScreen());
+        }
 
     }
 

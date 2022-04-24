@@ -34,7 +34,7 @@ import java.util.Date;
 public class CommonDiseaseDataExportDTO implements Serializable {
     private static final long serialVersionUID = 5454155825314635342L;
 
-    public static final String TOP_HEADER = "视力筛查";
+    public static final String TOP_HEADER = "初筛检查";
     public static final String TOP_HEADER2 = "视力复测";
 
     @ExcelProperty({"姓名", "姓名", "姓名"})
@@ -61,9 +61,6 @@ public class CommonDiseaseDataExportDTO implements Serializable {
 
     @ExcelProperty({"学号", "学号", "学号"})
     private String studentNo;
-
-    @ExcelProperty({"地址", "地址", "地址"})
-    private String address;
 
     @ExcelProperty({"是否有做检查（未做检查的原因）", "是否有做检查（未做检查的原因）", "是否有做检查（未做检查的原因）"})
     private String state;
@@ -103,9 +100,9 @@ public class CommonDiseaseDataExportDTO implements Serializable {
     @ExcelProperty({TOP_HEADER, "身高体重", "体重"})
     private String weight;
 
-    @ExcelProperty({TOP_HEADER, "龋齿检查", "乳牙 龋（d）：失（m）：0 补（f）"})
+    @ExcelProperty({TOP_HEADER, "龋齿检查", "乳牙 龋（d）：失（m）：补（f）"})
     private String deciduous;
-    @ExcelProperty({TOP_HEADER, "龋齿检查", "恒牙 龋（D）：失（M）：0 补（F）"})
+    @ExcelProperty({TOP_HEADER, "龋齿检查", "恒牙 龋（D）：失（M）：补（F）"})
     private String permanent;
 
     @ExcelProperty({TOP_HEADER, "脊柱弯曲", "胸段侧弯"})
@@ -133,10 +130,6 @@ public class CommonDiseaseDataExportDTO implements Serializable {
     private String otherEyeDiseasesRightEyeDiseases;
     @ExcelProperty({TOP_HEADER, "其他眼病", "全身疾病在眼部的表现"})
     private String otherEyeDiseasesSystemicDiseaseSymptom;
-    @ExcelProperty({TOP_HEADER, "其他眼病", "盲及视力损害分类（右）"})
-    private String rightOtherEyeDiseasesLevel;
-    @ExcelProperty({TOP_HEADER, "其他眼病", "盲及视力损害分类（左）"})
-    private String leftOtherEyeDiseasesLevel;
 
 
     @ExcelProperty({TOP_HEADER2, "视力检查", "戴镜情况"})

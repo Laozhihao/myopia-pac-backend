@@ -4,18 +4,23 @@ import cn.hutool.core.lang.Assert;
 import com.alibaba.excel.util.CollectionUtils;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.constant.ScreeningConstant;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.common.utils.util.MathUtil;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningListResponseDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanQueryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanSchoolDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningPlanSchoolMapper;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -32,6 +37,8 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     @Autowired
     private VisionScreeningResultService visionScreeningResultService;
+    @Autowired
+    private ScreeningPlanService screeningPlanService;
 
     /**
      * 根据学校ID获取筛查计划的学校
@@ -103,13 +110,38 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
      */
     public List<ScreeningPlanSchoolDTO> getSchoolVoListsByPlanId(Integer screeningPlanId, String schoolName) {
         List<ScreeningPlanSchoolDTO> screeningPlanSchools = baseMapper.selectVoListByPlanId(screeningPlanId,schoolName);
+        ScreeningPlan screeningPlans = new ScreeningPlan();
+        screeningPlans.setId(screeningPlanId);
+        ScreeningPlan screeningPlan = screeningPlanService.findOne(screeningPlans);
         Map<Integer, Long> schoolIdStudentCountMap = screeningPlanSchoolStudentService.getSchoolStudentCountByScreeningPlanId(screeningPlanId);
         screeningPlanSchools.forEach(vo -> {
             vo.setStudentCount(schoolIdStudentCountMap.getOrDefault(vo.getSchoolId(), (long) 0).intValue());
             vo.setPracticalStudentCount(visionScreeningResultService.getBySchoolIdAndOrgIdAndPlanId(vo.getSchoolId(), vo.getScreeningOrgId(), vo.getScreeningPlanId()).size());
-                }
+            BigDecimal num = MathUtil.divide(vo.getPracticalStudentCount(),vo.getStudentCount());
+            if (num.equals(BigDecimal.ZERO)){
+                vo.setScreeningProportion("0.00%");
+            }else {
+                vo.setScreeningProportion(num.toString()+"%");
+            }
+            vo.setScreeningSituation(findSituation(vo.getSchoolId(),screeningPlan));
+            vo.setQuestionnaireStudentCount(0);
+            vo.setQuestionnaireProportion("0.00%");
+            vo.setQuestionnaireSituation(ScreeningPlanSchool.notStart);
+            }
         );
         return screeningPlanSchools;
+    }
+
+    public String findSituation(Integer schoolId, ScreeningPlan screeningPlan) {
+        if (DateUtil.betweenDay(screeningPlan.getEndTime(),new Date())<0){
+            return ScreeningPlanSchool.end;
+        }
+            List<VisionScreeningResult> list = visionScreeningResultService.getByPlanIdAndSchoolId(screeningPlan.getId(),schoolId);
+            if (list.size()>0){
+                return ScreeningPlanSchool.underWay;
+            }else {
+                return ScreeningPlanSchool.notStart;
+            }
     }
 
     /**
@@ -152,12 +184,12 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
      * @param endTime                 查询计划的结束时间
      * @return 学校ID
      */
-    public List<Integer> getHavePlanSchoolIds(List<Integer> districtIds, Integer excludedScreeningPlanId, Integer screeningOrgId, LocalDate startTime, LocalDate endTime) {
+    public List<Integer> getHavePlanSchoolIds(List<Integer> districtIds, Integer excludedScreeningPlanId, Integer screeningOrgId, LocalDate startTime, LocalDate endTime,Integer screeningType) {
         if (CollectionUtils.isEmpty(districtIds) && Objects.isNull(screeningOrgId)) {
             return Collections.emptyList();
         }
         ScreeningPlanQueryDTO planQuery = new ScreeningPlanQueryDTO();
-        planQuery.setDistrictIds(districtIds).setExcludedScreeningPlanId(excludedScreeningPlanId).setStartCreateTime(startTime).setEndCreateTime(endTime).setScreeningOrgId(screeningOrgId);
+        planQuery.setDistrictIds(districtIds).setExcludedScreeningPlanId(excludedScreeningPlanId).setStartCreateTime(startTime).setEndCreateTime(endTime).setScreeningOrgId(screeningOrgId).setScreeningType(screeningType);
         return baseMapper.selectHasPlanInPeriod(planQuery).stream().map(ScreeningPlanSchool::getSchoolId).distinct().collect(Collectors.toList());
     }
 
@@ -249,5 +281,4 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
         }
         return schoolList.stream().filter(s -> schoolIds.contains(s.getSchoolId())).collect(Collectors.toList());
     }
-
 }

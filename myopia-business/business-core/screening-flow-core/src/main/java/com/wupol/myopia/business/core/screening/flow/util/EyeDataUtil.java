@@ -3,10 +3,10 @@ package com.wupol.myopia.business.core.screening.flow.util;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
 import com.wupol.myopia.business.common.utils.util.MaskUtil;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.DeviationDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
+import com.wupol.myopia.business.core.screening.flow.constant.SaprodontiaType;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.SaprodontiaDataDODTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.SaprodontiaStat;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentVisionScreeningResultExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
@@ -439,6 +439,75 @@ public class EyeDataUtil {
     }
 
 
+    /**
+     * 合并上下牙床数据
+     * @param result 筛查数据
+     * @return 合并上下牙床数据
+     */
+    public static SaprodontiaDataDODTO getSaprodontiaDataDODTO(VisionScreeningResult result){
+
+        List<SaprodontiaDataDO.SaprodontiaItem> items = new ArrayList<>();
+
+        if (Objects.nonNull(result)&&Objects.nonNull(result.getSaprodontiaData())){
+            items.addAll(result.getSaprodontiaData().getAbove());
+            items.addAll(result.getSaprodontiaData().getUnderneath());
+        }
+
+        return calculationTooth(items);
+    }
+
+    /**
+     * 计算乳牙/恒牙
+     * @param items 牙齿数据
+     */
+    private static SaprodontiaDataDODTO calculationTooth(List<SaprodontiaDataDO.SaprodontiaItem> items) {
+        SaprodontiaDataDODTO saprodontiaDataDODTO = new SaprodontiaDataDODTO();
+        int dCountDeciduous = 0;
+        int mCountDeciduous = 0;
+        int fFountDeciduous = 0;
+
+        int dFountPermanent = 0;
+        int mFountPermanent = 0;
+        int fFountPermanent = 0;
+        for (SaprodontiaDataDO.SaprodontiaItem item: items){
+            if (item!=null){
+                if (item.getDeciduous().equals(SaprodontiaType.DECIDUOUS_D.getName())){
+                    dCountDeciduous++;
+                }
+                if (item.getDeciduous().equals(SaprodontiaType.DECIDUOUS_M.getName())){
+                    mCountDeciduous++;
+                }
+                if (item.getDeciduous().equals(SaprodontiaType.DECIDUOUS_F.getName())){
+                    fFountDeciduous++;
+                }
+
+                if (item.getPermanent().equals(SaprodontiaType.PERMANENT_D.getName())){
+                    dFountPermanent++;
+                }
+                if (item.getPermanent().equals(SaprodontiaType.PERMANENT_M.getName())){
+                    mFountPermanent++;
+                }
+                if (item.getPermanent().equals(SaprodontiaType.PERMANENT_F.getName())){
+                    fFountPermanent++;
+                }
+            }
+        }
+
+        SaprodontiaStat deciduousTooth = new SaprodontiaStat();
+        deciduousTooth.setDCount(dCountDeciduous);
+        deciduousTooth.setFCount(mCountDeciduous);
+        deciduousTooth.setMCount(fFountDeciduous);
+
+        SaprodontiaStat permanentTooth = new SaprodontiaStat();
+        permanentTooth.setDCount(dFountPermanent);
+        permanentTooth.setFCount(mFountPermanent);
+        permanentTooth.setMCount(fFountPermanent);
+
+        saprodontiaDataDODTO.setDeciduousTooth(deciduousTooth);
+        saprodontiaDataDODTO.setPermanentTooth(permanentTooth);
+
+        return saprodontiaDataDODTO;
+    }
     /**
      * 获取戴镜是否为空
      * @param visionScreeningResult 筛查结果

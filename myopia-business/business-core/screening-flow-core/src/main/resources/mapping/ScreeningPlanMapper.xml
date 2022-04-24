@@ -73,7 +73,7 @@
         mst.id, mst.src_screening_notice_id, mst.screening_task_id, mst.screening_org_id, mst.title, mst.start_time,
         mst.end_time, mst.content, mst.release_time, mst.release_status,
         mst.district_id, mst.gov_dept_id, mst.create_user_id,
-        mst.create_time
+        mst.create_time,mst.screening_type,mst.update_screening_end_time_status
         FROM
         m_screening_plan mst
         <where>
@@ -98,6 +98,9 @@
                 <if test="param.startCreateTime != null and param.endCreateTime != null">
                     and <![CDATA[ DATE(mst.`start_time`) < DATE(#{param.endCreateTime})]]> and
                     <![CDATA[ DATE(mst.`end_time`) >= DATE(#{param.startCreateTime})]]>
+                </if>
+                <if test="@Ognl@isNotEmpty(param.screeningType)">
+                    and mst.screening_type = #{param.screeningType}
                 </if>
             </trim>
         </where>
@@ -163,4 +166,13 @@
             #{id}
         </foreach>
     </select>
+
+    <select id="getPlanByTaskId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_plan
+        where screening_task_id = #{screeningTaskId}
+        and screening_org_id = #{screeningOrgId}
+    </select>
+
 </mapper>
