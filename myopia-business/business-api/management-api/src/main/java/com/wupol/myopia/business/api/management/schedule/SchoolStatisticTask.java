@@ -59,22 +59,17 @@ public class SchoolStatisticTask {
             return;
         }
 
-        //筛查数据结论 根据筛查类型分组 分别统计
-        Map<Integer, List<StatConclusion>> screeningTypeStatConclusionMap = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getScreeningType));
+        List<VisionScreeningResultStatistic> visionScreeningResultStatisticList =Lists.newArrayList();
+        List<CommonDiseaseScreeningResultStatistic> commonDiseaseScreeningResultStatisticList =Lists.newArrayList();
+        screeningResultStatistic(statConclusions,visionScreeningResultStatisticList,commonDiseaseScreeningResultStatisticList);
 
         //视力筛查
-        List<VisionScreeningResultStatistic> visionScreeningResultStatisticList = visionScreeningResultStatistic(screeningTypeStatConclusionMap);
-        if (CollectionUtil.isNotEmpty(visionScreeningResultStatisticList)){
-            for (VisionScreeningResultStatistic visionScreeningResultStatistic : visionScreeningResultStatisticList) {
-                screeningResultStatisticService.saveVisionScreeningResultStatistic(visionScreeningResultStatistic);
-            }
+        for (VisionScreeningResultStatistic visionScreeningResultStatistic : visionScreeningResultStatisticList) {
+            screeningResultStatisticService.saveVisionScreeningResultStatistic(visionScreeningResultStatistic);
         }
         //常见病筛查
-        List<CommonDiseaseScreeningResultStatistic> commonDiseaseScreeningResultStatisticList = commonDiseaseScreeningResultStatistic(screeningTypeStatConclusionMap);
-        if (CollectionUtil.isNotEmpty(commonDiseaseScreeningResultStatisticList)){
-            for (CommonDiseaseScreeningResultStatistic commonDiseaseScreeningResultStatistic : commonDiseaseScreeningResultStatisticList) {
-                screeningResultStatisticService.saveCommonDiseaseScreeningResultStatistic(commonDiseaseScreeningResultStatistic);
-            }
+        for (CommonDiseaseScreeningResultStatistic commonDiseaseScreeningResultStatistic : commonDiseaseScreeningResultStatisticList) {
+            screeningResultStatisticService.saveCommonDiseaseScreeningResultStatistic(commonDiseaseScreeningResultStatistic);
         }
 
     }
@@ -82,26 +77,23 @@ public class SchoolStatisticTask {
     /**
      * 视力筛查结果统计
      */
-    private List<VisionScreeningResultStatistic> visionScreeningResultStatistic(Map<Integer, List<StatConclusion>> screeningTypeStatConclusionMap){
-        List<VisionScreeningResultStatistic> visionScreeningResultStatisticList= Lists.newArrayList();
-        List<StatConclusion> statConclusions = screeningTypeStatConclusionMap.get(0);
-        if (CollectionUtil.isNotEmpty(statConclusions)){
-            statistics(statConclusions,visionScreeningResultStatisticList,null);
+    private void screeningResultStatistic(List<StatConclusion> statConclusionList,
+                                                List<VisionScreeningResultStatistic> visionScreeningResultStatisticList,
+                                                List<CommonDiseaseScreeningResultStatistic> commonDiseaseScreeningResultStatisticList){
+        if(CollectionUtil.isEmpty(statConclusionList)){
+            return;
         }
-        return visionScreeningResultStatisticList;
+        Map<Integer, List<StatConclusion>> screeningTypeStatConclusionMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getScreeningType));
+        screeningTypeStatConclusionMap.forEach((screeningType,statConclusions)->{
+            if (Objects.equals(0,screeningType)){
+                statistics(statConclusions,visionScreeningResultStatisticList,null);
+            }else {
+                statistics(statConclusions,null,commonDiseaseScreeningResultStatisticList);
+            }
+        });
+
     }
 
-    /**
-     *  常见病筛查结果统计
-     */
-    private List<CommonDiseaseScreeningResultStatistic> commonDiseaseScreeningResultStatistic(Map<Integer, List<StatConclusion>> screeningTypeStatConclusionMap){
-        List<CommonDiseaseScreeningResultStatistic> commonDiseaseScreeningResultStatisticList =Lists.newArrayList();
-        List<StatConclusion> statConclusions = screeningTypeStatConclusionMap.get(1);
-        if (CollectionUtil.isNotEmpty(statConclusions)){
-            statistics(statConclusions,null,commonDiseaseScreeningResultStatisticList);
-        }
-        return commonDiseaseScreeningResultStatisticList;
-    }
 
     /**
      * 统计逻辑
@@ -109,6 +101,9 @@ public class SchoolStatisticTask {
     private void statistics(List<StatConclusion> statConclusions,
                             List<VisionScreeningResultStatistic> visionScreeningResultStatisticList,
                             List<CommonDiseaseScreeningResultStatistic> commonDiseaseScreeningResultStatisticList) {
+        if (CollectionUtil.isEmpty(statConclusions)){
+            return;
+        }
         //根据筛查数据结论 按计划ID分组
         Map<Integer, List<StatConclusion>> statConclusionMap = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getPlanId));
 
@@ -119,11 +114,13 @@ public class SchoolStatisticTask {
         if(CollectionUtil.isEmpty(screeningPlans)){
             return;
         }
-
-        //根据筛查计划数据 按计划ID分组
         Map<Integer, ScreeningPlan> screeningPlanMap = screeningPlans.stream().collect(Collectors.toMap(ScreeningPlan::getId, Function.identity()));
 
+
         List<ScreeningPlanSchoolStudent> planSchoolStudents = screeningPlanSchoolStudentService.getByScreeningPlanIds(Lists.newArrayList(screeningPlanIds));
+        if (CollectionUtil.isEmpty(planSchoolStudents)){
+            return;
+        }
         Map<Integer, List<ScreeningPlanSchoolStudent>> planSchoolStudentMap = planSchoolStudents.stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getScreeningPlanId));
 
         //分别统计每个学校的数据
@@ -169,7 +166,11 @@ public class SchoolStatisticTask {
 
                 int planSchoolScreeningNum = planSchoolStudentNumMap.getOrDefault(schoolId, 0L).intValue();
                 School school = schoolIdMap.get(schoolId);
-                statisticResultBO.setSchoolId(schoolId)
+                if (Objects.isNull(school)){
+                    return;
+                }
+
+                statisticResultBO.setSchoolId(schoolId).setIsTotal(Boolean.FALSE)
                         .setSchoolType(school.getType()).setDistrictId(school.getDistrictId())
                         .setPlanStudentCount(planSchoolScreeningNum);
 
@@ -184,6 +185,5 @@ public class SchoolStatisticTask {
 
         }
     }
-
 
 }

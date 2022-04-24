@@ -319,12 +319,16 @@ public class StatManagementController {
     }
 
     /**
-     * 筛查结果和筛查数据结论的数据转换为筛查结果统计数据 - 根据筛查计划日期或者筛查计划ID
+     * 筛查结果统计
+     * @param date 筛查计划日期
+     * @param planId 筛查计划 （当 isAll=true时，planId有值是从该值开始执行，isAll=false时，planId是指定值）
+     * @param isAll 是否全部
      */
     @GetMapping("/trigger")
     public void statTaskTrigger(@RequestParam(required = false) String date,
-                                @RequestParam(required = false) Integer planId) {
-        scheduledTasksExecutor.statistic(date,planId);
+                                @RequestParam(required = false) Integer planId,
+                                @RequestParam Boolean isAll) {
+        scheduledTasksExecutor.statistic(date,planId,isAll);
     }
 
     /**
@@ -334,14 +338,10 @@ public class StatManagementController {
      */
     @GetMapping("screeningToConclusion")
     public void screeningToConclusion(@RequestParam(required = false) Integer planId,@RequestParam Boolean isAll){
-        if (planId != null && !isAll){
-            statConclusionBizService.screeningToConclusionByPlanIds(Lists.newArrayList(planId));
-        }
-        if (isAll){
-            statConclusionBizService.screeningToConclusionAll(planId);
-        }
-
+        statConclusionBizService.screeningToConclusion(planId,isAll);
+        scheduledTasksExecutor.statistic(null,planId,isAll);
     }
+
     /**
      * 触发大屏统计（todo 为了测试方便）
      *
@@ -352,24 +352,6 @@ public class StatManagementController {
         bigScreeningStatService.statisticBigScreen();
     }
 
-    /**
-     * 筛查结果和筛查数据结论的数据转换为筛查结果统计数据-全部数据
-     */
-    @GetMapping("/triggerAll")
-    public void statTaskTriggerAll() {
-        List<Integer> yesterdayScreeningPlanIds = screeningPlanService.list().stream().map(ScreeningPlan::getId).filter(id->Objects.nonNull(id) && id>=127).collect(Collectors.toList());
-        if (CollectionUtils.isEmpty(yesterdayScreeningPlanIds)) {
-            log.info("筛查数据统计：历史无筛查数据，无需统计");
-            return;
-        }
-        log.info("共{}条筛查计划",yesterdayScreeningPlanIds.size());
-        List<List<Integer>> planIdsList = ListUtil.split(yesterdayScreeningPlanIds, 50);
-        for (int i = 0; i < planIdsList.size(); i++) {
-            log.info("分批执行中...{}/{}",i+1,planIdsList.size());
-            scheduledTasksExecutor.screeningResultStatisticByPlanIds(planIdsList.get(i));
-        }
-        log.info("数据处理完成");
-    }
 
     @GetMapping("/triggerById/{planId}")
     public void statTaskTriggerById(@PathVariable("planId") Integer planId) {

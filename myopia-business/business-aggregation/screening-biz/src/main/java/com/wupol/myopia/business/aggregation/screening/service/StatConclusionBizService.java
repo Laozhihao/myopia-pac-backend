@@ -15,15 +15,13 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreenin
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -43,20 +41,25 @@ public class StatConclusionBizService {
     private final SchoolGradeService schoolGradeService;
 
     /**
-     * 全部
+     * 筛查数据结论
      */
-    public void screeningToConclusionAll(Integer planId){
-        List<VisionScreeningResult> visionScreeningResults;
-        if(Objects.nonNull(planId)){
-            LambdaQueryWrapper<VisionScreeningResult> queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.ge(VisionScreeningResult::getPlanId,planId);
-            visionScreeningResults = visionScreeningResultService.list(queryWrapper);
+    public void screeningToConclusion(Integer planId,Boolean isAll){
+        if(isAll){
+            List<VisionScreeningResult> visionScreeningResults;
+            if(Objects.nonNull(planId)){
+                LambdaQueryWrapper<VisionScreeningResult> queryWrapper = new LambdaQueryWrapper<>();
+                queryWrapper.ge(VisionScreeningResult::getPlanId,planId);
+                visionScreeningResults = visionScreeningResultService.list(queryWrapper);
+            }else {
+                visionScreeningResults = visionScreeningResultService.list();
+            }
+            screeningToConclusion(visionScreeningResults);
         }else {
-            visionScreeningResults = visionScreeningResultService.list();
+            if (planId != null){
+                screeningToConclusionByPlanIds(Lists.newArrayList(planId));
+            }
         }
 
-        screeningToConclusion(visionScreeningResults);
-        log.info("success");
     }
     /**
      * 根据筛查计划Id 将筛查结果转为筛查数据结论
@@ -68,7 +71,6 @@ public class StatConclusionBizService {
         }
         List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.getByPlanIds(planIds);
         screeningToConclusion(visionScreeningResults);
-        log.info("success");
     }
 
     private void screeningToConclusion(List<VisionScreeningResult> visionScreeningResults){
@@ -78,34 +80,57 @@ public class StatConclusionBizService {
         }
         //2.筛查结果分组
         Map<Integer, List<VisionScreeningResult>> visionScreeningResultMap = visionScreeningResults.stream().collect(Collectors.groupingBy(VisionScreeningResult::getPlanId));
-
-        List<Map<Integer, List<VisionScreeningResult>>> mapList = MapUtil.splitMap(visionScreeningResultMap, 30);
-
-        log.info("共{}批次",mapList.size());
-        for (int i = 0; i < mapList.size(); i++) {
-            log.info("分批执行中...{}/{}",i+1,mapList.size());
-            consumerMap(mapList.get(i));
+        if (CollectionUtil.isNotEmpty(visionScreeningResultMap)){
+            List<Map<Integer, List<VisionScreeningResult>>> mapList = MapUtil.splitMap(visionScreeningResultMap, 30);
+            log.info("筛查数据结论，共{}批次",mapList.size());
+            for (int i = 0; i < mapList.size(); i++) {
+                log.info("分批执行中...{}/{}",i+1,mapList.size());
+                consumerMap(mapList.get(i));
+            }
+            log.info("筛查数据结论,数据处理完成");
         }
-        log.info("数据处理完成");
+    }
 
+
+    @Data
+    static class DataProcessBO{
+        private Map<Integer, ScreeningPlanSchoolStudent> screeningPlanSchoolStudentMap;
+        private Map<Integer, SchoolGrade> schoolGradeMap;
+        private Map<String, StatConclusion> statConclusionMap;
     }
 
     private void consumerMap(Map<Integer, List<VisionScreeningResult>> visionScreeningResultMap) {
+        if (CollectionUtil.isEmpty(visionScreeningResultMap)){
+            return;
+        }
         log.info("开始处理的筛查计划ID集合：planIds:{}",CollectionUtil.join(visionScreeningResultMap.keySet(),","));
         int count = visionScreeningResultMap.values().stream().mapToInt(List::size).sum();
         log.info("筛查结果数据共{}条",count);
 
         Set<Integer> screeningPlanSchoolStudentIds = visionScreeningResultMap.values().stream().flatMap(List::stream).map(VisionScreeningResult::getScreeningPlanSchoolStudentId).collect(Collectors.toSet());
-        Set<Integer> resultIds = visionScreeningResultMap.values().stream().flatMap(List::stream).map(VisionScreeningResult::getId).collect(Collectors.toSet());
+
+        DataProcessBO dataProcessBO = new DataProcessBO();
+
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getByIds(Lists.newArrayList(screeningPlanSchoolStudentIds));
+        if (CollectionUtil.isNotEmpty(screeningPlanSchoolStudents)){
+            Map<Integer, ScreeningPlanSchoolStudent> screeningPlanSchoolStudentMap = screeningPlanSchoolStudents.stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getId, Function.identity()));
+            Set<Integer> gradeIds = screeningPlanSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getGradeId).collect(Collectors.toSet());
+
+            List<SchoolGrade> schoolGrades = schoolGradeService.getByIds(Lists.newArrayList(gradeIds));
+            Map<Integer, SchoolGrade> schoolGradeMap = schoolGrades.stream().collect(Collectors.toMap(SchoolGrade::getId, Function.identity()));
+
+            dataProcessBO.setScreeningPlanSchoolStudentMap(screeningPlanSchoolStudentMap);
+            dataProcessBO.setSchoolGradeMap(schoolGradeMap);
+
+        }
+
+        Set<Integer> resultIds = visionScreeningResultMap.values().stream().flatMap(List::stream).map(VisionScreeningResult::getId).collect(Collectors.toSet());
         List<StatConclusion> statConclusions = statConclusionService.getByResultIds(Lists.newArrayList(resultIds));
+        if (CollectionUtil.isNotEmpty(statConclusions)){
+            Map<String, StatConclusion> statConclusionMap = statConclusions.stream().collect(Collectors.toMap(sc -> getKey(sc.getResultId(), sc.getIsRescreen()), Function.identity()));
+            dataProcessBO.setStatConclusionMap(statConclusionMap);
+        }
 
-        Map<String, StatConclusion> statConclusionMap = statConclusions.stream().collect(Collectors.toMap(sc -> getKey(sc.getResultId(), sc.getIsRescreen()), Function.identity()));
-        Map<Integer, ScreeningPlanSchoolStudent> screeningPlanSchoolStudentMap = screeningPlanSchoolStudents.stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getId, Function.identity()));
-        Set<Integer> gradeIds = screeningPlanSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getGradeId).collect(Collectors.toSet());
-
-        List<SchoolGrade> schoolGrades = schoolGradeService.getByIds(Lists.newArrayList(gradeIds));
-        Map<Integer, SchoolGrade> schoolGradeMap = schoolGrades.stream().collect(Collectors.toMap(SchoolGrade::getId, Function.identity()));
 
         Map<Integer, Map<String, TwoTuple<VisionScreeningResult, VisionScreeningResult>>> map = getMap(visionScreeningResultMap);
 
@@ -114,7 +139,7 @@ public class StatConclusionBizService {
         map.keySet().forEach(planId->{
             Map<String, TwoTuple<VisionScreeningResult, VisionScreeningResult>> typeMap = map.get(planId);
             if (CollectionUtil.isNotEmpty(typeMap)){
-                typeMap.forEach((type,tuple)-> screeningConclusionResult(tuple,statConclusionList,screeningPlanSchoolStudentMap,schoolGradeMap,statConclusionMap));
+                typeMap.forEach((type,tuple)-> screeningConclusionResult(tuple,statConclusionList,dataProcessBO));
             }
         });
 
@@ -128,39 +153,54 @@ public class StatConclusionBizService {
      * 筛查结论结果
      */
     private void screeningConclusionResult(TwoTuple<VisionScreeningResult, VisionScreeningResult> tuple,
-                                           List<StatConclusion> statConclusionList,
-                                           Map<Integer, ScreeningPlanSchoolStudent> screeningPlanSchoolStudentMap,
-                                           Map<Integer, SchoolGrade> schoolGradeMap,
-                                           Map<String, StatConclusion> statConclusionMap){
+                                           List<StatConclusion> statConclusionList,DataProcessBO dataProcessBO){
+
         VisionScreeningResult currentVisionScreeningResult = tuple.getFirst();
         VisionScreeningResult secondVisionScreeningResult = tuple.getSecond();
-        result(statConclusionList,screeningPlanSchoolStudentMap,schoolGradeMap,statConclusionMap, currentVisionScreeningResult, secondVisionScreeningResult);
-        if (secondVisionScreeningResult != null){
-            currentVisionScreeningResult=secondVisionScreeningResult;
-            result(statConclusionList,screeningPlanSchoolStudentMap,schoolGradeMap,statConclusionMap, currentVisionScreeningResult, secondVisionScreeningResult);
+        if (Objects.isNull(currentVisionScreeningResult)){
+            return;
         }
+        result(statConclusionList,dataProcessBO, currentVisionScreeningResult, secondVisionScreeningResult);
+
+        if (Objects.nonNull(secondVisionScreeningResult)){
+            currentVisionScreeningResult=secondVisionScreeningResult;
+            result(statConclusionList,dataProcessBO, currentVisionScreeningResult, secondVisionScreeningResult);
+        }
+
     }
 
-    private void result(List<StatConclusion> statConclusionList,
-                        Map<Integer, ScreeningPlanSchoolStudent> screeningPlanSchoolStudentMap,
-                        Map<Integer, SchoolGrade> schoolGradeMap,
-                        Map<String, StatConclusion> statConclusionMap,
+    private void result(List<StatConclusion> statConclusionList,DataProcessBO dataProcessBO,
                         VisionScreeningResult currentVisionScreeningResult,
                         VisionScreeningResult secondVisionScreeningResult) {
+        Map<Integer, ScreeningPlanSchoolStudent> screeningPlanSchoolStudentMap = dataProcessBO.getScreeningPlanSchoolStudentMap();
+        if (CollectionUtil.isEmpty(screeningPlanSchoolStudentMap)){
+            return;
+        }
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentMap.get(currentVisionScreeningResult.getScreeningPlanSchoolStudentId());
-        if (screeningPlanSchoolStudent == null) {
+        if (Objects.isNull(screeningPlanSchoolStudent)) {
             log.error("数据异常，无法根据id找到对应的ScreeningPlanSchoolStudent对象，id = {}" , currentVisionScreeningResult.getScreeningPlanSchoolStudentId());
             return;
         }
+        Map<String, StatConclusion> statConclusionMap = dataProcessBO.getStatConclusionMap();
+        if (CollectionUtil.isEmpty(statConclusionMap)){
+            return;
+        }
+        Map<Integer, SchoolGrade> schoolGradeMap = dataProcessBO.getSchoolGradeMap();
+        if (CollectionUtil.isEmpty(schoolGradeMap)){
+            return;
+        }
+        SchoolGrade schoolGrade = schoolGradeMap.get(screeningPlanSchoolStudent.getGradeId());
+        String schoolGradeCode = Optional.ofNullable(schoolGrade).map(SchoolGrade::getGradeCode).orElse(null);
+
         // 根据是否复查，查找结论表
         StatConclusion statConclusion = statConclusionMap.get(getKey(currentVisionScreeningResult.getId(), currentVisionScreeningResult.getIsDoubleScreen()));
+
         //需要新增
-        SchoolGrade schoolGrade = schoolGradeMap.get(screeningPlanSchoolStudent.getGradeId());
         StatConclusionBuilder statConclusionBuilder = StatConclusionBuilder.getStatConclusionBuilder();
         statConclusion = statConclusionBuilder.setCurrentVisionScreeningResult(currentVisionScreeningResult,secondVisionScreeningResult)
                 .setStatConclusion(statConclusion)
                 .setScreeningPlanSchoolStudent(screeningPlanSchoolStudent)
-                .setGradeCode(schoolGrade.getGradeCode())
+                .setGradeCode(schoolGradeCode)
                 .build();
         statConclusionList.add(statConclusion);
     }
@@ -170,6 +210,9 @@ public class StatConclusionBizService {
      */
     private Map<Integer, Map<String,TwoTuple<VisionScreeningResult,VisionScreeningResult>>> getMap(Map<Integer, List<VisionScreeningResult>> visionScreeningResultMap){
         Map<Integer, Map<String,TwoTuple<VisionScreeningResult,VisionScreeningResult>>> map= Maps.newHashMap();
+        if (CollectionUtil.isEmpty(visionScreeningResultMap)){
+            return map;
+        }
         visionScreeningResultMap.forEach((planId,results)->{
             Map<String, List<VisionScreeningResult>> typeMap = results.stream().collect(Collectors.groupingBy(vs->getKey(vs.getScreeningType(),vs.getStudentId())));
             Map<String, TwoTuple<VisionScreeningResult,VisionScreeningResult>> typeResult = Maps.newHashMap();

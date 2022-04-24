@@ -1,8 +1,8 @@
 package com.wupol.myopia.business.api.management.schedule;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.CompareUtil;
@@ -108,23 +108,40 @@ public class ScheduledTasksExecutor {
      * 根据指定日期生成筛查结果统计数据
      * @param date 日期
      */
-    public void statistic(String date,Integer planId){
-        if ((StrUtil.isBlank(date) && planId != null) || (StrUtil.isNotBlank(date)&& planId != null)){
-            log.info("通过筛查计划ID planId:{}生成筛查结果统计数据",planId);
-            screeningResultStatisticByPlanIds(Lists.newArrayList(planId));
-            return;
-        }
-
-        if (StrUtil.isNotBlank(date)&& planId == null){
-            log.info("通过日期 date:{} 生成筛查结果统计数据",date);
-            List<Integer> planIds = visionScreeningResultService.getScreeningPlanIdsByDate(date);
-            if (CollectionUtil.isEmpty(planIds)){
-                log.info("筛查数据统计：{}无筛查数据，无需统计",date);
+    public void statistic(String date,Integer planId,Boolean isAll){
+        if(isAll){
+            List<Integer> yesterdayScreeningPlanIds = screeningPlanService.list().stream().map(ScreeningPlan::getId).filter(id->Objects.nonNull(id) && id>=127).collect(Collectors.toList());
+            if (org.apache.commons.collections4.CollectionUtils.isEmpty(yesterdayScreeningPlanIds)) {
+                log.info("筛查数据统计：历史无筛查数据，无需统计");
                 return;
             }
-            screeningResultStatisticByPlanIds(planIds);
-        }
+            log.info("筛查数据统计,共{}条筛查计划",yesterdayScreeningPlanIds.size());
+            Collections.sort(yesterdayScreeningPlanIds);
+            if(Objects.nonNull(planId)){
+                yesterdayScreeningPlanIds = yesterdayScreeningPlanIds.stream().filter(id->id>planId).collect(Collectors.toList());
+            }
+            List<List<Integer>> planIdsList = ListUtil.split(yesterdayScreeningPlanIds, 20);
+            for (int i = 0; i < planIdsList.size(); i++) {
+                log.info("分批执行中...{}/{}",i+1,planIdsList.size());
+                screeningResultStatisticByPlanIds(planIdsList.get(i));
+            }
+        }else {
+            if ((StrUtil.isBlank(date) && planId != null) || (StrUtil.isNotBlank(date)&& planId != null)){
+                log.info("通过筛查计划ID planId:{}生成筛查结果统计数据",planId);
+                screeningResultStatisticByPlanIds(Lists.newArrayList(planId));
+            }
 
+            if (StrUtil.isNotBlank(date)&& planId == null){
+                log.info("通过筛查计划日期 date:{} 生成筛查结果统计数据",date);
+                List<Integer> planIds = visionScreeningResultService.getScreeningPlanIdsByDate(date);
+                if (CollectionUtil.isEmpty(planIds)){
+                    log.info("筛查数据统计：{}无筛查数据，无需统计",date);
+                    return;
+                }
+                screeningResultStatisticByPlanIds(planIds);
+            }
+        }
+        log.info("筛查数据统计,数据处理完成");
     }
 
     public void screeningResultStatisticByPlanIds(List<Integer> screeningPlanIds){

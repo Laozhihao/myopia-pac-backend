@@ -147,6 +147,11 @@ public class SchoolKindergartenResultVO {
          */
         private Boolean isKindergarten;
 
+        /**
+         * 筛查机构
+         */
+        private Integer screeningOrgId;
+
 
     }
 

@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.CompareUtil;
+import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.business.api.management.domain.bo.StatisticResultBO;
 import com.wupol.myopia.business.api.management.domain.builder.ScreeningResultStatisticBuilder;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
@@ -49,38 +50,35 @@ public class DistrictStatisticTask {
     /**
      * 按区域统计
      */
-    public void districtStatistics(List<Integer> yesterdayScreeningPlanIds) {
-        //筛查计划ID 查找筛查通知ID
-        List<Integer> screeningNoticeIds = screeningPlanService.getSrcScreeningNoticeIdsByIds(yesterdayScreeningPlanIds);
-        if(CollectionUtil.isEmpty(screeningNoticeIds)){
-            log.error("未找到筛查通知数据，planIds:{}",CollectionUtil.join(yesterdayScreeningPlanIds,","));
+    public void districtStatistics(List<Integer> screeningPlanIds) {
+        if (CollectionUtil.isEmpty(screeningPlanIds)){
             return;
         }
-
-        // 单点筛查（自己创建的筛查）机构创建的数据不需要统计
+        //筛查计划ID 查找筛查通知ID
+        List<Integer> screeningNoticeIds = screeningPlanService.getSrcScreeningNoticeIdsByIds(screeningPlanIds);
+        if(CollectionUtil.isEmpty(screeningNoticeIds)){
+            log.error("未找到筛查通知数据，planIds:{}",CollectionUtil.join(screeningPlanIds,","));
+            return;
+        }
         screeningNoticeIds = screeningNoticeIds.stream().filter(id-> !CommonConst.DEFAULT_ID.equals(id)).collect(Collectors.toList());
+
 
         //筛查通知ID 查出筛查数据结论
         List<StatConclusion> statConclusionList = statConclusionService.getBySrcScreeningNoticeIds(screeningNoticeIds);
         if (CollectionUtil.isEmpty(statConclusionList)){return; }
 
-        //筛查数据结论 根据筛查类型分组 分别统计
-        Map<Integer, List<StatConclusion>> screeningTypeStatConclusionMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getScreeningType));
 
+        List<VisionScreeningResultStatistic> visionScreeningResultStatisticList = Lists.newArrayList();
+        List<CommonDiseaseScreeningResultStatistic> commonDiseaseScreeningResultStatisticList = Lists.newArrayList();
+        screeningResultStatistic(statConclusionList,visionScreeningResultStatisticList,commonDiseaseScreeningResultStatisticList);
 
         //视力筛查
-        List<VisionScreeningResultStatistic> visionScreeningResultStatisticList = visionScreeningResultStatistic(screeningTypeStatConclusionMap);
-        if (CollectionUtil.isNotEmpty(visionScreeningResultStatisticList)){
-            for (VisionScreeningResultStatistic visionScreeningResultStatistic : visionScreeningResultStatisticList) {
-                screeningResultStatisticService.saveVisionScreeningResultStatistic(visionScreeningResultStatistic);
-            }
+        for (VisionScreeningResultStatistic visionScreeningResultStatistic : visionScreeningResultStatisticList) {
+            screeningResultStatisticService.saveVisionScreeningResultStatistic(visionScreeningResultStatistic);
         }
         //常见病筛查
-        List<CommonDiseaseScreeningResultStatistic> commonDiseaseScreeningResultStatisticList = commonDiseaseScreeningResultStatistic(screeningTypeStatConclusionMap);
-        if (CollectionUtil.isNotEmpty(commonDiseaseScreeningResultStatisticList)){
-            for ( CommonDiseaseScreeningResultStatistic commonDiseaseScreeningResultStatistic : commonDiseaseScreeningResultStatisticList) {
-                screeningResultStatisticService.saveCommonDiseaseScreeningResultStatistic(commonDiseaseScreeningResultStatistic);
-            }
+        for ( CommonDiseaseScreeningResultStatistic commonDiseaseScreeningResultStatistic : commonDiseaseScreeningResultStatisticList) {
+            screeningResultStatisticService.saveCommonDiseaseScreeningResultStatistic(commonDiseaseScreeningResultStatistic);
         }
 
     }
@@ -88,26 +86,22 @@ public class DistrictStatisticTask {
     /**
      * 视力筛查结果统计
      */
-    private List<VisionScreeningResultStatistic> visionScreeningResultStatistic(Map<Integer, List<StatConclusion>> screeningTypeStatConclusionMap){
-        List<VisionScreeningResultStatistic> visionScreeningResultStatisticList= Lists.newArrayList();
-        List<StatConclusion> statConclusions = screeningTypeStatConclusionMap.get(0);
-        if (CollectionUtil.isNotEmpty(statConclusions)){
-            statistic(statConclusions,visionScreeningResultStatisticList,null);
+    private void screeningResultStatistic(List<StatConclusion> statConclusionList,
+                                                List<VisionScreeningResultStatistic> visionScreeningResultStatisticList,
+                                                List<CommonDiseaseScreeningResultStatistic> commonDiseaseScreeningResultStatisticList){
+        if (CollectionUtil.isEmpty(statConclusionList)){
+            return;
         }
-        return visionScreeningResultStatisticList;
+        Map<Integer, List<StatConclusion>> screeningTypeStatConclusionMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getScreeningType));
+        screeningTypeStatConclusionMap.forEach((screeningType,statConclusions)->{
+            if(Objects.equals(0,screeningType)){
+                statistic(statConclusions,visionScreeningResultStatisticList,null);
+            }else {
+                statistic(statConclusions,null,commonDiseaseScreeningResultStatisticList);
+            }
+        });
     }
 
-    /**
-     * 常见病筛查结果统计
-     */
-    private List<CommonDiseaseScreeningResultStatistic> commonDiseaseScreeningResultStatistic(Map<Integer, List<StatConclusion>> screeningTypeStatConclusionMap){
-        List<CommonDiseaseScreeningResultStatistic> commonDiseaseScreeningResultStatisticList =Lists.newArrayList();
-        List<StatConclusion> statConclusions = screeningTypeStatConclusionMap.get(1);
-        if (CollectionUtil.isNotEmpty(statConclusions)){
-            statistic(statConclusions,null,commonDiseaseScreeningResultStatisticList);
-        }
-        return commonDiseaseScreeningResultStatisticList;
-    }
 
     /**
      * 统计逻辑
@@ -115,6 +109,9 @@ public class DistrictStatisticTask {
     private void statistic(List<StatConclusion> statConclusionList,
                            List<VisionScreeningResultStatistic> visionScreeningResultStatisticList,
                            List<CommonDiseaseScreeningResultStatistic> commonDiseaseScreeningResultStatisticList){
+        if (CollectionUtil.isEmpty(statConclusionList) ){
+            return;
+        }
         //根据筛查通知ID分组
         Map<Integer, List<StatConclusion>> statConclusionMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSrcScreeningNoticeId));
 
@@ -125,18 +122,16 @@ public class DistrictStatisticTask {
 
             //查出通知对应的地区顶级层级：从任务所在省级开始（因为筛查计划可选全省学校）
             ScreeningNotice screeningNotice = screeningNoticeService.getById(screeningNoticeId);
+            if (Objects.isNull(screeningNotice)){
+                return;
+            }
             Integer provinceDistrictId = districtService.getProvinceId(screeningNotice.getDistrictId());
 
             //同一个筛查通知下不同地区筛查数据结论 ,根据地区分组
             Map<Integer, List<StatConclusion>> districtStatConclusionMap = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getDistrictId));
 
-            if(Objects.equals(0,screeningNotice.getScreeningType())){
-                //根据地区生成视力筛查统计
-                genVisionStatisticsByDistrictId(screeningNotice, provinceDistrictId, districtPlanStudentCountMap, visionScreeningResultStatisticList, districtStatConclusionMap);
-            }else {
-                //根据地区生成常见病筛查统计
-                genCommonDiseaseStatisticsByDistrictId(screeningNotice, provinceDistrictId, districtPlanStudentCountMap, commonDiseaseScreeningResultStatisticList, districtStatConclusionMap);
-            }
+            //根据地区生成筛查统计
+            genStatisticsByDistrictId(screeningNotice, provinceDistrictId, districtPlanStudentCountMap,districtStatConclusionMap, visionScreeningResultStatisticList, commonDiseaseScreeningResultStatisticList);
 
         });
     }
@@ -145,11 +140,16 @@ public class DistrictStatisticTask {
     /**
      * 根据地区生成视力筛查统计
      */
-    private void genVisionStatisticsByDistrictId(ScreeningNotice screeningNotice, Integer districtId, Map<Integer, Long> districtPlanStudentCountMap,
+    private void genStatisticsByDistrictId(ScreeningNotice screeningNotice, Integer districtId, Map<Integer, Long> districtPlanStudentCountMap,
+                                           Map<Integer, List<StatConclusion>> districtStatConclusions,
                                            List<VisionScreeningResultStatistic> visionScreeningResultStatisticList,
-                                           Map<Integer, List<StatConclusion>> districtStatConclusions) {
-        List<District> childDistricts = new ArrayList<>();
-        List<Integer> childDistrictIds = new ArrayList<>();
+                                           List<CommonDiseaseScreeningResultStatistic> commonDiseaseScreeningResultStatisticList) {
+        if (ObjectsUtil.hasNull(screeningNotice,districtId,districtPlanStudentCountMap,districtStatConclusions)){
+            return;
+        }
+
+        List<District> childDistricts = Lists.newArrayList();
+        List<Integer> childDistrictIds = Lists.newArrayList();
         try {
             // 合计的要包括自己层级的筛查数据
             childDistricts = districtService.getChildDistrictByParentIdPriorityCache(districtId);
@@ -157,6 +157,7 @@ public class DistrictStatisticTask {
         } catch (IOException e) {
             log.error("获取区域层级失败", e);
         }
+
         //2.4 层级循环处理并添加到对应的统计中
         //获取两集合的交集
         List<Integer> haveStatConclusionsChildDistrictIds = CompareUtil.getRetain(childDistrictIds, districtStatConclusions.keySet());
@@ -177,7 +178,7 @@ public class DistrictStatisticTask {
                 .setPlanStudentCount(totalPlanStudentCount)
                 .setStatConclusions(totalStatConclusions);
 
-        genTotalStatistics(totalStatistic, visionScreeningResultStatisticList,null);
+        genTotalStatistics(totalStatistic, visionScreeningResultStatisticList,commonDiseaseScreeningResultStatisticList);
 
         StatisticResultBO selfStatistic = new StatisticResultBO()
                 .setScreeningNoticeId(screeningNotice.getId())
@@ -185,60 +186,14 @@ public class DistrictStatisticTask {
                 .setDistrictId(districtId)
                 .setPlanStudentCount(selfPlanStudentCount)
                 .setStatConclusions(selfStatConclusions);
-        genSelfStatistics(selfStatistic, visionScreeningResultStatisticList,null);
+        genSelfStatistics(selfStatistic, visionScreeningResultStatisticList,commonDiseaseScreeningResultStatisticList);
+
         if (totalStatConclusions.size() != selfStatConclusions.size()) {
             //递归统计下层级数据
-            childDistricts.forEach(childDistrict -> genVisionStatisticsByDistrictId(screeningNotice, childDistrict.getId(), districtPlanStudentCountMap, visionScreeningResultStatisticList, districtStatConclusions));
+            childDistricts.forEach(childDistrict -> genStatisticsByDistrictId(screeningNotice, childDistrict.getId(), districtPlanStudentCountMap, districtStatConclusions,visionScreeningResultStatisticList,commonDiseaseScreeningResultStatisticList ));
         }
     }
 
-    /**
-     * 根据地区生成常见病筛查统计
-     */
-    private void genCommonDiseaseStatisticsByDistrictId(ScreeningNotice screeningNotice, Integer districtId, Map<Integer, Long> districtPlanStudentCountMap,
-                                                 List<CommonDiseaseScreeningResultStatistic> commonDiseaseScreeningResultStatisticList,
-                                                 Map<Integer, List<StatConclusion>> districtStatConclusions) {
-        List<District> childDistricts = new ArrayList<>();
-        List<Integer> childDistrictIds = new ArrayList<>();
-        try {
-            // 合计的要包括自己层级的筛查数据
-            childDistricts = districtService.getChildDistrictByParentIdPriorityCache(districtId);
-            childDistrictIds = districtService.getSpecificDistrictTreeAllDistrictIds(districtId);
-        } catch (IOException e) {
-            log.error("获取区域层级失败", e);
-        }
-        //2.4 层级循环处理并添加到对应的统计中
-        List<Integer> haveStatConclusionsChildDistrictIds = CompareUtil.getRetain(childDistrictIds, districtStatConclusions.keySet());
-        List<Integer> haveStudentDistrictIds = CompareUtil.getRetain(childDistrictIds, districtPlanStudentCountMap.keySet());
-        // 层级合计数据
-        List<StatConclusion> totalStatConclusions = haveStatConclusionsChildDistrictIds.stream().map(districtStatConclusions::get).flatMap(Collection::stream).collect(Collectors.toList());
-        Integer totalPlanStudentCount = (int) haveStudentDistrictIds.stream().mapToLong(districtPlanStudentCountMap::get).sum();
-        // 层级自身数据
-        List<StatConclusion> selfStatConclusions = districtStatConclusions.getOrDefault(districtId, Collections.emptyList());
-        Integer selfPlanStudentCount = districtPlanStudentCountMap.getOrDefault(districtId, 0L).intValue();
-
-        StatisticResultBO totalStatistic = new StatisticResultBO()
-                .setScreeningNoticeId(screeningNotice.getId())
-                .setScreeningType(screeningNotice.getScreeningType())
-                .setDistrictId(districtId)
-                .setPlanStudentCount(totalPlanStudentCount)
-                .setStatConclusions(totalStatConclusions);
-
-        genTotalStatistics(totalStatistic, null,commonDiseaseScreeningResultStatisticList);
-
-        StatisticResultBO selfStatistic = new StatisticResultBO()
-                .setScreeningNoticeId(screeningNotice.getId())
-                .setScreeningType(screeningNotice.getScreeningType())
-                .setDistrictId(districtId)
-                .setPlanStudentCount(selfPlanStudentCount)
-                .setStatConclusions(selfStatConclusions);
-
-        genSelfStatistics(selfStatistic,null,commonDiseaseScreeningResultStatisticList);
-        if (totalStatConclusions.size() != selfStatConclusions.size()) {
-            //递归统计下层级数据
-            childDistricts.forEach(childDistrict -> genCommonDiseaseStatisticsByDistrictId(screeningNotice, childDistrict.getId(), districtPlanStudentCountMap, commonDiseaseScreeningResultStatisticList, districtStatConclusions));
-        }
-    }
 
     /**
      * 合计统计
@@ -257,11 +212,18 @@ public class DistrictStatisticTask {
                 .setIsTotal(Boolean.TRUE).setSchoolId(-1).setScreeningOrgId(-1);
 
         if (Objects.nonNull(visionScreeningResultStatisticList)){
-            visionScreeningResultStatisticList.addAll(buildVisionScreening(totalStatistic));
+            List<VisionScreeningResultStatistic> list= Lists.newArrayList();
+            buildVisionScreening(totalStatistic,list);
+            visionScreeningResultStatisticList.addAll(list);
         }
+
         if (Objects.nonNull(commonDiseaseScreeningResultStatisticList)){
-            commonDiseaseScreeningResultStatisticList.addAll(buildCommonDiseaseScreening(totalStatistic));
+            List<CommonDiseaseScreeningResultStatistic> list= Lists.newArrayList();
+            buildCommonDiseaseScreening(totalStatistic,list);
+            commonDiseaseScreeningResultStatisticList.addAll(list);
         }
+
+
     }
 
     /**
@@ -284,21 +246,30 @@ public class DistrictStatisticTask {
                 .setIsTotal(Boolean.FALSE).setSchoolId(-1).setScreeningOrgId(-1);
 
         if (Objects.nonNull(visionScreeningResultStatisticList)){
-            visionScreeningResultStatisticList.addAll(buildVisionScreening(selfStatistic));
+            List<VisionScreeningResultStatistic> list= Lists.newArrayList();
+            buildVisionScreening(selfStatistic,list);
+            visionScreeningResultStatisticList.addAll(list);
         }
+
         if (Objects.nonNull(commonDiseaseScreeningResultStatisticList)){
-            commonDiseaseScreeningResultStatisticList.addAll(buildCommonDiseaseScreening(selfStatistic));
+            List<CommonDiseaseScreeningResultStatistic> list= Lists.newArrayList();
+            buildCommonDiseaseScreening(selfStatistic,list);
+            commonDiseaseScreeningResultStatisticList.addAll(list);
         }
+
     }
 
 
     /**
      * 按区域 - 视力筛查数据统计
      */
-    private List<VisionScreeningResultStatistic> buildVisionScreening(StatisticResultBO statistic) {
+    private void buildVisionScreening(StatisticResultBO statistic,List<VisionScreeningResultStatistic> visionScreeningResultStatisticList) {
 
-        List<VisionScreeningResultStatistic> visionScreeningResultStatisticList= Lists.newArrayList();
-        Map<Integer, List<StatConclusion>> schoolMap = statistic.getStatConclusions().stream().collect(Collectors.groupingBy(sc -> getKey(sc.getSchoolAge())));
+        List<StatConclusion> statConclusions = statistic.getStatConclusions();
+        if (CollectionUtil.isEmpty(statConclusions)){
+            return;
+        }
+        Map<Integer, List<StatConclusion>> schoolMap = statConclusions.stream().collect(Collectors.groupingBy(sc -> getKey(sc.getSchoolAge())));
 
         schoolMap.forEach((schoolAge,list)->{
             if (Objects.equals(schoolAge, SchoolAge.KINDERGARTEN.code)) {
@@ -308,12 +279,14 @@ public class DistrictStatisticTask {
             }
             ScreeningResultStatisticBuilder.visionScreening(statistic, list,visionScreeningResultStatisticList);
         });
-        return visionScreeningResultStatisticList;
     }
 
 
-    private List<CommonDiseaseScreeningResultStatistic> buildCommonDiseaseScreening(StatisticResultBO statistic) {
-        List<CommonDiseaseScreeningResultStatistic> commonDiseaseScreeningResultStatisticList= Lists.newArrayList();
+    private void buildCommonDiseaseScreening(StatisticResultBO statistic,List<CommonDiseaseScreeningResultStatistic> commonDiseaseScreeningResultStatisticList) {
+        List<StatConclusion> statConclusions = statistic.getStatConclusions();
+        if (CollectionUtil.isEmpty(statConclusions)){
+            return;
+        }
         Map<Integer, List<StatConclusion>> schoolMap = statistic.getStatConclusions().stream().collect(Collectors.groupingBy(sc -> getKey(sc.getSchoolAge())));
 
         schoolMap.forEach((schoolAge,list)->{
@@ -324,7 +297,6 @@ public class DistrictStatisticTask {
             }
             ScreeningResultStatisticBuilder.commonDiseaseScreening(statistic, list,commonDiseaseScreeningResultStatisticList);
         });
-        return commonDiseaseScreeningResultStatisticList;
     }
 
 

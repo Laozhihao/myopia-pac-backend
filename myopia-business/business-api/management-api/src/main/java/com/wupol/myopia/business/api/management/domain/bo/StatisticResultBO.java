@@ -6,6 +6,7 @@ import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 统计结果流转实体
@@ -70,4 +71,13 @@ public class StatisticResultBO implements Serializable {
      * 学校类型
      */
     private Integer schoolType;
+
+    public StatisticResultBO setSchoolType(Integer schoolType) {
+        if (Objects.equals(8,schoolType)){
+            this.schoolType = schoolType;
+        }else {
+            this.schoolType = 0;
+        }
+        return this;
+    }
 }

@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -105,8 +106,21 @@ public class ScreeningResultStatisticService extends BaseService<ScreeningResult
     @Transactional(rollbackFor = Exception.class)
     public void saveScreeningResultStatistic(VisionScreeningResultStatistic visionScreeningResultStatistic){
         ScreeningResultStatistic screeningResultStatistic = BeanCopyUtil.copyBeanPropertise(visionScreeningResultStatistic, ScreeningResultStatistic.class);
+        LambdaQueryWrapper<ScreeningResultStatistic> queryWrapper =new LambdaQueryWrapper<>();
+        queryWrapper.eq(ScreeningResultStatistic::getScreeningPlanId,screeningResultStatistic.getScreeningPlanId());
+        queryWrapper.eq(ScreeningResultStatistic::getScreeningType,screeningResultStatistic.getScreeningType());
+        queryWrapper.eq(ScreeningResultStatistic::getScreeningOrgId,screeningResultStatistic.getScreeningOrgId());
+        queryWrapper.eq(ScreeningResultStatistic::getSchoolId,screeningResultStatistic.getSchoolId());
+        queryWrapper.eq(ScreeningResultStatistic::getSchoolType,screeningResultStatistic.getSchoolType());
+        queryWrapper.eq(ScreeningResultStatistic::getDistrictId,screeningResultStatistic.getDistrictId());
+        queryWrapper.eq(ScreeningResultStatistic::getIsTotal,screeningResultStatistic.getIsTotal());
+        ScreeningResultStatistic dbData = baseMapper.selectOne(queryWrapper);
+        if (Objects.nonNull(dbData)){
+            screeningResultStatistic.setId(dbData.getId());
+        }
         saveOrUpdate(screeningResultStatistic);
     }
+
 
     public List<ScreeningResultStatistic> getStatisticByNoticeIdAndCurrentChildDistrictIds(Integer noticeId, Integer currentDistrictId,
                                                                                            boolean isTotal, Integer screeningType, boolean isKindergarten)  {
