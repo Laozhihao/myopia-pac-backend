@@ -22,6 +22,7 @@ import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanServic
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
+import com.wupol.myopia.business.core.system.constants.TemplateConstants;
 import com.wupol.myopia.business.core.system.service.TemplateDistrictService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -224,7 +225,7 @@ public class GeneratePdfFileService {
         ScreeningPlan plan = screeningPlanService.getById(planId);
 
         // 获取筛查机构的模板
-        Integer templateId = templateDistrictService.getArchivesByDistrictId(districtService.getProvinceId(plan.getDistrictId()));
+        Integer templateId = templateDistrictService.getArchivesByDistrictId(districtService.getProvinceId(plan.getDistrictId()), TemplateConstants.getTemplateBizTypeByScreeningType(plan.getScreeningType()));
 
         School school = schoolService.getById(schoolId);
 
@@ -319,8 +320,8 @@ public class GeneratePdfFileService {
         School school = schoolService.getById(schoolId);
         // 获取筛查机构的模板
         ScreeningOrganization org = screeningOrganizationService.getById(screeningPlanService.getById(planId).getScreeningOrgId());
-
-        Integer templateId = templateDistrictService.getArchivesByDistrictId(districtService.getProvinceId(org.getDistrictId()));
+        ScreeningPlan plan = screeningPlanService.getById(planId);
+        Integer templateId = templateDistrictService.getArchivesByDistrictId(districtService.getProvinceId(org.getDistrictId()), TemplateConstants.getTemplateBizTypeByScreeningType(plan.getScreeningType()));
 
         String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.STUDENT_ARCHIVES_HTML_URL, htmlUrlHost, planId, schoolId, templateId, StringUtils.isNotBlank(planStudentIds) ? planStudentIds : StringUtils.EMPTY, gradeId, Objects.nonNull(classId) ? classId : StringUtils.EMPTY);
         Assert.isTrue(HtmlToPdfUtil.convertArchives(schoolPdfHtmlUrl, Paths.get(fileSavePath).toString()), "【生成学校档案卡PDF文件异常】：" + school.getName());

@@ -42,9 +42,6 @@ import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanServic
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.flow.util.ScreeningResultUtil;
-import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
-import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
-import com.wupol.myopia.business.core.system.service.TemplateDistrictService;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang.time.DateUtils;
@@ -87,12 +84,6 @@ public class StudentBizService {
 
     @Resource
     private VistelToolsService vistelToolsService;
-
-    @Resource
-    private ScreeningOrganizationService screeningOrganizationService;
-
-    @Resource
-    private TemplateDistrictService templateDistrictService;
 
     @Autowired
     private StatConclusionService statConclusionService;
@@ -254,18 +245,6 @@ public class StudentBizService {
         }
         return student;
     }
-
-    /**
-     * 获取机构使用的模板
-     *
-     * @param screeningOrgId 筛查机构Id
-     * @return 模板Id
-     */
-    private Integer getTemplateId(Integer screeningOrgId) {
-        ScreeningOrganization org = screeningOrganizationService.getById(screeningOrgId);
-        return templateDistrictService.getArchivesByDistrictId(districtService.getProvinceId(org.getDistrictId()));
-    }
-
 
     /**
      * 删除学生

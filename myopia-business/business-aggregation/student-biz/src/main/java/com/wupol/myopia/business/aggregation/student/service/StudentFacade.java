@@ -43,7 +43,6 @@ import com.wupol.myopia.business.core.screening.organization.service.ScreeningOr
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationStaffService;
 import com.wupol.myopia.business.core.system.constants.TemplateConstants;
 import com.wupol.myopia.business.core.system.service.TemplateDistrictService;
-import com.wupol.myopia.business.core.system.service.TemplateService;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -110,9 +109,6 @@ public class StudentFacade {
     @Autowired
     private SchoolClassService schoolClassService;
 
-    @Autowired
-    private TemplateService templateService;
-
     /**
      * 获取学生筛查档案
      *
@@ -159,7 +155,7 @@ public class StudentFacade {
             }
             item.setResultId(result.getId());
             item.setIsDoubleScreen(result.getIsDoubleScreen());
-            item.setTemplateId(getTemplateId(result.getScreeningOrgId()));
+            item.setTemplateId(getTemplateId(result.getScreeningOrgId(), result.getScreeningType()));
             item.setOtherEyeDiseases(getOtherEyeDiseasesList(result));
             item.setWarningLevel(statMap.get(result.getId()).getWarningLevel());
             item.setMyopiaLevel(statMap.get(result.getId()).getMyopiaLevel());
@@ -318,11 +314,12 @@ public class StudentFacade {
      * 获取机构使用的模板
      *
      * @param screeningOrgId 筛查机构Id
+     * @param screeningType  筛查类型
      * @return 模板Id
      */
-    private Integer getTemplateId(Integer screeningOrgId) {
+    private Integer getTemplateId(Integer screeningOrgId, Integer screeningType) {
         ScreeningOrganization org = screeningOrganizationService.getById(screeningOrgId);
-        return templateDistrictService.getArchivesByDistrictId(districtService.getProvinceId(org.getDistrictId()));
+        return templateDistrictService.getArchivesByDistrictId(districtService.getProvinceId(org.getDistrictId()), TemplateConstants.getTemplateBizTypeByScreeningType(screeningType));
     }
 
     /**
@@ -359,7 +356,7 @@ public class StudentFacade {
         cardInfoVO.setCountNotCooperate(getCountNotCooperate(visionScreeningResult));
         responseDTO.setInfo(cardInfoVO);
 
-        Integer templateId = getTemplateId(visionScreeningResult.getScreeningOrgId());
+        Integer templateId = getTemplateId(visionScreeningResult.getScreeningOrgId(), visionScreeningResult.getScreeningType());
         return generateCardDetail(visionScreeningResult, studentInfo, templateId, responseDTO);
     }
 
@@ -374,7 +371,7 @@ public class StudentFacade {
             return new ArrayList<>();
         }
         // 筛查结构的Id都相同，取第一个就行
-        Integer templateId = getTemplateId(resultList.get(0).getScreeningOrgId());
+        Integer templateId = getTemplateId(resultList.get(0).getScreeningOrgId(), resultList.get(0).getScreeningType());
 
         // 查询学生信息
         List<Integer> studentIds = resultList.stream().map(VisionScreeningResult::getStudentId).collect(Collectors.toList());
@@ -417,7 +414,7 @@ public class StudentFacade {
         }
         VisionScreeningResult visionScreeningResult = visionScreeningResultService.getById(result.getId());
 
-        responseDTO.setTemplateId(getTemplateId(visionScreeningResult.getScreeningOrgId()));
+        responseDTO.setTemplateId(getTemplateId(visionScreeningResult.getScreeningOrgId(), visionScreeningResult.getScreeningType()));
         responseDTO.setStudentCardResponseVO(Lists.newArrayList(getStudentCardResponseDTO(visionScreeningResult)));
         return responseDTO;
     }

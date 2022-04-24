@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.api.management.controller;
 
 import com.wupol.myopia.base.handler.ResponseResultBody;
-import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.core.system.constants.TemplateConstants;
 import com.wupol.myopia.business.core.system.domain.dos.TemplateDO;
 import com.wupol.myopia.business.core.system.domain.dto.TemplateBindRequestDTO;
 import com.wupol.myopia.business.core.system.service.TemplateService;
@@ -32,7 +32,7 @@ public class StudentArchivesController {
      */
     @GetMapping("lists")
     public Map<Integer, List<TemplateDO>> getLists() {
-        return templateService.getTemplateLists(CommonConst.TYPE_TEMPLATE_STUDENT_ARCHIVES);
+        return templateService.getTemplateLists(TemplateConstants.TYPE_TEMPLATE_STUDENT_ARCHIVES);
     }
 
     /**
@@ -42,7 +42,7 @@ public class StudentArchivesController {
      * @return 是否成功
      */
     @PutMapping("save")
-    public Boolean save(@RequestBody TemplateBindRequestDTO request) {
-        return templateService.districtBindArchives(request);
+    public void save(@RequestBody TemplateBindRequestDTO request) {
+        templateService.bindDistrictToTemplate(request);
     }
 }
