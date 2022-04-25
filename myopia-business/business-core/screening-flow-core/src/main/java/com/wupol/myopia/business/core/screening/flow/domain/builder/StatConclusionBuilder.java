@@ -254,10 +254,11 @@ public class StatConclusionBuilder {
             statConclusion.setWarningLevel(WarningLevel.NORMAL.code);
             return;
         }
+
         Integer warningLevelInt = StatUtil.getWarningLevelInt(
                 basicData.getLeftCyl(),basicData.getLeftSph(),basicData.getLeftNakedVision(),
                 basicData.getRightCyl(),basicData.getRightSph(),basicData.getRightNakedVision(),
-                basicData.getAge());
+                basicData.getAge(),basicData.getSchoolAge());
         statConclusion.setWarningLevel(warningLevelInt);
     }
 
@@ -300,19 +301,17 @@ public class StatConclusionBuilder {
         if (basicData.getRightNakedVision() != null) {
             isrightResult = StatUtil.isLowVision(basicData.getRightNakedVision(), basicData.getAge());
         }
-        if(ObjectsUtil.hasNull(isLeftResult,isrightResult)){
-            return;
+        if(ObjectsUtil.allNotNull(isLeftResult,isrightResult)){
+            statConclusion.setIsLowVision(isLeftResult || isrightResult);
         }
-        statConclusion.setIsLowVision(isLeftResult || isrightResult);
     }
 
     private void setRefractiveError() {
         Boolean leftRefractiveError = StatUtil.isRefractiveError(basicData.getLeftSph(),basicData.getLeftCyl(),basicData.getAge());
         Boolean rightRefractiveError = StatUtil.isRefractiveError(basicData.getRightSph(),basicData.getRightCyl(),basicData.getAge());
-        if (ObjectsUtil.hasNull(leftRefractiveError,rightRefractiveError)){
-            return;
+        if (ObjectsUtil.allNotNull(leftRefractiveError,rightRefractiveError)){
+            statConclusion.setIsRefractiveError( leftRefractiveError || rightRefractiveError);
         }
-        statConclusion.setIsRefractiveError( leftRefractiveError || rightRefractiveError);
     }
 
     private void setMyopia() {
@@ -324,10 +323,9 @@ public class StatConclusionBuilder {
         if (basicData.getRightMyopiaWarningLevel() != null) {
             isrightMyopia = StatUtil.isMyopia(basicData.getRightMyopiaWarningLevel());
         }
-        if (ObjectsUtil.hasNull(isLeftMyopia,isrightMyopia)){
-            return;
+        if (ObjectsUtil.allNotNull(isLeftMyopia,isrightMyopia)){
+            statConclusion.setIsMyopia(isLeftMyopia || isrightMyopia);
         }
-        statConclusion.setIsMyopia(isLeftMyopia || isrightMyopia);
     }
 
     private void setHyperopia() {
