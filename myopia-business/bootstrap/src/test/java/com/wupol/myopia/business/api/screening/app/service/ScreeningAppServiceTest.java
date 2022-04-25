@@ -71,8 +71,7 @@ class ScreeningAppServiceTest {
         Integer classId = 82;
         Integer screeningOrgId = 3;
         Boolean isFilter = true;
-        String studentName = null;
-        ClassScreeningProgress data = screeningAppService.getClassScreeningProgress(schoolId, gradeId, classId, screeningOrgId, isFilter, studentName);
+        ClassScreeningProgress data = screeningAppService.getClassScreeningProgress(schoolId, gradeId, classId, screeningOrgId, isFilter, 1);
         System.out.println(JSON.toJSONString(data));
     }
 

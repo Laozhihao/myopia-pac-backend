@@ -498,9 +498,9 @@ public class ScreeningAppController {
     public ClassScreeningProgress getClassScreeningProgress(@NotNull(message = "学校ID不能为空") Integer schoolId,
                                                             @NotNull(message = "年级ID不能为空") Integer gradeId,
                                                             @NotNull(message = "班级ID不能为空") Integer classId,
-                                                            String studentName,
+                                                            @NotNull(message = "初筛标志") Integer state,
                                                             Boolean isFilter) {
-        return screeningAppService.getClassScreeningProgress(schoolId, gradeId, classId, CurrentUserUtil.getCurrentUser().getOrgId(), isFilter, studentName);
+        return screeningAppService.getClassScreeningProgress(schoolId, gradeId, classId, CurrentUserUtil.getCurrentUser().getOrgId(), isFilter, state);
     }
 
     /**
@@ -932,5 +932,20 @@ public class ScreeningAppController {
             deviationDTO.setIsState(1);
             visionScreeningBizService.saveOrUpdateStudentScreenData(deviationDTO);
         }
+    }
+
+    /**
+     * 查询班级的学生检查情况
+     *
+     * @param schoolId 学校名称
+     * @param gradeId  年级名称
+     * @param classId  班级名称
+     * @return com.wupol.myopia.business.api.screening.app.domain.vo.ClassScreeningProgress
+     **/
+    @GetMapping("/school/findAllStudentNameState")
+    public ClassScreeningProgress findClassScreeningStudent(@NotNull(message = "学校ID不能为空") Integer schoolId,
+                                                            @NotNull(message = "年级ID不能为空") Integer gradeId,
+                                                            @NotNull(message = "班级ID不能为空") Integer classId) {
+        return screeningAppService.findClassScreeningStudent(schoolId, gradeId, classId, CurrentUserUtil.getCurrentUser().getOrgId());
     }
 }

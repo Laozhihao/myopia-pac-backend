@@ -115,6 +115,8 @@ public class StudentScreeningProgressVO {
     /** 是否初诊有异常 */
     private Boolean firstCheckAbnormal;
 
+    /** 筛查状态（复测使用） */
+    private Integer screeningStatus;
     /**
      * [注意！！！]下面前四个的赋值顺序不能改变：视力-眼位-裂隙灯-电脑验光
      * 1. 托幼机构
@@ -157,7 +159,7 @@ public class StudentScreeningProgressVO {
         studentScreeningProgressVO.setPressureStatus(getProgress(screeningResult.getEyePressureData(), !isKindergarten && firstCheckAbnormal));
         studentScreeningProgressVO.setFundusStatus(getProgress(screeningResult.getFundusData(), false));
         studentScreeningProgressVO.setOtherStatus(getProgress(screeningResult.getOtherEyeDiseases(), false));
-        studentScreeningProgressVO.setHeightWeightStatus(getProgress(screeningResult.getHeightAndWeightData(),false));
+        studentScreeningProgressVO.setHeightWeightStatus(getProgress(screeningResult.getHeightAndWeightData(), screeningResult.getScreeningType() == 1));
         studentScreeningProgressVO.setResult(isAllMustCheckDone.get());
         studentScreeningProgressVO.setHasAbnormal(hasAbnormalInSubsequentCheck.get() || firstCheckAbnormal);
         studentScreeningProgressVO.setFirstCheckAbnormal(isKindergarten ? firstCheckAbnormal : hasAbnormalInFirstCheck.get());
