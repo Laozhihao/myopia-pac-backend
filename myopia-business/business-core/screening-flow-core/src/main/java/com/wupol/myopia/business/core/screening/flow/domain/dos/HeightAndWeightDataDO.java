@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dos;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -40,5 +41,9 @@ public class HeightAndWeightDataDO extends AbstractDiagnosisResult implements Se
             return StatUtil.bmi(height,weight);
         }
         return bmi;
+    }
+
+    public boolean valid() {
+        return ObjectsUtil.allNotNull(height,weight);
     }
 }

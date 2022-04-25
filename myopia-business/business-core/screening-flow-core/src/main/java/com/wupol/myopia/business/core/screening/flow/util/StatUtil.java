@@ -1006,42 +1006,6 @@ public class StatUtil {
 
     //=============7、复测
 
-    /**
-     * 复测：视力筛查 发生率
-     *
-     * @param itemErrorNumList                错误项次数集合
-     * @param wearingGlassesIndicatorTotalNum 戴镜复测指标数的总和（包括左右眼裸眼视力、左右眼戴镜视力、左右眼等效球镜度数共6项）
-     * @param wearingGlassesRetestNum         戴镜复测人数
-     * @param withoutGlassesIndicatorTotalNum 非戴镜复测指标数的总和（包括左右眼裸眼视力、左右眼等效球镜度数共4项）
-     * @param withoutGlassesRetestNum         非戴镜复测人数
-     */
-    public static BigDecimal visionScreeningRetest(List<Integer> itemErrorNumList,
-                                                   Integer wearingGlassesIndicatorTotalNum, Integer wearingGlassesRetestNum,
-                                                   Integer withoutGlassesIndicatorTotalNum, Integer withoutGlassesRetestNum) {
-
-        int dividedSum = itemErrorNumList.stream().mapToInt(Integer::intValue).sum();
-        int denominatorSum = wearingGlassesIndicatorTotalNum * wearingGlassesRetestNum + withoutGlassesIndicatorTotalNum * withoutGlassesRetestNum;
-        return new BigDecimal(dividedSum).divide(new BigDecimal(denominatorSum), 2, RoundingMode.HALF_UP);
-    }
-
-    /**
-     * 复测：常见病筛查 发生率
-     *
-     * @param itemErrorNumList                错误项次数集合
-     * @param wearingGlassesIndicatorTotalNum 戴镜复测指标数的总和（包括身高、体重、左右眼裸眼视力、左右眼戴镜视力、左右眼等效球镜度数共8项）
-     * @param wearingGlassesRetestNum         戴镜复测人数
-     * @param withoutGlassesIndicatorTotalNum 非戴镜复测指标数的总和（包括身高、体重、左右眼裸眼视力、左右眼等效球镜度数共6项）
-     * @param withoutGlassesRetestNum         非戴镜复测人数
-     */
-    public static BigDecimal commonDiseaseScreeningRetest(List<Integer> itemErrorNumList,
-                                                          Integer wearingGlassesIndicatorTotalNum, Integer wearingGlassesRetestNum,
-                                                          Integer withoutGlassesIndicatorTotalNum, Integer withoutGlassesRetestNum) {
-
-        int molecularSum = itemErrorNumList.stream().mapToInt(Integer::intValue).sum();
-        int denominatorSum = wearingGlassesIndicatorTotalNum * wearingGlassesRetestNum + withoutGlassesIndicatorTotalNum * withoutGlassesRetestNum;
-        return new BigDecimal(molecularSum).divide(new BigDecimal(denominatorSum), 2, RoundingMode.HALF_UP);
-    }
-
 
     //=================8、常见病相关指标【占比：保留2位小数点】
 
@@ -1056,7 +1020,7 @@ public class StatUtil {
         if (ObjectsUtil.hasNull(weight,height)){
             return null;
         }
-        BigDecimal heightSquare = height.multiply(height);
+        BigDecimal heightSquare = height.multiply(height).divide(new BigDecimal("10000"));
         return weight.divide(heightSquare, 1, RoundingMode.HALF_UP);
     }
 

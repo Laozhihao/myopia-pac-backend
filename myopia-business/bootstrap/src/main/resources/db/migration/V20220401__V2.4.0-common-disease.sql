@@ -49,6 +49,8 @@ ALTER TABLE m_stat_conclusion ADD saprodontia_loss_teeth INT NULL COMMENT '龋�
 ALTER TABLE m_stat_conclusion ADD is_saprodontia_repair TINYINT(1) NULL COMMENT '是否龋补';
 ALTER TABLE m_stat_conclusion ADD saprodontia_repair_teeth INT NULL COMMENT '龋补牙齿数';
 
+ALTER TABLE m_stat_conclusion ADD rescreen_item_num INT NULL COMMENT '复测项次数';
+
 
 -- 新增筛查数据结果统计表
 CREATE TABLE `m_screening_result_statistic` (
