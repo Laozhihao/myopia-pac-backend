@@ -233,14 +233,34 @@ public class ScreeningResultStatisticBuilder {
     private RescreenSituationDO setRescreenSituation(List<StatConclusion> statConclusions, Map<Boolean, List<StatConclusion>> isRescreenMap,
                                                      VisionScreeningResultStatistic statistic) {
         RescreenSituationDO rescreenSituationDO = new RescreenSituationDO();
-        Integer wearingGlassRescreenNum = (int) statConclusions.stream().filter(sc->Objects.equals(Boolean.TRUE,sc.getIsRescreen()) && Objects.equals(Boolean.TRUE,sc.getIsWearingGlasses()) && Objects.equals(Boolean.TRUE,sc.getIsValid())).count();
-        Integer withoutGlassRescreenNum = (int) statConclusions.stream().filter(sc->Objects.equals(Boolean.TRUE,sc.getIsRescreen()) && Objects.equals(Boolean.FALSE,sc.getIsWearingGlasses()) && Objects.equals(Boolean.TRUE,sc.getIsValid())).count();
+
+        //戴镜
+        List<StatConclusion> wearingGlassList = statConclusions.stream().filter(sc -> Objects.equals(Boolean.TRUE, sc.getIsRescreen()) && Objects.equals(Boolean.TRUE, sc.getIsWearingGlasses()) && Objects.equals(Boolean.TRUE, sc.getIsValid())).collect(Collectors.toList());
+        Integer wearingGlassRescreenNum = wearingGlassList.size();
+        //戴镜复测项次数
+        Integer wearingGlassRescreenItemNum =wearingGlassList.stream().map(StatConclusion::getRescreenItemNum).filter(Objects::nonNull).mapToInt(Integer::intValue).sum();
+
+        //非戴镜
+        List<StatConclusion> withoutGlassList = statConclusions.stream().filter(sc -> Objects.equals(Boolean.TRUE, sc.getIsRescreen()) && Objects.equals(Boolean.FALSE, sc.getIsWearingGlasses()) && Objects.equals(Boolean.TRUE, sc.getIsValid())).collect(Collectors.toList());
+        Integer withoutGlassRescreenNum =withoutGlassList.size();
+        //非戴镜复测项次数
+        Integer withoutGlassRescreenItemNum =withoutGlassList.stream().map(StatConclusion::getRescreenItemNum).filter(Objects::nonNull).mapToInt(Integer::intValue).sum();
+
         Integer rescreenNum = (int) statConclusions.stream().map(StatConclusion::getIsRescreen).filter(Objects::nonNull).filter(Boolean::booleanValue).count();
+
         int validRescreenNum = isRescreenMap.getOrDefault(Boolean.TRUE, Collections.emptyList()).size();
+
+        int errorItemNum = statConclusions.stream().filter(sc -> Objects.equals(Boolean.TRUE, sc.getIsRescreen())&&Objects.equals(Boolean.TRUE,sc.getIsValid())).map(StatConclusion::getRescreenErrorNum).filter(Objects::nonNull).mapToInt(Integer::intValue).sum();
+
+        String incidence = MathUtil.ratio(errorItemNum,wearingGlassRescreenItemNum*wearingGlassRescreenNum+withoutGlassRescreenItemNum*withoutGlassRescreenNum);
+
         rescreenSituationDO.setRetestNum(rescreenNum).setRetestRatio(MathUtil.ratio(rescreenNum, validRescreenNum))
                 .setWearingGlassRetestNum(wearingGlassRescreenNum).setWearingGlassRetestRatio(MathUtil.ratio(wearingGlassRescreenNum, validRescreenNum))
                 .setWithoutGlassRetestNum(withoutGlassRescreenNum).setWithoutGlassRetestRatio(MathUtil.ratio(wearingGlassRescreenNum, validRescreenNum))
-                .setRescreeningItemNum(0).setErrorItemNum(0).setIncidence("0.00%");
+                .setErrorItemNum(errorItemNum)
+                .setRescreeningItemNum(wearingGlassRescreenItemNum+withoutGlassRescreenItemNum)
+                .setIncidence(incidence);
+
         statistic.setRescreenSituation(rescreenSituationDO);
         return rescreenSituationDO;
     }

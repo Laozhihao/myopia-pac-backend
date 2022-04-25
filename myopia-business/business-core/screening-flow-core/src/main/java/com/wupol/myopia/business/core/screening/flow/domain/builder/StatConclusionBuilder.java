@@ -40,8 +40,8 @@ public class StatConclusionBuilder {
     private StatConclusion statConclusion;
     private BasicData basicData;
     private boolean isUpdate;
-    private final BigDecimal othersRangeValue = new BigDecimal("1.0");
-    private final BigDecimal aveRangeValue = new BigDecimal("0.5");
+    private final BigDecimal visionAndWeightRangeValue = new BigDecimal("0.1");
+    private final BigDecimal seAndHeightRangeValue = new BigDecimal("0.5");
     private String gradeCode;
 
     private StatConclusionBuilder() {
@@ -109,6 +109,7 @@ public class StatConclusionBuilder {
         this.setLowVision();
         this.setWarningLevel();
         this.setRescreenErrorNum();
+        this.setRescreenItemNum();
         this.setWarningVision();
         this.setMyopiaLevel();
         this.setHyperopiaLevel();
@@ -354,8 +355,60 @@ public class StatConclusionBuilder {
         }
     }
 
+    private void setRescreenItemNum() {
+        if (Objects.nonNull(currentVisionScreeningResult)){
+            statConclusion.setRescreenItemNum(calculateItemNum());
+        }
+    }
+
+    /**
+     * 计算复测项次
+     *  左右眼裸眼视力、左右眼等效球镜度数
+     *  左右眼戴镜视力 （戴镜）
+     *  身高、体重 （常见病）
+     */
+    private int calculateItemNum() {
+        int itemCount = 0;
+        VisionDataDO visionData = currentVisionScreeningResult.getVisionData();
+        if(Objects.nonNull(visionData)){
+            if (visionData.validNakedVision()){
+                itemCount += 2;
+            }
+            if (visionData.validCorrectedVision()){
+                itemCount += 2;
+            }
+        }
+        ComputerOptometryDO computerOptometry = currentVisionScreeningResult.getComputerOptometry();
+        if (Objects.nonNull(computerOptometry) && computerOptometry.valid()){
+            itemCount += 2;
+        }
+
+        HeightAndWeightDataDO heightAndWeightData = currentVisionScreeningResult.getHeightAndWeightData();
+        if (Objects.nonNull(heightAndWeightData)){
+            itemCount += count(heightAndWeightData.getHeight());
+            itemCount += count(heightAndWeightData.getWeight());
+        }
+        return itemCount;
+    }
+
+    private int count(BigDecimal value){
+        int itemCount=0;
+        if (Objects.nonNull(value)){
+            itemCount++;
+        }
+        return itemCount;
+    }
+
     /**
      * 计算错误次数
+     *
+     * 身高误差超过0.5cm
+     *
+     * 体重误差超过0.1kg
+     *
+     * 裸眼和戴镜视力误差超过±1行（1行 0.1）
+     *
+     * 等效球镜度数误差超过±0.50D
      *
      * @return
      */
@@ -364,6 +417,24 @@ public class StatConclusionBuilder {
         if (Objects.nonNull(basicData.getIsWearingGlasses()) && basicData.getIsWearingGlasses()) {
             errorNum += getSeErrorNum();
         }
+        if (Objects.equals(1,currentVisionScreeningResult.getScreeningType())){
+            errorNum += getHeightAndWeight();
+        }
+        return errorNum;
+    }
+
+    /**
+     *  获取身高体重错误数
+     */
+    private int getHeightAndWeight() {
+        int errorNum = 0;
+        HeightAndWeightDataDO currentHeightAndWeightData = currentVisionScreeningResult.getHeightAndWeightData();
+        HeightAndWeightDataDO anotherHeightAndWeightData = anotherVisionScreeningResult.getHeightAndWeightData();
+        if (ObjectsUtil.allNotNull(currentHeightAndWeightData,anotherHeightAndWeightData)){
+            errorNum += inRange(currentHeightAndWeightData.getHeight(),anotherHeightAndWeightData.getHeight(),seAndHeightRangeValue);
+            errorNum += inRange(currentHeightAndWeightData.getWeight(),anotherHeightAndWeightData.getWeight(),visionAndWeightRangeValue);
+        }
+
         return errorNum;
     }
 
@@ -377,8 +448,8 @@ public class StatConclusionBuilder {
         VisionDataDO currentVisionData = currentVisionScreeningResult.getVisionData();
         VisionDataDO anotherVisionData = anotherVisionScreeningResult.getVisionData();
         if (currentVisionData != null && anotherVisionData != null) {
-            errorNum += inRange(currentVisionData.getLeftEyeData().getNakedVision(), anotherVisionData.getLeftEyeData().getNakedVision(), othersRangeValue);
-            errorNum += inRange(currentVisionData.getRightEyeData().getNakedVision(), anotherVisionData.getRightEyeData().getNakedVision(), othersRangeValue);
+            errorNum += inRange(currentVisionData.getLeftEyeData().getNakedVision(), anotherVisionData.getLeftEyeData().getNakedVision(), visionAndWeightRangeValue);
+            errorNum += inRange(currentVisionData.getRightEyeData().getNakedVision(), anotherVisionData.getRightEyeData().getNakedVision(), visionAndWeightRangeValue);
         }
         return errorNum;
     }
@@ -392,9 +463,9 @@ public class StatConclusionBuilder {
         int errorNum = 0;
         VisionDataDO currentVisionData = currentVisionScreeningResult.getVisionData();
         VisionDataDO anotherVisionData = anotherVisionScreeningResult.getVisionData();
-        if (currentVisionData != null && anotherVisionData != null) {
-            errorNum += inRange(currentVisionData.getLeftEyeData().getCorrectedVision(), anotherVisionData.getLeftEyeData().getCorrectedVision(), othersRangeValue);
-            errorNum += inRange(currentVisionData.getRightEyeData().getCorrectedVision(), anotherVisionData.getRightEyeData().getCorrectedVision(), othersRangeValue);
+        if (ObjectsUtil.allNotNull(currentVisionData,anotherVisionData)) {
+            errorNum += inRange(currentVisionData.getLeftEyeData().getCorrectedVision(), anotherVisionData.getLeftEyeData().getCorrectedVision(), visionAndWeightRangeValue);
+            errorNum += inRange(currentVisionData.getRightEyeData().getCorrectedVision(), anotherVisionData.getRightEyeData().getCorrectedVision(), visionAndWeightRangeValue);
         }
         return errorNum;
     }
@@ -410,8 +481,12 @@ public class StatConclusionBuilder {
         ComputerOptometryDO currentComputerOptometry = currentVisionScreeningResult.getComputerOptometry();
         ComputerOptometryDO anotherComputerOptometry = anotherVisionScreeningResult.getComputerOptometry();
         if (ObjectsUtil.allNotNull(currentComputerOptometry,anotherComputerOptometry)) {
-            errorNum += inRange(currentComputerOptometry.getLeftEyeData().getSph().add(currentComputerOptometry.getLeftEyeData().getCyl().divide(new BigDecimal(2))), anotherComputerOptometry.getLeftEyeData().getSph().add(anotherComputerOptometry.getLeftEyeData().getCyl().divide(new BigDecimal(2))), othersRangeValue);
-            errorNum += inRange(currentComputerOptometry.getRightEyeData().getSph().add(currentComputerOptometry.getRightEyeData().getCyl().divide(new BigDecimal(2))), anotherComputerOptometry.getRightEyeData().getSph().add(anotherComputerOptometry.getRightEyeData().getCyl().divide(new BigDecimal(2))), othersRangeValue);
+            BigDecimal currentLeftSe = StatUtil.getSphericalEquivalent(currentComputerOptometry.getLeftEyeData().getSph(), currentComputerOptometry.getLeftEyeData().getCyl());
+            BigDecimal currentRightSe = StatUtil.getSphericalEquivalent(currentComputerOptometry.getRightEyeData().getSph(), currentComputerOptometry.getRightEyeData().getCyl());
+            BigDecimal anotherLeftSe = StatUtil.getSphericalEquivalent(anotherComputerOptometry.getLeftEyeData().getSph(), anotherComputerOptometry.getLeftEyeData().getCyl());
+            BigDecimal anotherRightSe = StatUtil.getSphericalEquivalent(anotherComputerOptometry.getRightEyeData().getSph(), anotherComputerOptometry.getLeftEyeData().getCyl());
+            errorNum += inRange(currentLeftSe,anotherLeftSe, seAndHeightRangeValue);
+            errorNum += inRange(currentRightSe,anotherRightSe, seAndHeightRangeValue);
         }
         return errorNum;
     }
@@ -469,8 +544,10 @@ public class StatConclusionBuilder {
             return;
         }
         TwoTuple<Integer, String> ageTuple = StatUtil.getAge(screeningPlanSchoolStudent.getBirthday());
-        overweightAndObesity(heightAndWeightData.getBmi(),ageTuple.getSecond());
-        malnutrition(heightAndWeightData.getBmi(),heightAndWeightData.getHeight(),ageTuple.getSecond());
+        if (heightAndWeightData.valid()){
+            overweightAndObesity(heightAndWeightData.getBmi(),ageTuple.getSecond());
+            malnutrition(heightAndWeightData.getBmi(),heightAndWeightData.getHeight(),ageTuple.getSecond());
+        }
     }
 
 

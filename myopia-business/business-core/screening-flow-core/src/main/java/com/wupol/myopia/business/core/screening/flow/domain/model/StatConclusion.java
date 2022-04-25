@@ -80,6 +80,9 @@ public class StatConclusion implements Serializable {
     /** 复测错误项次 */
     private Integer rescreenErrorNum;
 
+    /** 复测项次 */
+    private Integer rescreenItemNum;
+
     /** 是否有效数据 */
     private Boolean isValid;
 
