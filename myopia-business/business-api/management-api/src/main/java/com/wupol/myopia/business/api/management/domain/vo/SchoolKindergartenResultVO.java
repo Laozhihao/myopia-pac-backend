@@ -160,9 +160,9 @@ public class SchoolKindergartenResultVO {
         // 下级数据 + 当前数据 + 合计数据
        this.contents = screeningResultStatistics.stream()
                .map(screeningResultStatistic -> {
-                    Integer districtId = screeningResultStatistic.getDistrictId();
-                    String schoolDistrictName = schoolIdDistrictNameMap.get(districtId);
-                    return getItem(screeningResultStatistic,schoolDistrictName,districtId);
+                    Integer schoolId = screeningResultStatistic.getSchoolId();
+                    String schoolDistrictName = schoolIdDistrictNameMap.get(schoolId);
+                    return getItem(screeningResultStatistic,schoolDistrictName,screeningResultStatistic.getDistrictId());
                 })
                .collect(Collectors.toSet());
     }
