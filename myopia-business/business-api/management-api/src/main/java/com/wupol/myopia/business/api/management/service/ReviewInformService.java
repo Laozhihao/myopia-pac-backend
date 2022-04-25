@@ -39,6 +39,8 @@ import javax.annotation.Resource;
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -97,12 +99,21 @@ public class ReviewInformService {
     /**
      * 获取学校
      *
-     * @param planId 筛查计划
-     * @param orgId  机构Id
+     * @param planId     筛查计划
+     * @param orgId      机构Id
+     * @param schoolName 学校名称
      * @return List<ScreeningPlanSchoolStudent>
      */
-    public List<ScreeningPlanSchoolStudent> getReviewSchools(Integer planId, Integer orgId) {
-        return getMatchRescreenResults(planId, orgId, null, null, null);
+    public List<ScreeningPlanSchoolStudent> getReviewSchools(Integer planId, Integer orgId,String schoolName) {
+        List<ScreeningPlanSchoolStudent> matchRescreenResults = getMatchRescreenResults(planId, orgId, null, null, null);
+        return matchRescreenResults.stream()
+                .filter(distinctByKey(ScreeningPlanSchoolStudent::getSchoolName))
+                .filter(s -> {
+                    if (StringUtils.isNotBlank(schoolName)) {
+                        return StringUtils.equalsAny(s.getSchoolName(), schoolName);
+                    }
+                    return true;
+                }).collect(Collectors.toList());
     }
 
     /**
@@ -262,7 +273,6 @@ public class ReviewInformService {
         if (CollectionUtils.isEmpty(planStudentList)) {
             return new ArrayList<>();
         }
-        // TODO: 过滤掉只符合需要复查的学生
         return planStudentList;
     }
 
@@ -306,5 +316,10 @@ public class ReviewInformService {
             return schoolService.getById(schoolId).getName() + schoolGradeService.getById(gradeId).getName() + RESCREEN_NAME;
         }
         throw new BusinessException("类型异常");
+    }
+
+    public static <T> Predicate<T> distinctByKey(Function<? super T, Object> keyExtractor) {
+        Map<Object, Boolean> map = new HashMap<>();
+        return t -> map.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
     }
 }

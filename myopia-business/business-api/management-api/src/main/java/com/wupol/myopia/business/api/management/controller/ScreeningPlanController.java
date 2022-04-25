@@ -694,8 +694,10 @@ public class ScreeningPlanController {
      * @return List<ScreeningPlanSchoolStudent>
      */
     @GetMapping("/review/getSchool/{planId}/{orgId}")
-    public List<ScreeningPlanSchoolStudent> reviewGetSchools(@PathVariable("planId") Integer planId, @PathVariable("orgId") Integer orgId) {
-        return reviewInformService.getReviewSchools(planId, orgId);
+    public List<ScreeningPlanSchoolStudent> reviewGetSchools(@PathVariable("planId") Integer planId,
+                                                             @PathVariable("orgId") Integer orgId,
+                                                             @RequestParam(required = false) String schoolName) {
+        return reviewInformService.getReviewSchools(planId, orgId, schoolName);
     }
 
 
