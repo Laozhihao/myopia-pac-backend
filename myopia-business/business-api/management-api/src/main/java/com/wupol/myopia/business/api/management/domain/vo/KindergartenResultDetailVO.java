@@ -12,6 +12,7 @@ import org.springframework.beans.BeanUtils;
 
 import java.io.Serializable;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * 幼儿园筛查数据结果
@@ -72,8 +73,8 @@ public class KindergartenResultDetailVO implements Serializable, FrontTableId {
             BeanUtils.copyProperties(screeningResultStatistic,screeningSituationDO);
 
             this.screeningSituation =screeningSituationDO;
-            this.kindergartenVisionAnalysis = (KindergartenVisionAnalysisDO)screeningResultStatistic.getVisionAnalysis();
-            this.rescreenSituation=screeningResultStatistic.getRescreenSituation();
+            this.kindergartenVisionAnalysis = Optional.ofNullable(screeningResultStatistic.getVisionAnalysis()).map(va -> (KindergartenVisionAnalysisDO) va).orElse(new KindergartenVisionAnalysisDO());
+            this.rescreenSituation=Optional.ofNullable(screeningResultStatistic.getRescreenSituation()).orElse(new RescreenSituationDO());
         }
 
     }

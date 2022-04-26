@@ -9,6 +9,7 @@ import org.springframework.beans.BeanUtils;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -172,9 +173,11 @@ public class SchoolKindergartenResultVO {
         Item item = new Item();
         BeanUtils.copyProperties(screeningResultStatistic,item);
         item.setScreeningRangeName(schoolDistrictName).setDistrictId(districtId).setIsKindergarten(Boolean.TRUE);
+        if (Objects.nonNull(screeningResultStatistic.getVisionAnalysis())){
+            KindergartenVisionAnalysisDO visionAnalysis = (KindergartenVisionAnalysisDO)screeningResultStatistic.getVisionAnalysis();
+            BeanUtils.copyProperties(visionAnalysis,item);
+        }
 
-        KindergartenVisionAnalysisDO visionAnalysis = (KindergartenVisionAnalysisDO)screeningResultStatistic.getVisionAnalysis();
-        BeanUtils.copyProperties(visionAnalysis,item);
         return item;
     }
 }
