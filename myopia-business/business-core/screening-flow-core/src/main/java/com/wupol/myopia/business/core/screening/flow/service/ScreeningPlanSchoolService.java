@@ -133,7 +133,7 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
     }
 
     public String findSituation(Integer schoolId, ScreeningPlan screeningPlan) {
-        if (DateUtil.betweenDay(screeningPlan.getEndTime(),new Date())<0){
+        if (DateUtil.betweenDay(screeningPlan.getEndTime(),new Date())>0){
             return ScreeningPlanSchool.end;
         }
             List<VisionScreeningResult> list = visionScreeningResultService.getByPlanIdAndSchoolId(screeningPlan.getId(),schoolId);
