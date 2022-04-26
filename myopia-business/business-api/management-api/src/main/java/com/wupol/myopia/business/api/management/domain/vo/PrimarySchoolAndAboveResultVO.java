@@ -285,22 +285,31 @@ public class PrimarySchoolAndAboveResultVO {
         Item item = new Item();
         BeanUtils.copyProperties(currentVisionStatistic,item);
         item.setScreeningRangeName(rangeName).setDistrictId(districtId).setIsKindergarten(Boolean.FALSE);
-
-        PrimarySchoolAndAboveVisionAnalysisDO visionAnalysis = (PrimarySchoolAndAboveVisionAnalysisDO)currentVisionStatistic.getVisionAnalysis();
-        BeanUtils.copyProperties(visionAnalysis,item);
+        PrimarySchoolAndAboveVisionAnalysisDO visionAnalysis =null;
+        if (Objects.nonNull(currentVisionStatistic.getVisionAnalysis())){
+            visionAnalysis = (PrimarySchoolAndAboveVisionAnalysisDO)currentVisionStatistic.getVisionAnalysis();
+            BeanUtils.copyProperties(visionAnalysis,item);
+        }
 
         Integer screeningType = currentVisionStatistic.getScreeningType();
         if(Objects.equals(0,screeningType)){
             VisionItem visionItem = new VisionItem();
-            BeanUtils.copyProperties(visionAnalysis,visionItem);
+            if (Objects.nonNull(visionAnalysis)){
+                BeanUtils.copyProperties(visionAnalysis,visionItem);
+            }
             item.setVisionItem(visionItem);
         }else {
             CommonDiseaseDO commonDisease = currentVisionStatistic.getCommonDisease();
             SaprodontiaDO saprodontia = currentVisionStatistic.getSaprodontia();
             CommonDiseaseItem commonDiseaseItem= new CommonDiseaseItem();
-            commonDiseaseItem.setDmftNum(saprodontia.getDmftNum())
-                    .setDmftRatio(saprodontia.getDmftRatio());
-            BeanUtils.copyProperties(commonDisease,commonDiseaseItem);
+            if (Objects.nonNull(saprodontia)){
+                commonDiseaseItem.setDmftNum(saprodontia.getDmftNum())
+                        .setDmftRatio(saprodontia.getDmftRatio());
+            }
+            if (Objects.nonNull(commonDisease)){
+                BeanUtils.copyProperties(commonDisease,commonDiseaseItem);
+            }
+
             item.setCommonDiseaseItem(commonDiseaseItem);
         }
 
