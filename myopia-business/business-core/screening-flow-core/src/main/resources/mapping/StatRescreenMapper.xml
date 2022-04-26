@@ -5,6 +5,7 @@
     <select id="countByPlanAndSchool" resultType="int">
         SELECT COUNT(*) FROM m_stat_rescreen
         WHERE plan_id = #{planId} AND school_id = #{schoolId}
+        and create_time <![CDATA[ <= ]]> #{createTime}
     </select>
 
     <delete id="deleteByScreeningTime">
