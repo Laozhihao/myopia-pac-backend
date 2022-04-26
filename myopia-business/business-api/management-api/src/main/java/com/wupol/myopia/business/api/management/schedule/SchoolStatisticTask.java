@@ -42,7 +42,6 @@ public class SchoolStatisticTask {
     private final StatConclusionService statConclusionService;
     private final ScreeningPlanService screeningPlanService;
     private final SchoolService schoolService;
-    private final ScreeningOrganizationService screeningOrganizationService;
     private final ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     private final ScreeningResultStatisticService screeningResultStatisticService;
 
