@@ -104,13 +104,13 @@ public class ReviewInformService {
      * @param schoolName 学校名称
      * @return List<ScreeningPlanSchoolStudent>
      */
-    public List<ScreeningPlanSchoolStudent> getReviewSchools(Integer planId, Integer orgId,String schoolName) {
+    public List<ScreeningPlanSchoolStudent> getReviewSchools(Integer planId, Integer orgId, String schoolName) {
         List<ScreeningPlanSchoolStudent> matchRescreenResults = getMatchRescreenResults(planId, orgId, null, null, null);
         return matchRescreenResults.stream()
                 .filter(distinctByKey(ScreeningPlanSchoolStudent::getSchoolName))
                 .filter(s -> {
                     if (StringUtils.isNotBlank(schoolName)) {
-                        return StringUtils.equalsAny(s.getSchoolName(), schoolName);
+                        return StringUtils.countMatches(schoolName, s.getSchoolName()) > 0;
                     }
                     return true;
                 }).collect(Collectors.toList());
