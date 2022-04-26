@@ -1,0 +1,2 @@
+::DstudentId = 学生计划id DschoolId=学校id DdeptId 机构id。 DisState 是否复测 Dpath=json存储位置，host=环境
+java -DstudentId=39487 -DschoolId=160 -DdeptId=15 -DisState=0 -Dpath=D:\work\dataCreate\src\main\resources -Dhost=https://s-myopia-pac-mgmt.tulab.cn -jar dataCreate-1.0-SNAPSHOT-jar-with-dependencies.jar 
