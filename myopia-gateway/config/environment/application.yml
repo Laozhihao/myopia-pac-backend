@@ -149,3 +149,5 @@ white-list:
   - "/management/report/pdf"
   - "/api/getUserInfo"
   - "/api/fkr710/upload"
+  # 获取档案卡数据统一接口
+  - "/management/archive/data"

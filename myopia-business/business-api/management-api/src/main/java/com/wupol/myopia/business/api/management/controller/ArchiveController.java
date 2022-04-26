@@ -162,7 +162,7 @@ public class ArchiveController {
         }
         ArchiveVisionDataDO archiveVisionDataDO = new ArchiveVisionDataDO();
         BeanUtils.copyProperties(visionDataDO, archiveVisionDataDO);
-        archiveVisionDataDO.setSignPicUrl(studentFacade.getSignPicUrl(visionDataDO.getCreateUserId()));
+        archiveVisionDataDO.setSignPicUrl(studentFacade.getSignPicUrl(1651));
         return archiveVisionDataDO;
     }
 
