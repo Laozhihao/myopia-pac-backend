@@ -1,11 +1,13 @@
 package com.wupol.myopia.business.core.screening.flow.domain.vo;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 /**
  * @Author HaoHao
  * @Date 2022/4/15
  **/
+@Accessors(chain = true)
 @Data
 public class StudentCommonDiseaseIdInfo {
     /**
@@ -56,4 +58,14 @@ public class StudentCommonDiseaseIdInfo {
      * 学生编号，4位，如：0001
      */
     String studentCode;
+
+    /**
+     * 片区类型，1-好片、2-中片、3-差片
+     */
+    Integer areaType;
+
+    /**
+     * 监测点，1-城区、2-郊县
+     */
+    Integer monitorType;
 }

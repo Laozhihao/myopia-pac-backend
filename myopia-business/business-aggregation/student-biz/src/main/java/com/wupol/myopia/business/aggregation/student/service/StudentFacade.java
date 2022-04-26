@@ -533,9 +533,8 @@ public class StudentFacade {
      * @param studentInfo 学生
      * @return 学生档案卡基本信息
      */
-    private CardInfoVO getCardInfo(StudentDTO studentInfo) {
+    public CardInfoVO getCardInfo(StudentDTO studentInfo) {
         CardInfoVO cardInfoVO = new CardInfoVO();
-
         cardInfoVO.setName(studentInfo.getName());
         cardInfoVO.setBirthday(studentInfo.getBirthday());
         cardInfoVO.setIdCard(StringUtils.isNotBlank(studentInfo.getIdCard()) ? MaskUtil.maskIdCard(studentInfo.getIdCard()) : MaskUtil.maskPassport(studentInfo.getPassport()));
@@ -543,14 +542,28 @@ public class StudentFacade {
         cardInfoVO.setAge(DateUtil.ageOfNow(studentInfo.getBirthday()));
         cardInfoVO.setSno(studentInfo.getSno());
         cardInfoVO.setParentPhone(studentInfo.getParentPhone());
-
         cardInfoVO.setSchoolName(studentInfo.getSchoolName());
         cardInfoVO.setClassName(studentInfo.getClassName());
         cardInfoVO.setGradeName(studentInfo.getGradeName());
         cardInfoVO.setDistrictName(districtService.getDistrictName(studentInfo.getSchoolDistrictName()));
+        cardInfoVO.setNation(studentInfo.getNation());
         cardInfoVO.setNationDesc(NationEnum.getName(studentInfo.getNation()));
         cardInfoVO.setPassport(studentInfo.getPassport());
+        cardInfoVO.setSchoolType(getSchoolType(studentInfo.getGradeType()));
         return cardInfoVO;
+    }
+
+    private Integer getSchoolType(Integer gradeType) {
+        Assert.notNull(gradeType, "学生年级类型信息为空");
+        if (SchoolAge.KINDERGARTEN.code.equals(gradeType)) {
+            // 幼儿园
+            return 3;
+        } else if (SchoolAge.COLLEGE.code.equals(gradeType)) {
+            // 大学
+            return 2;
+        }
+        // 中小学
+        return 1;
     }
 
     /**
@@ -971,7 +984,7 @@ public class StudentFacade {
      * @param screeningOrgStaffUserId 筛查人员的用户ID
      * @return java.lang.String
      **/
-    private String getSignPicUrl(Integer screeningOrgStaffUserId) {
+    public String getSignPicUrl(Integer screeningOrgStaffUserId) {
         Assert.notNull(screeningOrgStaffUserId, "筛查人员的用户ID为空");
         ScreeningOrganizationStaff screeningOrganizationStaff = screeningOrganizationStaffService.findOne(new ScreeningOrganizationStaff().setUserId(screeningOrgStaffUserId));
         if (Objects.isNull(screeningOrganizationStaff)) {

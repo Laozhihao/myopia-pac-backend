@@ -30,7 +30,6 @@ import com.wupol.myopia.business.core.school.domain.dto.StudentQueryDTO;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.OtherEyeDiseasesDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
@@ -43,7 +42,6 @@ import com.wupol.myopia.business.core.screening.flow.service.StatConclusionServi
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.flow.util.ScreeningResultUtil;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -547,23 +545,6 @@ public class StudentBizService {
     }
 
     /**
-     * 获取两眼别的病变
-     *
-     * @param visionScreeningResult 视力筛查结果
-     * @return List<String>
-     */
-    private List<String> getOtherEyeDiseasesList(VisionScreeningResult visionScreeningResult) {
-        List<String> emptyList = new ArrayList<>();
-        OtherEyeDiseasesDO otherEyeDiseases = visionScreeningResult.getOtherEyeDiseases();
-        if (Objects.isNull(otherEyeDiseases)) {
-            return emptyList;
-        }
-        List<String> leftEyeDate = Objects.nonNull(otherEyeDiseases.getLeftEyeData()) ? otherEyeDiseases.getLeftEyeData().getEyeDiseases() : emptyList;
-        List<String> rightEyeDate = Objects.nonNull(otherEyeDiseases.getRightEyeData()) ? otherEyeDiseases.getRightEyeData().getEyeDiseases() : emptyList;
-        return ListUtils.sum(leftEyeDate, rightEyeDate);
-    }
-
-    /**
      * 获取学生编号
      *
      * @param studentPlans 筛查学生计划
@@ -575,17 +556,6 @@ public class StudentBizService {
         }
         return studentPlans.stream().map(ScreeningPlanSchoolStudent::getScreeningCode)
                 .filter(Objects::nonNull).collect(Collectors.toList());
-    }
-
-    /**
-     * 编码身份证二选一
-     *
-     * @param student 学生
-     */
-    private void haveIdCardOrCode(Student student) {
-        if (StringUtils.isBlank(student.getIdCard()) && CollectionUtils.isEmpty(getScreeningCode(student.getId()))) {
-            throw new BusinessException("身份证和编码不能都为空");
-        }
     }
 
     /**

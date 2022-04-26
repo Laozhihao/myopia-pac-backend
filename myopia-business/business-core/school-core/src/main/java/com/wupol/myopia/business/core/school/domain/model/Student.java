@@ -90,7 +90,7 @@ public class Student extends AddressCode implements Serializable {
     private Date birthday;
 
     /**
-     * 民族 0-汉族
+     * 民族 1-汉族、2-回族
      */
     private Integer nation;
 
