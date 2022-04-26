@@ -152,9 +152,9 @@ public class StatSchoolService {
         }
         //学校id
         List<Integer> schoolIds = screeningResultStatistics.stream().map(ScreeningResultStatistic::getSchoolId).collect(Collectors.toList());
-        List<Integer> schoolDistrictIdList = schoolService.getByIds(schoolIds).stream().map(School::getDistrictId).collect(Collectors.toList());
-        //获取学校的地区
-        Map<Integer, String> schoolIdDistrictNameMap = districtService.getByIds(schoolDistrictIdList);
+        //获取学校的名称
+        Map<Integer, String> schoolIdDistrictNameMap = schoolService.getByIds(schoolIds).stream().collect(Collectors.toMap(School::getId,School::getName));
+
         //获取数据
         schoolKindergartenResultVO.setItemData(screeningResultStatistics,schoolIdDistrictNameMap);
         return schoolKindergartenResultVO;
@@ -225,9 +225,8 @@ public class StatSchoolService {
         }
         //学校id
         List<Integer> schoolIds = screeningResultStatistics.stream().map(ScreeningResultStatistic::getSchoolId).collect(Collectors.toList());
-        List<Integer> schoolDistrictIdList = schoolService.getByIds(schoolIds).stream().map(School::getDistrictId).collect(Collectors.toList());
-        //获取学校的地区
-        Map<Integer, String> schoolIdDistrictNameMap = districtService.getByIds(schoolDistrictIdList);
+        //获取学校的名称
+        Map<Integer, String> schoolIdDistrictNameMap = schoolService.getByIds(schoolIds).stream().collect(Collectors.toMap(School::getId,School::getName));
         //获取数据
         schoolPrimarySchoolAndAboveResultVO.setItemData(screeningResultStatistics,schoolIdDistrictNameMap);
         return schoolPrimarySchoolAndAboveResultVO;

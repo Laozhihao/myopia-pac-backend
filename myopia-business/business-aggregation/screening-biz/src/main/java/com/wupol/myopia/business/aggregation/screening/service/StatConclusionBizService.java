@@ -160,11 +160,10 @@ public class StatConclusionBizService {
         if (Objects.isNull(currentVisionScreeningResult)){
             return;
         }
-        result(statConclusionList,dataProcessBO, currentVisionScreeningResult, secondVisionScreeningResult);
+        result(statConclusionList,dataProcessBO, currentVisionScreeningResult, null);
 
         if (Objects.nonNull(secondVisionScreeningResult)){
-            currentVisionScreeningResult=secondVisionScreeningResult;
-            result(statConclusionList,dataProcessBO, currentVisionScreeningResult, secondVisionScreeningResult);
+            result(statConclusionList,dataProcessBO, secondVisionScreeningResult, currentVisionScreeningResult);
         }
 
     }

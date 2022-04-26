@@ -427,15 +427,12 @@ public class ScreeningAppService {
      * @param classId 班级名称
      * @return com.wupol.myopia.business.api.screening.app.domain.vo.ClassScreeningProgress
      **/
-    public ClassScreeningProgress getClassScreeningProgress(Integer schoolId, Integer gradeId, Integer classId, Integer screeningOrgId, Boolean isFilter, String studentName) {
+    public ClassScreeningProgress getClassScreeningProgress(Integer schoolId, Integer gradeId, Integer classId, Integer screeningOrgId, Boolean isFilter,Integer state) {
         ScreeningPlanSchoolStudent query = new ScreeningPlanSchoolStudent()
                 .setScreeningOrgId(screeningOrgId)
                 .setSchoolId(schoolId)
                 .setClassId(classId)
                 .setGradeId(gradeId);
-        if (Objects.nonNull(studentName)) {
-            query.setStudentName(studentName);
-        }
         // 查询班级所有学生
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = screeningPlanSchoolStudentService.listByEntityDescByCreateTime(query);
         if (CollectionUtils.isEmpty(screeningPlanSchoolStudentList)) {
@@ -445,7 +442,7 @@ public class ScreeningAppService {
 
         // 获取学生对应筛查数据
         Map<Integer, ScreeningPlanSchoolStudent> screeningPlanSchoolStudentMap = screeningPlanSchoolStudentList.stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getId, Function.identity()));
-        List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.getByScreeningPlanSchoolStudentIds(screeningPlanSchoolStudentMap.keySet());
+        List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.getByScreeningPlanSchoolStudentIds(screeningPlanSchoolStudentMap.keySet()).stream().filter(item-> state == 1).collect(Collectors.toList());
         Map<Integer, VisionScreeningResult> planStudentVisionResultMap = visionScreeningResults.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
 
         // 只显示有姓名或有筛查数据的
@@ -498,6 +495,35 @@ public class ScreeningAppService {
         return classScreeningProgress;
     }
 
+    public ClassScreeningProgress findClassScreeningStudent(Integer schoolId, Integer gradeId, Integer classId, Integer screeningOrgId){
+        ClassScreeningProgress first = getClassScreeningProgress(schoolId, gradeId, classId, screeningOrgId, false, 0);
+        Assert.notNull(first.getStudentScreeningProgressList(), "筛查计划不存在");
+        List<StudentScreeningProgressVO> studentList = getClassScreeningProgress(schoolId, gradeId, classId, screeningOrgId, false, 1).getStudentScreeningProgressList();
+        // finishCount
+        long finishCount = studentList.stream().filter(StudentScreeningProgressVO::getResult).count();
+        if (Objects.nonNull(first.getNeedReScreeningCount()) && finishCount >= first.getNeedReScreeningCount()) {
+            first.setFinish(true);
+        }
+        Map<String, StudentScreeningProgressVO> secondStudentIdMap = studentList
+                .stream().collect(Collectors.toMap(StudentScreeningProgressVO::getStudentId, Function.identity()));
+        first.getStudentScreeningProgressList().forEach(item -> {
+            if (Boolean.FALSE.equals(item.getResult())) {
+                // 初筛未完成
+                item.setScreeningStatus(4);
+            } else if (Objects.isNull(secondStudentIdMap.get(item.getStudentId()))) {
+                // 开始复测
+                item.setScreeningStatus(2);
+            } else if (Boolean.FALSE.equals(secondStudentIdMap.get(item.getStudentId()).getResult())) {
+                // 复测中
+                item.setScreeningStatus(1);
+            } else {
+                // 复测完成
+                item.setScreeningStatus(3);
+            }
+        });
+        first.setStudentScreeningProgressList(first.getStudentScreeningProgressList().stream().sorted(Comparator.comparing(StudentScreeningProgressVO::getScreeningStatus)).collect(Collectors.toList()));
+        return first;
+    }
     /**
      * 根据筛查学生ID和筛查机构ID获取筛查数据
      *
