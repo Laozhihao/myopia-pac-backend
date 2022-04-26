@@ -5,10 +5,7 @@ import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
 import com.wupol.myopia.business.common.utils.util.MaskUtil;
 import com.wupol.myopia.business.core.screening.flow.constant.SaprodontiaType;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.SaprodontiaDataDODTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.SaprodontiaStat;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentVisionScreeningResultExportDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -493,12 +490,12 @@ public class EyeDataUtil {
             }
         }
 
-        SaprodontiaStat deciduousTooth = new SaprodontiaStat();
+        SaprodontiaStatItem deciduousTooth = new SaprodontiaStatItem();
         deciduousTooth.setDCount(dCountDeciduous);
         deciduousTooth.setFCount(mCountDeciduous);
         deciduousTooth.setMCount(fFountDeciduous);
 
-        SaprodontiaStat permanentTooth = new SaprodontiaStat();
+        SaprodontiaStatItem permanentTooth = new SaprodontiaStatItem();
         permanentTooth.setDCount(dFountPermanent);
         permanentTooth.setFCount(mFountPermanent);
         permanentTooth.setMCount(fFountPermanent);
