@@ -127,7 +127,7 @@ public class ScreeningResultStatisticBuilder {
                               Integer validScreeningNum,
                               VisionScreeningResultStatistic statistic) {
         Integer planScreeningNum = totalStatistic.getPlanStudentCount();
-        int schoolNum = (int)statConclusions.stream().map(StatConclusion::getSchoolId).filter(Objects::nonNull).count();
+        int schoolNum = (int)statConclusions.stream().map(StatConclusion::getSchoolId).filter(Objects::nonNull).distinct().count();
         if (Objects.isNull(statistic.getId())){
             statistic.setCreateTime(new Date());
         }
