@@ -1278,6 +1278,7 @@ public class StatService {
                 StatRescreen statRescreen = new StatRescreen();
                 StatConclusion conclusion = rescreenInfoByTime.get(0);
                 statRescreen.setScreeningOrgId(conclusion.getScreeningOrgId())
+                        .setScreeningType(conclusion.getScreeningType())
                         .setSrcScreeningNoticeId(conclusion.getSrcScreeningNoticeId())
                         .setTaskId(conclusion.getTaskId())
                         .setPlanId(conclusion.getPlanId())
