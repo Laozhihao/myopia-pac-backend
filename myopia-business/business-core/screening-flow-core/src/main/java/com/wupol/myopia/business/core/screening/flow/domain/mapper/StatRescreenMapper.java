@@ -13,7 +13,7 @@ import java.util.List;
  */
 public interface StatRescreenMapper extends BaseMapper<StatRescreen> {
 
-    int countByPlanAndSchool(@Param("planId") Integer planId, @Param("schoolId") Integer schoolId);
+    int countByPlanAndSchool(@Param("planId") Integer planId, @Param("schoolId") Integer schoolId, @Param("createTime") Date createTime);
 
     int deleteByScreeningTime(@Param("screeningTime") Date screeningTime);
 

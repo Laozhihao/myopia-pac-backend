@@ -80,6 +80,11 @@ public class CardInfoVO {
     private Integer countNotCooperate;
 
     /**
+     * 民族 1-汉族、2-回族
+     */
+    private Integer nation;
+
+    /**
      * 民族描述
      */
     private String nationDesc;
@@ -92,5 +97,5 @@ public class CardInfoVO {
     /**
      * 学龄段
      */
-    private String schoolAge;
+    private Integer schoolType;
 }

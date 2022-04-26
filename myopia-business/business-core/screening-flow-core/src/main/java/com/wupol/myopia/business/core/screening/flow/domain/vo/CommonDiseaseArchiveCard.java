@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.screening.flow.domain.vo;
 
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.util.List;
 
@@ -11,6 +12,7 @@ import java.util.List;
  * @Author HaoHao
  * @Date 2022/4/15
  **/
+@Accessors(chain = true)
 @Data
 public class CommonDiseaseArchiveCard {
     /**
@@ -31,12 +33,12 @@ public class CommonDiseaseArchiveCard {
     /**
      * 视力数据
      */
-    private VisionDataDO visionData;
+    private ArchiveVisionDataDO visionData;
 
     /**
      * 屈光数据
      */
-    private ComputerOptometryDO computerOptometryData;
+    private ArchiveComputerOptometryDO computerOptometryData;
 
     /**
      * 龋齿数据

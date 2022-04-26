@@ -38,7 +38,7 @@ public class StatRescreenService extends BaseService<StatRescreenMapper, StatRes
     public int countByPlanAndSchool(Integer planId, Integer schoolId) {
         Assert.notNull(planId);
         Assert.notNull(schoolId);
-        return baseMapper.countByPlanAndSchool(planId, schoolId);
+        return baseMapper.countByPlanAndSchool(planId, schoolId, DateUtil.getYesterdayEndTime());
     }
 
     public int deleteByScreeningTime(Date screeningTime) {

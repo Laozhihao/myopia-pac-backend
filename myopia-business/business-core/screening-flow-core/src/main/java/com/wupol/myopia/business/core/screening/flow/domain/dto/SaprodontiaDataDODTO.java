@@ -13,10 +13,10 @@ public class SaprodontiaDataDODTO {
     /**
      * 乳牙
      */
-    private SaprodontiaStat deciduousTooth;
+    private SaprodontiaStatItem deciduousTooth;
     /**
      * 恒牙
      */
-    private SaprodontiaStat permanentTooth;
+    private SaprodontiaStatItem permanentTooth;
 
 }
