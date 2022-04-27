@@ -221,8 +221,9 @@ public class StudentFacade {
             item.setHasScreening(ObjectUtils.anyNotNull(result.getVisionData(), result.getComputerOptometry(), result.getBiometricData(), result.getOtherEyeDiseases()));
             if (Objects.nonNull(result.getScreeningPlanSchoolStudentId())&&Objects.nonNull(screeningPlanSchoolStudentMap.get(result.getScreeningPlanSchoolStudentId()))){
                 item.setScreeningCode(screeningPlanSchoolStudentMap.get(result.getScreeningPlanSchoolStudentId()).getScreeningCode());
+                item.setClassId(screeningPlanSchoolStudentMap.get(result.getScreeningPlanSchoolStudentId()).getClassId());
             }
-
+            item.setPlanStudentId(result.getScreeningPlanSchoolStudentId());
             //筛查类型
             item.setScreeningType(result.getScreeningType());
             //筛查机构名称()
