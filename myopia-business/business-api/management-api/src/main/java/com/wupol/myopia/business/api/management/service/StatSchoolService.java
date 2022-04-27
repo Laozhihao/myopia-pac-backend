@@ -167,9 +167,9 @@ public class StatSchoolService {
     }
 
     public Map<String,Boolean> hasRescreenReportMap(List<Integer> planIds,List<Integer> schoolIds) {
-        List<StatRescreen> statRescreenList = statRescreenService.getByByPlanIdAndSchoolId(planIds, schoolIds);
+        List<StatRescreen> statRescreenList = statRescreenService.getByPlanIdAndSchoolId(planIds, schoolIds);
         if (CollectionUtil.isNotEmpty(statRescreenList)){
-            return statRescreenList.stream().collect(Collectors.toMap(sr->sr.getPlanId()+"_"+sr.getSchoolId(), sr->Boolean.TRUE));
+            return statRescreenList.stream().collect(Collectors.toMap(sr->sr.getPlanId()+"_"+sr.getSchoolId(), sr->Boolean.TRUE,(r1,r2)->r2));
         }
         return Maps.newHashMap();
     }

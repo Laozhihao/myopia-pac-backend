@@ -42,7 +42,7 @@ public class StatRescreenService extends BaseService<StatRescreenMapper, StatRes
         return baseMapper.countByPlanAndSchool(planId, schoolId);
     }
 
-    public List<StatRescreen> getByByPlanIdAndSchoolId(List<Integer> planIds,List<Integer> schoolIds){
+    public List<StatRescreen> getByPlanIdAndSchoolId(List<Integer> planIds,List<Integer> schoolIds){
         Assert.isTrue(CollectionUtil.isNotEmpty(planIds));
         Assert.isTrue(CollectionUtil.isNotEmpty(planIds));
         LambdaQueryWrapper<StatRescreen> queryWrapper = new LambdaQueryWrapper<>();
