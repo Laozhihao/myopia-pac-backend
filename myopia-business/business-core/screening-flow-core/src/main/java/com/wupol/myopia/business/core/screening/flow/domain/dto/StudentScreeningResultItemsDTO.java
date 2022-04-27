@@ -16,7 +16,10 @@ import java.util.List;
 public class StudentScreeningResultItemsDTO {
 
     private ScreeningInfoDTO details;
-
+    /**
+     * 常见病编码code
+     */
+    private String commonDiseasesCode;
 
     /**
      * 筛查标题
