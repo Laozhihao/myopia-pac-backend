@@ -197,7 +197,7 @@ public class ReScreenCardUtil {
         deviationCount = getDeviationCount(deviationCount, rightSEType);
 
         rightSE.setType(rightSEType);
-        rightSE.setContent(EyeDataUtil.rightAxial(reScreening));
+        rightSE.setContent(EyeDataUtil.rightSE(reScreening));
         reScreeningResult.setRightSE(rightSE);
 
         ReScreenDTO.ReScreeningResult.ScreeningDeviation leftSph = new  ReScreenDTO.ReScreeningResult.ScreeningDeviation();
@@ -224,7 +224,7 @@ public class ReScreenCardUtil {
         deviationCount = getDeviationCount(deviationCount, leftSEType);
 
         leftSE.setType(leftSEType);
-        leftSE.setContent(EyeDataUtil.leftAxial(reScreening));
+        leftSE.setContent(EyeDataUtil.leftSE(reScreening));
         reScreeningResult.setLeftSE(leftSE);
 
         ReScreenDTO.ReScreeningResult.ScreeningDeviation height = new  ReScreenDTO.ReScreeningResult.ScreeningDeviation();
