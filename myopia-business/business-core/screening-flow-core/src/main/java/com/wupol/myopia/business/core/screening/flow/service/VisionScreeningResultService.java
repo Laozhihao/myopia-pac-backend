@@ -503,4 +503,17 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
 
         return saprodontiaDataDTO;
     }
+    /**
+     * 通过筛查学生查询初筛筛查结果
+     *
+     * @param planStudentIds 筛查学生
+     * @return 筛查结果
+     */
+    public List<VisionScreeningResult> getFirstByPlanStudentIds(List<Integer> planStudentIds) {
+        if (CollectionUtils.isEmpty(planStudentIds)) {
+            return Collections.emptyList();
+        }
+        return baseMapper.getFirstByPlanStudentIds(planStudentIds);
+    }
+
 }

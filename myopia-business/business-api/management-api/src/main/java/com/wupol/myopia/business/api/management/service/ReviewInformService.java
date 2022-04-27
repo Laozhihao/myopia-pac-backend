@@ -148,7 +148,7 @@ public class ReviewInformService {
         List<ScreeningPlanSchoolStudent> planSchoolStudents = getMatchRescreenResults(planId, orgId, schoolId, gradeId, classId);
 
         // 获取体重筛查结果Map
-        List<VisionScreeningResult> resultList = visionScreeningResultService.getByPlanStudentIds(planSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getId).collect(Collectors.toList()));
+        List<VisionScreeningResult> resultList = visionScreeningResultService.getFirstByPlanStudentIds(planSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getId).collect(Collectors.toList()));
         Map<Integer, HeightAndWeightDataDO> heightAndWeightDataMap = resultList.stream().filter(plantStudent -> Objects.nonNull(plantStudent.getHeightAndWeightData())).collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, VisionScreeningResult::getHeightAndWeightData));
 
         // 筛查时间
