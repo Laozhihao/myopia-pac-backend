@@ -48,9 +48,8 @@ public class StatSchoolService {
      * @param noticeId 通知ID
      */
     public SchoolKindergartenResultVO getSchoolKindergartenResult(Integer districtId, Integer noticeId,Integer planId) {
-        SchoolKindergartenResultVO schoolKindergartenResultVO = new SchoolKindergartenResultVO();
         if (ObjectsUtil.allNull(noticeId,planId)){
-            return schoolKindergartenResultVO;
+            return null;
         }
         if (Objects.nonNull(noticeId)){
            return getSchoolKindergartenResultByNoticeId(districtId,noticeId);
@@ -58,7 +57,7 @@ public class StatSchoolService {
         if (Objects.nonNull(planId)){
             return getSchoolKindergartenResultByPlanId(districtId,planId);
         }
-        return schoolKindergartenResultVO;
+        return null;
     }
 
     /**
@@ -67,7 +66,7 @@ public class StatSchoolService {
     private SchoolKindergartenResultVO getSchoolKindergartenResultByNoticeId(Integer districtId, Integer noticeId){
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         if(Objects.isNull(user)){
-            return new SchoolKindergartenResultVO();
+            return null;
         }
         // 获取当前层级下，所有参与任务的学校
         ScreeningNotice screeningNotice = screeningNoticeService.getReleasedNoticeById(noticeId);
@@ -112,7 +111,7 @@ public class StatSchoolService {
     private SchoolKindergartenResultVO getSchoolKindergartenResultByPlanId(Integer districtId, Integer planId){
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         if(Objects.isNull(user)){
-            return new SchoolKindergartenResultVO();
+            return null;
         }
         ScreeningPlan screeningPlan = screeningPlanService.getById(planId);
         ScreeningNotice screeningNotice = screeningNoticeService.getById(screeningPlan.getSrcScreeningNoticeId());
@@ -146,15 +145,15 @@ public class StatSchoolService {
      * 获取幼儿园数据
      */
     private SchoolKindergartenResultVO getSchoolKindergartenResultVO(List<ScreeningResultStatistic> screeningResultStatistics,ScreeningNotice screeningNotice){
-        SchoolKindergartenResultVO schoolKindergartenResultVO = new SchoolKindergartenResultVO();
+
         if (CollectionUtils.isEmpty(screeningResultStatistics)) {
-            return schoolKindergartenResultVO;
+            return null;
         }
         //学校id
         List<Integer> schoolIds = screeningResultStatistics.stream().map(ScreeningResultStatistic::getSchoolId).collect(Collectors.toList());
         //获取学校的名称
         Map<Integer, String> schoolIdDistrictNameMap = schoolService.getByIds(schoolIds).stream().collect(Collectors.toMap(School::getId,School::getName));
-
+        SchoolKindergartenResultVO schoolKindergartenResultVO = new SchoolKindergartenResultVO();
         //获取数据
         schoolKindergartenResultVO.setItemData(screeningResultStatistics,schoolIdDistrictNameMap);
         return schoolKindergartenResultVO;
@@ -169,9 +168,8 @@ public class StatSchoolService {
      * @param noticeId 通知ID
      */
     public SchoolPrimarySchoolAndAboveResultVO getSchoolPrimarySchoolAndAboveResult(Integer districtId, Integer noticeId,Integer planId) {
-        SchoolPrimarySchoolAndAboveResultVO schoolPrimarySchoolAndAboveResultVO = new SchoolPrimarySchoolAndAboveResultVO();
         if (ObjectsUtil.allNull(noticeId,planId)){
-            return schoolPrimarySchoolAndAboveResultVO;
+            return null;
         }
         if (Objects.nonNull(noticeId)){
             return getSchoolPrimarySchoolAndAboveResultByNoticeId(districtId,noticeId);
@@ -179,7 +177,7 @@ public class StatSchoolService {
         if (Objects.nonNull(planId)){
             return getSchoolPrimarySchoolAndAboveResultByPlanId(districtId,planId);
         }
-        return schoolPrimarySchoolAndAboveResultVO;
+        return null;
     }
 
     /**
@@ -188,7 +186,7 @@ public class StatSchoolService {
     private SchoolPrimarySchoolAndAboveResultVO getSchoolPrimarySchoolAndAboveResultByNoticeId(Integer districtId, Integer noticeId){
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         if(Objects.isNull(user)){
-            return new SchoolPrimarySchoolAndAboveResultVO();
+            return null;
         }
         // 获取当前层级下，所有参与任务的学校
         ScreeningNotice screeningNotice = screeningNoticeService.getReleasedNoticeById(noticeId);
@@ -204,7 +202,7 @@ public class StatSchoolService {
 
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         if(Objects.isNull(user)){
-            return new SchoolPrimarySchoolAndAboveResultVO();
+            return null;
         }
 
         ScreeningPlan screeningPlan = screeningPlanService.getById(planId);
@@ -219,14 +217,15 @@ public class StatSchoolService {
      * 获取小学及以上数据
      */
     private SchoolPrimarySchoolAndAboveResultVO getSchoolPrimarySchoolAndAboveResultVO(List<ScreeningResultStatistic> screeningResultStatistics,ScreeningNotice screeningNotice){
-        SchoolPrimarySchoolAndAboveResultVO schoolPrimarySchoolAndAboveResultVO = new SchoolPrimarySchoolAndAboveResultVO();
+
         if (CollectionUtils.isEmpty(screeningResultStatistics)) {
-            return schoolPrimarySchoolAndAboveResultVO;
+            return null;
         }
         //学校id
         List<Integer> schoolIds = screeningResultStatistics.stream().map(ScreeningResultStatistic::getSchoolId).collect(Collectors.toList());
         //获取学校的名称
         Map<Integer, String> schoolIdDistrictNameMap = schoolService.getByIds(schoolIds).stream().collect(Collectors.toMap(School::getId,School::getName));
+        SchoolPrimarySchoolAndAboveResultVO schoolPrimarySchoolAndAboveResultVO = new SchoolPrimarySchoolAndAboveResultVO();
         //获取数据
         schoolPrimarySchoolAndAboveResultVO.setItemData(screeningResultStatistics,schoolIdDistrictNameMap);
         return schoolPrimarySchoolAndAboveResultVO;
@@ -242,7 +241,7 @@ public class StatSchoolService {
             School school = schoolService.getById(schoolId);
             CurrentUser user = CurrentUserUtil.getCurrentUser();
             if(Objects.isNull(user) && ObjectsUtil.allNotNull(screeningNoticeId,screeningPlanId) ){
-                return new SchoolResultDetailVO();
+                return null;
             }
             if (Objects.nonNull(screeningNoticeId)){
                 return getSchoolStatisticDetailByNoticeId(screeningNoticeId,school,user);

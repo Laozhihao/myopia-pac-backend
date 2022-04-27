@@ -77,28 +77,28 @@ public class OuterEye implements HasResult {
      */
     private Integer doctorId;
     /**
-     * 眼睑
+     * 眼睑提示内容
      */
-    private String eyelidAbnormalContent;
+    private String eyelidContent;
     /**
-     * 结膜
+     * 结膜提示内容
      */
-    private String conjunctivaAbnormalContent;
+    private String conjunctivaContent;
     /**
-     * 眼球
+     * 眼球提示内容
      */
-    private String eyeballAbnormalContent;
+    private String eyeballContent;
     /**
-     * 角膜
+     * 角膜提示内容
      */
-    private String cornealAbnormalContent;
+    private String cornealContent;
     /**
-     * 瞳孔
+     * 瞳孔提示内容
      */
-    private String pupilAbnormalContent;
+    private String pupilContent;
     /**
-     * 巩膜
+     * 巩膜提示内容
      */
-    private String scleraAbnormalContent;
+    private String scleraContent;
 
 }

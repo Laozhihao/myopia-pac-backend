@@ -182,8 +182,10 @@ public class KindergartenResultVO {
         BeanUtils.copyProperties(currentVisionStatistic,item);
         item.setScreeningRangeName(rangeName).setDistrictId(districtId).setIsKindergarten(Boolean.TRUE);
 
-        KindergartenVisionAnalysisDO visionAnalysis = (KindergartenVisionAnalysisDO)currentVisionStatistic.getVisionAnalysis();
-        BeanUtils.copyProperties(visionAnalysis,item);
+        if (Objects.nonNull(currentVisionStatistic.getVisionAnalysis())){
+            KindergartenVisionAnalysisDO visionAnalysis = (KindergartenVisionAnalysisDO)currentVisionStatistic.getVisionAnalysis();
+            BeanUtils.copyProperties(visionAnalysis,item);
+        }
 
         return item;
 

@@ -100,5 +100,14 @@ public class StudentScreeningResultItemsDTO {
      * 性别
      */
     private Integer gender;
+    /**
+     * 班级ID
+     */
+    private Integer classId;
+
+    /**
+     * 筛查结果--所属的学生id
+     */
+    private Integer planStudentId;
 
 }

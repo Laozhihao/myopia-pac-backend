@@ -48,7 +48,7 @@ public class StatDistrictService {
     public KindergartenResultVO getKindergartenResult(Integer districtId, Integer noticeId) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         if (Objects.isNull(currentUser)){
-            return new KindergartenResultVO();
+            return null;
         }
         ScreeningNotice screeningNotice = screeningNoticeService.getById(noticeId);
         if (screeningNotice == null) {
@@ -62,7 +62,7 @@ public class StatDistrictService {
         //查找合计数据（当前层级 + 下级）
         List<ScreeningResultStatistic> visionStatistics = getKindergartenResultList(noticeId, districtId, screeningNotice.getScreeningType());
         if (CollectionUtils.isEmpty(visionStatistics)) {
-            return new KindergartenResultVO();
+            return null;
         }
         TwoTuple<String, Map<Integer, String>> districtInfo = districtInfo(districtId, visionStatistics);
         //查找当前层级的数据（非合计数据）
@@ -84,7 +84,7 @@ public class StatDistrictService {
     public PrimarySchoolAndAboveResultVO getPrimarySchoolAndAboveResult(Integer districtId, Integer noticeId) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         if (Objects.isNull(currentUser)){
-            return new PrimarySchoolAndAboveResultVO();
+            return null;
         }
         ScreeningNotice screeningNotice = screeningNoticeService.getById(noticeId);
         if (screeningNotice == null) {
@@ -98,7 +98,7 @@ public class StatDistrictService {
         //查找合计数据（当前层级 + 下级）
         List<ScreeningResultStatistic> visionStatistics = getPrimarySchoolAndAboveResultList(noticeId, districtId, screeningNotice.getScreeningType());
         if (CollectionUtils.isEmpty(visionStatistics)) {
-            return new PrimarySchoolAndAboveResultVO();
+            return null;
         }
         TwoTuple<String, Map<Integer, String>> districtInfo = districtInfo(districtId, visionStatistics);
         ScreeningResultStatistic currentVisionStatistic = currentVisionStatistic(districtId, noticeId, Boolean.FALSE);
@@ -129,7 +129,7 @@ public class StatDistrictService {
     public ScreeningResultStatisticDetailVO getScreeningResultTotalDetail(Integer districtId, Integer noticeId) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         if (Objects.isNull(currentUser)){
-            return new ScreeningResultStatisticDetailVO();
+            return null;
         }
         ScreeningNotice screeningNotice = screeningNoticeService.getById(noticeId);
         if (screeningNotice == null) {
@@ -149,7 +149,7 @@ public class StatDistrictService {
         List<ScreeningResultStatistic> primarySchoolAndAboveVisionStatistics = screeningResult.getSecond();
 
         if (CollectionUtils.isEmpty(kindergartenVisionStatistics) && CollectionUtil.isEmpty(primarySchoolAndAboveVisionStatistics)) {
-            return new ScreeningResultStatisticDetailVO();
+            return null;
         }
 
         List<ScreeningResultStatistic> statistics=Lists.newArrayList();

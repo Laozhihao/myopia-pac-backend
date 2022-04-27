@@ -9,6 +9,7 @@ import org.springframework.beans.BeanUtils;
 
 import java.io.Serializable;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * 小学及以上筛查数据结果
@@ -91,12 +92,12 @@ public class PrimarySchoolAndAboveResultDetailVO implements Serializable,FrontTa
             BeanUtils.copyProperties(screeningResultStatistic,screeningSituationDO);
 
             this.screeningSituation=screeningSituationDO;
-            this.primarySchoolAndAboveVisionAnalysis=(PrimarySchoolAndAboveVisionAnalysisDO)screeningResultStatistic.getVisionAnalysis();
-            this.visionWarning=screeningResultStatistic.getVisionWarning();
-            this.rescreenSituation=screeningResultStatistic.getRescreenSituation();
-            this.saprodontia=screeningResultStatistic.getSaprodontia();
-            this.commonDisease=screeningResultStatistic.getCommonDisease();
-            this.questionnaire=screeningResultStatistic.getQuestionnaire();
+            this.primarySchoolAndAboveVisionAnalysis= Optional.ofNullable(screeningResultStatistic.getVisionAnalysis()).map(va -> (PrimarySchoolAndAboveVisionAnalysisDO) va).orElse(new PrimarySchoolAndAboveVisionAnalysisDO());
+            this.visionWarning=Optional.ofNullable(screeningResultStatistic.getVisionWarning()).orElse(new VisionWarningDO());
+            this.rescreenSituation= Optional.ofNullable(screeningResultStatistic.getRescreenSituation()).orElse(new RescreenSituationDO());
+            this.saprodontia=Optional.ofNullable(screeningResultStatistic.getSaprodontia()).orElse(new SaprodontiaDO());
+            this.commonDisease=Optional.ofNullable(screeningResultStatistic.getCommonDisease()).orElse(new CommonDiseaseDO());
+            this.questionnaire=Optional.ofNullable(screeningResultStatistic.getQuestionnaire()).orElse(new QuestionnaireDO());
         }
     }
 
