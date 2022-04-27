@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.api.management.controller;
 
-import cn.hutool.core.collection.ListUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
@@ -11,7 +10,6 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.screening.service.StatConclusionBizService;
-import com.wupol.myopia.business.api.management.domain.dto.SchoolMonitorStatisticDTO;
 import com.wupol.myopia.business.api.management.domain.vo.*;
 import com.wupol.myopia.business.api.management.schedule.ScheduledTasksExecutor;
 import com.wupol.myopia.business.api.management.service.*;
@@ -20,19 +18,22 @@ import com.wupol.myopia.business.common.utils.constant.WarningLevel;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
-import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningNoticeNameDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanNameDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanSchoolInfoDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.model.*;
-import com.wupol.myopia.business.core.screening.flow.service.*;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
+import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
+import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
+import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
+import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import com.wupol.myopia.business.core.stat.domain.model.DistrictAttentiveObjectsStatistic;
-import com.wupol.myopia.business.core.stat.domain.model.SchoolMonitorStatistic;
-import com.wupol.myopia.business.core.stat.domain.model.SchoolVisionStatistic;
 import com.wupol.myopia.business.core.stat.service.DistrictVisionStatisticService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -77,14 +78,6 @@ public class StatManagementController {
     private SchoolBizService schoolBizService;
     @Autowired
     private DistrictAttentiveObjectsStatisticBizService districtAttentiveObjectsStatisticBizService;
-    @Autowired
-    private SchoolVisionStatisticBizService schoolVisionStatisticBizService;
-    @Autowired
-    private SchoolMonitorStatisticBizService schoolMonitorStatisticBizService;
-    @Autowired
-    private StatRescreenService statRescreenService;
-    @Autowired
-    private ScreeningPlanSchoolService screeningPlanSchoolService;
     @Autowired
     private DistrictVisionStatisticService districtVisionStatisticService;
     @Autowired
@@ -209,90 +202,6 @@ public class StatManagementController {
     }
 
 
-    /**
-     * 地区视力情况
-     *
-     * @param districtId
-     * @return
-     */
-    @Deprecated
-    @GetMapping("/district/screening-vision-result")
-    public ScreeningVisionStatisticVO getDistrictVisionStatistic(
-            @RequestParam Integer districtId, @RequestParam Integer noticeId) throws IOException {
-        ScreeningNotice screeningNotice = screeningNoticeService.getById(noticeId);
-        if (screeningNotice == null) {
-            throw new BusinessException(BizMsgConstant.CAN_NOT_FIND_NOTICE);
-        }
-        return statService.getScreeningVisionStatisticVO(districtId, noticeId, screeningNotice, CurrentUserUtil.getCurrentUser());
-    }
-
-    /**
-     * 地区监控情况
-     *
-     * @param districtId
-     * @return
-     */
-    @Deprecated
-    @GetMapping("/district/screening-monitor-result")
-    public DistrictScreeningMonitorStatisticVO getDistrictMonitorStatistic(
-            @RequestParam Integer districtId, @RequestParam Integer noticeId) throws IOException {
-        //查找notice
-        ScreeningNotice screeningNotice = screeningNoticeService.getById(noticeId);
-        if (screeningNotice == null) {
-            throw new BusinessException(BizMsgConstant.CAN_NOT_FIND_NOTICE);
-        }
-        return statService.getDistrictScreeningMonitorStatisticVO(districtId, noticeId, screeningNotice, CurrentUserUtil.getCurrentUser());
-    }
-
-
-    /**
-     * 学校视力情况
-     *
-     * @param districtId
-     * @return
-     */
-    @Deprecated
-    @GetMapping("/school/screening-vision-result")
-    public ScreeningSchoolVisionStatisticVO getSchoolVisionStatistic(@RequestParam Integer districtId, @RequestParam Integer noticeId) {
-        // 获取当前层级下，所有参与任务的学校
-        ScreeningNotice screeningNotice = screeningNoticeService.getReleasedNoticeById(noticeId);
-        List<SchoolVisionStatistic> schoolVisionStatistics = schoolVisionStatisticBizService.getStatisticDtoByNoticeIdAndOrgId(screeningNotice.getId(),
-                CurrentUserUtil.getCurrentUser(),
-                districtService.getSpecificDistrictTreeAllDistrictIds(districtId));
-        return getSchoolVisionStatisticVO(schoolVisionStatistics, screeningNotice);
-    }
-
-    /**
-     * 获取学校监控统计
-     *
-     * @param districtId
-     * @param noticeId
-     * @return
-     * @throws IOException
-     */
-    @Deprecated
-    @GetMapping("/school/screening-monitor-result")
-    public SchoolScreeningMonitorStatisticVO getSchoolMonitorStatistic(@RequestParam Integer districtId, @RequestParam Integer noticeId) throws IOException {
-        // 获取当前层级下，所有参与任务的学校
-        ScreeningNotice screeningNotice = screeningNoticeService.getReleasedNoticeById(noticeId);
-        if (screeningNotice == null) {
-            throw new BusinessException(BizMsgConstant.CAN_NOT_FIND_NOTICE);
-        }
-        List<SchoolMonitorStatistic> schoolMonitorStatistics = schoolMonitorStatisticBizService.getStatisticDtoByNoticeIdAndOrgId(screeningNotice.getId(), CurrentUserUtil.getCurrentUser(), districtService.getSpecificDistrictTreeAllDistrictIds(districtId));
-        if (CollectionUtils.isEmpty(schoolMonitorStatistics)) {
-            return SchoolScreeningMonitorStatisticVO.getEmptyInstance();
-        }
-        //获取数据
-        return SchoolScreeningMonitorStatisticVO.getInstance(getPlanSchoolReportStatus(schoolMonitorStatistics), screeningNotice);
-    }
-
-    private List<SchoolMonitorStatisticDTO> getPlanSchoolReportStatus(List<SchoolMonitorStatistic> schoolMonitorStatistics) {
-        return schoolMonitorStatistics.stream().map(schoolMonitorStatistic -> {
-            ScreeningPlanSchool screeningPlanSchool = screeningPlanSchoolService.getOneByPlanIdAndSchoolId(schoolMonitorStatistic.getScreeningPlanId(), schoolMonitorStatistic.getSchoolId());
-            return new SchoolMonitorStatisticDTO(schoolMonitorStatistic, statRescreenService.hasRescreenReport(schoolMonitorStatistic.getScreeningPlanId(), schoolMonitorStatistic.getSchoolId()),
-                    screeningPlanSchool.getQualityControllerName(), screeningPlanSchool.getQualityControllerCommander());
-        }).collect(Collectors.toList());
-    }
 
     /**
      * 获取大屏展示的数据
@@ -444,55 +353,6 @@ public class StatManagementController {
         scheduledTasksExecutor.statisticByPlanIds(Lists.newArrayList(planId));
     }
 
-    /**
-     * 学校视力情况
-     *
-     * @param districtId
-     * @param planId
-     * @return
-     */
-    @GetMapping("/plan/school/screening-vision-result")
-    public ScreeningSchoolVisionStatisticVO getSchoolVisionStatisticByPlan(@RequestParam(required = false) Integer districtId, @RequestParam Integer planId) {
-        // 获取当前层级下，所有参与任务的学校
-        ScreeningPlan plan = screeningPlanService.getReleasedPlanById(planId);
-        ScreeningNotice notice = screeningNoticeService.getById(plan.getSrcScreeningNoticeId());
-        List<SchoolVisionStatistic> schoolVisionStatistics = schoolVisionStatisticBizService.getStatisticDtoByPlanIdsAndOrgId(Collections.singletonList(plan), districtService.getSpecificDistrictTreeAllDistrictIds(districtId));
-        return getSchoolVisionStatisticVO(schoolVisionStatistics, notice);
-    }
-
-    /**
-     * 获取学校监控统计
-     *
-     * @param districtId
-     * @param planId
-     * @throws IOException
-     * @return4
-     */
-    @GetMapping("/plan/school/screening-monitor-result")
-    public SchoolScreeningMonitorStatisticVO getSchoolMonitorStatisticByPlan(@RequestParam(required = false) Integer districtId, @RequestParam Integer planId) {
-        // 获取当前层级下，所有参与任务的学校
-        ScreeningPlan plan = screeningPlanService.getReleasedPlanById(planId);
-        ScreeningNotice notice = screeningNoticeService.getById(plan.getSrcScreeningNoticeId());
-        List<SchoolMonitorStatistic> schoolMonitorStatistics = schoolMonitorStatisticBizService.getStatisticDtoByPlansAndOrgId(Arrays.asList(plan), districtService.getSpecificDistrictTreeAllDistrictIds(districtId));
-        if (CollectionUtils.isEmpty(schoolMonitorStatistics)) {
-            return SchoolScreeningMonitorStatisticVO.getEmptyInstance();
-        }
-        //获取数据
-        return SchoolScreeningMonitorStatisticVO.getInstance(getPlanSchoolReportStatus(schoolMonitorStatistics), notice);
-    }
-
-    private ScreeningSchoolVisionStatisticVO getSchoolVisionStatisticVO(List<SchoolVisionStatistic> schoolVisionStatistics, ScreeningNotice notice) {
-        if (CollectionUtils.isEmpty(schoolVisionStatistics)) {
-            return ScreeningSchoolVisionStatisticVO.getEmptyInstance();
-        }
-        //学校id
-        List<Integer> schoolIds = schoolVisionStatistics.stream().map(SchoolVisionStatistic::getSchoolId).collect(Collectors.toList());
-        List<Integer> schoolDistrictIdList = schoolService.getByIds(schoolIds).stream().map(School::getDistrictId).collect(Collectors.toList());
-        //获取学校的地区
-        Map<Integer, String> schoolIdDistrictNameMap = districtService.getByIds(schoolDistrictIdList);
-        //获取数据
-        return ScreeningSchoolVisionStatisticVO.getInstance(schoolVisionStatistics, schoolIdDistrictNameMap, notice);
-    }
 
     /**
      * 按区域-幼儿园
