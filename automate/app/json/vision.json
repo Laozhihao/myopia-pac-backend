@@ -1,0 +1,11 @@
+{
+  "isCooperative": 0,
+  "glasses": "佩戴隐形眼镜",
+  "r_jzsl": 0.5,
+  "l_jzsl": 0.4,
+  "r_lsl": 0.2,
+  "l_lsl": 0.2,
+  "diagnosis": 0,
+  "r_ok_degree": null,
+  "l_ok_degree": null
+}
