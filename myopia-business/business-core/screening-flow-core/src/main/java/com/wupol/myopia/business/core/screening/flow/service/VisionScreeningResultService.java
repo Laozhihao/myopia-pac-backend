@@ -465,22 +465,22 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         int fFountPermanent = 0;
         for (SaprodontiaDataDO.SaprodontiaItem item: items){
             if (item != null){
-                if (SaprodontiaType.DECIDUOUS_D.getName().equals(item.getDeciduous())){
+                if (item.getDeciduous().equals(SaprodontiaType.DECIDUOUS_D.getName())){
                     dCountDeciduous++;
                 }
-                if (SaprodontiaType.DECIDUOUS_M.getName().equals(item.getDeciduous())){
+                if (item.getDeciduous().equals(SaprodontiaType.DECIDUOUS_M.getName())){
                     mCountDeciduous++;
                 }
-                if (SaprodontiaType.DECIDUOUS_F.getName().equals(item.getDeciduous())){
+                if (item.getDeciduous().equals(SaprodontiaType.DECIDUOUS_F.getName())){
                     fFountDeciduous++;
                 }
-                if (SaprodontiaType.PERMANENT_D.getName().equals(item.getPermanent())){
+                if (item.getPermanent().equals(SaprodontiaType.PERMANENT_D.getName())){
                     dFountPermanent++;
                 }
-                if (SaprodontiaType.PERMANENT_M.getName().equals(item.getPermanent())){
+                if (item.getPermanent().equals(SaprodontiaType.PERMANENT_M.getName())){
                     mFountPermanent++;
                 }
-                if (SaprodontiaType.PERMANENT_F.getName().equals(item.getPermanent())){
+                if (item.getPermanent().equals(SaprodontiaType.PERMANENT_F.getName())){
                     fFountPermanent++;
                 }
             }
