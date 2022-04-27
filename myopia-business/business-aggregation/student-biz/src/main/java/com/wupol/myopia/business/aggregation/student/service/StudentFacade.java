@@ -231,6 +231,8 @@ public class StudentFacade {
             item.setScreeningOrgName(getScreeningOrganizationName(screeningOrganizationMap.get(result.getScreeningOrgId())));
             //设置学生性别
             item.setGender(studentDTO.getGender());
+            //TODO 设置常见病
+            item.setCommonDiseasesCode("次处写死，等待志豪的返回值");
 
             records.add(item);
         }
