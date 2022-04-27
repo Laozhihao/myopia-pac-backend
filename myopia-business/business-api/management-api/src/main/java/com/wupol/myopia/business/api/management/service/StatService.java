@@ -29,12 +29,8 @@ import com.wupol.myopia.business.core.screening.organization.domain.model.Screen
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.stat.domain.dto.WarningInfo;
 import com.wupol.myopia.business.core.stat.domain.dto.WarningInfo.WarningLevelInfo;
-import com.wupol.myopia.business.core.stat.domain.model.DistrictMonitorStatistic;
-import com.wupol.myopia.business.core.stat.domain.model.DistrictVisionStatistic;
 import com.wupol.myopia.business.core.stat.domain.model.ScreeningResultStatistic;
-import com.wupol.myopia.business.core.stat.service.DistrictAttentiveObjectsStatisticService;
 import com.wupol.myopia.business.core.stat.service.DistrictMonitorStatisticService;
-import com.wupol.myopia.business.core.stat.service.DistrictVisionStatisticService;
 import com.wupol.myopia.business.core.stat.service.ScreeningResultStatisticService;
 import lombok.Builder;
 import lombok.Data;
@@ -77,10 +73,6 @@ public class StatService {
     private SchoolBizService schoolBizService;
     @Autowired
     private ExcelFacade excelFacade;
-    @Autowired
-    private DistrictAttentiveObjectsStatisticService districtAttentiveObjectsStatisticService;
-    @Autowired
-    private DistrictVisionStatisticService districtVisionStatisticService;
     @Autowired
     private DistrictMonitorStatisticService districtMonitorStatisticService;
     @Autowired
@@ -1131,91 +1123,7 @@ public class StatService {
         return FocusObjectsStatisticVO.getInstance(screeningResultStatistics, districtId,currentRangeName, districtIdNameMap,currentScreeningResultStatistic);
     }
 
-    /**
-     * 获取筛查视力对象
-     *
-     * @param districtId
-     * @param noticeId
-     * @param screeningNotice
-     * @return
-     * @throws IOException
-     */
-    public ScreeningVisionStatisticVO getScreeningVisionStatisticVO(
-            Integer districtId, Integer noticeId, ScreeningNotice screeningNotice, CurrentUser currentUser) throws IOException {
-        //查找合计数据（当前层级 + 下级）
-        List<DistrictVisionStatistic> districtVisionStatistics =
-                districtVisionStatisticService.getStatisticDtoByNoticeIdAndCurrentChildDistrictIds(
-                        noticeId, districtId, currentUser, true);
-        if (CollectionUtils.isEmpty(districtVisionStatistics)) {
-            return ScreeningVisionStatisticVO.getImmutableEmptyInstance();
-        }
-        //获取当前范围名
-        String currentRangeName = districtService.getDistrictNameByDistrictId(districtId);
-        // 获取districtIds 的所有名字
-        Set<Integer> districtIds = districtVisionStatistics.stream()
-                                           .map(DistrictVisionStatistic::getDistrictId)
-                                           .collect(Collectors.toSet());
-        List<District> districts = districtService.getDistrictByIds(new ArrayList<>(districtIds));
-        Map<Integer, String> districtIdNameMap =
-                districts.stream().collect(Collectors.toMap(District::getId, District::getName));
-        districtIdNameMap.put(districtId, currentRangeName);
 
-        //查找当前层级的数据（非合计数据）
-        List<DistrictVisionStatistic> currentDistrictVisionStatistics =
-                districtVisionStatisticService.getStatisticDtoByNoticeIdAndCurrentDistrictId(
-                        noticeId, districtId, currentUser, false);
-        DistrictVisionStatistic currentDistrictVisionStatistic = null;
-        if (CollectionUtils.isNotEmpty(currentDistrictVisionStatistics)) {
-            currentDistrictVisionStatistic = currentDistrictVisionStatistics.stream().findFirst().orElse(null);
-        }
-        //获取数据
-        return ScreeningVisionStatisticVO.getInstance(districtVisionStatistics, districtId,
-                currentRangeName, screeningNotice, districtIdNameMap, currentDistrictVisionStatistic);
-    }
-
-    /**
-     * 获取地区监控情况
-     *
-     * @param districtId
-     * @param noticeId
-     * @param screeningNotice
-     * @param currentUser
-     * @return
-     * @throws IOException
-     */
-    public DistrictScreeningMonitorStatisticVO getDistrictScreeningMonitorStatisticVO(
-            Integer districtId, Integer noticeId, ScreeningNotice screeningNotice, CurrentUser currentUser)
-            throws IOException {
-        //根据层级获取数据(当前层级，下级层级，汇总数据）
-        List<DistrictMonitorStatistic> districtMonitorStatistics =
-                districtMonitorStatisticService.getStatisticDtoByNoticeIdAndCurrentChildDistrictIds(
-                        noticeId, districtId, currentUser, true);
-        if (CollectionUtils.isEmpty(districtMonitorStatistics)) {
-            return DistrictScreeningMonitorStatisticVO.getImmutableEmptyInstance();
-        }
-        //获取task详情
-        String currentRangeName = districtService.getDistrictNameByDistrictId(districtId);
-        // 获取districtIds 的所有名字
-        Set<Integer> districtIds = districtMonitorStatistics.stream()
-                .map(DistrictMonitorStatistic::getDistrictId)
-                .collect(Collectors.toSet());
-        List<District> districts = districtService.getDistrictByIds(new ArrayList<>(districtIds));
-        Map<Integer, String> districtIdNameMap =
-                districts.stream().collect(Collectors.toMap(District::getId, District::getName));
-        districtIdNameMap.put(districtId, currentRangeName);
-
-        //查找当前层级的数据（非合计数据）
-        List<DistrictMonitorStatistic> currentDistrictMonitorStatistics =
-                districtMonitorStatisticService.getStatisticDtoByNoticeIdAndCurrentDistrictId(
-                        noticeId, districtId, currentUser, false);
-        DistrictMonitorStatistic currentDistrictMonitorStatistic = null;
-        if (CollectionUtils.isNotEmpty(currentDistrictMonitorStatistics)) {
-            currentDistrictMonitorStatistic = currentDistrictMonitorStatistics.stream().findFirst().orElse(null);
-        }
-        //获取数据
-        return DistrictScreeningMonitorStatisticVO.getInstance(districtMonitorStatistics,
-                districtId, currentRangeName, screeningNotice, districtIdNameMap, currentDistrictMonitorStatistic);
-    }
 
     /**
      * 获取复测报告信息
