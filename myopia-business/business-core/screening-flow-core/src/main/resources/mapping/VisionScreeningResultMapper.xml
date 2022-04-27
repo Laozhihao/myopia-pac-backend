@@ -227,6 +227,16 @@
             is_double_screen = 0
     </select>
 
+
+    <select id="getIsDoubleScreen" resultMap="BaseResultMap">
+        select *
+        from m_vision_screening_result
+        where screening_plan_school_student_id = #{screeningPlanSchoolStudentId}
+        and plan_id = #{planId}
+        and screening_type = #{screeningType}
+        and is_double_screen = 1
+    </select>
+
     <select id="getRescreenBySchoolIds" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
@@ -236,5 +246,15 @@
             #{schoolId}
         </foreach>
         and is_double_screen = true
+    </select>
+
+    <select id="getFirstByPlanStudentIds" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_vision_screening_result where screening_plan_school_student_id in
+        <foreach collection="planStudentIds" item="planStudentId" index="index" open="(" close=")" separator=",">
+            #{planStudentId}
+        </foreach>
+        and is_double_screen = 0
     </select>
 </mapper>

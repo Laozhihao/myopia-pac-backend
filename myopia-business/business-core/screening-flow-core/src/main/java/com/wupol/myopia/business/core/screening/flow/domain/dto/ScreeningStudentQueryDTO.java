@@ -116,6 +116,11 @@ public class ScreeningStudentQueryDTO extends StudentExtraDTO {
     private Integer artificial;
 
     /**
+     * 是否复测
+     */
+    private Integer isDoubleScreen;
+
+    /**
      * 创建ScreeningStudentQueryDTO, 当入参为null时, 返回null;
      * @param mockPlanStudentQueryDTO
      * @return

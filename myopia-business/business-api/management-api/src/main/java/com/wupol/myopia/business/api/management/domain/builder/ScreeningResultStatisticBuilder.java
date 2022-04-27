@@ -149,20 +149,35 @@ public class ScreeningResultStatisticBuilder {
     }
 
     /**
-     * 设置小学及以上视力分析数据
+     * 设置小学及以上视力分析数据 (基于初筛数据)
      */
     private void setPrimarySchoolAndAboveVisionAnalysis(StatisticResultBO totalStatistic, List<StatConclusion> statConclusions, int validScreeningNum, VisionScreeningResultStatistic statistic) {
         PrimarySchoolAndAboveVisionAnalysisDO visionAnalysisDO = new PrimarySchoolAndAboveVisionAnalysisDO();
-        Integer lowVisionNum = (int) statConclusions.stream().map(StatConclusion::getIsLowVision).filter(Objects::nonNull).filter(Boolean::booleanValue).count();
+        statConclusions = statConclusions.stream().filter(sc->Objects.equals(Boolean.FALSE,sc.getIsRescreen())).collect(Collectors.toList());
+        Integer lowVisionNum = (int) statConclusions.stream()
+                .map(StatConclusion::getIsLowVision)
+                .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
+
         TwoTuple<BigDecimal, BigDecimal> tuple = StatUtil.calculateAverageVision(statConclusions);
-        int myopiaNum = (int) statConclusions.stream().map(StatConclusion::getIsMyopia).filter(Objects::nonNull).filter(Boolean::booleanValue).count();
-        int myopiaLevelEarlyNum = (int) statConclusions.stream().filter(sc->Objects.equals(2,sc.getMyopiaLevel())).count();
-        int lowMyopiaNum = (int) statConclusions.stream().filter(sc->Objects.equals(3,sc.getMyopiaLevel())).count();
-        int highMyopiaNum = (int) statConclusions.stream().filter(sc->Objects.equals(5,sc.getMyopiaLevel())).count();
-        int astigmatismNum =(int) statConclusions.stream().map(StatConclusion::getIsAstigmatism).filter(Objects::nonNull).filter(Boolean::booleanValue).count();
-        Integer wearingGlassNum = (int) statConclusions.stream().filter(sc-> Objects.equals(Boolean.TRUE,sc.getIsWearingGlasses()) && Objects.equals(Boolean.TRUE,sc.getIsValid())).count();
-        Integer nightWearingOrthokeratologyLensesNum = (int) statConclusions.stream().filter(sc-> Objects.equals(3,sc.getGlassesType())).count();
-        Integer treatmentAdviceNum = (int) statConclusions.stream().map(StatConclusion::getIsRecommendVisit).filter(Objects::nonNull).filter(Boolean::booleanValue).count();
+        Integer myopiaNum = (int) statConclusions.stream()
+                .map(StatConclusion::getIsMyopia)
+                .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
+        Integer myopiaLevelEarlyNum = (int) statConclusions.stream()
+                .filter(sc->Objects.equals(2,sc.getMyopiaLevel())).count();
+        Integer lowMyopiaNum = (int) statConclusions.stream()
+                .filter(sc->Objects.equals(3,sc.getMyopiaLevel())).count();
+        Integer highMyopiaNum = (int) statConclusions.stream()
+                .filter(sc->Objects.equals(5,sc.getMyopiaLevel())).count();
+        Integer astigmatismNum =(int) statConclusions.stream()
+                .map(StatConclusion::getIsAstigmatism)
+                .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
+        Integer wearingGlassNum = (int) statConclusions.stream()
+                .filter(sc-> Objects.equals(Boolean.TRUE,sc.getIsWearingGlasses()) && Objects.equals(Boolean.TRUE,sc.getIsValid())).count();
+        Integer nightWearingOrthokeratologyLensesNum = (int) statConclusions.stream()
+                .filter(sc-> Objects.equals(3,sc.getGlassesType())).count();
+        Integer treatmentAdviceNum = (int) statConclusions.stream()
+                .map(StatConclusion::getIsRecommendVisit)
+                .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
         visionAnalysisDO.setLowVisionNum(lowVisionNum)
                 .setLowVisionRatio(MathUtil.ratio(lowVisionNum,validScreeningNum))
                 .setAvgLeftVision(tuple.getFirst()).setAvgRightVision(tuple.getSecond())
@@ -180,16 +195,27 @@ public class ScreeningResultStatisticBuilder {
     }
 
     /**
-     * 设置幼儿园视力分析数据
+     * 设置幼儿园视力分析数据(基于初筛数据)
      */
     private void setKindergartenVisionAnalysis(StatisticResultBO totalStatistic, List<StatConclusion> statConclusions, int validScreeningNum, VisionScreeningResultStatistic statistic) {
         KindergartenVisionAnalysisDO visionAnalysisDO =new KindergartenVisionAnalysisDO();
         Map<Integer, Long> visionLabelNumberMap = statConclusions.stream().filter(stat -> Objects.nonNull(stat.getWarningLevel())).collect(Collectors.groupingBy(StatConclusion::getWarningLevel, Collectors.counting()));
-        Integer lowVisionNum = (int) statConclusions.stream().map(StatConclusion::getIsLowVision).filter(Objects::nonNull).filter(Boolean::booleanValue).count();
-        Integer ametropiaNum = (int) statConclusions.stream().map(StatConclusion::getIsRefractiveError).filter(Objects::nonNull).filter(Boolean::booleanValue).count();
-        Integer anisometropiaNum = (int) statConclusions.stream().map(StatConclusion::getIsAnisometropia).filter(Objects::nonNull).filter(Boolean::booleanValue).count();
-        Integer wearingGlassNum = (int) statConclusions.stream().map(StatConclusion::getIsWearingGlasses).filter(Objects::nonNull).filter(Boolean::booleanValue).count();
-        Integer treatmentAdviceNum = (int) statConclusions.stream().map(StatConclusion::getIsRecommendVisit).filter(Objects::nonNull).filter(Boolean::booleanValue).count();
+        statConclusions = statConclusions.stream().filter(sc->Objects.equals(Boolean.FALSE,sc.getIsRescreen())).collect(Collectors.toList());
+        Integer lowVisionNum = (int) statConclusions.stream()
+                .map(StatConclusion::getIsLowVision)
+                .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
+        Integer ametropiaNum = (int) statConclusions.stream()
+                .map(StatConclusion::getIsRefractiveError)
+                .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
+        Integer anisometropiaNum = (int) statConclusions.stream()
+                .map(StatConclusion::getIsAnisometropia)
+                .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
+        Integer wearingGlassNum = (int) statConclusions.stream()
+                .map(StatConclusion::getIsWearingGlasses)
+                .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
+        Integer treatmentAdviceNum = (int) statConclusions.stream()
+                .map(StatConclusion::getIsRecommendVisit)
+                .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
         TwoTuple<BigDecimal, BigDecimal> tuple = StatUtil.calculateAverageVision(statConclusions);
         Integer visionLabelZeroSpNum = visionLabelNumberMap.getOrDefault(WarningLevel.ZERO_SP.code, 0L).intValue();
         visionAnalysisDO.setLowVisionNum(lowVisionNum)
@@ -206,12 +232,13 @@ public class ScreeningResultStatisticBuilder {
 
 
     /**
-     * 设置视力预警数据
+     * 设置视力预警数据 (基于初筛数据)
      */
     private void setVisionWarning(int validScreeningNum,
                                   List<StatConclusion> statConclusions,
                                   VisionScreeningResultStatistic statistic) {
         VisionWarningDO visionWarningDO = new VisionWarningDO();
+        statConclusions = statConclusions.stream().filter(sc->Objects.equals(Boolean.FALSE,sc.getIsRescreen())).collect(Collectors.toList());
         Map<Integer, Long> visionLabelNumberMap = statConclusions.stream().filter(stat -> Objects.nonNull(stat.getWarningLevel())).collect(Collectors.groupingBy(StatConclusion::getWarningLevel, Collectors.counting()));
         Integer visionLabel0Num = visionLabelNumberMap.getOrDefault(WarningLevel.ZERO.code, 0L).intValue();
         Integer visionLabel1Num = visionLabelNumberMap.getOrDefault(WarningLevel.ONE.code, 0L).intValue();
@@ -228,20 +255,25 @@ public class ScreeningResultStatisticBuilder {
     }
 
     /**
-     * 设置复测数据
+     * 设置复测数据 (基于复测数据)
      */
     private RescreenSituationDO setRescreenSituation(List<StatConclusion> statConclusions, Map<Boolean, List<StatConclusion>> isRescreenMap,
                                                      VisionScreeningResultStatistic statistic) {
         RescreenSituationDO rescreenSituationDO = new RescreenSituationDO();
 
+        List<StatConclusion> statConclusionList = statConclusions.stream()
+                .filter(sc->Objects.equals(Boolean.TRUE,sc.getIsRescreen()) && Objects.equals(Boolean.TRUE, sc.getIsValid()) ).collect(Collectors.toList());
+
         //戴镜
-        List<StatConclusion> wearingGlassList = statConclusions.stream().filter(sc -> Objects.equals(Boolean.TRUE, sc.getIsRescreen()) && Objects.equals(Boolean.TRUE, sc.getIsWearingGlasses()) && Objects.equals(Boolean.TRUE, sc.getIsValid())).collect(Collectors.toList());
+        List<StatConclusion> wearingGlassList = statConclusionList.stream()
+                .filter(sc -> Objects.equals(Boolean.TRUE, sc.getIsWearingGlasses())).collect(Collectors.toList());
         Integer wearingGlassRescreenNum = wearingGlassList.size();
         //戴镜复测项次数
         Integer wearingGlassRescreenItemNum =wearingGlassList.stream().map(StatConclusion::getRescreenItemNum).filter(Objects::nonNull).mapToInt(Integer::intValue).sum();
 
         //非戴镜
-        List<StatConclusion> withoutGlassList = statConclusions.stream().filter(sc -> Objects.equals(Boolean.TRUE, sc.getIsRescreen()) && Objects.equals(Boolean.FALSE, sc.getIsWearingGlasses()) && Objects.equals(Boolean.TRUE, sc.getIsValid())).collect(Collectors.toList());
+        List<StatConclusion> withoutGlassList = statConclusionList.stream()
+                .filter(sc -> Objects.equals(Boolean.FALSE, sc.getIsWearingGlasses())).collect(Collectors.toList());
         Integer withoutGlassRescreenNum =withoutGlassList.size();
         //非戴镜复测项次数
         Integer withoutGlassRescreenItemNum =withoutGlassList.stream().map(StatConclusion::getRescreenItemNum).filter(Objects::nonNull).mapToInt(Integer::intValue).sum();
@@ -250,7 +282,9 @@ public class ScreeningResultStatisticBuilder {
 
         int validRescreenNum = isRescreenMap.getOrDefault(Boolean.TRUE, Collections.emptyList()).size();
 
-        int errorItemNum = statConclusions.stream().filter(sc -> Objects.equals(Boolean.TRUE, sc.getIsRescreen())&&Objects.equals(Boolean.TRUE,sc.getIsValid())).map(StatConclusion::getRescreenErrorNum).filter(Objects::nonNull).mapToInt(Integer::intValue).sum();
+        int errorItemNum = statConclusionList.stream()
+                .map(StatConclusion::getRescreenErrorNum)
+                .filter(Objects::nonNull).mapToInt(Integer::intValue).sum();
 
         String incidence = MathUtil.ratio(errorItemNum,wearingGlassRescreenItemNum*wearingGlassRescreenNum+withoutGlassRescreenItemNum*withoutGlassRescreenNum);
 
@@ -266,15 +300,25 @@ public class ScreeningResultStatisticBuilder {
     }
 
     /**
-     * 设置龋齿数据
+     * 设置龋齿数据 (基于初筛数据)
      */
     private void setSaprodontia(List<StatConclusion> statConclusions, Integer realScreeningStudentNum, CommonDiseaseScreeningResultStatistic statistic) {
         SaprodontiaDO saprodontiaDO = new SaprodontiaDO();
-        int saprodontiaFreeNum = (int)statConclusions.stream().filter(sc -> Objects.equals(Boolean.FALSE,sc.getIsSaprodontia()) && Objects.equals(Boolean.FALSE,sc.getIsSaprodontiaLoss()) && Objects.equals(Boolean.FALSE,sc.getIsSaprodontiaRepair())).count();
-        int saprodontiaNum = (int)statConclusions.stream().map(StatConclusion::getIsSaprodontia).filter(Objects::nonNull).filter(Boolean::booleanValue).count();
-        int saprodontiaLossNum = (int)statConclusions.stream().map(StatConclusion::getIsSaprodontiaLoss).filter(Objects::nonNull).filter(Boolean::booleanValue).count();
-        int saprodontiaRepairNum = (int)statConclusions.stream().map(StatConclusion::getIsSaprodontiaRepair).filter(Objects::nonNull).filter(Boolean::booleanValue).count();
-        int saprodontiaLossAndRepairNum = (int)statConclusions.stream().filter(sc ->Objects.equals(Boolean.TRUE,sc.getIsSaprodontiaLoss()) && Objects.equals(Boolean.TRUE,sc.getIsSaprodontiaRepair())).count();
+        statConclusions = statConclusions.stream().filter(sc->Objects.equals(Boolean.FALSE,sc.getIsRescreen())).collect(Collectors.toList());
+
+        int saprodontiaFreeNum = (int)statConclusions.stream()
+                .filter(sc -> Objects.equals(Boolean.FALSE,sc.getIsSaprodontia()) && Objects.equals(Boolean.FALSE,sc.getIsSaprodontiaLoss()) && Objects.equals(Boolean.FALSE,sc.getIsSaprodontiaRepair())).count();
+        int saprodontiaNum = (int)statConclusions.stream()
+                .map(StatConclusion::getIsSaprodontia)
+                .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
+        int saprodontiaLossNum = (int)statConclusions.stream()
+                .map(StatConclusion::getIsSaprodontiaLoss)
+                .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
+        int saprodontiaRepairNum = (int)statConclusions.stream()
+                .map(StatConclusion::getIsSaprodontiaRepair)
+                .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
+        int saprodontiaLossAndRepairNum = (int)statConclusions.stream()
+                .filter(sc ->Objects.equals(Boolean.TRUE,sc.getIsSaprodontiaLoss()) && Objects.equals(Boolean.TRUE,sc.getIsSaprodontiaRepair())).count();
 
         int dmftNum = statConclusions.stream().filter(Objects::nonNull)
                 .filter(sc -> Objects.equals(Boolean.TRUE,sc.getIsSaprodontiaLoss()) && Objects.equals(Boolean.TRUE,sc.getIsSaprodontiaRepair()))
@@ -296,17 +340,31 @@ public class ScreeningResultStatisticBuilder {
     }
 
     /**
-     * 设置常见病数据
+     * 设置常见病数据 (基于初筛数据)
      */
     private void setCommonDisease(List<StatConclusion> statConclusions, Integer realScreeningStudentNum, CommonDiseaseScreeningResultStatistic statistic) {
         CommonDiseaseDO commonDiseaseDO = new CommonDiseaseDO();
-        int overweightNum = (int)statConclusions.stream().map(StatConclusion::getIsOverweight).filter(Objects::nonNull).filter(Boolean::booleanValue).count();
-        int obeseNum = (int)statConclusions.stream().map(StatConclusion::getIsObesity).filter(Objects::nonNull).filter(Boolean::booleanValue).count();
-        int malnourishedNum = (int)statConclusions.stream().map(StatConclusion::getIsMalnutrition).filter(Objects::nonNull).filter(Boolean::booleanValue).count();
-        int stuntingNum = (int)statConclusions.stream().map(StatConclusion::getIsStunting).filter(Objects::nonNull).filter(Boolean::booleanValue).count();
-        int abnormalSpineCurvatureNum = (int)statConclusions.stream().map(StatConclusion::getIsSpinalCurvature).filter(Objects::nonNull).filter(Boolean::booleanValue).count();
-        int highBloodPressureNum = (int)statConclusions.stream().filter(sc->Objects.equals(Boolean.FALSE,sc.getIsNormalBloodPressure())).count();
-        int reviewStudentNum = (int)statConclusions.stream().map(StatConclusion::getIsRescreen).filter(Objects::nonNull).filter(Boolean::booleanValue).count();
+        statConclusions = statConclusions.stream().filter(sc->Objects.equals(Boolean.FALSE,sc.getIsRescreen())).collect(Collectors.toList());
+        int overweightNum = (int)statConclusions.stream()
+                .map(StatConclusion::getIsOverweight)
+                .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
+        int obeseNum = (int)statConclusions.stream()
+                .map(StatConclusion::getIsObesity)
+                .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
+        int malnourishedNum = (int)statConclusions.stream()
+                .map(StatConclusion::getIsMalnutrition)
+                .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
+        int stuntingNum = (int)statConclusions.stream()
+                .map(StatConclusion::getIsStunting)
+                .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
+        int abnormalSpineCurvatureNum = (int)statConclusions.stream()
+                .map(StatConclusion::getIsSpinalCurvature)
+                .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
+        int highBloodPressureNum = (int)statConclusions.stream()
+                .filter(sc->Objects.equals(Boolean.FALSE,sc.getIsNormalBloodPressure())).count();
+        int reviewStudentNum = (int)statConclusions.stream()
+                .map(StatConclusion::getIsRescreen)
+                .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
 
         commonDiseaseDO.setOverweightNum(overweightNum).setOverweightRatio(MathUtil.ratio(overweightNum,realScreeningStudentNum))
                 .setObeseNum(obeseNum).setObeseRatio(MathUtil.ratio(obeseNum,realScreeningStudentNum))

@@ -1,7 +1,9 @@
 package com.wupol.myopia.business.api.management.service;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.CurrentUserUtil;
@@ -14,8 +16,10 @@ import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
+import com.wupol.myopia.business.core.screening.flow.domain.model.StatRescreen;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
+import com.wupol.myopia.business.core.screening.flow.service.StatRescreenService;
 import com.wupol.myopia.business.core.stat.domain.model.ScreeningResultStatistic;
 import com.wupol.myopia.business.core.stat.service.ScreeningResultStatisticService;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +45,7 @@ public class StatSchoolService {
     private final ScreeningPlanService screeningPlanService;
     private final ScreeningResultStatisticService screeningResultStatisticService;
     private final ManagementScreeningPlanBizService managementScreeningPlanBizService;
+    private final StatRescreenService statRescreenService;
 
     /**
      * 按学校-获取幼儿园数据
@@ -150,13 +155,23 @@ public class StatSchoolService {
             return null;
         }
         //学校id
-        List<Integer> schoolIds = screeningResultStatistics.stream().map(ScreeningResultStatistic::getSchoolId).collect(Collectors.toList());
+        Set<Integer> schoolIds = screeningResultStatistics.stream().map(ScreeningResultStatistic::getSchoolId).collect(Collectors.toSet());
+        Set<Integer> planIds = screeningResultStatistics.stream().map(ScreeningResultStatistic::getScreeningPlanId).collect(Collectors.toSet());
         //获取学校的名称
-        Map<Integer, String> schoolIdDistrictNameMap = schoolService.getByIds(schoolIds).stream().collect(Collectors.toMap(School::getId,School::getName));
+        Map<Integer, String> schoolIdDistrictNameMap = schoolService.getByIds(Lists.newArrayList(schoolIds)).stream().collect(Collectors.toMap(School::getId,School::getName));
+        Map<String, Boolean> hasRescreenReportMap = hasRescreenReportMap(Lists.newArrayList(planIds), Lists.newArrayList(schoolIds));
         SchoolKindergartenResultVO schoolKindergartenResultVO = new SchoolKindergartenResultVO();
         //获取数据
-        schoolKindergartenResultVO.setItemData(screeningResultStatistics,schoolIdDistrictNameMap);
+        schoolKindergartenResultVO.setItemData(screeningResultStatistics,schoolIdDistrictNameMap,hasRescreenReportMap);
         return schoolKindergartenResultVO;
+    }
+
+    public Map<String,Boolean> hasRescreenReportMap(List<Integer> planIds,List<Integer> schoolIds) {
+        List<StatRescreen> statRescreenList = statRescreenService.getByByPlanIdAndSchoolId(planIds, schoolIds);
+        if (CollectionUtil.isNotEmpty(statRescreenList)){
+            return statRescreenList.stream().collect(Collectors.toMap(sr->sr.getPlanId()+"_"+sr.getSchoolId(), sr->Boolean.TRUE));
+        }
+        return Maps.newHashMap();
     }
 
 
@@ -222,12 +237,14 @@ public class StatSchoolService {
             return null;
         }
         //学校id
-        List<Integer> schoolIds = screeningResultStatistics.stream().map(ScreeningResultStatistic::getSchoolId).collect(Collectors.toList());
+        Set<Integer> schoolIds = screeningResultStatistics.stream().map(ScreeningResultStatistic::getSchoolId).collect(Collectors.toSet());
+        Set<Integer> planIds = screeningResultStatistics.stream().map(ScreeningResultStatistic::getScreeningPlanId).collect(Collectors.toSet());
         //获取学校的名称
-        Map<Integer, String> schoolIdDistrictNameMap = schoolService.getByIds(schoolIds).stream().collect(Collectors.toMap(School::getId,School::getName));
+        Map<Integer, String> schoolIdDistrictNameMap = schoolService.getByIds(Lists.newArrayList(schoolIds)).stream().collect(Collectors.toMap(School::getId,School::getName));
+        Map<String, Boolean> hasRescreenReportMap = hasRescreenReportMap(Lists.newArrayList(planIds), Lists.newArrayList(schoolIds));
         SchoolPrimarySchoolAndAboveResultVO schoolPrimarySchoolAndAboveResultVO = new SchoolPrimarySchoolAndAboveResultVO();
         //获取数据
-        schoolPrimarySchoolAndAboveResultVO.setItemData(screeningResultStatistics,schoolIdDistrictNameMap);
+        schoolPrimarySchoolAndAboveResultVO.setItemData(screeningResultStatistics,schoolIdDistrictNameMap,hasRescreenReportMap);
         return schoolPrimarySchoolAndAboveResultVO;
     }
 

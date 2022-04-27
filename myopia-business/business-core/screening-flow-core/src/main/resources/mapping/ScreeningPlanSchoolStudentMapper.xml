@@ -204,6 +204,9 @@
                 <if test="param.idCardOrPassportLike != null and param.idCardOrPassportLike != ''">
                     and (mspss.`id_card` like CONCAT('%', #{param.idCardOrPassportLike}, '%') or mspss.`passport` like CONCAT('%', #{param.idCardOrPassportLike}, '%'))
                 </if>
+                <if test="param.isDoubleScreen != null">
+                    and vsc.is_double_screen = #{param.isDoubleScreen}
+                </if>
             </trim>
                 order by mspss.id desc
         </where>

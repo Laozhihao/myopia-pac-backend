@@ -1317,7 +1317,6 @@ public class StatService {
     }
 
     private void composePhysiqueReScreenConclusion(StatRescreen statRescreen, List<StatConclusion> statConclusions) {
-
         int total = statConclusions.size();
         statRescreen.setPhysiqueRescreenNum((long) total);
         statRescreen.setPhysiqueIndexNum(2L);

@@ -54,7 +54,7 @@ public class StudentScreeningProgressVO {
     /**
      * 年级名称
      */
-    private String gradeName;
+    private String grade;
     /**
      * 班级id
      */
@@ -62,7 +62,7 @@ public class StudentScreeningProgressVO {
     /**
      * 班级名称
      */
-    private String className;
+    private String clazz;
 
     /** 筛查结果，是否完成了筛查 */
     private Boolean result;
@@ -141,7 +141,8 @@ public class StudentScreeningProgressVO {
                     .setPupillaryOptometryStatus(UNCHECK).setBiometricsStatus(UNCHECK).setPressureStatus(UNCHECK).setFundusStatus(UNCHECK).setOtherStatus(UNCHECK)
                     .setSaprodontiaStatus(UNCHECK).setSpineStatus(UNCHECK_MUST)
                     .setBloodPressureStatus(UNCHECK).setDiseasesHistoryStatus(UNCHECK_MUST).setPrivacyStatus(UNCHECK)
-                    .setHeightWeightStatus(UNCHECK).setResult(false).setHasAbnormal(false);
+                    .setHeightWeightStatus(UNCHECK).setResult(false).setHasAbnormal(false)
+                    .setGrade(studentVO.getGrade()).setClazz(studentVO.getClazz());
         }
         // 默认完成了所有必要检查
         isAllMustCheckDone.set(true);
@@ -165,7 +166,7 @@ public class StudentScreeningProgressVO {
         studentScreeningProgressVO.setFirstCheckAbnormal(isKindergarten ? firstCheckAbnormal : hasAbnormalInFirstCheck.get());
         studentScreeningProgressVO.setGradeId(studentVO.getGradeId());
         studentScreeningProgressVO.setClassId(studentVO.getClassId());
-        studentScreeningProgressVO.setGradeName(studentVO.getGrade());
+        studentScreeningProgressVO.setGrade(studentVO.getGrade());
 
         studentScreeningProgressVO.setStateStatus(screeningPlanSchoolStudent.getState());
         studentScreeningProgressVO.setSaprodontiaStatus(getProgress(screeningResult.getSaprodontiaData(),false));
@@ -174,7 +175,7 @@ public class StudentScreeningProgressVO {
         studentScreeningProgressVO.setDiseasesHistoryStatus(getProgress(screeningResult.getDiseasesHistoryData(),false));
         studentScreeningProgressVO.setPrivacyStatus(getProgress(screeningResult.getPrivacyData(),false));
 
-        studentScreeningProgressVO.setClassName(studentVO.getClazz());
+        studentScreeningProgressVO.setClazz(studentVO.getClazz());
         isAllMustCheckDone.remove();
         hasAbnormalInFirstCheck.remove();
         hasAbnormalInSubsequentCheck.remove();
