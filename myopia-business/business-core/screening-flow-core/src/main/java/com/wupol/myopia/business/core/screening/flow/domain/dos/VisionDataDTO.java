@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultBasicData;
@@ -114,6 +115,30 @@ public class VisionDataDTO extends ScreeningResultBasicData {
         visionDataDTO.setDiagnosis(visionDataDO.getDiagnosis());
         visionDataDTO.setIsCooperative(visionDataDO.getIsCooperative());
         return visionDataDTO;
+    }
+
+    public BigDecimal getRightCorrectedVision() {
+        return BigDecimalUtil.keepDecimalPlaces(rightCorrectedVision, 1);
+    }
+
+    public BigDecimal getLeftCorrectedVision() {
+        return BigDecimalUtil.keepDecimalPlaces(leftCorrectedVision, 1);
+    }
+
+    public BigDecimal getRightNakedVision() {
+        return BigDecimalUtil.keepDecimalPlaces(rightNakedVision, 1);
+    }
+
+    public BigDecimal getLeftNakedVision() {
+        return BigDecimalUtil.keepDecimalPlaces(leftNakedVision, 1);
+    }
+
+    public BigDecimal getRightOkDegree() {
+        return BigDecimalUtil.keepDecimalPlaces(rightOkDegree, 1);
+    }
+
+    public BigDecimal getLeftOkDegree() {
+        return BigDecimalUtil.keepDecimalPlaces(leftOkDegree, 1);
     }
 }
 
