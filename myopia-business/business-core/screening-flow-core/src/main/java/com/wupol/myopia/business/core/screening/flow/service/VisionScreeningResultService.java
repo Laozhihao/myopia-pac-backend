@@ -505,6 +505,11 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
 
         return saprodontiaDataDTO;
     }
+
+    public VisionScreeningResult getIsDoubleScreen(Integer screeningPlanSchoolStudentId, Integer planId, Integer screeningType){
+
+        return baseMapper.getIsDoubleScreen(screeningPlanSchoolStudentId,planId,screeningType);
+    };
     /**
      * 通过筛查学生查询初筛筛查结果
      *

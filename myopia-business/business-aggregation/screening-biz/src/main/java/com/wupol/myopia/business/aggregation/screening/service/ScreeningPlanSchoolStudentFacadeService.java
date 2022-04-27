@@ -79,7 +79,7 @@ public class ScreeningPlanSchoolStudentFacadeService {
         if (StringUtils.hasLength(query.getGradeIds())) {
             query.setGradeList(Stream.of(StringUtils.commaDelimitedListToStringArray(query.getGradeIds())).map(Integer::parseInt).collect(Collectors.toList()));
         }
-
+        query.setIsDoubleScreen(0);
         IPage<ScreeningStudentDTO> studentDTOIPage = screeningPlanSchoolStudentService.selectPageByQuery(page, query);
         List<ScreeningStudentDTO> screeningStudentDTOS = studentDTOIPage.getRecords();
         if (CollectionUtils.isEmpty(screeningStudentDTOS)) {
@@ -87,7 +87,7 @@ public class ScreeningPlanSchoolStudentFacadeService {
         }
         List<VisionScreeningResult> resultList  = visionScreeningResultService.getByPlanStudentIds(screeningStudentDTOS.stream().map(ScreeningStudentDTO::getPlanStudentId).collect(Collectors.toList()));
         // TODO：改为Map<Integer, VisionScreeningResult>
-        Map<Integer,VisionScreeningResult> visionScreeningResultsGroup = resultList.stream().filter(visionScreeningResult -> !visionScreeningResult.getIsDoubleScreen()).collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
+        Map<Integer,VisionScreeningResult> visionScreeningResultsGroup = resultList.stream().filter(visionScreeningResult -> visionScreeningResult.getIsDoubleScreen()==false).collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
 
         //作者：钓猫的小鱼。  描述：给学生扩展类赋值
         studentDTOIPage.getRecords().forEach(studentDTO -> {
@@ -131,7 +131,12 @@ public class ScreeningPlanSchoolStudentFacadeService {
         studentEyeInfo.setAxial(axial);
         //是否复测
         if (visionScreeningResult!=null){
-        studentEyeInfo.setIsDoubleScreen(visionScreeningResult.getIsDoubleScreen());
+           VisionScreeningResult visionScreeningResult1 =  visionScreeningResultService.getIsDoubleScreen(visionScreeningResult.getScreeningPlanSchoolStudentId(),visionScreeningResult.getPlanId(),visionScreeningResult.getScreeningType());
+           if (visionScreeningResult1 != null){
+                studentEyeInfo.setIsDoubleScreen(visionScreeningResult1.getIsDoubleScreen());
+           }else{
+               studentEyeInfo.setIsDoubleScreen(false);
+           }
         }
 
     }
