@@ -329,22 +329,24 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         List<VisionScreeningResult> updateResultList = new ArrayList<>();
         List<StatConclusion> updateStatConclusionList = new ArrayList<>();
 
-        // 过滤掉复筛的数据
-        Map<Integer, VisionScreeningResult> visionMap = resultList.stream().filter(result->!result.getIsDoubleScreen())
-                .collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
+        Map<Integer, List<VisionScreeningResult>> visionMap = resultList.stream().collect(Collectors.groupingBy(VisionScreeningResult::getScreeningPlanSchoolStudentId));
         planStudents.forEach(planStudent -> {
-            VisionScreeningResult result = visionMap.get(planStudent.getId());
-            if (Objects.nonNull(result)) {
-                result.setStudentId(planStudent.getStudentId());
-                result.setSchoolId(planStudent.getSchoolId());
-                updateResultList.add(result);
-                StatConclusion statConclusion = statConclusionMap.get(result.getId());
-                if (Objects.nonNull(statConclusion)) {
-                    statConclusion.setScreeningPlanSchoolStudentId(planStudent.getId());
-                    statConclusion.setStudentId(planStudent.getStudentId());
-                    statConclusion.setSchoolId(planStudent.getSchoolId());
-                    updateStatConclusionList.add(statConclusion);
-                }
+            List<VisionScreeningResult> results = visionMap.get(planStudent.getId());
+            if (!CollectionUtils.isEmpty(results)) {
+                results.forEach(result -> {
+                    if (Objects.nonNull(result)) {
+                        result.setStudentId(planStudent.getStudentId());
+                        result.setSchoolId(planStudent.getSchoolId());
+                        updateResultList.add(result);
+                        StatConclusion statConclusion = statConclusionMap.get(result.getId());
+                        if (Objects.nonNull(statConclusion)) {
+                            statConclusion.setScreeningPlanSchoolStudentId(planStudent.getId());
+                            statConclusion.setStudentId(planStudent.getStudentId());
+                            statConclusion.setSchoolId(planStudent.getSchoolId());
+                            updateStatConclusionList.add(statConclusion);
+                        }
+                    }
+                });
             }
         });
         updateBatchById(updateResultList);
