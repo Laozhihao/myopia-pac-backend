@@ -400,11 +400,11 @@ public class ScheduledTasksExecutor {
      * 每天凌晨0点30分执行，复测统计
      */
     @Scheduled(cron = "0 30 0 * * ?")
-    @Transactional(rollbackFor = Exception.class)
     public void rescreenStat() {
-        log.debug("开始进行复测报告统计");
-        int size = statService.rescreenStat(DateUtils.addDays(DateUtil.getMidday(new Date()), -1));
-        log.debug("本次复测统计共新增加内容{}条", size);
+        Date screeningTime = DateUtils.addDays(DateUtil.getMidday(new Date()), -1);
+        log.info("开始进行复测报告统计,筛查时间为:{}", screeningTime);
+        int size = statService.rescreenStat(screeningTime);
+        log.info("本次复测统计共新增加内容{}条", size);
     }
 
     /**
