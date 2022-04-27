@@ -9,10 +9,7 @@ import lombok.experimental.Accessors;
 import org.springframework.beans.BeanUtils;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -139,6 +136,11 @@ public class SchoolPrimarySchoolAndAboveResultVO {
         private Integer screeningOrgId;
 
         /**
+         * 是否有复测报告
+         */
+        private Boolean hasRescreenReport;
+
+        /**
          *  视力筛查项
          */
         private VisionItem visionItem;
@@ -250,19 +252,20 @@ public class SchoolPrimarySchoolAndAboveResultVO {
     }
 
 
-    public void setItemData(List<ScreeningResultStatistic> screeningResultStatistics, Map<Integer, String> schoolIdDistrictNameMap) {
+    public void setItemData(List<ScreeningResultStatistic> screeningResultStatistics, Map<Integer, String> schoolIdDistrictNameMap,Map<String, Boolean> hasRescreenReportMap) {
         // 下级数据
         this.contents = screeningResultStatistics.stream()
                 .map(screeningResultStatistic -> {
                     Integer schoolId = screeningResultStatistic.getSchoolId();
                     String schoolDistrictName = schoolIdDistrictNameMap.get(schoolId);
-                    return getItem(screeningResultStatistic,schoolDistrictName,screeningResultStatistic.getDistrictId());
+                    return getItem(screeningResultStatistic,schoolDistrictName,screeningResultStatistic.getDistrictId(),hasRescreenReportMap);
                 })
                 .collect(Collectors.toSet());
     }
 
     private Item getItem(ScreeningResultStatistic screeningResultStatistic,
-                                                    String schoolDistrictName, Integer districtId){
+                         String schoolDistrictName, Integer districtId,
+                         Map<String, Boolean> hasRescreenReportMap){
         Item item = new Item();
         BeanUtils.copyProperties(screeningResultStatistic,item);
         item.setScreeningRangeName(schoolDistrictName).setDistrictId(districtId).setIsKindergarten(Boolean.FALSE);
@@ -293,6 +296,9 @@ public class SchoolPrimarySchoolAndAboveResultVO {
 
             item.setCommonDiseaseItem(commonDiseaseItem);
         }
+        Boolean hasRescreenReport = Optional.ofNullable(hasRescreenReportMap.get(screeningResultStatistic.getScreeningPlanId() + "_" + screeningResultStatistic.getSchoolId())).orElse(Boolean.FALSE);
+        item.setHasRescreenReport(hasRescreenReport);
+
 
         return item;
     }
