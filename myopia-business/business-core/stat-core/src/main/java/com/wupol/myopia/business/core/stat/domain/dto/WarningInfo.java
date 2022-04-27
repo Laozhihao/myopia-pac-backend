@@ -81,7 +81,7 @@ public class WarningInfo {
                 warningLevelInfoList.add(warningLevelInfo2);
                 WarningLevelInfo warningLevelInfo3 = new WarningLevelInfo();
                 warningLevelInfo3.setWarningLevel(3).setNum(visionWarning.getVisionLabel3Num()).setPercentage(visionWarning.getVisionLabel3Ratio());
-                warningLevelInfoList.add(warningLevelInfo2);
+                warningLevelInfoList.add(warningLevelInfo3);
 
             }
             return warningLevelInfoList;
