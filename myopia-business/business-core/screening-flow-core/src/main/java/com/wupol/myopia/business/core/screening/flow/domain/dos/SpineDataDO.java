@@ -47,7 +47,7 @@ public class SpineDataDO extends AbstractDiagnosisResult implements Serializable
     public static class SpineItem {
         /**
          * 非前后弯曲：1：无侧弯。2：左低右高。3：右低左高
-         * 前后弯曲：1：无前后弯曲异常。2：平背。3：前凸异常，4：后凸异常
+         * 前后弯曲：0: type=1时无异常； 1：无前后弯曲异常。2：平背。3：前凸异常，4：后凸异常
          */
         private Integer type;
 

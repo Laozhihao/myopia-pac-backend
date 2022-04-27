@@ -1,0 +1,10 @@
+{
+  "isCooperative": 0,
+  "diagnosis": 0,
+  "r_axial": 0.002,
+  "l_axial": 0.002,
+  "l_sph": 0.002,
+  "r_sph": 0.002,
+  "r_cyl": 0.002,
+  "l_cyl": 0.002
+}
