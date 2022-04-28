@@ -22,7 +22,7 @@ public class RetestStudentVO {
     /**
      * 学生ID
      */
-    private String studentId;
+    private Integer studentId;
     /**
      * 用户名称
      */

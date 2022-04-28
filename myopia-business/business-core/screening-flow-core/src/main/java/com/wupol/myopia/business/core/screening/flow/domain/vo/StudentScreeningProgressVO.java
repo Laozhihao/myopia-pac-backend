@@ -36,7 +36,7 @@ public class StudentScreeningProgressVO {
     private static ThreadLocal<Boolean> hasAbnormalInSubsequentCheck = new ThreadLocal<>();
 
     /** 学生ID */
-    private String studentId;
+    private Integer studentId;
     /** 学籍号 */
     private String studentNo;
     /** 用户名称 */
@@ -161,7 +161,7 @@ public class StudentScreeningProgressVO {
         studentScreeningProgressVO.setFundusStatus(getProgress(screeningResult.getFundusData(), false));
         studentScreeningProgressVO.setOtherStatus(getProgress(screeningResult.getOtherEyeDiseases(), false));
         studentScreeningProgressVO.setHeightWeightStatus(getProgress(screeningResult.getHeightAndWeightData(), screeningResult.getScreeningType() == 1));
-        studentScreeningProgressVO.setResult(isAllMustCheckDone.get());
+
         studentScreeningProgressVO.setHasAbnormal(hasAbnormalInSubsequentCheck.get() || firstCheckAbnormal);
         studentScreeningProgressVO.setFirstCheckAbnormal(isKindergarten ? firstCheckAbnormal : hasAbnormalInFirstCheck.get());
         studentScreeningProgressVO.setGradeId(studentVO.getGradeId());
@@ -176,6 +176,7 @@ public class StudentScreeningProgressVO {
         studentScreeningProgressVO.setPrivacyStatus(getProgress(screeningResult.getPrivacyData(),false));
 
         studentScreeningProgressVO.setClazz(studentVO.getClazz());
+        studentScreeningProgressVO.setResult(isAllMustCheckDone.get());
         isAllMustCheckDone.remove();
         hasAbnormalInFirstCheck.remove();
         hasAbnormalInSubsequentCheck.remove();
