@@ -344,6 +344,7 @@ public class ScreeningResultStatisticBuilder {
      */
     private void setCommonDisease(List<StatConclusion> statConclusions, Integer realScreeningStudentNum, CommonDiseaseScreeningResultStatistic statistic) {
         CommonDiseaseDO commonDiseaseDO = new CommonDiseaseDO();
+
         statConclusions = statConclusions.stream().filter(sc->Objects.equals(Boolean.FALSE,sc.getIsRescreen())).collect(Collectors.toList());
         int overweightNum = (int)statConclusions.stream()
                 .map(StatConclusion::getIsOverweight)
@@ -362,9 +363,9 @@ public class ScreeningResultStatisticBuilder {
                 .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
         int highBloodPressureNum = (int)statConclusions.stream()
                 .filter(sc->Objects.equals(Boolean.FALSE,sc.getIsNormalBloodPressure())).count();
-        int reviewStudentNum = (int)statConclusions.stream()
-                .map(StatConclusion::getIsRescreen)
-                .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
+
+        int reviewStudentNum = (int) statConclusions.stream()
+                .filter(ScreeningResultStatisticBuilder::review).count();
 
         commonDiseaseDO.setOverweightNum(overweightNum).setOverweightRatio(MathUtil.ratio(overweightNum,realScreeningStudentNum))
                 .setObeseNum(obeseNum).setObeseRatio(MathUtil.ratio(obeseNum,realScreeningStudentNum))
@@ -376,6 +377,18 @@ public class ScreeningResultStatisticBuilder {
 
         statistic.setCommonDisease(commonDiseaseDO);
     }
+
+    /**
+     * 是否复查学生
+     */
+    private static boolean review(StatConclusion sc) {
+        return Objects.equals(Boolean.TRUE,sc.getIsLowVision())  || Objects.equals(Boolean.TRUE,sc.getIsMyopia()) ||
+               Objects.equals(Boolean.TRUE,sc.getIsHyperopia()) || Objects.equals(Boolean.TRUE,sc.getIsAstigmatism()) ||
+               Objects.equals(Boolean.FALSE,sc.getIsSpinalCurvature()) ||Objects.equals(Boolean.TRUE,sc.getIsObesity()) ||
+               Objects.equals(Boolean.TRUE,sc.getIsOverweight()) || Objects.equals(Boolean.TRUE,sc.getIsMalnutrition()) ||
+               Objects.equals(Boolean.TRUE,sc.getIsStunting());
+    }
+
     /**
      * 设置问卷调查数据
      */
