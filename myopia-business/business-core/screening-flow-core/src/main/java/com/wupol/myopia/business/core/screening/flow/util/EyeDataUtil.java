@@ -613,8 +613,8 @@ public class EyeDataUtil {
      * @param visionScreenResult 筛查结果
      * @return 创建时间
      */
-    public static Date createTime(VisionScreeningResult visionScreenResult) {
-        return Optional.ofNullable(visionScreenResult) .map(VisionScreeningResult::getCreateTime) .orElse(null);
+    public static Date updateTime(VisionScreeningResult visionScreenResult) {
+        return Optional.ofNullable(visionScreenResult) .map(VisionScreeningResult::getUpdateTime) .orElse(null);
     }
 
     /**
