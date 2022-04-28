@@ -456,7 +456,7 @@ public class ScreeningAppService {
 
         // 获取学生对应筛查数据
         Map<Integer, ScreeningPlanSchoolStudent> screeningPlanSchoolStudentMap = screeningPlanSchoolStudentList.stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getId, Function.identity()));
-        List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.getByScreeningPlanSchoolStudentIds(screeningPlanSchoolStudentMap.keySet()).stream().filter(item -> state == 1).collect(Collectors.toList());
+        List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.getByScreeningPlanSchoolStudentIds(screeningPlanSchoolStudentMap.keySet(), state == 1);
         Map<Integer, VisionScreeningResult> planStudentVisionResultMap = visionScreeningResults.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
 
         // 只显示有姓名或有筛查数据的
@@ -554,8 +554,8 @@ public class ScreeningAppService {
 
         // 获取学生对应筛查数据
         Map<Integer, ScreeningPlanSchoolStudent> screeningPlanSchoolStudentMap = screeningPlanSchoolStudentList.stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getId, Function.identity()));
-        List<VisionScreeningResult> first = visionScreeningResultService.getByScreeningPlanSchoolStudentIds(screeningPlanSchoolStudentMap.keySet()).stream().filter(item -> !item.getIsDoubleScreen()).collect(Collectors.toList());
-        List<VisionScreeningResult> second = visionScreeningResultService.getByScreeningPlanSchoolStudentIds(screeningPlanSchoolStudentMap.keySet()).stream().filter(VisionScreeningResult::getIsDoubleScreen).collect(Collectors.toList());
+        List<VisionScreeningResult> first = visionScreeningResultService.getByScreeningPlanSchoolStudentIds(screeningPlanSchoolStudentMap.keySet(), false);
+        List<VisionScreeningResult> second = visionScreeningResultService.getByScreeningPlanSchoolStudentIds(screeningPlanSchoolStudentMap.keySet(), true);
 
         ClassScreeningProgressState screeningProgressState = new ClassScreeningProgressState();
         screeningProgressState.setPlanCount((CollectionUtils.size(screeningPlanSchoolStudentList)));
@@ -630,10 +630,14 @@ public class ScreeningAppService {
      * @return
      */
     private RetestStudentVO numerationSecondCheck(RetestStudentVO retestStudentVO) {
-        VisionDataDO.VisionData secondLeftVision = retestStudentVO.getVisionScreeningResult().getSecond().getVisionData().getLeftEyeData();
-        VisionDataDO.VisionData secondRightVision = retestStudentVO.getVisionScreeningResult().getSecond().getVisionData().getRightEyeData();
-        VisionDataDO.VisionData firstLeftVision = retestStudentVO.getVisionScreeningResult().getFirst().getVisionData().getLeftEyeData();
-        VisionDataDO.VisionData firstRightVision = retestStudentVO.getVisionScreeningResult().getFirst().getVisionData().getRightEyeData();
+        VisionDataDO.VisionData secondLeftVision = Objects.isNull(retestStudentVO.getVisionScreeningResult().getSecond().getVisionData())
+                ? null : retestStudentVO.getVisionScreeningResult().getSecond().getVisionData().getLeftEyeData();
+        VisionDataDO.VisionData secondRightVision = Objects.isNull(retestStudentVO.getVisionScreeningResult().getSecond().getVisionData())
+                ? null : retestStudentVO.getVisionScreeningResult().getSecond().getVisionData().getRightEyeData();
+        VisionDataDO.VisionData firstLeftVision = Objects.isNull(retestStudentVO.getVisionScreeningResult().getFirst().getVisionData())
+                ? null : retestStudentVO.getVisionScreeningResult().getFirst().getVisionData().getLeftEyeData();
+        VisionDataDO.VisionData firstRightVision = Objects.isNull(retestStudentVO.getVisionScreeningResult().getFirst().getVisionData())
+                ? null : retestStudentVO.getVisionScreeningResult().getFirst().getVisionData().getRightEyeData();
 
         if (Objects.nonNull(secondLeftVision) || Objects.nonNull(secondRightVision)) {
             retestStudentVO.setRetestItemCount(retestStudentVO.existCheckVision(secondLeftVision) + retestStudentVO.existCheckVision(secondRightVision));

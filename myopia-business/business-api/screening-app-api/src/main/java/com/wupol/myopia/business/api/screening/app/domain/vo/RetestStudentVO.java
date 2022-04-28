@@ -197,13 +197,13 @@ public class RetestStudentVO {
      */
     public int checkHeightAndWeight(HeightAndWeightDataDO first, HeightAndWeightDataDO second, RetestStudentVO retestStudentVO) {
         int count = 0;
-        if (Objects.nonNull(first.getHeight()) && Objects.nonNull(second.getHeight())) {
+        if (Objects.nonNull(first) && Objects.nonNull(second) && Objects.nonNull(first.getHeight()) && Objects.nonNull(second.getHeight())) {
             if (first.getHeight().subtract(second.getHeight()).abs().compareTo(BigDecimal.valueOf(0.5)) >= 0) {
                 retestStudentVO.setHeight(true);
                 count += 1;
             }
         }
-        if (Objects.nonNull(first.getWeight()) && Objects.nonNull(second.getWeight())) {
+        if (Objects.nonNull(first) && Objects.nonNull(second) && Objects.nonNull(first.getWeight()) && Objects.nonNull(second.getWeight())) {
             if (first.getWeight().subtract(second.getWeight()).abs().compareTo(BigDecimal.valueOf(0.1)) >= 0) {
                 retestStudentVO.setWeight(true);
                 count += 1;
