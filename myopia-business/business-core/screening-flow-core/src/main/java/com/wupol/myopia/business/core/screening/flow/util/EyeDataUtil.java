@@ -468,23 +468,23 @@ public class EyeDataUtil {
         int fFountPermanent = 0;
         for (SaprodontiaDataDO.SaprodontiaItem item: items){
             if (item!=null){
-                if (item.getDeciduous().equals(SaprodontiaType.DECIDUOUS_D.getName())){
+                if (SaprodontiaType.DECIDUOUS_D.getName().equals(item.getDeciduous())){
                     dCountDeciduous++;
                 }
-                if (item.getDeciduous().equals(SaprodontiaType.DECIDUOUS_M.getName())){
+                if (SaprodontiaType.DECIDUOUS_M.getName().equals(item.getDeciduous())){
                     mCountDeciduous++;
                 }
-                if (item.getDeciduous().equals(SaprodontiaType.DECIDUOUS_F.getName())){
+                if (SaprodontiaType.DECIDUOUS_F.getName().equals(item.getDeciduous())){
                     fFountDeciduous++;
                 }
 
-                if (item.getPermanent().equals(SaprodontiaType.PERMANENT_D.getName())){
+                if (SaprodontiaType.PERMANENT_D.getName().equals(item.getPermanent())){
                     dFountPermanent++;
                 }
-                if (item.getPermanent().equals(SaprodontiaType.PERMANENT_M.getName())){
+                if (SaprodontiaType.PERMANENT_M.getName().equals(item.getPermanent())){
                     mFountPermanent++;
                 }
-                if (item.getPermanent().equals(SaprodontiaType.PERMANENT_F.getName())){
+                if (SaprodontiaType.PERMANENT_F.getName().equals(item.getPermanent())){
                     fFountPermanent++;
                 }
             }
