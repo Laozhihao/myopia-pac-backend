@@ -195,9 +195,10 @@ public class ReviewInformService {
      * @param gradeId  年级Id
      * @param classId  班级Id
      * @param type     类型
+     * @param userId   用户Id
      */
     @Async
-    public void asyncExportReview(Integer planId, Integer orgId, Integer schoolId, Integer gradeId, Integer classId, Integer type) {
+    public void asyncExportReview(Integer planId, Integer orgId, Integer schoolId, Integer gradeId, Integer classId, Integer type, Integer userId) {
         List<ScreeningPlanSchoolStudent> matchRescreenResults = getMatchRescreenResults(planId, orgId, schoolId, gradeId, classId);
         if (CollectionUtils.isEmpty(matchRescreenResults)) {
             return;
@@ -240,9 +241,9 @@ public class ReviewInformService {
 
         File renameFile = FileUtil.rename(ZipUtil.zip(fileSaveParentPath), getZipFileName(schoolId, gradeId, type), true);
         try {
-            noticeService.sendExportSuccessNotice(101, 101, getNoticeTitle(schoolId, gradeId, type), s3Utils.uploadFileToS3(renameFile));
+            noticeService.sendExportSuccessNotice(userId, userId, getNoticeTitle(schoolId, gradeId, type), s3Utils.uploadFileToS3(renameFile));
         } catch (UtilException e) {
-            noticeService.sendExportFailNotice(101, 101, getNoticeTitle(schoolId, gradeId, type) + RESCREEN_NAME);
+            noticeService.sendExportFailNotice(userId, userId, getNoticeTitle(schoolId, gradeId, type) + RESCREEN_NAME);
             throw new BusinessException("发送通知异常");
         } finally {
             FileUtils.deleteDir(new File(fileSaveParentPath));
