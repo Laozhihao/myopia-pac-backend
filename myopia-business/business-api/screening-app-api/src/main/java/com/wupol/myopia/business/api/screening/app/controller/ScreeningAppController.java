@@ -16,10 +16,7 @@ import com.wupol.myopia.business.aggregation.screening.service.ScreeningExportSe
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanStudentBizService;
 import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
 import com.wupol.myopia.business.api.screening.app.domain.dto.*;
-import com.wupol.myopia.business.api.screening.app.domain.vo.ClassScreeningProgress;
-import com.wupol.myopia.business.api.screening.app.domain.vo.EyeDiseaseVO;
-import com.wupol.myopia.business.api.screening.app.domain.vo.RescreeningResultVO;
-import com.wupol.myopia.business.api.screening.app.domain.vo.ScreeningResultDataVO;
+import com.wupol.myopia.business.api.screening.app.domain.vo.*;
 import com.wupol.myopia.business.api.screening.app.enums.ErrorEnum;
 import com.wupol.myopia.business.api.screening.app.enums.SysEnum;
 import com.wupol.myopia.business.api.screening.app.service.ScreeningAppService;
@@ -947,5 +944,20 @@ public class ScreeningAppController {
                                                             @NotNull(message = "年级ID不能为空") Integer gradeId,
                                                             @NotNull(message = "班级ID不能为空") Integer classId) {
         return screeningAppService.findClassScreeningStudent(schoolId, gradeId, classId, CurrentUserUtil.getCurrentUser().getOrgId());
+    }
+
+    /**
+     * 班级复测情况
+     *
+     * @param schoolId 学校名称
+     * @param gradeId  年级名称
+     * @param classId  班级名称
+     * @return com.wupol.myopia.business.api.screening.app.domain.vo.ClassScreeningProgress
+     **/
+    @GetMapping("/school/findClassScreeningStudentState")
+    public ClassScreeningProgressState findClassScreeningStudentState(@NotNull(message = "学校ID不能为空") Integer schoolId,
+                                                                      @NotNull(message = "年级ID不能为空") Integer gradeId,
+                                                                      @NotNull(message = "班级ID不能为空") Integer classId) {
+        return screeningAppService.findClassScreeningStudentState(schoolId, gradeId, classId, CurrentUserUtil.getCurrentUser().getOrgId());
     }
 }
