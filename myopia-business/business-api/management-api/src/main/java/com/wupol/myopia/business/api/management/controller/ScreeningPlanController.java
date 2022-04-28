@@ -716,7 +716,8 @@ public class ScreeningPlanController {
         if (ExportTypeConst.CLASS.equals(type)) {
             return ApiResult.success(reviewInformService.syncExportReview(planId, orgId, schoolId, gradeId, classId));
         }
-        reviewInformService.asyncExportReview(planId, orgId, schoolId, gradeId, classId, type);
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        reviewInformService.asyncExportReview(planId, orgId, schoolId, gradeId, classId, type, currentUser.getId());
         return ApiResult.success();
     }
 
