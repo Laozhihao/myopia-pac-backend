@@ -52,9 +52,6 @@ public class ReScreenDTO {
         /** 柱镜（右） */
         private ScreeningDeviation rightCyl;
 
-//        /** 轴位（右） */
-//        private ScreeningDeviation rightAxial;
-
         /** 等效球镜（左） */
         private ScreeningDeviation rightSE;
 
@@ -69,9 +66,6 @@ public class ReScreenDTO {
 
         /** 柱镜（左） */
         private ScreeningDeviation leftCyl;
-
-//        /** 轴位（左） */
-//        private ScreeningDeviation leftAxial;
 
         /** 等效球镜（左） */
         private ScreeningDeviation leftSE;

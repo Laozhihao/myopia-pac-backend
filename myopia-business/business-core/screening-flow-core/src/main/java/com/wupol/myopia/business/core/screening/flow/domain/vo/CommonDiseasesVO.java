@@ -26,7 +26,7 @@ public class CommonDiseasesVO {
     /**
      * 创建时间
      */
-    private Date createTime;
+    private Date updateTime;
 
     /**
      * 身高和体格检查误差卡片
