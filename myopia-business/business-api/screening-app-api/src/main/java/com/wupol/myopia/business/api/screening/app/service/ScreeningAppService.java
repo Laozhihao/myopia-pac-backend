@@ -9,18 +9,22 @@ import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.base.util.BeanCopyUtil;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.api.screening.app.domain.dto.AppStudentDTO;
 import com.wupol.myopia.business.api.screening.app.domain.dto.AppUserInfo;
 import com.wupol.myopia.business.api.screening.app.domain.dto.SysStudent;
 import com.wupol.myopia.business.api.screening.app.domain.vo.ClassScreeningProgress;
+import com.wupol.myopia.business.api.screening.app.domain.vo.ClassScreeningProgressState;
 import com.wupol.myopia.business.api.screening.app.domain.vo.RescreeningResultVO;
+import com.wupol.myopia.business.api.screening.app.domain.vo.RetestStudentVO;
 import com.wupol.myopia.business.api.screening.app.enums.ErrorEnum;
 import com.wupol.myopia.business.api.screening.app.enums.StudentExcelEnum;
 import com.wupol.myopia.business.api.screening.app.enums.SysEnum;
 import com.wupol.myopia.business.api.screening.app.utils.CommUtil;
 import com.wupol.myopia.business.common.utils.constant.*;
+import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.domain.model.ResourceFile;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.school.domain.model.School;
@@ -32,6 +36,9 @@ import com.wupol.myopia.business.core.school.management.service.SchoolStudentSer
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultSearchDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningInfoWithResultDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
@@ -58,8 +65,10 @@ import org.springframework.util.Assert;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -102,6 +111,7 @@ public class ScreeningAppService {
 
     /**
      * 获取学生复测数据
+     *
      * @param schoolId
      * @param gradeName
      * @param clazzName
@@ -124,7 +134,7 @@ public class ScreeningAppService {
         if (isRandom) {
             screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getBaseMapper().selectList(screeningPlanSchoolStudentLambdaQueryWrapper);
             ScreeningPlan currentPlan = screeningPlanService.getCurrentPlan(screeningOrgId, schoolId);
-            String cacheKey = "app:" + screeningOrgId + currentPlan.getId() + schoolId +  gradeName + clazzName;
+            String cacheKey = "app:" + screeningOrgId + currentPlan.getId() + schoolId + gradeName + clazzName;
             screeningPlanSchoolStudents = getRandomData(screeningPlanSchoolStudents, cacheKey, currentPlan.getEndTime());
         } else {
             Integer startIntem = (page - 1) * size;
@@ -147,6 +157,7 @@ public class ScreeningAppService {
 
     /**
      * 获取sysStudents
+     *
      * @param screeningPlanSchoolStudents
      * @return
      */
@@ -185,6 +196,7 @@ public class ScreeningAppService {
 
     /**
      * 随机获取数据
+     *
      * @param screeningPlanSchoolStudents
      * @param cacheKey
      * @param endTime
@@ -195,11 +207,11 @@ public class ScreeningAppService {
         //查找上次随机筛选的学生
         List<ScreeningPlanSchoolStudent> cacheList = this.getCacheList(cacheKey);
         // 如果cacheList 是null 说明没有数据,
-        if(cacheList == null) {
+        if (cacheList == null) {
             cacheList = new ArrayList<>();
         }
         int dataSize = CollectionUtils.size(screeningPlanSchoolStudents);
-        int  cacheSize = CollectionUtils.size(cacheList);
+        int cacheSize = CollectionUtils.size(cacheList);
 
         int newResultSize = (int) (dataSize * 0.06 - cacheSize);
         //数据长度没有变化
@@ -207,7 +219,7 @@ public class ScreeningAppService {
             return cacheList;
         }
         //初始化数据
-        if (newResultSize <=  0) {
+        if (newResultSize <= 0) {
             newResultSize = 1;
         }
         Collections.shuffle(screeningPlanSchoolStudents);
@@ -221,12 +233,13 @@ public class ScreeningAppService {
 
     /**
      * 获取随机复测数据
+     *
      * @param key
      * @return
      * @throws JsonProcessingException
      */
     private List<ScreeningPlanSchoolStudent> getCacheList(String key) {
-       return  (List<ScreeningPlanSchoolStudent>) redisUtil.get(key);
+        return (List<ScreeningPlanSchoolStudent>) redisUtil.get(key);
     }
 
     /**
@@ -283,6 +296,7 @@ public class ScreeningAppService {
 
     /**
      * 上传筛查机构用户的签名图片
+     *
      * @param currentUser
      * @param file
      * @return
@@ -333,7 +347,7 @@ public class ScreeningAppService {
         Student student = new Student();
         Long schoolId = appStudentDTO.getSchoolId();
         SchoolGrade schoolGrade = schoolGradeService.getByGradeNameAndSchoolId(schoolId.intValue(), appStudentDTO.getGrade());
-        SchoolClass schoolClass = schoolClassService.getByClassNameAndSchoolId(schoolId.intValue(), schoolGrade.getId(),appStudentDTO.getClazz());
+        SchoolClass schoolClass = schoolClassService.getByClassNameAndSchoolId(schoolId.intValue(), schoolGrade.getId(), appStudentDTO.getClazz());
         // excel格式：姓名、性别、出生日期、民族(1：汉族  2：蒙古族  3：藏族  4：壮族  5:回族  6:其他  )、学校编号、年级、班级、学号、身份证号、手机号码、省、市、县区、镇/街道、居住地址
         student.setName(appStudentDTO.getStudentName())
                 .setGender(StringUtils.isBlank(appStudentDTO.getGrade()) ? null : GenderEnum.getType(appStudentDTO.getSex()))
@@ -413,7 +427,7 @@ public class ScreeningAppService {
             }
         }
         //设置出生日期
-        if (StringUtils.isBlank(appStudentDTO.getBirthday()) && StringUtils.isNotBlank(appStudentDTO.getIdCard()) ) {
+        if (StringUtils.isBlank(appStudentDTO.getBirthday()) && StringUtils.isNotBlank(appStudentDTO.getIdCard())) {
             appStudentDTO.setBirthday(CommUtil.getBirthday(appStudentDTO.getIdCard()));
         }
         return null;
@@ -423,11 +437,11 @@ public class ScreeningAppService {
      * 获取班级总的筛查进度：汇总统计+每个学生的进度
      *
      * @param schoolId 学校名称
-     * @param gradeId 年级名称
-     * @param classId 班级名称
+     * @param gradeId  年级名称
+     * @param classId  班级名称
      * @return com.wupol.myopia.business.api.screening.app.domain.vo.ClassScreeningProgress
      **/
-    public ClassScreeningProgress getClassScreeningProgress(Integer schoolId, Integer gradeId, Integer classId, Integer screeningOrgId, Boolean isFilter,Integer state) {
+    public ClassScreeningProgress getClassScreeningProgress(Integer schoolId, Integer gradeId, Integer classId, Integer screeningOrgId, Boolean isFilter, Integer state) {
         ScreeningPlanSchoolStudent query = new ScreeningPlanSchoolStudent()
                 .setScreeningOrgId(screeningOrgId)
                 .setSchoolId(schoolId)
@@ -442,7 +456,7 @@ public class ScreeningAppService {
 
         // 获取学生对应筛查数据
         Map<Integer, ScreeningPlanSchoolStudent> screeningPlanSchoolStudentMap = screeningPlanSchoolStudentList.stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getId, Function.identity()));
-        List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.getByScreeningPlanSchoolStudentIds(screeningPlanSchoolStudentMap.keySet()).stream().filter(item-> state == 1).collect(Collectors.toList());
+        List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.getByScreeningPlanSchoolStudentIds(screeningPlanSchoolStudentMap.keySet()).stream().filter(item -> state == 1).collect(Collectors.toList());
         Map<Integer, VisionScreeningResult> planStudentVisionResultMap = visionScreeningResults.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
 
         // 只显示有姓名或有筛查数据的
@@ -462,7 +476,7 @@ public class ScreeningAppService {
         List<StudentScreeningProgressVO> studentScreeningProgressList = screeningPlanSchoolStudentList.stream().map(planStudent -> {
             VisionScreeningResult screeningResult = planStudentVisionResultMap.get(planStudent.getId());
             StudentVO studentVO = StudentVO.getInstance(planStudent);
-            return StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO,planStudent);
+            return StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO, planStudent);
         }).collect(Collectors.toList());
 
         // 异常的排前面
@@ -495,7 +509,7 @@ public class ScreeningAppService {
         return classScreeningProgress;
     }
 
-    public ClassScreeningProgress findClassScreeningStudent(Integer schoolId, Integer gradeId, Integer classId, Integer screeningOrgId){
+    public ClassScreeningProgress findClassScreeningStudent(Integer schoolId, Integer gradeId, Integer classId, Integer screeningOrgId) {
         ClassScreeningProgress first = getClassScreeningProgress(schoolId, gradeId, classId, screeningOrgId, false, 0);
         Assert.notNull(first.getStudentScreeningProgressList(), "筛查计划不存在");
         List<StudentScreeningProgressVO> studentList = getClassScreeningProgress(schoolId, gradeId, classId, screeningOrgId, false, 1).getStudentScreeningProgressList();
@@ -524,6 +538,126 @@ public class ScreeningAppService {
         first.setStudentScreeningProgressList(first.getStudentScreeningProgressList().stream().sorted(Comparator.comparing(StudentScreeningProgressVO::getScreeningStatus)).collect(Collectors.toList()));
         return first;
     }
+
+    public ClassScreeningProgressState findClassScreeningStudentState(Integer schoolId, Integer gradeId, Integer classId, Integer screeningOrgId) {
+        ScreeningPlanSchoolStudent query = new ScreeningPlanSchoolStudent()
+                .setScreeningOrgId(screeningOrgId)
+                .setSchoolId(schoolId)
+                .setClassId(classId)
+                .setGradeId(gradeId);
+        // 查询班级所有学生
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = screeningPlanSchoolStudentService.listByEntityDescByCreateTime(query);
+        if (CollectionUtils.isEmpty(screeningPlanSchoolStudentList)) {
+            // 空数据降级处理。根据目前需求（仅显示有筛查数据的学校 008-1.2021-08-26），实际不会进到这里。
+            return new ClassScreeningProgressState();
+        }
+
+        // 获取学生对应筛查数据
+        Map<Integer, ScreeningPlanSchoolStudent> screeningPlanSchoolStudentMap = screeningPlanSchoolStudentList.stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getId, Function.identity()));
+        List<VisionScreeningResult> first = visionScreeningResultService.getByScreeningPlanSchoolStudentIds(screeningPlanSchoolStudentMap.keySet()).stream().filter(item -> !item.getIsDoubleScreen()).collect(Collectors.toList());
+        List<VisionScreeningResult> second = visionScreeningResultService.getByScreeningPlanSchoolStudentIds(screeningPlanSchoolStudentMap.keySet()).stream().filter(VisionScreeningResult::getIsDoubleScreen).collect(Collectors.toList());
+
+        ClassScreeningProgressState screeningProgressState = new ClassScreeningProgressState();
+        screeningProgressState.setPlanCount((CollectionUtils.size(screeningPlanSchoolStudentList)));
+        screeningProgressState.setScreeningCount(CollectionUtils.size(first));
+
+        Map<Integer, VisionScreeningResult> firstPlanStudentVisionResultMap = first.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
+        Map<Integer, VisionScreeningResult> firstStudentIdPlan = first.stream().collect(Collectors.toMap(VisionScreeningResult::getStudentId, Function.identity()));
+
+        Map<Integer, VisionScreeningResult> secondPlanStudentVisionResultMap = second.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
+        Map<Integer, VisionScreeningResult> secondStudentIdPlan = second.stream().collect(Collectors.toMap(VisionScreeningResult::getStudentId, Function.identity()));
+
+        // 转换为筛查进度
+        List<StudentScreeningProgressVO> firstProgress = screeningPlanSchoolStudentList.stream().map(planStudent -> {
+            VisionScreeningResult screeningResult = firstPlanStudentVisionResultMap.get(planStudent.getId());
+            StudentVO studentVO = StudentVO.getInstance(planStudent);
+            return StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO, planStudent);
+        }).collect(Collectors.toList());
+
+        // 转换为筛查进度
+        List<StudentScreeningProgressVO> secondProgress = screeningPlanSchoolStudentList.stream().map(planStudent -> {
+            VisionScreeningResult screeningResult = secondPlanStudentVisionResultMap.get(planStudent.getId());
+            if (Objects.nonNull(screeningResult)) {
+                StudentVO studentVO = StudentVO.getInstance(planStudent);
+                return StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO, planStudent);
+            }
+            return null;
+        }).filter(Objects::nonNull).collect(Collectors.toList());
+
+
+        Map<String, StudentScreeningProgressVO> secondStudentIdMap = secondProgress
+                .stream().collect(Collectors.toMap(StudentScreeningProgressVO::getStudentId, Function.identity()));
+        firstProgress.forEach(item -> {
+            if (Boolean.FALSE.equals(item.getResult())) {
+                // 初筛未完成
+                item.setScreeningStatus(4);
+            } else if (Objects.isNull(secondStudentIdMap.get(item.getStudentId()))) {
+                // 开始复测
+                item.setScreeningStatus(2);
+            } else if (Boolean.FALSE.equals(secondStudentIdMap.get(item.getStudentId()).getResult())) {
+                // 复测中
+                item.setScreeningStatus(1);
+            } else {
+                // 复测完成
+                item.setScreeningStatus(3);
+            }
+        });
+        screeningProgressState.setReScreeningCount((int) firstProgress.stream().filter(item -> item.getScreeningStatus() != 4).count());
+        screeningProgressState.setNeedReScreeningCount((int) firstProgress.stream().filter(item -> item.getScreeningStatus() == 1).count());
+
+        screeningProgressState.setWearingGlasses((int) firstProgress.stream().filter(item -> item.getScreeningStatus() == 1
+                && Objects.nonNull(firstStudentIdPlan.get(item.getStudentId())) && firstStudentIdPlan.get(item.getStudentId()).getVisionData().getLeftEyeData().getGlassesType() != 0).count());
+        screeningProgressState.setNoWearingGlasses((int) firstProgress.stream().filter(item -> item.getScreeningStatus() == 1
+                && Objects.nonNull(firstStudentIdPlan.get(item.getStudentId())) && firstStudentIdPlan.get(item.getStudentId()).getVisionData().getLeftEyeData().getGlassesType() == 0).count());
+        screeningProgressState.setRetestRatio(screeningProgressState.getReScreeningCount() == 0 ? BigDecimal.ZERO : new BigDecimal(screeningProgressState.getNeedReScreeningCount()).divide(new BigDecimal(screeningProgressState.getReScreeningCount())));
+
+        screeningProgressState.setRetestStudents(second.stream().map(item -> {
+            RetestStudentVO vo = BeanCopyUtil.copyBeanPropertise(item, RetestStudentVO.class);
+            vo.setVisionScreeningResult(new TwoTuple<>(firstStudentIdPlan.get(item.getStudentId()), secondStudentIdPlan.get(item.getStudentId())));
+            return numerationSecondCheck(vo);
+        }).collect(Collectors.toList()));
+
+        screeningProgressState.setErrorItemCount(screeningProgressState.getRetestStudents().stream().mapToInt(RetestStudentVO::getErrorItemCount).sum());
+        screeningProgressState.setRetestItemCount(screeningProgressState.getRetestStudents().stream().mapToInt(RetestStudentVO::getRetestItemCount).sum());
+        screeningProgressState.setErrorRatio(screeningProgressState.getRetestItemCount() == 0 ? BigDecimal.ZERO : new BigDecimal(screeningProgressState.getErrorItemCount()).divide(new BigDecimal(screeningProgressState.getRetestItemCount())));
+        return screeningProgressState;
+    }
+
+    /**
+     * 学生复测面板数据计算
+     *
+     * @param retestStudentVO
+     * @return
+     */
+    private RetestStudentVO numerationSecondCheck(RetestStudentVO retestStudentVO) {
+        VisionDataDO.VisionData secondLeftVision = retestStudentVO.getVisionScreeningResult().getSecond().getVisionData().getLeftEyeData();
+        VisionDataDO.VisionData secondRightVision = retestStudentVO.getVisionScreeningResult().getSecond().getVisionData().getRightEyeData();
+        VisionDataDO.VisionData firstLeftVision = retestStudentVO.getVisionScreeningResult().getFirst().getVisionData().getLeftEyeData();
+        VisionDataDO.VisionData firstRightVision = retestStudentVO.getVisionScreeningResult().getFirst().getVisionData().getRightEyeData();
+
+        if (Objects.nonNull(secondLeftVision) || Objects.nonNull(secondRightVision)) {
+            retestStudentVO.setRetestItemCount(retestStudentVO.existCheckVision(secondLeftVision) + retestStudentVO.existCheckVision(secondRightVision));
+            retestStudentVO.setErrorItemCount(retestStudentVO.checkVision(firstLeftVision, secondLeftVision, retestStudentVO) + retestStudentVO.checkVision(firstRightVision, secondRightVision, retestStudentVO));
+        }
+
+        ComputerOptometryDO.ComputerOptometry secondLeftComputerOptometry = retestStudentVO.getVisionScreeningResult().getSecond().getComputerOptometry().getLeftEyeData();
+        ComputerOptometryDO.ComputerOptometry secondRightComputerOptometry = retestStudentVO.getVisionScreeningResult().getSecond().getComputerOptometry().getRightEyeData();
+        ComputerOptometryDO.ComputerOptometry firstLeftComputerOptometry = retestStudentVO.getVisionScreeningResult().getFirst().getComputerOptometry().getLeftEyeData();
+        ComputerOptometryDO.ComputerOptometry firstRightComputerOptometry = retestStudentVO.getVisionScreeningResult().getFirst().getComputerOptometry().getRightEyeData();
+
+        if (Objects.nonNull(secondLeftComputerOptometry) || Objects.nonNull(secondRightComputerOptometry)) {
+            retestStudentVO.setRetestItemCount(retestStudentVO.existCheckComputerOptometry(secondLeftComputerOptometry)+retestStudentVO.existCheckComputerOptometry(secondRightComputerOptometry));
+            retestStudentVO.setErrorItemCount(retestStudentVO.checkComputerOptometry(firstLeftComputerOptometry, secondLeftComputerOptometry, retestStudentVO) + retestStudentVO.checkComputerOptometry(firstRightComputerOptometry, secondRightComputerOptometry, retestStudentVO));
+        }
+
+        HeightAndWeightDataDO secondHeightWeight = retestStudentVO.getVisionScreeningResult().getSecond().getHeightAndWeightData();
+        HeightAndWeightDataDO firstHeightWeight = retestStudentVO.getVisionScreeningResult().getFirst().getHeightAndWeightData();
+
+        retestStudentVO.setRetestItemCount(retestStudentVO.existCheckHeightAndWeight(secondHeightWeight));
+        retestStudentVO.setErrorItemCount(retestStudentVO.checkHeightAndWeight(firstHeightWeight, secondHeightWeight, retestStudentVO));
+        return retestStudentVO;
+    }
+
     /**
      * 根据筛查学生ID和筛查机构ID获取筛查数据
      *
@@ -546,7 +680,7 @@ public class ScreeningAppService {
      * @param isState
      * @return com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult
      **/
-    public VisionScreeningResult getVisionScreeningResultByPlanStudentIdAndState(Integer planStudentId, Integer screeningOrgId,Integer isState) {
+    public VisionScreeningResult getVisionScreeningResultByPlanStudentIdAndState(Integer planStudentId, Integer screeningOrgId, Integer isState) {
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.findOne(new ScreeningPlanSchoolStudent().setId(planStudentId).setScreeningOrgId(screeningOrgId));
         Assert.notNull(screeningPlanSchoolStudent, SysEnum.SYS_STUDENT_NULL.getMessage());
         return visionScreeningResultService.findOne(new VisionScreeningResult().setScreeningPlanSchoolStudentId(planStudentId).setIsDoubleScreen(isState == 1));
@@ -554,6 +688,7 @@ public class ScreeningAppService {
 
     /**
      * 新增学校端学生
+     *
      * @param student 学生
      */
     @Transactional(rollbackFor = Exception.class)
