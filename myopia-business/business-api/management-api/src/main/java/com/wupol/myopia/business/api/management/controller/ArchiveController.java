@@ -91,7 +91,7 @@ public class ArchiveController {
         if (CollectionUtils.isEmpty(planStudentIds)) {
             return Collections.emptyList();
         }
-        List<VisionScreeningResult> visionScreeningResultList = visionScreeningResultService.getByScreeningPlanSchoolStudentIds(planStudentIds);
+        List<VisionScreeningResult> visionScreeningResultList = visionScreeningResultService.getByScreeningPlanSchoolStudentIds(planStudentIds, false);
         return generateArchiveCardBatch(visionScreeningResultList);
     }
 
