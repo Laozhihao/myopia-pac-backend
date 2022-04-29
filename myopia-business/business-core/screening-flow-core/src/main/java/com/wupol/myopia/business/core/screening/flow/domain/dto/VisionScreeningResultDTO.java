@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 
 @Data
 @Accessors(chain = true)
-public class VersionScreeningResultDTO extends VisionScreeningResult {
+public class VisionScreeningResultDTO extends VisionScreeningResult {
 
     /**
      * 学生性别

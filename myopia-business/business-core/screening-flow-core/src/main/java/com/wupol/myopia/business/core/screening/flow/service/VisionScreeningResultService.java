@@ -292,33 +292,33 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         updateBatchById(updateResultList);
         statConclusionService.updateBatchById(updateStatConclusionList);
     }
-    public VersionScreeningResultDTO getStudentVersionByStudentId (List<VisionScreeningResult> visionScreeningResults, List<VisionScreeningResult> doubleScreeningResults){
-        VersionScreeningResultDTO versionScreeningResultDTO = new VersionScreeningResultDTO();
+    public VisionScreeningResultDTO getStudentVersionByStudentId (List<VisionScreeningResult> visionScreeningResults, List<VisionScreeningResult> doubleScreeningResults){
+        VisionScreeningResultDTO visionScreeningResultDTO = new VisionScreeningResultDTO();
         if (!visionScreeningResults.isEmpty()){
-            BeanUtils.copyProperties(visionScreeningResults.get(0), versionScreeningResultDTO);
-            versionScreeningResultDTO.setSaprodontiaDataDTO(getSaprodontiaDataDTO(visionScreeningResults.get(0)));
+            BeanUtils.copyProperties(visionScreeningResults.get(0), visionScreeningResultDTO);
+            visionScreeningResultDTO.setSaprodontiaDataDTO(getSaprodontiaDataDTO(visionScreeningResults.get(0)));
             ScreeningPlanSchoolStudent schoolStudent = new ScreeningPlanSchoolStudent();
             schoolStudent.setId(visionScreeningResults.get(0).getScreeningPlanSchoolStudentId());
             schoolStudent.setScreeningPlanId(visionScreeningResults.get(0).getPlanId());
             ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.findOne(schoolStudent);
             if (screeningPlanSchoolStudent != null){
-                versionScreeningResultDTO.setGender(screeningPlanSchoolStudent.getGender());
+                visionScreeningResultDTO.setGender(screeningPlanSchoolStudent.getGender());
             }
             if (!doubleScreeningResults.isEmpty()){
-                versionScreeningResultDTO.setRescreening(ReScreenCardUtil.reScreeningResult(visionScreeningResults.get(0),doubleScreeningResults.get(0)));
+                visionScreeningResultDTO.setRescreening(ReScreenCardUtil.reScreeningResult(visionScreeningResults.get(0),doubleScreeningResults.get(0)));
             }
-            versionScreeningResultDTO.setLeftSE(getLeftSphericalEquivalent(visionScreeningResults.get(0)));
-            versionScreeningResultDTO.setRightSE(getRightSphericalEquivalent(visionScreeningResults.get(0)));
-            versionScreeningResultDTO.setSaprodontiaData(VersionScreeningResultDTO.saprodontiaDataDOIsNull(versionScreeningResultDTO.getSaprodontiaData()));
-            versionScreeningResultDTO.setSpineData(VersionScreeningResultDTO.spineDataDOIsNull(versionScreeningResultDTO.getSpineData()));
-            versionScreeningResultDTO.setBloodPressureData(VersionScreeningResultDTO.bloodPressureDataDOIsNull(versionScreeningResultDTO.getBloodPressureData()));
-            versionScreeningResultDTO.setDiseasesHistoryData(VersionScreeningResultDTO.diseasesHistoryDOIsNull(versionScreeningResultDTO.getDiseasesHistoryData()));
-            versionScreeningResultDTO.setPrivacyData(VersionScreeningResultDTO.privacyDataDOIsNull(versionScreeningResultDTO.getPrivacyData()));
-            versionScreeningResultDTO.setDeviationData(VersionScreeningResultDTO.deviationDOIsNull(versionScreeningResultDTO.getDeviationData()));
-            versionScreeningResultDTO.setOtherEyeDiseases(VersionScreeningResultDTO.otherEyeDiseasesDOIsNull(versionScreeningResultDTO.getOtherEyeDiseases()));
-            versionScreeningResultDTO.setRescreening(VersionScreeningResultDTO.reScreenDTOIsNull(versionScreeningResultDTO.getRescreening()));
+            visionScreeningResultDTO.setLeftSE(getLeftSphericalEquivalent(visionScreeningResults.get(0)));
+            visionScreeningResultDTO.setRightSE(getRightSphericalEquivalent(visionScreeningResults.get(0)));
+            visionScreeningResultDTO.setSaprodontiaData(VisionScreeningResultDTO.saprodontiaDataDOIsNull(visionScreeningResultDTO.getSaprodontiaData()));
+            visionScreeningResultDTO.setSpineData(VisionScreeningResultDTO.spineDataDOIsNull(visionScreeningResultDTO.getSpineData()));
+            visionScreeningResultDTO.setBloodPressureData(VisionScreeningResultDTO.bloodPressureDataDOIsNull(visionScreeningResultDTO.getBloodPressureData()));
+            visionScreeningResultDTO.setDiseasesHistoryData(VisionScreeningResultDTO.diseasesHistoryDOIsNull(visionScreeningResultDTO.getDiseasesHistoryData()));
+            visionScreeningResultDTO.setPrivacyData(VisionScreeningResultDTO.privacyDataDOIsNull(visionScreeningResultDTO.getPrivacyData()));
+            visionScreeningResultDTO.setDeviationData(VisionScreeningResultDTO.deviationDOIsNull(visionScreeningResultDTO.getDeviationData()));
+            visionScreeningResultDTO.setOtherEyeDiseases(VisionScreeningResultDTO.otherEyeDiseasesDOIsNull(visionScreeningResultDTO.getOtherEyeDiseases()));
+            visionScreeningResultDTO.setRescreening(VisionScreeningResultDTO.reScreenDTOIsNull(visionScreeningResultDTO.getRescreening()));
         }
-        return versionScreeningResultDTO;
+        return visionScreeningResultDTO;
     }
 
     private BigDecimal getLeftSphericalEquivalent(VisionScreeningResult result){
