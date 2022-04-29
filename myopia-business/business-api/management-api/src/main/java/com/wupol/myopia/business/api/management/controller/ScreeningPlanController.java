@@ -606,7 +606,7 @@ public class ScreeningPlanController {
         List<VisionScreeningResult> visionScreeningResults =  visionScreeningResultService.getByStudentIdsAndPlanId(planId,studentIds,VisionScreeningResult.NOT_RETEST);
         List<VisionScreeningResult> doubleScreeningResults =  visionScreeningResultService.getByStudentIdsAndPlanId(planId,studentIds,VisionScreeningResult.RETEST);
 
-        return ApiResult.success(visionScreeningResultService.getStudentVersionByStudentId(visionScreeningResults,doubleScreeningResults));
+        return ApiResult.success(visionScreeningResultService.getStudentEyeByStudentId(visionScreeningResults,doubleScreeningResults));
     }
 
     /**

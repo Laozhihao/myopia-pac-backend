@@ -292,7 +292,7 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         updateBatchById(updateResultList);
         statConclusionService.updateBatchById(updateStatConclusionList);
     }
-    public VisionScreeningResultDTO getStudentVersionByStudentId (List<VisionScreeningResult> visionScreeningResults, List<VisionScreeningResult> doubleScreeningResults){
+    public VisionScreeningResultDTO getStudentEyeByStudentId (List<VisionScreeningResult> visionScreeningResults, List<VisionScreeningResult> doubleScreeningResults){
         VisionScreeningResultDTO visionScreeningResultDTO = new VisionScreeningResultDTO();
         if (!visionScreeningResults.isEmpty()){
             BeanUtils.copyProperties(visionScreeningResults.get(0), visionScreeningResultDTO);
