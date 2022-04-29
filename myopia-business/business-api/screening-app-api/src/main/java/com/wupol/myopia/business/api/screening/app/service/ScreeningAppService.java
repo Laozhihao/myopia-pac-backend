@@ -478,16 +478,20 @@ public class ScreeningAppService {
         // 转换为筛查进度
         List<StudentScreeningProgressVO> studentScreeningProgressList = screeningPlanSchoolStudentList.stream().map(planStudent -> {
             VisionScreeningResult screeningResult = planStudentVisionResultMap.get(planStudent.getId());
-            StudentVO studentVO = StudentVO.getInstance(planStudent);
-            StudentScreeningProgressVO studentProgress = StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO, planStudent);
-            try {
-                visionScreeningBizService.verifyScreening(screeningResult, screeningResult.getScreeningType() == 1);
-                studentProgress.setResult(true);
-            } catch (Exception e) {
-                studentProgress.setResult(false);
+            if (Objects.nonNull(screeningResult)) {
+                StudentVO studentVO = StudentVO.getInstance(planStudent);
+                StudentScreeningProgressVO studentProgress = StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO, planStudent);
+                studentProgress.setStudentId(screeningResult.getStudentId());
+                try {
+                    visionScreeningBizService.verifyScreening(screeningResult, screeningResult.getScreeningType() == 1);
+                    studentProgress.setResult(true);
+                } catch (Exception e) {
+                    studentProgress.setResult(false);
+                }
+                return studentProgress;
             }
-            return studentProgress;
-        }).collect(Collectors.toList());
+            return null;
+        }).filter(Objects::nonNull).collect(Collectors.toList());
 
         // 异常的排前面
         Map<Boolean, List<StudentScreeningProgressVO>> finishMap = studentScreeningProgressList.stream().collect(Collectors.groupingBy(StudentScreeningProgressVO::getResult));
