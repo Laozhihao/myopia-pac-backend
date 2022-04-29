@@ -170,4 +170,9 @@ public class ScreeningStudentDTO extends StudentDO {
      */
     private Boolean isDoubleScreen;
 
+    /**
+     * 筛查类型（0视力筛查，1常见病筛查）
+     */
+    private Integer screeningType;
+
 }
