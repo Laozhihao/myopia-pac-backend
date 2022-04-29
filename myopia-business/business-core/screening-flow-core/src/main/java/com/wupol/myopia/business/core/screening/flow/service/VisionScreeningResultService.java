@@ -45,15 +45,15 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
     @Resource
     private StatConclusionService statConclusionService;
 
-   /***
-   * @Description: 学生ID集合
-   * @Param: [studentIds]
-   * @return: java.util.List<com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult>
-   * @Author: 钓猫的小鱼
-   * @Date: 2022/1/12
-   */
+    /***
+     * @Description: 学生ID集合
+     * @Param: [studentIds]
+     * @return: java.util.List<com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult>
+     * @Author: 钓猫的小鱼
+     * @Date: 2022/1/12
+     */
     public List<VisionScreeningResult> getByStudentIdsAndPlanId(Integer planId, List<Integer> studentIds, Integer isDoubleScreen) {
-        return baseMapper.getByStudentIdsAndPlanId(planId,studentIds,isDoubleScreen);
+        return baseMapper.getByStudentIdsAndPlanId(planId, studentIds, isDoubleScreen);
     }
 
     /**
@@ -72,8 +72,8 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
      * @param studentId id
      * @return List<ScreeningResult>
      */
-    public IPage<VisionScreeningResult> getByStudentIdWithPage(PageRequest pageRequest,Integer studentId) {
-        return baseMapper.getByStudentIdWithPage(pageRequest.toPage(),studentId);
+    public IPage<VisionScreeningResult> getByStudentIdWithPage(PageRequest pageRequest, Integer studentId) {
+        return baseMapper.getByStudentIdWithPage(pageRequest.toPage(), studentId);
     }
 
 
@@ -111,14 +111,14 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
     /**
      * 通过指定的日期获取筛查计划ID集合
      */
-    public List<Integer> getScreeningPlanIdsByDate(String dateStr){
-        if(StrUtil.isBlank(dateStr)){
-            dateStr= LocalDate.now().minusDays(1).toString();
+    public List<Integer> getScreeningPlanIdsByDate(String dateStr) {
+        if (StrUtil.isBlank(dateStr)) {
+            dateStr = LocalDate.now().minusDays(1).toString();
 
         }
-        LocalDateTime startTime = LocalDate.parse(dateStr).atTime(0, 0, 0,0);
-        LocalDateTime endTime = LocalDate.parse(dateStr).atTime(23, 59, 59,999);
-        return baseMapper.getHaveSrcScreeningNoticePlanIdsByTime(DateUtil.toDate(startTime),DateUtil.toDate(endTime));
+        LocalDateTime startTime = LocalDate.parse(dateStr).atTime(0, 0, 0, 0);
+        LocalDateTime endTime = LocalDate.parse(dateStr).atTime(23, 59, 59, 999);
+        return baseMapper.getHaveSrcScreeningNoticePlanIdsByTime(DateUtil.toDate(startTime), DateUtil.toDate(endTime));
     }
 
     /**
@@ -127,9 +127,21 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
      * @param screeningPlanSchoolStudentIds 计划的学生ID
      * @return List<VisionScreeningResult>
      */
-    public List<VisionScreeningResult> getByScreeningPlanSchoolStudentIds(Set<Integer> screeningPlanSchoolStudentIds,boolean isDoubleScreen) {
+    public List<VisionScreeningResult> getByScreeningPlanSchoolStudentIds(Set<Integer> screeningPlanSchoolStudentIds, boolean isDoubleScreen) {
         LambdaQueryWrapper<VisionScreeningResult> visionScreeningResultLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        visionScreeningResultLambdaQueryWrapper.eq(VisionScreeningResult::getIsDoubleScreen,isDoubleScreen).in(VisionScreeningResult::getScreeningPlanSchoolStudentId, screeningPlanSchoolStudentIds);
+        visionScreeningResultLambdaQueryWrapper.eq(VisionScreeningResult::getIsDoubleScreen, isDoubleScreen).in(VisionScreeningResult::getScreeningPlanSchoolStudentId, screeningPlanSchoolStudentIds);
+        return baseMapper.selectList(visionScreeningResultLambdaQueryWrapper);
+    }
+
+    /**
+     * 根据筛查计划关联的存档的学生id
+     *
+     * @param screeningPlanSchoolStudentIds 计划的学生ID
+     * @return List<VisionScreeningResult>
+     */
+    public List<VisionScreeningResult> getByScreeningPlanSchoolStudentIds(Set<Integer> screeningPlanSchoolStudentIds) {
+        LambdaQueryWrapper<VisionScreeningResult> visionScreeningResultLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        visionScreeningResultLambdaQueryWrapper.eq(VisionScreeningResult::getIsDoubleScreen, false).in(VisionScreeningResult::getScreeningPlanSchoolStudentId, screeningPlanSchoolStudentIds);
         return baseMapper.selectList(visionScreeningResultLambdaQueryWrapper);
     }
 
@@ -141,15 +153,16 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
      */
     public List<VisionScreeningResult> getByPlanIdsOrderByUpdateTimeDesc(Set<Integer> planIds) {
         LambdaQueryWrapper<VisionScreeningResult> visionScreeningResultLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        visionScreeningResultLambdaQueryWrapper.eq(VisionScreeningResult::getIsDoubleScreen,false).in(VisionScreeningResult::getPlanId, planIds).orderByDesc(VisionScreeningResult::getUpdateTime);
+        visionScreeningResultLambdaQueryWrapper.eq(VisionScreeningResult::getIsDoubleScreen, false).in(VisionScreeningResult::getPlanId, planIds).orderByDesc(VisionScreeningResult::getUpdateTime);
         return baseMapper.selectList(visionScreeningResultLambdaQueryWrapper);
     }
 
     /**
      * 根据筛查计划ID集查询
+     *
      * @param planIds
      */
-    public List<VisionScreeningResult> getByPlanIds(List<Integer> planIds){
+    public List<VisionScreeningResult> getByPlanIds(List<Integer> planIds) {
         LambdaQueryWrapper<VisionScreeningResult> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(VisionScreeningResult::getPlanId, planIds);
         return baseMapper.selectList(queryWrapper);
@@ -168,7 +181,7 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
     /**
      * 是否需要更新
      *
-     * @param planId 计划ID
+     * @param planId         计划ID
      * @param screeningOrgId 筛查机构ID
      * @return List<VisionScreeningResult>
      */
@@ -355,12 +368,13 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
 
     /**
      * 获取学生初筛/复测（默认初测）
-     * @param planId 计划ID
+     *
+     * @param planId                       计划ID
      * @param screeningPlanSchoolStudentId 学生ID
-     * @param isDoubleScreen false：初测  true：复测
+     * @param isDoubleScreen               false：初测  true：复测
      * @return
      */
-    public VisionScreeningResult getIsDoubleScreeningResult(Integer planId, Integer screeningPlanSchoolStudentId,boolean isDoubleScreen) {
+    public VisionScreeningResult getIsDoubleScreeningResult(Integer planId, Integer screeningPlanSchoolStudentId, boolean isDoubleScreen) {
         VisionScreeningResult visionScreeningResultQuery = new VisionScreeningResult().setPlanId(planId).setScreeningPlanSchoolStudentId(screeningPlanSchoolStudentId).setIsDoubleScreen(isDoubleScreen);
         QueryWrapper<VisionScreeningResult> queryWrapper = getQueryWrapper(visionScreeningResultQuery);
         return getOne(queryWrapper);
@@ -368,13 +382,14 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
 
     /**
      * 获取学生初筛/复测（默认初测）
-     * @param planIds 计划ID集合
+     *
+     * @param planIds                      计划ID集合
      * @param screeningPlanSchoolStudentId 学生ID
-     * @param isDoubleScreen false：初测  true：复测
+     * @param isDoubleScreen               false：初测  true：复测
      * @return
      */
-    public List<VisionScreeningResult> getIsDoubleScreeningResult(List<Integer> planIds, Integer screeningPlanSchoolStudentId,boolean isDoubleScreen) {
-        return baseMapper.getIsDoubleScreeningResult(planIds,screeningPlanSchoolStudentId,isDoubleScreen);
+    public List<VisionScreeningResult> getIsDoubleScreeningResult(List<Integer> planIds, Integer screeningPlanSchoolStudentId, boolean isDoubleScreen) {
+        return baseMapper.getIsDoubleScreeningResult(planIds, screeningPlanSchoolStudentId, isDoubleScreen);
     }
 
     /**
@@ -406,20 +421,20 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         return results.stream().collect(Collectors.groupingBy(VisionScreeningResult::getSchoolId));
     }
 
-    public VisionScreeningResultDTO getStudentEyeByStudentId(List<VisionScreeningResult> visionScreeningResults, List<VisionScreeningResult> doubleScreeningResults){
+    public VisionScreeningResultDTO getStudentEyeByStudentId(List<VisionScreeningResult> visionScreeningResults, List<VisionScreeningResult> doubleScreeningResults) {
         VisionScreeningResultDTO visionScreeningResultDTO = new VisionScreeningResultDTO();
-        if (!visionScreeningResults.isEmpty()){
+        if (!visionScreeningResults.isEmpty()) {
             BeanUtils.copyProperties(visionScreeningResults.get(0), visionScreeningResultDTO);
             visionScreeningResultDTO.setSaprodontiaDataDTO(getSaprodontiaDataDTO(visionScreeningResults.get(0)));
-            ScreeningPlanSchoolStudent schoolStudent =  new ScreeningPlanSchoolStudent();
+            ScreeningPlanSchoolStudent schoolStudent = new ScreeningPlanSchoolStudent();
             schoolStudent.setId(visionScreeningResults.get(0).getScreeningPlanSchoolStudentId());
             schoolStudent.setScreeningPlanId(visionScreeningResults.get(0).getPlanId());
             ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.findOne(schoolStudent);
-            if (screeningPlanSchoolStudent != null){
+            if (screeningPlanSchoolStudent != null) {
                 visionScreeningResultDTO.setGender(screeningPlanSchoolStudent.getGender());
             }
-            if (!doubleScreeningResults.isEmpty()){
-                visionScreeningResultDTO.setRescreening(ReScreenCardUtil.reScreeningResult(visionScreeningResults.get(0),doubleScreeningResults.get(0)));
+            if (!doubleScreeningResults.isEmpty()) {
+                visionScreeningResultDTO.setRescreening(ReScreenCardUtil.reScreeningResult(visionScreeningResults.get(0), doubleScreeningResults.get(0)));
             }
             visionScreeningResultDTO.setLeftSE(getLeftSphericalEquivalent(visionScreeningResults.get(0)));
             visionScreeningResultDTO.setRightSE(getRightSphericalEquivalent(visionScreeningResults.get(0)));
@@ -427,24 +442,24 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         return visionScreeningResultDTO;
     }
 
-    private BigDecimal getLeftSphericalEquivalent(VisionScreeningResult result){
-        Optional.ofNullable(result) .map(VisionScreeningResult::getSaprodontiaData).orElse(null);
+    private BigDecimal getLeftSphericalEquivalent(VisionScreeningResult result) {
+        Optional.ofNullable(result).map(VisionScreeningResult::getSaprodontiaData).orElse(null);
         BigDecimal sphere = result.getComputerOptometry().getLeftEyeData().getSph();
         BigDecimal cylinder = result.getComputerOptometry().getLeftEyeData().getCyl();
-        return StatUtil.getSphericalEquivalent(sphere,cylinder);
+        return StatUtil.getSphericalEquivalent(sphere, cylinder);
     }
 
-    private BigDecimal getRightSphericalEquivalent(VisionScreeningResult result){
-        Optional.ofNullable(result) .map(VisionScreeningResult::getSaprodontiaData).orElse(null);
+    private BigDecimal getRightSphericalEquivalent(VisionScreeningResult result) {
+        Optional.ofNullable(result).map(VisionScreeningResult::getSaprodontiaData).orElse(null);
         BigDecimal sphere = result.getComputerOptometry().getRightEyeData().getSph();
         BigDecimal cylinder = result.getComputerOptometry().getRightEyeData().getCyl();
-        return StatUtil.getSphericalEquivalent(sphere,cylinder);
+        return StatUtil.getSphericalEquivalent(sphere, cylinder);
     }
 
 
-    public SaprodontiaDataDTO getSaprodontiaDataDTO(VisionScreeningResult result){
+    public SaprodontiaDataDTO getSaprodontiaDataDTO(VisionScreeningResult result) {
         List<SaprodontiaDataDO.SaprodontiaItem> items = new ArrayList<>();
-        if (Objects.nonNull(result)&&Objects.nonNull(result.getSaprodontiaData())){
+        if (Objects.nonNull(result) && Objects.nonNull(result.getSaprodontiaData())) {
             items.addAll(result.getSaprodontiaData().getAbove());
             items.addAll(result.getSaprodontiaData().getUnderneath());
         }
@@ -454,6 +469,7 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
 
     /**
      * 计算乳牙/恒牙
+     *
      * @param items
      */
     private SaprodontiaDataDTO calculationTooth(List<SaprodontiaDataDO.SaprodontiaItem> items) {
@@ -465,25 +481,25 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         int dFountPermanent = 0;
         int mFountPermanent = 0;
         int fFountPermanent = 0;
-        for (SaprodontiaDataDO.SaprodontiaItem item: items){
-            if (item != null){
-                if (item != null){
-                    if (SaprodontiaType.DECIDUOUS_D.getName().equals(item.getDeciduous())){
+        for (SaprodontiaDataDO.SaprodontiaItem item : items) {
+            if (item != null) {
+                if (item != null) {
+                    if (SaprodontiaType.DECIDUOUS_D.getName().equals(item.getDeciduous())) {
                         dCountDeciduous++;
                     }
-                    if (SaprodontiaType.DECIDUOUS_M.getName().equals(item.getDeciduous())){
+                    if (SaprodontiaType.DECIDUOUS_M.getName().equals(item.getDeciduous())) {
                         mCountDeciduous++;
                     }
-                    if (SaprodontiaType.DECIDUOUS_F.getName().equals(item.getDeciduous())){
+                    if (SaprodontiaType.DECIDUOUS_F.getName().equals(item.getDeciduous())) {
                         fFountDeciduous++;
                     }
-                    if (SaprodontiaType.PERMANENT_D.getName().equals(item.getPermanent())){
+                    if (SaprodontiaType.PERMANENT_D.getName().equals(item.getPermanent())) {
                         dFountPermanent++;
                     }
-                    if (SaprodontiaType.PERMANENT_M.getName().equals(item.getPermanent())){
+                    if (SaprodontiaType.PERMANENT_M.getName().equals(item.getPermanent())) {
                         mFountPermanent++;
                     }
-                    if (SaprodontiaType.PERMANENT_F.getName().equals(item.getPermanent())){
+                    if (SaprodontiaType.PERMANENT_F.getName().equals(item.getPermanent())) {
                         fFountPermanent++;
                     }
                 }
@@ -506,10 +522,13 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         return saprodontiaDataDTO;
     }
 
-    public VisionScreeningResult getIsDoubleScreen(Integer screeningPlanSchoolStudentId, Integer planId, Integer screeningType){
+    public VisionScreeningResult getIsDoubleScreen(Integer screeningPlanSchoolStudentId, Integer planId, Integer screeningType) {
 
-        return baseMapper.getIsDoubleScreen(screeningPlanSchoolStudentId,planId,screeningType);
-    };
+        return baseMapper.getIsDoubleScreen(screeningPlanSchoolStudentId, planId, screeningType);
+    }
+
+    ;
+
     /**
      * 通过筛查学生查询初筛筛查结果
      *
