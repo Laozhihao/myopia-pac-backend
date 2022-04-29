@@ -127,9 +127,9 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
      * @param screeningPlanSchoolStudentIds 计划的学生ID
      * @return List<VisionScreeningResult>
      */
-    public List<VisionScreeningResult> getByScreeningPlanSchoolStudentIds(Set<Integer> screeningPlanSchoolStudentIds) {
+    public List<VisionScreeningResult> getByScreeningPlanSchoolStudentIds(Set<Integer> screeningPlanSchoolStudentIds,boolean isDoubleScreen) {
         LambdaQueryWrapper<VisionScreeningResult> visionScreeningResultLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        visionScreeningResultLambdaQueryWrapper.eq(VisionScreeningResult::getIsDoubleScreen,false).in(VisionScreeningResult::getScreeningPlanSchoolStudentId, screeningPlanSchoolStudentIds);
+        visionScreeningResultLambdaQueryWrapper.eq(VisionScreeningResult::getIsDoubleScreen,isDoubleScreen).in(VisionScreeningResult::getScreeningPlanSchoolStudentId, screeningPlanSchoolStudentIds);
         return baseMapper.selectList(visionScreeningResultLambdaQueryWrapper);
     }
 

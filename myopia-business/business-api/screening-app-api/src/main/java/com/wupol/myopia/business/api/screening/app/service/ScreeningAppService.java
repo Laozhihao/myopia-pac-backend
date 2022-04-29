@@ -12,6 +12,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.BeanCopyUtil;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
 import com.wupol.myopia.business.api.screening.app.domain.dto.AppStudentDTO;
 import com.wupol.myopia.business.api.screening.app.domain.dto.AppUserInfo;
 import com.wupol.myopia.business.api.screening.app.domain.dto.SysStudent;
@@ -108,6 +109,8 @@ public class ScreeningAppService {
     private SchoolStudentService schoolStudentService;
     @Resource
     private OauthServiceClient oauthServiceClient;
+    @Autowired
+    private VisionScreeningBizService visionScreeningBizService;
 
     /**
      * 获取学生复测数据
@@ -456,7 +459,7 @@ public class ScreeningAppService {
 
         // 获取学生对应筛查数据
         Map<Integer, ScreeningPlanSchoolStudent> screeningPlanSchoolStudentMap = screeningPlanSchoolStudentList.stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getId, Function.identity()));
-        List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.getByScreeningPlanSchoolStudentIds(screeningPlanSchoolStudentMap.keySet()).stream().filter(item -> state == 1).collect(Collectors.toList());
+        List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.getByScreeningPlanSchoolStudentIds(screeningPlanSchoolStudentMap.keySet(), state == 1);
         Map<Integer, VisionScreeningResult> planStudentVisionResultMap = visionScreeningResults.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
 
         // 只显示有姓名或有筛查数据的
@@ -476,7 +479,14 @@ public class ScreeningAppService {
         List<StudentScreeningProgressVO> studentScreeningProgressList = screeningPlanSchoolStudentList.stream().map(planStudent -> {
             VisionScreeningResult screeningResult = planStudentVisionResultMap.get(planStudent.getId());
             StudentVO studentVO = StudentVO.getInstance(planStudent);
-            return StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO, planStudent);
+            StudentScreeningProgressVO studentProgress = StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO, planStudent);
+            try {
+                visionScreeningBizService.verifyScreening(screeningResult, screeningResult.getScreeningType() == 1);
+                studentProgress.setResult(true);
+            } catch (Exception e) {
+                studentProgress.setResult(false);
+            }
+            return studentProgress;
         }).collect(Collectors.toList());
 
         // 异常的排前面
@@ -518,7 +528,7 @@ public class ScreeningAppService {
         if (Objects.nonNull(first.getNeedReScreeningCount()) && finishCount >= first.getNeedReScreeningCount()) {
             first.setFinish(true);
         }
-        Map<String, StudentScreeningProgressVO> secondStudentIdMap = studentList
+        Map<Integer, StudentScreeningProgressVO> secondStudentIdMap = studentList
                 .stream().collect(Collectors.toMap(StudentScreeningProgressVO::getStudentId, Function.identity()));
         first.getStudentScreeningProgressList().forEach(item -> {
             if (Boolean.FALSE.equals(item.getResult())) {
@@ -554,8 +564,8 @@ public class ScreeningAppService {
 
         // 获取学生对应筛查数据
         Map<Integer, ScreeningPlanSchoolStudent> screeningPlanSchoolStudentMap = screeningPlanSchoolStudentList.stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getId, Function.identity()));
-        List<VisionScreeningResult> first = visionScreeningResultService.getByScreeningPlanSchoolStudentIds(screeningPlanSchoolStudentMap.keySet()).stream().filter(item -> !item.getIsDoubleScreen()).collect(Collectors.toList());
-        List<VisionScreeningResult> second = visionScreeningResultService.getByScreeningPlanSchoolStudentIds(screeningPlanSchoolStudentMap.keySet()).stream().filter(VisionScreeningResult::getIsDoubleScreen).collect(Collectors.toList());
+        List<VisionScreeningResult> first = visionScreeningResultService.getByScreeningPlanSchoolStudentIds(screeningPlanSchoolStudentMap.keySet(), false);
+        List<VisionScreeningResult> second = visionScreeningResultService.getByScreeningPlanSchoolStudentIds(screeningPlanSchoolStudentMap.keySet(), true);
 
         ClassScreeningProgressState screeningProgressState = new ClassScreeningProgressState();
         screeningProgressState.setPlanCount((CollectionUtils.size(screeningPlanSchoolStudentList)));
@@ -570,22 +580,41 @@ public class ScreeningAppService {
         // 转换为筛查进度
         List<StudentScreeningProgressVO> firstProgress = screeningPlanSchoolStudentList.stream().map(planStudent -> {
             VisionScreeningResult screeningResult = firstPlanStudentVisionResultMap.get(planStudent.getId());
-            StudentVO studentVO = StudentVO.getInstance(planStudent);
-            return StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO, planStudent);
-        }).collect(Collectors.toList());
+            if (Objects.nonNull(screeningResult)){
+                StudentVO studentVO = StudentVO.getInstance(planStudent);
+                StudentScreeningProgressVO studentProgress = StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO, planStudent);
+                studentProgress.setStudentId(screeningResult.getStudentId());
+                try {
+                    visionScreeningBizService.verifyScreening(screeningResult, screeningResult.getScreeningType() == 1);
+                    studentProgress.setResult(true);
+                } catch (Exception e) {
+                    studentProgress.setResult(false);
+                }
+                return studentProgress;
+            }
+            return null;
+        }).filter(Objects::nonNull).collect(Collectors.toList());
 
         // 转换为筛查进度
         List<StudentScreeningProgressVO> secondProgress = screeningPlanSchoolStudentList.stream().map(planStudent -> {
             VisionScreeningResult screeningResult = secondPlanStudentVisionResultMap.get(planStudent.getId());
             if (Objects.nonNull(screeningResult)) {
                 StudentVO studentVO = StudentVO.getInstance(planStudent);
-                return StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO, planStudent);
+                StudentScreeningProgressVO studentProgress = StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO, planStudent);
+                studentProgress.setStudentId(screeningResult.getStudentId());
+                try {
+                    visionScreeningBizService.verifyScreening(screeningResult, screeningResult.getScreeningType() == 1);
+                    studentProgress.setResult(true);
+                } catch (Exception e) {
+                    studentProgress.setResult(false);
+                }
+                return studentProgress;
             }
             return null;
         }).filter(Objects::nonNull).collect(Collectors.toList());
 
 
-        Map<String, StudentScreeningProgressVO> secondStudentIdMap = secondProgress
+        Map<Integer, StudentScreeningProgressVO> secondStudentIdMap = secondProgress
                 .stream().collect(Collectors.toMap(StudentScreeningProgressVO::getStudentId, Function.identity()));
         firstProgress.forEach(item -> {
             if (Boolean.FALSE.equals(item.getResult())) {
@@ -603,7 +632,7 @@ public class ScreeningAppService {
             }
         });
         screeningProgressState.setReScreeningCount((int) firstProgress.stream().filter(item -> item.getScreeningStatus() != 4).count());
-        screeningProgressState.setNeedReScreeningCount((int) firstProgress.stream().filter(item -> item.getScreeningStatus() == 1).count());
+        screeningProgressState.setNeedReScreeningCount((int) firstProgress.stream().filter(item -> item.getScreeningStatus() == 1 || item.getScreeningStatus() == 3).count());
 
         screeningProgressState.setWearingGlasses((int) firstProgress.stream().filter(item -> item.getScreeningStatus() == 1
                 && Objects.nonNull(firstStudentIdPlan.get(item.getStudentId())) && firstStudentIdPlan.get(item.getStudentId()).getVisionData().getLeftEyeData().getGlassesType() != 0).count());
@@ -611,7 +640,7 @@ public class ScreeningAppService {
                 && Objects.nonNull(firstStudentIdPlan.get(item.getStudentId())) && firstStudentIdPlan.get(item.getStudentId()).getVisionData().getLeftEyeData().getGlassesType() == 0).count());
         screeningProgressState.setRetestRatio(screeningProgressState.getReScreeningCount() == 0 ? BigDecimal.ZERO : new BigDecimal(screeningProgressState.getNeedReScreeningCount()).divide(new BigDecimal(screeningProgressState.getReScreeningCount())));
 
-        screeningProgressState.setRetestStudents(second.stream().map(item -> {
+        screeningProgressState.setRetestStudents(secondProgress.stream().map(item -> {
             RetestStudentVO vo = BeanCopyUtil.copyBeanPropertise(item, RetestStudentVO.class);
             vo.setVisionScreeningResult(new TwoTuple<>(firstStudentIdPlan.get(item.getStudentId()), secondStudentIdPlan.get(item.getStudentId())));
             return numerationSecondCheck(vo);
@@ -630,10 +659,14 @@ public class ScreeningAppService {
      * @return
      */
     private RetestStudentVO numerationSecondCheck(RetestStudentVO retestStudentVO) {
-        VisionDataDO.VisionData secondLeftVision = retestStudentVO.getVisionScreeningResult().getSecond().getVisionData().getLeftEyeData();
-        VisionDataDO.VisionData secondRightVision = retestStudentVO.getVisionScreeningResult().getSecond().getVisionData().getRightEyeData();
-        VisionDataDO.VisionData firstLeftVision = retestStudentVO.getVisionScreeningResult().getFirst().getVisionData().getLeftEyeData();
-        VisionDataDO.VisionData firstRightVision = retestStudentVO.getVisionScreeningResult().getFirst().getVisionData().getRightEyeData();
+        VisionDataDO.VisionData secondLeftVision = Objects.isNull(retestStudentVO.getVisionScreeningResult().getSecond().getVisionData())
+                ? null : retestStudentVO.getVisionScreeningResult().getSecond().getVisionData().getLeftEyeData();
+        VisionDataDO.VisionData secondRightVision = Objects.isNull(retestStudentVO.getVisionScreeningResult().getSecond().getVisionData())
+                ? null : retestStudentVO.getVisionScreeningResult().getSecond().getVisionData().getRightEyeData();
+        VisionDataDO.VisionData firstLeftVision = Objects.isNull(retestStudentVO.getVisionScreeningResult().getFirst().getVisionData())
+                ? null : retestStudentVO.getVisionScreeningResult().getFirst().getVisionData().getLeftEyeData();
+        VisionDataDO.VisionData firstRightVision = Objects.isNull(retestStudentVO.getVisionScreeningResult().getFirst().getVisionData())
+                ? null : retestStudentVO.getVisionScreeningResult().getFirst().getVisionData().getRightEyeData();
 
         if (Objects.nonNull(secondLeftVision) || Objects.nonNull(secondRightVision)) {
             retestStudentVO.setRetestItemCount(retestStudentVO.existCheckVision(secondLeftVision) + retestStudentVO.existCheckVision(secondRightVision));

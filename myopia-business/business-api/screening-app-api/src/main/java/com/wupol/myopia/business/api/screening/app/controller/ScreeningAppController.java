@@ -891,8 +891,7 @@ public class ScreeningAppController {
         if (Objects.isNull(screeningResult)) {
             return false;
         }
-        ScreeningPlan screeningPlan = screeningPlanService.findOne(new ScreeningPlan().setId(screeningResult.getPlanId()));
-        visionScreeningBizService.verifyScreening(screeningResult, screeningPlan.getScreeningType() == 1);
+        visionScreeningBizService.verifyScreening(screeningResult, screeningResult.getScreeningType() == 1);
         return true;
     }
 
