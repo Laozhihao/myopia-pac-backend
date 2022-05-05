@@ -79,7 +79,6 @@ public class ScreeningPlanSchoolStudentFacadeService {
         if (StringUtils.hasLength(query.getGradeIds())) {
             query.setGradeList(Stream.of(StringUtils.commaDelimitedListToStringArray(query.getGradeIds())).map(Integer::parseInt).collect(Collectors.toList()));
         }
-        query.setIsDoubleScreen(0);
         IPage<ScreeningStudentDTO> studentDTOIPage = screeningPlanSchoolStudentService.selectPageByQuery(page, query);
         List<ScreeningStudentDTO> screeningStudentDTOS = studentDTOIPage.getRecords();
         if (CollectionUtils.isEmpty(screeningStudentDTOS)) {

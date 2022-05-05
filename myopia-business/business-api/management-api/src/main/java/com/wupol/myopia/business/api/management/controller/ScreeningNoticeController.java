@@ -199,7 +199,7 @@ public class ScreeningNoticeController {
             query.setType(1);
             query.setGovDeptId(user.getScreeningOrgId());
         }
-        return screeningNoticeDeptOrgBizService.getPage(query, pageRequest,user.getId());
+        return screeningNoticeDeptOrgBizService.getPage(query, pageRequest,user);
     }
 
     /**

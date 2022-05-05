@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.business.api.management.domain.vo.ScreeningNoticeVO;
 import com.wupol.myopia.business.api.management.domain.vo.UserVO;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
@@ -47,7 +48,7 @@ public class ScreeningNoticeDeptOrgBizService {
      * @param pageRequest
      * @return
      */
-    public IPage<ScreeningNoticeVO> getPage(ScreeningNoticeQueryDTO query, PageRequest pageRequest,Integer userId) {
+    public IPage<ScreeningNoticeVO> getPage(ScreeningNoticeQueryDTO query, PageRequest pageRequest, CurrentUser user) {
         Page<ScreeningNotice> page = (Page<ScreeningNotice>) pageRequest.toPage();
         if (StringUtils.isNotBlank(query.getCreatorNameLike())){
             UserDTO userDTO = new UserDTO();
@@ -71,7 +72,7 @@ public class ScreeningNoticeDeptOrgBizService {
                 vo.setGovDeptName(govDeptIdNameMap.getOrDefault(vo.getAcceptOrgId(), ""));
             }
             //判断是否为当前用户创建的通知
-            if (vo.getCreateUserId().equals(userId)){
+            if (vo.getCreateUserId().equals(user.getId()) || user.isPlatformAdminUser()){
                 vo.setIsSelfRelease(ScreeningNotice.IS_SELF_RELEASE);
             }else{
                 vo.setIsSelfRelease(ScreeningNotice.IS_NOT_SELF_RELEASE);
