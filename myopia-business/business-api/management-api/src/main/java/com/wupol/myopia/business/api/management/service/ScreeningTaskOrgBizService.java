@@ -170,7 +170,7 @@ public class ScreeningTaskOrgBizService {
               notStart++;
           }
         }
-        if (DateUtil.betweenDay(screeningPlan.getEndTime(),new Date())<0){
+        if (DateUtil.betweenDay(screeningPlan.getEndTime(),new Date())>0){
             end = underWay + notStart;
             notStart = 0;
             underWay = 0;
