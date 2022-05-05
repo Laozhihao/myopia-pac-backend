@@ -543,7 +543,12 @@ public class ScreeningPlanStudentBizService {
         studentEyeInfo.setAxial(axial);
         //是否复测
         if (visionScreeningResult!=null){
-            studentEyeInfo.setIsDoubleScreen(visionScreeningResult.getIsDoubleScreen());
+            VisionScreeningResult visionScreeningResult1 =  visionScreeningResultService.getIsDoubleScreen(visionScreeningResult.getScreeningPlanSchoolStudentId(),visionScreeningResult.getPlanId(),visionScreeningResult.getScreeningType());
+            if (visionScreeningResult1 != null){
+                studentEyeInfo.setIsDoubleScreen(visionScreeningResult1.getIsDoubleScreen());
+            }else{
+                studentEyeInfo.setIsDoubleScreen(false);
+            }
         }
 
     }

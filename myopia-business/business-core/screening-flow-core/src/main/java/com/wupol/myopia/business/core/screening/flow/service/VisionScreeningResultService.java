@@ -17,6 +17,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
+import com.wupol.myopia.business.core.screening.flow.util.EyeDataUtil;
 import com.wupol.myopia.business.core.screening.flow.util.ReScreenCardUtil;
 import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import org.springframework.beans.BeanUtils;
@@ -450,18 +451,12 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         return visionScreeningResultDTO;
     }
 
-    private BigDecimal getLeftSphericalEquivalent(VisionScreeningResult result) {
-        Optional.ofNullable(result).map(VisionScreeningResult::getSaprodontiaData).orElse(null);
-        BigDecimal sphere = result.getComputerOptometry().getLeftEyeData().getSph();
-        BigDecimal cylinder = result.getComputerOptometry().getLeftEyeData().getCyl();
-        return StatUtil.getSphericalEquivalent(sphere, cylinder);
+    private BigDecimal getLeftSphericalEquivalent(VisionScreeningResult result){
+        return StatUtil.getSphericalEquivalent(EyeDataUtil.leftSph(result),EyeDataUtil.leftCyl(result));
     }
 
-    private BigDecimal getRightSphericalEquivalent(VisionScreeningResult result) {
-        Optional.ofNullable(result).map(VisionScreeningResult::getSaprodontiaData).orElse(null);
-        BigDecimal sphere = result.getComputerOptometry().getRightEyeData().getSph();
-        BigDecimal cylinder = result.getComputerOptometry().getRightEyeData().getCyl();
-        return StatUtil.getSphericalEquivalent(sphere, cylinder);
+    private BigDecimal getRightSphericalEquivalent(VisionScreeningResult result){
+        return StatUtil.getSphericalEquivalent(EyeDataUtil.rightSph(result),EyeDataUtil.rightCyl(result));
     }
 
 
