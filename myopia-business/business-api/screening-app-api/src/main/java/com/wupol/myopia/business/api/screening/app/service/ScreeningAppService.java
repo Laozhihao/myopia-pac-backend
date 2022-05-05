@@ -292,8 +292,8 @@ public class ScreeningAppService {
      * @param screeningOrgId 机构id
      * @return
      */
-    public List<School> getSchoolByScreeningOrgId(Integer screeningOrgId) {
-        List<Integer> schoolIds = screeningPlanService.getScreeningSchoolIdByScreeningOrgId(screeningOrgId);
+    public List<School> getSchoolByScreeningOrgId(Integer screeningOrgId,Integer channel) {
+        List<Integer> schoolIds = screeningPlanService.getScreeningSchoolIdByScreeningOrgId(screeningOrgId, channel);
         return schoolService.getSchoolByIds(schoolIds);
     }
 

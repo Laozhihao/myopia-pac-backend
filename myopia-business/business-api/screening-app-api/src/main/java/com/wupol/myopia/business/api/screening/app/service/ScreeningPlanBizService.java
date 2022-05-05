@@ -85,12 +85,12 @@ public class ScreeningPlanBizService {
      * @param deptId 机构ID
      * @return 学校列表
      */
-    public List<School> getSchoolByOrgId(String schoolName, Integer deptId) {
+    public List<School> getSchoolByOrgId(String schoolName, Integer deptId,Integer channel) {
         if (deptId == null) {
             throw new ManagementUncheckedException("deptId 不能为空");
         }
 
-        List<Integer> schoolIds = screeningPlanService.getScreeningSchoolIdByScreeningOrgId(deptId);
+        List<Integer> schoolIds = screeningPlanService.getScreeningSchoolIdByScreeningOrgId(deptId, channel);
         if (CollectionUtils.isEmpty(schoolIds)) {
             return Collections.emptyList();
         }

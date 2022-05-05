@@ -114,9 +114,9 @@ public class ScreeningAppController {
      * @return
      */
     @GetMapping("/school/findAllLikeSchoolName")
-    public List<School> getSchoolNameByNameLike(String schoolName) {
+    public List<School> getSchoolNameByNameLike(String schoolName,Integer channel) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        return screeningPlanBizService.getSchoolByOrgId(schoolName, currentUser.getOrgId());
+        return screeningPlanBizService.getSchoolByOrgId(schoolName, currentUser.getOrgId(), channel);
     }
 
     /**
@@ -126,12 +126,12 @@ public class ScreeningAppController {
      * @return
      */
     @GetMapping("/school/findAllGradeNameBySchoolName")
-    public List<SchoolGrade> getGradeNameBySchoolName(@NotNull(message = "schoolId不能为空") Integer schoolId, boolean all) {
+    public List<SchoolGrade> getGradeNameBySchoolName(@NotNull(message = "schoolId不能为空") Integer schoolId, boolean all, Integer channel) {
         if (all) {
             //查找全部的年级
             return schoolGradeService.getBySchoolId(schoolId);
         }
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getCurrentPlanStudentByOrgIdAndSchoolId(schoolId, CurrentUserUtil.getCurrentUser().getOrgId());
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getCurrentPlanStudentByOrgIdAndSchoolId(schoolId, CurrentUserUtil.getCurrentUser().getOrgId(), channel);
         if (CollectionUtils.isEmpty(screeningPlanSchoolStudents)) {
             return Collections.emptyList();
         }
@@ -146,11 +146,11 @@ public class ScreeningAppController {
      * @return
      */
     @GetMapping("/school/findAllClazzNameBySchoolNameAndGradeName")
-    public List<SchoolClass> getClassNameBySchoolNameAndGradeName(@NotNull(message = "gradeId不能为空") Integer gradeId, boolean all) {
+    public List<SchoolClass> getClassNameBySchoolNameAndGradeName(@NotNull(message = "gradeId不能为空") Integer gradeId, boolean all, Integer channel) {
         if (all) {
             return schoolClassService.getByGradeId(gradeId);
         }
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getCurrentPlanStudentByGradeIdAndScreeningOrgId(gradeId, CurrentUserUtil.getCurrentUser().getOrgId());
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getCurrentPlanStudentByGradeIdAndScreeningOrgId(gradeId, CurrentUserUtil.getCurrentUser().getOrgId(), channel);
         if (CollectionUtils.isEmpty(screeningPlanSchoolStudents)) {
             return Collections.emptyList();
         }
@@ -208,9 +208,9 @@ public class ScreeningAppController {
      * @return
      */
     @GetMapping("/findSchoolByDeptId")
-    public List<School> listSchoolByScreeningOrgId(Integer deptId) {
+    public List<School> listSchoolByScreeningOrgId(Integer deptId,Integer channel) {
         //筛查机构未完成的学校的信息
-        return screeningAppService.getSchoolByScreeningOrgId(deptId);
+        return screeningAppService.getSchoolByScreeningOrgId(deptId, channel);
     }
 
     /**
@@ -665,8 +665,8 @@ public class ScreeningAppController {
      * @return
      */
     @GetMapping("/getSchoolHasScreeningData")
-    public List<School> getSchoolHasScreeningData() {
-        Set<Integer> currentPlanIds = screeningPlanService.getCurrentPlanIds(CurrentUserUtil.getCurrentUser().getOrgId());
+    public List<School> getSchoolHasScreeningData(Integer channel) {
+        Set<Integer> currentPlanIds = screeningPlanService.getCurrentPlanIds(CurrentUserUtil.getCurrentUser().getOrgId(), channel);
         if (CollectionUtils.isEmpty(currentPlanIds)) {
             return Collections.emptyList();
         }
