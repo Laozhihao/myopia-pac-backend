@@ -169,6 +169,7 @@ public class ScreeningAppController {
      */
     @GetMapping("/school/findAllStudentName")
     public Page<StudentVO> findAllStudentName(Integer schoolId, Integer gradeId, Integer classId, String nameLike,
+                                              @RequestParam(value = "channel", defaultValue = "0") Integer channel,
                                               @RequestParam(value = "current", defaultValue = "1") Integer page,
                                               @RequestParam(value = "size", defaultValue = "60") Integer size) {
         ScreeningStudentQueryDTO screeningStudentQuery = new ScreeningStudentQueryDTO().setScreeningOrgId(CurrentUserUtil.getCurrentUser().getOrgId()).setNameLike(nameLike);
@@ -181,7 +182,7 @@ public class ScreeningAppController {
         if (Objects.nonNull(classId) && classId != -1) {
             screeningStudentQuery.setClassId(classId);
         }
-        IPage<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentPage = screeningPlanSchoolStudentService.getCurrentPlanScreeningStudentList(screeningStudentQuery, page, size);
+        IPage<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentPage = screeningPlanSchoolStudentService.getCurrentPlanScreeningStudentList(screeningStudentQuery, page, size, channel);
         List<StudentVO> studentVOs = screeningPlanSchoolStudentPage.getRecords().stream().map(StudentVO::getInstance).collect(Collectors.toList());
         return new PageImpl<>(studentVOs, PageRequest.of(page - 1, size), screeningPlanSchoolStudentPage.getTotal());
     }
@@ -496,8 +497,9 @@ public class ScreeningAppController {
                                                             @NotNull(message = "年级ID不能为空") Integer gradeId,
                                                             @NotNull(message = "班级ID不能为空") Integer classId,
                                                             @NotNull(message = "初筛标志") Integer isState,
-                                                            Boolean isFilter) {
-        return screeningAppService.getClassScreeningProgress(schoolId, gradeId, classId, CurrentUserUtil.getCurrentUser().getOrgId(), isFilter, isState);
+                                                            Boolean isFilter,
+                                                            @RequestParam(value = "channel", defaultValue = "0") Integer channel) {
+        return screeningAppService.getClassScreeningProgress(schoolId, gradeId, classId, CurrentUserUtil.getCurrentUser().getOrgId(), isFilter, isState, channel);
     }
 
     /**
@@ -941,8 +943,9 @@ public class ScreeningAppController {
     @GetMapping("/school/findAllStudentNameState")
     public ClassScreeningProgress findClassScreeningStudent(@NotNull(message = "学校ID不能为空") Integer schoolId,
                                                             @NotNull(message = "年级ID不能为空") Integer gradeId,
-                                                            @NotNull(message = "班级ID不能为空") Integer classId) {
-        return screeningAppService.findClassScreeningStudent(schoolId, gradeId, classId, CurrentUserUtil.getCurrentUser().getOrgId());
+                                                            @NotNull(message = "班级ID不能为空") Integer classId,
+                                                            @RequestParam(value = "channel", defaultValue = "0") Integer channel) {
+        return screeningAppService.findClassScreeningStudent(schoolId, gradeId, classId, CurrentUserUtil.getCurrentUser().getOrgId(), channel);
     }
 
     /**
@@ -956,7 +959,8 @@ public class ScreeningAppController {
     @GetMapping("/school/findClassScreeningStudentState")
     public ClassScreeningProgressState findClassScreeningStudentState(@NotNull(message = "学校ID不能为空") Integer schoolId,
                                                                       @NotNull(message = "年级ID不能为空") Integer gradeId,
-                                                                      @NotNull(message = "班级ID不能为空") Integer classId) {
-        return screeningAppService.findClassScreeningStudentState(schoolId, gradeId, classId, CurrentUserUtil.getCurrentUser().getOrgId());
+                                                                      @NotNull(message = "班级ID不能为空") Integer classId,
+                                                                      @RequestParam(value = "channel", defaultValue = "0") Integer channel) {
+        return screeningAppService.findClassScreeningStudentState(schoolId, gradeId, classId, CurrentUserUtil.getCurrentUser().getOrgId(), channel);
     }
 }
