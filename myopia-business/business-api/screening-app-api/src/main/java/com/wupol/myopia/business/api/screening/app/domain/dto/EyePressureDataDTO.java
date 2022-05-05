@@ -39,6 +39,7 @@ public class EyePressureDataDTO extends ScreeningResultBasicData {
         EyePressureDataDO.EyePressureData rightEyePressureData = new EyePressureDataDO.EyePressureData().setLateriality(CommonConst.RIGHT_EYE).setPressure(rightPressure);
         EyePressureDataDO eyePressureDataDO = new EyePressureDataDO().setLeftEyeData(leftEyePressureData).setRightEyeData(rightEyePressureData).setIsCooperative(isCooperative);
         eyePressureDataDO.setCreateUserId(getCreateUserId());
+        eyePressureDataDO.setDiagnosis(super.getDiagnosis());
         return visionScreeningResult.setEyePressureData(eyePressureDataDO);
     }
 

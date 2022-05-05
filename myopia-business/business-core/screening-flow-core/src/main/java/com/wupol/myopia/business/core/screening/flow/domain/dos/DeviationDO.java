@@ -18,7 +18,7 @@ import java.util.Arrays;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Data
 @Accessors(chain = true)
-public class DeviationDO implements Serializable{
+public class DeviationDO extends AbstractDiagnosisResult implements Serializable{
     /**
      * 视力或屈光检查误差误差
      */
