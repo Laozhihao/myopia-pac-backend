@@ -59,15 +59,6 @@ public class VisionDataDTO extends ScreeningResultBasicData {
     @JsonProperty("l_ok_degree")
     private BigDecimal leftOkDegree;
 
-    /**
-     * 初步诊断结果：0-正常、1-（疑似）异常
-     */
-    private Integer diagnosis;
-    /**
-     * 是否配合检查：0-配合、1-不配合
-     */
-    private Integer isCooperative;
-
     @Override
     public VisionScreeningResult buildScreeningResultData(VisionScreeningResult visionScreeningResult) {
         VisionDataDO.VisionData leftVisionData = new VisionDataDO.VisionData()
@@ -82,8 +73,8 @@ public class VisionDataDTO extends ScreeningResultBasicData {
                 .setGlassesType(WearingGlassesSituation.getKey(glassesType))
                 .setLateriality(CommonConst.RIGHT_EYE)
                 .setOkDegree(rightOkDegree);
-        VisionDataDO visionDataDO = new VisionDataDO().setRightEyeData(rightVisionData).setLeftEyeData(leftVisionData).setIsCooperative(isCooperative);
-        visionDataDO.setDiagnosis(diagnosis);
+        VisionDataDO visionDataDO = new VisionDataDO().setRightEyeData(rightVisionData).setLeftEyeData(leftVisionData).setIsCooperative(super.getIsCooperative());
+        visionDataDO.setDiagnosis(super.getDiagnosis());
         visionDataDO.setCreateUserId(getCreateUserId());
         return visionScreeningResult.setVisionData(visionDataDO);
     }

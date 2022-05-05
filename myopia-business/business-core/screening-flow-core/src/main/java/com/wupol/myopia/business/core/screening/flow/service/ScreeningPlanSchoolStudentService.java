@@ -77,11 +77,44 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         return baseMapper.selectList(queryWrapper);
     }
 
+    /**
+     * 根据学校ID和筛查机构ID获取计划的学生
+     *
+     * @param schoolId 学校ID
+     * @param deptId 筛查机构ID
+     * @return
+     */
+    public List<ScreeningPlanSchoolStudent> getCurrentPlanStudentByOrgIdAndSchoolId(Integer schoolId, Integer deptId,Integer channel) {
+        if (deptId == null) {
+            throw new ManagementUncheckedException("deptId 不能为空");
+        }
+        Set<Integer> currentPlanIds = screeningPlanService.getCurrentPlanIds(deptId, channel);
+        if (CollectionUtils.isEmpty(currentPlanIds)) {
+            return Collections.emptyList();
+        }
+        LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ScreeningPlanSchoolStudent::getScreeningOrgId, deptId).eq(ScreeningPlanSchoolStudent::getSchoolId, schoolId).in(ScreeningPlanSchoolStudent::getScreeningPlanId, currentPlanIds);
+        return baseMapper.selectList(queryWrapper);
+    }
+
     public List<ScreeningPlanSchoolStudent> getCurrentPlanStudentByGradeIdAndScreeningOrgId(Integer gradeId, Integer screeningOrgId) {
         if (screeningOrgId == null) {
             throw new ManagementUncheckedException("screeningOrgId 不能为空");
         }
         Set<Integer> currentPlanIds = screeningPlanService.getCurrentPlanIds(screeningOrgId);
+        if (CollectionUtils.isEmpty(currentPlanIds)) {
+            return new ArrayList<>();
+        }
+        LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ScreeningPlanSchoolStudent::getScreeningOrgId, screeningOrgId).in(ScreeningPlanSchoolStudent::getScreeningPlanId, currentPlanIds).eq(ScreeningPlanSchoolStudent::getGradeId, gradeId);
+        return baseMapper.selectList(queryWrapper);
+    }
+
+    public List<ScreeningPlanSchoolStudent> getCurrentPlanStudentByGradeIdAndScreeningOrgId(Integer gradeId, Integer screeningOrgId, Integer channel) {
+        if (screeningOrgId == null) {
+            throw new ManagementUncheckedException("screeningOrgId 不能为空");
+        }
+        Set<Integer> currentPlanIds = screeningPlanService.getCurrentPlanIds(screeningOrgId, channel);
         if (CollectionUtils.isEmpty(currentPlanIds)) {
             return new ArrayList<>();
         }

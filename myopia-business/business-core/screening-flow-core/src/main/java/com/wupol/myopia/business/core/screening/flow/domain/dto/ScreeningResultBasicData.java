@@ -36,6 +36,14 @@ public abstract class ScreeningResultBasicData implements ScreeningDataInterface
      * 默认是初筛，app设计如此
      */
     private Integer isState = 0;
+    /**
+     * 初步诊断结果：0-正常、1-（疑似）异常
+     */
+    private Integer diagnosis;
+    /**
+     * 是否配合检查：0-配合、1-不配合
+     */
+    private Integer isCooperative;
 
     public Integer getPlanStudentId() {
         return stringToInteger(planStudentId);

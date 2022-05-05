@@ -37,6 +37,8 @@ public class DeviationDTO extends ScreeningResultBasicData {
         DeviationDO deviationDO = new DeviationDO();
         deviationDO.setHeightWeightDeviation(heightWeightDeviation);
         deviationDO.setVisionOrOptometryDeviation(visionOrOptometryDeviation);
+        deviationDO.setDiagnosis(super.getDiagnosis());
+        deviationDO.setCreateUserId(getCreateUserId());
         return visionScreeningResult.setDeviationData(deviationDO);
     }
 

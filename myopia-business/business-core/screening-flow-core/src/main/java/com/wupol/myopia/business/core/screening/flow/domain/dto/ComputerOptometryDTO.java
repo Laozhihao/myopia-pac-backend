@@ -48,21 +48,13 @@ public class ComputerOptometryDTO extends ScreeningResultBasicData {
      */
     @JsonProperty("l_cyl")
     private BigDecimal lCyl;
-    /**
-     * 初步诊断结果：0-正常、1-（疑似）异常
-     */
-    private Integer diagnosis;
-    /**
-     * 是否配合检查：0-配合、1-不配合
-     */
-    private Integer isCooperative;
 
     @Override
     public VisionScreeningResult buildScreeningResultData(VisionScreeningResult visionScreeningResult) {
         ComputerOptometryDO.ComputerOptometry leftComputerOptometry = new ComputerOptometryDO.ComputerOptometry().setAxial(lAxial).setCyl(lCyl).setSph(lSph).setLateriality(CommonConst.LEFT_EYE);
         ComputerOptometryDO.ComputerOptometry rightComputerOptometry = new ComputerOptometryDO.ComputerOptometry().setAxial(rAxial).setCyl(rCyl).setSph(rSph).setLateriality(CommonConst.RIGHT_EYE);
-        ComputerOptometryDO computerOptometryDO = new ComputerOptometryDO().setRightEyeData(rightComputerOptometry).setLeftEyeData(leftComputerOptometry).setIsCooperative(isCooperative);
-        computerOptometryDO.setDiagnosis(diagnosis);
+        ComputerOptometryDO computerOptometryDO = new ComputerOptometryDO().setRightEyeData(rightComputerOptometry).setLeftEyeData(leftComputerOptometry).setIsCooperative(super.getIsCooperative());
+        computerOptometryDO.setDiagnosis(super.getDiagnosis());
         computerOptometryDO.setCreateUserId(getCreateUserId());
         return visionScreeningResult.setComputerOptometry(computerOptometryDO);
     }
