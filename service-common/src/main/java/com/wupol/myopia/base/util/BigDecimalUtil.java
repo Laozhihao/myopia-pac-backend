@@ -276,6 +276,8 @@ public class BigDecimalUtil {
         BigDecimal retest = Optional.ofNullable(reScreening).orElse(new BigDecimal("0"));
 
         return first.subtract(retest).abs();
+    }
+
     /**
      *
      * @param v1 分子
