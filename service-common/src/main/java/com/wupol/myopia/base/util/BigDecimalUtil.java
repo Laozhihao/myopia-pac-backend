@@ -227,7 +227,6 @@ public class BigDecimalUtil {
         return val1.subtract(val2);
     }
 
-
     /**
      * 判断是否在某个区间，左闭右开区间
      *
@@ -261,9 +260,9 @@ public class BigDecimalUtil {
         BigDecimal first = Optional.ofNullable(firstScreening).orElse(new BigDecimal("0"));
         BigDecimal retest = Optional.ofNullable(reScreening).orElse(new BigDecimal("0"));
 
-        return first.abs().subtract(retest.abs());
+        return first.subtract(retest).abs();
     }
-
+    
     /**
      * 保留2位小数
      * @param value 输入值
@@ -275,4 +274,6 @@ public class BigDecimalUtil {
        }
        return null;
     }
+
+
 }
