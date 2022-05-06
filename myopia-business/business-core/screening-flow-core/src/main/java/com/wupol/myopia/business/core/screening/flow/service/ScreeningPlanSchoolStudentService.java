@@ -276,6 +276,26 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         return selectPlanStudentListByPage(page, size, screeningStudentQuery);
     }
 
+
+    /**
+     * 根据查询条件获取当前进行中的计划的学生
+     *
+     * @param screeningStudentQuery 查询条件
+     * @param page 页码
+     * @param size 条数
+     * @return java.util.List<com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent>
+     **/
+    public IPage<ScreeningPlanSchoolStudent> getCurrentPlanScreeningStudentList(ScreeningStudentQueryDTO screeningStudentQuery, Integer page, Integer size,Integer channel) {
+        // 获取当前计划
+        Set<Integer> currentPlanIds = screeningPlanService.getCurrentPlanIds(screeningStudentQuery.getScreeningOrgId(), channel);
+        if (CollectionUtils.isEmpty(currentPlanIds)) {
+            return new Page<>(page, size);
+        }
+        screeningStudentQuery.setPlanIds(currentPlanIds);
+        return selectPlanStudentListByPage(page, size, screeningStudentQuery);
+    }
+
+
     /**
      * 根据实体条件查询
      *

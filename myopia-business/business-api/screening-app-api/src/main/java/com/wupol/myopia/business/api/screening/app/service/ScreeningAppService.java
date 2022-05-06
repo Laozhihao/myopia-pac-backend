@@ -444,7 +444,7 @@ public class ScreeningAppService {
      * @param classId  班级名称
      * @return com.wupol.myopia.business.api.screening.app.domain.vo.ClassScreeningProgress
      **/
-    public ClassScreeningProgress getClassScreeningProgress(Integer schoolId, Integer gradeId, Integer classId, Integer screeningOrgId, Boolean isFilter, Integer state) {
+    public ClassScreeningProgress getClassScreeningProgress(Integer schoolId, Integer gradeId, Integer classId, Integer screeningOrgId, Boolean isFilter, Integer state,Integer channel) {
         ScreeningPlanSchoolStudent query = new ScreeningPlanSchoolStudent()
                 .setScreeningOrgId(screeningOrgId)
                 .setSchoolId(schoolId)
@@ -459,7 +459,9 @@ public class ScreeningAppService {
 
         // 获取学生对应筛查数据
         Map<Integer, ScreeningPlanSchoolStudent> screeningPlanSchoolStudentMap = screeningPlanSchoolStudentList.stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getId, Function.identity()));
-        List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.getByScreeningPlanSchoolStudentIds(screeningPlanSchoolStudentMap.keySet(), state == 1);
+        List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.getByScreeningPlanSchoolStudentIds(screeningPlanSchoolStudentMap.keySet(), state == 1)
+                .stream().filter(item->item.getScreeningType().equals(channel)).collect(Collectors.toList());
+
         Map<Integer, VisionScreeningResult> planStudentVisionResultMap = visionScreeningResults.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
 
         // 只显示有姓名或有筛查数据的
@@ -523,10 +525,10 @@ public class ScreeningAppService {
         return classScreeningProgress;
     }
 
-    public ClassScreeningProgress findClassScreeningStudent(Integer schoolId, Integer gradeId, Integer classId, Integer screeningOrgId) {
-        ClassScreeningProgress first = getClassScreeningProgress(schoolId, gradeId, classId, screeningOrgId, false, 0);
+    public ClassScreeningProgress findClassScreeningStudent(Integer schoolId, Integer gradeId, Integer classId, Integer screeningOrgId,Integer channel) {
+        ClassScreeningProgress first = getClassScreeningProgress(schoolId, gradeId, classId, screeningOrgId, false, 0, channel);
         Assert.notNull(first.getStudentScreeningProgressList(), "筛查计划不存在");
-        List<StudentScreeningProgressVO> studentList = getClassScreeningProgress(schoolId, gradeId, classId, screeningOrgId, false, 1).getStudentScreeningProgressList();
+        List<StudentScreeningProgressVO> studentList = getClassScreeningProgress(schoolId, gradeId, classId, screeningOrgId, false, 1, channel).getStudentScreeningProgressList();
         // finishCount
         long finishCount = studentList.stream().filter(StudentScreeningProgressVO::getResult).count();
         if (Objects.nonNull(first.getNeedReScreeningCount()) && finishCount >= first.getNeedReScreeningCount()) {
@@ -553,7 +555,7 @@ public class ScreeningAppService {
         return first;
     }
 
-    public ClassScreeningProgressState findClassScreeningStudentState(Integer schoolId, Integer gradeId, Integer classId, Integer screeningOrgId) {
+    public ClassScreeningProgressState findClassScreeningStudentState(Integer schoolId, Integer gradeId, Integer classId, Integer screeningOrgId,Integer channel) {
         ScreeningPlanSchoolStudent query = new ScreeningPlanSchoolStudent()
                 .setScreeningOrgId(screeningOrgId)
                 .setSchoolId(schoolId)
@@ -568,8 +570,10 @@ public class ScreeningAppService {
 
         // 获取学生对应筛查数据
         Map<Integer, ScreeningPlanSchoolStudent> screeningPlanSchoolStudentMap = screeningPlanSchoolStudentList.stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getId, Function.identity()));
-        List<VisionScreeningResult> first = visionScreeningResultService.getByScreeningPlanSchoolStudentIds(screeningPlanSchoolStudentMap.keySet(), false);
-        List<VisionScreeningResult> second = visionScreeningResultService.getByScreeningPlanSchoolStudentIds(screeningPlanSchoolStudentMap.keySet(), true);
+        List<VisionScreeningResult> first = visionScreeningResultService.getByScreeningPlanSchoolStudentIds(screeningPlanSchoolStudentMap.keySet(), false)
+                .stream().filter(item->item.getScreeningType().equals(channel)).collect(Collectors.toList());
+        List<VisionScreeningResult> second = visionScreeningResultService.getByScreeningPlanSchoolStudentIds(screeningPlanSchoolStudentMap.keySet(), true)
+                .stream().filter(item->item.getScreeningType().equals(channel)).collect(Collectors.toList());
 
         ClassScreeningProgressState screeningProgressState = new ClassScreeningProgressState();
         screeningProgressState.setPlanCount((CollectionUtils.size(screeningPlanSchoolStudentList)));
