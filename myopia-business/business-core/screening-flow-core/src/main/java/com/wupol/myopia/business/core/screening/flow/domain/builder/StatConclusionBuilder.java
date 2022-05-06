@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.core.screening.flow.domain.builder;
 
 import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.wupol.framework.core.util.ObjectsUtil;
@@ -9,7 +8,6 @@ import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
-import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
@@ -20,11 +18,11 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -114,6 +112,7 @@ public class StatConclusionBuilder {
         this.setMyopiaLevel();
         this.setHyperopiaLevel();
         this.setAstigmatismLevel();
+        this.isReview();
         return statConclusion;
     }
 
@@ -344,7 +343,29 @@ public class StatConclusionBuilder {
                 basicData.getGlassesType(), basicData.getSchoolAge(), basicData.getAge(), otherEyeDiseasesNormal,
                 currentVisionScreeningResult.getComputerOptometry()).getIsRecommendVisit();
         statConclusion.setIsRecommendVisit(isRecommendVisit);
-        statConclusion.setIsReview(isRecommendVisit);
+    }
+
+
+    private void isReview() {
+        List<Boolean> isReviewList =Lists.newArrayList();
+        Consumer<Boolean> consumerTrue = (flag) -> isReviewList.add(Objects.equals(Boolean.TRUE, flag));
+        Consumer<Boolean> consumerFalse = (flag) -> isReviewList.add(Objects.equals(Boolean.FALSE, flag));
+
+        Optional.ofNullable(statConclusion.getIsLowVision()).ifPresent(consumerTrue);
+        Optional.ofNullable(statConclusion.getIsMyopia()).ifPresent(consumerTrue);
+        Optional.ofNullable(statConclusion.getIsHyperopia()).ifPresent(consumerTrue);
+        Optional.ofNullable(statConclusion.getIsAstigmatism()).ifPresent(consumerTrue);
+        Optional.ofNullable(statConclusion.getIsObesity()).ifPresent(consumerTrue);
+        Optional.ofNullable(statConclusion.getIsOverweight()).ifPresent(consumerTrue);
+        Optional.ofNullable(statConclusion.getIsMalnutrition()).ifPresent(consumerTrue);
+        Optional.ofNullable(statConclusion.getIsStunting()).ifPresent(consumerTrue);
+        Optional.ofNullable(statConclusion.getIsSpinalCurvature()).ifPresent(consumerFalse);
+
+        if (CollectionUtil.isNotEmpty(isReviewList)){
+           boolean isReview  = isReviewList.stream().filter(Objects::nonNull).anyMatch(Boolean::booleanValue);
+           statConclusion.setIsReview(isReview);
+        }
+
     }
 
     private void setRescreenErrorNum() {
