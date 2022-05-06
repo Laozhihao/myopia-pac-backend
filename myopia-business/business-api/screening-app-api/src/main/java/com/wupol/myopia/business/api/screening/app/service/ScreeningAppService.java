@@ -484,14 +484,11 @@ public class ScreeningAppService {
                 StudentVO studentVO = StudentVO.getInstance(planStudent);
                 StudentScreeningProgressVO studentProgress = StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO, planStudent);
                 studentProgress.setStudentId(screeningResult.getStudentId());
-                // 复测的话验证规则
-                if (Boolean.TRUE.equals(screeningResult.getIsDoubleScreen())) {
-                    try {
-                        visionScreeningBizService.verifyScreening(screeningResult, screeningResult.getScreeningType() == 1);
-                        studentProgress.setResult(true);
-                    } catch (Exception e) {
-                        studentProgress.setResult(false);
-                    }
+                try {
+                    visionScreeningBizService.verifyScreening(screeningResult, screeningResult.getScreeningType() == 1);
+                    studentProgress.setResult(true);
+                } catch (Exception e) {
+                    studentProgress.setResult(false);
                 }
                 return studentProgress;
             }
@@ -595,6 +592,12 @@ public class ScreeningAppService {
                 StudentVO studentVO = StudentVO.getInstance(planStudent);
                 StudentScreeningProgressVO studentProgress = StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO, planStudent);
                 studentProgress.setStudentId(screeningResult.getStudentId());
+                try {
+                    visionScreeningBizService.verifyScreening(screeningResult, screeningResult.getScreeningType() == 1);
+                    studentProgress.setResult(true);
+                } catch (Exception e) {
+                    studentProgress.setResult(false);
+                }
                 return studentProgress;
             }
             return null;
