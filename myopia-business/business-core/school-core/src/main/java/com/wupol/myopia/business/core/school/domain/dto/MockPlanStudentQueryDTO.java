@@ -73,4 +73,9 @@ public class MockPlanStudentQueryDTO {
      */
     @Null
     private Set<Integer> screeningPlanIds;
+
+    /**
+     * 筛查类型（0视力筛查，1常见病筛查）
+     */
+    private Integer screeningType;
 }
