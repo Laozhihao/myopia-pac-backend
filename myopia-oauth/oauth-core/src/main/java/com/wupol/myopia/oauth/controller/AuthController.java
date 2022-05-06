@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
+import com.wupol.myopia.base.annotation.LimitedAccess;
 import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.constant.AuthConstants;
@@ -14,9 +15,11 @@ import com.wupol.myopia.oauth.domain.dto.LoginDTO;
 import com.wupol.myopia.oauth.domain.dto.RefreshTokenDTO;
 import com.wupol.myopia.oauth.domain.model.Permission;
 import com.wupol.myopia.oauth.domain.model.User;
+import com.wupol.myopia.oauth.domain.vo.CaptchaImageVO;
 import com.wupol.myopia.oauth.domain.vo.LoginInfoVO;
 import com.wupol.myopia.oauth.domain.vo.TokenInfoVO;
 import com.wupol.myopia.oauth.service.AuthService;
+import com.wupol.myopia.oauth.service.ImageService;
 import com.wupol.myopia.oauth.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +30,7 @@ import org.springframework.security.oauth2.common.exceptions.InvalidTokenExcepti
 import org.springframework.security.oauth2.provider.endpoint.TokenEndpoint;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.security.KeyPair;
@@ -55,8 +59,11 @@ public class AuthController {
     private RedisUtil redisUtil;
     @Autowired
     private UserService userService;
+    @Autowired
+    private ImageService imageService;
 
     private static final String REFRESH_TOKEN_ERROR = "刷新令牌失败";
+
 
     /**
      * 登录
@@ -71,6 +78,10 @@ public class AuthController {
      **/
     @PostMapping("/login")
     public ApiResult login(Principal principal, LoginDTO loginDTO) throws ParseException {
+        //判断图片验证
+        if (!imageService.verify(loginDTO.getVerify())){
+            return ApiResult.failure("图片滑块校验失败!");
+        }
         // 生成token
         loginDTO.setGrant_type(AuthConstants.GRANT_TYPE_PASSWORD);
         Map<String, String> parameters = JSON.parseObject(JSON.toJSONString(loginDTO), new TypeReference<Map<String, String>>(){});
@@ -176,5 +187,17 @@ public class AuthController {
         keyMap.put("privateKey", priKey);
         return ApiResult.success(keyMap);
     }
+
+    /**
+     * 获取验证图片
+     * @param imageId 图片ID
+     */
+    @LimitedAccess
+    @GetMapping("/verify/image")
+    public ApiResult<CaptchaImageVO> getVerifyImage(@RequestParam(required = false) Integer imageId ) {
+        CaptchaImageVO captchaImageVO = imageService.getVerifyImage(imageId);
+        return ApiResult.success(captchaImageVO);
+    }
+
 
 }
