@@ -1259,7 +1259,7 @@ public class StatService {
 
         reScreenResults.forEach(reScreenResult -> {
             VisionScreeningResult first = screeningResultMap.get(reScreenResult.getScreeningPlanSchoolStudentId());
-            reScreeningCardVO.add(ReScreenCardUtil.reScreenResultCard(first, reScreenResult, qualityControllerName));
+            reScreeningCardVO.add(ReScreenCardUtil.reScreenResultCard(first, reScreenResult, qualityControllerName,null));
         });
         return reScreeningCardVO;
     }

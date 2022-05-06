@@ -64,6 +64,15 @@ public class SpineDTO extends ScreeningResultBasicData {
         if (chestWaist.getType() != 1 && Objects.isNull(chestWaist.getLevel())) {
             return false;
         }
+        if (chest.getType().equals(1)) {
+            chest.setLevel(null);
+        }
+        if (waist.getType().equals(1)) {
+            waist.setLevel(null);
+        }
+        if (chestWaist.getType().equals(1)) {
+            chestWaist.setLevel(null);
+        }
         return entirety.getType() == 1 || !Objects.isNull(entirety.getLevel());
     }
 
