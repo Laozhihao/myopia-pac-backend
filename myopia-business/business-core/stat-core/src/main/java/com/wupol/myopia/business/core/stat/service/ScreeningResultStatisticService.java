@@ -193,4 +193,16 @@ public class ScreeningResultStatisticService extends BaseService<ScreeningResult
         queryWrapper.orderByDesc(ScreeningResultStatistic::getUpdateTime);
         return baseMapper.selectList(queryWrapper);
     }
+
+    /**
+     * 通过planId、学校ID获取列表
+     * @param planIds
+     * @param schoolId
+     */
+    public List<ScreeningResultStatistic> getByPlanIdsAndSchoolId(List<Integer> planIds, Integer schoolId) {
+        LambdaQueryWrapper<ScreeningResultStatistic> queryWrapper =new LambdaQueryWrapper<>();
+        queryWrapper.in(ScreeningResultStatistic::getScreeningPlanId,planIds);
+        queryWrapper.eq(ScreeningResultStatistic::getSchoolId,schoolId);
+        return list(queryWrapper);
+    }
 }
