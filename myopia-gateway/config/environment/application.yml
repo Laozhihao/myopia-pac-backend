@@ -153,3 +153,4 @@ white-list:
   - "/management/stat/rescreen/export"
   # 获取档案卡数据统一接口
   - "/management/archive/data"
+  - "/auth/verify/image"

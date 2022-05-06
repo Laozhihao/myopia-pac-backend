@@ -31,3 +31,10 @@ VALUES
        (856, '按学校-查看详情', 'schoolDetail', 'get:/management/screening-statistic/school/schoolStatisticDetail', 0, 0, 1, 30, 1),
        (857, '筛查数据结论', '', 'get:/management/screening-statistic/screeningToConclusion', 0, 0, 1, 30, 1),
        (858, '筛查结果统计', '', 'get:/management/screening-statistic/trigger', 0, 0, 1, 30, 1);
+
+-- 新增验证图片表
+CREATE TABLE `o_verify_image` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `content` blob NOT NULL COMMENT '内容',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  COLLATE=utf8mb4_0900_ai_ci COMMENT='验证图片';
