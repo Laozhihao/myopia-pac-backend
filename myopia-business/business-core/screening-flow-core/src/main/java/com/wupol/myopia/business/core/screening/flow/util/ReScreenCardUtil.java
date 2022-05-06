@@ -24,11 +24,14 @@ public class ReScreenCardUtil {
      * @param firstScreenResult 初筛结果(第一次)
      * @param reScreenResult 复测结果
      * @param qualityControlName 质控员
+     * @param commonDiseasesCode 常见病code
      * @return 复测卡结果
      */
     public ReScreeningCardVO reScreenResultCard(VisionScreeningResult firstScreenResult, VisionScreeningResult reScreenResult,
-                                              String qualityControlName){
+                                              String qualityControlName,String commonDiseasesCode){
         ReScreeningCardVO reScreeningResultCard = new ReScreeningCardVO();
+        reScreeningResultCard.setCommonDiseasesCode(commonDiseasesCode);
+
         VisionVO vision  = new VisionVO();
         //选取视力中左眼的戴镜类型
         vision.setGlassesType(EyeDataUtil.glassesType(reScreenResult));
