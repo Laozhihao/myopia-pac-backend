@@ -459,46 +459,46 @@ public class EyeDataUtil {
      */
     private static SaprodontiaDataDODTO calculationTooth(List<SaprodontiaDataDO.SaprodontiaItem> items) {
         SaprodontiaDataDODTO saprodontiaDataDODTO = new SaprodontiaDataDODTO();
-        int dCountDeciduous = 0;
-        int mCountDeciduous = 0;
-        int fFountDeciduous = 0;
+        int dDeciduous = 0;
+        int mDeciduous = 0;
+        int fDeciduous = 0;
 
-        int dFountPermanent = 0;
-        int mFountPermanent = 0;
-        int fFountPermanent = 0;
+        int dPermanent = 0;
+        int mPermanent = 0;
+        int fPermanent = 0;
         for (SaprodontiaDataDO.SaprodontiaItem item: items){
             if (item!=null){
                 if (SaprodontiaType.DECIDUOUS_D.getName().equals(item.getDeciduous())){
-                    dCountDeciduous++;
+                    dDeciduous++;
                 }
                 if (SaprodontiaType.DECIDUOUS_M.getName().equals(item.getDeciduous())){
-                    mCountDeciduous++;
+                    mDeciduous++;
                 }
                 if (SaprodontiaType.DECIDUOUS_F.getName().equals(item.getDeciduous())){
-                    fFountDeciduous++;
+                    fDeciduous++;
                 }
 
                 if (SaprodontiaType.PERMANENT_D.getName().equals(item.getPermanent())){
-                    dFountPermanent++;
+                    dPermanent++;
                 }
                 if (SaprodontiaType.PERMANENT_M.getName().equals(item.getPermanent())){
-                    mFountPermanent++;
+                    mPermanent++;
                 }
                 if (SaprodontiaType.PERMANENT_F.getName().equals(item.getPermanent())){
-                    fFountPermanent++;
+                    fPermanent++;
                 }
             }
         }
 
         SaprodontiaStatItem deciduousTooth = new SaprodontiaStatItem();
-        deciduousTooth.setDCount(dCountDeciduous);
-        deciduousTooth.setFCount(mCountDeciduous);
-        deciduousTooth.setMCount(fFountDeciduous);
+        deciduousTooth.setDCount(dDeciduous);
+        deciduousTooth.setMCount(mDeciduous);
+        deciduousTooth.setFCount(fDeciduous);
 
         SaprodontiaStatItem permanentTooth = new SaprodontiaStatItem();
-        permanentTooth.setDCount(dFountPermanent);
-        permanentTooth.setFCount(mFountPermanent);
-        permanentTooth.setMCount(fFountPermanent);
+        permanentTooth.setDCount(dPermanent);
+        permanentTooth.setMCount(mPermanent);
+        permanentTooth.setFCount(fPermanent);
 
         saprodontiaDataDODTO.setDeciduousTooth(deciduousTooth);
         saprodontiaDataDODTO.setPermanentTooth(permanentTooth);

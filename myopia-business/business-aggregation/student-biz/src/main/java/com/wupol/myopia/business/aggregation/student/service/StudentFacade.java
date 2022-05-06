@@ -127,8 +127,8 @@ public class StudentFacade {
         if (Objects.nonNull(screeningPlanSchools)){
             qualityControlName = screeningPlanSchools.get(0).getQualityControllerName();
         }
-
-        return ReScreenCardUtil.reScreenResultCard(screeningResult,retestResult,qualityControlName);
+        //TODO 等待传入常见病code
+        return ReScreenCardUtil.reScreenResultCard(screeningResult,retestResult,qualityControlName,null);
     }
 
 
@@ -231,7 +231,7 @@ public class StudentFacade {
             item.setScreeningOrgName(getScreeningOrganizationName(screeningOrganizationMap.get(result.getScreeningOrgId())));
             //设置学生性别
             item.setGender(studentDTO.getGender());
-            //TODO 设置常见病
+            //TODO 设置常见病CODE
             item.setCommonDiseasesCode("次处写死，等待志豪的返回值");
 
             records.add(item);

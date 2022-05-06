@@ -274,9 +274,8 @@ public class BigDecimalUtil {
     public static BigDecimal subtractAbsBigDecimal(BigDecimal firstScreening, BigDecimal reScreening) {
         BigDecimal first = Optional.ofNullable(firstScreening).orElse(new BigDecimal("0"));
         BigDecimal retest = Optional.ofNullable(reScreening).orElse(new BigDecimal("0"));
-        return first.subtract(retest).abs();
-    }
 
+        return first.subtract(retest).abs();
     /**
      *
      * @param v1 分子
