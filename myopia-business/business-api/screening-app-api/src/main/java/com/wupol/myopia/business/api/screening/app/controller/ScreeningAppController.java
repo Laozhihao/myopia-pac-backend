@@ -411,11 +411,12 @@ public class ScreeningAppController {
             Integer size,
             @RequestParam boolean isRandom,
             @RequestParam(value = "gradeName", required = false) String gradeName,
-            @RequestParam(value = "clazzName", required = false) String clazzName) throws JsonProcessingException {
+            @RequestParam(value = "clazzName", required = false) String clazzName,
+            @RequestParam(value = "channel", defaultValue = "0") Integer channel) throws JsonProcessingException {
 
         gradeName = StringUtils.isBlank(gradeName) ? null : gradeName;
         clazzName = StringUtils.isBlank(clazzName) ? null : clazzName;
-        return screeningAppService.getStudentReview(schoolId, gradeName, clazzName, deptId, studentName, current, size, isRandom);
+        return screeningAppService.getStudentReview(schoolId, gradeName, clazzName, deptId, studentName, current, size, isRandom, channel);
     }
 
     /**
@@ -434,7 +435,7 @@ public class ScreeningAppController {
      * @return
      */
     @PostMapping("/student/save")
-    public ApiResult saveStudent(@RequestBody AppStudentDTO appStudentDTO) throws ParseException {
+    public ApiResult saveStudent(@RequestBody AppStudentDTO appStudentDTO,@RequestParam(value = "channel", defaultValue = "0") Integer channel) throws ParseException {
         appStudentDTO.checkStudentInfo();
         appStudentDTO.setDeptId(CurrentUserUtil.getCurrentUser().getOrgId());
         ApiResult apiResult = screeningAppService.validStudentParam(appStudentDTO);
@@ -455,7 +456,7 @@ public class ScreeningAppController {
             // app 就是这么干的。
             return ApiResult.failure(ErrorEnum.UNKNOWN_ERROR.getCode(), e.getMessage());
         }
-        ScreeningPlan currentPlan = screeningPlanService.getCurrentPlan(CurrentUserUtil.getCurrentUser().getOrgId(), appStudentDTO.getSchoolId().intValue());
+        ScreeningPlan currentPlan = screeningPlanService.getCurrentPlan(CurrentUserUtil.getCurrentUser().getOrgId(), appStudentDTO.getSchoolId().intValue(), channel);
 
         if (currentPlan == null) {
             log.error("根据orgId = [{}]，以及schoolId = [{}] 无法找到计划。", CurrentUserUtil.getCurrentUser().getOrgId(), appStudentDTO.getSchoolId());

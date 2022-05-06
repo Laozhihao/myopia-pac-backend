@@ -284,8 +284,8 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      * @param schoolId
      * @return
      */
-    public ScreeningPlan getCurrentPlan(Integer screeningOrgId, Integer schoolId) {
-        return baseMapper.selectScreeningPlanDetailByOrgIdAndSchoolId(schoolId, screeningOrgId, ScreeningConstant.SCREENING_RELEASE_STATUS, new Date());
+    public ScreeningPlan getCurrentPlan(Integer screeningOrgId, Integer schoolId, Integer channel) {
+        return baseMapper.selectScreeningPlanDetailByOrgIdAndSchoolId(schoolId, screeningOrgId, ScreeningConstant.SCREENING_RELEASE_STATUS, new Date(), channel);
     }
 
     /**
