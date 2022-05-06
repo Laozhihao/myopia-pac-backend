@@ -686,8 +686,8 @@ public class ScreeningAppController {
      * @return
      */
     @GetMapping("/getLatestScreeningStudent")
-    public ScreeningPlanSchoolStudent getLatestScreeningStudent() {
-        Set<Integer> currentPlanIds = screeningPlanService.getCurrentPlanIds(CurrentUserUtil.getCurrentUser().getOrgId());
+    public ScreeningPlanSchoolStudent getLatestScreeningStudent(@RequestParam(value = "channel", defaultValue = "0") Integer channel) {
+        Set<Integer> currentPlanIds = screeningPlanService.getCurrentPlanIds(CurrentUserUtil.getCurrentUser().getOrgId(), channel);
         if (CollectionUtils.isEmpty(currentPlanIds)) {
             return new ScreeningPlanSchoolStudent();
         }
