@@ -115,6 +115,8 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         if (checkIdCardAndPassport(student.getIdCard(), student.getPassport(), null)) {
             throw new BusinessException("学生身份证、护照重复");
         }
+        student.setIdCard(StringUtils.isEmpty(student.getIdCard())?null:student.getIdCard());
+        student.setPassport(StringUtils.isEmpty(student.getPassport())?null:student.getPassport());
         baseMapper.insert(student);
         return student.getId();
     }
@@ -315,7 +317,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
                 studentQueryDTO.getParentPhone(), studentQueryDTO.getGender(), conditionalFilter.getFirst(),
                 conditionalFilter.getSecond(), studentQueryDTO.getStartScreeningTime(), studentQueryDTO.getEndScreeningTime(),
                 studentQueryDTO.getSchoolName(), studentQueryDTO.getSchoolId(), studentQueryDTO.getGradeId(), studentQueryDTO.getClassId(), studentQueryDTO.getPassport(),
-                studentQueryDTO.getIdCardOrPassportLike(),studentQueryDTO.getBirthdayLike());
+                studentQueryDTO.getIdCardOrPassportLike(), studentQueryDTO.getBirthdayLike());
     }
 
     /**
@@ -523,7 +525,6 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     public Student getAllByIdCard(String idCard) {
         return baseMapper.getAllByIdCard(idCard);
     }
-
 
 
     /**
