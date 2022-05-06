@@ -175,6 +175,7 @@ public class StudentScreeningProgressVO {
         studentScreeningProgressVO.setDiseasesHistoryStatus(getProgress(screeningResult.getDiseasesHistoryData(),false));
         studentScreeningProgressVO.setPrivacyStatus(getProgress(screeningResult.getPrivacyData(),false));
 
+        studentScreeningProgressVO.setStudentId(screeningResult.getId());
         studentScreeningProgressVO.setClazz(studentVO.getClazz());
         studentScreeningProgressVO.setResult(isAllMustCheckDone.get());
         isAllMustCheckDone.remove();
