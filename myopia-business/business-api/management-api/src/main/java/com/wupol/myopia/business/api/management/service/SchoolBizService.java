@@ -32,7 +32,6 @@ import com.wupol.myopia.business.core.screening.flow.service.StatRescreenService
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.stat.domain.model.ScreeningResultStatistic;
-import com.wupol.myopia.business.core.stat.service.SchoolVisionStatisticService;
 import com.wupol.myopia.business.core.stat.service.ScreeningResultStatisticService;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
@@ -67,8 +66,6 @@ public class SchoolBizService {
     private DistrictService districtService;
     @Autowired
     private ScreeningPlanService screeningPlanService;
-    @Autowired
-    private SchoolVisionStatisticService schoolVisionStatisticService;
     @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
     @Autowired
