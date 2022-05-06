@@ -511,13 +511,13 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
 
         SaprodontiaStatItem deciduousTooth = new SaprodontiaStatItem();
         deciduousTooth.setDCount(dCountDeciduous);
-        deciduousTooth.setFCount(mCountDeciduous);
-        deciduousTooth.setMCount(fFountDeciduous);
+        deciduousTooth.setMCount(mCountDeciduous);
+        deciduousTooth.setFCount(fFountDeciduous);
 
         SaprodontiaStatItem permanentTooth = new SaprodontiaStatItem();
         permanentTooth.setDCount(dFountPermanent);
-        permanentTooth.setFCount(mFountPermanent);
-        permanentTooth.setMCount(fFountPermanent);
+        permanentTooth.setMCount(mFountPermanent);
+        permanentTooth.setFCount(fFountPermanent);
 
         saprodontiaDataDTO.setDeciduousTooth(deciduousTooth);
         saprodontiaDataDTO.setPermanentTooth(permanentTooth);
