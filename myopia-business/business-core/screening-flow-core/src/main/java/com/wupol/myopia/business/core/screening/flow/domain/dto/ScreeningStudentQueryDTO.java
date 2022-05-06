@@ -153,6 +153,7 @@ public class ScreeningStudentQueryDTO extends StudentExtraDTO {
                 .setIdCardOrPassportLike(mockPlanStudentQueryDTO.getIdCardOrPassportLike())
                 .setPassportLike(mockPlanStudentQueryDTO.getPassportLike())
                 .setSchoolNameLike(mockPlanStudentQueryDTO.getSchoolNameLike())
+                .setScreeningType(mockPlanStudentQueryDTO.getScreeningType())
                 .setGender(mockPlanStudentQueryDTO.getGender());
         return screeningStudentQueryDTO;
     }
