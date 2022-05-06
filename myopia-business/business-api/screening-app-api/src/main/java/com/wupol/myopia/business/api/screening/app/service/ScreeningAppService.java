@@ -484,11 +484,14 @@ public class ScreeningAppService {
                 StudentVO studentVO = StudentVO.getInstance(planStudent);
                 StudentScreeningProgressVO studentProgress = StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO, planStudent);
                 studentProgress.setStudentId(screeningResult.getStudentId());
-                try {
-                    visionScreeningBizService.verifyScreening(screeningResult, screeningResult.getScreeningType() == 1);
-                    studentProgress.setResult(true);
-                } catch (Exception e) {
-                    studentProgress.setResult(false);
+                // 复测的话验证规则
+                if (Boolean.TRUE.equals(screeningResult.getIsDoubleScreen())) {
+                    try {
+                        visionScreeningBizService.verifyScreening(screeningResult, screeningResult.getScreeningType() == 1);
+                        studentProgress.setResult(true);
+                    } catch (Exception e) {
+                        studentProgress.setResult(false);
+                    }
                 }
                 return studentProgress;
             }
@@ -515,7 +518,7 @@ public class ScreeningAppService {
                 .setAbnormalCount((int) studentScreeningProgressList.stream().filter(StudentScreeningProgressVO::getHasAbnormal).count())
                 .setUnfinishedCount((int) studentScreeningProgressList.stream().filter(x -> !x.getResult()).count())
                 .setNeedReScreeningCount(needCount)
-                .setSchoolAge(studentScreeningProgressList.get(0).getGradeType())
+                .setSchoolAge(studentScreeningProgressList.isEmpty() ? null : studentScreeningProgressList.get(0).getGradeType())
                 // 统计筛查情况，只要有一条是人造的数据，则整个班级数据标记为人造的
                 .setArtificial(screeningPlanSchoolStudentList.stream().anyMatch(x -> Objects.nonNull(x.getArtificial()) && x.getArtificial() == 1))
                 .setFinishedCount((int) studentScreeningProgressList.stream().filter(StudentScreeningProgressVO::getResult).count());
@@ -592,12 +595,6 @@ public class ScreeningAppService {
                 StudentVO studentVO = StudentVO.getInstance(planStudent);
                 StudentScreeningProgressVO studentProgress = StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO, planStudent);
                 studentProgress.setStudentId(screeningResult.getStudentId());
-                try {
-                    visionScreeningBizService.verifyScreening(screeningResult, screeningResult.getScreeningType() == 1);
-                    studentProgress.setResult(true);
-                } catch (Exception e) {
-                    studentProgress.setResult(false);
-                }
                 return studentProgress;
             }
             return null;
