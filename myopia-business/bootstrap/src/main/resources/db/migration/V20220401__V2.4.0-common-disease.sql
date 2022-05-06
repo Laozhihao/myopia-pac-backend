@@ -100,3 +100,6 @@ alter table m_stat_rescreen
 
 alter table m_stat_rescreen
     add physique_incorrect_ratio float(10, 2) null comment '体格-错误率/发生率';
+
+alter table m_school
+    modify type tinyint not null comment '学校类型 0-小学,1-初级中学,2-高级中学,3-完全中学,4-九年一贯制学校,5-十二年一贯制学校,6-职业高中,7其他,8幼儿园,9大学';
