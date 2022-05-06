@@ -262,7 +262,7 @@ public class BigDecimalUtil {
 
         return first.subtract(retest).abs();
     }
-    
+
     /**
      * 保留2位小数
      * @param value 输入值
