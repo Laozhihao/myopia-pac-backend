@@ -126,7 +126,7 @@ public class ScreeningAppService {
      * @return
      * @throws JsonProcessingException
      */
-    public List<SysStudent> getStudentReview(Integer schoolId, String gradeName, String clazzName, Integer screeningOrgId, String studentName, Integer page, Integer size, boolean isRandom) throws JsonProcessingException {
+    public List<SysStudent> getStudentReview(Integer schoolId, String gradeName, String clazzName, Integer screeningOrgId, String studentName, Integer page, Integer size, boolean isRandom, Integer channel) throws JsonProcessingException {
         Set<Integer> currentPlanIds = screeningPlanService.getCurrentPlanIds(screeningOrgId);
         if (CollectionUtils.isEmpty(currentPlanIds)) {
             return new ArrayList<>();
@@ -136,7 +136,7 @@ public class ScreeningAppService {
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents;
         if (isRandom) {
             screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getBaseMapper().selectList(screeningPlanSchoolStudentLambdaQueryWrapper);
-            ScreeningPlan currentPlan = screeningPlanService.getCurrentPlan(screeningOrgId, schoolId);
+            ScreeningPlan currentPlan = screeningPlanService.getCurrentPlan(screeningOrgId, schoolId, channel);
             String cacheKey = "app:" + screeningOrgId + currentPlan.getId() + schoolId + gradeName + clazzName;
             screeningPlanSchoolStudents = getRandomData(screeningPlanSchoolStudents, cacheKey, currentPlan.getEndTime());
         } else {
@@ -483,7 +483,6 @@ public class ScreeningAppService {
             if (Objects.nonNull(screeningResult)) {
                 StudentVO studentVO = StudentVO.getInstance(planStudent);
                 StudentScreeningProgressVO studentProgress = StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO, planStudent);
-                studentProgress.setStudentId(screeningResult.getStudentId());
                 try {
                     visionScreeningBizService.verifyScreening(screeningResult, screeningResult.getScreeningType() == 1);
                     studentProgress.setResult(true);

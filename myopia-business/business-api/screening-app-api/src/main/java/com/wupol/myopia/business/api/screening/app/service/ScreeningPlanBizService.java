@@ -67,6 +67,7 @@ public class ScreeningPlanBizService {
                 .setGradeType(GradeCodeEnum.getByName(gradeName).getType())
                 .setClassId(student.getClassId())
                 .setClassName(clazzName)
+                .setSchoolName(schoolName)
                 .setBirthday(student.getBirthday())
                 .setGender(student.getGender())
                 .setStudentAge(AgeUtil.countAge(student.getBirthday()))

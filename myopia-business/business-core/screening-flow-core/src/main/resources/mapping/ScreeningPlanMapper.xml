@@ -55,6 +55,7 @@
         and sps.school_id = #{schoolId}
         and <![CDATA[ DATE(p.`start_time`) <= DATE(#{currentDate})]]> and
                     <![CDATA[ DATE(p.`end_time`) >= DATE(#{currentDate})]]>
+          and p.screening_type = #{channel}
     </select>
 
     <select id="getPlanLists" resultMap="BaseResultDTOMap">
