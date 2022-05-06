@@ -37,4 +37,4 @@ CREATE TABLE `o_verify_image` (
   `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
   `content` blob NOT NULL COMMENT '内容',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  COLLATE=utf8mb4_0900_ai_ci COMMENT='验证图片';
+) ENGINE=InnoDB  COMMENT='验证图片';

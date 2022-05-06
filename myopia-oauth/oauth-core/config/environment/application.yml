@@ -107,3 +107,7 @@ management:
   endpoint:
     health:
       show-details: always
+
+myopia:
+  login:
+    captchaOff: false
