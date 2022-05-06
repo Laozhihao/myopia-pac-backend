@@ -510,8 +510,15 @@ public class ScreeningAppController {
      * @return com.wupol.myopia.business.core.screening.flow.domain.vo.StudentScreeningProgressVO
      **/
     @GetMapping("/student/progress/{planStudentId}")
-    public StudentScreeningProgressVO getStudentScreeningProgress(@PathVariable Integer planStudentId, @RequestParam(value = "isState", defaultValue = "0") Integer isState) {
-        VisionScreeningResult screeningResult = visionScreeningResultService.findOne(new VisionScreeningResult().setScreeningPlanSchoolStudentId(planStudentId).setIsDoubleScreen(isState == 1));
+    public StudentScreeningProgressVO getStudentScreeningProgress(
+            @PathVariable Integer planStudentId,
+            @RequestParam(value = "isState", defaultValue = "0") Integer isState,
+            @RequestParam(value = "channel", defaultValue = "0") Integer channel) {
+        VisionScreeningResult screeningResult = visionScreeningResultService.findOne(new VisionScreeningResult()
+                .setScreeningPlanSchoolStudentId(planStudentId)
+                .setIsDoubleScreen(isState == 1)
+                .setScreeningType(channel)
+        );
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getById(planStudentId);
         StudentVO studentVO = StudentVO.getInstance(screeningPlanSchoolStudent);
         return StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO, screeningPlanSchoolStudent);
