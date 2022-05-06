@@ -1254,7 +1254,7 @@ public class StatService {
         List<VisionScreeningResult> reScreenResults = resultList.stream().filter(VisionScreeningResult::getIsDoubleScreen).collect(Collectors.toList());
 
         // 获取初筛数据
-        List<VisionScreeningResult> screeningResults = resultList.stream().filter(VisionScreeningResult::getIsDoubleScreen).collect(Collectors.toList());
+        List<VisionScreeningResult> screeningResults = resultList.stream().filter(s->Boolean.FALSE.equals(s.getIsDoubleScreen())).collect(Collectors.toList());
         Map<Integer, VisionScreeningResult> screeningResultMap = screeningResults.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
 
         reScreenResults.forEach(reScreenResult -> {
