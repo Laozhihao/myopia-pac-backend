@@ -79,7 +79,7 @@ public class AuthController {
     @PostMapping("/login")
     public ApiResult login(Principal principal, LoginDTO loginDTO) throws ParseException {
         //判断图片验证
-        if (!imageService.verify(loginDTO.getVerify())){
+        if (!imageService.verify(loginDTO.getVerify(),loginDTO.getClient_id())){
             return ApiResult.failure("图片滑块校验失败!");
         }
         // 生成token

@@ -3,6 +3,7 @@ package com.wupol.myopia.oauth.service;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.wupol.myopia.base.cache.RedisUtil;
+import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.oauth.domain.model.VerifyImage;
 import com.wupol.myopia.oauth.domain.vo.CaptchaImageVO;
 import lombok.RequiredArgsConstructor;
@@ -57,9 +58,8 @@ public class ImageService {
         return verify;
     }
 
-
-    public Boolean verify(String verify){
-        if (Objects.equals(captchaOff,Boolean.TRUE)){
+    public Boolean verify(String verify,String clientId){
+        if (Objects.equals(captchaOff,Boolean.TRUE) && Objects.equals(SystemCode.MANAGEMENT_CLIENT.getCode().toString(),clientId)){
             if (StrUtil.isNotBlank(verify)){
                 String[] split = verify.split(StrUtil.UNDERLINE);
                 Integer imageId = null;
