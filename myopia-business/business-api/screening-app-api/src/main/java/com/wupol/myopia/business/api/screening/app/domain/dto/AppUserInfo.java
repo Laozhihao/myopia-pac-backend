@@ -37,4 +37,8 @@ public class AppUserInfo implements Serializable {
      */
     private String autImage;
 
+    /**
+     * 手机号码
+     */
+    private String phone;
 }

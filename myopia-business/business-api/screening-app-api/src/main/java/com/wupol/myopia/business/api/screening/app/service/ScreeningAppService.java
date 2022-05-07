@@ -382,6 +382,7 @@ public class ScreeningAppService {
         appUserInfo.setUserId(currentUser.getId());
         appUserInfo.setDeptName(screeningOrganization.getName());
         appUserInfo.setDeptId(screeningOrganization.getId());
+        appUserInfo.setPhone(screeningOrganization.getPhone());
         ScreeningOrganizationStaff screeningOrganizationStaff = screeningOrganizationStaffService.findOne(new ScreeningOrganizationStaff().setUserId(currentUser.getId()));
         if (screeningOrganizationStaff == null) {
             throw new BusinessException("无法找到该员工");
