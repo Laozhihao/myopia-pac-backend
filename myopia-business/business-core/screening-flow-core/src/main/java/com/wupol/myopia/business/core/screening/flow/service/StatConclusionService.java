@@ -330,5 +330,15 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
         return baseMapper.getByResultId(resultId);
     }
 
+    /**
+     * 通过筛查学生获取
+     *
+     * @param planId 计划Id
+     * @return StatConclusion
+     */
+    public List<StatConclusion> getReviewByPlanIdAndSchoolIds(Integer planId, List<Integer> schoolIds) {
+        return baseMapper.getReviewByPlanIdAndSchoolIds(planId, schoolIds);
+    }
+
 }
 
