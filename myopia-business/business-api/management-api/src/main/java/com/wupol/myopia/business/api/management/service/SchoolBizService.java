@@ -88,7 +88,6 @@ public class SchoolBizService {
     public List<SchoolResponseDTO> getSchoolListByDistrictId(SchoolQueryDTO schoolQueryDTO) {
         Assert.notNull(schoolQueryDTO.getDistrictId(), "层级id不能为空");
         schoolQueryDTO.setDistrictIds(districtService.getProvinceAllDistrictIds(schoolQueryDTO.getDistrictId())).setDistrictId(null);
-        schoolQueryDTO.setStatus(CommonConst.STATUS_NOT_DELETED);
         // 查询
         List<School> schoolList = schoolService.getBy(schoolQueryDTO);
         // 为空直接返回
