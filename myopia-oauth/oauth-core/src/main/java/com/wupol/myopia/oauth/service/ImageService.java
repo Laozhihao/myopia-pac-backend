@@ -33,6 +33,9 @@ public class ImageService {
     public static final Integer CAPTCHA_EXPIRATION = 120;
     public static final String SUFFIX = "_myopia";
 
+    /**
+     * 图片验证开关
+     */
     @Value("${myopia.login.captchaOff:true}")
     private Boolean captchaOff;
 
