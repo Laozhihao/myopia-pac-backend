@@ -72,7 +72,7 @@ public class ScreeningNoticeDeptOrgBizService {
                 vo.setGovDeptName(govDeptIdNameMap.getOrDefault(vo.getAcceptOrgId(), ""));
             }
             //判断是否为当前用户创建的通知
-            if (vo.getCreateUserId().equals(user.getId()) || user.isPlatformAdminUser()){
+            if (user.getId().equals(vo.getCreateUserId()) || user.isPlatformAdminUser()){
                 vo.setIsSelfRelease(ScreeningNotice.IS_SELF_RELEASE);
             }else{
                 vo.setIsSelfRelease(ScreeningNotice.IS_NOT_SELF_RELEASE);
