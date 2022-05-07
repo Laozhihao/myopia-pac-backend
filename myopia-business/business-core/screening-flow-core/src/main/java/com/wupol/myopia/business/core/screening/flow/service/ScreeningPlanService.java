@@ -248,7 +248,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
         List<ScreeningPlanSchool> screeningPlanSchools = screeningPlanSchoolService.getScreeningSchoolsByScreeningOrgId(screeningOrgId);
         List<Integer> planIds = screeningPlanSchools.stream().map(ScreeningPlanSchool::getScreeningPlanId).collect(Collectors.toList());
         List<Integer> planChannelIds = baseMapper.selectList(new LambdaQueryWrapper<ScreeningPlan>()
-                .in(ScreeningPlan::getId, planIds).eq(ScreeningPlan::getScreeningType, channel))
+                .in(!planIds.isEmpty(),ScreeningPlan::getId, planIds).eq(ScreeningPlan::getScreeningType, channel))
                 .stream().map(ScreeningPlan::getId).collect(Collectors.toList());
         return screeningPlanSchools.stream().filter(item -> planChannelIds.contains(item.getScreeningPlanId())).map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toList());
     }
@@ -272,7 +272,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
         List<ScreeningPlanSchool> screeningPlanSchools = screeningPlanSchoolService.getScreeningSchoolsByScreeningOrgId(deptId);
         List<Integer> planIds = screeningPlanSchools.stream().map(ScreeningPlanSchool::getScreeningPlanId).collect(Collectors.toList());
         List<Integer> planChannelIds = baseMapper.selectList(new LambdaQueryWrapper<ScreeningPlan>()
-                .in(ScreeningPlan::getId, planIds).eq(ScreeningPlan::getScreeningType, channel))
+                .in(!planIds.isEmpty(),ScreeningPlan::getId, planIds).eq(ScreeningPlan::getScreeningType, channel))
                 .stream().map(ScreeningPlan::getId).collect(Collectors.toList());
         return screeningPlanSchools.stream().filter(item -> planChannelIds.contains(item.getScreeningPlanId())).map(ScreeningPlanSchool::getScreeningPlanId).collect(Collectors.toSet());
     }
