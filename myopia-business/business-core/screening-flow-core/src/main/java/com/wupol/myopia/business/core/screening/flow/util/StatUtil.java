@@ -1017,10 +1017,13 @@ public class StatUtil {
      * @param height 身高 m
      */
     public static BigDecimal bmi(BigDecimal weight, BigDecimal height) {
-        if (ObjectsUtil.hasNull(weight,height)){
+        if (ObjectsUtil.hasNull(weight, height)) {
             return null;
         }
         BigDecimal heightSquare = height.multiply(height).divide(new BigDecimal("10000"));
+        if (heightSquare.compareTo(BigDecimal.ZERO) == 0) {
+            return BigDecimal.ZERO;
+        }
         return weight.divide(heightSquare, 1, RoundingMode.HALF_UP);
     }
 

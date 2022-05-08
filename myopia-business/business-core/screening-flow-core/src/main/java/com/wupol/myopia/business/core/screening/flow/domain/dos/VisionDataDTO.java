@@ -123,13 +123,5 @@ public class VisionDataDTO extends ScreeningResultBasicData {
     public BigDecimal getLeftNakedVision() {
         return BigDecimalUtil.keepDecimalPlaces(leftNakedVision, 1);
     }
-
-    public BigDecimal getRightOkDegree() {
-        return BigDecimalUtil.keepDecimalPlaces(rightOkDegree, 1);
-    }
-
-    public BigDecimal getLeftOkDegree() {
-        return BigDecimalUtil.keepDecimalPlaces(leftOkDegree, 1);
-    }
 }
 
