@@ -365,7 +365,8 @@ public class ScreeningResultStatisticBuilder {
                 .filter(sc->Objects.equals(Boolean.FALSE,sc.getIsNormalBloodPressure())).count();
 
         int reviewStudentNum = (int) statConclusions.stream()
-                .filter(ScreeningResultStatisticBuilder::review).count();
+                .map(StatConclusion::getIsReview)
+                .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
 
         commonDiseaseDO.setOverweightNum(overweightNum).setOverweightRatio(MathUtil.ratio(overweightNum,realScreeningStudentNum))
                 .setObeseNum(obeseNum).setObeseRatio(MathUtil.ratio(obeseNum,realScreeningStudentNum))

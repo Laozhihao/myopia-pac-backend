@@ -2,6 +2,7 @@ package com.wupol.myopia.business.aggregation.screening.domain.dto;
 
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.common.utils.util.AgeUtil;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
@@ -126,6 +127,7 @@ public class UpdatePlanStudentRequestDTO {
             screeningPlanSchoolStudent.setStudentNo(getSno());
         }
         screeningPlanSchoolStudent.setNation(getNation());
+        screeningPlanSchoolStudent.setStudentAge(AgeUtil.countAge(getBirthday()));
         return screeningPlanSchoolStudent;
     }
 }

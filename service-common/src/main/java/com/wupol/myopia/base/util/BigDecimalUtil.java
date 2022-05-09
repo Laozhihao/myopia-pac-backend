@@ -275,7 +275,7 @@ public class BigDecimalUtil {
         BigDecimal first = Optional.ofNullable(firstScreening).orElse(new BigDecimal("0"));
         BigDecimal retest = Optional.ofNullable(reScreening).orElse(new BigDecimal("0"));
 
-        return first.abs().subtract(retest.abs());
+        return first.subtract(retest).abs();
     }
 
     /**

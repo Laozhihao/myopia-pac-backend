@@ -121,6 +121,11 @@ public class ScreeningStudentQueryDTO extends StudentExtraDTO {
     private Integer isDoubleScreen;
 
     /**
+     * 筛查类型（0视力筛查，1常见病筛查）
+     */
+    private Integer screeningType;
+
+    /**
      * 创建ScreeningStudentQueryDTO, 当入参为null时, 返回null;
      * @param mockPlanStudentQueryDTO
      * @return
@@ -148,6 +153,7 @@ public class ScreeningStudentQueryDTO extends StudentExtraDTO {
                 .setIdCardOrPassportLike(mockPlanStudentQueryDTO.getIdCardOrPassportLike())
                 .setPassportLike(mockPlanStudentQueryDTO.getPassportLike())
                 .setSchoolNameLike(mockPlanStudentQueryDTO.getSchoolNameLike())
+                .setScreeningType(mockPlanStudentQueryDTO.getScreeningType())
                 .setGender(mockPlanStudentQueryDTO.getGender());
         return screeningStudentQueryDTO;
     }

@@ -144,12 +144,14 @@
                mspss.screening_plan_id as planId,
                mspss.screening_org_id,
                mspss.passport,
-               mspss.state
+               mspss.state,
+               msp.screening_type
         FROM m_screening_plan_school_student mspss
         left join m_school ms on ms.id = mspss.school_id
         left join m_school_grade sg on sg.id = mspss.grade_id
         left join m_school_class sc on sc.id = mspss.class_id
         left join m_vision_screening_result vsc on vsc.screening_plan_school_student_id = mspss.id
+        left join m_screening_plan msp on msp.id = mspss.screening_plan_id
         <where>
             <trim prefixOverrides="and">
                 and (vsc.is_double_screen is null or vsc.is_double_screen != 1)
@@ -204,9 +206,10 @@
                 <if test="param.idCardOrPassportLike != null and param.idCardOrPassportLike != ''">
                     and (mspss.`id_card` like CONCAT('%', #{param.idCardOrPassportLike}, '%') or mspss.`passport` like CONCAT('%', #{param.idCardOrPassportLike}, '%'))
                 </if>
-                <if test="param.isDoubleScreen != null">
-                    and vsc.is_double_screen = #{param.isDoubleScreen}
+                <if test="param.screeningType != null">
+                    and msp.screening_type = #{param.screeningType}
                 </if>
+                    and (ISNULL(vsc.is_double_screen) or vsc.is_double_screen = 0)
             </trim>
                 order by mspss.id desc
         </where>

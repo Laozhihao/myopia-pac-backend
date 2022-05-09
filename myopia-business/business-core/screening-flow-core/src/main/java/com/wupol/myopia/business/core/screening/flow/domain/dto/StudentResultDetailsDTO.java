@@ -24,6 +24,10 @@ public class StudentResultDetailsDTO {
      * 佩戴眼镜的类型： @{link com.wupol.myopia.business.common.constant.WearingGlassesSituation}
      */
     private String glassesType;
+    /**
+     * 夜戴角膜塑形镜的度数
+     */
+    private BigDecimal okDegree;
 
     /**
      * 矫正视力

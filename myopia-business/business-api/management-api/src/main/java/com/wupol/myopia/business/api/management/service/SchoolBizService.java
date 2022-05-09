@@ -30,10 +30,9 @@ import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchool
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatRescreenService;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
-import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationAdminService;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
-import com.wupol.myopia.business.core.stat.domain.model.SchoolVisionStatistic;
-import com.wupol.myopia.business.core.stat.service.SchoolVisionStatisticService;
+import com.wupol.myopia.business.core.stat.domain.model.ScreeningResultStatistic;
+import com.wupol.myopia.business.core.stat.service.ScreeningResultStatisticService;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
@@ -59,39 +58,26 @@ public class SchoolBizService {
 
     @Autowired
     private SchoolService schoolService;
-
     @Autowired
     private SchoolAdminService schoolAdminService;
-
     @Autowired
     private ScreeningPlanSchoolService screeningPlanSchoolService;
-
     @Autowired
     private DistrictService districtService;
-
     @Autowired
     private ScreeningPlanService screeningPlanService;
-
-    @Autowired
-    private SchoolVisionStatisticService schoolVisionStatisticService;
-
     @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
-
-    @Autowired
-    private ScreeningOrganizationAdminService screeningOrganizationAdminService;
-
     @Autowired
     private GovDeptService govDeptService;
-
     @Autowired
     private StudentService studentService;
-
     @Resource
     private OauthServiceClient oauthServiceClient;
-
     @Autowired
     private StatRescreenService statRescreenService;
+    @Autowired
+    private ScreeningResultStatisticService screeningResultStatisticService;
 
     /**
      * 根据层级Id获取学校列表（带是否有计划字段）
@@ -102,7 +88,6 @@ public class SchoolBizService {
     public List<SchoolResponseDTO> getSchoolListByDistrictId(SchoolQueryDTO schoolQueryDTO) {
         Assert.notNull(schoolQueryDTO.getDistrictId(), "层级id不能为空");
         schoolQueryDTO.setDistrictIds(districtService.getProvinceAllDistrictIds(schoolQueryDTO.getDistrictId())).setDistrictId(null);
-        schoolQueryDTO.setStatus(CommonConst.STATUS_NOT_DELETED);
         // 查询
         List<School> schoolList = schoolService.getBy(schoolQueryDTO);
         // 为空直接返回
@@ -143,13 +128,12 @@ public class SchoolBizService {
         List<ScreeningPlanResponseDTO> plans = planPages.getRecords();
 
         if (!CollectionUtils.isEmpty(plans)) {
-            List<Integer> planIds = plans.stream().map(ScreeningPlanResponseDTO::getId).collect(Collectors.toList());
+            Set<Integer> planIds = plans.stream().map(ScreeningPlanResponseDTO::getId).collect(Collectors.toSet());
             // 学校统计信息
-            List<SchoolVisionStatistic> schoolStatistics = schoolVisionStatisticService
-                    .getByPlanIdsAndSchoolId(planIds, schoolId);
-            Map<Integer, SchoolVisionStatistic> statisticMaps = schoolStatistics
+            List<ScreeningResultStatistic> screeningResultStatisticList = screeningResultStatisticService.getByPlanIdsAndSchoolId(Lists.newArrayList(planIds),schoolId);
+            Map<Integer, ScreeningResultStatistic> statisticMaps = screeningResultStatisticList
                     .stream()
-                    .collect(Collectors.toMap(SchoolVisionStatistic::getScreeningPlanId, Function.identity()));
+                    .collect(Collectors.toMap(ScreeningResultStatistic::getScreeningPlanId, Function.identity()));
 
             // 获取筛查机构
             List<Integer> orgIds = plans.stream()
@@ -164,14 +148,14 @@ public class SchoolBizService {
             // 封装DTO
             plans.forEach(plan -> {
                 plan.setOrgName(orgMaps.get(plan.getScreeningOrgId()));
-                SchoolVisionStatistic schoolVisionStatistic = statisticMaps.get(plan.getId());
-                if (null == schoolVisionStatistic) {
+                ScreeningResultStatistic screeningResultStatistic = statisticMaps.get(plan.getId());
+                if (Objects.isNull(screeningResultStatistic)) {
                     plan.setItems(new ArrayList<>());
                 } else {
                     SchoolVisionStatisticItem item = new SchoolVisionStatisticItem();
                     ScreeningPlanSchool screeningPlanSchool = planSchoolMap.get(plan.getId());
-                    BeanUtils.copyProperties(schoolVisionStatistic, item);
-                    item.setHasRescreenReport(statRescreenService.hasRescreenReport(plan.getId(), schoolVisionStatistic.getSchoolId()));
+                    BeanUtils.copyProperties(screeningResultStatistic, item);
+                    item.setHasRescreenReport(statRescreenService.hasRescreenReport(plan.getId(), screeningResultStatistic.getSchoolId()));
                     item.setQualityControllerName(screeningPlanSchool.getQualityControllerName());
                     item.setQualityControllerCommander(screeningPlanSchool.getQualityControllerCommander());
                     plan.setItems(Lists.newArrayList(item));

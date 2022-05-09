@@ -612,10 +612,8 @@ public class ScreeningPlanController {
         List<Integer> studentIds = Collections.singletonList(planStudentId);
         List<VisionScreeningResult> visionScreeningResults =  visionScreeningResultService.getByStudentIdsAndPlanId(planId,studentIds,VisionScreeningResult.NOT_RETEST);
         List<VisionScreeningResult> doubleScreeningResults =  visionScreeningResultService.getByStudentIdsAndPlanId(planId,studentIds,VisionScreeningResult.RETEST);
+
         return ApiResult.success(visionScreeningResultService.getStudentEyeByStudentId(visionScreeningResults,doubleScreeningResults));
-
-
-
     }
 
     /**
