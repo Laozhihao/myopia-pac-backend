@@ -16,10 +16,7 @@ import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBi
 import com.wupol.myopia.business.api.screening.app.domain.dto.AppStudentDTO;
 import com.wupol.myopia.business.api.screening.app.domain.dto.AppUserInfo;
 import com.wupol.myopia.business.api.screening.app.domain.dto.SysStudent;
-import com.wupol.myopia.business.api.screening.app.domain.vo.ClassScreeningProgress;
-import com.wupol.myopia.business.api.screening.app.domain.vo.ClassScreeningProgressState;
-import com.wupol.myopia.business.api.screening.app.domain.vo.RescreeningResultVO;
-import com.wupol.myopia.business.api.screening.app.domain.vo.RetestStudentVO;
+import com.wupol.myopia.business.api.screening.app.domain.vo.*;
 import com.wupol.myopia.business.api.screening.app.enums.ErrorEnum;
 import com.wupol.myopia.business.api.screening.app.enums.StudentExcelEnum;
 import com.wupol.myopia.business.api.screening.app.enums.SysEnum;
@@ -292,7 +289,7 @@ public class ScreeningAppService {
      * @param screeningOrgId 机构id
      * @return
      */
-    public List<School> getSchoolByScreeningOrgId(Integer screeningOrgId,Integer channel) {
+    public List<School> getSchoolByScreeningOrgId(Integer screeningOrgId, Integer channel) {
         List<Integer> schoolIds = screeningPlanService.getScreeningSchoolIdByScreeningOrgId(screeningOrgId, channel);
         return schoolService.getSchoolByIds(schoolIds);
     }
@@ -445,7 +442,7 @@ public class ScreeningAppService {
      * @param classId  班级名称
      * @return com.wupol.myopia.business.api.screening.app.domain.vo.ClassScreeningProgress
      **/
-    public ClassScreeningProgress getClassScreeningProgress(Integer schoolId, Integer gradeId, Integer classId, Integer screeningOrgId, Boolean isFilter, Integer state,Integer channel) {
+    public ClassScreeningProgress getClassScreeningProgress(Integer schoolId, Integer gradeId, Integer classId, Integer screeningOrgId, Boolean isFilter, Integer state, Integer channel) {
         ScreeningPlanSchoolStudent query = new ScreeningPlanSchoolStudent()
                 .setScreeningOrgId(screeningOrgId)
                 .setSchoolId(schoolId)
@@ -461,7 +458,7 @@ public class ScreeningAppService {
         // 获取学生对应筛查数据
         Map<Integer, ScreeningPlanSchoolStudent> screeningPlanSchoolStudentMap = screeningPlanSchoolStudentList.stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getId, Function.identity()));
         List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.getByScreeningPlanSchoolStudentIds(screeningPlanSchoolStudentMap.keySet(), state == 1)
-                .stream().filter(item->item.getScreeningType().equals(channel)).collect(Collectors.toList());
+                .stream().filter(item -> item.getScreeningType().equals(channel)).collect(Collectors.toList());
 
         Map<Integer, VisionScreeningResult> planStudentVisionResultMap = visionScreeningResults.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
 
@@ -525,7 +522,7 @@ public class ScreeningAppService {
         return classScreeningProgress;
     }
 
-    public ClassScreeningProgress findClassScreeningStudent(Integer schoolId, Integer gradeId, Integer classId, Integer screeningOrgId,Integer channel) {
+    public ClassScreeningProgress findClassScreeningStudent(Integer schoolId, Integer gradeId, Integer classId, Integer screeningOrgId, Integer channel) {
         ClassScreeningProgress first = getClassScreeningProgress(schoolId, gradeId, classId, screeningOrgId, false, 0, channel);
         Assert.notNull(first.getStudentScreeningProgressList(), "筛查计划不存在");
         List<StudentScreeningProgressVO> studentList = getClassScreeningProgress(schoolId, gradeId, classId, screeningOrgId, false, 1, channel).getStudentScreeningProgressList();
@@ -555,7 +552,7 @@ public class ScreeningAppService {
         return first;
     }
 
-    public ClassScreeningProgressState findClassScreeningStudentState(Integer schoolId, Integer gradeId, Integer classId, Integer screeningOrgId,Integer channel) {
+    public ClassScreeningProgressState findClassScreeningStudentState(Integer schoolId, Integer gradeId, Integer classId, Integer screeningOrgId, Integer channel) {
         ScreeningPlanSchoolStudent query = new ScreeningPlanSchoolStudent()
                 .setScreeningOrgId(screeningOrgId)
                 .setSchoolId(schoolId)
@@ -571,9 +568,9 @@ public class ScreeningAppService {
         // 获取学生对应筛查数据
         Map<Integer, ScreeningPlanSchoolStudent> screeningPlanSchoolStudentMap = screeningPlanSchoolStudentList.stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getId, Function.identity()));
         List<VisionScreeningResult> first = visionScreeningResultService.getByScreeningPlanSchoolStudentIds(screeningPlanSchoolStudentMap.keySet(), false)
-                .stream().filter(item->item.getScreeningType().equals(channel)).collect(Collectors.toList());
+                .stream().filter(item -> item.getScreeningType().equals(channel)).collect(Collectors.toList());
         List<VisionScreeningResult> second = visionScreeningResultService.getByScreeningPlanSchoolStudentIds(screeningPlanSchoolStudentMap.keySet(), true)
-                .stream().filter(item->item.getScreeningType().equals(channel)).collect(Collectors.toList());
+                .stream().filter(item -> item.getScreeningType().equals(channel)).collect(Collectors.toList());
 
         ClassScreeningProgressState screeningProgressState = new ClassScreeningProgressState();
         screeningProgressState.setPlanCount((CollectionUtils.size(screeningPlanSchoolStudentList)));
@@ -588,7 +585,7 @@ public class ScreeningAppService {
         // 转换为筛查进度
         List<StudentScreeningProgressVO> firstProgress = screeningPlanSchoolStudentList.stream().map(planStudent -> {
             VisionScreeningResult screeningResult = firstPlanStudentVisionResultMap.get(planStudent.getId());
-            if (Objects.nonNull(screeningResult)){
+            if (Objects.nonNull(screeningResult)) {
                 StudentVO studentVO = StudentVO.getInstance(planStudent);
                 StudentScreeningProgressVO studentProgress = StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO, planStudent);
                 studentProgress.setStudentId(screeningResult.getStudentId());
@@ -650,9 +647,16 @@ public class ScreeningAppService {
 
         screeningProgressState.setRetestStudents(secondProgress.stream().map(item -> {
             RetestStudentVO vo = BeanCopyUtil.copyBeanPropertise(item, RetestStudentVO.class);
-            vo.setVisionScreeningResult(new TwoTuple<>(firstStudentIdPlan.get(item.getStudentId()), secondStudentIdPlan.get(item.getStudentId())));
+            VisionScreeningResult firstPlan = firstStudentIdPlan.get(item.getStudentId());
+            // 当视力，屈光不配合时不参与复测
+            if ((Objects.nonNull(firstPlan.getVisionData()) && firstPlan.getVisionData().getIsCooperative() == 1)
+                    || (Objects.nonNull(firstPlan.getComputerOptometry()) && firstPlan.getComputerOptometry().getIsCooperative() == 1)) {
+                return null;
+            }
+            vo.setVisionScreeningResult(new TwoTuple<>(firstPlan, secondStudentIdPlan.get(item.getStudentId())));
+            vo.setStudentVisionScreeningResult(new TwoTuple<>(ScreeningResultDataVO.getInstance(firstPlan), ScreeningResultDataVO.getInstance(secondStudentIdPlan.get(item.getStudentId()))));
             return numerationSecondCheck(vo);
-        }).collect(Collectors.toList()));
+        }).filter(Objects::nonNull).collect(Collectors.toList()));
 
         screeningProgressState.setErrorItemCount(screeningProgressState.getRetestStudents().stream().mapToInt(RetestStudentVO::getErrorItemCount).sum());
         screeningProgressState.setRetestItemCount(screeningProgressState.getRetestStudents().stream().mapToInt(RetestStudentVO::getRetestItemCount).sum());
@@ -682,12 +686,12 @@ public class ScreeningAppService {
         }
 
         ComputerOptometryDO.ComputerOptometry secondLeftComputerOptometry = Objects.isNull(retestStudentVO.getVisionScreeningResult().getSecond().getComputerOptometry()) ? null : retestStudentVO.getVisionScreeningResult().getSecond().getComputerOptometry().getLeftEyeData();
-        ComputerOptometryDO.ComputerOptometry secondRightComputerOptometry = Objects.isNull(retestStudentVO.getVisionScreeningResult().getSecond().getComputerOptometry()) ? null :retestStudentVO.getVisionScreeningResult().getSecond().getComputerOptometry().getRightEyeData();
-        ComputerOptometryDO.ComputerOptometry firstLeftComputerOptometry = Objects.isNull(retestStudentVO.getVisionScreeningResult().getFirst().getComputerOptometry()) ? null :retestStudentVO.getVisionScreeningResult().getFirst().getComputerOptometry().getLeftEyeData();
-        ComputerOptometryDO.ComputerOptometry firstRightComputerOptometry = Objects.isNull(retestStudentVO.getVisionScreeningResult().getFirst().getComputerOptometry()) ? null :retestStudentVO.getVisionScreeningResult().getFirst().getComputerOptometry().getRightEyeData();
+        ComputerOptometryDO.ComputerOptometry secondRightComputerOptometry = Objects.isNull(retestStudentVO.getVisionScreeningResult().getSecond().getComputerOptometry()) ? null : retestStudentVO.getVisionScreeningResult().getSecond().getComputerOptometry().getRightEyeData();
+        ComputerOptometryDO.ComputerOptometry firstLeftComputerOptometry = Objects.isNull(retestStudentVO.getVisionScreeningResult().getFirst().getComputerOptometry()) ? null : retestStudentVO.getVisionScreeningResult().getFirst().getComputerOptometry().getLeftEyeData();
+        ComputerOptometryDO.ComputerOptometry firstRightComputerOptometry = Objects.isNull(retestStudentVO.getVisionScreeningResult().getFirst().getComputerOptometry()) ? null : retestStudentVO.getVisionScreeningResult().getFirst().getComputerOptometry().getRightEyeData();
 
         if (Objects.nonNull(secondLeftComputerOptometry) || Objects.nonNull(secondRightComputerOptometry)) {
-            retestStudentVO.setRetestItemCount(retestStudentVO.existCheckComputerOptometry(secondLeftComputerOptometry)+retestStudentVO.existCheckComputerOptometry(secondRightComputerOptometry));
+            retestStudentVO.setRetestItemCount(retestStudentVO.existCheckComputerOptometry(secondLeftComputerOptometry) + retestStudentVO.existCheckComputerOptometry(secondRightComputerOptometry));
             retestStudentVO.setErrorItemCount(retestStudentVO.checkComputerOptometry(firstLeftComputerOptometry, secondLeftComputerOptometry, retestStudentVO) + retestStudentVO.checkComputerOptometry(firstRightComputerOptometry, secondRightComputerOptometry, retestStudentVO));
         }
 

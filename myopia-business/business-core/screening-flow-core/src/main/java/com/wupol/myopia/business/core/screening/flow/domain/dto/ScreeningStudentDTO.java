@@ -175,4 +175,8 @@ public class ScreeningStudentDTO extends StudentDO {
      */
     private Integer screeningType;
 
+    /**
+     * 出生年月
+     */
+    private Date birthday;
 }
