@@ -531,12 +531,12 @@ public class ScreeningAppController {
      * @return com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO
      **/
     @GetMapping("/getComputerOptometryData/{planStudentId}")
-    public ComputerOptometryDTO getComputerOptometryData(@PathVariable Integer planStudentId, @RequestParam(value = "isState", defaultValue = "0") Integer isState) {
+    public ApiResult getComputerOptometryData(@PathVariable Integer planStudentId, @RequestParam(value = "isState", defaultValue = "0") Integer isState) {
         VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentIdAndState(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId(), isState);
         if (Objects.isNull(screeningResult)) {
-            return new ComputerOptometryDTO();
+            return ApiResult.success();
         }
-        return ComputerOptometryDTO.getInstance(screeningResult.getComputerOptometry());
+        return ApiResult.success(ComputerOptometryDTO.getInstance(screeningResult.getComputerOptometry()));
     }
 
     /**
@@ -546,12 +546,12 @@ public class ScreeningAppController {
      * @return com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO
      **/
     @GetMapping("/getVisionData/{planStudentId}")
-    public VisionDataDTO getVisionData(@PathVariable Integer planStudentId, @RequestParam(value = "isState", defaultValue = "0") Integer isState) {
+    public ApiResult getVisionData(@PathVariable Integer planStudentId, @RequestParam(value = "isState", defaultValue = "0") Integer isState) {
         VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentIdAndState(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId(), isState);
         if (Objects.isNull(screeningResult)) {
-            return new VisionDataDTO();
+            return ApiResult.success();
         }
-        return VisionDataDTO.getInstance(screeningResult.getVisionData());
+        return ApiResult.success(VisionDataDTO.getInstance(screeningResult.getVisionData()));
     }
 
     /**
@@ -561,12 +561,12 @@ public class ScreeningAppController {
      * @return com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO
      **/
     @GetMapping("/getBiologyData/{planStudentId}")
-    public BiometricDataDTO getBiologyData(@PathVariable Integer planStudentId) {
+    public ApiResult getBiologyData(@PathVariable Integer planStudentId) {
         VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentId(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId());
         if (Objects.isNull(screeningResult)) {
-            return new BiometricDataDTO();
+            return ApiResult.success();
         }
-        return BiometricDataDTO.getInstance(screeningResult.getBiometricData());
+        return ApiResult.success(BiometricDataDTO.getInstance(screeningResult.getBiometricData()));
     }
 
     /**
@@ -576,12 +576,12 @@ public class ScreeningAppController {
      * @return com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO
      **/
     @GetMapping("/getPupilOptometryData/{planStudentId}")
-    public PupilOptometryDTO getPupilOptometryData(@PathVariable Integer planStudentId) {
+    public ApiResult getPupilOptometryData(@PathVariable Integer planStudentId) {
         VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentId(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId());
         if (Objects.isNull(screeningResult)) {
-            return new PupilOptometryDTO();
+            return ApiResult.success();
         }
-        return PupilOptometryDTO.getInstance(screeningResult.getPupilOptometryData());
+        return ApiResult.success(PupilOptometryDTO.getInstance(screeningResult.getPupilOptometryData()));
     }
 
     /**
@@ -591,12 +591,12 @@ public class ScreeningAppController {
      * @return com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO
      **/
     @GetMapping("/getEyePressureData/{planStudentId}")
-    public EyePressureDataDTO getEyePressureData(@PathVariable Integer planStudentId) {
+    public ApiResult getEyePressureData(@PathVariable Integer planStudentId) {
         VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentId(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId());
         if (Objects.isNull(screeningResult)) {
-            return new EyePressureDataDTO();
+            return ApiResult.success();
         }
-        return EyePressureDataDTO.getInstance(screeningResult.getEyePressureData());
+        return ApiResult.success(EyePressureDataDTO.getInstance(screeningResult.getEyePressureData()));
     }
 
     /**
@@ -759,12 +759,12 @@ public class ScreeningAppController {
      * @return com.wupol.myopia.business.core.screening.flow.domain.dos.SaprodontiaDataDO
      **/
     @GetMapping("/saprodontia/{planStudentId}")
-    public SaprodontiaDTO getSaprodontia(@PathVariable Integer planStudentId) {
+    public ApiResult getSaprodontia(@PathVariable Integer planStudentId) {
         VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentId(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId());
         if (Objects.isNull(screeningResult)) {
-            return new SaprodontiaDTO();
+            return ApiResult.success();
         }
-        return SaprodontiaDTO.getInstance(screeningResult.getSaprodontiaData());
+        return ApiResult.success(SaprodontiaDTO.getInstance(screeningResult.getSaprodontiaData()));
     }
 
     /**
@@ -789,12 +789,12 @@ public class ScreeningAppController {
      * @return com.wupol.myopia.business.core.screening.flow.domain.dos.SpineDataDO
      **/
     @GetMapping("/spine/{planStudentId}")
-    public SpineDTO getSpine(@PathVariable Integer planStudentId) {
+    public ApiResult getSpine(@PathVariable Integer planStudentId) {
         VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentId(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId());
         if (Objects.isNull(screeningResult)) {
-            return new SpineDTO();
+            return ApiResult.success();
         }
-        return SpineDTO.getInstance(screeningResult.getSpineData());
+        return ApiResult.success(SpineDTO.getInstance(screeningResult.getSpineData()));
     }
 
     /**
@@ -819,12 +819,12 @@ public class ScreeningAppController {
      * @return com.wupol.myopia.business.core.screening.flow.domain.dos.BloodPressureDataDO
      **/
     @GetMapping("/bloodPressure/{planStudentId}")
-    public BloodPressureDTO getBloodPressure(@PathVariable Integer planStudentId) {
+    public ApiResult getBloodPressure(@PathVariable Integer planStudentId) {
         VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentId(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId());
         if (Objects.isNull(screeningResult)) {
-            return new BloodPressureDTO();
+            return ApiResult.success();
         }
-        return BloodPressureDTO.getInstance(screeningResult.getBloodPressureData());
+        return ApiResult.success(BloodPressureDTO.getInstance(screeningResult.getBloodPressureData()));
     }
 
 
@@ -850,12 +850,12 @@ public class ScreeningAppController {
      * @return com.wupol.myopia.business.core.screening.flow.domain.dos.BloodPressureDataDO
      **/
     @GetMapping("/diseasesHistory/{planStudentId}")
-    public DiseasesHistoryDTO getDiseasesHistory(@PathVariable Integer planStudentId) {
+    public ApiResult getDiseasesHistory(@PathVariable Integer planStudentId) {
         VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentId(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId());
         if (Objects.isNull(screeningResult)) {
-            return new DiseasesHistoryDTO();
+            return ApiResult.success();
         }
-        return DiseasesHistoryDTO.getInstance(screeningResult.getDiseasesHistoryData());
+        return ApiResult.success(DiseasesHistoryDTO.getInstance(screeningResult.getDiseasesHistoryData()));
     }
 
 
@@ -881,12 +881,12 @@ public class ScreeningAppController {
      * @return com.wupol.myopia.business.core.screening.flow.domain.dos.BloodPressureDataDO
      **/
     @GetMapping("/privacy/{planStudentId}")
-    public PrivacyDTO getPrivacy(@PathVariable Integer planStudentId) {
+    public ApiResult getPrivacy(@PathVariable Integer planStudentId) {
         VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentId(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId());
         if (Objects.isNull(screeningResult)) {
-            return new PrivacyDTO();
+            return ApiResult.success();
         }
-        return PrivacyDTO.getInstance(screeningResult.getPrivacyData());
+        return ApiResult.success(PrivacyDTO.getInstance(screeningResult.getPrivacyData()));
     }
 
     /**
