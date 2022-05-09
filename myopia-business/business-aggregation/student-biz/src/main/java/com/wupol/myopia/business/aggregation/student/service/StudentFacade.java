@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.aggregation.student.service;
 
 import cn.hutool.core.date.DateUtil;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.ObjectsUtil;
@@ -302,6 +303,12 @@ public class StudentFacade {
             // 眼部疾病
             packageOtherEyeDiseasesResult(result, leftDetails, rightDetails);
         }
+
+        if (null != result.getOtherEyeDiseases()) {
+            // 眼部疾病
+            packageOtherEyeDiseasesResult(result, leftDetails, rightDetails);
+        }
+
         return Lists.newArrayList(rightDetails, leftDetails);
     }
 
@@ -317,12 +324,16 @@ public class StudentFacade {
         leftDetails.setGlassesType(WearingGlassesSituation.getType(result.getVisionData().getLeftEyeData().getGlassesType()));
         leftDetails.setCorrectedVision(result.getVisionData().getLeftEyeData().getCorrectedVision());
         leftDetails.setNakedVision(result.getVisionData().getLeftEyeData().getNakedVision());
+        leftDetails.setOkDegree(result.getVisionData().getLeftEyeData().getOkDegree());
 
         // 右眼-视力检查结果
         rightDetails.setGlassesType(WearingGlassesSituation.getType(result.getVisionData().getRightEyeData().getGlassesType()));
         rightDetails.setCorrectedVision(result.getVisionData().getRightEyeData().getCorrectedVision());
         rightDetails.setNakedVision(result.getVisionData().getRightEyeData().getNakedVision());
+        rightDetails.setOkDegree(result.getVisionData().getRightEyeData().getOkDegree());
     }
+
+
 
     /**
      * 封装电脑验光
