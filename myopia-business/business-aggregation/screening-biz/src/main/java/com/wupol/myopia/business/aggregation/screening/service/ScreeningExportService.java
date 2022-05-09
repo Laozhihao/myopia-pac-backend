@@ -327,12 +327,13 @@ public class ScreeningExportService {
      * @param params
      * @return
      */
-    public List<QrCodeInfo> getQrCodeAndStudentInfo(AppQueryQrCodeParams params, Integer orgId) {
-        Set<Integer> currentPlanIds = screeningPlanService.getCurrentPlanIds(orgId);
+    public List<QrCodeInfo> getQrCodeAndStudentInfo(AppQueryQrCodeParams params, Integer orgId,Integer channel) {
+        Set<Integer> currentPlanIds = screeningPlanService.getCurrentPlanIds(orgId, channel);
         if (CollectionUtils.isEmpty(currentPlanIds)) {
             throw new BusinessException("当前无筛查计划");
         }
-        List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.getScreeningNoticeResultStudent(new ArrayList<>(currentPlanIds), params.getSchoolId(), params.getGradeId(), params.getClassId(), null, params.getStudentName());
+        List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.getScreeningNoticeResultStudent(new ArrayList<>(currentPlanIds), params.getSchoolId(), params.getGradeId(), params.getClassId(), null, params.getStudentName())
+                .stream().distinct().collect(Collectors.toList());
         if (CollectionUtils.isEmpty(students)) {
             return Collections.emptyList();
         }

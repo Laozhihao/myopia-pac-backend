@@ -80,8 +80,22 @@ public class VisionDataDTO extends ScreeningResultBasicData {
     }
 
     public boolean isValid() {
-        // 裸眼必填
-        return Objects.nonNull(rightNakedVision) && Objects.nonNull(leftNakedVision);
+        // 不配合时全部校验
+        if (super.getIsCooperative() == 1) {
+            return true;
+        }
+        // 没带眼镜
+        if (glassesType.equals(WearingGlassesSituation.NOT_WEARING_GLASSES_TYPE)) {
+            return Objects.nonNull(rightNakedVision) && Objects.nonNull(leftNakedVision);
+        }
+        if (glassesType.equals(WearingGlassesSituation.WEARING_FRAME_GLASSES_TYPE) || glassesType.equals(WearingGlassesSituation.WEARING_CONTACT_LENS_TYPE)) {
+            return Objects.nonNull(rightNakedVision) && Objects.nonNull(leftNakedVision)
+                    && Objects.nonNull(rightCorrectedVision) && Objects.nonNull(leftCorrectedVision);
+        }
+        if (glassesType.equals(WearingGlassesSituation.WEARING_OVERNIGHT_ORTHOKERATOLOGY_TYPE)) {
+            return Objects.nonNull(rightCorrectedVision) && Objects.nonNull(leftCorrectedVision);
+        }
+        return true;
     }
 
     public static VisionDataDTO getInstance(VisionDataDO visionDataDO) {

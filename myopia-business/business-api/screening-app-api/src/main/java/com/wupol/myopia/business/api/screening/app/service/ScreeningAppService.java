@@ -382,7 +382,7 @@ public class ScreeningAppService {
         appUserInfo.setUserId(currentUser.getId());
         appUserInfo.setDeptName(screeningOrganization.getName());
         appUserInfo.setDeptId(screeningOrganization.getId());
-        appUserInfo.setPhone(screeningOrganization.getPhone());
+        appUserInfo.setPhone(user.getPhone());
         ScreeningOrganizationStaff screeningOrganizationStaff = screeningOrganizationStaffService.findOne(new ScreeningOrganizationStaff().setUserId(currentUser.getId()));
         if (screeningOrganizationStaff == null) {
             throw new BusinessException("无法找到该员工");
@@ -681,10 +681,10 @@ public class ScreeningAppService {
             retestStudentVO.setErrorItemCount(retestStudentVO.checkVision(firstLeftVision, secondLeftVision, retestStudentVO) + retestStudentVO.checkVision(firstRightVision, secondRightVision, retestStudentVO));
         }
 
-        ComputerOptometryDO.ComputerOptometry secondLeftComputerOptometry = retestStudentVO.getVisionScreeningResult().getSecond().getComputerOptometry().getLeftEyeData();
-        ComputerOptometryDO.ComputerOptometry secondRightComputerOptometry = retestStudentVO.getVisionScreeningResult().getSecond().getComputerOptometry().getRightEyeData();
-        ComputerOptometryDO.ComputerOptometry firstLeftComputerOptometry = retestStudentVO.getVisionScreeningResult().getFirst().getComputerOptometry().getLeftEyeData();
-        ComputerOptometryDO.ComputerOptometry firstRightComputerOptometry = retestStudentVO.getVisionScreeningResult().getFirst().getComputerOptometry().getRightEyeData();
+        ComputerOptometryDO.ComputerOptometry secondLeftComputerOptometry = Objects.isNull(retestStudentVO.getVisionScreeningResult().getSecond().getComputerOptometry()) ? null : retestStudentVO.getVisionScreeningResult().getSecond().getComputerOptometry().getLeftEyeData();
+        ComputerOptometryDO.ComputerOptometry secondRightComputerOptometry = Objects.isNull(retestStudentVO.getVisionScreeningResult().getSecond().getComputerOptometry()) ? null :retestStudentVO.getVisionScreeningResult().getSecond().getComputerOptometry().getRightEyeData();
+        ComputerOptometryDO.ComputerOptometry firstLeftComputerOptometry = Objects.isNull(retestStudentVO.getVisionScreeningResult().getFirst().getComputerOptometry()) ? null :retestStudentVO.getVisionScreeningResult().getFirst().getComputerOptometry().getLeftEyeData();
+        ComputerOptometryDO.ComputerOptometry firstRightComputerOptometry = Objects.isNull(retestStudentVO.getVisionScreeningResult().getFirst().getComputerOptometry()) ? null :retestStudentVO.getVisionScreeningResult().getFirst().getComputerOptometry().getRightEyeData();
 
         if (Objects.nonNull(secondLeftComputerOptometry) || Objects.nonNull(secondRightComputerOptometry)) {
             retestStudentVO.setRetestItemCount(retestStudentVO.existCheckComputerOptometry(secondLeftComputerOptometry)+retestStudentVO.existCheckComputerOptometry(secondRightComputerOptometry));

@@ -728,9 +728,9 @@ public class ScreeningAppController {
      * @return
      */
     @GetMapping("/export/QRCode")
-    public List<QrCodeInfo> exportQRCode(@Valid AppQueryQrCodeParams appQueryQrCodeParams) {
+    public List<QrCodeInfo> exportQRCode(@Valid AppQueryQrCodeParams appQueryQrCodeParams,@RequestParam(value = "channel", defaultValue = "0") Integer channel) {
         try {
-            return screeningExportService.getQrCodeAndStudentInfo(appQueryQrCodeParams, CurrentUserUtil.getCurrentUser().getOrgId());
+            return screeningExportService.getQrCodeAndStudentInfo(appQueryQrCodeParams, CurrentUserUtil.getCurrentUser().getOrgId(),channel);
         } catch (Exception e) {
             log.error("获取二维码异常", e);
             throw new BusinessException("获取二维码异常");
