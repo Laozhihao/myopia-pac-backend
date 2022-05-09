@@ -47,6 +47,10 @@ public class RetestStudentVO {
      * 检查详情
      */
     private TwoTuple<VisionScreeningResult, VisionScreeningResult> visionScreeningResult;
+    /**
+     * 检查详情
+     */
+    private TwoTuple<ScreeningResultDataVO, ScreeningResultDataVO> studentVisionScreeningResult;
 
     /**
      * 矫正视力误差

@@ -170,4 +170,8 @@ public class ScreeningStudentDTO extends StudentDO {
      */
     private Boolean isDoubleScreen;
 
+    /**
+     * 出生年月
+     */
+    private Date birthday;
 }

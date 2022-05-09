@@ -183,7 +183,13 @@ public class ScreeningAppController {
             screeningStudentQuery.setClassId(classId);
         }
         IPage<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentPage = screeningPlanSchoolStudentService.getCurrentPlanScreeningStudentList(screeningStudentQuery, page, size, channel);
-        List<StudentVO> studentVOs = screeningPlanSchoolStudentPage.getRecords().stream().map(StudentVO::getInstance).collect(Collectors.toList());
+        List<StudentVO> studentVOs = screeningPlanSchoolStudentPage.getRecords().stream()
+                .sorted(Comparator.comparing(ScreeningPlanSchoolStudent::getCreateTime).reversed())
+                .map(StudentVO::getInstance).collect(Collectors.toList());
+        // 新版本不分页，这里需要兼容旧版本，数量为最大
+        if (channel == 1) {
+            size = 999;
+        }
         return new PageImpl<>(studentVOs, PageRequest.of(page - 1, size), screeningPlanSchoolStudentPage.getTotal());
     }
 
