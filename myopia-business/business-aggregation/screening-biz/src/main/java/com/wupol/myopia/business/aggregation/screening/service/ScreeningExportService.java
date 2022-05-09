@@ -332,7 +332,8 @@ public class ScreeningExportService {
         if (CollectionUtils.isEmpty(currentPlanIds)) {
             throw new BusinessException("当前无筛查计划");
         }
-        List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.getScreeningNoticeResultStudent(new ArrayList<>(currentPlanIds), params.getSchoolId(), params.getGradeId(), params.getClassId(), null, params.getStudentName());
+        List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.getScreeningNoticeResultStudent(new ArrayList<>(currentPlanIds), params.getSchoolId(), params.getGradeId(), params.getClassId(), null, params.getStudentName())
+                .stream().distinct().collect(Collectors.toList());
         if (CollectionUtils.isEmpty(students)) {
             return Collections.emptyList();
         }
