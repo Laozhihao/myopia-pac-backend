@@ -392,7 +392,7 @@ public class StudentFacade {
      * @return 疾病描述
      */
     private String getEyeDiseases(List<String> eyeDiseases, String systemicDiseaseSymptom) {
-        return CollectionUtils.isEmpty(eyeDiseases) ? systemicDiseaseSymptom : StringUtils.isEmpty(systemicDiseaseSymptom) ? String.join("、", eyeDiseases) : String.join("、", eyeDiseases) + "、" + systemicDiseaseSymptom;
+        return CollectionUtils.isEmpty(eyeDiseases) ? systemicDiseaseSymptom : StringUtils.isEmpty(systemicDiseaseSymptom) ? String.join("，", eyeDiseases) : String.join("，", eyeDiseases) + "，" + systemicDiseaseSymptom;
     }
 
     /**
