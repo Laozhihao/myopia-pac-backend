@@ -34,8 +34,8 @@ public class OnlineUserStatisticVO implements Serializable {
      */
     private Long parentClientNum;
     /**
-     * 筛查管理端
+     * 0-6岁客户端
      */
-    private Long screeningManagementClientNum;
+    private Long zeroToSixClientNum;
 
 }

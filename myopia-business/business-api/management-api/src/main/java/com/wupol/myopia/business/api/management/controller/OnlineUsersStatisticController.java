@@ -30,19 +30,19 @@ public class OnlineUsersStatisticController {
         OnlineUserStatisticVO onlineUserStatisticVO= new OnlineUserStatisticVO();
         Set<String> keys = redisUtil.getOnline();
         if (CollectionUtil.isNotEmpty(keys)){
-            long managementClientNum = keys.stream().filter(key->key.contains("online:1")).count();
+            long managementClientNum = keys.stream().filter(key->key.contains("online:1") || key.contains("online:6") ).count();
             long schoolClientNum = keys.stream().filter(key->key.contains("online:2")).count();
             long screeningClientNum = keys.stream().filter(key->key.contains("online:3")).count();
-            long hospitalClientNum = keys.stream().filter(key->key.contains("online:4")||key.contains("online:7") ).count();
+            long hospitalClientNum = keys.stream().filter(key->key.contains("online:4") ).count();
             long parentClientNum = keys.stream().filter(key->key.contains("online:5")).count();
-            long screeningManagementClientNum = keys.stream().filter(key->key.contains("online:6")).count();
+            long zeroToSixClientNum = keys.stream().filter(key->key.contains("online:7")).count();
             onlineUserStatisticVO.setManagementClientNum(managementClientNum).setSchoolClientNum(schoolClientNum)
                     .setScreeningClientNum(screeningClientNum).setHospitalClientNum(hospitalClientNum).setParentClientNum(parentClientNum)
-                    .setScreeningManagementClientNum(screeningManagementClientNum);
+                    .setZeroToSixClientNum(zeroToSixClientNum);
         }else {
             onlineUserStatisticVO.setManagementClientNum(0L).setSchoolClientNum(0L)
                     .setScreeningClientNum(0L).setHospitalClientNum(0L).setParentClientNum(0L)
-                    .setScreeningManagementClientNum(0L);
+                    .setZeroToSixClientNum(0L);
         }
         return onlineUserStatisticVO;
     }
