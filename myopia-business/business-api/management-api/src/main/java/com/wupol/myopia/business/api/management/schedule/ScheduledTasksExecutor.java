@@ -26,11 +26,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -86,6 +88,9 @@ public class ScheduledTasksExecutor {
     private DistrictStatisticTask districtStatisticTask;
     @Autowired
     private SchoolStatisticTask schoolStatisticTask;
+
+    @Autowired
+    private ThreadPoolTaskExecutor asyncServiceExecutor;
 
     /**
      * 筛查数据统计
@@ -144,13 +149,18 @@ public class ScheduledTasksExecutor {
     }
 
     public void screeningResultStatisticByPlanIds(List<Integer> screeningPlanIds){
-        log.info("按区域统计开始==========>>>");
-        districtStatisticTask.districtStatistics(screeningPlanIds);
-        log.info("按区域统计结束==========<<<");
 
-        log.info("按学校统计开始==========>>>");
-        schoolStatisticTask.schoolStatistics(screeningPlanIds);
-        log.info("按学校统计结束==========<<<");
+        CompletableFuture.runAsync(()->{
+            log.info("按区域统计开始==========>>>");
+            districtStatisticTask.districtStatistics(screeningPlanIds);
+            log.info("按区域统计结束==========<<<");
+        },asyncServiceExecutor);
+
+        CompletableFuture.runAsync(()->{
+            log.info("按学校统计开始==========>>>");
+            schoolStatisticTask.schoolStatistics(screeningPlanIds);
+            log.info("按学校统计结束==========<<<");
+        },asyncServiceExecutor);
     }
 
     /**
