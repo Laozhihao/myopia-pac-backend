@@ -681,7 +681,7 @@ public class StatConclusionBuilder {
             age = 7;
         }
         boolean highBloodPressure = StatUtil.isHighBloodPressure(bloodPressureData.getSbp().intValue(), bloodPressureData.getDbp().intValue(), screeningPlanSchoolStudent.getGender(), age);
-        statConclusion.setIsNormalBloodPressure(highBloodPressure);
+        statConclusion.setIsNormalBloodPressure(!highBloodPressure);
 
     }
 

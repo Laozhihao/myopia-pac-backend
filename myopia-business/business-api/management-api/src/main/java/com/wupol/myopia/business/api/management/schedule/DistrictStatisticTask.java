@@ -215,7 +215,7 @@ public class DistrictStatisticTask {
                                     List<VisionScreeningResultStatistic> visionScreeningResultStatisticList,
                                     List<CommonDiseaseScreeningResultStatistic> commonDiseaseScreeningResultStatisticList) {
 
-        if (CollectionUtils.isEmpty(totalStatistic.getStatConclusions()) && totalStatistic.getPlanStudentCount() == 0) {
+        if (CollectionUtils.isEmpty(totalStatistic.getStatConclusions()) ) {
             // 计划筛查学生不为0时，即使还没有筛查数据，也要新增统计
             return;
         }
@@ -246,7 +246,7 @@ public class DistrictStatisticTask {
                                    List<VisionScreeningResultStatistic> visionScreeningResultStatisticList,
                                    List<CommonDiseaseScreeningResultStatistic> commonDiseaseScreeningResultStatisticList) {
         List<StatConclusion> statConclusions = selfStatistic.getStatConclusions();
-        if (CollectionUtils.isEmpty(statConclusions) && selfStatistic.getPlanStudentCount() == 0) {
+        if (CollectionUtils.isEmpty(statConclusions)) {
             // 计划筛查学生不为0时，即使还没有筛查数据，也要新增统计
             return;
         }
