@@ -533,7 +533,7 @@ public class ScreeningAppService {
             first.setFinish(true);
         }
         Map<Integer, StudentScreeningProgressVO> secondStudentIdMap = studentList
-                .stream().collect(Collectors.toMap(StudentScreeningProgressVO::getStudentId, Function.identity()));
+                .stream().filter(item -> Objects.nonNull(item.getStudentId())).collect(Collectors.toMap(StudentScreeningProgressVO::getStudentId, Function.identity()));
         first.getStudentScreeningProgressList().forEach(item -> {
             if (Boolean.FALSE.equals(item.getResult())) {
                 // 初筛未完成
