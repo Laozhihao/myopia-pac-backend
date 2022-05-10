@@ -308,17 +308,4 @@ public class BigDecimalUtil {
         }
         return null;
     }
-
-    /**
-     * 保留n位小数
-     *
-     * @param value 输入值
-     * @return 保留n位小数
-     */
-    public static BigDecimal keepDecimalPlaces(BigDecimal value, int fixed) {
-        if (value != null) {
-            return value.setScale(fixed, BigDecimal.ROUND_HALF_UP);
-        }
-        return null;
-    }
 }
