@@ -206,11 +206,11 @@ public class StudentFacade {
             item.setScreeningDate(result.getUpdateTime());
             // 佩戴眼镜的类型随便取一个都行，两只眼睛的数据是一样的
             if (null != result.getVisionData() && null != result.getVisionData().getLeftEyeData() && null != result.getVisionData().getLeftEyeData().getGlassesType()) {
-                item.setGlassesType(WearingGlassesSituation.getType(result.getVisionData().getLeftEyeData().getGlassesType()));
+                item.setGlassesTypeDes(WearingGlassesSituation.getType(result.getVisionData().getLeftEyeData().getGlassesType()));
             }
             item.setResultId(result.getId());
             item.setIsDoubleScreen(result.getIsDoubleScreen());
-            item.setTemplateId(getTemplateId(result.getScreeningOrgId()));
+//            item.setTemplateId(getTemplateId(result.getScreeningOrgId()));
             item.setOtherEyeDiseases(getOtherEyeDiseasesList(result));
             if (Objects.nonNull(statMap)&&Objects.nonNull(statMap.get(result.getId()))){
                 item.setWarningLevel(statMap.get(result.getId()).getWarningLevel());
@@ -320,13 +320,15 @@ public class StudentFacade {
      */
     private void packageVisionResult(VisionScreeningResult result, StudentResultDetailsDTO leftDetails, StudentResultDetailsDTO rightDetails) {
         // 左眼-视力检查结果
-        leftDetails.setGlassesType(WearingGlassesSituation.getType(result.getVisionData().getLeftEyeData().getGlassesType()));
+        leftDetails.setGlassesType(result.getVisionData().getLeftEyeData().getGlassesType());
+        leftDetails.setGlassesTypeDes(WearingGlassesSituation.getType(result.getVisionData().getLeftEyeData().getGlassesType()));
         leftDetails.setCorrectedVision(result.getVisionData().getLeftEyeData().getCorrectedVision());
         leftDetails.setNakedVision(result.getVisionData().getLeftEyeData().getNakedVision());
         leftDetails.setOkDegree(result.getVisionData().getLeftEyeData().getOkDegree());
 
         // 右眼-视力检查结果
-        rightDetails.setGlassesType(WearingGlassesSituation.getType(result.getVisionData().getRightEyeData().getGlassesType()));
+        rightDetails.setGlassesType(result.getVisionData().getRightEyeData().getGlassesType());
+        rightDetails.setGlassesTypeDes(WearingGlassesSituation.getType(result.getVisionData().getRightEyeData().getGlassesType()));
         rightDetails.setCorrectedVision(result.getVisionData().getRightEyeData().getCorrectedVision());
         rightDetails.setNakedVision(result.getVisionData().getRightEyeData().getNakedVision());
         rightDetails.setOkDegree(result.getVisionData().getRightEyeData().getOkDegree());
