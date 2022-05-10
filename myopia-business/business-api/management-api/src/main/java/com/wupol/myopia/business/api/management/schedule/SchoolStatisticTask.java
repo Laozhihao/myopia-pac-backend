@@ -13,7 +13,6 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
-import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.stat.domain.model.CommonDiseaseScreeningResultStatistic;
 import com.wupol.myopia.business.core.stat.domain.model.VisionScreeningResultStatistic;
 import com.wupol.myopia.business.core.stat.service.ScreeningResultStatisticService;
@@ -172,16 +171,10 @@ public class SchoolStatisticTask {
                 }
 
                 statisticResultBO.setSchoolId(schoolId).setIsTotal(Boolean.FALSE)
-                        .setSchoolType(school.getType()).setDistrictId(school.getDistrictId())
+                        .setDistrictId(school.getDistrictId())
                         .setPlanStudentCount(planSchoolScreeningNum);
 
-                if (Objects.nonNull(visionScreeningResultStatisticList)){
-                    ScreeningResultStatisticBuilder.visionScreening(statisticResultBO,schoolStatConclusionList,visionScreeningResultStatisticList);
-
-                }
-                if (Objects.nonNull(commonDiseaseScreeningResultStatisticList)){
-                    ScreeningResultStatisticBuilder.commonDiseaseScreening(statisticResultBO,schoolStatConclusionList,commonDiseaseScreeningResultStatisticList);
-                }
+                ScreeningResultStatisticBuilder.screening(visionScreeningResultStatisticList, commonDiseaseScreeningResultStatisticList, statisticResultBO, schoolStatConclusionList);
             });
 
         }

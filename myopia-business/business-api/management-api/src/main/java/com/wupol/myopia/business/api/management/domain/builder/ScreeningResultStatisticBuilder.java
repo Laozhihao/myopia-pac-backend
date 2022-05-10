@@ -1,10 +1,13 @@
 package com.wupol.myopia.business.api.management.domain.builder;
 
 import com.wupol.framework.core.util.ObjectsUtil;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.api.management.domain.bo.StatisticResultBO;
+import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.constant.WarningLevel;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.constant.SchoolEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
@@ -29,7 +32,7 @@ public class ScreeningResultStatisticBuilder {
     /**
      * 视力筛查数据统计
      */
-    public  void visionScreening(StatisticResultBO totalStatistic,
+    public void visionScreening(StatisticResultBO totalStatistic,
                                   List<StatConclusion> statConclusions,
                                   List<VisionScreeningResultStatistic> visionScreeningResultStatisticList){
 
@@ -409,6 +412,36 @@ public class ScreeningResultStatisticBuilder {
                 .setHealthStateQuestionnaireRatio(ratio);
 
         statistic.setQuestionnaire(questionnaireDO);
+    }
+
+    public static Integer getKey(String schoolGradeCode){
+        GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeCode);
+        if (Objects.isNull(gradeCodeEnum)){
+            throw new BusinessException(String.format("不存在年级编码:%s",schoolGradeCode));
+        }
+        if (Objects.equals(gradeCodeEnum.getType(), SchoolAge.KINDERGARTEN.code)) {
+            return SchoolEnum.TYPE_KINDERGARTEN.getType();
+        }else {
+            return SchoolEnum.TYPE_PRIMARY.getType();
+        }
+    }
+
+    public void screening(List<VisionScreeningResultStatistic> visionScreeningResultStatisticList,
+                           List<CommonDiseaseScreeningResultStatistic> commonDiseaseScreeningResultStatisticList,
+                           StatisticResultBO statisticResultBO,
+                           List<StatConclusion> schoolStatConclusionList) {
+
+        Map<Integer, List<StatConclusion>> schoolMap = schoolStatConclusionList.stream().collect(Collectors.groupingBy(sc -> getKey(sc.getSchoolGradeCode())));
+
+        schoolMap.forEach((schoolAge,list)->{
+            statisticResultBO.setSchoolType(schoolAge);
+            if (Objects.nonNull(visionScreeningResultStatisticList)){
+                visionScreening(statisticResultBO,list,visionScreeningResultStatisticList);
+            }
+            if (Objects.nonNull(commonDiseaseScreeningResultStatisticList)){
+                commonDiseaseScreening(statisticResultBO,list,commonDiseaseScreeningResultStatisticList);
+            }
+        });
     }
 
 }

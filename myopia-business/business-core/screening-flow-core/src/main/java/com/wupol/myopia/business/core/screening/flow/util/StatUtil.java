@@ -654,22 +654,21 @@ public class StatUtil {
         }
 
         if (ObjectsUtil.allNotNull(age, nakedVision)
-                && ((age < 6 && BigDecimalUtil.lessThan(nakedVision, "4.9")) || (age >= 6 && BigDecimalUtil.lessThan(nakedVision, "5.0")))
-                && BigDecimalUtil.lessThan(se, "-0.5")) {
-            return MyopiaLevelEnum.SCREENING_MYOPIA;
+                && ((age < 6 && BigDecimalUtil.lessThan(nakedVision, "4.9")) || (age >= 6 && BigDecimalUtil.lessThan(nakedVision, "5.0")))) {
+
+            if (BigDecimalUtil.isBetweenLeft(se, MINUS_3, MINUS_0_5)) {
+                return MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT;
+            }
+            if (BigDecimalUtil.isBetweenLeft(se, MINUS_6, MINUS_3)) {
+                return MyopiaLevelEnum.MYOPIA_LEVEL_MIDDLE;
+            }
+            if (BigDecimalUtil.lessThan(se, MINUS_6)) {
+                return MyopiaLevelEnum.MYOPIA_LEVEL_HIGH;
+            }
         }
 
         if (BigDecimalUtil.isBetweenRight(se, MINUS_0_5, "0.75")) {
             return MyopiaLevelEnum.MYOPIA_LEVEL_EARLY;
-        }
-        if (BigDecimalUtil.isBetweenLeft(se, MINUS_3, MINUS_0_5)) {
-            return MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT;
-        }
-        if (BigDecimalUtil.isBetweenLeft(se, MINUS_6, MINUS_3)) {
-            return MyopiaLevelEnum.MYOPIA_LEVEL_MIDDLE;
-        }
-        if (BigDecimalUtil.lessThan(se, MINUS_6)) {
-            return MyopiaLevelEnum.MYOPIA_LEVEL_HIGH;
         }
 
         return MyopiaLevelEnum.ZERO;
