@@ -344,7 +344,7 @@ public class ScreeningExportService {
             int type = params.getType();
             QrCodeInfo info = new QrCodeInfo();
             info.setName(student.getName());
-            info.setBirthday(student.getBirthday());
+            info.setBirthday(DateFormatUtil.format(student.getBirthday(), DateFormatUtil.FORMAT_ONLY_DATE));
             info.setGender(student.getGenderDesc());
             info.setGradeName(gradeName);
             info.setClassName(className);

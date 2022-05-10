@@ -60,6 +60,10 @@ public class ComputerOptometryDTO extends ScreeningResultBasicData {
     }
 
     public boolean isValid() {
+        // 不配合时全部校验
+        if (super.getIsCooperative() == 1) {
+            return true;
+        }
         return ObjectUtils.anyNotNull(rAxial, lAxial, lSph, rSph, rCyl, lCyl);
     }
 
