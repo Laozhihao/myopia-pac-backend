@@ -955,7 +955,7 @@ public class ScreeningAppController {
      * @return com.wupol.myopia.business.api.screening.app.domain.vo.ClassScreeningProgress
      **/
     @GetMapping("/school/findAllStudentNameState")
-    public ClassScreeningProgress findClassScreeningStudent(@NotNull(message = "学校ID不能为空") Integer schoolId,
+    public ClassScreeningProgress findClassScreefningStudent(@NotNull(message = "学校ID不能为空") Integer schoolId,
                                                             @NotNull(message = "年级ID不能为空") Integer gradeId,
                                                             @NotNull(message = "班级ID不能为空") Integer classId,
                                                             @RequestParam(value = "channel", defaultValue = "0") Integer channel) {

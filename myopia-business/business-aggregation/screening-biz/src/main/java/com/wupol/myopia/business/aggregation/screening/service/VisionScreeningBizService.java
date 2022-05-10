@@ -125,7 +125,7 @@ public class VisionScreeningBizService {
         VisionDataDO visionData = firstResult.getVisionData();
         ComputerOptometryDO computerOptometry = firstResult.getComputerOptometry();
         if (Objects.isNull(visionData) || Objects.isNull(computerOptometry)) {
-            throw new BusinessException("请完成初筛");
+            throw new BusinessException("该学生初筛项目未全部完成，无法进行复测！");
         }
         // 夜戴角膜镜不需要复测
         if (visionData.getLeftEyeData().getGlassesType().equals(GlassesTypeEnum.ORTHOKERATOLOGY.code)
