@@ -391,7 +391,7 @@ public class StatUtil {
 
     public static Boolean isAnisometropiaVision(BigDecimal leftSph, BigDecimal rightSph){
         if (ObjectsUtil.allNotNull(leftSph,rightSph)) {
-            BigDecimal diffSph = leftSph.abs().subtract(rightSph.abs()).abs();
+            BigDecimal diffSph = leftSph.subtract(rightSph).abs();
             return BigDecimalUtil.moreThan(diffSph, "1.50");
         }
         return null;
@@ -411,7 +411,7 @@ public class StatUtil {
     }
     public static Boolean isAnisometropiaAstigmatism(BigDecimal leftCyl, BigDecimal rightCyl) {
         if (ObjectsUtil.allNotNull(leftCyl,rightCyl)) {
-            BigDecimal diffCyl = leftCyl.abs().subtract(rightCyl.abs()).abs();
+            BigDecimal diffCyl = leftCyl.subtract(rightCyl).abs();
             return BigDecimalUtil.moreThan(diffCyl, "1.00");
         }
         return null;
@@ -1200,29 +1200,26 @@ public class StatUtil {
         }
 
         List<WarningLevel> warningLevelList = Lists.newArrayList();
-        //裸眼视力
-        warningLevelList.add(StatUtil.nakedVision(nakedVision, age));
-        //近视
-        warningLevelList.add(StatUtil.refractiveData(spn, cyl, age, 0));
-        //散光
-        warningLevelList.add(StatUtil.refractiveData(spn, cyl, age, 1));
-        //远视
-        warningLevelList.add(StatUtil.refractiveData(spn, cyl, age, 2));
 
-        WarningLevel warningLevel = warningLevelList.stream().filter(Objects::nonNull).max(Comparator.comparing(wl -> wl.code)).orElse(null);
-        if (ObjectsUtil.allNull(warningLevel,schoolType)){
-            return null;
+        if (Objects.equals(schoolType,SchoolAge.KINDERGARTEN.code)){
+            //裸眼视力
+            warningLevelList.add(StatUtil.nakedVision(nakedVision, age));
+            warningLevelList.add(StatUtil.myopiaLevelInsufficient(spn, cyl));
+
+        }else {
+            //裸眼视力
+            warningLevelList.add(StatUtil.nakedVision(nakedVision, age));
+            //近视
+            warningLevelList.add(StatUtil.refractiveData(spn, cyl, age, 0));
+            //散光
+            warningLevelList.add(StatUtil.refractiveData(spn, cyl, age, 1));
+            //远视
+            warningLevelList.add(StatUtil.refractiveData(spn, cyl, age, 2));
+
         }
 
-        if (Objects.isNull(warningLevel) && Objects.nonNull(schoolType) && Objects.equals(schoolType,SchoolAge.KINDERGARTEN.code)){
-            return StatUtil.myopiaLevelInsufficient(spn, cyl);
-        }
+        return warningLevelList.stream().filter(Objects::nonNull).max(Comparator.comparing(WarningLevel::getCode)).orElse(null);
 
-        if (Objects.nonNull(warningLevel)){
-            return warningLevel;
-        }
-
-        return null;
     }
 
 
