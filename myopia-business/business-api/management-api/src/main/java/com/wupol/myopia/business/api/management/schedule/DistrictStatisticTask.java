@@ -11,6 +11,7 @@ import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
@@ -27,6 +28,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 按区域统计
@@ -122,7 +124,7 @@ public class DistrictStatisticTask {
         statConclusionMap.forEach((screeningNoticeId,statConclusions)->{
 
             // 筛查通知中的学校所在地区层级的计划学生总数
-            Map<Integer, Long> districtPlanStudentCountMap = screeningPlanSchoolStudentService.getDistrictPlanStudentCountBySrcScreeningNoticeId(screeningNoticeId);
+            Map<Integer, List<ScreeningPlanSchoolStudent>> districtPlanStudentCountMap = screeningPlanSchoolStudentService.getPlanStudentCountBySrcScreeningNoticeId(screeningNoticeId);
 
             //查出通知对应的地区顶级层级：从任务所在省级开始（因为筛查计划可选全省学校）
             ScreeningNotice screeningNotice = screeningNoticeService.getById(screeningNoticeId);
@@ -144,7 +146,7 @@ public class DistrictStatisticTask {
     /**
      * 根据地区生成视力筛查统计
      */
-    private void genStatisticsByDistrictId(ScreeningNotice screeningNotice, Integer districtId, Map<Integer, Long> districtPlanStudentCountMap,
+    private void genStatisticsByDistrictId(ScreeningNotice screeningNotice, Integer districtId, Map<Integer, List<ScreeningPlanSchoolStudent>> districtPlanStudentCountMap,
                                            Map<Integer, List<StatConclusion>> districtStatConclusions,
                                            List<VisionScreeningResultStatistic> visionScreeningResultStatisticList,
                                            List<CommonDiseaseScreeningResultStatistic> commonDiseaseScreeningResultStatisticList) {
@@ -169,17 +171,24 @@ public class DistrictStatisticTask {
 
         // 层级合计数据
         List<StatConclusion> totalStatConclusions = haveStatConclusionsChildDistrictIds.stream().map(districtStatConclusions::get).flatMap(Collection::stream).collect(Collectors.toList());
-        Integer totalPlanStudentCount = (int) haveStudentDistrictIds.stream().mapToLong(districtPlanStudentCountMap::get).sum();
+        List<ScreeningPlanSchoolStudent> totalPlanStudentCountList = haveStudentDistrictIds.stream().flatMap(id -> {
+            List<ScreeningPlanSchoolStudent> planSchoolStudentList = districtPlanStudentCountMap.get(id);
+            if (CollectionUtil.isNotEmpty(planSchoolStudentList)) {
+                return planSchoolStudentList.stream();
+            } else {
+                return Stream.empty();
+            }
+        }).filter(Objects::nonNull).collect(Collectors.toList());
 
         // 层级自身数据
         List<StatConclusion> selfStatConclusions = districtStatConclusions.getOrDefault(districtId, Collections.emptyList());
-        Integer selfPlanStudentCount = districtPlanStudentCountMap.getOrDefault(districtId, 0L).intValue();
+        List<ScreeningPlanSchoolStudent> selfPlanStudentCount = districtPlanStudentCountMap.getOrDefault(districtId, Collections.emptyList());
 
         StatisticResultBO totalStatistic = new StatisticResultBO()
                 .setScreeningNoticeId(screeningNotice.getId())
                 .setScreeningType(screeningNotice.getScreeningType())
                 .setDistrictId(districtId)
-                .setPlanStudentCount(totalPlanStudentCount)
+                .setPlanSchoolStudentList(totalPlanStudentCountList)
                 .setStatConclusions(totalStatConclusions);
 
         genTotalStatistics(totalStatistic, visionScreeningResultStatisticList,commonDiseaseScreeningResultStatisticList);
@@ -188,7 +197,7 @@ public class DistrictStatisticTask {
                 .setScreeningNoticeId(screeningNotice.getId())
                 .setScreeningType(screeningNotice.getScreeningType())
                 .setDistrictId(districtId)
-                .setPlanStudentCount(selfPlanStudentCount)
+                .setPlanSchoolStudentList(selfPlanStudentCount)
                 .setStatConclusions(selfStatConclusions);
         genSelfStatistics(selfStatistic, visionScreeningResultStatisticList,commonDiseaseScreeningResultStatisticList);
 
