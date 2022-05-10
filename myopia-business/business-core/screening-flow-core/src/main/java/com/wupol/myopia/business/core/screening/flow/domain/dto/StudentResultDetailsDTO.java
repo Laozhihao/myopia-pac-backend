@@ -19,11 +19,14 @@ public class StudentResultDetailsDTO {
      * 0 为左眼 1 为右眼
      */
     private Integer lateriality;
-
     /**
      * 佩戴眼镜的类型： @{link com.wupol.myopia.business.common.constant.WearingGlassesSituation}
      */
-    private String glassesType;
+    private Integer glassesType;
+    /**
+     * 佩戴眼镜的类型描述： @{link com.wupol.myopia.business.common.constant.WearingGlassesSituation}
+     */
+    private String glassesTypeDes;
     /**
      * 夜戴角膜塑形镜的度数
      */
