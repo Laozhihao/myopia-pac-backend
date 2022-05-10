@@ -207,11 +207,11 @@ public class StudentFacade {
             item.setScreeningDate(result.getUpdateTime());
             // 佩戴眼镜的类型随便取一个都行，两只眼睛的数据是一样的
             if (null != result.getVisionData() && null != result.getVisionData().getLeftEyeData() && null != result.getVisionData().getLeftEyeData().getGlassesType()) {
-                item.setGlassesType(WearingGlassesSituation.getType(result.getVisionData().getLeftEyeData().getGlassesType()));
+                item.setGlassesTypeDes(WearingGlassesSituation.getType(result.getVisionData().getLeftEyeData().getGlassesType()));
             }
             item.setResultId(result.getId());
             item.setIsDoubleScreen(result.getIsDoubleScreen());
-            item.setTemplateId(getTemplateId(result.getScreeningOrgId()));
+            item.setTemplateId(getTemplateId(result.getScreeningOrgId(),result.getScreeningType()));
             item.setOtherEyeDiseases(getOtherEyeDiseasesList(result));
             if (Objects.nonNull(statMap)&&Objects.nonNull(statMap.get(result.getId()))){
                 item.setWarningLevel(statMap.get(result.getId()).getWarningLevel());
