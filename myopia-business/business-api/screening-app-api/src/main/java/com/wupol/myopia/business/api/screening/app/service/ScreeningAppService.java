@@ -644,7 +644,7 @@ public class ScreeningAppService {
                 && Objects.nonNull(firstStudentIdPlan.get(item.getStudentId())) && firstStudentIdPlan.get(item.getStudentId()).getVisionData().getLeftEyeData().getGlassesType() != 0).count());
         screeningProgressState.setNoWearingGlasses((int) firstProgress.stream().filter(item -> item.getScreeningStatus() == 1
                 && Objects.nonNull(firstStudentIdPlan.get(item.getStudentId())) && firstStudentIdPlan.get(item.getStudentId()).getVisionData().getLeftEyeData().getGlassesType() == 0).count());
-        screeningProgressState.setRetestRatio(screeningProgressState.getReScreeningCount() == 0 ? BigDecimal.ZERO : new BigDecimal(screeningProgressState.getNeedReScreeningCount()).divide(BigDecimal.valueOf(screeningProgressState.getReScreeningCount()),2));
+        screeningProgressState.setRetestRatio(screeningProgressState.getReScreeningCount() == 0 ? BigDecimal.ZERO : new BigDecimal(screeningProgressState.getNeedReScreeningCount()).divide(BigDecimal.valueOf(screeningProgressState.getReScreeningCount()),2,BigDecimal.ROUND_DOWN));
 
         screeningProgressState.setRetestStudents(secondProgress.stream().map(item -> {
             // 需是该年级班级的
