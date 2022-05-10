@@ -1,5 +1,7 @@
 package com.wupol.myopia.business.api.management.domain.builder;
 
+import cn.hutool.core.collection.CollectionUtil;
+import com.google.common.collect.Maps;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.api.management.domain.bo.StatisticResultBO;
@@ -9,6 +11,7 @@ import com.wupol.myopia.business.common.utils.util.MathUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.constant.SchoolEnum;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import com.wupol.myopia.business.core.stat.domain.dos.*;
@@ -431,10 +434,24 @@ public class ScreeningResultStatisticBuilder {
                            StatisticResultBO statisticResultBO,
                            List<StatConclusion> schoolStatConclusionList) {
 
+        Map<Integer,Integer> planSchoolStudentMap= Maps.newHashMap();
+        List<ScreeningPlanSchoolStudent> planSchoolStudentList = statisticResultBO.getPlanSchoolStudentList();
+        if (CollectionUtil.isNotEmpty(planSchoolStudentList)){
+            int kindergarten = (int)planSchoolStudentList.stream().filter(planSchoolStudent -> Objects.equals(planSchoolStudent.getGradeType(), SchoolAge.KINDERGARTEN.code)).count();
+            int primary = (int)planSchoolStudentList.stream().filter(planSchoolStudent -> !Objects.equals(planSchoolStudent.getGradeType(), SchoolAge.KINDERGARTEN.code)).count();
+            planSchoolStudentMap.put(SchoolEnum.TYPE_KINDERGARTEN.getType(),kindergarten);
+            planSchoolStudentMap.put(SchoolEnum.TYPE_PRIMARY.getType(),primary);
+        }
+
+
         Map<Integer, List<StatConclusion>> schoolMap = schoolStatConclusionList.stream().collect(Collectors.groupingBy(sc -> getKey(sc.getSchoolGradeCode())));
 
         schoolMap.forEach((schoolAge,list)->{
             statisticResultBO.setSchoolType(schoolAge);
+            if (CollectionUtil.isNotEmpty(planSchoolStudentMap)){
+                Integer planSchoolStudentCount = planSchoolStudentMap.get(schoolAge);
+                statisticResultBO.setPlanStudentCount(planSchoolStudentCount);
+            }
             if (Objects.nonNull(visionScreeningResultStatisticList)){
                 visionScreening(statisticResultBO,list,visionScreeningResultStatisticList);
             }
