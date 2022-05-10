@@ -296,6 +296,7 @@ public class BigDecimalUtil {
         return b1.divide(b2, scale, BigDecimal.ROUND_HALF_UP);
     }
 
+
     /**
      * 保留n位小数
      *
