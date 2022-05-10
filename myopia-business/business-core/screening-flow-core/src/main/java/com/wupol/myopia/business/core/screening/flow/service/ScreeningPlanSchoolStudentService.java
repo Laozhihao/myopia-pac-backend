@@ -331,6 +331,22 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     }
 
     /**
+     * 根据筛查通知Id获取筛查学校所在层级的计划筛查学生记录
+     *
+     * @param screeningNoticeId
+     * @return
+     */
+    public Map<Integer, List<ScreeningPlanSchoolStudent>> getPlanStudentCountBySrcScreeningNoticeId(Integer screeningNoticeId) {
+        List<ScreeningPlanSchoolStudent> results =
+                this.getPlanStudentCountByScreeningItemId(screeningNoticeId, ContrastTypeEnum.NOTIFICATION);
+        if (CollectionUtils.isEmpty(results)) {
+            return Collections.emptyMap();
+        }
+        return results.stream().collect(
+                Collectors.groupingBy(ScreeningPlanSchoolStudent::getSchoolDistrictId));
+    }
+
+    /**
      * 根据筛查任务Id获取筛查学校所在层级的计划筛查学生总数
      *
      * @param taskId
