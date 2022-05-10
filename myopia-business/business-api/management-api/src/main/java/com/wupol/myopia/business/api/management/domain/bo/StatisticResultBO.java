@@ -72,12 +72,4 @@ public class StatisticResultBO implements Serializable {
      */
     private Integer schoolType;
 
-    public StatisticResultBO setSchoolType(Integer schoolType) {
-        if (Objects.equals(8,schoolType)){
-            this.schoolType = schoolType;
-        }else {
-            this.schoolType = 0;
-        }
-        return this;
-    }
 }

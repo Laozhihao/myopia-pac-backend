@@ -8,10 +8,8 @@ import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.business.api.management.domain.bo.StatisticResultBO;
 import com.wupol.myopia.business.api.management.domain.builder.ScreeningResultStatisticBuilder;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
-import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
-import com.wupol.myopia.business.core.school.constant.SchoolEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
@@ -219,13 +217,13 @@ public class DistrictStatisticTask {
 
         if (Objects.nonNull(visionScreeningResultStatisticList)){
             List<VisionScreeningResultStatistic> list= Lists.newArrayList();
-            buildVisionScreening(totalStatistic,list);
+            buildScreening(totalStatistic,list,null);
             visionScreeningResultStatisticList.addAll(list);
         }
 
         if (Objects.nonNull(commonDiseaseScreeningResultStatisticList)){
             List<CommonDiseaseScreeningResultStatistic> list= Lists.newArrayList();
-            buildCommonDiseaseScreening(totalStatistic,list);
+            buildScreening(totalStatistic,null,list);
             commonDiseaseScreeningResultStatisticList.addAll(list);
         }
 
@@ -253,13 +251,13 @@ public class DistrictStatisticTask {
 
         if (Objects.nonNull(visionScreeningResultStatisticList)){
             List<VisionScreeningResultStatistic> list= Lists.newArrayList();
-            buildVisionScreening(selfStatistic,list);
+            buildScreening(selfStatistic,list,null);
             visionScreeningResultStatisticList.addAll(list);
         }
 
         if (Objects.nonNull(commonDiseaseScreeningResultStatisticList)){
             List<CommonDiseaseScreeningResultStatistic> list= Lists.newArrayList();
-            buildCommonDiseaseScreening(selfStatistic,list);
+            buildScreening(selfStatistic,null,list);
             commonDiseaseScreeningResultStatisticList.addAll(list);
         }
 
@@ -269,47 +267,15 @@ public class DistrictStatisticTask {
     /**
      * 按区域 - 视力筛查数据统计
      */
-    private void buildVisionScreening(StatisticResultBO statistic,List<VisionScreeningResultStatistic> visionScreeningResultStatisticList) {
+    private void buildScreening(StatisticResultBO statistic,
+                                      List<VisionScreeningResultStatistic> visionScreeningResultStatisticList,
+                                      List<CommonDiseaseScreeningResultStatistic> commonDiseaseScreeningResultStatisticList) {
 
         List<StatConclusion> statConclusions = statistic.getStatConclusions();
         if (CollectionUtil.isEmpty(statConclusions)){
             return;
         }
-        Map<Integer, List<StatConclusion>> schoolMap = statConclusions.stream().collect(Collectors.groupingBy(sc -> getKey(sc.getSchoolAge())));
-
-        schoolMap.forEach((schoolAge,list)->{
-            if (Objects.equals(schoolAge, SchoolAge.KINDERGARTEN.code)) {
-                statistic.setSchoolType(SchoolEnum.TYPE_KINDERGARTEN.getType());
-            } else {
-                statistic.setSchoolType(SchoolEnum.TYPE_PRIMARY.getType());
-            }
-            ScreeningResultStatisticBuilder.visionScreening(statistic, list,visionScreeningResultStatisticList);
-        });
+        ScreeningResultStatisticBuilder.screening(visionScreeningResultStatisticList,commonDiseaseScreeningResultStatisticList,statistic,statConclusions);
     }
-
-
-    private void buildCommonDiseaseScreening(StatisticResultBO statistic,List<CommonDiseaseScreeningResultStatistic> commonDiseaseScreeningResultStatisticList) {
-        List<StatConclusion> statConclusions = statistic.getStatConclusions();
-        if (CollectionUtil.isEmpty(statConclusions)){
-            return;
-        }
-        Map<Integer, List<StatConclusion>> schoolMap = statistic.getStatConclusions().stream().collect(Collectors.groupingBy(sc -> getKey(sc.getSchoolAge())));
-
-        schoolMap.forEach((schoolAge,list)->{
-            if (Objects.equals(schoolAge, SchoolAge.KINDERGARTEN.code)) {
-                statistic.setSchoolType(SchoolEnum.TYPE_KINDERGARTEN.getType());
-            } else {
-                statistic.setSchoolType(SchoolEnum.TYPE_PRIMARY.getType());
-            }
-            ScreeningResultStatisticBuilder.commonDiseaseScreening(statistic, list,commonDiseaseScreeningResultStatisticList);
-        });
-    }
-
-
-
-    private Integer getKey(Integer schoolAge){
-        return Objects.equals(schoolAge,5)?schoolAge:0;
-    }
-
 
 }
