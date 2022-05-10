@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.screening.app.service;
 
 import cn.hutool.core.util.IdcardUtil;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.wupol.framework.core.util.CollectionUtils;
@@ -478,9 +479,9 @@ public class ScreeningAppService {
         // 转换为筛查进度
         List<StudentScreeningProgressVO> studentScreeningProgressList = screeningPlanSchoolStudentList.stream().map(planStudent -> {
             VisionScreeningResult screeningResult = planStudentVisionResultMap.get(planStudent.getId());
+            StudentVO studentVO = StudentVO.getInstance(planStudent);
+            StudentScreeningProgressVO studentProgress = StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO, planStudent);
             if (Objects.nonNull(screeningResult)) {
-                StudentVO studentVO = StudentVO.getInstance(planStudent);
-                StudentScreeningProgressVO studentProgress = StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO, planStudent);
                 try {
                     visionScreeningBizService.verifyScreening(screeningResult, screeningResult.getScreeningType() == 1);
                     studentProgress.setResult(true);
@@ -489,8 +490,8 @@ public class ScreeningAppService {
                 }
                 return studentProgress;
             }
-            return null;
-        }).filter(Objects::nonNull).collect(Collectors.toList());
+            return studentProgress;
+        }).collect(Collectors.toList());
 
         // 异常的排前面
         Map<Boolean, List<StudentScreeningProgressVO>> finishMap = studentScreeningProgressList.stream().collect(Collectors.groupingBy(StudentScreeningProgressVO::getResult));
@@ -555,9 +556,7 @@ public class ScreeningAppService {
     public ClassScreeningProgressState findClassScreeningStudentState(Integer schoolId, Integer gradeId, Integer classId, Integer screeningOrgId, Integer channel) {
         ScreeningPlanSchoolStudent query = new ScreeningPlanSchoolStudent()
                 .setScreeningOrgId(screeningOrgId)
-                .setSchoolId(schoolId)
-                .setClassId(classId)
-                .setGradeId(gradeId);
+                .setSchoolId(schoolId);
         // 查询班级所有学生
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = screeningPlanSchoolStudentService.listByEntityDescByCreateTime(query);
         if (CollectionUtils.isEmpty(screeningPlanSchoolStudentList)) {
@@ -585,9 +584,10 @@ public class ScreeningAppService {
         // 转换为筛查进度
         List<StudentScreeningProgressVO> firstProgress = screeningPlanSchoolStudentList.stream().map(planStudent -> {
             VisionScreeningResult screeningResult = firstPlanStudentVisionResultMap.get(planStudent.getId());
+            StudentVO studentVO = StudentVO.getInstance(planStudent);
+            StudentScreeningProgressVO studentProgress = StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO, planStudent);
+            studentProgress.setResult(false);
             if (Objects.nonNull(screeningResult)) {
-                StudentVO studentVO = StudentVO.getInstance(planStudent);
-                StudentScreeningProgressVO studentProgress = StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO, planStudent);
                 studentProgress.setStudentId(screeningResult.getStudentId());
                 try {
                     visionScreeningBizService.verifyScreening(screeningResult, screeningResult.getScreeningType() == 1);
@@ -597,15 +597,16 @@ public class ScreeningAppService {
                 }
                 return studentProgress;
             }
-            return null;
-        }).filter(Objects::nonNull).collect(Collectors.toList());
+            return studentProgress;
+        }).collect(Collectors.toList());
 
         // 转换为筛查进度
         List<StudentScreeningProgressVO> secondProgress = screeningPlanSchoolStudentList.stream().map(planStudent -> {
             VisionScreeningResult screeningResult = secondPlanStudentVisionResultMap.get(planStudent.getId());
+            StudentVO studentVO = StudentVO.getInstance(planStudent);
+            StudentScreeningProgressVO studentProgress = StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO, planStudent);
+            studentProgress.setResult(false);
             if (Objects.nonNull(screeningResult)) {
-                StudentVO studentVO = StudentVO.getInstance(planStudent);
-                StudentScreeningProgressVO studentProgress = StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO, planStudent);
                 studentProgress.setStudentId(screeningResult.getStudentId());
                 try {
                     visionScreeningBizService.verifyScreening(screeningResult, screeningResult.getScreeningType() == 1);
@@ -615,12 +616,12 @@ public class ScreeningAppService {
                 }
                 return studentProgress;
             }
-            return null;
-        }).filter(Objects::nonNull).collect(Collectors.toList());
+            return studentProgress;
+        }).collect(Collectors.toList());
 
 
         Map<Integer, StudentScreeningProgressVO> secondStudentIdMap = secondProgress
-                .stream().collect(Collectors.toMap(StudentScreeningProgressVO::getStudentId, Function.identity()));
+                .stream().filter(item -> Objects.nonNull(item.getStudentId())).collect(Collectors.toMap(StudentScreeningProgressVO::getStudentId, Function.identity()));
         firstProgress.forEach(item -> {
             if (Boolean.FALSE.equals(item.getResult())) {
                 // 初筛未完成
@@ -643,14 +644,22 @@ public class ScreeningAppService {
                 && Objects.nonNull(firstStudentIdPlan.get(item.getStudentId())) && firstStudentIdPlan.get(item.getStudentId()).getVisionData().getLeftEyeData().getGlassesType() != 0).count());
         screeningProgressState.setNoWearingGlasses((int) firstProgress.stream().filter(item -> item.getScreeningStatus() == 1
                 && Objects.nonNull(firstStudentIdPlan.get(item.getStudentId())) && firstStudentIdPlan.get(item.getStudentId()).getVisionData().getLeftEyeData().getGlassesType() == 0).count());
-        screeningProgressState.setRetestRatio(screeningProgressState.getReScreeningCount() == 0 ? BigDecimal.ZERO : new BigDecimal(screeningProgressState.getNeedReScreeningCount()).divide(new BigDecimal(screeningProgressState.getReScreeningCount())));
+        screeningProgressState.setRetestRatio(screeningProgressState.getReScreeningCount() == 0 ? BigDecimal.ZERO : new BigDecimal(screeningProgressState.getNeedReScreeningCount()).divide(BigDecimal.valueOf(screeningProgressState.getReScreeningCount()),2,BigDecimal.ROUND_DOWN));
 
         screeningProgressState.setRetestStudents(secondProgress.stream().map(item -> {
+            // 需是该年级班级的
+            if (!gradeId.equals(item.getGradeId()) || !classId.equals(item.getClassId())) {
+                return null;
+            }
             RetestStudentVO vo = BeanCopyUtil.copyBeanPropertise(item, RetestStudentVO.class);
             VisionScreeningResult firstPlan = firstStudentIdPlan.get(item.getStudentId());
             // 当视力，屈光不配合时不参与复测
-            if ((Objects.nonNull(firstPlan.getVisionData()) && firstPlan.getVisionData().getIsCooperative() == 1)
-                    || (Objects.nonNull(firstPlan.getComputerOptometry()) && firstPlan.getComputerOptometry().getIsCooperative() == 1)) {
+            if ((Objects.nonNull(firstPlan) && Objects.nonNull(firstPlan.getVisionData()) && firstPlan.getVisionData().getIsCooperative() == 1)
+                    || (Objects.nonNull(firstPlan) && Objects.nonNull(firstPlan.getComputerOptometry()) && firstPlan.getComputerOptometry().getIsCooperative() == 1)) {
+                return null;
+            }
+            // 夜戴角膜镜不参与复测
+            if (Objects.nonNull(firstPlan) && Objects.nonNull(firstPlan.getVisionData()) && JSON.toJSONString(firstPlan.getVisionData()).contains(WearingGlassesSituation.WEARING_OVERNIGHT_ORTHOKERATOLOGY_TYPE)) {
                 return null;
             }
             vo.setVisionScreeningResult(new TwoTuple<>(firstPlan, secondStudentIdPlan.get(item.getStudentId())));
@@ -671,32 +680,46 @@ public class ScreeningAppService {
      * @return
      */
     private RetestStudentVO numerationSecondCheck(RetestStudentVO retestStudentVO) {
-        VisionDataDO.VisionData secondLeftVision = Objects.isNull(retestStudentVO.getVisionScreeningResult().getSecond().getVisionData())
-                ? null : retestStudentVO.getVisionScreeningResult().getSecond().getVisionData().getLeftEyeData();
-        VisionDataDO.VisionData secondRightVision = Objects.isNull(retestStudentVO.getVisionScreeningResult().getSecond().getVisionData())
-                ? null : retestStudentVO.getVisionScreeningResult().getSecond().getVisionData().getRightEyeData();
-        VisionDataDO.VisionData firstLeftVision = Objects.isNull(retestStudentVO.getVisionScreeningResult().getFirst().getVisionData())
-                ? null : retestStudentVO.getVisionScreeningResult().getFirst().getVisionData().getLeftEyeData();
-        VisionDataDO.VisionData firstRightVision = Objects.isNull(retestStudentVO.getVisionScreeningResult().getFirst().getVisionData())
-                ? null : retestStudentVO.getVisionScreeningResult().getFirst().getVisionData().getRightEyeData();
+        VisionDataDO.VisionData secondLeftVision = null;
+        VisionDataDO.VisionData secondRightVision = null;
+        VisionDataDO.VisionData firstLeftVision = null;
+        VisionDataDO.VisionData firstRightVision = null;
+        ComputerOptometryDO.ComputerOptometry secondLeftComputerOptometry =  null;
+        ComputerOptometryDO.ComputerOptometry secondRightComputerOptometry = null;
+        ComputerOptometryDO.ComputerOptometry firstLeftComputerOptometry =  null;
+        ComputerOptometryDO.ComputerOptometry firstRightComputerOptometry =  null;
+        HeightAndWeightDataDO secondHeightWeight = null;
+        HeightAndWeightDataDO firstHeightWeight = null;
+
+        if (Objects.nonNull(retestStudentVO.getVisionScreeningResult())) {
+            if (Objects.nonNull(retestStudentVO.getVisionScreeningResult().getSecond())) {
+                secondLeftVision = Objects.isNull(retestStudentVO.getVisionScreeningResult().getSecond().getVisionData())
+                        ? null : retestStudentVO.getVisionScreeningResult().getSecond().getVisionData().getLeftEyeData();
+                secondRightVision = Objects.isNull(retestStudentVO.getVisionScreeningResult().getSecond().getVisionData())
+                        ? null : retestStudentVO.getVisionScreeningResult().getSecond().getVisionData().getRightEyeData();
+                secondLeftComputerOptometry= Objects.isNull(retestStudentVO.getVisionScreeningResult().getSecond().getComputerOptometry()) ? null : retestStudentVO.getVisionScreeningResult().getSecond().getComputerOptometry().getLeftEyeData();
+                secondRightComputerOptometry = Objects.isNull(retestStudentVO.getVisionScreeningResult().getSecond().getComputerOptometry()) ? null : retestStudentVO.getVisionScreeningResult().getSecond().getComputerOptometry().getRightEyeData();
+                secondHeightWeight =  retestStudentVO.getVisionScreeningResult().getSecond().getHeightAndWeightData();
+            }
+            if (Objects.nonNull(retestStudentVO.getVisionScreeningResult().getFirst())) {
+                firstLeftVision = Objects.isNull(retestStudentVO.getVisionScreeningResult().getFirst().getVisionData())
+                        ? null : retestStudentVO.getVisionScreeningResult().getFirst().getVisionData().getLeftEyeData();
+                firstRightVision = Objects.isNull(retestStudentVO.getVisionScreeningResult().getFirst().getVisionData())
+                        ? null : retestStudentVO.getVisionScreeningResult().getFirst().getVisionData().getRightEyeData();
+                firstLeftComputerOptometry = Objects.isNull(retestStudentVO.getVisionScreeningResult().getFirst().getComputerOptometry()) ? null : retestStudentVO.getVisionScreeningResult().getFirst().getComputerOptometry().getLeftEyeData();
+                firstRightComputerOptometry = Objects.isNull(retestStudentVO.getVisionScreeningResult().getFirst().getComputerOptometry()) ? null : retestStudentVO.getVisionScreeningResult().getFirst().getComputerOptometry().getRightEyeData();
+                firstHeightWeight = retestStudentVO.getVisionScreeningResult().getFirst().getHeightAndWeightData();
+            }
+        }
 
         if (Objects.nonNull(secondLeftVision) || Objects.nonNull(secondRightVision)) {
             retestStudentVO.setRetestItemCount(retestStudentVO.existCheckVision(secondLeftVision) + retestStudentVO.existCheckVision(secondRightVision));
             retestStudentVO.setErrorItemCount(retestStudentVO.checkVision(firstLeftVision, secondLeftVision, retestStudentVO) + retestStudentVO.checkVision(firstRightVision, secondRightVision, retestStudentVO));
         }
-
-        ComputerOptometryDO.ComputerOptometry secondLeftComputerOptometry = Objects.isNull(retestStudentVO.getVisionScreeningResult().getSecond().getComputerOptometry()) ? null : retestStudentVO.getVisionScreeningResult().getSecond().getComputerOptometry().getLeftEyeData();
-        ComputerOptometryDO.ComputerOptometry secondRightComputerOptometry = Objects.isNull(retestStudentVO.getVisionScreeningResult().getSecond().getComputerOptometry()) ? null : retestStudentVO.getVisionScreeningResult().getSecond().getComputerOptometry().getRightEyeData();
-        ComputerOptometryDO.ComputerOptometry firstLeftComputerOptometry = Objects.isNull(retestStudentVO.getVisionScreeningResult().getFirst().getComputerOptometry()) ? null : retestStudentVO.getVisionScreeningResult().getFirst().getComputerOptometry().getLeftEyeData();
-        ComputerOptometryDO.ComputerOptometry firstRightComputerOptometry = Objects.isNull(retestStudentVO.getVisionScreeningResult().getFirst().getComputerOptometry()) ? null : retestStudentVO.getVisionScreeningResult().getFirst().getComputerOptometry().getRightEyeData();
-
         if (Objects.nonNull(secondLeftComputerOptometry) || Objects.nonNull(secondRightComputerOptometry)) {
             retestStudentVO.setRetestItemCount(retestStudentVO.existCheckComputerOptometry(secondLeftComputerOptometry) + retestStudentVO.existCheckComputerOptometry(secondRightComputerOptometry));
             retestStudentVO.setErrorItemCount(retestStudentVO.checkComputerOptometry(firstLeftComputerOptometry, secondLeftComputerOptometry, retestStudentVO) + retestStudentVO.checkComputerOptometry(firstRightComputerOptometry, secondRightComputerOptometry, retestStudentVO));
         }
-
-        HeightAndWeightDataDO secondHeightWeight = retestStudentVO.getVisionScreeningResult().getSecond().getHeightAndWeightData();
-        HeightAndWeightDataDO firstHeightWeight = retestStudentVO.getVisionScreeningResult().getFirst().getHeightAndWeightData();
 
         retestStudentVO.setRetestItemCount(retestStudentVO.existCheckHeightAndWeight(secondHeightWeight));
         retestStudentVO.setErrorItemCount(retestStudentVO.checkHeightAndWeight(firstHeightWeight, secondHeightWeight, retestStudentVO));
