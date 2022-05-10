@@ -480,6 +480,7 @@ public class ScreeningAppService {
         List<StudentScreeningProgressVO> studentScreeningProgressList = screeningPlanSchoolStudentList.stream().map(planStudent -> {
             VisionScreeningResult screeningResult = planStudentVisionResultMap.get(planStudent.getId());
             StudentVO studentVO = StudentVO.getInstance(planStudent);
+            studentVO.setStudentId(String.valueOf(planStudent.getId()));
             StudentScreeningProgressVO studentProgress = StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO, planStudent);
             if (Objects.nonNull(screeningResult)) {
                 try {
@@ -589,6 +590,7 @@ public class ScreeningAppService {
             StudentVO studentVO = StudentVO.getInstance(planStudent);
             StudentScreeningProgressVO studentProgress = StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO, planStudent);
             studentProgress.setResult(false);
+            studentVO.setStudentId(String.valueOf(planStudent.getId()));
             if (Objects.nonNull(screeningResult)) {
                 studentProgress.setStudentId(screeningResult.getStudentId());
                 try {
@@ -608,6 +610,7 @@ public class ScreeningAppService {
             StudentVO studentVO = StudentVO.getInstance(planStudent);
             StudentScreeningProgressVO studentProgress = StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO, planStudent);
             studentProgress.setResult(false);
+            studentVO.setStudentId(String.valueOf(planStudent.getId()));
             if (Objects.nonNull(screeningResult)) {
                 studentProgress.setStudentId(screeningResult.getStudentId());
                 try {
@@ -661,7 +664,7 @@ public class ScreeningAppService {
                 return null;
             }
             // 只要复测中的数据
-            if(!item.getScreeningStatus().equals(1) || !item.getScreeningStatus().equals(3)){
+            if(!item.getScreeningStatus().equals(1) && !item.getScreeningStatus().equals(3)){
                 return null;
             }
             vo.setVisionScreeningResult(new TwoTuple<>(firstPlan, secondStudentIdPlan.get(item.getStudentId())));

@@ -120,4 +120,8 @@ public class StudentVO {
         studentVO.classId = screeningPlanSchoolStudent.getClassId();
         return studentVO;
     }
+
+    public void setStudentId(String studentId) {
+        this.studentId = studentId;
+    }
 }
