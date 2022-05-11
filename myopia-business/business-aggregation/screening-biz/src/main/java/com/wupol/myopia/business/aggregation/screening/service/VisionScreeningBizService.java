@@ -275,7 +275,9 @@ public class VisionScreeningBizService {
         student.setUpdateTime(new Date());
         student.setAstigmatismLevel(statConclusion.getAstigmatismLevel());
         student.setHyperopiaLevel(statConclusion.getHyperopiaLevel());
-        student.setMyopiaLevel(statConclusion.getMyopiaLevel());
+        if (statConclusion.getAge() >= 6){
+            student.setMyopiaLevel(statConclusion.getMyopiaLevel());
+        }
         studentService.updateScreenStudent(student);
     }
 

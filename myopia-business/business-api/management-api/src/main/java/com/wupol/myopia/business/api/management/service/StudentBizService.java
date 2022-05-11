@@ -41,6 +41,10 @@ import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanServic
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.flow.util.ScreeningResultUtil;
+import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
+import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
+import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
+import com.wupol.myopia.business.core.system.service.TemplateDistrictService;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -142,6 +146,10 @@ public class StudentBizService {
 
         // 封装DTO
         for (StudentDTO student : students) {
+            TwoTuple<Integer, String> tuple = StatUtil.getAge(student.getBirthday());
+            if (tuple.getFirst() < 6){
+                student.setMyopiaLevel(null);
+            }
             // 筛查次数
             student.setScreeningCount(countMaps.getOrDefault(student.getId(), 0));
             // 筛查码
