@@ -3,12 +3,14 @@ package com.wupol.myopia.migrate.service;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.migrate.domain.mapper.SysStudentEyeMapper;
+import com.wupol.myopia.migrate.domain.model.SysGradeClass;
 import com.wupol.myopia.migrate.domain.model.SysStudentEye;
 import com.wupol.myopia.migrate.domain.model.SysStudentEyeSimple;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import java.util.Collections;
 import java.util.List;
@@ -33,5 +35,16 @@ public class SysStudentEyeService extends BaseService<SysStudentEyeMapper, SysSt
             return Collections.emptyList();
         }
         return baseMapper.getSimpleDataList(deptId);
+    }
+
+    /**
+     * 根据学校ID获取所有年级和班级信息
+     *
+     * @param schoolId 学校ID
+     * @return java.util.List<com.wupol.myopia.migrate.domain.model.SysGradeClass>
+     **/
+    public List<SysGradeClass> getAllGradeAndClassBySchoolId(String schoolId) {
+        Assert.hasText(schoolId,"schoolId不能为空");
+        return baseMapper.getAllGradeAndClassBySchoolId(schoolId);
     }
 }

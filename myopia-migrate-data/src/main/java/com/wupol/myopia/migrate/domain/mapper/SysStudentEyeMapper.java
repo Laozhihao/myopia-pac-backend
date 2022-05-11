@@ -2,6 +2,7 @@ package com.wupol.myopia.migrate.domain.mapper;
 
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.wupol.myopia.migrate.domain.model.SysGradeClass;
 import com.wupol.myopia.migrate.domain.model.SysStudentEye;
 import com.wupol.myopia.migrate.domain.model.SysStudentEyeSimple;
 import org.springframework.transaction.annotation.Propagation;
@@ -26,4 +27,12 @@ public interface SysStudentEyeMapper extends BaseMapper<SysStudentEye> {
      * @return java.util.List<com.wupol.myopia.migrate.domain.model.SysStudentEyeSimple>
      **/
     List<SysStudentEyeSimple> getSimpleDataList(String deptId);
+
+    /**
+     * 根据学校ID获取所有年级和班级信息
+     *
+     * @param schoolId 学校ID
+     * @return java.util.List<com.wupol.myopia.migrate.domain.model.SysGradeClass>
+     **/
+    List<SysGradeClass> getAllGradeAndClassBySchoolId(String schoolId);
 }

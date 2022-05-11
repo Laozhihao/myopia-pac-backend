@@ -208,6 +208,8 @@ public class ScreeningPlanSchoolStudent implements Serializable {
     @TableField(updateStrategy = FieldStrategy.IGNORED)
     private String passport;
 
+    private String migrateStudentScreeningId;
+
     /**
      * 检查学生信息是否正确
      * <p>

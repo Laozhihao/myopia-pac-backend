@@ -18,7 +18,6 @@ import com.wupol.myopia.migrate.domain.model.SysSchool;
 import com.wupol.myopia.migrate.domain.model.SysStudentEye;
 import com.wupol.myopia.migrate.service.SysSchoolService;
 import com.wupol.myopia.migrate.service.SysStudentEyeService;
-import com.wupol.myopia.migrate.service.SysStudentService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
+import javax.validation.constraints.NotBlank;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,8 +60,6 @@ public class MigrateSchoolAndGradeClassService {
     private SchoolClassService schoolClassService;
     @Autowired
     private DistrictService districtService;
-    @Autowired
-    private SysStudentService sysStudentService;
 
     /**
      * 迁移学校、年级、班级数据
@@ -87,14 +85,16 @@ public class MigrateSchoolAndGradeClassService {
             String sysSchoolId = sysSchool.getSchoolId();
             schoolMap.put(sysSchoolId, schoolId);
             // 迁移年级、班级
-            List<SysGradeClass> gradeAndClassList = sysStudentService.getAllGradeAndClassBySchoolId(sysSchoolId);
+            List<SysGradeClass> gradeAndClassList = sysStudentEyeService.getAllGradeAndClassBySchoolId(sysSchoolId);
             Map<String, List<SysGradeClass>> gradeClassMap = gradeAndClassList.stream().collect(Collectors.groupingBy(SysGradeClass::getGrade));
             gradeClassMap.forEach((gradeName, classList) -> {
                 // 年级
                 Integer gradeId = saveGrade(schoolId, gradeName, schoolType);
                 gradeMap.put(sysSchoolId + gradeName, gradeId);
-                // 班级
+                // 班级（存在同名的则不新增）
+                Map<@NotBlank(message = "班级名称不能为空") String, Integer> existClassMap = schoolClassService.getByGradeId(gradeId).stream().collect(Collectors.toMap(SchoolClass::getName, SchoolClass::getId));
                 List<SchoolClass> schoolClassList = classList.stream()
+                        .filter(x -> Objects.isNull(existClassMap.get(x.getClazz())))
                         .map(x -> new SchoolClass().setSchoolId(schoolId).setCreateUserId(1).setGradeId(gradeId).setName(x.getClazz()))
                         .collect(Collectors.toList());
                 schoolClassService.saveOrUpdateBatch(schoolClassList);
@@ -132,6 +132,7 @@ public class MigrateSchoolAndGradeClassService {
      * @return java.lang.Integer
      **/
     private Integer saveGrade(Integer schoolId, String gradeName, Integer schoolType) {
+        // 存在同名年级则不新增
         SchoolGrade existGrade = schoolGradeService.findOne(new SchoolGrade().setSchoolId(schoolId).setName(gradeName));
         if (Objects.nonNull(existGrade)) {
             return existGrade.getId();

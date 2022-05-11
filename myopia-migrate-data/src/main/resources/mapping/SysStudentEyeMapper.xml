@@ -97,4 +97,18 @@
                  create_time ASC
     </select>
 
+
+    <select id="getAllGradeAndClassBySchoolId" parameterType="string" resultType="com.wupol.myopia.migrate.domain.model.SysGradeClass">
+        SELECT
+               school_grade as grade,
+               school_clazz as clazz
+        FROM
+             sys_student_eye
+        WHERE
+                school_id = #{schoolId}
+        GROUP BY
+                 school_grade,
+                 school_clazz
+    </select>
+
 </mapper>

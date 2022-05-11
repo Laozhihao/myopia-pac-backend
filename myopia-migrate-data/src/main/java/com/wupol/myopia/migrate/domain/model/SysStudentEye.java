@@ -1,11 +1,15 @@
 package com.wupol.myopia.migrate.domain.model;
 
 import cn.hutool.core.util.IdcardUtil;
+import cn.hutool.core.util.PhoneUtil;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ImportExcelEnum;
+import com.wupol.myopia.business.common.utils.constant.GenderEnum;
+import com.wupol.myopia.business.common.utils.util.IdCardUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -362,13 +366,30 @@ public class SysStudentEye implements Serializable {
     public Map<Integer, String> convertToMap() {
         Map<Integer, String> studentInfoMap = new HashMap<>(8);
         studentInfoMap.put(ImportExcelEnum.NAME.getIndex(), getStudentName());
-        studentInfoMap.put(ImportExcelEnum.GENDER.getIndex(), getStudentSex());
+        studentInfoMap.put(ImportExcelEnum.GENDER.getIndex(), GenderEnum.UNKNOWN.type.equals(GenderEnum.getType(getStudentSex())) ? GenderEnum.UNKNOWN.desc : getStudentSex());
         studentInfoMap.put(ImportExcelEnum.GRADE.getIndex(), getSchoolGrade());
         studentInfoMap.put(ImportExcelEnum.CLASS.getIndex(), getSchoolClazz());
-        studentInfoMap.put(ImportExcelEnum.PHONE.getIndex(), getStudentPhone());
-        if (StringUtils.isNotBlank(getStudentIdcard()) && IdcardUtil.isValidCard(getStudentIdcard())) {
-            studentInfoMap.put(ImportExcelEnum.ID_CARD.getIndex(), getStudentIdcard());
+        studentInfoMap.put(ImportExcelEnum.PHONE.getIndex(), PhoneUtil.isPhone(getStudentPhone()) ? getStudentPhone() : "");
+        if (SysStudentEye.isValidCard(getStudentIdcard())) {
+            studentInfoMap.put(ImportExcelEnum.ID_CARD.getIndex(), getStudentIdcard().toUpperCase());
         }
         return studentInfoMap;
     }
+
+    public static boolean isValidCard(String idCard) {
+        if (StringUtils.isBlank(idCard)) {
+            return false;
+        }
+        if (!IdcardUtil.isValidCard(idCard)) {
+            return false;
+        }
+        Date birthDay = IdCardUtil.getBirthDay(idCard);
+        try {
+            DateUtil.checkBirthday(birthDay);
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
+
 }

@@ -37,8 +37,4 @@ public class ScreeningDataDO {
      * 筛查计划ID
      */
     private Integer planId;
-    /**
-     * 学生ID和学生筛查编号对应 map
-     */
-    private Map<String, String> sysStudentIdAndScreeningCodeMap;
 }

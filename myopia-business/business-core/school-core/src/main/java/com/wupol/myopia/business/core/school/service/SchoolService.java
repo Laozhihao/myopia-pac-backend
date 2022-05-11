@@ -10,7 +10,6 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.PasswordAndUsernameGenerator;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
-import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
@@ -42,7 +41,6 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * 学校Service
@@ -324,33 +322,6 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      */
     public boolean checkSchoolName(String schoolName, Integer id) {
         return !baseMapper.getByNameNeId(schoolName, id).isEmpty();
-    }
-
-    /**
-     * 根据类型初始化班级信息
-     *
-     * @param type         类型 {@link SchoolAge}
-     * @param schoolId     学校ID
-     * @param createUserId 创建人
-     * @return List<SchoolGrade>
-     */
-    private List<SchoolGrade> initGrade(Integer type, Integer schoolId, Integer createUserId) {
-        return GradeCodeEnum.gradeByMap.get(type).stream()
-                .map(s -> new SchoolGrade(createUserId, schoolId, s.getCode(), s.getName()))
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * 更新OAuh2 username
-     *
-     * @param userId   用户ID
-     * @param username 用户名
-     */
-    public void updateOAuthName(Integer userId, String username) {
-        UserDTO userDTO = new UserDTO();
-        userDTO.setId(userId)
-                .setUsername(username);
-        oauthServiceClient.updateUser(userDTO);
     }
 
     public Set<Integer> getAllSchoolDistrictIdsBySchoolIds(Set<Integer> schoolIds) {

@@ -59,8 +59,7 @@
              GROUP BY
                       su.user_id
              ) AS temp
-        ORDER BY
-                 total DESC
+        ORDER BY total DESC LIMIT 1
     </select>
 
 </mapper>

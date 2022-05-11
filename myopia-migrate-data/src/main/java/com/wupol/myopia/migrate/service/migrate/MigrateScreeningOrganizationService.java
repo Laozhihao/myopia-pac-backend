@@ -3,7 +3,6 @@ package com.wupol.myopia.migrate.service.migrate;
 import com.alibaba.fastjson.JSON;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.constant.UserType;
-import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
@@ -25,10 +24,11 @@ import com.wupol.myopia.migrate.service.SysUserService;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.response.Organization;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -72,19 +72,19 @@ public class MigrateScreeningOrganizationService {
      * 
      * @return java.util.List<com.wupol.myopia.migrate.domain.dos.ScreeningOrgAndStaffDO>
      **/
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public List<ScreeningOrgAndStaffDO> migrateScreeningOrgAndScreeningStaff() {
         log.info("==  筛查机构-开始.....  ==");
         List<SysDept> deptList = sysDeptService.findByList(new SysDept());
         List<ScreeningOrgAndStaffDO> screeningOrganizationList = new ArrayList<>();
         deptList.forEach(sysDept -> {
-            // 没有数据的不迁移
+            // 没有筛查数据的不迁移
             if (sysStudentEyeService.count(new SysStudentEye().setDeptId(sysDept.getDeptId())) <= 0) {
+                log.warn("{}没有筛查数据，不迁移", sysDept.getSimpleName());
                 return;
             }
             // 迁移筛查机构
-            ScreeningOrganization screeningOrganization = getScreeningOrganization(sysDept);
-            saveScreeningOrganization(screeningOrganization);
+            ScreeningOrganization screeningOrganization = saveScreeningOrganization(sysDept);
             // 获取自动创建的筛查人员信息（由于筛查人员缺少身份证和手机号码数据，不迁移）
             ScreeningOrganizationStaff screeningOrganizationStaff = getAutoCreateScreeningStaff(screeningOrganization.getId());
             // 封装筛查机构和筛查人员信息以备用
@@ -154,29 +154,25 @@ public class MigrateScreeningOrganizationService {
     /**
      * 保存筛查机构
      *
-     * @param screeningOrganization 筛查机构
-     * @return UsernameAndPasswordDTO 账号密码
+     * @param sysDept 筛查机构
+     * @return ScreeningOrganization 新机构
      */
-    private void saveScreeningOrganization(ScreeningOrganization screeningOrganization) {
-        String name = screeningOrganization.getName();
-        if (StringUtils.isBlank(name)) {
-            throw new BusinessException("名字不能为空");
-        }
+    private ScreeningOrganization saveScreeningOrganization(SysDept sysDept) {
+        String name = sysDept.getSimpleName();
+        Assert.hasText(name, "筛查机构名字不能为空");
         // 存在同名的机构，则不新增
         ScreeningOrganization existScreeningOrg = screeningOrganizationService.findOne(new ScreeningOrganization().setName(name));
         if (Objects.nonNull(existScreeningOrg)) {
-            screeningOrganization = existScreeningOrg;
+            return existScreeningOrg;
         }
+        ScreeningOrganization screeningOrganization = getScreeningOrganization(sysDept);
         screeningOrganizationService.save(screeningOrganization);
-        // 同步到oauth机构状态
-        oauthServiceClient.addOrganization(new Organization(screeningOrganization.getId(), SystemCode.MANAGEMENT_CLIENT,
-                UserType.SCREENING_ORGANIZATION_ADMIN, screeningOrganization.getStatus()));
         // 为筛查机构新增设备报告模板
         DeviceReportTemplate template = deviceReportTemplateService.getSortFirstTemplate();
         screeningOrgBindDeviceReportService.orgBindReportTemplate(template.getId(), screeningOrganization.getId(), screeningOrganization.getName());
         // 生成账号密码
         UsernameAndPasswordDTO usernameAndPasswordDTO = screeningOrganizationService.generateAccountAndPassword(screeningOrganization, ScreeningOrganizationService.PARENT_ACCOUNT, null);
-        // 生成筛查人员
+        // 生成TA筛查人员
         ScreeningOrganizationStaffQueryDTO screeningOrganizationStaffQueryDTO = new ScreeningOrganizationStaffQueryDTO();
         screeningOrganizationStaffQueryDTO.setScreeningOrgId(screeningOrganization.getId());
         screeningOrganizationStaffQueryDTO.setCreateUserId(1);
@@ -185,5 +181,9 @@ public class MigrateScreeningOrganizationService {
         screeningOrganizationStaffQueryDTO.setRealName(ScreeningOrganizationStaff.AUTO_CREATE_STAFF_DEFAULT_NAME);
         screeningOrganizationStaffQueryDTO.setUserName(usernameAndPasswordDTO.getUsername());
         screeningOrganizationStaffService.saveOrganizationStaff(screeningOrganizationStaffQueryDTO);
+        // 同步到oauth机构状态
+        oauthServiceClient.addOrganization(new Organization(screeningOrganization.getId(), SystemCode.MANAGEMENT_CLIENT,
+                UserType.SCREENING_ORGANIZATION_ADMIN, screeningOrganization.getStatus()));
+        return screeningOrganization;
     }
 }
