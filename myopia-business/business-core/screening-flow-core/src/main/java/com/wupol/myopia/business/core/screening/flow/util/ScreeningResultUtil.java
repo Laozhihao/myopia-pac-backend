@@ -1146,13 +1146,13 @@ public class ScreeningResultUtil {
         if (BigDecimalUtil.lessThan(seBigDecimal, "0")) {
             return RecommendVisitEnum.KINDERGARTEN_RESULT_5;
         }
-        if (Objects.isNull(otherEyeDiseasesNormal)) {
-            return RecommendVisitEnum.EMPTY;
-        }
+//        if (Objects.isNull(otherEyeDiseasesNormal)) {
+//            return RecommendVisitEnum.EMPTY;
+//        }
 
         if ((BigDecimalUtil.moreThanAndEqual(seBigDecimal, "2") || BigDecimalUtil.moreThan(cyl.abs(), "1.5"))
                 || (Objects.nonNull(anisometropia) && BigDecimalUtil.moreThan(anisometropia, "1.5"))
-                || !otherEyeDiseasesNormal) {
+                || (Objects.nonNull(otherEyeDiseasesNormal) && !otherEyeDiseasesNormal)) {
             return RecommendVisitEnum.KINDERGARTEN_RESULT_4;
         }
         return RecommendVisitEnum.EMPTY;
