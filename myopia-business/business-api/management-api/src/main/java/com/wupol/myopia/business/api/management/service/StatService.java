@@ -6,6 +6,7 @@ import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
+import com.wupol.myopia.business.api.management.domain.bo.StatisticDetailBO;
 import com.wupol.myopia.business.api.management.domain.dto.*;
 import com.wupol.myopia.business.api.management.domain.vo.*;
 import com.wupol.myopia.business.common.utils.constant.ContrastTypeEnum;
@@ -1076,10 +1077,9 @@ public class StatService {
 
     }
 
-    public SchoolResultDetailVO getSchoolStatisticDetail(Integer screeningPlanId,Integer screeningNoticeId, Integer schoolId) {
-        return statSchoolService.getSchoolStatisticDetail(screeningPlanId,screeningNoticeId,schoolId);
+    public SchoolResultDetailVO getSchoolStatisticDetail(StatisticDetailBO statisticDetailBO) {
+        return statSchoolService.getSchoolStatisticDetail(statisticDetailBO);
     }
-
 
     /**
      * 平均视力

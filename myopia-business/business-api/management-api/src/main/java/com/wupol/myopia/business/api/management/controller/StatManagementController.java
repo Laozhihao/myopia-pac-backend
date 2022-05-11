@@ -10,6 +10,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.screening.service.StatConclusionBizService;
+import com.wupol.myopia.business.api.management.domain.bo.StatisticDetailBO;
 import com.wupol.myopia.business.api.management.domain.vo.*;
 import com.wupol.myopia.business.api.management.schedule.ScheduledTasksExecutor;
 import com.wupol.myopia.business.api.management.service.*;
@@ -315,8 +316,13 @@ public class StatManagementController {
     @GetMapping("/school/schoolStatisticDetail")
     public SchoolResultDetailVO getSchoolStatisticDetail(@RequestParam(required = false) Integer screeningPlanId,
                                                          @RequestParam(required = false) Integer screeningNoticeId,
-                                                         @RequestParam Integer schoolId) {
-        return statService.getSchoolStatisticDetail(screeningPlanId,screeningNoticeId,schoolId);
+                                                         @RequestParam Integer schoolId,@RequestParam Integer type) {
+        StatisticDetailBO statisticDetailBO = new StatisticDetailBO()
+                .setScreeningPlanId(screeningPlanId)
+                .setScreeningNoticeId(screeningNoticeId)
+                .setSchoolId(schoolId)
+                .setType(type);
+        return statService.getSchoolStatisticDetail(statisticDetailBO);
     }
 
 

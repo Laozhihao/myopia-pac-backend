@@ -35,25 +35,24 @@ public class SchoolResultDetailVO {
 
 
 
-    public void setItemData(Integer screeningNoticeId,
+    public void setItemData(Integer screeningNoticeId,Integer type,
                             Integer screeningType,School school,
                             List<ScreeningResultStatistic> screeningResultStatistics) {
 
         if (CollectionUtil.isNotEmpty(screeningResultStatistics)){
             Map<Integer, ScreeningResultStatistic> resultStatisticMap = screeningResultStatistics.stream().collect(Collectors.toMap(ScreeningResultStatistic::getSchoolType, Function.identity()));
-            resultStatisticMap.forEach((schoolType,resultStatistic)->{
-                if (Objects.equals(schoolType, SchoolEnum.TYPE_KINDERGARTEN.getType())){
-                    KindergartenResultDetailVO detailVO=new KindergartenResultDetailVO();
-                    detailVO.setBaseData(screeningNoticeId,school.getDistrictId(),screeningType,school.getName());
-                    detailVO.setItemData(resultStatistic);
-                    this.kindergartenResultDetail=detailVO;
-                }else {
-                    PrimarySchoolAndAboveResultDetailVO detailVO = new PrimarySchoolAndAboveResultDetailVO();
-                    detailVO.setBaseData(screeningNoticeId,school.getDistrictId(),screeningType,school.getName());
-                    detailVO.setItemData(resultStatistic);
-                    this.primarySchoolAndAboveResultDetail=detailVO;
-                }
-            });
+            ScreeningResultStatistic screeningResultStatistic = resultStatisticMap.get(type);
+            if (Objects.equals(type, SchoolEnum.TYPE_KINDERGARTEN.getType())){
+                KindergartenResultDetailVO detailVO=new KindergartenResultDetailVO();
+                detailVO.setBaseData(screeningNoticeId,school.getDistrictId(),screeningType,school.getName());
+                detailVO.setItemData(screeningResultStatistic);
+                this.kindergartenResultDetail=detailVO;
+            }else {
+                PrimarySchoolAndAboveResultDetailVO detailVO = new PrimarySchoolAndAboveResultDetailVO();
+                detailVO.setBaseData(screeningNoticeId,school.getDistrictId(),screeningType,school.getName());
+                detailVO.setItemData(screeningResultStatistic);
+                this.primarySchoolAndAboveResultDetail=detailVO;
+            }
         }
 
     }
