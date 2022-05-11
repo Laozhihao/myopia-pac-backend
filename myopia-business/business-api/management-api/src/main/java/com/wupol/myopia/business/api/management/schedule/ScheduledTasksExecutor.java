@@ -150,17 +150,19 @@ public class ScheduledTasksExecutor {
 
     public void screeningResultStatisticByPlanIds(List<Integer> screeningPlanIds){
 
-        CompletableFuture.runAsync(()->{
-            log.info("按区域统计开始==========>>>");
+        CompletableFuture<Void> districtFuture = CompletableFuture.runAsync(() -> {
+            log.info("按区域统计开始");
             districtStatisticTask.districtStatistics(screeningPlanIds);
-            log.info("按区域统计结束==========<<<");
-        },asyncServiceExecutor);
+            log.info("按区域统计结束");
+        }, asyncServiceExecutor);
 
-        CompletableFuture.runAsync(()->{
-            log.info("按学校统计开始==========>>>");
+        CompletableFuture<Void> schoolFuture = CompletableFuture.runAsync(() -> {
+            log.info("按学校统计开始");
             schoolStatisticTask.schoolStatistics(screeningPlanIds);
-            log.info("按学校统计结束==========<<<");
-        },asyncServiceExecutor);
+            log.info("按学校统计结束");
+        }, asyncServiceExecutor);
+
+        CompletableFuture.allOf(districtFuture,schoolFuture).join();
     }
 
     /**
