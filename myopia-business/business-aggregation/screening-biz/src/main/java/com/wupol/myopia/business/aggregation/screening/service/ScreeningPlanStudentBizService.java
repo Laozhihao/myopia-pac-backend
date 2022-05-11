@@ -12,6 +12,7 @@ import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.base.domain.vo.PdfGeneratorVO;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.base.util.ListUtil;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
 import com.wupol.myopia.business.aggregation.screening.handler.CredentialModificationHandler;
@@ -562,5 +563,21 @@ public class ScreeningPlanStudentBizService {
         List<ScreeningPlanSchoolStudent> existPlanSchoolStudentList = screeningPlanSchoolStudentService.getByScreeningPlanId(screeningPlanSchoolStudent.getScreeningPlanId());
         // 检查学号
         screeningPlanSchoolStudentService.checkSno(existPlanSchoolStudentList, screeningPlanSchoolStudent.getStudentNo(), screeningPlanSchoolStudent.getIdCard(), screeningPlanSchoolStudent.getPassport(), screeningPlanSchoolStudent.getSchoolId());
+    }
+
+    /**
+     * 判断筛查学生是否在筛查时间内
+     *
+     * @param screeningPlanSchoolStudent 筛查学生
+     *
+     * @return 否在筛查时间内
+     */
+    public Boolean isMatchScreeningTime(ScreeningPlanSchoolStudent screeningPlanSchoolStudent) {
+        if (Objects.isNull(screeningPlanSchoolStudent)) {
+            return false;
+        }
+        Integer screeningPlanId = screeningPlanSchoolStudent.getScreeningPlanId();
+        ScreeningPlan plan = screeningPlanService.getById(screeningPlanId);
+        return DateUtil.isBetweenDate(plan.getStartTime(), plan.getEndTime());
     }
 }
