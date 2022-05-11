@@ -150,9 +150,6 @@ public class SchoolBizService {
             plans.forEach(plan -> {
                 plan.setOrgName(orgMaps.get(plan.getScreeningOrgId()));
                 ScreeningResultStatistic screeningResultStatistic = statisticMaps.get(plan.getId());
-                if (Objects.nonNull(screeningResultStatistic)){
-                    plan.setIsKindergarten(Objects.equals(screeningResultStatistic.getSchoolType(), SchoolEnum.TYPE_KINDERGARTEN.getType()));
-                }
                 if (Objects.isNull(screeningResultStatistic)) {
                     plan.setItems(new ArrayList<>());
                 } else {
