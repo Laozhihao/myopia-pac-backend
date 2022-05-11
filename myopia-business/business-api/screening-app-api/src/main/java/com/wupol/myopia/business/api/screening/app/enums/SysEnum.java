@@ -53,7 +53,7 @@ public enum SysEnum {
 
     SYS_STUDENT_PHONE_EXIST(8008, "学生手机号信息已存在"),
 
-    SYS_STUDENT_SCREENING_TIME_ERROR(8009, "筛查时间暂未开始或过期，请确认！"),
+    SYS_STUDENT_SCREENING_TIME_ERROR(8009, "该学生筛查时间未开始或已结束，暂不能进行筛查。"),
 
 
     SYS_DATA_80(8050, "身份证，学籍号，手机号单条存在率小于80%"),
