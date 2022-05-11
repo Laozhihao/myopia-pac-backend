@@ -11,7 +11,6 @@ import com.wupol.myopia.business.api.management.domain.vo.SchoolKindergartenResu
 import com.wupol.myopia.business.api.management.domain.vo.SchoolPrimarySchoolAndAboveResultVO;
 import com.wupol.myopia.business.api.management.domain.vo.SchoolResultDetailVO;
 import com.wupol.myopia.business.core.common.service.DistrictService;
-import com.wupol.myopia.business.core.school.constant.SchoolEnum;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
@@ -275,7 +274,7 @@ public class StatSchoolService {
     private SchoolResultDetailVO getSchoolStatisticDetailByNoticeId(Integer screeningNoticeId,School school,CurrentUser user){
         ScreeningNotice screeningNotice = screeningNoticeService.getById(screeningNoticeId);
         List<ScreeningResultStatistic> screeningResultStatistics = getStatisticByNoticeIdAndSchoolId(screeningNoticeId, user,school.getId());
-        return getSchoolResultDetailVO(screeningResultStatistics,Objects.equals(SchoolEnum.TYPE_KINDERGARTEN.getType(), school.getType()),screeningNotice,school,null);
+        return getSchoolResultDetailVO(screeningResultStatistics,screeningNotice,school,null);
 
     }
 
@@ -286,7 +285,7 @@ public class StatSchoolService {
         ScreeningPlan screeningPlan = screeningPlanService.getById(screeningPlanId);
         ScreeningNotice screeningNotice = screeningNoticeService.getById(screeningPlan.getSrcScreeningNoticeId());
         List<ScreeningResultStatistic> screeningResultStatistics = getStatisticByPlanIdsAndSchoolId(Lists.newArrayList(screeningPlan), school.getId());
-        return getSchoolResultDetailVO(screeningResultStatistics,Objects.equals(SchoolEnum.TYPE_KINDERGARTEN.getType(), school.getType()),screeningNotice,school,screeningPlan);
+        return getSchoolResultDetailVO(screeningResultStatistics,screeningNotice,school,screeningPlan);
     }
 
     /**
@@ -338,14 +337,14 @@ public class StatSchoolService {
      * 获取学校筛查结果统计详情
      */
     private SchoolResultDetailVO getSchoolResultDetailVO(List<ScreeningResultStatistic> screeningResultStatistics,
-                                                         boolean isKindergarten,ScreeningNotice screeningNotice,School school,
+                                                         ScreeningNotice screeningNotice,School school,
                                                          ScreeningPlan screeningPlan ){
 
         SchoolResultDetailVO schoolResultDetailVO = new SchoolResultDetailVO();
         if(Objects.nonNull(screeningNotice)){
-            schoolResultDetailVO.setItemData(isKindergarten,screeningNotice.getId(),screeningNotice.getScreeningType(),school,screeningResultStatistics);
+            schoolResultDetailVO.setItemData(screeningNotice.getId(),screeningNotice.getScreeningType(),school,screeningResultStatistics);
         }else {
-            schoolResultDetailVO.setItemData(isKindergarten,screeningPlan.getSrcScreeningNoticeId(),screeningPlan.getScreeningType(),school,screeningResultStatistics);
+            schoolResultDetailVO.setItemData(screeningPlan.getSrcScreeningNoticeId(),screeningPlan.getScreeningType(),school,screeningResultStatistics);
         }
         return schoolResultDetailVO;
     }
