@@ -21,6 +21,8 @@ import lombok.experimental.UtilityClass;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.function.Predicate;
+import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
 
 /**
@@ -284,7 +286,7 @@ public class ScreeningResultStatisticBuilder {
         //非戴镜复测项次数
         Integer withoutGlassRescreenItemNum =withoutGlassList.stream().map(StatConclusion::getRescreenItemNum).filter(Objects::nonNull).mapToInt(Integer::intValue).sum();
 
-        Integer rescreenNum = (int) statConclusions.stream().map(StatConclusion::getIsRescreen).filter(Objects::nonNull).filter(Boolean::booleanValue).count();
+        Integer rescreenNum = (int) statConclusionList.stream().map(StatConclusion::getIsRescreen).filter(Objects::nonNull).filter(Boolean::booleanValue).count();
 
         int validRescreenNum = isRescreenMap.getOrDefault(Boolean.TRUE, Collections.emptyList()).size();
 
@@ -312,8 +314,10 @@ public class ScreeningResultStatisticBuilder {
         SaprodontiaDO saprodontiaDO = new SaprodontiaDO();
         statConclusions = statConclusions.stream().filter(sc->Objects.equals(Boolean.FALSE,sc.getIsRescreen())).collect(Collectors.toList());
 
+        Predicate<StatConclusion> predicateFalse = sc -> !(Objects.equals(Boolean.TRUE, sc.getIsSaprodontiaLoss()) || Objects.equals(Boolean.TRUE, sc.getIsSaprodontiaRepair()) || Objects.equals(Boolean.TRUE, sc.getIsSaprodontia()));
+
         int saprodontiaFreeNum = (int)statConclusions.stream()
-                .filter(sc -> Objects.equals(Boolean.FALSE,sc.getIsSaprodontia()) && Objects.equals(Boolean.FALSE,sc.getIsSaprodontiaLoss()) && Objects.equals(Boolean.FALSE,sc.getIsSaprodontiaRepair())).count();
+                .filter(predicateFalse).count();
         int saprodontiaNum = (int)statConclusions.stream()
                 .map(StatConclusion::getIsSaprodontia)
                 .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
@@ -324,15 +328,18 @@ public class ScreeningResultStatisticBuilder {
                 .map(StatConclusion::getIsSaprodontiaRepair)
                 .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
         int saprodontiaLossAndRepairNum = (int)statConclusions.stream()
-                .filter(sc ->Objects.equals(Boolean.TRUE,sc.getIsSaprodontiaLoss()) && Objects.equals(Boolean.TRUE,sc.getIsSaprodontiaRepair())).count();
+                .filter(sc ->Objects.equals(Boolean.TRUE,sc.getIsSaprodontiaLoss()) || Objects.equals(Boolean.TRUE,sc.getIsSaprodontiaRepair())).count();
+
+        Predicate<StatConclusion> predicateTrue = sc -> Objects.equals(Boolean.TRUE, sc.getIsSaprodontiaLoss()) || Objects.equals(Boolean.TRUE, sc.getIsSaprodontiaRepair()) || Objects.equals(Boolean.TRUE, sc.getIsSaprodontia());
+        ToIntFunction<StatConclusion> totalFunction = sc -> Optional.ofNullable(sc.getSaprodontiaLossTeeth()).orElse(0) + Optional.ofNullable(sc.getSaprodontiaRepairTeeth()).orElse(0) + Optional.ofNullable(sc.getSaprodontiaTeeth()).orElse(0);
 
         int dmftNum = statConclusions.stream().filter(Objects::nonNull)
-                .filter(sc -> Objects.equals(Boolean.TRUE,sc.getIsSaprodontiaLoss()) && Objects.equals(Boolean.TRUE,sc.getIsSaprodontiaRepair()))
-                .mapToInt(sc -> sc.getSaprodontiaLossTeeth() + sc.getSaprodontiaRepairTeeth()).sum();
+                .filter(predicateTrue)
+                .mapToInt(totalFunction).sum();
 
         int sumTeeth = statConclusions.stream().filter(Objects::nonNull)
-                .filter(sc -> Objects.equals(Boolean.TRUE,sc.getIsSaprodontiaLoss()) && Objects.equals(Boolean.TRUE,sc.getIsSaprodontiaRepair()) && Objects.equals(Boolean.TRUE,sc.getIsSaprodontia()))
-                .mapToInt(sc -> sc.getSaprodontiaLossTeeth() + sc.getSaprodontiaRepairTeeth() + sc.getSaprodontiaTeeth()).sum();
+                .filter(predicateTrue)
+                .mapToInt(totalFunction).sum();
 
         saprodontiaDO
                 .setSaprodontiaFreeNum(saprodontiaFreeNum).setSaprodontiaFreeRatio(MathUtil.ratio(saprodontiaFreeNum,realScreeningStudentNum))

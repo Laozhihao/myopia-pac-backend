@@ -714,7 +714,7 @@ public class ScreeningResultUtil {
         BigDecimal seVal = se.abs().multiply(new BigDecimal("100")).setScale(0, RoundingMode.DOWN);
         if (se.compareTo(new BigDecimal("0.00")) <= 0) {
             // 近视
-            MyopiaLevelEnum myopiaWarningLevel = StatUtil.getMyopiaWarningLevel(sph.floatValue(), cyl.floatValue(), age, nakedVision.floatValue());
+            MyopiaLevelEnum myopiaWarningLevel = StatUtil.getMyopiaWarningLevel(sph, cyl, age, nakedVision);
             String str;
             if (se.compareTo(new BigDecimal("-0.50")) < 0) {
                 str = "近视" + seVal + "度";
