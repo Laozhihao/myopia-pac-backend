@@ -41,19 +41,28 @@ public class SchoolResultDetailVO {
 
         if (CollectionUtil.isNotEmpty(screeningResultStatistics)){
             Map<Integer, ScreeningResultStatistic> resultStatisticMap = screeningResultStatistics.stream().collect(Collectors.toMap(ScreeningResultStatistic::getSchoolType, Function.identity()));
-            ScreeningResultStatistic screeningResultStatistic = resultStatisticMap.get(type);
-            if (Objects.equals(type, SchoolEnum.TYPE_KINDERGARTEN.getType())){
-                KindergartenResultDetailVO detailVO=new KindergartenResultDetailVO();
-                detailVO.setBaseData(screeningNoticeId,school.getDistrictId(),screeningType,school.getName());
-                detailVO.setItemData(screeningResultStatistic);
-                this.kindergartenResultDetail=detailVO;
+            if (Objects.isNull(type)){
+                resultStatisticMap.forEach((schoolType,resultStatistic)->{
+                    setData(screeningNoticeId, schoolType, screeningType, school, resultStatistic);
+                });
             }else {
-                PrimarySchoolAndAboveResultDetailVO detailVO = new PrimarySchoolAndAboveResultDetailVO();
-                detailVO.setBaseData(screeningNoticeId,school.getDistrictId(),screeningType,school.getName());
-                detailVO.setItemData(screeningResultStatistic);
-                this.primarySchoolAndAboveResultDetail=detailVO;
+                ScreeningResultStatistic screeningResultStatistic = resultStatisticMap.get(type);
+                setData(screeningNoticeId, type, screeningType, school, screeningResultStatistic);
             }
         }
+    }
 
+    private void setData(Integer screeningNoticeId, Integer type, Integer screeningType, School school, ScreeningResultStatistic screeningResultStatistic) {
+        if (Objects.equals(type, SchoolEnum.TYPE_KINDERGARTEN.getType())){
+            KindergartenResultDetailVO detailVO=new KindergartenResultDetailVO();
+            detailVO.setBaseData(screeningNoticeId,school.getDistrictId(),screeningType,school.getName());
+            detailVO.setItemData(screeningResultStatistic);
+            this.kindergartenResultDetail=detailVO;
+        }else {
+            PrimarySchoolAndAboveResultDetailVO detailVO = new PrimarySchoolAndAboveResultDetailVO();
+            detailVO.setBaseData(screeningNoticeId,school.getDistrictId(),screeningType,school.getName());
+            detailVO.setItemData(screeningResultStatistic);
+            this.primarySchoolAndAboveResultDetail=detailVO;
+        }
     }
 }

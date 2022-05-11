@@ -316,7 +316,8 @@ public class StatManagementController {
     @GetMapping("/school/schoolStatisticDetail")
     public SchoolResultDetailVO getSchoolStatisticDetail(@RequestParam(required = false) Integer screeningPlanId,
                                                          @RequestParam(required = false) Integer screeningNoticeId,
-                                                         @RequestParam Integer schoolId,@RequestParam Integer type) {
+                                                         @RequestParam(required = false) Integer type,
+                                                         @RequestParam Integer schoolId) {
         StatisticDetailBO statisticDetailBO = new StatisticDetailBO()
                 .setScreeningPlanId(screeningPlanId)
                 .setScreeningNoticeId(screeningNoticeId)
