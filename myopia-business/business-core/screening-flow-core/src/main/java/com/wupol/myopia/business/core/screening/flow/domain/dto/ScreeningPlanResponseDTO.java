@@ -27,4 +27,10 @@ public class ScreeningPlanResponseDTO extends ScreeningPlan {
      */
     @Deprecated
     private List<SchoolVisionStatisticItem> items;
+
+    /**
+     * 是否是幼儿园
+     */
+    private Boolean isKindergarten;
+
 }

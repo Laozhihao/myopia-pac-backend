@@ -14,6 +14,7 @@ import com.wupol.myopia.business.core.common.domain.dto.OrgAccountListDTO;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
+import com.wupol.myopia.business.core.school.constant.SchoolEnum;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolQueryDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentCountDTO;
@@ -149,6 +150,9 @@ public class SchoolBizService {
             plans.forEach(plan -> {
                 plan.setOrgName(orgMaps.get(plan.getScreeningOrgId()));
                 ScreeningResultStatistic screeningResultStatistic = statisticMaps.get(plan.getId());
+                if (Objects.nonNull(screeningResultStatistic)){
+                    plan.setIsKindergarten(Objects.equals(screeningResultStatistic.getSchoolType(), SchoolEnum.TYPE_KINDERGARTEN.getType()));
+                }
                 if (Objects.isNull(screeningResultStatistic)) {
                     plan.setItems(new ArrayList<>());
                 } else {
