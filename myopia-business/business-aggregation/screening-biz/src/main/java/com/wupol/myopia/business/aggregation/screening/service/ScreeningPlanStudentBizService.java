@@ -544,7 +544,7 @@ public class ScreeningPlanStudentBizService {
         //是否复测
         if (visionScreeningResult!=null){
             VisionScreeningResult visionScreeningResult1 =  visionScreeningResultService.getIsDoubleScreen(visionScreeningResult.getScreeningPlanSchoolStudentId(),visionScreeningResult.getPlanId(),visionScreeningResult.getScreeningType());
-            if (visionScreeningResult1 != null){
+            if (visionScreeningResult1 != null && visionScreeningResult1.getVisionData() != null && visionScreeningResult1.getComputerOptometry() != null && visionScreeningResult1.getHeightAndWeightData() !=null){
                 studentEyeInfo.setIsDoubleScreen(visionScreeningResult1.getIsDoubleScreen());
             }else{
                 studentEyeInfo.setIsDoubleScreen(false);
