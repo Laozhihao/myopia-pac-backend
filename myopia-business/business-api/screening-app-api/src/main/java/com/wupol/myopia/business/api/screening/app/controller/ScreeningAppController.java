@@ -186,7 +186,7 @@ public class ScreeningAppController {
         List<StudentVO> studentVOs = screeningPlanSchoolStudentPage.getRecords().stream()
                 .sorted(Comparator.comparing(ScreeningPlanSchoolStudent::getCreateTime).reversed())
                 .map(StudentVO::getInstance).collect(Collectors.toList());
-        // 新版本不分页，这里需要兼容旧版本，数量为最大
+        // 新版本不分页，这里需要兼容旧版本，数量为最大,学生数一般最多100,999比较合适
         if (channel == 1) {
             size = 999;
         }
