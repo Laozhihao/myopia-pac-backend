@@ -130,14 +130,14 @@ public class PrimarySchoolAndAboveVisionAnalysisDO implements VisionAnalysis,Fro
 
     public BigDecimal getAvgLeftVision() {
         if(Objects.nonNull(avgLeftVision)){
-            return BigDecimalUtil.keepDecimalPlaces(avgLeftVision,1);
+            return BigDecimalUtil.getBigDecimalByFormat(avgLeftVision,1);
         }
         return null;
     }
 
     public BigDecimal getAvgRightVision() {
         if(Objects.nonNull(avgRightVision)){
-            return BigDecimalUtil.keepDecimalPlaces(avgRightVision,1);
+            return BigDecimalUtil.getBigDecimalByFormat(avgRightVision,1);
         }
         return null;
     }
