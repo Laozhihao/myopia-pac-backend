@@ -293,6 +293,7 @@ public class StatUtil {
      * @param isWearGlasses 是否戴镜（true-戴镜，false-不戴镜）
      */
     public static Integer correction(BigDecimal leftNakedVision, BigDecimal rightNakedVision,
+                                     BigDecimal leftCorrectVision, BigDecimal rightCorrectVision,
                                      Integer schoolType,Integer age,Boolean isWearGlasses) {
 
         if (ObjectsUtil.hasNull(schoolType,age,isWearGlasses)){
@@ -302,32 +303,34 @@ public class StatUtil {
 
             if(age < 5){
                 String nakedVision = "4.8";
-                return kindergartenCorrection(leftNakedVision,rightNakedVision,isWearGlasses,nakedVision);
+                return kindergartenCorrection(leftNakedVision,rightNakedVision,leftCorrectVision,rightCorrectVision,isWearGlasses,nakedVision);
             }
 
             if (age >= 5 && age < 7){
                 String nakedVision = "4.9";
-                return kindergartenCorrection(leftNakedVision,rightNakedVision,isWearGlasses,nakedVision);
+                return kindergartenCorrection(leftNakedVision,rightNakedVision,leftCorrectVision,rightCorrectVision,isWearGlasses,nakedVision);
             }
 
             return null;
         }else {
             String nakedVision = "4.9";
-            return primarySchoolAboveCorrection(leftNakedVision,rightNakedVision,isWearGlasses,nakedVision);
+            return primarySchoolAboveCorrection(leftNakedVision,rightNakedVision,leftCorrectVision,rightCorrectVision,isWearGlasses,nakedVision);
         }
     }
 
     /**
      *  幼儿园
      */
-    private static Integer kindergartenCorrection(BigDecimal leftNakedVision, BigDecimal rightNakedVision,Boolean isWearGlasses,String nakedVision){
+    private static Integer kindergartenCorrection(BigDecimal leftNakedVision, BigDecimal rightNakedVision,
+                                                  BigDecimal leftCorrectVision, BigDecimal rightCorrectVision,
+                                                  Boolean isWearGlasses,String nakedVision){
         if (ObjectsUtil.hasNull(leftNakedVision,rightNakedVision,isWearGlasses)){
             return null;
         }
         if (BigDecimalUtil.lessThanAndEqual(leftNakedVision,nakedVision)
                 ||BigDecimalUtil.lessThanAndEqual(rightNakedVision,nakedVision)){
 
-            return correctionWearGlasses(leftNakedVision,rightNakedVision,isWearGlasses,nakedVision);
+            return correctionWearGlasses(leftCorrectVision,rightCorrectVision,isWearGlasses,nakedVision);
 
         }
         return VisionCorrection.NORMAL.code;
@@ -337,27 +340,30 @@ public class StatUtil {
     /**
      * 小学及以上
      */
-    private static Integer primarySchoolAboveCorrection(BigDecimal leftNakedVision, BigDecimal rightNakedVision,Boolean isWearGlasses,String nakedVision ){
+    private static Integer primarySchoolAboveCorrection(BigDecimal leftNakedVision, BigDecimal rightNakedVision,
+                                                        BigDecimal leftCorrectVision, BigDecimal rightCorrectVision,
+                                                        Boolean isWearGlasses,String nakedVision ){
         if (ObjectsUtil.hasNull(leftNakedVision,rightNakedVision,isWearGlasses)){
             return null;
         }
         if (BigDecimalUtil.lessThan(leftNakedVision,nakedVision)
                 ||BigDecimalUtil.lessThan(rightNakedVision,nakedVision)){
 
-            return correctionWearGlasses(leftNakedVision,rightNakedVision,isWearGlasses,nakedVision);
+            return correctionWearGlasses(leftCorrectVision,rightCorrectVision,isWearGlasses,nakedVision);
         }
         return VisionCorrection.NORMAL.code;
     }
 
 
-    private Integer correctionWearGlasses(BigDecimal leftNakedVision, BigDecimal rightNakedVision,Boolean isWearGlasses,String nakedVision){
+    private Integer correctionWearGlasses(BigDecimal leftCorrectVision, BigDecimal rightCorrectVision,
+                                          Boolean isWearGlasses,String nakedVision){
         if(isWearGlasses){
-            if (BigDecimalUtil.moreThan(leftNakedVision,nakedVision) && BigDecimalUtil.moreThan(rightNakedVision,nakedVision)){
+            if (BigDecimalUtil.moreThan(leftCorrectVision,nakedVision) && BigDecimalUtil.moreThan(rightCorrectVision,nakedVision)){
                 return VisionCorrection.ENOUGH_CORRECTED.code;
             }
-            if (BigDecimalUtil.lessThanAndEqual(leftNakedVision,nakedVision)
-                    || BigDecimalUtil.lessThanAndEqual(rightNakedVision,nakedVision)
-                    || (BigDecimalUtil.lessThanAndEqual(leftNakedVision,nakedVision) && BigDecimalUtil.lessThanAndEqual(rightNakedVision,nakedVision))){
+            if (BigDecimalUtil.lessThanAndEqual(leftCorrectVision,nakedVision)
+                    || BigDecimalUtil.lessThanAndEqual(rightCorrectVision,nakedVision)
+                    || (BigDecimalUtil.lessThanAndEqual(leftCorrectVision,nakedVision) && BigDecimalUtil.lessThanAndEqual(rightCorrectVision,nakedVision))){
                 return VisionCorrection.UNDER_CORRECTED.code;
             }
             return VisionCorrection.NORMAL.code;

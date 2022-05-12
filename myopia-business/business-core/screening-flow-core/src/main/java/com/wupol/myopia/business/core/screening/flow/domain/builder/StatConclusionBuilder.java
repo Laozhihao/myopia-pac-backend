@@ -228,7 +228,9 @@ public class StatConclusionBuilder {
                 return SchoolEnum.TYPE_PRIMARY.getType();
             }
         }).orElse(null);
-        Integer correction = StatUtil.correction(basicData.getLeftNakedVision(), basicData.getRightNakedVision(), schoolType, basicData.getAge(), basicData.getIsWearingGlasses());
+        Integer correction = StatUtil.correction(basicData.getLeftNakedVision(), basicData.getRightNakedVision(),
+                basicData.getLeftCorrectVision(),basicData.getRightCorrectVision(),
+                schoolType, basicData.getAge(), basicData.getIsWearingGlasses());
         statConclusion.setVisionCorrection(correction);
     }
 
