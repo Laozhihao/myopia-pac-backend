@@ -366,7 +366,7 @@ public class StatUtil {
                     || (BigDecimalUtil.lessThanAndEqual(leftCorrectVision,nakedVision) && BigDecimalUtil.lessThanAndEqual(rightCorrectVision,nakedVision))){
                 return VisionCorrection.UNDER_CORRECTED.code;
             }
-            return VisionCorrection.NORMAL.code;
+            return null;
         }else {
             return VisionCorrection.UNCORRECTED.code;
         }
