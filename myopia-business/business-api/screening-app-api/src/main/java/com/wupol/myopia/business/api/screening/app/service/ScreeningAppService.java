@@ -685,7 +685,7 @@ public class ScreeningAppService {
         if (Boolean.FALSE.equals(firstStudentScreeningProgressVO.getIsFirst()) || Boolean.FALSE.equals(firstStudentScreeningProgressVO.getResult())) {
             // 初筛未完成
             firstStudentScreeningProgressVO.setScreeningStatus(4);
-        } else if (Objects.isNull(secondStudentScreeningProgressVOS.getStudentId())) {
+        } else if (Objects.isNull(secondStudentScreeningProgressVOS.getResult())) {
             // 开始复测
             firstStudentScreeningProgressVO.setScreeningStatus(2);
         } else if (Boolean.FALSE.equals(secondStudentScreeningProgressVOS.getResult())) {
