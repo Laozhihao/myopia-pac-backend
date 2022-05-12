@@ -1,10 +1,14 @@
 package com.wupol.myopia.business.core.screening.flow.domain.builder;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.wupol.framework.core.util.ObjectsUtil;
+import com.wupol.myopia.base.constant.SystemCode;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.BigDecimalUtil;
+import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
@@ -321,8 +325,11 @@ public class StatConclusionBuilder {
      * 屈光不正
      */
     private void setRefractiveError() {
-        Boolean leftRefractiveError = StatUtil.isRefractiveError(basicData.getLeftSph(),basicData.getLeftCyl(),basicData.getAge());
-        Boolean rightRefractiveError = StatUtil.isRefractiveError(basicData.getRightSph(),basicData.getRightCyl(),basicData.getAge());
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        String clientId = currentUser.getClientId();
+        boolean zeroToSixPlatform = Objects.equals(SystemCode.PRESCHOOL_CLIENT.getCode() + StrUtil.EMPTY, clientId);
+        Boolean leftRefractiveError = StatUtil.isRefractiveError(basicData.getLeftSph(),basicData.getLeftCyl(),basicData.getAge(),zeroToSixPlatform);
+        Boolean rightRefractiveError = StatUtil.isRefractiveError(basicData.getRightSph(),basicData.getRightCyl(),basicData.getAge(),zeroToSixPlatform);
         statConclusion.setIsRefractiveError(StatUtil.getIsExist(leftRefractiveError,rightRefractiveError));
     }
 

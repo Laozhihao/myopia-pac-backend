@@ -231,6 +231,7 @@ public class StatManagementController {
      */
     @GetMapping("screeningToConclusion")
     public void screeningToConclusion(@RequestParam(required = false) Integer planId,@RequestParam Boolean isAll){
+        CurrentUserUtil.getCurrentUser();
         statConclusionBizService.screeningToConclusion(planId,isAll);
         scheduledTasksExecutor.statistic(null,planId,isAll);
     }
