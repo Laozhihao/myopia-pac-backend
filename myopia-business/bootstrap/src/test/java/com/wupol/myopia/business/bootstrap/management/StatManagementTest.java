@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.wupol.framework.domain.ThreeTuple;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.business.bootstrap.MyopiaBusinessApplication;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
@@ -74,7 +75,8 @@ public class StatManagementTest {
             return;
         }
         Map<Boolean, VisionScreeningResult> visionScreeningResultMap = visionScreeningResults.stream().collect(Collectors.toMap(VisionScreeningResult::getIsDoubleScreen, Function.identity()));
-
+        CurrentUser user = new CurrentUser();
+        user.setClientId("1");
         VisionScreeningResult currentVisionScreeningResult = visionScreeningResultMap.get(Boolean.FALSE);
         if (Objects.nonNull(currentVisionScreeningResult)){
             log.info("初筛=========");
@@ -83,6 +85,7 @@ public class StatManagementTest {
                     .setStatConclusion(null)
                     .setScreeningPlanSchoolStudent(screeningPlanSchoolStudent)
                     .setGradeCode(schoolGrade.getGradeCode())
+                    .setCurrentUser(user)
                     .build();
             log.info(JSONObject.toJSONString(statConclusion,true));
         }
@@ -95,6 +98,7 @@ public class StatManagementTest {
                     .setStatConclusion(null)
                     .setScreeningPlanSchoolStudent(screeningPlanSchoolStudent)
                     .setGradeCode(schoolGrade.getGradeCode())
+                    .setCurrentUser(user)
                     .build();
             log.info(JSONObject.toJSONString(statConclusion,true));
         }

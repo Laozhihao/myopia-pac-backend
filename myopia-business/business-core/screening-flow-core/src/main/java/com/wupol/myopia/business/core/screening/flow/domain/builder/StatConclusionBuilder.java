@@ -50,6 +50,7 @@ public class StatConclusionBuilder {
     private final BigDecimal visionAndWeightRangeValue = new BigDecimal("0.1");
     private final BigDecimal seAndHeightRangeValue = new BigDecimal("0.5");
     private String gradeCode;
+    private CurrentUser currentUser;
 
     private StatConclusionBuilder() {
 
@@ -77,13 +78,18 @@ public class StatConclusionBuilder {
         return this;
     }
 
+    public StatConclusionBuilder setCurrentUser(CurrentUser currentUser) {
+        this.currentUser = currentUser;
+        return this;
+    }
+
     /**
      * 构建
      *
      * @return
      */
     public StatConclusion build() {
-        if (!ObjectsUtil.allNotNull(currentVisionScreeningResult, screeningPlanSchoolStudent, statConclusion)) {
+        if (!ObjectsUtil.allNotNull(currentVisionScreeningResult, screeningPlanSchoolStudent, statConclusion,currentUser)) {
             throw new ManagementUncheckedException("StatConclusion构建失败，缺少关键参数");
         }
         // 基本数据的准备
@@ -333,7 +339,6 @@ public class StatConclusionBuilder {
      * 屈光不正
      */
     private void setRefractiveError() {
-        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         String clientId = currentUser.getClientId();
         boolean zeroToSixPlatform = Objects.equals(SystemCode.PRESCHOOL_CLIENT.getCode() + StrUtil.EMPTY, clientId);
         Boolean leftRefractiveError = StatUtil.isRefractiveError(basicData.getLeftSph(),basicData.getLeftCyl(),basicData.getAge(),zeroToSixPlatform);
