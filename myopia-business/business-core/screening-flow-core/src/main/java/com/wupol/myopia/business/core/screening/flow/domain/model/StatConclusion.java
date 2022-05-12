@@ -93,17 +93,17 @@ public class StatConclusion implements Serializable {
     private Integer studentId;
 
     /**
-     * 近视预警等级
+     * 近视等级
      */
     private Integer myopiaLevel;
 
     /**
-     * 远视预警等级
+     * 远视等级
      */
     private Integer hyperopiaLevel;
 
     /**
-     * 散光预警等级
+     * 散光等级
      */
     private Integer astigmatismLevel;
 

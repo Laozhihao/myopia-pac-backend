@@ -1,7 +1,5 @@
 package com.wupol.myopia.business.common.utils.constant;
 
-import lombok.Getter;
-
 /**
  * 视力低下等级
  *
@@ -18,10 +16,8 @@ public enum LowVisionLevelEnum {
     LOW_VISION_LEVEL_HIGH(4, "重度视力低下");;
 
 
-    @Getter
-    private Integer code;
-    @Getter
-    private String desc;
+    public final Integer code;
+    public final String desc;
 
     LowVisionLevelEnum(Integer code, String desc) {
         this.code = code;

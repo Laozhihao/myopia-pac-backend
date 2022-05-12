@@ -400,16 +400,6 @@ public class ScreeningResultStatisticBuilder {
         statistic.setCommonDisease(commonDiseaseDO);
     }
 
-    /**
-     * 是否复查学生
-     */
-    private static boolean review(StatConclusion sc) {
-        return Objects.equals(Boolean.TRUE,sc.getIsLowVision())  || Objects.equals(Boolean.TRUE,sc.getIsMyopia()) ||
-               Objects.equals(Boolean.TRUE,sc.getIsHyperopia()) || Objects.equals(Boolean.TRUE,sc.getIsAstigmatism()) ||
-               Objects.equals(Boolean.FALSE,sc.getIsSpinalCurvature()) ||Objects.equals(Boolean.TRUE,sc.getIsObesity()) ||
-               Objects.equals(Boolean.TRUE,sc.getIsOverweight()) || Objects.equals(Boolean.TRUE,sc.getIsMalnutrition()) ||
-               Objects.equals(Boolean.TRUE,sc.getIsStunting());
-    }
 
     /**
      * 设置问卷调查数据

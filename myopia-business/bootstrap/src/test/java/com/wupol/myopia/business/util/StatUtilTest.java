@@ -70,10 +70,10 @@ public class StatUtilTest {
         Assert.assertEquals(true,StatUtil.isAstigmatism("-1.0"));
         Assert.assertEquals(false,StatUtil.isAstigmatism("-0.3"));
         Assert.assertEquals(true,StatUtil.isAstigmatism(AstigmatismLevelEnum.ASTIGMATISM_LEVEL_LIGHT));
-        Assert.assertEquals(AstigmatismLevelEnum.ZERO,StatUtil.getAstigmatismWarningLevel("-0.3"));
-        Assert.assertEquals(AstigmatismLevelEnum.ASTIGMATISM_LEVEL_LIGHT,StatUtil.getAstigmatismWarningLevel("1.0"));
-        Assert.assertEquals(AstigmatismLevelEnum.ASTIGMATISM_LEVEL_MIDDLE,StatUtil.getAstigmatismWarningLevel("-3.0"));
-        Assert.assertEquals(AstigmatismLevelEnum.ASTIGMATISM_LEVEL_HIGH,StatUtil.getAstigmatismWarningLevel("-5.0"));
+        Assert.assertEquals(AstigmatismLevelEnum.ZERO,StatUtil.getAstigmatismLevel("-0.3"));
+        Assert.assertEquals(AstigmatismLevelEnum.ASTIGMATISM_LEVEL_LIGHT,StatUtil.getAstigmatismLevel("1.0"));
+        Assert.assertEquals(AstigmatismLevelEnum.ASTIGMATISM_LEVEL_MIDDLE,StatUtil.getAstigmatismLevel("-3.0"));
+        Assert.assertEquals(AstigmatismLevelEnum.ASTIGMATISM_LEVEL_HIGH,StatUtil.getAstigmatismLevel("-5.0"));
     }
 
     @Test
@@ -98,11 +98,11 @@ public class StatUtilTest {
     }
 
     @Test
-    public void refractiveDataTest(){
-        Assert.assertNull(StatUtil.refractiveData(new BigDecimal("-2.00"), null, null, 0));
-        Assert.assertEquals(WarningLevel.THREE,StatUtil.refractiveData(null,new BigDecimal("5.00"),null,1));
-        Assert.assertNull(StatUtil.refractiveData(new BigDecimal("2.00"), null, 3, 2));
-        Assert.assertNull(StatUtil.refractiveData(new BigDecimal("3.00"), null, 4, 2));
+    public void warningLevelTest(){
+        Assert.assertNull(StatUtil.warningLevel(new BigDecimal("-2.00"), null, null, 0));
+        Assert.assertEquals(WarningLevel.THREE,StatUtil.warningLevel(null,new BigDecimal("5.00"),null,1));
+        Assert.assertNull(StatUtil.warningLevel(new BigDecimal("2.00"), null, 3, 2));
+        Assert.assertNull(StatUtil.warningLevel(new BigDecimal("3.00"), null, 4, 2));
     }
 
 

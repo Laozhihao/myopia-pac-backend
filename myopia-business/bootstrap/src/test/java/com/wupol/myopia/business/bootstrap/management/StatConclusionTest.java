@@ -96,18 +96,18 @@ public class StatConclusionTest {
             BigDecimal leftSph = leftData.getSph();
             BigDecimal rightSph = rightData.getSph();
 
-            AstigmatismLevelEnum leftAstigmatismWarningLevel = StatUtil.getAstigmatismWarningLevel(leftCyl);
-            AstigmatismLevelEnum rightAstigmatismWarningLevel = StatUtil.getAstigmatismWarningLevel(rightCyl);
+            AstigmatismLevelEnum leftAstigmatismWarningLevel = StatUtil.getAstigmatismLevel(leftCyl);
+            AstigmatismLevelEnum rightAstigmatismWarningLevel = StatUtil.getAstigmatismLevel(rightCyl);
 
             HyperopiaLevelEnum leftHyperopiaWarningLevel =
-                    StatUtil.getHyperopiaWarningLevel(leftSph, leftCyl, age);
+                    StatUtil.getHyperopiaLevel(leftSph, leftCyl, age);
             HyperopiaLevelEnum rightHyperopiaWarningLevel =
-                    StatUtil.getHyperopiaWarningLevel(rightSph, rightCyl, age);
+                    StatUtil.getHyperopiaLevel(rightSph, rightCyl, age);
 
             BigDecimal leftNakedVision = visionData.getLeftEyeData().getNakedVision();
             BigDecimal rightNakedVision = visionData.getRightEyeData().getNakedVision();
-            MyopiaLevelEnum leftMyopiaWarningLevel = StatUtil.getMyopiaWarningLevel(leftSph, leftCyl, age, leftNakedVision);
-            MyopiaLevelEnum rightMyopiaWarningLevel = StatUtil.getMyopiaWarningLevel(rightSph, rightCyl, age, rightNakedVision);
+            MyopiaLevelEnum leftMyopiaWarningLevel = StatUtil.getMyopiaLevel(leftSph, leftCyl, age, leftNakedVision);
+            MyopiaLevelEnum rightMyopiaWarningLevel = StatUtil.getMyopiaLevel(rightSph, rightCyl, age, rightNakedVision);
 
             Integer myopiaWarningLevel = leftMyopiaWarningLevel.code > rightMyopiaWarningLevel.code
                     ? leftMyopiaWarningLevel.code
