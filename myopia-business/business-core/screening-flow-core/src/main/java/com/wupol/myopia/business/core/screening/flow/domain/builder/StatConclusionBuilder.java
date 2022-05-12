@@ -172,9 +172,12 @@ public class StatConclusionBuilder {
         this.setVisionOtherData();
         this.setNakedVisionWarningLevel();
 
+        this.setLowVision();
+        this.setLowVisionLevel();
+
         this.setVisionCorrection();
         this.setAnisometropia();
-        this.setLowVision();
+
         this.setRefractiveError();
 
     }
@@ -223,6 +226,13 @@ public class StatConclusionBuilder {
      */
     private void setNakedVisionWarningLevel() {
         statConclusion.setNakedVisionWarningLevel(basicData.getNakedVisionWarningLevel());
+    }
+
+    /**
+     * 视力低下等级
+     */
+    private void setLowVisionLevel(){
+        statConclusion.setLowVisionLevel(basicData.getLowVisionLevel());
     }
 
 
@@ -760,6 +770,8 @@ public class StatConclusionBuilder {
         private Boolean isAstigmatism;
         private WarningLevel leftNakedVisionWarningLevel;
         private WarningLevel rightNakedVisionWarningLevel;
+        private LowVisionLevelEnum leftLowVisionLevel;
+        private LowVisionLevelEnum rightLowVisionLevel;
         private HyperopiaLevelEnum leftHyperopiaWarningLevel;
         private HyperopiaLevelEnum rightHyperopiaWarningLevel;
         private MyopiaLevelEnum leftMyopiaWarningLevel;
@@ -768,6 +780,7 @@ public class StatConclusionBuilder {
         private Integer age;
         private Integer schoolAge;
         private Integer nakedVisionWarningLevel;
+        private Integer lowVisionLevel;
         private Integer myopiaWarningLevel;
         private Integer glassesType;
 
@@ -870,14 +883,17 @@ public class StatConclusionBuilder {
             basicData.leftNakedVision = leftEyeData.getNakedVision();
             basicData.leftCorrectVision = leftEyeData.getCorrectedVision();
             if (basicData.leftNakedVision != null) {
-                basicData.leftNakedVisionWarningLevel = StatUtil.getNakedVisionWarningLevel(basicData.getLeftNakedVision(), basicData.getAge());
+                basicData.leftLowVisionLevel = StatUtil.getLowVisionLevel(basicData.getLeftNakedVision(), basicData.getAge());
+                basicData.leftNakedVisionWarningLevel = StatUtil.nakedVision(basicData.getLeftNakedVision(), basicData.getAge());
             }
             VisionDataDO.VisionData rightEyeData = visionData.getRightEyeData();
             basicData.rightNakedVision = rightEyeData.getNakedVision();
             basicData.rightCorrectVision = rightEyeData.getCorrectedVision();
             if (basicData.rightNakedVision != null) {
-                basicData.rightNakedVisionWarningLevel = StatUtil.getNakedVisionWarningLevel(basicData.getRightNakedVision(), basicData.getAge());
+                basicData.rightLowVisionLevel = StatUtil.getLowVisionLevel(basicData.getRightNakedVision(), basicData.getAge());
+                basicData.rightNakedVisionWarningLevel = StatUtil.nakedVision(basicData.getRightNakedVision(), basicData.getAge());
             }
+            setLowVisionLevel(basicData);
             setVisionWarningLevel(basicData);
             setMyopiaVisionWarningLevel(basicData);
         }
@@ -890,13 +906,28 @@ public class StatConclusionBuilder {
         private static void setVisionWarningLevel(BasicData basicData) {
             List<Integer> warningLevelList = new ArrayList<>();
             if (basicData.getLeftNakedVisionWarningLevel() != null) {
-                warningLevelList.add(basicData.getLeftNakedVisionWarningLevel().code);
+                warningLevelList.add(basicData.getLeftNakedVisionWarningLevel().getCode());
             }
             if (basicData.getRightNakedVisionWarningLevel() != null) {
-                warningLevelList.add(basicData.getRightNakedVisionWarningLevel().code);
+                warningLevelList.add(basicData.getRightNakedVisionWarningLevel().getCode());
             }
             if (CollectionUtils.isNotEmpty(warningLevelList)) {
                 basicData.nakedVisionWarningLevel = Collections.max(warningLevelList);
+            }
+        }
+        /**
+         * 视力低下等级
+         */
+        private static void setLowVisionLevel(BasicData basicData) {
+            List<Integer> lowVisionLevelList = new ArrayList<>();
+            if (basicData.getLeftLowVisionLevel() != null) {
+                lowVisionLevelList.add(basicData.getLeftLowVisionLevel().getCode());
+            }
+            if (basicData.getRightLowVisionLevel() != null) {
+                lowVisionLevelList.add(basicData.getLeftLowVisionLevel().getCode());
+            }
+            if (CollectionUtils.isNotEmpty(lowVisionLevelList)) {
+                basicData.lowVisionLevel = Collections.max(lowVisionLevelList);
             }
         }
 

@@ -125,9 +125,9 @@ public class StatConclusionTest {
                     || StatUtil.isMyopia(rightMyopiaWarningLevel);
 
             WarningLevel leftNakedVisionWarningLevel =
-                    StatUtil.getNakedVisionWarningLevel(leftNakedVision, age);
+                    StatUtil.nakedVision(leftNakedVision, age);
             WarningLevel rightNakedVisionWarningLevel =
-                    StatUtil.getNakedVisionWarningLevel(rightNakedVision, age);
+                    StatUtil.nakedVision(rightNakedVision, age);
             Integer nakedVisionWarningLevel =
                     leftNakedVisionWarningLevel.code > rightNakedVisionWarningLevel.code
                     ? leftNakedVisionWarningLevel.code

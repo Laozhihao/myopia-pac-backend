@@ -252,4 +252,9 @@ public class StatConclusion implements Serializable {
      */
     private Boolean isWearingGlasses;
 
+    /**
+     * 视力低下等级 {@link com.wupol.myopia.business.common.utils.constant.LowVisionLevelEnum}
+     */
+    private Integer lowVisionLevel;
+
 }

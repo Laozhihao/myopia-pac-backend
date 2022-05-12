@@ -108,40 +108,26 @@ public class StatUtil {
     }
 
     /**
-     * 视力低下等级 (TODO:是视力等级,还是预警等级)
+     * 视力低下等级
      *
      * @param nakedVision 裸眼视力
      * @param age         年龄
      */
-    public static WarningLevel getNakedVisionWarningLevel(Float nakedVision, Integer age) {
-        if (ObjectsUtil.hasNull(nakedVision,age) || age < 6) {
-            return null;
-        }
-        return getNakedVisionWarningLevel(nakedVision.toString(), age);
-    }
-
-    public static WarningLevel getNakedVisionWarningLevel(String nakedVision, Integer age) {
-        if (StrUtil.isBlank(nakedVision) || age == null || age < 6) {
-            return null;
-        }
-        return getNakedVisionWarningLevel(new BigDecimal(nakedVision), age);
-    }
-
-    public static WarningLevel getNakedVisionWarningLevel(BigDecimal nakedVision, Integer age) {
+    public static LowVisionLevelEnum getLowVisionLevel(BigDecimal nakedVision, Integer age) {
         if (ObjectsUtil.hasNull(nakedVision,age) || age < 6) {
             return null;
         }
 
         if (BigDecimalUtil.decimalEqual(nakedVision, "4.9")) {
-            return WarningLevel.ONE;
+            return LowVisionLevelEnum.LOW_VISION_LEVEL_LIGHT;
         }
         if (BigDecimalUtil.isBetweenAll(nakedVision, "4.6", "4.8")) {
-            return WarningLevel.TWO;
+            return LowVisionLevelEnum.LOW_VISION_LEVEL_MIDDLE;
         }
         if (BigDecimalUtil.lessThanAndEqual(nakedVision, "4.5")) {
-            return WarningLevel.THREE;
+            return LowVisionLevelEnum.LOW_VISION_LEVEL_HIGH;
         }
-        return WarningLevel.NORMAL;
+        return null;
     }
 
     /**
@@ -953,13 +939,6 @@ public class StatUtil {
      * @param sphere 球镜
      * @param cylinder 柱镜
      */
-    public static WarningLevel myopiaLevelInsufficient(String sphere,String cylinder) {
-        if (StrUtil.isNotBlank(sphere) && StrUtil.isNotBlank(cylinder)) {
-            return myopiaLevelInsufficient(new BigDecimal(sphere),new BigDecimal(cylinder));
-        }
-        return null;
-    }
-
     public static WarningLevel myopiaLevelInsufficient(BigDecimal sphere, BigDecimal cylinder) {
         BigDecimal se = getSphericalEquivalent(sphere, cylinder);
         if (Objects.isNull(se)){
