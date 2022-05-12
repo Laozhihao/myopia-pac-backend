@@ -1,6 +1,10 @@
 package com.wupol.myopia.base.util;
 
+import com.google.common.collect.Maps;
+
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -9,6 +13,15 @@ import java.util.Optional;
  * @author Simple4H
  */
 public class BigDecimalUtil {
+    private static Map<Integer,String> DECIMAL_FORMAT = Maps.newHashMap();
+
+    static {
+        DECIMAL_FORMAT.put(1,"0.0");
+        DECIMAL_FORMAT.put(2,"0.00");
+        DECIMAL_FORMAT.put(3,"0.000");
+        DECIMAL_FORMAT.put(4,"0.0000");
+    }
+
 
     /**
      * 小于
@@ -308,5 +321,16 @@ public class BigDecimalUtil {
             return value.setScale(fixed, BigDecimal.ROUND_HALF_UP);
         }
         return null;
+    }
+
+    /**
+     * 获取格式化后的BigDecimal数据
+     *
+     * @param source 原数据
+     * @param scale  小数点位数
+     */
+    public static BigDecimal getBigDecimalByFormat(BigDecimal source, int scale) {
+        DecimalFormat decimalFormat = new DecimalFormat(DECIMAL_FORMAT.get(scale));
+        return new BigDecimal(decimalFormat.format(source));
     }
 }
