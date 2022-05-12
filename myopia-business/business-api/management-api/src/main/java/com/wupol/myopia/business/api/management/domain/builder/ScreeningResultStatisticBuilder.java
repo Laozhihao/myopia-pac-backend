@@ -189,7 +189,7 @@ public class ScreeningResultStatisticBuilder {
         visionAnalysisDO.setLowVisionNum(lowVisionNum)
                 .setLowVisionRatio(MathUtil.ratio(lowVisionNum,validScreeningNum))
                 .setAvgLeftVision(tuple.getFirst()).setAvgRightVision(tuple.getSecond())
-                .setMyopiaNum(myopiaNum).setMyopiaRatio(MathUtil.ratio(myopiaNum,validScreeningNum))
+                .setMyopiaNum(myopiaNum+nightWearingOrthokeratologyLensesNum).setMyopiaRatio(MathUtil.ratio(myopiaNum,validScreeningNum))
                 .setMyopiaLevelEarlyNum(myopiaLevelEarlyNum).setMyopiaLevelEarlyRatio(MathUtil.ratio(myopiaLevelEarlyNum,validScreeningNum))
                 .setLowMyopiaNum(lowMyopiaNum).setLowMyopiaRatio(MathUtil.ratio(lowMyopiaNum,validScreeningNum))
                 .setHighMyopiaNum(highMyopiaNum).setHighMyopiaRatio(MathUtil.ratio(highMyopiaNum,validScreeningNum))
