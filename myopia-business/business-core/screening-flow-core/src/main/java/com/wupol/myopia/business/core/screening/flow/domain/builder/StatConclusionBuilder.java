@@ -85,10 +85,16 @@ public class StatConclusionBuilder {
         } else {
             statConclusion.setUpdateTime(new Date());
         }
-
         this.setValid();
-        // 设置视力相关的数据
-        this.setVisionRelatedData();
+        if (basicData.getIsValid()){
+            // 设置视力相关的数据
+            this.setVisionRelatedData();
+            this.setRecommendVisit();
+            //预警等级
+            this.setWarningLevel();
+            this.setWarningVision();
+        }
+
         //身高体重
         this.setHeightAndWeightData();
         //龋齿
@@ -101,17 +107,10 @@ public class StatConclusionBuilder {
         this.setDiseasesHistoryData();
         //隐私项
         this.setPrivacyData();
-        this.setRefractiveError();
-        this.setRecommendVisit();
-        this.setMyopia();
-        this.setLowVision();
-        this.setWarningLevel();
+
         this.setRescreenErrorNum();
         this.setRescreenItemNum();
-        this.setWarningVision();
-        this.setMyopiaLevel();
-        this.setHyperopiaLevel();
-        this.setAstigmatismLevel();
+
         this.isReview();
         return statConclusion;
     }
@@ -161,12 +160,23 @@ public class StatConclusionBuilder {
         VisionDataDO visionData = currentVisionScreeningResult.getVisionData();
         if(Objects.isNull(visionData)){return;}
         this.setHyperopia();
+        this.setHyperopiaLevel();
+
         this.setAstigmatism();
+        this.setAstigmatismLevel();
+
+        this.setMyopia();
+        this.setMyopiaLevel();
+        this.setMyopiaWarningLevel();
+
         this.setVisionOtherData();
         this.setNakedVisionWarningLevel();
-        this.setMyopiaWarningLevel();
+
         this.setVisionCorrection();
         this.setAnisometropia();
+        this.setLowVision();
+        this.setRefractiveError();
+
     }
 
 
@@ -298,6 +308,9 @@ public class StatConclusionBuilder {
         }
     }
 
+    /**
+     * 屈光不正
+     */
     private void setRefractiveError() {
         Boolean leftRefractiveError = StatUtil.isRefractiveError(basicData.getLeftSph(),basicData.getLeftCyl(),basicData.getAge());
         Boolean rightRefractiveError = StatUtil.isRefractiveError(basicData.getRightSph(),basicData.getRightCyl(),basicData.getAge());
@@ -306,6 +319,9 @@ public class StatConclusionBuilder {
         }
     }
 
+    /**
+     * 近视
+     */
     private void setMyopia() {
         Boolean isLeftMyopia = StatUtil.isMyopia(basicData.getLeftSph(),basicData.getLeftCyl(),basicData.getAge(),basicData.getLeftNakedVision());
         Boolean isRightMyopia = StatUtil.isMyopia(basicData.getRightSph(),basicData.getRightCyl(),basicData.getAge(),basicData.getRightNakedVision());
@@ -315,6 +331,9 @@ public class StatConclusionBuilder {
         }
     }
 
+    /**
+     * 远视
+     */
     private void setHyperopia() {
         Boolean isHyperopia = null;
         if (ObjectsUtil.allNotNull(basicData.getLeftHyperopiaWarningLevel(), basicData.getRightHyperopiaWarningLevel())) {
@@ -323,11 +342,21 @@ public class StatConclusionBuilder {
         statConclusion.setIsHyperopia(isHyperopia);
     }
 
+    /**
+     * 散光
+     */
     private void setAstigmatism() {
+        Boolean leftAstigmatism = StatUtil.isAstigmatism(basicData.getLeftCyl());
+        Boolean rightAstigmatism = StatUtil.isAstigmatism(basicData.getRightCyl());
+        if (ObjectsUtil.allNotNull(leftAstigmatism,rightAstigmatism)){
+            System.out.println(leftAstigmatism || rightAstigmatism);
+        }
         statConclusion.setIsAstigmatism(basicData.getIsAstigmatism());
     }
 
-
+    /**
+     * 建议就诊
+     */
     private void setRecommendVisit() {
         OtherEyeDiseasesDO otherEyeDiseases = currentVisionScreeningResult.getOtherEyeDiseases();
         Boolean otherEyeDiseasesNormal = Objects.nonNull(otherEyeDiseases)? otherEyeDiseases.isNormal():null;
@@ -340,7 +369,9 @@ public class StatConclusionBuilder {
         statConclusion.setIsRecommendVisit(isRecommendVisit);
     }
 
-
+    /**
+     * 复查
+     */
     private void isReview() {
         List<Boolean> isReviewList =Lists.newArrayList();
         Consumer<Boolean> consumerTrue = (flag) -> isReviewList.add(Objects.equals(Boolean.TRUE, flag));
@@ -363,6 +394,9 @@ public class StatConclusionBuilder {
 
     }
 
+    /**
+     * 复测错误项次
+     */
     private void setRescreenErrorNum() {
         if (anotherVisionScreeningResult != null) {
             statConclusion.setRescreenErrorNum(calculateErrorNum());
@@ -371,6 +405,9 @@ public class StatConclusionBuilder {
         }
     }
 
+    /**
+     * 复测项次
+     */
     private void setRescreenItemNum() {
         if (Objects.nonNull(currentVisionScreeningResult)){
             statConclusion.setRescreenItemNum(calculateItemNum());
@@ -538,11 +575,11 @@ public class StatConclusionBuilder {
         return this;
     }
 
+    /**
+     * 数据有效性
+     */
     private void setValid() {
-        if (currentVisionScreeningResult.getVisionData() == null || currentVisionScreeningResult.getComputerOptometry() == null) {
-            statConclusion.setIsValid(false);
-        }
-        statConclusion.setIsValid(StatUtil.isCompletedData(currentVisionScreeningResult.getVisionData(), currentVisionScreeningResult.getComputerOptometry()));
+        statConclusion.setIsValid(basicData.getIsValid());
     }
 
     public StatConclusionBuilder setGradeCode(String gradeCode) {
@@ -708,6 +745,7 @@ public class StatConclusionBuilder {
     @Getter
     @Setter
     static class BasicData {
+        private Boolean isValid;
         private Boolean isWearingGlasses;
         private BigDecimal leftCyl;
         private BigDecimal rightCyl;
@@ -747,18 +785,32 @@ public class StatConclusionBuilder {
          */
         public static BasicData getInstance(VisionScreeningResult visionScreeningResult, ScreeningPlanSchoolStudent screeningPlanSchoolStudent) {
             BasicData basicData = new BasicData();
-            //01.处理基础的数据
+
+            //处理基础的数据
             dealWithBasicData(screeningPlanSchoolStudent, basicData);
 
-            //02.处理电脑验光的数据
+            //视力相关数据的有效性
+            dealWithVaild(visionScreeningResult.getVisionData(),visionScreeningResult.getComputerOptometry(),basicData);
+
+            //处理电脑验光的数据
             dealWithComputerOptometry(screeningPlanSchoolStudent, basicData, visionScreeningResult.getComputerOptometry());
 
-            //03.处理视力相关的数据
+            //处理视力相关的数据
             dealWithVisionData(basicData, visionScreeningResult.getVisionData());
 
             return basicData;
         }
 
+        /**
+         * 处理数据有效性
+         */
+        private static void dealWithVaild(VisionDataDO visionData,ComputerOptometryDO computerOptometry, BasicData basicData) {
+            if (ObjectsUtil.hasNull(visionData,computerOptometry)) {
+                basicData.isValid=Boolean.FALSE;
+                return;
+            }
+            basicData.isValid=StatUtil.isCompletedData(visionData, computerOptometry);
+        }
 
 
         /**
