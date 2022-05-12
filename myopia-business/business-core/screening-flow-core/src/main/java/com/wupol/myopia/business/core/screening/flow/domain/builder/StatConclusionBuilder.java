@@ -17,6 +17,8 @@ import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightD
 import com.wupol.myopia.business.core.screening.flow.domain.dos.OtherEyeDiseasesDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
+import com.wupol.myopia.business.core.school.constant.SchoolEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
@@ -218,19 +220,16 @@ public class StatConclusionBuilder {
      * 设置视力矫正的情况
      */
     private void setVisionCorrection() {
-        String keyParam = "4.9";
-        if (ObjectsUtil.allNotNull(basicData.getRightNakedVision(), basicData.getLeftNakedVision())
-                && BigDecimalUtil.moreThanAndEqual(basicData.getRightNakedVision(),keyParam)
-                && BigDecimalUtil.moreThanAndEqual(basicData.getLeftNakedVision(),keyParam)) {
-            statConclusion.setVisionCorrection(VisionCorrection.NORMAL.code);
-        } else if (Objects.nonNull(basicData.getIsWearingGlasses()) && !basicData.getIsWearingGlasses()) {
-            statConclusion.setVisionCorrection(VisionCorrection.UNCORRECTED.code);
-        } else if (ObjectsUtil.allNotNull(basicData.getLeftCorrectVision(), basicData.getRightCorrectVision())
-                && BigDecimalUtil.moreThan(basicData.getLeftCorrectVision(),keyParam)) {
-            statConclusion.setVisionCorrection(VisionCorrection.ENOUGH_CORRECTED.code);
-        } else {
-            statConclusion.setVisionCorrection(VisionCorrection.UNDER_CORRECTED.code);
-        }
+        Integer schoolType = Optional.ofNullable(gradeCode).map(code->{
+            GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(code);
+            if (Objects.equals(SchoolAge.KINDERGARTEN.code,gradeCodeEnum.getType())){
+                return SchoolEnum.TYPE_KINDERGARTEN.getType();
+            }else {
+                return SchoolEnum.TYPE_PRIMARY.getType();
+            }
+        }).orElse(null);
+        Integer correction = StatUtil.correction(basicData.getLeftNakedVision(), basicData.getRightNakedVision(), schoolType, basicData.getAge(), basicData.getIsWearingGlasses());
+        statConclusion.setVisionCorrection(correction);
     }
 
     /**
