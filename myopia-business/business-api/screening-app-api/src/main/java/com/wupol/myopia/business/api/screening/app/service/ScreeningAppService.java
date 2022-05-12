@@ -638,7 +638,7 @@ public class ScreeningAppService {
                 && Objects.nonNull(firstPlanStudentVisionResultMap.get(item.getStudentId())) && firstPlanStudentVisionResultMap.get(item.getStudentId()).getVisionData().getLeftEyeData().getGlassesType() != 0).count());
         screeningProgressState.setNoWearingGlasses((int) firstProgress.stream().filter(item -> (item.getScreeningStatus() == 1 || item.getScreeningStatus() == 3)
                 && Objects.nonNull(firstPlanStudentVisionResultMap.get(item.getStudentId())) && firstPlanStudentVisionResultMap.get(item.getStudentId()).getVisionData().getLeftEyeData().getGlassesType() == 0).count());
-        screeningProgressState.setRetestRatio(screeningProgressState.getReScreeningCount() == 0 ? BigDecimal.ZERO : new BigDecimal(screeningProgressState.getNeedReScreeningCount()).divide(BigDecimal.valueOf(screeningProgressState.getReScreeningCount()), 2, BigDecimal.ROUND_DOWN));
+        screeningProgressState.setRetestRatio(screeningProgressState.getReScreeningCount() == 0 ? BigDecimal.ZERO : new BigDecimal(screeningProgressState.getNeedReScreeningCount()).divide(BigDecimal.valueOf(screeningProgressState.getReScreeningCount()), 4, BigDecimal.ROUND_DOWN));
 
         screeningProgressState.setRetestStudents(firstProgress.stream().filter(StudentScreeningProgressVO::getIsFirst)
                 .filter(item -> {
@@ -664,7 +664,7 @@ public class ScreeningAppService {
                 }).collect(Collectors.toList()));
         screeningProgressState.setErrorItemCount(screeningProgressState.getRetestStudents().stream().mapToInt(RetestStudentVO::getErrorItemCount).sum());
         screeningProgressState.setRetestItemCount(screeningProgressState.getRetestStudents().stream().mapToInt(RetestStudentVO::getRetestItemCount).sum());
-        screeningProgressState.setErrorRatio(screeningProgressState.getRetestItemCount() == 0 ? BigDecimal.ZERO : new BigDecimal(screeningProgressState.getErrorItemCount()).divide(new BigDecimal(screeningProgressState.getRetestItemCount()), 2, BigDecimal.ROUND_UP));
+        screeningProgressState.setErrorRatio(screeningProgressState.getRetestItemCount() == 0 ? BigDecimal.ZERO : new BigDecimal(screeningProgressState.getErrorItemCount()).divide(new BigDecimal(screeningProgressState.getRetestItemCount()), 4, BigDecimal.ROUND_UP));
         return screeningProgressState;
     }
 
