@@ -52,6 +52,10 @@ public class ScreeningResultStatisticBuilder {
         List<StatConclusion> validStatConclusions = isValidMap.getOrDefault(Boolean.TRUE, Collections.emptyList());
         Map<Boolean, List<StatConclusion>> isRescreenMap = validStatConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getIsRescreen));
         int validScreeningNum = isRescreenMap.getOrDefault(Boolean.FALSE, Collections.emptyList()).size();
+        int nightGlassesTypeNum = (int) statConclusions.stream()
+                .filter(sc->Objects.equals(Boolean.TRUE,sc.getIsValid()) && Objects.equals(Boolean.FALSE,sc.getIsRescreen()) && Objects.equals(3,sc.getGlassesType()))
+                .count();
+        validScreeningNum = validScreeningNum-nightGlassesTypeNum;
 
         //复测数据
         Map<Boolean, List<StatConclusion>> isRescreenTotalMap = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getIsRescreen));
@@ -189,7 +193,7 @@ public class ScreeningResultStatisticBuilder {
         visionAnalysisDO.setLowVisionNum(lowVisionNum)
                 .setLowVisionRatio(MathUtil.ratio(lowVisionNum,validScreeningNum))
                 .setAvgLeftVision(tuple.getFirst()).setAvgRightVision(tuple.getSecond())
-                .setMyopiaNum(myopiaNum+nightWearingOrthokeratologyLensesNum).setMyopiaRatio(MathUtil.ratio(myopiaNum,validScreeningNum))
+                .setMyopiaNum(myopiaNum).setMyopiaRatio(MathUtil.ratio(myopiaNum,validScreeningNum))
                 .setMyopiaLevelEarlyNum(myopiaLevelEarlyNum).setMyopiaLevelEarlyRatio(MathUtil.ratio(myopiaLevelEarlyNum,validScreeningNum))
                 .setLowMyopiaNum(lowMyopiaNum).setLowMyopiaRatio(MathUtil.ratio(lowMyopiaNum,validScreeningNum))
                 .setHighMyopiaNum(highMyopiaNum).setHighMyopiaRatio(MathUtil.ratio(highMyopiaNum,validScreeningNum))
@@ -343,7 +347,7 @@ public class ScreeningResultStatisticBuilder {
 
         saprodontiaDO
                 .setSaprodontiaFreeNum(saprodontiaFreeNum).setSaprodontiaFreeRatio(MathUtil.ratio(saprodontiaFreeNum,realScreeningStudentNum))
-                .setDmftNum(dmftNum).setDmftRatio(MathUtil.ratio(dmftNum,realScreeningStudentNum))
+                .setDmftNum(dmftNum).setDmftRatio(MathUtil.num(dmftNum,realScreeningStudentNum))
                 .setSaprodontiaNum(saprodontiaNum).setSaprodontiaRatio(MathUtil.ratio(saprodontiaNum,realScreeningStudentNum))
                 .setSaprodontiaLossNum(saprodontiaLossNum).setSaprodontiaLossRatio(MathUtil.ratio(saprodontiaLossNum,realScreeningStudentNum))
                 .setSaprodontiaRepairNum(saprodontiaRepairNum).setSaprodontiaRepairRatio(MathUtil.ratio(saprodontiaRepairNum,realScreeningStudentNum))
