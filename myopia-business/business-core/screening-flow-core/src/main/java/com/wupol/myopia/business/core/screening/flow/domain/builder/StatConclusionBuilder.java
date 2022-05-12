@@ -356,11 +356,6 @@ public class StatConclusionBuilder {
      * 散光
      */
     private void setAstigmatism() {
-        Boolean leftAstigmatism = StatUtil.isAstigmatism(basicData.getLeftCyl());
-        Boolean rightAstigmatism = StatUtil.isAstigmatism(basicData.getRightCyl());
-        if (ObjectsUtil.allNotNull(leftAstigmatism,rightAstigmatism)){
-            System.out.println(leftAstigmatism || rightAstigmatism);
-        }
         statConclusion.setIsAstigmatism(basicData.getIsAstigmatism());
     }
 
