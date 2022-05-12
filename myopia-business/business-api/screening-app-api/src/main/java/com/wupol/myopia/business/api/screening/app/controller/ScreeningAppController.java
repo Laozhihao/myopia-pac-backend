@@ -658,7 +658,7 @@ public class ScreeningAppController {
      * @return com.wupol.myopia.business.api.screening.app.domain.vo.ScreeningResultDataVO
      **/
     @GetMapping("/data/{planStudentId}")
-    public ScreeningResultDataVO getScreeningResultData(@PathVariable Integer planStudentId, @RequestParam(value = "isState", defaultValue = "0") Integer isState) {
+    public ApiResult getScreeningResultData(@PathVariable Integer planStudentId, @RequestParam(value = "isState", defaultValue = "0") Integer isState) {
         VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentIdAndState(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId(), isState);
         ScreeningResultDataVO result = ScreeningResultDataVO.getInstance(screeningResult);
         if (isState == 1) {
@@ -672,7 +672,7 @@ public class ScreeningAppController {
                 result.getVisionData().setGlassesType(resultFirst.getVisionData().getGlassesType());
             }
         }
-        return result;
+        return ApiResult.success(result);
     }
 
     /**

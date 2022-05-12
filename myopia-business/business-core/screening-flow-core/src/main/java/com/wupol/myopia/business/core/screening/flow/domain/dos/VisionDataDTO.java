@@ -81,7 +81,7 @@ public class VisionDataDTO extends ScreeningResultBasicData {
 
     public boolean isValid() {
         // 不配合时全部校验
-        if (super.getIsCooperative() == 1) {
+        if (Objects.isNull(super.getIsCooperative()) || super.getIsCooperative() == 1) {
             return true;
         }
         // 没带眼镜
