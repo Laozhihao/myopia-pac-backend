@@ -96,6 +96,10 @@ public class ScreeningResultStatisticBuilder {
         List<StatConclusion> validStatConclusions = isValidMap.getOrDefault(Boolean.TRUE, Collections.emptyList());
         Map<Boolean, List<StatConclusion>> isRescreenMap = validStatConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getIsRescreen));
         int validScreeningNum = isRescreenMap.getOrDefault(Boolean.FALSE, Collections.emptyList()).size();
+        int nightGlassesTypeNum = (int) statConclusions.stream()
+                .filter(sc->Objects.equals(Boolean.TRUE,sc.getIsValid()) && Objects.equals(Boolean.FALSE,sc.getIsRescreen()) && Objects.equals(3,sc.getGlassesType()))
+                .count();
+        validScreeningNum = validScreeningNum-nightGlassesTypeNum;
 
         //复测数据
         Map<Boolean, List<StatConclusion>> isRescreenTotalMap = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getIsRescreen));
