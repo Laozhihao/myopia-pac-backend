@@ -4,12 +4,10 @@ import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.util.BigDecimalUtil;
-import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.constant.SchoolEnum;
-import com.wupol.myopia.business.core.screening.flow.constant.CorrectionEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
@@ -285,9 +283,8 @@ public class StatUtil {
 
     //=============== 欠矫、足矫
 
-
     /**
-     *  矫正
+     *  欠矫、足矫
      *
      * @param leftNakedVision  左眼裸视
      * @param rightNakedVision 右眼裸视
@@ -304,81 +301,71 @@ public class StatUtil {
         if (Objects.equals(SchoolEnum.TYPE_KINDERGARTEN.getType(),schoolType)){
 
             if(age < 5){
-                return kindergartenCorrection5(leftNakedVision,rightNakedVision,isWearGlasses);
+                String nakedVision = "4.8";
+                return kindergartenCorrection(leftNakedVision,rightNakedVision,isWearGlasses,nakedVision);
             }
 
             if (age >= 5 && age < 7){
-                return kindergartenCorrection7(leftNakedVision,rightNakedVision,isWearGlasses);
+                String nakedVision = "4.9";
+                return kindergartenCorrection(leftNakedVision,rightNakedVision,isWearGlasses,nakedVision);
             }
 
             return null;
         }else {
-            return primarySchoolAboveCorrection(leftNakedVision,rightNakedVision,isWearGlasses);
+            String nakedVision = "4.9";
+            return primarySchoolAboveCorrection(leftNakedVision,rightNakedVision,isWearGlasses,nakedVision);
         }
     }
 
-    private static Integer kindergartenCorrection5(BigDecimal leftNakedVision, BigDecimal rightNakedVision,Boolean isWearGlasses){
+    /**
+     *  幼儿园
+     */
+    private static Integer kindergartenCorrection(BigDecimal leftNakedVision, BigDecimal rightNakedVision,Boolean isWearGlasses,String nakedVision){
         if (ObjectsUtil.hasNull(leftNakedVision,rightNakedVision,isWearGlasses)){
             return null;
         }
-        if (BigDecimalUtil.lessThanAndEqual(leftNakedVision,"4.8")
-                ||BigDecimalUtil.lessThanAndEqual(rightNakedVision,"4.8")){
+        if (BigDecimalUtil.lessThanAndEqual(leftNakedVision,nakedVision)
+                ||BigDecimalUtil.lessThanAndEqual(rightNakedVision,nakedVision)){
 
-            if(isWearGlasses){
-                if (BigDecimalUtil.moreThan(leftNakedVision,"4.8") && BigDecimalUtil.moreThan(rightNakedVision,"4.8")){
-                    return CorrectionEnum.ABOVE_CORRECTION.getCode();
-                }
-                if (BigDecimalUtil.lessThanAndEqual(leftNakedVision,"4.9") && BigDecimalUtil.lessThanAndEqual(rightNakedVision,"4.9")){
-                    return CorrectionEnum.UNDER_CORRECTION.getCode();
-                }
-            }else {
-                return CorrectionEnum.NORMAL_CORRECTION.getCode();
-            }
+            return correctionWearGlasses(leftNakedVision,rightNakedVision,isWearGlasses,nakedVision);
+
         }
-        return null;
+        return VisionCorrection.NORMAL.code;
 
     }
-    private static Integer kindergartenCorrection7(BigDecimal leftNakedVision, BigDecimal rightNakedVision,Boolean isWearGlasses){
+
+    /**
+     * 小学及以上
+     */
+    private static Integer primarySchoolAboveCorrection(BigDecimal leftNakedVision, BigDecimal rightNakedVision,Boolean isWearGlasses,String nakedVision ){
         if (ObjectsUtil.hasNull(leftNakedVision,rightNakedVision,isWearGlasses)){
             return null;
         }
-        if (BigDecimalUtil.lessThanAndEqual(leftNakedVision,"4.9")
-                ||BigDecimalUtil.lessThanAndEqual(rightNakedVision,"4.9")){
+        if (BigDecimalUtil.lessThan(leftNakedVision,nakedVision)
+                ||BigDecimalUtil.lessThan(rightNakedVision,nakedVision)){
 
-            if(isWearGlasses){
-                if (BigDecimalUtil.moreThan(leftNakedVision,"4.9") && BigDecimalUtil.moreThan(rightNakedVision,"4.9")){
-                    return CorrectionEnum.ABOVE_CORRECTION.getCode();
-                }
-                if (BigDecimalUtil.lessThanAndEqual(leftNakedVision,"4.9") && BigDecimalUtil.lessThanAndEqual(rightNakedVision,"4.9")){
-                    return CorrectionEnum.UNDER_CORRECTION.getCode();
-                }
-            }else {
-                return CorrectionEnum.NORMAL_CORRECTION.getCode();
-            }
+            return correctionWearGlasses(leftNakedVision,rightNakedVision,isWearGlasses,nakedVision);
         }
-        return null;
+        return VisionCorrection.NORMAL.code;
     }
 
-    private static Integer primarySchoolAboveCorrection(BigDecimal leftNakedVision, BigDecimal rightNakedVision,Boolean isWearGlasses){
-        if (ObjectsUtil.hasNull(leftNakedVision,rightNakedVision,isWearGlasses)){
-            return null;
-        }
-        if (BigDecimalUtil.lessThan(leftNakedVision,"4.9")
-                ||BigDecimalUtil.lessThan(rightNakedVision,"4.9")){
 
-            if(isWearGlasses){
-                if (BigDecimalUtil.moreThan(leftNakedVision,"4.9") && BigDecimalUtil.moreThan(rightNakedVision,"4.9")){
-                    return CorrectionEnum.ABOVE_CORRECTION.getCode();
-                }
-                if (BigDecimalUtil.lessThanAndEqual(leftNakedVision,"4.9") && BigDecimalUtil.lessThanAndEqual(rightNakedVision,"4.9")){
-                    return CorrectionEnum.UNDER_CORRECTION.getCode();
-                }
-            }else {
-                return CorrectionEnum.NORMAL_CORRECTION.getCode();
+    private Integer correctionWearGlasses(BigDecimal leftNakedVision, BigDecimal rightNakedVision,Boolean isWearGlasses,String nakedVision){
+        if(isWearGlasses){
+            if (BigDecimalUtil.moreThan(leftNakedVision,nakedVision) && BigDecimalUtil.moreThan(rightNakedVision,nakedVision)){
+                return VisionCorrection.ENOUGH_CORRECTED.code;
             }
+            if (BigDecimalUtil.lessThanAndEqual(leftNakedVision,nakedVision)
+                    || BigDecimalUtil.lessThanAndEqual(rightNakedVision,nakedVision)
+                    || (BigDecimalUtil.lessThanAndEqual(leftNakedVision,nakedVision) && BigDecimalUtil.lessThanAndEqual(rightNakedVision,nakedVision))){
+                return VisionCorrection.UNDER_CORRECTED.code;
+            }
+            return VisionCorrection.NORMAL.code;
+        }else {
+            return VisionCorrection.UNCORRECTED.code;
         }
-        return null;
     }
+
 
 
     /**
