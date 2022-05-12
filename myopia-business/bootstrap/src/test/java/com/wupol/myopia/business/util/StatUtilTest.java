@@ -52,9 +52,9 @@ public class StatUtilTest {
 
     @Test
     public void isRefractiveErrorTest(){
-        Assert.assertEquals(true,StatUtil.isRefractiveError("2.0","3.0",2));
-        Assert.assertEquals(true,StatUtil.isRefractiveError("2.0","4.0",4));
-        Assert.assertEquals( true,StatUtil.isRefractiveError("3.0","4.0",6));
+        Assert.assertEquals(true,StatUtil.isRefractiveError("2.0","3.0",2,false));
+        Assert.assertEquals(true,StatUtil.isRefractiveError("2.0","4.0",4,false));
+        Assert.assertEquals( true,StatUtil.isRefractiveError("3.0","4.0",6,false));
     }
 
     @Test
