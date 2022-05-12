@@ -68,10 +68,6 @@ public class ComputerOptometryDO extends AbstractDiagnosisResult implements Scre
             return sph != null;
         }
 
-        public BigDecimal getAxial() {
-            return BigDecimalUtil.getBigDecimalByFormat(axial, 2);
-        }
-
         public BigDecimal getSph() {
             return BigDecimalUtil.getBigDecimalByFormat(sph, 2);
         }
