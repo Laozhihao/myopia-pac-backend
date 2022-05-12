@@ -145,7 +145,8 @@ public class StudentScreeningProgressVO {
                     .setSaprodontiaStatus(UNCHECK).setSpineStatus(UNCHECK_MUST)
                     .setBloodPressureStatus(UNCHECK).setDiseasesHistoryStatus(UNCHECK_MUST).setPrivacyStatus(UNCHECK)
                     .setHeightWeightStatus(UNCHECK).setResult(false).setHasAbnormal(false)
-                    .setGradeName(studentVO.getGrade()).setClassName(studentVO.getClazz());
+                    .setGradeName(studentVO.getGrade()).setClassName(studentVO.getClazz())
+                    .setStateStatus(screeningPlanSchoolStudent.getState());
         }
         // 默认完成了所有必要检查
         isAllMustCheckDone.set(true);
