@@ -1,5 +1,7 @@
 package com.wupol.myopia.business.aggregation.screening.service;
 
+import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
@@ -67,6 +69,7 @@ public class VisionScreeningBizService {
      */
     @Transactional(rollbackFor = Exception.class)
     public TwoTuple<VisionScreeningResult, StatConclusion> saveOrUpdateStudentScreenData(ScreeningResultBasicData screeningResultBasicData) {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         TwoTuple<VisionScreeningResult, VisionScreeningResult> allFirstAndSecondResult = getAllFirstAndSecondResult(screeningResultBasicData);
         VisionScreeningResult currentVisionScreeningResult = allFirstAndSecondResult.getFirst();
         currentVisionScreeningResult = getScreeningResult(screeningResultBasicData, currentVisionScreeningResult);
@@ -74,7 +77,7 @@ public class VisionScreeningBizService {
         //更新vision_result表
         visionScreeningResultService.saveOrUpdateStudentScreenData(allFirstAndSecondResult.getFirst());
         //更新statConclusion表
-        StatConclusion statConclusion = statConclusionService.saveOrUpdateStudentScreenData(getScreeningConclusionResult(allFirstAndSecondResult));
+        StatConclusion statConclusion = statConclusionService.saveOrUpdateStudentScreenData(getScreeningConclusionResult(allFirstAndSecondResult,currentUser));
         // 更新是否绑定手机号码
         setIsBindMq(statConclusion);
         //更新学生表的数据
@@ -94,7 +97,7 @@ public class VisionScreeningBizService {
      * @param allFirstAndSecondResult
      * @return
      */
-    private StatConclusion getScreeningConclusionResult(TwoTuple<VisionScreeningResult, VisionScreeningResult> allFirstAndSecondResult) {
+    private StatConclusion getScreeningConclusionResult(TwoTuple<VisionScreeningResult, VisionScreeningResult> allFirstAndSecondResult,CurrentUser currentUser) {
         VisionScreeningResult currentVisionScreeningResult = allFirstAndSecondResult.getFirst();
         VisionScreeningResult secondVisionScreeningResult = allFirstAndSecondResult.getSecond();
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getById(currentVisionScreeningResult.getScreeningPlanSchoolStudentId());
@@ -107,7 +110,9 @@ public class VisionScreeningBizService {
         SchoolGrade schoolGrade = schoolGradeService.getById(screeningPlanSchoolStudent.getGradeId());
         StatConclusionBuilder statConclusionBuilder = StatConclusionBuilder.getStatConclusionBuilder();
         statConclusion = statConclusionBuilder.setCurrentVisionScreeningResult(currentVisionScreeningResult,secondVisionScreeningResult).setStatConclusion(statConclusion)
-                .setScreeningPlanSchoolStudent(screeningPlanSchoolStudent).setGradeCode(schoolGrade.getGradeCode())
+                .setScreeningPlanSchoolStudent(screeningPlanSchoolStudent)
+                .setGradeCode(schoolGrade.getGradeCode())
+                .setCurrentUser(currentUser)
                 .build();
         return statConclusion;
     }
