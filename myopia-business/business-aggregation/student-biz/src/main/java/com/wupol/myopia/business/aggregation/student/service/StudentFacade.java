@@ -198,7 +198,12 @@ public class StudentFacade {
             //设置常见病信息
             screeningInfoDTO.setCommonDiseases(getCommonDiseases(result));
             //设置复测信息
-            if (Objects.nonNull(rescreeningVisionScreeningResultMap)){
+            if (Objects.nonNull(rescreeningVisionScreeningResultMap)
+                    &&Objects.nonNull(rescreeningVisionScreeningResultMap.get(result.getPlanId()))
+                    &&Objects.nonNull(rescreeningVisionScreeningResultMap.get(result.getPlanId()).getVisionData())
+                    &&Objects.nonNull(rescreeningVisionScreeningResultMap.get(result.getPlanId()).getComputerOptometry())
+                    &&Objects.nonNull(rescreeningVisionScreeningResultMap.get(result.getPlanId()).getHeightAndWeightData())){
+
                 screeningInfoDTO.setRescreening(ReScreenCardUtil.reScreeningResult(result,rescreeningVisionScreeningResultMap.get(result.getPlanId())));
             }
 

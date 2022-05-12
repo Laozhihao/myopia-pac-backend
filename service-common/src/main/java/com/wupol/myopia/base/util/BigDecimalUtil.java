@@ -267,6 +267,7 @@ public class BigDecimalUtil {
     public static boolean isBetweenLeft(Double val, Double start, Double end) {
         return val.compareTo(start) >= 0 && val.compareTo(end) < 0;
     }
+
     /**
      * 视力是否误差(判断有一个值为null，不作误差值判断)
      * @param firstScreening 视力误差
