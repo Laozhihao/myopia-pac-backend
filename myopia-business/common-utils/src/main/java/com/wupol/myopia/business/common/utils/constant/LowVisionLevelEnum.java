@@ -1,0 +1,30 @@
+package com.wupol.myopia.business.common.utils.constant;
+
+import lombok.Getter;
+
+/**
+ * 视力低下等级
+ *
+ * @author hang.yuan 2022/5/12 10:36
+ */
+public enum LowVisionLevelEnum {
+    /**
+     *
+     */
+    ZERO(0, "正常"),
+    LOW_VISION(1, "视力低下"),
+    LOW_VISION_LEVEL_LIGHT(2, "轻度视力低下"),
+    LOW_VISION_LEVEL_MIDDLE(3, "中度视力低下"),
+    LOW_VISION_LEVEL_HIGH(4, "重度视力低下");;
+
+
+    @Getter
+    private Integer code;
+    @Getter
+    private String desc;
+
+    LowVisionLevelEnum(Integer code, String desc) {
+        this.code = code;
+        this.desc = desc;
+    }
+}
