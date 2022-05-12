@@ -165,8 +165,20 @@ public class StatConclusionBuilder {
      * 设置视力相关的数据
      */
     private void setVisionRelatedData() {
+
         VisionDataDO visionData = currentVisionScreeningResult.getVisionData();
         if(Objects.isNull(visionData)){return;}
+        this.setVisionOtherData();
+        this.setNakedVisionWarningLevel();
+
+        this.setLowVision();
+        this.setLowVisionLevel();
+
+        this.setVisionCorrection();
+
+
+        ComputerOptometryDO computerOptometry = currentVisionScreeningResult.getComputerOptometry();
+        if (Objects.isNull(computerOptometry)){return;}
         this.setHyperopia();
         this.setHyperopiaLevel();
 
@@ -177,15 +189,7 @@ public class StatConclusionBuilder {
         this.setMyopiaLevel();
         this.setMyopiaWarningLevel();
 
-        this.setVisionOtherData();
-        this.setNakedVisionWarningLevel();
-
-        this.setLowVision();
-        this.setLowVisionLevel();
-
-        this.setVisionCorrection();
         this.setAnisometropia();
-
         this.setRefractiveError();
 
     }
@@ -197,10 +201,7 @@ public class StatConclusionBuilder {
     private void setAnisometropia() {
         Boolean anisometropiaVision = StatUtil.isAnisometropiaVision(basicData.getLeftSph(), basicData.getRightSph());
         Boolean anisometropiaAstigmatism = StatUtil.isAnisometropiaAstigmatism(basicData.getLeftCyl(), basicData.getRightCyl());
-        if (ObjectsUtil.hasNull(anisometropiaVision,anisometropiaAstigmatism)){
-            return;
-        }
-        statConclusion.setIsAnisometropia( anisometropiaVision || anisometropiaAstigmatism);
+        statConclusion.setIsAnisometropia(StatUtil.getIsExist(anisometropiaVision,anisometropiaAstigmatism));
     }
 
     /**
@@ -226,21 +227,27 @@ public class StatConclusionBuilder {
      * 设置近视预警级别
      */
     private void setMyopiaWarningLevel() {
-        statConclusion.setMyopiaWarningLevel(basicData.getMyopiaWarningLevel());
+        WarningLevel leftLevel = StatUtil.warningLevel(basicData.getLeftSph(), basicData.getLeftCyl(), basicData.getAge(), 0);
+        WarningLevel rightLevel = StatUtil.warningLevel(basicData.getRightSph(), basicData.getRightCyl(), basicData.getAge(), 0);
+        statConclusion.setMyopiaWarningLevel(StatUtil.getSeriousLevel(leftLevel,rightLevel));
     }
 
     /**
      * 设置裸眼视力预警级别
      */
     private void setNakedVisionWarningLevel() {
-        statConclusion.setNakedVisionWarningLevel(basicData.getNakedVisionWarningLevel());
+        WarningLevel leftLevel = StatUtil.nakedVision(basicData.getLeftNakedVision(), basicData.getAge());
+        WarningLevel rightLevel = StatUtil.nakedVision(basicData.getRightNakedVision(), basicData.getAge());
+        statConclusion.setNakedVisionWarningLevel(StatUtil.getSeriousLevel(leftLevel,rightLevel));
     }
 
     /**
      * 视力低下等级
      */
     private void setLowVisionLevel(){
-        statConclusion.setLowVisionLevel(basicData.getLowVisionLevel());
+        LowVisionLevelEnum leftLevel = StatUtil.getLowVisionLevel(basicData.getLeftNakedVision(), basicData.getAge());
+        LowVisionLevelEnum rightLevel = StatUtil.getLowVisionLevel(basicData.getRightNakedVision(), basicData.getAge());
+        statConclusion.setLowVisionLevel(StatUtil.getSeriousLevel(leftLevel,rightLevel));
     }
 
 
@@ -261,8 +268,8 @@ public class StatConclusionBuilder {
     private void setVisionOtherData() {
         statConclusion.setIsWearingGlasses(basicData.getIsWearingGlasses());
         statConclusion.setGlassesType(basicData.getGlassesType());
-        statConclusion.setVisionR(Optional.ofNullable(basicData.getRightNakedVision()).orElse(null));
-        statConclusion.setVisionL(Optional.ofNullable(basicData.getLeftNakedVision()).orElse(null));
+        statConclusion.setVisionR(basicData.getRightNakedVision());
+        statConclusion.setVisionL(basicData.getLeftNakedVision());
     }
 
     /**
@@ -270,7 +277,7 @@ public class StatConclusionBuilder {
      */
     private void setWarningLevel() {
         // 特殊处理 角膜塑型镜特殊处理
-        if (basicData.getGlassesType() != null && basicData.getGlassesType().equals(GlassesTypeEnum.ORTHOKERATOLOGY.code)) {
+        if (Objects.equals(basicData.getGlassesType(),GlassesTypeEnum.ORTHOKERATOLOGY.code)) {
             statConclusion.setWarningLevel(WarningLevel.NORMAL.code);
             return;
         }
@@ -286,44 +293,36 @@ public class StatConclusionBuilder {
      * 近视等级
      */
     private void setMyopiaLevel() {
-        Integer left = StatUtil.getMyopiaLevel(basicData.getLeftSph(), basicData.getLeftCyl(), basicData.getAge(), basicData.getLeftNakedVision());
-        Integer right = StatUtil.getMyopiaLevel(basicData.getRightSph(), basicData.getRightCyl(), basicData.getAge(), basicData.getRightNakedVision());
-        statConclusion.setMyopiaLevel(StatUtil.getSeriousLevel(left, right));
+        MyopiaLevelEnum leftLevel = StatUtil.getMyopiaLevel(basicData.getLeftSph(), basicData.getLeftCyl(), basicData.getAge(), basicData.getLeftNakedVision());
+        MyopiaLevelEnum rightLevel = StatUtil.getMyopiaLevel(basicData.getRightSph(), basicData.getRightCyl(), basicData.getAge(), basicData.getRightNakedVision());
+        statConclusion.setMyopiaLevel(StatUtil.getSeriousLevel(leftLevel, rightLevel));
     }
 
     /**
      * 远视等级
      */
     private void setHyperopiaLevel() {
-        Integer left = StatUtil.getHyperopiaLevel(basicData.getLeftSph(), basicData.getLeftCyl(), basicData.getAge());
-        Integer right = StatUtil.getHyperopiaLevel(basicData.getRightSph(), basicData.getRightCyl(), basicData.getAge());
-        statConclusion.setHyperopiaLevel(StatUtil.getSeriousLevel(left, right));
+        HyperopiaLevelEnum leftLevel = StatUtil.getHyperopiaLevel(basicData.getLeftSph(), basicData.getLeftCyl(), basicData.getAge());
+        HyperopiaLevelEnum rightLevel = StatUtil.getHyperopiaLevel(basicData.getRightSph(), basicData.getRightCyl(), basicData.getAge());
+        statConclusion.setHyperopiaLevel(StatUtil.getSeriousLevel(leftLevel, rightLevel));
     }
 
     /**
      * 散光等级
      */
     private void setAstigmatismLevel() {
-        Integer left = StatUtil.getAstigmatismLevel(basicData.getLeftCyl());
-        Integer right = StatUtil.getAstigmatismLevel(basicData.getRightCyl());
-        statConclusion.setAstigmatismLevel(StatUtil.getSeriousLevel(left, right));
+        AstigmatismLevelEnum leftLevel = StatUtil.getAstigmatismLevel(basicData.getLeftCyl());
+        AstigmatismLevelEnum rightLevel = StatUtil.getAstigmatismLevel(basicData.getRightCyl());
+        statConclusion.setAstigmatismLevel(StatUtil.getSeriousLevel(leftLevel, rightLevel));
     }
 
     /**
      * 设置视力低下的数据
      */
     private void setLowVision() {
-        Boolean isLeftResult = null;
-        Boolean isrightResult = null;
-        if (basicData.getLeftNakedVision() != null) {
-            isLeftResult = StatUtil.isLowVision(basicData.getLeftNakedVision(), basicData.getAge());
-        }
-        if (basicData.getRightNakedVision() != null) {
-            isrightResult = StatUtil.isLowVision(basicData.getRightNakedVision(), basicData.getAge());
-        }
-        if(ObjectsUtil.allNotNull(isLeftResult,isrightResult)){
-            statConclusion.setIsLowVision(isLeftResult || isrightResult);
-        }
+        Boolean isLeftResult = StatUtil.isLowVision(basicData.getLeftNakedVision(), basicData.getAge());
+        Boolean isRightResult = StatUtil.isLowVision(basicData.getRightNakedVision(), basicData.getAge());
+        statConclusion.setIsLowVision(StatUtil.getIsExist(isLeftResult,isRightResult));
     }
 
     /**
@@ -332,9 +331,7 @@ public class StatConclusionBuilder {
     private void setRefractiveError() {
         Boolean leftRefractiveError = StatUtil.isRefractiveError(basicData.getLeftSph(),basicData.getLeftCyl(),basicData.getAge());
         Boolean rightRefractiveError = StatUtil.isRefractiveError(basicData.getRightSph(),basicData.getRightCyl(),basicData.getAge());
-        if (ObjectsUtil.allNotNull(leftRefractiveError,rightRefractiveError)){
-            statConclusion.setIsRefractiveError( leftRefractiveError || rightRefractiveError);
-        }
+        statConclusion.setIsRefractiveError(StatUtil.getIsExist(leftRefractiveError,rightRefractiveError));
     }
 
     /**
@@ -343,28 +340,25 @@ public class StatConclusionBuilder {
     private void setMyopia() {
         Boolean isLeftMyopia = StatUtil.isMyopia(basicData.getLeftSph(),basicData.getLeftCyl(),basicData.getAge(),basicData.getLeftNakedVision());
         Boolean isRightMyopia = StatUtil.isMyopia(basicData.getRightSph(),basicData.getRightCyl(),basicData.getAge(),basicData.getRightNakedVision());
-
-        if (ObjectsUtil.allNotNull(isLeftMyopia,isRightMyopia)){
-            statConclusion.setIsMyopia(isLeftMyopia || isRightMyopia);
-        }
+        statConclusion.setIsMyopia(StatUtil.getIsExist(isLeftMyopia,isRightMyopia));
     }
 
     /**
      * 远视
      */
     private void setHyperopia() {
-        Boolean isHyperopia = null;
-        if (ObjectsUtil.allNotNull(basicData.getLeftHyperopiaWarningLevel(), basicData.getRightHyperopiaWarningLevel())) {
-            isHyperopia = StatUtil.isHyperopia(basicData.getLeftHyperopiaWarningLevel()) || StatUtil.isHyperopia(basicData.getRightHyperopiaWarningLevel());
-        }
-        statConclusion.setIsHyperopia(isHyperopia);
+        Boolean isLeftHyperopia = StatUtil.isHyperopia(basicData.getLeftSph(),basicData.getLeftCyl(),basicData.getAge());
+        Boolean isRightHyperopia = StatUtil.isHyperopia(basicData.getRightSph(),basicData.getRightCyl(),basicData.getAge());
+        statConclusion.setIsHyperopia(StatUtil.getIsExist(isLeftHyperopia,isRightHyperopia));
     }
 
     /**
      * 散光
      */
     private void setAstigmatism() {
-        statConclusion.setIsAstigmatism(basicData.getIsAstigmatism());
+        Boolean leftAstigmatism = StatUtil.isAstigmatism(basicData.getLeftCyl());
+        Boolean rightAstigmatism = StatUtil.isAstigmatism(basicData.getRightCyl());
+        statConclusion.setIsAstigmatism(StatUtil.getIsExist(leftAstigmatism,rightAstigmatism));
     }
 
     /**
@@ -372,7 +366,7 @@ public class StatConclusionBuilder {
      */
     private void setRecommendVisit() {
         OtherEyeDiseasesDO otherEyeDiseases = currentVisionScreeningResult.getOtherEyeDiseases();
-        Boolean otherEyeDiseasesNormal = Objects.nonNull(otherEyeDiseases)? otherEyeDiseases.isNormal():null;
+        Boolean otherEyeDiseasesNormal = Optional.ofNullable(otherEyeDiseases).map(OtherEyeDiseasesDO::isNormal).orElse(null);
 
         Boolean isRecommendVisit = ScreeningResultUtil.getDoctorAdvice(
                 basicData.getLeftNakedVision(),basicData.getRightNakedVision(),
@@ -751,7 +745,6 @@ public class StatConclusionBuilder {
 
 
 
-
     /**
      * 基础数据
      */
@@ -768,23 +761,31 @@ public class StatConclusionBuilder {
         private BigDecimal leftNakedVision;
         private BigDecimal leftCorrectVision;
         private BigDecimal rightCorrectVision;
-        private AstigmatismLevelEnum leftAstigmatismWarningLevel;
-        private AstigmatismLevelEnum rightAstigmatismWarningLevel;
-        private Boolean isAstigmatism;
+
+        private AstigmatismLevelEnum leftAstigmatismLevel;
+        private AstigmatismLevelEnum rightAstigmatismLevel;
+
         private WarningLevel leftNakedVisionWarningLevel;
         private WarningLevel rightNakedVisionWarningLevel;
+        private Integer nakedVisionWarningLevel;
+
         private LowVisionLevelEnum leftLowVisionLevel;
         private LowVisionLevelEnum rightLowVisionLevel;
-        private HyperopiaLevelEnum leftHyperopiaWarningLevel;
-        private HyperopiaLevelEnum rightHyperopiaWarningLevel;
-        private MyopiaLevelEnum leftMyopiaWarningLevel;
-        private MyopiaLevelEnum rightMyopiaWarningLevel;
+        private Integer lowVisionLevel;
+
+        private HyperopiaLevelEnum leftHyperopiaLevel;
+        private HyperopiaLevelEnum rightHyperopiaLevel;
+
+        private MyopiaLevelEnum leftMyopiaLevel;
+        private MyopiaLevelEnum rightMyopiaLevel;
+
+        private WarningLevel leftMyopiaWarningLevel;
+        private WarningLevel rightMyopiaWarningLevel;
+        private Integer myopiaWarningLevel;
+
         private Boolean isRescreen;
         private Integer age;
         private Integer schoolAge;
-        private Integer nakedVisionWarningLevel;
-        private Integer lowVisionLevel;
-        private Integer myopiaWarningLevel;
         private Integer glassesType;
 
 
@@ -809,7 +810,7 @@ public class StatConclusionBuilder {
             dealWithVaild(visionScreeningResult.getVisionData(),visionScreeningResult.getComputerOptometry(),basicData);
 
             //处理电脑验光的数据
-            dealWithComputerOptometry(screeningPlanSchoolStudent, basicData, visionScreeningResult.getComputerOptometry());
+            dealWithComputerOptometry(basicData, visionScreeningResult.getComputerOptometry());
 
             //处理视力相关的数据
             dealWithVisionData(basicData, visionScreeningResult.getVisionData());
@@ -844,30 +845,17 @@ public class StatConclusionBuilder {
         /**
          * 处理电脑视光的数据
          *
-         * @param screeningPlanSchoolStudent
          * @param basicData
          * @param computerOptometry
          */
-        private static void dealWithComputerOptometry(ScreeningPlanSchoolStudent screeningPlanSchoolStudent, BasicData basicData, ComputerOptometryDO computerOptometry) {
-            if(Objects.isNull(computerOptometry)){
-                return;
-            }
-            ComputerOptometryDO.ComputerOptometry leftData = computerOptometry.getLeftEyeData();
-            ComputerOptometryDO.ComputerOptometry rightData = computerOptometry.getRightEyeData();
-            basicData.leftCyl =  leftData.getCyl();
-            basicData.rightCyl = rightData.getCyl();
-            basicData.leftSph = leftData.getSph();
-            basicData.rightSph = rightData.getSph();
-            basicData.leftAstigmatismWarningLevel = StatUtil.getAstigmatismWarningLevel(basicData.getLeftCyl());
-            basicData.rightAstigmatismWarningLevel = StatUtil.getAstigmatismWarningLevel(basicData.getRightCyl());
-            if (basicData.getLeftAstigmatismWarningLevel() != null && basicData.getRightAstigmatismWarningLevel() != null) {
-                basicData.isAstigmatism = StatUtil.isAstigmatism(basicData.getLeftAstigmatismWarningLevel()) || StatUtil.isAstigmatism(basicData.getRightAstigmatismWarningLevel());
-            }
+        private static void dealWithComputerOptometry(BasicData basicData, ComputerOptometryDO computerOptometry) {
+            Optional<ComputerOptometryDO> optional = Optional.ofNullable(computerOptometry);
 
-            basicData.leftHyperopiaWarningLevel = StatUtil.getHyperopiaWarningLevel(basicData.getLeftSph(), basicData.getLeftCyl(), screeningPlanSchoolStudent.getStudentAge());
-            basicData.rightHyperopiaWarningLevel = StatUtil.getHyperopiaWarningLevel(basicData.getRightSph(), basicData.getRightCyl(), screeningPlanSchoolStudent.getStudentAge());
-            basicData.leftMyopiaWarningLevel = StatUtil.getMyopiaWarningLevel(basicData.getLeftSph(), basicData.getLeftCyl(), basicData.getAge(), basicData.getLeftNakedVision());
-            basicData.rightMyopiaWarningLevel = StatUtil.getMyopiaWarningLevel(basicData.getRightSph(), basicData.getRightCyl(), basicData.getAge(), basicData.getRightNakedVision());
+            basicData.leftCyl =  optional.map(ComputerOptometryDO::getLeftEyeData).map(ComputerOptometryDO.ComputerOptometry::getCyl).orElse(null);
+            basicData.rightCyl = optional.map(ComputerOptometryDO::getRightEyeData).map(ComputerOptometryDO.ComputerOptometry::getCyl).orElse(null);
+            basicData.leftSph = optional.map(ComputerOptometryDO::getLeftEyeData).map(ComputerOptometryDO.ComputerOptometry::getSph).orElse(null);
+            basicData.rightSph = optional.map(ComputerOptometryDO::getRightEyeData).map(ComputerOptometryDO.ComputerOptometry::getSph).orElse(null);
+
         }
 
         /**
@@ -877,81 +865,16 @@ public class StatConclusionBuilder {
          * @param visionData
          */
         private static void dealWithVisionData(BasicData basicData, VisionDataDO visionData) {
-            if(Objects.isNull(visionData)){
-                return;
-            }
-            basicData.glassesType = visionData.getLeftEyeData().getGlassesType();
-            basicData.isWearingGlasses = basicData.getGlassesType() > 0;
-            VisionDataDO.VisionData leftEyeData = visionData.getLeftEyeData();
-            basicData.leftNakedVision = leftEyeData.getNakedVision();
-            basicData.leftCorrectVision = leftEyeData.getCorrectedVision();
-            if (basicData.leftNakedVision != null) {
-                basicData.leftLowVisionLevel = StatUtil.getLowVisionLevel(basicData.getLeftNakedVision(), basicData.getAge());
-                basicData.leftNakedVisionWarningLevel = StatUtil.nakedVision(basicData.getLeftNakedVision(), basicData.getAge());
-            }
-            VisionDataDO.VisionData rightEyeData = visionData.getRightEyeData();
-            basicData.rightNakedVision = rightEyeData.getNakedVision();
-            basicData.rightCorrectVision = rightEyeData.getCorrectedVision();
-            if (basicData.rightNakedVision != null) {
-                basicData.rightLowVisionLevel = StatUtil.getLowVisionLevel(basicData.getRightNakedVision(), basicData.getAge());
-                basicData.rightNakedVisionWarningLevel = StatUtil.nakedVision(basicData.getRightNakedVision(), basicData.getAge());
-            }
-            setLowVisionLevel(basicData);
-            setVisionWarningLevel(basicData);
-            setMyopiaVisionWarningLevel(basicData);
+            Optional<VisionDataDO> optional = Optional.ofNullable(visionData);
+
+            basicData.glassesType = optional.map(VisionDataDO::getLeftEyeData).map(VisionDataDO.VisionData::getGlassesType).orElse(null);
+            basicData.isWearingGlasses = Optional.ofNullable(basicData.getGlassesType()).map(g->g>0).orElse(null);
+            basicData.leftNakedVision = optional.map(VisionDataDO::getLeftEyeData).map(VisionDataDO.VisionData::getNakedVision).orElse(null);
+            basicData.leftCorrectVision = optional.map(VisionDataDO::getLeftEyeData).map(VisionDataDO.VisionData::getCorrectedVision).orElse(null);
+            basicData.rightNakedVision = optional.map(VisionDataDO::getRightEyeData).map(VisionDataDO.VisionData::getNakedVision).orElse(null);
+            basicData.rightCorrectVision = optional.map(VisionDataDO::getRightEyeData).map(VisionDataDO.VisionData::getCorrectedVision).orElse(null);
         }
 
-        /**
-         * 视力预警等级
-         *
-         * @param basicData
-         */
-        private static void setVisionWarningLevel(BasicData basicData) {
-            List<Integer> warningLevelList = new ArrayList<>();
-            if (basicData.getLeftNakedVisionWarningLevel() != null) {
-                warningLevelList.add(basicData.getLeftNakedVisionWarningLevel().getCode());
-            }
-            if (basicData.getRightNakedVisionWarningLevel() != null) {
-                warningLevelList.add(basicData.getRightNakedVisionWarningLevel().getCode());
-            }
-            if (CollectionUtils.isNotEmpty(warningLevelList)) {
-                basicData.nakedVisionWarningLevel = Collections.max(warningLevelList);
-            }
-        }
-        /**
-         * 视力低下等级
-         */
-        private static void setLowVisionLevel(BasicData basicData) {
-            List<Integer> lowVisionLevelList = new ArrayList<>();
-            if (basicData.getLeftLowVisionLevel() != null) {
-                lowVisionLevelList.add(basicData.getLeftLowVisionLevel().getCode());
-            }
-            if (basicData.getRightLowVisionLevel() != null) {
-                lowVisionLevelList.add(basicData.getLeftLowVisionLevel().getCode());
-            }
-            if (CollectionUtils.isNotEmpty(lowVisionLevelList)) {
-                basicData.lowVisionLevel = Collections.max(lowVisionLevelList);
-            }
-        }
-
-
-        /**
-         * 近视预警级别
-         *
-         * @param basicData
-         */
-        private static void setMyopiaVisionWarningLevel(BasicData basicData) {
-            List<Integer> warningLevelList = new ArrayList<>();
-            if (basicData.getLeftMyopiaWarningLevel() != null) {
-                warningLevelList.add(basicData.getLeftMyopiaWarningLevel().code);
-            }
-            if (basicData.getRightMyopiaWarningLevel() != null) {
-                warningLevelList.add(basicData.getRightMyopiaWarningLevel().code);
-            }
-            if (CollectionUtils.isNotEmpty(warningLevelList)) {
-                basicData.myopiaWarningLevel = Collections.max(warningLevelList);
-            }
-        }
 
     }
 

@@ -1185,11 +1185,11 @@ public class StudentFacade {
             MyopiaLevelEnum myopiaWarningLevel = null;
             if (Objects.nonNull(nakedVision)) {
                 if ((age < 6 && nakedVision.compareTo(new BigDecimal("4.9")) < 0) || (age >= 6 && nakedVision.compareTo(new BigDecimal("5.0")) < 0)) {
-                    myopiaWarningLevel = StatUtil.getMyopiaWarningLevel(sph, cyl, age, nakedVision);
+                    myopiaWarningLevel = StatUtil.getMyopiaLevel(sph, cyl, age, nakedVision);
                 }
             }
             // 远视
-            HyperopiaLevelEnum farsightednessWarningLevel = StatUtil.getHyperopiaWarningLevel(sph.floatValue(), cyl.floatValue(), age);
+            HyperopiaLevelEnum farsightednessWarningLevel = StatUtil.getHyperopiaLevel(sph.floatValue(), cyl.floatValue(), age);
             visionInfoVO.setMyopiaLevel(Objects.nonNull(myopiaWarningLevel) ? myopiaWarningLevel.code : null);
             visionInfoVO.setHyperopiaLevel(Objects.nonNull(farsightednessWarningLevel) ? farsightednessWarningLevel.code : null);
         }
