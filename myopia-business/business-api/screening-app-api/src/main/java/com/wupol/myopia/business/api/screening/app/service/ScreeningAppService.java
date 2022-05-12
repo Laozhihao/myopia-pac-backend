@@ -593,7 +593,8 @@ public class ScreeningAppService {
                     return true;
                 }).collect(Collectors.toList());
         // 转换为筛查进度
-        List<StudentScreeningProgressVO> secondProgress = getStudentScreeningProgress(screeningPlanSchoolStudentList, secondPlanStudentVisionResultMap);
+        List<StudentScreeningProgressVO> secondProgress = getStudentScreeningProgress(screeningPlanSchoolStudentList, secondPlanStudentVisionResultMap)
+                .stream().filter(item->secondPlanStudentVisionResultMap.keySet().contains(item.getStudentId())).collect(Collectors.toList());
 
         firstProgress = numerationStatus(firstProgress, secondProgress);
         firstProgress = firstProgress.stream().sorted(Comparator.comparing(StudentScreeningProgressVO::getScreeningStatus)).collect(Collectors.toList());
@@ -626,7 +627,8 @@ public class ScreeningAppService {
         // 转换为筛查进度
         List<StudentScreeningProgressVO> firstProgress = getStudentScreeningProgress(screeningPlanSchoolStudentList, firstPlanStudentVisionResultMap);
         // 转换为筛查进度
-        List<StudentScreeningProgressVO> secondProgress = getStudentScreeningProgress(screeningPlanSchoolStudentList, secondPlanStudentVisionResultMap);
+        List<StudentScreeningProgressVO> secondProgress = getStudentScreeningProgress(screeningPlanSchoolStudentList, secondPlanStudentVisionResultMap)
+                .stream().filter(item->secondPlanStudentVisionResultMap.keySet().contains(item.getStudentId())).collect(Collectors.toList());
 
         firstProgress = numerationStatus(firstProgress, secondProgress);
 
@@ -685,7 +687,7 @@ public class ScreeningAppService {
         if (Boolean.FALSE.equals(firstStudentScreeningProgressVO.getIsFirst()) || Boolean.FALSE.equals(firstStudentScreeningProgressVO.getResult())) {
             // 初筛未完成
             firstStudentScreeningProgressVO.setScreeningStatus(4);
-        } else if (Objects.isNull(secondStudentScreeningProgressVOS.getResult())) {
+        } else if (Objects.isNull(secondStudentScreeningProgressVOS)) {
             // 开始复测
             firstStudentScreeningProgressVO.setScreeningStatus(2);
         } else if (Boolean.FALSE.equals(secondStudentScreeningProgressVOS.getResult())) {
