@@ -594,7 +594,7 @@ public class ScreeningAppService {
                 }).collect(Collectors.toList());
         // 转换为筛查进度
         List<StudentScreeningProgressVO> secondProgress = getStudentScreeningProgress(screeningPlanSchoolStudentList, secondPlanStudentVisionResultMap)
-                .stream().filter(item->secondPlanStudentVisionResultMap.keySet().contains(item.getStudentId())).collect(Collectors.toList());
+                .stream().filter(item -> secondPlanStudentVisionResultMap.keySet().contains(item.getStudentId())).collect(Collectors.toList());
 
         firstProgress = numerationStatus(firstProgress, secondProgress);
         firstProgress = firstProgress.stream().sorted(Comparator.comparing(StudentScreeningProgressVO::getScreeningStatus)).collect(Collectors.toList());
@@ -628,7 +628,7 @@ public class ScreeningAppService {
         List<StudentScreeningProgressVO> firstProgress = getStudentScreeningProgress(screeningPlanSchoolStudentList, firstPlanStudentVisionResultMap);
         // 转换为筛查进度
         List<StudentScreeningProgressVO> secondProgress = getStudentScreeningProgress(screeningPlanSchoolStudentList, secondPlanStudentVisionResultMap)
-                .stream().filter(item->secondPlanStudentVisionResultMap.keySet().contains(item.getStudentId())).collect(Collectors.toList());
+                .stream().filter(item -> secondPlanStudentVisionResultMap.containsKey(item.getStudentId())).collect(Collectors.toList());
 
         firstProgress = numerationStatus(firstProgress, secondProgress);
 
@@ -652,6 +652,10 @@ public class ScreeningAppService {
                     if (Objects.nonNull(result) && Objects.nonNull(result.getVisionData()) &&
                             (Objects.nonNull(result.getVisionData().getLeftEyeData()) && result.getVisionData().getLeftEyeData().getGlassesType().equals(WearingGlassesSituation.WEARING_OVERNIGHT_ORTHOKERATOLOGY_KEY)
                                     || (Objects.nonNull(result.getVisionData().getRightEyeData()) && result.getVisionData().getRightEyeData().getGlassesType().equals(WearingGlassesSituation.WEARING_OVERNIGHT_ORTHOKERATOLOGY_KEY)))) {
+                        return false;
+                    }
+                    // 复测完成的
+                    if (!item.getScreeningStatus().equals(3)) {
                         return false;
                     }
                     return true;
