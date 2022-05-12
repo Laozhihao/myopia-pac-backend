@@ -4,6 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.util.BigDecimalUtil;
+import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
@@ -217,15 +218,15 @@ public class StatUtil {
      * @param cyl    柱镜
      * @param age    年龄
      */
-    public static Boolean isRefractiveError(String sphere, String cyl, Integer age) {
+    public static Boolean isRefractiveError(String sphere, String cyl, Integer age,Boolean zeroToSixPlatform) {
         if (StrUtil.isBlank(sphere) || StrUtil.isBlank(cyl)){
             return null;
         }
-        return isRefractiveError(new BigDecimal(sphere), new BigDecimal(cyl), age);
+        return isRefractiveError(new BigDecimal(sphere), new BigDecimal(cyl), age,zeroToSixPlatform);
     }
 
-    public static Boolean isRefractiveError(BigDecimal sphere, BigDecimal cyl, Integer age) {
-        if (ObjectsUtil.hasNull(sphere,cyl,age)) {
+    public static Boolean isRefractiveError(BigDecimal sphere, BigDecimal cyl, Integer age,Boolean zeroToSixPlatform) {
+        if (ObjectsUtil.hasNull(sphere,cyl,age,zeroToSixPlatform)) {
             return null;
         }
         BigDecimal se = getSphericalEquivalent(sphere, cyl);
@@ -237,9 +238,9 @@ public class StatUtil {
         }
         switch (age) {
             case 2:
-                return refractiveError2(se, cyl);
+                return refractiveError2(se, cyl,zeroToSixPlatform);
             case 3:
-                return refractiveError3(se, cyl);
+                return refractiveError3(se, cyl,zeroToSixPlatform);
             case 4:
                 return refractiveError4(se, cyl);
             case 5:
@@ -248,14 +249,25 @@ public class StatUtil {
                 return null;
         }
     }
-    private static Boolean refractiveError2(BigDecimal se, BigDecimal cyl) {
-        return (Objects.nonNull(se) && (BigDecimalUtil.lessThan(se, "-3.50") || BigDecimalUtil.moreThan(se, "4.50")))
-                || (Objects.nonNull(cyl) && BigDecimalUtil.moreThan(cyl.abs(), new BigDecimal("1.00").abs()));
-    }
 
-    private static Boolean refractiveError3(BigDecimal se, BigDecimal cyl) {
-        return (Objects.nonNull(se) && (BigDecimalUtil.lessThan(se, MINUS_3) || BigDecimalUtil.moreThan(se, "4.00")))
-                || (Objects.nonNull(cyl) && BigDecimalUtil.moreThan(cyl.abs(), new BigDecimal("1.00").abs()));
+
+    private static Boolean refractiveError2(BigDecimal se, BigDecimal cyl,Boolean zeroToSixPlatform) {
+        boolean b = Objects.nonNull(se) && (BigDecimalUtil.lessThan(se, "-3.50") || BigDecimalUtil.moreThan(se, "4.50"));
+        if(zeroToSixPlatform){
+            return b || (Objects.nonNull(cyl) && BigDecimalUtil.moreThan(cyl.abs(), new BigDecimal("2.00").abs()));
+        }else {
+            return b || (Objects.nonNull(cyl) && BigDecimalUtil.moreThan(cyl.abs(), new BigDecimal("1.00").abs()));
+        }
+
+    }
+    private static Boolean refractiveError3(BigDecimal se, BigDecimal cyl,Boolean zeroToSixPlatform) {
+        boolean b = Objects.nonNull(se) && (BigDecimalUtil.lessThan(se, MINUS_3) || BigDecimalUtil.moreThan(se, "4.00"));
+        if (zeroToSixPlatform){
+            return b || (Objects.nonNull(cyl) && BigDecimalUtil.moreThan(cyl.abs(), new BigDecimal("2.00").abs()));
+        }else {
+            return b || (Objects.nonNull(cyl) && BigDecimalUtil.moreThan(cyl.abs(), new BigDecimal("1.00").abs()));
+        }
+
     }
     private static Boolean refractiveError4(BigDecimal se, BigDecimal cyl) {
         return (Objects.nonNull(se) && (BigDecimalUtil.lessThan(se, MINUS_3) || BigDecimalUtil.moreThan(se, "4.00")))
@@ -266,6 +278,8 @@ public class StatUtil {
         return (Objects.nonNull(se) && (BigDecimalUtil.lessThan(se, "-1.50") || BigDecimalUtil.moreThan(se, "3.50")))
                 || (Objects.nonNull(cyl) && BigDecimalUtil.moreThan(cyl.abs(), new BigDecimal("1.50").abs()));
     }
+
+
 
 
 
