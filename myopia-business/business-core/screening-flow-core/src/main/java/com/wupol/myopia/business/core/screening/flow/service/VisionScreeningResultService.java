@@ -305,7 +305,9 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
             if (screeningPlanSchoolStudent != null){
                 visionScreeningResultDTO.setGender(screeningPlanSchoolStudent.getGender());
             }
-            if (!doubleScreeningResults.isEmpty()){
+            if (!doubleScreeningResults.isEmpty() && doubleScreeningResults.get(0).getVisionData() !=null
+                    && doubleScreeningResults.get(0).getComputerOptometry() != null && doubleScreeningResults.get(0).getHeightAndWeightData() != null){
+
                 visionScreeningResultDTO.setRescreening(ReScreenCardUtil.reScreeningResult(visionScreeningResults.get(0),doubleScreeningResults.get(0)));
             }
             visionScreeningResultDTO.setLeftSE(getLeftSphericalEquivalent(visionScreeningResults.get(0)));
