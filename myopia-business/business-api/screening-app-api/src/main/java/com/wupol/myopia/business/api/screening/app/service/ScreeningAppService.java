@@ -634,9 +634,9 @@ public class ScreeningAppService {
 
         screeningProgressState.setReScreeningCount((int) firstProgress.stream().filter(item -> item.getScreeningStatus() != 4).count());
         screeningProgressState.setNeedReScreeningCount((int) firstProgress.stream().filter(item -> item.getScreeningStatus() == 1 || item.getScreeningStatus() == 3).count());
-        screeningProgressState.setWearingGlasses((int) firstProgress.stream().filter(item -> (item.getScreeningStatus() == 1 || item.getScreeningStatus() == 3)
+        screeningProgressState.setWearingGlasses((int) firstProgress.stream().filter(item -> item.getScreeningStatus() == 3
                 && Objects.nonNull(firstPlanStudentVisionResultMap.get(item.getStudentId())) && firstPlanStudentVisionResultMap.get(item.getStudentId()).getVisionData().getLeftEyeData().getGlassesType() != 0).count());
-        screeningProgressState.setNoWearingGlasses((int) firstProgress.stream().filter(item -> (item.getScreeningStatus() == 1 || item.getScreeningStatus() == 3)
+        screeningProgressState.setNoWearingGlasses((int) firstProgress.stream().filter(item -> item.getScreeningStatus() == 3
                 && Objects.nonNull(firstPlanStudentVisionResultMap.get(item.getStudentId())) && firstPlanStudentVisionResultMap.get(item.getStudentId()).getVisionData().getLeftEyeData().getGlassesType() == 0).count());
         screeningProgressState.setRetestRatio(screeningProgressState.getReScreeningCount() == 0 ? BigDecimal.ZERO : new BigDecimal(screeningProgressState.getNeedReScreeningCount()).divide(BigDecimal.valueOf(screeningProgressState.getReScreeningCount()), 4, BigDecimal.ROUND_DOWN));
 
