@@ -1,13 +1,17 @@
 package com.wupol.myopia.business.api.management.domain.vo;
 
 import cn.hutool.core.collection.CollectionUtil;
+import com.wupol.myopia.business.core.school.constant.SchoolEnum;
 import com.wupol.myopia.business.core.school.domain.model.School;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.stat.domain.model.ScreeningResultStatistic;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * 学校结果详情实体
@@ -31,25 +35,34 @@ public class SchoolResultDetailVO {
 
 
 
-    public void setItemData(boolean isKindergarten,Integer screeningNoticeId,
+    public void setItemData(Integer screeningNoticeId,Integer type,
                             Integer screeningType,School school,
                             List<ScreeningResultStatistic> screeningResultStatistics) {
 
-        if(isKindergarten){
-            if (CollectionUtil.isNotEmpty(screeningResultStatistics)){
-                KindergartenResultDetailVO detailVO=new KindergartenResultDetailVO();
-                detailVO.setBaseData(screeningNoticeId,school.getDistrictId(),screeningType,school.getName());
-                detailVO.setItemData(screeningResultStatistics.get(0));
-                this.kindergartenResultDetail=detailVO;
-            }
-        }else {
-            if (CollectionUtil.isNotEmpty(screeningResultStatistics)){
-                PrimarySchoolAndAboveResultDetailVO detailVO = new PrimarySchoolAndAboveResultDetailVO();
-                detailVO.setBaseData(screeningNoticeId,school.getDistrictId(),screeningType,school.getName());
-                detailVO.setItemData(screeningResultStatistics.get(0));
-                this.primarySchoolAndAboveResultDetail=detailVO;
+        if (CollectionUtil.isNotEmpty(screeningResultStatistics)){
+            Map<Integer, ScreeningResultStatistic> resultStatisticMap = screeningResultStatistics.stream().collect(Collectors.toMap(ScreeningResultStatistic::getSchoolType, Function.identity()));
+            if (Objects.isNull(type)){
+                resultStatisticMap.forEach((schoolType,resultStatistic)->{
+                    setData(screeningNoticeId, schoolType, screeningType, school, resultStatistic);
+                });
+            }else {
+                ScreeningResultStatistic screeningResultStatistic = resultStatisticMap.get(type);
+                setData(screeningNoticeId, type, screeningType, school, screeningResultStatistic);
             }
         }
+    }
 
+    private void setData(Integer screeningNoticeId, Integer type, Integer screeningType, School school, ScreeningResultStatistic screeningResultStatistic) {
+        if (Objects.equals(type, SchoolEnum.TYPE_KINDERGARTEN.getType())){
+            KindergartenResultDetailVO detailVO=new KindergartenResultDetailVO();
+            detailVO.setBaseData(screeningNoticeId,school.getDistrictId(),screeningType,school.getName());
+            detailVO.setItemData(screeningResultStatistic);
+            this.kindergartenResultDetail=detailVO;
+        }else {
+            PrimarySchoolAndAboveResultDetailVO detailVO = new PrimarySchoolAndAboveResultDetailVO();
+            detailVO.setBaseData(screeningNoticeId,school.getDistrictId(),screeningType,school.getName());
+            detailVO.setItemData(screeningResultStatistic);
+            this.primarySchoolAndAboveResultDetail=detailVO;
+        }
     }
 }

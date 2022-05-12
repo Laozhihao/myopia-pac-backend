@@ -25,6 +25,6 @@ public class ScreeningPlanResponseDTO extends ScreeningPlan {
     /**
      * 详情
      */
-    @Deprecated
     private List<SchoolVisionStatisticItem> items;
+
 }

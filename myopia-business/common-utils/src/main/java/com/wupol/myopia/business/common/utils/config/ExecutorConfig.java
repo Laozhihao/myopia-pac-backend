@@ -1,4 +1,4 @@
-package com.wupol.myopia.base.config;
+package com.wupol.myopia.business.common.utils.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -8,6 +8,11 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.concurrent.ThreadPoolExecutor;
 
+/**
+ *  线程池配置
+ * @author hang.yuan
+ * @date 2022/5/10
+ */
 @Slf4j
 @Configuration
 public class ExecutorConfig {

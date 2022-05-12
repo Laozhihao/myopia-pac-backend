@@ -38,8 +38,8 @@ public class StatUtilTest {
 
     @Test
     public void isMyopiaTest(){
-        Assert.assertEquals(true,StatUtil.isMyopia(4.6f,4.6f, 4,4.8f));
-        Assert.assertEquals(true,StatUtil.isMyopia(4.6f,4.6f, 7,4.9f));
+        Assert.assertEquals(true,StatUtil.isMyopia(new BigDecimal("4.6"),new BigDecimal("4.6"), 4,new BigDecimal("4.8")));
+        Assert.assertEquals(true,StatUtil.isMyopia(new BigDecimal("4.6"),new BigDecimal("4.6"), 7,new BigDecimal("4.9")));
         Assert.assertEquals(false,StatUtil.isMyopia(0));
         Assert.assertEquals(true,StatUtil.isMyopia(3));
         Assert.assertEquals(false,StatUtil.isMyopia(MyopiaLevelEnum.MYOPIA_LEVEL_EARLY));

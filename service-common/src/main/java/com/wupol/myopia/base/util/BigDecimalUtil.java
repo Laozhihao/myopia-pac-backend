@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -13,6 +14,7 @@ import java.util.Optional;
  * @author Simple4H
  */
 public class BigDecimalUtil {
+
     private static Map<Integer,String> DECIMAL_FORMAT = Maps.newHashMap();
 
     static {
@@ -21,7 +23,6 @@ public class BigDecimalUtil {
         DECIMAL_FORMAT.put(3,"0.000");
         DECIMAL_FORMAT.put(4,"0.0000");
     }
-
 
     /**
      * 小于
@@ -309,6 +310,18 @@ public class BigDecimalUtil {
         return b1.divide(b2, scale, BigDecimal.ROUND_HALF_UP);
     }
 
+    /**
+     * 响应前端时使用
+     * @param source 原数据
+     * @param scale 保留几位小数
+     */
+    public static BigDecimal getBigDecimalByFormat(BigDecimal source,int scale){
+        if (Objects.isNull(source)){
+            return null;
+        }
+        DecimalFormat decimalFormat = new DecimalFormat(DECIMAL_FORMAT.get(scale));
+        return new BigDecimal(decimalFormat.format(source));
+    }
 
     /**
      * 保留n位小数
@@ -321,16 +334,5 @@ public class BigDecimalUtil {
             return value.setScale(fixed, BigDecimal.ROUND_HALF_UP);
         }
         return null;
-    }
-
-    /**
-     * 获取格式化后的BigDecimal数据
-     *
-     * @param source 原数据
-     * @param scale  小数点位数
-     */
-    public static BigDecimal getBigDecimalByFormat(BigDecimal source, int scale) {
-        DecimalFormat decimalFormat = new DecimalFormat(DECIMAL_FORMAT.get(scale));
-        return new BigDecimal(decimalFormat.format(source));
     }
 }

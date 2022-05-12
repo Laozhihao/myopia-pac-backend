@@ -205,6 +205,9 @@ public class ScreeningAppController {
         if (Objects.isNull(screeningPlanSchoolStudent)) {
             return ApiResult.failure(SysEnum.SYS_STUDENT_NULL.getCode(), SysEnum.SYS_STUDENT_NULL.getMessage());
         }
+        if (!screeningPlanStudentBizService.isMatchScreeningTime(screeningPlanSchoolStudent)) {
+            return ApiResult.failure(SysEnum.SYS_STUDENT_SCREENING_TIME_ERROR.getCode(), SysEnum.SYS_STUDENT_SCREENING_TIME_ERROR.getMessage());
+        }
         return ApiResult.success(StudentVO.getInstance(screeningPlanSchoolStudent));
     }
 
@@ -527,6 +530,9 @@ public class ScreeningAppController {
         );
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getById(planStudentId);
         StudentVO studentVO = StudentVO.getInstance(screeningPlanSchoolStudent);
+        if (!screeningPlanStudentBizService.isMatchScreeningTime(screeningPlanSchoolStudent)) {
+            throw new BusinessException(SysEnum.SYS_STUDENT_SCREENING_TIME_ERROR.getMessage());
+        }
         return StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO, screeningPlanSchoolStudent);
     }
 

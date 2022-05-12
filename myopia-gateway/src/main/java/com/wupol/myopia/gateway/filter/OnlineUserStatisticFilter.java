@@ -47,9 +47,8 @@ public class OnlineUserStatisticFilter implements GlobalFilter, Ordered {
                 redisUtil.set(format,currentUser.getId(),ONLINE_USERS_EXPIRED);
             }
         }else {
-            String path = request.getPath().value();
             String ip = RequestUtil.getIP(request);
-            String format = String.format(onlineUsersNum, SystemCode.MANAGEMENT_CLIENT.getCode(), path+StrUtil.UNDERLINE+ip);
+            String format = String.format(onlineUsersNum, SystemCode.MANAGEMENT_CLIENT.getCode(), ip);
             redisUtil.set(format,"",ONLINE_USERS_EXPIRED);
         }
         return chain.filter(exchange);

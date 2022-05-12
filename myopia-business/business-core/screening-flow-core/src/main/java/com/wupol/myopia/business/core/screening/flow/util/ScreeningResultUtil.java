@@ -715,7 +715,7 @@ public class ScreeningResultUtil {
         BigDecimal seVal = se.abs().multiply(new BigDecimal("100")).setScale(0, RoundingMode.DOWN);
         if (se.compareTo(new BigDecimal("0.00")) <= 0) {
             // 近视
-            MyopiaLevelEnum myopiaWarningLevel = StatUtil.getMyopiaWarningLevel(sph.floatValue(), cyl.floatValue(), age, nakedVision.floatValue());
+            MyopiaLevelEnum myopiaWarningLevel = StatUtil.getMyopiaWarningLevel(sph, cyl, age, nakedVision);
             String str;
             if (se.compareTo(new BigDecimal("-0.50")) < 0) {
                 str = "近视" + seVal + "度";
@@ -1147,13 +1147,13 @@ public class ScreeningResultUtil {
         if (BigDecimalUtil.lessThan(seBigDecimal, "0")) {
             return RecommendVisitEnum.KINDERGARTEN_RESULT_5;
         }
-        if (Objects.isNull(otherEyeDiseasesNormal)) {
-            return RecommendVisitEnum.EMPTY;
-        }
+//        if (Objects.isNull(otherEyeDiseasesNormal)) {
+//            return RecommendVisitEnum.EMPTY;
+//        }
 
         if ((BigDecimalUtil.moreThanAndEqual(seBigDecimal, "2") || BigDecimalUtil.moreThan(cyl.abs(), "1.5"))
                 || (Objects.nonNull(anisometropia) && BigDecimalUtil.moreThan(anisometropia, "1.5"))
-                || !otherEyeDiseasesNormal) {
+                || (Objects.nonNull(otherEyeDiseasesNormal) && !otherEyeDiseasesNormal)) {
             return RecommendVisitEnum.KINDERGARTEN_RESULT_4;
         }
         return RecommendVisitEnum.EMPTY;

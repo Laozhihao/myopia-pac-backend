@@ -19,9 +19,11 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -39,6 +41,7 @@ public class StatConclusionBizService {
     private final VisionScreeningResultService visionScreeningResultService;
     private final StatConclusionService statConclusionService;
     private final SchoolGradeService schoolGradeService;
+    private final ThreadPoolTaskExecutor asyncServiceExecutor;
 
     /**
      * 筛查数据结论
@@ -74,21 +77,24 @@ public class StatConclusionBizService {
     }
 
     private void screeningToConclusion(List<VisionScreeningResult> visionScreeningResults){
-        //1.历史初筛和复筛的数据
         if (CollectionUtil.isEmpty(visionScreeningResults)){
             return;
         }
-        //2.筛查结果分组
+        log.info("筛查数据结论,数据处理开始");
+        //筛查结果分组
         Map<Integer, List<VisionScreeningResult>> visionScreeningResultMap = visionScreeningResults.stream().collect(Collectors.groupingBy(VisionScreeningResult::getPlanId));
         if (CollectionUtil.isNotEmpty(visionScreeningResultMap)){
             List<Map<Integer, List<VisionScreeningResult>>> mapList = MapUtil.splitMap(visionScreeningResultMap, 30);
-            log.info("筛查数据结论，共{}批次",mapList.size());
-            for (int i = 0; i < mapList.size(); i++) {
-                log.info("分批执行中...{}/{}",i+1,mapList.size());
-                consumerMap(mapList.get(i));
-            }
-            log.info("筛查数据结论,数据处理完成");
+
+            List<CompletableFuture<Void>> completableFutureList = new ArrayList<>();
+            mapList.forEach(list->{
+                CompletableFuture<Void> future = CompletableFuture.runAsync(() -> consumerMap(list), asyncServiceExecutor);
+                completableFutureList.add(future);
+            });
+            CompletableFuture.allOf(completableFutureList.toArray(new CompletableFuture[mapList.size()])).join();
+
         }
+        log.info("筛查数据结论,数据处理完成");
     }
 
 

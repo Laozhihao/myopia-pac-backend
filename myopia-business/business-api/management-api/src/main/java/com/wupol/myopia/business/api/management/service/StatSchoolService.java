@@ -6,12 +6,13 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.api.management.domain.bo.StatisticDetailBO;
 import com.wupol.myopia.business.api.management.domain.vo.SchoolKindergartenResultVO;
 import com.wupol.myopia.business.api.management.domain.vo.SchoolPrimarySchoolAndAboveResultVO;
 import com.wupol.myopia.business.api.management.domain.vo.SchoolResultDetailVO;
 import com.wupol.myopia.business.core.common.service.DistrictService;
-import com.wupol.myopia.business.core.school.constant.SchoolEnum;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
@@ -250,21 +251,26 @@ public class StatSchoolService {
 
     /**
      * 按学校-获取学校统计详情
-     * @param screeningPlanId 筛查计划ID
-     * @param schoolId 学校ID
+     * @param statisticDetailBO
      */
-    public SchoolResultDetailVO getSchoolStatisticDetail(Integer screeningPlanId, Integer screeningNoticeId,Integer schoolId) {
+    public SchoolResultDetailVO getSchoolStatisticDetail(StatisticDetailBO statisticDetailBO) {
+        Integer schoolId = statisticDetailBO.getSchoolId();
         if (Objects.nonNull(schoolId)){
             School school = schoolService.getById(schoolId);
+            if (Objects.isNull(school)){
+                throw new BusinessException(String.format("学校不存在:%s",schoolId));
+            }
+            statisticDetailBO.setSchool(school);
             CurrentUser user = CurrentUserUtil.getCurrentUser();
-            if(Objects.isNull(user) && ObjectsUtil.allNotNull(screeningNoticeId,screeningPlanId) ){
+            if(Objects.isNull(user)){
                 return null;
             }
-            if (Objects.nonNull(screeningNoticeId)){
-                return getSchoolStatisticDetailByNoticeId(screeningNoticeId,school,user);
+            statisticDetailBO.setUser(user);
+            if (Objects.nonNull(statisticDetailBO.getScreeningNoticeId())){
+                return getSchoolStatisticDetailByNoticeId(statisticDetailBO);
             }
-            if (Objects.nonNull(screeningPlanId)){
-                return getSchoolStatisticDetailByPlanId(screeningPlanId,school);
+            if (Objects.nonNull(statisticDetailBO.getScreeningPlanId())){
+                return getSchoolStatisticDetailByPlanId(statisticDetailBO);
             }
         }
         return null;
@@ -272,21 +278,21 @@ public class StatSchoolService {
     /**
      * 按学校-获取学校统计详情-筛查通知
      */
-    private SchoolResultDetailVO getSchoolStatisticDetailByNoticeId(Integer screeningNoticeId,School school,CurrentUser user){
-        ScreeningNotice screeningNotice = screeningNoticeService.getById(screeningNoticeId);
-        List<ScreeningResultStatistic> screeningResultStatistics = getStatisticByNoticeIdAndSchoolId(screeningNoticeId, user,school.getId());
-        return getSchoolResultDetailVO(screeningResultStatistics,Objects.equals(SchoolEnum.TYPE_KINDERGARTEN.getType(), school.getType()),screeningNotice,school,null);
+    private SchoolResultDetailVO getSchoolStatisticDetailByNoticeId(StatisticDetailBO statisticDetailBO){
+        ScreeningNotice screeningNotice = screeningNoticeService.getById(statisticDetailBO.getScreeningNoticeId());
+        List<ScreeningResultStatistic> screeningResultStatistics = getStatisticByNoticeIdAndSchoolId(statisticDetailBO);
+        return getSchoolResultDetailVO(screeningResultStatistics,screeningNotice,statisticDetailBO.getSchool(),null,statisticDetailBO.getType());
 
     }
 
     /**
      * 按学校-获取学校统计详情-筛查计划
      */
-    private SchoolResultDetailVO getSchoolStatisticDetailByPlanId(Integer screeningPlanId,School school){
-        ScreeningPlan screeningPlan = screeningPlanService.getById(screeningPlanId);
+    private SchoolResultDetailVO getSchoolStatisticDetailByPlanId(StatisticDetailBO statisticDetailBO){
+        ScreeningPlan screeningPlan = screeningPlanService.getById(statisticDetailBO.getScreeningPlanId());
         ScreeningNotice screeningNotice = screeningNoticeService.getById(screeningPlan.getSrcScreeningNoticeId());
-        List<ScreeningResultStatistic> screeningResultStatistics = getStatisticByPlanIdsAndSchoolId(Lists.newArrayList(screeningPlan), school.getId());
-        return getSchoolResultDetailVO(screeningResultStatistics,Objects.equals(SchoolEnum.TYPE_KINDERGARTEN.getType(), school.getType()),screeningNotice,school,screeningPlan);
+        List<ScreeningResultStatistic> screeningResultStatistics = getStatisticByPlanIdsAndSchoolId(Lists.newArrayList(screeningPlan), statisticDetailBO.getSchoolId());
+        return getSchoolResultDetailVO(screeningResultStatistics,screeningNotice,statisticDetailBO.getSchool(),screeningPlan,statisticDetailBO.getType());
     }
 
     /**
@@ -312,7 +318,10 @@ public class StatSchoolService {
     /**
      * 根据筛查通知ID和学校Id获取筛查结果统计
      */
-    private List<ScreeningResultStatistic> getStatisticByNoticeIdAndSchoolId(Integer noticeId, CurrentUser user, Integer schoolId) {
+    private List<ScreeningResultStatistic> getStatisticByNoticeIdAndSchoolId(StatisticDetailBO statisticDetailBO) {
+        Integer noticeId = statisticDetailBO.getScreeningNoticeId();
+        CurrentUser user = statisticDetailBO.getUser();
+        Integer schoolId = statisticDetailBO.getSchoolId();
         if(ObjectsUtil.allNull(noticeId,user)){
             return Lists.newArrayList();
         }
@@ -338,14 +347,14 @@ public class StatSchoolService {
      * 获取学校筛查结果统计详情
      */
     private SchoolResultDetailVO getSchoolResultDetailVO(List<ScreeningResultStatistic> screeningResultStatistics,
-                                                         boolean isKindergarten,ScreeningNotice screeningNotice,School school,
-                                                         ScreeningPlan screeningPlan ){
+                                                         ScreeningNotice screeningNotice,School school,
+                                                         ScreeningPlan screeningPlan ,Integer type){
 
         SchoolResultDetailVO schoolResultDetailVO = new SchoolResultDetailVO();
         if(Objects.nonNull(screeningNotice)){
-            schoolResultDetailVO.setItemData(isKindergarten,screeningNotice.getId(),screeningNotice.getScreeningType(),school,screeningResultStatistics);
+            schoolResultDetailVO.setItemData(screeningNotice.getId(),type,screeningNotice.getScreeningType(),school,screeningResultStatistics);
         }else {
-            schoolResultDetailVO.setItemData(isKindergarten,screeningPlan.getSrcScreeningNoticeId(),screeningPlan.getScreeningType(),school,screeningResultStatistics);
+            schoolResultDetailVO.setItemData(screeningPlan.getSrcScreeningNoticeId(),type,screeningPlan.getScreeningType(),school,screeningResultStatistics);
         }
         return schoolResultDetailVO;
     }

@@ -315,16 +315,11 @@ public class StatConclusionBuilder {
     }
 
     private void setMyopia() {
-        Boolean isLeftMyopia = null;
-        Boolean isrightMyopia = null;
-        if (basicData.getLeftMyopiaWarningLevel() != null) {
-            isLeftMyopia = StatUtil.isMyopia(basicData.getLeftMyopiaWarningLevel());
-        }
-        if (basicData.getRightMyopiaWarningLevel() != null) {
-            isrightMyopia = StatUtil.isMyopia(basicData.getRightMyopiaWarningLevel());
-        }
-        if (ObjectsUtil.allNotNull(isLeftMyopia,isrightMyopia)){
-            statConclusion.setIsMyopia(isLeftMyopia || isrightMyopia);
+        Boolean isLeftMyopia = StatUtil.isMyopia(basicData.getLeftSph(),basicData.getLeftCyl(),basicData.getAge(),basicData.getLeftNakedVision());
+        Boolean isRightMyopia = StatUtil.isMyopia(basicData.getRightSph(),basicData.getRightCyl(),basicData.getAge(),basicData.getRightNakedVision());
+
+        if (ObjectsUtil.allNotNull(isLeftMyopia,isRightMyopia)){
+            statConclusion.setIsMyopia(isLeftMyopia || isRightMyopia);
         }
     }
 
