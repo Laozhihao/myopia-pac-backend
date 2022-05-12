@@ -30,8 +30,17 @@ public class MathUtil {
     }
 
     public String ratio(Integer numerator, Integer denominator) {
-        Assert.isTrue(ObjectsUtil.allNotNull(numerator,denominator),"分子和分母不都为空");
         DecimalFormat df = new DecimalFormat("0.00%");
+        return ratio(numerator,denominator,df);
+    }
+
+    public String num(Integer numerator, Integer denominator) {
+        DecimalFormat df = new DecimalFormat("0.00");
+        return ratio(numerator,denominator,df);
+    }
+
+    public String ratio(Integer numerator, Integer denominator,DecimalFormat df) {
+        Assert.isTrue(ObjectsUtil.allNotNull(numerator,denominator,df),"分子和分母不都为空");
         if (numerator == 0 ||denominator == 0) {
             return df.format(new BigDecimal("0"));
         }

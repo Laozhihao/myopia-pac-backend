@@ -186,7 +186,7 @@ public class ScreeningAppController {
         List<StudentVO> studentVOs = screeningPlanSchoolStudentPage.getRecords().stream()
                 .sorted(Comparator.comparing(ScreeningPlanSchoolStudent::getCreateTime).reversed())
                 .map(StudentVO::getInstance).collect(Collectors.toList());
-        // 新版本不分页，这里需要兼容旧版本，数量为最大
+        // 新版本不分页，这里需要兼容旧版本，数量为最大,学生数一般最多100,999比较合适
         if (channel == 1) {
             size = 999;
         }
@@ -204,6 +204,9 @@ public class ScreeningAppController {
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.findOne(new ScreeningPlanSchoolStudent().setId(planStudentId).setScreeningOrgId(CurrentUserUtil.getCurrentUser().getOrgId()));
         if (Objects.isNull(screeningPlanSchoolStudent)) {
             return ApiResult.failure(SysEnum.SYS_STUDENT_NULL.getCode(), SysEnum.SYS_STUDENT_NULL.getMessage());
+        }
+        if (!screeningPlanStudentBizService.isMatchScreeningTime(screeningPlanSchoolStudent)) {
+            return ApiResult.failure(SysEnum.SYS_STUDENT_SCREENING_TIME_ERROR.getCode(), SysEnum.SYS_STUDENT_SCREENING_TIME_ERROR.getMessage());
         }
         return ApiResult.success(StudentVO.getInstance(screeningPlanSchoolStudent));
     }
@@ -527,6 +530,9 @@ public class ScreeningAppController {
         );
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getById(planStudentId);
         StudentVO studentVO = StudentVO.getInstance(screeningPlanSchoolStudent);
+        if (!screeningPlanStudentBizService.isMatchScreeningTime(screeningPlanSchoolStudent)) {
+            throw new BusinessException(SysEnum.SYS_STUDENT_SCREENING_TIME_ERROR.getMessage());
+        }
         return StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO, screeningPlanSchoolStudent);
     }
 
@@ -658,7 +664,7 @@ public class ScreeningAppController {
      * @return com.wupol.myopia.business.api.screening.app.domain.vo.ScreeningResultDataVO
      **/
     @GetMapping("/data/{planStudentId}")
-    public ScreeningResultDataVO getScreeningResultData(@PathVariable Integer planStudentId, @RequestParam(value = "isState", defaultValue = "0") Integer isState) {
+    public ApiResult getScreeningResultData(@PathVariable Integer planStudentId, @RequestParam(value = "isState", defaultValue = "0") Integer isState) {
         VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentIdAndState(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId(), isState);
         ScreeningResultDataVO result = ScreeningResultDataVO.getInstance(screeningResult);
         if (isState == 1) {
@@ -672,7 +678,7 @@ public class ScreeningAppController {
                 result.getVisionData().setGlassesType(resultFirst.getVisionData().getGlassesType());
             }
         }
-        return result;
+        return ApiResult.success(result);
     }
 
     /**
@@ -955,7 +961,7 @@ public class ScreeningAppController {
      * @return com.wupol.myopia.business.api.screening.app.domain.vo.ClassScreeningProgress
      **/
     @GetMapping("/school/findAllStudentNameState")
-    public ClassScreeningProgress findClassScreeningStudent(@NotNull(message = "学校ID不能为空") Integer schoolId,
+    public ClassScreeningProgress findClassScreefningStudent(@NotNull(message = "学校ID不能为空") Integer schoolId,
                                                             @NotNull(message = "年级ID不能为空") Integer gradeId,
                                                             @NotNull(message = "班级ID不能为空") Integer classId,
                                                             @RequestParam(value = "channel", defaultValue = "0") Integer channel) {

@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.bo;
 
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -72,12 +73,9 @@ public class StatisticResultBO implements Serializable {
      */
     private Integer schoolType;
 
-    public StatisticResultBO setSchoolType(Integer schoolType) {
-        if (Objects.equals(8,schoolType)){
-            this.schoolType = schoolType;
-        }else {
-            this.schoolType = 0;
-        }
-        return this;
-    }
+    /**
+     * 参与筛查的学生
+     */
+    private List<ScreeningPlanSchoolStudent> planSchoolStudentList;
+
 }

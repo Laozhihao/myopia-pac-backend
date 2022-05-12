@@ -2,6 +2,8 @@ package com.wupol.myopia.business.aggregation.screening.service;
 
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
+import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
@@ -72,6 +74,7 @@ public class VisionScreeningBizService {
     public TwoTuple<VisionScreeningResult, StatConclusion> saveOrUpdateStudentScreenData(ScreeningResultBasicData screeningResultBasicData) {
         // 1: 根据筛查计划获得 初筛和复测数据
         // 2: 本次检查数据如果是复测，要验证是否符合初筛条件
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         TwoTuple<VisionScreeningResult, VisionScreeningResult> allFirstAndSecondResult = getAllFirstAndSecondResult(screeningResultBasicData);
         VisionScreeningResult currentVisionScreeningResult;
         if (screeningResultBasicData.getIsState() != 0) {
@@ -97,10 +100,10 @@ public class VisionScreeningBizService {
         }
         // 设置类型，来自筛查计划
         currentVisionScreeningResult.setScreeningType(screeningPlan.getScreeningType());
-        //更新vision_result表
+        //更新statConclusion表
         visionScreeningResultService.saveOrUpdateStudentScreenData(currentVisionScreeningResult);
         //更新statConclusion表（获取的初筛或复测的数据）
-        StatConclusion statConclusion = statConclusionService.saveOrUpdateStudentScreenData(getScreeningConclusionResult(allFirstAndSecondResult));
+        StatConclusion statConclusion = statConclusionService.saveOrUpdateStudentScreenData(getScreeningConclusionResult(allFirstAndSecondResult,currentUser));
         // 更新是否绑定手机号码
         setIsBindMq(statConclusion);
         //更新学生表的数据（复测覆盖了初筛的结论）
@@ -125,7 +128,7 @@ public class VisionScreeningBizService {
         VisionDataDO visionData = firstResult.getVisionData();
         ComputerOptometryDO computerOptometry = firstResult.getComputerOptometry();
         if (Objects.isNull(visionData) || Objects.isNull(computerOptometry)) {
-            throw new BusinessException("请完成初筛");
+            throw new BusinessException("该学生初筛项目未全部完成，无法进行复测！");
         }
         // 夜戴角膜镜不需要复测
         if (visionData.getLeftEyeData().getGlassesType().equals(GlassesTypeEnum.ORTHOKERATOLOGY.code)
@@ -171,7 +174,7 @@ public class VisionScreeningBizService {
      * @param allFirstAndSecondResult
      * @return
      */
-    private StatConclusion getScreeningConclusionResult(TwoTuple<VisionScreeningResult, VisionScreeningResult> allFirstAndSecondResult) {
+    private StatConclusion getScreeningConclusionResult(TwoTuple<VisionScreeningResult, VisionScreeningResult> allFirstAndSecondResult,CurrentUser currentUser) {
         VisionScreeningResult currentVisionScreeningResult = allFirstAndSecondResult.getFirst();
         VisionScreeningResult secondVisionScreeningResult = allFirstAndSecondResult.getSecond();
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getById(currentVisionScreeningResult.getScreeningPlanSchoolStudentId());
@@ -183,8 +186,10 @@ public class VisionScreeningBizService {
         //需要新增
         SchoolGrade schoolGrade = schoolGradeService.getById(screeningPlanSchoolStudent.getGradeId());
         StatConclusionBuilder statConclusionBuilder = StatConclusionBuilder.getStatConclusionBuilder();
-        statConclusion = statConclusionBuilder.setCurrentVisionScreeningResult(currentVisionScreeningResult, secondVisionScreeningResult).setStatConclusion(statConclusion)
-                .setScreeningPlanSchoolStudent(screeningPlanSchoolStudent).setGradeCode(schoolGrade.getGradeCode())
+        statConclusion = statConclusionBuilder.setCurrentVisionScreeningResult(currentVisionScreeningResult,secondVisionScreeningResult).setStatConclusion(statConclusion)
+                .setScreeningPlanSchoolStudent(screeningPlanSchoolStudent)
+                .setGradeCode(schoolGrade.getGradeCode())
+                .setCurrentUser(currentUser)
                 .build();
         return statConclusion;
     }
@@ -275,7 +280,9 @@ public class VisionScreeningBizService {
         student.setUpdateTime(new Date());
         student.setAstigmatismLevel(statConclusion.getAstigmatismLevel());
         student.setHyperopiaLevel(statConclusion.getHyperopiaLevel());
-        student.setMyopiaLevel(statConclusion.getMyopiaLevel());
+        if (statConclusion.getAge() >= 6){
+            student.setMyopiaLevel(statConclusion.getMyopiaLevel());
+        }
         studentService.updateScreenStudent(student);
     }
 

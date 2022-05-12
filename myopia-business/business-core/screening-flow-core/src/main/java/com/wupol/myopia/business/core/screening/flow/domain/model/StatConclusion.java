@@ -93,17 +93,17 @@ public class StatConclusion implements Serializable {
     private Integer studentId;
 
     /**
-     * 近视预警等级
+     * 近视等级
      */
     private Integer myopiaLevel;
 
     /**
-     * 远视预警等级
+     * 远视等级
      */
     private Integer hyperopiaLevel;
 
     /**
-     * 散光预警等级
+     * 散光等级
      */
     private Integer astigmatismLevel;
 
@@ -251,5 +251,10 @@ public class StatConclusion implements Serializable {
      * 是否戴镜
      */
     private Boolean isWearingGlasses;
+
+    /**
+     * 视力低下等级 {@link com.wupol.myopia.business.common.utils.constant.LowVisionLevelEnum}
+     */
+    private Integer lowVisionLevel;
 
 }

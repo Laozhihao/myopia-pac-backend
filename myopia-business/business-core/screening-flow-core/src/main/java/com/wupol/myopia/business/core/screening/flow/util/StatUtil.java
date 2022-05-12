@@ -4,6 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.util.BigDecimalUtil;
+import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
@@ -13,6 +14,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometr
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import lombok.experimental.UtilityClass;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -108,40 +110,26 @@ public class StatUtil {
     }
 
     /**
-     * 视力低下等级 (TODO:是视力等级,还是预警等级)
+     * 视力低下等级
      *
      * @param nakedVision 裸眼视力
      * @param age         年龄
      */
-    public static WarningLevel getNakedVisionWarningLevel(Float nakedVision, Integer age) {
-        if (ObjectsUtil.hasNull(nakedVision,age) || age < 6) {
-            return null;
-        }
-        return getNakedVisionWarningLevel(nakedVision.toString(), age);
-    }
-
-    public static WarningLevel getNakedVisionWarningLevel(String nakedVision, Integer age) {
-        if (StrUtil.isBlank(nakedVision) || age == null || age < 6) {
-            return null;
-        }
-        return getNakedVisionWarningLevel(new BigDecimal(nakedVision), age);
-    }
-
-    public static WarningLevel getNakedVisionWarningLevel(BigDecimal nakedVision, Integer age) {
+    public static LowVisionLevelEnum getLowVisionLevel(BigDecimal nakedVision, Integer age) {
         if (ObjectsUtil.hasNull(nakedVision,age) || age < 6) {
             return null;
         }
 
         if (BigDecimalUtil.decimalEqual(nakedVision, "4.9")) {
-            return WarningLevel.ONE;
+            return LowVisionLevelEnum.LOW_VISION_LEVEL_LIGHT;
         }
         if (BigDecimalUtil.isBetweenAll(nakedVision, "4.6", "4.8")) {
-            return WarningLevel.TWO;
+            return LowVisionLevelEnum.LOW_VISION_LEVEL_MIDDLE;
         }
         if (BigDecimalUtil.lessThanAndEqual(nakedVision, "4.5")) {
-            return WarningLevel.THREE;
+            return LowVisionLevelEnum.LOW_VISION_LEVEL_HIGH;
         }
-        return WarningLevel.NORMAL;
+        return null;
     }
 
     /**
@@ -170,16 +158,20 @@ public class StatUtil {
      * @param age         年龄
      * @param nakedVision 裸眼视力
      */
-    public static boolean isMyopia(Float sphere, Float cylinder, Integer age, Float nakedVision) {
+    public static Boolean isMyopia(BigDecimal sphere, BigDecimal cylinder, Integer age, BigDecimal nakedVision) {
         if (Objects.nonNull(age)) {
-            if (age < 6 && Objects.nonNull(nakedVision) && BigDecimalUtil.lessThan(BigDecimal.valueOf(nakedVision),"4.9")) {
+            if (Objects.nonNull(nakedVision) && age < 6 && BigDecimalUtil.lessThan(nakedVision,"4.9")) {
                 return true;
             }
-            if (Objects.nonNull(nakedVision) && age >= 6 && BigDecimalUtil.lessThan(BigDecimal.valueOf(nakedVision),"5.0")) {
+            if (Objects.nonNull(nakedVision) && age >= 6 && BigDecimalUtil.lessThan(nakedVision,"5.0")) {
                 return true;
             }
         }
-        return Objects.requireNonNull(getMyopiaWarningLevel(sphere, cylinder, age, nakedVision)).code > MyopiaLevelEnum.MYOPIA_LEVEL_EARLY.code;
+        MyopiaLevelEnum myopiaLevel = getMyopiaLevel(sphere, cylinder, age, nakedVision);
+        if (Objects.nonNull(myopiaLevel)){
+            return isMyopia(myopiaLevel);
+        }
+        return null;
     }
 
     /**
@@ -226,15 +218,15 @@ public class StatUtil {
      * @param cyl    柱镜
      * @param age    年龄
      */
-    public static Boolean isRefractiveError(String sphere, String cyl, Integer age) {
+    public static Boolean isRefractiveError(String sphere, String cyl, Integer age,Boolean zeroToSixPlatform) {
         if (StrUtil.isBlank(sphere) || StrUtil.isBlank(cyl)){
             return null;
         }
-        return isRefractiveError(new BigDecimal(sphere), new BigDecimal(cyl), age);
+        return isRefractiveError(new BigDecimal(sphere), new BigDecimal(cyl), age,zeroToSixPlatform);
     }
 
-    public static Boolean isRefractiveError(BigDecimal sphere, BigDecimal cyl, Integer age) {
-        if (ObjectsUtil.hasNull(sphere,cyl,age)) {
+    public static Boolean isRefractiveError(BigDecimal sphere, BigDecimal cyl, Integer age,Boolean zeroToSixPlatform) {
+        if (ObjectsUtil.hasNull(sphere,cyl,age,zeroToSixPlatform)) {
             return null;
         }
         BigDecimal se = getSphericalEquivalent(sphere, cyl);
@@ -246,9 +238,9 @@ public class StatUtil {
         }
         switch (age) {
             case 2:
-                return refractiveError2(se, cyl);
+                return refractiveError2(se, cyl,zeroToSixPlatform);
             case 3:
-                return refractiveError3(se, cyl);
+                return refractiveError3(se, cyl,zeroToSixPlatform);
             case 4:
                 return refractiveError4(se, cyl);
             case 5:
@@ -257,14 +249,25 @@ public class StatUtil {
                 return null;
         }
     }
-    private static Boolean refractiveError2(BigDecimal se, BigDecimal cyl) {
-        return (Objects.nonNull(se) && (BigDecimalUtil.lessThan(se, "-3.50") || BigDecimalUtil.moreThan(se, "4.50")))
-                || (Objects.nonNull(cyl) && BigDecimalUtil.moreThan(cyl.abs(), new BigDecimal("1.00").abs()));
-    }
 
-    private static Boolean refractiveError3(BigDecimal se, BigDecimal cyl) {
-        return (Objects.nonNull(se) && (BigDecimalUtil.lessThan(se, MINUS_3) || BigDecimalUtil.moreThan(se, "4.00")))
-                || (Objects.nonNull(cyl) && BigDecimalUtil.moreThan(cyl.abs(), new BigDecimal("1.00").abs()));
+
+    private static Boolean refractiveError2(BigDecimal se, BigDecimal cyl,Boolean zeroToSixPlatform) {
+        boolean b = Objects.nonNull(se) && (BigDecimalUtil.lessThan(se, "-3.50") || BigDecimalUtil.moreThan(se, "4.50"));
+        if(zeroToSixPlatform){
+            return b || (Objects.nonNull(cyl) && BigDecimalUtil.moreThan(cyl.abs(), new BigDecimal("2.00").abs()));
+        }else {
+            return b || (Objects.nonNull(cyl) && BigDecimalUtil.moreThan(cyl.abs(), new BigDecimal("1.00").abs()));
+        }
+
+    }
+    private static Boolean refractiveError3(BigDecimal se, BigDecimal cyl,Boolean zeroToSixPlatform) {
+        boolean b = Objects.nonNull(se) && (BigDecimalUtil.lessThan(se, MINUS_3) || BigDecimalUtil.moreThan(se, "4.00"));
+        if (zeroToSixPlatform){
+            return b || (Objects.nonNull(cyl) && BigDecimalUtil.moreThan(cyl.abs(), new BigDecimal("2.00").abs()));
+        }else {
+            return b || (Objects.nonNull(cyl) && BigDecimalUtil.moreThan(cyl.abs(), new BigDecimal("1.00").abs()));
+        }
+
     }
     private static Boolean refractiveError4(BigDecimal se, BigDecimal cyl) {
         return (Objects.nonNull(se) && (BigDecimalUtil.lessThan(se, MINUS_3) || BigDecimalUtil.moreThan(se, "4.00")))
@@ -275,6 +278,8 @@ public class StatUtil {
         return (Objects.nonNull(se) && (BigDecimalUtil.lessThan(se, "-1.50") || BigDecimalUtil.moreThan(se, "3.50")))
                 || (Objects.nonNull(cyl) && BigDecimalUtil.moreThan(cyl.abs(), new BigDecimal("1.50").abs()));
     }
+
+
 
 
 
@@ -391,7 +396,7 @@ public class StatUtil {
 
     public static Boolean isAnisometropiaVision(BigDecimal leftSph, BigDecimal rightSph){
         if (ObjectsUtil.allNotNull(leftSph,rightSph)) {
-            BigDecimal diffSph = leftSph.abs().subtract(rightSph.abs()).abs();
+            BigDecimal diffSph = leftSph.subtract(rightSph).abs();
             return BigDecimalUtil.moreThan(diffSph, "1.50");
         }
         return null;
@@ -411,7 +416,7 @@ public class StatUtil {
     }
     public static Boolean isAnisometropiaAstigmatism(BigDecimal leftCyl, BigDecimal rightCyl) {
         if (ObjectsUtil.allNotNull(leftCyl,rightCyl)) {
-            BigDecimal diffCyl = leftCyl.abs().subtract(rightCyl.abs()).abs();
+            BigDecimal diffCyl = leftCyl.subtract(rightCyl).abs();
             return BigDecimalUtil.moreThan(diffCyl, "1.00");
         }
         return null;
@@ -461,21 +466,21 @@ public class StatUtil {
      *
      * @param cyl 柱镜
      */
-    public static AstigmatismLevelEnum getAstigmatismWarningLevel(Float cyl) {
+    public static AstigmatismLevelEnum getAstigmatismLevel(Float cyl) {
         if(Objects.isNull(cyl)){
             return null;
         }
-        return getAstigmatismWarningLevel(cyl.toString());
+        return getAstigmatismLevel(cyl.toString());
     }
 
-    public static AstigmatismLevelEnum getAstigmatismWarningLevel(String cyl) {
+    public static AstigmatismLevelEnum getAstigmatismLevel(String cyl) {
         if (StrUtil.isBlank(cyl)) {
             return null;
         }
-        return getAstigmatismWarningLevel(new BigDecimal(cyl));
+        return getAstigmatismLevel(new BigDecimal(cyl));
     }
 
-    public static AstigmatismLevelEnum getAstigmatismWarningLevel(BigDecimal cyl) {
+    public static AstigmatismLevelEnum getAstigmatismLevel(BigDecimal cyl) {
         if (Objects.isNull(cyl)) {
             return null;
         }
@@ -493,13 +498,6 @@ public class StatUtil {
         return AstigmatismLevelEnum.ZERO;
     }
 
-    public static Integer getAstigmatismLevel(BigDecimal cyl) {
-        AstigmatismLevelEnum astigmatismWarningLevel = getAstigmatismWarningLevel(cyl);
-        if (Objects.nonNull(astigmatismWarningLevel)) {
-            return astigmatismWarningLevel.code;
-        }
-        return null;
-    }
 
 
     /**
@@ -545,7 +543,7 @@ public class StatUtil {
         if (age >= 8 && BigDecimalUtil.moreThan(se, "0.50")) {
             return true;
         }
-        HyperopiaLevelEnum hyperopiaWarningLevel = getHyperopiaWarningLevel(sphere, cylinder, age);
+        HyperopiaLevelEnum hyperopiaWarningLevel = getHyperopiaLevel(sphere, cylinder, age);
         return hyperopiaWarningLevel != null && hyperopiaWarningLevel.code > HyperopiaLevelEnum.ZERO.code;
     }
 
@@ -561,28 +559,28 @@ public class StatUtil {
 
 
     /**
-     * 返回远视预警级别
+     * 远视等级
      *
      * @param sphere   球镜
      * @param cylinder 柱镜
      * @param age      年龄
      * @return
      */
-    public static HyperopiaLevelEnum getHyperopiaWarningLevel(Float sphere, Float cylinder, Integer age) {
+    public static HyperopiaLevelEnum getHyperopiaLevel(Float sphere, Float cylinder, Integer age) {
         if (ObjectsUtil.hasNull(sphere,cylinder,age)) {
             return null;
         }
-        return getHyperopiaWarningLevel(sphere.toString(), cylinder.toString(), age);
+        return getHyperopiaLevel(sphere.toString(), cylinder.toString(), age);
     }
 
-    public static HyperopiaLevelEnum getHyperopiaWarningLevel(String sphere, String cylinder, Integer age) {
+    public static HyperopiaLevelEnum getHyperopiaLevel(String sphere, String cylinder, Integer age) {
         if (StrUtil.isBlank(sphere) || StrUtil.isBlank(cylinder) || age == null) {
             return null;
         }
-        return getHyperopiaWarningLevel(new BigDecimal(sphere), new BigDecimal(cylinder), age);
+        return getHyperopiaLevel(new BigDecimal(sphere), new BigDecimal(cylinder), age);
     }
 
-    public static HyperopiaLevelEnum getHyperopiaWarningLevel(BigDecimal sphere, BigDecimal cylinder, Integer age) {
+    public static HyperopiaLevelEnum getHyperopiaLevel(BigDecimal sphere, BigDecimal cylinder, Integer age) {
         if (ObjectsUtil.hasNull(sphere,cylinder,age)) {
             return null;
         }
@@ -605,105 +603,65 @@ public class StatUtil {
         return null;
     }
 
-    /**
-     * 获取远视Level
-     *
-     * @param sphere   球镜
-     * @param cylinder 柱镜
-     * @param age      年龄
-     * @return Integer
-     */
-    public static Integer getHyperopiaLevel(BigDecimal sphere, BigDecimal cylinder, Integer age) {
-        if (ObjectsUtil.hasNull(sphere,cylinder,age)) {
-            return null;
-        }
-        HyperopiaLevelEnum hyperopiaWarningLevel = getHyperopiaWarningLevel(sphere, cylinder, age);
-        if (Objects.nonNull(hyperopiaWarningLevel)) {
-            return hyperopiaWarningLevel.code;
-        }
-        return null;
-    }
-
 
     /**
-     * 近视预警级别
+     * 近视等级
      *
      * @param sphere      球镜
      * @param cylinder    柱镜
      * @param age         年龄
      * @param nakedVision 裸眼视力
      */
-    public static MyopiaLevelEnum getMyopiaWarningLevel(Float sphere, Float cylinder, Integer age, Float nakedVision) {
-        if (ObjectsUtil.hasNull(sphere, cylinder, nakedVision)) {
-            return null;
-        }
-        return getMyopiaWarningLevel(sphere.toString(), cylinder.toString(), age, nakedVision.toString());
-    }
 
-    public static MyopiaLevelEnum getMyopiaWarningLevel(String sphere, String cylinder, Integer age, String nakedVision) {
-        if (ObjectsUtil.hasNull(sphere, cylinder, nakedVision)) {
-            return null;
-        }
-        return getMyopiaWarningLevel(new BigDecimal(sphere), new BigDecimal(cylinder), age, new BigDecimal(nakedVision));
-    }
-
-    public static MyopiaLevelEnum getMyopiaWarningLevel(BigDecimal sphere, BigDecimal cylinder, Integer age, BigDecimal nakedVision) {
-        BigDecimal se = getSphericalEquivalent(sphere, cylinder);
-        if (Objects.isNull(se)) {
-            return null;
-        }
-
-        if (ObjectsUtil.allNotNull(age, nakedVision)
-                && ((age < 6 && BigDecimalUtil.lessThan(nakedVision, "4.9")) || (age >= 6 && BigDecimalUtil.lessThan(nakedVision, "5.0")))
-                && BigDecimalUtil.lessThan(se, "-0.5")) {
-            return MyopiaLevelEnum.SCREENING_MYOPIA;
-        }
-
-        if (BigDecimalUtil.isBetweenRight(se, MINUS_0_5, "0.75")) {
-            return MyopiaLevelEnum.MYOPIA_LEVEL_EARLY;
-        }
-        if (BigDecimalUtil.isBetweenLeft(se, MINUS_3, MINUS_0_5)) {
-            return MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT;
-        }
-        if (BigDecimalUtil.isBetweenLeft(se, MINUS_6, MINUS_3)) {
-            return MyopiaLevelEnum.MYOPIA_LEVEL_MIDDLE;
-        }
-        if (BigDecimalUtil.lessThan(se, MINUS_6)) {
-            return MyopiaLevelEnum.MYOPIA_LEVEL_HIGH;
-        }
-
-        return MyopiaLevelEnum.ZERO;
-
-    }
 
     /**
-     * 近视预警级别Level
+     * 近视等级
      *
      * @param sphere      球镜
      * @param cylinder    柱镜
      * @param age         年龄
      * @param nakedVision 裸眼视力
      */
-    public static Integer getMyopiaLevel(Float sphere, Float cylinder, Integer age, Float nakedVision) {
+    public static MyopiaLevelEnum getMyopiaLevel(Float sphere, Float cylinder, Integer age, Float nakedVision) {
         if (ObjectsUtil.hasNull(sphere, cylinder, nakedVision)) {
             return null;
         }
         return getMyopiaLevel(sphere.toString(), cylinder.toString(), age, nakedVision.toString());
     }
 
-    public static Integer getMyopiaLevel(String sphere, String cylinder, Integer age, String nakedVision) {
+    public static MyopiaLevelEnum getMyopiaLevel(String sphere, String cylinder, Integer age, String nakedVision) {
         if (ObjectsUtil.hasNull(sphere, cylinder, nakedVision)) {
             return null;
         }
         return getMyopiaLevel(new BigDecimal(sphere), new BigDecimal(cylinder), age, new BigDecimal(nakedVision));
     }
 
-    public static Integer getMyopiaLevel(BigDecimal sphere, BigDecimal cylinder, Integer age, BigDecimal nakedVision) {
-        MyopiaLevelEnum myopiaWarningLevel = getMyopiaWarningLevel(sphere, cylinder, age, nakedVision);
-        if (Objects.nonNull(myopiaWarningLevel)) {
-            return myopiaWarningLevel.code;
+    public static MyopiaLevelEnum getMyopiaLevel(BigDecimal sphere, BigDecimal cylinder, Integer age, BigDecimal nakedVision) {
+
+        if (ObjectsUtil.allNotNull(age, nakedVision)
+                && ((age < 6 && BigDecimalUtil.lessThan(nakedVision, "4.9")) || (age >= 6 && BigDecimalUtil.lessThan(nakedVision, "5.0")))) {
+
+            BigDecimal se = getSphericalEquivalent(sphere, cylinder);
+            if (Objects.isNull(se)) {
+                return null;
+            }
+
+            if (BigDecimalUtil.isBetweenRight(se, MINUS_0_5, "0.75")) {
+                return MyopiaLevelEnum.MYOPIA_LEVEL_EARLY;
+            }
+
+            if (BigDecimalUtil.isBetweenLeft(se, MINUS_3, MINUS_0_5)) {
+                return MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT;
+            }
+            if (BigDecimalUtil.isBetweenLeft(se, MINUS_6, MINUS_3)) {
+                return MyopiaLevelEnum.MYOPIA_LEVEL_MIDDLE;
+            }
+            if (BigDecimalUtil.lessThan(se, MINUS_6)) {
+                return MyopiaLevelEnum.MYOPIA_LEVEL_HIGH;
+            }
         }
-        return null;
+        return MyopiaLevelEnum.ZERO;
+
     }
 
 
@@ -821,7 +779,7 @@ public class StatUtil {
      * @param age  年龄
      * @param type 类型 （近视-0、散光-1、远视-2）
      */
-    public static WarningLevel refractiveData(BigDecimal sphere, BigDecimal cyl, Integer age, Integer type) {
+    public static WarningLevel warningLevel(BigDecimal sphere, BigDecimal cyl, Integer age, Integer type) {
         BigDecimal se = getSphericalEquivalent(sphere, cyl);
         switch (type) {
             case 0:
@@ -835,6 +793,9 @@ public class StatUtil {
         }
     }
 
+    /**
+     * 近视预警等级
+     */
     private static WarningLevel refractiveDataMyopia(BigDecimal se) {
         if (Objects.nonNull(se)) {
             if (BigDecimalUtil.isBetweenAll(se, MINUS_0_5, "-0.25")) {
@@ -854,6 +815,9 @@ public class StatUtil {
 
     }
 
+    /**
+     * 散光预警等级
+     */
     private static WarningLevel refractiveDataAstigmatism(BigDecimal cyl) {
         if (Objects.nonNull(cyl)) {
             if (BigDecimalUtil.isBetweenLeft(cyl.abs(), "0.25", "0.50")) {
@@ -872,6 +836,9 @@ public class StatUtil {
         return null;
     }
 
+    /**
+     * 远视预警等级
+     */
     private static WarningLevel refractiveDataFarsighted(BigDecimal se, Integer age) {
         if (age != null) {
             int key = age;
@@ -964,13 +931,6 @@ public class StatUtil {
      * @param sphere 球镜
      * @param cylinder 柱镜
      */
-    public static WarningLevel myopiaLevelInsufficient(String sphere,String cylinder) {
-        if (StrUtil.isNotBlank(sphere) && StrUtil.isNotBlank(cylinder)) {
-            return myopiaLevelInsufficient(new BigDecimal(sphere),new BigDecimal(cylinder));
-        }
-        return null;
-    }
-
     public static WarningLevel myopiaLevelInsufficient(BigDecimal sphere, BigDecimal cylinder) {
         BigDecimal se = getSphericalEquivalent(sphere, cylinder);
         if (Objects.isNull(se)){
@@ -1185,7 +1145,7 @@ public class StatUtil {
                                       Integer age,Integer schoolType) {
         WarningLevel left = getWarningLevel(leftCyl, leftSpn, leftNakedVision, age,schoolType);
         WarningLevel right = getWarningLevel(rightCyl, rightSpn, rightNakedVision, age,schoolType);
-        return getSeriousLevel(Optional.ofNullable(left).map(wl->wl.code).orElse(null), Optional.ofNullable(right).map(wl->wl.code).orElse(null));
+        return getSeriousLevel(left, right);
     }
 
     /**
@@ -1204,29 +1164,26 @@ public class StatUtil {
         }
 
         List<WarningLevel> warningLevelList = Lists.newArrayList();
-        //裸眼视力
-        warningLevelList.add(StatUtil.nakedVision(nakedVision, age));
-        //近视
-        warningLevelList.add(StatUtil.refractiveData(spn, cyl, age, 0));
-        //散光
-        warningLevelList.add(StatUtil.refractiveData(spn, cyl, age, 1));
-        //远视
-        warningLevelList.add(StatUtil.refractiveData(spn, cyl, age, 2));
 
-        WarningLevel warningLevel = warningLevelList.stream().filter(Objects::nonNull).max(Comparator.comparing(wl -> wl.code)).orElse(null);
-        if (ObjectsUtil.allNull(warningLevel,schoolType)){
-            return null;
+        if (Objects.equals(schoolType,SchoolAge.KINDERGARTEN.code)){
+            //裸眼视力
+            warningLevelList.add(StatUtil.nakedVision(nakedVision, age));
+            warningLevelList.add(StatUtil.myopiaLevelInsufficient(spn, cyl));
+
+        }else {
+            //裸眼视力
+            warningLevelList.add(StatUtil.nakedVision(nakedVision, age));
+            //近视
+            warningLevelList.add(StatUtil.warningLevel(spn, cyl, age, 0));
+            //散光
+            warningLevelList.add(StatUtil.warningLevel(spn, cyl, age, 1));
+            //远视
+            warningLevelList.add(StatUtil.warningLevel(spn, cyl, age, 2));
+
         }
 
-        if (Objects.isNull(warningLevel) && Objects.nonNull(schoolType) && Objects.equals(schoolType,SchoolAge.KINDERGARTEN.code)){
-            return StatUtil.myopiaLevelInsufficient(spn, cyl);
-        }
+        return warningLevelList.stream().filter(Objects::nonNull).max(Comparator.comparing(WarningLevel::getCode)).orElse(null);
 
-        if (Objects.nonNull(warningLevel)){
-            return warningLevel;
-        }
-
-        return null;
     }
 
 
@@ -1237,17 +1194,58 @@ public class StatUtil {
      * @param rightLevel 右眼视力
      * @return 视力
      */
+    public Integer getSeriousLevel(WarningLevel leftLevel, WarningLevel rightLevel) {
+        Integer left = Optional.ofNullable(leftLevel).map(l -> l.code).orElse(null);
+        Integer right = Optional.ofNullable(rightLevel).map(l -> l.code).orElse(null);
+        return getSeriousLevel(left,right);
+    }
+    public Integer getSeriousLevel(LowVisionLevelEnum leftLevel, LowVisionLevelEnum rightLevel) {
+        Integer left = Optional.ofNullable(leftLevel).map(l -> l.code).orElse(null);
+        Integer right = Optional.ofNullable(rightLevel).map(l -> l.code).orElse(null);
+        return getSeriousLevel(left,right);
+    }
+    public Integer getSeriousLevel(AstigmatismLevelEnum leftLevel, AstigmatismLevelEnum rightLevel) {
+        Integer left = Optional.ofNullable(leftLevel).map(l -> l.code).orElse(null);
+        Integer right = Optional.ofNullable(rightLevel).map(l -> l.code).orElse(null);
+        return getSeriousLevel(left,right);
+    }
+    public Integer getSeriousLevel(HyperopiaLevelEnum leftLevel, HyperopiaLevelEnum rightLevel) {
+        Integer left = Optional.ofNullable(leftLevel).map(l -> l.code).orElse(null);
+        Integer right = Optional.ofNullable(rightLevel).map(l -> l.code).orElse(null);
+        return getSeriousLevel(left,right);
+    }
+    public Integer getSeriousLevel(MyopiaLevelEnum leftLevel, MyopiaLevelEnum rightLevel) {
+        Integer left = Optional.ofNullable(leftLevel).map(l -> l.code).orElse(null);
+        Integer right = Optional.ofNullable(rightLevel).map(l -> l.code).orElse(null);
+        return getSeriousLevel(left,right);
+    }
+
     public Integer getSeriousLevel(Integer leftLevel, Integer rightLevel) {
-        if (ObjectsUtil.allNull(leftLevel,rightLevel)){
+        List<Integer> codeList = Lists.newArrayList();
+        if (Objects.nonNull(leftLevel)) {
+            codeList.add(leftLevel);
+        }
+        if (Objects.nonNull(rightLevel)) {
+            codeList.add(rightLevel);
+        }
+        if (CollectionUtils.isNotEmpty(codeList)) {
+            return Collections.max(codeList);
+        }
+        return null;
+    }
+
+    public Boolean getIsExist(Boolean left,Boolean right){
+        if (ObjectsUtil.allNull(left,right)){
             return null;
         }
-        if (Objects.isNull(leftLevel)) {
-            return rightLevel;
+        if (Objects.isNull(left)){
+            return right;
         }
-        if (Objects.isNull(rightLevel)) {
-            return leftLevel;
+        if (Objects.isNull(right)){
+            return left;
         }
-        return leftLevel > rightLevel ? leftLevel : rightLevel;
+        return  left || right;
     }
+
 
 }

@@ -283,6 +283,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @param screeningStudentQuery 查询条件
      * @param page 页码
      * @param size 条数
+     * @param channel 0：视力筛查，1：常见病。入口不同
      * @return java.util.List<com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent>
      **/
     public IPage<ScreeningPlanSchoolStudent> getCurrentPlanScreeningStudentList(ScreeningStudentQueryDTO screeningStudentQuery, Integer page, Integer size,Integer channel) {
@@ -315,6 +316,25 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     }
 
     /**
+     * 根据实体条件查询
+     *
+     * @param screeningPlanSchoolStudent 查询条件
+     * @param channel 0 : 视力筛查，1：常见病
+     * @return java.util.List<com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent>
+     **/
+    public List<ScreeningPlanSchoolStudent> listByEntityDescByCreateTime(ScreeningPlanSchoolStudent screeningPlanSchoolStudent,Integer channel) {
+        // 获取当前计划
+        Set<Integer> currentPlanIds = screeningPlanService.getCurrentPlanIds(screeningPlanSchoolStudent.getScreeningOrgId(), channel);
+        if (CollectionUtils.isEmpty(currentPlanIds)) {
+            return Collections.emptyList();
+        }
+        // 查询学生
+        LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.setEntity(screeningPlanSchoolStudent).in(ScreeningPlanSchoolStudent::getScreeningPlanId, currentPlanIds).orderByDesc(ScreeningPlanSchoolStudent::getCreateTime);
+        return baseMapper.selectList(queryWrapper);
+    }
+
+    /**
      * 根据筛查通知Id获取筛查学校所在层级的计划筛查学生总数
      *
      * @param screeningNoticeId
@@ -328,6 +348,22 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         }
         return results.stream().collect(
                 Collectors.groupingBy(ScreeningPlanSchoolStudent::getSchoolDistrictId, Collectors.counting()));
+    }
+
+    /**
+     * 根据筛查通知Id获取筛查学校所在层级的计划筛查学生记录
+     *
+     * @param screeningNoticeId
+     * @return
+     */
+    public Map<Integer, List<ScreeningPlanSchoolStudent>> getPlanStudentCountBySrcScreeningNoticeId(Integer screeningNoticeId) {
+        List<ScreeningPlanSchoolStudent> results =
+                this.getPlanStudentCountByScreeningItemId(screeningNoticeId, ContrastTypeEnum.NOTIFICATION);
+        if (CollectionUtils.isEmpty(results)) {
+            return Collections.emptyMap();
+        }
+        return results.stream().collect(
+                Collectors.groupingBy(ScreeningPlanSchoolStudent::getSchoolDistrictId));
     }
 
     /**

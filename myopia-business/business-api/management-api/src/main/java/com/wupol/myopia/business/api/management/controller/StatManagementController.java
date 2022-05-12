@@ -10,6 +10,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.screening.service.StatConclusionBizService;
+import com.wupol.myopia.business.api.management.domain.bo.StatisticDetailBO;
 import com.wupol.myopia.business.api.management.domain.vo.*;
 import com.wupol.myopia.business.api.management.schedule.ScheduledTasksExecutor;
 import com.wupol.myopia.business.api.management.service.*;
@@ -59,8 +60,6 @@ public class StatManagementController {
     @Autowired
     private DistrictBizService districtBizService;
     @Autowired
-    private SchoolService schoolService;
-    @Autowired
     private ScreeningPlanService screeningPlanService;
     @Autowired
     private ScreeningNoticeService screeningNoticeService;
@@ -80,10 +79,6 @@ public class StatManagementController {
     private DistrictAttentiveObjectsStatisticBizService districtAttentiveObjectsStatisticBizService;
     @Autowired
     private DistrictVisionStatisticService districtVisionStatisticService;
-    @Autowired
-    private VisionScreeningResultService visionScreeningResultService;
-    @Autowired
-    private StatConclusionService statConclusionService;
     @Autowired
     private StatConclusionBizService statConclusionBizService;
 
@@ -227,21 +222,10 @@ public class StatManagementController {
         return bigScreeningStatService.getBigScreeningVO(screeningNotice, district);
     }
 
-    /**
-     * 筛查结果统计
-     * @param date 筛查计划日期
-     * @param planId 筛查计划 （当 isAll=true时，planId有值是从该值开始执行，isAll=false时，planId是指定值）
-     * @param isAll 是否全部
-     */
-    @GetMapping("/trigger")
-    public void statTaskTrigger(@RequestParam(required = false) String date,
-                                @RequestParam(required = false) Integer planId,
-                                @RequestParam Boolean isAll) {
-        scheduledTasksExecutor.statistic(date,planId,isAll);
-    }
 
     /**
-     * 筛查结果数据转筛查数据结论
+     * 筛查结果数据转筛查数据结论和筛查结果统计  TODO： 为了测试方便
+     *
      * @param planId 筛查计划ID, 不必填
      * @param isAll 是否全部 (true-全部,false-不是全部) 必填
      */
@@ -259,98 +243,6 @@ public class StatManagementController {
     @GetMapping("/big")
     public void statBigScreen() throws IOException {
         bigScreeningStatService.statisticBigScreen();
-    }
-
-
-    @GetMapping("/triggerById/{planId}")
-    public void statTaskTriggerById(@PathVariable("planId") Integer planId) {
-        List<VisionScreeningResult> byPlanIdsOrderByUpdateTimeDesc = visionScreeningResultService.getByPlanIdsOrderByUpdateTimeDesc(Sets.newHashSet(planId));
-        if (CollectionUtils.isEmpty(byPlanIdsOrderByUpdateTimeDesc)) {
-            return;
-        }
-        Map<Integer, VisionScreeningResult> screeningResultMap = byPlanIdsOrderByUpdateTimeDesc.stream().collect(Collectors.toMap(VisionScreeningResult::getId, Function.identity()));
-        List<Integer> resultId = byPlanIdsOrderByUpdateTimeDesc.stream().map(VisionScreeningResult::getId).collect(Collectors.toList());
-        List<StatConclusion> statConclusionList = statConclusionService.getByResultIds(resultId);
-
-        for (StatConclusion statConclusion : statConclusionList) {
-            VisionScreeningResult visionScreeningResult = screeningResultMap.get(statConclusion.getResultId());
-            if (Objects.nonNull(visionScreeningResult)) {
-                ComputerOptometryDO computerOptometry = visionScreeningResult.getComputerOptometry();
-                if (Objects.nonNull(computerOptometry)) {
-                    Integer age = statConclusion.getAge();
-                    ComputerOptometryDO.ComputerOptometry leftEyeData = computerOptometry.getLeftEyeData();
-                    ComputerOptometryDO.ComputerOptometry rightEyeData = computerOptometry.getRightEyeData();
-                    if (ObjectsUtil.allNotNull(leftEyeData, rightEyeData)) {
-                        BigDecimal leftSpn = leftEyeData.getSph();
-                        BigDecimal leftCyl = leftEyeData.getCyl();
-
-                        BigDecimal rightSpn = rightEyeData.getSph();
-                        BigDecimal rightCyl = rightEyeData.getCyl();
-
-                        Integer leftMyopiaLevel = null;
-                        Integer rightMyopiaLevel = null;
-                        Integer seriousLevel = 0;
-
-                        VisionDataDO visionData = visionScreeningResult.getVisionData();
-                        if (Objects.nonNull(visionData)
-                                && Objects.nonNull(age)
-                                && ObjectsUtil.allNotNull(visionData.getLeftEyeData(), visionData.getRightEyeData())
-                                && ObjectsUtil.allNotNull(visionData.getLeftEyeData().getNakedVision(), visionData.getRightEyeData().getNakedVision())) {
-                            BigDecimal leftNV = visionData.getLeftEyeData().getNakedVision();
-                            BigDecimal rightNV = visionData.getRightEyeData().getNakedVision();
-                            if (ObjectsUtil.allNotNull(leftSpn, leftCyl)) {
-                                log.info(JSONObject.toJSONString(visionScreeningResult));
-                                leftMyopiaLevel = StatUtil.getMyopiaLevel(leftSpn.setScale(2, RoundingMode.HALF_UP).floatValue(), leftCyl.setScale(2, RoundingMode.HALF_UP).floatValue(), age, leftNV.floatValue());
-                            }
-                            if (ObjectsUtil.allNotNull(rightSpn, rightCyl)) {
-                                rightMyopiaLevel = StatUtil.getMyopiaLevel(rightSpn.setScale(2, RoundingMode.HALF_UP).floatValue(), rightCyl.setScale(2, RoundingMode.HALF_UP).floatValue(), age, rightNV.floatValue());
-                            }
-                            if (!ObjectsUtil.allNull(leftMyopiaLevel, rightMyopiaLevel)) {
-                                seriousLevel = StatUtil.getSeriousLevel(leftMyopiaLevel, rightMyopiaLevel);
-                            }
-                        }
-                        statConclusion.setMyopiaLevel(seriousLevel);
-                        statConclusion.setIsMyopia(StatUtil.isMyopia(seriousLevel));
-                    }
-
-                    VisionDataDO visionData = visionScreeningResult.getVisionData();
-                    if (Objects.nonNull(visionData) && Objects.nonNull(age)) {
-                        BigDecimal leftNV = visionData.getLeftEyeData().getNakedVision();
-                        BigDecimal rightNV = visionData.getRightEyeData().getNakedVision();
-                        Boolean isLeftLowVision;
-                        Boolean isRightLowVision;
-                        Integer leftCode = null;
-                        Integer rightCode = null;
-                        if (Objects.nonNull(leftNV)) {
-                            isLeftLowVision = StatUtil.isLowVision(leftNV.floatValue(), age);
-                            WarningLevel nakedVisionWarningLevel = StatUtil.getNakedVisionWarningLevel(leftNV.floatValue(), age);
-                            leftCode = Objects.nonNull(nakedVisionWarningLevel) ? nakedVisionWarningLevel.code : null;
-                        } else {
-                            isLeftLowVision = null;
-                        }
-
-                        if (Objects.nonNull(rightNV)) {
-                            isRightLowVision = StatUtil.isLowVision(rightNV.floatValue(), age);
-                            WarningLevel nakedVisionWarningLevel = StatUtil.getNakedVisionWarningLevel(rightNV.floatValue(), age);
-                            rightCode = Objects.nonNull(nakedVisionWarningLevel) ? nakedVisionWarningLevel.code : null;
-                        } else {
-                            isRightLowVision = null;
-                        }
-
-                        if (ObjectsUtil.allNull(isLeftLowVision, isRightLowVision)) {
-                            statConclusion.setIsLowVision(null);
-                            statConclusion.setNakedVisionWarningLevel(null);
-                        } else {
-                            statConclusion.setIsLowVision(ObjectsUtil.allNotNull(isLeftLowVision, isRightLowVision) ? isLeftLowVision || isRightLowVision : Objects.nonNull(isLeftLowVision) ? isLeftLowVision : Boolean.TRUE.equals(isRightLowVision));
-                            statConclusion.setNakedVisionWarningLevel(StatUtil.getSeriousLevel(leftCode, rightCode));
-                        }
-                    }
-                    statConclusion.setUpdateTime(new Date());
-                }
-            }
-        }
-        statConclusionService.updateBatchById(statConclusionList);
-        scheduledTasksExecutor.statisticByPlanIds(Lists.newArrayList(planId));
     }
 
 
@@ -424,8 +316,14 @@ public class StatManagementController {
     @GetMapping("/school/schoolStatisticDetail")
     public SchoolResultDetailVO getSchoolStatisticDetail(@RequestParam(required = false) Integer screeningPlanId,
                                                          @RequestParam(required = false) Integer screeningNoticeId,
+                                                         @RequestParam(required = false) Integer type,
                                                          @RequestParam Integer schoolId) {
-        return statService.getSchoolStatisticDetail(screeningPlanId,screeningNoticeId,schoolId);
+        StatisticDetailBO statisticDetailBO = new StatisticDetailBO()
+                .setScreeningPlanId(screeningPlanId)
+                .setScreeningNoticeId(screeningNoticeId)
+                .setSchoolId(schoolId)
+                .setType(type);
+        return statService.getSchoolStatisticDetail(statisticDetailBO);
     }
 
 

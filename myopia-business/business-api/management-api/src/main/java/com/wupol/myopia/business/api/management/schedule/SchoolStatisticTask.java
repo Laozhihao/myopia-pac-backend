@@ -13,7 +13,6 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
-import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.stat.domain.model.CommonDiseaseScreeningResultStatistic;
 import com.wupol.myopia.business.core.stat.domain.model.VisionScreeningResultStatistic;
 import com.wupol.myopia.business.core.stat.service.ScreeningResultStatisticService;
@@ -22,10 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -156,32 +152,27 @@ public class SchoolStatisticTask {
             List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = planSchoolStudentMap.get(screeningPlanId);
 
 
-            Map<Integer, Long> planSchoolStudentNumMap= Maps.newHashMap();
+            Map<Integer, List<ScreeningPlanSchoolStudent>> planSchoolStudentNumMap= Maps.newHashMap();
             if (CollectionUtil.isNotEmpty(screeningPlanSchoolStudents)){
-                Map<Integer, Long> collect = screeningPlanSchoolStudents.stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getSchoolId, Collectors.counting()));
+                Map<Integer, List<ScreeningPlanSchoolStudent>> collect = screeningPlanSchoolStudents.stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getSchoolId));
                 planSchoolStudentNumMap.putAll(collect);
             }
 
             //3.2 每个学校分别统计
             schoolIdStatConslusionMap.forEach((schoolId,schoolStatConclusionList)->{
 
-                int planSchoolScreeningNum = planSchoolStudentNumMap.getOrDefault(schoolId, 0L).intValue();
+                List<ScreeningPlanSchoolStudent> planSchoolStudentList = planSchoolStudentNumMap.getOrDefault(schoolId, Collections.emptyList());
+
                 School school = schoolIdMap.get(schoolId);
                 if (Objects.isNull(school)){
                     return;
                 }
 
                 statisticResultBO.setSchoolId(schoolId).setIsTotal(Boolean.FALSE)
-                        .setSchoolType(school.getType()).setDistrictId(school.getDistrictId())
-                        .setPlanStudentCount(planSchoolScreeningNum);
+                        .setDistrictId(school.getDistrictId())
+                        .setPlanSchoolStudentList(planSchoolStudentList);
 
-                if (Objects.nonNull(visionScreeningResultStatisticList)){
-                    ScreeningResultStatisticBuilder.visionScreening(statisticResultBO,schoolStatConclusionList,visionScreeningResultStatisticList);
-
-                }
-                if (Objects.nonNull(commonDiseaseScreeningResultStatisticList)){
-                    ScreeningResultStatisticBuilder.commonDiseaseScreening(statisticResultBO,schoolStatConclusionList,commonDiseaseScreeningResultStatisticList);
-                }
+                ScreeningResultStatisticBuilder.screening(visionScreeningResultStatisticList, commonDiseaseScreeningResultStatisticList, statisticResultBO, schoolStatConclusionList);
             });
 
         }

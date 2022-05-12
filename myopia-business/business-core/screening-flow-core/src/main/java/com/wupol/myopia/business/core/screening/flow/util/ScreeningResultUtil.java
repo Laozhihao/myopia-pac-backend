@@ -715,7 +715,7 @@ public class ScreeningResultUtil {
         BigDecimal seVal = se.abs().multiply(new BigDecimal("100")).setScale(0, RoundingMode.DOWN);
         if (se.compareTo(new BigDecimal("0.00")) <= 0) {
             // 近视
-            MyopiaLevelEnum myopiaWarningLevel = StatUtil.getMyopiaWarningLevel(sph.floatValue(), cyl.floatValue(), age, nakedVision.floatValue());
+            MyopiaLevelEnum myopiaWarningLevel = StatUtil.getMyopiaLevel(sph, cyl, age, nakedVision);
             String str;
             if (se.compareTo(new BigDecimal("-0.50")) < 0) {
                 str = "近视" + seVal + "度";
@@ -725,7 +725,7 @@ public class ScreeningResultUtil {
             return new TwoTuple<>(str, myopiaLevel2Type(myopiaWarningLevel));
         } else {
             // 远视
-            HyperopiaLevelEnum hyperopiaWarningLevel = StatUtil.getHyperopiaWarningLevel(sph.floatValue(), cyl.floatValue(), age);
+            HyperopiaLevelEnum hyperopiaWarningLevel = StatUtil.getHyperopiaLevel(sph.floatValue(), cyl.floatValue(), age);
             String str;
             if (StatUtil.isHyperopia(sph.floatValue(), cyl.floatValue(), age)) {
                 str = "远视" + seVal + "度";
@@ -743,7 +743,7 @@ public class ScreeningResultUtil {
      * @return String 散光中文名
      */
     public static TwoTuple<String, Integer> getCylTypeName(BigDecimal cyl) {
-        AstigmatismLevelEnum astigmatismWarningLevel = StatUtil.getAstigmatismWarningLevel(cyl.floatValue());
+        AstigmatismLevelEnum astigmatismWarningLevel = StatUtil.getAstigmatismLevel(cyl.floatValue());
         BigDecimal cylVal = cyl.abs().multiply(new BigDecimal("100")).setScale(0, RoundingMode.DOWN);
         if (BigDecimalUtil.isBetweenAll(cyl, new BigDecimal("-0.5"), new BigDecimal("0.5"))) {
             return new TwoTuple<>(cylVal + "度", astigmatismLevelLevel2Type(astigmatismWarningLevel));
@@ -1147,13 +1147,13 @@ public class ScreeningResultUtil {
         if (BigDecimalUtil.lessThan(seBigDecimal, "0")) {
             return RecommendVisitEnum.KINDERGARTEN_RESULT_5;
         }
-        if (Objects.isNull(otherEyeDiseasesNormal)) {
-            return RecommendVisitEnum.EMPTY;
-        }
+//        if (Objects.isNull(otherEyeDiseasesNormal)) {
+//            return RecommendVisitEnum.EMPTY;
+//        }
 
         if ((BigDecimalUtil.moreThanAndEqual(seBigDecimal, "2") || BigDecimalUtil.moreThan(cyl.abs(), "1.5"))
                 || (Objects.nonNull(anisometropia) && BigDecimalUtil.moreThan(anisometropia, "1.5"))
-                || !otherEyeDiseasesNormal) {
+                || (Objects.nonNull(otherEyeDiseasesNormal) && !otherEyeDiseasesNormal)) {
             return RecommendVisitEnum.KINDERGARTEN_RESULT_4;
         }
         return RecommendVisitEnum.EMPTY;

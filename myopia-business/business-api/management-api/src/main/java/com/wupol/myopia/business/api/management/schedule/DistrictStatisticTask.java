@@ -8,11 +8,10 @@ import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.business.api.management.domain.bo.StatisticResultBO;
 import com.wupol.myopia.business.api.management.domain.builder.ScreeningResultStatisticBuilder;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
-import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
-import com.wupol.myopia.business.core.school.constant.SchoolEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
@@ -29,6 +28,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 按区域统计
@@ -124,7 +124,7 @@ public class DistrictStatisticTask {
         statConclusionMap.forEach((screeningNoticeId,statConclusions)->{
 
             // 筛查通知中的学校所在地区层级的计划学生总数
-            Map<Integer, Long> districtPlanStudentCountMap = screeningPlanSchoolStudentService.getDistrictPlanStudentCountBySrcScreeningNoticeId(screeningNoticeId);
+            Map<Integer, List<ScreeningPlanSchoolStudent>> districtPlanStudentCountMap = screeningPlanSchoolStudentService.getPlanStudentCountBySrcScreeningNoticeId(screeningNoticeId);
 
             //查出通知对应的地区顶级层级：从任务所在省级开始（因为筛查计划可选全省学校）
             ScreeningNotice screeningNotice = screeningNoticeService.getById(screeningNoticeId);
@@ -146,7 +146,7 @@ public class DistrictStatisticTask {
     /**
      * 根据地区生成视力筛查统计
      */
-    private void genStatisticsByDistrictId(ScreeningNotice screeningNotice, Integer districtId, Map<Integer, Long> districtPlanStudentCountMap,
+    private void genStatisticsByDistrictId(ScreeningNotice screeningNotice, Integer districtId, Map<Integer, List<ScreeningPlanSchoolStudent>> districtPlanStudentCountMap,
                                            Map<Integer, List<StatConclusion>> districtStatConclusions,
                                            List<VisionScreeningResultStatistic> visionScreeningResultStatisticList,
                                            List<CommonDiseaseScreeningResultStatistic> commonDiseaseScreeningResultStatisticList) {
@@ -171,17 +171,24 @@ public class DistrictStatisticTask {
 
         // 层级合计数据
         List<StatConclusion> totalStatConclusions = haveStatConclusionsChildDistrictIds.stream().map(districtStatConclusions::get).flatMap(Collection::stream).collect(Collectors.toList());
-        Integer totalPlanStudentCount = (int) haveStudentDistrictIds.stream().mapToLong(districtPlanStudentCountMap::get).sum();
+        List<ScreeningPlanSchoolStudent> totalPlanStudentCountList = haveStudentDistrictIds.stream().flatMap(id -> {
+            List<ScreeningPlanSchoolStudent> planSchoolStudentList = districtPlanStudentCountMap.get(id);
+            if (CollectionUtil.isNotEmpty(planSchoolStudentList)) {
+                return planSchoolStudentList.stream();
+            } else {
+                return Stream.empty();
+            }
+        }).filter(Objects::nonNull).collect(Collectors.toList());
 
         // 层级自身数据
         List<StatConclusion> selfStatConclusions = districtStatConclusions.getOrDefault(districtId, Collections.emptyList());
-        Integer selfPlanStudentCount = districtPlanStudentCountMap.getOrDefault(districtId, 0L).intValue();
+        List<ScreeningPlanSchoolStudent> selfPlanStudentCount = districtPlanStudentCountMap.getOrDefault(districtId, Collections.emptyList());
 
         StatisticResultBO totalStatistic = new StatisticResultBO()
                 .setScreeningNoticeId(screeningNotice.getId())
                 .setScreeningType(screeningNotice.getScreeningType())
                 .setDistrictId(districtId)
-                .setPlanStudentCount(totalPlanStudentCount)
+                .setPlanSchoolStudentList(totalPlanStudentCountList)
                 .setStatConclusions(totalStatConclusions);
 
         genTotalStatistics(totalStatistic, visionScreeningResultStatisticList,commonDiseaseScreeningResultStatisticList);
@@ -190,7 +197,7 @@ public class DistrictStatisticTask {
                 .setScreeningNoticeId(screeningNotice.getId())
                 .setScreeningType(screeningNotice.getScreeningType())
                 .setDistrictId(districtId)
-                .setPlanStudentCount(selfPlanStudentCount)
+                .setPlanSchoolStudentList(selfPlanStudentCount)
                 .setStatConclusions(selfStatConclusions);
         genSelfStatistics(selfStatistic, visionScreeningResultStatisticList,commonDiseaseScreeningResultStatisticList);
 
@@ -208,7 +215,7 @@ public class DistrictStatisticTask {
                                     List<VisionScreeningResultStatistic> visionScreeningResultStatisticList,
                                     List<CommonDiseaseScreeningResultStatistic> commonDiseaseScreeningResultStatisticList) {
 
-        if (CollectionUtils.isEmpty(totalStatistic.getStatConclusions()) && totalStatistic.getPlanStudentCount() == 0) {
+        if (CollectionUtils.isEmpty(totalStatistic.getStatConclusions()) ) {
             // 计划筛查学生不为0时，即使还没有筛查数据，也要新增统计
             return;
         }
@@ -219,13 +226,13 @@ public class DistrictStatisticTask {
 
         if (Objects.nonNull(visionScreeningResultStatisticList)){
             List<VisionScreeningResultStatistic> list= Lists.newArrayList();
-            buildVisionScreening(totalStatistic,list);
+            buildScreening(totalStatistic,list,null);
             visionScreeningResultStatisticList.addAll(list);
         }
 
         if (Objects.nonNull(commonDiseaseScreeningResultStatisticList)){
             List<CommonDiseaseScreeningResultStatistic> list= Lists.newArrayList();
-            buildCommonDiseaseScreening(totalStatistic,list);
+            buildScreening(totalStatistic,null,list);
             commonDiseaseScreeningResultStatisticList.addAll(list);
         }
 
@@ -239,7 +246,7 @@ public class DistrictStatisticTask {
                                    List<VisionScreeningResultStatistic> visionScreeningResultStatisticList,
                                    List<CommonDiseaseScreeningResultStatistic> commonDiseaseScreeningResultStatisticList) {
         List<StatConclusion> statConclusions = selfStatistic.getStatConclusions();
-        if (CollectionUtils.isEmpty(statConclusions) && selfStatistic.getPlanStudentCount() == 0) {
+        if (CollectionUtils.isEmpty(statConclusions)) {
             // 计划筛查学生不为0时，即使还没有筛查数据，也要新增统计
             return;
         }
@@ -253,13 +260,13 @@ public class DistrictStatisticTask {
 
         if (Objects.nonNull(visionScreeningResultStatisticList)){
             List<VisionScreeningResultStatistic> list= Lists.newArrayList();
-            buildVisionScreening(selfStatistic,list);
+            buildScreening(selfStatistic,list,null);
             visionScreeningResultStatisticList.addAll(list);
         }
 
         if (Objects.nonNull(commonDiseaseScreeningResultStatisticList)){
             List<CommonDiseaseScreeningResultStatistic> list= Lists.newArrayList();
-            buildCommonDiseaseScreening(selfStatistic,list);
+            buildScreening(selfStatistic,null,list);
             commonDiseaseScreeningResultStatisticList.addAll(list);
         }
 
@@ -269,47 +276,15 @@ public class DistrictStatisticTask {
     /**
      * 按区域 - 视力筛查数据统计
      */
-    private void buildVisionScreening(StatisticResultBO statistic,List<VisionScreeningResultStatistic> visionScreeningResultStatisticList) {
+    private void buildScreening(StatisticResultBO statistic,
+                                      List<VisionScreeningResultStatistic> visionScreeningResultStatisticList,
+                                      List<CommonDiseaseScreeningResultStatistic> commonDiseaseScreeningResultStatisticList) {
 
         List<StatConclusion> statConclusions = statistic.getStatConclusions();
         if (CollectionUtil.isEmpty(statConclusions)){
             return;
         }
-        Map<Integer, List<StatConclusion>> schoolMap = statConclusions.stream().collect(Collectors.groupingBy(sc -> getKey(sc.getSchoolAge())));
-
-        schoolMap.forEach((schoolAge,list)->{
-            if (Objects.equals(schoolAge, SchoolAge.KINDERGARTEN.code)) {
-                statistic.setSchoolType(SchoolEnum.TYPE_KINDERGARTEN.getType());
-            } else {
-                statistic.setSchoolType(SchoolEnum.TYPE_PRIMARY.getType());
-            }
-            ScreeningResultStatisticBuilder.visionScreening(statistic, list,visionScreeningResultStatisticList);
-        });
+        ScreeningResultStatisticBuilder.screening(visionScreeningResultStatisticList,commonDiseaseScreeningResultStatisticList,statistic,statConclusions);
     }
-
-
-    private void buildCommonDiseaseScreening(StatisticResultBO statistic,List<CommonDiseaseScreeningResultStatistic> commonDiseaseScreeningResultStatisticList) {
-        List<StatConclusion> statConclusions = statistic.getStatConclusions();
-        if (CollectionUtil.isEmpty(statConclusions)){
-            return;
-        }
-        Map<Integer, List<StatConclusion>> schoolMap = statistic.getStatConclusions().stream().collect(Collectors.groupingBy(sc -> getKey(sc.getSchoolAge())));
-
-        schoolMap.forEach((schoolAge,list)->{
-            if (Objects.equals(schoolAge, SchoolAge.KINDERGARTEN.code)) {
-                statistic.setSchoolType(SchoolEnum.TYPE_KINDERGARTEN.getType());
-            } else {
-                statistic.setSchoolType(SchoolEnum.TYPE_PRIMARY.getType());
-            }
-            ScreeningResultStatisticBuilder.commonDiseaseScreening(statistic, list,commonDiseaseScreeningResultStatisticList);
-        });
-    }
-
-
-
-    private Integer getKey(Integer schoolAge){
-        return Objects.equals(schoolAge,5)?schoolAge:0;
-    }
-
 
 }

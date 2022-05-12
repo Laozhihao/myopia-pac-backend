@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.service;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Assert;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -14,6 +15,7 @@ import com.wupol.myopia.business.core.common.domain.dto.OrgAccountListDTO;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
+import com.wupol.myopia.business.core.school.constant.SchoolEnum;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolQueryDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentCountDTO;
@@ -131,9 +133,9 @@ public class SchoolBizService {
             Set<Integer> planIds = plans.stream().map(ScreeningPlanResponseDTO::getId).collect(Collectors.toSet());
             // 学校统计信息
             List<ScreeningResultStatistic> screeningResultStatisticList = screeningResultStatisticService.getByPlanIdsAndSchoolId(Lists.newArrayList(planIds),schoolId);
-            Map<Integer, ScreeningResultStatistic> statisticMaps = screeningResultStatisticList
+            Map<Integer, List<ScreeningResultStatistic>> statisticMaps = screeningResultStatisticList
                     .stream()
-                    .collect(Collectors.toMap(ScreeningResultStatistic::getScreeningPlanId, Function.identity()));
+                    .collect(Collectors.groupingBy(ScreeningResultStatistic::getScreeningPlanId));
 
             // 获取筛查机构
             List<Integer> orgIds = plans.stream()
@@ -148,12 +150,13 @@ public class SchoolBizService {
             // 封装DTO
             plans.forEach(plan -> {
                 plan.setOrgName(orgMaps.get(plan.getScreeningOrgId()));
-                ScreeningResultStatistic screeningResultStatistic = statisticMaps.get(plan.getId());
-                if (Objects.isNull(screeningResultStatistic)) {
+                List<ScreeningResultStatistic> screeningResultStatistics = statisticMaps.get(plan.getId());
+                if (CollectionUtil.isEmpty(screeningResultStatistics)) {
                     plan.setItems(new ArrayList<>());
                 } else {
                     SchoolVisionStatisticItem item = new SchoolVisionStatisticItem();
                     ScreeningPlanSchool screeningPlanSchool = planSchoolMap.get(plan.getId());
+                    ScreeningResultStatistic screeningResultStatistic = screeningResultStatistics.get(0);
                     BeanUtils.copyProperties(screeningResultStatistic, item);
                     item.setHasRescreenReport(statRescreenService.hasRescreenReport(plan.getId(), screeningResultStatistic.getSchoolId()));
                     item.setQualityControllerName(screeningPlanSchool.getQualityControllerName());

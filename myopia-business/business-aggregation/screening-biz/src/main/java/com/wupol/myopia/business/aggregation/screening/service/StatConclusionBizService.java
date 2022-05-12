@@ -4,6 +4,8 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.common.utils.util.MapUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
@@ -19,9 +21,11 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -39,6 +43,7 @@ public class StatConclusionBizService {
     private final VisionScreeningResultService visionScreeningResultService;
     private final StatConclusionService statConclusionService;
     private final SchoolGradeService schoolGradeService;
+    private final ThreadPoolTaskExecutor asyncServiceExecutor;
 
     /**
      * 筛查数据结论
@@ -74,21 +79,25 @@ public class StatConclusionBizService {
     }
 
     private void screeningToConclusion(List<VisionScreeningResult> visionScreeningResults){
-        //1.历史初筛和复筛的数据
         if (CollectionUtil.isEmpty(visionScreeningResults)){
             return;
         }
-        //2.筛查结果分组
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        log.info("筛查数据结论,数据处理开始");
+        //筛查结果分组
         Map<Integer, List<VisionScreeningResult>> visionScreeningResultMap = visionScreeningResults.stream().collect(Collectors.groupingBy(VisionScreeningResult::getPlanId));
         if (CollectionUtil.isNotEmpty(visionScreeningResultMap)){
             List<Map<Integer, List<VisionScreeningResult>>> mapList = MapUtil.splitMap(visionScreeningResultMap, 30);
-            log.info("筛查数据结论，共{}批次",mapList.size());
-            for (int i = 0; i < mapList.size(); i++) {
-                log.info("分批执行中...{}/{}",i+1,mapList.size());
-                consumerMap(mapList.get(i));
-            }
-            log.info("筛查数据结论,数据处理完成");
+
+            List<CompletableFuture<Void>> completableFutureList = new ArrayList<>();
+            mapList.forEach(list->{
+                CompletableFuture<Void> future = CompletableFuture.runAsync(() -> consumerMap(list,currentUser), asyncServiceExecutor);
+                completableFutureList.add(future);
+            });
+            CompletableFuture.allOf(completableFutureList.toArray(new CompletableFuture[mapList.size()])).join();
+
         }
+        log.info("筛查数据结论,数据处理完成");
     }
 
 
@@ -97,9 +106,10 @@ public class StatConclusionBizService {
         private Map<Integer, ScreeningPlanSchoolStudent> screeningPlanSchoolStudentMap;
         private Map<Integer, SchoolGrade> schoolGradeMap;
         private Map<String, StatConclusion> statConclusionMap;
+        private CurrentUser currentUser;
     }
 
-    private void consumerMap(Map<Integer, List<VisionScreeningResult>> visionScreeningResultMap) {
+    private void consumerMap(Map<Integer, List<VisionScreeningResult>> visionScreeningResultMap,CurrentUser currentUser) {
         if (CollectionUtil.isEmpty(visionScreeningResultMap)){
             return;
         }
@@ -110,6 +120,7 @@ public class StatConclusionBizService {
         Set<Integer> screeningPlanSchoolStudentIds = visionScreeningResultMap.values().stream().flatMap(List::stream).map(VisionScreeningResult::getScreeningPlanSchoolStudentId).collect(Collectors.toSet());
 
         DataProcessBO dataProcessBO = new DataProcessBO();
+        dataProcessBO.setCurrentUser(currentUser);
 
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getByIds(Lists.newArrayList(screeningPlanSchoolStudentIds));
         if (CollectionUtil.isNotEmpty(screeningPlanSchoolStudents)){
@@ -196,6 +207,7 @@ public class StatConclusionBizService {
                 .setStatConclusion(statConclusion)
                 .setScreeningPlanSchoolStudent(screeningPlanSchoolStudent)
                 .setGradeCode(schoolGradeCode)
+                .setCurrentUser(dataProcessBO.getCurrentUser())
                 .build();
         statConclusionList.add(statConclusion);
     }

@@ -1,10 +1,13 @@
 package com.wupol.myopia.business.core.stat.domain.dos;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.wupol.myopia.base.util.BigDecimalUtil;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 /**
  * 小学及以上视力分析
@@ -27,13 +30,15 @@ public class PrimarySchoolAndAboveVisionAnalysisDO implements VisionAnalysis,Fro
     private String lowVisionRatio;
 
     /**
-     * 平均左眼视力（小数点后二位，默认0.00）
+     * 平均左眼视力（小数点后一位，默认0.0）
      */
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private BigDecimal avgLeftVision;
 
     /**
-     * 平均右眼视力（小数点后二位，默认0.00）
+     * 平均右眼视力（小数点后一位，默认0.0）
      */
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private BigDecimal avgRightVision;
 
     /**
@@ -125,4 +130,6 @@ public class PrimarySchoolAndAboveVisionAnalysisDO implements VisionAnalysis,Fro
     public Integer getSerialVersionUID() {
         return 3;
     }
+
+
 }

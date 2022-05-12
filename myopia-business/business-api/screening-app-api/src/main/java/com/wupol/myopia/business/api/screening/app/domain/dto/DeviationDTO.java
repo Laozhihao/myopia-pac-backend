@@ -52,8 +52,8 @@ public class DeviationDTO extends ScreeningResultBasicData {
             return null;
         }
         DeviationDTO deviationDTO = new DeviationDTO();
-        deviationDTO.setVisionOrOptometryDeviation(deviationDTO.getVisionOrOptometryDeviation());
-        deviationDTO.setHeightWeightDeviation(deviationDTO.getHeightWeightDeviation());
+        deviationDTO.setVisionOrOptometryDeviation(deviationDO.getVisionOrOptometryDeviation());
+        deviationDTO.setHeightWeightDeviation(deviationDO.getHeightWeightDeviation());
         return deviationDTO;
     }
 }

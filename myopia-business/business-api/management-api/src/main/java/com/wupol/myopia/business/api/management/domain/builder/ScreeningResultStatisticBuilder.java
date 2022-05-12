@@ -1,11 +1,17 @@
 package com.wupol.myopia.business.api.management.domain.builder;
 
+import cn.hutool.core.collection.CollectionUtil;
+import com.google.common.collect.Maps;
 import com.wupol.framework.core.util.ObjectsUtil;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.api.management.domain.bo.StatisticResultBO;
+import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.constant.WarningLevel;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.constant.SchoolEnum;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import com.wupol.myopia.business.core.stat.domain.dos.*;
@@ -15,6 +21,8 @@ import lombok.experimental.UtilityClass;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.function.Predicate;
+import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
 
 /**
@@ -29,7 +37,7 @@ public class ScreeningResultStatisticBuilder {
     /**
      * 视力筛查数据统计
      */
-    public  void visionScreening(StatisticResultBO totalStatistic,
+    public void visionScreening(StatisticResultBO totalStatistic,
                                   List<StatConclusion> statConclusions,
                                   List<VisionScreeningResultStatistic> visionScreeningResultStatisticList){
 
@@ -44,6 +52,10 @@ public class ScreeningResultStatisticBuilder {
         List<StatConclusion> validStatConclusions = isValidMap.getOrDefault(Boolean.TRUE, Collections.emptyList());
         Map<Boolean, List<StatConclusion>> isRescreenMap = validStatConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getIsRescreen));
         int validScreeningNum = isRescreenMap.getOrDefault(Boolean.FALSE, Collections.emptyList()).size();
+        int nightGlassesTypeNum = (int) statConclusions.stream()
+                .filter(sc->Objects.equals(Boolean.TRUE,sc.getIsValid()) && Objects.equals(Boolean.FALSE,sc.getIsRescreen()) && Objects.equals(3,sc.getGlassesType()))
+                .count();
+        validScreeningNum = validScreeningNum-nightGlassesTypeNum;
 
         //复测数据
         Map<Boolean, List<StatConclusion>> isRescreenTotalMap = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getIsRescreen));
@@ -84,6 +96,10 @@ public class ScreeningResultStatisticBuilder {
         List<StatConclusion> validStatConclusions = isValidMap.getOrDefault(Boolean.TRUE, Collections.emptyList());
         Map<Boolean, List<StatConclusion>> isRescreenMap = validStatConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getIsRescreen));
         int validScreeningNum = isRescreenMap.getOrDefault(Boolean.FALSE, Collections.emptyList()).size();
+        int nightGlassesTypeNum = (int) statConclusions.stream()
+                .filter(sc->Objects.equals(Boolean.TRUE,sc.getIsValid()) && Objects.equals(Boolean.FALSE,sc.getIsRescreen()) && Objects.equals(3,sc.getGlassesType()))
+                .count();
+        validScreeningNum = validScreeningNum-nightGlassesTypeNum;
 
         //复测数据
         Map<Boolean, List<StatConclusion>> isRescreenTotalMap = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getIsRescreen));
@@ -278,7 +294,7 @@ public class ScreeningResultStatisticBuilder {
         //非戴镜复测项次数
         Integer withoutGlassRescreenItemNum =withoutGlassList.stream().map(StatConclusion::getRescreenItemNum).filter(Objects::nonNull).mapToInt(Integer::intValue).sum();
 
-        Integer rescreenNum = (int) statConclusions.stream().map(StatConclusion::getIsRescreen).filter(Objects::nonNull).filter(Boolean::booleanValue).count();
+        Integer rescreenNum = (int) statConclusionList.stream().map(StatConclusion::getIsRescreen).filter(Objects::nonNull).filter(Boolean::booleanValue).count();
 
         int validRescreenNum = isRescreenMap.getOrDefault(Boolean.TRUE, Collections.emptyList()).size();
 
@@ -306,8 +322,10 @@ public class ScreeningResultStatisticBuilder {
         SaprodontiaDO saprodontiaDO = new SaprodontiaDO();
         statConclusions = statConclusions.stream().filter(sc->Objects.equals(Boolean.FALSE,sc.getIsRescreen())).collect(Collectors.toList());
 
+        Predicate<StatConclusion> predicateFalse = sc -> !(Objects.equals(Boolean.TRUE, sc.getIsSaprodontiaLoss()) || Objects.equals(Boolean.TRUE, sc.getIsSaprodontiaRepair()) || Objects.equals(Boolean.TRUE, sc.getIsSaprodontia()));
+
         int saprodontiaFreeNum = (int)statConclusions.stream()
-                .filter(sc -> Objects.equals(Boolean.FALSE,sc.getIsSaprodontia()) && Objects.equals(Boolean.FALSE,sc.getIsSaprodontiaLoss()) && Objects.equals(Boolean.FALSE,sc.getIsSaprodontiaRepair())).count();
+                .filter(predicateFalse).count();
         int saprodontiaNum = (int)statConclusions.stream()
                 .map(StatConclusion::getIsSaprodontia)
                 .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
@@ -318,19 +336,22 @@ public class ScreeningResultStatisticBuilder {
                 .map(StatConclusion::getIsSaprodontiaRepair)
                 .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
         int saprodontiaLossAndRepairNum = (int)statConclusions.stream()
-                .filter(sc ->Objects.equals(Boolean.TRUE,sc.getIsSaprodontiaLoss()) && Objects.equals(Boolean.TRUE,sc.getIsSaprodontiaRepair())).count();
+                .filter(sc ->Objects.equals(Boolean.TRUE,sc.getIsSaprodontiaLoss()) || Objects.equals(Boolean.TRUE,sc.getIsSaprodontiaRepair())).count();
+
+        Predicate<StatConclusion> predicateTrue = sc -> Objects.equals(Boolean.TRUE, sc.getIsSaprodontiaLoss()) || Objects.equals(Boolean.TRUE, sc.getIsSaprodontiaRepair()) || Objects.equals(Boolean.TRUE, sc.getIsSaprodontia());
+        ToIntFunction<StatConclusion> totalFunction = sc -> Optional.ofNullable(sc.getSaprodontiaLossTeeth()).orElse(0) + Optional.ofNullable(sc.getSaprodontiaRepairTeeth()).orElse(0) + Optional.ofNullable(sc.getSaprodontiaTeeth()).orElse(0);
 
         int dmftNum = statConclusions.stream().filter(Objects::nonNull)
-                .filter(sc -> Objects.equals(Boolean.TRUE,sc.getIsSaprodontiaLoss()) && Objects.equals(Boolean.TRUE,sc.getIsSaprodontiaRepair()))
-                .mapToInt(sc -> sc.getSaprodontiaLossTeeth() + sc.getSaprodontiaRepairTeeth()).sum();
+                .filter(predicateTrue)
+                .mapToInt(totalFunction).sum();
 
         int sumTeeth = statConclusions.stream().filter(Objects::nonNull)
-                .filter(sc -> Objects.equals(Boolean.TRUE,sc.getIsSaprodontiaLoss()) && Objects.equals(Boolean.TRUE,sc.getIsSaprodontiaRepair()) && Objects.equals(Boolean.TRUE,sc.getIsSaprodontia()))
-                .mapToInt(sc -> sc.getSaprodontiaLossTeeth() + sc.getSaprodontiaRepairTeeth() + sc.getSaprodontiaTeeth()).sum();
+                .filter(predicateTrue)
+                .mapToInt(totalFunction).sum();
 
         saprodontiaDO
                 .setSaprodontiaFreeNum(saprodontiaFreeNum).setSaprodontiaFreeRatio(MathUtil.ratio(saprodontiaFreeNum,realScreeningStudentNum))
-                .setDmftNum(dmftNum).setDmftRatio(MathUtil.ratio(dmftNum,realScreeningStudentNum))
+                .setDmftNum(dmftNum).setDmftRatio(MathUtil.num(dmftNum,realScreeningStudentNum))
                 .setSaprodontiaNum(saprodontiaNum).setSaprodontiaRatio(MathUtil.ratio(saprodontiaNum,realScreeningStudentNum))
                 .setSaprodontiaLossNum(saprodontiaLossNum).setSaprodontiaLossRatio(MathUtil.ratio(saprodontiaLossNum,realScreeningStudentNum))
                 .setSaprodontiaRepairNum(saprodontiaRepairNum).setSaprodontiaRepairRatio(MathUtil.ratio(saprodontiaRepairNum,realScreeningStudentNum))
@@ -379,16 +400,6 @@ public class ScreeningResultStatisticBuilder {
         statistic.setCommonDisease(commonDiseaseDO);
     }
 
-    /**
-     * 是否复查学生
-     */
-    private static boolean review(StatConclusion sc) {
-        return Objects.equals(Boolean.TRUE,sc.getIsLowVision())  || Objects.equals(Boolean.TRUE,sc.getIsMyopia()) ||
-               Objects.equals(Boolean.TRUE,sc.getIsHyperopia()) || Objects.equals(Boolean.TRUE,sc.getIsAstigmatism()) ||
-               Objects.equals(Boolean.FALSE,sc.getIsSpinalCurvature()) ||Objects.equals(Boolean.TRUE,sc.getIsObesity()) ||
-               Objects.equals(Boolean.TRUE,sc.getIsOverweight()) || Objects.equals(Boolean.TRUE,sc.getIsMalnutrition()) ||
-               Objects.equals(Boolean.TRUE,sc.getIsStunting());
-    }
 
     /**
      * 设置问卷调查数据
@@ -409,6 +420,50 @@ public class ScreeningResultStatisticBuilder {
                 .setHealthStateQuestionnaireRatio(ratio);
 
         statistic.setQuestionnaire(questionnaireDO);
+    }
+
+    public static Integer getKey(String schoolGradeCode){
+        GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeCode);
+        if (Objects.isNull(gradeCodeEnum)){
+            throw new BusinessException(String.format("不存在年级编码:%s",schoolGradeCode));
+        }
+        if (Objects.equals(gradeCodeEnum.getType(), SchoolAge.KINDERGARTEN.code)) {
+            return SchoolEnum.TYPE_KINDERGARTEN.getType();
+        }else {
+            return SchoolEnum.TYPE_PRIMARY.getType();
+        }
+    }
+
+    public void screening(List<VisionScreeningResultStatistic> visionScreeningResultStatisticList,
+                           List<CommonDiseaseScreeningResultStatistic> commonDiseaseScreeningResultStatisticList,
+                           StatisticResultBO statisticResultBO,
+                           List<StatConclusion> schoolStatConclusionList) {
+
+        Map<Integer,Integer> planSchoolStudentMap= Maps.newHashMap();
+        List<ScreeningPlanSchoolStudent> planSchoolStudentList = statisticResultBO.getPlanSchoolStudentList();
+        if (CollectionUtil.isNotEmpty(planSchoolStudentList)){
+            int kindergarten = (int)planSchoolStudentList.stream().filter(planSchoolStudent -> Objects.equals(planSchoolStudent.getGradeType(), SchoolAge.KINDERGARTEN.code)).count();
+            int primary = (int)planSchoolStudentList.stream().filter(planSchoolStudent -> !Objects.equals(planSchoolStudent.getGradeType(), SchoolAge.KINDERGARTEN.code)).count();
+            planSchoolStudentMap.put(SchoolEnum.TYPE_KINDERGARTEN.getType(),kindergarten);
+            planSchoolStudentMap.put(SchoolEnum.TYPE_PRIMARY.getType(),primary);
+        }
+
+
+        Map<Integer, List<StatConclusion>> schoolMap = schoolStatConclusionList.stream().collect(Collectors.groupingBy(sc -> getKey(sc.getSchoolGradeCode())));
+
+        schoolMap.forEach((schoolAge,list)->{
+            statisticResultBO.setSchoolType(schoolAge);
+            if (CollectionUtil.isNotEmpty(planSchoolStudentMap)){
+                Integer planSchoolStudentCount = planSchoolStudentMap.get(schoolAge);
+                statisticResultBO.setPlanStudentCount(planSchoolStudentCount);
+            }
+            if (Objects.nonNull(visionScreeningResultStatisticList)){
+                visionScreening(statisticResultBO,list,visionScreeningResultStatisticList);
+            }
+            if (Objects.nonNull(commonDiseaseScreeningResultStatisticList)){
+                commonDiseaseScreening(statisticResultBO,list,commonDiseaseScreeningResultStatisticList);
+            }
+        });
     }
 
 }

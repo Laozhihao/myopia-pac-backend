@@ -595,5 +595,12 @@ public class RedisUtil {
             return false;
         }
     }
+
+    /**
+     * 获取在线人数（防止其他使用keys命令，所以只对在线人数统计单独开此方法）
+     */
+    public Set<String> getOnline(){
+        return redisTemplate.keys("online:*");
+    }
 }
 

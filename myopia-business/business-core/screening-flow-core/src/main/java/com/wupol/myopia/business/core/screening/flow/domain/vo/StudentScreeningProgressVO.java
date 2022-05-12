@@ -117,6 +117,9 @@ public class StudentScreeningProgressVO {
 
     /** 筛查状态（复测使用） */
     private Integer screeningStatus;
+
+    /** 是否有初筛数据 */
+    private Boolean isFirst;
     /**
      * [注意！！！]下面前四个的赋值顺序不能改变：视力-眼位-裂隙灯-电脑验光
      * 1. 托幼机构
@@ -142,7 +145,8 @@ public class StudentScreeningProgressVO {
                     .setSaprodontiaStatus(UNCHECK).setSpineStatus(UNCHECK_MUST)
                     .setBloodPressureStatus(UNCHECK).setDiseasesHistoryStatus(UNCHECK_MUST).setPrivacyStatus(UNCHECK)
                     .setHeightWeightStatus(UNCHECK).setResult(false).setHasAbnormal(false)
-                    .setGradeName(studentVO.getGrade()).setClassName(studentVO.getClazz());
+                    .setGradeName(studentVO.getGrade()).setClassName(studentVO.getClazz())
+                    .setStateStatus(screeningPlanSchoolStudent.getState());
         }
         // 默认完成了所有必要检查
         isAllMustCheckDone.set(true);

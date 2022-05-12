@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.business.core.stat.domain.dos.CommonDiseaseDO;
 import com.wupol.myopia.business.core.stat.domain.dos.PrimarySchoolAndAboveVisionAnalysisDO;
 import com.wupol.myopia.business.core.stat.domain.dos.SaprodontiaDO;
@@ -97,13 +98,15 @@ public class PrimarySchoolAndAboveResultVO {
         private String lowVisionRatio;
 
         /**
-         * 平均左眼视力（小数点后二位，默认0.00）
+         * 平均左眼视力（小数点后一位，默认0.0）
          */
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
         private BigDecimal avgLeftVision;
 
         /**
-         * 平均右眼视力（小数点后二位，默认0.00）
+         * 平均右眼视力（小数点后一位，默认0.0）
          */
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
         private BigDecimal avgRightVision;
 
         /**

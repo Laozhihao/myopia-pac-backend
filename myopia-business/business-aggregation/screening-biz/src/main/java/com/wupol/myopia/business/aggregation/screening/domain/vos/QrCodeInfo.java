@@ -37,5 +37,5 @@ public class QrCodeInfo {
     /**
      * 出生年月
      */
-    private Date birthday;
+    private String birthday;
 }
