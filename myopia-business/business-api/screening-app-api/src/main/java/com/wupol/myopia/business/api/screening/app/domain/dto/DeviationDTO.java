@@ -26,11 +26,18 @@ public class DeviationDTO extends ScreeningResultBasicData {
      */
     private DeviationDO.VisionOrOptometryDeviation visionOrOptometryDeviation;
 
-
     /**
      * 身高体重误差
      */
     private DeviationDO.HeightWeightDeviation heightWeightDeviation;
+
+    private Integer visionOrOptometryDeviationType;
+
+    private String visionOrOptometryDeviationRemark;
+
+    private Integer heightWeightDeviationType;
+
+    private String heightWeightDeviationRemark;
 
     @Override
     public VisionScreeningResult buildScreeningResultData(VisionScreeningResult visionScreeningResult) {
@@ -54,6 +61,10 @@ public class DeviationDTO extends ScreeningResultBasicData {
         DeviationDTO deviationDTO = new DeviationDTO();
         deviationDTO.setVisionOrOptometryDeviation(deviationDO.getVisionOrOptometryDeviation());
         deviationDTO.setHeightWeightDeviation(deviationDO.getHeightWeightDeviation());
+        deviationDTO.setHeightWeightDeviationType(deviationDO.getHeightWeightDeviation().getType().getCode());
+        deviationDTO.setHeightWeightDeviationRemark(deviationDO.getHeightWeightDeviation().getRemark());
+        deviationDTO.setVisionOrOptometryDeviationType(deviationDO.getVisionOrOptometryDeviation().getType().getCode());
+        deviationDTO.setVisionOrOptometryDeviationRemark(deviationDO.getVisionOrOptometryDeviation().getRemark());
         return deviationDTO;
     }
 }
