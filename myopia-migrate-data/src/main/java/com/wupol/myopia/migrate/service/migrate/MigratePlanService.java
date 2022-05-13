@@ -87,14 +87,14 @@ public class MigratePlanService {
         ScreeningPlanDTO screeningPlanDTO = new ScreeningPlanDTO();
         screeningPlanDTO.setTitle(titlePrefix + screeningOrgAndStaffDO.getScreeningOrgName() + "筛查计划")
                 .setScreeningOrgId(screeningOrgAndStaffDO.getScreeningOrgId())
-                .setCreateUserId(1)
+                .setCreateUserId(screeningOrgAndStaffDO.getScreeningOrgAdminUserId())
                 .setDistrictId(screeningOrgAndStaffDO.getDistrictId())
                 .setCreateTime(startDate)
                 .setStartTime(startDate)
                 .setEndTime(endDate)
                 .setReleaseStatus(CommonConst.STATUS_RELEASE)
                 .setReleaseTime(startDate)
-                .setOperatorId(1)
+                .setOperatorId(screeningOrgAndStaffDO.getScreeningOrgAdminUserId())
                 .setOperateTime(startDate)
                 .setContent(titlePrefix + "筛查");
         // 根据学校ID分组
@@ -104,13 +104,11 @@ public class MigratePlanService {
                 .stream()
                 .filter(x -> Objects.nonNull(schoolAndGradeClassDO.getSchoolMap().get(x.getKey())))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        // 封装当前计划下的所有学校数据list(有些筛查数据的学校在school表没有，得过滤掉) TODO：把质检员改为非必填
+        // 封装当前计划下的所有学校数据list(有些筛查数据的学校在school表没有，得过滤掉)
         List<ScreeningPlanSchool> planSchoolList = currentPlanStudentGroupBySchoolIdMap.entrySet().stream()
                 .map(sysStudentEyeSimpleMap -> new ScreeningPlanSchool()
                         .setSchoolId(schoolAndGradeClassDO.getSchoolMap().get(sysStudentEyeSimpleMap.getKey()))
                         .setScreeningOrgId(screeningOrgAndStaffDO.getScreeningOrgId())
-                        .setQualityControllerCommander(screeningOrgAndStaffDO.getScreeningStaffName())
-                        .setQualityControllerName(screeningOrgAndStaffDO.getScreeningStaffName())
                         .setSchoolName(sysStudentEyeSimpleMap.getValue().get(0).getSchoolName()))
                 .collect(Collectors.toList());
         screeningPlanDTO.setSchools(planSchoolList);
@@ -120,7 +118,7 @@ public class MigratePlanService {
             screeningPlanDTO.setId(existPlan.getId());
         }
         // 创建或更新筛查计划，同时为计划绑定学校
-        screeningPlanService.saveOrUpdateWithSchools(1, screeningPlanDTO, false);
+        screeningPlanService.saveOrUpdateWithSchools(screeningOrgAndStaffDO.getScreeningOrgAdminUserId(), screeningPlanDTO, false);
         ScreeningPlan screeningPlan = screeningPlanService.getById(screeningPlanDTO.getId());
         return new PlanAndStudentDO(screeningPlan, currentPlanStudentGroupBySchoolIdMap, screeningOrgAndStaffDO.getScreeningStaffUserId());
     }

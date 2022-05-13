@@ -9,7 +9,7 @@
 - 日志：Log4j2
 - 缓存：Redis 3.2.1
 - 消息队列：Kafka
-- 注册中心与配置中心：Nacos
+- 注册中心与配置中心：Nacos 2.0.3
 - 网关：Spring cloud gateway
 - 服务熔断降级与限流：Sentinel
 - 服务远程调用：Openfeign

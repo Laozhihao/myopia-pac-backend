@@ -12,7 +12,9 @@ import com.wupol.myopia.business.core.device.service.ScreeningOrgBindDeviceRepor
 import com.wupol.myopia.business.core.screening.organization.constant.ScreeningOrgConfigTypeEnum;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationStaffQueryDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
+import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationAdmin;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationStaff;
+import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationAdminService;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationStaffService;
 import com.wupol.myopia.migrate.domain.dos.ScreeningOrgAndStaffDO;
@@ -20,7 +22,6 @@ import com.wupol.myopia.migrate.domain.model.SysDept;
 import com.wupol.myopia.migrate.domain.model.SysStudentEye;
 import com.wupol.myopia.migrate.service.SysDeptService;
 import com.wupol.myopia.migrate.service.SysStudentEyeService;
-import com.wupol.myopia.migrate.service.SysUserService;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.response.Organization;
 import lombok.extern.log4j.Log4j2;
@@ -65,7 +66,7 @@ public class MigrateScreeningOrganizationService {
     @Autowired
     private ScreeningOrganizationStaffService screeningOrganizationStaffService;
     @Autowired
-    private SysUserService sysUserService;
+    private ScreeningOrganizationAdminService screeningOrganizationAdminService;
 
     /**
      * 迁移筛查机构和筛查人员
@@ -85,11 +86,8 @@ public class MigrateScreeningOrganizationService {
             }
             // 迁移筛查机构
             ScreeningOrganization screeningOrganization = saveScreeningOrganization(sysDept);
-            // 获取自动创建的筛查人员信息（由于筛查人员缺少身份证和手机号码数据，不迁移）
-            ScreeningOrganizationStaff screeningOrganizationStaff = getAutoCreateScreeningStaff(screeningOrganization.getId());
             // 封装筛查机构和筛查人员信息以备用
-            screeningOrganizationList.add(packageScreeningOrgAndStaffDO(sysDept.getDeptId(), screeningOrganization.getId(), screeningOrganization.getName(),
-                    screeningOrganization.getDistrictId(), screeningOrganizationStaff.getUserId()));
+            screeningOrganizationList.add(packageScreeningOrgAndStaffDO(sysDept.getDeptId(), screeningOrganization.getId(), screeningOrganization.getName(), screeningOrganization.getDistrictId()));
         });
         log.info("==  筛查机构-完成  ==");
         return screeningOrganizationList;
@@ -143,12 +141,14 @@ public class MigrateScreeningOrganizationService {
      * @param screeningOrgId    筛查机构ID
      * @param screeningOrgName  筛查机构名称
      * @param districtId        行政区域ID
-     * @param staffUserId       筛查人员的用户ID
      * @return com.wupol.myopia.migrate.domain.dos.ScreeningOrgAndStaffDO
      **/
-    private ScreeningOrgAndStaffDO packageScreeningOrgAndStaffDO(String oldOrgId, Integer screeningOrgId, String screeningOrgName, Integer districtId, Integer staffUserId) {
+    private ScreeningOrgAndStaffDO packageScreeningOrgAndStaffDO(String oldOrgId, Integer screeningOrgId, String screeningOrgName, Integer districtId) {
+        // 获取自动创建的筛查人员信息（由于筛查人员缺少身份证和手机号码数据，不迁移）
+        ScreeningOrganizationStaff screeningOrganizationStaff = getAutoCreateScreeningStaff(screeningOrgId);
+        ScreeningOrganizationAdmin orgAdmin = screeningOrganizationAdminService.getByOrgId(screeningOrgId);
         // 获取筛查最多的筛查人员名称作为质检人员名称
-        return new ScreeningOrgAndStaffDO(oldOrgId, screeningOrgId, screeningOrgName, districtId, staffUserId, sysUserService.findMostStaffNameByDeptId(oldOrgId));
+        return new ScreeningOrgAndStaffDO(oldOrgId, screeningOrgId, screeningOrgName, orgAdmin.getUserId(), districtId, screeningOrganizationStaff.getUserId());
     }
 
     /**
