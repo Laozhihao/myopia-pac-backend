@@ -43,9 +43,11 @@ public class DeviationDTO extends ScreeningResultBasicData {
 
         if (Objects.nonNull(visionOrOptometryDeviationType)) {
             visionOrOptometryDeviation.setType(DeviationDO.VisionOrOptometryDeviationEnum.getByCode(visionOrOptometryDeviationType));
+            visionOrOptometryDeviation.setRemark(visionOrOptometryDeviationRemark);
         }
         if (Objects.nonNull(heightWeightDeviationType)) {
             heightWeightDeviation.setType(DeviationDO.HeightWeightDeviationEnum.getByCode(visionOrOptometryDeviationType));
+            heightWeightDeviation.setRemark(heightWeightDeviationRemark);
         }
         deviationDO.setHeightWeightDeviation(heightWeightDeviation);
         deviationDO.setVisionOrOptometryDeviation(visionOrOptometryDeviation);
@@ -56,6 +58,10 @@ public class DeviationDTO extends ScreeningResultBasicData {
 
     public boolean isValid() {
         // 暂时不需要验证，如果为空就是正常的
+        if (Objects.isNull(DeviationDO.VisionOrOptometryDeviationEnum.getByCode(visionOrOptometryDeviationType))
+                || Objects.isNull(DeviationDO.HeightWeightDeviationEnum.getByCode(visionOrOptometryDeviationType))) {
+            return false;
+        }
         return true;
     }
 
