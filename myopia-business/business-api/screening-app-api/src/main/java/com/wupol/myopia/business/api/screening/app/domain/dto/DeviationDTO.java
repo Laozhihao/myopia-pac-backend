@@ -56,6 +56,10 @@ public class DeviationDTO extends ScreeningResultBasicData {
 
     public boolean isValid() {
         // 暂时不需要验证，如果为空就是正常的
+        if (Objects.isNull(DeviationDO.VisionOrOptometryDeviationEnum.getByCode(visionOrOptometryDeviationType))
+                || Objects.isNull(DeviationDO.HeightWeightDeviationEnum.getByCode(visionOrOptometryDeviationType))) {
+            return false;
+        }
         return true;
     }
 
