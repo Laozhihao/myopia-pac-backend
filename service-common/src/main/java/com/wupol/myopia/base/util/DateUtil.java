@@ -478,7 +478,7 @@ public class DateUtil extends cn.hutool.core.date.DateUtil {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
         calendar.add(Calendar.DATE,days);
-        return calendar.getTime();
+        return getEndTime(calendar.getTime());
     }
 
     /**
