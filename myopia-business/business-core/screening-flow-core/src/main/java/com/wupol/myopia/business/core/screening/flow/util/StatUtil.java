@@ -9,8 +9,10 @@ import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.constant.SchoolEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
+import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.collections4.CollectionUtils;
 
@@ -68,6 +70,32 @@ public class StatUtil {
             return visionData.validCorrectedVision();
         } else {
             return false;
+        }
+    }
+
+    /**
+     * 复测数据完整(纳入统计的数据)
+     * @param visionScreeningResult
+     */
+    public static boolean rescreenCompletedData(VisionScreeningResult visionScreeningResult){
+
+        if (Objects.equals(visionScreeningResult.getScreeningType(),0)){
+            //视力筛查
+            VisionDataDO visionData = visionScreeningResult.getVisionData();
+            ComputerOptometryDO computerOptometry = visionScreeningResult.getComputerOptometry();
+            if (ObjectsUtil.hasNull(visionData,computerOptometry)){
+                return false;
+            }
+            return isCompletedData(visionData,computerOptometry);
+        }else {
+            //常见病筛查
+            VisionDataDO visionData = visionScreeningResult.getVisionData();
+            ComputerOptometryDO computerOptometry = visionScreeningResult.getComputerOptometry();
+            HeightAndWeightDataDO heightAndWeightData = visionScreeningResult.getHeightAndWeightData();
+            if (ObjectsUtil.hasNull(visionData,computerOptometry,heightAndWeightData)){
+                return false;
+            }
+            return heightAndWeightData.valid() && isCompletedData(visionData,computerOptometry);
         }
     }
 

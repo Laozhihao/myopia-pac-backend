@@ -879,7 +879,7 @@ public class StatConclusionBuilder {
             dealWithBasicData(screeningPlanSchoolStudent, basicData);
 
             //视力相关数据的有效性
-            dealWithVaild(visionScreeningResult.getVisionData(),visionScreeningResult.getComputerOptometry(),basicData);
+            dealWithVaild(visionScreeningResult,basicData);
 
             //处理电脑验光的数据
             dealWithComputerOptometry(basicData, visionScreeningResult.getComputerOptometry());
@@ -893,12 +893,18 @@ public class StatConclusionBuilder {
         /**
          * 处理数据有效性
          */
-        private static void dealWithVaild(VisionDataDO visionData,ComputerOptometryDO computerOptometry, BasicData basicData) {
-            if (ObjectsUtil.hasNull(visionData,computerOptometry)) {
-                basicData.isValid=Boolean.FALSE;
-                return;
+        private static void dealWithVaild(VisionScreeningResult visionScreeningResult, BasicData basicData) {
+            if (Objects.equals(Boolean.FALSE,visionScreeningResult.getIsDoubleScreen())){
+                VisionDataDO visionData = visionScreeningResult.getVisionData();
+                ComputerOptometryDO computerOptometry = visionScreeningResult.getComputerOptometry();
+                if (ObjectsUtil.hasNull(visionData,computerOptometry)) {
+                    basicData.isValid=Boolean.FALSE;
+                    return;
+                }
+                basicData.isValid=StatUtil.isCompletedData(visionData, computerOptometry);
+            }else {
+                basicData.isValid= StatUtil.rescreenCompletedData(visionScreeningResult);
             }
-            basicData.isValid=StatUtil.isCompletedData(visionData, computerOptometry);
         }
 
 
