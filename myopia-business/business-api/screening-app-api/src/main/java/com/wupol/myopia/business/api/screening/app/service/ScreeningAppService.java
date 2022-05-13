@@ -724,7 +724,7 @@ public class ScreeningAppService {
         HeightAndWeightDataDO firstHeightWeight = null;
         retestStudentVO.setRetestItemCount(0);
         retestStudentVO.setErrorItemCount(0);
-        if (Objects.nonNull(retestStudentVO.getVisionScreeningResult())) {
+        if (Objects.nonNull(retestStudentVO.getStudentVisionScreeningResult())) {
             if (Objects.nonNull(retestStudentVO.getVisionScreeningResult().getSecond())) {
                 secondLeftVision = Objects.isNull(retestStudentVO.getVisionScreeningResult().getSecond().getVisionData())
                         ? null : retestStudentVO.getVisionScreeningResult().getSecond().getVisionData().getLeftEyeData();
