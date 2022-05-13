@@ -61,10 +61,10 @@ public class DeviationDTO extends ScreeningResultBasicData {
         DeviationDTO deviationDTO = new DeviationDTO();
         deviationDTO.setVisionOrOptometryDeviation(deviationDO.getVisionOrOptometryDeviation());
         deviationDTO.setHeightWeightDeviation(deviationDO.getHeightWeightDeviation());
-        deviationDTO.setHeightWeightDeviationType(deviationDO.getHeightWeightDeviation().getType().getCode());
-        deviationDTO.setHeightWeightDeviationRemark(deviationDO.getHeightWeightDeviation().getRemark());
-        deviationDTO.setVisionOrOptometryDeviationType(deviationDO.getVisionOrOptometryDeviation().getType().getCode());
-        deviationDTO.setVisionOrOptometryDeviationRemark(deviationDO.getVisionOrOptometryDeviation().getRemark());
+        deviationDTO.setHeightWeightDeviationType(Objects.nonNull(deviationDO.getHeightWeightDeviation()) ? deviationDO.getHeightWeightDeviation().getType().getCode() : null);
+        deviationDTO.setHeightWeightDeviationRemark(Objects.nonNull(deviationDO.getHeightWeightDeviation()) ? deviationDO.getHeightWeightDeviation().getRemark() : null);
+        deviationDTO.setVisionOrOptometryDeviationType(Objects.nonNull(deviationDO.getVisionOrOptometryDeviation()) ? deviationDO.getVisionOrOptometryDeviation().getType().getCode() : null);
+        deviationDTO.setVisionOrOptometryDeviationRemark(Objects.nonNull(deviationDO.getVisionOrOptometryDeviation()) ? deviationDO.getVisionOrOptometryDeviation().getRemark() : null);
         return deviationDTO;
     }
 }
