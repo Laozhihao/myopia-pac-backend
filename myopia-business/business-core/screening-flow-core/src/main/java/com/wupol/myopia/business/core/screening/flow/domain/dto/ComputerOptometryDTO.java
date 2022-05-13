@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
@@ -49,6 +50,18 @@ public class ComputerOptometryDTO extends ScreeningResultBasicData {
     @JsonProperty("l_cyl")
     private BigDecimal lCyl;
 
+    /**
+     * 左眼等效球镜
+     */
+    @JsonProperty("l_se")
+    private BigDecimal lSe;
+
+    /**
+     * 左眼等效球镜
+     */
+    @JsonProperty("r_se")
+    private BigDecimal rSe;
+
     @Override
     public VisionScreeningResult buildScreeningResultData(VisionScreeningResult visionScreeningResult) {
         ComputerOptometryDO.ComputerOptometry leftComputerOptometry = new ComputerOptometryDO.ComputerOptometry().setAxial(lAxial).setCyl(lCyl).setSph(lSph).setLateriality(CommonConst.LEFT_EYE);
@@ -77,12 +90,15 @@ public class ComputerOptometryDTO extends ScreeningResultBasicData {
             computerOptometryDTO.setLAxial(leftEye.getAxial());
             computerOptometryDTO.setLCyl(leftEye.getCyl());
             computerOptometryDTO.setLSph(leftEye.getSph());
+            // 等效球镜= 球镜+（1/2）柱镜
+            computerOptometryDTO.setLSe(BigDecimalUtil.getBigDecimalByFormat(leftEye.getCyl().multiply(BigDecimal.valueOf(0.5)).add(leftEye.getSph()), 2));
         }
         ComputerOptometryDO.ComputerOptometry rightEye = computerOptometryDO.getRightEyeData();
         if (Objects.nonNull(rightEye)) {
             computerOptometryDTO.setRAxial(rightEye.getAxial());
             computerOptometryDTO.setRCyl(rightEye.getCyl());
             computerOptometryDTO.setRSph(rightEye.getSph());
+            computerOptometryDTO.setRSe(BigDecimalUtil.getBigDecimalByFormat(rightEye.getCyl().multiply(BigDecimal.valueOf(0.5)).add(rightEye.getSph()), 2));
         }
         computerOptometryDTO.setDiagnosis(computerOptometryDO.getDiagnosis());
         computerOptometryDTO.setIsCooperative(computerOptometryDO.getIsCooperative());

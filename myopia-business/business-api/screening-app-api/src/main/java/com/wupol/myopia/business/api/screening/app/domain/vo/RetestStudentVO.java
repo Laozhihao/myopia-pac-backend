@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.screening.app.domain.vo;
 
+import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDO;
@@ -64,7 +65,7 @@ public class RetestStudentVO {
     /**
      * 球镜
      */
-    private boolean leftSph;
+    private boolean leftSe;
     /**
      * 矫正视力误差
      */
@@ -77,7 +78,7 @@ public class RetestStudentVO {
     /**
      * 球镜
      */
-    private boolean rightSph;
+    private boolean rightSe;
     /**
      * 身高
      */
@@ -162,11 +163,14 @@ public class RetestStudentVO {
     public int checkComputerOptometry(ComputerOptometryDO.ComputerOptometry first, ComputerOptometryDO.ComputerOptometry second, RetestStudentVO retestStudentVO) {
         int count = 0;
         if (Objects.nonNull(first.getSph()) && Objects.nonNull(second.getSph())) {
-            if (first.getSph().subtract(second.getSph()).abs().compareTo(BigDecimal.valueOf(0.5)) >= 0) {
+            BigDecimal firstSe = BigDecimalUtil.getBigDecimalByFormat(first.getCyl().multiply(BigDecimal.valueOf(0.5)).add(first.getSph()), 2);
+            BigDecimal secondSe = BigDecimalUtil.getBigDecimalByFormat(second.getCyl().multiply(BigDecimal.valueOf(0.5)).add(second.getSph()), 2);
+            assert firstSe != null;
+            if (firstSe.subtract(secondSe).abs().compareTo(BigDecimal.valueOf(0.5)) >= 0) {
                 if (first.getLateriality() == 0) {
-                    retestStudentVO.setLeftSph(true);
+                    retestStudentVO.setLeftSe(true);
                 } else {
-                    retestStudentVO.setRightSph(true);
+                    retestStudentVO.setRightSe(true);
                 }
                 count += 1;
             }
