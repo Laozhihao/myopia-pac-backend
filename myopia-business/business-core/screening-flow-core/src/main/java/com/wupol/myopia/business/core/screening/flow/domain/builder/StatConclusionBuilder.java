@@ -128,11 +128,70 @@ public class StatConclusionBuilder {
         this.setRescreenErrorNum();
         this.setRescreenItemNum();
 
-        this.isReview();
         this.setPhysiqueRescreenErrorNum();
+        this.setReview();
+        this.setCooperative();
         return statConclusion;
 
         /******有待更新 常见病的结论******/
+    }
+
+    private void setCooperative() {
+        if (Objects.isNull(currentVisionScreeningResult)){
+            return;
+        }
+
+        Set<Integer> cooperativeSet = Sets.newHashSet();
+        //视力
+        VisionDataDO visionData = currentVisionScreeningResult.getVisionData();
+        if (Objects.nonNull(visionData)){
+            cooperativeSet.add(visionData.getIsCooperative());
+        }
+        //屈光
+        ComputerOptometryDO computerOptometry = currentVisionScreeningResult.getComputerOptometry();
+        if (Objects.nonNull(computerOptometry)){
+            cooperativeSet.add(computerOptometry.getIsCooperative());
+        }
+
+        if (Objects.equals(currentVisionScreeningResult.getScreeningType(),0)){
+            //生物测量
+            BiometricDataDO biometricData = currentVisionScreeningResult.getBiometricData();
+            cooperativeSet.add(biometricData.getIsCooperative());
+            //33cm眼位
+            OcularInspectionDataDO ocularInspectionData = currentVisionScreeningResult.getOcularInspectionData();
+            cooperativeSet.add(ocularInspectionData.getIsCooperative());
+            //眼压
+            EyePressureDataDO eyePressureData = currentVisionScreeningResult.getEyePressureData();
+            cooperativeSet.add(eyePressureData.getIsCooperative());
+            //眼底
+            FundusDataDO fundusData = currentVisionScreeningResult.getFundusData();
+            cooperativeSet.add(fundusData.getIsCooperative());
+            //裂隙灯检查
+            SlitLampDataDO slitLampData = currentVisionScreeningResult.getSlitLampData();
+            cooperativeSet.add(slitLampData.getIsCooperative());
+            //小瞳验光
+            PupilOptometryDataDO pupilOptometryData = currentVisionScreeningResult.getPupilOptometryData();
+            cooperativeSet.add(pupilOptometryData.getIsCooperative());
+            //盲及视力损害分类
+            VisualLossLevelDataDO visualLossLevelData = currentVisionScreeningResult.getVisualLossLevelData();
+            cooperativeSet.add(visualLossLevelData.getIsCooperative());
+        }
+
+        if (CollectionUtil.isNotEmpty(cooperativeSet)){
+            if (cooperativeSet.size() == 1) {
+                if (cooperativeSet.contains(0)){
+                    statConclusion.setIsCooperative(0);
+                }else {
+                    statConclusion.setIsCooperative(1);
+                }
+            }
+
+            if (cooperativeSet.size() == 2){
+                //只要有一个不配合，这条数据都是不配合
+                statConclusion.setIsCooperative(1);
+            }
+        }
+
     }
 
     /**
@@ -392,7 +451,7 @@ public class StatConclusionBuilder {
     /**
      * 复查
      */
-    private void isReview() {
+    private void setReview() {
         List<Boolean> isReviewList =Lists.newArrayList();
         Consumer<Boolean> consumerTrue = (flag) -> isReviewList.add(Objects.equals(Boolean.TRUE, flag));
         Consumer<Boolean> consumerFalse = (flag) -> isReviewList.add(Objects.equals(Boolean.FALSE, flag));
