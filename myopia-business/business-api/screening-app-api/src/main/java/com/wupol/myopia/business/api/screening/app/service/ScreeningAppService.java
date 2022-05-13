@@ -604,6 +604,7 @@ public class ScreeningAppService {
         if (finishCount >= classScreeningProgress.getNeedReScreeningCount()) {
             classScreeningProgress.setFinish(true);
         }
+        classScreeningProgress.setStudentScreeningProgressList(classScreeningProgress.getStudentScreeningProgressList().stream().sorted(Comparator.comparing(StudentScreeningProgressVO::getScreeningStatus)).collect(Collectors.toList()));
         return classScreeningProgress;
     }
 
