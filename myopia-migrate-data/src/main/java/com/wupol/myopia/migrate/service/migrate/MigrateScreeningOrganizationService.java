@@ -32,9 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * 迁移筛查机构数据
@@ -93,6 +91,55 @@ public class MigrateScreeningOrganizationService {
         return screeningOrganizationList;
     }
 
+
+    /**
+     * 保存筛查机构
+     *
+     * @param sysDept 筛查机构
+     * @return ScreeningOrganization 新机构
+     */
+    private ScreeningOrganization saveScreeningOrganization(SysDept sysDept) {
+        String name = getOrgName(sysDept.getSimpleName());
+        // 存在同名的机构，则不新增
+        ScreeningOrganization existScreeningOrg = screeningOrganizationService.findOne(new ScreeningOrganization().setName(name));
+        if (Objects.nonNull(existScreeningOrg)) {
+            return existScreeningOrg;
+        }
+        ScreeningOrganization screeningOrganization = getScreeningOrganization(sysDept);
+        screeningOrganizationService.save(screeningOrganization);
+        // 为筛查机构新增设备报告模板
+        DeviceReportTemplate template = deviceReportTemplateService.getSortFirstTemplate();
+        screeningOrgBindDeviceReportService.orgBindReportTemplate(template.getId(), screeningOrganization.getId(), screeningOrganization.getName());
+        // 生成账号密码
+        UsernameAndPasswordDTO usernameAndPasswordDTO = screeningOrganizationService.generateAccountAndPassword(screeningOrganization, ScreeningOrganizationService.PARENT_ACCOUNT, null);
+        // 生成TA筛查人员
+        ScreeningOrganizationStaffQueryDTO screeningOrganizationStaffQueryDTO = new ScreeningOrganizationStaffQueryDTO();
+        screeningOrganizationStaffQueryDTO.setScreeningOrgId(screeningOrganization.getId());
+        screeningOrganizationStaffQueryDTO.setCreateUserId(1);
+        screeningOrganizationStaffQueryDTO.setGovDeptId(1);
+        screeningOrganizationStaffQueryDTO.setType(ScreeningOrganizationStaff.AUTO_CREATE_SCREENING_PERSONNEL);
+        screeningOrganizationStaffQueryDTO.setRealName(ScreeningOrganizationStaff.AUTO_CREATE_STAFF_DEFAULT_NAME);
+        screeningOrganizationStaffQueryDTO.setUserName(usernameAndPasswordDTO.getUsername());
+        screeningOrganizationStaffService.saveOrganizationStaff(screeningOrganizationStaffQueryDTO);
+        // 同步到oauth机构状态
+        oauthServiceClient.addOrganization(new Organization(screeningOrganization.getId(), SystemCode.MANAGEMENT_CLIENT,
+                UserType.SCREENING_ORGANIZATION_ADMIN, screeningOrganization.getStatus()));
+        return screeningOrganization;
+    }
+
+    /**
+     * 获取机构名称，优先使用系统已经存在的筛查机构名
+     *
+     * @param oldName 机构名称
+     * @return java.lang.String
+     **/
+    private static String getOrgName(String oldName) {
+        Assert.hasText(oldName, "筛查机构名字不能为空");
+        Map<String, String> nameMap = new HashMap<>(2);
+        nameMap.put("昆明康特森眼科医院", "康特森");
+        return Optional.ofNullable(nameMap.get(oldName)).orElse(oldName);
+    }
+
     /**
      * 获取自动创建筛查人员的信息
      *
@@ -149,41 +196,5 @@ public class MigrateScreeningOrganizationService {
         ScreeningOrganizationAdmin orgAdmin = screeningOrganizationAdminService.getByOrgId(screeningOrgId);
         // 获取筛查最多的筛查人员名称作为质检人员名称
         return new ScreeningOrgAndStaffDO(oldOrgId, screeningOrgId, screeningOrgName, orgAdmin.getUserId(), districtId, screeningOrganizationStaff.getUserId());
-    }
-
-    /**
-     * 保存筛查机构
-     *
-     * @param sysDept 筛查机构
-     * @return ScreeningOrganization 新机构
-     */
-    private ScreeningOrganization saveScreeningOrganization(SysDept sysDept) {
-        String name = sysDept.getSimpleName();
-        Assert.hasText(name, "筛查机构名字不能为空");
-        // 存在同名的机构，则不新增
-        ScreeningOrganization existScreeningOrg = screeningOrganizationService.findOne(new ScreeningOrganization().setName(name));
-        if (Objects.nonNull(existScreeningOrg)) {
-            return existScreeningOrg;
-        }
-        ScreeningOrganization screeningOrganization = getScreeningOrganization(sysDept);
-        screeningOrganizationService.save(screeningOrganization);
-        // 为筛查机构新增设备报告模板
-        DeviceReportTemplate template = deviceReportTemplateService.getSortFirstTemplate();
-        screeningOrgBindDeviceReportService.orgBindReportTemplate(template.getId(), screeningOrganization.getId(), screeningOrganization.getName());
-        // 生成账号密码
-        UsernameAndPasswordDTO usernameAndPasswordDTO = screeningOrganizationService.generateAccountAndPassword(screeningOrganization, ScreeningOrganizationService.PARENT_ACCOUNT, null);
-        // 生成TA筛查人员
-        ScreeningOrganizationStaffQueryDTO screeningOrganizationStaffQueryDTO = new ScreeningOrganizationStaffQueryDTO();
-        screeningOrganizationStaffQueryDTO.setScreeningOrgId(screeningOrganization.getId());
-        screeningOrganizationStaffQueryDTO.setCreateUserId(1);
-        screeningOrganizationStaffQueryDTO.setGovDeptId(1);
-        screeningOrganizationStaffQueryDTO.setType(ScreeningOrganizationStaff.AUTO_CREATE_SCREENING_PERSONNEL);
-        screeningOrganizationStaffQueryDTO.setRealName(ScreeningOrganizationStaff.AUTO_CREATE_STAFF_DEFAULT_NAME);
-        screeningOrganizationStaffQueryDTO.setUserName(usernameAndPasswordDTO.getUsername());
-        screeningOrganizationStaffService.saveOrganizationStaff(screeningOrganizationStaffQueryDTO);
-        // 同步到oauth机构状态
-        oauthServiceClient.addOrganization(new Organization(screeningOrganization.getId(), SystemCode.MANAGEMENT_CLIENT,
-                UserType.SCREENING_ORGANIZATION_ADMIN, screeningOrganization.getStatus()));
-        return screeningOrganization;
     }
 }

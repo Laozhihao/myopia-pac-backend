@@ -22,6 +22,7 @@ import com.wupol.myopia.migrate.domain.dos.ScreeningDataDO;
 import com.wupol.myopia.migrate.domain.model.SysStudentEye;
 import com.wupol.myopia.migrate.domain.model.SysStudentEyeSimple;
 import com.wupol.myopia.migrate.service.SysStudentEyeService;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -42,6 +43,7 @@ import java.util.stream.Collectors;
  * @Author HaoHao
  * @Date 2022/3/27
  **/
+@Log4j2
 @Service
 public class StudentDataService {
 
@@ -88,12 +90,13 @@ public class StudentDataService {
 
         // 迁移过的，不再处理，节省时间
         if (screeningPlanSchoolStudentService.count(new ScreeningPlanSchoolStudent().setScreeningPlanId(planId).setSchoolId(newSchoolId)) > 0) {
+            log.warn("{}的所有学生 - 已经迁移到计划，不需要再处理，id={}", oneSchoolHalfYearStudentEyeList.get(0).getSchoolName(), newSchoolId);
             return;
         }
 
         // 转为Map，对于没有IdCard的走虚拟学生
         Map<Boolean, List<SysStudentEye>> isHasIdCardSysStudentEyeMap = sysStudentEyeList.stream()
-                .collect(Collectors.partitioningBy(x -> SysStudentEye.isValidCard(x.getStudentIdcard())));
+                .collect(Collectors.partitioningBy(x -> SysStudentEye.isValidIdCard(x.getStudentIdcard())));
         // 无身份证的
         List<Map<Integer, String>> noIdCardStudentInfoList = getNoIdCardStudentInfoList(isHasIdCardSysStudentEyeMap.get(false), newSchoolId, schoolAndGradeClassDO.getGradeMap(), schoolAndGradeClassDO.getClassMap(), screeningPlan);
         // 有身份证的

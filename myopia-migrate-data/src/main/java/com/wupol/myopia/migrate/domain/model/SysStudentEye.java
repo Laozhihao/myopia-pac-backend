@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.base.util.RegExpUtil;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ImportExcelEnum;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.util.IdCardUtil;
@@ -370,13 +371,16 @@ public class SysStudentEye implements Serializable {
         studentInfoMap.put(ImportExcelEnum.GRADE.getIndex(), getSchoolGrade());
         studentInfoMap.put(ImportExcelEnum.CLASS.getIndex(), getSchoolClazz());
         studentInfoMap.put(ImportExcelEnum.PHONE.getIndex(), PhoneUtil.isPhone(getStudentPhone()) ? getStudentPhone() : "");
-        if (SysStudentEye.isValidCard(getStudentIdcard())) {
+        // 有身份证就不必传出生日期
+        if (SysStudentEye.isValidIdCard(getStudentIdcard())) {
             studentInfoMap.put(ImportExcelEnum.ID_CARD.getIndex(), getStudentIdcard().toUpperCase());
+        } else if (StringUtils.isNotBlank(studentBirthday) && RegExpUtil.isDate(studentBirthday)){
+            studentInfoMap.put(ImportExcelEnum.BIRTHDAY.getIndex(), RegExpUtil.convertDate(studentBirthday));
         }
         return studentInfoMap;
     }
 
-    public static boolean isValidCard(String idCard) {
+    public static boolean isValidIdCard(String idCard) {
         if (StringUtils.isBlank(idCard)) {
             return false;
         }

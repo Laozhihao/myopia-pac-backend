@@ -1,6 +1,7 @@
 package com.wupol.myopia.migrate.service.migrate;
 
 import com.alibaba.fastjson.JSON;
+import com.wupol.myopia.base.constant.StatusConstant;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
@@ -208,9 +209,7 @@ public class MigrateSchoolAndGradeClassService {
                 .setAreaType(2)
                 .setMonitorType(1)
                 .setSchoolNo(schoolService.getLatestSchoolNo(areaDistrictCode.toString(), 2, 1))
-                .setName(sysSchool.getName());
-        schoolDTO.initCooperationInfo();
-        schoolDTO.setStatus(schoolDTO.getCooperationStopStatus());
+                .setName(sysSchool.getName()).setStatus(StatusConstant.DISABLE);
         return schoolDTO;
     }
 

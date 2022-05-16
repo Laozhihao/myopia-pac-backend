@@ -192,7 +192,7 @@ public class ScreeningDataService {
      * @return java.lang.Integer
      **/
     private Integer getPlanStudentId(SysStudentEye sysStudentEye, Map<String, Integer> certificateIdAndPlanStudentIdMap) {
-        if (SysStudentEye.isValidCard(sysStudentEye.getStudentIdcard())) {
+        if (SysStudentEye.isValidIdCard(sysStudentEye.getStudentIdcard())) {
             return certificateIdAndPlanStudentIdMap.get(sysStudentEye.getStudentIdcard().toUpperCase());
         }
         return certificateIdAndPlanStudentIdMap.get(sysStudentEye.getEyeId());

@@ -113,7 +113,7 @@ public class MigratePlanService {
                 .collect(Collectors.toList());
         screeningPlanDTO.setSchools(planSchoolList);
         // 获取已经存在的计划
-        ScreeningPlan existPlan = screeningPlanService.findOne(new ScreeningPlan().setTitle(screeningPlanDTO.getTitle()).setScreeningOrgId(screeningPlanDTO.getScreeningOrgId()).setDistrictId(screeningPlanDTO.getDistrictId()).setCreateUserId(screeningPlanDTO.getCreateUserId()));
+        ScreeningPlan existPlan = screeningPlanService.findOne(new ScreeningPlan().setTitle(screeningPlanDTO.getTitle()).setScreeningOrgId(screeningPlanDTO.getScreeningOrgId()).setDistrictId(screeningPlanDTO.getDistrictId()));
         if (Objects.nonNull(existPlan)) {
             screeningPlanDTO.setId(existPlan.getId());
         }
