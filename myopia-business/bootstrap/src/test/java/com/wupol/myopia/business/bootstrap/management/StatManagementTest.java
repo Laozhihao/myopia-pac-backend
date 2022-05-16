@@ -75,8 +75,6 @@ public class StatManagementTest {
             return;
         }
         Map<Boolean, VisionScreeningResult> visionScreeningResultMap = visionScreeningResults.stream().collect(Collectors.toMap(VisionScreeningResult::getIsDoubleScreen, Function.identity()));
-        CurrentUser user = new CurrentUser();
-        user.setClientId("1");
         VisionScreeningResult currentVisionScreeningResult = visionScreeningResultMap.get(Boolean.FALSE);
         if (Objects.nonNull(currentVisionScreeningResult)){
             log.info("初筛=========");
@@ -85,7 +83,7 @@ public class StatManagementTest {
                     .setStatConclusion(null)
                     .setScreeningPlanSchoolStudent(screeningPlanSchoolStudent)
                     .setGradeCode(schoolGrade.getGradeCode())
-                    .setCurrentUser(user)
+                    .setClientId("1")
                     .build();
             log.info(JSONObject.toJSONString(statConclusion,true));
         }
@@ -98,7 +96,7 @@ public class StatManagementTest {
                     .setStatConclusion(null)
                     .setScreeningPlanSchoolStudent(screeningPlanSchoolStudent)
                     .setGradeCode(schoolGrade.getGradeCode())
-                    .setCurrentUser(user)
+                    .setClientId("1")
                     .build();
             log.info(JSONObject.toJSONString(statConclusion,true));
         }

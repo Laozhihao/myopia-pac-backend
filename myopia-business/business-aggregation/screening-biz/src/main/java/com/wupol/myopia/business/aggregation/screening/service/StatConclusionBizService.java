@@ -91,7 +91,7 @@ public class StatConclusionBizService {
 
             List<CompletableFuture<Void>> completableFutureList = new ArrayList<>();
             mapList.forEach(list->{
-                CompletableFuture<Void> future = CompletableFuture.runAsync(() -> consumerMap(list,currentUser), asyncServiceExecutor);
+                CompletableFuture<Void> future = CompletableFuture.runAsync(() -> consumerMap(list,currentUser.getClientId()), asyncServiceExecutor);
                 completableFutureList.add(future);
             });
             CompletableFuture.allOf(completableFutureList.toArray(new CompletableFuture[mapList.size()])).join();
@@ -106,10 +106,10 @@ public class StatConclusionBizService {
         private Map<Integer, ScreeningPlanSchoolStudent> screeningPlanSchoolStudentMap;
         private Map<Integer, SchoolGrade> schoolGradeMap;
         private Map<String, StatConclusion> statConclusionMap;
-        private CurrentUser currentUser;
+        private String clientId;
     }
 
-    private void consumerMap(Map<Integer, List<VisionScreeningResult>> visionScreeningResultMap,CurrentUser currentUser) {
+    private void consumerMap(Map<Integer, List<VisionScreeningResult>> visionScreeningResultMap,String clientId) {
         if (CollectionUtil.isEmpty(visionScreeningResultMap)){
             return;
         }
@@ -120,7 +120,7 @@ public class StatConclusionBizService {
         Set<Integer> screeningPlanSchoolStudentIds = visionScreeningResultMap.values().stream().flatMap(List::stream).map(VisionScreeningResult::getScreeningPlanSchoolStudentId).collect(Collectors.toSet());
 
         DataProcessBO dataProcessBO = new DataProcessBO();
-        dataProcessBO.setCurrentUser(currentUser);
+        dataProcessBO.setClientId(clientId);
 
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getByIds(Lists.newArrayList(screeningPlanSchoolStudentIds));
         if (CollectionUtil.isNotEmpty(screeningPlanSchoolStudents)){
@@ -207,7 +207,7 @@ public class StatConclusionBizService {
                 .setStatConclusion(statConclusion)
                 .setScreeningPlanSchoolStudent(screeningPlanSchoolStudent)
                 .setGradeCode(schoolGradeCode)
-                .setCurrentUser(dataProcessBO.getCurrentUser())
+                .setClientId(dataProcessBO.getClientId())
                 .build();
         statConclusionList.add(statConclusion);
     }

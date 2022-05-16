@@ -287,7 +287,8 @@ public class ScreeningAppController {
     @PostMapping("/eye/addVision")
     public void addStudentVision(@Valid @RequestBody VisionDataDTO visionDataDTO) {
         if (visionDataDTO.isValid()) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(visionDataDTO);
+            CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+            visionScreeningBizService.saveOrUpdateStudentScreenData(visionDataDTO,currentUser.getClientId());
         }
     }
 
@@ -299,7 +300,8 @@ public class ScreeningAppController {
     @PostMapping("/eye/addComputer")
     public void addStudentComputer(@Valid @RequestBody ComputerOptometryDTO computerOptometryDTO) {
         if (computerOptometryDTO.isValid()) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(computerOptometryDTO);
+            CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+            visionScreeningBizService.saveOrUpdateStudentScreenData(computerOptometryDTO,currentUser.getClientId());
         }
     }
 
@@ -311,7 +313,8 @@ public class ScreeningAppController {
     @PostMapping("/eye/addBiology")
     public void addStudentBiology(@Valid @RequestBody BiometricDataDTO biometricDataDTO) {
         if (biometricDataDTO.isValid()) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(biometricDataDTO);
+            CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+            visionScreeningBizService.saveOrUpdateStudentScreenData(biometricDataDTO,currentUser.getClientId());
         }
     }
 
@@ -322,7 +325,8 @@ public class ScreeningAppController {
      */
     @PostMapping("/eye/addEyeDisease")
     public void addEyeDisease(@Valid @RequestBody OtherEyeDiseasesDTO otherEyeDiseasesDTO) {
-        visionScreeningBizService.saveOrUpdateStudentScreenData(otherEyeDiseasesDTO);
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        visionScreeningBizService.saveOrUpdateStudentScreenData(otherEyeDiseasesDTO,currentUser.getClientId());
     }
 
     /**
@@ -333,7 +337,8 @@ public class ScreeningAppController {
     @PostMapping("/eye/addMultiCheck")
     public void addMultiCheck(@Valid @RequestBody MultiCheckDataDTO multiCheckDataDTO) {
         if (multiCheckDataDTO.isValid()) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(multiCheckDataDTO);
+            CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+            visionScreeningBizService.saveOrUpdateStudentScreenData(multiCheckDataDTO,currentUser.getClientId());
         }
     }
 
@@ -345,7 +350,8 @@ public class ScreeningAppController {
     @PostMapping("/eye/addPupilOptometry")
     public void addPupilOptometry(@Valid @RequestBody PupilOptometryDTO pupilOptometryDTO) {
         if (pupilOptometryDTO.isValid()) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(pupilOptometryDTO);
+            CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+            visionScreeningBizService.saveOrUpdateStudentScreenData(pupilOptometryDTO,currentUser.getClientId());
         }
     }
 
@@ -357,7 +363,8 @@ public class ScreeningAppController {
     @PostMapping("/eye/addEyePressure")
     public void addEyePressure(@Valid @RequestBody EyePressureDataDTO eyePressureDataDTO) {
         if (eyePressureDataDTO.isValid()) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(eyePressureDataDTO);
+            CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+            visionScreeningBizService.saveOrUpdateStudentScreenData(eyePressureDataDTO,currentUser.getClientId());
         }
     }
 
@@ -369,7 +376,8 @@ public class ScreeningAppController {
     @PostMapping("/eye/addHeightAndWeight")
     public void addHeightAndWeight(@Valid @RequestBody HeightAndWeightDataDTO heightAndWeightDataDTO) {
         if (heightAndWeightDataDTO.isValid()) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(heightAndWeightDataDTO);
+            CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+            visionScreeningBizService.saveOrUpdateStudentScreenData(heightAndWeightDataDTO,currentUser.getClientId());
         }
     }
 

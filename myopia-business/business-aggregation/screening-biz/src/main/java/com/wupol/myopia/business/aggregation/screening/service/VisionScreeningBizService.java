@@ -65,11 +65,11 @@ public class VisionScreeningBizService {
      * 保存学生眼镜信息
      *
      * @param screeningResultBasicData
+     * @param clientId 客户端ID
      * @return 返回statconclusion
      */
     @Transactional(rollbackFor = Exception.class)
-    public TwoTuple<VisionScreeningResult, StatConclusion> saveOrUpdateStudentScreenData(ScreeningResultBasicData screeningResultBasicData) {
-        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+    public TwoTuple<VisionScreeningResult, StatConclusion> saveOrUpdateStudentScreenData(ScreeningResultBasicData screeningResultBasicData,String clientId) {
         TwoTuple<VisionScreeningResult, VisionScreeningResult> allFirstAndSecondResult = getAllFirstAndSecondResult(screeningResultBasicData);
         VisionScreeningResult currentVisionScreeningResult = allFirstAndSecondResult.getFirst();
         currentVisionScreeningResult = getScreeningResult(screeningResultBasicData, currentVisionScreeningResult);
@@ -77,7 +77,7 @@ public class VisionScreeningBizService {
         //更新vision_result表
         visionScreeningResultService.saveOrUpdateStudentScreenData(allFirstAndSecondResult.getFirst());
         //更新statConclusion表
-        StatConclusion statConclusion = statConclusionService.saveOrUpdateStudentScreenData(getScreeningConclusionResult(allFirstAndSecondResult,currentUser));
+        StatConclusion statConclusion = statConclusionService.saveOrUpdateStudentScreenData(getScreeningConclusionResult(allFirstAndSecondResult,clientId));
         // 更新是否绑定手机号码
         setIsBindMq(statConclusion);
         //更新学生表的数据
@@ -97,7 +97,7 @@ public class VisionScreeningBizService {
      * @param allFirstAndSecondResult
      * @return
      */
-    private StatConclusion getScreeningConclusionResult(TwoTuple<VisionScreeningResult, VisionScreeningResult> allFirstAndSecondResult,CurrentUser currentUser) {
+    private StatConclusion getScreeningConclusionResult(TwoTuple<VisionScreeningResult, VisionScreeningResult> allFirstAndSecondResult,String clientId) {
         VisionScreeningResult currentVisionScreeningResult = allFirstAndSecondResult.getFirst();
         VisionScreeningResult secondVisionScreeningResult = allFirstAndSecondResult.getSecond();
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getById(currentVisionScreeningResult.getScreeningPlanSchoolStudentId());
@@ -112,7 +112,7 @@ public class VisionScreeningBizService {
         statConclusion = statConclusionBuilder.setCurrentVisionScreeningResult(currentVisionScreeningResult,secondVisionScreeningResult).setStatConclusion(statConclusion)
                 .setScreeningPlanSchoolStudent(screeningPlanSchoolStudent)
                 .setGradeCode(schoolGrade.getGradeCode())
-                .setCurrentUser(currentUser)
+                .setClientId(clientId)
                 .build();
         return statConclusion;
     }
