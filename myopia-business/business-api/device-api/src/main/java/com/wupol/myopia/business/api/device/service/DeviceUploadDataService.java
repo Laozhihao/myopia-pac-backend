@@ -104,7 +104,7 @@ public class DeviceUploadDataService {
      *
      * @param deviceScreenDataDTOList
      */
-    public void updateOrSaveDeviceScreeningDatas2ScreeningResult(List<DeviceScreenDataDTO> deviceScreenDataDTOList) {
+    public void updateOrSaveDeviceScreeningDatas2ScreeningResult(List<DeviceScreenDataDTO> deviceScreenDataDTOList,String clientId) {
         deviceScreenDataDTOList = deviceScreenDataDTOList.stream().filter(DeviceUploadDataService::dealStudentId).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(deviceScreenDataDTOList)) {
             return;
@@ -121,7 +121,7 @@ public class DeviceUploadDataService {
                 throw new BusinessException("学生数据异常");
             }
             ComputerOptometryDTO computerOptometryDTO = getComputerOptometryDTO(deviceScreenDataDTO, screeningPlanSchoolStudent);
-            visionScreeningBizService.saveOrUpdateStudentScreenData(computerOptometryDTO);
+            visionScreeningBizService.saveOrUpdateStudentScreenData(computerOptometryDTO,clientId);
         });
     }
 
@@ -185,7 +185,7 @@ public class DeviceUploadDataService {
      * @param deviceUploadDto 上传数据
      */
     @Transactional(rollbackFor = Exception.class)
-    public void uploadDeviceData(DeviceUploadDTO deviceUploadDto) {
+    public void uploadDeviceData(DeviceUploadDTO deviceUploadDto,String clientId) {
         //先查找设备编码是否存在
         Device device = deviceService.getDeviceByDeviceSn(deviceUploadDto.getImei());
         //如果不存在报错
@@ -217,7 +217,7 @@ public class DeviceUploadDataService {
         List<DeviceScreenDataDTO> existDeviceSourceDataDTOs = deviceScreeningDataService.listBatchWithMutiConditions(bindingScreeningOrgId, deviceSn, deviceScreenDataDTOList);
         deviceScreeningDataService.updateOrAddDeviceScreeningDataList(device, getUpdateAndAddData(deviceScreenDataDTOList, bindingScreeningOrgId, deviceSn, existDeviceSourceDataDTOs));
         //更新或者插入学生筛查数据的数据
-        updateOrSaveDeviceScreeningDatas2ScreeningResult(deviceScreenDataDTOList);
+        updateOrSaveDeviceScreeningDatas2ScreeningResult(deviceScreenDataDTOList,clientId);
     }
 
     /**
@@ -272,7 +272,7 @@ public class DeviceUploadDataService {
      * @return ScalesResponseDTO
      */
     @Transactional(rollbackFor = Exception.class)
-    public ScalesResponseDTO bodyFatScaleUpload(ScalesRequestDTO requestDTO) {
+    public ScalesResponseDTO bodyFatScaleUpload(ScalesRequestDTO requestDTO,String clientId) {
         if (!StringUtils.equals("webResults", requestDTO.getAction())) {
             return new ScalesResponseDTO("0", "事件类型异常，请确认");
         }
@@ -303,7 +303,7 @@ public class DeviceUploadDataService {
                 return new ScalesResponseDTO("0", "身体质量指数值为空");
             }
             // 保存原始数据
-            saveDeviceData(device, JSONObject.toJSONString(data), parsePlanStudentId, screeningOrganization.getId(), new Date().getTime());
+            saveDeviceData(device, JSONObject.toJSONString(data), parsePlanStudentId, screeningOrganization.getId(), System.currentTimeMillis());
             HeightAndWeightDataDTO heightAndWeightDataDTO = new HeightAndWeightDataDTO();
             heightAndWeightDataDTO.setHeight(new BigDecimal(bmiData.getHeight()));
             heightAndWeightDataDTO.setWeight(new BigDecimal(bmiData.getWeight()));
@@ -312,7 +312,7 @@ public class DeviceUploadDataService {
             heightAndWeightDataDTO.setCreateUserId(-1);
             heightAndWeightDataDTO.setPlanStudentId(String.valueOf(planStudent.getId()));
             heightAndWeightDataDTO.setSchoolId(String.valueOf(planStudent.getSchoolId()));
-            visionScreeningBizService.saveOrUpdateStudentScreenData(heightAndWeightDataDTO);
+            visionScreeningBizService.saveOrUpdateStudentScreenData(heightAndWeightDataDTO,clientId);
         }
         return new ScalesResponseDTO("1", "success");
     }

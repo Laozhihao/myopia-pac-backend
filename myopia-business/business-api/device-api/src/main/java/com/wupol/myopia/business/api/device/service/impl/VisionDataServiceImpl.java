@@ -54,7 +54,7 @@ public class VisionDataServiceImpl implements IDeviceDataService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void uploadDate(DeviceDataRequestDTO requestDTO) {
+    public void uploadDate(DeviceDataRequestDTO requestDTO,String clientId) {
 
         String deviceSn = requestDTO.getDeviceSn();
         //先查找设备编码是否存在
@@ -80,7 +80,7 @@ public class VisionDataServiceImpl implements IDeviceDataService {
             // 保存原始数据
             deviceUploadDataService.saveDeviceData(device, dataStr, planStudentId, screeningOrganization.getId(), screeningTime);
             // 更新或新增筛查学生结果
-            saveOrUpdateScreeningResult(visionDataVO, planStudent);
+            saveOrUpdateScreeningResult(visionDataVO, planStudent,clientId);
         });
         log.info(JSONObject.toJSONString(requestDTO));
     }
@@ -96,7 +96,7 @@ public class VisionDataServiceImpl implements IDeviceDataService {
      * @param visionDataVO 上传数据实体
      * @param planStudent  筛查学生
      */
-    private void saveOrUpdateScreeningResult(VisionDataVO visionDataVO, ScreeningPlanSchoolStudent planStudent) {
+    private void saveOrUpdateScreeningResult(VisionDataVO visionDataVO, ScreeningPlanSchoolStudent planStudent,String clientId) {
         VisionDataDTO visionDataDTO = new VisionDataDTO();
         visionDataDTO.setRightNakedVision(StringUtils.isNotBlank(visionDataVO.getRightNakedVision()) ? new BigDecimal(visionDataVO.getRightNakedVision()) : null);
         visionDataDTO.setRightCorrectedVision(StringUtils.isNotBlank(visionDataVO.getRightCorrectedVision()) ? new BigDecimal(visionDataVO.getRightCorrectedVision()) : null);
@@ -120,6 +120,6 @@ public class VisionDataServiceImpl implements IDeviceDataService {
                 visionDataDTO.setGlassesType(WearingGlassesSituation.NOT_WEARING_GLASSES_TYPE);
             }
         }
-        visionScreeningBizService.saveOrUpdateStudentScreenData(visionDataDTO);
+        visionScreeningBizService.saveOrUpdateStudentScreenData(visionDataDTO,clientId);
     }
 }

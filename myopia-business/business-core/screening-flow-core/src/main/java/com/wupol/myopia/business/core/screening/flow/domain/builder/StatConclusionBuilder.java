@@ -52,7 +52,7 @@ public class StatConclusionBuilder {
     private final BigDecimal visionAndWeightRangeValue = new BigDecimal("0.1");
     private final BigDecimal seAndHeightRangeValue = new BigDecimal("0.5");
     private String gradeCode;
-    private CurrentUser currentUser;
+    private String clientId;
 
     private StatConclusionBuilder() {
 
@@ -80,8 +80,8 @@ public class StatConclusionBuilder {
         return this;
     }
 
-    public StatConclusionBuilder setCurrentUser(CurrentUser currentUser) {
-        this.currentUser = currentUser;
+    public StatConclusionBuilder setClientId(String clientId) {
+        this.clientId = clientId;
         return this;
     }
 
@@ -91,7 +91,7 @@ public class StatConclusionBuilder {
      * @return
      */
     public StatConclusion build() {
-        if (!ObjectsUtil.allNotNull(currentVisionScreeningResult, screeningPlanSchoolStudent, statConclusion,currentUser)) {
+        if (!ObjectsUtil.allNotNull(currentVisionScreeningResult, screeningPlanSchoolStudent, statConclusion,clientId)) {
             throw new ManagementUncheckedException("StatConclusion构建失败，缺少关键参数");
         }
         // 基本数据的准备
@@ -399,7 +399,6 @@ public class StatConclusionBuilder {
      * 屈光不正
      */
     private void setRefractiveError() {
-        String clientId = currentUser.getClientId();
         boolean zeroToSixPlatform = Objects.equals(SystemCode.PRESCHOOL_CLIENT.getCode() + StrUtil.EMPTY, clientId);
         Boolean leftRefractiveError = StatUtil.isRefractiveError(basicData.getLeftSph(),basicData.getLeftCyl(),basicData.getAge(),zeroToSixPlatform);
         Boolean rightRefractiveError = StatUtil.isRefractiveError(basicData.getRightSph(),basicData.getRightCyl(),basicData.getAge(),zeroToSixPlatform);
