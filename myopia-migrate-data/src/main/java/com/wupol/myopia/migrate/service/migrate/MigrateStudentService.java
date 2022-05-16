@@ -70,7 +70,7 @@ public class MigrateStudentService {
         Integer screeningStaffUserId = planAndStudentDO.getScreeningStaffUserId();
         // 逐个学校迁移
         pendingMigrateStudentEyeMap.forEach((oldSchoolId, oneSchoolHalfYearStudentEyeList) -> {
-            log.info("迁移学生-学校：{}", oneSchoolHalfYearStudentEyeList.get(0).getSchoolName());
+            log.info("【迁移学生】- 学校：{}", oneSchoolHalfYearStudentEyeList.get(0).getSchoolName());
             Integer newSchoolId = schoolAndGradeClassDO.getSchoolMap().get(oldSchoolId);
             // 计划中不存在该学校则不迁移数据
             if (Objects.isNull(newSchoolId)) {
@@ -78,7 +78,7 @@ public class MigrateStudentService {
             }
             // 筛查数据已迁移完成的，不再处理，节省时间
             if (visionScreeningResultService.count(new VisionScreeningResult().setPlanId(screeningPlan.getId()).setSchoolId(newSchoolId)) > 0) {
-                log.warn("{}的所有学生的筛查数据，都已经迁移完成，需要再处理，id={}", oneSchoolHalfYearStudentEyeList.get(0).getSchoolName(), newSchoolId);
+                log.warn("【{}】的所有学生的筛查数据，都已经迁移完成，不需要再处理，id={}", oneSchoolHalfYearStudentEyeList.get(0).getSchoolName(), newSchoolId);
                 return;
             }
             studentDataService.migrateStudent(screeningDataList, oneSchoolHalfYearStudentEyeList, screeningPlan, schoolAndGradeClassDO, newSchoolId, screeningStaffUserId);

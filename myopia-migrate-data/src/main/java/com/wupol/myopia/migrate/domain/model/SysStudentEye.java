@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.base.util.RegExpUtil;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ImportExcelEnum;
@@ -374,22 +375,32 @@ public class SysStudentEye implements Serializable {
         // 有身份证就不必传出生日期
         if (SysStudentEye.isValidIdCard(getStudentIdcard())) {
             studentInfoMap.put(ImportExcelEnum.ID_CARD.getIndex(), getStudentIdcard().toUpperCase());
-        } else if (StringUtils.isNotBlank(studentBirthday) && RegExpUtil.isDate(studentBirthday)){
+        } else if (isValidBirthday(studentBirthday)){
             studentInfoMap.put(ImportExcelEnum.BIRTHDAY.getIndex(), RegExpUtil.convertDate(studentBirthday).replace("-","/"));
         }
         return studentInfoMap;
     }
 
     public static boolean isValidIdCard(String idCard) {
-        if (StringUtils.isBlank(idCard)) {
-            return false;
-        }
-        if (!IdcardUtil.isValidCard(idCard)) {
+        if (StringUtils.isBlank(idCard) || !IdcardUtil.isValidCard(idCard)) {
             return false;
         }
         Date birthDay = IdCardUtil.getBirthDay(idCard);
         try {
             DateUtil.checkBirthday(birthDay);
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean isValidBirthday(String birthday) {
+        if (StringUtils.isBlank(birthday) || !RegExpUtil.isDate(birthday)) {
+            return false;
+        }
+        try {
+            Date date = DateFormatUtil.parseDate(RegExpUtil.convertDate(birthday), DateFormatUtil.FORMAT_ONLY_DATE);
+            DateUtil.checkBirthday(date);
         } catch (Exception e) {
             return false;
         }
