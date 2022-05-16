@@ -135,11 +135,9 @@ public class CredentialModificationHandler {
 
         //更新或者插入多端学生
         Student updateStudent = updateOrInsertByCredentialNO(processResult.getUpdateCredential(), existStudentByCredentialNO, updatePlanStudentRequestDTO, planSchoolStudentId);
-        if (updateStudent != null) {
-            screeningPlanSchoolStudent.setIdCard(updateStudent.getIdCard());
-            screeningPlanSchoolStudent.setPassport(updateStudent.getPassport());
-            screeningPlanSchoolStudent.setStudentId(updateStudent.getId());
-        }
+        screeningPlanSchoolStudent.setIdCard(updateStudent.getIdCard());
+        screeningPlanSchoolStudent.setPassport(updateStudent.getPassport());
+        screeningPlanSchoolStudent.setStudentId(updateStudent.getId());
         screeningPlanSchoolStudent.setClassName(schoolClassService.getById(updatePlanStudentRequestDTO.getClassId()).getName());
         screeningPlanSchoolStudent.setGradeName(schoolGradeService.getById(updatePlanStudentRequestDTO.getGradeId()).getName());
         screeningPlanSchoolStudentService.updateById(screeningPlanSchoolStudent);
@@ -196,6 +194,9 @@ public class CredentialModificationHandler {
      */
     private Student updateOrInsertByCredentialNO(CredentialTypeAndContent credentialTypeAndContent, Student existStudentByCredentialNO, UpdatePlanStudentRequestDTO updatePlanStudentRequestDTO, Integer planSchoolStudentId) {
         VisionScreeningResult result = visionScreeningResultService.getByPlanStudentId(planSchoolStudentId);
+        if (Objects.nonNull(result)) {
+            updatePlanStudentRequestDTO.setLastScreeningTime(result.getCreateTime());
+        }
         if (existStudentByCredentialNO == null) {
             //新增数据
             Student newStudent = createNewStudent(updatePlanStudentRequestDTO);
@@ -203,7 +204,6 @@ public class CredentialModificationHandler {
             commonImportServiceCopy.insertSchoolStudent(Collections.singletonList(newStudent));
             return newStudent;
         }
-        existStudentByCredentialNO.setLastScreeningTime(Objects.nonNull(result) ? result.getCreateTime() : null);
         return updateStudent(credentialTypeAndContent, existStudentByCredentialNO, updatePlanStudentRequestDTO);
     }
 
@@ -226,6 +226,7 @@ public class CredentialModificationHandler {
         student.setClassId(updatePlanStudentRequestDTO.getClassId());
         student.setGradeId(updatePlanStudentRequestDTO.getGradeId());
         student.setNation(updatePlanStudentRequestDTO.getNation());
+        student.setLastScreeningTime(updatePlanStudentRequestDTO.getLastScreeningTime());
         if (StringUtils.isNotBlank(updatePlanStudentRequestDTO.getParentPhone())) {
             student.setParentPhone(updatePlanStudentRequestDTO.getParentPhone());
         }
@@ -258,6 +259,7 @@ public class CredentialModificationHandler {
         student.setUpdateTime(new Date());
         student.setSourceClient(SourceClientEnum.SCREENING_PLAN.type);
         student.setNation(updatePlanStudentRequestDTO.getNation());
+        student.setLastScreeningTime(updatePlanStudentRequestDTO.getLastScreeningTime());
         studentService.saveStudent(student);
         return student;
     }
