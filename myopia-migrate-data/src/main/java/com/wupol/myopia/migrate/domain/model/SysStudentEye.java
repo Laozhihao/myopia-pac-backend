@@ -375,7 +375,7 @@ public class SysStudentEye implements Serializable {
         if (SysStudentEye.isValidIdCard(getStudentIdcard())) {
             studentInfoMap.put(ImportExcelEnum.ID_CARD.getIndex(), getStudentIdcard().toUpperCase());
         } else if (StringUtils.isNotBlank(studentBirthday) && RegExpUtil.isDate(studentBirthday)){
-            studentInfoMap.put(ImportExcelEnum.BIRTHDAY.getIndex(), RegExpUtil.convertDate(studentBirthday));
+            studentInfoMap.put(ImportExcelEnum.BIRTHDAY.getIndex(), RegExpUtil.convertDate(studentBirthday).replace("-","/"));
         }
         return studentInfoMap;
     }
