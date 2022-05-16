@@ -90,11 +90,9 @@ public class VisionScreeningBizService {
             verifyScreening(allFirstAndSecondResult.getFirst(), screeningPlan.getScreeningType() == 1);
         }
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = getScreeningPlanSchoolStudent(screeningResultBasicData);
-        if (screeningResultBasicData.getIsState() != 0) {
-            // 初筛数据清空未检查说明
-            screeningPlanSchoolStudent.setState(0);
-            screeningPlanSchoolStudentService.updateById(screeningPlanSchoolStudent);
-        }
+        // 初筛数据清空未检查说明
+        screeningPlanSchoolStudent.setState(0);
+        screeningPlanSchoolStudentService.updateById(screeningPlanSchoolStudent);
         // 设置类型，来自筛查计划
         currentVisionScreeningResult.setScreeningType(screeningPlan.getScreeningType());
         //更新vision_result表
