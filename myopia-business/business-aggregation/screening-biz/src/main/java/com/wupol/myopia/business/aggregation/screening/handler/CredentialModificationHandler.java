@@ -124,15 +124,17 @@ public class CredentialModificationHandler {
         if (screeningPlanSchoolStudent == null) {
             throw new BusinessException("业务异常,screeningPlanSchoolStudent 不能为空");
         }
-
+        Integer planSchoolStudentId = screeningPlanSchoolStudent.getId();
         if (StringUtils.isNotBlank(screeningPlanSchoolStudent.getIdCard()) && StringUtils.isNotBlank(screeningPlanSchoolStudent.getPassport())) {
-            throw new BusinessException("业务异常: id 和 passport同时存在, screeningPlanSchoolStudentId = " + screeningPlanSchoolStudent.getId());
+
+            throw new BusinessException("业务异常: id 和 passport同时存在, screeningPlanSchoolStudentId = " + planSchoolStudentId);
         }
         CredentialModificationHandler.ProcessResult processResult = getResult(screeningPlanSchoolStudent.getIdCard(), screeningPlanSchoolStudent.getPassport(), updatePlanStudentRequestDTO.getIdCard(), updatePlanStudentRequestDTO.getPassport());
         //从多端学生中查找数据
         Student existStudentByCredentialNO = getExistStudentByCredentialNO(processResult.getUpdateCredential());
+
         //更新或者插入多端学生
-        Student updateStudent = updateOrInsertByCredentialNO(processResult.getUpdateCredential(), existStudentByCredentialNO, updatePlanStudentRequestDTO);
+        Student updateStudent = updateOrInsertByCredentialNO(processResult.getUpdateCredential(), existStudentByCredentialNO, updatePlanStudentRequestDTO, planSchoolStudentId);
         if (updateStudent != null) {
             screeningPlanSchoolStudent.setIdCard(updateStudent.getIdCard());
             screeningPlanSchoolStudent.setPassport(updateStudent.getPassport());
@@ -188,15 +190,20 @@ public class CredentialModificationHandler {
      * @param credentialTypeAndContent
      * @param existStudentByCredentialNO
      * @param updatePlanStudentRequestDTO
+     * @param planSchoolStudentId
+     *
      * @return
      */
-    private Student updateOrInsertByCredentialNO(CredentialTypeAndContent credentialTypeAndContent, Student existStudentByCredentialNO, UpdatePlanStudentRequestDTO updatePlanStudentRequestDTO) {
+    private Student updateOrInsertByCredentialNO(CredentialTypeAndContent credentialTypeAndContent, Student existStudentByCredentialNO, UpdatePlanStudentRequestDTO updatePlanStudentRequestDTO, Integer planSchoolStudentId) {
+        VisionScreeningResult result = visionScreeningResultService.getByPlanStudentId(planSchoolStudentId);
         if (existStudentByCredentialNO == null) {
             //新增数据
             Student newStudent = createNewStudent(updatePlanStudentRequestDTO);
-            commonImportServiceCopy.insertSchoolStudent(Arrays.asList(newStudent));
+            newStudent.setLastScreeningTime(Objects.nonNull(result) ? result.getCreateTime() : null);
+            commonImportServiceCopy.insertSchoolStudent(Collections.singletonList(newStudent));
             return newStudent;
         }
+        existStudentByCredentialNO.setLastScreeningTime(Objects.nonNull(result) ? result.getCreateTime() : null);
         return updateStudent(credentialTypeAndContent, existStudentByCredentialNO, updatePlanStudentRequestDTO);
     }
 
