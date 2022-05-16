@@ -765,7 +765,8 @@ public class ScreeningAppController {
     @PostMapping("/saprodontia")
     public ApiResult addSaprodontia(@Valid @RequestBody SaprodontiaDTO saprodontiaDTO) {
         if (saprodontiaDTO.isValid()) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(saprodontiaDTO);
+            CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+            visionScreeningBizService.saveOrUpdateStudentScreenData(saprodontiaDTO,currentUser.getClientId());
             return ApiResult.success();
         } else {
             return ApiResult.failure("请输入正确的参数");
@@ -795,7 +796,8 @@ public class ScreeningAppController {
     @PostMapping("/spine")
     public ApiResult addSpine(@Valid @RequestBody SpineDTO spineDTO) {
         if (spineDTO.isValid()) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(spineDTO);
+            CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+            visionScreeningBizService.saveOrUpdateStudentScreenData(spineDTO,currentUser.getClientId());
             return ApiResult.success();
         } else {
             return ApiResult.failure("请输入正确的参数");
@@ -825,7 +827,8 @@ public class ScreeningAppController {
     @PostMapping("/bloodPressure")
     public ApiResult addBloodPressure(@Valid @RequestBody BloodPressureDTO bloodPressureDTO) {
         if (bloodPressureDTO.isValid()) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(bloodPressureDTO);
+            CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+            visionScreeningBizService.saveOrUpdateStudentScreenData(bloodPressureDTO,currentUser.getClientId());
             return ApiResult.success();
         } else {
             return ApiResult.failure("请输入正确的参数");
@@ -856,7 +859,8 @@ public class ScreeningAppController {
     @PostMapping("/diseasesHistory")
     public ApiResult addDiseasesHistory(@Valid @RequestBody DiseasesHistoryDTO diseasesHistoryDTO) {
         if (diseasesHistoryDTO.isValid()) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(diseasesHistoryDTO);
+            CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+            visionScreeningBizService.saveOrUpdateStudentScreenData(diseasesHistoryDTO,currentUser.getClientId());
             return ApiResult.success();
         } else {
             return ApiResult.failure("请输入正确的参数");
@@ -887,7 +891,8 @@ public class ScreeningAppController {
     @PostMapping("/privacy")
     public ApiResult addPrivacy(@Valid @RequestBody PrivacyDTO privacyDTO) {
         if (privacyDTO.isValid()) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(privacyDTO);
+            CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+            visionScreeningBizService.saveOrUpdateStudentScreenData(privacyDTO,currentUser.getClientId());
             return ApiResult.success();
         } else {
             return ApiResult.failure("请输入正确的参数");
@@ -956,7 +961,8 @@ public class ScreeningAppController {
             visionScreeningBizService.verifyScreening(screeningResult, screeningPlan.getScreeningType() == 1);
             // 只是复测数据
             deviationDTO.setIsState(1);
-            visionScreeningBizService.saveOrUpdateStudentScreenData(deviationDTO);
+            CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+            visionScreeningBizService.saveOrUpdateStudentScreenData(deviationDTO,currentUser.getClientId());
         }
     }
 
