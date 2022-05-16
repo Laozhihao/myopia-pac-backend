@@ -668,8 +668,8 @@ public class ScreeningAppService {
                 }).collect(Collectors.toList()));
         screeningProgressState.setErrorItemCount(screeningProgressState.getRetestStudents().stream().mapToInt(RetestStudentVO::getErrorItemCount).sum());
         screeningProgressState.setRetestItemCount(screeningProgressState.getRetestStudents().stream().mapToInt(RetestStudentVO::getRetestItemCount).sum());
-        screeningProgressState.setErrorRatio(screeningProgressState.getRetestItemCount() == 0 ? BigDecimal.ZERO : new BigDecimal(screeningProgressState.getErrorItemCount()).divide(new BigDecimal(screeningProgressState.getRetestItemCount()), 4, BigDecimal.ROUND_UP));
-        screeningProgressState.setRetestRatio(new BigDecimal(screeningProgressState.getRetestStudents().size()).divide(new BigDecimal(screeningProgressState.getScreeningCount()), 4, BigDecimal.ROUND_UP));
+        screeningProgressState.setErrorRatio(screeningProgressState.getRetestItemCount() == 0 ? BigDecimal.ZERO : new BigDecimal(screeningProgressState.getErrorItemCount()).divide(new BigDecimal(screeningProgressState.getRetestItemCount()), 4, BigDecimal.ROUND_HALF_UP));
+        screeningProgressState.setRetestRatio(new BigDecimal(screeningProgressState.getRetestStudents().size()).divide(new BigDecimal(screeningProgressState.getScreeningCount()), 4, BigDecimal.ROUND_HALF_UP));
         screeningProgressState.setReScreeningCount(screeningProgressState.getRetestStudents().size());
         return screeningProgressState;
     }
