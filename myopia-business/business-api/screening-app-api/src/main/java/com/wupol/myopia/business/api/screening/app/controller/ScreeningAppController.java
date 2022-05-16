@@ -506,7 +506,7 @@ public class ScreeningAppController {
     public ClassScreeningProgress getClassScreeningProgress(@NotNull(message = "学校ID不能为空") Integer schoolId,
                                                             @NotNull(message = "年级ID不能为空") Integer gradeId,
                                                             @NotNull(message = "班级ID不能为空") Integer classId,
-                                                            @NotNull(message = "初筛标志") Integer isState,
+                                                            @RequestParam(value = "isState", defaultValue = "0") Integer isState,
                                                             Boolean isFilter,
                                                             @RequestParam(value = "channel", defaultValue = "0") Integer channel) {
         return screeningAppService.getClassScreeningProgress(schoolId, gradeId, classId, CurrentUserUtil.getCurrentUser().getOrgId(), isFilter, isState, channel);
