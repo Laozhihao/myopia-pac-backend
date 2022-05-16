@@ -1,6 +1,8 @@
 package com.wupol.myopia.migrate.service.migrate;
 
 import com.alibaba.fastjson.JSON;
+import com.wupol.myopia.base.constant.CooperationTimeTypeEnum;
+import com.wupol.myopia.base.constant.CooperationTypeEnum;
 import com.wupol.myopia.base.constant.StatusConstant;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
@@ -20,6 +22,7 @@ import com.wupol.myopia.migrate.domain.model.SysStudentEye;
 import com.wupol.myopia.migrate.service.SysSchoolService;
 import com.wupol.myopia.migrate.service.SysStudentEyeService;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -28,10 +31,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import javax.validation.constraints.NotBlank;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -209,7 +209,13 @@ public class MigrateSchoolAndGradeClassService {
                 .setAreaType(2)
                 .setMonitorType(1)
                 .setSchoolNo(schoolService.getLatestSchoolNo(areaDistrictCode.toString(), 2, 1))
-                .setName(sysSchool.getName()).setStatus(StatusConstant.DISABLE);
+                .setName(sysSchool.getName());
+        Date date = new Date();
+        schoolDTO.setCooperationType(CooperationTypeEnum.COOPERATION_TYPE_TRY_OUT.getType())
+                .setCooperationTimeType(CooperationTimeTypeEnum.COOPERATION_TIME_TYPE_30_DAY.getType())
+                .setCooperationStartTime(DateUtils.addDays(date, -30))
+                .setCooperationEndTime(date)
+                .setStatus(StatusConstant.DISABLE);
         return schoolDTO;
     }
 

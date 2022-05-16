@@ -120,7 +120,7 @@ public class MigrateScreeningOrganizationService {
         return screeningOrganization;
     }
 
-    private ScreeningOrganizationStaffQueryDTO createAutoStaff(Integer orgId, String userName) {
+    private void createAutoStaff(Integer orgId, String userName) {
         ScreeningOrganizationStaffQueryDTO screeningOrganizationStaffQueryDTO = new ScreeningOrganizationStaffQueryDTO();
         screeningOrganizationStaffQueryDTO.setScreeningOrgId(orgId);
         screeningOrganizationStaffQueryDTO.setCreateUserId(1);
@@ -129,7 +129,6 @@ public class MigrateScreeningOrganizationService {
         screeningOrganizationStaffQueryDTO.setRealName(ScreeningOrganizationStaff.AUTO_CREATE_STAFF_DEFAULT_NAME);
         screeningOrganizationStaffQueryDTO.setUserName(userName);
         screeningOrganizationStaffService.saveOrganizationStaff(screeningOrganizationStaffQueryDTO);
-        return screeningOrganizationStaffQueryDTO;
     }
 
     /**
