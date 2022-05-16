@@ -113,18 +113,23 @@ public class MigrateScreeningOrganizationService {
         // 生成账号密码
         UsernameAndPasswordDTO usernameAndPasswordDTO = screeningOrganizationService.generateAccountAndPassword(screeningOrganization, ScreeningOrganizationService.PARENT_ACCOUNT, null);
         // 生成TA筛查人员
-        ScreeningOrganizationStaffQueryDTO screeningOrganizationStaffQueryDTO = new ScreeningOrganizationStaffQueryDTO();
-        screeningOrganizationStaffQueryDTO.setScreeningOrgId(screeningOrganization.getId());
-        screeningOrganizationStaffQueryDTO.setCreateUserId(1);
-        screeningOrganizationStaffQueryDTO.setGovDeptId(1);
-        screeningOrganizationStaffQueryDTO.setType(ScreeningOrganizationStaff.AUTO_CREATE_SCREENING_PERSONNEL);
-        screeningOrganizationStaffQueryDTO.setRealName(ScreeningOrganizationStaff.AUTO_CREATE_STAFF_DEFAULT_NAME);
-        screeningOrganizationStaffQueryDTO.setUserName(usernameAndPasswordDTO.getUsername());
-        screeningOrganizationStaffService.saveOrganizationStaff(screeningOrganizationStaffQueryDTO);
+        createAutoStaff(screeningOrganization.getId(), usernameAndPasswordDTO.getUsername());
         // 同步到oauth机构状态
         oauthServiceClient.addOrganization(new Organization(screeningOrganization.getId(), SystemCode.MANAGEMENT_CLIENT,
                 UserType.SCREENING_ORGANIZATION_ADMIN, screeningOrganization.getStatus()));
         return screeningOrganization;
+    }
+
+    private ScreeningOrganizationStaffQueryDTO createAutoStaff(Integer orgId, String userName) {
+        ScreeningOrganizationStaffQueryDTO screeningOrganizationStaffQueryDTO = new ScreeningOrganizationStaffQueryDTO();
+        screeningOrganizationStaffQueryDTO.setScreeningOrgId(orgId);
+        screeningOrganizationStaffQueryDTO.setCreateUserId(1);
+        screeningOrganizationStaffQueryDTO.setGovDeptId(1);
+        screeningOrganizationStaffQueryDTO.setType(ScreeningOrganizationStaff.AUTO_CREATE_SCREENING_PERSONNEL);
+        screeningOrganizationStaffQueryDTO.setRealName(ScreeningOrganizationStaff.AUTO_CREATE_STAFF_DEFAULT_NAME);
+        screeningOrganizationStaffQueryDTO.setUserName(userName);
+        screeningOrganizationStaffService.saveOrganizationStaff(screeningOrganizationStaffQueryDTO);
+        return screeningOrganizationStaffQueryDTO;
     }
 
     /**
@@ -151,7 +156,13 @@ public class MigrateScreeningOrganizationService {
         ScreeningOrganizationStaff screeningOrganizationStaff = new ScreeningOrganizationStaff()
                 .setScreeningOrgId(screeningOrgId)
                 .setType(ScreeningOrganizationStaff.AUTO_CREATE_SCREENING_PERSONNEL);
-        return screeningOrganizationStaffService.findOne(screeningOrganizationStaff);
+        ScreeningOrganizationStaff orgStaff = screeningOrganizationStaffService.findOne(screeningOrganizationStaff);
+        if (Objects.nonNull(orgStaff)) {
+            return orgStaff;
+        }
+        // 降级处理
+        List<ScreeningOrganizationStaff> staffList = screeningOrganizationStaffService.findByList(new ScreeningOrganizationStaff().setScreeningOrgId(screeningOrgId));
+        return staffList.get(0);
     }
 
     /**
