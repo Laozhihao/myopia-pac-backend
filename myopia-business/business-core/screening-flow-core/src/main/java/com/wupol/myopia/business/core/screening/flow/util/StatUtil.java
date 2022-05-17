@@ -1,16 +1,16 @@
 package com.wupol.myopia.business.core.screening.flow.util;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.constant.SchoolEnum;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.experimental.UtilityClass;
@@ -97,6 +97,54 @@ public class StatUtil {
             }
             return heightAndWeightData.valid() && isCompletedData(visionData,computerOptometry);
         }
+    }
+
+    /**
+     * 是否配合检查：0-配合、1-不配合
+     */
+    public static Integer isCooperative(VisionScreeningResult visionScreeningResult) {
+        if (Objects.isNull(visionScreeningResult)){
+            return null;
+        }
+
+        Set<Integer> cooperativeSet = Sets.newHashSet();
+        //视力
+        Optional.ofNullable(visionScreeningResult.getVisionData()).ifPresent(visionData-> cooperativeSet.add(visionData.getIsCooperative()));
+
+        //屈光
+        Optional.ofNullable(visionScreeningResult.getComputerOptometry()).ifPresent(computerOptometry-> cooperativeSet.add(computerOptometry.getIsCooperative()));
+
+        if (Objects.equals(visionScreeningResult.getScreeningType(),0)){
+            //生物测量
+            Optional.ofNullable(visionScreeningResult.getBiometricData()).ifPresent(biometricData-> cooperativeSet.add(biometricData.getIsCooperative()));
+            //33cm眼位
+            Optional.ofNullable(visionScreeningResult.getOcularInspectionData()).ifPresent(ocularInspectionData-> cooperativeSet.add(ocularInspectionData.getIsCooperative()));
+            //眼压
+            Optional.ofNullable(visionScreeningResult.getEyePressureData()).ifPresent(eyePressureData-> cooperativeSet.add(eyePressureData.getIsCooperative()));
+            //眼底
+            Optional.ofNullable(visionScreeningResult.getFundusData()).ifPresent(fundusData-> cooperativeSet.add(fundusData.getIsCooperative()));
+            //裂隙灯检查
+            Optional.ofNullable(visionScreeningResult.getSlitLampData()).ifPresent(slitLampData-> cooperativeSet.add(slitLampData.getIsCooperative()));
+            //小瞳验光
+            Optional.ofNullable(visionScreeningResult.getPupilOptometryData()).ifPresent(pupilOptometryData-> cooperativeSet.add(pupilOptometryData.getIsCooperative()));
+            //盲及视力损害分类
+            Optional.ofNullable(visionScreeningResult.getVisualLossLevelData()).ifPresent(visualLossLevelData-> cooperativeSet.add(visualLossLevelData.getIsCooperative()));
+        }
+
+        if (CollectionUtil.isNotEmpty(cooperativeSet)){
+            if (cooperativeSet.size() == 1) {
+                if (cooperativeSet.contains(0)){
+                    return 0;
+                }else {
+                    return 1;
+                }
+            }
+            if (cooperativeSet.size() == 2){
+                //只要有一个不配合，这条数据都是不配合
+                return 1;
+            }
+        }
+        return null;
     }
 
     /**
