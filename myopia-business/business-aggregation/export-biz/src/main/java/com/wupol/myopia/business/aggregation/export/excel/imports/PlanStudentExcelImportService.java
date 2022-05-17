@@ -160,7 +160,7 @@ public class PlanStudentExcelImportService {
             String passport = item.get(ImportExcelEnum.PASSPORT.getIndex());
             String phone = item.get(ImportExcelEnum.PHONE.getIndex());
             String sno = item.get(ImportExcelEnum.STUDENT_NO.getIndex());
-            Integer gender = StringUtils.isBlank(item.get(ImportExcelEnum.GENDER.getIndex())) ? IdCardUtil.getGender(item.get(ImportExcelEnum.ID_CARD.getIndex())) : GenderEnum.getType(item.get(ImportExcelEnum.GENDER.getIndex()));
+            Integer gender = StringUtils.isNotBlank(item.get(ImportExcelEnum.ID_CARD.getIndex())) ? IdCardUtil.getGender(item.get(ImportExcelEnum.ID_CARD.getIndex())) : GenderEnum.getType(item.get(ImportExcelEnum.GENDER.getIndex()));
             String studentName = item.get(ImportExcelEnum.NAME.getIndex());
             Integer nation = StringUtils.isBlank(item.get(ImportExcelEnum.NATION.getIndex())) ? null : NationEnum.getCode(item.get(ImportExcelEnum.NATION.getIndex()));
             Date birthday;
@@ -310,7 +310,7 @@ public class PlanStudentExcelImportService {
     private UnbindScreeningStudentDTO checkCredentialInfo(String idCard, String passport, ScreeningPlanSchoolStudent planSchoolStudent, String sno, Integer gender, String studentName, Integer nation, Date birthday, TwoTuple<Integer, Integer> gradeClassInfo, School school, String phone, Integer gradeType) {
         String oldIdCard = planSchoolStudent.getIdCard();
         String oldPassport = planSchoolStudent.getPassport();
-        if ((StringUtils.isNoneBlank(idCard, oldIdCard) && !StringUtils.equals(idCard, oldIdCard)) || StringUtils.isNoneBlank(passport, oldPassport) && !StringUtils.equals(passport, oldPassport)) {
+        if ((StringUtils.isNoneBlank(idCard, oldIdCard) && !StringUtils.equalsIgnoreCase(idCard, oldIdCard)) || StringUtils.isNoneBlank(passport, oldPassport) && !StringUtils.equals(passport, oldPassport)) {
             packagePlanStudent(idCard, passport, sno, gender, studentName, nation, birthday, gradeClassInfo, planSchoolStudent, phone, school, gradeType);
             return new UnbindScreeningStudentDTO(oldIdCard, oldPassport, planSchoolStudent);
         }
@@ -442,7 +442,7 @@ public class PlanStudentExcelImportService {
      * 设置多端学生
      */
     private void packageManagementStudent(String idCard, String passport, String sno, Integer gender, String studentName, Integer nation, Date birthday, TwoTuple<Integer, Integer> gradeClassInfo, Integer gradeType, Integer userId, Integer schoolId, Student student, String phone) {
-        student.setIdCard(idCard);
+        student.setIdCard(Optional.ofNullable(idCard).map(String::toUpperCase).orElse(null));
         student.setPassport(passport);
         student.setName(studentName);
         student.setBirthday(birthday);
@@ -461,7 +461,7 @@ public class PlanStudentExcelImportService {
      * 设置计划学生
      */
     private void packagePlanStudent(String idCard, String passport, String sno, Integer gender, String studentName, Integer nation, Date birthday, TwoTuple<Integer, Integer> gradeClassInfo, ScreeningPlanSchoolStudent planStudent, String phone, School school, Integer gradeType) {
-        planStudent.setIdCard(idCard);
+        planStudent.setIdCard(Optional.ofNullable(idCard).map(String::toUpperCase).orElse(null));
         planStudent.setPassport(passport);
         planStudent.setStudentName(studentName);
         planStudent.setBirthday(birthday);
@@ -484,7 +484,7 @@ public class PlanStudentExcelImportService {
      * @param planStudent 计划学生
      */
     private void packagePlanStudentByStudent(Student student, ScreeningPlanSchoolStudent planStudent) {
-        planStudent.setIdCard(student.getIdCard());
+        planStudent.setIdCard(Optional.ofNullable(student.getIdCard()).map(String::toUpperCase).orElse(null));
         planStudent.setPassport(student.getPassport());
         planStudent.setStudentName(student.getName());
         planStudent.setBirthday(student.getBirthday());
@@ -583,7 +583,7 @@ public class PlanStudentExcelImportService {
     private Student getStudent(Map<String, Student> existManagementStudentIdCardMap, Map<String, Student> existManagementStudentPassportMap, String idCard, String passport) {
         Student student;
         if (Objects.nonNull(idCard)) {
-            student = existManagementStudentIdCardMap.get(idCard);
+            student = Optional.ofNullable(existManagementStudentIdCardMap.get(idCard.toUpperCase())).orElse(existManagementStudentIdCardMap.get(idCard.toLowerCase()));
         } else {
             student = existManagementStudentPassportMap.get(passport);
         }
@@ -606,7 +606,7 @@ public class PlanStudentExcelImportService {
     private ScreeningPlanSchoolStudent getPlanStudent(Map<String, ScreeningPlanSchoolStudent> existPlanStudentIdCardMap, Map<String, ScreeningPlanSchoolStudent> existPlanStudentPassportMap, String idCard, String passport) {
         ScreeningPlanSchoolStudent planSchoolStudent;
         if (Objects.nonNull(idCard)) {
-            planSchoolStudent = existPlanStudentIdCardMap.get(idCard);
+            planSchoolStudent = Optional.ofNullable(existPlanStudentIdCardMap.get(idCard.toUpperCase())).orElse(existPlanStudentIdCardMap.get(idCard.toLowerCase()));
         } else {
             planSchoolStudent = existPlanStudentPassportMap.get(passport);
         }

@@ -17,6 +17,7 @@
         <module>business-aggregation</module>
         <module>common-utils</module>
         <module>bootstrap</module>
+        <module>business-sdk</module>
     </modules>
 
     <properties>
