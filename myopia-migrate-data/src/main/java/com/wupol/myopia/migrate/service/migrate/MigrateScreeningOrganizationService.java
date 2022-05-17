@@ -105,6 +105,7 @@ public class MigrateScreeningOrganizationService {
         if (Objects.nonNull(existScreeningOrg)) {
             return existScreeningOrg;
         }
+        sysDept.setSimpleName(name);
         ScreeningOrganization screeningOrganization = getScreeningOrganization(sysDept);
         screeningOrganizationService.save(screeningOrganization);
         // 为筛查机构新增设备报告模板

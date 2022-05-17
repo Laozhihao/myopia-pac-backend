@@ -219,14 +219,9 @@ public class MigrateSchoolAndGradeClassService {
         return schoolDTO;
     }
 
-    private Integer getSchoolType(String sysSchoolState, String schoolName) {
+    private static Integer getSchoolType(String sysSchoolState, String schoolName) {
         if (!StringUtils.hasText(sysSchoolState)) {
-            if (schoolName.contains("小学")) {
-                return SchoolEnum.TYPE_PRIMARY.getType();
-            } else if (schoolName.contains("幼儿园")) {
-                return SchoolEnum.TYPE_KINDERGARTEN.getType();
-            }
-            return SchoolEnum.TYPE_OTHER.getType();
+            return getSchoolTypeBySchoolName(schoolName);
         }
         sysSchoolState = sysSchoolState.trim();
         if ("幼儿园".equals(sysSchoolState)) {
@@ -239,16 +234,25 @@ public class MigrateSchoolAndGradeClassService {
             return SchoolEnum.TYPE_HIGH.getType();
         } else if ("职高".equals(sysSchoolState)) {
             return SchoolEnum.TYPE_VOCATIONAL.getType();
+        } else if ("幼儿园,小学".equals(sysSchoolState)) {
+            return SchoolEnum.TYPE_PRIMARY.getType();
         } else if ("小学,初中".equals(sysSchoolState)) {
             return SchoolEnum.TYPE_9.getType();
         } else if ("小学,初中,高中".equals(sysSchoolState)) {
             return SchoolEnum.TYPE_12.getType();
         } else if ("初中,高中".equals(sysSchoolState)) {
             return SchoolEnum.TYPE_INTEGRATED_MIDDLE.getType();
-        } else if (schoolName.contains("小学")) {
+        }
+        return getSchoolTypeBySchoolName(schoolName);
+    }
+
+    private static Integer getSchoolTypeBySchoolName(String schoolName) {
+        if (schoolName.contains("小学")) {
             return SchoolEnum.TYPE_PRIMARY.getType();
         } else if (schoolName.contains("幼儿园")) {
             return SchoolEnum.TYPE_KINDERGARTEN.getType();
+        } else if (schoolName.contains("小")) {
+            return SchoolEnum.TYPE_PRIMARY.getType();
         }
         return SchoolEnum.TYPE_OTHER.getType();
     }
