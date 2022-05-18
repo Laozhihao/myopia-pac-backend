@@ -454,8 +454,8 @@ public class StatConclusionCheck {
                         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = tuple.getFirst();
                         VisionScreeningResult visionScreeningResult = tuple.getSecond();
                         BasicData basicData = dealWithData(visionScreeningResult.getVisionData(), visionScreeningResult.getComputerOptometry());
-                        MyopiaLevelEnum leftMyopiaLevel = StatUtil.getMyopiaLevel(basicData.leftSph, basicData.leftCyl, screeningPlanSchoolStudent.getStudentAge(), basicData.leftNakedVision);
-                        MyopiaLevelEnum rightMyopiaLevel = StatUtil.getMyopiaLevel(basicData.rightSph,basicData.rightCyl, screeningPlanSchoolStudent.getStudentAge(),basicData.rightNakedVision);
+                        MyopiaLevelEnum leftMyopiaLevel = StatUtil.getMyopiaLevel(basicData.leftSph, basicData.leftCyl);
+                        MyopiaLevelEnum rightMyopiaLevel = StatUtil.getMyopiaLevel(basicData.rightSph,basicData.rightCyl);
                         Integer seriousLevel = StatUtil.getSeriousLevel(leftMyopiaLevel, rightMyopiaLevel);
                         return TwoTuple.of(screeningPlanSchoolStudent.getId(), seriousLevel);
                     }).collect(Collectors.toList());

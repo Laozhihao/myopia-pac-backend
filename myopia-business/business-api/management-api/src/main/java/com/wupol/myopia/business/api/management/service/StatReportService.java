@@ -1450,11 +1450,9 @@ public class StatReportService {
                 x -> MyopiaLevelEnum.MYOPIA_LEVEL_EARLY.code.equals(x.getMyopiaLevel());
         Predicate<StatConclusion> levelOnePredicate =
                 x -> MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.code.equals(x.getMyopiaLevel());
-        Predicate<StatConclusion> levelTwoPredicate =
-                x -> MyopiaLevelEnum.MYOPIA_LEVEL_MIDDLE.code.equals(x.getMyopiaLevel());
         Predicate<StatConclusion> levelThreePredicate =
                 x -> MyopiaLevelEnum.MYOPIA_LEVEL_HIGH.code.equals(x.getMyopiaLevel());
-        return composeMyopiaLevelStat(name, statConclusions, levelEarlyPredicate, levelOnePredicate, levelTwoPredicate, levelThreePredicate);
+        return composeMyopiaLevelStat(name, statConclusions, levelEarlyPredicate, levelOnePredicate, null, levelThreePredicate);
     }
 
     /**
