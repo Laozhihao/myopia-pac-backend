@@ -9,9 +9,21 @@ package com.wupol.myopia.business.core.screening.flow.constant;
  */
 public class ReScreenConstant {
     /**
-     *  复测项
+     *  复测项(常见病-佩戴眼镜)
      */
-    public static final Integer RESCREEN_NUM = 8;
+    public static final Integer COMMON_RESCREEN_IS_GLASS_NUM = 8;
+    /**
+     *  复测项(常见病-没有佩戴眼镜)
+     */
+    public static final Integer COMMON_RESCREEN_NOT_GLASS_NUM = 6;
+    /**
+     *  复测项(视力-佩戴眼镜)
+     */
+    public static final Integer VISION_RESCREEN_IS_GLASS_NUM = 6;
+    /**
+     *  复测项（视力-没有佩戴眼镜）
+     */
+    public static final Integer VISION_RESCREEN_NOT_GLASS_NUM = 4;
     /**
      * 视力验光误差标准（行）
      */
