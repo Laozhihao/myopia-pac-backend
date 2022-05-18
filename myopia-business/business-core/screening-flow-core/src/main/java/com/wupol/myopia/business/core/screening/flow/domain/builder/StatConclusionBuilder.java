@@ -751,7 +751,7 @@ public class StatConclusionBuilder {
         if (ObjectsUtil.hasNull(current, another)) {
             return 0;
         }
-        return inRange(current.getHeight(), another.getHeight(), new BigDecimal("0.5"))
-                + inRange(current.getWeight(), another.getWeight(), new BigDecimal("0.1"));
+        return StatUtil.inRange(current.getHeight(), another.getHeight(), new BigDecimal("0.5"))
+                + StatUtil.inRange(current.getWeight(), another.getWeight(), new BigDecimal("0.1"));
     }
 }
