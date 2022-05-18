@@ -496,9 +496,9 @@ public class StatConclusionBuilder {
     private void malnutrition(BigDecimal bmi,BigDecimal height,String age){
         Boolean wasting = StatUtil.isWasting(bmi, age, screeningPlanSchoolStudent.getGender());
         Boolean stunting = StatUtil.isStunting(screeningPlanSchoolStudent.getGender(), age, height);
-        if (Objects.nonNull(wasting)){
+        if (Objects.nonNull(stunting)){
             statConclusion.setIsStunting(stunting);
-            if (Objects.nonNull(stunting) ){
+            if (Objects.nonNull(wasting) ){
                 statConclusion.setIsMalnutrition(wasting && stunting);
             }
         }
