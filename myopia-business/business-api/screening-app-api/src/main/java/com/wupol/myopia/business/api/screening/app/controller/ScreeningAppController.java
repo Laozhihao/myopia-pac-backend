@@ -711,6 +711,7 @@ public class ScreeningAppController {
         if (CollectionUtils.isEmpty(currentPlanIds)) {
             return new ScreeningPlanSchoolStudent();
         }
+
         List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.getByPlanIdsOrderByUpdateTimeDesc(currentPlanIds);
         if (CollectionUtils.isEmpty(visionScreeningResults)) {
             ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getOneByNePlanId(Lists.newArrayList(currentPlanIds).get(0));
