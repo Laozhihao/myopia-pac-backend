@@ -114,7 +114,7 @@ public class ScreeningAppController {
      * @return
      */
     @GetMapping("/school/findAllLikeSchoolName")
-    public List<School> getSchoolNameByNameLike(String schoolName,@RequestParam(value = "channel", defaultValue = "0") Integer channel) {
+    public List<School> getSchoolNameByNameLike(String schoolName, @RequestParam(value = "channel", defaultValue = "0") Integer channel) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         return screeningPlanBizService.getSchoolByOrgId(schoolName, currentUser.getOrgId(), channel);
     }
@@ -452,7 +452,7 @@ public class ScreeningAppController {
      * @return
      */
     @PostMapping("/student/save")
-    public ApiResult saveStudent(@RequestBody AppStudentDTO appStudentDTO,@RequestParam(value = "channel", defaultValue = "0") Integer channel) throws ParseException {
+    public ApiResult saveStudent(@RequestBody AppStudentDTO appStudentDTO, @RequestParam(value = "channel", defaultValue = "0") Integer channel) throws ParseException {
         appStudentDTO.checkStudentInfo();
         appStudentDTO.setDeptId(CurrentUserUtil.getCurrentUser().getOrgId());
         ApiResult apiResult = screeningAppService.validStudentParam(appStudentDTO);
@@ -721,7 +721,14 @@ public class ScreeningAppController {
         }
         List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.getByPlanIdsOrderByUpdateTimeDesc(currentPlanIds);
         if (CollectionUtils.isEmpty(visionScreeningResults)) {
-            return new ScreeningPlanSchoolStudent();
+            ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getOneByNePlanId(Lists.newArrayList(currentPlanIds).get(0));
+            if (Objects.nonNull(planStudent)) {
+                return planStudent.setSchoolName(schoolService.getById(planStudent.getSchoolId()).getName())
+                        .setGradeName(schoolGradeService.getById(planStudent.getGradeId()).getName())
+                        .setClassName(schoolClassService.getById(planStudent.getClassId()).getName());
+            } else {
+                return new ScreeningPlanSchoolStudent();
+            }
         }
         ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(visionScreeningResults.get(0).getScreeningPlanSchoolStudentId());
 
@@ -748,9 +755,9 @@ public class ScreeningAppController {
      * @return
      */
     @GetMapping("/export/QRCode")
-    public List<QrCodeInfo> exportQRCode(@Valid AppQueryQrCodeParams appQueryQrCodeParams,@RequestParam(value = "channel", defaultValue = "0") Integer channel) {
+    public List<QrCodeInfo> exportQRCode(@Valid AppQueryQrCodeParams appQueryQrCodeParams, @RequestParam(value = "channel", defaultValue = "0") Integer channel) {
         try {
-            return screeningExportService.getQrCodeAndStudentInfo(appQueryQrCodeParams, CurrentUserUtil.getCurrentUser().getOrgId(),channel);
+            return screeningExportService.getQrCodeAndStudentInfo(appQueryQrCodeParams, CurrentUserUtil.getCurrentUser().getOrgId(), channel);
         } catch (Exception e) {
             log.error("获取二维码异常", e);
             throw new BusinessException("获取二维码异常");
@@ -976,9 +983,9 @@ public class ScreeningAppController {
      **/
     @GetMapping("/school/findAllStudentNameState")
     public ClassScreeningProgress findClassScreefningStudent(@NotNull(message = "学校ID不能为空") Integer schoolId,
-                                                            @NotNull(message = "年级ID不能为空") Integer gradeId,
-                                                            @NotNull(message = "班级ID不能为空") Integer classId,
-                                                            @RequestParam(value = "channel", defaultValue = "0") Integer channel) {
+                                                             @NotNull(message = "年级ID不能为空") Integer gradeId,
+                                                             @NotNull(message = "班级ID不能为空") Integer classId,
+                                                             @RequestParam(value = "channel", defaultValue = "0") Integer channel) {
         return screeningAppService.findClassScreeningStudent(schoolId, gradeId, classId, CurrentUserUtil.getCurrentUser().getOrgId(), channel);
     }
 
