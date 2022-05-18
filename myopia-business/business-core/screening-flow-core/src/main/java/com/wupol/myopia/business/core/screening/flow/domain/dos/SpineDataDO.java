@@ -68,9 +68,6 @@ public class SpineDataDO extends AbstractDiagnosisResult implements Serializable
         if (chestWaist != null){
             list.add(chestWaist);
         }
-        if (entirety != null){
-            list.add(entirety);
-        }
         Set<SpineItem> spineItemSet = list.stream().filter(item -> !item.getType().equals(1)).collect(Collectors.toSet());
         return CollectionUtil.isNotEmpty(spineItemSet);
     }
