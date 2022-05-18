@@ -130,6 +130,7 @@ public class StatConclusionBuilder {
 
         this.setPhysiqueRescreenErrorNum();
         this.setReview();
+        this.setPhysiqueRescreenErrorNum();
         this.setCooperative();
         return statConclusion;
 
@@ -205,11 +206,14 @@ public class StatConclusionBuilder {
         this.setMyopia();
         this.setMyopiaLevel();
         this.setMyopiaWarningLevel();
+        this.setScreeningMyopia();
 
         this.setAnisometropia();
         this.setRefractiveError();
 
     }
+
+
 
 
     /**
@@ -248,6 +252,14 @@ public class StatConclusionBuilder {
         statConclusion.setMyopiaWarningLevel(StatUtil.getSeriousLevel(leftLevel,rightLevel));
     }
 
+    /**
+     * 设置筛查性近视
+     */
+    private void setScreeningMyopia() {
+        MyopiaLevelEnum leftScreeningMyopia = StatUtil.getScreeningMyopia(basicData.getLeftSph(), basicData.getLeftCyl(), basicData.getAge(), basicData.getLeftNakedVision());
+        MyopiaLevelEnum rightScreeningMyopia = StatUtil.getScreeningMyopia(basicData.getRightSph(), basicData.getRightCyl(), basicData.getAge(), basicData.getRightNakedVision());
+        statConclusion.setScreeningMyopia(StatUtil.getSeriousLevel(leftScreeningMyopia,rightScreeningMyopia));
+    }
     /**
      * 设置裸眼视力预警级别
      */
@@ -309,8 +321,8 @@ public class StatConclusionBuilder {
      * 近视等级
      */
     private void setMyopiaLevel() {
-        MyopiaLevelEnum leftLevel = StatUtil.getMyopiaLevel(basicData.getLeftSph(), basicData.getLeftCyl(), basicData.getAge(), basicData.getLeftNakedVision());
-        MyopiaLevelEnum rightLevel = StatUtil.getMyopiaLevel(basicData.getRightSph(), basicData.getRightCyl(), basicData.getAge(), basicData.getRightNakedVision());
+        MyopiaLevelEnum leftLevel = StatUtil.getMyopiaLevel(basicData.getLeftSph(), basicData.getLeftCyl());
+        MyopiaLevelEnum rightLevel = StatUtil.getMyopiaLevel(basicData.getRightSph(), basicData.getRightCyl());
         statConclusion.setMyopiaLevel(StatUtil.getSeriousLevel(leftLevel, rightLevel));
     }
 
@@ -504,9 +516,9 @@ public class StatConclusionBuilder {
     private void malnutrition(BigDecimal bmi,BigDecimal height,String age){
         Boolean wasting = StatUtil.isWasting(bmi, age, screeningPlanSchoolStudent.getGender());
         Boolean stunting = StatUtil.isStunting(screeningPlanSchoolStudent.getGender(), age, height);
-        if (Objects.nonNull(wasting)){
+        if (Objects.nonNull(stunting)){
             statConclusion.setIsStunting(stunting);
-            if (Objects.nonNull(stunting) ){
+            if (Objects.nonNull(wasting) ){
                 statConclusion.setIsMalnutrition(wasting && stunting);
             }
         }
@@ -529,9 +541,9 @@ public class StatConclusionBuilder {
         statConclusion.setIsSaprodontia(CollectionUtil.isNotEmpty(saprodontias));
         statConclusion.setSaprodontiaTeeth(CollectionUtil.isNotEmpty(saprodontias)?saprodontias.size():0);
         statConclusion.setIsSaprodontiaLoss(CollectionUtil.isNotEmpty(saprodontiaLoss));
-        statConclusion.setSaprodontiaLossTeeth(CollectionUtil.isNotEmpty(saprodontiaLoss)?saprodontias.size():0);
+        statConclusion.setSaprodontiaLossTeeth(CollectionUtil.isNotEmpty(saprodontiaLoss)?saprodontiaLoss.size():0);
         statConclusion.setIsSaprodontiaRepair(CollectionUtil.isNotEmpty(saprodontiaRepair));
-        statConclusion.setSaprodontiaRepairTeeth(CollectionUtil.isNotEmpty(saprodontiaRepair)?saprodontias.size():0);
+        statConclusion.setSaprodontiaRepairTeeth(CollectionUtil.isNotEmpty(saprodontiaRepair)?saprodontiaRepair.size():0);
     }
 
 

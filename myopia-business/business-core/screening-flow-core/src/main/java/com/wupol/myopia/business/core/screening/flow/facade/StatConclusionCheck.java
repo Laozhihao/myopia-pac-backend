@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
+import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.framework.domain.ThreeTuple;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.business.common.utils.constant.*;
@@ -13,10 +14,7 @@ import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.constant.SchoolEnum;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.OtherEyeDiseasesDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.SaprodontiaDataDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
@@ -456,8 +454,8 @@ public class StatConclusionCheck {
                         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = tuple.getFirst();
                         VisionScreeningResult visionScreeningResult = tuple.getSecond();
                         BasicData basicData = dealWithData(visionScreeningResult.getVisionData(), visionScreeningResult.getComputerOptometry());
-                        MyopiaLevelEnum leftMyopiaLevel = StatUtil.getMyopiaLevel(basicData.leftSph, basicData.leftCyl, screeningPlanSchoolStudent.getStudentAge(), basicData.leftNakedVision);
-                        MyopiaLevelEnum rightMyopiaLevel = StatUtil.getMyopiaLevel(basicData.rightSph,basicData.rightCyl, screeningPlanSchoolStudent.getStudentAge(),basicData.rightNakedVision);
+                        MyopiaLevelEnum leftMyopiaLevel = StatUtil.getMyopiaLevel(basicData.leftSph, basicData.leftCyl);
+                        MyopiaLevelEnum rightMyopiaLevel = StatUtil.getMyopiaLevel(basicData.rightSph,basicData.rightCyl);
                         Integer seriousLevel = StatUtil.getSeriousLevel(leftMyopiaLevel, rightMyopiaLevel);
                         return TwoTuple.of(screeningPlanSchoolStudent.getId(), seriousLevel);
                     }).collect(Collectors.toList());
@@ -864,18 +862,95 @@ public class StatConclusionCheck {
     /**
      * 超重率
      */
+    private TwoTuple<Integer,String> getOverweight(Integer planId){
+        List<ThreeTuple<ScreeningPlanSchoolStudent, VisionScreeningResult, String>> commonDiseaseScreeningNum = getCommonDiseaseScreeningNum(planId);
+        if (CollectionUtil.isNotEmpty(commonDiseaseScreeningNum)){
+            List<Boolean> tupleList = commonDiseaseScreeningNum.stream().filter(tuple -> {
+                VisionScreeningResult visionScreeningResult = tuple.getSecond();
+                return Objects.nonNull(visionScreeningResult.getHeightAndWeightData()) && visionScreeningResult.getHeightAndWeightData().valid();
+            }).map(tuple -> {
+                ScreeningPlanSchoolStudent screeningPlanSchoolStudent = tuple.getFirst();
+                TwoTuple<Integer, String> ageTuple = StatUtil.getAge(screeningPlanSchoolStudent.getBirthday());
+                HeightAndWeightDataDO heightAndWeightData = tuple.getSecond().getHeightAndWeightData();
+                TwoTuple<Boolean, Boolean> overweightAndObesity = StatUtil.isOverweightAndObesity(heightAndWeightData.getBmi(), ageTuple.getSecond(), screeningPlanSchoolStudent.getGender());
+                if (Objects.nonNull(overweightAndObesity)){
+                    return overweightAndObesity.getFirst();
+                }
+                return null;
+            }).filter(Objects::nonNull).collect(Collectors.toList());
+            return TwoTuple.of(tupleList.size(),MathUtil.ratio(tupleList.size(),commonDiseaseScreeningNum.size()));
+        }
+        return null;
+    }
 
     /**
      * 肥胖率
      */
+    private TwoTuple<Integer,String> getObesity(Integer planId){
+        List<ThreeTuple<ScreeningPlanSchoolStudent, VisionScreeningResult, String>> commonDiseaseScreeningNum = getCommonDiseaseScreeningNum(planId);
+        if (CollectionUtil.isNotEmpty(commonDiseaseScreeningNum)){
+            List<Boolean> tupleList = commonDiseaseScreeningNum.stream().filter(tuple -> {
+                VisionScreeningResult visionScreeningResult = tuple.getSecond();
+                return Objects.nonNull(visionScreeningResult.getHeightAndWeightData()) && visionScreeningResult.getHeightAndWeightData().valid();
+            }).map(tuple -> {
+                ScreeningPlanSchoolStudent screeningPlanSchoolStudent = tuple.getFirst();
+                TwoTuple<Integer, String> ageTuple = StatUtil.getAge(screeningPlanSchoolStudent.getBirthday());
+                HeightAndWeightDataDO heightAndWeightData = tuple.getSecond().getHeightAndWeightData();
+                TwoTuple<Boolean, Boolean> overweightAndObesity = StatUtil.isOverweightAndObesity(heightAndWeightData.getBmi(), ageTuple.getSecond(), screeningPlanSchoolStudent.getGender());
+                if (Objects.nonNull(overweightAndObesity)){
+                    return overweightAndObesity.getSecond();
+                }
+                return null;
+            }).filter(Objects::nonNull).collect(Collectors.toList());
+            return TwoTuple.of(tupleList.size(),MathUtil.ratio(tupleList.size(),commonDiseaseScreeningNum.size()));
+        }
+        return null;
+    }
 
     /**
      * 营养不良率
      */
+    private TwoTuple<Integer,String> getMalnutrition(Integer planId){
+        List<ThreeTuple<ScreeningPlanSchoolStudent, VisionScreeningResult, String>> commonDiseaseScreeningNum = getCommonDiseaseScreeningNum(planId);
+        if (CollectionUtil.isNotEmpty(commonDiseaseScreeningNum)){
+            List<Boolean> tupleList = commonDiseaseScreeningNum.stream().filter(tuple -> {
+                VisionScreeningResult visionScreeningResult = tuple.getSecond();
+                return Objects.nonNull(visionScreeningResult.getHeightAndWeightData()) && visionScreeningResult.getHeightAndWeightData().valid();
+            }).map(tuple -> {
+                ScreeningPlanSchoolStudent screeningPlanSchoolStudent = tuple.getFirst();
+                TwoTuple<Integer, String> ageTuple = StatUtil.getAge(screeningPlanSchoolStudent.getBirthday());
+                HeightAndWeightDataDO heightAndWeightData = tuple.getSecond().getHeightAndWeightData();
+                Boolean wasting = StatUtil.isWasting(heightAndWeightData.getBmi(), ageTuple.getSecond(), screeningPlanSchoolStudent.getGender());
+                Boolean stunting = StatUtil.isStunting(screeningPlanSchoolStudent.getGender(), ageTuple.getSecond(), heightAndWeightData.getHeight());
+                if (ObjectsUtil.hasNull(wasting,stunting)){
+                    return null;
+                }
+                return wasting && stunting;
+            }).filter(Objects::nonNull).collect(Collectors.toList());
+            return TwoTuple.of(tupleList.size(),MathUtil.ratio(tupleList.size(),commonDiseaseScreeningNum.size()));
+        }
+        return null;
+    }
 
     /**
      * 生长迟缓率
      */
+    private TwoTuple<Integer,String> getStunting(Integer planId){
+        List<ThreeTuple<ScreeningPlanSchoolStudent, VisionScreeningResult, String>> commonDiseaseScreeningNum = getCommonDiseaseScreeningNum(planId);
+        if (CollectionUtil.isNotEmpty(commonDiseaseScreeningNum)){
+            List<Boolean> tupleList = commonDiseaseScreeningNum.stream().filter(tuple -> {
+                VisionScreeningResult visionScreeningResult = tuple.getSecond();
+                return Objects.nonNull(visionScreeningResult.getHeightAndWeightData()) && visionScreeningResult.getHeightAndWeightData().valid();
+            }).map(tuple -> {
+                ScreeningPlanSchoolStudent screeningPlanSchoolStudent = tuple.getFirst();
+                TwoTuple<Integer, String> ageTuple = StatUtil.getAge(screeningPlanSchoolStudent.getBirthday());
+                HeightAndWeightDataDO heightAndWeightData = tuple.getSecond().getHeightAndWeightData();
+                return StatUtil.isStunting(screeningPlanSchoolStudent.getGender(), ageTuple.getSecond(), heightAndWeightData.getHeight());
+            }).filter(Objects::nonNull).collect(Collectors.toList());
+            return TwoTuple.of(tupleList.size(),MathUtil.ratio(tupleList.size(),commonDiseaseScreeningNum.size()));
+        }
+        return null;
+    }
 
     /**
      * 脊柱弯曲检出率

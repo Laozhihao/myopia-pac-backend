@@ -235,18 +235,18 @@ public class StatUtil {
      * @param nakedVision 裸眼视力
      */
     public static Boolean isMyopia(BigDecimal sphere, BigDecimal cylinder, Integer age, BigDecimal nakedVision) {
-        if (Objects.nonNull(age)) {
-            if (Objects.nonNull(nakedVision) && age < 6 && BigDecimalUtil.lessThan(nakedVision,"4.9")) {
-                return true;
+
+        MyopiaLevelEnum screeningMyopia = getScreeningMyopia(sphere, cylinder, age, nakedVision);
+        MyopiaLevelEnum myopiaLevel = getMyopiaLevel(sphere, cylinder);
+
+        if (Objects.isNull(screeningMyopia)){
+            if (Objects.nonNull(myopiaLevel) ){
+                return !Objects.equals(MyopiaLevelEnum.MYOPIA_LEVEL_EARLY, myopiaLevel);
             }
-            if (Objects.nonNull(nakedVision) && age >= 6 && BigDecimalUtil.lessThan(nakedVision,"5.0")) {
-                return true;
-            }
+        }else {
+            return Boolean.TRUE;
         }
-        MyopiaLevelEnum myopiaLevel = getMyopiaLevel(sphere, cylinder, age, nakedVision);
-        if (Objects.nonNull(myopiaLevel)){
-            return isMyopia(myopiaLevel);
-        }
+
         return null;
     }
 
@@ -692,24 +692,47 @@ public class StatUtil {
      *
      * @param sphere      球镜
      * @param cylinder    柱镜
-     * @param age         年龄
-     * @param nakedVision 裸眼视力
      */
-    public static MyopiaLevelEnum getMyopiaLevel(Float sphere, Float cylinder, Integer age, Float nakedVision) {
-        if (ObjectsUtil.hasNull(sphere, cylinder, nakedVision)) {
+    public static MyopiaLevelEnum getMyopiaLevel(Float sphere, Float cylinder) {
+        if (ObjectsUtil.hasNull(sphere, cylinder)) {
             return null;
         }
-        return getMyopiaLevel(sphere.toString(), cylinder.toString(), age, nakedVision.toString());
+        return getMyopiaLevel(sphere.toString(), cylinder.toString());
     }
 
-    public static MyopiaLevelEnum getMyopiaLevel(String sphere, String cylinder, Integer age, String nakedVision) {
-        if (ObjectsUtil.hasNull(sphere, cylinder, nakedVision)) {
+    public static MyopiaLevelEnum getMyopiaLevel(String sphere, String cylinder) {
+        if (ObjectsUtil.hasNull(sphere, cylinder)) {
             return null;
         }
-        return getMyopiaLevel(new BigDecimal(sphere), new BigDecimal(cylinder), age, new BigDecimal(nakedVision));
+        return getMyopiaLevel(new BigDecimal(sphere), new BigDecimal(cylinder));
     }
 
-    public static MyopiaLevelEnum getMyopiaLevel(BigDecimal sphere, BigDecimal cylinder, Integer age, BigDecimal nakedVision) {
+    public static MyopiaLevelEnum getMyopiaLevel(BigDecimal sphere, BigDecimal cylinder) {
+
+        BigDecimal se = getSphericalEquivalent(sphere, cylinder);
+        if (Objects.isNull(se)) {
+            return null;
+        }
+
+        if (BigDecimalUtil.isBetweenRight(se, MINUS_0_5, "0.75")) {
+            return MyopiaLevelEnum.MYOPIA_LEVEL_EARLY;
+        }
+
+        if (BigDecimalUtil.isBetweenRight(se, MINUS_6, MINUS_0_5)) {
+            return MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT;
+        }
+
+        if (BigDecimalUtil.lessThanAndEqual(se, MINUS_6)) {
+            return MyopiaLevelEnum.MYOPIA_LEVEL_HIGH;
+        }
+
+        return null;
+    }
+
+    /**
+     * 筛查性近视
+     */
+    public static MyopiaLevelEnum getScreeningMyopia(BigDecimal sphere, BigDecimal cylinder, Integer age, BigDecimal nakedVision) {
 
         if (ObjectsUtil.allNotNull(age, nakedVision)
                 && ((age < 6 && BigDecimalUtil.lessThan(nakedVision, "4.9")) || (age >= 6 && BigDecimalUtil.lessThan(nakedVision, "5.0")))) {
@@ -719,23 +742,15 @@ public class StatUtil {
                 return null;
             }
 
-            if (BigDecimalUtil.isBetweenRight(se, MINUS_0_5, "0.75")) {
-                return MyopiaLevelEnum.MYOPIA_LEVEL_EARLY;
-            }
-
-            if (BigDecimalUtil.isBetweenLeft(se, MINUS_3, MINUS_0_5)) {
-                return MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT;
-            }
-            if (BigDecimalUtil.isBetweenLeft(se, MINUS_6, MINUS_3)) {
-                return MyopiaLevelEnum.MYOPIA_LEVEL_MIDDLE;
-            }
-            if (BigDecimalUtil.lessThan(se, MINUS_6)) {
-                return MyopiaLevelEnum.MYOPIA_LEVEL_HIGH;
+            if (BigDecimalUtil.lessThanAndEqual(se, MINUS_0_5)) {
+                return MyopiaLevelEnum.SCREENING_MYOPIA;
             }
         }
-        return MyopiaLevelEnum.ZERO;
+        return null;
 
     }
+
+
 
 
     /**
