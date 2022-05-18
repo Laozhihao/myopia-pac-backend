@@ -623,6 +623,16 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         return baseMapper.getByNePlanId(planId);
     }
 
+    /**
+     * 获取一条筛查学生列表
+     *
+     * @param planId 计划Id
+     * @return List<ScreeningPlanSchoolStudent>
+     */
+    public ScreeningPlanSchoolStudent getOneByNePlanId(Integer planId) {
+        return baseMapper.getOneByNePlanId(planId);
+    }
+
     public List<GradeClassesDTO> getGradeByPlanIdAndSchoolId(Integer screeningPlanId, Integer schoolId) {
         return baseMapper.getGradeByPlanIdAndSchoolId(screeningPlanId, schoolId);
     }
