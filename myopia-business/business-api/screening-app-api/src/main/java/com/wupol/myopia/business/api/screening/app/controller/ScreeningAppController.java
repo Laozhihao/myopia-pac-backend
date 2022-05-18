@@ -729,6 +729,7 @@ public class ScreeningAppController {
                             .setSchoolId(planStudent.getSchoolId())
                             .setGradeId(planStudent.getClassId());
                 } else {
+                    planStudent = new ScreeningPlanSchoolStudent();
                     return planStudent
                             .setSchoolId(schoolPlan.get(0).getSchoolId())
                             .setSchoolName(schoolService.getById(schoolPlan.get(0).getSchoolId()).getName());
