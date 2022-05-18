@@ -54,6 +54,9 @@ ALTER TABLE m_stat_conclusion ADD low_vision_level INT NULL COMMENT '视力低�
 ALTER TABLE m_stat_conclusion ADD is_cooperative TINYINT(3) NULL COMMENT '是否配合检查(0-配合、1-不配合)';
 ALTER TABLE m_stat_conclusion ADD screening_myopia TINYINT(3) NULL COMMENT '筛查性近视';
 
+ALTER TABLE m_school_student ADD screening_myopia TINYINT(3) NULL COMMENT '筛查性近视';
+ALTER TABLE m_student ADD screening_myopia TINYINT(3) NULL COMMENT '筛查性近视';
+
 
 
 
