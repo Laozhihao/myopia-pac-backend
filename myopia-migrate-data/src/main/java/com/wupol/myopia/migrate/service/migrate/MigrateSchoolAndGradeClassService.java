@@ -88,13 +88,14 @@ public class MigrateSchoolAndGradeClassService {
             // 迁移年级、班级
             List<SysGradeClass> gradeAndClassList = sysStudentEyeService.getAllGradeAndClassBySchoolId(sysSchoolId);
             Map<String, List<SysGradeClass>> gradeClassMap = gradeAndClassList.stream().collect(Collectors.groupingBy(SysGradeClass::getGrade));
-            gradeClassMap.forEach((gradeName, classList) -> {
+            gradeClassMap.entrySet().stream().sorted(Comparator.comparing(Map.Entry::getKey)).forEach(gradeSet -> {
                 // 年级
+                String gradeName = gradeSet.getKey();
                 Integer gradeId = saveGrade(schoolId, gradeName, schoolType);
                 gradeMap.put(sysSchoolId + gradeName, gradeId);
                 // 班级（存在同名的则不新增）
                 Map<@NotBlank(message = "班级名称不能为空") String, Integer> existClassMap = schoolClassService.getByGradeId(gradeId).stream().collect(Collectors.toMap(SchoolClass::getName, SchoolClass::getId));
-                List<SchoolClass> schoolClassList = classList.stream()
+                List<SchoolClass> schoolClassList = gradeSet.getValue().stream()
                         .filter(x -> Objects.isNull(existClassMap.get(x.getClazz())))
                         .map(x -> new SchoolClass().setSchoolId(schoolId).setCreateUserId(1).setGradeId(gradeId).setName(x.getClazz()))
                         .collect(Collectors.toList());
@@ -105,6 +106,30 @@ public class MigrateSchoolAndGradeClassService {
         });
         log.info("==  学校-完成  ==");
         return new SchoolAndGradeClassDO(schoolMap, gradeMap, classMap);
+    }
+
+    public static void main(String[] args) {
+        Map<String, String> map = new HashMap<>();
+        map.put("三年级", "");
+        map.put("初二", "");
+        map.put("一年级", "");
+        map.put("初一", "");
+        map.put("初三", "");
+        map.put("高二", "");
+        map.put("六年级", "");
+        map.put("高一", "");
+        map.put("高三", "");
+        map.put("大班", "");
+        map.put("大一", "");
+        map.put("小班", "");
+        map.put("大三", "");
+        map.put("中班", "");
+        map.forEach((key, val) -> System.out.println(key));
+        System.out.println("-------------------------------");
+        map.entrySet().stream().sorted(Comparator.comparing(Map.Entry::getKey)).forEach(x -> System.out.println(x.getKey()));
+        System.out.println("-------------------------------");
+
+        Arrays.stream(GradeCodeEnum.values()).forEach(x -> System.out.println(x.getName()));
     }
 
     /**
