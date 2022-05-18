@@ -41,60 +41,60 @@ class VisionScreeningBizServiceTest {
         // 视力筛查
         VisionDataDTO visionDataDTO = JSON.parseObject(ResourceHelper.getResourceAsString(getClass(), "/json/visionData.json"), VisionDataDTO.class);
         if (visionDataDTO.isValid()) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(visionDataDTO);
+            visionScreeningBizService.saveOrUpdateStudentScreenData(visionDataDTO,"1");
         } else {
             System.out.println("视力筛查数据异常");
         }
         // 屈光
         ComputerOptometryDTO computerOptometryTO = JSON.parseObject(ResourceHelper.getResourceAsString(getClass(), "/json/computerOptometry.json"), ComputerOptometryDTO.class);
         if (computerOptometryTO.isValid()) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(computerOptometryTO);
+            visionScreeningBizService.saveOrUpdateStudentScreenData(computerOptometryTO,"1");
         } else {
             System.out.println("屈光数据异常");
         }
         // 其他眼病
         OtherEyeDiseasesDTO otherEyeDiseasesDTO = JSON.parseObject(ResourceHelper.getResourceAsString(getClass(), "/json/otherEyeDiseases.json"), OtherEyeDiseasesDTO.class);
-        visionScreeningBizService.saveOrUpdateStudentScreenData(otherEyeDiseasesDTO);
+        visionScreeningBizService.saveOrUpdateStudentScreenData(otherEyeDiseasesDTO,"1");
 
         // 龋齿检查
         SaprodontiaDTO saprodontiaDTO = JSON.parseObject(ResourceHelper.getResourceAsString(getClass(), "/json/saprodontia.json"), SaprodontiaDTO.class);
         if (computerOptometryTO.isValid()) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(saprodontiaDTO);
+            visionScreeningBizService.saveOrUpdateStudentScreenData(saprodontiaDTO,"1");
         } else {
             System.out.println("龋齿检查异常");
         }
         // 身高检查
         HeightAndWeightDataDTO heightAndWeightDataDTO = JSON.parseObject(ResourceHelper.getResourceAsString(getClass(), "/json/heightAndWeight.json"), HeightAndWeightDataDTO.class);
         if (heightAndWeightDataDTO.isValid()) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(heightAndWeightDataDTO);
+            visionScreeningBizService.saveOrUpdateStudentScreenData(heightAndWeightDataDTO,"1");
         } else {
             System.out.println("身高检查异常");
         }
         // 脊柱检查
         SpineDTO spineDTO = JSON.parseObject(ResourceHelper.getResourceAsString(getClass(), "/json/spine.json"), SpineDTO.class);
         if (spineDTO.isValid()) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(spineDTO);
+            visionScreeningBizService.saveOrUpdateStudentScreenData(spineDTO,"1");
         } else {
             System.out.println("脊柱检查异常");
         }
         // 血压检查
         BloodPressureDTO bloodPressureDTO = JSON.parseObject(ResourceHelper.getResourceAsString(getClass(), "/json/bloodPressure.json"), BloodPressureDTO.class);
         if (bloodPressureDTO.isValid()) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(bloodPressureDTO);
+            visionScreeningBizService.saveOrUpdateStudentScreenData(bloodPressureDTO,"1");
         } else {
             System.out.println("血压检查异常");
         }
         // 疾病史
         DiseasesHistoryDTO diseasesHistoryDTO = JSON.parseObject(ResourceHelper.getResourceAsString(getClass(), "/json/diseasesHistory.json"), DiseasesHistoryDTO.class);
         if (diseasesHistoryDTO.isValid()) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(diseasesHistoryDTO);
+            visionScreeningBizService.saveOrUpdateStudentScreenData(diseasesHistoryDTO,"1");
         } else {
             System.out.println("疾病史异常");
         }
         // 个人隐私
         PrivacyDTO privacyDTO = JSON.parseObject(ResourceHelper.getResourceAsString(getClass(), "/json/privacy.json"), PrivacyDTO.class);
         if (privacyDTO.isValid()) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(privacyDTO);
+            visionScreeningBizService.saveOrUpdateStudentScreenData(privacyDTO,"1");
         } else {
             System.out.println("个人隐私异常");
         }
