@@ -77,6 +77,11 @@ public class ScreeningNoticeDeptOrgBizService {
             }else{
                 vo.setIsSelfRelease(ScreeningNotice.IS_NOT_SELF_RELEASE);
             }
+            if (vo.getAcceptOrgId().equals(vo.getGovDeptId())){
+                vo.setIsSelfReceive(ScreeningNotice.IS_SELF_RECEIVE);
+            }else {
+                vo.setIsSelfReceive(ScreeningNotice.IS_NOT_SELF_RECEIVE);
+            }
             return vo;
         });
     }

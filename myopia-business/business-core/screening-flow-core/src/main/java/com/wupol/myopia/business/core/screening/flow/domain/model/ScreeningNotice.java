@@ -43,6 +43,15 @@ public class ScreeningNotice implements Serializable {
     public static final Integer IS_SELF_RELEASE = 1;
 
     /**
+     * 发布的通知
+     */
+    public static final Integer IS_SELF_RECEIVE = 0;
+    /**
+     * 接收的通知
+     */
+    public static final Integer IS_NOT_SELF_RECEIVE = 1;
+
+    /**
      * 主键id
      */
     @TableId(value = "id", type = IdType.AUTO)
