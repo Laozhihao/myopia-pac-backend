@@ -50,6 +50,10 @@ ALTER TABLE m_stat_conclusion ADD is_saprodontia_repair TINYINT(1) NULL COMMENT 
 ALTER TABLE m_stat_conclusion ADD saprodontia_repair_teeth INT NULL COMMENT '龋补牙齿数';
 
 ALTER TABLE m_stat_conclusion ADD rescreen_item_num INT NULL COMMENT '复测项次数';
+ALTER TABLE m_stat_conclusion ADD low_vision_level INT NULL COMMENT '视力低下等级';
+ALTER TABLE m_stat_conclusion ADD is_cooperative TINYINT(3) NULL COMMENT '是否配合检查(0-配合、1-不配合)';
+
+
 
 
 -- 新增筛查数据结果统计表

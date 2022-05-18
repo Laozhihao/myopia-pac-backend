@@ -32,7 +32,7 @@ public class FkrDataService {
     private VisionScreeningBizService visionScreeningBizService;
 
     @Transactional(rollbackFor = Exception.class)
-    public void uploadData(String data) {
+    public void uploadData(String data,String clientId) {
         String[] split = StringUtils.split(data, "#!>");
         log.info("str:{}", JSONObject.toJSONString(split));
         String deviceSN = split[1].substring(7);
@@ -44,8 +44,8 @@ public class FkrDataService {
         ScreeningOrganization screeningOrganization = deviceUploadDataService.getScreeningOrganization(device);
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = deviceUploadDataService.getScreeningPlanSchoolStudent(screeningOrganization, planStudentId);
         // 保存原始数据
-        deviceUploadDataService.saveDeviceData(device, JSONObject.toJSONString(data), planStudentId, screeningOrganization.getId(), new Date().getTime());
-        visionScreeningBizService.saveOrUpdateStudentScreenData(getComputerOptometryDTO(leftData, rightData, screeningPlanSchoolStudent));
+        deviceUploadDataService.saveDeviceData(device, JSONObject.toJSONString(data), planStudentId, screeningOrganization.getId(),System.currentTimeMillis());
+        visionScreeningBizService.saveOrUpdateStudentScreenData(getComputerOptometryDTO(leftData, rightData, screeningPlanSchoolStudent),clientId);
     }
 
     /**

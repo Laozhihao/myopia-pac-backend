@@ -4,6 +4,8 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.common.utils.util.MapUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
@@ -80,6 +82,7 @@ public class StatConclusionBizService {
         if (CollectionUtil.isEmpty(visionScreeningResults)){
             return;
         }
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         log.info("筛查数据结论,数据处理开始");
         //筛查结果分组
         Map<Integer, List<VisionScreeningResult>> visionScreeningResultMap = visionScreeningResults.stream().collect(Collectors.groupingBy(VisionScreeningResult::getPlanId));
@@ -88,7 +91,7 @@ public class StatConclusionBizService {
 
             List<CompletableFuture<Void>> completableFutureList = new ArrayList<>();
             mapList.forEach(list->{
-                CompletableFuture<Void> future = CompletableFuture.runAsync(() -> consumerMap(list), asyncServiceExecutor);
+                CompletableFuture<Void> future = CompletableFuture.runAsync(() -> consumerMap(list,currentUser.getClientId()), asyncServiceExecutor);
                 completableFutureList.add(future);
             });
             CompletableFuture.allOf(completableFutureList.toArray(new CompletableFuture[mapList.size()])).join();
@@ -103,9 +106,10 @@ public class StatConclusionBizService {
         private Map<Integer, ScreeningPlanSchoolStudent> screeningPlanSchoolStudentMap;
         private Map<Integer, SchoolGrade> schoolGradeMap;
         private Map<String, StatConclusion> statConclusionMap;
+        private String clientId;
     }
 
-    private void consumerMap(Map<Integer, List<VisionScreeningResult>> visionScreeningResultMap) {
+    private void consumerMap(Map<Integer, List<VisionScreeningResult>> visionScreeningResultMap,String clientId) {
         if (CollectionUtil.isEmpty(visionScreeningResultMap)){
             return;
         }
@@ -116,6 +120,7 @@ public class StatConclusionBizService {
         Set<Integer> screeningPlanSchoolStudentIds = visionScreeningResultMap.values().stream().flatMap(List::stream).map(VisionScreeningResult::getScreeningPlanSchoolStudentId).collect(Collectors.toSet());
 
         DataProcessBO dataProcessBO = new DataProcessBO();
+        dataProcessBO.setClientId(clientId);
 
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getByIds(Lists.newArrayList(screeningPlanSchoolStudentIds));
         if (CollectionUtil.isNotEmpty(screeningPlanSchoolStudents)){
@@ -202,6 +207,7 @@ public class StatConclusionBizService {
                 .setStatConclusion(statConclusion)
                 .setScreeningPlanSchoolStudent(screeningPlanSchoolStudent)
                 .setGradeCode(schoolGradeCode)
+                .setClientId(dataProcessBO.getClientId())
                 .build();
         statConclusionList.add(statConclusion);
     }
