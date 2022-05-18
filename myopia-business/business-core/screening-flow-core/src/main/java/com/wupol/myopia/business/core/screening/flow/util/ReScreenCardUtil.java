@@ -194,12 +194,12 @@ public class ReScreenCardUtil {
 
     /**
      * 有差异的计算
-     * @param result
-     * @param reScreening
-     * @param deviationCount
-     * @param rescreening
-     * @param reScreeningResult
-     * @return
+     * @param result 筛查结果
+     * @param reScreening 复测结果
+     * @param deviationCount 错误项次数
+     * @param rescreening 复测返扩展类
+     * @param reScreeningResult 计算后内容（复测）
+     * @return 错误项次数
      */
     private static int differenceDeviationCount(VisionScreeningResult result, VisionScreeningResult reScreening, int deviationCount, ReScreenDTO rescreening, ReScreenDTO.ReScreeningResult reScreeningResult) {
         if (reScreening.getScreeningType()==1){
@@ -232,50 +232,30 @@ public class ReScreenCardUtil {
 
     /**
      * 球镜 柱镜 不参与计算
-     * @param reScreening
-     * @param reScreeningResult
+     * @param reScreening 筛查结果
+     * @param reScreeningResult 计算后内容（复测）
      */
     private static void notParticipateDeviation(VisionScreeningResult reScreening, ReScreenDTO.ReScreeningResult reScreeningResult) {
         //球镜右
         ReScreenDTO.ReScreeningResult.ScreeningDeviation rightSph = new  ReScreenDTO.ReScreeningResult.ScreeningDeviation();
-//      没问题后删除 TODO
-//        boolean rightSphType = BigDecimalUtil.isDeviation(EyeDataUtil.rightSph(result),
-//                EyeDataUtil.rightSph(reScreening),new BigDecimal(ReScreenConstant.COMPUTEROPTOMETRY_DEVIATION));
-//        deviationCount = getDeviationCount(deviationCount, rightSphType);
-
         rightSph.setType(false);
         rightSph.setContent(EyeDataUtil.rightSph(reScreening));
         reScreeningResult.setRightSph(rightSph);
 
         //柱镜右
         ReScreenDTO.ReScreeningResult.ScreeningDeviation rightCyl = new  ReScreenDTO.ReScreeningResult.ScreeningDeviation();
-//      没问题后删除 TODO
-//        boolean rightCylType = BigDecimalUtil.isDeviation(EyeDataUtil.rightCyl(result),
-//                EyeDataUtil.rightCyl(reScreening),new BigDecimal(ReScreenConstant.COMPUTEROPTOMETRY_DEVIATION));
-//        deviationCount = getDeviationCount(deviationCount, rightCylType);
-
         rightCyl.setType(false);
         rightCyl.setContent(EyeDataUtil.rightCyl(reScreening));
         reScreeningResult.setRightCyl(rightCyl);
 
         //球镜左
         ReScreenDTO.ReScreeningResult.ScreeningDeviation leftSph = new  ReScreenDTO.ReScreeningResult.ScreeningDeviation();
-//      没问题后删除 TODO
-//        boolean leftSphType = BigDecimalUtil.isDeviation(EyeDataUtil.leftSph(result),
-//                EyeDataUtil.leftSph(reScreening),new BigDecimal(ReScreenConstant.COMPUTEROPTOMETRY_DEVIATION));
-//        deviationCount = getDeviationCount(deviationCount, leftSphType);
-
         leftSph.setType(false);
         leftSph.setContent(EyeDataUtil.leftSph(reScreening));
         reScreeningResult.setLeftSph(leftSph);
 
         //柱镜左
         ReScreenDTO.ReScreeningResult.ScreeningDeviation leftCyl = new  ReScreenDTO.ReScreeningResult.ScreeningDeviation();
-//      没问题后删除 TODO
-//        boolean leftCylType = BigDecimalUtil.isDeviation(EyeDataUtil.leftCyl(result),
-//                EyeDataUtil.leftCyl(reScreening),new BigDecimal(ReScreenConstant.COMPUTEROPTOMETRY_DEVIATION));
-//        deviationCount = getDeviationCount(deviationCount, leftCylType);
-
         leftCyl.setType(false);
         leftCyl.setContent(EyeDataUtil.leftCyl(reScreening));
         reScreeningResult.setLeftCyl(leftCyl);
@@ -283,11 +263,11 @@ public class ReScreenCardUtil {
 
     /**
      * 身高体重计算
-     * @param result
-     * @param reScreening
-     * @param deviationCount
-     * @param reScreeningResult
-     * @return
+     * @param result 筛查结果
+     * @param reScreening 复测结果
+     * @param deviationCount 错误项次数
+     * @param reScreeningResult 计算后内容（复测）
+     * @return 错误项次数
      */
     private static int heightWeightDeviation(VisionScreeningResult result, VisionScreeningResult reScreening, int deviationCount, ReScreenDTO.ReScreeningResult reScreeningResult) {
         //身高
@@ -314,11 +294,11 @@ public class ReScreenCardUtil {
 
     /**
      * 矫正视力计算
-     * @param result
-     * @param reScreening
-     * @param deviationCount
-     * @param reScreeningResult
-     * @return
+     * @param result 筛查结果
+     * @param reScreening 复测结果
+     * @param deviationCount 错误项次数
+     * @param reScreeningResult 计算后内容（复测）
+     * @return 错误项次数
      */
     private static int correctedDeviation(VisionScreeningResult result, VisionScreeningResult reScreening, int deviationCount, ReScreenDTO.ReScreeningResult reScreeningResult) {
         //矫正右
