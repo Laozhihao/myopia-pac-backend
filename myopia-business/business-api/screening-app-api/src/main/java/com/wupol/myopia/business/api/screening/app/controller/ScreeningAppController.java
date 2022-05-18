@@ -727,7 +727,7 @@ public class ScreeningAppController {
                             .setClassName(schoolClassService.getById(planStudent.getClassId()).getName())
                             .setGradeId(planStudent.getGradeId())
                             .setSchoolId(planStudent.getSchoolId())
-                            .setGradeId(planStudent.getClassId());
+                            .setClassId(planStudent.getClassId());
                 } else {
                     planStudent = new ScreeningPlanSchoolStudent();
                     return planStudent
@@ -745,7 +745,7 @@ public class ScreeningAppController {
                 .setClassName(schoolClassService.getById(planStudent.getClassId()).getName())
                 .setGradeId(planStudent.getGradeId())
                 .setSchoolId(planStudent.getSchoolId())
-                .setGradeId(planStudent.getClassId());
+                .setClassId(planStudent.getClassId());
     }
 
     /**
