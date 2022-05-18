@@ -343,14 +343,18 @@ public class ScreeningResultStatisticBuilder {
         int saprodontiaLossAndRepairNum = (int)statConclusions.stream()
                 .filter(sc ->Objects.equals(Boolean.TRUE,sc.getIsSaprodontiaLoss()) || Objects.equals(Boolean.TRUE,sc.getIsSaprodontiaRepair())).count();
 
+
+        Predicate<StatConclusion> lossAndRepairPredicateTrue = sc -> Objects.equals(Boolean.TRUE, sc.getIsSaprodontiaLoss()) || Objects.equals(Boolean.TRUE, sc.getIsSaprodontiaRepair());
+        ToIntFunction<StatConclusion> lossAndRepairTotalFunction = sc -> Optional.ofNullable(sc.getSaprodontiaLossTeeth()).orElse(0) + Optional.ofNullable(sc.getSaprodontiaRepairTeeth()).orElse(0);
+
+        int lossAndRepairTeethNum = statConclusions.stream().filter(Objects::nonNull)
+                .filter(lossAndRepairPredicateTrue)
+                .mapToInt(lossAndRepairTotalFunction).sum();
+
         Predicate<StatConclusion> predicateTrue = sc -> Objects.equals(Boolean.TRUE, sc.getIsSaprodontiaLoss()) || Objects.equals(Boolean.TRUE, sc.getIsSaprodontiaRepair()) || Objects.equals(Boolean.TRUE, sc.getIsSaprodontia());
         ToIntFunction<StatConclusion> totalFunction = sc -> Optional.ofNullable(sc.getSaprodontiaLossTeeth()).orElse(0) + Optional.ofNullable(sc.getSaprodontiaRepairTeeth()).orElse(0) + Optional.ofNullable(sc.getSaprodontiaTeeth()).orElse(0);
 
         int dmftNum = statConclusions.stream().filter(Objects::nonNull)
-                .filter(predicateTrue)
-                .mapToInt(totalFunction).sum();
-
-        int sumTeeth = statConclusions.stream().filter(Objects::nonNull)
                 .filter(predicateTrue)
                 .mapToInt(totalFunction).sum();
 
@@ -361,7 +365,7 @@ public class ScreeningResultStatisticBuilder {
                 .setSaprodontiaLossNum(saprodontiaLossNum).setSaprodontiaLossRatio(MathUtil.ratio(saprodontiaLossNum,realScreeningStudentNum))
                 .setSaprodontiaRepairNum(saprodontiaRepairNum).setSaprodontiaRepairRatio(MathUtil.ratio(saprodontiaRepairNum,realScreeningStudentNum))
                 .setSaprodontiaLossAndRepairNum(saprodontiaLossAndRepairNum).setSaprodontiaLossAndRepairRatio(MathUtil.ratio(saprodontiaLossAndRepairNum,realScreeningStudentNum))
-                .setSaprodontiaLossAndRepairTeethNum(dmftNum).setSaprodontiaLossAndRepairTeethRatio(MathUtil.ratio(dmftNum,sumTeeth));
+                .setSaprodontiaLossAndRepairTeethNum(lossAndRepairTeethNum).setSaprodontiaLossAndRepairTeethRatio(MathUtil.ratio(lossAndRepairTeethNum,dmftNum));
         statistic.setSaprodontia(saprodontiaDO);
     }
 

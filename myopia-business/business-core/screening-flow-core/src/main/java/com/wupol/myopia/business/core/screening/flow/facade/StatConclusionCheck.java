@@ -739,7 +739,7 @@ public class StatConclusionCheck {
     /**
      * 无龋率
      */
-    public TwoTuple<Integer,String> getSaprodontiaFree(@NotNull Integer planId){
+    private TwoTuple<Integer,String> getSaprodontiaFree(@NotNull Integer planId){
         List<ThreeTuple<ScreeningPlanSchoolStudent, VisionScreeningResult, String>> commonDiseaseScreeningNum = getCommonDiseaseScreeningNum(planId);
         if (CollectionUtil.isNotEmpty(commonDiseaseScreeningNum)){
             List<ThreeTuple<ScreeningPlanSchoolStudent, VisionScreeningResult, String>> freeList = commonDiseaseScreeningNum.stream().filter(tuple -> {
@@ -767,7 +767,7 @@ public class StatConclusionCheck {
         List<ThreeTuple<ScreeningPlanSchoolStudent, VisionScreeningResult, String>> commonDiseaseScreeningNum = getCommonDiseaseScreeningNum(planId);
         if (CollectionUtil.isNotEmpty(commonDiseaseScreeningNum)){
             List<SaprodontiaData> saprodontiaData = getSaprodontiaData(commonDiseaseScreeningNum);
-            Integer teethNum=0;
+            int teethNum=0;
             if (CollectionUtil.isNotEmpty(saprodontiaData)){
                 ToIntFunction<SaprodontiaData> totalFunction = sc -> Optional.ofNullable(sc.saprodontiaTeeth).orElse(0) + Optional.ofNullable(sc.saprodontiaLossTeeth).orElse(0) + Optional.ofNullable(sc.saprodontiaRepairTeeth).orElse(0);
                 teethNum = saprodontiaData.stream().mapToInt(totalFunction).sum();
@@ -780,25 +780,89 @@ public class StatConclusionCheck {
     /**
      * 龋患率
      */
+    private TwoTuple<Integer,String> getSaprodontia(Integer planId){
+        List<ThreeTuple<ScreeningPlanSchoolStudent, VisionScreeningResult, String>> commonDiseaseScreeningNum = getCommonDiseaseScreeningNum(planId);
+        if (CollectionUtil.isNotEmpty(commonDiseaseScreeningNum)){
+            List<SaprodontiaData> saprodontiaData = getSaprodontiaData(commonDiseaseScreeningNum);
+            int saprodontiaNum=0;
+            if (CollectionUtil.isNotEmpty(saprodontiaData)){
+                saprodontiaNum = (int) saprodontiaData.stream().map(sc->sc.isSaprodontia).filter(Objects::nonNull).count();
+            }
+            return TwoTuple.of(saprodontiaNum,MathUtil.num(saprodontiaNum,commonDiseaseScreeningNum.size()));
+        }
+        return null;
+    }
 
     /**
      * 龋失率
      */
+    private TwoTuple<Integer,String> getSaprodontiaLoss(Integer planId){
+        List<ThreeTuple<ScreeningPlanSchoolStudent, VisionScreeningResult, String>> commonDiseaseScreeningNum = getCommonDiseaseScreeningNum(planId);
+        if (CollectionUtil.isNotEmpty(commonDiseaseScreeningNum)){
+            List<SaprodontiaData> saprodontiaData = getSaprodontiaData(commonDiseaseScreeningNum);
+            int saprodontiaLossNum=0;
+            if (CollectionUtil.isNotEmpty(saprodontiaData)){
+                saprodontiaLossNum = (int) saprodontiaData.stream().map(sc->sc.isSaprodontiaLoss).filter(Objects::nonNull).count();
+            }
+            return TwoTuple.of(saprodontiaLossNum,MathUtil.num(saprodontiaLossNum,commonDiseaseScreeningNum.size()));
+        }
+        return null;
+    }
 
     /**
      * 龋补率
      */
+    private TwoTuple<Integer,String> getSaprodontiaRepair(Integer planId){
+        List<ThreeTuple<ScreeningPlanSchoolStudent, VisionScreeningResult, String>> commonDiseaseScreeningNum = getCommonDiseaseScreeningNum(planId);
+        if (CollectionUtil.isNotEmpty(commonDiseaseScreeningNum)){
+            List<SaprodontiaData> saprodontiaData = getSaprodontiaData(commonDiseaseScreeningNum);
+            int saprodontiaRepairNum=0;
+            if (CollectionUtil.isNotEmpty(saprodontiaData)){
+                saprodontiaRepairNum = (int) saprodontiaData.stream().map(sc->sc.isSaprodontiaRepair).filter(Objects::nonNull).count();
+            }
+            return TwoTuple.of(saprodontiaRepairNum,MathUtil.num(saprodontiaRepairNum,commonDiseaseScreeningNum.size()));
+        }
+        return null;
+    }
 
     /**
      * 龋患（失、补）率
      */
+    private TwoTuple<Integer,String> getSaprodontiaLossAndRepair(Integer planId){
+        List<ThreeTuple<ScreeningPlanSchoolStudent, VisionScreeningResult, String>> commonDiseaseScreeningNum = getCommonDiseaseScreeningNum(planId);
+        if (CollectionUtil.isNotEmpty(commonDiseaseScreeningNum)){
+            List<SaprodontiaData> saprodontiaData = getSaprodontiaData(commonDiseaseScreeningNum);
+            int saprodontiaLossAndRepairNum=0;
+            if (CollectionUtil.isNotEmpty(saprodontiaData)){
+                saprodontiaLossAndRepairNum = (int) saprodontiaData.stream().filter(sc ->Objects.equals(Boolean.TRUE,sc.isSaprodontiaLoss) || Objects.equals(Boolean.TRUE,sc.isSaprodontiaRepair)).count();
+            }
+            return TwoTuple.of(saprodontiaLossAndRepairNum,MathUtil.num(saprodontiaLossAndRepairNum,commonDiseaseScreeningNum.size()));
+        }
+        return null;
+    }
 
     /**
      * 龋患（失、补）构成比
      */
+    private TwoTuple<Integer,String> getSaprodontiaLossAndRepairTeeth(Integer planId){
+        List<ThreeTuple<ScreeningPlanSchoolStudent, VisionScreeningResult, String>> commonDiseaseScreeningNum = getCommonDiseaseScreeningNum(planId);
+        if (CollectionUtil.isNotEmpty(commonDiseaseScreeningNum)){
+            List<SaprodontiaData> saprodontiaData = getSaprodontiaData(commonDiseaseScreeningNum);
+            int totalTeethNum=0;
+            int saprodontiaLossAndRepairTeethNum=0;
+            if (CollectionUtil.isNotEmpty(saprodontiaData)){
+                ToIntFunction<SaprodontiaData> totalFunction = sc -> Optional.ofNullable(sc.saprodontiaTeeth).orElse(0) + Optional.ofNullable(sc.saprodontiaLossTeeth).orElse(0) + Optional.ofNullable(sc.saprodontiaRepairTeeth).orElse(0);
+                totalTeethNum =  saprodontiaData.stream().mapToInt(totalFunction).sum();
+                ToIntFunction<SaprodontiaData> lossAndRepairFunction = sc -> Optional.ofNullable(sc.saprodontiaTeeth).orElse(0) + Optional.ofNullable(sc.saprodontiaLossTeeth).orElse(0) + Optional.ofNullable(sc.saprodontiaRepairTeeth).orElse(0);
+                saprodontiaLossAndRepairTeethNum =  saprodontiaData.stream().mapToInt(lossAndRepairFunction).sum();
+            }
+            return TwoTuple.of(saprodontiaLossAndRepairTeethNum,MathUtil.num(saprodontiaLossAndRepairTeethNum,totalTeethNum));
+        }
+        return null;
+    }
 
     /**
-     * 龋患（失、补）构成比
+     * 超重率
      */
 
     /**
