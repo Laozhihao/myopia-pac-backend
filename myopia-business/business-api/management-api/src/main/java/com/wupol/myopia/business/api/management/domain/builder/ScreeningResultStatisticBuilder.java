@@ -111,9 +111,9 @@ public class ScreeningResultStatisticBuilder {
             setPrimarySchoolAndAboveVisionAnalysis(totalStatistic, validStatConclusions, validScreeningNum, statistic);
         }
         //设置视力预警数据
-        setVisionWarning(validScreeningNum,statConclusions, statistic);
+        setVisionWarning(validScreeningNum,validStatConclusions, statistic);
         //设置复测情况数据
-        setRescreenSituation(statConclusions,isRescreenMap,statistic);
+        setRescreenSituation(validStatConclusions,isRescreenMap,statistic);
 
         //设置龋齿数据
         setSaprodontia(statConclusions, realScreeningStudentNum, statistic);
