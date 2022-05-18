@@ -34,6 +34,8 @@ public class StatUtil {
     private static final String MINUS_3 = "-3.00";
     private static final String MINUS_0_5 = "-0.50";
     private static final String MINUS_6 = "-6.00";
+    private static final BigDecimal visionAndWeightRangeValue = new BigDecimal("0.1");
+    private static final BigDecimal seAndHeightRangeValue = new BigDecimal("0.5");
 
     /**
      * 初筛数据完整性判断
@@ -214,13 +216,13 @@ public class StatUtil {
         statConclusions = statConclusions.stream().filter(sc->Objects.equals(Boolean.TRUE,sc.getIsValid())).collect(Collectors.toList());
 
         int sumSize = statConclusions.size();
-        double sumVisionL = statConclusions.stream().mapToDouble(sc->sc.getVisionL().doubleValue()).sum();
+        double sumVisionL = statConclusions.stream().mapToDouble(sc->Optional.ofNullable(sc.getVisionL()).orElse(new BigDecimal("0")).doubleValue()).sum();
         BigDecimal avgVisionL = BigDecimalUtil.divide(String.valueOf(sumVisionL), String.valueOf(sumSize),1);
 
-        double sumVisionR = statConclusions.stream().mapToDouble(sc->sc.getVisionR().doubleValue()).sum();
+        double sumVisionR = statConclusions.stream().mapToDouble(sc->Optional.ofNullable(sc.getVisionR()).orElse(new BigDecimal("0")).doubleValue()).sum();
         BigDecimal avgVisionR = BigDecimalUtil.divide(String.valueOf(sumVisionR), String.valueOf(sumSize),1);
 
-        return new TwoTuple<>(avgVisionL,avgVisionR);
+        return TwoTuple.of(avgVisionL,avgVisionR);
     }
 
 
@@ -364,6 +366,8 @@ public class StatUtil {
      *
      * @param leftNakedVision  左眼裸视
      * @param rightNakedVision 右眼裸视
+     * @param leftCorrectVision 左眼戴镜视力
+     * @param rightCorrectVision 右眼戴镜视力
      * @param schoolType 学校类型
      * @param age 年龄
      * @param isWearGlasses 是否戴镜（true-戴镜，false-不戴镜）
@@ -1035,8 +1039,174 @@ public class StatUtil {
 
     //=============7、复测
 
+    /**
+     * 计算错误次数
+     *
+     * 身高误差超过0.5cm
+     *
+     * 体重误差超过0.1kg
+     *
+     * 裸眼和戴镜视力误差超过±1行（1行 0.1）
+     *
+     * 等效球镜度数误差超过±0.50D
+     *
+     * @return
+     */
+    public static int calculateErrorNum(VisionScreeningResult currentVisionScreeningResult,VisionScreeningResult anotherVisionScreeningResult,Boolean isWearingGlasses) {
+        int errorNum = getNakedVisionErrorNum(currentVisionScreeningResult,anotherVisionScreeningResult) + getCorrectedVisionErrorNum(currentVisionScreeningResult,anotherVisionScreeningResult);
+        if (Objects.nonNull(isWearingGlasses) && isWearingGlasses) {
+            errorNum += getSeErrorNum(currentVisionScreeningResult,anotherVisionScreeningResult);
+        }
+        if (Objects.equals(1,currentVisionScreeningResult.getScreeningType())){
+            errorNum += getHeightAndWeight(currentVisionScreeningResult,anotherVisionScreeningResult);
+        }
+        return errorNum;
+    }
+
+    /**
+     *  获取身高体重错误数
+     */
+    public int getHeightAndWeight(VisionScreeningResult currentVisionScreeningResult,VisionScreeningResult anotherVisionScreeningResult) {
+        int errorNum = 0;
+        HeightAndWeightDataDO currentHeightAndWeightData = currentVisionScreeningResult.getHeightAndWeightData();
+        HeightAndWeightDataDO anotherHeightAndWeightData = anotherVisionScreeningResult.getHeightAndWeightData();
+        if (ObjectsUtil.allNotNull(currentHeightAndWeightData,anotherHeightAndWeightData)){
+            errorNum += inRange(currentHeightAndWeightData.getHeight(),anotherHeightAndWeightData.getHeight(),seAndHeightRangeValue);
+            errorNum += inRange(currentHeightAndWeightData.getWeight(),anotherHeightAndWeightData.getWeight(),visionAndWeightRangeValue);
+        }
+
+        return errorNum;
+    }
+
+    /**
+     * 获取视力错误数
+     *
+     * @return
+     */
+    public static int getNakedVisionErrorNum(VisionScreeningResult currentVisionScreeningResult,VisionScreeningResult anotherVisionScreeningResult) {
+        int errorNum = 0;
+        VisionDataDO currentVisionData = currentVisionScreeningResult.getVisionData();
+        VisionDataDO anotherVisionData = anotherVisionScreeningResult.getVisionData();
+        if (currentVisionData != null && anotherVisionData != null) {
+            errorNum += inRange(currentVisionData.getLeftEyeData().getNakedVision(), anotherVisionData.getLeftEyeData().getNakedVision(), visionAndWeightRangeValue);
+            errorNum += inRange(currentVisionData.getRightEyeData().getNakedVision(), anotherVisionData.getRightEyeData().getNakedVision(), visionAndWeightRangeValue);
+        }
+        return errorNum;
+    }
+
+    /**
+     * 获取矫正视力错误数
+     *
+     * @return
+     */
+    public static int getCorrectedVisionErrorNum(VisionScreeningResult currentVisionScreeningResult,VisionScreeningResult anotherVisionScreeningResult) {
+        int errorNum = 0;
+        VisionDataDO currentVisionData = currentVisionScreeningResult.getVisionData();
+        VisionDataDO anotherVisionData = anotherVisionScreeningResult.getVisionData();
+        if (ObjectsUtil.allNotNull(currentVisionData,anotherVisionData)) {
+            errorNum += inRange(currentVisionData.getLeftEyeData().getCorrectedVision(), anotherVisionData.getLeftEyeData().getCorrectedVision(), visionAndWeightRangeValue);
+            errorNum += inRange(currentVisionData.getRightEyeData().getCorrectedVision(), anotherVisionData.getRightEyeData().getCorrectedVision(), visionAndWeightRangeValue);
+        }
+        return errorNum;
+    }
+
+
+    /**
+     * 获取等效球镜复测错误
+     *
+     * @return
+     */
+    public static int getSeErrorNum(VisionScreeningResult currentVisionScreeningResult,VisionScreeningResult anotherVisionScreeningResult) {
+        int errorNum = 0;
+        ComputerOptometryDO currentComputerOptometry = currentVisionScreeningResult.getComputerOptometry();
+        ComputerOptometryDO anotherComputerOptometry = anotherVisionScreeningResult.getComputerOptometry();
+        if (ObjectsUtil.allNotNull(currentComputerOptometry,anotherComputerOptometry)) {
+            BigDecimal currentLeftSe = StatUtil.getSphericalEquivalent(currentComputerOptometry.getLeftEyeData().getSph(), currentComputerOptometry.getLeftEyeData().getCyl());
+            BigDecimal currentRightSe = StatUtil.getSphericalEquivalent(currentComputerOptometry.getRightEyeData().getSph(), currentComputerOptometry.getRightEyeData().getCyl());
+            BigDecimal anotherLeftSe = StatUtil.getSphericalEquivalent(anotherComputerOptometry.getLeftEyeData().getSph(), anotherComputerOptometry.getLeftEyeData().getCyl());
+            BigDecimal anotherRightSe = StatUtil.getSphericalEquivalent(anotherComputerOptometry.getRightEyeData().getSph(), anotherComputerOptometry.getLeftEyeData().getCyl());
+            errorNum += inRange(currentLeftSe,anotherLeftSe, seAndHeightRangeValue);
+            errorNum += inRange(currentRightSe,anotherRightSe, seAndHeightRangeValue);
+        }
+        return errorNum;
+    }
+
+    /**
+     * 判断是否在范围内
+     *
+     * @param beforeValue
+     * @param afterValue
+     * @param rangeValue
+     * @return
+     */
+    public static int inRange(BigDecimal beforeValue, BigDecimal afterValue, BigDecimal rangeValue) {
+        int errorNum = 0;
+        if (beforeValue == null || afterValue == null || rangeValue == null) {
+            return errorNum;
+        }
+        //属于误差范围内
+        if (beforeValue.subtract(afterValue).abs().compareTo(rangeValue) > 0) {
+            errorNum++;
+        }
+        return errorNum;
+    }
+
+    /**
+     * 计算复测项次
+     *  左右眼裸眼视力、左右眼等效球镜度数
+     *  左右眼戴镜视力 （戴镜）
+     *  身高、体重 （常见病）
+     */
+    public static int calculateItemNum(VisionScreeningResult currentVisionScreeningResult) {
+        int itemCount = 0;
+        VisionDataDO visionData = currentVisionScreeningResult.getVisionData();
+        if(Objects.nonNull(visionData)){
+            if (visionData.validNakedVision()){
+                itemCount += 2;
+            }
+            if (visionData.validCorrectedVision()){
+                itemCount += 2;
+            }
+        }
+        ComputerOptometryDO computerOptometry = currentVisionScreeningResult.getComputerOptometry();
+        if (Objects.nonNull(computerOptometry) && computerOptometry.valid()){
+            itemCount += 2;
+        }
+
+        HeightAndWeightDataDO heightAndWeightData = currentVisionScreeningResult.getHeightAndWeightData();
+        if (Objects.nonNull(heightAndWeightData)){
+            itemCount += count(heightAndWeightData.getHeight());
+            itemCount += count(heightAndWeightData.getWeight());
+        }
+        return itemCount;
+    }
+
+    public static int count(BigDecimal value){
+        int itemCount=0;
+        if (Objects.nonNull(value)){
+            itemCount++;
+        }
+        return itemCount;
+    }
+
 
     //=================8、常见病相关指标【占比：保留2位小数点】
+
+    /**
+     * 龋齿相关
+     */
+    public static Set<SaprodontiaDataDO.SaprodontiaItem> getSaprodontia(SaprodontiaDataDO saprodontiaData,List<String> itemList){
+        List<SaprodontiaDataDO.SaprodontiaItem> above = saprodontiaData.getAbove();
+        List<SaprodontiaDataDO.SaprodontiaItem> underneath = saprodontiaData.getUnderneath();
+        List<SaprodontiaDataDO.SaprodontiaItem> saprodontiaItemList=Lists.newArrayList();
+        if (CollectionUtil.isNotEmpty(above)){
+            saprodontiaItemList.addAll(above);
+        }
+        if (CollectionUtil.isNotEmpty(underneath)){
+            saprodontiaItemList.addAll(underneath);
+        }
+        return saprodontiaItemList.stream().filter(s -> itemList.contains(s.getDeciduous()) || itemList.contains(s.getPermanent())).collect(Collectors.toSet());
+    }
 
 
     /**

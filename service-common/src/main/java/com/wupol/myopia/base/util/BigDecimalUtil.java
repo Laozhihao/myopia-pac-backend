@@ -1,6 +1,7 @@
 package com.wupol.myopia.base.util;
 
 import com.google.common.collect.Maps;
+import org.springframework.util.Assert;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -303,11 +304,19 @@ public class BigDecimalUtil {
      * @param scale 精确小数
      */
     public static BigDecimal divide(String v1, String v2, int scale) {
+        Assert.notNull(v1,"can not null");
+        Assert.notNull(v2,"can not null");
+        BigDecimal b1 = new BigDecimal(v1);
+        BigDecimal b2 = new BigDecimal(v2);
+        return divide(b1,b2,scale);
+    }
+
+    public static BigDecimal divide(BigDecimal b1, BigDecimal b2, int scale) {
+        Assert.notNull(b1,"can not null");
+        Assert.notNull(b2,"can not null");
         if (scale < 0) {
             throw new IllegalArgumentException("The scale must be a positive integer or zero");
         }
-        BigDecimal b1 = new BigDecimal(v1);
-        BigDecimal b2 = new BigDecimal(v2);
         if (BigDecimal.ZERO.compareTo(b2) == 0){
             return new BigDecimal("0.0");
         }
