@@ -40,10 +40,12 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.ComputerOptometr
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultSearchDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentQueryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentScreeningProgressVO;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentVO;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
@@ -106,6 +108,8 @@ public class ScreeningAppController {
     private ScreeningExportService screeningExportService;
     @Autowired
     private CommonImportService commonImportService;
+    @Autowired
+    private ScreeningPlanSchoolService screeningPlanSchoolService;
 
     /**
      * 模糊查询某个筛查机构下的学校的
@@ -719,13 +723,25 @@ public class ScreeningAppController {
         if (CollectionUtils.isEmpty(currentPlanIds)) {
             return new ScreeningPlanSchoolStudent();
         }
+
         List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.getByPlanIdsOrderByUpdateTimeDesc(currentPlanIds);
         if (CollectionUtils.isEmpty(visionScreeningResults)) {
-            ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getOneByNePlanId(Lists.newArrayList(currentPlanIds).get(0));
-            if (Objects.nonNull(planStudent)) {
-                return planStudent.setSchoolName(schoolService.getById(planStudent.getSchoolId()).getName())
-                        .setGradeName(schoolGradeService.getById(planStudent.getGradeId()).getName())
-                        .setClassName(schoolClassService.getById(planStudent.getClassId()).getName());
+            List<ScreeningPlanSchool> schoolPlan = screeningPlanSchoolService.getSchoolListsByPlanId(Lists.newArrayList(currentPlanIds).get(0));
+            if (Objects.nonNull(schoolPlan) && !schoolPlan.isEmpty()) {
+                ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getOneByPlanId(Lists.newArrayList(currentPlanIds).get(0));
+                if (Objects.nonNull(planStudent)) {
+                    return planStudent.setSchoolName(schoolService.getById(planStudent.getSchoolId()).getName())
+                            .setGradeName(schoolGradeService.getById(planStudent.getGradeId()).getName())
+                            .setClassName(schoolClassService.getById(planStudent.getClassId()).getName())
+                            .setGradeId(planStudent.getGradeId())
+                            .setSchoolId(planStudent.getSchoolId())
+                            .setGradeId(planStudent.getClassId());
+                } else {
+                    planStudent = new ScreeningPlanSchoolStudent();
+                    return planStudent
+                            .setSchoolId(schoolPlan.get(0).getSchoolId())
+                            .setSchoolName(schoolService.getById(schoolPlan.get(0).getSchoolId()).getName());
+                }
             } else {
                 return new ScreeningPlanSchoolStudent();
             }
@@ -734,7 +750,10 @@ public class ScreeningAppController {
 
         return planStudent.setSchoolName(schoolService.getById(planStudent.getSchoolId()).getName())
                 .setGradeName(schoolGradeService.getById(planStudent.getGradeId()).getName())
-                .setClassName(schoolClassService.getById(planStudent.getClassId()).getName());
+                .setClassName(schoolClassService.getById(planStudent.getClassId()).getName())
+                .setGradeId(planStudent.getGradeId())
+                .setSchoolId(planStudent.getSchoolId())
+                .setGradeId(planStudent.getClassId());
     }
 
     /**
