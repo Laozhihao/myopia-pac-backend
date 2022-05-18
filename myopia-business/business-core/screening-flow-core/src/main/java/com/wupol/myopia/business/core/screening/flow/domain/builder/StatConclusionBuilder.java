@@ -205,11 +205,14 @@ public class StatConclusionBuilder {
         this.setMyopia();
         this.setMyopiaLevel();
         this.setMyopiaWarningLevel();
+        this.setScreeningMyopia();
 
         this.setAnisometropia();
         this.setRefractiveError();
 
     }
+
+
 
 
     /**
@@ -248,6 +251,14 @@ public class StatConclusionBuilder {
         statConclusion.setMyopiaWarningLevel(StatUtil.getSeriousLevel(leftLevel,rightLevel));
     }
 
+    /**
+     * 设置筛查性近视
+     */
+    private void setScreeningMyopia() {
+        MyopiaLevelEnum leftScreeningMyopia = StatUtil.getScreeningMyopia(basicData.getLeftSph(), basicData.getLeftCyl(), basicData.getAge(), basicData.getLeftNakedVision());
+        MyopiaLevelEnum rightScreeningMyopia = StatUtil.getScreeningMyopia(basicData.getRightSph(), basicData.getRightCyl(), basicData.getAge(), basicData.getRightNakedVision());
+        statConclusion.setScreeningMyopia(StatUtil.getSeriousLevel(leftScreeningMyopia,rightScreeningMyopia));
+    }
     /**
      * 设置裸眼视力预警级别
      */
@@ -309,8 +320,8 @@ public class StatConclusionBuilder {
      * 近视等级
      */
     private void setMyopiaLevel() {
-        MyopiaLevelEnum leftLevel = StatUtil.getMyopiaLevel(basicData.getLeftSph(), basicData.getLeftCyl(), basicData.getAge(), basicData.getLeftNakedVision());
-        MyopiaLevelEnum rightLevel = StatUtil.getMyopiaLevel(basicData.getRightSph(), basicData.getRightCyl(), basicData.getAge(), basicData.getRightNakedVision());
+        MyopiaLevelEnum leftLevel = StatUtil.getMyopiaLevel(basicData.getLeftSph(), basicData.getLeftCyl());
+        MyopiaLevelEnum rightLevel = StatUtil.getMyopiaLevel(basicData.getRightSph(), basicData.getRightCyl());
         statConclusion.setMyopiaLevel(StatUtil.getSeriousLevel(leftLevel, rightLevel));
     }
 
