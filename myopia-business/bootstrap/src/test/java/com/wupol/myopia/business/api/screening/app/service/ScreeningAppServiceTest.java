@@ -125,7 +125,7 @@ class ScreeningAppServiceTest {
         if (deviationDTO.isValid()) {
             // 只是复测数据
             deviationDTO.setIsState(1);
-            visionScreeningBizService.saveOrUpdateStudentScreenData(deviationDTO);
+            visionScreeningBizService.saveOrUpdateStudentScreenData(deviationDTO,"1");
         } else {
             System.out.println("不是复测数据");
         }

@@ -25,7 +25,7 @@ public class ScreeningResultDataVO {
     private EyePressureDataDTO eyePressureData;
     private OtherEyeDiseasesDTO otherEyeDiseasesData;
     private HeightAndWeightDataDTO heightAndWeightData;
-    private DeviationDTO deviationDTO;
+    private DeviationDTO deviationData;
 
     public static ScreeningResultDataVO getInstance(VisionScreeningResult screeningResult) {
         if (Objects.isNull(screeningResult)) {
@@ -40,7 +40,7 @@ public class ScreeningResultDataVO {
         screeningResultDataVO.setEyePressureData(EyePressureDataDTO.getInstance(screeningResult.getEyePressureData()));
         screeningResultDataVO.setOtherEyeDiseasesData(OtherEyeDiseasesDTO.getInstance(screeningResult.getOtherEyeDiseases(), screeningResult.getSystemicDiseaseSymptom()));
         screeningResultDataVO.setHeightAndWeightData(HeightAndWeightDataDTO.getInstance(screeningResult.getHeightAndWeightData()));
-        screeningResultDataVO.setDeviationDTO(DeviationDTO.getInstance(screeningResult.getDeviationData()));
+        screeningResultDataVO.setDeviationData(DeviationDTO.getInstance(screeningResult.getDeviationData()));
         return screeningResultDataVO;
     }
 }

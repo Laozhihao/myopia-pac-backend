@@ -604,6 +604,7 @@ public class ScreeningAppService {
         if (finishCount >= classScreeningProgress.getNeedReScreeningCount()) {
             classScreeningProgress.setFinish(true);
         }
+        classScreeningProgress.setStudentScreeningProgressList(classScreeningProgress.getStudentScreeningProgressList().stream().sorted(Comparator.comparing(StudentScreeningProgressVO::getScreeningStatus)).collect(Collectors.toList()));
         return classScreeningProgress;
     }
 
@@ -632,13 +633,12 @@ public class ScreeningAppService {
 
         firstProgress = numerationStatus(firstProgress, secondProgress);
 
-        screeningProgressState.setReScreeningCount((int) firstProgress.stream().filter(item -> item.getScreeningStatus() != 4).count());
         screeningProgressState.setNeedReScreeningCount((int) firstProgress.stream().filter(item -> item.getScreeningStatus() == 1 || item.getScreeningStatus() == 3).count());
-        screeningProgressState.setWearingGlasses((int) firstProgress.stream().filter(item -> (item.getScreeningStatus() == 1 || item.getScreeningStatus() == 3)
+        screeningProgressState.setWearingGlasses((int) firstProgress.stream().filter(item -> item.getScreeningStatus() == 3
                 && Objects.nonNull(firstPlanStudentVisionResultMap.get(item.getStudentId())) && firstPlanStudentVisionResultMap.get(item.getStudentId()).getVisionData().getLeftEyeData().getGlassesType() != 0).count());
-        screeningProgressState.setNoWearingGlasses((int) firstProgress.stream().filter(item -> (item.getScreeningStatus() == 1 || item.getScreeningStatus() == 3)
+        screeningProgressState.setNoWearingGlasses((int) firstProgress.stream().filter(item -> item.getScreeningStatus() == 3
                 && Objects.nonNull(firstPlanStudentVisionResultMap.get(item.getStudentId())) && firstPlanStudentVisionResultMap.get(item.getStudentId()).getVisionData().getLeftEyeData().getGlassesType() == 0).count());
-        screeningProgressState.setRetestRatio(screeningProgressState.getReScreeningCount() == 0 ? BigDecimal.ZERO : new BigDecimal(screeningProgressState.getNeedReScreeningCount()).divide(BigDecimal.valueOf(screeningProgressState.getReScreeningCount()), 4, BigDecimal.ROUND_DOWN));
+
 
         screeningProgressState.setRetestStudents(firstProgress.stream().filter(StudentScreeningProgressVO::getIsFirst)
                 .filter(item -> {
@@ -668,7 +668,9 @@ public class ScreeningAppService {
                 }).collect(Collectors.toList()));
         screeningProgressState.setErrorItemCount(screeningProgressState.getRetestStudents().stream().mapToInt(RetestStudentVO::getErrorItemCount).sum());
         screeningProgressState.setRetestItemCount(screeningProgressState.getRetestStudents().stream().mapToInt(RetestStudentVO::getRetestItemCount).sum());
-        screeningProgressState.setErrorRatio(screeningProgressState.getRetestItemCount() == 0 ? BigDecimal.ZERO : new BigDecimal(screeningProgressState.getErrorItemCount()).divide(new BigDecimal(screeningProgressState.getRetestItemCount()), 4, BigDecimal.ROUND_UP));
+        screeningProgressState.setErrorRatio(screeningProgressState.getRetestItemCount() == 0 ? BigDecimal.ZERO : new BigDecimal(screeningProgressState.getErrorItemCount()).divide(new BigDecimal(screeningProgressState.getRetestItemCount()), 4, BigDecimal.ROUND_HALF_UP));
+        screeningProgressState.setRetestRatio(new BigDecimal(screeningProgressState.getRetestStudents().size()).divide(new BigDecimal(screeningProgressState.getScreeningCount()), 4, BigDecimal.ROUND_HALF_UP));
+        screeningProgressState.setReScreeningCount(screeningProgressState.getRetestStudents().size());
         return screeningProgressState;
     }
 
@@ -723,7 +725,7 @@ public class ScreeningAppService {
         HeightAndWeightDataDO firstHeightWeight = null;
         retestStudentVO.setRetestItemCount(0);
         retestStudentVO.setErrorItemCount(0);
-        if (Objects.nonNull(retestStudentVO.getVisionScreeningResult())) {
+        if (Objects.nonNull(retestStudentVO.getStudentVisionScreeningResult())) {
             if (Objects.nonNull(retestStudentVO.getVisionScreeningResult().getSecond())) {
                 secondLeftVision = Objects.isNull(retestStudentVO.getVisionScreeningResult().getSecond().getVisionData())
                         ? null : retestStudentVO.getVisionScreeningResult().getSecond().getVisionData().getLeftEyeData();
@@ -755,6 +757,7 @@ public class ScreeningAppService {
 
         retestStudentVO.setRetestItemCount(retestStudentVO.getRetestItemCount() + retestStudentVO.existCheckHeightAndWeight(secondHeightWeight));
         retestStudentVO.setErrorItemCount(retestStudentVO.getErrorItemCount() + retestStudentVO.checkHeightAndWeight(firstHeightWeight, secondHeightWeight, retestStudentVO));
+        retestStudentVO.setVisionScreeningResult(null);
         return retestStudentVO;
     }
 

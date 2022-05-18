@@ -12,6 +12,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.builder.StatConclusi
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
+import com.wupol.myopia.business.core.screening.flow.facade.StatConclusionCheck;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +44,8 @@ public class StatManagementTest {
     ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     @Autowired
     SchoolGradeService schoolGradeService;
+    @Autowired
+    StatConclusionCheck statConclusionCheck;
 
 
     /**
@@ -75,8 +78,6 @@ public class StatManagementTest {
             return;
         }
         Map<Boolean, VisionScreeningResult> visionScreeningResultMap = visionScreeningResults.stream().collect(Collectors.toMap(VisionScreeningResult::getIsDoubleScreen, Function.identity()));
-        CurrentUser user = new CurrentUser();
-        user.setClientId("1");
         VisionScreeningResult currentVisionScreeningResult = visionScreeningResultMap.get(Boolean.FALSE);
         if (Objects.nonNull(currentVisionScreeningResult)){
             log.info("初筛=========");
@@ -85,7 +86,7 @@ public class StatManagementTest {
                     .setStatConclusion(null)
                     .setScreeningPlanSchoolStudent(screeningPlanSchoolStudent)
                     .setGradeCode(schoolGrade.getGradeCode())
-                    .setCurrentUser(user)
+                    .setClientId("1")
                     .build();
             log.info(JSONObject.toJSONString(statConclusion,true));
         }
@@ -98,10 +99,18 @@ public class StatManagementTest {
                     .setStatConclusion(null)
                     .setScreeningPlanSchoolStudent(screeningPlanSchoolStudent)
                     .setGradeCode(schoolGrade.getGradeCode())
-                    .setCurrentUser(user)
+                    .setClientId("1")
                     .build();
             log.info(JSONObject.toJSONString(statConclusion,true));
         }
 
+    }
+
+
+    @Test
+    public void check(){
+        Integer planId= 232;
+        StatConclusionCheck.DataCheckResult checkResult = statConclusionCheck.getCheckResult(planId, 4, false);
+        log.info(JSONObject.toJSONString(checkResult,true));
     }
 }

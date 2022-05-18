@@ -565,6 +565,13 @@
         where screening_plan_id != #{planId}
     </select>
 
+    <select id="getOneByNePlanId" resultMap="BaseResultMap">
+        select *
+        from m_screening_plan_school_student
+        where screening_plan_id != #{planId}
+        limit 1
+    </select>
+
     <select id="getGradeByPlanIdAndSchoolId" resultMap="GradeClassesDTO">
         select *
         from m_screening_plan_school_student

@@ -59,6 +59,8 @@ public class VisionDataDTO extends ScreeningResultBasicData {
     @JsonProperty("l_ok_degree")
     private BigDecimal leftOkDegree;
 
+
+
     @Override
     public VisionScreeningResult buildScreeningResultData(VisionScreeningResult visionScreeningResult) {
         VisionDataDO.VisionData leftVisionData = new VisionDataDO.VisionData()

@@ -257,4 +257,9 @@ public class StatConclusion implements Serializable {
      */
     private Integer lowVisionLevel;
 
+    /**
+     * 是否配合检查：0-配合、1-不配合
+     */
+    private Integer isCooperative;
+
 }

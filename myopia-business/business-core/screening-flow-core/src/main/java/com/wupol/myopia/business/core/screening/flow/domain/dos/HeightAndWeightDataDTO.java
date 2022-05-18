@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.screening.flow.domain.dos;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.collect.Lists;
+import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultBasicData;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.Data;
@@ -89,8 +90,8 @@ public class HeightAndWeightDataDTO extends ScreeningResultBasicData {
             return null;
         }
         HeightAndWeightDataDTO heightAndWeightDataDTO = new HeightAndWeightDataDTO();
-        heightAndWeightDataDTO.setHeight(heightAndWeightDataDO.getHeight());
-        heightAndWeightDataDTO.setWeight(heightAndWeightDataDO.getWeight());
+        heightAndWeightDataDTO.setHeight(BigDecimalUtil.getBigDecimalByFormat(heightAndWeightDataDO.getHeight(),1));
+        heightAndWeightDataDTO.setWeight(BigDecimalUtil.getBigDecimalByFormat(heightAndWeightDataDO.getWeight(),1));
         heightAndWeightDataDTO.setBmi(heightAndWeightDataDO.getBmi());
         return heightAndWeightDataDTO;
     }

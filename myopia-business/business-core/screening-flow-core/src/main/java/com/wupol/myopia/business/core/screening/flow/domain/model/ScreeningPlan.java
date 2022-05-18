@@ -3,6 +3,7 @@ package com.wupol.myopia.business.core.screening.flow.domain.model;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.business.common.utils.annotation.CheckTimeInterval;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -75,6 +76,7 @@ public class ScreeningPlan implements Serializable {
      * 筛查计划--结束时间（时间戳）
      */
     @NotNull(message = "筛查计划结束时间不能为空")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     private Date endTime;
 
     /**

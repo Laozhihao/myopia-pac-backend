@@ -114,7 +114,7 @@ public class ScreeningAppController {
      * @return
      */
     @GetMapping("/school/findAllLikeSchoolName")
-    public List<School> getSchoolNameByNameLike(String schoolName,@RequestParam(value = "channel", defaultValue = "0") Integer channel) {
+    public List<School> getSchoolNameByNameLike(String schoolName, @RequestParam(value = "channel", defaultValue = "0") Integer channel) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         return screeningPlanBizService.getSchoolByOrgId(schoolName, currentUser.getOrgId(), channel);
     }
@@ -172,6 +172,10 @@ public class ScreeningAppController {
                                               @RequestParam(value = "channel", defaultValue = "0") Integer channel,
                                               @RequestParam(value = "current", defaultValue = "1") Integer page,
                                               @RequestParam(value = "size", defaultValue = "60") Integer size) {
+        // 新版本不分页，这里需要兼容旧版本，数量为最大,学生数一般最多100,999比较合适
+        if (channel == 1) {
+            size = 999;
+        }
         ScreeningStudentQueryDTO screeningStudentQuery = new ScreeningStudentQueryDTO().setScreeningOrgId(CurrentUserUtil.getCurrentUser().getOrgId()).setNameLike(nameLike);
         if (Objects.nonNull(schoolId) && schoolId != -1) {
             screeningStudentQuery.setSchoolId(schoolId);
@@ -186,10 +190,6 @@ public class ScreeningAppController {
         List<StudentVO> studentVOs = screeningPlanSchoolStudentPage.getRecords().stream()
                 .sorted(Comparator.comparing(ScreeningPlanSchoolStudent::getCreateTime).reversed())
                 .map(StudentVO::getInstance).collect(Collectors.toList());
-        // 新版本不分页，这里需要兼容旧版本，数量为最大,学生数一般最多100,999比较合适
-        if (channel == 1) {
-            size = 999;
-        }
         return new PageImpl<>(studentVOs, PageRequest.of(page - 1, size), screeningPlanSchoolStudentPage.getTotal());
     }
 
@@ -298,7 +298,8 @@ public class ScreeningAppController {
     @PostMapping("/eye/addVision")
     public ApiResult addStudentVision(@Valid @RequestBody VisionDataDTO visionDataDTO) {
         if (visionDataDTO.isValid()) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(visionDataDTO);
+            CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+            visionScreeningBizService.saveOrUpdateStudentScreenData(visionDataDTO,currentUser.getClientId());
             return ApiResult.success();
         } else {
             return ApiResult.failure("请输入正确的参数");
@@ -313,7 +314,8 @@ public class ScreeningAppController {
     @PostMapping("/eye/addComputer")
     public ApiResult addStudentComputer(@Valid @RequestBody ComputerOptometryDTO computerOptometryDTO) {
         if (computerOptometryDTO.isValid()) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(computerOptometryDTO);
+            CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+            visionScreeningBizService.saveOrUpdateStudentScreenData(computerOptometryDTO,currentUser.getClientId());
             return ApiResult.success();
         } else {
             return ApiResult.failure("请输入正确的参数");
@@ -328,7 +330,8 @@ public class ScreeningAppController {
     @PostMapping("/eye/addBiology")
     public ApiResult addStudentBiology(@Valid @RequestBody BiometricDataDTO biometricDataDTO) {
         if (biometricDataDTO.isValid()) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(biometricDataDTO);
+            CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+            visionScreeningBizService.saveOrUpdateStudentScreenData(biometricDataDTO,currentUser.getClientId());
             return ApiResult.success();
         } else {
             return ApiResult.failure("请输入正确的参数");
@@ -342,7 +345,8 @@ public class ScreeningAppController {
      */
     @PostMapping("/eye/addEyeDisease")
     public void addEyeDisease(@Valid @RequestBody OtherEyeDiseasesDTO otherEyeDiseasesDTO) {
-        visionScreeningBizService.saveOrUpdateStudentScreenData(otherEyeDiseasesDTO);
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        visionScreeningBizService.saveOrUpdateStudentScreenData(otherEyeDiseasesDTO,currentUser.getClientId());
     }
 
     /**
@@ -353,7 +357,8 @@ public class ScreeningAppController {
     @PostMapping("/eye/addMultiCheck")
     public ApiResult addMultiCheck(@Valid @RequestBody MultiCheckDataDTO multiCheckDataDTO) {
         if (multiCheckDataDTO.isValid()) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(multiCheckDataDTO);
+            CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+            visionScreeningBizService.saveOrUpdateStudentScreenData(multiCheckDataDTO,currentUser.getClientId());
             return ApiResult.success();
         } else {
             return ApiResult.failure("请输入正确的参数");
@@ -368,7 +373,8 @@ public class ScreeningAppController {
     @PostMapping("/eye/addPupilOptometry")
     public ApiResult addPupilOptometry(@Valid @RequestBody PupilOptometryDTO pupilOptometryDTO) {
         if (pupilOptometryDTO.isValid()) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(pupilOptometryDTO);
+            CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+            visionScreeningBizService.saveOrUpdateStudentScreenData(pupilOptometryDTO,currentUser.getClientId());
             return ApiResult.success();
         } else {
             return ApiResult.failure("请输入正确的参数");
@@ -383,7 +389,8 @@ public class ScreeningAppController {
     @PostMapping("/eye/addEyePressure")
     public ApiResult addEyePressure(@Valid @RequestBody EyePressureDataDTO eyePressureDataDTO) {
         if (eyePressureDataDTO.isValid()) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(eyePressureDataDTO);
+            CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+            visionScreeningBizService.saveOrUpdateStudentScreenData(eyePressureDataDTO,currentUser.getClientId());
             return ApiResult.success();
         } else {
             return ApiResult.failure("请输入正确的参数");
@@ -398,7 +405,8 @@ public class ScreeningAppController {
     @PostMapping("/eye/addHeightAndWeight")
     public ApiResult addHeightAndWeight(@Valid @RequestBody HeightAndWeightDataDTO heightAndWeightDataDTO) {
         if (heightAndWeightDataDTO.isValid()) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(heightAndWeightDataDTO);
+            CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+            visionScreeningBizService.saveOrUpdateStudentScreenData(heightAndWeightDataDTO,currentUser.getClientId());
             return ApiResult.success();
         } else {
             return ApiResult.failure("请输入正确的参数");
@@ -444,7 +452,7 @@ public class ScreeningAppController {
      * @return
      */
     @PostMapping("/student/save")
-    public ApiResult saveStudent(@RequestBody AppStudentDTO appStudentDTO,@RequestParam(value = "channel", defaultValue = "0") Integer channel) throws ParseException {
+    public ApiResult saveStudent(@RequestBody AppStudentDTO appStudentDTO, @RequestParam(value = "channel", defaultValue = "0") Integer channel) throws ParseException {
         appStudentDTO.checkStudentInfo();
         appStudentDTO.setDeptId(CurrentUserUtil.getCurrentUser().getOrgId());
         ApiResult apiResult = screeningAppService.validStudentParam(appStudentDTO);
@@ -506,7 +514,7 @@ public class ScreeningAppController {
     public ClassScreeningProgress getClassScreeningProgress(@NotNull(message = "学校ID不能为空") Integer schoolId,
                                                             @NotNull(message = "年级ID不能为空") Integer gradeId,
                                                             @NotNull(message = "班级ID不能为空") Integer classId,
-                                                            @NotNull(message = "初筛标志") Integer isState,
+                                                            @RequestParam(value = "isState", defaultValue = "0") Integer isState,
                                                             Boolean isFilter,
                                                             @RequestParam(value = "channel", defaultValue = "0") Integer channel) {
         return screeningAppService.getClassScreeningProgress(schoolId, gradeId, classId, CurrentUserUtil.getCurrentUser().getOrgId(), isFilter, isState, channel);
@@ -713,7 +721,14 @@ public class ScreeningAppController {
         }
         List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.getByPlanIdsOrderByUpdateTimeDesc(currentPlanIds);
         if (CollectionUtils.isEmpty(visionScreeningResults)) {
-            return new ScreeningPlanSchoolStudent();
+            ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getOneByNePlanId(Lists.newArrayList(currentPlanIds).get(0));
+            if (Objects.nonNull(planStudent)) {
+                return planStudent.setSchoolName(schoolService.getById(planStudent.getSchoolId()).getName())
+                        .setGradeName(schoolGradeService.getById(planStudent.getGradeId()).getName())
+                        .setClassName(schoolClassService.getById(planStudent.getClassId()).getName());
+            } else {
+                return new ScreeningPlanSchoolStudent();
+            }
         }
         ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(visionScreeningResults.get(0).getScreeningPlanSchoolStudentId());
 
@@ -740,9 +755,9 @@ public class ScreeningAppController {
      * @return
      */
     @GetMapping("/export/QRCode")
-    public List<QrCodeInfo> exportQRCode(@Valid AppQueryQrCodeParams appQueryQrCodeParams,@RequestParam(value = "channel", defaultValue = "0") Integer channel) {
+    public List<QrCodeInfo> exportQRCode(@Valid AppQueryQrCodeParams appQueryQrCodeParams, @RequestParam(value = "channel", defaultValue = "0") Integer channel) {
         try {
-            return screeningExportService.getQrCodeAndStudentInfo(appQueryQrCodeParams, CurrentUserUtil.getCurrentUser().getOrgId(),channel);
+            return screeningExportService.getQrCodeAndStudentInfo(appQueryQrCodeParams, CurrentUserUtil.getCurrentUser().getOrgId(), channel);
         } catch (Exception e) {
             log.error("获取二维码异常", e);
             throw new BusinessException("获取二维码异常");
@@ -757,7 +772,8 @@ public class ScreeningAppController {
     @PostMapping("/saprodontia")
     public ApiResult addSaprodontia(@Valid @RequestBody SaprodontiaDTO saprodontiaDTO) {
         if (saprodontiaDTO.isValid()) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(saprodontiaDTO);
+            CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+            visionScreeningBizService.saveOrUpdateStudentScreenData(saprodontiaDTO,currentUser.getClientId());
             return ApiResult.success();
         } else {
             return ApiResult.failure("请输入正确的参数");
@@ -787,7 +803,8 @@ public class ScreeningAppController {
     @PostMapping("/spine")
     public ApiResult addSpine(@Valid @RequestBody SpineDTO spineDTO) {
         if (spineDTO.isValid()) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(spineDTO);
+            CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+            visionScreeningBizService.saveOrUpdateStudentScreenData(spineDTO,currentUser.getClientId());
             return ApiResult.success();
         } else {
             return ApiResult.failure("请输入正确的参数");
@@ -817,7 +834,8 @@ public class ScreeningAppController {
     @PostMapping("/bloodPressure")
     public ApiResult addBloodPressure(@Valid @RequestBody BloodPressureDTO bloodPressureDTO) {
         if (bloodPressureDTO.isValid()) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(bloodPressureDTO);
+            CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+            visionScreeningBizService.saveOrUpdateStudentScreenData(bloodPressureDTO,currentUser.getClientId());
             return ApiResult.success();
         } else {
             return ApiResult.failure("请输入正确的参数");
@@ -848,7 +866,8 @@ public class ScreeningAppController {
     @PostMapping("/diseasesHistory")
     public ApiResult addDiseasesHistory(@Valid @RequestBody DiseasesHistoryDTO diseasesHistoryDTO) {
         if (diseasesHistoryDTO.isValid()) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(diseasesHistoryDTO);
+            CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+            visionScreeningBizService.saveOrUpdateStudentScreenData(diseasesHistoryDTO,currentUser.getClientId());
             return ApiResult.success();
         } else {
             return ApiResult.failure("请输入正确的参数");
@@ -879,7 +898,8 @@ public class ScreeningAppController {
     @PostMapping("/privacy")
     public ApiResult addPrivacy(@Valid @RequestBody PrivacyDTO privacyDTO) {
         if (privacyDTO.isValid()) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(privacyDTO);
+            CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+            visionScreeningBizService.saveOrUpdateStudentScreenData(privacyDTO,currentUser.getClientId());
             return ApiResult.success();
         } else {
             return ApiResult.failure("请输入正确的参数");
@@ -948,7 +968,8 @@ public class ScreeningAppController {
             visionScreeningBizService.verifyScreening(screeningResult, screeningPlan.getScreeningType() == 1);
             // 只是复测数据
             deviationDTO.setIsState(1);
-            visionScreeningBizService.saveOrUpdateStudentScreenData(deviationDTO);
+            CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+            visionScreeningBizService.saveOrUpdateStudentScreenData(deviationDTO,currentUser.getClientId());
         }
     }
 
@@ -962,9 +983,9 @@ public class ScreeningAppController {
      **/
     @GetMapping("/school/findAllStudentNameState")
     public ClassScreeningProgress findClassScreefningStudent(@NotNull(message = "学校ID不能为空") Integer schoolId,
-                                                            @NotNull(message = "年级ID不能为空") Integer gradeId,
-                                                            @NotNull(message = "班级ID不能为空") Integer classId,
-                                                            @RequestParam(value = "channel", defaultValue = "0") Integer channel) {
+                                                             @NotNull(message = "年级ID不能为空") Integer gradeId,
+                                                             @NotNull(message = "班级ID不能为空") Integer classId,
+                                                             @RequestParam(value = "channel", defaultValue = "0") Integer channel) {
         return screeningAppService.findClassScreeningStudent(schoolId, gradeId, classId, CurrentUserUtil.getCurrentUser().getOrgId(), channel);
     }
 

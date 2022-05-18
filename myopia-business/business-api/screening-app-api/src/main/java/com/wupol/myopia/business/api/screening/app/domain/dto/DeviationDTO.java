@@ -24,17 +24,31 @@ public class DeviationDTO extends ScreeningResultBasicData {
     /**
      * 视力或屈光检查误差
      */
-    private DeviationDO.VisionOrOptometryDeviation visionOrOptometryDeviation;
+    private Integer visionOrOptometryDeviationType;
 
+    private String visionOrOptometryDeviationRemark;
 
     /**
      * 身高体重误差
      */
-    private DeviationDO.HeightWeightDeviation heightWeightDeviation;
+    private Integer heightWeightDeviationType;
+
+    private String heightWeightDeviationRemark;
 
     @Override
     public VisionScreeningResult buildScreeningResultData(VisionScreeningResult visionScreeningResult) {
         DeviationDO deviationDO = new DeviationDO();
+        DeviationDO.HeightWeightDeviation heightWeightDeviation = new DeviationDO.HeightWeightDeviation();
+        DeviationDO.VisionOrOptometryDeviation visionOrOptometryDeviation = new DeviationDO.VisionOrOptometryDeviation();
+
+        if (Objects.nonNull(visionOrOptometryDeviationType)) {
+            visionOrOptometryDeviation.setType(DeviationDO.VisionOrOptometryDeviationEnum.getByCode(visionOrOptometryDeviationType));
+            visionOrOptometryDeviation.setRemark(visionOrOptometryDeviationRemark);
+        }
+        if (Objects.nonNull(heightWeightDeviationType)) {
+            heightWeightDeviation.setType(DeviationDO.HeightWeightDeviationEnum.getByCode(visionOrOptometryDeviationType));
+            heightWeightDeviation.setRemark(heightWeightDeviationRemark);
+        }
         deviationDO.setHeightWeightDeviation(heightWeightDeviation);
         deviationDO.setVisionOrOptometryDeviation(visionOrOptometryDeviation);
         deviationDO.setDiagnosis(super.getDiagnosis());
@@ -44,6 +58,10 @@ public class DeviationDTO extends ScreeningResultBasicData {
 
     public boolean isValid() {
         // 暂时不需要验证，如果为空就是正常的
+        if (Objects.isNull(DeviationDO.VisionOrOptometryDeviationEnum.getByCode(visionOrOptometryDeviationType))
+                || Objects.isNull(DeviationDO.HeightWeightDeviationEnum.getByCode(visionOrOptometryDeviationType))) {
+            return false;
+        }
         return true;
     }
 
@@ -52,8 +70,10 @@ public class DeviationDTO extends ScreeningResultBasicData {
             return null;
         }
         DeviationDTO deviationDTO = new DeviationDTO();
-        deviationDTO.setVisionOrOptometryDeviation(deviationDO.getVisionOrOptometryDeviation());
-        deviationDTO.setHeightWeightDeviation(deviationDO.getHeightWeightDeviation());
+        deviationDTO.setHeightWeightDeviationType(Objects.nonNull(deviationDO.getHeightWeightDeviation()) ? deviationDO.getHeightWeightDeviation().getType().getCode() : null);
+        deviationDTO.setHeightWeightDeviationRemark(Objects.nonNull(deviationDO.getHeightWeightDeviation()) ? deviationDO.getHeightWeightDeviation().getRemark() : null);
+        deviationDTO.setVisionOrOptometryDeviationType(Objects.nonNull(deviationDO.getVisionOrOptometryDeviation()) ? deviationDO.getVisionOrOptometryDeviation().getType().getCode() : null);
+        deviationDTO.setVisionOrOptometryDeviationRemark(Objects.nonNull(deviationDO.getVisionOrOptometryDeviation()) ? deviationDO.getVisionOrOptometryDeviation().getRemark() : null);
         return deviationDTO;
     }
 }
