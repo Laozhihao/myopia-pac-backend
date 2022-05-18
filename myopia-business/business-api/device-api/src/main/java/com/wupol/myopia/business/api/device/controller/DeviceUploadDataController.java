@@ -48,7 +48,7 @@ public class DeviceUploadDataController {
     @PostMapping(value = "vs/uploadData", params = "v=1")
     public DeviceUploadResult uploadDeviceData(@Valid @RequestBody DeviceUploadDTO deviceUploadDto) {
         try {
-            deviceUploadDataService.uploadDeviceData(deviceUploadDto);
+            deviceUploadDataService.uploadDeviceData(deviceUploadDto,"1");
         } catch (Exception e) {
             log.error("设备上传数据失败,数据 = {}", JSON.toJSONString(deviceUploadDto), e);
             if (e instanceof BusinessException) {
@@ -63,7 +63,7 @@ public class DeviceUploadDataController {
     @PostMapping("/device/uploadData")
     public ApiResult<String> uploadLightBoxData(@RequestBody @Valid DeviceDataRequestDTO requestDTO) {
         IDeviceDataService deviceDataService = DeviceDataFactory.getDeviceDataService(requestDTO.getBusinessType());
-        deviceDataService.uploadDate(requestDTO);
+        deviceDataService.uploadDate(requestDTO,"1");
         return ApiResult.success();
     }
 
@@ -76,7 +76,7 @@ public class DeviceUploadDataController {
     @PostMapping("/device/bmi")
     public Object uploadBMI(@RequestBody @Valid ScalesRequestDTO requestDTO) {
         log.info("Data:{}", JSONObject.toJSONString(requestDTO));
-        return deviceUploadDataService.bodyFatScaleUpload(requestDTO);
+        return deviceUploadDataService.bodyFatScaleUpload(requestDTO,"1");
     }
 
     /**
@@ -98,7 +98,7 @@ public class DeviceUploadDataController {
      */
     @PostMapping("fkr710/upload")
     public ApiResult frkUpload(@RequestBody String str) {
-        fkrDataService.uploadData(str);
+        fkrDataService.uploadData(str,"1");
         return ApiResult.success();
     }
 

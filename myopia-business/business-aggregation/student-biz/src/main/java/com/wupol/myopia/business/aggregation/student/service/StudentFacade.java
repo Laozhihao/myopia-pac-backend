@@ -198,7 +198,12 @@ public class StudentFacade {
             //设置常见病信息
             screeningInfoDTO.setCommonDiseases(getCommonDiseases(result));
             //设置复测信息
-            if (Objects.nonNull(rescreeningVisionScreeningResultMap)){
+            if (Objects.nonNull(rescreeningVisionScreeningResultMap)
+                    &&Objects.nonNull(rescreeningVisionScreeningResultMap.get(result.getPlanId()))
+                    &&Objects.nonNull(rescreeningVisionScreeningResultMap.get(result.getPlanId()).getVisionData())
+                    &&Objects.nonNull(rescreeningVisionScreeningResultMap.get(result.getPlanId()).getComputerOptometry())
+                    &&Objects.nonNull(rescreeningVisionScreeningResultMap.get(result.getPlanId()).getHeightAndWeightData())){
+
                 screeningInfoDTO.setRescreening(ReScreenCardUtil.reScreeningResult(result,rescreeningVisionScreeningResultMap.get(result.getPlanId())));
             }
 
@@ -1185,11 +1190,11 @@ public class StudentFacade {
             MyopiaLevelEnum myopiaWarningLevel = null;
             if (Objects.nonNull(nakedVision)) {
                 if ((age < 6 && nakedVision.compareTo(new BigDecimal("4.9")) < 0) || (age >= 6 && nakedVision.compareTo(new BigDecimal("5.0")) < 0)) {
-                    myopiaWarningLevel = StatUtil.getMyopiaWarningLevel(sph, cyl, age, nakedVision);
+                    myopiaWarningLevel = StatUtil.getMyopiaLevel(sph, cyl, age, nakedVision);
                 }
             }
             // 远视
-            HyperopiaLevelEnum farsightednessWarningLevel = StatUtil.getHyperopiaWarningLevel(sph.floatValue(), cyl.floatValue(), age);
+            HyperopiaLevelEnum farsightednessWarningLevel = StatUtil.getHyperopiaLevel(sph.floatValue(), cyl.floatValue(), age);
             visionInfoVO.setMyopiaLevel(Objects.nonNull(myopiaWarningLevel) ? myopiaWarningLevel.code : null);
             visionInfoVO.setHyperopiaLevel(Objects.nonNull(farsightednessWarningLevel) ? farsightednessWarningLevel.code : null);
         }

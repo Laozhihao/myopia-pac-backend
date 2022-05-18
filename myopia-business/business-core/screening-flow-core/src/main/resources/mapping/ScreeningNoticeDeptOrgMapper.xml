@@ -39,7 +39,7 @@
         SELECT
           msn.id, msndo.id as screening_notice_dept_org_id, msn.type, msn.title, msn.content, msn.start_time, msn.end_time, msn.release_time, msn.screening_task_id,
           msndo.district_id, msndo.accept_org_id, msndo.screening_task_plan_id,
-          msndo.operation_status,msn.screening_type,msn.create_time,msn.release_status,msn.create_user_id
+          msndo.operation_status,msn.screening_type,msn.create_time,msn.release_status,msn.create_user_id,msn.gov_dept_id
         FROM
         m_screening_notice_dept_org msndo
         LEFT JOIN m_screening_notice msn ON msndo.screening_notice_id = msn.id
