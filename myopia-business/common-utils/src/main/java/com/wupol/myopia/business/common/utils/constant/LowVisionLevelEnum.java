@@ -1,5 +1,8 @@
 package com.wupol.myopia.business.common.utils.constant;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 /**
  * 视力低下等级
  *
@@ -22,5 +25,21 @@ public enum LowVisionLevelEnum {
     LowVisionLevelEnum(Integer code, String desc) {
         this.code = code;
         this.desc = desc;
+    }
+
+
+    public static LowVisionLevelEnum get(int code) {
+        return Arrays.stream(values())
+                .filter(item -> item.code == code)
+                .findFirst()
+                .orElse(null);
+    }
+
+    public static String getDesc(Integer code) {
+        if (Objects.isNull(code)) {
+            return "";
+        }
+        LowVisionLevelEnum lowVisionLevelEnum = get(code);
+        return Objects.isNull(lowVisionLevelEnum) ? "" : lowVisionLevelEnum.desc;
     }
 }
