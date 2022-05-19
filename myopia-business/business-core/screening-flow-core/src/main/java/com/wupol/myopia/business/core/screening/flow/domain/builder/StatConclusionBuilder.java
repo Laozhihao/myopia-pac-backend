@@ -408,24 +408,10 @@ public class StatConclusionBuilder {
      * 复查
      */
     private void setReview() {
-        List<Boolean> isReviewList =Lists.newArrayList();
-        Consumer<Boolean> consumerTrue = (flag) -> isReviewList.add(Objects.equals(Boolean.TRUE, flag));
-        Consumer<Boolean> consumerFalse = (flag) -> isReviewList.add(Objects.equals(Boolean.FALSE, flag));
-
-        Optional.ofNullable(statConclusion.getIsLowVision()).ifPresent(consumerTrue);
-        Optional.ofNullable(statConclusion.getIsMyopia()).ifPresent(consumerTrue);
-        Optional.ofNullable(statConclusion.getIsHyperopia()).ifPresent(consumerTrue);
-        Optional.ofNullable(statConclusion.getIsAstigmatism()).ifPresent(consumerTrue);
-        Optional.ofNullable(statConclusion.getIsObesity()).ifPresent(consumerTrue);
-        Optional.ofNullable(statConclusion.getIsOverweight()).ifPresent(consumerTrue);
-        Optional.ofNullable(statConclusion.getIsMalnutrition()).ifPresent(consumerTrue);
-        Optional.ofNullable(statConclusion.getIsStunting()).ifPresent(consumerTrue);
-        Optional.ofNullable(statConclusion.getIsSpinalCurvature()).ifPresent(consumerFalse);
-
-        if (CollectionUtil.isNotEmpty(isReviewList)){
-           boolean isReview  = isReviewList.stream().filter(Objects::nonNull).anyMatch(Boolean::booleanValue);
-           statConclusion.setIsReview(isReview);
-        }
+        Boolean review = StatUtil.isReview(statConclusion.getIsLowVision(), statConclusion.getIsMyopia(), statConclusion.getIsHyperopia(),
+                statConclusion.getIsAstigmatism(), statConclusion.getIsObesity(), statConclusion.getIsOverweight(),
+                statConclusion.getIsMalnutrition(), statConclusion.getIsStunting(), statConclusion.getIsSpinalCurvature());
+        statConclusion.setIsReview(review);
 
     }
 

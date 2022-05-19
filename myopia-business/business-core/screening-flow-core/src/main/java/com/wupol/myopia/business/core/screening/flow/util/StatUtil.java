@@ -23,6 +23,7 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -1438,6 +1439,32 @@ public class StatUtil {
 
         return warningLevelList.stream().filter(Objects::nonNull).max(Comparator.comparing(WarningLevel::getCode)).orElse(null);
 
+    }
+
+    /**
+     * 是否复查
+     */
+    public static Boolean isReview(Boolean isLowVision,Boolean isMyopia,Boolean isHyperopia,
+                                   Boolean isAstigmatism,Boolean isObesity,Boolean isOverweight,
+                                   Boolean isMalnutrition,Boolean isStunting,Boolean isSpinalCurvature) {
+        List<Boolean> isReviewList =Lists.newArrayList();
+        Consumer<Boolean> consumerTrue = (flag) -> isReviewList.add(Objects.equals(Boolean.TRUE, flag));
+        Consumer<Boolean> consumerFalse = (flag) -> isReviewList.add(Objects.equals(Boolean.FALSE, flag));
+
+        Optional.ofNullable(isLowVision).ifPresent(consumerTrue);
+        Optional.ofNullable(isMyopia).ifPresent(consumerTrue);
+        Optional.ofNullable(isHyperopia).ifPresent(consumerTrue);
+        Optional.ofNullable(isAstigmatism).ifPresent(consumerTrue);
+        Optional.ofNullable(isObesity).ifPresent(consumerTrue);
+        Optional.ofNullable(isOverweight).ifPresent(consumerTrue);
+        Optional.ofNullable(isMalnutrition).ifPresent(consumerTrue);
+        Optional.ofNullable(isStunting).ifPresent(consumerTrue);
+        Optional.ofNullable(isSpinalCurvature).ifPresent(consumerFalse);
+
+        if (CollectionUtil.isNotEmpty(isReviewList)){
+            return isReviewList.stream().filter(Objects::nonNull).anyMatch(Boolean::booleanValue);
+        }
+        return null;
     }
 
 
