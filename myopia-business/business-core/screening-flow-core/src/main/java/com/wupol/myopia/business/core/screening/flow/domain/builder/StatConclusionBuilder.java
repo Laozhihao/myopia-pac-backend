@@ -520,9 +520,9 @@ public class StatConclusionBuilder {
         if (Objects.equals(SchoolAge.KINDERGARTEN.code,screeningPlanSchoolStudent.getGradeType()) ||Objects.isNull(saprodontiaData)){
             return;
         }
-        Set<SaprodontiaDataDO.SaprodontiaItem> saprodontias = StatUtil.getSaprodontia(saprodontiaData, Lists.newArrayList("d", "D"));
-        Set<SaprodontiaDataDO.SaprodontiaItem> saprodontiaLoss = StatUtil.getSaprodontia(saprodontiaData, Lists.newArrayList("m", "M"));
-        Set<SaprodontiaDataDO.SaprodontiaItem> saprodontiaRepair = StatUtil.getSaprodontia(saprodontiaData, Lists.newArrayList("f", "F"));
+        List<SaprodontiaDataDO.SaprodontiaItem> saprodontias = StatUtil.getSaprodontia(saprodontiaData, Lists.newArrayList("d", "D"));
+        List<SaprodontiaDataDO.SaprodontiaItem> saprodontiaLoss = StatUtil.getSaprodontia(saprodontiaData, Lists.newArrayList("m", "M"));
+        List<SaprodontiaDataDO.SaprodontiaItem> saprodontiaRepair = StatUtil.getSaprodontia(saprodontiaData, Lists.newArrayList("f", "F"));
         statConclusion.setIsSaprodontia(CollectionUtil.isNotEmpty(saprodontias));
         statConclusion.setSaprodontiaTeeth(CollectionUtil.isNotEmpty(saprodontias)?saprodontias.size():0);
         statConclusion.setIsSaprodontiaLoss(CollectionUtil.isNotEmpty(saprodontiaLoss));

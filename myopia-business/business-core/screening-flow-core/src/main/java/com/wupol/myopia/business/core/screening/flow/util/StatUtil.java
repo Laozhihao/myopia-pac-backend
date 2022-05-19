@@ -10,7 +10,10 @@ import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.constant.SchoolEnum;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.SaprodontiaDataDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.experimental.UtilityClass;
@@ -1211,7 +1214,7 @@ public class StatUtil {
     /**
      * 龋齿相关
      */
-    public static Set<SaprodontiaDataDO.SaprodontiaItem> getSaprodontia(SaprodontiaDataDO saprodontiaData,List<String> itemList){
+    public static List<SaprodontiaDataDO.SaprodontiaItem> getSaprodontia(SaprodontiaDataDO saprodontiaData, List<String> itemList){
         List<SaprodontiaDataDO.SaprodontiaItem> above = saprodontiaData.getAbove();
         List<SaprodontiaDataDO.SaprodontiaItem> underneath = saprodontiaData.getUnderneath();
         List<SaprodontiaDataDO.SaprodontiaItem> saprodontiaItemList=Lists.newArrayList();
@@ -1221,7 +1224,7 @@ public class StatUtil {
         if (CollectionUtil.isNotEmpty(underneath)){
             saprodontiaItemList.addAll(underneath);
         }
-        return saprodontiaItemList.stream().filter(s -> itemList.contains(s.getDeciduous()) || itemList.contains(s.getPermanent())).collect(Collectors.toSet());
+        return itemList.stream().flatMap(item -> saprodontiaItemList.stream().filter(s -> Objects.equals(item,s.getDeciduous()) || Objects.equals(item,s.getPermanent()))).collect(Collectors.toList());
     }
 
 
