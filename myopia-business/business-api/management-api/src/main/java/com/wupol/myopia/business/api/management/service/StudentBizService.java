@@ -179,6 +179,7 @@ public class StudentBizService {
             StudentWarningArchiveVO studentWarningArchiveVO = new StudentWarningArchiveVO();
             BeanUtils.copyProperties(conclusion, studentWarningArchiveVO);
             studentWarningArchiveVO.setVisionLabel(conclusion.getWarningLevel());
+            studentWarningArchiveVO.setLowVision(Optional.ofNullable(conclusion.getIsLowVision()).map(low-> low ? 1:null).orElse(null));
             // 筛查信息
             studentWarningArchiveVO.setScreeningDate(conclusion.getUpdateTime());
             ScreeningPlan screeningPlan = screeningPlanService.getById(conclusion.getPlanId());
