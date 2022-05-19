@@ -30,10 +30,14 @@ public class VisionUtil {
      * @param astigmatismLevel
      * @return java.lang.String
      **/
-    public String getVisionSummary(Integer glassesType, Integer myopiaLevel, Integer hyperopiaLevel, Integer astigmatismLevel) {
+    public String getVisionSummary(Integer glassesType, Integer myopiaLevel, Integer hyperopiaLevel, Integer astigmatismLevel,Integer screeningMyopia) {
         List<String> resultList = new LinkedList<>();
         if (Objects.nonNull(glassesType)) {
             resultList.add(GlassesTypeEnum.getDescByCode(glassesType));
+        }
+        //筛查性近视
+        if (Objects.equals(MyopiaLevelEnum.SCREENING_MYOPIA.code,screeningMyopia)) {
+            resultList.add(MyopiaLevelEnum.getDesc(myopiaLevel));
         }
         // 近视
         if (!MyopiaLevelEnum.ZERO.code.equals(myopiaLevel)) {

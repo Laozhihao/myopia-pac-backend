@@ -154,6 +154,11 @@ public class SchoolStudent extends AddressCode implements Serializable {
     private Integer myopiaLevel;
 
     /**
+     * 筛查性近视
+     */
+    private Integer screeningMyopia;
+
+    /**
      * 远视等级，0-正常、1-远视、2-低度远视、3-中度远视、4-重度远视
      */
     private Integer hyperopiaLevel;

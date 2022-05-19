@@ -98,7 +98,7 @@ public class VisionScreeningBizService {
         screeningPlanSchoolStudentService.updateById(screeningPlanSchoolStudent);
         // 设置类型，来自筛查计划
         currentVisionScreeningResult.setScreeningType(screeningPlan.getScreeningType());
-        //更新statConclusion表
+        //更新vision_result表
         visionScreeningResultService.saveOrUpdateStudentScreenData(currentVisionScreeningResult);
         //更新statConclusion表（获取的初筛或复测的数据）
         StatConclusion statConclusion = statConclusionService.saveOrUpdateStudentScreenData(getScreeningConclusionResult(allFirstAndSecondResult,clientId));
@@ -184,7 +184,7 @@ public class VisionScreeningBizService {
         //需要新增
         SchoolGrade schoolGrade = schoolGradeService.getById(screeningPlanSchoolStudent.getGradeId());
         StatConclusionBuilder statConclusionBuilder = StatConclusionBuilder.getStatConclusionBuilder();
-        statConclusion = statConclusionBuilder.setCurrentVisionScreeningResult(currentVisionScreeningResult,secondVisionScreeningResult).setStatConclusion(statConclusion)
+        statConclusion = statConclusionBuilder.setCurrentVisionScreeningResult(currentVisionScreeningResult, secondVisionScreeningResult).setStatConclusion(statConclusion)
                 .setScreeningPlanSchoolStudent(screeningPlanSchoolStudent)
                 .setGradeCode(schoolGrade.getGradeCode())
                 .setClientId(clientId)
@@ -280,6 +280,7 @@ public class VisionScreeningBizService {
         student.setHyperopiaLevel(statConclusion.getHyperopiaLevel());
         if (statConclusion.getAge() >= 6){
             student.setMyopiaLevel(statConclusion.getMyopiaLevel());
+            student.setScreeningMyopia(statConclusion.getScreeningMyopia());
         }
         studentService.updateScreenStudent(student);
     }

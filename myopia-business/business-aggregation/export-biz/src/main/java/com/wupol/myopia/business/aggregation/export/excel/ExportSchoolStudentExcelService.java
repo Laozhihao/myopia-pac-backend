@@ -100,7 +100,7 @@ public class ExportSchoolStudentExcelService extends BaseExportExcelFileService 
                     .setPhone(item.getParentPhone())
                     .setAddress(item.getAddress())
                     .setLabel(WarningLevel.getDesc(item.getVisionLabel()))
-                    .setSituation(VisionUtil.getVisionSummary(item.getGlassesType(), item.getMyopiaLevel(), item.getHyperopiaLevel(), item.getAstigmatismLevel()))
+                    .setSituation(VisionUtil.getVisionSummary(item.getGlassesType(), item.getMyopiaLevel(), item.getHyperopiaLevel(), item.getAstigmatismLevel(),item.getScreeningMyopia()))
                     .setScreeningCount(countMaps.getOrDefault(item.getStudentId(), 0))
                     .setQuestionCount(0)
                     .setLastScreeningTime(DateFormatUtil.format(item.getLastScreeningTime(), DateFormatUtil.FORMAT_ONLY_DATE))

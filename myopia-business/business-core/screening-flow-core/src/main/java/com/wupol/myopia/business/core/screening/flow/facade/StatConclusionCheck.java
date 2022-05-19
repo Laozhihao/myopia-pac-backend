@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
+import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.framework.domain.ThreeTuple;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.business.common.utils.constant.*;
@@ -13,10 +14,7 @@ import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.constant.SchoolEnum;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.OtherEyeDiseasesDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.SaprodontiaDataDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
@@ -58,94 +56,104 @@ public class StatConclusionCheck {
         switch (type){
             case 1:
                 dataCheckResult.setPlanScreeningNum(getPlanScreeningNum(planId));
+                dataCheckResult.setRealScreeningNum(getRealScreeningNum(planId));
+                dataCheckResult.setFinishRatio(getFinishRatio(planId));
+                dataCheckResult.setIncludedStatistics(getStatisticsStudents(planId));
+                dataCheckResult.setAverageVision(getAverageVision(planId));
                 if (!isAll){
                     break;
                 }
             case 2:
-                dataCheckResult.setRealScreeningNum(getRealScreeningNum(planId));
-                if (!isAll){
-                    break;
-                }
-            case 3:
-                dataCheckResult.setFinishRatio(getFinishRatio(planId));
-                if (!isAll){
-                    break;
-                }
-            case 4:
-                dataCheckResult.setIncludedStatistics(getStatisticsStudents(planId));
-                if (!isAll){
-                    break;
-                }
-            case 5:
                 dataCheckResult.setLowVision(getLowVision(planId));
                 dataCheckResult.setLowVisionLevel(getLowVisionLevel(planId));
                 if (!isAll){
                     break;
                 }
-            case 6:
-                dataCheckResult.setAverageVision(getAverageVision(planId));
-                if (!isAll){
-                    break;
-                }
-            case 7:
+            case 3:
                 dataCheckResult.setMyopia(getMyopia(planId));
                 dataCheckResult.setMyopiaLevel(getMyopiaLevel(planId));
                 if (!isAll){
                     break;
                 }
-            case 8:
+            case 4:
                 dataCheckResult.setRefractiveError(getRefractiveError(planId));
                 if (!isAll){
                     break;
                 }
-            case 9:
+            case 5:
+                dataCheckResult.setAnisometropia(getAnisometropia(planId));
+                if (!isAll){
+                    break;
+                }
+            case 6:
+                dataCheckResult.setMyopiaLevelInsufficient(getMyopiaLevelInsufficient(planId));
+                if (!isAll){
+                    break;
+                }
+            case 7:
                 dataCheckResult.setWearingGlasses(getWearingGlasses(planId));
                 if (!isAll){
                     break;
                 }
-            case 10:
+            case 8:
                 dataCheckResult.setHyperopia(getHyperopia(planId));
                 dataCheckResult.setHyperopiaLevel(getHyperopiaLevel(planId));
                 if (!isAll){
                     break;
                 }
-            case 11:
+            case 9:
                 dataCheckResult.setAstigmatism(getAstigmatism(planId));
                 dataCheckResult.setAstigmatismLevel(getAstigmatismLevel(planId));
                 if (!isAll){
                     break;
                 }
-            case 12:
-                dataCheckResult.setMyopiaLevelInsufficient(getMyopiaLevelInsufficient(planId));
-                if (!isAll){
-                    break;
-                }
-            case 13:
+            case 10:
                 dataCheckResult.setCorrection(getCorrection(planId));
                 if (!isAll){
                     break;
                 }
-            case 14:
-                dataCheckResult.setAnisometropia(getAnisometropia(planId));
-                if (!isAll){
-                    break;
-                }
-            case 15:
+            case 11:
                 dataCheckResult.setWarningLevel(getWarningLevel(planId));
                 if (!isAll){
                     break;
                 }
-            case 16:
+            case 12:
                 dataCheckResult.setRecommendVisit(getRecommendVisit(planId));
                 if (!isAll){
                     break;
                 }
-            case 17:
+            case 13:
                 dataCheckResult.setRescreenData(getRescreenData(planId));
                 if (!isAll){
                     break;
                 }
-            case 18:
+            case 14:
+                dataCheckResult.setSaprodontiaFree(getSaprodontiaFree(planId));
+                dataCheckResult.setDmft(getDmft(planId));
+                dataCheckResult.setSaprodontia(getSaprodontia(planId));
+                dataCheckResult.setSaprodontiaLoss(getSaprodontiaLoss(planId));
+                dataCheckResult.setSaprodontiaRepair(getSaprodontiaRepair(planId));
+                dataCheckResult.setSaprodontiaLossAndRepair(getSaprodontiaLossAndRepair(planId));
+                dataCheckResult.setSaprodontiaLossAndRepairTeeth(getSaprodontiaLossAndRepairTeeth(planId));
+                if (!isAll){
+                    break;
+                }
+            case 15:
+                dataCheckResult.setOverweight(getOverweight(planId));
+                dataCheckResult.setObesity(getObesity(planId));
+                dataCheckResult.setMalnutrition(getMalnutrition(planId));
+                dataCheckResult.setStunting(getStunting(planId));
+                if (!isAll){
+                    break;
+                }
+            case 16:
+                dataCheckResult.setSpinalCurvature(getSpinalCurvature(planId));
+                dataCheckResult.setBloodPressure(getBloodPressure(planId));
+                if (!isAll){
+                    break;
+                }
+            case 17:
+                dataCheckResult.setReview(getReview(planId));
                 if (!isAll){
                     break;
                 }
@@ -251,66 +259,72 @@ public class StatConclusionCheck {
         /**
          * 无龋率
          */
+        private TwoTuple<Integer,String> saprodontiaFree;
 
         /**
          * 龋均
          */
+        private TwoTuple<Integer,String> dmft;
 
         /**
          * 龋患率
          */
+        private TwoTuple<Integer,String> saprodontia;
 
         /**
          * 龋失率
          */
+        private TwoTuple<Integer,String> saprodontiaLoss;
 
         /**
          * 龋补率
          */
+        private TwoTuple<Integer,String> saprodontiaRepair;
 
         /**
          * 龋患（失、补）率
          */
+        private TwoTuple<Integer,String> saprodontiaLossAndRepair;
 
         /**
          * 龋患（失、补）构成比
          */
+        private TwoTuple<Integer,String> saprodontiaLossAndRepairTeeth;
 
         /**
-         * 龋患（失、补）构成比
+         * 超重率
          */
+        private TwoTuple<Integer,String> overweight;
 
         /**
          * 肥胖率
          */
+        private TwoTuple<Integer,String> obesity;
 
         /**
          * 营养不良率
          */
+        private TwoTuple<Integer,String> malnutrition;
 
         /**
          * 生长迟缓率
          */
+        private TwoTuple<Integer,String> stunting;
 
         /**
-         * 脊柱弯曲检出率
+         * 脊柱弯曲
          */
-
-        /**
-         * 姿势性脊柱侧弯检出率
-         */
-
-        /**
-         * 姿势性脊柱后凸检出率
-         */
+        private TwoTuple<Integer,String> spinalCurvature;
 
         /**
          * 血压偏高率
          */
+        private TwoTuple<Integer,String> bloodPressure;
 
         /**
          * 复查学生率
          */
+        private TwoTuple<Integer,String> review;
     }
 
 
@@ -431,14 +445,14 @@ public class StatConclusionCheck {
         List<ThreeTuple<ScreeningPlanSchoolStudent,VisionScreeningResult,String>> dataList = getDataList(planId);
         if (CollectionUtil.isNotEmpty(dataList)){
             int size = dataList.size();
-            List<ThreeTuple<ScreeningPlanSchoolStudent,VisionScreeningResult,String>> tupleList = dataList.stream().filter(tuple -> {
+            List<Boolean> tupleList = dataList.stream().map(tuple -> {
                 ScreeningPlanSchoolStudent screeningPlanSchoolStudent = tuple.getFirst();
                 VisionScreeningResult visionScreeningResult = tuple.getSecond();
                 BasicData basicData = dealWithData(visionScreeningResult.getVisionData(), visionScreeningResult.getComputerOptometry());
                 Boolean leftMyopia = StatUtil.isMyopia(basicData.leftSph,basicData.leftCyl, screeningPlanSchoolStudent.getStudentAge(),basicData.leftNakedVision);
                 Boolean rightMyopia = StatUtil.isMyopia(basicData.rightSph,basicData.rightCyl, screeningPlanSchoolStudent.getStudentAge(),basicData.rightNakedVision);
                 return StatUtil.getIsExist(leftMyopia, rightMyopia);
-            }).collect(Collectors.toList());
+            }).filter(Objects::nonNull).filter(Boolean::booleanValue).collect(Collectors.toList());
             int myopia = tupleList.size();
             return TwoTuple.of(myopia,MathUtil.ratio(myopia,size));
         }
@@ -456,8 +470,8 @@ public class StatConclusionCheck {
                         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = tuple.getFirst();
                         VisionScreeningResult visionScreeningResult = tuple.getSecond();
                         BasicData basicData = dealWithData(visionScreeningResult.getVisionData(), visionScreeningResult.getComputerOptometry());
-                        MyopiaLevelEnum leftMyopiaLevel = StatUtil.getMyopiaLevel(basicData.leftSph, basicData.leftCyl, screeningPlanSchoolStudent.getStudentAge(), basicData.leftNakedVision);
-                        MyopiaLevelEnum rightMyopiaLevel = StatUtil.getMyopiaLevel(basicData.rightSph,basicData.rightCyl, screeningPlanSchoolStudent.getStudentAge(),basicData.rightNakedVision);
+                        MyopiaLevelEnum leftMyopiaLevel = StatUtil.getMyopiaLevel(basicData.leftSph, basicData.leftCyl);
+                        MyopiaLevelEnum rightMyopiaLevel = StatUtil.getMyopiaLevel(basicData.rightSph,basicData.rightCyl);
                         Integer seriousLevel = StatUtil.getSeriousLevel(leftMyopiaLevel, rightMyopiaLevel);
                         return TwoTuple.of(screeningPlanSchoolStudent.getId(), seriousLevel);
                     }).collect(Collectors.toList());
@@ -864,38 +878,196 @@ public class StatConclusionCheck {
     /**
      * 超重率
      */
+    private TwoTuple<Integer,String> getOverweight(Integer planId){
+        List<ThreeTuple<ScreeningPlanSchoolStudent, VisionScreeningResult, String>> commonDiseaseScreeningNum = getCommonDiseaseScreeningNum(planId);
+        if (CollectionUtil.isNotEmpty(commonDiseaseScreeningNum)){
+            List<Boolean> tupleList = commonDiseaseScreeningNum.stream().filter(tuple -> {
+                VisionScreeningResult visionScreeningResult = tuple.getSecond();
+                return Objects.nonNull(visionScreeningResult.getHeightAndWeightData()) && visionScreeningResult.getHeightAndWeightData().valid();
+            }).map(tuple -> {
+                ScreeningPlanSchoolStudent screeningPlanSchoolStudent = tuple.getFirst();
+                TwoTuple<Integer, String> ageTuple = StatUtil.getAge(screeningPlanSchoolStudent.getBirthday());
+                HeightAndWeightDataDO heightAndWeightData = tuple.getSecond().getHeightAndWeightData();
+                TwoTuple<Boolean, Boolean> overweightAndObesity = StatUtil.isOverweightAndObesity(heightAndWeightData.getBmi(), ageTuple.getSecond(), screeningPlanSchoolStudent.getGender());
+                if (Objects.nonNull(overweightAndObesity)){
+                    return overweightAndObesity.getFirst();
+                }
+                return null;
+            }).filter(Objects::nonNull).collect(Collectors.toList());
+            return TwoTuple.of(tupleList.size(),MathUtil.ratio(tupleList.size(),commonDiseaseScreeningNum.size()));
+        }
+        return null;
+    }
 
     /**
      * 肥胖率
      */
+    private TwoTuple<Integer,String> getObesity(Integer planId){
+        List<ThreeTuple<ScreeningPlanSchoolStudent, VisionScreeningResult, String>> commonDiseaseScreeningNum = getCommonDiseaseScreeningNum(planId);
+        if (CollectionUtil.isNotEmpty(commonDiseaseScreeningNum)){
+            List<Boolean> tupleList = commonDiseaseScreeningNum.stream().filter(tuple -> {
+                VisionScreeningResult visionScreeningResult = tuple.getSecond();
+                return Objects.nonNull(visionScreeningResult.getHeightAndWeightData()) && visionScreeningResult.getHeightAndWeightData().valid();
+            }).map(tuple -> {
+                ScreeningPlanSchoolStudent screeningPlanSchoolStudent = tuple.getFirst();
+                TwoTuple<Integer, String> ageTuple = StatUtil.getAge(screeningPlanSchoolStudent.getBirthday());
+                HeightAndWeightDataDO heightAndWeightData = tuple.getSecond().getHeightAndWeightData();
+                TwoTuple<Boolean, Boolean> overweightAndObesity = StatUtil.isOverweightAndObesity(heightAndWeightData.getBmi(), ageTuple.getSecond(), screeningPlanSchoolStudent.getGender());
+                if (Objects.nonNull(overweightAndObesity)){
+                    return overweightAndObesity.getSecond();
+                }
+                return null;
+            }).filter(Objects::nonNull).collect(Collectors.toList());
+            return TwoTuple.of(tupleList.size(),MathUtil.ratio(tupleList.size(),commonDiseaseScreeningNum.size()));
+        }
+        return null;
+    }
 
     /**
      * 营养不良率
      */
+    private TwoTuple<Integer,String> getMalnutrition(Integer planId){
+        List<ThreeTuple<ScreeningPlanSchoolStudent, VisionScreeningResult, String>> commonDiseaseScreeningNum = getCommonDiseaseScreeningNum(planId);
+        if (CollectionUtil.isNotEmpty(commonDiseaseScreeningNum)){
+            List<Boolean> tupleList = commonDiseaseScreeningNum.stream().filter(tuple -> {
+                VisionScreeningResult visionScreeningResult = tuple.getSecond();
+                return Objects.nonNull(visionScreeningResult.getHeightAndWeightData()) && visionScreeningResult.getHeightAndWeightData().valid();
+            }).map(tuple -> {
+                ScreeningPlanSchoolStudent screeningPlanSchoolStudent = tuple.getFirst();
+                TwoTuple<Integer, String> ageTuple = StatUtil.getAge(screeningPlanSchoolStudent.getBirthday());
+                HeightAndWeightDataDO heightAndWeightData = tuple.getSecond().getHeightAndWeightData();
+                Boolean wasting = StatUtil.isWasting(heightAndWeightData.getBmi(), ageTuple.getSecond(), screeningPlanSchoolStudent.getGender());
+                Boolean stunting = StatUtil.isStunting(screeningPlanSchoolStudent.getGender(), ageTuple.getSecond(), heightAndWeightData.getHeight());
+                if (ObjectsUtil.hasNull(wasting,stunting)){
+                    return null;
+                }
+                return wasting && stunting;
+            }).filter(Objects::nonNull).collect(Collectors.toList());
+            return TwoTuple.of(tupleList.size(),MathUtil.ratio(tupleList.size(),commonDiseaseScreeningNum.size()));
+        }
+        return null;
+    }
 
     /**
      * 生长迟缓率
      */
+    private TwoTuple<Integer,String> getStunting(Integer planId){
+        List<ThreeTuple<ScreeningPlanSchoolStudent, VisionScreeningResult, String>> commonDiseaseScreeningNum = getCommonDiseaseScreeningNum(planId);
+        if (CollectionUtil.isNotEmpty(commonDiseaseScreeningNum)){
+            List<Boolean> tupleList = commonDiseaseScreeningNum.stream().filter(tuple -> {
+                VisionScreeningResult visionScreeningResult = tuple.getSecond();
+                return Objects.nonNull(visionScreeningResult.getHeightAndWeightData()) && visionScreeningResult.getHeightAndWeightData().valid();
+            }).map(tuple -> {
+                ScreeningPlanSchoolStudent screeningPlanSchoolStudent = tuple.getFirst();
+                TwoTuple<Integer, String> ageTuple = StatUtil.getAge(screeningPlanSchoolStudent.getBirthday());
+                HeightAndWeightDataDO heightAndWeightData = tuple.getSecond().getHeightAndWeightData();
+                return StatUtil.isStunting(screeningPlanSchoolStudent.getGender(), ageTuple.getSecond(), heightAndWeightData.getHeight());
+            }).filter(Objects::nonNull).collect(Collectors.toList());
+            return TwoTuple.of(tupleList.size(),MathUtil.ratio(tupleList.size(),commonDiseaseScreeningNum.size()));
+        }
+        return null;
+    }
 
     /**
      * 脊柱弯曲检出率
      */
+    private TwoTuple<Integer,String> getSpinalCurvature(Integer planId){
+        List<ThreeTuple<ScreeningPlanSchoolStudent, VisionScreeningResult, String>> commonDiseaseScreeningNum = getCommonDiseaseScreeningNum(planId);
+        if (CollectionUtil.isNotEmpty(commonDiseaseScreeningNum)){
+            List<Boolean> tupleList = commonDiseaseScreeningNum.stream().filter(tuple -> {
+                VisionScreeningResult visionScreeningResult = tuple.getSecond();
+                return Objects.nonNull(visionScreeningResult.getSpineData());
+            }).map(tuple -> {
+                SpineDataDO spineData = tuple.getSecond().getSpineData();
+                return spineData.isSpinalCurvature();
+            }).collect(Collectors.toList());
+            return TwoTuple.of(tupleList.size(),MathUtil.ratio(tupleList.size(),commonDiseaseScreeningNum.size()));
+        }
+        return null;
+    }
 
-    /**
-     * 姿势性脊柱侧弯检出率
-     */
-
-    /**
-     * 姿势性脊柱后凸检出率
-     */
 
     /**
      * 血压偏高率
      */
+    private TwoTuple<Integer,String> getBloodPressure(Integer planId){
+        List<ThreeTuple<ScreeningPlanSchoolStudent, VisionScreeningResult, String>> commonDiseaseScreeningNum = getCommonDiseaseScreeningNum(planId);
+        if (CollectionUtil.isNotEmpty(commonDiseaseScreeningNum)){
+            List<Boolean> tupleList = commonDiseaseScreeningNum.stream().filter(tuple -> {
+                VisionScreeningResult visionScreeningResult = tuple.getSecond();
+                return Objects.nonNull(visionScreeningResult.getBloodPressureData());
+            }).map(tuple -> {
+                ScreeningPlanSchoolStudent screeningPlanSchoolStudent = tuple.getFirst();
+                BloodPressureDataDO bloodPressureData = tuple.getSecond().getBloodPressureData();
+                TwoTuple<Integer, String> ageTuple = StatUtil.getAge(screeningPlanSchoolStudent.getBirthday());
+                Integer age = ageTuple.getFirst();
+                if (age < 7){
+                    age = 7;
+                }
+                return StatUtil.isHighBloodPressure(bloodPressureData.getSbp().intValue(), bloodPressureData.getDbp().intValue(), screeningPlanSchoolStudent.getGender(), age);
+            }).collect(Collectors.toList());
+            return TwoTuple.of(tupleList.size(),MathUtil.ratio(tupleList.size(),commonDiseaseScreeningNum.size()));
+        }
+        return null;
+    }
 
     /**
      * 复查学生率
      */
+    private TwoTuple<Integer,String> getReview(Integer planId){
+        List<ThreeTuple<ScreeningPlanSchoolStudent, VisionScreeningResult, String>> commonDiseaseScreeningNum = getCommonDiseaseScreeningNum(planId);
+        if (CollectionUtil.isNotEmpty(commonDiseaseScreeningNum)){
+            List<Boolean> tupleList = commonDiseaseScreeningNum.stream().map(tuple -> {
+                ScreeningPlanSchoolStudent screeningPlanSchoolStudent = tuple.getFirst();
+                VisionScreeningResult visionScreeningResult = tuple.getSecond();
+                BasicData basicData = dealWithData(visionScreeningResult.getVisionData(), visionScreeningResult.getComputerOptometry());
+
+                Boolean leftLowVision = StatUtil.isLowVision(basicData.leftNakedVision, screeningPlanSchoolStudent.getStudentAge());
+                Boolean rightLowVision = StatUtil.isLowVision(basicData.rightNakedVision, screeningPlanSchoolStudent.getStudentAge());
+
+                Boolean leftMyopia = StatUtil.isMyopia(basicData.leftSph,basicData.leftCyl, screeningPlanSchoolStudent.getStudentAge(),basicData.leftNakedVision);
+                Boolean rightMyopia = StatUtil.isMyopia(basicData.rightSph,basicData.rightCyl, screeningPlanSchoolStudent.getStudentAge(),basicData.rightNakedVision);
+
+                Boolean leftHyperopia = StatUtil.isHyperopia(basicData.leftSph,basicData.leftCyl, screeningPlanSchoolStudent.getStudentAge());
+                Boolean rightHyperopia = StatUtil.isHyperopia(basicData.rightSph,basicData.rightCyl, screeningPlanSchoolStudent.getStudentAge());
+
+                Boolean leftAstigmatism = StatUtil.isAstigmatism(basicData.leftCyl);
+                Boolean rightAstigmatism = StatUtil.isAstigmatism(basicData.rightCyl);
+
+                Boolean isObesity=null;
+                Boolean isOverweight =null;
+                Boolean isStunting =null;
+                Boolean isMalnutrition =null;
+                Boolean isSpinalCurvature = null;
+                if (Objects.nonNull(visionScreeningResult.getHeightAndWeightData()) && visionScreeningResult.getHeightAndWeightData().valid()) {
+                    TwoTuple<Integer, String> ageTuple = StatUtil.getAge(screeningPlanSchoolStudent.getBirthday());
+                    HeightAndWeightDataDO heightAndWeightData = tuple.getSecond().getHeightAndWeightData();
+                    TwoTuple<Boolean, Boolean> overweightAndObesity = StatUtil.isOverweightAndObesity(heightAndWeightData.getBmi(), ageTuple.getSecond(), screeningPlanSchoolStudent.getGender());
+                    if (Objects.nonNull(overweightAndObesity)){
+                        isOverweight = overweightAndObesity.getFirst();
+                        isObesity = overweightAndObesity.getSecond();
+                    }
+                    Boolean wasting = StatUtil.isWasting(heightAndWeightData.getBmi(), ageTuple.getSecond(), screeningPlanSchoolStudent.getGender());
+                    isStunting = StatUtil.isStunting(screeningPlanSchoolStudent.getGender(), ageTuple.getSecond(), heightAndWeightData.getHeight());
+
+                    if (Objects.nonNull(wasting) && Objects.nonNull(isStunting)){
+                        isMalnutrition = wasting && isStunting;
+                    }
+                }
+                if (Objects.nonNull(visionScreeningResult.getSpineData())){
+                   isSpinalCurvature =  visionScreeningResult.getSpineData().isSpinalCurvature();
+                }
+                return  StatUtil.isReview(
+                        StatUtil.getIsExist(leftLowVision, rightLowVision),
+                        StatUtil.getIsExist(leftMyopia, rightMyopia),
+                        StatUtil.getIsExist(leftHyperopia, rightHyperopia),
+                        StatUtil.getIsExist(leftAstigmatism, rightAstigmatism),
+                        isObesity, isOverweight, isMalnutrition, isStunting, isSpinalCurvature);
+            }).filter(Objects::nonNull).filter(Boolean::booleanValue).collect(Collectors.toList());
+            return TwoTuple.of(tupleList.size(),MathUtil.ratio(tupleList.size(),commonDiseaseScreeningNum.size()));
+        }
+        return null;
+    }
 
 
 

@@ -295,6 +295,103 @@ public class ScreeningAppController {
     }
 
     /**
+     * 保存汇总的检查数据
+     */
+    @PostMapping("/eye/addTotalMedicalRecordData")
+    public ApiResult addTotalMedicalRecordData(@Valid @RequestBody ScreeningResultDataVO screeningResultDataVO) {
+        // 先判断接收到的全部检查数据的合法性，再保存非空的
+        if (screeningResultDataVO.getMultiCheckData() != null && !screeningResultDataVO.getMultiCheckData().isValid()) {
+            return ApiResult.failure("复合检查数据,请输入正确的参数");
+        }
+
+        if (screeningResultDataVO.getComputerOptometryData() != null && !screeningResultDataVO.getComputerOptometryData().isValid()) {
+            return ApiResult.failure("验光数据,请输入正确的参数");
+        }
+
+        if (screeningResultDataVO.getVisionData() != null && !screeningResultDataVO.getVisionData().isValid()) {
+            return ApiResult.failure("视力检查数据,请输入正确的参数");
+        }
+
+        if (screeningResultDataVO.getBiometricData() != null && !screeningResultDataVO.getBiometricData().isValid()) {
+            return ApiResult.failure("生物测量数据,请输入正确的参数");
+        }
+
+        if (screeningResultDataVO.getPupilOptometryData() != null && !screeningResultDataVO.getPupilOptometryData().isValid()) {
+            return ApiResult.failure("小瞳验光数据,请输入正确的参数");
+        }
+
+        if (screeningResultDataVO.getEyePressureData() != null && !screeningResultDataVO.getEyePressureData().isValid()) {
+            return ApiResult.failure("眼压数据,请输入正确的参数");
+        }
+
+        if (screeningResultDataVO.getHeightAndWeightData() != null && !screeningResultDataVO.getHeightAndWeightData().isValid()) {
+            return ApiResult.failure("身高体重数据,请输入正确的参数");
+        }
+
+        if (screeningResultDataVO.getSaprodontiaDTO() != null && !screeningResultDataVO.getSaprodontiaDTO().isValid()) {
+            return ApiResult.failure("龋齿检查数据,请输入正确的参数");
+        }
+
+        if (screeningResultDataVO.getSpineDTO() != null && !screeningResultDataVO.getSpineDTO().isValid()) {
+            return ApiResult.failure("脊柱检查数据,请输入正确的参数");
+        }
+
+        if (screeningResultDataVO.getBloodPressureDTO() != null && !screeningResultDataVO.getBloodPressureDTO().isValid()) {
+            return ApiResult.failure("血压数据,请输入正确的参数");
+        }
+
+        if (screeningResultDataVO.getDiseasesHistoryDTO() != null && !screeningResultDataVO.getDiseasesHistoryDTO().isValid()) {
+            return ApiResult.failure("疾病史数据,请输入正确的参数");
+        }
+
+        if (screeningResultDataVO.getPrivacyDTO() != null && !screeningResultDataVO.getPrivacyDTO().isValid()) {
+            return ApiResult.failure("个人隐私数据,请输入正确的参数");
+        }
+
+        String clientId = CurrentUserUtil.getCurrentUser().getClientId();
+        if (screeningResultDataVO.getMultiCheckData() != null) {
+            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getMultiCheckData(), clientId);
+        }
+        if (screeningResultDataVO.getComputerOptometryData() != null) {
+            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getComputerOptometryData(), clientId);
+        }
+        if (screeningResultDataVO.getVisionData() != null) {
+            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getVisionData(), clientId);
+        }
+        if (screeningResultDataVO.getBiometricData() != null) {
+            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getBiometricData(), clientId);
+        }
+        if (screeningResultDataVO.getPupilOptometryData() != null) {
+            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getPupilOptometryData(), clientId);
+        }
+        if (screeningResultDataVO.getEyePressureData() != null) {
+            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getEyePressureData(), clientId);
+        }
+        if (screeningResultDataVO.getOtherEyeDiseasesData() != null) {
+            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getOtherEyeDiseasesData(), clientId);
+        }
+        if (screeningResultDataVO.getHeightAndWeightData() != null) {
+            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getHeightAndWeightData(), clientId);
+        }
+        if (screeningResultDataVO.getSaprodontiaDTO() != null) {
+            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getSaprodontiaDTO(), clientId);
+        }
+        if (screeningResultDataVO.getSpineDTO() != null) {
+            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getSpineDTO(), clientId);
+        }
+        if (screeningResultDataVO.getBloodPressureDTO() != null) {
+            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getBloodPressureDTO(), clientId);
+        }
+        if (screeningResultDataVO.getDiseasesHistoryDTO() != null) {
+            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getDiseasesHistoryDTO(), clientId);
+        }
+        if (screeningResultDataVO.getPrivacyDTO() != null) {
+            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getPrivacyDTO(), clientId);
+        }
+        return ApiResult.success();
+    }
+
+    /**
      * 保存视力筛查
      *
      * @return

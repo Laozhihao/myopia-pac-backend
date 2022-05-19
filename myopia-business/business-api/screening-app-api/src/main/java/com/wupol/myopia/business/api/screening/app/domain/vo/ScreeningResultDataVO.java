@@ -26,6 +26,11 @@ public class ScreeningResultDataVO {
     private OtherEyeDiseasesDTO otherEyeDiseasesData;
     private HeightAndWeightDataDTO heightAndWeightData;
     private DeviationDTO deviationData;
+    private SaprodontiaDTO saprodontiaDTO;
+    private SpineDTO spineDTO;
+    private BloodPressureDTO bloodPressureDTO;
+    private DiseasesHistoryDTO diseasesHistoryDTO;
+    private PrivacyDTO privacyDTO;
 
     public static ScreeningResultDataVO getInstance(VisionScreeningResult screeningResult) {
         if (Objects.isNull(screeningResult)) {
@@ -41,6 +46,11 @@ public class ScreeningResultDataVO {
         screeningResultDataVO.setOtherEyeDiseasesData(OtherEyeDiseasesDTO.getInstance(screeningResult.getOtherEyeDiseases(), screeningResult.getSystemicDiseaseSymptom()));
         screeningResultDataVO.setHeightAndWeightData(HeightAndWeightDataDTO.getInstance(screeningResult.getHeightAndWeightData()));
         screeningResultDataVO.setDeviationData(DeviationDTO.getInstance(screeningResult.getDeviationData()));
+        screeningResultDataVO.setSaprodontiaDTO(SaprodontiaDTO.getInstance(screeningResult.getSaprodontiaData()));
+        screeningResultDataVO.setSpineDTO(SpineDTO.getInstance(screeningResult.getSpineData()));
+        screeningResultDataVO.setBloodPressureDTO(BloodPressureDTO.getInstance(screeningResult.getBloodPressureData()));
+        screeningResultDataVO.setDiseasesHistoryDTO(DiseasesHistoryDTO.getInstance(screeningResult.getDiseasesHistoryData()));
+        screeningResultDataVO.setPrivacyDTO(PrivacyDTO.getInstance(screeningResult.getPrivacyData()));
         return screeningResultDataVO;
     }
 }
