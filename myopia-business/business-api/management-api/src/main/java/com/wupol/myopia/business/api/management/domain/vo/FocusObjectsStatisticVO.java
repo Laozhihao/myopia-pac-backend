@@ -56,7 +56,7 @@ public class FocusObjectsStatisticVO extends ScreeningBasicResult {
     /**
      * 下级的数据列表，如果没有的话，为null
      */
-    private Set<Item> subordinateDatas;
+    private Set<Item> childDataSet;
 
     /**
      * 设置基础数据
@@ -124,7 +124,7 @@ public class FocusObjectsStatisticVO extends ScreeningBasicResult {
      */
     private void setItemData(Integer currentDistrictId, List<ScreeningResultStatistic> screeningResultStatistics, Map<Integer, String> districtIdNameMap) {
         // 下级数据 + 当前数据 + 合计数据
-        this.subordinateDatas = screeningResultStatistics.stream().map(screeningResultStatistic -> {
+        this.childDataSet = screeningResultStatistics.stream().map(screeningResultStatistic -> {
             Integer districtAttentiveDistrictId = screeningResultStatistic.getDistrictId();
             String rangeName;
             //是合计数据
