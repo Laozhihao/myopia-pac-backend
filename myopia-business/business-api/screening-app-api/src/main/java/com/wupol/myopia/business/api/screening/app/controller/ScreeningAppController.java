@@ -295,10 +295,10 @@ public class ScreeningAppController {
     }
 
     /**
-     * 保存全部检查数据
+     * 保存汇总的检查数据
      */
-    @PostMapping("/eye/addAllMedicalRecordData")
-    public ApiResult addAllMedicalRecordData(@Valid @RequestBody ScreeningResultDataVO screeningResultDataVO) {
+    @PostMapping("/eye/addTotalMedicalRecordData")
+    public ApiResult addTotalMedicalRecordData(@Valid @RequestBody ScreeningResultDataVO screeningResultDataVO) {
         // 先判断接收到的全部检查数据的合法性，再保存非空的
         if (screeningResultDataVO.getMultiCheckData() != null && !screeningResultDataVO.getMultiCheckData().isValid()) {
             return ApiResult.failure("复合检查数据,请输入正确的参数");
