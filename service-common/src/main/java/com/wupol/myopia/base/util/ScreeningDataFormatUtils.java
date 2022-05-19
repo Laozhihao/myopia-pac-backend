@@ -189,7 +189,7 @@ public class ScreeningDataFormatUtils {
      */
     public static String getGlassesType(Object obj) {
         if (Objects.nonNull(obj)) {
-            StringUtils.defaultIfBlank(GlassesTypeEnum.getDescByCode((Integer) obj), "--");
+            return StringUtils.defaultIfBlank(GlassesTypeEnum.getDescByCode((Integer) obj), "--");
         }
         return "--";
     }
