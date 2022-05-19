@@ -138,7 +138,8 @@
         mvsr.blood_pressure_data,
         mvsr.diseases_history_data,
         mvsr.privacy_data,
-        mvsr.deviation_data
+        mvsr.deviation_data,
+        msc.is_low_vision,msc.screening_myopia
     </sql>
 
     <select id="selectLastOne" resultMap="BaseResultMap" parameterType="java.util.Map">
