@@ -688,9 +688,9 @@ public class EyeDataUtil {
      * @param visionScreenResult 筛查结果
      * @return 身高/体重误差说明
      */
-    public static String heightWeightDeviationRemark(VisionScreeningResult visionScreenResult) {
+    public static DeviationDO.HeightWeightDeviation heightWeightDeviationRemark(VisionScreeningResult visionScreenResult) {
         return Optional.ofNullable(visionScreenResult) .map(VisionScreeningResult::getDeviationData)
-                .map(DeviationDO::getHeightWeightDeviation).map(DeviationDO.HeightWeightDeviation::getRemark) .orElse(null);
+                .map(DeviationDO::getHeightWeightDeviation).orElse(null);
     }
 
     /**
