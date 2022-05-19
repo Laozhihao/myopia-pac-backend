@@ -432,5 +432,6 @@
             #{schoolId}
         </foreach>
         and is_review = 1
+        and is_rescreen = 0
     </select>
 </mapper>
