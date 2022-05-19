@@ -333,7 +333,7 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
                 .setNotificationId(screeningNoticeId)
                 .setExportType(type)
                 .setIsKindergarten(isKindergarten)
-                .setApplyExportFileUserId(1);
+                .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
 
         // 班级同步导出
         if (ExportTypeConst.CLASS.equals(type)) {
