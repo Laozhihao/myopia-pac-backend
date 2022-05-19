@@ -88,14 +88,18 @@ public class MigrateSchoolAndGradeClassService {
             // 迁移年级、班级
             List<SysGradeClass> gradeAndClassList = sysStudentEyeService.getAllGradeAndClassBySchoolId(sysSchoolId);
             Map<String, List<SysGradeClass>> gradeClassMap = gradeAndClassList.stream().collect(Collectors.groupingBy(SysGradeClass::getGrade));
-            gradeClassMap.entrySet().stream().sorted(Comparator.comparing(Map.Entry::getKey)).forEach(gradeSet -> {
+            Arrays.stream(GradeCodeEnum.values()).forEach(gradeCodeEnum -> {
+                String gradeName = gradeCodeEnum.getName();
+                List<SysGradeClass> sysGradeClassList = gradeClassMap.get(gradeName);
+                if (Objects.isNull(sysGradeClassList)) {
+                    return;
+                }
                 // 年级
-                String gradeName = gradeSet.getKey();
                 Integer gradeId = saveGrade(schoolId, gradeName, schoolType);
                 gradeMap.put(sysSchoolId + gradeName, gradeId);
                 // 班级（存在同名的则不新增）
                 Map<@NotBlank(message = "班级名称不能为空") String, Integer> existClassMap = schoolClassService.getByGradeId(gradeId).stream().collect(Collectors.toMap(SchoolClass::getName, SchoolClass::getId));
-                List<SchoolClass> schoolClassList = gradeSet.getValue().stream()
+                List<SchoolClass> schoolClassList = sysGradeClassList.stream()
                         .filter(x -> Objects.isNull(existClassMap.get(x.getClazz())))
                         .map(x -> new SchoolClass().setSchoolId(schoolId).setCreateUserId(1).setGradeId(gradeId).setName(x.getClazz()))
                         .collect(Collectors.toList());
@@ -106,30 +110,6 @@ public class MigrateSchoolAndGradeClassService {
         });
         log.info("==  学校-完成  ==");
         return new SchoolAndGradeClassDO(schoolMap, gradeMap, classMap);
-    }
-
-    public static void main(String[] args) {
-        Map<String, String> map = new HashMap<>();
-        map.put("三年级", "");
-        map.put("初二", "");
-        map.put("一年级", "");
-        map.put("初一", "");
-        map.put("初三", "");
-        map.put("高二", "");
-        map.put("六年级", "");
-        map.put("高一", "");
-        map.put("高三", "");
-        map.put("大班", "");
-        map.put("大一", "");
-        map.put("小班", "");
-        map.put("大三", "");
-        map.put("中班", "");
-        map.forEach((key, val) -> System.out.println(key));
-        System.out.println("-------------------------------");
-        map.entrySet().stream().sorted(Comparator.comparing(Map.Entry::getKey)).forEach(x -> System.out.println(x.getKey()));
-        System.out.println("-------------------------------");
-
-        Arrays.stream(GradeCodeEnum.values()).forEach(x -> System.out.println(x.getName()));
     }
 
     /**
@@ -218,7 +198,8 @@ public class MigrateSchoolAndGradeClassService {
      **/
     private SaveSchoolRequestDTO getSaveSchoolRequestDTO(SysSchool sysSchool) {
         Assert.hasText(sysSchool.getRegion(), sysSchool.getName() + "的区/镇/县为空");
-        Long areaDistrictCode = districtService.getCodeByName(sysSchool.getRegion());
+        Long areaDistrictCode = districtService.getCodeByName(getRegion(sysSchool.getRegion()));
+        Assert.notNull(areaDistrictCode, "无效行政区域地址");
         District areaDistrict = districtService.getByCode(areaDistrictCode);
         List<District> districtDetail = districtService.getDistrictPositionDetail(areaDistrictCode);
         SaveSchoolRequestDTO schoolDTO = new SaveSchoolRequestDTO();
@@ -242,6 +223,12 @@ public class MigrateSchoolAndGradeClassService {
                 .setCooperationEndTime(date)
                 .setStatus(StatusConstant.DISABLE);
         return schoolDTO;
+    }
+
+    private static String getRegion(String region) {
+        Map<String, String> nameMap = new HashMap<>(2);
+        nameMap.put("康定县", "康定市");
+        return Optional.ofNullable(nameMap.get(region)).orElse(region);
     }
 
     private static Integer getSchoolType(String sysSchoolState, String schoolName) {
