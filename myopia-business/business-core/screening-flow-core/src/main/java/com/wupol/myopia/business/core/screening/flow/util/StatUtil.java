@@ -1449,7 +1449,6 @@ public class StatUtil {
                                    Boolean isMalnutrition,Boolean isStunting,Boolean isSpinalCurvature) {
         List<Boolean> isReviewList =Lists.newArrayList();
         Consumer<Boolean> consumerTrue = (flag) -> isReviewList.add(Objects.equals(Boolean.TRUE, flag));
-        Consumer<Boolean> consumerFalse = (flag) -> isReviewList.add(Objects.equals(Boolean.FALSE, flag));
 
         Optional.ofNullable(isLowVision).ifPresent(consumerTrue);
         Optional.ofNullable(isMyopia).ifPresent(consumerTrue);
@@ -1459,7 +1458,7 @@ public class StatUtil {
         Optional.ofNullable(isOverweight).ifPresent(consumerTrue);
         Optional.ofNullable(isMalnutrition).ifPresent(consumerTrue);
         Optional.ofNullable(isStunting).ifPresent(consumerTrue);
-        Optional.ofNullable(isSpinalCurvature).ifPresent(consumerFalse);
+        Optional.ofNullable(isSpinalCurvature).ifPresent(consumerTrue);
 
         if (CollectionUtil.isNotEmpty(isReviewList)){
             return isReviewList.stream().filter(Objects::nonNull).anyMatch(Boolean::booleanValue);
