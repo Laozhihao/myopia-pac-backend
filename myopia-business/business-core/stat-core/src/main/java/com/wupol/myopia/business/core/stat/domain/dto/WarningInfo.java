@@ -1,14 +1,13 @@
 package com.wupol.myopia.business.core.stat.domain.dto;
 
-import com.google.common.collect.Lists;
-import com.wupol.myopia.business.core.stat.domain.dos.VisionWarningDO;
+import com.wupol.myopia.business.core.stat.domain.model.DistrictAttentiveObjectsStatistic;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * 统计预警信息
@@ -30,12 +29,12 @@ public class WarningInfo {
     /**
      * 总重点视力对象数
      */
-    private Integer focusTargetsNum;
+    private Long focusTargetsNum;
 
     /**
      * 总视力对象数在总学生数中的占比
      */
-    private String focusTargetsPercentage;
+    private Float focusTargetsPercentage;
 
     /**
      * 分级预警信息
@@ -49,42 +48,34 @@ public class WarningInfo {
         /**
          * 预警级别
          */
-        private Integer warningLevel;
+        private int warningLevel;
 
         /**
          * 人数
          */
-        private Integer num;
+        private long num;
 
         /**
          * 人数比例
          */
-        private String percentage;
+        private Float percentage;
 
-        public WarningLevelInfo(Integer warningLevel, Integer num, String percentage) {
+        public WarningLevelInfo(Integer warningLevel, Long num, Float percentage) {
             this.warningLevel = warningLevel;
             this.num = num;
             this.percentage = percentage;
         }
 
-        public static List<WarningLevelInfo> getList(VisionWarningDO visionWarning) {
-            List<WarningLevelInfo> warningLevelInfoList = Lists.newArrayList();
-            if (Objects.nonNull(visionWarning)){
-                WarningLevelInfo warningLevelInfo0 = new WarningLevelInfo();
-                warningLevelInfo0.setWarningLevel(0).setNum(visionWarning.getVisionLabel0Num()).setPercentage(visionWarning.getVisionLabel0Ratio());
-                warningLevelInfoList.add(warningLevelInfo0);
-                WarningLevelInfo warningLevelInfo1 = new WarningLevelInfo();
-                warningLevelInfo1.setWarningLevel(1).setNum(visionWarning.getVisionLabel1Num()).setPercentage(visionWarning.getVisionLabel1Ratio());
-                warningLevelInfoList.add(warningLevelInfo1);
-                WarningLevelInfo warningLevelInfo2 = new WarningLevelInfo();
-                warningLevelInfo2.setWarningLevel(2).setNum(visionWarning.getVisionLabel2Num()).setPercentage(visionWarning.getVisionLabel2Ratio());
-                warningLevelInfoList.add(warningLevelInfo2);
-                WarningLevelInfo warningLevelInfo3 = new WarningLevelInfo();
-                warningLevelInfo3.setWarningLevel(3).setNum(visionWarning.getVisionLabel3Num()).setPercentage(visionWarning.getVisionLabel3Ratio());
-                warningLevelInfoList.add(warningLevelInfo3);
-
-            }
-            return warningLevelInfoList;
+        public static List<WarningLevelInfo> getList(DistrictAttentiveObjectsStatistic districtAttentiveObjectsStatistic) {
+            WarningLevelInfo warningLevelInfo0 = new WarningLevelInfo();
+            warningLevelInfo0.setWarningLevel(0).setNum(districtAttentiveObjectsStatistic.getVisionLabel0Numbers()).setPercentage(districtAttentiveObjectsStatistic.getVisionLabel0Ratio().floatValue());
+            WarningLevelInfo warningLevelInfo1 = new WarningLevelInfo();
+            warningLevelInfo1.setWarningLevel(1).setNum(districtAttentiveObjectsStatistic.getVisionLabel1Numbers()).setPercentage(districtAttentiveObjectsStatistic.getVisionLabel1Ratio().floatValue());
+            WarningLevelInfo warningLevelInfo2 = new WarningLevelInfo();
+            warningLevelInfo2.setWarningLevel(2).setNum(districtAttentiveObjectsStatistic.getVisionLabel2Numbers()).setPercentage(districtAttentiveObjectsStatistic.getVisionLabel2Ratio().floatValue());
+            WarningLevelInfo warningLevelInfo3 = new WarningLevelInfo();
+            warningLevelInfo3.setWarningLevel(3).setNum(districtAttentiveObjectsStatistic.getVisionLabel3Numbers()).setPercentage(districtAttentiveObjectsStatistic.getVisionLabel3Ratio().floatValue());
+            return Arrays.asList(warningLevelInfo0, warningLevelInfo1, warningLevelInfo2, warningLevelInfo3);
         }
     }
 }
