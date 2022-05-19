@@ -121,12 +121,12 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
                     .setRightReScreenNakedVisions(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHTEYE_NAKED_VISION)))
                     .setLeftReScreenCorrectedVisions(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.LEFTEYE_CORRECTED_VISION)))
                     .setRightReScreenCorrectedVisions(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHTEYE_CORRECTED_VISION)))
-                    .setLeftReScreenSphs(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.LEFTEYE_SPH)))
-                    .setRightReScreenSphs(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHTEYE_SPH)))
-                    .setLeftReScreenCyls(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.LEFTEYE_CYL)))
-                    .setRightReScreenCyls(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHTEYE_CYL)))
-                    .setLeftReScreenAxials(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.LEFTEYE_AXIAL)))
-                    .setRightReScreenAxials(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHTEYE_AXIAL)))
+                    .setLeftReScreenSphs(ScreeningDataFormatUtils.generateSingleSuffixDStr(JSONPath.eval(rescreenVo, ScreeningResultPahtConst.LEFTEYE_SPH)))
+                    .setRightReScreenSphs(ScreeningDataFormatUtils.generateSingleSuffixDStr(JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHTEYE_SPH)))
+                    .setLeftReScreenCyls(ScreeningDataFormatUtils.generateSingleSuffixDStr(JSONPath.eval(rescreenVo, ScreeningResultPahtConst.LEFTEYE_CYL)))
+                    .setRightReScreenCyls(ScreeningDataFormatUtils.generateSingleSuffixDStr(JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHTEYE_CYL)))
+                    .setLeftReScreenAxials(ScreeningDataFormatUtils.generateSingleEyeDegree(JSONPath.eval(rescreenVo, ScreeningResultPahtConst.LEFTEYE_AXIAL)))
+                    .setRightReScreenAxials(ScreeningDataFormatUtils.generateSingleEyeDegree(JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHTEYE_AXIAL)))
                     .setIsRescreenDesc("是").setReHeight(ScreeningDataFormatUtils.getHeight(JSONPath.eval(rescreenVo, ScreeningResultPahtConst.PATH_HW_HEIGHT)))
                     .setReWeight(ScreeningDataFormatUtils.getWeight(JSONPath.eval(rescreenVo, ScreeningResultPahtConst.PATH_HW_WEIGHT)));
         }
