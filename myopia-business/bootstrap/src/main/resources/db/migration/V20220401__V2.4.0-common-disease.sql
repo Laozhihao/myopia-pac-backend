@@ -57,6 +57,10 @@ ALTER TABLE m_stat_conclusion ADD screening_myopia TINYINT(3) NULL COMMENT '筛�
 ALTER TABLE m_school_student ADD screening_myopia TINYINT(3) NULL COMMENT '筛查性近视';
 ALTER TABLE m_student ADD screening_myopia TINYINT(3) NULL COMMENT '筛查性近视';
 
+ALTER TABLE m_school_student ADD low_vision TINYINT(3) NULL COMMENT '视力低下';
+ALTER TABLE m_student ADD low_vision TINYINT(3) NULL COMMENT '视力低下';
+
+
 
 
 
