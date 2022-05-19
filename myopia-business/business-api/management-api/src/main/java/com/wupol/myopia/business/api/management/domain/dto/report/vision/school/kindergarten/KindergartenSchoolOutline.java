@@ -3,12 +3,16 @@ package com.wupol.myopia.business.api.management.domain.dto.report.vision.school
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.Outline;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.VisionSituation;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.VisionWarningSituation;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * 概述
  *
  * @author Simple4H
  */
+@Getter
+@Setter
 public class KindergartenSchoolOutline {
 
     /**

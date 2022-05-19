@@ -25,6 +25,8 @@ public class HistoryRefraction {
      */
     private List<AstigmatismTable> tables;
 
+    @Getter
+    @Setter
     public static class Info {
         /**
          * 近视率

@@ -1,6 +1,8 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.school.primary;
 
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.HighAndLow;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
@@ -9,6 +11,8 @@ import java.util.List;
  *
  * @author Simple4H
  */
+@Getter
+@Setter
 public class GradeWearingGlasses {
 
     /**

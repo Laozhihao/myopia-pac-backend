@@ -1,10 +1,15 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.school.kindergarten;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * 历年视力情况
  *
  * @author Simple4H
  */
+@Getter
+@Setter
 public class KindergartenHistoryVision {
 
     /**

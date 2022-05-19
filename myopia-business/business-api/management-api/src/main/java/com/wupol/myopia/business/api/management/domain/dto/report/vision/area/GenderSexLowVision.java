@@ -29,6 +29,8 @@ public class GenderSexLowVision {
     /**
      * 信息
      */
+    @Getter
+    @Setter
     public static class Info {
         /**
          * 幼儿园

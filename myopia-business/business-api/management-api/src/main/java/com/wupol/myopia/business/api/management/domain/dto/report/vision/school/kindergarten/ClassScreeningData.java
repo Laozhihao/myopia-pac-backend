@@ -14,7 +14,7 @@ import java.util.List;
 @Setter
 public class ClassScreeningData {
 
-    private List<ClassScreeningDataDetail> abc;
+    private List<ClassScreeningDataDetail> classDetail;
 
     @Getter
     @Setter
