@@ -762,9 +762,9 @@ public class StatConclusionCheck {
                 if (Objects.isNull(saprodontiaData)) {
                     return true;
                 }
-                Set<SaprodontiaDataDO.SaprodontiaItem> saprodontias = StatUtil.getSaprodontia(saprodontiaData, Lists.newArrayList("d", "D"));
-                Set<SaprodontiaDataDO.SaprodontiaItem> saprodontiaLoss = StatUtil.getSaprodontia(saprodontiaData, Lists.newArrayList("m", "M"));
-                Set<SaprodontiaDataDO.SaprodontiaItem> saprodontiaRepair = StatUtil.getSaprodontia(saprodontiaData, Lists.newArrayList("f", "F"));
+                List<SaprodontiaDataDO.SaprodontiaItem> saprodontias = StatUtil.getSaprodontia(saprodontiaData, Lists.newArrayList("d", "D"));
+                List<SaprodontiaDataDO.SaprodontiaItem> saprodontiaLoss = StatUtil.getSaprodontia(saprodontiaData, Lists.newArrayList("m", "M"));
+                List<SaprodontiaDataDO.SaprodontiaItem> saprodontiaRepair = StatUtil.getSaprodontia(saprodontiaData, Lists.newArrayList("f", "F"));
                 return CollectionUtil.isEmpty(saprodontias) && CollectionUtil.isEmpty(saprodontiaLoss) && CollectionUtil.isEmpty(saprodontiaRepair);
             }).collect(Collectors.toList());
 
@@ -1108,9 +1108,9 @@ public class StatConclusionCheck {
                 }).map(threeTuple -> {
                     SaprodontiaData saprodontia = new SaprodontiaData();
                     SaprodontiaDataDO saprodontiaData = threeTuple.getSecond().getSaprodontiaData();
-                    Set<SaprodontiaDataDO.SaprodontiaItem> saprodontias = StatUtil.getSaprodontia(saprodontiaData, Lists.newArrayList("d", "D"));
-                    Set<SaprodontiaDataDO.SaprodontiaItem> saprodontiaLoss = StatUtil.getSaprodontia(saprodontiaData, Lists.newArrayList("m", "M"));
-                    Set<SaprodontiaDataDO.SaprodontiaItem> saprodontiaRepair = StatUtil.getSaprodontia(saprodontiaData, Lists.newArrayList("f", "F"));
+                    List<SaprodontiaDataDO.SaprodontiaItem> saprodontias = StatUtil.getSaprodontia(saprodontiaData, Lists.newArrayList("d", "D"));
+                    List<SaprodontiaDataDO.SaprodontiaItem> saprodontiaLoss = StatUtil.getSaprodontia(saprodontiaData, Lists.newArrayList("m", "M"));
+                    List<SaprodontiaDataDO.SaprodontiaItem> saprodontiaRepair = StatUtil.getSaprodontia(saprodontiaData, Lists.newArrayList("f", "F"));
                     saprodontia.isSaprodontia = CollectionUtil.isNotEmpty(saprodontias);
                     saprodontia.saprodontiaTeeth = CollectionUtil.isNotEmpty(saprodontias) ? saprodontias.size() : 0;
                     saprodontia.isSaprodontiaLoss = CollectionUtil.isNotEmpty(saprodontiaLoss);
