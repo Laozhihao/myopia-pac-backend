@@ -162,6 +162,11 @@ public class ScheduledTasksExecutor {
             log.info("按学校统计结束");
         }, asyncServiceExecutor);
 
+        //重点视力对象需统计的是学校所在区域的所有数据，另外统计
+        List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics = new ArrayList<>();
+        genAttentiveObjectsStatistics(screeningPlanIds, districtAttentiveObjectsStatistics);
+        districtAttentiveObjectsStatisticService.batchSaveOrUpdate(districtAttentiveObjectsStatistics);
+
         CompletableFuture.allOf(districtFuture,schoolFuture).join();
     }
 
