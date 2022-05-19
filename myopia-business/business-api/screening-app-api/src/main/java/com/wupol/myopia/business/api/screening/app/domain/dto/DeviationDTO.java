@@ -46,7 +46,7 @@ public class DeviationDTO extends ScreeningResultBasicData {
             visionOrOptometryDeviation.setRemark(visionOrOptometryDeviationRemark);
         }
         if (Objects.nonNull(heightWeightDeviationType)) {
-            heightWeightDeviation.setType(DeviationDO.HeightWeightDeviationEnum.getByCode(visionOrOptometryDeviationType));
+            heightWeightDeviation.setType(DeviationDO.HeightWeightDeviationEnum.getByCode(heightWeightDeviationType));
             heightWeightDeviation.setRemark(heightWeightDeviationRemark);
         }
         deviationDO.setHeightWeightDeviation(heightWeightDeviation);

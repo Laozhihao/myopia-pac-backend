@@ -68,29 +68,24 @@ public class VisionScreeningBizService {
      * 保存学生眼镜信息
      *
      * @param screeningResultBasicData
-     * @param clientId 客户端ID
+     * @param clientId                 客户端ID
      * @return 返回statconclusion
      */
     @Transactional(rollbackFor = Exception.class)
-    public TwoTuple<VisionScreeningResult, StatConclusion> saveOrUpdateStudentScreenData(ScreeningResultBasicData screeningResultBasicData,String clientId) {
+    public TwoTuple<VisionScreeningResult, StatConclusion> saveOrUpdateStudentScreenData(ScreeningResultBasicData screeningResultBasicData, String clientId) {
         // 1: 根据筛查计划获得 初筛和复测数据
         // 2: 本次检查数据如果是复测，要验证是否符合初筛条件
-        TwoTuple<VisionScreeningResult, VisionScreeningResult> allFirstAndSecondResult = getAllFirstAndSecondResult(screeningResultBasicData);
-        VisionScreeningResult currentVisionScreeningResult;
-        if (screeningResultBasicData.getIsState() != 0) {
-            currentVisionScreeningResult = allFirstAndSecondResult.getSecond();
-        } else {
-            currentVisionScreeningResult = allFirstAndSecondResult.getFirst();
-        }
+        TwoTuple<VisionScreeningResult, VisionScreeningResult> currentAndOtherResult = getAllFirstAndSecondResult(screeningResultBasicData);
+        VisionScreeningResult currentVisionScreeningResult = currentAndOtherResult.getFirst();
         // 获取了筛查计划
         currentVisionScreeningResult = getScreeningResult(screeningResultBasicData, currentVisionScreeningResult);
-        if (Objects.isNull(allFirstAndSecondResult.getFirst())) {
-            allFirstAndSecondResult.setFirst(currentVisionScreeningResult);
+        if (Objects.isNull(currentAndOtherResult.getFirst())) {
+            currentAndOtherResult.setFirst(currentVisionScreeningResult);
         }
 
         ScreeningPlan screeningPlan = screeningPlanService.findOne(new ScreeningPlan().setId(currentVisionScreeningResult.getPlanId()));
-        if(screeningResultBasicData.getIsState() != 0){
-            verifyScreening(allFirstAndSecondResult.getFirst(), screeningPlan.getScreeningType() == 1);
+        if (screeningResultBasicData.getIsState() != 0) {
+            verifyScreening(currentAndOtherResult.getFirst(), screeningPlan.getScreeningType() == 1);
         }
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = getScreeningPlanSchoolStudent(screeningResultBasicData);
         // 初筛数据清空未检查说明
@@ -101,7 +96,7 @@ public class VisionScreeningBizService {
         //更新vision_result表
         visionScreeningResultService.saveOrUpdateStudentScreenData(currentVisionScreeningResult);
         //更新statConclusion表（获取的初筛或复测的数据）
-        StatConclusion statConclusion = statConclusionService.saveOrUpdateStudentScreenData(getScreeningConclusionResult(allFirstAndSecondResult,clientId));
+        StatConclusion statConclusion = statConclusionService.saveOrUpdateStudentScreenData(getScreeningConclusionResult(currentAndOtherResult, clientId));
         // 更新是否绑定手机号码
         setIsBindMq(statConclusion);
         //更新学生表的数据（复测覆盖了初筛的结论）
@@ -172,7 +167,7 @@ public class VisionScreeningBizService {
      * @param allFirstAndSecondResult
      * @return
      */
-    private StatConclusion getScreeningConclusionResult(TwoTuple<VisionScreeningResult, VisionScreeningResult> allFirstAndSecondResult,String clientId) {
+    private StatConclusion getScreeningConclusionResult(TwoTuple<VisionScreeningResult, VisionScreeningResult> allFirstAndSecondResult, String clientId) {
         VisionScreeningResult currentVisionScreeningResult = allFirstAndSecondResult.getFirst();
         VisionScreeningResult secondVisionScreeningResult = allFirstAndSecondResult.getSecond();
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getById(currentVisionScreeningResult.getScreeningPlanSchoolStudentId());
@@ -226,10 +221,10 @@ public class VisionScreeningBizService {
         VisionScreeningResult currentVisionScreeningResult = null;
         VisionScreeningResult anotherVisionScreeningResult = null;
         for (VisionScreeningResult visionScreeningResult : visionScreeningResults) {
-            if (visionScreeningResult.getIsDoubleScreen()) {
-                anotherVisionScreeningResult = visionScreeningResult;
-            } else {
+            if (visionScreeningResult.getIsDoubleScreen() == (screeningResultBasicData.getIsState() == 1)) {
                 currentVisionScreeningResult = visionScreeningResult;
+            } else {
+                anotherVisionScreeningResult = visionScreeningResult;
             }
         }
         TwoTuple<VisionScreeningResult, VisionScreeningResult> visionScreeningResultVisionScreeningResultTwoTuple = new TwoTuple<>();
@@ -278,7 +273,7 @@ public class VisionScreeningBizService {
         student.setUpdateTime(new Date());
         student.setAstigmatismLevel(statConclusion.getAstigmatismLevel());
         student.setHyperopiaLevel(statConclusion.getHyperopiaLevel());
-        if (statConclusion.getAge() >= 6){
+        if (statConclusion.getAge() >= 6) {
             student.setMyopiaLevel(statConclusion.getMyopiaLevel());
             student.setScreeningMyopia(statConclusion.getScreeningMyopia());
         }
