@@ -23,7 +23,6 @@ import com.wupol.myopia.business.api.screening.app.service.ScreeningAppService;
 import com.wupol.myopia.business.api.screening.app.service.ScreeningPlanBizService;
 import com.wupol.myopia.business.common.utils.constant.EyeDiseasesEnum;
 import com.wupol.myopia.business.common.utils.constant.SourceClientEnum;
-import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
@@ -32,9 +31,7 @@ import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.DeviationDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ComputerOptometryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultSearchDTO;
@@ -328,23 +325,23 @@ public class ScreeningAppController {
             return ApiResult.failure("身高体重数据,请输入正确的参数");
         }
 
-        if (screeningResultDataVO.getSaprodontiaDTO() != null && !screeningResultDataVO.getSaprodontiaDTO().isValid()) {
+        if (screeningResultDataVO.getSaprodontiaData() != null && !screeningResultDataVO.getSaprodontiaData().isValid()) {
             return ApiResult.failure("龋齿检查数据,请输入正确的参数");
         }
 
-        if (screeningResultDataVO.getSpineDTO() != null && !screeningResultDataVO.getSpineDTO().isValid()) {
+        if (screeningResultDataVO.getSpineData() != null && !screeningResultDataVO.getSpineData().isValid()) {
             return ApiResult.failure("脊柱检查数据,请输入正确的参数");
         }
 
-        if (screeningResultDataVO.getBloodPressureDTO() != null && !screeningResultDataVO.getBloodPressureDTO().isValid()) {
+        if (screeningResultDataVO.getBloodPressureData() != null && !screeningResultDataVO.getBloodPressureData().isValid()) {
             return ApiResult.failure("血压数据,请输入正确的参数");
         }
 
-        if (screeningResultDataVO.getDiseasesHistoryDTO() != null && !screeningResultDataVO.getDiseasesHistoryDTO().isValid()) {
+        if (screeningResultDataVO.getDiseasesHistoryData() != null && !screeningResultDataVO.getDiseasesHistoryData().isValid()) {
             return ApiResult.failure("疾病史数据,请输入正确的参数");
         }
 
-        if (screeningResultDataVO.getPrivacyDTO() != null && !screeningResultDataVO.getPrivacyDTO().isValid()) {
+        if (screeningResultDataVO.getPrivacyData() != null && !screeningResultDataVO.getPrivacyData().isValid()) {
             return ApiResult.failure("个人隐私数据,请输入正确的参数");
         }
 
@@ -373,20 +370,20 @@ public class ScreeningAppController {
         if (screeningResultDataVO.getHeightAndWeightData() != null) {
             visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getHeightAndWeightData(), clientId);
         }
-        if (screeningResultDataVO.getSaprodontiaDTO() != null) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getSaprodontiaDTO(), clientId);
+        if (screeningResultDataVO.getSaprodontiaData() != null) {
+            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getSaprodontiaData(), clientId);
         }
-        if (screeningResultDataVO.getSpineDTO() != null) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getSpineDTO(), clientId);
+        if (screeningResultDataVO.getSpineData() != null) {
+            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getSpineData(), clientId);
         }
-        if (screeningResultDataVO.getBloodPressureDTO() != null) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getBloodPressureDTO(), clientId);
+        if (screeningResultDataVO.getBloodPressureData() != null) {
+            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getBloodPressureData(), clientId);
         }
-        if (screeningResultDataVO.getDiseasesHistoryDTO() != null) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getDiseasesHistoryDTO(), clientId);
+        if (screeningResultDataVO.getDiseasesHistoryData() != null) {
+            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getDiseasesHistoryData(), clientId);
         }
-        if (screeningResultDataVO.getPrivacyDTO() != null) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getPrivacyDTO(), clientId);
+        if (screeningResultDataVO.getPrivacyData() != null) {
+            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getPrivacyData(), clientId);
         }
         return ApiResult.success();
     }
