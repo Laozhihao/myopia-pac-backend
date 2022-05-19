@@ -31,4 +31,8 @@ public class ScreeningNoticeDTO extends ScreeningNotice {
      * 是否为自己创建（0否 ，1是）
      */
     private Integer isSelfRelease;
+    /**
+     * 是否为发布的通知还是自己接受的通知(0发布的通知，1接受的通知)
+     */
+    private Integer isSelfReceive;
 }

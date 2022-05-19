@@ -37,7 +37,7 @@ public class HeightAndWeightDataDO extends AbstractDiagnosisResult implements Se
     private BigDecimal bmi;
 
     public BigDecimal getBmi() {
-        if(Objects.nonNull(height) && Objects.nonNull(weight)){
+        if(valid()){
             return StatUtil.bmi(weight,height);
         }
         return bmi;

@@ -3,6 +3,7 @@ package com.wupol.myopia.business.core.screening.flow.domain.model;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.business.common.utils.annotation.CheckTimeInterval;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -42,6 +43,15 @@ public class ScreeningNotice implements Serializable {
     public static final Integer IS_SELF_RELEASE = 1;
 
     /**
+     * 发布的通知
+     */
+    public static final Integer IS_SELF_RECEIVE = 0;
+    /**
+     * 接收的通知
+     */
+    public static final Integer IS_NOT_SELF_RECEIVE = 1;
+
+    /**
      * 主键id
      */
     @TableId(value = "id", type = IdType.AUTO)
@@ -70,6 +80,7 @@ public class ScreeningNotice implements Serializable {
      * 筛查通知--结束时间（时间戳）
      */
     @NotNull(message = "结束时间不能为空")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     private Date endTime;
 
     /**
