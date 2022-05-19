@@ -3,6 +3,7 @@ package com.wupol.myopia.business.common.utils.util;
 import com.wupol.myopia.business.common.utils.constant.AstigmatismLevelEnum;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.common.utils.constant.HyperopiaLevelEnum;
+import com.wupol.myopia.business.common.utils.constant.LowVisionLevelEnum;
 import com.wupol.myopia.business.common.utils.constant.MyopiaLevelEnum;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.StringUtils;
@@ -30,10 +31,13 @@ public class VisionUtil {
      * @param astigmatismLevel
      * @return java.lang.String
      **/
-    public String getVisionSummary(Integer glassesType, Integer myopiaLevel, Integer hyperopiaLevel, Integer astigmatismLevel,Integer screeningMyopia) {
+    public String getVisionSummary(Integer glassesType, Integer myopiaLevel, Integer hyperopiaLevel, Integer astigmatismLevel,Integer screeningMyopia,Integer lowVision) {
         List<String> resultList = new LinkedList<>();
         if (Objects.nonNull(glassesType)) {
             resultList.add(GlassesTypeEnum.getDescByCode(glassesType));
+        }
+        if (Objects.nonNull(lowVision)){
+            resultList.add(LowVisionLevelEnum.getDesc(lowVision));
         }
         //筛查性近视
         if (Objects.equals(MyopiaLevelEnum.SCREENING_MYOPIA.code,screeningMyopia)) {
