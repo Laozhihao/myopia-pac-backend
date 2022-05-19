@@ -565,10 +565,10 @@
         where screening_plan_id != #{planId}
     </select>
 
-    <select id="getOneByNePlanId" resultMap="BaseResultMap">
+    <select id="getOneByPlanId" resultMap="BaseResultMap">
         select *
         from m_screening_plan_school_student
-        where screening_plan_id != #{planId}
+        where screening_plan_id = #{planId}
         limit 1
     </select>
 

@@ -209,6 +209,10 @@ public class Student extends AddressCode implements Serializable {
      */
     private Integer myopiaLevel;
     /**
+     * 筛查性近视
+     */
+    private Integer screeningMyopia;
+    /**
      * 远视等级，0-正常、1-远视、2-低度远视、3-中度远视、4-重度远视
      */
     private Integer hyperopiaLevel;
@@ -278,7 +282,7 @@ public class Student extends AddressCode implements Serializable {
      * @return 视力情况
      */
     public String situation2Str() {
-        return VisionUtil.getVisionSummary(glassesType, myopiaLevel, hyperopiaLevel, astigmatismLevel);
+        return VisionUtil.getVisionSummary(glassesType, myopiaLevel, hyperopiaLevel, astigmatismLevel,screeningMyopia);
     }
 
     /**
