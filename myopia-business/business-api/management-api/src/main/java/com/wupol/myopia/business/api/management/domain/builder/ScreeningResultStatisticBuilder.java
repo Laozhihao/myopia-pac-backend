@@ -162,7 +162,7 @@ public class ScreeningResultStatisticBuilder {
      */
     private void setPrimarySchoolAndAboveVisionAnalysis(StatisticResultBO totalStatistic, List<StatConclusion> statConclusions, int validScreeningNum, VisionScreeningResultStatistic statistic) {
         PrimarySchoolAndAboveVisionAnalysisDO visionAnalysisDO = new PrimarySchoolAndAboveVisionAnalysisDO();
-        statConclusions = statConclusions.stream().filter(sc->Objects.equals(Boolean.FALSE,sc.getIsRescreen())).collect(Collectors.toList());
+        statConclusions = statConclusions.stream().filter(sc->Objects.equals(Boolean.FALSE,sc.getIsRescreen())).filter(sc->Objects.equals(0,sc.getIsCooperative())).collect(Collectors.toList());
 
         Integer lowVisionNum = (int) statConclusions.stream()
                 .map(StatConclusion::getIsLowVision)
@@ -217,7 +217,7 @@ public class ScreeningResultStatisticBuilder {
      */
     private void setKindergartenVisionAnalysis(StatisticResultBO totalStatistic, List<StatConclusion> statConclusions, int validScreeningNum, VisionScreeningResultStatistic statistic) {
         KindergartenVisionAnalysisDO visionAnalysisDO =new KindergartenVisionAnalysisDO();
-        statConclusions = statConclusions.stream().filter(sc->Objects.equals(Boolean.FALSE,sc.getIsRescreen())).collect(Collectors.toList());
+        statConclusions = statConclusions.stream().filter(sc->Objects.equals(Boolean.FALSE,sc.getIsRescreen())).filter(sc->Objects.equals(0,sc.getIsCooperative())).collect(Collectors.toList());
 
         Map<Integer, Long> visionLabelNumberMap = statConclusions.stream().filter(stat -> Objects.nonNull(stat.getWarningLevel())).collect(Collectors.groupingBy(StatConclusion::getWarningLevel, Collectors.counting()));
 
@@ -258,7 +258,7 @@ public class ScreeningResultStatisticBuilder {
                                   List<StatConclusion> statConclusions,
                                   VisionScreeningResultStatistic statistic) {
         VisionWarningDO visionWarningDO = new VisionWarningDO();
-        statConclusions = statConclusions.stream().filter(sc->Objects.equals(Boolean.FALSE,sc.getIsRescreen())).collect(Collectors.toList());
+        statConclusions = statConclusions.stream().filter(sc->Objects.equals(Boolean.FALSE,sc.getIsRescreen())).filter(sc->Objects.equals(0,sc.getIsCooperative())).collect(Collectors.toList());
 
         Map<Integer, Long> visionLabelNumberMap = statConclusions.stream().filter(stat -> Objects.nonNull(stat.getWarningLevel())).collect(Collectors.groupingBy(StatConclusion::getWarningLevel, Collectors.counting()));
         Integer visionLabel0Num = visionLabelNumberMap.getOrDefault(WarningLevel.ZERO.code, 0L).intValue();
@@ -283,7 +283,7 @@ public class ScreeningResultStatisticBuilder {
         RescreenSituationDO rescreenSituationDO = new RescreenSituationDO();
 
         List<StatConclusion> statConclusionList = statConclusions.stream()
-                .filter(sc->Objects.equals(Boolean.TRUE,sc.getIsRescreen())).collect(Collectors.toList());
+                .filter(sc->Objects.equals(Boolean.TRUE,sc.getIsRescreen())).filter(sc->Objects.equals(0,sc.getIsCooperative())).collect(Collectors.toList());
 
         //戴镜
         List<StatConclusion> wearingGlassList = statConclusionList.stream()
