@@ -1,6 +1,8 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.common;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -10,12 +12,14 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class CountAndProportion {
 
     /**
      * 人数
      */
-    private Integer count;
+    private Long count;
 
     /**
      * 百分比

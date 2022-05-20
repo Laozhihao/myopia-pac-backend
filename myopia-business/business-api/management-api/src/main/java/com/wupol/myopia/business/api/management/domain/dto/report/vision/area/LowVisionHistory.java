@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.area;
 
-import com.wupol.myopia.business.api.management.domain.dto.report.vision.area.schoolage.SchoolAgeLowVisionTable;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.area.schoolage.SchoolHistoryLowVisionTable;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -28,5 +28,5 @@ public class LowVisionHistory {
     /**
      * 表格
      */
-    private List<SchoolAgeLowVisionTable> table;
+    private List<SchoolHistoryLowVisionTable> tables;
 }

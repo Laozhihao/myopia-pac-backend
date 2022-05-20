@@ -16,20 +16,20 @@ public class KindergartenInfo {
     /**
      * 不同性别屈光筛查情况
      */
-    private SexRefractive sexRefractive;
+    private SexRefractive sexRefractiveInfo;
 
     /**
      * 不同学龄段屈光筛查情况
      */
-    private SchoolAgeRefractive schoolAgeRefractive;
+    private SchoolAgeRefractive schoolAgeRefractiveInfo;
 
     /**
      * 不同年龄段屈光筛查情况
      */
-    private AgeRefractive ageRefractive;
+    private AgeRefractive ageRefractiveInfo;
 
     /**
      * 历年屈光情况趋势分析
      */
-    private HistoryRefractive historyRefractive;
+    private HistoryRefractive historyRefractiveInfo;
 }

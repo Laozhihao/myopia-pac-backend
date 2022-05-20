@@ -25,40 +25,50 @@ public class RefractiveTable {
     /**
      * 远视储备不足-有效人数
      */
-    private Integer insufficientStudentCount;
+    private Long insufficientStudentCount;
 
     /**
      * 远视储备不足-百分比
      */
-    private Integer insufficientPercentage;
+    private String insufficientProportion;
 
     /**
      * 屈光不正-有效人数
      */
-    private Integer refractiveErrorStudentCount;
+    private Long refractiveErrorStudentCount;
 
     /**
      * 屈光不正-百分比
      */
-    private Integer refractiveErrorPercentage;
+    private String refractiveErrorProportion;
 
     /**
      * 屈光参差-有效人数
      */
-    private Integer anisometropiaStudentCount;
+    private Long anisometropiaStudentCount;
 
     /**
      * 屈光参差-百分比
      */
-    private Integer anisometropiaPercentage;
+    private String anisometropiaProportion;
 
     /**
      * 建议就诊-有效人数
      */
-    private CountAndProportion recommendDoctorCount;
+    private Long recommendDoctorCount;
 
     /**
      * 建议就诊-百分比
      */
-    private CountAndProportion recommendDoctorProportion;
+    private String recommendDoctorProportion;
+
+    /**
+     * 视力低下-有效人数
+     */
+    private Long lowVisionStudentCount;
+
+    /**
+     * 视力低下-百分比
+     */
+    private String lowVisionProportion;
 }

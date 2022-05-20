@@ -23,34 +23,34 @@ public class GenderSexLowVisionTable {
     private Integer validCount;
 
     /**
-     * 幼儿园
+     * 幼儿园-人数
      */
-    private Table kTable;
+    private Long kCount;
 
     /**
-     * 小学及以上
+     * 幼儿园-占比
      */
-    private Table pTable;
+    private String kProportion;
 
-    @Getter
-    @Setter
-    public static class Table {
+    /**
+     * 幼儿园-平均视力
+     */
+    private String kAvgVision;
 
-        /**
-         * 人数
-         */
-        private Integer count;
+    /**
+     * 小学以上-人数
+     */
+    private Long pCount;
 
-        /**
-         * 占比
-         */
-        private String proportion;
+    /**
+     * 小学以上-占比
+     */
+    private String pProportion;
 
-        /**
-         * 平均视力
-         */
-        private String avgVision;
-    }
+    /**
+     * 小学以上-平均视力
+     */
+    private String pAvgVision;
 
 
 

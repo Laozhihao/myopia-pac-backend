@@ -347,5 +347,9 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
         return baseMapper.getByNoticePlanDistrict(noticeId, planId, districtIds);
     }
 
+    public List<StatConclusion> getByPlanIdSchoolIdNoticeId(Integer planId, Integer schoolId, Integer noticeId) {
+        return baseMapper.getByPlanIdSchoolIdNoticeId(planId, schoolId, noticeId);
+    }
+
 }
 

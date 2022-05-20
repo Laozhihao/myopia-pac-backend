@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.area;
 
-import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.kindergarten.ClassScreeningData;
 import lombok.Getter;
 import lombok.Setter;
 

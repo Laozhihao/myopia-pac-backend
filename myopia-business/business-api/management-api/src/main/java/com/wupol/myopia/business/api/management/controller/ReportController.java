@@ -1,10 +1,12 @@
 package com.wupol.myopia.business.api.management.controller;
 
 import com.alibaba.csp.sentinel.util.StringUtil;
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.base.util.ChainRatio;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.pdf.archives.SyncExportStudentScreeningArchivesService;
@@ -14,11 +16,16 @@ import com.wupol.myopia.business.api.management.constant.ReportConst;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.area.ScreeningAreaReportDTO;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.kindergarten.KindergartenReportDTO;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.primary.PrimaryReportDTO;
+import com.wupol.myopia.business.api.management.service.ScreeningAreaReportService;
+import com.wupol.myopia.business.api.management.service.ScreeningKindergartenReportService;
+import com.wupol.myopia.business.api.management.service.ScreeningPrimaryReportService;
+import com.wupol.myopia.business.api.management.service.report.CommonReportService;
 import com.wupol.myopia.business.core.common.service.Html2PdfService;
 import com.wupol.myopia.business.core.hospital.domain.dto.ReceiptDTO;
 import com.wupol.myopia.business.core.hospital.service.PreschoolCheckRecordService;
 import com.wupol.myopia.business.core.hospital.service.ReceiptListService;
 import com.wupol.myopia.business.core.hospital.service.ReferralRecordService;
+import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
@@ -72,6 +79,15 @@ public class ReportController {
 
     @Autowired
     private SyncExportStudentScreeningArchivesService syncExportStudentScreeningArchivesService;
+
+    @Autowired
+    private ScreeningAreaReportService screeningAreaReportService;
+
+    @Autowired
+    private ScreeningPrimaryReportService screeningPrimaryReportService;
+
+    @Autowired
+    private ScreeningKindergartenReportService screeningKindergartenReportService;
 
     /**
      * 导出区域的筛查报告 TODO: 权限校验、导出次数限制
@@ -378,6 +394,38 @@ public class ReportController {
     @GetMapping("/screening/primaryReport")
     public ApiResult<PrimaryReportDTO> primaryReport() {
         return ApiResult.success(new PrimaryReportDTO());
+    }
+
+
+    /**
+     * 视力筛查-区域
+     *
+     * @return ScreeningAreaReportDTO
+     */
+    @GetMapping("/screening/areaReport2")
+    public ScreeningAreaReportDTO areaReport2() {
+        return screeningAreaReportService.generateReport(539,282, 37313);
+    }
+
+    /**
+     * 视力筛查-小学及以上
+     *
+     * @return PrimaryReportDTO
+     */
+    @GetMapping("/screening/primaryReport2")
+    public PrimaryReportDTO primaryReport2() {
+        return screeningPrimaryReportService.generateReport(249, 364, 486);
+    }
+
+    /**
+     * 视力筛查-幼儿园
+     *
+     * @return KindergartenReportDTO
+     */
+    @GetMapping("/screening/kindergartenReport2")
+    public KindergartenReportDTO kindergartenReport2(Integer planId, Integer schoolId, Integer noticeId) {
+        return screeningKindergartenReportService.generateReport(planId, schoolId, noticeId);
+
     }
 
 

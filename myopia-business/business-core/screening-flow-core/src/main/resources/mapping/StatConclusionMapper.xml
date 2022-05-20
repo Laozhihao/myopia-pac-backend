@@ -444,5 +444,16 @@
         <foreach collection="districtIds" item="id" index="index" open="(" close=")" separator=",">
             #{id}
         </foreach>
+        and is_rescreen = false
+    </select>
+
+    <select id="getByPlanIdSchoolIdNoticeId" resultMap="BaseResultMap">
+        select *
+        from m_stat_conclusion
+        where plan_id = #{planId}
+          and school_id = #{schoolId}
+          and src_screening_notice_id = #{noticeId}
+        and is_rescreen = false
+        order by create_time desc
     </select>
 </mapper>

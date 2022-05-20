@@ -26,12 +26,12 @@ public class PrimaryScreeningInfoTable {
     /**
      * 人数-视力低下
      */
-    private Integer lowVisionCount;
+    private Long lowVisionCount;
 
     /**
      * 占比-视力低下/视力低常
      */
-    private Integer lowVisionProportion;
+    private String lowVisionProportion;
 
     /**
      * 平均视力
@@ -41,49 +41,59 @@ public class PrimaryScreeningInfoTable {
     /**
      * 人数-近视
      */
-    private Integer myopiaCount;
+    private Long myopiaCount;
 
     /**
      * 占比-近视
      */
-    private Integer myopiaProportion;
+    private String myopiaProportion;
+
+    /**
+     * 近视前期人数
+     */
+    private Long earlyMyopiaCount;
+
+    /**
+     * 近视前期率
+     */
+    private String earlyMyopiaProportion;
 
     /**
      * 低度近视人数
      */
-    private Integer lowMyopiaCount;
+    private Long lightMyopiaCount;
 
     /**
      * 低度近视率
      */
-    private Integer lowMyopiaProportion;
+    private String lightMyopiaProportion;
 
     /**
      * 高度近视人数
      */
-    private Integer highMyopiaCount;
+    private Long highMyopiaCount;
 
     /**
      * 高度近视率
      */
-    private Integer highMyopiaProportion;
+    private String highMyopiaProportion;
 
     /**
      * 人数-建议就诊
      */
-    private CountAndProportion recommendDoctorCount;
+    private Long recommendDoctorCount;
     /**
      * 占比-建议就诊
      */
-    private CountAndProportion recommendDoctorProportion;
+    private String recommendDoctorProportion;
 
     /**
      * 人数-欠矫未矫
      */
-    private CountAndProportion oweCount;
+    private Long oweCount;
 
     /**
      * 占比-欠矫未矫
      */
-    private CountAndProportion oweProportion;
+    private String oweProportion;
 }

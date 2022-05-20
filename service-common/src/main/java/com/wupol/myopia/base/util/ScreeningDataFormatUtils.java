@@ -52,6 +52,28 @@ public class ScreeningDataFormatUtils {
      * @param date 左眼数据
      * @return String
      */
+    public static String singleEyeDateFormatTwo(BigDecimal date) {
+        DecimalFormat decimalFormat = new DecimalFormat("0.00");
+        return Objects.isNull(date) ? "--" : decimalFormat.format(date);
+    }
+
+    /**
+     * 单眼数据格式化
+     *
+     * @param date 左眼数据
+     * @return String
+     */
+    public static String singleEyeDateFormatZero(BigDecimal date) {
+        DecimalFormat decimalFormat = new DecimalFormat("0");
+        return Objects.isNull(date) ? "--" : decimalFormat.format(date);
+    }
+
+    /**
+     * 单眼数据格式化
+     *
+     * @param date 左眼数据
+     * @return String
+     */
     public static String singleEyeSEFormat(BigDecimal date) {
         DecimalFormat decimalFormat = new DecimalFormat("0.0");
         if (Objects.isNull(date)) {

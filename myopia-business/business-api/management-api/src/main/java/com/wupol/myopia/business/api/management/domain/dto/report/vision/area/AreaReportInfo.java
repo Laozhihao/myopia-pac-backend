@@ -22,5 +22,5 @@ public class AreaReportInfo {
     /**
      * 年度
      */
-    private Date date;
+    private String date;
 }

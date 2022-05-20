@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.school.kindergarten;
 
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.MaxMinProportion;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,7 +18,7 @@ public class GradeLowVision {
     /**
      * 信息
      */
-    private List<Info> infos;
+    private Info info;
 
     /**
      * 表格
@@ -29,34 +30,19 @@ public class GradeLowVision {
     public static class Info {
 
         /**
-         * 年级名称
+         * 小班
          */
-        private String name;
+        private MaxMinProportion one;
 
         /**
-         * 视力低下率
+         * 中班
          */
-        private String lowVisionPercentage;
+        private MaxMinProportion two;
 
         /**
-         * 最高班级
+         * 大班
          */
-        private String maxClass;
-
-        /**
-         * 最高百分比
-         */
-        private String maxPercentage;
-
-        /**
-         * 最低班级
-         */
-        private String minClass;
-
-        /**
-         * 最低百分比
-         */
-        private String minPercentage;
+        private MaxMinProportion three;
     }
 
     @Getter
@@ -81,22 +67,27 @@ public class GradeLowVision {
         /**
          * 男-人数
          */
-        private Integer mCount;
+        private Long mCount;
 
         /**
          * 男-百分比
          */
-        private String mPercentage;
+        private String mProportion;
 
         /**
          * 男-人数
          */
-        private Integer fCount;
+        private Long fCount;
 
         /**
          * 女-百分比
          */
-        private String fPercentage;
+        private String fProportion;
+
+        /**
+         * 视力低下
+         */
+        private String lowVisionProportion;
 
 
     }

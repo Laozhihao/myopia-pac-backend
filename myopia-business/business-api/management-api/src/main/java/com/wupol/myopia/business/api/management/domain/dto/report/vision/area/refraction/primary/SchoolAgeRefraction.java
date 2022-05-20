@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.area.refraction.primary;
 
-import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.GenderItemInfo;
-import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.primary.AstigmatismTable;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.HighLowProportion;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.AstigmatismTable;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,14 +17,29 @@ import java.util.List;
 public class SchoolAgeRefraction {
 
     /**
-     * 年龄段
+     * 近视
      */
-    private String ageInfo;
+    private HighLowProportion myopia;
 
     /**
-     * 信息
+     * 散光
      */
-    private List<GenderItemInfo> info;
+    private HighLowProportion astigmatism;
+
+    /**
+     * 近视前期
+     */
+    private HighLowProportion earlyMyopia;
+
+    /**
+     * 低度近视
+     */
+    private HighLowProportion lightMyopia;
+
+    /**
+     * 高度近视
+     */
+    private HighLowProportion highMyopia;
 
     /**
      * 表格

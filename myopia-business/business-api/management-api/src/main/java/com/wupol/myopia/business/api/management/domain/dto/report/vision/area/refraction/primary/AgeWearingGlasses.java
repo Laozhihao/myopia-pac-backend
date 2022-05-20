@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.area.refraction.primary;
 
-import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.GenderItemInfo;
-import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.primary.GenderWearingTable;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.HighLowProportion;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.primary.AgeWearingTable;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,13 +22,43 @@ public class AgeWearingGlasses {
     private String ageInfo;
 
     /**
-     * 信息
+     * 不佩戴眼镜
      */
-    private List<GenderItemInfo> info;
+    private HighLowProportion notWearing;
+
+    /**
+     * 佩戴框架眼镜
+     */
+    private HighLowProportion glasses;
+
+    /**
+     * 佩戴隐形眼镜
+     */
+    private HighLowProportion wearingContact;
+
+    /**
+     * 夜戴
+     */
+    private HighLowProportion nightWearing;
+
+    /**
+     * 足矫
+     */
+    private HighLowProportion enough;
+
+    /**
+     * 未矫
+     */
+    private HighLowProportion uncorrected;
+
+    /**
+     * 欠矫
+     */
+    private HighLowProportion under;
 
     /**
      * 表格
      */
-    private List<GenderWearingTable> tables;
+    private List<AgeWearingTable> tables;
 
 }

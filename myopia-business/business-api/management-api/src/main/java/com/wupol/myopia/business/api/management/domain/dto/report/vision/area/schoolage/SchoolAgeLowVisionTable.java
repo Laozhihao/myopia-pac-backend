@@ -30,42 +30,42 @@ public class SchoolAgeLowVisionTable {
     /**
      * 视力低下人数
      */
-    private Integer lowVisionCount;
+    private Long lowVisionCount;
 
     /**
      * 视力低下占比
      */
-    private Integer lowVisionProportion;
+    private String lowVisionProportion;
 
     /**
      * 轻度-视力低下人数
      */
-    private Integer lightLowVisionCount;
+    private Long lightLowVisionCount;
 
     /**
      * 轻度-视力低下占比
      */
-    private Integer lightLowVisionProportion;
+    private String lightLowVisionProportion;
 
     /**
      * 中度-视力低下人数
      */
-    private Integer middleLowVisionCount;
+    private Long middleLowVisionCount;
 
     /**
      * 中度-视力低下占比
      */
-    private Integer middleLowVisionProportion;
+    private String middleLowVisionProportion;
 
     /**
      * 重度-视力低下人数
      */
-    private Integer highLowVisionCount;
+    private Long highLowVisionCount;
 
     /**
      * 重度-视力低下占比
      */
-    private Integer highLowVisionProportion;
+    private String highLowVisionProportion;
 
 
 }

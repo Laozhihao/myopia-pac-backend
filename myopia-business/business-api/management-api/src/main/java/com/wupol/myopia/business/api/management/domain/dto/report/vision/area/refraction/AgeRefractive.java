@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.area.refraction;
 
-import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.HighAndLow;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.HighLowProportion;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.RefractiveTable;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,10 +22,25 @@ public class AgeRefractive {
     private String ageRange;
 
     /**
-     * 信息
+     * 远视储备不足
      */
-    private List<HighAndLow> infoList;
+    private HighLowProportion insufficientInfo;
 
+    /**
+     * 屈光不正
+     */
+    private HighLowProportion refractiveErrorInfo;
+
+    /**
+     * 屈光参差
+     */
+    private HighLowProportion anisometropiaInfo;
+
+    /**
+     * 建议就诊
+     */
+    private HighLowProportion recommendDoctorInfo;
+    
     /**
      * 表格
      */

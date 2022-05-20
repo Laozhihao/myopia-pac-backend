@@ -613,4 +613,16 @@
             and id != #{id}
         </if>
     </select>
+
+    <select id="getByNoticeIdsAndSchoolIds" resultMap="BaseResultMap">
+        select *
+        from m_screening_plan_school_student where src_screening_notice_id in
+        <foreach collection="noticeIds" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+        and school_id in
+        <foreach collection="schoolIds" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
 </mapper>

@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.area.refraction.primary;
 
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.HighLowProportion;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.CountAndProportion;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.VisionWarningSituation;
 import lombok.Getter;
@@ -27,80 +28,37 @@ public class WarningSituation {
     private CountAndProportion recommendDoctor;
 
     /**
-     * 预警等级
+     * 不同年级近视预警情况
      */
-    private List<GradeWarning> gradeWarning;
+    private GradeWarningInfo gradeWarningInfo;
 
-    /**
-     * 表格
-     */
-    private List<Table> tables;
-
-    /**
-     * 表格
-     */
     @Getter
     @Setter
-    public static class Table {
+    public static class GradeWarningInfo {
+        /**
+         * 预警等级
+         */
+        private HighLowProportion zero;
 
         /**
-         * 年级名称
+         * 预警等级
          */
-        private String name;
+        private HighLowProportion one;
 
         /**
-         * 有效人数
+         * 预警等级
          */
-        private Integer validCount;
+        private HighLowProportion two;
 
         /**
-         * 0级预警人数
+         * 预警等级
          */
-        private Integer zeroWarningCount;
+        private HighLowProportion three;
 
         /**
-         * 0级预警人数百分比
+         * 表格
          */
-        private String zeroWarningPercentage;
-
-        /**
-         * 1级预警人数
-         */
-        private Integer oneWarningCount;
-
-        /**
-         * 1级预警人数百分比
-         */
-        private String oneWarningPercentage;
-
-        /**
-         * 2级预警人数
-         */
-        private Integer twoWarningCount;
-
-        /**
-         * 2级预警人数百分比
-         */
-        private String twoWarningPercentage;
-
-        /**
-         * 3级预警人数
-         */
-        private Integer threeWarningCount;
-
-        /**
-         * 3级预警人数百分比
-         */
-        private String threeWarningPercentage;
-
-        /**
-         * 建议就诊人数
-         */
-        private Integer recommendDoctorCount;
-
-        /**
-         * 建议就诊百分比
-         */
-        private String recommendDoctorPercentage;
+        private List<WarningTable> tables;
     }
+
 }

@@ -1,8 +1,11 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.school.kindergarten;
 
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.SchoolReportInfo;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.ClassScreeningData;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.List;
 
 /**
  * 视力筛查-幼儿园报告
@@ -31,7 +34,7 @@ public class KindergartenReportDTO {
     /**
      * 各班筛查数据
      */
-    private ClassScreeningData classScreeningData;
+    private List<ClassScreeningData> classScreeningData;
 }
 
 

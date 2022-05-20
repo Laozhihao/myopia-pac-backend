@@ -4,18 +4,13 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * 散光概览描述
+ * 性别百分比
  *
  * @author Simple4H
  */
-@Getter
 @Setter
-public class GenderItemInfo {
-
-    /**
-     * 名称描述
-     */
-    private String name;
+@Getter
+public class GenderProportion {
 
     /**
      * 百分比
@@ -23,12 +18,12 @@ public class GenderItemInfo {
     private String proportion;
 
     /**
-     * 男
+     * 男百分比
      */
-    private String mProportion;
+    private String mPercentage;
 
     /**
-     * 女
+     * 女百分比
      */
-    private String fProportion;
+    private String fPercentage;
 }

@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.school.primary;
 
-import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.GenderItemInfo;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.AstigmatismTable;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,7 +23,7 @@ public class AgeAstigmatism {
     /**
      * 信息
      */
-    private List<GenderItemInfo> info;
+    private PrimaryAstigmatismInfo info;
 
     /**
      * 表格

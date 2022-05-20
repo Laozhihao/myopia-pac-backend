@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.area;
 
-import com.wupol.myopia.business.api.management.domain.dto.report.vision.area.schoolage.HighLowProportion;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.HighLowProportion;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.area.schoolage.SchoolAgeLowVisionTable;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,7 +24,7 @@ public class SchoolAgeLowVision {
     /**
      * 表格
      */
-    private List<SchoolAgeLowVisionTable> table;
+    private List<SchoolAgeLowVisionTable> tables;
 
     /**
      * 信息
@@ -53,11 +53,6 @@ public class SchoolAgeLowVision {
         private String highLowVisionProportion;
 
         /**
-         * 普高视力低下率
-         */
-        private String puGaoLowVisionProportion;
-
-        /**
          * 职高视力低下率
          */
         private String vocationalLowVisionProportion;
@@ -65,7 +60,7 @@ public class SchoolAgeLowVision {
         /**
          * 轻度视力低下率
          */
-        private HighLowProportion low;
+        private HighLowProportion light;
 
         /**
          * 中度视力低下率

@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.area;
 
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.CountAndProportion;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.VisionSituation;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,14 +15,34 @@ import lombok.Setter;
 public class Primary {
 
     /**
+     * 视力情况
+     */
+    private VisionSituation visionSituation;
+
+    /**
      * 近视
      */
     private CountAndProportion myopia;
 
     /**
-     * 近视详情
+     * 小学
      */
-    private MyopiaInfo myopiaInfo;
+    private CountAndProportion primaryProportion;
+
+    /**
+     * 初中
+     */
+    private CountAndProportion juniorProportion;
+
+    /**
+     * 高中
+     */
+    private CountAndProportion highProportion;
+
+    /**
+     * 职业高中
+     */
+    private CountAndProportion vocationalHighProportion;
 
     /**
      * 近视前期
@@ -52,19 +73,4 @@ public class Primary {
      * 近视欠矫
      */
     private CountAndProportion undercorrection;
-
-    @Getter
-    @Setter
-    public static class MyopiaInfo {
-
-        /**
-         * 学龄
-         */
-        private String schoolAge;
-
-        /**
-         * 占比
-         */
-        private String Proportion;
-    }
 }

@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.school.kindergarten;
 
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.MaxMinProportion;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,7 +18,8 @@ public class GradeRefractive {
     /**
      * 信息
      */
-    private List<Info> info;
+    private Info info;
+
 
     /**
      * 表格
@@ -32,45 +34,45 @@ public class GradeRefractive {
     public static class Info {
 
         /**
-         * 班级名称
+         * 小班
          */
-        private String name;
+        private Detail one;
 
         /**
-         * 远视储备不足不足率
+         * 中班
          */
-        private Integer insufficientPercentage;
+        private Detail two;
 
         /**
-         * 远视储备不足率最高-班级名称
+         * 大班
          */
-        private String maxClassNameInsufficient;
+        private Detail three;
 
-        /**
-         * 远视储备不足率最高-百分比
-         */
-        private Integer maxInsufficientPercentage;
-
-        /**
-         * 屈光不正率最高-班级名称
-         */
-        private String maxClassNameRefractiveError;
-
-        /**
-         * 屈光不正率最高-百分比
-         */
-        private Integer maxRefractiveErrorPercentage;
-
-        /**
-         * 屈光参差率最高-班级名称
-         */
-        private String maxClassNameAnisometropia;
-
-        /**
-         * 屈光参差率最高-百分比
-         */
-        private Integer maxAnisometropiaPercentage;
     }
+
+    /**
+     * 信息
+     */
+    @Getter
+    @Setter
+    public static class Detail {
+
+        /**
+         * 远视储备不足
+         */
+        private MaxMinProportion insufficient;
+
+        /**
+         * 屈光不正率
+         */
+        private MaxMinProportion refractiveError;
+
+        /**
+         * 屈光参差率最高最高-班级名称
+         */
+        private MaxMinProportion anisometropia;
+    }
+
 
     /**
      * 表格
@@ -97,32 +99,32 @@ public class GradeRefractive {
         /**
          * 远视储备不足-有效人数
          */
-        private Integer insufficientStudentCount;
+        private Long insufficientStudentCount;
 
         /**
          * 远视储备不足-百分比
          */
-        private Integer insufficientPercentage;
+        private String insufficientProportion;
 
         /**
          * 屈光不正-有效人数
          */
-        private Integer refractiveErrorStudentCount;
+        private Long refractiveErrorStudentCount;
 
         /**
          * 屈光不正-百分比
          */
-        private Integer refractiveErrorPercentage;
+        private String refractiveErrorProportion;
 
         /**
          * 屈光参差-有效人数
          */
-        private Integer anisometropiaStudentCount;
+        private Long anisometropiaStudentCount;
 
         /**
          * 屈光参差-百分比
          */
-        private Integer anisometropiaPercentage;
+        private String anisometropiaProportion;
     }
 
 }

@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.common.utils.constant;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 public enum VisionCorrection {
     NORMAL(0, "正常"),
@@ -25,5 +26,13 @@ public enum VisionCorrection {
                 .filter(item -> item.code.equals(code))
                 .findFirst()
                 .orElse(null);
+    }
+
+    public static String getDesc(Integer code) {
+        if (Objects.isNull(code)) {
+            return "";
+        }
+        VisionCorrection visionCorrection = get(code);
+        return Objects.isNull(visionCorrection) ? "" : visionCorrection.desc;
     }
 }

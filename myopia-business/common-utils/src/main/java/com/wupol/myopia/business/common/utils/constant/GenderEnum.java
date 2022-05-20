@@ -1,8 +1,10 @@
 package com.wupol.myopia.business.common.utils.constant;
 
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.exception.BusinessException;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -55,5 +57,9 @@ public enum GenderEnum {
             throw new BusinessException("性别不能为空");
         }
         return Arrays.stream(values()).filter(x -> x.type.equals(gender)).map(x -> x.enDesc).findFirst().orElse(UNKNOWN.enDesc);
+    }
+
+    public static List<Integer> genderList() {
+        return Lists.newArrayList(MALE.type, FEMALE.type);
     }
 }

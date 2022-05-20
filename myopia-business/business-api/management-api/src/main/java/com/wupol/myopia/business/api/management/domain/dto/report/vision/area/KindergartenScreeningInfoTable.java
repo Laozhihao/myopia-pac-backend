@@ -26,12 +26,12 @@ public class KindergartenScreeningInfoTable {
     /**
      * 人数-视力低常
      */
-    private Integer lowVisionCount;
+    private Long lowVisionCount;
 
     /**
      * 占比-视力低下/视力低常
      */
-    private Integer lowVisionProportion;
+    private String lowVisionProportion;
 
     /**
      * 平均视力
@@ -41,7 +41,7 @@ public class KindergartenScreeningInfoTable {
     /**
      * 人数-远视储备不足
      */
-    private String insufficientCount;
+    private Long insufficientCount;
     /**
      * 占比-远视储备不足
      */
@@ -50,7 +50,7 @@ public class KindergartenScreeningInfoTable {
     /**
      * 人数-屈光不正
      */
-    private String refractiveErrorCount;
+    private Long refractiveErrorCount;
     /**
      * 占比-屈光不正
      */
@@ -59,7 +59,7 @@ public class KindergartenScreeningInfoTable {
     /**
      * 人数-屈光参差
      */
-    private String anisometropiaCount;
+    private Long anisometropiaCount;
     /**
      * 占比-屈光参差率
      */
@@ -68,9 +68,9 @@ public class KindergartenScreeningInfoTable {
     /**
      * 人数-建议就诊
      */
-    private CountAndProportion recommendDoctorCount;
+    private Long recommendDoctorCount;
     /**
      * 占比-建议就诊
      */
-    private CountAndProportion recommendDoctorProportion;
+    private String recommendDoctorProportion;
 }

@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.school.kindergarten;
 
-import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.CountAndProportion;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.GenderProportion;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.RefractiveTable;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,35 +17,28 @@ import java.util.List;
 public class SexRefractive {
 
     /**
-     * 信息
+     * 远视储备不足
      */
-    private List<Info> info;
+    private GenderProportion insufficientInfo;
+
+    /**
+     * 屈光不正
+     */
+    private GenderProportion refractiveErrorInfo;
+
+    /**
+     * 屈光参差
+     */
+    private GenderProportion anisometropiaInfo;
+
+    /**
+     * 建议就诊
+     */
+    private GenderProportion recommendDoctorInfo;
 
     /**
      * 表格
      */
     private List<RefractiveTable> tables;
-
-    /**
-     * 信息
-     */
-    @Getter
-    @Setter
-    public static class Info {
-        /**
-         * 百分比
-         */
-        private String percentage;
-
-        /**
-         * 男百分比
-         */
-        private String mPercentage;
-
-        /**
-         * 女百分比
-         */
-        private String fPercentage;
-    }
 
 }

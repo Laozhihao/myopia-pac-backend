@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.school.primary;
 
-import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.HighAndLow;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,7 +22,7 @@ public class AgeLowVision {
     /**
      * 信息
      */
-    private List<HighAndLow> infoList;
+    private LowVisionInfo info;
 
     /**
      * 表格

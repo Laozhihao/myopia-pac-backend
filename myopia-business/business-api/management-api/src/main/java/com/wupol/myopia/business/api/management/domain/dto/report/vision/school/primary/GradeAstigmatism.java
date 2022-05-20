@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.school.primary;
 
-import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.HighAndLow;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.AstigmatismTable;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,7 +18,7 @@ public class GradeAstigmatism {
     /**
      * 信息
      */
-    private List<HighAndLow> info;
+    private PrimaryAstigmatismInfo info;
 
     /**
      * 表格

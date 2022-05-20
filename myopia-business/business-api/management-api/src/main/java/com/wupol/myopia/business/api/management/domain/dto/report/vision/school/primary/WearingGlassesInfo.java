@@ -37,12 +37,7 @@ public class WearingGlassesInfo {
 
     @Getter
     @Setter
-    private static class Info {
-
-        /**
-         * 矫正人数
-         */
-        private Integer correctionCount;
+    public static class Info {
 
         /**
          * 不佩戴眼镜
@@ -72,11 +67,11 @@ public class WearingGlassesInfo {
         /**
          * 未矫
          */
-        private CountAndProportion notYet;
+        private CountAndProportion uncorrected;
 
         /**
          * 欠矫
          */
-        private CountAndProportion owe;
+        private CountAndProportion under;
     }
 }

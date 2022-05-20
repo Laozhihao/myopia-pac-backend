@@ -1,9 +1,12 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.school.primary;
 
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.SchoolReportInfo;
-import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.kindergarten.ClassScreeningData;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.ClassScreeningData;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.kindergarten.ClassOverall;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.List;
 
 /**
  * 视力筛查-小学及以上报告
@@ -30,9 +33,14 @@ public class PrimaryReportDTO {
     private PrimaryGeneralVision primaryGeneralVision;
 
     /**
+     * 各班级整体情况
+     */
+    private List<ClassOverall> overalls;
+
+    /**
      * 各班筛查数据
      */
-    private ClassScreeningData classScreeningData;
+    private List<ClassScreeningData> classScreeningData;
 }
 
 

@@ -37,12 +37,12 @@ public class Outline {
     /**
      * 年级统计
      */
-    private Date gradeTotal;
+    private Long gradeTotal;
 
     /**
      * 班级统计
      */
-    private Date classTotal;
+    private Long classTotal;
 
     /**
      * 合计人数
@@ -57,20 +57,20 @@ public class Outline {
     /**
      * 无效人数
      */
-    private Integer invalidTotal;
+    private Long invalidTotal;
 
     /**
      * 有效人数
      */
-    private Integer validTotal;
+    private Long validTotal;
 
     /**
      * 男-有效人数
      */
-    private Integer mValidTotal;
+    private Long mValidTotal;
 
     /**
      * 女-有效人数
      */
-    private Integer fValidTotal;
+    private Long fValidTotal;
 }

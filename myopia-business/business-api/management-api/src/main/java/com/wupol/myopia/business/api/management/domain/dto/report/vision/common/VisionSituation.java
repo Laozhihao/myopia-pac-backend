@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * 视力情况
+ * 视力低下
  *
  * @author Simple4H
  */
@@ -15,12 +15,12 @@ public class VisionSituation {
     /**
      * 视力低下人数
      */
-    private Integer lowTotal;
+    private Long count;
 
     /**
      * 视力低下比例
      */
-    private String lowProportion;
+    private String proportion;
 
     /**
      * 平均视力

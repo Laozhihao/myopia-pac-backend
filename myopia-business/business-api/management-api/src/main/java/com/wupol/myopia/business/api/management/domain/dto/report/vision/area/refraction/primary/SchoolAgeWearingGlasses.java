@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.area.refraction.primary;
 
-import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.HighAndLow;
-import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.primary.GenderWearingTable;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.primary.AgeWearingTable;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.primary.PrimaryWearingInfo;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,16 +16,13 @@ import java.util.List;
 @Setter
 public class SchoolAgeWearingGlasses {
 
-    /**
-     * 信息
-     */
-    private List<HighAndLow> infoList;
+
+    private PrimaryWearingInfo primaryWearingInfo;
 
     /**
      * 表格
      */
-    private List<GenderWearingTable> tables;
-
+    private List<AgeWearingTable> tables;
 
 
 }

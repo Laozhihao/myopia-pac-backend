@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.api.management.domain.dto.report.vision.school.primary;
+package com.wupol.myopia.business.api.management.domain.dto.report.vision.school;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -25,50 +25,50 @@ public class AstigmatismTable {
     /**
      * 近视前期人数
      */
-    private Integer earlyMyopiaCount;
+    private Long earlyMyopiaCount;
 
     /**
      * 近视前期率
      */
-    private Integer earlyMyopiaProportion;
+    private String earlyMyopiaProportion;
 
     /**
      * 近视人数
      */
-    private Integer myopiaCount;
+    private Long myopiaCount;
 
     /**
      * 近视率
      */
-    private Integer myopiaProportion;
+    private String myopiaProportion;
 
     /**
      * 散光人数
      */
-    private Integer astigmatismCount;
+    private Long astigmatismCount;
 
     /**
      * 散光率
      */
-    private Integer astigmatismProportion;
+    private String astigmatismProportion;
 
     /**
      * 低度近视人数
      */
-    private Integer lowMyopiaCount;
+    private Long lightMyopiaCount;
 
     /**
      * 低度近视率
      */
-    private Integer lowMyopiaProportion;
+    private String lightMyopiaProportion;
 
     /**
      * 高度近视人数
      */
-    private Integer highMyopiaCount;
+    private Long highMyopiaCount;
 
     /**
      * 高度近视率
      */
-    private Integer highMyopiaProportion;
+    private String highMyopiaProportion;
 }

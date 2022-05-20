@@ -31,7 +31,7 @@ public class SexLowVision {
         /**
          * 视力低下
          */
-        private String lowVisionPercentage;
+        private String lowVisionProportion;
 
         /**
          * 平均视力
@@ -41,12 +41,12 @@ public class SexLowVision {
         /**
          * 男生视力低下
          */
-        private String mLowVisionPercentage;
+        private String mLowVisionProportion;
 
         /**
          * 女视力低下
          */
-        private String lLowVisionPercentage;
+        private String lLowVisionProportion;
     }
 
     @Getter
@@ -66,17 +66,17 @@ public class SexLowVision {
         /**
          * 视力低下人数
          */
-        private Integer lowVisionCount;
+        private Long lowVisionCount;
 
         /**
          * 视力低下占比
          */
-        private String percentage;
+        private String proportion;
 
         /**
          * 平均视力
          */
-        private String avgVison;
+        private String avgVision;
     }
 
 

@@ -17,6 +17,7 @@ public class RefractiveAbnormalities {
      * 屈光不正
      */
     private CountAndProportion refractiveError;
+
     /**
      * 屈光参差
      */
@@ -25,5 +26,5 @@ public class RefractiveAbnormalities {
     /**
      * 远视储备不足
      */
-    private CountAndProportion insufficientFarsightednessReserve;
+    private CountAndProportion insufficient;
 }

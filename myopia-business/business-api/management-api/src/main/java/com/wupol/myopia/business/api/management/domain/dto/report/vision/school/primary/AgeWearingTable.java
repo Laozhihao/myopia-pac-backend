@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.school.primary;
 
-import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.CountAndProportion;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,7 +10,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class GenderWearingTable {
+public class AgeWearingTable {
 
     /**
      * 项目
@@ -26,70 +25,70 @@ public class GenderWearingTable {
     /**
      * 不佩戴眼镜
      */
-    private CountAndProportion notWearing;
+    private Long notWearing;
 
     /**
      * 不佩戴眼镜-占比
      */
-    private CountAndProportion notWearingProportion;
+    private String notWearingProportion;
 
     /**
      * 佩戴框架眼镜
      */
-    private CountAndProportion wearingFrame;
+    private Long glasses;
 
     /**
      * 佩戴框架眼镜-占比
      */
-    private CountAndProportion wearingFrameProportion;
+    private String glassesProportion;
 
     /**
      * 佩戴隐形眼镜
      */
-    private CountAndProportion wearingContact;
+    private Long wearingContact;
 
     /**
      * 佩戴隐形眼镜-占比
      */
-    private CountAndProportion wearingContactProportion;
+    private String wearingContactProportion;
 
     /**
      * 夜戴
      */
-    private CountAndProportion nightWearing;
+    private Long nightWearing;
 
     /**
      * 夜戴-占比
      */
-    private CountAndProportion nightWearingProportion;
+    private String nightWearingProportion;
 
     /**
      * 足矫
      */
-    private CountAndProportion enough;
+    private Long enough;
 
     /**
      * 足矫-占比
      */
-    private CountAndProportion enoughProportion;
+    private String enoughProportion;
 
     /**
      * 未矫
      */
-    private CountAndProportion notYet;
+    private Long uncorrected;
 
     /**
      * 未矫-占比
      */
-    private CountAndProportion notYetProportion;
+    private String uncorrectedProportion;
 
     /**
      * 欠矫
      */
-    private CountAndProportion owe;
+    private Long under;
 
     /**
      * 欠矫-占比
      */
-    private CountAndProportion oweProportion;
+    private String underProportion;
 }

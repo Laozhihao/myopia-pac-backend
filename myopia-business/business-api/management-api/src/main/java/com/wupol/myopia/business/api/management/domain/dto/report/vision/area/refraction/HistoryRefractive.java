@@ -16,31 +16,27 @@ import java.util.List;
 public class HistoryRefractive {
 
     /**
-     * 信息
+     * 视力低下
      */
-    private Info info;
+    private String lowVisionProportion;
+
+    /**
+     * 远视储备不足
+     */
+    private String insufficientProportion;
+
+    /**
+     * 屈光不正率
+     */
+    private String refractiveErrorProportion;
+
+    /**
+     * 屈光参差率
+     */
+    private String anisometropiaProportion;
 
     /**
      * 表格
      */
     private List<RefractiveTable> tables;
-
-    @Getter
-    @Setter
-    public static class Info {
-        /**
-         * 远视储备不足
-         */
-        private Integer insufficientPercentage;
-
-        /**
-         * 屈光不正率
-         */
-        private Integer refractiveErrorPercentage;
-
-        /**
-         * 屈光参差率
-         */
-        private Integer anisometropiaPercentage;
-    }
 }

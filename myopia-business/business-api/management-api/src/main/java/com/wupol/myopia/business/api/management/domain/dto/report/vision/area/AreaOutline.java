@@ -64,7 +64,7 @@ public class AreaOutline {
         /**
          * 学校统计
          */
-        private String schoolCount;
+        private Integer schoolCount;
 
         /**
          * 合计人数
@@ -74,12 +74,12 @@ public class AreaOutline {
         /**
          * 本次未筛
          */
-        private Integer unScreening;
+        private Long unScreening;
 
         /**
          * 有效人数
          */
-        private Integer validTotal;
+        private Long validTotal;
     }
 
 

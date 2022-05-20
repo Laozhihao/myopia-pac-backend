@@ -21,7 +21,7 @@ public class RefractionSituation {
     /**
      * 佩戴角膜塑形镜
      */
-    private CountAndProportion nightWearing;
+    private CountAndProportion night;
 
     /**
      * 近视前期
@@ -31,12 +31,12 @@ public class RefractionSituation {
     /**
      * 低度近视
      */
-    private CountAndProportion lowMyopia;
+    private CountAndProportion light;
 
     /**
      * 高度近视
      */
-    private CountAndProportion highMyopia;
+    private CountAndProportion high;
 
     /**
      * 散光
@@ -46,7 +46,7 @@ public class RefractionSituation {
     /**
      * 近视足矫
      */
-    private CountAndProportion footOrthosis;
+    private CountAndProportion enough;
 
     /**
      * 近视未矫
@@ -56,7 +56,7 @@ public class RefractionSituation {
     /**
      * 近视欠矫
      */
-    private CountAndProportion undercorrection;
+    private CountAndProportion under;
 
 
 }

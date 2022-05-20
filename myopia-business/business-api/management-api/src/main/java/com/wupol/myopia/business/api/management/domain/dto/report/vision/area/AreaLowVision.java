@@ -1,9 +1,13 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.area;
 
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.PrimaryLowVisionInfo;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.CountAndProportion;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.VisionSituation;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 /**
  * 视力低下
@@ -42,6 +46,9 @@ public class AreaLowVision {
 
     @Getter
     @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Accessors
     public static class Info {
         /**
          * 幼儿园
@@ -51,43 +58,17 @@ public class AreaLowVision {
         /**
          * 小学
          */
-        private Primary primary;
+        private PrimaryLowVisionInfo primary;
     }
 
 
     @Getter
     @Setter
+    @Accessors
     public static class Kindergarten {
         /**
          * 视力情况
          */
         private VisionSituation visionSituation;
-    }
-
-    @Getter
-    @Setter
-    public static class Primary {
-
-        /**
-         * 视力情况
-         */
-        private VisionSituation visionSituation;
-
-        /**
-         * 轻度视力低下
-         */
-        private CountAndProportion lightLowVision;
-
-        /**
-         * 中度视力低下
-         */
-        private CountAndProportion middleLowVision;
-
-        /**
-         * 重度视力低下
-         */
-        private CountAndProportion highLowVision;
-
-
     }
 }

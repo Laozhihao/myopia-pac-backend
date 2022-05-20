@@ -20,32 +20,32 @@ public class SchoolAgeGenderTable {
     /**
      * 男-筛查人数
      */
-    private Integer mCount;
+    private Long mCount;
 
     /**
      * 男-有效人数
      */
-    private Integer mValidCount;
+    private Long mValidCount;
 
     /**
      * 女-筛查人数
      */
-    private Integer fCount;
+    private Long fCount;
 
     /**
      * 女-有效人数
      */
-    private Integer fValidCount;
+    private Long fValidCount;
 
     /**
      * 合计-筛查人数
      */
-    private Integer totalCount;
+    private Long totalCount;
 
     /**
      * 合计-有效人数
      */
-    private Integer totalValidCount;
+    private Long totalValidCount;
 
     /**
      * 有效率

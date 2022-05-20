@@ -23,34 +23,44 @@ public class LowVisionTable {
     private Integer validCount;
 
     /**
+     * 视力低下人数
+     */
+    private Long lowVisionCount;
+
+    /**
+     * 视力低下人数-百分比
+     */
+    private String lowVisionProportion;
+
+    /**
      * 轻度视力低下人数
      */
-    private Integer lightVisionCount;
+    private Long lightVisionCount;
 
     /**
      * 轻度视力低下人数-百分比
      */
-    private Integer lightVisionProportion;
+    private String lightVisionProportion;
 
     /**
      * 中度视力低下人数
      */
-    private Integer middleVisionCount;
+    private Long middleVisionCount;
 
     /**
      * 中度视力低下人数-百分比
      */
-    private Integer middleVisionProportion;
+    private String middleVisionProportion;
 
     /**
      * 重度视力低下人数
      */
-    private Integer highVisionCount;
+    private Long highVisionCount;
 
     /**
      * 重度视力低下人数-百分比
      */
-    private Integer highVisionProportion;
+    private String highVisionProportion;
 
     /**
      * 平均视力

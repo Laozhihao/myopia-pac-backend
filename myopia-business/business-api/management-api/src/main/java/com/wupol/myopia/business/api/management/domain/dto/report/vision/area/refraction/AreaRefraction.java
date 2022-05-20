@@ -32,6 +32,12 @@ public class AreaRefraction {
     @Getter
     @Setter
     public static class Info {
+
+        /**
+         * 人数
+         */
+        private Integer count;
+
         /**
          * 幼儿园
          */
@@ -108,6 +114,11 @@ public class AreaRefraction {
          * 散光
          */
         private CountAndProportion astigmatism;
+
+        /**
+         * 戴镜
+         */
+        private CountAndProportion allGlasses;
 
         /**
          * 建议就诊

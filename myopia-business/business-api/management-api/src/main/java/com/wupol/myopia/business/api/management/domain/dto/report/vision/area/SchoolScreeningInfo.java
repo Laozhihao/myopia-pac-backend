@@ -1,7 +1,8 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.area;
 
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.HighLowProportion;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.CountAndProportion;
-import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.HighAndLow;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.PrimaryOverall;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,37 +17,48 @@ import java.util.List;
 @Setter
 public class SchoolScreeningInfo {
 
+    /**
+     * 幼儿园
+     */
     private Kindergarten kindergarten;
 
-    private Primary primary;
+    /**
+     * 小学以上
+     */
+    private PrimaryOverall primary;
 
     @Getter
     @Setter
     public static class Kindergarten {
         /**
-         * 项目
+         * 视力低常
          */
-        private List<HighAndLow> info;
+        private HighLowProportion lowVision;
+
+        /**
+         * 远视储备不足
+         */
+        private HighLowProportion insufficient;
+
+        /**
+         * 屈光不正
+         */
+        private HighLowProportion refractiveError;
+
+        /**
+         * 屈光参差
+         */
+        private HighLowProportion anisometropia;
+
+        /**
+         * 建议就诊
+         */
+        private HighLowProportion recommendDoctor;
 
         /**
          * 表格
          */
         private List<KindergartenScreeningInfoTable> tables;
-
-    }
-
-    @Getter
-    @Setter
-    public static class Primary {
-        /**
-         * 项目
-         */
-        private List<HighAndLow> info;
-
-        /**
-         * 表格
-         */
-        private List<PrimaryScreeningInfoTable> tables;
 
     }
 

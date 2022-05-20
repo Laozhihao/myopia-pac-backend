@@ -44,7 +44,7 @@ public class PrimarySchoolOutline {
     /**
      * 历年视力情况
      */
-    private PrimaryHistoryVision kindergartenHistoryVision;
+    private PrimaryHistoryVision primaryHistoryVision;
 
 
 }

@@ -48,10 +48,5 @@ public class PrimaryInfo {
      */
     private HistoryRefraction historyRefraction;
 
-    /**
-     * 近视预警情况
-     */
-    private WarningSituation warningSituation;
-
 
 }

@@ -1,21 +1,20 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.common;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * 最高视力低下与最高
+ * 最高最低
  *
  * @author Simple4H
  */
 @Getter
 @Setter
-public class HighAndLow {
-
-    /**
-     * 项目名
-     */
-    private String name;
+@NoArgsConstructor
+@AllArgsConstructor
+public class HighLowProportion {
 
     /**
      * 最高描述

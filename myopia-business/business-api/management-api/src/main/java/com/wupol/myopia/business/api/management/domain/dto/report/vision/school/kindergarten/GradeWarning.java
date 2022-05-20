@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.school.kindergarten;
 
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.MaxMinProportion;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,7 +18,7 @@ public class GradeWarning {
     /**
      * 信息
      */
-    private List<Info> info;
+    private Info info;
 
     /**
      * 表格
@@ -32,34 +33,37 @@ public class GradeWarning {
     public static class Info {
 
         /**
-         * 班级名称
+         * 小班
          */
-        private String name;
+        private Detail one;
+
+        /**
+         * 中班
+         */
+        private Detail two;
+
+        /**
+         * 大班
+         */
+        private Detail three;
+    }
+
+    /**
+     * 信息
+     */
+    @Getter
+    @Setter
+    public static class Detail {
 
         /**
          * 预警率
          */
-        private String warningPercentage;
+        private MaxMinProportion warningProportion;
 
         /**
-         * 预警率最高班级
+         * 建议就诊率
          */
-        private String maxClassNameWarning;
-
-        /**
-         * 预警率最高班级 百分比
-         */
-        private String maxClassWarningPercentage;
-
-        /**
-         * 预警率最低班级
-         */
-        private String minClassNameWarning;
-
-        /**
-         * 预警率最低班级 百分比
-         */
-        private String minClassWarningPercentage;
+        private MaxMinProportion recommendDoctor;
 
         /**
          * 0级预警
@@ -80,33 +84,6 @@ public class GradeWarning {
          * 3级预警
          */
         private String threeWarning;
-
-        /**
-         * 建议就诊率
-         */
-        private String recommendDoctorPercentage;
-
-        /**
-         * 最高建议就诊率-班级
-         */
-        private String maxClassNameRecommendDoctor;
-
-        /**
-         * 最高建议就诊率-班级百分比
-         */
-        private String maxClassWarningRecommendDoctorPercentage;
-
-        /**
-         * 最低建议就诊率-班级
-         */
-        private String minClassNameRecommendDoctor;
-
-        /**
-         * 最低建议就诊率-班级百分比
-         */
-        private String minClassRecommendDoctorPercentage;
-
-
     }
 
     /**
@@ -134,52 +111,62 @@ public class GradeWarning {
         /**
          * 0级预警人数
          */
-        private Integer zeroWarningCount;
+        private Long zeroWarningCount;
 
         /**
          * 0级预警人数百分比
          */
-        private String zeroWarningPercentage;
+        private String zeroWarningProportion;
 
         /**
          * 1级预警人数
          */
-        private Integer oneWarningCount;
+        private Long oneWarningCount;
 
         /**
          * 1级预警人数百分比
          */
-        private String oneWarningPercentage;
+        private String oneWarningProportion;
 
         /**
          * 2级预警人数
          */
-        private Integer twoWarningCount;
+        private Long twoWarningCount;
 
         /**
          * 2级预警人数百分比
          */
-        private String twoWarningPercentage;
+        private String twoWarningProportion;
 
         /**
          * 3级预警人数
          */
-        private Integer threeWarningCount;
+        private Long threeWarningCount;
 
         /**
          * 3级预警人数百分比
          */
-        private String threeWarningPercentage;
+        private String threeWarningProportion;
 
         /**
          * 建议就诊人数
          */
-        private Integer recommendDoctorCount;
+        private Long recommendDoctorCount;
 
         /**
          * 建议就诊百分比
          */
-        private String recommendDoctorPercentage;
+        private String recommendDoctorProportion;
+
+        /**
+         * 预警人数
+         */
+        private Long warningCount;
+
+        /**
+         * 预警人数百分比
+         */
+        private String warningProportion;
     }
 
 

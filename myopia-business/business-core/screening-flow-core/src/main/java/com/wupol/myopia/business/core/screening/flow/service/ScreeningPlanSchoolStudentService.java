@@ -663,4 +663,9 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     public List<ScreeningPlanSchoolStudent> getByPlanIdIdCardAndPassport(Integer planId, String idCard, String passport, Integer id) {
         return baseMapper.getByPlanIdIdCardAndPassport(planId, idCard, passport, id);
     }
+
+    public List<ScreeningPlanSchoolStudent> getByNoticeIdsAndSchoolIds(List<Integer> noticeIds, List<Integer> schoolIds) {
+        return baseMapper.getByNoticeIdsAndSchoolIds(noticeIds, schoolIds);
+
+    }
 }
