@@ -507,7 +507,7 @@ public class ScreeningPlanController {
      * @return List<ScreeningStudentDTO>
      */
     @GetMapping("screeningNoticeResult")
-    public List<ScreeningStudentDTO> getScreeningNoticeResultStudent(@NotNull(message = "计划Id不能为空") Integer planId, Integer schoolId, Integer gradeId, Integer classId, Integer orgId, String planStudentIdStr, @NotBlank(message = "查询类型不能为空") Boolean isSchoolClient, String planStudentName) {
+    public List<ScreeningStudentDTO> getScreeningNoticeResultStudent(@NotNull(message = "计划Id不能为空") Integer planId, Integer schoolId, Integer gradeId, Integer classId, Integer orgId, String planStudentIdStr, @NotNull(message = "查询类型不能为空") Boolean isSchoolClient, String planStudentName) {
         return screeningPlanStudentBizService.getScreeningNoticeResultStudent(planId, schoolId, gradeId, classId, orgId, planStudentIdStr, isSchoolClient, planStudentName);
     }
 
