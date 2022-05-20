@@ -170,7 +170,7 @@ public class StudentBizService {
      * @return java.util.List<com.wupol.myopia.business.api.management.domain.vo.StudentWarningArchiveVO>
      **/
     public List<StudentWarningArchiveVO> getStudentWarningArchive(Integer studentId) {
-        List<StatConclusion> statConclusionList = statConclusionService.findByList(new StatConclusion().setStudentId(studentId));
+        List<StatConclusion> statConclusionList = statConclusionService.findByList(new StatConclusion().setStudentId(studentId).setIsRescreen(Boolean.FALSE));
         if (CollectionUtils.isEmpty(statConclusionList)) {
             return new ArrayList<>();
         }
