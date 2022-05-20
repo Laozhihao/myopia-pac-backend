@@ -72,7 +72,7 @@ public class ScreeningResultStatisticBuilder {
         //设置视力预警数据
         setVisionWarning(validScreeningNum,validStatConclusions, statistic);
         //设置复测情况数据
-        setRescreenSituation(validStatConclusions,isRescreenMap,statistic);
+        setRescreenSituation(validStatConclusions,isRescreenMap,statistic,totalStatistic.getScreeningType());
 
         visionScreeningResultStatisticList.add(statistic);
 
@@ -113,7 +113,7 @@ public class ScreeningResultStatisticBuilder {
         //设置视力预警数据
         setVisionWarning(validScreeningNum,validStatConclusions, statistic);
         //设置复测情况数据
-        setRescreenSituation(validStatConclusions,isRescreenMap,statistic);
+        setRescreenSituation(validStatConclusions,isRescreenMap,statistic,totalStatistic.getScreeningType());
 
         //设置龋齿数据
         setSaprodontia(statConclusions, realScreeningStudentNum, statistic);
@@ -279,7 +279,7 @@ public class ScreeningResultStatisticBuilder {
      * 设置复测数据 (基于复测数据)
      */
     private RescreenSituationDO setRescreenSituation(List<StatConclusion> statConclusions, Map<Boolean, List<StatConclusion>> isRescreenMap,
-                                                     VisionScreeningResultStatistic statistic) {
+                                                     VisionScreeningResultStatistic statistic,Integer screeningType) {
         RescreenSituationDO rescreenSituationDO = new RescreenSituationDO();
 
         List<StatConclusion> statConclusionList = statConclusions.stream()
@@ -307,7 +307,14 @@ public class ScreeningResultStatisticBuilder {
                 .map(StatConclusion::getRescreenErrorNum)
                 .filter(Objects::nonNull).mapToInt(Integer::intValue).sum();
 
-        String incidence = MathUtil.ratio(errorItemNum,wearingGlassRescreenItemNum*wearingGlassRescreenNum+withoutGlassRescreenItemNum*withoutGlassRescreenNum);
+        int num;
+        if (Objects.equals(screeningType,0)){
+            num = wearingGlassRescreenNum*6+withoutGlassRescreenNum*4;
+        }else {
+            num = wearingGlassRescreenNum*8+withoutGlassRescreenNum*6;
+        }
+
+        String incidence = MathUtil.ratio(errorItemNum,num);
 
         rescreenSituationDO.setRetestNum(rescreenNum).setRetestRatio(MathUtil.ratio(rescreenNum, validRescreenNum))
                 .setWearingGlassRetestNum(wearingGlassRescreenNum).setWearingGlassRetestRatio(MathUtil.ratio(wearingGlassRescreenNum, validRescreenNum))
