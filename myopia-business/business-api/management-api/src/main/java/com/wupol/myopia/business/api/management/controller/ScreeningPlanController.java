@@ -267,8 +267,8 @@ public class ScreeningPlanController {
      * @param schoolId        学校ID
      * @return List<SchoolGradeVo>
      */
-    @GetMapping("grades/haveResult/{screeningPlanId}/{schoolId}/{isKindergarten}")
-    public List<SchoolGradeVO> getGradesInfo(@PathVariable Integer screeningPlanId, @PathVariable Integer schoolId, @PathVariable Boolean isKindergarten) {
+    @GetMapping("grades/haveResult/{screeningPlanId}/{schoolId}")
+    public List<SchoolGradeVO> getGradesInfo(@PathVariable Integer screeningPlanId, @PathVariable Integer schoolId, Boolean isKindergarten) {
         return screeningPlanSchoolStudentFacadeService.getByPlanIdAndSchoolIdAndId(screeningPlanId, schoolId, isKindergarten);
     }
 
