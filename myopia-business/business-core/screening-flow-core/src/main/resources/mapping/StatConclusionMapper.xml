@@ -435,4 +435,14 @@
         and is_review = 1
         and is_rescreen = 0
     </select>
+
+    <select id="getByNoticePlanDistrict" resultMap="BaseResultMap">
+        select *
+        from m_stat_conclusion where src_screening_notice_id = #{noticeId}
+                                 and plan_id = #{planId}
+                                 and district_id in
+        <foreach collection="districtIds" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
 </mapper>
