@@ -538,7 +538,7 @@ public class ScreeningPlanController {
      * @param planStudentIdStr 筛查学生Ids
      */
     @GetMapping("screeningNoticeResult/syncGeneratorPDF")
-    public PdfResponseDTO syncGeneratorPDF(@NotBlank(message = "计划Id不能为空") Integer planId, Integer schoolId, Integer gradeId, Integer classId, Integer orgId, String planStudentIdStr) {
+    public PdfResponseDTO syncGeneratorPDF(@NotNull(message = "计划Id不能为空") Integer planId, Integer schoolId, Integer gradeId, Integer classId, Integer orgId, String planStudentIdStr) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         return screeningPlanStudentBizService.syncGeneratorPDF(planId, schoolId, gradeId, classId, orgId, planStudentIdStr, false, user.getId());
     }
