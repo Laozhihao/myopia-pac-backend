@@ -284,7 +284,7 @@ public class ParentStudentBizService {
         // 学生筛查报告
         List<CountReportItemsDO> screeningLists = getStudentCountReportItems(studentId);
         ScreeningDetailDO screeningDetailDO = new ScreeningDetailDO();
-        screeningDetailDO.setTotal(visionScreeningResultService.getByStudentId(studentId).stream().filter(r -> r.getIsDoubleScreen().equals(Boolean.FALSE)).count());
+        screeningDetailDO.setTotal(screeningLists.size());
         screeningDetailDO.setItems(screeningLists);
         response.setScreeningDetailDO(screeningDetailDO);
 
