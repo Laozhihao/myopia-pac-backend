@@ -157,6 +157,9 @@ public class ScreeningPlanSchoolStudentFacadeService {
         }
         List<String> kindergartenGradeName = GradeCodeEnum.kindergartenSchoolName();
         List<GradeClassesDTO> gradeClassesDTOS = screeningPlanSchoolStudentService.getByPlanIdAndSchoolIdAndId(planId, schoolId, planStudentIds);
+        if(Objects.isNull(isKindergarten)) {
+            return getSchoolGradeVOS(gradeClassesDTOS);
+        }
         if (isKindergarten) {
             return getSchoolGradeVOS(gradeClassesDTOS.stream().filter(grade -> kindergartenGradeName.contains(grade.getGradeName())).collect(Collectors.toList()));
         }
