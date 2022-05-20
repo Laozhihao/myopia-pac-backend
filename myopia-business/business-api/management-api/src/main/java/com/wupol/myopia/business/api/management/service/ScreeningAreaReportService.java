@@ -33,7 +33,12 @@ public class ScreeningAreaReportService {
         } catch (IOException e) {
             throw new BusinessException("获取区域异常");
         }
-        List<StatConclusion> byNoticePlanDistrict = statConclusionService.getByNoticePlanDistrict(noticeId, planId, childDistrictIds);
+        List<StatConclusion> statConclusions = statConclusionService.getByNoticePlanDistrict(noticeId, planId, childDistrictIds);
         return new ScreeningAreaReportDTO();
     }
+
+    private void generateAreaReportInfo(List<StatConclusion> statConclusions,Integer districtId) {
+        String districtNameByDistrictId = districtService.getDistrictNameByDistrictId(districtId);
+    }
+
 }

@@ -11,6 +11,9 @@ import com.wupol.myopia.business.aggregation.export.pdf.archives.SyncExportStude
 import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.api.management.constant.ReportConst;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.area.ScreeningAreaReportDTO;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.kindergarten.KindergartenReportDTO;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.primary.PrimaryReportDTO;
 import com.wupol.myopia.business.core.common.service.Html2PdfService;
 import com.wupol.myopia.business.core.hospital.domain.dto.ReceiptDTO;
 import com.wupol.myopia.business.core.hospital.service.PreschoolCheckRecordService;
@@ -343,6 +346,38 @@ public class ReportController {
                                                        @NotNull(message = "模板ID") Integer templateId){
 
         return ApiResult.success(syncExportStudentScreeningArchivesService.generateArchivesPdfUrl(resultId,templateId));
+    }
+
+
+    /**
+     * 视力筛查-区域
+     *
+     * @return ScreeningAreaReportDTO
+     */
+    @GetMapping("/screening/areaReport")
+    public ApiResult<ScreeningAreaReportDTO> areaReport() {
+        return ApiResult.success(new ScreeningAreaReportDTO());
+    }
+
+    /**
+     * 视力筛查-幼儿园
+     *
+     * @return KindergartenReportDTO
+     */
+    @GetMapping("/screening/kindergartenReport")
+    public ApiResult<KindergartenReportDTO> kindergartenReport() {
+        return ApiResult.success(new KindergartenReportDTO());
+
+    }
+
+    /**
+     * 视力筛查-小学及以上
+     *
+     * @return PrimaryReportDTO
+     */
+    @GetMapping("/screening/primaryReport")
+    public ApiResult<PrimaryReportDTO> primaryReport() {
+        return ApiResult.success(new PrimaryReportDTO());
     }
 
 
