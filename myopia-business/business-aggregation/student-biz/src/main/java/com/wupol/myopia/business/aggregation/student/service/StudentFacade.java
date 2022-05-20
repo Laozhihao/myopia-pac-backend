@@ -41,6 +41,8 @@ import com.wupol.myopia.business.core.screening.organization.service.ScreeningOr
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationStaffService;
 import com.wupol.myopia.business.core.system.constants.TemplateConstants;
 import com.wupol.myopia.business.core.system.service.TemplateDistrictService;
+import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
+import com.wupol.myopia.oauth.sdk.domain.response.User;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -109,6 +111,9 @@ public class StudentFacade {
 
     @Resource
     private ScreeningPlanSchoolService screeningPlanSchoolService;
+
+    @Resource
+    private OauthServiceClient oauthServiceClient;
 
 
     /**
@@ -694,8 +699,8 @@ public class StudentFacade {
         // 佩戴眼镜的类型随便取一个都行，两只眼睛的数据是一样
         setClassType(result, details);
 
-        details.setVisionSignPicUrl(getVisionCreateUserSignPicUrl(result));
-        details.setComputerSignPicUrl(getComputerCreateUserSignPicUrl(result));
+        details.setVisionSignPicUrl(getCreateUserName(result));
+        details.setComputerSignPicUrl(getCreateUserName(result));
 
         String ageInfo = com.wupol.myopia.base.util.DateUtil.getAgeInfo(responseDTO.getInfo().getBirthday(),new Date());
         details.setAgeInfo(ageInfo);
@@ -738,8 +743,11 @@ public class StudentFacade {
         }
 
         details.setVisionResults(setVisionResult(visionData));
+        details.setVisionSign(getCreateUserName(result));
         details.setRefractoryResults(setRefractoryResults(result.getComputerOptometry()));
+        details.setRefractorySign(getCreateUserName(result));
         details.setCrossMirrorResults(setCrossMirrorResults(result, age));
+        details.setCrossMirrorSign(getCreateUserName(result));
         details.setEyeDiseasesResult(setEyeDiseasesResult(result.getOtherEyeDiseases()));
         return details;
     }
@@ -930,6 +938,42 @@ public class StudentFacade {
         }
         return ListUtils.retainAll(Lists.newArrayList("内显斜", "外显斜", "内隐斜", "外隐斜", "垂直斜视"), otherEyeDiseasesList);
     }
+
+    /**
+     * 获取筛查用户姓名
+     *
+     * @param visionScreeningResult 筛查数据
+     * @return java.lang.String
+     **/
+    private String getCreateUserName(VisionScreeningResult visionScreeningResult){
+        if (Objects.isNull(visionScreeningResult)) {
+            return null;
+        }
+        VisionDataDO visionData = visionScreeningResult.getVisionData();
+        Integer visionDataCreateUserId = Optional.ofNullable(visionData).map(VisionDataDO::getCreateUserId).orElse(null);
+        if (Objects.nonNull(visionDataCreateUserId)) {
+            return getCreateUserName(visionDataCreateUserId);
+        }
+
+        ComputerOptometryDO computerOptometry = visionScreeningResult.getComputerOptometry();
+        Integer computerOptometryCreateUserId = Optional.ofNullable(computerOptometry).map(ComputerOptometryDO::getCreateUserId).orElse(null);
+        if (Objects.nonNull(computerOptometryCreateUserId)) {
+            return getCreateUserName(computerOptometryCreateUserId);
+        }
+
+        OtherEyeDiseasesDO otherEyeDiseases = visionScreeningResult.getOtherEyeDiseases();
+        Integer otherEyeDiseasesCreateUserId = Optional.ofNullable(otherEyeDiseases).map(OtherEyeDiseasesDO::getCreateUserId).orElse(null);
+        if (Objects.nonNull(otherEyeDiseasesCreateUserId)) {
+            return getCreateUserName(otherEyeDiseasesCreateUserId);
+        }
+        return null;
+    }
+
+    private String getCreateUserName(Integer createUserId){
+        User user = oauthServiceClient.getUserDetailByUserId(createUserId);
+        return Optional.ofNullable(user).map(User::getRealName).orElse(null);
+    }
+
     /**
      * 获取筛查用户签名
      *

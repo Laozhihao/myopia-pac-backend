@@ -41,7 +41,7 @@ public class VisionUtil {
         }
         //筛查性近视
         if (Objects.equals(MyopiaLevelEnum.SCREENING_MYOPIA.code,screeningMyopia)) {
-            resultList.add(MyopiaLevelEnum.getDesc(myopiaLevel));
+            resultList.add(MyopiaLevelEnum.getDesc(screeningMyopia));
         }
         // 近视
         if (!MyopiaLevelEnum.ZERO.code.equals(myopiaLevel)) {
