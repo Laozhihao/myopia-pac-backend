@@ -162,12 +162,17 @@ public class ScheduledTasksExecutor {
             log.info("按学校统计结束");
         }, asyncServiceExecutor);
 
-        //重点视力对象需统计的是学校所在区域的所有数据，另外统计
-        List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics = new ArrayList<>();
-        genAttentiveObjectsStatistics(screeningPlanIds, districtAttentiveObjectsStatistics);
-        districtAttentiveObjectsStatisticService.batchSaveOrUpdate(districtAttentiveObjectsStatistics);
+        CompletableFuture<Void> statisticFuture = CompletableFuture.runAsync(() -> {
+            log.info("预警人群统计开始");
+            List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics = new ArrayList<>();
+            genAttentiveObjectsStatistics(screeningPlanIds, districtAttentiveObjectsStatistics);
+            districtAttentiveObjectsStatisticService.batchSaveOrUpdate(districtAttentiveObjectsStatistics);
+            log.info("预警人群统计结束");
+        },asyncServiceExecutor);
 
-        CompletableFuture.allOf(districtFuture,schoolFuture).join();
+        CompletableFuture.allOf(districtFuture,schoolFuture,statisticFuture).join();
+
+
     }
 
     /**
@@ -184,8 +189,8 @@ public class ScheduledTasksExecutor {
         genDistrictStatistics(yesterdayScreeningPlanIds, districtMonitorStatistics, districtVisionStatistics);
         genSchoolStatistics(yesterdayScreeningPlanIds, schoolVisionStatistics, schoolMonitorStatistics);
         //重点视力对象需统计的是学校所在区域的所有数据，另外统计
-        genAttentiveObjectsStatistics(yesterdayScreeningPlanIds, districtAttentiveObjectsStatistics);
-        districtAttentiveObjectsStatisticService.batchSaveOrUpdate(districtAttentiveObjectsStatistics);
+//        genAttentiveObjectsStatistics(yesterdayScreeningPlanIds, districtAttentiveObjectsStatistics);
+//        districtAttentiveObjectsStatisticService.batchSaveOrUpdate(districtAttentiveObjectsStatistics);
         districtMonitorStatisticService.batchSaveOrUpdate(districtMonitorStatistics);
         districtVisionStatisticService.batchSaveOrUpdate(districtVisionStatistics);
         schoolVisionStatisticService.batchSaveOrUpdate(schoolVisionStatistics);

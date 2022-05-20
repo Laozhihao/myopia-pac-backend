@@ -13,6 +13,7 @@ import com.wupol.myopia.business.common.utils.constant.ContrastTypeEnum;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.constant.WarningLevel;
+import com.wupol.myopia.business.common.utils.util.MathUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
@@ -115,6 +116,7 @@ public class StatService {
         lastOneQuery.setDistrictIds(districtIds);
         lastOneQuery.setIsValid(true);
         lastOneQuery.setIsRescreen(false);
+        lastOneQuery.setIsCooperative(0);
         StatConclusion lastConclusion = statConclusionService.getLastOne(lastOneQuery);
         if (lastConclusion == null) {
             return WarningInfo.builder().build();
@@ -127,33 +129,34 @@ public class StatService {
                 .setEndTime(endDate)
                 .setDistrictIds(districtIds)
                 .setIsValid(true)
-                .setIsRescreen(false);
+                .setIsRescreen(false)
+                .setIsCooperative(0);
         List<StatConclusion> warningConclusions =
                 statConclusionService.listByQuery(warningListQuery);
-        long total = warningConclusions.size();
-        long warning0Num = warningConclusions.stream()
+        int total = warningConclusions.size();
+        int warning0Num = (int)warningConclusions.stream()
                 .filter(x -> WarningLevel.ZERO.code.equals(x.getWarningLevel()))
                 .count();
-        long warning1Num = warningConclusions.stream()
+        int warning1Num = (int)warningConclusions.stream()
                 .filter(x -> WarningLevel.ONE.code.equals(x.getWarningLevel()))
                 .count();
-        long warning2Num = warningConclusions.stream()
+        int warning2Num = (int)warningConclusions.stream()
                 .filter(x -> WarningLevel.TWO.code.equals(x.getWarningLevel()))
                 .count();
-        long warning3Num = warningConclusions.stream()
+        int warning3Num = (int)warningConclusions.stream()
                 .filter(x -> WarningLevel.THREE.code.equals(x.getWarningLevel()))
                 .count();
-        long focusTargetsNum = warning0Num + warning1Num + warning2Num + warning3Num;
+        int focusTargetsNum = warning0Num + warning1Num + warning2Num + warning3Num;
         ArrayList<WarningLevelInfo> warningLevelInfoArrayList = new ArrayList<>();
-        warningLevelInfoArrayList.add(new WarningLevelInfo(0, warning0Num, convertToPercentage(warning0Num * 1f / total)));
-        warningLevelInfoArrayList.add(new WarningLevelInfo(1, warning1Num, convertToPercentage(warning1Num * 1f / total)));
-        warningLevelInfoArrayList.add(new WarningLevelInfo(2, warning2Num, convertToPercentage(warning2Num * 1f / total)));
-        warningLevelInfoArrayList.add(new WarningLevelInfo(3, warning3Num, convertToPercentage(warning3Num * 1f / total)));
+        warningLevelInfoArrayList.add(new WarningLevelInfo(0, warning0Num, MathUtil.ratio(warning0Num,total)));
+        warningLevelInfoArrayList.add(new WarningLevelInfo(1, warning1Num, MathUtil.ratio(warning1Num,total)));
+        warningLevelInfoArrayList.add(new WarningLevelInfo(2, warning2Num, MathUtil.ratio(warning2Num,total)));
+        warningLevelInfoArrayList.add(new WarningLevelInfo(3, warning3Num, MathUtil.ratio(warning3Num,total)));
         return WarningInfo.builder()
                 .statTime(startDate.atStartOfDay(zoneId).toInstant().toEpochMilli())
                 .endTime(endDate.atStartOfDay(zoneId).toInstant().toEpochMilli() - 1)
                 .focusTargetsNum(focusTargetsNum)
-                .focusTargetsPercentage(convertToPercentage(focusTargetsNum * 1f / total))
+                .focusTargetsPercentage(MathUtil.ratio(focusTargetsNum,total))
                 .warningLevelInfoList(warningLevelInfoArrayList)
                 .build();
     }
