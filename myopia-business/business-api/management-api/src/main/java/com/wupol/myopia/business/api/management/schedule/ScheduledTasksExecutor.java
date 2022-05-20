@@ -419,9 +419,9 @@ public class ScheduledTasksExecutor {
     }
 
     /**
-     * 每天凌晨0点30分执行，复测统计
+     * 每天23点30分执行，复测统计
      */
-    @Scheduled(cron = "0 30 0 * * ?")
+    @Scheduled(cron = "0 30 23 * * ?")
     public void rescreenStat() {
         Date screeningTime = DateUtils.addDays(DateUtil.getMidday(new Date()), -1);
         log.info("开始进行复测报告统计,筛查时间为:{}", screeningTime);
