@@ -1124,12 +1124,14 @@ public class StudentFacade {
         BigDecimal leftNakedVision = visionData.getLeftEyeData().getNakedVision();
         BigDecimal rightNakedVision = visionData.getRightEyeData().getNakedVision();
         // 是否近视
-        cardDetail.setIsMyopia(StatUtil.isMyopia(leftSph, leftCyl, age, leftNakedVision)
-                || StatUtil.isMyopia(rightSph, rightCyl, age, rightNakedVision));
+        Boolean leftMyopia = StatUtil.isMyopia(leftSph, leftCyl, age, leftNakedVision);
+        Boolean rightMyopia = StatUtil.isMyopia(rightSph, rightCyl, age, rightNakedVision);
+        cardDetail.setIsMyopia(StatUtil.getIsExist(leftMyopia,rightMyopia));
 
         // 是否远视
-        cardDetail.setIsHyperopia(StatUtil.isHyperopia(leftSph, leftCyl, age)
-                || StatUtil.isHyperopia(rightSph, rightCyl, age));
+        Boolean leftHyperopia = StatUtil.isHyperopia(leftSph, leftCyl, age);
+        Boolean rightHyperopia = StatUtil.isHyperopia(rightSph, rightCyl, age);
+        cardDetail.setIsHyperopia(StatUtil.getIsExist(leftHyperopia,rightHyperopia));
 
     }
 
