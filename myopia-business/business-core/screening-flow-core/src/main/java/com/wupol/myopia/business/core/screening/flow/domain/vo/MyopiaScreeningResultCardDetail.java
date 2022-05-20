@@ -1,7 +1,5 @@
 package com.wupol.myopia.business.core.screening.flow.domain.vo;
 
-import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import lombok.Getter;
 import lombok.Setter;
 
