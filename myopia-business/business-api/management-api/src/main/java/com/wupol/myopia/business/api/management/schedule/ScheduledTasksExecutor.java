@@ -162,7 +162,17 @@ public class ScheduledTasksExecutor {
             log.info("按学校统计结束");
         }, asyncServiceExecutor);
 
-        CompletableFuture.allOf(districtFuture,schoolFuture).join();
+        CompletableFuture<Void> statisticFuture = CompletableFuture.runAsync(() -> {
+            log.info("预警人群统计开始");
+            List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics = new ArrayList<>();
+            genAttentiveObjectsStatistics(screeningPlanIds, districtAttentiveObjectsStatistics);
+            districtAttentiveObjectsStatisticService.batchSaveOrUpdate(districtAttentiveObjectsStatistics);
+            log.info("预警人群统计结束");
+        },asyncServiceExecutor);
+
+        CompletableFuture.allOf(districtFuture,schoolFuture,statisticFuture).join();
+
+
     }
 
     /**
@@ -179,8 +189,8 @@ public class ScheduledTasksExecutor {
         genDistrictStatistics(yesterdayScreeningPlanIds, districtMonitorStatistics, districtVisionStatistics);
         genSchoolStatistics(yesterdayScreeningPlanIds, schoolVisionStatistics, schoolMonitorStatistics);
         //重点视力对象需统计的是学校所在区域的所有数据，另外统计
-        genAttentiveObjectsStatistics(yesterdayScreeningPlanIds, districtAttentiveObjectsStatistics);
-        districtAttentiveObjectsStatisticService.batchSaveOrUpdate(districtAttentiveObjectsStatistics);
+//        genAttentiveObjectsStatistics(yesterdayScreeningPlanIds, districtAttentiveObjectsStatistics);
+//        districtAttentiveObjectsStatisticService.batchSaveOrUpdate(districtAttentiveObjectsStatistics);
         districtMonitorStatisticService.batchSaveOrUpdate(districtMonitorStatistics);
         districtVisionStatisticService.batchSaveOrUpdate(districtVisionStatistics);
         schoolVisionStatisticService.batchSaveOrUpdate(schoolVisionStatistics);
@@ -409,9 +419,9 @@ public class ScheduledTasksExecutor {
     }
 
     /**
-     * 每天凌晨0点30分执行，复测统计
+     * 每天23点30分执行，复测统计
      */
-    @Scheduled(cron = "0 30 0 * * ?")
+    @Scheduled(cron = "0 30 23 * * ?")
     public void rescreenStat() {
         Date screeningTime = DateUtils.addDays(DateUtil.getMidday(new Date()), -1);
         log.info("开始进行复测报告统计,筛查时间为:{}", screeningTime);

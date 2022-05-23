@@ -7,6 +7,7 @@ import com.wupol.myopia.business.aggregation.screening.domain.vos.SchoolGradeVO;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolClassDTO;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
@@ -143,16 +144,26 @@ public class ScreeningPlanSchoolStudentFacadeService {
     /**
      * 获取计划中的学校年级情况(有数据)
      *
-     * @param planId   筛查计划
-     * @param schoolId 学校Id
+     * @param planId         筛查计划
+     * @param schoolId       学校Id
+     * @param isKindergarten 是否幼儿园
+     *
      * @return List<SchoolGradeVO>
      */
-    public List<SchoolGradeVO> getByPlanIdAndSchoolIdAndId(Integer planId, Integer schoolId) {
+    public List<SchoolGradeVO> getByPlanIdAndSchoolIdAndId(Integer planId, Integer schoolId, Boolean isKindergarten) {
         List<Integer> planStudentIds = visionScreeningResultService.getByPlanStudentIdPlanIdAndSchoolId(planId, schoolId);
         if (CollectionUtils.isEmpty(planStudentIds)) {
             return Collections.emptyList();
         }
-        return getSchoolGradeVOS(screeningPlanSchoolStudentService.getByPlanIdAndSchoolIdAndId(planId, schoolId, planStudentIds));
+        List<String> kindergartenGradeName = GradeCodeEnum.kindergartenSchoolName();
+        List<GradeClassesDTO> gradeClassesDTOS = screeningPlanSchoolStudentService.getByPlanIdAndSchoolIdAndId(planId, schoolId, planStudentIds);
+        if(Objects.isNull(isKindergarten)) {
+            return getSchoolGradeVOS(gradeClassesDTOS);
+        }
+        if (isKindergarten) {
+            return getSchoolGradeVOS(gradeClassesDTOS.stream().filter(grade -> kindergartenGradeName.contains(grade.getGradeName())).collect(Collectors.toList()));
+        }
+        return getSchoolGradeVOS(gradeClassesDTOS.stream().filter(grade -> !kindergartenGradeName.contains(grade.getGradeName())).collect(Collectors.toList()));
     }
 
     /**

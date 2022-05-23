@@ -10,7 +10,10 @@ import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.constant.SchoolEnum;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.SaprodontiaDataDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.experimental.UtilityClass;
@@ -216,12 +219,15 @@ public class StatUtil {
     public static TwoTuple<BigDecimal,BigDecimal> calculateAverageVision(List<StatConclusion> statConclusions) {
         statConclusions = statConclusions.stream().filter(sc->Objects.equals(Boolean.TRUE,sc.getIsValid())).collect(Collectors.toList());
 
-        int sumSize = statConclusions.size();
-        double sumVisionL = statConclusions.stream().mapToDouble(sc->Optional.ofNullable(sc.getVisionL()).orElse(new BigDecimal("0")).doubleValue()).sum();
-        BigDecimal avgVisionL = BigDecimalUtil.divide(String.valueOf(sumVisionL), String.valueOf(sumSize),1);
+        List<BigDecimal> visionLeftList = statConclusions.stream().map(StatConclusion::getVisionL).filter(Objects::nonNull).collect(Collectors.toList());
+        int leftSumSize = visionLeftList.size();
+        double sumVisionL = visionLeftList.stream().mapToDouble(BigDecimal::doubleValue).sum();
+        BigDecimal avgVisionL = BigDecimalUtil.divide(String.valueOf(sumVisionL), String.valueOf(leftSumSize),1);
 
-        double sumVisionR = statConclusions.stream().mapToDouble(sc->Optional.ofNullable(sc.getVisionR()).orElse(new BigDecimal("0")).doubleValue()).sum();
-        BigDecimal avgVisionR = BigDecimalUtil.divide(String.valueOf(sumVisionR), String.valueOf(sumSize),1);
+        List<BigDecimal> visionRightList = statConclusions.stream().map(StatConclusion::getVisionR).filter(Objects::nonNull).collect(Collectors.toList());
+        int rightSumSize = visionRightList.size();
+        double sumVisionR = visionRightList.stream().mapToDouble(BigDecimal::doubleValue).sum();
+        BigDecimal avgVisionR = BigDecimalUtil.divide(String.valueOf(sumVisionR), String.valueOf(rightSumSize),1);
 
         return TwoTuple.of(avgVisionL,avgVisionR);
     }
@@ -1211,7 +1217,7 @@ public class StatUtil {
     /**
      * 龋齿相关
      */
-    public static Set<SaprodontiaDataDO.SaprodontiaItem> getSaprodontia(SaprodontiaDataDO saprodontiaData,List<String> itemList){
+    public static List<SaprodontiaDataDO.SaprodontiaItem> getSaprodontia(SaprodontiaDataDO saprodontiaData, List<String> itemList){
         List<SaprodontiaDataDO.SaprodontiaItem> above = saprodontiaData.getAbove();
         List<SaprodontiaDataDO.SaprodontiaItem> underneath = saprodontiaData.getUnderneath();
         List<SaprodontiaDataDO.SaprodontiaItem> saprodontiaItemList=Lists.newArrayList();
@@ -1221,7 +1227,7 @@ public class StatUtil {
         if (CollectionUtil.isNotEmpty(underneath)){
             saprodontiaItemList.addAll(underneath);
         }
-        return saprodontiaItemList.stream().filter(s -> itemList.contains(s.getDeciduous()) || itemList.contains(s.getPermanent())).collect(Collectors.toSet());
+        return itemList.stream().flatMap(item -> saprodontiaItemList.stream().filter(s -> Objects.equals(item,s.getDeciduous()) || Objects.equals(item,s.getPermanent()))).collect(Collectors.toList());
     }
 
 
