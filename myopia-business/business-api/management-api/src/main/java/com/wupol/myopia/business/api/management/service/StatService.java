@@ -864,9 +864,17 @@ public class StatService {
             }
         }
         List<StatConclusion> statConclusionList = statConclusionService.listByQuery(query);
-        return new DataContrastFilterResultDTO(
+        DataContrastFilterResultDTO dataContrastFilterResultDTO = new DataContrastFilterResultDTO(
                 getDataContrastFilter(statConclusionList, schoolId, schoolGradeCode, currentUser),
                 composeScreeningDataContrast(statConclusionList, planScreeningStudentNum));
+
+        if (!CollectionUtils.isEmpty(statConclusionList) && Objects.equals(statConclusionList.get(0).getScreeningType(), ScreeningTypeConst.COMMON_DISEASE)) {
+            RescreenStat rescreenStat = dataContrastFilterResultDTO.getResult().getRescreenStat();
+            rescreenStat.setWearingGlassesRescreenIndexNum(8);
+            rescreenStat.setWithoutGlassesRescreenIndexNum(6);
+            dataContrastFilterResultDTO.getResult().setRescreenStat(rescreenStat);
+        }
+        return dataContrastFilterResultDTO;
     }
 
     private Set<Integer> getDistrictIdsByContrastType(ContrastTypeEnum contrastTypeEnum, Integer contrastId, CurrentUser currentUser) {
@@ -1260,8 +1268,8 @@ public class StatService {
         List<VisionScreeningResult> reScreenResults = resultList.stream().filter(VisionScreeningResult::getIsDoubleScreen).collect(Collectors.toList());
 
         // 获取初筛数据
-        List<VisionScreeningResult> screeningResults = resultList.stream().filter(s->Boolean.FALSE.equals(s.getIsDoubleScreen())).collect(Collectors.toList());
-        Map<Integer, VisionScreeningResult> screeningResultMap = screeningResults.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
+        List<VisionScreeningResult> firstResult = visionScreeningResultService.getFirstByPlanStudentIds(reScreenResults.stream().map(VisionScreeningResult::getScreeningPlanSchoolStudentId).collect(Collectors.toList()));
+        Map<Integer, VisionScreeningResult> screeningResultMap = firstResult.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
 
         reScreenResults.forEach(reScreenResult -> {
             VisionScreeningResult first = screeningResultMap.get(reScreenResult.getScreeningPlanSchoolStudentId());
