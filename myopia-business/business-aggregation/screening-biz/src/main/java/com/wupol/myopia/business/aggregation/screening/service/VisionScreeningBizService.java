@@ -85,7 +85,7 @@ public class VisionScreeningBizService {
 
         ScreeningPlan screeningPlan = screeningPlanService.findOne(new ScreeningPlan().setId(currentVisionScreeningResult.getPlanId()));
         if (screeningResultBasicData.getIsState() != 0) {
-            verifyScreening(currentAndOtherResult.getFirst(), screeningPlan.getScreeningType() == 1);
+            verifyScreening(currentAndOtherResult.getSecond(), screeningPlan.getScreeningType() == 1);
         }
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = getScreeningPlanSchoolStudent(screeningResultBasicData);
         // 初筛数据清空未检查说明
@@ -93,6 +93,9 @@ public class VisionScreeningBizService {
         screeningPlanSchoolStudentService.updateById(screeningPlanSchoolStudent);
         // 设置类型，来自筛查计划
         currentVisionScreeningResult.setScreeningType(screeningPlan.getScreeningType());
+        if (Objects.isNull(currentVisionScreeningResult.getCreateUserId())) {
+            currentVisionScreeningResult.setCreateUserId(CurrentUserUtil.getCurrentUser().getId());
+        }
         //更新statConclusion表
         visionScreeningResultService.saveOrUpdateStudentScreenData(currentVisionScreeningResult);
         //更新statConclusion表（获取的初筛或复测的数据）
