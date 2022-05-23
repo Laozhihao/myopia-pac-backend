@@ -591,8 +591,8 @@ public class StatService {
             screeningType=typeList.get(0);
         }
 
-        long wearingGlassesNum = rescreenConclusions.stream().map(x -> x.getGlassesType() > 0).count();
-        long withoutGlassesNum = rescreenConclusions.stream().map(x -> !(x.getGlassesType() > 0)).count();
+        long wearingGlassesNum = rescreenConclusions.stream().filter(x -> x.getGlassesType() > 0).count();
+        long withoutGlassesNum = rescreenConclusions.stream().filter(x -> !(x.getGlassesType() > 0)).count();
         long rescreenItemNum = rescreenConclusions.stream().map(StatConclusion::getRescreenItemNum).filter(Objects::nonNull).mapToLong(Integer::longValue).sum();
 
         RescreenStat.RescreenStatBuilder builder = RescreenStat.builder();
