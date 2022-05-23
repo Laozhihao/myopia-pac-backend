@@ -2,7 +2,8 @@ package com.wupol.myopia.business.aggregation.screening.service;
 
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
-import com.wupol.myopia.business.common.utils.constant.LowVisionLevelEnum;
+import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
@@ -87,7 +88,7 @@ public class VisionScreeningBizService {
 
         ScreeningPlan screeningPlan = screeningPlanService.findOne(new ScreeningPlan().setId(currentVisionScreeningResult.getPlanId()));
         if (screeningResultBasicData.getIsState() != 0) {
-            verifyScreening(currentAndOtherResult.getFirst(), screeningPlan.getScreeningType() == 1);
+            verifyScreening(currentAndOtherResult.getSecond(), screeningPlan.getScreeningType() == 1);
         }
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = getScreeningPlanSchoolStudent(screeningResultBasicData);
         // 初筛数据清空未检查说明
@@ -95,7 +96,10 @@ public class VisionScreeningBizService {
         screeningPlanSchoolStudentService.updateById(screeningPlanSchoolStudent);
         // 设置类型，来自筛查计划
         currentVisionScreeningResult.setScreeningType(screeningPlan.getScreeningType());
-        //更新vision_result表
+        if (Objects.isNull(currentVisionScreeningResult.getCreateUserId())) {
+            currentVisionScreeningResult.setCreateUserId(CurrentUserUtil.getCurrentUser().getId());
+        }
+        //更新statConclusion表
         visionScreeningResultService.saveOrUpdateStudentScreenData(currentVisionScreeningResult);
         //更新statConclusion表（获取的初筛或复测的数据）
         StatConclusion statConclusion = statConclusionService.saveOrUpdateStudentScreenData(getScreeningConclusionResult(currentAndOtherResult, clientId));
@@ -277,10 +281,6 @@ public class VisionScreeningBizService {
         student.setHyperopiaLevel(statConclusion.getHyperopiaLevel());
         if (statConclusion.getAge() >= 6) {
             student.setMyopiaLevel(statConclusion.getMyopiaLevel());
-            student.setScreeningMyopia(statConclusion.getScreeningMyopia());
-            if (Objects.nonNull(statConclusion.getIsLowVision()) && statConclusion.getIsLowVision()) {
-                student.setLowVision(LowVisionLevelEnum.LOW_VISION.code);
-            }
         }
         studentService.updateScreenStudent(student);
     }
