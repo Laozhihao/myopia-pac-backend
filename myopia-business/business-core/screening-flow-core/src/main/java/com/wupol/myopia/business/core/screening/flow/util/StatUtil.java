@@ -219,12 +219,15 @@ public class StatUtil {
     public static TwoTuple<BigDecimal,BigDecimal> calculateAverageVision(List<StatConclusion> statConclusions) {
         statConclusions = statConclusions.stream().filter(sc->Objects.equals(Boolean.TRUE,sc.getIsValid())).collect(Collectors.toList());
 
-        int sumSize = statConclusions.size();
-        double sumVisionL = statConclusions.stream().mapToDouble(sc->Optional.ofNullable(sc.getVisionL()).orElse(new BigDecimal("0")).doubleValue()).sum();
-        BigDecimal avgVisionL = BigDecimalUtil.divide(String.valueOf(sumVisionL), String.valueOf(sumSize),1);
+        List<BigDecimal> visionLeftList = statConclusions.stream().map(StatConclusion::getVisionL).filter(Objects::nonNull).collect(Collectors.toList());
+        int leftSumSize = visionLeftList.size();
+        double sumVisionL = visionLeftList.stream().mapToDouble(BigDecimal::doubleValue).sum();
+        BigDecimal avgVisionL = BigDecimalUtil.divide(String.valueOf(sumVisionL), String.valueOf(leftSumSize),1);
 
-        double sumVisionR = statConclusions.stream().mapToDouble(sc->Optional.ofNullable(sc.getVisionR()).orElse(new BigDecimal("0")).doubleValue()).sum();
-        BigDecimal avgVisionR = BigDecimalUtil.divide(String.valueOf(sumVisionR), String.valueOf(sumSize),1);
+        List<BigDecimal> visionRightList = statConclusions.stream().map(StatConclusion::getVisionR).filter(Objects::nonNull).collect(Collectors.toList());
+        int rightSumSize = visionRightList.size();
+        double sumVisionR = visionRightList.stream().mapToDouble(BigDecimal::doubleValue).sum();
+        BigDecimal avgVisionR = BigDecimalUtil.divide(String.valueOf(sumVisionR), String.valueOf(rightSumSize),1);
 
         return TwoTuple.of(avgVisionL,avgVisionR);
     }
