@@ -29,6 +29,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.ReScreeningCardVO;
 import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.flow.util.ReScreenCardUtil;
+import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.stat.domain.dto.WarningInfo;
@@ -308,7 +309,7 @@ public class StatService {
 
         RescreenStat rescreenStat = this.rescreenConclusion(rescreenConclusions);
 
-        TwoTuple<BigDecimal, BigDecimal> tuple = this.calculateAverageVision(validConclusions);
+        TwoTuple<BigDecimal, BigDecimal> tuple = StatUtil.calculateAverageVision(validConclusions);
         int planScreeningNum = getPlanScreeningStudentNum(notificationId, validDistrictIds);
         return ScreeningClassStat.builder().notificationId(notificationId)
                 .screeningNum(planScreeningNum)
@@ -654,7 +655,7 @@ public class StatService {
 
         List<StatConclusion> rescreenConclusions =
                 resultConclusion.stream().filter(x -> x.getIsRescreen() && x.getIsValid()).collect(Collectors.toList());
-        TwoTuple<BigDecimal, BigDecimal> tuple = this.calculateAverageVision(validConclusions);
+        TwoTuple<BigDecimal, BigDecimal> tuple = StatUtil.calculateAverageVision(validConclusions);
         RescreenStat rescreenStat = this.rescreenConclusion(rescreenConclusions);
         return ScreeningDataContrast.builder()
                 .screeningNum(planScreeningNum)
@@ -712,24 +713,6 @@ public class StatService {
      */
     private BasicStatParams composeBasicParams(String name, long statNum, long totalStatNum) {
         return new BasicStatParams(name, convertToPercentage(statNum * 1f / totalStatNum), statNum);
-    }
-
-    /**
-     * 计算平均筛查视力
-     * @param statConclusions
-     * @return
-     */
-    private TwoTuple<BigDecimal,BigDecimal> calculateAverageVision(List<StatConclusion> statConclusions) {
-        statConclusions = statConclusions.stream().filter(sc->Objects.equals(Boolean.TRUE,sc.getIsValid())).collect(Collectors.toList());
-
-        int sumSize = statConclusions.size();
-        double sumVisionL = statConclusions.stream().mapToDouble(sc->sc.getVisionL().doubleValue()).sum();
-        BigDecimal avgVisionL = BigDecimalUtil.divide(String.valueOf(sumVisionL), String.valueOf(sumSize),1);
-
-        double sumVisionR = statConclusions.stream().mapToDouble(sc->sc.getVisionR().doubleValue()).sum();
-        BigDecimal avgVisionR = BigDecimalUtil.divide(String.valueOf(sumVisionR), String.valueOf(sumSize),1);
-
-        return new TwoTuple<>(avgVisionL,avgVisionR);
     }
 
     /**
