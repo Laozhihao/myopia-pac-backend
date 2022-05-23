@@ -634,13 +634,13 @@ public class StatService {
                 resultConclusion.stream().filter(x -> Boolean.FALSE.equals(x.getIsRescreen())).collect(Collectors.toList());
         List<StatConclusion> validConclusions =
                 firstScreeningConclusions.stream().filter(StatConclusion::getIsValid).collect(Collectors.toList());
-        long lowVisionNum = validConclusions.stream().filter(StatConclusion::getIsLowVision).count();
-        long refractiveErrorNum = validConclusions.stream().filter(StatConclusion::getIsRefractiveError).count();
+        long lowVisionNum = validConclusions.stream().filter(sc->Objects.equals(sc.getIsLowVision(),Boolean.TRUE)).count();
+        long refractiveErrorNum = validConclusions.stream().filter(sc->Objects.equals(sc.getIsRefractiveError(),Boolean.TRUE)).count();
         long wearingGlassesNum = validConclusions.stream().filter(x -> x.getGlassesType() > 0).count();
-        long myopiaNum = validConclusions.stream().filter(StatConclusion::getIsMyopia).count();
+        long myopiaNum = validConclusions.stream().filter(sc->Objects.equals(sc.getIsMyopia(),Boolean.TRUE)).count();
         long totalFirstScreeningNum = firstScreeningConclusions.size();
         long validFirstScreeningNum = validConclusions.size();
-        long recommendVisitNum = validConclusions.stream().filter(StatConclusion::getIsRecommendVisit).count();
+        long recommendVisitNum = validConclusions.stream().filter(sc->Objects.equals(sc.getIsRecommendVisit(),Boolean.TRUE)).count();
         long warning0Num =
                 validConclusions.stream().filter(x -> WarningLevel.ZERO.code.equals(x.getWarningLevel())).count();
         long warning1Num =
