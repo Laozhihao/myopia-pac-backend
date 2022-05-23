@@ -1260,8 +1260,8 @@ public class StatService {
         List<VisionScreeningResult> reScreenResults = resultList.stream().filter(VisionScreeningResult::getIsDoubleScreen).collect(Collectors.toList());
 
         // 获取初筛数据
-        List<VisionScreeningResult> screeningResults = resultList.stream().filter(s->Boolean.FALSE.equals(s.getIsDoubleScreen())).collect(Collectors.toList());
-        Map<Integer, VisionScreeningResult> screeningResultMap = screeningResults.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
+        List<VisionScreeningResult> firstResult = visionScreeningResultService.getFirstByPlanStudentIds(reScreenResults.stream().map(VisionScreeningResult::getScreeningPlanSchoolStudentId).collect(Collectors.toList()));
+        Map<Integer, VisionScreeningResult> screeningResultMap = firstResult.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
 
         reScreenResults.forEach(reScreenResult -> {
             VisionScreeningResult first = screeningResultMap.get(reScreenResult.getScreeningPlanSchoolStudentId());
