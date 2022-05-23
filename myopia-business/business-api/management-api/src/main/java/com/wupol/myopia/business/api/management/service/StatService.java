@@ -309,6 +309,7 @@ public class StatService {
         ScreeningNotice notice = screeningNoticeService.getById(notificationId);
         if (Objects.equals(notice.getScreeningType(), ScreeningTypeConst.COMMON_DISEASE)) {
             rescreenStat.setWearingGlassesRescreenIndexNum(8);
+            rescreenStat.setWithoutGlassesRescreenIndexNum(6);
         }
         TwoTuple<BigDecimal, BigDecimal> tuple = this.calculateAverageVision(validConclusions);
         int planScreeningNum = getPlanScreeningStudentNum(notificationId, validDistrictIds);
