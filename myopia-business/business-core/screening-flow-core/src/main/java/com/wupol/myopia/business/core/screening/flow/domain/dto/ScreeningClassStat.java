@@ -1,8 +1,10 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -24,10 +26,12 @@ public class ScreeningClassStat {
     private Float screeningFinishedRatio;
 
     /** 左眼平均视力 */
-    private Float averageVisionLeft;
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private BigDecimal averageVisionLeft;
 
     /** 右眼平均视力 */
-    private Float averageVisionRight;
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private BigDecimal averageVisionRight;
 
     /** 按性别统计 */
     private List<ClassStat> tabGender;

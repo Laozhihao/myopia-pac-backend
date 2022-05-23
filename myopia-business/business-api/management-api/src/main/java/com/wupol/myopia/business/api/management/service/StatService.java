@@ -1,9 +1,9 @@
 package com.wupol.myopia.business.api.management.service;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.StrUtil;
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.domain.CurrentUser;
-import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
@@ -317,8 +317,8 @@ public class StatService {
                 .validScreeningNum(validFirstScreeningNum)
                 .screeningFinishedRatio(planScreeningNum > 0 ?
                         convertToPercentage(totalFirstScreeningNum * 1f / planScreeningNum) : 0)
-                .averageVisionLeft(tuple.getFirst().floatValue())
-                .averageVisionRight(tuple.getSecond().floatValue())
+                .averageVisionLeft(tuple.getFirst())
+                .averageVisionRight(tuple.getSecond())
                 .tabGender(tabGender)
                 .tabSchoolAge(tabSchoolAge)
                 .rescreenStat(rescreenStat)
@@ -425,8 +425,8 @@ public class StatService {
                 .screeningNum(contrast.getScreeningNum())
                 .actualScreeningNum(contrast.getActualScreeningNum())
                 .validScreeningNum(contrast.getValidScreeningNum())
-                .averageVisionLeft(contrast.getAverageVisionLeft())
-                .averageVisionRight(contrast.getAverageVisionRight())
+                .averageVisionLeft(Optional.ofNullable(contrast.getAverageVisionLeft()).map(BigDecimal::toString).orElse(StrUtil.EMPTY))
+                .averageVisionRight(Optional.ofNullable(contrast.getAverageVisionRight()).map(BigDecimal::toString).orElse(StrUtil.EMPTY))
                 .lowVisionNum(contrast.getLowVisionNum())
                 .lowVisionRatio(nullToRatio(contrast.getLowVisionRatio()))
                 .wearingGlassesNum(contrast.getWearingGlassesNum())
@@ -661,8 +661,8 @@ public class StatService {
                 .screeningNum(planScreeningNum)
                 .actualScreeningNum(totalFirstScreeningNum)
                 .validScreeningNum(validFirstScreeningNum)
-                .averageVisionLeft(tuple.getFirst().floatValue())
-                .averageVisionRight(tuple.getSecond().floatValue())
+                .averageVisionLeft(tuple.getFirst())
+                .averageVisionRight(tuple.getSecond())
                 .lowVisionNum(lowVisionNum)
                 .lowVisionRatio(convertToPercentage(lowVisionNum * 1f / validFirstScreeningNum))
                 .refractiveErrorRatio(convertToPercentage(refractiveErrorNum * 1f / validFirstScreeningNum))
