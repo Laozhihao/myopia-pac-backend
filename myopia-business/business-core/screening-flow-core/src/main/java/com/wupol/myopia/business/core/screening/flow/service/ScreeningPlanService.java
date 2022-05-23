@@ -98,9 +98,9 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      * @param screeningPlanDTO
      */
     @Transactional(rollbackFor = Exception.class)
-    public void saveOrUpdateWithSchools(CurrentUser user, ScreeningPlanDTO screeningPlanDTO, boolean needUpdateNoticeStatus) {
+    public void saveOrUpdateWithSchools(Integer currentUserId, ScreeningPlanDTO screeningPlanDTO, boolean needUpdateNoticeStatus) {
         // 新增或更新筛查计划信息
-        screeningPlanDTO.setOperatorId(user.getId());
+        screeningPlanDTO.setOperatorId(currentUserId);
         if (!saveOrUpdate(screeningPlanDTO)) {
             throw new BusinessException("创建失败");
         }
@@ -112,7 +112,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
             if (Objects.isNull(screeningNotice)) {
                 throw new BusinessException("找不到对应任务通知");
             }
-            screeningNoticeDeptOrgService.statusReadAndCreate(screeningNotice.getId(), screeningPlanDTO.getScreeningOrgId(), screeningPlanDTO.getId(), user);
+            screeningNoticeDeptOrgService.statusReadAndCreate(screeningNotice.getId(), screeningPlanDTO.getScreeningOrgId(), screeningPlanDTO.getId(), currentUserId);
         }
     }
 
