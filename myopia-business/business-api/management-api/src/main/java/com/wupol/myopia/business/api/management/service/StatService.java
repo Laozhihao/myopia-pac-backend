@@ -570,7 +570,7 @@ public class StatService {
         long wearingGlassesIndexNum = wearingGlassesNum * WEARING_GLASSES_RESCREEN_INDEX_NUM;
         long withoutGlassesNum = totalScreeningNum - wearingGlassesNum;
         long withoutGlassesIndexNum = withoutGlassesNum * WITHOUT_GLASSES_RESCREEN_INDEX_NUM;
-        long errorIndexNum = rescreenConclusions.stream().mapToLong(StatConclusion::getRescreenErrorNum).sum();
+        long errorIndexNum = rescreenConclusions.stream().mapToLong(StatConclusion::getRescreenErrorNum).sum() - rescreenConclusions.stream().mapToLong(StatConclusion::getPhysiqueRescreenErrorNum).sum();
         return RescreenStat.builder()
                 .rescreenNum(rescreenConclusions.size())
                 .wearingGlassesRescreenIndexNum(WEARING_GLASSES_RESCREEN_INDEX_NUM)
