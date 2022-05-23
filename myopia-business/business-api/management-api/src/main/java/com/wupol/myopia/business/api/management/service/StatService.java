@@ -864,9 +864,17 @@ public class StatService {
             }
         }
         List<StatConclusion> statConclusionList = statConclusionService.listByQuery(query);
-        return new DataContrastFilterResultDTO(
+        DataContrastFilterResultDTO dataContrastFilterResultDTO = new DataContrastFilterResultDTO(
                 getDataContrastFilter(statConclusionList, schoolId, schoolGradeCode, currentUser),
                 composeScreeningDataContrast(statConclusionList, planScreeningStudentNum));
+
+        if (!CollectionUtils.isEmpty(statConclusionList) && Objects.equals(statConclusionList.get(0).getScreeningType(), ScreeningTypeConst.COMMON_DISEASE)) {
+            RescreenStat rescreenStat = dataContrastFilterResultDTO.getResult().getRescreenStat();
+            rescreenStat.setWearingGlassesRescreenIndexNum(8);
+            rescreenStat.setWithoutGlassesRescreenIndexNum(6);
+            dataContrastFilterResultDTO.getResult().setRescreenStat(rescreenStat);
+        }
+        return dataContrastFilterResultDTO;
     }
 
     private Set<Integer> getDistrictIdsByContrastType(ContrastTypeEnum contrastTypeEnum, Integer contrastId, CurrentUser currentUser) {
