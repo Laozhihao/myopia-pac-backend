@@ -1,10 +1,12 @@
 package com.wupol.myopia.business.common.utils.util;
 
 import com.wupol.framework.core.util.ObjectsUtil;
+import com.wupol.myopia.base.util.BigDecimalUtil;
 import lombok.experimental.UtilityClass;
 import org.springframework.util.Assert;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 
 /**
@@ -35,6 +37,22 @@ public class MathUtil {
     public String ratio(Integer numerator, Integer denominator) {
         DecimalFormat df = new DecimalFormat("0.00%");
         return ratio(numerator,denominator,df);
+    }
+
+    /**
+     * 占比 （不带%）
+     */
+    public BigDecimal ratioNotSymbol(Integer numerator,Integer denominator){
+        return ratioNotSymbol(new BigDecimal(numerator),new BigDecimal(denominator));
+    }
+    public BigDecimal ratioNotSymbol(String numerator,String denominator){
+        return ratioNotSymbol(new BigDecimal(numerator),new BigDecimal(denominator));
+    }
+    public BigDecimal ratioNotSymbol(BigDecimal numerator,BigDecimal denominator){
+        if (BigDecimalUtil.decimalEqual(numerator,"0") || BigDecimalUtil.decimalEqual(denominator,"0")){
+            return new BigDecimal("0.00");
+        }
+       return numerator.multiply(new BigDecimal("100")).divide(denominator,2, RoundingMode.HALF_UP);
     }
 
     public String num(Integer numerator, Integer denominator) {

@@ -11,6 +11,9 @@ import com.wupol.myopia.business.aggregation.export.pdf.archives.SyncExportStude
 import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.api.management.constant.ReportConst;
+import com.wupol.myopia.business.api.management.domain.vo.report.DistrictCommonDiseaseReportVO;
+import com.wupol.myopia.business.api.management.domain.vo.report.SchoolCommonDiseaseReportVO;
+import com.wupol.myopia.business.api.management.service.CommonDiseaseReportService;
 import com.wupol.myopia.business.core.common.service.Html2PdfService;
 import com.wupol.myopia.business.core.hospital.domain.dto.ReceiptDTO;
 import com.wupol.myopia.business.core.hospital.service.PreschoolCheckRecordService;
@@ -69,6 +72,9 @@ public class ReportController {
 
     @Autowired
     private SyncExportStudentScreeningArchivesService syncExportStudentScreeningArchivesService;
+
+    @Autowired
+    private CommonDiseaseReportService commonDiseaseReportService;
 
     /**
      * 导出区域的筛查报告 TODO: 权限校验、导出次数限制
@@ -345,5 +351,29 @@ public class ReportController {
         return ApiResult.success(syncExportStudentScreeningArchivesService.generateArchivesPdfUrl(resultId,templateId));
     }
 
+    /**
+     * 按区域常见病报告
+     * @param districtId 区域ID
+     * @param noticeId 通知ID
+     *
+     */
+    @GetMapping("/districtCommonDiseaseReport")
+    public ApiResult<DistrictCommonDiseaseReportVO> districtCommonDiseaseReport(@RequestParam Integer districtId,
+                                                                                @RequestParam Integer noticeId){
+        return ApiResult.success(commonDiseaseReportService.districtCommonDiseaseReport(districtId,noticeId));
+    }
+
+    /**
+     * 按学校常见病报告
+     * @param districtId 区域ID
+     * @param noticeId 筛查通知ID（当筛查计划ID为空时，此值必填）
+     * @param planId 计划ID（当筛查通知ID为空时，此值必填）
+     */
+    @GetMapping("/schoolCommonDiseaseReport")
+    public ApiResult<SchoolCommonDiseaseReportVO> schoolCommonDiseaseReport(@RequestParam Integer districtId,
+                                                                            @RequestParam(required = false) Integer noticeId,
+                                                                            @RequestParam(required = false) Integer planId){
+        return ApiResult.success(commonDiseaseReportService.schoolCommonDiseaseReport(districtId,noticeId,planId));
+    }
 
 }
