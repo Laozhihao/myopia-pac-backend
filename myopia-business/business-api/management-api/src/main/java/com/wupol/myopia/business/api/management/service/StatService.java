@@ -1229,27 +1229,22 @@ public class StatService {
         rescreenInfo.forEach(rescreen -> {
             List<StatConclusion> rescreenInfoByTime = getRescreenInfo(screeningTime, rescreen.getPlanId(), rescreen.getSchoolId());
             if (CollectionUtils.isNotEmpty(rescreenInfoByTime)) {
-                Map<Integer, List<StatConclusion>> statConclusionMap = rescreenInfoByTime.stream().collect(Collectors.groupingBy(StatConclusion::getScreeningType));
-                statConclusionMap.forEach((type,list)->{
-                    // 组建统计数据
-                    StatRescreen statRescreen = new StatRescreen();
-                    StatConclusion conclusion = list.get(0);
-                    statRescreen.setScreeningOrgId(conclusion.getScreeningOrgId())
-                            .setScreeningType(conclusion.getScreeningType())
-                            .setSrcScreeningNoticeId(conclusion.getSrcScreeningNoticeId())
-                            .setTaskId(conclusion.getTaskId())
-                            .setPlanId(conclusion.getPlanId())
-                            .setSchoolId(conclusion.getSchoolId())
-                            .setScreeningTime(screeningTime);
-                    RescreenStat rescreenStat = this.rescreenConclusion(list);
-                    BeanUtils.copyProperties(rescreenStat, statRescreen);
-
-                    if (Objects.equals(ScreeningTypeConst.COMMON_DISEASE,type)) {
-                        composePhysiqueReScreenConclusion(statRescreen, list);
-                    }
-                    statRescreens.add(statRescreen);
-                });
-
+                // 组建统计数据
+                StatRescreen statRescreen = new StatRescreen();
+                StatConclusion conclusion = rescreenInfoByTime.get(0);
+                statRescreen.setScreeningOrgId(conclusion.getScreeningOrgId())
+                        .setScreeningType(conclusion.getScreeningType())
+                        .setSrcScreeningNoticeId(conclusion.getSrcScreeningNoticeId())
+                        .setTaskId(conclusion.getTaskId())
+                        .setPlanId(conclusion.getPlanId())
+                        .setSchoolId(conclusion.getSchoolId())
+                        .setScreeningTime(screeningTime);
+                RescreenStat rescreenStat = this.rescreenConclusion(rescreenInfoByTime);
+                BeanUtils.copyProperties(rescreenStat, statRescreen);
+                if (ScreeningTypeConst.COMMON_DISEASE.equals(conclusion.getScreeningType())) {
+                    composePhysiqueReScreenConclusion(statRescreen, rescreenInfoByTime);
+                }
+                statRescreens.add(statRescreen);
             }
         });
         statRescreenService.deleteByScreeningTime(screeningTime);
