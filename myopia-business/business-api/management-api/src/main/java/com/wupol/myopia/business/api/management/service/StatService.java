@@ -1211,7 +1211,6 @@ public class StatService {
                 BeanUtils.copyProperties(rescreenStat, statRescreen);
                 if (ScreeningTypeConst.COMMON_DISEASE.equals(conclusion.getScreeningType())) {
                     composePhysiqueReScreenConclusion(statRescreen, rescreenInfoByTime);
-                    statRescreen.setIncorrectItemNum(statRescreen.getIncorrectItemNum() - statRescreen.getPhysiqueIncorrectItemNum());
                 }
                 statRescreens.add(statRescreen);
             }
