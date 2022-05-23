@@ -306,6 +306,10 @@ public class StatService {
                         .collect(Collectors.toList());
 
         RescreenStat rescreenStat = this.composeRescreenConclusion(rescreenConclusions);
+        ScreeningNotice notice = screeningNoticeService.getById(notificationId);
+        if (Objects.equals(notice.getScreeningType(), ScreeningTypeConst.COMMON_DISEASE)) {
+            rescreenStat.setWearingGlassesRescreenIndexNum(8);
+        }
         TwoTuple<BigDecimal, BigDecimal> tuple = this.calculateAverageVision(validConclusions);
         int planScreeningNum = getPlanScreeningStudentNum(notificationId, validDistrictIds);
         return ScreeningClassStat.builder().notificationId(notificationId)
