@@ -305,12 +305,8 @@ public class StatService {
                                 && Boolean.TRUE.equals(x.getIsValid()))
                         .collect(Collectors.toList());
 
-        RescreenStat rescreenStat = this.composeRescreenConclusion(rescreenConclusions);
-        ScreeningNotice notice = screeningNoticeService.getById(notificationId);
-        if (Objects.equals(notice.getScreeningType(), ScreeningTypeConst.COMMON_DISEASE)) {
-            rescreenStat.setWearingGlassesRescreenIndexNum(8);
-            rescreenStat.setWithoutGlassesRescreenIndexNum(6);
-        }
+        RescreenStat rescreenStat = this.rescreenConclusion(rescreenConclusions);
+
         TwoTuple<BigDecimal, BigDecimal> tuple = this.calculateAverageVision(validConclusions);
         int planScreeningNum = getPlanScreeningStudentNum(notificationId, validDistrictIds);
         return ScreeningClassStat.builder().notificationId(notificationId)
@@ -584,6 +580,42 @@ public class StatService {
                 .build();
     }
 
+    public RescreenStat rescreenConclusion(List<StatConclusion> rescreenConclusions) {
+
+        int totalScreeningNum = rescreenConclusions.size();
+        Integer screeningType = rescreenConclusions.stream().map(StatConclusion::getScreeningType).distinct().collect(Collectors.toList()).get(0);
+
+        long wearingGlassesNum = rescreenConclusions.stream().map(x -> x.getGlassesType() > 0).count();
+        long withoutGlassesNum = rescreenConclusions.stream().map(x -> !(x.getGlassesType() > 0)).count();
+        long rescreenItemNum = rescreenConclusions.stream().map(StatConclusion::getRescreenItemNum).filter(Objects::nonNull).mapToLong(Integer::longValue).sum();
+
+        RescreenStat.RescreenStatBuilder builder = RescreenStat.builder();
+
+        if (Objects.equals(screeningType,ScreeningTypeConst.COMMON_DISEASE)){
+            builder.wearingGlassesRescreenIndexNum(8);
+            builder.withoutGlassesRescreenIndexNum(6);
+            long wearingGlassesIndexNum = wearingGlassesNum * 8;
+            long withoutGlassesIndexNum = withoutGlassesNum * 6;
+            long errorIndexNum = rescreenConclusions.stream().mapToLong(StatConclusion::getRescreenErrorNum).sum();
+            builder.incorrectItemNum(errorIndexNum)
+                    .incorrectRatio(convertToPercentage(errorIndexNum * 1f / (wearingGlassesIndexNum + withoutGlassesIndexNum)));
+        }else {
+            builder.wearingGlassesRescreenIndexNum(6);
+            builder.withoutGlassesRescreenIndexNum(4);
+            long wearingGlassesIndexNum = wearingGlassesNum * 6;
+            long withoutGlassesIndexNum = withoutGlassesNum * 4;
+            long errorIndexNum = rescreenConclusions.stream().mapToLong(StatConclusion::getRescreenErrorNum).sum() - rescreenConclusions.stream().mapToLong(StatConclusion::getPhysiqueRescreenErrorNum).sum();
+            builder.incorrectItemNum(errorIndexNum)
+                    .incorrectRatio(convertToPercentage(errorIndexNum * 1f / (wearingGlassesIndexNum + withoutGlassesIndexNum)));
+        }
+        return builder
+                .rescreenNum(totalScreeningNum)
+                .wearingGlassesRescreenNum(wearingGlassesNum)
+                .withoutGlassesRescreenNum(withoutGlassesNum)
+                .rescreenItemNum(rescreenItemNum)
+                .build();
+    }
+
     /**
      * 构造对比数据
      * @param resultConclusion 结论数据列表
@@ -618,7 +650,7 @@ public class StatService {
         List<StatConclusion> rescreenConclusions =
                 resultConclusion.stream().filter(x -> x.getIsRescreen() && x.getIsValid()).collect(Collectors.toList());
         TwoTuple<BigDecimal, BigDecimal> tuple = this.calculateAverageVision(validConclusions);
-        RescreenStat rescreenStat = this.composeRescreenConclusion(rescreenConclusions);
+        RescreenStat rescreenStat = this.rescreenConclusion(rescreenConclusions);
         return ScreeningDataContrast.builder()
                 .screeningNum(planScreeningNum)
                 .actualScreeningNum(totalFirstScreeningNum)
@@ -1197,22 +1229,27 @@ public class StatService {
         rescreenInfo.forEach(rescreen -> {
             List<StatConclusion> rescreenInfoByTime = getRescreenInfo(screeningTime, rescreen.getPlanId(), rescreen.getSchoolId());
             if (CollectionUtils.isNotEmpty(rescreenInfoByTime)) {
-                // 组建统计数据
-                StatRescreen statRescreen = new StatRescreen();
-                StatConclusion conclusion = rescreenInfoByTime.get(0);
-                statRescreen.setScreeningOrgId(conclusion.getScreeningOrgId())
-                        .setScreeningType(conclusion.getScreeningType())
-                        .setSrcScreeningNoticeId(conclusion.getSrcScreeningNoticeId())
-                        .setTaskId(conclusion.getTaskId())
-                        .setPlanId(conclusion.getPlanId())
-                        .setSchoolId(conclusion.getSchoolId())
-                        .setScreeningTime(screeningTime);
-                RescreenStat rescreenStat = this.composeRescreenConclusion(rescreenInfoByTime);
-                BeanUtils.copyProperties(rescreenStat, statRescreen);
-                if (ScreeningTypeConst.COMMON_DISEASE.equals(conclusion.getScreeningType())) {
-                    composePhysiqueReScreenConclusion(statRescreen, rescreenInfoByTime);
-                }
-                statRescreens.add(statRescreen);
+                Map<Integer, List<StatConclusion>> statConclusionMap = rescreenInfoByTime.stream().collect(Collectors.groupingBy(StatConclusion::getScreeningType));
+                statConclusionMap.forEach((type,list)->{
+                    // 组建统计数据
+                    StatRescreen statRescreen = new StatRescreen();
+                    StatConclusion conclusion = list.get(0);
+                    statRescreen.setScreeningOrgId(conclusion.getScreeningOrgId())
+                            .setScreeningType(conclusion.getScreeningType())
+                            .setSrcScreeningNoticeId(conclusion.getSrcScreeningNoticeId())
+                            .setTaskId(conclusion.getTaskId())
+                            .setPlanId(conclusion.getPlanId())
+                            .setSchoolId(conclusion.getSchoolId())
+                            .setScreeningTime(screeningTime);
+                    RescreenStat rescreenStat = this.rescreenConclusion(list);
+                    BeanUtils.copyProperties(rescreenStat, statRescreen);
+
+                    if (Objects.equals(ScreeningTypeConst.COMMON_DISEASE,type)) {
+                        composePhysiqueReScreenConclusion(statRescreen, list);
+                    }
+                    statRescreens.add(statRescreen);
+                });
+
             }
         });
         statRescreenService.deleteByScreeningTime(screeningTime);
