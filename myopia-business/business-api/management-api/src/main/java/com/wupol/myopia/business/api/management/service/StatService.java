@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.service;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.BigDecimalUtil;
@@ -281,7 +282,7 @@ public class StatService {
                         .collect(Collectors.toList());
 
         List<StatConclusion> myopiaConclusions =
-                validConclusions.stream().filter(StatConclusion::getIsMyopia).collect(Collectors.toList());
+                validConclusions.stream().filter(sc-> Objects.equals(sc.getIsMyopia(),Boolean.TRUE)).collect(Collectors.toList());
 
         long totalFirstScreeningNum = firstScreenConclusions.size();
         long validFirstScreeningNum = validConclusions.size();
@@ -583,7 +584,11 @@ public class StatService {
     public RescreenStat rescreenConclusion(List<StatConclusion> rescreenConclusions) {
 
         int totalScreeningNum = rescreenConclusions.size();
-        Integer screeningType = rescreenConclusions.stream().map(StatConclusion::getScreeningType).distinct().collect(Collectors.toList()).get(0);
+        Integer screeningType =null;
+        List<Integer> typeList = rescreenConclusions.stream().map(StatConclusion::getScreeningType).distinct().collect(Collectors.toList());
+        if (CollectionUtil.isNotEmpty(typeList)){
+            screeningType=typeList.get(0);
+        }
 
         long wearingGlassesNum = rescreenConclusions.stream().map(x -> x.getGlassesType() > 0).count();
         long withoutGlassesNum = rescreenConclusions.stream().map(x -> !(x.getGlassesType() > 0)).count();
