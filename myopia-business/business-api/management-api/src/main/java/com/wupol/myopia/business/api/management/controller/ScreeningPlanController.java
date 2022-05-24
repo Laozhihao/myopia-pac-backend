@@ -21,6 +21,7 @@ import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanScho
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanStudentBizService;
 import com.wupol.myopia.business.api.management.domain.dto.MockStudentRequestDTO;
 import com.wupol.myopia.business.api.management.domain.dto.PlanStudentRequestDTO;
+import com.wupol.myopia.business.api.management.domain.dto.ReviewInformExportDataDTO;
 import com.wupol.myopia.business.api.management.service.ManagementScreeningPlanBizService;
 import com.wupol.myopia.business.api.management.service.ReviewInformService;
 import com.wupol.myopia.business.api.management.service.ScreeningPlanSchoolStudentBizService;
@@ -725,8 +726,8 @@ public class ScreeningPlanController {
      * @return List<ReviewInformExportDataDTO>
      */
     @GetMapping("/review/getExportData")
-    public Object getExportData(Integer planId, Integer orgId, Integer schoolId,
-                                Integer gradeId, Integer classId) {
+    public List<ReviewInformExportDataDTO> getExportData(Integer planId, Integer orgId, Integer schoolId,
+                                                         Integer gradeId, Integer classId) {
         return reviewInformService.getExportData(planId, orgId, schoolId, gradeId, classId);
 
     }
