@@ -34,7 +34,7 @@ public class StudentScreeningResultItemsDTO {
     /**
      * 眼睛类型
      */
-    private String glassesType;
+    private String glassesTypeDes;
 
     /**
      * 筛查结果表ID

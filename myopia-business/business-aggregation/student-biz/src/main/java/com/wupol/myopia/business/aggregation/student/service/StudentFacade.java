@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.aggregation.student.service;
 
 import cn.hutool.core.date.DateUtil;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.ObjectsUtil;
@@ -196,7 +197,12 @@ public class StudentFacade {
             //设置常见病信息
             screeningInfoDTO.setCommonDiseases(getCommonDiseases(result));
             //设置复测信息
-            if (Objects.nonNull(rescreeningVisionScreeningResultMap)){
+            if (Objects.nonNull(rescreeningVisionScreeningResultMap)
+                    &&Objects.nonNull(rescreeningVisionScreeningResultMap.get(result.getPlanId()))
+                    &&Objects.nonNull(rescreeningVisionScreeningResultMap.get(result.getPlanId()).getVisionData())
+                    &&Objects.nonNull(rescreeningVisionScreeningResultMap.get(result.getPlanId()).getComputerOptometry())
+                    &&Objects.nonNull(rescreeningVisionScreeningResultMap.get(result.getPlanId()).getHeightAndWeightData())){
+
                 screeningInfoDTO.setRescreening(ReScreenCardUtil.reScreeningResult(result,rescreeningVisionScreeningResultMap.get(result.getPlanId())));
             }
 
@@ -205,11 +211,11 @@ public class StudentFacade {
             item.setScreeningDate(result.getUpdateTime());
             // 佩戴眼镜的类型随便取一个都行，两只眼睛的数据是一样的
             if (null != result.getVisionData() && null != result.getVisionData().getLeftEyeData() && null != result.getVisionData().getLeftEyeData().getGlassesType()) {
-                item.setGlassesType(WearingGlassesSituation.getType(result.getVisionData().getLeftEyeData().getGlassesType()));
+                item.setGlassesTypeDes(WearingGlassesSituation.getType(result.getVisionData().getLeftEyeData().getGlassesType()));
             }
             item.setResultId(result.getId());
             item.setIsDoubleScreen(result.getIsDoubleScreen());
-            item.setTemplateId(getTemplateId(result.getScreeningOrgId()));
+//            item.setTemplateId(getTemplateId(result.getScreeningOrgId()));
             item.setOtherEyeDiseases(getOtherEyeDiseasesList(result));
             if (Objects.nonNull(statMap)&&Objects.nonNull(statMap.get(result.getId()))){
                 item.setWarningLevel(statMap.get(result.getId()).getWarningLevel());
@@ -301,6 +307,12 @@ public class StudentFacade {
             // 眼部疾病
             packageOtherEyeDiseasesResult(result, leftDetails, rightDetails);
         }
+
+        if (null != result.getOtherEyeDiseases()) {
+            // 眼部疾病
+            packageOtherEyeDiseasesResult(result, leftDetails, rightDetails);
+        }
+
         return Lists.newArrayList(rightDetails, leftDetails);
     }
 
@@ -313,15 +325,21 @@ public class StudentFacade {
      */
     private void packageVisionResult(VisionScreeningResult result, StudentResultDetailsDTO leftDetails, StudentResultDetailsDTO rightDetails) {
         // 左眼-视力检查结果
-        leftDetails.setGlassesType(WearingGlassesSituation.getType(result.getVisionData().getLeftEyeData().getGlassesType()));
+        leftDetails.setGlassesType(result.getVisionData().getLeftEyeData().getGlassesType());
+        leftDetails.setGlassesTypeDes(WearingGlassesSituation.getType(result.getVisionData().getLeftEyeData().getGlassesType()));
         leftDetails.setCorrectedVision(result.getVisionData().getLeftEyeData().getCorrectedVision());
         leftDetails.setNakedVision(result.getVisionData().getLeftEyeData().getNakedVision());
+        leftDetails.setOkDegree(result.getVisionData().getLeftEyeData().getOkDegree());
 
         // 右眼-视力检查结果
-        rightDetails.setGlassesType(WearingGlassesSituation.getType(result.getVisionData().getRightEyeData().getGlassesType()));
+        rightDetails.setGlassesType(result.getVisionData().getRightEyeData().getGlassesType());
+        rightDetails.setGlassesTypeDes(WearingGlassesSituation.getType(result.getVisionData().getRightEyeData().getGlassesType()));
         rightDetails.setCorrectedVision(result.getVisionData().getRightEyeData().getCorrectedVision());
         rightDetails.setNakedVision(result.getVisionData().getRightEyeData().getNakedVision());
+        rightDetails.setOkDegree(result.getVisionData().getRightEyeData().getOkDegree());
     }
+
+
 
     /**
      * 封装电脑验光
@@ -391,7 +409,7 @@ public class StudentFacade {
      * @return 疾病描述
      */
     private String getEyeDiseases(List<String> eyeDiseases, String systemicDiseaseSymptom) {
-        return CollectionUtils.isEmpty(eyeDiseases) ? systemicDiseaseSymptom : StringUtils.isEmpty(systemicDiseaseSymptom) ? String.join("、", eyeDiseases) : String.join("、", eyeDiseases) + "、" + systemicDiseaseSymptom;
+        return CollectionUtils.isEmpty(eyeDiseases) ? systemicDiseaseSymptom : StringUtils.isEmpty(systemicDiseaseSymptom) ? String.join("，", eyeDiseases) : String.join("，", eyeDiseases) + "，" + systemicDiseaseSymptom;
     }
 
     /**
