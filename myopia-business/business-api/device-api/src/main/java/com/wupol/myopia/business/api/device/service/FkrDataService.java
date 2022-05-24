@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.wupol.framework.domain.ThreeTuple;
 import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
 import com.wupol.myopia.business.api.device.domain.dto.FkrRequestDTO;
+import com.wupol.myopia.business.api.device.util.ParsePlanStudentUtils;
 import com.wupol.myopia.business.core.device.domain.model.Device;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ComputerOptometryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
@@ -34,7 +35,7 @@ public class FkrDataService {
     public void uploadData(FkrRequestDTO requestDTO, String clientId) {
         log.info("str:{}", JSONObject.toJSONString(requestDTO));
         String deviceSN = requestDTO.getDeviceSN();
-        Integer planStudentId = Integer.valueOf(requestDTO.getUid());
+        Integer planStudentId = ParsePlanStudentUtils.parsePlanStudentId(requestDTO.getUid());
 
         Device device = deviceUploadDataService.getDevice(deviceSN);
         ScreeningOrganization screeningOrganization = deviceUploadDataService.getScreeningOrganization(device);
@@ -42,17 +43,6 @@ public class FkrDataService {
         // 保存原始数据
         deviceUploadDataService.saveDeviceData(device, JSONObject.toJSONString(requestDTO), planStudentId, screeningOrganization.getId(), System.currentTimeMillis());
         visionScreeningBizService.saveOrUpdateStudentScreenData(getComputerOptometryDTO(requestDTO, screeningPlanSchoolStudent), clientId);
-    }
-
-    /**
-     * 获取数据
-     *
-     * @param str 数据
-     *
-     * @return first-球镜 second-柱镜 third-轴位
-     */
-    private ThreeTuple<BigDecimal, BigDecimal, BigDecimal> getData(String str) {
-        return new ThreeTuple<>(new BigDecimal(str.substring(24, 30)), new BigDecimal(str.substring(30, 36)), new BigDecimal(str.substring(36, 39)));
     }
 
     /**
