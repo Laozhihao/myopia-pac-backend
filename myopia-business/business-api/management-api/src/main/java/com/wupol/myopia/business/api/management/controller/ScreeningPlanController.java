@@ -608,7 +608,7 @@ public class ScreeningPlanController {
      * @Date: 2022/1/12
      */
     @GetMapping("/getStudentEyeByStudentId")
-    public ApiResult getStudentEyeByStudentId(@RequestParam Integer planId,@RequestParam Integer planStudentId) {
+    public ApiResult<VisionScreeningResultDTO> getStudentEyeByStudentId(@RequestParam Integer planId,@RequestParam Integer planStudentId) {
         List<Integer> studentIds = Collections.singletonList(planStudentId);
         List<VisionScreeningResult> visionScreeningResults =  visionScreeningResultService.getByStudentIdsAndPlanId(planId,studentIds,VisionScreeningResult.NOT_RETEST);
         List<VisionScreeningResult> doubleScreeningResults =  visionScreeningResultService.getByStudentIdsAndPlanId(planId,studentIds,VisionScreeningResult.RETEST);
