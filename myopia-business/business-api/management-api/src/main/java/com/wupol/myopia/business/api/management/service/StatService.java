@@ -1227,7 +1227,7 @@ public class StatService {
                         .setPlanId(conclusion.getPlanId())
                         .setSchoolId(conclusion.getSchoolId())
                         .setScreeningTime(screeningTime);
-                RescreenStat rescreenStat = this.rescreenConclusion(rescreenInfoByTime);
+                RescreenStat rescreenStat = this.composeRescreenConclusion(rescreenInfoByTime);
                 BeanUtils.copyProperties(rescreenStat, statRescreen);
                 if (ScreeningTypeConst.COMMON_DISEASE.equals(conclusion.getScreeningType())) {
                     composePhysiqueReScreenConclusion(statRescreen, rescreenInfoByTime);
@@ -1265,7 +1265,7 @@ public class StatService {
         statRescreen.setPhysiqueIndexNum(2L);
         statRescreen.setPhysiqueRescreenItemNum(total * 2L);
         statRescreen.setPhysiqueIncorrectItemNum(statConclusions.stream().mapToLong(StatConclusion::getPhysiqueRescreenErrorNum).sum());
-        statRescreen.setPhysiqueIncorrectRatio(convertToPercentage((float) (statRescreen.getPhysiqueIncorrectItemNum() / statRescreen.getPhysiqueRescreenItemNum())));
+        statRescreen.setPhysiqueIncorrectRatio(convertToPercentage(statRescreen.getPhysiqueIncorrectItemNum() * 1f/ statRescreen.getPhysiqueRescreenItemNum()));
     }
 
     /**
