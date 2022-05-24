@@ -158,7 +158,7 @@ public class ReviewInformService {
         planSchoolStudents.forEach(planSchoolStudent -> {
             ReviewInformExportDataDTO exportDataDTO = new ReviewInformExportDataDTO();
             BeanUtils.copyProperties(planSchoolStudent, exportDataDTO);
-            exportDataDTO.setPlanDate(screeningPlan.getReleaseTime());
+            exportDataDTO.setPlanDate(screeningPlan.getStartTime());
 
             HeightAndWeightDataDO heightAndWeightDataDO = heightAndWeightDataMap.get(planSchoolStudent.getId());
             if (Objects.nonNull(heightAndWeightDataDO)) {
