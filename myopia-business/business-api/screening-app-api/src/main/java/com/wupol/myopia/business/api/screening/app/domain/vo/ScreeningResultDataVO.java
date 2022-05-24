@@ -31,6 +31,7 @@ public class ScreeningResultDataVO {
     private BloodPressureDTO bloodPressureData;
     private DiseasesHistoryDTO diseasesHistoryData;
     private PrivacyDTO privacyData;
+    private Long updateTime;
 
     public static ScreeningResultDataVO getInstance(VisionScreeningResult screeningResult) {
         if (Objects.isNull(screeningResult)) {
