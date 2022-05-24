@@ -76,6 +76,20 @@ public class VisionScreeningBizService {
      */
     @Transactional(rollbackFor = Exception.class)
     public TwoTuple<VisionScreeningResult, StatConclusion> saveOrUpdateStudentScreenData(ScreeningResultBasicData screeningResultBasicData, String clientId) {
+        return saveOrUpdateStudentScreenData(screeningResultBasicData, clientId, null);
+    }
+
+
+    /**
+     * 保存学生眼镜信息
+     *
+     * @param screeningResultBasicData
+     * @param clientId                 客户端ID
+     * @param updateTime               检查数据的更新时间。App无网筛查时，需要用到App上传的时间，而不是数据自动生成的时间
+     * @return 返回statconclusion
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public TwoTuple<VisionScreeningResult, StatConclusion> saveOrUpdateStudentScreenData(ScreeningResultBasicData screeningResultBasicData, String clientId, Long updateTime) {
         // 1: 根据筛查计划获得 初筛和复测数据
         // 2: 本次检查数据如果是复测，要验证是否符合初筛条件
         TwoTuple<VisionScreeningResult, VisionScreeningResult> currentAndOtherResult = getAllFirstAndSecondResult(screeningResultBasicData);
@@ -98,6 +112,10 @@ public class VisionScreeningBizService {
         currentVisionScreeningResult.setScreeningType(screeningPlan.getScreeningType());
         if (Objects.isNull(currentVisionScreeningResult.getCreateUserId())) {
             currentVisionScreeningResult.setCreateUserId(CurrentUserUtil.getCurrentUser().getId());
+        }
+        // 如果updateTime不为空，则更新成指定的时间
+        if (updateTime != null) {
+            currentVisionScreeningResult.setUpdateTime(new Date(updateTime));
         }
         //更新statConclusion表
         visionScreeningResultService.saveOrUpdateStudentScreenData(currentVisionScreeningResult);
