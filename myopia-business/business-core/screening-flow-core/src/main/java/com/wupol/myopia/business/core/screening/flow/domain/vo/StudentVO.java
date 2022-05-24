@@ -18,7 +18,8 @@ import java.util.Objects;
 @Getter
 public class StudentVO {
 
-    private StudentVO() {}
+    private StudentVO() {
+    }
 
     /**
      * 学生ID
@@ -95,6 +96,11 @@ public class StudentVO {
     private Integer classId;
 
     /**
+     * 身份证号
+     */
+    private String idCard;
+
+    /**
      * 获取实例
      *
      * @param screeningPlanSchoolStudent 筛查学生信息
@@ -118,6 +124,7 @@ public class StudentVO {
         studentVO.screeningCode = screeningPlanSchoolStudent.getScreeningCode();
         studentVO.gradeId = screeningPlanSchoolStudent.getGradeId();
         studentVO.classId = screeningPlanSchoolStudent.getClassId();
+        studentVO.idCard = screeningPlanSchoolStudent.getIdCard();
         return studentVO;
     }
 
