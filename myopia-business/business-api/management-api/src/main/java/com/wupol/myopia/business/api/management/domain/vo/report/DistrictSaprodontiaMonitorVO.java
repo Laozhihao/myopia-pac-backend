@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.domain.vo.report;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 import java.util.List;
 
@@ -48,16 +49,32 @@ public class DistrictSaprodontiaMonitorVO {
     @Data
     public static class SaprodontiaSexVO{
         /**
-         * 性别说明
+         * 说明变量
          */
         private SaprodontiaSexVariableVO saprodontiaSexVariableVO;
         /**
-         * 性别数据
+         * 表格数据
          */
         private List<SaprodontiaMonitorTable> saprodontiaMonitorTableList;
 
 
     }
+
+    @EqualsAndHashCode(callSuper = true)
+    @Data
+    @Accessors(chain = true)
+    public static class SaprodontiaSexNum extends SaprodontiaNum {
+        private Integer gender;
+
+    }
+    @Data
+    @Accessors(chain = true)
+    public static class SaprodontiaNum{
+        private Integer saprodontia;
+        private Integer saprodontiaLoss;
+        private Integer saprodontiaRepair;
+    }
+
 
     @Data
     public static class SaprodontiaSexVariableVO{
@@ -119,6 +136,11 @@ public class DistrictSaprodontiaMonitorVO {
          * 初中
          */
         private SaprodontiaSchoolAge juniorHighSchool;
+
+        /**
+         * 高中(普高+职高)
+         */
+        private SaprodontiaSchoolAge highSchool;
         /**
          * 普高
          */
@@ -165,6 +187,14 @@ public class DistrictSaprodontiaMonitorVO {
          * 占比
          */
         private String ratio;
+
+        public GradeRatio(String grade, String ratio) {
+            this.grade = grade;
+            this.ratio = ratio;
+        }
+
+        public GradeRatio() {
+        }
     }
 
 
@@ -201,9 +231,13 @@ public class DistrictSaprodontiaMonitorVO {
     @Data
     public static class AgeRatio{
         /**
-         * 年龄
+         * 最高年龄段
          */
-        private String grade;
+        private String maxAge;
+        /**
+         * 最小年龄段
+         */
+        private String minAge;
         /**
          * 最高占比
          */
