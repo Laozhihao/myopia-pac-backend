@@ -8,6 +8,7 @@ import org.springframework.util.Assert;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.util.function.Function;
 
 /**
  * 计算工具
@@ -36,6 +37,12 @@ public class MathUtil {
      */
     public String ratio(Integer numerator, Integer denominator) {
         DecimalFormat df = new DecimalFormat("0.00%");
+        return ratio(numerator,denominator,df);
+    }
+
+    public <T> String ratio(Function<T,Integer> mapper,T t, Integer denominator) {
+        DecimalFormat df = new DecimalFormat("0.00%");
+        Integer numerator = mapper.apply(t);
         return ratio(numerator,denominator,df);
     }
 
