@@ -48,7 +48,7 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorVO {
         /**
          * 性别数据
          */
-        private List<BloodPressureAndSpinalCurvatureMonitorTable> bloodPressureAndSpinalCurvatureMonitorTableList;
+        private List<BloodPressureAndSpinalCurvatureMonitorTable> bloodPressureAndSpinalCurvatureSexMonitorTableList;
 
 
     }
@@ -97,7 +97,7 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorVO {
         /**
          * 学龄段数据
          */
-        private List<BloodPressureAndSpinalCurvatureMonitorTable> bloodPressureAndSpinalCurvatureMonitorTableList;
+        private List<BloodPressureAndSpinalCurvatureMonitorTable> bloodPressureAndSpinalCurvatureSchoolAgeMonitorTableList;
 
     }
     @Data
@@ -110,6 +110,10 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorVO {
          * 初中
          */
         private BloodPressureAndSpinalCurvatureSchoolAge juniorHighSchool;
+        /**
+         * 高中（普高+职高）
+         */
+        private BloodPressureAndSpinalCurvatureSchoolAge highSchool;
         /**
          * 普高
          */
@@ -132,12 +136,12 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorVO {
         /**
          * 最高年级血压偏高率
          */
-        private GradeRatio maxOverweightRatio;
+        private GradeRatio maxHighBloodPressureRatio;
 
         /**
          * 最高年级脊柱弯曲异常率
          */
-        private GradeRatio maxObeseRatio;
+        private GradeRatio maxAbnormalSpineCurvatureRatio;
 
 
     }
@@ -152,6 +156,14 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorVO {
          * 占比
          */
         private String ratio;
+
+        public GradeRatio(String grade, String ratio) {
+            this.grade = grade;
+            this.ratio = ratio;
+        }
+
+        public GradeRatio() {
+        }
     }
 
 
@@ -164,7 +176,7 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorVO {
         /**
          * 年龄段数据
          */
-        private List<BloodPressureAndSpinalCurvatureMonitorTable> bloodPressureAndSpinalCurvatureMonitorTableList;
+        private List<BloodPressureAndSpinalCurvatureMonitorTable> bloodPressureAndSpinalCurvatureAgeMonitorTableList;
 
     }
 
@@ -185,9 +197,13 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorVO {
     @Data
     public static class AgeRatio{
         /**
-         * 年龄
+         * 最高年龄段
          */
-        private String grade;
+        private String maxAge;
+        /**
+         * 最低年龄段
+         */
+        private String minAge;
         /**
          * 最高占比
          */

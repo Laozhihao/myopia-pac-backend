@@ -22,12 +22,12 @@ public class DistrictSaprodontiaMonitorVO {
     /**
      * 龋齿监测 - 不同性别
      */
-    private SaprodontiaSexVO saprodontiaSex;
+    private SaprodontiaSexVO saprodontiaSexVO;
 
     /**
      * 龋齿监测 - 不同学龄段
      */
-    private SaprodontiaSchoolAgeVO saprodontiaSchoolAge;
+    private SaprodontiaSchoolAgeVO saprodontiaSchoolAgeVO;
     /**
      * 龋齿监测 - 不同年龄
      */
@@ -55,7 +55,7 @@ public class DistrictSaprodontiaMonitorVO {
         /**
          * 表格数据
          */
-        private List<SaprodontiaMonitorTable> saprodontiaMonitorTableList;
+        private List<SaprodontiaMonitorTable> saprodontiaSexMonitorTableList;
 
 
     }
@@ -123,7 +123,7 @@ public class DistrictSaprodontiaMonitorVO {
         /**
          * 学龄段数据
          */
-        private List<SaprodontiaMonitorTable> saprodontiaMonitorTableList;
+        private List<SaprodontiaMonitorTable> saprodontiaSchoolAgeMonitorTableList;
 
     }
     @Data
@@ -207,7 +207,7 @@ public class DistrictSaprodontiaMonitorVO {
         /**
          * 年龄段数据
          */
-        private List<SaprodontiaMonitorTable> saprodontiaMonitorTableList;
+        private List<SaprodontiaMonitorTable> saprodontiaAgeMonitorTableList;
 
     }
 

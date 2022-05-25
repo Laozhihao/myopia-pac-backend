@@ -21,7 +21,7 @@ public class DistrictHeightAndWeightMonitorVO {
     /**
      * 龋齿监测 - 不同性别
      */
-    private HeightAndWeightSexVO heightAndWeightSex;
+    private HeightAndWeightSexVO heightAndWeightSexVO;
 
     /**
      * 龋齿监测 - 不同学龄段
@@ -43,13 +43,13 @@ public class DistrictHeightAndWeightMonitorVO {
     @Data
     public static class HeightAndWeightSexVO{
         /**
-         * 性别说明
+         * 说明变量
          */
         private HeightAndWeightSexVariableVO heightAndWeightSexVariableVO;
         /**
-         * 性别数据
+         * 表格数据
          */
-        private List<HeightAndWeightMonitorTable> heightAndWeightMonitorTableList;
+        private List<HeightAndWeightMonitorTable> heightAndWeightSexMonitorTableList;
 
 
     }
@@ -73,6 +73,7 @@ public class DistrictHeightAndWeightMonitorVO {
          */
         private HeightAndWeightSex stuntingRatioCompare;
     }
+
 
     @Data
     public static class HeightAndWeightSex{
@@ -105,7 +106,7 @@ public class DistrictHeightAndWeightMonitorVO {
         /**
          * 学龄段数据
          */
-        private List<HeightAndWeightMonitorTable> heightAndWeightMonitorTableList;
+        private List<HeightAndWeightMonitorTable> heightAndWeightSchoolAgeMonitorTableList;
 
     }
     @Data
@@ -118,6 +119,10 @@ public class DistrictHeightAndWeightMonitorVO {
          * 初中
          */
         private HeightAndWeightSchoolAge juniorHighSchool;
+        /**
+         * 高中（普高+职高）
+         */
+        private HeightAndWeightSchoolAge highSchool;
         /**
          * 普高
          */
@@ -168,6 +173,14 @@ public class DistrictHeightAndWeightMonitorVO {
          * 占比
          */
         private String ratio;
+
+        public GradeRatio(String grade, String ratio) {
+            this.grade = grade;
+            this.ratio = ratio;
+        }
+
+        public GradeRatio() {
+        }
     }
 
 
@@ -180,7 +193,7 @@ public class DistrictHeightAndWeightMonitorVO {
         /**
          * 年龄段数据
          */
-        private List<HeightAndWeightMonitorTable> heightAndWeightMonitorTableList;
+        private List<HeightAndWeightMonitorTable> heightAndWeightAgeMonitorTableList;
 
     }
 
@@ -207,10 +220,15 @@ public class DistrictHeightAndWeightMonitorVO {
 
     @Data
     public static class AgeRatio{
+
         /**
-         * 年龄
+         * 最高年龄段
          */
-        private String grade;
+        private String maxAge;
+        /**
+         * 最低年龄段
+         */
+        private String minAge;
         /**
          * 最高占比
          */

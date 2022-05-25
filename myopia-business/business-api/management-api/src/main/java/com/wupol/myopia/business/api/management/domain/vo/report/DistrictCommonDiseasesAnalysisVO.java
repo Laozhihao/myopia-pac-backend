@@ -3,6 +3,8 @@ package com.wupol.myopia.business.api.management.domain.vo.report;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.math.BigDecimal;
+
 /**
  * 按区域常见病分析
  *
@@ -166,6 +168,29 @@ public class DistrictCommonDiseasesAnalysisVO {
         /**
          * 超重率
          */
+        private BigDecimal overweightRatio;
+        /**
+         * 肥胖率
+         */
+        private BigDecimal obeseRatio;
+
+        /**
+         * 营养不良率
+         */
+        private BigDecimal malnourishedRatio;
+
+        /**
+         * 生长迟缓率
+         */
+        private BigDecimal stuntingRatio;
+
+    }
+
+    @Data
+    public static class HeightAndWeightRatioStrVO {
+        /**
+         * 超重率
+         */
         private String overweightRatio;
         /**
          * 肥胖率
@@ -205,12 +230,27 @@ public class DistrictCommonDiseasesAnalysisVO {
         /**
          * 血压偏高率
          */
-        private String highBloodPressureRatio;
+        private BigDecimal highBloodPressureRatio;
 
         /**
          * 脊柱弯曲异常率
          */
-        private String abnormalSpineCurvatureRatio;
+        private BigDecimal abnormalSpineCurvatureRatio;
+
+    }
+
+    @Data
+    public static class BloodPressureAndSpinalCurvatureRatioStrVO{
+
+        /**
+         * 血压偏高率
+         */
+        private String highBloodPressureRatioStr;
+
+        /**
+         * 脊柱弯曲异常率
+         */
+        private String abnormalSpineCurvatureRatioStr;
 
     }
 
