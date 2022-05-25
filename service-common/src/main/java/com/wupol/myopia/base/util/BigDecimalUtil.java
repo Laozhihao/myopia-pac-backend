@@ -258,8 +258,8 @@ public class BigDecimalUtil {
      * @return 绝对差值
      */
     public static BigDecimal subtractAbsBigDecimal(BigDecimal firstScreening, BigDecimal reScreening) {
-        BigDecimal first = Optional.ofNullable(firstScreening).orElse(new BigDecimal("0"));
-        BigDecimal retest = Optional.ofNullable(reScreening).orElse(new BigDecimal("0"));
+        BigDecimal first = Optional.ofNullable(firstScreening).orElse(null);
+        BigDecimal retest = Optional.ofNullable(reScreening).orElse(null);
 
         return first.subtract(retest).abs();
     }
