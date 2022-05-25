@@ -38,14 +38,16 @@ public class DeviationDTO extends ScreeningResultBasicData {
     @Override
     public VisionScreeningResult buildScreeningResultData(VisionScreeningResult visionScreeningResult) {
         DeviationDO deviationDO = new DeviationDO();
-        DeviationDO.HeightWeightDeviation heightWeightDeviation = new DeviationDO.HeightWeightDeviation();
-        DeviationDO.VisionOrOptometryDeviation visionOrOptometryDeviation = new DeviationDO.VisionOrOptometryDeviation();
+        DeviationDO.HeightWeightDeviation heightWeightDeviation = null;
+        DeviationDO.VisionOrOptometryDeviation visionOrOptometryDeviation = null;
 
         if (Objects.nonNull(visionOrOptometryDeviationType)) {
+            visionOrOptometryDeviation = new DeviationDO.VisionOrOptometryDeviation();
             visionOrOptometryDeviation.setType(DeviationDO.VisionOrOptometryDeviationEnum.getByCode(visionOrOptometryDeviationType));
             visionOrOptometryDeviation.setRemark(visionOrOptometryDeviationRemark);
         }
         if (Objects.nonNull(heightWeightDeviationType)) {
+            heightWeightDeviation = new DeviationDO.HeightWeightDeviation();
             heightWeightDeviation.setType(DeviationDO.HeightWeightDeviationEnum.getByCode(heightWeightDeviationType));
             heightWeightDeviation.setRemark(heightWeightDeviationRemark);
         }
