@@ -3,19 +3,12 @@ package com.wupol.myopia.business.core.screening.flow.domain.builder;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.wupol.framework.core.util.ObjectsUtil;
-import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.base.constant.SystemCode;
-import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.BigDecimalUtil;
-import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.OtherEyeDiseasesDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.constant.SchoolEnum;
@@ -29,12 +22,12 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import org.apache.commons.collections4.CollectionUtils;
 
 import java.math.BigDecimal;
-import java.util.*;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * 筛查数据结论
@@ -586,7 +579,47 @@ public class StatConclusionBuilder {
         DiseasesHistoryDO diseasesHistoryData = currentVisionScreeningResult.getDiseasesHistoryData();
         if (Objects.nonNull(diseasesHistoryData) && CollectionUtil.isNotEmpty(diseasesHistoryData.getDiseases())){
             statConclusion.setIsDiseasesHistory(Boolean.TRUE);
+            setDiseaseNumInfo(diseasesHistoryData.getDiseases());
         }
+    }
+
+    private void setDiseaseNumInfo(List<String> diseases){
+        if (CollectionUtil.isEmpty(diseases)){
+            return;
+        }
+        DiseaseNumDO diseaseNumDO= new DiseaseNumDO();
+        for (String disease : diseases) {
+            switch (disease){
+                case "肝炎":
+                    diseaseNumDO.setHepatitis(1);
+                    break;
+                case "肾炎":
+                    diseaseNumDO.setNephritis(1);
+                    break;
+                case "心脏病":
+                    diseaseNumDO.setHeartDisease(1);
+                    break;
+                case "贫血":
+                    diseaseNumDO.setAnemia(1);
+                    break;
+                case "高血压":
+                    diseaseNumDO.setHypertension(1);
+                    break;
+                case "糖尿病":
+                    diseaseNumDO.setDiabetes(1);
+                    break;
+                case "过敏性哮喘":
+                    diseaseNumDO.setAllergicAsthma(1);
+                    break;
+                case "身体残疾":
+                    diseaseNumDO.setPhysicalDisability(1);
+                    break;
+                default:
+                    break;
+            }
+        }
+        statConclusion.setDiseaseNum(diseaseNumDO);
+
     }
 
 
