@@ -91,14 +91,14 @@ public class ComputerOptometryDTO extends ScreeningResultBasicData {
             computerOptometryDTO.setLCyl(leftEye.getCyl());
             computerOptometryDTO.setLSph(leftEye.getSph());
             // 等效球镜= 球镜+（1/2）柱镜
-            computerOptometryDTO.setLSe(BigDecimalUtil.getBigDecimalByFormat(leftEye.getCyl().multiply(BigDecimal.valueOf(0.5)).add(leftEye.getSph()), 2));
+            computerOptometryDTO.setLSe(leftEye.getCyl().multiply(BigDecimal.valueOf(0.5)).add(leftEye.getSph()).setScale(2, BigDecimal.ROUND_UP));
         }
         ComputerOptometryDO.ComputerOptometry rightEye = computerOptometryDO.getRightEyeData();
         if (Objects.nonNull(rightEye)) {
             computerOptometryDTO.setRAxial(rightEye.getAxial());
             computerOptometryDTO.setRCyl(rightEye.getCyl());
             computerOptometryDTO.setRSph(rightEye.getSph());
-            computerOptometryDTO.setRSe(BigDecimalUtil.getBigDecimalByFormat(rightEye.getCyl().multiply(BigDecimal.valueOf(0.5)).add(rightEye.getSph()), 2));
+            computerOptometryDTO.setRSe(rightEye.getCyl().multiply(BigDecimal.valueOf(0.5)).add(rightEye.getSph()).setScale(2, BigDecimal.ROUND_UP));
         }
         computerOptometryDTO.setDiagnosis(computerOptometryDO.getDiagnosis());
         computerOptometryDTO.setIsCooperative(computerOptometryDO.getIsCooperative());

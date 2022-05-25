@@ -31,6 +31,7 @@ import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.DeviationDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ComputerOptometryDTO;
@@ -397,7 +398,18 @@ public class ScreeningAppController {
     public ApiResult addStudentVision(@Valid @RequestBody VisionDataDTO visionDataDTO) {
         if (visionDataDTO.isValid()) {
             CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-            visionScreeningBizService.saveOrUpdateStudentScreenData(visionDataDTO,currentUser.getClientId());
+            visionScreeningBizService.saveOrUpdateStudentScreenData(visionDataDTO, currentUser.getClientId());
+            RetestStudentVO retestStudentVO = screeningAppService.getNumerationSecondCheck(visionDataDTO);
+            if (!retestStudentVO.isLeftNakedVision() && !retestStudentVO.isRightNakedVision() && !retestStudentVO.isLeftCorrectedVision() && retestStudentVO.isRightCorrectedVision()) {
+                // 清空误差视力检查误差说明
+                DeviationDTO deviationDTO = DeviationDTO.getInstance(retestStudentVO.getVisionScreeningResult().getSecond().getDeviationData());
+                if(Objects.nonNull(deviationDTO)){
+                    deviationDTO.setPlanStudentId(String.valueOf(visionDataDTO.getPlanStudentId()));
+                    deviationDTO.setVisionOrOptometryDeviationRemark(null);
+                    deviationDTO.setVisionOrOptometryDeviationType(null);
+                    addInaccurate(deviationDTO, visionDataDTO.getPlanStudentId());
+                }
+            }
             return ApiResult.success();
         } else {
             return ApiResult.failure("请输入正确的参数");
@@ -413,7 +425,18 @@ public class ScreeningAppController {
     public ApiResult addStudentComputer(@Valid @RequestBody ComputerOptometryDTO computerOptometryDTO) {
         if (computerOptometryDTO.isValid()) {
             CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-            visionScreeningBizService.saveOrUpdateStudentScreenData(computerOptometryDTO,currentUser.getClientId());
+            visionScreeningBizService.saveOrUpdateStudentScreenData(computerOptometryDTO, currentUser.getClientId());
+            RetestStudentVO retestStudentVO = screeningAppService.getNumerationSecondCheck(computerOptometryDTO);
+            if (!retestStudentVO.isLeftNakedVision() && !retestStudentVO.isRightNakedVision() &&  !retestStudentVO.isLeftCorrectedVision() && !retestStudentVO.isRightCorrectedVision()) {
+                // 清空误差视力检查误差说明
+                DeviationDTO deviationDTO = DeviationDTO.getInstance(retestStudentVO.getVisionScreeningResult().getSecond().getDeviationData());
+                if(Objects.nonNull(deviationDTO)){
+                    deviationDTO.setPlanStudentId(String.valueOf(computerOptometryDTO.getPlanStudentId()));
+                    deviationDTO.setVisionOrOptometryDeviationRemark(null);
+                    deviationDTO.setVisionOrOptometryDeviationType(null);
+                    addInaccurate(deviationDTO, computerOptometryDTO.getPlanStudentId());
+                }
+            }
             return ApiResult.success();
         } else {
             return ApiResult.failure("请输入正确的参数");
@@ -429,7 +452,7 @@ public class ScreeningAppController {
     public ApiResult addStudentBiology(@Valid @RequestBody BiometricDataDTO biometricDataDTO) {
         if (biometricDataDTO.isValid()) {
             CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-            visionScreeningBizService.saveOrUpdateStudentScreenData(biometricDataDTO,currentUser.getClientId());
+            visionScreeningBizService.saveOrUpdateStudentScreenData(biometricDataDTO, currentUser.getClientId());
             return ApiResult.success();
         } else {
             return ApiResult.failure("请输入正确的参数");
@@ -444,7 +467,7 @@ public class ScreeningAppController {
     @PostMapping("/eye/addEyeDisease")
     public void addEyeDisease(@Valid @RequestBody OtherEyeDiseasesDTO otherEyeDiseasesDTO) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        visionScreeningBizService.saveOrUpdateStudentScreenData(otherEyeDiseasesDTO,currentUser.getClientId());
+        visionScreeningBizService.saveOrUpdateStudentScreenData(otherEyeDiseasesDTO, currentUser.getClientId());
     }
 
     /**
@@ -456,7 +479,7 @@ public class ScreeningAppController {
     public ApiResult addMultiCheck(@Valid @RequestBody MultiCheckDataDTO multiCheckDataDTO) {
         if (multiCheckDataDTO.isValid()) {
             CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-            visionScreeningBizService.saveOrUpdateStudentScreenData(multiCheckDataDTO,currentUser.getClientId());
+            visionScreeningBizService.saveOrUpdateStudentScreenData(multiCheckDataDTO, currentUser.getClientId());
             return ApiResult.success();
         } else {
             return ApiResult.failure("请输入正确的参数");
@@ -472,7 +495,7 @@ public class ScreeningAppController {
     public ApiResult addPupilOptometry(@Valid @RequestBody PupilOptometryDTO pupilOptometryDTO) {
         if (pupilOptometryDTO.isValid()) {
             CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-            visionScreeningBizService.saveOrUpdateStudentScreenData(pupilOptometryDTO,currentUser.getClientId());
+            visionScreeningBizService.saveOrUpdateStudentScreenData(pupilOptometryDTO, currentUser.getClientId());
             return ApiResult.success();
         } else {
             return ApiResult.failure("请输入正确的参数");
@@ -488,7 +511,7 @@ public class ScreeningAppController {
     public ApiResult addEyePressure(@Valid @RequestBody EyePressureDataDTO eyePressureDataDTO) {
         if (eyePressureDataDTO.isValid()) {
             CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-            visionScreeningBizService.saveOrUpdateStudentScreenData(eyePressureDataDTO,currentUser.getClientId());
+            visionScreeningBizService.saveOrUpdateStudentScreenData(eyePressureDataDTO, currentUser.getClientId());
             return ApiResult.success();
         } else {
             return ApiResult.failure("请输入正确的参数");
@@ -504,7 +527,18 @@ public class ScreeningAppController {
     public ApiResult addHeightAndWeight(@Valid @RequestBody HeightAndWeightDataDTO heightAndWeightDataDTO) {
         if (heightAndWeightDataDTO.isValid()) {
             CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-            visionScreeningBizService.saveOrUpdateStudentScreenData(heightAndWeightDataDTO,currentUser.getClientId());
+            visionScreeningBizService.saveOrUpdateStudentScreenData(heightAndWeightDataDTO, currentUser.getClientId());
+            RetestStudentVO retestStudentVO = screeningAppService.getNumerationSecondCheck(heightAndWeightDataDTO);
+            if (!retestStudentVO.isHeight() || !retestStudentVO.isWeight()) {
+                // 清空误差视力检查误差说明
+                DeviationDTO deviationDTO = DeviationDTO.getInstance(retestStudentVO.getVisionScreeningResult().getSecond().getDeviationData());
+                if(Objects.nonNull(deviationDTO)){
+                    deviationDTO.setPlanStudentId(String.valueOf(heightAndWeightDataDTO.getPlanStudentId()));
+                    deviationDTO.setHeightWeightDeviationType(null);
+                    deviationDTO.setHeightWeightDeviationRemark(null);
+                    addInaccurate(deviationDTO, heightAndWeightDataDTO.getPlanStudentId());
+                }
+            }
             return ApiResult.success();
         } else {
             return ApiResult.failure("请输入正确的参数");
@@ -886,7 +920,7 @@ public class ScreeningAppController {
     public ApiResult addSaprodontia(@Valid @RequestBody SaprodontiaDTO saprodontiaDTO) {
         if (saprodontiaDTO.isValid()) {
             CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-            visionScreeningBizService.saveOrUpdateStudentScreenData(saprodontiaDTO,currentUser.getClientId());
+            visionScreeningBizService.saveOrUpdateStudentScreenData(saprodontiaDTO, currentUser.getClientId());
             return ApiResult.success();
         } else {
             return ApiResult.failure("请输入正确的参数");
@@ -917,7 +951,7 @@ public class ScreeningAppController {
     public ApiResult addSpine(@Valid @RequestBody SpineDTO spineDTO) {
         if (spineDTO.isValid()) {
             CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-            visionScreeningBizService.saveOrUpdateStudentScreenData(spineDTO,currentUser.getClientId());
+            visionScreeningBizService.saveOrUpdateStudentScreenData(spineDTO, currentUser.getClientId());
             return ApiResult.success();
         } else {
             return ApiResult.failure("请输入正确的参数");
@@ -948,7 +982,7 @@ public class ScreeningAppController {
     public ApiResult addBloodPressure(@Valid @RequestBody BloodPressureDTO bloodPressureDTO) {
         if (bloodPressureDTO.isValid()) {
             CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-            visionScreeningBizService.saveOrUpdateStudentScreenData(bloodPressureDTO,currentUser.getClientId());
+            visionScreeningBizService.saveOrUpdateStudentScreenData(bloodPressureDTO, currentUser.getClientId());
             return ApiResult.success();
         } else {
             return ApiResult.failure("请输入正确的参数");
@@ -980,7 +1014,7 @@ public class ScreeningAppController {
     public ApiResult addDiseasesHistory(@Valid @RequestBody DiseasesHistoryDTO diseasesHistoryDTO) {
         if (diseasesHistoryDTO.isValid()) {
             CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-            visionScreeningBizService.saveOrUpdateStudentScreenData(diseasesHistoryDTO,currentUser.getClientId());
+            visionScreeningBizService.saveOrUpdateStudentScreenData(diseasesHistoryDTO, currentUser.getClientId());
             return ApiResult.success();
         } else {
             return ApiResult.failure("请输入正确的参数");
@@ -1012,7 +1046,7 @@ public class ScreeningAppController {
     public ApiResult addPrivacy(@Valid @RequestBody PrivacyDTO privacyDTO) {
         if (privacyDTO.isValid()) {
             CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-            visionScreeningBizService.saveOrUpdateStudentScreenData(privacyDTO,currentUser.getClientId());
+            visionScreeningBizService.saveOrUpdateStudentScreenData(privacyDTO, currentUser.getClientId());
             return ApiResult.success();
         } else {
             return ApiResult.failure("请输入正确的参数");
@@ -1082,7 +1116,7 @@ public class ScreeningAppController {
             // 只是复测数据
             deviationDTO.setIsState(1);
             CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-            visionScreeningBizService.saveOrUpdateStudentScreenData(deviationDTO,currentUser.getClientId());
+            visionScreeningBizService.saveOrUpdateStudentScreenData(deviationDTO, currentUser.getClientId());
         }
     }
 

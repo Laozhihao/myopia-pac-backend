@@ -101,6 +101,11 @@ public class StudentVO {
     private String idCard;
 
     /**
+     * 护照
+     */
+    private String passport;
+
+    /**
      * 获取实例
      *
      * @param screeningPlanSchoolStudent 筛查学生信息
@@ -125,6 +130,7 @@ public class StudentVO {
         studentVO.gradeId = screeningPlanSchoolStudent.getGradeId();
         studentVO.classId = screeningPlanSchoolStudent.getClassId();
         studentVO.idCard = screeningPlanSchoolStudent.getIdCard();
+        studentVO.passport = screeningPlanSchoolStudent.getPassport();
         return studentVO;
     }
 
