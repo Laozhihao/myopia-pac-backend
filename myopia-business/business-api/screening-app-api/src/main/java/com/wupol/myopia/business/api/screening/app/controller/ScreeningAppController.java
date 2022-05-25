@@ -348,43 +348,43 @@ public class ScreeningAppController {
 
         String clientId = CurrentUserUtil.getCurrentUser().getClientId();
         if (screeningResultDataVO.getMultiCheckData() != null) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getMultiCheckData(), clientId);
+            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getMultiCheckData(), clientId, screeningResultDataVO.getUpdateTime());
         }
         if (screeningResultDataVO.getComputerOptometryData() != null) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getComputerOptometryData(), clientId);
+            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getComputerOptometryData(), clientId, screeningResultDataVO.getUpdateTime());
         }
         if (screeningResultDataVO.getVisionData() != null) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getVisionData(), clientId);
+            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getVisionData(), clientId, screeningResultDataVO.getUpdateTime());
         }
         if (screeningResultDataVO.getBiometricData() != null) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getBiometricData(), clientId);
+            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getBiometricData(), clientId, screeningResultDataVO.getUpdateTime());
         }
         if (screeningResultDataVO.getPupilOptometryData() != null) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getPupilOptometryData(), clientId);
+            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getPupilOptometryData(), clientId, screeningResultDataVO.getUpdateTime());
         }
         if (screeningResultDataVO.getEyePressureData() != null) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getEyePressureData(), clientId);
+            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getEyePressureData(), clientId, screeningResultDataVO.getUpdateTime());
         }
         if (screeningResultDataVO.getOtherEyeDiseasesData() != null) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getOtherEyeDiseasesData(), clientId);
+            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getOtherEyeDiseasesData(), clientId, screeningResultDataVO.getUpdateTime());
         }
         if (screeningResultDataVO.getHeightAndWeightData() != null) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getHeightAndWeightData(), clientId);
+            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getHeightAndWeightData(), clientId, screeningResultDataVO.getUpdateTime());
         }
         if (screeningResultDataVO.getSaprodontiaData() != null) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getSaprodontiaData(), clientId);
+            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getSaprodontiaData(), clientId, screeningResultDataVO.getUpdateTime());
         }
         if (screeningResultDataVO.getSpineData() != null) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getSpineData(), clientId);
+            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getSpineData(), clientId, screeningResultDataVO.getUpdateTime());
         }
         if (screeningResultDataVO.getBloodPressureData() != null) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getBloodPressureData(), clientId);
+            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getBloodPressureData(), clientId, screeningResultDataVO.getUpdateTime());
         }
         if (screeningResultDataVO.getDiseasesHistoryData() != null) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getDiseasesHistoryData(), clientId);
+            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getDiseasesHistoryData(), clientId, screeningResultDataVO.getUpdateTime());
         }
         if (screeningResultDataVO.getPrivacyData() != null) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getPrivacyData(), clientId);
+            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getPrivacyData(), clientId, screeningResultDataVO.getUpdateTime());
         }
         return ApiResult.success();
     }

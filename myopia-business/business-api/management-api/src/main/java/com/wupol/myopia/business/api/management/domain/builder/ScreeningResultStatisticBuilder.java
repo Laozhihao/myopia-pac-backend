@@ -318,7 +318,7 @@ public class ScreeningResultStatisticBuilder {
 
         rescreenSituationDO.setRetestNum(rescreenNum).setRetestRatio(MathUtil.ratio(rescreenNum, validRescreenNum))
                 .setWearingGlassRetestNum(wearingGlassRescreenNum).setWearingGlassRetestRatio(MathUtil.ratio(wearingGlassRescreenNum, validRescreenNum))
-                .setWithoutGlassRetestNum(withoutGlassRescreenNum).setWithoutGlassRetestRatio(MathUtil.ratio(wearingGlassRescreenNum, validRescreenNum))
+                .setWithoutGlassRetestNum(withoutGlassRescreenNum).setWithoutGlassRetestRatio(MathUtil.ratio(withoutGlassRescreenNum, validRescreenNum))
                 .setErrorItemNum(errorItemNum)
                 .setRescreeningItemNum(wearingGlassRescreenItemNum+withoutGlassRescreenItemNum)
                 .setIncidence(incidence);

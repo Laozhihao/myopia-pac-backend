@@ -1075,9 +1075,9 @@ public class StatUtil {
      * @return
      */
     public static int calculateErrorNum(VisionScreeningResult currentVisionScreeningResult,VisionScreeningResult anotherVisionScreeningResult,Boolean isWearingGlasses) {
-        int errorNum = getNakedVisionErrorNum(currentVisionScreeningResult,anotherVisionScreeningResult) + getCorrectedVisionErrorNum(currentVisionScreeningResult,anotherVisionScreeningResult);
+        int errorNum = getNakedVisionErrorNum(currentVisionScreeningResult,anotherVisionScreeningResult) + getSeErrorNum(currentVisionScreeningResult,anotherVisionScreeningResult);
         if (Objects.nonNull(isWearingGlasses) && isWearingGlasses) {
-            errorNum += getSeErrorNum(currentVisionScreeningResult,anotherVisionScreeningResult);
+            errorNum += getCorrectedVisionErrorNum(currentVisionScreeningResult,anotherVisionScreeningResult);
         }
         if (Objects.equals(1,currentVisionScreeningResult.getScreeningType())){
             errorNum += getHeightAndWeight(currentVisionScreeningResult,anotherVisionScreeningResult);
