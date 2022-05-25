@@ -1,4 +1,5 @@
 package com.wupol.myopia.business.core.screening.flow.util;
+import com.alibaba.fastjson.JSON;
 import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.constant.ReScreenConstant;
@@ -65,6 +66,8 @@ public class ReScreenCardUtil {
         commonDiseases.setUpdateTime(EyeDataUtil.updateTime(reScreenResult));
 
         reScreeningResultCard.setCommonDiseases(commonDiseases);
+
+        System.out.println("--------------------reScreeningResultCard-------------"+ JSON.toJSONString(reScreeningResultCard));
         return reScreeningResultCard;
     }
     /**
