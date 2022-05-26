@@ -1,6 +1,7 @@
 package com.wupol.myopia.migrate.service.migrate;
 
 import com.alibaba.fastjson.JSONObject;
+import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
 import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
@@ -101,7 +102,7 @@ public class ScreeningDataService {
                 .setRightCorrectedVision(getBigDecimalValue(sysStudentEye.getRJzsl()))
                 .setGlassesType(getGlassesType(sysStudentEye.getGlasses()))
                 .setIsCooperative(0);
-        visionScreeningBizService.saveOrUpdateStudentScreenData(visionDataDTO);
+        visionScreeningBizService.saveOrUpdateStudentScreenData(visionDataDTO, String.valueOf(SystemCode.SCREENING_CLIENT.getCode()));
     }
 
     /**
@@ -130,7 +131,7 @@ public class ScreeningDataService {
                 .setRSph(getBigDecimalValue(sysStudentEye.getRSph()))
                 .setRCyl(getBigDecimalValue(sysStudentEye.getRCyl()))
                 .setRAxial(getBigDecimalValue(sysStudentEye.getRAxial()));
-        visionScreeningBizService.saveOrUpdateStudentScreenData(computerOptometryDTO);
+        visionScreeningBizService.saveOrUpdateStudentScreenData(computerOptometryDTO, String.valueOf(SystemCode.SCREENING_CLIENT.getCode()));
     }
 
     /**
@@ -156,7 +157,7 @@ public class ScreeningDataService {
                 .setRSph(getBigDecimalValue(sysStudentEye.getRSph()))
                 .setRCyl(getBigDecimalValue(sysStudentEye.getRCyl()))
                 .setRAxial(getBigDecimalValue(sysStudentEye.getRAxial()));
-        visionScreeningBizService.saveOrUpdateStudentScreenData(computerOptometryDTO);
+        visionScreeningBizService.saveOrUpdateStudentScreenData(computerOptometryDTO, String.valueOf(SystemCode.SCREENING_CLIENT.getCode()));
     }
 
     /**
@@ -181,7 +182,7 @@ public class ScreeningDataService {
                 .setIsState(0);
         otherEyeDiseasesDTO.setLDiseaseStr(sysStudentEye.getLDisease())
                 .setRDiseaseStr(sysStudentEye.getRDisease());
-        visionScreeningBizService.saveOrUpdateStudentScreenData(otherEyeDiseasesDTO);
+        visionScreeningBizService.saveOrUpdateStudentScreenData(otherEyeDiseasesDTO, String.valueOf(SystemCode.SCREENING_CLIENT.getCode()));
     }
 
     /**
