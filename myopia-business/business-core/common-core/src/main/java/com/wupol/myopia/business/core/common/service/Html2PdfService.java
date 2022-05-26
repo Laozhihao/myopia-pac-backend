@@ -68,6 +68,7 @@ public class Html2PdfService {
      **/
     public String convertHtmlToPdf(String url, String fileName) {
         PdfResponseDTO pdfResponse = syncGeneratorPDF(url, fileName);
+        log.info("【请求node-js服务】响应：{}", JSONObject.toJSONString(pdfResponse));
         Assert.isTrue(pdfResponse.getStatus(), "转换html为PDF异常：" + JSONObject.toJSONString(pdfResponse));
         return pdfResponse.getUrl();
     }
@@ -92,8 +93,9 @@ public class Html2PdfService {
      * @return PdfResponseDTO
      */
     public PdfResponseDTO syncGeneratorPDF(String url, String fileName, String uuid) {
-        log.info("同步生成PDF，url = {}，fileName = {}，uuid = {}", url, fileName, uuid);
+        log.info("【同步生成PDF】url = {}，fileName = {}，uuid = {}", url, fileName, uuid);
         HttpEntity<String> request = getStringHttpEntity(url, fileName, uuid);
+        log.info("【请求node-js服务】：{}", JSONObject.toJSONString(request));
         return restTemplate.postForObject(syncRequestUrl, request, PdfResponseDTO.class);
     }
 
