@@ -11,6 +11,8 @@ import com.wupol.myopia.business.api.management.domain.vo.report.DistrictHeightA
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
+import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import lombok.Data;
 import org.springframework.stereotype.Service;
@@ -112,12 +114,12 @@ public class HeightAndWeightMonitorService {
     private void getHeightAndWeightNum(Integer gender, List<StatConclusion> statConclusionList,List<HeightAndWeightNum> heightAndWeightSexList){
         HeightAndWeightNum build = new HeightAndWeightNum()
                 .setGender(gender)
-                .build(statConclusionList);
+                .build(statConclusionList).ratioNotSymbol().ratio();
         heightAndWeightSexList.add(build);
     }
     private <K>void getHeightAndWeightNum(K key, List<StatConclusion> statConclusionList,Map<K, HeightAndWeightNum> heightAndWeightNumMap){
         HeightAndWeightNum build = new HeightAndWeightNum()
-                .build(statConclusionList);
+                .build(statConclusionList).ratioNotSymbol().ratio();
         heightAndWeightNumMap.put(key,build);
     }
 
@@ -288,17 +290,20 @@ public class HeightAndWeightMonitorService {
 
         Map<String, List<StatConclusion>> gradeCodeMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
         Map<String, HeightAndWeightNum> heightAndWeightNumMap = Maps.newHashMap();
-        gradeCodeMap.forEach((gradeCode,list)->getHeightAndWeightNum(gradeCode,list,heightAndWeightNumMap));
+        gradeCodeMap.forEach((gradeCode,list)->{
+            GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(gradeCode);
+            getHeightAndWeightNum(gradeCodeEnum.getName(),list,heightAndWeightNumMap);
+        });
 
-        ThreeTuple<String, Integer,Integer> overweight = getMaxMap(heightAndWeightNumMap, HeightAndWeightNum::getOverweightNum,HeightAndWeightNum::getValidScreeningNum);
-        ThreeTuple<String, Integer,Integer> obese = getMaxMap(heightAndWeightNumMap, HeightAndWeightNum::getObeseNum,HeightAndWeightNum::getValidScreeningNum);
-        ThreeTuple<String, Integer,Integer> stunting = getMaxMap(heightAndWeightNumMap,HeightAndWeightNum::getStuntingNum,HeightAndWeightNum::getValidScreeningNum);
-        ThreeTuple<String, Integer,Integer> malnourished = getMaxMap(heightAndWeightNumMap,HeightAndWeightNum::getMalnourishedNum,HeightAndWeightNum::getValidScreeningNum);
+        TwoTuple<String, String> overweight = getMaxMap(heightAndWeightNumMap, HeightAndWeightNum::getOverweightNum,HeightAndWeightNum::getOverweightRatioStr);
+        TwoTuple<String, String> obese = getMaxMap(heightAndWeightNumMap, HeightAndWeightNum::getObeseNum,HeightAndWeightNum::getObeseRatioStr);
+        TwoTuple<String, String> stunting = getMaxMap(heightAndWeightNumMap,HeightAndWeightNum::getStuntingNum,HeightAndWeightNum::getStuntingRatioStr);
+        TwoTuple<String, String> malnourished = getMaxMap(heightAndWeightNumMap,HeightAndWeightNum::getMalnourishedNum,HeightAndWeightNum::getMalnourishedRatioStr);
 
-        heightAndWeightSchoolAge.setMaxOverweightRatio(new DistrictHeightAndWeightMonitorVO.GradeRatio(overweight.getFirst(),MathUtil.ratio(overweight.getSecond(),overweight.getThird())));
-        heightAndWeightSchoolAge.setMaxObeseRatio(new DistrictHeightAndWeightMonitorVO.GradeRatio(obese.getFirst(),MathUtil.ratio(obese.getSecond(),overweight.getThird())));
-        heightAndWeightSchoolAge.setMaxStuntingRatio(new DistrictHeightAndWeightMonitorVO.GradeRatio(stunting.getFirst(),MathUtil.ratio(stunting.getSecond(),overweight.getThird())));
-        heightAndWeightSchoolAge.setMaxMalnourishedRatio(new DistrictHeightAndWeightMonitorVO.GradeRatio(malnourished.getFirst(),MathUtil.ratio(malnourished.getSecond(),overweight.getThird())));
+        heightAndWeightSchoolAge.setMaxOverweightRatio(new DistrictHeightAndWeightMonitorVO.GradeRatio(overweight.getFirst(),overweight.getSecond()));
+        heightAndWeightSchoolAge.setMaxObeseRatio(new DistrictHeightAndWeightMonitorVO.GradeRatio(obese.getFirst(),obese.getSecond()));
+        heightAndWeightSchoolAge.setMaxStuntingRatio(new DistrictHeightAndWeightMonitorVO.GradeRatio(stunting.getFirst(),stunting.getSecond()));
+        heightAndWeightSchoolAge.setMaxMalnourishedRatio(new DistrictHeightAndWeightMonitorVO.GradeRatio(malnourished.getFirst(),malnourished.getSecond()));
 
         return heightAndWeightSchoolAge;
     }
@@ -306,11 +311,11 @@ public class HeightAndWeightMonitorService {
     /**
      * 获取map中Value最大值及对应的Key
      */
-    private <T,K>ThreeTuple<K,Integer,Integer> getMaxMap(Map<K, T> map, Function<T,Integer> function ,Function<T,Integer> mapper){
+    private <T,K>TwoTuple<K,String> getMaxMap(Map<K, T> map, Function<T,Integer> function ,Function<T,String> mapper){
         List<Map.Entry<K, T>> entries = Lists.newArrayList(map.entrySet());
         CollectionUtil.sort(entries,((o1, o2) -> Optional.ofNullable(o2.getValue()).map(function).orElse(0)- Optional.ofNullable(o1.getValue()).map(function).orElse(0)));
         Map.Entry<K, T> entry = entries.get(0);
-        return new ThreeTuple<>(entry.getKey(),Optional.ofNullable(entry.getValue()).map(function).orElse(0),Optional.ofNullable(entry.getValue()).map(mapper).orElse(0));
+        return TwoTuple.of(entry.getKey(),Optional.ofNullable(entry.getValue()).map(mapper).orElse(null));
     }
 
     /**
@@ -427,10 +432,10 @@ public class HeightAndWeightMonitorService {
         Map<Integer, HeightAndWeightNum> heightAndWeightNumMap = Maps.newHashMap();
         ageMap.forEach((age,list)->getHeightAndWeightNum(age,list,heightAndWeightNumMap));
 
-        DistrictHeightAndWeightMonitorVO.AgeRatio overweight = getAgeRatio(heightAndWeightNumMap, HeightAndWeightNum::getOverweightNum,HeightAndWeightNum::getValidScreeningNum);
-        DistrictHeightAndWeightMonitorVO.AgeRatio obese = getAgeRatio(heightAndWeightNumMap, HeightAndWeightNum::getObeseNum,HeightAndWeightNum::getValidScreeningNum);
-        DistrictHeightAndWeightMonitorVO.AgeRatio stunting = getAgeRatio(heightAndWeightNumMap, HeightAndWeightNum::getStuntingNum,HeightAndWeightNum::getValidScreeningNum);
-        DistrictHeightAndWeightMonitorVO.AgeRatio malnourished = getAgeRatio(heightAndWeightNumMap, HeightAndWeightNum::getMalnourishedNum,HeightAndWeightNum::getValidScreeningNum);
+        DistrictHeightAndWeightMonitorVO.AgeRatio overweight = getAgeRatio(heightAndWeightNumMap, HeightAndWeightNum::getOverweightNum,HeightAndWeightNum::getOverweightRatioStr);
+        DistrictHeightAndWeightMonitorVO.AgeRatio obese = getAgeRatio(heightAndWeightNumMap, HeightAndWeightNum::getObeseNum,HeightAndWeightNum::getObeseRatioStr);
+        DistrictHeightAndWeightMonitorVO.AgeRatio stunting = getAgeRatio(heightAndWeightNumMap, HeightAndWeightNum::getStuntingNum,HeightAndWeightNum::getStuntingRatioStr);
+        DistrictHeightAndWeightMonitorVO.AgeRatio malnourished = getAgeRatio(heightAndWeightNumMap, HeightAndWeightNum::getMalnourishedNum,HeightAndWeightNum::getMalnourishedRatioStr);
 
         DistrictHeightAndWeightMonitorVO.HeightAndWeightAgeVariableVO ageVariableVO = new DistrictHeightAndWeightMonitorVO.HeightAndWeightAgeVariableVO();
         ageVariableVO.setOverweightRatio(overweight);
@@ -441,14 +446,14 @@ public class HeightAndWeightMonitorService {
         ageVO.setHeightAndWeightAgeVariableVO(ageVariableVO);
     }
 
-    private DistrictHeightAndWeightMonitorVO.AgeRatio getAgeRatio(Map<Integer, HeightAndWeightNum> heightAndWeightNumMap, Function<HeightAndWeightNum,Integer> function,Function<HeightAndWeightNum,Integer> mapper) {
-        ThreeTuple<Integer, Integer,Integer> maxTuple = getMaxMap(heightAndWeightNumMap, function,mapper);
-        ThreeTuple<Integer, Integer,Integer> minTuple = getMinMap(heightAndWeightNumMap, function,mapper);
+    private DistrictHeightAndWeightMonitorVO.AgeRatio getAgeRatio(Map<Integer, HeightAndWeightNum> heightAndWeightNumMap, Function<HeightAndWeightNum,Integer> function,Function<HeightAndWeightNum,String> mapper) {
+        TwoTuple<Integer, String> maxTuple = getMaxMap(heightAndWeightNumMap, function,mapper);
+        TwoTuple<Integer, String> minTuple = getMinMap(heightAndWeightNumMap, function,mapper);
         DistrictHeightAndWeightMonitorVO.AgeRatio ageRatio = new DistrictHeightAndWeightMonitorVO.AgeRatio();
         ageRatio.setMaxAge(AgeSegmentEnum.get(maxTuple.getFirst()).getDesc());
         ageRatio.setMinAge(AgeSegmentEnum.get(minTuple.getFirst()).getDesc());
-        ageRatio.setMaxRatio(MathUtil.ratio(maxTuple.getSecond(),maxTuple.getThird()));
-        ageRatio.setMinRatio(MathUtil.ratio(minTuple.getSecond(),minTuple.getThird()));
+        ageRatio.setMaxRatio(maxTuple.getSecond());
+        ageRatio.setMinRatio(minTuple.getSecond());
         return ageRatio;
     }
 
@@ -475,11 +480,11 @@ public class HeightAndWeightMonitorService {
     /**
      * 获取map中Value最小值及对应的Key
      */
-    private <T,K>ThreeTuple<K,Integer,Integer> getMinMap(Map<K, T> map, Function<T,Integer> function,Function<T,Integer> mapper){
+    private <T,K>TwoTuple<K,String> getMinMap(Map<K, T> map, Function<T,Integer> function,Function<T,String> mapper){
         List<Map.Entry<K, T>> entries = Lists.newArrayList(map.entrySet());
         CollectionUtil.sort(entries,Comparator.comparingInt(o -> Optional.ofNullable(o.getValue()).map(function).orElse(0)));
         Map.Entry<K, T> entry = entries.get(0);
-        return new ThreeTuple<>(entry.getKey(),Optional.ofNullable(entry.getValue()).map(function).orElse(0),Optional.ofNullable(entry.getValue()).map(mapper).orElse(0));
+        return TwoTuple.of(entry.getKey(),Optional.ofNullable(entry.getValue()).map(mapper).orElse(null));
     }
 
     /**

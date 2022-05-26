@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.api.management.domain.vo.report;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;

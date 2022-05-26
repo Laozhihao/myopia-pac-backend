@@ -36,6 +36,9 @@ public class MathUtil {
      * 占比 （带%）
      */
     public String ratio(Integer numerator, Integer denominator) {
+        if (ObjectsUtil.allNull(numerator,denominator)){
+            return null;
+        }
         DecimalFormat df = new DecimalFormat("0.00%");
         return ratio(numerator,denominator,df);
     }
@@ -50,6 +53,9 @@ public class MathUtil {
      * 占比 （不带%）
      */
     public BigDecimal ratioNotSymbol(Integer numerator,Integer denominator){
+        if(ObjectsUtil.allNull(numerator,denominator)){
+            return null;
+        }
         return ratioNotSymbol(new BigDecimal(numerator),new BigDecimal(denominator));
     }
     public BigDecimal ratioNotSymbol(String numerator,String denominator){

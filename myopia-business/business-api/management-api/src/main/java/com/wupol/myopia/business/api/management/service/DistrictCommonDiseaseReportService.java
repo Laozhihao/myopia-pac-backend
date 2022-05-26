@@ -27,9 +27,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
@@ -72,12 +73,7 @@ public class DistrictCommonDiseaseReportService {
     public DistrictCommonDiseaseReportVO districtCommonDiseaseReport(Integer districtId,Integer noticeId){
         DistrictCommonDiseaseReportVO districtCommonDiseaseReportVO = new DistrictCommonDiseaseReportVO();
 
-        Set<Integer> districtIds = Sets.newHashSet();
-        try {
-            districtIds = districtService.getChildDistrictIdsByDistrictId(districtId);
-        } catch (IOException e) {
-            log.error("获取行政区域失败");
-        }
+        List<Integer> districtIds = districtService.getSpecificDistrictTreeAllDistrictIds(districtId);
         districtIds.add(districtId);
 
         List<StatConclusion> statConclusionList = getStatConclusionList(noticeId,Lists.newArrayList(districtIds),Boolean.TRUE,Boolean.FALSE);
@@ -134,13 +130,13 @@ public class DistrictCommonDiseaseReportService {
                 DateUtil.format(screeningNotice.getEndTime(), format));
         String year = CollectionUtil.join(years, "-");
         if (years.size()==1){
-            Set<String> yearPeriod= Sets.newHashSet(DateUtil.format(screeningNotice.getStartTime(), DatePattern.CHINESE_DATE_PATTERN),
+            List<String> yearPeriod= Lists.newArrayList(DateUtil.format(screeningNotice.getStartTime(), DatePattern.CHINESE_DATE_PATTERN),
                     DateUtil.format(screeningNotice.getEndTime(), "MM月dd日"));
             String screeningTimePeriod = CollectionUtil.join(yearPeriod, StrUtil.DASHED);
             globalVariableVO.setScreeningTimePeriod(screeningTimePeriod);
             globalVariableVO.setDataYear(year);
         }else {
-            Set<String> yearPeriod= Sets.newHashSet(DateUtil.format(screeningNotice.getStartTime(), DatePattern.CHINESE_DATE_PATTERN),
+            List<String> yearPeriod= Lists.newArrayList(DateUtil.format(screeningNotice.getStartTime(), DatePattern.CHINESE_DATE_PATTERN),
                     DateUtil.format(screeningNotice.getEndTime(), DatePattern.CHINESE_DATE_PATTERN));
             String screeningTimePeriod = CollectionUtil.join(yearPeriod, StrUtil.DASHED);
             globalVariableVO.setScreeningTimePeriod(screeningTimePeriod);
@@ -156,6 +152,7 @@ public class DistrictCommonDiseaseReportService {
         districtCommonDiseaseReportVO.setGlobalVariableVO(globalVariableVO);
     }
 
+
     /**
      * 学龄及学校数
      */
@@ -164,27 +161,33 @@ public class DistrictCommonDiseaseReportService {
         List<String> itemList= Lists.newArrayList();
         List<ScreeningPlanSchoolStudent> primary = planSchoolStudentMap.get(SchoolAge.PRIMARY.code);
         if (CollectionUtil.isNotEmpty(primary)){
-            itemList.add(String.format(format,primary.size(),SchoolAge.PRIMARY.desc));
+            long count = primary.stream().map(ScreeningPlanSchoolStudent::getSchoolId).filter(Objects::nonNull).distinct().count();
+            itemList.add(String.format(format,count,SchoolAge.PRIMARY.desc));
         }
         List<ScreeningPlanSchoolStudent> junior = planSchoolStudentMap.get(SchoolAge.JUNIOR.code);
         if (CollectionUtil.isNotEmpty(junior)){
-            itemList.add(String.format(format,junior.size(),SchoolAge.JUNIOR.desc));
+            long count = junior.stream().map(ScreeningPlanSchoolStudent::getSchoolId).filter(Objects::nonNull).distinct().count();
+            itemList.add(String.format(format,count,SchoolAge.JUNIOR.desc));
         }
         List<ScreeningPlanSchoolStudent> high = planSchoolStudentMap.get(SchoolAge.HIGH.code);
         if (CollectionUtil.isNotEmpty(high)){
-            itemList.add(String.format(format,high.size(),SchoolAge.HIGH.desc));
+            long count = high.stream().map(ScreeningPlanSchoolStudent::getSchoolId).filter(Objects::nonNull).distinct().count();
+            itemList.add(String.format(format,count,SchoolAge.HIGH.desc));
         }
         List<ScreeningPlanSchoolStudent> vocationalHigh = planSchoolStudentMap.get(SchoolAge.VOCATIONAL_HIGH.code);
         if (CollectionUtil.isNotEmpty(vocationalHigh)){
-            itemList.add(String.format(format,vocationalHigh.size(),SchoolAge.VOCATIONAL_HIGH.desc));
+            long count = vocationalHigh.stream().map(ScreeningPlanSchoolStudent::getSchoolId).filter(Objects::nonNull).distinct().count();
+            itemList.add(String.format(format,count,"职高"));
         }
         List<ScreeningPlanSchoolStudent> university = planSchoolStudentMap.get(SchoolAge.UNIVERSITY.code);
         if (CollectionUtil.isNotEmpty(university)){
-            itemList.add(String.format(format,university.size(),SchoolAge.UNIVERSITY.desc));
+            long count = university.stream().map(ScreeningPlanSchoolStudent::getSchoolId).filter(Objects::nonNull).distinct().count();
+            itemList.add(String.format(format,count,"综合性"+SchoolAge.UNIVERSITY.desc));
         }
         List<ScreeningPlanSchoolStudent> kindergarten = planSchoolStudentMap.get(SchoolAge.KINDERGARTEN.code);
         if (CollectionUtil.isNotEmpty(kindergarten)){
-            itemList.add(String.format(format,kindergarten.size(),SchoolAge.KINDERGARTEN.desc));
+            long count = kindergarten.stream().map(ScreeningPlanSchoolStudent::getSchoolId).filter(Objects::nonNull).distinct().count();
+            itemList.add(String.format(format,count,SchoolAge.KINDERGARTEN.desc));
         }
 
         if (CollectionUtil.isNotEmpty(itemList)){
@@ -230,6 +233,7 @@ public class DistrictCommonDiseaseReportService {
         getKindergartenVO(kindergartenList,validScreeningNum,visionAnalysisVO);
         getPrimarySchoolAndAboveVO(primarySchoolAndAboveList,validScreeningNum,visionAnalysisVO);
 
+        districtCommonDiseaseReportVO.setVisionAnalysisVO(visionAnalysisVO);
     }
 
     private void getKindergartenVO(List<StatConclusion> kindergartenList,int validScreeningNum,DistrictCommonDiseaseReportVO.VisionAnalysisVO visionAnalysisVO){
@@ -292,60 +296,48 @@ public class DistrictCommonDiseaseReportService {
     private void setSchoolAge(int validScreeningNum, DistrictCommonDiseaseReportVO.PrimarySchoolAndAboveVO primarySchoolAndAboveVO, Map<Integer, List<StatConclusion>> schoolMap) {
         //小学
         List<StatConclusion> primaryList = schoolMap.get(SchoolAge.PRIMARY.code);
-        if (CollectionUtil.isNotEmpty(primaryList)){
-            DistrictCommonDiseaseReportVO.MyopiaItemVO myopiaItemVO=new DistrictCommonDiseaseReportVO.MyopiaItemVO();
-            myopiaItemVO.setSchoolAge(SchoolAge.PRIMARY.desc);
-            myopiaItemVO.setMyopiaRatio(MathUtil.ratioNotSymbol(primaryList.size(),validScreeningNum));
-            primarySchoolAndAboveVO.setPrimarySchool(myopiaItemVO);
-        }
+        getMyopiaItemVO(primaryList,SchoolAge.PRIMARY.desc,validScreeningNum,primarySchoolAndAboveVO::setPrimarySchool);
+
         //初中
         List<StatConclusion> juniorList = schoolMap.get(SchoolAge.JUNIOR.code);
-        if (CollectionUtil.isNotEmpty(juniorList)){
-            DistrictCommonDiseaseReportVO.MyopiaItemVO myopiaItemVO=new DistrictCommonDiseaseReportVO.MyopiaItemVO();
-            myopiaItemVO.setSchoolAge(SchoolAge.JUNIOR.desc);
-            myopiaItemVO.setMyopiaRatio(MathUtil.ratioNotSymbol(juniorList.size(),validScreeningNum));
-            primarySchoolAndAboveVO.setJuniorHighSchool(myopiaItemVO);
-        }
+        getMyopiaItemVO(juniorList,SchoolAge.JUNIOR.desc,validScreeningNum,primarySchoolAndAboveVO::setJuniorHighSchool);
 
         //高中 （普高+职高）
-        List<StatConclusion> highList = schoolMap.get(SchoolAge.HIGH.code);
+        List<StatConclusion> normalHighList = schoolMap.get(SchoolAge.HIGH.code);
         List<StatConclusion> vocationalHighList = schoolMap.get(SchoolAge.VOCATIONAL_HIGH.code);
 
         if (CollectionUtil.isNotEmpty(vocationalHighList)){
-
-            DistrictCommonDiseaseReportVO.MyopiaItemVO high=new DistrictCommonDiseaseReportVO.MyopiaItemVO();
-            high.setSchoolAge(SchoolAge.HIGH.desc);
-            high.setMyopiaRatio(MathUtil.ratioNotSymbol(Optional.ofNullable(highList).map(List::size).orElse(0)+vocationalHighList.size(),validScreeningNum));
-            primarySchoolAndAboveVO.setHighSchool(high);
-
-            DistrictCommonDiseaseReportVO.MyopiaItemVO normalHigh=new DistrictCommonDiseaseReportVO.MyopiaItemVO();
-            normalHigh.setSchoolAge("普通高中");
-            if (Objects.nonNull(highList)){
-                normalHigh.setMyopiaRatio(MathUtil.ratioNotSymbol(highList.size(),validScreeningNum));
+            List<StatConclusion> highList=Lists.newArrayList();
+            if (Objects.nonNull(normalHighList)){
+                highList.addAll(normalHighList);
+            }else {
+                normalHighList=Lists.newArrayList();
             }
-            primarySchoolAndAboveVO.setNormalHighSchool(normalHigh);
+            highList.addAll(vocationalHighList);
 
-            DistrictCommonDiseaseReportVO.MyopiaItemVO vocationalHigh=new DistrictCommonDiseaseReportVO.MyopiaItemVO();
-            vocationalHigh.setSchoolAge(SchoolAge.VOCATIONAL_HIGH.desc);
-            vocationalHigh.setMyopiaRatio(MathUtil.ratioNotSymbol(vocationalHighList.size(),validScreeningNum));
-            primarySchoolAndAboveVO.setVocationalHighSchool(vocationalHigh);
-
+            getMyopiaItemVO(highList,SchoolAge.HIGH.desc,validScreeningNum,primarySchoolAndAboveVO::setHighSchool);
+            getMyopiaItemVO(normalHighList,"普通高中",validScreeningNum,primarySchoolAndAboveVO::setNormalHighSchool);
+            getMyopiaItemVO(vocationalHighList,SchoolAge.VOCATIONAL_HIGH.desc,validScreeningNum,primarySchoolAndAboveVO::setVocationalHighSchool);
 
         }else {
-            DistrictCommonDiseaseReportVO.MyopiaItemVO high=new DistrictCommonDiseaseReportVO.MyopiaItemVO();
-            high.setSchoolAge(SchoolAge.HIGH.desc);
-            high.setMyopiaRatio(MathUtil.ratioNotSymbol(highList.size(),validScreeningNum));
-            primarySchoolAndAboveVO.setHighSchool(high);
+            getMyopiaItemVO(normalHighList,SchoolAge.HIGH.desc,validScreeningNum,primarySchoolAndAboveVO::setHighSchool);
         }
 
         //大学
         List<StatConclusion> universityList = schoolMap.get(SchoolAge.UNIVERSITY.code);
-        if (CollectionUtil.isNotEmpty(universityList)){
-            DistrictCommonDiseaseReportVO.MyopiaItemVO myopiaItemVO=new DistrictCommonDiseaseReportVO.MyopiaItemVO();
-            myopiaItemVO.setSchoolAge(SchoolAge.UNIVERSITY.desc);
-            myopiaItemVO.setMyopiaRatio(MathUtil.ratioNotSymbol(universityList.size(),validScreeningNum));
-            primarySchoolAndAboveVO.setUniversity(myopiaItemVO);
+        getMyopiaItemVO(universityList,SchoolAge.UNIVERSITY.desc,validScreeningNum,primarySchoolAndAboveVO::setUniversity);
+
+    }
+
+    private void getMyopiaItemVO(List<StatConclusion> statConclusionList,String schoolAge,Integer validScreeningNum,
+                                 Consumer<DistrictCommonDiseaseReportVO.MyopiaItemVO> consumer){
+        if (CollectionUtil.isEmpty(statConclusionList)){
+            return;
         }
+        DistrictCommonDiseaseReportVO.MyopiaItemVO myopiaItemVO=new DistrictCommonDiseaseReportVO.MyopiaItemVO();
+        myopiaItemVO.setSchoolAge(schoolAge);
+        myopiaItemVO.setMyopiaRatio(MathUtil.ratioNotSymbol(statConclusionList.size(),validScreeningNum));
+        Optional.of(myopiaItemVO).ifPresent(consumer);
     }
 
     private List<StatConclusion> getStatConclusionList(Integer noticeId,List<Integer> districtIds,Boolean isValid,Boolean isRescreen){
@@ -402,10 +394,15 @@ public class DistrictCommonDiseaseReportService {
         }
         DistrictCommonDiseasesAnalysisVO.CommonDiseasesAnalysisVariableVO commonDiseasesAnalysisVariableVO = new DistrictCommonDiseasesAnalysisVO.CommonDiseasesAnalysisVariableVO();
 
+        int abnormalSpineCurvatureNum = (int)statConclusionList.stream()
+                .map(StatConclusion::getIsSpinalCurvature)
+                .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
+
         getSaprodontiaVO(statConclusionList,commonDiseasesAnalysisVariableVO);
         getHeightAndWeightVO(statConclusionList,commonDiseasesAnalysisVariableVO);
         getBloodPressureAndSpinalCurvatureVO(statConclusionList,commonDiseasesAnalysisVariableVO);
         commonDiseasesAnalysisVariableVO.setValidScreeningNum(statConclusionList.size());
+        commonDiseasesAnalysisVariableVO.setAbnormalSpineCurvatureNum(abnormalSpineCurvatureNum);
 
         districtCommonDiseasesAnalysisVO.setCommonDiseasesAnalysisVariableVO(commonDiseasesAnalysisVariableVO);
 
@@ -414,97 +411,293 @@ public class DistrictCommonDiseaseReportService {
     /**
      * 常见病分析变量-龋齿数据
      */
-    private void getSaprodontiaVO(List<StatConclusion> primaryAndAboveStatConclusionList, DistrictCommonDiseasesAnalysisVO.CommonDiseasesAnalysisVariableVO commonDiseasesAnalysisVariableVO) {
-        if (CollectionUtil.isEmpty(primaryAndAboveStatConclusionList)){
+    private void getSaprodontiaVO(List<StatConclusion> statConclusionList, DistrictCommonDiseasesAnalysisVO.CommonDiseasesAnalysisVariableVO commonDiseasesAnalysisVariableVO) {
+        if (CollectionUtil.isEmpty(statConclusionList)){
             return;
         }
-        int validScreeningNum = primaryAndAboveStatConclusionList.size();
-        DistrictCommonDiseasesAnalysisVO.SaprodontiaVO saprodontiaVO = new DistrictCommonDiseasesAnalysisVO.SaprodontiaVO();
-
-        Predicate<StatConclusion> predicateTrue = sc -> Objects.equals(Boolean.TRUE, sc.getIsSaprodontiaLoss()) || Objects.equals(Boolean.TRUE, sc.getIsSaprodontiaRepair()) || Objects.equals(Boolean.TRUE, sc.getIsSaprodontia());
-        ToIntFunction<StatConclusion> totalFunction = sc -> Optional.ofNullable(sc.getSaprodontiaLossTeeth()).orElse(0) + Optional.ofNullable(sc.getSaprodontiaRepairTeeth()).orElse(0) + Optional.ofNullable(sc.getSaprodontiaTeeth()).orElse(0);
-
-        int dmftNum = primaryAndAboveStatConclusionList.stream().filter(Objects::nonNull)
-                .filter(predicateTrue)
-                .mapToInt(totalFunction).sum();
-
-        int saprodontiaNum = (int)primaryAndAboveStatConclusionList.stream()
-                .map(StatConclusion::getIsSaprodontia)
-                .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
-        int saprodontiaLossNum = (int)primaryAndAboveStatConclusionList.stream()
-                .map(StatConclusion::getIsSaprodontiaLoss)
-                .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
-        int saprodontiaRepairNum = (int)primaryAndAboveStatConclusionList.stream()
-                .map(StatConclusion::getIsSaprodontiaRepair)
-                .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
-        int saprodontiaLossAndRepairNum = (int)primaryAndAboveStatConclusionList.stream()
-                .filter(sc ->Objects.equals(Boolean.TRUE,sc.getIsSaprodontiaLoss()) || Objects.equals(Boolean.TRUE,sc.getIsSaprodontiaRepair())).count();
-
-        Predicate<StatConclusion> lossAndRepairPredicateTrue = sc -> Objects.equals(Boolean.TRUE, sc.getIsSaprodontiaLoss()) || Objects.equals(Boolean.TRUE, sc.getIsSaprodontiaRepair());
-        ToIntFunction<StatConclusion> lossAndRepairTotalFunction = sc -> Optional.ofNullable(sc.getSaprodontiaLossTeeth()).orElse(0) + Optional.ofNullable(sc.getSaprodontiaRepairTeeth()).orElse(0);
-
-        int lossAndRepairTeethNum = primaryAndAboveStatConclusionList.stream().filter(Objects::nonNull)
-                .filter(lossAndRepairPredicateTrue)
-                .mapToInt(lossAndRepairTotalFunction).sum();
-
-        saprodontiaVO.setDmftNum(dmftNum);
-        saprodontiaVO.setDmftRatio(MathUtil.num(dmftNum,validScreeningNum));
-        saprodontiaVO.setSaprodontiaNum(saprodontiaNum);
-        saprodontiaVO.setSaprodontiaRatio(MathUtil.ratio(saprodontiaNum,validScreeningNum));
-        saprodontiaVO.setSaprodontiaLossNum(saprodontiaLossNum);
-        saprodontiaVO.setSaprodontiaLossRatio(MathUtil.ratio(saprodontiaLossNum,validScreeningNum));
-        saprodontiaVO.setSaprodontiaRepairNum(saprodontiaRepairNum);
-        saprodontiaVO.setSaprodontiaRepairRatio(MathUtil.ratio(saprodontiaRepairNum,validScreeningNum));
-        saprodontiaVO.setSaprodontiaLossAndRepairNum(saprodontiaLossAndRepairNum);
-        saprodontiaVO.setSaprodontiaLossAndRepairRatio(MathUtil.ratio(saprodontiaLossAndRepairNum,validScreeningNum));
-        saprodontiaVO.setSaprodontiaLossAndRepairTeethNum(lossAndRepairTeethNum);
-        saprodontiaVO.setSaprodontiaLossAndRepairTeethRatio(MathUtil.ratio(lossAndRepairTeethNum,dmftNum));
+        CommonDiseasesNum commonDiseasesNum = new CommonDiseasesNum().build(statConclusionList).ratioNotSymbol();
+        DistrictCommonDiseasesAnalysisVO.SaprodontiaVO saprodontiaVO = buildSaprodontiaVO(commonDiseasesNum);
         commonDiseasesAnalysisVariableVO.setSaprodontiaVO(saprodontiaVO);
+    }
+
+    private DistrictCommonDiseasesAnalysisVO.SaprodontiaVO buildSaprodontiaVO(CommonDiseasesNum commonDiseasesNum){
+        DistrictCommonDiseasesAnalysisVO.SaprodontiaVO saprodontiaVO = new DistrictCommonDiseasesAnalysisVO.SaprodontiaVO();
+        saprodontiaVO.setDmftNum(commonDiseasesNum.dmftNum);
+        saprodontiaVO.setDmftRatio(commonDiseasesNum.dmftRatio);
+        saprodontiaVO.setSaprodontiaNum(commonDiseasesNum.saprodontiaNum);
+        saprodontiaVO.setSaprodontiaRatio(commonDiseasesNum.saprodontiaRatio);
+        saprodontiaVO.setSaprodontiaLossNum(commonDiseasesNum.saprodontiaLossNum);
+        saprodontiaVO.setSaprodontiaLossRatio(commonDiseasesNum.saprodontiaLossRatio);
+        saprodontiaVO.setSaprodontiaRepairNum(commonDiseasesNum.saprodontiaRepairNum);
+        saprodontiaVO.setSaprodontiaRepairRatio(commonDiseasesNum.saprodontiaRepairRatio);
+        saprodontiaVO.setSaprodontiaLossAndRepairNum(commonDiseasesNum.saprodontiaLossAndRepairNum);
+        saprodontiaVO.setSaprodontiaLossAndRepairRatio(commonDiseasesNum.saprodontiaLossAndRepairRatio);
+        saprodontiaVO.setSaprodontiaLossAndRepairTeethNum(commonDiseasesNum.saprodontiaLossAndRepairTeethNum);
+        saprodontiaVO.setSaprodontiaLossAndRepairTeethRatio(commonDiseasesNum.saprodontiaLossAndRepairTeethRatio);
+        return saprodontiaVO;
     }
 
     /**
      * 常见病分析变量-身高体重数据
      */
-    private void getHeightAndWeightVO(List<StatConclusion> primaryAndAboveStatConclusionList, DistrictCommonDiseasesAnalysisVO.CommonDiseasesAnalysisVariableVO commonDiseasesAnalysisVariableVO) {
-        if (CollectionUtil.isEmpty(primaryAndAboveStatConclusionList)){
+    private void getHeightAndWeightVO(List<StatConclusion> statConclusionList, DistrictCommonDiseasesAnalysisVO.CommonDiseasesAnalysisVariableVO commonDiseasesAnalysisVariableVO) {
+        if (CollectionUtil.isEmpty(statConclusionList)){
             return;
         }
-        int validScreeningNum = primaryAndAboveStatConclusionList.size();
-        DistrictCommonDiseasesAnalysisVO.HeightAndWeightVO heightAndWeightVO = new DistrictCommonDiseasesAnalysisVO.HeightAndWeightVO();
-        int overweightNum = (int)primaryAndAboveStatConclusionList.stream()
-                .map(StatConclusion::getIsOverweight)
-                .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
-        int obeseNum = (int)primaryAndAboveStatConclusionList.stream()
-                .map(StatConclusion::getIsObesity)
-                .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
 
-        heightAndWeightVO.setOverweightNum(overweightNum);
-        heightAndWeightVO.setOverweightRatio(MathUtil.ratioNotSymbol(overweightNum,validScreeningNum));
-        heightAndWeightVO.setObeseNum(obeseNum);
-        heightAndWeightVO.setObeseRatio(MathUtil.ratioNotSymbol(obeseNum,validScreeningNum));
+        CommonDiseasesNum commonDiseasesNum = new CommonDiseasesNum().build(statConclusionList).ratioNotSymbol();
+        DistrictCommonDiseasesAnalysisVO.HeightAndWeightVO heightAndWeightVO = buildHeightAndWeightVO(commonDiseasesNum);
         commonDiseasesAnalysisVariableVO.setHeightAndWeightVO(heightAndWeightVO);
+    }
+
+    private DistrictCommonDiseasesAnalysisVO.HeightAndWeightVO buildHeightAndWeightVO(CommonDiseasesNum commonDiseasesNum){
+        DistrictCommonDiseasesAnalysisVO.HeightAndWeightVO heightAndWeightVO = new DistrictCommonDiseasesAnalysisVO.HeightAndWeightVO();
+        heightAndWeightVO.setOverweightNum(commonDiseasesNum.overweightNum);
+        heightAndWeightVO.setOverweightRatio(commonDiseasesNum.overweightRatio);
+        heightAndWeightVO.setObeseNum(commonDiseasesNum.obeseNum);
+        heightAndWeightVO.setObeseRatio(commonDiseasesNum.obeseRatio);
+        return heightAndWeightVO;
     }
 
     /**
      * 常见病分析变量-血压和脊柱弯曲数据
      */
-    private void getBloodPressureAndSpinalCurvatureVO(List<StatConclusion> primaryAndAboveStatConclusionList, DistrictCommonDiseasesAnalysisVO.CommonDiseasesAnalysisVariableVO commonDiseasesAnalysisVariableVO) {
-        if (CollectionUtil.isEmpty(primaryAndAboveStatConclusionList)){
+    private void getBloodPressureAndSpinalCurvatureVO(List<StatConclusion> statConclusionList, DistrictCommonDiseasesAnalysisVO.CommonDiseasesAnalysisVariableVO commonDiseasesAnalysisVariableVO) {
+        if (CollectionUtil.isEmpty(statConclusionList)){
             return;
         }
-        int validScreeningNum = primaryAndAboveStatConclusionList.size();
-        DistrictCommonDiseasesAnalysisVO.BloodPressureAndSpinalCurvatureVO bloodPressureAndSpinalCurvatureVO = new DistrictCommonDiseasesAnalysisVO.BloodPressureAndSpinalCurvatureVO();
-        int abnormalSpineCurvatureNum = (int)primaryAndAboveStatConclusionList.stream()
-                .map(StatConclusion::getIsSpinalCurvature)
-                .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
-        int highBloodPressureNum = (int)primaryAndAboveStatConclusionList.stream()
-                .filter(sc->Objects.equals(Boolean.FALSE,sc.getIsNormalBloodPressure())).count();
-
-        bloodPressureAndSpinalCurvatureVO.setAbnormalSpineCurvatureNum(abnormalSpineCurvatureNum);
-        bloodPressureAndSpinalCurvatureVO.setAbnormalSpineCurvatureRatio(MathUtil.ratioNotSymbol(abnormalSpineCurvatureNum,validScreeningNum));
-        bloodPressureAndSpinalCurvatureVO.setHighBloodPressureNum(highBloodPressureNum);
-        bloodPressureAndSpinalCurvatureVO.setHighBloodPressureRatio(MathUtil.ratioNotSymbol(highBloodPressureNum,validScreeningNum));
+        CommonDiseasesNum commonDiseasesNum = new CommonDiseasesNum().build(statConclusionList).ratioNotSymbol();
+        DistrictCommonDiseasesAnalysisVO.BloodPressureAndSpinalCurvatureVO bloodPressureAndSpinalCurvatureVO = buildBloodPressureAndSpinalCurvatureVO(commonDiseasesNum);
         commonDiseasesAnalysisVariableVO.setBloodPressureAndSpinalCurvatureVO(bloodPressureAndSpinalCurvatureVO);
     }
 
+    private DistrictCommonDiseasesAnalysisVO.BloodPressureAndSpinalCurvatureVO buildBloodPressureAndSpinalCurvatureVO(CommonDiseasesNum commonDiseasesNum){
+        DistrictCommonDiseasesAnalysisVO.BloodPressureAndSpinalCurvatureVO bloodPressureAndSpinalCurvatureVO = new DistrictCommonDiseasesAnalysisVO.BloodPressureAndSpinalCurvatureVO();
+        bloodPressureAndSpinalCurvatureVO.setAbnormalSpineCurvatureNum(commonDiseasesNum.abnormalSpineCurvatureNum);
+        bloodPressureAndSpinalCurvatureVO.setAbnormalSpineCurvatureRatio(commonDiseasesNum.abnormalSpineCurvatureRatio);
+        bloodPressureAndSpinalCurvatureVO.setHighBloodPressureNum(commonDiseasesNum.highBloodPressureNum);
+        bloodPressureAndSpinalCurvatureVO.setHighBloodPressureRatio(commonDiseasesNum.highBloodPressureRatio);
+        return bloodPressureAndSpinalCurvatureVO;
+    }
+
+    private static class CommonDiseasesNum{
+        /**
+         * 筛查人数
+         */
+        private Integer validScreeningNum;
+        /**
+         * 龋失补牙数
+         */
+        private Integer dmftNum;
+
+        /**
+         * 龋均
+         */
+        private String dmftRatio;
+
+        /**
+         * 有龋人数
+         */
+        private Integer saprodontiaNum;
+
+        /**
+         * 龋失人数
+         */
+        private Integer saprodontiaLossNum;
+
+        /**
+         * 龋补人数
+         */
+        private Integer saprodontiaRepairNum;
+
+        /**
+         * 龋患（失、补）人数
+         */
+        private Integer saprodontiaLossAndRepairNum;
+
+        /**
+         * 龋患（失、补）牙数
+         */
+        private Integer saprodontiaLossAndRepairTeethNum;
+
+        /**
+         * 超重人数
+         */
+        private Integer overweightNum;
+
+        /**
+         * 肥胖人数
+         */
+        private Integer obeseNum;
+
+        /**
+         * 血压偏高人数
+         */
+        private Integer highBloodPressureNum;
+
+        /**
+         * 脊柱弯曲异常人数
+         */
+        private Integer abnormalSpineCurvatureNum;
+
+        // ============ 不带% ==============
+        /**
+         * 龋患率
+         */
+        private BigDecimal saprodontiaRatio;
+        /**
+         * 龋失率
+         */
+        private BigDecimal saprodontiaLossRatio;
+
+        /**
+         * 龋补率
+         */
+        private BigDecimal saprodontiaRepairRatio;
+        /**
+         * 龋患（失、补）率
+         */
+        private BigDecimal saprodontiaLossAndRepairRatio;
+
+        /**
+         * 龋患（失、补）构成比
+         */
+        private BigDecimal saprodontiaLossAndRepairTeethRatio;
+
+        /**
+         * 超重率
+         */
+        private BigDecimal overweightRatio;
+        /**
+         * 肥胖率
+         */
+        private BigDecimal obeseRatio;
+
+        /**
+         * 血压偏高率
+         */
+        private BigDecimal highBloodPressureRatio;
+
+        /**
+         * 脊柱弯曲异常率
+         */
+        private BigDecimal abnormalSpineCurvatureRatio;
+
+        public CommonDiseasesNum build(List<StatConclusion> statConclusionList){
+
+            if (CollectionUtil.isNotEmpty(statConclusionList)){
+                this.validScreeningNum = statConclusionList.size();
+            }
+
+            Predicate<StatConclusion> predicateTrue = sc -> Objects.equals(Boolean.TRUE, sc.getIsSaprodontiaLoss()) || Objects.equals(Boolean.TRUE, sc.getIsSaprodontiaRepair()) || Objects.equals(Boolean.TRUE, sc.getIsSaprodontia());
+            ToIntFunction<StatConclusion> totalFunction = sc -> Optional.ofNullable(sc.getSaprodontiaLossTeeth()).orElse(0) + Optional.ofNullable(sc.getSaprodontiaRepairTeeth()).orElse(0) + Optional.ofNullable(sc.getSaprodontiaTeeth()).orElse(0);
+
+            List<StatConclusion> dmftList = statConclusionList.stream().filter(Objects::nonNull).filter(predicateTrue).collect(Collectors.toList());
+            if (CollectionUtil.isNotEmpty(dmftList)){
+                this.dmftNum = dmftList.stream().mapToInt(totalFunction).sum();
+            }
+
+            Predicate<StatConclusion> lossAndRepairPredicateTrue = sc -> Objects.equals(Boolean.TRUE, sc.getIsSaprodontiaLoss()) || Objects.equals(Boolean.TRUE, sc.getIsSaprodontiaRepair());
+            ToIntFunction<StatConclusion> lossAndRepairTotalFunction = sc -> Optional.ofNullable(sc.getSaprodontiaLossTeeth()).orElse(0) + Optional.ofNullable(sc.getSaprodontiaRepairTeeth()).orElse(0);
+
+            List<StatConclusion> lossAndRepairTeethList = statConclusionList.stream().filter(Objects::nonNull).filter(lossAndRepairPredicateTrue).collect(Collectors.toList());
+            if (CollectionUtil.isNotEmpty(lossAndRepairTeethList)){
+                this.saprodontiaLossAndRepairTeethNum = lossAndRepairTeethList.stream().mapToInt(lossAndRepairTotalFunction).sum();
+            }
+
+            List<Boolean> saprodontiaList = getList(statConclusionList, StatConclusion::getIsSaprodontia);
+            if (CollectionUtil.isNotEmpty(saprodontiaList)){
+                this.saprodontiaNum = (int) saprodontiaList.stream().filter(Boolean::booleanValue).count();
+            }
+
+            List<Boolean> saprodontiaLossList = getList(statConclusionList, StatConclusion::getIsSaprodontiaLoss);
+            if (CollectionUtil.isNotEmpty(saprodontiaLossList)){
+                this.saprodontiaLossNum = (int) saprodontiaLossList.stream().filter(Boolean::booleanValue).count();
+            }
+
+            List<Boolean> saprodontiaRepairList = getList(statConclusionList, StatConclusion::getIsSaprodontiaRepair);
+            if (CollectionUtil.isNotEmpty(saprodontiaRepairList)){
+                this.saprodontiaRepairNum = (int) saprodontiaRepairList.stream().filter(Boolean::booleanValue).count();
+            }
+            List<StatConclusion> lossAndRepairList = statConclusionList.stream()
+                    .filter(sc -> Objects.equals(Boolean.TRUE, sc.getIsSaprodontiaLoss()) || Objects.equals(Boolean.TRUE, sc.getIsSaprodontiaRepair())).collect(Collectors.toList());
+            if (CollectionUtil.isNotEmpty(lossAndRepairList)){
+                this.saprodontiaLossAndRepairNum = lossAndRepairList.size();
+            }
+
+            List<Boolean> overweightList = getList(statConclusionList, StatConclusion::getIsOverweight);
+            if (CollectionUtil.isNotEmpty(overweightList)){
+                this.overweightNum = (int)overweightList.stream().filter(Boolean::booleanValue).count();
+            }
+
+            List<Boolean> obeseList = getList(statConclusionList, StatConclusion::getIsObesity);
+            if(CollectionUtil.isNotEmpty(obeseList)){
+                this.obeseNum = (int)obeseList.stream().filter(Boolean::booleanValue).count();
+            }
+
+            List<Boolean> abnormalSpineCurvatureList = getList(statConclusionList, StatConclusion::getIsObesity);
+            if(CollectionUtil.isNotEmpty(abnormalSpineCurvatureList)){
+                this.abnormalSpineCurvatureNum = (int)abnormalSpineCurvatureList.stream().filter(Boolean::booleanValue).count();
+            }
+
+            List<StatConclusion> highBloodPressureList = statConclusionList.stream().filter(sc->Objects.equals(Boolean.FALSE,sc.getIsNormalBloodPressure())).collect(Collectors.toList());
+            if(CollectionUtil.isNotEmpty(obeseList)){
+                this.highBloodPressureNum = highBloodPressureList.size();
+            }
+
+            return this;
+        }
+
+        private List<Boolean> getList(List<StatConclusion> statConclusionList, Function<StatConclusion,Boolean> function){
+            if (CollectionUtil.isEmpty(statConclusionList)){
+                return Lists.newArrayList();
+            }
+            return statConclusionList.stream().map(function).filter(Objects::nonNull).collect(Collectors.toList());
+        }
+
+        /**
+         * 不带%
+         */
+        public CommonDiseasesNum ratioNotSymbol(){
+
+            if (Objects.nonNull(dmftNum)){
+                this.dmftRatio = MathUtil.num(dmftNum,validScreeningNum);
+            }
+
+            if (Objects.nonNull(saprodontiaNum)){
+                this.saprodontiaRatio = MathUtil.ratioNotSymbol(saprodontiaNum,validScreeningNum);
+            }
+            if (Objects.nonNull(saprodontiaLossNum)){
+                this.saprodontiaLossRatio =MathUtil.ratioNotSymbol(saprodontiaLossNum,validScreeningNum);
+            }
+            if (Objects.nonNull(saprodontiaRepairNum)){
+                this.saprodontiaRepairRatio = MathUtil.ratioNotSymbol(saprodontiaRepairNum,validScreeningNum);
+            }
+            if (Objects.nonNull(saprodontiaLossAndRepairNum)){
+                this.saprodontiaLossAndRepairRatio = MathUtil.ratioNotSymbol(saprodontiaLossAndRepairNum,validScreeningNum);
+            }
+            if (Objects.nonNull(saprodontiaLossAndRepairTeethNum) && Objects.nonNull(dmftNum)){
+                this.saprodontiaLossAndRepairTeethRatio =MathUtil.ratioNotSymbol(saprodontiaLossAndRepairTeethNum,dmftNum);
+            }
+
+            if (Objects.nonNull(overweightNum)){
+                this.overweightRatio = MathUtil.ratioNotSymbol(overweightNum,validScreeningNum);
+            }
+            if (Objects.nonNull(obeseNum)){
+                this.obeseRatio = MathUtil.ratioNotSymbol(obeseNum,validScreeningNum);
+            }
+
+            if (Objects.nonNull(abnormalSpineCurvatureNum)){
+                this.abnormalSpineCurvatureRatio = MathUtil.ratioNotSymbol(abnormalSpineCurvatureNum,validScreeningNum);
+            }
+            if (Objects.nonNull(highBloodPressureNum)){
+                this.highBloodPressureRatio = MathUtil.ratioNotSymbol(highBloodPressureNum,validScreeningNum);
+            }
+
+            return this;
+        }
+
+
+
+    }
 }

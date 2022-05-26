@@ -60,21 +60,6 @@ public class DistrictSaprodontiaMonitorVO {
 
     }
 
-    @EqualsAndHashCode(callSuper = true)
-    @Data
-    @Accessors(chain = true)
-    public static class SaprodontiaSexNum extends SaprodontiaNum {
-        private Integer gender;
-
-    }
-    @Data
-    @Accessors(chain = true)
-    public static class SaprodontiaNum{
-        private Integer saprodontia;
-        private Integer saprodontiaLoss;
-        private Integer saprodontiaRepair;
-    }
-
 
     @Data
     public static class SaprodontiaSexVariableVO{

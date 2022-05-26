@@ -308,7 +308,7 @@ public class StatConclusion implements Serializable {
     private Integer screeningMyopia;
 
     /**
-     * 疾病数
+     * 疾病统计数
      */
     @TableField(updateStrategy = FieldStrategy.IGNORED,typeHandler = JacksonTypeHandler.class)
     private DiseaseNumDO diseaseNum;

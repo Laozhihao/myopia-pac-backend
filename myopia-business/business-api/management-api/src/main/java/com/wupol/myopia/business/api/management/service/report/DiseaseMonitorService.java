@@ -53,6 +53,9 @@ public class DiseaseMonitorService {
         DistrictDiseaseMonitorVO.DiseaseMonitorVariableVO diseaseMonitorVariableVO = new DistrictDiseaseMonitorVO.DiseaseMonitorVariableVO();
         int validScreeningNum = statConclusionList.size();
         List<StatConclusion> conclusionList = statConclusionList.stream().filter(sc -> Objects.nonNull(sc.getDiseaseNum())).collect(Collectors.toList());
+        if (CollectionUtil.isEmpty(conclusionList)){
+            return;
+        }
 
         int hypertensionNum = conclusionList.stream().mapToInt(sc -> Optional.ofNullable(sc.getDiseaseNum().getHypertension()).orElse(0)).sum();
         int anemiaNum = conclusionList.stream().mapToInt(sc -> Optional.ofNullable(sc.getDiseaseNum().getAnemia()).orElse(0)).sum();
@@ -69,14 +72,14 @@ public class DiseaseMonitorService {
         //最高值
         Map<Integer, List<StatConclusion>> schoolAgeMap = conclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolAge));
 
-        Map<Integer, DiseaseNumDO> diseaseNumDOMap = Maps.newHashMap();
-        schoolAgeMap.forEach((schoolAge,list)-> diseaseNumDOMap.put(schoolAge,getDiseaseNumDO(list)));
+        Map<Integer, DiseaseNumDO> diseaseNumMap = Maps.newHashMap();
+        schoolAgeMap.forEach((schoolAge,list)-> diseaseNumMap.put(schoolAge,getDiseaseNumDO(list)));
 
-        TwoTuple<Integer, Integer> hypertensionTuple = getMaxKeyAndValue(diseaseNumDOMap, DiseaseNumDO::getHypertension);
-        TwoTuple<Integer, Integer> anemiaTuple = getMaxKeyAndValue(diseaseNumDOMap, DiseaseNumDO::getAnemia);
-        TwoTuple<Integer, Integer> diabetesTuple = getMaxKeyAndValue(diseaseNumDOMap, DiseaseNumDO::getDiabetes);
-        TwoTuple<Integer, Integer> allergicAsthmaTuple = getMaxKeyAndValue(diseaseNumDOMap, DiseaseNumDO::getAllergicAsthma);
-        TwoTuple<Integer, Integer> physicalDisabilityTuple = getMaxKeyAndValue(diseaseNumDOMap, DiseaseNumDO::getPhysicalDisability);
+        TwoTuple<Integer, Integer> hypertensionTuple = getMaxKeyAndValue(diseaseNumMap, DiseaseNumDO::getHypertension);
+        TwoTuple<Integer, Integer> anemiaTuple = getMaxKeyAndValue(diseaseNumMap, DiseaseNumDO::getAnemia);
+        TwoTuple<Integer, Integer> diabetesTuple = getMaxKeyAndValue(diseaseNumMap, DiseaseNumDO::getDiabetes);
+        TwoTuple<Integer, Integer> allergicAsthmaTuple = getMaxKeyAndValue(diseaseNumMap, DiseaseNumDO::getAllergicAsthma);
+        TwoTuple<Integer, Integer> physicalDisabilityTuple = getMaxKeyAndValue(diseaseNumMap, DiseaseNumDO::getPhysicalDisability);
 
         diseaseMonitorVariableVO.setMaxHypertensionRatio(getSchoolAgeRatio(hypertensionTuple,validScreeningNum));
         diseaseMonitorVariableVO.setMaxAnemiaRatio(getSchoolAgeRatio(anemiaTuple,validScreeningNum));

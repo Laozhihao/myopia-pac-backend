@@ -11,6 +11,8 @@ import com.wupol.myopia.business.api.management.domain.vo.report.DistrictCommonD
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
+import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import lombok.Data;
 import org.springframework.stereotype.Service;
@@ -106,13 +108,13 @@ public class BloodPressureAndSpinalCurvatureMonitorService {
     private void getBloodPressureAndSpinalCurvatureNum(Integer gender, List<StatConclusion> statConclusionList, List<BloodPressureAndSpinalCurvatureNum> sexList) {
         BloodPressureAndSpinalCurvatureNum build = new BloodPressureAndSpinalCurvatureNum()
                 .setGender(gender)
-                .build(statConclusionList);
+                .build(statConclusionList).ratioNotSymbol().ratio();
         sexList.add(build);
     }
 
     private <K>void getBloodPressureAndSpinalCurvatureNum(K key, List<StatConclusion> statConclusionList,Map<K,BloodPressureAndSpinalCurvatureNum> bloodPressureAndSpinalCurvatureNumMap){
         BloodPressureAndSpinalCurvatureNum build = new BloodPressureAndSpinalCurvatureNum()
-                .build(statConclusionList);
+                .build(statConclusionList).ratioNotSymbol().ratio();
         bloodPressureAndSpinalCurvatureNumMap.put(key,build);
     }
 
@@ -275,13 +277,16 @@ public class BloodPressureAndSpinalCurvatureMonitorService {
 
         Map<String, List<StatConclusion>> gradeCodeMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
         Map<String, BloodPressureAndSpinalCurvatureNum> bloodPressureAndSpinalCurvatureNumMap = Maps.newHashMap();
-        gradeCodeMap.forEach((gradeCode,list)->getBloodPressureAndSpinalCurvatureNum(gradeCode,list,bloodPressureAndSpinalCurvatureNumMap));
+        gradeCodeMap.forEach((gradeCode,list)->{
+            GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(gradeCode);
+            getBloodPressureAndSpinalCurvatureNum(gradeCodeEnum.getName(),list,bloodPressureAndSpinalCurvatureNumMap);
+        });
 
-        ThreeTuple<String, Integer,Integer> abnormalSpineCurvature = getMaxMap(bloodPressureAndSpinalCurvatureNumMap, BloodPressureAndSpinalCurvatureNum::getAbnormalSpineCurvatureNum, BloodPressureAndSpinalCurvatureNum::getValidScreeningNum);
-        ThreeTuple<String, Integer,Integer> highBloodPressure = getMaxMap(bloodPressureAndSpinalCurvatureNumMap, BloodPressureAndSpinalCurvatureNum::getHighBloodPressureNum,BloodPressureAndSpinalCurvatureNum::getValidScreeningNum);
+        TwoTuple<String, String> abnormalSpineCurvature = getMaxMap(bloodPressureAndSpinalCurvatureNumMap, BloodPressureAndSpinalCurvatureNum::getAbnormalSpineCurvatureNum, BloodPressureAndSpinalCurvatureNum::getAbnormalSpineCurvatureRatioStr);
+        TwoTuple<String,String> highBloodPressure = getMaxMap(bloodPressureAndSpinalCurvatureNumMap, BloodPressureAndSpinalCurvatureNum::getHighBloodPressureNum,BloodPressureAndSpinalCurvatureNum::getHighBloodPressureRatioStr);
 
-        bloodPressureAndSpinalCurvatureSchoolAge.setMaxAbnormalSpineCurvatureRatio(new DistrictBloodPressureAndSpinalCurvatureMonitorVO.GradeRatio(abnormalSpineCurvature.getFirst(),MathUtil.ratio(abnormalSpineCurvature.getSecond(),abnormalSpineCurvature.getThird())));
-        bloodPressureAndSpinalCurvatureSchoolAge.setMaxHighBloodPressureRatio(new DistrictBloodPressureAndSpinalCurvatureMonitorVO.GradeRatio(highBloodPressure.getFirst(),MathUtil.ratio(highBloodPressure.getSecond(),highBloodPressure.getThird())));
+        bloodPressureAndSpinalCurvatureSchoolAge.setMaxAbnormalSpineCurvatureRatio(new DistrictBloodPressureAndSpinalCurvatureMonitorVO.GradeRatio(abnormalSpineCurvature.getFirst(),abnormalSpineCurvature.getSecond()));
+        bloodPressureAndSpinalCurvatureSchoolAge.setMaxHighBloodPressureRatio(new DistrictBloodPressureAndSpinalCurvatureMonitorVO.GradeRatio(highBloodPressure.getFirst(),highBloodPressure.getSecond()));
 
         return bloodPressureAndSpinalCurvatureSchoolAge;
     }
@@ -289,11 +294,11 @@ public class BloodPressureAndSpinalCurvatureMonitorService {
     /**
      * 获取map中Value最大值及对应的Key
      */
-    private <T,K>ThreeTuple<K,Integer,Integer> getMaxMap(Map<K, T> map, Function<T,Integer> function ,Function<T,Integer> mapper){
+    private <T,K>TwoTuple<K,String> getMaxMap(Map<K, T> map, Function<T,Integer> function ,Function<T,String> mapper){
         List<Map.Entry<K, T>> entries = Lists.newArrayList(map.entrySet());
         CollectionUtil.sort(entries,((o1, o2) -> Optional.ofNullable(o2.getValue()).map(function).orElse(0)- Optional.ofNullable(o1.getValue()).map(function).orElse(0)));
         Map.Entry<K, T> entry = entries.get(0);
-        return new ThreeTuple<>(entry.getKey(),Optional.ofNullable(entry.getValue()).map(function).orElse(0),Optional.ofNullable(entry.getValue()).map(mapper).orElse(0));
+        return TwoTuple.of(entry.getKey(),Optional.ofNullable(entry.getValue()).map(mapper).orElse(null));
     }
 
     /**
@@ -410,8 +415,8 @@ public class BloodPressureAndSpinalCurvatureMonitorService {
         Map<Integer, BloodPressureAndSpinalCurvatureNum> bloodPressureAndSpinalCurvatureNumMap = Maps.newHashMap();
         ageMap.forEach((age,list)->getBloodPressureAndSpinalCurvatureNum(age,list,bloodPressureAndSpinalCurvatureNumMap));
 
-        DistrictBloodPressureAndSpinalCurvatureMonitorVO.AgeRatio abnormalSpineCurvature = getAgeRatio(bloodPressureAndSpinalCurvatureNumMap, BloodPressureAndSpinalCurvatureNum::getAbnormalSpineCurvatureNum, BloodPressureAndSpinalCurvatureNum::getValidScreeningNum);
-        DistrictBloodPressureAndSpinalCurvatureMonitorVO.AgeRatio highBloodPressure = getAgeRatio(bloodPressureAndSpinalCurvatureNumMap, BloodPressureAndSpinalCurvatureNum::getHighBloodPressureNum, BloodPressureAndSpinalCurvatureNum::getValidScreeningNum);
+        DistrictBloodPressureAndSpinalCurvatureMonitorVO.AgeRatio abnormalSpineCurvature = getAgeRatio(bloodPressureAndSpinalCurvatureNumMap, BloodPressureAndSpinalCurvatureNum::getAbnormalSpineCurvatureNum, BloodPressureAndSpinalCurvatureNum::getAbnormalSpineCurvatureRatioStr);
+        DistrictBloodPressureAndSpinalCurvatureMonitorVO.AgeRatio highBloodPressure = getAgeRatio(bloodPressureAndSpinalCurvatureNumMap, BloodPressureAndSpinalCurvatureNum::getHighBloodPressureNum, BloodPressureAndSpinalCurvatureNum::getHighBloodPressureRatioStr);
 
         DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureAgeVariableVO ageVariableVO = new DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureAgeVariableVO();
         ageVariableVO.setAbnormalSpineCurvatureRatio(abnormalSpineCurvature);
@@ -420,14 +425,14 @@ public class BloodPressureAndSpinalCurvatureMonitorService {
         ageVO.setBloodPressureAndSpinalCurvatureAgeVariableVO(ageVariableVO);
     }
 
-    private DistrictBloodPressureAndSpinalCurvatureMonitorVO.AgeRatio getAgeRatio(Map<Integer, BloodPressureAndSpinalCurvatureNum> bloodPressureAndSpinalCurvatureNumMap, Function<BloodPressureAndSpinalCurvatureNum,Integer> function, Function<BloodPressureAndSpinalCurvatureNum,Integer> mapper) {
-        ThreeTuple<Integer, Integer,Integer> maxTuple = getMaxMap(bloodPressureAndSpinalCurvatureNumMap, function,mapper);
-        ThreeTuple<Integer, Integer,Integer> minTuple = getMinMap(bloodPressureAndSpinalCurvatureNumMap, function,mapper);
+    private DistrictBloodPressureAndSpinalCurvatureMonitorVO.AgeRatio getAgeRatio(Map<Integer, BloodPressureAndSpinalCurvatureNum> bloodPressureAndSpinalCurvatureNumMap, Function<BloodPressureAndSpinalCurvatureNum,Integer> function, Function<BloodPressureAndSpinalCurvatureNum,String> mapper) {
+        TwoTuple<Integer, String> maxTuple = getMaxMap(bloodPressureAndSpinalCurvatureNumMap, function,mapper);
+        TwoTuple<Integer, String> minTuple = getMinMap(bloodPressureAndSpinalCurvatureNumMap, function,mapper);
         DistrictBloodPressureAndSpinalCurvatureMonitorVO.AgeRatio ageRatio = new DistrictBloodPressureAndSpinalCurvatureMonitorVO.AgeRatio();
         ageRatio.setMaxAge(AgeSegmentEnum.get(maxTuple.getFirst()).getDesc());
         ageRatio.setMinAge(AgeSegmentEnum.get(minTuple.getFirst()).getDesc());
-        ageRatio.setMaxRatio(MathUtil.ratio(maxTuple.getSecond(),maxTuple.getThird()));
-        ageRatio.setMinRatio(MathUtil.ratio(minTuple.getSecond(),minTuple.getThird()));
+        ageRatio.setMaxRatio(maxTuple.getSecond());
+        ageRatio.setMinRatio(minTuple.getSecond());
         return ageRatio;
     }
 
@@ -454,11 +459,11 @@ public class BloodPressureAndSpinalCurvatureMonitorService {
     /**
      * 获取map中Value最小值及对应的Key
      */
-    private <T,K>ThreeTuple<K,Integer,Integer> getMinMap(Map<K, T> map, Function<T,Integer> function,Function<T,Integer> mapper){
+    private <T,K>TwoTuple<K,String> getMinMap(Map<K, T> map, Function<T,Integer> function,Function<T,String> mapper){
         List<Map.Entry<K, T>> entries = Lists.newArrayList(map.entrySet());
         CollectionUtil.sort(entries,Comparator.comparingInt(o -> Optional.ofNullable(o.getValue()).map(function).orElse(0)));
         Map.Entry<K, T> entry = entries.get(0);
-        return new ThreeTuple<>(entry.getKey(),Optional.ofNullable(entry.getValue()).map(function).orElse(0),Optional.ofNullable(entry.getValue()).map(mapper).orElse(0));
+        return TwoTuple.of(entry.getKey(),Optional.ofNullable(entry.getValue()).map(mapper).orElse(null));
     }
 
     /**

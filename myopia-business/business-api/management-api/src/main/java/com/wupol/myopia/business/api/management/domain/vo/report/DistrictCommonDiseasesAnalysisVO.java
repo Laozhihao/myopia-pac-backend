@@ -51,6 +51,10 @@ public class DistrictCommonDiseasesAnalysisVO {
          * 筛查人数(有效数据)
          */
         private Integer validScreeningNum;
+        /**
+         * 脊柱弯曲异常数
+         */
+        private Integer abnormalSpineCurvatureNum;
 
         /**
          * 龋齿数据
@@ -112,6 +116,33 @@ public class DistrictCommonDiseasesAnalysisVO {
 
     @Data
     public static class SaprodontiaRatioVO{
+        /**
+         * 龋患率
+         */
+        private BigDecimal saprodontiaRatio;
+        /**
+         * 龋失率
+         */
+        private BigDecimal saprodontiaLossRatio;
+
+        /**
+         * 龋补率
+         */
+        private BigDecimal saprodontiaRepairRatio;
+        /**
+         * 龋患（失、补）率
+         */
+        private BigDecimal saprodontiaLossAndRepairRatio;
+
+        /**
+         * 龋患（失、补）构成比
+         */
+        private BigDecimal saprodontiaLossAndRepairTeethRatio;
+
+    }
+
+    @Data
+    public static class SaprodontiaRatioStrVO{
         /**
          * 龋患率
          */
