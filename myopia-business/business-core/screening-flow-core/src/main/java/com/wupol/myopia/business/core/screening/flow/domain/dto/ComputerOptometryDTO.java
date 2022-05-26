@@ -6,6 +6,8 @@ import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.math.BigDecimal;
@@ -16,6 +18,8 @@ import java.util.Objects;
  * @Date 2021/1/22 16:37
  * @Author by jacob
  */
+@Accessors(chain = true)
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class ComputerOptometryDTO extends ScreeningResultBasicData {
 

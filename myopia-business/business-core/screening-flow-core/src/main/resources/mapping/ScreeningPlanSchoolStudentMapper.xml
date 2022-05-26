@@ -55,7 +55,8 @@
     <sql id="Base_Column_List">
         id, src_screening_notice_id, screening_task_id, screening_plan_id, screening_org_id, plan_district_id, school_district_id, school_id, school_name,
         grade_id, grade_name, grade_type, class_id, class_name, student_id, id_card, birthday, gender, student_age,passport,
-        student_situation, student_no, student_name, create_time, province_code, city_code,area_code,town_code, address, parent_phone,nation,artificial,screening_code,`state`
+        student_situation, student_no, student_name, create_time, province_code, city_code,area_code,town_code, address, parent_phone,nation,artificial,screening_code,`state`,
+        migrate_student_screening_id
     </sql>
 
     <select id="selectStudentInfoWithResult"
@@ -88,6 +89,9 @@
     <select id="selectSchoolGradeVoByPlanIdAndSchoolId" resultMap="GradeClassesDTO">
         select grade_id, grade_name, class_id, class_name from m_screening_plan_school_student
         where screening_plan_id = #{screeningPlanId} and school_id = #{schoolId}
+        <if test="gradeId != null">
+            AND grade_id = #{gradeId}
+        </if>
         group by grade_id, class_id
     </select>
 

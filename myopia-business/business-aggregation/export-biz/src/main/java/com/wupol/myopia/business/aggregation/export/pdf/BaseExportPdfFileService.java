@@ -60,7 +60,7 @@ public abstract class BaseExportPdfFileService extends BaseExportFileService {
             log.info("导出成功：{}", file.getName());
         } catch (Exception e) {
             String requestData = JSON.toJSONString(exportCondition);
-            log.error("【生成报告异常】{}", requestData, e);
+            log.error("【生成PDF异常】{}", requestData, e);
             // 发送失败通知
             if (!StringUtils.isEmpty(fileName)) {
                 sendFailNotice(exportCondition.getApplyExportFileUserId(), fileName);
@@ -129,7 +129,7 @@ public abstract class BaseExportPdfFileService extends BaseExportFileService {
             return resourceFileService.getResourcePath(s3Utils.uploadS3AndGetResourceFile(fileSavePath, fileName).getId());
         } catch (Exception e) {
             String requestData = JSON.toJSONString(exportCondition);
-            log.error("【生成报告异常】{}", requestData, e);
+            log.error("【生成PDF异常】{}", requestData, e);
             // 发送失败通知
             throw new BusinessException("导出数据异常");
         } finally {

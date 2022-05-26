@@ -250,9 +250,8 @@ public class ScreeningPlanStudentBizService {
                                 Objects.nonNull(orgId) ? orgId : StringUtils.EMPTY,
                                 Objects.nonNull(planStudentIdStr) ? planStudentIdStr : StringUtils.EMPTY,
                                 isSchoolClient);
-                        String uuid = UUID.randomUUID().toString();
                         String fileName = SCREENING_NAME;
-                        PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(screeningNoticeResultHtmlUrl, fileName, uuid);
+                        PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(screeningNoticeResultHtmlUrl, fileName);
                         log.info("response:{}", JSONObject.toJSONString(pdfResponseDTO));
                         try {
                             FileUtils.downloadFile(pdfResponseDTO.getUrl(),
@@ -323,9 +322,6 @@ public class ScreeningPlanStudentBizService {
                 throw new BusinessException("学生无筛查数据，操作失败！");
             }
         }
-        String fileName = getFileName(schoolId, gradeId);
-        String uuid = UUID.randomUUID().toString();
-        cacheInfo(uuid, userId, fileName);
         String screeningNoticeResultHtmlUrl = String.format(SCREENING_NOTICE_RESULT_HTML_URL,
                 htmlUrlHost,
                 planId,
@@ -335,19 +331,7 @@ public class ScreeningPlanStudentBizService {
                 Objects.nonNull(orgId) ? orgId : StringUtils.EMPTY,
                 Objects.nonNull(planStudentIdStr) ? planStudentIdStr : StringUtils.EMPTY,
                 isSchoolClient);
-        return html2PdfService.syncGeneratorPDF(screeningNoticeResultHtmlUrl, fileName, uuid);
-    }
-
-    /**
-     * 缓存导出信息
-     *
-     * @param uuid     UUID
-     * @param userId   用户Id
-     * @param fileName 文件名
-     */
-    private void cacheInfo(String uuid, Integer userId, String fileName) {
-        PdfGeneratorVO pdfGeneratorVO = new PdfGeneratorVO(userId, fileName);
-        redisUtil.set(uuid, pdfGeneratorVO, 60 * 60 * 12);
+        return html2PdfService.syncGeneratorPDF(screeningNoticeResultHtmlUrl, getFileName(schoolId, gradeId));
     }
 
     /**

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.migrate.domain.mapper.SysUserMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.migrate.domain.model.SysUser">
+    </resultMap>
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(userId)">and `user_id` = #{userId}</if>
+                <if test="@Ognl@isNotEmpty(userCategoryId)">and `user_category_id` = #{userCategoryId}</if>
+                <if test="@Ognl@isNotEmpty(avatar)">and `avatar` = #{avatar}</if>
+                <if test="@Ognl@isNotEmpty(username)">and `username` = #{username}</if>
+                <if test="@Ognl@isNotEmpty(nikename)">and `nikename` = #{nikename}</if>
+                <if test="@Ognl@isNotEmpty(password)">and `password` = #{password}</if>
+                <if test="@Ognl@isNotEmpty(salt)">and `salt` = #{salt}</if>
+                <if test="@Ognl@isNotEmpty(birthday)">and `birthday` = #{birthday}</if>
+                <if test="@Ognl@isNotEmpty(sex)">and `sex` = #{sex}</if>
+                <if test="@Ognl@isNotEmpty(email)">and `email` = #{email}</if>
+                <if test="@Ognl@isNotEmpty(phone)">and `phone` = #{phone}</if>
+                <if test="@Ognl@isNotEmpty(roleId)">and `role_id` = #{roleId}</if>
+                <if test="@Ognl@isNotEmpty(deptId)">and `dept_id` = #{deptId}</if>
+                <if test="@Ognl@isNotEmpty(schoolId)">and `school_id` = #{schoolId}</if>
+                <if test="@Ognl@isNotEmpty(status)">and `status` = #{status}</if>
+                <if test="@Ognl@isNotEmpty(autImage)">and `aut_image` = #{autImage}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+                <if test="@Ognl@isNotEmpty(createUser)">and `create_user` = #{createUser}</if>
+                <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
+                <if test="@Ognl@isNotEmpty(updateUser)">and `update_user` = #{updateUser}</if>
+                <if test="@Ognl@isNotEmpty(lastLoginTime)">and `last_login_time` = #{lastLoginTime}</if>
+                <if test="@Ognl@isNotEmpty(lastLoginIp)">and `last_login_ip` = #{lastLoginIp}</if>
+                <if test="@Ognl@isNotEmpty(loadLoginIp)">and `load_login_ip` = #{loadLoginIp}</if>
+                <if test="@Ognl@isNotEmpty(roleMenu)">and `role_menu` = #{roleMenu}</if>
+            </trim>
+        </where>
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        user_id, user_category_id, avatar, username, nikename, password, salt, birthday, sex, email, phone, role_id, dept_id, school_id, status, aut_image, create_time, create_user, update_time, update_user, last_login_time, last_login_ip, load_login_ip, role_menu
+    </sql>
+    
+    <select id="findMostStaffNameByDeptId" resultType="string" parameterType="string">
+        SELECT
+               username
+        FROM
+             (
+             SELECT
+                    su.username,
+                    count( * ) AS total
+             FROM
+                  sys_user su
+                      LEFT JOIN sys_student_eye sse ON sse.user_id = su.user_id
+             WHERE
+                     sse.dept_id = #{deptId}
+             GROUP BY
+                      su.user_id
+             ) AS temp
+        ORDER BY total DESC LIMIT 1
+    </select>
+
+</mapper>

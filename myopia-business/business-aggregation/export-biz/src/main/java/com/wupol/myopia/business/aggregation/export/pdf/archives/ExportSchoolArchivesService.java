@@ -3,7 +3,6 @@ package com.wupol.myopia.business.aggregation.export.pdf.archives;
 import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.pdf.BaseExportPdfFileService;
-import com.wupol.myopia.business.aggregation.export.pdf.GeneratePdfFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.PDFFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.core.school.domain.model.School;
@@ -30,12 +29,12 @@ public class ExportSchoolArchivesService extends BaseExportPdfFileService {
     @Autowired
     private SchoolService schoolService;
     @Autowired
-    private GeneratePdfFileService generateReportPdfService;
-    @Autowired
     private VisionScreeningResultService visionScreeningResultService;
-
     @Resource
     private SchoolGradeService schoolGradeService;
+    @Autowired
+    private ArchivePdfGenerator archivePdfGenerator;
+
     /**
      * 生成文件
      *
@@ -46,7 +45,7 @@ public class ExportSchoolArchivesService extends BaseExportPdfFileService {
      **/
     @Override
     public void generatePdfFile(ExportCondition exportCondition, String fileSavePath, String fileName) {
-        generateReportPdfService.generateSchoolArchivesPdfFile(fileSavePath, exportCondition);
+        archivePdfGenerator.generateSchoolArchivesPdfFile(fileSavePath, exportCondition);
     }
 
     /**
