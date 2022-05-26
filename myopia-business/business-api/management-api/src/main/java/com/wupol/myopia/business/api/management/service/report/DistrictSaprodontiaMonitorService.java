@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
  * @author hang.yuan 2022/5/25 15:04
  */
 @Service
-public class SaprodontiaMonitorService {
+public class DistrictSaprodontiaMonitorService {
 
     /**
      * 龋齿监测结果

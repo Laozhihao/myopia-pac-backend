@@ -4,7 +4,6 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.map.MapUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.wupol.framework.domain.ThreeTuple;
 import com.wupol.myopia.business.api.management.constant.AgeSegmentEnum;
 import com.wupol.myopia.business.api.management.domain.vo.report.DistrictBloodPressureAndSpinalCurvatureMonitorVO;
 import com.wupol.myopia.business.api.management.domain.vo.report.DistrictCommonDiseasesAnalysisVO;
@@ -28,7 +27,7 @@ import java.util.stream.Collectors;
  * @author hang.yuan 2022/5/25 15:06
  */
 @Service
-public class BloodPressureAndSpinalCurvatureMonitorService {
+public class DistrictBloodPressureAndSpinalCurvatureMonitorService {
 
     /**
      * 血压与脊柱弯曲异常监测结果

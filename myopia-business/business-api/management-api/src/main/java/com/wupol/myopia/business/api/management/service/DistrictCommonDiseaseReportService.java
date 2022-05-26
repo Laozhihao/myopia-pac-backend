@@ -60,15 +60,15 @@ public class DistrictCommonDiseaseReportService {
     private SchoolService schoolService;
 
     @Autowired
-    private SaprodontiaMonitorService saprodontiaMonitorService;
+    private DistrictSaprodontiaMonitorService districtSaprodontiaMonitorService;
     @Autowired
-    private HeightAndWeightMonitorService heightAndWeightMonitorService;
+    private DistrictHeightAndWeightMonitorService districtHeightAndWeightMonitorService;
     @Autowired
-    private BloodPressureAndSpinalCurvatureMonitorService bloodPressureAndSpinalCurvatureMonitorService;
+    private DistrictBloodPressureAndSpinalCurvatureMonitorService districtBloodPressureAndSpinalCurvatureMonitorService;
     @Autowired
-    private SchoolScreeningMonitorService schoolScreeningMonitorService;
+    private DistrictSchoolScreeningMonitorService districtSchoolScreeningMonitorService;
     @Autowired
-    private DiseaseMonitorService diseaseMonitorService;
+    private DistrictDiseaseMonitorService districtDiseaseMonitorService;
 
     public DistrictCommonDiseaseReportVO districtCommonDiseaseReport(Integer districtId,Integer noticeId){
         DistrictCommonDiseaseReportVO districtCommonDiseaseReportVO = new DistrictCommonDiseaseReportVO();
@@ -370,15 +370,15 @@ public class DistrictCommonDiseaseReportService {
         //常见病分析变量
         getCommonDiseasesAnalysisVariableVO(primaryAndAboveStatConclusionList,districtCommonDiseasesAnalysisVO);
         //疾病监测情况
-        diseaseMonitorService.getDistrictDiseaseMonitorVO(primaryAndAboveStatConclusionList,districtCommonDiseasesAnalysisVO);
+        districtDiseaseMonitorService.getDistrictDiseaseMonitorVO(primaryAndAboveStatConclusionList,districtCommonDiseasesAnalysisVO);
         //龋齿监测结果
-        saprodontiaMonitorService.getDistrictSaprodontiaMonitorVO(primaryAndAboveStatConclusionList,districtCommonDiseasesAnalysisVO);
+        districtSaprodontiaMonitorService.getDistrictSaprodontiaMonitorVO(primaryAndAboveStatConclusionList,districtCommonDiseasesAnalysisVO);
         //体重身高监测结果
-        heightAndWeightMonitorService.getDistrictHeightAndWeightMonitorVO(primaryAndAboveStatConclusionList,districtCommonDiseasesAnalysisVO);
+        districtHeightAndWeightMonitorService.getDistrictHeightAndWeightMonitorVO(primaryAndAboveStatConclusionList,districtCommonDiseasesAnalysisVO);
         //血压与脊柱弯曲异常监测结果
-        bloodPressureAndSpinalCurvatureMonitorService.getDistrictBloodPressureAndSpinalCurvatureMonitorVO(primaryAndAboveStatConclusionList,districtCommonDiseasesAnalysisVO);
+        districtBloodPressureAndSpinalCurvatureMonitorService.getDistrictBloodPressureAndSpinalCurvatureMonitorVO(primaryAndAboveStatConclusionList,districtCommonDiseasesAnalysisVO);
         //各学校筛查情况
-        schoolScreeningMonitorService.getDistrictSchoolScreeningMonitorVO(primaryAndAboveStatConclusionList,schoolMap,districtCommonDiseasesAnalysisVO);
+        districtSchoolScreeningMonitorService.getDistrictSchoolScreeningMonitorVO(primaryAndAboveStatConclusionList,schoolMap,districtCommonDiseasesAnalysisVO);
 
         districtCommonDiseaseReportVO.setDistrictCommonDiseasesAnalysisVO(districtCommonDiseasesAnalysisVO);
 

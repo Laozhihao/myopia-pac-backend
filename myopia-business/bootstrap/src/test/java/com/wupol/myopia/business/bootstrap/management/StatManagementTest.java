@@ -4,7 +4,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.wupol.framework.domain.ThreeTuple;
-import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.business.api.management.service.CommonDiseaseReportService;
 import com.wupol.myopia.business.bootstrap.MyopiaBusinessApplication;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
@@ -46,6 +46,8 @@ public class StatManagementTest {
     SchoolGradeService schoolGradeService;
     @Autowired
     StatConclusionCheck statConclusionCheck;
+    @Autowired
+    CommonDiseaseReportService commonDiseaseReportService;
 
 
     /**
@@ -112,5 +114,12 @@ public class StatManagementTest {
         Integer planId= 232;
         StatConclusionCheck.DataCheckResult checkResult = statConclusionCheck.getCheckResult(planId, 4, false);
         log.info(JSONObject.toJSONString(checkResult,true));
+    }
+
+    @Test
+    public void test(){
+        Integer districtId =1665;
+        Integer noticeId =null;
+        commonDiseaseReportService.districtCommonDiseaseReport(districtId,noticeId);
     }
 }

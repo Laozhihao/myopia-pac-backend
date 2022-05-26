@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
  * @author hang.yuan 2022/5/25 15:28
  */
 @Service
-public class DiseaseMonitorService {
+public class DistrictDiseaseMonitorService {
 
     /**
      * 疾病监测情况

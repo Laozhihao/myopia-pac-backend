@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  * @author hang.yuan 2022/5/25 15:06
  */
 @Service
-public class SchoolScreeningMonitorService {
+public class DistrictSchoolScreeningMonitorService {
 
 
     /**
