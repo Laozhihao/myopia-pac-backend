@@ -3,7 +3,9 @@ package com.wupol.myopia.business.api.management.service;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.BigDecimalUtil;
@@ -16,13 +18,16 @@ import com.wupol.myopia.business.common.utils.constant.WarningLevel;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.service.DistrictService;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionQueryDTO;
+import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Predicate;
@@ -35,6 +40,7 @@ import java.util.stream.Collectors;
  * @author hang.yuan 2022/5/19 14:09
  */
 @Service
+@Slf4j
 public class DistrictCommonDiseaseReportService {
 
     @Autowired
@@ -49,6 +55,8 @@ public class DistrictCommonDiseaseReportService {
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     @Autowired
     private StatConclusionService statConclusionService;
+    @Autowired
+    private SchoolService schoolService;
 
     @Autowired
     private SaprodontiaMonitorService saprodontiaMonitorService;
@@ -64,14 +72,24 @@ public class DistrictCommonDiseaseReportService {
     public DistrictCommonDiseaseReportVO districtCommonDiseaseReport(Integer districtId,Integer noticeId){
         DistrictCommonDiseaseReportVO districtCommonDiseaseReportVO = new DistrictCommonDiseaseReportVO();
 
+        Set<Integer> districtIds = Sets.newHashSet();
+        try {
+            districtIds = districtService.getChildDistrictIdsByDistrictId(districtId);
+        } catch (IOException e) {
+            log.error("获取行政区域失败");
+        }
+        districtIds.add(districtId);
+
+        List<StatConclusion> statConclusionList = getStatConclusionList(noticeId,Lists.newArrayList(districtIds),Boolean.TRUE,Boolean.FALSE);
+
         //全局变量
         getGlobalVariableVO(districtId, noticeId,districtCommonDiseaseReportVO);
         //筛查人数和实际筛查人数
         setNum(noticeId,districtCommonDiseaseReportVO);
         //视力分析
-        getVisionAnalysisVO(districtId,noticeId,districtCommonDiseaseReportVO);
+        getVisionAnalysisVO(statConclusionList,districtCommonDiseaseReportVO);
         //常见病分析
-        getDistrictCommonDiseasesAnalysisVO(districtId,noticeId,districtCommonDiseaseReportVO);
+        getDistrictCommonDiseasesAnalysisVO(statConclusionList,districtCommonDiseaseReportVO);
 
         return districtCommonDiseaseReportVO;
     }
@@ -200,23 +218,17 @@ public class DistrictCommonDiseaseReportService {
     /**
      * 视力分析
      */
-    private void getVisionAnalysisVO(Integer districtId, Integer noticeId,DistrictCommonDiseaseReportVO districtCommonDiseaseReportVO){
-        DistrictCommonDiseaseReportVO.VisionAnalysisVO visionAnalysisVO = new DistrictCommonDiseaseReportVO.VisionAnalysisVO();
-        StatConclusionQueryDTO statConclusionQueryDTO = new StatConclusionQueryDTO();
-        statConclusionQueryDTO.setSrcScreeningNoticeId(noticeId);
-        statConclusionQueryDTO.setIsValid(Boolean.TRUE);
-        statConclusionQueryDTO.setIsRescreen(Boolean.FALSE);
-        List<StatConclusion> statConclusionList = statConclusionService.listByQuery(statConclusionQueryDTO);
-        if(CollectionUtil.isNotEmpty(statConclusionList)){
-            int validScreeningNum = statConclusionList.size();
-            visionAnalysisVO.setValidScreeningNum(validScreeningNum);
-            List<StatConclusion> kindergartenList = statConclusionList.stream().filter(statConclusion -> Objects.equals(statConclusion.getSchoolAge(), SchoolAge.KINDERGARTEN.code)).collect(Collectors.toList());
-            List<StatConclusion> primarySchoolAndAboveList = statConclusionList.stream().filter(statConclusion -> !Objects.equals(statConclusion.getSchoolAge(), SchoolAge.KINDERGARTEN.code)).collect(Collectors.toList());
-            getKindergartenVO(kindergartenList,validScreeningNum,visionAnalysisVO);
-            getPrimarySchoolAndAboveVO(primarySchoolAndAboveList,validScreeningNum,visionAnalysisVO);
-        }else {
-            districtCommonDiseaseReportVO.setVisionAnalysisVO(visionAnalysisVO);
+    private void getVisionAnalysisVO(List<StatConclusion> statConclusionList,DistrictCommonDiseaseReportVO districtCommonDiseaseReportVO){
+        if (CollectionUtil.isEmpty(statConclusionList)){
+            return;
         }
+        DistrictCommonDiseaseReportVO.VisionAnalysisVO visionAnalysisVO = new DistrictCommonDiseaseReportVO.VisionAnalysisVO();
+        int validScreeningNum = statConclusionList.size();
+        visionAnalysisVO.setValidScreeningNum(validScreeningNum);
+        List<StatConclusion> kindergartenList = statConclusionList.stream().filter(statConclusion -> Objects.equals(statConclusion.getSchoolAge(), SchoolAge.KINDERGARTEN.code)).collect(Collectors.toList());
+        List<StatConclusion> primarySchoolAndAboveList = statConclusionList.stream().filter(statConclusion -> !Objects.equals(statConclusion.getSchoolAge(), SchoolAge.KINDERGARTEN.code)).collect(Collectors.toList());
+        getKindergartenVO(kindergartenList,validScreeningNum,visionAnalysisVO);
+        getPrimarySchoolAndAboveVO(primarySchoolAndAboveList,validScreeningNum,visionAnalysisVO);
 
     }
 
@@ -336,16 +348,31 @@ public class DistrictCommonDiseaseReportService {
         }
     }
 
+    private List<StatConclusion> getStatConclusionList(Integer noticeId,List<Integer> districtIds,Boolean isValid,Boolean isRescreen){
+        LambdaQueryWrapper<StatConclusion> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(StatConclusion::getSrcScreeningNoticeId, noticeId);
+        queryWrapper.eq(StatConclusion::getIsValid, isValid);
+        queryWrapper.eq(StatConclusion::getIsRescreen, isRescreen);
+        queryWrapper.in(StatConclusion::getDistrictId,districtIds);
+        return statConclusionService.list(queryWrapper);
+    }
+
     /**
      * 常见病分析
      */
-    private void getDistrictCommonDiseasesAnalysisVO(Integer districtId, Integer noticeId,DistrictCommonDiseaseReportVO districtCommonDiseaseReportVO){
-        StatConclusionQueryDTO statConclusionQueryDTO = new StatConclusionQueryDTO();
-        statConclusionQueryDTO.setSrcScreeningNoticeId(noticeId);
-        statConclusionQueryDTO.setIsValid(Boolean.TRUE);
-        statConclusionQueryDTO.setIsRescreen(Boolean.FALSE);
-        List<StatConclusion> statConclusionList = statConclusionService.listByQuery(statConclusionQueryDTO);
+    private void getDistrictCommonDiseasesAnalysisVO(List<StatConclusion> statConclusionList,DistrictCommonDiseaseReportVO districtCommonDiseaseReportVO){
+        if (CollectionUtil.isEmpty(statConclusionList)){
+            return;
+        }
+
         List<StatConclusion> primaryAndAboveStatConclusionList = statConclusionList.stream().filter(sc -> !Objects.equals(sc.getSchoolAge(), SchoolAge.KINDERGARTEN.code)).collect(Collectors.toList());
+        Map<Integer,String> schoolMap = Maps.newHashMap();
+        if (CollectionUtil.isNotEmpty(primaryAndAboveStatConclusionList)){
+            Set<Integer> schoolIds = primaryAndAboveStatConclusionList.stream().map(StatConclusion::getSchoolId).collect(Collectors.toSet());
+            List<School> schoolList = schoolService.getByIds(Lists.newArrayList(schoolIds));
+            Map<Integer, String> collect = schoolList.stream().collect(Collectors.toMap(School::getId, School::getName));
+            schoolMap.putAll(collect);
+        }
 
         DistrictCommonDiseasesAnalysisVO districtCommonDiseasesAnalysisVO = new DistrictCommonDiseasesAnalysisVO();
         //常见病分析变量
@@ -359,7 +386,7 @@ public class DistrictCommonDiseaseReportService {
         //血压与脊柱弯曲异常监测结果
         bloodPressureAndSpinalCurvatureMonitorService.getDistrictBloodPressureAndSpinalCurvatureMonitorVO(primaryAndAboveStatConclusionList,districtCommonDiseasesAnalysisVO);
         //各学校筛查情况
-        schoolScreeningMonitorService.getDistrictSchoolScreeningMonitorVO(primaryAndAboveStatConclusionList,districtCommonDiseasesAnalysisVO);
+        schoolScreeningMonitorService.getDistrictSchoolScreeningMonitorVO(primaryAndAboveStatConclusionList,schoolMap,districtCommonDiseasesAnalysisVO);
 
         districtCommonDiseaseReportVO.setDistrictCommonDiseasesAnalysisVO(districtCommonDiseasesAnalysisVO);
 

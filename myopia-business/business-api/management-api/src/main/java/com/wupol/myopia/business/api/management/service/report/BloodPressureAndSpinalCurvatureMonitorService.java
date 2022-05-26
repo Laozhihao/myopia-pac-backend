@@ -110,7 +110,7 @@ public class BloodPressureAndSpinalCurvatureMonitorService {
         sexList.add(build);
     }
 
-    private <K,E>void getBloodPressureAndSpinalCurvatureNum(K key, List<StatConclusion> statConclusionList,Map<K,BloodPressureAndSpinalCurvatureNum> bloodPressureAndSpinalCurvatureNumMap){
+    private <K>void getBloodPressureAndSpinalCurvatureNum(K key, List<StatConclusion> statConclusionList,Map<K,BloodPressureAndSpinalCurvatureNum> bloodPressureAndSpinalCurvatureNumMap){
         BloodPressureAndSpinalCurvatureNum build = new BloodPressureAndSpinalCurvatureNum()
                 .build(statConclusionList);
         bloodPressureAndSpinalCurvatureNumMap.put(key,build);
@@ -558,10 +558,10 @@ public class BloodPressureAndSpinalCurvatureMonitorService {
          */
         public BloodPressureAndSpinalCurvatureNum ratioNotSymbol(){
             if (Objects.nonNull(abnormalSpineCurvatureNum)){
-                abnormalSpineCurvatureRatio = MathUtil.ratioNotSymbol(abnormalSpineCurvatureNum,validScreeningNum);
+                this.abnormalSpineCurvatureRatio = MathUtil.ratioNotSymbol(abnormalSpineCurvatureNum,validScreeningNum);
             }
             if (Objects.nonNull(highBloodPressureNum)){
-                highBloodPressureRatio = MathUtil.ratioNotSymbol(highBloodPressureNum,validScreeningNum);
+                this.highBloodPressureRatio = MathUtil.ratioNotSymbol(highBloodPressureNum,validScreeningNum);
             }
 
             return this;
@@ -572,10 +572,10 @@ public class BloodPressureAndSpinalCurvatureMonitorService {
          */
         public BloodPressureAndSpinalCurvatureNum ratio(){
             if (Objects.nonNull(abnormalSpineCurvatureNum)){
-                abnormalSpineCurvatureRatioStr = MathUtil.ratio(abnormalSpineCurvatureNum,validScreeningNum);
+                this.abnormalSpineCurvatureRatioStr = MathUtil.ratio(abnormalSpineCurvatureNum,validScreeningNum);
             }
             if (Objects.nonNull(highBloodPressureNum)){
-                highBloodPressureRatioStr = MathUtil.ratio(highBloodPressureNum,validScreeningNum);
+                this.highBloodPressureRatioStr = MathUtil.ratio(highBloodPressureNum,validScreeningNum);
             }
 
             return this;

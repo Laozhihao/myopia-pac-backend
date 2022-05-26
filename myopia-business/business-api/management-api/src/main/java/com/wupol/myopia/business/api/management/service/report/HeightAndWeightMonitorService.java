@@ -613,16 +613,16 @@ public class HeightAndWeightMonitorService {
          */
         public HeightAndWeightNum ratioNotSymbol(){
             if (Objects.nonNull(overweightNum)){
-                overweightRatio = MathUtil.ratioNotSymbol(overweightNum,validScreeningNum);
+                this.overweightRatio = MathUtil.ratioNotSymbol(overweightNum,validScreeningNum);
             }
             if (Objects.nonNull(obeseNum)){
-                obeseRatio = MathUtil.ratioNotSymbol(obeseNum,validScreeningNum);
+                this.obeseRatio = MathUtil.ratioNotSymbol(obeseNum,validScreeningNum);
             }
             if (Objects.nonNull(stuntingNum)){
-                stuntingRatio = MathUtil.ratioNotSymbol(stuntingNum,validScreeningNum);
+                this.stuntingRatio = MathUtil.ratioNotSymbol(stuntingNum,validScreeningNum);
             }
             if (Objects.nonNull(malnourishedNum)){
-                malnourishedRatio = MathUtil.ratioNotSymbol(malnourishedNum,validScreeningNum);
+                this.malnourishedRatio = MathUtil.ratioNotSymbol(malnourishedNum,validScreeningNum);
             }
 
             return this;
@@ -633,16 +633,16 @@ public class HeightAndWeightMonitorService {
          */
         public HeightAndWeightNum ratio(){
             if (Objects.nonNull(overweightNum)){
-                overweightRatioStr = MathUtil.ratio(overweightNum,validScreeningNum);
+                this.overweightRatioStr = MathUtil.ratio(overweightNum,validScreeningNum);
             }
             if (Objects.nonNull(obeseNum)){
-                obeseRatioStr = MathUtil.ratio(obeseNum,validScreeningNum);
+                this.obeseRatioStr = MathUtil.ratio(obeseNum,validScreeningNum);
             }
             if (Objects.nonNull(stuntingNum)){
-                stuntingRatioStr = MathUtil.ratio(stuntingNum,validScreeningNum);
+                this.stuntingRatioStr = MathUtil.ratio(stuntingNum,validScreeningNum);
             }
             if (Objects.nonNull(malnourishedNum)){
-                malnourishedRatioStr = MathUtil.ratio(malnourishedNum,validScreeningNum);
+                this.malnourishedRatioStr = MathUtil.ratio(malnourishedNum,validScreeningNum);
             }
             return this;
         }

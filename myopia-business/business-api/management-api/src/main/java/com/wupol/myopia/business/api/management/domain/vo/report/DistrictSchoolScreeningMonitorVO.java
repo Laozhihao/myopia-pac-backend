@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.domain.vo.report;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -67,17 +68,22 @@ public class DistrictSchoolScreeningMonitorVO {
     @Data
     public static class SchoolRatioExtremum{
         /**
-         * 学校
+         * 最高占比学校
          */
-        private String schoolName;
-        /**
-         * 最高占比
-         */
-        private String maxRatio;
+        private String maxSchoolName;
+
         /**
          * 最低占比
          */
-        private String minRatio;
+        private String minSchoolName;
+        /**
+         * 最高占比
+         */
+        private BigDecimal maxRatio;
+        /**
+         * 最低占比
+         */
+        private BigDecimal minRatio;
     }
 
     @Data
@@ -93,18 +99,83 @@ public class DistrictSchoolScreeningMonitorVO {
          */
         private Integer validScreeningNum;
 
+
         /**
-         * 龋齿数据
+         * 有龋人数
          */
-        private DistrictCommonDiseasesAnalysisVO.SaprodontiaVO saprodontiaVO;
+        private Integer saprodontiaNum;
+
         /**
-         * 身高体重数据
+         * 龋患（失、补）人数
          */
-        private DistrictCommonDiseasesAnalysisVO.HeightAndWeightVO heightAndWeightVO;
+        private Integer saprodontiaLossAndRepairNum;
+
         /**
-         * 血压与脊柱弯曲数据
+         * 超重数
          */
-        private DistrictCommonDiseasesAnalysisVO.BloodPressureAndSpinalCurvatureVO bloodPressureAndSpinalCurvatureVO;
+        private Integer overweightNum;
+        /**
+         * 肥胖数
+         */
+        private Integer obeseNum;
+        /**
+         * 营养不良数
+         */
+        private Integer malnourishedNum;
+        /**
+         * 生长迟缓数据
+         */
+        private Integer stuntingNum;
+
+        /**
+         * 血压偏高人数
+         */
+        private Integer highBloodPressureNum;
+
+        /**
+         * 脊柱弯曲异常人数
+         */
+        private Integer abnormalSpineCurvatureNum;
+
+
+        //=========== 不带% =============
+        /**
+         * 龋患率
+         */
+        private BigDecimal saprodontiaRatio;
+
+        /**
+         * 龋患（失、补）率
+         */
+        private BigDecimal saprodontiaLossAndRepairRatio;
+        /**
+         * 超重率
+         */
+        private BigDecimal overweightRatio;
+        /**
+         * 肥胖率
+         */
+        private BigDecimal obeseRatio;
+
+        /**
+         * 营养不良率
+         */
+        private BigDecimal malnourishedRatio;
+
+        /**
+         * 生长迟缓率
+         */
+        private BigDecimal stuntingRatio;
+
+        /**
+         * 血压偏高率
+         */
+        private BigDecimal highBloodPressureRatio;
+
+        /**
+         * 脊柱弯曲异常率
+         */
+        private BigDecimal abnormalSpineCurvatureRatio;
 
     }
 }
