@@ -11,7 +11,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Date;
@@ -69,7 +68,6 @@ public class Html2PdfService {
     public String convertHtmlToPdf(String url, String fileName) {
         PdfResponseDTO pdfResponse = syncGeneratorPDF(url, fileName);
         log.info("【请求node-js服务】响应：{}", JSONObject.toJSONString(pdfResponse));
-        Assert.isTrue(pdfResponse.getStatus(), "转换html为PDF异常：" + JSONObject.toJSONString(pdfResponse));
         return pdfResponse.getUrl();
     }
 
