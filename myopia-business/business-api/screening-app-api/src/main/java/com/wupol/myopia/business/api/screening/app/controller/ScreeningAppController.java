@@ -47,6 +47,8 @@ import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentVO;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
+import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationStaff;
+import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationStaffService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -105,6 +107,8 @@ public class ScreeningAppController {
     private ScreeningExportService screeningExportService;
     @Autowired
     private CommonImportService commonImportService;
+    @Autowired
+    private ScreeningOrganizationStaffService screeningOrganizationStaffService;
 
     /**
      * 模糊查询某个筛查机构下的学校的
@@ -696,5 +700,20 @@ public class ScreeningAppController {
             log.error("获取二维码异常", e);
             throw new BusinessException("获取二维码异常");
         }
+    }
+
+    /**
+     * 获取筛查人员类型
+     *
+     * @return true-自动生成的筛查人员 false-普通筛查人员
+     */
+    @GetMapping("/check/staffType")
+    public Boolean checkStaffType() {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        ScreeningOrganizationStaff staff = screeningOrganizationStaffService.getStaffsByUserId(currentUser.getId());
+        if (Objects.isNull(staff)) {
+            throw new BusinessException("筛查人员信息异常");
+        }
+        return staff.getType().equals(ScreeningOrganizationStaff.AUTO_CREATE_SCREENING_PERSONNEL);
     }
 }
