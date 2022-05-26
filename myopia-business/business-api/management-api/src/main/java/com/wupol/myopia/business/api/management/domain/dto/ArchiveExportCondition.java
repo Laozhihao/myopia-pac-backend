@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.management.domain.dto;
 
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotNull;
 import java.util.Set;
@@ -54,5 +55,9 @@ public class ArchiveExportCondition {
      * 行政区域ID，type=1时必填
      */
     private Integer districtId;
+
+    public String getPlanStudentIdsStr() {
+        return StringUtils.join(",", planStudentIds);
+    }
 
 }

@@ -461,7 +461,7 @@ public class StudentFacade {
         if (SchoolAge.KINDERGARTEN.code.equals(gradeType)) {
             // 幼儿园
             return 3;
-        } else if (SchoolAge.COLLEGE.code.equals(gradeType)) {
+        } else if (SchoolAge.UNIVERSITY.code.equals(gradeType)) {
             // 大学
             return 2;
         }

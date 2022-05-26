@@ -1,10 +1,8 @@
 package com.wupol.myopia.business.aggregation.export.pdf.archives;
 
-import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.pdf.BaseExportPdfFileService;
-import com.wupol.myopia.business.aggregation.export.pdf.GeneratePdfFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.PDFFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.core.school.domain.model.School;
@@ -17,7 +15,6 @@ import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResu
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.validation.constraints.NotBlank;
 import java.util.Objects;
 
 /**
@@ -30,7 +27,7 @@ import java.util.Objects;
 public class ExportScreeningOrgArchivesService extends BaseExportPdfFileService {
 
     @Autowired
-    private GeneratePdfFileService generateReportPdfService;
+    private ArchivePdfGenerator archivePdfGenerator;
     @Autowired
     private VisionScreeningResultService visionScreeningResultService;
     @Autowired
@@ -51,7 +48,7 @@ public class ExportScreeningOrgArchivesService extends BaseExportPdfFileService 
      **/
     @Override
     public void generatePdfFile(ExportCondition exportCondition, String fileSavePath, String fileName) {
-        generateReportPdfService.generateScreeningOrgArchivesPdfFile(fileSavePath, exportCondition);
+        archivePdfGenerator.generateSchoolArchivesPdfFile(fileSavePath, exportCondition);
     }
 
     /**

@@ -3,7 +3,6 @@ package com.wupol.myopia.business.aggregation.export.pdf.archives;
 import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.pdf.BaseExportPdfFileService;
-import com.wupol.myopia.business.aggregation.export.pdf.GeneratePdfFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.PDFFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
@@ -12,6 +11,7 @@ import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningTaskService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -32,19 +32,16 @@ public class ExportDistrictArchivesService extends BaseExportPdfFileService {
 
     @Resource
     private ScreeningTaskService screeningTaskService;
-
     @Resource
     private VisionScreeningBizService visionScreeningBizService;
-
     @Resource
     private DistrictService districtService;
-
-    @Resource
-    private GeneratePdfFileService generateReportPdfService;
+    @Autowired
+    private ArchivePdfGenerator archivePdfGenerator;
 
     @Override
     public void generatePdfFile(ExportCondition exportCondition, String fileSavePath, String fileName) {
-        generateReportPdfService.generateDistrictArchivesPdfFile(fileSavePath, exportCondition);
+        archivePdfGenerator.generateDistrictArchivesPdfFile(fileSavePath, exportCondition);
     }
 
     @Override

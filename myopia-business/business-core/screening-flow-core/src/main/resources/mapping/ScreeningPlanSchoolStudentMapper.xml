@@ -89,6 +89,9 @@
     <select id="selectSchoolGradeVoByPlanIdAndSchoolId" resultMap="GradeClassesDTO">
         select grade_id, grade_name, class_id, class_name from m_screening_plan_school_student
         where screening_plan_id = #{screeningPlanId} and school_id = #{schoolId}
+        <if test="gradeId != null">
+            AND grade_id = #{gradeId}
+        </if>
         group by grade_id, class_id
     </select>
 

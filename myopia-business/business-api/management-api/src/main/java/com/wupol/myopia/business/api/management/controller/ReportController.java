@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -329,7 +328,7 @@ public class ReportController {
         if (StringUtils.isBlank(url)) {
             return ApiResult.failure("根据Type找不到对应URL");
         }
-        return ApiResult.success(html2PdfService.syncGeneratorPDF(url, "报告.pdf", UUID.randomUUID().toString()).getUrl());
+        return ApiResult.success(html2PdfService.syncGeneratorPDF(url, "报告.pdf").getUrl());
     }
     /**
      *

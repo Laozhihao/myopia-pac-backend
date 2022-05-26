@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
 import com.wupol.myopia.business.api.management.domain.dto.ArchiveRequestParam;
+import com.wupol.myopia.business.common.utils.constant.NationEnum;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
@@ -107,7 +108,6 @@ public class ArchiveService {
                 .collect(Collectors.toList());
     }
 
-
     /**
      * 生成档案卡
      *
@@ -117,7 +117,9 @@ public class ArchiveService {
      */
     private CommonDiseaseArchiveCard generateArchiveCard(VisionScreeningResult visionScreeningResult, StudentDTO studentDTO) {
         CardInfoVO studentInfo = studentFacade.getCardInfo(studentDTO);
-        studentInfo.setScreeningDate(visionScreeningResult.getCreateTime());
+        // 民族特殊处理，不在常见民族列表的设为其他（前端展示需要）
+        NationEnum nationEnum = NationEnum.COMMON_NATION.stream().filter(nation -> nation.getCode().equals(studentInfo.getNation())).findFirst().orElse(NationEnum.OTHER);
+        studentInfo.setScreeningDate(visionScreeningResult.getCreateTime()).setNation(nationEnum.getCode()).setNationDesc(nationEnum.getName());
         return new CommonDiseaseArchiveCard().setStudentInfo(studentInfo)
                 .setBloodPressureData(visionScreeningResult.getBloodPressureData())
                 .setComputerOptometryData(getComputerOptometryData(visionScreeningResult.getComputerOptometry()))
