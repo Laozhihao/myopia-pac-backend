@@ -2,6 +2,8 @@ package com.wupol.myopia.business.api.management.service;
 
 import com.wupol.myopia.business.api.management.domain.vo.report.DistrictCommonDiseaseReportVO;
 import com.wupol.myopia.business.api.management.domain.vo.report.SchoolCommonDiseaseReportVO;
+import com.wupol.myopia.business.api.management.service.report.DistrictCommonDiseaseReportService;
+import com.wupol.myopia.business.api.management.service.report.SchoolCommonDiseaseReportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
