@@ -223,6 +223,13 @@ public class StatManagementController {
     }
 
     /**
+     * 筛查结果统计定时任务手动调用 TODO：为了测试方便
+     */
+    @GetMapping("/trigger")
+    public void statTaskTrigger() {
+        scheduledTasksExecutor.statistic();
+    }
+    /**
      * 触发大屏统计（todo 为了测试方便）
      *
      * @throws IOException
