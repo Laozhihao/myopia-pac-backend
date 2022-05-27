@@ -225,7 +225,7 @@ public class StatManagementController {
     /**
      * 筛查结果统计定时任务手动调用 TODO：为了测试方便
      */
-    @GetMapping("/trigger")
+    @GetMapping("/triggerAll")
     public void statTaskTrigger() {
         scheduledTasksExecutor.statistic();
     }
