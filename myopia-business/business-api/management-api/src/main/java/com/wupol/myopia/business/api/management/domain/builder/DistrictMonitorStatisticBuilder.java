@@ -7,6 +7,7 @@ import lombok.experimental.UtilityClass;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -23,7 +24,7 @@ public final class DistrictMonitorStatisticBuilder {
         Integer withoutGlassDsn = isWearGlassNumMap.getOrDefault(false, 0L).intValue();
         Integer wearingGlassDsn = isWearGlassNumMap.getOrDefault(true, 0L).intValue();
         Integer rescreeningItemNumbers = withoutGlassDsn * 4 + wearingGlassDsn * 6;
-        Integer errorNumbers = statConclusions.stream().mapToInt(StatConclusion::getRescreenErrorNum).sum();
+        Integer errorNumbers = statConclusions.stream().mapToInt(sc-> Optional.ofNullable(sc.getRescreenErrorNum()).orElse(0)).sum();
         int dsn = statConclusions.size();
         statistic.setScreeningNoticeId(screeningNoticeId).setScreeningTaskId(screeningTaskId).setDistrictId(districtId).setIsTotal(isTotal)
                 .setFinishRatio(MathUtil.divide(realScreeningNumbers, planScreeningNumbers))
