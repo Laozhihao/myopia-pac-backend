@@ -57,7 +57,7 @@ public class StatRescreenService extends BaseService<StatRescreenMapper, StatRes
     }
 
     public List<StatRescreen> getByPlanAndSchool(Integer planId, Integer schoolId, Date screeningTime) {
-        return baseMapper.getByPlanAndSchool(planId, schoolId, screeningTime, DateUtil.getYesterdayEndTime());
+        return baseMapper.getByPlanAndSchool(planId, schoolId, screeningTime);
     }
 
 }
