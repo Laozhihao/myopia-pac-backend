@@ -26,8 +26,7 @@
         select * from m_stat_rescreen where plan_id = #{planId}
         and school_id = #{schoolId}
         <if test="screeningTime != null">
-            and DATE(create_time) = DATE(#{screeningTime})
+            and DATE(screening_time) = DATE(#{screeningTime})
         </if>
-        and create_time <![CDATA[ <= ]]> #{createTime}
     </select>
 </mapper>
