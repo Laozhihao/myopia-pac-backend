@@ -66,8 +66,6 @@ public class ReScreenCardUtil {
         commonDiseases.setUpdateTime(EyeDataUtil.updateTime(reScreenResult));
 
         reScreeningResultCard.setCommonDiseases(commonDiseases);
-
-        System.out.println("--------------------reScreeningResultCard-------------"+ JSON.toJSONString(reScreeningResultCard));
         return reScreeningResultCard;
     }
     /**
