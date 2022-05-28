@@ -98,6 +98,8 @@ public abstract class ScreeningResultBasicData implements ScreeningDataInterface
 
     /** 传进来的时间是否为更加新的时间 */
     public boolean isNewerUpdateTime(Long otherUpdateTime) {
+        if (Objects.isNull(otherUpdateTime)) return true;
+        if (Objects.isNull(updateTime)) return false;
         return otherUpdateTime > updateTime;
     }
 }
