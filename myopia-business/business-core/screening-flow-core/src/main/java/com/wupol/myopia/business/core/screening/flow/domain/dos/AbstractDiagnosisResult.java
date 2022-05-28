@@ -21,6 +21,10 @@ public abstract class AbstractDiagnosisResult {
      * 创建用户id
      */
     private Integer createUserId;
+    /**
+     * 更新时间
+     */
+    private Long updateTime;
 
     /**
      * 诊断结果是否为正常

@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.core.screening.flow.constant.ScreeningConstant;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.OtherEyeDiseasesDO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.Data;
@@ -97,6 +98,11 @@ public class OtherEyeDiseasesDTO extends ScreeningResultBasicData {
         }
         otherEyeDiseasesDTO.setSystemicDiseaseSymptom(systemicDiseaseSymptom);
         return otherEyeDiseasesDTO;
+    }
+
+    @Override
+    public String getDataType() {
+        return ScreeningConstant.SCREENING_DATA_TYPE_OTHER_EYE_DISEASE;
     }
 
 }

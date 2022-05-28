@@ -3,6 +3,7 @@ package com.wupol.myopia.business.core.screening.flow.domain.dos;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.util.BigDecimalUtil;
+import com.wupol.myopia.business.core.screening.flow.constant.ScreeningConstant;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultBasicData;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.Data;
@@ -15,7 +16,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * 眼压数据
+ * 身高体重数据
  *
  * @Author tastyb
  * @Date 2022/2/16
@@ -94,6 +95,11 @@ public class HeightAndWeightDataDTO extends ScreeningResultBasicData {
         heightAndWeightDataDTO.setWeight(BigDecimalUtil.getBigDecimalByFormat(heightAndWeightDataDO.getWeight(),1));
         heightAndWeightDataDTO.setBmi(heightAndWeightDataDO.getBmi());
         return heightAndWeightDataDTO;
+    }
+
+    @Override
+    public String getDataType() {
+        return ScreeningConstant.SCREENING_DATA_TYPE_HEIGHT_WEIGHT;
     }
 
 }

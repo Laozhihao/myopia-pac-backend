@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.screening.app.domain.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.core.screening.flow.constant.ScreeningConstant;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.PupilOptometryDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultBasicData;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
@@ -97,6 +98,11 @@ public class PupilOptometryDTO extends ScreeningResultBasicData {
         pupilOptometryDTO.setDiagnosis(pupilOptometryDO.getDiagnosis());
         pupilOptometryDTO.setIsCooperative(pupilOptometryDO.getIsCooperative());
         return pupilOptometryDTO;
+    }
+
+    @Override
+    public String getDataType() {
+        return ScreeningConstant.SCREENING_DATA_TYPE_PUPIL_OPTOMETRY;
     }
 }
 

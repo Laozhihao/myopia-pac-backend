@@ -49,6 +49,8 @@ import com.wupol.myopia.business.core.screening.organization.service.ScreeningOr
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -78,6 +80,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/app/screening")
 @Slf4j
 public class ScreeningAppController {
+    private static final Logger logger = LoggerFactory.getLogger(ScreeningAppController.class);
 
     @Autowired
     private ScreeningAppService screeningAppService;
@@ -348,44 +351,49 @@ public class ScreeningAppController {
         }
 
         String clientId = CurrentUserUtil.getCurrentUser().getClientId();
-        if (screeningResultDataVO.getMultiCheckData() != null) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getMultiCheckData(), clientId, screeningResultDataVO.getUpdateTime());
-        }
-        if (screeningResultDataVO.getComputerOptometryData() != null) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getComputerOptometryData(), clientId, screeningResultDataVO.getUpdateTime());
-        }
-        if (screeningResultDataVO.getVisionData() != null) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getVisionData(), clientId, screeningResultDataVO.getUpdateTime());
-        }
-        if (screeningResultDataVO.getBiometricData() != null) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getBiometricData(), clientId, screeningResultDataVO.getUpdateTime());
-        }
-        if (screeningResultDataVO.getPupilOptometryData() != null) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getPupilOptometryData(), clientId, screeningResultDataVO.getUpdateTime());
-        }
-        if (screeningResultDataVO.getEyePressureData() != null) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getEyePressureData(), clientId, screeningResultDataVO.getUpdateTime());
-        }
-        if (screeningResultDataVO.getOtherEyeDiseasesData() != null) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getOtherEyeDiseasesData(), clientId, screeningResultDataVO.getUpdateTime());
-        }
-        if (screeningResultDataVO.getHeightAndWeightData() != null) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getHeightAndWeightData(), clientId, screeningResultDataVO.getUpdateTime());
-        }
-        if (screeningResultDataVO.getSaprodontiaData() != null) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getSaprodontiaData(), clientId, screeningResultDataVO.getUpdateTime());
-        }
-        if (screeningResultDataVO.getSpineData() != null) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getSpineData(), clientId, screeningResultDataVO.getUpdateTime());
-        }
-        if (screeningResultDataVO.getBloodPressureData() != null) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getBloodPressureData(), clientId, screeningResultDataVO.getUpdateTime());
-        }
-        if (screeningResultDataVO.getDiseasesHistoryData() != null) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getDiseasesHistoryData(), clientId, screeningResultDataVO.getUpdateTime());
-        }
-        if (screeningResultDataVO.getPrivacyData() != null) {
-            visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getPrivacyData(), clientId, screeningResultDataVO.getUpdateTime());
+        try {
+            if (screeningResultDataVO.getMultiCheckData() != null) {
+                visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getMultiCheckData(), clientId);
+            }
+            if (screeningResultDataVO.getComputerOptometryData() != null) {
+                visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getComputerOptometryData(), clientId);
+            }
+            if (screeningResultDataVO.getVisionData() != null) {
+                visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getVisionData(), clientId);
+            }
+            if (screeningResultDataVO.getBiometricData() != null) {
+                visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getBiometricData(), clientId);
+            }
+            if (screeningResultDataVO.getPupilOptometryData() != null) {
+                visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getPupilOptometryData(), clientId);
+            }
+            if (screeningResultDataVO.getEyePressureData() != null) {
+                visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getEyePressureData(), clientId);
+            }
+            if (screeningResultDataVO.getOtherEyeDiseasesData() != null) {
+                visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getOtherEyeDiseasesData(), clientId);
+            }
+            if (screeningResultDataVO.getHeightAndWeightData() != null) {
+                visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getHeightAndWeightData(), clientId);
+            }
+            if (screeningResultDataVO.getSaprodontiaData() != null) {
+                visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getSaprodontiaData(), clientId);
+            }
+            if (screeningResultDataVO.getSpineData() != null) {
+                visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getSpineData(), clientId);
+            }
+            if (screeningResultDataVO.getBloodPressureData() != null) {
+                visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getBloodPressureData(), clientId);
+            }
+            if (screeningResultDataVO.getDiseasesHistoryData() != null) {
+                visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getDiseasesHistoryData(), clientId);
+            }
+            if (screeningResultDataVO.getPrivacyData() != null) {
+                visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getPrivacyData(), clientId);
+            }
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            return ApiResult.success(e.getMessage());
         }
         return ApiResult.success();
     }
