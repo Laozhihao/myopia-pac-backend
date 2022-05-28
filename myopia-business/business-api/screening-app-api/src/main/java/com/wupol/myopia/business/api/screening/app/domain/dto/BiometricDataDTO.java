@@ -149,6 +149,7 @@ public class BiometricDataDTO extends ScreeningResultBasicData {
         BiometricDataDO biometricDataDO = new BiometricDataDO().setRightEyeData(rightBiometricData).setLeftEyeData(leftBiometricData).setIsCooperative(getIsCooperative());
         biometricDataDO.setCreateUserId(getCreateUserId());
         biometricDataDO.setDiagnosis(super.getDiagnosis());
+        biometricDataDO.setUpdateTime(getUpdateTime());
         return visionScreeningResult.setBiometricData(biometricDataDO);
     }
 

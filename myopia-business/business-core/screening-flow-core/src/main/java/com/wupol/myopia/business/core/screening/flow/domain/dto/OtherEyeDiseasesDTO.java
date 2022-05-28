@@ -79,6 +79,7 @@ public class OtherEyeDiseasesDTO extends ScreeningResultBasicData {
         OtherEyeDiseasesDO otherEyeDiseasesDO = new OtherEyeDiseasesDO().setRightEyeData(rightOtherEyeDiseases).setLeftEyeData(leftOtherEyeDiseases);
         otherEyeDiseasesDO.setCreateUserId(getCreateUserId());
         otherEyeDiseasesDO.setDiagnosis(super.getDiagnosis());
+        otherEyeDiseasesDO.setUpdateTime(getUpdateTime());
         // 全身疾病在眼部的表现
         return visionScreeningResult.setOtherEyeDiseases(otherEyeDiseasesDO).setSystemicDiseaseSymptom(systemicDiseaseSymptom);
     }

@@ -42,6 +42,7 @@ public class SaprodontiaDTO extends ScreeningResultBasicData {
         saprodontiaDataDO.setDiagnosis(super.getDiagnosis());
         saprodontiaDataDO.setCreateUserId(getCreateUserId());
         saprodontiaDataDO.setUnderneath(underneath);
+        saprodontiaDataDO.setUpdateTime(getUpdateTime());
         return visionScreeningResult.setSaprodontiaData(saprodontiaDataDO);
     }
 

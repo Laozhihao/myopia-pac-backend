@@ -167,7 +167,7 @@ public class VisionScreeningBizService {
             throw new BusinessException("需要完成柱镜检查");
         }
         if (Objects.isNull(computerOptometry.getLeftEyeData().getAxial()) && Objects.isNull(computerOptometry.getRightEyeData().getAxial())) {
-            throw new BusinessException("需要完成柱镜检查");
+            throw new BusinessException("需要完成轴位检查");
         }
         if (checkHeight && Objects.isNull(firstResult.getHeightAndWeightData())) {
             throw new BusinessException("需要完成体重检查");
@@ -186,7 +186,7 @@ public class VisionScreeningBizService {
         if (Objects.isNull(screeningResultBasicData.getUpdateTime()) || screeningResultBasicData.getUpdateTime() == 0) {
             screeningResultBasicData.setUpdateTime(System.currentTimeMillis());
         }
-        BusinessException exception  = new BusinessException("数据已过期", ResultCode.DATA_UPLOAD_DATA_OUT_DATE.getCode());
+        BusinessException exception  = new BusinessException("检查数据已过期", ResultCode.DATA_UPLOAD_DATA_OUT_DATE.getCode());
         VisionScreeningResult firstResult = tuple.getFirst();
         VisionScreeningResult secondResult = tuple.getSecond();
 

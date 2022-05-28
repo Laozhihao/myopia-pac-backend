@@ -51,6 +51,7 @@ public class SpineDTO extends ScreeningResultBasicData {
         spineDataDO.setEntirety(entirety);
         spineDataDO.setDiagnosis(super.getDiagnosis());
         spineDataDO.setCreateUserId(getCreateUserId());
+        spineDataDO.setUpdateTime(getUpdateTime());
         return visionScreeningResult.setSpineData(spineDataDO);
     }
 

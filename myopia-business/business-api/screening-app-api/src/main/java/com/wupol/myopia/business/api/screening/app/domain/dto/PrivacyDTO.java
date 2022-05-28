@@ -39,6 +39,7 @@ public class PrivacyDTO extends ScreeningResultBasicData {
         privacyDataDO.setHasIncident(hasIncident);
         privacyDataDO.setDiagnosis(super.getDiagnosis());
         privacyDataDO.setCreateUserId(getCreateUserId());
+        privacyDataDO.setUpdateTime(getUpdateTime());
         return visionScreeningResult.setPrivacyData(privacyDataDO);
     }
 

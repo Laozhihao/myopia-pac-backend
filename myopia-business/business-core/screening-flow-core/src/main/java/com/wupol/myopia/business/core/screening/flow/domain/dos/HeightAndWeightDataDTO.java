@@ -57,6 +57,7 @@ public class HeightAndWeightDataDTO extends ScreeningResultBasicData {
         heightAndWeightDataDO.setBmi(bmi);
         heightAndWeightDataDO.setCreateUserId(getCreateUserId());
         heightAndWeightDataDO.setDiagnosis(super.getDiagnosis());
+        heightAndWeightDataDO.setUpdateTime(getUpdateTime());
         return visionScreeningResult.setHeightAndWeightData(heightAndWeightDataDO);
     }
 

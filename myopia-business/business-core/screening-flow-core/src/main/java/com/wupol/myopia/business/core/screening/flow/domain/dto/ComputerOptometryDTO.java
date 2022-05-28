@@ -74,6 +74,7 @@ public class ComputerOptometryDTO extends ScreeningResultBasicData {
         ComputerOptometryDO computerOptometryDO = new ComputerOptometryDO().setRightEyeData(rightComputerOptometry).setLeftEyeData(leftComputerOptometry).setIsCooperative(super.getIsCooperative());
         computerOptometryDO.setDiagnosis(super.getDiagnosis());
         computerOptometryDO.setCreateUserId(getCreateUserId());
+        computerOptometryDO.setUpdateTime(getUpdateTime());
         return visionScreeningResult.setComputerOptometry(computerOptometryDO);
     }
 

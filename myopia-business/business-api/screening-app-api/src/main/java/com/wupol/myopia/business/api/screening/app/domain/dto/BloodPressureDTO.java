@@ -40,6 +40,7 @@ public class BloodPressureDTO  extends ScreeningResultBasicData {
         bloodPressureDataDO.setSbp(sbp);
         bloodPressureDataDO.setDiagnosis(super.getDiagnosis());
         bloodPressureDataDO.setCreateUserId(getCreateUserId());
+        bloodPressureDataDO.setUpdateTime(getUpdateTime());
         return visionScreeningResult.setBloodPressureData(bloodPressureDataDO);
     }
 

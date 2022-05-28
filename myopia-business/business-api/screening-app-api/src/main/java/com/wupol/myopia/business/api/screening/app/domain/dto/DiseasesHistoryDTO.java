@@ -32,6 +32,7 @@ public class DiseasesHistoryDTO extends ScreeningResultBasicData {
         diseasesHistoryDO.setDiseases(diseases);
         diseasesHistoryDO.setDiagnosis(super.getDiagnosis());
         diseasesHistoryDO.setCreateUserId(getCreateUserId());
+        diseasesHistoryDO.setUpdateTime(getUpdateTime());
         return visionScreeningResult.setDiseasesHistoryData(diseasesHistoryDO);
     }
 
