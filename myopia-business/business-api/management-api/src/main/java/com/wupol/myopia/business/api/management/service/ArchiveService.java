@@ -2,14 +2,18 @@ package com.wupol.myopia.business.api.management.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
+import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
 import com.wupol.myopia.business.api.management.domain.dto.ArchiveRequestParam;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
+import com.wupol.myopia.business.core.school.domain.dto.SchoolClassDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
+import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.Student;
-import com.wupol.myopia.business.core.school.service.StudentService;
+import com.wupol.myopia.business.core.school.domain.model.StudentCommonDiseaseId;
+import com.wupol.myopia.business.core.school.service.*;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.SaprodontiaStat;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
@@ -51,6 +55,14 @@ public class ArchiveService {
     private StudentService studentService;
     @Autowired
     private StudentFacade studentFacade;
+    @Autowired
+    private StudentCommonDiseaseIdService studentCommonDiseaseIdService;
+    @Autowired
+    private SchoolCommonDiseaseCodeService schoolCommonDiseaseCodeService;
+    @Autowired
+    private SchoolService schoolService;
+    @Autowired
+    private SchoolGradeService schoolGradeService;
 
     /**
      * 获取档案卡/监测表数据 TODO：整合获取其他类型档案卡数据接口
@@ -70,7 +82,9 @@ public class ArchiveService {
         // 获取所有学生的筛查结果（初筛）
         List<VisionScreeningResult> visionScreeningResultList = visionScreeningResultService.getByScreeningPlanSchoolStudentIds(planStudentIds);
         // 生成档案卡数据
-        return generateArchiveCardBatch(visionScreeningResultList);
+        int year = DateUtil.getYear(screeningPlan.getStartTime());
+        SchoolClassDTO classWithSchoolAndGradeName = schoolGradeService.getClassWithSchoolAndGradeName(archiveRequestParam.getClassId());
+        return generateArchiveCardBatch(visionScreeningResultList, year, classWithSchoolAndGradeName);
     }
 
     /**
@@ -95,17 +109,38 @@ public class ArchiveService {
      * @param visionScreeningResultList 筛查结果列表
      * @return 学生档案卡实体类list
      */
-    private List<CommonDiseaseArchiveCard> generateArchiveCardBatch(List<VisionScreeningResult> visionScreeningResultList) {
+    private List<CommonDiseaseArchiveCard> generateArchiveCardBatch(List<VisionScreeningResult> visionScreeningResultList, int year, SchoolClassDTO classWithSchoolAndGradeName) {
         if (CollectionUtils.isEmpty(visionScreeningResultList)) {
             return Collections.emptyList();
         }
-        // 查询学生信息 TODO：应该取planStudent表学生数据
-        List<Integer> studentIdList = visionScreeningResultList.stream().map(VisionScreeningResult::getStudentId).collect(Collectors.toList());
-        Map<Integer, StudentDTO> studentMap = studentService.getStudentInfoList(studentIdList).stream().collect(Collectors.toMap(Student::getId, Function.identity()));
-
+        // 查询学生信息
+        School school = schoolService.getById(classWithSchoolAndGradeName.getSchoolId());
+        List<Integer> studentIds = visionScreeningResultList.stream().map(VisionScreeningResult::getStudentId).collect(Collectors.toList());
+        Map<Integer, Student> studentMap = studentService.getByIds(studentIds).stream().collect(Collectors.toMap(Student::getId, Function.identity()));
+        List<Integer> planStudentIds = visionScreeningResultList.stream().map(VisionScreeningResult::getScreeningPlanSchoolStudentId).collect(Collectors.toList());
+        Map<Integer, ScreeningPlanSchoolStudent> planSchoolStudentMap = screeningPlanSchoolStudentService.getByIds(planStudentIds).stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getId, Function.identity()));
         return visionScreeningResultList.stream()
-                .map(visionScreeningResult -> generateArchiveCard(visionScreeningResult, studentMap.get(visionScreeningResult.getStudentId())))
+                .map(visionScreeningResult -> generateArchiveCard(visionScreeningResult, getStudentDTO(studentMap.get(visionScreeningResult.getStudentId()), planSchoolStudentMap.get(visionScreeningResult.getScreeningPlanSchoolStudentId()), classWithSchoolAndGradeName, school), year, school))
                 .collect(Collectors.toList());
+    }
+
+    private StudentDTO getStudentDTO(Student student, ScreeningPlanSchoolStudent planStudent, SchoolClassDTO classWithSchoolAndGradeName, School school) {
+        StudentDTO studentDTO = new StudentDTO()
+                .setSchoolName(classWithSchoolAndGradeName.getSchoolName())
+                .setGradeName(classWithSchoolAndGradeName.getGradeName())
+                .setClassName(classWithSchoolAndGradeName.getName())
+                .setSchoolDistrictName(school.getDistrictDetail());
+        studentDTO
+                .setName(planStudent.getStudentName())
+                .setBirthday(planStudent.getBirthday())
+                .setIdCard(planStudent.getIdCard())
+                .setGender(planStudent.getGender())
+                .setSno(student.getSno())
+                .setParentPhone(planStudent.getParentPhone())
+                .setNation(planStudent.getNation())
+                .setPassport(planStudent.getPassport())
+                .setGradeType(planStudent.getGradeType());
+        return studentDTO;
     }
 
     /**
@@ -115,12 +150,15 @@ public class ArchiveService {
      * @param studentDTO           学生信息
      * @return 学生档案卡实体类
      */
-    private CommonDiseaseArchiveCard generateArchiveCard(VisionScreeningResult visionScreeningResult, StudentDTO studentDTO) {
+    private CommonDiseaseArchiveCard generateArchiveCard(VisionScreeningResult visionScreeningResult, StudentDTO studentDTO, int year, School school) {
         CardInfoVO studentInfo = studentFacade.getCardInfo(studentDTO);
         // 民族特殊处理，不在常见民族列表的设为其他（前端展示需要）
         NationEnum nationEnum = NationEnum.COMMON_NATION.stream().filter(nation -> nation.getCode().equals(studentInfo.getNation())).findFirst().orElse(NationEnum.OTHER);
-        studentInfo.setScreeningDate(visionScreeningResult.getCreateTime()).setNation(nationEnum.getCode()).setNationDesc(nationEnum.getName());
-        return new CommonDiseaseArchiveCard().setStudentInfo(studentInfo)
+        studentInfo.setScreeningDate(visionScreeningResult.getCreateTime())
+                .setNation(Optional.ofNullable(studentDTO.getNation()).map(x -> nationEnum.getCode()).orElse(null))
+                .setNationDesc(Optional.ofNullable(studentDTO.getNation()).map(x -> nationEnum.getName()).orElse(null));
+        return new CommonDiseaseArchiveCard()
+                .setStudentInfo(studentInfo)
                 .setBloodPressureData(visionScreeningResult.getBloodPressureData())
                 .setComputerOptometryData(getComputerOptometryData(visionScreeningResult.getComputerOptometry()))
                 .setVisionData(getVisionDataData(visionScreeningResult.getVisionData()))
@@ -129,7 +167,7 @@ public class ArchiveService {
                 .setSpineData(visionScreeningResult.getSpineData())
                 .setHeightAndWeightData(visionScreeningResult.getHeightAndWeightData())
                 .setPrivacyData(visionScreeningResult.getPrivacyData())
-                .setCommonDiseaseIdInfo(getStudentCommonDiseaseIdInfo(studentDTO));
+                .setCommonDiseaseIdInfo(getStudentCommonDiseaseIdInfo(studentDTO, year, school));
     }
 
     /**
@@ -155,7 +193,7 @@ public class ArchiveService {
         }
         ArchiveVisionDataDO archiveVisionDataDO = new ArchiveVisionDataDO();
         BeanUtils.copyProperties(visionDataDO, archiveVisionDataDO);
-        archiveVisionDataDO.setSignPicUrl(studentFacade.getSignPicUrl(1651));
+        archiveVisionDataDO.setSignPicUrl(studentFacade.getSignPicUrl(visionDataDO.getCreateUserId()));
         return archiveVisionDataDO;
     }
 
@@ -169,23 +207,26 @@ public class ArchiveService {
         return saprodontiaData;
     }
 
-    private StudentCommonDiseaseIdInfo getStudentCommonDiseaseIdInfo(StudentDTO studentDTO) {
-        List<District> districtList = JSON.parseObject(studentDTO.getSchoolDistrictName(), new TypeReference<List<District>>(){});
-
-        return new StudentCommonDiseaseIdInfo().setCommonDiseaseId(4201202102010001L)
-                .setProvinceName("广东省")
-                .setProvinceCode("32")
-                .setCityName("广州市")
-                .setCityCode("56")
-                .setAreaName("天河区")
-                .setAreaCode("12")
+    private StudentCommonDiseaseIdInfo getStudentCommonDiseaseIdInfo(StudentDTO studentDTO, int year, School school) {
+        // TODO: 减少数据库查询，在循环外查询数据库
+        List<District> districtList = JSON.parseObject(school.getDistrictDetail(), new TypeReference<List<District>>(){});
+        StudentCommonDiseaseId studentCommonDiseaseId = studentCommonDiseaseIdService.getStudentCommonDiseaseId(school.getDistrictId(), school.getId(), studentDTO.getGradeId(), studentDTO.getId(), year);
+        String schoolCommonDiseaseCode = schoolCommonDiseaseCodeService.getSchoolCommonDiseaseCode(school.getDistrictId(), school.getId(), year);
+        return new StudentCommonDiseaseIdInfo()
+                .setCommonDiseaseId(studentCommonDiseaseId.getCommonDiseaseId())
+                .setProvinceName(districtList.get(0).getName())
+                .setProvinceCode(String.valueOf(districtList.get(0).getCode()).substring(0, 2))
+                .setCityName(districtList.get(1).getName())
+                .setCityCode(String.valueOf(districtList.get(1).getCode()).substring(2, 4))
+                .setAreaName(districtList.get(2).getName())
+                .setAreaCode(String.valueOf(districtList.get(2).getCode()).substring(4, 6))
                 .setSchoolName(studentDTO.getSchoolName())
-                .setSchoolCode("01")
+                .setSchoolCode(schoolCommonDiseaseCode)
                 .setGradeName(studentDTO.getGradeName())
                 .setGradeCode(GradeCodeEnum.getByName(studentDTO.getGradeName()).getCode())
-                .setStudentCode("0001")
-                .setAreaType(1)
-                .setMonitorType(1);
+                .setStudentCode(studentCommonDiseaseId.getCommonDiseaseCode())
+                .setAreaType(school.getAreaType())
+                .setMonitorType(school.getMonitorType());
     }
 
 

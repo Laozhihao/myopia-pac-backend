@@ -213,7 +213,15 @@ public class ScreeningPlanSchoolStudent implements Serializable {
     @TableField(updateStrategy = FieldStrategy.IGNORED)
     private String passport;
 
+    /**
+     * 学生筛查ID - 山西数据库版
+     */
     private String migrateStudentScreeningId;
+
+    /**
+     * 学生常见病ID，16位
+     */
+    private String commonDiseaseId;
 
     /**
      * 检查学生信息是否正确
