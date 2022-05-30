@@ -30,6 +30,7 @@ public class EyePressureDataDTO extends ScreeningResultBasicData {
      */
     private BigDecimal rightPressure;
 
+
     @Override
     public VisionScreeningResult buildScreeningResultData(VisionScreeningResult visionScreeningResult) {
         EyePressureDataDO.EyePressureData leftEyePressureData = new EyePressureDataDO.EyePressureData().setLateriality(CommonConst.LEFT_EYE).setPressure(leftPressure);
