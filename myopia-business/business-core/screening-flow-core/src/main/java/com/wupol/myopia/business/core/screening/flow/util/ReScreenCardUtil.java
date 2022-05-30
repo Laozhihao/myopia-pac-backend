@@ -1,4 +1,5 @@
 package com.wupol.myopia.business.core.screening.flow.util;
+import com.alibaba.fastjson.JSON;
 import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.constant.ReScreenConstant;
@@ -76,15 +77,25 @@ public class ReScreenCardUtil {
     public ComputerOptometryResultVO computerOptometryResult(VisionScreeningResult firstScreenResult, VisionScreeningResult reScreenResult) {
         ComputerOptometryResultVO computerOptometryResult = new ComputerOptometryResultVO();
         computerOptometryResult.setRightSE(EyeDataUtil.calculationSE(EyeDataUtil.rightSph(firstScreenResult),EyeDataUtil.rightCyl(firstScreenResult)));
-
         computerOptometryResult.setRightSEReScreen(EyeDataUtil.calculationSE(EyeDataUtil.rightSph(reScreenResult),EyeDataUtil.rightCyl(reScreenResult)));
-        computerOptometryResult.setRightSEDeviation(BigDecimalUtil.subtractAbsBigDecimal(EyeDataUtil.calculationSE(EyeDataUtil.rightSph(firstScreenResult),
-                EyeDataUtil.rightCyl(firstScreenResult)),EyeDataUtil.calculationSE(EyeDataUtil.rightSph(reScreenResult),EyeDataUtil.rightCyl(reScreenResult))));
+
+        computerOptometryResult.setRightSEDeviation(
+                BigDecimalUtil.subtractAbsBigDecimal(
+                        //初测等效球镜
+                        EyeDataUtil.calculationSE(EyeDataUtil.rightSph(firstScreenResult), EyeDataUtil.rightCyl(firstScreenResult)),
+                        //复测等效球镜
+                        EyeDataUtil.calculationSE(EyeDataUtil.rightSph(reScreenResult),EyeDataUtil.rightCyl(reScreenResult))
+                )
+        );
 
         computerOptometryResult.setLeftSE(EyeDataUtil.calculationSE(EyeDataUtil.leftSph(firstScreenResult),EyeDataUtil.leftCyl(firstScreenResult)));
         computerOptometryResult.setLeftSEScreening(EyeDataUtil.calculationSE(EyeDataUtil.leftSph(reScreenResult),EyeDataUtil.leftCyl(reScreenResult)));
-        computerOptometryResult.setLeftSEDeviation(BigDecimalUtil.subtractAbsBigDecimal(EyeDataUtil.calculationSE(EyeDataUtil.leftSph(firstScreenResult),EyeDataUtil.leftCyl(firstScreenResult)),
-                EyeDataUtil.calculationSE(EyeDataUtil.leftSph(reScreenResult),EyeDataUtil.leftCyl(reScreenResult))));
+        computerOptometryResult.setLeftSEDeviation(
+                BigDecimalUtil.subtractAbsBigDecimal(
+                        EyeDataUtil.calculationSE(EyeDataUtil.leftSph(firstScreenResult),EyeDataUtil.leftCyl(firstScreenResult)),
+                        EyeDataUtil.calculationSE(EyeDataUtil.leftSph(reScreenResult),EyeDataUtil.leftCyl(reScreenResult))
+                )
+        );
         return computerOptometryResult;
     }
 
