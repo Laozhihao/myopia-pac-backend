@@ -1,0 +1,193 @@
+### 服务端口号
+server:
+  port: 8030
+  host: http://localhost:8030
+
+### log4j2配置 ###
+logging:
+  config: classpath:log4j2.xml
+
+### 配置Mybatis-plus的xml路径，多个用逗号隔开 ###
+mybatis-plus:
+  mapper-locations: classpath*:/mapping/*.xml
+
+spring:
+  cloud:
+    ### 注册中心地址
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+    ### sentinel dashboard
+    sentinel:
+      transport:
+        dashboard: localhost:8858
+      # 取消Sentinel控制台懒加载
+      eager: true
+
+  ### 为true设置的是web开启sleuth功能
+  sleuth:
+    web:
+      client:
+        enabled: true
+    # 可以设置为小数，最大值为1.0，当设置为1.0时就是链路数据100%收集到zipkin-server，当设置为0.1时，即10%概率收集链路数据
+    sampler:
+      probability: 1.0
+
+  ### 指定了 Zipkin 服务器的地址
+  zipkin:
+    base-url: http://127.0.0.1:9411
+
+  ### 数据库相关参数配置
+  autoconfigure:
+    exclude: com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceAutoConfigure
+  datasource: #数据库链接相关配置
+    dynamic:
+      druid: #以下是全局默认值，可以全局更改
+        #监控统计拦截的filters
+        filters: stat
+        #配置初始化大小/最小/最大
+        initial-size: 1
+        min-idle: 1
+        max-active: 20
+        #获取连接等待超时时间
+        max-wait: 60000
+        #间隔多久进行一次检测，检测需要关闭的空闲连接
+        time-between-eviction-runs-millis: 60000
+        #一个连接在池中最小生存的时间
+        min-evictable-idle-time-millis: 300000
+        validation-query: SELECT 'x'
+        test-while-idle: true
+        test-on-borrow: false
+        test-on-return: false
+        #打开PSCache，并指定每个连接上PSCache的大小。oracle设为true，mysql设为false。分库分表较多推荐设置为false
+        pool-prepared-statements: false
+        max-pool-prepared-statement-per-connection-size: 20
+        stat:
+          merge-sql: true
+          log-slow-sql: true
+          slow-sql-millis: 2000
+      primary: business_db
+      datasource:
+        # business服务的数据库
+        business_db:
+          url: jdbc:mysql://localhost:3306/myopia_business?useUnicode=true&characterEncoding=utf8&autoReconnect=true&useSSL=false&serverTimezone=GMT%2B8
+          username: root
+          password: 123456
+          driver-class-name: com.mysql.cj.jdbc.Driver
+        # 待迁移数据的临时数据库
+        data_source_db:
+          url: jdbc:mysql://localhost:3306/myopia_shanxi?useUnicode=true&characterEncoding=utf8&autoReconnect=true&useSSL=false&serverTimezone=GMT%2B8
+          username: root
+          password: 123456
+          driver-class-name: com.mysql.cj.jdbc.Driver
+
+  flyway:
+    # flyway是否启用, 生产/stg为true, 测试环境为false, 因为测试环境经常多个分支的切换
+    enabled: false
+    # sql文件位置（db/migration是默认路径，放在resource下，需要手动创建）
+    locations: classpath:db/migration
+    # flyway版本表
+    table: d_devops_flyway_schemas_version
+    encoding: utf-8
+    baseline-on-migrate: true
+    validate-on-migrate: false
+
+  ### Redis配置
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    password:
+    database: 1
+    timeout: 5000ms
+    jedis:
+      pool:
+        max-active: 8
+        max-wait: -1ms
+        max-idle: 8
+        min-idle: 0
+    redisson:
+      file: classpath:redisson.yaml
+
+  servlet:
+    multipart:
+      # 上传限制：100MB
+      max-file-size: 100MB
+      max-request-size: 100MB
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: true
+    time-zone: Asia/Shanghai
+
+### 远程调用oauth服务的负载均衡策略
+myopia-oauth:
+  ribbon:
+    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.BestAvailableRule
+
+### feign 配置
+feign:
+  # 打开 Sentinel 对 Feign 的支持
+  sentinel:
+    enabled: true
+  # 超时时间（毫秒）
+  client:
+    config:
+      default:
+        connectTimeout: 60000
+        readTimeout: 60000
+
+# 上传相关
+upload:
+  # 保存到服务器地址
+  savePath: /myopia/uploadPic
+  # 可上传的文件类型后缀
+  suffixs: pdf,jpg,jpeg,png
+  # 上传S3的bucket
+  bucketName: test.vistel.cn
+  # 文件上传S3的prefix
+  prefix: vistel-appdata-myopia/upload
+  # 静态文件上传S3的prefix，该目录的链接要求不会过期
+  staticPrefix: vistel-appdata-myopia/public
+  # 静态文件访问的host
+  staticHost: https://vistel-development.s3.cn-northwest-1.amazonaws.com.cn
+  # S3链接失效时间（小时）
+  expiredHours: 2
+  region: cn-northwest-1
+
+### 微信相关
+wechat:
+  app:
+    id: wxb1812cb2767ace39
+    secret: c26c5d9601c0c4c2cf83519f9e8fba39
+  authorize:
+    url: https://open.weixin.qq.com/connect/oauth2/authorize
+  api:
+    url-host: https://api.weixin.qq.com
+  callback:
+    url-host: http://myopia.parent.vistel.cn
+  h5-client:
+    url-host: http://myopia.parent.vistel.cn
+
+vistel:
+  tools:
+    remoteAddress: http://tools.internal
+
+### 报告相关
+report:
+  pdf:
+    save-path: /app/pdf/
+    async-request-url: http://t-nodejs-pdf-generator.internal/pdf/single-async
+    sync-request-url: http://t-nodejs-pdf-generator.internal/pdf/single-sync
+    callbackUrl: https://00c5-240e-3b1-21a-2a70-6d1f-6132-cebb-9349.ngrok.io/management/pdf/callback
+  html:
+    url-host: http://8.135.35.154:7002
+
+### 健康监控 - actuator 配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always

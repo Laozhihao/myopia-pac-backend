@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.migrate.domain.mapper.SysStudentMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.migrate.domain.model.SysStudent">
+    </resultMap>
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(studentId)">and `student_id` = #{studentId}</if>
+                <if test="@Ognl@isNotEmpty(openId)">and `open_id` = #{openId}</if>
+                <if test="@Ognl@isNotEmpty(studentNo)">and `student_no` = #{studentNo}</if>
+                <if test="@Ognl@isNotEmpty(faceToken)">and `face_token` = #{faceToken}</if>
+                <if test="@Ognl@isNotEmpty(faceImg)">and `face_img` = #{faceImg}</if>
+                <if test="@Ognl@isNotEmpty(studentName)">and `student_name` = #{studentName}</if>
+                <if test="@Ognl@isNotEmpty(studentPhone)">and `student_phone` = #{studentPhone}</if>
+                <if test="@Ognl@isNotEmpty(idCard)">and `id_card` = #{idCard}</if>
+                <if test="@Ognl@isNotEmpty(birthday)">and `birthday` = #{birthday}</if>
+                <if test="@Ognl@isNotEmpty(sex)">and `sex` = #{sex}</if>
+                <if test="@Ognl@isNotEmpty(province)">and `province` = #{province}</if>
+                <if test="@Ognl@isNotEmpty(city)">and `city` = #{city}</if>
+                <if test="@Ognl@isNotEmpty(region)">and `region` = #{region}</if>
+                <if test="@Ognl@isNotEmpty(street)">and `street` = #{street}</if>
+                <if test="@Ognl@isNotEmpty(clan)">and `clan` = #{clan}</if>
+                <if test="@Ognl@isNotEmpty(address)">and `address` = #{address}</if>
+                <if test="@Ognl@isNotEmpty(schoolAdress)">and `school_adress` = #{schoolAdress}</if>
+                <if test="@Ognl@isNotEmpty(schoolName)">and `school_name` = #{schoolName}</if>
+                <if test="@Ognl@isNotEmpty(grade)">and `grade` = #{grade}</if>
+                <if test="@Ognl@isNotEmpty(clazz)">and `clazz` = #{clazz}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+                <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
+                <if test="@Ognl@isNotEmpty(schoolId)">and `school_id` = #{schoolId}</if>
+                <if test="@Ognl@isNotEmpty(deptId)">and `dept_id` = #{deptId}</if>
+                <if test="@Ognl@isNotEmpty(userId)">and `user_id` = #{userId}</if>
+                <if test="@Ognl@isNotEmpty(isGraduation)">and `is_graduation` = #{isGraduation}</if>
+                <if test="@Ognl@isNotEmpty(state)">and `state` = #{state}</if>
+                <if test="@Ognl@isNotEmpty(studentCode)">and `student_code` = #{studentCode}</if>
+                <if test="@Ognl@isNotEmpty(cacheKeySchool)">and `cache_key_school` = #{cacheKeySchool}</if>
+                <if test="@Ognl@isNotEmpty(reviewStateSchool)">and `review_state_school` = #{reviewStateSchool}</if>
+                <if test="@Ognl@isNotEmpty(reviewStateGrade)">and `review_state_grade` = #{reviewStateGrade}</if>
+                <if test="@Ognl@isNotEmpty(reviewStateClass)">and `review_state_class` = #{reviewStateClass}</if>
+                <if test="@Ognl@isNotEmpty(cacheKeyGrade)">and `cache_key_grade` = #{cacheKeyGrade}</if>
+                <if test="@Ognl@isNotEmpty(cacheKeyClass)">and `cache_key_class` = #{cacheKeyClass}</if>
+                <if test="@Ognl@isNotEmpty(reviewState)">and `review_state` = #{reviewState}</if>
+                <if test="@Ognl@isNotEmpty(reviewBodyState)">and `review_body_state` = #{reviewBodyState}</if>
+                <if test="@Ognl@isNotEmpty(reviewBodyStateSchool)">and `review_body_state_school` = #{reviewBodyStateSchool}</if>
+                <if test="@Ognl@isNotEmpty(reviewBodyStateGrade)">and `review_body_state_grade` = #{reviewBodyStateGrade}</if>
+                <if test="@Ognl@isNotEmpty(reviewBodyStateClass)">and `review_body_state_class` = #{reviewBodyStateClass}</if>
+                <if test="@Ognl@isNotEmpty(graduationTime)">and `graduation_time` = #{graduationTime}</if>
+            </trim>
+        </where>
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        student_id, open_id, student_no, face_token, face_img, student_name, student_phone, id_card, birthday, sex, province, city, region, street, clan, address, school_adress, school_name, grade, clazz, create_time, update_time, school_id, dept_id, user_id, is_graduation, state, student_code, cache_key_school, review_state_school, review_state_grade, review_state_class, cache_key_grade, cache_key_class, review_state, review_body_state, review_body_state_school, review_body_state_grade, review_body_state_class, graduation_time
+    </sql>
+
+</mapper>
