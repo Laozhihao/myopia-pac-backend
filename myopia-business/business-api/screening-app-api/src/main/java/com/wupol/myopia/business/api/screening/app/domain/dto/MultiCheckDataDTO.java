@@ -39,10 +39,6 @@ public class MultiCheckDataDTO extends ScreeningResultBasicData {
      * 盲及视力损害分类（等级）
      **/
     private VisualLossLevelDataDTO visualLossLevelData;
-    /**
-     * 是否配合检查：0-配合、1-不配合
-     */
-    private Integer isCooperative;
 
     @Override
     public VisionScreeningResult buildScreeningResultData(VisionScreeningResult visionScreeningResult) {
@@ -52,7 +48,7 @@ public class MultiCheckDataDTO extends ScreeningResultBasicData {
                     .setEsotropia(ocularInspectionData.getEsotropia())
                     .setExotropia(ocularInspectionData.getExotropia())
                     .setVerticalStrabismus(ocularInspectionData.getVerticalStrabismus())
-                    .setIsCooperative(isCooperative);
+                    .setIsCooperative(getIsCooperative());
             ocularInspectionDataDO.setDiagnosis(ocularInspectionData.getDiagnosis());
             ocularInspectionDataDO.setCreateUserId(getCreateUserId());
             visionScreeningResult.setOcularInspectionData(ocularInspectionDataDO);
@@ -63,7 +59,7 @@ public class MultiCheckDataDTO extends ScreeningResultBasicData {
             leftSlitLampData.setDiagnosis(slitLampData.getLeftDiagnosis());
             SlitLampDataDO.SlitLampData rightSlitLampData = new SlitLampDataDO.SlitLampData().setLateriality(CommonConst.RIGHT_EYE).setPathologicalTissues(slitLampData.getRightPathologicalTissueList());
             rightSlitLampData.setDiagnosis(slitLampData.getRightDiagnosis());
-            SlitLampDataDO slitLampDataDO = new SlitLampDataDO().setRightEyeData(rightSlitLampData).setLeftEyeData(leftSlitLampData).setIsCooperative(isCooperative);
+            SlitLampDataDO slitLampDataDO = new SlitLampDataDO().setRightEyeData(rightSlitLampData).setLeftEyeData(leftSlitLampData).setIsCooperative(getIsCooperative());
             slitLampDataDO.setCreateUserId(getCreateUserId());
             visionScreeningResult.setSlitLampData(slitLampDataDO);
         }
@@ -71,7 +67,7 @@ public class MultiCheckDataDTO extends ScreeningResultBasicData {
         if (Objects.nonNull(fundusData)) {
             FundusDataDO.FundusData leftFundusData = new FundusDataDO.FundusData().setLateriality(CommonConst.LEFT_EYE).setHasAbnormal(fundusData.getLeftHasAbnormal());
             FundusDataDO.FundusData rightFundusData = new FundusDataDO.FundusData().setLateriality(CommonConst.RIGHT_EYE).setHasAbnormal(fundusData.getRightHasAbnormal());
-            FundusDataDO fundusDataDO = new FundusDataDO().setLeftEyeData(leftFundusData).setRightEyeData(rightFundusData).setIsCooperative(isCooperative).setRemark(fundusData.getRemark());
+            FundusDataDO fundusDataDO = new FundusDataDO().setLeftEyeData(leftFundusData).setRightEyeData(rightFundusData).setIsCooperative(getIsCooperative()).setRemark(fundusData.getRemark());
             fundusDataDO.setCreateUserId(getCreateUserId());
             visionScreeningResult.setFundusData(fundusDataDO);
         }
@@ -79,7 +75,7 @@ public class MultiCheckDataDTO extends ScreeningResultBasicData {
         if (Objects.nonNull(visualLossLevelData)) {
             VisualLossLevelDataDO.VisualLossLevelData leftVisualLossLevelData = new VisualLossLevelDataDO.VisualLossLevelData().setLateriality(CommonConst.LEFT_EYE).setLevel(visualLossLevelData.getLeftVisualLossLevel());
             VisualLossLevelDataDO.VisualLossLevelData rightVisualLossLevelData = new VisualLossLevelDataDO.VisualLossLevelData().setLateriality(CommonConst.RIGHT_EYE).setLevel(visualLossLevelData.getRightVisualLossLevel());
-            VisualLossLevelDataDO visualLossLevelDataDO = new VisualLossLevelDataDO().setLeftEyeData(leftVisualLossLevelData).setRightEyeData(rightVisualLossLevelData).setIsCooperative(isCooperative);
+            VisualLossLevelDataDO visualLossLevelDataDO = new VisualLossLevelDataDO().setLeftEyeData(leftVisualLossLevelData).setRightEyeData(rightVisualLossLevelData).setIsCooperative(getIsCooperative());
             visualLossLevelDataDO.setCreateUserId(getCreateUserId());
             visionScreeningResult.setVisualLossLevelData(visualLossLevelDataDO);
         }

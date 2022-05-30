@@ -142,16 +142,13 @@ public class BiometricDataDTO extends ScreeningResultBasicData {
      */
     @JsonProperty("r_VT")
     private String rvt;
-    /**
-     * 是否配合检查：0-配合、1-不配合
-     */
-    private Integer isCooperative;
+
 
     @Override
     public VisionScreeningResult buildScreeningResultData(VisionScreeningResult visionScreeningResult) {
         BiometricDataDO.BiometricData leftBiometricData = new BiometricDataDO.BiometricData().setWtw(lWTW).setAd(lAD).setAl(lAL).setCct(lCCT).setLt(lLT).setK1(lk1).setK1Axis(lk1Axis).setK2(lk2).setK2Axis(lk2Axis).setAst(last).setPd(lpd).setVt(lvt).setLateriality(CommonConst.LEFT_EYE);
         BiometricDataDO.BiometricData rightBiometricData = new BiometricDataDO.BiometricData().setWtw(rWTW).setAd(rAD).setAl(rAL).setCct(rCCT).setLt(rLT).setK1(rk1).setK1Axis(rk1Axis).setK2(rk2).setK2Axis(rk2Axis).setAst(rast).setPd(rpd).setVt(rvt).setLateriality(CommonConst.RIGHT_EYE);
-        BiometricDataDO biometricDataDO = new BiometricDataDO().setRightEyeData(rightBiometricData).setLeftEyeData(leftBiometricData).setIsCooperative(isCooperative);
+        BiometricDataDO biometricDataDO = new BiometricDataDO().setRightEyeData(rightBiometricData).setLeftEyeData(leftBiometricData).setIsCooperative(getIsCooperative());
         biometricDataDO.setCreateUserId(getCreateUserId());
         biometricDataDO.setDiagnosis(super.getDiagnosis());
         return visionScreeningResult.setBiometricData(biometricDataDO);

@@ -66,16 +66,12 @@ public class ComputerOptometryDTO extends ScreeningResultBasicData {
     @JsonProperty("r_se")
     private BigDecimal rSe;
 
-    /**
-     * 是否配合检查：0-配合、1-不配合
-     */
-    private Integer isCooperative;
 
     @Override
     public VisionScreeningResult buildScreeningResultData(VisionScreeningResult visionScreeningResult) {
         ComputerOptometryDO.ComputerOptometry leftComputerOptometry = new ComputerOptometryDO.ComputerOptometry().setAxial(lAxial).setCyl(lCyl).setSph(lSph).setLateriality(CommonConst.LEFT_EYE);
         ComputerOptometryDO.ComputerOptometry rightComputerOptometry = new ComputerOptometryDO.ComputerOptometry().setAxial(rAxial).setCyl(rCyl).setSph(rSph).setLateriality(CommonConst.RIGHT_EYE);
-        ComputerOptometryDO computerOptometryDO = new ComputerOptometryDO().setRightEyeData(rightComputerOptometry).setLeftEyeData(leftComputerOptometry).setIsCooperative(isCooperative);
+        ComputerOptometryDO computerOptometryDO = new ComputerOptometryDO().setRightEyeData(rightComputerOptometry).setLeftEyeData(leftComputerOptometry).setIsCooperative(getIsCooperative());
         computerOptometryDO.setDiagnosis(super.getDiagnosis());
         computerOptometryDO.setCreateUserId(getCreateUserId());
         return visionScreeningResult.setComputerOptometry(computerOptometryDO);
@@ -83,7 +79,7 @@ public class ComputerOptometryDTO extends ScreeningResultBasicData {
 
     public boolean isValid() {
         // 不配合时全部校验
-        if (Objects.nonNull(isCooperative) && isCooperative == 1) {
+        if (Objects.nonNull(getIsCooperative()) && getIsCooperative() == 1) {
             return true;
         }
         return ObjectUtils.anyNotNull(rAxial, lAxial, lSph, rSph, rCyl, lCyl);
