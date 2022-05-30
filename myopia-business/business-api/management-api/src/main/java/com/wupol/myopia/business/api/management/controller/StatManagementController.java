@@ -14,6 +14,7 @@ import com.wupol.myopia.business.api.management.domain.vo.*;
 import com.wupol.myopia.business.api.management.schedule.ScheduledTasksExecutor;
 import com.wupol.myopia.business.api.management.service.*;
 import com.wupol.myopia.business.common.utils.constant.BizMsgConstant;
+import com.wupol.myopia.business.common.utils.constant.GlassesTypeEnum;
 import com.wupol.myopia.business.common.utils.constant.WarningLevel;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.core.common.domain.model.District;
@@ -351,17 +352,23 @@ public class StatManagementController {
         for (StatConclusion statConclusion : statConclusionList) {
             VisionScreeningResult visionScreeningResult = screeningResultMap.get(statConclusion.getResultId());
             if (Objects.nonNull(visionScreeningResult)) {
+                BigDecimal leftNV = null;
+                BigDecimal rightNV = null;
+                BigDecimal leftSpn = null;
+                BigDecimal leftCyl = null;
+                BigDecimal rightSpn = null;
+                BigDecimal rightCyl = null;
                 ComputerOptometryDO computerOptometry = visionScreeningResult.getComputerOptometry();
                 if (Objects.nonNull(computerOptometry)) {
                     Integer age = statConclusion.getAge();
                     ComputerOptometryDO.ComputerOptometry leftEyeData = computerOptometry.getLeftEyeData();
                     ComputerOptometryDO.ComputerOptometry rightEyeData = computerOptometry.getRightEyeData();
                     if (ObjectsUtil.allNotNull(leftEyeData, rightEyeData)) {
-                        BigDecimal leftSpn = leftEyeData.getSph();
-                        BigDecimal leftCyl = leftEyeData.getCyl();
+                        leftSpn = leftEyeData.getSph();
+                        leftCyl = leftEyeData.getCyl();
 
-                        BigDecimal rightSpn = rightEyeData.getSph();
-                        BigDecimal rightCyl = rightEyeData.getCyl();
+                        rightSpn = rightEyeData.getSph();
+                        rightCyl = rightEyeData.getCyl();
 
                         Integer leftMyopiaLevel = null;
                         Integer rightMyopiaLevel = null;
@@ -372,8 +379,8 @@ public class StatManagementController {
                                 && Objects.nonNull(age)
                                 && ObjectsUtil.allNotNull(visionData.getLeftEyeData(), visionData.getRightEyeData())
                                 && ObjectsUtil.allNotNull(visionData.getLeftEyeData().getNakedVision(), visionData.getRightEyeData().getNakedVision())) {
-                            BigDecimal leftNV = visionData.getLeftEyeData().getNakedVision();
-                            BigDecimal rightNV = visionData.getRightEyeData().getNakedVision();
+                            leftNV = visionData.getLeftEyeData().getNakedVision();
+                            rightNV = visionData.getRightEyeData().getNakedVision();
                             if (ObjectsUtil.allNotNull(leftSpn, leftCyl)) {
                                 log.info(JSONObject.toJSONString(visionScreeningResult));
                                 leftMyopiaLevel = StatUtil.getMyopiaLevel(leftSpn.setScale(2, RoundingMode.HALF_UP).floatValue(), leftCyl.setScale(2, RoundingMode.HALF_UP).floatValue(), age, leftNV.floatValue());
@@ -391,8 +398,8 @@ public class StatManagementController {
 
                     VisionDataDO visionData = visionScreeningResult.getVisionData();
                     if (Objects.nonNull(visionData) && Objects.nonNull(age)) {
-                        BigDecimal leftNV = visionData.getLeftEyeData().getNakedVision();
-                        BigDecimal rightNV = visionData.getRightEyeData().getNakedVision();
+                        leftNV = visionData.getLeftEyeData().getNakedVision();
+                        rightNV = visionData.getRightEyeData().getNakedVision();
                         Boolean isLeftLowVision;
                         Boolean isRightLowVision;
                         Integer leftCode = null;
@@ -421,6 +428,21 @@ public class StatManagementController {
                             statConclusion.setNakedVisionWarningLevel(StatUtil.getSeriousLevel(leftCode, rightCode));
                         }
                     }
+                    // 特殊处理 角膜塑型镜特殊处理
+                    if (Objects.equals(statConclusion.getGlassesType(), GlassesTypeEnum.ORTHOKERATOLOGY.code)) {
+                        statConclusion.setWarningLevel(WarningLevel.NORMAL.code);
+                    } else {
+                        Integer warningLevelInt = StatUtil.getWarningLevelInt(
+                                Objects.nonNull(leftCyl) ? leftCyl : null,
+                                Objects.nonNull(leftSpn) ? leftSpn : null,
+                                Objects.nonNull(leftNV) ? leftNV : null,
+                                Objects.nonNull(rightCyl) ? rightCyl : null,
+                                Objects.nonNull(rightSpn) ? rightSpn : null,
+                                Objects.nonNull(rightNV) ? rightNV : null,
+                                statConclusion.getAge());
+                        statConclusion.setWarningLevel(warningLevelInt);
+                    }
+
                     statConclusion.setUpdateTime(new Date());
                 }
             }
