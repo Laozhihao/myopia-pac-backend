@@ -146,10 +146,14 @@ public class DistrictCommonDiseaseReportVO {
         private BigDecimal lowVisionRatio;
 
         /**
-         * 平均视力(占比,在0-6之间)
+         * 平均视力
          */
         private BigDecimal avgVision;
 
+        /**
+         * 平均视力占比（在0-6之间)
+         */
+        private BigDecimal avgVisionRatio;
     }
 
     @Data

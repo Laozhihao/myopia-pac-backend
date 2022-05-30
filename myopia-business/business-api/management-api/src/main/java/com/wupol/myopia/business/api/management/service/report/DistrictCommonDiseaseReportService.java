@@ -259,7 +259,8 @@ public class DistrictCommonDiseaseReportService {
         BigDecimal add = averageVisionTuple.getFirst().add(averageVisionTuple.getSecond());
         BigDecimal averageVision = BigDecimalUtil.divide(add, new BigDecimal("2"), 1);
 
-        kindergartenVO.setAvgVision(MathUtil.ratioNotSymbol(averageVision,new BigDecimal("6")));
+        kindergartenVO.setAvgVision(averageVision);
+        kindergartenVO.setAvgVisionRatio(MathUtil.ratioNotSymbol(averageVision,new BigDecimal("6")));
         kindergartenVO.setLowVisionRatio(MathUtil.ratioNotSymbol(lowVisionNum,validScreeningNum));
         kindergartenVO.setMyopiaLevelInsufficientRatio(MathUtil.ratioNotSymbol(visionLabelZeroSpNum,validScreeningNum));
         kindergartenVO.setAnisometropiaRatio(MathUtil.ratioNotSymbol(anisometropiaNum,validScreeningNum));
@@ -286,7 +287,8 @@ public class DistrictCommonDiseaseReportService {
         TwoTuple<BigDecimal, BigDecimal> averageVisionTuple = StatUtil.calculateAverageVision(primarySchoolAndAboveList);
         BigDecimal add = averageVisionTuple.getFirst().add(averageVisionTuple.getSecond());
         BigDecimal averageVision = BigDecimalUtil.divide(add, new BigDecimal("2"), 1);
-        primarySchoolAndAboveVO.setAvgVision(MathUtil.ratioNotSymbol(averageVision,new BigDecimal("6")));
+        primarySchoolAndAboveVO.setAvgVision(averageVision);
+        primarySchoolAndAboveVO.setAvgVisionRatio(MathUtil.ratioNotSymbol(averageVision,new BigDecimal("6")));
         primarySchoolAndAboveVO.setLowVisionRatio(MathUtil.ratioNotSymbol(lowVisionNum,validScreeningNum));
         primarySchoolAndAboveVO.setMyopiaRatio(MathUtil.ratioNotSymbol(myopiaNum,validScreeningNum));
 
