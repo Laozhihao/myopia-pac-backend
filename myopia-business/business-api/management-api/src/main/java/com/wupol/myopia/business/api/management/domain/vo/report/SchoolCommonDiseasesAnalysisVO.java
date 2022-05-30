@@ -3,6 +3,8 @@ package com.wupol.myopia.business.api.management.domain.vo.report;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.math.BigDecimal;
+
 /**
  * 按学校常见病分析
  *
@@ -114,25 +116,52 @@ public class SchoolCommonDiseasesAnalysisVO {
         /**
          * 龋患率
          */
-        private String saprodontiaRatio;
+        private BigDecimal saprodontiaRatio;
         /**
          * 龋失率
          */
-        private String saprodontiaLossRatio;
+        private BigDecimal saprodontiaLossRatio;
 
         /**
          * 龋补率
          */
-        private String saprodontiaRepairRatio;
+        private BigDecimal saprodontiaRepairRatio;
         /**
          * 龋患（失、补）率
          */
-        private String saprodontiaLossAndRepairRatio;
+        private BigDecimal saprodontiaLossAndRepairRatio;
 
         /**
          * 龋患（失、补）构成比
          */
-        private String saprodontiaLossAndRepairTeethRatio;
+        private BigDecimal saprodontiaLossAndRepairTeethRatio;
+
+    }
+
+    @Data
+    public static class SaprodontiaRatioStrVO{
+        /**
+         * 龋患率
+         */
+        private String saprodontiaRatioStr;
+        /**
+         * 龋失率
+         */
+        private String saprodontiaLossRatioStr;
+
+        /**
+         * 龋补率
+         */
+        private String saprodontiaRepairRatioStr;
+        /**
+         * 龋患（失、补）率
+         */
+        private String saprodontiaLossAndRepairRatioStr;
+
+        /**
+         * 龋患（失、补）构成比
+         */
+        private String saprodontiaLossAndRepairTeethRatioStr;
 
     }
 
@@ -167,21 +196,44 @@ public class SchoolCommonDiseasesAnalysisVO {
         /**
          * 超重率
          */
-        private String overweightRatio;
+        private BigDecimal overweightRatio;
         /**
          * 肥胖率
          */
-        private String obeseRatio;
+        private BigDecimal obeseRatio;
 
         /**
          * 营养不良率
          */
-        private String malnourishedRatio;
+        private BigDecimal malnourishedRatio;
 
         /**
          * 生长迟缓率
          */
-        private String stuntingRatio;
+        private BigDecimal stuntingRatio;
+
+    }
+
+    @Data
+    public static class HeightAndWeightRatioStrVO {
+        /**
+         * 超重率
+         */
+        private String overweightRatioStr;
+        /**
+         * 肥胖率
+         */
+        private String obeseRatioStr;
+
+        /**
+         * 营养不良率
+         */
+        private String malnourishedRatioStr;
+
+        /**
+         * 生长迟缓率
+         */
+        private String stuntingRatioStr;
 
     }
 
@@ -206,12 +258,27 @@ public class SchoolCommonDiseasesAnalysisVO {
         /**
          * 血压偏高率
          */
-        private String highBloodPressureRatio;
+        private BigDecimal highBloodPressureRatio;
 
         /**
          * 脊柱弯曲异常率
          */
-        private String abnormalSpineCurvatureRatio;
+        private BigDecimal abnormalSpineCurvatureRatio;
+
+    }
+
+    @Data
+    public static class BloodPressureAndSpinalCurvatureRatioStrVO{
+
+        /**
+         * 血压偏高率
+         */
+        private String highBloodPressureRatioStr;
+
+        /**
+         * 脊柱弯曲异常率
+         */
+        private String abnormalSpineCurvatureRatioStr;
 
     }
 

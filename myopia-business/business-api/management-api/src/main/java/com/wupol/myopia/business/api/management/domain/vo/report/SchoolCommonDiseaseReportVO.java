@@ -1,7 +1,9 @@
 package com.wupol.myopia.business.api.management.domain.vo.report;
 
+import cn.hutool.core.date.DatePattern;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -40,13 +42,14 @@ public class SchoolCommonDiseaseReportVO {
     @Data
     public static class GlobalVariableVO {
         /**
-         * 学龄段
+         * 学校名称
          */
-        private String schoolAgeName;
+        private String schoolName;
 
         /**
          * 报告生成日期
          */
+        @JsonFormat(pattern = DatePattern.NORM_DATE_PATTERN)
         private Date  reportDate;
 
         /**
@@ -78,107 +81,76 @@ public class SchoolCommonDiseaseReportVO {
         private Integer validScreeningNum;
 
         /**
-         * 视力低下人数
+         * 视力低下
          */
-        private String lowVisionNum;
-        /**
-         *  视力低下率
-         */
-        private String lowVisionRatio;
+        private Item lowVision;
 
         /**
          * 平均视力
          */
-        @JsonFormat(shape = JsonFormat.Shape.STRING)
         private BigDecimal avgVision;
 
         /**
-         * 近视人数
+         * 近视
          */
-        private String myopiaNum;
-        /**
-         * 近视率
-         */
-        private String myopiaRatio;
+        private Item myopia;
 
         /**
-         * 夜戴角膜塑形镜人数
+         * 夜戴角膜塑形镜
          */
-        private Integer nightWearingOrthokeratologyLensesNum;
+        private Item nightWearingOrthokeratologyLenses;
 
         /**
-         * 夜戴角膜塑形镜率
+         * 近视前期
          */
-        private String nightWearingOrthokeratologyLensesRatio;
+        private Item myopiaLevelEarly;
 
         /**
-         * 近视前期人数
+         * 低度近视
          */
-        private Integer myopiaLevelEarlyNum;
+        private Item lowMyopia;
 
         /**
-         * 近视前期率
+         * 高度近视
          */
-        private String myopiaLevelEarlyRatio;
+        private Item highMyopia;
 
         /**
-         * 低度近视人数
+         * 散光
          */
-        private Integer lowMyopiaNum;
+        private Item astigmatism;
 
         /**
-         * 低度近视率
+         * 近视足矫
          */
-        private String lowMyopiaRatio;
+        private Item myopiaEnoughCorrected;
 
         /**
-         * 高度近视人数
+         * 近视未矫
          */
-        private Integer highMyopiaNum;
-        /**
-         * 高度近视率
-         */
-        private String highMyopiaRatio;
+        private Item myopiaUncorrected;
 
         /**
-         * 散光数人数
+         * 近视欠矫
          */
-        private Integer astigmatismNum;
+        private Item myopiaUnderCorrected;
 
+    }
+
+    @Data
+    public static class Item {
         /**
-         * 散光数率
+         * 人数
          */
-        private String astigmatismRatio;
-
+        private Integer num;
         /**
-         * 近视足矫人数
+         * 占比(不带%)
          */
-        private Integer myopiaEnoughCorrectedNum;
+        private BigDecimal ratio;
 
-        /**
-         * 近视足矫率
-         */
-        private String myopiaEnoughCorrectedRatio;
-
-        /**
-         * 近视未矫人数
-         */
-        private String myopiaUncorrectedNum;
-
-        /**
-         * 近视未矫率
-         */
-        private String myopiaUncorrectedRatio;
-
-        /**
-         * 近视欠矫人数
-         */
-        private String myopiaUnderCorrectedNum;
-
-        /**
-         * 近视欠矫率
-         */
-        private String myopiaUnderCorrectedRatio;
-
+        public Item(Integer num, BigDecimal ratio) {
+            this.num = num;
+            this.ratio = ratio;
+        }
     }
 }

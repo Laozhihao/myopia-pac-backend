@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.domain.vo.report;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -12,76 +13,80 @@ import java.util.List;
 @Data
 public class SchoolClassScreeningMonitorVO {
     /**
-     * 说明变量
+     * 年级说明
      */
-    private SchoolScreeningMonitorVariableVO schoolScreeningMonitorVariableVO;
+    private SchoolClassScreeningMonitorVariableVO schoolClassScreeningMonitorVariableVO;
     /**
-     * 表格数据
+     * 年级表格数据
      */
-    private List<SchoolScreeningMonitorTable> schoolScreeningMonitorTableList;
+    private List<SchoolClassScreeningMonitorTable> schoolClassScreeningMonitorTableList;
 
     @Data
-    public static class SchoolScreeningMonitorVariableVO{
+    public static class SchoolClassScreeningMonitorVariableVO{
 
         /**
          * 龋患率极值
          */
-        private SchoolRatioExtremum saprodontiaRatioExtremum;
+        private GradeRatioExtremum saprodontiaRatioExtremum;
 
         /**
          * 龋患（失、补）率极值
          */
-        private SchoolRatioExtremum saprodontiaLossAndRepairRatioExtremum;
+        private GradeRatioExtremum saprodontiaLossAndRepairRatioExtremum;
 
         /**
          * 超重率极值
          */
-        private SchoolRatioExtremum overweightRatioExtremum;
+        private GradeRatioExtremum overweightRatioExtremum;
         /**
          * 肥胖率极值
          */
-        private SchoolRatioExtremum obeseRatioExtremum;
+        private GradeRatioExtremum obeseRatioExtremum;
 
         /**
          * 营养不良率极值
          */
-        private SchoolRatioExtremum malnourishedRatioExtremum;
+        private GradeRatioExtremum malnourishedRatioExtremum;
 
         /**
          * 生长迟缓率极值
          */
-        private SchoolRatioExtremum stuntingRatioExtremum;
+        private GradeRatioExtremum stuntingRatioExtremum;
 
         /**
          * 血压偏高率极值
          */
-        private SchoolRatioExtremum highBloodPressureRatioExtremum;
+        private GradeRatioExtremum highBloodPressureRatioExtremum;
 
         /**
          * 脊柱弯曲异常率极值
          */
-        private SchoolRatioExtremum abnormalSpineCurvatureRatioExtremum;
+        private GradeRatioExtremum abnormalSpineCurvatureRatioExtremum;
 
     }
 
     @Data
-    public static class SchoolRatioExtremum{
+    public static class GradeRatioExtremum{
         /**
-         * 学校
+         * 最高占比年级
          */
-        private String schoolName;
+        private String maxGradeName;
+        /**
+         * 最低占比年级
+         */
+        private String minGradeName;
         /**
          * 最高占比
          */
-        private String maxRatio;
+        private BigDecimal maxRatio;
         /**
          * 最低占比
          */
-        private String minRatio;
+        private BigDecimal minRatio;
     }
 
     @Data
-    public static class SchoolScreeningMonitorTable {
+    public static class SchoolClassScreeningMonitorTable {
 
         /**
          * 项目 （性别、学龄段、年龄段）
@@ -93,18 +98,83 @@ public class SchoolClassScreeningMonitorVO {
          */
         private Integer validScreeningNum;
 
+
         /**
-         * 龋齿数据
+         * 有龋人数
          */
-        private DistrictCommonDiseasesAnalysisVO.SaprodontiaVO saprodontiaVO;
+        private Integer saprodontiaNum;
+
         /**
-         * 身高体重数据
+         * 龋患（失、补）人数
          */
-        private DistrictCommonDiseasesAnalysisVO.HeightAndWeightVO heightAndWeightVO;
+        private Integer saprodontiaLossAndRepairNum;
+
         /**
-         * 血压与脊柱弯曲数据
+         * 超重数
          */
-        private DistrictCommonDiseasesAnalysisVO.BloodPressureAndSpinalCurvatureVO bloodPressureAndSpinalCurvatureVO;
+        private Integer overweightNum;
+        /**
+         * 肥胖数
+         */
+        private Integer obeseNum;
+        /**
+         * 营养不良数
+         */
+        private Integer malnourishedNum;
+        /**
+         * 生长迟缓数据
+         */
+        private Integer stuntingNum;
+
+        /**
+         * 血压偏高人数
+         */
+        private Integer highBloodPressureNum;
+
+        /**
+         * 脊柱弯曲异常人数
+         */
+        private Integer abnormalSpineCurvatureNum;
+
+
+        //=========== 不带% =============
+        /**
+         * 龋患率
+         */
+        private BigDecimal saprodontiaRatio;
+
+        /**
+         * 龋患（失、补）率
+         */
+        private BigDecimal saprodontiaLossAndRepairRatio;
+        /**
+         * 超重率
+         */
+        private BigDecimal overweightRatio;
+        /**
+         * 肥胖率
+         */
+        private BigDecimal obeseRatio;
+
+        /**
+         * 营养不良率
+         */
+        private BigDecimal malnourishedRatio;
+
+        /**
+         * 生长迟缓率
+         */
+        private BigDecimal stuntingRatio;
+
+        /**
+         * 血压偏高率
+         */
+        private BigDecimal highBloodPressureRatio;
+
+        /**
+         * 脊柱弯曲异常率
+         */
+        private BigDecimal abnormalSpineCurvatureRatio;
 
     }
 }

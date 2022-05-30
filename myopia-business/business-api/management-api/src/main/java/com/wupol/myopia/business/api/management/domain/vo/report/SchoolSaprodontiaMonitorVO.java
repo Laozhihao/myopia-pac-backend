@@ -14,19 +14,19 @@ import java.util.List;
 public class SchoolSaprodontiaMonitorVO {
 
     /**
-     * 说明变量
+     * 说明
      */
     private SaprodontiaMonitorVariableVO saprodontiaMonitorVariableVO;
 
     /**
      * 龋齿监测 - 不同性别
      */
-    private SaprodontiaSexVO saprodontiaSex;
+    private SaprodontiaSexVO saprodontiaSexVO;
 
     /**
-     * 龋齿监测 - 不同学龄段
+     * 龋齿监测 - 不同年级段
      */
-    private SaprodontiaSchoolAgeVO saprodontiaSchoolAge;
+    private SaprodontiaGradeVO saprodontiaGradeVO;
     /**
      * 龋齿监测 - 不同年龄
      */
@@ -52,9 +52,9 @@ public class SchoolSaprodontiaMonitorVO {
          */
         private SaprodontiaSexVariableVO saprodontiaSexVariableVO;
         /**
-         * 性别数据
+         * 性别表格数据
          */
-        private List<SaprodontiaMonitorTable> saprodontiaMonitorTableList;
+        private List<SaprodontiaMonitorTable> saprodontiaSexMonitorTableList;
 
 
     }
@@ -97,74 +97,57 @@ public class SchoolSaprodontiaMonitorVO {
 
 
     @Data
-    public static class SaprodontiaSchoolAgeVO{
+    public static class SaprodontiaGradeVO{
 
         /**
-         * 学龄段说明
+         * 年级说明
          */
-        private SaprodontiaSchoolAgeVariableVO saprodontiaSchoolAgeVariableVO;
+        private SaprodontiaGradeVariableVO saprodontiaGradeVariableVO;
         /**
-         * 学龄段数据
+         * 年级表格数据
          */
-        private List<SaprodontiaMonitorTable> saprodontiaMonitorTableList;
+        private List<SaprodontiaMonitorTable> saprodontiaGradeMonitorTableList;
 
     }
     @Data
-    public static class SaprodontiaSchoolAgeVariableVO{
-        /**
-         * 小学
-         */
-        private SaprodontiaSchoolAge primarySchool;
-        /**
-         * 初中
-         */
-        private SaprodontiaSchoolAge juniorHighSchool;
-        /**
-         * 普高
-         */
-        private SaprodontiaSchoolAge normalHighSchool;
-        /**
-         * 职高
-         */
-        private SaprodontiaSchoolAge vocationalHighSchool;
-        /**
-         * 大学
-         */
-        private SaprodontiaSchoolAge university;
-
-    }
-
-    @EqualsAndHashCode(callSuper = true)
-    @Data
-    public static class SaprodontiaSchoolAge extends DistrictCommonDiseasesAnalysisVO.SaprodontiaRatioVO{
-
+    public static class SaprodontiaGradeVariableVO{
         /**
          * 最高年级龋患率
          */
-        private GradeRatio maxSaprodontiaRatio;
+        private GradeRatio saprodontiaRatio;
 
         /**
          * 最高年级龋失率
          */
-        private GradeRatio maxSaprodontiaLossRatio;
+        private GradeRatio saprodontiaLossRatio;
 
         /**
          * 最高年级龋补率
          */
-        private GradeRatio maxSaprodontiaRepairRatio;
+        private GradeRatio saprodontiaRepairRatio;
 
     }
+
 
     @Data
     public static class GradeRatio{
         /**
-         * 年级
+         * 最高占比年级
          */
-        private String grade;
+        private String maxGrade;
         /**
-         * 占比
+         * 最低占比年级
          */
-        private String ratio;
+        private String minGrade;
+        /**
+         * 最高占比
+         */
+        private String maxRatio;
+        /**
+         * 最低占比
+         */
+        private String minRatio;
+
     }
 
 
@@ -175,9 +158,9 @@ public class SchoolSaprodontiaMonitorVO {
          */
         private SaprodontiaAgeVariableVO saprodontiaAgeVariableVO;
         /**
-         * 年龄段数据
+         * 年龄段表格数据
          */
-        private List<SaprodontiaMonitorTable> saprodontiaMonitorTableList;
+        private List<SaprodontiaMonitorTable> saprodontiaAgeMonitorTableList;
 
     }
 
@@ -201,9 +184,13 @@ public class SchoolSaprodontiaMonitorVO {
     @Data
     public static class AgeRatio{
         /**
-         * 年龄
+         * 最高占比年龄段
          */
-        private String grade;
+        private String maxAge;
+        /**
+         * 最低占比年龄段
+         */
+        private String minAge;
         /**
          * 最高占比
          */

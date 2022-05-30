@@ -14,19 +14,19 @@ import java.util.List;
 public class SchoolHeightAndWeightMonitorVO {
 
     /**
-     * 说明变量
+     * 说明
      */
     private HeightAndWeightMonitorVariableVO heightAndWeightMonitorVariableVO;
 
     /**
      * 龋齿监测 - 不同性别
      */
-    private HeightAndWeightSexVO heightAndWeightSex;
+    private HeightAndWeightSexVO heightAndWeightSexVO;
 
     /**
      * 龋齿监测 - 不同学龄段
      */
-    private HeightAndWeightSchoolAgeVO heightAndWeightSchoolAgeVO;
+    private HeightAndWeightGradeVO heightAndWeightGradeVO;
     /**
      * 龋齿监测 - 不同年龄
      */
@@ -47,9 +47,9 @@ public class SchoolHeightAndWeightMonitorVO {
          */
         private HeightAndWeightSexVariableVO heightAndWeightSexVariableVO;
         /**
-         * 性别数据
+         * 性别表格数据
          */
-        private List<HeightAndWeightMonitorTable> heightAndWeightMonitorTableList;
+        private List<HeightAndWeightMonitorTable> heightAndWeightSexMonitorTableList;
 
 
     }
@@ -96,78 +96,60 @@ public class SchoolHeightAndWeightMonitorVO {
 
 
     @Data
-    public static class HeightAndWeightSchoolAgeVO{
+    public static class HeightAndWeightGradeVO{
 
         /**
-         * 学龄段说明
+         * 年级说明
          */
-        private HeightAndWeightSchoolAgeVariableVO heightAndWeightSchoolAgeVariableVO;
+        private HeightAndWeightGradeVariableVO heightAndWeightGradeVariableVO;
         /**
-         * 学龄段数据
+         * 年级表格数据
          */
-        private List<HeightAndWeightMonitorTable> heightAndWeightMonitorTableList;
+        private List<HeightAndWeightMonitorTable> heightAndWeightGradeMonitorTableList;
 
     }
     @Data
-    public static class HeightAndWeightSchoolAgeVariableVO{
-        /**
-         * 小学
-         */
-        private HeightAndWeightSchoolAge primarySchool;
-        /**
-         * 初中
-         */
-        private HeightAndWeightSchoolAge juniorHighSchool;
-        /**
-         * 普高
-         */
-        private HeightAndWeightSchoolAge normalHighSchool;
-        /**
-         * 职高
-         */
-        private HeightAndWeightSchoolAge vocationalHighSchool;
-        /**
-         * 大学
-         */
-        private HeightAndWeightSchoolAge university;
-
-    }
-
-    @EqualsAndHashCode(callSuper = true)
-    @Data
-    public static class HeightAndWeightSchoolAge extends DistrictCommonDiseasesAnalysisVO.HeightAndWeightRatioVO{
-
+    public static class HeightAndWeightGradeVariableVO{
         /**
          * 最高年级超重率
          */
-        private GradeRatio maxOverweightRatio;
+        private GradeRatio overweightRatio;
         /**
          * 最高年级肥胖率
          */
-        private GradeRatio maxObeseRatio;
+        private GradeRatio obeseRatio;
 
         /**
          * 最高年级营养不良率
          */
-        private GradeRatio maxMalnourishedRatio;
+        private GradeRatio malnourishedRatio;
 
         /**
          * 最高年级生长迟缓率
          */
-        private GradeRatio maxStuntingRatio;
-
+        private GradeRatio stuntingRatio;
     }
+
 
     @Data
     public static class GradeRatio{
         /**
-         * 年级
+         * 最高占比年级
          */
-        private String grade;
+        private String maxGrade;
         /**
-         * 占比
+         * 最低占比年级
          */
-        private String ratio;
+        private String minGrade;
+        /**
+         * 最高占比
+         */
+        private String maxRatio;
+        /**
+         * 最低占比
+         */
+        private String minRatio;
+
     }
 
 
@@ -178,9 +160,9 @@ public class SchoolHeightAndWeightMonitorVO {
          */
         private HeightAndWeightAgeVariableVO heightAndWeightAgeVariableVO;
         /**
-         * 年龄段数据
+         * 年龄段表格数据
          */
-        private List<HeightAndWeightMonitorTable> heightAndWeightMonitorTableList;
+        private List<HeightAndWeightMonitorTable> heightAndWeightAgeMonitorTableList;
 
     }
 
@@ -208,9 +190,13 @@ public class SchoolHeightAndWeightMonitorVO {
     @Data
     public static class AgeRatio{
         /**
-         * 年龄
+         * 最高占比年龄段
          */
-        private String grade;
+        private String maxAge;
+        /**
+         * 最低占比年龄段
+         */
+        private String minAge;
         /**
          * 最高占比
          */
