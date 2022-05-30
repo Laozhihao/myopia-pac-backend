@@ -308,11 +308,11 @@ public class StatConclusionBuilder {
             statConclusion.setWarningLevel(WarningLevel.NORMAL.code);
             return;
         }
-
+        GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(gradeCode);
         Integer warningLevelInt = StatUtil.getWarningLevelInt(
                 basicData.getLeftCyl(),basicData.getLeftSph(),basicData.getLeftNakedVision(),
                 basicData.getRightCyl(),basicData.getRightSph(),basicData.getRightNakedVision(),
-                basicData.getAge(),basicData.getSchoolAge());
+                basicData.getAge(),Optional.ofNullable(gradeCodeEnum).map(GradeCodeEnum::getType).orElse(null));
         statConclusion.setWarningLevel(warningLevelInt);
     }
 
