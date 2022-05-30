@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.domain.vo.report;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -18,7 +19,7 @@ public class DistrictDiseaseMonitorVO {
     private DiseaseMonitorVariableVO diseaseMonitorVariableVO;
 
     /**
-     * 不同学龄段 - 疾病监测
+     * 疾病监测-不同学龄段-表格数据
      */
     private List<DiseaseMonitorTable> diseaseMonitorTableList;
 
@@ -91,7 +92,7 @@ public class DistrictDiseaseMonitorVO {
     @Data
     public static class DiseaseMonitorTable{
         /**
-         * 项目（学龄）
+         * 项目（学龄段）
          */
         private String schoolAge;
         /**
@@ -99,29 +100,49 @@ public class DistrictDiseaseMonitorVO {
          */
         private Integer validScreeningNum;
         /**
-         * 高血压
+         * 高血压人数
          */
-        private Ratio hypertension;
+        private Integer hypertensionNum;
+        /**
+         * 高血压占比
+         */
+        private BigDecimal hypertensionRatio;
 
         /**
-         * 贫血
+         * 贫血人数
          */
-        private Ratio anemia;
+        private Integer anemiaNum;
+        /**
+         * 贫血占比
+         */
+        private BigDecimal anemiaRatio;
 
         /**
-         * 糖尿病
+         * 糖尿病人数
          */
-        private Ratio diabetes;
+        private Integer diabetesNum;
+        /**
+         * 糖尿病占比
+         */
+        private BigDecimal diabetesRatio;
 
         /**
-         * 过敏性哮喘
+         * 过敏性哮喘人数
          */
-        private Ratio allergicAsthma;
+        private Integer allergicAsthmaNum;
+        /**
+         * 过敏性哮喘占比
+         */
+        private BigDecimal allergicAsthmaRatio;
 
+        /**
+         * 身体残疾人数
+         */
+        private Integer physicalDisabilityNum;
         /**
          * 身体残疾占比
          */
-        private Ratio physicalDisability;
+        private BigDecimal physicalDisabilityRatio;
 
 
     }

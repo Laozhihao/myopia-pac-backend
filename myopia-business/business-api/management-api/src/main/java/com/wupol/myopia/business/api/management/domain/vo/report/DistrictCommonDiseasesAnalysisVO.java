@@ -56,21 +56,75 @@ public class DistrictCommonDiseasesAnalysisVO {
          */
         private Integer abnormalSpineCurvatureNum;
 
+
         /**
-         * 龋齿数据
+         * 龋均
          */
-        private SaprodontiaVO saprodontiaVO;
+        private Item dmft;
+
         /**
-         * 身高体重数据
+         * 有龋
          */
-        private HeightAndWeightVO heightAndWeightVO;
+        private Item saprodontia;
+
         /**
-         * 血压与脊柱弯曲数据
+         * 龋失
          */
-        private BloodPressureAndSpinalCurvatureVO bloodPressureAndSpinalCurvatureVO;
+        private Item saprodontiaLoss;
+
+        /**
+         * 龋补
+         */
+        private Item saprodontiaRepair;
+
+        /**
+         * 龋患（失、补）
+         */
+        private Item saprodontiaLossAndRepair;
+
+        /**
+         * 龋患（失、补）牙数
+         */
+        private Item saprodontiaLossAndRepairTeeth;
+
+        /**
+         * 超重
+         */
+        private Item overweight;
+
+        /**
+         * 肥胖人数
+         */
+        private Item obese;
+
+        /**
+         * 血压偏高人数
+         */
+        private Item highBloodPressure;
+
+        /**
+         * 脊柱弯曲异常人数
+         */
+        private Item abnormalSpineCurvature;
+
 
     }
+    @Data
+    public static class Item{
+        /**
+         * 数量
+         */
+        private Integer num;
+        /**
+         * 占比
+         */
+        private BigDecimal ratio;
 
+        public Item(Integer num, BigDecimal ratio) {
+            this.num = num;
+            this.ratio = ratio;
+        }
+    }
 
 
     @EqualsAndHashCode(callSuper = true)

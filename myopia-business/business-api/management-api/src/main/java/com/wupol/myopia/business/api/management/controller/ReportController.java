@@ -365,15 +365,15 @@ public class ReportController {
 
     /**
      * 按学校常见病报告
-     * @param districtId 区域ID
+     * @param schoolId 学校ID
      * @param noticeId 筛查通知ID（当筛查计划ID为空时，此值必填）
      * @param planId 计划ID（当筛查通知ID为空时，此值必填）
      */
     @GetMapping("/schoolCommonDiseaseReport")
-    public ApiResult<SchoolCommonDiseaseReportVO> schoolCommonDiseaseReport(@RequestParam Integer districtId,
+    public ApiResult<SchoolCommonDiseaseReportVO> schoolCommonDiseaseReport(@RequestParam Integer schoolId,
                                                                             @RequestParam(required = false) Integer noticeId,
                                                                             @RequestParam(required = false) Integer planId){
-        return ApiResult.success(commonDiseaseReportService.schoolCommonDiseaseReport(districtId,noticeId,planId));
+        return ApiResult.success(commonDiseaseReportService.schoolCommonDiseaseReport(schoolId,noticeId,planId));
     }
 
 }

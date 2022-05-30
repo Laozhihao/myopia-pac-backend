@@ -74,11 +74,9 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorService {
         if (CollectionUtil.isEmpty(statConclusionList)){
             return;
         }
-
         DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureSexVO sexVO = new DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureSexVO();
         getBloodPressureAndSpinalCurvatureSexVariableVO(statConclusionList,sexVO);
         getBloodPressureAndSpinalCurvatureSexMonitorTableList(statConclusionList,sexVO);
-
         districtBloodPressureAndSpinalCurvatureMonitorVO.setBloodPressureAndSpinalCurvatureSexVO(sexVO);
     }
 
@@ -93,15 +91,14 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorService {
         List<BloodPressureAndSpinalCurvatureNum> bloodPressureAndSpinalCurvatureSexList= Lists.newArrayList();
         genderMap.forEach((gender,list)-> getBloodPressureAndSpinalCurvatureNum(gender,list,bloodPressureAndSpinalCurvatureSexList));
 
-        DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureSex abnormalSpineCurvature = getRatioCompare(bloodPressureAndSpinalCurvatureSexList, BloodPressureAndSpinalCurvatureNum::getAbnormalSpineCurvatureNum, BloodPressureAndSpinalCurvatureNum::getAbnormalSpineCurvatureRatioStr);
-        DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureSex highBloodPressure = getRatioCompare(bloodPressureAndSpinalCurvatureSexList, BloodPressureAndSpinalCurvatureNum::getHighBloodPressureNum, BloodPressureAndSpinalCurvatureNum::getHighBloodPressureRatioStr);
-
-        DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureSexVariableVO sexVariableVO = new DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureSexVariableVO();
-        sexVariableVO.setAbnormalSpineCurvatureRatioCompare(abnormalSpineCurvature);
-        sexVariableVO.setHighBloodPressureRatioCompare(highBloodPressure);
-
-        sexVO.setBloodPressureAndSpinalCurvatureSexVariableVO(sexVariableVO);
-
+        if (bloodPressureAndSpinalCurvatureSexList.size() >= 2){
+            DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureSex abnormalSpineCurvature = getRatioCompare(bloodPressureAndSpinalCurvatureSexList, BloodPressureAndSpinalCurvatureNum::getAbnormalSpineCurvatureNum, BloodPressureAndSpinalCurvatureNum::getAbnormalSpineCurvatureRatioStr);
+            DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureSex highBloodPressure = getRatioCompare(bloodPressureAndSpinalCurvatureSexList, BloodPressureAndSpinalCurvatureNum::getHighBloodPressureNum, BloodPressureAndSpinalCurvatureNum::getHighBloodPressureRatioStr);
+            DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureSexVariableVO sexVariableVO = new DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureSexVariableVO();
+            sexVariableVO.setAbnormalSpineCurvatureRatioCompare(abnormalSpineCurvature);
+            sexVariableVO.setHighBloodPressureRatioCompare(highBloodPressure);
+            sexVO.setBloodPressureAndSpinalCurvatureSexVariableVO(sexVariableVO);
+        }
     }
 
     private void getBloodPressureAndSpinalCurvatureNum(Integer gender, List<StatConclusion> statConclusionList, List<BloodPressureAndSpinalCurvatureNum> sexList) {
@@ -203,9 +200,7 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorService {
         DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureSchoolAgeVO schoolAgeVO = new DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureSchoolAgeVO();
         getBloodPressureAndSpinalCurvatureSchoolAgeVariableVO(statConclusionList,schoolAgeVO);
         getBloodPressureAndSpinalCurvatureSchoolAgeMonitorTableList(statConclusionList,schoolAgeVO);
-
         districtBloodPressureAndSpinalCurvatureMonitorVO.setBloodPressureAndSpinalCurvatureSchoolAgeVO(schoolAgeVO);
-
     }
 
     /**
@@ -281,13 +276,20 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorService {
             getBloodPressureAndSpinalCurvatureNum(gradeCodeEnum.getName(),list,bloodPressureAndSpinalCurvatureNumMap);
         });
 
-        TwoTuple<String, String> abnormalSpineCurvature = getMaxMap(bloodPressureAndSpinalCurvatureNumMap, BloodPressureAndSpinalCurvatureNum::getAbnormalSpineCurvatureNum, BloodPressureAndSpinalCurvatureNum::getAbnormalSpineCurvatureRatioStr);
-        TwoTuple<String,String> highBloodPressure = getMaxMap(bloodPressureAndSpinalCurvatureNumMap, BloodPressureAndSpinalCurvatureNum::getHighBloodPressureNum,BloodPressureAndSpinalCurvatureNum::getHighBloodPressureRatioStr);
-
-        bloodPressureAndSpinalCurvatureSchoolAge.setMaxAbnormalSpineCurvatureRatio(new DistrictBloodPressureAndSpinalCurvatureMonitorVO.GradeRatio(abnormalSpineCurvature.getFirst(),abnormalSpineCurvature.getSecond()));
-        bloodPressureAndSpinalCurvatureSchoolAge.setMaxHighBloodPressureRatio(new DistrictBloodPressureAndSpinalCurvatureMonitorVO.GradeRatio(highBloodPressure.getFirst(),highBloodPressure.getSecond()));
-
+        if (bloodPressureAndSpinalCurvatureNumMap.size() >= 2){
+            bloodPressureAndSpinalCurvatureSchoolAge.setMaxAbnormalSpineCurvatureRatio(getGradeRatio(bloodPressureAndSpinalCurvatureNumMap, BloodPressureAndSpinalCurvatureNum::getAbnormalSpineCurvatureNum, BloodPressureAndSpinalCurvatureNum::getAbnormalSpineCurvatureRatioStr));
+            bloodPressureAndSpinalCurvatureSchoolAge.setMaxHighBloodPressureRatio(getGradeRatio(bloodPressureAndSpinalCurvatureNumMap, BloodPressureAndSpinalCurvatureNum::getHighBloodPressureNum,BloodPressureAndSpinalCurvatureNum::getHighBloodPressureRatioStr));
+        }
         return bloodPressureAndSpinalCurvatureSchoolAge;
+    }
+
+    private DistrictBloodPressureAndSpinalCurvatureMonitorVO.GradeRatio getGradeRatio(Map<String, BloodPressureAndSpinalCurvatureNum> bloodPressureAndSpinalCurvatureNumMap,Function<BloodPressureAndSpinalCurvatureNum,Integer> function ,Function<BloodPressureAndSpinalCurvatureNum,String> mapper){
+        DistrictBloodPressureAndSpinalCurvatureMonitorVO.GradeRatio gradeRatio = new DistrictBloodPressureAndSpinalCurvatureMonitorVO.GradeRatio();
+        getMaxMap(bloodPressureAndSpinalCurvatureNumMap, BloodPressureAndSpinalCurvatureNum::getAbnormalSpineCurvatureNum, BloodPressureAndSpinalCurvatureNum::getAbnormalSpineCurvatureRatioStr);
+        TwoTuple<String, String> tuple = getMaxMap(bloodPressureAndSpinalCurvatureNumMap, function, mapper);
+        gradeRatio.setGrade(tuple.getFirst());
+        gradeRatio.setRatio(tuple.getSecond());
+        return gradeRatio;
     }
 
     /**
@@ -309,33 +311,33 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorService {
         }
         List<DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureMonitorTable> tableList =Lists.newArrayList();
         List<DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureMonitorTable> primaryList = getBloodPressureAndSpinalCurvatureSchoolAgeTable(statConclusionList,SchoolAge.PRIMARY.code);
-        if (Objects.nonNull(primaryList)){
+        if (CollectionUtil.isNotEmpty(primaryList)){
             tableList.addAll(primaryList);
         }
         List<DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureMonitorTable> juniorList = getBloodPressureAndSpinalCurvatureSchoolAgeTable(statConclusionList,SchoolAge.JUNIOR.code);
-        if (Objects.nonNull(juniorList)){
+        if (CollectionUtil.isNotEmpty(juniorList)){
             tableList.addAll(juniorList);
         }
 
         List<DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureMonitorTable> highList = getBloodPressureAndSpinalCurvatureSchoolAgeTable(statConclusionList,10);
         List<DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureMonitorTable> normalHighList = getBloodPressureAndSpinalCurvatureSchoolAgeTable(statConclusionList,SchoolAge.HIGH.code);
         List<DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureMonitorTable> vocationalHighList = getBloodPressureAndSpinalCurvatureSchoolAgeTable(statConclusionList, SchoolAge.VOCATIONAL_HIGH.code);
-        if (Objects.nonNull(vocationalHighList)){
-            if (Objects.nonNull(highList)){
+        if (CollectionUtil.isNotEmpty(vocationalHighList)){
+            if (CollectionUtil.isNotEmpty(highList)){
                 tableList.addAll(highList);
             }
-            if (Objects.nonNull(normalHighList)){
+            if (CollectionUtil.isNotEmpty(normalHighList)){
                 tableList.addAll(normalHighList);
             }
             tableList.addAll(vocationalHighList);
         }else {
-            if (Objects.nonNull(highList)){
+            if (CollectionUtil.isNotEmpty(highList)){
                 tableList.addAll(highList);
             }
         }
 
         List<DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureMonitorTable> universityList = getBloodPressureAndSpinalCurvatureSchoolAgeTable(statConclusionList,SchoolAge.UNIVERSITY.code);
-        if (Objects.nonNull(universityList)){
+        if (CollectionUtil.isNotEmpty(universityList)){
             tableList.addAll(universityList);
         }
 
@@ -344,16 +346,16 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorService {
 
     private List<DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureMonitorTable> getBloodPressureAndSpinalCurvatureSchoolAgeTable(List<StatConclusion> statConclusionList,Integer schoolAge) {
         if (CollectionUtil.isEmpty(statConclusionList)){
-            return null;
+            return Lists.newArrayList();
         }
         if (Objects.equals(schoolAge,10)){
             List<DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureMonitorTable> mergeList=Lists.newArrayList();
             List<DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureMonitorTable> normalHighList = getBloodPressureAndSpinalCurvatureGrade(statConclusionList, SchoolAge.HIGH.code);
-            if (Objects.nonNull(normalHighList)){
+            if (CollectionUtil.isNotEmpty(normalHighList)){
                 mergeList.addAll(normalHighList);
             }
             List<DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureMonitorTable> vocationalHighList = getBloodPressureAndSpinalCurvatureGrade(statConclusionList, SchoolAge.HIGH.code);
-            if (Objects.nonNull(vocationalHighList)){
+            if (CollectionUtil.isNotEmpty(vocationalHighList)){
                 mergeList.addAll(vocationalHighList);
             }
             return mergeList;
@@ -364,7 +366,7 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorService {
 
     private List<DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureMonitorTable> getBloodPressureAndSpinalCurvatureGrade(List<StatConclusion> statConclusionList,Integer schoolAge) {
         if (CollectionUtil.isEmpty(statConclusionList)){
-            return null;
+            return Lists.newArrayList();
         }
         List<StatConclusion> conclusionList = statConclusionList.stream().filter(sc -> Objects.equals(sc.getSchoolAge(), schoolAge)).collect(Collectors.toList());
         Map<String, List<StatConclusion>> gradeCodeMap = conclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
@@ -414,14 +416,12 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorService {
         Map<Integer, BloodPressureAndSpinalCurvatureNum> bloodPressureAndSpinalCurvatureNumMap = Maps.newHashMap();
         ageMap.forEach((age,list)->getBloodPressureAndSpinalCurvatureNum(age,list,bloodPressureAndSpinalCurvatureNumMap));
 
-        DistrictBloodPressureAndSpinalCurvatureMonitorVO.AgeRatio abnormalSpineCurvature = getAgeRatio(bloodPressureAndSpinalCurvatureNumMap, BloodPressureAndSpinalCurvatureNum::getAbnormalSpineCurvatureNum, BloodPressureAndSpinalCurvatureNum::getAbnormalSpineCurvatureRatioStr);
-        DistrictBloodPressureAndSpinalCurvatureMonitorVO.AgeRatio highBloodPressure = getAgeRatio(bloodPressureAndSpinalCurvatureNumMap, BloodPressureAndSpinalCurvatureNum::getHighBloodPressureNum, BloodPressureAndSpinalCurvatureNum::getHighBloodPressureRatioStr);
-
-        DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureAgeVariableVO ageVariableVO = new DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureAgeVariableVO();
-        ageVariableVO.setAbnormalSpineCurvatureRatio(abnormalSpineCurvature);
-        ageVariableVO.setHighBloodPressureRatio(highBloodPressure);
-
-        ageVO.setBloodPressureAndSpinalCurvatureAgeVariableVO(ageVariableVO);
+        if (bloodPressureAndSpinalCurvatureNumMap.size() >= 2){
+            DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureAgeVariableVO ageVariableVO = new DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureAgeVariableVO();
+            ageVariableVO.setAbnormalSpineCurvatureRatio(getAgeRatio(bloodPressureAndSpinalCurvatureNumMap, BloodPressureAndSpinalCurvatureNum::getAbnormalSpineCurvatureNum, BloodPressureAndSpinalCurvatureNum::getAbnormalSpineCurvatureRatioStr));
+            ageVariableVO.setHighBloodPressureRatio(getAgeRatio(bloodPressureAndSpinalCurvatureNumMap, BloodPressureAndSpinalCurvatureNum::getHighBloodPressureNum, BloodPressureAndSpinalCurvatureNum::getHighBloodPressureRatioStr));
+            ageVO.setBloodPressureAndSpinalCurvatureAgeVariableVO(ageVariableVO);
+        }
     }
 
     private DistrictBloodPressureAndSpinalCurvatureMonitorVO.AgeRatio getAgeRatio(Map<Integer, BloodPressureAndSpinalCurvatureNum> bloodPressureAndSpinalCurvatureNumMap, Function<BloodPressureAndSpinalCurvatureNum,Integer> function, Function<BloodPressureAndSpinalCurvatureNum,String> mapper) {
@@ -491,9 +491,7 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorService {
         }else {
             itemName = AgeSegmentEnum.get(age).getDesc();
         }
-
         BloodPressureAndSpinalCurvatureNum bloodPressureAndSpinalCurvatureNum = new BloodPressureAndSpinalCurvatureNum().build(conclusionlist).ratioNotSymbol();
-
         DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureMonitorTable bloodPressureAndSpinalCurvatureMonitorTable = buildTable(bloodPressureAndSpinalCurvatureNum);
         bloodPressureAndSpinalCurvatureMonitorTable.setItemName(itemName);
         tableList.add(bloodPressureAndSpinalCurvatureMonitorTable);
@@ -548,12 +546,15 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorService {
         public BloodPressureAndSpinalCurvatureNum build(List<StatConclusion> statConclusionList){
             this.validScreeningNum = statConclusionList.size();
 
-            this.abnormalSpineCurvatureNum = (int)statConclusionList.stream()
-                    .map(StatConclusion::getIsSpinalCurvature)
-                    .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
-            this.highBloodPressureNum = (int)statConclusionList.stream()
-                    .filter(sc->Objects.equals(Boolean.FALSE,sc.getIsNormalBloodPressure())).count();
-
+            List<Boolean> abnormalSpineCurvatureList = getList(statConclusionList, StatConclusion::getIsSpinalCurvature);
+            if (CollectionUtil.isNotEmpty(abnormalSpineCurvatureList)){
+                this.abnormalSpineCurvatureNum =abnormalSpineCurvatureList.size();
+            }
+            List<StatConclusion> highBloodPressureList = statConclusionList.stream()
+                    .filter(sc -> Objects.equals(Boolean.FALSE, sc.getIsNormalBloodPressure())).collect(Collectors.toList());
+            if (CollectionUtil.isNotEmpty(highBloodPressureList)){
+                this.highBloodPressureNum =highBloodPressureList.size();
+            }
             return this;
         }
 
@@ -583,6 +584,13 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorService {
             }
 
             return this;
+        }
+
+        private List<Boolean> getList(List<StatConclusion> statConclusionList, Function<StatConclusion,Boolean> function){
+            if (CollectionUtil.isEmpty(statConclusionList)){
+                return Lists.newArrayList();
+            }
+            return statConclusionList.stream().map(function).filter(Objects::nonNull).filter(Boolean::booleanValue).collect(Collectors.toList());
         }
 
         public BloodPressureAndSpinalCurvatureNum setGender(Integer gender) {

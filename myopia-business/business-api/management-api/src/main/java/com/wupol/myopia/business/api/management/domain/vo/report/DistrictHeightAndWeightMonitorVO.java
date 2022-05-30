@@ -14,7 +14,7 @@ import java.util.List;
 public class DistrictHeightAndWeightMonitorVO {
 
     /**
-     * 说明变量
+     * 说明
      */
     private HeightAndWeightMonitorVariableVO heightAndWeightMonitorVariableVO;
 
@@ -43,11 +43,11 @@ public class DistrictHeightAndWeightMonitorVO {
     @Data
     public static class HeightAndWeightSexVO{
         /**
-         * 说明变量
+         * 性别说明
          */
         private HeightAndWeightSexVariableVO heightAndWeightSexVariableVO;
         /**
-         * 表格数据
+         * 性别表格数据
          */
         private List<HeightAndWeightMonitorTable> heightAndWeightSexMonitorTableList;
 
@@ -104,7 +104,7 @@ public class DistrictHeightAndWeightMonitorVO {
          */
         private HeightAndWeightSchoolAgeVariableVO heightAndWeightSchoolAgeVariableVO;
         /**
-         * 学龄段数据
+         * 学龄段表格数据
          */
         private List<HeightAndWeightMonitorTable> heightAndWeightSchoolAgeMonitorTableList;
 
@@ -191,7 +191,7 @@ public class DistrictHeightAndWeightMonitorVO {
          */
         private HeightAndWeightAgeVariableVO heightAndWeightAgeVariableVO;
         /**
-         * 年龄段数据
+         * 年龄段表格数据
          */
         private List<HeightAndWeightMonitorTable> heightAndWeightAgeMonitorTableList;
 

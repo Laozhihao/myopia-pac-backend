@@ -10,8 +10,10 @@ import com.wupol.myopia.business.common.utils.util.MathUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.DiseaseNumDO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
+import lombok.Data;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -51,78 +53,56 @@ public class DistrictDiseaseMonitorService {
             return;
         }
         DistrictDiseaseMonitorVO.DiseaseMonitorVariableVO diseaseMonitorVariableVO = new DistrictDiseaseMonitorVO.DiseaseMonitorVariableVO();
-        int validScreeningNum = statConclusionList.size();
-        List<StatConclusion> conclusionList = statConclusionList.stream().filter(sc -> Objects.nonNull(sc.getDiseaseNum())).collect(Collectors.toList());
-        if (CollectionUtil.isEmpty(conclusionList)){
-            return;
-        }
 
-        int hypertensionNum = conclusionList.stream().mapToInt(sc -> Optional.ofNullable(sc.getDiseaseNum().getHypertension()).orElse(0)).sum();
-        int anemiaNum = conclusionList.stream().mapToInt(sc -> Optional.ofNullable(sc.getDiseaseNum().getAnemia()).orElse(0)).sum();
-        int diabetesNum = conclusionList.stream().mapToInt(sc -> Optional.ofNullable(sc.getDiseaseNum().getDiabetes()).orElse(0)).sum();
-        int allergicAsthmaNum = conclusionList.stream().mapToInt(sc -> Optional.ofNullable(sc.getDiseaseNum().getAllergicAsthma()).orElse(0)).sum();
-        int physicalDisabilityNum = conclusionList.stream().mapToInt(sc -> Optional.ofNullable(sc.getDiseaseNum().getPhysicalDisability()).orElse(0)).sum();
+        DiseaseNum diseaseNum = new DiseaseNum().build(statConclusionList).ratioNotSymbol().ratio();
 
-        diseaseMonitorVariableVO.setHypertensionRatio(MathUtil.ratio(hypertensionNum,validScreeningNum));
-        diseaseMonitorVariableVO.setAnemiaRatio(MathUtil.ratio(anemiaNum,validScreeningNum));
-        diseaseMonitorVariableVO.setDiabetesRatio(MathUtil.ratio(diabetesNum,validScreeningNum));
-        diseaseMonitorVariableVO.setAllergicAsthmaRatio(MathUtil.ratio(allergicAsthmaNum,validScreeningNum));
-        diseaseMonitorVariableVO.setPhysicalDisabilityRatio(MathUtil.ratio(physicalDisabilityNum,validScreeningNum));
+        diseaseMonitorVariableVO.setHypertensionRatio(diseaseNum.hypertensionRatioStr);
+        diseaseMonitorVariableVO.setAnemiaRatio(diseaseNum.anemiaRatioStr);
+        diseaseMonitorVariableVO.setDiabetesRatio(diseaseNum.diabetesRatioStr);
+        diseaseMonitorVariableVO.setAllergicAsthmaRatio(diseaseNum.allergicAsthmaRatioStr);
+        diseaseMonitorVariableVO.setPhysicalDisabilityRatio(diseaseNum.physicalDisabilityRatioStr);
 
         //最高值
+        List<StatConclusion> conclusionList = statConclusionList.stream().filter(sc -> Objects.nonNull(sc.getDiseaseNum())).collect(Collectors.toList());
         Map<Integer, List<StatConclusion>> schoolAgeMap = conclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolAge));
 
-        Map<Integer, DiseaseNumDO> diseaseNumMap = Maps.newHashMap();
-        schoolAgeMap.forEach((schoolAge,list)-> diseaseNumMap.put(schoolAge,getDiseaseNumDO(list)));
+        Map<Integer, DiseaseNum> diseaseNumMap = Maps.newHashMap();
+        schoolAgeMap.forEach((schoolAge,list)->getDiseaseNum(schoolAge,list,diseaseNumMap));
 
-        TwoTuple<Integer, Integer> hypertensionTuple = getMaxKeyAndValue(diseaseNumMap, DiseaseNumDO::getHypertension);
-        TwoTuple<Integer, Integer> anemiaTuple = getMaxKeyAndValue(diseaseNumMap, DiseaseNumDO::getAnemia);
-        TwoTuple<Integer, Integer> diabetesTuple = getMaxKeyAndValue(diseaseNumMap, DiseaseNumDO::getDiabetes);
-        TwoTuple<Integer, Integer> allergicAsthmaTuple = getMaxKeyAndValue(diseaseNumMap, DiseaseNumDO::getAllergicAsthma);
-        TwoTuple<Integer, Integer> physicalDisabilityTuple = getMaxKeyAndValue(diseaseNumMap, DiseaseNumDO::getPhysicalDisability);
-
-        diseaseMonitorVariableVO.setMaxHypertensionRatio(getSchoolAgeRatio(hypertensionTuple,validScreeningNum));
-        diseaseMonitorVariableVO.setMaxAnemiaRatio(getSchoolAgeRatio(anemiaTuple,validScreeningNum));
-        diseaseMonitorVariableVO.setMaxDiabetesRatio(getSchoolAgeRatio(diabetesTuple,validScreeningNum));
-        diseaseMonitorVariableVO.setMaxAllergicAsthmaRatio(getSchoolAgeRatio(allergicAsthmaTuple,validScreeningNum));
-        diseaseMonitorVariableVO.setMaxPhysicalDisabilityRatio(getSchoolAgeRatio(physicalDisabilityTuple,validScreeningNum));
+        if (diseaseNumMap.size() >= 2){
+            diseaseMonitorVariableVO.setMaxHypertensionRatio(getSchoolAgeRatio(diseaseNumMap,DiseaseNum::getHypertension,DiseaseNum::getHypertensionRatioStr));
+            diseaseMonitorVariableVO.setMaxAnemiaRatio(getSchoolAgeRatio(diseaseNumMap,DiseaseNum::getAnemia,DiseaseNum::getAnemiaRatioStr));
+            diseaseMonitorVariableVO.setMaxDiabetesRatio(getSchoolAgeRatio(diseaseNumMap,DiseaseNum::getDiabetes,DiseaseNum::getDiabetesRatioStr));
+            diseaseMonitorVariableVO.setMaxAllergicAsthmaRatio(getSchoolAgeRatio(diseaseNumMap,DiseaseNum::getAllergicAsthma,DiseaseNum::getAllergicAsthmaRatioStr));
+            diseaseMonitorVariableVO.setMaxPhysicalDisabilityRatio(getSchoolAgeRatio(diseaseNumMap,DiseaseNum::getPhysicalDisability,DiseaseNum::getPhysicalDisabilityRatioStr));
+        }
 
         districtDiseaseMonitorVO.setDiseaseMonitorVariableVO(diseaseMonitorVariableVO);
     }
 
 
-    /**
-     * 获取疾病数统计
-     */
-    private DiseaseNumDO getDiseaseNumDO(List<StatConclusion> statConclusionList){
-        int hypertensionNum = statConclusionList.stream().mapToInt(sc -> Optional.ofNullable(sc.getDiseaseNum().getHypertension()).orElse(0)).sum();
-        int anemiaNum = statConclusionList.stream().mapToInt(sc -> Optional.ofNullable(sc.getDiseaseNum().getAnemia()).orElse(0)).sum();
-        int diabetesNum = statConclusionList.stream().mapToInt(sc -> Optional.ofNullable(sc.getDiseaseNum().getDiabetes()).orElse(0)).sum();
-        int allergicAsthmaNum = statConclusionList.stream().mapToInt(sc -> Optional.ofNullable(sc.getDiseaseNum().getAllergicAsthma()).orElse(0)).sum();
-        int physicalDisabilityNum = statConclusionList.stream().mapToInt(sc -> Optional.ofNullable(sc.getDiseaseNum().getPhysicalDisability()).orElse(0)).sum();
-        return new DiseaseNumDO().setHypertension(hypertensionNum)
-                .setAnemia(anemiaNum).setDiabetes(diabetesNum)
-                .setAllergicAsthma(allergicAsthmaNum).setPhysicalDisability(physicalDisabilityNum);
-
+    private <K>void getDiseaseNum(K key, List<StatConclusion> statConclusionList,Map<K, DiseaseNum> diseaseNumMap){
+        DiseaseNum build = new DiseaseNum()
+                .build(statConclusionList).ratioNotSymbol().ratio();
+        diseaseNumMap.put(key,build);
     }
 
-    private DistrictDiseaseMonitorVO.SchoolAgeRatio getSchoolAgeRatio(TwoTuple<Integer, Integer> tuple,Integer validScreeningNum){
+    private DistrictDiseaseMonitorVO.SchoolAgeRatio getSchoolAgeRatio(Map<Integer, DiseaseNum> diseaseNumMap,Function<DiseaseNum,Integer> function ,Function<DiseaseNum,String> mapper){
         DistrictDiseaseMonitorVO.SchoolAgeRatio schoolAgeRatio = new DistrictDiseaseMonitorVO.SchoolAgeRatio();
-        if (Objects.nonNull(tuple)){
-            schoolAgeRatio.setSchoolAge(SchoolAge.get(tuple.getFirst()).desc);
-            schoolAgeRatio.setRatio(MathUtil.ratio(tuple.getSecond(),validScreeningNum));
-        }
+        TwoTuple<Integer, String> tuple = getMaxMap(diseaseNumMap, function, mapper);
+        schoolAgeRatio.setSchoolAge(SchoolAge.get(tuple.getFirst()).desc);
+        schoolAgeRatio.setRatio(tuple.getSecond());
         return schoolAgeRatio;
     }
 
     /**
-     * 疾病监测情况-说明变量-获取map中Value最大值及对应的Key
+     * 获取map中Value最大值及对应的Key
      */
-    private TwoTuple<Integer,Integer> getMaxKeyAndValue(Map<Integer, DiseaseNumDO> map, Function<DiseaseNumDO,Integer> function){
-        List<Map.Entry<Integer, DiseaseNumDO>> entries = Lists.newArrayList(map.entrySet());
+    private <T,K>TwoTuple<K,String> getMaxMap(Map<K, T> map, Function<T,Integer> function ,Function<T,String> mapper){
+        List<Map.Entry<K, T>> entries = Lists.newArrayList(map.entrySet());
         CollectionUtil.sort(entries,((o1, o2) -> Optional.ofNullable(o2.getValue()).map(function).orElse(0)- Optional.ofNullable(o1.getValue()).map(function).orElse(0)));
-        Map.Entry<Integer, DiseaseNumDO> entry = entries.get(0);
-        return TwoTuple.of(entry.getKey(),Optional.ofNullable(entry.getValue()).map(function).orElse(0));
+        Map.Entry<K, T> entry = entries.get(0);
+        return TwoTuple.of(entry.getKey(),Optional.ofNullable(entry.getValue()).map(mapper).orElse(null));
     }
 
     /**
@@ -150,18 +130,24 @@ public class DistrictDiseaseMonitorService {
         }
         //高中（普高+职高）
         if (Objects.nonNull(vocationalHighTable)){
-            tableList.add(highTable);
-            tableList.add(normalHighTable);
+            if (Objects.nonNull(highTable)){
+                tableList.add(highTable);
+            }
+            if (Objects.nonNull(normalHighTable)){
+                tableList.add(normalHighTable);
+            }
             tableList.add(vocationalHighTable);
         }else {
-            tableList.add(highTable);
+            if (Objects.nonNull(highTable)){
+                tableList.add(highTable);
+            }
         }
 
         if (Objects.nonNull(universityTable)){
             tableList.add(universityTable);
         }
 
-        DistrictDiseaseMonitorVO.DiseaseMonitorTable totalTable = getRecord(statConclusionList,"合计");
+        DistrictDiseaseMonitorVO.DiseaseMonitorTable totalTable = getDiseaseMonitorTable(statConclusionList,"合计");
         if (Objects.nonNull(totalTable)){
             tableList.add(totalTable);
         }
@@ -187,7 +173,7 @@ public class DistrictDiseaseMonitorService {
             if (CollectionUtil.isEmpty(mergeList)){
                 return null;
             }
-            return getRecord(mergeList, "高中");
+            return getDiseaseMonitorTable(mergeList, "高中");
         }
 
         List<StatConclusion> statConclusionList = conclusionMap.get(schoolAge);
@@ -195,7 +181,7 @@ public class DistrictDiseaseMonitorService {
             return null;
         }
         if (Objects.equals(schoolAge,SchoolAge.HIGH.code)){
-            DistrictDiseaseMonitorVO.DiseaseMonitorTable normalHighTable = getRecord(statConclusionList, "普高");
+            DistrictDiseaseMonitorVO.DiseaseMonitorTable normalHighTable = getDiseaseMonitorTable(statConclusionList, "普高");
             if (Objects.isNull(normalHighTable)){
                 normalHighTable = new DistrictDiseaseMonitorVO.DiseaseMonitorTable();
                 normalHighTable.setSchoolAge("普高");
@@ -203,49 +189,194 @@ public class DistrictDiseaseMonitorService {
             return normalHighTable;
         }
         if (Objects.equals(schoolAge,SchoolAge.VOCATIONAL_HIGH.code)){
-            return getRecord(statConclusionList, "职高");
+            return getDiseaseMonitorTable(statConclusionList, "职高");
         }
 
-        return getRecord(statConclusionList, SchoolAge.get(schoolAge).desc);
+        return getDiseaseMonitorTable(statConclusionList, SchoolAge.get(schoolAge).desc);
     }
 
-    private DistrictDiseaseMonitorVO.DiseaseMonitorTable getRecord(List<StatConclusion> statConclusionList,String schoolAgeDesc) {
+    private DistrictDiseaseMonitorVO.DiseaseMonitorTable getDiseaseMonitorTable(List<StatConclusion> statConclusionList,String schoolAgeDesc) {
         if (CollectionUtil.isEmpty(statConclusionList)){
             return null;
         }
-        DistrictDiseaseMonitorVO.DiseaseMonitorTable diseaseMonitorTable = new DistrictDiseaseMonitorVO.DiseaseMonitorTable();
-        int validScreeningNum = statConclusionList.size();
-
-        DistrictDiseaseMonitorVO.Ratio hypertensionRatio = getRatio(statConclusionList,validScreeningNum,DiseaseNumDO::getHypertension);
-        DistrictDiseaseMonitorVO.Ratio anemiaRatio = getRatio(statConclusionList,validScreeningNum,DiseaseNumDO::getAnemia);
-        DistrictDiseaseMonitorVO.Ratio diabetesRatio = getRatio(statConclusionList,validScreeningNum,DiseaseNumDO::getDiabetes);
-        DistrictDiseaseMonitorVO.Ratio allergicAsthmaRatio = getRatio(statConclusionList,validScreeningNum,DiseaseNumDO::getAllergicAsthma);
-        DistrictDiseaseMonitorVO.Ratio physicalDisabilityRatio = getRatio(statConclusionList,validScreeningNum,DiseaseNumDO::getPhysicalDisability);
-
+        DiseaseNum diseaseNum = new DiseaseNum().build(statConclusionList).ratioNotSymbol().ratio();
+        DistrictDiseaseMonitorVO.DiseaseMonitorTable diseaseMonitorTable = buildTable(diseaseNum);
         diseaseMonitorTable.setSchoolAge(schoolAgeDesc);
-        diseaseMonitorTable.setValidScreeningNum(validScreeningNum);
-        diseaseMonitorTable.setHypertension(hypertensionRatio);
-        diseaseMonitorTable.setAnemia(anemiaRatio);
-        diseaseMonitorTable.setDiabetes(diabetesRatio);
-        diseaseMonitorTable.setAllergicAsthma(allergicAsthmaRatio);
-        diseaseMonitorTable.setPhysicalDisability(physicalDisabilityRatio);
-
         return diseaseMonitorTable;
     }
 
-    private DistrictDiseaseMonitorVO.Ratio getRatio(List<StatConclusion> primaryAndAboveStatConclusionList, int validScreeningNum,Function<DiseaseNumDO,Integer> function) {
-        if (CollectionUtil.isEmpty(primaryAndAboveStatConclusionList)){
-            return null;
-        }
-        DistrictDiseaseMonitorVO.Ratio ratio = new DistrictDiseaseMonitorVO.Ratio();
-        int num = primaryAndAboveStatConclusionList.stream()
-                .filter(sc -> Objects.nonNull(sc.getDiseaseNum()))
-                .mapToInt(sc -> Optional.ofNullable(sc.getDiseaseNum()).map(function).orElse(0)).sum();
-        ratio.setNum(num);
-        ratio.setRatio(MathUtil.ratio(num,validScreeningNum));
-        return null;
+    private DistrictDiseaseMonitorVO.DiseaseMonitorTable buildTable(DiseaseNum diseaseNum) {
+        DistrictDiseaseMonitorVO.DiseaseMonitorTable diseaseMonitorTable = new DistrictDiseaseMonitorVO.DiseaseMonitorTable();
+        diseaseMonitorTable.setValidScreeningNum(diseaseNum.validScreeningNum);
+        diseaseMonitorTable.setHypertensionNum(diseaseNum.hypertension);
+        diseaseMonitorTable.setHypertensionRatio(diseaseNum.hypertensionRatio);
+        diseaseMonitorTable.setAnemiaNum(diseaseNum.anemia);
+        diseaseMonitorTable.setAnemiaRatio(diseaseNum.anemiaRatio);
+        diseaseMonitorTable.setDiabetesNum(diseaseNum.diabetes);
+        diseaseMonitorTable.setDiabetesRatio(diseaseNum.diabetesRatio);
+        diseaseMonitorTable.setAllergicAsthmaNum(diseaseNum.allergicAsthma);
+        diseaseMonitorTable.setAllergicAsthmaRatio(diseaseNum.allergicAsthmaRatio);
+        diseaseMonitorTable.setPhysicalDisabilityNum(diseaseNum.physicalDisability);
+        diseaseMonitorTable.setPhysicalDisabilityRatio(diseaseNum.physicalDisabilityRatio);
+        return diseaseMonitorTable;
     }
 
+    @Data
+    private static class DiseaseNum{
+
+        private Integer validScreeningNum;
+        /**
+         * 贫血
+         */
+        private Integer anemia;
+        /**
+         * 高血压
+         */
+        private Integer hypertension;
+
+        /**
+         * 糖尿病
+         */
+        private Integer diabetes;
+        /**
+         * 过敏性哮喘
+         */
+        private Integer allergicAsthma;
+        /**
+         * 身体残疾
+         */
+        private Integer physicalDisability;
+
+        // ========== 不带% ============
+        /**
+         * 贫血
+         */
+        private BigDecimal anemiaRatio;
+        /**
+         * 高血压
+         */
+        private BigDecimal hypertensionRatio;
+
+        /**
+         * 糖尿病
+         */
+        private BigDecimal diabetesRatio;
+        /**
+         * 过敏性哮喘
+         */
+        private BigDecimal allergicAsthmaRatio;
+        /**
+         * 身体残疾
+         */
+        private BigDecimal physicalDisabilityRatio;
+
+        // ========== 带% ============
+        /**
+         * 贫血
+         */
+        private String anemiaRatioStr;
+        /**
+         * 高血压
+         */
+        private String hypertensionRatioStr;
+
+        /**
+         * 糖尿病
+         */
+        private String diabetesRatioStr;
+        /**
+         * 过敏性哮喘
+         */
+        private String allergicAsthmaRatioStr;
+        /**
+         * 身体残疾
+         */
+        private String physicalDisabilityRatioStr;
+
+        public DiseaseNum build(List<StatConclusion> statConclusionList){
+            this.validScreeningNum = statConclusionList.size();
+
+            List<Integer> anemiaList = getList(statConclusionList, DiseaseNumDO::getAnemia);
+            if (CollectionUtil.isNotEmpty(anemiaList)){
+                this.anemia = anemiaList.stream().mapToInt(Integer::intValue).sum();
+            }
+
+            List<Integer> hypertensionList = getList(statConclusionList, DiseaseNumDO::getHypertension);
+            if (CollectionUtil.isNotEmpty(hypertensionList)){
+                this.hypertension = hypertensionList.stream().mapToInt(Integer::intValue).sum();
+            }
+
+            List<Integer> diabetesList = getList(statConclusionList, DiseaseNumDO::getDiabetes);
+            if (CollectionUtil.isNotEmpty(diabetesList)){
+                this.diabetes = diabetesList.stream().mapToInt(Integer::intValue).sum();
+            }
+
+            List<Integer> allergicAsthmaList = getList(statConclusionList, DiseaseNumDO::getAllergicAsthma);
+            if (CollectionUtil.isNotEmpty(allergicAsthmaList)){
+                this.allergicAsthma = allergicAsthmaList.stream().mapToInt(Integer::intValue).sum();
+            }
+
+            List<Integer> physicalDisabilityList = getList(statConclusionList, DiseaseNumDO::getPhysicalDisability);
+            if (CollectionUtil.isNotEmpty(physicalDisabilityList)){
+                this.physicalDisability = physicalDisabilityList.stream().mapToInt(Integer::intValue).sum();
+            }
+            return this;
+        }
+
+        /**
+         * 不带%
+         */
+        public DiseaseNum ratioNotSymbol(){
+            if (Objects.nonNull(anemia)){
+                this.anemiaRatio = MathUtil.ratioNotSymbol(anemia,validScreeningNum);
+            }
+            if (Objects.nonNull(hypertension)){
+                this.hypertensionRatio = MathUtil.ratioNotSymbol(hypertension,validScreeningNum);
+            }
+            if (Objects.nonNull(diabetes)){
+                this.diabetesRatio = MathUtil.ratioNotSymbol(diabetes,validScreeningNum);
+            }
+            if (Objects.nonNull(allergicAsthma)){
+                this.allergicAsthmaRatio = MathUtil.ratioNotSymbol(allergicAsthma,validScreeningNum);
+            }
+            if (Objects.nonNull(physicalDisability)){
+                this.physicalDisabilityRatio = MathUtil.ratioNotSymbol(physicalDisability,validScreeningNum);
+            }
+
+            return this;
+        }
+
+        /**
+         * 不带%
+         */
+        public DiseaseNum ratio(){
+            if (Objects.nonNull(anemia)){
+                this.anemiaRatioStr = MathUtil.ratio(anemia,validScreeningNum);
+            }
+            if (Objects.nonNull(hypertension)){
+                this.hypertensionRatioStr = MathUtil.ratio(hypertension,validScreeningNum);
+            }
+            if (Objects.nonNull(diabetes)){
+                this.diabetesRatioStr = MathUtil.ratio(diabetes,validScreeningNum);
+            }
+            if (Objects.nonNull(allergicAsthma)){
+                this.allergicAsthmaRatioStr = MathUtil.ratio(allergicAsthma,validScreeningNum);
+            }
+            if (Objects.nonNull(physicalDisability)){
+                this.physicalDisabilityRatioStr = MathUtil.ratio(physicalDisability,validScreeningNum);
+            }
+
+            return this;
+        }
+
+        private List<Integer> getList(List<StatConclusion> statConclusionList,Function<DiseaseNumDO,Integer> function){
+            List<StatConclusion> conclusionList = statConclusionList.stream().filter(sc -> Objects.nonNull(sc.getDiseaseNum())).collect(Collectors.toList());
+            if (CollectionUtil.isNotEmpty(conclusionList)){
+               return conclusionList.stream().map(StatConclusion::getDiseaseNum).map(function).filter(Objects::nonNull).collect(Collectors.toList());
+            }
+            return Lists.newArrayList();
+        }
+    }
 
 
 }

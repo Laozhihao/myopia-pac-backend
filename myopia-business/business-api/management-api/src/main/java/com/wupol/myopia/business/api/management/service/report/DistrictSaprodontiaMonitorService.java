@@ -59,7 +59,6 @@ public class DistrictSaprodontiaMonitorService {
         if (CollectionUtil.isEmpty(statConclusionList)){
             return;
         }
-
         SaprodontiaNum saprodontiaNum = new SaprodontiaNum().build(statConclusionList).ratioNotSymbol();
         DistrictSaprodontiaMonitorVO.SaprodontiaMonitorVariableVO saprodontiaMonitorVariableVO = buildSaprodontiaMonitorVariableVO(saprodontiaNum);
         districtSaprodontiaMonitorVO.setSaprodontiaMonitorVariableVO(saprodontiaMonitorVariableVO);
@@ -84,7 +83,6 @@ public class DistrictSaprodontiaMonitorService {
         DistrictSaprodontiaMonitorVO.SaprodontiaSexVO saprodontiaSexVO = new DistrictSaprodontiaMonitorVO.SaprodontiaSexVO();
         getSaprodontiaSexVariableVO(statConclusionList,saprodontiaSexVO);
         getSaprodontiaSexMonitorTableList(statConclusionList,saprodontiaSexVO);
-
         districtSaprodontiaMonitorVO.setSaprodontiaSexVO(saprodontiaSexVO);
 
     }
@@ -101,16 +99,14 @@ public class DistrictSaprodontiaMonitorService {
         List<SaprodontiaNum> saprodontiaSexList= Lists.newArrayList();
         genderMap.forEach((gender,list)-> getSaprodontiaNum(gender,list,saprodontiaSexList));
 
-        DistrictSaprodontiaMonitorVO.SaprodontiaSex saprodontiaRatioCompare = getRatioCompare(saprodontiaSexList, SaprodontiaNum::getSaprodontiaNum,SaprodontiaNum::getSaprodontiaLossRatioStr);
-        DistrictSaprodontiaMonitorVO.SaprodontiaSex saprodontiaLossRatioCompare = getRatioCompare(saprodontiaSexList, SaprodontiaNum::getSaprodontiaLossNum,SaprodontiaNum::getSaprodontiaLossRatioStr);
-        DistrictSaprodontiaMonitorVO.SaprodontiaSex saprodontiaRepairRatioCompare = getRatioCompare(saprodontiaSexList, SaprodontiaNum::getSaprodontiaRepairNum,SaprodontiaNum::getSaprodontiaRatioStr);
+        if (saprodontiaSexList.size() >= 2){
+            DistrictSaprodontiaMonitorVO.SaprodontiaSexVariableVO saprodontiaSexVariableVO = new DistrictSaprodontiaMonitorVO.SaprodontiaSexVariableVO();
+            saprodontiaSexVariableVO.setSaprodontiaRatioCompare(getRatioCompare(saprodontiaSexList, SaprodontiaNum::getSaprodontiaNum,SaprodontiaNum::getSaprodontiaLossRatioStr));
+            saprodontiaSexVariableVO.setSaprodontiaLossRatioCompare(getRatioCompare(saprodontiaSexList, SaprodontiaNum::getSaprodontiaLossNum,SaprodontiaNum::getSaprodontiaLossRatioStr));
+            saprodontiaSexVariableVO.setSaprodontiaRepairRatioCompare(getRatioCompare(saprodontiaSexList, SaprodontiaNum::getSaprodontiaRepairNum,SaprodontiaNum::getSaprodontiaRatioStr));
 
-        DistrictSaprodontiaMonitorVO.SaprodontiaSexVariableVO saprodontiaSexVariableVO = new DistrictSaprodontiaMonitorVO.SaprodontiaSexVariableVO();
-        saprodontiaSexVariableVO.setSaprodontiaRatioCompare(saprodontiaRatioCompare);
-        saprodontiaSexVariableVO.setSaprodontiaLossRatioCompare(saprodontiaLossRatioCompare);
-        saprodontiaSexVariableVO.setSaprodontiaRepairRatioCompare(saprodontiaRepairRatioCompare);
-
-        saprodontiaSexVO.setSaprodontiaSexVariableVO(saprodontiaSexVariableVO);
+            saprodontiaSexVO.setSaprodontiaSexVariableVO(saprodontiaSexVariableVO);
+        }
     }
 
     private void getSaprodontiaNum(Integer gender,List<StatConclusion> statConclusionList,List<SaprodontiaNum> saprodontiaSexList){
@@ -222,9 +218,7 @@ public class DistrictSaprodontiaMonitorService {
         DistrictSaprodontiaMonitorVO.SaprodontiaSchoolAgeVO saprodontiaSchoolAgeVO = new DistrictSaprodontiaMonitorVO.SaprodontiaSchoolAgeVO();
         getSaprodontiaSchoolAgeVariableVO(statConclusionList,saprodontiaSchoolAgeVO);
         getSaprodontiaSchoolAgeMonitorTableList(statConclusionList,saprodontiaSchoolAgeVO);
-
         districtSaprodontiaMonitorVO.setSaprodontiaSchoolAgeVO(saprodontiaSchoolAgeVO);
-
     }
 
     /**
@@ -237,14 +231,13 @@ public class DistrictSaprodontiaMonitorService {
 
         DistrictSaprodontiaMonitorVO.SaprodontiaSchoolAgeVariableVO saprodontiaSchoolAgeVariableVO = new DistrictSaprodontiaMonitorVO.SaprodontiaSchoolAgeVariableVO();
 
-        int validScreeningNum = statConclusionList.size();
         Map<Integer, List<StatConclusion>> conclusionMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolAge));
-        DistrictSaprodontiaMonitorVO.SaprodontiaSchoolAge primary = getSaprodontiaSchoolAge(conclusionMap, SchoolAge.PRIMARY.code,validScreeningNum);
-        DistrictSaprodontiaMonitorVO.SaprodontiaSchoolAge junior = getSaprodontiaSchoolAge(conclusionMap,SchoolAge.JUNIOR.code,validScreeningNum);
-        DistrictSaprodontiaMonitorVO.SaprodontiaSchoolAge high = getSaprodontiaSchoolAge(conclusionMap,10,validScreeningNum);
-        DistrictSaprodontiaMonitorVO.SaprodontiaSchoolAge normalHigh = getSaprodontiaSchoolAge(conclusionMap,SchoolAge.HIGH.code,validScreeningNum);
-        DistrictSaprodontiaMonitorVO.SaprodontiaSchoolAge vocationalHigh = getSaprodontiaSchoolAge(conclusionMap,SchoolAge.VOCATIONAL_HIGH.code,validScreeningNum);
-        DistrictSaprodontiaMonitorVO.SaprodontiaSchoolAge university = getSaprodontiaSchoolAge(conclusionMap,SchoolAge.UNIVERSITY.code,validScreeningNum);
+        DistrictSaprodontiaMonitorVO.SaprodontiaSchoolAge primary = getSaprodontiaSchoolAge(conclusionMap, SchoolAge.PRIMARY.code);
+        DistrictSaprodontiaMonitorVO.SaprodontiaSchoolAge junior = getSaprodontiaSchoolAge(conclusionMap,SchoolAge.JUNIOR.code);
+        DistrictSaprodontiaMonitorVO.SaprodontiaSchoolAge high = getSaprodontiaSchoolAge(conclusionMap,10);
+        DistrictSaprodontiaMonitorVO.SaprodontiaSchoolAge normalHigh = getSaprodontiaSchoolAge(conclusionMap,SchoolAge.HIGH.code);
+        DistrictSaprodontiaMonitorVO.SaprodontiaSchoolAge vocationalHigh = getSaprodontiaSchoolAge(conclusionMap,SchoolAge.VOCATIONAL_HIGH.code);
+        DistrictSaprodontiaMonitorVO.SaprodontiaSchoolAge university = getSaprodontiaSchoolAge(conclusionMap,SchoolAge.UNIVERSITY.code);
 
         saprodontiaSchoolAgeVariableVO.setPrimarySchool(primary);
         saprodontiaSchoolAgeVariableVO.setJuniorHighSchool(junior);
@@ -260,7 +253,7 @@ public class DistrictSaprodontiaMonitorService {
     }
 
 
-    private DistrictSaprodontiaMonitorVO.SaprodontiaSchoolAge getSaprodontiaSchoolAge(Map<Integer, List<StatConclusion>> conclusionMap, Integer schoolAge,Integer validScreeningNum) {
+    private DistrictSaprodontiaMonitorVO.SaprodontiaSchoolAge getSaprodontiaSchoolAge(Map<Integer, List<StatConclusion>> conclusionMap, Integer schoolAge) {
         if (CollectionUtil.isEmpty(conclusionMap)){
             return null;
         }
@@ -274,16 +267,15 @@ public class DistrictSaprodontiaMonitorService {
             if (CollectionUtil.isNotEmpty(vocationalHigh)){
                 mergeList.addAll(vocationalHigh);
             }
-            return getSaprodontiaSchoolAge(mergeList,validScreeningNum);
+            return getSaprodontiaSchoolAge(mergeList);
         }
-        List<StatConclusion> statConclusionList = conclusionMap.get(schoolAge);
 
-        return getSaprodontiaSchoolAge(statConclusionList,validScreeningNum);
+        return getSaprodontiaSchoolAge(conclusionMap.get(schoolAge));
 
     }
 
 
-    private DistrictSaprodontiaMonitorVO.SaprodontiaSchoolAge getSaprodontiaSchoolAge(List<StatConclusion> statConclusionList,Integer validScreeningNum){
+    private DistrictSaprodontiaMonitorVO.SaprodontiaSchoolAge getSaprodontiaSchoolAge(List<StatConclusion> statConclusionList){
         if (CollectionUtil.isEmpty(statConclusionList)){
             return null;
         }
@@ -303,15 +295,23 @@ public class DistrictSaprodontiaMonitorService {
             getSaprodontiaNum(gradeCodeEnum.getName(),list,saprodontiaNumMap);
         });
 
-        TwoTuple<String, String> saprodontia = getMaxMap(saprodontiaNumMap, SaprodontiaNum::getSaprodontiaNum,SaprodontiaNum::getSaprodontiaRatioStr);
-        TwoTuple<String, String> saprodontiaLoss = getMaxMap(saprodontiaNumMap, SaprodontiaNum::getSaprodontiaLossNum,SaprodontiaNum::getSaprodontiaLossRatioStr);
-        TwoTuple<String, String> saprodontiaRepair = getMaxMap(saprodontiaNumMap, SaprodontiaNum::getSaprodontiaRepairNum,SaprodontiaNum::getSaprodontiaRepairRatioStr);
-
-        saprodontiaSchoolAge.setMaxSaprodontiaRatio(new DistrictSaprodontiaMonitorVO.GradeRatio(saprodontia.getFirst(),saprodontia.getSecond()));
-        saprodontiaSchoolAge.setMaxSaprodontiaLossRatio(new DistrictSaprodontiaMonitorVO.GradeRatio(saprodontiaLoss.getFirst(),saprodontiaLoss.getSecond()));
-        saprodontiaSchoolAge.setMaxSaprodontiaRepairRatio(new DistrictSaprodontiaMonitorVO.GradeRatio(saprodontiaRepair.getFirst(),saprodontiaRepair.getSecond()));
+        if (saprodontiaNumMap.size() >= 2){
+            saprodontiaSchoolAge.setMaxSaprodontiaRatio(getGradeRatio(saprodontiaNumMap, SaprodontiaNum::getSaprodontiaNum,SaprodontiaNum::getSaprodontiaRatioStr));
+            saprodontiaSchoolAge.setMaxSaprodontiaLossRatio(getGradeRatio(saprodontiaNumMap, SaprodontiaNum::getSaprodontiaLossNum,SaprodontiaNum::getSaprodontiaLossRatioStr));
+            saprodontiaSchoolAge.setMaxSaprodontiaRepairRatio(getGradeRatio(saprodontiaNumMap, SaprodontiaNum::getSaprodontiaRepairNum,SaprodontiaNum::getSaprodontiaRepairRatioStr));
+        }
 
         return saprodontiaSchoolAge;
+    }
+    private DistrictSaprodontiaMonitorVO.GradeRatio getGradeRatio(Map<String, SaprodontiaNum> saprodontiaNumMap,Function<SaprodontiaNum,Integer> function,Function<SaprodontiaNum,String> mapper){
+        if (CollectionUtil.isNotEmpty(saprodontiaNumMap)){
+            return null;
+        }
+        DistrictSaprodontiaMonitorVO.GradeRatio gradeRatio = new DistrictSaprodontiaMonitorVO.GradeRatio();
+        TwoTuple<String, String> tuple = getMaxMap(saprodontiaNumMap, function, mapper);
+        gradeRatio.setGrade(tuple.getFirst());
+        gradeRatio.setRatio(tuple.getSecond());
+        return gradeRatio;
     }
 
     /**
@@ -346,11 +346,17 @@ public class DistrictSaprodontiaMonitorService {
         List<DistrictSaprodontiaMonitorVO.SaprodontiaMonitorTable> normalHighList = getSaprodontiaSchoolAgeTable(statConclusionList,SchoolAge.HIGH.code);
         List<DistrictSaprodontiaMonitorVO.SaprodontiaMonitorTable> vocationalHighList = getSaprodontiaSchoolAgeTable(statConclusionList, SchoolAge.VOCATIONAL_HIGH.code);
         if (CollectionUtil.isNotEmpty(vocationalHighList)){
-            tableList.addAll(highList);
-            tableList.addAll(normalHighList);
+            if (CollectionUtil.isNotEmpty(highList)){
+                tableList.addAll(highList);
+            }
+            if (CollectionUtil.isNotEmpty(normalHighList)){
+                tableList.addAll(normalHighList);
+            }
             tableList.addAll(vocationalHighList);
         }else {
-            tableList.addAll(highList);
+            if (CollectionUtil.isNotEmpty(highList)){
+                tableList.addAll(highList);
+            }
         }
 
         List<DistrictSaprodontiaMonitorVO.SaprodontiaMonitorTable> universityList = getSaprodontiaSchoolAgeTable(statConclusionList,SchoolAge.UNIVERSITY.code);
@@ -364,7 +370,7 @@ public class DistrictSaprodontiaMonitorService {
 
     private List<DistrictSaprodontiaMonitorVO.SaprodontiaMonitorTable> getSaprodontiaSchoolAgeTable(List<StatConclusion> statConclusionList,Integer schoolAge) {
         if (CollectionUtil.isEmpty(statConclusionList)){
-            return null;
+            return Lists.newArrayList();
         }
         if (Objects.equals(schoolAge,10)){
             List<DistrictSaprodontiaMonitorVO.SaprodontiaMonitorTable> mergeList=Lists.newArrayList();
@@ -385,7 +391,7 @@ public class DistrictSaprodontiaMonitorService {
 
     private List<DistrictSaprodontiaMonitorVO.SaprodontiaMonitorTable> getSaprodontiaGrade(List<StatConclusion> statConclusionList,Integer schoolAge) {
         if (CollectionUtil.isEmpty(statConclusionList)){
-            return null;
+            return Lists.newArrayList();
         }
         int validScreeningNum = statConclusionList.size();
         List<StatConclusion> conclusionList = statConclusionList.stream().filter(sc -> Objects.equals(sc.getSchoolAge(), schoolAge)).collect(Collectors.toList());
@@ -402,11 +408,9 @@ public class DistrictSaprodontiaMonitorService {
         if (CollectionUtil.isEmpty(statConclusionList)){
             return;
         }
-
         SaprodontiaNum saprodontiaNum = new SaprodontiaNum().build(statConclusionList).ratioNotSymbol();
         DistrictSaprodontiaMonitorVO.SaprodontiaMonitorTable saprodontiaMonitorTable = buildTable(saprodontiaNum);
         saprodontiaMonitorTable.setItemName(grade);
-
         gradeList.add(saprodontiaMonitorTable);
     }
 
@@ -420,7 +424,6 @@ public class DistrictSaprodontiaMonitorService {
         DistrictSaprodontiaMonitorVO.SaprodontiaAgeVO saprodontiaAgeVO = new DistrictSaprodontiaMonitorVO.SaprodontiaAgeVO();
         getSaprodontiaAgeVariableVO(statConclusionList,saprodontiaAgeVO);
         getSaprodontiaAgeMonitorTableList(statConclusionList,saprodontiaAgeVO);
-
         districtSaprodontiaMonitorVO.setSaprodontiaAgeVO(saprodontiaAgeVO);
     }
 
@@ -432,21 +435,17 @@ public class DistrictSaprodontiaMonitorService {
             return;
         }
 
-
         Map<Integer, List<StatConclusion>> ageMap = statConclusionList.stream().collect(Collectors.groupingBy(sc -> getLessAge(sc.getAge())));
         Map<Integer, SaprodontiaNum> saprodontiaNumMap = Maps.newHashMap();
         ageMap.forEach((age,list)->getSaprodontiaNum(age,list,saprodontiaNumMap));
 
-        DistrictSaprodontiaMonitorVO.AgeRatio saprodontia = getAgeRatio(saprodontiaNumMap, SaprodontiaNum::getSaprodontiaNum,SaprodontiaNum::getSaprodontiaRatioStr);
-        DistrictSaprodontiaMonitorVO.AgeRatio saprodontiaLoss = getAgeRatio(saprodontiaNumMap, SaprodontiaNum::getSaprodontiaLossNum,SaprodontiaNum::getSaprodontiaLossRatioStr);
-        DistrictSaprodontiaMonitorVO.AgeRatio saprodontiaRepair = getAgeRatio(saprodontiaNumMap, SaprodontiaNum::getSaprodontiaRepairNum,SaprodontiaNum::getSaprodontiaRepairRatioStr);
-
-        DistrictSaprodontiaMonitorVO.SaprodontiaAgeVariableVO saprodontiaAgeVariableVO = new DistrictSaprodontiaMonitorVO.SaprodontiaAgeVariableVO();
-        saprodontiaAgeVariableVO.setSaprodontiaRatio(saprodontia);
-        saprodontiaAgeVariableVO.setSaprodontiaLossRatio(saprodontiaLoss);
-        saprodontiaAgeVariableVO.setSaprodontiaRepairRatio(saprodontiaRepair);
-
-        saprodontiaAgeVO.setSaprodontiaAgeVariableVO(saprodontiaAgeVariableVO);
+        if (saprodontiaNumMap.size() >= 2){
+            DistrictSaprodontiaMonitorVO.SaprodontiaAgeVariableVO saprodontiaAgeVariableVO = new DistrictSaprodontiaMonitorVO.SaprodontiaAgeVariableVO();
+            saprodontiaAgeVariableVO.setSaprodontiaRatio(getAgeRatio(saprodontiaNumMap, SaprodontiaNum::getSaprodontiaNum,SaprodontiaNum::getSaprodontiaRatioStr));
+            saprodontiaAgeVariableVO.setSaprodontiaLossRatio(getAgeRatio(saprodontiaNumMap, SaprodontiaNum::getSaprodontiaLossNum,SaprodontiaNum::getSaprodontiaLossRatioStr));
+            saprodontiaAgeVariableVO.setSaprodontiaRepairRatio(getAgeRatio(saprodontiaNumMap, SaprodontiaNum::getSaprodontiaRepairNum,SaprodontiaNum::getSaprodontiaRepairRatioStr));
+            saprodontiaAgeVO.setSaprodontiaAgeVariableVO(saprodontiaAgeVariableVO);
+        }
     }
 
 
@@ -498,13 +497,11 @@ public class DistrictSaprodontiaMonitorService {
         if (CollectionUtil.isEmpty(statConclusionList)){
             return;
         }
-
         Map<Integer, List<StatConclusion>> ageMap = statConclusionList.stream().collect(Collectors.groupingBy(sc -> getLessAge(sc.getAge()),TreeMap::new,Collectors.toList()));
         List<DistrictSaprodontiaMonitorVO.SaprodontiaMonitorTable> tableList = Lists.newArrayList();
         ageMap.forEach((age,list)->getSaprodontiaAgeTable(age,list,tableList));
         getSaprodontiaAgeTable(1000,statConclusionList,tableList);
         saprodontiaAgeVO.setSaprodontiaAgeMonitorTableList(tableList);
-
     }
 
 

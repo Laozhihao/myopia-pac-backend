@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.base.util.DateUtil;
@@ -23,6 +24,7 @@ import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -398,88 +400,34 @@ public class DistrictCommonDiseaseReportService {
                 .map(StatConclusion::getIsSpinalCurvature)
                 .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
 
-        getSaprodontiaVO(statConclusionList,commonDiseasesAnalysisVariableVO);
-        getHeightAndWeightVO(statConclusionList,commonDiseasesAnalysisVariableVO);
-        getBloodPressureAndSpinalCurvatureVO(statConclusionList,commonDiseasesAnalysisVariableVO);
+        CommonDiseasesNum commonDiseasesNum = new CommonDiseasesNum().build(statConclusionList).ratioNotSymbol();
+
         commonDiseasesAnalysisVariableVO.setValidScreeningNum(statConclusionList.size());
         commonDiseasesAnalysisVariableVO.setAbnormalSpineCurvatureNum(abnormalSpineCurvatureNum);
-
+        commonDiseasesAnalysisVariableVO.setDmft(getItem(commonDiseasesNum,CommonDiseasesNum::getDmftNum,CommonDiseasesNum::getDmftRatio));
+        commonDiseasesAnalysisVariableVO.setSaprodontia(getItem(commonDiseasesNum,CommonDiseasesNum::getSaprodontiaNum,CommonDiseasesNum::getSaprodontiaRatio));
+        commonDiseasesAnalysisVariableVO.setSaprodontiaLoss(getItem(commonDiseasesNum,CommonDiseasesNum::getSaprodontiaLossNum,CommonDiseasesNum::getSaprodontiaLossRatio));
+        commonDiseasesAnalysisVariableVO.setSaprodontiaRepair(getItem(commonDiseasesNum,CommonDiseasesNum::getSaprodontiaRepairNum,CommonDiseasesNum::getSaprodontiaRepairRatio));
+        commonDiseasesAnalysisVariableVO.setSaprodontiaLossAndRepair(getItem(commonDiseasesNum,CommonDiseasesNum::getSaprodontiaLossAndRepairNum,CommonDiseasesNum::getSaprodontiaLossAndRepairRatio));
+        commonDiseasesAnalysisVariableVO.setSaprodontiaLossAndRepairTeeth(getItem(commonDiseasesNum,CommonDiseasesNum::getSaprodontiaLossAndRepairTeethNum,CommonDiseasesNum::getSaprodontiaLossAndRepairTeethRatio));
+        commonDiseasesAnalysisVariableVO.setOverweight(getItem(commonDiseasesNum,CommonDiseasesNum::getOverweightNum,CommonDiseasesNum::getOverweightRatio));
+        commonDiseasesAnalysisVariableVO.setObese(getItem(commonDiseasesNum,CommonDiseasesNum::getObeseNum,CommonDiseasesNum::getObeseRatio));
+        commonDiseasesAnalysisVariableVO.setHighBloodPressure(getItem(commonDiseasesNum,CommonDiseasesNum::getHighBloodPressureNum,CommonDiseasesNum::getHighBloodPressureRatio));
+        commonDiseasesAnalysisVariableVO.setAbnormalSpineCurvature(getItem(commonDiseasesNum,CommonDiseasesNum::getAbnormalSpineCurvatureNum,CommonDiseasesNum::getAbnormalSpineCurvatureRatio));
         districtCommonDiseasesAnalysisVO.setCommonDiseasesAnalysisVariableVO(commonDiseasesAnalysisVariableVO);
 
     }
 
-    /**
-     * 常见病分析变量-龋齿数据
-     */
-    private void getSaprodontiaVO(List<StatConclusion> statConclusionList, DistrictCommonDiseasesAnalysisVO.CommonDiseasesAnalysisVariableVO commonDiseasesAnalysisVariableVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)){
-            return;
+    private DistrictCommonDiseasesAnalysisVO.Item getItem(CommonDiseasesNum commonDiseasesNum,Function<CommonDiseasesNum,Integer> function,Function<CommonDiseasesNum,BigDecimal> mapper){
+        Integer num = Optional.of(commonDiseasesNum).map(function).orElse(null);
+        BigDecimal ratio = Optional.of(commonDiseasesNum).map(mapper).orElse(null);
+        if (ObjectsUtil.allNotNull(num,ratio)){
+            return new DistrictCommonDiseasesAnalysisVO.Item(num,ratio);
         }
-        CommonDiseasesNum commonDiseasesNum = new CommonDiseasesNum().build(statConclusionList).ratioNotSymbol();
-        DistrictCommonDiseasesAnalysisVO.SaprodontiaVO saprodontiaVO = buildSaprodontiaVO(commonDiseasesNum);
-        commonDiseasesAnalysisVariableVO.setSaprodontiaVO(saprodontiaVO);
+        return null;
     }
 
-    private DistrictCommonDiseasesAnalysisVO.SaprodontiaVO buildSaprodontiaVO(CommonDiseasesNum commonDiseasesNum){
-        DistrictCommonDiseasesAnalysisVO.SaprodontiaVO saprodontiaVO = new DistrictCommonDiseasesAnalysisVO.SaprodontiaVO();
-        saprodontiaVO.setDmftNum(commonDiseasesNum.dmftNum);
-        saprodontiaVO.setDmftRatio(commonDiseasesNum.dmftRatio);
-        saprodontiaVO.setSaprodontiaNum(commonDiseasesNum.saprodontiaNum);
-        saprodontiaVO.setSaprodontiaRatio(commonDiseasesNum.saprodontiaRatio);
-        saprodontiaVO.setSaprodontiaLossNum(commonDiseasesNum.saprodontiaLossNum);
-        saprodontiaVO.setSaprodontiaLossRatio(commonDiseasesNum.saprodontiaLossRatio);
-        saprodontiaVO.setSaprodontiaRepairNum(commonDiseasesNum.saprodontiaRepairNum);
-        saprodontiaVO.setSaprodontiaRepairRatio(commonDiseasesNum.saprodontiaRepairRatio);
-        saprodontiaVO.setSaprodontiaLossAndRepairNum(commonDiseasesNum.saprodontiaLossAndRepairNum);
-        saprodontiaVO.setSaprodontiaLossAndRepairRatio(commonDiseasesNum.saprodontiaLossAndRepairRatio);
-        saprodontiaVO.setSaprodontiaLossAndRepairTeethNum(commonDiseasesNum.saprodontiaLossAndRepairTeethNum);
-        saprodontiaVO.setSaprodontiaLossAndRepairTeethRatio(commonDiseasesNum.saprodontiaLossAndRepairTeethRatio);
-        return saprodontiaVO;
-    }
-
-    /**
-     * 常见病分析变量-身高体重数据
-     */
-    private void getHeightAndWeightVO(List<StatConclusion> statConclusionList, DistrictCommonDiseasesAnalysisVO.CommonDiseasesAnalysisVariableVO commonDiseasesAnalysisVariableVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)){
-            return;
-        }
-
-        CommonDiseasesNum commonDiseasesNum = new CommonDiseasesNum().build(statConclusionList).ratioNotSymbol();
-        DistrictCommonDiseasesAnalysisVO.HeightAndWeightVO heightAndWeightVO = buildHeightAndWeightVO(commonDiseasesNum);
-        commonDiseasesAnalysisVariableVO.setHeightAndWeightVO(heightAndWeightVO);
-    }
-
-    private DistrictCommonDiseasesAnalysisVO.HeightAndWeightVO buildHeightAndWeightVO(CommonDiseasesNum commonDiseasesNum){
-        DistrictCommonDiseasesAnalysisVO.HeightAndWeightVO heightAndWeightVO = new DistrictCommonDiseasesAnalysisVO.HeightAndWeightVO();
-        heightAndWeightVO.setOverweightNum(commonDiseasesNum.overweightNum);
-        heightAndWeightVO.setOverweightRatio(commonDiseasesNum.overweightRatio);
-        heightAndWeightVO.setObeseNum(commonDiseasesNum.obeseNum);
-        heightAndWeightVO.setObeseRatio(commonDiseasesNum.obeseRatio);
-        return heightAndWeightVO;
-    }
-
-    /**
-     * 常见病分析变量-血压和脊柱弯曲数据
-     */
-    private void getBloodPressureAndSpinalCurvatureVO(List<StatConclusion> statConclusionList, DistrictCommonDiseasesAnalysisVO.CommonDiseasesAnalysisVariableVO commonDiseasesAnalysisVariableVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)){
-            return;
-        }
-        CommonDiseasesNum commonDiseasesNum = new CommonDiseasesNum().build(statConclusionList).ratioNotSymbol();
-        DistrictCommonDiseasesAnalysisVO.BloodPressureAndSpinalCurvatureVO bloodPressureAndSpinalCurvatureVO = buildBloodPressureAndSpinalCurvatureVO(commonDiseasesNum);
-        commonDiseasesAnalysisVariableVO.setBloodPressureAndSpinalCurvatureVO(bloodPressureAndSpinalCurvatureVO);
-    }
-
-    private DistrictCommonDiseasesAnalysisVO.BloodPressureAndSpinalCurvatureVO buildBloodPressureAndSpinalCurvatureVO(CommonDiseasesNum commonDiseasesNum){
-        DistrictCommonDiseasesAnalysisVO.BloodPressureAndSpinalCurvatureVO bloodPressureAndSpinalCurvatureVO = new DistrictCommonDiseasesAnalysisVO.BloodPressureAndSpinalCurvatureVO();
-        bloodPressureAndSpinalCurvatureVO.setAbnormalSpineCurvatureNum(commonDiseasesNum.abnormalSpineCurvatureNum);
-        bloodPressureAndSpinalCurvatureVO.setAbnormalSpineCurvatureRatio(commonDiseasesNum.abnormalSpineCurvatureRatio);
-        bloodPressureAndSpinalCurvatureVO.setHighBloodPressureNum(commonDiseasesNum.highBloodPressureNum);
-        bloodPressureAndSpinalCurvatureVO.setHighBloodPressureRatio(commonDiseasesNum.highBloodPressureRatio);
-        return bloodPressureAndSpinalCurvatureVO;
-    }
-
+    @Data
     private static class CommonDiseasesNum{
         /**
          * 筛查人数
@@ -493,7 +441,7 @@ public class DistrictCommonDiseaseReportService {
         /**
          * 龋均
          */
-        private String dmftRatio;
+        private BigDecimal dmftRatio;
 
         /**
          * 有龋人数
@@ -607,17 +555,17 @@ public class DistrictCommonDiseaseReportService {
 
             List<Boolean> saprodontiaList = getList(statConclusionList, StatConclusion::getIsSaprodontia);
             if (CollectionUtil.isNotEmpty(saprodontiaList)){
-                this.saprodontiaNum = (int) saprodontiaList.stream().filter(Boolean::booleanValue).count();
+                this.saprodontiaNum = saprodontiaList.size();
             }
 
             List<Boolean> saprodontiaLossList = getList(statConclusionList, StatConclusion::getIsSaprodontiaLoss);
             if (CollectionUtil.isNotEmpty(saprodontiaLossList)){
-                this.saprodontiaLossNum = (int) saprodontiaLossList.stream().filter(Boolean::booleanValue).count();
+                this.saprodontiaLossNum = saprodontiaLossList.size();
             }
 
             List<Boolean> saprodontiaRepairList = getList(statConclusionList, StatConclusion::getIsSaprodontiaRepair);
             if (CollectionUtil.isNotEmpty(saprodontiaRepairList)){
-                this.saprodontiaRepairNum = (int) saprodontiaRepairList.stream().filter(Boolean::booleanValue).count();
+                this.saprodontiaRepairNum = saprodontiaRepairList.size();
             }
             List<StatConclusion> lossAndRepairList = statConclusionList.stream()
                     .filter(sc -> Objects.equals(Boolean.TRUE, sc.getIsSaprodontiaLoss()) || Objects.equals(Boolean.TRUE, sc.getIsSaprodontiaRepair())).collect(Collectors.toList());
@@ -627,17 +575,17 @@ public class DistrictCommonDiseaseReportService {
 
             List<Boolean> overweightList = getList(statConclusionList, StatConclusion::getIsOverweight);
             if (CollectionUtil.isNotEmpty(overweightList)){
-                this.overweightNum = (int)overweightList.stream().filter(Boolean::booleanValue).count();
+                this.overweightNum = overweightList.size();
             }
 
             List<Boolean> obeseList = getList(statConclusionList, StatConclusion::getIsObesity);
             if(CollectionUtil.isNotEmpty(obeseList)){
-                this.obeseNum = (int)obeseList.stream().filter(Boolean::booleanValue).count();
+                this.obeseNum = obeseList.size();
             }
 
             List<Boolean> abnormalSpineCurvatureList = getList(statConclusionList, StatConclusion::getIsObesity);
             if(CollectionUtil.isNotEmpty(abnormalSpineCurvatureList)){
-                this.abnormalSpineCurvatureNum = (int)abnormalSpineCurvatureList.stream().filter(Boolean::booleanValue).count();
+                this.abnormalSpineCurvatureNum = abnormalSpineCurvatureList.size();
             }
 
             List<StatConclusion> highBloodPressureList = statConclusionList.stream().filter(sc->Objects.equals(Boolean.FALSE,sc.getIsNormalBloodPressure())).collect(Collectors.toList());
@@ -652,7 +600,7 @@ public class DistrictCommonDiseaseReportService {
             if (CollectionUtil.isEmpty(statConclusionList)){
                 return Lists.newArrayList();
             }
-            return statConclusionList.stream().map(function).filter(Objects::nonNull).collect(Collectors.toList());
+            return statConclusionList.stream().map(function).filter(Objects::nonNull).filter(Boolean::booleanValue).collect(Collectors.toList());
         }
 
         /**
@@ -661,7 +609,7 @@ public class DistrictCommonDiseaseReportService {
         public CommonDiseasesNum ratioNotSymbol(){
 
             if (Objects.nonNull(dmftNum)){
-                this.dmftRatio = MathUtil.num(dmftNum,validScreeningNum);
+                this.dmftRatio = MathUtil.numNotSymbol(dmftNum,validScreeningNum);
             }
 
             if (Objects.nonNull(saprodontiaNum)){

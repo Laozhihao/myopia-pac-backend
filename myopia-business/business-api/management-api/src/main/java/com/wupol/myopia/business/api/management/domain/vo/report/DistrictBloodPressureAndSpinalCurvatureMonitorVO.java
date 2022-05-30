@@ -13,7 +13,7 @@ import java.util.List;
 @Data
 public class DistrictBloodPressureAndSpinalCurvatureMonitorVO {
     /**
-     * 说明变量
+     * 说明
      */
     private BloodPressureAndSpinalCurvatureMonitorVariableVO bloodPressureAndSpinalCurvatureMonitorVariableVO;
 
@@ -46,7 +46,7 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorVO {
          */
         private BloodPressureAndSpinalCurvatureSexVariableVO bloodPressureAndSpinalCurvatureSexVariableVO;
         /**
-         * 性别数据
+         * 性别表格数据
          */
         private List<BloodPressureAndSpinalCurvatureMonitorTable> bloodPressureAndSpinalCurvatureSexMonitorTableList;
 
@@ -95,7 +95,7 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorVO {
          */
         private BloodPressureAndSpinalCurvatureSchoolAgeVariableVO bloodPressureAndSpinalCurvatureSchoolAgeVariableVO;
         /**
-         * 学龄段数据
+         * 学龄段表格数据
          */
         private List<BloodPressureAndSpinalCurvatureMonitorTable> bloodPressureAndSpinalCurvatureSchoolAgeMonitorTableList;
 
@@ -157,13 +157,6 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorVO {
          */
         private String ratio;
 
-        public GradeRatio(String grade, String ratio) {
-            this.grade = grade;
-            this.ratio = ratio;
-        }
-
-        public GradeRatio() {
-        }
     }
 
 
@@ -174,7 +167,7 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorVO {
          */
         private BloodPressureAndSpinalCurvatureAgeVariableVO bloodPressureAndSpinalCurvatureAgeVariableVO;
         /**
-         * 年龄段数据
+         * 年龄段表格数据
          */
         private List<BloodPressureAndSpinalCurvatureMonitorTable> bloodPressureAndSpinalCurvatureAgeMonitorTableList;
 

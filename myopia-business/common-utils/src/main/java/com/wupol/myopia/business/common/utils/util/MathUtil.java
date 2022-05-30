@@ -58,9 +58,7 @@ public class MathUtil {
         }
         return ratioNotSymbol(new BigDecimal(numerator),new BigDecimal(denominator));
     }
-    public BigDecimal ratioNotSymbol(String numerator,String denominator){
-        return ratioNotSymbol(new BigDecimal(numerator),new BigDecimal(denominator));
-    }
+
     public BigDecimal ratioNotSymbol(BigDecimal numerator,BigDecimal denominator){
         if (BigDecimalUtil.decimalEqual(numerator,"0") || BigDecimalUtil.decimalEqual(denominator,"0")){
             return new BigDecimal("0.00");
@@ -71,6 +69,14 @@ public class MathUtil {
     public String num(Integer numerator, Integer denominator) {
         DecimalFormat df = new DecimalFormat("0.00");
         return ratio(numerator,denominator,df);
+    }
+
+    public BigDecimal numNotSymbol(Integer numerator, Integer denominator) {
+        Assert.isTrue(ObjectsUtil.allNotNull(numerator,denominator),"分子和分母不都为空");
+        if (numerator == 0 ||denominator == 0) {
+            return new BigDecimal("0.00");
+        }
+        return new BigDecimal(numerator).divide(new BigDecimal(denominator),2, RoundingMode.HALF_UP);
     }
 
     public String ratio(Integer numerator, Integer denominator,DecimalFormat df) {

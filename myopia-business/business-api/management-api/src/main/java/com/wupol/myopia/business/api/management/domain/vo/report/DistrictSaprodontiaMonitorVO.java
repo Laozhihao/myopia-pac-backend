@@ -15,7 +15,7 @@ import java.util.List;
 public class DistrictSaprodontiaMonitorVO {
 
     /**
-     * 说明变量
+     * 说明
      */
     private SaprodontiaMonitorVariableVO saprodontiaMonitorVariableVO;
 
@@ -49,11 +49,11 @@ public class DistrictSaprodontiaMonitorVO {
     @Data
     public static class SaprodontiaSexVO{
         /**
-         * 说明变量
+         * 性别说明
          */
         private SaprodontiaSexVariableVO saprodontiaSexVariableVO;
         /**
-         * 表格数据
+         * 性别表格数据
          */
         private List<SaprodontiaMonitorTable> saprodontiaSexMonitorTableList;
 
@@ -106,7 +106,7 @@ public class DistrictSaprodontiaMonitorVO {
          */
         private SaprodontiaSchoolAgeVariableVO saprodontiaSchoolAgeVariableVO;
         /**
-         * 学龄段数据
+         * 学龄段表格数据
          */
         private List<SaprodontiaMonitorTable> saprodontiaSchoolAgeMonitorTableList;
 
@@ -173,13 +173,6 @@ public class DistrictSaprodontiaMonitorVO {
          */
         private String ratio;
 
-        public GradeRatio(String grade, String ratio) {
-            this.grade = grade;
-            this.ratio = ratio;
-        }
-
-        public GradeRatio() {
-        }
     }
 
 
@@ -190,7 +183,7 @@ public class DistrictSaprodontiaMonitorVO {
          */
         private SaprodontiaAgeVariableVO saprodontiaAgeVariableVO;
         /**
-         * 年龄段数据
+         * 年龄段表格数据
          */
         private List<SaprodontiaMonitorTable> saprodontiaAgeMonitorTableList;
 

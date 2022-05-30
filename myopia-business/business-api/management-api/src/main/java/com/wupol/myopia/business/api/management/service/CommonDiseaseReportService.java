@@ -1,11 +1,14 @@
 package com.wupol.myopia.business.api.management.service;
 
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.api.management.domain.vo.report.DistrictCommonDiseaseReportVO;
 import com.wupol.myopia.business.api.management.domain.vo.report.SchoolCommonDiseaseReportVO;
 import com.wupol.myopia.business.api.management.service.report.DistrictCommonDiseaseReportService;
 import com.wupol.myopia.business.api.management.service.report.SchoolCommonDiseaseReportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Objects;
 
 /**
  * 常见病报告
@@ -24,7 +27,15 @@ public class CommonDiseaseReportService {
         return districtCommonDiseaseReportService.districtCommonDiseaseReport(districtId,noticeId);
     }
 
-    public SchoolCommonDiseaseReportVO schoolCommonDiseaseReport(Integer districtId,Integer noticeId,Integer planId){
-        return schoolCommonDiseaseReportService.schoolCommonDiseaseReport(districtId,noticeId,planId);
+    public SchoolCommonDiseaseReportVO schoolCommonDiseaseReport(Integer schoolId,Integer noticeId,Integer planId){
+        if (Objects.nonNull(noticeId)){
+            return schoolCommonDiseaseReportService.schoolCommonDiseaseReport(schoolId,planId);
+        }
+
+        if (Objects.nonNull(planId)){
+            return schoolCommonDiseaseReportService.schoolCommonDiseaseReport(schoolId,planId);
+        }
+
+        throw new BusinessException("筛查通知ID或筛查计划ID不能为空");
     }
 }

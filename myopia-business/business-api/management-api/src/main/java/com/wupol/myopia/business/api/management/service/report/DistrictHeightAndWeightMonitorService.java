@@ -76,11 +76,9 @@ public class DistrictHeightAndWeightMonitorService {
         if (CollectionUtil.isEmpty(statConclusionList)){
             return;
         }
-
         DistrictHeightAndWeightMonitorVO.HeightAndWeightSexVO heightAndWeightSexVO = new DistrictHeightAndWeightMonitorVO.HeightAndWeightSexVO();
         getHeightAndWeightSexVariableVO(statConclusionList,heightAndWeightSexVO);
         getHeightAndWeightSexMonitorTableList(statConclusionList,heightAndWeightSexVO);
-
         districtHeightAndWeightMonitorVO.setHeightAndWeightSexVO(heightAndWeightSexVO);
     }
 
@@ -95,19 +93,20 @@ public class DistrictHeightAndWeightMonitorService {
         List<HeightAndWeightNum> heightAndWeightSexList= Lists.newArrayList();
         genderMap.forEach((gender,list)-> getHeightAndWeightNum(gender,list,heightAndWeightSexList));
 
-        DistrictHeightAndWeightMonitorVO.HeightAndWeightSex overweight = getRatioCompare(heightAndWeightSexList,HeightAndWeightNum::getOverweightNum,HeightAndWeightNum::getOverweightRatioStr);
-        DistrictHeightAndWeightMonitorVO.HeightAndWeightSex obese = getRatioCompare(heightAndWeightSexList,HeightAndWeightNum::getObeseNum,HeightAndWeightNum::getObeseRatioStr);
-        DistrictHeightAndWeightMonitorVO.HeightAndWeightSex stunting = getRatioCompare(heightAndWeightSexList,HeightAndWeightNum::getStuntingNum,HeightAndWeightNum::getStuntingRatioStr);
-        DistrictHeightAndWeightMonitorVO.HeightAndWeightSex malnourished = getRatioCompare(heightAndWeightSexList,HeightAndWeightNum::getMalnourishedNum,HeightAndWeightNum::getMalnourishedRatioStr);
+        if (heightAndWeightSexList.size() >= 2){
+            DistrictHeightAndWeightMonitorVO.HeightAndWeightSex overweight = getRatioCompare(heightAndWeightSexList,HeightAndWeightNum::getOverweightNum,HeightAndWeightNum::getOverweightRatioStr);
+            DistrictHeightAndWeightMonitorVO.HeightAndWeightSex obese = getRatioCompare(heightAndWeightSexList,HeightAndWeightNum::getObeseNum,HeightAndWeightNum::getObeseRatioStr);
+            DistrictHeightAndWeightMonitorVO.HeightAndWeightSex stunting = getRatioCompare(heightAndWeightSexList,HeightAndWeightNum::getStuntingNum,HeightAndWeightNum::getStuntingRatioStr);
+            DistrictHeightAndWeightMonitorVO.HeightAndWeightSex malnourished = getRatioCompare(heightAndWeightSexList,HeightAndWeightNum::getMalnourishedNum,HeightAndWeightNum::getMalnourishedRatioStr);
 
-        DistrictHeightAndWeightMonitorVO.HeightAndWeightSexVariableVO heightAndWeightSexVariableVO = new DistrictHeightAndWeightMonitorVO.HeightAndWeightSexVariableVO();
-        heightAndWeightSexVariableVO.setOverweightRatioCompare(overweight);
-        heightAndWeightSexVariableVO.setObeseRatioCompare(obese);
-        heightAndWeightSexVariableVO.setStuntingRatioCompare(stunting);
-        heightAndWeightSexVariableVO.setMalnourishedRatioCompare(malnourished);
+            DistrictHeightAndWeightMonitorVO.HeightAndWeightSexVariableVO heightAndWeightSexVariableVO = new DistrictHeightAndWeightMonitorVO.HeightAndWeightSexVariableVO();
+            heightAndWeightSexVariableVO.setOverweightRatioCompare(overweight);
+            heightAndWeightSexVariableVO.setObeseRatioCompare(obese);
+            heightAndWeightSexVariableVO.setStuntingRatioCompare(stunting);
+            heightAndWeightSexVariableVO.setMalnourishedRatioCompare(malnourished);
 
-        heightAndWeightSexVO.setHeightAndWeightSexVariableVO(heightAndWeightSexVariableVO);
-
+            heightAndWeightSexVO.setHeightAndWeightSexVariableVO(heightAndWeightSexVariableVO);
+        }
     }
 
     private void getHeightAndWeightNum(Integer gender, List<StatConclusion> statConclusionList,List<HeightAndWeightNum> heightAndWeightSexList){
@@ -267,9 +266,7 @@ public class DistrictHeightAndWeightMonitorService {
             return getHeightAndWeightSchoolAge(mergeList);
         }
 
-        List<StatConclusion> conclusions = conclusionMap.get(schoolAge);
-
-        return getHeightAndWeightSchoolAge(conclusions);
+        return getHeightAndWeightSchoolAge(conclusionMap.get(schoolAge));
 
     }
 
@@ -281,7 +278,6 @@ public class DistrictHeightAndWeightMonitorService {
         HeightAndWeightNum heightAndWeightNum = new HeightAndWeightNum().build(statConclusionList).ratioNotSymbol();
 
         DistrictHeightAndWeightMonitorVO.HeightAndWeightSchoolAge heightAndWeightSchoolAge = new DistrictHeightAndWeightMonitorVO.HeightAndWeightSchoolAge();
-
         heightAndWeightSchoolAge.setOverweightRatio(heightAndWeightNum.overweightRatio);
         heightAndWeightSchoolAge.setObeseRatio(heightAndWeightNum.obeseRatio);
         heightAndWeightSchoolAge.setStuntingRatio(heightAndWeightNum.stuntingRatio);
@@ -294,17 +290,25 @@ public class DistrictHeightAndWeightMonitorService {
             getHeightAndWeightNum(gradeCodeEnum.getName(),list,heightAndWeightNumMap);
         });
 
-        TwoTuple<String, String> overweight = getMaxMap(heightAndWeightNumMap, HeightAndWeightNum::getOverweightNum,HeightAndWeightNum::getOverweightRatioStr);
-        TwoTuple<String, String> obese = getMaxMap(heightAndWeightNumMap, HeightAndWeightNum::getObeseNum,HeightAndWeightNum::getObeseRatioStr);
-        TwoTuple<String, String> stunting = getMaxMap(heightAndWeightNumMap,HeightAndWeightNum::getStuntingNum,HeightAndWeightNum::getStuntingRatioStr);
-        TwoTuple<String, String> malnourished = getMaxMap(heightAndWeightNumMap,HeightAndWeightNum::getMalnourishedNum,HeightAndWeightNum::getMalnourishedRatioStr);
-
-        heightAndWeightSchoolAge.setMaxOverweightRatio(new DistrictHeightAndWeightMonitorVO.GradeRatio(overweight.getFirst(),overweight.getSecond()));
-        heightAndWeightSchoolAge.setMaxObeseRatio(new DistrictHeightAndWeightMonitorVO.GradeRatio(obese.getFirst(),obese.getSecond()));
-        heightAndWeightSchoolAge.setMaxStuntingRatio(new DistrictHeightAndWeightMonitorVO.GradeRatio(stunting.getFirst(),stunting.getSecond()));
-        heightAndWeightSchoolAge.setMaxMalnourishedRatio(new DistrictHeightAndWeightMonitorVO.GradeRatio(malnourished.getFirst(),malnourished.getSecond()));
+        if (heightAndWeightNumMap.size() >= 2){
+            heightAndWeightSchoolAge.setMaxOverweightRatio(getGradeRatio(heightAndWeightNumMap, HeightAndWeightNum::getOverweightNum,HeightAndWeightNum::getOverweightRatioStr));
+            heightAndWeightSchoolAge.setMaxObeseRatio(getGradeRatio(heightAndWeightNumMap, HeightAndWeightNum::getObeseNum,HeightAndWeightNum::getObeseRatioStr));
+            heightAndWeightSchoolAge.setMaxStuntingRatio(getGradeRatio(heightAndWeightNumMap,HeightAndWeightNum::getStuntingNum,HeightAndWeightNum::getStuntingRatioStr));
+            heightAndWeightSchoolAge.setMaxMalnourishedRatio(getGradeRatio(heightAndWeightNumMap,HeightAndWeightNum::getMalnourishedNum,HeightAndWeightNum::getMalnourishedRatioStr));
+        }
 
         return heightAndWeightSchoolAge;
+    }
+
+    private DistrictHeightAndWeightMonitorVO.GradeRatio getGradeRatio(Map<String, HeightAndWeightNum> heightAndWeightNumMap,Function<HeightAndWeightNum,Integer> function ,Function<HeightAndWeightNum,String> mapper){
+        if (CollectionUtil.isEmpty(heightAndWeightNumMap)){
+            return null;
+        }
+        DistrictHeightAndWeightMonitorVO.GradeRatio gradeRatio = new DistrictHeightAndWeightMonitorVO.GradeRatio();
+        TwoTuple<String, String> tuple = getMaxMap(heightAndWeightNumMap, function,mapper);
+        gradeRatio.setGrade(tuple.getFirst());
+        gradeRatio.setRatio(tuple.getSecond());
+        return gradeRatio;
     }
 
     /**
@@ -326,33 +330,33 @@ public class DistrictHeightAndWeightMonitorService {
         }
         List<DistrictHeightAndWeightMonitorVO.HeightAndWeightMonitorTable> tableList =Lists.newArrayList();
         List<DistrictHeightAndWeightMonitorVO.HeightAndWeightMonitorTable> primaryList = getHeightAndWeighSchoolAgeTable(statConclusionList,SchoolAge.PRIMARY.code);
-        if (Objects.nonNull(primaryList)){
+        if (CollectionUtil.isNotEmpty(primaryList)){
             tableList.addAll(primaryList);
         }
         List<DistrictHeightAndWeightMonitorVO.HeightAndWeightMonitorTable> juniorList = getHeightAndWeighSchoolAgeTable(statConclusionList,SchoolAge.JUNIOR.code);
-        if (Objects.nonNull(juniorList)){
+        if (CollectionUtil.isNotEmpty(juniorList)){
             tableList.addAll(juniorList);
         }
 
         List<DistrictHeightAndWeightMonitorVO.HeightAndWeightMonitorTable> highList = getHeightAndWeighSchoolAgeTable(statConclusionList,10);
         List<DistrictHeightAndWeightMonitorVO.HeightAndWeightMonitorTable> normalHighList = getHeightAndWeighSchoolAgeTable(statConclusionList,SchoolAge.HIGH.code);
         List<DistrictHeightAndWeightMonitorVO.HeightAndWeightMonitorTable> vocationalHighList = getHeightAndWeighSchoolAgeTable(statConclusionList, SchoolAge.VOCATIONAL_HIGH.code);
-        if (Objects.nonNull(vocationalHighList)){
-            if (Objects.nonNull(highList)){
+        if (CollectionUtil.isNotEmpty(vocationalHighList)){
+            if (CollectionUtil.isNotEmpty(highList)){
                 tableList.addAll(highList);
             }
-            if (Objects.nonNull(normalHighList)){
+            if (CollectionUtil.isNotEmpty(normalHighList)){
                 tableList.addAll(normalHighList);
             }
             tableList.addAll(vocationalHighList);
         }else {
-            if (Objects.nonNull(highList)){
+            if (CollectionUtil.isNotEmpty(highList)){
                 tableList.addAll(highList);
             }
         }
 
         List<DistrictHeightAndWeightMonitorVO.HeightAndWeightMonitorTable> universityList = getHeightAndWeighSchoolAgeTable(statConclusionList,SchoolAge.UNIVERSITY.code);
-        if (Objects.nonNull(universityList)){
+        if (CollectionUtil.isNotEmpty(universityList)){
             tableList.addAll(universityList);
         }
 
@@ -361,16 +365,16 @@ public class DistrictHeightAndWeightMonitorService {
 
     private List<DistrictHeightAndWeightMonitorVO.HeightAndWeightMonitorTable> getHeightAndWeighSchoolAgeTable(List<StatConclusion> statConclusionList,Integer schoolAge) {
         if (CollectionUtil.isEmpty(statConclusionList)){
-            return null;
+            return Lists.newArrayList();
         }
         if (Objects.equals(schoolAge,10)){
             List<DistrictHeightAndWeightMonitorVO.HeightAndWeightMonitorTable> mergeList=Lists.newArrayList();
             List<DistrictHeightAndWeightMonitorVO.HeightAndWeightMonitorTable> normalHighList = getHeightAndWeightGrade(statConclusionList, SchoolAge.HIGH.code);
-            if (Objects.nonNull(normalHighList)){
+            if (CollectionUtil.isNotEmpty(normalHighList)){
                 mergeList.addAll(normalHighList);
             }
             List<DistrictHeightAndWeightMonitorVO.HeightAndWeightMonitorTable> vocationalHighList = getHeightAndWeightGrade(statConclusionList, SchoolAge.HIGH.code);
-            if (Objects.nonNull(vocationalHighList)){
+            if (CollectionUtil.isNotEmpty(vocationalHighList)){
                 mergeList.addAll(vocationalHighList);
             }
             return mergeList;
@@ -381,7 +385,7 @@ public class DistrictHeightAndWeightMonitorService {
 
     private List<DistrictHeightAndWeightMonitorVO.HeightAndWeightMonitorTable> getHeightAndWeightGrade(List<StatConclusion> statConclusionList,Integer schoolAge) {
         if (CollectionUtil.isEmpty(statConclusionList)){
-            return null;
+            return Lists.newArrayList();
         }
         List<StatConclusion> conclusionList = statConclusionList.stream().filter(sc -> Objects.equals(sc.getSchoolAge(), schoolAge)).collect(Collectors.toList());
         Map<String, List<StatConclusion>> gradeCodeMap = conclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
@@ -397,11 +401,9 @@ public class DistrictHeightAndWeightMonitorService {
         if (CollectionUtil.isEmpty(statConclusionList)){
             return;
         }
-
         HeightAndWeightNum heightAndWeightNum = new HeightAndWeightNum().build(statConclusionList).ratioNotSymbol();
         DistrictHeightAndWeightMonitorVO.HeightAndWeightMonitorTable heightAndWeightMonitorTable= buildTable(heightAndWeightNum);
         heightAndWeightMonitorTable.setItemName(grade);
-
         gradeList.add(heightAndWeightMonitorTable);
     }
 
@@ -415,7 +417,6 @@ public class DistrictHeightAndWeightMonitorService {
         DistrictHeightAndWeightMonitorVO.HeightAndWeightAgeVO ageVO = new DistrictHeightAndWeightMonitorVO.HeightAndWeightAgeVO();
         getHeightAndWeightAgeVariableVO(statConclusionList,ageVO);
         getHeightAndWeightAgeMonitorTableList(statConclusionList,ageVO);
-
         districtHeightAndWeightMonitorVO.setHeightAndWeightAgeVO(ageVO);
     }
 
@@ -431,18 +432,16 @@ public class DistrictHeightAndWeightMonitorService {
         Map<Integer, HeightAndWeightNum> heightAndWeightNumMap = Maps.newHashMap();
         ageMap.forEach((age,list)->getHeightAndWeightNum(age,list,heightAndWeightNumMap));
 
-        DistrictHeightAndWeightMonitorVO.AgeRatio overweight = getAgeRatio(heightAndWeightNumMap, HeightAndWeightNum::getOverweightNum,HeightAndWeightNum::getOverweightRatioStr);
-        DistrictHeightAndWeightMonitorVO.AgeRatio obese = getAgeRatio(heightAndWeightNumMap, HeightAndWeightNum::getObeseNum,HeightAndWeightNum::getObeseRatioStr);
-        DistrictHeightAndWeightMonitorVO.AgeRatio stunting = getAgeRatio(heightAndWeightNumMap, HeightAndWeightNum::getStuntingNum,HeightAndWeightNum::getStuntingRatioStr);
-        DistrictHeightAndWeightMonitorVO.AgeRatio malnourished = getAgeRatio(heightAndWeightNumMap, HeightAndWeightNum::getMalnourishedNum,HeightAndWeightNum::getMalnourishedRatioStr);
+        if (heightAndWeightNumMap.size() >= 2){
+            DistrictHeightAndWeightMonitorVO.HeightAndWeightAgeVariableVO ageVariableVO = new DistrictHeightAndWeightMonitorVO.HeightAndWeightAgeVariableVO();
+            ageVariableVO.setOverweightRatio(getAgeRatio(heightAndWeightNumMap, HeightAndWeightNum::getOverweightNum,HeightAndWeightNum::getOverweightRatioStr));
+            ageVariableVO.setObeseRatio(getAgeRatio(heightAndWeightNumMap, HeightAndWeightNum::getObeseNum,HeightAndWeightNum::getObeseRatioStr));
+            ageVariableVO.setStuntingRatio(getAgeRatio(heightAndWeightNumMap, HeightAndWeightNum::getStuntingNum,HeightAndWeightNum::getStuntingRatioStr));
+            ageVariableVO.setMalnourishedRatio(getAgeRatio(heightAndWeightNumMap, HeightAndWeightNum::getMalnourishedNum,HeightAndWeightNum::getMalnourishedRatioStr));
 
-        DistrictHeightAndWeightMonitorVO.HeightAndWeightAgeVariableVO ageVariableVO = new DistrictHeightAndWeightMonitorVO.HeightAndWeightAgeVariableVO();
-        ageVariableVO.setOverweightRatio(overweight);
-        ageVariableVO.setObeseRatio(obese);
-        ageVariableVO.setStuntingRatio(stunting);
-        ageVariableVO.setMalnourishedRatio(malnourished);
+            ageVO.setHeightAndWeightAgeVariableVO(ageVariableVO);
+        }
 
-        ageVO.setHeightAndWeightAgeVariableVO(ageVariableVO);
     }
 
     private DistrictHeightAndWeightMonitorVO.AgeRatio getAgeRatio(Map<Integer, HeightAndWeightNum> heightAndWeightNumMap, Function<HeightAndWeightNum,Integer> function,Function<HeightAndWeightNum,String> mapper) {
@@ -512,9 +511,7 @@ public class DistrictHeightAndWeightMonitorService {
         }else {
             itemName = AgeSegmentEnum.get(age).getDesc();
         }
-
         HeightAndWeightNum heightAndWeightNum = new HeightAndWeightNum().build(conclusionlist).ratioNotSymbol();
-
         DistrictHeightAndWeightMonitorVO.HeightAndWeightMonitorTable heightAndWeightMonitorTable = buildTable(heightAndWeightNum);
         heightAndWeightMonitorTable.setItemName(itemName);
         tableList.add(heightAndWeightMonitorTable);

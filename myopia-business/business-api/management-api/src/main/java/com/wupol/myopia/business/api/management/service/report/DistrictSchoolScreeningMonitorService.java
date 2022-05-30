@@ -57,27 +57,18 @@ public class DistrictSchoolScreeningMonitorService {
             getSchoolScreeningNum(schoolName,list,schoolScreeningNumMap);
         });
 
-        DistrictSchoolScreeningMonitorVO.SchoolRatioExtremum saprodontia = getSchoolRatioExtremum(schoolScreeningNumMap,SchoolScreeningNum::getSaprodontiaNum,SchoolScreeningNum::getSaprodontiaRatio);
-        DistrictSchoolScreeningMonitorVO.SchoolRatioExtremum saprodontiaLossAndRepair =  getSchoolRatioExtremum(schoolScreeningNumMap,SchoolScreeningNum::getSaprodontiaLossAndRepairNum,SchoolScreeningNum::getSaprodontiaLossAndRepairRatio);
-        DistrictSchoolScreeningMonitorVO.SchoolRatioExtremum overweight = getSchoolRatioExtremum(schoolScreeningNumMap,SchoolScreeningNum::getOverweightNum,SchoolScreeningNum::getOverweightRatio);
-        DistrictSchoolScreeningMonitorVO.SchoolRatioExtremum obese = getSchoolRatioExtremum(schoolScreeningNumMap,SchoolScreeningNum::getObeseNum,SchoolScreeningNum::getObeseRatio);
-        DistrictSchoolScreeningMonitorVO.SchoolRatioExtremum stunting = getSchoolRatioExtremum(schoolScreeningNumMap,SchoolScreeningNum::getStuntingNum,SchoolScreeningNum::getStuntingRatio);
-        DistrictSchoolScreeningMonitorVO.SchoolRatioExtremum malnourished = getSchoolRatioExtremum(schoolScreeningNumMap,SchoolScreeningNum::getMalnourishedNum,SchoolScreeningNum::getMalnourishedRatio);
-        DistrictSchoolScreeningMonitorVO.SchoolRatioExtremum abnormalSpineCurvature =getSchoolRatioExtremum(schoolScreeningNumMap,SchoolScreeningNum::getAbnormalSpineCurvatureNum,SchoolScreeningNum::getAbnormalSpineCurvatureRatio);
-        DistrictSchoolScreeningMonitorVO.SchoolRatioExtremum highBloodPressure =getSchoolRatioExtremum(schoolScreeningNumMap,SchoolScreeningNum::getHighBloodPressureNum,SchoolScreeningNum::getHighBloodPressureRatio);
-
-        DistrictSchoolScreeningMonitorVO.SchoolScreeningMonitorVariableVO variableVO = new DistrictSchoolScreeningMonitorVO.SchoolScreeningMonitorVariableVO();
-        variableVO.setSaprodontiaRatioExtremum(saprodontia);
-        variableVO.setSaprodontiaLossAndRepairRatioExtremum(saprodontiaLossAndRepair);
-        variableVO.setOverweightRatioExtremum(overweight);
-        variableVO.setObeseRatioExtremum(obese);
-        variableVO.setStuntingRatioExtremum(stunting);
-        variableVO.setMalnourishedRatioExtremum(malnourished);
-        variableVO.setAbnormalSpineCurvatureRatioExtremum(abnormalSpineCurvature);
-        variableVO.setHighBloodPressureRatioExtremum(highBloodPressure);
-
-        districtSchoolScreeningMonitorVO.setSchoolScreeningMonitorVariableVO(variableVO);
-
+        if (schoolScreeningNumMap.size() >= 2){
+            DistrictSchoolScreeningMonitorVO.SchoolScreeningMonitorVariableVO variableVO = new DistrictSchoolScreeningMonitorVO.SchoolScreeningMonitorVariableVO();
+            variableVO.setSaprodontiaRatioExtremum(getSchoolRatioExtremum(schoolScreeningNumMap,SchoolScreeningNum::getSaprodontiaNum,SchoolScreeningNum::getSaprodontiaRatio));
+            variableVO.setSaprodontiaLossAndRepairRatioExtremum(getSchoolRatioExtremum(schoolScreeningNumMap,SchoolScreeningNum::getSaprodontiaLossAndRepairNum,SchoolScreeningNum::getSaprodontiaLossAndRepairRatio));
+            variableVO.setOverweightRatioExtremum(getSchoolRatioExtremum(schoolScreeningNumMap,SchoolScreeningNum::getOverweightNum,SchoolScreeningNum::getOverweightRatio));
+            variableVO.setObeseRatioExtremum(getSchoolRatioExtremum(schoolScreeningNumMap,SchoolScreeningNum::getObeseNum,SchoolScreeningNum::getObeseRatio));
+            variableVO.setStuntingRatioExtremum(getSchoolRatioExtremum(schoolScreeningNumMap,SchoolScreeningNum::getStuntingNum,SchoolScreeningNum::getStuntingRatio));
+            variableVO.setMalnourishedRatioExtremum( getSchoolRatioExtremum(schoolScreeningNumMap,SchoolScreeningNum::getMalnourishedNum,SchoolScreeningNum::getMalnourishedRatio));
+            variableVO.setAbnormalSpineCurvatureRatioExtremum(getSchoolRatioExtremum(schoolScreeningNumMap,SchoolScreeningNum::getAbnormalSpineCurvatureNum,SchoolScreeningNum::getAbnormalSpineCurvatureRatio));
+            variableVO.setHighBloodPressureRatioExtremum(getSchoolRatioExtremum(schoolScreeningNumMap,SchoolScreeningNum::getHighBloodPressureNum,SchoolScreeningNum::getHighBloodPressureRatio));
+            districtSchoolScreeningMonitorVO.setSchoolScreeningMonitorVariableVO(variableVO);
+        }
     }
 
     private DistrictSchoolScreeningMonitorVO.SchoolRatioExtremum getSchoolRatioExtremum(Map<String,SchoolScreeningNum> schoolScreeningNumMap, Function<SchoolScreeningNum,Integer> function, Function<SchoolScreeningNum,BigDecimal> mapper){
@@ -118,7 +109,7 @@ public class DistrictSchoolScreeningMonitorService {
 
 
     /**
-     * 各学校筛查情况-说明变量
+     * 各学校筛查情况-表格数据
      */
     private void getSchoolScreeningMonitorTableList(List<StatConclusion> statConclusionList,Map<Integer,String> schoolMap, DistrictSchoolScreeningMonitorVO districtSchoolScreeningMonitorVO) {
         if (CollectionUtil.isEmpty(statConclusionList)){

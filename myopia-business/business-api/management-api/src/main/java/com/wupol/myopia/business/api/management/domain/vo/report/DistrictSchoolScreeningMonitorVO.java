@@ -13,11 +13,11 @@ import java.util.List;
 @Data
 public class DistrictSchoolScreeningMonitorVO {
     /**
-     * 说明变量
+     * 学校说明
      */
     private SchoolScreeningMonitorVariableVO schoolScreeningMonitorVariableVO;
     /**
-     * 表格数据
+     * 学校表格数据
      */
     private List<SchoolScreeningMonitorTable> schoolScreeningMonitorTableList;
 
@@ -73,7 +73,7 @@ public class DistrictSchoolScreeningMonitorVO {
         private String maxSchoolName;
 
         /**
-         * 最低占比
+         * 最低占比学校
          */
         private String minSchoolName;
         /**
