@@ -64,6 +64,10 @@ public class VisionDataDTO extends ScreeningResultBasicData {
     @JsonProperty("l_ok_degree")
     private BigDecimal leftOkDegree;
 
+    /**
+     * 是否配合检查：0-配合、1-不配合
+     */
+    private Integer isCooperative;
 
 
     @Override
@@ -80,7 +84,7 @@ public class VisionDataDTO extends ScreeningResultBasicData {
                 .setGlassesType(WearingGlassesSituation.getKey(glassesType))
                 .setLateriality(CommonConst.RIGHT_EYE)
                 .setOkDegree(rightOkDegree);
-        VisionDataDO visionDataDO = new VisionDataDO().setRightEyeData(rightVisionData).setLeftEyeData(leftVisionData).setIsCooperative(super.getIsCooperative());
+        VisionDataDO visionDataDO = new VisionDataDO().setRightEyeData(rightVisionData).setLeftEyeData(leftVisionData).setIsCooperative(isCooperative);
         visionDataDO.setDiagnosis(super.getDiagnosis());
         visionDataDO.setCreateUserId(getCreateUserId());
         visionDataDO.setUpdateTime(getUpdateTime());
@@ -94,7 +98,7 @@ public class VisionDataDTO extends ScreeningResultBasicData {
      **/
     public boolean isValid() {
         // 不配合时全部校验
-        if (Objects.isNull(super.getIsCooperative()) || super.getIsCooperative() == 1) {
+        if (Objects.isNull(isCooperative) || isCooperative == 1) {
             return true;
         }
         // 没带眼镜

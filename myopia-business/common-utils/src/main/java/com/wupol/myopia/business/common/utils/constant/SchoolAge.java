@@ -16,6 +16,7 @@ import java.util.List;
  */
 public enum SchoolAge {
 
+
     UNKNOWN(-1, "未知"),
     KINDERGARTEN(5, "幼儿园"),
     PRIMARY(0, "小学"),
