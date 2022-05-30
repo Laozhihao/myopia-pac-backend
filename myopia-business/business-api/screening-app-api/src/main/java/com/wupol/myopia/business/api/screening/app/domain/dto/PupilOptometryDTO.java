@@ -60,10 +60,7 @@ public class PupilOptometryDTO extends ScreeningResultBasicData {
      * 矫正视力(右眼)
      */
     private BigDecimal rightCorrectedVision;
-    /**
-     * 初步诊断结果：0-正常、1-（疑似）异常
-     */
-    private Integer diagnosis;
+
     /**
      * 是否配合检查：0-配合、1-不配合
      */
@@ -74,7 +71,7 @@ public class PupilOptometryDTO extends ScreeningResultBasicData {
         PupilOptometryDataDO.PupilOptometryData leftPupilOptometryData = new PupilOptometryDataDO.PupilOptometryData().setAxial(lAxial).setCyl(lCyl).setSph(lSph).setCorrectedVision(leftCorrectedVision).setLateriality(CommonConst.LEFT_EYE);
         PupilOptometryDataDO.PupilOptometryData rightPupilOptometryData = new PupilOptometryDataDO.PupilOptometryData().setAxial(rAxial).setCyl(rCyl).setSph(rSph).setCorrectedVision(rightCorrectedVision).setLateriality(CommonConst.RIGHT_EYE);
         PupilOptometryDataDO pupilOptometryDataDO = new PupilOptometryDataDO().setLeftEyeData(leftPupilOptometryData).setRightEyeData(rightPupilOptometryData).setIsCooperative(isCooperative);
-        pupilOptometryDataDO.setDiagnosis(diagnosis);
+        pupilOptometryDataDO.setDiagnosis(super.getDiagnosis());
         pupilOptometryDataDO.setCreateUserId(getCreateUserId());
         return visionScreeningResult.setPupilOptometryData(pupilOptometryDataDO);
     }

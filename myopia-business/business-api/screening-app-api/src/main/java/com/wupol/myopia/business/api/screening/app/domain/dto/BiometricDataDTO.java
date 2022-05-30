@@ -6,6 +6,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.dos.BiometricDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultBasicData;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Objects;
@@ -15,6 +16,7 @@ import java.util.Objects;
  * @Date 2021/1/26 1:08
  * @Author by Jacob
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class BiometricDataDTO extends ScreeningResultBasicData {
 
