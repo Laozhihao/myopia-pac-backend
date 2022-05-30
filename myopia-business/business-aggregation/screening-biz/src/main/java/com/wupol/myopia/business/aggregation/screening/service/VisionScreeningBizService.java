@@ -281,6 +281,7 @@ public class VisionScreeningBizService {
         student.setAstigmatismLevel(statConclusion.getAstigmatismLevel());
         student.setHyperopiaLevel(statConclusion.getHyperopiaLevel());
         if (statConclusion.getAge() >= 6){
+            //小学及以上的数据同步
             student.setMyopiaLevel(statConclusion.getMyopiaLevel());
             student.setScreeningMyopia(statConclusion.getScreeningMyopia());
             if (Objects.nonNull(statConclusion.getIsLowVision()) && statConclusion.getIsLowVision()) {
