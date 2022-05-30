@@ -553,9 +553,7 @@ public class StatUtil {
             return null;
         }
         BigDecimal absCyl = cyl.abs();
-        if (Objects.nonNull(zeroSPWarningLevel(cyl, spn, age))) {
-            return zeroSPWarningLevel(cyl, spn, age);
-        }
+
         if (BigDecimalUtil.lessThanAndEqual(nakedVision, "4.5") || threeSE(se) || (age < 4 && BigDecimalUtil.moreThan(se, "9")) || (age >= 4 && BigDecimalUtil.moreThan(se, "8")) || threeAbsCyl(absCyl)) {
             return WarningLevel.THREE;
         }
@@ -565,6 +563,11 @@ public class StatUtil {
         if (BigDecimalUtil.isBetweenRight(nakedVision, "4.6", "4.7") || oneSE(se) || (age < 4 && BigDecimalUtil.isBetweenRight(se, "3", "6")) || (age >= 4 && BigDecimalUtil.isBetweenRight(se, "2", "5")) || oneAbsCyl(absCyl)) {
             return WarningLevel.ONE;
         }
+        //0级预警（远视储备不足）优先级大于 0级预警
+        if (Objects.nonNull(zeroSPWarningLevel(cyl, spn, age))) {
+            return zeroSPWarningLevel(cyl, spn, age);
+        }
+
         if (BigDecimalUtil.moreThan(nakedVision, "4.7") || zeroSE(se) || zeroAbsCyl(absCyl)) {
             return WarningLevel.ZERO;
         }
@@ -587,9 +590,7 @@ public class StatUtil {
         if (Objects.isNull(se)) {
             return null;
         }
-        if (Objects.nonNull(zeroSPWarningLevel(cyl, spn, age))) {
-            return zeroSPWarningLevel(cyl, spn, age);
-        }
+
         if ((BigDecimalUtil.lessThanAndEqual(nakedVision, "4.5")) || threeSE(se) || BigDecimalUtil.moreThan(se, "7.5") || threeAbsCyl(absCyl)) {
             return WarningLevel.THREE;
         }
@@ -599,6 +600,11 @@ public class StatUtil {
         if (BigDecimalUtil.isBetweenRight(nakedVision, "4.7", "4.8") || oneSE(se) || BigDecimalUtil.isBetweenRight(se, "1.5", "4.5") || oneAbsCyl(absCyl)) {
             return WarningLevel.ONE;
         }
+        //0级预警（远视储备不足）优先级大于 0级预警
+        if (Objects.nonNull(zeroSPWarningLevel(cyl, spn, age))) {
+            return zeroSPWarningLevel(cyl, spn, age);
+        }
+
         if (BigDecimalUtil.moreThan(nakedVision, "4.8") || zeroSE(se) || zeroAbsCyl(absCyl)) {
             return WarningLevel.ZERO;
         }
