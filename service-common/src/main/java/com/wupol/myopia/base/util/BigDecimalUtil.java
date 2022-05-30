@@ -277,6 +277,9 @@ public class BigDecimalUtil {
      * @return true：误差 false：没误差
      */
     public static boolean isDeviation(BigDecimal firstScreening,BigDecimal reScreening,BigDecimal standard){
+        if (firstScreening==null||reScreening==null){
+            return false;
+        }
         BigDecimal result = subtractAbsBigDecimal(firstScreening, reScreening);
         return result.abs().compareTo(standard) > 0;
     }

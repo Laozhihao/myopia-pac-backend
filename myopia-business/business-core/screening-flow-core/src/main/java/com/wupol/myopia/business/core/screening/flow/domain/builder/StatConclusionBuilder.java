@@ -128,6 +128,7 @@ public class StatConclusionBuilder {
         //复测项次
         this.setRescreenItemNum();
 
+        this.setPhysiqueRescreenErrorNum();
         this.setReview();
         this.setPhysiqueRescreenErrorNum();
         this.setCooperative();
