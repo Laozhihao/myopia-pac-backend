@@ -100,6 +100,6 @@ public abstract class ScreeningResultBasicData implements ScreeningDataInterface
     public boolean isNewerUpdateTime(Long otherUpdateTime) {
         if (Objects.isNull(otherUpdateTime)) return true;
         if (Objects.isNull(updateTime)) return false;
-        return otherUpdateTime > updateTime;
+        return updateTime > otherUpdateTime;
     }
 }
