@@ -57,7 +57,7 @@ public class SchoolHeightAndWeightMonitorService {
         if (CollectionUtil.isEmpty(statConclusionList)){
             return;
         }
-        HeightAndWeightNum heightAndWeight = new HeightAndWeightNum().build(statConclusionList).ratio();
+        HeightAndWeightNum heightAndWeight = new HeightAndWeightNum().build(statConclusionList).ratioNotSymbol();
 
         SchoolHeightAndWeightMonitorVO.HeightAndWeightMonitorVariableVO heightAndWeightMonitorVariableVO = new SchoolHeightAndWeightMonitorVO.HeightAndWeightMonitorVariableVO();
         heightAndWeightMonitorVariableVO.setOverweightRatio(heightAndWeight.overweightRatio);
@@ -272,7 +272,10 @@ public class SchoolHeightAndWeightMonitorService {
         Map<String, List<StatConclusion>> gradeCodeMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
         MapUtil.sort(gradeCodeMap);
         List<SchoolHeightAndWeightMonitorVO.HeightAndWeightMonitorTable> tableList = Lists.newArrayList();
-        gradeCodeMap.forEach((grade,list)-> getHeightAndWeightGrade(list,grade,tableList));
+        gradeCodeMap.forEach((grade,list)-> {
+            GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(grade);
+            getHeightAndWeightGrade(list,gradeCodeEnum.getName(),tableList);
+        });
         getHeightAndWeightGrade(statConclusionList,"合计",tableList);
 
         heightAndWeightGradeVO.setHeightAndWeightGradeMonitorTableList(tableList);
@@ -401,7 +404,7 @@ public class SchoolHeightAndWeightMonitorService {
 
 
     @Data
-    private static class HeightAndWeightNum{
+    private static class HeightAndWeightNum extends EntityFunction{
 
         /**
          * 筛查人数
@@ -474,20 +477,10 @@ public class SchoolHeightAndWeightMonitorService {
 
         public HeightAndWeightNum build(List<StatConclusion> statConclusionList){
             this.validScreeningNum = statConclusionList.size();
-
-            this.overweightNum = (int)statConclusionList.stream()
-                    .map(StatConclusion::getIsOverweight)
-                    .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
-            this.obeseNum = (int)statConclusionList.stream()
-                    .map(StatConclusion::getIsObesity)
-                    .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
-            this.malnourishedNum = (int)statConclusionList.stream()
-                    .map(StatConclusion::getIsMalnutrition)
-                    .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
-            this.stuntingNum = (int)statConclusionList.stream()
-                    .map(StatConclusion::getIsStunting)
-                    .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
-
+            this.overweightNum =getCount(statConclusionList,StatConclusion::getIsOverweight);
+            this.obeseNum = getCount(statConclusionList,StatConclusion::getIsObesity);
+            this.malnourishedNum = getCount(statConclusionList,StatConclusion::getIsMalnutrition);
+            this.stuntingNum = getCount(statConclusionList,StatConclusion::getIsStunting);
             return this;
         }
 
@@ -495,19 +488,10 @@ public class SchoolHeightAndWeightMonitorService {
          * 不带%
          */
         public HeightAndWeightNum ratioNotSymbol(){
-            if (Objects.nonNull(overweightNum)){
-                this.overweightRatio = MathUtil.ratioNotSymbol(overweightNum,validScreeningNum);
-            }
-            if (Objects.nonNull(obeseNum)){
-                this.obeseRatio = MathUtil.ratioNotSymbol(obeseNum,validScreeningNum);
-            }
-            if (Objects.nonNull(stuntingNum)){
-                this.stuntingRatio = MathUtil.ratioNotSymbol(stuntingNum,validScreeningNum);
-            }
-            if (Objects.nonNull(malnourishedNum)){
-                this.malnourishedRatio = MathUtil.ratioNotSymbol(malnourishedNum,validScreeningNum);
-            }
-
+            this.overweightRatio = getRatioNotSymbol(overweightNum,validScreeningNum);
+            this.obeseRatio = getRatioNotSymbol(obeseNum,validScreeningNum);
+            this.stuntingRatio = getRatioNotSymbol(stuntingNum,validScreeningNum);
+            this.malnourishedRatio = getRatioNotSymbol(malnourishedNum,validScreeningNum);
             return this;
         }
 
@@ -515,18 +499,10 @@ public class SchoolHeightAndWeightMonitorService {
          * 带%
          */
         public HeightAndWeightNum ratio(){
-            if (Objects.nonNull(overweightNum)){
-                this.overweightRatioStr = MathUtil.ratio(overweightNum,validScreeningNum);
-            }
-            if (Objects.nonNull(obeseNum)){
-                this.obeseRatioStr = MathUtil.ratio(obeseNum,validScreeningNum);
-            }
-            if (Objects.nonNull(stuntingNum)){
-                this.stuntingRatioStr = MathUtil.ratio(stuntingNum,validScreeningNum);
-            }
-            if (Objects.nonNull(malnourishedNum)){
-                this.malnourishedRatioStr = MathUtil.ratio(malnourishedNum,validScreeningNum);
-            }
+            this.overweightRatioStr = getRatio(overweightNum,validScreeningNum);
+            this.obeseRatioStr = getRatio(obeseNum,validScreeningNum);
+            this.stuntingRatioStr = getRatio(stuntingNum,validScreeningNum);
+            this.malnourishedRatioStr = getRatio(malnourishedNum,validScreeningNum);
             return this;
         }
 

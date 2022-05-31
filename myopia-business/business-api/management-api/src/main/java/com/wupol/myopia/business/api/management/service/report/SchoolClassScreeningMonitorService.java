@@ -158,7 +158,7 @@ public class SchoolClassScreeningMonitorService {
     }
 
     @Data
-    private static class SchoolClassScreeningNum{
+    private static class SchoolClassScreeningNum extends EntityFunction{
         /**
          * 筛查人数
          */
@@ -244,28 +244,15 @@ public class SchoolClassScreeningMonitorService {
         public SchoolClassScreeningNum build(List<StatConclusion> statConclusionList){
             this.validScreeningNum = statConclusionList.size();
 
-            this.saprodontiaNum = (int)statConclusionList.stream()
-                    .map(StatConclusion::getIsSaprodontia)
-                    .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
+            this.saprodontiaNum = getCount(statConclusionList,StatConclusion::getIsSaprodontia);
             this.saprodontiaLossAndRepairNum = (int)statConclusionList.stream()
                     .filter(sc ->Objects.equals(Boolean.TRUE,sc.getIsSaprodontiaLoss()) || Objects.equals(Boolean.TRUE,sc.getIsSaprodontiaRepair())).count();
 
-            this.overweightNum = (int)statConclusionList.stream()
-                    .map(StatConclusion::getIsOverweight)
-                    .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
-            this.obeseNum = (int)statConclusionList.stream()
-                    .map(StatConclusion::getIsObesity)
-                    .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
-            this.malnourishedNum = (int)statConclusionList.stream()
-                    .map(StatConclusion::getIsMalnutrition)
-                    .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
-            this.stuntingNum = (int)statConclusionList.stream()
-                    .map(StatConclusion::getIsStunting)
-                    .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
-
-            this.abnormalSpineCurvatureNum = (int)statConclusionList.stream()
-                    .map(StatConclusion::getIsSpinalCurvature)
-                    .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
+            this.overweightNum = getCount(statConclusionList,StatConclusion::getIsOverweight);
+            this.obeseNum = getCount(statConclusionList,StatConclusion::getIsObesity);
+            this.malnourishedNum =getCount(statConclusionList,StatConclusion::getIsMalnutrition);
+            this.stuntingNum =getCount(statConclusionList,StatConclusion::getIsStunting);
+            this.abnormalSpineCurvatureNum =getCount(statConclusionList,StatConclusion::getIsSpinalCurvature);
             this.highBloodPressureNum = (int)statConclusionList.stream()
                     .filter(sc->Objects.equals(Boolean.FALSE,sc.getIsNormalBloodPressure())).count();
 
@@ -276,33 +263,14 @@ public class SchoolClassScreeningMonitorService {
          * 不带%
          */
         public SchoolClassScreeningNum ratioNotSymbol(){
-
-            if (Objects.nonNull(saprodontiaNum)){
-                this.saprodontiaRatio = MathUtil.ratioNotSymbol(saprodontiaNum,validScreeningNum);
-            }
-            if (Objects.nonNull(saprodontiaLossAndRepairNum)){
-                this.saprodontiaLossAndRepairRatio = MathUtil.ratioNotSymbol(saprodontiaLossAndRepairNum,validScreeningNum);
-            }
-
-            if (Objects.nonNull(overweightNum)){
-                this.overweightRatio = MathUtil.ratioNotSymbol(overweightNum,validScreeningNum);
-            }
-            if (Objects.nonNull(obeseNum)){
-                this.obeseRatio = MathUtil.ratioNotSymbol(obeseNum,validScreeningNum);
-            }
-            if (Objects.nonNull(stuntingNum)){
-                this.stuntingRatio = MathUtil.ratioNotSymbol(stuntingNum,validScreeningNum);
-            }
-            if (Objects.nonNull(malnourishedNum)){
-                this.malnourishedRatio = MathUtil.ratioNotSymbol(malnourishedNum,validScreeningNum);
-            }
-            if (Objects.nonNull(abnormalSpineCurvatureNum)){
-                this.abnormalSpineCurvatureRatio = MathUtil.ratioNotSymbol(abnormalSpineCurvatureNum,validScreeningNum);
-            }
-            if (Objects.nonNull(highBloodPressureNum)){
-                this.highBloodPressureRatio = MathUtil.ratioNotSymbol(highBloodPressureNum,validScreeningNum);
-            }
-
+            this.saprodontiaRatio = getRatioNotSymbol(saprodontiaNum,validScreeningNum);
+            this.saprodontiaLossAndRepairRatio = getRatioNotSymbol(saprodontiaLossAndRepairNum,validScreeningNum);
+            this.overweightRatio = getRatioNotSymbol(overweightNum,validScreeningNum);
+            this.obeseRatio = getRatioNotSymbol(obeseNum,validScreeningNum);
+            this.stuntingRatio = getRatioNotSymbol(stuntingNum,validScreeningNum);
+            this.malnourishedRatio = getRatioNotSymbol(malnourishedNum,validScreeningNum);
+            this.abnormalSpineCurvatureRatio = getRatioNotSymbol(abnormalSpineCurvatureNum,validScreeningNum);
+            this.highBloodPressureRatio = getRatioNotSymbol(highBloodPressureNum,validScreeningNum);
             return this;
         }
     }

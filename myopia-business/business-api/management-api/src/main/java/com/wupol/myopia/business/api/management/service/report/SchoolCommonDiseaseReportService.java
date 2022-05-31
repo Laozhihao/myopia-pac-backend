@@ -11,6 +11,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
+import com.wupol.myopia.business.api.management.constant.ReportConst;
 import com.wupol.myopia.business.api.management.domain.vo.report.SchoolCommonDiseaseReportVO;
 import com.wupol.myopia.business.api.management.domain.vo.report.SchoolCommonDiseasesAnalysisVO;
 import com.wupol.myopia.business.common.utils.constant.MyopiaLevelEnum;
@@ -187,7 +188,8 @@ public class SchoolCommonDiseaseReportService {
 
         visionAnalysisVO.setValidScreeningNum(visionAnalysisNum.validScreeningNum);
         visionAnalysisVO.setLowVision(getItem(visionAnalysisNum, VisionAnalysisNum::getLowMyopiaNum, VisionAnalysisNum::getLowVisionRatio));
-        visionAnalysisVO.setAvgVision(avgVisionRatio);
+        visionAnalysisVO.setAvgVision(averageVision);
+        visionAnalysisVO.setAvgVisionRatio(avgVisionRatio);
         visionAnalysisVO.setMyopia(getItem(visionAnalysisNum, VisionAnalysisNum::getMyopiaNum, VisionAnalysisNum::getMyopiaRatio));
         visionAnalysisVO.setNightWearingOrthokeratologyLenses(getItem(visionAnalysisNum, VisionAnalysisNum::getNightWearingOrthokeratologyLensesNum, VisionAnalysisNum::getNightWearingOrthokeratologyLensesRatio));
         visionAnalysisVO.setMyopiaLevelEarly(getItem(visionAnalysisNum, VisionAnalysisNum::getMyopiaLevelEarlyNum, VisionAnalysisNum::getMyopiaLevelEarlyRatio));
@@ -202,8 +204,8 @@ public class SchoolCommonDiseaseReportService {
     }
 
     private SchoolCommonDiseaseReportVO.Item getItem(VisionAnalysisNum visionAnalysisNum,Function<VisionAnalysisNum,Integer> function,Function<VisionAnalysisNum,BigDecimal> mapper){
-        Integer num = Optional.of(visionAnalysisNum).map(function).orElse(null);
-        BigDecimal ratio = Optional.of(visionAnalysisNum).map(mapper).orElse(null);
+        Integer num = Optional.of(visionAnalysisNum).map(function).orElse(ReportConst.ZERO);
+        BigDecimal ratio = Optional.of(visionAnalysisNum).map(mapper).orElse(ReportConst.ZERO_BIG_DECIMAL);
         if (ObjectsUtil.allNotNull(num,ratio)){
             return new SchoolCommonDiseaseReportVO.Item(num,ratio);
         }
@@ -343,7 +345,7 @@ public class SchoolCommonDiseaseReportService {
     }
 
     @Data
-    public static class VisionAnalysisNum{
+    public static class VisionAnalysisNum extends EntityFunction{
         /**
          * 有效筛查人数
          */
@@ -447,54 +449,17 @@ public class SchoolCommonDiseaseReportService {
         private BigDecimal myopiaUnderCorrectedRatio;
 
         public VisionAnalysisNum build(List<StatConclusion> statConclusionList){
-
             this.validScreeningNum = statConclusionList.size();
-
-            List<Boolean> lowVisionList = getList(statConclusionList, StatConclusion::getIsLowVision);
-            if (CollectionUtil.isNotEmpty(lowVisionList)){
-                this.lowVisionNum = lowVisionList.size();
-            }
-
-            List<Boolean> myopiaList = getList(statConclusionList, StatConclusion::getIsMyopia);
-            if(CollectionUtil.isNotEmpty(myopiaList)){
-                this.myopiaNum = myopiaList.size();
-            }
-
-            List<StatConclusion> nightWearingOrthokeratologyLensesList = statConclusionList.stream().filter(sc -> Objects.equals(sc.getGlassesType(), GlassesTypeEnum.ORTHOKERATOLOGY.code)).collect(Collectors.toList());
-            if (CollectionUtil.isNotEmpty(nightWearingOrthokeratologyLensesList)){
-                this.nightWearingOrthokeratologyLensesNum=nightWearingOrthokeratologyLensesList.size();
-            }
-            List<StatConclusion> myopiaLevelEarlyList = statConclusionList.stream().filter(sc -> Objects.equals(sc.getMyopiaLevel(), MyopiaLevelEnum.MYOPIA_LEVEL_EARLY.code)).collect(Collectors.toList());
-            if (CollectionUtil.isNotEmpty(myopiaLevelEarlyList)){
-                this.myopiaLevelEarlyNum =myopiaLevelEarlyList.size();
-            }
-            List<StatConclusion> lowMyopiaList = statConclusionList.stream().filter(sc -> Objects.equals(sc.getMyopiaLevel(), MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.code)).collect(Collectors.toList());
-            if(CollectionUtil.isNotEmpty(lowMyopiaList)){
-                this.lowMyopiaNum = lowMyopiaList.size();
-            }
-            List<StatConclusion> highMyopiaList = statConclusionList.stream().filter(sc -> Objects.equals(sc.getMyopiaLevel(), MyopiaLevelEnum.MYOPIA_LEVEL_HIGH.code)).collect(Collectors.toList());
-            if(CollectionUtil.isNotEmpty(highMyopiaList)){
-                this.highMyopiaNum = highMyopiaList.size();
-            }
-
-            List<Boolean> astigmatismList = getList(statConclusionList, StatConclusion::getIsAstigmatism);
-            if (CollectionUtil.isNotEmpty(astigmatismList)){
-                this.astigmatismNum = astigmatismList.size();
-            }
-
-            List<StatConclusion> myopiaEnoughCorrectedList = statConclusionList.stream().filter(sc -> Objects.equals(sc.getVisionCorrection(), VisionCorrection.ENOUGH_CORRECTED.code)).collect(Collectors.toList());
-            if (CollectionUtil.isNotEmpty(myopiaEnoughCorrectedList)){
-                this.myopiaEnoughCorrectedNum=myopiaEnoughCorrectedList.size();
-            }
-            List<StatConclusion> myopiaUncorrectedList = statConclusionList.stream().filter(sc -> Objects.equals(sc.getVisionCorrection(), VisionCorrection.UNCORRECTED.code)).collect(Collectors.toList());
-            if (CollectionUtil.isNotEmpty(myopiaUncorrectedList)){
-                this.myopiaUncorrectedNum=myopiaUncorrectedList.size();
-            }
-            List<StatConclusion> myopiaUnderCorrectedList = statConclusionList.stream().filter(sc -> Objects.equals(sc.getVisionCorrection(), VisionCorrection.UNDER_CORRECTED.code)).collect(Collectors.toList());
-            if (CollectionUtil.isNotEmpty(myopiaUnderCorrectedList)){
-                this.myopiaUnderCorrectedNum=myopiaUnderCorrectedList.size();
-            }
-
+            this.lowVisionNum = getCount(statConclusionList, StatConclusion::getIsLowVision);
+            this.myopiaNum = getCount(statConclusionList, StatConclusion::getIsMyopia);
+            this.nightWearingOrthokeratologyLensesNum =getCount(statConclusionList,StatConclusion::getGlassesType, GlassesTypeEnum.ORTHOKERATOLOGY.code);
+            this.myopiaLevelEarlyNum  = getCount(statConclusionList,StatConclusion::getMyopiaLevel,MyopiaLevelEnum.MYOPIA_LEVEL_EARLY.code);
+            this.lowMyopiaNum  = getCount(statConclusionList,StatConclusion::getMyopiaLevel,MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.code);
+            this.highMyopiaNum   = getCount(statConclusionList,StatConclusion::getMyopiaLevel,MyopiaLevelEnum.MYOPIA_LEVEL_HIGH.code);
+            this.astigmatismNum  = getCount(statConclusionList, StatConclusion::getIsAstigmatism);
+            this.myopiaEnoughCorrectedNum = getCount(statConclusionList,StatConclusion::getVisionCorrection,VisionCorrection.ENOUGH_CORRECTED.code);
+            this.myopiaUncorrectedNum = getCount(statConclusionList,StatConclusion::getVisionCorrection,VisionCorrection.UNCORRECTED.code);
+            this.myopiaUnderCorrectedNum = getCount(statConclusionList,StatConclusion::getVisionCorrection,VisionCorrection.UNDER_CORRECTED.code);
             return this;
         }
 
@@ -503,37 +468,37 @@ public class SchoolCommonDiseaseReportService {
          */
         public VisionAnalysisNum ratioNotSymbol(){
 
+            this.lowVisionRatio = getRatioNotSymbol(lowVisionNum,validScreeningNum);
             if (Objects.nonNull(lowVisionNum)){
-                this.lowVisionRatio = MathUtil.ratioNotSymbol(lowVisionNum,validScreeningNum);
             }
             if (Objects.nonNull(myopiaNum)){
-                this.myopiaRatio =MathUtil.ratioNotSymbol(myopiaNum,validScreeningNum);
+                this.myopiaRatio =getRatioNotSymbol(myopiaNum,validScreeningNum);
             }
             if (Objects.nonNull(nightWearingOrthokeratologyLensesNum)){
-                this.nightWearingOrthokeratologyLensesRatio = MathUtil.ratioNotSymbol(nightWearingOrthokeratologyLensesNum,validScreeningNum);
+                this.nightWearingOrthokeratologyLensesRatio = getRatioNotSymbol(nightWearingOrthokeratologyLensesNum,validScreeningNum);
             }
             if (Objects.nonNull(myopiaLevelEarlyNum)){
-                this.myopiaLevelEarlyRatio = MathUtil.ratioNotSymbol(myopiaLevelEarlyNum,validScreeningNum);
+                this.myopiaLevelEarlyRatio = getRatioNotSymbol(myopiaLevelEarlyNum,validScreeningNum);
             }
             if (Objects.nonNull(lowMyopiaNum)){
-                this.lowMyopiaRatio =MathUtil.ratioNotSymbol(lowMyopiaNum,validScreeningNum);
+                this.lowMyopiaRatio =getRatioNotSymbol(lowMyopiaNum,validScreeningNum);
             }
 
             if (Objects.nonNull(highMyopiaNum)){
-                this.highMyopiaRatio = MathUtil.ratioNotSymbol(highMyopiaNum,validScreeningNum);
+                this.highMyopiaRatio = getRatioNotSymbol(highMyopiaNum,validScreeningNum);
             }
             if (Objects.nonNull(astigmatismNum)){
-                this.astigmatismRatio = MathUtil.ratioNotSymbol(astigmatismNum,validScreeningNum);
+                this.astigmatismRatio = getRatioNotSymbol(astigmatismNum,validScreeningNum);
             }
 
             if (Objects.nonNull(myopiaEnoughCorrectedNum)){
-                this.myopiaEnoughCorrectedRatio = MathUtil.ratioNotSymbol(myopiaEnoughCorrectedNum,validScreeningNum);
+                this.myopiaEnoughCorrectedRatio = getRatioNotSymbol(myopiaEnoughCorrectedNum,validScreeningNum);
             }
             if (Objects.nonNull(myopiaUncorrectedNum)){
-                this.myopiaUncorrectedRatio = MathUtil.ratioNotSymbol(myopiaUncorrectedNum,validScreeningNum);
+                this.myopiaUncorrectedRatio = getRatioNotSymbol(myopiaUncorrectedNum,validScreeningNum);
             }
             if (Objects.nonNull(myopiaUnderCorrectedNum)){
-                this.myopiaUnderCorrectedRatio = MathUtil.ratioNotSymbol(myopiaUnderCorrectedNum,validScreeningNum);
+                this.myopiaUnderCorrectedRatio = getRatioNotSymbol(myopiaUnderCorrectedNum,validScreeningNum);
             }
 
             return this;
@@ -542,7 +507,7 @@ public class SchoolCommonDiseaseReportService {
 
     }
 
-    private static class CommonDiseasesNum{
+    private static class CommonDiseasesNum extends EntityFunction{
         /**
          * 筛查人数
          */
@@ -555,7 +520,7 @@ public class SchoolCommonDiseaseReportService {
         /**
          * 龋均
          */
-        private String dmftRatio;
+        private BigDecimal dmftRatio;
 
         /**
          * 有龋人数
@@ -647,66 +612,28 @@ public class SchoolCommonDiseaseReportService {
 
         public CommonDiseasesNum build(List<StatConclusion> statConclusionList){
 
-            if (CollectionUtil.isNotEmpty(statConclusionList)){
-                this.validScreeningNum = statConclusionList.size();
-            }
+            this.validScreeningNum = statConclusionList.size();
 
             Predicate<StatConclusion> predicateTrue = sc -> Objects.equals(Boolean.TRUE, sc.getIsSaprodontiaLoss()) || Objects.equals(Boolean.TRUE, sc.getIsSaprodontiaRepair()) || Objects.equals(Boolean.TRUE, sc.getIsSaprodontia());
             ToIntFunction<StatConclusion> totalFunction = sc -> Optional.ofNullable(sc.getSaprodontiaLossTeeth()).orElse(0) + Optional.ofNullable(sc.getSaprodontiaRepairTeeth()).orElse(0) + Optional.ofNullable(sc.getSaprodontiaTeeth()).orElse(0);
-
-            List<StatConclusion> dmftList = statConclusionList.stream().filter(Objects::nonNull).filter(predicateTrue).collect(Collectors.toList());
-            if (CollectionUtil.isNotEmpty(dmftList)){
-                this.dmftNum = dmftList.stream().mapToInt(totalFunction).sum();
-            }
+            this.dmftNum = statConclusionList.stream()
+                    .filter(Objects::nonNull)
+                    .filter(predicateTrue).mapToInt(totalFunction).sum();
 
             Predicate<StatConclusion> lossAndRepairPredicateTrue = sc -> Objects.equals(Boolean.TRUE, sc.getIsSaprodontiaLoss()) || Objects.equals(Boolean.TRUE, sc.getIsSaprodontiaRepair());
             ToIntFunction<StatConclusion> lossAndRepairTotalFunction = sc -> Optional.ofNullable(sc.getSaprodontiaLossTeeth()).orElse(0) + Optional.ofNullable(sc.getSaprodontiaRepairTeeth()).orElse(0);
 
-            List<StatConclusion> lossAndRepairTeethList = statConclusionList.stream().filter(Objects::nonNull).filter(lossAndRepairPredicateTrue).collect(Collectors.toList());
-            if (CollectionUtil.isNotEmpty(lossAndRepairTeethList)){
-                this.saprodontiaLossAndRepairTeethNum = lossAndRepairTeethList.stream().mapToInt(lossAndRepairTotalFunction).sum();
-            }
-
-            List<Boolean> saprodontiaList = getList(statConclusionList, StatConclusion::getIsSaprodontia);
-            if (CollectionUtil.isNotEmpty(saprodontiaList)){
-                this.saprodontiaNum = (int) saprodontiaList.stream().filter(Boolean::booleanValue).count();
-            }
-
-            List<Boolean> saprodontiaLossList = getList(statConclusionList, StatConclusion::getIsSaprodontiaLoss);
-            if (CollectionUtil.isNotEmpty(saprodontiaLossList)){
-                this.saprodontiaLossNum = (int) saprodontiaLossList.stream().filter(Boolean::booleanValue).count();
-            }
-
-            List<Boolean> saprodontiaRepairList = getList(statConclusionList, StatConclusion::getIsSaprodontiaRepair);
-            if (CollectionUtil.isNotEmpty(saprodontiaRepairList)){
-                this.saprodontiaRepairNum = (int) saprodontiaRepairList.stream().filter(Boolean::booleanValue).count();
-            }
-            List<StatConclusion> lossAndRepairList = statConclusionList.stream()
-                    .filter(sc -> Objects.equals(Boolean.TRUE, sc.getIsSaprodontiaLoss()) || Objects.equals(Boolean.TRUE, sc.getIsSaprodontiaRepair())).collect(Collectors.toList());
-            if (CollectionUtil.isNotEmpty(lossAndRepairList)){
-                this.saprodontiaLossAndRepairNum = lossAndRepairList.size();
-            }
-
-            List<Boolean> overweightList = getList(statConclusionList, StatConclusion::getIsOverweight);
-            if (CollectionUtil.isNotEmpty(overweightList)){
-                this.overweightNum = (int)overweightList.stream().filter(Boolean::booleanValue).count();
-            }
-
-            List<Boolean> obeseList = getList(statConclusionList, StatConclusion::getIsObesity);
-            if(CollectionUtil.isNotEmpty(obeseList)){
-                this.obeseNum = (int)obeseList.stream().filter(Boolean::booleanValue).count();
-            }
-
-            List<Boolean> abnormalSpineCurvatureList = getList(statConclusionList, StatConclusion::getIsObesity);
-            if(CollectionUtil.isNotEmpty(abnormalSpineCurvatureList)){
-                this.abnormalSpineCurvatureNum = (int)abnormalSpineCurvatureList.stream().filter(Boolean::booleanValue).count();
-            }
-
-            List<StatConclusion> highBloodPressureList = statConclusionList.stream().filter(sc->Objects.equals(Boolean.FALSE,sc.getIsNormalBloodPressure())).collect(Collectors.toList());
-            if(CollectionUtil.isNotEmpty(obeseList)){
-                this.highBloodPressureNum = highBloodPressureList.size();
-            }
-
+            this.saprodontiaLossAndRepairTeethNum = statConclusionList.stream()
+                    .filter(Objects::nonNull)
+                    .filter(lossAndRepairPredicateTrue).mapToInt(lossAndRepairTotalFunction).sum();
+            this.saprodontiaNum = getCount(statConclusionList, StatConclusion::getIsSaprodontia);
+            this.saprodontiaLossNum = getCount(statConclusionList, StatConclusion::getIsSaprodontiaLoss);
+            this.saprodontiaRepairNum =  getCount(statConclusionList, StatConclusion::getIsSaprodontiaRepair);
+            this.saprodontiaLossAndRepairNum = (int)statConclusionList.stream().filter(lossAndRepairPredicateTrue).count();
+            this.overweightNum = getCount(statConclusionList, StatConclusion::getIsOverweight);
+            this.obeseNum = getCount(statConclusionList, StatConclusion::getIsObesity);
+            this.abnormalSpineCurvatureNum = getCount(statConclusionList, StatConclusion::getIsObesity);
+            this.highBloodPressureNum = (int)statConclusionList.stream().filter(sc->Objects.equals(Boolean.FALSE,sc.getIsNormalBloodPressure())).count();
             return this;
         }
 
@@ -715,50 +642,18 @@ public class SchoolCommonDiseaseReportService {
          * 不带%
          */
         public CommonDiseasesNum ratioNotSymbol(){
-
-            if (Objects.nonNull(dmftNum)){
-                this.dmftRatio = MathUtil.num(dmftNum,validScreeningNum);
-            }
-
-            if (Objects.nonNull(saprodontiaNum)){
-                this.saprodontiaRatio = MathUtil.ratioNotSymbol(saprodontiaNum,validScreeningNum);
-            }
-            if (Objects.nonNull(saprodontiaLossNum)){
-                this.saprodontiaLossRatio =MathUtil.ratioNotSymbol(saprodontiaLossNum,validScreeningNum);
-            }
-            if (Objects.nonNull(saprodontiaRepairNum)){
-                this.saprodontiaRepairRatio = MathUtil.ratioNotSymbol(saprodontiaRepairNum,validScreeningNum);
-            }
-            if (Objects.nonNull(saprodontiaLossAndRepairNum)){
-                this.saprodontiaLossAndRepairRatio = MathUtil.ratioNotSymbol(saprodontiaLossAndRepairNum,validScreeningNum);
-            }
-            if (Objects.nonNull(saprodontiaLossAndRepairTeethNum) && Objects.nonNull(dmftNum)){
-                this.saprodontiaLossAndRepairTeethRatio =MathUtil.ratioNotSymbol(saprodontiaLossAndRepairTeethNum,dmftNum);
-            }
-
-            if (Objects.nonNull(overweightNum)){
-                this.overweightRatio = MathUtil.ratioNotSymbol(overweightNum,validScreeningNum);
-            }
-            if (Objects.nonNull(obeseNum)){
-                this.obeseRatio = MathUtil.ratioNotSymbol(obeseNum,validScreeningNum);
-            }
-
-            if (Objects.nonNull(abnormalSpineCurvatureNum)){
-                this.abnormalSpineCurvatureRatio = MathUtil.ratioNotSymbol(abnormalSpineCurvatureNum,validScreeningNum);
-            }
-            if (Objects.nonNull(highBloodPressureNum)){
-                this.highBloodPressureRatio = MathUtil.ratioNotSymbol(highBloodPressureNum,validScreeningNum);
-            }
-
+            this.dmftRatio = Optional.ofNullable(MathUtil.numNotSymbol(dmftNum,validScreeningNum)).orElse(ReportConst.ZERO_BIG_DECIMAL);
+            this.saprodontiaRatio = getRatioNotSymbol(saprodontiaNum,validScreeningNum);
+            this.saprodontiaRepairRatio = getRatioNotSymbol(saprodontiaRepairNum,validScreeningNum);
+            this.saprodontiaLossAndRepairRatio = getRatioNotSymbol(saprodontiaLossAndRepairNum,validScreeningNum);
+            this.saprodontiaLossAndRepairTeethRatio =getRatioNotSymbol(saprodontiaLossAndRepairTeethNum,dmftNum);
+            this.overweightRatio = getRatioNotSymbol(overweightNum,validScreeningNum);
+            this.obeseRatio = getRatioNotSymbol(obeseNum,validScreeningNum);
+            this.abnormalSpineCurvatureRatio = getRatioNotSymbol(abnormalSpineCurvatureNum,validScreeningNum);
+            this.highBloodPressureRatio = getRatioNotSymbol(highBloodPressureNum,validScreeningNum);
             return this;
         }
 
     }
 
-    private static List<Boolean> getList(List<StatConclusion> statConclusionList, Function<StatConclusion,Boolean> function){
-        if (CollectionUtil.isEmpty(statConclusionList)){
-            return Lists.newArrayList();
-        }
-        return statConclusionList.stream().map(function).filter(Objects::nonNull).filter(Boolean::booleanValue).collect(Collectors.toList());
-    }
 }

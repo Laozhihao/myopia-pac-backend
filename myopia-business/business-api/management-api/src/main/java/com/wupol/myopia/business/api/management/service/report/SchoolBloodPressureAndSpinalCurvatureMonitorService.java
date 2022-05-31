@@ -264,7 +264,10 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
         Map<String, List<StatConclusion>> gradeCodeMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
         MapUtil.sort(gradeCodeMap);
         List<SchoolBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureMonitorTable> tableList = Lists.newArrayList();
-        gradeCodeMap.forEach((grade,list)-> getBloodPressureAndSpinalCurvatureGrade(list,grade,tableList));
+        gradeCodeMap.forEach((grade,list)-> {
+            GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(grade);
+            getBloodPressureAndSpinalCurvatureGrade(list,gradeCodeEnum.getName(),tableList);
+        });
         getBloodPressureAndSpinalCurvatureGrade(statConclusionList,"合计",tableList);
 
         schoolAgeVO.setBloodPressureAndSpinalCurvatureGradeMonitorTableList(tableList);
@@ -391,7 +394,7 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
     }
 
     @Data
-    private static class BloodPressureAndSpinalCurvatureNum{
+    private static class BloodPressureAndSpinalCurvatureNum extends EntityFunction{
 
         /**
          * 筛查人数
@@ -438,10 +441,7 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
 
         public BloodPressureAndSpinalCurvatureNum build(List<StatConclusion> statConclusionList){
             this.validScreeningNum = statConclusionList.size();
-
-            this.abnormalSpineCurvatureNum = (int)statConclusionList.stream()
-                    .map(StatConclusion::getIsSpinalCurvature)
-                    .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
+            this.abnormalSpineCurvatureNum = getCount(statConclusionList,StatConclusion::getIsSpinalCurvature);
             this.highBloodPressureNum = (int)statConclusionList.stream()
                     .filter(sc->Objects.equals(Boolean.FALSE,sc.getIsNormalBloodPressure())).count();
 
@@ -452,13 +452,8 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
          * 不带%
          */
         public BloodPressureAndSpinalCurvatureNum ratioNotSymbol(){
-            if (Objects.nonNull(abnormalSpineCurvatureNum)){
-                this.abnormalSpineCurvatureRatio = MathUtil.ratioNotSymbol(abnormalSpineCurvatureNum,validScreeningNum);
-            }
-            if (Objects.nonNull(highBloodPressureNum)){
-                this.highBloodPressureRatio = MathUtil.ratioNotSymbol(highBloodPressureNum,validScreeningNum);
-            }
-
+            this.abnormalSpineCurvatureRatio = getRatioNotSymbol(abnormalSpineCurvatureNum,validScreeningNum);
+            this.highBloodPressureRatio = getRatioNotSymbol(highBloodPressureNum,validScreeningNum);
             return this;
         }
 
@@ -466,13 +461,8 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
          * 带%
          */
         public BloodPressureAndSpinalCurvatureNum ratio(){
-            if (Objects.nonNull(abnormalSpineCurvatureNum)){
-                this.abnormalSpineCurvatureRatioStr = MathUtil.ratio(abnormalSpineCurvatureNum,validScreeningNum);
-            }
-            if (Objects.nonNull(highBloodPressureNum)){
-                this.highBloodPressureRatioStr = MathUtil.ratio(highBloodPressureNum,validScreeningNum);
-            }
-
+            this.abnormalSpineCurvatureRatioStr = getRatio(abnormalSpineCurvatureNum,validScreeningNum);
+            this.highBloodPressureRatioStr = getRatio(highBloodPressureNum,validScreeningNum);
             return this;
         }
 

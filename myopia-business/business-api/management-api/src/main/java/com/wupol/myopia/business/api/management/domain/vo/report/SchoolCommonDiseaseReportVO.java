@@ -86,9 +86,13 @@ public class SchoolCommonDiseaseReportVO {
         private Item lowVision;
 
         /**
-         * 平均视力
+         * 平均视力值
          */
         private BigDecimal avgVision;
+        /**
+         * 平均视力占比
+         */
+        private BigDecimal avgVisionRatio;
 
         /**
          * 近视
