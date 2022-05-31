@@ -83,7 +83,7 @@ public class ArchiveService {
         // 获取所有学生的筛查结果（初筛）
         List<VisionScreeningResult> visionScreeningResultList = visionScreeningResultService.getByScreeningPlanSchoolStudentIds(planStudentIds);
         // 生成档案卡数据
-        int year = DateUtil.getYear(screeningPlan.getStartTime());
+        int year = DateUtil.getSchoolYear(screeningPlan.getStartTime());
         SchoolClassDTO classWithSchoolAndGradeName = schoolGradeService.getClassWithSchoolAndGradeName(archiveRequestParam.getClassId());
         return generateArchiveCardBatch(visionScreeningResultList, year, classWithSchoolAndGradeName);
     }
@@ -129,8 +129,7 @@ public class ArchiveService {
                 .setGradeName(classWithSchoolAndGradeName.getGradeName())
                 .setClassName(classWithSchoolAndGradeName.getName())
                 .setSchoolDistrictName(school.getDistrictDetail());
-        studentDTO
-                .setName(planStudent.getStudentName())
+        studentDTO.setName(planStudent.getStudentName())
                 .setBirthday(planStudent.getBirthday())
                 .setIdCard(planStudent.getIdCard())
                 .setGender(planStudent.getGender())
