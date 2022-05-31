@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.vo.report;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -35,13 +36,31 @@ public class DistrictSaprodontiaMonitorVO {
 
 
 
-    @EqualsAndHashCode(callSuper = true)
     @Data
-    public static class SaprodontiaMonitorVariableVO extends DistrictCommonDiseasesAnalysisVO.SaprodontiaRatioVO{
+    public static class SaprodontiaMonitorVariableVO{
         /**
          * 龋均
          */
-        private BigDecimal dmftRatio;
+        private String dmftRatio;
+
+        /**
+         * 龋患率
+         */
+        private String saprodontiaRatio;
+
+        /**
+         * 龋补率
+         */
+        private String saprodontiaRepairRatio;
+        /**
+         * 龋患（失、补）率
+         */
+        private String saprodontiaLossAndRepairRatio;
+
+        /**
+         * 龋患（失、补）构成比
+         */
+        private String saprodontiaLossAndRepairTeethRatio;
 
 
     }
@@ -141,10 +160,22 @@ public class DistrictSaprodontiaMonitorVO {
 
     }
 
-    @EqualsAndHashCode(callSuper = true)
     @Data
-    public static class SaprodontiaSchoolAge extends DistrictCommonDiseasesAnalysisVO.SaprodontiaRatioVO{
+    public static class SaprodontiaSchoolAge {
 
+        /**
+         * 龋患率
+         */
+        private String saprodontiaRatio;
+        /**
+         * 龋失率
+         */
+        private String saprodontiaLossRatio;
+
+        /**
+         * 龋补率
+         */
+        private String saprodontiaRepairRatio;
         /**
          * 最高年级龋患率
          */

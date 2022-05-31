@@ -7,7 +7,6 @@ import com.wupol.myopia.business.api.management.constant.ReportConst;
 import com.wupol.myopia.business.api.management.domain.vo.report.DistrictCommonDiseasesAnalysisVO;
 import com.wupol.myopia.business.api.management.domain.vo.report.DistrictDiseaseMonitorVO;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
-import com.wupol.myopia.business.common.utils.util.MathUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.DiseaseNumDO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
@@ -317,7 +316,7 @@ public class DistrictDiseaseMonitorService {
         }
 
         /**
-         * 不带%
+         * 带%
          */
         public DiseaseNum ratio(){
             this.anemiaRatioStr = getRatio(anemia,validScreeningNum);

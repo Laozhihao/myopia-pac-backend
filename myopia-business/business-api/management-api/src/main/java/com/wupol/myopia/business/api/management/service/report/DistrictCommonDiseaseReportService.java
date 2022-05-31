@@ -26,6 +26,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -430,6 +431,7 @@ public class DistrictCommonDiseaseReportService {
         return null;
     }
 
+    @EqualsAndHashCode(callSuper = true)
     @Data
     private static class CommonDiseasesNum extends EntityFunction{
         /**

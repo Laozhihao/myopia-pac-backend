@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.vo.report;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -55,7 +56,6 @@ public class DistrictCommonDiseasesAnalysisVO {
          * 脊柱弯曲异常数
          */
         private Integer abnormalSpineCurvatureNum;
-
 
         /**
          * 龋均
@@ -139,7 +139,7 @@ public class DistrictCommonDiseasesAnalysisVO {
         /**
          * 龋均
          */
-        private BigDecimal dmftRatio;
+        private String dmftRatio;
 
         /**
          * 有龋人数
@@ -173,24 +173,29 @@ public class DistrictCommonDiseasesAnalysisVO {
         /**
          * 龋患率
          */
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
         private BigDecimal saprodontiaRatio;
         /**
          * 龋失率
          */
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
         private BigDecimal saprodontiaLossRatio;
 
         /**
          * 龋补率
          */
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
         private BigDecimal saprodontiaRepairRatio;
         /**
          * 龋患（失、补）率
          */
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
         private BigDecimal saprodontiaLossAndRepairRatio;
 
         /**
          * 龋患（失、补）构成比
          */
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
         private BigDecimal saprodontiaLossAndRepairTeethRatio;
 
     }
@@ -253,20 +258,24 @@ public class DistrictCommonDiseasesAnalysisVO {
         /**
          * 超重率
          */
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
         private BigDecimal overweightRatio;
         /**
          * 肥胖率
          */
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
         private BigDecimal obeseRatio;
 
         /**
          * 营养不良率
          */
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
         private BigDecimal malnourishedRatio;
 
         /**
          * 生长迟缓率
          */
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
         private BigDecimal stuntingRatio;
 
     }
@@ -315,11 +324,13 @@ public class DistrictCommonDiseasesAnalysisVO {
         /**
          * 血压偏高率
          */
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
         private BigDecimal highBloodPressureRatio;
 
         /**
          * 脊柱弯曲异常率
          */
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
         private BigDecimal abnormalSpineCurvatureRatio;
 
     }

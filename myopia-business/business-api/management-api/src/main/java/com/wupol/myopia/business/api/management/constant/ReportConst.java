@@ -48,4 +48,5 @@ public class ReportConst {
      */
     public static final BigDecimal ZERO_BIG_DECIMAL = new BigDecimal("0.00");
     public static final String ZERO_RATIO_STR = "0.00%";
+    public static final String ZERO_STR = "0.00";
 }

@@ -57,13 +57,13 @@ public class DistrictHeightAndWeightMonitorService {
         if (CollectionUtil.isEmpty(statConclusionList)){
             return;
         }
-        HeightAndWeightNum heightAndWeight = new HeightAndWeightNum().build(statConclusionList).ratio();
+        HeightAndWeightNum heightAndWeight = new HeightAndWeightNum().build(statConclusionList).ratio().ratioNotSymbol();
 
         DistrictHeightAndWeightMonitorVO.HeightAndWeightMonitorVariableVO heightAndWeightMonitorVariableVO = new DistrictHeightAndWeightMonitorVO.HeightAndWeightMonitorVariableVO();
-        heightAndWeightMonitorVariableVO.setOverweightRatio(heightAndWeight.overweightRatio);
-        heightAndWeightMonitorVariableVO.setObeseRatio(heightAndWeight.obeseRatio);
-        heightAndWeightMonitorVariableVO.setStuntingRatio(heightAndWeight.stuntingRatio);
-        heightAndWeightMonitorVariableVO.setMalnourishedRatio(heightAndWeight.malnourishedRatio);
+        heightAndWeightMonitorVariableVO.setOverweightRatio(heightAndWeight.overweightRatioStr);
+        heightAndWeightMonitorVariableVO.setObeseRatio(heightAndWeight.obeseRatioStr);
+        heightAndWeightMonitorVariableVO.setStuntingRatio(heightAndWeight.stuntingRatioStr);
+        heightAndWeightMonitorVariableVO.setMalnourishedRatio(heightAndWeight.malnourishedRatioStr);
 
         districtHeightAndWeightMonitorVO.setHeightAndWeightMonitorVariableVO(heightAndWeightMonitorVariableVO);
     }
@@ -93,16 +93,12 @@ public class DistrictHeightAndWeightMonitorService {
         genderMap.forEach((gender,list)-> getHeightAndWeightNum(gender,list,heightAndWeightSexList));
 
         if (heightAndWeightSexList.size() >= 2){
-            DistrictHeightAndWeightMonitorVO.HeightAndWeightSex overweight = getRatioCompare(heightAndWeightSexList,HeightAndWeightNum::getOverweightNum,HeightAndWeightNum::getOverweightRatioStr);
-            DistrictHeightAndWeightMonitorVO.HeightAndWeightSex obese = getRatioCompare(heightAndWeightSexList,HeightAndWeightNum::getObeseNum,HeightAndWeightNum::getObeseRatioStr);
-            DistrictHeightAndWeightMonitorVO.HeightAndWeightSex stunting = getRatioCompare(heightAndWeightSexList,HeightAndWeightNum::getStuntingNum,HeightAndWeightNum::getStuntingRatioStr);
-            DistrictHeightAndWeightMonitorVO.HeightAndWeightSex malnourished = getRatioCompare(heightAndWeightSexList,HeightAndWeightNum::getMalnourishedNum,HeightAndWeightNum::getMalnourishedRatioStr);
 
             DistrictHeightAndWeightMonitorVO.HeightAndWeightSexVariableVO heightAndWeightSexVariableVO = new DistrictHeightAndWeightMonitorVO.HeightAndWeightSexVariableVO();
-            heightAndWeightSexVariableVO.setOverweightRatioCompare(overweight);
-            heightAndWeightSexVariableVO.setObeseRatioCompare(obese);
-            heightAndWeightSexVariableVO.setStuntingRatioCompare(stunting);
-            heightAndWeightSexVariableVO.setMalnourishedRatioCompare(malnourished);
+            heightAndWeightSexVariableVO.setOverweightRatioCompare(getRatioCompare(heightAndWeightSexList,HeightAndWeightNum::getOverweightNum,HeightAndWeightNum::getOverweightRatioStr));
+            heightAndWeightSexVariableVO.setObeseRatioCompare(getRatioCompare(heightAndWeightSexList,HeightAndWeightNum::getObeseNum,HeightAndWeightNum::getObeseRatioStr));
+            heightAndWeightSexVariableVO.setStuntingRatioCompare(getRatioCompare(heightAndWeightSexList,HeightAndWeightNum::getStuntingNum,HeightAndWeightNum::getStuntingRatioStr));
+            heightAndWeightSexVariableVO.setMalnourishedRatioCompare(getRatioCompare(heightAndWeightSexList,HeightAndWeightNum::getMalnourishedNum,HeightAndWeightNum::getMalnourishedRatioStr));
 
             heightAndWeightSexVO.setHeightAndWeightSexVariableVO(heightAndWeightSexVariableVO);
         }
@@ -274,13 +270,13 @@ public class DistrictHeightAndWeightMonitorService {
             return null;
         }
 
-        HeightAndWeightNum heightAndWeightNum = new HeightAndWeightNum().build(statConclusionList).ratioNotSymbol();
+        HeightAndWeightNum heightAndWeightNum = new HeightAndWeightNum().build(statConclusionList).ratioNotSymbol().ratio();
 
         DistrictHeightAndWeightMonitorVO.HeightAndWeightSchoolAge heightAndWeightSchoolAge = new DistrictHeightAndWeightMonitorVO.HeightAndWeightSchoolAge();
-        heightAndWeightSchoolAge.setOverweightRatio(heightAndWeightNum.overweightRatio);
-        heightAndWeightSchoolAge.setObeseRatio(heightAndWeightNum.obeseRatio);
-        heightAndWeightSchoolAge.setStuntingRatio(heightAndWeightNum.stuntingRatio);
-        heightAndWeightSchoolAge.setMalnourishedRatio(heightAndWeightNum.malnourishedRatio);
+        heightAndWeightSchoolAge.setOverweightRatio(heightAndWeightNum.overweightRatioStr);
+        heightAndWeightSchoolAge.setObeseRatio(heightAndWeightNum.obeseRatioStr);
+        heightAndWeightSchoolAge.setStuntingRatio(heightAndWeightNum.stuntingRatioStr);
+        heightAndWeightSchoolAge.setMalnourishedRatio(heightAndWeightNum.malnourishedRatioStr);
 
         Map<String, List<StatConclusion>> gradeCodeMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
         Map<String, HeightAndWeightNum> heightAndWeightNumMap = Maps.newHashMap();

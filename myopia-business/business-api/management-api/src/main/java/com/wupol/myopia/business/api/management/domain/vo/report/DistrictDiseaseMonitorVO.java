@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.vo.report;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -106,6 +107,7 @@ public class DistrictDiseaseMonitorVO {
         /**
          * 高血压占比
          */
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
         private BigDecimal hypertensionRatio;
 
         /**
@@ -115,6 +117,7 @@ public class DistrictDiseaseMonitorVO {
         /**
          * 贫血占比
          */
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
         private BigDecimal anemiaRatio;
 
         /**
@@ -124,6 +127,7 @@ public class DistrictDiseaseMonitorVO {
         /**
          * 糖尿病占比
          */
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
         private BigDecimal diabetesRatio;
 
         /**
@@ -133,6 +137,7 @@ public class DistrictDiseaseMonitorVO {
         /**
          * 过敏性哮喘占比
          */
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
         private BigDecimal allergicAsthmaRatio;
 
         /**
@@ -142,6 +147,7 @@ public class DistrictDiseaseMonitorVO {
         /**
          * 身体残疾占比
          */
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
         private BigDecimal physicalDisabilityRatio;
 
 
