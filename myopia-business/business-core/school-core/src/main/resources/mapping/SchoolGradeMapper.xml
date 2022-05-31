@@ -94,9 +94,9 @@
 
     <select id="selectClassWithSchoolAndGradeName" resultType="com.wupol.myopia.business.core.school.domain.dto.SchoolClassDTO">
         SELECT
-               ms.*,
+               msc.*,
                msg.name as grade_name,
-               msc.name as class_name
+               ms.name as school_name
         FROM
              m_school_class msc
                  LEFT JOIN m_school_grade msg ON msg.id = msc.grade_id

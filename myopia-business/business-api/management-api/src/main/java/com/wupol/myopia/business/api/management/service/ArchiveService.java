@@ -16,7 +16,9 @@ import com.wupol.myopia.business.core.school.service.SchoolCommonDiseaseCodeServ
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentCommonDiseaseIdService;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.DiseasesHistoryDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.SaprodontiaData;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.SaprodontiaDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.SaprodontiaStat;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
@@ -136,7 +138,11 @@ public class ArchiveService {
                 .setParentPhone(planStudent.getParentPhone())
                 .setNation(planStudent.getNation())
                 .setPassport(planStudent.getPassport())
-                .setGradeType(planStudent.getGradeType());
+                .setGradeType(planStudent.getGradeType())
+                .setGradeId(classWithSchoolAndGradeName.getGradeId())
+                .setClassId(classWithSchoolAndGradeName.getId())
+                .setSchoolId(school.getId())
+                .setId(planStudent.getStudentId());
         return studentDTO;
     }
 
@@ -157,41 +163,14 @@ public class ArchiveService {
         return new CommonDiseaseArchiveCard()
                 .setStudentInfo(studentInfo)
                 .setBloodPressureData(visionScreeningResult.getBloodPressureData())
-                .setComputerOptometryData(getComputerOptometryData(visionScreeningResult.getComputerOptometry()))
-                .setVisionData(getVisionDataData(visionScreeningResult.getVisionData()))
+                .setComputerOptometryData(visionScreeningResult.getComputerOptometry())
+                .setVisionData(visionScreeningResult.getVisionData())
                 .setDiseasesHistoryData(Optional.ofNullable(visionScreeningResult.getDiseasesHistoryData()).map(DiseasesHistoryDO::getDiseases).orElse(Collections.emptyList()))
                 .setSaprodontiaData(getSaprodontiaData(visionScreeningResult.getSaprodontiaData()))
                 .setSpineData(visionScreeningResult.getSpineData())
                 .setHeightAndWeightData(visionScreeningResult.getHeightAndWeightData())
                 .setPrivacyData(visionScreeningResult.getPrivacyData())
                 .setCommonDiseaseIdInfo(getStudentCommonDiseaseIdInfo(studentDTO, year, school));
-    }
-
-    /**
-     * 获取屈光数据
-     *
-     * @param computerOptometryDO 屈光检查数据
-     * @return com.wupol.myopia.business.core.screening.flow.domain.dos.ArchiveComputerOptometryDO
-     **/
-    private ArchiveComputerOptometryDO getComputerOptometryData(ComputerOptometryDO computerOptometryDO) {
-        // TODO：合并 getVisionDataData()
-        if (Objects.isNull(computerOptometryDO)) {
-            return null;
-        }
-        ArchiveComputerOptometryDO archiveComputerOptometryDO = new ArchiveComputerOptometryDO();
-        BeanUtils.copyProperties(computerOptometryDO, archiveComputerOptometryDO);
-        archiveComputerOptometryDO.setSignPicUrl(studentFacade.getSignPicUrl(computerOptometryDO.getCreateUserId()));
-        return archiveComputerOptometryDO;
-    }
-
-    private ArchiveVisionDataDO getVisionDataData(VisionDataDO visionDataDO) {
-        if (Objects.isNull(visionDataDO)) {
-            return null;
-        }
-        ArchiveVisionDataDO archiveVisionDataDO = new ArchiveVisionDataDO();
-        BeanUtils.copyProperties(visionDataDO, archiveVisionDataDO);
-        archiveVisionDataDO.setSignPicUrl(studentFacade.getSignPicUrl(visionDataDO.getCreateUserId()));
-        return archiveVisionDataDO;
     }
 
     private SaprodontiaData getSaprodontiaData(SaprodontiaDataDO saprodontiaDataDO) {
