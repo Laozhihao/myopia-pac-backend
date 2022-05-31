@@ -77,25 +77,24 @@ public class ArchivePdfGenerator {
             ExportCondition exportCondition1 = new ExportCondition();
             exportCondition1.setPlanId(planSchool.getScreeningPlanId());
             exportCondition1.setSchoolId(planSchool.getSchoolId());
-            generateSchoolArchivesPdfFile(saveDirectory, exportCondition1);
+            generateSchoolOrGradeArchivesPdfFile(saveDirectory, exportCondition1);
         });
 
     }
 
     /**
-     * 【计划/学校/年级】生成档案卡PDF文件
+     * 【学校/年级】生成档案卡PDF文件
      *
      * @param saveDirectory   保存目录
      * @param exportCondition 条件
      **/
-    public void generateSchoolArchivesPdfFile(String saveDirectory, ExportCondition exportCondition) {
+    public void generateSchoolOrGradeArchivesPdfFile(String saveDirectory, ExportCondition exportCondition) {
         Integer planId = exportCondition.getPlanId();
         Integer schoolId = exportCondition.getSchoolId();
         Integer gradeId = exportCondition.getGradeId();
 
         // 必要参数校验
         Assert.hasLength(saveDirectory, BizMsgConstant.SAVE_DIRECTORY_EMPTY);
-        Assert.notNull(planId, BizMsgConstant.PLAN_ID_IS_EMPTY);
 
         // 获取档案卡模板ID
         ScreeningPlan plan = screeningPlanService.getById(planId);
@@ -125,7 +124,7 @@ public class ArchivePdfGenerator {
      */
     private void generateClassArchivesPdfFile(String saveDirectory, Integer planId, Integer templateId, Integer schoolId, String schoolName, Integer gradeId, String gradeName,
                                               Integer classId, String className, Integer type, Integer screeningType) {
-        String fileName = String.format(PDFFileNameConstant.ARCHIVES_PDF_FILE_NAME_GRADE_CLASS, schoolName, gradeName, className);
+        String fileName = String.format(PDFFileNameConstant.CLASS_ARCHIVES_PDF_FILE_NAME, schoolName, gradeName, className, ScreeningTypeEnum.isVisionScreeningType(screeningType) ? PDFFileNameConstant.VISION_ARCHIVE : PDFFileNameConstant.COMMON_DISEASE_ARCHIVE);
         String fileSavePath = Paths.get(saveDirectory, schoolName, gradeName, className, fileName).toString();
         generateClassArchivesPdfFile(planId, templateId, schoolId, gradeId, classId, null, type, fileSavePath, fileName, screeningType);
     }

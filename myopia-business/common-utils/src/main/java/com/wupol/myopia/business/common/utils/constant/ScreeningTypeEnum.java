@@ -45,4 +45,14 @@ public enum ScreeningTypeEnum {
                 .orElseThrow(()-> new BusinessException("无效筛查类型"));
     }
 
+    /**
+     * 是否为视力筛查类型
+     *
+     * @param screeningType 筛查类型
+     * @return boolean
+     **/
+    public static boolean isVisionScreeningType(Integer screeningType) {
+        return ScreeningTypeEnum.COMMON_DISEASE.getType().equals(screeningType);
+    }
+
 }

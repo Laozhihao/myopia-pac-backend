@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.school.domain.dto;
 
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 /**
@@ -9,11 +10,13 @@ import lombok.experimental.Accessors;
  * @author Alix
  * @Date 2020/12/22
  **/
-
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
 public class SchoolClassDTO extends SchoolClass {
-    /** 年级名称 */
+    /**
+     * 年级名称
+     */
     private String gradeName;
 
     /**
@@ -21,5 +24,8 @@ public class SchoolClassDTO extends SchoolClass {
      */
     private String uniqueId;
 
-    private String schoolNames;
+    /**
+     * 学校名称
+     */
+    private String schoolName;
 }
