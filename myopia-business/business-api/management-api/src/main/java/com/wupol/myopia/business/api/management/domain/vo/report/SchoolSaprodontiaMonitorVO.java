@@ -113,6 +113,10 @@ public class SchoolSaprodontiaMonitorVO {
          * 后：占比
          */
         private String backRatio;
+        /**
+         * 符号
+         */
+        private String symbol;
     }
 
 

@@ -5,10 +5,10 @@ import cn.hutool.core.map.MapUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.business.api.management.constant.AgeSegmentEnum;
+import com.wupol.myopia.business.api.management.constant.ReportConst;
 import com.wupol.myopia.business.api.management.domain.vo.report.SchoolCommonDiseasesAnalysisVO;
 import com.wupol.myopia.business.api.management.domain.vo.report.SchoolHeightAndWeightMonitorVO;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
-import com.wupol.myopia.business.common.utils.util.MathUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
@@ -92,7 +92,7 @@ public class SchoolHeightAndWeightMonitorService {
         List<HeightAndWeightNum> heightAndWeightSexList= Lists.newArrayList();
         genderMap.forEach((gender,list)-> getHeightAndWeightNum(gender,list,heightAndWeightSexList));
 
-        if (heightAndWeightSexList.size() >= 2){
+        if (heightAndWeightSexList.size() >= 1){
             SchoolHeightAndWeightMonitorVO.HeightAndWeightSexVariableVO heightAndWeightSexVariableVO = new SchoolHeightAndWeightMonitorVO.HeightAndWeightSexVariableVO();
             heightAndWeightSexVariableVO.setOverweightRatioCompare(getRatioCompare(heightAndWeightSexList, HeightAndWeightNum::getOverweightNum, HeightAndWeightNum::getOverweightRatioStr));
             heightAndWeightSexVariableVO.setObeseRatioCompare(getRatioCompare(heightAndWeightSexList, HeightAndWeightNum::getObeseNum, HeightAndWeightNum::getObeseRatioStr));
@@ -122,18 +122,48 @@ public class SchoolHeightAndWeightMonitorService {
         }
         CollectionUtil.sort(heightAndWeightNumList, Comparator.comparing(function));
         SchoolHeightAndWeightMonitorVO.HeightAndWeightSex sex = new SchoolHeightAndWeightMonitorVO.HeightAndWeightSex();
-        for (int i = 0; i < heightAndWeightNumList.size(); i++) {
-            HeightAndWeightNum num = heightAndWeightNumList.get(i);
-            if (i==0){
-                sex.setForwardSex(GenderEnum.getName(num.gender));
-                sex.setForwardRatio(mapper.apply(num));
-            }
-            if (i==1){
-                sex.setBackSex(GenderEnum.getName(num.gender));
-                sex.setBackRatio(mapper.apply(num));
+        if (heightAndWeightNumList.size() == 1){
+            HeightAndWeightNum num = heightAndWeightNumList.get(0);
+            if (Objects.equals(GenderEnum.MALE.type,num.gender)){
+                setSexCompare(num,null, mapper, sex,GenderEnum.FEMALE.desc,ReportConst.ZERO_RATIO_STR);
+            }else {
+                setSexCompare(num,null, mapper, sex,GenderEnum.MALE.desc,ReportConst.ZERO_RATIO_STR);
             }
         }
+        if (heightAndWeightNumList.size() == 2){
+            HeightAndWeightNum forward = heightAndWeightNumList.get(0);
+            HeightAndWeightNum back = heightAndWeightNumList.get(1);
+            setSexCompare(forward,back, mapper, sex,null,null);
+        }
         return sex;
+    }
+
+    private void setSexCompare(HeightAndWeightNum forward,HeightAndWeightNum back, Function<HeightAndWeightNum, String> mapper,
+                               SchoolHeightAndWeightMonitorVO.HeightAndWeightSex sex,
+                               String backSex,String zeroRatio) {
+
+        String forwardRatio = mapper.apply(forward);
+        sex.setForwardSex(GenderEnum.getName(forward.gender));
+        sex.setForwardRatio(forwardRatio);
+
+        if (Objects.nonNull(back)){
+            String backRatio = mapper.apply(back);
+            sex.setBackSex(GenderEnum.getName(back.gender));
+            sex.setBackRatio(backRatio);
+            setSymbol(sex,forwardRatio,backRatio);
+        }else {
+            sex.setBackSex(backSex);
+            sex.setBackRatio(zeroRatio);
+            setSymbol(sex,forwardRatio,zeroRatio);
+        }
+    }
+
+    private void setSymbol(SchoolHeightAndWeightMonitorVO.HeightAndWeightSex sex, String forwar, String back) {
+        if (Objects.equals(forwar, back)){
+            sex.setSymbol("=");
+        }else {
+            sex.setSymbol(">");
+        }
     }
 
     /**
