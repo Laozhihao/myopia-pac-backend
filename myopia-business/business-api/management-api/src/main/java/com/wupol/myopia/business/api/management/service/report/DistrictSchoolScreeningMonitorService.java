@@ -5,10 +5,10 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.business.api.management.domain.vo.report.DistrictCommonDiseasesAnalysisVO;
 import com.wupol.myopia.business.api.management.domain.vo.report.DistrictSchoolScreeningMonitorVO;
-import com.wupol.myopia.business.common.utils.util.MathUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -141,6 +141,8 @@ public class DistrictSchoolScreeningMonitorService {
         schoolScreeningMonitorTable.setValidScreeningNum(schoolScreeningNum.validScreeningNum);
         schoolScreeningMonitorTable.setSaprodontiaNum(schoolScreeningNum.saprodontiaNum);
         schoolScreeningMonitorTable.setSaprodontiaRatio(schoolScreeningNum.saprodontiaRatio);
+        schoolScreeningMonitorTable.setSaprodontiaLossAndRepairNum(schoolScreeningNum.saprodontiaLossAndRepairNum);
+        schoolScreeningMonitorTable.setSaprodontiaLossAndRepairRatio(schoolScreeningNum.saprodontiaLossAndRepairRatio);
         schoolScreeningMonitorTable.setOverweightNum(schoolScreeningNum.overweightNum);
         schoolScreeningMonitorTable.setOverweightRatio(schoolScreeningNum.overweightRatio);
         schoolScreeningMonitorTable.setObeseNum(schoolScreeningNum.obeseNum);
@@ -156,6 +158,7 @@ public class DistrictSchoolScreeningMonitorService {
         return schoolScreeningMonitorTable;
     }
 
+    @EqualsAndHashCode(callSuper = true)
     @Data
     private static class SchoolScreeningNum extends EntityFunction{
         /**

@@ -5,6 +5,7 @@ import cn.hutool.core.map.MapUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.business.api.management.constant.AgeSegmentEnum;
+import com.wupol.myopia.business.api.management.constant.ReportConst;
 import com.wupol.myopia.business.api.management.domain.vo.report.DistrictBloodPressureAndSpinalCurvatureMonitorVO;
 import com.wupol.myopia.business.api.management.domain.vo.report.DistrictCommonDiseasesAnalysisVO;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
@@ -91,12 +92,10 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorService {
         List<BloodPressureAndSpinalCurvatureNum> bloodPressureAndSpinalCurvatureSexList= Lists.newArrayList();
         genderMap.forEach((gender,list)-> getBloodPressureAndSpinalCurvatureNum(gender,list,bloodPressureAndSpinalCurvatureSexList));
 
-        if (bloodPressureAndSpinalCurvatureSexList.size() >= 2){
-            DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureSex abnormalSpineCurvature = getRatioCompare(bloodPressureAndSpinalCurvatureSexList, BloodPressureAndSpinalCurvatureNum::getAbnormalSpineCurvatureNum, BloodPressureAndSpinalCurvatureNum::getAbnormalSpineCurvatureRatioStr);
-            DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureSex highBloodPressure = getRatioCompare(bloodPressureAndSpinalCurvatureSexList, BloodPressureAndSpinalCurvatureNum::getHighBloodPressureNum, BloodPressureAndSpinalCurvatureNum::getHighBloodPressureRatioStr);
+        if (bloodPressureAndSpinalCurvatureSexList.size() >= 1){
             DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureSexVariableVO sexVariableVO = new DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureSexVariableVO();
-            sexVariableVO.setAbnormalSpineCurvatureRatioCompare(abnormalSpineCurvature);
-            sexVariableVO.setHighBloodPressureRatioCompare(highBloodPressure);
+            sexVariableVO.setAbnormalSpineCurvatureRatioCompare(getRatioCompare(bloodPressureAndSpinalCurvatureSexList, BloodPressureAndSpinalCurvatureNum::getAbnormalSpineCurvatureNum, BloodPressureAndSpinalCurvatureNum::getAbnormalSpineCurvatureRatioStr));
+            sexVariableVO.setHighBloodPressureRatioCompare(getRatioCompare(bloodPressureAndSpinalCurvatureSexList, BloodPressureAndSpinalCurvatureNum::getHighBloodPressureNum, BloodPressureAndSpinalCurvatureNum::getHighBloodPressureRatioStr));
             sexVO.setBloodPressureAndSpinalCurvatureSexVariableVO(sexVariableVO);
         }
     }
@@ -120,18 +119,48 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorService {
         }
         CollectionUtil.sort(sexList, Comparator.comparing(function));
         DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureSex sex = new DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureSex();
-        for (int i = 0; i < sexList.size(); i++) {
-            BloodPressureAndSpinalCurvatureNum num = sexList.get(i);
-            if (i==0){
-                sex.setForwardSex(GenderEnum.getName(num.gender));
-                sex.setForwardRatio(mapper.apply(num));
-            }
-            if (i==1){
-                sex.setBackSex(GenderEnum.getName(num.gender));
-                sex.setBackRatio(mapper.apply(num));
+        if (sexList.size() == 1){
+            BloodPressureAndSpinalCurvatureNum num = sexList.get(0);
+            if (Objects.equals(GenderEnum.MALE.type,num.gender)){
+                setSexCompare(num,null, mapper, sex,GenderEnum.FEMALE.desc,ReportConst.ZERO_RATIO_STR);
+            }else {
+                setSexCompare(num,null, mapper, sex,GenderEnum.MALE.desc,ReportConst.ZERO_RATIO_STR);
             }
         }
+        if (sexList.size() == 2){
+            BloodPressureAndSpinalCurvatureNum forward = sexList.get(0);
+            BloodPressureAndSpinalCurvatureNum back = sexList.get(1);
+            setSexCompare(forward,back, mapper, sex,null,null);
+        }
         return sex;
+    }
+
+    private void setSexCompare(BloodPressureAndSpinalCurvatureNum forward, BloodPressureAndSpinalCurvatureNum back, Function<BloodPressureAndSpinalCurvatureNum, String> mapper,
+                               DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureSex sex,
+                               String backSex, String zeroRatio) {
+
+        String forwardRatio = mapper.apply(forward);
+        sex.setForwardSex(GenderEnum.getName(forward.gender));
+        sex.setForwardRatio(forwardRatio);
+
+        if (Objects.nonNull(back)){
+            String backRatio = mapper.apply(back);
+            sex.setBackSex(GenderEnum.getName(back.gender));
+            sex.setBackRatio(backRatio);
+            setSymbol(sex,forwardRatio,backRatio);
+        }else {
+            sex.setBackSex(backSex);
+            sex.setBackRatio(zeroRatio);
+            setSymbol(sex,forwardRatio,zeroRatio);
+        }
+    }
+
+    private void setSymbol(DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureSex sex, String forwar, String back) {
+        if (Objects.equals(forwar, back)){
+            sex.setSymbol("=");
+        }else {
+            sex.setSymbol(">");
+        }
     }
 
     /**

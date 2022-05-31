@@ -8,6 +8,7 @@ import com.wupol.myopia.business.api.management.constant.AgeSegmentEnum;
 import com.wupol.myopia.business.api.management.constant.ReportConst;
 import com.wupol.myopia.business.api.management.domain.vo.report.DistrictCommonDiseasesAnalysisVO;
 import com.wupol.myopia.business.api.management.domain.vo.report.DistrictSaprodontiaMonitorVO;
+import com.wupol.myopia.business.api.management.domain.vo.report.SchoolSaprodontiaMonitorVO;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
@@ -99,9 +100,11 @@ public class DistrictSaprodontiaMonitorService {
         Map<Integer, List<StatConclusion>> genderMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getGender));
 
         List<SaprodontiaNum> saprodontiaSexList= Lists.newArrayList();
-        genderMap.forEach((gender,list)-> getSaprodontiaNum(gender,list,saprodontiaSexList));
+        genderMap.forEach((gender,list)-> {
+            getSaprodontiaNum(gender,list,saprodontiaSexList);
+        });
 
-        if (saprodontiaSexList.size() >= 2){
+        if (saprodontiaSexList.size() >= 1){
             DistrictSaprodontiaMonitorVO.SaprodontiaSexVariableVO saprodontiaSexVariableVO = new DistrictSaprodontiaMonitorVO.SaprodontiaSexVariableVO();
             saprodontiaSexVariableVO.setSaprodontiaRatioCompare(getRatioCompare(saprodontiaSexList, SaprodontiaNum::getSaprodontiaNum,SaprodontiaNum::getSaprodontiaLossRatioStr));
             saprodontiaSexVariableVO.setSaprodontiaLossRatioCompare(getRatioCompare(saprodontiaSexList, SaprodontiaNum::getSaprodontiaLossNum,SaprodontiaNum::getSaprodontiaLossRatioStr));
@@ -129,20 +132,48 @@ public class DistrictSaprodontiaMonitorService {
         }
         CollectionUtil.sort(saprodontiaSexList, Comparator.comparing(function));
         DistrictSaprodontiaMonitorVO.SaprodontiaSex sex = new DistrictSaprodontiaMonitorVO.SaprodontiaSex();
-        for (int i = 0; i < saprodontiaSexList.size(); i++) {
-            SaprodontiaNum num = saprodontiaSexList.get(i);
-            if (i==0){
-                sex.setForwardSex(GenderEnum.getName(num.gender));
-                sex.setForwardRatio(mapper.apply(num));
+        if (saprodontiaSexList.size() == 1){
+            SaprodontiaNum num = saprodontiaSexList.get(0);
+            if (Objects.equals(GenderEnum.MALE.type,num.gender)){
+                setSexCompare(num,null, mapper, sex,GenderEnum.FEMALE.desc,ReportConst.ZERO_RATIO_STR);
+            }else {
+                setSexCompare(num,null, mapper, sex,GenderEnum.MALE.desc,ReportConst.ZERO_RATIO_STR);
             }
-            if (i==1){
-                sex.setBackSex(GenderEnum.getName(num.gender));
-                sex.setBackRatio(mapper.apply(num));
-            }
+        }
+        if (saprodontiaSexList.size() == 2){
+            SaprodontiaNum forward = saprodontiaSexList.get(0);
+            SaprodontiaNum back = saprodontiaSexList.get(1);
+            setSexCompare(forward,back, mapper, sex,null,null);
         }
         return sex;
     }
+    private void setSexCompare(SaprodontiaNum forward, SaprodontiaNum back, Function<SaprodontiaNum, String> mapper,
+                               DistrictSaprodontiaMonitorVO.SaprodontiaSex sex,
+                               String backSex, String zeroRatio) {
 
+        String forwardRatio = mapper.apply(forward);
+        sex.setForwardSex(GenderEnum.getName(forward.gender));
+        sex.setForwardRatio(forwardRatio);
+
+        if (Objects.nonNull(back)){
+            String backRatio = mapper.apply(back);
+            sex.setBackSex(GenderEnum.getName(back.gender));
+            sex.setBackRatio(backRatio);
+            setSymbol(sex,forwardRatio,backRatio);
+        }else {
+            sex.setBackSex(backSex);
+            sex.setBackRatio(zeroRatio);
+            setSymbol(sex,forwardRatio,zeroRatio);
+        }
+    }
+
+    private void setSymbol(DistrictSaprodontiaMonitorVO.SaprodontiaSex sex, String forwar, String back) {
+        if (Objects.equals(forwar, back)){
+            sex.setSymbol("=");
+        }else {
+            sex.setSymbol(">");
+        }
+    }
 
     /**
      * 龋齿监测结果-不同性别-表格数据

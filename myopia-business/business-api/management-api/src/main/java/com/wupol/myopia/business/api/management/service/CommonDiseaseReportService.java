@@ -18,7 +18,6 @@ import java.util.concurrent.Callable;
  * @author hang.yuan 2022/5/19 14:09
  */
 @Service
-@Slf4j
 public class CommonDiseaseReportService {
 
     @Autowired
