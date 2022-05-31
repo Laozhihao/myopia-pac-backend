@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.vo.report;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -142,39 +143,47 @@ public class DistrictSchoolScreeningMonitorVO {
         /**
          * 龋患率
          */
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
         private BigDecimal saprodontiaRatio;
 
         /**
          * 龋患（失、补）率
          */
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
         private BigDecimal saprodontiaLossAndRepairRatio;
         /**
          * 超重率
          */
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
         private BigDecimal overweightRatio;
         /**
          * 肥胖率
          */
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
         private BigDecimal obeseRatio;
 
         /**
          * 营养不良率
          */
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
         private BigDecimal malnourishedRatio;
 
         /**
          * 生长迟缓率
          */
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
         private BigDecimal stuntingRatio;
 
         /**
          * 血压偏高率
          */
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
         private BigDecimal highBloodPressureRatio;
 
         /**
          * 脊柱弯曲异常率
          */
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
         private BigDecimal abnormalSpineCurvatureRatio;
 
     }
