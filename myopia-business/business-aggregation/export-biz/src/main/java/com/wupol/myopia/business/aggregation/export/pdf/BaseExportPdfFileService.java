@@ -43,7 +43,7 @@ public abstract class BaseExportPdfFileService extends BaseExportFileService {
         String fileName = null;
         String parentPath = null;
         try {
-            // 1.获取文件名
+            // 1.获取文件名(如果导出的是压缩包，这里文件名不带后缀，将作为压缩包的文件名)
             fileName = getFileName(exportCondition);
             // 2.获取文件保存父目录路径
             parentPath = getFileSaveParentPath();
@@ -117,7 +117,7 @@ public abstract class BaseExportPdfFileService extends BaseExportFileService {
     public String syncExport(ExportCondition exportCondition) {
         String parentPath = null;
         try {
-            // 1.获取文件名
+            // 1.获取文件名(一般，同步导出的文件名带后缀，如：123.pdf)
             String fileName = getFileName(exportCondition);
             // 2.获取文件保存父目录路径
             parentPath = getFileSaveParentPath();
@@ -125,7 +125,7 @@ public abstract class BaseExportPdfFileService extends BaseExportFileService {
             String fileSavePath = getFileSavePath(parentPath, fileName);
             // 4.生成导出的文件
             generatePdfFile(exportCondition, fileSavePath, fileName);
-
+            // 5.上传到S3
             return resourceFileService.getResourcePath(s3Utils.uploadS3AndGetResourceFile(fileSavePath, fileName).getId());
         } catch (Exception e) {
             String requestData = JSON.toJSONString(exportCondition);

@@ -15,7 +15,9 @@ public class BizMsgConstant {
     public final String NOTICE_ID_IS_EMPTY = "筛查通知ID为空";
 
     public final String PLAN_ID_IS_EMPTY = "筛查计划ID为空";
+
     public final String SCHOOL_ID_IS_EMPTY = "学校ID为空";
+
     public final String CLASS_ID_IS_EMPTY = "班级计划ID为空";
 
     public final String GRADE_ID_IS_EMPTY = "年级计划ID为空";

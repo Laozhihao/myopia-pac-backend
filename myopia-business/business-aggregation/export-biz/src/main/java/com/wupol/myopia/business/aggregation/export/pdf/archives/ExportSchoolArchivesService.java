@@ -5,6 +5,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.pdf.BaseExportPdfFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.PDFFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
@@ -45,7 +46,7 @@ public class ExportSchoolArchivesService extends BaseExportPdfFileService {
      **/
     @Override
     public void generatePdfFile(ExportCondition exportCondition, String fileSavePath, String fileName) {
-        archivePdfGenerator.generateSchoolArchivesPdfFile(fileSavePath, exportCondition);
+        archivePdfGenerator.generateSchoolOrGradeArchivesPdfFile(fileSavePath, exportCondition);
     }
 
     /**
@@ -62,7 +63,7 @@ public class ExportSchoolArchivesService extends BaseExportPdfFileService {
             SchoolGrade schoolGrade = schoolGradeService.getById(exportCondition.getGradeId());
             gradeName = schoolGrade.getName();
         }
-        return String.format(PDFFileNameConstant.ARCHIVES_PDF_FILE_NAME, school.getName()+gradeName);
+        return String.format(PDFFileNameConstant.ARCHIVES_PDF_FILE_NAME, school.getName() + gradeName, ScreeningTypeEnum.isVisionScreeningType(exportCondition.getScreeningType()) ? PDFFileNameConstant.VISION_ARCHIVE : PDFFileNameConstant.COMMON_DISEASE_ARCHIVE);
     }
 
     @Override

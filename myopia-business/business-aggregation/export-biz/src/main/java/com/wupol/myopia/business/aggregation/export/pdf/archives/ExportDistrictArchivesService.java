@@ -6,6 +6,7 @@ import com.wupol.myopia.business.aggregation.export.pdf.BaseExportPdfFileService
 import com.wupol.myopia.business.aggregation.export.pdf.constant.PDFFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
+import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask;
@@ -48,7 +49,7 @@ public class ExportDistrictArchivesService extends BaseExportPdfFileService {
     public String getFileName(ExportCondition exportCondition) {
         District district = districtService.getById(exportCondition.getDistrictId());
         String districtFullName = districtService.getTopDistrictName(district.getCode());
-        return String.format(PDFFileNameConstant.ARCHIVES_PDF_FILE_NAME, districtFullName);
+        return String.format(PDFFileNameConstant.ARCHIVES_PDF_FILE_NAME, districtFullName, ScreeningTypeEnum.isVisionScreeningType(exportCondition.getScreeningType()) ? PDFFileNameConstant.VISION_ARCHIVE : PDFFileNameConstant.COMMON_DISEASE_ARCHIVE);
     }
 
     @Override
@@ -61,11 +62,11 @@ public class ExportDistrictArchivesService extends BaseExportPdfFileService {
         List<Integer> taskIds = screeningTaskList.stream().map(ScreeningTask::getId).collect(Collectors.toList());
 
         if (CollectionUtils.isEmpty(taskIds)){
-            throw new BusinessException("该区域下暂无筛查任务，无法导出档案卡");
+            throw new BusinessException("该区域下暂无筛查任务，无法导出档案卡/监测表");
         }
         int total = visionScreeningBizService.getScreeningResult(districtIdList, taskIds);
         if (total <= 0) {
-            throw new BusinessException("该区域下暂无筛查学生数据，无法导出档案卡");
+            throw new BusinessException("该区域下暂无筛查学生数据，无法导出档案卡/监测表");
         }
     }
 
