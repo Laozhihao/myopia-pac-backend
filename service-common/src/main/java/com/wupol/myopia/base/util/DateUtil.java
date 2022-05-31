@@ -315,6 +315,18 @@ public class DateUtil extends cn.hutool.core.date.DateUtil {
     }
 
     /**
+     * 根据日期获取其所属学年，同一学年：9月1日到次年8月31日
+     *
+     * @param date 日期
+     * @return int 所属学年，如：2021、2017
+     **/
+    public int getSchoolYear(Date date) {
+        LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        int month = localDate.getMonthValue();
+        return month >= 9 ? localDate.getYear() : localDate.getYear() - 1;
+    }
+
+    /**
      * Date to LocalDate
      *
      * @param date   日期
