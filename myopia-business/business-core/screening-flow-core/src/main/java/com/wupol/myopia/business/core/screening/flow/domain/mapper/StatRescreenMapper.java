@@ -19,6 +19,6 @@ public interface StatRescreenMapper extends BaseMapper<StatRescreen> {
 
     List<Date> getSchoolDate(@Param("planId") Integer planId, @Param("schoolId") Integer schoolId, @Param("createTime") Date createTime);
 
-    List<StatRescreen> getByPlanAndSchool(@Param("planId") Integer planId, @Param("schoolId") Integer schoolId, @Param("screeningTime") Date screeningTime, @Param("createTime") Date createTime);
+    List<StatRescreen> getByPlanAndSchool(@Param("planId") Integer planId, @Param("schoolId") Integer schoolId, @Param("screeningTime") Date screeningTime);
 
 }

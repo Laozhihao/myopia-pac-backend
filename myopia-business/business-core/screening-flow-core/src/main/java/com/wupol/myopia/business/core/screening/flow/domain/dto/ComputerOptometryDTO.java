@@ -3,6 +3,7 @@ package com.wupol.myopia.business.core.screening.flow.domain.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.core.screening.flow.constant.ScreeningConstant;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.Data;
@@ -66,19 +67,21 @@ public class ComputerOptometryDTO extends ScreeningResultBasicData {
     @JsonProperty("r_se")
     private BigDecimal rSe;
 
+
     @Override
     public VisionScreeningResult buildScreeningResultData(VisionScreeningResult visionScreeningResult) {
         ComputerOptometryDO.ComputerOptometry leftComputerOptometry = new ComputerOptometryDO.ComputerOptometry().setAxial(lAxial).setCyl(lCyl).setSph(lSph).setLateriality(CommonConst.LEFT_EYE);
         ComputerOptometryDO.ComputerOptometry rightComputerOptometry = new ComputerOptometryDO.ComputerOptometry().setAxial(rAxial).setCyl(rCyl).setSph(rSph).setLateriality(CommonConst.RIGHT_EYE);
-        ComputerOptometryDO computerOptometryDO = new ComputerOptometryDO().setRightEyeData(rightComputerOptometry).setLeftEyeData(leftComputerOptometry).setIsCooperative(super.getIsCooperative());
+        ComputerOptometryDO computerOptometryDO = new ComputerOptometryDO().setRightEyeData(rightComputerOptometry).setLeftEyeData(leftComputerOptometry).setIsCooperative(getIsCooperative());
         computerOptometryDO.setDiagnosis(super.getDiagnosis());
         computerOptometryDO.setCreateUserId(getCreateUserId());
+        computerOptometryDO.setUpdateTime(getUpdateTime());
         return visionScreeningResult.setComputerOptometry(computerOptometryDO);
     }
 
     public boolean isValid() {
         // 不配合时全部校验
-        if (super.getIsCooperative() == 1) {
+        if (Objects.nonNull(getIsCooperative()) && getIsCooperative() == 1) {
             return true;
         }
         return ObjectUtils.anyNotNull(rAxial, lAxial, lSph, rSph, rCyl, lCyl);
@@ -107,6 +110,11 @@ public class ComputerOptometryDTO extends ScreeningResultBasicData {
         computerOptometryDTO.setDiagnosis(computerOptometryDO.getDiagnosis());
         computerOptometryDTO.setIsCooperative(computerOptometryDO.getIsCooperative());
         return computerOptometryDTO;
+    }
+
+    @Override
+    public String getDataType() {
+        return ScreeningConstant.SCREENING_DATA_TYPE_COMPUTER_OPTOMETRY;
     }
 }
 

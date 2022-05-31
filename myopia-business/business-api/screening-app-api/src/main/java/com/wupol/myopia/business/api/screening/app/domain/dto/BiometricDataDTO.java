@@ -2,10 +2,12 @@ package com.wupol.myopia.business.api.screening.app.domain.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.core.screening.flow.constant.ScreeningConstant;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.BiometricDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultBasicData;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Objects;
@@ -15,6 +17,7 @@ import java.util.Objects;
  * @Date 2021/1/26 1:08
  * @Author by Jacob
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class BiometricDataDTO extends ScreeningResultBasicData {
 
@@ -141,6 +144,7 @@ public class BiometricDataDTO extends ScreeningResultBasicData {
     @JsonProperty("r_VT")
     private String rvt;
 
+
     @Override
     public VisionScreeningResult buildScreeningResultData(VisionScreeningResult visionScreeningResult) {
         BiometricDataDO.BiometricData leftBiometricData = new BiometricDataDO.BiometricData().setWtw(lWTW).setAd(lAD).setAl(lAL).setCct(lCCT).setLt(lLT).setK1(lk1).setK1Axis(lk1Axis).setK2(lk2).setK2Axis(lk2Axis).setAst(last).setPd(lpd).setVt(lvt).setLateriality(CommonConst.LEFT_EYE);
@@ -148,6 +152,7 @@ public class BiometricDataDTO extends ScreeningResultBasicData {
         BiometricDataDO biometricDataDO = new BiometricDataDO().setRightEyeData(rightBiometricData).setLeftEyeData(leftBiometricData).setIsCooperative(getIsCooperative());
         biometricDataDO.setCreateUserId(getCreateUserId());
         biometricDataDO.setDiagnosis(super.getDiagnosis());
+        biometricDataDO.setUpdateTime(getUpdateTime());
         return visionScreeningResult.setBiometricData(biometricDataDO);
     }
 
@@ -193,5 +198,10 @@ public class BiometricDataDTO extends ScreeningResultBasicData {
         }
         biometricDataDTO.setIsCooperative(biometricDataDO.getIsCooperative());
         return biometricDataDTO;
+    }
+
+    @Override
+    public String getDataType() {
+        return ScreeningConstant.SCREENING_DATA_TYPE_BIOMETRIC;
     }
 }

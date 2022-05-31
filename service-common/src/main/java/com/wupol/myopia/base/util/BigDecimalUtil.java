@@ -291,10 +291,13 @@ public class BigDecimalUtil {
      * @return 绝对差值
      */
     public static BigDecimal subtractAbsBigDecimal(BigDecimal firstScreening, BigDecimal reScreening) {
-        BigDecimal first = Optional.ofNullable(firstScreening).orElse(null);
-        BigDecimal retest = Optional.ofNullable(reScreening).orElse(null);
-
-        return first.subtract(retest).abs();
+        if (firstScreening==null){
+            return null;
+        }
+        if (reScreening==null){
+            return null;
+        }
+        return firstScreening.subtract(reScreening).abs();
     }
 
     /**

@@ -102,7 +102,7 @@ public class ScreeningDataService {
                 .setRightCorrectedVision(getBigDecimalValue(sysStudentEye.getRJzsl()))
                 .setGlassesType(getGlassesType(sysStudentEye.getGlasses()))
                 .setIsCooperative(0);
-        visionScreeningBizService.saveOrUpdateStudentScreenData(visionDataDTO, String.valueOf(SystemCode.SCREENING_CLIENT.getCode()));
+        visionScreeningBizService.saveOrUpdateStudentScreenData(visionDataDTO, String.valueOf(SystemCode.MANAGEMENT_CLIENT.getCode()));
     }
 
     /**
@@ -131,7 +131,7 @@ public class ScreeningDataService {
                 .setRSph(getBigDecimalValue(sysStudentEye.getRSph()))
                 .setRCyl(getBigDecimalValue(sysStudentEye.getRCyl()))
                 .setRAxial(getBigDecimalValue(sysStudentEye.getRAxial()));
-        visionScreeningBizService.saveOrUpdateStudentScreenData(computerOptometryDTO, String.valueOf(SystemCode.SCREENING_CLIENT.getCode()));
+        visionScreeningBizService.saveOrUpdateStudentScreenData(computerOptometryDTO,String.valueOf(SystemCode.MANAGEMENT_CLIENT.getCode()));
     }
 
     /**
@@ -157,7 +157,7 @@ public class ScreeningDataService {
                 .setRSph(getBigDecimalValue(sysStudentEye.getRSph()))
                 .setRCyl(getBigDecimalValue(sysStudentEye.getRCyl()))
                 .setRAxial(getBigDecimalValue(sysStudentEye.getRAxial()));
-        visionScreeningBizService.saveOrUpdateStudentScreenData(computerOptometryDTO, String.valueOf(SystemCode.SCREENING_CLIENT.getCode()));
+        visionScreeningBizService.saveOrUpdateStudentScreenData(computerOptometryDTO,String.valueOf(SystemCode.MANAGEMENT_CLIENT.getCode()));
     }
 
     /**
@@ -182,7 +182,7 @@ public class ScreeningDataService {
                 .setIsState(0);
         otherEyeDiseasesDTO.setLDiseaseStr(sysStudentEye.getLDisease())
                 .setRDiseaseStr(sysStudentEye.getRDisease());
-        visionScreeningBizService.saveOrUpdateStudentScreenData(otherEyeDiseasesDTO, String.valueOf(SystemCode.SCREENING_CLIENT.getCode()));
+        visionScreeningBizService.saveOrUpdateStudentScreenData(otherEyeDiseasesDTO,String.valueOf(SystemCode.MANAGEMENT_CLIENT.getCode()));
     }
 
     /**
