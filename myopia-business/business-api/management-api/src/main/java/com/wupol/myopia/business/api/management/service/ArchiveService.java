@@ -11,9 +11,11 @@ import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolClassDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
-import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.domain.model.StudentCommonDiseaseId;
-import com.wupol.myopia.business.core.school.service.*;
+import com.wupol.myopia.business.core.school.service.SchoolCommonDiseaseCodeService;
+import com.wupol.myopia.business.core.school.service.SchoolGradeService;
+import com.wupol.myopia.business.core.school.service.SchoolService;
+import com.wupol.myopia.business.core.school.service.StudentCommonDiseaseIdService;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.SaprodontiaStat;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
@@ -31,7 +33,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
-import javax.annotation.Resource;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -51,8 +52,6 @@ public class ArchiveService {
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     @Autowired
     private VisionScreeningResultService visionScreeningResultService;
-    @Resource
-    private StudentService studentService;
     @Autowired
     private StudentFacade studentFacade;
     @Autowired
@@ -115,16 +114,14 @@ public class ArchiveService {
         }
         // 查询学生信息
         School school = schoolService.getById(classWithSchoolAndGradeName.getSchoolId());
-        List<Integer> studentIds = visionScreeningResultList.stream().map(VisionScreeningResult::getStudentId).collect(Collectors.toList());
-        Map<Integer, Student> studentMap = studentService.getByIds(studentIds).stream().collect(Collectors.toMap(Student::getId, Function.identity()));
         List<Integer> planStudentIds = visionScreeningResultList.stream().map(VisionScreeningResult::getScreeningPlanSchoolStudentId).collect(Collectors.toList());
         Map<Integer, ScreeningPlanSchoolStudent> planSchoolStudentMap = screeningPlanSchoolStudentService.getByIds(planStudentIds).stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getId, Function.identity()));
         return visionScreeningResultList.stream()
-                .map(visionScreeningResult -> generateArchiveCard(visionScreeningResult, getStudentDTO(studentMap.get(visionScreeningResult.getStudentId()), planSchoolStudentMap.get(visionScreeningResult.getScreeningPlanSchoolStudentId()), classWithSchoolAndGradeName, school), year, school))
+                .map(visionScreeningResult -> generateArchiveCard(visionScreeningResult, getStudentDTO(planSchoolStudentMap.get(visionScreeningResult.getScreeningPlanSchoolStudentId()), classWithSchoolAndGradeName, school), year, school))
                 .collect(Collectors.toList());
     }
 
-    private StudentDTO getStudentDTO(Student student, ScreeningPlanSchoolStudent planStudent, SchoolClassDTO classWithSchoolAndGradeName, School school) {
+    private StudentDTO getStudentDTO(ScreeningPlanSchoolStudent planStudent, SchoolClassDTO classWithSchoolAndGradeName, School school) {
         StudentDTO studentDTO = new StudentDTO()
                 .setSchoolName(classWithSchoolAndGradeName.getSchoolName())
                 .setGradeName(classWithSchoolAndGradeName.getGradeName())
@@ -135,7 +132,7 @@ public class ArchiveService {
                 .setBirthday(planStudent.getBirthday())
                 .setIdCard(planStudent.getIdCard())
                 .setGender(planStudent.getGender())
-                .setSno(student.getSno())
+                .setSno(planStudent.getStudentNo())
                 .setParentPhone(planStudent.getParentPhone())
                 .setNation(planStudent.getNation())
                 .setPassport(planStudent.getPassport())

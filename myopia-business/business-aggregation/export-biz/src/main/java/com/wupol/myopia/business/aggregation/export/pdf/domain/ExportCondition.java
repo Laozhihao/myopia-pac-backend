@@ -56,4 +56,8 @@ public class ExportCondition {
      * 类型ID
      */
     private Integer type;
+    /**
+     * 筛查类型
+     */
+    private Integer screeningType;
 }
