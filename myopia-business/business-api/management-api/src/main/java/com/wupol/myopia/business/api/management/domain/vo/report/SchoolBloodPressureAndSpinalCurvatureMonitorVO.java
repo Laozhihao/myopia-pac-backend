@@ -31,10 +31,17 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorVO {
      */
     private BloodPressureAndSpinalCurvatureAgeVO bloodPressureAndSpinalCurvatureAgeVO;
 
-    @EqualsAndHashCode(callSuper = true)
     @Data
-    public static class BloodPressureAndSpinalCurvatureMonitorVariableVO extends DistrictCommonDiseasesAnalysisVO.BloodPressureAndSpinalCurvatureRatioVO{
+    public static class BloodPressureAndSpinalCurvatureMonitorVariableVO {
+        /**
+         * 血压偏高率
+         */
+        private String highBloodPressureRatio;
 
+        /**
+         * 脊柱弯曲异常率
+         */
+        private String abnormalSpineCurvatureRatio;
     }
 
 
@@ -184,7 +191,7 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorVO {
 
     @EqualsAndHashCode(callSuper = true)
     @Data
-    public static class BloodPressureAndSpinalCurvatureMonitorTable extends DistrictCommonDiseasesAnalysisVO.BloodPressureAndSpinalCurvatureVO{
+    public static class BloodPressureAndSpinalCurvatureMonitorTable extends SchoolCommonDiseasesAnalysisVO.BloodPressureAndSpinalCurvatureVO{
 
         /**
          * 项目 （性别、学龄段、年龄段）

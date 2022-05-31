@@ -35,13 +35,32 @@ public class SchoolSaprodontiaMonitorVO {
 
 
 
-    @EqualsAndHashCode(callSuper = true)
     @Data
-    public static class SaprodontiaMonitorVariableVO extends DistrictCommonDiseasesAnalysisVO.SaprodontiaRatioVO{
+    public static class SaprodontiaMonitorVariableVO {
         /**
          * 龋均
          */
-        private BigDecimal dmftRatio;
+        private String dmftRatio;
+
+        /**
+         * 龋患率
+         */
+        private String saprodontiaRatio;
+
+        /**
+         * 龋补率
+         */
+        private String saprodontiaRepairRatio;
+        /**
+         * 龋患（失、补）率
+         */
+        private String saprodontiaLossAndRepairRatio;
+
+        /**
+         * 龋患（失、补）构成比
+         */
+        private String saprodontiaLossAndRepairTeethRatio;
+
 
 
     }
@@ -204,7 +223,7 @@ public class SchoolSaprodontiaMonitorVO {
 
     @EqualsAndHashCode(callSuper = true)
     @Data
-    public static class SaprodontiaMonitorTable extends DistrictCommonDiseasesAnalysisVO.SaprodontiaVO{
+    public static class SaprodontiaMonitorTable extends SchoolCommonDiseasesAnalysisVO.SaprodontiaVO{
 
         /**
          * 项目 （性别、学龄段、年龄段）

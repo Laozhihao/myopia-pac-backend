@@ -3,6 +3,7 @@ package com.wupol.myopia.business.api.management.domain.vo.report;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -32,10 +33,26 @@ public class SchoolHeightAndWeightMonitorVO {
      */
     private HeightAndWeightAgeVO heightAndWeightAgeVO;
 
-    @EqualsAndHashCode(callSuper = true)
     @Data
-    public static class HeightAndWeightMonitorVariableVO extends DistrictCommonDiseasesAnalysisVO.HeightAndWeightRatioVO{
+    public static class HeightAndWeightMonitorVariableVO {
+        /**
+         * 超重率
+         */
+        private String overweightRatio;
+        /**
+         * 肥胖率
+         */
+        private String obeseRatio;
 
+        /**
+         * 营养不良率
+         */
+        private String malnourishedRatio;
+
+        /**
+         * 生长迟缓率
+         */
+        private String stuntingRatio;
     }
 
 
@@ -209,7 +226,7 @@ public class SchoolHeightAndWeightMonitorVO {
 
     @EqualsAndHashCode(callSuper = true)
     @Data
-    public static class HeightAndWeightMonitorTable extends DistrictCommonDiseasesAnalysisVO.HeightAndWeightVO{
+    public static class HeightAndWeightMonitorTable extends SchoolCommonDiseasesAnalysisVO.HeightAndWeightVO{
 
         /**
          * 项目 （性别、学龄段、年龄段）

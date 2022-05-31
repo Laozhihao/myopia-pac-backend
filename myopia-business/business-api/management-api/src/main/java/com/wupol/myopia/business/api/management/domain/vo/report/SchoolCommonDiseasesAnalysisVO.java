@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * 按学校常见病分析
@@ -37,7 +38,7 @@ public class SchoolCommonDiseasesAnalysisVO {
     /**
      * 各班级筛查情况
      */
-    private SchoolClassScreeningMonitorVO schoolClassScreeningMonitorVO;
+    private List<SchoolClassScreeningMonitorVO> schoolClassScreeningMonitorVOList;
 
 
 
@@ -82,7 +83,7 @@ public class SchoolCommonDiseasesAnalysisVO {
         /**
          * 龋均
          */
-        private BigDecimal dmftRatio;
+        private String dmftRatio;
 
         /**
          * 有龋人数

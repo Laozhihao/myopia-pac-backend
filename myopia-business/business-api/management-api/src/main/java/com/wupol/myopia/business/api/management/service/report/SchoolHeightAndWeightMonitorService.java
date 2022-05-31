@@ -57,13 +57,13 @@ public class SchoolHeightAndWeightMonitorService {
         if (CollectionUtil.isEmpty(statConclusionList)){
             return;
         }
-        HeightAndWeightNum heightAndWeight = new HeightAndWeightNum().build(statConclusionList).ratioNotSymbol();
+        HeightAndWeightNum heightAndWeight = new HeightAndWeightNum().build(statConclusionList).ratioNotSymbol().ratio();
 
         SchoolHeightAndWeightMonitorVO.HeightAndWeightMonitorVariableVO heightAndWeightMonitorVariableVO = new SchoolHeightAndWeightMonitorVO.HeightAndWeightMonitorVariableVO();
-        heightAndWeightMonitorVariableVO.setOverweightRatio(heightAndWeight.overweightRatio);
-        heightAndWeightMonitorVariableVO.setObeseRatio(heightAndWeight.obeseRatio);
-        heightAndWeightMonitorVariableVO.setStuntingRatio(heightAndWeight.stuntingRatio);
-        heightAndWeightMonitorVariableVO.setMalnourishedRatio(heightAndWeight.malnourishedRatio);
+        heightAndWeightMonitorVariableVO.setOverweightRatio(heightAndWeight.overweightRatioStr);
+        heightAndWeightMonitorVariableVO.setObeseRatio(heightAndWeight.obeseRatioStr);
+        heightAndWeightMonitorVariableVO.setStuntingRatio(heightAndWeight.stuntingRatioStr);
+        heightAndWeightMonitorVariableVO.setMalnourishedRatio(heightAndWeight.malnourishedRatioStr);
 
         schoolHeightAndWeightMonitorVO.setHeightAndWeightMonitorVariableVO(heightAndWeightMonitorVariableVO);
     }

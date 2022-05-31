@@ -5,7 +5,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.business.api.management.domain.vo.report.SchoolClassScreeningMonitorVO;
 import com.wupol.myopia.business.api.management.domain.vo.report.SchoolCommonDiseasesAnalysisVO;
-import com.wupol.myopia.business.common.utils.util.MathUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
@@ -34,50 +33,60 @@ public class SchoolClassScreeningMonitorService {
         if (CollectionUtil.isEmpty(statConclusionList)){
             return;
         }
-        SchoolClassScreeningMonitorVO schoolClassScreeningMonitorVO = new SchoolClassScreeningMonitorVO();
-        //说明变量
-        getSchoolClassScreeningMonitorVariableVO(statConclusionList,schoolClassScreeningMonitorVO);
-        //表格数据
-        getSchoolClassScreeningMonitorTableList(statConclusionList,schoolClassScreeningMonitorVO);
+        Map<String, List<StatConclusion>> gradeMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
 
-        schoolCommonDiseasesAnalysisVO.setSchoolClassScreeningMonitorVO(schoolClassScreeningMonitorVO);
+        List<SchoolClassScreeningMonitorVO> schoolClassScreeningMonitorVOList =Lists.newArrayList();
+
+        gradeMap.forEach((gradeCode,list)->{
+            SchoolClassScreeningMonitorVO schoolClassScreeningMonitorVO = new SchoolClassScreeningMonitorVO();
+            //说明变量
+            getSchoolClassScreeningMonitorVariableVO(list,schoolClassScreeningMonitorVO,gradeCode);
+            //表格数据
+            getSchoolClassScreeningMonitorTableList(list,schoolClassScreeningMonitorVO);
+            if (schoolClassScreeningMonitorVO.isNotEmpty()) {
+                schoolClassScreeningMonitorVOList.add(schoolClassScreeningMonitorVO);
+                schoolClassScreeningMonitorVO.setGrade(GradeCodeEnum.getByCode(gradeCode).getName());
+            }
+        });
+
+        schoolCommonDiseasesAnalysisVO.setSchoolClassScreeningMonitorVOList(schoolClassScreeningMonitorVOList);
+
 
     }
 
     /**
      * 各班级筛查情况-说明变量
      */
-    private void getSchoolClassScreeningMonitorVariableVO(List<StatConclusion> statConclusionList,SchoolClassScreeningMonitorVO schoolClassScreeningMonitorVO) {
+    private void getSchoolClassScreeningMonitorVariableVO(List<StatConclusion> statConclusionList,SchoolClassScreeningMonitorVO schoolClassScreeningMonitorVO,String gradeCode) {
         if (CollectionUtil.isEmpty(statConclusionList)){
             return;
         }
-        Map<String, List<StatConclusion>> schoolStatConclusionMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
-        Map<String,SchoolClassScreeningNum> schoolScreeningNumMap = Maps.newHashMap();
-        schoolStatConclusionMap.forEach((schoolGradeCode,list)->{
-            GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeCode);
-            getSchoolClassScreeningNum(gradeCodeEnum.getName(),list,schoolScreeningNumMap);
+        Map<String, List<StatConclusion>> classStatConclusionMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolClassName));
+        Map<String,SchoolClassScreeningNum> classScreeningNumMap = Maps.newHashMap();
+        classStatConclusionMap.forEach((schoolClassName,list)->{
+            getSchoolClassScreeningNum(schoolClassName,list,classScreeningNumMap);
         });
 
-        if (schoolScreeningNumMap.size() >= 2){
+        if (classScreeningNumMap.size() >= 2){
             SchoolClassScreeningMonitorVO.SchoolClassScreeningMonitorVariableVO variableVO = new SchoolClassScreeningMonitorVO.SchoolClassScreeningMonitorVariableVO();
-            variableVO.setSaprodontiaRatioExtremum(getGradeRatioExtremum(schoolScreeningNumMap, SchoolClassScreeningNum::getSaprodontiaNum, SchoolClassScreeningNum::getSaprodontiaRatio));
-            variableVO.setSaprodontiaLossAndRepairRatioExtremum(getGradeRatioExtremum(schoolScreeningNumMap, SchoolClassScreeningNum::getSaprodontiaLossAndRepairNum, SchoolClassScreeningNum::getSaprodontiaLossAndRepairRatio));
-            variableVO.setOverweightRatioExtremum(getGradeRatioExtremum(schoolScreeningNumMap, SchoolClassScreeningNum::getOverweightNum, SchoolClassScreeningNum::getOverweightRatio));
-            variableVO.setObeseRatioExtremum(getGradeRatioExtremum(schoolScreeningNumMap, SchoolClassScreeningNum::getObeseNum, SchoolClassScreeningNum::getObeseRatio));
-            variableVO.setStuntingRatioExtremum(getGradeRatioExtremum(schoolScreeningNumMap, SchoolClassScreeningNum::getStuntingNum, SchoolClassScreeningNum::getStuntingRatio));
-            variableVO.setMalnourishedRatioExtremum(getGradeRatioExtremum(schoolScreeningNumMap, SchoolClassScreeningNum::getMalnourishedNum, SchoolClassScreeningNum::getMalnourishedRatio));
-            variableVO.setAbnormalSpineCurvatureRatioExtremum(getGradeRatioExtremum(schoolScreeningNumMap, SchoolClassScreeningNum::getAbnormalSpineCurvatureNum, SchoolClassScreeningNum::getAbnormalSpineCurvatureRatio));
-            variableVO.setHighBloodPressureRatioExtremum(getGradeRatioExtremum(schoolScreeningNumMap, SchoolClassScreeningNum::getHighBloodPressureNum, SchoolClassScreeningNum::getHighBloodPressureRatio));
+            variableVO.setSaprodontiaRatioExtremum(getClassRatioExtremum(classScreeningNumMap, SchoolClassScreeningNum::getSaprodontiaNum, SchoolClassScreeningNum::getSaprodontiaRatio));
+            variableVO.setSaprodontiaLossAndRepairRatioExtremum(getClassRatioExtremum(classScreeningNumMap, SchoolClassScreeningNum::getSaprodontiaLossAndRepairNum, SchoolClassScreeningNum::getSaprodontiaLossAndRepairRatio));
+            variableVO.setOverweightRatioExtremum(getClassRatioExtremum(classScreeningNumMap, SchoolClassScreeningNum::getOverweightNum, SchoolClassScreeningNum::getOverweightRatio));
+            variableVO.setObeseRatioExtremum(getClassRatioExtremum(classScreeningNumMap, SchoolClassScreeningNum::getObeseNum, SchoolClassScreeningNum::getObeseRatio));
+            variableVO.setStuntingRatioExtremum(getClassRatioExtremum(classScreeningNumMap, SchoolClassScreeningNum::getStuntingNum, SchoolClassScreeningNum::getStuntingRatio));
+            variableVO.setMalnourishedRatioExtremum(getClassRatioExtremum(classScreeningNumMap, SchoolClassScreeningNum::getMalnourishedNum, SchoolClassScreeningNum::getMalnourishedRatio));
+            variableVO.setAbnormalSpineCurvatureRatioExtremum(getClassRatioExtremum(classScreeningNumMap, SchoolClassScreeningNum::getAbnormalSpineCurvatureNum, SchoolClassScreeningNum::getAbnormalSpineCurvatureRatio));
+            variableVO.setHighBloodPressureRatioExtremum(getClassRatioExtremum(classScreeningNumMap, SchoolClassScreeningNum::getHighBloodPressureNum, SchoolClassScreeningNum::getHighBloodPressureRatio));
             schoolClassScreeningMonitorVO.setSchoolClassScreeningMonitorVariableVO(variableVO);
         }
     }
 
-    private SchoolClassScreeningMonitorVO.GradeRatioExtremum getGradeRatioExtremum(Map<String,SchoolClassScreeningNum> schoolScreeningNumMap, Function<SchoolClassScreeningNum,Integer> function, Function<SchoolClassScreeningNum,BigDecimal> mapper){
+    private SchoolClassScreeningMonitorVO.GradeRatioExtremum getClassRatioExtremum(Map<String,SchoolClassScreeningNum> schoolScreeningNumMap, Function<SchoolClassScreeningNum,Integer> function, Function<SchoolClassScreeningNum,BigDecimal> mapper){
         TwoTuple<String, BigDecimal> maxTuple = getMaxMap(schoolScreeningNumMap, function,mapper);
         TwoTuple<String, BigDecimal> minTuple = getMinMap(schoolScreeningNumMap, function,mapper);
         SchoolClassScreeningMonitorVO.GradeRatioExtremum schoolRatioExtremum = new SchoolClassScreeningMonitorVO.GradeRatioExtremum();
-        schoolRatioExtremum.setMaxGradeName(maxTuple.getFirst());
-        schoolRatioExtremum.setMinGradeName(minTuple.getFirst());
+        schoolRatioExtremum.setMaxClassName(maxTuple.getFirst());
+        schoolRatioExtremum.setMinClassName(minTuple.getFirst());
         schoolRatioExtremum.setMaxRatio(maxTuple.getSecond());
         schoolRatioExtremum.setMinRatio(minTuple.getSecond());
         return schoolRatioExtremum;

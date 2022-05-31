@@ -1,28 +1,40 @@
 package com.wupol.myopia.business.api.management.domain.vo.report;
 
+import cn.hutool.core.collection.CollectionUtil;
 import lombok.Data;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 /**
- * 各学校筛查情况
+ * 各班级筛查情况
  *
  * @author hang.yuan 2022/5/16 18:32
  */
 @Data
 public class SchoolClassScreeningMonitorVO {
+
     /**
-     * 年级说明
+     * 年级
+     */
+    private String grade;
+
+    /**
+     * 班级说明
      */
     private SchoolClassScreeningMonitorVariableVO schoolClassScreeningMonitorVariableVO;
     /**
-     * 年级表格数据
+     * 班级表格数据
      */
     private List<SchoolClassScreeningMonitorTable> schoolClassScreeningMonitorTableList;
 
+    public Boolean isNotEmpty(){
+        return CollectionUtil.isNotEmpty(schoolClassScreeningMonitorTableList);
+    }
+
     @Data
     public static class SchoolClassScreeningMonitorVariableVO{
+
 
         /**
          * 龋患率极值
@@ -68,13 +80,13 @@ public class SchoolClassScreeningMonitorVO {
     @Data
     public static class GradeRatioExtremum{
         /**
-         * 最高占比年级
+         * 最高占比班级
          */
-        private String maxGradeName;
+        private String maxClassName;
         /**
-         * 最低占比年级
+         * 最低占比班级
          */
-        private String minGradeName;
+        private String minClassName;
         /**
          * 最高占比
          */

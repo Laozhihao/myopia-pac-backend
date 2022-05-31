@@ -31,6 +31,7 @@ import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -344,6 +345,7 @@ public class SchoolCommonDiseaseReportService {
         return bloodPressureAndSpinalCurvatureVO;
     }
 
+    @EqualsAndHashCode(callSuper = true)
     @Data
     public static class VisionAnalysisNum extends EntityFunction{
         /**
@@ -520,7 +522,7 @@ public class SchoolCommonDiseaseReportService {
         /**
          * 龋均
          */
-        private BigDecimal dmftRatio;
+        private String dmftRatio;
 
         /**
          * 有龋人数
@@ -642,7 +644,7 @@ public class SchoolCommonDiseaseReportService {
          * 不带%
          */
         public CommonDiseasesNum ratioNotSymbol(){
-            this.dmftRatio = Optional.ofNullable(MathUtil.numNotSymbol(dmftNum,validScreeningNum)).orElse(ReportConst.ZERO_BIG_DECIMAL);
+            this.dmftRatio = Optional.ofNullable(MathUtil.num(dmftNum,validScreeningNum)).orElse(ReportConst.ZERO_STR);
             this.saprodontiaRatio = getRatioNotSymbol(saprodontiaNum,validScreeningNum);
             this.saprodontiaRepairRatio = getRatioNotSymbol(saprodontiaRepairNum,validScreeningNum);
             this.saprodontiaLossAndRepairRatio = getRatioNotSymbol(saprodontiaLossAndRepairNum,validScreeningNum);

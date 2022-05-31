@@ -60,17 +60,17 @@ public class SchoolSaprodontiaMonitorService {
         if (CollectionUtil.isEmpty(statConclusionList)){
             return;
         }
-        SaprodontiaNum saprodontiaNum = new SaprodontiaNum().build(statConclusionList).ratioNotSymbol();
+        SaprodontiaNum saprodontiaNum = new SaprodontiaNum().build(statConclusionList).ratioNotSymbol().ratio();
         SchoolSaprodontiaMonitorVO.SaprodontiaMonitorVariableVO saprodontiaMonitorVariableVO = buildSaprodontiaMonitorVariableVO(saprodontiaNum);
         schoolSaprodontiaMonitorVO.setSaprodontiaMonitorVariableVO(saprodontiaMonitorVariableVO);
     }
     private SchoolSaprodontiaMonitorVO.SaprodontiaMonitorVariableVO buildSaprodontiaMonitorVariableVO(SaprodontiaNum saprodontiaNum){
         SchoolSaprodontiaMonitorVO.SaprodontiaMonitorVariableVO saprodontiaMonitorVariableVO = new SchoolSaprodontiaMonitorVO.SaprodontiaMonitorVariableVO();
         saprodontiaMonitorVariableVO.setDmftRatio(saprodontiaNum.dmftRatio);
-        saprodontiaMonitorVariableVO.setSaprodontiaRatio(saprodontiaNum.saprodontiaRatio);
-        saprodontiaMonitorVariableVO.setSaprodontiaRepairRatio(saprodontiaNum.saprodontiaRepairRatio);
-        saprodontiaMonitorVariableVO.setSaprodontiaLossAndRepairRatio(saprodontiaNum.saprodontiaLossAndRepairRatio);
-        saprodontiaMonitorVariableVO.setSaprodontiaLossAndRepairTeethRatio(saprodontiaNum.saprodontiaLossAndRepairTeethRatio);
+        saprodontiaMonitorVariableVO.setSaprodontiaRatio(saprodontiaNum.saprodontiaRatioStr);
+        saprodontiaMonitorVariableVO.setSaprodontiaRepairRatio(saprodontiaNum.saprodontiaRepairRatioStr);
+        saprodontiaMonitorVariableVO.setSaprodontiaLossAndRepairRatio(saprodontiaNum.saprodontiaLossAndRepairRatioStr);
+        saprodontiaMonitorVariableVO.setSaprodontiaLossAndRepairTeethRatio(saprodontiaNum.saprodontiaLossAndRepairTeethRatioStr);
         return saprodontiaMonitorVariableVO;
     }
 
@@ -437,7 +437,7 @@ public class SchoolSaprodontiaMonitorService {
         /**
          * 龋均
          */
-        private BigDecimal dmftRatio;
+        private String dmftRatio;
 
         /**
          * 有龋人数
@@ -503,6 +503,14 @@ public class SchoolSaprodontiaMonitorService {
          * 龋补率
          */
         private String saprodontiaRepairRatioStr;
+        /**
+         * 龋患（失、补）率
+         */
+        private String saprodontiaLossAndRepairRatioStr;
+        /**
+         * 龋患（失、补）构成比
+         */
+        private String saprodontiaLossAndRepairTeethRatioStr;
 
 
         /**
@@ -539,7 +547,7 @@ public class SchoolSaprodontiaMonitorService {
          * 不带%
          */
         public SaprodontiaNum ratioNotSymbol(){
-            this.dmftRatio = Optional.ofNullable(MathUtil.numNotSymbol(dmftNum,validScreeningNum)).orElse(ReportConst.ZERO_BIG_DECIMAL);
+            this.dmftRatio = Optional.ofNullable(MathUtil.num(dmftNum,validScreeningNum)).orElse(ReportConst.ZERO_STR);
             this.saprodontiaRatio = getRatioNotSymbol(saprodontiaNum,validScreeningNum);
             this.saprodontiaLossRatio =getRatioNotSymbol(saprodontiaLossNum,validScreeningNum);
             this.saprodontiaRepairRatio = getRatioNotSymbol(saprodontiaRepairNum,validScreeningNum);
@@ -552,10 +560,12 @@ public class SchoolSaprodontiaMonitorService {
          * 带%
          */
         public SaprodontiaNum ratio(){
-            this.dmftRatio = Optional.ofNullable(MathUtil.numNotSymbol(dmftNum,validScreeningNum)).orElse(ReportConst.ZERO_BIG_DECIMAL);
+            this.dmftRatio = Optional.ofNullable(MathUtil.num(dmftNum,validScreeningNum)).orElse(ReportConst.ZERO_STR);
             this.saprodontiaRatioStr = getRatio(saprodontiaNum,validScreeningNum);
             this.saprodontiaLossRatioStr =getRatio(saprodontiaLossNum,validScreeningNum);
             this.saprodontiaRepairRatioStr = getRatio(saprodontiaRepairNum,validScreeningNum);
+            this.saprodontiaLossAndRepairRatioStr = getRatio(saprodontiaLossAndRepairNum,validScreeningNum);
+            this.saprodontiaLossAndRepairTeethRatioStr =getRatio(saprodontiaLossAndRepairTeethNum,dmftNum);
             return this;
         }
     }
