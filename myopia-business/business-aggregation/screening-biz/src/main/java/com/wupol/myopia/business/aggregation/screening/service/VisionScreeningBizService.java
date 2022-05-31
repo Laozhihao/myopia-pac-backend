@@ -4,8 +4,10 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.common.utils.constant.LowVisionLevelEnum;
+import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
@@ -279,7 +281,9 @@ public class VisionScreeningBizService {
         student.setUpdateTime(new Date());
         student.setAstigmatismLevel(statConclusion.getAstigmatismLevel());
         student.setHyperopiaLevel(statConclusion.getHyperopiaLevel());
-        if (statConclusion.getAge() >= 6){
+        String schoolGradeCode = statConclusion.getSchoolGradeCode();
+        GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeCode);
+        if (!Objects.equals(SchoolAge.KINDERGARTEN.code,gradeCodeEnum.getType())){
             //小学及以上的数据同步
             student.setMyopiaLevel(statConclusion.getMyopiaLevel());
             student.setScreeningMyopia(statConclusion.getScreeningMyopia());
