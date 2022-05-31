@@ -52,7 +52,7 @@ public enum ScreeningTypeEnum {
      * @return boolean
      **/
     public static boolean isVisionScreeningType(Integer screeningType) {
-        return ScreeningTypeEnum.COMMON_DISEASE.getType().equals(screeningType);
+        return ScreeningTypeEnum.VISION.getType().equals(screeningType);
     }
 
 }
