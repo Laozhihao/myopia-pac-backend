@@ -313,7 +313,7 @@ public class StatConclusionBuilder {
         Integer warningLevelInt = StatUtil.getWarningLevelInt(
                 basicData.getLeftCyl(),basicData.getLeftSph(),basicData.getLeftNakedVision(),
                 basicData.getRightCyl(),basicData.getRightSph(),basicData.getRightNakedVision(),
-                basicData.getAge(),Optional.ofNullable(gradeCodeEnum).map(GradeCodeEnum::getType).orElse(null));
+                basicData.getAge(),gradeCodeEnum.getType());
         statConclusion.setWarningLevel(warningLevelInt);
     }
 
@@ -401,7 +401,7 @@ public class StatConclusionBuilder {
         Boolean isRecommendVisit = ScreeningResultUtil.getDoctorAdvice(
                 basicData.getLeftNakedVision(),basicData.getRightNakedVision(),
                 basicData.getLeftCorrectVision(),basicData.getRightCorrectVision(),
-                basicData.getGlassesType(), Optional.ofNullable(gradeCodeEnum).map(GradeCodeEnum::getType).orElse(null), basicData.getAge(), otherEyeDiseasesNormal,
+                basicData.getGlassesType(), gradeCodeEnum.getType(), basicData.getAge(), otherEyeDiseasesNormal,
                 currentVisionScreeningResult.getComputerOptometry()).getIsRecommendVisit();
         statConclusion.setIsRecommendVisit(isRecommendVisit);
     }
