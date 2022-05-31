@@ -372,6 +372,8 @@ public class VisionScreeningBizService {
             student.setScreeningMyopia(statConclusion.getScreeningMyopia());
             if (Objects.nonNull(statConclusion.getIsLowVision()) && statConclusion.getIsLowVision()) {
                 student.setLowVision(LowVisionLevelEnum.LOW_VISION.code);
+            }else {
+                student.setLowVision(null);
             }
         }
         studentService.updateScreenStudent(student);
