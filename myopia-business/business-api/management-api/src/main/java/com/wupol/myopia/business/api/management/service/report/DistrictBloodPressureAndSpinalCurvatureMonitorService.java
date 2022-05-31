@@ -9,11 +9,11 @@ import com.wupol.myopia.business.api.management.domain.vo.report.DistrictBloodPr
 import com.wupol.myopia.business.api.management.domain.vo.report.DistrictCommonDiseasesAnalysisVO;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
-import com.wupol.myopia.business.common.utils.util.MathUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -372,7 +372,10 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorService {
         Map<String, List<StatConclusion>> gradeCodeMap = conclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
         MapUtil.sort(gradeCodeMap);
         List<DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureMonitorTable> gradeList = Lists.newArrayList();
-        gradeCodeMap.forEach((grade,list)-> getBloodPressureAndSpinalCurvatureSchoolAgeTable(list,grade,gradeList));
+        gradeCodeMap.forEach((grade,list)-> {
+            GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(grade);
+            getBloodPressureAndSpinalCurvatureSchoolAgeTable(list,gradeCodeEnum.getName(),gradeList);
+        });
         getBloodPressureAndSpinalCurvatureSchoolAgeTable(conclusionList,SchoolAge.get(schoolAge).desc,gradeList);
 
         return gradeList;
@@ -497,8 +500,9 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorService {
         tableList.add(bloodPressureAndSpinalCurvatureMonitorTable);
     }
 
+    @EqualsAndHashCode(callSuper = true)
     @Data
-    private static class BloodPressureAndSpinalCurvatureNum{
+    private static class BloodPressureAndSpinalCurvatureNum extends EntityFunction{
 
         /**
          * 筛查人数
@@ -546,15 +550,9 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorService {
         public BloodPressureAndSpinalCurvatureNum build(List<StatConclusion> statConclusionList){
             this.validScreeningNum = statConclusionList.size();
 
-            List<Boolean> abnormalSpineCurvatureList = getList(statConclusionList, StatConclusion::getIsSpinalCurvature);
-            if (CollectionUtil.isNotEmpty(abnormalSpineCurvatureList)){
-                this.abnormalSpineCurvatureNum =abnormalSpineCurvatureList.size();
-            }
-            List<StatConclusion> highBloodPressureList = statConclusionList.stream()
-                    .filter(sc -> Objects.equals(Boolean.FALSE, sc.getIsNormalBloodPressure())).collect(Collectors.toList());
-            if (CollectionUtil.isNotEmpty(highBloodPressureList)){
-                this.highBloodPressureNum =highBloodPressureList.size();
-            }
+            this.abnormalSpineCurvatureNum = getCount(statConclusionList, StatConclusion::getIsSpinalCurvature);
+            this.highBloodPressureNum = (int)statConclusionList.stream()
+                    .filter(sc -> Objects.equals(Boolean.FALSE, sc.getIsNormalBloodPressure())).count();
             return this;
         }
 
@@ -562,13 +560,8 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorService {
          * 不带%
          */
         public BloodPressureAndSpinalCurvatureNum ratioNotSymbol(){
-            if (Objects.nonNull(abnormalSpineCurvatureNum)){
-                this.abnormalSpineCurvatureRatio = MathUtil.ratioNotSymbol(abnormalSpineCurvatureNum,validScreeningNum);
-            }
-            if (Objects.nonNull(highBloodPressureNum)){
-                this.highBloodPressureRatio = MathUtil.ratioNotSymbol(highBloodPressureNum,validScreeningNum);
-            }
-
+            this.abnormalSpineCurvatureRatio = getRatioNotSymbol(abnormalSpineCurvatureNum,validScreeningNum);
+            this.highBloodPressureRatio = getRatioNotSymbol(highBloodPressureNum,validScreeningNum);
             return this;
         }
 
@@ -576,21 +569,9 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorService {
          * 带%
          */
         public BloodPressureAndSpinalCurvatureNum ratio(){
-            if (Objects.nonNull(abnormalSpineCurvatureNum)){
-                this.abnormalSpineCurvatureRatioStr = MathUtil.ratio(abnormalSpineCurvatureNum,validScreeningNum);
-            }
-            if (Objects.nonNull(highBloodPressureNum)){
-                this.highBloodPressureRatioStr = MathUtil.ratio(highBloodPressureNum,validScreeningNum);
-            }
-
+            this.abnormalSpineCurvatureRatioStr = getRatio(abnormalSpineCurvatureNum,validScreeningNum);
+            this.highBloodPressureRatioStr = getRatio(highBloodPressureNum,validScreeningNum);
             return this;
-        }
-
-        private List<Boolean> getList(List<StatConclusion> statConclusionList, Function<StatConclusion,Boolean> function){
-            if (CollectionUtil.isEmpty(statConclusionList)){
-                return Lists.newArrayList();
-            }
-            return statConclusionList.stream().map(function).filter(Objects::nonNull).filter(Boolean::booleanValue).collect(Collectors.toList());
         }
 
         public BloodPressureAndSpinalCurvatureNum setGender(Integer gender) {

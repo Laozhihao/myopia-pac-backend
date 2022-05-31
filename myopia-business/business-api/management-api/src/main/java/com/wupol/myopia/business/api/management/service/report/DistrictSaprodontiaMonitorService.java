@@ -5,6 +5,7 @@ import cn.hutool.core.map.MapUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.business.api.management.constant.AgeSegmentEnum;
+import com.wupol.myopia.business.api.management.constant.ReportConst;
 import com.wupol.myopia.business.api.management.domain.vo.report.DistrictCommonDiseasesAnalysisVO;
 import com.wupol.myopia.business.api.management.domain.vo.report.DistrictSaprodontiaMonitorVO;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
@@ -14,6 +15,7 @@ import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -280,7 +282,7 @@ public class DistrictSaprodontiaMonitorService {
             return null;
         }
 
-        SaprodontiaNum saprodontiaNum = new SaprodontiaNum().build(statConclusionList);
+        SaprodontiaNum saprodontiaNum = new SaprodontiaNum().build(statConclusionList).ratioNotSymbol();
 
         DistrictSaprodontiaMonitorVO.SaprodontiaSchoolAge saprodontiaSchoolAge = new DistrictSaprodontiaMonitorVO.SaprodontiaSchoolAge();
 
@@ -393,18 +395,20 @@ public class DistrictSaprodontiaMonitorService {
         if (CollectionUtil.isEmpty(statConclusionList)){
             return Lists.newArrayList();
         }
-        int validScreeningNum = statConclusionList.size();
         List<StatConclusion> conclusionList = statConclusionList.stream().filter(sc -> Objects.equals(sc.getSchoolAge(), schoolAge)).collect(Collectors.toList());
         Map<String, List<StatConclusion>> gradeCodeMap = conclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
         MapUtil.sort(gradeCodeMap);
         List<DistrictSaprodontiaMonitorVO.SaprodontiaMonitorTable> gradeList = Lists.newArrayList();
-        gradeCodeMap.forEach((grade,list)-> getSaprodontiaSchoolAgeTable(list,grade,validScreeningNum,gradeList));
-        getSaprodontiaSchoolAgeTable(conclusionList,SchoolAge.get(schoolAge).desc,validScreeningNum,gradeList);
+        gradeCodeMap.forEach((grade,list)-> {
+            GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(grade);
+            getSaprodontiaSchoolAgeTable(list,gradeCodeEnum.getName(),gradeList);
+        });
+        getSaprodontiaSchoolAgeTable(conclusionList,SchoolAge.get(schoolAge).desc,gradeList);
 
         return gradeList;
     }
 
-    private void getSaprodontiaSchoolAgeTable(List<StatConclusion> statConclusionList,String grade,int validScreeningNum,List<DistrictSaprodontiaMonitorVO.SaprodontiaMonitorTable> gradeList) {
+    private void getSaprodontiaSchoolAgeTable(List<StatConclusion> statConclusionList,String grade,List<DistrictSaprodontiaMonitorVO.SaprodontiaMonitorTable> gradeList) {
         if (CollectionUtil.isEmpty(statConclusionList)){
             return;
         }
@@ -523,8 +527,9 @@ public class DistrictSaprodontiaMonitorService {
         tableList.add(saprodontiaAgeMonitorTable);
     }
 
+    @EqualsAndHashCode(callSuper = true)
     @Data
-    private static class SaprodontiaNum{
+    private static class SaprodontiaNum extends EntityFunction{
 
         /**
          * 筛查人数
@@ -539,7 +544,7 @@ public class DistrictSaprodontiaMonitorService {
         /**
          * 龋均
          */
-        private String dmftRatio;
+        private BigDecimal dmftRatio;
 
         /**
          * 有龋人数
@@ -619,81 +624,35 @@ public class DistrictSaprodontiaMonitorService {
 
         public SaprodontiaNum build(List<StatConclusion> statConclusionList){
 
-            if (CollectionUtil.isNotEmpty(statConclusionList)){
-                this.validScreeningNum = statConclusionList.size();
-            }
+            this.validScreeningNum = statConclusionList.size();
 
             Predicate<StatConclusion> predicateTrue = sc -> Objects.equals(Boolean.TRUE, sc.getIsSaprodontiaLoss()) || Objects.equals(Boolean.TRUE, sc.getIsSaprodontiaRepair()) || Objects.equals(Boolean.TRUE, sc.getIsSaprodontia());
             ToIntFunction<StatConclusion> totalFunction = sc -> Optional.ofNullable(sc.getSaprodontiaLossTeeth()).orElse(0) + Optional.ofNullable(sc.getSaprodontiaRepairTeeth()).orElse(0) + Optional.ofNullable(sc.getSaprodontiaTeeth()).orElse(0);
-
-            List<StatConclusion> dmftList = statConclusionList.stream().filter(Objects::nonNull).filter(predicateTrue).collect(Collectors.toList());
-            if (CollectionUtil.isNotEmpty(dmftList)){
-                this.dmftNum = dmftList.stream().mapToInt(totalFunction).sum();
-            }
+            this.dmftNum = statConclusionList.stream().filter(Objects::nonNull).filter(predicateTrue).mapToInt(totalFunction).sum();
 
             Predicate<StatConclusion> lossAndRepairPredicateTrue = sc -> Objects.equals(Boolean.TRUE, sc.getIsSaprodontiaLoss()) || Objects.equals(Boolean.TRUE, sc.getIsSaprodontiaRepair());
             ToIntFunction<StatConclusion> lossAndRepairTotalFunction = sc -> Optional.ofNullable(sc.getSaprodontiaLossTeeth()).orElse(0) + Optional.ofNullable(sc.getSaprodontiaRepairTeeth()).orElse(0);
+            this.saprodontiaLossAndRepairTeethNum  = statConclusionList.stream().filter(Objects::nonNull).filter(lossAndRepairPredicateTrue).mapToInt(lossAndRepairTotalFunction).sum();
 
-            List<StatConclusion> lossAndRepairTeethList = statConclusionList.stream().filter(Objects::nonNull).filter(lossAndRepairPredicateTrue).collect(Collectors.toList());
-            if (CollectionUtil.isNotEmpty(lossAndRepairTeethList)){
-                this.saprodontiaLossAndRepairTeethNum = lossAndRepairTeethList.stream().mapToInt(lossAndRepairTotalFunction).sum();
-            }
-
-            List<Boolean> saprodontiaList = getList(statConclusionList, StatConclusion::getIsSaprodontia);
-            if (CollectionUtil.isNotEmpty(saprodontiaList)){
-                this.saprodontiaNum = (int) saprodontiaList.stream().filter(Boolean::booleanValue).count();
-            }
-
-            List<Boolean> saprodontiaLossList = getList(statConclusionList, StatConclusion::getIsSaprodontiaLoss);
-            if (CollectionUtil.isNotEmpty(saprodontiaLossList)){
-                this.saprodontiaLossNum = (int) saprodontiaLossList.stream().filter(Boolean::booleanValue).count();
-            }
-
-            List<Boolean> saprodontiaRepairList = getList(statConclusionList, StatConclusion::getIsSaprodontiaRepair);
-            if (CollectionUtil.isNotEmpty(saprodontiaRepairList)){
-                this.saprodontiaRepairNum = (int) saprodontiaRepairList.stream().filter(Boolean::booleanValue).count();
-            }
-            List<StatConclusion> lossAndRepairList = statConclusionList.stream()
-                    .filter(sc -> Objects.equals(Boolean.TRUE, sc.getIsSaprodontiaLoss()) || Objects.equals(Boolean.TRUE, sc.getIsSaprodontiaRepair())).collect(Collectors.toList());
-            if (CollectionUtil.isNotEmpty(lossAndRepairList)){
-                this.saprodontiaLossAndRepairNum = lossAndRepairList.size();
-            }
+            this.saprodontiaNum  = getCount(statConclusionList, StatConclusion::getIsSaprodontia);
+            this.saprodontiaLossNum = getCount(statConclusionList, StatConclusion::getIsSaprodontiaLoss);
+            this.saprodontiaRepairNum = getCount(statConclusionList, StatConclusion::getIsSaprodontiaRepair);
+            this.saprodontiaLossAndRepairNum = (int)statConclusionList.stream()
+                    .filter(lossAndRepairPredicateTrue).count();
 
             return this;
-        }
-
-        private List<Boolean> getList(List<StatConclusion> statConclusionList, Function<StatConclusion,Boolean> function){
-            if (CollectionUtil.isEmpty(statConclusionList)){
-                return Lists.newArrayList();
-            }
-            return statConclusionList.stream().map(function).filter(Objects::nonNull).collect(Collectors.toList());
         }
 
         /**
          * 不带%
          */
         public SaprodontiaNum ratioNotSymbol(){
-
-            if (Objects.nonNull(dmftNum)){
-                this.dmftRatio = MathUtil.num(dmftNum,validScreeningNum);
-            }
-
-            if (Objects.nonNull(saprodontiaNum)){
-                this.saprodontiaRatio = MathUtil.ratioNotSymbol(saprodontiaNum,validScreeningNum);
-            }
-            if (Objects.nonNull(saprodontiaLossNum)){
-                this.saprodontiaLossRatio =MathUtil.ratioNotSymbol(saprodontiaLossNum,validScreeningNum);
-            }
-            if (Objects.nonNull(saprodontiaRepairNum)){
-                this.saprodontiaRepairRatio = MathUtil.ratioNotSymbol(saprodontiaRepairNum,validScreeningNum);
-            }
-            if (Objects.nonNull(saprodontiaLossAndRepairNum)){
-                this.saprodontiaLossAndRepairRatio = MathUtil.ratioNotSymbol(saprodontiaLossAndRepairNum,validScreeningNum);
-            }
-            if (Objects.nonNull(saprodontiaLossAndRepairTeethNum) && Objects.nonNull(dmftNum)){
-                this.saprodontiaLossAndRepairTeethRatio =MathUtil.ratioNotSymbol(saprodontiaLossAndRepairTeethNum,dmftNum);
-            }
-
+            this.dmftRatio = Optional.ofNullable(MathUtil.numNotSymbol(dmftNum,validScreeningNum)).orElse(ReportConst.ZERO_BIG_DECIMAL);
+            this.saprodontiaRatio = getRatioNotSymbol(saprodontiaNum,validScreeningNum);
+            this.saprodontiaLossRatio =getRatioNotSymbol(saprodontiaLossNum,validScreeningNum);
+            this.saprodontiaRepairRatio = getRatioNotSymbol(saprodontiaRepairNum,validScreeningNum);
+            this.saprodontiaLossAndRepairRatio = getRatioNotSymbol(saprodontiaLossAndRepairNum,validScreeningNum);
+            this.saprodontiaLossAndRepairTeethRatio =getRatioNotSymbol(saprodontiaLossAndRepairTeethNum,dmftNum);
             return this;
         }
 
@@ -701,20 +660,10 @@ public class DistrictSaprodontiaMonitorService {
          * 带%
          */
         public SaprodontiaNum ratio(){
-            if (Objects.nonNull(dmftNum)){
-                this.dmftRatio = MathUtil.num(dmftNum,validScreeningNum);
-            }
-
-            if (Objects.nonNull(saprodontiaNum)){
-                this.saprodontiaRatioStr = MathUtil.ratio(saprodontiaNum,validScreeningNum);
-            }
-            if (Objects.nonNull(saprodontiaLossNum)){
-                this.saprodontiaLossRatioStr =MathUtil.ratio(saprodontiaLossNum,validScreeningNum);
-            }
-            if (Objects.nonNull(saprodontiaRepairNum)){
-                this.saprodontiaRepairRatioStr = MathUtil.ratio(saprodontiaRepairNum,validScreeningNum);
-            }
-
+            this.dmftRatio = Optional.ofNullable(MathUtil.numNotSymbol(dmftNum,validScreeningNum)).orElse(ReportConst.ZERO_BIG_DECIMAL);
+            this.saprodontiaRatioStr = getRatio(saprodontiaNum,validScreeningNum);
+            this.saprodontiaLossRatioStr =getRatio(saprodontiaLossNum,validScreeningNum);
+            this.saprodontiaRepairRatioStr = getRatio(saprodontiaRepairNum,validScreeningNum);
             return this;
         }
     }

@@ -139,7 +139,7 @@ public class DistrictCommonDiseasesAnalysisVO {
         /**
          * 龋均
          */
-        private String dmftRatio;
+        private BigDecimal dmftRatio;
 
         /**
          * 有龋人数

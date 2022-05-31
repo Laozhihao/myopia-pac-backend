@@ -53,7 +53,7 @@ public class MathUtil {
      * 占比 （不带%）
      */
     public BigDecimal ratioNotSymbol(Integer numerator,Integer denominator){
-        if(ObjectsUtil.allNull(numerator,denominator)){
+        if(ObjectsUtil.hasNull(numerator,denominator)){
             return null;
         }
         return ratioNotSymbol(new BigDecimal(numerator),new BigDecimal(denominator));
@@ -72,7 +72,9 @@ public class MathUtil {
     }
 
     public BigDecimal numNotSymbol(Integer numerator, Integer denominator) {
-        Assert.isTrue(ObjectsUtil.allNotNull(numerator,denominator),"分子和分母不都为空");
+        if(ObjectsUtil.hasNull(numerator,denominator)){
+            return null;
+        }
         if (numerator == 0 ||denominator == 0) {
             return new BigDecimal("0.00");
         }
@@ -80,7 +82,9 @@ public class MathUtil {
     }
 
     public String ratio(Integer numerator, Integer denominator,DecimalFormat df) {
-        Assert.isTrue(ObjectsUtil.allNotNull(numerator,denominator,df),"分子和分母不都为空");
+        if(ObjectsUtil.hasNull(numerator,denominator,df)){
+            return null;
+        }
         if (numerator == 0 ||denominator == 0) {
             return df.format(new BigDecimal("0"));
         }

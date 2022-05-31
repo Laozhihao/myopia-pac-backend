@@ -1,5 +1,7 @@
 package com.wupol.myopia.business.api.management.constant;
 
+import java.math.BigDecimal;
+
 /**
  * 报告常量类型
  *
@@ -36,4 +38,14 @@ public class ReportConst {
      * 回执单
      */
     public static final String TYPE_RECEIPT = "receipt";
+
+    /**
+     * 零
+     */
+    public static final Integer ZERO = 0;
+    /**
+     * 零（占比）
+     */
+    public static final BigDecimal ZERO_BIG_DECIMAL = new BigDecimal("0.00");
+    public static final String ZERO_RATIO_STR = "0.00%";
 }

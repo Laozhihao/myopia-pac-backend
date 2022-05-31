@@ -2,8 +2,8 @@ package com.wupol.myopia.business.api.management.domain.vo.report;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -41,7 +41,7 @@ public class DistrictSaprodontiaMonitorVO {
         /**
          * 龋均
          */
-        private String dmftRatio;
+        private BigDecimal dmftRatio;
 
 
     }
@@ -240,9 +240,5 @@ public class DistrictSaprodontiaMonitorVO {
          */
         private Integer validScreeningNum;
 
-        /**
-         * 龋均
-         */
-        private String dmftRatio;
     }
 }

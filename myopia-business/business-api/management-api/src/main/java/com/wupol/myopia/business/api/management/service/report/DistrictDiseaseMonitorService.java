@@ -3,6 +3,7 @@ package com.wupol.myopia.business.api.management.service.report;
 import cn.hutool.core.collection.CollectionUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.wupol.myopia.business.api.management.constant.ReportConst;
 import com.wupol.myopia.business.api.management.domain.vo.report.DistrictCommonDiseasesAnalysisVO;
 import com.wupol.myopia.business.api.management.domain.vo.report.DistrictDiseaseMonitorVO;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
@@ -222,7 +223,7 @@ public class DistrictDiseaseMonitorService {
     }
 
     @Data
-    private static class DiseaseNum{
+    private static class DiseaseNum extends EntityFunction{
 
         private Integer validScreeningNum;
         /**
@@ -295,31 +296,11 @@ public class DistrictDiseaseMonitorService {
 
         public DiseaseNum build(List<StatConclusion> statConclusionList){
             this.validScreeningNum = statConclusionList.size();
-
-            List<Integer> anemiaList = getList(statConclusionList, DiseaseNumDO::getAnemia);
-            if (CollectionUtil.isNotEmpty(anemiaList)){
-                this.anemia = anemiaList.stream().mapToInt(Integer::intValue).sum();
-            }
-
-            List<Integer> hypertensionList = getList(statConclusionList, DiseaseNumDO::getHypertension);
-            if (CollectionUtil.isNotEmpty(hypertensionList)){
-                this.hypertension = hypertensionList.stream().mapToInt(Integer::intValue).sum();
-            }
-
-            List<Integer> diabetesList = getList(statConclusionList, DiseaseNumDO::getDiabetes);
-            if (CollectionUtil.isNotEmpty(diabetesList)){
-                this.diabetes = diabetesList.stream().mapToInt(Integer::intValue).sum();
-            }
-
-            List<Integer> allergicAsthmaList = getList(statConclusionList, DiseaseNumDO::getAllergicAsthma);
-            if (CollectionUtil.isNotEmpty(allergicAsthmaList)){
-                this.allergicAsthma = allergicAsthmaList.stream().mapToInt(Integer::intValue).sum();
-            }
-
-            List<Integer> physicalDisabilityList = getList(statConclusionList, DiseaseNumDO::getPhysicalDisability);
-            if (CollectionUtil.isNotEmpty(physicalDisabilityList)){
-                this.physicalDisability = physicalDisabilityList.stream().mapToInt(Integer::intValue).sum();
-            }
+            this.anemia = getSum(statConclusionList, DiseaseNumDO::getAnemia);
+            this.hypertension = getSum(statConclusionList, DiseaseNumDO::getHypertension);
+            this.diabetes = getSum(statConclusionList, DiseaseNumDO::getDiabetes);
+            this.allergicAsthma  = getSum(statConclusionList, DiseaseNumDO::getAllergicAsthma);
+            this.physicalDisability = getSum(statConclusionList, DiseaseNumDO::getPhysicalDisability);
             return this;
         }
 
@@ -327,22 +308,11 @@ public class DistrictDiseaseMonitorService {
          * 不带%
          */
         public DiseaseNum ratioNotSymbol(){
-            if (Objects.nonNull(anemia)){
-                this.anemiaRatio = MathUtil.ratioNotSymbol(anemia,validScreeningNum);
-            }
-            if (Objects.nonNull(hypertension)){
-                this.hypertensionRatio = MathUtil.ratioNotSymbol(hypertension,validScreeningNum);
-            }
-            if (Objects.nonNull(diabetes)){
-                this.diabetesRatio = MathUtil.ratioNotSymbol(diabetes,validScreeningNum);
-            }
-            if (Objects.nonNull(allergicAsthma)){
-                this.allergicAsthmaRatio = MathUtil.ratioNotSymbol(allergicAsthma,validScreeningNum);
-            }
-            if (Objects.nonNull(physicalDisability)){
-                this.physicalDisabilityRatio = MathUtil.ratioNotSymbol(physicalDisability,validScreeningNum);
-            }
-
+            this.anemiaRatio = getRatioNotSymbol(anemia,validScreeningNum);
+            this.hypertensionRatio = getRatioNotSymbol(hypertension,validScreeningNum);
+            this.diabetesRatio = getRatioNotSymbol(diabetes,validScreeningNum);
+            this.allergicAsthmaRatio = getRatioNotSymbol(allergicAsthma,validScreeningNum);
+            this.physicalDisabilityRatio = getRatioNotSymbol(physicalDisability,validScreeningNum);
             return this;
         }
 
@@ -350,32 +320,22 @@ public class DistrictDiseaseMonitorService {
          * 不带%
          */
         public DiseaseNum ratio(){
-            if (Objects.nonNull(anemia)){
-                this.anemiaRatioStr = MathUtil.ratio(anemia,validScreeningNum);
-            }
-            if (Objects.nonNull(hypertension)){
-                this.hypertensionRatioStr = MathUtil.ratio(hypertension,validScreeningNum);
-            }
-            if (Objects.nonNull(diabetes)){
-                this.diabetesRatioStr = MathUtil.ratio(diabetes,validScreeningNum);
-            }
-            if (Objects.nonNull(allergicAsthma)){
-                this.allergicAsthmaRatioStr = MathUtil.ratio(allergicAsthma,validScreeningNum);
-            }
-            if (Objects.nonNull(physicalDisability)){
-                this.physicalDisabilityRatioStr = MathUtil.ratio(physicalDisability,validScreeningNum);
-            }
-
+            this.anemiaRatioStr = getRatio(anemia,validScreeningNum);
+            this.hypertensionRatioStr = getRatio(hypertension,validScreeningNum);
+            this.diabetesRatioStr = getRatio(diabetes,validScreeningNum);
+            this.allergicAsthmaRatioStr = getRatio(allergicAsthma,validScreeningNum);
+            this.physicalDisabilityRatioStr = getRatio(physicalDisability,validScreeningNum);
             return this;
         }
 
-        private List<Integer> getList(List<StatConclusion> statConclusionList,Function<DiseaseNumDO,Integer> function){
-            List<StatConclusion> conclusionList = statConclusionList.stream().filter(sc -> Objects.nonNull(sc.getDiseaseNum())).collect(Collectors.toList());
-            if (CollectionUtil.isNotEmpty(conclusionList)){
-               return conclusionList.stream().map(StatConclusion::getDiseaseNum).map(function).filter(Objects::nonNull).collect(Collectors.toList());
+        private Integer getSum(List<StatConclusion> statConclusionList, Function<DiseaseNumDO,Integer> function){
+            if (CollectionUtil.isNotEmpty(statConclusionList)){
+               return statConclusionList.stream().map(StatConclusion::getDiseaseNum).filter(Objects::nonNull)
+                       .map(function).filter(Objects::nonNull).mapToInt(Integer::intValue).sum();
             }
-            return Lists.newArrayList();
+            return ReportConst.ZERO;
         }
+
     }
 
 
