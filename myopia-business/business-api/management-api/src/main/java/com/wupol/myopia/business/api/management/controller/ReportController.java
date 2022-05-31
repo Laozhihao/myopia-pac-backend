@@ -35,6 +35,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
 /**
@@ -358,9 +359,9 @@ public class ReportController {
      *
      */
     @GetMapping("/districtCommonDiseaseReport")
-    public ApiResult<DistrictCommonDiseaseReportVO> districtCommonDiseaseReport(@RequestParam Integer districtId,
-                                                                                @RequestParam Integer noticeId){
-        return ApiResult.success(commonDiseaseReportService.districtCommonDiseaseReport(districtId,noticeId));
+    public Callable<DistrictCommonDiseaseReportVO> districtCommonDiseaseReport(@RequestParam Integer districtId,
+                                                                               @RequestParam Integer noticeId){
+        return commonDiseaseReportService.districtCommonDiseaseReport(districtId,noticeId);
     }
 
     /**

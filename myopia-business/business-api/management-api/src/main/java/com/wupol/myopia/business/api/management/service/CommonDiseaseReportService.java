@@ -5,10 +5,12 @@ import com.wupol.myopia.business.api.management.domain.vo.report.DistrictCommonD
 import com.wupol.myopia.business.api.management.domain.vo.report.SchoolCommonDiseaseReportVO;
 import com.wupol.myopia.business.api.management.service.report.DistrictCommonDiseaseReportService;
 import com.wupol.myopia.business.api.management.service.report.SchoolCommonDiseaseReportService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
+import java.util.concurrent.Callable;
 
 /**
  * 常见病报告
@@ -16,6 +18,7 @@ import java.util.Objects;
  * @author hang.yuan 2022/5/19 14:09
  */
 @Service
+@Slf4j
 public class CommonDiseaseReportService {
 
     @Autowired
@@ -23,8 +26,8 @@ public class CommonDiseaseReportService {
     @Autowired
     private SchoolCommonDiseaseReportService schoolCommonDiseaseReportService;
 
-    public DistrictCommonDiseaseReportVO districtCommonDiseaseReport(Integer districtId,Integer noticeId){
-        return districtCommonDiseaseReportService.districtCommonDiseaseReport(districtId,noticeId);
+    public Callable<DistrictCommonDiseaseReportVO> districtCommonDiseaseReport(Integer districtId, Integer noticeId){
+        return () -> districtCommonDiseaseReportService.districtCommonDiseaseReport(districtId,noticeId);
     }
 
     public SchoolCommonDiseaseReportVO schoolCommonDiseaseReport(Integer schoolId,Integer noticeId,Integer planId){
