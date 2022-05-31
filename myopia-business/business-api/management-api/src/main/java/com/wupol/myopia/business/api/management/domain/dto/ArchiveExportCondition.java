@@ -57,7 +57,6 @@ public class ArchiveExportCondition {
     private Integer districtId;
 
     public String getPlanStudentIdsStr() {
-        return StringUtils.join(",", planStudentIds);
+        return StringUtils.join(planStudentIds,",");
     }
-
 }
