@@ -121,6 +121,7 @@ public class StatConclusionBuilder {
         //复测项次
         this.setRescreenItemNum();
 
+        this.setPhysiqueRescreenErrorNum();
         this.setReview();
         this.setPhysiqueRescreenErrorNum();
         this.setCooperative();
@@ -301,11 +302,11 @@ public class StatConclusionBuilder {
             statConclusion.setWarningLevel(WarningLevel.NORMAL.code);
             return;
         }
-
+        GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(gradeCode);
         Integer warningLevelInt = StatUtil.getWarningLevelInt(
                 basicData.getLeftCyl(),basicData.getLeftSph(),basicData.getLeftNakedVision(),
                 basicData.getRightCyl(),basicData.getRightSph(),basicData.getRightNakedVision(),
-                basicData.getAge(),basicData.getSchoolAge());
+                basicData.getAge(),Optional.ofNullable(gradeCodeEnum).map(GradeCodeEnum::getType).orElse(null));
         statConclusion.setWarningLevel(warningLevelInt);
     }
 
@@ -389,10 +390,11 @@ public class StatConclusionBuilder {
         OtherEyeDiseasesDO otherEyeDiseases = currentVisionScreeningResult.getOtherEyeDiseases();
         Boolean otherEyeDiseasesNormal = Optional.ofNullable(otherEyeDiseases).map(OtherEyeDiseasesDO::isNormal).orElse(null);
 
+        GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(gradeCode);
         Boolean isRecommendVisit = ScreeningResultUtil.getDoctorAdvice(
                 basicData.getLeftNakedVision(),basicData.getRightNakedVision(),
                 basicData.getLeftCorrectVision(),basicData.getRightCorrectVision(),
-                basicData.getGlassesType(), basicData.getSchoolAge(), basicData.getAge(), otherEyeDiseasesNormal,
+                basicData.getGlassesType(), Optional.ofNullable(gradeCodeEnum).map(GradeCodeEnum::getType).orElse(null), basicData.getAge(), otherEyeDiseasesNormal,
                 currentVisionScreeningResult.getComputerOptometry()).getIsRecommendVisit();
         statConclusion.setIsRecommendVisit(isRecommendVisit);
     }

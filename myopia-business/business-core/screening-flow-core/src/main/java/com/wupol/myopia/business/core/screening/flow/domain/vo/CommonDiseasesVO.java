@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.screening.flow.domain.vo;
 
+import com.wupol.myopia.business.core.screening.flow.domain.dos.DeviationDO;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -45,12 +46,6 @@ public class CommonDiseasesVO {
          * 身高-误差
          */
         private BigDecimal heightDeviation;
-
-        /**
-         * 身高-误差原因
-         */
-        private String heightDeviationRemark;
-
         /**
          * 体重
          */
@@ -65,9 +60,9 @@ public class CommonDiseasesVO {
         private BigDecimal weightDeviation;
 
         /**
-         * 体重-误差原因
+         * 身高体重-误差原因
          */
-        private String weightDeviationRemark;
+        private DeviationDO.HeightWeightDeviation heightWeightDeviation;
 
     }
 }

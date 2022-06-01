@@ -17,7 +17,7 @@ public class ScreeningDetailDO {
     /**
      * 总数
      */
-    private Long total;
+    private Integer total;
 
     /**
      * 详情

@@ -20,10 +20,10 @@ public class ScreeningDataContrastDTO {
     private long validScreeningNum;
 
     @ExcelProperty("平均视力(左)")
-    private Float averageVisionLeft;
+    private String averageVisionLeft;
 
     @ExcelProperty("平均视力(右)")
-    private Float averageVisionRight;
+    private String averageVisionRight;
 
     @ExcelProperty("视力低下人数")
     private long lowVisionNum;

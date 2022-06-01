@@ -419,7 +419,7 @@ CREATE TABLE `m_school`  (
   `gov_dept_id` int(11) NOT NULL COMMENT '部门ID',
   `district_id` int(11) NOT NULL COMMENT '行政区域ID',
   `district_province_code` tinyint(2) DEFAULT NULL COMMENT '行政区域-省Code（保留两位）',
-  `district_detail` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '行政区域名',
+  `district_detail` json NOT NULL COMMENT '行政区域json',
   `name` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '学校名称',
   `kind` tinyint(4) NOT NULL COMMENT '学校性质 0-公办 1-私办 2-其他',
   `kind_desc` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '学校性质描述 0-公办 1-私办 2-其他',
@@ -434,10 +434,14 @@ CREATE TABLE `m_school`  (
   `status` tinyint(4) NOT NULL DEFAULT 0 COMMENT '状态 0-启用 1-禁止 2-删除',
   `create_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
+  `district_area_code` bigint(20) DEFAULT NULL COMMENT '行政区域-区/县code（含省市）',
+  `area_type` tinyint(1) DEFAULT NULL COMMENT '片区：1好片、2中片、3差片',
+  `monitor_type` tinyint(1) DEFAULT NULL COMMENT '监测点：1城区、2郊县',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `m_school_school_no_uindex`(`school_no`) USING BTREE,
   UNIQUE INDEX `m_school_name_uindex`(`name`) USING BTREE,
-  INDEX `m_school_status_create_time_index`(`status`, `create_time`) USING BTREE
+  INDEX `m_school_status_create_time_index`(`status`, `create_time`) USING BTREE,
+  INDEX `m_school_district_area_code_area_type_monitor_type_index` (`district_area_code`,`area_type`,`monitor_type`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '学校表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
@@ -840,6 +844,9 @@ CREATE TABLE `m_stat_conclusion`  (
   `naked_vision_warning_level` int(11) DEFAULT NULL COMMENT '裸眼视力预警级别',
   `glasses_type` int(11) DEFAULT NULL COMMENT '眼镜类型',
   `vision_correction` int(11) DEFAULT NULL COMMENT '视力矫正状态',
+  `myopia_level` int(11) DEFAULT NULL COMMENT '近视预警等级',
+  `hyperopia_level` int(11) DEFAULT NULL COMMENT '远视等级',
+  `astigmatism_level` int(11) DEFAULT NULL COMMENT '散光等级',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `result_id_UNIQUE`(`result_id`) USING BTREE,
   INDEX `idx_m_stat_conclusion_result_id`(`result_id`) USING BTREE,
@@ -883,6 +890,10 @@ CREATE TABLE `m_student`  (
   `is_astigmatism` tinyint(1) DEFAULT NULL COMMENT '是否散光',
   `create_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
+  `school_id` int(11) DEFAULT NULL COMMENT '学校ID',
+  `myopia_level` tinyint(1) DEFAULT NULL COMMENT '近视等级：0-正常、1-筛查性近视、2-近视前期、3-低度近视、4-中度近视、5-重度近视',
+  `hyperopia_level` tinyint(1) DEFAULT NULL COMMENT '远视等级：0-正常、1-远视、2-低度远视、3-中度远视、4-重度远视',
+  `astigmatism_level` tinyint(1) DEFAULT NULL COMMENT '散光等级：0-正常、1-低度散光、2-中度散光、3-重度散光',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `m_student_id_card_uindex`(`id_card`) USING BTREE,
   INDEX `m_student_status_create_time_index`(`status`, `create_time`) USING BTREE,

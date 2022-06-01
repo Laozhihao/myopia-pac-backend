@@ -1,8 +1,9 @@
 package com.wupol.myopia.business.api.management.service;
 
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.StrUtil;
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.domain.CurrentUser;
-import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
@@ -28,6 +29,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.ReScreeningCardVO;
 import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.flow.util.ReScreenCardUtil;
+import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.stat.domain.dto.WarningInfo;
@@ -281,7 +283,7 @@ public class StatService {
                         .collect(Collectors.toList());
 
         List<StatConclusion> myopiaConclusions =
-                validConclusions.stream().filter(StatConclusion::getIsMyopia).collect(Collectors.toList());
+                validConclusions.stream().filter(sc-> Objects.equals(sc.getIsMyopia(),Boolean.TRUE)).collect(Collectors.toList());
 
         long totalFirstScreeningNum = firstScreenConclusions.size();
         long validFirstScreeningNum = validConclusions.size();
@@ -305,8 +307,9 @@ public class StatService {
                                 && Boolean.TRUE.equals(x.getIsValid()))
                         .collect(Collectors.toList());
 
-        RescreenStat rescreenStat = this.composeRescreenConclusion(rescreenConclusions);
-        TwoTuple<BigDecimal, BigDecimal> tuple = this.calculateAverageVision(validConclusions);
+        RescreenStat rescreenStat = this.rescreenConclusion(rescreenConclusions);
+
+        TwoTuple<BigDecimal, BigDecimal> tuple = StatUtil.calculateAverageVision(validConclusions);
         int planScreeningNum = getPlanScreeningStudentNum(notificationId, validDistrictIds);
         return ScreeningClassStat.builder().notificationId(notificationId)
                 .screeningNum(planScreeningNum)
@@ -314,8 +317,8 @@ public class StatService {
                 .validScreeningNum(validFirstScreeningNum)
                 .screeningFinishedRatio(planScreeningNum > 0 ?
                         convertToPercentage(totalFirstScreeningNum * 1f / planScreeningNum) : 0)
-                .averageVisionLeft(tuple.getFirst().floatValue())
-                .averageVisionRight(tuple.getSecond().floatValue())
+                .averageVisionLeft(tuple.getFirst())
+                .averageVisionRight(tuple.getSecond())
                 .tabGender(tabGender)
                 .tabSchoolAge(tabSchoolAge)
                 .rescreenStat(rescreenStat)
@@ -422,8 +425,8 @@ public class StatService {
                 .screeningNum(contrast.getScreeningNum())
                 .actualScreeningNum(contrast.getActualScreeningNum())
                 .validScreeningNum(contrast.getValidScreeningNum())
-                .averageVisionLeft(contrast.getAverageVisionLeft())
-                .averageVisionRight(contrast.getAverageVisionRight())
+                .averageVisionLeft(Optional.ofNullable(contrast.getAverageVisionLeft()).map(BigDecimal::toString).orElse(StrUtil.EMPTY))
+                .averageVisionRight(Optional.ofNullable(contrast.getAverageVisionRight()).map(BigDecimal::toString).orElse(StrUtil.EMPTY))
                 .lowVisionNum(contrast.getLowVisionNum())
                 .lowVisionRatio(nullToRatio(contrast.getLowVisionRatio()))
                 .wearingGlassesNum(contrast.getWearingGlassesNum())
@@ -565,7 +568,7 @@ public class StatService {
         long wearingGlassesIndexNum = wearingGlassesNum * WEARING_GLASSES_RESCREEN_INDEX_NUM;
         long withoutGlassesNum = totalScreeningNum - wearingGlassesNum;
         long withoutGlassesIndexNum = withoutGlassesNum * WITHOUT_GLASSES_RESCREEN_INDEX_NUM;
-        long errorIndexNum = rescreenConclusions.stream().mapToLong(StatConclusion::getRescreenErrorNum).sum();
+        long errorIndexNum = rescreenConclusions.stream().mapToLong(StatConclusion::getRescreenErrorNum).sum() - rescreenConclusions.stream().mapToLong(StatConclusion::getPhysiqueRescreenErrorNum).sum();
         return RescreenStat.builder()
                 .rescreenNum(rescreenConclusions.size())
                 .wearingGlassesRescreenIndexNum(WEARING_GLASSES_RESCREEN_INDEX_NUM)
@@ -576,6 +579,46 @@ public class StatService {
                 .incorrectItemNum(errorIndexNum)
                 .incorrectRatio(convertToPercentage(
                         errorIndexNum * 1f / (wearingGlassesIndexNum + withoutGlassesIndexNum)))
+                .build();
+    }
+
+    public RescreenStat rescreenConclusion(List<StatConclusion> rescreenConclusions) {
+
+        int totalScreeningNum = rescreenConclusions.size();
+        Integer screeningType =null;
+        List<Integer> typeList = rescreenConclusions.stream().map(StatConclusion::getScreeningType).distinct().collect(Collectors.toList());
+        if (CollectionUtil.isNotEmpty(typeList)){
+            screeningType=typeList.get(0);
+        }
+
+        long wearingGlassesNum = rescreenConclusions.stream().filter(x -> x.getGlassesType() > 0).count();
+        long withoutGlassesNum = rescreenConclusions.stream().filter(x -> !(x.getGlassesType() > 0)).count();
+        long rescreenItemNum = rescreenConclusions.stream().map(StatConclusion::getRescreenItemNum).filter(Objects::nonNull).mapToLong(Integer::longValue).sum();
+
+        RescreenStat.RescreenStatBuilder builder = RescreenStat.builder();
+
+        if (Objects.equals(screeningType,ScreeningTypeConst.COMMON_DISEASE)){
+            builder.wearingGlassesRescreenIndexNum(8);
+            builder.withoutGlassesRescreenIndexNum(6);
+            long wearingGlassesIndexNum = wearingGlassesNum * 8;
+            long withoutGlassesIndexNum = withoutGlassesNum * 6;
+            long errorIndexNum = rescreenConclusions.stream().mapToLong(StatConclusion::getRescreenErrorNum).sum();
+            builder.incorrectItemNum(errorIndexNum)
+                    .incorrectRatio(convertToPercentage(errorIndexNum * 1f / (wearingGlassesIndexNum + withoutGlassesIndexNum)));
+        }else {
+            builder.wearingGlassesRescreenIndexNum(6);
+            builder.withoutGlassesRescreenIndexNum(4);
+            long wearingGlassesIndexNum = wearingGlassesNum * 6;
+            long withoutGlassesIndexNum = withoutGlassesNum * 4;
+            long errorIndexNum = rescreenConclusions.stream().mapToLong(StatConclusion::getRescreenErrorNum).sum() - rescreenConclusions.stream().mapToLong(StatConclusion::getPhysiqueRescreenErrorNum).sum();
+            builder.incorrectItemNum(errorIndexNum)
+                    .incorrectRatio(convertToPercentage(errorIndexNum * 1f / (wearingGlassesIndexNum + withoutGlassesIndexNum)));
+        }
+        return builder
+                .rescreenNum(totalScreeningNum)
+                .wearingGlassesRescreenNum(wearingGlassesNum)
+                .withoutGlassesRescreenNum(withoutGlassesNum)
+                .rescreenItemNum(rescreenItemNum)
                 .build();
     }
 
@@ -591,13 +634,13 @@ public class StatService {
                 resultConclusion.stream().filter(x -> Boolean.FALSE.equals(x.getIsRescreen())).collect(Collectors.toList());
         List<StatConclusion> validConclusions =
                 firstScreeningConclusions.stream().filter(StatConclusion::getIsValid).collect(Collectors.toList());
-        long lowVisionNum = validConclusions.stream().filter(StatConclusion::getIsLowVision).count();
-        long refractiveErrorNum = validConclusions.stream().filter(StatConclusion::getIsRefractiveError).count();
+        long lowVisionNum = validConclusions.stream().filter(sc->Objects.equals(sc.getIsLowVision(),Boolean.TRUE)).count();
+        long refractiveErrorNum = validConclusions.stream().filter(sc->Objects.equals(sc.getIsRefractiveError(),Boolean.TRUE)).count();
         long wearingGlassesNum = validConclusions.stream().filter(x -> x.getGlassesType() > 0).count();
-        long myopiaNum = validConclusions.stream().filter(StatConclusion::getIsMyopia).count();
+        long myopiaNum = validConclusions.stream().filter(sc->Objects.equals(sc.getIsMyopia(),Boolean.TRUE)).count();
         long totalFirstScreeningNum = firstScreeningConclusions.size();
         long validFirstScreeningNum = validConclusions.size();
-        long recommendVisitNum = validConclusions.stream().filter(StatConclusion::getIsRecommendVisit).count();
+        long recommendVisitNum = validConclusions.stream().filter(sc->Objects.equals(sc.getIsRecommendVisit(),Boolean.TRUE)).count();
         long warning0Num =
                 validConclusions.stream().filter(x -> WarningLevel.ZERO.code.equals(x.getWarningLevel())).count();
         long warning1Num =
@@ -612,14 +655,14 @@ public class StatService {
 
         List<StatConclusion> rescreenConclusions =
                 resultConclusion.stream().filter(x -> x.getIsRescreen() && x.getIsValid()).collect(Collectors.toList());
-        TwoTuple<BigDecimal, BigDecimal> tuple = this.calculateAverageVision(validConclusions);
-        RescreenStat rescreenStat = this.composeRescreenConclusion(rescreenConclusions);
+        TwoTuple<BigDecimal, BigDecimal> tuple = StatUtil.calculateAverageVision(validConclusions);
+        RescreenStat rescreenStat = this.rescreenConclusion(rescreenConclusions);
         return ScreeningDataContrast.builder()
                 .screeningNum(planScreeningNum)
                 .actualScreeningNum(totalFirstScreeningNum)
                 .validScreeningNum(validFirstScreeningNum)
-                .averageVisionLeft(tuple.getFirst().floatValue())
-                .averageVisionRight(tuple.getSecond().floatValue())
+                .averageVisionLeft(tuple.getFirst())
+                .averageVisionRight(tuple.getSecond())
                 .lowVisionNum(lowVisionNum)
                 .lowVisionRatio(convertToPercentage(lowVisionNum * 1f / validFirstScreeningNum))
                 .refractiveErrorRatio(convertToPercentage(refractiveErrorNum * 1f / validFirstScreeningNum))
@@ -670,24 +713,6 @@ public class StatService {
      */
     private BasicStatParams composeBasicParams(String name, long statNum, long totalStatNum) {
         return new BasicStatParams(name, convertToPercentage(statNum * 1f / totalStatNum), statNum);
-    }
-
-    /**
-     * 计算平均筛查视力
-     * @param statConclusions
-     * @return
-     */
-    private TwoTuple<BigDecimal,BigDecimal> calculateAverageVision(List<StatConclusion> statConclusions) {
-        statConclusions = statConclusions.stream().filter(sc->Objects.equals(Boolean.TRUE,sc.getIsValid())).collect(Collectors.toList());
-
-        int sumSize = statConclusions.size();
-        double sumVisionL = statConclusions.stream().mapToDouble(sc->sc.getVisionL().doubleValue()).sum();
-        BigDecimal avgVisionL = BigDecimalUtil.divide(String.valueOf(sumVisionL), String.valueOf(sumSize),1);
-
-        double sumVisionR = statConclusions.stream().mapToDouble(sc->sc.getVisionR().doubleValue()).sum();
-        BigDecimal avgVisionR = BigDecimalUtil.divide(String.valueOf(sumVisionR), String.valueOf(sumSize),1);
-
-        return new TwoTuple<>(avgVisionL,avgVisionR);
     }
 
     /**
@@ -859,9 +884,17 @@ public class StatService {
             }
         }
         List<StatConclusion> statConclusionList = statConclusionService.listByQuery(query);
-        return new DataContrastFilterResultDTO(
+        DataContrastFilterResultDTO dataContrastFilterResultDTO = new DataContrastFilterResultDTO(
                 getDataContrastFilter(statConclusionList, schoolId, schoolGradeCode, currentUser),
                 composeScreeningDataContrast(statConclusionList, planScreeningStudentNum));
+
+        if (!CollectionUtils.isEmpty(statConclusionList) && Objects.equals(statConclusionList.get(0).getScreeningType(), ScreeningTypeConst.COMMON_DISEASE)) {
+            RescreenStat rescreenStat = dataContrastFilterResultDTO.getResult().getRescreenStat();
+            rescreenStat.setWearingGlassesRescreenIndexNum(8);
+            rescreenStat.setWithoutGlassesRescreenIndexNum(6);
+            dataContrastFilterResultDTO.getResult().setRescreenStat(rescreenStat);
+        }
+        return dataContrastFilterResultDTO;
     }
 
     private Set<Integer> getDistrictIdsByContrastType(ContrastTypeEnum contrastTypeEnum, Integer contrastId, CurrentUser currentUser) {
@@ -1232,7 +1265,7 @@ public class StatService {
         statRescreen.setPhysiqueIndexNum(2L);
         statRescreen.setPhysiqueRescreenItemNum(total * 2L);
         statRescreen.setPhysiqueIncorrectItemNum(statConclusions.stream().mapToLong(StatConclusion::getPhysiqueRescreenErrorNum).sum());
-        statRescreen.setPhysiqueIncorrectRatio(convertToPercentage((float) (statRescreen.getPhysiqueIncorrectItemNum() / statRescreen.getPhysiqueRescreenItemNum())));
+        statRescreen.setPhysiqueIncorrectRatio(convertToPercentage(statRescreen.getPhysiqueIncorrectItemNum() * 1f/ statRescreen.getPhysiqueRescreenItemNum()));
     }
 
     /**
@@ -1254,8 +1287,8 @@ public class StatService {
         List<VisionScreeningResult> reScreenResults = resultList.stream().filter(VisionScreeningResult::getIsDoubleScreen).collect(Collectors.toList());
 
         // 获取初筛数据
-        List<VisionScreeningResult> screeningResults = resultList.stream().filter(s->Boolean.FALSE.equals(s.getIsDoubleScreen())).collect(Collectors.toList());
-        Map<Integer, VisionScreeningResult> screeningResultMap = screeningResults.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
+        List<VisionScreeningResult> firstResult = visionScreeningResultService.getFirstByPlanStudentIds(reScreenResults.stream().map(VisionScreeningResult::getScreeningPlanSchoolStudentId).collect(Collectors.toList()));
+        Map<Integer, VisionScreeningResult> screeningResultMap = firstResult.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
 
         reScreenResults.forEach(reScreenResult -> {
             VisionScreeningResult first = screeningResultMap.get(reScreenResult.getScreeningPlanSchoolStudentId());

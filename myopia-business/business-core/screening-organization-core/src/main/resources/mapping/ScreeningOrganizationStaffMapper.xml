@@ -25,7 +25,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, gov_dept_id, sign_file_id, screening_org_id, user_id, create_user_id, remark, create_time, update_time
+        id, gov_dept_id, sign_file_id, screening_org_id, user_id, create_user_id, remark, create_time, update_time,type
     </sql>
 
     <select id="getByPage" resultMap="BaseResultMap">

@@ -120,22 +120,6 @@ public class StatUtil {
         //屈光
         Optional.ofNullable(visionScreeningResult.getComputerOptometry()).ifPresent(computerOptometry-> cooperativeSet.add(computerOptometry.getIsCooperative()));
 
-        if (Objects.equals(visionScreeningResult.getScreeningType(),0)){
-            //生物测量
-            Optional.ofNullable(visionScreeningResult.getBiometricData()).ifPresent(biometricData-> cooperativeSet.add(biometricData.getIsCooperative()));
-            //33cm眼位
-            Optional.ofNullable(visionScreeningResult.getOcularInspectionData()).ifPresent(ocularInspectionData-> cooperativeSet.add(ocularInspectionData.getIsCooperative()));
-            //眼压
-            Optional.ofNullable(visionScreeningResult.getEyePressureData()).ifPresent(eyePressureData-> cooperativeSet.add(eyePressureData.getIsCooperative()));
-            //眼底
-            Optional.ofNullable(visionScreeningResult.getFundusData()).ifPresent(fundusData-> cooperativeSet.add(fundusData.getIsCooperative()));
-            //裂隙灯检查
-            Optional.ofNullable(visionScreeningResult.getSlitLampData()).ifPresent(slitLampData-> cooperativeSet.add(slitLampData.getIsCooperative()));
-            //小瞳验光
-            Optional.ofNullable(visionScreeningResult.getPupilOptometryData()).ifPresent(pupilOptometryData-> cooperativeSet.add(pupilOptometryData.getIsCooperative()));
-            //盲及视力损害分类
-            Optional.ofNullable(visionScreeningResult.getVisualLossLevelData()).ifPresent(visualLossLevelData-> cooperativeSet.add(visualLossLevelData.getIsCooperative()));
-        }
 
         if (CollectionUtil.isNotEmpty(cooperativeSet)){
             if (cooperativeSet.size() == 1) {
@@ -1075,9 +1059,9 @@ public class StatUtil {
      * @return
      */
     public static int calculateErrorNum(VisionScreeningResult currentVisionScreeningResult,VisionScreeningResult anotherVisionScreeningResult,Boolean isWearingGlasses) {
-        int errorNum = getNakedVisionErrorNum(currentVisionScreeningResult,anotherVisionScreeningResult) + getCorrectedVisionErrorNum(currentVisionScreeningResult,anotherVisionScreeningResult);
+        int errorNum = getNakedVisionErrorNum(currentVisionScreeningResult,anotherVisionScreeningResult) + getSeErrorNum(currentVisionScreeningResult,anotherVisionScreeningResult);
         if (Objects.nonNull(isWearingGlasses) && isWearingGlasses) {
-            errorNum += getSeErrorNum(currentVisionScreeningResult,anotherVisionScreeningResult);
+            errorNum += getCorrectedVisionErrorNum(currentVisionScreeningResult,anotherVisionScreeningResult);
         }
         if (Objects.equals(1,currentVisionScreeningResult.getScreeningType())){
             errorNum += getHeightAndWeight(currentVisionScreeningResult,anotherVisionScreeningResult);
@@ -1146,7 +1130,7 @@ public class StatUtil {
             BigDecimal currentLeftSe = StatUtil.getSphericalEquivalent(currentComputerOptometry.getLeftEyeData().getSph(), currentComputerOptometry.getLeftEyeData().getCyl());
             BigDecimal currentRightSe = StatUtil.getSphericalEquivalent(currentComputerOptometry.getRightEyeData().getSph(), currentComputerOptometry.getRightEyeData().getCyl());
             BigDecimal anotherLeftSe = StatUtil.getSphericalEquivalent(anotherComputerOptometry.getLeftEyeData().getSph(), anotherComputerOptometry.getLeftEyeData().getCyl());
-            BigDecimal anotherRightSe = StatUtil.getSphericalEquivalent(anotherComputerOptometry.getRightEyeData().getSph(), anotherComputerOptometry.getLeftEyeData().getCyl());
+            BigDecimal anotherRightSe = StatUtil.getSphericalEquivalent(anotherComputerOptometry.getRightEyeData().getSph(), anotherComputerOptometry.getRightEyeData().getCyl());
             errorNum += inRange(currentLeftSe,anotherLeftSe, seAndHeightRangeValue);
             errorNum += inRange(currentRightSe,anotherRightSe, seAndHeightRangeValue);
         }

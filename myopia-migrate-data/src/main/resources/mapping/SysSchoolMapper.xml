@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.migrate.domain.mapper.SysSchoolMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.migrate.domain.model.SysSchool">
+    </resultMap>
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(schoolId)">and `school_id` = #{schoolId}</if>
+                <if test="@Ognl@isNotEmpty(name)">and `name` = #{name}</if>
+                <if test="@Ognl@isNotEmpty(num)">and `num` = #{num}</if>
+                <if test="@Ognl@isNotEmpty(province)">and `province` = #{province}</if>
+                <if test="@Ognl@isNotEmpty(region)">and `region` = #{region}</if>
+                <if test="@Ognl@isNotEmpty(city)">and `city` = #{city}</if>
+                <if test="@Ognl@isNotEmpty(sort)">and `sort` = #{sort}</if>
+                <if test="@Ognl@isNotEmpty(state)">and `state` = #{state}</if>
+                <if test="@Ognl@isNotEmpty(description)">and `description` = #{description}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+                <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
+                <if test="@Ognl@isNotEmpty(provinceCode)">and `province_code` = #{provinceCode}</if>
+                <if test="@Ognl@isNotEmpty(regionCode)">and `region_code` = #{regionCode}</if>
+                <if test="@Ognl@isNotEmpty(cityCode)">and `city_code` = #{cityCode}</if>
+                <if test="@Ognl@isNotEmpty(areaCode)">and `area_code` = #{areaCode}</if>
+                <if test="@Ognl@isNotEmpty(pointCode)">and `point_code` = #{pointCode}</if>
+                <if test="@Ognl@isNotEmpty(schoolCode)">and `school_code` = #{schoolCode}</if>
+                <if test="@Ognl@isNotEmpty(entranceTime)">and `entrance_time` = #{entranceTime}</if>
+            </trim>
+        </where>
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        school_id, name, num, province, region, city, sort, state, description, create_time, update_time, province_code, region_code, city_code, area_code, point_code, school_code
+    </sql>
+
+</mapper>

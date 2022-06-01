@@ -6,6 +6,8 @@ import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.math.BigDecimal;
@@ -16,6 +18,8 @@ import java.util.Objects;
  * @Date 2021/1/22 16:37
  * @Author by jacob
  */
+@Accessors(chain = true)
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class ComputerOptometryDTO extends ScreeningResultBasicData {
 
@@ -62,11 +66,12 @@ public class ComputerOptometryDTO extends ScreeningResultBasicData {
     @JsonProperty("r_se")
     private BigDecimal rSe;
 
+
     @Override
     public VisionScreeningResult buildScreeningResultData(VisionScreeningResult visionScreeningResult) {
         ComputerOptometryDO.ComputerOptometry leftComputerOptometry = new ComputerOptometryDO.ComputerOptometry().setAxial(lAxial).setCyl(lCyl).setSph(lSph).setLateriality(CommonConst.LEFT_EYE);
         ComputerOptometryDO.ComputerOptometry rightComputerOptometry = new ComputerOptometryDO.ComputerOptometry().setAxial(rAxial).setCyl(rCyl).setSph(rSph).setLateriality(CommonConst.RIGHT_EYE);
-        ComputerOptometryDO computerOptometryDO = new ComputerOptometryDO().setRightEyeData(rightComputerOptometry).setLeftEyeData(leftComputerOptometry).setIsCooperative(super.getIsCooperative());
+        ComputerOptometryDO computerOptometryDO = new ComputerOptometryDO().setRightEyeData(rightComputerOptometry).setLeftEyeData(leftComputerOptometry).setIsCooperative(getIsCooperative());
         computerOptometryDO.setDiagnosis(super.getDiagnosis());
         computerOptometryDO.setCreateUserId(getCreateUserId());
         return visionScreeningResult.setComputerOptometry(computerOptometryDO);
@@ -74,7 +79,7 @@ public class ComputerOptometryDTO extends ScreeningResultBasicData {
 
     public boolean isValid() {
         // 不配合时全部校验
-        if (super.getIsCooperative() == 1) {
+        if (Objects.nonNull(getIsCooperative()) && getIsCooperative() == 1) {
             return true;
         }
         return ObjectUtils.anyNotNull(rAxial, lAxial, lSph, rSph, rCyl, lCyl);
@@ -91,14 +96,14 @@ public class ComputerOptometryDTO extends ScreeningResultBasicData {
             computerOptometryDTO.setLCyl(leftEye.getCyl());
             computerOptometryDTO.setLSph(leftEye.getSph());
             // 等效球镜= 球镜+（1/2）柱镜
-            computerOptometryDTO.setLSe(BigDecimalUtil.getBigDecimalByFormat(leftEye.getCyl().multiply(BigDecimal.valueOf(0.5)).add(leftEye.getSph()), 2));
+            computerOptometryDTO.setLSe(leftEye.getCyl().multiply(BigDecimal.valueOf(0.5)).add(leftEye.getSph()).setScale(2, BigDecimal.ROUND_UP));
         }
         ComputerOptometryDO.ComputerOptometry rightEye = computerOptometryDO.getRightEyeData();
         if (Objects.nonNull(rightEye)) {
             computerOptometryDTO.setRAxial(rightEye.getAxial());
             computerOptometryDTO.setRCyl(rightEye.getCyl());
             computerOptometryDTO.setRSph(rightEye.getSph());
-            computerOptometryDTO.setRSe(BigDecimalUtil.getBigDecimalByFormat(rightEye.getCyl().multiply(BigDecimal.valueOf(0.5)).add(rightEye.getSph()), 2));
+            computerOptometryDTO.setRSe(rightEye.getCyl().multiply(BigDecimal.valueOf(0.5)).add(rightEye.getSph()).setScale(2, BigDecimal.ROUND_UP));
         }
         computerOptometryDTO.setDiagnosis(computerOptometryDO.getDiagnosis());
         computerOptometryDTO.setIsCooperative(computerOptometryDO.getIsCooperative());
