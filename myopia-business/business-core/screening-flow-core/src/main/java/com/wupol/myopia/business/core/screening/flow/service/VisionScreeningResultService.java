@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.screening.flow.service;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -479,47 +480,35 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
      */
     private SaprodontiaDataDTO calculationTooth(List<SaprodontiaDataDO.SaprodontiaItem> items) {
         SaprodontiaDataDTO saprodontiaDataDTO = new SaprodontiaDataDTO();
-        int dCountDeciduous = 0;
-        int mCountDeciduous = 0;
-        int fFountDeciduous = 0;
+        List<SaprodontiaDataDO.SaprodontiaItem> deciduousDs = items.stream().filter(item -> Objects.equals(SaprodontiaType.DECIDUOUS_D.getName(), item.getDeciduous())).collect(Collectors.toList());
+        List<SaprodontiaDataDO.SaprodontiaItem> deciduousMs = items.stream().filter(item -> Objects.equals(SaprodontiaType.DECIDUOUS_M.getName(), item.getDeciduous())).collect(Collectors.toList());
+        List<SaprodontiaDataDO.SaprodontiaItem> deciduousFs = items.stream().filter(item -> Objects.equals(SaprodontiaType.DECIDUOUS_F.getName(), item.getDeciduous())).collect(Collectors.toList());
+        List<SaprodontiaDataDO.SaprodontiaItem> permanentDs = items.stream().filter(item -> Objects.equals(SaprodontiaType.PERMANENT_D.getName(), item.getPermanent())).collect(Collectors.toList());
+        List<SaprodontiaDataDO.SaprodontiaItem> permanentMs = items.stream().filter(item -> Objects.equals(SaprodontiaType.PERMANENT_M.getName(), item.getPermanent())).collect(Collectors.toList());
+        List<SaprodontiaDataDO.SaprodontiaItem> permanentFs = items.stream().filter(item -> Objects.equals(SaprodontiaType.PERMANENT_F.getName(), item.getPermanent())).collect(Collectors.toList());
 
-        int dFountPermanent = 0;
-        int mFountPermanent = 0;
-        int fFountPermanent = 0;
-        for (SaprodontiaDataDO.SaprodontiaItem item : items) {
-            if (item != null) {
-                if (item != null) {
-                    if (SaprodontiaType.DECIDUOUS_D.getName().equals(item.getDeciduous())) {
-                        dCountDeciduous++;
-                    }
-                    if (SaprodontiaType.DECIDUOUS_M.getName().equals(item.getDeciduous())) {
-                        mCountDeciduous++;
-                    }
-                    if (SaprodontiaType.DECIDUOUS_F.getName().equals(item.getDeciduous())) {
-                        fFountDeciduous++;
-                    }
-                    if (SaprodontiaType.PERMANENT_D.getName().equals(item.getPermanent())) {
-                        dFountPermanent++;
-                    }
-                    if (SaprodontiaType.PERMANENT_M.getName().equals(item.getPermanent())) {
-                        mFountPermanent++;
-                    }
-                    if (SaprodontiaType.PERMANENT_F.getName().equals(item.getPermanent())) {
-                        fFountPermanent++;
-                    }
-                }
-            }
-        }
 
         SaprodontiaStatItem deciduousTooth = new SaprodontiaStatItem();
-        deciduousTooth.setDCount(dCountDeciduous);
-        deciduousTooth.setMCount(mCountDeciduous);
-        deciduousTooth.setFCount(fFountDeciduous);
-
         SaprodontiaStatItem permanentTooth = new SaprodontiaStatItem();
-        permanentTooth.setDCount(dFountPermanent);
-        permanentTooth.setMCount(mFountPermanent);
-        permanentTooth.setFCount(fFountPermanent);
+
+        if (CollectionUtil.isNotEmpty(deciduousDs)){
+            deciduousTooth.setDCount(deciduousDs.size());
+        }
+        if (CollectionUtil.isNotEmpty(deciduousMs)){
+            deciduousTooth.setMCount(deciduousMs.size());
+        }
+        if (CollectionUtil.isNotEmpty(deciduousFs)){
+            deciduousTooth.setFCount(deciduousFs.size());
+        }
+        if (CollectionUtil.isNotEmpty(permanentDs)){
+            permanentTooth.setDCount(permanentDs.size());
+        }
+        if (CollectionUtil.isNotEmpty(permanentMs)){
+            permanentTooth.setMCount(permanentMs.size());
+        }
+        if (CollectionUtil.isNotEmpty(permanentFs)){
+            permanentTooth.setFCount(permanentFs.size());
+        }
 
         saprodontiaDataDTO.setDeciduousTooth(deciduousTooth);
         saprodontiaDataDTO.setPermanentTooth(permanentTooth);

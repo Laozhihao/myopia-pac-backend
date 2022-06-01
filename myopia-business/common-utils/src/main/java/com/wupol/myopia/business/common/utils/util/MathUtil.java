@@ -29,6 +29,9 @@ public class MathUtil {
         return n.multiply(hundred).divide(d, 2, BigDecimal.ROUND_HALF_UP);
     }
 
+    /**
+     * 占比 （带%）
+     */
     public String ratio(Integer numerator, Integer denominator) {
         DecimalFormat df = new DecimalFormat("0.00%");
         return ratio(numerator,denominator,df);
@@ -46,6 +49,14 @@ public class MathUtil {
         }
         BigDecimal divide = new BigDecimal(numerator).divide(new BigDecimal(denominator), 4, BigDecimal.ROUND_HALF_UP);
         return df.format(divide);
+    }
+
+    /**
+     * 占比 （带%）
+     */
+    public String ratio(BigDecimal bigDecimal) {
+        DecimalFormat df = new DecimalFormat("0.00%");
+        return df.format(bigDecimal);
     }
 
     /**

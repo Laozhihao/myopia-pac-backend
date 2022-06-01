@@ -158,7 +158,7 @@ public class ReviewInformService {
         planSchoolStudents.forEach(planSchoolStudent -> {
             ReviewInformExportDataDTO exportDataDTO = new ReviewInformExportDataDTO();
             BeanUtils.copyProperties(planSchoolStudent, exportDataDTO);
-            exportDataDTO.setPlanDate(screeningPlan.getCreateTime());
+            exportDataDTO.setPlanDate(screeningPlan.getStartTime());
 
             HeightAndWeightDataDO heightAndWeightDataDO = heightAndWeightDataMap.get(planSchoolStudent.getId());
             if (Objects.nonNull(heightAndWeightDataDO)) {
@@ -225,12 +225,21 @@ public class ReviewInformService {
                         PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(getHtmlUrl(planKey, orgId, schoolKey, gradeKey, classKey), RESCREEN_NAME, UUID.randomUUID().toString());
                         log.info("response:{}", JSONObject.toJSONString(pdfResponseDTO));
                         try {
-                            FileUtils.downloadFile(pdfResponseDTO.getUrl(),
-                                    Paths.get(fileSaveParentPath,
-                                            schoolMap.get(schoolKey) + RESCREEN_NAME,
-                                            gradeMap.get(gradeKey).getName() + RESCREEN_NAME,
-                                            classMap.get(classKey).getName() + RESCREEN_NAME,
-                                            RESCREEN_NAME + ".pdf").toString());
+                            if (ExportTypeConst.GRADE.equals(type)) {
+                                FileUtils.downloadFile(pdfResponseDTO.getUrl(),
+                                        Paths.get(fileSaveParentPath,
+                                                gradeMap.get(gradeKey).getName() + RESCREEN_NAME,
+                                                classMap.get(classKey).getName() + RESCREEN_NAME,
+                                                RESCREEN_NAME + ".pdf").toString());
+                            } else {
+                                FileUtils.downloadFile(pdfResponseDTO.getUrl(),
+                                        Paths.get(fileSaveParentPath,
+                                                schoolMap.get(schoolKey) + RESCREEN_NAME,
+                                                gradeMap.get(gradeKey).getName() + RESCREEN_NAME,
+                                                classMap.get(classKey).getName() + RESCREEN_NAME,
+                                                RESCREEN_NAME + ".pdf").toString());
+                            }
+
                         } catch (Exception e) {
                             log.error("Exception", e);
                         }

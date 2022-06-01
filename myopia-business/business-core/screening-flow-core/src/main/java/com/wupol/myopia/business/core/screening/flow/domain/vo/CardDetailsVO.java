@@ -28,14 +28,27 @@ public class CardDetailsVO {
     private List<VisionResult> visionResults;
 
     /**
+     * 视力检查签名
+     */
+    private String visionSign;
+
+    /**
      * 验光仪检查结果
      */
     private List<RefractoryResult> refractoryResults;
+    /**
+     * 验光仪检查签名
+     */
+    private String refractorySign;
 
     /**
      * 串镜检查结果
      */
     private List<CrossMirrorResult> crossMirrorResults;
+    /**
+     * 串镜检查签名
+     */
+    private String crossMirrorSign;
 
     /**
      * 其他眼病

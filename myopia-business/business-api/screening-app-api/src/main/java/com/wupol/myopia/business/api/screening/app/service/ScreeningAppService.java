@@ -40,6 +40,7 @@ import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultBasicData;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultSearchDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningInfoWithResultDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
@@ -444,8 +445,6 @@ public class ScreeningAppService {
      * @param gradeId
      * @param classId
      * @param screeningOrgId
-     * @param isFilter
-     * @param state
      * @param channel
      * @return
      */
@@ -669,9 +668,22 @@ public class ScreeningAppService {
         screeningProgressState.setErrorItemCount(screeningProgressState.getRetestStudents().stream().mapToInt(RetestStudentVO::getErrorItemCount).sum());
         screeningProgressState.setRetestItemCount(screeningProgressState.getRetestStudents().stream().mapToInt(RetestStudentVO::getRetestItemCount).sum());
         screeningProgressState.setErrorRatio(screeningProgressState.getRetestItemCount() == 0 ? BigDecimal.ZERO : new BigDecimal(screeningProgressState.getErrorItemCount()).divide(new BigDecimal(screeningProgressState.getRetestItemCount()), 4, BigDecimal.ROUND_HALF_UP));
-        screeningProgressState.setRetestRatio(new BigDecimal(screeningProgressState.getRetestStudents().size()).divide(new BigDecimal(screeningProgressState.getScreeningCount()), 4, BigDecimal.ROUND_HALF_UP));
+        screeningProgressState.setRetestRatio(screeningProgressState.getScreeningCount() == 0 ? BigDecimal.ZERO : new BigDecimal(screeningProgressState.getRetestStudents().size()).divide(new BigDecimal(screeningProgressState.getScreeningCount()), 4, BigDecimal.ROUND_HALF_UP));
         screeningProgressState.setReScreeningCount(screeningProgressState.getRetestStudents().size());
         return screeningProgressState;
+    }
+
+    /**
+     * 检查是否有误差
+     *
+     * @param screeningResultBasicData screeningResultBasicData
+     * @return RetestStudentVO RetestStudentVO
+     */
+    public RetestStudentVO getNumerationSecondCheck(ScreeningResultBasicData screeningResultBasicData) {
+        TwoTuple<VisionScreeningResult, VisionScreeningResult> visDate = visionScreeningBizService.getAllFirstAndSecondResult(screeningResultBasicData);
+        RetestStudentVO vo = new RetestStudentVO();
+        vo.setVisionScreeningResult(new TwoTuple(visDate.getSecond(), visDate.getFirst()));
+        return numerationSecondCheck(vo);
     }
 
     /**
@@ -757,7 +769,6 @@ public class ScreeningAppService {
 
         retestStudentVO.setRetestItemCount(retestStudentVO.getRetestItemCount() + retestStudentVO.existCheckHeightAndWeight(secondHeightWeight));
         retestStudentVO.setErrorItemCount(retestStudentVO.getErrorItemCount() + retestStudentVO.checkHeightAndWeight(firstHeightWeight, secondHeightWeight, retestStudentVO));
-        retestStudentVO.setVisionScreeningResult(null);
         return retestStudentVO;
     }
 

@@ -70,7 +70,7 @@ public interface ScreeningPlanSchoolStudentMapper extends BaseMapper<ScreeningPl
 
     List<ScreeningPlanSchoolStudent> getByNePlanId(@Param("planId") Integer planId);
 
-    ScreeningPlanSchoolStudent getOneByNePlanId(@Param("planId") Integer planId);
+    ScreeningPlanSchoolStudent getOneByPlanId(@Param("planId") Integer planId);
 
     List<GradeClassesDTO> getGradeByPlanIdAndSchoolId(@Param("planId") Integer planId, @Param("schoolId") Integer schoolId);
 

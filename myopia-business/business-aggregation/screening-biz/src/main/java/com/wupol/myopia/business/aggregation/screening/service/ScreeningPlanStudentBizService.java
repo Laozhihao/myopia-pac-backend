@@ -126,11 +126,13 @@ public class ScreeningPlanStudentBizService {
     public void updatePlanStudent(UpdatePlanStudentRequestDTO requestDTO) {
         requestDTO.checkStudentInfo();
         // 身份证或护照是否在同一计划下已经绑定了数据
-        if (!CollectionUtils.isEmpty(screeningPlanSchoolStudentService.getByPlanIdIdCardAndPassport(requestDTO.getPlanId(), requestDTO.getIdCard(), requestDTO.getPassport(), requestDTO.getPlanStudentId()))) {
+        Integer planStudentId = requestDTO.getPlanStudentId();
+        ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(planStudentId);
+        if (!CollectionUtils.isEmpty(screeningPlanSchoolStudentService.getByPlanIdIdCardAndPassport(planStudent.getScreeningPlanId(), requestDTO.getIdCard(), requestDTO.getPassport(), planStudentId))) {
             throw new BusinessException("身份证或护照重复，请检查");
         }
         // 获取计划学生
-        ScreeningPlanSchoolStudent screeningPlanSchoolStudent = requestDTO.handlePlanStudentData(screeningPlanSchoolStudentService.getById(requestDTO.getPlanStudentId()));
+        ScreeningPlanSchoolStudent screeningPlanSchoolStudent = requestDTO.handlePlanStudentData(planStudent);
         // 检查学号是否重复
         checkStudentSno(screeningPlanSchoolStudent);
         // 按证件号的变化来变更

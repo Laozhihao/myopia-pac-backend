@@ -629,8 +629,8 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @param planId 计划Id
      * @return List<ScreeningPlanSchoolStudent>
      */
-    public ScreeningPlanSchoolStudent getOneByNePlanId(Integer planId) {
-        return baseMapper.getOneByNePlanId(planId);
+    public ScreeningPlanSchoolStudent getOneByPlanId(Integer planId) {
+        return baseMapper.getOneByPlanId(planId);
     }
 
     public List<GradeClassesDTO> getGradeByPlanIdAndSchoolId(Integer screeningPlanId, Integer schoolId) {

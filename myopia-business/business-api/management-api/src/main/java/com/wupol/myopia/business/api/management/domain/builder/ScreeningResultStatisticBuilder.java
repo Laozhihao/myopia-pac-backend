@@ -72,7 +72,7 @@ public class ScreeningResultStatisticBuilder {
         //设置视力预警数据
         setVisionWarning(validScreeningNum,validStatConclusions, statistic);
         //设置复测情况数据
-        setRescreenSituation(validStatConclusions,isRescreenMap,statistic);
+        setRescreenSituation(validStatConclusions,isRescreenMap,statistic,totalStatistic.getScreeningType());
 
         visionScreeningResultStatisticList.add(statistic);
 
@@ -113,7 +113,7 @@ public class ScreeningResultStatisticBuilder {
         //设置视力预警数据
         setVisionWarning(validScreeningNum,validStatConclusions, statistic);
         //设置复测情况数据
-        setRescreenSituation(validStatConclusions,isRescreenMap,statistic);
+        setRescreenSituation(validStatConclusions,isRescreenMap,statistic,totalStatistic.getScreeningType());
 
         //设置龋齿数据
         setSaprodontia(statConclusions, realScreeningStudentNum, statistic);
@@ -162,7 +162,7 @@ public class ScreeningResultStatisticBuilder {
      */
     private void setPrimarySchoolAndAboveVisionAnalysis(StatisticResultBO totalStatistic, List<StatConclusion> statConclusions, int validScreeningNum, VisionScreeningResultStatistic statistic) {
         PrimarySchoolAndAboveVisionAnalysisDO visionAnalysisDO = new PrimarySchoolAndAboveVisionAnalysisDO();
-        statConclusions = statConclusions.stream().filter(sc->Objects.equals(Boolean.FALSE,sc.getIsRescreen())).collect(Collectors.toList());
+        statConclusions = statConclusions.stream().filter(sc->Objects.equals(Boolean.FALSE,sc.getIsRescreen())).filter(sc->Objects.equals(0,sc.getIsCooperative())).collect(Collectors.toList());
 
         Integer lowVisionNum = (int) statConclusions.stream()
                 .map(StatConclusion::getIsLowVision)
@@ -217,7 +217,7 @@ public class ScreeningResultStatisticBuilder {
      */
     private void setKindergartenVisionAnalysis(StatisticResultBO totalStatistic, List<StatConclusion> statConclusions, int validScreeningNum, VisionScreeningResultStatistic statistic) {
         KindergartenVisionAnalysisDO visionAnalysisDO =new KindergartenVisionAnalysisDO();
-        statConclusions = statConclusions.stream().filter(sc->Objects.equals(Boolean.FALSE,sc.getIsRescreen())).collect(Collectors.toList());
+        statConclusions = statConclusions.stream().filter(sc->Objects.equals(Boolean.FALSE,sc.getIsRescreen())).filter(sc->Objects.equals(0,sc.getIsCooperative())).collect(Collectors.toList());
 
         Map<Integer, Long> visionLabelNumberMap = statConclusions.stream().filter(stat -> Objects.nonNull(stat.getWarningLevel())).collect(Collectors.groupingBy(StatConclusion::getWarningLevel, Collectors.counting()));
 
@@ -258,7 +258,7 @@ public class ScreeningResultStatisticBuilder {
                                   List<StatConclusion> statConclusions,
                                   VisionScreeningResultStatistic statistic) {
         VisionWarningDO visionWarningDO = new VisionWarningDO();
-        statConclusions = statConclusions.stream().filter(sc->Objects.equals(Boolean.FALSE,sc.getIsRescreen())).collect(Collectors.toList());
+        statConclusions = statConclusions.stream().filter(sc->Objects.equals(Boolean.FALSE,sc.getIsRescreen())).filter(sc->Objects.equals(0,sc.getIsCooperative())).collect(Collectors.toList());
 
         Map<Integer, Long> visionLabelNumberMap = statConclusions.stream().filter(stat -> Objects.nonNull(stat.getWarningLevel())).collect(Collectors.groupingBy(StatConclusion::getWarningLevel, Collectors.counting()));
         Integer visionLabel0Num = visionLabelNumberMap.getOrDefault(WarningLevel.ZERO.code, 0L).intValue();
@@ -279,11 +279,11 @@ public class ScreeningResultStatisticBuilder {
      * 设置复测数据 (基于复测数据)
      */
     private RescreenSituationDO setRescreenSituation(List<StatConclusion> statConclusions, Map<Boolean, List<StatConclusion>> isRescreenMap,
-                                                     VisionScreeningResultStatistic statistic) {
+                                                     VisionScreeningResultStatistic statistic,Integer screeningType) {
         RescreenSituationDO rescreenSituationDO = new RescreenSituationDO();
 
         List<StatConclusion> statConclusionList = statConclusions.stream()
-                .filter(sc->Objects.equals(Boolean.TRUE,sc.getIsRescreen())).collect(Collectors.toList());
+                .filter(sc->Objects.equals(Boolean.TRUE,sc.getIsRescreen())).filter(sc->Objects.equals(0,sc.getIsCooperative())).collect(Collectors.toList());
 
         //戴镜
         List<StatConclusion> wearingGlassList = statConclusionList.stream()
@@ -307,11 +307,18 @@ public class ScreeningResultStatisticBuilder {
                 .map(StatConclusion::getRescreenErrorNum)
                 .filter(Objects::nonNull).mapToInt(Integer::intValue).sum();
 
-        String incidence = MathUtil.ratio(errorItemNum,wearingGlassRescreenItemNum*wearingGlassRescreenNum+withoutGlassRescreenItemNum*withoutGlassRescreenNum);
+        int num;
+        if (Objects.equals(screeningType,0)){
+            num = wearingGlassRescreenNum*6+withoutGlassRescreenNum*4;
+        }else {
+            num = wearingGlassRescreenNum*8+withoutGlassRescreenNum*6;
+        }
+
+        String incidence = MathUtil.ratio(errorItemNum,num);
 
         rescreenSituationDO.setRetestNum(rescreenNum).setRetestRatio(MathUtil.ratio(rescreenNum, validRescreenNum))
                 .setWearingGlassRetestNum(wearingGlassRescreenNum).setWearingGlassRetestRatio(MathUtil.ratio(wearingGlassRescreenNum, validRescreenNum))
-                .setWithoutGlassRetestNum(withoutGlassRescreenNum).setWithoutGlassRetestRatio(MathUtil.ratio(wearingGlassRescreenNum, validRescreenNum))
+                .setWithoutGlassRetestNum(withoutGlassRescreenNum).setWithoutGlassRetestRatio(MathUtil.ratio(withoutGlassRescreenNum, validRescreenNum))
                 .setErrorItemNum(errorItemNum)
                 .setRescreeningItemNum(wearingGlassRescreenItemNum+withoutGlassRescreenItemNum)
                 .setIncidence(incidence);

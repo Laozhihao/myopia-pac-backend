@@ -3,6 +3,7 @@ package com.wupol.myopia.business.core.screening.flow.domain.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import lombok.Data;
+import lombok.experimental.Accessors;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Objects;
@@ -12,6 +13,7 @@ import java.util.Objects;
  * @Date 2021/1/26 1:04
  * @Author by Jacob
  */
+@Accessors(chain = true)
 @Data
 public abstract class ScreeningResultBasicData implements ScreeningDataInterface {
     /**
@@ -40,10 +42,16 @@ public abstract class ScreeningResultBasicData implements ScreeningDataInterface
      * 初步诊断结果：0-正常、1-（疑似）异常
      */
     private Integer diagnosis;
+
     /**
      * 是否配合检查：0-配合、1-不配合
      */
     private Integer isCooperative;
+
+    /**
+     * 更新时间
+     */
+    private Long updateTime;
 
     public Integer getPlanStudentId() {
         return stringToInteger(planStudentId);

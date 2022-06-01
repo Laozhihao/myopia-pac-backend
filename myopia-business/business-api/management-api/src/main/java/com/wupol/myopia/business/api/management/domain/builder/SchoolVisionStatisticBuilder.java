@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -26,10 +27,10 @@ public class SchoolVisionStatisticBuilder {
                                               List<StatConclusion> statConclusions, Integer realScreeningNumber, Integer planScreeningNumbers) {
         SchoolVisionStatistic statistic = new SchoolVisionStatistic();
         Integer wearingGlassNumber =
-                (int) statConclusions.stream().filter(x -> x.getGlassesType() > 0).count();
-        Integer myopiaNumber = (int) statConclusions.stream().filter(StatConclusion::getIsMyopia).count();
-        Integer ametropiaNumber = (int) statConclusions.stream().filter(StatConclusion::getIsRefractiveError).count();
-        Integer lowVisionNumber = (int) statConclusions.stream().filter(StatConclusion::getIsLowVision).count();
+                (int) statConclusions.stream().filter(x -> Objects.nonNull(x.getGlassesType()) && x.getGlassesType() > 0).count();
+        Integer myopiaNumber = (int) statConclusions.stream().map(StatConclusion::getIsMyopia).filter(Objects::nonNull).filter(Boolean::booleanValue).count();
+        Integer ametropiaNumber = (int) statConclusions.stream().map(StatConclusion::getIsRefractiveError).filter(Objects::nonNull).filter(Boolean::booleanValue).count();
+        Integer lowVisionNumber = (int) statConclusions.stream().map(StatConclusion::getIsLowVision).filter(Objects::nonNull).filter(Boolean::booleanValue).count();
 
         Integer bindMpNumber = (int) statConclusions.stream().filter(s -> Objects.nonNull(s.getIsBindMp()) && s.getIsBindMp()).count();
         Integer reviewNumber = (int) statConclusions.stream().filter(s -> Objects.nonNull(s.getReportId())).count();
@@ -43,9 +44,9 @@ public class SchoolVisionStatisticBuilder {
         Integer visionLabel3Numbers = visionLabelNumberMap.getOrDefault(WarningLevel.THREE.code, 0L).intValue();
         Integer visionLabelZeroSPNumbers = visionLabelNumberMap.getOrDefault(WarningLevel.ZERO_SP.code, 0L).intValue();
         Integer keyWarningNumbers = visionLabel0Numbers + visionLabel1Numbers + visionLabel2Numbers + visionLabel3Numbers;
-        Integer treatmentAdviceNumber = (int) statConclusions.stream().filter(StatConclusion::getIsRecommendVisit).count();
-        double avgLeftVision = statConclusions.stream().mapToDouble(sc->sc.getVisionL().doubleValue()).average().orElse(0);
-        double avgRightVision = statConclusions.stream().mapToDouble(sc->sc.getVisionR().doubleValue()).average().orElse(0);
+        Integer treatmentAdviceNumber = (int) statConclusions.stream().map(StatConclusion::getIsRecommendVisit).filter(Objects::nonNull).filter(Boolean::booleanValue).count();
+        double avgLeftVision = statConclusions.stream().mapToDouble(sc-> Optional.ofNullable(sc.getVisionL()).map(BigDecimal::doubleValue).orElse(new Double("0"))).average().orElse(0);
+        double avgRightVision = statConclusions.stream().mapToDouble(sc->Optional.ofNullable(sc.getVisionR()).map(BigDecimal::doubleValue).orElse(new Double("0"))).average().orElse(0);
         int validScreeningNumbers = statConclusions.size();
         statistic.setSchoolId(school.getId()).setSchoolName(school.getName()).setSchoolType(school.getType())
                 .setScreeningOrgId(screeningOrg.getId()).setScreeningOrgName(screeningOrg.getName())

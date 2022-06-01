@@ -278,6 +278,9 @@ public class BigDecimalUtil {
      * @return true：误差 false：没误差
      */
     public static boolean isDeviation(BigDecimal firstScreening,BigDecimal reScreening,BigDecimal standard){
+        if (firstScreening==null||reScreening==null){
+            return false;
+        }
         BigDecimal result = subtractAbsBigDecimal(firstScreening, reScreening);
         return result.abs().compareTo(standard) > 0;
     }
@@ -289,10 +292,13 @@ public class BigDecimalUtil {
      * @return 绝对差值
      */
     public static BigDecimal subtractAbsBigDecimal(BigDecimal firstScreening, BigDecimal reScreening) {
-        BigDecimal first = Optional.ofNullable(firstScreening).orElse(new BigDecimal("0"));
-        BigDecimal retest = Optional.ofNullable(reScreening).orElse(new BigDecimal("0"));
-
-        return first.subtract(retest).abs();
+        if (firstScreening==null){
+            return null;
+        }
+        if (reScreening==null){
+            return null;
+        }
+        return firstScreening.subtract(reScreening).abs();
     }
 
     /**

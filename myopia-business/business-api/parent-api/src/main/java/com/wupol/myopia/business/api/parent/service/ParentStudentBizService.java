@@ -284,7 +284,7 @@ public class ParentStudentBizService {
         // 学生筛查报告
         List<CountReportItemsDO> screeningLists = getStudentCountReportItems(studentId);
         ScreeningDetailDO screeningDetailDO = new ScreeningDetailDO();
-        screeningDetailDO.setTotal(visionScreeningResultService.getByStudentId(studentId).stream().filter(r -> r.getIsDoubleScreen().equals(Boolean.FALSE)).count());
+        screeningDetailDO.setTotal(screeningLists.size());
         screeningDetailDO.setItems(screeningLists);
         response.setScreeningDetailDO(screeningDetailDO);
 
@@ -306,13 +306,16 @@ public class ParentStudentBizService {
      */
     public List<CountReportItemsDO> getStudentCountReportItems(Integer studentId) {
         List<VisionScreeningResult> screeningResults = visionScreeningResultService.getByStudentId(studentId);
-        return screeningResults.stream().filter(result -> result.getIsDoubleScreen().equals(Boolean.FALSE)).map(result -> {
-            CountReportItemsDO items = new CountReportItemsDO();
-            items.setId(result.getId());
-            items.setCreateTime(result.getCreateTime());
-            items.setUpdateTime(result.getUpdateTime());
-            return items;
-        }).collect(Collectors.toList());
+        return screeningResults.stream()
+                .filter(result -> result.getIsDoubleScreen().equals(Boolean.FALSE))
+                .filter(result-> Objects.equals(result.getScreeningType(),0))
+                .map(result -> {
+                    CountReportItemsDO items = new CountReportItemsDO();
+                    items.setId(result.getId());
+                    items.setCreateTime(result.getCreateTime());
+                    items.setUpdateTime(result.getUpdateTime());
+                    return items;
+                }).collect(Collectors.toList());
     }
 
     /**
