@@ -1287,12 +1287,15 @@ public class StatService {
         List<VisionScreeningResult> reScreenResults = resultList.stream().filter(VisionScreeningResult::getIsDoubleScreen).collect(Collectors.toList());
 
         // 获取初筛数据
-        List<VisionScreeningResult> firstResult = visionScreeningResultService.getFirstByPlanStudentIds(reScreenResults.stream().map(VisionScreeningResult::getScreeningPlanSchoolStudentId).collect(Collectors.toList()));
+        List<Integer> planStudentIdList = reScreenResults.stream().map(VisionScreeningResult::getScreeningPlanSchoolStudentId).collect(Collectors.toList());
+        List<VisionScreeningResult> firstResult = visionScreeningResultService.getFirstByPlanStudentIds(planStudentIdList);
+        Map<Integer, ScreeningPlanSchoolStudent> planSchoolStudentMap = screeningPlanSchoolStudentService.getByIds(planStudentIdList).stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getId, Function.identity()));
         Map<Integer, VisionScreeningResult> screeningResultMap = firstResult.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
 
         reScreenResults.forEach(reScreenResult -> {
             VisionScreeningResult first = screeningResultMap.get(reScreenResult.getScreeningPlanSchoolStudentId());
-            reScreeningCardVO.add(ReScreenCardUtil.reScreenResultCard(first, reScreenResult, qualityControllerName,null));
+            ScreeningPlanSchoolStudent screeningPlanSchoolStudent = planSchoolStudentMap.get(reScreenResult.getScreeningPlanSchoolStudentId());
+            reScreeningCardVO.add(ReScreenCardUtil.reScreenResultCard(first, reScreenResult, qualityControllerName, screeningPlanSchoolStudent.getCommonDiseaseId()));
         });
         return reScreeningCardVO;
     }
