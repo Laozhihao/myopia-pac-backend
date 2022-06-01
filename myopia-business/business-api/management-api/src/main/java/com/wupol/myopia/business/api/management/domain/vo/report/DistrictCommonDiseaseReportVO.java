@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.vo.report;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -148,12 +149,9 @@ public class DistrictCommonDiseaseReportVO {
         /**
          * 平均视力
          */
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
         private BigDecimal avgVision;
 
-        /**
-         * 平均视力占比（在0-6之间)
-         */
-        private BigDecimal avgVisionRatio;
     }
 
     @Data

@@ -18,7 +18,7 @@ import java.util.Date;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("m_stat_conclusion")
+@TableName(value = "m_stat_conclusion", autoResultMap = true)
 public class StatConclusion implements Serializable {
     /** id */
     @TableId(value = "id", type = IdType.AUTO)

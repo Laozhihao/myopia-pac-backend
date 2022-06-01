@@ -24,6 +24,11 @@ public class DistrictDiseaseMonitorVO {
      */
     private List<DiseaseMonitorTable> diseaseMonitorTableList;
 
+    /**
+     * 图表
+     */
+    private List<String> diseaseMonitorChart;
+
 
 
     @Data

@@ -11,6 +11,7 @@ import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.DiseaseNumDO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -40,10 +41,26 @@ public class DistrictDiseaseMonitorService {
 
         getDiseaseMonitorVariableVO(statConclusionList,districtDiseaseMonitorVO);
         getDiseaseMonitorTableList(statConclusionList,districtDiseaseMonitorVO);
+        getDiseaseMonitorChart(statConclusionList,districtDiseaseMonitorVO);
 
         districtCommonDiseasesAnalysisVO.setDistrictDiseaseMonitorVO(districtDiseaseMonitorVO);
 
     }
+
+    private void getDiseaseMonitorChart(List<StatConclusion> statConclusionList, DistrictDiseaseMonitorVO districtDiseaseMonitorVO) {
+        if (CollectionUtil.isEmpty(statConclusionList)){
+            return;
+        }
+        DiseaseNum diseaseNum = new DiseaseNum().build(statConclusionList).ratioNotSymbol().ratio();
+        List<String> variableList= Lists.newArrayList(
+                String.valueOf(diseaseNum.hypertensionRatio),
+                String.valueOf(diseaseNum.anemiaRatio),
+                String.valueOf(diseaseNum.diabetesRatio),
+                String.valueOf(diseaseNum.allergicAsthmaRatio),
+                String.valueOf(diseaseNum.physicalDisabilityRatio));
+        districtDiseaseMonitorVO.setDiseaseMonitorChart(variableList);
+    }
+
 
     /**
      * 疾病监测情况-说明变量
@@ -221,6 +238,7 @@ public class DistrictDiseaseMonitorService {
         return diseaseMonitorTable;
     }
 
+    @EqualsAndHashCode(callSuper = true)
     @Data
     private static class DiseaseNum extends EntityFunction{
 

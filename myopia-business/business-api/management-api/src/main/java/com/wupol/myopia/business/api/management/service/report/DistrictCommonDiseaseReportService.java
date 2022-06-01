@@ -20,6 +20,7 @@ import com.wupol.myopia.business.common.utils.constant.WarningLevel;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.*;
@@ -262,7 +263,6 @@ public class DistrictCommonDiseaseReportService {
         BigDecimal averageVision = BigDecimalUtil.divide(add, new BigDecimal("2"), 1);
 
         kindergartenVO.setAvgVision(averageVision);
-        kindergartenVO.setAvgVisionRatio(MathUtil.ratioNotSymbol(averageVision,new BigDecimal("6")));
         kindergartenVO.setLowVisionRatio(MathUtil.ratioNotSymbol(lowVisionNum,validScreeningNum));
         kindergartenVO.setMyopiaLevelInsufficientRatio(MathUtil.ratioNotSymbol(visionLabelZeroSpNum,validScreeningNum));
         kindergartenVO.setAnisometropiaRatio(MathUtil.ratioNotSymbol(anisometropiaNum,validScreeningNum));
@@ -290,7 +290,6 @@ public class DistrictCommonDiseaseReportService {
         BigDecimal add = averageVisionTuple.getFirst().add(averageVisionTuple.getSecond());
         BigDecimal averageVision = BigDecimalUtil.divide(add, new BigDecimal("2"), 1);
         primarySchoolAndAboveVO.setAvgVision(averageVision);
-        primarySchoolAndAboveVO.setAvgVisionRatio(MathUtil.ratioNotSymbol(averageVision,new BigDecimal("6")));
         primarySchoolAndAboveVO.setLowVisionRatio(MathUtil.ratioNotSymbol(lowVisionNum,validScreeningNum));
         primarySchoolAndAboveVO.setMyopiaRatio(MathUtil.ratioNotSymbol(myopiaNum,validScreeningNum));
 
@@ -363,7 +362,11 @@ public class DistrictCommonDiseaseReportService {
             return;
         }
 
-        List<StatConclusion> primaryAndAboveStatConclusionList = statConclusionList.stream().filter(sc -> !Objects.equals(sc.getSchoolAge(), SchoolAge.KINDERGARTEN.code)).collect(Collectors.toList());
+        List<StatConclusion> primaryAndAboveStatConclusionList = statConclusionList.stream().filter(sc -> {
+            String schoolGradeCode = sc.getSchoolGradeCode();
+            GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeCode);
+            return !Objects.equals(gradeCodeEnum.getType(), SchoolAge.KINDERGARTEN.code);
+        }).collect(Collectors.toList());
         Map<Integer,String> schoolMap = Maps.newHashMap();
         if (CollectionUtil.isNotEmpty(primaryAndAboveStatConclusionList)){
             Set<Integer> schoolIds = primaryAndAboveStatConclusionList.stream().map(StatConclusion::getSchoolId).collect(Collectors.toSet());
