@@ -49,4 +49,14 @@ public class ReportConst {
     public static final BigDecimal ZERO_BIG_DECIMAL = new BigDecimal("0.00");
     public static final String ZERO_RATIO_STR = "0.00%";
     public static final String ZERO_STR = "0.00";
+
+    /**
+     * 文字
+     */
+    public static final  String hypertension ="高血压";
+    public static final  String anemia ="贫血";
+    public static final  String diabetes ="糖尿病";
+    public static final  String allergicAsthma ="过敏性哮喘";
+    public static final  String physicalDisability ="身体残疾";
+
 }

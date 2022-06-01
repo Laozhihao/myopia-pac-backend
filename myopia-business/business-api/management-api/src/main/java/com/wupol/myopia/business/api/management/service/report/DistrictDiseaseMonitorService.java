@@ -52,13 +52,18 @@ public class DistrictDiseaseMonitorService {
             return;
         }
         DiseaseNum diseaseNum = new DiseaseNum().build(statConclusionList).ratioNotSymbol().ratio();
-        List<String> variableList= Lists.newArrayList(
-                String.valueOf(diseaseNum.hypertensionRatio),
-                String.valueOf(diseaseNum.anemiaRatio),
-                String.valueOf(diseaseNum.diabetesRatio),
-                String.valueOf(diseaseNum.allergicAsthmaRatio),
-                String.valueOf(diseaseNum.physicalDisabilityRatio));
+        List<DistrictDiseaseMonitorVO.ChartItem> variableList= Lists.newArrayList();
+        getChartItem(diseaseNum,ReportConst.hypertension,DiseaseNum::getHypertensionRatio,variableList);
+        getChartItem(diseaseNum,ReportConst.anemia,DiseaseNum::getAnemiaRatio,variableList);
+        getChartItem(diseaseNum,ReportConst.diabetes,DiseaseNum::getDiabetesRatio,variableList);
+        getChartItem(diseaseNum,ReportConst.allergicAsthma,DiseaseNum::getAllergicAsthmaRatio,variableList);
+        getChartItem(diseaseNum,ReportConst.physicalDisability,DiseaseNum::getPhysicalDisabilityRatio,variableList);
         districtDiseaseMonitorVO.setDiseaseMonitorChart(variableList);
+    }
+
+    private void getChartItem(DiseaseNum diseaseNum,String label,Function<DiseaseNum,BigDecimal> mapper,List<DistrictDiseaseMonitorVO.ChartItem> variableList){
+        BigDecimal value = Optional.of(diseaseNum).map(mapper).orElse(ReportConst.ZERO_BIG_DECIMAL);
+        variableList.add(new DistrictDiseaseMonitorVO.ChartItem(label,value));
     }
 
 

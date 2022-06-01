@@ -27,9 +27,25 @@ public class DistrictDiseaseMonitorVO {
     /**
      * 图表
      */
-    private List<String> diseaseMonitorChart;
+    private List<ChartItem> diseaseMonitorChart;
 
+    @Data
+    public static class ChartItem{
+        /**
+         * 标签
+         */
+        private String  label;
+        /**
+         * 值
+         */
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
+        private BigDecimal value;
 
+        public ChartItem(String label, BigDecimal value) {
+            this.label = label;
+            this.value = value;
+        }
+    }
 
     @Data
     public static class DiseaseMonitorVariableVO{
