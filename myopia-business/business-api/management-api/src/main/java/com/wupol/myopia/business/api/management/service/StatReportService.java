@@ -326,7 +326,7 @@ public class StatReportService {
         });
 
         List<StatConclusion> myopiaConclusions =
-                validConclusions.stream().filter(StatConclusion::getIsMyopia).collect(Collectors.toList());
+                validConclusions.stream().filter(sc->Objects.equals(Boolean.TRUE,sc.getIsMyopia())).collect(Collectors.toList());
         schoolAgeGenderVisionUncorrectedTable.add(composeGenderVisionUncorrectedStat(TABLE_LABEL_TOTAL,
                 myopiaConclusions));
         return schoolAgeGenderVisionUncorrectedTable;
@@ -735,8 +735,8 @@ public class StatReportService {
      */
     private List<TypeRatioDTO> getMyopiaRatio(List<StatConclusion> validConclusions) {
         List<TypeRatioDTO> myopiaRatio = new ArrayList<>();
-        long myopiaNum = validConclusions.stream().filter(x -> x.getIsMyopia() || GlassesTypeEnum.ORTHOKERATOLOGY.code.equals(x.getGlassesType())).count();
-        long lowVisionNum = validConclusions.stream().filter(StatConclusion::getIsLowVision).count();
+        long myopiaNum = validConclusions.stream().filter(x -> Objects.equals(Boolean.TRUE,x.getIsMyopia()) || GlassesTypeEnum.ORTHOKERATOLOGY.code.equals(x.getGlassesType())).count();
+        long lowVisionNum = validConclusions.stream().filter(sc->Objects.equals(Boolean.TRUE,sc.getIsLowVision())).count();
         double vision = validConclusions.stream().map(x -> x.getVisionL().add(x.getVisionR())).mapToDouble(BigDecimal::doubleValue).sum();
         int countNum = validConclusions.size();
         myopiaRatio.add(TypeRatioDTO.getInstance(RatioEnum.MYOPIA.name(), myopiaNum, convertToPercentage(myopiaNum * 1f / countNum)));
@@ -784,8 +784,8 @@ public class StatReportService {
      * @return
      */
     private List<MyopiaDTO> getGenderMyopia(StatGenderDTO statGenderDTO) {
-        long maleMyopiaNum = statGenderDTO.getMale().stream().filter(StatConclusion::getIsMyopia).count();
-        long femaleMyopiaNum = statGenderDTO.getFemale().stream().filter(StatConclusion::getIsMyopia).count();
+        long maleMyopiaNum = statGenderDTO.getMale().stream().filter(sc->Objects.equals(Boolean.TRUE,sc.getIsMyopia())).count();
+        long femaleMyopiaNum = statGenderDTO.getFemale().stream().filter(sc->Objects.equals(Boolean.TRUE,sc.getIsMyopia())).count();
         return Arrays.asList(
                 MyopiaDTO.getInstance(statGenderDTO.getMale().size(), GenderEnum.MALE.name(), maleMyopiaNum, convertToPercentage(maleMyopiaNum * 1f / statGenderDTO.getMale().size())),
                 MyopiaDTO.getInstance(statGenderDTO.getFemale().size(), GenderEnum.FEMALE.name(), femaleMyopiaNum, convertToPercentage(femaleMyopiaNum * 1f / statGenderDTO.getFemale().size()))
@@ -806,7 +806,7 @@ public class StatReportService {
         List<MyopiaDTO> schoolAgeList = businessSchoolAge.getValidSchoolAgeNumMap().keySet().stream()
                 .map(x -> {
                     List<StatConclusion> stat = businessSchoolAge.getValidSchoolAgeMap().getOrDefault(x, Collections.emptyList());
-                    long myopiaNum = stat.stream().filter(StatConclusion::getIsMyopia).count();
+                    long myopiaNum = stat.stream().map(StatConclusion::getIsMyopia).filter(Objects::nonNull).count();
                     int statNum = stat.size();
                     Long schoolNum = businessSchoolAge.getValidSchoolAgeDistributionMap().getOrDefault(x, 0L);
                     Float ratio = convertToPercentage(myopiaNum * 1f / statNum);
@@ -844,7 +844,7 @@ public class StatReportService {
                         return MyopiaDTO.getInstance(0, x.getName(),
                                 0, 0.00f);
                     }
-                    long myopiaNum = stat.stream().filter(StatConclusion::getIsMyopia).count();
+                    long myopiaNum = stat.stream().map(StatConclusion::getIsMyopia).filter(Objects::nonNull).count();
                     return MyopiaDTO.getInstance(stat.size(), x.getName(),
                             myopiaNum, convertToPercentage(myopiaNum * 1f / stat.size()));
                 })
@@ -868,7 +868,7 @@ public class StatReportService {
         return gradeMap.keySet().stream()
                 .map(x -> {
                     List<StatConclusion> stat = gradeMap.get(x);
-                    long myopiaNum = stat.stream().filter(StatConclusion::getIsMyopia).count();
+                    long myopiaNum = stat.stream().map(StatConclusion::getIsMyopia).filter(Objects::nonNull).count();
                     return MyopiaDTO.getInstance(stat.size(), GradeCodeEnum.getByCode(x).name(),
                             myopiaNum, convertToPercentage(myopiaNum * 1f / stat.size()));
                 }).collect(Collectors.toList());
@@ -1088,7 +1088,7 @@ public class StatReportService {
     private Map<String, Object> composeSchoolGradeGenderUnderCorrectedDesc(List<SchoolGradeItemsDTO> schoolGradeItemList,
                                                                            List<StatConclusion> statConclusions) {
         List<StatConclusion> myopiaConclusions = statConclusions
-                .stream().filter(StatConclusion::getIsMyopia).collect(Collectors.toList());
+                .stream().filter(sc->Objects.equals(Boolean.TRUE,sc.getIsMyopia())).collect(Collectors.toList());
         List<Map<String, Object>> schoolGradeGenderVisionTable = new ArrayList<>();
         for (SchoolGradeItemsDTO schoolGradeItems : schoolGradeItemList) {
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeItems.getGradeCode());
@@ -1349,7 +1349,7 @@ public class StatReportService {
      */
     private Map<String, Object> composeGenderLowVisionStat(
             String name, List<StatConclusion> statConclusions) {
-        Predicate<StatConclusion> predicate = StatConclusion::getIsLowVision;
+        Predicate<StatConclusion> predicate = sc->Objects.equals(Boolean.TRUE,sc.getIsLowVision());
         return composeGenderPredicateStat(name, statConclusions, predicate);
     }
 
@@ -1362,7 +1362,7 @@ public class StatReportService {
     private Map<String, Object> composeGenderMyopiaStat(
             String name, List<StatConclusion> statConclusions) {
         Predicate<StatConclusion> predicate =
-                x -> x.getIsMyopia() || GlassesTypeEnum.ORTHOKERATOLOGY.code.equals(x.getGlassesType());
+                x -> Objects.equals(Boolean.TRUE,x.getIsMyopia()) || GlassesTypeEnum.ORTHOKERATOLOGY.code.equals(x.getGlassesType());
         return composeGenderPredicateStat(name, statConclusions, predicate);
     }
 
