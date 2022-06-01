@@ -2,7 +2,6 @@ package com.wupol.myopia.business.api.management.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
-import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
 import com.wupol.myopia.business.api.management.domain.dto.ArchiveRequestParam;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
@@ -83,9 +82,8 @@ public class ArchiveService {
         // 获取所有学生的筛查结果（初筛）
         List<VisionScreeningResult> visionScreeningResultList = visionScreeningResultService.getByScreeningPlanSchoolStudentIds(planStudentIds);
         // 生成档案卡数据
-        int year = DateUtil.getSchoolYear(screeningPlan.getStartTime());
         SchoolClassDTO classWithSchoolAndGradeName = schoolGradeService.getClassWithSchoolAndGradeName(archiveRequestParam.getClassId());
-        return generateArchiveCardBatch(visionScreeningResultList, year, classWithSchoolAndGradeName);
+        return generateArchiveCardBatch(visionScreeningResultList, screeningPlan, classWithSchoolAndGradeName);
     }
 
     /**
@@ -107,10 +105,12 @@ public class ArchiveService {
     /**
      * 批量生成学生档案卡
      *
-     * @param visionScreeningResultList 筛查结果列表
+     * @param visionScreeningResultList     筛查结果列表
+     * @param screeningPlan                 筛查计划
+     * @param classWithSchoolAndGradeName   班级信息（带学校、年级名称）
      * @return 学生档案卡实体类list
      */
-    private List<CommonDiseaseArchiveCard> generateArchiveCardBatch(List<VisionScreeningResult> visionScreeningResultList, int year, SchoolClassDTO classWithSchoolAndGradeName) {
+    private List<CommonDiseaseArchiveCard> generateArchiveCardBatch(List<VisionScreeningResult> visionScreeningResultList, ScreeningPlan screeningPlan, SchoolClassDTO classWithSchoolAndGradeName) {
         if (CollectionUtils.isEmpty(visionScreeningResultList)) {
             return Collections.emptyList();
         }
@@ -119,10 +119,18 @@ public class ArchiveService {
         List<Integer> planStudentIds = visionScreeningResultList.stream().map(VisionScreeningResult::getScreeningPlanSchoolStudentId).collect(Collectors.toList());
         Map<Integer, ScreeningPlanSchoolStudent> planSchoolStudentMap = screeningPlanSchoolStudentService.getByIds(planStudentIds).stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getId, Function.identity()));
         return visionScreeningResultList.stream()
-                .map(visionScreeningResult -> generateArchiveCard(visionScreeningResult, getStudentDTO(planSchoolStudentMap.get(visionScreeningResult.getScreeningPlanSchoolStudentId()), classWithSchoolAndGradeName, school), year, school))
+                .map(visionScreeningResult -> generateArchiveCard(visionScreeningResult, getStudentDTO(planSchoolStudentMap.get(visionScreeningResult.getScreeningPlanSchoolStudentId()), classWithSchoolAndGradeName, school), screeningPlan, school))
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 获取学生信息
+     *
+     * @param planStudent   筛查计划学生
+     * @param classWithSchoolAndGradeName   班级信息（带学校、年级名称）
+     * @param school    学校
+     * @return com.wupol.myopia.business.core.school.domain.dto.StudentDTO
+     **/
     private StudentDTO getStudentDTO(ScreeningPlanSchoolStudent planStudent, SchoolClassDTO classWithSchoolAndGradeName, School school) {
         StudentDTO studentDTO = new StudentDTO()
                 .setSchoolName(classWithSchoolAndGradeName.getSchoolName())
@@ -149,10 +157,12 @@ public class ArchiveService {
      * 生成档案卡
      *
      * @param visionScreeningResult 筛查结果
-     * @param studentDTO           学生信息
+     * @param studentDTO            学生信息
+     * @param screeningPlan         筛查计划
+     * @param school                学校
      * @return 学生档案卡实体类
      */
-    private CommonDiseaseArchiveCard generateArchiveCard(VisionScreeningResult visionScreeningResult, StudentDTO studentDTO, int year, School school) {
+    private CommonDiseaseArchiveCard generateArchiveCard(VisionScreeningResult visionScreeningResult, StudentDTO studentDTO, ScreeningPlan screeningPlan, School school) {
         CardInfoVO studentInfo = studentFacade.getCardInfo(studentDTO);
         // 民族特殊处理，不在常见民族列表的设为其他（前端展示需要）
         NationEnum nationEnum = NationEnum.COMMON_NATION.stream().filter(nation -> nation.getCode().equals(studentInfo.getNation())).findFirst().orElse(NationEnum.OTHER);
@@ -169,9 +179,15 @@ public class ArchiveService {
                 .setSpineData(visionScreeningResult.getSpineData())
                 .setHeightAndWeightData(visionScreeningResult.getHeightAndWeightData())
                 .setPrivacyData(visionScreeningResult.getPrivacyData())
-                .setCommonDiseaseIdInfo(getStudentCommonDiseaseIdInfo(studentDTO, year, school));
+                .setCommonDiseaseIdInfo(getStudentCommonDiseaseIdInfo(studentDTO, screeningPlan, school));
     }
 
+    /**
+     * 龋齿
+     *
+     * @param saprodontiaDataDO 龋齿筛查数据
+     * @return com.wupol.myopia.business.core.screening.flow.domain.dos.SaprodontiaData
+     **/
     private SaprodontiaData getSaprodontiaData(SaprodontiaDataDO saprodontiaDataDO) {
         if (Objects.isNull(saprodontiaDataDO)) {
             return null;
@@ -182,11 +198,20 @@ public class ArchiveService {
         return saprodontiaData;
     }
 
-    private StudentCommonDiseaseIdInfo getStudentCommonDiseaseIdInfo(StudentDTO studentDTO, int year, School school) {
-        // TODO: 减少数据库查询，在循环外查询数据库
+    /**
+     * 获取学生常见病ID信息
+     *
+     * @param studentDTO    学生信息
+     * @param screeningPlan 筛查计划
+     * @param school        学校
+     * @return com.wupol.myopia.business.core.screening.flow.domain.vo.StudentCommonDiseaseIdInfo
+     **/
+    private StudentCommonDiseaseIdInfo getStudentCommonDiseaseIdInfo(StudentDTO studentDTO, ScreeningPlan screeningPlan, School school) {
+        // TODO: 1. 减少数据库查询，在循环外查询数据库
+        // TODO: 2. 直辖市特殊处理
         List<District> districtList = JSON.parseObject(school.getDistrictDetail(), new TypeReference<List<District>>(){});
-        StudentCommonDiseaseId studentCommonDiseaseId = studentCommonDiseaseIdService.getStudentCommonDiseaseId(school.getDistrictId(), school.getId(), studentDTO.getGradeId(), studentDTO.getId(), year);
-        String schoolCommonDiseaseCode = schoolCommonDiseaseCodeService.getSchoolCommonDiseaseCode(school.getDistrictId(), school.getId(), year);
+        StudentCommonDiseaseId studentCommonDiseaseId = studentCommonDiseaseIdService.getStudentCommonDiseaseIdInfo(school.getDistrictId(), school.getId(), studentDTO.getGradeId(), studentDTO.getId(), screeningPlan.getStartTime());
+        String schoolCommonDiseaseCode = schoolCommonDiseaseCodeService.getSchoolCommonDiseaseCode(String.valueOf(districtList.get(2).getCode()).substring(0, 6), school.getId(), screeningPlan.getStartTime());
         return new StudentCommonDiseaseIdInfo()
                 .setCommonDiseaseId(studentCommonDiseaseId.getCommonDiseaseId())
                 .setProvinceName(districtList.get(0).getName())
@@ -203,6 +228,5 @@ public class ArchiveService {
                 .setAreaType(school.getAreaType())
                 .setMonitorType(school.getMonitorType());
     }
-
 
 }

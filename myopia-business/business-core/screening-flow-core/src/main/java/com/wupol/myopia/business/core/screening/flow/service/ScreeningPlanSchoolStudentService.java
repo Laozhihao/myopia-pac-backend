@@ -663,4 +663,14 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     public List<ScreeningPlanSchoolStudent> getByPlanIdIdCardAndPassport(Integer planId, String idCard, String passport, Integer id) {
         return baseMapper.getByPlanIdIdCardAndPassport(planId, idCard, passport, id);
     }
+
+    /**
+     * 获取常见病筛查学生
+     *
+     * @param schoolId 学校ID
+     * @return java.util.List<com.wupol.myopia.business.core.screening.flow.domain.dto.CommonDiseasePlanStudent>
+     **/
+    public List<CommonDiseasePlanStudent> getCommonDiseaseScreeningPlanStudent(Integer schoolId) {
+        return baseMapper.selectCommonDiseaseScreeningPlanStudent(schoolId);
+    }
 }
