@@ -10,17 +10,19 @@
     <sql id="Base_Where_Clause">
         <where>
             <trim prefixOverrides="and">
-                <if test="@Ognl@isNotEmpty(districtId)">and `area_district_short_code` = #{areaDistrictShortCode}</if>
+                <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(areaDistrictShortCode)">and `area_district_short_code` = #{areaDistrictShortCode}</if>
                 <if test="@Ognl@isNotEmpty(schoolId)">and `school_id` = #{schoolId}</if>
                 <if test="@Ognl@isNotEmpty(year)">and `year` = #{year}</if>
                 <if test="@Ognl@isNotEmpty(code)">and `code` = #{code}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
             </trim>
         </where>
     </sql>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        area_district_short_code, school_id, year, code
+        id, area_district_short_code, school_id, year, code, create_time
     </sql>
 
 </mapper>

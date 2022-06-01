@@ -1,11 +1,14 @@
 package com.wupol.myopia.business.core.school.domain.model;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * 学生常见病ID
@@ -20,6 +23,12 @@ import java.io.Serializable;
 public class StudentCommonDiseaseId implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    /**
+     * 主键ID
+     */
+    @TableId(value = "id", type = IdType.AUTO)
+    private Integer id;
 
     /**
      * 学生ID
@@ -46,5 +55,9 @@ public class StudentCommonDiseaseId implements Serializable {
      */
     private String commonDiseaseId;
 
+    /**
+     * 创建时间
+     */
+    private Date createTime;
 
 }
