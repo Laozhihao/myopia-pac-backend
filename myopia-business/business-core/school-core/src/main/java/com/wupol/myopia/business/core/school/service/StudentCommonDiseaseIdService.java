@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.school.service;
 
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.domain.mapper.StudentCommonDiseaseIdMapper;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import java.util.Date;
 import java.util.Objects;
 
 /**
@@ -32,39 +34,54 @@ public class StudentCommonDiseaseIdService extends BaseService<StudentCommonDise
     /**
      * 获取学生常见病ID
      *
-     * @param districtId    行政区域ID
+     * @param schoolDistrictId    行政区域ID
      * @param schoolId      学校ID
      * @param gradeId       年级ID
      * @param studentId     学校ID
-     * @param year          年份
+     * @param screeningPlanStartTime 筛查计划开始时间
      * @return com.wupol.myopia.business.core.school.domain.model.StudentCommonDiseaseId
      **/
-    public StudentCommonDiseaseId getStudentCommonDiseaseId(Integer districtId, Integer schoolId, Integer gradeId, Integer studentId, int year) {
+    public String getStudentCommonDiseaseId(Integer schoolDistrictId, Integer schoolId, Integer gradeId, Integer studentId, Date screeningPlanStartTime) {
+        return getStudentCommonDiseaseIdInfo(schoolDistrictId, schoolId, gradeId, studentId, screeningPlanStartTime).getCommonDiseaseId();
+    }
+
+    /**
+     * 获取学生常见病ID完整信息
+     *
+     * @param schoolDistrictId    行政区域ID
+     * @param schoolId      学校ID
+     * @param gradeId       年级ID
+     * @param studentId     学校ID
+     * @param screeningPlanStartTime  筛查计划开始时间
+     * @return com.wupol.myopia.business.core.school.domain.model.StudentCommonDiseaseId
+     **/
+    public StudentCommonDiseaseId getStudentCommonDiseaseIdInfo(Integer schoolDistrictId, Integer schoolId, Integer gradeId, Integer studentId, Date screeningPlanStartTime) {
+        int year = DateUtil.getSchoolYear(screeningPlanStartTime);
         // 获取已存在的
         StudentCommonDiseaseId studentCommonDiseaseId = findOne(new StudentCommonDiseaseId().setStudentId(studentId).setGradeId(gradeId).setYear(year));
         if (Objects.nonNull(studentCommonDiseaseId)) {
             return studentCommonDiseaseId;
         }
         // 还不存在，则生成
-        return createStudentCommonDiseaseId(districtId, schoolId, gradeId, studentId, year);
+        return createStudentCommonDiseaseId(schoolDistrictId, schoolId, gradeId, studentId, year);
     }
 
     /**
      * 创建学生常见病ID
      *
-     * @param districtId    行政区域ID
+     * @param schoolDistrictId    行政区域ID
      * @param schoolId      学校ID
      * @param gradeId       年级ID
      * @param studentId     学生ID
      * @param year          年份
      * @return com.wupol.myopia.business.core.school.domain.model.StudentCommonDiseaseId
      **/
-    public StudentCommonDiseaseId createStudentCommonDiseaseId(Integer districtId, Integer schoolId, Integer gradeId, Integer studentId, int year) {
+    public StudentCommonDiseaseId createStudentCommonDiseaseId(Integer schoolDistrictId, Integer schoolId, Integer gradeId, Integer studentId, int year) {
         School school = schoolService.getById(schoolId);
         SchoolGrade grade = schoolGradeService.getById(gradeId);
-        District district = districtService.getById(districtId);
+        District district = districtService.getById(schoolDistrictId);
         String districtCode = String.valueOf(district.getCode());
-        String schoolCommonDiseaseCode = schoolCommonDiseaseCodeService.getSchoolCommonDiseaseCode(districtId, schoolId, year);
+        String schoolCommonDiseaseCode = schoolCommonDiseaseCodeService.getSchoolCommonDiseaseCode(districtCode.substring(0, 6), schoolId, year);
         String studentCommonDiseaseCode = getStudentCommonDiseaseCode(gradeId, year);
         String commonDiseaseId = new StringBuilder()
                 .append(districtCode, 0, 4)

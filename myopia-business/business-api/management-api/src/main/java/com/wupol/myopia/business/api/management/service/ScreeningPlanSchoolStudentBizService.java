@@ -7,12 +7,14 @@ import com.wupol.myopia.business.api.management.domain.dto.MockStudentRequestDTO
 import com.wupol.myopia.business.api.management.domain.dto.PlanStudentRequestDTO;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
+import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.common.utils.constant.SourceClientEnum;
 import com.wupol.myopia.business.core.common.constant.ArtificialStatusConstant;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.SchoolService;
+import com.wupol.myopia.business.core.school.service.StudentCommonDiseaseIdService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
@@ -44,7 +46,8 @@ public class ScreeningPlanSchoolStudentBizService {
     private StudentService studentService;
     @Autowired
     private ScreeningPlanService screeningPlanService;
-
+    @Autowired
+    private StudentCommonDiseaseIdService studentCommonDiseaseIdService;
 
 
     /**
@@ -126,6 +129,7 @@ public class ScreeningPlanSchoolStudentBizService {
     private void mockPlanStudent(Integer studentTotal, School school, ScreeningPlan plan,
                                  MockStudentRequestDTO.GradeItem schoolGrade, MockStudentRequestDTO.ClassItem schoolClass,
                                  List<Student> mockStudentList, List<ScreeningPlanSchoolStudent> mockPlanStudentList) {
+        boolean isVisionScreening = ScreeningTypeEnum.isVisionScreeningType(plan.getScreeningType());
         for (int i = 0; i < studentTotal; i++) {
             ScreeningPlanSchoolStudent planSchoolStudent = new ScreeningPlanSchoolStudent();
             planSchoolStudent.setSrcScreeningNoticeId(plan.getSrcScreeningNoticeId());
@@ -150,6 +154,7 @@ public class ScreeningPlanSchoolStudentBizService {
             planSchoolStudent.setStudentName(mockStudentList.get(i).getName());
             planSchoolStudent.setArtificial(ArtificialStatusConstant.Artificial);
             planSchoolStudent.setScreeningCode(Long.valueOf(mockStudentList.get(i).getName()));
+            planSchoolStudent.setCommonDiseaseId(isVisionScreening ? null : studentCommonDiseaseIdService.getStudentCommonDiseaseId(school.getDistrictId(), school.getId(), schoolGrade.getGradeId(), planSchoolStudent.getStudentId(), plan.getStartTime()));
             mockPlanStudentList.add(planSchoolStudent);
         }
         screeningPlanSchoolStudentService.batchUpdateOrSave(mockPlanStudentList);

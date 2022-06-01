@@ -544,4 +544,14 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
             return null;
         }
     }
+
+    /**
+     * 获取常见病筛查学生
+     *
+     * @param schoolId 学校ID
+     * @return java.util.List<com.wupol.myopia.business.core.screening.flow.domain.dto.CommonDiseasePlanStudent>
+     **/
+    public List<CommonDiseasePlanStudent> getCommonDiseaseScreeningPlanStudent(Integer schoolId) {
+        return baseMapper.selectCommonDiseaseScreeningPlanStudent(schoolId);
+    }
 }

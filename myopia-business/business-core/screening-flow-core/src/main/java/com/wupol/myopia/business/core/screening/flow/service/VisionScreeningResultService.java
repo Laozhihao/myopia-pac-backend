@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
+import com.wupol.myopia.business.core.school.service.StudentCommonDiseaseIdService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionQueryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.VisionScreeningResultMapper;
@@ -11,6 +13,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -29,9 +32,10 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
 
     @Resource
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
-
     @Resource
     private StatConclusionService statConclusionService;
+    @Autowired
+    private StudentCommonDiseaseIdService studentCommonDiseaseIdService;
 
    /***
    * @Description: 学生ID集合
@@ -247,6 +251,11 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         if (CollectionUtils.isEmpty(planStudents)) {
             return;
         }
+        // 设置常见病ID
+        if (!ScreeningTypeEnum.isVisionScreeningType(plan.getScreeningType())) {
+            planStudents.forEach(x -> x.setCommonDiseaseId(studentCommonDiseaseIdService.getStudentCommonDiseaseId(x.getSchoolDistrictId(), x.getSchoolId(), x.getGradeId(), x.getStudentId(), plan.getStartTime())));
+        }
+        // 新增或更新筛查计划学生
         screeningPlanSchoolStudentService.saveOrUpdateBatch(planStudents);
         // 获取所有结果
         Integer planId = plan.getId();
@@ -264,6 +273,7 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         }
         Map<Integer, StatConclusion> statConclusionMap = statConclusionList.stream().collect(Collectors.toMap(StatConclusion::getResultId, Function.identity()));
 
+        // 更新学生筛查数据的 studentId、schoolId
         List<VisionScreeningResult> updateResultList = new ArrayList<>();
         List<StatConclusion> updateStatConclusionList = new ArrayList<>();
 

@@ -15,16 +15,24 @@ import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
+import com.wupol.myopia.business.core.school.service.StudentCommonDiseaseIdService;
 import com.wupol.myopia.business.core.school.service.StudentService;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.CommonDiseasePlanStudent;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.response.Organization;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * 多端管理学校
@@ -54,6 +62,10 @@ public class SchoolFacade {
 
     @Resource
     private ResourceFileService resourceFileService;
+    @Autowired
+    private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
+    @Autowired
+    private StudentCommonDiseaseIdService studentCommonDiseaseIdService;
 
     /**
      * 获取学校详情
@@ -95,6 +107,7 @@ public class SchoolFacade {
         if (schoolService.checkSchoolName(schoolRequestDTO.getName(), schoolId)) {
             throw new BusinessException("学校名称重复，请确认");
         }
+        School oldSchool = schoolService.getById(schoolId);
         District district = districtService.getById(schoolRequestDTO.getDistrictId());
         schoolRequestDTO.setDistrictProvinceCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
         //更新学校
@@ -108,7 +121,10 @@ public class SchoolFacade {
         }
         // 更新筛查计划中的学校
         screeningPlanSchoolService.updateSchoolNameBySchoolId(schoolId, schoolRequestDTO.getName());
+        // 更新关联的筛查学生的常见病ID
         School newSchool = schoolService.getById(schoolId);
+        updateStudentCommonDiseaseId(oldSchool.getDistrictId(), newSchool.getDistrictId(), newSchool.getId());
+        // 组装返回数据
         SchoolResponseDTO schoolResponseDTO = new SchoolResponseDTO();
         BeanUtils.copyProperties(newSchool, schoolResponseDTO);
         schoolResponseDTO.setDistrictName(districtService.getDistrictName(newSchool.getDistrictDetail()));
@@ -119,5 +135,32 @@ public class SchoolFacade {
                 .setScreeningCount(schoolRequestDTO.getScreeningCount())
                 .setCreateUser(schoolRequestDTO.getCreateUser());
         return schoolResponseDTO;
+    }
+
+    /**
+     * 更新学生常见病ID
+     *
+     * @param oldSchoolDistrictId   学校旧行政区域ID
+     * @param newSchoolDistrictId   学校新行政区域ID
+     * @param schoolId              学校ID
+     * @return void
+     **/
+    private void updateStudentCommonDiseaseId(Integer oldSchoolDistrictId, Integer newSchoolDistrictId, Integer schoolId) {
+        // 行政区域地址的区/县若没有变动，则不需要更新
+        District oldDistrict = districtService.getById(oldSchoolDistrictId);
+        District newDistrict = districtService.getById(newSchoolDistrictId);
+        if (Objects.equals(String.valueOf(oldDistrict.getCode()).substring(0, 6), String.valueOf(newDistrict.getCode()).substring(0, 6))) {
+            return;
+        }
+        // 获取所有需要更新的计划学生
+        List<CommonDiseasePlanStudent> commonDiseasePlanStudentList = screeningPlanSchoolStudentService.getCommonDiseaseScreeningPlanStudent(schoolId);
+        if (CollectionUtils.isEmpty(commonDiseasePlanStudentList)) {
+            return;
+        }
+        List<ScreeningPlanSchoolStudent> planStudentList = commonDiseasePlanStudentList.stream()
+                .map(x -> new ScreeningPlanSchoolStudent().setId(x.getId()).setCommonDiseaseId(studentCommonDiseaseIdService.getStudentCommonDiseaseId(newSchoolDistrictId, schoolId, x.getGradeId(), x.getStudentId(), x.getPlanStartTime())))
+                .collect(Collectors.toList());
+        // 批量更新
+        screeningPlanSchoolStudentService.updateBatchById(planStudentList);
     }
 }

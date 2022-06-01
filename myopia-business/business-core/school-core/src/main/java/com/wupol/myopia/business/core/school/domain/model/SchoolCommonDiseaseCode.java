@@ -22,9 +22,9 @@ public class SchoolCommonDiseaseCode implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 行政区域ID
+     * 区/县行政区域编码（6位）
      */
-    private Integer districtId;
+    private String areaDistrictShortCode;
 
     /**
      * 学校ID
