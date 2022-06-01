@@ -18,13 +18,14 @@ import java.util.function.Function;
  */
 public class EntityFunction {
 
-    public Integer getCount(List<StatConclusion> statConclusionList, Function<StatConclusion,Boolean> function){
+
+    public <T> Integer getCount(List<T> statConclusionList, Function<T,Boolean> function){
         if (CollectionUtil.isEmpty(statConclusionList)){
             return ReportConst.ZERO;
         }
         return (int)statConclusionList.stream().map(function).filter(Objects::nonNull).filter(Boolean::booleanValue).count();
     }
-    public Integer getCount(List<StatConclusion> statConclusionList, Function<StatConclusion,Integer> mapper,Integer value){
+    public <T> Integer getCount(List<T> statConclusionList, Function<T,Integer> mapper,Integer value){
         if (CollectionUtil.isEmpty(statConclusionList)){
             return ReportConst.ZERO;
         }
@@ -36,4 +37,5 @@ public class EntityFunction {
     public String getRatio(Integer numerator,Integer denominator) {
         return Optional.ofNullable(MathUtil.ratio(numerator,denominator)).orElse(ReportConst.ZERO_RATIO_STR);
     }
+
 }
