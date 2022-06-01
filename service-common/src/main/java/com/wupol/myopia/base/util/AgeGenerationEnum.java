@@ -35,12 +35,12 @@ public enum AgeGenerationEnum {
         List<AgeGeneration> list = getAgeGenerations(min);
         int age = min > 3 ? min : 3;
         while (age < 6 && age <= max) {
-            AgeGeneration ageGeneration = new AgeGeneration(age + "<=" + "年龄<" + (age + 1), age, age + 1);
+            AgeGeneration ageGeneration = new AgeGeneration(age + "≤" + "年龄<" + (age + 1), age, age + 1);
             list.add(ageGeneration);
             age++;
         }
         if (max >= 6) {
-            AgeGeneration ageGeneration = new AgeGeneration("年龄" + ">=" + 6, age, 200);
+            AgeGeneration ageGeneration = new AgeGeneration("年龄" + "≥" + 6, age, 200);
             list.add(ageGeneration);
         }
         return list;
@@ -74,12 +74,12 @@ public enum AgeGenerationEnum {
 
     private static List<AgeGeneration> getAgeGenerations(Integer max, List<AgeGeneration> list, int age) {
         while (age < 18 && age <= max) {
-            AgeGeneration ageGeneration = new AgeGeneration(age + "<=" + "年龄<" + (age + 1), age, age + 1);
+            AgeGeneration ageGeneration = new AgeGeneration(age + "≤" + "年龄<" + (age + 1), age, age + 1);
             list.add(ageGeneration);
             age++;
         }
         if (max >= 18) {
-            AgeGeneration ageGeneration = new AgeGeneration("年龄" + ">=" + 18, age, 200);
+            AgeGeneration ageGeneration = new AgeGeneration("年龄" + "≥" + 18, age, 200);
             list.add(ageGeneration);
         }
         return list;

@@ -152,3 +152,6 @@ white-list:
   - "/auth/verify/image"
   # 获取档案卡数据统一接口
   - "/management/archive/data"
+  - "/management/report/screening/areaReport"
+  - "/management/report/screening/primaryReport"
+  - "/management/report/screening/kindergartenReport"

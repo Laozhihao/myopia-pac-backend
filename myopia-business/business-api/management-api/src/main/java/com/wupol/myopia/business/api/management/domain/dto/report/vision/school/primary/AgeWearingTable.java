@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.school.primary;
 
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.CommonTable;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,17 +11,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class AgeWearingTable {
-
-    /**
-     * 项目
-     */
-    private String name;
-
-    /**
-     * 有效人数
-     */
-    private Integer validCount;
+public class AgeWearingTable extends CommonTable {
 
     /**
      * 不佩戴眼镜

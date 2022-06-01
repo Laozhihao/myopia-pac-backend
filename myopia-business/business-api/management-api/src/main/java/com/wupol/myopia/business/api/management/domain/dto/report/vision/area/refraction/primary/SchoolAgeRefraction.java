@@ -1,6 +1,8 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.area.refraction.primary;
 
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.HighLowProportion;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.HorizontalChart;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.PortraitChart;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.AstigmatismTable;
 import lombok.Getter;
 import lombok.Setter;
@@ -40,6 +42,11 @@ public class SchoolAgeRefraction {
      * 高度近视
      */
     private HighLowProportion highMyopia;
+
+    /**
+     * 不同学龄屈光表格
+     */
+    private PortraitChart schoolAgeRefractionChart;
 
     /**
      * 表格

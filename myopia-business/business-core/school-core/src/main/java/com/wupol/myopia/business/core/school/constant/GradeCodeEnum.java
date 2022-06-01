@@ -7,6 +7,7 @@ import com.wupol.myopia.business.core.school.domain.dto.GradeCode;
 import lombok.Getter;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 年级编码枚举类
@@ -159,9 +160,19 @@ public enum GradeCodeEnum {
                 GradeCodeEnum.THREE_VOCATIONAL_HIGH_SCHOOL);
     }
 
+    public static List<GradeCodeEnum> universitySchool() {
+        return Lists.newArrayList(GradeCodeEnum.ONE_UNIVERSITY, GradeCodeEnum.TWO_UNIVERSITY,
+                GradeCodeEnum.THREE_UNIVERSITY,GradeCodeEnum.FOUR_UNIVERSITY);
+    }
+
     public static List<String> vocationalHighSchoolCodes() {
         return Lists.newArrayList(GradeCodeEnum.ONE_VOCATIONAL_HIGH_SCHOOL.getCode(), GradeCodeEnum.TWO_VOCATIONAL_HIGH_SCHOOL.getCode(),
                 GradeCodeEnum.THREE_VOCATIONAL_HIGH_SCHOOL.getCode());
+    }
+
+    public static List<String> universitySchoolCodes() {
+        return Lists.newArrayList(GradeCodeEnum.ONE_UNIVERSITY.getCode(), GradeCodeEnum.TWO_UNIVERSITY.getCode(),
+                GradeCodeEnum.THREE_UNIVERSITY.getCode(),GradeCodeEnum.FOUR_UNIVERSITY.getCode());
     }
 
     public static List<GradeCode> getGradeCodeList() {
@@ -201,6 +212,24 @@ public enum GradeCodeEnum {
     }
 
     public static List<String> primaryAbove() {
-        return Lists.newArrayList(Iterables.concat(privateSchoolCodes(), juniorSchoolCodes(), highSchoolCodes(), vocationalHighSchoolCodes()));
+        return Lists.newArrayList(Iterables.concat(privateSchoolCodes(), juniorSchoolCodes(), highSchoolCodes(), vocationalHighSchoolCodes(),universitySchoolCodes()));
+    }
+
+    /**
+     * 通过code 获取学龄段
+     *
+     * @param code code
+     *
+     * @return 学龄段
+     */
+    public static String getDesc(String code) {
+        return Arrays.stream(GradeCodeEnum.values())
+                .filter(item -> item.code.equals(code))
+                .findFirst().map(GradeCodeEnum::getName)
+                .orElse(null);
+    }
+
+    public static List<String> getAllName() {
+        return getGradeCodeList().stream().map(GradeCode::getName).collect(Collectors.toList());
     }
 }

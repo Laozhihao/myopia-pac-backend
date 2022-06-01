@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.school.primary;
 
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.HorizontalChart;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.MyopiaTable;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,6 +20,16 @@ public class PrimaryHistoryVision {
      * 信息
      */
     private Info info;
+
+    /**
+     * 图表
+     */
+    private HorizontalChart primaryHistoryVisionChart;
+
+    /**
+     * 等级图表
+     */
+    private HorizontalChart primaryLevelHistoryVisionChart;
 
     /**
      * 表格

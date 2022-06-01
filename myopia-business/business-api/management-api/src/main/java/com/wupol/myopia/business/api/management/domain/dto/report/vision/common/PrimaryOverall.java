@@ -16,69 +16,39 @@ import java.util.List;
 public class PrimaryOverall {
 
     /**
-     * 视力低下率
-     */
-    private String lowVisionProportion;
-
-    /**
      * 视力低下
      */
-    private HighLowProportion lowVision;
-
-    /**
-     * 近视率
-     */
-    private String myopiaProportion;
+    private MaxMinProportion lowVision;
 
     /**
      * 近视
      */
-    private HighLowProportion myopia;
-
-    /**
-     * 近视前期率
-     */
-    private String earlyMyopiaProportion;
+    private MaxMinProportion myopia;
 
     /**
      * 近视前期
      */
-    private HighLowProportion earlyMyopia;
-
-    /**
-     * 低度近视率
-     */
-    private String lightMyopiaProportion;
+    private MaxMinProportion earlyMyopia;
 
     /**
      * 低度近视
      */
-    private HighLowProportion lightMyopia;
-
-    /**
-     * 高度近视率
-     */
-    private String highMyopiaProportion;
+    private MaxMinProportion lightMyopia;
 
     /**
      * 高度近视
      */
-    private HighLowProportion highMyopia;
-
-    /**
-     * 建议就诊率
-     */
-    private String recommendDoctorProportion;
+    private MaxMinProportion highMyopia;
 
     /**
      * 建议就诊
      */
-    private HighLowProportion recommendDoctor;
+    private MaxMinProportion recommendDoctor;
 
     /**
      * 欠矫未矫
      */
-    private HighLowProportion owe;
+    private MaxMinProportion owe;
 
     /**
      * 表格

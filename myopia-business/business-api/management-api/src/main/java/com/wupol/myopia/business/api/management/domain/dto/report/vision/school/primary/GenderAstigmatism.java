@@ -1,6 +1,8 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.school.primary;
 
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.GenderProportion;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.HorizontalChart;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.PortraitChart;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.AstigmatismTable;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,6 +22,11 @@ public class GenderAstigmatism {
      * 信息
      */
     private Info info;
+
+    /**
+     * 表格
+     */
+    private HorizontalChart genderAstigmatismChart;
 
     /**
      * 表格

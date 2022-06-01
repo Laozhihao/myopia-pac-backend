@@ -1,5 +1,7 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.school.primary;
 
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.HorizontalChart;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.PortraitChart;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.AstigmatismTable;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,6 +26,16 @@ public class AgeAstigmatism {
      * 信息
      */
     private PrimaryAstigmatismInfo info;
+
+    /**
+     * 表格
+     */
+    private HorizontalChart ageAstigmatismChart;
+
+    /**
+     * 表格
+     */
+    private HorizontalChart ageLevelAstigmatismChart;
 
     /**
      * 表格

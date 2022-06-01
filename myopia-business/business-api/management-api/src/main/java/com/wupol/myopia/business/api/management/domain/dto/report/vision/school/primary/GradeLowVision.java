@@ -1,5 +1,7 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.school.primary;
 
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.HorizontalChart;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.PortraitChart;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,7 +22,12 @@ public class GradeLowVision {
     private LowVisionInfo info;
 
     /**
+     * 图表
+     */
+    private PortraitChart gradeLowVisionChart;
+
+    /**
      * 表格
      */
-    private List<LowVisionTable> tables;
+    private List<CommonLowVisionTable> tables;
 }

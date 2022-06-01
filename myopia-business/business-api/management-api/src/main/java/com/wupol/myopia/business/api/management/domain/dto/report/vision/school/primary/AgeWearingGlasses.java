@@ -1,5 +1,7 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.school.primary;
 
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.HorizontalChart;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.PortraitChart;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,6 +25,16 @@ public class AgeWearingGlasses {
      * 信息
      */
     private PrimaryWearingInfo info;
+
+    /**
+     * 图表
+     */
+    private HorizontalChart wearingGlassesChart;
+
+    /**
+     * 图表
+     */
+    private HorizontalChart visionCorrectionChart;
 
     /**
      * 表格

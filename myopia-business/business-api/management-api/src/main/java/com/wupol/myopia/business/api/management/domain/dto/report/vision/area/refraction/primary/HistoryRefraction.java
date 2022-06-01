@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.area.refraction.primary;
 
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.HorizontalChart;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.AstigmatismTable;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,6 +20,11 @@ public class HistoryRefraction {
      * 信息
      */
     private Info info;
+
+    /**
+     * 历年屈光情况
+     */
+    private HorizontalChart primaryHistoryRefraction;
 
     /**
      * 表格

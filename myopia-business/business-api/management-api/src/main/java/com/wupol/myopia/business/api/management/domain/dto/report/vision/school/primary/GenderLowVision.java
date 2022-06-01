@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.school.primary;
 
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.PieChart;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,9 +21,19 @@ public class GenderLowVision {
     private Info info;
 
     /**
+     * 性别视力低下饼图
+     */
+    private PieChart genderLowVisionChart;
+
+    /**
+     * 视力低下饼图
+     */
+    private PieChart lowVisionChart;
+
+    /**
      * 表格
      */
-    private List<LowVisionTable> tables;
+    private List<CommonLowVisionTable> tables;
 
     /**
      * 信息

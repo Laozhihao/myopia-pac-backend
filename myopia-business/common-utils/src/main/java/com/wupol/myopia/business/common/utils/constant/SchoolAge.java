@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.common.utils.constant;
 
 
+import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.DateFormatUtil;
 import com.wupol.myopia.business.common.utils.domain.dto.SchoolAgeDTO;
 
@@ -45,6 +46,7 @@ public enum SchoolAge {
      * 通过code 获取学龄段
      *
      * @param code code
+     *
      * @return 学龄段
      */
     public static SchoolAge get(Integer code) {
@@ -88,6 +90,7 @@ public enum SchoolAge {
      * 是否初中生（包括初中、高中、职业高中）
      *
      * @param schoolAge 学龄段
+     *
      * @return Boolean
      */
     public static Boolean isMiddleSchool(Integer schoolAge) {
@@ -98,6 +101,7 @@ public enum SchoolAge {
      * 是否小学生和幼儿园
      *
      * @param schoolAge 学龄段
+     *
      * @return Boolean
      */
     public static Boolean isPrimaryAndKindergarten(Integer schoolAge) {
@@ -119,7 +123,36 @@ public enum SchoolAge {
      * 获取学龄段描述
      */
     public static List<String> getAllDesc() {
-        return getSchoolAgeList().stream().map(s->s.getDesc()).collect(Collectors.toList());
+        return getSchoolAgeList().stream().map(SchoolAgeDTO::getDesc).collect(Collectors.toList());
+    }
+
+
+    public static List<Integer> getList() {
+        return Lists.newArrayList(KINDERGARTEN.code, PRIMARY.code, JUNIOR.code, HIGH.code, VOCATIONAL_HIGH.code, UNIVERSITY.code);
+    }
+
+    public static List<String> getNameList() {
+        return Lists.newArrayList(KINDERGARTEN.desc, PRIMARY.desc, JUNIOR.desc, HIGH.desc, VOCATIONAL_HIGH.desc, "高中", UNIVERSITY.desc);
+    }
+
+    public static List<Integer> sortList(List<Integer> schoolAgeList) {
+        List<Integer> result = new ArrayList<>();
+        getList().forEach(schoolAge -> {
+            if (schoolAgeList.contains(schoolAge)) {
+                result.add(schoolAge);
+            }
+        });
+        return result;
+    }
+
+    public static List<String> sortByNameList(List<String> schoolAgeNames) {
+        List<String> result = new ArrayList<>();
+        getNameList().forEach(schoolAge -> {
+            if (schoolAgeNames.contains(schoolAge)) {
+                result.add(schoolAge);
+            }
+        });
+        return result;
     }
 
     /**

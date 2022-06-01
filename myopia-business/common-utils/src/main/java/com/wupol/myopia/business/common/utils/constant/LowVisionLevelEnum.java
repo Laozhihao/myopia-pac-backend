@@ -1,6 +1,9 @@
 package com.wupol.myopia.business.common.utils.constant;
 
+import com.google.common.collect.Lists;
+
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -41,5 +44,9 @@ public enum LowVisionLevelEnum {
         }
         LowVisionLevelEnum lowVisionLevelEnum = get(code);
         return Objects.isNull(lowVisionLevelEnum) ? "" : lowVisionLevelEnum.desc;
+    }
+
+    public static List<LowVisionLevelEnum> lowVisionLevelList() {
+        return Lists.newArrayList(LOW_VISION_LEVEL_LIGHT, LOW_VISION_LEVEL_MIDDLE, LOW_VISION_LEVEL_HIGH);
     }
 }

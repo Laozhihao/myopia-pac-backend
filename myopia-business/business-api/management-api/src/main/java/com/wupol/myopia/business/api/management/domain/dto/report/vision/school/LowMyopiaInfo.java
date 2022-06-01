@@ -36,38 +36,4 @@ public class LowMyopiaInfo {
      * 不同年龄视力低下情况
      */
     private AgeLowVision ageLowVision;
-
-
-    public static class Info {
-        /**
-         * 视力低下人数
-         */
-        private Integer lowVisionCount;
-
-        /**
-         * 视力低下率
-         */
-        private Integer lowVisionProportion;
-
-        /**
-         * 平均视力
-         */
-        private String avgVision;
-
-        /**
-         * 轻度视力低下
-         */
-        private CountAndProportion lightLowVision;
-
-        /**
-         * 中度视力低下
-         */
-        private CountAndProportion middleLowVision;
-
-        /**
-         * 重度视力低下
-         */
-        private CountAndProportion highLowVision;
-
-    }
 }

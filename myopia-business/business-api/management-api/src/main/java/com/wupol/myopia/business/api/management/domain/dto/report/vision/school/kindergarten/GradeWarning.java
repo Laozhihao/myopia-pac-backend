@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.school.kindergarten;
 
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.HorizontalChart;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.MaxMinProportion;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,6 +20,11 @@ public class GradeWarning {
      * 信息
      */
     private Info info;
+
+    /**
+     * 图表
+     */
+    private HorizontalChart gradeWarningChart;
 
     /**
      * 表格
@@ -91,7 +97,7 @@ public class GradeWarning {
      */
     @Getter
     @Setter
-    public static class Table {
+    public static class Table extends RowSpan{
 
         /**
          * 年级名称

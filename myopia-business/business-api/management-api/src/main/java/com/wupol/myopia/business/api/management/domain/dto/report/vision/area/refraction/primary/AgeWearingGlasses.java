@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.area.refraction.primary;
 
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.HighLowProportion;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.HorizontalChart;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.primary.AgeWearingTable;
 import lombok.Getter;
 import lombok.Setter;
@@ -34,12 +35,12 @@ public class AgeWearingGlasses {
     /**
      * 佩戴隐形眼镜
      */
-    private HighLowProportion wearingContact;
+    private HighLowProportion contact;
 
     /**
      * 夜戴
      */
-    private HighLowProportion nightWearing;
+    private HighLowProportion night;
 
     /**
      * 足矫
@@ -55,6 +56,16 @@ public class AgeWearingGlasses {
      * 欠矫
      */
     private HighLowProportion under;
+
+    /**
+     * 表格
+     */
+    private HorizontalChart ageWearingGlassesChart;
+
+    /**
+     * 表格
+     */
+    private HorizontalChart ageVisionCorrectionChart;
 
     /**
      * 表格

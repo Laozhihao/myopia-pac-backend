@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.school.primary;
 
-import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.HighLowProportion;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.MaxMinProportion;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,35 +16,35 @@ public class PrimaryWearingInfo {
     /**
      * 不戴镜
      */
-    private HighLowProportion notWearing;
+    private MaxMinProportion notWearing;
 
     /**
      * 框架眼镜
      */
-    private HighLowProportion glasses;
+    private MaxMinProportion glasses;
 
     /**
      * 隐形眼镜
      */
-    private HighLowProportion contact;
+    private MaxMinProportion contact;
 
     /**
      * 夜戴角膜塑形镜
      */
-    private HighLowProportion night;
+    private MaxMinProportion night;
 
     /**
      * 足矫
      */
-    private HighLowProportion enough;
+    private MaxMinProportion enough;
 
     /**
      * 欠矫
      */
-    private HighLowProportion under;
+    private MaxMinProportion under;
 
     /**
      * 未矫
      */
-    private HighLowProportion uncorrected;
+    private MaxMinProportion uncorrected;
 }

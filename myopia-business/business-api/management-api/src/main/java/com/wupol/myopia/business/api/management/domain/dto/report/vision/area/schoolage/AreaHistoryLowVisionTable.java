@@ -10,7 +10,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class SchoolHistoryLowVisionTable {
+public class AreaHistoryLowVisionTable {
 
     /**
      * 时间
@@ -20,7 +20,7 @@ public class SchoolHistoryLowVisionTable {
     /**
      * 有效人数
      */
-    private Integer validCount;
+    private Long validCount;
 
     /**
      * 视力低常人数
@@ -71,4 +71,9 @@ public class SchoolHistoryLowVisionTable {
      * 重度-视力低下占比
      */
     private String highLowVisionProportion;
+
+    /**
+     * 是否本次报告
+     */
+    private Boolean isSameReport;
 }

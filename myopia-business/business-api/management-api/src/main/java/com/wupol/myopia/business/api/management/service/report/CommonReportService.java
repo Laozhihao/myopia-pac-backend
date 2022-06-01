@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.service.report;
 
 import cn.hutool.core.date.DateTime;
 import com.google.common.collect.Lists;
+import com.wupol.framework.domain.ThreeTuple;
 import com.wupol.myopia.base.util.*;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.ScreeningDataReportTable;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.area.PrimaryScreeningInfoTable;
@@ -23,12 +24,8 @@ import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.StudentService;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
-import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
-import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
-import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
+import com.wupol.myopia.business.core.screening.flow.domain.model.*;
+import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.flow.util.EyeDataUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -39,6 +36,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -77,8 +75,28 @@ public class CommonReportService {
     @Resource
     private StudentService studentService;
 
+    @Resource
+    private HorizontalChartService horizontalChartService;
+
+    @Resource
+    private PortraitChartService portraitChartService;
+
+    @Resource
+    private ScreeningNoticeService screeningNoticeService;
+
+    @Resource
+    private StatConclusionService statConclusionService;
+
+    @Resource
+    private ScreeningPlanSchoolService screeningPlanSchoolService;
+
+    @Resource
+    private ScreeningPlanService screeningPlanService;
+
 
     public static final String TOTAL_NAME = "合计";
+
+    public static final String SENIOR_NAME = "高中";
 
     /**
      * 视力低下
@@ -107,7 +125,7 @@ public class CommonReportService {
         for (StatConclusion statConclusion : statConclusions) {
             total = total.add(Objects.nonNull(statConclusion.getVisionR()) ? statConclusion.getVisionR() : new BigDecimal("0")).add(Objects.nonNull(statConclusion.getVisionL()) ? statConclusion.getVisionL() : new BigDecimal("0"));
         }
-        return BigDecimalUtil.divide(total, new BigDecimal(statConclusions.size()).multiply(new BigDecimal("2")), 2).toString();
+        return BigDecimalUtil.divide(total, new BigDecimal(statConclusions.size()).multiply(new BigDecimal("2")), 1).toString();
     }
 
     /**
@@ -117,23 +135,21 @@ public class CommonReportService {
      *
      * @return VisionWarningSituation
      */
-    public VisionWarningSituation getVisionWarningSituation(List<StatConclusion> statConclusions) {
+    public VisionWarningSituation getVisionWarningSituation(List<StatConclusion> statConclusions, Long total) {
         VisionWarningSituation warningSituation = new VisionWarningSituation();
         List<StatConclusion> statValidList = statConclusions.stream().filter(StatConclusion::getIsValid).collect(Collectors.toList());
 
-        long count = statValidList.size();
-
         long zeroWarningCount = statValidList.stream().filter(s -> Objects.equals(s.getWarningLevel(), WarningLevel.ZERO.code)).count();
-        warningSituation.setZeroWarning(new CountAndProportion(zeroWarningCount, BigDecimalUtil.divide(zeroWarningCount, count)));
+        warningSituation.setZeroWarning(new CountAndProportion(zeroWarningCount, BigDecimalUtil.divide(zeroWarningCount, total)));
 
         long oneWarningCount = statValidList.stream().filter(s -> Objects.equals(s.getWarningLevel(), WarningLevel.ONE.code)).count();
-        warningSituation.setOneWarning(new CountAndProportion(oneWarningCount, BigDecimalUtil.divide(oneWarningCount, count)));
+        warningSituation.setOneWarning(new CountAndProportion(oneWarningCount, BigDecimalUtil.divide(oneWarningCount, total)));
 
         long twoWarningCount = statValidList.stream().filter(s -> Objects.equals(s.getWarningLevel(), WarningLevel.TWO.code)).count();
-        warningSituation.setTwoWarning(new CountAndProportion(twoWarningCount, BigDecimalUtil.divide(twoWarningCount, count)));
+        warningSituation.setTwoWarning(new CountAndProportion(twoWarningCount, BigDecimalUtil.divide(twoWarningCount, total)));
 
         long threeWarningCount = statValidList.stream().filter(s -> Objects.equals(s.getWarningLevel(), WarningLevel.THREE.code)).count();
-        warningSituation.setThreeWarning(new CountAndProportion(threeWarningCount, BigDecimalUtil.divide(threeWarningCount, count)));
+        warningSituation.setThreeWarning(new CountAndProportion(threeWarningCount, BigDecimalUtil.divide(threeWarningCount, total)));
         return warningSituation;
     }
 
@@ -195,9 +211,9 @@ public class CommonReportService {
     /**
      * 近视-屈光
      */
-    public GenderProportion myopiaRefractive(List<StatConclusion> statConclusions) {
+    public GenderProportion myopiaRefractive(List<StatConclusion> statConclusions, Long total) {
         GenderProportion genderProportion = new GenderProportion();
-        genderProportion.setProportion(countAndProportionService.myopia(statConclusions).getProportion());
+        genderProportion.setProportion(countAndProportionService.myopia(statConclusions, total).getProportion());
 
         Map<Integer, List<StatConclusion>> genderMap = statConclusions.stream().filter(s -> Objects.nonNull(s.getIsMyopia())).filter(StatConclusion::getIsMyopia).collect(Collectors.groupingBy(StatConclusion::getGender));
 
@@ -208,9 +224,9 @@ public class CommonReportService {
     /**
      * 远视储备不足-屈光
      */
-    public GenderProportion insufficientRefractive(List<StatConclusion> statConclusions) {
+    public GenderProportion insufficientRefractive(List<StatConclusion> statConclusions, Long total) {
         GenderProportion genderProportion = new GenderProportion();
-        genderProportion.setProportion(countAndProportionService.insufficient(statConclusions).getProportion());
+        genderProportion.setProportion(countAndProportionService.insufficient(statConclusions, total).getProportion());
 
         Map<Integer, List<StatConclusion>> genderMap = statConclusions.stream().filter(s -> Objects.equals(s.getWarningLevel(), WarningLevel.ZERO_SP.code)).collect(Collectors.groupingBy(StatConclusion::getGender));
 
@@ -221,9 +237,9 @@ public class CommonReportService {
     /**
      * 屈光不正-屈光
      */
-    public GenderProportion refractiveErrorRefractive(List<StatConclusion> statConclusions) {
+    public GenderProportion refractiveErrorRefractive(List<StatConclusion> statConclusions, Long total) {
         GenderProportion genderProportion = new GenderProportion();
-        genderProportion.setProportion(countAndProportionService.refractiveError(statConclusions).getProportion());
+        genderProportion.setProportion(countAndProportionService.refractiveError(statConclusions, total).getProportion());
 
         Map<Integer, List<StatConclusion>> genderMap = statConclusions.stream().filter(s -> Objects.equals(s.getIsRefractiveError(), Boolean.TRUE)).collect(Collectors.groupingBy(StatConclusion::getGender));
 
@@ -234,9 +250,9 @@ public class CommonReportService {
     /**
      * 屈光参差-屈光
      */
-    public GenderProportion anisometropiaRefractive(List<StatConclusion> statConclusions) {
+    public GenderProportion anisometropiaRefractive(List<StatConclusion> statConclusions, Long total) {
         GenderProportion genderProportion = new GenderProportion();
-        genderProportion.setProportion(countAndProportionService.anisometropia(statConclusions).getProportion());
+        genderProportion.setProportion(countAndProportionService.anisometropia(statConclusions, total).getProportion());
 
         Map<Integer, List<StatConclusion>> genderMap = statConclusions.stream().filter(s -> Objects.equals(s.getIsAnisometropia(), Boolean.TRUE)).collect(Collectors.groupingBy(StatConclusion::getGender));
 
@@ -247,9 +263,9 @@ public class CommonReportService {
     /**
      * 建议就诊-屈光
      */
-    public GenderProportion recommendDoctorRefractive(List<StatConclusion> statConclusions) {
+    public GenderProportion recommendDoctorRefractive(List<StatConclusion> statConclusions, Long total) {
         GenderProportion genderProportion = new GenderProportion();
-        genderProportion.setProportion(countAndProportionService.astigmatism(statConclusions).getProportion());
+        genderProportion.setProportion(countAndProportionService.astigmatism(statConclusions, total).getProportion());
 
         Map<Integer, List<StatConclusion>> genderMap = statConclusions.stream().filter(s -> Objects.equals(s.getIsRecommendVisit(), Boolean.TRUE)).collect(Collectors.groupingBy(StatConclusion::getGender));
 
@@ -260,11 +276,13 @@ public class CommonReportService {
     /**
      * 近视前期-屈光
      */
-    public GenderProportion earlyMyopiaRefractive(List<StatConclusion> statConclusions) {
+    public GenderProportion earlyMyopiaRefractive(List<StatConclusion> statConclusions, Long total) {
         GenderProportion genderProportion = new GenderProportion();
-        genderProportion.setProportion(countAndProportionService.earlyMyopia(statConclusions).getProportion());
+        genderProportion.setProportion(countAndProportionService.earlyMyopia(statConclusions, total).getProportion());
 
-        Map<Integer, List<StatConclusion>> genderMap = statConclusions.stream().filter(s -> Objects.equals(s.getMyopiaWarningLevel(), MyopiaLevelEnum.MYOPIA_LEVEL_EARLY.code)).collect(Collectors.groupingBy(StatConclusion::getGender));
+        Map<Integer, List<StatConclusion>> genderMap = statConclusions.stream()
+                .filter(s -> Objects.equals(s.getMyopiaLevel(), MyopiaLevelEnum.MYOPIA_LEVEL_EARLY.code))
+                .collect(Collectors.groupingBy(StatConclusion::getGender));
 
         getGenderPercentage(statConclusions, genderProportion, genderMap);
         return genderProportion;
@@ -273,9 +291,9 @@ public class CommonReportService {
     /**
      * 散光-屈光
      */
-    public GenderProportion astigmatismRefractive(List<StatConclusion> statConclusions) {
+    public GenderProportion astigmatismRefractive(List<StatConclusion> statConclusions, Long total) {
         GenderProportion genderProportion = new GenderProportion();
-        genderProportion.setProportion(countAndProportionService.getRecommendDoctor(statConclusions).getProportion());
+        genderProportion.setProportion(countAndProportionService.astigmatism(statConclusions, total).getProportion());
 
         Map<Integer, List<StatConclusion>> genderMap = statConclusions.stream().filter(StatConclusion::getIsAstigmatism).collect(Collectors.groupingBy(StatConclusion::getGender));
 
@@ -286,11 +304,14 @@ public class CommonReportService {
     /**
      * 低度近视-屈光
      */
-    public GenderProportion lightMyopiaRefractive(List<StatConclusion> statConclusions) {
+    public GenderProportion lightMyopiaRefractive(List<StatConclusion> statConclusions, Long total) {
         GenderProportion genderProportion = new GenderProportion();
-        genderProportion.setProportion(countAndProportionService.lightMyopia(statConclusions).getProportion());
+        genderProportion.setProportion(countAndProportionService.lightMyopia(statConclusions, total).getProportion());
 
-        Map<Integer, List<StatConclusion>> genderMap = statConclusions.stream().filter(s -> Objects.equals(s.getMyopiaWarningLevel(), MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.code)).collect(Collectors.groupingBy(StatConclusion::getGender));
+        Map<Integer, List<StatConclusion>> genderMap = statConclusions.stream()
+                .filter(s -> !Objects.equals(s.getGlassesType(), GlassesTypeEnum.ORTHOKERATOLOGY.code))
+                .filter(s -> Objects.equals(s.getMyopiaLevel(), MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.code))
+                .collect(Collectors.groupingBy(StatConclusion::getGender));
 
         getGenderPercentage(statConclusions, genderProportion, genderMap);
         return genderProportion;
@@ -299,11 +320,14 @@ public class CommonReportService {
     /**
      * 高度近视-屈光
      */
-    public GenderProportion highMyopiaRefractive(List<StatConclusion> statConclusions) {
+    public GenderProportion highMyopiaRefractive(List<StatConclusion> statConclusions, Long total) {
         GenderProportion genderProportion = new GenderProportion();
-        genderProportion.setProportion(countAndProportionService.highMyopia(statConclusions).getProportion());
+        genderProportion.setProportion(countAndProportionService.highMyopia(statConclusions, total).getProportion());
 
-        Map<Integer, List<StatConclusion>> genderMap = statConclusions.stream().filter(s -> Objects.equals(s.getMyopiaWarningLevel(), MyopiaLevelEnum.MYOPIA_LEVEL_HIGH.code)).collect(Collectors.groupingBy(StatConclusion::getGender));
+        Map<Integer, List<StatConclusion>> genderMap = statConclusions.stream()
+                .filter(s -> !Objects.equals(s.getGlassesType(), GlassesTypeEnum.ORTHOKERATOLOGY.code))
+                .filter(s -> Objects.equals(s.getMyopiaLevel(), MyopiaLevelEnum.MYOPIA_LEVEL_HIGH.code))
+                .collect(Collectors.groupingBy(StatConclusion::getGender));
 
         getGenderPercentage(statConclusions, genderProportion, genderMap);
         return genderProportion;
@@ -312,9 +336,9 @@ public class CommonReportService {
     /**
      * 不戴镜-屈光
      */
-    public GenderProportion notWearingRefractive(List<StatConclusion> statConclusions) {
+    public GenderProportion notWearingRefractive(List<StatConclusion> statConclusions, Long total) {
         GenderProportion genderProportion = new GenderProportion();
-        genderProportion.setProportion(countAndProportionService.notWearing(statConclusions).getProportion());
+        genderProportion.setProportion(countAndProportionService.notWearing(statConclusions, total).getProportion());
 
         Map<Integer, List<StatConclusion>> genderMap = statConclusions.stream().filter(s -> Objects.equals(s.getGlassesType(), GlassesTypeEnum.NOT_WEARING.code)).collect(Collectors.groupingBy(StatConclusion::getGender));
 
@@ -325,9 +349,9 @@ public class CommonReportService {
     /**
      * 框架眼镜-屈光
      */
-    public GenderProportion glassesRefractive(List<StatConclusion> statConclusions) {
+    public GenderProportion glassesRefractive(List<StatConclusion> statConclusions, Long total) {
         GenderProportion genderProportion = new GenderProportion();
-        genderProportion.setProportion(countAndProportionService.glasses(statConclusions).getProportion());
+        genderProportion.setProportion(countAndProportionService.glasses(statConclusions, total).getProportion());
 
         Map<Integer, List<StatConclusion>> genderMap = statConclusions.stream().filter(s -> Objects.equals(s.getGlassesType(), GlassesTypeEnum.FRAME_GLASSES.code)).collect(Collectors.groupingBy(StatConclusion::getGender));
 
@@ -338,9 +362,9 @@ public class CommonReportService {
     /**
      * 隐形眼镜-屈光
      */
-    public GenderProportion contactRefractive(List<StatConclusion> statConclusions) {
+    public GenderProportion contactRefractive(List<StatConclusion> statConclusions, Long total) {
         GenderProportion genderProportion = new GenderProportion();
-        genderProportion.setProportion(countAndProportionService.contact(statConclusions).getProportion());
+        genderProportion.setProportion(countAndProportionService.contact(statConclusions, total).getProportion());
 
         Map<Integer, List<StatConclusion>> genderMap = statConclusions.stream().filter(s -> Objects.equals(s.getGlassesType(), GlassesTypeEnum.CONTACT_LENS.code)).collect(Collectors.groupingBy(StatConclusion::getGender));
 
@@ -351,9 +375,9 @@ public class CommonReportService {
     /**
      * 夜戴角膜塑形镜-屈光
      */
-    public GenderProportion nightRefractive(List<StatConclusion> statConclusions) {
+    public GenderProportion nightRefractive(List<StatConclusion> statConclusions, Long total) {
         GenderProportion genderProportion = new GenderProportion();
-        genderProportion.setProportion(countAndProportionService.night(statConclusions).getProportion());
+        genderProportion.setProportion(countAndProportionService.night(statConclusions, total).getProportion());
 
         Map<Integer, List<StatConclusion>> genderMap = statConclusions.stream().filter(s -> Objects.equals(s.getGlassesType(), GlassesTypeEnum.ORTHOKERATOLOGY.code)).collect(Collectors.groupingBy(StatConclusion::getGender));
 
@@ -364,9 +388,9 @@ public class CommonReportService {
     /**
      * 足矫-屈光
      */
-    public GenderProportion enoughRefractive(List<StatConclusion> statConclusions) {
+    public GenderProportion enoughRefractive(List<StatConclusion> statConclusions, Long total) {
         GenderProportion genderProportion = new GenderProportion();
-        genderProportion.setProportion(countAndProportionService.enough(statConclusions).getProportion());
+        genderProportion.setProportion(countAndProportionService.enough(statConclusions, total).getProportion());
 
         Map<Integer, List<StatConclusion>> genderMap = statConclusions.stream().filter(s -> Objects.equals(s.getVisionCorrection(), VisionCorrection.ENOUGH_CORRECTED.code)).collect(Collectors.groupingBy(StatConclusion::getGender));
 
@@ -377,9 +401,9 @@ public class CommonReportService {
     /**
      * 欠矫-屈光
      */
-    public GenderProportion underRefractive(List<StatConclusion> statConclusions) {
+    public GenderProportion underRefractive(List<StatConclusion> statConclusions, Long total) {
         GenderProportion genderProportion = new GenderProportion();
-        genderProportion.setProportion(countAndProportionService.under(statConclusions).getProportion());
+        genderProportion.setProportion(countAndProportionService.under(statConclusions, total).getProportion());
 
         Map<Integer, List<StatConclusion>> genderMap = statConclusions.stream().filter(s -> Objects.equals(s.getVisionCorrection(), VisionCorrection.UNDER_CORRECTED.code)).collect(Collectors.groupingBy(StatConclusion::getGender));
 
@@ -390,9 +414,9 @@ public class CommonReportService {
     /**
      * 未矫-屈光
      */
-    public GenderProportion uncorrectedRefractive(List<StatConclusion> statConclusions) {
+    public GenderProportion uncorrectedRefractive(List<StatConclusion> statConclusions, Long total) {
         GenderProportion genderProportion = new GenderProportion();
-        genderProportion.setProportion(countAndProportionService.uncorrected(statConclusions).getProportion());
+        genderProportion.setProportion(countAndProportionService.uncorrected(statConclusions, total).getProportion());
 
         Map<Integer, List<StatConclusion>> genderMap = statConclusions.stream().filter(s -> Objects.equals(s.getVisionCorrection(), VisionCorrection.UNCORRECTED.code)).collect(Collectors.groupingBy(StatConclusion::getGender));
 
@@ -443,6 +467,10 @@ public class CommonReportService {
         return new BigDecimal(proportions.get(proportions.size() - 1)).subtract(new BigDecimal(proportions.get(proportions.size() - 2))).setScale(2, RoundingMode.HALF_UP).toString();
     }
 
+    public String getChainRatioProportion(String firstProportion, String thisTimeProportion) {
+        return new BigDecimal(firstProportion).subtract(new BigDecimal(thisTimeProportion)).setScale(2, RoundingMode.HALF_UP).toString();
+    }
+
     public Integer getSchoolCount(List<StatConclusion> statConclusions) {
         Map<Integer, List<StatConclusion>> collect = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolId));
         List<String> primaryAbove = GradeCodeEnum.primaryAbove();
@@ -469,20 +497,27 @@ public class CommonReportService {
         return StrUtil.spliceChar("-", String.valueOf(min), String.valueOf(max));
     }
 
-    public WarningSituation getWarningSituation(List<StatConclusion> statConclusions) {
+    public WarningSituation getWarningSituation(List<StatConclusion> statConclusions, Boolean isArea, Long total) {
         WarningSituation warningSituation = new WarningSituation();
-        warningSituation.setVisionWarningSituation(getVisionWarningSituation(statConclusions));
-        warningSituation.setRecommendDoctor(countAndProportionService.getRecommendDoctor(statConclusions));
-        List<WarningTable> tables = screeningReportTableService.warningTable(statConclusions);
+        warningSituation.setVisionWarningSituation(getVisionWarningSituation(statConclusions, total));
+        warningSituation.setRecommendDoctor(countAndProportionService.getRecommendDoctor(statConclusions, total));
+        List<WarningTable> tables = screeningReportTableService.warningTable(statConclusions, total);
 
-        List<WarningTable> t5Filter = tables.stream().filter(s -> !StringUtils.equals(s.getName(), CommonReportService.TOTAL_NAME)).filter(s -> !SchoolAge.getAllDesc().contains(s.getName())).collect(Collectors.toList());
+        List<WarningTable> warningTables = tables.stream()
+                .filter(s -> !filterList().contains(s.getName())).collect(Collectors.toList());
 
         WarningSituation.GradeWarningInfo gradeWarningInfo = new WarningSituation.GradeWarningInfo();
         gradeWarningInfo.setTables(Lists.newArrayList(tables));
-        gradeWarningInfo.setZero(highLowProportionService.warningTableHP(t5Filter, s -> Float.valueOf(s.getZeroWarningProportion())));
-        gradeWarningInfo.setOne(highLowProportionService.warningTableHP(t5Filter, s -> Float.valueOf(s.getOneWarningProportion())));
-        gradeWarningInfo.setTwo(highLowProportionService.warningTableHP(t5Filter, s -> Float.valueOf(s.getTwoWarningProportion())));
-        gradeWarningInfo.setThree(highLowProportionService.warningTableHP(t5Filter, s -> Float.valueOf(s.getThreeWarningProportion())));
+        if (isArea) {
+            gradeWarningInfo.setGradeWarningChart(portraitChartService.warningChart(tables.stream().filter(s -> schoolAgeList().contains(s.getName())).collect(Collectors.toList())));
+        } else {
+            gradeWarningInfo.setGradeWarningChart(portraitChartService.warningChart2(tables.stream().filter(s -> GradeCodeEnum.getAllName().contains(s.getName())).collect(Collectors.toList())));
+        }
+        gradeWarningInfo.setZero(highLowProportionService.warningTableHP(warningTables, s -> Float.valueOf(s.getZeroWarningProportion())));
+        gradeWarningInfo.setOne(highLowProportionService.warningTableHP(warningTables, s -> Float.valueOf(s.getOneWarningProportion())));
+        gradeWarningInfo.setTwo(highLowProportionService.warningTableHP(warningTables, s -> Float.valueOf(s.getTwoWarningProportion())));
+        gradeWarningInfo.setThree(highLowProportionService.warningTableHP(warningTables, s -> Float.valueOf(s.getThreeWarningProportion())));
+        gradeWarningInfo.setRecommendDoctor(highLowProportionService.warningTableHP(warningTables, s -> Float.valueOf(s.getRecommendDoctorProportion())));
         warningSituation.setGradeWarningInfo(gradeWarningInfo);
         return warningSituation;
     }
@@ -490,52 +525,53 @@ public class CommonReportService {
     /**
      * 小学及以上整体情况
      */
-    public PrimaryOverall getPrimaryOverall(List<PrimaryScreeningInfoTable> tables, List<StatConclusion> statConclusions) {
-
-
+    public PrimaryOverall getPrimaryOverall(List<PrimaryScreeningInfoTable> tables, List<StatConclusion> statConclusions, Long total) {
         PrimaryOverall primary = new PrimaryOverall();
-        primary.setLowVisionProportion(countAndProportionService.lowVision(statConclusions).getProportion());
-        primary.setMyopiaProportion(countAndProportionService.myopia(statConclusions).getProportion());
-        primary.setEarlyMyopiaProportion(countAndProportionService.earlyMyopia(statConclusions).getProportion());
-        primary.setLightMyopiaProportion(countAndProportionService.lightMyopia(statConclusions).getProportion());
-        primary.setHighMyopiaProportion(countAndProportionService.highMyopia(statConclusions).getProportion());
-        primary.setRecommendDoctorProportion(countAndProportionService.getRecommendDoctor(statConclusions).getProportion());
-        primary.setLowVision(highLowProportionService.pScreeningInfoTableHP(tables, s -> Float.valueOf(s.getLowVisionProportion())));
-        primary.setMyopia(highLowProportionService.pScreeningInfoTableHP(tables, s -> Float.valueOf(s.getMyopiaProportion())));
-        primary.setEarlyMyopia(highLowProportionService.pScreeningInfoTableHP(tables, s -> Float.valueOf(s.getEarlyMyopiaProportion())));
-        primary.setLightMyopia(highLowProportionService.pScreeningInfoTableHP(tables, s -> Float.valueOf(s.getLightMyopiaProportion())));
-        primary.setHighMyopia(highLowProportionService.pScreeningInfoTableHP(tables, s -> Float.valueOf(s.getHighMyopiaProportion())));
-        primary.setRecommendDoctor(highLowProportionService.pScreeningInfoTableHP(tables, s -> Float.valueOf(s.getRecommendDoctorProportion())));
-        primary.setOwe(highLowProportionService.pScreeningInfoTableHP(tables, s -> Float.valueOf(s.getOweProportion())));
-        primary.setTables(tables);
+        primary.setTables(Lists.newArrayList(tables));
+        primary.setLowVision(highLowProportionService.primaryMyopiaMaxMinProportion(countAndProportionService.lowVision(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getLowVisionProportion())));
+        primary.setMyopia(highLowProportionService.primaryMyopiaMaxMinProportion(countAndProportionService.myopia(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getMyopiaProportion())));
+        primary.setEarlyMyopia(highLowProportionService.primaryMyopiaMaxMinProportion(countAndProportionService.earlyMyopia(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getEarlyMyopiaProportion())));
+        primary.setLightMyopia(highLowProportionService.primaryMyopiaMaxMinProportion(countAndProportionService.lightMyopia(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getLightMyopiaProportion())));
+        primary.setHighMyopia(highLowProportionService.primaryMyopiaMaxMinProportion(countAndProportionService.highMyopia(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getHighMyopiaProportion())));
+        primary.setRecommendDoctor(highLowProportionService.primaryMyopiaMaxMinProportion(countAndProportionService.getRecommendDoctor(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getRecommendDoctorProportion())));
+        primary.setOwe(highLowProportionService.primaryMyopiaMaxMinProportion(countAndProportionService.underAndUncorrected(statConclusions).getProportion(), tables, s -> Float.valueOf(s.getOweProportion())));
         return primary;
     }
 
     /**
      * 标题信息
      */
-    public SchoolReportInfo generateInfo(School school) {
+    public SchoolReportInfo generateInfo(School school, ScreeningPlan plan) {
         SchoolReportInfo info = new SchoolReportInfo();
         info.setSchoolName(school.getName());
-        info.setDate(new Date());
+        Date nowDate = new Date();
+        Date endTime = plan.getEndTime();
+
+        if (endTime.after(nowDate)) {
+            info.setDate(new Date());
+        } else {
+            info.setDate(endTime);
+        }
         return info;
     }
 
     /**
      * 学校概览
      */
-    public Outline generateOutline(List<StatConclusion> statConclusions, School school, ScreeningPlan plan) {
+    public Outline generateOutline(List<StatConclusion> statConclusions, School school, ScreeningPlan plan, Boolean isK) {
         Outline outline = new Outline();
         outline.setSchoolName(school.getName());
-        // TODO: 详细地址
-        outline.setAddress(districtService.getById(school.getDistrictId()).getName());
+        outline.setAddress(districtService.getDistrictNameByDistrictPositionDetail(districtService.getDistrictPositionDetailById((school.getDistrictId()))));
         outline.setStartDate(plan.getStartTime());
         outline.setEndDate(plan.getEndTime());
         outline.setGradeTotal(statConclusions.stream().map(StatConclusion::getSchoolGradeCode).distinct().count());
-        // TODO: 班级
-        outline.setClassTotal(statConclusions.stream().map(StatConclusion::getSchoolClassName).distinct().count());
-        outline.setStudentTotal(screeningPlanSchoolStudentService.getByScreeningPlanIdAndSchoolId(plan.getId(), school.getId()).size());
-        outline.setUnScreening(outline.getStudentTotal() - statConclusions.size());
+        outline.setClassTotal(countClass(statConclusions));
+        if (isK) {
+            outline.setStudentTotal(screeningPlanSchoolStudentService.getByScreeningPlanIdAndSchoolId(plan.getId(), school.getId()).stream().filter(s -> Objects.equals(s.getGradeType(), SchoolAge.KINDERGARTEN.code)).count());
+        } else {
+            outline.setStudentTotal(screeningPlanSchoolStudentService.getByScreeningPlanIdAndSchoolId(plan.getId(), school.getId()).stream().filter(s -> !Objects.equals(s.getGradeType(), SchoolAge.KINDERGARTEN.code)).count());
+        }
+        outline.setUnScreening(outline.getStudentTotal() - (long) statConclusions.size());
         outline.setInvalidTotal(statConclusions.stream().filter(s -> !s.getIsValid()).count());
         List<StatConclusion> validList = statConclusions.stream().filter(StatConclusion::getIsValid).collect(Collectors.toList());
         outline.setValidTotal((long) validList.size());
@@ -547,38 +583,62 @@ public class CommonReportService {
     /**
      * 屈光情况
      */
-    public RefractiveAbnormalities getRefractiveAbnormalities(List<StatConclusion> statConclusions) {
+    public RefractiveAbnormalities getRefractiveAbnormalities(List<StatConclusion> statConclusions, Long total) {
         RefractiveAbnormalities refractiveAbnormalities = new RefractiveAbnormalities();
-        refractiveAbnormalities.setRefractiveError(countAndProportionService.refractiveError(statConclusions));
-        refractiveAbnormalities.setAnisometropia(countAndProportionService.anisometropia(statConclusions));
-        refractiveAbnormalities.setInsufficient(countAndProportionService.insufficient(statConclusions));
+        refractiveAbnormalities.setRefractiveError(countAndProportionService.refractiveError(statConclusions, total));
+        refractiveAbnormalities.setAnisometropia(countAndProportionService.anisometropia(statConclusions, total));
+        refractiveAbnormalities.setInsufficient(countAndProportionService.insufficient(statConclusions, total));
         return refractiveAbnormalities;
     }
 
     /**
      * 幼儿园-不同性别屈光情况
      */
-    public SexRefractive kSexRefractive(List<StatConclusion> statConclusions) {
+    public SexRefractive kSexRefractive(List<StatConclusion> statConclusions, Long total) {
         SexRefractive sexRefractive = new SexRefractive();
-        sexRefractive.setInsufficientInfo(insufficientRefractive(statConclusions));
-        sexRefractive.setRefractiveErrorInfo(refractiveErrorRefractive(statConclusions));
-        sexRefractive.setAnisometropiaInfo(anisometropiaRefractive(statConclusions));
-        sexRefractive.setRecommendDoctorInfo(recommendDoctorRefractive(statConclusions));
-        sexRefractive.setTables(screeningReportTableService.genderRefractiveTable(statConclusions));
+        sexRefractive.setInsufficientInfo(insufficientRefractive(statConclusions, total));
+        sexRefractive.setRefractiveErrorInfo(refractiveErrorRefractive(statConclusions, total));
+        sexRefractive.setAnisometropiaInfo(anisometropiaRefractive(statConclusions, total));
+        sexRefractive.setRecommendDoctorInfo(recommendDoctorRefractive(statConclusions, total));
+
+        List<RefractiveTable> tables = screeningReportTableService.genderRefractiveTable(statConclusions, total);
+        sexRefractive.setTables(Lists.newArrayList(tables));
+        sexRefractive.setRefractiveGenderChart(horizontalChartService.genderRefractiveChart(tables.stream().filter(s -> !StringUtils.equals(s.getName(), CommonReportService.TOTAL_NAME)).collect(Collectors.toList())));
         return sexRefractive;
     }
 
     /**
      * 幼儿园历史
      */
-    public HistoryRefractive getHistoryRefractive(List<StatConclusion> statConclusions) {
-        List<RefractiveTable> kHistoryRefractiveTable = screeningReportTableService.kHistoryRefractiveTable(statConclusions);
+    public HistoryRefractive getKindergartenHistoryRefractive(School school, ScreeningPlan screeningPlan) {
+        List<RefractiveTable> kHistoryRefractiveTable = screeningReportTableService.kHistoryRefractiveTable(getSchoolHistoryData(school.getId(),false), screeningPlan.getId());
         HistoryRefractive historyRefractive = new HistoryRefractive();
         historyRefractive.setTables(Lists.newArrayList(kHistoryRefractiveTable));
         historyRefractive.setLowVisionProportion(getChainRatioProportion(kHistoryRefractiveTable.stream().map(RefractiveTable::getLowVisionProportion).collect(Collectors.toList())));
         historyRefractive.setInsufficientProportion(getChainRatioProportion(kHistoryRefractiveTable.stream().map(RefractiveTable::getInsufficientProportion).collect(Collectors.toList())));
         historyRefractive.setRefractiveErrorProportion(getChainRatioProportion(kHistoryRefractiveTable.stream().map(RefractiveTable::getRefractiveErrorProportion).collect(Collectors.toList())));
         historyRefractive.setAnisometropiaProportion(getChainRatioProportion(kHistoryRefractiveTable.stream().map(RefractiveTable::getAnisometropiaProportion).collect(Collectors.toList())));
+        if (!CollectionUtils.isEmpty(kHistoryRefractiveTable)) {
+            historyRefractive.setKindergartenHistoryRefractive(horizontalChartService.kindergartenHistoryRefractive(kHistoryRefractiveTable));
+        }
+        return historyRefractive;
+    }
+
+    /**
+     * 幼儿园历史
+     */
+    public HistoryRefractive getAreaKindergartenHistoryRefractive(List<ThreeTuple<Integer, String, List<StatConclusion>>> tuples, Integer noticeId) {
+
+        List<RefractiveTable> kHistoryRefractiveTable = screeningReportTableService.kAreaHistoryRefractiveTable(tuples, noticeId);
+        HistoryRefractive historyRefractive = new HistoryRefractive();
+        historyRefractive.setTables(Lists.newArrayList(kHistoryRefractiveTable));
+        historyRefractive.setLowVisionProportion(getChainRatioProportion(kHistoryRefractiveTable.stream().map(RefractiveTable::getLowVisionProportion).collect(Collectors.toList())));
+        historyRefractive.setInsufficientProportion(getChainRatioProportion(kHistoryRefractiveTable.stream().map(RefractiveTable::getInsufficientProportion).collect(Collectors.toList())));
+        historyRefractive.setRefractiveErrorProportion(getChainRatioProportion(kHistoryRefractiveTable.stream().map(RefractiveTable::getRefractiveErrorProportion).collect(Collectors.toList())));
+        historyRefractive.setAnisometropiaProportion(getChainRatioProportion(kHistoryRefractiveTable.stream().map(RefractiveTable::getAnisometropiaProportion).collect(Collectors.toList())));
+        if (!CollectionUtils.isEmpty(kHistoryRefractiveTable)) {
+            historyRefractive.setKindergartenHistoryRefractive(horizontalChartService.kindergartenHistoryRefractive(kHistoryRefractiveTable));
+        }
         return historyRefractive;
     }
 
@@ -595,6 +655,9 @@ public class CommonReportService {
      */
     public List<ClassScreeningData> generateClassScreeningData(List<StatConclusion> statConclusions, School school, Boolean isk) {
         List<ClassScreeningData> dataList = new ArrayList<>();
+        if (CollectionUtils.isEmpty(statConclusions)) {
+            return dataList;
+        }
         List<Integer> resultIds = statConclusions.stream().map(StatConclusion::getResultId).collect(Collectors.toList());
         List<Integer> studentIds = statConclusions.stream().map(StatConclusion::getStudentId).collect(Collectors.toList());
 
@@ -641,12 +704,12 @@ public class CommonReportService {
         table.setName(studentName);
         table.setGender(GenderEnum.getName(statConclusion.getGender()));
         table.setGlassesType(GlassesTypeEnum.getDescByCode(statConclusion.getGlassesType()));
-        table.setNakedVision(ScreeningDataFormatUtils.singleEyeDateFormat(EyeDataUtil.rightNakedVision(result)) + "/" + ScreeningDataFormatUtils.singleEyeDateFormat(EyeDataUtil.leftNakedVision(result)));
-        table.setCorrectedVision(ScreeningDataFormatUtils.singleEyeDateFormat(EyeDataUtil.rightCorrectedVision(result)) + "/" + ScreeningDataFormatUtils.singleEyeDateFormat(EyeDataUtil.leftCorrectedVision(result)));
-        table.setSph(ScreeningDataFormatUtils.singleEyeDateFormatTwo(EyeDataUtil.rightSph(result)) + "/" + ScreeningDataFormatUtils.singleEyeDateFormatTwo(EyeDataUtil.leftSph(result)));
-        table.setCyl(ScreeningDataFormatUtils.singleEyeDateFormatTwo(EyeDataUtil.rightCyl(result)) + "/" + ScreeningDataFormatUtils.singleEyeDateFormatTwo(EyeDataUtil.leftCyl(result)));
-        table.setAxsi(ScreeningDataFormatUtils.singleEyeDateFormatZero(EyeDataUtil.rightAxial(result)) + "/" + ScreeningDataFormatUtils.singleEyeDateFormatZero(EyeDataUtil.leftAxial(result)));
-        table.setSe(ScreeningDataFormatUtils.singleEyeDateFormatTwo(EyeDataUtil.rightSE(result)) + "/" + ScreeningDataFormatUtils.singleEyeDateFormatTwo(EyeDataUtil.leftSE(result)));
+        table.setNakedVision(StrUtil.spliceChar("/", ScreeningDataFormatUtils.singleEyeDateFormat(EyeDataUtil.rightNakedVision(result)), ScreeningDataFormatUtils.singleEyeDateFormat(EyeDataUtil.leftNakedVision(result))));
+        table.setCorrectedVision(StrUtil.spliceChar("/", ScreeningDataFormatUtils.singleEyeDateFormat(EyeDataUtil.rightCorrectedVision(result)), ScreeningDataFormatUtils.singleEyeDateFormat(EyeDataUtil.leftCorrectedVision(result))));
+        table.setSph(StrUtil.spliceChar("/", ScreeningDataFormatUtils.singlePlusEyeDateFormatTwo(EyeDataUtil.rightSph(result)), ScreeningDataFormatUtils.singlePlusEyeDateFormatTwo(EyeDataUtil.leftSph(result))));
+        table.setCyl(StrUtil.spliceChar("/", ScreeningDataFormatUtils.singlePlusEyeDateFormatTwo(EyeDataUtil.rightCyl(result)), ScreeningDataFormatUtils.singlePlusEyeDateFormatTwo(EyeDataUtil.leftCyl(result))));
+        table.setAxsi(StrUtil.spliceChar("/", ScreeningDataFormatUtils.singleEyeDateFormatZero(EyeDataUtil.rightAxial(result)), ScreeningDataFormatUtils.singleEyeDateFormatZero(EyeDataUtil.leftAxial(result))));
+        table.setSe(StrUtil.spliceChar("/", ScreeningDataFormatUtils.singlePlusEyeDateFormatTwo(EyeDataUtil.rightSE(result)), ScreeningDataFormatUtils.singlePlusEyeDateFormatTwo(EyeDataUtil.leftSE(result))));
         table.setVisionInfo(statConclusion.getIsLowVision());
         if (isk) {
             table.setRefractiveInfo(kVisionAnalyze(statConclusion.getIsRefractiveError(), statConclusion.getWarningLevel()));
@@ -696,8 +759,8 @@ public class CommonReportService {
         return StringUtils.EMPTY;
     }
 
-    private String getRemark(Boolean isValid,Integer state) {
-        if (Objects.equals(isValid, Boolean.TRUE)) {
+    private String getRemark(Boolean isValid, Integer state) {
+        if (Objects.equals(isValid, Boolean.FALSE)) {
             return "数据缺失【不满足初筛完整数据判断】";
         }
         if (state == 1) {
@@ -710,5 +773,104 @@ public class CommonReportService {
             return "其他";
         }
         return StringUtils.EMPTY;
+    }
+
+    public List<StatConclusion> getSeniorList(List<StatConclusion> statConclusions) {
+        return statConclusions.stream().filter(s -> Objects.equals(s.getSchoolAge(), SchoolAge.HIGH.code) || Objects.equals(s.getSchoolAge(), SchoolAge.VOCATIONAL_HIGH.code)).collect(Collectors.toList());
+    }
+
+    /**
+     * 是否同时有普高和职高
+     */
+    public boolean isHaveSenior(List<StatConclusion> statConclusions) {
+        return statConclusions.stream().anyMatch(s -> Objects.equals(s.getSchoolAge(), SchoolAge.HIGH.code)) && statConclusions.stream().anyMatch(s -> Objects.equals(s.getSchoolAge(), SchoolAge.VOCATIONAL_HIGH.code));
+    }
+
+    public List<String> filterList() {
+        List<String> allDesc = SchoolAge.getAllDesc();
+        allDesc.add(TOTAL_NAME);
+        allDesc.add(SENIOR_NAME);
+        return allDesc;
+    }
+
+    private Long countClass(List<StatConclusion> statConclusions) {
+        AtomicLong total = new AtomicLong(0);
+        statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolAge))
+                .forEach((k, v) -> total.addAndGet(v.stream().map(StatConclusion::getSchoolClassName).distinct().count()));
+        return total.get();
+    }
+
+    public List<String> schoolAgeList() {
+        List<String> allDesc = SchoolAge.getAllDesc();
+        allDesc.add(SENIOR_NAME);
+        return allDesc;
+    }
+
+    public List<ThreeTuple<Integer, String, List<StatConclusion>>> getHistoryData(Integer districtId, Boolean isK) {
+        List<Integer> childDistrictIds = districtService.getSpecificDistrictTreeAllDistrictIds(districtId);
+        childDistrictIds.add(districtId);
+        Map<Integer, List<StatConclusion>> statMap;
+        List<StatConclusion> districtList = statConclusionService.getByDistrictIds(childDistrictIds);
+        if (Objects.isNull(isK)) {
+            statMap = districtList.stream().collect(Collectors.groupingBy(StatConclusion::getSrcScreeningNoticeId));
+        } else {
+            if (isK) {
+                statMap = districtList.stream()
+                        .filter(grade -> GradeCodeEnum.kindergartenSchoolCode().contains(grade.getSchoolGradeCode()))
+                        .collect(Collectors.groupingBy(StatConclusion::getSrcScreeningNoticeId));
+            } else {
+                statMap = districtList.stream()
+                        .filter(grade -> !GradeCodeEnum.kindergartenSchoolCode().contains(grade.getSchoolGradeCode()))
+                        .collect(Collectors.groupingBy(StatConclusion::getSrcScreeningNoticeId));
+            }
+        }
+        List<ScreeningNotice> noticeList = screeningNoticeService.getByIds(districtList.stream().map(StatConclusion::getSrcScreeningNoticeId).distinct().collect(Collectors.toList()));
+
+        List<ThreeTuple<Integer, String, List<StatConclusion>>> threeTuples = new ArrayList<>();
+        noticeList.forEach(notice -> {
+            List<StatConclusion> statConclusions = statMap.getOrDefault(notice.getId(), null);
+            if (CollectionUtils.isEmpty(statConclusions)) {
+                return;
+            }
+            String name = DateFormatUtil.format(notice.getStartTime(), DateFormatUtil.FORMAT_YEAR_AND_MONTH) + "-" + DateFormatUtil.format(notice.getEndTime(), DateFormatUtil.FORMAT_YEAR_AND_MONTH);
+            getThreeTuple(threeTuples, statConclusions, name, notice.getId());
+        });
+        return threeTuples;
+    }
+
+    public List<ThreeTuple<Integer, String, List<StatConclusion>>> getSchoolHistoryData(Integer schoolId, Boolean isK) {
+
+        List<Integer> planIds = screeningPlanSchoolService.getBySchoolId(schoolId).stream().map(ScreeningPlanSchool::getScreeningPlanId).collect(Collectors.toList());
+        List<ScreeningPlan> planList = screeningPlanService.getByIds(planIds);
+        Map<Integer, List<StatConclusion>> statMap;
+
+        if (isK) {
+            statMap = getKList(statConclusionService.getByScreeningPlanIds(planIds)).stream().collect(Collectors.groupingBy(StatConclusion::getPlanId));
+        } else {
+            statMap = getPList(statConclusionService.getByScreeningPlanIds(planIds)).stream().collect(Collectors.groupingBy(StatConclusion::getPlanId));
+        }
+
+        List<ThreeTuple<Integer, String, List<StatConclusion>>> threeTuples = new ArrayList<>();
+        planList.forEach(plan -> {
+            List<StatConclusion> statConclusions = statMap.getOrDefault(plan.getId(), null);
+            if (CollectionUtils.isEmpty(statConclusions)) {
+                return;
+            }
+            Date startTime = plan.getStartTime();
+            Date endTime = plan.getEndTime();
+
+            String name = DateFormatUtil.format(startTime, DateFormatUtil.FORMAT_YEAR_AND_MONTH) + "-" + DateFormatUtil.format(endTime, DateFormatUtil.FORMAT_YEAR_AND_MONTH);
+            getThreeTuple(threeTuples, statConclusions, name, plan.getId());
+        });
+        return threeTuples;
+    }
+
+    private void getThreeTuple(List<ThreeTuple<Integer, String, List<StatConclusion>>> threeTuples, List<StatConclusion> statConclusions, String name, Integer id) {
+        String finalName = name;
+        long count = threeTuples.stream().map(s -> s.getSecond().substring(0, 15)).filter(s -> StringUtils.equals(s, finalName)).count();
+        if (count > 0) {
+            name = name + "[" + count + "]";
+        }
+        threeTuples.add(new ThreeTuple<>(id, name, statConclusions));
     }
 }

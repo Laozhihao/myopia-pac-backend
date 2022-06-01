@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.school.kindergarten;
 
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.GenderProportion;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.HorizontalChart;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.RefractiveTable;
 import lombok.Getter;
 import lombok.Setter;
@@ -35,6 +36,11 @@ public class SexRefractive {
      * 建议就诊
      */
     private GenderProportion recommendDoctorInfo;
+
+    /**
+     * 不同性别图表
+     */
+    private HorizontalChart refractiveGenderChart;
 
     /**
      * 表格

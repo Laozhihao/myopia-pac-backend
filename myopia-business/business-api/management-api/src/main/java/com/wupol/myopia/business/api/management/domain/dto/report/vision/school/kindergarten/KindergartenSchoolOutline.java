@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.school.kindergarten;
 
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.area.refraction.HistoryRefractive;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.CountAndProportion;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.Outline;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.VisionSituation;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.VisionWarningSituation;
@@ -35,6 +36,11 @@ public class KindergartenSchoolOutline {
      * 视力预警监测情况
      */
     private VisionWarningSituation visionWarningSituation;
+
+    /**
+     * 建议就诊
+     */
+    private CountAndProportion recommendDoctor;
 
     /**
      * 历年屈光情况趋势分析

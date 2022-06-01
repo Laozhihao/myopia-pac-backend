@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.area.refraction;
 
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.HorizontalChart;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.RefractiveTable;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,6 +20,11 @@ public class SchoolAgeRefractive {
      * 信息
      */
     public Info info;
+
+    /**
+     * 学龄段图表
+     */
+    private HorizontalChart ageRefractiveChart;
 
     /**
      * 表格

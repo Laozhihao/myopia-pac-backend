@@ -47,12 +47,12 @@ public class Outline {
     /**
      * 合计人数
      */
-    private Integer studentTotal;
+    private Long studentTotal;
 
     /**
      * 本次未筛
      */
-    private Integer unScreening;
+    private Long unScreening;
 
     /**
      * 无效人数

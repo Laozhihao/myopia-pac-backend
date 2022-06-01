@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.school.primary;
 
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.GenderProportion;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.HorizontalChart;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,6 +21,16 @@ public class GenderWearingGlasses {
      * 信息
      */
     private Info info;
+
+    /**
+     * 戴镜类型图表
+     */
+    private HorizontalChart genderWearingGlassesChart;
+
+    /**
+     * 矫正类型图表
+     */
+    private HorizontalChart genderVisionCorrectionChart;
 
     /**
      * 表格

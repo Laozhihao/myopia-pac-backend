@@ -1,16 +1,16 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.area;
 
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.CountAndProportion;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 /**
  * 中小学筛查表格
  *
  * @author Simple4H
  */
-@Getter
-@Setter
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class PrimaryScreeningInfoTable {
 
     /**

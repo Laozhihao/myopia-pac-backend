@@ -37,6 +37,11 @@ public class Primary {
     /**
      * 高中
      */
+    private CountAndProportion seniorProportion;
+
+    /**
+     * 普高
+     */
     private CountAndProportion highProportion;
 
     /**

@@ -437,10 +437,9 @@
         and is_rescreen = 0
     </select>
 
-    <select id="getByNoticePlanDistrict" resultMap="BaseResultMap">
+    <select id="getByNoticeIdDistrictIds" resultMap="BaseResultMap">
         select *
         from m_stat_conclusion where src_screening_notice_id = #{noticeId}
-                                 and plan_id = #{planId}
                                  and district_id in
         <foreach collection="districtIds" item="id" index="index" open="(" close=")" separator=",">
             #{id}
@@ -456,5 +455,12 @@
           and src_screening_notice_id = #{noticeId}
         and is_rescreen = false
         order by create_time desc
+    </select>
+
+    <select id="getByPlanId" resultMap="BaseResultMap">
+        select *
+        from m_stat_conclusion
+        where plan_id = #{planId}
+          and is_rescreen = false
     </select>
 </mapper>

@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.area;
 
-import com.wupol.myopia.business.api.management.domain.dto.report.vision.area.schoolage.SchoolHistoryLowVisionTable;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.area.schoolage.AreaHistoryLowVisionTable;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.HorizontalChart;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -26,7 +27,12 @@ public class LowVisionHistory {
     private String pProportion;
 
     /**
+     * 图表
+     */
+    private HorizontalChart historyLowVisionChart;
+
+    /**
      * 表格
      */
-    private List<SchoolHistoryLowVisionTable> tables;
+    private List<AreaHistoryLowVisionTable> tables;
 }

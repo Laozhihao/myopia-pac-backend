@@ -20,7 +20,7 @@ public class RefractiveTable {
     /**
      * 有效人数
      */
-    private Integer validCount;
+    private Long validCount;
 
     /**
      * 远视储备不足-有效人数
@@ -71,4 +71,9 @@ public class RefractiveTable {
      * 视力低下-百分比
      */
     private String lowVisionProportion;
+
+    /**
+     * 是否本次报告
+     */
+    private Boolean isSameReport;
 }

@@ -1,5 +1,6 @@
-package com.wupol.myopia.business.api.management.domain.dto.report.vision.area.schoolage;
+package com.wupol.myopia.business.api.management.domain.dto.report.vision.school.primary;
 
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.CommonTable;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,17 +11,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class SchoolAgeLowVisionTable {
-
-    /**
-     * 年级
-     */
-    private String name;
-
-    /**
-     * 有效人数
-     */
-    private Integer validCount;
+public class CommonLowVisionTable extends CommonTable {
 
     /**
      * 平均视力

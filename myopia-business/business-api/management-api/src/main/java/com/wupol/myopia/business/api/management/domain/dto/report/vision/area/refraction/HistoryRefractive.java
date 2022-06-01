@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.area.refraction;
 
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.HorizontalChart;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.RefractiveTable;
 import lombok.Getter;
 import lombok.Setter;
@@ -34,6 +35,11 @@ public class HistoryRefractive {
      * 屈光参差率
      */
     private String anisometropiaProportion;
+
+    /**
+     * 幼儿园屈光图表
+     */
+    private HorizontalChart kindergartenHistoryRefractive;
 
     /**
      * 表格

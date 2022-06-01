@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.area.refraction.primary;
 
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.GenderProportion;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.HorizontalChart;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.AstigmatismTable;
 import lombok.Getter;
 import lombok.Setter;
@@ -40,6 +41,11 @@ public class GenderRefraction {
      * 高度近视
      */
     private GenderProportion highMyopia;
+
+    /**
+     * 男女屈光图表
+     */
+    private HorizontalChart genderRefractionChart;
 
     /**
      * 表格

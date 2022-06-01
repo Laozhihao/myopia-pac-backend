@@ -33,6 +33,6 @@ public enum VisionCorrection {
             return "";
         }
         VisionCorrection visionCorrection = get(code);
-        return Objects.isNull(visionCorrection) ? "" : visionCorrection.desc;
+        return Objects.isNull(visionCorrection) ? "" : Objects.equals(visionCorrection.code, NORMAL.code) ? "" : visionCorrection.desc;
     }
 }

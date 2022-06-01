@@ -20,7 +20,7 @@ public class MyopiaTable {
     /**
      * 有效人数
      */
-    private Integer validCount;
+    private Long validCount;
 
     /**
      * 视力低下人数
@@ -81,6 +81,11 @@ public class MyopiaTable {
      * 高度视力人数-百分比
      */
     private String highProportion;
+
+    /**
+     * 是否本次报告
+     */
+    private Boolean isSameReport;
 
 
 }

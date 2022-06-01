@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.school;
 
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.CommonTable;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,17 +11,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class AstigmatismTable {
-
-    /**
-     * 项目
-     */
-    private String name;
-
-    /**
-     * 有效人数
-     */
-    private Integer validCount;
+public class AstigmatismTable extends CommonTable {
 
     /**
      * 近视前期人数
@@ -71,4 +62,9 @@ public class AstigmatismTable {
      * 高度近视率
      */
     private String highMyopiaProportion;
+
+    /**
+     * 是否本次报告
+     */
+    private Boolean isSameReport;
 }

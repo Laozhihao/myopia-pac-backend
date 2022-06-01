@@ -1,12 +1,10 @@
 package com.wupol.myopia.business.api.management.controller;
 
 import com.alibaba.csp.sentinel.util.StringUtil;
-import com.google.common.collect.Lists;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
-import com.wupol.myopia.base.util.ChainRatio;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.pdf.archives.SyncExportStudentScreeningArchivesService;
@@ -19,13 +17,11 @@ import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.
 import com.wupol.myopia.business.api.management.service.ScreeningAreaReportService;
 import com.wupol.myopia.business.api.management.service.ScreeningKindergartenReportService;
 import com.wupol.myopia.business.api.management.service.ScreeningPrimaryReportService;
-import com.wupol.myopia.business.api.management.service.report.CommonReportService;
 import com.wupol.myopia.business.core.common.service.Html2PdfService;
 import com.wupol.myopia.business.core.hospital.domain.dto.ReceiptDTO;
 import com.wupol.myopia.business.core.hospital.service.PreschoolCheckRecordService;
 import com.wupol.myopia.business.core.hospital.service.ReceiptListService;
 import com.wupol.myopia.business.core.hospital.service.ReferralRecordService;
-import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
@@ -42,6 +38,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 /**
@@ -93,7 +90,8 @@ public class ReportController {
      * 导出区域的筛查报告 TODO: 权限校验、导出次数限制
      *
      * @param notificationId 筛查通知ID
-     * @param districtId 行政区域ID
+     * @param districtId     行政区域ID
+     *
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @GetMapping("/district/export")
@@ -110,8 +108,9 @@ public class ReportController {
      * 导出学校的筛查报告
      *
      * @param notificationId 筛查通知ID
-     * @param planId 筛查计划ID
-     * @param schoolId 学校ID
+     * @param planId         筛查计划ID
+     * @param schoolId       学校ID
+     *
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @GetMapping("/school/export")
@@ -131,8 +130,9 @@ public class ReportController {
     /**
      * 导出筛查机构的筛查报告
      *
-     * @param planId 筛查计划ID
+     * @param planId         筛查计划ID
      * @param screeningOrgId 行政区域ID
+     *
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @GetMapping("/screeningOrg/export")
@@ -153,15 +153,16 @@ public class ReportController {
      *
      * @param planId   筛查计划ID
      * @param schoolId 学校ID
+     *
      * @return ApiResult<String> com.wupol.myopia.base.domain.ApiResult
      **/
     @GetMapping("/school/archives")
     public ApiResult<String> exportSchoolArchives(@NotNull(message = "筛查计划ID不能为空") Integer planId,
-                                     @NotNull(message = "学校ID不能为空") Integer schoolId,
-                                     Integer classId,
-                                     Integer gradeId,
-                                     Integer districtId,
-                                     @RequestParam(value = "planStudentIds", required = false) String planStudentIds) throws IOException {
+                                                  @NotNull(message = "学校ID不能为空") Integer schoolId,
+                                                  Integer classId,
+                                                  Integer gradeId,
+                                                  Integer districtId,
+                                                  @RequestParam(value = "planStudentIds", required = false) String planStudentIds) throws IOException {
         ExportCondition exportCondition = new ExportCondition()
                 .setPlanId(planId)
                 .setSchoolId(schoolId)
@@ -178,12 +179,13 @@ public class ReportController {
      * 导出行政区域档案卡
      *
      * @param notificationId 筛查通知ID
-     * @param districtId 行政区域ID
+     * @param districtId     行政区域ID
+     *
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @GetMapping("/district/archives")
     public void exportDistrictArchives(@NotNull(message = "筛查通知ID不能为空") Integer notificationId,
-                                     @NotNull(message = "行政区域ID不能为空") Integer districtId) throws IOException {
+                                       @NotNull(message = "行政区域ID不能为空") Integer districtId) throws IOException {
         ExportCondition exportCondition = new ExportCondition()
                 .setNotificationId(notificationId)
                 .setDistrictId(districtId)
@@ -194,8 +196,9 @@ public class ReportController {
     /**
      * 导出筛查机构档案卡
      *
-     * @param planId 筛查计划ID
+     * @param planId         筛查计划ID
      * @param screeningOrgId 筛查机构ID
+     *
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @GetMapping("/screeningOrg/archives")
@@ -204,7 +207,7 @@ public class ReportController {
                                            Integer schoolId,
                                            Integer classId,
                                            Integer gradeId,
-                                           @RequestParam(value="planStudentIds", required = false) String planStudentIds) throws IOException {
+                                           @RequestParam(value = "planStudentIds", required = false) String planStudentIds) throws IOException {
         ExportCondition exportCondition = new ExportCondition()
                 .setPlanId(planId)
                 .setScreeningOrgId(screeningOrgId)
@@ -223,16 +226,17 @@ public class ReportController {
      * @param planStudentIds 学生Id
      * @param schoolId       学校Id
      * @param planId         计划Id
+     *
      * @return 文件URL
      */
     @GetMapping("/school/student/archives")
     public ApiResult<String> syncExportSchoolStudentArchives(
-                                                             String planStudentIds,
-                                                             Integer classId,
-                                                             Integer gradeId,
-                                                             Integer schoolId,
-                                                             @NotNull(message = "筛查机构ID不能为空") Integer screeningOrgId,
-                                                             @NotNull(message = "筛查计划ID不能为空") Integer planId) {
+            String planStudentIds,
+            Integer classId,
+            Integer gradeId,
+            Integer schoolId,
+            @NotNull(message = "筛查机构ID不能为空") Integer screeningOrgId,
+            @NotNull(message = "筛查计划ID不能为空") Integer planId) {
         if (StringUtils.isNotBlank(planStudentIds)) {
             List<Integer> planStudentIdList = Arrays.stream(planStudentIds.split(",")).map(Integer::valueOf).collect(Collectors.toList());
             if (CollectionUtils.isEmpty(visionScreeningResultService.getByPlanStudentIds(planStudentIdList))) {
@@ -254,12 +258,12 @@ public class ReportController {
 
 
     /**
-    * @Description: 导出学校筛查报告PDF
-    * @Param: [筛检计划ID, 筛查机构ID, 学校ID]
-    * @return: void
-    * @Author: 钓猫的小鱼
-    * @Date: 2021/12/30
-    */
+     * @Description: 导出学校筛查报告PDF
+     * @Param: [筛检计划ID, 筛查机构ID, 学校ID]
+     * @return: void
+     * @Author: 钓猫的小鱼
+     * @Date: 2021/12/30
+     */
     @GetMapping("/screeningOrg/export/school")
     public void getScreeningPlanSchool(@NotNull(message = "筛查计划ID不能为空") Integer planId,
                                        @NotNull(message = "筛查机构ID不能为空") Integer screeningOrgId,
@@ -275,24 +279,25 @@ public class ReportController {
     }
 
     /**
-     *
      * @param screeningPlanId 筛查计划ID
-     * @param schoolId 学校ID
-     * @param gradeId 年级ID
-     * @param classId 班级ID
-     * @param planStudentIds 学生集会
+     * @param schoolId        学校ID
+     * @param gradeId         年级ID
+     * @param classId         班级ID
+     * @param planStudentIds  学生集会
      * @param type
+     *
      * @return
+     *
      * @throws IOException
      */
     @GetMapping("/screeningOrg/qrcode")
     public ApiResult<String> getScreeningStudentQrCode(@NotNull(message = "筛查计划ID不能为空") Integer screeningPlanId,
-                                          @NotNull(message = "学校ID不能为空") Integer schoolId,
-                                          Integer gradeId,
-                                          Integer classId,
-                                          String planStudentIds,
-                                          @NotNull(message = "TypeID不能为空") Integer type
-                                          ) throws IOException {
+                                                       @NotNull(message = "学校ID不能为空") Integer schoolId,
+                                                       Integer gradeId,
+                                                       Integer classId,
+                                                       String planStudentIds,
+                                                       @NotNull(message = "TypeID不能为空") Integer type
+    ) throws IOException {
 
         ExportCondition exportCondition = new ExportCondition()
                 .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId())
@@ -301,9 +306,8 @@ public class ReportController {
                 .setGradeId(gradeId)
                 .setClassId(classId)
                 .setPlanStudentIds(planStudentIds)
-                .setType(type)
-                ;
-        if (classId!=null|| StringUtil.isNotEmpty(planStudentIds)){
+                .setType(type);
+        if (classId != null || StringUtil.isNotEmpty(planStudentIds)) {
             return ApiResult.success(exportStrategy.syncExport(exportCondition, ExportReportServiceNameConstant.EXPORT_QRCODE_SCREENING_SERVICE));
         }
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.EXPORT_QRCODE_SCREENING_SERVICE);
@@ -315,6 +319,7 @@ public class ReportController {
      *
      * @param type 类型 0-转诊单 1-检查记录表 2-回执单
      * @param id   id
+     *
      * @return pdf文件
      */
     @GetMapping("pdf")
@@ -350,20 +355,21 @@ public class ReportController {
         }
         return ApiResult.success(html2PdfService.syncGeneratorPDF(url, "报告.pdf", UUID.randomUUID().toString()).getUrl());
     }
+
     /**
-     *
      * 学生档案卡路径
-     * @param resultId 结果ID
+     *
+     * @param resultId   结果ID
      * @param templateId 模板ID
+     *
      * @return
      */
     @GetMapping("/student/archivesUrl")
     public ApiResult<String> syncExportArchivesPdfUrl(@NotNull(message = "结果ID") Integer resultId,
-                                                       @NotNull(message = "模板ID") Integer templateId){
+                                                      @NotNull(message = "模板ID") Integer templateId) {
 
-        return ApiResult.success(syncExportStudentScreeningArchivesService.generateArchivesPdfUrl(resultId,templateId));
+        return ApiResult.success(syncExportStudentScreeningArchivesService.generateArchivesPdfUrl(resultId, templateId));
     }
-
 
     /**
      * 视力筛查-区域
@@ -371,19 +377,8 @@ public class ReportController {
      * @return ScreeningAreaReportDTO
      */
     @GetMapping("/screening/areaReport")
-    public ApiResult<ScreeningAreaReportDTO> areaReport() {
-        return ApiResult.success(new ScreeningAreaReportDTO());
-    }
-
-    /**
-     * 视力筛查-幼儿园
-     *
-     * @return KindergartenReportDTO
-     */
-    @GetMapping("/screening/kindergartenReport")
-    public ApiResult<KindergartenReportDTO> kindergartenReport() {
-        return ApiResult.success(new KindergartenReportDTO());
-
+    public ScreeningAreaReportDTO areaReport(Integer noticeId, Integer districtId) {
+        return screeningAreaReportService.generateReport(noticeId, districtId);
     }
 
     /**
@@ -392,29 +387,8 @@ public class ReportController {
      * @return PrimaryReportDTO
      */
     @GetMapping("/screening/primaryReport")
-    public ApiResult<PrimaryReportDTO> primaryReport() {
-        return ApiResult.success(new PrimaryReportDTO());
-    }
-
-
-    /**
-     * 视力筛查-区域
-     *
-     * @return ScreeningAreaReportDTO
-     */
-    @GetMapping("/screening/areaReport2")
-    public ScreeningAreaReportDTO areaReport2() {
-        return screeningAreaReportService.generateReport(539,282, 37313);
-    }
-
-    /**
-     * 视力筛查-小学及以上
-     *
-     * @return PrimaryReportDTO
-     */
-    @GetMapping("/screening/primaryReport2")
-    public PrimaryReportDTO primaryReport2() {
-        return screeningPrimaryReportService.generateReport(249, 364, 486);
+    public PrimaryReportDTO primaryReport(Integer planId, Integer schoolId, Integer noticeId) {
+        return screeningPrimaryReportService.generateReport(planId, schoolId, noticeId);
     }
 
     /**
@@ -422,8 +396,8 @@ public class ReportController {
      *
      * @return KindergartenReportDTO
      */
-    @GetMapping("/screening/kindergartenReport2")
-    public KindergartenReportDTO kindergartenReport2(Integer planId, Integer schoolId, Integer noticeId) {
+    @GetMapping("/screening/kindergartenReport")
+    public KindergartenReportDTO kindergartenReport(Integer planId, Integer schoolId, Integer noticeId) {
         return screeningKindergartenReportService.generateReport(planId, schoolId, noticeId);
 
     }
