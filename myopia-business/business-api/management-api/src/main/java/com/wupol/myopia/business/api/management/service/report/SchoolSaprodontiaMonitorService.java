@@ -7,7 +7,6 @@ import com.google.common.collect.Maps;
 import com.wupol.myopia.business.api.management.constant.AgeSegmentEnum;
 import com.wupol.myopia.business.api.management.constant.ReportConst;
 import com.wupol.myopia.business.api.management.domain.vo.report.SchoolCommonDiseasesAnalysisVO;
-import com.wupol.myopia.business.api.management.domain.vo.report.SchoolHeightAndWeightMonitorVO;
 import com.wupol.myopia.business.api.management.domain.vo.report.SchoolSaprodontiaMonitorVO;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
@@ -103,9 +102,9 @@ public class SchoolSaprodontiaMonitorService {
 
         if (saprodontiaSexList.size() >= 1){
             SchoolSaprodontiaMonitorVO.SaprodontiaSexVariableVO saprodontiaSexVariableVO = new SchoolSaprodontiaMonitorVO.SaprodontiaSexVariableVO();
-            saprodontiaSexVariableVO.setSaprodontiaRatioCompare(getRatioCompare(saprodontiaSexList, SaprodontiaNum::getSaprodontiaNum, SaprodontiaNum::getSaprodontiaLossRatioStr));
-            saprodontiaSexVariableVO.setSaprodontiaLossRatioCompare(getRatioCompare(saprodontiaSexList, SaprodontiaNum::getSaprodontiaLossNum, SaprodontiaNum::getSaprodontiaLossRatioStr));
-            saprodontiaSexVariableVO.setSaprodontiaRepairRatioCompare(getRatioCompare(saprodontiaSexList, SaprodontiaNum::getSaprodontiaRepairNum, SaprodontiaNum::getSaprodontiaRatioStr));
+            saprodontiaSexVariableVO.setSaprodontiaRatioCompare(getRatioCompare(saprodontiaSexList, SaprodontiaNum::getSaprodontiaRatio, SaprodontiaNum::getSaprodontiaRatioStr));
+            saprodontiaSexVariableVO.setSaprodontiaLossRatioCompare(getRatioCompare(saprodontiaSexList, SaprodontiaNum::getSaprodontiaLossRatio, SaprodontiaNum::getSaprodontiaLossRatioStr));
+            saprodontiaSexVariableVO.setSaprodontiaRepairRatioCompare(getRatioCompare(saprodontiaSexList, SaprodontiaNum::getSaprodontiaRepairRatio, SaprodontiaNum::getSaprodontiaRepairRatioStr));
             saprodontiaSexVO.setSaprodontiaSexVariableVO(saprodontiaSexVariableVO);
         }
 
@@ -124,11 +123,11 @@ public class SchoolSaprodontiaMonitorService {
         saprodontiaNumMap.put(key,build);
     }
 
-    private SchoolSaprodontiaMonitorVO.SaprodontiaSex getRatioCompare(List<SaprodontiaNum> saprodontiaSexList, Function<SaprodontiaNum,Integer> function, Function<SaprodontiaNum,String> mapper) {
+    private SchoolSaprodontiaMonitorVO.SaprodontiaSex getRatioCompare(List<SaprodontiaNum> saprodontiaSexList, Function<SaprodontiaNum,BigDecimal> function, Function<SaprodontiaNum,String> mapper) {
         if (CollectionUtil.isEmpty(saprodontiaSexList)){
             return null;
         }
-        CollectionUtil.sort(saprodontiaSexList, Comparator.comparing(function));
+        CollectionUtil.sort(saprodontiaSexList, Comparator.comparing(function).reversed());
         SchoolSaprodontiaMonitorVO.SaprodontiaSex sex = new SchoolSaprodontiaMonitorVO.SaprodontiaSex();
         if (saprodontiaSexList.size() == 1){
             SaprodontiaNum num = saprodontiaSexList.get(0);
@@ -360,7 +359,7 @@ public class SchoolSaprodontiaMonitorService {
         if (CollectionUtil.isEmpty(statConclusionList)){
             return;
         }
-        Map<Integer, List<StatConclusion>> ageMap = statConclusionList.stream().collect(Collectors.groupingBy(sc -> getLessAge(sc.getAge())));
+        Map<Integer, List<StatConclusion>> ageMap = statConclusionList.stream().collect(Collectors.groupingBy(sc -> ReportUtil.getLessAge(sc.getAge())));
         Map<Integer, SaprodontiaNum> saprodontiaNumMap = Maps.newHashMap();
         ageMap.forEach((age,list)->getSaprodontiaNum(age,list,saprodontiaNumMap));
 
@@ -387,25 +386,6 @@ public class SchoolSaprodontiaMonitorService {
         return ageRatio;
     }
 
-    private Integer getLessAge(Integer age){
-        if (age < 6){
-            return 6;
-        }else if (age < 8){
-            return 8;
-        }else if (age < 10){
-            return 10;
-        }else if (age < 12){
-            return 12;
-        }else if (age < 14){
-            return 14;
-        }else if (age < 16){
-            return 16;
-        }else if (age < 18){
-            return 18;
-        }else {
-            return 19;
-        }
-    }
 
     /**
      * 获取map中Value最小值及对应的Key
@@ -425,7 +405,7 @@ public class SchoolSaprodontiaMonitorService {
             return;
         }
 
-        Map<Integer, List<StatConclusion>> ageMap = statConclusionList.stream().collect(Collectors.groupingBy(sc -> getLessAge(sc.getAge()),TreeMap::new,Collectors.toList()));
+        Map<Integer, List<StatConclusion>> ageMap = statConclusionList.stream().collect(Collectors.groupingBy(sc -> ReportUtil.getLessAge(sc.getAge()),TreeMap::new,Collectors.toList()));
         List<SchoolSaprodontiaMonitorVO.SaprodontiaMonitorTable> tableList = Lists.newArrayList();
         ageMap.forEach((age,list)->getSaprodontiaAgeTable(age,list,tableList));
         getSaprodontiaAgeTable(1000,statConclusionList,tableList);

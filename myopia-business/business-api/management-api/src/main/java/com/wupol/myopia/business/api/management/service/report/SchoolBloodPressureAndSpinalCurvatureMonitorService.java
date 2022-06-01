@@ -95,8 +95,8 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
 
         if (bloodPressureAndSpinalCurvatureSexList.size() >= 1){
             SchoolBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureSexVariableVO sexVariableVO = new SchoolBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureSexVariableVO();
-            sexVariableVO.setAbnormalSpineCurvatureRatioCompare(getRatioCompare(bloodPressureAndSpinalCurvatureSexList, BloodPressureAndSpinalCurvatureNum::getAbnormalSpineCurvatureNum, BloodPressureAndSpinalCurvatureNum::getAbnormalSpineCurvatureRatioStr));
-            sexVariableVO.setHighBloodPressureRatioCompare(getRatioCompare(bloodPressureAndSpinalCurvatureSexList, BloodPressureAndSpinalCurvatureNum::getHighBloodPressureNum, BloodPressureAndSpinalCurvatureNum::getHighBloodPressureRatioStr));
+            sexVariableVO.setAbnormalSpineCurvatureRatioCompare(getRatioCompare(bloodPressureAndSpinalCurvatureSexList, BloodPressureAndSpinalCurvatureNum::getAbnormalSpineCurvatureRatio, BloodPressureAndSpinalCurvatureNum::getAbnormalSpineCurvatureRatioStr));
+            sexVariableVO.setHighBloodPressureRatioCompare(getRatioCompare(bloodPressureAndSpinalCurvatureSexList, BloodPressureAndSpinalCurvatureNum::getHighBloodPressureRatio, BloodPressureAndSpinalCurvatureNum::getHighBloodPressureRatioStr));
 
             sexVO.setBloodPressureAndSpinalCurvatureSexVariableVO(sexVariableVO);
         }
@@ -115,11 +115,11 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
         bloodPressureAndSpinalCurvatureNumMap.put(key,build);
     }
 
-    private SchoolBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureSex getRatioCompare(List<BloodPressureAndSpinalCurvatureNum> sexList, Function<BloodPressureAndSpinalCurvatureNum,Integer> function, Function<BloodPressureAndSpinalCurvatureNum,String> mapper) {
+    private SchoolBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureSex getRatioCompare(List<BloodPressureAndSpinalCurvatureNum> sexList, Function<BloodPressureAndSpinalCurvatureNum,BigDecimal> function, Function<BloodPressureAndSpinalCurvatureNum,String> mapper) {
         if (CollectionUtil.isEmpty(sexList)){
             return null;
         }
-        CollectionUtil.sort(sexList, Comparator.comparing(function));
+        CollectionUtil.sort(sexList, Comparator.comparing(function).reversed());
         SchoolBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureSex sex = new SchoolBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureSex();
         if (sexList.size() == 1){
             BloodPressureAndSpinalCurvatureNum num = sexList.get(0);
@@ -338,7 +338,7 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
             return;
         }
 
-        Map<Integer, List<StatConclusion>> ageMap = statConclusionList.stream().collect(Collectors.groupingBy(sc -> getLessAge(sc.getAge())));
+        Map<Integer, List<StatConclusion>> ageMap = statConclusionList.stream().collect(Collectors.groupingBy(sc -> ReportUtil.getLessAge(sc.getAge())));
         Map<Integer, BloodPressureAndSpinalCurvatureNum> bloodPressureAndSpinalCurvatureNumMap = Maps.newHashMap();
         ageMap.forEach((age,list)->getBloodPressureAndSpinalCurvatureNum(age,list,bloodPressureAndSpinalCurvatureNumMap));
 
@@ -361,25 +361,6 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
         return ageRatio;
     }
 
-    private Integer getLessAge(Integer age){
-        if (age < 6){
-            return 6;
-        }else if (age < 8){
-            return 8;
-        }else if (age < 10){
-            return 10;
-        }else if (age < 12){
-            return 12;
-        }else if (age < 14){
-            return 14;
-        }else if (age < 16){
-            return 16;
-        }else if (age < 18){
-            return 18;
-        }else {
-            return 19;
-        }
-    }
 
     /**
      * 获取map中Value最小值及对应的Key
@@ -399,7 +380,7 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
             return;
         }
 
-        Map<Integer, List<StatConclusion>> ageMap = statConclusionList.stream().collect(Collectors.groupingBy(sc -> getLessAge(sc.getAge()),TreeMap::new,Collectors.toList()));
+        Map<Integer, List<StatConclusion>> ageMap = statConclusionList.stream().collect(Collectors.groupingBy(sc -> ReportUtil.getLessAge(sc.getAge()),TreeMap::new,Collectors.toList()));
         List<SchoolBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureMonitorTable> tableList = Lists.newArrayList();
         ageMap.forEach((age,list)->getBloodPressureAndSpinalCurvatureAgeTable(age,list,tableList));
         getBloodPressureAndSpinalCurvatureAgeTable(1000,statConclusionList,tableList);

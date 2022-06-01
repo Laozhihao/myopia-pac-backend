@@ -188,9 +188,8 @@ public class SchoolCommonDiseaseReportService {
         VisionAnalysisNum visionAnalysisNum = new VisionAnalysisNum().build(primaryAndAboveStatConclusionList).ratioNotSymbol();
 
         visionAnalysisVO.setValidScreeningNum(visionAnalysisNum.validScreeningNum);
-        visionAnalysisVO.setLowVision(getItem(visionAnalysisNum, VisionAnalysisNum::getLowMyopiaNum, VisionAnalysisNum::getLowVisionRatio));
+        visionAnalysisVO.setLowVision(getItem(visionAnalysisNum, VisionAnalysisNum::getLowVisionNum, VisionAnalysisNum::getLowVisionRatio));
         visionAnalysisVO.setAvgVision(averageVision);
-        visionAnalysisVO.setAvgVisionRatio(avgVisionRatio);
         visionAnalysisVO.setMyopia(getItem(visionAnalysisNum, VisionAnalysisNum::getMyopiaNum, VisionAnalysisNum::getMyopiaRatio));
         visionAnalysisVO.setNightWearingOrthokeratologyLenses(getItem(visionAnalysisNum, VisionAnalysisNum::getNightWearingOrthokeratologyLensesNum, VisionAnalysisNum::getNightWearingOrthokeratologyLensesRatio));
         visionAnalysisVO.setMyopiaLevelEarly(getItem(visionAnalysisNum, VisionAnalysisNum::getMyopiaLevelEarlyNum, VisionAnalysisNum::getMyopiaLevelEarlyRatio));
@@ -202,6 +201,14 @@ public class SchoolCommonDiseaseReportService {
         visionAnalysisVO.setMyopiaUnderCorrected(getItem(visionAnalysisNum, VisionAnalysisNum::getMyopiaUnderCorrectedNum, VisionAnalysisNum::getMyopiaUnderCorrectedRatio));
 
         districtCommonDiseaseReportVO.setVisionAnalysisVO(visionAnalysisVO);
+    }
+    private SchoolCommonDiseasesAnalysisVO.Item getItem(CommonDiseasesNum commonDiseasesNum, Function<CommonDiseasesNum,Integer> function, Function<CommonDiseasesNum,BigDecimal> mapper){
+        Integer num = Optional.of(commonDiseasesNum).map(function).orElse(ReportConst.ZERO);
+        BigDecimal ratio = Optional.of(commonDiseasesNum).map(mapper).orElse(ReportConst.ZERO_BIG_DECIMAL);
+        if (ObjectsUtil.allNotNull(num,ratio)){
+            return new SchoolCommonDiseasesAnalysisVO.Item(num,ratio);
+        }
+        return null;
     }
 
     private SchoolCommonDiseaseReportVO.Item getItem(VisionAnalysisNum visionAnalysisNum,Function<VisionAnalysisNum,Integer> function,Function<VisionAnalysisNum,BigDecimal> mapper){
@@ -263,87 +270,24 @@ public class SchoolCommonDiseaseReportService {
                 .map(StatConclusion::getIsSpinalCurvature)
                 .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
 
-        getSaprodontiaVO(statConclusionList,commonDiseasesAnalysisVariableVO);
-        getHeightAndWeightVO(statConclusionList,commonDiseasesAnalysisVariableVO);
-        getBloodPressureAndSpinalCurvatureVO(statConclusionList,commonDiseasesAnalysisVariableVO);
+      CommonDiseasesNum commonDiseasesNum = new CommonDiseasesNum().build(statConclusionList).ratioNotSymbol();
+
         commonDiseasesAnalysisVariableVO.setValidScreeningNum(statConclusionList.size());
         commonDiseasesAnalysisVariableVO.setAbnormalSpineCurvatureNum(abnormalSpineCurvatureNum);
-
+        commonDiseasesAnalysisVariableVO.setDmft(getItem(commonDiseasesNum, CommonDiseasesNum::getDmftNum, CommonDiseasesNum::getDmftRatio));
+        commonDiseasesAnalysisVariableVO.setSaprodontia(getItem(commonDiseasesNum, CommonDiseasesNum::getSaprodontiaNum, CommonDiseasesNum::getSaprodontiaRatio));
+        commonDiseasesAnalysisVariableVO.setSaprodontiaLoss(getItem(commonDiseasesNum, CommonDiseasesNum::getSaprodontiaLossNum, CommonDiseasesNum::getSaprodontiaLossRatio));
+        commonDiseasesAnalysisVariableVO.setSaprodontiaRepair(getItem(commonDiseasesNum, CommonDiseasesNum::getSaprodontiaRepairNum, CommonDiseasesNum::getSaprodontiaRepairRatio));
+        commonDiseasesAnalysisVariableVO.setSaprodontiaLossAndRepair(getItem(commonDiseasesNum, CommonDiseasesNum::getSaprodontiaLossAndRepairNum, CommonDiseasesNum::getSaprodontiaLossAndRepairRatio));
+        commonDiseasesAnalysisVariableVO.setSaprodontiaLossAndRepairTeeth(getItem(commonDiseasesNum, CommonDiseasesNum::getSaprodontiaLossAndRepairTeethNum, CommonDiseasesNum::getSaprodontiaLossAndRepairTeethRatio));
+        commonDiseasesAnalysisVariableVO.setOverweight(getItem(commonDiseasesNum, CommonDiseasesNum::getOverweightNum, CommonDiseasesNum::getOverweightRatio));
+        commonDiseasesAnalysisVariableVO.setObese(getItem(commonDiseasesNum, CommonDiseasesNum::getObeseNum, CommonDiseasesNum::getObeseRatio));
+        commonDiseasesAnalysisVariableVO.setHighBloodPressure(getItem(commonDiseasesNum, CommonDiseasesNum::getHighBloodPressureNum, CommonDiseasesNum::getHighBloodPressureRatio));
+        commonDiseasesAnalysisVariableVO.setAbnormalSpineCurvature(getItem(commonDiseasesNum, CommonDiseasesNum::getAbnormalSpineCurvatureNum, CommonDiseasesNum::getAbnormalSpineCurvatureRatio));
         districtCommonDiseasesAnalysisVO.setCommonDiseasesAnalysisVariableVO(commonDiseasesAnalysisVariableVO);
 
     }
 
-    /**
-     * 常见病分析变量-龋齿数据
-     */
-    private void getSaprodontiaVO(List<StatConclusion> statConclusionList, SchoolCommonDiseasesAnalysisVO.CommonDiseasesAnalysisVariableVO commonDiseasesAnalysisVariableVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)){
-            return;
-        }
-        CommonDiseasesNum commonDiseasesNum = new CommonDiseasesNum().build(statConclusionList).ratioNotSymbol();
-        SchoolCommonDiseasesAnalysisVO.SaprodontiaVO saprodontiaVO = buildSaprodontiaVO(commonDiseasesNum);
-        commonDiseasesAnalysisVariableVO.setSaprodontiaVO(saprodontiaVO);
-    }
-
-    private SchoolCommonDiseasesAnalysisVO.SaprodontiaVO buildSaprodontiaVO(CommonDiseasesNum commonDiseasesNum){
-        SchoolCommonDiseasesAnalysisVO.SaprodontiaVO saprodontiaVO = new SchoolCommonDiseasesAnalysisVO.SaprodontiaVO();
-        saprodontiaVO.setDmftNum(commonDiseasesNum.dmftNum);
-        saprodontiaVO.setDmftRatio(commonDiseasesNum.dmftRatio);
-        saprodontiaVO.setSaprodontiaNum(commonDiseasesNum.saprodontiaNum);
-        saprodontiaVO.setSaprodontiaRatio(commonDiseasesNum.saprodontiaRatio);
-        saprodontiaVO.setSaprodontiaLossNum(commonDiseasesNum.saprodontiaLossNum);
-        saprodontiaVO.setSaprodontiaLossRatio(commonDiseasesNum.saprodontiaLossRatio);
-        saprodontiaVO.setSaprodontiaRepairNum(commonDiseasesNum.saprodontiaRepairNum);
-        saprodontiaVO.setSaprodontiaRepairRatio(commonDiseasesNum.saprodontiaRepairRatio);
-        saprodontiaVO.setSaprodontiaLossAndRepairNum(commonDiseasesNum.saprodontiaLossAndRepairNum);
-        saprodontiaVO.setSaprodontiaLossAndRepairRatio(commonDiseasesNum.saprodontiaLossAndRepairRatio);
-        saprodontiaVO.setSaprodontiaLossAndRepairTeethNum(commonDiseasesNum.saprodontiaLossAndRepairTeethNum);
-        saprodontiaVO.setSaprodontiaLossAndRepairTeethRatio(commonDiseasesNum.saprodontiaLossAndRepairTeethRatio);
-        return saprodontiaVO;
-    }
-
-    /**
-     * 常见病分析变量-身高体重数据
-     */
-    private void getHeightAndWeightVO(List<StatConclusion> statConclusionList, SchoolCommonDiseasesAnalysisVO.CommonDiseasesAnalysisVariableVO commonDiseasesAnalysisVariableVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)){
-            return;
-        }
-
-        CommonDiseasesNum commonDiseasesNum = new CommonDiseasesNum().build(statConclusionList).ratioNotSymbol();
-        SchoolCommonDiseasesAnalysisVO.HeightAndWeightVO heightAndWeightVO = buildHeightAndWeightVO(commonDiseasesNum);
-        commonDiseasesAnalysisVariableVO.setHeightAndWeightVO(heightAndWeightVO);
-    }
-
-    private SchoolCommonDiseasesAnalysisVO.HeightAndWeightVO buildHeightAndWeightVO(CommonDiseasesNum commonDiseasesNum){
-        SchoolCommonDiseasesAnalysisVO.HeightAndWeightVO heightAndWeightVO = new SchoolCommonDiseasesAnalysisVO.HeightAndWeightVO();
-        heightAndWeightVO.setOverweightNum(commonDiseasesNum.overweightNum);
-        heightAndWeightVO.setOverweightRatio(commonDiseasesNum.overweightRatio);
-        heightAndWeightVO.setObeseNum(commonDiseasesNum.obeseNum);
-        heightAndWeightVO.setObeseRatio(commonDiseasesNum.obeseRatio);
-        return heightAndWeightVO;
-    }
-
-    /**
-     * 常见病分析变量-血压和脊柱弯曲数据
-     */
-    private void getBloodPressureAndSpinalCurvatureVO(List<StatConclusion> statConclusionList, SchoolCommonDiseasesAnalysisVO.CommonDiseasesAnalysisVariableVO commonDiseasesAnalysisVariableVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)){
-            return;
-        }
-        CommonDiseasesNum commonDiseasesNum = new CommonDiseasesNum().build(statConclusionList).ratioNotSymbol();
-        SchoolCommonDiseasesAnalysisVO.BloodPressureAndSpinalCurvatureVO bloodPressureAndSpinalCurvatureVO = buildBloodPressureAndSpinalCurvatureVO(commonDiseasesNum);
-        commonDiseasesAnalysisVariableVO.setBloodPressureAndSpinalCurvatureVO(bloodPressureAndSpinalCurvatureVO);
-    }
-
-    private SchoolCommonDiseasesAnalysisVO.BloodPressureAndSpinalCurvatureVO buildBloodPressureAndSpinalCurvatureVO(CommonDiseasesNum commonDiseasesNum){
-        SchoolCommonDiseasesAnalysisVO.BloodPressureAndSpinalCurvatureVO bloodPressureAndSpinalCurvatureVO = new SchoolCommonDiseasesAnalysisVO.BloodPressureAndSpinalCurvatureVO();
-        bloodPressureAndSpinalCurvatureVO.setAbnormalSpineCurvatureNum(commonDiseasesNum.abnormalSpineCurvatureNum);
-        bloodPressureAndSpinalCurvatureVO.setAbnormalSpineCurvatureRatio(commonDiseasesNum.abnormalSpineCurvatureRatio);
-        bloodPressureAndSpinalCurvatureVO.setHighBloodPressureNum(commonDiseasesNum.highBloodPressureNum);
-        bloodPressureAndSpinalCurvatureVO.setHighBloodPressureRatio(commonDiseasesNum.highBloodPressureRatio);
-        return bloodPressureAndSpinalCurvatureVO;
-    }
 
     @EqualsAndHashCode(callSuper = true)
     @Data
@@ -471,37 +415,15 @@ public class SchoolCommonDiseaseReportService {
         public VisionAnalysisNum ratioNotSymbol(){
 
             this.lowVisionRatio = getRatioNotSymbol(lowVisionNum,validScreeningNum);
-            if (Objects.nonNull(lowVisionNum)){
-            }
-            if (Objects.nonNull(myopiaNum)){
-                this.myopiaRatio =getRatioNotSymbol(myopiaNum,validScreeningNum);
-            }
-            if (Objects.nonNull(nightWearingOrthokeratologyLensesNum)){
-                this.nightWearingOrthokeratologyLensesRatio = getRatioNotSymbol(nightWearingOrthokeratologyLensesNum,validScreeningNum);
-            }
-            if (Objects.nonNull(myopiaLevelEarlyNum)){
-                this.myopiaLevelEarlyRatio = getRatioNotSymbol(myopiaLevelEarlyNum,validScreeningNum);
-            }
-            if (Objects.nonNull(lowMyopiaNum)){
-                this.lowMyopiaRatio =getRatioNotSymbol(lowMyopiaNum,validScreeningNum);
-            }
-
-            if (Objects.nonNull(highMyopiaNum)){
-                this.highMyopiaRatio = getRatioNotSymbol(highMyopiaNum,validScreeningNum);
-            }
-            if (Objects.nonNull(astigmatismNum)){
-                this.astigmatismRatio = getRatioNotSymbol(astigmatismNum,validScreeningNum);
-            }
-
-            if (Objects.nonNull(myopiaEnoughCorrectedNum)){
-                this.myopiaEnoughCorrectedRatio = getRatioNotSymbol(myopiaEnoughCorrectedNum,validScreeningNum);
-            }
-            if (Objects.nonNull(myopiaUncorrectedNum)){
-                this.myopiaUncorrectedRatio = getRatioNotSymbol(myopiaUncorrectedNum,validScreeningNum);
-            }
-            if (Objects.nonNull(myopiaUnderCorrectedNum)){
-                this.myopiaUnderCorrectedRatio = getRatioNotSymbol(myopiaUnderCorrectedNum,validScreeningNum);
-            }
+            this.myopiaRatio =getRatioNotSymbol(myopiaNum,validScreeningNum);
+            this.nightWearingOrthokeratologyLensesRatio = getRatioNotSymbol(nightWearingOrthokeratologyLensesNum,validScreeningNum);
+            this.myopiaLevelEarlyRatio = getRatioNotSymbol(myopiaLevelEarlyNum,validScreeningNum);
+            this.lowMyopiaRatio =getRatioNotSymbol(lowMyopiaNum,validScreeningNum);
+            this.highMyopiaRatio = getRatioNotSymbol(highMyopiaNum,validScreeningNum);
+            this.astigmatismRatio = getRatioNotSymbol(astigmatismNum,validScreeningNum);
+            this.myopiaEnoughCorrectedRatio = getRatioNotSymbol(myopiaEnoughCorrectedNum,validScreeningNum);
+            this.myopiaUncorrectedRatio = getRatioNotSymbol(myopiaUncorrectedNum,validScreeningNum);
+            this.myopiaUnderCorrectedRatio = getRatioNotSymbol(myopiaUnderCorrectedNum,validScreeningNum);
 
             return this;
         }
@@ -509,6 +431,8 @@ public class SchoolCommonDiseaseReportService {
 
     }
 
+    @EqualsAndHashCode(callSuper = true)
+    @Data
     private static class CommonDiseasesNum extends EntityFunction{
         /**
          * 筛查人数
@@ -522,7 +446,7 @@ public class SchoolCommonDiseaseReportService {
         /**
          * 龋均
          */
-        private String dmftRatio;
+        private BigDecimal dmftRatio;
 
         /**
          * 有龋人数
@@ -644,7 +568,7 @@ public class SchoolCommonDiseaseReportService {
          * 不带%
          */
         public CommonDiseasesNum ratioNotSymbol(){
-            this.dmftRatio = Optional.ofNullable(MathUtil.num(dmftNum,validScreeningNum)).orElse(ReportConst.ZERO_STR);
+            this.dmftRatio = Optional.ofNullable(MathUtil.numNotSymbol(dmftNum,validScreeningNum)).orElse(ReportConst.ZERO_BIG_DECIMAL);
             this.saprodontiaRatio = getRatioNotSymbol(saprodontiaNum,validScreeningNum);
             this.saprodontiaRepairRatio = getRatioNotSymbol(saprodontiaRepairNum,validScreeningNum);
             this.saprodontiaLossAndRepairRatio = getRatioNotSymbol(saprodontiaLossAndRepairNum,validScreeningNum);

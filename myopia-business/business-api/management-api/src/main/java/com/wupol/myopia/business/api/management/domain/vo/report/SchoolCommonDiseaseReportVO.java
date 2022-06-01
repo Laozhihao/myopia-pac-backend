@@ -88,11 +88,8 @@ public class SchoolCommonDiseaseReportVO {
         /**
          * 平均视力值
          */
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
         private BigDecimal avgVision;
-        /**
-         * 平均视力占比
-         */
-        private BigDecimal avgVisionRatio;
 
         /**
          * 近视

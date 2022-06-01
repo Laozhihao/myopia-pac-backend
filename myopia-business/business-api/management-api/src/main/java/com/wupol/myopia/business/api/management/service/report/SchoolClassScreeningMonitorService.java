@@ -9,6 +9,7 @@ import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -166,6 +167,7 @@ public class SchoolClassScreeningMonitorService {
         return schoolScreeningMonitorTable;
     }
 
+    @EqualsAndHashCode(callSuper = true)
     @Data
     private static class SchoolClassScreeningNum extends EntityFunction{
         /**
