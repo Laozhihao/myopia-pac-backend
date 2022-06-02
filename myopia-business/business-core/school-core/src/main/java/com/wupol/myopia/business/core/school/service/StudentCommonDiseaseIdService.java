@@ -97,6 +97,8 @@ public class StudentCommonDiseaseIdService extends BaseService<StudentCommonDise
         StudentCommonDiseaseId studentCommonDiseaseId = new StudentCommonDiseaseId()
                 .setStudentId(studentId)
                 .setAreaDistrictShortCode(districtShortCode)
+                .setAreaType(school.getAreaType())
+                .setMonitorType(school.getMonitorType())
                 .setSchoolId(schoolId)
                 .setGradeId(gradeId)
                 .setYear(year)
