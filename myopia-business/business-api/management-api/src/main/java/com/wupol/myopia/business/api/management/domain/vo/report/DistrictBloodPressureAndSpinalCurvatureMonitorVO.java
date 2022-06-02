@@ -60,7 +60,7 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorVO {
         /**
          * 性别图表
          */
-        private List<List<BigDecimal>> bloodPressureAndSpinalCurvatureSexMonitorChart;
+        private DistrictChartVO.Chart bloodPressureAndSpinalCurvatureSexMonitorChart;
 
 
     }
@@ -117,7 +117,7 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorVO {
         /**
          * 学龄段图表
          */
-        private DistrictChartVO.SchoolAgeChart bloodPressureAndSpinalCurvatureSchoolAgeMonitorChart;
+        private DistrictChartVO.Chart bloodPressureAndSpinalCurvatureSchoolAgeMonitorChart;
 
     }
     @Data

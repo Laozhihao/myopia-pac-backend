@@ -92,47 +92,29 @@ public class DistrictHeightAndWeightMonitorService {
         if (CollectionUtil.isEmpty(statConclusionList)){
             return;
         }
-        List<List<BigDecimal>> sexChart =Lists.newArrayList(Lists.newArrayList(),Lists.newArrayList());
+        DistrictChartVO.Chart chart = new DistrictChartVO.Chart();
+        List<String> x = Lists.newArrayList("男","女");
+        List<DistrictChartVO.ChartData> y = Lists.newArrayList(
+                new DistrictChartVO.ChartData(ReportConst.OVERWEIGHT,Lists.newArrayList()),
+                new DistrictChartVO.ChartData(ReportConst.OBESE,Lists.newArrayList()),
+                new DistrictChartVO.ChartData(ReportConst.MALNOURISHED,Lists.newArrayList()),
+                new DistrictChartVO.ChartData(ReportConst.STUNTING,Lists.newArrayList())
+        );
         Map<Integer, List<StatConclusion>> genderMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getGender));
-        List<HeightAndWeightNum> heightAndWeightSexList= Lists.newArrayList();
-        genderMap.forEach((gender,list)-> getHeightAndWeightNum(gender,list,heightAndWeightSexList));
-        getChartData(heightAndWeightSexList,sexChart);
-        heightAndWeightSexVO.setHeightAndWeightSexMonitorChart(sexChart);
+        getChartData(genderMap.get(GenderEnum.MALE.type), y);
+        getChartData(genderMap.get(GenderEnum.FEMALE.type), y);
+        chart.setX(x);
+        chart.setY(y);
+        heightAndWeightSexVO.setHeightAndWeightSexMonitorChart(chart);
     }
 
-    private void getChartData(List<HeightAndWeightNum> sexList, List<List<BigDecimal>> sexChart) {
-        if (sexList.size() == 1){
-            HeightAndWeightNum num = sexList.get(0);
-            setChartData(num,null,ReportConst.ZERO_BIG_DECIMAL,sexChart);
-        }
-
-        if (sexList.size() == 2){
-            HeightAndWeightNum num1 = sexList.get(0);
-            HeightAndWeightNum num2 = sexList.get(1);
-            setChartData(num1,num2,null,sexChart);
-        }
+    private void getChartData(List<StatConclusion> statConclusionList,List<DistrictChartVO.ChartData> y) {
+        HeightAndWeightNum num = new HeightAndWeightNum().build(statConclusionList).ratioNotSymbol().ratio();
+        y.get(0).getData().add(num.overweightRatio);
+        y.get(1).getData().add(num.obeseRatio);
+        y.get(2).getData().add(num.malnourishedRatio);
+        y.get(3).getData().add(num.stuntingRatio);
     }
-
-    private void setChartData(HeightAndWeightNum num1, HeightAndWeightNum num2, BigDecimal zero, List<List<BigDecimal>> sexChart){
-        int one = Optional.of(num1).filter(v -> Objects.equals(num1.gender, GenderEnum.MALE.type)).map(v -> 0).orElse(1);
-        sexChart.get(one).add(num1.overweightRatio);
-        sexChart.get(one).add(num1.obeseRatio);
-        sexChart.get(one).add(num1.malnourishedRatio);
-        sexChart.get(one).add(num1.stuntingRatio);
-        int two = one == 0 ? 1:0;
-        if (Objects.nonNull(num2)){
-            sexChart.get(two).add(num2.overweightRatio);
-            sexChart.get(two).add(num2.obeseRatio);
-            sexChart.get(two).add(num2.malnourishedRatio);
-            sexChart.get(two).add(num2.stuntingRatio);
-        }else {
-            sexChart.get(two).add(zero);
-            sexChart.get(two).add(zero);
-            sexChart.get(two).add(zero);
-            sexChart.get(two).add(zero);
-        }
-    }
-
     /**
      * 体重身高监测结果-不同性别-说明变量
      */
@@ -297,13 +279,13 @@ public class DistrictHeightAndWeightMonitorService {
         if(CollectionUtil.isEmpty(statConclusionList)){
             return;
         }
-        DistrictChartVO.SchoolAgeChart schoolAgeChart = new DistrictChartVO.SchoolAgeChart();
+        DistrictChartVO.Chart chart = new DistrictChartVO.Chart();
         List<String> x = Lists.newArrayList();
-        List<DistrictChartVO.SchoolAgeData> y = Lists.newArrayList(
-                new DistrictChartVO.SchoolAgeData(ReportConst.OVERWEIGHT,Lists.newArrayList()),
-                new DistrictChartVO.SchoolAgeData(ReportConst.OBESE,Lists.newArrayList()),
-                new DistrictChartVO.SchoolAgeData(ReportConst.MALNOURISHED,Lists.newArrayList()),
-                new DistrictChartVO.SchoolAgeData(ReportConst.STUNTING,Lists.newArrayList())
+        List<DistrictChartVO.ChartData> y = Lists.newArrayList(
+                new DistrictChartVO.ChartData(ReportConst.OVERWEIGHT,Lists.newArrayList()),
+                new DistrictChartVO.ChartData(ReportConst.OBESE,Lists.newArrayList()),
+                new DistrictChartVO.ChartData(ReportConst.MALNOURISHED,Lists.newArrayList()),
+                new DistrictChartVO.ChartData(ReportConst.STUNTING,Lists.newArrayList())
         );
 
         DistrictHeightAndWeightMonitorVO.HeightAndWeightSchoolAge primary = getHeightAndWeightSchoolSchoolAge(statConclusionList, SchoolAge.PRIMARY.code);
@@ -329,15 +311,15 @@ public class DistrictHeightAndWeightMonitorService {
             x.add(SchoolAge.UNIVERSITY.desc);
             setSchoolAgeData(y,university);
         }
-        schoolAgeChart.setX(x);
-        schoolAgeChart.setY(y);
+        chart.setX(x);
+        chart.setY(y);
 
-        heightAndWeightSchoolAgeVO.setHeightAndWeightSchoolAgeMonitorChart(schoolAgeChart);
+        heightAndWeightSchoolAgeVO.setHeightAndWeightSchoolAgeMonitorChart(chart);
 
     }
 
 
-    private void setSchoolAgeData(List<DistrictChartVO.SchoolAgeData> y, DistrictHeightAndWeightMonitorVO.HeightAndWeightSchoolAge schoolAge) {
+    private void setSchoolAgeData(List<DistrictChartVO.ChartData> y, DistrictHeightAndWeightMonitorVO.HeightAndWeightSchoolAge schoolAge) {
         y.get(0).getData().add(ReportUtil.getRatioNotSymbol(schoolAge.getOverweightRatio()));
         y.get(1).getData().add(ReportUtil.getRatioNotSymbol(schoolAge.getObeseRatio()));
         y.get(2).getData().add(ReportUtil.getRatioNotSymbol(schoolAge.getMalnourishedRatio()));
@@ -447,54 +429,63 @@ public class DistrictHeightAndWeightMonitorService {
             return;
         }
         List<DistrictHeightAndWeightMonitorVO.HeightAndWeightMonitorTable> tableList =Lists.newArrayList();
-        List<DistrictHeightAndWeightMonitorVO.HeightAndWeightMonitorTable> primaryList = getHeightAndWeighSchoolAgeTable(statConclusionList,SchoolAge.PRIMARY.code);
+        List<DistrictHeightAndWeightMonitorVO.HeightAndWeightMonitorTable> primaryList = getHeightAndWeightSchoolAgeTable(statConclusionList,SchoolAge.PRIMARY.code);
         if (CollectionUtil.isNotEmpty(primaryList)){
             tableList.addAll(primaryList);
         }
-        List<DistrictHeightAndWeightMonitorVO.HeightAndWeightMonitorTable> juniorList = getHeightAndWeighSchoolAgeTable(statConclusionList,SchoolAge.JUNIOR.code);
+        List<DistrictHeightAndWeightMonitorVO.HeightAndWeightMonitorTable> juniorList = getHeightAndWeightSchoolAgeTable(statConclusionList,SchoolAge.JUNIOR.code);
         if (CollectionUtil.isNotEmpty(juniorList)){
             tableList.addAll(juniorList);
         }
 
-        List<DistrictHeightAndWeightMonitorVO.HeightAndWeightMonitorTable> highList = getHeightAndWeighSchoolAgeTable(statConclusionList,10);
-        List<DistrictHeightAndWeightMonitorVO.HeightAndWeightMonitorTable> normalHighList = getHeightAndWeighSchoolAgeTable(statConclusionList,SchoolAge.HIGH.code);
-        List<DistrictHeightAndWeightMonitorVO.HeightAndWeightMonitorTable> vocationalHighList = getHeightAndWeighSchoolAgeTable(statConclusionList, SchoolAge.VOCATIONAL_HIGH.code);
+        List<DistrictHeightAndWeightMonitorVO.HeightAndWeightMonitorTable> vocationalHighList = getHeightAndWeightSchoolAgeTable(statConclusionList, SchoolAge.VOCATIONAL_HIGH.code);
         if (CollectionUtil.isNotEmpty(vocationalHighList)){
-            if (CollectionUtil.isNotEmpty(highList)){
-                tableList.addAll(highList);
-            }
+            List<DistrictHeightAndWeightMonitorVO.HeightAndWeightMonitorTable> normalHighList = getHeightAndWeightSchoolAgeTable(statConclusionList,SchoolAge.HIGH.code);
             if (CollectionUtil.isNotEmpty(normalHighList)){
                 tableList.addAll(normalHighList);
             }
             tableList.addAll(vocationalHighList);
+            List<DistrictHeightAndWeightMonitorVO.HeightAndWeightMonitorTable> highList = getHeightAndWeightSchoolAgeMergeTable(statConclusionList,10,"高中");
+            if (CollectionUtil.isNotEmpty(highList)){
+                tableList.addAll(highList);
+            }
         }else {
+            List<DistrictHeightAndWeightMonitorVO.HeightAndWeightMonitorTable> highList = getHeightAndWeightSchoolAgeMergeTable(statConclusionList,SchoolAge.HIGH.code,"高中");
             if (CollectionUtil.isNotEmpty(highList)){
                 tableList.addAll(highList);
             }
         }
 
-        List<DistrictHeightAndWeightMonitorVO.HeightAndWeightMonitorTable> universityList = getHeightAndWeighSchoolAgeTable(statConclusionList,SchoolAge.UNIVERSITY.code);
+        List<DistrictHeightAndWeightMonitorVO.HeightAndWeightMonitorTable> universityList = getHeightAndWeightSchoolAgeTable(statConclusionList,SchoolAge.UNIVERSITY.code);
         if (CollectionUtil.isNotEmpty(universityList)){
             tableList.addAll(universityList);
         }
 
         heightAndWeightSchoolAgeVO.setHeightAndWeightSchoolAgeMonitorTableList(tableList);
     }
+    private List<DistrictHeightAndWeightMonitorVO.HeightAndWeightMonitorTable> getHeightAndWeightSchoolAgeMergeTable(List<StatConclusion> statConclusionList, Integer schoolAge, String itemName) {
+        if (Objects.equals(schoolAge,10)){
+            List<DistrictHeightAndWeightMonitorVO.HeightAndWeightMonitorTable> mergeList=Lists.newArrayList();
+            List<StatConclusion> conclusionList = statConclusionList.stream().filter(sc -> Objects.equals(sc.getSchoolAge(), SchoolAge.HIGH.code)||Objects.equals(sc.getSchoolAge(), SchoolAge.VOCATIONAL_HIGH.code)).collect(Collectors.toList());
+            getHeightAndWeightSchoolAgeTable(conclusionList,itemName,mergeList);
+            return mergeList;
+        }
+        List<DistrictHeightAndWeightMonitorVO.HeightAndWeightMonitorTable> heightAndWeightGradeList = getHeightAndWeightGrade(statConclusionList, schoolAge);
+        if (CollectionUtil.isNotEmpty(heightAndWeightGradeList)){
+            heightAndWeightGradeList.get(heightAndWeightGradeList.size()-1).setItemName(itemName);
+        }
+        return heightAndWeightGradeList;
+    }
 
-    private List<DistrictHeightAndWeightMonitorVO.HeightAndWeightMonitorTable> getHeightAndWeighSchoolAgeTable(List<StatConclusion> statConclusionList,Integer schoolAge) {
+
+    private List<DistrictHeightAndWeightMonitorVO.HeightAndWeightMonitorTable> getHeightAndWeightSchoolAgeTable(List<StatConclusion> statConclusionList, Integer schoolAge) {
         if (CollectionUtil.isEmpty(statConclusionList)){
             return Lists.newArrayList();
         }
         if (Objects.equals(schoolAge,10)){
             List<DistrictHeightAndWeightMonitorVO.HeightAndWeightMonitorTable> mergeList=Lists.newArrayList();
-            List<DistrictHeightAndWeightMonitorVO.HeightAndWeightMonitorTable> normalHighList = getHeightAndWeightGrade(statConclusionList, SchoolAge.HIGH.code);
-            if (CollectionUtil.isNotEmpty(normalHighList)){
-                mergeList.addAll(normalHighList);
-            }
-            List<DistrictHeightAndWeightMonitorVO.HeightAndWeightMonitorTable> vocationalHighList = getHeightAndWeightGrade(statConclusionList, SchoolAge.HIGH.code);
-            if (CollectionUtil.isNotEmpty(vocationalHighList)){
-                mergeList.addAll(vocationalHighList);
-            }
+            List<StatConclusion> conclusionList = statConclusionList.stream().filter(sc -> Objects.equals(sc.getSchoolAge(), SchoolAge.HIGH.code)||Objects.equals(sc.getSchoolAge(), SchoolAge.VOCATIONAL_HIGH.code)).collect(Collectors.toList());
+            getHeightAndWeightSchoolAgeTable(conclusionList,"高中",mergeList);
             return mergeList;
         }
 

@@ -77,7 +77,7 @@ public class DistrictSaprodontiaMonitorVO {
         /**
          * 性别图表
          */
-        private List<List<BigDecimal>> saprodontiaSexMonitorChart;
+        private DistrictChartVO.Chart saprodontiaSexMonitorChart;
 
 
     }
@@ -138,7 +138,7 @@ public class DistrictSaprodontiaMonitorVO {
         /**
          * 学龄段图表
          */
-        private DistrictChartVO.SchoolAgeChart saprodontiaSchoolAgeMonitorChart;
+        private DistrictChartVO.Chart saprodontiaSchoolAgeMonitorChart;
 
     }
 

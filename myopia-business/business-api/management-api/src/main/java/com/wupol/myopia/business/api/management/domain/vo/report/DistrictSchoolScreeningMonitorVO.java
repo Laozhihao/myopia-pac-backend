@@ -21,6 +21,10 @@ public class DistrictSchoolScreeningMonitorVO {
      * 学校表格数据
      */
     private List<SchoolScreeningMonitorTable> schoolScreeningMonitorTableList;
+    /**
+     * 学校图表
+     */
+    private List<DistrictChartVO.SchoolRatioExtremumChart> schoolScreeningMonitorChart;
 
     @Data
     public static class SchoolScreeningMonitorVariableVO{

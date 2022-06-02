@@ -15,7 +15,7 @@ public class DistrictChartVO {
 
 
     @Data
-    public static class SchoolAgeChart{
+    public static class Chart {
         /**
          * x轴
          */
@@ -23,11 +23,11 @@ public class DistrictChartVO {
         /**
          * y轴
          */
-        private List<SchoolAgeData> y;
+        private List<ChartData> y;
 
     }
     @Data
-    public static class SchoolAgeData{
+    public static class ChartData {
         /**
          * 标签
          */
@@ -37,7 +37,7 @@ public class DistrictChartVO {
          */
         private List<BigDecimal> data;
 
-        public SchoolAgeData(String name, List<BigDecimal> data) {
+        public ChartData(String name, List<BigDecimal> data) {
             this.name = name;
             this.data = data;
         }
@@ -71,4 +71,39 @@ public class DistrictChartVO {
             this.data = data;
         }
     }
+
+    @Data
+    public static class SchoolRatioExtremumChart{
+        /**
+         *
+         */
+        private String name;
+        /**
+         *
+         */
+        private List<BigDecimal> data;
+        /**
+         * 最高占比学校
+         */
+        private String maxSchoolName;
+
+        /**
+         * 最低占比学校
+         */
+        private String minSchoolName;
+        /**
+         * 最高占比
+         */
+        private BigDecimal maxRatio;
+        /**
+         * 最低占比
+         */
+        private BigDecimal minRatio;
+
+        public SchoolRatioExtremumChart(String name, List<BigDecimal> data) {
+            this.name = name;
+            this.data = data;
+        }
+    }
+
 }

@@ -70,7 +70,7 @@ public class DistrictHeightAndWeightMonitorVO {
         /**
          * 性别图表
          */
-        private List<List<BigDecimal>> heightAndWeightSexMonitorChart;
+        private DistrictChartVO.Chart heightAndWeightSexMonitorChart;
 
 
     }
@@ -135,7 +135,7 @@ public class DistrictHeightAndWeightMonitorVO {
         /**
          * 学龄段图表
          */
-        private DistrictChartVO.SchoolAgeChart heightAndWeightSchoolAgeMonitorChart;
+        private DistrictChartVO.Chart heightAndWeightSchoolAgeMonitorChart;
 
     }
 

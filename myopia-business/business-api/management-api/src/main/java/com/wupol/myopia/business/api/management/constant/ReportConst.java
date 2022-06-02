@@ -62,6 +62,7 @@ public class ReportConst {
     public static final String SAPRODONTIA = "龋患率";
     public static final String SAPRODONTIA_LOSS = "龋失率";
     public static final String SAPRODONTIA_REPAIR = "龋补率";
+    public static final String SAPRODONTIA_LOSS_AND_REPAIR = "龋患（失、补）率";
 
     public static final String OVERWEIGHT = "超重率";
     public static final String OBESE = "肥胖率";
