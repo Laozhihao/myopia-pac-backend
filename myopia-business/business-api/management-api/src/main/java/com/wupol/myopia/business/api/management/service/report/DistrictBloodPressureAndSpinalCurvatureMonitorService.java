@@ -91,25 +91,25 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorService {
             return;
         }
         DistrictChartVO.Chart chart = new DistrictChartVO.Chart();
-        List<String> x = Lists.newArrayList("男","女");
+        List<String> x = Lists.newArrayList(ReportConst.HIGH_BLOOD_PRESSURE,ReportConst.ABNORMAL_SPINE_CURVATURE);
         List<DistrictChartVO.ChartData> y = Lists.newArrayList(
-                new DistrictChartVO.ChartData(ReportConst.HIGH_BLOOD_PRESSURE,Lists.newArrayList()),
-                new DistrictChartVO.ChartData(ReportConst.ABNORMAL_SPINE_CURVATURE,Lists.newArrayList())
+                new DistrictChartVO.ChartData(GenderEnum.MALE.desc,Lists.newArrayList()),
+                new DistrictChartVO.ChartData(GenderEnum.FEMALE.desc,Lists.newArrayList())
         );
 
         Map<Integer, List<StatConclusion>> genderMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getGender));
-        getChartData(genderMap.get(GenderEnum.MALE.type), y);
-        getChartData(genderMap.get(GenderEnum.FEMALE.type), y);
+        getChartData(genderMap.get(GenderEnum.MALE.type), y,0);
+        getChartData(genderMap.get(GenderEnum.FEMALE.type), y,1);
 
         chart.setX(x);
         chart.setY(y);
         sexVO.setBloodPressureAndSpinalCurvatureSexMonitorChart(chart);
     }
 
-    private void getChartData(List<StatConclusion> statConclusionList,List<DistrictChartVO.ChartData> y) {
+    private void getChartData(List<StatConclusion> statConclusionList,List<DistrictChartVO.ChartData> y,Integer index) {
         BloodPressureAndSpinalCurvatureNum num = new BloodPressureAndSpinalCurvatureNum().build(statConclusionList).ratioNotSymbol().ratio();
-        y.get(0).getData().add(num.highBloodPressureRatio);
-        y.get(1).getData().add(num.abnormalSpineCurvatureRatio);
+        y.get(index).getData().add(num.highBloodPressureRatio);
+        y.get(index).getData().add(num.abnormalSpineCurvatureRatio);
     }
 
     /**

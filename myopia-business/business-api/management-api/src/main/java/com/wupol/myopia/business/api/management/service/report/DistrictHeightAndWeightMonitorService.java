@@ -93,27 +93,25 @@ public class DistrictHeightAndWeightMonitorService {
             return;
         }
         DistrictChartVO.Chart chart = new DistrictChartVO.Chart();
-        List<String> x = Lists.newArrayList("男","女");
+        List<String> x = Lists.newArrayList(ReportConst.OVERWEIGHT,ReportConst.OBESE,ReportConst.MALNOURISHED,ReportConst.STUNTING);
         List<DistrictChartVO.ChartData> y = Lists.newArrayList(
-                new DistrictChartVO.ChartData(ReportConst.OVERWEIGHT,Lists.newArrayList()),
-                new DistrictChartVO.ChartData(ReportConst.OBESE,Lists.newArrayList()),
-                new DistrictChartVO.ChartData(ReportConst.MALNOURISHED,Lists.newArrayList()),
-                new DistrictChartVO.ChartData(ReportConst.STUNTING,Lists.newArrayList())
+                new DistrictChartVO.ChartData(GenderEnum.MALE.desc,Lists.newArrayList()),
+                new DistrictChartVO.ChartData(GenderEnum.FEMALE.desc,Lists.newArrayList())
         );
         Map<Integer, List<StatConclusion>> genderMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getGender));
-        getChartData(genderMap.get(GenderEnum.MALE.type), y);
-        getChartData(genderMap.get(GenderEnum.FEMALE.type), y);
+        getChartData(genderMap.get(GenderEnum.MALE.type), y,0);
+        getChartData(genderMap.get(GenderEnum.FEMALE.type), y,1);
         chart.setX(x);
         chart.setY(y);
         heightAndWeightSexVO.setHeightAndWeightSexMonitorChart(chart);
     }
 
-    private void getChartData(List<StatConclusion> statConclusionList,List<DistrictChartVO.ChartData> y) {
+    private void getChartData(List<StatConclusion> statConclusionList,List<DistrictChartVO.ChartData> y,Integer index) {
         HeightAndWeightNum num = new HeightAndWeightNum().build(statConclusionList).ratioNotSymbol().ratio();
-        y.get(0).getData().add(num.overweightRatio);
-        y.get(1).getData().add(num.obeseRatio);
-        y.get(2).getData().add(num.malnourishedRatio);
-        y.get(3).getData().add(num.stuntingRatio);
+        y.get(index).getData().add(num.overweightRatio);
+        y.get(index).getData().add(num.obeseRatio);
+        y.get(index).getData().add(num.malnourishedRatio);
+        y.get(index).getData().add(num.stuntingRatio);
     }
     /**
      * 体重身高监测结果-不同性别-说明变量

@@ -103,27 +103,26 @@ public class DistrictSaprodontiaMonitorService {
         }
 
         DistrictChartVO.Chart chart = new DistrictChartVO.Chart();
-        List<String> x = Lists.newArrayList("男","女");
+        List<String> x = Lists.newArrayList(ReportConst.SAPRODONTIA,ReportConst.SAPRODONTIA_LOSS,ReportConst.SAPRODONTIA_REPAIR);
         List<DistrictChartVO.ChartData> y = Lists.newArrayList(
-                new DistrictChartVO.ChartData(ReportConst.SAPRODONTIA,Lists.newArrayList()),
-                new DistrictChartVO.ChartData(ReportConst.SAPRODONTIA_LOSS,Lists.newArrayList()),
-                new DistrictChartVO.ChartData(ReportConst.SAPRODONTIA_REPAIR,Lists.newArrayList())
+                new DistrictChartVO.ChartData(GenderEnum.MALE.desc,Lists.newArrayList()),
+                new DistrictChartVO.ChartData(GenderEnum.FEMALE.desc,Lists.newArrayList())
         );
 
         Map<Integer, List<StatConclusion>> genderMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getGender));
-        getChartData(genderMap.get(GenderEnum.MALE.type), y);
-        getChartData(genderMap.get(GenderEnum.FEMALE.type), y);
+        getChartData(genderMap.get(GenderEnum.MALE.type), y,0);
+        getChartData(genderMap.get(GenderEnum.FEMALE.type), y,1);
 
         chart.setX(x);
         chart.setY(y);
         saprodontiaSexVO.setSaprodontiaSexMonitorChart(chart);
     }
 
-    private void getChartData(List<StatConclusion> statConclusionList,List<DistrictChartVO.ChartData> y) {
+    private void getChartData(List<StatConclusion> statConclusionList,List<DistrictChartVO.ChartData> y,Integer index) {
         SaprodontiaNum num = new SaprodontiaNum().build(statConclusionList).ratioNotSymbol().ratio();
-        y.get(0).getData().add(num.saprodontiaRatio);
-        y.get(1).getData().add(num.saprodontiaLossRatio);
-        y.get(2).getData().add(num.saprodontiaRepairRatio);
+        y.get(index).getData().add(num.saprodontiaRatio);
+        y.get(index).getData().add(num.saprodontiaLossRatio);
+        y.get(index).getData().add(num.saprodontiaRepairRatio);
     }
 
     /**

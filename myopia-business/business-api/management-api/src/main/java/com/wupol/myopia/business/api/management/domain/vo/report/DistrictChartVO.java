@@ -75,11 +75,11 @@ public class DistrictChartVO {
     @Data
     public static class SchoolRatioExtremumChart{
         /**
-         *
+         * 名称
          */
         private String name;
         /**
-         *
+         * 年级数据
          */
         private List<BigDecimal> data;
         /**

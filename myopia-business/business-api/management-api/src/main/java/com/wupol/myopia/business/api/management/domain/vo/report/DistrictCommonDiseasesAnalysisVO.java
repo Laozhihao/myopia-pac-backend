@@ -200,32 +200,7 @@ public class DistrictCommonDiseasesAnalysisVO {
 
     }
 
-    @Data
-    public static class SaprodontiaRatioStrVO{
-        /**
-         * 龋患率
-         */
-        private String saprodontiaRatio;
-        /**
-         * 龋失率
-         */
-        private String saprodontiaLossRatio;
 
-        /**
-         * 龋补率
-         */
-        private String saprodontiaRepairRatio;
-        /**
-         * 龋患（失、补）率
-         */
-        private String saprodontiaLossAndRepairRatio;
-
-        /**
-         * 龋患（失、补）构成比
-         */
-        private String saprodontiaLossAndRepairTeethRatio;
-
-    }
 
     @EqualsAndHashCode(callSuper = true)
     @Data
@@ -280,28 +255,6 @@ public class DistrictCommonDiseasesAnalysisVO {
 
     }
 
-    @Data
-    public static class HeightAndWeightRatioStrVO {
-        /**
-         * 超重率
-         */
-        private String overweightRatio;
-        /**
-         * 肥胖率
-         */
-        private String obeseRatio;
-
-        /**
-         * 营养不良率
-         */
-        private String malnourishedRatio;
-
-        /**
-         * 生长迟缓率
-         */
-        private String stuntingRatio;
-
-    }
 
     @EqualsAndHashCode(callSuper = true)
     @Data
