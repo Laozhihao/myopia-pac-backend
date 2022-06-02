@@ -30,6 +30,8 @@ import java.util.stream.Collectors;
 @Service
 public class DistrictDiseaseMonitorService {
 
+    private static Map<Integer,Integer> map = Maps.newConcurrentMap();
+
     /**
      * 疾病监测情况
      */
@@ -38,7 +40,7 @@ public class DistrictDiseaseMonitorService {
             return;
         }
         DistrictDiseaseMonitorVO districtDiseaseMonitorVO = new DistrictDiseaseMonitorVO();
-
+        map.put(0,statConclusionList.size());
         getDiseaseMonitorVariableVO(statConclusionList,districtDiseaseMonitorVO);
         getDiseaseMonitorTableList(statConclusionList,districtDiseaseMonitorVO);
         getDiseaseMonitorChart(statConclusionList,districtDiseaseMonitorVO);
@@ -53,11 +55,11 @@ public class DistrictDiseaseMonitorService {
         }
         DiseaseNum diseaseNum = new DiseaseNum().build(statConclusionList).ratioNotSymbol().ratio();
         List<DistrictDiseaseMonitorVO.ChartItem> variableList= Lists.newArrayList();
-        getChartItem(diseaseNum,ReportConst.hypertension,DiseaseNum::getHypertensionRatio,variableList);
-        getChartItem(diseaseNum,ReportConst.anemia,DiseaseNum::getAnemiaRatio,variableList);
-        getChartItem(diseaseNum,ReportConst.diabetes,DiseaseNum::getDiabetesRatio,variableList);
-        getChartItem(diseaseNum,ReportConst.allergicAsthma,DiseaseNum::getAllergicAsthmaRatio,variableList);
-        getChartItem(diseaseNum,ReportConst.physicalDisability,DiseaseNum::getPhysicalDisabilityRatio,variableList);
+        getChartItem(diseaseNum,ReportConst.HYPERTENSION,DiseaseNum::getHypertensionRatio,variableList);
+        getChartItem(diseaseNum,ReportConst.ANEMIA,DiseaseNum::getAnemiaRatio,variableList);
+        getChartItem(diseaseNum,ReportConst.DIABETES,DiseaseNum::getDiabetesRatio,variableList);
+        getChartItem(diseaseNum,ReportConst.ALLERGIC_ASTHMA,DiseaseNum::getAllergicAsthmaRatio,variableList);
+        getChartItem(diseaseNum,ReportConst.PHYSICAL_DISABILITY,DiseaseNum::getPhysicalDisabilityRatio,variableList);
         districtDiseaseMonitorVO.setDiseaseMonitorChart(variableList);
     }
 
@@ -111,21 +113,12 @@ public class DistrictDiseaseMonitorService {
 
     private DistrictDiseaseMonitorVO.SchoolAgeRatio getSchoolAgeRatio(Map<Integer, DiseaseNum> diseaseNumMap,Function<DiseaseNum,Integer> function ,Function<DiseaseNum,String> mapper){
         DistrictDiseaseMonitorVO.SchoolAgeRatio schoolAgeRatio = new DistrictDiseaseMonitorVO.SchoolAgeRatio();
-        TwoTuple<Integer, String> tuple = getMaxMap(diseaseNumMap, function, mapper);
+        TwoTuple<Integer, String> tuple = ReportUtil.getMaxMap(diseaseNumMap, function, mapper);
         schoolAgeRatio.setSchoolAge(SchoolAge.get(tuple.getFirst()).desc);
         schoolAgeRatio.setRatio(tuple.getSecond());
         return schoolAgeRatio;
     }
 
-    /**
-     * 获取map中Value最大值及对应的Key
-     */
-    private <T,K>TwoTuple<K,String> getMaxMap(Map<K, T> map, Function<T,Integer> function ,Function<T,String> mapper){
-        List<Map.Entry<K, T>> entries = Lists.newArrayList(map.entrySet());
-        CollectionUtil.sort(entries,((o1, o2) -> Optional.ofNullable(o2.getValue()).map(function).orElse(0)- Optional.ofNullable(o1.getValue()).map(function).orElse(0)));
-        Map.Entry<K, T> entry = entries.get(0);
-        return TwoTuple.of(entry.getKey(),Optional.ofNullable(entry.getValue()).map(mapper).orElse(null));
-    }
 
     /**
      * 疾病监测情况-不同学龄段
@@ -330,11 +323,11 @@ public class DistrictDiseaseMonitorService {
          * 不带%
          */
         public DiseaseNum ratioNotSymbol(){
-            this.anemiaRatio = getRatioNotSymbol(anemia,validScreeningNum);
-            this.hypertensionRatio = getRatioNotSymbol(hypertension,validScreeningNum);
-            this.diabetesRatio = getRatioNotSymbol(diabetes,validScreeningNum);
-            this.allergicAsthmaRatio = getRatioNotSymbol(allergicAsthma,validScreeningNum);
-            this.physicalDisabilityRatio = getRatioNotSymbol(physicalDisability,validScreeningNum);
+            this.anemiaRatio = getRatioNotSymbol(anemia,getTotal());
+            this.hypertensionRatio = getRatioNotSymbol(hypertension,getTotal());
+            this.diabetesRatio = getRatioNotSymbol(diabetes,getTotal());
+            this.allergicAsthmaRatio = getRatioNotSymbol(allergicAsthma,getTotal());
+            this.physicalDisabilityRatio = getRatioNotSymbol(physicalDisability,getTotal());
             return this;
         }
 
@@ -342,11 +335,11 @@ public class DistrictDiseaseMonitorService {
          * 带%
          */
         public DiseaseNum ratio(){
-            this.anemiaRatioStr = getRatio(anemia,validScreeningNum);
-            this.hypertensionRatioStr = getRatio(hypertension,validScreeningNum);
-            this.diabetesRatioStr = getRatio(diabetes,validScreeningNum);
-            this.allergicAsthmaRatioStr = getRatio(allergicAsthma,validScreeningNum);
-            this.physicalDisabilityRatioStr = getRatio(physicalDisability,validScreeningNum);
+            this.anemiaRatioStr = getRatio(anemia,getTotal());
+            this.hypertensionRatioStr = getRatio(hypertension,getTotal());
+            this.diabetesRatioStr = getRatio(diabetes,getTotal());
+            this.allergicAsthmaRatioStr = getRatio(allergicAsthma,getTotal());
+            this.physicalDisabilityRatioStr = getRatio(physicalDisability,getTotal());
             return this;
         }
 
@@ -360,5 +353,8 @@ public class DistrictDiseaseMonitorService {
 
     }
 
+    private static Integer getTotal(){
+        return map.get(0);
+    }
 
 }

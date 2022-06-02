@@ -57,7 +57,6 @@ public class DistrictHeightAndWeightMonitorVO {
     }
 
 
-
     @Data
     public static class HeightAndWeightSexVO{
         /**
@@ -68,6 +67,10 @@ public class DistrictHeightAndWeightMonitorVO {
          * 性别表格数据
          */
         private List<HeightAndWeightMonitorTable> heightAndWeightSexMonitorTableList;
+        /**
+         * 性别图表
+         */
+        private List<List<BigDecimal>> heightAndWeightSexMonitorChart;
 
 
     }
@@ -129,8 +132,14 @@ public class DistrictHeightAndWeightMonitorVO {
          * 学龄段表格数据
          */
         private List<HeightAndWeightMonitorTable> heightAndWeightSchoolAgeMonitorTableList;
+        /**
+         * 学龄段图表
+         */
+        private DistrictChartVO.SchoolAgeChart heightAndWeightSchoolAgeMonitorChart;
 
     }
+
+
     @Data
     public static class HeightAndWeightSchoolAgeVariableVO{
         /**
@@ -234,8 +243,13 @@ public class DistrictHeightAndWeightMonitorVO {
          * 年龄段表格数据
          */
         private List<HeightAndWeightMonitorTable> heightAndWeightAgeMonitorTableList;
+        /**
+         * 年龄段图表
+         */
+        private DistrictChartVO.AgeChart heightAndWeightAgeMonitorChart;
 
     }
+
 
     @Data
     public static class HeightAndWeightAgeVariableVO{

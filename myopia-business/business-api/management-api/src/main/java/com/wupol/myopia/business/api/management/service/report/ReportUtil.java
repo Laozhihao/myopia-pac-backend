@@ -3,12 +3,11 @@ package com.wupol.myopia.business.api.management.service.report;
 import cn.hutool.core.collection.CollectionUtil;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import lombok.experimental.UtilityClass;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.math.BigDecimal;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -23,7 +22,7 @@ public class ReportUtil {
     /**
      * 获取map中Value最大值及对应的Key
      */
-    public  <T,K>TwoTuple<K,String> getMaxMap(Map<K, T> map, Function<T,Integer> function,Function<T,String> mapper){
+    public static <T,K,V>TwoTuple<K,V> getMaxMap(Map<K, T> map, Function<T,Integer> function,Function<T,V> mapper){
         List<Map.Entry<K, T>> entries = Lists.newArrayList(map.entrySet());
         CollectionUtil.sort(entries,((o1, o2) -> Optional.ofNullable(o2.getValue()).map(function).orElse(0)- Optional.ofNullable(o1.getValue()).map(function).orElse(0)));
         Map.Entry<K, T> entry = entries.get(0);
@@ -33,7 +32,7 @@ public class ReportUtil {
     /**
      * 获取map中Value最小值及对应的Key
      */
-    public  <T,K> TwoTuple<K,String> getMinMap(Map<K, T> map, Function<T,Integer> function, Function<T,String> mapper){
+    public static <T,K,V> TwoTuple<K,V> getMinMap(Map<K, T> map, Function<T,Integer> function, Function<T,V> mapper){
         List<Map.Entry<K, T>> entries = Lists.newArrayList(map.entrySet());
         CollectionUtil.sort(entries, Comparator.comparingInt(o -> Optional.ofNullable(o.getValue()).map(function).orElse(0)));
         Map.Entry<K, T> entry = entries.get(0);
@@ -76,5 +75,27 @@ public class ReportUtil {
         }else {
             return 19;
         }
+    }
+
+    public static List<Integer> dynamicAgeSegment(List<StatConclusion> statConclusionList){
+        List<Integer> ageSegmentList = Lists.newArrayList();
+        if (CollectionUtil.isEmpty(statConclusionList)){
+            return ageSegmentList;
+        }
+        Integer min = statConclusionList.stream().map(StatConclusion::getAge).min(Comparator.comparing(Integer::intValue)).orElse(null);
+        Integer max = statConclusionList.stream().map(StatConclusion::getAge).max(Comparator.comparing(Integer::intValue)).orElse(null);
+        if (Objects.equals(min,max)){
+            ageSegmentList.add(min+1);
+            return ageSegmentList;
+        }
+        for (int i = min; i <= max+1; i++) {
+            ageSegmentList.add(i);
+        }
+        return ageSegmentList;
+    }
+
+
+    public static BigDecimal getRatioNotSymbol(String ratio){
+        return new BigDecimal(ratio.substring(0,ratio.length()-1));
     }
 }

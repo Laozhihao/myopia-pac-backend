@@ -53,10 +53,22 @@ public class ReportConst {
     /**
      * 文字
      */
-    public static final  String hypertension ="高血压";
-    public static final  String anemia ="贫血";
-    public static final  String diabetes ="糖尿病";
-    public static final  String allergicAsthma ="过敏性哮喘";
-    public static final  String physicalDisability ="身体残疾";
+    public static final  String HYPERTENSION ="高血压";
+    public static final  String ANEMIA ="贫血";
+    public static final  String DIABETES ="糖尿病";
+    public static final  String ALLERGIC_ASTHMA ="过敏性哮喘";
+    public static final  String PHYSICAL_DISABILITY ="身体残疾";
+
+    public static final String SAPRODONTIA = "龋患率";
+    public static final String SAPRODONTIA_LOSS = "龋失率";
+    public static final String SAPRODONTIA_REPAIR = "龋补率";
+
+    public static final String OVERWEIGHT = "超重率";
+    public static final String OBESE = "肥胖率";
+    public static final String MALNOURISHED = "营养不良率";
+    public static final String STUNTING = "生长迟缓率";
+
+    public static final String HIGH_BLOOD_PRESSURE = "血压偏高率";
+    public static final String ABNORMAL_SPINE_CURVATURE = "脊柱弯曲异常率";
 
 }

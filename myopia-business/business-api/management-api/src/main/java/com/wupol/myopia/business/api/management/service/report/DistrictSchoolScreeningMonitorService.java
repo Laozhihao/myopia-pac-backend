@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 @Service
 public class DistrictSchoolScreeningMonitorService {
 
+    private static Map<Integer,Integer> map = Maps.newConcurrentMap();
 
     /**
      * 各学校筛查情况
@@ -33,6 +34,7 @@ public class DistrictSchoolScreeningMonitorService {
         if (CollectionUtil.isEmpty(statConclusionList)){
             return;
         }
+        map.put(0,statConclusionList.size());
         DistrictSchoolScreeningMonitorVO districtSchoolScreeningMonitorVO = new DistrictSchoolScreeningMonitorVO();
         //说明变量
         getSchoolScreeningMonitorVariableVO(statConclusionList,schoolMap,districtSchoolScreeningMonitorVO);
@@ -72,8 +74,8 @@ public class DistrictSchoolScreeningMonitorService {
     }
 
     private DistrictSchoolScreeningMonitorVO.SchoolRatioExtremum getSchoolRatioExtremum(Map<String,SchoolScreeningNum> schoolScreeningNumMap, Function<SchoolScreeningNum,Integer> function, Function<SchoolScreeningNum,BigDecimal> mapper){
-        TwoTuple<String, BigDecimal> maxTuple = getMaxMap(schoolScreeningNumMap, function,mapper);
-        TwoTuple<String, BigDecimal> minTuple = getMinMap(schoolScreeningNumMap, function,mapper);
+        TwoTuple<String, BigDecimal> maxTuple = ReportUtil.getMaxMap(schoolScreeningNumMap, function,mapper);
+        TwoTuple<String, BigDecimal> minTuple = ReportUtil.getMinMap(schoolScreeningNumMap, function,mapper);
         DistrictSchoolScreeningMonitorVO.SchoolRatioExtremum schoolRatioExtremum = new DistrictSchoolScreeningMonitorVO.SchoolRatioExtremum();
         schoolRatioExtremum.setMaxSchoolName(maxTuple.getFirst());
         schoolRatioExtremum.setMinSchoolName(minTuple.getFirst());
@@ -85,26 +87,6 @@ public class DistrictSchoolScreeningMonitorService {
         SchoolScreeningNum build = new SchoolScreeningNum()
                 .build(statConclusionList).ratioNotSymbol();
         schoolScreeningNumMap.put(key,build);
-    }
-
-    /**
-     * 获取map中Value最大值及对应的Key
-     */
-    private <T,K> TwoTuple<K,BigDecimal> getMaxMap(Map<K, T> map, Function<T,Integer> function , Function<T,BigDecimal> mapper){
-        List<Map.Entry<K, T>> entries = Lists.newArrayList(map.entrySet());
-        CollectionUtil.sort(entries,((o1, o2) -> Optional.ofNullable(o2.getValue()).map(function).orElse(0)- Optional.ofNullable(o1.getValue()).map(function).orElse(0)));
-        Map.Entry<K, T> entry = entries.get(0);
-        return TwoTuple.of(entry.getKey(),Optional.ofNullable(entry.getValue()).map(mapper).orElse(null));
-    }
-
-    /**
-     * 获取map中Value最小值及对应的Key
-     */
-    private <T,K>TwoTuple<K,BigDecimal> getMinMap(Map<K, T> map, Function<T,Integer> function,Function<T,BigDecimal> mapper){
-        List<Map.Entry<K, T>> entries = Lists.newArrayList(map.entrySet());
-        CollectionUtil.sort(entries, Comparator.comparingInt(o -> Optional.ofNullable(o.getValue()).map(function).orElse(0)));
-        Map.Entry<K, T> entry = entries.get(0);
-        return TwoTuple.of(entry.getKey(),Optional.ofNullable(entry.getValue()).map(mapper).orElse(null));
     }
 
 
@@ -263,15 +245,19 @@ public class DistrictSchoolScreeningMonitorService {
          * 不带%
          */
         public SchoolScreeningNum ratioNotSymbol(){
-            this.saprodontiaRatio = getRatioNotSymbol(saprodontiaNum,validScreeningNum);
-            this.saprodontiaLossAndRepairRatio = getRatioNotSymbol(saprodontiaLossAndRepairNum,validScreeningNum);
-            this.overweightRatio = getRatioNotSymbol(overweightNum,validScreeningNum);
-            this.obeseRatio = getRatioNotSymbol(obeseNum,validScreeningNum);
-            this.stuntingRatio = getRatioNotSymbol(stuntingNum,validScreeningNum);
-            this.malnourishedRatio = getRatioNotSymbol(malnourishedNum,validScreeningNum);
-            this.abnormalSpineCurvatureRatio = getRatioNotSymbol(abnormalSpineCurvatureNum,validScreeningNum);
-            this.highBloodPressureRatio = getRatioNotSymbol(highBloodPressureNum,validScreeningNum);
+            this.saprodontiaRatio = getRatioNotSymbol(saprodontiaNum,getTotal());
+            this.saprodontiaLossAndRepairRatio = getRatioNotSymbol(saprodontiaLossAndRepairNum,getTotal());
+            this.overweightRatio = getRatioNotSymbol(overweightNum,getTotal());
+            this.obeseRatio = getRatioNotSymbol(obeseNum,getTotal());
+            this.stuntingRatio = getRatioNotSymbol(stuntingNum,getTotal());
+            this.malnourishedRatio = getRatioNotSymbol(malnourishedNum,getTotal());
+            this.abnormalSpineCurvatureRatio = getRatioNotSymbol(abnormalSpineCurvatureNum,getTotal());
+            this.highBloodPressureRatio = getRatioNotSymbol(highBloodPressureNum,getTotal());
             return this;
         }
+    }
+
+    private static Integer getTotal(){
+        return map.get(0);
     }
 }

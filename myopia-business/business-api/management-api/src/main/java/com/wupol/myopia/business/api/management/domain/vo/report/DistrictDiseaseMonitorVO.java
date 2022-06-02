@@ -34,16 +34,16 @@ public class DistrictDiseaseMonitorVO {
         /**
          * 标签
          */
-        private String  label;
+        private String  name;
         /**
          * 值
          */
         @JsonFormat(shape = JsonFormat.Shape.STRING)
-        private BigDecimal value;
+        private BigDecimal data;
 
-        public ChartItem(String label, BigDecimal value) {
-            this.label = label;
-            this.value = value;
+        public ChartItem(String name, BigDecimal data) {
+            this.name = name;
+            this.data = data;
         }
     }
 

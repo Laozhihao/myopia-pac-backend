@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.api.management.domain.vo.report;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -75,6 +74,10 @@ public class DistrictSaprodontiaMonitorVO {
          * 性别表格数据
          */
         private List<SaprodontiaMonitorTable> saprodontiaSexMonitorTableList;
+        /**
+         * 性别图表
+         */
+        private List<List<BigDecimal>> saprodontiaSexMonitorChart;
 
 
     }
@@ -132,8 +135,13 @@ public class DistrictSaprodontiaMonitorVO {
          * 学龄段表格数据
          */
         private List<SaprodontiaMonitorTable> saprodontiaSchoolAgeMonitorTableList;
+        /**
+         * 学龄段图表
+         */
+        private DistrictChartVO.SchoolAgeChart saprodontiaSchoolAgeMonitorChart;
 
     }
+
     @Data
     public static class SaprodontiaSchoolAgeVariableVO{
         /**
@@ -221,8 +229,13 @@ public class DistrictSaprodontiaMonitorVO {
          * 年龄段表格数据
          */
         private List<SaprodontiaMonitorTable> saprodontiaAgeMonitorTableList;
+        /**
+         * 年龄段图表
+         */
+        private DistrictChartVO.AgeChart saprodontiaAgeMonitorChart;
 
     }
+
 
     @Data
     public static class SaprodontiaAgeVariableVO{

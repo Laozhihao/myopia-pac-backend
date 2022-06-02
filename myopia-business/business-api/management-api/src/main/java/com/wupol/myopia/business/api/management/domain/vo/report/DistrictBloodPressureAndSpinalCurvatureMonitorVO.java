@@ -3,6 +3,7 @@ package com.wupol.myopia.business.api.management.domain.vo.report;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -56,6 +57,10 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorVO {
          * 性别表格数据
          */
         private List<BloodPressureAndSpinalCurvatureMonitorTable> bloodPressureAndSpinalCurvatureSexMonitorTableList;
+        /**
+         * 性别图表
+         */
+        private List<List<BigDecimal>> bloodPressureAndSpinalCurvatureSexMonitorChart;
 
 
     }
@@ -109,6 +114,10 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorVO {
          * 学龄段表格数据
          */
         private List<BloodPressureAndSpinalCurvatureMonitorTable> bloodPressureAndSpinalCurvatureSchoolAgeMonitorTableList;
+        /**
+         * 学龄段图表
+         */
+        private DistrictChartVO.SchoolAgeChart bloodPressureAndSpinalCurvatureSchoolAgeMonitorChart;
 
     }
     @Data
@@ -189,6 +198,10 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorVO {
          * 年龄段表格数据
          */
         private List<BloodPressureAndSpinalCurvatureMonitorTable> bloodPressureAndSpinalCurvatureAgeMonitorTableList;
+        /**
+         * 年龄段图表
+         */
+        private DistrictChartVO.AgeChart bloodPressureAndSpinalCurvatureAgeMonitorChart;
 
     }
 
