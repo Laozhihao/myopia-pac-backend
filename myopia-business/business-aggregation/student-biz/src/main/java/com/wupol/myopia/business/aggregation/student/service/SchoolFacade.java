@@ -123,7 +123,7 @@ public class SchoolFacade {
         screeningPlanSchoolService.updateSchoolNameBySchoolId(schoolId, schoolRequestDTO.getName());
         // 更新关联的筛查学生的常见病ID
         School newSchool = schoolService.getById(schoolId);
-        updateStudentCommonDiseaseId(oldSchool.getDistrictId(), newSchool.getDistrictId(), newSchool.getId());
+        updateStudentCommonDiseaseId(oldSchool, newSchool);
         // 组装返回数据
         SchoolResponseDTO schoolResponseDTO = new SchoolResponseDTO();
         BeanUtils.copyProperties(newSchool, schoolResponseDTO);
@@ -140,25 +140,26 @@ public class SchoolFacade {
     /**
      * 更新学生常见病ID
      *
-     * @param oldSchoolDistrictId   学校旧行政区域ID
-     * @param newSchoolDistrictId   学校新行政区域ID
-     * @param schoolId              学校ID
+     * @param oldSchool  旧学校
+     * @param newSchool  新学校
      * @return void
      **/
-    private void updateStudentCommonDiseaseId(Integer oldSchoolDistrictId, Integer newSchoolDistrictId, Integer schoolId) {
-        // 行政区域地址的区/县若没有变动，则不需要更新
-        District oldDistrict = districtService.getById(oldSchoolDistrictId);
-        District newDistrict = districtService.getById(newSchoolDistrictId);
-        if (Objects.equals(String.valueOf(oldDistrict.getCode()).substring(0, 6), String.valueOf(newDistrict.getCode()).substring(0, 6))) {
+    private void updateStudentCommonDiseaseId(School oldSchool, School newSchool) {
+        // 行政区域地址的区/县、片区、监测点若没有变动，则不需要更新
+        District oldDistrict = districtService.getById(oldSchool.getDistrictId());
+        District newDistrict = districtService.getById(newSchool.getDistrictId());
+        if (Objects.equals(String.valueOf(oldDistrict.getCode()).substring(0, 6), String.valueOf(newDistrict.getCode()).substring(0, 6)) &&
+                Objects.equals(oldSchool.getAreaType(), newSchool.getAreaType()) &&
+                Objects.equals(oldSchool.getMonitorType(), newSchool.getMonitorType())) {
             return;
         }
         // 获取所有需要更新的计划学生
-        List<CommonDiseasePlanStudent> commonDiseasePlanStudentList = screeningPlanSchoolStudentService.getCommonDiseaseScreeningPlanStudent(schoolId);
+        List<CommonDiseasePlanStudent> commonDiseasePlanStudentList = screeningPlanSchoolStudentService.getCommonDiseaseScreeningPlanStudent(newSchool.getId());
         if (CollectionUtils.isEmpty(commonDiseasePlanStudentList)) {
             return;
         }
         List<ScreeningPlanSchoolStudent> planStudentList = commonDiseasePlanStudentList.stream()
-                .map(x -> new ScreeningPlanSchoolStudent().setId(x.getId()).setCommonDiseaseId(studentCommonDiseaseIdService.getStudentCommonDiseaseId(newSchoolDistrictId, schoolId, x.getGradeId(), x.getStudentId(), x.getPlanStartTime())))
+                .map(x -> new ScreeningPlanSchoolStudent().setId(x.getId()).setCommonDiseaseId(studentCommonDiseaseIdService.getStudentCommonDiseaseId(newSchool.getDistrictId(), newSchool.getId(), x.getGradeId(), x.getStudentId(), x.getPlanStartTime())))
                 .collect(Collectors.toList());
         // 批量更新
         screeningPlanSchoolStudentService.updateBatchById(planStudentList);
