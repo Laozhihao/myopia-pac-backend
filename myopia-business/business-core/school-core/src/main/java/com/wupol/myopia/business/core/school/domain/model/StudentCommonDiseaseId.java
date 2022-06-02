@@ -36,6 +36,16 @@ public class StudentCommonDiseaseId implements Serializable {
     private Integer studentId;
 
     /**
+     * 区/县行政区域编码（6位）
+     */
+    private String areaDistrictShortCode;
+
+    /**
+     * 学校ID
+     */
+    private Integer schoolId;
+
+    /**
      * 年级ID
      */
     private Integer gradeId;
@@ -54,6 +64,16 @@ public class StudentCommonDiseaseId implements Serializable {
      * 学生常见病ID，16位
      */
     private String commonDiseaseId;
+
+    /**
+     * 片区类型：1好片、2中片、3差片
+     */
+    private Integer areaType;
+
+    /**
+     * 监测点类型：1城区、2郊县
+     */
+    private Integer monitorType;
 
     /**
      * 创建时间

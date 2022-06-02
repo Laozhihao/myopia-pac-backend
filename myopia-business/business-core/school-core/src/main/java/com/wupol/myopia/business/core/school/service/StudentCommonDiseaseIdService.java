@@ -57,31 +57,34 @@ public class StudentCommonDiseaseIdService extends BaseService<StudentCommonDise
      **/
     public StudentCommonDiseaseId getStudentCommonDiseaseIdInfo(Integer schoolDistrictId, Integer schoolId, Integer gradeId, Integer studentId, Date screeningPlanStartTime) {
         int year = DateUtil.getSchoolYear(screeningPlanStartTime);
+        District district = districtService.getById(schoolDistrictId);
+        String districtCode = String.valueOf(district.getCode());
+        String districtShortCode = districtCode.substring(0, 6);
+        School school = schoolService.getById(schoolId);
         // 获取已存在的
-        StudentCommonDiseaseId studentCommonDiseaseId = findOne(new StudentCommonDiseaseId().setStudentId(studentId).setGradeId(gradeId).setYear(year));
+        StudentCommonDiseaseId param = new StudentCommonDiseaseId().setStudentId(studentId).setGradeId(gradeId).setYear(year)
+                .setAreaDistrictShortCode(districtShortCode).setAreaType(school.getAreaType()).setMonitorType(school.getMonitorType());
+        StudentCommonDiseaseId studentCommonDiseaseId = findOne(param);
         if (Objects.nonNull(studentCommonDiseaseId)) {
             return studentCommonDiseaseId;
         }
         // 还不存在，则生成
-        return createStudentCommonDiseaseId(schoolDistrictId, schoolId, gradeId, studentId, year);
+        return createStudentCommonDiseaseId(schoolId, gradeId, studentId, year, districtShortCode, school);
     }
 
     /**
      * 创建学生常见病ID
      *
-     * @param schoolDistrictId    行政区域ID
      * @param schoolId      学校ID
      * @param gradeId       年级ID
      * @param studentId     学生ID
      * @param year          年份
      * @return com.wupol.myopia.business.core.school.domain.model.StudentCommonDiseaseId
      **/
-    public StudentCommonDiseaseId createStudentCommonDiseaseId(Integer schoolDistrictId, Integer schoolId, Integer gradeId, Integer studentId, int year) {
-        School school = schoolService.getById(schoolId);
+    public StudentCommonDiseaseId createStudentCommonDiseaseId(Integer schoolId, Integer gradeId, Integer studentId, int year, String districtCode, School school) {
         SchoolGrade grade = schoolGradeService.getById(gradeId);
-        District district = districtService.getById(schoolDistrictId);
-        String districtCode = String.valueOf(district.getCode());
-        String schoolCommonDiseaseCode = schoolCommonDiseaseCodeService.getSchoolCommonDiseaseCode(districtCode.substring(0, 6), schoolId, year);
+        String districtShortCode = districtCode.substring(0, 6);
+        String schoolCommonDiseaseCode = schoolCommonDiseaseCodeService.getSchoolCommonDiseaseCode(districtShortCode, schoolId, year);
         String studentCommonDiseaseCode = getStudentCommonDiseaseCode(gradeId, year);
         String commonDiseaseId = new StringBuilder()
                 .append(districtCode, 0, 4)
@@ -91,7 +94,14 @@ public class StudentCommonDiseaseIdService extends BaseService<StudentCommonDise
                 .append(schoolCommonDiseaseCode)
                 .append(grade.getGradeCode())
                 .append(studentCommonDiseaseCode).toString();
-        StudentCommonDiseaseId studentCommonDiseaseId = new StudentCommonDiseaseId().setStudentId(studentId).setGradeId(gradeId).setYear(year).setCommonDiseaseCode(studentCommonDiseaseCode).setCommonDiseaseId(commonDiseaseId);
+        StudentCommonDiseaseId studentCommonDiseaseId = new StudentCommonDiseaseId()
+                .setStudentId(studentId)
+                .setAreaDistrictShortCode(districtShortCode)
+                .setSchoolId(schoolId)
+                .setGradeId(gradeId)
+                .setYear(year)
+                .setCommonDiseaseCode(studentCommonDiseaseCode)
+                .setCommonDiseaseId(commonDiseaseId);
         save(studentCommonDiseaseId);
         return studentCommonDiseaseId;
     }
