@@ -75,6 +75,10 @@ public class SchoolSaprodontiaMonitorVO {
          * 性别表格数据
          */
         private List<SaprodontiaMonitorTable> saprodontiaSexMonitorTableList;
+        /**
+         * 性别图表
+         */
+        private SchoolChartVO.Chart saprodontiaSexMonitorChart;
 
 
     }
@@ -131,6 +135,10 @@ public class SchoolSaprodontiaMonitorVO {
          * 年级表格数据
          */
         private List<SaprodontiaMonitorTable> saprodontiaGradeMonitorTableList;
+        /**
+         * 年级图表
+         */
+        private SchoolChartVO.Chart saprodontiaGradeMonitorChart;
 
     }
     @Data
@@ -185,6 +193,10 @@ public class SchoolSaprodontiaMonitorVO {
          * 年龄段表格数据
          */
         private List<SaprodontiaMonitorTable> saprodontiaAgeMonitorTableList;
+        /**
+         * 年龄段图表
+         */
+        private SchoolChartVO.AgeChart saprodontiaAgeMonitorChart;
 
     }
 

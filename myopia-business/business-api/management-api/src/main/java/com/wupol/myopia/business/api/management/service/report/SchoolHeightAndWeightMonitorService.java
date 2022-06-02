@@ -6,8 +6,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.business.api.management.constant.AgeSegmentEnum;
 import com.wupol.myopia.business.api.management.constant.ReportConst;
-import com.wupol.myopia.business.api.management.domain.vo.report.SchoolCommonDiseasesAnalysisVO;
-import com.wupol.myopia.business.api.management.domain.vo.report.SchoolHeightAndWeightMonitorVO;
+import com.wupol.myopia.business.api.management.domain.vo.report.*;
+import com.wupol.myopia.business.api.management.domain.vo.report.SchoolChartVO;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
@@ -82,7 +82,33 @@ public class SchoolHeightAndWeightMonitorService {
         SchoolHeightAndWeightMonitorVO.HeightAndWeightSexVO heightAndWeightSexVO = new SchoolHeightAndWeightMonitorVO.HeightAndWeightSexVO();
         getHeightAndWeightSexVariableVO(statConclusionList,heightAndWeightSexVO);
         getHeightAndWeightSexMonitorTableList(statConclusionList,heightAndWeightSexVO);
+        getHeightAndWeightSexMonitorChart(statConclusionList,heightAndWeightSexVO);
         schoolHeightAndWeightMonitorVO.setHeightAndWeightSexVO(heightAndWeightSexVO);
+    }
+
+    private void getHeightAndWeightSexMonitorChart(List<StatConclusion> statConclusionList, SchoolHeightAndWeightMonitorVO.HeightAndWeightSexVO heightAndWeightSexVO) {
+        if (CollectionUtil.isEmpty(statConclusionList)){
+            return;
+        }
+        SchoolChartVO.Chart chart = new SchoolChartVO.Chart();
+        List<String> x = Lists.newArrayList(ReportConst.OVERWEIGHT,ReportConst.OBESE,ReportConst.MALNOURISHED,ReportConst.STUNTING);
+        List<SchoolChartVO.ChartData> y = Lists.newArrayList(
+                new SchoolChartVO.ChartData(GenderEnum.MALE.desc,Lists.newArrayList()),
+                new SchoolChartVO.ChartData(GenderEnum.FEMALE.desc,Lists.newArrayList())
+        );
+        Map<Integer, List<StatConclusion>> genderMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getGender));
+        getChartData(genderMap.get(GenderEnum.MALE.type), y,0);
+        getChartData(genderMap.get(GenderEnum.FEMALE.type), y,1);
+        chart.setX(x);
+        chart.setY(y);
+        heightAndWeightSexVO.setHeightAndWeightSexMonitorChart(chart);
+    }
+    private void getChartData(List<StatConclusion> statConclusionList,List<SchoolChartVO.ChartData> y,Integer index) {
+        HeightAndWeightNum num = new HeightAndWeightNum().build(statConclusionList).ratioNotSymbol().ratio();
+        y.get(index).getData().add(num.overweightRatio);
+        y.get(index).getData().add(num.obeseRatio);
+        y.get(index).getData().add(num.malnourishedRatio);
+        y.get(index).getData().add(num.stuntingRatio);
     }
 
     /**
@@ -240,9 +266,41 @@ public class SchoolHeightAndWeightMonitorService {
         SchoolHeightAndWeightMonitorVO.HeightAndWeightGradeVO heightAndWeightGradeVO = new SchoolHeightAndWeightMonitorVO.HeightAndWeightGradeVO();
         getHeightAndWeightGradeVariableVO(statConclusionList,heightAndWeightGradeVO);
         getHeightAndWeightGradeMonitorTableList(statConclusionList,heightAndWeightGradeVO);
-
+        getHeightAndWeightGradeMonitorChart(statConclusionList,heightAndWeightGradeVO);
         districtHeightAndWeightMonitorVO.setHeightAndWeightGradeVO(heightAndWeightGradeVO);
 
+    }
+
+    private void getHeightAndWeightGradeMonitorChart(List<StatConclusion> statConclusionList, SchoolHeightAndWeightMonitorVO.HeightAndWeightGradeVO heightAndWeightGradeVO) {
+        if(CollectionUtil.isEmpty(statConclusionList)){
+            return;
+        }
+        SchoolChartVO.Chart chart = new SchoolChartVO.Chart();
+        List<String> x = Lists.newArrayList();
+        List<SchoolChartVO.ChartData> y = Lists.newArrayList(
+                new SchoolChartVO.ChartData(ReportConst.OVERWEIGHT,Lists.newArrayList()),
+                new SchoolChartVO.ChartData(ReportConst.OBESE,Lists.newArrayList()),
+                new SchoolChartVO.ChartData(ReportConst.MALNOURISHED,Lists.newArrayList()),
+                new SchoolChartVO.ChartData(ReportConst.STUNTING,Lists.newArrayList())
+        );
+        Map<String, List<StatConclusion>> gradeCodeMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
+        gradeCodeMap = CollectionUtil.sort(gradeCodeMap, String::compareTo);
+        gradeCodeMap.forEach((gradeCode,list)->{
+            GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(gradeCode);
+            x.add(gradeCodeEnum.getName());
+            HeightAndWeightNum num = new HeightAndWeightNum().build(list).ratioNotSymbol().ratio();
+            setGradeData(y,num);
+        });
+        chart.setX(x);
+        chart.setY(y);
+        heightAndWeightGradeVO.setHeightAndWeightGradeMonitorChart(chart);
+    }
+
+    private void setGradeData(List<SchoolChartVO.ChartData> y, HeightAndWeightNum num){
+        y.get(0).getData().add(num.overweightRatio);
+        y.get(1).getData().add(num.obeseRatio);
+        y.get(2).getData().add(num.malnourishedRatio);
+        y.get(3).getData().add(num.stuntingRatio);
     }
 
     /**
@@ -295,7 +353,7 @@ public class SchoolHeightAndWeightMonitorService {
             return;
         }
         Map<String, List<StatConclusion>> gradeCodeMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
-        MapUtil.sort(gradeCodeMap);
+        gradeCodeMap = CollectionUtil.sort(gradeCodeMap, String::compareTo);
         List<SchoolHeightAndWeightMonitorVO.HeightAndWeightMonitorTable> tableList = Lists.newArrayList();
         gradeCodeMap.forEach((grade,list)-> {
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(grade);
@@ -327,8 +385,39 @@ public class SchoolHeightAndWeightMonitorService {
         SchoolHeightAndWeightMonitorVO.HeightAndWeightAgeVO ageVO = new SchoolHeightAndWeightMonitorVO.HeightAndWeightAgeVO();
         getHeightAndWeightAgeVariableVO(statConclusionList,ageVO);
         getHeightAndWeightAgeMonitorTableList(statConclusionList,ageVO);
-
+        getHeightAndWeightAgeMonitorChart(statConclusionList,ageVO);
         districtHeightAndWeightMonitorVO.setHeightAndWeightAgeVO(ageVO);
+    }
+
+    private void getHeightAndWeightAgeMonitorChart(List<StatConclusion> statConclusionList, SchoolHeightAndWeightMonitorVO.HeightAndWeightAgeVO ageVO) {
+        if(CollectionUtil.isEmpty(statConclusionList)){
+            return;
+        }
+        SchoolChartVO.AgeChart ageChart = new SchoolChartVO.AgeChart();
+        Map<Integer, List<StatConclusion>> ageMap = statConclusionList.stream().collect(Collectors.groupingBy(sc -> ReportUtil.getLessAge(sc.getAge())));
+        List<Integer> dynamicAgeSegmentList = ReportUtil.dynamicAgeSegment(statConclusionList);
+        List<String> y = Lists.newArrayList();
+        List<SchoolChartVO.AgeData> x = Lists.newArrayList(
+                new SchoolChartVO.AgeData(ReportConst.OVERWEIGHT,Lists.newArrayList()),
+                new SchoolChartVO.AgeData(ReportConst.OBESE,Lists.newArrayList()),
+                new SchoolChartVO.AgeData(ReportConst.MALNOURISHED,Lists.newArrayList()),
+                new SchoolChartVO.AgeData(ReportConst.STUNTING,Lists.newArrayList())
+        );
+        dynamicAgeSegmentList.forEach(age-> {
+            y.add(AgeSegmentEnum.get(age).getDesc());
+            HeightAndWeightNum num = new HeightAndWeightNum().build(ageMap.get(age)).ratioNotSymbol().ratio();
+            setAgeData(x,num);
+        });
+        ageChart.setX(x);
+        ageChart.setY(y);
+        ageVO.setHeightAndWeightAgeMonitorChart(ageChart);
+    }
+
+    private void setAgeData(List<SchoolChartVO.AgeData> data, HeightAndWeightNum num){
+        data.get(0).getData().add(num.overweightRatio);
+        data.get(1).getData().add(num.obeseRatio);
+        data.get(2).getData().add(num.malnourishedRatio);
+        data.get(3).getData().add(num.stuntingRatio);
     }
 
     /**

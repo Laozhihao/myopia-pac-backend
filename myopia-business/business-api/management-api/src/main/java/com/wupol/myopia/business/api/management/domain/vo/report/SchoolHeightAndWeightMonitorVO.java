@@ -67,6 +67,10 @@ public class SchoolHeightAndWeightMonitorVO {
          * 性别表格数据
          */
         private List<HeightAndWeightMonitorTable> heightAndWeightSexMonitorTableList;
+        /**
+         * 性别图表
+         */
+        private SchoolChartVO.Chart heightAndWeightSexMonitorChart;
 
 
     }
@@ -127,6 +131,10 @@ public class SchoolHeightAndWeightMonitorVO {
          * 年级表格数据
          */
         private List<HeightAndWeightMonitorTable> heightAndWeightGradeMonitorTableList;
+        /**
+         * 学龄段图表
+         */
+        private SchoolChartVO.Chart heightAndWeightGradeMonitorChart;
 
     }
     @Data
@@ -184,6 +192,10 @@ public class SchoolHeightAndWeightMonitorVO {
          * 年龄段表格数据
          */
         private List<HeightAndWeightMonitorTable> heightAndWeightAgeMonitorTableList;
+        /**
+         * 年龄段图表
+         */
+        private SchoolChartVO.AgeChart heightAndWeightAgeMonitorChart;
 
     }
 

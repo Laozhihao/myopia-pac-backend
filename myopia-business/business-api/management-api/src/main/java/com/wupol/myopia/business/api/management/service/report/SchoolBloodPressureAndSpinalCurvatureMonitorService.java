@@ -6,8 +6,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.business.api.management.constant.AgeSegmentEnum;
 import com.wupol.myopia.business.api.management.constant.ReportConst;
-import com.wupol.myopia.business.api.management.domain.vo.report.SchoolBloodPressureAndSpinalCurvatureMonitorVO;
-import com.wupol.myopia.business.api.management.domain.vo.report.SchoolCommonDiseasesAnalysisVO;
+import com.wupol.myopia.business.api.management.domain.vo.report.*;
+import com.wupol.myopia.business.api.management.domain.vo.report.SchoolChartVO;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
@@ -81,8 +81,33 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
         SchoolBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureSexVO sexVO = new SchoolBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureSexVO();
         getBloodPressureAndSpinalCurvatureSexVariableVO(statConclusionList,sexVO);
         getBloodPressureAndSpinalCurvatureSexMonitorTableList(statConclusionList,sexVO);
-
+        getBloodPressureAndSpinalCurvatureSexMonitorChart(statConclusionList,sexVO);
         schoolBloodPressureAndSpinalCurvatureMonitorVO.setBloodPressureAndSpinalCurvatureSexVO(sexVO);
+    }
+
+    private void getBloodPressureAndSpinalCurvatureSexMonitorChart(List<StatConclusion> statConclusionList, SchoolBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureSexVO sexVO) {
+        if (CollectionUtil.isEmpty(statConclusionList)){
+            return;
+        }
+        SchoolChartVO.Chart chart = new SchoolChartVO.Chart();
+        List<String> x = Lists.newArrayList(ReportConst.HIGH_BLOOD_PRESSURE,ReportConst.ABNORMAL_SPINE_CURVATURE);
+        List<SchoolChartVO.ChartData> y = Lists.newArrayList(
+                new SchoolChartVO.ChartData(GenderEnum.MALE.desc,Lists.newArrayList()),
+                new SchoolChartVO.ChartData(GenderEnum.FEMALE.desc,Lists.newArrayList())
+        );
+
+        Map<Integer, List<StatConclusion>> genderMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getGender));
+        getChartData(genderMap.get(GenderEnum.MALE.type), y,0);
+        getChartData(genderMap.get(GenderEnum.FEMALE.type), y,1);
+
+        chart.setX(x);
+        chart.setY(y);
+        sexVO.setBloodPressureAndSpinalCurvatureSexMonitorChart(chart);
+    }
+    private void getChartData(List<StatConclusion> statConclusionList,List<SchoolChartVO.ChartData> y,Integer index) {
+        BloodPressureAndSpinalCurvatureNum num = new BloodPressureAndSpinalCurvatureNum().build(statConclusionList).ratioNotSymbol().ratio();
+        y.get(index).getData().add(num.highBloodPressureRatio);
+        y.get(index).getData().add(num.abnormalSpineCurvatureRatio);
     }
 
     /**
@@ -232,11 +257,39 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
         if (CollectionUtil.isEmpty(statConclusionList)){
             return;
         }
-        SchoolBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureGradeVO schoolAgeVO = new SchoolBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureGradeVO();
-        getBloodPressureAndSpinalCurvatureGradeVariableVO(statConclusionList,schoolAgeVO);
-        getBloodPressureAndSpinalCurvatureGradeMonitorTableList(statConclusionList,schoolAgeVO);
+        SchoolBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureGradeVO gradeVO = new SchoolBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureGradeVO();
+        getBloodPressureAndSpinalCurvatureGradeVariableVO(statConclusionList,gradeVO);
+        getBloodPressureAndSpinalCurvatureGradeMonitorTableList(statConclusionList,gradeVO);
+        getBloodPressureAndSpinalCurvatureGradeMonitorChart(statConclusionList,gradeVO);
+        schoolBloodPressureAndSpinalCurvatureMonitorVO.setBloodPressureAndSpinalCurvatureGradeVO(gradeVO);
+    }
 
-        schoolBloodPressureAndSpinalCurvatureMonitorVO.setBloodPressureAndSpinalCurvatureGradeVO(schoolAgeVO);
+    private void getBloodPressureAndSpinalCurvatureGradeMonitorChart(List<StatConclusion> statConclusionList, SchoolBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureGradeVO gradeVO) {
+        if(CollectionUtil.isEmpty(statConclusionList)){
+            return;
+        }
+        SchoolChartVO.Chart chart = new SchoolChartVO.Chart();
+
+        List<String> x = Lists.newArrayList();
+        List<SchoolChartVO.ChartData> y = Lists.newArrayList(
+                new SchoolChartVO.ChartData(ReportConst.HIGH_BLOOD_PRESSURE,Lists.newArrayList()),
+                new SchoolChartVO.ChartData(ReportConst.ABNORMAL_SPINE_CURVATURE,Lists.newArrayList())
+        );
+        Map<String, List<StatConclusion>> gradeCodeMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
+        gradeCodeMap = CollectionUtil.sort(gradeCodeMap, String::compareTo);
+        gradeCodeMap.forEach((gradeCode,list)->{
+            GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(gradeCode);
+            x.add(gradeCodeEnum.getName());
+            BloodPressureAndSpinalCurvatureNum num = new BloodPressureAndSpinalCurvatureNum().build(list).ratioNotSymbol().ratio();
+            setGradeData(y,num);
+        });
+        chart.setX(x);
+        chart.setY(y);
+        gradeVO.setBloodPressureAndSpinalCurvatureGradeMonitorChart(chart);
+    }
+    private void setGradeData(List<SchoolChartVO.ChartData> y, BloodPressureAndSpinalCurvatureNum num){
+        y.get(0).getData().add(num.highBloodPressureRatio);
+        y.get(1).getData().add(num.abnormalSpineCurvatureRatio);
     }
 
     /**
@@ -297,7 +350,7 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
             return;
         }
         Map<String, List<StatConclusion>> gradeCodeMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
-        MapUtil.sort(gradeCodeMap);
+        gradeCodeMap = CollectionUtil.sort(gradeCodeMap, String::compareTo);
         List<SchoolBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureMonitorTable> tableList = Lists.newArrayList();
         gradeCodeMap.forEach((grade,list)-> {
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(grade);
@@ -329,8 +382,34 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
         SchoolBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureAgeVO ageVO = new SchoolBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureAgeVO();
         getBloodPressureAndSpinalCurvatureAgeVariableVO(statConclusionList,ageVO);
         getBloodPressureAndSpinalCurvatureAgeMonitorTableList(statConclusionList,ageVO);
-
+        getBloodPressureAndSpinalCurvatureAgeMonitorChart(statConclusionList,ageVO);
         schoolBloodPressureAndSpinalCurvatureMonitorVO.setBloodPressureAndSpinalCurvatureAgeVO(ageVO);
+    }
+
+    private void getBloodPressureAndSpinalCurvatureAgeMonitorChart(List<StatConclusion> statConclusionList, SchoolBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureAgeVO ageVO) {
+        if(CollectionUtil.isEmpty(statConclusionList)){
+            return;
+        }
+        SchoolChartVO.AgeChart ageChart = new SchoolChartVO.AgeChart();
+        Map<Integer, List<StatConclusion>> ageMap = statConclusionList.stream().collect(Collectors.groupingBy(sc -> ReportUtil.getLessAge(sc.getAge())));
+        List<Integer> dynamicAgeSegmentList = ReportUtil.dynamicAgeSegment(statConclusionList);
+        List<String> y = Lists.newArrayList();
+        List<SchoolChartVO.AgeData> x = Lists.newArrayList(
+                new SchoolChartVO.AgeData(ReportConst.HIGH_BLOOD_PRESSURE,Lists.newArrayList()),
+                new SchoolChartVO.AgeData(ReportConst.ABNORMAL_SPINE_CURVATURE,Lists.newArrayList())
+        );
+        dynamicAgeSegmentList.forEach(age-> {
+            y.add(AgeSegmentEnum.get(age).getDesc());
+            BloodPressureAndSpinalCurvatureNum num = new BloodPressureAndSpinalCurvatureNum().build(ageMap.get(age)).ratioNotSymbol().ratio();
+            setAgeData(x,num);
+        });
+        ageChart.setY(y);
+        ageChart.setX(x);
+        ageVO.setBloodPressureAndSpinalCurvatureAgeMonitorChart(ageChart);
+    }
+    private void setAgeData(List<SchoolChartVO.AgeData> data, BloodPressureAndSpinalCurvatureNum num){
+        data.get(0).getData().add(num.highBloodPressureRatio);
+        data.get(1).getData().add(num.abnormalSpineCurvatureRatio);
     }
 
     /**

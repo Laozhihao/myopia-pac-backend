@@ -56,6 +56,10 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorVO {
          * 性别表格数据
          */
         private List<BloodPressureAndSpinalCurvatureMonitorTable> bloodPressureAndSpinalCurvatureSexMonitorTableList;
+        /**
+         * 性别图表
+         */
+        private SchoolChartVO.Chart bloodPressureAndSpinalCurvatureSexMonitorChart;
 
 
     }
@@ -109,6 +113,10 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorVO {
          * 年级表格数据
          */
         private List<BloodPressureAndSpinalCurvatureMonitorTable> bloodPressureAndSpinalCurvatureGradeMonitorTableList;
+        /**
+         * 年级图表
+         */
+        private SchoolChartVO.Chart bloodPressureAndSpinalCurvatureGradeMonitorChart;
 
     }
     @Data
@@ -156,6 +164,10 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorVO {
          * 年龄段数据
          */
         private List<BloodPressureAndSpinalCurvatureMonitorTable> bloodPressureAndSpinalCurvatureAgeMonitorTableList;
+        /**
+         * 年龄段图表
+         */
+        private SchoolChartVO.AgeChart bloodPressureAndSpinalCurvatureAgeMonitorChart;
 
     }
 

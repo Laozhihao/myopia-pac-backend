@@ -27,6 +27,10 @@ public class SchoolClassScreeningMonitorVO {
      * 班级表格数据
      */
     private List<SchoolClassScreeningMonitorTable> schoolClassScreeningMonitorTableList;
+    /**
+     * 班级图表数据
+     */
+    private List<SchoolChartVO.GradeRatioExtremumChart> schoolClassScreeningMonitorChart;
 
     public Boolean notEmpty(){
         return CollectionUtil.isNotEmpty(schoolClassScreeningMonitorTableList);

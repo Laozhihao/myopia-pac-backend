@@ -3,8 +3,8 @@ package com.wupol.myopia.business.api.management.service.report;
 import cn.hutool.core.collection.CollectionUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.wupol.myopia.business.api.management.domain.vo.report.SchoolClassScreeningMonitorVO;
-import com.wupol.myopia.business.api.management.domain.vo.report.SchoolCommonDiseasesAnalysisVO;
+import com.wupol.myopia.business.api.management.constant.ReportConst;
+import com.wupol.myopia.business.api.management.domain.vo.report.*;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -51,11 +52,68 @@ public class SchoolClassScreeningMonitorService {
                 schoolClassScreeningMonitorVOList.add(schoolClassScreeningMonitorVO);
                 schoolClassScreeningMonitorVO.setGrade(GradeCodeEnum.getByCode(gradeCode).getName());
             }
+            //图表数据
+            getSchoolClassScreeningMonitorChart(list,schoolClassScreeningMonitorVO);
         });
 
         schoolCommonDiseasesAnalysisVO.setSchoolClassScreeningMonitorVOList(schoolClassScreeningMonitorVOList);
 
 
+    }
+
+    private void getSchoolClassScreeningMonitorChart(List<StatConclusion> statConclusionList, SchoolClassScreeningMonitorVO schoolClassScreeningMonitorVO) {
+        if (CollectionUtil.isEmpty(statConclusionList)){
+            return;
+        }
+        Map<String, List<StatConclusion>> classStatConclusionMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolClassName));
+        Map<String,SchoolClassScreeningNum> classScreeningNumMap = Maps.newHashMap();
+        classStatConclusionMap.forEach((schoolClassName,list)->{
+            getSchoolClassScreeningNum(schoolClassName,list,classScreeningNumMap);
+        });
+
+        List<SchoolChartVO.GradeRatioExtremumChart> chartList =Lists.newArrayList(
+                new SchoolChartVO.GradeRatioExtremumChart(ReportConst.SAPRODONTIA,Lists.newArrayList()),
+                new SchoolChartVO.GradeRatioExtremumChart(ReportConst.SAPRODONTIA_LOSS_AND_REPAIR,Lists.newArrayList()),
+                new SchoolChartVO.GradeRatioExtremumChart(ReportConst.OVERWEIGHT,Lists.newArrayList()),
+                new SchoolChartVO.GradeRatioExtremumChart(ReportConst.OBESE,Lists.newArrayList()),
+                new SchoolChartVO.GradeRatioExtremumChart(ReportConst.MALNOURISHED,Lists.newArrayList()),
+                new SchoolChartVO.GradeRatioExtremumChart(ReportConst.STUNTING,Lists.newArrayList()),
+                new SchoolChartVO.GradeRatioExtremumChart(ReportConst.ABNORMAL_SPINE_CURVATURE,Lists.newArrayList()),
+                new SchoolChartVO.GradeRatioExtremumChart(ReportConst.HIGH_BLOOD_PRESSURE,Lists.newArrayList())
+        );
+
+        AtomicBoolean flag = new AtomicBoolean(true);
+        classScreeningNumMap.forEach((schoolName,schoolScreeningNum)->{
+            if (flag.get()){
+                flag.set(false);
+                setChartData(chartList,0,classScreeningNumMap, SchoolClassScreeningNum::getSaprodontiaNum, SchoolClassScreeningNum::getSaprodontiaRatio);
+                setChartData(chartList,1,classScreeningNumMap, SchoolClassScreeningNum::getSaprodontiaLossAndRepairNum, SchoolClassScreeningNum::getSaprodontiaLossAndRepairRatio);
+                setChartData(chartList,2,classScreeningNumMap, SchoolClassScreeningNum::getOverweightNum, SchoolClassScreeningNum::getOverweightRatio);
+                setChartData(chartList,3,classScreeningNumMap, SchoolClassScreeningNum::getObeseNum, SchoolClassScreeningNum::getObeseRatio);
+                setChartData(chartList,4,classScreeningNumMap, SchoolClassScreeningNum::getMalnourishedNum, SchoolClassScreeningNum::getMalnourishedRatio);
+                setChartData(chartList,5,classScreeningNumMap, SchoolClassScreeningNum::getStuntingNum, SchoolClassScreeningNum::getStuntingRatio);
+                setChartData(chartList,6,classScreeningNumMap, SchoolClassScreeningNum::getAbnormalSpineCurvatureNum, SchoolClassScreeningNum::getAbnormalSpineCurvatureRatio);
+                setChartData(chartList,7,classScreeningNumMap, SchoolClassScreeningNum::getHighBloodPressureNum, SchoolClassScreeningNum::getHighBloodPressureRatio);
+            }
+            chartList.get(0).getData().add(schoolScreeningNum.saprodontiaRatio);
+            chartList.get(1).getData().add(schoolScreeningNum.saprodontiaLossAndRepairRatio);
+            chartList.get(2).getData().add(schoolScreeningNum.overweightRatio);
+            chartList.get(3).getData().add(schoolScreeningNum.obeseRatio);
+            chartList.get(4).getData().add(schoolScreeningNum.malnourishedRatio);
+            chartList.get(5).getData().add(schoolScreeningNum.stuntingRatio);
+            chartList.get(6).getData().add(schoolScreeningNum.abnormalSpineCurvatureRatio);
+            chartList.get(7).getData().add(schoolScreeningNum.highBloodPressureRatio);
+        });
+
+        schoolClassScreeningMonitorVO.setSchoolClassScreeningMonitorChart(chartList);
+    }
+
+    private void setChartData(List<SchoolChartVO.GradeRatioExtremumChart> chartList, Integer index, Map<String,SchoolClassScreeningNum> classScreeningNumMap, Function<SchoolClassScreeningNum,Integer> function, Function<SchoolClassScreeningNum,BigDecimal> mapper){
+        SchoolClassScreeningMonitorVO.GradeRatioExtremum gradeRatioExtremum = getClassRatioExtremum(classScreeningNumMap, function, mapper);
+        chartList.get(index).setMaxClassName(gradeRatioExtremum.getMaxClassName());
+        chartList.get(index).setMaxRatio(gradeRatioExtremum.getMaxRatio());
+        chartList.get(index).setMinClassName(gradeRatioExtremum.getMinClassName());
+        chartList.get(index).setMinRatio(gradeRatioExtremum.getMinRatio());
     }
 
     /**
@@ -85,9 +143,9 @@ public class SchoolClassScreeningMonitorService {
         }
     }
 
-    private SchoolClassScreeningMonitorVO.GradeRatioExtremum getClassRatioExtremum(Map<String,SchoolClassScreeningNum> schoolScreeningNumMap, Function<SchoolClassScreeningNum,Integer> function, Function<SchoolClassScreeningNum,BigDecimal> mapper){
-        TwoTuple<String, BigDecimal> maxTuple = ReportUtil.getMaxMap(schoolScreeningNumMap, function,mapper);
-        TwoTuple<String, BigDecimal> minTuple = ReportUtil.getMinMap(schoolScreeningNumMap, function,mapper);
+    private SchoolClassScreeningMonitorVO.GradeRatioExtremum getClassRatioExtremum(Map<String,SchoolClassScreeningNum> classScreeningNumMap, Function<SchoolClassScreeningNum,Integer> function, Function<SchoolClassScreeningNum,BigDecimal> mapper){
+        TwoTuple<String, BigDecimal> maxTuple = ReportUtil.getMaxMap(classScreeningNumMap, function,mapper);
+        TwoTuple<String, BigDecimal> minTuple = ReportUtil.getMinMap(classScreeningNumMap, function,mapper);
         SchoolClassScreeningMonitorVO.GradeRatioExtremum schoolRatioExtremum = new SchoolClassScreeningMonitorVO.GradeRatioExtremum();
         schoolRatioExtremum.setMaxClassName(maxTuple.getFirst());
         schoolRatioExtremum.setMinClassName(minTuple.getFirst());
@@ -95,10 +153,10 @@ public class SchoolClassScreeningMonitorService {
         schoolRatioExtremum.setMinRatio(minTuple.getSecond());
         return schoolRatioExtremum;
     }
-    private <K>void getSchoolClassScreeningNum(K key, List<StatConclusion> statConclusionList,Map<K, SchoolClassScreeningNum> schoolScreeningNumMap){
+    private <K>void getSchoolClassScreeningNum(K key, List<StatConclusion> statConclusionList,Map<K, SchoolClassScreeningNum> classScreeningNumMap){
         SchoolClassScreeningNum build = new SchoolClassScreeningNum()
                 .build(statConclusionList).ratioNotSymbol();
-        schoolScreeningNumMap.put(key,build);
+        classScreeningNumMap.put(key,build);
     }
 
 

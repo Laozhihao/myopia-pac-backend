@@ -6,8 +6,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.business.api.management.constant.AgeSegmentEnum;
 import com.wupol.myopia.business.api.management.constant.ReportConst;
-import com.wupol.myopia.business.api.management.domain.vo.report.SchoolCommonDiseasesAnalysisVO;
-import com.wupol.myopia.business.api.management.domain.vo.report.SchoolSaprodontiaMonitorVO;
+import com.wupol.myopia.business.api.management.domain.vo.report.*;
+import com.wupol.myopia.business.api.management.domain.vo.report.SchoolChartVO;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
@@ -87,9 +87,39 @@ public class SchoolSaprodontiaMonitorService {
         SchoolSaprodontiaMonitorVO.SaprodontiaSexVO saprodontiaSexVO = new SchoolSaprodontiaMonitorVO.SaprodontiaSexVO();
         getSaprodontiaSexVariableVO(statConclusionList,saprodontiaSexVO);
         getSaprodontiaSexMonitorTableList(statConclusionList,saprodontiaSexVO);
+        getSaprodontiaSexMonitorChart(statConclusionList,saprodontiaSexVO);
         schoolSaprodontiaMonitorVO.setSaprodontiaSexVO(saprodontiaSexVO);
 
     }
+
+    private void getSaprodontiaSexMonitorChart(List<StatConclusion> statConclusionList, SchoolSaprodontiaMonitorVO.SaprodontiaSexVO saprodontiaSexVO) {
+        if (CollectionUtil.isEmpty(statConclusionList)){
+            return;
+        }
+
+        SchoolChartVO.Chart chart = new SchoolChartVO.Chart();
+        List<String> x = Lists.newArrayList(ReportConst.SAPRODONTIA,ReportConst.SAPRODONTIA_LOSS,ReportConst.SAPRODONTIA_REPAIR);
+        List<SchoolChartVO.ChartData> y = Lists.newArrayList(
+                new SchoolChartVO.ChartData(GenderEnum.MALE.desc,Lists.newArrayList()),
+                new SchoolChartVO.ChartData(GenderEnum.FEMALE.desc,Lists.newArrayList())
+        );
+
+        Map<Integer, List<StatConclusion>> genderMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getGender));
+        getChartData(genderMap.get(GenderEnum.MALE.type), y,0);
+        getChartData(genderMap.get(GenderEnum.FEMALE.type), y,1);
+
+        chart.setX(x);
+        chart.setY(y);
+        saprodontiaSexVO.setSaprodontiaSexMonitorChart(chart);
+    }
+
+    private void getChartData(List<StatConclusion> statConclusionList,List<SchoolChartVO.ChartData> y,Integer index) {
+        SaprodontiaNum num = new SaprodontiaNum().build(statConclusionList).ratioNotSymbol().ratio();
+        y.get(index).getData().add(num.saprodontiaRatio);
+        y.get(index).getData().add(num.saprodontiaLossRatio);
+        y.get(index).getData().add(num.saprodontiaRepairRatio);
+    }
+
 
     /**
      * 龋齿监测结果-不同性别-说明变量
@@ -244,7 +274,7 @@ public class SchoolSaprodontiaMonitorService {
     }
 
     /**
-     * 龋齿监测结果-不同学龄段
+     * 龋齿监测结果-不同年级
      */
     private void getSaprodontiaGradeVO(List<StatConclusion> statConclusionList, SchoolSaprodontiaMonitorVO schoolSaprodontiaMonitorVO) {
         if (CollectionUtil.isEmpty(statConclusionList)){
@@ -253,9 +283,40 @@ public class SchoolSaprodontiaMonitorService {
         SchoolSaprodontiaMonitorVO.SaprodontiaGradeVO saprodontiaGradeVO = new SchoolSaprodontiaMonitorVO.SaprodontiaGradeVO();
         getSaprodontiaGradeVariableVO(statConclusionList,saprodontiaGradeVO);
         getSaprodontiaGradeMonitorTableList(statConclusionList,saprodontiaGradeVO);
-
+        getSaprodontiaGradeMonitorChart(statConclusionList,saprodontiaGradeVO);
         schoolSaprodontiaMonitorVO.setSaprodontiaGradeVO(saprodontiaGradeVO);
 
+    }
+
+    private void getSaprodontiaGradeMonitorChart(List<StatConclusion> statConclusionList, SchoolSaprodontiaMonitorVO.SaprodontiaGradeVO saprodontiaGradeVO) {
+        if(CollectionUtil.isEmpty(statConclusionList)){
+            return;
+        }
+        SchoolChartVO.Chart chart = new SchoolChartVO.Chart();
+        List<String> x = Lists.newArrayList();
+        List<SchoolChartVO.ChartData> y = Lists.newArrayList(
+                new SchoolChartVO.ChartData(ReportConst.SAPRODONTIA,Lists.newArrayList()),
+                new SchoolChartVO.ChartData(ReportConst.SAPRODONTIA_LOSS,Lists.newArrayList()),
+                new SchoolChartVO.ChartData(ReportConst.SAPRODONTIA_REPAIR,Lists.newArrayList())
+        );
+
+        Map<String, List<StatConclusion>> gradeCodeMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
+        gradeCodeMap = CollectionUtil.sort(gradeCodeMap, String::compareTo);
+        gradeCodeMap.forEach((gradeCode,list)->{
+            GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(gradeCode);
+            x.add(gradeCodeEnum.getName());
+            SaprodontiaNum num = new SaprodontiaNum().build(list).ratioNotSymbol().ratio();
+            setGradeData(y,num);
+        });
+        chart.setX(x);
+        chart.setY(y);
+        saprodontiaGradeVO.setSaprodontiaGradeMonitorChart(chart);
+
+    }
+    private void setGradeData(List<SchoolChartVO.ChartData> y, SaprodontiaNum num){
+        y.get(0).getData().add(num.saprodontiaRatio);
+        y.get(1).getData().add(num.saprodontiaLossRatio);
+        y.get(2).getData().add(num.saprodontiaRepairRatio);
     }
 
     /**
@@ -308,8 +369,8 @@ public class SchoolSaprodontiaMonitorService {
         if (CollectionUtil.isEmpty(statConclusionList)){
             return;
         }
-        Map<String, List<StatConclusion>> gradeCodeMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
-        MapUtil.sort(gradeCodeMap);
+        Map<String, List<StatConclusion>> gradeCodeMap = statConclusionList.stream().sorted(Comparator.comparing(StatConclusion::getSchoolGradeCode)).collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
+        gradeCodeMap = CollectionUtil.sort(gradeCodeMap, String::compareTo);
         List<SchoolSaprodontiaMonitorVO.SaprodontiaMonitorTable> tableList = Lists.newArrayList();
         gradeCodeMap.forEach((grade,list)-> {
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(grade);
@@ -319,7 +380,6 @@ public class SchoolSaprodontiaMonitorService {
 
         saprodontiaGradeVO.setSaprodontiaGradeMonitorTableList(tableList);
     }
-
 
     private void getSaprodontiaGrade(List<StatConclusion> statConclusionList,String grade,List<SchoolSaprodontiaMonitorVO.SaprodontiaMonitorTable> gradeList) {
         if (CollectionUtil.isEmpty(statConclusionList)){
@@ -341,8 +401,39 @@ public class SchoolSaprodontiaMonitorService {
         SchoolSaprodontiaMonitorVO.SaprodontiaAgeVO saprodontiaAgeVO = new SchoolSaprodontiaMonitorVO.SaprodontiaAgeVO();
         getSaprodontiaAgeVariableVO(statConclusionList,saprodontiaAgeVO);
         getSaprodontiaAgeMonitorTableList(statConclusionList,saprodontiaAgeVO);
-
+        getSaprodontiaAgeMonitorChart(statConclusionList,saprodontiaAgeVO);
         schoolSaprodontiaMonitorVO.setSaprodontiaAgeVO(saprodontiaAgeVO);
+    }
+
+    private void getSaprodontiaAgeMonitorChart(List<StatConclusion> statConclusionList, SchoolSaprodontiaMonitorVO.SaprodontiaAgeVO saprodontiaAgeVO) {
+        if(CollectionUtil.isEmpty(statConclusionList)){
+            return;
+        }
+        SchoolChartVO.AgeChart ageChart = new SchoolChartVO.AgeChart();
+        Map<Integer, List<StatConclusion>> ageMap = statConclusionList.stream().collect(Collectors.groupingBy(sc -> ReportUtil.getLessAge(sc.getAge())));
+        List<Integer> dynamicAgeSegmentList = ReportUtil.dynamicAgeSegment(statConclusionList);
+
+        List<String> y = Lists.newArrayList();
+        List<SchoolChartVO.AgeData> x = Lists.newArrayList(
+                new SchoolChartVO.AgeData(ReportConst.SAPRODONTIA,Lists.newArrayList()),
+                new SchoolChartVO.AgeData(ReportConst.SAPRODONTIA_LOSS,Lists.newArrayList()),
+                new SchoolChartVO.AgeData(ReportConst.SAPRODONTIA_REPAIR,Lists.newArrayList())
+        );
+
+        dynamicAgeSegmentList.forEach(age-> {
+            y.add(AgeSegmentEnum.get(age).getDesc());
+            SaprodontiaNum saprodontiaNum = new SaprodontiaNum().build(ageMap.get(age)).ratioNotSymbol().ratio();
+            setAgeData(x,saprodontiaNum);
+        });
+        ageChart.setY(y);
+        ageChart.setX(x);
+        saprodontiaAgeVO.setSaprodontiaAgeMonitorChart(ageChart);
+    }
+
+    private void setAgeData(List<SchoolChartVO.AgeData> data, SaprodontiaNum saprodontiaNum){
+        data.get(0).getData().add(saprodontiaNum.saprodontiaRatio);
+        data.get(1).getData().add(saprodontiaNum.saprodontiaLossRatio);
+        data.get(2).getData().add(saprodontiaNum.saprodontiaRepairRatio);
     }
 
     /**

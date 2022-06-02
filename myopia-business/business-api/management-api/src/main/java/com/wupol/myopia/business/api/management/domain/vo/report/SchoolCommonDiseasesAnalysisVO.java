@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.vo.report;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -172,54 +173,33 @@ public class SchoolCommonDiseasesAnalysisVO {
         /**
          * 龋患率
          */
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
         private BigDecimal saprodontiaRatio;
         /**
          * 龋失率
          */
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
         private BigDecimal saprodontiaLossRatio;
 
         /**
          * 龋补率
          */
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
         private BigDecimal saprodontiaRepairRatio;
         /**
          * 龋患（失、补）率
          */
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
         private BigDecimal saprodontiaLossAndRepairRatio;
 
         /**
          * 龋患（失、补）构成比
          */
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
         private BigDecimal saprodontiaLossAndRepairTeethRatio;
 
     }
 
-    @Data
-    public static class SaprodontiaRatioStrVO{
-        /**
-         * 龋患率
-         */
-        private String saprodontiaRatioStr;
-        /**
-         * 龋失率
-         */
-        private String saprodontiaLossRatioStr;
-
-        /**
-         * 龋补率
-         */
-        private String saprodontiaRepairRatioStr;
-        /**
-         * 龋患（失、补）率
-         */
-        private String saprodontiaLossAndRepairRatioStr;
-
-        /**
-         * 龋患（失、补）构成比
-         */
-        private String saprodontiaLossAndRepairTeethRatioStr;
-
-    }
 
     @EqualsAndHashCode(callSuper = true)
     @Data
@@ -244,7 +224,6 @@ public class SchoolCommonDiseasesAnalysisVO {
          */
         private Integer stuntingNum;
 
-
     }
 
     @Data
@@ -252,46 +231,28 @@ public class SchoolCommonDiseasesAnalysisVO {
         /**
          * 超重率
          */
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
         private BigDecimal overweightRatio;
         /**
          * 肥胖率
          */
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
         private BigDecimal obeseRatio;
 
         /**
          * 营养不良率
          */
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
         private BigDecimal malnourishedRatio;
 
         /**
          * 生长迟缓率
          */
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
         private BigDecimal stuntingRatio;
 
     }
 
-    @Data
-    public static class HeightAndWeightRatioStrVO {
-        /**
-         * 超重率
-         */
-        private String overweightRatioStr;
-        /**
-         * 肥胖率
-         */
-        private String obeseRatioStr;
-
-        /**
-         * 营养不良率
-         */
-        private String malnourishedRatioStr;
-
-        /**
-         * 生长迟缓率
-         */
-        private String stuntingRatioStr;
-
-    }
 
     @EqualsAndHashCode(callSuper = true)
     @Data
@@ -314,11 +275,13 @@ public class SchoolCommonDiseasesAnalysisVO {
         /**
          * 血压偏高率
          */
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
         private BigDecimal highBloodPressureRatio;
 
         /**
          * 脊柱弯曲异常率
          */
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
         private BigDecimal abnormalSpineCurvatureRatio;
 
     }
