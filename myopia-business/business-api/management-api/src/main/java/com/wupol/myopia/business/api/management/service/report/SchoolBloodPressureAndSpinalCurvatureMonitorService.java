@@ -29,6 +29,8 @@ import java.util.stream.Collectors;
 @Service
 public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
 
+    private static Map<Integer,Integer> map = Maps.newConcurrentMap();
+
     /**
      * 血压与脊柱弯曲异常监测结果
      */
@@ -39,6 +41,7 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
         }
         SchoolBloodPressureAndSpinalCurvatureMonitorVO schoolBloodPressureAndSpinalCurvatureMonitorVO = new SchoolBloodPressureAndSpinalCurvatureMonitorVO();
 
+        map.put(0,statConclusionList.size());
         //说明变量
         getBloodPressureAndSpinalCurvatureMonitorVariableVO(statConclusionList,schoolBloodPressureAndSpinalCurvatureMonitorVO);
         //不同性别
@@ -267,8 +270,8 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
             return null;
         }
         SchoolBloodPressureAndSpinalCurvatureMonitorVO.GradeRatio gradeRatio = new SchoolBloodPressureAndSpinalCurvatureMonitorVO.GradeRatio();
-        TwoTuple<String, String> maxTuple = getMaxMap(bloodPressureAndSpinalCurvatureNumMap, function, mapper);
-        TwoTuple<String, String> minTuple = getMinMap(bloodPressureAndSpinalCurvatureNumMap, function, mapper);
+        TwoTuple<String, String> maxTuple = ReportUtil.getMaxMap(bloodPressureAndSpinalCurvatureNumMap, function, mapper);
+        TwoTuple<String, String> minTuple = ReportUtil.getMinMap(bloodPressureAndSpinalCurvatureNumMap, function, mapper);
         gradeRatio.setMaxGrade(maxTuple.getFirst());
         gradeRatio.setMaxRatio(maxTuple.getSecond());
         gradeRatio.setMinGrade(minTuple.getFirst());
@@ -351,8 +354,8 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
     }
 
     private SchoolBloodPressureAndSpinalCurvatureMonitorVO.AgeRatio getAgeRatio(Map<Integer, BloodPressureAndSpinalCurvatureNum> bloodPressureAndSpinalCurvatureNumMap, Function<BloodPressureAndSpinalCurvatureNum,Integer> function, Function<BloodPressureAndSpinalCurvatureNum,String> mapper) {
-        TwoTuple<Integer, String> maxTuple = getMaxMap(bloodPressureAndSpinalCurvatureNumMap, function,mapper);
-        TwoTuple<Integer, String> minTuple = getMinMap(bloodPressureAndSpinalCurvatureNumMap, function,mapper);
+        TwoTuple<Integer, String> maxTuple = ReportUtil.getMaxMap(bloodPressureAndSpinalCurvatureNumMap, function,mapper);
+        TwoTuple<Integer, String> minTuple = ReportUtil.getMinMap(bloodPressureAndSpinalCurvatureNumMap, function,mapper);
         SchoolBloodPressureAndSpinalCurvatureMonitorVO.AgeRatio ageRatio = new SchoolBloodPressureAndSpinalCurvatureMonitorVO.AgeRatio();
         ageRatio.setMaxAge(AgeSegmentEnum.get(maxTuple.getFirst()).getDesc());
         ageRatio.setMinAge(AgeSegmentEnum.get(minTuple.getFirst()).getDesc());
@@ -361,16 +364,6 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
         return ageRatio;
     }
 
-
-    /**
-     * 获取map中Value最小值及对应的Key
-     */
-    private <T,K>TwoTuple<K,String> getMinMap(Map<K, T> map, Function<T,Integer> function,Function<T,String> mapper){
-        List<Map.Entry<K, T>> entries = Lists.newArrayList(map.entrySet());
-        CollectionUtil.sort(entries,Comparator.comparingInt(o -> Optional.ofNullable(o.getValue()).map(function).orElse(0)));
-        Map.Entry<K, T> entry = entries.get(0);
-        return TwoTuple.of(entry.getKey(),Optional.ofNullable(entry.getValue()).map(mapper).orElse(null));
-    }
 
     /**
      * 血压与脊柱弯曲异常监测结果-不同年龄段-表格数据
@@ -466,8 +459,8 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
          * 不带%
          */
         public BloodPressureAndSpinalCurvatureNum ratioNotSymbol(){
-            this.abnormalSpineCurvatureRatio = getRatioNotSymbol(abnormalSpineCurvatureNum,validScreeningNum);
-            this.highBloodPressureRatio = getRatioNotSymbol(highBloodPressureNum,validScreeningNum);
+            this.abnormalSpineCurvatureRatio = getRatioNotSymbol(abnormalSpineCurvatureNum,getTotal());
+            this.highBloodPressureRatio = getRatioNotSymbol(highBloodPressureNum,getTotal());
             return this;
         }
 
@@ -475,8 +468,8 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
          * 带%
          */
         public BloodPressureAndSpinalCurvatureNum ratio(){
-            this.abnormalSpineCurvatureRatioStr = getRatio(abnormalSpineCurvatureNum,validScreeningNum);
-            this.highBloodPressureRatioStr = getRatio(highBloodPressureNum,validScreeningNum);
+            this.abnormalSpineCurvatureRatioStr = getRatio(abnormalSpineCurvatureNum,getTotal());
+            this.highBloodPressureRatioStr = getRatio(highBloodPressureNum,getTotal());
             return this;
         }
 
@@ -484,6 +477,10 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
             this.gender = gender;
             return this;
         }
+    }
+
+    private static Integer getTotal(){
+        return map.get(0);
     }
 
 }

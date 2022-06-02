@@ -32,6 +32,8 @@ import java.util.stream.Collectors;
 @Service
 public class SchoolSaprodontiaMonitorService {
 
+    private static Map<Integer,Integer> map = Maps.newConcurrentMap();
+
     /**
      * 龋齿监测结果
      */
@@ -41,6 +43,7 @@ public class SchoolSaprodontiaMonitorService {
         }
         SchoolSaprodontiaMonitorVO schoolSaprodontiaMonitorVO = new SchoolSaprodontiaMonitorVO();
 
+        map.put(0,statConclusionList.size());
         //说明变量
         getSaprodontiaMonitorVariableVO(statConclusionList,schoolSaprodontiaMonitorVO);
         //不同性别
@@ -287,23 +290,13 @@ public class SchoolSaprodontiaMonitorService {
             return null;
         }
         SchoolSaprodontiaMonitorVO.GradeRatio gradeRatio = new SchoolSaprodontiaMonitorVO.GradeRatio();
-        TwoTuple<String, String> maxTuple = getMaxMap(saprodontiaNumMap, function,mapper);
-        TwoTuple<String, String> minTuple = getMinMap(saprodontiaNumMap, function,mapper);
+        TwoTuple<String, String> maxTuple = ReportUtil.getMaxMap(saprodontiaNumMap, function,mapper);
+        TwoTuple<String, String> minTuple = ReportUtil.getMinMap(saprodontiaNumMap, function,mapper);
         gradeRatio.setMaxGrade(maxTuple.getFirst());
         gradeRatio.setMaxRatio(maxTuple.getSecond());
         gradeRatio.setMinGrade(minTuple.getFirst());
         gradeRatio.setMinRatio(minTuple.getSecond());
         return gradeRatio;
-    }
-
-    /**
-     * 获取map中Value最大值及对应的Key
-     */
-    private <T,K>TwoTuple<K,String> getMaxMap(Map<K, T> map, Function<T,Integer> function,Function<T,String> mapper){
-        List<Map.Entry<K, T>> entries = Lists.newArrayList(map.entrySet());
-        CollectionUtil.sort(entries,((o1, o2) -> Optional.ofNullable(o2.getValue()).map(function).orElse(0)- Optional.ofNullable(o1.getValue()).map(function).orElse(0)));
-        Map.Entry<K, T> entry = entries.get(0);
-        return TwoTuple.of(entry.getKey(),Optional.ofNullable(entry.getValue()).map(mapper).orElse(null));
     }
 
 
@@ -377,24 +370,13 @@ public class SchoolSaprodontiaMonitorService {
             return null;
         }
         SchoolSaprodontiaMonitorVO.AgeRatio ageRatio = new SchoolSaprodontiaMonitorVO.AgeRatio();
-        TwoTuple<Integer, String> maxTuple = getMaxMap(saprodontiaNumMap, function,mapper);
-        TwoTuple<Integer, String> minTuple = getMinMap(saprodontiaNumMap, function,mapper);
+        TwoTuple<Integer, String> maxTuple = ReportUtil.getMaxMap(saprodontiaNumMap, function,mapper);
+        TwoTuple<Integer, String> minTuple = ReportUtil.getMinMap(saprodontiaNumMap, function,mapper);
         ageRatio.setMaxAge(AgeSegmentEnum.get(maxTuple.getFirst()).getDesc());
         ageRatio.setMinAge(AgeSegmentEnum.get(minTuple.getFirst()).getDesc());
         ageRatio.setMaxRatio(maxTuple.getSecond());
         ageRatio.setMinRatio(minTuple.getSecond());
         return ageRatio;
-    }
-
-
-    /**
-     * 获取map中Value最小值及对应的Key
-     */
-    private <T,K>TwoTuple<K,String> getMinMap(Map<K, T> map, Function<T,Integer> function,Function<T,String> mapper){
-        List<Map.Entry<K, T>> entries = Lists.newArrayList(map.entrySet());
-        CollectionUtil.sort(entries,Comparator.comparingInt(o -> Optional.ofNullable(o.getValue()).map(function).orElse(0)));
-        Map.Entry<K, T> entry = entries.get(0);
-        return TwoTuple.of(entry.getKey(),Optional.ofNullable(entry.getValue()).map(mapper).orElse(null));
     }
 
     /**
@@ -559,11 +541,11 @@ public class SchoolSaprodontiaMonitorService {
          * 不带%
          */
         public SaprodontiaNum ratioNotSymbol(){
-            this.dmftRatio = Optional.ofNullable(MathUtil.num(dmftNum,validScreeningNum)).orElse(ReportConst.ZERO_STR);
-            this.saprodontiaRatio = getRatioNotSymbol(saprodontiaNum,validScreeningNum);
-            this.saprodontiaLossRatio =getRatioNotSymbol(saprodontiaLossNum,validScreeningNum);
-            this.saprodontiaRepairRatio = getRatioNotSymbol(saprodontiaRepairNum,validScreeningNum);
-            this.saprodontiaLossAndRepairRatio = getRatioNotSymbol(saprodontiaLossAndRepairNum,validScreeningNum);
+            this.dmftRatio = Optional.ofNullable(MathUtil.num(dmftNum,getTotal())).orElse(ReportConst.ZERO_STR);
+            this.saprodontiaRatio = getRatioNotSymbol(saprodontiaNum,getTotal());
+            this.saprodontiaLossRatio =getRatioNotSymbol(saprodontiaLossNum,getTotal());
+            this.saprodontiaRepairRatio = getRatioNotSymbol(saprodontiaRepairNum,getTotal());
+            this.saprodontiaLossAndRepairRatio = getRatioNotSymbol(saprodontiaLossAndRepairNum,getTotal());
             this.saprodontiaLossAndRepairTeethRatio =getRatioNotSymbol(saprodontiaLossAndRepairTeethNum,dmftNum);
             return this;
         }
@@ -572,13 +554,17 @@ public class SchoolSaprodontiaMonitorService {
          * 带%
          */
         public SaprodontiaNum ratio(){
-            this.dmftRatio = Optional.ofNullable(MathUtil.num(dmftNum,validScreeningNum)).orElse(ReportConst.ZERO_STR);
-            this.saprodontiaRatioStr = getRatio(saprodontiaNum,validScreeningNum);
-            this.saprodontiaLossRatioStr =getRatio(saprodontiaLossNum,validScreeningNum);
-            this.saprodontiaRepairRatioStr = getRatio(saprodontiaRepairNum,validScreeningNum);
-            this.saprodontiaLossAndRepairRatioStr = getRatio(saprodontiaLossAndRepairNum,validScreeningNum);
+            this.dmftRatio = Optional.ofNullable(MathUtil.num(dmftNum,getTotal())).orElse(ReportConst.ZERO_STR);
+            this.saprodontiaRatioStr = getRatio(saprodontiaNum,getTotal());
+            this.saprodontiaLossRatioStr =getRatio(saprodontiaLossNum,getTotal());
+            this.saprodontiaRepairRatioStr = getRatio(saprodontiaRepairNum,getTotal());
+            this.saprodontiaLossAndRepairRatioStr = getRatio(saprodontiaLossAndRepairNum,getTotal());
             this.saprodontiaLossAndRepairTeethRatioStr =getRatio(saprodontiaLossAndRepairTeethNum,dmftNum);
             return this;
         }
+    }
+
+    private static Integer getTotal(){
+        return map.get(0);
     }
 }

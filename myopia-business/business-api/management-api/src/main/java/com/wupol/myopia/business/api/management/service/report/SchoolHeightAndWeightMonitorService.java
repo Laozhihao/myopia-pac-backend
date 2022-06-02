@@ -29,6 +29,8 @@ import java.util.stream.Collectors;
 @Service
 public class SchoolHeightAndWeightMonitorService {
 
+    private static Map<Integer,Integer> map = Maps.newConcurrentMap();
+
     /**
      * 体重身高监测结果
      */
@@ -39,6 +41,7 @@ public class SchoolHeightAndWeightMonitorService {
         }
         SchoolHeightAndWeightMonitorVO schoolHeightAndWeightMonitorVO = new SchoolHeightAndWeightMonitorVO();
 
+        map.put(0,statConclusionList.size());
         //说明变量
         getHeightAndWeightMonitorVariableVO(statConclusionList,schoolHeightAndWeightMonitorVO);
         //不同性别
@@ -274,24 +277,15 @@ public class SchoolHeightAndWeightMonitorService {
             return null;
         }
         SchoolHeightAndWeightMonitorVO.GradeRatio gradeRatio = new SchoolHeightAndWeightMonitorVO.GradeRatio();
-        TwoTuple<String, String> maxTuple = getMaxMap(heightAndWeightNumMap, HeightAndWeightNum::getOverweightNum, HeightAndWeightNum::getOverweightRatioStr);
-        TwoTuple<String, String> minTuple = getMinMap(heightAndWeightNumMap, HeightAndWeightNum::getOverweightNum, HeightAndWeightNum::getOverweightRatioStr);
+        TwoTuple<String, String> maxTuple = ReportUtil.getMaxMap(heightAndWeightNumMap, HeightAndWeightNum::getOverweightNum, HeightAndWeightNum::getOverweightRatioStr);
+        TwoTuple<String, String> minTuple = ReportUtil.getMinMap(heightAndWeightNumMap, HeightAndWeightNum::getOverweightNum, HeightAndWeightNum::getOverweightRatioStr);
         gradeRatio.setMaxGrade(maxTuple.getFirst());
         gradeRatio.setMaxRatio(maxTuple.getSecond());
-        gradeRatio.setMinRatio(minTuple.getFirst());
+        gradeRatio.setMinGrade(minTuple.getFirst());
         gradeRatio.setMinRatio(minTuple.getSecond());
         return gradeRatio;
     }
 
-    /**
-     * 获取map中Value最大值及对应的Key
-     */
-    private <T,K>TwoTuple<K,String> getMaxMap(Map<K, T> map, Function<T,Integer> function ,Function<T,String> mapper){
-        List<Map.Entry<K, T>> entries = Lists.newArrayList(map.entrySet());
-        CollectionUtil.sort(entries,((o1, o2) -> Optional.ofNullable(o2.getValue()).map(function).orElse(0)- Optional.ofNullable(o1.getValue()).map(function).orElse(0)));
-        Map.Entry<K, T> entry = entries.get(0);
-        return TwoTuple.of(entry.getKey(),Optional.ofNullable(entry.getValue()).map(mapper).orElse(null));
-    }
 
     /**
      * 体重身高监测结果-不同学龄段-表格数据
@@ -361,8 +355,8 @@ public class SchoolHeightAndWeightMonitorService {
     }
 
     private SchoolHeightAndWeightMonitorVO.AgeRatio getAgeRatio(Map<Integer, HeightAndWeightNum> heightAndWeightNumMap, Function<HeightAndWeightNum,Integer> function,Function<HeightAndWeightNum,String> mapper) {
-        TwoTuple<Integer, String> maxTuple = getMaxMap(heightAndWeightNumMap, function,mapper);
-        TwoTuple<Integer, String> minTuple = getMinMap(heightAndWeightNumMap, function,mapper);
+        TwoTuple<Integer, String> maxTuple = ReportUtil.getMaxMap(heightAndWeightNumMap, function,mapper);
+        TwoTuple<Integer, String> minTuple = ReportUtil.getMinMap(heightAndWeightNumMap, function,mapper);
         SchoolHeightAndWeightMonitorVO.AgeRatio ageRatio = new SchoolHeightAndWeightMonitorVO.AgeRatio();
         ageRatio.setMaxAge(AgeSegmentEnum.get(maxTuple.getFirst()).getDesc());
         ageRatio.setMinAge(AgeSegmentEnum.get(minTuple.getFirst()).getDesc());
@@ -371,16 +365,6 @@ public class SchoolHeightAndWeightMonitorService {
         return ageRatio;
     }
 
-
-    /**
-     * 获取map中Value最小值及对应的Key
-     */
-    private <T,K>TwoTuple<K,String> getMinMap(Map<K, T> map, Function<T,Integer> function,Function<T,String> mapper){
-        List<Map.Entry<K, T>> entries = Lists.newArrayList(map.entrySet());
-        CollectionUtil.sort(entries,Comparator.comparingInt(o -> Optional.ofNullable(o.getValue()).map(function).orElse(0)));
-        Map.Entry<K, T> entry = entries.get(0);
-        return TwoTuple.of(entry.getKey(),Optional.ofNullable(entry.getValue()).map(mapper).orElse(null));
-    }
 
     /**
      * 体重身高监测结果-不同年龄段-表格数据
@@ -501,10 +485,10 @@ public class SchoolHeightAndWeightMonitorService {
          * 不带%
          */
         public HeightAndWeightNum ratioNotSymbol(){
-            this.overweightRatio = getRatioNotSymbol(overweightNum,validScreeningNum);
-            this.obeseRatio = getRatioNotSymbol(obeseNum,validScreeningNum);
-            this.stuntingRatio = getRatioNotSymbol(stuntingNum,validScreeningNum);
-            this.malnourishedRatio = getRatioNotSymbol(malnourishedNum,validScreeningNum);
+            this.overweightRatio = getRatioNotSymbol(overweightNum,getTotal());
+            this.obeseRatio = getRatioNotSymbol(obeseNum,getTotal());
+            this.stuntingRatio = getRatioNotSymbol(stuntingNum,getTotal());
+            this.malnourishedRatio = getRatioNotSymbol(malnourishedNum,getTotal());
             return this;
         }
 
@@ -512,10 +496,10 @@ public class SchoolHeightAndWeightMonitorService {
          * 带%
          */
         public HeightAndWeightNum ratio(){
-            this.overweightRatioStr = getRatio(overweightNum,validScreeningNum);
-            this.obeseRatioStr = getRatio(obeseNum,validScreeningNum);
-            this.stuntingRatioStr = getRatio(stuntingNum,validScreeningNum);
-            this.malnourishedRatioStr = getRatio(malnourishedNum,validScreeningNum);
+            this.overweightRatioStr = getRatio(overweightNum,getTotal());
+            this.obeseRatioStr = getRatio(obeseNum,getTotal());
+            this.stuntingRatioStr = getRatio(stuntingNum,getTotal());
+            this.malnourishedRatioStr = getRatio(malnourishedNum,getTotal());
             return this;
         }
 
@@ -523,5 +507,9 @@ public class SchoolHeightAndWeightMonitorService {
             this.gender = gender;
             return this;
         }
+    }
+
+    private static Integer getTotal(){
+        return map.get(0);
     }
 }

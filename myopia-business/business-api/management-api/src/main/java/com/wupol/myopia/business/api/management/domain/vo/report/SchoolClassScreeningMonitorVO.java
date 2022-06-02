@@ -28,7 +28,7 @@ public class SchoolClassScreeningMonitorVO {
      */
     private List<SchoolClassScreeningMonitorTable> schoolClassScreeningMonitorTableList;
 
-    public Boolean isNotEmpty(){
+    public Boolean notEmpty(){
         return CollectionUtil.isNotEmpty(schoolClassScreeningMonitorTableList);
     }
 
