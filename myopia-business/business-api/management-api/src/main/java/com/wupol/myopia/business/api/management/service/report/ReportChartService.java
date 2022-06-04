@@ -115,7 +115,7 @@ public class ReportChartService {
 
         dynamicAgeSegmentList.forEach(age-> {
             y.add(AgeSegmentEnum.get(age).getDesc());
-            switch (ageChartVO.getType()){
+            switch (ageChartVO.type()){
                 case 1:
                     getSaprodontiaAgeData(x,ageMap.get(age));
                     break;
@@ -132,7 +132,7 @@ public class ReportChartService {
         });
         ageChart.setY(y);
         ageChart.setX(x);
-        switch (ageChartVO.getType()){
+        switch (ageChartVO.type()){
             case 1:
                 ageChartVO.setSaprodontiaAgeMonitorChart(ageChart);
                 break;

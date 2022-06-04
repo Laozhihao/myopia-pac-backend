@@ -5,7 +5,7 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class SaprodontiaMonitorTable extends SchoolCommonDiseasesAnalysisVO.SaprodontiaVO {
+public class SaprodontiaMonitorTable extends SaprodontiaVO {
 
     /**
      * 项目 （性别、学龄段、年龄段）

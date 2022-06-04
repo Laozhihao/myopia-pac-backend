@@ -32,71 +32,6 @@ public class SchoolHeightAndWeightMonitorVO {
      */
     private HeightAndWeightAgeVO heightAndWeightAgeVO;
 
-    @Data
-    public static class HeightAndWeightMonitorVariableVO {
-        /**
-         * 超重率
-         */
-        private String overweightRatio;
-        /**
-         * 肥胖率
-         */
-        private String obeseRatio;
-
-        /**
-         * 营养不良率
-         */
-        private String malnourishedRatio;
-
-        /**
-         * 生长迟缓率
-         */
-        private String stuntingRatio;
-    }
-
-
-
-    @Data
-    public static class HeightAndWeightSexVO implements SexChartVO{
-        /**
-         * 性别说明
-         */
-        private HeightAndWeightSexVariableVO heightAndWeightSexVariableVO;
-        /**
-         * 性别表格数据
-         */
-        private List<HeightAndWeightMonitorTable> heightAndWeightSexMonitorTableList;
-        /**
-         * 性别图表
-         */
-        private ChartVO.Chart heightAndWeightSexMonitorChart;
-
-        @Override
-        public Integer type() {
-            return 2;
-        }
-    }
-
-    @Data
-    public static class HeightAndWeightSexVariableVO{
-        /**
-         * 超重率对比
-         */
-        private SexCompare overweightRatioCompare;
-        /**
-         * 肥胖率对比
-         */
-        private SexCompare obeseRatioCompare;
-        /**
-         * 营养不良率对比
-         */
-        private SexCompare malnourishedRatioCompare;
-        /**
-         * 生长迟缓对比
-         */
-        private SexCompare stuntingRatioCompare;
-    }
-
 
 
     @Data
@@ -177,7 +112,7 @@ public class SchoolHeightAndWeightMonitorVO {
         private ChartVO.AgeChart heightAndWeightAgeMonitorChart;
 
         @Override
-        public Integer getType() {
+        public Integer type() {
             return 2;
         }
     }

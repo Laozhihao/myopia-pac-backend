@@ -13,5 +13,5 @@ public interface AgeChartVO {
 
     default void setBloodPressureAndSpinalCurvatureAgeMonitorChart(ChartVO.AgeChart ageChart){}
 
-    Integer getType();
+    Integer type();
 }

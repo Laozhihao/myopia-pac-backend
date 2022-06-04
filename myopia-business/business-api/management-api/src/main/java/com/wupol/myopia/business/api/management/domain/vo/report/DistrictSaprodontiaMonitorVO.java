@@ -35,46 +35,6 @@ public class DistrictSaprodontiaMonitorVO {
 
 
 
-    @Data
-    public static class SaprodontiaSexVariableVO{
-        /**
-         * 龋患率对比
-         */
-        private SaprodontiaSex saprodontiaRatioCompare;
-        /**
-         * 龋失率对比
-         */
-        private SaprodontiaSex saprodontiaLossRatioCompare;
-        /**
-         * 龋补率对比
-         */
-        private SaprodontiaSex saprodontiaRepairRatioCompare;
-    }
-
-    @Data
-    public static class SaprodontiaSex{
-        /**
-         * 前：性别
-         */
-        private String forwardSex;
-        /**
-         * 前：占比
-         */
-        private String forwardRatio;
-        /**
-         * 后：性别
-         */
-        private String backSex;
-        /**
-         * 后：占比
-         */
-        private String backRatio;
-        /**
-         * 符号
-         */
-        private String symbol;
-    }
-
 
     @Data
     public static class SaprodontiaSchoolAgeVO{

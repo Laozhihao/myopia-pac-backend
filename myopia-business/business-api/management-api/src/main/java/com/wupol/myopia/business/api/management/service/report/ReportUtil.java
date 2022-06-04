@@ -2,6 +2,9 @@ package com.wupol.myopia.business.api.management.service.report;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.google.common.collect.Lists;
+import com.wupol.myopia.business.api.management.constant.AgeSegmentEnum;
+import com.wupol.myopia.business.api.management.domain.vo.report.AgeRatioVO;
+import com.wupol.myopia.business.api.management.domain.vo.report.SaprodontiaNum;
 import com.wupol.myopia.business.api.management.domain.vo.report.SexCompare;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
@@ -99,6 +102,17 @@ public class ReportUtil {
             ageSegmentList.add(i);
         }
         return ageSegmentList;
+    }
+
+    public static <T> AgeRatioVO getAgeRatio(Map<Integer, T> saprodontiaNumMap, Function<T,Integer> function, Function<T,String> mapper) {
+        TwoTuple<Integer, String> maxTuple = ReportUtil.getMaxMap(saprodontiaNumMap, function,mapper);
+        TwoTuple<Integer, String> minTuple = ReportUtil.getMinMap(saprodontiaNumMap, function,mapper);
+        AgeRatioVO ageRatio = new AgeRatioVO();
+        ageRatio.setMaxAge(AgeSegmentEnum.get(maxTuple.getFirst()).getDesc());
+        ageRatio.setMinAge(AgeSegmentEnum.get(minTuple.getFirst()).getDesc());
+        ageRatio.setMaxRatio(maxTuple.getSecond());
+        ageRatio.setMinRatio(minTuple.getSecond());
+        return ageRatio;
     }
 
 

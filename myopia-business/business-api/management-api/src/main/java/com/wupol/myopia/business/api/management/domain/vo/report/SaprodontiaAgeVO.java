@@ -20,7 +20,7 @@ public class SaprodontiaAgeVO implements AgeChartVO {
     private ChartVO.AgeChart saprodontiaAgeMonitorChart;
 
     @Override
-    public Integer getType() {
+    public Integer type() {
         return 2;
     }
 
@@ -30,35 +30,16 @@ public class SaprodontiaAgeVO implements AgeChartVO {
         /**
          * 龋患率 最高、最低
          */
-        private AgeRatio saprodontiaRatio;
+        private AgeRatioVO saprodontiaRatio;
         /**
          * 龋失率 最高、最低
          */
-        private AgeRatio saprodontiaLossRatio;
+        private AgeRatioVO saprodontiaLossRatio;
         /**
          * 龋补率 最高、最低
          */
-        private AgeRatio saprodontiaRepairRatio;
+        private AgeRatioVO saprodontiaRepairRatio;
 
     }
 
-    @Data
-    public static class AgeRatio{
-        /**
-         * 最高年龄段
-         */
-        private String maxAge;
-        /**
-         * 最小年龄段
-         */
-        private String minAge;
-        /**
-         * 最高占比
-         */
-        private String maxRatio;
-        /**
-         * 最低占比
-         */
-        private String minRatio;
-    }
 }
