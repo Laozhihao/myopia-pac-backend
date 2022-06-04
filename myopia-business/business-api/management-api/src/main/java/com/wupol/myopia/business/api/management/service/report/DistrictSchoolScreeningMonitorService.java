@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.business.api.management.constant.ReportConst;
+import com.wupol.myopia.business.api.management.domain.vo.report.ChartVO;
 import com.wupol.myopia.business.api.management.domain.vo.report.DistrictChartVO;
 import com.wupol.myopia.business.api.management.domain.vo.report.DistrictCommonDiseasesAnalysisVO;
 import com.wupol.myopia.business.api.management.domain.vo.report.DistrictSchoolScreeningMonitorVO;
@@ -61,15 +62,15 @@ public class DistrictSchoolScreeningMonitorService {
             String schoolName = schoolMap.get(schoolId);
             getSchoolScreeningNum(schoolName,list,schoolScreeningNumMap);
         });
-        List<DistrictChartVO.SchoolRatioExtremumChart> chartList =Lists.newArrayList(
-                new DistrictChartVO.SchoolRatioExtremumChart(ReportConst.SAPRODONTIA,Lists.newArrayList()),
-                new DistrictChartVO.SchoolRatioExtremumChart(ReportConst.SAPRODONTIA_LOSS_AND_REPAIR,Lists.newArrayList()),
-                new DistrictChartVO.SchoolRatioExtremumChart(ReportConst.OVERWEIGHT,Lists.newArrayList()),
-                new DistrictChartVO.SchoolRatioExtremumChart(ReportConst.OBESE,Lists.newArrayList()),
-                new DistrictChartVO.SchoolRatioExtremumChart(ReportConst.MALNOURISHED,Lists.newArrayList()),
-                new DistrictChartVO.SchoolRatioExtremumChart(ReportConst.STUNTING,Lists.newArrayList()),
-                new DistrictChartVO.SchoolRatioExtremumChart(ReportConst.ABNORMAL_SPINE_CURVATURE,Lists.newArrayList()),
-                new DistrictChartVO.SchoolRatioExtremumChart(ReportConst.HIGH_BLOOD_PRESSURE,Lists.newArrayList())
+        List<ChartVO.SchoolRatioExtremumChart> chartList =Lists.newArrayList(
+                new ChartVO.SchoolRatioExtremumChart(ReportConst.SAPRODONTIA,Lists.newArrayList()),
+                new ChartVO.SchoolRatioExtremumChart(ReportConst.SAPRODONTIA_LOSS_AND_REPAIR,Lists.newArrayList()),
+                new ChartVO.SchoolRatioExtremumChart(ReportConst.OVERWEIGHT,Lists.newArrayList()),
+                new ChartVO.SchoolRatioExtremumChart(ReportConst.OBESE,Lists.newArrayList()),
+                new ChartVO.SchoolRatioExtremumChart(ReportConst.MALNOURISHED,Lists.newArrayList()),
+                new ChartVO.SchoolRatioExtremumChart(ReportConst.STUNTING,Lists.newArrayList()),
+                new ChartVO.SchoolRatioExtremumChart(ReportConst.ABNORMAL_SPINE_CURVATURE,Lists.newArrayList()),
+                new ChartVO.SchoolRatioExtremumChart(ReportConst.HIGH_BLOOD_PRESSURE,Lists.newArrayList())
                 );
 
         AtomicBoolean flag = new AtomicBoolean(true);
@@ -97,7 +98,7 @@ public class DistrictSchoolScreeningMonitorService {
         districtSchoolScreeningMonitorVO.setSchoolScreeningMonitorChart(chartList);
     }
 
-    private void setChartData(List<DistrictChartVO.SchoolRatioExtremumChart> chartList,Integer index,Map<String,SchoolScreeningNum> schoolScreeningNumMap,Function<SchoolScreeningNum,Integer> function, Function<SchoolScreeningNum,BigDecimal> mapper){
+    private void setChartData(List<ChartVO.SchoolRatioExtremumChart> chartList, Integer index, Map<String,SchoolScreeningNum> schoolScreeningNumMap, Function<SchoolScreeningNum,Integer> function, Function<SchoolScreeningNum,BigDecimal> mapper){
         DistrictSchoolScreeningMonitorVO.SchoolRatioExtremum schoolRatioExtremum = getSchoolRatioExtremum(schoolScreeningNumMap, function, mapper);
         chartList.get(index).setMaxSchoolName(schoolRatioExtremum.getMaxSchoolName());
         chartList.get(index).setMaxRatio(schoolRatioExtremum.getMaxRatio());

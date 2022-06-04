@@ -3,7 +3,6 @@ package com.wupol.myopia.business.api.management.domain.vo.report;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -58,7 +57,7 @@ public class SchoolHeightAndWeightMonitorVO {
 
 
     @Data
-    public static class HeightAndWeightSexVO{
+    public static class HeightAndWeightSexVO implements SexChartVO{
         /**
          * 性别说明
          */
@@ -70,9 +69,12 @@ public class SchoolHeightAndWeightMonitorVO {
         /**
          * 性别图表
          */
-        private SchoolChartVO.Chart heightAndWeightSexMonitorChart;
+        private ChartVO.Chart heightAndWeightSexMonitorChart;
 
-
+        @Override
+        public Integer type() {
+            return 2;
+        }
     }
 
     @Data
@@ -80,44 +82,21 @@ public class SchoolHeightAndWeightMonitorVO {
         /**
          * 超重率对比
          */
-        private HeightAndWeightSex overweightRatioCompare;
+        private SexCompare overweightRatioCompare;
         /**
          * 肥胖率对比
          */
-        private HeightAndWeightSex obeseRatioCompare;
+        private SexCompare obeseRatioCompare;
         /**
          * 营养不良率对比
          */
-        private HeightAndWeightSex malnourishedRatioCompare;
+        private SexCompare malnourishedRatioCompare;
         /**
          * 生长迟缓对比
          */
-        private HeightAndWeightSex stuntingRatioCompare;
+        private SexCompare stuntingRatioCompare;
     }
 
-    @Data
-    public static class HeightAndWeightSex{
-        /**
-         * 前：性别
-         */
-        private String forwardSex;
-        /**
-         * 前：占比
-         */
-        private String forwardRatio;
-        /**
-         * 后：性别
-         */
-        private String backSex;
-        /**
-         * 后：占比
-         */
-        private String backRatio;
-        /**
-         * 符号
-         */
-        private String symbol;
-    }
 
 
     @Data
@@ -134,7 +113,7 @@ public class SchoolHeightAndWeightMonitorVO {
         /**
          * 学龄段图表
          */
-        private SchoolChartVO.Chart heightAndWeightGradeMonitorChart;
+        private ChartVO.Chart heightAndWeightGradeMonitorChart;
 
     }
     @Data
@@ -183,7 +162,7 @@ public class SchoolHeightAndWeightMonitorVO {
 
 
     @Data
-    public static class HeightAndWeightAgeVO{
+    public static class HeightAndWeightAgeVO implements AgeChartVO{
         /**
          * 年龄段说明
          */
@@ -195,8 +174,12 @@ public class SchoolHeightAndWeightMonitorVO {
         /**
          * 年龄段图表
          */
-        private SchoolChartVO.AgeChart heightAndWeightAgeMonitorChart;
+        private ChartVO.AgeChart heightAndWeightAgeMonitorChart;
 
+        @Override
+        public Integer getType() {
+            return 2;
+        }
     }
 
     @Data
@@ -240,19 +223,4 @@ public class SchoolHeightAndWeightMonitorVO {
         private String minRatio;
     }
 
-    @EqualsAndHashCode(callSuper = true)
-    @Data
-    public static class HeightAndWeightMonitorTable extends SchoolCommonDiseasesAnalysisVO.HeightAndWeightVO{
-
-        /**
-         * 项目 （性别、学龄段、年龄段）
-         */
-        private String itemName;
-
-        /**
-         * 筛查人数(有效数据)
-         */
-        private Integer validScreeningNum;
-
-    }
 }

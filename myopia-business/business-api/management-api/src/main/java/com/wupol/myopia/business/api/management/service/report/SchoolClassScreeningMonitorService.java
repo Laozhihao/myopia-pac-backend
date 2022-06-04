@@ -71,15 +71,15 @@ public class SchoolClassScreeningMonitorService {
             getSchoolClassScreeningNum(schoolClassName,list,classScreeningNumMap);
         });
 
-        List<SchoolChartVO.GradeRatioExtremumChart> chartList =Lists.newArrayList(
-                new SchoolChartVO.GradeRatioExtremumChart(ReportConst.SAPRODONTIA,Lists.newArrayList()),
-                new SchoolChartVO.GradeRatioExtremumChart(ReportConst.SAPRODONTIA_LOSS_AND_REPAIR,Lists.newArrayList()),
-                new SchoolChartVO.GradeRatioExtremumChart(ReportConst.OVERWEIGHT,Lists.newArrayList()),
-                new SchoolChartVO.GradeRatioExtremumChart(ReportConst.OBESE,Lists.newArrayList()),
-                new SchoolChartVO.GradeRatioExtremumChart(ReportConst.MALNOURISHED,Lists.newArrayList()),
-                new SchoolChartVO.GradeRatioExtremumChart(ReportConst.STUNTING,Lists.newArrayList()),
-                new SchoolChartVO.GradeRatioExtremumChart(ReportConst.ABNORMAL_SPINE_CURVATURE,Lists.newArrayList()),
-                new SchoolChartVO.GradeRatioExtremumChart(ReportConst.HIGH_BLOOD_PRESSURE,Lists.newArrayList())
+        List<ChartVO.GradeRatioExtremumChart> chartList =Lists.newArrayList(
+                new ChartVO.GradeRatioExtremumChart(ReportConst.SAPRODONTIA,Lists.newArrayList()),
+                new ChartVO.GradeRatioExtremumChart(ReportConst.SAPRODONTIA_LOSS_AND_REPAIR,Lists.newArrayList()),
+                new ChartVO.GradeRatioExtremumChart(ReportConst.OVERWEIGHT,Lists.newArrayList()),
+                new ChartVO.GradeRatioExtremumChart(ReportConst.OBESE,Lists.newArrayList()),
+                new ChartVO.GradeRatioExtremumChart(ReportConst.MALNOURISHED,Lists.newArrayList()),
+                new ChartVO.GradeRatioExtremumChart(ReportConst.STUNTING,Lists.newArrayList()),
+                new ChartVO.GradeRatioExtremumChart(ReportConst.ABNORMAL_SPINE_CURVATURE,Lists.newArrayList()),
+                new ChartVO.GradeRatioExtremumChart(ReportConst.HIGH_BLOOD_PRESSURE,Lists.newArrayList())
         );
 
         AtomicBoolean flag = new AtomicBoolean(true);
@@ -108,7 +108,7 @@ public class SchoolClassScreeningMonitorService {
         schoolClassScreeningMonitorVO.setSchoolClassScreeningMonitorChart(chartList);
     }
 
-    private void setChartData(List<SchoolChartVO.GradeRatioExtremumChart> chartList, Integer index, Map<String,SchoolClassScreeningNum> classScreeningNumMap, Function<SchoolClassScreeningNum,Integer> function, Function<SchoolClassScreeningNum,BigDecimal> mapper){
+    private void setChartData(List<ChartVO.GradeRatioExtremumChart> chartList, Integer index, Map<String,SchoolClassScreeningNum> classScreeningNumMap, Function<SchoolClassScreeningNum,Integer> function, Function<SchoolClassScreeningNum,BigDecimal> mapper){
         SchoolClassScreeningMonitorVO.GradeRatioExtremum gradeRatioExtremum = getClassRatioExtremum(classScreeningNumMap, function, mapper);
         chartList.get(index).setMaxClassName(gradeRatioExtremum.getMaxClassName());
         chartList.get(index).setMaxRatio(gradeRatioExtremum.getMaxRatio());

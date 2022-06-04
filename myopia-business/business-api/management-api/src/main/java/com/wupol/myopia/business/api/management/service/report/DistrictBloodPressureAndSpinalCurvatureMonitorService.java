@@ -6,9 +6,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.business.api.management.constant.AgeSegmentEnum;
 import com.wupol.myopia.business.api.management.constant.ReportConst;
-import com.wupol.myopia.business.api.management.domain.vo.report.DistrictBloodPressureAndSpinalCurvatureMonitorVO;
-import com.wupol.myopia.business.api.management.domain.vo.report.DistrictChartVO;
-import com.wupol.myopia.business.api.management.domain.vo.report.DistrictCommonDiseasesAnalysisVO;
+import com.wupol.myopia.business.api.management.domain.vo.report.*;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
@@ -144,12 +142,12 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorService {
         bloodPressureAndSpinalCurvatureNumMap.put(key,build);
     }
 
-    private DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureSex getRatioCompare(List<BloodPressureAndSpinalCurvatureNum> sexList, Function<BloodPressureAndSpinalCurvatureNum,BigDecimal> function, Function<BloodPressureAndSpinalCurvatureNum,String> mapper) {
+    private SexCompare getRatioCompare(List<BloodPressureAndSpinalCurvatureNum> sexList, Function<BloodPressureAndSpinalCurvatureNum,BigDecimal> function, Function<BloodPressureAndSpinalCurvatureNum,String> mapper) {
         if (CollectionUtil.isEmpty(sexList)){
             return null;
         }
         CollectionUtil.sort(sexList, Comparator.comparing(function).reversed());
-        DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureSex sex = new DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureSex();
+        SexCompare sex = new SexCompare();
         if (sexList.size() == 1){
             BloodPressureAndSpinalCurvatureNum num = sexList.get(0);
             if (Objects.equals(GenderEnum.MALE.type,num.gender)){
@@ -167,8 +165,7 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorService {
     }
 
     private void setSexCompare(BloodPressureAndSpinalCurvatureNum forward, BloodPressureAndSpinalCurvatureNum back, Function<BloodPressureAndSpinalCurvatureNum, String> mapper,
-                               DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureSex sex,
-                               String backSex, String zeroRatio) {
+                               SexCompare sex,String backSex, String zeroRatio) {
 
         String forwardRatio = mapper.apply(forward);
         sex.setForwardSex(GenderEnum.getName(forward.gender));
@@ -178,21 +175,14 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorService {
             String backRatio = mapper.apply(back);
             sex.setBackSex(GenderEnum.getName(back.gender));
             sex.setBackRatio(backRatio);
-            setSymbol(sex,forwardRatio,backRatio);
+            ReportUtil.setSymbol(sex,forwardRatio,backRatio);
         }else {
             sex.setBackSex(backSex);
             sex.setBackRatio(zeroRatio);
-            setSymbol(sex,forwardRatio,zeroRatio);
+            ReportUtil.setSymbol(sex,forwardRatio,zeroRatio);
         }
     }
 
-    private void setSymbol(DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureSex sex, String forwar, String back) {
-        if (Objects.equals(forwar, back)){
-            sex.setSymbol("=");
-        }else {
-            sex.setSymbol(">");
-        }
-    }
 
     /**
      * 血压与脊柱弯曲异常监测结果-不同性别-表格数据
@@ -603,7 +593,7 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorService {
 
     @EqualsAndHashCode(callSuper = true)
     @Data
-    private static class BloodPressureAndSpinalCurvatureNum extends EntityFunction{
+    private static class BloodPressureAndSpinalCurvatureNum extends EntityFunction implements Num {
 
         /**
          * 筛查人数
@@ -649,6 +639,12 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorService {
         private Integer gender;
 
         public BloodPressureAndSpinalCurvatureNum build(List<StatConclusion> statConclusionList){
+            if (CollectionUtil.isEmpty(statConclusionList)){
+                this.validScreeningNum = ReportConst.ZERO;
+                this.abnormalSpineCurvatureNum = ReportConst.ZERO;
+                this.highBloodPressureNum = ReportConst.ZERO;
+                return this;
+            }
             this.validScreeningNum = statConclusionList.size();
 
             this.abnormalSpineCurvatureNum = getCount(statConclusionList, StatConclusion::getIsSpinalCurvature);

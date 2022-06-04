@@ -59,7 +59,7 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorVO {
         /**
          * 性别图表
          */
-        private SchoolChartVO.Chart bloodPressureAndSpinalCurvatureSexMonitorChart;
+        private ChartVO.Chart bloodPressureAndSpinalCurvatureSexMonitorChart;
 
 
     }
@@ -69,37 +69,14 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorVO {
         /**
          * 血压偏高率对比
          */
-        private BloodPressureAndSpinalCurvatureSex highBloodPressureRatioCompare;
+        private SexCompare highBloodPressureRatioCompare;
         /**
          * 脊柱弯曲异常率对比
          */
-        private BloodPressureAndSpinalCurvatureSex abnormalSpineCurvatureRatioCompare;
+        private SexCompare abnormalSpineCurvatureRatioCompare;
 
     }
 
-    @Data
-    public static class BloodPressureAndSpinalCurvatureSex{
-        /**
-         * 前：性别
-         */
-        private String forwardSex;
-        /**
-         * 前：占比
-         */
-        private String forwardRatio;
-        /**
-         * 后：性别
-         */
-        private String backSex;
-        /**
-         * 后：占比
-         */
-        private String backRatio;
-        /**
-         * 符号
-         */
-        private String symbol;
-    }
 
 
     @Data
@@ -116,7 +93,7 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorVO {
         /**
          * 年级图表
          */
-        private SchoolChartVO.Chart bloodPressureAndSpinalCurvatureGradeMonitorChart;
+        private ChartVO.Chart bloodPressureAndSpinalCurvatureGradeMonitorChart;
 
     }
     @Data
@@ -167,7 +144,7 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorVO {
         /**
          * 年龄段图表
          */
-        private SchoolChartVO.AgeChart bloodPressureAndSpinalCurvatureAgeMonitorChart;
+        private ChartVO.AgeChart bloodPressureAndSpinalCurvatureAgeMonitorChart;
 
     }
 

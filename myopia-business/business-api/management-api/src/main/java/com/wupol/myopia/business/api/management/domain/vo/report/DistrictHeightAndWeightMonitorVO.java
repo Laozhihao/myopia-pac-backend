@@ -80,45 +80,21 @@ public class DistrictHeightAndWeightMonitorVO {
         /**
          * 超重率对比
          */
-        private HeightAndWeightSex overweightRatioCompare;
+        private SexCompare overweightRatioCompare;
         /**
          * 肥胖率对比
          */
-        private HeightAndWeightSex obeseRatioCompare;
+        private SexCompare obeseRatioCompare;
         /**
          * 营养不良率对比
          */
-        private HeightAndWeightSex malnourishedRatioCompare;
+        private SexCompare malnourishedRatioCompare;
         /**
          * 生长迟缓对比
          */
-        private HeightAndWeightSex stuntingRatioCompare;
+        private SexCompare stuntingRatioCompare;
     }
 
-
-    @Data
-    public static class HeightAndWeightSex{
-        /**
-         * 前：性别
-         */
-        private String forwardSex;
-        /**
-         * 前：占比
-         */
-        private String forwardRatio;
-        /**
-         * 后：性别
-         */
-        private String backSex;
-        /**
-         * 后：占比
-         */
-        private String backRatio;
-        /**
-         * 符号
-         */
-        private String symbol;
-    }
 
 
     @Data
@@ -293,19 +269,4 @@ public class DistrictHeightAndWeightMonitorVO {
         private String minRatio;
     }
 
-    @EqualsAndHashCode(callSuper = true)
-    @Data
-    public static class HeightAndWeightMonitorTable extends DistrictCommonDiseasesAnalysisVO.HeightAndWeightVO{
-
-        /**
-         * 项目 （性别、学龄段、年龄段）
-         */
-        private String itemName;
-
-        /**
-         * 筛查人数(有效数据)
-         */
-        private Integer validScreeningNum;
-
-    }
 }

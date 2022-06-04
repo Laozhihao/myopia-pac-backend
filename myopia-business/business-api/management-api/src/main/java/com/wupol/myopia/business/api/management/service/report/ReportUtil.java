@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.service.report;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.google.common.collect.Lists;
+import com.wupol.myopia.business.api.management.domain.vo.report.SexCompare;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import lombok.experimental.UtilityClass;
@@ -84,6 +85,12 @@ public class ReportUtil {
         }
         Integer min = statConclusionList.stream().map(StatConclusion::getAge).min(Comparator.comparing(Integer::intValue)).orElse(null);
         Integer max = statConclusionList.stream().map(StatConclusion::getAge).max(Comparator.comparing(Integer::intValue)).orElse(null);
+        if (max >= 18){
+            max = 18;
+        }
+        if (min >= 18){
+            min = 18;
+        }
         if (Objects.equals(min,max)){
             ageSegmentList.add(min+1);
             return ageSegmentList;
@@ -97,5 +104,13 @@ public class ReportUtil {
 
     public static BigDecimal getRatioNotSymbol(String ratio){
         return new BigDecimal(ratio.substring(0,ratio.length()-1));
+    }
+
+    public void setSymbol(SexCompare sex, String forward, String back) {
+        if (Objects.equals(forward, back)){
+            sex.setSymbol("=");
+        }else {
+            sex.setSymbol(">");
+        }
     }
 }

@@ -72,38 +72,6 @@ public class DistrictChartVO {
         }
     }
 
-    @Data
-    public static class SchoolRatioExtremumChart{
-        /**
-         * 名称
-         */
-        private String name;
-        /**
-         * 年级数据
-         */
-        private List<BigDecimal> data;
-        /**
-         * 最高占比学校
-         */
-        private String maxSchoolName;
 
-        /**
-         * 最低占比学校
-         */
-        private String minSchoolName;
-        /**
-         * 最高占比
-         */
-        private BigDecimal maxRatio;
-        /**
-         * 最低占比
-         */
-        private BigDecimal minRatio;
-
-        public SchoolRatioExtremumChart(String name, List<BigDecimal> data) {
-            this.name = name;
-            this.data = data;
-        }
-    }
 
 }

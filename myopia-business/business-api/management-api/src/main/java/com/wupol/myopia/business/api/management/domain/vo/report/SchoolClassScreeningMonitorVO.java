@@ -30,7 +30,7 @@ public class SchoolClassScreeningMonitorVO {
     /**
      * 班级图表数据
      */
-    private List<SchoolChartVO.GradeRatioExtremumChart> schoolClassScreeningMonitorChart;
+    private List<ChartVO.GradeRatioExtremumChart> schoolClassScreeningMonitorChart;
 
     public Boolean notEmpty(){
         return CollectionUtil.isNotEmpty(schoolClassScreeningMonitorTableList);
