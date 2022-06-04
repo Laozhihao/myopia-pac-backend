@@ -33,72 +33,10 @@ public class DistrictHeightAndWeightMonitorVO {
      */
     private HeightAndWeightAgeVO heightAndWeightAgeVO;
 
-    @Data
-    public static class HeightAndWeightMonitorVariableVO {
-        /**
-         * 超重率
-         */
-        private String overweightRatio;
-        /**
-         * 肥胖率
-         */
-        private String obeseRatio;
-
-        /**
-         * 营养不良率
-         */
-        private String malnourishedRatio;
-
-        /**
-         * 生长迟缓率
-         */
-        private String stuntingRatio;
-
-    }
 
 
     @Data
-    public static class HeightAndWeightSexVO{
-        /**
-         * 性别说明
-         */
-        private HeightAndWeightSexVariableVO heightAndWeightSexVariableVO;
-        /**
-         * 性别表格数据
-         */
-        private List<HeightAndWeightMonitorTable> heightAndWeightSexMonitorTableList;
-        /**
-         * 性别图表
-         */
-        private DistrictChartVO.Chart heightAndWeightSexMonitorChart;
-
-
-    }
-
-    @Data
-    public static class HeightAndWeightSexVariableVO{
-        /**
-         * 超重率对比
-         */
-        private SexCompare overweightRatioCompare;
-        /**
-         * 肥胖率对比
-         */
-        private SexCompare obeseRatioCompare;
-        /**
-         * 营养不良率对比
-         */
-        private SexCompare malnourishedRatioCompare;
-        /**
-         * 生长迟缓对比
-         */
-        private SexCompare stuntingRatioCompare;
-    }
-
-
-
-    @Data
-    public static class HeightAndWeightSchoolAgeVO{
+    public static class HeightAndWeightSchoolAgeVO {
 
         /**
          * 学龄段说明
@@ -115,9 +53,8 @@ public class DistrictHeightAndWeightMonitorVO {
 
     }
 
-
     @Data
-    public static class HeightAndWeightSchoolAgeVariableVO{
+    public static class HeightAndWeightSchoolAgeVariableVO {
         /**
          * 小学
          */
@@ -189,7 +126,7 @@ public class DistrictHeightAndWeightMonitorVO {
     }
 
     @Data
-    public static class GradeRatio{
+    public static class GradeRatio {
         /**
          * 年级
          */
@@ -206,67 +143,6 @@ public class DistrictHeightAndWeightMonitorVO {
 
         public GradeRatio() {
         }
-    }
-
-
-    @Data
-    public static class HeightAndWeightAgeVO{
-        /**
-         * 年龄段说明
-         */
-        private HeightAndWeightAgeVariableVO heightAndWeightAgeVariableVO;
-        /**
-         * 年龄段表格数据
-         */
-        private List<HeightAndWeightMonitorTable> heightAndWeightAgeMonitorTableList;
-        /**
-         * 年龄段图表
-         */
-        private DistrictChartVO.AgeChart heightAndWeightAgeMonitorChart;
-
-    }
-
-
-    @Data
-    public static class HeightAndWeightAgeVariableVO{
-        /**
-         * 超重率 最高、最低
-         */
-        private AgeRatio overweightRatio;
-        /**
-         * 肥胖率 最高、最低
-         */
-        private AgeRatio obeseRatio;
-        /**
-         * 营养不良率 最高、最低
-         */
-        private AgeRatio malnourishedRatio;
-        /**
-         * 生长迟缓率 最高、最低
-         */
-        private AgeRatio stuntingRatio;
-
-    }
-
-    @Data
-    public static class AgeRatio{
-
-        /**
-         * 最高年龄段
-         */
-        private String maxAge;
-        /**
-         * 最低年龄段
-         */
-        private String minAge;
-        /**
-         * 最高占比
-         */
-        private String maxRatio;
-        /**
-         * 最低占比
-         */
-        private String minRatio;
     }
 
 }

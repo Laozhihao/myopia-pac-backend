@@ -63,8 +63,10 @@ public class SchoolHeightAndWeightMonitorService {
         if (CollectionUtil.isEmpty(statConclusionList)){
             return;
         }
-        SchoolHeightAndWeightMonitorVO.HeightAndWeightMonitorVariableVO heightAndWeightMonitorVariableVO = new HeightAndWeightNum()
-                .build(statConclusionList).ratio().buildSchoolHeightAndWeightMonitorVariableVO();
+        HeightAndWeightMonitorVariableVO heightAndWeightMonitorVariableVO = new HeightAndWeightNum()
+                .build(statConclusionList)
+                .ratio()
+                .buildHeightAndWeightMonitorVariableVO();
         schoolHeightAndWeightMonitorVO.setHeightAndWeightMonitorVariableVO(heightAndWeightMonitorVariableVO);
     }
 
@@ -75,7 +77,7 @@ public class SchoolHeightAndWeightMonitorService {
         if (CollectionUtil.isEmpty(statConclusionList)){
             return;
         }
-        SchoolHeightAndWeightMonitorVO.HeightAndWeightSexVO heightAndWeightSexVO = new SchoolHeightAndWeightMonitorVO.HeightAndWeightSexVO();
+        HeightAndWeightSexVO heightAndWeightSexVO = new HeightAndWeightSexVO();
         getHeightAndWeightSexVariableVO(statConclusionList,heightAndWeightSexVO);
         getHeightAndWeightSexMonitorTableList(statConclusionList,heightAndWeightSexVO);
         reportChartService.getSexMonitorChart(statConclusionList,heightAndWeightSexVO);
@@ -86,7 +88,7 @@ public class SchoolHeightAndWeightMonitorService {
     /**
      * 体重身高监测结果-不同性别-说明变量
      */
-    private void getHeightAndWeightSexVariableVO(List<StatConclusion> statConclusionList, SchoolHeightAndWeightMonitorVO.HeightAndWeightSexVO heightAndWeightSexVO) {
+    private void getHeightAndWeightSexVariableVO(List<StatConclusion> statConclusionList, HeightAndWeightSexVO heightAndWeightSexVO) {
         if (CollectionUtil.isEmpty(statConclusionList)){
             return;
         }
@@ -95,7 +97,7 @@ public class SchoolHeightAndWeightMonitorService {
         genderMap.forEach((gender,list)-> getHeightAndWeightNum(gender,list,heightAndWeightSexList));
 
         if (heightAndWeightSexList.size() >= 1){
-            SchoolHeightAndWeightMonitorVO.HeightAndWeightSexVariableVO heightAndWeightSexVariableVO = new SchoolHeightAndWeightMonitorVO.HeightAndWeightSexVariableVO();
+            HeightAndWeightSexVO.HeightAndWeightSexVariableVO heightAndWeightSexVariableVO = new HeightAndWeightSexVO.HeightAndWeightSexVariableVO();
             heightAndWeightSexVariableVO.setOverweightRatioCompare(getRatioCompare(heightAndWeightSexList, HeightAndWeightNum::getOverweightRatio, HeightAndWeightNum::getOverweightRatioStr));
             heightAndWeightSexVariableVO.setObeseRatioCompare(getRatioCompare(heightAndWeightSexList, HeightAndWeightNum::getObeseRatio, HeightAndWeightNum::getObeseRatioStr));
             heightAndWeightSexVariableVO.setStuntingRatioCompare(getRatioCompare(heightAndWeightSexList, HeightAndWeightNum::getStuntingRatio, HeightAndWeightNum::getStuntingRatioStr));
@@ -164,7 +166,7 @@ public class SchoolHeightAndWeightMonitorService {
     /**
      * 体重身高监测结果-不同性别-表格数据
      */
-    private void getHeightAndWeightSexMonitorTableList(List<StatConclusion> statConclusionList, SchoolHeightAndWeightMonitorVO.HeightAndWeightSexVO sexVO) {
+    private void getHeightAndWeightSexMonitorTableList(List<StatConclusion> statConclusionList, HeightAndWeightSexVO sexVO) {
         if (CollectionUtil.isEmpty(statConclusionList)){
             return;
         }
@@ -330,7 +332,7 @@ public class SchoolHeightAndWeightMonitorService {
         if(CollectionUtil.isEmpty(statConclusionList)){
             return;
         }
-        SchoolHeightAndWeightMonitorVO.HeightAndWeightAgeVO ageVO = new SchoolHeightAndWeightMonitorVO.HeightAndWeightAgeVO();
+        HeightAndWeightAgeVO ageVO = new HeightAndWeightAgeVO();
         getHeightAndWeightAgeVariableVO(statConclusionList,ageVO);
         getHeightAndWeightAgeMonitorTableList(statConclusionList,ageVO);
         reportChartService.getAgeMonitorChart(statConclusionList,ageVO);
@@ -342,7 +344,7 @@ public class SchoolHeightAndWeightMonitorService {
     /**
      * 体重身高监测结果-不同年龄段-说明变量
      */
-    private void getHeightAndWeightAgeVariableVO(List<StatConclusion> statConclusionList, SchoolHeightAndWeightMonitorVO.HeightAndWeightAgeVO ageVO) {
+    private void getHeightAndWeightAgeVariableVO(List<StatConclusion> statConclusionList, HeightAndWeightAgeVO ageVO) {
         if (CollectionUtil.isEmpty(statConclusionList)){
             return;
         }
@@ -352,32 +354,21 @@ public class SchoolHeightAndWeightMonitorService {
         ageMap.forEach((age,list)->getHeightAndWeightNum(age,list,heightAndWeightNumMap));
 
         if (heightAndWeightNumMap.size() >= 2){
-            SchoolHeightAndWeightMonitorVO.HeightAndWeightAgeVariableVO ageVariableVO = new SchoolHeightAndWeightMonitorVO.HeightAndWeightAgeVariableVO();
-            ageVariableVO.setOverweightRatio(getAgeRatio(heightAndWeightNumMap, HeightAndWeightNum::getOverweightNum, HeightAndWeightNum::getOverweightRatioStr));
-            ageVariableVO.setObeseRatio(getAgeRatio(heightAndWeightNumMap, HeightAndWeightNum::getObeseNum, HeightAndWeightNum::getObeseRatioStr));
-            ageVariableVO.setStuntingRatio(getAgeRatio(heightAndWeightNumMap, HeightAndWeightNum::getStuntingNum, HeightAndWeightNum::getStuntingRatioStr));
-            ageVariableVO.setMalnourishedRatio(getAgeRatio(heightAndWeightNumMap, HeightAndWeightNum::getMalnourishedNum, HeightAndWeightNum::getMalnourishedRatioStr));
+            HeightAndWeightAgeVO.HeightAndWeightAgeVariableVO ageVariableVO = new HeightAndWeightAgeVO.HeightAndWeightAgeVariableVO();
+            ageVariableVO.setOverweightRatio(ReportUtil.getAgeRatio(heightAndWeightNumMap, HeightAndWeightNum::getOverweightNum, HeightAndWeightNum::getOverweightRatioStr));
+            ageVariableVO.setObeseRatio(ReportUtil.getAgeRatio(heightAndWeightNumMap, HeightAndWeightNum::getObeseNum, HeightAndWeightNum::getObeseRatioStr));
+            ageVariableVO.setStuntingRatio(ReportUtil.getAgeRatio(heightAndWeightNumMap, HeightAndWeightNum::getStuntingNum, HeightAndWeightNum::getStuntingRatioStr));
+            ageVariableVO.setMalnourishedRatio(ReportUtil.getAgeRatio(heightAndWeightNumMap, HeightAndWeightNum::getMalnourishedNum, HeightAndWeightNum::getMalnourishedRatioStr));
             ageVO.setHeightAndWeightAgeVariableVO(ageVariableVO);
         }
 
-    }
-
-    private SchoolHeightAndWeightMonitorVO.AgeRatio getAgeRatio(Map<Integer, HeightAndWeightNum> heightAndWeightNumMap, Function<HeightAndWeightNum,Integer> function,Function<HeightAndWeightNum,String> mapper) {
-        TwoTuple<Integer, String> maxTuple = ReportUtil.getMaxMap(heightAndWeightNumMap, function,mapper);
-        TwoTuple<Integer, String> minTuple = ReportUtil.getMinMap(heightAndWeightNumMap, function,mapper);
-        SchoolHeightAndWeightMonitorVO.AgeRatio ageRatio = new SchoolHeightAndWeightMonitorVO.AgeRatio();
-        ageRatio.setMaxAge(AgeSegmentEnum.get(maxTuple.getFirst()).getDesc());
-        ageRatio.setMinAge(AgeSegmentEnum.get(minTuple.getFirst()).getDesc());
-        ageRatio.setMaxRatio(maxTuple.getSecond());
-        ageRatio.setMinRatio(minTuple.getSecond());
-        return ageRatio;
     }
 
 
     /**
      * 体重身高监测结果-不同年龄段-表格数据
      */
-    private void getHeightAndWeightAgeMonitorTableList(List<StatConclusion> statConclusionList, SchoolHeightAndWeightMonitorVO.HeightAndWeightAgeVO ageVO) {
+    private void getHeightAndWeightAgeMonitorTableList(List<StatConclusion> statConclusionList, HeightAndWeightAgeVO ageVO) {
         if (CollectionUtil.isEmpty(statConclusionList)){
             return;
         }
