@@ -65,64 +65,6 @@ public class SchoolSaprodontiaMonitorVO {
 
     }
 
-    @Data
-    public static class SaprodontiaSexVO{
-        /**
-         * 性别说明
-         */
-        private SaprodontiaSexVariableVO saprodontiaSexVariableVO;
-        /**
-         * 性别表格数据
-         */
-        private List<SaprodontiaMonitorTable> saprodontiaSexMonitorTableList;
-        /**
-         * 性别图表
-         */
-        private SchoolChartVO.Chart saprodontiaSexMonitorChart;
-
-
-    }
-
-    @Data
-    public static class SaprodontiaSexVariableVO{
-        /**
-         * 龋患率对比
-         */
-        private SaprodontiaSex saprodontiaRatioCompare;
-        /**
-         * 龋失率对比
-         */
-        private SaprodontiaSex saprodontiaLossRatioCompare;
-        /**
-         * 龋补率对比
-         */
-        private SaprodontiaSex saprodontiaRepairRatioCompare;
-    }
-
-    @Data
-    public static class SaprodontiaSex{
-        /**
-         * 前：性别
-         */
-        private String forwardSex;
-        /**
-         * 前：占比
-         */
-        private String forwardRatio;
-        /**
-         * 后：性别
-         */
-        private String backSex;
-        /**
-         * 后：占比
-         */
-        private String backRatio;
-        /**
-         * 符号
-         */
-        private String symbol;
-    }
-
 
     @Data
     public static class SaprodontiaGradeVO{
@@ -138,7 +80,7 @@ public class SchoolSaprodontiaMonitorVO {
         /**
          * 年级图表
          */
-        private SchoolChartVO.Chart saprodontiaGradeMonitorChart;
+        private ChartVO.Chart saprodontiaGradeMonitorChart;
 
     }
     @Data
@@ -183,73 +125,4 @@ public class SchoolSaprodontiaMonitorVO {
     }
 
 
-    @Data
-    public static class SaprodontiaAgeVO{
-        /**
-         * 年龄段说明
-         */
-        private SaprodontiaAgeVariableVO saprodontiaAgeVariableVO;
-        /**
-         * 年龄段表格数据
-         */
-        private List<SaprodontiaMonitorTable> saprodontiaAgeMonitorTableList;
-        /**
-         * 年龄段图表
-         */
-        private SchoolChartVO.AgeChart saprodontiaAgeMonitorChart;
-
-    }
-
-    @Data
-    public static class SaprodontiaAgeVariableVO{
-        /**
-         * 龋患率 最高、最低
-         */
-        private AgeRatio saprodontiaRatio;
-        /**
-         * 龋失率 最高、最低
-         */
-        private AgeRatio saprodontiaLossRatio;
-        /**
-         * 龋补率 最高、最低
-         */
-        private AgeRatio saprodontiaRepairRatio;
-
-    }
-
-    @Data
-    public static class AgeRatio{
-        /**
-         * 最高占比年龄段
-         */
-        private String maxAge;
-        /**
-         * 最低占比年龄段
-         */
-        private String minAge;
-        /**
-         * 最高占比
-         */
-        private String maxRatio;
-        /**
-         * 最低占比
-         */
-        private String minRatio;
-    }
-
-    @EqualsAndHashCode(callSuper = true)
-    @Data
-    public static class SaprodontiaMonitorTable extends SchoolCommonDiseasesAnalysisVO.SaprodontiaVO{
-
-        /**
-         * 项目 （性别、学龄段、年龄段）
-         */
-        private String itemName;
-
-        /**
-         * 筛查人数(有效数据)
-         */
-        private Integer validScreeningNum;
-
-    }
 }
