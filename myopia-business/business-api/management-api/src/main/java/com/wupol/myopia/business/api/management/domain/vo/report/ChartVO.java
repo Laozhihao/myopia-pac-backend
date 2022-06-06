@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 /**
- * 地区图表实体
+ * 图表实体
  *
  * @author hang.yuan 2022/6/1 18:47
  */
