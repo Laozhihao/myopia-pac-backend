@@ -98,10 +98,10 @@ public class SchoolHeightAndWeightMonitorService {
 
         if (heightAndWeightSexList.size() >= 1){
             HeightAndWeightSexVO.HeightAndWeightSexVariableVO heightAndWeightSexVariableVO = new HeightAndWeightSexVO.HeightAndWeightSexVariableVO();
-            heightAndWeightSexVariableVO.setOverweightRatioCompare(getRatioCompare(heightAndWeightSexList, HeightAndWeightNum::getOverweightRatio, HeightAndWeightNum::getOverweightRatioStr));
-            heightAndWeightSexVariableVO.setObeseRatioCompare(getRatioCompare(heightAndWeightSexList, HeightAndWeightNum::getObeseRatio, HeightAndWeightNum::getObeseRatioStr));
-            heightAndWeightSexVariableVO.setStuntingRatioCompare(getRatioCompare(heightAndWeightSexList, HeightAndWeightNum::getStuntingRatio, HeightAndWeightNum::getStuntingRatioStr));
-            heightAndWeightSexVariableVO.setMalnourishedRatioCompare(getRatioCompare(heightAndWeightSexList, HeightAndWeightNum::getMalnourishedRatio, HeightAndWeightNum::getMalnourishedRatioStr));
+            heightAndWeightSexVariableVO.setOverweightRatioCompare(ReportUtil.getRatioCompare(heightAndWeightSexList, HeightAndWeightNum::getOverweightRatio, HeightAndWeightNum::getOverweightRatioStr));
+            heightAndWeightSexVariableVO.setObeseRatioCompare(ReportUtil.getRatioCompare(heightAndWeightSexList, HeightAndWeightNum::getObeseRatio, HeightAndWeightNum::getObeseRatioStr));
+            heightAndWeightSexVariableVO.setStuntingRatioCompare(ReportUtil.getRatioCompare(heightAndWeightSexList, HeightAndWeightNum::getStuntingRatio, HeightAndWeightNum::getStuntingRatioStr));
+            heightAndWeightSexVariableVO.setMalnourishedRatioCompare(ReportUtil.getRatioCompare(heightAndWeightSexList, HeightAndWeightNum::getMalnourishedRatio, HeightAndWeightNum::getMalnourishedRatioStr));
             heightAndWeightSexVO.setHeightAndWeightSexVariableVO(heightAndWeightSexVariableVO);
         }
 
@@ -117,49 +117,6 @@ public class SchoolHeightAndWeightMonitorService {
         HeightAndWeightNum build = new HeightAndWeightNum()
                 .build(statConclusionList).ratioNotSymbol().ratio();
         heightAndWeightNumMap.put(key,build);
-    }
-
-
-    private SexCompare getRatioCompare(List<HeightAndWeightNum> heightAndWeightNumList, Function<HeightAndWeightNum,BigDecimal> function,Function<HeightAndWeightNum,String> mapper) {
-        if (CollectionUtil.isEmpty(heightAndWeightNumList)){
-            return null;
-        }
-        CollectionUtil.sort(heightAndWeightNumList, Comparator.comparing(function).reversed());
-        SexCompare sex = new SexCompare();
-        if (heightAndWeightNumList.size() == 1){
-            HeightAndWeightNum num = heightAndWeightNumList.get(0);
-            if (Objects.equals(GenderEnum.MALE.type,num.getGender())){
-                setSexCompare(num,null, mapper, sex,GenderEnum.FEMALE.desc,ReportConst.ZERO_RATIO_STR);
-            }else {
-                setSexCompare(num,null, mapper, sex,GenderEnum.MALE.desc,ReportConst.ZERO_RATIO_STR);
-            }
-        }
-        if (heightAndWeightNumList.size() == 2){
-            HeightAndWeightNum forward = heightAndWeightNumList.get(0);
-            HeightAndWeightNum back = heightAndWeightNumList.get(1);
-            setSexCompare(forward,back, mapper, sex,null,null);
-        }
-        return sex;
-    }
-
-    private void setSexCompare(HeightAndWeightNum forward,HeightAndWeightNum back, Function<HeightAndWeightNum, String> mapper,
-                               SexCompare sex,
-                               String backSex,String zeroRatio) {
-
-        String forwardRatio = mapper.apply(forward);
-        sex.setForwardSex(GenderEnum.getName(forward.getGender()));
-        sex.setForwardRatio(forwardRatio);
-
-        if (Objects.nonNull(back)){
-            String backRatio = mapper.apply(back);
-            sex.setBackSex(GenderEnum.getName(back.getGender()));
-            sex.setBackRatio(backRatio);
-            ReportUtil.setSymbol(sex,forwardRatio,backRatio);
-        }else {
-            sex.setBackSex(backSex);
-            sex.setBackRatio(zeroRatio);
-            ReportUtil.setSymbol(sex,forwardRatio,zeroRatio);
-        }
     }
 
 

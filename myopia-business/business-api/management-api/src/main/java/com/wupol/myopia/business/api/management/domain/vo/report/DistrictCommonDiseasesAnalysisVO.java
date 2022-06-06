@@ -181,37 +181,8 @@ public class DistrictCommonDiseasesAnalysisVO {
     }
 
 
-    @EqualsAndHashCode(callSuper = true)
-    @Data
-    public static class BloodPressureAndSpinalCurvatureVO extends BloodPressureAndSpinalCurvatureRatioVO{
-        /**
-         * 血压偏高人数
-         */
-        private Integer highBloodPressureNum;
 
-        /**
-         * 脊柱弯曲异常人数
-         */
-        private Integer abnormalSpineCurvatureNum;
 
-    }
-
-    @Data
-    public static class BloodPressureAndSpinalCurvatureRatioVO{
-
-        /**
-         * 血压偏高率
-         */
-        @JsonFormat(shape = JsonFormat.Shape.STRING)
-        private BigDecimal highBloodPressureRatio;
-
-        /**
-         * 脊柱弯曲异常率
-         */
-        @JsonFormat(shape = JsonFormat.Shape.STRING)
-        private BigDecimal abnormalSpineCurvatureRatio;
-
-    }
 
     @Data
     public static class BloodPressureAndSpinalCurvatureRatioStrVO{

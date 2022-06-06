@@ -24,7 +24,7 @@ import java.util.function.ToIntFunction;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class SaprodontiaNum extends EntityFunction {
+public class SaprodontiaNum extends EntityFunction implements Num {
 
     /**
      * 筛查人数

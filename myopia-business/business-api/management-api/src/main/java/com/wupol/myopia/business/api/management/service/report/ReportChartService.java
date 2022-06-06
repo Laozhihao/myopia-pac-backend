@@ -30,7 +30,8 @@ public class ReportChartService {
         }
 
         ChartVO.Chart chart = new ChartVO.Chart();
-        List<String> x = Lists.newArrayList(ReportConst.SAPRODONTIA,ReportConst.SAPRODONTIA_LOSS,ReportConst.SAPRODONTIA_REPAIR);
+        List<String> x = Lists.newArrayList();
+        getSexX(sexChartVO,x);
         List<ChartVO.ChartData> y = Lists.newArrayList(
                 new ChartVO.ChartData(GenderEnum.MALE.desc,Lists.newArrayList()),
                 new ChartVO.ChartData(GenderEnum.FEMALE.desc,Lists.newArrayList())
@@ -54,7 +55,6 @@ public class ReportChartService {
                 break;
         }
 
-
         chart.setX(x);
         chart.setY(y);
         switch (sexChartVO.type()){
@@ -74,14 +74,14 @@ public class ReportChartService {
     }
 
     private void getSaprodontiaChartData(List<StatConclusion> statConclusionList,List<ChartVO.ChartData> y,Integer index) {
-        SaprodontiaNum num = new SaprodontiaNum().build(statConclusionList).ratioNotSymbol().ratio();
+        SaprodontiaNum num = new SaprodontiaNum().build(statConclusionList).ratioNotSymbol();
         y.get(index).getData().add(num.getSaprodontiaRatio());
         y.get(index).getData().add(num.getSaprodontiaLossRatio());
         y.get(index).getData().add(num.getSaprodontiaRepairRatio());
     }
 
     private void getHeightAndWeightChartData(List<StatConclusion> statConclusionList, List<ChartVO.ChartData> y, Integer index) {
-        HeightAndWeightNum num = new HeightAndWeightNum().build(statConclusionList).ratioNotSymbol().ratio();
+        HeightAndWeightNum num = new HeightAndWeightNum().build(statConclusionList).ratioNotSymbol();
         y.get(index).getData().add(num.getOverweightRatio());
         y.get(index).getData().add(num.getObeseRatio());
         y.get(index).getData().add(num.getMalnourishedRatio());
@@ -89,9 +89,9 @@ public class ReportChartService {
     }
 
     private void getBloodPressureAndSpinalCurvatureChartData(List<StatConclusion> statConclusionList,List<ChartVO.ChartData> y,Integer index) {
-//        BloodPressureAndSpinalCurvatureNum num = new BloodPressureAndSpinalCurvatureNum().build(statConclusionList).ratioNotSymbol().ratio();
-//        y.get(index).getData().add(num.highBloodPressureRatio);
-//        y.get(index).getData().add(num.abnormalSpineCurvatureRatio);
+        BloodPressureAndSpinalCurvatureNum num = new BloodPressureAndSpinalCurvatureNum().build(statConclusionList).ratioNotSymbol();
+        y.get(index).getData().add(num.getHighBloodPressureRatio());
+        y.get(index).getData().add(num.getAbnormalSpineCurvatureRatio());
     }
 
 
@@ -107,31 +107,80 @@ public class ReportChartService {
         List<Integer> dynamicAgeSegmentList = ReportUtil.dynamicAgeSegment(statConclusionList);
 
         List<String> y = Lists.newArrayList();
-        List<ChartVO.AgeData> x = Lists.newArrayList(
-                new ChartVO.AgeData(ReportConst.SAPRODONTIA,Lists.newArrayList()),
-                new ChartVO.AgeData(ReportConst.SAPRODONTIA_LOSS,Lists.newArrayList()),
-                new ChartVO.AgeData(ReportConst.SAPRODONTIA_REPAIR,Lists.newArrayList())
-        );
+        List<ChartVO.AgeData> x = Lists.newArrayList();
+        getAgeX(ageChartVO,x);
 
         dynamicAgeSegmentList.forEach(age-> {
             y.add(AgeSegmentEnum.get(age).getDesc());
-            switch (ageChartVO.type()){
-                case 1:
-                    getSaprodontiaAgeData(x,ageMap.get(age));
-                    break;
-                case 2:
-                    getHeightAndWeightAgeData(x,ageMap.get(age));
-                    break;
-                case 3:
-                    getBloodPressureAndSpinalCurvatureAgeData(x,ageMap.get(age));
-                    break;
-                default:
-                    break;
-            }
-
+            setAgeData(ageChartVO,x,ageMap.get(age));
         });
         ageChart.setY(y);
         ageChart.setX(x);
+        setAgeChartVO(ageChartVO,ageChart);
+    }
+
+    private void getSexX(SexChartVO sexChartVO,List<String> x){
+        switch (sexChartVO.type()) {
+            case 1:
+                x.addAll(Lists.newArrayList(ReportConst.SAPRODONTIA,ReportConst.SAPRODONTIA_LOSS,ReportConst.SAPRODONTIA_REPAIR));
+                break;
+            case 2:
+                x.addAll(Lists.newArrayList(ReportConst.OVERWEIGHT,ReportConst.OBESE,ReportConst.MALNOURISHED,ReportConst.STUNTING));
+                break;
+            case 3:
+                x.addAll(Lists.newArrayList(ReportConst.HIGH_BLOOD_PRESSURE,ReportConst.ABNORMAL_SPINE_CURVATURE));
+                break;
+            default:
+                break;
+        }
+
+    }
+    private void getAgeX(AgeChartVO ageChartVO,List<ChartVO.AgeData> x){
+
+        switch (ageChartVO.type()){
+            case 1:
+                x.addAll(Lists.newArrayList(
+                        new ChartVO.AgeData(ReportConst.SAPRODONTIA,Lists.newArrayList()),
+                        new ChartVO.AgeData(ReportConst.SAPRODONTIA_LOSS,Lists.newArrayList()),
+                        new ChartVO.AgeData(ReportConst.SAPRODONTIA_REPAIR,Lists.newArrayList())
+                ));
+                break;
+            case 2:
+                x.addAll(Lists.newArrayList(
+                        new ChartVO.AgeData(ReportConst.OVERWEIGHT,Lists.newArrayList()),
+                        new ChartVO.AgeData(ReportConst.OBESE,Lists.newArrayList()),
+                        new ChartVO.AgeData(ReportConst.MALNOURISHED,Lists.newArrayList()),
+                        new ChartVO.AgeData(ReportConst.STUNTING,Lists.newArrayList())
+                ));
+                break;
+            case 3:
+                x.addAll( Lists.newArrayList(
+                        new ChartVO.AgeData(ReportConst.HIGH_BLOOD_PRESSURE,Lists.newArrayList()),
+                        new ChartVO.AgeData(ReportConst.ABNORMAL_SPINE_CURVATURE,Lists.newArrayList())
+                ));
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void setAgeData(AgeChartVO ageChartVO,List<ChartVO.AgeData> x,List<StatConclusion> statConclusionList){
+        switch (ageChartVO.type()){
+            case 1:
+                getSaprodontiaAgeData(x,statConclusionList);
+                break;
+            case 2:
+                getHeightAndWeightAgeData(x,statConclusionList);
+                break;
+            case 3:
+                getBloodPressureAndSpinalCurvatureAgeData(x,statConclusionList);
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void setAgeChartVO(AgeChartVO ageChartVO,ChartVO.AgeChart ageChart){
         switch (ageChartVO.type()){
             case 1:
                 ageChartVO.setSaprodontiaAgeMonitorChart(ageChart);
@@ -145,7 +194,6 @@ public class ReportChartService {
             default:
                 break;
         }
-
     }
 
     private void getSaprodontiaAgeData(List<ChartVO.AgeData> data, List<StatConclusion> statConclusionList){
@@ -164,9 +212,9 @@ public class ReportChartService {
     }
 
     private void getBloodPressureAndSpinalCurvatureAgeData(List<ChartVO.AgeData> data, List<StatConclusion> statConclusionList){
-//        BloodPressureAndSpinalCurvatureNum num = new BloodPressureAndSpinalCurvatureNum().build(statConclusionList).ratioNotSymbol();
-//        data.get(0).getData().add(num.highBloodPressureRatio);
-//        data.get(1).getData().add(num.abnormalSpineCurvatureRatio);
+        BloodPressureAndSpinalCurvatureNum num = new BloodPressureAndSpinalCurvatureNum().build(statConclusionList).ratioNotSymbol();
+        data.get(0).getData().add(num.getHighBloodPressureRatio());
+        data.get(1).getData().add(num.getAbnormalSpineCurvatureRatio());
     }
 
 

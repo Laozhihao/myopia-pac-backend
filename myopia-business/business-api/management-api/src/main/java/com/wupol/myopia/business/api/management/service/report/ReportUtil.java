@@ -3,9 +3,9 @@ package com.wupol.myopia.business.api.management.service.report;
 import cn.hutool.core.collection.CollectionUtil;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.business.api.management.constant.AgeSegmentEnum;
-import com.wupol.myopia.business.api.management.domain.vo.report.AgeRatioVO;
-import com.wupol.myopia.business.api.management.domain.vo.report.SaprodontiaNum;
-import com.wupol.myopia.business.api.management.domain.vo.report.SexCompare;
+import com.wupol.myopia.business.api.management.constant.ReportConst;
+import com.wupol.myopia.business.api.management.domain.vo.report.*;
+import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import lombok.experimental.UtilityClass;
@@ -115,16 +115,59 @@ public class ReportUtil {
         return ageRatio;
     }
 
-
-    public static BigDecimal getRatioNotSymbol(String ratio){
-        return new BigDecimal(ratio.substring(0,ratio.length()-1));
+    public <T extends Num> SexCompare getRatioCompare(List<T> sexList, Function<T,BigDecimal> function, Function<T,String> mapper) {
+        if (CollectionUtil.isEmpty(sexList)){
+            return null;
+        }
+        CollectionUtil.sort(sexList, Comparator.comparing(function).reversed());
+        SexCompare sex = new SexCompare();
+        if (sexList.size() == 1){
+            T num = sexList.get(0);
+            if (Objects.equals(GenderEnum.MALE.type,num.getGender())){
+                setSexCompare(num,null, mapper, sex,GenderEnum.FEMALE.desc, ReportConst.ZERO_RATIO_STR);
+            }else {
+                setSexCompare(num,null, mapper, sex,GenderEnum.MALE.desc,ReportConst.ZERO_RATIO_STR);
+            }
+        }
+        if (sexList.size() == 2){
+            T forward = sexList.get(0);
+            T back = sexList.get(1);
+            setSexCompare(forward,back, mapper, sex,null,null);
+        }
+        return sex;
     }
 
-    public void setSymbol(SexCompare sex, String forward, String back) {
+    private <T extends Num>void setSexCompare(T forward, T back, Function<T, String> mapper,
+                               SexCompare sex,
+                               String backSex, String zeroRatio) {
+
+        String forwardRatio = mapper.apply(forward);
+        sex.setForwardSex(GenderEnum.getName(forward.getGender()));
+        sex.setForwardRatio(forwardRatio);
+
+        if (Objects.nonNull(back)){
+            String backRatio = mapper.apply(back);
+            sex.setBackSex(GenderEnum.getName(back.getGender()));
+            sex.setBackRatio(backRatio);
+            setSymbol(sex,forwardRatio,backRatio);
+        }else {
+            sex.setBackSex(backSex);
+            sex.setBackRatio(zeroRatio);
+            setSymbol(sex,forwardRatio,zeroRatio);
+        }
+    }
+    private void setSymbol(SexCompare sex, String forward, String back) {
         if (Objects.equals(forward, back)){
             sex.setSymbol("=");
         }else {
             sex.setSymbol(">");
         }
     }
+
+
+    public static BigDecimal getRatioNotSymbol(String ratio){
+        return new BigDecimal(ratio.substring(0,ratio.length()-1));
+    }
+
+
 }

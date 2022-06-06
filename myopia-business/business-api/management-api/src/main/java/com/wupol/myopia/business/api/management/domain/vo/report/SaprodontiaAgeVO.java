@@ -21,7 +21,7 @@ public class SaprodontiaAgeVO implements AgeChartVO {
 
     @Override
     public Integer type() {
-        return 2;
+        return 1;
     }
 
 

@@ -14,7 +14,7 @@ import java.util.Map;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class HeightAndWeightNum extends EntityFunction {
+public class HeightAndWeightNum extends EntityFunction implements Num {
 
     /**
      * 筛查人数

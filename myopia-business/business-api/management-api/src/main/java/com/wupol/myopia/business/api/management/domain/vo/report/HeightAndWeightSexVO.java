@@ -17,7 +17,7 @@ public class HeightAndWeightSexVO implements SexChartVO {
     /**
      * 性别图表
      */
-    private DistrictChartVO.Chart heightAndWeightSexMonitorChart;
+    private ChartVO.Chart heightAndWeightSexMonitorChart;
 
     @Override
     public Integer type() {

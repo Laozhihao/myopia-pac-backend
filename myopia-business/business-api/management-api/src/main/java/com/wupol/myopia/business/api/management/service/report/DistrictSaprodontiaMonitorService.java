@@ -96,9 +96,9 @@ public class DistrictSaprodontiaMonitorService {
 
         if (saprodontiaSexList.size() >= 1){
             SaprodontiaSexVO.SaprodontiaSexVariableVO saprodontiaSexVariableVO = new SaprodontiaSexVO.SaprodontiaSexVariableVO();
-            saprodontiaSexVariableVO.setSaprodontiaRatioCompare(getRatioCompare(saprodontiaSexList, SaprodontiaNum::getSaprodontiaRatio,SaprodontiaNum::getSaprodontiaRatioStr));
-            saprodontiaSexVariableVO.setSaprodontiaLossRatioCompare(getRatioCompare(saprodontiaSexList, SaprodontiaNum::getSaprodontiaLossRatio,SaprodontiaNum::getSaprodontiaLossRatioStr));
-            saprodontiaSexVariableVO.setSaprodontiaRepairRatioCompare(getRatioCompare(saprodontiaSexList, SaprodontiaNum::getSaprodontiaRepairRatio,SaprodontiaNum::getSaprodontiaRepairRatioStr));
+            saprodontiaSexVariableVO.setSaprodontiaRatioCompare(ReportUtil.getRatioCompare(saprodontiaSexList, SaprodontiaNum::getSaprodontiaRatio,SaprodontiaNum::getSaprodontiaRatioStr));
+            saprodontiaSexVariableVO.setSaprodontiaLossRatioCompare(ReportUtil.getRatioCompare(saprodontiaSexList, SaprodontiaNum::getSaprodontiaLossRatio,SaprodontiaNum::getSaprodontiaLossRatioStr));
+            saprodontiaSexVariableVO.setSaprodontiaRepairRatioCompare(ReportUtil.getRatioCompare(saprodontiaSexList, SaprodontiaNum::getSaprodontiaRepairRatio,SaprodontiaNum::getSaprodontiaRepairRatioStr));
             saprodontiaSexVO.setSaprodontiaSexVariableVO(saprodontiaSexVariableVO);
         }
     }
@@ -114,46 +114,6 @@ public class DistrictSaprodontiaMonitorService {
         SaprodontiaNum build = new SaprodontiaNum()
                 .build(statConclusionList).ratioNotSymbol().ratio();
         saprodontiaNumMap.put(key,build);
-    }
-
-    private SexCompare getRatioCompare(List<SaprodontiaNum> saprodontiaSexList, Function<SaprodontiaNum,BigDecimal> function, Function<SaprodontiaNum,String> mapper) {
-        if (CollectionUtil.isEmpty(saprodontiaSexList)){
-            return null;
-        }
-        CollectionUtil.sort(saprodontiaSexList, Comparator.comparing(function).reversed());
-        SexCompare sex = new SexCompare();
-        if (saprodontiaSexList.size() == 1){
-            SaprodontiaNum num = saprodontiaSexList.get(0);
-            if (Objects.equals(GenderEnum.MALE.type,num.getGender())){
-                setSexCompare(num,null, mapper, sex,GenderEnum.FEMALE.desc,ReportConst.ZERO_RATIO_STR);
-            }else {
-                setSexCompare(num,null, mapper, sex,GenderEnum.MALE.desc,ReportConst.ZERO_RATIO_STR);
-            }
-        }
-        if (saprodontiaSexList.size() == 2){
-            SaprodontiaNum forward = saprodontiaSexList.get(0);
-            SaprodontiaNum back = saprodontiaSexList.get(1);
-            setSexCompare(forward,back, mapper, sex,null,null);
-        }
-        return sex;
-    }
-    private void setSexCompare(SaprodontiaNum forward, SaprodontiaNum back, Function<SaprodontiaNum, String> mapper,
-                               SexCompare sex,String backSex, String zeroRatio) {
-
-        String forwardRatio = mapper.apply(forward);
-        sex.setForwardSex(GenderEnum.getName(forward.getGender()));
-        sex.setForwardRatio(forwardRatio);
-
-        if (Objects.nonNull(back)){
-            String backRatio = mapper.apply(back);
-            sex.setBackSex(GenderEnum.getName(back.getGender()));
-            sex.setBackRatio(backRatio);
-            ReportUtil.setSymbol(sex,forwardRatio,backRatio);
-        }else {
-            sex.setBackSex(backSex);
-            sex.setBackRatio(zeroRatio);
-            ReportUtil.setSymbol(sex,forwardRatio,zeroRatio);
-        }
     }
 
 
