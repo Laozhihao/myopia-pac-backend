@@ -17,7 +17,7 @@ import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
 
 /**
- * 龋齿统计
+ * 龋齿监测统计
  *
  * @author hang.yuan
  * @date 2022/6/2

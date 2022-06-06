@@ -18,16 +18,16 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorVO {
     private BloodPressureAndSpinalCurvatureMonitorVariableVO bloodPressureAndSpinalCurvatureMonitorVariableVO;
 
     /**
-     * 龋齿监测 - 不同性别
+     * 血压与脊柱弯曲异常监测 - 不同性别
      */
     private BloodPressureAndSpinalCurvatureSexVO bloodPressureAndSpinalCurvatureSexVO;
 
     /**
-     * 龋齿监测 - 不同学龄段
+     * 血压与脊柱弯曲异常监测 - 不同年级
      */
     private BloodPressureAndSpinalCurvatureGradeVO bloodPressureAndSpinalCurvatureGradeVO;
     /**
-     * 龋齿监测 - 不同年龄
+     * 血压与脊柱弯曲异常监测 - 不同年龄段
      */
     private BloodPressureAndSpinalCurvatureAgeVO bloodPressureAndSpinalCurvatureAgeVO;
 

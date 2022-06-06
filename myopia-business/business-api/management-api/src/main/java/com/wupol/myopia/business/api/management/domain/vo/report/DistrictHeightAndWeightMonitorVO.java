@@ -20,16 +20,16 @@ public class DistrictHeightAndWeightMonitorVO {
     private HeightAndWeightMonitorVariableVO heightAndWeightMonitorVariableVO;
 
     /**
-     * 龋齿监测 - 不同性别
+     * 身高体重监测 - 不同性别
      */
     private HeightAndWeightSexVO heightAndWeightSexVO;
 
     /**
-     * 龋齿监测 - 不同学龄段
+     * 身高体重监测 - 不同学龄段
      */
     private HeightAndWeightSchoolAgeVO heightAndWeightSchoolAgeVO;
     /**
-     * 龋齿监测 - 不同年龄
+     * 身高体重监测 - 不同年龄
      */
     private HeightAndWeightAgeVO heightAndWeightAgeVO;
 

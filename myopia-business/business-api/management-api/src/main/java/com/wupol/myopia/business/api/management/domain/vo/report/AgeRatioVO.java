@@ -2,6 +2,12 @@ package com.wupol.myopia.business.api.management.domain.vo.report;
 
 import lombok.Data;
 
+/**
+ * 年龄段占比
+ *
+ * @author hang.yuan
+ * @date 2022/6/6
+ */
 @Data
 public class AgeRatioVO {
     /**

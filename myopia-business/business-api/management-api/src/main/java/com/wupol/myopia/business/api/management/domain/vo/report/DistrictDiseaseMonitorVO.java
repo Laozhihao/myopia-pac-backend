@@ -171,18 +171,6 @@ public class DistrictDiseaseMonitorVO {
         @JsonFormat(shape = JsonFormat.Shape.STRING)
         private BigDecimal physicalDisabilityRatio;
 
-
     }
 
-    @Data
-    public static class Ratio{
-        /**
-         * 人数
-         */
-        private Integer num;
-        /**
-         * 占比
-         */
-        private String ratio;
-    }
 }

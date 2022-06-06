@@ -4,6 +4,11 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 
+/**
+ * 学校占比极值对比
+ * @author hang.yuan
+ * @date 2022/6/6
+ */
 @Data
 public class SchoolRatioExtremum {
     /**

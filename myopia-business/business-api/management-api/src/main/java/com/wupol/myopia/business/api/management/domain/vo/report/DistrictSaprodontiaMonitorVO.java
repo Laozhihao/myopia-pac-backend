@@ -29,7 +29,7 @@ public class DistrictSaprodontiaMonitorVO {
      */
     private SaprodontiaSchoolAgeVO saprodontiaSchoolAgeVO;
     /**
-     * 龋齿监测 - 不同年龄
+     * 龋齿监测 - 不同年龄段
      */
     private SaprodontiaAgeVO saprodontiaAgeVO;
 

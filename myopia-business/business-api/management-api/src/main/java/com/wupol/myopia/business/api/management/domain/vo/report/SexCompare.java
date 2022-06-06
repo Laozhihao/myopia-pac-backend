@@ -2,7 +2,7 @@ package com.wupol.myopia.business.api.management.domain.vo.report;
 
 import lombok.Data;
 /**
- * 龋齿-不同性别
+ * 龋齿监测不同性别占比对比
  * @author hang.yuan
  * @date 2022/6/2
  */

@@ -11,6 +11,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * 龋齿监测统计
+ * @author hang.yuan
+ * @date 2022/6/6
+ */
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class ScreeningNum extends EntityFunction {

@@ -12,6 +12,12 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 身高体重监测统计
+ *
+ * @author hang.yuan
+ * @date 2022/6/6
+ */
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class HeightAndWeightNum extends EntityFunction implements Num {

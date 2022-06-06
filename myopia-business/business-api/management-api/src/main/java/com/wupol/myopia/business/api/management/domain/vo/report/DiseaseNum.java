@@ -15,6 +15,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
+/**
+ * 疾病统计
+ *
+ * @author hang.yuan
+ * @date 2022/6/6
+ */
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class DiseaseNum extends EntityFunction {

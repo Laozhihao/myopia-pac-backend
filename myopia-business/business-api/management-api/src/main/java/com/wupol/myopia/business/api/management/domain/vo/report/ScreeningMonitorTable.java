@@ -5,6 +5,11 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 
+/**
+ * 筛查情况（学校/班级）-表格数据
+ * @author hang.yuan
+ * @date 2022/6/6
+ */
 @Data
 public class ScreeningMonitorTable {
 

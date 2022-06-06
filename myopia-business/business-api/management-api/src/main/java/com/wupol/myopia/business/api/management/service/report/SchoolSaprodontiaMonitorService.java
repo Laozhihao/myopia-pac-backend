@@ -58,19 +58,13 @@ public class SchoolSaprodontiaMonitorService {
         if (CollectionUtil.isEmpty(statConclusionList)){
             return;
         }
-        SaprodontiaNum saprodontiaNum = new SaprodontiaNum().build(statConclusionList).ratioNotSymbol().ratio();
-        SchoolSaprodontiaMonitorVO.SaprodontiaMonitorVariableVO saprodontiaMonitorVariableVO = buildSaprodontiaMonitorVariableVO(saprodontiaNum);
+        SaprodontiaMonitorVariableVO saprodontiaMonitorVariableVO = new SaprodontiaNum()
+                .build(statConclusionList)
+                .ratio()
+                .buildSaprodontiaMonitorVariableVO();
         schoolSaprodontiaMonitorVO.setSaprodontiaMonitorVariableVO(saprodontiaMonitorVariableVO);
     }
-    private SchoolSaprodontiaMonitorVO.SaprodontiaMonitorVariableVO buildSaprodontiaMonitorVariableVO(SaprodontiaNum saprodontiaNum){
-        SchoolSaprodontiaMonitorVO.SaprodontiaMonitorVariableVO saprodontiaMonitorVariableVO = new SchoolSaprodontiaMonitorVO.SaprodontiaMonitorVariableVO();
-        saprodontiaMonitorVariableVO.setDmftRatio(saprodontiaNum.getDmftRatio());
-        saprodontiaMonitorVariableVO.setSaprodontiaRatio(saprodontiaNum.getSaprodontiaRatioStr());
-        saprodontiaMonitorVariableVO.setSaprodontiaRepairRatio(saprodontiaNum.getSaprodontiaRepairRatioStr());
-        saprodontiaMonitorVariableVO.setSaprodontiaLossAndRepairRatio(saprodontiaNum.getSaprodontiaLossAndRepairRatioStr());
-        saprodontiaMonitorVariableVO.setSaprodontiaLossAndRepairTeethRatio(saprodontiaNum.getSaprodontiaLossAndRepairTeethRatioStr());
-        return saprodontiaMonitorVariableVO;
-    }
+
 
     /**
      * 龋齿监测结果-不同性别

@@ -4,6 +4,12 @@ import lombok.Data;
 
 import java.util.List;
 
+/**
+ * 血压与脊柱弯曲异常监测 - 不同年龄段
+ *
+ * @author hang.yuan
+ * @date 2022/6/6
+ */
 @Data
 public class BloodPressureAndSpinalCurvatureAgeVO implements AgeChartVO {
     /**

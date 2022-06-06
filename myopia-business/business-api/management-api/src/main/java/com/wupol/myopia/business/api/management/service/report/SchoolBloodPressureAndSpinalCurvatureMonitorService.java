@@ -61,7 +61,10 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
         if (CollectionUtil.isEmpty(statConclusionList)){
             return;
         }
-        BloodPressureAndSpinalCurvatureMonitorVariableVO variableVO = new BloodPressureAndSpinalCurvatureNum().build(statConclusionList).ratio().buildBloodPressureAndSpinalCurvatureMonitorVariableVO();
+        BloodPressureAndSpinalCurvatureMonitorVariableVO variableVO = new BloodPressureAndSpinalCurvatureNum()
+                .build(statConclusionList)
+                .ratio()
+                .buildBloodPressureAndSpinalCurvatureMonitorVariableVO();
         schoolBloodPressureAndSpinalCurvatureMonitorVO.setBloodPressureAndSpinalCurvatureMonitorVariableVO(variableVO);
     }
 

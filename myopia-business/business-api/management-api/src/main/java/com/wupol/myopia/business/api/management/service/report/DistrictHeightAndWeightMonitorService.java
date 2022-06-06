@@ -466,16 +466,13 @@ public class DistrictHeightAndWeightMonitorService {
 
         Map<Integer, List<StatConclusion>> ageMap = statConclusionList.stream().collect(Collectors.groupingBy(sc -> ReportUtil.getLessAge(sc.getAge()),TreeMap::new,Collectors.toList()));
         List<HeightAndWeightMonitorTable> tableList = Lists.newArrayList();
-        ageMap.forEach((age,list)->getHeightAndWeightAgeTable(age,list,tableList));
+        List<Integer> dynamicAgeSegment = ReportUtil.dynamicAgeSegment(statConclusionList);
+        dynamicAgeSegment.forEach(age->getHeightAndWeightAgeTable(age,ageMap.get(age),tableList));
         getHeightAndWeightAgeTable(1000,statConclusionList,tableList);
         ageVO.setHeightAndWeightAgeMonitorTableList(tableList);
     }
 
     private void getHeightAndWeightAgeTable(Integer age, List<StatConclusion> conclusionlist, List<HeightAndWeightMonitorTable> tableList) {
-        if (CollectionUtil.isEmpty(conclusionlist)){
-            return;
-        }
-
         String itemName;
         if (age == 1000){
             itemName = "合计";

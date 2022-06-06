@@ -13,6 +13,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * 血压与脊柱弯曲异常监测统计实体
+ * @author hang.yuan
+ * @date 2022/6/6
+ */
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class BloodPressureAndSpinalCurvatureNum extends EntityFunction implements Num {

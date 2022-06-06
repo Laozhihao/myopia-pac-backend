@@ -19,16 +19,16 @@ public class SchoolHeightAndWeightMonitorVO {
     private HeightAndWeightMonitorVariableVO heightAndWeightMonitorVariableVO;
 
     /**
-     * 龋齿监测 - 不同性别
+     * 身高体重监测 - 不同性别
      */
     private HeightAndWeightSexVO heightAndWeightSexVO;
 
     /**
-     * 龋齿监测 - 不同学龄段
+     * 身高体重监测 - 不同年级
      */
     private HeightAndWeightGradeVO heightAndWeightGradeVO;
     /**
-     * 龋齿监测 - 不同年龄
+     * 身高体重监测 - 不同年龄段
      */
     private HeightAndWeightAgeVO heightAndWeightAgeVO;
 

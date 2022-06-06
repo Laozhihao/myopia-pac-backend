@@ -458,10 +458,6 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorService {
     }
 
     private void getBloodPressureAndSpinalCurvatureAgeTable(Integer age, List<StatConclusion> conclusionlist, List<BloodPressureAndSpinalCurvatureMonitorTable> tableList) {
-        if (CollectionUtil.isEmpty(conclusionlist)){
-            return;
-        }
-
         String itemName;
         if (age == 1000){
             itemName = "合计";

@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * 龋齿监测结果实体
+ * 龋齿监测结果
  *
  * @author hang.yuan 2022/5/16 17:10
  */
@@ -31,37 +31,6 @@ public class SchoolSaprodontiaMonitorVO {
      */
     private SaprodontiaAgeVO saprodontiaAgeVO;
 
-
-
-    @Data
-    public static class SaprodontiaMonitorVariableVO {
-        /**
-         * 龋均
-         */
-        private String dmftRatio;
-
-        /**
-         * 龋患率
-         */
-        private String saprodontiaRatio;
-
-        /**
-         * 龋补率
-         */
-        private String saprodontiaRepairRatio;
-        /**
-         * 龋患（失、补）率
-         */
-        private String saprodontiaLossAndRepairRatio;
-
-        /**
-         * 龋患（失、补）构成比
-         */
-        private String saprodontiaLossAndRepairTeethRatio;
-
-
-
-    }
 
 
     @Data

@@ -5,6 +5,11 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 
+/**
+ * 龋齿监测占比
+ * @author hang.yuan
+ * @date 2022/6/6
+ */
 @Data
 public class SaprodontiaRatioVO {
     /**

@@ -4,6 +4,12 @@ import lombok.Data;
 
 import java.util.List;
 
+/**
+ * 身高体重监测-不同性别
+ *
+ * @author hang.yuan
+ * @date 2022/6/6
+ */
 @Data
 public class HeightAndWeightSexVO implements SexChartVO {
     /**

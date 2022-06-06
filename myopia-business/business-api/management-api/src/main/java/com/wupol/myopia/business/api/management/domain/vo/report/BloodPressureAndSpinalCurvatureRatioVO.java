@@ -5,6 +5,12 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 
+/**
+ * 血压与脊柱弯曲异常占比
+ *
+ * @author hang.yuan
+ * @date 2022/6/6
+ */
 @Data
 public class BloodPressureAndSpinalCurvatureRatioVO {
 

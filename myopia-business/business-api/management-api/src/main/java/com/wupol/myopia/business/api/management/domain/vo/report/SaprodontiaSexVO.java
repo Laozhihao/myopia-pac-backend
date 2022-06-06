@@ -4,6 +4,12 @@ import lombok.Data;
 
 import java.util.List;
 
+/**
+ * 龋齿监测-不同性别
+ *
+ * @author hang.yuan
+ * @date 2022/6/6
+ */
 @Data
 public class SaprodontiaSexVO implements SexChartVO {
     /**

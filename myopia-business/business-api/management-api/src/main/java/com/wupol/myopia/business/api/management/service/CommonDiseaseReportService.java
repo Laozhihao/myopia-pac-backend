@@ -22,11 +22,11 @@ public class CommonDiseaseReportService {
     @Autowired
     private SchoolCommonDiseaseReportService schoolCommonDiseaseReportService;
 
-    public Callable<DistrictCommonDiseaseReportVO> districtCommonDiseaseReport(Integer districtId, Integer noticeId){
-        return () -> districtCommonDiseaseReportService.districtCommonDiseaseReport(districtId,noticeId);
+    public DistrictCommonDiseaseReportVO districtCommonDiseaseReport(Integer districtId, Integer noticeId){
+        return districtCommonDiseaseReportService.districtCommonDiseaseReport(districtId,noticeId);
     }
 
-    public Callable<SchoolCommonDiseaseReportVO> schoolCommonDiseaseReport(Integer schoolId,Integer planId){
-        return ()->schoolCommonDiseaseReportService.schoolCommonDiseaseReport(schoolId,planId);
+    public SchoolCommonDiseaseReportVO schoolCommonDiseaseReport(Integer schoolId,Integer planId){
+        return schoolCommonDiseaseReportService.schoolCommonDiseaseReport(schoolId,planId);
     }
 }

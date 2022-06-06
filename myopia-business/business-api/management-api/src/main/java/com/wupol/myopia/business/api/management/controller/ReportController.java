@@ -359,9 +359,9 @@ public class ReportController {
      *
      */
     @GetMapping("/districtCommonDiseaseReport")
-    public Callable<DistrictCommonDiseaseReportVO> districtCommonDiseaseReport(@RequestParam Integer districtId,
+    public ApiResult<DistrictCommonDiseaseReportVO> districtCommonDiseaseReport(@RequestParam Integer districtId,
                                                                                @RequestParam Integer noticeId){
-        return commonDiseaseReportService.districtCommonDiseaseReport(districtId,noticeId);
+        return ApiResult.success(commonDiseaseReportService.districtCommonDiseaseReport(districtId,noticeId));
     }
 
     /**
@@ -370,9 +370,9 @@ public class ReportController {
      * @param planId 计划ID（当筛查通知ID为空时，此值必填）
      */
     @GetMapping("/schoolCommonDiseaseReport")
-    public Callable<SchoolCommonDiseaseReportVO> schoolCommonDiseaseReport(@RequestParam Integer schoolId,
+    public ApiResult<SchoolCommonDiseaseReportVO> schoolCommonDiseaseReport(@RequestParam Integer schoolId,
                                                                             @RequestParam Integer planId){
-        return commonDiseaseReportService.schoolCommonDiseaseReport(schoolId,planId);
+        return ApiResult.success(commonDiseaseReportService.schoolCommonDiseaseReport(schoolId,planId));
     }
 
 }
