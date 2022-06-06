@@ -29,6 +29,6 @@ public abstract class AbstractDiagnosisResult {
      **/
     public boolean isNormal() {
         // diagnosis为空则默认为正常
-        return Objects.isNull(diagnosis) || diagnosis == 0;
+        return Objects.isNull(diagnosis) || diagnosis == NORMAL;
     }
 }
