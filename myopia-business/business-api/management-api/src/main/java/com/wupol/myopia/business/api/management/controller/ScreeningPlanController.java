@@ -34,12 +34,10 @@ import com.wupol.myopia.business.core.school.service.SchoolAdminService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.service.*;
-import com.wupol.myopia.business.core.screening.flow.util.ReScreenCardUtil;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.system.service.NoticeService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -113,10 +111,13 @@ public class ScreeningPlanController {
     @PostMapping()
     public void createInfo(@RequestBody @Valid ScreeningPlanDTO screeningPlanDTO) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        // 校验用户机构
-        if (user.isGovDeptUser() || user.isPlatformAdminUser()) {
-            // 政府部门，无法新增计划
+        // 校验用户机构，政府部门，无法新增计划
+        if (user.isGovDeptUser()) {
             throw new ValidationException("无权限");
+        }
+        // 平台管理员，筛查机构ID必传
+        if (user.isPlatformAdminUser()) {
+            Assert.notNull(screeningPlanDTO.getScreeningOrgId(), "筛查机构ID不能为空");
         }
         // 若为筛查人员或医生，只能发布自己机构的计划
         if (user.isScreeningUser() || (user.isHospitalUser() && (Objects.nonNull(user.getScreeningOrgId())))) {
