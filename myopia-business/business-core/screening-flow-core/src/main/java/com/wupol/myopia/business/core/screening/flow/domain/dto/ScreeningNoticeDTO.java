@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 /**
@@ -9,7 +10,7 @@ import lombok.experimental.Accessors;
  * @Author Alix
  * @Date 2021/01/25
  **/
-
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
 public class ScreeningNoticeDTO extends ScreeningNotice {
@@ -29,4 +30,6 @@ public class ScreeningNoticeDTO extends ScreeningNotice {
     private Integer screeningTaskPlanId;
     /** 发布者名称 */
     private String releaserName;
+    /** 筛查机构名称 */
+    private String screeningOrgName;
 }
