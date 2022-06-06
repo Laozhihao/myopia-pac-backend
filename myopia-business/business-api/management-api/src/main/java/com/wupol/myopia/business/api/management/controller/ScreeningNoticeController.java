@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.ValidationException;
-import java.io.IOException;
 import java.util.Objects;
 
 /**
@@ -76,8 +75,8 @@ public class ScreeningNoticeController {
         if (!screeningNoticeService.save(screeningNotice)) {
             throw new BusinessException("创建失败");
         }
-        //创建通知在m_screening_notice_dept_org里面插入当前数据
-        screeningNoticeDeptOrgService.saveSelfRelease(screeningNotice);
+        // 常见病版本，“发布筛查通知”和“筛查通知”菜单合并，则创建通知时也给自己发一个通知
+        screeningNoticeDeptOrgService.save(new ScreeningNoticeDeptOrg().setScreeningNoticeId(screeningNotice.getId()).setDistrictId(screeningNotice.getDistrictId()).setAcceptOrgId(screeningNotice.getGovDeptId()).setOperatorId(screeningNotice.getCreateUserId()));
     }
 
     /**
@@ -171,7 +170,7 @@ public class ScreeningNoticeController {
     @GetMapping("dept/page")
     public IPage<ScreeningNoticeVO> queryDeptPage(ScreeningNoticeQueryDTO query, PageRequest pageRequest) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        query.setType(0);
+        query.setType(ScreeningNotice.TYPE_GOV_DEPT);
         if (user.isPlatformAdminUser()) {
             query.setDistrictId(null).setGovDeptId(null);
         } else if (user.isGovDeptUser()) {
@@ -190,16 +189,16 @@ public class ScreeningNoticeController {
      * @return Object
      */
     @GetMapping("page")
-    public IPage<ScreeningNoticeVO> queryInfo(ScreeningNoticeQueryDTO query, PageRequest pageRequest) throws IOException {
+    public IPage<ScreeningNoticeVO> queryInfo(ScreeningNoticeQueryDTO query, PageRequest pageRequest) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         if (user.isGovDeptUser()) {
-            query.setType(0);
+            query.setType(ScreeningNotice.TYPE_GOV_DEPT);
             query.setGovDeptId(user.getOrgId());
         } else if (user.isScreeningUser() || (user.isHospitalUser() && (Objects.nonNull(user.getScreeningOrgId())))) {
-            query.setType(1);
+            query.setType(ScreeningNotice.TYPE_ORG);
             query.setGovDeptId(user.getScreeningOrgId());
         }
-        return screeningNoticeDeptOrgBizService.getPage(query, pageRequest,user);
+        return screeningNoticeDeptOrgBizService.getPage(query, pageRequest, user);
     }
 
     /**
@@ -215,8 +214,7 @@ public class ScreeningNoticeController {
         if (!screeningNoticeService.removeById(id)) {
             throw new BusinessException("删除失败，请重试");
         }
-        screeningNoticeDeptOrgService.deleteScreeningNotice(id);
-
+        screeningNoticeDeptOrgService.remove(new ScreeningNoticeDeptOrg().setScreeningNoticeId(id));
     }
 
     /**

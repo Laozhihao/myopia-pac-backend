@@ -44,43 +44,44 @@ public class ScreeningNoticeDeptOrgBizService {
     /**
      * 分页查询
      *
-     * @param query
-     * @param pageRequest
+     * @param query         查询条件
+     * @param pageRequest   分页条件
+     * @param currentUser   当前用户
      * @return
      */
-    public IPage<ScreeningNoticeVO> getPage(ScreeningNoticeQueryDTO query, PageRequest pageRequest, CurrentUser user) {
-        Page<ScreeningNotice> page = (Page<ScreeningNotice>) pageRequest.toPage();
+    public IPage<ScreeningNoticeVO> getPage(ScreeningNoticeQueryDTO query, PageRequest pageRequest, CurrentUser currentUser) {
         if (StringUtils.isNotBlank(query.getCreatorNameLike())){
             UserDTO userDTO = new UserDTO();
-            userDTO.setUsername(query.getCreatorNameLike());
+            userDTO.setRealName(query.getCreatorNameLike());
             List<User> list = oauthServiceClient.getUserListByName(userDTO);
-            List<Integer> userIdList = list.stream().map(item -> item.getId()).collect(Collectors.toList());
+            List<Integer> userIdList = list.stream().map(User::getId).collect(Collectors.toList());
             query.setCreateUserIds(userIdList);
         }
-        IPage<ScreeningNoticeDTO> screeningNoticeIPage = screeningNoticeDeptOrgService.selectPageByQuery(page, query);
+        IPage<ScreeningNoticeDTO> screeningNoticeIPage = screeningNoticeDeptOrgService.selectPageByQuery(pageRequest.toPage(), query);
         List<Integer> allGovDeptIds = screeningNoticeIPage.getRecords().stream().filter(vo -> ScreeningNotice.TYPE_GOV_DEPT.equals(vo.getType())).map(ScreeningNoticeDTO::getAcceptOrgId).distinct().collect(Collectors.toList());
         Map<Integer, String> govDeptIdNameMap = CollectionUtils.isEmpty(allGovDeptIds) ? Collections.emptyMap() : govDeptService.getByIds(allGovDeptIds).stream().collect(Collectors.toMap(GovDept::getId, GovDept::getName));
         List<Integer> userIds = screeningNoticeIPage.getRecords().stream().map(ScreeningNotice::getCreateUserId).distinct().collect(Collectors.toList());
-        Map<Integer, String> userIdNameMap = oauthServiceClient.getUserBatchByIds(userIds).stream().collect(Collectors.toMap(User::getId, User::getRealName));
+        List<Integer> operatorUserIds = screeningNoticeIPage.getRecords().stream().map(ScreeningNotice::getOperatorId).distinct().collect(Collectors.toList());
+        userIds.addAll(operatorUserIds);
+        Map<Integer, String> userIdNameMap = oauthServiceClient.getUserBatchByIds(userIds).stream().collect(Collectors.toMap(User::getId, User::getRealName, (x, y) -> y));
 
-        // 设置地址信息
+        // 设置地址、所属部门、创建人信息
         return screeningNoticeIPage.convert(dto -> {
             ScreeningNoticeVO vo = new ScreeningNoticeVO(dto);
             List<District> districtPositionDetailById = districtService.getDistrictPositionDetailById(vo.getDistrictId());
-            vo.setDistrictDetail(districtPositionDetailById).setDistrictName(districtService.getDistrictNameByDistrictPositionDetail(districtPositionDetailById)).setCreatorName(userIdNameMap.getOrDefault(vo.getCreateUserId(), ""));
+            vo.setDistrictDetail(districtPositionDetailById)
+                    .setDistrictName(districtService.getDistrictNameByDistrictPositionDetail(districtPositionDetailById))
+                    .setCreatorName(userIdNameMap.getOrDefault(vo.getCreateUserId(), StringUtils.EMPTY));
             if (ScreeningNotice.TYPE_GOV_DEPT.equals(vo.getType())) {
-                vo.setGovDeptName(govDeptIdNameMap.getOrDefault(vo.getAcceptOrgId(), ""));
+                vo.setGovDeptName(govDeptIdNameMap.getOrDefault(vo.getAcceptOrgId(), StringUtils.EMPTY));
             }
-            //判断是否为当前用户创建的通知
-            if (user.getId().equals(vo.getCreateUserId())){
-                vo.setIsSelfRelease(ScreeningNotice.IS_SELF_RELEASE);
-            }else{
-                vo.setIsSelfRelease(ScreeningNotice.IS_NOT_SELF_RELEASE);
+            // 转换type，方便前端展示处理（常见病版本中，“发布筛查通知”和“筛查通知”菜单合并）
+            if (ScreeningNotice.TYPE_GOV_DEPT.equals(vo.getType()) && vo.getGovDeptId().equals(vo.getAcceptOrgId())) {
+                vo.setType(ScreeningNotice.TYPE_GOV_DEPT_SELF_RELEASE);
             }
-            if (vo.getAcceptOrgId().equals(vo.getGovDeptId())){
-                vo.setIsSelfReceive(ScreeningNotice.IS_SELF_RECEIVE);
-            }else {
-                vo.setIsSelfReceive(ScreeningNotice.IS_NOT_SELF_RECEIVE);
+            // 平台管理员：看到所有通知的发布人、政府部门：仅看到自己创建的通知的发布人、筛查机构：看不到发布人
+            if (currentUser.isPlatformAdminUser() || (currentUser.isGovDeptUser() && ScreeningNotice.TYPE_GOV_DEPT_SELF_RELEASE.equals(vo.getType()))) {
+                vo.setReleaserName(userIdNameMap.getOrDefault(vo.getOperatorId(), StringUtils.EMPTY));
             }
             return vo;
         });
