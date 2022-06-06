@@ -26,7 +26,7 @@ public class SchoolClassScreeningMonitorVO {
     /**
      * 班级表格数据
      */
-    private List<SchoolClassScreeningMonitorTable> schoolClassScreeningMonitorTableList;
+    private List<ScreeningMonitorTable> schoolClassScreeningMonitorTableList;
     /**
      * 班级图表数据
      */
@@ -81,116 +81,4 @@ public class SchoolClassScreeningMonitorVO {
 
     }
 
-    @Data
-    public static class GradeRatioExtremum{
-        /**
-         * 最高占比班级
-         */
-        private String maxClassName;
-        /**
-         * 最低占比班级
-         */
-        private String minClassName;
-        /**
-         * 最高占比
-         */
-        private BigDecimal maxRatio;
-        /**
-         * 最低占比
-         */
-        private BigDecimal minRatio;
-    }
-
-    @Data
-    public static class SchoolClassScreeningMonitorTable {
-
-        /**
-         * 项目 （性别、学龄段、年龄段）
-         */
-        private String itemName;
-
-        /**
-         * 筛查人数(有效数据)
-         */
-        private Integer validScreeningNum;
-
-
-        /**
-         * 有龋人数
-         */
-        private Integer saprodontiaNum;
-
-        /**
-         * 龋患（失、补）人数
-         */
-        private Integer saprodontiaLossAndRepairNum;
-
-        /**
-         * 超重数
-         */
-        private Integer overweightNum;
-        /**
-         * 肥胖数
-         */
-        private Integer obeseNum;
-        /**
-         * 营养不良数
-         */
-        private Integer malnourishedNum;
-        /**
-         * 生长迟缓数据
-         */
-        private Integer stuntingNum;
-
-        /**
-         * 血压偏高人数
-         */
-        private Integer highBloodPressureNum;
-
-        /**
-         * 脊柱弯曲异常人数
-         */
-        private Integer abnormalSpineCurvatureNum;
-
-
-        //=========== 不带% =============
-        /**
-         * 龋患率
-         */
-        private BigDecimal saprodontiaRatio;
-
-        /**
-         * 龋患（失、补）率
-         */
-        private BigDecimal saprodontiaLossAndRepairRatio;
-        /**
-         * 超重率
-         */
-        private BigDecimal overweightRatio;
-        /**
-         * 肥胖率
-         */
-        private BigDecimal obeseRatio;
-
-        /**
-         * 营养不良率
-         */
-        private BigDecimal malnourishedRatio;
-
-        /**
-         * 生长迟缓率
-         */
-        private BigDecimal stuntingRatio;
-
-        /**
-         * 血压偏高率
-         */
-        private BigDecimal highBloodPressureRatio;
-
-        /**
-         * 脊柱弯曲异常率
-         */
-        private BigDecimal abnormalSpineCurvatureRatio;
-
-    }
 }
