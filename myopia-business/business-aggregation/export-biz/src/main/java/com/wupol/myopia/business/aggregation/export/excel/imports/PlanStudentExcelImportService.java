@@ -157,51 +157,32 @@ public class PlanStudentExcelImportService {
             String gradeName = item.get(ImportExcelEnum.GRADE.getIndex());
             String className = item.get(ImportExcelEnum.CLASS.getIndex());
             String idCard = item.get(ImportExcelEnum.ID_CARD.getIndex());
-            String passport = item.get(ImportExcelEnum.PASSPORT.getIndex());
+            // 如果同时存在身份证和护照，优先取身份证
+            String passport = StringUtils.isNoneBlank(idCard, item.get(ImportExcelEnum.PASSPORT.getIndex())) ? null : item.get(ImportExcelEnum.PASSPORT.getIndex());
             String phone = item.get(ImportExcelEnum.PHONE.getIndex());
             String sno = item.get(ImportExcelEnum.STUDENT_NO.getIndex());
             Integer gender = StringUtils.isNotBlank(item.get(ImportExcelEnum.ID_CARD.getIndex())) ? IdCardUtil.getGender(item.get(ImportExcelEnum.ID_CARD.getIndex())) : GenderEnum.getType(item.get(ImportExcelEnum.GENDER.getIndex()));
             String studentName = item.get(ImportExcelEnum.NAME.getIndex());
             Integer nation = StringUtils.isBlank(item.get(ImportExcelEnum.NATION.getIndex())) ? null : NationEnum.getCode(item.get(ImportExcelEnum.NATION.getIndex()));
-            Date birthday;
-            if (StringUtils.isNotBlank(idCard) && !IdcardUtil.isValidCard(idCard)) {
-                throw new BusinessException("上传失败" + idCard + "身份证异常");
-            }
-            if (StringUtils.isNotBlank(phone) && !PhoneUtil.isPhone(phone)) {
-                throw new BusinessException("上传失败" + phone + "手机异常");
-            }
-            try {
-                birthday = StringUtils.isBlank(item.get(ImportExcelEnum.BIRTHDAY.getIndex())) ? IdCardUtil.getBirthDay(item.get(ImportExcelEnum.ID_CARD.getIndex())) : DateFormatUtil.parseDate(item.get(ImportExcelEnum.BIRTHDAY.getIndex()), DateFormatUtil.FORMAT_ONLY_DATE2);
-                com.wupol.myopia.base.util.DateUtil.checkBirthday(birthday);
-            } catch (ParseException e) {
-                throw new BusinessException(getErrorMsgDate(idCard, passport, screeningCode) + "日期转换异常");
-            }
-            // 如果同时存在身份证和护照，优先取身份证
-            if (StringUtils.isNoneBlank(idCard, passport)) {
-                passport = null;
-            }
+            // 校验数据
+            validateBeforeSave(idCard, phone, sno, passport, schoolId, screeningCode, existScreeningCode, existPlanSchoolStudentList);
+            // 获取出生日期（依赖身份证号码，需要放在数据校验后面）
+            Date birthday = getBirthDay(item.get(ImportExcelEnum.BIRTHDAY.getIndex()), idCard, passport, screeningCode);
             // 班级年级信息
             TwoTuple<Integer, Integer> gradeClassInfo = schoolStudentExcelImportService.getSchoolStudentClassInfo(schoolId, schoolGradeMaps, gradeName, className);
             Integer gradeType = GradeCodeEnum.getByName(gradeName).getType();
-            // 检查学号
-            screeningPlanSchoolStudentService.checkSno(existPlanSchoolStudentList, sno, idCard, passport, schoolId);
-            // 是否带筛查编码一起上传
+            // 1. 不带筛查编码上传，则新增或更新计划学生和多端学生（根据证件号查找存在的学生）
             if (StringUtils.isBlank(screeningCode)) {
                 notScreeningCodeUpload(userId, existPlanStudentIdCardMap, existPlanStudentPassportMap, existManagementStudentIdCardMap, existManagementStudentPassportMap, noScreeningCodeManagementStudentList, idCard, passport, sno, gender, studentName, nation, birthday, gradeClassInfo, gradeType, schoolId, phone);
                 continue;
             }
-            // 检查筛查编码是否存在
-            if (!existScreeningCode.contains(Long.valueOf(screeningCode))) {
-                throw new BusinessException("上传失败：筛查编码:" + screeningCode + "在计划中不存在");
-            }
-            // 是否带着证件号一起上传
+            // 2. 带筛查编码上传，但无其他证件号，则更新计划学生和多端学生（存在问题：没法更新无证件号的虚拟学生所关联的多端学生信息）
+            ScreeningPlanSchoolStudent planSchoolStudent = existPlanStudentScreeningCodeMap.get(Long.valueOf(screeningCode));
             if (StringUtils.isAllBlank(idCard, passport)) {
-                notCredentialUpload(existPlanStudentScreeningCodeMap, virtualStudentList, screeningCode, idCard, passport, sno, gender, studentName, nation, birthday, gradeClassInfo, phone, school, gradeType);
+                notCredentialUpload(planSchoolStudent, virtualStudentList, idCard, passport, sno, gender, studentName, nation, birthday, gradeClassInfo, phone, school, gradeType);
                 continue;
             }
-            // 筛查编码是否绑定身份证或护照
-            ScreeningPlanSchoolStudent planSchoolStudent = existPlanStudentScreeningCodeMap.get(Long.valueOf(screeningCode));
-            // 筛查编码没绑定证件号
+            // 3. 带筛查编码和其他证件号上传，但计划中该编码的学生还没绑定证件号
             if (StringUtils.isAllBlank(planSchoolStudent.getIdCard(), planSchoolStudent.getPassport())) {
                 ScreeningPlanSchoolStudent planStudent = getPlanStudent(existPlanStudentIdCardMap, existPlanStudentPassportMap, idCard, passport);
                 if (ObjectsUtil.allNotNull(planStudent, planSchoolStudent) && ObjectsUtil.allNotNull(planStudent.getScreeningCode(), planSchoolStudent.getScreeningCode()) && !planStudent.getScreeningCode().equals(planSchoolStudent.getScreeningCode())) {
@@ -210,6 +191,7 @@ public class PlanStudentExcelImportService {
                 notBindCredentialUpload(userId, existManagementStudentIdCardMap, existManagementStudentPassportMap, noCredentialHaveStudentPlanStudents, noCredentialStudents, noCredentialPlanStudents, idCard, passport, sno, gender, studentName, nation, birthday, gradeClassInfo, gradeType, planSchoolStudent, phone, school);
                 continue;
             }
+            // 4. 带筛查编码和其他证件号上传，但计划中该编码的学生已经绑定证件号，则更新筛查学生，并关联新的多端学生
             haveCredentialUpload(userId, existPlanStudentIdCardMap, existPlanStudentPassportMap, existManagementStudentIdCardMap, existManagementStudentPassportMap, haveCredentialPlanStudent, haveCredentialStudent, idCard, passport, sno, gender, studentName, nation, birthday, gradeClassInfo, gradeType, planSchoolStudent, school, phone, unbindList);
         }
         updateOrSaveStudentInfo(screeningPlan, school, existPlanStudentIdCardMap, existPlanStudentPassportMap, noScreeningCodeManagementStudentList, haveCredentialPlanStudent, haveCredentialStudent, noCredentialHaveStudentPlanStudents, noCredentialStudents, virtualStudentList, noCredentialPlanStudents, unbindList, existManagementStudentIdCardMap, existManagementStudentPassportMap, userId);
@@ -264,7 +246,7 @@ public class PlanStudentExcelImportService {
      * 筛查学生没绑定证件信息
      */
     private void notBindCredentialUpload(Integer userId, Map<String, Student> existManagementStudentIdCardMap, Map<String, Student> existManagementStudentPassportMap, List<ScreeningPlanSchoolStudent> noCredentialHaveStudentPlanStudents, List<Student> noCredentialStudents, List<ScreeningPlanSchoolStudent> noCredentialPlanStudents, String idCard, String passport, String sno, Integer gender, String studentName, Integer nation, Date birthday, TwoTuple<Integer, Integer> gradeClassInfo, Integer gradeType, ScreeningPlanSchoolStudent planSchoolStudent, String phone, School school) {
-        // 是否在系统中存在
+        // 是否在系统中存在该证件号的多端学生
         Student student = getStudent(existManagementStudentIdCardMap, existManagementStudentPassportMap, idCard, passport);
         packagePlanStudent(idCard, passport, sno, gender, studentName, nation, birthday, gradeClassInfo, planSchoolStudent, phone, school, gradeType);
         // 不存在
@@ -281,8 +263,7 @@ public class PlanStudentExcelImportService {
     /**
      * 没有证件信息的上传
      */
-    private void notCredentialUpload(Map<Long, ScreeningPlanSchoolStudent> existPlanStudentScreeningCodeMap, List<ScreeningPlanSchoolStudent> virtualStudentList, String screeningCode, String idCard, String passport, String sno, Integer gender, String studentName, Integer nation, Date birthday, TwoTuple<Integer, Integer> gradeClassInfo, String phone, School school, Integer gradeType) {
-        ScreeningPlanSchoolStudent planSchoolStudent = existPlanStudentScreeningCodeMap.get(Long.valueOf(screeningCode));
+    private void notCredentialUpload(ScreeningPlanSchoolStudent planSchoolStudent, List<ScreeningPlanSchoolStudent> virtualStudentList, String idCard, String passport, String sno, Integer gender, String studentName, Integer nation, Date birthday, TwoTuple<Integer, Integer> gradeClassInfo, String phone, School school, Integer gradeType) {
         packagePlanStudent(idCard, passport, sno, gender, studentName, nation, birthday, gradeClassInfo, planSchoolStudent, phone, school, gradeType);
         virtualStudentList.add(planSchoolStudent);
     }
@@ -292,7 +273,7 @@ public class PlanStudentExcelImportService {
      */
     private void notScreeningCodeUpload(Integer userId, Map<String, ScreeningPlanSchoolStudent> existPlanStudentIdCardMap, Map<String, ScreeningPlanSchoolStudent> existPlanStudentPassportMap, Map<String, Student> existManagementStudentIdCardMap, Map<String, Student> existManagementStudentPassportMap, List<Student> noScreeningCodeManagementStudentList, String idCard, String passport, String sno, Integer gender, String studentName, Integer nation, Date birthday, TwoTuple<Integer, Integer> gradeClassInfo, Integer gradeType, Integer schoolId, String phone) {
         if (StringUtils.isAllBlank(idCard, passport)) {
-            throw new BusinessException("上传失败：身份证、护照信息异常");
+            throw new BusinessException("上传失败，身份证、护照、筛查编码不能都为空");
         }
         TwoTuple<Student, ScreeningPlanSchoolStudent> twoTuple = getStudentAndPlanStudent(existPlanStudentIdCardMap, existPlanStudentPassportMap, existManagementStudentIdCardMap, existManagementStudentPassportMap, idCard, passport);
         Student student = twoTuple.getFirst();
@@ -337,7 +318,7 @@ public class PlanStudentExcelImportService {
                                          Map<String, Student> existManagementStudentIdCardMap,
                                          Map<String, Student> existManagementStudentPassportMap, Integer userId) {
         if (!CollectionUtils.isEmpty(noScreeningCodeManagementStudentList)) {
-            saveStudentAndPlanStudent(noScreeningCodeManagementStudentList, existPlanStudentIdCardMap, existPlanStudentPassportMap, screeningPlan, school);
+            saveOrStudentAndPlanStudent(noScreeningCodeManagementStudentList, existPlanStudentIdCardMap, existPlanStudentPassportMap, screeningPlan, school);
         }
         if (!CollectionUtils.isEmpty(noCredentialStudents)) {
             updateOrSaveNoCredentialStudent(noCredentialStudents, noCredentialPlanStudents, screeningPlan);
@@ -365,9 +346,11 @@ public class PlanStudentExcelImportService {
      * 更新没有证件的学生
      */
     private void updateOrSaveNoCredentialStudent(List<Student> noCredentialStudents, List<ScreeningPlanSchoolStudent> noCredentialPlanStudents, ScreeningPlan screeningPlan) {
+        // 1.新增或更新多端学生
         studentService.saveOrUpdateBatch(noCredentialStudents);
-        // 插入学校端
+        // 2.插入学校端
         commonImportService.insertSchoolStudent(noCredentialStudents, SourceClientEnum.SCREENING_PLAN.type);
+        // 3.更新筛查学生和筛查数据
         TwoTuple<Map<String, Student>, Map<String, Student>> groupingStudentMap = groupingByIdCardAndPassport(noCredentialStudents);
         Map<String, Student> idCardMap = groupingStudentMap.getFirst();
         Map<String, Student> passportMap = groupingStudentMap.getSecond();
@@ -394,7 +377,7 @@ public class PlanStudentExcelImportService {
     }
 
     /**
-     * 更新或新增计划学生和多端学生
+     * 新增或更新计划学生和多端学生
      *
      * @param managementStudentList       多端学生
      * @param existPlanStudentIdCardMap   身份证
@@ -402,12 +385,13 @@ public class PlanStudentExcelImportService {
      * @param plan                        计划
      * @param school                      学校
      */
-    private void saveStudentAndPlanStudent(List<Student> managementStudentList, Map<String, ScreeningPlanSchoolStudent> existPlanStudentIdCardMap, Map<String, ScreeningPlanSchoolStudent> existPlanStudentPassportMap, ScreeningPlan plan, School school) {
+    private void saveOrStudentAndPlanStudent(List<Student> managementStudentList, Map<String, ScreeningPlanSchoolStudent> existPlanStudentIdCardMap, Map<String, ScreeningPlanSchoolStudent> existPlanStudentPassportMap, ScreeningPlan plan, School school) {
 
         Map<Integer, SchoolGrade> gradeMap = schoolGradeService.getGradeMapByIds(managementStudentList.stream().map(Student::getGradeId).collect(Collectors.toList()));
         Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(managementStudentList.stream().map(Student::getClassId).collect(Collectors.toList()));
 
         List<ScreeningPlanSchoolStudent> list = new ArrayList<>();
+        // 1. 新增或更新多端学生
         studentService.saveOrUpdateBatch(managementStudentList);
         managementStudentList.forEach(student -> {
             ScreeningPlanSchoolStudent planStudent = getPlanStudent(existPlanStudentIdCardMap, existPlanStudentPassportMap, student.getIdCard(), student.getPassport());
@@ -419,8 +403,6 @@ public class PlanStudentExcelImportService {
             planStudent.setScreeningOrgId(plan.getScreeningOrgId());
             planStudent.setSchoolName(school.getName());
             planStudent.setSchoolId(school.getId());
-            planStudent.setSchoolDistrictId(school.getDistrictId());
-            planStudent.setSchoolDistrictId(school.getDistrictId());
             planStudent.setGradeType(student.getGradeType());
             planStudent.setSchoolDistrictId(school.getDistrictId());
             planStudent.setPlanDistrictId(plan.getDistrictId());
@@ -433,13 +415,14 @@ public class PlanStudentExcelImportService {
             packagePlanStudentByStudent(student, planStudent);
             list.add(planStudent);
         });
-        // 插入学校端
+        // 2. 插入学校端
         commonImportService.insertSchoolStudent(managementStudentList, SourceClientEnum.SCREENING_PLAN.type);
+        // 3. 更新筛查计划学生和筛查数据
         visionScreeningResultService.updatePlanStudentAndVisionResult(plan, list);
     }
 
     /**
-     * 设置多端学生
+     * 设置多端学生（更新信息）
      */
     private void packageManagementStudent(String idCard, String passport, String sno, Integer gender, String studentName, Integer nation, Date birthday, TwoTuple<Integer, Integer> gradeClassInfo, Integer gradeType, Integer userId, Integer schoolId, Student student, String phone) {
         student.setIdCard(Optional.ofNullable(idCard).map(String::toUpperCase).orElse(null));
@@ -458,7 +441,7 @@ public class PlanStudentExcelImportService {
     }
 
     /**
-     * 设置计划学生
+     * 设置计划学生（更新信息）
      */
     private void packagePlanStudent(String idCard, String passport, String sno, Integer gender, String studentName, Integer nation, Date birthday, TwoTuple<Integer, Integer> gradeClassInfo, ScreeningPlanSchoolStudent planStudent, String phone, School school, Integer gradeType) {
         planStudent.setIdCard(Optional.ofNullable(idCard).map(String::toUpperCase).orElse(null));
@@ -728,5 +711,57 @@ public class PlanStudentExcelImportService {
             }
             planStudent.checkStudentInfo();
         });
+    }
+
+    /**
+     * 获取出生日期
+     *
+     * @param birthdayStr       出生日期字符串
+     * @param idCard            身份证号
+     * @param passport          护照
+     * @param screeningCode     筛查编码
+     * @return java.util.Date
+     **/
+    private Date getBirthDay(String birthdayStr, String idCard, String passport, String screeningCode) {
+        try {
+            Date birthday = StringUtils.isBlank(birthdayStr) ? IdCardUtil.getBirthDay(idCard) : DateFormatUtil.parseDate(birthdayStr, DateFormatUtil.FORMAT_ONLY_DATE2);
+            com.wupol.myopia.base.util.DateUtil.checkBirthday(birthday);
+            return birthday;
+        } catch (ParseException e) {
+            throw new BusinessException(getErrorMsgDate(idCard, passport, screeningCode) + "，出生日期格式错误");
+        }
+    }
+    /**
+     * 校验数据
+     *
+     * @param idCard                        身份证号码
+     * @param phone                         手机号码
+     * @param sno                           学号
+     * @param passport                      护照
+     * @param schoolId                      学校ID
+     * @param screeningCode                 筛查编码
+     * @param existScreeningCodeList        系统存在的筛查编码集合
+     * @param existPlanSchoolStudentList    系统存在的筛查学生集合
+     * @return void
+     **/
+    private void validateBeforeSave(String idCard, String phone, String sno, String passport, Integer schoolId, String screeningCode, List<Long> existScreeningCodeList, List<ScreeningPlanSchoolStudent> existPlanSchoolStudentList) {
+        // 唯一标志
+        if (StringUtils.isAllBlank(idCard, passport, screeningCode)) {
+            throw new BusinessException("上传失败，身份证、护照、筛查编码不能都为空");
+        }
+        // 身份证
+        if (StringUtils.isNotBlank(idCard) && !IdcardUtil.isValidCard(idCard)) {
+            throw new BusinessException("上传失败，身份证号码" + idCard + "无效");
+        }
+        // 手机号码
+        if (StringUtils.isNotBlank(phone) && !PhoneUtil.isPhone(phone)) {
+            throw new BusinessException("上传失败，手机" + phone + "无效");
+        }
+        // 学号
+        screeningPlanSchoolStudentService.checkSno(existPlanSchoolStudentList, sno, idCard, passport, schoolId);
+        // 检查筛查编码是否存在
+        if (StringUtils.isNotBlank(screeningCode) && !existScreeningCodeList.contains(Long.valueOf(screeningCode))) {
+            throw new BusinessException("上传失败：筛查编码:" + screeningCode + "在计划中不存在");
+        }
     }
 }

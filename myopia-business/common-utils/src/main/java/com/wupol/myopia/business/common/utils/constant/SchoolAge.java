@@ -21,8 +21,8 @@ public enum SchoolAge {
     KINDERGARTEN(5, "幼儿园"),
     PRIMARY(0, "小学"),
     JUNIOR(1, "初中"),
-    HIGH(2, "高中"),
-    VOCATIONAL_HIGH(3, "职业高中"),
+    HIGH(2, "普高"),
+    VOCATIONAL_HIGH(3, "职高"),
     UNIVERSITY(4, "大学");
 
     /**

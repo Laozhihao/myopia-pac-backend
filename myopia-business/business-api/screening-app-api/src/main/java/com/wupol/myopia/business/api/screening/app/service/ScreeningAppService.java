@@ -13,6 +13,7 @@ import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.BeanCopyUtil;
+import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
@@ -505,7 +506,14 @@ public class ScreeningAppService {
             progressList.addAll(finishMap.get(true));
         }
         // %5计算
-        Integer needCount = (new BigDecimal(visionScreeningResults.size()).multiply(BigDecimal.valueOf(0.05))).setScale(0, BigDecimal.ROUND_HALF_UP).intValue();
+        BigDecimal decimal = new BigDecimal(visionScreeningResults.size()).multiply(BigDecimal.valueOf(0.05));
+        int needCount;
+        if (BigDecimalUtil.isBetweenRight(decimal,"0","0.5")){
+            //(0,0.5] 算 1
+            needCount = 1;
+        }else {
+            needCount = decimal.setScale(0, BigDecimal.ROUND_HALF_UP).intValue();
+        }
 
         ClassScreeningProgress classScreeningProgress = new ClassScreeningProgress().setStudentScreeningProgressList(progressList)
                 .setPlanCount(CollectionUtils.size(screeningPlanSchoolStudentList))
