@@ -391,6 +391,9 @@ public class ScreeningAppController {
             if (screeningResultDataVO.getPrivacyData() != null) {
                 visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getPrivacyData(), clientId);
             }
+            if (screeningResultDataVO.getDeviationData() != null) {
+                visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getDeviationData(), clientId);
+            }
         } catch (Exception e) {
             logger.error(e.getMessage());
             return ApiResult.success(e.getMessage());
