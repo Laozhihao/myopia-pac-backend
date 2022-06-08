@@ -66,7 +66,7 @@ public class StatDistrictService {
         }
         TwoTuple<String, Map<Integer, String>> districtInfo = districtInfo(districtId, visionStatistics);
         //查找当前层级的数据（非合计数据）
-        ScreeningResultStatistic currentVisionStatistic = currentVisionStatistic(districtId, noticeId, Boolean.TRUE);
+        ScreeningResultStatistic currentVisionStatistic = currentVisionStatistic(districtId, noticeId, Boolean.TRUE,screeningNotice.getScreeningType());
         //构建数据
         KindergartenResultVO kindergartenResultVO = new KindergartenResultVO();
         kindergartenResultVO.setBasicData(districtId,districtInfo.getFirst());
@@ -101,7 +101,7 @@ public class StatDistrictService {
             return null;
         }
         TwoTuple<String, Map<Integer, String>> districtInfo = districtInfo(districtId, visionStatistics);
-        ScreeningResultStatistic currentVisionStatistic = currentVisionStatistic(districtId, noticeId, Boolean.FALSE);
+        ScreeningResultStatistic currentVisionStatistic = currentVisionStatistic(districtId, noticeId, Boolean.FALSE,screeningNotice.getScreeningType());
         //构建数据
         PrimarySchoolAndAboveResultVO primarySchoolAndAboveResultVO = new PrimarySchoolAndAboveResultVO();
         primarySchoolAndAboveResultVO.setBasicData(districtId,districtInfo.getFirst());
@@ -111,8 +111,8 @@ public class StatDistrictService {
 
     }
 
-    private ScreeningResultStatistic currentVisionStatistic(Integer districtId, Integer noticeId, boolean isKindergarten) {
-        List<ScreeningResultStatistic> currentVisionStatistics = screeningResultStatisticService.getStatisticByNoticeIdAndCurrentDistrictId(noticeId, districtId, Boolean.FALSE, 0, isKindergarten);
+    private ScreeningResultStatistic currentVisionStatistic(Integer districtId, Integer noticeId, boolean isKindergarten,Integer screeningType) {
+        List<ScreeningResultStatistic> currentVisionStatistics = screeningResultStatisticService.getStatisticByNoticeIdAndCurrentDistrictId(noticeId, districtId, Boolean.FALSE, screeningType, isKindergarten);
         ScreeningResultStatistic currentVisionStatistic = null;
         if (CollectionUtils.isNotEmpty(currentVisionStatistics)) {
             currentVisionStatistic = currentVisionStatistics.stream().findFirst().orElse(null);
