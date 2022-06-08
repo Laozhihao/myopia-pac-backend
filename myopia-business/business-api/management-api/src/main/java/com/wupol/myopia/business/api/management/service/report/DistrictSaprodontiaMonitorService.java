@@ -187,49 +187,54 @@ public class DistrictSaprodontiaMonitorService {
             return;
         }
 
-        DistrictChartVO.Chart chart = new DistrictChartVO.Chart();
+        ChartVO.Chart chart = new ChartVO.Chart();
 
         List<String> x = Lists.newArrayList();
-        List<DistrictChartVO.ChartData> y = Lists.newArrayList(
-                new DistrictChartVO.ChartData(ReportConst.SAPRODONTIA,Lists.newArrayList()),
-                new DistrictChartVO.ChartData(ReportConst.SAPRODONTIA_LOSS,Lists.newArrayList()),
-                new DistrictChartVO.ChartData(ReportConst.SAPRODONTIA_REPAIR,Lists.newArrayList())
+        List<ChartVO.ChartData> y = Lists.newArrayList(
+                new ChartVO.ChartData(ReportConst.SAPRODONTIA,Lists.newArrayList()),
+                new ChartVO.ChartData(ReportConst.SAPRODONTIA_LOSS,Lists.newArrayList()),
+                new ChartVO.ChartData(ReportConst.SAPRODONTIA_REPAIR,Lists.newArrayList())
         );
+
+        List<BigDecimal> valueList =Lists.newArrayList();
 
         DistrictSaprodontiaMonitorVO.SaprodontiaSchoolAge primary = getSaprodontiaSchoolAge(statConclusionList, SchoolAge.PRIMARY.code);
         if (Objects.nonNull(primary)){
             x.add(SchoolAge.PRIMARY.desc);
-            setSchoolAgeData(y,primary);
+            setSchoolAgeData(y,primary,valueList);
         }
         DistrictSaprodontiaMonitorVO.SaprodontiaSchoolAge junior = getSaprodontiaSchoolAge(statConclusionList,SchoolAge.JUNIOR.code);
         if (Objects.nonNull(junior)){
             x.add(SchoolAge.JUNIOR.desc);
-            setSchoolAgeData(y,junior);
+            setSchoolAgeData(y,junior,valueList);
         }
         DistrictSaprodontiaMonitorVO.SaprodontiaSchoolAge normalHigh = getSaprodontiaSchoolAge(statConclusionList,SchoolAge.HIGH.code);
         DistrictSaprodontiaMonitorVO.SaprodontiaSchoolAge vocationalHigh = getSaprodontiaSchoolAge(statConclusionList,SchoolAge.VOCATIONAL_HIGH.code);
         if (Objects.nonNull(normalHigh) || Objects.nonNull(vocationalHigh)){
             x.add("高中");
             DistrictSaprodontiaMonitorVO.SaprodontiaSchoolAge high = getSaprodontiaSchoolAge(statConclusionList, 10);
-            setSchoolAgeData(y,high);
+            setSchoolAgeData(y,high,valueList);
         }
 
         DistrictSaprodontiaMonitorVO.SaprodontiaSchoolAge university = getSaprodontiaSchoolAge(statConclusionList,SchoolAge.UNIVERSITY.code);
         if (Objects.nonNull(university)){
             x.add(SchoolAge.UNIVERSITY.desc);
-            setSchoolAgeData(y,university);
+            setSchoolAgeData(y,university,valueList);
         }
         chart.setX(x);
         chart.setY(y);
-
+        chart.setMaxValue(CollectionUtil.max(valueList));
         saprodontiaSchoolAgeVO.setSaprodontiaSchoolAgeMonitorChart(chart);
 
     }
 
-    private void setSchoolAgeData(List<DistrictChartVO.ChartData> y, DistrictSaprodontiaMonitorVO.SaprodontiaSchoolAge schoolAge){
+    private void setSchoolAgeData(List<ChartVO.ChartData> y, DistrictSaprodontiaMonitorVO.SaprodontiaSchoolAge schoolAge,List<BigDecimal> valueList){
         y.get(0).getData().add(ReportUtil.getRatioNotSymbol(schoolAge.getSaprodontiaRatio()));
         y.get(1).getData().add(ReportUtil.getRatioNotSymbol(schoolAge.getSaprodontiaLossRatio()));
         y.get(2).getData().add(ReportUtil.getRatioNotSymbol(schoolAge.getSaprodontiaRepairRatio()));
+        valueList.add(ReportUtil.getRatioNotSymbol(schoolAge.getSaprodontiaRatio()));
+        valueList.add(ReportUtil.getRatioNotSymbol(schoolAge.getSaprodontiaLossRatio()));
+        valueList.add(ReportUtil.getRatioNotSymbol(schoolAge.getSaprodontiaRepairRatio()));
     }
 
 

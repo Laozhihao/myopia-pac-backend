@@ -180,24 +180,25 @@ public class DistrictHeightAndWeightMonitorService {
         if(CollectionUtil.isEmpty(statConclusionList)){
             return;
         }
-        DistrictChartVO.Chart chart = new DistrictChartVO.Chart();
+        ChartVO.Chart chart = new ChartVO.Chart();
         List<String> x = Lists.newArrayList();
-        List<DistrictChartVO.ChartData> y = Lists.newArrayList(
-                new DistrictChartVO.ChartData(ReportConst.OVERWEIGHT,Lists.newArrayList()),
-                new DistrictChartVO.ChartData(ReportConst.OBESE,Lists.newArrayList()),
-                new DistrictChartVO.ChartData(ReportConst.MALNOURISHED,Lists.newArrayList()),
-                new DistrictChartVO.ChartData(ReportConst.STUNTING,Lists.newArrayList())
+        List<ChartVO.ChartData> y = Lists.newArrayList(
+                new ChartVO.ChartData(ReportConst.OVERWEIGHT,Lists.newArrayList()),
+                new ChartVO.ChartData(ReportConst.OBESE,Lists.newArrayList()),
+                new ChartVO.ChartData(ReportConst.MALNOURISHED,Lists.newArrayList()),
+                new ChartVO.ChartData(ReportConst.STUNTING,Lists.newArrayList())
         );
+        List<BigDecimal> valueList =Lists.newArrayList();
 
         DistrictHeightAndWeightMonitorVO.HeightAndWeightSchoolAge primary = getHeightAndWeightSchoolSchoolAge(statConclusionList, SchoolAge.PRIMARY.code);
         if (Objects.nonNull(primary)){
             x.add(SchoolAge.PRIMARY.desc);
-            setSchoolAgeData(y,primary);
+            setSchoolAgeData(y,primary,valueList);
         }
         DistrictHeightAndWeightMonitorVO.HeightAndWeightSchoolAge junior = getHeightAndWeightSchoolSchoolAge(statConclusionList,SchoolAge.JUNIOR.code);
         if (Objects.nonNull(junior)){
             x.add(SchoolAge.JUNIOR.desc);
-            setSchoolAgeData(y,junior);
+            setSchoolAgeData(y,junior,valueList);
         }
 
         DistrictHeightAndWeightMonitorVO.HeightAndWeightSchoolAge normalHigh = getHeightAndWeightSchoolSchoolAge(statConclusionList,SchoolAge.HIGH.code);
@@ -205,26 +206,30 @@ public class DistrictHeightAndWeightMonitorService {
         if (Objects.nonNull(normalHigh) || Objects.nonNull(vocationalHigh)){
             x.add("高中");
             DistrictHeightAndWeightMonitorVO.HeightAndWeightSchoolAge high = getHeightAndWeightSchoolSchoolAge(statConclusionList,10);
-            setSchoolAgeData(y,high);
+            setSchoolAgeData(y,high,valueList);
         }
         DistrictHeightAndWeightMonitorVO.HeightAndWeightSchoolAge university = getHeightAndWeightSchoolSchoolAge(statConclusionList,SchoolAge.UNIVERSITY.code);
         if (Objects.nonNull(university)){
             x.add(SchoolAge.UNIVERSITY.desc);
-            setSchoolAgeData(y,university);
+            setSchoolAgeData(y,university,valueList);
         }
         chart.setX(x);
         chart.setY(y);
-
+        chart.setMaxValue(CollectionUtil.max(valueList));
         heightAndWeightSchoolAgeVO.setHeightAndWeightSchoolAgeMonitorChart(chart);
 
     }
 
 
-    private void setSchoolAgeData(List<DistrictChartVO.ChartData> y, DistrictHeightAndWeightMonitorVO.HeightAndWeightSchoolAge schoolAge) {
+    private void setSchoolAgeData(List<ChartVO.ChartData> y, DistrictHeightAndWeightMonitorVO.HeightAndWeightSchoolAge schoolAge,List<BigDecimal> valueList) {
         y.get(0).getData().add(ReportUtil.getRatioNotSymbol(schoolAge.getOverweightRatio()));
         y.get(1).getData().add(ReportUtil.getRatioNotSymbol(schoolAge.getObeseRatio()));
         y.get(2).getData().add(ReportUtil.getRatioNotSymbol(schoolAge.getMalnourishedRatio()));
         y.get(3).getData().add(ReportUtil.getRatioNotSymbol(schoolAge.getStuntingRatio()));
+        valueList.add(ReportUtil.getRatioNotSymbol(schoolAge.getOverweightRatio()));
+        valueList.add(ReportUtil.getRatioNotSymbol(schoolAge.getObeseRatio()));
+        valueList.add(ReportUtil.getRatioNotSymbol(schoolAge.getMalnourishedRatio()));
+        valueList.add(ReportUtil.getRatioNotSymbol(schoolAge.getStuntingRatio()));
     }
 
     /**

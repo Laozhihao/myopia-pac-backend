@@ -50,7 +50,7 @@ public class DistrictSaprodontiaMonitorVO {
         /**
          * 学龄段图表
          */
-        private DistrictChartVO.Chart saprodontiaSchoolAgeMonitorChart;
+        private ChartVO.Chart saprodontiaSchoolAgeMonitorChart;
 
     }
 

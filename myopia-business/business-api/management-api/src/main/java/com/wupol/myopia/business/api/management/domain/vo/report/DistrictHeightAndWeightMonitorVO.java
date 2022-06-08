@@ -49,7 +49,7 @@ public class DistrictHeightAndWeightMonitorVO {
         /**
          * 学龄段图表
          */
-        private DistrictChartVO.Chart heightAndWeightSchoolAgeMonitorChart;
+        private ChartVO.Chart heightAndWeightSchoolAgeMonitorChart;
 
     }
 

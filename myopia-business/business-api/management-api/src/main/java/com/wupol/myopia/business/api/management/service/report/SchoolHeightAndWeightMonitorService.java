@@ -191,24 +191,30 @@ public class SchoolHeightAndWeightMonitorService {
                 new ChartVO.ChartData(ReportConst.MALNOURISHED,Lists.newArrayList()),
                 new ChartVO.ChartData(ReportConst.STUNTING,Lists.newArrayList())
         );
+        List<BigDecimal> valueList =Lists.newArrayList();
         Map<String, List<StatConclusion>> gradeCodeMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
         gradeCodeMap = CollectionUtil.sort(gradeCodeMap, String::compareTo);
         gradeCodeMap.forEach((gradeCode,list)->{
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(gradeCode);
             x.add(gradeCodeEnum.getName());
-            HeightAndWeightNum num = new HeightAndWeightNum().build(list).ratioNotSymbol().ratio();
-            setGradeData(y,num);
+            setGradeData(y,list,valueList);
         });
         chart.setX(x);
         chart.setY(y);
+        chart.setMaxValue(CollectionUtil.max(valueList));
         heightAndWeightGradeVO.setHeightAndWeightGradeMonitorChart(chart);
     }
 
-    private void setGradeData(List<ChartVO.ChartData> y, HeightAndWeightNum num){
+    private void setGradeData(List<ChartVO.ChartData> y, List<StatConclusion> statConclusionList,List<BigDecimal> valueList){
+        HeightAndWeightNum num = new HeightAndWeightNum().build(statConclusionList).ratioNotSymbol().ratio();
         y.get(0).getData().add(num.getOverweightRatio());
         y.get(1).getData().add(num.getObeseRatio());
         y.get(2).getData().add(num.getMalnourishedRatio());
         y.get(3).getData().add(num.getStuntingRatio());
+        valueList.add(num.getOverweightRatio());
+        valueList.add(num.getObeseRatio());
+        valueList.add(num.getMalnourishedRatio());
+        valueList.add(num.getStuntingRatio());
     }
 
     /**

@@ -15,6 +15,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -181,22 +182,23 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorService {
         if(CollectionUtil.isEmpty(statConclusionList)){
             return;
         }
-        DistrictChartVO.Chart chart = new DistrictChartVO.Chart();
+        ChartVO.Chart chart = new ChartVO.Chart();
 
         List<String> x = Lists.newArrayList();
-        List<DistrictChartVO.ChartData> y = Lists.newArrayList(
-                new DistrictChartVO.ChartData(ReportConst.HIGH_BLOOD_PRESSURE,Lists.newArrayList()),
-                new DistrictChartVO.ChartData(ReportConst.ABNORMAL_SPINE_CURVATURE,Lists.newArrayList())
+        List<ChartVO.ChartData> y = Lists.newArrayList(
+                new ChartVO.ChartData(ReportConst.HIGH_BLOOD_PRESSURE,Lists.newArrayList()),
+                new ChartVO.ChartData(ReportConst.ABNORMAL_SPINE_CURVATURE,Lists.newArrayList())
         );
+        List<BigDecimal> valueList =Lists.newArrayList();
         DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureSchoolAge primary = getBloodPressureAndSpinalCurvatureSchoolAge(statConclusionList, SchoolAge.PRIMARY.code);
         if (Objects.nonNull(primary)){
             x.add(SchoolAge.PRIMARY.desc);
-            setSchoolAgeData(y,primary);
+            setSchoolAgeData(y,primary,valueList);
         }
         DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureSchoolAge junior = getBloodPressureAndSpinalCurvatureSchoolAge(statConclusionList,SchoolAge.JUNIOR.code);
         if (Objects.nonNull(junior)){
             x.add(SchoolAge.JUNIOR.desc);
-            setSchoolAgeData(y,junior);
+            setSchoolAgeData(y,junior,valueList);
         }
 
         DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureSchoolAge normalHigh = getBloodPressureAndSpinalCurvatureSchoolAge(statConclusionList,SchoolAge.HIGH.code);
@@ -204,22 +206,25 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorService {
         if (Objects.nonNull(normalHigh) || Objects.nonNull(vocationalHigh)){
             x.add("高中");
             DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureSchoolAge high = getBloodPressureAndSpinalCurvatureSchoolAge(statConclusionList,10);
-            setSchoolAgeData(y,high);
+            setSchoolAgeData(y,high,valueList);
         }
         DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureSchoolAge university = getBloodPressureAndSpinalCurvatureSchoolAge(statConclusionList,SchoolAge.UNIVERSITY.code);
         if (Objects.nonNull(university)){
             x.add(SchoolAge.UNIVERSITY.desc);
-            setSchoolAgeData(y,university);
+            setSchoolAgeData(y,university,valueList);
         }
         chart.setX(x);
         chart.setY(y);
+        chart.setMaxValue(CollectionUtil.max(valueList));
         schoolAgeVO.setBloodPressureAndSpinalCurvatureSchoolAgeMonitorChart(chart);
 
     }
 
-    private void setSchoolAgeData(List<DistrictChartVO.ChartData> y, DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureSchoolAge schoolAge){
+    private void setSchoolAgeData(List<ChartVO.ChartData> y, DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureSchoolAge schoolAge,List<BigDecimal> valueList){
         y.get(0).getData().add(ReportUtil.getRatioNotSymbol(schoolAge.getHighBloodPressureRatio()));
         y.get(1).getData().add(ReportUtil.getRatioNotSymbol(schoolAge.getAbnormalSpineCurvatureRatio()));
+        valueList.add(ReportUtil.getRatioNotSymbol(schoolAge.getAbnormalSpineCurvatureRatio()));
+        valueList.add(ReportUtil.getRatioNotSymbol(schoolAge.getAbnormalSpineCurvatureRatio()));
     }
 
     /**

@@ -192,25 +192,29 @@ public class SchoolSaprodontiaMonitorService {
                 new ChartVO.ChartData(ReportConst.SAPRODONTIA_LOSS,Lists.newArrayList()),
                 new ChartVO.ChartData(ReportConst.SAPRODONTIA_REPAIR,Lists.newArrayList())
         );
-
+        List<BigDecimal> valueList =Lists.newArrayList();
         Map<String, List<StatConclusion>> gradeCodeMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
         gradeCodeMap = CollectionUtil.sort(gradeCodeMap, String::compareTo);
         gradeCodeMap.forEach((gradeCode,list)->{
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(gradeCode);
             x.add(gradeCodeEnum.getName());
-            SaprodontiaNum num = new SaprodontiaNum().build(list).ratioNotSymbol().ratio();
-            setGradeData(y,num);
+            setGradeData(y,list,valueList);
         });
         chart.setX(x);
         chart.setY(y);
+        chart.setMaxValue(CollectionUtil.max(valueList));
         saprodontiaGradeVO.setSaprodontiaGradeMonitorChart(chart);
 
     }
 
-    private void setGradeData(List<ChartVO.ChartData> y, SaprodontiaNum num){
+    private void setGradeData(List<ChartVO.ChartData> y, List<StatConclusion> statConclusionList,List<BigDecimal> valueList){
+        SaprodontiaNum num = new SaprodontiaNum().build(statConclusionList).ratioNotSymbol().ratio();
         y.get(0).getData().add(num.getSaprodontiaRatio());
         y.get(1).getData().add(num.getSaprodontiaLossRatio());
         y.get(2).getData().add(num.getSaprodontiaRepairRatio());
+        valueList.add(num.getSaprodontiaRatio());
+        valueList.add(num.getSaprodontiaLossRatio());
+        valueList.add(num.getSaprodontiaRepairRatio());
     }
 
     /**

@@ -48,7 +48,7 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorVO {
         /**
          * 学龄段图表
          */
-        private DistrictChartVO.Chart bloodPressureAndSpinalCurvatureSchoolAgeMonitorChart;
+        private ChartVO.Chart bloodPressureAndSpinalCurvatureSchoolAgeMonitorChart;
 
     }
     @Data

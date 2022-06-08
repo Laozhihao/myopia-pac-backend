@@ -26,6 +26,11 @@ public class ChartVO {
          */
         private List<ChartData> y;
 
+        /**
+         * 最大值
+         */
+        private BigDecimal maxValue;
+
     }
     @Data
     public static class ChartData {
@@ -54,6 +59,10 @@ public class ChartVO {
          * x轴
          */
         private List<AgeData> x;
+        /**
+         * 最大值
+         */
+        private BigDecimal maxValue;
 
     }
     @Data

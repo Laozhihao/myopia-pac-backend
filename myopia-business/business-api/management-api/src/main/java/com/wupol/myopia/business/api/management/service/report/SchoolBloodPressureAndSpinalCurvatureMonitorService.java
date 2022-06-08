@@ -13,6 +13,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -187,21 +188,24 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
                 new ChartVO.ChartData(ReportConst.HIGH_BLOOD_PRESSURE,Lists.newArrayList()),
                 new ChartVO.ChartData(ReportConst.ABNORMAL_SPINE_CURVATURE,Lists.newArrayList())
         );
+        List<BigDecimal> valueList =Lists.newArrayList();
         Map<String, List<StatConclusion>> gradeCodeMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
         gradeCodeMap = CollectionUtil.sort(gradeCodeMap, String::compareTo);
         gradeCodeMap.forEach((gradeCode,list)->{
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(gradeCode);
             x.add(gradeCodeEnum.getName());
-            BloodPressureAndSpinalCurvatureNum num = new BloodPressureAndSpinalCurvatureNum().build(list).ratioNotSymbol().ratio();
-            setGradeData(y,num);
+            setGradeData(y,list,valueList);
         });
         chart.setX(x);
         chart.setY(y);
         gradeVO.setBloodPressureAndSpinalCurvatureGradeMonitorChart(chart);
     }
-    private void setGradeData(List<ChartVO.ChartData> y, BloodPressureAndSpinalCurvatureNum num){
+    private void setGradeData(List<ChartVO.ChartData> y,List<StatConclusion> statConclusionList ,List<BigDecimal> valueList){
+        BloodPressureAndSpinalCurvatureNum num = new BloodPressureAndSpinalCurvatureNum().build(statConclusionList).ratioNotSymbol().ratio();
         y.get(0).getData().add(num.getHighBloodPressureRatio());
         y.get(1).getData().add(num.getAbnormalSpineCurvatureRatio());
+        valueList.add(num.getHighBloodPressureRatio());
+        valueList.add(num.getAbnormalSpineCurvatureRatio());
     }
 
     /**
