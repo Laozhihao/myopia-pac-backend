@@ -214,8 +214,8 @@ public class SaprodontiaNum extends EntityFunction implements Num {
         return saprodontiaMonitorVariableVO;
     }
 
-    public DistrictSaprodontiaMonitorVO.SaprodontiaSchoolAge buildSaprodontiaSchoolAge(){
-        DistrictSaprodontiaMonitorVO.SaprodontiaSchoolAge saprodontiaSchoolAge = new DistrictSaprodontiaMonitorVO.SaprodontiaSchoolAge();
+    public SaprodontiaSchoolAge buildSaprodontiaSchoolAge(){
+        SaprodontiaSchoolAge saprodontiaSchoolAge = new SaprodontiaSchoolAge();
         saprodontiaSchoolAge.setSaprodontiaRatio(saprodontiaRatioStr);
         saprodontiaSchoolAge.setSaprodontiaLossRatio(saprodontiaLossRatioStr);
         saprodontiaSchoolAge.setSaprodontiaRepairRatio(saprodontiaRepairRatioStr);

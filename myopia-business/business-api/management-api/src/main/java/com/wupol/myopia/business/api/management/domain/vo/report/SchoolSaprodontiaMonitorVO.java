@@ -33,63 +33,8 @@ public class SchoolSaprodontiaMonitorVO {
 
 
 
-    @Data
-    public static class SaprodontiaGradeVO{
-
-        /**
-         * 年级说明
-         */
-        private SaprodontiaGradeVariableVO saprodontiaGradeVariableVO;
-        /**
-         * 年级表格数据
-         */
-        private List<SaprodontiaMonitorTable> saprodontiaGradeMonitorTableList;
-        /**
-         * 年级图表
-         */
-        private ChartVO.Chart saprodontiaGradeMonitorChart;
-
-    }
-    @Data
-    public static class SaprodontiaGradeVariableVO{
-        /**
-         * 最高年级龋患率
-         */
-        private GradeRatio saprodontiaRatio;
-
-        /**
-         * 最高年级龋失率
-         */
-        private GradeRatio saprodontiaLossRatio;
-
-        /**
-         * 最高年级龋补率
-         */
-        private GradeRatio saprodontiaRepairRatio;
-
-    }
 
 
-    @Data
-    public static class GradeRatio{
-        /**
-         * 最高占比年级
-         */
-        private String maxGrade;
-        /**
-         * 最低占比年级
-         */
-        private String minGrade;
-        /**
-         * 最高占比
-         */
-        private String maxRatio;
-        /**
-         * 最低占比
-         */
-        private String minRatio;
-
-    }
 
 
 }

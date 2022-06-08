@@ -173,58 +173,23 @@ public class SchoolSaprodontiaMonitorService {
         if (CollectionUtil.isEmpty(statConclusionList)){
             return;
         }
-        SchoolSaprodontiaMonitorVO.SaprodontiaGradeVO saprodontiaGradeVO = new SchoolSaprodontiaMonitorVO.SaprodontiaGradeVO();
+        SaprodontiaGradeVO saprodontiaGradeVO = new SaprodontiaGradeVO();
         getSaprodontiaGradeVariableVO(statConclusionList,saprodontiaGradeVO);
         getSaprodontiaGradeMonitorTableList(statConclusionList,saprodontiaGradeVO);
-        getSaprodontiaGradeMonitorChart(statConclusionList,saprodontiaGradeVO);
+        reportChartService.getGradeMonitorChart(statConclusionList,saprodontiaGradeVO);
         schoolSaprodontiaMonitorVO.setSaprodontiaGradeVO(saprodontiaGradeVO);
 
     }
 
-    private void getSaprodontiaGradeMonitorChart(List<StatConclusion> statConclusionList, SchoolSaprodontiaMonitorVO.SaprodontiaGradeVO saprodontiaGradeVO) {
-        if(CollectionUtil.isEmpty(statConclusionList)){
-            return;
-        }
-        ChartVO.Chart chart = new ChartVO.Chart();
-        List<String> x = Lists.newArrayList();
-        List<ChartVO.ChartData> y = Lists.newArrayList(
-                new ChartVO.ChartData(ReportConst.SAPRODONTIA,Lists.newArrayList()),
-                new ChartVO.ChartData(ReportConst.SAPRODONTIA_LOSS,Lists.newArrayList()),
-                new ChartVO.ChartData(ReportConst.SAPRODONTIA_REPAIR,Lists.newArrayList())
-        );
-        List<BigDecimal> valueList =Lists.newArrayList();
-        Map<String, List<StatConclusion>> gradeCodeMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
-        gradeCodeMap = CollectionUtil.sort(gradeCodeMap, String::compareTo);
-        gradeCodeMap.forEach((gradeCode,list)->{
-            GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(gradeCode);
-            x.add(gradeCodeEnum.getName());
-            setGradeData(y,list,valueList);
-        });
-        chart.setX(x);
-        chart.setY(y);
-        chart.setMaxValue(CollectionUtil.max(valueList));
-        saprodontiaGradeVO.setSaprodontiaGradeMonitorChart(chart);
-
-    }
-
-    private void setGradeData(List<ChartVO.ChartData> y, List<StatConclusion> statConclusionList,List<BigDecimal> valueList){
-        SaprodontiaNum num = new SaprodontiaNum().build(statConclusionList).ratioNotSymbol().ratio();
-        y.get(0).getData().add(num.getSaprodontiaRatio());
-        y.get(1).getData().add(num.getSaprodontiaLossRatio());
-        y.get(2).getData().add(num.getSaprodontiaRepairRatio());
-        valueList.add(num.getSaprodontiaRatio());
-        valueList.add(num.getSaprodontiaLossRatio());
-        valueList.add(num.getSaprodontiaRepairRatio());
-    }
 
     /**
      * 龋齿监测结果-不同学龄段-说明变量
      */
-    private void getSaprodontiaGradeVariableVO(List<StatConclusion> statConclusionList, SchoolSaprodontiaMonitorVO.SaprodontiaGradeVO saprodontiaGradeVO) {
+    private void getSaprodontiaGradeVariableVO(List<StatConclusion> statConclusionList, SaprodontiaGradeVO saprodontiaGradeVO) {
         if(CollectionUtil.isEmpty(statConclusionList)){
             return;
         }
-        SchoolSaprodontiaMonitorVO.SaprodontiaGradeVariableVO saprodontiaGradeVariableVO = new SchoolSaprodontiaMonitorVO.SaprodontiaGradeVariableVO();
+        SaprodontiaGradeVO.SaprodontiaGradeVariableVO saprodontiaGradeVariableVO = new SaprodontiaGradeVO.SaprodontiaGradeVariableVO();
         Map<String, List<StatConclusion>> gradeCodeMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
         Map<String, SaprodontiaNum> saprodontiaNumMap = Maps.newHashMap();
         gradeCodeMap.forEach((gradeCode,list)->{
@@ -233,34 +198,19 @@ public class SchoolSaprodontiaMonitorService {
         });
 
         if (saprodontiaNumMap.size() >= 2){
-            saprodontiaGradeVariableVO.setSaprodontiaRatio(getGradeRatio(saprodontiaNumMap,SaprodontiaNum::getSaprodontiaNum, SaprodontiaNum::getSaprodontiaRatioStr));
-            saprodontiaGradeVariableVO.setSaprodontiaLossRatio(getGradeRatio(saprodontiaNumMap,SaprodontiaNum::getSaprodontiaLossNum, SaprodontiaNum::getSaprodontiaLossRatioStr));
-            saprodontiaGradeVariableVO.setSaprodontiaRepairRatio(getGradeRatio(saprodontiaNumMap,SaprodontiaNum::getSaprodontiaRepairNum, SaprodontiaNum::getSaprodontiaRepairRatioStr));
+            saprodontiaGradeVariableVO.setSaprodontiaRatio(ReportUtil.getSchoolGradeRatio(saprodontiaNumMap,SaprodontiaNum::getSaprodontiaNum, SaprodontiaNum::getSaprodontiaRatioStr));
+            saprodontiaGradeVariableVO.setSaprodontiaLossRatio(ReportUtil.getSchoolGradeRatio(saprodontiaNumMap,SaprodontiaNum::getSaprodontiaLossNum, SaprodontiaNum::getSaprodontiaLossRatioStr));
+            saprodontiaGradeVariableVO.setSaprodontiaRepairRatio(ReportUtil.getSchoolGradeRatio(saprodontiaNumMap,SaprodontiaNum::getSaprodontiaRepairNum, SaprodontiaNum::getSaprodontiaRepairRatioStr));
             saprodontiaGradeVO.setSaprodontiaGradeVariableVO(saprodontiaGradeVariableVO);
         }
 
     }
 
 
-    private SchoolSaprodontiaMonitorVO.GradeRatio getGradeRatio(Map<String, SaprodontiaNum> saprodontiaNumMap,Function<SaprodontiaNum,Integer> function,Function<SaprodontiaNum,String> mapper){
-        if (CollectionUtil.isEmpty(saprodontiaNumMap)){
-            return null;
-        }
-        SchoolSaprodontiaMonitorVO.GradeRatio gradeRatio = new SchoolSaprodontiaMonitorVO.GradeRatio();
-        TwoTuple<String, String> maxTuple = ReportUtil.getMaxMap(saprodontiaNumMap, function,mapper);
-        TwoTuple<String, String> minTuple = ReportUtil.getMinMap(saprodontiaNumMap, function,mapper);
-        gradeRatio.setMaxGrade(maxTuple.getFirst());
-        gradeRatio.setMaxRatio(maxTuple.getSecond());
-        gradeRatio.setMinGrade(minTuple.getFirst());
-        gradeRatio.setMinRatio(minTuple.getSecond());
-        return gradeRatio;
-    }
-
-
     /**
      * 龋齿监测结果-不同学龄段-表格数据
      */
-    private void getSaprodontiaGradeMonitorTableList(List<StatConclusion> statConclusionList, SchoolSaprodontiaMonitorVO.SaprodontiaGradeVO saprodontiaGradeVO) {
+    private void getSaprodontiaGradeMonitorTableList(List<StatConclusion> statConclusionList, SaprodontiaGradeVO saprodontiaGradeVO) {
         if (CollectionUtil.isEmpty(statConclusionList)){
             return;
         }

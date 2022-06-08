@@ -108,6 +108,11 @@ public class ChartVO {
     public static class GradeRatioExtremumChart extends RatioExtremumChart{
 
         /**
+         * 年级占比
+         */
+        private BigDecimal ratio;
+
+        /**
          * 最高占比班级
          */
         private String maxClassName;

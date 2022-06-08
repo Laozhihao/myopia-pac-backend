@@ -13,17 +13,17 @@ public class AgeRatioVO {
     /**
      * 最高年龄段
      */
-    private String maxAge;
+    private String maxName;
     /**
      * 最小年龄段
      */
-    private String minAge;
+    private String minName;
     /**
      * 最高占比
      */
-    private String maxRatio;
+    private String maxProportion;
     /**
      * 最低占比
      */
-    private String minRatio;
+    private String minProportion;
 }

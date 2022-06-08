@@ -171,61 +171,24 @@ public class SchoolHeightAndWeightMonitorService {
         if (CollectionUtil.isEmpty(statConclusionList)){
             return;
         }
-        SchoolHeightAndWeightMonitorVO.HeightAndWeightGradeVO heightAndWeightGradeVO = new SchoolHeightAndWeightMonitorVO.HeightAndWeightGradeVO();
+        HeightAndWeightGradeVO heightAndWeightGradeVO = new HeightAndWeightGradeVO();
         getHeightAndWeightGradeVariableVO(statConclusionList,heightAndWeightGradeVO);
         getHeightAndWeightGradeMonitorTableList(statConclusionList,heightAndWeightGradeVO);
-        getHeightAndWeightGradeMonitorChart(statConclusionList,heightAndWeightGradeVO);
+        reportChartService.getGradeMonitorChart(statConclusionList,heightAndWeightGradeVO);
         districtHeightAndWeightMonitorVO.setHeightAndWeightGradeVO(heightAndWeightGradeVO);
 
     }
 
-    private void getHeightAndWeightGradeMonitorChart(List<StatConclusion> statConclusionList, SchoolHeightAndWeightMonitorVO.HeightAndWeightGradeVO heightAndWeightGradeVO) {
-        if(CollectionUtil.isEmpty(statConclusionList)){
-            return;
-        }
-        ChartVO.Chart chart = new ChartVO.Chart();
-        List<String> x = Lists.newArrayList();
-        List<ChartVO.ChartData> y = Lists.newArrayList(
-                new ChartVO.ChartData(ReportConst.OVERWEIGHT,Lists.newArrayList()),
-                new ChartVO.ChartData(ReportConst.OBESE,Lists.newArrayList()),
-                new ChartVO.ChartData(ReportConst.MALNOURISHED,Lists.newArrayList()),
-                new ChartVO.ChartData(ReportConst.STUNTING,Lists.newArrayList())
-        );
-        List<BigDecimal> valueList =Lists.newArrayList();
-        Map<String, List<StatConclusion>> gradeCodeMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
-        gradeCodeMap = CollectionUtil.sort(gradeCodeMap, String::compareTo);
-        gradeCodeMap.forEach((gradeCode,list)->{
-            GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(gradeCode);
-            x.add(gradeCodeEnum.getName());
-            setGradeData(y,list,valueList);
-        });
-        chart.setX(x);
-        chart.setY(y);
-        chart.setMaxValue(CollectionUtil.max(valueList));
-        heightAndWeightGradeVO.setHeightAndWeightGradeMonitorChart(chart);
-    }
-
-    private void setGradeData(List<ChartVO.ChartData> y, List<StatConclusion> statConclusionList,List<BigDecimal> valueList){
-        HeightAndWeightNum num = new HeightAndWeightNum().build(statConclusionList).ratioNotSymbol().ratio();
-        y.get(0).getData().add(num.getOverweightRatio());
-        y.get(1).getData().add(num.getObeseRatio());
-        y.get(2).getData().add(num.getMalnourishedRatio());
-        y.get(3).getData().add(num.getStuntingRatio());
-        valueList.add(num.getOverweightRatio());
-        valueList.add(num.getObeseRatio());
-        valueList.add(num.getMalnourishedRatio());
-        valueList.add(num.getStuntingRatio());
-    }
 
     /**
      * 体重身高监测结果-不同学龄段-说明变量
      */
-    private void getHeightAndWeightGradeVariableVO(List<StatConclusion> statConclusionList, SchoolHeightAndWeightMonitorVO.HeightAndWeightGradeVO heightAndWeightGradeVO) {
+    private void getHeightAndWeightGradeVariableVO(List<StatConclusion> statConclusionList, HeightAndWeightGradeVO heightAndWeightGradeVO) {
         if(CollectionUtil.isEmpty(statConclusionList)){
             return;
         }
 
-        SchoolHeightAndWeightMonitorVO.HeightAndWeightGradeVariableVO schoolAgeVariableVO = new SchoolHeightAndWeightMonitorVO.HeightAndWeightGradeVariableVO();
+        HeightAndWeightGradeVO.HeightAndWeightGradeVariableVO schoolAgeVariableVO = new HeightAndWeightGradeVO.HeightAndWeightGradeVariableVO();
 
         Map<String, List<StatConclusion>> gradeCodeMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
         Map<String, HeightAndWeightNum> heightAndWeightNumMap = Maps.newHashMap();
@@ -235,34 +198,20 @@ public class SchoolHeightAndWeightMonitorService {
         });
 
         if (heightAndWeightNumMap.size() >= 2){
-            schoolAgeVariableVO.setOverweightRatio(getGradeRatio(heightAndWeightNumMap, HeightAndWeightNum::getOverweightNum, HeightAndWeightNum::getOverweightRatioStr));
-            schoolAgeVariableVO.setObeseRatio(getGradeRatio(heightAndWeightNumMap, HeightAndWeightNum::getObeseNum, HeightAndWeightNum::getObeseRatioStr));
-            schoolAgeVariableVO.setStuntingRatio(getGradeRatio(heightAndWeightNumMap, HeightAndWeightNum::getStuntingNum, HeightAndWeightNum::getStuntingRatioStr));
-            schoolAgeVariableVO.setMalnourishedRatio(getGradeRatio(heightAndWeightNumMap, HeightAndWeightNum::getMalnourishedNum, HeightAndWeightNum::getMalnourishedRatioStr));
+            schoolAgeVariableVO.setOverweightRatio(ReportUtil.getSchoolGradeRatio(heightAndWeightNumMap, HeightAndWeightNum::getOverweightNum, HeightAndWeightNum::getOverweightRatioStr));
+            schoolAgeVariableVO.setObeseRatio(ReportUtil.getSchoolGradeRatio(heightAndWeightNumMap, HeightAndWeightNum::getObeseNum, HeightAndWeightNum::getObeseRatioStr));
+            schoolAgeVariableVO.setStuntingRatio(ReportUtil.getSchoolGradeRatio(heightAndWeightNumMap, HeightAndWeightNum::getStuntingNum, HeightAndWeightNum::getStuntingRatioStr));
+            schoolAgeVariableVO.setMalnourishedRatio(ReportUtil.getSchoolGradeRatio(heightAndWeightNumMap, HeightAndWeightNum::getMalnourishedNum, HeightAndWeightNum::getMalnourishedRatioStr));
             heightAndWeightGradeVO.setHeightAndWeightGradeVariableVO(schoolAgeVariableVO);
         }
     }
 
 
-    private SchoolHeightAndWeightMonitorVO.GradeRatio getGradeRatio(Map<String, HeightAndWeightNum> heightAndWeightNumMap,Function<HeightAndWeightNum,Integer> function ,Function<HeightAndWeightNum,String> mapper){
-        if (CollectionUtil.isEmpty(heightAndWeightNumMap)){
-            return null;
-        }
-        SchoolHeightAndWeightMonitorVO.GradeRatio gradeRatio = new SchoolHeightAndWeightMonitorVO.GradeRatio();
-        TwoTuple<String, String> maxTuple = ReportUtil.getMaxMap(heightAndWeightNumMap, HeightAndWeightNum::getOverweightNum, HeightAndWeightNum::getOverweightRatioStr);
-        TwoTuple<String, String> minTuple = ReportUtil.getMinMap(heightAndWeightNumMap, HeightAndWeightNum::getOverweightNum, HeightAndWeightNum::getOverweightRatioStr);
-        gradeRatio.setMaxGrade(maxTuple.getFirst());
-        gradeRatio.setMaxRatio(maxTuple.getSecond());
-        gradeRatio.setMinGrade(minTuple.getFirst());
-        gradeRatio.setMinRatio(minTuple.getSecond());
-        return gradeRatio;
-    }
-
 
     /**
      * 体重身高监测结果-不同学龄段-表格数据
      */
-    private void getHeightAndWeightGradeMonitorTableList(List<StatConclusion> statConclusionList, SchoolHeightAndWeightMonitorVO.HeightAndWeightGradeVO heightAndWeightGradeVO) {
+    private void getHeightAndWeightGradeMonitorTableList(List<StatConclusion> statConclusionList, HeightAndWeightGradeVO heightAndWeightGradeVO) {
         if (CollectionUtil.isEmpty(statConclusionList)){
             return;
         }

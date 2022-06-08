@@ -127,8 +127,8 @@ public class BloodPressureAndSpinalCurvatureNum extends EntityFunction implement
         return bloodPressureAndSpinalCurvatureMonitorTable;
     }
 
-    public DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureSchoolAge buildBloodPressureAndSpinalCurvatureSchoolAge(){
-        DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureSchoolAge bloodPressureAndSpinalCurvatureSchoolAge = new DistrictBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureSchoolAge();
+    public BloodPressureAndSpinalCurvatureSchoolAge buildBloodPressureAndSpinalCurvatureSchoolAge(){
+        BloodPressureAndSpinalCurvatureSchoolAge bloodPressureAndSpinalCurvatureSchoolAge = new BloodPressureAndSpinalCurvatureSchoolAge();
         bloodPressureAndSpinalCurvatureSchoolAge.setAbnormalSpineCurvatureRatio(abnormalSpineCurvatureRatioStr);
         bloodPressureAndSpinalCurvatureSchoolAge.setHighBloodPressureRatio(highBloodPressureRatioStr);
         return bloodPressureAndSpinalCurvatureSchoolAge;

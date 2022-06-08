@@ -108,10 +108,10 @@ public class ReportUtil {
         TwoTuple<Integer, String> maxTuple = ReportUtil.getMaxMap(saprodontiaNumMap, function,mapper);
         TwoTuple<Integer, String> minTuple = ReportUtil.getMinMap(saprodontiaNumMap, function,mapper);
         AgeRatioVO ageRatio = new AgeRatioVO();
-        ageRatio.setMaxAge(AgeSegmentEnum.get(maxTuple.getFirst()).getDesc());
-        ageRatio.setMinAge(AgeSegmentEnum.get(minTuple.getFirst()).getDesc());
-        ageRatio.setMaxRatio(maxTuple.getSecond());
-        ageRatio.setMinRatio(minTuple.getSecond());
+        ageRatio.setMaxName(AgeSegmentEnum.get(maxTuple.getFirst()).getDesc());
+        ageRatio.setMinName(AgeSegmentEnum.get(minTuple.getFirst()).getDesc());
+        ageRatio.setMaxProportion(maxTuple.getSecond());
+        ageRatio.setMinProportion(minTuple.getSecond());
         return ageRatio;
     }
 
@@ -164,9 +164,34 @@ public class ReportUtil {
         }
     }
 
-
     public static BigDecimal getRatioNotSymbol(String ratio){
         return new BigDecimal(ratio.substring(0,ratio.length()-1));
+    }
+
+
+    public static <T> GradeRatio getGradeRatio(Map<String, T> numMap,Function<T,Integer> function,Function<T,String> mapper){
+        if (CollectionUtil.isNotEmpty(numMap)){
+            return null;
+        }
+        GradeRatio gradeRatio = new GradeRatio();
+        TwoTuple<String, String> tuple = ReportUtil.getMaxMap(numMap, function, mapper);
+        gradeRatio.setGrade(tuple.getFirst());
+        gradeRatio.setRatio(tuple.getSecond());
+        return gradeRatio;
+    }
+
+    public static <T> SchoolGradeRatio getSchoolGradeRatio(Map<String, T> numMap,Function<T,Integer> function ,Function<T,String> mapper){
+        if (CollectionUtil.isEmpty(numMap)){
+            return null;
+        }
+        SchoolGradeRatio gradeRatio = new SchoolGradeRatio();
+        TwoTuple<String, String> maxTuple = ReportUtil.getMaxMap(numMap, function, mapper);
+        TwoTuple<String, String> minTuple = ReportUtil.getMinMap(numMap, function, mapper);
+        gradeRatio.setMaxGrade(maxTuple.getFirst());
+        gradeRatio.setMaxRatio(maxTuple.getSecond());
+        gradeRatio.setMinGrade(minTuple.getFirst());
+        gradeRatio.setMinRatio(minTuple.getSecond());
+        return gradeRatio;
     }
 
 

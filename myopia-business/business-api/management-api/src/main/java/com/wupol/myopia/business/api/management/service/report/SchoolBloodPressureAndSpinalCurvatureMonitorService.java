@@ -170,53 +170,22 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
         if (CollectionUtil.isEmpty(statConclusionList)){
             return;
         }
-        SchoolBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureGradeVO gradeVO = new SchoolBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureGradeVO();
+        BloodPressureAndSpinalCurvatureGradeVO gradeVO = new BloodPressureAndSpinalCurvatureGradeVO();
         getBloodPressureAndSpinalCurvatureGradeVariableVO(statConclusionList,gradeVO);
         getBloodPressureAndSpinalCurvatureGradeMonitorTableList(statConclusionList,gradeVO);
-        getBloodPressureAndSpinalCurvatureGradeMonitorChart(statConclusionList,gradeVO);
+        reportChartService.getGradeMonitorChart(statConclusionList,gradeVO);
         schoolBloodPressureAndSpinalCurvatureMonitorVO.setBloodPressureAndSpinalCurvatureGradeVO(gradeVO);
-    }
-
-    private void getBloodPressureAndSpinalCurvatureGradeMonitorChart(List<StatConclusion> statConclusionList, SchoolBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureGradeVO gradeVO) {
-        if(CollectionUtil.isEmpty(statConclusionList)){
-            return;
-        }
-        ChartVO.Chart chart = new ChartVO.Chart();
-
-        List<String> x = Lists.newArrayList();
-        List<ChartVO.ChartData> y = Lists.newArrayList(
-                new ChartVO.ChartData(ReportConst.HIGH_BLOOD_PRESSURE,Lists.newArrayList()),
-                new ChartVO.ChartData(ReportConst.ABNORMAL_SPINE_CURVATURE,Lists.newArrayList())
-        );
-        List<BigDecimal> valueList =Lists.newArrayList();
-        Map<String, List<StatConclusion>> gradeCodeMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
-        gradeCodeMap = CollectionUtil.sort(gradeCodeMap, String::compareTo);
-        gradeCodeMap.forEach((gradeCode,list)->{
-            GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(gradeCode);
-            x.add(gradeCodeEnum.getName());
-            setGradeData(y,list,valueList);
-        });
-        chart.setX(x);
-        chart.setY(y);
-        gradeVO.setBloodPressureAndSpinalCurvatureGradeMonitorChart(chart);
-    }
-    private void setGradeData(List<ChartVO.ChartData> y,List<StatConclusion> statConclusionList ,List<BigDecimal> valueList){
-        BloodPressureAndSpinalCurvatureNum num = new BloodPressureAndSpinalCurvatureNum().build(statConclusionList).ratioNotSymbol().ratio();
-        y.get(0).getData().add(num.getHighBloodPressureRatio());
-        y.get(1).getData().add(num.getAbnormalSpineCurvatureRatio());
-        valueList.add(num.getHighBloodPressureRatio());
-        valueList.add(num.getAbnormalSpineCurvatureRatio());
     }
 
     /**
      * 血压与脊柱弯曲异常监测结果-不同学龄段-说明变量
      */
-    private void getBloodPressureAndSpinalCurvatureGradeVariableVO(List<StatConclusion> statConclusionList, SchoolBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureGradeVO schoolAgeVO) {
+    private void getBloodPressureAndSpinalCurvatureGradeVariableVO(List<StatConclusion> statConclusionList, BloodPressureAndSpinalCurvatureGradeVO schoolAgeVO) {
         if(CollectionUtil.isEmpty(statConclusionList)){
             return;
         }
 
-        SchoolBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureGradeVariableVO schoolAgeVariableVO = new SchoolBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureGradeVariableVO();
+        BloodPressureAndSpinalCurvatureGradeVO.BloodPressureAndSpinalCurvatureGradeVariableVO schoolAgeVariableVO = new BloodPressureAndSpinalCurvatureGradeVO.BloodPressureAndSpinalCurvatureGradeVariableVO();
 
         Map<String, List<StatConclusion>> gradeCodeMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
         Map<String, BloodPressureAndSpinalCurvatureNum> bloodPressureAndSpinalCurvatureNumMap = Maps.newHashMap();
@@ -226,33 +195,17 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
         });
 
         if (bloodPressureAndSpinalCurvatureNumMap.size() >= 2){
-            schoolAgeVariableVO.setAbnormalSpineCurvatureRatio(getGradeRatio(bloodPressureAndSpinalCurvatureNumMap, BloodPressureAndSpinalCurvatureNum::getAbnormalSpineCurvatureNum, BloodPressureAndSpinalCurvatureNum::getAbnormalSpineCurvatureRatioStr));
-            schoolAgeVariableVO.setHighBloodPressureRatio(getGradeRatio(bloodPressureAndSpinalCurvatureNumMap, BloodPressureAndSpinalCurvatureNum::getHighBloodPressureNum, BloodPressureAndSpinalCurvatureNum::getHighBloodPressureRatioStr));
+            schoolAgeVariableVO.setAbnormalSpineCurvatureRatio(ReportUtil.getSchoolGradeRatio(bloodPressureAndSpinalCurvatureNumMap, BloodPressureAndSpinalCurvatureNum::getAbnormalSpineCurvatureNum, BloodPressureAndSpinalCurvatureNum::getAbnormalSpineCurvatureRatioStr));
+            schoolAgeVariableVO.setHighBloodPressureRatio(ReportUtil.getSchoolGradeRatio(bloodPressureAndSpinalCurvatureNumMap, BloodPressureAndSpinalCurvatureNum::getHighBloodPressureNum, BloodPressureAndSpinalCurvatureNum::getHighBloodPressureRatioStr));
             schoolAgeVO.setBloodPressureAndSpinalCurvatureGradeVariableVO(schoolAgeVariableVO);
         }
-    }
-
-
-    private SchoolBloodPressureAndSpinalCurvatureMonitorVO.GradeRatio getGradeRatio(Map<String, BloodPressureAndSpinalCurvatureNum> bloodPressureAndSpinalCurvatureNumMap,
-                                                                                    Function<BloodPressureAndSpinalCurvatureNum,Integer> function ,Function<BloodPressureAndSpinalCurvatureNum,String> mapper){
-        if (CollectionUtil.isEmpty(bloodPressureAndSpinalCurvatureNumMap)){
-            return null;
-        }
-        SchoolBloodPressureAndSpinalCurvatureMonitorVO.GradeRatio gradeRatio = new SchoolBloodPressureAndSpinalCurvatureMonitorVO.GradeRatio();
-        TwoTuple<String, String> maxTuple = ReportUtil.getMaxMap(bloodPressureAndSpinalCurvatureNumMap, function, mapper);
-        TwoTuple<String, String> minTuple = ReportUtil.getMinMap(bloodPressureAndSpinalCurvatureNumMap, function, mapper);
-        gradeRatio.setMaxGrade(maxTuple.getFirst());
-        gradeRatio.setMaxRatio(maxTuple.getSecond());
-        gradeRatio.setMinGrade(minTuple.getFirst());
-        gradeRatio.setMinRatio(minTuple.getSecond());
-        return gradeRatio;
     }
 
 
     /**
      * 血压与脊柱弯曲异常监测结果-不同学龄段-表格数据
      */
-    private void getBloodPressureAndSpinalCurvatureGradeMonitorTableList(List<StatConclusion> statConclusionList, SchoolBloodPressureAndSpinalCurvatureMonitorVO.BloodPressureAndSpinalCurvatureGradeVO schoolAgeVO) {
+    private void getBloodPressureAndSpinalCurvatureGradeMonitorTableList(List<StatConclusion> statConclusionList, BloodPressureAndSpinalCurvatureGradeVO schoolAgeVO) {
         if (CollectionUtil.isEmpty(statConclusionList)){
             return;
         }

@@ -166,8 +166,8 @@ public class HeightAndWeightNum extends EntityFunction implements Num {
         return heightAndWeightMonitorVariableVO;
     }
 
-    public DistrictHeightAndWeightMonitorVO.HeightAndWeightSchoolAge buildHeightAndWeightSchoolAge(){
-        DistrictHeightAndWeightMonitorVO.HeightAndWeightSchoolAge heightAndWeightSchoolAge = new DistrictHeightAndWeightMonitorVO.HeightAndWeightSchoolAge();
+    public HeightAndWeightSchoolAge buildHeightAndWeightSchoolAge(){
+        HeightAndWeightSchoolAge heightAndWeightSchoolAge = new HeightAndWeightSchoolAge();
         heightAndWeightSchoolAge.setOverweightRatio(overweightRatioStr);
         heightAndWeightSchoolAge.setObeseRatio(obeseRatioStr);
         heightAndWeightSchoolAge.setStuntingRatio(stuntingRatioStr);

@@ -43,8 +43,6 @@ public class SchoolClassScreeningMonitorService {
 
         gradeMap.forEach((gradeCode,list)->{
             SchoolClassScreeningMonitorVO schoolClassScreeningMonitorVO = new SchoolClassScreeningMonitorVO();
-            //说明变量
-            getSchoolClassScreeningMonitorVariableVO(list,schoolClassScreeningMonitorVO,gradeCode);
             //表格数据
             getSchoolClassScreeningMonitorTableList(list,schoolClassScreeningMonitorVO);
             if (schoolClassScreeningMonitorVO.notEmpty()) {
@@ -64,35 +62,38 @@ public class SchoolClassScreeningMonitorService {
         if (CollectionUtil.isEmpty(statConclusionList)){
             return;
         }
+
+        ScreeningNum gradeScreeningNum = new ScreeningNum().build(statConclusionList).ratioNotSymbol();
+
         Map<String, List<StatConclusion>> classStatConclusionMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolClassName));
         Map<String,ScreeningNum> classScreeningNumMap = Maps.newHashMap();
         classStatConclusionMap.forEach((schoolClassName,list)->{
             getSchoolClassScreeningNum(schoolClassName,list,classScreeningNumMap);
         });
 
-        List<ChartVO.GradeRatioExtremumChart> chartList =Lists.newArrayList(
-                new ChartVO.GradeRatioExtremumChart(ReportConst.SAPRODONTIA,Lists.newArrayList()),
-                new ChartVO.GradeRatioExtremumChart(ReportConst.SAPRODONTIA_LOSS_AND_REPAIR,Lists.newArrayList()),
-                new ChartVO.GradeRatioExtremumChart(ReportConst.OVERWEIGHT,Lists.newArrayList()),
-                new ChartVO.GradeRatioExtremumChart(ReportConst.OBESE,Lists.newArrayList()),
-                new ChartVO.GradeRatioExtremumChart(ReportConst.MALNOURISHED,Lists.newArrayList()),
-                new ChartVO.GradeRatioExtremumChart(ReportConst.STUNTING,Lists.newArrayList()),
-                new ChartVO.GradeRatioExtremumChart(ReportConst.ABNORMAL_SPINE_CURVATURE,Lists.newArrayList()),
-                new ChartVO.GradeRatioExtremumChart(ReportConst.HIGH_BLOOD_PRESSURE,Lists.newArrayList())
+        List<ChartVO.GradeRatioExtremumChart> chartList = Lists.newArrayList(
+                new ChartVO.GradeRatioExtremumChart(ReportConst.SAPRODONTIA, Lists.newArrayList()),
+                new ChartVO.GradeRatioExtremumChart(ReportConst.SAPRODONTIA_LOSS_AND_REPAIR, Lists.newArrayList()),
+                new ChartVO.GradeRatioExtremumChart(ReportConst.OVERWEIGHT, Lists.newArrayList()),
+                new ChartVO.GradeRatioExtremumChart(ReportConst.OBESE, Lists.newArrayList()),
+                new ChartVO.GradeRatioExtremumChart(ReportConst.MALNOURISHED, Lists.newArrayList()),
+                new ChartVO.GradeRatioExtremumChart(ReportConst.STUNTING, Lists.newArrayList()),
+                new ChartVO.GradeRatioExtremumChart(ReportConst.ABNORMAL_SPINE_CURVATURE, Lists.newArrayList()),
+                new ChartVO.GradeRatioExtremumChart(ReportConst.HIGH_BLOOD_PRESSURE, Lists.newArrayList())
         );
 
         AtomicBoolean flag = new AtomicBoolean(true);
         classScreeningNumMap.forEach((schoolName,screeningNum)->{
             if (flag.get()){
                 flag.set(false);
-                setChartData(chartList,0,classScreeningNumMap, ScreeningNum::getSaprodontiaNum, ScreeningNum::getSaprodontiaRatio);
-                setChartData(chartList,1,classScreeningNumMap, ScreeningNum::getSaprodontiaLossAndRepairNum, ScreeningNum::getSaprodontiaLossAndRepairRatio);
-                setChartData(chartList,2,classScreeningNumMap, ScreeningNum::getOverweightNum, ScreeningNum::getOverweightRatio);
-                setChartData(chartList,3,classScreeningNumMap, ScreeningNum::getObeseNum, ScreeningNum::getObeseRatio);
-                setChartData(chartList,4,classScreeningNumMap, ScreeningNum::getMalnourishedNum, ScreeningNum::getMalnourishedRatio);
-                setChartData(chartList,5,classScreeningNumMap, ScreeningNum::getStuntingNum, ScreeningNum::getStuntingRatio);
-                setChartData(chartList,6,classScreeningNumMap, ScreeningNum::getAbnormalSpineCurvatureNum, ScreeningNum::getAbnormalSpineCurvatureRatio);
-                setChartData(chartList,7,classScreeningNumMap, ScreeningNum::getHighBloodPressureNum, ScreeningNum::getHighBloodPressureRatio);
+                setChartData(chartList,0,classScreeningNumMap, ScreeningNum::getSaprodontiaNum, ScreeningNum::getSaprodontiaRatio,gradeScreeningNum);
+                setChartData(chartList,1,classScreeningNumMap, ScreeningNum::getSaprodontiaLossAndRepairNum, ScreeningNum::getSaprodontiaLossAndRepairRatio,gradeScreeningNum);
+                setChartData(chartList,2,classScreeningNumMap, ScreeningNum::getOverweightNum, ScreeningNum::getOverweightRatio,gradeScreeningNum);
+                setChartData(chartList,3,classScreeningNumMap, ScreeningNum::getObeseNum, ScreeningNum::getObeseRatio,gradeScreeningNum);
+                setChartData(chartList,4,classScreeningNumMap, ScreeningNum::getMalnourishedNum, ScreeningNum::getMalnourishedRatio,gradeScreeningNum);
+                setChartData(chartList,5,classScreeningNumMap, ScreeningNum::getStuntingNum, ScreeningNum::getStuntingRatio,gradeScreeningNum);
+                setChartData(chartList,6,classScreeningNumMap, ScreeningNum::getAbnormalSpineCurvatureNum, ScreeningNum::getAbnormalSpineCurvatureRatio,gradeScreeningNum);
+                setChartData(chartList,7,classScreeningNumMap, ScreeningNum::getHighBloodPressureNum, ScreeningNum::getHighBloodPressureRatio,gradeScreeningNum);
             }
             chartList.get(0).getData().add(screeningNum.getSaprodontiaRatio());
             chartList.get(1).getData().add(screeningNum.getSaprodontiaLossAndRepairRatio());
@@ -107,40 +108,16 @@ public class SchoolClassScreeningMonitorService {
         schoolClassScreeningMonitorVO.setSchoolClassScreeningMonitorChart(chartList);
     }
 
-    private void setChartData(List<ChartVO.GradeRatioExtremumChart> chartList, Integer index, Map<String,ScreeningNum> classScreeningNumMap, Function<ScreeningNum,Integer> function, Function<ScreeningNum,BigDecimal> mapper){
+    private void setChartData(List<ChartVO.GradeRatioExtremumChart> chartList, Integer index, Map<String,ScreeningNum> classScreeningNumMap,
+                              Function<ScreeningNum,Integer> function, Function<ScreeningNum,BigDecimal> mapper,ScreeningNum num ){
         GradeRatioExtremum gradeRatioExtremum = getClassRatioExtremum(classScreeningNumMap, function, mapper);
         chartList.get(index).setMaxClassName(gradeRatioExtremum.getMaxClassName());
         chartList.get(index).setMaxRatio(gradeRatioExtremum.getMaxRatio());
         chartList.get(index).setMinClassName(gradeRatioExtremum.getMinClassName());
         chartList.get(index).setMinRatio(gradeRatioExtremum.getMinRatio());
+        chartList.get(index).setRatio(mapper.apply(num));
     }
 
-    /**
-     * 各班级筛查情况-说明变量
-     */
-    private void getSchoolClassScreeningMonitorVariableVO(List<StatConclusion> statConclusionList,SchoolClassScreeningMonitorVO schoolClassScreeningMonitorVO,String gradeCode) {
-        if (CollectionUtil.isEmpty(statConclusionList)){
-            return;
-        }
-        Map<String, List<StatConclusion>> classStatConclusionMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolClassName));
-        Map<String,ScreeningNum> classScreeningNumMap = Maps.newHashMap();
-        classStatConclusionMap.forEach((schoolClassName,list)->{
-            getSchoolClassScreeningNum(schoolClassName,list,classScreeningNumMap);
-        });
-
-        if (classScreeningNumMap.size() >= 2){
-            SchoolClassScreeningMonitorVO.SchoolClassScreeningMonitorVariableVO variableVO = new SchoolClassScreeningMonitorVO.SchoolClassScreeningMonitorVariableVO();
-            variableVO.setSaprodontiaRatioExtremum(getClassRatioExtremum(classScreeningNumMap, ScreeningNum::getSaprodontiaNum, ScreeningNum::getSaprodontiaRatio));
-            variableVO.setSaprodontiaLossAndRepairRatioExtremum(getClassRatioExtremum(classScreeningNumMap, ScreeningNum::getSaprodontiaLossAndRepairNum, ScreeningNum::getSaprodontiaLossAndRepairRatio));
-            variableVO.setOverweightRatioExtremum(getClassRatioExtremum(classScreeningNumMap, ScreeningNum::getOverweightNum, ScreeningNum::getOverweightRatio));
-            variableVO.setObeseRatioExtremum(getClassRatioExtremum(classScreeningNumMap, ScreeningNum::getObeseNum, ScreeningNum::getObeseRatio));
-            variableVO.setStuntingRatioExtremum(getClassRatioExtremum(classScreeningNumMap, ScreeningNum::getStuntingNum, ScreeningNum::getStuntingRatio));
-            variableVO.setMalnourishedRatioExtremum(getClassRatioExtremum(classScreeningNumMap, ScreeningNum::getMalnourishedNum, ScreeningNum::getMalnourishedRatio));
-            variableVO.setAbnormalSpineCurvatureRatioExtremum(getClassRatioExtremum(classScreeningNumMap, ScreeningNum::getAbnormalSpineCurvatureNum, ScreeningNum::getAbnormalSpineCurvatureRatio));
-            variableVO.setHighBloodPressureRatioExtremum(getClassRatioExtremum(classScreeningNumMap, ScreeningNum::getHighBloodPressureNum, ScreeningNum::getHighBloodPressureRatio));
-            schoolClassScreeningMonitorVO.setSchoolClassScreeningMonitorVariableVO(variableVO);
-        }
-    }
 
     private GradeRatioExtremum getClassRatioExtremum(Map<String,ScreeningNum> classScreeningNumMap, Function<ScreeningNum,Integer> function, Function<ScreeningNum,BigDecimal> mapper){
         TwoTuple<String, BigDecimal> maxTuple = ReportUtil.getMaxMap(classScreeningNumMap, function,mapper);
