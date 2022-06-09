@@ -69,22 +69,22 @@ public class DistrictCommonDiseaseReportService {
     @Autowired
     private DistrictDiseaseMonitorService districtDiseaseMonitorService;
 
-    public DistrictCommonDiseaseReportVO districtCommonDiseaseReport(Integer districtId,Integer noticeId){
+    public DistrictCommonDiseaseReportVO districtCommonDiseaseReport(Integer districtId, Integer noticeId) {
         DistrictCommonDiseaseReportVO districtCommonDiseaseReportVO = new DistrictCommonDiseaseReportVO();
 
         List<Integer> districtIds = districtService.getSpecificDistrictTreeAllDistrictIds(districtId);
         districtIds.add(districtId);
 
-        List<StatConclusion> statConclusionList = getStatConclusionList(noticeId,Lists.newArrayList(districtIds),Boolean.TRUE,Boolean.FALSE);
+        List<StatConclusion> statConclusionList = getStatConclusionList(noticeId, Lists.newArrayList(districtIds), Boolean.TRUE, Boolean.FALSE);
 
         //全局变量
-        getGlobalVariableVO(districtId, noticeId,districtCommonDiseaseReportVO);
+        getGlobalVariableVO(districtId, noticeId, districtCommonDiseaseReportVO);
         //筛查人数和实际筛查人数
-        setNum(noticeId,districtCommonDiseaseReportVO);
+        setNum(noticeId, districtCommonDiseaseReportVO);
         //视力分析
-        getVisionAnalysisVO(statConclusionList,districtCommonDiseaseReportVO);
+        getVisionAnalysisVO(statConclusionList, districtCommonDiseaseReportVO);
         //常见病分析
-        getDistrictCommonDiseasesAnalysisVO(statConclusionList,districtCommonDiseaseReportVO);
+        getDistrictCommonDiseasesAnalysisVO(statConclusionList, districtCommonDiseaseReportVO);
 
         return districtCommonDiseaseReportVO;
     }
@@ -92,28 +92,28 @@ public class DistrictCommonDiseaseReportService {
     /**
      * 全局变量
      */
-    private void getGlobalVariableVO(Integer districtId,Integer noticeId,DistrictCommonDiseaseReportVO districtCommonDiseaseReportVO){
+    private void getGlobalVariableVO(Integer districtId, Integer noticeId, DistrictCommonDiseaseReportVO districtCommonDiseaseReportVO) {
         DistrictCommonDiseaseReportVO.GlobalVariableVO globalVariableVO = new DistrictCommonDiseaseReportVO.GlobalVariableVO();
-        String format="YYYY";
+        String format = "YYYY";
 
         ScreeningNotice screeningNotice = screeningNoticeService.getById(noticeId);
-        if (Objects.isNull(screeningNotice)){
-            throw new BusinessException(String.format("不存在筛查通知: noticeId=%s",noticeId));
+        if (Objects.isNull(screeningNotice)) {
+            throw new BusinessException(String.format("不存在筛查通知: noticeId=%s", noticeId));
         }
         List<ScreeningPlan> screeningPlanList = screeningPlanService.getAllPlanByNoticeId(noticeId);
-        if (CollectionUtil.isEmpty(screeningPlanList)){
-            throw new BusinessException(String.format("该筛查通知不存在筛查计划: noticeId=%s",noticeId));
+        if (CollectionUtil.isEmpty(screeningPlanList)) {
+            throw new BusinessException(String.format("该筛查通知不存在筛查计划: noticeId=%s", noticeId));
         }
 
         Set<Integer> planIds = screeningPlanList.stream().map(ScreeningPlan::getId).collect(Collectors.toSet());
         List<VisionScreeningResult> screeningResults = visionScreeningResultService.getByPlanIds(Lists.newArrayList(planIds));
-        if (CollectionUtil.isEmpty(screeningResults)){
+        if (CollectionUtil.isEmpty(screeningResults)) {
             districtCommonDiseaseReportVO.setGlobalVariableVO(globalVariableVO);
             return;
         }
 
         List<ScreeningPlanSchoolStudent> planSchoolStudentList = screeningPlanSchoolStudentService.getByScreeningPlanIds(Lists.newArrayList(planIds));
-        if (CollectionUtil.isEmpty(planSchoolStudentList)){
+        if (CollectionUtil.isEmpty(planSchoolStudentList)) {
             districtCommonDiseaseReportVO.setGlobalVariableVO(globalVariableVO);
             return;
         }
@@ -121,33 +121,32 @@ public class DistrictCommonDiseaseReportService {
         long totalSum = planSchoolStudentList.stream().map(ScreeningPlanSchoolStudent::getSchoolId).distinct().count();
 
         Map<Integer, List<ScreeningPlanSchoolStudent>> planSchoolStudentMap = planSchoolStudentList.stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getGradeType));
-        setSchoolItemData(planSchoolStudentMap,globalVariableVO);
+        setSchoolItemData(planSchoolStudentMap, globalVariableVO);
 
         //获取行政区域
         String districtName = districtService.getDistrictNameByDistrictId(districtId);
-        Set<String> years= Sets.newHashSet(DateUtil.format(screeningNotice.getStartTime(), format),
-                DateUtil.format(screeningNotice.getEndTime(), format));
+        Set<String> years = Sets.newHashSet(DateUtil.format(screeningNotice.getStartTime(), format),DateUtil.format(screeningNotice.getEndTime(), format));
         String year = CollectionUtil.join(years, "-");
-        if (years.size()==1){
-            List<String> yearPeriod= Lists.newArrayList(DateUtil.format(screeningNotice.getStartTime(), DatePattern.CHINESE_DATE_PATTERN),
+        if (years.size() == 1) {
+            List<String> yearPeriod = Lists.newArrayList(DateUtil.format(screeningNotice.getStartTime(), DatePattern.CHINESE_DATE_PATTERN),
                     DateUtil.format(screeningNotice.getEndTime(), "MM月dd日"));
             String screeningTimePeriod = CollectionUtil.join(yearPeriod, StrUtil.DASHED);
             globalVariableVO.setScreeningTimePeriod(screeningTimePeriod);
             globalVariableVO.setDataYear(year);
-        }else {
-            List<String> yearPeriod= Lists.newArrayList(DateUtil.format(screeningNotice.getStartTime(), DatePattern.CHINESE_DATE_PATTERN),
+        } else {
+            List<String> yearPeriod = Lists.newArrayList(DateUtil.format(screeningNotice.getStartTime(), DatePattern.CHINESE_DATE_PATTERN),
                     DateUtil.format(screeningNotice.getEndTime(), DatePattern.CHINESE_DATE_PATTERN));
             String screeningTimePeriod = CollectionUtil.join(yearPeriod, StrUtil.DASHED);
             globalVariableVO.setScreeningTimePeriod(screeningTimePeriod);
 
             VisionScreeningResult visionScreeningResult = screeningResults.get(0);
-            String dataYear = DateUtil.format(visionScreeningResult.getCreateTime(),format);
+            String dataYear = DateUtil.format(visionScreeningResult.getCreateTime(), format);
             globalVariableVO.setDataYear(dataYear);
         }
 
         globalVariableVO.setAreaName(districtName);
         globalVariableVO.setYear(year);
-        globalVariableVO.setTotalSchoolNum((int)totalSum);
+        globalVariableVO.setTotalSchoolNum((int) totalSum);
         districtCommonDiseaseReportVO.setGlobalVariableVO(globalVariableVO);
     }
 
@@ -157,39 +156,39 @@ public class DistrictCommonDiseaseReportService {
      */
     private void setSchoolItemData(Map<Integer, List<ScreeningPlanSchoolStudent>> planSchoolStudentMap, DistrictCommonDiseaseReportVO.GlobalVariableVO globalVariableVO) {
         String format = "%s所%s";
-        List<String> itemList= Lists.newArrayList();
+        List<String> itemList = Lists.newArrayList();
         List<ScreeningPlanSchoolStudent> primary = planSchoolStudentMap.get(SchoolAge.PRIMARY.code);
-        if (CollectionUtil.isNotEmpty(primary)){
+        if (CollectionUtil.isNotEmpty(primary)) {
             long count = primary.stream().map(ScreeningPlanSchoolStudent::getSchoolId).filter(Objects::nonNull).distinct().count();
-            itemList.add(String.format(format,count,SchoolAge.PRIMARY.desc));
+            itemList.add(String.format(format, count, SchoolAge.PRIMARY.desc));
         }
         List<ScreeningPlanSchoolStudent> junior = planSchoolStudentMap.get(SchoolAge.JUNIOR.code);
-        if (CollectionUtil.isNotEmpty(junior)){
+        if (CollectionUtil.isNotEmpty(junior)) {
             long count = junior.stream().map(ScreeningPlanSchoolStudent::getSchoolId).filter(Objects::nonNull).distinct().count();
-            itemList.add(String.format(format,count,SchoolAge.JUNIOR.desc));
+            itemList.add(String.format(format, count, SchoolAge.JUNIOR.desc));
         }
         List<ScreeningPlanSchoolStudent> high = planSchoolStudentMap.get(SchoolAge.HIGH.code);
-        if (CollectionUtil.isNotEmpty(high)){
+        if (CollectionUtil.isNotEmpty(high)) {
             long count = high.stream().map(ScreeningPlanSchoolStudent::getSchoolId).filter(Objects::nonNull).distinct().count();
-            itemList.add(String.format(format,count,SchoolAge.HIGH.desc));
+            itemList.add(String.format(format, count, SchoolAge.HIGH.desc));
         }
         List<ScreeningPlanSchoolStudent> vocationalHigh = planSchoolStudentMap.get(SchoolAge.VOCATIONAL_HIGH.code);
-        if (CollectionUtil.isNotEmpty(vocationalHigh)){
+        if (CollectionUtil.isNotEmpty(vocationalHigh)) {
             long count = vocationalHigh.stream().map(ScreeningPlanSchoolStudent::getSchoolId).filter(Objects::nonNull).distinct().count();
-            itemList.add(String.format(format,count,"职高"));
+            itemList.add(String.format(format, count, "职高"));
         }
         List<ScreeningPlanSchoolStudent> university = planSchoolStudentMap.get(SchoolAge.UNIVERSITY.code);
-        if (CollectionUtil.isNotEmpty(university)){
+        if (CollectionUtil.isNotEmpty(university)) {
             long count = university.stream().map(ScreeningPlanSchoolStudent::getSchoolId).filter(Objects::nonNull).distinct().count();
-            itemList.add(String.format(format,count,"综合性"+SchoolAge.UNIVERSITY.desc));
+            itemList.add(String.format(format, count, "综合性" + SchoolAge.UNIVERSITY.desc));
         }
         List<ScreeningPlanSchoolStudent> kindergarten = planSchoolStudentMap.get(SchoolAge.KINDERGARTEN.code);
-        if (CollectionUtil.isNotEmpty(kindergarten)){
+        if (CollectionUtil.isNotEmpty(kindergarten)) {
             long count = kindergarten.stream().map(ScreeningPlanSchoolStudent::getSchoolId).filter(Objects::nonNull).distinct().count();
-            itemList.add(String.format(format,count,SchoolAge.KINDERGARTEN.desc));
+            itemList.add(String.format(format, count, SchoolAge.KINDERGARTEN.desc));
         }
 
-        if (CollectionUtil.isNotEmpty(itemList)){
+        if (CollectionUtil.isNotEmpty(itemList)) {
             globalVariableVO.setSchoolItem(itemList);
         }
 
@@ -198,10 +197,10 @@ public class DistrictCommonDiseaseReportService {
     /**
      * 筛查人数和实际筛查人数
      */
-    private void setNum(Integer noticeId,DistrictCommonDiseaseReportVO districtCommonDiseaseReportVO){
+    private void setNum(Integer noticeId, DistrictCommonDiseaseReportVO districtCommonDiseaseReportVO) {
         List<ScreeningPlan> screeningPlanList = screeningPlanService.getAllPlanByNoticeId(noticeId);
-        if (CollectionUtil.isEmpty(screeningPlanList)){
-            throw new BusinessException(String.format("该筛查通知不存在筛查计划: noticeId=%s",noticeId));
+        if (CollectionUtil.isEmpty(screeningPlanList)) {
+            throw new BusinessException(String.format("该筛查通知不存在筛查计划: noticeId=%s", noticeId));
         }
         Set<Integer> planIds = screeningPlanList.stream().map(ScreeningPlan::getId).collect(Collectors.toSet());
         int screeningStudentNum = screeningPlanList.stream().mapToInt(sp -> Optional.ofNullable(sp.getStudentNumbers()).orElse(0)).sum();
@@ -209,9 +208,9 @@ public class DistrictCommonDiseaseReportService {
         districtCommonDiseaseReportVO.setScreeningStudentNum(screeningStudentNum);
 
         List<VisionScreeningResult> screeningResults = visionScreeningResultService.getByPlanIds(Lists.newArrayList(planIds));
-        if (CollectionUtil.isEmpty(screeningResults)){
+        if (CollectionUtil.isEmpty(screeningResults)) {
             districtCommonDiseaseReportVO.setActualScreeningNum(0);
-        }else {
+        } else {
             districtCommonDiseaseReportVO.setActualScreeningNum(screeningResults.size());
         }
 
@@ -220,8 +219,8 @@ public class DistrictCommonDiseaseReportService {
     /**
      * 视力分析
      */
-    private void getVisionAnalysisVO(List<StatConclusion> statConclusionList,DistrictCommonDiseaseReportVO districtCommonDiseaseReportVO){
-        if (CollectionUtil.isEmpty(statConclusionList)){
+    private void getVisionAnalysisVO(List<StatConclusion> statConclusionList, DistrictCommonDiseaseReportVO districtCommonDiseaseReportVO) {
+        if (CollectionUtil.isEmpty(statConclusionList)) {
             return;
         }
         DistrictCommonDiseaseReportVO.VisionAnalysisVO visionAnalysisVO = new DistrictCommonDiseaseReportVO.VisionAnalysisVO();
@@ -229,18 +228,18 @@ public class DistrictCommonDiseaseReportService {
         visionAnalysisVO.setValidScreeningNum(validScreeningNum);
         List<StatConclusion> kindergartenList = statConclusionList.stream().filter(statConclusion -> Objects.equals(statConclusion.getSchoolAge(), SchoolAge.KINDERGARTEN.code)).collect(Collectors.toList());
         List<StatConclusion> primarySchoolAndAboveList = statConclusionList.stream().filter(statConclusion -> !Objects.equals(statConclusion.getSchoolAge(), SchoolAge.KINDERGARTEN.code)).collect(Collectors.toList());
-        getKindergartenVO(kindergartenList,validScreeningNum,visionAnalysisVO);
-        getPrimarySchoolAndAboveVO(primarySchoolAndAboveList,validScreeningNum,visionAnalysisVO);
+        getKindergartenVO(kindergartenList, validScreeningNum, visionAnalysisVO);
+        getPrimarySchoolAndAboveVO(primarySchoolAndAboveList, validScreeningNum, visionAnalysisVO);
 
         districtCommonDiseaseReportVO.setVisionAnalysisVO(visionAnalysisVO);
     }
 
-    private void getKindergartenVO(List<StatConclusion> kindergartenList,int validScreeningNum,DistrictCommonDiseaseReportVO.VisionAnalysisVO visionAnalysisVO){
-        if (CollectionUtil.isEmpty(kindergartenList)){
+    private void getKindergartenVO(List<StatConclusion> kindergartenList, int validScreeningNum, DistrictCommonDiseaseReportVO.VisionAnalysisVO visionAnalysisVO) {
+        if (CollectionUtil.isEmpty(kindergartenList)) {
             return;
         }
         DistrictCommonDiseaseReportVO.KindergartenVO kindergartenVO = new DistrictCommonDiseaseReportVO.KindergartenVO();
-        int lowVisionNum = (int)kindergartenList.stream()
+        int lowVisionNum = (int) kindergartenList.stream()
                 .map(StatConclusion::getIsLowVision)
                 .filter(Objects::nonNull).filter(Boolean::booleanValue)
                 .count();
@@ -257,24 +256,24 @@ public class DistrictCommonDiseaseReportService {
         BigDecimal averageVision = BigDecimalUtil.divide(add, new BigDecimal("2"), 1);
 
         kindergartenVO.setAvgVision(averageVision);
-        kindergartenVO.setLowVisionRatio(MathUtil.ratioNotSymbol(lowVisionNum,validScreeningNum));
-        kindergartenVO.setMyopiaLevelInsufficientRatio(MathUtil.ratioNotSymbol(visionLabelZeroSpNum,validScreeningNum));
-        kindergartenVO.setAnisometropiaRatio(MathUtil.ratioNotSymbol(anisometropiaNum,validScreeningNum));
+        kindergartenVO.setLowVisionRatio(MathUtil.ratioNotSymbol(lowVisionNum, validScreeningNum));
+        kindergartenVO.setMyopiaLevelInsufficientRatio(MathUtil.ratioNotSymbol(visionLabelZeroSpNum, validScreeningNum));
+        kindergartenVO.setAnisometropiaRatio(MathUtil.ratioNotSymbol(anisometropiaNum, validScreeningNum));
 
         visionAnalysisVO.setKindergartenVO(kindergartenVO);
     }
 
 
-    private void getPrimarySchoolAndAboveVO(List<StatConclusion> primarySchoolAndAboveList,int validScreeningNum,DistrictCommonDiseaseReportVO.VisionAnalysisVO visionAnalysisVO){
-        if (CollectionUtil.isEmpty(primarySchoolAndAboveList)){
+    private void getPrimarySchoolAndAboveVO(List<StatConclusion> primarySchoolAndAboveList, int validScreeningNum, DistrictCommonDiseaseReportVO.VisionAnalysisVO visionAnalysisVO) {
+        if (CollectionUtil.isEmpty(primarySchoolAndAboveList)) {
             return;
         }
         DistrictCommonDiseaseReportVO.PrimarySchoolAndAboveVO primarySchoolAndAboveVO = new DistrictCommonDiseaseReportVO.PrimarySchoolAndAboveVO();
-        int lowVisionNum = (int)primarySchoolAndAboveList.stream()
+        int lowVisionNum = (int) primarySchoolAndAboveList.stream()
                 .map(StatConclusion::getIsLowVision)
                 .filter(Objects::nonNull).filter(Boolean::booleanValue)
                 .count();
-        int myopiaNum = (int)primarySchoolAndAboveList.stream()
+        int myopiaNum = (int) primarySchoolAndAboveList.stream()
                 .map(StatConclusion::getIsMyopia)
                 .filter(Objects::nonNull).filter(Boolean::booleanValue)
                 .count();
@@ -285,8 +284,8 @@ public class DistrictCommonDiseaseReportService {
         BigDecimal add = averageVisionTuple.getFirst().add(averageVisionTuple.getSecond());
         BigDecimal averageVision = BigDecimalUtil.divide(add, new BigDecimal("2"), 1);
         primarySchoolAndAboveVO.setAvgVision(averageVision);
-        primarySchoolAndAboveVO.setLowVisionRatio(MathUtil.ratioNotSymbol(lowVisionNum,validScreeningNum));
-        primarySchoolAndAboveVO.setMyopiaRatio(MathUtil.ratioNotSymbol(myopiaNum,validScreeningNum));
+        primarySchoolAndAboveVO.setLowVisionRatio(MathUtil.ratioNotSymbol(lowVisionNum, validScreeningNum));
+        primarySchoolAndAboveVO.setMyopiaRatio(MathUtil.ratioNotSymbol(myopiaNum, validScreeningNum));
 
         setSchoolAge(validScreeningNum, primarySchoolAndAboveVO, schoolMap);
 
@@ -296,68 +295,68 @@ public class DistrictCommonDiseaseReportService {
     private void setSchoolAge(int validScreeningNum, DistrictCommonDiseaseReportVO.PrimarySchoolAndAboveVO primarySchoolAndAboveVO, Map<Integer, List<StatConclusion>> schoolMap) {
         //小学
         List<StatConclusion> primaryList = schoolMap.get(SchoolAge.PRIMARY.code);
-        getMyopiaItemVO(primaryList,SchoolAge.PRIMARY.desc,validScreeningNum,primarySchoolAndAboveVO::setPrimarySchool);
+        getMyopiaItemVO(primaryList, SchoolAge.PRIMARY.desc, validScreeningNum, primarySchoolAndAboveVO::setPrimarySchool);
 
         //初中
         List<StatConclusion> juniorList = schoolMap.get(SchoolAge.JUNIOR.code);
-        getMyopiaItemVO(juniorList,SchoolAge.JUNIOR.desc,validScreeningNum,primarySchoolAndAboveVO::setJuniorHighSchool);
+        getMyopiaItemVO(juniorList, SchoolAge.JUNIOR.desc, validScreeningNum, primarySchoolAndAboveVO::setJuniorHighSchool);
 
         //高中 （普高+职高）
         List<StatConclusion> normalHighList = schoolMap.get(SchoolAge.HIGH.code);
         List<StatConclusion> vocationalHighList = schoolMap.get(SchoolAge.VOCATIONAL_HIGH.code);
 
-        if (CollectionUtil.isNotEmpty(vocationalHighList)){
-            List<StatConclusion> highList=Lists.newArrayList();
-            if (Objects.nonNull(normalHighList)){
+        if (CollectionUtil.isNotEmpty(vocationalHighList)) {
+            List<StatConclusion> highList = Lists.newArrayList();
+            if (Objects.nonNull(normalHighList)) {
                 highList.addAll(normalHighList);
-            }else {
-                normalHighList=Lists.newArrayList();
+            } else {
+                normalHighList = Lists.newArrayList();
             }
             highList.addAll(vocationalHighList);
 
-            getMyopiaItemVO(highList,SchoolAge.HIGH.desc,validScreeningNum,primarySchoolAndAboveVO::setHighSchool);
-            getMyopiaItemVO(normalHighList,"普通高中",validScreeningNum,primarySchoolAndAboveVO::setNormalHighSchool);
-            getMyopiaItemVO(vocationalHighList,SchoolAge.VOCATIONAL_HIGH.desc,validScreeningNum,primarySchoolAndAboveVO::setVocationalHighSchool);
+            getMyopiaItemVO(highList, SchoolAge.HIGH.desc, validScreeningNum, primarySchoolAndAboveVO::setHighSchool);
+            getMyopiaItemVO(normalHighList, "普通高中", validScreeningNum, primarySchoolAndAboveVO::setNormalHighSchool);
+            getMyopiaItemVO(vocationalHighList, SchoolAge.VOCATIONAL_HIGH.desc, validScreeningNum, primarySchoolAndAboveVO::setVocationalHighSchool);
 
-        }else {
-            getMyopiaItemVO(normalHighList,SchoolAge.HIGH.desc,validScreeningNum,primarySchoolAndAboveVO::setHighSchool);
+        } else {
+            getMyopiaItemVO(normalHighList, SchoolAge.HIGH.desc, validScreeningNum, primarySchoolAndAboveVO::setHighSchool);
         }
 
         //大学
         List<StatConclusion> universityList = schoolMap.get(SchoolAge.UNIVERSITY.code);
-        getMyopiaItemVO(universityList,SchoolAge.UNIVERSITY.desc,validScreeningNum,primarySchoolAndAboveVO::setUniversity);
+        getMyopiaItemVO(universityList, SchoolAge.UNIVERSITY.desc, validScreeningNum, primarySchoolAndAboveVO::setUniversity);
 
     }
 
-    private void getMyopiaItemVO(List<StatConclusion> statConclusionList,String schoolAge,Integer validScreeningNum,
-                                 Consumer<DistrictCommonDiseaseReportVO.MyopiaItemVO> consumer){
-        if (CollectionUtil.isEmpty(statConclusionList)){
+    private void getMyopiaItemVO(List<StatConclusion> statConclusionList, String schoolAge, Integer validScreeningNum,
+                                 Consumer<DistrictCommonDiseaseReportVO.MyopiaItemVO> consumer) {
+        if (CollectionUtil.isEmpty(statConclusionList)) {
             return;
         }
-        int myopiaNum = (int)statConclusionList.stream()
+        int myopiaNum = (int) statConclusionList.stream()
                 .map(StatConclusion::getIsMyopia)
                 .filter(Objects::nonNull).filter(Boolean::booleanValue)
                 .count();
-        DistrictCommonDiseaseReportVO.MyopiaItemVO myopiaItemVO=new DistrictCommonDiseaseReportVO.MyopiaItemVO();
+        DistrictCommonDiseaseReportVO.MyopiaItemVO myopiaItemVO = new DistrictCommonDiseaseReportVO.MyopiaItemVO();
         myopiaItemVO.setSchoolAge(schoolAge);
-        myopiaItemVO.setMyopiaRatio(MathUtil.ratioNotSymbol(myopiaNum,validScreeningNum));
+        myopiaItemVO.setMyopiaRatio(MathUtil.ratioNotSymbol(myopiaNum, validScreeningNum));
         Optional.of(myopiaItemVO).ifPresent(consumer);
     }
 
-    private List<StatConclusion> getStatConclusionList(Integer noticeId,List<Integer> districtIds,Boolean isValid,Boolean isRescreen){
+    private List<StatConclusion> getStatConclusionList(Integer noticeId, List<Integer> districtIds, Boolean isValid, Boolean isRescreen) {
         LambdaQueryWrapper<StatConclusion> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(StatConclusion::getSrcScreeningNoticeId, noticeId);
         queryWrapper.eq(StatConclusion::getIsValid, isValid);
         queryWrapper.eq(StatConclusion::getIsRescreen, isRescreen);
-        queryWrapper.in(StatConclusion::getDistrictId,districtIds);
+        queryWrapper.in(StatConclusion::getDistrictId, districtIds);
         return statConclusionService.list(queryWrapper);
     }
 
     /**
      * 常见病分析
      */
-    private void getDistrictCommonDiseasesAnalysisVO(List<StatConclusion> statConclusionList,DistrictCommonDiseaseReportVO districtCommonDiseaseReportVO){
-        if (CollectionUtil.isEmpty(statConclusionList)){
+    private void getDistrictCommonDiseasesAnalysisVO(List<StatConclusion> statConclusionList, DistrictCommonDiseaseReportVO districtCommonDiseaseReportVO) {
+        if (CollectionUtil.isEmpty(statConclusionList)) {
             return;
         }
 
@@ -366,8 +365,8 @@ public class DistrictCommonDiseaseReportService {
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeCode);
             return !Objects.equals(gradeCodeEnum.getType(), SchoolAge.KINDERGARTEN.code);
         }).collect(Collectors.toList());
-        Map<Integer,String> schoolMap = Maps.newHashMap();
-        if (CollectionUtil.isNotEmpty(primaryAndAboveStatConclusionList)){
+        Map<Integer, String> schoolMap = Maps.newHashMap();
+        if (CollectionUtil.isNotEmpty(primaryAndAboveStatConclusionList)) {
             Set<Integer> schoolIds = primaryAndAboveStatConclusionList.stream().map(StatConclusion::getSchoolId).collect(Collectors.toSet());
             List<School> schoolList = schoolService.getByIds(Lists.newArrayList(schoolIds));
             Map<Integer, String> collect = schoolList.stream().collect(Collectors.toMap(School::getId, School::getName));
@@ -376,17 +375,17 @@ public class DistrictCommonDiseaseReportService {
 
         DistrictCommonDiseasesAnalysisVO districtCommonDiseasesAnalysisVO = new DistrictCommonDiseasesAnalysisVO();
         //常见病分析变量
-        getCommonDiseasesAnalysisVariableVO(primaryAndAboveStatConclusionList,districtCommonDiseasesAnalysisVO);
+        getCommonDiseasesAnalysisVariableVO(primaryAndAboveStatConclusionList, districtCommonDiseasesAnalysisVO);
         //疾病监测情况
-        districtDiseaseMonitorService.getDistrictDiseaseMonitorVO(primaryAndAboveStatConclusionList,districtCommonDiseasesAnalysisVO);
+        districtDiseaseMonitorService.getDistrictDiseaseMonitorVO(primaryAndAboveStatConclusionList, districtCommonDiseasesAnalysisVO);
         //龋齿监测结果
-        districtSaprodontiaMonitorService.getDistrictSaprodontiaMonitorVO(primaryAndAboveStatConclusionList,districtCommonDiseasesAnalysisVO);
+        districtSaprodontiaMonitorService.getDistrictSaprodontiaMonitorVO(primaryAndAboveStatConclusionList, districtCommonDiseasesAnalysisVO);
         //体重身高监测结果
-        districtHeightAndWeightMonitorService.getDistrictHeightAndWeightMonitorVO(primaryAndAboveStatConclusionList,districtCommonDiseasesAnalysisVO);
+        districtHeightAndWeightMonitorService.getDistrictHeightAndWeightMonitorVO(primaryAndAboveStatConclusionList, districtCommonDiseasesAnalysisVO);
         //血压与脊柱弯曲异常监测结果
-        districtBloodPressureAndSpinalCurvatureMonitorService.getDistrictBloodPressureAndSpinalCurvatureMonitorVO(primaryAndAboveStatConclusionList,districtCommonDiseasesAnalysisVO);
+        districtBloodPressureAndSpinalCurvatureMonitorService.getDistrictBloodPressureAndSpinalCurvatureMonitorVO(primaryAndAboveStatConclusionList, districtCommonDiseasesAnalysisVO);
         //各学校筛查情况
-        districtSchoolScreeningMonitorService.getDistrictSchoolScreeningMonitorVO(primaryAndAboveStatConclusionList,schoolMap,districtCommonDiseasesAnalysisVO);
+        districtSchoolScreeningMonitorService.getDistrictSchoolScreeningMonitorVO(primaryAndAboveStatConclusionList, schoolMap, districtCommonDiseasesAnalysisVO);
 
         districtCommonDiseaseReportVO.setDistrictCommonDiseasesAnalysisVO(districtCommonDiseasesAnalysisVO);
 
@@ -397,7 +396,7 @@ public class DistrictCommonDiseaseReportService {
      * 常见病分析变量
      */
     private void getCommonDiseasesAnalysisVariableVO(List<StatConclusion> statConclusionList, DistrictCommonDiseasesAnalysisVO districtCommonDiseasesAnalysisVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)){
+        if (CollectionUtil.isEmpty(statConclusionList)) {
             return;
         }
 

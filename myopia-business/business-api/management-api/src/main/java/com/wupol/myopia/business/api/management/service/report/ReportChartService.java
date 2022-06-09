@@ -19,22 +19,22 @@ public class ReportChartService {
      * 不同性别-图表
      */
     public void getSexMonitorChart(List<StatConclusion> statConclusionList, SexChartVO sexChartVO) {
-        ReportSexChart.getSexMonitorChart(statConclusionList,sexChartVO);
+        ReportSexChart.getSexMonitorChart(statConclusionList, sexChartVO);
     }
 
 
     /**
-     *  不同年龄段-图表
+     * 不同年龄段-图表
      */
     public void getAgeMonitorChart(List<StatConclusion> statConclusionList, AgeChartVO ageChartVO) {
-        ReportAgeChart.getAgeMonitorChart(statConclusionList,ageChartVO);
+        ReportAgeChart.getAgeMonitorChart(statConclusionList, ageChartVO);
     }
 
 
     /**
-     *  不同学龄-图表
+     * 不同学龄-图表
      */
-    public void getSchoolAgeMonitorChart(List<TwoTuple<String, SchoolAgeRatioVO>> tupleList, SchoolAgeChartVO schoolAgeChartVO){
+    public void getSchoolAgeMonitorChart(List<TwoTuple<String, SchoolAgeRatioVO>> tupleList, SchoolAgeChartVO schoolAgeChartVO) {
         ReportSchoolAgeChart.getSchoolAgeMonitorChart(tupleList, schoolAgeChartVO);
     }
 
@@ -43,7 +43,7 @@ public class ReportChartService {
      * 不同班级
      */
     public void getGradeMonitorChart(List<StatConclusion> statConclusionList, GradeChartVO gradeChartVO) {
-        ReportGradeChart.getGradeMonitorChart(statConclusionList,gradeChartVO);
+        ReportGradeChart.getGradeMonitorChart(statConclusionList, gradeChartVO);
     }
 
 }

@@ -27,58 +27,58 @@ public class DistrictSchoolScreeningMonitorService {
     /**
      * 各学校筛查情况
      */
-    public void getDistrictSchoolScreeningMonitorVO(List<StatConclusion> statConclusionList,Map<Integer,String> schoolMap, DistrictCommonDiseasesAnalysisVO districtCommonDiseasesAnalysisVO) {
+    public void getDistrictSchoolScreeningMonitorVO(List<StatConclusion> statConclusionList, Map<Integer, String> schoolMap, DistrictCommonDiseasesAnalysisVO districtCommonDiseasesAnalysisVO) {
 
-        if (CollectionUtil.isEmpty(statConclusionList)){
+        if (CollectionUtil.isEmpty(statConclusionList)) {
             return;
         }
-        ScreeningNum.MAP.put(0,statConclusionList.size());
+        ScreeningNum.MAP.put(0, statConclusionList.size());
         DistrictSchoolScreeningMonitorVO districtSchoolScreeningMonitorVO = new DistrictSchoolScreeningMonitorVO();
         //说明变量
-        getSchoolScreeningMonitorVariableVO(statConclusionList,schoolMap,districtSchoolScreeningMonitorVO);
+        getSchoolScreeningMonitorVariableVO(statConclusionList, schoolMap, districtSchoolScreeningMonitorVO);
         //表格数据
-        getSchoolScreeningMonitorTableList(statConclusionList,schoolMap,districtSchoolScreeningMonitorVO);
+        getSchoolScreeningMonitorTableList(statConclusionList, schoolMap, districtSchoolScreeningMonitorVO);
         //图表
-        getSchoolScreeningMonitorChart(statConclusionList,schoolMap,districtSchoolScreeningMonitorVO);
+        getSchoolScreeningMonitorChart(statConclusionList, schoolMap, districtSchoolScreeningMonitorVO);
 
         districtCommonDiseasesAnalysisVO.setDistrictSchoolScreeningMonitorVO(districtSchoolScreeningMonitorVO);
 
     }
 
     private void getSchoolScreeningMonitorChart(List<StatConclusion> statConclusionList, Map<Integer, String> schoolMap, DistrictSchoolScreeningMonitorVO districtSchoolScreeningMonitorVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)){
+        if (CollectionUtil.isEmpty(statConclusionList)) {
             return;
         }
 
         Map<Integer, List<StatConclusion>> schoolStatConclusionMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolId));
         Map<String, ScreeningNum> schoolScreeningNumMap = Maps.newHashMap();
-        schoolStatConclusionMap.forEach((schoolId,list)->{
+        schoolStatConclusionMap.forEach((schoolId, list) -> {
             String schoolName = schoolMap.get(schoolId);
-            getSchoolScreeningNum(schoolName,list,schoolScreeningNumMap);
+            getSchoolScreeningNum(schoolName, list, schoolScreeningNumMap);
         });
-        List<ChartVO.SchoolRatioExtremumChart> chartList =Lists.newArrayList(
-                new ChartVO.SchoolRatioExtremumChart(ReportConst.SAPRODONTIA,Lists.newArrayList()),
-                new ChartVO.SchoolRatioExtremumChart(ReportConst.SAPRODONTIA_LOSS_AND_REPAIR,Lists.newArrayList()),
-                new ChartVO.SchoolRatioExtremumChart(ReportConst.OVERWEIGHT,Lists.newArrayList()),
-                new ChartVO.SchoolRatioExtremumChart(ReportConst.OBESE,Lists.newArrayList()),
-                new ChartVO.SchoolRatioExtremumChart(ReportConst.MALNOURISHED,Lists.newArrayList()),
-                new ChartVO.SchoolRatioExtremumChart(ReportConst.STUNTING,Lists.newArrayList()),
-                new ChartVO.SchoolRatioExtremumChart(ReportConst.ABNORMAL_SPINE_CURVATURE,Lists.newArrayList()),
-                new ChartVO.SchoolRatioExtremumChart(ReportConst.HIGH_BLOOD_PRESSURE,Lists.newArrayList())
-                );
+        List<ChartVO.SchoolRatioExtremumChart> chartList = Lists.newArrayList(
+                new ChartVO.SchoolRatioExtremumChart(ReportConst.SAPRODONTIA, Lists.newArrayList()),
+                new ChartVO.SchoolRatioExtremumChart(ReportConst.SAPRODONTIA_LOSS_AND_REPAIR, Lists.newArrayList()),
+                new ChartVO.SchoolRatioExtremumChart(ReportConst.OVERWEIGHT, Lists.newArrayList()),
+                new ChartVO.SchoolRatioExtremumChart(ReportConst.OBESE, Lists.newArrayList()),
+                new ChartVO.SchoolRatioExtremumChart(ReportConst.MALNOURISHED, Lists.newArrayList()),
+                new ChartVO.SchoolRatioExtremumChart(ReportConst.STUNTING, Lists.newArrayList()),
+                new ChartVO.SchoolRatioExtremumChart(ReportConst.ABNORMAL_SPINE_CURVATURE, Lists.newArrayList()),
+                new ChartVO.SchoolRatioExtremumChart(ReportConst.HIGH_BLOOD_PRESSURE, Lists.newArrayList())
+        );
 
         AtomicBoolean flag = new AtomicBoolean(true);
-        schoolScreeningNumMap.forEach((schoolName, screeningNum)->{
-            if (flag.get()){
+        schoolScreeningNumMap.forEach((schoolName, screeningNum) -> {
+            if (flag.get()) {
                 flag.set(false);
-                setChartData(chartList,0,schoolScreeningNumMap, ScreeningNum::getSaprodontiaNum, ScreeningNum::getSaprodontiaRatio);
-                setChartData(chartList,1,schoolScreeningNumMap, ScreeningNum::getSaprodontiaLossAndRepairNum, ScreeningNum::getSaprodontiaLossAndRepairRatio);
-                setChartData(chartList,2,schoolScreeningNumMap, ScreeningNum::getOverweightNum, ScreeningNum::getOverweightRatio);
-                setChartData(chartList,3,schoolScreeningNumMap, ScreeningNum::getObeseNum, ScreeningNum::getObeseRatio);
-                setChartData(chartList,4,schoolScreeningNumMap, ScreeningNum::getMalnourishedNum, ScreeningNum::getMalnourishedRatio);
-                setChartData(chartList,5,schoolScreeningNumMap, ScreeningNum::getStuntingNum, ScreeningNum::getStuntingRatio);
-                setChartData(chartList,6,schoolScreeningNumMap, ScreeningNum::getAbnormalSpineCurvatureNum, ScreeningNum::getAbnormalSpineCurvatureRatio);
-                setChartData(chartList,7,schoolScreeningNumMap, ScreeningNum::getHighBloodPressureNum, ScreeningNum::getHighBloodPressureRatio);
+                setChartData(chartList, 0, schoolScreeningNumMap, ScreeningNum::getSaprodontiaNum, ScreeningNum::getSaprodontiaRatio);
+                setChartData(chartList, 1, schoolScreeningNumMap, ScreeningNum::getSaprodontiaLossAndRepairNum, ScreeningNum::getSaprodontiaLossAndRepairRatio);
+                setChartData(chartList, 2, schoolScreeningNumMap, ScreeningNum::getOverweightNum, ScreeningNum::getOverweightRatio);
+                setChartData(chartList, 3, schoolScreeningNumMap, ScreeningNum::getObeseNum, ScreeningNum::getObeseRatio);
+                setChartData(chartList, 4, schoolScreeningNumMap, ScreeningNum::getMalnourishedNum, ScreeningNum::getMalnourishedRatio);
+                setChartData(chartList, 5, schoolScreeningNumMap, ScreeningNum::getStuntingNum, ScreeningNum::getStuntingRatio);
+                setChartData(chartList, 6, schoolScreeningNumMap, ScreeningNum::getAbnormalSpineCurvatureNum, ScreeningNum::getAbnormalSpineCurvatureRatio);
+                setChartData(chartList, 7, schoolScreeningNumMap, ScreeningNum::getHighBloodPressureNum, ScreeningNum::getHighBloodPressureRatio);
             }
             chartList.get(0).getData().add(screeningNum.getSaprodontiaRatio());
             chartList.get(1).getData().add(screeningNum.getSaprodontiaLossAndRepairRatio());
@@ -92,7 +92,7 @@ public class DistrictSchoolScreeningMonitorService {
         districtSchoolScreeningMonitorVO.setSchoolScreeningMonitorChart(chartList);
     }
 
-    private void setChartData(List<ChartVO.SchoolRatioExtremumChart> chartList, Integer index, Map<String, ScreeningNum> schoolScreeningNumMap, Function<ScreeningNum,Integer> function, Function<ScreeningNum,BigDecimal> mapper){
+    private void setChartData(List<ChartVO.SchoolRatioExtremumChart> chartList, Integer index, Map<String, ScreeningNum> schoolScreeningNumMap, Function<ScreeningNum, Integer> function, Function<ScreeningNum, BigDecimal> mapper) {
         SchoolRatioExtremum schoolRatioExtremum = getSchoolRatioExtremum(schoolScreeningNumMap, function, mapper);
         chartList.get(index).setMaxSchoolName(schoolRatioExtremum.getMaxSchoolName());
         chartList.get(index).setMaxRatio(schoolRatioExtremum.getMaxRatio());
@@ -103,34 +103,34 @@ public class DistrictSchoolScreeningMonitorService {
     /**
      * 各学校筛查情况-说明变量
      */
-    private void getSchoolScreeningMonitorVariableVO(List<StatConclusion> statConclusionList,Map<Integer,String> schoolMap, DistrictSchoolScreeningMonitorVO districtSchoolScreeningMonitorVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)){
+    private void getSchoolScreeningMonitorVariableVO(List<StatConclusion> statConclusionList, Map<Integer, String> schoolMap, DistrictSchoolScreeningMonitorVO districtSchoolScreeningMonitorVO) {
+        if (CollectionUtil.isEmpty(statConclusionList)) {
             return;
         }
         Map<Integer, List<StatConclusion>> schoolStatConclusionMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolId));
         Map<String, ScreeningNum> schoolScreeningNumMap = Maps.newHashMap();
-        schoolStatConclusionMap.forEach((schoolId,list)->{
+        schoolStatConclusionMap.forEach((schoolId, list) -> {
             String schoolName = schoolMap.get(schoolId);
-            getSchoolScreeningNum(schoolName,list,schoolScreeningNumMap);
+            getSchoolScreeningNum(schoolName, list, schoolScreeningNumMap);
         });
 
-        if (schoolScreeningNumMap.size() >= 2){
+        if (schoolScreeningNumMap.size() >= 2) {
             DistrictSchoolScreeningMonitorVO.SchoolScreeningMonitorVariableVO variableVO = new DistrictSchoolScreeningMonitorVO.SchoolScreeningMonitorVariableVO();
             variableVO.setSaprodontiaRatioExtremum(getSchoolRatioExtremum(schoolScreeningNumMap, ScreeningNum::getSaprodontiaNum, ScreeningNum::getSaprodontiaRatio));
             variableVO.setSaprodontiaLossAndRepairRatioExtremum(getSchoolRatioExtremum(schoolScreeningNumMap, ScreeningNum::getSaprodontiaLossAndRepairNum, ScreeningNum::getSaprodontiaLossAndRepairRatio));
             variableVO.setOverweightRatioExtremum(getSchoolRatioExtremum(schoolScreeningNumMap, ScreeningNum::getOverweightNum, ScreeningNum::getOverweightRatio));
             variableVO.setObeseRatioExtremum(getSchoolRatioExtremum(schoolScreeningNumMap, ScreeningNum::getObeseNum, ScreeningNum::getObeseRatio));
             variableVO.setStuntingRatioExtremum(getSchoolRatioExtremum(schoolScreeningNumMap, ScreeningNum::getStuntingNum, ScreeningNum::getStuntingRatio));
-            variableVO.setMalnourishedRatioExtremum( getSchoolRatioExtremum(schoolScreeningNumMap, ScreeningNum::getMalnourishedNum, ScreeningNum::getMalnourishedRatio));
+            variableVO.setMalnourishedRatioExtremum(getSchoolRatioExtremum(schoolScreeningNumMap, ScreeningNum::getMalnourishedNum, ScreeningNum::getMalnourishedRatio));
             variableVO.setAbnormalSpineCurvatureRatioExtremum(getSchoolRatioExtremum(schoolScreeningNumMap, ScreeningNum::getAbnormalSpineCurvatureNum, ScreeningNum::getAbnormalSpineCurvatureRatio));
             variableVO.setHighBloodPressureRatioExtremum(getSchoolRatioExtremum(schoolScreeningNumMap, ScreeningNum::getHighBloodPressureNum, ScreeningNum::getHighBloodPressureRatio));
             districtSchoolScreeningMonitorVO.setSchoolScreeningMonitorVariableVO(variableVO);
         }
     }
 
-    private SchoolRatioExtremum getSchoolRatioExtremum(Map<String, ScreeningNum> schoolScreeningNumMap, Function<ScreeningNum,Integer> function, Function<ScreeningNum,BigDecimal> mapper){
-        TwoTuple<String, BigDecimal> maxTuple = ReportUtil.getMaxMap(schoolScreeningNumMap, function,mapper);
-        TwoTuple<String, BigDecimal> minTuple = ReportUtil.getMinMap(schoolScreeningNumMap, function,mapper);
+    private SchoolRatioExtremum getSchoolRatioExtremum(Map<String, ScreeningNum> schoolScreeningNumMap, Function<ScreeningNum, Integer> function, Function<ScreeningNum, BigDecimal> mapper) {
+        TwoTuple<String, BigDecimal> maxTuple = ReportUtil.getMaxMap(schoolScreeningNumMap, function, mapper);
+        TwoTuple<String, BigDecimal> minTuple = ReportUtil.getMinMap(schoolScreeningNumMap, function, mapper);
         SchoolRatioExtremum schoolRatioExtremum = new SchoolRatioExtremum();
         schoolRatioExtremum.setMaxSchoolName(maxTuple.getFirst());
         schoolRatioExtremum.setMinSchoolName(minTuple.getFirst());
@@ -139,32 +139,32 @@ public class DistrictSchoolScreeningMonitorService {
         return schoolRatioExtremum;
     }
 
-    private <K>void getSchoolScreeningNum(K key, List<StatConclusion> statConclusionList,Map<K, ScreeningNum> schoolScreeningNumMap){
+    private <K> void getSchoolScreeningNum(K key, List<StatConclusion> statConclusionList, Map<K, ScreeningNum> schoolScreeningNumMap) {
         ScreeningNum build = new ScreeningNum()
                 .build(statConclusionList).ratioNotSymbol();
-        schoolScreeningNumMap.put(key,build);
+        schoolScreeningNumMap.put(key, build);
     }
 
 
     /**
      * 各学校筛查情况-表格数据
      */
-    private void getSchoolScreeningMonitorTableList(List<StatConclusion> statConclusionList,Map<Integer,String> schoolMap, DistrictSchoolScreeningMonitorVO districtSchoolScreeningMonitorVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)){
+    private void getSchoolScreeningMonitorTableList(List<StatConclusion> statConclusionList, Map<Integer, String> schoolMap, DistrictSchoolScreeningMonitorVO districtSchoolScreeningMonitorVO) {
+        if (CollectionUtil.isEmpty(statConclusionList)) {
             return;
         }
         List<ScreeningMonitorTable> tableList = Lists.newArrayList();
         Map<Integer, List<StatConclusion>> schoolStatConclusionMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolId));
-        schoolStatConclusionMap.forEach((schoolId,list)->{
+        schoolStatConclusionMap.forEach((schoolId, list) -> {
             String schoolName = schoolMap.get(schoolId);
-            getSchoolScreeningTable(schoolName,list,tableList);
+            getSchoolScreeningTable(schoolName, list, tableList);
         });
 
         districtSchoolScreeningMonitorVO.setSchoolScreeningMonitorTableList(tableList);
     }
 
     private void getSchoolScreeningTable(String schoolName, List<StatConclusion> statConclusionList, List<ScreeningMonitorTable> tableList) {
-        if (CollectionUtil.isEmpty(statConclusionList)){
+        if (CollectionUtil.isEmpty(statConclusionList)) {
             return;
         }
 

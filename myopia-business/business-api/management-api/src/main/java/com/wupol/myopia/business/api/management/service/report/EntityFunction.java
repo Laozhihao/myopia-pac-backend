@@ -19,23 +19,26 @@ import java.util.function.Function;
 public class EntityFunction {
 
 
-    public <T> Integer getCount(List<T> statConclusionList, Function<T,Boolean> function){
-        if (CollectionUtil.isEmpty(statConclusionList)){
+    public <T> Integer getCount(List<T> statConclusionList, Function<T, Boolean> function) {
+        if (CollectionUtil.isEmpty(statConclusionList)) {
             return ReportConst.ZERO;
         }
-        return (int)statConclusionList.stream().map(function).filter(Objects::nonNull).filter(Boolean::booleanValue).count();
+        return (int) statConclusionList.stream().map(function).filter(Objects::nonNull).filter(Boolean::booleanValue).count();
     }
-    public <T> Integer getCount(List<T> statConclusionList, Function<T,Integer> mapper,Integer value){
-        if (CollectionUtil.isEmpty(statConclusionList)){
+
+    public <T> Integer getCount(List<T> statConclusionList, Function<T, Integer> mapper, Integer value) {
+        if (CollectionUtil.isEmpty(statConclusionList)) {
             return ReportConst.ZERO;
         }
-        return (int)statConclusionList.stream().filter(sc->Objects.equals(mapper.apply(sc),value)).count();
+        return (int) statConclusionList.stream().filter(sc -> Objects.equals(mapper.apply(sc), value)).count();
     }
+
     public BigDecimal getRatioNotSymbol(Integer numerator, Integer denominator) {
-        return Optional.ofNullable(MathUtil.ratioNotSymbol(numerator,denominator)).orElse(ReportConst.ZERO_BIG_DECIMAL);
+        return Optional.ofNullable(MathUtil.ratioNotSymbol(numerator, denominator)).orElse(ReportConst.ZERO_BIG_DECIMAL);
     }
-    public String getRatio(Integer numerator,Integer denominator) {
-        return Optional.ofNullable(MathUtil.ratio(numerator,denominator)).orElse(ReportConst.ZERO_RATIO_STR);
+
+    public String getRatio(Integer numerator, Integer denominator) {
+        return Optional.ofNullable(MathUtil.ratio(numerator, denominator)).orElse(ReportConst.ZERO_RATIO_STR);
     }
 
 }

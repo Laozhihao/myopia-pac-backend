@@ -22,48 +22,48 @@ public class ReportSchoolAgeChart {
 
 
     /**
-     *  不同学龄-图表
+     * 不同学龄-图表
      */
-    public static void getSchoolAgeMonitorChart(List<TwoTuple<String, SchoolAgeRatioVO>> tupleList, SchoolAgeChartVO schoolAgeChartVO){
+    public static void getSchoolAgeMonitorChart(List<TwoTuple<String, SchoolAgeRatioVO>> tupleList, SchoolAgeChartVO schoolAgeChartVO) {
 
         ChartVO.Chart chart = new ChartVO.Chart();
         List<String> x = Lists.newArrayList();
         List<ChartVO.ChartData> y = Lists.newArrayList();
-        getSchoolAgeY(schoolAgeChartVO.type(),y);
+        getSchoolAgeY(schoolAgeChartVO.type(), y);
 
-        List<BigDecimal> valueList =Lists.newArrayList();
+        List<BigDecimal> valueList = Lists.newArrayList();
         tupleList.forEach(schoolAgeTuple -> {
             x.add(schoolAgeTuple.getFirst());
-            setSchoolAgeData(schoolAgeChartVO.type(),y,schoolAgeTuple.getSecond(),valueList);
+            setSchoolAgeData(schoolAgeChartVO.type(), y, schoolAgeTuple.getSecond(), valueList);
         });
 
         chart.setX(x);
         chart.setY(y);
         chart.setMaxValue(CollectionUtil.max(valueList));
-        setSchoolAgeChartVO(schoolAgeChartVO,chart);
+        setSchoolAgeChartVO(schoolAgeChartVO, chart);
     }
 
-    private static void getSchoolAgeY(Integer type,List<ChartVO.ChartData> y){
-        switch (type){
+    private static void getSchoolAgeY(Integer type, List<ChartVO.ChartData> y) {
+        switch (type) {
             case 1:
                 y.addAll(Lists.newArrayList(
-                        new ChartVO.ChartData(ReportConst.SAPRODONTIA,Lists.newArrayList()),
-                        new ChartVO.ChartData(ReportConst.SAPRODONTIA_LOSS,Lists.newArrayList()),
-                        new ChartVO.ChartData(ReportConst.SAPRODONTIA_REPAIR,Lists.newArrayList())
+                        new ChartVO.ChartData(ReportConst.SAPRODONTIA, Lists.newArrayList()),
+                        new ChartVO.ChartData(ReportConst.SAPRODONTIA_LOSS, Lists.newArrayList()),
+                        new ChartVO.ChartData(ReportConst.SAPRODONTIA_REPAIR, Lists.newArrayList())
                 ));
                 break;
             case 2:
                 y.addAll(Lists.newArrayList(
-                        new ChartVO.ChartData(ReportConst.OVERWEIGHT,Lists.newArrayList()),
-                        new ChartVO.ChartData(ReportConst.OBESE,Lists.newArrayList()),
-                        new ChartVO.ChartData(ReportConst.MALNOURISHED,Lists.newArrayList()),
-                        new ChartVO.ChartData(ReportConst.STUNTING,Lists.newArrayList())
+                        new ChartVO.ChartData(ReportConst.OVERWEIGHT, Lists.newArrayList()),
+                        new ChartVO.ChartData(ReportConst.OBESE, Lists.newArrayList()),
+                        new ChartVO.ChartData(ReportConst.MALNOURISHED, Lists.newArrayList()),
+                        new ChartVO.ChartData(ReportConst.STUNTING, Lists.newArrayList())
                 ));
                 break;
             case 3:
-                y.addAll( Lists.newArrayList(
-                        new ChartVO.ChartData(ReportConst.HIGH_BLOOD_PRESSURE,Lists.newArrayList()),
-                        new ChartVO.ChartData(ReportConst.ABNORMAL_SPINE_CURVATURE,Lists.newArrayList())
+                y.addAll(Lists.newArrayList(
+                        new ChartVO.ChartData(ReportConst.HIGH_BLOOD_PRESSURE, Lists.newArrayList()),
+                        new ChartVO.ChartData(ReportConst.ABNORMAL_SPINE_CURVATURE, Lists.newArrayList())
                 ));
                 break;
             default:
@@ -72,8 +72,8 @@ public class ReportSchoolAgeChart {
     }
 
 
-    private static void setSchoolAgeChartVO(SchoolAgeChartVO schoolAgeChartVO,ChartVO.Chart chart){
-        switch (schoolAgeChartVO.type()){
+    private static void setSchoolAgeChartVO(SchoolAgeChartVO schoolAgeChartVO, ChartVO.Chart chart) {
+        switch (schoolAgeChartVO.type()) {
             case 1:
                 schoolAgeChartVO.setSaprodontiaSchoolAgeMonitorChart(chart);
                 break;
@@ -88,16 +88,16 @@ public class ReportSchoolAgeChart {
         }
     }
 
-    private static void setSchoolAgeData(Integer type,List<ChartVO.ChartData> y,SchoolAgeRatioVO schoolAgeRatioVO,List<BigDecimal> valueList){
-        switch (type){
+    private static void setSchoolAgeData(Integer type, List<ChartVO.ChartData> y, SchoolAgeRatioVO schoolAgeRatioVO, List<BigDecimal> valueList) {
+        switch (type) {
             case 1:
-                getSaprodontiaSchoolAgeData(y,schoolAgeRatioVO,valueList);
+                getSaprodontiaSchoolAgeData(y, schoolAgeRatioVO, valueList);
                 break;
             case 2:
-                getHeightAndWeightSchoolAgeData(y,schoolAgeRatioVO,valueList);
+                getHeightAndWeightSchoolAgeData(y, schoolAgeRatioVO, valueList);
                 break;
             case 3:
-                getBloodPressureAndSpinalCurvatureSchoolAgeData(y,schoolAgeRatioVO,valueList);
+                getBloodPressureAndSpinalCurvatureSchoolAgeData(y, schoolAgeRatioVO, valueList);
                 break;
             default:
                 break;
@@ -105,7 +105,7 @@ public class ReportSchoolAgeChart {
 
     }
 
-    private static void getSaprodontiaSchoolAgeData(List<ChartVO.ChartData> y, SchoolAgeRatioVO schoolAge,List<BigDecimal> valueList){
+    private static void getSaprodontiaSchoolAgeData(List<ChartVO.ChartData> y, SchoolAgeRatioVO schoolAge, List<BigDecimal> valueList) {
         y.get(0).getData().add(ReportUtil.getRatioNotSymbol(schoolAge.getSaprodontiaRatio()));
         y.get(1).getData().add(ReportUtil.getRatioNotSymbol(schoolAge.getSaprodontiaLossRatio()));
         y.get(2).getData().add(ReportUtil.getRatioNotSymbol(schoolAge.getSaprodontiaRepairRatio()));
@@ -114,7 +114,7 @@ public class ReportSchoolAgeChart {
         valueList.add(ReportUtil.getRatioNotSymbol(schoolAge.getSaprodontiaRepairRatio()));
     }
 
-    private static void getHeightAndWeightSchoolAgeData(List<ChartVO.ChartData> y, SchoolAgeRatioVO schoolAge,List<BigDecimal> valueList) {
+    private static void getHeightAndWeightSchoolAgeData(List<ChartVO.ChartData> y, SchoolAgeRatioVO schoolAge, List<BigDecimal> valueList) {
         y.get(0).getData().add(ReportUtil.getRatioNotSymbol(schoolAge.getOverweightRatio()));
         y.get(1).getData().add(ReportUtil.getRatioNotSymbol(schoolAge.getObeseRatio()));
         y.get(2).getData().add(ReportUtil.getRatioNotSymbol(schoolAge.getMalnourishedRatio()));
@@ -125,7 +125,7 @@ public class ReportSchoolAgeChart {
         valueList.add(ReportUtil.getRatioNotSymbol(schoolAge.getStuntingRatio()));
     }
 
-    private static void getBloodPressureAndSpinalCurvatureSchoolAgeData(List<ChartVO.ChartData> y, SchoolAgeRatioVO schoolAge,List<BigDecimal> valueList){
+    private static void getBloodPressureAndSpinalCurvatureSchoolAgeData(List<ChartVO.ChartData> y, SchoolAgeRatioVO schoolAge, List<BigDecimal> valueList) {
         y.get(0).getData().add(ReportUtil.getRatioNotSymbol(schoolAge.getHighBloodPressureRatio()));
         y.get(1).getData().add(ReportUtil.getRatioNotSymbol(schoolAge.getAbnormalSpineCurvatureRatio()));
         valueList.add(ReportUtil.getRatioNotSymbol(schoolAge.getAbnormalSpineCurvatureRatio()));

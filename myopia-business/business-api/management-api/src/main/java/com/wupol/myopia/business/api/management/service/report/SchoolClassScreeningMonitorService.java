@@ -32,25 +32,25 @@ public class SchoolClassScreeningMonitorService {
      */
     public void getSchoolClassScreeningMonitorVO(List<StatConclusion> statConclusionList, SchoolCommonDiseasesAnalysisVO schoolCommonDiseasesAnalysisVO) {
 
-        if (CollectionUtil.isEmpty(statConclusionList)){
+        if (CollectionUtil.isEmpty(statConclusionList)) {
             return;
         }
-        ScreeningNum.MAP.put(0,statConclusionList.size());
+        ScreeningNum.MAP.put(0, statConclusionList.size());
 
         Map<String, List<StatConclusion>> gradeMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
 
-        List<SchoolClassScreeningMonitorVO> schoolClassScreeningMonitorVOList =Lists.newArrayList();
+        List<SchoolClassScreeningMonitorVO> schoolClassScreeningMonitorVOList = Lists.newArrayList();
 
-        gradeMap.forEach((gradeCode,list)->{
+        gradeMap.forEach((gradeCode, list) -> {
             SchoolClassScreeningMonitorVO schoolClassScreeningMonitorVO = new SchoolClassScreeningMonitorVO();
             //表格数据
-            getSchoolClassScreeningMonitorTableList(list,schoolClassScreeningMonitorVO);
+            getSchoolClassScreeningMonitorTableList(list, schoolClassScreeningMonitorVO);
             if (schoolClassScreeningMonitorVO.notEmpty()) {
                 schoolClassScreeningMonitorVOList.add(schoolClassScreeningMonitorVO);
                 schoolClassScreeningMonitorVO.setGrade(GradeCodeEnum.getByCode(gradeCode).getName());
             }
             //图表数据
-            getSchoolClassScreeningMonitorChart(list,schoolClassScreeningMonitorVO);
+            getSchoolClassScreeningMonitorChart(list, schoolClassScreeningMonitorVO);
         });
 
         schoolCommonDiseasesAnalysisVO.setSchoolClassScreeningMonitorVOList(schoolClassScreeningMonitorVOList);
@@ -59,16 +59,16 @@ public class SchoolClassScreeningMonitorService {
     }
 
     private void getSchoolClassScreeningMonitorChart(List<StatConclusion> statConclusionList, SchoolClassScreeningMonitorVO schoolClassScreeningMonitorVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)){
+        if (CollectionUtil.isEmpty(statConclusionList)) {
             return;
         }
 
         ScreeningNum gradeScreeningNum = new ScreeningNum().build(statConclusionList).ratioNotSymbol();
 
         Map<String, List<StatConclusion>> classStatConclusionMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolClassName));
-        Map<String,ScreeningNum> classScreeningNumMap = Maps.newHashMap();
-        classStatConclusionMap.forEach((schoolClassName,list)->{
-            getSchoolClassScreeningNum(schoolClassName,list,classScreeningNumMap);
+        Map<String, ScreeningNum> classScreeningNumMap = Maps.newHashMap();
+        classStatConclusionMap.forEach((schoolClassName, list) -> {
+            getSchoolClassScreeningNum(schoolClassName, list, classScreeningNumMap);
         });
 
         List<ChartVO.GradeRatioExtremumChart> chartList = Lists.newArrayList(
@@ -83,17 +83,17 @@ public class SchoolClassScreeningMonitorService {
         );
 
         AtomicBoolean flag = new AtomicBoolean(true);
-        classScreeningNumMap.forEach((schoolName,screeningNum)->{
-            if (flag.get()){
+        classScreeningNumMap.forEach((schoolName, screeningNum) -> {
+            if (flag.get()) {
                 flag.set(false);
-                setChartData(chartList,0,classScreeningNumMap, ScreeningNum::getSaprodontiaNum, ScreeningNum::getSaprodontiaRatio,gradeScreeningNum);
-                setChartData(chartList,1,classScreeningNumMap, ScreeningNum::getSaprodontiaLossAndRepairNum, ScreeningNum::getSaprodontiaLossAndRepairRatio,gradeScreeningNum);
-                setChartData(chartList,2,classScreeningNumMap, ScreeningNum::getOverweightNum, ScreeningNum::getOverweightRatio,gradeScreeningNum);
-                setChartData(chartList,3,classScreeningNumMap, ScreeningNum::getObeseNum, ScreeningNum::getObeseRatio,gradeScreeningNum);
-                setChartData(chartList,4,classScreeningNumMap, ScreeningNum::getMalnourishedNum, ScreeningNum::getMalnourishedRatio,gradeScreeningNum);
-                setChartData(chartList,5,classScreeningNumMap, ScreeningNum::getStuntingNum, ScreeningNum::getStuntingRatio,gradeScreeningNum);
-                setChartData(chartList,6,classScreeningNumMap, ScreeningNum::getAbnormalSpineCurvatureNum, ScreeningNum::getAbnormalSpineCurvatureRatio,gradeScreeningNum);
-                setChartData(chartList,7,classScreeningNumMap, ScreeningNum::getHighBloodPressureNum, ScreeningNum::getHighBloodPressureRatio,gradeScreeningNum);
+                setChartData(chartList, 0, classScreeningNumMap, ScreeningNum::getSaprodontiaNum, ScreeningNum::getSaprodontiaRatio, gradeScreeningNum);
+                setChartData(chartList, 1, classScreeningNumMap, ScreeningNum::getSaprodontiaLossAndRepairNum, ScreeningNum::getSaprodontiaLossAndRepairRatio, gradeScreeningNum);
+                setChartData(chartList, 2, classScreeningNumMap, ScreeningNum::getOverweightNum, ScreeningNum::getOverweightRatio, gradeScreeningNum);
+                setChartData(chartList, 3, classScreeningNumMap, ScreeningNum::getObeseNum, ScreeningNum::getObeseRatio, gradeScreeningNum);
+                setChartData(chartList, 4, classScreeningNumMap, ScreeningNum::getMalnourishedNum, ScreeningNum::getMalnourishedRatio, gradeScreeningNum);
+                setChartData(chartList, 5, classScreeningNumMap, ScreeningNum::getStuntingNum, ScreeningNum::getStuntingRatio, gradeScreeningNum);
+                setChartData(chartList, 6, classScreeningNumMap, ScreeningNum::getAbnormalSpineCurvatureNum, ScreeningNum::getAbnormalSpineCurvatureRatio, gradeScreeningNum);
+                setChartData(chartList, 7, classScreeningNumMap, ScreeningNum::getHighBloodPressureNum, ScreeningNum::getHighBloodPressureRatio, gradeScreeningNum);
             }
             chartList.get(0).getData().add(screeningNum.getSaprodontiaRatio());
             chartList.get(1).getData().add(screeningNum.getSaprodontiaLossAndRepairRatio());
@@ -108,8 +108,8 @@ public class SchoolClassScreeningMonitorService {
         schoolClassScreeningMonitorVO.setSchoolClassScreeningMonitorChart(chartList);
     }
 
-    private void setChartData(List<ChartVO.GradeRatioExtremumChart> chartList, Integer index, Map<String,ScreeningNum> classScreeningNumMap,
-                              Function<ScreeningNum,Integer> function, Function<ScreeningNum,BigDecimal> mapper,ScreeningNum num ){
+    private void setChartData(List<ChartVO.GradeRatioExtremumChart> chartList, Integer index, Map<String, ScreeningNum> classScreeningNumMap,
+                              Function<ScreeningNum, Integer> function, Function<ScreeningNum, BigDecimal> mapper, ScreeningNum num) {
         GradeRatioExtremum gradeRatioExtremum = getClassRatioExtremum(classScreeningNumMap, function, mapper);
         chartList.get(index).setMaxClassName(gradeRatioExtremum.getMaxClassName());
         chartList.get(index).setMaxRatio(gradeRatioExtremum.getMaxRatio());
@@ -119,9 +119,9 @@ public class SchoolClassScreeningMonitorService {
     }
 
 
-    private GradeRatioExtremum getClassRatioExtremum(Map<String,ScreeningNum> classScreeningNumMap, Function<ScreeningNum,Integer> function, Function<ScreeningNum,BigDecimal> mapper){
-        TwoTuple<String, BigDecimal> maxTuple = ReportUtil.getMaxMap(classScreeningNumMap, function,mapper);
-        TwoTuple<String, BigDecimal> minTuple = ReportUtil.getMinMap(classScreeningNumMap, function,mapper);
+    private GradeRatioExtremum getClassRatioExtremum(Map<String, ScreeningNum> classScreeningNumMap, Function<ScreeningNum, Integer> function, Function<ScreeningNum, BigDecimal> mapper) {
+        TwoTuple<String, BigDecimal> maxTuple = ReportUtil.getMaxMap(classScreeningNumMap, function, mapper);
+        TwoTuple<String, BigDecimal> minTuple = ReportUtil.getMinMap(classScreeningNumMap, function, mapper);
         GradeRatioExtremum schoolRatioExtremum = new GradeRatioExtremum();
         schoolRatioExtremum.setMaxClassName(maxTuple.getFirst());
         schoolRatioExtremum.setMinClassName(minTuple.getFirst());
@@ -129,33 +129,33 @@ public class SchoolClassScreeningMonitorService {
         schoolRatioExtremum.setMinRatio(minTuple.getSecond());
         return schoolRatioExtremum;
     }
-    private <K>void getSchoolClassScreeningNum(K key, List<StatConclusion> statConclusionList,Map<K, ScreeningNum> classScreeningNumMap){
+
+    private <K> void getSchoolClassScreeningNum(K key, List<StatConclusion> statConclusionList, Map<K, ScreeningNum> classScreeningNumMap) {
         ScreeningNum build = new ScreeningNum()
                 .build(statConclusionList).ratioNotSymbol();
-        classScreeningNumMap.put(key,build);
+        classScreeningNumMap.put(key, build);
     }
-
 
 
     /**
      * 各班级筛查情况-表格数据
      */
     private void getSchoolClassScreeningMonitorTableList(List<StatConclusion> statConclusionList, SchoolClassScreeningMonitorVO schoolClassScreeningMonitorVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)){
+        if (CollectionUtil.isEmpty(statConclusionList)) {
             return;
         }
         List<ScreeningMonitorTable> tableList = Lists.newArrayList();
         Map<String, List<StatConclusion>> schoolStatConclusionMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
-        schoolStatConclusionMap.forEach((schoolGradeCode,list)->{
+        schoolStatConclusionMap.forEach((schoolGradeCode, list) -> {
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeCode);
-            getSchoolClassScreeningTable(gradeCodeEnum.getName(),list,tableList);
+            getSchoolClassScreeningTable(gradeCodeEnum.getName(), list, tableList);
         });
 
         schoolClassScreeningMonitorVO.setSchoolClassScreeningMonitorTableList(tableList);
     }
 
     private void getSchoolClassScreeningTable(String schoolName, List<StatConclusion> statConclusionList, List<ScreeningMonitorTable> tableList) {
-        if (CollectionUtil.isEmpty(statConclusionList)){
+        if (CollectionUtil.isEmpty(statConclusionList)) {
             return;
         }
 
