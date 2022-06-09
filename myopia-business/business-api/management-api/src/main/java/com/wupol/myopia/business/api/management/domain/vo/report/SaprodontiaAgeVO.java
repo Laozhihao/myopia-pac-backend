@@ -23,7 +23,7 @@ public class SaprodontiaAgeVO implements AgeChartVO {
     /**
      * 年龄段图表
      */
-    private ChartVO.AgeChart saprodontiaAgeMonitorChart;
+    private ChartVO.ReverseChart saprodontiaAgeMonitorChart;
 
     @Override
     public Integer type() {

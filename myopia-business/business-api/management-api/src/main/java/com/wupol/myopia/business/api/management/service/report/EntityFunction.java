@@ -3,7 +3,6 @@ package com.wupol.myopia.business.api.management.service.report;
 import cn.hutool.core.collection.CollectionUtil;
 import com.wupol.myopia.business.api.management.constant.ReportConst;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
-import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 
 import java.math.BigDecimal;
 import java.util.List;

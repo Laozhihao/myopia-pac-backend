@@ -23,7 +23,7 @@ public class BloodPressureAndSpinalCurvatureAgeVO implements AgeChartVO {
     /**
      * 年龄段图表
      */
-    private ChartVO.AgeChart bloodPressureAndSpinalCurvatureAgeMonitorChart;
+    private ChartVO.ReverseChart bloodPressureAndSpinalCurvatureAgeMonitorChart;
 
     @Override
     public Integer type() {

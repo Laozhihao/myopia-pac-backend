@@ -24,7 +24,7 @@ public class BloodPressureAndSpinalCurvatureGradeVO implements GradeChartVO {
     /**
      * 年级图表
      */
-    private ChartVO.Chart bloodPressureAndSpinalCurvatureGradeMonitorChart;
+    private ChartVO.ReverseChart bloodPressureAndSpinalCurvatureGradeMonitorChart;
 
     @Override
     public Integer type() {

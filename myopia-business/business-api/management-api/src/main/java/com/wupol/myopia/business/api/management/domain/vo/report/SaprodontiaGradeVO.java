@@ -24,7 +24,7 @@ public class SaprodontiaGradeVO implements GradeChartVO {
     /**
      * 年级图表
      */
-    private ChartVO.Chart saprodontiaGradeMonitorChart;
+    private ChartVO.ReverseChart saprodontiaGradeMonitorChart;
 
     @Override
     public Integer type() {

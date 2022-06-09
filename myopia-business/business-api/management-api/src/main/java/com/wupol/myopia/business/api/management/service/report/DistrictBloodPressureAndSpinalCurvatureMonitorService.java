@@ -313,7 +313,7 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorService {
 
         List<BloodPressureAndSpinalCurvatureMonitorTable> vocationalHighList = getBloodPressureAndSpinalCurvatureSchoolAgeTable(statConclusionList, SchoolAge.VOCATIONAL_HIGH.code);
         if (CollectionUtil.isNotEmpty(vocationalHighList)) {
-            List<BloodPressureAndSpinalCurvatureMonitorTable> normalHighList = getBloodPressureAndSpinalCurvatureSchoolAgeTable(statConclusionList, SchoolAge.HIGH.code);
+            List<BloodPressureAndSpinalCurvatureMonitorTable> normalHighList = changeBloodPressureAndSpinalCurvatureSchoolAgeNameTable(statConclusionList, SchoolAge.HIGH.code);
             if (CollectionUtil.isNotEmpty(normalHighList)) {
                 tableList.addAll(normalHighList);
             }
@@ -363,6 +363,20 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorService {
         }
 
         return getBloodPressureAndSpinalCurvatureGrade(statConclusionList, schoolAge);
+    }
+
+    private List<BloodPressureAndSpinalCurvatureMonitorTable> changeBloodPressureAndSpinalCurvatureSchoolAgeNameTable(List<StatConclusion> statConclusionList, Integer schoolAge) {
+        if (CollectionUtil.isEmpty(statConclusionList)) {
+            return Lists.newArrayList();
+        }
+        List<BloodPressureAndSpinalCurvatureMonitorTable> bloodPressureAndSpinalCurvatureGrade = getBloodPressureAndSpinalCurvatureGrade(statConclusionList, schoolAge);
+        for (BloodPressureAndSpinalCurvatureMonitorTable table : bloodPressureAndSpinalCurvatureGrade) {
+            if (table.getItemName().startsWith("高")){
+                table.setItemName("普"+table.getItemName());
+            }
+        }
+
+        return bloodPressureAndSpinalCurvatureGrade;
     }
 
     private List<BloodPressureAndSpinalCurvatureMonitorTable> getBloodPressureAndSpinalCurvatureGrade(List<StatConclusion> statConclusionList, Integer schoolAge) {

@@ -50,7 +50,7 @@ public class ChartVO {
     }
 
     @Data
-    public static class AgeChart{
+    public static class ReverseChart {
         /**
          * y轴
          */
@@ -58,28 +58,12 @@ public class ChartVO {
         /**
          * x轴
          */
-        private List<AgeData> x;
+        private List<ChartData> x;
         /**
          * 最大值
          */
         private BigDecimal maxValue;
 
-    }
-    @Data
-    public static class AgeData{
-        /**
-         * 标签
-         */
-        private String name;
-        /**
-         * 数据
-         */
-        private List<BigDecimal> data;
-
-        public AgeData(String name, List<BigDecimal> data) {
-            this.name = name;
-            this.data = data;
-        }
     }
 
     @Data

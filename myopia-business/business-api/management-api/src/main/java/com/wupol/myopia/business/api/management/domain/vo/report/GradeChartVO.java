@@ -7,11 +7,11 @@ package com.wupol.myopia.business.api.management.domain.vo.report;
  */
 public interface GradeChartVO {
 
-    default void setSaprodontiaGradeMonitorChart(ChartVO.Chart chart){}
+    default void setSaprodontiaGradeMonitorChart(ChartVO.ReverseChart chart){}
 
-    default void setHeightAndWeightGradeMonitorChart(ChartVO.Chart chart){}
+    default void setHeightAndWeightGradeMonitorChart(ChartVO.ReverseChart chart){}
 
-    default void setBloodPressureAndSpinalCurvatureGradeMonitorChart(ChartVO.Chart chart){}
+    default void setBloodPressureAndSpinalCurvatureGradeMonitorChart(ChartVO.ReverseChart chart){}
 
     Integer type();
 }

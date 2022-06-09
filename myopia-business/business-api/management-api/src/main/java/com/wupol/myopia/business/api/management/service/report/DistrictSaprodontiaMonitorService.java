@@ -306,7 +306,7 @@ public class DistrictSaprodontiaMonitorService {
         }
         List<SaprodontiaMonitorTable> vocationalHighList = getSaprodontiaSchoolAgeTable(statConclusionList, SchoolAge.VOCATIONAL_HIGH.code);
         if (CollectionUtil.isNotEmpty(vocationalHighList)) {
-            List<SaprodontiaMonitorTable> normalHighList = getSaprodontiaSchoolAgeTable(statConclusionList, SchoolAge.HIGH.code);
+            List<SaprodontiaMonitorTable> normalHighList = changeSaprodontiaSchoolAgeNameTable(statConclusionList, SchoolAge.HIGH.code);
             if (CollectionUtil.isNotEmpty(normalHighList)) {
                 tableList.addAll(normalHighList);
             }
@@ -358,6 +358,19 @@ public class DistrictSaprodontiaMonitorService {
         }
 
         return getSaprodontiaGrade(statConclusionList, schoolAge);
+    }
+
+    private List<SaprodontiaMonitorTable> changeSaprodontiaSchoolAgeNameTable(List<StatConclusion> statConclusionList, Integer schoolAge) {
+        if (CollectionUtil.isEmpty(statConclusionList)) {
+            return Lists.newArrayList();
+        }
+        List<SaprodontiaMonitorTable> saprodontiaGrade = getSaprodontiaGrade(statConclusionList, schoolAge);
+        for (SaprodontiaMonitorTable table : saprodontiaGrade) {
+            if (table.getItemName().startsWith("高")){
+                table.setItemName("普"+table.getItemName());
+            }
+        }
+        return saprodontiaGrade;
     }
 
 

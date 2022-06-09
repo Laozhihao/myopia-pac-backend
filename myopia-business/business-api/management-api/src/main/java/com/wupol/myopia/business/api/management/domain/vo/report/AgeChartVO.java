@@ -7,11 +7,11 @@ package com.wupol.myopia.business.api.management.domain.vo.report;
  */
 public interface AgeChartVO {
 
-    default void setSaprodontiaAgeMonitorChart(ChartVO.AgeChart ageChart){}
+    default void setSaprodontiaAgeMonitorChart(ChartVO.ReverseChart reverseChart){}
 
-    default void setHeightAndWeightAgeMonitorChart(ChartVO.AgeChart ageChart){}
+    default void setHeightAndWeightAgeMonitorChart(ChartVO.ReverseChart reverseChart){}
 
-    default void setBloodPressureAndSpinalCurvatureAgeMonitorChart(ChartVO.AgeChart ageChart){}
+    default void setBloodPressureAndSpinalCurvatureAgeMonitorChart(ChartVO.ReverseChart reverseChart){}
 
     Integer type();
 }

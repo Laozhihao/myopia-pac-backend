@@ -29,18 +29,18 @@ public class ReportGradeChart {
         if (CollectionUtil.isEmpty(statConclusionList)) {
             return;
         }
-        ChartVO.Chart chart = new ChartVO.Chart();
-        List<String> x = Lists.newArrayList();
-        List<ChartVO.ChartData> y = Lists.newArrayList();
-        getGradeY(gradeChartVO.type(), y);
+        ChartVO.ReverseChart chart = new ChartVO.ReverseChart();
+        List<String> y = Lists.newArrayList();
+        List<ChartVO.ChartData> x = Lists.newArrayList();
+        getGradeX(gradeChartVO.type(), x);
 
         List<BigDecimal> valueList = Lists.newArrayList();
         Map<String, List<StatConclusion>> gradeCodeMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
         gradeCodeMap = CollectionUtil.sort(gradeCodeMap, String::compareTo);
         gradeCodeMap.forEach((gradeCode, list) -> {
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(gradeCode);
-            x.add(gradeCodeEnum.getName());
-            setGradeData(gradeChartVO.type(), y, list, valueList);
+            y.add(gradeCodeEnum.getName());
+            setGradeData(gradeChartVO.type(), x, list, valueList);
         });
         chart.setX(x);
         chart.setY(y);
@@ -48,17 +48,17 @@ public class ReportGradeChart {
         setGradeChartVO(gradeChartVO, chart);
     }
 
-    private static void getGradeY(Integer type, List<ChartVO.ChartData> y) {
+    private static void getGradeX(Integer type, List<ChartVO.ChartData> x) {
         switch (type) {
             case 1:
-                y.addAll(Lists.newArrayList(
+                x.addAll(Lists.newArrayList(
                         new ChartVO.ChartData(ReportConst.SAPRODONTIA, Lists.newArrayList()),
                         new ChartVO.ChartData(ReportConst.SAPRODONTIA_LOSS, Lists.newArrayList()),
                         new ChartVO.ChartData(ReportConst.SAPRODONTIA_REPAIR, Lists.newArrayList())
                 ));
                 break;
             case 2:
-                y.addAll(Lists.newArrayList(
+                x.addAll(Lists.newArrayList(
                         new ChartVO.ChartData(ReportConst.OVERWEIGHT, Lists.newArrayList()),
                         new ChartVO.ChartData(ReportConst.OBESE, Lists.newArrayList()),
                         new ChartVO.ChartData(ReportConst.MALNOURISHED, Lists.newArrayList()),
@@ -66,7 +66,7 @@ public class ReportGradeChart {
                 ));
                 break;
             case 3:
-                y.addAll(Lists.newArrayList(
+                x.addAll(Lists.newArrayList(
                         new ChartVO.ChartData(ReportConst.HIGH_BLOOD_PRESSURE, Lists.newArrayList()),
                         new ChartVO.ChartData(ReportConst.ABNORMAL_SPINE_CURVATURE, Lists.newArrayList())
                 ));
@@ -76,16 +76,16 @@ public class ReportGradeChart {
         }
     }
 
-    private static void setGradeData(Integer type, List<ChartVO.ChartData> y, List<StatConclusion> statConclusionList, List<BigDecimal> valueList) {
+    private static void setGradeData(Integer type, List<ChartVO.ChartData> x, List<StatConclusion> statConclusionList, List<BigDecimal> valueList) {
         switch (type) {
             case 1:
-                getSaprodontiaGradeData(y, statConclusionList, valueList);
+                getSaprodontiaGradeData(x, statConclusionList, valueList);
                 break;
             case 2:
-                getHeightAndWeightGradeData(y, statConclusionList, valueList);
+                getHeightAndWeightGradeData(x, statConclusionList, valueList);
                 break;
             case 3:
-                getBloodPressureAndSpinalCurvatureGradeData(y, statConclusionList, valueList);
+                getBloodPressureAndSpinalCurvatureGradeData(x, statConclusionList, valueList);
                 break;
             default:
                 break;
@@ -93,37 +93,37 @@ public class ReportGradeChart {
 
     }
 
-    private static void getSaprodontiaGradeData(List<ChartVO.ChartData> y, List<StatConclusion> statConclusionList, List<BigDecimal> valueList) {
+    private static void getSaprodontiaGradeData(List<ChartVO.ChartData> x, List<StatConclusion> statConclusionList, List<BigDecimal> valueList) {
         SaprodontiaNum num = new SaprodontiaNum().build(statConclusionList).ratioNotSymbol().ratio();
-        y.get(0).getData().add(num.getSaprodontiaRatio());
-        y.get(1).getData().add(num.getSaprodontiaLossRatio());
-        y.get(2).getData().add(num.getSaprodontiaRepairRatio());
+        x.get(0).getData().add(num.getSaprodontiaRatio());
+        x.get(1).getData().add(num.getSaprodontiaLossRatio());
+        x.get(2).getData().add(num.getSaprodontiaRepairRatio());
         valueList.add(num.getSaprodontiaRatio());
         valueList.add(num.getSaprodontiaLossRatio());
         valueList.add(num.getSaprodontiaRepairRatio());
     }
 
-    private static void getHeightAndWeightGradeData(List<ChartVO.ChartData> y, List<StatConclusion> statConclusionList, List<BigDecimal> valueList) {
+    private static void getHeightAndWeightGradeData(List<ChartVO.ChartData> x, List<StatConclusion> statConclusionList, List<BigDecimal> valueList) {
         HeightAndWeightNum num = new HeightAndWeightNum().build(statConclusionList).ratioNotSymbol().ratio();
-        y.get(0).getData().add(num.getOverweightRatio());
-        y.get(1).getData().add(num.getObeseRatio());
-        y.get(2).getData().add(num.getMalnourishedRatio());
-        y.get(3).getData().add(num.getStuntingRatio());
+        x.get(0).getData().add(num.getOverweightRatio());
+        x.get(1).getData().add(num.getObeseRatio());
+        x.get(2).getData().add(num.getMalnourishedRatio());
+        x.get(3).getData().add(num.getStuntingRatio());
         valueList.add(num.getOverweightRatio());
         valueList.add(num.getObeseRatio());
         valueList.add(num.getMalnourishedRatio());
         valueList.add(num.getStuntingRatio());
     }
 
-    private static void getBloodPressureAndSpinalCurvatureGradeData(List<ChartVO.ChartData> y, List<StatConclusion> statConclusionList, List<BigDecimal> valueList) {
+    private static void getBloodPressureAndSpinalCurvatureGradeData(List<ChartVO.ChartData> x, List<StatConclusion> statConclusionList, List<BigDecimal> valueList) {
         BloodPressureAndSpinalCurvatureNum num = new BloodPressureAndSpinalCurvatureNum().build(statConclusionList).ratioNotSymbol().ratio();
-        y.get(0).getData().add(num.getHighBloodPressureRatio());
-        y.get(1).getData().add(num.getAbnormalSpineCurvatureRatio());
+        x.get(0).getData().add(num.getHighBloodPressureRatio());
+        x.get(1).getData().add(num.getAbnormalSpineCurvatureRatio());
         valueList.add(num.getHighBloodPressureRatio());
         valueList.add(num.getAbnormalSpineCurvatureRatio());
     }
 
-    private static void setGradeChartVO(GradeChartVO gradeChartVO, ChartVO.Chart chart) {
+    private static void setGradeChartVO(GradeChartVO gradeChartVO, ChartVO.ReverseChart chart) {
         switch (gradeChartVO.type()) {
             case 1:
                 gradeChartVO.setSaprodontiaGradeMonitorChart(chart);

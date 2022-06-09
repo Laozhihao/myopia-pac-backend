@@ -24,7 +24,7 @@ public class HeightAndWeightGradeVO implements GradeChartVO {
     /**
      * 学龄段图表
      */
-    private ChartVO.Chart heightAndWeightGradeMonitorChart;
+    private ChartVO.ReverseChart heightAndWeightGradeMonitorChart;
 
     @Override
     public Integer type() {

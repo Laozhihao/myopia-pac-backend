@@ -314,7 +314,7 @@ public class DistrictHeightAndWeightMonitorService {
 
         List<HeightAndWeightMonitorTable> vocationalHighList = getHeightAndWeightSchoolAgeTable(statConclusionList, SchoolAge.VOCATIONAL_HIGH.code);
         if (CollectionUtil.isNotEmpty(vocationalHighList)) {
-            List<HeightAndWeightMonitorTable> normalHighList = getHeightAndWeightSchoolAgeTable(statConclusionList, SchoolAge.HIGH.code);
+            List<HeightAndWeightMonitorTable> normalHighList = changeHeightAndWeightSchoolAgeNameTable(statConclusionList, SchoolAge.HIGH.code);
             if (CollectionUtil.isNotEmpty(normalHighList)) {
                 tableList.addAll(normalHighList);
             }
@@ -365,6 +365,20 @@ public class DistrictHeightAndWeightMonitorService {
         }
 
         return getHeightAndWeightGrade(statConclusionList, schoolAge);
+    }
+
+    private List<HeightAndWeightMonitorTable> changeHeightAndWeightSchoolAgeNameTable(List<StatConclusion> statConclusionList, Integer schoolAge) {
+        if (CollectionUtil.isEmpty(statConclusionList)) {
+            return Lists.newArrayList();
+        }
+        List<HeightAndWeightMonitorTable> heightAndWeightGrade = getHeightAndWeightGrade(statConclusionList, schoolAge);
+        for (HeightAndWeightMonitorTable table : heightAndWeightGrade) {
+            if (table.getItemName().startsWith("高")){
+                table.setItemName("普"+table.getItemName());
+            }
+        }
+
+        return heightAndWeightGrade;
     }
 
     private List<HeightAndWeightMonitorTable> getHeightAndWeightGrade(List<StatConclusion> statConclusionList, Integer schoolAge) {

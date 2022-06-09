@@ -30,12 +30,12 @@ public class ReportAgeChart {
         if (CollectionUtil.isEmpty(statConclusionList)) {
             return;
         }
-        ChartVO.AgeChart ageChart = new ChartVO.AgeChart();
+        ChartVO.ReverseChart reverseChart = new ChartVO.ReverseChart();
         Map<Integer, List<StatConclusion>> ageMap = statConclusionList.stream().collect(Collectors.groupingBy(sc -> ReportUtil.getLessAge(sc.getAge())));
         List<Integer> dynamicAgeSegmentList = ReportUtil.dynamicAgeSegment(statConclusionList);
 
         List<String> y = Lists.newArrayList();
-        List<ChartVO.AgeData> x = Lists.newArrayList();
+        List<ChartVO.ChartData> x = Lists.newArrayList();
         getAgeX(ageChartVO, x);
 
         List<BigDecimal> valueList = Lists.newArrayList();
@@ -47,35 +47,35 @@ public class ReportAgeChart {
                 setAgeData(ageChartVO, x, statConclusions, valueList);
             }
         });
-        ageChart.setY(y);
-        ageChart.setX(x);
-        ageChart.setMaxValue(CollectionUtil.max(valueList));
-        setAgeChartVO(ageChartVO, ageChart);
+        reverseChart.setY(y);
+        reverseChart.setX(x);
+        reverseChart.setMaxValue(CollectionUtil.max(valueList));
+        setAgeChartVO(ageChartVO, reverseChart);
     }
 
 
-    private static void getAgeX(AgeChartVO ageChartVO, List<ChartVO.AgeData> x) {
+    private static void getAgeX(AgeChartVO ageChartVO, List<ChartVO.ChartData> x) {
 
         switch (ageChartVO.type()) {
             case 1:
                 x.addAll(Lists.newArrayList(
-                        new ChartVO.AgeData(ReportConst.SAPRODONTIA, Lists.newArrayList()),
-                        new ChartVO.AgeData(ReportConst.SAPRODONTIA_LOSS, Lists.newArrayList()),
-                        new ChartVO.AgeData(ReportConst.SAPRODONTIA_REPAIR, Lists.newArrayList())
+                        new ChartVO.ChartData(ReportConst.SAPRODONTIA, Lists.newArrayList()),
+                        new ChartVO.ChartData(ReportConst.SAPRODONTIA_LOSS, Lists.newArrayList()),
+                        new ChartVO.ChartData(ReportConst.SAPRODONTIA_REPAIR, Lists.newArrayList())
                 ));
                 break;
             case 2:
                 x.addAll(Lists.newArrayList(
-                        new ChartVO.AgeData(ReportConst.OVERWEIGHT, Lists.newArrayList()),
-                        new ChartVO.AgeData(ReportConst.OBESE, Lists.newArrayList()),
-                        new ChartVO.AgeData(ReportConst.MALNOURISHED, Lists.newArrayList()),
-                        new ChartVO.AgeData(ReportConst.STUNTING, Lists.newArrayList())
+                        new ChartVO.ChartData(ReportConst.OVERWEIGHT, Lists.newArrayList()),
+                        new ChartVO.ChartData(ReportConst.OBESE, Lists.newArrayList()),
+                        new ChartVO.ChartData(ReportConst.MALNOURISHED, Lists.newArrayList()),
+                        new ChartVO.ChartData(ReportConst.STUNTING, Lists.newArrayList())
                 ));
                 break;
             case 3:
                 x.addAll(Lists.newArrayList(
-                        new ChartVO.AgeData(ReportConst.HIGH_BLOOD_PRESSURE, Lists.newArrayList()),
-                        new ChartVO.AgeData(ReportConst.ABNORMAL_SPINE_CURVATURE, Lists.newArrayList())
+                        new ChartVO.ChartData(ReportConst.HIGH_BLOOD_PRESSURE, Lists.newArrayList()),
+                        new ChartVO.ChartData(ReportConst.ABNORMAL_SPINE_CURVATURE, Lists.newArrayList())
                 ));
                 break;
             default:
@@ -83,7 +83,7 @@ public class ReportAgeChart {
         }
     }
 
-    private static void setAgeData(AgeChartVO ageChartVO, List<ChartVO.AgeData> x, List<StatConclusion> statConclusionList, List<BigDecimal> valueList) {
+    private static void setAgeData(AgeChartVO ageChartVO, List<ChartVO.ChartData> x, List<StatConclusion> statConclusionList, List<BigDecimal> valueList) {
         switch (ageChartVO.type()) {
             case 1:
                 getSaprodontiaAgeData(x, statConclusionList, valueList);
@@ -99,23 +99,23 @@ public class ReportAgeChart {
         }
     }
 
-    private static void setAgeChartVO(AgeChartVO ageChartVO, ChartVO.AgeChart ageChart) {
+    private static void setAgeChartVO(AgeChartVO ageChartVO, ChartVO.ReverseChart reverseChart) {
         switch (ageChartVO.type()) {
             case 1:
-                ageChartVO.setSaprodontiaAgeMonitorChart(ageChart);
+                ageChartVO.setSaprodontiaAgeMonitorChart(reverseChart);
                 break;
             case 2:
-                ageChartVO.setHeightAndWeightAgeMonitorChart(ageChart);
+                ageChartVO.setHeightAndWeightAgeMonitorChart(reverseChart);
                 break;
             case 3:
-                ageChartVO.setBloodPressureAndSpinalCurvatureAgeMonitorChart(ageChart);
+                ageChartVO.setBloodPressureAndSpinalCurvatureAgeMonitorChart(reverseChart);
                 break;
             default:
                 break;
         }
     }
 
-    private static void getSaprodontiaAgeData(List<ChartVO.AgeData> data, List<StatConclusion> statConclusionList, List<BigDecimal> valueList) {
+    private static void getSaprodontiaAgeData(List<ChartVO.ChartData> data, List<StatConclusion> statConclusionList, List<BigDecimal> valueList) {
         SaprodontiaNum num = new SaprodontiaNum().build(statConclusionList).ratioNotSymbol();
         data.get(0).getData().add(num.getSaprodontiaRatio());
         data.get(1).getData().add(num.getSaprodontiaLossRatio());
@@ -125,7 +125,7 @@ public class ReportAgeChart {
         valueList.add(num.getSaprodontiaRepairRatio());
     }
 
-    private static void getHeightAndWeightAgeData(List<ChartVO.AgeData> data, List<StatConclusion> statConclusionList, List<BigDecimal> valueList) {
+    private static void getHeightAndWeightAgeData(List<ChartVO.ChartData> data, List<StatConclusion> statConclusionList, List<BigDecimal> valueList) {
         HeightAndWeightNum num = new HeightAndWeightNum().build(statConclusionList).ratioNotSymbol();
         data.get(0).getData().add(num.getOverweightRatio());
         data.get(1).getData().add(num.getObeseRatio());
@@ -137,7 +137,7 @@ public class ReportAgeChart {
         valueList.add(num.getStuntingRatio());
     }
 
-    private static void getBloodPressureAndSpinalCurvatureAgeData(List<ChartVO.AgeData> data, List<StatConclusion> statConclusionList, List<BigDecimal> valueList) {
+    private static void getBloodPressureAndSpinalCurvatureAgeData(List<ChartVO.ChartData> data, List<StatConclusion> statConclusionList, List<BigDecimal> valueList) {
         BloodPressureAndSpinalCurvatureNum num = new BloodPressureAndSpinalCurvatureNum().build(statConclusionList).ratioNotSymbol();
         data.get(0).getData().add(num.getHighBloodPressureRatio());
         data.get(1).getData().add(num.getAbnormalSpineCurvatureRatio());
