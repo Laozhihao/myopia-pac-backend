@@ -1452,7 +1452,7 @@ public class StatReportService {
                 x -> MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.code.equals(x.getMyopiaLevel());
         Predicate<StatConclusion> levelThreePredicate =
                 x -> MyopiaLevelEnum.MYOPIA_LEVEL_HIGH.code.equals(x.getMyopiaLevel());
-        return composeMyopiaLevelStat(name, statConclusions, levelEarlyPredicate, levelOnePredicate, null, levelThreePredicate);
+        return composeMyopiaLevelStat(name, statConclusions, levelEarlyPredicate, levelOnePredicate,  levelThreePredicate);
     }
 
     /**
@@ -1519,26 +1519,22 @@ public class StatReportService {
      * @param name                标题
      * @param statConclusions     统计数据
      * @param levelOnePredicate   一级过滤条件
-     * @param levelTwoPredicate   二级过滤条件
      * @param levelThreePredicate 三级过滤条件
      * @return
      */
     private Map<String, Object> composeMyopiaLevelStat(String name, List<StatConclusion> statConclusions,
                                                        Predicate<StatConclusion> levelEarlyPredicate,
                                                        Predicate<StatConclusion> levelOnePredicate,
-                                                       Predicate<StatConclusion> levelTwoPredicate,
                                                        Predicate<StatConclusion> levelThreePredicate) {
         long rowTotal = statConclusions.size();
         long levelEarlyNum = statConclusions.stream().filter(levelEarlyPredicate).count();
         long levelOneNum = statConclusions.stream().filter(levelOnePredicate).count();
-        long levelTwoNum = statConclusions.stream().filter(levelTwoPredicate).count();
         long levelThreeNum = statConclusions.stream().filter(levelThreePredicate).count();
         List<BasicStatParams> list = new ArrayList<>();
         list.add(composeBasicParams(MyopiaLevelEnum.MYOPIA_LEVEL_EARLY.desc, levelEarlyNum, rowTotal));
         list.add(composeBasicParams(MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.desc, levelOneNum, rowTotal));
-        list.add(composeBasicParams(MyopiaLevelEnum.MYOPIA_LEVEL_MIDDLE.desc, levelTwoNum, rowTotal));
         list.add(composeBasicParams(MyopiaLevelEnum.MYOPIA_LEVEL_HIGH.desc, levelThreeNum, rowTotal));
-        list.add(composeBasicParams("levelTotal", levelOneNum + levelTwoNum + levelThreeNum, rowTotal));
+        list.add(composeBasicParams("levelTotal", levelOneNum  + levelThreeNum, rowTotal));
         Map<String, Object> resultMap = new HashMap<>(2);
         resultMap.put("name", name);
         resultMap.put(TABLE_LABEL_ROW_TOTAL, rowTotal);
