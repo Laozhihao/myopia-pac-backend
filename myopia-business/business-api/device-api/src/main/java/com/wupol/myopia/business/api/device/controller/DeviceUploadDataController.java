@@ -93,12 +93,13 @@ public class DeviceUploadDataController {
     /**
      * FKR710 数据上传
      *
-     * @param str 数据
+     * @param requestDTO 数据
+     *
      * @return 结果
      */
     @PostMapping("fkr710/upload")
-    public ApiResult frkUpload(@RequestBody String str) {
-        fkrDataService.uploadData(str);
+    public ApiResult frkUpload(@RequestBody FkrRequestDTO requestDTO) {
+        fkrDataService.uploadData(requestDTO, "1");
         return ApiResult.success();
     }
 
