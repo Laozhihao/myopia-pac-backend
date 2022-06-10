@@ -32,7 +32,7 @@ public class FkrDataService {
     private VisionScreeningBizService visionScreeningBizService;
 
     @Transactional(rollbackFor = Exception.class)
-    public void uploadData(FkrRequestDTO requestDTO, String clientId) {
+    public void uploadData(FkrRequestDTO requestDTO) {
         log.info("str:{}", JSONObject.toJSONString(requestDTO));
         String deviceSN = requestDTO.getDeviceSN();
         Integer planStudentId = ParsePlanStudentUtils.parsePlanStudentId(requestDTO.getUid());
