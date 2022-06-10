@@ -30,7 +30,7 @@ public class ReportAgeChart {
         if (CollectionUtil.isEmpty(statConclusionList)) {
             return;
         }
-        ChartVO.Chart chart = new ChartVO.Chart();
+
         Map<Integer, List<StatConclusion>> ageMap = statConclusionList.stream().collect(Collectors.groupingBy(sc -> ReportUtil.getLessAge(sc.getAge())));
         List<Integer> dynamicAgeSegmentList = ReportUtil.dynamicAgeSegment(statConclusionList);
 
@@ -47,10 +47,29 @@ public class ReportAgeChart {
                 setAgeData(ageChartVO, y, statConclusions, valueList);
             }
         });
-        chart.setY(y);
-        chart.setX(x);
-        chart.setMaxValue(CollectionUtil.max(valueList));
-        setAgeChartVO(ageChartVO, chart);
+
+        if (Objects.equals(ageChartVO.type(),1) || Objects.equals(ageChartVO.type(),3)){
+            ChartVO.Chart chart = new ChartVO.Chart();
+            chart.setY(y);
+            chart.setX(x);
+            chart.setMaxValue(CollectionUtil.max(valueList));
+            setAgeChartVO(ageChartVO, Lists.newArrayList(chart));
+        }
+
+        if (Objects.equals(ageChartVO.type(),2)){
+            List<ChartVO.Chart> chartList =Lists.newArrayList();
+            List<List<ChartVO.ChartData>> lists = CollectionUtil.splitList(y, 2);
+            List<List<BigDecimal>> vList = CollectionUtil.splitList(valueList, 2);
+            for (int i = 0; i < lists.size(); i++) {
+                ChartVO.Chart chart = new ChartVO.Chart();
+                chart.setY(lists.get(i));
+                chart.setX(x);
+                chart.setMaxValue(CollectionUtil.max(vList.get(i)));
+                chartList.add(chart);
+            }
+            setAgeChartVO(ageChartVO,chartList);
+        }
+
     }
 
 
@@ -99,16 +118,16 @@ public class ReportAgeChart {
         }
     }
 
-    private static void setAgeChartVO(AgeChartVO ageChartVO, ChartVO.Chart chart) {
+    private static void setAgeChartVO(AgeChartVO ageChartVO, List<ChartVO.Chart> chart) {
         switch (ageChartVO.type()) {
             case 1:
-                ageChartVO.setSaprodontiaAgeMonitorChart(chart);
+                ageChartVO.setSaprodontiaAgeMonitorChart(chart.get(0));
                 break;
             case 2:
                 ageChartVO.setHeightAndWeightAgeMonitorChart(chart);
                 break;
             case 3:
-                ageChartVO.setBloodPressureAndSpinalCurvatureAgeMonitorChart(chart);
+                ageChartVO.setBloodPressureAndSpinalCurvatureAgeMonitorChart(chart.get(0));
                 break;
             default:
                 break;

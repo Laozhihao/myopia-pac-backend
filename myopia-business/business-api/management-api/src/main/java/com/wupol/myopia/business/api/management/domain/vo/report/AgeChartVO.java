@@ -1,5 +1,7 @@
 package com.wupol.myopia.business.api.management.domain.vo.report;
 
+import java.util.List;
+
 /**
  * 年龄段图表
  *
@@ -9,7 +11,7 @@ public interface AgeChartVO {
 
     default void setSaprodontiaAgeMonitorChart(ChartVO.Chart chart){}
 
-    default void setHeightAndWeightAgeMonitorChart(ChartVO.Chart chart){}
+    default void setHeightAndWeightAgeMonitorChart(List<ChartVO.Chart> chart){}
 
     default void setBloodPressureAndSpinalCurvatureAgeMonitorChart(ChartVO.Chart chart){}
 
