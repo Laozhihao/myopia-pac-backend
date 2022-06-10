@@ -10,7 +10,6 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudent
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentVisionScreeningResultExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
@@ -573,7 +572,7 @@ public class EyeDataUtil {
      * @return 等效球镜
      */
     public static BigDecimal calculationSE(BigDecimal sph, BigDecimal cyl) {
-        if (!ObjectUtils.allNotNull(sph, cyl)) {
+        if (Objects.isNull(sph) || Objects.isNull(cyl)) {
             return null;
         }
         return sph.add(cyl.multiply(new BigDecimal("0.5")))

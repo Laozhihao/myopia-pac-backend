@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.screening.flow.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.core.screening.flow.constant.SaprodontiaType;
@@ -17,11 +18,11 @@ import com.wupol.myopia.business.core.screening.flow.util.ReScreenCardUtil;
 import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -38,17 +39,6 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
 
     @Resource
     private StatConclusionService statConclusionService;
-
-   /***
-   * @Description: 学生ID集合
-   * @Param: [studentIds]
-   * @return: java.util.List<com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult>
-   * @Author: 钓猫的小鱼
-   * @Date: 2022/1/12
-   */
-    public List<VisionScreeningResult> getByStudentIdsAndPlanId(Integer planId, List<Integer> studentIds, Integer isDoubleScreen) {
-        return baseMapper.getByStudentIdsAndPlanId(planId,studentIds,isDoubleScreen);
-    }
 
     /**
      * 通过StudentId获取筛查结果
@@ -293,45 +283,42 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         updateBatchById(updateResultList);
         statConclusionService.updateBatchById(updateStatConclusionList);
     }
-    public VisionScreeningResultDTO getStudentEyeByStudentId (List<VisionScreeningResult> visionScreeningResults, List<VisionScreeningResult> doubleScreeningResults){
-        VisionScreeningResultDTO visionScreeningResultDTO = new VisionScreeningResultDTO();
-        if (!visionScreeningResults.isEmpty()){
-            BeanUtils.copyProperties(visionScreeningResults.get(0), visionScreeningResultDTO);
-            visionScreeningResultDTO.setSaprodontiaDataDTO(getSaprodontiaDataDTO(visionScreeningResults.get(0)));
-            ScreeningPlanSchoolStudent schoolStudent = new ScreeningPlanSchoolStudent();
-            schoolStudent.setId(visionScreeningResults.get(0).getScreeningPlanSchoolStudentId());
-            schoolStudent.setScreeningPlanId(visionScreeningResults.get(0).getPlanId());
-            ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.findOne(schoolStudent);
-            if (screeningPlanSchoolStudent != null){
-                visionScreeningResultDTO.setGender(screeningPlanSchoolStudent.getGender());
-            }
-            if (!doubleScreeningResults.isEmpty() && doubleScreeningResults.get(0).getVisionData() !=null
-                    && doubleScreeningResults.get(0).getComputerOptometry() != null && doubleScreeningResults.get(0).getHeightAndWeightData() != null){
 
-                visionScreeningResultDTO.setRescreening(ReScreenCardUtil.reScreeningResult(visionScreeningResults.get(0),doubleScreeningResults.get(0)));
-            }
-            visionScreeningResultDTO.setLeftSE(getLeftSphericalEquivalent(visionScreeningResults.get(0)));
-            visionScreeningResultDTO.setRightSE(getRightSphericalEquivalent(visionScreeningResults.get(0)));
-            visionScreeningResultDTO.setSaprodontiaData(VisionScreeningResultDTO.saprodontiaDataDOIsNull(visionScreeningResultDTO.getSaprodontiaData()));
-            visionScreeningResultDTO.setSpineData(VisionScreeningResultDTO.spineDataDOIsNull(visionScreeningResultDTO.getSpineData()));
-            visionScreeningResultDTO.setBloodPressureData(VisionScreeningResultDTO.bloodPressureDataDOIsNull(visionScreeningResultDTO.getBloodPressureData()));
-            visionScreeningResultDTO.setDiseasesHistoryData(VisionScreeningResultDTO.diseasesHistoryDOIsNull(visionScreeningResultDTO.getDiseasesHistoryData()));
-            visionScreeningResultDTO.setPrivacyData(VisionScreeningResultDTO.privacyDataDOIsNull(visionScreeningResultDTO.getPrivacyData()));
-            visionScreeningResultDTO.setDeviationData(VisionScreeningResultDTO.deviationDOIsNull(visionScreeningResultDTO.getDeviationData()));
-            visionScreeningResultDTO.setOtherEyeDiseases(VisionScreeningResultDTO.otherEyeDiseasesDOIsNull(visionScreeningResultDTO.getOtherEyeDiseases()));
-            visionScreeningResultDTO.setRescreening(VisionScreeningResultDTO.reScreenDTOIsNull(visionScreeningResultDTO.getRescreening()));
+    /**
+     * 获取学生筛查结果明细
+     *
+     * @param planId    筛查ID
+     * @param planStudentId 计划学生ID
+     * @return com.wupol.myopia.business.core.screening.flow.domain.dto.VisionScreeningResultDTO
+     **/
+    public VisionScreeningResultDTO getStudentScreeningResultDetail(Integer planId, Integer planStudentId){
+        List<VisionScreeningResult> visionScreeningResultList = findByList(new VisionScreeningResult().setPlanId(planId).setScreeningPlanSchoolStudentId(planStudentId));
+        VisionScreeningResult firstResult = visionScreeningResultList.stream().filter(x -> !x.getIsDoubleScreen()).findFirst().orElse(null);
+        if (Objects.isNull(firstResult)) {
+            return new VisionScreeningResultDTO();
+        }
+
+        VisionScreeningResultDTO visionScreeningResultDTO = new VisionScreeningResultDTO();
+        BeanUtils.copyProperties(firstResult, visionScreeningResultDTO);
+        // TODO：合并治豪分支后，复用其统计方法
+        visionScreeningResultDTO.setSaprodontiaDataDTO(getSaprodontiaDataDTO(firstResult))
+                .setGender(screeningPlanSchoolStudentService.getById(firstResult.getScreeningPlanSchoolStudentId()).getGender())
+                .setLeftSE(StatUtil.getSphericalEquivalent(EyeDataUtil.leftSph(firstResult), EyeDataUtil.leftCyl(firstResult)))
+                .setRightSE(StatUtil.getSphericalEquivalent(EyeDataUtil.rightSph(firstResult),EyeDataUtil.rightCyl(firstResult)))
+                .setSaprodontiaData(Optional.ofNullable(firstResult.getSaprodontiaData()).orElse(new SaprodontiaDataDO()))
+                .setSpineData(Optional.ofNullable(firstResult.getSpineData()).orElse(new SpineDataDO()))
+                .setBloodPressureData(Optional.ofNullable(firstResult.getBloodPressureData()).orElse(new BloodPressureDataDO()))
+                .setDiseasesHistoryData(Optional.ofNullable(firstResult.getDiseasesHistoryData()).orElse(new DiseasesHistoryDO()))
+                .setPrivacyData(Optional.ofNullable(firstResult.getPrivacyData()).orElse(new PrivacyDataDO()))
+                .setDeviationData(Optional.ofNullable(firstResult.getDeviationData()).orElse(new DeviationDO()))
+                .setOtherEyeDiseases(Optional.ofNullable(firstResult.getOtherEyeDiseases()).orElse(new OtherEyeDiseasesDO()));
+        // 做完全部复测项目才会出现复测情况模块
+        VisionScreeningResult reScreeningResult = visionScreeningResultList.stream().filter(VisionScreeningResult::getIsDoubleScreen).findFirst().orElse(null);
+        if(Objects.nonNull(reScreeningResult) && ObjectsUtil.allNotNull(reScreeningResult.getVisionData(), reScreeningResult.getComputerOptometry(), reScreeningResult.getHeightAndWeightData())) {
+            visionScreeningResultDTO.setRescreening(Optional.ofNullable(ReScreenCardUtil.reScreeningResult(firstResult, reScreeningResult)).orElse(new ReScreenDTO()));
         }
         return visionScreeningResultDTO;
     }
-
-    private BigDecimal getLeftSphericalEquivalent(VisionScreeningResult result){
-        return StatUtil.getSphericalEquivalent(EyeDataUtil.leftSph(result),EyeDataUtil.leftCyl(result));
-    }
-
-    private BigDecimal getRightSphericalEquivalent(VisionScreeningResult result){
-        return StatUtil.getSphericalEquivalent(EyeDataUtil.rightSph(result),EyeDataUtil.rightCyl(result));
-    }
-
 
     public SaprodontiaDataDTO getSaprodontiaDataDTO(VisionScreeningResult result){
         List<SaprodontiaDataDO.SaprodontiaItem> items = new ArrayList<>();
@@ -339,7 +326,6 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
             items.addAll(result.getSaprodontiaData().getAbove());
             items.addAll(result.getSaprodontiaData().getUnderneath());
         }
-
         return calculationTooth(items);
     }
 
@@ -397,8 +383,15 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         return saprodontiaDataDTO;
     }
 
-    public VisionScreeningResult getIsDoubleScreen(Integer screeningPlanSchoolStudentId, Integer planId, Integer screeningType){
+    /**
+     * 根据筛查任务ID统计每个计划下筛查中的学校数量
+     *
+     * @param taskId
+     * @return java.util.List<com.wupol.myopia.business.core.screening.flow.domain.dos.ScreeningSchoolCount>
+     **/
+    public List<ScreeningSchoolCount> countScreeningSchoolByTaskId(Integer taskId) {
+        Assert.notNull(taskId, "筛查任务ID不能为空");
+        return baseMapper.countScreeningSchoolByTaskId(taskId);
+    }
 
-        return baseMapper.getIsDoubleScreen(screeningPlanSchoolStudentId,planId,screeningType);
-    };
 }

@@ -47,7 +47,10 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -249,9 +252,7 @@ public class ScreeningPlanController {
     public List<ScreeningPlanSchoolStudent> queryGradesInfo(@PathVariable Integer screeningPlanId, @PathVariable Integer schoolId,
                                                @PathVariable Integer gradeId,@PathVariable Integer classId) {
 
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getByPlanIdAndSchoolIdAndGradeIdAndClassId(screeningPlanId, schoolId,
-                gradeId, classId);
-        return screeningPlanSchoolStudents;
+        return screeningPlanSchoolStudentService.getByPlanIdAndSchoolIdAndGradeIdAndClassId(screeningPlanId, schoolId, gradeId, classId);
     }
 
     /**
@@ -449,43 +450,21 @@ public class ScreeningPlanController {
         screeningPlanStudentBizService.updatePlanStudent(requestDTO);
     }
 
-
-
     /**
      * 增加筛查时间
      * @param screeningPlanDTO
      */
     @PostMapping("/increased/screeningTime")
     public void updateScreeningEndTime(@RequestBody ScreeningPlanDTO screeningPlanDTO) {
-        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        Assert.isTrue(Objects.nonNull(screeningPlanDTO.getId()), "计划Id不能为空");
-        Assert.isTrue(Objects.nonNull(screeningPlanDTO.getEndTime()), "结束时间不能为空");
-        ScreeningPlan screeningPlans = new ScreeningPlan();
-        screeningPlans.setId(screeningPlanDTO.getId());
-        ScreeningPlan screeningPlan = screeningPlanService.findOne(screeningPlans);
-        if (!currentUser.isPlatformAdminUser()){
-            if (screeningPlan.getUpdateScreeningEndTimeStatus()==ScreeningPlan.MODIFIED){
-                throw new ValidationException("该计划已经增加过时间");
-            }
-            screeningPlan.setUpdateScreeningEndTimeStatus(ScreeningPlan.MODIFIED);
+        Assert.notNull(screeningPlanDTO.getId(), "计划Id不能为空");
+        Assert.notNull(screeningPlanDTO.getEndTime(), "结束时间不能为空");
+        if (!CurrentUserUtil.getCurrentUser().isPlatformAdminUser()){
+            ScreeningPlan screeningPlan = screeningPlanService.getById(screeningPlanDTO.getId());
+            Assert.isTrue(screeningPlan.getUpdateScreeningEndTimeStatus() == ScreeningPlan.NOT_CHANGED, "该计划已经增加过时间");
         }
-        screeningPlan.setEndTime(screeningPlanDTO.getEndTime());
-        screeningPlanService.updateById(screeningPlan);
+        ScreeningPlan plan = new ScreeningPlan().setId(screeningPlanDTO.getId()).setEndTime(screeningPlanDTO.getEndTime()).setUpdateScreeningEndTimeStatus(ScreeningPlan.MODIFIED);
+        screeningPlanService.updateById(plan);
     }
-
-    /**
-     * 获取结束时间添加指定天数后的时间
-     * @param endTime
-     * @param days
-     * @return
-     */
-    @GetMapping("/getTncreaseDate")
-    public Date getTncreaseDate(String endTime,int days) {
-        Assert.isTrue(Objects.nonNull(endTime), "结束时间不能为空");
-        return DateUtil.getTncreaseDate(DateUtil.parse(endTime),days);
-    }
-
-
 
     /**
      * 通过条件获取筛查学生
@@ -602,11 +581,7 @@ public class ScreeningPlanController {
     */
     @GetMapping("/getStudentEyeByStudentId")
     public ApiResult getStudentEyeByStudentId(@RequestParam Integer planId,@RequestParam Integer planStudentId) {
-        List<Integer> studentIds = Collections.singletonList(planStudentId);
-        List<VisionScreeningResult> visionScreeningResults =  visionScreeningResultService.getByStudentIdsAndPlanId(planId,studentIds,VisionScreeningResult.NOT_RETEST);
-        List<VisionScreeningResult> doubleScreeningResults =  visionScreeningResultService.getByStudentIdsAndPlanId(planId,studentIds,VisionScreeningResult.RETEST);
-
-        return ApiResult.success(visionScreeningResultService.getStudentEyeByStudentId(visionScreeningResults,doubleScreeningResults));
+        return ApiResult.success(visionScreeningResultService.getStudentScreeningResultDetail(planId, planStudentId));
     }
 
     /**

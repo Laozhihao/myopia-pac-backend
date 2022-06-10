@@ -27,9 +27,9 @@ public class ScreeningPlanSchool implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    public static final String notStart = "未开始";
-    public static final String underWay = "进行中";
-    public static final String end = "已结束";
+    public static final String NOT_START = "未开始";
+    public static final String IN_PROGRESS = "进行中";
+    public static final String END = "已结束";
 
     /**
      * 主键id
