@@ -160,3 +160,6 @@ white-list:
   - "/management/archive/data"
   # 获取验证图片
   - "/auth/verify/image"
+  # 按区域/学校常见病报告
+  - "/management/report/districtCommonDiseaseReport"
+  - "/management/report/schoolCommonDiseaseReport"
