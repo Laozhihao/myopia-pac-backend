@@ -23,7 +23,7 @@ public class HeightAndWeightAgeVO implements AgeChartVO {
     /**
      * 年龄段图表
      */
-    private ChartVO.ReverseChart heightAndWeightAgeMonitorChart;
+    private ChartVO.Chart heightAndWeightAgeMonitorChart;
 
     @Override
     public Integer type() {

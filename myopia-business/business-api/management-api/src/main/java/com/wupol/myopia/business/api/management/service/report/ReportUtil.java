@@ -44,13 +44,7 @@ public class ReportUtil {
     }
 
     public static Integer getLessAge(Integer age) {
-        if (age < 3) {
-            return 3;
-        } else if (age < 4) {
-            return 4;
-        } else if (age < 5) {
-            return 5;
-        } else if (age < 6) {
+        if (age < 6) {
             return 6;
         } else if (age < 7) {
             return 7;
@@ -93,6 +87,12 @@ public class ReportUtil {
         }
         if (min >= 18) {
             min = 18;
+        }
+        if (max <= 5){
+            max = 6;
+        }
+        if (min <= 5){
+            min = 6;
         }
         if (Objects.equals(min, max)) {
             ageSegmentList.add(min + 1);
