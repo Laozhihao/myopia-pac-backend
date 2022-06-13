@@ -314,6 +314,9 @@ public class StatConclusionBuilder {
      * 近视等级
      */
     private void setMyopiaLevel() {
+        if (Objects.equals(basicData.getGlassesType(),GlassesTypeEnum.ORTHOKERATOLOGY.code)) {
+            return;
+        }
         MyopiaLevelEnum leftLevel = StatUtil.getMyopiaLevel(basicData.getLeftSph(), basicData.getLeftCyl());
         MyopiaLevelEnum rightLevel = StatUtil.getMyopiaLevel(basicData.getRightSph(), basicData.getRightCyl());
         statConclusion.setMyopiaLevel(StatUtil.getSeriousLevel(leftLevel, rightLevel));
@@ -360,6 +363,10 @@ public class StatConclusionBuilder {
      * 近视
      */
     private void setMyopia() {
+        if (Objects.equals(basicData.getGlassesType(),GlassesTypeEnum.ORTHOKERATOLOGY.code)) {
+            statConclusion.setIsMyopia(Boolean.TRUE);
+            return;
+        }
         Boolean isLeftMyopia = StatUtil.isMyopia(basicData.getLeftSph(),basicData.getLeftCyl(),basicData.getAge(),basicData.getLeftNakedVision());
         Boolean isRightMyopia = StatUtil.isMyopia(basicData.getRightSph(),basicData.getRightCyl(),basicData.getAge(),basicData.getRightNakedVision());
         statConclusion.setIsMyopia(StatUtil.getIsExist(isLeftMyopia,isRightMyopia));
