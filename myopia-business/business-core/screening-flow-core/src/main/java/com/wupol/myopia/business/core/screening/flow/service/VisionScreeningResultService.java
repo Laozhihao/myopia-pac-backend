@@ -536,4 +536,7 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         return baseMapper.getFirstByPlanStudentIds(planStudentIds);
     }
 
+    public int selectScreeningResultByDistrictIdAndTaskId(List<Integer> districtIds, List<Integer> taskIds) {
+        return baseMapper.selectScreeningResultByDistrictIdAndTaskId(districtIds,taskIds);
+    }
 }

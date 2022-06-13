@@ -62,8 +62,6 @@ public class VisionScreeningBizService {
     private SchoolGradeService schoolGradeService;
     @Autowired
     private SchoolStudentService schoolStudentService;
-    @Resource
-    private VisionScreeningResultMapper visionScreeningResultMapper;
     @Autowired
     private ScreeningPlanService screeningPlanService;
 
@@ -329,7 +327,6 @@ public class VisionScreeningBizService {
      * @param districtIds 行政区域ids
      */
     public int getScreeningResult(List<Integer> districtIds, List<Integer> taskIds) {
-        int resultCount = visionScreeningResultMapper.selectScreeningResultByDistrictIdAndTaskId(districtIds, taskIds);
-        return resultCount;
+        return visionScreeningResultService.selectScreeningResultByDistrictIdAndTaskId(districtIds, taskIds);
     }
 }
