@@ -495,22 +495,20 @@ public class StatConclusionBuilder {
 
 
     /**
-     * 营养不良
+     * 营养不良 和 生长迟缓
      * @param bmi 身体质量指数值
      * @param height 身高
      * @param age 年龄（精确到半岁）
      */
     private void malnutrition(BigDecimal bmi,BigDecimal height,String age){
         Boolean wasting = StatUtil.isWasting(bmi, age, screeningPlanSchoolStudent.getGender());
+        if (Objects.nonNull(wasting) ){
+            statConclusion.setIsMalnutrition(wasting);
+        }
         Boolean stunting = StatUtil.isStunting(screeningPlanSchoolStudent.getGender(), age, height);
         if (Objects.nonNull(stunting)){
             statConclusion.setIsStunting(stunting);
-            if (Objects.nonNull(wasting) ){
-                statConclusion.setIsMalnutrition(wasting && stunting);
-            }
         }
-
-
 
     }
 
@@ -551,7 +549,11 @@ public class StatConclusionBuilder {
      */
     private void setBloodPressureData() {
         BloodPressureDataDO bloodPressureData = currentVisionScreeningResult.getBloodPressureData();
+        HeightAndWeightDataDO heightAndWeightData = currentVisionScreeningResult.getHeightAndWeightData();
         if (Objects.equals(SchoolAge.KINDERGARTEN.code,screeningPlanSchoolStudent.getGradeType()) || Objects.isNull(bloodPressureData)){
+            return;
+        }
+        if (Objects.isNull(heightAndWeightData) || Objects.isNull(heightAndWeightData.getHeight())){
             return;
         }
         TwoTuple<Integer, String> ageTuple = StatUtil.getAge(screeningPlanSchoolStudent.getBirthday());
@@ -559,7 +561,7 @@ public class StatConclusionBuilder {
         if (age < 7){
             age = 7;
         }
-        boolean highBloodPressure = StatUtil.isHighBloodPressure(bloodPressureData.getSbp().intValue(), bloodPressureData.getDbp().intValue(), screeningPlanSchoolStudent.getGender(), age);
+        boolean highBloodPressure = StatUtil.isHighBloodPressure(bloodPressureData.getSbp().intValue(), bloodPressureData.getDbp().intValue(), screeningPlanSchoolStudent.getGender(), age,heightAndWeightData.getHeight());
         statConclusion.setIsNormalBloodPressure(!highBloodPressure);
 
     }

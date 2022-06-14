@@ -120,10 +120,10 @@ public class StatUtilTest {
 
     @Test
     public void isHighBloodPressureTest(){
-        Assert.assertFalse(StatUtil.isHighBloodPressure(100, 80, 0, 8));
-        Assert.assertFalse(StatUtil.isHighBloodPressure(100, 80, 1, 8));
-        Assert.assertFalse(StatUtil.isHighBloodPressure(100, 80, 0, 18));
-        Assert.assertFalse(StatUtil.isHighBloodPressure(100, 80, 1, 18));
+        Assert.assertFalse(StatUtil.isHighBloodPressure(100, 80, 0, 8,new BigDecimal("120")));
+        Assert.assertFalse(StatUtil.isHighBloodPressure(100, 80, 1, 8,new BigDecimal("119")));
+        Assert.assertFalse(StatUtil.isHighBloodPressure(100, 80, 0, 18,new BigDecimal("161")));
+        Assert.assertFalse(StatUtil.isHighBloodPressure(100, 80, 1, 18,new BigDecimal("150")));
     }
 
     @Test

@@ -1338,13 +1338,13 @@ public class StatUtil {
      * @param gender 性别
      * @param age    年龄
      */
-    public static boolean isHighBloodPressure(Integer sbp, Integer dbp, Integer gender, Integer age) {
+    public static boolean isHighBloodPressure(Integer sbp, Integer dbp, Integer gender, Integer age,BigDecimal height) {
         if (age >= 7 && age <= 17) {
-            StandardTableData.BloodPressureData bloodPressureData = StandardTableData.getBloodPressureData(age, gender);
-            return sbp >= bloodPressureData.getSbp() && dbp >= bloodPressureData.getDbp();
+            StandardTableData.BloodPressureData bloodPressureData = StandardTableData.getBloodPressureData(age, gender,height);
+            return sbp >= bloodPressureData.getSbp() || dbp >= bloodPressureData.getDbp();
         }
         if (age >= 18) {
-            return sbp >= 140 && dbp >= 90;
+            return sbp >= 140 || dbp >= 90;
         }
 
         return Boolean.FALSE;

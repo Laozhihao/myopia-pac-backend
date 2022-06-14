@@ -999,13 +999,20 @@ public class StatConclusionCheck {
             }).map(tuple -> {
                 ScreeningPlanSchoolStudent screeningPlanSchoolStudent = tuple.getFirst();
                 BloodPressureDataDO bloodPressureData = tuple.getSecond().getBloodPressureData();
+                HeightAndWeightDataDO heightAndWeightData = tuple.getSecond().getHeightAndWeightData();
+                if (Objects.equals(SchoolAge.KINDERGARTEN.code,screeningPlanSchoolStudent.getGradeType()) || Objects.isNull(bloodPressureData)){
+                    return null;
+                }
+                if (Objects.isNull(heightAndWeightData) || Objects.isNull(heightAndWeightData.getHeight())){
+                    return null;
+                }
                 TwoTuple<Integer, String> ageTuple = StatUtil.getAge(screeningPlanSchoolStudent.getBirthday());
                 Integer age = ageTuple.getFirst();
                 if (age < 7){
                     age = 7;
                 }
-                return StatUtil.isHighBloodPressure(bloodPressureData.getSbp().intValue(), bloodPressureData.getDbp().intValue(), screeningPlanSchoolStudent.getGender(), age);
-            }).collect(Collectors.toList());
+                return StatUtil.isHighBloodPressure(bloodPressureData.getSbp().intValue(), bloodPressureData.getDbp().intValue(), screeningPlanSchoolStudent.getGender(), age,null);
+            }).filter(Objects::nonNull).collect(Collectors.toList());
             return TwoTuple.of(tupleList.size(),MathUtil.ratio(tupleList.size(),commonDiseaseScreeningNum.size()));
         }
         return null;

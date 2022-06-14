@@ -211,7 +211,8 @@ public class DistrictCommonDiseaseReportService {
         if (CollectionUtil.isEmpty(screeningResults)) {
             districtCommonDiseaseReportVO.setActualScreeningNum(0);
         } else {
-            districtCommonDiseaseReportVO.setActualScreeningNum(screeningResults.size());
+            long count = screeningResults.stream().filter(sr -> Objects.equals(sr.getIsDoubleScreen(), Boolean.FALSE)).count();
+            districtCommonDiseaseReportVO.setActualScreeningNum((int)count);
         }
 
     }
