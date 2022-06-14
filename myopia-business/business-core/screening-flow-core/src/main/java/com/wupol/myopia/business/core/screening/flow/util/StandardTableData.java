@@ -1,10 +1,12 @@
 package com.wupol.myopia.business.core.screening.flow.util;
 
+import cn.hutool.core.util.ObjectUtil;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.util.BigDecimalUtil;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
@@ -277,7 +279,7 @@ public class StandardTableData {
      */
     @Data
     @Accessors(chain = true)
-    static class StandardHeight{
+    static class StandardHeight implements Serializable {
         private Integer age;
         private Integer gender;
         private HeightPercentileEnum heightPercentile;
@@ -463,12 +465,12 @@ public class StandardTableData {
             switch (standardHeight.heightPercentile){
                 case equalP5:
                     if (BigDecimalUtil.lessThan(height,standardHeight.getHeightValue())){
-                        result = standardHeight;
+                        result = ObjectUtil.clone(standardHeight);
                         result.setHeightPercentile(HeightPercentileEnum.lessThanP5);
                     }
                     StandardHeight moreThanEqualP10 = standardHeightMap.get(HeightPercentileEnum.moreThanEqualP10);
                     if (BigDecimalUtil.isBetweenLeft(height,standardHeight.getHeightValue(),moreThanEqualP10.getHeightValue()) ){
-                        result = standardHeight;
+                        result = ObjectUtil.clone(standardHeight);
                         result.setHeightPercentile(HeightPercentileEnum.moreThanEqualP5);
                     }
                     break;
