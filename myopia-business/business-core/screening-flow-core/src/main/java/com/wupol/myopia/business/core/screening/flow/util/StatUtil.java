@@ -417,8 +417,8 @@ public class StatUtil {
         if (ObjectsUtil.hasNull(leftNakedVision,rightNakedVision,isWearGlasses)){
             return null;
         }
-        if (BigDecimalUtil.lessThan(leftNakedVision,nakedVision)
-                ||BigDecimalUtil.lessThan(rightNakedVision,nakedVision)){
+        if (BigDecimalUtil.lessThanAndEqual(leftNakedVision,nakedVision)
+                ||BigDecimalUtil.lessThanAndEqual(rightNakedVision,nakedVision)){
 
             return correctionWearGlasses(leftCorrectVision,rightCorrectVision,isWearGlasses,nakedVision);
         }
