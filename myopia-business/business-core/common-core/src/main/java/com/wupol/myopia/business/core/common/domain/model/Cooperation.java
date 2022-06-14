@@ -108,8 +108,10 @@ public abstract class Cooperation {
      */
     public void initCooperationInfo() {
         Date date = new Date();
-        cooperationType = CooperationTypeEnum.COOPERATION_TYPE_COOPERATE.getType();                         // 合作
-        cooperationTimeType = CooperationTimeTypeEnum.COOPERATION_TIME_TYPE_1_YEAR.getType();               // 合作1年
+        // 合作类型
+        cooperationType = CooperationTypeEnum.COOPERATION_TYPE_COOPERATE.getType();
+        // 合作1年
+        cooperationTimeType = CooperationTimeTypeEnum.COOPERATION_TIME_TYPE_1_YEAR.getType();
         cooperationStartTime = DateUtils.addMinutes(date, -5);
         cooperationEndTime = DateUtil.getLastMinute(DateUtils.addYears(date, 1));
     }

@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import lombok.experimental.Accessors;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -9,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
  * @Date 2021/1/26 1:04
  * @Author by Jacob
  */
+@Accessors(chain = true)
 @Data
 public abstract class ScreeningResultBasicData implements ScreeningDataInterface {
     /**

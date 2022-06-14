@@ -109,11 +109,11 @@ public class ScreeningNoticeDeptOrgService extends BaseService<ScreeningNoticeDe
      * @param noticeId
      * @param acceptOrgId
      * @param genTaskOrPlanId 生成的任务或计划Id
-     * @param user
+     * @param currentUserId 当前用户ID
      */
-    public void statusReadAndCreate(Integer noticeId, Integer acceptOrgId, Integer genTaskOrPlanId, CurrentUser user) {
+    public void statusReadAndCreate(Integer noticeId, Integer acceptOrgId, Integer genTaskOrPlanId, Integer currentUserId) {
         //1. 更新状态与任务/计划ID
-        baseMapper.updateStatusAndTaskPlanIdByNoticeIdAndAcceptOrgId(noticeId, acceptOrgId, genTaskOrPlanId, user.getId(), CommonConst.STATUS_NOTICE_CREATED);
+        baseMapper.updateStatusAndTaskPlanIdByNoticeIdAndAcceptOrgId(noticeId, acceptOrgId, genTaskOrPlanId, currentUserId, CommonConst.STATUS_NOTICE_CREATED);
     }
 
     /**

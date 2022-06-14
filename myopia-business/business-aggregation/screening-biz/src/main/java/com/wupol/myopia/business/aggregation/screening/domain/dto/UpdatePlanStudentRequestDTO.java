@@ -62,6 +62,8 @@ public class UpdatePlanStudentRequestDTO {
     @Null
     private Integer userId;
 
+    private Date lastScreeningTime;
+
     /**
      * 民族
      */

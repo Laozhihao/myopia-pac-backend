@@ -42,6 +42,11 @@ spring:
         predicates:
         - Path=/management/**, /hospital/**, /parent/**, /app/**, /api/**, /school/**, /preschool/**
 
+      - id: route_migrate
+        uri: lb://myopia-migrate
+        predicates:
+        - Path=/migrate/**
+
     # 注册中心地址
     nacos:
       discovery:
