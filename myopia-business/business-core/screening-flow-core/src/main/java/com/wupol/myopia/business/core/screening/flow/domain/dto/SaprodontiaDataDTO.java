@@ -9,7 +9,7 @@ import lombok.Data;
  * @Des: 乳牙恒牙扩展类
  */
 @Data
-public class SaprodontiaDataDODTO {
+public class SaprodontiaDataDTO {
     /**
      * 乳牙
      */

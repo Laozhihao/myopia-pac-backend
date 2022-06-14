@@ -148,15 +148,6 @@
         </foreach>
     </select>
 
-    <select id="getIsDoubleScreeningResult" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from m_vision_screening_result where is_double_screen =  #{isDoubleScreen} and screening_plan_school_student_id =  #{screeningPlanSchoolStudentId} and plan_id in
-        <foreach collection="planIds" item="planId" index="index" open="(" close=")" separator=",">
-            #{planId}
-        </foreach>
-    </select>
-
     <select id="getBySchoolIdPlanId" resultType="java.lang.Integer">
         select school_id
         from m_vision_screening_result

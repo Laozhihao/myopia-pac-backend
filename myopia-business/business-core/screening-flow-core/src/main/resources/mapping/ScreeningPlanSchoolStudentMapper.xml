@@ -542,15 +542,6 @@
         </foreach>
     </delete>
 
-    <select id="getByIds" resultMap="BaseResultMap">
-        select *
-        from m_screening_plan_school_student
-                where id in
-        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
-            #{id}
-        </foreach>
-    </select>
-
     <select id="getByNePlanId" resultMap="BaseResultMap">
         select *
         from m_screening_plan_school_student

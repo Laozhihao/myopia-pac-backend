@@ -515,7 +515,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @return List<ScreeningPlanSchoolStudent>
      */
     public List<ScreeningPlanSchoolStudent> getByIds(List<Integer> ids) {
-        return baseMapper.getByIds(ids);
+        return baseMapper.selectBatchIds(ids);
     }
 
     /**

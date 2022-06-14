@@ -5,7 +5,7 @@ import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
 import com.wupol.myopia.business.common.utils.util.MaskUtil;
 import com.wupol.myopia.business.core.screening.flow.constant.SaprodontiaType;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.SaprodontiaDataDODTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.SaprodontiaDataDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.SaprodontiaStat;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentVisionScreeningResultExportDTO;
@@ -444,7 +444,7 @@ public class EyeDataUtil {
      * @param result 筛查数据
      * @return 合并上下牙床数据
      */
-    public static SaprodontiaDataDODTO getSaprodontiaDataDODTO(VisionScreeningResult result){
+    public static SaprodontiaDataDTO getSaprodontiaData(VisionScreeningResult result){
 
         List<SaprodontiaDataDO.SaprodontiaItem> items = new ArrayList<>();
 
@@ -458,10 +458,12 @@ public class EyeDataUtil {
 
     /**
      * 计算乳牙/恒牙
+     * TODO：计算方法差评，合并分支后，delete掉，复用其他分支相同功能代码
+     *
      * @param items 牙齿数据
      */
-    private static SaprodontiaDataDODTO calculationTooth(List<SaprodontiaDataDO.SaprodontiaItem> items) {
-        SaprodontiaDataDODTO saprodontiaDataDODTO = new SaprodontiaDataDODTO();
+    private static SaprodontiaDataDTO calculationTooth(List<SaprodontiaDataDO.SaprodontiaItem> items) {
+        SaprodontiaDataDTO saprodontiaDataDODTO = new SaprodontiaDataDTO();
         int dDeciduous = 0;
         int mDeciduous = 0;
         int fDeciduous = 0;
@@ -507,15 +509,6 @@ public class EyeDataUtil {
         saprodontiaDataDODTO.setPermanentTooth(permanentTooth);
 
         return saprodontiaDataDODTO;
-    }
-    /**
-     * 获取戴镜是否为空
-     * @param visionScreeningResult 筛查结果
-     * @return 类型描述
-     */
-    public static Integer glassTypeDesc(VisionScreeningResult visionScreeningResult) {
-        return Optional.ofNullable(visionScreeningResult) .map(VisionScreeningResult::getVisionData) .map(VisionDataDO::getRightEyeData)
-                .map(VisionDataDO.VisionData::getGlassesType) .orElse(null);
     }
 
     /**
@@ -703,9 +696,9 @@ public class EyeDataUtil {
     }
 
     /**
-     * 创建时间
+     * 更新时间
      * @param visionScreenResult 筛查结果
-     * @return 创建时间
+     * @return 更新时间
      */
     public static Date updateTime(VisionScreeningResult visionScreenResult) {
         return Optional.ofNullable(visionScreenResult) .map(VisionScreeningResult::getUpdateTime) .orElse(null);

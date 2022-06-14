@@ -1,7 +1,9 @@
 package com.wupol.myopia.base.util;
 
+import org.apache.commons.lang3.ObjectUtils;
+
 import java.math.BigDecimal;
-import java.util.Optional;
+import java.util.Objects;
 
 /**
  * BigDecimal工具类
@@ -246,9 +248,9 @@ public class BigDecimalUtil {
      * @param standard 标准值
      * @return true：误差 false：没误差
      */
-    public static boolean isDeviation(BigDecimal firstScreening,BigDecimal reScreening,BigDecimal standard){
+    public static boolean isDeviation(BigDecimal firstScreening, BigDecimal reScreening, BigDecimal standard){
         BigDecimal result = subtractAbsBigDecimal(firstScreening, reScreening);
-        return result.abs().compareTo(standard) > 0;
+        return Objects.isNull(result) ? Boolean.FALSE : result.abs().compareTo(standard) > 0;
     }
 
     /**
@@ -258,26 +260,7 @@ public class BigDecimalUtil {
      * @return 绝对差值
      */
     public static BigDecimal subtractAbsBigDecimal(BigDecimal firstScreening, BigDecimal reScreening) {
-        if (firstScreening==null){
-            return null;
-        }
-        if (reScreening==null){
-            return null;
-        }
-        return firstScreening.subtract(reScreening).abs();
+        return ObjectUtils.allNotNull(firstScreening, reScreening) ? firstScreening.subtract(reScreening).abs() : null;
     }
-
-    /**
-     * 保留2位小数
-     * @param value 输入值
-     * @return 保留2位小数
-     */
-    public static BigDecimal keep2DecimalPlaces(BigDecimal value) {
-       if (value!=null){
-           value.setScale(2,BigDecimal.ROUND_HALF_UP);
-       }
-       return null;
-    }
-
 
 }

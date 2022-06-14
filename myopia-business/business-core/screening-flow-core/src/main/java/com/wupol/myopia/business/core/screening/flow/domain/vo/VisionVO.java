@@ -36,7 +36,7 @@ public class VisionVO {
      */
     private String qualityControlName;
     /**
-     * 创建时间
+     * 更新时间
      */
     private Date updateTime;
 

@@ -53,6 +53,4 @@ public interface VisionScreeningResultMapper extends BaseMapper<VisionScreeningR
     int selectScreeningResultByDistrictIdAndTaskId(@Param("districtIds") List<Integer> districtId, @Param("taskIds") List<Integer> taskIds);
 
     IPage<VisionScreeningResult> getByStudentIdWithPage(@Param("page") Page<?> page, @Param("studentId") Integer studentId);
-
-    List<VisionScreeningResult> getIsDoubleScreeningResult(List<Integer> planIds, Integer screeningPlanSchoolStudentId,boolean isDoubleScreen);
 }

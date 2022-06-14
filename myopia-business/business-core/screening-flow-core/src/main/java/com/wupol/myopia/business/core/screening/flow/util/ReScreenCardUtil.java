@@ -1,14 +1,17 @@
 package com.wupol.myopia.business.core.screening.flow.util;
-import com.alibaba.fastjson.JSON;
+
 import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.business.common.utils.constant.GlassesTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.constant.ReScreenConstant;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ReScreenDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.*;
 import lombok.experimental.UtilityClass;
 
 import java.math.BigDecimal;
+import java.util.Objects;
+import java.util.Optional;
 
 
 /**
@@ -29,42 +32,37 @@ public class ReScreenCardUtil {
      * @return 复测卡结果
      */
     public ReScreeningCardVO reScreenResultCard(VisionScreeningResult firstScreenResult, VisionScreeningResult reScreenResult,
-                                              String qualityControlName,String commonDiseasesCode){
+                                              String qualityControlName, String commonDiseasesCode){
         ReScreeningCardVO reScreeningResultCard = new ReScreeningCardVO();
         reScreeningResultCard.setCommonDiseasesCode(commonDiseasesCode);
 
+        // 设置视力数据
         VisionVO vision  = new VisionVO();
-        //选取视力中左眼的戴镜类型
+        // 选取视力中左眼的戴镜类型
         vision.setGlassesType(EyeDataUtil.glassesType(reScreenResult));
-
         VisionResultVO visionResult = new VisionResultVO();
         visionResult.setRightEyeData(rightEyeData(firstScreenResult, reScreenResult));
         visionResult.setLeftEyeData(leftEyeData(firstScreenResult, reScreenResult));
-
         vision.setVisionResult(visionResult);
         vision.setComputerOptometryResult(computerOptometryResult(firstScreenResult, reScreenResult));
         vision.setVisionOrOptometryDeviation(EyeDataUtil.optometryDeviation(reScreenResult));
         vision.setQualityControlName(qualityControlName);
         vision.setUpdateTime(EyeDataUtil.updateTime(reScreenResult));
-
         reScreeningResultCard.setVision(vision);
 
+        // 设置常见病数据
         CommonDiseasesVO commonDiseases = new CommonDiseasesVO();
-
         CommonDiseasesVO.HeightAndWeightResult heightAndWeightResult = new CommonDiseasesVO.HeightAndWeightResult();
         heightAndWeightResult.setHeight(EyeDataUtil.height(firstScreenResult));
         heightAndWeightResult.setHeightReScreen(EyeDataUtil.height(reScreenResult));
         heightAndWeightResult.setHeightDeviation(BigDecimalUtil.subtractAbsBigDecimal(EyeDataUtil.height(firstScreenResult),EyeDataUtil.height(reScreenResult)));
-
         heightAndWeightResult.setWeight(EyeDataUtil.weight(firstScreenResult));
         heightAndWeightResult.setWeightReScreen(EyeDataUtil.weight(reScreenResult));
         heightAndWeightResult.setWeightDeviation(BigDecimalUtil.subtractAbsBigDecimal(EyeDataUtil.weight(firstScreenResult),EyeDataUtil.weight(reScreenResult)));
         heightAndWeightResult.setHeightWeightDeviation(EyeDataUtil.heightWeightDeviationRemark(reScreenResult));
-
         commonDiseases.setHeightAndWeightResult(heightAndWeightResult);
         commonDiseases.setQualityControlName(qualityControlName);
         commonDiseases.setUpdateTime(EyeDataUtil.updateTime(reScreenResult));
-
         reScreeningResultCard.setCommonDiseases(commonDiseases);
         return reScreeningResultCard;
     }
@@ -212,32 +210,21 @@ public class ReScreenCardUtil {
      * @return 错误项次数
      */
     private static int differenceDeviationCount(VisionScreeningResult result, VisionScreeningResult reScreening, int deviationCount, ReScreenDTO rescreening, ReScreenDTO.ReScreeningResult reScreeningResult) {
-        if (reScreening.getScreeningType()==1){
-            deviationCount = heightWeightDeviation(result, reScreening, deviationCount, reScreeningResult);
-            if (reScreening.getVisionData().getRightEyeData().getGlassesType().equals(GlassesTypeEnum.FRAME_GLASSES.code)
-                    ||reScreening.getVisionData().getRightEyeData().getGlassesType().equals(GlassesTypeEnum.CONTACT_LENS.code)){
-                //佩戴框架眼镜和隐形眼镜
-                rescreening.setDoubleCount(ReScreenConstant.COMMON_RESCREEN_IS_GLASS_NUM);
-                deviationCount = correctedDeviation(result, reScreening, deviationCount, reScreeningResult);
-            }else if (reScreening.getVisionData().getRightEyeData().getGlassesType().equals(GlassesTypeEnum.NOT_WEARING.code)){
-                //没有戴镜
-                rescreening.setDoubleCount(ReScreenConstant.COMMON_RESCREEN_NOT_GLASS_NUM);
-            }
-        }else {
-            if (reScreening.getVisionData().getRightEyeData().getGlassesType().equals(GlassesTypeEnum.FRAME_GLASSES.code)
-                    ||reScreening.getVisionData().getRightEyeData().getGlassesType().equals(GlassesTypeEnum.CONTACT_LENS.code)){
-                //佩戴框架眼镜和隐形眼镜
-                rescreening.setDoubleCount(ReScreenConstant.VISION_RESCREEN_IS_GLASS_NUM);
-
-                //矫正右
-                deviationCount = correctedDeviation(result, reScreening, deviationCount, reScreeningResult);
-
-            }else if (reScreening.getVisionData().getRightEyeData().getGlassesType().equals(GlassesTypeEnum.NOT_WEARING.code)){
-                //没有戴镜
-                rescreening.setDoubleCount(ReScreenConstant.VISION_RESCREEN_NOT_GLASS_NUM);
-            }
+        Integer glassesType = Optional.ofNullable(reScreening).map(VisionScreeningResult::getVisionData).map(VisionDataDO::getRightEyeData).map(VisionDataDO.VisionData::getGlassesType).orElse(null);
+        if (Objects.isNull(glassesType)) {
+            return deviationCount;
         }
-        return deviationCount;
+        // 是否为常见病筛查类型 TODO：替换为常量
+        boolean isCommonDiseaseScreeningType = reScreening.getScreeningType() == 1;
+        if (glassesType.equals(GlassesTypeEnum.FRAME_GLASSES.code) || glassesType.equals(GlassesTypeEnum.CONTACT_LENS.code)) {
+            // 佩戴框架眼镜和隐形眼镜
+            rescreening.setDoubleCount(isCommonDiseaseScreeningType ? ReScreenConstant.COMMON_RESCREEN_IS_GLASS_NUM : ReScreenConstant.VISION_RESCREEN_IS_GLASS_NUM);
+            deviationCount = correctedDeviation(result, reScreening, deviationCount, reScreeningResult);
+        } else if (glassesType.equals(GlassesTypeEnum.NOT_WEARING.code)){
+            // 没有戴镜
+            rescreening.setDoubleCount(isCommonDiseaseScreeningType ? ReScreenConstant.COMMON_RESCREEN_NOT_GLASS_NUM : ReScreenConstant.VISION_RESCREEN_NOT_GLASS_NUM);
+        }
+        return isCommonDiseaseScreeningType ? heightWeightDeviation(result, reScreening, deviationCount, reScreeningResult) : deviationCount;
     }
 
     /**
@@ -248,25 +235,25 @@ public class ReScreenCardUtil {
     private static void notParticipateDeviation(VisionScreeningResult reScreening, ReScreenDTO.ReScreeningResult reScreeningResult) {
         //球镜右
         ReScreenDTO.ReScreeningResult.ScreeningDeviation rightSph = new  ReScreenDTO.ReScreeningResult.ScreeningDeviation();
-        rightSph.setType(false);
+        rightSph.setType(Boolean.FALSE);
         rightSph.setContent(EyeDataUtil.rightSph(reScreening));
         reScreeningResult.setRightSph(rightSph);
 
         //柱镜右
         ReScreenDTO.ReScreeningResult.ScreeningDeviation rightCyl = new  ReScreenDTO.ReScreeningResult.ScreeningDeviation();
-        rightCyl.setType(false);
+        rightCyl.setType(Boolean.FALSE);
         rightCyl.setContent(EyeDataUtil.rightCyl(reScreening));
         reScreeningResult.setRightCyl(rightCyl);
 
         //球镜左
         ReScreenDTO.ReScreeningResult.ScreeningDeviation leftSph = new  ReScreenDTO.ReScreeningResult.ScreeningDeviation();
-        leftSph.setType(false);
+        leftSph.setType(Boolean.FALSE);
         leftSph.setContent(EyeDataUtil.leftSph(reScreening));
         reScreeningResult.setLeftSph(leftSph);
 
         //柱镜左
         ReScreenDTO.ReScreeningResult.ScreeningDeviation leftCyl = new  ReScreenDTO.ReScreeningResult.ScreeningDeviation();
-        leftCyl.setType(false);
+        leftCyl.setType(Boolean.FALSE);
         leftCyl.setContent(EyeDataUtil.leftCyl(reScreening));
         reScreeningResult.setLeftCyl(leftCyl);
     }
