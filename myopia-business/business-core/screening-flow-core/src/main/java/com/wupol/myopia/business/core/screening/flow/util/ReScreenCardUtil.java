@@ -74,26 +74,13 @@ public class ReScreenCardUtil {
      */
     public ComputerOptometryResultVO computerOptometryResult(VisionScreeningResult firstScreenResult, VisionScreeningResult reScreenResult) {
         ComputerOptometryResultVO computerOptometryResult = new ComputerOptometryResultVO();
-        computerOptometryResult.setRightSE(EyeDataUtil.calculationSE(EyeDataUtil.rightSph(firstScreenResult),EyeDataUtil.rightCyl(firstScreenResult)));
-        computerOptometryResult.setRightSEReScreen(EyeDataUtil.calculationSE(EyeDataUtil.rightSph(reScreenResult),EyeDataUtil.rightCyl(reScreenResult)));
+        computerOptometryResult.setRightSE(EyeDataUtil.rightSE(firstScreenResult));
+        computerOptometryResult.setRightSEReScreen(EyeDataUtil.rightSE(reScreenResult));
+        computerOptometryResult.setRightSEDeviation(BigDecimalUtil.subtractAbsBigDecimal(computerOptometryResult.getRightSE(), computerOptometryResult.getRightSEReScreen()));
 
-        computerOptometryResult.setRightSEDeviation(
-                BigDecimalUtil.subtractAbsBigDecimal(
-                        //初测等效球镜
-                        EyeDataUtil.calculationSE(EyeDataUtil.rightSph(firstScreenResult), EyeDataUtil.rightCyl(firstScreenResult)),
-                        //复测等效球镜
-                        EyeDataUtil.calculationSE(EyeDataUtil.rightSph(reScreenResult),EyeDataUtil.rightCyl(reScreenResult))
-                )
-        );
-
-        computerOptometryResult.setLeftSE(EyeDataUtil.calculationSE(EyeDataUtil.leftSph(firstScreenResult),EyeDataUtil.leftCyl(firstScreenResult)));
-        computerOptometryResult.setLeftSEScreening(EyeDataUtil.calculationSE(EyeDataUtil.leftSph(reScreenResult),EyeDataUtil.leftCyl(reScreenResult)));
-        computerOptometryResult.setLeftSEDeviation(
-                BigDecimalUtil.subtractAbsBigDecimal(
-                        EyeDataUtil.calculationSE(EyeDataUtil.leftSph(firstScreenResult),EyeDataUtil.leftCyl(firstScreenResult)),
-                        EyeDataUtil.calculationSE(EyeDataUtil.leftSph(reScreenResult),EyeDataUtil.leftCyl(reScreenResult))
-                )
-        );
+        computerOptometryResult.setLeftSE(EyeDataUtil.leftSE(firstScreenResult));
+        computerOptometryResult.setLeftSEScreening(EyeDataUtil.leftSE(reScreenResult));
+        computerOptometryResult.setLeftSEDeviation(BigDecimalUtil.subtractAbsBigDecimal(computerOptometryResult.getLeftSE(), computerOptometryResult.getLeftSEScreening()));
         return computerOptometryResult;
     }
 

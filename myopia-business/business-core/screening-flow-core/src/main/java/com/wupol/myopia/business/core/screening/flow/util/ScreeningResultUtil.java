@@ -322,7 +322,7 @@ public class ScreeningResultUtil {
                                                                               Integer age, Integer maxType, BigDecimal nakedVision) {
         RefractoryResultItems.Item sphItems = new RefractoryResultItems.Item();
         // 等效球镜SE
-        sphItems.setVision(calculationSE(spn, cyl));
+        sphItems.setVision(StatUtil.getSphericalEquivalent(spn, cyl));
         TwoTuple<String, Integer> leftSphType = getSphTypeName(spn, cyl, age, nakedVision);
         sphItems.setTypeName(leftSphType.getFirst());
         Integer type = leftSphType.getSecond();
@@ -609,10 +609,10 @@ public class ScreeningResultUtil {
             ComputerOptometryDO computerOptometry = result.getComputerOptometry();
             if (Objects.nonNull(computerOptometry)) {
                 // 左眼
-                left.setVision(calculationSE(computerOptometry.getLeftEyeData().getSph(),
+                left.setVision(StatUtil.getSphericalEquivalent(computerOptometry.getLeftEyeData().getSph(),
                         computerOptometry.getLeftEyeData().getCyl()));
                 // 右眼
-                right.setVision(calculationSE(computerOptometry.getRightEyeData().getSph(),
+                right.setVision(StatUtil.getSphericalEquivalent(computerOptometry.getRightEyeData().getSph(),
                         computerOptometry.getRightEyeData().getCyl()));
             }
             details.setItem(Lists.newArrayList(left, right));
@@ -676,17 +676,6 @@ public class ScreeningResultUtil {
     }
 
     /**
-     * 计算 等效球镜
-     *
-     * @param sph 球镜
-     * @param cyl 柱镜
-     * @return 等效球镜
-     */
-    public static BigDecimal calculationSE(BigDecimal sph, BigDecimal cyl) {
-        return EyeDataUtil.calculationSE(sph,cyl);
-    }
-
-    /**
      * 获取散光轴位
      *
      * @param axial 轴位
@@ -706,7 +695,7 @@ public class ScreeningResultUtil {
      * @return TwoTuple<> left-球镜中文 right-预警级别(重新封装的一层)
      */
     public static TwoTuple<String, Integer> getSphTypeName(BigDecimal sph, BigDecimal cyl, Integer age, BigDecimal nakedVision) {
-        BigDecimal se = calculationSE(sph, cyl);
+        BigDecimal se = StatUtil.getSphericalEquivalent(sph, cyl);
         if (Objects.isNull(se)) {
             return new TwoTuple<>();
         }
@@ -947,8 +936,8 @@ public class ScreeningResultUtil {
         BigDecimal rightSph = Objects.nonNull(computerOptometry) ? computerOptometry.getRightEyeData().getSph() : null;
         BigDecimal rightCyl = Objects.nonNull(computerOptometry) ? computerOptometry.getRightEyeData().getCyl() : null;
 
-        BigDecimal leftSe = calculationSE(leftSph, leftCyl);
-        BigDecimal rightSe = calculationSE(rightSph, rightCyl);
+        BigDecimal leftSe = StatUtil.getSphericalEquivalent(leftSph, leftCyl);
+        BigDecimal rightSe = StatUtil.getSphericalEquivalent(rightSph, rightCyl);
 
         if (Objects.isNull(nakedVisionResult.getFirst())) {
             return RecommendVisitEnum.EMPTY;
@@ -1563,12 +1552,12 @@ public class ScreeningResultUtil {
         if (Objects.isNull(leftSph) || Objects.isNull(leftCyl)) {
             leftSE = null;
         } else {
-            leftSE = calculationSE(leftSph, leftCyl);
+            leftSE = StatUtil.getSphericalEquivalent(leftSph, leftCyl);
         }
         if (Objects.isNull(rightSph) || Objects.isNull(rightCyl)) {
             rightSE = null;
         } else {
-            rightSE = calculationSE(rightSph, rightCyl);
+            rightSE = StatUtil.getSphericalEquivalent(rightSph, rightCyl);
         }
         return new TwoTuple<>(leftSE, rightSE);
     }
