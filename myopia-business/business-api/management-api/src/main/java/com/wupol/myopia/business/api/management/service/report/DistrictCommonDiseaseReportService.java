@@ -10,6 +10,7 @@ import com.google.common.collect.Sets;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.api.management.constant.ReportConst;
 import com.wupol.myopia.business.api.management.domain.vo.report.CommonDiseasesAnalysisVariableVO;
 import com.wupol.myopia.business.api.management.domain.vo.report.CommonDiseasesNum;
 import com.wupol.myopia.business.api.management.domain.vo.report.DistrictCommonDiseaseReportVO;
@@ -126,7 +127,7 @@ public class DistrictCommonDiseaseReportService {
         //获取行政区域
         String districtName = districtService.getDistrictNameByDistrictId(districtId);
         Set<String> years = Sets.newHashSet(DateUtil.format(screeningNotice.getStartTime(), format),DateUtil.format(screeningNotice.getEndTime(), format));
-        String year = CollectionUtil.join(years, "-");
+        String year = CollectionUtil.join(years, StrUtil.DASHED);
         if (years.size() == 1) {
             List<String> yearPeriod = Lists.newArrayList(DateUtil.format(screeningNotice.getStartTime(), DatePattern.CHINESE_DATE_PATTERN),
                     DateUtil.format(screeningNotice.getEndTime(), "MM月dd日"));
@@ -182,14 +183,14 @@ public class DistrictCommonDiseaseReportService {
                 high =  high+"（"+normalHighStr+"，"+vocationalHighStr +"）";
                 itemList.add(high);
             }else {
-                String highStr = String.format(format, normalHighCount, "高中");
+                String highStr = String.format(format, normalHighCount, ReportConst.HIGH);
                 itemList.add(highStr);
             }
 
         }else {
             if (CollectionUtil.isNotEmpty(vocationalHigh)) {
                 long vocationalHighCount = vocationalHigh.stream().map(ScreeningPlanSchoolStudent::getSchoolId).filter(Objects::nonNull).distinct().count();
-                String highStr = String.format(format, vocationalHighCount, "高中");
+                String highStr = String.format(format, vocationalHighCount, ReportConst.HIGH);
                 itemList.add(highStr);
             }
         }

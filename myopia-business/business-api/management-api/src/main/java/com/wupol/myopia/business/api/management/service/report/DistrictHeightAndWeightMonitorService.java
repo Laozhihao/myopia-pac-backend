@@ -206,7 +206,7 @@ public class DistrictHeightAndWeightMonitorService {
         HeightAndWeightSchoolAge vocationalHigh = getHeightAndWeightSchoolSchoolAge(statConclusionList, SchoolAge.VOCATIONAL_HIGH.code);
         if (Objects.nonNull(normalHigh) || Objects.nonNull(vocationalHigh)) {
             HeightAndWeightSchoolAge high = getHeightAndWeightSchoolSchoolAge(statConclusionList, 10);
-            tupleList.add(TwoTuple.of("高中", high));
+            tupleList.add(TwoTuple.of(ReportConst.HIGH, high));
         }
         HeightAndWeightSchoolAge university = getHeightAndWeightSchoolSchoolAge(statConclusionList, SchoolAge.UNIVERSITY.code);
         if (Objects.nonNull(university)) {
@@ -319,12 +319,12 @@ public class DistrictHeightAndWeightMonitorService {
                 tableList.addAll(normalHighList);
             }
             tableList.addAll(vocationalHighList);
-            List<HeightAndWeightMonitorTable> highList = getHeightAndWeightSchoolAgeMergeTable(statConclusionList, 10, "高中");
+            List<HeightAndWeightMonitorTable> highList = getHeightAndWeightSchoolAgeMergeTable(statConclusionList, 10, ReportConst.HIGH);
             if (CollectionUtil.isNotEmpty(highList)) {
                 tableList.addAll(highList);
             }
         } else {
-            List<HeightAndWeightMonitorTable> highList = getHeightAndWeightSchoolAgeMergeTable(statConclusionList, SchoolAge.HIGH.code, "高中");
+            List<HeightAndWeightMonitorTable> highList = getHeightAndWeightSchoolAgeMergeTable(statConclusionList, SchoolAge.HIGH.code, ReportConst.HIGH);
             if (CollectionUtil.isNotEmpty(highList)) {
                 tableList.addAll(highList);
             }
@@ -360,7 +360,7 @@ public class DistrictHeightAndWeightMonitorService {
         if (Objects.equals(schoolAge, 10)) {
             List<HeightAndWeightMonitorTable> mergeList = Lists.newArrayList();
             List<StatConclusion> conclusionList = statConclusionList.stream().filter(sc -> Objects.equals(sc.getSchoolAge(), SchoolAge.HIGH.code) || Objects.equals(sc.getSchoolAge(), SchoolAge.VOCATIONAL_HIGH.code)).collect(Collectors.toList());
-            getHeightAndWeightSchoolAgeTable(conclusionList, "高中", mergeList);
+            getHeightAndWeightSchoolAgeTable(conclusionList, ReportConst.HIGH, mergeList);
             return mergeList;
         }
 

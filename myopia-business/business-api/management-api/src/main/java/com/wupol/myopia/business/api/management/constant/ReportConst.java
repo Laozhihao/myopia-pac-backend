@@ -73,5 +73,9 @@ public class ReportConst {
     public static final String ABNORMAL_SPINE_CURVATURE = "脊柱弯曲异常";
 
     public static final String SEX ="生";
+    public static final String MALE ="男生";
+    public static final String FEMALE ="女生";
     public static final String TOTAL ="合计";
+    public static final String HIGH ="高中";
+
 }

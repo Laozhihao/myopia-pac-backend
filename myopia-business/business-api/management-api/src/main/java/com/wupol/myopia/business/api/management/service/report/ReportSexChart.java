@@ -32,8 +32,8 @@ public class ReportSexChart {
         List<String> x = Lists.newArrayList();
         getSexX(sexChartVO.type(), x);
         List<ChartVO.ChartData> y = Lists.newArrayList(
-                new ChartVO.ChartData(GenderEnum.MALE.desc, Lists.newArrayList()),
-                new ChartVO.ChartData(GenderEnum.FEMALE.desc, Lists.newArrayList())
+                new ChartVO.ChartData(ReportConst.MALE, Lists.newArrayList()),
+                new ChartVO.ChartData(ReportConst.FEMALE, Lists.newArrayList())
         );
         List<BigDecimal> valueList = Lists.newArrayList();
         Map<Integer, List<StatConclusion>> genderMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getGender));

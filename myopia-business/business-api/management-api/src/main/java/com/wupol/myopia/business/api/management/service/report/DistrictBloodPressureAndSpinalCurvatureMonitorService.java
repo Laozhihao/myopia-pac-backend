@@ -204,7 +204,7 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorService {
         BloodPressureAndSpinalCurvatureSchoolAge vocationalHigh = getBloodPressureAndSpinalCurvatureSchoolAge(statConclusionList, SchoolAge.VOCATIONAL_HIGH.code);
         if (Objects.nonNull(normalHigh) || Objects.nonNull(vocationalHigh)) {
             BloodPressureAndSpinalCurvatureSchoolAge high = getBloodPressureAndSpinalCurvatureSchoolAge(statConclusionList, 10);
-            tupleList.add(TwoTuple.of("高中", high));
+            tupleList.add(TwoTuple.of(ReportConst.HIGH, high));
         }
         BloodPressureAndSpinalCurvatureSchoolAge university = getBloodPressureAndSpinalCurvatureSchoolAge(statConclusionList, SchoolAge.UNIVERSITY.code);
         if (Objects.nonNull(university)) {
@@ -358,7 +358,7 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorService {
         if (Objects.equals(schoolAge, 10)) {
             List<BloodPressureAndSpinalCurvatureMonitorTable> mergeList = Lists.newArrayList();
             List<StatConclusion> conclusionList = statConclusionList.stream().filter(sc -> Objects.equals(sc.getSchoolAge(), SchoolAge.HIGH.code) || Objects.equals(sc.getSchoolAge(), SchoolAge.VOCATIONAL_HIGH.code)).collect(Collectors.toList());
-            getBloodPressureAndSpinalCurvatureSchoolAgeTable(conclusionList, "高中", mergeList);
+            getBloodPressureAndSpinalCurvatureSchoolAgeTable(conclusionList, ReportConst.HIGH, mergeList);
             return mergeList;
         }
 

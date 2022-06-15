@@ -207,7 +207,7 @@ public class DistrictSaprodontiaMonitorService {
         SaprodontiaSchoolAge vocationalHigh = getSaprodontiaSchoolAge(statConclusionList, SchoolAge.VOCATIONAL_HIGH.code);
         if (Objects.nonNull(normalHigh) || Objects.nonNull(vocationalHigh)) {
             SaprodontiaSchoolAge high = getSaprodontiaSchoolAge(statConclusionList, 10);
-            tupleList.add(TwoTuple.of("高中", high));
+            tupleList.add(TwoTuple.of(ReportConst.HIGH, high));
         }
 
         SaprodontiaSchoolAge university = getSaprodontiaSchoolAge(statConclusionList, SchoolAge.UNIVERSITY.code);
@@ -312,13 +312,13 @@ public class DistrictSaprodontiaMonitorService {
                 tableList.addAll(normalHighList);
             }
             tableList.addAll(vocationalHighList);
-            List<SaprodontiaMonitorTable> highList = getSaprodontiaSchoolAgeMergeTable(statConclusionList, 10, "高中");
+            List<SaprodontiaMonitorTable> highList = getSaprodontiaSchoolAgeMergeTable(statConclusionList, 10, ReportConst.HIGH);
             if (CollectionUtil.isNotEmpty(highList)) {
                 tableList.addAll(highList);
             }
 
         } else {
-            List<SaprodontiaMonitorTable> highList = getSaprodontiaSchoolAgeMergeTable(statConclusionList, SchoolAge.HIGH.code, "高中");
+            List<SaprodontiaMonitorTable> highList = getSaprodontiaSchoolAgeMergeTable(statConclusionList, SchoolAge.HIGH.code, ReportConst.HIGH);
             if (CollectionUtil.isNotEmpty(highList)) {
                 tableList.addAll(highList);
             }
@@ -354,7 +354,7 @@ public class DistrictSaprodontiaMonitorService {
         if (Objects.equals(schoolAge, 10)) {
             List<SaprodontiaMonitorTable> mergeList = Lists.newArrayList();
             List<StatConclusion> conclusionList = statConclusionList.stream().filter(sc -> Objects.equals(sc.getSchoolAge(), SchoolAge.HIGH.code) || Objects.equals(sc.getSchoolAge(), SchoolAge.VOCATIONAL_HIGH.code)).collect(Collectors.toList());
-            getSaprodontiaSchoolAgeTable(conclusionList, "高中", mergeList);
+            getSaprodontiaSchoolAgeTable(conclusionList, ReportConst.HIGH, mergeList);
             return mergeList;
         }
 

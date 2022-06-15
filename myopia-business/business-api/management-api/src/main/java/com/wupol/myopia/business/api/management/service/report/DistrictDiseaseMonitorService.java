@@ -182,7 +182,7 @@ public class DistrictDiseaseMonitorService {
             if (CollectionUtil.isEmpty(mergeList)) {
                 return null;
             }
-            return getDiseaseMonitorTable(mergeList, "高中");
+            return getDiseaseMonitorTable(mergeList, ReportConst.HIGH);
         }
 
         List<StatConclusion> statConclusionList = conclusionMap.get(schoolAge);
