@@ -29,6 +29,16 @@ public class ScreeningPlan implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
+     * 已修改
+     */
+    public static final int MODIFIED = 1;
+
+    /**
+     * 未修改
+     */
+    public static final int NOT_CHANGED = 0;
+
+    /**
      * 主键id
      */
     @TableId(value = "id", type = IdType.AUTO)

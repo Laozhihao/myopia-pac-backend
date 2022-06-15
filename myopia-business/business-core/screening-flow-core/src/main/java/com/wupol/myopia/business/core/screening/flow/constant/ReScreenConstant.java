@@ -22,11 +22,18 @@ public class ReScreenConstant {
     public static final String COMPUTEROPTOMETRY_DEVIATION = "0.5";
 
     /**
+     * 等效球镜误差标准（D）
+     */
+    public static final String SE_DEVIATION = "0.5";
+
+    /**
      * 体重误差标准（kg）
      */
-    public static final String HEIGHT_DEVIATION = "0.5";
+    public static final String HEIGHT_DEVIATION = "0.1";
     /**
      * 升高误差标准（cm）
      */
-    public static final String WEIGHT_DEVIATION = "0.1";
+    public static final String WEIGHT_DEVIATION = "0.5";
+
+
 }
