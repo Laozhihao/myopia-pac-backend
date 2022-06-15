@@ -52,8 +52,8 @@ public class ReScreenDTO {
         /** 柱镜（右） */
         private ScreeningDeviation rightCyl;
 
-        /** 轴位（右） */
-        private ScreeningDeviation rightAxial;
+        /** 等效球镜（左） */
+        private ScreeningDeviation rightSE;
 
         /** 裸眼（左） */
         private ScreeningDeviation leftNakedVision;
@@ -67,26 +67,14 @@ public class ReScreenDTO {
         /** 柱镜（左） */
         private ScreeningDeviation leftCyl;
 
-        /** 轴位（左） */
-        private ScreeningDeviation leftAxial;
-
-
+        /** 等效球镜（左） */
+        private ScreeningDeviation leftSE;
 
         /** 身高 */
         private ScreeningDeviation height;
 
         /** 体重 */
         private ScreeningDeviation weight;
-
-        /**
-         * 右眼等效球镜
-         */
-        private ScreeningDeviation rightSE;
-
-        /**
-         * 左眼等效球镜
-         */
-        private ScreeningDeviation leftSE;
 
         @Data
         public static class ScreeningDeviation implements Serializable {

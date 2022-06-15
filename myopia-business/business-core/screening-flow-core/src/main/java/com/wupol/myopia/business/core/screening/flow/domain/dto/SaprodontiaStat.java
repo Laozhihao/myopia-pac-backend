@@ -3,11 +3,13 @@ package com.wupol.myopia.business.core.screening.flow.domain.dto;
 import lombok.Data;
 
 /**
- * @author tastyb
- */
+ * 龋齿统计
+ *
+ * @Author HaoHao
+ * @Date 2022/4/18
+ **/
 @Data
 public class SaprodontiaStat {
-
     /**
      * 为龋（d/D）的牙齿总数
      */

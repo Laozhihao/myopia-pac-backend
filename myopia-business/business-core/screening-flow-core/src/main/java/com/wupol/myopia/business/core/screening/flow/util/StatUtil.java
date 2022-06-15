@@ -8,6 +8,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import lombok.experimental.UtilityClass;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Objects;
 
 /**
@@ -337,7 +338,7 @@ public class StatUtil {
         if (ObjectsUtil.hasNull(sphere, cylinder)) {
             return null;
         }
-        return cylinder.divide(new BigDecimal(2)).add(sphere);
+        return cylinder.divide(new BigDecimal(2)).add(sphere).setScale(2, RoundingMode.HALF_UP);
     }
 
     /**

@@ -421,7 +421,7 @@ public class ScreeningPlanStudentBizService {
      * @param planStudentIds 学生Id
      */
     private void archiveDeletedStudent(List<Integer> planStudentIds) {
-        List<ScreeningPlanSchoolStudent> planStudents = screeningPlanSchoolStudentService.getByIds(planStudentIds);
+        List<ScreeningPlanSchoolStudent> planStudents = screeningPlanSchoolStudentService.listByIds(planStudentIds);
         if (!CollectionUtils.isEmpty(planStudents)) {
             DeletedArchive deletedArchive = new DeletedArchive();
             deletedArchive.setType(DeletedArchive.PLAN_STUDENT_TYPE);

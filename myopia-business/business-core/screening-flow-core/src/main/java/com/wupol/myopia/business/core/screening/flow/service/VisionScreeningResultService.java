@@ -2,9 +2,13 @@ package com.wupol.myopia.business.core.screening.flow.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionQueryDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO;
 import com.wupol.myopia.business.core.screening.flow.constant.SaprodontiaType;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
@@ -49,6 +53,17 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
     public List<VisionScreeningResult> getByStudentId(Integer studentId) {
         return baseMapper.getByStudentId(studentId);
     }
+
+    /**
+     * 通过StudentId获取筛查结果
+     *
+     * @param studentId id
+     * @return List<ScreeningResult>
+     */
+    public IPage<VisionScreeningResult> getByStudentIdWithPage(PageRequest pageRequest, Integer studentId) {
+        return baseMapper.getByStudentIdWithPage(pageRequest.toPage(), studentId);
+    }
+
 
     /**
      * 获取筛查人员ID
@@ -282,6 +297,17 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         });
         updateBatchById(updateResultList);
         statConclusionService.updateBatchById(updateStatConclusionList);
+    }
+
+    /**
+     * 获取学生初筛/复测（默认初测）
+     * @param planId 计划ID
+     * @param screeningPlanSchoolStudentId 学生ID
+     * @param isDoubleScreen false：初测  true：复测
+     * @return
+     */
+    public VisionScreeningResult getOneScreeningResult(Integer planId, Integer screeningPlanSchoolStudentId, boolean isDoubleScreen) {
+        return findOne(new VisionScreeningResult().setPlanId(planId).setScreeningPlanSchoolStudentId(screeningPlanSchoolStudentId).setIsDoubleScreen(isDoubleScreen));
     }
 
     /**
