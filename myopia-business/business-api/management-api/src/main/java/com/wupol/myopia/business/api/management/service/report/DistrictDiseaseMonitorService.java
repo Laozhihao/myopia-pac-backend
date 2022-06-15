@@ -139,13 +139,13 @@ public class DistrictDiseaseMonitorService {
         }
         //高中（普高+职高）
         if (Objects.nonNull(vocationalHighTable)) {
-            if (Objects.nonNull(highTable)) {
-                tableList.add(highTable);
-            }
             if (Objects.nonNull(normalHighTable)) {
                 tableList.add(normalHighTable);
             }
             tableList.add(vocationalHighTable);
+            if (Objects.nonNull(highTable)) {
+                tableList.add(highTable);
+            }
         } else {
             if (Objects.nonNull(highTable)) {
                 tableList.add(highTable);
