@@ -59,7 +59,7 @@ public class ReportAgeChart {
         if (Objects.equals(ageChartVO.type(),2)){
             List<ChartVO.Chart> chartList =Lists.newArrayList();
             List<List<ChartVO.ChartData>> lists = CollectionUtil.splitList(y, 2);
-            List<List<BigDecimal>> vList = CollectionUtil.splitList(valueList, 2);
+            List<List<BigDecimal>> vList = CollectionUtil.splitList(valueList, valueList.size()/2);
             for (int i = 0; i < lists.size(); i++) {
                 ChartVO.Chart chart = new ChartVO.Chart();
                 chart.setY(lists.get(i));
