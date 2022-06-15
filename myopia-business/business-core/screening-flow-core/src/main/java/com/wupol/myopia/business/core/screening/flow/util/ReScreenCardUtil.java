@@ -131,8 +131,6 @@ public class ReScreenCardUtil {
         return rightEyeData;
     }
 
-
-
     /**
      * 设置复测
      * @param result 初测数据

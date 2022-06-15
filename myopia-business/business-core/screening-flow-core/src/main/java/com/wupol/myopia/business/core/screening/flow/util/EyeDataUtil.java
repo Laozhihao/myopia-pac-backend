@@ -712,29 +712,4 @@ public class EyeDataUtil {
         return Optional.ofNullable(visionScreenResult) .map(VisionScreeningResult::getVisionData).map(VisionDataDO::getRightEyeData)
                 .map(VisionDataDO.VisionData::getGlassesType) .orElse(null);
     }
-
-
-    /**
-     * 计算 等效球镜（右眼）
-     * @param visionScreenResult 筛查数据
-     * @return 计算 等效球镜（右眼）
-     */
-    public static BigDecimal rightSE(VisionScreeningResult visionScreenResult) {
-        BigDecimal sph = rightSph(visionScreenResult);
-        BigDecimal cyl = rightCyl(visionScreenResult);
-
-        return calculationSE(sph,cyl);
-    }
-
-    /**
-     * 计算 等效球镜（左眼）
-     * @param visionScreenResult 筛查数据
-     * @return 计算 等效球镜（右眼）
-     */
-    public static BigDecimal leftSE(VisionScreeningResult visionScreenResult) {
-        BigDecimal sph = leftSph(visionScreenResult);
-        BigDecimal cyl = leftCyl(visionScreenResult);
-
-        return calculationSE(sph,cyl);
-    }
 }
