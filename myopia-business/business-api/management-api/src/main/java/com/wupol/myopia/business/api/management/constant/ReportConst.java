@@ -59,17 +59,17 @@ public class ReportConst {
     public static final  String ALLERGIC_ASTHMA ="过敏性哮喘";
     public static final  String PHYSICAL_DISABILITY ="身体残疾";
 
-    public static final String SAPRODONTIA = "龋患率";
-    public static final String SAPRODONTIA_LOSS = "龋失率";
-    public static final String SAPRODONTIA_REPAIR = "龋补率";
-    public static final String SAPRODONTIA_LOSS_AND_REPAIR = "龋患（失、补）率";
+    public static final String SAPRODONTIA = "龋患";
+    public static final String SAPRODONTIA_LOSS = "龋失";
+    public static final String SAPRODONTIA_REPAIR = "龋补";
+    public static final String SAPRODONTIA_LOSS_AND_REPAIR = "龋患（失、补）";
 
-    public static final String OVERWEIGHT = "超重率";
-    public static final String OBESE = "肥胖率";
-    public static final String MALNOURISHED = "营养不良率";
-    public static final String STUNTING = "生长迟缓率";
+    public static final String OVERWEIGHT = "超重";
+    public static final String OBESE = "肥胖";
+    public static final String MALNOURISHED = "营养不良";
+    public static final String STUNTING = "生长迟缓";
 
-    public static final String HIGH_BLOOD_PRESSURE = "血压偏高率";
-    public static final String ABNORMAL_SPINE_CURVATURE = "脊柱弯曲异常率";
+    public static final String HIGH_BLOOD_PRESSURE = "血压偏高";
+    public static final String ABNORMAL_SPINE_CURVATURE = "脊柱弯曲异常";
 
 }
