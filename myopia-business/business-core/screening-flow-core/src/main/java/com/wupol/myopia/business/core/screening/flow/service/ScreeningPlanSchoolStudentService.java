@@ -171,7 +171,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         return baseMapper.selectStudentVoByPlanIdAndSchoolIdAndGradeIdAndClassId(screeningPlanId, schoolId,gradeId,classId);
     }
 
-    public IPage<ScreeningStudentDTO> selectPageByQuery(Page<ScreeningStudentDTO> page, ScreeningStudentQueryDTO query) {
+    public IPage<ScreeningStudentDTO> selectPageByQuery(Page<?> page, ScreeningStudentQueryDTO query) {
         return baseMapper.selectPageByQuery(page, query);
     }
     /**

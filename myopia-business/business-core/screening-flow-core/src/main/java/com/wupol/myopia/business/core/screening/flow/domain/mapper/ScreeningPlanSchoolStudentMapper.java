@@ -22,7 +22,7 @@ public interface ScreeningPlanSchoolStudentMapper extends BaseMapper<ScreeningPl
 
     List<GradeClassesDTO> selectSchoolGradeVoByPlanIdAndSchoolId(@Param("screeningPlanId") Integer screeningPlanId, @Param("schoolId") Integer schoolId);
 
-    IPage<ScreeningStudentDTO> selectPageByQuery(@Param("page") Page<ScreeningStudentDTO> page, @Param("param") ScreeningStudentQueryDTO query);
+    IPage<ScreeningStudentDTO> selectPageByQuery(@Param("page") Page<?> page, @Param("param") ScreeningStudentQueryDTO query);
 
     List<ScreeningStudentDTO> selectListByQuery(@Param("param") ScreeningStudentQueryDTO query);
 

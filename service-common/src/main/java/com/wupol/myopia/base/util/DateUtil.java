@@ -381,20 +381,6 @@ public class DateUtil extends cn.hutool.core.date.DateUtil {
     }
 
     /**
-     * 获取改时间与当前时间的年月日
-     *
-     * @param date 时间
-     * @return xx年xx月xx日
-     */
-    public static String dayComparePeriod(Date date) {
-        if (Objects.isNull(date)) {
-            return StringUtils.EMPTY;
-        }
-        Period period = Period.between(date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalDate.now());
-        return period.getYears() + "年" + period.getMonths() + "月" + period.getDays() + "日";
-    }
-
-    /**
      * 获取年龄描述
      * <p>
      * 0<*<3 ：显示月龄+天数，如3个月1天、3个月10天
