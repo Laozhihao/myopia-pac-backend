@@ -15,14 +15,17 @@ import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -57,6 +60,8 @@ public class SchoolCommonDiseaseReportService {
     private SchoolBloodPressureAndSpinalCurvatureMonitorService schoolBloodPressureAndSpinalCurvatureMonitorService;
     @Autowired
     private SchoolClassScreeningMonitorService schoolClassScreeningMonitorService;
+    @Autowired
+    private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
 
 
     public SchoolCommonDiseaseReportVO schoolCommonDiseaseReport(Integer schoolId, Integer planId) {
@@ -140,12 +145,10 @@ public class SchoolCommonDiseaseReportService {
      * 筛查人数和实际筛查人数
      */
     private void setNum(Integer schoolId, Integer planId, SchoolCommonDiseaseReportVO districtCommonDiseaseReportVO) {
-        ScreeningPlan screeningPlan = screeningPlanService.getById(planId);
-        if (Objects.isNull(screeningPlan)) {
-            throw new BusinessException(String.format("不存在筛查计划: planId=%s", planId));
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = screeningPlanSchoolStudentService.getByScreeningPlanIdAndSchoolId(schoolId, planId);
+        if (CollectionUtil.isNotEmpty(screeningPlanSchoolStudentList)) {
+            districtCommonDiseaseReportVO.setScreeningStudentNum(screeningPlanSchoolStudentList.size());
         }
-
-        districtCommonDiseaseReportVO.setScreeningStudentNum(screeningPlan.getStudentNumbers());
         List<VisionScreeningResult> screeningResults = visionScreeningResultService.getByPlanIdAndSchoolId(planId, schoolId);
         if (CollectionUtil.isEmpty(screeningResults)) {
             districtCommonDiseaseReportVO.setActualScreeningNum(0);

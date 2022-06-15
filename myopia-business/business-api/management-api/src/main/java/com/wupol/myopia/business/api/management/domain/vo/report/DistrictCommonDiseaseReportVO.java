@@ -97,10 +97,12 @@ public class DistrictCommonDiseaseReportVO {
         /**
          * 远视储备不足率
          */
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
         private BigDecimal myopiaLevelInsufficientRatio;
         /**
          * 屈光参差率
          */
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
         private BigDecimal anisometropiaRatio;
     }
 
@@ -111,6 +113,7 @@ public class DistrictCommonDiseaseReportVO {
         /**
          * 近视率
          */
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
         private BigDecimal myopiaRatio;
 
         /**
@@ -144,6 +147,7 @@ public class DistrictCommonDiseaseReportVO {
         /**
          *  视力低常率
          */
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
         private BigDecimal lowVisionRatio;
 
         /**
@@ -163,6 +167,7 @@ public class DistrictCommonDiseaseReportVO {
         /**
          * 近视率
          */
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
         private BigDecimal myopiaRatio;
 
     }
