@@ -63,7 +63,8 @@ public class MathUtil {
         if (BigDecimalUtil.decimalEqual(numerator,"0") || BigDecimalUtil.decimalEqual(denominator,"0")){
             return new BigDecimal("0.00");
         }
-       return numerator.multiply(new BigDecimal("100")).divide(denominator,2, RoundingMode.HALF_UP);
+        BigDecimal divide = numerator.multiply(new BigDecimal("100")).divide(denominator, 2, RoundingMode.HALF_UP);
+       return BigDecimalUtil.getBigDecimalByFormat(divide,2);
     }
 
     public String num(Integer numerator, Integer denominator) {

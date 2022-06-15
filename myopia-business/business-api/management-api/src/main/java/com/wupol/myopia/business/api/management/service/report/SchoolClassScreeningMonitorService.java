@@ -122,12 +122,12 @@ public class SchoolClassScreeningMonitorService {
     private GradeRatioExtremum getClassRatioExtremum(Map<String, ScreeningNum> classScreeningNumMap, Function<ScreeningNum, Integer> function, Function<ScreeningNum, BigDecimal> mapper) {
         TwoTuple<String, BigDecimal> maxTuple = ReportUtil.getMaxMap(classScreeningNumMap, function, mapper);
         TwoTuple<String, BigDecimal> minTuple = ReportUtil.getMinMap(classScreeningNumMap, function, mapper);
-        GradeRatioExtremum schoolRatioExtremum = new GradeRatioExtremum();
-        schoolRatioExtremum.setMaxClassName(maxTuple.getFirst());
-        schoolRatioExtremum.setMinClassName(minTuple.getFirst());
-        schoolRatioExtremum.setMaxRatio(maxTuple.getSecond());
-        schoolRatioExtremum.setMinRatio(minTuple.getSecond());
-        return schoolRatioExtremum;
+        GradeRatioExtremum gradeRatioExtremum = new GradeRatioExtremum();
+        gradeRatioExtremum.setMaxClassName(maxTuple.getFirst());
+        gradeRatioExtremum.setMinClassName(minTuple.getFirst());
+        gradeRatioExtremum.setMaxRatio(maxTuple.getSecond());
+        gradeRatioExtremum.setMinRatio(minTuple.getSecond());
+        return gradeRatioExtremum;
     }
 
     private <K> void getSchoolClassScreeningNum(K key, List<StatConclusion> statConclusionList, Map<K, ScreeningNum> classScreeningNumMap) {
@@ -145,22 +145,21 @@ public class SchoolClassScreeningMonitorService {
             return;
         }
         List<ScreeningMonitorTable> tableList = Lists.newArrayList();
-        Map<String, List<StatConclusion>> schoolStatConclusionMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
-        schoolStatConclusionMap.forEach((schoolGradeCode, list) -> {
-            GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeCode);
-            getSchoolClassScreeningTable(gradeCodeEnum.getName(), list, tableList);
+        Map<String, List<StatConclusion>> schoolStatConclusionMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolClassName));
+        schoolStatConclusionMap.forEach((schoolClassName, list) -> {
+            getSchoolClassScreeningTable(schoolClassName, list, tableList);
         });
 
         schoolClassScreeningMonitorVO.setSchoolClassScreeningMonitorTableList(tableList);
     }
 
-    private void getSchoolClassScreeningTable(String schoolName, List<StatConclusion> statConclusionList, List<ScreeningMonitorTable> tableList) {
+    private void getSchoolClassScreeningTable(String schoolClassName, List<StatConclusion> statConclusionList, List<ScreeningMonitorTable> tableList) {
         if (CollectionUtil.isEmpty(statConclusionList)) {
             return;
         }
 
         ScreeningMonitorTable schoolScreeningMonitorTable = new ScreeningNum().build(statConclusionList).ratioNotSymbol().buildTable();
-        schoolScreeningMonitorTable.setItemName(schoolName);
+        schoolScreeningMonitorTable.setItemName(schoolClassName);
         tableList.add(schoolScreeningMonitorTable);
     }
 }
