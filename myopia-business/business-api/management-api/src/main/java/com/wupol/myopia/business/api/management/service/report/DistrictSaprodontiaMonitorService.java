@@ -329,6 +329,7 @@ public class DistrictSaprodontiaMonitorService {
             tableList.addAll(universityList);
         }
 
+        getSaprodontiaSchoolAgeTable(statConclusionList,ReportConst.TOTAL,tableList);
         saprodontiaSchoolAgeVO.setSaprodontiaSchoolAgeMonitorTableList(tableList);
     }
 

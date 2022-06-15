@@ -334,6 +334,7 @@ public class DistrictHeightAndWeightMonitorService {
         if (CollectionUtil.isNotEmpty(universityList)) {
             tableList.addAll(universityList);
         }
+        getHeightAndWeightSchoolAgeTable(statConclusionList,ReportConst.TOTAL,tableList);
 
         heightAndWeightSchoolAgeVO.setHeightAndWeightSchoolAgeMonitorTableList(tableList);
     }

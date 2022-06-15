@@ -334,6 +334,8 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorService {
             tableList.addAll(universityList);
         }
 
+        getBloodPressureAndSpinalCurvatureSchoolAgeTable(statConclusionList,ReportConst.TOTAL,tableList);
+
         schoolAgeVO.setBloodPressureAndSpinalCurvatureSchoolAgeMonitorTableList(tableList);
     }
 
