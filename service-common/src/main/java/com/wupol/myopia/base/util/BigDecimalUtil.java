@@ -1,7 +1,9 @@
 package com.wupol.myopia.base.util;
 
+import org.apache.commons.lang3.ObjectUtils;
+
 import java.math.BigDecimal;
-import java.util.Optional;
+import java.util.Objects;
 
 /**
  * BigDecimal工具类
@@ -227,7 +229,6 @@ public class BigDecimalUtil {
         return val1.subtract(val2);
     }
 
-
     /**
      * 判断是否在某个区间，左闭右开区间
      *
@@ -239,16 +240,17 @@ public class BigDecimalUtil {
     public static boolean isBetweenLeft(Double val, Double start, Double end) {
         return val.compareTo(start) >= 0 && val.compareTo(end) < 0;
     }
+
     /**
-     * 视力是否误差
+     * 视力是否误差(判断有一个值为null，不作误差值判断)
      * @param firstScreening 视力误差
      * @param reScreening 复测值
      * @param standard 标准值
      * @return true：误差 false：没误差
      */
-    public static boolean isDeviation(BigDecimal firstScreening,BigDecimal reScreening,BigDecimal standard){
+    public static boolean isDeviation(BigDecimal firstScreening, BigDecimal reScreening, BigDecimal standard){
         BigDecimal result = subtractAbsBigDecimal(firstScreening, reScreening);
-        return result.abs().compareTo(standard) > 0;
+        return Objects.isNull(result) ? Boolean.FALSE : result.abs().compareTo(standard) > 0;
     }
 
     /**
@@ -258,10 +260,7 @@ public class BigDecimalUtil {
      * @return 绝对差值
      */
     public static BigDecimal subtractAbsBigDecimal(BigDecimal firstScreening, BigDecimal reScreening) {
-        BigDecimal first = Optional.ofNullable(firstScreening).orElse(new BigDecimal("0"));
-        BigDecimal retest = Optional.ofNullable(reScreening).orElse(new BigDecimal("0"));
-
-        return first.abs().subtract(retest.abs());
+        return ObjectUtils.allNotNull(firstScreening, reScreening) ? firstScreening.subtract(reScreening).abs() : null;
     }
 
 }

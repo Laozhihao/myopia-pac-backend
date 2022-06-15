@@ -1,12 +1,11 @@
 package com.wupol.myopia.business.core.screening.flow.util;
 
-import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
 import com.wupol.myopia.business.common.utils.util.MaskUtil;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.DeviationDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
+import com.wupol.myopia.business.core.screening.flow.constant.SaprodontiaType;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.SaprodontiaDataDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.SaprodontiaStat;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentVisionScreeningResultExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
@@ -440,13 +439,75 @@ public class EyeDataUtil {
 
 
     /**
-     * 获取戴镜是否为空
-     * @param visionScreeningResult 筛查结果
-     * @return 类型描述
+     * 合并上下牙床数据
+     * @param result 筛查数据
+     * @return 合并上下牙床数据
      */
-    public static Integer glassTypeDesc(VisionScreeningResult visionScreeningResult) {
-        return Optional.ofNullable(visionScreeningResult) .map(VisionScreeningResult::getVisionData) .map(VisionDataDO::getRightEyeData)
-                .map(VisionDataDO.VisionData::getGlassesType) .orElse(null);
+    public static SaprodontiaDataDTO getSaprodontiaData(VisionScreeningResult result){
+
+        List<SaprodontiaDataDO.SaprodontiaItem> items = new ArrayList<>();
+
+        if (Objects.nonNull(result)&&Objects.nonNull(result.getSaprodontiaData())){
+            items.addAll(result.getSaprodontiaData().getAbove());
+            items.addAll(result.getSaprodontiaData().getUnderneath());
+        }
+
+        return calculationTooth(items);
+    }
+
+    /**
+     * 计算乳牙/恒牙
+     * TODO：计算方法差评，合并分支后，delete掉，复用其他分支相同功能代码
+     *
+     * @param items 牙齿数据
+     */
+    private static SaprodontiaDataDTO calculationTooth(List<SaprodontiaDataDO.SaprodontiaItem> items) {
+        SaprodontiaDataDTO saprodontiaDataDODTO = new SaprodontiaDataDTO();
+        int dDeciduous = 0;
+        int mDeciduous = 0;
+        int fDeciduous = 0;
+
+        int dPermanent = 0;
+        int mPermanent = 0;
+        int fPermanent = 0;
+        for (SaprodontiaDataDO.SaprodontiaItem item: items){
+            if (item!=null){
+                if (SaprodontiaType.DECIDUOUS_D.getName().equals(item.getDeciduous())){
+                    dDeciduous++;
+                }
+                if (SaprodontiaType.DECIDUOUS_M.getName().equals(item.getDeciduous())){
+                    mDeciduous++;
+                }
+                if (SaprodontiaType.DECIDUOUS_F.getName().equals(item.getDeciduous())){
+                    fDeciduous++;
+                }
+
+                if (SaprodontiaType.PERMANENT_D.getName().equals(item.getPermanent())){
+                    dPermanent++;
+                }
+                if (SaprodontiaType.PERMANENT_M.getName().equals(item.getPermanent())){
+                    mPermanent++;
+                }
+                if (SaprodontiaType.PERMANENT_F.getName().equals(item.getPermanent())){
+                    fPermanent++;
+                }
+            }
+        }
+
+        SaprodontiaStat deciduousTooth = new SaprodontiaStat();
+        deciduousTooth.setDCount(dDeciduous);
+        deciduousTooth.setMCount(mDeciduous);
+        deciduousTooth.setFCount(fDeciduous);
+
+        SaprodontiaStat permanentTooth = new SaprodontiaStat();
+        permanentTooth.setDCount(dPermanent);
+        permanentTooth.setMCount(mPermanent);
+        permanentTooth.setFCount(fPermanent);
+
+        saprodontiaDataDODTO.setDeciduousTooth(deciduousTooth);
+        saprodontiaDataDODTO.setPermanentTooth(permanentTooth);
+
+        return saprodontiaDataDODTO;
     }
 
     /**
@@ -566,19 +627,27 @@ public class EyeDataUtil {
     }
 
     /**
-     * 计算 等效球镜
-     *
-     * @param sph 球镜
-     * @param cyl 柱镜
-     * @return 等效球镜
+     * 计算 等效球镜（右眼）
+     * @param visionScreenResult 筛查数据
+     * @return 计算 等效球镜（右眼）
      */
-    public static BigDecimal calculationSE(BigDecimal sph, BigDecimal cyl) {
-        if (ObjectsUtil.hasNull(sph, cyl)) {
-            return null;
-        }
-        return sph.add(cyl.multiply(new BigDecimal("0.5")))
-                .setScale(2, RoundingMode.HALF_UP);
+    public static BigDecimal rightSE(VisionScreeningResult visionScreenResult) {
+        BigDecimal sph = rightSph(visionScreenResult);
+        BigDecimal cyl = rightCyl(visionScreenResult);
+        return StatUtil.getSphericalEquivalent(sph, cyl);
     }
+
+    /**
+     * 计算 等效球镜（左眼）
+     * @param visionScreenResult 筛查数据
+     * @return 计算 等效球镜（右眼）
+     */
+    public static BigDecimal leftSE(VisionScreeningResult visionScreenResult) {
+        BigDecimal sph = leftSph(visionScreenResult);
+        BigDecimal cyl = leftCyl(visionScreenResult);
+        return StatUtil.getSphericalEquivalent(sph, cyl);
+    }
+
     /**
      * 电脑验光误差
      * @param visionScreenResult 筛查结果
@@ -594,9 +663,9 @@ public class EyeDataUtil {
      * @param visionScreenResult 筛查结果
      * @return 身高/体重误差说明
      */
-    public static String heightWeightDeviationRemark(VisionScreeningResult visionScreenResult) {
+    public static DeviationDO.HeightWeightDeviation heightWeightDeviationRemark(VisionScreeningResult visionScreenResult) {
         return Optional.ofNullable(visionScreenResult) .map(VisionScreeningResult::getDeviationData)
-                .map(DeviationDO::getHeightWeightDeviation).map(DeviationDO.HeightWeightDeviation::getRemark) .orElse(null);
+                .map(DeviationDO::getHeightWeightDeviation).orElse(null);
     }
 
     /**
@@ -609,12 +678,12 @@ public class EyeDataUtil {
     }
 
     /**
-     * 创建时间
+     * 更新时间
      * @param visionScreenResult 筛查结果
-     * @return 创建时间
+     * @return 更新时间
      */
-    public static Date createTime(VisionScreeningResult visionScreenResult) {
-        return Optional.ofNullable(visionScreenResult) .map(VisionScreeningResult::getCreateTime) .orElse(null);
+    public static Date updateTime(VisionScreeningResult visionScreenResult) {
+        return Optional.ofNullable(visionScreenResult) .map(VisionScreeningResult::getUpdateTime) .orElse(null);
     }
 
     /**
@@ -626,8 +695,4 @@ public class EyeDataUtil {
         return Optional.ofNullable(visionScreenResult) .map(VisionScreeningResult::getVisionData).map(VisionDataDO::getRightEyeData)
                 .map(VisionDataDO.VisionData::getGlassesType) .orElse(null);
     }
-
-
-
-
 }

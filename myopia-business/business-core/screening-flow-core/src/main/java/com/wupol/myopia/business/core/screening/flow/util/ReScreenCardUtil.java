@@ -1,13 +1,17 @@
 package com.wupol.myopia.business.core.screening.flow.util;
+
 import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.business.common.utils.constant.GlassesTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.constant.ReScreenConstant;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ReScreenDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.*;
 import lombok.experimental.UtilityClass;
 
 import java.math.BigDecimal;
+import java.util.Objects;
+import java.util.Optional;
 
 
 /**
@@ -24,44 +28,41 @@ public class ReScreenCardUtil {
      * @param firstScreenResult 初筛结果(第一次)
      * @param reScreenResult 复测结果
      * @param qualityControlName 质控员
+     * @param commonDiseasesCode 常见病code
      * @return 复测卡结果
      */
     public ReScreeningCardVO reScreenResultCard(VisionScreeningResult firstScreenResult, VisionScreeningResult reScreenResult,
-                                              String qualityControlName){
+                                              String qualityControlName, String commonDiseasesCode){
         ReScreeningCardVO reScreeningResultCard = new ReScreeningCardVO();
-        VisionVO vision  = new VisionVO();
-        //选取视力中左眼的戴镜类型
-        vision.setGlassesType(EyeDataUtil.glassesType(reScreenResult));
+        reScreeningResultCard.setCommonDiseasesCode(commonDiseasesCode);
 
+        // 设置视力数据
+        VisionVO vision  = new VisionVO();
+        // 选取视力中左眼的戴镜类型
+        vision.setGlassesType(EyeDataUtil.glassesType(reScreenResult));
         VisionResultVO visionResult = new VisionResultVO();
         visionResult.setRightEyeData(rightEyeData(firstScreenResult, reScreenResult));
         visionResult.setLeftEyeData(leftEyeData(firstScreenResult, reScreenResult));
-
         vision.setVisionResult(visionResult);
         vision.setComputerOptometryResult(computerOptometryResult(firstScreenResult, reScreenResult));
         vision.setVisionOrOptometryDeviation(EyeDataUtil.optometryDeviation(reScreenResult));
         vision.setQualityControlName(qualityControlName);
-        vision.setCreateTime(EyeDataUtil.createTime(reScreenResult));
-
+        vision.setUpdateTime(EyeDataUtil.updateTime(reScreenResult));
         reScreeningResultCard.setVision(vision);
 
+        // 设置常见病数据
         CommonDiseasesVO commonDiseases = new CommonDiseasesVO();
-
         CommonDiseasesVO.HeightAndWeightResult heightAndWeightResult = new CommonDiseasesVO.HeightAndWeightResult();
         heightAndWeightResult.setHeight(EyeDataUtil.height(firstScreenResult));
         heightAndWeightResult.setHeightReScreen(EyeDataUtil.height(reScreenResult));
         heightAndWeightResult.setHeightDeviation(BigDecimalUtil.subtractAbsBigDecimal(EyeDataUtil.height(firstScreenResult),EyeDataUtil.height(reScreenResult)));
-        heightAndWeightResult.setHeightDeviationRemark(EyeDataUtil.heightWeightDeviationRemark(reScreenResult));
-
         heightAndWeightResult.setWeight(EyeDataUtil.weight(firstScreenResult));
         heightAndWeightResult.setWeightReScreen(EyeDataUtil.weight(reScreenResult));
         heightAndWeightResult.setWeightDeviation(BigDecimalUtil.subtractAbsBigDecimal(EyeDataUtil.weight(firstScreenResult),EyeDataUtil.weight(reScreenResult)));
-        heightAndWeightResult.setWeightDeviationRemark(EyeDataUtil.heightWeightDeviationRemark(reScreenResult));
-
+        heightAndWeightResult.setHeightWeightDeviation(EyeDataUtil.heightWeightDeviationRemark(reScreenResult));
         commonDiseases.setHeightAndWeightResult(heightAndWeightResult);
         commonDiseases.setQualityControlName(qualityControlName);
-        commonDiseases.setCreateTime(EyeDataUtil.createTime(reScreenResult));
-
+        commonDiseases.setUpdateTime(EyeDataUtil.updateTime(reScreenResult));
         reScreeningResultCard.setCommonDiseases(commonDiseases);
         return reScreeningResultCard;
     }
@@ -73,16 +74,13 @@ public class ReScreenCardUtil {
      */
     public ComputerOptometryResultVO computerOptometryResult(VisionScreeningResult firstScreenResult, VisionScreeningResult reScreenResult) {
         ComputerOptometryResultVO computerOptometryResult = new ComputerOptometryResultVO();
-        computerOptometryResult.setRightSE(EyeDataUtil.calculationSE(EyeDataUtil.rightSph(firstScreenResult),EyeDataUtil.rightCyl(firstScreenResult)));
+        computerOptometryResult.setRightSE(EyeDataUtil.rightSE(firstScreenResult));
+        computerOptometryResult.setRightSEReScreen(EyeDataUtil.rightSE(reScreenResult));
+        computerOptometryResult.setRightSEDeviation(BigDecimalUtil.subtractAbsBigDecimal(computerOptometryResult.getRightSE(), computerOptometryResult.getRightSEReScreen()));
 
-        computerOptometryResult.setRightSEReScreen(EyeDataUtil.calculationSE(EyeDataUtil.rightSph(reScreenResult),EyeDataUtil.rightCyl(reScreenResult)));
-        computerOptometryResult.setRightSEDeviation(BigDecimalUtil.subtractAbsBigDecimal(EyeDataUtil.calculationSE(EyeDataUtil.rightSph(firstScreenResult),
-                EyeDataUtil.rightCyl(firstScreenResult)),EyeDataUtil.calculationSE(EyeDataUtil.rightSph(reScreenResult),EyeDataUtil.rightCyl(reScreenResult))));
-
-        computerOptometryResult.setLeftSE(EyeDataUtil.calculationSE(EyeDataUtil.leftSph(firstScreenResult),EyeDataUtil.leftCyl(firstScreenResult)));
-        computerOptometryResult.setLeftSEScreening(EyeDataUtil.calculationSE(EyeDataUtil.leftSph(reScreenResult),EyeDataUtil.leftCyl(reScreenResult)));
-        computerOptometryResult.setLeftSEDeviation(BigDecimalUtil.subtractAbsBigDecimal(EyeDataUtil.calculationSE(EyeDataUtil.leftSph(firstScreenResult),EyeDataUtil.leftCyl(firstScreenResult)),
-                EyeDataUtil.calculationSE(EyeDataUtil.leftSph(reScreenResult),EyeDataUtil.leftCyl(reScreenResult))));
+        computerOptometryResult.setLeftSE(EyeDataUtil.leftSE(firstScreenResult));
+        computerOptometryResult.setLeftSEScreening(EyeDataUtil.leftSE(reScreenResult));
+        computerOptometryResult.setLeftSEDeviation(BigDecimalUtil.subtractAbsBigDecimal(computerOptometryResult.getLeftSE(), computerOptometryResult.getLeftSEScreening()));
         return computerOptometryResult;
     }
 
@@ -120,7 +118,6 @@ public class ReScreenCardUtil {
         return rightEyeData;
     }
 
-
     /**
      * 设置复测
      * @param result 初测数据
@@ -136,6 +133,7 @@ public class ReScreenCardUtil {
         //戴镜情况
         reScreeningResult.setGlassesTypeDesc(GlassesTypeEnum.getDescByCode(EyeDataUtil.glassesType(reScreening)));
 
+        //裸眼（右）
         ReScreenDTO.ReScreeningResult.ScreeningDeviation rightNakedVision = new  ReScreenDTO.ReScreeningResult.ScreeningDeviation();
         boolean rightNakedVisionType = BigDecimalUtil.isDeviation(EyeDataUtil.rightNakedVision(result),
                 EyeDataUtil.rightNakedVision(reScreening),new BigDecimal(ReScreenConstant.VISION_DEVIATION));
@@ -145,6 +143,7 @@ public class ReScreenCardUtil {
         rightNakedVision.setContent(EyeDataUtil.rightNakedVision(reScreening));
         reScreeningResult.setRightNakedVision(rightNakedVision);
 
+        // 裸眼（左）
         ReScreenDTO.ReScreeningResult.ScreeningDeviation leftNakedVision = new  ReScreenDTO.ReScreeningResult.ScreeningDeviation();
 
         boolean leftNakedVisionType = BigDecimalUtil.isDeviation(EyeDataUtil.leftNakedVision(result),
@@ -155,78 +154,105 @@ public class ReScreenCardUtil {
         leftNakedVision.setContent(EyeDataUtil.leftNakedVision(reScreening));
         reScreeningResult.setLeftNakedVision(leftNakedVision);
 
-        ReScreenDTO.ReScreeningResult.ScreeningDeviation rightCorrectedVision = new  ReScreenDTO.ReScreeningResult.ScreeningDeviation();
-        boolean rightCorrectedVisionType = BigDecimalUtil.isDeviation(EyeDataUtil.rightCorrectedVision(result),
-                EyeDataUtil.rightCorrectedVision(reScreening),new BigDecimal(ReScreenConstant.VISION_DEVIATION));
-        deviationCount = getDeviationCount(deviationCount, rightCorrectedVisionType);
+        //等效球镜右
+        ReScreenDTO.ReScreeningResult.ScreeningDeviation rightSE = new  ReScreenDTO.ReScreeningResult.ScreeningDeviation();
+        boolean rightSEType = BigDecimalUtil.isDeviation(EyeDataUtil.rightSE(result),
+                EyeDataUtil.rightSE(reScreening),new BigDecimal(ReScreenConstant.SE_DEVIATION));
+        deviationCount = getDeviationCount(deviationCount, rightSEType);
 
-        rightCorrectedVision.setType(rightCorrectedVisionType);
-        rightCorrectedVision.setContent(EyeDataUtil.rightCorrectedVision(reScreening));
-        reScreeningResult.setRightCorrectedVision(rightCorrectedVision);
+        rightSE.setType(rightSEType);
+        rightSE.setContent(EyeDataUtil.rightSE(reScreening));
+        reScreeningResult.setRightSE(rightSE);
 
-        ReScreenDTO.ReScreeningResult.ScreeningDeviation leftCorrectedVision = new  ReScreenDTO.ReScreeningResult.ScreeningDeviation();
-        boolean leftCorrectedVisionType =BigDecimalUtil.isDeviation(EyeDataUtil.leftCorrectedVision(result),
-                EyeDataUtil.leftCorrectedVision(reScreening),new BigDecimal(ReScreenConstant.VISION_DEVIATION));
-        deviationCount = getDeviationCount(deviationCount, leftCorrectedVisionType);
+        //等效球镜左
+        ReScreenDTO.ReScreeningResult.ScreeningDeviation leftSE = new  ReScreenDTO.ReScreeningResult.ScreeningDeviation();
+        boolean leftSEType = BigDecimalUtil.isDeviation(EyeDataUtil.leftSE(result),
+                EyeDataUtil.leftSE(reScreening),new BigDecimal(ReScreenConstant.SE_DEVIATION));
+        deviationCount = getDeviationCount(deviationCount, leftSEType);
 
-        leftCorrectedVision.setType(leftCorrectedVisionType);
-        leftCorrectedVision.setContent(EyeDataUtil.leftCorrectedVision(reScreening));
-        reScreeningResult.setLeftCorrectedVision(leftCorrectedVision);
+        leftSE.setType(leftSEType);
+        leftSE.setContent(EyeDataUtil.leftSE(reScreening));
+        reScreeningResult.setLeftSE(leftSE);
 
+        // 球镜 柱镜 不参与计算
+        notParticipateDeviation(reScreening, reScreeningResult);
+        // 有差异的计算
+        deviationCount = differenceDeviationCount(result, reScreening, deviationCount, rescreening, reScreeningResult);
+        rescreening.setDeviationCount(deviationCount);
+        rescreening.setRescreeningResult(reScreeningResult);
+        rescreening.setDeviation(EyeDataUtil.deviationData(reScreening));
+
+        return rescreening;
+    }
+
+    /**
+     * 有差异的计算
+     * @param result 筛查结果
+     * @param reScreening 复测结果
+     * @param deviationCount 错误项次数
+     * @param rescreening 复测返扩展类
+     * @param reScreeningResult 计算后内容（复测）
+     * @return 错误项次数
+     */
+    private static int differenceDeviationCount(VisionScreeningResult result, VisionScreeningResult reScreening, int deviationCount, ReScreenDTO rescreening, ReScreenDTO.ReScreeningResult reScreeningResult) {
+        Integer glassesType = Optional.ofNullable(reScreening).map(VisionScreeningResult::getVisionData).map(VisionDataDO::getRightEyeData).map(VisionDataDO.VisionData::getGlassesType).orElse(null);
+        if (Objects.isNull(glassesType)) {
+            return deviationCount;
+        }
+        // 是否为常见病筛查类型 TODO：替换为常量
+        boolean isCommonDiseaseScreeningType = reScreening.getScreeningType() == 1;
+        if (glassesType.equals(GlassesTypeEnum.FRAME_GLASSES.code) || glassesType.equals(GlassesTypeEnum.CONTACT_LENS.code)) {
+            // 佩戴框架眼镜和隐形眼镜
+            rescreening.setDoubleCount(isCommonDiseaseScreeningType ? ReScreenConstant.COMMON_RESCREEN_IS_GLASS_NUM : ReScreenConstant.VISION_RESCREEN_IS_GLASS_NUM);
+            deviationCount = correctedDeviation(result, reScreening, deviationCount, reScreeningResult);
+        } else if (glassesType.equals(GlassesTypeEnum.NOT_WEARING.code)){
+            // 没有戴镜
+            rescreening.setDoubleCount(isCommonDiseaseScreeningType ? ReScreenConstant.COMMON_RESCREEN_NOT_GLASS_NUM : ReScreenConstant.VISION_RESCREEN_NOT_GLASS_NUM);
+        }
+        return isCommonDiseaseScreeningType ? heightWeightDeviation(result, reScreening, deviationCount, reScreeningResult) : deviationCount;
+    }
+
+    /**
+     * 球镜 柱镜 不参与计算
+     * @param reScreening 筛查结果
+     * @param reScreeningResult 计算后内容（复测）
+     */
+    private static void notParticipateDeviation(VisionScreeningResult reScreening, ReScreenDTO.ReScreeningResult reScreeningResult) {
+        //球镜右
         ReScreenDTO.ReScreeningResult.ScreeningDeviation rightSph = new  ReScreenDTO.ReScreeningResult.ScreeningDeviation();
-        boolean rightSphType = BigDecimalUtil.isDeviation(EyeDataUtil.rightSph(result),
-                EyeDataUtil.rightSph(reScreening),new BigDecimal(ReScreenConstant.COMPUTEROPTOMETRY_DEVIATION));
-        deviationCount = getDeviationCount(deviationCount, rightSphType);
-
-        rightSph.setType(rightSphType);
+        rightSph.setType(Boolean.FALSE);
         rightSph.setContent(EyeDataUtil.rightSph(reScreening));
         reScreeningResult.setRightSph(rightSph);
 
+        //柱镜右
         ReScreenDTO.ReScreeningResult.ScreeningDeviation rightCyl = new  ReScreenDTO.ReScreeningResult.ScreeningDeviation();
-        boolean rightCylType = BigDecimalUtil.isDeviation(EyeDataUtil.rightCyl(result),
-                EyeDataUtil.rightCyl(reScreening),new BigDecimal(ReScreenConstant.COMPUTEROPTOMETRY_DEVIATION));
-        deviationCount = getDeviationCount(deviationCount, rightCylType);
-
-        rightCyl.setType(rightCylType);
+        rightCyl.setType(Boolean.FALSE);
         rightCyl.setContent(EyeDataUtil.rightCyl(reScreening));
         reScreeningResult.setRightCyl(rightCyl);
 
-        ReScreenDTO.ReScreeningResult.ScreeningDeviation rightAxial = new  ReScreenDTO.ReScreeningResult.ScreeningDeviation();
-        boolean rightAxialType = BigDecimalUtil.isDeviation(EyeDataUtil.rightAxial(result),
-                EyeDataUtil.rightAxial(reScreening),new BigDecimal(ReScreenConstant.COMPUTEROPTOMETRY_DEVIATION));
-        deviationCount = getDeviationCount(deviationCount, rightAxialType);
-
-        rightAxial.setType(rightAxialType);
-        rightAxial.setContent(EyeDataUtil.rightAxial(reScreening));
-        reScreeningResult.setRightAxial(rightAxial);
-
+        //球镜左
         ReScreenDTO.ReScreeningResult.ScreeningDeviation leftSph = new  ReScreenDTO.ReScreeningResult.ScreeningDeviation();
-        boolean leftSphType = BigDecimalUtil.isDeviation(EyeDataUtil.leftSph(result),
-                EyeDataUtil.leftSph(reScreening),new BigDecimal(ReScreenConstant.COMPUTEROPTOMETRY_DEVIATION));
-        deviationCount = getDeviationCount(deviationCount, leftSphType);
-
-        leftSph.setType(leftSphType);
+        leftSph.setType(Boolean.FALSE);
         leftSph.setContent(EyeDataUtil.leftSph(reScreening));
         reScreeningResult.setLeftSph(leftSph);
 
+        //柱镜左
         ReScreenDTO.ReScreeningResult.ScreeningDeviation leftCyl = new  ReScreenDTO.ReScreeningResult.ScreeningDeviation();
-        boolean leftCylType = BigDecimalUtil.isDeviation(EyeDataUtil.leftCyl(result),
-                EyeDataUtil.leftCyl(reScreening),new BigDecimal(ReScreenConstant.COMPUTEROPTOMETRY_DEVIATION));
-        deviationCount = getDeviationCount(deviationCount, leftCylType);
-
-        leftCorrectedVision.setType(leftCylType);
-        leftCorrectedVision.setContent(EyeDataUtil.leftCyl(reScreening));
+        leftCyl.setType(Boolean.FALSE);
+        leftCyl.setContent(EyeDataUtil.leftCyl(reScreening));
         reScreeningResult.setLeftCyl(leftCyl);
+    }
 
-        ReScreenDTO.ReScreeningResult.ScreeningDeviation leftAxial = new  ReScreenDTO.ReScreeningResult.ScreeningDeviation();
-        boolean leftAxialType = BigDecimalUtil.isDeviation(EyeDataUtil.leftAxial(result),
-                EyeDataUtil.leftAxial(reScreening),new BigDecimal(ReScreenConstant.COMPUTEROPTOMETRY_DEVIATION));
-        deviationCount = getDeviationCount(deviationCount, leftAxialType);
-
-        leftAxial.setType(leftAxialType);
-        leftAxial.setContent(EyeDataUtil.leftAxial(reScreening));
-        reScreeningResult.setLeftAxial(leftAxial);
-
+    /**
+     * 身高体重计算
+     * @param result 筛查结果
+     * @param reScreening 复测结果
+     * @param deviationCount 错误项次数
+     * @param reScreeningResult 计算后内容（复测）
+     * @return 错误项次数
+     */
+    private static int heightWeightDeviation(VisionScreeningResult result, VisionScreeningResult reScreening, int deviationCount, ReScreenDTO.ReScreeningResult reScreeningResult) {
+        //身高
         ReScreenDTO.ReScreeningResult.ScreeningDeviation height = new  ReScreenDTO.ReScreeningResult.ScreeningDeviation();
         boolean heightType = BigDecimalUtil.isDeviation(EyeDataUtil.height(result),
                 EyeDataUtil.height(reScreening),new BigDecimal(ReScreenConstant.HEIGHT_DEVIATION));
@@ -236,6 +262,7 @@ public class ReScreenCardUtil {
         height.setContent(EyeDataUtil.height(reScreening));
         reScreeningResult.setHeight(height);
 
+        //体重
         ReScreenDTO.ReScreeningResult.ScreeningDeviation weight = new  ReScreenDTO.ReScreeningResult.ScreeningDeviation();
         boolean weightType = BigDecimalUtil.isDeviation(EyeDataUtil.weight(result),
                 EyeDataUtil.weight(reScreening), new BigDecimal(ReScreenConstant.WEIGHT_DEVIATION));
@@ -244,15 +271,40 @@ public class ReScreenCardUtil {
         weight.setType(weightType);
         weight.setContent(EyeDataUtil.weight(reScreening));
         reScreeningResult.setWeight(weight);
-
-        //次数检查数据为8项
-        rescreening.setDoubleCount(ReScreenConstant.RESCREEN_NUM);
-        rescreening.setDeviationCount(deviationCount);
-        rescreening.setRescreeningResult(reScreeningResult);
-        rescreening.setDeviation(EyeDataUtil.deviationData(reScreening));
-
-        return rescreening;
+        return deviationCount;
     }
+
+    /**
+     * 矫正视力计算
+     * @param result 筛查结果
+     * @param reScreening 复测结果
+     * @param deviationCount 错误项次数
+     * @param reScreeningResult 计算后内容（复测）
+     * @return 错误项次数
+     */
+    private static int correctedDeviation(VisionScreeningResult result, VisionScreeningResult reScreening, int deviationCount, ReScreenDTO.ReScreeningResult reScreeningResult) {
+        //矫正右
+        ReScreenDTO.ReScreeningResult.ScreeningDeviation rightCorrectedVision = new ReScreenDTO.ReScreeningResult.ScreeningDeviation();
+        boolean rightCorrectedVisionType = BigDecimalUtil.isDeviation(EyeDataUtil.rightCorrectedVision(result),
+                EyeDataUtil.rightCorrectedVision(reScreening), new BigDecimal(ReScreenConstant.VISION_DEVIATION));
+        deviationCount = getDeviationCount(deviationCount, rightCorrectedVisionType);
+
+        rightCorrectedVision.setType(rightCorrectedVisionType);
+        rightCorrectedVision.setContent(EyeDataUtil.rightCorrectedVision(reScreening));
+        reScreeningResult.setRightCorrectedVision(rightCorrectedVision);
+
+        //矫正左
+        ReScreenDTO.ReScreeningResult.ScreeningDeviation leftCorrectedVision = new ReScreenDTO.ReScreeningResult.ScreeningDeviation();
+        boolean leftCorrectedVisionType = BigDecimalUtil.isDeviation(EyeDataUtil.leftCorrectedVision(result),
+                EyeDataUtil.leftCorrectedVision(reScreening), new BigDecimal(ReScreenConstant.VISION_DEVIATION));
+        deviationCount = getDeviationCount(deviationCount, leftCorrectedVisionType);
+
+        leftCorrectedVision.setType(leftCorrectedVisionType);
+        leftCorrectedVision.setContent(EyeDataUtil.leftCorrectedVision(reScreening));
+        reScreeningResult.setLeftCorrectedVision(leftCorrectedVision);
+        return deviationCount;
+    }
+
     /**
      *
      * @param deviationCount 错误项

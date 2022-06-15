@@ -188,7 +188,7 @@ public class SchoolBizService {
      */
     private List<Integer> getHavePlanSchoolIds(SchoolQueryDTO query) {
         if (Objects.nonNull(query.getNeedCheckHavePlan()) && query.getNeedCheckHavePlan()) {
-            return screeningPlanSchoolService.getHavePlanSchoolIds(query.getDistrictIds(), null, query.getScreeningOrgId(), query.getStartTime(), query.getEndTime());
+            return screeningPlanSchoolService.getHavePlanSchoolIds(query.getDistrictIds(), null, query.getScreeningOrgId(), query.getStartTime(), query.getEndTime(),query.getScreeningType());
         }
         return Collections.emptyList();
     }

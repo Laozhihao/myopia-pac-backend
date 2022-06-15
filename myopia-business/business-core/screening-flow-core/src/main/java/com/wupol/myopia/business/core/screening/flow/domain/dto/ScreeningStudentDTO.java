@@ -160,4 +160,19 @@ public class ScreeningStudentDTO extends StudentDO {
      */
     private Integer screeningOrgId;
 
+    /**
+     * 未做检查说明【0:无；1：请假；2：转学;3:其他】
+     */
+    private Integer state;
+
+    /**
+     * 筛查结果--是否复筛（0否，1是）
+     */
+    private Boolean isDoubleScreen;
+
+    /**
+     * 筛查类型（0视力筛查，1常见病筛查）
+     */
+    private Integer screeningType;
+
 }

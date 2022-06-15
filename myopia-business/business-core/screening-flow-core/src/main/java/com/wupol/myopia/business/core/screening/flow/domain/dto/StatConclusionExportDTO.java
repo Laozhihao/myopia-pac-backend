@@ -194,7 +194,7 @@ public class StatConclusionExportDTO extends StatConclusion {
      * 筛查结果--龋齿
      */
     @TableField(typeHandler = JacksonTypeHandler.class)
-    private SaprodontiaDataDO saprodontiaData;
+    private SaprodontiaDataDTO saprodontiaData;
 
     /**
      * 筛查结果--脊柱
