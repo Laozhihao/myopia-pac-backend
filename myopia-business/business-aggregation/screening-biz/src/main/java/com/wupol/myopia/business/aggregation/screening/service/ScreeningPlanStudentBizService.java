@@ -485,27 +485,16 @@ public class ScreeningPlanStudentBizService {
      * @return
      */
     private Set<Integer> getPlanIds(MockPlanStudentQueryDTO mockPlanStudentQueryDTO) {
-        Set<Integer> orgIds = null;
-        if (StringUtils.isNotBlank(mockPlanStudentQueryDTO.getScreeningOrgNameLike())) {
-            List<ScreeningOrganization> screeningOrganizations = screeningOrganizationService.getByNameLike(mockPlanStudentQueryDTO.getScreeningOrgNameLike());
-            Map<Integer, String> orgIdMap = screeningOrganizations.stream().collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization::getName, (v1, v2) -> v2));
-            orgIds = orgIdMap.keySet();
-            if (CollectionUtils.isEmpty(orgIdMap)) {
-                // 可以直接返回空
-                return Collections.emptySet();
-            }
+        if (StringUtils.isBlank(mockPlanStudentQueryDTO.getScreeningOrgNameLike())) {
+            return Collections.emptySet();
         }
-        //02.根据orgIds查找筛查计划信息
-        LambdaQueryWrapper<ScreeningPlan> screeningPlanLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        if (org.apache.commons.collections4.CollectionUtils.isNotEmpty(orgIds)) {
-            //如果是空的话, 说明没有搜索orgIds的情况
-            screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getScreeningOrgId, orgIds);
+        List<ScreeningOrganization> screeningOrganizations = screeningOrganizationService.getByNameLike(mockPlanStudentQueryDTO.getScreeningOrgNameLike());
+        if (CollectionUtils.isEmpty(screeningOrganizations)) {
+            return Collections.emptySet();
         }
-        if (StringUtils.isNotBlank(screeningPlanLambdaQueryWrapper.getCustomSqlSegment())) {
-            List<ScreeningPlan> screeningPlans = screeningPlanService.getBaseMapper().selectList(screeningPlanLambdaQueryWrapper);
-            return screeningPlans.stream().map(ScreeningPlan::getId).collect(Collectors.toSet());
-        }
-        return Collections.emptySet();
+        List<Integer> orgIds = screeningOrganizations.stream().map(ScreeningOrganization::getId).collect(Collectors.toList());
+        List<ScreeningPlan> screeningPlans = screeningPlanService.getByOrgIds(orgIds);
+        return screeningPlans.stream().map(ScreeningPlan::getId).collect(Collectors.toSet());
     }
 
     /**

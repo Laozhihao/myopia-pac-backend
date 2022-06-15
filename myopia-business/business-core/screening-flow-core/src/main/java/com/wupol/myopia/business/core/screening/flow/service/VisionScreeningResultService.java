@@ -293,7 +293,7 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
      **/
     public VisionScreeningResultDTO getStudentScreeningResultDetail(Integer planId, Integer planStudentId){
         List<VisionScreeningResult> visionScreeningResultList = findByList(new VisionScreeningResult().setPlanId(planId).setScreeningPlanSchoolStudentId(planStudentId));
-        VisionScreeningResult firstResult = visionScreeningResultList.stream().filter(x -> !x.getIsDoubleScreen()).findFirst().orElse(null);
+        VisionScreeningResult firstResult = visionScreeningResultList.stream().filter(x -> Boolean.FALSE.equals(x.getIsDoubleScreen())).findFirst().orElse(null);
         if (Objects.isNull(firstResult)) {
             return new VisionScreeningResultDTO();
         }
@@ -313,7 +313,7 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
                 .setDeviationData(Optional.ofNullable(firstResult.getDeviationData()).orElse(new DeviationDO()))
                 .setOtherEyeDiseases(Optional.ofNullable(firstResult.getOtherEyeDiseases()).orElse(new OtherEyeDiseasesDO()));
         // 做完全部复测项目才会出现复测情况模块
-        VisionScreeningResult reScreeningResult = visionScreeningResultList.stream().filter(VisionScreeningResult::getIsDoubleScreen).findFirst().orElse(null);
+        VisionScreeningResult reScreeningResult = visionScreeningResultList.stream().filter(x -> Boolean.TRUE.equals(x.getIsDoubleScreen())).findFirst().orElse(null);
         if(Objects.nonNull(reScreeningResult) && ObjectsUtil.allNotNull(reScreeningResult.getVisionData(), reScreeningResult.getComputerOptometry(), reScreeningResult.getHeightAndWeightData())) {
             visionScreeningResultDTO.setRescreening(Optional.ofNullable(ReScreenCardUtil.reScreeningResult(firstResult, reScreeningResult)).orElse(new ReScreenDTO()));
         }
