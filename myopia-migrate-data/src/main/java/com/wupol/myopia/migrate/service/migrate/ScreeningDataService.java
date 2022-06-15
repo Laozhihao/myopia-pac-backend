@@ -204,11 +204,11 @@ public class ScreeningDataService {
      * @param valStr 字符串数值
      * @return java.math.BigDecimal
      **/
-    private BigDecimal getBigDecimalValue(String valStr) {
+    private static BigDecimal getBigDecimalValue(String valStr) {
         try {
-            return StringUtils.isBlank(valStr) ? null : new BigDecimal(valStr);
+            return StringUtils.isBlank(valStr.trim()) ? null : new BigDecimal(valStr.trim());
         } catch (Exception e) {
-            log.error("转换数值异常：{}", valStr, e);
+            log.error("转换数值异常：[{}]", valStr, e);
             return null;
         }
     }
