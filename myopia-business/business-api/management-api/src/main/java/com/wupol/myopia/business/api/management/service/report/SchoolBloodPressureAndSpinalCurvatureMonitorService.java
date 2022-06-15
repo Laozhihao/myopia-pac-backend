@@ -155,7 +155,7 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
 
         BloodPressureAndSpinalCurvatureMonitorTable bloodPressureAndSpinalCurvatureMonitorTable = new BloodPressureAndSpinalCurvatureNum().build(conclusionlist).ratioNotSymbol().buildTable();
         if (Objects.equals(10, gender)) {
-            bloodPressureAndSpinalCurvatureMonitorTable.setItemName("合计");
+            bloodPressureAndSpinalCurvatureMonitorTable.setItemName(ReportConst.TOTAL);
         } else {
             bloodPressureAndSpinalCurvatureMonitorTable.setItemName(GenderEnum.getName(gender));
         }
@@ -216,7 +216,7 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(grade);
             getBloodPressureAndSpinalCurvatureGrade(list, gradeCodeEnum.getName(), tableList);
         });
-        getBloodPressureAndSpinalCurvatureGrade(statConclusionList, "合计", tableList);
+        getBloodPressureAndSpinalCurvatureGrade(statConclusionList, ReportConst.TOTAL, tableList);
 
         schoolAgeVO.setBloodPressureAndSpinalCurvatureGradeMonitorTableList(tableList);
     }
@@ -290,7 +290,7 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
 
         String itemName;
         if (age == 1000) {
-            itemName = "合计";
+            itemName = ReportConst.TOTAL;
         } else {
             itemName = AgeSegmentEnum.get(age).getDesc();
         }

@@ -156,7 +156,7 @@ public class DistrictDiseaseMonitorService {
             tableList.add(universityTable);
         }
 
-        DistrictDiseaseMonitorVO.DiseaseMonitorTable totalTable = getDiseaseMonitorTable(statConclusionList, "合计");
+        DistrictDiseaseMonitorVO.DiseaseMonitorTable totalTable = getDiseaseMonitorTable(statConclusionList, ReportConst.TOTAL);
         if (Objects.nonNull(totalTable)) {
             tableList.add(totalTable);
         }

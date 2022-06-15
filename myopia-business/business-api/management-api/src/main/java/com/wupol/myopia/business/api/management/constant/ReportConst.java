@@ -72,4 +72,6 @@ public class ReportConst {
     public static final String HIGH_BLOOD_PRESSURE = "血压偏高";
     public static final String ABNORMAL_SPINE_CURVATURE = "脊柱弯曲异常";
 
+    public static final String SEX ="生";
+    public static final String TOTAL ="合计";
 }

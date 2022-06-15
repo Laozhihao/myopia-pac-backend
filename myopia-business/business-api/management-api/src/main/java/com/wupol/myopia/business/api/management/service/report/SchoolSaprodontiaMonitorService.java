@@ -156,7 +156,7 @@ public class SchoolSaprodontiaMonitorService {
 
         SaprodontiaMonitorTable saprodontiaMonitorTable = new SaprodontiaNum().build(conclusionlist).ratioNotSymbol().buildTable();
         if (Objects.equals(10, gender)) {
-            saprodontiaMonitorTable.setItemName("合计");
+            saprodontiaMonitorTable.setItemName(ReportConst.TOTAL);
         } else {
             saprodontiaMonitorTable.setItemName(GenderEnum.getName(gender));
         }
@@ -219,7 +219,7 @@ public class SchoolSaprodontiaMonitorService {
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(grade);
             getSaprodontiaGrade(list, gradeCodeEnum.getName(), tableList);
         });
-        getSaprodontiaGrade(statConclusionList, "合计", tableList);
+        getSaprodontiaGrade(statConclusionList, ReportConst.TOTAL, tableList);
         saprodontiaGradeVO.setSaprodontiaGradeMonitorTableList(tableList);
     }
 
@@ -292,7 +292,7 @@ public class SchoolSaprodontiaMonitorService {
         }
         String itemName;
         if (age == 1000) {
-            itemName = "合计";
+            itemName = ReportConst.TOTAL;
         } else {
             itemName = AgeSegmentEnum.get(age).getDesc();
         }

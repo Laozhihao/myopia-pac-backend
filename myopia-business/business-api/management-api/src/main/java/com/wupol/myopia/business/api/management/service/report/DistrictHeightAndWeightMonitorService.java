@@ -155,9 +155,9 @@ public class DistrictHeightAndWeightMonitorService {
 
         HeightAndWeightMonitorTable heightAndWeightMonitorTable = new HeightAndWeightNum().build(conclusionlist).ratioNotSymbol().buildTable();
         if (Objects.equals(10, gender)) {
-            heightAndWeightMonitorTable.setItemName("合计");
+            heightAndWeightMonitorTable.setItemName(ReportConst.TOTAL);
         } else {
-            heightAndWeightMonitorTable.setItemName(GenderEnum.getName(gender));
+            heightAndWeightMonitorTable.setItemName(GenderEnum.getName(gender)+ReportConst.SEX);
         }
         return heightAndWeightMonitorTable;
     }
@@ -467,7 +467,7 @@ public class DistrictHeightAndWeightMonitorService {
     private void getHeightAndWeightAgeTable(Integer age, List<StatConclusion> conclusionlist, List<HeightAndWeightMonitorTable> tableList) {
         String itemName;
         if (age == 1000) {
-            itemName = "合计";
+            itemName = ReportConst.TOTAL;
         } else {
             itemName = AgeSegmentEnum.get(age).getDesc();
         }

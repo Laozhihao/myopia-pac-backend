@@ -5,6 +5,7 @@ import cn.hutool.core.map.MapUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.business.api.management.constant.AgeSegmentEnum;
+import com.wupol.myopia.business.api.management.constant.ReportConst;
 import com.wupol.myopia.business.api.management.domain.vo.report.*;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
@@ -157,9 +158,9 @@ public class DistrictSaprodontiaMonitorService {
         SaprodontiaMonitorTable saprodontiaMonitorTable = new SaprodontiaNum().build(conclusionlist).ratioNotSymbol().buildTable();
 
         if (Objects.equals(10, gender)) {
-            saprodontiaMonitorTable.setItemName("合计");
+            saprodontiaMonitorTable.setItemName(ReportConst.TOTAL);
         } else {
-            saprodontiaMonitorTable.setItemName(GenderEnum.getName(gender));
+            saprodontiaMonitorTable.setItemName(GenderEnum.getName(gender)+ ReportConst.SEX);
         }
         return saprodontiaMonitorTable;
     }
@@ -459,7 +460,7 @@ public class DistrictSaprodontiaMonitorService {
 
         String itemName;
         if (age == 1000) {
-            itemName = "合计";
+            itemName = ReportConst.TOTAL;
         } else {
             itemName = AgeSegmentEnum.get(age).getDesc();
         }

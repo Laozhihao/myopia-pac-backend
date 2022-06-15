@@ -142,16 +142,16 @@ public class ReportUtil {
                                                String backSex, String zeroRatio) {
 
         String forwardRatio = mapper.apply(forward);
-        sex.setForwardSex(GenderEnum.getName(forward.getGender()));
+        sex.setForwardSex(GenderEnum.getName(forward.getGender())+ReportConst.SEX);
         sex.setForwardRatio(forwardRatio);
 
         if (Objects.nonNull(back)) {
             String backRatio = mapper.apply(back);
-            sex.setBackSex(GenderEnum.getName(back.getGender()));
+            sex.setBackSex(GenderEnum.getName(back.getGender())+ReportConst.SEX);
             sex.setBackRatio(backRatio);
             setSymbol(sex, forwardRatio, backRatio);
         } else {
-            sex.setBackSex(backSex);
+            sex.setBackSex(backSex+ReportConst.SEX);
             sex.setBackRatio(zeroRatio);
             setSymbol(sex, forwardRatio, zeroRatio);
         }

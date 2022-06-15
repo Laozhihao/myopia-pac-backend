@@ -167,16 +167,33 @@ public class DistrictCommonDiseaseReportService {
             long count = junior.stream().map(ScreeningPlanSchoolStudent::getSchoolId).filter(Objects::nonNull).distinct().count();
             itemList.add(String.format(format, count, SchoolAge.JUNIOR.desc));
         }
-        List<ScreeningPlanSchoolStudent> high = planSchoolStudentMap.get(SchoolAge.HIGH.code);
-        if (CollectionUtil.isNotEmpty(high)) {
-            long count = high.stream().map(ScreeningPlanSchoolStudent::getSchoolId).filter(Objects::nonNull).distinct().count();
-            itemList.add(String.format(format, count, SchoolAge.HIGH.desc));
-        }
+        List<ScreeningPlanSchoolStudent> normalHigh = planSchoolStudentMap.get(SchoolAge.HIGH.code);
         List<ScreeningPlanSchoolStudent> vocationalHigh = planSchoolStudentMap.get(SchoolAge.VOCATIONAL_HIGH.code);
-        if (CollectionUtil.isNotEmpty(vocationalHigh)) {
-            long count = vocationalHigh.stream().map(ScreeningPlanSchoolStudent::getSchoolId).filter(Objects::nonNull).distinct().count();
-            itemList.add(String.format(format, count, "职高"));
+
+
+        if (CollectionUtil.isNotEmpty(normalHigh)) {
+            long normalHighCount = normalHigh.stream().map(ScreeningPlanSchoolStudent::getSchoolId).filter(Objects::nonNull).distinct().count();
+
+            if (CollectionUtil.isNotEmpty(vocationalHigh)) {
+                long vocationalHighCount = vocationalHigh.stream().map(ScreeningPlanSchoolStudent::getSchoolId).filter(Objects::nonNull).distinct().count();
+                String high= String.format(format, normalHighCount+vocationalHighCount, SchoolAge.HIGH.desc);
+                String normalHighStr = String.format(format, normalHighCount, SchoolAge.HIGH.desc);
+                String vocationalHighStr = String.format(format, vocationalHighCount, SchoolAge.VOCATIONAL_HIGH.desc);
+                high =  high+"（"+normalHighStr+"，"+vocationalHighStr +"）";
+                itemList.add(high);
+            }else {
+                String highStr = String.format(format, normalHighCount, "高中");
+                itemList.add(highStr);
+            }
+
+        }else {
+            if (CollectionUtil.isNotEmpty(vocationalHigh)) {
+                long vocationalHighCount = vocationalHigh.stream().map(ScreeningPlanSchoolStudent::getSchoolId).filter(Objects::nonNull).distinct().count();
+                String highStr = String.format(format, vocationalHighCount, "高中");
+                itemList.add(highStr);
+            }
         }
+
         List<ScreeningPlanSchoolStudent> university = planSchoolStudentMap.get(SchoolAge.UNIVERSITY.code);
         if (CollectionUtil.isNotEmpty(university)) {
             long count = university.stream().map(ScreeningPlanSchoolStudent::getSchoolId).filter(Objects::nonNull).distinct().count();

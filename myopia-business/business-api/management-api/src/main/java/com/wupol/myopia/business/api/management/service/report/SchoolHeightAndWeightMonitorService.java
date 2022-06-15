@@ -159,7 +159,7 @@ public class SchoolHeightAndWeightMonitorService {
 
         HeightAndWeightMonitorTable heightAndWeightMonitorTable = new HeightAndWeightNum().build(conclusionlist).ratioNotSymbol().buildTable();
         if (Objects.equals(10, gender)) {
-            heightAndWeightMonitorTable.setItemName("合计");
+            heightAndWeightMonitorTable.setItemName(ReportConst.TOTAL);
         } else {
             heightAndWeightMonitorTable.setItemName(GenderEnum.getName(gender));
         }
@@ -223,7 +223,7 @@ public class SchoolHeightAndWeightMonitorService {
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(grade);
             getHeightAndWeightGrade(list, gradeCodeEnum.getName(), tableList);
         });
-        getHeightAndWeightGrade(statConclusionList, "合计", tableList);
+        getHeightAndWeightGrade(statConclusionList, ReportConst.TOTAL, tableList);
 
         heightAndWeightGradeVO.setHeightAndWeightGradeMonitorTableList(tableList);
     }
@@ -300,7 +300,7 @@ public class SchoolHeightAndWeightMonitorService {
 
         String itemName;
         if (age == 1000) {
-            itemName = "合计";
+            itemName = ReportConst.TOTAL;
         } else {
             itemName = AgeSegmentEnum.get(age).getDesc();
         }
