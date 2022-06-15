@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.management.service.report;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.map.MapUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.business.api.management.constant.ReportConst;
@@ -8,12 +9,11 @@ import com.wupol.myopia.business.api.management.domain.vo.report.*;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -146,6 +146,7 @@ public class SchoolClassScreeningMonitorService {
         }
         List<ScreeningMonitorTable> tableList = Lists.newArrayList();
         Map<String, List<StatConclusion>> schoolStatConclusionMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolClassName));
+        schoolStatConclusionMap = MapUtil.sort(schoolStatConclusionMap);
         schoolStatConclusionMap.forEach((schoolClassName, list) -> {
             getSchoolClassScreeningTable(schoolClassName, list, tableList);
         });
