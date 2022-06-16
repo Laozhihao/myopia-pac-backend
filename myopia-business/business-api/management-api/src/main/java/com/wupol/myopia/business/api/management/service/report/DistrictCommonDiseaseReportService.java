@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.wupol.framework.core.util.CompareUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.base.util.DateUtil;
@@ -30,10 +31,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 按区域常见病报告
@@ -79,9 +82,9 @@ public class DistrictCommonDiseaseReportService {
         List<StatConclusion> statConclusionList = getStatConclusionList(noticeId, Lists.newArrayList(districtIds), Boolean.TRUE, Boolean.FALSE);
 
         //全局变量
-        getGlobalVariableVO(districtId, noticeId, districtCommonDiseaseReportVO);
+        getGlobalVariableVO(districtId,districtIds, noticeId, districtCommonDiseaseReportVO);
         //筛查人数和实际筛查人数
-        setNum(noticeId, districtCommonDiseaseReportVO);
+        setNum(noticeId,districtIds, districtCommonDiseaseReportVO);
         //视力分析
         getVisionAnalysisVO(statConclusionList, districtCommonDiseaseReportVO);
         //常见病分析
@@ -93,7 +96,7 @@ public class DistrictCommonDiseaseReportService {
     /**
      * 全局变量
      */
-    private void getGlobalVariableVO(Integer districtId, Integer noticeId, DistrictCommonDiseaseReportVO districtCommonDiseaseReportVO) {
+    private void getGlobalVariableVO(Integer districtId,List<Integer> districtIds, Integer noticeId, DistrictCommonDiseaseReportVO districtCommonDiseaseReportVO) {
         DistrictCommonDiseaseReportVO.GlobalVariableVO globalVariableVO = new DistrictCommonDiseaseReportVO.GlobalVariableVO();
         String format = "YYYY";
 
@@ -119,9 +122,13 @@ public class DistrictCommonDiseaseReportService {
             return;
         }
 
-        long totalSum = planSchoolStudentList.stream().map(ScreeningPlanSchoolStudent::getSchoolId).distinct().count();
+        Map<Integer, List<ScreeningPlanSchoolStudent>> planSchoolStudentDistrictMap = planSchoolStudentList.stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getSchoolDistrictId));
+        List<Integer> haveStudentDistrictIds = CompareUtil.getRetain(districtIds, planSchoolStudentDistrictMap.keySet());
+        List<ScreeningPlanSchoolStudent> planStudentCountList = getScreeningStudentList(haveStudentDistrictIds,planSchoolStudentDistrictMap);
 
-        Map<Integer, List<ScreeningPlanSchoolStudent>> planSchoolStudentMap = planSchoolStudentList.stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getGradeType));
+        long totalSum = planStudentCountList.stream().map(ScreeningPlanSchoolStudent::getSchoolId).distinct().count();
+        Map<Integer, List<ScreeningPlanSchoolStudent>> planSchoolStudentMap = planStudentCountList.stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getGradeType));
+
         setSchoolItemData(planSchoolStudentMap, globalVariableVO);
 
         //获取行政区域
@@ -212,24 +219,40 @@ public class DistrictCommonDiseaseReportService {
 
     }
 
+    private List<ScreeningPlanSchoolStudent> getScreeningStudentList(List<Integer> haveStudentDistrictIds,Map<Integer, List<ScreeningPlanSchoolStudent>> planStudentCountMap){
+        return haveStudentDistrictIds.stream().flatMap(id -> {
+            List<ScreeningPlanSchoolStudent> planSchoolStudentList = planStudentCountMap.get(id);
+            if (CollectionUtil.isNotEmpty(planSchoolStudentList)) {
+                return planSchoolStudentList.stream();
+            } else {
+                return Stream.empty();
+            }
+        }).filter(Objects::nonNull).collect(Collectors.toList());
+    }
+
     /**
      * 筛查人数和实际筛查人数
      */
-    private void setNum(Integer noticeId, DistrictCommonDiseaseReportVO districtCommonDiseaseReportVO) {
-        List<ScreeningPlan> screeningPlanList = screeningPlanService.getAllPlanByNoticeId(noticeId);
-        if (CollectionUtil.isEmpty(screeningPlanList)) {
-            throw new BusinessException(String.format("该筛查通知不存在筛查计划: noticeId=%s", noticeId));
-        }
-        Set<Integer> planIds = screeningPlanList.stream().map(ScreeningPlan::getId).collect(Collectors.toSet());
-        int screeningStudentNum = screeningPlanList.stream().mapToInt(sp -> Optional.ofNullable(sp.getStudentNumbers()).orElse(0)).sum();
+    private void setNum(Integer noticeId,List<Integer> districtIds, DistrictCommonDiseaseReportVO districtCommonDiseaseReportVO) {
+        Map<Integer, List<ScreeningPlanSchoolStudent>> planStudentCountMap = screeningPlanSchoolStudentService.getPlanStudentCountBySrcScreeningNoticeId(noticeId);
 
-        districtCommonDiseaseReportVO.setScreeningStudentNum(screeningStudentNum);
+        List<Integer> haveStudentDistrictIds = CompareUtil.getRetain(districtIds, planStudentCountMap.keySet());
+
+        List<ScreeningPlanSchoolStudent> planStudentCountList = getScreeningStudentList(haveStudentDistrictIds,planStudentCountMap);
+
+        List<Integer> planSchoolStudentIds = planStudentCountList.stream().map(ScreeningPlanSchoolStudent::getId).collect(Collectors.toList());
+        Set<Integer> planIds = planStudentCountList.stream().map(ScreeningPlanSchoolStudent::getScreeningPlanId).collect(Collectors.toSet());
+
+        districtCommonDiseaseReportVO.setScreeningStudentNum(planStudentCountList.size());
 
         List<VisionScreeningResult> screeningResults = visionScreeningResultService.getByPlanIds(Lists.newArrayList(planIds));
         if (CollectionUtil.isEmpty(screeningResults)) {
             districtCommonDiseaseReportVO.setActualScreeningNum(0);
         } else {
-            long count = screeningResults.stream().filter(sr -> Objects.equals(sr.getIsDoubleScreen(), Boolean.FALSE)).count();
+            long count = screeningResults.stream()
+                    .filter(sr -> Objects.equals(sr.getIsDoubleScreen(), Boolean.FALSE))
+                    .filter(sr->planSchoolStudentIds.contains(sr.getScreeningPlanSchoolStudentId()))
+                    .count();
             districtCommonDiseaseReportVO.setActualScreeningNum((int)count);
         }
 
