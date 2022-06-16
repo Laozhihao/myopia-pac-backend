@@ -27,9 +27,9 @@ public class VisionScreeningResultDTO extends VisionScreeningResult {
     private ReScreenDTO rescreening;
 
     /**
-     * 龋齿，龋失补
+     * 龋齿统计
      */
-    private SaprodontiaDataDTO saprodontiaDataDTO;
+    private SaprodontiaStat saprodontiaStat;
 
     /**
      * 等效球镜(左眼)

@@ -336,8 +336,8 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
 
         VisionScreeningResultDTO visionScreeningResultDTO = new VisionScreeningResultDTO();
         BeanUtils.copyProperties(firstResult, visionScreeningResultDTO);
-        // TODO：合并治豪分支后，复用其统计方法
-        visionScreeningResultDTO.setSaprodontiaDataDTO(getSaprodontiaDataDTO(firstResult))
+
+        visionScreeningResultDTO.setSaprodontiaStat(SaprodontiaStat.parseFromSaprodontiaDataDO(firstResult.getSaprodontiaData()))
                 .setGender(screeningPlanSchoolStudentService.getById(firstResult.getScreeningPlanSchoolStudentId()).getGender())
                 .setLeftSE(StatUtil.getSphericalEquivalent(EyeDataUtil.leftSph(firstResult), EyeDataUtil.leftCyl(firstResult)))
                 .setRightSE(StatUtil.getSphericalEquivalent(EyeDataUtil.rightSph(firstResult),EyeDataUtil.rightCyl(firstResult)))
@@ -354,69 +354,6 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
             visionScreeningResultDTO.setRescreening(Optional.ofNullable(ReScreenCardUtil.reScreeningResult(firstResult, reScreeningResult)).orElse(new ReScreenDTO()));
         }
         return visionScreeningResultDTO;
-    }
-
-    public SaprodontiaDataDTO getSaprodontiaDataDTO(VisionScreeningResult result){
-        List<SaprodontiaDataDO.SaprodontiaItem> items = new ArrayList<>();
-        if (Objects.nonNull(result)&&Objects.nonNull(result.getSaprodontiaData())){
-            items.addAll(result.getSaprodontiaData().getAbove());
-            items.addAll(result.getSaprodontiaData().getUnderneath());
-        }
-        return calculationTooth(items);
-    }
-
-    /**
-     * 计算乳牙/恒牙
-     * @param items
-     */
-    private SaprodontiaDataDTO calculationTooth(List<SaprodontiaDataDO.SaprodontiaItem> items) {
-        SaprodontiaDataDTO saprodontiaDataDTO = new SaprodontiaDataDTO();
-        int dCountDeciduous = 0;
-        int mCountDeciduous = 0;
-        int fFountDeciduous = 0;
-
-        int dFountPermanent = 0;
-        int mFountPermanent = 0;
-        int fFountPermanent = 0;
-        for (SaprodontiaDataDO.SaprodontiaItem item: items){
-            if (item != null){
-                if (item != null){
-                    if (SaprodontiaType.DECIDUOUS_D.getName().equals(item.getDeciduous())){
-                        dCountDeciduous++;
-                    }
-                    if (SaprodontiaType.DECIDUOUS_M.getName().equals(item.getDeciduous())){
-                        mCountDeciduous++;
-                    }
-                    if (SaprodontiaType.DECIDUOUS_F.getName().equals(item.getDeciduous())){
-                        fFountDeciduous++;
-                    }
-                    if (SaprodontiaType.PERMANENT_D.getName().equals(item.getPermanent())){
-                        dFountPermanent++;
-                    }
-                    if (SaprodontiaType.PERMANENT_M.getName().equals(item.getPermanent())){
-                        mFountPermanent++;
-                    }
-                    if (SaprodontiaType.PERMANENT_F.getName().equals(item.getPermanent())){
-                        fFountPermanent++;
-                    }
-                }
-            }
-        }
-
-        SaprodontiaStat deciduousTooth = new SaprodontiaStat();
-        deciduousTooth.setDCount(dCountDeciduous);
-        deciduousTooth.setMCount(mCountDeciduous);
-        deciduousTooth.setFCount(fFountDeciduous);
-
-        SaprodontiaStat permanentTooth = new SaprodontiaStat();
-        permanentTooth.setDCount(dFountPermanent);
-        permanentTooth.setMCount(mFountPermanent);
-        permanentTooth.setFCount(fFountPermanent);
-
-        saprodontiaDataDTO.setDeciduousTooth(deciduousTooth);
-        saprodontiaDataDTO.setPermanentTooth(permanentTooth);
-
-        return saprodontiaDataDTO;
     }
 
     /**

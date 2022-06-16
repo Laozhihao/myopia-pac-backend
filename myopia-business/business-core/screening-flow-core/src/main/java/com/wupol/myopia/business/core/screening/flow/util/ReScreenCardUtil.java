@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.screening.flow.util;
 
 import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.business.common.utils.constant.GlassesTypeEnum;
+import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.constant.ReScreenConstant;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ReScreenDTO;
@@ -199,8 +200,8 @@ public class ReScreenCardUtil {
         if (Objects.isNull(glassesType)) {
             return deviationCount;
         }
-        // 是否为常见病筛查类型 TODO：替换为常量
-        boolean isCommonDiseaseScreeningType = reScreening.getScreeningType() == 1;
+        // 是否为常见病筛查类型
+        boolean isCommonDiseaseScreeningType = ScreeningTypeEnum.COMMON_DISEASE.getType().equals(reScreening.getScreeningType());
         if (glassesType.equals(GlassesTypeEnum.FRAME_GLASSES.code) || glassesType.equals(GlassesTypeEnum.CONTACT_LENS.code)) {
             // 佩戴框架眼镜和隐形眼镜
             rescreening.setDoubleCount(isCommonDiseaseScreeningType ? ReScreenConstant.COMMON_RESCREEN_IS_GLASS_NUM : ReScreenConstant.VISION_RESCREEN_IS_GLASS_NUM);
