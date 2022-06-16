@@ -157,7 +157,7 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
         if (Objects.equals(10, gender)) {
             bloodPressureAndSpinalCurvatureMonitorTable.setItemName(ReportConst.TOTAL);
         } else {
-            bloodPressureAndSpinalCurvatureMonitorTable.setItemName(GenderEnum.getName(gender));
+            bloodPressureAndSpinalCurvatureMonitorTable.setItemName(GenderEnum.getName(gender)+ReportConst.SEX);
         }
         return bloodPressureAndSpinalCurvatureMonitorTable;
     }

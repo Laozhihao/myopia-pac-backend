@@ -12,6 +12,7 @@ import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.api.management.domain.vo.report.*;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
@@ -146,14 +147,26 @@ public class SchoolCommonDiseaseReportService {
      */
     private void setNum(Integer schoolId, Integer planId, SchoolCommonDiseaseReportVO districtCommonDiseaseReportVO) {
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = screeningPlanSchoolStudentService.getByScreeningPlanIdAndSchoolId(planId, schoolId);
+        List<Integer> planSchoolStudentIds=Lists.newArrayList();
         if (CollectionUtil.isNotEmpty(screeningPlanSchoolStudentList)) {
+            List<Integer> collect = screeningPlanSchoolStudentList.stream().filter(sp->Objects.equals(sp.getGradeType(), SchoolAge.KINDERGARTEN.code)).map(ScreeningPlanSchoolStudent::getId).collect(Collectors.toList());
+            planSchoolStudentIds.addAll(collect);
+            screeningPlanSchoolStudentList = screeningPlanSchoolStudentList.stream().filter(sp->!Objects.equals(sp.getGradeType(), SchoolAge.KINDERGARTEN.code)).collect(Collectors.toList());
             districtCommonDiseaseReportVO.setScreeningStudentNum(screeningPlanSchoolStudentList.size());
+
+        }else {
+            districtCommonDiseaseReportVO.setScreeningStudentNum(0);
         }
+
+
         List<VisionScreeningResult> screeningResults = visionScreeningResultService.getByPlanIdAndSchoolId(planId, schoolId);
         if (CollectionUtil.isEmpty(screeningResults)) {
             districtCommonDiseaseReportVO.setActualScreeningNum(0);
         } else {
-            long count = screeningResults.stream().filter(sr -> Objects.equals(sr.getIsDoubleScreen(), Boolean.FALSE)).count();
+            long count = screeningResults.stream()
+                    .filter(sr -> Objects.equals(sr.getIsDoubleScreen(), Boolean.FALSE))
+                    .filter(sr-> !planSchoolStudentIds.contains(sr.getScreeningPlanSchoolStudentId()) )
+                    .count();
             districtCommonDiseaseReportVO.setActualScreeningNum((int)count);
         }
 
@@ -166,13 +179,18 @@ public class SchoolCommonDiseaseReportService {
         if (CollectionUtil.isEmpty(statConclusionList)) {
             return;
         }
+        List<StatConclusion> primaryAndAboveStatConclusionList = statConclusionList.stream().filter(sc -> !Objects.equals(GradeCodeEnum.getByCode(sc.getSchoolGradeCode()).getType(), SchoolAge.KINDERGARTEN.code)).collect(Collectors.toList());
 
-        TwoTuple<BigDecimal, BigDecimal> averageVisionTuple = StatUtil.calculateAverageVision(statConclusionList);
+        if (CollectionUtil.isEmpty(primaryAndAboveStatConclusionList)) {
+            return;
+        }
+
+        TwoTuple<BigDecimal, BigDecimal> averageVisionTuple = StatUtil.calculateAverageVision(primaryAndAboveStatConclusionList);
         BigDecimal add = averageVisionTuple.getFirst().add(averageVisionTuple.getSecond());
         BigDecimal averageVision = BigDecimalUtil.divide(add, new BigDecimal("2"), 1);
 
         SchoolCommonDiseaseReportVO.VisionAnalysisVO visionAnalysisVO = new VisionAnalysisNum()
-                .build(statConclusionList)
+                .build(primaryAndAboveStatConclusionList)
                 .ratioNotSymbol()
                 .buildVisionAnalysisVO();
         visionAnalysisVO.setAvgVision(averageVision);
@@ -197,7 +215,7 @@ public class SchoolCommonDiseaseReportService {
             return;
         }
 
-        List<StatConclusion> primaryAndAboveStatConclusionList = statConclusionList.stream().filter(sc -> !Objects.equals(sc.getSchoolAge(), SchoolAge.KINDERGARTEN.code)).collect(Collectors.toList());
+        List<StatConclusion> primaryAndAboveStatConclusionList = statConclusionList.stream().filter(sc -> !Objects.equals(GradeCodeEnum.getByCode(sc.getSchoolGradeCode()).getType(), SchoolAge.KINDERGARTEN.code)).collect(Collectors.toList());
 
         SchoolCommonDiseasesAnalysisVO schoolCommonDiseasesAnalysisVO = new SchoolCommonDiseasesAnalysisVO();
         //常见病分析变量

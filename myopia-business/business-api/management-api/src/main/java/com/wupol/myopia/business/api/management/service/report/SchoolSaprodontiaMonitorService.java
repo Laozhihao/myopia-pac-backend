@@ -158,7 +158,7 @@ public class SchoolSaprodontiaMonitorService {
         if (Objects.equals(10, gender)) {
             saprodontiaMonitorTable.setItemName(ReportConst.TOTAL);
         } else {
-            saprodontiaMonitorTable.setItemName(GenderEnum.getName(gender));
+            saprodontiaMonitorTable.setItemName(GenderEnum.getName(gender)+ReportConst.SEX);
         }
         return saprodontiaMonitorTable;
     }

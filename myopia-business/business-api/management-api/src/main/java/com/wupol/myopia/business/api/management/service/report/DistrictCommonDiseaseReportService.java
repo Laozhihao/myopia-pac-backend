@@ -380,8 +380,7 @@ public class DistrictCommonDiseaseReportService {
         }
 
         List<StatConclusion> primaryAndAboveStatConclusionList = statConclusionList.stream().filter(sc -> {
-            String schoolGradeCode = sc.getSchoolGradeCode();
-            GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeCode);
+            GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(sc.getSchoolGradeCode());
             return !Objects.equals(gradeCodeEnum.getType(), SchoolAge.KINDERGARTEN.code);
         }).collect(Collectors.toList());
         Map<Integer, String> schoolMap = Maps.newHashMap();

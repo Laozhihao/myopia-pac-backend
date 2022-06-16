@@ -161,7 +161,7 @@ public class SchoolHeightAndWeightMonitorService {
         if (Objects.equals(10, gender)) {
             heightAndWeightMonitorTable.setItemName(ReportConst.TOTAL);
         } else {
-            heightAndWeightMonitorTable.setItemName(GenderEnum.getName(gender));
+            heightAndWeightMonitorTable.setItemName(GenderEnum.getName(gender)+ReportConst.SEX);
         }
         return heightAndWeightMonitorTable;
     }
