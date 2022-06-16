@@ -145,7 +145,7 @@ public class SchoolCommonDiseaseReportService {
      * 筛查人数和实际筛查人数
      */
     private void setNum(Integer schoolId, Integer planId, SchoolCommonDiseaseReportVO districtCommonDiseaseReportVO) {
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = screeningPlanSchoolStudentService.getByScreeningPlanIdAndSchoolId(schoolId, planId);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = screeningPlanSchoolStudentService.getByScreeningPlanIdAndSchoolId(planId, schoolId);
         if (CollectionUtil.isNotEmpty(screeningPlanSchoolStudentList)) {
             districtCommonDiseaseReportVO.setScreeningStudentNum(screeningPlanSchoolStudentList.size());
         }
