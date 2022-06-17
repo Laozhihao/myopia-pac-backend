@@ -74,10 +74,12 @@ public class ArchivePdfGenerator {
         List<Integer> childDistrictIds = districtService.getSpecificDistrictTreeAllDistrictIds(exportCondition.getDistrictId());
         List<ExportPlanSchool> exportPlanSchoolGradeClassList = statConclusionService.getPlanSchoolGradeClassHasData(exportCondition.getNotificationId(), childDistrictIds);
         exportPlanSchoolGradeClassList.forEach(planSchool -> {
-            ExportCondition exportCondition1 = new ExportCondition();
-            exportCondition1.setPlanId(planSchool.getScreeningPlanId());
-            exportCondition1.setSchoolId(planSchool.getSchoolId());
-            generateSchoolOrGradeArchivesPdfFile(saveDirectory, exportCondition1);
+            ExportCondition condition = new ExportCondition();
+            condition.setPlanId(planSchool.getScreeningPlanId())
+                    .setSchoolId(planSchool.getSchoolId())
+                    .setType(exportCondition.getType())
+                    .setScreeningType(exportCondition.getScreeningType());
+            generateSchoolOrGradeArchivesPdfFile(saveDirectory, condition);
         });
 
     }
@@ -105,7 +107,7 @@ public class ArchivePdfGenerator {
         List<PlanSchoolGradeVO> gradeAndClass = getGradeAndClass(planId, schoolId, gradeId);
         for (PlanSchoolGradeVO grade : gradeAndClass) {
             grade.getClasses().forEach(schoolClass -> generateClassArchivesPdfFile(saveDirectory, planId, templateId, school.getId(), school.getName(), grade.getId(),
-                    grade.getGradeName(), schoolClass.getId(), schoolClass.getName(), exportCondition.getType(), plan.getScreeningType()));
+                    grade.getGradeName(), schoolClass.getId(), schoolClass.getName(), exportCondition.getType(), exportCondition.getScreeningType()));
         }
     }
 
@@ -147,7 +149,7 @@ public class ArchivePdfGenerator {
         Integer templateId = templateDistrictService.getArchivesByDistrictId(districtService.getProvinceId(plan.getDistrictId()), TemplateConstants.getTemplateBizTypeByScreeningType(plan.getScreeningType()));
 
         // 生成PDF
-        generateClassArchivesPdfFile(planId, templateId, schoolId, gradeId, classId, planStudentIds, exportCondition.getType(), fileSavePath, fileName, plan.getScreeningType());
+        generateClassArchivesPdfFile(planId, templateId, schoolId, gradeId, classId, planStudentIds, exportCondition.getType(), fileSavePath, fileName, exportCondition.getScreeningType());
     }
 
     /**

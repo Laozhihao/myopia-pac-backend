@@ -538,21 +538,8 @@ public class StudentFacade {
         cardInfoVO.setNation(studentInfo.getNation());
         cardInfoVO.setNationDesc(NationEnum.getName(studentInfo.getNation()));
         cardInfoVO.setPassport(studentInfo.getPassport());
-        cardInfoVO.setSchoolType(getSchoolType(studentInfo.getGradeType()));
+        cardInfoVO.setSchoolType(SchoolAge.get(studentInfo.getGradeType()).type);
         return cardInfoVO;
-    }
-
-    private Integer getSchoolType(Integer gradeType) {
-        Assert.notNull(gradeType, "学生年级类型信息为空");
-        if (SchoolAge.KINDERGARTEN.code.equals(gradeType)) {
-            // 幼儿园
-            return 3;
-        } else if (SchoolAge.UNIVERSITY.code.equals(gradeType)) {
-            // 大学
-            return 2;
-        }
-        // 中小学
-        return 1;
     }
 
     /**

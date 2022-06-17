@@ -5,17 +5,12 @@ import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
-import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportServiceNameConstant;
+import com.wupol.myopia.business.aggregation.export.pdf.constant.ArchiveExportTypeEnum;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
-import com.wupol.myopia.business.api.management.constant.ArchiveTypeEnum;
 import com.wupol.myopia.business.api.management.domain.dto.ArchiveExportCondition;
 import com.wupol.myopia.business.api.management.domain.dto.ArchiveRequestParam;
 import com.wupol.myopia.business.api.management.service.ArchiveService;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.CommonDiseaseArchiveCard;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,11 +42,7 @@ public class ArchiveController {
     @Autowired
     private ArchiveService archiveService;
     @Autowired
-    private ScreeningPlanService screeningPlanService;
-    @Autowired
     private ExportStrategy exportStrategy;
-    @Autowired
-    private ScreeningNoticeService screeningNoticeService;
 
 
     /**
@@ -63,8 +54,6 @@ public class ArchiveController {
     @GetMapping("/export")
     public ApiResult exportArchive(@Valid ArchiveExportCondition archiveExportCondition) throws IOException {
         log.info("导出档案卡/监测表：{}", JSONObject.toJSONString(archiveExportCondition));
-
-        // TODO: 必要参数校验
         // 构建导出条件
         Integer type = archiveExportCondition.getType();
         ExportCondition exportCondition = new ExportCondition()
@@ -78,25 +67,13 @@ public class ArchiveController {
                 .setPlanStudentIds(archiveExportCondition.getPlanStudentIdsStr())
                 .setType(type);
 
-        // TODO：合并if
-        // 行政区域（异步）
-        if (ArchiveTypeEnum.DISTRICT.getType().equals(type)) {
-            ScreeningNotice screeningNotice = screeningNoticeService.getById(archiveExportCondition.getNoticeId());
-            exportCondition.setScreeningType(screeningNotice.getScreeningType());
-            exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.EXPORT_DISTRICT_ARCHIVES_SERVICE);
-            return ApiResult.success();
+        ArchiveExportTypeEnum archiveExportType = ArchiveExportTypeEnum.getByType(type);
+        // 同步导出
+        if (Boolean.FALSE.equals(archiveExportType.getAsyncExport())) {
+            return ApiResult.success(exportStrategy.syncExport(exportCondition, archiveExportType.getServiceClassName()));
         }
-
-        ScreeningPlan screeningPlan = screeningPlanService.getById(archiveExportCondition.getPlanId());
-        exportCondition.setScreeningOrgId(screeningPlan.getScreeningOrgId()).setScreeningType(screeningPlan.getScreeningType());
-
-        // 班级、年级（同步）
-        if (ArchiveTypeEnum.STUDENT.getType().equals(type) || ArchiveTypeEnum.CLASS.getType().equals(type)) {
-            return ApiResult.success(exportStrategy.syncExport(exportCondition, ExportReportServiceNameConstant.STUDENT_ARCHIVES_SERVICE));
-        }
-
-        // 学校、年级（异步）
-        exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.SCREENING_ORG_ARCHIVES_SERVICE);
+        // 异步导出
+        exportStrategy.doExport(exportCondition, archiveExportType.getServiceClassName());
         return ApiResult.success();
     }
 

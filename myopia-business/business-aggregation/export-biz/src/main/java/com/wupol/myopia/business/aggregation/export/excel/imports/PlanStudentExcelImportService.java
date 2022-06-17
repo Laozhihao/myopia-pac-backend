@@ -318,7 +318,7 @@ public class PlanStudentExcelImportService {
                                          Map<String, Student> existManagementStudentIdCardMap,
                                          Map<String, Student> existManagementStudentPassportMap, Integer userId) {
         if (!CollectionUtils.isEmpty(noScreeningCodeManagementStudentList)) {
-            saveOrStudentAndPlanStudent(noScreeningCodeManagementStudentList, existPlanStudentIdCardMap, existPlanStudentPassportMap, screeningPlan, school);
+            saveOrUpdateStudentAndPlanStudent(noScreeningCodeManagementStudentList, existPlanStudentIdCardMap, existPlanStudentPassportMap, screeningPlan, school);
         }
         if (!CollectionUtils.isEmpty(noCredentialStudents)) {
             updateOrSaveNoCredentialStudent(noCredentialStudents, noCredentialPlanStudents, screeningPlan);
@@ -385,7 +385,7 @@ public class PlanStudentExcelImportService {
      * @param plan                        计划
      * @param school                      学校
      */
-    private void saveOrStudentAndPlanStudent(List<Student> managementStudentList, Map<String, ScreeningPlanSchoolStudent> existPlanStudentIdCardMap, Map<String, ScreeningPlanSchoolStudent> existPlanStudentPassportMap, ScreeningPlan plan, School school) {
+    private void saveOrUpdateStudentAndPlanStudent(List<Student> managementStudentList, Map<String, ScreeningPlanSchoolStudent> existPlanStudentIdCardMap, Map<String, ScreeningPlanSchoolStudent> existPlanStudentPassportMap, ScreeningPlan plan, School school) {
 
         Map<Integer, SchoolGrade> gradeMap = schoolGradeService.getGradeMapByIds(managementStudentList.stream().map(Student::getGradeId).collect(Collectors.toList()));
         Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(managementStudentList.stream().map(Student::getClassId).collect(Collectors.toList()));

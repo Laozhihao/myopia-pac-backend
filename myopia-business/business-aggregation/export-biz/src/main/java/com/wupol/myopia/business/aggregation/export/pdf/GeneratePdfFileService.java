@@ -58,7 +58,7 @@ public class GeneratePdfFileService {
     public void generateDistrictScreeningReportPdfFile(String saveDirectory, String fileName, Integer noticeId, Integer districtId) {
         Assert.hasLength(saveDirectory, BizMsgConstant.SAVE_DIRECTORY_EMPTY);
         Assert.hasLength(fileName, "文件名为空");
-        Assert.notNull(noticeId, BizMsgConstant.NOTICE_ID_IS_EMPTY);
+        Assert.notNull(noticeId, BizMsgConstant.NOTICE_ID_IS_NULL);
         Assert.notNull(districtId, "行政区域ID为空");
         String htmlUrl = String.format(HtmlPageUrlConstant.DISTRICT_REPORT_HTML_URL, htmlUrlHost, noticeId, districtId);
         boolean isSuccessful = HtmlToPdfUtil.convert(htmlUrl, Paths.get(saveDirectory, fileName + ".pdf").toString());
@@ -73,7 +73,7 @@ public class GeneratePdfFileService {
      **/
     public void generateSchoolScreeningReportPdfFileByNoticeId(String saveDirectory, Integer noticeId, Integer districtId) {
         Assert.hasLength(saveDirectory, BizMsgConstant.SAVE_DIRECTORY_EMPTY);
-        Assert.notNull(noticeId, BizMsgConstant.NOTICE_ID_IS_EMPTY);
+        Assert.notNull(noticeId, BizMsgConstant.NOTICE_ID_IS_NULL);
         List<Integer> districtIds = districtService.getSpecificDistrictTreeAllDistrictIds(districtId);
         List<Integer> schoolIdList = statConclusionService.getSchoolIdsByScreeningNoticeIdAndDistrictIds(noticeId, districtIds);
         generateSchoolScreeningReportPdfFileBatch(saveDirectory, noticeId, null, schoolIdList);
@@ -87,7 +87,7 @@ public class GeneratePdfFileService {
      **/
     public void generateScreeningOrgScreeningReportPdfFile(String saveDirectory, Integer planId, Integer schoolId) {
         Assert.hasLength(saveDirectory, BizMsgConstant.SAVE_DIRECTORY_EMPTY);
-        Assert.notNull(planId, BizMsgConstant.PLAN_ID_IS_EMPTY);
+        Assert.notNull(planId, BizMsgConstant.PLAN_ID_IS_NULL);
         generateSchoolScreeningReportPdfFile(saveDirectory, null, planId, schoolId);
     }
 
@@ -100,7 +100,7 @@ public class GeneratePdfFileService {
      */
     public void generateScreeningPlanSchoolReportPdfFile(String saveDirectory, Integer planId, Integer schoolId) {
         Assert.hasLength(saveDirectory, BizMsgConstant.SAVE_DIRECTORY_EMPTY);
-        Assert.notNull(planId, BizMsgConstant.PLAN_ID_IS_EMPTY);
+        Assert.notNull(planId, BizMsgConstant.PLAN_ID_IS_NULL);
         List<Integer> schoolIdList = statConclusionService.getSchoolIdByPlanId(planId);
 
         if (!schoolIdList.contains(schoolId)) {

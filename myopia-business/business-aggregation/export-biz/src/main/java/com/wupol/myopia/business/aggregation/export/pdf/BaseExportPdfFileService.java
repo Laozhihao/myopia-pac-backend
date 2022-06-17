@@ -43,6 +43,8 @@ public abstract class BaseExportPdfFileService extends BaseExportFileService {
         String fileName = null;
         String parentPath = null;
         try {
+            // 0.前置处理
+            preProcess(exportCondition);
             // 1.获取文件名(如果导出的是压缩包，这里文件名不带后缀，将作为压缩包的文件名)
             fileName = getFileName(exportCondition);
             // 2.获取文件保存父目录路径
@@ -71,6 +73,16 @@ public abstract class BaseExportPdfFileService extends BaseExportFileService {
             // 9.释放锁
             unlock(getLockKey(exportCondition));
         }
+    }
+
+    /**
+     * 前置处理
+     *
+     * @param exportCondition 导出条件
+     * @return void
+     **/
+    public void preProcess(ExportCondition exportCondition) {
+        // 有需要前置处理的，重写覆盖该方法
     }
 
     /**
@@ -117,6 +129,8 @@ public abstract class BaseExportPdfFileService extends BaseExportFileService {
     public String syncExport(ExportCondition exportCondition) {
         String parentPath = null;
         try {
+            // 0.前置处理
+            preProcess(exportCondition);
             // 1.获取文件名(一般，同步导出的文件名带后缀，如：123.pdf)
             String fileName = getFileName(exportCondition);
             // 2.获取文件保存父目录路径
