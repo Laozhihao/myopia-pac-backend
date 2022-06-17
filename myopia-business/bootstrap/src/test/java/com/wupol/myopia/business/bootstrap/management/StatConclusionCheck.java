@@ -1,10 +1,9 @@
-package com.wupol.myopia.business.core.screening.flow.facade;
+package com.wupol.myopia.business.bootstrap.management;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
-import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.framework.domain.ThreeTuple;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.business.common.utils.constant.*;
@@ -25,6 +24,7 @@ import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
@@ -380,7 +380,7 @@ public class StatConclusionCheck {
      */
     private TwoTuple<Integer,String> getLowVision(@NotNull Integer planId){
         List<ThreeTuple<ScreeningPlanSchoolStudent,VisionScreeningResult,String>> dataList = getDataList(planId);
-        if (CollectionUtil.isNotEmpty(dataList)){
+        if (!CollectionUtils.isEmpty(dataList)){
             int size = dataList.size();
             List<ThreeTuple<ScreeningPlanSchoolStudent,VisionScreeningResult,String>> tupleList = dataList.stream().filter(tuple -> {
                 ScreeningPlanSchoolStudent screeningPlanSchoolStudent = tuple.getFirst();
@@ -401,7 +401,7 @@ public class StatConclusionCheck {
      */
     private List<TwoTuple<Integer,Integer>> getLowVisionLevel(@NotNull Integer planId){
         List<ThreeTuple<ScreeningPlanSchoolStudent,VisionScreeningResult,String>> dataList = getDataList(planId);
-        if (CollectionUtil.isNotEmpty(dataList)){
+        if (!CollectionUtils.isEmpty(dataList)){
             return dataList.stream()
                     .filter(tuple -> {
                         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = tuple.getFirst();
@@ -426,7 +426,7 @@ public class StatConclusionCheck {
      */
     private TwoTuple<BigDecimal,BigDecimal> getAverageVision (@NotNull Integer planId){
         List<ThreeTuple<ScreeningPlanSchoolStudent,VisionScreeningResult,String>> dataList = getDataList(planId);
-        if (CollectionUtil.isNotEmpty(dataList)){
+        if (!CollectionUtils.isEmpty(dataList)){
             List<StatConclusion> statConclusionList = dataList.stream().map(tuple -> {
                 VisionScreeningResult visionScreeningResult = tuple.getSecond();
                 BasicData basicData = dealWithData(visionScreeningResult.getVisionData(), visionScreeningResult.getComputerOptometry());
@@ -443,7 +443,7 @@ public class StatConclusionCheck {
      */
     private TwoTuple<Integer,String> getMyopia(@NotNull Integer planId){
         List<ThreeTuple<ScreeningPlanSchoolStudent,VisionScreeningResult,String>> dataList = getDataList(planId);
-        if (CollectionUtil.isNotEmpty(dataList)){
+        if (!CollectionUtils.isEmpty(dataList)){
             int size = dataList.size();
             List<Boolean> tupleList = dataList.stream().map(tuple -> {
                 ScreeningPlanSchoolStudent screeningPlanSchoolStudent = tuple.getFirst();
@@ -464,7 +464,7 @@ public class StatConclusionCheck {
      */
     private List<TwoTuple<Integer,Integer>> getMyopiaLevel(@NotNull Integer planId){
         List<ThreeTuple<ScreeningPlanSchoolStudent,VisionScreeningResult,String>> dataList = getDataList(planId);
-        if (CollectionUtil.isNotEmpty(dataList)){
+        if (!CollectionUtils.isEmpty(dataList)){
             return dataList.stream()
                     .map(tuple -> {
                         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = tuple.getFirst();
@@ -486,7 +486,7 @@ public class StatConclusionCheck {
         String clientId = "1";
         boolean zeroToSixPlatform = Objects.equals(SystemCode.PRESCHOOL_CLIENT.getCode() + StrUtil.EMPTY, clientId);
         List<ThreeTuple<ScreeningPlanSchoolStudent,VisionScreeningResult,String>> dataList = getDataList(planId);
-        if (CollectionUtil.isNotEmpty(dataList)){
+        if (!CollectionUtils.isEmpty(dataList)){
             int size = dataList.size();
             List<ThreeTuple<ScreeningPlanSchoolStudent,VisionScreeningResult,String>> tupleList = dataList.stream().filter(tuple -> {
                 ScreeningPlanSchoolStudent screeningPlanSchoolStudent = tuple.getFirst();
@@ -507,7 +507,7 @@ public class StatConclusionCheck {
      */
     private TwoTuple<Integer,String> getWearingGlasses(@NotNull Integer planId){
         List<ThreeTuple<ScreeningPlanSchoolStudent,VisionScreeningResult,String>> dataList = getDataList(planId);
-        if (CollectionUtil.isNotEmpty(dataList)){
+        if (!CollectionUtils.isEmpty(dataList)){
             int size = dataList.size();
             List<ThreeTuple<ScreeningPlanSchoolStudent,VisionScreeningResult,String>> tupleList = dataList.stream().filter(tuple -> {
                 VisionScreeningResult visionScreeningResult = tuple.getSecond();
@@ -525,7 +525,7 @@ public class StatConclusionCheck {
      */
     private TwoTuple<Integer,String> getHyperopia(@NotNull Integer planId){
         List<ThreeTuple<ScreeningPlanSchoolStudent,VisionScreeningResult,String>> dataList = getDataList(planId);
-        if (CollectionUtil.isNotEmpty(dataList)){
+        if (!CollectionUtils.isEmpty(dataList)){
             int size = dataList.size();
             List<ThreeTuple<ScreeningPlanSchoolStudent,VisionScreeningResult,String>> tupleList = dataList.stream().filter(tuple -> {
                 ScreeningPlanSchoolStudent screeningPlanSchoolStudent = tuple.getFirst();
@@ -546,7 +546,7 @@ public class StatConclusionCheck {
      */
     private List<TwoTuple<Integer,Integer>> getHyperopiaLevel(@NotNull Integer planId){
         List<ThreeTuple<ScreeningPlanSchoolStudent,VisionScreeningResult,String>> dataList = getDataList(planId);
-        if (CollectionUtil.isNotEmpty(dataList)){
+        if (!CollectionUtils.isEmpty(dataList)){
             return dataList.stream()
                     .map(tuple -> {
                         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = tuple.getFirst();
@@ -567,7 +567,7 @@ public class StatConclusionCheck {
      */
     private TwoTuple<Integer,String> getAstigmatism(@NotNull Integer planId){
         List<ThreeTuple<ScreeningPlanSchoolStudent,VisionScreeningResult,String>> dataList = getDataList(planId);
-        if (CollectionUtil.isNotEmpty(dataList)){
+        if (!CollectionUtils.isEmpty(dataList)){
             int size = dataList.size();
             List<ThreeTuple<ScreeningPlanSchoolStudent,VisionScreeningResult,String>> tupleList = dataList.stream().filter(tuple -> {
                 VisionScreeningResult visionScreeningResult = tuple.getSecond();
@@ -587,7 +587,7 @@ public class StatConclusionCheck {
      */
     private List<TwoTuple<Integer,Integer>> getAstigmatismLevel(@NotNull Integer planId){
         List<ThreeTuple<ScreeningPlanSchoolStudent,VisionScreeningResult,String>> dataList = getDataList(planId);
-        if (CollectionUtil.isNotEmpty(dataList)){
+        if (!CollectionUtils.isEmpty(dataList)){
             return dataList.stream()
                     .map(tuple -> {
                         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = tuple.getFirst();
@@ -608,7 +608,7 @@ public class StatConclusionCheck {
      */
     private TwoTuple<Integer,String> getMyopiaLevelInsufficient(@NotNull Integer planId){
         List<ThreeTuple<ScreeningPlanSchoolStudent,VisionScreeningResult,String>> dataList = getDataList(planId);
-        if (CollectionUtil.isNotEmpty(dataList)){
+        if (!CollectionUtils.isEmpty(dataList)){
             int size = dataList.size();
             List<Integer> tupleList = dataList.stream().map(tuple -> {
                 VisionScreeningResult visionScreeningResult = tuple.getSecond();
@@ -628,7 +628,7 @@ public class StatConclusionCheck {
      */
     private List<TwoTuple<Integer,Integer>> getCorrection(@NotNull Integer planId){
         List<ThreeTuple<ScreeningPlanSchoolStudent,VisionScreeningResult,String>> dataList = getDataList(planId);
-        if (CollectionUtil.isNotEmpty(dataList)){
+        if (!CollectionUtils.isEmpty(dataList)){
             return dataList.stream().map(tuple -> {
                 ScreeningPlanSchoolStudent screeningPlanSchoolStudent = tuple.getFirst();
                 VisionScreeningResult visionScreeningResult = tuple.getSecond();
@@ -654,7 +654,7 @@ public class StatConclusionCheck {
      */
     private TwoTuple<Integer,String> getAnisometropia(@NotNull Integer planId){
         List<ThreeTuple<ScreeningPlanSchoolStudent,VisionScreeningResult,String>> dataList = getDataList(planId);
-        if (CollectionUtil.isNotEmpty(dataList)){
+        if (!CollectionUtils.isEmpty(dataList)){
             int size = dataList.size();
             List<ThreeTuple<ScreeningPlanSchoolStudent,VisionScreeningResult,String>> tupleList = dataList.stream().filter(tuple -> {
                 VisionScreeningResult visionScreeningResult = tuple.getSecond();
@@ -678,7 +678,7 @@ public class StatConclusionCheck {
      */
     private List<TwoTuple<Integer,Integer>> getWarningLevel(@NotNull Integer planId){
         List<ThreeTuple<ScreeningPlanSchoolStudent, VisionScreeningResult, String>> dataList = getDataList(planId);
-        if (CollectionUtil.isNotEmpty(dataList)){
+        if (!CollectionUtils.isEmpty(dataList)){
             return dataList.stream()
                     .map(tuple -> {
                         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = tuple.getFirst();
@@ -697,7 +697,7 @@ public class StatConclusionCheck {
      */
     private List<TwoTuple<Integer,Boolean>> getRecommendVisit(@NotNull Integer planId){
         List<ThreeTuple<ScreeningPlanSchoolStudent, VisionScreeningResult, String>> dataList = getDataList(planId);
-        if (CollectionUtil.isNotEmpty(dataList)){
+        if (!CollectionUtils.isEmpty(dataList)){
             return dataList.stream()
                     .map(tuple -> {
                         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = tuple.getFirst();
@@ -722,7 +722,7 @@ public class StatConclusionCheck {
      */
     private TwoTuple<Integer,String> getRescreenData(@NotNull Integer planId){
         List<ThreeTuple<ScreeningPlanSchoolStudent, TwoTuple<VisionScreeningResult, VisionScreeningResult>, String>> rescreenDataList = getRescreenDataList(planId);
-        if (CollectionUtil.isNotEmpty(rescreenDataList)){
+        if (!CollectionUtils.isEmpty(rescreenDataList)){
             Map<Boolean, List<ThreeTuple<Boolean, Integer, Integer>>> tupleMap = rescreenDataList.stream().map(threeTuple -> {
                 TwoTuple<VisionScreeningResult, VisionScreeningResult> tuple = threeTuple.getSecond();
                 BasicData basicData = dealWithData(tuple.getFirst().getVisionData(), tuple.getFirst().getComputerOptometry());
@@ -755,7 +755,7 @@ public class StatConclusionCheck {
      */
     private TwoTuple<Integer,String> getSaprodontiaFree(@NotNull Integer planId){
         List<ThreeTuple<ScreeningPlanSchoolStudent, VisionScreeningResult, String>> commonDiseaseScreeningNum = getCommonDiseaseScreeningNum(planId);
-        if (CollectionUtil.isNotEmpty(commonDiseaseScreeningNum)){
+        if (!CollectionUtils.isEmpty(commonDiseaseScreeningNum)){
             List<ThreeTuple<ScreeningPlanSchoolStudent, VisionScreeningResult, String>> freeList = commonDiseaseScreeningNum.stream().filter(tuple -> {
                 VisionScreeningResult visionScreeningResult = tuple.getSecond();
                 SaprodontiaDataDO saprodontiaData = visionScreeningResult.getSaprodontiaData();
@@ -779,10 +779,10 @@ public class StatConclusionCheck {
      */
     private TwoTuple<Integer,String> getDmft(Integer planId){
         List<ThreeTuple<ScreeningPlanSchoolStudent, VisionScreeningResult, String>> commonDiseaseScreeningNum = getCommonDiseaseScreeningNum(planId);
-        if (CollectionUtil.isNotEmpty(commonDiseaseScreeningNum)){
+        if (!CollectionUtils.isEmpty(commonDiseaseScreeningNum)){
             List<SaprodontiaData> saprodontiaData = getSaprodontiaData(commonDiseaseScreeningNum);
             int teethNum=0;
-            if (CollectionUtil.isNotEmpty(saprodontiaData)){
+            if (!CollectionUtils.isEmpty(saprodontiaData)){
                 ToIntFunction<SaprodontiaData> totalFunction = sc -> Optional.ofNullable(sc.saprodontiaTeeth).orElse(0) + Optional.ofNullable(sc.saprodontiaLossTeeth).orElse(0) + Optional.ofNullable(sc.saprodontiaRepairTeeth).orElse(0);
                 teethNum = saprodontiaData.stream().mapToInt(totalFunction).sum();
             }
@@ -796,10 +796,10 @@ public class StatConclusionCheck {
      */
     private TwoTuple<Integer,String> getSaprodontia(Integer planId){
         List<ThreeTuple<ScreeningPlanSchoolStudent, VisionScreeningResult, String>> commonDiseaseScreeningNum = getCommonDiseaseScreeningNum(planId);
-        if (CollectionUtil.isNotEmpty(commonDiseaseScreeningNum)){
+        if (!CollectionUtils.isEmpty(commonDiseaseScreeningNum)){
             List<SaprodontiaData> saprodontiaData = getSaprodontiaData(commonDiseaseScreeningNum);
             int saprodontiaNum=0;
-            if (CollectionUtil.isNotEmpty(saprodontiaData)){
+            if (!CollectionUtils.isEmpty(saprodontiaData)){
                 saprodontiaNum = (int) saprodontiaData.stream().map(sc->sc.isSaprodontia).filter(Objects::nonNull).count();
             }
             return TwoTuple.of(saprodontiaNum,MathUtil.num(saprodontiaNum,commonDiseaseScreeningNum.size()));
@@ -812,10 +812,10 @@ public class StatConclusionCheck {
      */
     private TwoTuple<Integer,String> getSaprodontiaLoss(Integer planId){
         List<ThreeTuple<ScreeningPlanSchoolStudent, VisionScreeningResult, String>> commonDiseaseScreeningNum = getCommonDiseaseScreeningNum(planId);
-        if (CollectionUtil.isNotEmpty(commonDiseaseScreeningNum)){
+        if (!CollectionUtils.isEmpty(commonDiseaseScreeningNum)){
             List<SaprodontiaData> saprodontiaData = getSaprodontiaData(commonDiseaseScreeningNum);
             int saprodontiaLossNum=0;
-            if (CollectionUtil.isNotEmpty(saprodontiaData)){
+            if (!CollectionUtils.isEmpty(saprodontiaData)){
                 saprodontiaLossNum = (int) saprodontiaData.stream().map(sc->sc.isSaprodontiaLoss).filter(Objects::nonNull).count();
             }
             return TwoTuple.of(saprodontiaLossNum,MathUtil.num(saprodontiaLossNum,commonDiseaseScreeningNum.size()));
@@ -828,10 +828,10 @@ public class StatConclusionCheck {
      */
     private TwoTuple<Integer,String> getSaprodontiaRepair(Integer planId){
         List<ThreeTuple<ScreeningPlanSchoolStudent, VisionScreeningResult, String>> commonDiseaseScreeningNum = getCommonDiseaseScreeningNum(planId);
-        if (CollectionUtil.isNotEmpty(commonDiseaseScreeningNum)){
+        if (!CollectionUtils.isEmpty(commonDiseaseScreeningNum)){
             List<SaprodontiaData> saprodontiaData = getSaprodontiaData(commonDiseaseScreeningNum);
             int saprodontiaRepairNum=0;
-            if (CollectionUtil.isNotEmpty(saprodontiaData)){
+            if (!CollectionUtils.isEmpty(saprodontiaData)){
                 saprodontiaRepairNum = (int) saprodontiaData.stream().map(sc->sc.isSaprodontiaRepair).filter(Objects::nonNull).count();
             }
             return TwoTuple.of(saprodontiaRepairNum,MathUtil.num(saprodontiaRepairNum,commonDiseaseScreeningNum.size()));
@@ -844,10 +844,10 @@ public class StatConclusionCheck {
      */
     private TwoTuple<Integer,String> getSaprodontiaLossAndRepair(Integer planId){
         List<ThreeTuple<ScreeningPlanSchoolStudent, VisionScreeningResult, String>> commonDiseaseScreeningNum = getCommonDiseaseScreeningNum(planId);
-        if (CollectionUtil.isNotEmpty(commonDiseaseScreeningNum)){
+        if (!CollectionUtils.isEmpty(commonDiseaseScreeningNum)){
             List<SaprodontiaData> saprodontiaData = getSaprodontiaData(commonDiseaseScreeningNum);
             int saprodontiaLossAndRepairNum=0;
-            if (CollectionUtil.isNotEmpty(saprodontiaData)){
+            if (!CollectionUtils.isEmpty(saprodontiaData)){
                 saprodontiaLossAndRepairNum = (int) saprodontiaData.stream().filter(sc ->Objects.equals(Boolean.TRUE,sc.isSaprodontiaLoss) || Objects.equals(Boolean.TRUE,sc.isSaprodontiaRepair)).count();
             }
             return TwoTuple.of(saprodontiaLossAndRepairNum,MathUtil.num(saprodontiaLossAndRepairNum,commonDiseaseScreeningNum.size()));
@@ -860,11 +860,11 @@ public class StatConclusionCheck {
      */
     private TwoTuple<Integer,String> getSaprodontiaLossAndRepairTeeth(Integer planId){
         List<ThreeTuple<ScreeningPlanSchoolStudent, VisionScreeningResult, String>> commonDiseaseScreeningNum = getCommonDiseaseScreeningNum(planId);
-        if (CollectionUtil.isNotEmpty(commonDiseaseScreeningNum)){
+        if (!CollectionUtils.isEmpty(commonDiseaseScreeningNum)){
             List<SaprodontiaData> saprodontiaData = getSaprodontiaData(commonDiseaseScreeningNum);
             int totalTeethNum=0;
             int saprodontiaLossAndRepairTeethNum=0;
-            if (CollectionUtil.isNotEmpty(saprodontiaData)){
+            if (!CollectionUtils.isEmpty(saprodontiaData)){
                 ToIntFunction<SaprodontiaData> totalFunction = sc -> Optional.ofNullable(sc.saprodontiaTeeth).orElse(0) + Optional.ofNullable(sc.saprodontiaLossTeeth).orElse(0) + Optional.ofNullable(sc.saprodontiaRepairTeeth).orElse(0);
                 totalTeethNum =  saprodontiaData.stream().mapToInt(totalFunction).sum();
                 ToIntFunction<SaprodontiaData> lossAndRepairFunction = sc -> Optional.ofNullable(sc.saprodontiaTeeth).orElse(0) + Optional.ofNullable(sc.saprodontiaLossTeeth).orElse(0) + Optional.ofNullable(sc.saprodontiaRepairTeeth).orElse(0);
@@ -880,7 +880,7 @@ public class StatConclusionCheck {
      */
     private TwoTuple<Integer,String> getOverweight(Integer planId){
         List<ThreeTuple<ScreeningPlanSchoolStudent, VisionScreeningResult, String>> commonDiseaseScreeningNum = getCommonDiseaseScreeningNum(planId);
-        if (CollectionUtil.isNotEmpty(commonDiseaseScreeningNum)){
+        if (!CollectionUtils.isEmpty(commonDiseaseScreeningNum)){
             List<Boolean> tupleList = commonDiseaseScreeningNum.stream().filter(tuple -> {
                 VisionScreeningResult visionScreeningResult = tuple.getSecond();
                 return Objects.nonNull(visionScreeningResult.getHeightAndWeightData()) && visionScreeningResult.getHeightAndWeightData().valid();
@@ -904,7 +904,7 @@ public class StatConclusionCheck {
      */
     private TwoTuple<Integer,String> getObesity(Integer planId){
         List<ThreeTuple<ScreeningPlanSchoolStudent, VisionScreeningResult, String>> commonDiseaseScreeningNum = getCommonDiseaseScreeningNum(planId);
-        if (CollectionUtil.isNotEmpty(commonDiseaseScreeningNum)){
+        if (!CollectionUtils.isEmpty(commonDiseaseScreeningNum)){
             List<Boolean> tupleList = commonDiseaseScreeningNum.stream().filter(tuple -> {
                 VisionScreeningResult visionScreeningResult = tuple.getSecond();
                 return Objects.nonNull(visionScreeningResult.getHeightAndWeightData()) && visionScreeningResult.getHeightAndWeightData().valid();
@@ -928,7 +928,7 @@ public class StatConclusionCheck {
      */
     private TwoTuple<Integer,String> getMalnutrition(Integer planId){
         List<ThreeTuple<ScreeningPlanSchoolStudent, VisionScreeningResult, String>> commonDiseaseScreeningNum = getCommonDiseaseScreeningNum(planId);
-        if (CollectionUtil.isNotEmpty(commonDiseaseScreeningNum)){
+        if (!CollectionUtils.isEmpty(commonDiseaseScreeningNum)){
             List<Boolean> tupleList = commonDiseaseScreeningNum.stream().filter(tuple -> {
                 VisionScreeningResult visionScreeningResult = tuple.getSecond();
                 return Objects.nonNull(visionScreeningResult.getHeightAndWeightData()) && visionScreeningResult.getHeightAndWeightData().valid();
@@ -937,8 +937,11 @@ public class StatConclusionCheck {
                 TwoTuple<Integer, String> ageTuple = StatUtil.getAge(screeningPlanSchoolStudent.getBirthday());
                 HeightAndWeightDataDO heightAndWeightData = tuple.getSecond().getHeightAndWeightData();
                 Boolean wasting = StatUtil.isWasting(heightAndWeightData.getBmi(), ageTuple.getSecond(), screeningPlanSchoolStudent.getGender());
+                if(Objects.isNull(wasting)){
+                    return null;
+                }
                 Boolean stunting = StatUtil.isStunting(screeningPlanSchoolStudent.getGender(), ageTuple.getSecond(), heightAndWeightData.getHeight());
-                if (ObjectsUtil.hasNull(wasting,stunting)){
+                if (Objects.isNull(stunting)){
                     return null;
                 }
                 return wasting && stunting;
@@ -953,7 +956,7 @@ public class StatConclusionCheck {
      */
     private TwoTuple<Integer,String> getStunting(Integer planId){
         List<ThreeTuple<ScreeningPlanSchoolStudent, VisionScreeningResult, String>> commonDiseaseScreeningNum = getCommonDiseaseScreeningNum(planId);
-        if (CollectionUtil.isNotEmpty(commonDiseaseScreeningNum)){
+        if (!CollectionUtils.isEmpty(commonDiseaseScreeningNum)){
             List<Boolean> tupleList = commonDiseaseScreeningNum.stream().filter(tuple -> {
                 VisionScreeningResult visionScreeningResult = tuple.getSecond();
                 return Objects.nonNull(visionScreeningResult.getHeightAndWeightData()) && visionScreeningResult.getHeightAndWeightData().valid();
@@ -973,7 +976,7 @@ public class StatConclusionCheck {
      */
     private TwoTuple<Integer,String> getSpinalCurvature(Integer planId){
         List<ThreeTuple<ScreeningPlanSchoolStudent, VisionScreeningResult, String>> commonDiseaseScreeningNum = getCommonDiseaseScreeningNum(planId);
-        if (CollectionUtil.isNotEmpty(commonDiseaseScreeningNum)){
+        if (!CollectionUtils.isEmpty(commonDiseaseScreeningNum)){
             List<Boolean> tupleList = commonDiseaseScreeningNum.stream().filter(tuple -> {
                 VisionScreeningResult visionScreeningResult = tuple.getSecond();
                 return Objects.nonNull(visionScreeningResult.getSpineData());
@@ -992,7 +995,7 @@ public class StatConclusionCheck {
      */
     private TwoTuple<Integer,String> getBloodPressure(Integer planId){
         List<ThreeTuple<ScreeningPlanSchoolStudent, VisionScreeningResult, String>> commonDiseaseScreeningNum = getCommonDiseaseScreeningNum(planId);
-        if (CollectionUtil.isNotEmpty(commonDiseaseScreeningNum)){
+        if (!CollectionUtils.isEmpty(commonDiseaseScreeningNum)){
             List<Boolean> tupleList = commonDiseaseScreeningNum.stream().filter(tuple -> {
                 VisionScreeningResult visionScreeningResult = tuple.getSecond();
                 return Objects.nonNull(visionScreeningResult.getBloodPressureData());
@@ -1023,7 +1026,7 @@ public class StatConclusionCheck {
      */
     private TwoTuple<Integer,String> getReview(Integer planId){
         List<ThreeTuple<ScreeningPlanSchoolStudent, VisionScreeningResult, String>> commonDiseaseScreeningNum = getCommonDiseaseScreeningNum(planId);
-        if (CollectionUtil.isNotEmpty(commonDiseaseScreeningNum)){
+        if (!CollectionUtils.isEmpty(commonDiseaseScreeningNum)){
             List<Boolean> tupleList = commonDiseaseScreeningNum.stream().map(tuple -> {
                 ScreeningPlanSchoolStudent screeningPlanSchoolStudent = tuple.getFirst();
                 VisionScreeningResult visionScreeningResult = tuple.getSecond();
@@ -1108,7 +1111,7 @@ public class StatConclusionCheck {
      * 龋齿数据
      */
     private List<SaprodontiaData>  getSaprodontiaData(List<ThreeTuple<ScreeningPlanSchoolStudent, VisionScreeningResult, String>> commonDiseaseScreeningNum){
-        if (CollectionUtil.isNotEmpty(commonDiseaseScreeningNum)){
+        if (!CollectionUtils.isEmpty(commonDiseaseScreeningNum)){
             return commonDiseaseScreeningNum.stream().filter(threeTuple -> {
                     VisionScreeningResult visionScreeningResult = threeTuple.getSecond();
                     return Objects.nonNull(visionScreeningResult.getSaprodontiaData());
@@ -1135,7 +1138,7 @@ public class StatConclusionCheck {
      */
     private List<ThreeTuple<ScreeningPlanSchoolStudent, VisionScreeningResult, String>>  getCommonDiseaseScreeningNum(Integer planId){
         List<ThreeTuple<ScreeningPlanSchoolStudent, VisionScreeningResult, String>> commonDiseaseDataList = getCommonDiseaseDataList(planId);
-        if (CollectionUtil.isNotEmpty(commonDiseaseDataList)){
+        if (!CollectionUtils.isEmpty(commonDiseaseDataList)){
             return commonDiseaseDataList.stream().filter(tuple -> {
                 ScreeningPlanSchoolStudent screeningPlanSchoolStudent = tuple.getFirst();
                 return !Objects.equals(SchoolAge.KINDERGARTEN.code, screeningPlanSchoolStudent.getGradeType());
@@ -1151,8 +1154,8 @@ public class StatConclusionCheck {
     private List<ThreeTuple<ScreeningPlanSchoolStudent,VisionScreeningResult,String>> getCommonDiseaseDataList(@NotNull Integer planId){
         List<VisionScreeningResult> visionScreeningResultList = getVisionScreeningResultList(planId,Boolean.FALSE);
         List<TwoTuple<ScreeningPlanSchoolStudent,String>> screeningPlanSchoolStudentList = getScreeningPlanSchoolStudentList(planId);
-        if (CollectionUtil.isNotEmpty(visionScreeningResultList)
-                && CollectionUtil.isNotEmpty(screeningPlanSchoolStudentList)){
+        if (!CollectionUtils.isEmpty(visionScreeningResultList)
+                && !CollectionUtils.isEmpty(screeningPlanSchoolStudentList)){
             Map<Integer, TwoTuple<ScreeningPlanSchoolStudent,String>> planSchoolStudentMap = screeningPlanSchoolStudentList.stream().collect(Collectors.toMap(tuple-> tuple.getFirst().getId(), Function.identity()));
 
             return visionScreeningResultList.stream().map(visionScreeningResult -> {
@@ -1171,8 +1174,8 @@ public class StatConclusionCheck {
     private List<ThreeTuple<ScreeningPlanSchoolStudent,VisionScreeningResult,String>> getDataList(@NotNull Integer planId){
         List<VisionScreeningResult> validScreeningDataList = getValidScreeningDataList(planId);
         List<TwoTuple<ScreeningPlanSchoolStudent,String>> screeningPlanSchoolStudentList = getScreeningPlanSchoolStudentList(planId);
-        if (CollectionUtil.isNotEmpty(validScreeningDataList)
-                && CollectionUtil.isNotEmpty(screeningPlanSchoolStudentList)){
+        if (!CollectionUtils.isEmpty(validScreeningDataList)
+                && !CollectionUtils.isEmpty(screeningPlanSchoolStudentList)){
             Map<Integer, TwoTuple<ScreeningPlanSchoolStudent,String>> planSchoolStudentMap = screeningPlanSchoolStudentList.stream().collect(Collectors.toMap(tuple-> tuple.getFirst().getId(), Function.identity()));
 
             return validScreeningDataList.stream().map(visionScreeningResult -> {
@@ -1192,8 +1195,8 @@ public class StatConclusionCheck {
     private List<ThreeTuple<ScreeningPlanSchoolStudent,TwoTuple<VisionScreeningResult,VisionScreeningResult>,String>> getRescreenDataList(@NotNull Integer planId){
         List<TwoTuple<VisionScreeningResult,VisionScreeningResult>> validScreeningDataList = getRescreenList(planId);
         List<TwoTuple<ScreeningPlanSchoolStudent,String>> screeningPlanSchoolStudentList = getScreeningPlanSchoolStudentList(planId);
-        if (CollectionUtil.isNotEmpty(validScreeningDataList)
-                && CollectionUtil.isNotEmpty(screeningPlanSchoolStudentList)){
+        if (!CollectionUtils.isEmpty(validScreeningDataList)
+                && !CollectionUtils.isEmpty(screeningPlanSchoolStudentList)){
             Map<Integer, TwoTuple<ScreeningPlanSchoolStudent,String>> planSchoolStudentMap = screeningPlanSchoolStudentList.stream().collect(Collectors.toMap(tuple-> tuple.getFirst().getId(), Function.identity()));
 
             return validScreeningDataList.stream().map(tuple -> {
@@ -1213,7 +1216,7 @@ public class StatConclusionCheck {
      */
     private List<VisionScreeningResult> getValidScreeningDataList(@NotNull Integer planId){
         List<VisionScreeningResult> visionScreeningResultList = getVisionScreeningResultList(planId,Boolean.FALSE);
-        if (CollectionUtil.isNotEmpty(visionScreeningResultList)){
+        if (!CollectionUtils.isEmpty(visionScreeningResultList)){
             Predicate<VisionScreeningResult> predicate = visionScreeningResult -> StatUtil.isCompletedData(visionScreeningResult.getVisionData(), visionScreeningResult.getComputerOptometry());
             Predicate<VisionScreeningResult> cooperative = visionScreeningResult -> Objects.equals(StatUtil.isCooperative(visionScreeningResult),0);
             return visionScreeningResultList.stream().filter(predicate).filter(cooperative).collect(Collectors.toList());
@@ -1225,7 +1228,7 @@ public class StatConclusionCheck {
         LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ScreeningPlanSchoolStudent::getScreeningPlanId,planId);
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = screeningPlanSchoolStudentService.list(queryWrapper);
-        if (CollectionUtil.isNotEmpty(screeningPlanSchoolStudentList)){
+        if (!CollectionUtils.isEmpty(screeningPlanSchoolStudentList)){
             Set<Integer> gradeIds = screeningPlanSchoolStudentList.stream().map(ScreeningPlanSchoolStudent::getGradeId).collect(Collectors.toSet());
             List<SchoolGrade> schoolGradeList = schoolGradeService.getByIds(Lists.newArrayList(gradeIds));
             Map<Integer, SchoolGrade> schoolGradeMap = schoolGradeList.stream().collect(Collectors.toMap(SchoolGrade::getId, Function.identity()));
@@ -1243,7 +1246,7 @@ public class StatConclusionCheck {
      */
     private List<TwoTuple<VisionScreeningResult,VisionScreeningResult>> getRescreenList(@NotNull Integer planId){
         List<VisionScreeningResult> visionScreeningResultList = getVisionScreeningResultList(planId,null);
-        if (CollectionUtil.isNotEmpty(visionScreeningResultList)){
+        if (!CollectionUtils.isEmpty(visionScreeningResultList)){
             Predicate<VisionScreeningResult> predicate = StatUtil::rescreenCompletedData;
             Predicate<VisionScreeningResult> cooperative = visionScreeningResult -> Objects.equals(StatUtil.isCooperative(visionScreeningResult),0);
             List<VisionScreeningResult> visionScreeningResults = visionScreeningResultList.stream().filter(predicate).filter(cooperative).collect(Collectors.toList());
@@ -1292,7 +1295,7 @@ public class StatConclusionCheck {
     /**
      * 处理数据
      *
-     * @param visionData
+     * @param visionData 视力筛查结果
      */
     private static BasicData dealWithData(VisionDataDO visionData,ComputerOptometryDO computerOptometry) {
         BasicData basicData = new BasicData();

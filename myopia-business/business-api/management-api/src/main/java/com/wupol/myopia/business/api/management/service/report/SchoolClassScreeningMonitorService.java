@@ -12,6 +12,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -38,7 +39,7 @@ public class SchoolClassScreeningMonitorService {
         ScreeningNum.MAP.put(0, statConclusionList.size());
 
         Map<String, List<StatConclusion>> gradeMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
-
+        gradeMap = MapUtil.sort(gradeMap);
         List<SchoolClassScreeningMonitorVO> schoolClassScreeningMonitorVOList = Lists.newArrayList();
 
         gradeMap.forEach((gradeCode, list) -> {
@@ -146,10 +147,11 @@ public class SchoolClassScreeningMonitorService {
         }
         List<ScreeningMonitorTable> tableList = Lists.newArrayList();
         Map<String, List<StatConclusion>> schoolStatConclusionMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolClassName));
-        schoolStatConclusionMap = MapUtil.sort(schoolStatConclusionMap);
         schoolStatConclusionMap.forEach((schoolClassName, list) -> {
             getSchoolClassScreeningTable(schoolClassName, list, tableList);
         });
+
+        CollectionUtil.sort(tableList, Comparator.comparing(ScreeningMonitorTable::getSaprodontiaLossAndRepairRatio).reversed());
 
         schoolClassScreeningMonitorVO.setSchoolClassScreeningMonitorTableList(tableList);
     }
