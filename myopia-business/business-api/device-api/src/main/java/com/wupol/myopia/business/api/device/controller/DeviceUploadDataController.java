@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.device.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.DeviceDataRequestDTO;
@@ -96,7 +97,7 @@ public class DeviceUploadDataController {
      */
     @PostMapping("fkr710/upload")
     public ApiResult frkUpload(@RequestBody FkrRequestDTO requestDTO) {
-        fkrDataService.uploadData(requestDTO,"1");
+        fkrDataService.uploadData(requestDTO,String.valueOf(SystemCode.MANAGEMENT_CLIENT.getCode()));
         return ApiResult.success();
     }
 
