@@ -350,20 +350,22 @@ public class DistrictCommonDiseaseReportService {
         List<StatConclusion> vocationalHighList = schoolMap.get(SchoolAge.VOCATIONAL_HIGH.code);
 
         if (CollectionUtil.isNotEmpty(vocationalHighList)) {
-            List<StatConclusion> highList = Lists.newArrayList();
-            if (Objects.nonNull(normalHighList)) {
-                highList.addAll(normalHighList);
-            } else {
-                normalHighList = Lists.newArrayList();
-            }
-            highList.addAll(vocationalHighList);
 
-            getMyopiaItemVO(highList, SchoolAge.HIGH.desc, validScreeningNum, primarySchoolAndAboveVO::setHighSchool);
-            getMyopiaItemVO(normalHighList, "普通高中", validScreeningNum, primarySchoolAndAboveVO::setNormalHighSchool);
-            getMyopiaItemVO(vocationalHighList, SchoolAge.VOCATIONAL_HIGH.desc, validScreeningNum, primarySchoolAndAboveVO::setVocationalHighSchool);
+            List<StatConclusion> highList = Lists.newArrayList();
+            highList.addAll(vocationalHighList);
+            if (CollectionUtil.isNotEmpty(normalHighList)) {
+                highList.addAll(normalHighList);
+                getMyopiaItemVO(highList, ReportConst.HIGH, validScreeningNum, primarySchoolAndAboveVO::setHighSchool);
+                getMyopiaItemVO(normalHighList, SchoolAge.HIGH.desc, validScreeningNum, primarySchoolAndAboveVO::setNormalHighSchool);
+                getMyopiaItemVO(vocationalHighList, SchoolAge.VOCATIONAL_HIGH.desc, validScreeningNum, primarySchoolAndAboveVO::setVocationalHighSchool);
+            }else {
+                getMyopiaItemVO(highList, ReportConst.HIGH, validScreeningNum, primarySchoolAndAboveVO::setHighSchool);
+            }
 
         } else {
-            getMyopiaItemVO(normalHighList, SchoolAge.HIGH.desc, validScreeningNum, primarySchoolAndAboveVO::setHighSchool);
+            if (CollectionUtil.isNotEmpty(normalHighList)){
+                getMyopiaItemVO(normalHighList, ReportConst.HIGH, validScreeningNum, primarySchoolAndAboveVO::setHighSchool);
+            }
         }
 
         //大学
