@@ -126,13 +126,11 @@ public class CredentialModificationHandler {
         }
         Integer planSchoolStudentId = screeningPlanSchoolStudent.getId();
         if (StringUtils.isNotBlank(screeningPlanSchoolStudent.getIdCard()) && StringUtils.isNotBlank(screeningPlanSchoolStudent.getPassport())) {
-
             throw new BusinessException("业务异常: id 和 passport同时存在, screeningPlanSchoolStudentId = " + planSchoolStudentId);
         }
         CredentialModificationHandler.ProcessResult processResult = getResult(screeningPlanSchoolStudent.getIdCard(), screeningPlanSchoolStudent.getPassport(), updatePlanStudentRequestDTO.getIdCard(), updatePlanStudentRequestDTO.getPassport());
         //从多端学生中查找数据
         Student existStudentByCredentialNO = getExistStudentByCredentialNO(processResult.getUpdateCredential());
-
         //更新或者插入多端学生
         Student updateStudent = updateOrInsertByCredentialNO(processResult.getUpdateCredential(), existStudentByCredentialNO, updatePlanStudentRequestDTO, planSchoolStudentId);
         screeningPlanSchoolStudent.setIdCard(updateStudent.getIdCard());
@@ -140,7 +138,6 @@ public class CredentialModificationHandler {
         screeningPlanSchoolStudent.setStudentId(updateStudent.getId());
         screeningPlanSchoolStudent.setClassName(schoolClassService.getById(updatePlanStudentRequestDTO.getClassId()).getName());
         screeningPlanSchoolStudent.setGradeName(schoolGradeService.getById(updatePlanStudentRequestDTO.getGradeId()).getName());
-        screeningPlanSchoolStudentService.updateById(screeningPlanSchoolStudent);
         // 更新筛查结果
         visionScreeningResultService.updatePlanStudentAndVisionResult(screeningPlanService.getById(screeningPlanSchoolStudent.getScreeningPlanId()), Lists.newArrayList(screeningPlanSchoolStudent));
         discardStudent(processResult.getDiscardCredential(), screeningPlanSchoolStudent.getScreeningPlanId());
@@ -295,6 +292,7 @@ public class CredentialModificationHandler {
      */
     public void deletedStudent(Integer studentId, Integer schoolId, Integer planId) {
         List<Integer> studentIds = Lists.newArrayList(studentId);
+        // TODO: 很危险的操作！！！基本上查出了整个表的筛查学生
         Map<Integer, ScreeningPlanSchoolStudent> planStudentMap = screeningPlanSchoolStudentService.getByNePlanId(planId).stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getStudentId, Function.identity(), (s1, s2) -> s1));
         Map<Integer, SchoolStudent> schoolStudentMap = schoolStudentService.getByStudentIdsAndSchoolId(studentIds, schoolId).stream().collect(Collectors.toMap(SchoolStudent::getStudentId, Function.identity(), (s1, s2) -> s1));
         Map<Integer, VisionScreeningResult> resultMap = visionScreeningResultService.getByStudentIds(studentIds).stream().collect(Collectors.toMap(VisionScreeningResult::getStudentId, Function.identity(), (s1, s2) -> s1));

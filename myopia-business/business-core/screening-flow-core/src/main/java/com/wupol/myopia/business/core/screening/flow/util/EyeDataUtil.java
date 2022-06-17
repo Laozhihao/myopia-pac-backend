@@ -2,10 +2,10 @@ package com.wupol.myopia.business.core.screening.flow.util;
 
 import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
 import com.wupol.myopia.business.common.utils.util.MaskUtil;
-import com.wupol.myopia.business.core.screening.flow.constant.SaprodontiaType;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.SaprodontiaDataDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.SaprodontiaStat;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.DeviationDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentVisionScreeningResultExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
@@ -435,79 +435,6 @@ public class EyeDataUtil {
             return "+" + bigDecimal.setScale(2, RoundingMode.DOWN).toString();
         }
         return bigDecimal.setScale(2, RoundingMode.DOWN).toString();
-    }
-
-
-    /**
-     * 合并上下牙床数据
-     * @param result 筛查数据
-     * @return 合并上下牙床数据
-     */
-    public static SaprodontiaDataDTO getSaprodontiaData(VisionScreeningResult result){
-
-        List<SaprodontiaDataDO.SaprodontiaItem> items = new ArrayList<>();
-
-        if (Objects.nonNull(result)&&Objects.nonNull(result.getSaprodontiaData())){
-            items.addAll(result.getSaprodontiaData().getAbove());
-            items.addAll(result.getSaprodontiaData().getUnderneath());
-        }
-
-        return calculationTooth(items);
-    }
-
-    /**
-     * 计算乳牙/恒牙
-     * TODO：计算方法差评，合并分支后，delete掉，复用其他分支相同功能代码
-     *
-     * @param items 牙齿数据
-     */
-    private static SaprodontiaDataDTO calculationTooth(List<SaprodontiaDataDO.SaprodontiaItem> items) {
-        SaprodontiaDataDTO saprodontiaDataDODTO = new SaprodontiaDataDTO();
-        int dDeciduous = 0;
-        int mDeciduous = 0;
-        int fDeciduous = 0;
-
-        int dPermanent = 0;
-        int mPermanent = 0;
-        int fPermanent = 0;
-        for (SaprodontiaDataDO.SaprodontiaItem item: items){
-            if (item!=null){
-                if (SaprodontiaType.DECIDUOUS_D.getName().equals(item.getDeciduous())){
-                    dDeciduous++;
-                }
-                if (SaprodontiaType.DECIDUOUS_M.getName().equals(item.getDeciduous())){
-                    mDeciduous++;
-                }
-                if (SaprodontiaType.DECIDUOUS_F.getName().equals(item.getDeciduous())){
-                    fDeciduous++;
-                }
-
-                if (SaprodontiaType.PERMANENT_D.getName().equals(item.getPermanent())){
-                    dPermanent++;
-                }
-                if (SaprodontiaType.PERMANENT_M.getName().equals(item.getPermanent())){
-                    mPermanent++;
-                }
-                if (SaprodontiaType.PERMANENT_F.getName().equals(item.getPermanent())){
-                    fPermanent++;
-                }
-            }
-        }
-
-        SaprodontiaStat deciduousTooth = new SaprodontiaStat();
-        deciduousTooth.setDCount(dDeciduous);
-        deciduousTooth.setMCount(mDeciduous);
-        deciduousTooth.setFCount(fDeciduous);
-
-        SaprodontiaStat permanentTooth = new SaprodontiaStat();
-        permanentTooth.setDCount(dPermanent);
-        permanentTooth.setMCount(mPermanent);
-        permanentTooth.setFCount(fPermanent);
-
-        saprodontiaDataDODTO.setDeciduousTooth(deciduousTooth);
-        saprodontiaDataDODTO.setPermanentTooth(permanentTooth);
-
-        return saprodontiaDataDODTO;
     }
 
     /**

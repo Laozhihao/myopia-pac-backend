@@ -11,6 +11,8 @@
     </resultMap>
     <resultMap id="StudentVisionScreeningResultExportDTO" type="com.wupol.myopia.business.core.screening.flow.domain.dto.StudentVisionScreeningResultExportDTO">
     </resultMap>
+    <resultMap id="CommonDiseasePlanStudent" type="com.wupol.myopia.business.core.screening.flow.domain.dto.CommonDiseasePlanStudent">
+    </resultMap>
 
     <!-- 通用查询条件 -->
     <sql id="Base_Where_Clause">
@@ -89,6 +91,9 @@
     <select id="selectSchoolGradeVoByPlanIdAndSchoolId" resultMap="GradeClassesDTO">
         select grade_id, grade_name, class_id, class_name from m_screening_plan_school_student
         where screening_plan_id = #{screeningPlanId} and school_id = #{schoolId}
+        <if test="gradeId != null">
+            AND grade_id = #{gradeId}
+        </if>
         group by grade_id, class_id
     </select>
 
@@ -562,5 +567,22 @@
         where school_id = #{schoolId}
           and screening_plan_id = #{planId}
         group by grade_id, class_id
+    </select>
+
+    <select id="selectCommonDiseaseScreeningPlanStudent" resultMap="CommonDiseasePlanStudent">
+        SELECT
+               mspss.id,
+               mspss.school_id,
+               mspss.grade_id,
+               mspss.school_district_id,
+               mspss.student_id,
+               msp.start_time as plan_start_time,
+               msp.id as plan_id
+        FROM
+             m_screening_plan_school_student mspss
+                 LEFT JOIN m_screening_plan msp ON mspss.screening_plan_id = msp.id
+        WHERE
+                mspss.school_id = #{schoolId}
+          AND msp.screening_type = 1
     </select>
 </mapper>

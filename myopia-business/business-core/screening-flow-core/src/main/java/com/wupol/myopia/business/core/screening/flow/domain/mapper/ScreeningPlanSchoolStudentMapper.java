@@ -20,7 +20,7 @@ public interface ScreeningPlanSchoolStudentMapper extends BaseMapper<ScreeningPl
     List<ScreeningStudentDTO> selectStudentVoByPlanIdAndSchoolIdAndGradeIdAndClassId(@Param("screeningPlanId") Integer screeningPlanId, @Param("schoolId") Integer schoolId,
                                                                                      @Param("gradeId") Integer gradeId,@Param("classId") Integer classId);
 
-    List<GradeClassesDTO> selectSchoolGradeVoByPlanIdAndSchoolId(@Param("screeningPlanId") Integer screeningPlanId, @Param("schoolId") Integer schoolId);
+    List<GradeClassesDTO> selectSchoolGradeVoByPlanIdAndSchoolId(@Param("screeningPlanId") Integer screeningPlanId, @Param("schoolId") Integer schoolId, @Param("gradeId") Integer gradeId);
 
     IPage<ScreeningStudentDTO> selectPageByQuery(@Param("page") Page<?> page, @Param("param") ScreeningStudentQueryDTO query);
 
@@ -71,4 +71,6 @@ public interface ScreeningPlanSchoolStudentMapper extends BaseMapper<ScreeningPl
     List<GradeClassesDTO> getGradeByPlanIdAndSchoolId(@Param("planId") Integer planId, @Param("schoolId") Integer schoolId);
 
     List<Integer> findSchoolIdsByPlanId(Integer planId);
+
+    List<CommonDiseasePlanStudent> selectCommonDiseaseScreeningPlanStudent(@Param("schoolId") Integer schoolId);
 }

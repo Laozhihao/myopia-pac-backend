@@ -13,6 +13,4 @@ import java.util.List;
  */
 public interface TemplateMapper extends BaseMapper<Template> {
 
-    List<Template> getByType(@Param("type") Integer type);
-
 }

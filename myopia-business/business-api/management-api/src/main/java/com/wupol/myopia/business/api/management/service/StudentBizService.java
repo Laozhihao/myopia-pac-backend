@@ -87,12 +87,6 @@ public class StudentBizService {
     @Resource
     private VistelToolsService vistelToolsService;
 
-    @Resource
-    private ScreeningOrganizationService screeningOrganizationService;
-
-    @Resource
-    private TemplateDistrictService templateDistrictService;
-
     @Autowired
     private StatConclusionService statConclusionService;
 
@@ -253,18 +247,6 @@ public class StudentBizService {
         }
         return student;
     }
-
-    /**
-     * 获取机构使用的模板
-     *
-     * @param screeningOrgId 筛查机构Id
-     * @return 模板Id
-     */
-    private Integer getTemplateId(Integer screeningOrgId) {
-        ScreeningOrganization org = screeningOrganizationService.getById(screeningOrgId);
-        return templateDistrictService.getArchivesByDistrictId(districtService.getProvinceId(org.getDistrictId()));
-    }
-
 
     /**
      * 删除学生
@@ -578,17 +560,6 @@ public class StudentBizService {
         }
         return studentPlans.stream().map(ScreeningPlanSchoolStudent::getScreeningCode)
                 .filter(Objects::nonNull).collect(Collectors.toList());
-    }
-
-    /**
-     * 编码身份证二选一
-     *
-     * @param student 学生
-     */
-    private void haveIdCardOrCode(Student student) {
-        if (StringUtils.isBlank(student.getIdCard()) && CollectionUtils.isEmpty(getScreeningCode(student.getId()))) {
-            throw new BusinessException("身份证和编码不能都为空");
-        }
     }
 
     /**

@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
+import com.wupol.myopia.business.core.school.service.StudentCommonDiseaseIdService;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionQueryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO;
@@ -17,6 +19,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
+import org.springframework.beans.factory.annotation.Autowired;
 import com.wupol.myopia.business.core.screening.flow.util.EyeDataUtil;
 import com.wupol.myopia.business.core.screening.flow.util.ReScreenCardUtil;
 import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
@@ -40,9 +43,10 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
 
     @Resource
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
-
     @Resource
     private StatConclusionService statConclusionService;
+    @Autowired
+    private StudentCommonDiseaseIdService studentCommonDiseaseIdService;
 
     /**
      * 通过StudentId获取筛查结果
@@ -258,6 +262,11 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         if (CollectionUtils.isEmpty(planStudents)) {
             return;
         }
+        // 设置常见病ID
+        if (!ScreeningTypeEnum.isVisionScreeningType(plan.getScreeningType())) {
+            planStudents.forEach(x -> x.setCommonDiseaseId(studentCommonDiseaseIdService.getStudentCommonDiseaseId(x.getSchoolDistrictId(), x.getSchoolId(), x.getGradeId(), x.getStudentId(), plan.getStartTime())));
+        }
+        // 新增或更新筛查计划学生
         screeningPlanSchoolStudentService.saveOrUpdateBatch(planStudents);
         // 获取所有结果
         Integer planId = plan.getId();
@@ -275,6 +284,7 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         }
         Map<Integer, StatConclusion> statConclusionMap = statConclusionList.stream().collect(Collectors.toMap(StatConclusion::getResultId, Function.identity()));
 
+        // 更新学生筛查数据的 studentId、schoolId
         List<VisionScreeningResult> updateResultList = new ArrayList<>();
         List<StatConclusion> updateStatConclusionList = new ArrayList<>();
 
@@ -326,8 +336,8 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
 
         VisionScreeningResultDTO visionScreeningResultDTO = new VisionScreeningResultDTO();
         BeanUtils.copyProperties(firstResult, visionScreeningResultDTO);
-        // TODO：合并治豪分支后，复用其统计方法
-        visionScreeningResultDTO.setSaprodontiaDataDTO(getSaprodontiaDataDTO(firstResult))
+
+        visionScreeningResultDTO.setSaprodontiaStat(SaprodontiaStat.parseFromSaprodontiaDataDO(firstResult.getSaprodontiaData()))
                 .setGender(screeningPlanSchoolStudentService.getById(firstResult.getScreeningPlanSchoolStudentId()).getGender())
                 .setLeftSE(StatUtil.getSphericalEquivalent(EyeDataUtil.leftSph(firstResult), EyeDataUtil.leftCyl(firstResult)))
                 .setRightSE(StatUtil.getSphericalEquivalent(EyeDataUtil.rightSph(firstResult),EyeDataUtil.rightCyl(firstResult)))
@@ -344,69 +354,6 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
             visionScreeningResultDTO.setRescreening(Optional.ofNullable(ReScreenCardUtil.reScreeningResult(firstResult, reScreeningResult)).orElse(new ReScreenDTO()));
         }
         return visionScreeningResultDTO;
-    }
-
-    public SaprodontiaDataDTO getSaprodontiaDataDTO(VisionScreeningResult result){
-        List<SaprodontiaDataDO.SaprodontiaItem> items = new ArrayList<>();
-        if (Objects.nonNull(result)&&Objects.nonNull(result.getSaprodontiaData())){
-            items.addAll(result.getSaprodontiaData().getAbove());
-            items.addAll(result.getSaprodontiaData().getUnderneath());
-        }
-        return calculationTooth(items);
-    }
-
-    /**
-     * 计算乳牙/恒牙
-     * @param items
-     */
-    private SaprodontiaDataDTO calculationTooth(List<SaprodontiaDataDO.SaprodontiaItem> items) {
-        SaprodontiaDataDTO saprodontiaDataDTO = new SaprodontiaDataDTO();
-        int dCountDeciduous = 0;
-        int mCountDeciduous = 0;
-        int fFountDeciduous = 0;
-
-        int dFountPermanent = 0;
-        int mFountPermanent = 0;
-        int fFountPermanent = 0;
-        for (SaprodontiaDataDO.SaprodontiaItem item: items){
-            if (item != null){
-                if (item != null){
-                    if (SaprodontiaType.DECIDUOUS_D.getName().equals(item.getDeciduous())){
-                        dCountDeciduous++;
-                    }
-                    if (SaprodontiaType.DECIDUOUS_M.getName().equals(item.getDeciduous())){
-                        mCountDeciduous++;
-                    }
-                    if (SaprodontiaType.DECIDUOUS_F.getName().equals(item.getDeciduous())){
-                        fFountDeciduous++;
-                    }
-                    if (SaprodontiaType.PERMANENT_D.getName().equals(item.getPermanent())){
-                        dFountPermanent++;
-                    }
-                    if (SaprodontiaType.PERMANENT_M.getName().equals(item.getPermanent())){
-                        mFountPermanent++;
-                    }
-                    if (SaprodontiaType.PERMANENT_F.getName().equals(item.getPermanent())){
-                        fFountPermanent++;
-                    }
-                }
-            }
-        }
-
-        SaprodontiaStat deciduousTooth = new SaprodontiaStat();
-        deciduousTooth.setDCount(dCountDeciduous);
-        deciduousTooth.setMCount(mCountDeciduous);
-        deciduousTooth.setFCount(fFountDeciduous);
-
-        SaprodontiaStat permanentTooth = new SaprodontiaStat();
-        permanentTooth.setDCount(dFountPermanent);
-        permanentTooth.setMCount(mFountPermanent);
-        permanentTooth.setFCount(fFountPermanent);
-
-        saprodontiaDataDTO.setDeciduousTooth(deciduousTooth);
-        saprodontiaDataDTO.setPermanentTooth(permanentTooth);
-
-        return saprodontiaDataDTO;
     }
 
     /**

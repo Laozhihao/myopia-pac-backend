@@ -60,7 +60,7 @@ public class ScreeningPlanSchoolStudentFacadeService {
      */
     public List<SchoolGradeVO> getSchoolGradeVoByPlanIdAndSchoolId(Integer screeningPlanId, Integer schoolId) {
         //1. 获取该计划学校的筛查学生所有年级、班级
-        List<GradeClassesDTO> gradeClasses = screeningPlanSchoolStudentService.selectSchoolGradeVoByPlanIdAndSchoolId(screeningPlanId, schoolId);
+        List<GradeClassesDTO> gradeClasses = screeningPlanSchoolStudentService.selectSchoolGradeVoByPlanIdAndSchoolId(screeningPlanId, schoolId, null);
         return getSchoolGradeVOS(gradeClasses);
     }
 

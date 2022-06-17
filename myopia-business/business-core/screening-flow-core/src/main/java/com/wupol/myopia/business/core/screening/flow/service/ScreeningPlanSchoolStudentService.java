@@ -163,8 +163,8 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         return baseMapper.countBySchoolIdAndNoticeId(schoolId, srcScreeningNoticeId);
     }
 
-    public List<GradeClassesDTO> selectSchoolGradeVoByPlanIdAndSchoolId(Integer screeningPlanId, Integer schoolId) {
-        return baseMapper.selectSchoolGradeVoByPlanIdAndSchoolId(screeningPlanId, schoolId);
+    public List<GradeClassesDTO> selectSchoolGradeVoByPlanIdAndSchoolId(Integer screeningPlanId, Integer schoolId, Integer gradeId) {
+        return baseMapper.selectSchoolGradeVoByPlanIdAndSchoolId(screeningPlanId, schoolId, gradeId);
     }
 
     public List<ScreeningStudentDTO> selectStudentVoByPlanIdAndSchoolIdAndGradeIdAndClassId(Integer screeningPlanId, Integer schoolId,Integer gradeId,Integer classId) {
@@ -544,5 +544,15 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         } catch (NumberFormatException e) {
             return null;
         }
+    }
+
+    /**
+     * 获取常见病筛查学生
+     *
+     * @param schoolId 学校ID
+     * @return java.util.List<com.wupol.myopia.business.core.screening.flow.domain.dto.CommonDiseasePlanStudent>
+     **/
+    public List<CommonDiseasePlanStudent> getCommonDiseaseScreeningPlanStudent(Integer schoolId) {
+        return baseMapper.selectCommonDiseaseScreeningPlanStudent(schoolId);
     }
 }
