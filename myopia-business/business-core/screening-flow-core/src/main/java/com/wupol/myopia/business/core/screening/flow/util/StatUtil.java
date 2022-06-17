@@ -10,7 +10,10 @@ import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.constant.SchoolEnum;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.SaprodontiaDataDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.experimental.UtilityClass;
@@ -24,8 +27,6 @@ import java.time.Period;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.math.RoundingMode;
-import java.util.Objects;
 
 /**
  * 筛查结论计算工具 (产品说判断结论时没数据不给任何值)
@@ -778,7 +779,7 @@ public class StatUtil {
     }
 
     public static WarningLevel nakedVision(BigDecimal nakedVision, Integer age) {
-        if (ObjectsUtil.hasNull(nakedVision, age) || (Objects.nonNull(age) && age < 3)) {
+        if (Objects.isNull(nakedVision) || Objects.isNull(age) || age < 3) {
             return null;
         }
         if (age >= 6){
