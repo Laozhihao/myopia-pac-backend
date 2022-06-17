@@ -735,6 +735,9 @@ public class CommonReportService {
         if (Objects.equals(isHyperopia, Boolean.TRUE)) {
             result.add("远视");
         }
+        if (CollectionUtils.isEmpty(result)) {
+            return "正常";
+        }
         return result.stream().filter(StringUtils::isNotBlank).collect(Collectors.joining("、"));
     }
 
