@@ -33,7 +33,8 @@ public class OnlineUserStatisticFilter implements GlobalFilter, Ordered {
     private RedisUtil redisUtil;
 
     private static String onlineUsersNum = "online:%s:%s";
-    private static final long ONLINE_USERS_EXPIRED = 10*60;
+    /** 有效时间：十分钟 10*60**/
+    private static final long ONLINE_USERS_EXPIRED = 600L;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
