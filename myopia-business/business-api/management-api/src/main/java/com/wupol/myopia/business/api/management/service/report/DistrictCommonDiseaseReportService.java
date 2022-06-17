@@ -220,7 +220,7 @@ public class DistrictCommonDiseaseReportService {
     }
 
     private List<ScreeningPlanSchoolStudent> getScreeningStudentList(List<Integer> haveStudentDistrictIds,Map<Integer, List<ScreeningPlanSchoolStudent>> planStudentCountMap){
-        return haveStudentDistrictIds.stream().flatMap(id -> {
+        return haveStudentDistrictIds.stream().distinct().flatMap(id -> {
             List<ScreeningPlanSchoolStudent> planSchoolStudentList = planStudentCountMap.get(id);
             if (CollectionUtil.isNotEmpty(planSchoolStudentList)) {
                 return planSchoolStudentList.stream();
