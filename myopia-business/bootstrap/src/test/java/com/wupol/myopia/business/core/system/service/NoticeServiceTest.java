@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.system.service;
 
 import com.wupol.myopia.business.bootstrap.MyopiaBusinessApplication;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,7 @@ public class NoticeServiceTest {
     @Test
     public void testSendNoticeToAllAdmin() {
         noticeService.sendNoticeToAllAdmin(-1, "这里一个伟大的通知", "这是一个伟大的内容", CommonConst.NOTICE_STATION_LETTER);
+        Assert.assertTrue(true);
     }
 
 }

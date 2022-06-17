@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Objects;
 
 /**
  * 筛查结论计算工具类测试
@@ -108,8 +109,8 @@ public class StatUtilTest {
 
     @Test
     public void isOverweightAndObesityTest(){
-        Assert.assertEquals(false,StatUtil.isOverweightAndObesity("58","1.4","10.0",0).getFirst());
-        Assert.assertEquals(true,StatUtil.isOverweightAndObesity("58","1.4","10.0",0).getSecond());
+        Assert.assertEquals(false, Objects.requireNonNull(StatUtil.isOverweightAndObesity("58", "1.4", "10.0", 0)).getFirst());
+        Assert.assertEquals(true, Objects.requireNonNull(StatUtil.isOverweightAndObesity("58", "1.4", "10.0", 0)).getSecond());
     }
 
     @Test
