@@ -24,6 +24,8 @@ import java.time.Period;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.math.RoundingMode;
+import java.util.Objects;
 
 /**
  * 筛查结论计算工具 (产品说判断结论时没数据不给任何值)
@@ -1016,7 +1018,7 @@ public class StatUtil {
     }
 
 
-    //===============5、建议就诊 ScreeningResultUtil.getDoctorAdvice
+    //===============5、建议就诊在ScreeningResultUtil.getDoctorAdvice中
 
 
 

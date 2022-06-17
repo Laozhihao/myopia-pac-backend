@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.screening.flow.service;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -168,15 +169,15 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         return baseMapper.countBySchoolIdAndNoticeId(schoolId, srcScreeningNoticeId);
     }
 
-    public List<GradeClassesDTO> selectSchoolGradeVoByPlanIdAndSchoolId(Integer screeningPlanId, Integer schoolId) {
-        return baseMapper.selectSchoolGradeVoByPlanIdAndSchoolId(screeningPlanId, schoolId);
+    public List<GradeClassesDTO> selectSchoolGradeVoByPlanIdAndSchoolId(Integer screeningPlanId, Integer schoolId, Integer gradeId) {
+        return baseMapper.selectSchoolGradeVoByPlanIdAndSchoolId(screeningPlanId, schoolId, gradeId);
     }
 
     public List<ScreeningStudentDTO> selectStudentVoByPlanIdAndSchoolIdAndGradeIdAndClassId(Integer screeningPlanId, Integer schoolId,Integer gradeId,Integer classId) {
         return baseMapper.selectStudentVoByPlanIdAndSchoolIdAndGradeIdAndClassId(screeningPlanId, schoolId,gradeId,classId);
     }
 
-    public IPage<ScreeningStudentDTO> selectPageByQuery(Page<ScreeningStudentDTO> page, ScreeningStudentQueryDTO query) {
+    public IPage<ScreeningStudentDTO> selectPageByQuery(Page<?> page, ScreeningStudentQueryDTO query) {
         return baseMapper.selectPageByQuery(page, query);
     }
     /**
@@ -536,7 +537,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @return List<ScreeningPlanSchoolStudent>
      */
     public List<ScreeningPlanSchoolStudent> getByIds(List<Integer> ids) {
-        return baseMapper.getByIds(ids);
+        return baseMapper.selectBatchIds(ids);
     }
 
     /**
@@ -565,5 +566,15 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         } catch (NumberFormatException e) {
             return null;
         }
+    }
+
+    /**
+     * 获取常见病筛查学生
+     *
+     * @param schoolId 学校ID
+     * @return java.util.List<com.wupol.myopia.business.core.screening.flow.domain.dto.CommonDiseasePlanStudent>
+     **/
+    public List<CommonDiseasePlanStudent> getCommonDiseaseScreeningPlanStudent(Integer schoolId) {
+        return baseMapper.selectCommonDiseaseScreeningPlanStudent(schoolId);
     }
 }

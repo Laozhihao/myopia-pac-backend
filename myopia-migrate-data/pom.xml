@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>myopia-pac-backend</artifactId>
+        <groupId>com.wupol.myopia</groupId>
+        <version>MP-2.4.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>myopia-migrate-data</artifactId>
+    <name>myopia-migrate-data</name>
+    <description>山西版近视防控数据迁移模块</description>
+
+    <dependencies>
+        <!-- business SDK -->
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>business-sdk</artifactId>
+            <version>${project.version}</version>
+            <exclusions>
+                <!-- 排除 logging 日志依赖，否则会导致log4j与logback冲突 -->
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!-- 多数据源 -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>dynamic-datasource-spring-boot-starter</artifactId>
+            <version>2.5.6</version>
+        </dependency>
+        <!-- test -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+            <!-- 排除logging，否则重复引入冲突 -->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>myopia-migrate-data</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

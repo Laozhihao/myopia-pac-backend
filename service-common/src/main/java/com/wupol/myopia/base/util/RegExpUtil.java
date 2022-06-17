@@ -3,6 +3,7 @@ package com.wupol.myopia.base.util;
 import lombok.experimental.UtilityClass;
 import org.springframework.util.StringUtils;
 
+import javax.validation.ValidationException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,7 +25,7 @@ public class RegExpUtil {
     /**
      * 日期匹配
      */
-    public static String convertDate(String date){
+    public static String convertDate(String date) {
         int length = date.length();
         Pattern date1 = Pattern.compile(DATE1);
         Pattern date2 = Pattern.compile(DATE2);
@@ -35,6 +36,7 @@ public class RegExpUtil {
         Matcher matcherDate2 = date2.matcher(date);
         Matcher matcherDate3 = date3.matcher(date);
         Matcher matcherDate4 = date4.matcher(date);
+        Matcher matcherDate5 = date5.matcher(date);
         if (matcherDate1.find()){
             if (length==10){
                 return date;
@@ -48,7 +50,8 @@ public class RegExpUtil {
                 return date.substring(0,5)+"0"+date.substring(5,7)+"0"+date.substring(7);
             }
 
-        }else if (matcherDate2.find()){
+        }
+        if (matcherDate2.find()){
             String sub;
             if (length==10){
                 return date.replace("/","-");
@@ -62,7 +65,8 @@ public class RegExpUtil {
                 sub = date.substring(0,5)+"0"+date.substring(5,7)+"0"+date.substring(7);
             }
             return sub.replace("/","-");
-        }else if (matcherDate3.find()) {
+        }
+        if (matcherDate3.find()) {
             String sub;
             if (length==11){
                 sub = date;
@@ -76,7 +80,8 @@ public class RegExpUtil {
                 sub = date.substring(0,5)+"0"+date.substring(5,7)+"0"+date.substring(7);
             }
             return sub.replace("\\u5e74","-").replace("\\u6708","-").replace("\\u65e5","");
-        }else if (matcherDate4.find()){
+        }
+        if (matcherDate4.find()){
             String sub;
             if (length==8){
                 sub = date + "01";
@@ -84,10 +89,11 @@ public class RegExpUtil {
                 sub = date.substring(0,5)+"0"+date.substring(5)+"01";
             }
             return sub.replace("\\u5e74","-").replace("\\u6708","-");
-        } else{
+        }
+        if (matcherDate5.find()){
             return date.substring(0,4)+"-"+date.substring(4,6)+"-"+date.substring(6);
         }
-
+        throw new ValidationException("无效日期");
     }
 
 

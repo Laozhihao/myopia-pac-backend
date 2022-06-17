@@ -22,24 +22,23 @@ public class ExportReportServiceNameConstant {
      * 筛查机构筛查报告
      */
     public final String SCREENING_ORG_SCREENING_REPORT_SERVICE = "screeningOrgScreeningReportService";
-    /**
-     * 学校档案卡
-     */
-    public final String SCHOOL_ARCHIVES_SERVICE = "schoolArchivesService";
+
+
     /**
      * 行政区域档案卡
      */
     public final String EXPORT_DISTRICT_ARCHIVES_SERVICE = "exportDistrictArchivesService";
 
     /**
-     * 筛查机构档案卡
+     * 学校或年级档案卡
      */
-    public final String SCREENING_ORG_ARCHIVES_SERVICE = "screeningOrgArchivesService";
+    public final String EXPORT_SCHOOL_OR_GRADE_ARCHIVES_SERVICE = "exportSchoolOrGradeArchivesService";
 
     /**
-     * 批量当个学生档案卡
+     * 班级或若干个学生档案卡
      */
-    public final String STUDENT_ARCHIVES_SERVICE = "studentArchivesService";
+    public final String EXPORT_CLASS_OR_STUDENT_ARCHIVES_SERVICE = "exportClassOrStudentArchivesService";
+
 
     /**
      * 导出筛检计划下的对应数据

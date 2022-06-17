@@ -6,8 +6,8 @@ import lombok.experimental.Accessors;
 import java.io.Serializable;
 
 /**
- * @ClassName screeningPlanSchoolStudent
- * @Description TODO
+ * 可导出的学校
+ *
  * @Author TaoShuai
  * @Date 2022/3/9 10:40
  * @Version 1.0
@@ -15,8 +15,7 @@ import java.io.Serializable;
 
 @Data
 @Accessors(chain = true)
-public class screeningPlanSchoolStudentDTO implements Serializable {
-
+public class ExportPlanSchool implements Serializable {
 
     /**
      * 筛查结果--所属的计划id
@@ -27,15 +26,5 @@ public class screeningPlanSchoolStudentDTO implements Serializable {
      * 筛查结果--学校id
      */
     private Integer schoolId;
-
-    /**
-     * 班级Id
-     */
-    private Integer classId;
-
-    /**
-     * 年级Id
-     */
-    private Integer gradeId;
 
 }

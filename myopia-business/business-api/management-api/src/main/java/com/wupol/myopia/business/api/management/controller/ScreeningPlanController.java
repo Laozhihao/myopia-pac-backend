@@ -47,7 +47,10 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -103,10 +106,13 @@ public class ScreeningPlanController {
     @PostMapping()
     public void createInfo(@RequestBody @Valid ScreeningPlanDTO screeningPlanDTO) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        // 校验用户机构
-        if (user.isGovDeptUser() || user.isPlatformAdminUser()) {
-            // 政府部门，无法新增计划
+        // 校验用户机构，政府部门，无法新增计划
+        if (user.isGovDeptUser()) {
             throw new ValidationException("无权限");
+        }
+        // 平台管理员，筛查机构ID必传
+        if (user.isPlatformAdminUser()) {
+            Assert.notNull(screeningPlanDTO.getScreeningOrgId(), "筛查机构ID不能为空");
         }
         // 若为筛查人员或医生，只能发布自己机构的计划
         if (user.isScreeningUser() || (user.isHospitalUser() && (Objects.nonNull(user.getScreeningOrgId())))) {
@@ -128,12 +134,12 @@ public class ScreeningPlanController {
             ScreeningTask screeningTask = screeningTaskService.getById(screeningPlanDTO.getScreeningTaskId());
             screeningPlanDTO.setSrcScreeningNoticeId(screeningTask.getScreeningNoticeId()).setDistrictId(screeningTask.getDistrictId()).setGovDeptId(screeningTask.getGovDeptId());
         } else {
-            // 用户自己新建的筛查计划需设置districtIdmanagement/screeningNotice
+            // 用户自己新建的筛查计划需设置districtId
             ScreeningOrganization organization = screeningOrganizationService.getById(user.getScreeningOrgId());
             screeningPlanDTO.setDistrictId(organization.getDistrictId());
         }
         screeningPlanDTO.setCreateUserId(user.getId());
-        screeningPlanService.saveOrUpdateWithSchools(user, screeningPlanDTO, true);
+        screeningPlanService.saveOrUpdateWithSchools(user.getId(), screeningPlanDTO, true);
     }
 
     /**
@@ -159,9 +165,8 @@ public class ScreeningPlanController {
         if (DateUtil.isDateBeforeToday(screeningPlanDTO.getStartTime())) {
             throw new ValidationException(BizMsgConstant.VALIDATION_START_TIME_ERROR);
         }
-        CurrentUser user = CurrentUserUtil.getCurrentUser();
         screeningPlanDTO.setScreeningOrgId(screeningPlan.getScreeningOrgId());
-        screeningPlanService.saveOrUpdateWithSchools(user, screeningPlanDTO, false);
+        screeningPlanService.saveOrUpdateWithSchools(CurrentUserUtil.getCurrentUser().getId(), screeningPlanDTO, false);
     }
 
     /**
@@ -247,9 +252,7 @@ public class ScreeningPlanController {
     public List<ScreeningPlanSchoolStudent> queryGradesInfo(@PathVariable Integer screeningPlanId, @PathVariable Integer schoolId,
                                                @PathVariable Integer gradeId,@PathVariable Integer classId) {
 
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getByPlanIdAndSchoolIdAndGradeIdAndClassId(screeningPlanId, schoolId,
-                gradeId, classId);
-        return screeningPlanSchoolStudents;
+        return screeningPlanSchoolStudentService.getByPlanIdAndSchoolIdAndGradeIdAndClassId(screeningPlanId, schoolId, gradeId, classId);
     }
 
     /**
@@ -334,7 +337,7 @@ public class ScreeningPlanController {
         // 学校是否可新增：如果该机构相同时间段内已有该学校，不能新增
         LocalDate startTime = com.wupol.framework.core.util.DateUtil.fromDate(screeningPlan.getStartTime());
         LocalDate endTime = com.wupol.framework.core.util.DateUtil.fromDate(screeningPlan.getEndTime());
-        List<Integer> havePlanSchoolIds = screeningPlanSchoolService.getHavePlanSchoolIds(null, screeningPlan.getId(), screeningPlan.getScreeningOrgId(), startTime, endTime);
+        List<Integer> havePlanSchoolIds = screeningPlanSchoolService.getHavePlanSchoolIds(null, screeningPlan.getId(), screeningPlan.getScreeningOrgId(), startTime, endTime,screeningPlan.getScreeningType());
         if (schoolListsByPlanId.stream().anyMatch(screeningPlanSchool -> havePlanSchoolIds.contains(screeningPlanSchool.getSchoolId()))) {
             throw new ValidationException("该筛查机构相同时间段内计划已存在学校");
         }
@@ -445,6 +448,22 @@ public class ScreeningPlanController {
     @PostMapping("/update/planStudent")
     public void updatePlanStudent(@RequestBody UpdatePlanStudentRequestDTO requestDTO) {
         screeningPlanStudentBizService.updatePlanStudent(requestDTO);
+    }
+
+    /**
+     * 增加筛查时间
+     * @param screeningPlanDTO
+     */
+    @PostMapping("/increased/screeningTime")
+    public void updateScreeningEndTime(@RequestBody ScreeningPlanDTO screeningPlanDTO) {
+        Assert.notNull(screeningPlanDTO.getId(), "计划Id不能为空");
+        Assert.notNull(screeningPlanDTO.getEndTime(), "结束时间不能为空");
+        if (!CurrentUserUtil.getCurrentUser().isPlatformAdminUser()){
+            ScreeningPlan screeningPlan = screeningPlanService.getById(screeningPlanDTO.getId());
+            Assert.isTrue(screeningPlan.getUpdateScreeningEndTimeStatus() == ScreeningPlan.NOT_CHANGED, "该计划已经增加过时间");
+        }
+        ScreeningPlan plan = new ScreeningPlan().setId(screeningPlanDTO.getId()).setEndTime(screeningPlanDTO.getEndTime()).setUpdateScreeningEndTimeStatus(ScreeningPlan.MODIFIED);
+        screeningPlanService.updateById(plan);
     }
 
     /**
@@ -561,16 +580,8 @@ public class ScreeningPlanController {
     * @Date: 2022/1/12
     */
     @GetMapping("/getStudentEyeByStudentId")
-    public ApiResult getStudentEyeByStudentId(@RequestParam Integer planId,@RequestParam Integer studentId) {
-        List<Integer> studentIds = Collections.singletonList(studentId);
-        List<VisionScreeningResult> visionScreeningResults =  visionScreeningResultService.getByStudentIdsAndPlanId(planId,studentIds);
-        if (visionScreeningResults.isEmpty()){
-            return ApiResult.success();
-        }
-        VisionScreeningResult visionScreeningResult = visionScreeningResults.get(0);
-
-        return ApiResult.success(visionScreeningResult);
-
+    public ApiResult getStudentEyeByStudentId(@RequestParam Integer planId,@RequestParam Integer planStudentId) {
+        return ApiResult.success(visionScreeningResultService.getStudentScreeningResultDetail(planId, planStudentId));
     }
 
     /**

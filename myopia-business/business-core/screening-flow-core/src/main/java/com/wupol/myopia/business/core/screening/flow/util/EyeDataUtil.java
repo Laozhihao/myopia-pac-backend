@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.core.screening.flow.util;
 
-import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
 import com.wupol.myopia.business.common.utils.util.MaskUtil;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
@@ -438,17 +437,6 @@ public class EyeDataUtil {
         return bigDecimal.setScale(2, RoundingMode.DOWN).toString();
     }
 
-
-    /**
-     * 获取戴镜是否为空
-     * @param visionScreeningResult 筛查结果
-     * @return 类型描述
-     */
-    public static Integer glassTypeDesc(VisionScreeningResult visionScreeningResult) {
-        return Optional.ofNullable(visionScreeningResult) .map(VisionScreeningResult::getVisionData) .map(VisionDataDO::getRightEyeData)
-                .map(VisionDataDO.VisionData::getGlassesType) .orElse(null);
-    }
-
     /**
      * 获取右眼裸视力
      * @param visionScreeningResult 筛查结果
@@ -566,19 +554,27 @@ public class EyeDataUtil {
     }
 
     /**
-     * 计算 等效球镜
-     *
-     * @param sph 球镜
-     * @param cyl 柱镜
-     * @return 等效球镜
+     * 计算 等效球镜（右眼）
+     * @param visionScreenResult 筛查数据
+     * @return 计算 等效球镜（右眼）
      */
-    public static BigDecimal calculationSE(BigDecimal sph, BigDecimal cyl) {
-        if (ObjectsUtil.hasNull(sph, cyl)) {
-            return null;
-        }
-        return sph.add(cyl.multiply(new BigDecimal("0.5")))
-                .setScale(2, RoundingMode.HALF_UP);
+    public static BigDecimal rightSE(VisionScreeningResult visionScreenResult) {
+        BigDecimal sph = rightSph(visionScreenResult);
+        BigDecimal cyl = rightCyl(visionScreenResult);
+        return StatUtil.getSphericalEquivalent(sph, cyl);
     }
+
+    /**
+     * 计算 等效球镜（左眼）
+     * @param visionScreenResult 筛查数据
+     * @return 计算 等效球镜（右眼）
+     */
+    public static BigDecimal leftSE(VisionScreeningResult visionScreenResult) {
+        BigDecimal sph = leftSph(visionScreenResult);
+        BigDecimal cyl = leftCyl(visionScreenResult);
+        return StatUtil.getSphericalEquivalent(sph, cyl);
+    }
+
     /**
      * 电脑验光误差
      * @param visionScreenResult 筛查结果
@@ -594,9 +590,9 @@ public class EyeDataUtil {
      * @param visionScreenResult 筛查结果
      * @return 身高/体重误差说明
      */
-    public static String heightWeightDeviationRemark(VisionScreeningResult visionScreenResult) {
+    public static DeviationDO.HeightWeightDeviation heightWeightDeviationRemark(VisionScreeningResult visionScreenResult) {
         return Optional.ofNullable(visionScreenResult) .map(VisionScreeningResult::getDeviationData)
-                .map(DeviationDO::getHeightWeightDeviation).map(DeviationDO.HeightWeightDeviation::getRemark) .orElse(null);
+                .map(DeviationDO::getHeightWeightDeviation).orElse(null);
     }
 
     /**
@@ -609,12 +605,12 @@ public class EyeDataUtil {
     }
 
     /**
-     * 创建时间
+     * 更新时间
      * @param visionScreenResult 筛查结果
-     * @return 创建时间
+     * @return 更新时间
      */
-    public static Date createTime(VisionScreeningResult visionScreenResult) {
-        return Optional.ofNullable(visionScreenResult) .map(VisionScreeningResult::getCreateTime) .orElse(null);
+    public static Date updateTime(VisionScreeningResult visionScreenResult) {
+        return Optional.ofNullable(visionScreenResult) .map(VisionScreeningResult::getUpdateTime) .orElse(null);
     }
 
     /**
@@ -626,8 +622,4 @@ public class EyeDataUtil {
         return Optional.ofNullable(visionScreenResult) .map(VisionScreeningResult::getVisionData).map(VisionDataDO::getRightEyeData)
                 .map(VisionDataDO.VisionData::getGlassesType) .orElse(null);
     }
-
-
-
-
 }

@@ -119,11 +119,11 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
      * @param districtIds
      * @return
      */
-    public List<screeningPlanSchoolStudentDTO> getExportVoByScreeningNoticeIdAndDistrictIdsAndGroupBy(Integer screeningNoticeId, List<Integer> districtIds) {
+    public List<ExportPlanSchool> getPlanSchoolGradeClassHasData(Integer screeningNoticeId, List<Integer> districtIds) {
         if (CollectionUtils.isEmpty(districtIds)) {
             return Collections.emptyList();
         }
-        return baseMapper.selectExportVoByScreeningNoticeIdAndDistrictIdsAndGroupBy(screeningNoticeId, districtIds);
+        return baseMapper.selectPlanSchoolGradeClassHasData(screeningNoticeId, districtIds);
     }
 
     /**
