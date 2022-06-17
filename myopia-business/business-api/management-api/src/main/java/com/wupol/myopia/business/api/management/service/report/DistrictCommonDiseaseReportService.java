@@ -77,7 +77,9 @@ public class DistrictCommonDiseaseReportService {
         DistrictCommonDiseaseReportVO districtCommonDiseaseReportVO = new DistrictCommonDiseaseReportVO();
 
         List<Integer> districtIds = districtService.getSpecificDistrictTreeAllDistrictIds(districtId);
-        districtIds.add(districtId);
+        if (!districtIds.contains(districtId)){
+            districtIds.add(districtId);
+        }
 
         List<StatConclusion> statConclusionList = getStatConclusionList(noticeId, Lists.newArrayList(districtIds), Boolean.TRUE, Boolean.FALSE);
 
