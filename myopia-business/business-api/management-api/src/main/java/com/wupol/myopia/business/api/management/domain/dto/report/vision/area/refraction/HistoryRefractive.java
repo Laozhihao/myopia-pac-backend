@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.area.refraction;
 
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.ConvertRatio;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.HorizontalChart;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.RefractiveTable;
 import lombok.Getter;
@@ -19,22 +20,22 @@ public class HistoryRefractive {
     /**
      * 视力低下
      */
-    private String lowVisionProportion;
+    private ConvertRatio lowVisionProportion;
 
     /**
      * 远视储备不足
      */
-    private String insufficientProportion;
+    private ConvertRatio insufficientProportion;
 
     /**
      * 屈光不正率
      */
-    private String refractiveErrorProportion;
+    private ConvertRatio refractiveErrorProportion;
 
     /**
      * 屈光参差率
      */
-    private String anisometropiaProportion;
+    private ConvertRatio anisometropiaProportion;
 
     /**
      * 幼儿园屈光图表

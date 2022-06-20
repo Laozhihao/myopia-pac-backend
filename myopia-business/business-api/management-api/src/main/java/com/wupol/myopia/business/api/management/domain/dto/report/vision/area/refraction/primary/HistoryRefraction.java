@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.area.refraction.primary;
 
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.ConvertRatio;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.HorizontalChart;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.AstigmatismTable;
 import lombok.Getter;
@@ -37,22 +38,22 @@ public class HistoryRefraction {
         /**
          * 近视率
          */
-        private String myopiaProportion;
+        private ConvertRatio myopiaProportion;
 
         /**
          * 近视前期率
          */
-        private String earlyMyopiaProportion;
+        private ConvertRatio earlyMyopiaProportion;
 
         /**
          * 低度近视率
          */
-        private String lightMyopiaProportion;
+        private ConvertRatio lightMyopiaProportion;
 
         /**
          * 高度近视率
          */
-        private String highMyopiaProportion;
+        private ConvertRatio highMyopiaProportion;
     }
 
 

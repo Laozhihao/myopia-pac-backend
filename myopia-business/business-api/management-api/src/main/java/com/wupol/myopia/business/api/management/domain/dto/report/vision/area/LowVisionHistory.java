@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.area;
 
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.area.schoolage.AreaHistoryLowVisionTable;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.ConvertRatio;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.HorizontalChart;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,12 +20,12 @@ public class LowVisionHistory {
     /**
      * 幼儿园
      */
-    private String kProportion;
+    private ConvertRatio kConvertRatio;
 
     /**
      * 小学及以上
      */
-    private String pProportion;
+    private ConvertRatio pConvertRatio;
 
     /**
      * 图表

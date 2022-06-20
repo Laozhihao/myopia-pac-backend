@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.school.primary;
 
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.ConvertRatio;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.HorizontalChart;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.MyopiaTable;
 import lombok.Getter;
@@ -42,27 +43,27 @@ public class PrimaryHistoryVision {
         /**
          * 视力低下率
          */
-        private String lowVision;
+        private ConvertRatio lowVision;
 
         /**
          * 近视率
          */
-        private String myopia;
+        private ConvertRatio myopia;
 
         /**
          * 近视前期率
          */
-        private String early;
+        private ConvertRatio early;
 
         /**
          * 低度近视率
          */
-        private String lightMyopia;
+        private ConvertRatio lightMyopia;
 
         /**
          * 高度近视率
          */
-        private String highMyopia;
+        private ConvertRatio highMyopia;
     }
 
 }

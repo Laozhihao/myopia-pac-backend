@@ -434,8 +434,22 @@ public class CommonReportService {
         });
     }
 
-    public String getChainRatioProportion(String firstProportion, String thisTimeProportion) {
-        return new BigDecimal(firstProportion).subtract(new BigDecimal(thisTimeProportion)).setScale(2, RoundingMode.HALF_UP).toString();
+    public ConvertRatio getChainRatioProportion(String firstProportion, String thisTimeProportion) {
+        BigDecimal bigDecimal = new BigDecimal(firstProportion).subtract(new BigDecimal(thisTimeProportion)).setScale(2, RoundingMode.HALF_UP);
+        int i = bigDecimal.compareTo(new BigDecimal("0"));
+        String var = StringUtils.EMPTY;
+        String proportion = bigDecimal.toString();
+        if (i < 0) {
+            var = "下降";
+        }
+        if (i == 0) {
+            var = "没有变化";
+            proportion = StringUtils.EMPTY;
+        }
+        if (i > 0) {
+            var = "上涨";
+        }
+        return new ConvertRatio(var, proportion);
     }
 
     public Integer getSchoolCount(List<StatConclusion> statConclusions) {
