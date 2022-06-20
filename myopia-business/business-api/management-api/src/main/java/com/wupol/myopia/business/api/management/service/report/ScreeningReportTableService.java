@@ -234,6 +234,7 @@ public class ScreeningReportTableService {
             table.setName(s.getSecond());
             long total = list.size();
             table.setValidCount(total);
+            table.setIsSameReport(s.getFirst().equals(noticeId));
 
             CountAndProportion insufficient = countAndProportionService.insufficient(list, total);
             table.setInsufficientStudentCount(insufficient.getCount());
