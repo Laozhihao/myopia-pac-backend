@@ -81,7 +81,7 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
      * @return List<ScreeningNotice>
      */
     public List<ScreeningNotice> getByIds(List<Integer> ids) {
-        return baseMapper.getByIdsOrderByCreateTime(ids);
+        return baseMapper.getByIdsOrderByStartTime(ids);
     }
 
     /**

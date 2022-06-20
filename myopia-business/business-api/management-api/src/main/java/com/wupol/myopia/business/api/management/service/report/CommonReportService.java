@@ -639,39 +639,39 @@ public class CommonReportService {
         // 获取当前学校和计划下的所有学生
         List<ScreeningPlanSchoolStudent> planStudents = screeningPlanSchoolStudentService.getByPlanIdAndSchoolId(plan.getId(), school.getId());
         List<Integer> planStudentIds = planStudents.stream().map(ScreeningPlanSchoolStudent::getId).collect(Collectors.toList());
+        Map<Integer, Map<Integer, List<ScreeningPlanSchoolStudent>>> planStudentMap = planStudents.stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getGradeId, Collectors.groupingBy(ScreeningPlanSchoolStudent::getClassId, Collectors.toList())));
 
         // 通过学生获取筛查统计结果
         List<StatConclusion> statConclusions = statConclusionService.getByPlanStudentIds(planStudentIds);
         List<Integer> resultIds = statConclusions.stream().map(StatConclusion::getResultId).collect(Collectors.toList());
+        Map<Integer, StatConclusion> statConclusionMap = statConclusions.stream().collect(Collectors.toMap(StatConclusion::getScreeningPlanSchoolStudentId, Function.identity()));
 
         List<VisionScreeningResult> resultList = visionScreeningResultService.getByIds(resultIds);
         Map<Integer, VisionScreeningResult> resultMap = resultList.stream().collect(Collectors.toMap(VisionScreeningResult::getId, Function.identity()));
         Map<Integer, String> studentNameMap = planStudents.stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getId, ScreeningPlanSchoolStudent::getStudentName));
 
         // 通过学校班级年级分组
-        Map<String, Map<String, List<StatConclusion>>> statMap = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode, Collectors.groupingBy(StatConclusion::getSchoolClassName, Collectors.toList())));
-        Map<Integer, ScreeningPlanSchoolStudent> planStudentMap = screeningPlanSchoolStudentService.getByIds(resultList.stream().map(VisionScreeningResult::getScreeningPlanSchoolStudentId).collect(Collectors.toList())).stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getId, Function.identity()));
         List<SchoolGrade> gradeList = schoolGradeService.getBySchoolId(school.getId());
         Map<Integer, List<SchoolClassExportDTO>> classMap = schoolClassService.getByGradeIds(gradeList.stream().map(SchoolGrade::getId).collect(Collectors.toList())).stream().collect(Collectors.groupingBy(SchoolClassExportDTO::getGradeId));
 
         gradeList.forEach(grade -> {
-            Map<String, List<StatConclusion>> gradeStatMap = statMap.get(grade.getGradeCode());
-            if (CollectionUtils.isEmpty(gradeStatMap)) {
+            Map<Integer, List<ScreeningPlanSchoolStudent>> gradePlanStudentMap = planStudentMap.get(grade.getId());
+            if (CollectionUtils.isEmpty(gradePlanStudentMap)) {
                 return;
             }
             List<SchoolClassExportDTO> schoolClassList = classMap.get(grade.getId());
             schoolClassList.forEach(schoolClass -> {
-                List<StatConclusion> classStatList = gradeStatMap.get(schoolClass.getName());
-                if (CollectionUtils.isEmpty(classStatList)) {
+                List<ScreeningPlanSchoolStudent> classPlanStudentList = gradePlanStudentMap.get(schoolClass.getId());
+                if (CollectionUtils.isEmpty(classPlanStudentList)) {
                     return;
                 }
                 ClassScreeningData classScreeningData = new ClassScreeningData();
                 classScreeningData.setGradeName(grade.getName());
                 classScreeningData.setClassName(schoolClass.getName());
                 List<ScreeningDataReportTable> dataReportTableList = new ArrayList<>();
-                classStatList.forEach(sourceData -> {
-                    VisionScreeningResult result = resultMap.get(sourceData.getResultId());
-                    dataReportTableList.add(getReportDate(sourceData, result, studentNameMap.get(sourceData.getScreeningPlanSchoolStudentId()), planStudentMap.get(result.getScreeningPlanSchoolStudentId()), isk));
+                classPlanStudentList.forEach(sourceData -> {
+                    VisionScreeningResult result = resultMap.get(sourceData.getScreeningPlanId());
+                    dataReportTableList.add(getReportDate(statConclusionMap.getOrDefault(sourceData.getId(),new StatConclusion()), result, sourceData, isk));
                 });
                 classScreeningData.setTables(dataReportTableList);
                 dataList.add(classScreeningData);
@@ -680,11 +680,11 @@ public class CommonReportService {
         return dataList;
     }
 
-    private ScreeningDataReportTable getReportDate(StatConclusion statConclusion, VisionScreeningResult result, String studentName, ScreeningPlanSchoolStudent planStudent, Boolean isk) {
+    private ScreeningDataReportTable getReportDate(StatConclusion statConclusion, VisionScreeningResult result, ScreeningPlanSchoolStudent planStudent, Boolean isk) {
 
         ScreeningDataReportTable table = new ScreeningDataReportTable();
-        table.setName(studentName);
-        table.setGender(GenderEnum.getName(statConclusion.getGender()));
+        table.setName(planStudent.getStudentName());
+        table.setGender(GenderEnum.getName(planStudent.getGender()));
         table.setGlassesType(GlassesTypeEnum.getDescByCode(statConclusion.getGlassesType()));
         table.setNakedVision(StrUtil.spliceChar("/", ScreeningDataFormatUtils.singleEyeDateFormat(EyeDataUtil.rightNakedVision(result)), ScreeningDataFormatUtils.singleEyeDateFormat(EyeDataUtil.leftNakedVision(result))));
         table.setCorrectedVision(StrUtil.spliceChar("/", ScreeningDataFormatUtils.singleEyeDateFormat(EyeDataUtil.rightCorrectedVision(result)), ScreeningDataFormatUtils.singleEyeDateFormat(EyeDataUtil.leftCorrectedVision(result))));
@@ -818,7 +818,7 @@ public class CommonReportService {
                 return;
             }
             String name = DateFormatUtil.format(notice.getStartTime(), DateFormatUtil.FORMAT_YEAR_AND_MONTH) + "-" + DateFormatUtil.format(notice.getEndTime(), DateFormatUtil.FORMAT_YEAR_AND_MONTH);
-            getThreeTuple(threeTuples, statConclusions, notice.getId() + name, notice.getId());
+            getThreeTuple(threeTuples, statConclusions, name, notice.getId());
         });
         return threeTuples;
     }
@@ -826,7 +826,7 @@ public class CommonReportService {
     public List<ThreeTuple<Integer, String, List<StatConclusion>>> getSchoolHistoryData(Integer schoolId, Boolean isK) {
 
         List<Integer> planIds = screeningPlanSchoolService.getBySchoolId(schoolId).stream().map(ScreeningPlanSchool::getScreeningPlanId).collect(Collectors.toList());
-        List<ScreeningPlan> planList = screeningPlanService.getByIds(planIds);
+        List<ScreeningPlan> planList = screeningPlanService.getByIdsOrderByStartTime(planIds);
         Map<Integer, List<StatConclusion>> statMap;
 
         if (isK) {
@@ -845,7 +845,7 @@ public class CommonReportService {
             Date endTime = plan.getEndTime();
 
             String name = DateFormatUtil.format(startTime, DateFormatUtil.FORMAT_YEAR_AND_MONTH) + "-" + DateFormatUtil.format(endTime, DateFormatUtil.FORMAT_YEAR_AND_MONTH);
-            getThreeTuple(threeTuples, statConclusions, plan.getId() + name, plan.getId());
+            getThreeTuple(threeTuples, statConclusions, name, plan.getId());
         });
         return threeTuples;
     }
