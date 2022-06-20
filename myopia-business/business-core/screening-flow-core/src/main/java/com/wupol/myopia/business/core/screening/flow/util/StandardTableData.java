@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.wupol.myopia.base.util.BigDecimalUtil;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import lombok.experimental.UtilityClass;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.List;
  *
  * @author hang.yuan 2022/4/12 16:58
  */
+@UtilityClass
 public class StandardTableData {
 
     private static final List<OverweightAndObesityData> OVERWEIGHT_AND_OBESITY_DATA_LIST;

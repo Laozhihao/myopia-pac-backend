@@ -4,7 +4,6 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.stat.domain.model.ScreeningResultStatistic;
 import lombok.Data;
-import org.springframework.beans.BeanUtils;
 
 import java.util.List;
 import java.util.Objects;

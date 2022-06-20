@@ -1,10 +1,13 @@
 package com.wupol.myopia.business.api.management.constant;
 
+import lombok.experimental.UtilityClass;
+
 /**
  * 报告常量类型
  *
  * @author Simple4H
  */
+@UtilityClass
 public class ReportConst {
 
     /**

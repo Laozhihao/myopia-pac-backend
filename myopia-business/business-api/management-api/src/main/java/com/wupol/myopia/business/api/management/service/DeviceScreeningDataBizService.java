@@ -55,10 +55,10 @@ public class DeviceScreeningDataBizService {
         datas.getRecords().forEach(x -> {
             x.setScreeningOrgName(screeningOrganizationService.getNameById(x.getScreeningOrgId()));
             if (Objects.nonNull(x.getLeftAxsi())) {
-                x.setLeftAxsi(new BigDecimal(x.getLeftAxsi()).setScale(0, BigDecimal.ROUND_DOWN).doubleValue());
+                x.setLeftAxsi(BigDecimal.valueOf(x.getLeftAxsi()).setScale(0, BigDecimal.ROUND_DOWN).doubleValue());
             }
             if (Objects.nonNull(x.getRightAxsi())) {
-                x.setRightAxsi(new BigDecimal(x.getRightAxsi()).setScale(0, BigDecimal.ROUND_DOWN).doubleValue());
+                x.setRightAxsi(BigDecimal.valueOf(x.getRightAxsi()).setScale(0, BigDecimal.ROUND_DOWN).doubleValue());
             }
         });
         return datas;

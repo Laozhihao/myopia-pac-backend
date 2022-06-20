@@ -1,7 +1,5 @@
 package com.wupol.myopia.business.aggregation.screening.service;
 
-import com.wupol.myopia.base.domain.CurrentUser;
-import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
@@ -15,7 +13,6 @@ import com.wupol.myopia.business.core.screening.flow.domain.builder.StatConclusi
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultBasicData;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.VisionScreeningResultMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
@@ -248,7 +245,6 @@ public class VisionScreeningBizService {
      * @param districtIds 行政区域ids
      */
     public int getScreeningResult(List<Integer> districtIds, List<Integer> taskIds) {
-        int resultCount  = visionScreeningResultMapper.selectScreeningResultByDistrictIdAndTaskId(districtIds,taskIds);
-        return resultCount;
+        return visionScreeningResultMapper.selectScreeningResultByDistrictIdAndTaskId(districtIds,taskIds);
     }
 }

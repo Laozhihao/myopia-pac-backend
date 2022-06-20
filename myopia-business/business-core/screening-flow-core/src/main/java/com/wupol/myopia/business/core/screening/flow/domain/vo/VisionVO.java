@@ -3,8 +3,6 @@ package com.wupol.myopia.business.core.screening.flow.domain.vo;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.DeviationDO;
 import lombok.Data;
 
-import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.Date;
 
 /**

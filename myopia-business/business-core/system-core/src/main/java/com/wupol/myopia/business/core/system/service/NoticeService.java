@@ -196,7 +196,7 @@ public class NoticeService extends BaseService<NoticeMapper, Notice> {
         UserDTO userDTO = new UserDTO();
         userDTO.setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode()).setUserType(UserType.PLATFORM_ADMIN.getType());
         List<User> userList = oauthServiceClient.getUserList(userDTO);
-        List<Integer> userIds = userList.stream().map(user -> user.getId()).filter(userId -> !userId.equals(createUserId)).collect(Collectors.toList());
+        List<Integer> userIds = userList.stream().map(User::getId).filter(userId -> !userId.equals(createUserId)).collect(Collectors.toList());
         batchCreateNotice(createUserId, null, userIds, type, title, content, null, null);
     }
 

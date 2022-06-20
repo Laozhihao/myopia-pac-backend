@@ -9,6 +9,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentVisionScreeningResultExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -24,6 +25,7 @@ import java.util.*;
  * @Description:
  */
 @Slf4j
+@UtilityClass
 public class EyeDataUtil {
 
     public static StudentVisionScreeningResultExportDTO setStudentData(ScreeningStudentDTO studentDTO, VisionScreeningResult visionScreeningResult) {

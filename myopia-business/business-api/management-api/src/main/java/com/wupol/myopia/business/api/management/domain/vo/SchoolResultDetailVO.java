@@ -42,9 +42,7 @@ public class SchoolResultDetailVO {
         if (CollectionUtil.isNotEmpty(screeningResultStatistics)){
             Map<Integer, ScreeningResultStatistic> resultStatisticMap = screeningResultStatistics.stream().collect(Collectors.toMap(ScreeningResultStatistic::getSchoolType, Function.identity()));
             if (Objects.isNull(type)){
-                resultStatisticMap.forEach((schoolType,resultStatistic)->{
-                    setData(screeningNoticeId, schoolType, screeningType, school, resultStatistic);
-                });
+                resultStatisticMap.forEach((schoolType,resultStatistic)-> setData(screeningNoticeId, schoolType, screeningType, school, resultStatistic));
             }else {
                 ScreeningResultStatistic screeningResultStatistic = resultStatisticMap.get(type);
                 setData(screeningNoticeId, type, screeningType, school, screeningResultStatistic);

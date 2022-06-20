@@ -5,8 +5,8 @@ import com.wupol.myopia.business.core.school.constant.SchoolEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.stat.domain.model.SchoolVisionStatistic;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.apache.commons.collections4.CollectionUtils;
 
@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class ScreeningSchoolVisionStatisticVO extends ScreeningBasicResult {
 
@@ -27,7 +28,6 @@ public class ScreeningSchoolVisionStatisticVO extends ScreeningBasicResult {
 
 
     @Data
-    @Getter
     @Accessors(chain = true)
     public static class Item {
         /**

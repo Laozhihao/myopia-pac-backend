@@ -92,7 +92,7 @@ public class PrimarySchoolAndAboveResultDetailVO implements Serializable,FrontTa
             BeanUtils.copyProperties(screeningResultStatistic,screeningSituationDO);
 
             this.screeningSituation=screeningSituationDO;
-            this.primarySchoolAndAboveVisionAnalysis= Optional.ofNullable(screeningResultStatistic.getVisionAnalysis()).map(va -> (PrimarySchoolAndAboveVisionAnalysisDO) va).orElse(new PrimarySchoolAndAboveVisionAnalysisDO());
+            this.primarySchoolAndAboveVisionAnalysis= Optional.ofNullable(screeningResultStatistic.getVisionAnalysis()).map(PrimarySchoolAndAboveVisionAnalysisDO.class::cast).orElse(new PrimarySchoolAndAboveVisionAnalysisDO());
             this.visionWarning=Optional.ofNullable(screeningResultStatistic.getVisionWarning()).orElse(new VisionWarningDO());
             this.rescreenSituation= Optional.ofNullable(screeningResultStatistic.getRescreenSituation()).orElse(new RescreenSituationDO());
             this.saprodontia=Optional.ofNullable(screeningResultStatistic.getSaprodontia()).orElse(new SaprodontiaDO());

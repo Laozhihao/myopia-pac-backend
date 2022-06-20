@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.api.device.service;
 
 import com.alibaba.fastjson.JSONObject;
-import com.wupol.framework.domain.ThreeTuple;
 import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
 import com.wupol.myopia.business.api.device.domain.dto.FkrRequestDTO;
 import com.wupol.myopia.business.api.device.util.ParsePlanStudentUtils;

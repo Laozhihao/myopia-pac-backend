@@ -1,5 +1,6 @@
 package com.wupol.myopia.base.util;
 
+import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
@@ -11,6 +12,7 @@ import java.util.Objects;
  *
  * @author Simple4H
  */
+@UtilityClass
 public class ScreeningDataFormatUtils {
 
     /**

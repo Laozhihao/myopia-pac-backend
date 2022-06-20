@@ -113,7 +113,7 @@ public class ScheduledTasksExecutor {
      * @param date 日期
      */
     public void statistic(String date,Integer planId,Boolean isAll){
-        if(isAll){
+        if(Objects.equals(isAll,Boolean.TRUE)){
             List<Integer> yesterdayScreeningPlanIds = screeningPlanService.list().stream().map(ScreeningPlan::getId).filter(id->Objects.nonNull(id) && id>=127).collect(Collectors.toList());
             if (CollectionUtil.isEmpty(yesterdayScreeningPlanIds)) {
                 log.info("筛查数据统计：历史无筛查数据，无需统计");

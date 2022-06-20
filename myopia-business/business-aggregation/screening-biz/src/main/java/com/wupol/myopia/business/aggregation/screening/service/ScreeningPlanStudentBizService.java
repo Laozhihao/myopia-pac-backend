@@ -1,15 +1,14 @@
 package com.wupol.myopia.business.aggregation.screening.service;
 
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.ZipUtil;
 import com.alibaba.fastjson.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.google.common.collect.Lists;
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.domain.PdfResponseDTO;
-import com.wupol.myopia.base.domain.vo.PdfGeneratorVO;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.ListUtil;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
@@ -154,7 +153,7 @@ public class ScreeningPlanStudentBizService {
                                                                      Integer classId, Integer orgId, String planStudentIdStr,
                                                                      Boolean isSchoolClient, String planStudentName) {
         ResultNoticeConfig resultNoticeConfig;
-        if (isSchoolClient) {
+        if (Objects.equals(isSchoolClient,Boolean.TRUE)) {
             resultNoticeConfig = schoolService.getBySchoolId(schoolId).getResultNoticeConfig();
         } else {
             resultNoticeConfig = screeningOrganizationService.getScreeningOrgDetails(orgId).getResultNoticeConfig();
@@ -198,7 +197,7 @@ public class ScreeningPlanStudentBizService {
         if (CollectionUtils.isEmpty(screeningStudentDTOS)) {
             return;
         }
-        String fileSaveParentPath = getFileSaveParentPath() + UUID.randomUUID() + "/";
+        String fileSaveParentPath = getFileSaveParentPath() + UUID.randomUUID() + StrUtil.SLASH;
 
         List<Integer> schoolIds = screeningStudentDTOS.stream().map(ScreeningStudentDTO::getSchoolId).collect(Collectors.toList());
         Map<Integer, String> schoolMap = schoolService.getByIds(schoolIds).stream().collect(Collectors.toMap(School::getId, School::getName));

@@ -113,7 +113,7 @@ public class ScreeningAppService {
      * @return
      * @throws JsonProcessingException
      */
-    public List<SysStudent> getStudentReview(Integer schoolId, String gradeName, String clazzName, Integer screeningOrgId, String studentName, Integer page, Integer size, boolean isRandom) throws JsonProcessingException {
+    public List<SysStudent> getStudentReview(Integer schoolId, String gradeName, String clazzName, Integer screeningOrgId, String studentName, Integer page, Integer size, boolean isRandom) {
         Set<Integer> currentPlanIds = screeningPlanService.getCurrentPlanIds(screeningOrgId);
         if (CollectionUtils.isEmpty(currentPlanIds)) {
             return new ArrayList<>();
@@ -191,7 +191,7 @@ public class ScreeningAppService {
      * @return
      * @throws JsonProcessingException
      */
-    public List<ScreeningPlanSchoolStudent> getRandomData(List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents, String cacheKey, Date endTime) throws JsonProcessingException {
+    public List<ScreeningPlanSchoolStudent> getRandomData(List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents, String cacheKey, Date endTime) {
         //查找上次随机筛选的学生
         List<ScreeningPlanSchoolStudent> cacheList = this.getCacheList(cacheKey);
         // 如果cacheList 是null 说明没有数据,
@@ -240,7 +240,7 @@ public class ScreeningAppService {
         StatConclusion firstScreeningStatConclusion = null;
 
         for (StatConclusion statConclusion : statConclusionList) {
-            if (statConclusion.getIsRescreen()) {
+            if (Objects.equals(statConclusion.getIsRescreen(),Boolean.TRUE)) {
                 reScreeningStatConclusion = statConclusion;
             } else {
                 firstScreeningStatConclusion = statConclusion;
@@ -263,7 +263,7 @@ public class ScreeningAppService {
             return 1;
         }
 
-        if (reScreeningStatConclusion.getIsValid()) {
+        if (Objects.equals(reScreeningStatConclusion.getIsValid(),Boolean.TRUE)) {
             return 4;// 完成复测
         }
         return 2;
@@ -329,7 +329,7 @@ public class ScreeningAppService {
      * @param school
      * @return
      */
-    public Student getStudent(CurrentUser currentUser, AppStudentDTO appStudentDTO, School school) throws ParseException {
+    public Student getStudent(CurrentUser currentUser, AppStudentDTO appStudentDTO) throws ParseException {
         Student student = new Student();
         Long schoolId = appStudentDTO.getSchoolId();
         SchoolGrade schoolGrade = schoolGradeService.getByGradeNameAndSchoolId(schoolId.intValue(), appStudentDTO.getGrade());
@@ -526,8 +526,6 @@ public class ScreeningAppService {
         } else {
             schoolStudent = new SchoolStudent();
         }
-
-        School school = schoolService.getById(schoolId);
 
         schoolStudent.setStudentId(student.getId());
         schoolStudent.setSchoolId(schoolId);

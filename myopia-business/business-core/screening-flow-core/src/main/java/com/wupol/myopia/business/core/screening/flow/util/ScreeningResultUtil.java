@@ -1552,8 +1552,8 @@ public class ScreeningResultUtil {
      */
     private TwoTuple<BigDecimal, BigDecimal> getNormalSe(BigDecimal leftSph, BigDecimal rightSph, BigDecimal leftCyl, BigDecimal rightCyl) {
         //TODO:??
-        BigDecimal leftSe = StatUtil.getSphericalEquivalent(leftSph,leftCyl);;
-        BigDecimal rightSe= StatUtil.getSphericalEquivalent(rightSph,rightCyl);;
+        BigDecimal leftSe = StatUtil.getSphericalEquivalent(leftSph,leftCyl);
+        BigDecimal rightSe= StatUtil.getSphericalEquivalent(rightSph,rightCyl);
         return new TwoTuple<>(leftSe, rightSe);
     }
 

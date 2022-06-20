@@ -53,7 +53,7 @@ public class CheckResultUtilTest {
      */
     @Test
     public void testGetHyperopiaLevel() {
-        Assert.assertTrue(CheckResultUtil.getHyperopiaLevel(36, 3.6, 3.5) == 0);
+        Assert.assertEquals(0, CheckResultUtil.getHyperopiaLevel(36, 3.6, 3.5));
     }
 
     /**

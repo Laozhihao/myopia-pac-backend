@@ -49,7 +49,7 @@ public class StatConclusionBizService {
      * 筛查数据结论
      */
     public void screeningToConclusion(Integer planId,Boolean isAll){
-        if(isAll){
+        if(Objects.equals(isAll,Boolean.TRUE)){
             List<VisionScreeningResult> visionScreeningResults;
             if(Objects.nonNull(planId)){
                 LambdaQueryWrapper<VisionScreeningResult> queryWrapper = new LambdaQueryWrapper<>();
@@ -226,7 +226,7 @@ public class StatConclusionBizService {
             typeMap.forEach((type,list)->{
                 TwoTuple<VisionScreeningResult,VisionScreeningResult> result = new TwoTuple<>();
                 for (VisionScreeningResult visionScreeningResult : list) {
-                    if (visionScreeningResult.getIsDoubleScreen()) {
+                    if (Objects.equals(visionScreeningResult.getIsDoubleScreen(),Boolean.TRUE)) {
                         result.setSecond(visionScreeningResult);
                     }else {
                         result.setFirst(visionScreeningResult);

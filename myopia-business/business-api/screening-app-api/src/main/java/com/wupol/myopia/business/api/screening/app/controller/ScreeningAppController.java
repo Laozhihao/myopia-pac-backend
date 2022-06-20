@@ -427,7 +427,7 @@ public class ScreeningAppController {
         if (school == null) {
             return ApiResult.failure(ErrorEnum.SYS_SCHOOL_IS_NOT_EXIST.getCode(), ErrorEnum.SYS_SCHOOL_IS_NOT_EXIST.getMessage());
         }
-        Student student = screeningAppService.getStudent(CurrentUserUtil.getCurrentUser(), appStudentDTO, school);
+        Student student = screeningAppService.getStudent(CurrentUserUtil.getCurrentUser(), appStudentDTO);
         try {
             studentService.saveStudent(student);
             screeningAppService.insertSchoolStudent(student);

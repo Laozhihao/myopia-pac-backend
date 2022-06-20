@@ -1,9 +1,6 @@
 package com.wupol.myopia.business.api.management.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -15,38 +12,27 @@ import com.wupol.myopia.business.api.management.domain.vo.*;
 import com.wupol.myopia.business.api.management.schedule.ScheduledTasksExecutor;
 import com.wupol.myopia.business.api.management.service.*;
 import com.wupol.myopia.business.common.utils.constant.BizMsgConstant;
-import com.wupol.myopia.business.common.utils.constant.GlassesTypeEnum;
-import com.wupol.myopia.business.common.utils.constant.WarningLevel;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
-import com.wupol.myopia.business.core.school.service.SchoolService;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningNoticeNameDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanNameDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanSchoolInfoDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
-import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
-import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
-import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
-import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
-import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import com.wupol.myopia.business.core.stat.domain.model.DistrictAttentiveObjectsStatistic;
 import com.wupol.myopia.business.core.stat.service.DistrictVisionStatisticService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.*;
-import java.util.function.Function;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @ResponseResultBody

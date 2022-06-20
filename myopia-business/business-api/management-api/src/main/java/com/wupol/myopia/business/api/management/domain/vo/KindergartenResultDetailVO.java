@@ -73,7 +73,7 @@ public class KindergartenResultDetailVO implements Serializable, FrontTableId {
             BeanUtils.copyProperties(screeningResultStatistic,screeningSituationDO);
 
             this.screeningSituation =screeningSituationDO;
-            this.kindergartenVisionAnalysis = Optional.ofNullable(screeningResultStatistic.getVisionAnalysis()).map(va -> (KindergartenVisionAnalysisDO) va).orElse(new KindergartenVisionAnalysisDO());
+            this.kindergartenVisionAnalysis = Optional.ofNullable(screeningResultStatistic.getVisionAnalysis()).map(KindergartenVisionAnalysisDO.class::cast).orElse(new KindergartenVisionAnalysisDO());
             this.rescreenSituation=Optional.ofNullable(screeningResultStatistic.getRescreenSituation()).orElse(new RescreenSituationDO());
         }
 

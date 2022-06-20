@@ -2,6 +2,7 @@ package com.wupol.myopia.business.common.utils.util;
 
 import cn.hutool.core.util.IdcardUtil;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
+import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Date;
@@ -11,6 +12,7 @@ import java.util.Date;
  *
  * @author Simple4H
  */
+@UtilityClass
 public class IdCardUtil {
 
 

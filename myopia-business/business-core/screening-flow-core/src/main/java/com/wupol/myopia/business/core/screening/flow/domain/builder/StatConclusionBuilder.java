@@ -3,12 +3,9 @@ package com.wupol.myopia.business.core.screening.flow.domain.builder;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.constant.SystemCode;
-import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.BigDecimalUtil;
-import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
@@ -24,12 +21,10 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import org.apache.commons.collections4.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 /**
  * 筛查数据结论
