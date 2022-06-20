@@ -434,16 +434,6 @@ public class CommonReportService {
         });
     }
 
-    /**
-     * 环比百分比
-     */
-    public String getChainRatioProportion(List<String> proportions) {
-        if (CollectionUtils.isEmpty(proportions) || proportions.size() <= 1) {
-            return StringUtils.EMPTY;
-        }
-        return new BigDecimal(proportions.get(proportions.size() - 1)).subtract(new BigDecimal(proportions.get(proportions.size() - 2))).setScale(2, RoundingMode.HALF_UP).toString();
-    }
-
     public String getChainRatioProportion(String firstProportion, String thisTimeProportion) {
         return new BigDecimal(firstProportion).subtract(new BigDecimal(thisTimeProportion)).setScale(2, RoundingMode.HALF_UP).toString();
     }
@@ -485,13 +475,16 @@ public class CommonReportService {
 
         WarningSituation.GradeWarningInfo gradeWarning = new WarningSituation.GradeWarningInfo();
         gradeWarning.setTables(Lists.newArrayList(tables));
+        List<WarningTable> collect;
 
-        if (isShowInfo(tables, true)) {
-            if (isArea) {
-                gradeWarning.setGradeWarningChart(portraitChartService.warningChart(tables.stream().filter(s -> schoolAgeList().contains(s.getName())).collect(Collectors.toList())));
-            } else {
-                gradeWarning.setGradeWarningChart(portraitChartService.warningChart2(tables.stream().filter(s -> GradeCodeEnum.getAllName().contains(s.getName())).collect(Collectors.toList())));
-            }
+        if (isArea) {
+            collect = tables.stream().filter(s -> schoolAgeList().contains(s.getName())).collect(Collectors.toList());
+            gradeWarning.setGradeWarningChart(portraitChartService.warningChart(collect));
+        } else {
+            collect = tables.stream().filter(s -> GradeCodeEnum.getAllName().contains(s.getName())).collect(Collectors.toList());
+            gradeWarning.setGradeWarningChart(portraitChartService.warningChart2(collect));
+        }
+        if (isShowInfo(collect, true)) {
             WarningSituation.Info info = new WarningSituation.Info();
             info.setZero(highLowProportionService.warningTableHP(warningTables, s -> Float.valueOf(s.getZeroWarningProportion())));
             info.setOne(highLowProportionService.warningTableHP(warningTables, s -> Float.valueOf(s.getOneWarningProportion())));
@@ -510,13 +503,15 @@ public class CommonReportService {
     public PrimaryOverall getPrimaryOverall(List<PrimaryScreeningInfoTable> tables, List<StatConclusion> statConclusions, Long total) {
         PrimaryOverall primary = new PrimaryOverall();
         primary.setTables(Lists.newArrayList(tables));
-        primary.setLowVision(highLowProportionService.primaryMyopiaMaxMinProportion(countAndProportionService.lowVision(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getLowVisionProportion())));
-        primary.setMyopia(highLowProportionService.primaryMyopiaMaxMinProportion(countAndProportionService.myopia(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getMyopiaProportion())));
-        primary.setEarlyMyopia(highLowProportionService.primaryMyopiaMaxMinProportion(countAndProportionService.earlyMyopia(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getEarlyMyopiaProportion())));
-        primary.setLightMyopia(highLowProportionService.primaryMyopiaMaxMinProportion(countAndProportionService.lightMyopia(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getLightMyopiaProportion())));
-        primary.setHighMyopia(highLowProportionService.primaryMyopiaMaxMinProportion(countAndProportionService.highMyopia(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getHighMyopiaProportion())));
-        primary.setRecommendDoctor(highLowProportionService.primaryMyopiaMaxMinProportion(countAndProportionService.getRecommendDoctor(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getRecommendDoctorProportion())));
-        primary.setOwe(highLowProportionService.primaryMyopiaMaxMinProportion(countAndProportionService.underAndUncorrected(statConclusions).getProportion(), tables, s -> Float.valueOf(s.getOweProportion())));
+        PrimaryOverall.Info info = new PrimaryOverall.Info();
+        info.setLowVision(highLowProportionService.primaryMyopiaMaxMinProportion(countAndProportionService.lowVision(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getLowVisionProportion())));
+        info.setMyopia(highLowProportionService.primaryMyopiaMaxMinProportion(countAndProportionService.myopia(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getMyopiaProportion())));
+        info.setEarlyMyopia(highLowProportionService.primaryMyopiaMaxMinProportion(countAndProportionService.earlyMyopia(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getEarlyMyopiaProportion())));
+        info.setLightMyopia(highLowProportionService.primaryMyopiaMaxMinProportion(countAndProportionService.lightMyopia(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getLightMyopiaProportion())));
+        info.setHighMyopia(highLowProportionService.primaryMyopiaMaxMinProportion(countAndProportionService.highMyopia(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getHighMyopiaProportion())));
+        info.setRecommendDoctor(highLowProportionService.primaryMyopiaMaxMinProportion(countAndProportionService.getRecommendDoctor(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getRecommendDoctorProportion())));
+        info.setOwe(highLowProportionService.primaryMyopiaMaxMinProportion(countAndProportionService.underAndUncorrected(statConclusions).getProportion(), tables, s -> Float.valueOf(s.getOweProportion())));
+        primary.setInfo(info);
         return primary;
     }
 
@@ -608,10 +603,10 @@ public class CommonReportService {
     private HistoryRefractive getHistoryRefractive(List<RefractiveTable> kHistoryRefractiveTable) {
         HistoryRefractive historyRefractive = new HistoryRefractive();
         historyRefractive.setTables(Lists.newArrayList(kHistoryRefractiveTable));
-        historyRefractive.setLowVisionProportion(getChainRatioProportion(kHistoryRefractiveTable.stream().map(RefractiveTable::getLowVisionProportion).collect(Collectors.toList())));
-        historyRefractive.setInsufficientProportion(getChainRatioProportion(kHistoryRefractiveTable.stream().map(RefractiveTable::getInsufficientProportion).collect(Collectors.toList())));
-        historyRefractive.setRefractiveErrorProportion(getChainRatioProportion(kHistoryRefractiveTable.stream().map(RefractiveTable::getRefractiveErrorProportion).collect(Collectors.toList())));
-        historyRefractive.setAnisometropiaProportion(getChainRatioProportion(kHistoryRefractiveTable.stream().map(RefractiveTable::getAnisometropiaProportion).collect(Collectors.toList())));
+        historyRefractive.setLowVisionProportion(getChainRatioProportion(kHistoryRefractiveTable.stream().filter(s -> Objects.equals(s.getIsSameReport(), Boolean.TRUE)).collect(Collectors.toList()).get(0).getLowVisionProportion(), kHistoryRefractiveTable.get(kHistoryRefractiveTable.size() - 1).getLowVisionProportion()));
+        historyRefractive.setInsufficientProportion(getChainRatioProportion(kHistoryRefractiveTable.stream().filter(s -> Objects.equals(s.getIsSameReport(), Boolean.TRUE)).collect(Collectors.toList()).get(0).getInsufficientProportion(), kHistoryRefractiveTable.get(kHistoryRefractiveTable.size() - 1).getInsufficientProportion()));
+        historyRefractive.setRefractiveErrorProportion(getChainRatioProportion(kHistoryRefractiveTable.stream().filter(s -> Objects.equals(s.getIsSameReport(), Boolean.TRUE)).collect(Collectors.toList()).get(0).getRefractiveErrorProportion(), kHistoryRefractiveTable.get(kHistoryRefractiveTable.size() - 1).getRefractiveErrorProportion()));
+        historyRefractive.setAnisometropiaProportion(getChainRatioProportion(kHistoryRefractiveTable.stream().filter(s -> Objects.equals(s.getIsSameReport(), Boolean.TRUE)).collect(Collectors.toList()).get(0).getAnisometropiaProportion(), kHistoryRefractiveTable.get(kHistoryRefractiveTable.size() - 1).getAnisometropiaProportion()));
         if (!CollectionUtils.isEmpty(kHistoryRefractiveTable)) {
             historyRefractive.setKindergartenHistoryRefractive(horizontalChartService.kindergartenHistoryRefractive(kHistoryRefractiveTable));
         }

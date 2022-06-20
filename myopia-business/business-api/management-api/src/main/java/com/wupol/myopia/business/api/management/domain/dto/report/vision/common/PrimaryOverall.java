@@ -16,42 +16,53 @@ import java.util.List;
 public class PrimaryOverall {
 
     /**
-     * 视力低下
+     * 信息
      */
-    private MaxMinProportion lowVision;
-
-    /**
-     * 近视
-     */
-    private MaxMinProportion myopia;
-
-    /**
-     * 近视前期
-     */
-    private MaxMinProportion earlyMyopia;
-
-    /**
-     * 低度近视
-     */
-    private MaxMinProportion lightMyopia;
-
-    /**
-     * 高度近视
-     */
-    private MaxMinProportion highMyopia;
-
-    /**
-     * 建议就诊
-     */
-    private MaxMinProportion recommendDoctor;
-
-    /**
-     * 欠矫未矫
-     */
-    private MaxMinProportion owe;
+    private Info info;
 
     /**
      * 表格
      */
     private List<PrimaryScreeningInfoTable> tables;
+
+
+
+    @Getter
+    @Setter
+    public static class Info {
+        /**
+         * 视力低下
+         */
+        private MaxMinProportion lowVision;
+
+        /**
+         * 近视
+         */
+        private MaxMinProportion myopia;
+
+        /**
+         * 近视前期
+         */
+        private MaxMinProportion earlyMyopia;
+
+        /**
+         * 低度近视
+         */
+        private MaxMinProportion lightMyopia;
+
+        /**
+         * 高度近视
+         */
+        private MaxMinProportion highMyopia;
+
+        /**
+         * 建议就诊
+         */
+        private MaxMinProportion recommendDoctor;
+
+        /**
+         * 欠矫未矫
+         */
+        private MaxMinProportion owe;
+    }
 }

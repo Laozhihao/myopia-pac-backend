@@ -28,10 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -160,11 +157,11 @@ public class ScreeningPrimaryReportService {
         primaryHistoryVision.setTables(tables);
         PrimaryHistoryVision.Info info = new PrimaryHistoryVision.Info();
         if (!CollectionUtils.isEmpty(tables) && tables.size() > 1) {
-            info.setLowVision(commonReportService.getChainRatioProportion(tables.stream().map(MyopiaTable::getLowVisionProportion).collect(Collectors.toList())));
-            info.setMyopia(commonReportService.getChainRatioProportion(tables.stream().map(MyopiaTable::getMyopiaProportion).collect(Collectors.toList())));
-            info.setEarly(commonReportService.getChainRatioProportion(tables.stream().map(MyopiaTable::getEarlyProportion).collect(Collectors.toList())));
-            info.setLightMyopia(commonReportService.getChainRatioProportion(tables.stream().map(MyopiaTable::getLightProportion).collect(Collectors.toList())));
-            info.setHighMyopia(commonReportService.getChainRatioProportion(tables.stream().map(MyopiaTable::getHighProportion).collect(Collectors.toList())));
+            info.setLowVision(commonReportService.getChainRatioProportion(tables.stream().filter(s -> Objects.equals(s.getIsSameReport(), Boolean.TRUE)).collect(Collectors.toList()).get(0).getLowVisionProportion(), tables.get(tables.size() - 1).getLowVisionProportion()));
+            info.setMyopia(commonReportService.getChainRatioProportion(tables.stream().filter(s -> Objects.equals(s.getIsSameReport(), Boolean.TRUE)).collect(Collectors.toList()).get(0).getMyopiaProportion(), tables.get(tables.size() - 1).getMyopiaProportion()));
+            info.setEarly(commonReportService.getChainRatioProportion(tables.stream().filter(s -> Objects.equals(s.getIsSameReport(), Boolean.TRUE)).collect(Collectors.toList()).get(0).getEarlyProportion(), tables.get(tables.size() - 1).getEarlyProportion()));
+            info.setLightMyopia(commonReportService.getChainRatioProportion(tables.stream().filter(s -> Objects.equals(s.getIsSameReport(), Boolean.TRUE)).collect(Collectors.toList()).get(0).getLightProportion(), tables.get(tables.size() - 1).getLightProportion()));
+            info.setHighMyopia(commonReportService.getChainRatioProportion(tables.stream().filter(s -> Objects.equals(s.getIsSameReport(), Boolean.TRUE)).collect(Collectors.toList()).get(0).getHighProportion(), tables.get(tables.size() - 1).getHighProportion()));
             primaryHistoryVision.setInfo(info);
             primaryHistoryVision.setPrimaryHistoryVisionChart(horizontalChartService.myopiaTableChart(tables));
             primaryHistoryVision.setPrimaryLevelHistoryVisionChart(horizontalChartService.myopiaLevelTableChart(tables));

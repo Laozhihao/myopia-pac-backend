@@ -618,10 +618,10 @@ public class ScreeningAreaReportService {
         HistoryRefraction.Info info = new HistoryRefraction.Info();
         List<AstigmatismTable> pHistoryAstigmatismTable = screeningReportTableService.pHistoryAstigmatismTable(tuples, noticeId);
         historyRefraction.setTables(Lists.newArrayList(pHistoryAstigmatismTable));
-        info.setMyopiaProportion(commonReportService.getChainRatioProportion(pHistoryAstigmatismTable.stream().map(AstigmatismTable::getMyopiaProportion).collect(Collectors.toList())));
-        info.setEarlyMyopiaProportion(commonReportService.getChainRatioProportion(pHistoryAstigmatismTable.stream().map(AstigmatismTable::getEarlyMyopiaProportion).collect(Collectors.toList())));
-        info.setLightMyopiaProportion(commonReportService.getChainRatioProportion(pHistoryAstigmatismTable.stream().map(AstigmatismTable::getLightMyopiaProportion).collect(Collectors.toList())));
-        info.setHighMyopiaProportion(commonReportService.getChainRatioProportion(pHistoryAstigmatismTable.stream().map(AstigmatismTable::getHighMyopiaProportion).collect(Collectors.toList())));
+        info.setMyopiaProportion(commonReportService.getChainRatioProportion(pHistoryAstigmatismTable.stream().filter(s -> Objects.equals(s.getIsSameReport(), Boolean.TRUE)).collect(Collectors.toList()).get(0).getMyopiaProportion(), pHistoryAstigmatismTable.get(pHistoryAstigmatismTable.size() - 1).getMyopiaProportion()));
+        info.setEarlyMyopiaProportion(commonReportService.getChainRatioProportion(pHistoryAstigmatismTable.stream().filter(s -> Objects.equals(s.getIsSameReport(), Boolean.TRUE)).collect(Collectors.toList()).get(0).getEarlyMyopiaProportion(), pHistoryAstigmatismTable.get(pHistoryAstigmatismTable.size() - 1).getEarlyMyopiaProportion()));
+        info.setLightMyopiaProportion(commonReportService.getChainRatioProportion(pHistoryAstigmatismTable.stream().filter(s -> Objects.equals(s.getIsSameReport(), Boolean.TRUE)).collect(Collectors.toList()).get(0).getLightMyopiaProportion(), pHistoryAstigmatismTable.get(pHistoryAstigmatismTable.size() - 1).getLightMyopiaProportion()));
+        info.setHighMyopiaProportion(commonReportService.getChainRatioProportion(pHistoryAstigmatismTable.stream().filter(s -> Objects.equals(s.getIsSameReport(), Boolean.TRUE)).collect(Collectors.toList()).get(0).getHighMyopiaProportion(), pHistoryAstigmatismTable.get(pHistoryAstigmatismTable.size() - 1).getHighMyopiaProportion()));
         historyRefraction.setInfo(info);
         if (!CollectionUtils.isEmpty(pHistoryAstigmatismTable) && pHistoryAstigmatismTable.size() > 1) {
             historyRefraction.setPrimaryHistoryRefraction(horizontalChartService.primaryHistoryRefraction(pHistoryAstigmatismTable));
