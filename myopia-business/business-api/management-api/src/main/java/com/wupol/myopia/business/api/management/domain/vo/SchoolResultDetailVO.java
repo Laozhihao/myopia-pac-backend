@@ -54,12 +54,12 @@ public class SchoolResultDetailVO {
         if (Objects.equals(type, SchoolEnum.TYPE_KINDERGARTEN.getType())){
             KindergartenResultDetailVO detailVO=new KindergartenResultDetailVO();
             detailVO.setBaseData(screeningNoticeId,school.getDistrictId(),screeningType,school.getName());
-            detailVO.setItemData(screeningResultStatistic);
+            detailVO.setItemData(screeningResultStatistic,Boolean.TRUE);
             this.kindergartenResultDetail=detailVO;
         }else {
             PrimarySchoolAndAboveResultDetailVO detailVO = new PrimarySchoolAndAboveResultDetailVO();
             detailVO.setBaseData(screeningNoticeId,school.getDistrictId(),screeningType,school.getName());
-            detailVO.setItemData(screeningResultStatistic);
+            detailVO.setItemData(screeningResultStatistic,Boolean.FALSE);
             this.primarySchoolAndAboveResultDetail=detailVO;
         }
     }

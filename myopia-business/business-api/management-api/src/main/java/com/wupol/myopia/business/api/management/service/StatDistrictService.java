@@ -57,7 +57,7 @@ public class StatDistrictService {
         return getKindergartenResultVO(screeningNotice,districtId,noticeId);
     }
 
-    public KindergartenResultVO getKindergartenResultVO(ScreeningNotice screeningNotice,Integer districtId, Integer noticeId){
+    public KindergartenResultVO getKindergartenResultVO(ScreeningNotice screeningNotice, Integer districtId, Integer noticeId){
 
         //查找合计数据（当前层级 + 下级）
         List<ScreeningResultStatistic> visionStatistics = getKindergartenResultList(noticeId, districtId, screeningNotice.getScreeningType());

@@ -4,6 +4,7 @@ import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.beans.BeanUtils;
 
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.Objects;
  * @Author wulizhou
  * @Date 2021/4/25 15:15
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class ScreeningTaskAndDistrictVO extends ScreeningTaskDTO {
 

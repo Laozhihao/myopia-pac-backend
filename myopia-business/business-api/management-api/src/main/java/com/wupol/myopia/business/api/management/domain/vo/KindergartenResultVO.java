@@ -1,13 +1,10 @@
 package com.wupol.myopia.business.api.management.domain.vo;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.wupol.myopia.business.core.stat.domain.dos.KindergartenVisionAnalysisDO;
+import com.wupol.myopia.business.api.management.domain.builder.ItemBuilder;
 import com.wupol.myopia.business.core.stat.domain.model.ScreeningResultStatistic;
 import lombok.Data;
-import lombok.experimental.Accessors;
-import org.springframework.beans.BeanUtils;
+import lombok.EqualsAndHashCode;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -20,8 +17,7 @@ import java.util.stream.Collectors;
  * @author hang.yuan 2022/4/7 17:29
  */
 @Data
-public class KindergartenResultVO {
-
+public class KindergartenResultVO implements ResultVO {
 
     /**
      * 筛查范围、所属的地区id
@@ -50,149 +46,22 @@ public class KindergartenResultVO {
 
 
 
+
+    @EqualsAndHashCode(callSuper = true)
     @Data
-    @Accessors(chain = true)
-    public static class Item {
-        /**
-         * 查看的范围(地区或者学校名）
-         */
-        private String screeningRangeName;
+    public static class Item extends KindergartenItem {
         /**
          * 学校数
          */
         private Integer schoolNum;
-        /**
-         * 计划的学生数量（默认0）
-         */
-        private Integer planScreeningNum;
-
-        /**
-         * 实际筛查的学生数量（默认0）
-         */
-        private Integer realScreeningNum;
-        /**
-         * 实际筛查的学生比例（完成率）
-         */
-        private String finishRatio;
-
-        /**
-         * 纳入统计的实际筛查学生数量（默认0）
-         */
-        private Integer validScreeningNum;
-        /**
-         * 纳入统计的实际筛查学生比例
-         */
-        private String validScreeningRatio;
-
-        /**
-         * 视力低下人数（默认0）
-         */
-        private Integer lowVisionNum;
-
-        /**
-         * 视力低下比例（均为整数，如10.01%，数据库则是1001）
-         */
-        private String lowVisionRatio;
-
-        /**
-         * 平均左眼视力（小数点后一位，默认0.0）
-         */
-        @JsonFormat(shape = JsonFormat.Shape.STRING)
-        private BigDecimal avgLeftVision;
-
-        /**
-         * 平均右眼视力（小数点后一位，默认0.0）
-         */
-        @JsonFormat(shape = JsonFormat.Shape.STRING)
-        private BigDecimal avgRightVision;
-
-        /**
-         * 幼儿园--屈光不正人数（默认0）
-         */
-        private Integer ametropiaNum;
-
-        /**
-         * 幼儿园--屈光不正比例（均为整数，如10.01%，数据库则是1001）
-         */
-        private String ametropiaRatio;
-
-        /**
-         * 幼儿园--屈光参差人数（默认0）
-         */
-        private Integer anisometropiaNum;
-
-        /**
-         * 幼儿园--屈光参差率
-         */
-        private String anisometropiaRatio;
-
-        /**
-         * 幼儿园--远视储备不足人数（默认0）
-         */
-        private Integer myopiaLevelInsufficientNum;
-
-        /**
-         * 幼儿园--远视储备不足率
-         */
-        private String myopiaLevelInsufficientRatio;
-
-        /**
-         * 建议就诊数量（默认0）
-         */
-        private Integer treatmentAdviceNum;
-
-        /**
-         * 建议就诊比例（均为整数，如10.01%，数据库则是1001）
-         */
-        private String treatmentAdviceRatio;
-
-        /**
-         * 区域ID
-         */
-        private Integer districtId;
-
-        /**
-         * 通知id
-         */
-        private Integer screeningNoticeId;
-
-        /**
-         * 筛查类型
-         */
-        private Integer screeningType;
-
-        /**
-         *  是否幼儿园
-         */
-        private Boolean isKindergarten;
-
 
     }
-
-
-    public void setBasicData(Integer districtId, String currentRangeName) {
-        this.districtId = districtId;
-        this.rangeName = currentRangeName;
-    }
-
+    @Override
     public void setCurrentData(ScreeningResultStatistic currentVisionStatistic){
         if (Objects.isNull(currentVisionStatistic)){return;}
-        this.currentData = this.getItem(districtId,getRangeName(),currentVisionStatistic);
+        this.currentData = (Item) ItemBuilder.getKindergartenItem(Boolean.FALSE,currentVisionStatistic,getRangeName(),getDistrictId(),null);
     }
 
-    private Item getItem(Integer districtId,String rangeName, ScreeningResultStatistic currentVisionStatistic) {
-        Item item = new Item();
-        BeanUtils.copyProperties(currentVisionStatistic,item);
-        item.setScreeningRangeName(rangeName).setDistrictId(districtId).setIsKindergarten(Boolean.TRUE);
-
-        if (Objects.nonNull(currentVisionStatistic.getVisionAnalysis())){
-            KindergartenVisionAnalysisDO visionAnalysis = (KindergartenVisionAnalysisDO)currentVisionStatistic.getVisionAnalysis();
-            BeanUtils.copyProperties(visionAnalysis,item);
-        }
-
-        return item;
-
-    }
 
     public void setItemData(Integer districtId, List<ScreeningResultStatistic> visionStatistics, Map<Integer, String> districtIdNameMap) {
         // 下级数据 + 当前数据 + 合计数据
@@ -202,11 +71,11 @@ public class KindergartenResultVO {
             //是合计数据
             if (Objects.equals(districtId,statDistrictId)) {
                 statRangeName = "合计";
-                this.totalData = this.getItem(statDistrictId, statRangeName, visionStatistic);
+                this.totalData = (Item) ItemBuilder.getKindergartenItem(Boolean.FALSE,visionStatistic,statRangeName,statDistrictId,null);
                 return null;
             }
             statRangeName = districtIdNameMap.get(statDistrictId);
-            return this.getItem(statDistrictId, statRangeName, visionStatistic);
+            return (Item) ItemBuilder.getKindergartenItem(Boolean.FALSE,visionStatistic,statRangeName,statDistrictId,null);
         }).filter(Objects::nonNull).collect(Collectors.toSet());
     }
 

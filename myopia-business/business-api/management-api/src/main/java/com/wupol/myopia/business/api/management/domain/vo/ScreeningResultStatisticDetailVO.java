@@ -81,13 +81,13 @@ public class ScreeningResultStatisticDetailVO {
     private KindergartenResultDetailVO getKindergartenResultDetailVO(Integer districtId, String statRangeName,ScreeningResultStatistic screeningResultStatistic){
         KindergartenResultDetailVO kindergartenResultDetailVO = new KindergartenResultDetailVO();
         kindergartenResultDetailVO.setBaseData(screeningNoticeId,districtId,screeningType,statRangeName);
-        kindergartenResultDetailVO.setItemData(screeningResultStatistic);
+        kindergartenResultDetailVO.setItemData(screeningResultStatistic,Boolean.TRUE);
         return kindergartenResultDetailVO;
     }
     private PrimarySchoolAndAboveResultDetailVO getPrimarySchoolAndAboveResultDetailVO(Integer districtId, String statRangeName,ScreeningResultStatistic screeningResultStatistic ){
         PrimarySchoolAndAboveResultDetailVO primarySchoolAndAboveResultDetailVO = new PrimarySchoolAndAboveResultDetailVO();
         primarySchoolAndAboveResultDetailVO.setBaseData(screeningNoticeId,districtId,screeningType,statRangeName);
-        primarySchoolAndAboveResultDetailVO.setItemData(screeningResultStatistic);
+        primarySchoolAndAboveResultDetailVO.setItemData(screeningResultStatistic,Boolean.FALSE);
         return primarySchoolAndAboveResultDetailVO;
     }
 }
