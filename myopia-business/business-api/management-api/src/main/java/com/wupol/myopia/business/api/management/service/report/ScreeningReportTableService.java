@@ -255,7 +255,7 @@ public class ScreeningReportTableService {
             table.setLowVisionStudentCount(lowVision.getCount());
             table.setLowVisionProportion(lowVision.getProportion());
 
-            table.setIsSameReport(s.getFirst().equals(noticeId));
+
             tables.add(table);
 
         });

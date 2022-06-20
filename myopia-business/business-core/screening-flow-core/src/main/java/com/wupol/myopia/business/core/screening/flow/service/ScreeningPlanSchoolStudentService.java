@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.core.screening.flow.service;
 
-import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -667,5 +666,12 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     public List<ScreeningPlanSchoolStudent> getByNoticeIdsAndSchoolIds(List<Integer> noticeIds, List<Integer> schoolIds) {
         return baseMapper.getByNoticeIdsAndSchoolIds(noticeIds, schoolIds);
 
+    }
+
+    public List<ScreeningPlanSchoolStudent> getByPlanIdAndSchoolId(Integer planId, Integer schoolId) {
+        LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ScreeningPlanSchoolStudent::getScreeningPlanId, planId)
+                .eq(ScreeningPlanSchoolStudent::getSchoolId, schoolId);
+        return baseMapper.selectList(queryWrapper);
     }
 }

@@ -107,7 +107,7 @@ public class ScreeningPrimaryReportService {
             return classOveralls;
         }, executor);
         CompletableFuture<List<ClassScreeningData>> c5 = CompletableFuture.supplyAsync(() -> {
-            List<ClassScreeningData> classScreeningData = commonReportService.generateClassScreeningData(statConclusions, school, false);
+            List<ClassScreeningData> classScreeningData = commonReportService.generateClassScreeningData(school, plan, false);
             reportDTO.setClassScreeningData(classScreeningData);
             return classScreeningData;
         }, executor);

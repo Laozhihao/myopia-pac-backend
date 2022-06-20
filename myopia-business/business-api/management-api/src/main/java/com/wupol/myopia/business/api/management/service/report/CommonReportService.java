@@ -19,7 +19,6 @@ import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolClassExportDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
-import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.StudentService;
@@ -438,18 +437,16 @@ public class CommonReportService {
         BigDecimal bigDecimal = new BigDecimal(firstProportion).subtract(new BigDecimal(thisTimeProportion)).setScale(2, RoundingMode.HALF_UP);
         int i = bigDecimal.compareTo(new BigDecimal("0"));
         String var = StringUtils.EMPTY;
-        String proportion = bigDecimal.toString();
         if (i < 0) {
             var = "下降";
         }
         if (i == 0) {
-            var = "没有变化";
-            proportion = StringUtils.EMPTY;
+            return new ConvertRatio("没有变化", StringUtils.EMPTY);
         }
         if (i > 0) {
             var = "上涨";
         }
-        return new ConvertRatio(var, proportion);
+        return new ConvertRatio(var, bigDecimal.abs().toString());
     }
 
     public Integer getSchoolCount(List<StatConclusion> statConclusions) {
@@ -517,15 +514,17 @@ public class CommonReportService {
     public PrimaryOverall getPrimaryOverall(List<PrimaryScreeningInfoTable> tables, List<StatConclusion> statConclusions, Long total) {
         PrimaryOverall primary = new PrimaryOverall();
         primary.setTables(Lists.newArrayList(tables));
-        PrimaryOverall.Info info = new PrimaryOverall.Info();
-        info.setLowVision(highLowProportionService.primaryMyopiaMaxMinProportion(countAndProportionService.lowVision(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getLowVisionProportion())));
-        info.setMyopia(highLowProportionService.primaryMyopiaMaxMinProportion(countAndProportionService.myopia(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getMyopiaProportion())));
-        info.setEarlyMyopia(highLowProportionService.primaryMyopiaMaxMinProportion(countAndProportionService.earlyMyopia(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getEarlyMyopiaProportion())));
-        info.setLightMyopia(highLowProportionService.primaryMyopiaMaxMinProportion(countAndProportionService.lightMyopia(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getLightMyopiaProportion())));
-        info.setHighMyopia(highLowProportionService.primaryMyopiaMaxMinProportion(countAndProportionService.highMyopia(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getHighMyopiaProportion())));
-        info.setRecommendDoctor(highLowProportionService.primaryMyopiaMaxMinProportion(countAndProportionService.getRecommendDoctor(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getRecommendDoctorProportion())));
-        info.setOwe(highLowProportionService.primaryMyopiaMaxMinProportion(countAndProportionService.underAndUncorrected(statConclusions).getProportion(), tables, s -> Float.valueOf(s.getOweProportion())));
-        primary.setInfo(info);
+        if (isShowInfo(tables, false)) {
+            PrimaryOverall.Info info = new PrimaryOverall.Info();
+            info.setLowVision(highLowProportionService.primaryMyopiaMaxMinProportion(countAndProportionService.lowVision(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getLowVisionProportion())));
+            info.setMyopia(highLowProportionService.primaryMyopiaMaxMinProportion(countAndProportionService.myopia(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getMyopiaProportion())));
+            info.setEarlyMyopia(highLowProportionService.primaryMyopiaMaxMinProportion(countAndProportionService.earlyMyopia(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getEarlyMyopiaProportion())));
+            info.setLightMyopia(highLowProportionService.primaryMyopiaMaxMinProportion(countAndProportionService.lightMyopia(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getLightMyopiaProportion())));
+            info.setHighMyopia(highLowProportionService.primaryMyopiaMaxMinProportion(countAndProportionService.highMyopia(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getHighMyopiaProportion())));
+            info.setRecommendDoctor(highLowProportionService.primaryMyopiaMaxMinProportion(countAndProportionService.getRecommendDoctor(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getRecommendDoctorProportion())));
+            info.setOwe(highLowProportionService.primaryMyopiaMaxMinProportion(countAndProportionService.underAndUncorrected(statConclusions).getProportion(), tables, s -> Float.valueOf(s.getOweProportion())));
+            primary.setInfo(info);
+        }
         return primary;
     }
 
@@ -602,7 +601,7 @@ public class CommonReportService {
      * 幼儿园历史
      */
     public HistoryRefractive getKindergartenHistoryRefractive(School school, ScreeningPlan screeningPlan) {
-        List<RefractiveTable> kHistoryRefractiveTable = screeningReportTableService.kHistoryRefractiveTable(getSchoolHistoryData(school.getId(), false), screeningPlan.getId());
+        List<RefractiveTable> kHistoryRefractiveTable = screeningReportTableService.kHistoryRefractiveTable(getSchoolHistoryData(school.getId(), true), screeningPlan.getId());
         return getHistoryRefractive(kHistoryRefractiveTable);
     }
 
@@ -638,22 +637,24 @@ public class CommonReportService {
     /**
      * 各班筛查数据
      */
-    public List<ClassScreeningData> generateClassScreeningData(List<StatConclusion> statConclusions, School school, Boolean isk) {
+    public List<ClassScreeningData> generateClassScreeningData(School school, ScreeningPlan plan, Boolean isk) {
         List<ClassScreeningData> dataList = new ArrayList<>();
-        if (CollectionUtils.isEmpty(statConclusions)) {
-            return dataList;
-        }
+
+        // 获取当前学校和计划下的所有学生
+        List<ScreeningPlanSchoolStudent> planStudents = screeningPlanSchoolStudentService.getByPlanIdAndSchoolId(plan.getId(), school.getId());
+        List<Integer> planStudentIds = planStudents.stream().map(ScreeningPlanSchoolStudent::getId).collect(Collectors.toList());
+
+        // 通过学生获取筛查统计结果
+        List<StatConclusion> statConclusions = statConclusionService.getByPlanStudentIds(planStudentIds);
         List<Integer> resultIds = statConclusions.stream().map(StatConclusion::getResultId).collect(Collectors.toList());
-        List<Integer> studentIds = statConclusions.stream().map(StatConclusion::getStudentId).collect(Collectors.toList());
 
         List<VisionScreeningResult> resultList = visionScreeningResultService.getByIds(resultIds);
         Map<Integer, VisionScreeningResult> resultMap = resultList.stream().collect(Collectors.toMap(VisionScreeningResult::getId, Function.identity()));
-        Map<Integer, String> studentNameMap = studentService.getByIds(studentIds).stream().collect(Collectors.toMap(Student::getId, Student::getName));
+        Map<Integer, String> studentNameMap = planStudents.stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getId, ScreeningPlanSchoolStudent::getStudentName));
 
+        // 通过学校班级年级分组
         Map<String, Map<String, List<StatConclusion>>> statMap = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode, Collectors.groupingBy(StatConclusion::getSchoolClassName, Collectors.toList())));
-
         Map<Integer, ScreeningPlanSchoolStudent> planStudentMap = screeningPlanSchoolStudentService.getByIds(resultList.stream().map(VisionScreeningResult::getScreeningPlanSchoolStudentId).collect(Collectors.toList())).stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getId, Function.identity()));
-
         List<SchoolGrade> gradeList = schoolGradeService.getBySchoolId(school.getId());
         Map<Integer, List<SchoolClassExportDTO>> classMap = schoolClassService.getByGradeIds(gradeList.stream().map(SchoolGrade::getId).collect(Collectors.toList())).stream().collect(Collectors.groupingBy(SchoolClassExportDTO::getGradeId));
 
@@ -821,7 +822,7 @@ public class CommonReportService {
                 return;
             }
             String name = DateFormatUtil.format(notice.getStartTime(), DateFormatUtil.FORMAT_YEAR_AND_MONTH) + "-" + DateFormatUtil.format(notice.getEndTime(), DateFormatUtil.FORMAT_YEAR_AND_MONTH);
-            getThreeTuple(threeTuples, statConclusions, name, notice.getId());
+            getThreeTuple(threeTuples, statConclusions, notice.getId() + name, notice.getId());
         });
         return threeTuples;
     }
@@ -848,7 +849,7 @@ public class CommonReportService {
             Date endTime = plan.getEndTime();
 
             String name = DateFormatUtil.format(startTime, DateFormatUtil.FORMAT_YEAR_AND_MONTH) + "-" + DateFormatUtil.format(endTime, DateFormatUtil.FORMAT_YEAR_AND_MONTH);
-            getThreeTuple(threeTuples, statConclusions, name, plan.getId());
+            getThreeTuple(threeTuples, statConclusions, plan.getId() + name, plan.getId());
         });
         return threeTuples;
     }
