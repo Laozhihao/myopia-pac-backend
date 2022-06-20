@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.api.management.service.report;
 
-import cn.hutool.core.date.DateTime;
 import com.google.common.collect.Lists;
 import com.wupol.framework.domain.ThreeTuple;
 import com.wupol.myopia.base.util.*;
@@ -435,28 +434,6 @@ public class CommonReportService {
         });
     }
 
-
-    public List<ChainRatio> getHistoryDate(List<StatConclusion> statConclusions) {
-        Set<Date> collect = statConclusions.stream().sorted(Comparator.comparing(StatConclusion::getCreateTime)).map(StatConclusion::getCreateTime).collect(Collectors.toSet());
-
-        List<ChainRatio> chainRatioList = new ArrayList<>();
-
-        for (Date s : collect) {
-            Integer year = DateUtil.getYear(s);
-            DateTime start = DateUtil.parseDate(year + "-01-01");
-            DateTime mid = DateUtil.parseDate(year + "-07-31");
-            DateTime end = DateUtil.parseDate(year + "-12-31");
-            if (DateUtil.isBetweenDate(start, mid, s)) {
-                chainRatioList.add(new ChainRatio(year + "年上半年", start, mid));
-            }
-            if (DateUtil.isBetweenDate(mid, end, s)) {
-                chainRatioList.add(new ChainRatio(year + "年下半年", mid, end));
-            }
-        }
-        return chainRatioList.stream().collect(Collectors.collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(ChainRatio::getStartDate))), ArrayList::new)).stream().sorted(Comparator.comparing(ChainRatio::getStartDate)).collect(Collectors.toList());
-    }
-
-
     /**
      * 环比百分比
      */
@@ -506,19 +483,24 @@ public class CommonReportService {
         List<WarningTable> warningTables = tables.stream()
                 .filter(s -> !filterList().contains(s.getName())).collect(Collectors.toList());
 
-        WarningSituation.GradeWarningInfo gradeWarningInfo = new WarningSituation.GradeWarningInfo();
-        gradeWarningInfo.setTables(Lists.newArrayList(tables));
-        if (isArea) {
-            gradeWarningInfo.setGradeWarningChart(portraitChartService.warningChart(tables.stream().filter(s -> schoolAgeList().contains(s.getName())).collect(Collectors.toList())));
-        } else {
-            gradeWarningInfo.setGradeWarningChart(portraitChartService.warningChart2(tables.stream().filter(s -> GradeCodeEnum.getAllName().contains(s.getName())).collect(Collectors.toList())));
+        WarningSituation.GradeWarningInfo gradeWarning = new WarningSituation.GradeWarningInfo();
+        gradeWarning.setTables(Lists.newArrayList(tables));
+
+        if (isShowInfo(tables, true)) {
+            if (isArea) {
+                gradeWarning.setGradeWarningChart(portraitChartService.warningChart(tables.stream().filter(s -> schoolAgeList().contains(s.getName())).collect(Collectors.toList())));
+            } else {
+                gradeWarning.setGradeWarningChart(portraitChartService.warningChart2(tables.stream().filter(s -> GradeCodeEnum.getAllName().contains(s.getName())).collect(Collectors.toList())));
+            }
+            WarningSituation.Info info = new WarningSituation.Info();
+            info.setZero(highLowProportionService.warningTableHP(warningTables, s -> Float.valueOf(s.getZeroWarningProportion())));
+            info.setOne(highLowProportionService.warningTableHP(warningTables, s -> Float.valueOf(s.getOneWarningProportion())));
+            info.setTwo(highLowProportionService.warningTableHP(warningTables, s -> Float.valueOf(s.getTwoWarningProportion())));
+            info.setThree(highLowProportionService.warningTableHP(warningTables, s -> Float.valueOf(s.getThreeWarningProportion())));
+            info.setRecommendDoctor(highLowProportionService.warningTableHP(warningTables, s -> Float.valueOf(s.getRecommendDoctorProportion())));
+            gradeWarning.setInfo(info);
         }
-        gradeWarningInfo.setZero(highLowProportionService.warningTableHP(warningTables, s -> Float.valueOf(s.getZeroWarningProportion())));
-        gradeWarningInfo.setOne(highLowProportionService.warningTableHP(warningTables, s -> Float.valueOf(s.getOneWarningProportion())));
-        gradeWarningInfo.setTwo(highLowProportionService.warningTableHP(warningTables, s -> Float.valueOf(s.getTwoWarningProportion())));
-        gradeWarningInfo.setThree(highLowProportionService.warningTableHP(warningTables, s -> Float.valueOf(s.getThreeWarningProportion())));
-        gradeWarningInfo.setRecommendDoctor(highLowProportionService.warningTableHP(warningTables, s -> Float.valueOf(s.getRecommendDoctorProportion())));
-        warningSituation.setGradeWarningInfo(gradeWarningInfo);
+        warningSituation.setGradeWarningInfo(gradeWarning);
         return warningSituation;
     }
 
@@ -611,25 +593,19 @@ public class CommonReportService {
      * 幼儿园历史
      */
     public HistoryRefractive getKindergartenHistoryRefractive(School school, ScreeningPlan screeningPlan) {
-        List<RefractiveTable> kHistoryRefractiveTable = screeningReportTableService.kHistoryRefractiveTable(getSchoolHistoryData(school.getId(),false), screeningPlan.getId());
-        HistoryRefractive historyRefractive = new HistoryRefractive();
-        historyRefractive.setTables(Lists.newArrayList(kHistoryRefractiveTable));
-        historyRefractive.setLowVisionProportion(getChainRatioProportion(kHistoryRefractiveTable.stream().map(RefractiveTable::getLowVisionProportion).collect(Collectors.toList())));
-        historyRefractive.setInsufficientProportion(getChainRatioProportion(kHistoryRefractiveTable.stream().map(RefractiveTable::getInsufficientProportion).collect(Collectors.toList())));
-        historyRefractive.setRefractiveErrorProportion(getChainRatioProportion(kHistoryRefractiveTable.stream().map(RefractiveTable::getRefractiveErrorProportion).collect(Collectors.toList())));
-        historyRefractive.setAnisometropiaProportion(getChainRatioProportion(kHistoryRefractiveTable.stream().map(RefractiveTable::getAnisometropiaProportion).collect(Collectors.toList())));
-        if (!CollectionUtils.isEmpty(kHistoryRefractiveTable)) {
-            historyRefractive.setKindergartenHistoryRefractive(horizontalChartService.kindergartenHistoryRefractive(kHistoryRefractiveTable));
-        }
-        return historyRefractive;
+        List<RefractiveTable> kHistoryRefractiveTable = screeningReportTableService.kHistoryRefractiveTable(getSchoolHistoryData(school.getId(), false), screeningPlan.getId());
+        return getHistoryRefractive(kHistoryRefractiveTable);
     }
 
     /**
      * 幼儿园历史
      */
     public HistoryRefractive getAreaKindergartenHistoryRefractive(List<ThreeTuple<Integer, String, List<StatConclusion>>> tuples, Integer noticeId) {
-
         List<RefractiveTable> kHistoryRefractiveTable = screeningReportTableService.kAreaHistoryRefractiveTable(tuples, noticeId);
+        return getHistoryRefractive(kHistoryRefractiveTable);
+    }
+
+    private HistoryRefractive getHistoryRefractive(List<RefractiveTable> kHistoryRefractiveTable) {
         HistoryRefractive historyRefractive = new HistoryRefractive();
         historyRefractive.setTables(Lists.newArrayList(kHistoryRefractiveTable));
         historyRefractive.setLowVisionProportion(getChainRatioProportion(kHistoryRefractiveTable.stream().map(RefractiveTable::getLowVisionProportion).collect(Collectors.toList())));
@@ -875,5 +851,13 @@ public class CommonReportService {
             name = name + "[" + count + "]";
         }
         threeTuples.add(new ThreeTuple<>(id, name, statConclusions));
+    }
+
+    public <T> Boolean isShowInfo(List<T> t, Boolean haveTotal) {
+        int i = 1;
+        if (haveTotal) {
+            i = 2;
+        }
+        return !CollectionUtils.isEmpty(t) && t.size() > i;
     }
 }

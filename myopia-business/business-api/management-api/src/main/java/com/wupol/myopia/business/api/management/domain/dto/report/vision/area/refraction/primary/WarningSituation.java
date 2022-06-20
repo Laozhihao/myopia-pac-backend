@@ -1,6 +1,9 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.area.refraction.primary;
 
-import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.*;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.CountAndProportion;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.HighLowProportion;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.PortraitChart;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.VisionWarningSituation;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -33,6 +36,27 @@ public class WarningSituation {
     @Getter
     @Setter
     public static class GradeWarningInfo {
+
+        /**
+         * 信息
+         */
+        private Info info;
+
+        /**
+         * 图表
+         */
+        private PortraitChart gradeWarningChart;
+
+        /**
+         * 表格
+         */
+        private List<WarningTable> tables;
+    }
+
+
+    @Getter
+    @Setter
+    public static class Info {
         /**
          * 预警等级
          */
@@ -57,16 +81,7 @@ public class WarningSituation {
          * 建议就诊
          */
         private HighLowProportion recommendDoctor;
-
-        /**
-         * 图表
-         */
-        private PortraitChart gradeWarningChart;
-
-        /**
-         * 表格
-         */
-        private List<WarningTable> tables;
     }
+
 
 }

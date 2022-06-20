@@ -217,7 +217,7 @@ public class ScreeningPrimaryReportService {
         GradeLowVision gradeLowVision = new GradeLowVision();
         List<CommonLowVisionTable> gradeTables = screeningReportTableService.gradeLowVision(statConclusions, total);
         gradeLowVision.setTables(Lists.newArrayList(gradeTables));
-        if (!CollectionUtils.isEmpty(gradeTables) && gradeTables.size() > 2) {
+        if (commonReportService.isShowInfo(gradeTables, true)) {
             gradeLowVision.setInfo(getLowVisionInfo(gradeTables));
             gradeLowVision.setGradeLowVisionChart(portraitChartService.lowVisionChart(gradeTables.stream().filter(s -> !StringUtils.equals(s.getName(), CommonReportService.TOTAL_NAME)).collect(Collectors.toList())));
         }
@@ -227,7 +227,8 @@ public class ScreeningPrimaryReportService {
         ageLowVision.setAgeRange(commonReportService.getAgeRange(statConclusions));
         List<CommonLowVisionTable> ageTables = screeningReportTableService.ageLowTable(statConclusions, total);
         ageLowVision.setTables(Lists.newArrayList(ageTables));
-        if (!CollectionUtils.isEmpty(ageTables) && gradeTables.size() > 2) {
+
+        if (commonReportService.isShowInfo(ageTables, true)) {
             ageLowVision.setAgeLowVisionChart(horizontalChartService.lowVisionChart(ageTables.stream().filter(s -> !StringUtils.equals(s.getName(), CommonReportService.TOTAL_NAME)).collect(Collectors.toList()), true));
             ageLowVision.setInfo(getLowVisionInfo(ageTables));
         }
@@ -276,17 +277,21 @@ public class ScreeningPrimaryReportService {
         GradeAstigmatism gradeAstigmatism = new GradeAstigmatism();
         List<AstigmatismTable> gradeTables = screeningReportTableService.gradePrimaryRefractiveTable(statConclusions, total);
         gradeAstigmatism.setTables(Lists.newArrayList(gradeTables));
-        gradeAstigmatism.setGradeAstigmatismChart(portraitChartService.gradeRefractionChart(gradeTables.stream().filter(s -> !StringUtils.equals(s.getName(), CommonReportService.TOTAL_NAME)).collect(Collectors.toList())));
-        gradeAstigmatism.setInfo(primaryAstigmatismInfo(gradeTables));
+        if (commonReportService.isShowInfo(gradeTables, true)) {
+            gradeAstigmatism.setGradeAstigmatismChart(portraitChartService.gradeRefractionChart(gradeTables.stream().filter(s -> !StringUtils.equals(s.getName(), CommonReportService.TOTAL_NAME)).collect(Collectors.toList())));
+            gradeAstigmatism.setInfo(primaryAstigmatismInfo(gradeTables));
+        }
         astigmatismInfo.setGradeAstigmatism(gradeAstigmatism);
 
         AgeAstigmatism ageAstigmatism = new AgeAstigmatism();
         ageAstigmatism.setAgeInfo(commonReportService.getAgeRange(statConclusions));
         List<AstigmatismTable> ageTables = screeningReportTableService.ageAstigmatismTables(statConclusions, total);
         ageAstigmatism.setTables(Lists.newArrayList(ageTables));
-        ageAstigmatism.setAgeAstigmatismChart(horizontalChartService.astigmatismMyopiaChart(ageTables.stream().filter(s -> !StringUtils.equals(s.getName(), CommonReportService.TOTAL_NAME)).collect(Collectors.toList())));
-        ageAstigmatism.setAgeLevelAstigmatismChart(horizontalChartService.astigmatismMyopiaLevelChart(ageTables.stream().filter(s -> !StringUtils.equals(s.getName(), CommonReportService.TOTAL_NAME)).collect(Collectors.toList())));
-        ageAstigmatism.setInfo(primaryAstigmatismInfo(ageTables));
+        if (commonReportService.isShowInfo(ageTables, true)) {
+            ageAstigmatism.setAgeAstigmatismChart(horizontalChartService.astigmatismMyopiaChart(ageTables.stream().filter(s -> !StringUtils.equals(s.getName(), CommonReportService.TOTAL_NAME)).collect(Collectors.toList())));
+            ageAstigmatism.setAgeLevelAstigmatismChart(horizontalChartService.astigmatismMyopiaLevelChart(ageTables.stream().filter(s -> !StringUtils.equals(s.getName(), CommonReportService.TOTAL_NAME)).collect(Collectors.toList())));
+            ageAstigmatism.setInfo(primaryAstigmatismInfo(ageTables));
+        }
         astigmatismInfo.setAgeAstigmatism(ageAstigmatism);
         return astigmatismInfo;
     }
@@ -320,19 +325,22 @@ public class ScreeningPrimaryReportService {
         GradeWearingGlasses gradeWearingGlasses = new GradeWearingGlasses();
         List<AgeWearingTable> gradeTables = screeningReportTableService.gradePrimaryWearingTable(statConclusions, total);
         gradeWearingGlasses.setTables(Lists.newArrayList(gradeTables));
-
-        gradeWearingGlasses.setGradeWearingGlassesChart(portraitChartService.wearingGlassesWearingChartY(gradeTables.stream().filter(s -> !StringUtils.equals(s.getName(), CommonReportService.TOTAL_NAME)).collect(Collectors.toList())));
-        gradeWearingGlasses.setGradeVisionCorrectionChart(portraitChartService.visionCorrectionWearingChartY(gradeTables.stream().filter(s -> !StringUtils.equals(s.getName(), CommonReportService.TOTAL_NAME)).collect(Collectors.toList())));
-        gradeWearingGlasses.setInfo(primaryWearingInfo(statConclusions, gradeTables, total));
+        if (commonReportService.isShowInfo(gradeTables, true)) {
+            gradeWearingGlasses.setGradeWearingGlassesChart(portraitChartService.wearingGlassesWearingChartY(gradeTables.stream().filter(s -> !StringUtils.equals(s.getName(), CommonReportService.TOTAL_NAME)).collect(Collectors.toList())));
+            gradeWearingGlasses.setGradeVisionCorrectionChart(portraitChartService.visionCorrectionWearingChartY(gradeTables.stream().filter(s -> !StringUtils.equals(s.getName(), CommonReportService.TOTAL_NAME)).collect(Collectors.toList())));
+            gradeWearingGlasses.setInfo(primaryWearingInfo(statConclusions, gradeTables, total));
+        }
         wearingGlassesInfo.setGradeWearingGlasses(gradeWearingGlasses);
 
         AgeWearingGlasses ageWearingGlasses = new AgeWearingGlasses();
         ageWearingGlasses.setAgeRange(commonReportService.getAgeRange(statConclusions));
         List<AgeWearingTable> ageTables = screeningReportTableService.agePrimaryWearingTable(statConclusions, total);
-        ageWearingGlasses.setWearingGlassesChart(horizontalChartService.primaryWearingGlassesChart(ageTables.stream().filter(s -> !commonReportService.filterList().contains(s.getName())).collect(Collectors.toList()), true));
-        ageWearingGlasses.setVisionCorrectionChart(horizontalChartService.primaryGenderVisionCorrectionChart(ageTables.stream().filter(s -> !commonReportService.filterList().contains(s.getName())).collect(Collectors.toList())));
-        ageWearingGlasses.setTables(ageTables);
-        ageWearingGlasses.setInfo(primaryWearingInfo(statConclusions, ageTables, total));
+        ageWearingGlasses.setTables(Lists.newArrayList(ageTables));
+        if (commonReportService.isShowInfo(gradeTables, true)) {
+            ageWearingGlasses.setWearingGlassesChart(horizontalChartService.primaryWearingGlassesChart(ageTables.stream().filter(s -> !commonReportService.filterList().contains(s.getName())).collect(Collectors.toList()), true));
+            ageWearingGlasses.setVisionCorrectionChart(horizontalChartService.primaryGenderVisionCorrectionChart(ageTables.stream().filter(s -> !commonReportService.filterList().contains(s.getName())).collect(Collectors.toList())));
+            ageWearingGlasses.setInfo(primaryWearingInfo(statConclusions, ageTables, total));
+        }
         wearingGlassesInfo.setAgeWearingGlasses(ageWearingGlasses);
 
         return wearingGlassesInfo;
