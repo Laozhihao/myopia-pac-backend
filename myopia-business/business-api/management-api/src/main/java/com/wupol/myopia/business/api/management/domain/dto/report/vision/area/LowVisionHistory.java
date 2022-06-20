@@ -20,12 +20,12 @@ public class LowVisionHistory {
     /**
      * 幼儿园
      */
-    private ConvertRatio kConvertRatio;
+    private ConvertRatio kProportion;
 
     /**
      * 小学及以上
      */
-    private ConvertRatio pConvertRatio;
+    private ConvertRatio pProportion;
 
     /**
      * 图表

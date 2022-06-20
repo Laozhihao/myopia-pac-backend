@@ -323,10 +323,10 @@ public class ScreeningAreaReportService {
 
         if (!CollectionUtils.isEmpty(tables)) {
             if (haveK) {
-                lowVisionHistory.setKConvertRatio(commonReportService.getChainRatioProportion(tables.stream().filter(s -> Objects.equals(s.getIsSameReport(), Boolean.TRUE)).collect(Collectors.toList()).get(0).getKLowVisionProportion(), tables.get(tables.size() - 1).getKLowVisionProportion()));
+                lowVisionHistory.setKProportion(commonReportService.getChainRatioProportion(tables.stream().filter(s -> Objects.equals(s.getIsSameReport(), Boolean.TRUE)).collect(Collectors.toList()).get(0).getKLowVisionProportion(), tables.get(tables.size() - 1).getKLowVisionProportion()));
             }
             if (haveP) {
-                lowVisionHistory.setPConvertRatio(commonReportService.getChainRatioProportion(tables.stream().filter(s -> Objects.equals(s.getIsSameReport(), Boolean.TRUE)).collect(Collectors.toList()).get(0).getLowVisionProportion(), tables.get(tables.size() - 1).getLowVisionProportion()));
+                lowVisionHistory.setPProportion(commonReportService.getChainRatioProportion(tables.stream().filter(s -> Objects.equals(s.getIsSameReport(), Boolean.TRUE)).collect(Collectors.toList()).get(0).getLowVisionProportion(), tables.get(tables.size() - 1).getLowVisionProportion()));
             }
         }
         lowVisionHistory.setTables(Lists.newArrayList(tables));
