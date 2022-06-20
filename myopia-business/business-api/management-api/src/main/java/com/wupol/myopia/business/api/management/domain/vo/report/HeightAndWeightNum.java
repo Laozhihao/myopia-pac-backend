@@ -141,7 +141,7 @@ public class HeightAndWeightNum extends EntityFunction implements Num {
         return MAP.get(0);
     }
 
-    public static Map<Integer,Integer> MAP = Maps.newConcurrentMap();
+    public static final Map<Integer,Integer> MAP = Maps.newConcurrentMap();
 
     public HeightAndWeightMonitorTable buildTable(){
         HeightAndWeightMonitorTable heightAndWeightMonitorTable= new HeightAndWeightMonitorTable();

@@ -44,7 +44,7 @@ public class SaprodontiaNum extends EntityFunction implements Num {
     /**
      * 有龋人数
      */
-    private Integer saprodontiaNum;
+    private Integer saprodontiaCount;
 
     /**
      * 龋失人数
@@ -130,7 +130,7 @@ public class SaprodontiaNum extends EntityFunction implements Num {
             this.validScreeningNum = ReportConst.ZERO;
             this.dmftNum = ReportConst.ZERO;
             this.saprodontiaLossAndRepairTeethNum = ReportConst.ZERO;
-            this.saprodontiaNum = ReportConst.ZERO;
+            this.saprodontiaCount = ReportConst.ZERO;
             this.saprodontiaLossNum = ReportConst.ZERO;
             this.saprodontiaRepairNum = ReportConst.ZERO;
             this.saprodontiaLossAndRepairNum = ReportConst.ZERO;
@@ -146,7 +146,7 @@ public class SaprodontiaNum extends EntityFunction implements Num {
         ToIntFunction<StatConclusion> lossAndRepairTotalFunction = sc -> Optional.ofNullable(sc.getSaprodontiaLossTeeth()).orElse(ReportConst.ZERO) + Optional.ofNullable(sc.getSaprodontiaRepairTeeth()).orElse(ReportConst.ZERO);
         this.saprodontiaLossAndRepairTeethNum = statConclusionList.stream().filter(Objects::nonNull).filter(lossAndRepairPredicateTrue).mapToInt(lossAndRepairTotalFunction).sum();
 
-        this.saprodontiaNum = getCount(statConclusionList, StatConclusion::getIsSaprodontia);
+        this.saprodontiaCount = getCount(statConclusionList, StatConclusion::getIsSaprodontia);
         this.saprodontiaLossNum = getCount(statConclusionList, StatConclusion::getIsSaprodontiaLoss);
         this.saprodontiaRepairNum = getCount(statConclusionList, StatConclusion::getIsSaprodontiaRepair);
         this.saprodontiaLossAndRepairNum = (int) statConclusionList.stream()
@@ -160,7 +160,7 @@ public class SaprodontiaNum extends EntityFunction implements Num {
      */
     public SaprodontiaNum ratioNotSymbol() {
         this.dmftRatio = Optional.ofNullable(MathUtil.num(dmftNum, getTotal())).orElse(ReportConst.ZERO_STR);
-        this.saprodontiaRatio = getRatioNotSymbol(saprodontiaNum, getTotal());
+        this.saprodontiaRatio = getRatioNotSymbol(saprodontiaCount, getTotal());
         this.saprodontiaLossRatio = getRatioNotSymbol(saprodontiaLossNum, getTotal());
         this.saprodontiaRepairRatio = getRatioNotSymbol(saprodontiaRepairNum, getTotal());
         this.saprodontiaLossAndRepairRatio = getRatioNotSymbol(saprodontiaLossAndRepairNum, getTotal());
@@ -173,7 +173,7 @@ public class SaprodontiaNum extends EntityFunction implements Num {
      */
     public SaprodontiaNum ratio() {
         this.dmftRatio = Optional.ofNullable(MathUtil.num(dmftNum, getTotal())).orElse(ReportConst.ZERO_STR);
-        this.saprodontiaRatioStr = getRatio(saprodontiaNum, getTotal());
+        this.saprodontiaRatioStr = getRatio(saprodontiaCount, getTotal());
         this.saprodontiaLossRatioStr = getRatio(saprodontiaLossNum, getTotal());
         this.saprodontiaRepairRatioStr = getRatio(saprodontiaRepairNum, getTotal());
         this.saprodontiaLossAndRepairRatioStr = getRatio(saprodontiaLossAndRepairNum, getTotal());
@@ -185,13 +185,13 @@ public class SaprodontiaNum extends EntityFunction implements Num {
         return MAP.get(0);
     }
 
-    public static Map<Integer,Integer> MAP = Maps.newConcurrentMap();
+    public static final Map<Integer,Integer> MAP = Maps.newConcurrentMap();
 
     public SaprodontiaMonitorTable buildTable(){
         SaprodontiaMonitorTable saprodontiaMonitorTable= new SaprodontiaMonitorTable();
         saprodontiaMonitorTable.setValidScreeningNum(validScreeningNum);
         saprodontiaMonitorTable.setDmftRatio(dmftRatio);
-        saprodontiaMonitorTable.setSaprodontiaNum(saprodontiaNum);
+        saprodontiaMonitorTable.setSaprodontiaNum(saprodontiaCount);
         saprodontiaMonitorTable.setSaprodontiaRatio(saprodontiaRatio);
         saprodontiaMonitorTable.setSaprodontiaLossNum(saprodontiaLossNum);
         saprodontiaMonitorTable.setSaprodontiaLossRatio(saprodontiaLossRatio);

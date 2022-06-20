@@ -1,10 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.vo.report;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-
-import java.math.BigDecimal;
-import java.util.List;
 
 /**
  * 身高体重监测实体

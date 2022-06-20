@@ -2,8 +2,6 @@ package com.wupol.myopia.business.api.management.domain.vo.report;
 
 import lombok.Data;
 
-import java.util.List;
-
 /**
  * 龋齿监测结果
  *

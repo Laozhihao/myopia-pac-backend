@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.ToIntFunction;
 
 /**
  * 实体方法
@@ -25,11 +26,11 @@ public class EntityFunction {
         return (int) statConclusionList.stream().map(function).filter(Objects::nonNull).filter(Boolean::booleanValue).count();
     }
 
-    public <T> Integer getCount(List<T> statConclusionList, Function<T, Integer> mapper, Integer value) {
+    public <T> Integer getCount(List<T> statConclusionList, ToIntFunction<T> mapper, Integer value) {
         if (CollectionUtil.isEmpty(statConclusionList)) {
             return ReportConst.ZERO;
         }
-        return (int) statConclusionList.stream().filter(sc -> Objects.equals(mapper.apply(sc), value)).count();
+        return (int) statConclusionList.stream().filter(sc -> Objects.equals(mapper.applyAsInt(sc), value)).count();
     }
 
     public BigDecimal getRatioNotSymbol(Integer numerator, Integer denominator) {

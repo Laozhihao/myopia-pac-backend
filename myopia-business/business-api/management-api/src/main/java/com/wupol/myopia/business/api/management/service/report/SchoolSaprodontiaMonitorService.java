@@ -7,15 +7,12 @@ import com.wupol.myopia.business.api.management.constant.AgeSegmentEnum;
 import com.wupol.myopia.business.api.management.constant.ReportConst;
 import com.wupol.myopia.business.api.management.domain.vo.report.*;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
-import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -94,7 +91,7 @@ public class SchoolSaprodontiaMonitorService {
         List<SaprodontiaNum> saprodontiaSexList = Lists.newArrayList();
         genderMap.forEach((gender, list) -> getSaprodontiaNum(gender, list, saprodontiaSexList));
 
-        if (saprodontiaSexList.size() >= 1) {
+        if (!saprodontiaSexList.isEmpty()) {
             SaprodontiaSexVO.SaprodontiaSexVariableVO saprodontiaSexVariableVO = new SaprodontiaSexVO.SaprodontiaSexVariableVO();
             saprodontiaSexVariableVO.setSaprodontiaRatioCompare(ReportUtil.getRatioCompare(saprodontiaSexList, SaprodontiaNum::getSaprodontiaRatio, SaprodontiaNum::getSaprodontiaRatioStr));
             saprodontiaSexVariableVO.setSaprodontiaLossRatioCompare(ReportUtil.getRatioCompare(saprodontiaSexList, SaprodontiaNum::getSaprodontiaLossRatio, SaprodontiaNum::getSaprodontiaLossRatioStr));
@@ -109,12 +106,6 @@ public class SchoolSaprodontiaMonitorService {
                 .setGender(gender)
                 .build(statConclusionList).ratioNotSymbol().ratio();
         saprodontiaSexList.add(build);
-    }
-
-    private <K> void getSaprodontiaNum(K key, List<StatConclusion> statConclusionList, Map<K, SaprodontiaNum> saprodontiaNumMap) {
-        SaprodontiaNum build = new SaprodontiaNum()
-                .build(statConclusionList).ratioNotSymbol().ratio();
-        saprodontiaNumMap.put(key, build);
     }
 
 
@@ -192,11 +183,11 @@ public class SchoolSaprodontiaMonitorService {
         Map<String, SaprodontiaNum> saprodontiaNumMap = Maps.newHashMap();
         gradeCodeMap.forEach((gradeCode, list) -> {
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(gradeCode);
-            getSaprodontiaNum(gradeCodeEnum.getName(), list, saprodontiaNumMap);
+            ReportUtil.getSaprodontiaNum(gradeCodeEnum.getName(), list, saprodontiaNumMap);
         });
 
         if (saprodontiaNumMap.size() >= 2) {
-            saprodontiaGradeVariableVO.setSaprodontiaRatio(ReportUtil.getSchoolGradeRatio(saprodontiaNumMap, SaprodontiaNum::getSaprodontiaNum, SaprodontiaNum::getSaprodontiaRatioStr));
+            saprodontiaGradeVariableVO.setSaprodontiaRatio(ReportUtil.getSchoolGradeRatio(saprodontiaNumMap, SaprodontiaNum::getSaprodontiaCount, SaprodontiaNum::getSaprodontiaRatioStr));
             saprodontiaGradeVariableVO.setSaprodontiaLossRatio(ReportUtil.getSchoolGradeRatio(saprodontiaNumMap, SaprodontiaNum::getSaprodontiaLossNum, SaprodontiaNum::getSaprodontiaLossRatioStr));
             saprodontiaGradeVariableVO.setSaprodontiaRepairRatio(ReportUtil.getSchoolGradeRatio(saprodontiaNumMap, SaprodontiaNum::getSaprodontiaRepairNum, SaprodontiaNum::getSaprodontiaRepairRatioStr));
             saprodontiaGradeVO.setSaprodontiaGradeVariableVO(saprodontiaGradeVariableVO);
@@ -256,11 +247,11 @@ public class SchoolSaprodontiaMonitorService {
         }
         Map<Integer, List<StatConclusion>> ageMap = statConclusionList.stream().collect(Collectors.groupingBy(sc -> ReportUtil.getLessAge(sc.getAge())));
         Map<Integer, SaprodontiaNum> saprodontiaNumMap = Maps.newHashMap();
-        ageMap.forEach((age, list) -> getSaprodontiaNum(age, list, saprodontiaNumMap));
+        ageMap.forEach((age, list) -> ReportUtil.getSaprodontiaNum(age, list, saprodontiaNumMap));
 
         if (saprodontiaNumMap.size() >= 2) {
             SaprodontiaAgeVO.SaprodontiaAgeVariableVO saprodontiaAgeVariableVO = new SaprodontiaAgeVO.SaprodontiaAgeVariableVO();
-            saprodontiaAgeVariableVO.setSaprodontiaRatio(ReportUtil.getAgeRatio(saprodontiaNumMap, SaprodontiaNum::getSaprodontiaNum, SaprodontiaNum::getSaprodontiaRatioStr));
+            saprodontiaAgeVariableVO.setSaprodontiaRatio(ReportUtil.getAgeRatio(saprodontiaNumMap, SaprodontiaNum::getSaprodontiaCount, SaprodontiaNum::getSaprodontiaRatioStr));
             saprodontiaAgeVariableVO.setSaprodontiaLossRatio(ReportUtil.getAgeRatio(saprodontiaNumMap, SaprodontiaNum::getSaprodontiaLossNum, SaprodontiaNum::getSaprodontiaLossRatioStr));
             saprodontiaAgeVariableVO.setSaprodontiaRepairRatio(ReportUtil.getAgeRatio(saprodontiaNumMap, SaprodontiaNum::getSaprodontiaRepairNum, SaprodontiaNum::getSaprodontiaRepairRatioStr));
             saprodontiaAgeVO.setSaprodontiaAgeVariableVO(saprodontiaAgeVariableVO);

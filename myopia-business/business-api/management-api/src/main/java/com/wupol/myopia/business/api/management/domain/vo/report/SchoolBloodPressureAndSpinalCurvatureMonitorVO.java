@@ -1,9 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.vo.report;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-
-import java.util.List;
 
 /**
  * 血压与脊柱弯曲监测实体

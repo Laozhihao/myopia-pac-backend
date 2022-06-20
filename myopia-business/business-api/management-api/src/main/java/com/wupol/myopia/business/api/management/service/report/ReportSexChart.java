@@ -6,6 +6,7 @@ import com.wupol.myopia.business.api.management.constant.ReportConst;
 import com.wupol.myopia.business.api.management.domain.vo.report.*;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
+import lombok.experimental.UtilityClass;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
  *
  * @author hang.yuan 2022/6/4 00:56
  */
-
+@UtilityClass
 public class ReportSexChart {
 
     /**

@@ -15,12 +15,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.TreeMap;
-import java.util.function.Function;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -97,7 +92,7 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorService {
         List<BloodPressureAndSpinalCurvatureNum> bloodPressureAndSpinalCurvatureSexList = Lists.newArrayList();
         genderMap.forEach((gender, list) -> getBloodPressureAndSpinalCurvatureNum(gender, list, bloodPressureAndSpinalCurvatureSexList));
 
-        if (bloodPressureAndSpinalCurvatureSexList.size() >= 1) {
+        if (!bloodPressureAndSpinalCurvatureSexList.isEmpty()) {
             BloodPressureAndSpinalCurvatureSexVO.BloodPressureAndSpinalCurvatureSexVariableVO sexVariableVO = new BloodPressureAndSpinalCurvatureSexVO.BloodPressureAndSpinalCurvatureSexVariableVO();
             sexVariableVO.setAbnormalSpineCurvatureRatioCompare(ReportUtil.getRatioCompare(bloodPressureAndSpinalCurvatureSexList, BloodPressureAndSpinalCurvatureNum::getAbnormalSpineCurvatureRatio, BloodPressureAndSpinalCurvatureNum::getAbnormalSpineCurvatureRatioStr));
             sexVariableVO.setHighBloodPressureRatioCompare(ReportUtil.getRatioCompare(bloodPressureAndSpinalCurvatureSexList, BloodPressureAndSpinalCurvatureNum::getHighBloodPressureRatio, BloodPressureAndSpinalCurvatureNum::getHighBloodPressureRatioStr));
@@ -110,12 +105,6 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorService {
                 .setGender(gender)
                 .build(statConclusionList).ratioNotSymbol().ratio();
         sexList.add(build);
-    }
-
-    private <K> void getBloodPressureAndSpinalCurvatureNum(K key, List<StatConclusion> statConclusionList, Map<K, BloodPressureAndSpinalCurvatureNum> bloodPressureAndSpinalCurvatureNumMap) {
-        BloodPressureAndSpinalCurvatureNum build = new BloodPressureAndSpinalCurvatureNum()
-                .build(statConclusionList).ratioNotSymbol().ratio();
-        bloodPressureAndSpinalCurvatureNumMap.put(key, build);
     }
 
 
@@ -189,6 +178,10 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorService {
     }
 
     private List<TwoTuple<String, SchoolAgeRatioVO>> getData(List<StatConclusion> statConclusionList) {
+        if (ReportUtil.getSchoolGrade(statConclusionList)) {
+            return Collections.emptyList();
+        }
+
         List<TwoTuple<String, SchoolAgeRatioVO>> tupleList = Lists.newArrayList();
 
         BloodPressureAndSpinalCurvatureSchoolAge primary = getBloodPressureAndSpinalCurvatureSchoolAge(statConclusionList, SchoolAge.PRIMARY.code);
@@ -283,7 +276,7 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorService {
         Map<String, BloodPressureAndSpinalCurvatureNum> bloodPressureAndSpinalCurvatureNumMap = Maps.newHashMap();
         gradeCodeMap.forEach((gradeCode, list) -> {
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(gradeCode);
-            getBloodPressureAndSpinalCurvatureNum(gradeCodeEnum.getName(), list, bloodPressureAndSpinalCurvatureNumMap);
+            ReportUtil.getBloodPressureAndSpinalCurvatureNum(gradeCodeEnum.getName(), list, bloodPressureAndSpinalCurvatureNumMap);
         });
 
         if (bloodPressureAndSpinalCurvatureNumMap.size() >= 2) {
@@ -432,7 +425,7 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorService {
 
         Map<Integer, List<StatConclusion>> ageMap = statConclusionList.stream().collect(Collectors.groupingBy(sc -> ReportUtil.getLessAge(sc.getAge())));
         Map<Integer, BloodPressureAndSpinalCurvatureNum> bloodPressureAndSpinalCurvatureNumMap = Maps.newHashMap();
-        ageMap.forEach((age, list) -> getBloodPressureAndSpinalCurvatureNum(age, list, bloodPressureAndSpinalCurvatureNumMap));
+        ageMap.forEach((age, list) -> ReportUtil.getBloodPressureAndSpinalCurvatureNum(age, list, bloodPressureAndSpinalCurvatureNumMap));
 
         if (bloodPressureAndSpinalCurvatureNumMap.size() >= 2) {
             BloodPressureAndSpinalCurvatureAgeVO.BloodPressureAndSpinalCurvatureAgeVariableVO ageVariableVO = new BloodPressureAndSpinalCurvatureAgeVO.BloodPressureAndSpinalCurvatureAgeVariableVO();

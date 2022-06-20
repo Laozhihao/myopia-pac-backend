@@ -6,19 +6,16 @@ import com.google.common.collect.Maps;
 import com.wupol.myopia.business.api.management.constant.AgeSegmentEnum;
 import com.wupol.myopia.business.api.management.constant.ReportConst;
 import com.wupol.myopia.business.api.management.domain.vo.report.*;
-import com.wupol.myopia.business.api.management.domain.vo.report.ChartVO;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
-import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.util.*;
-import java.util.function.Function;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 /**
@@ -96,7 +93,7 @@ public class SchoolHeightAndWeightMonitorService {
         List<HeightAndWeightNum> heightAndWeightSexList = Lists.newArrayList();
         genderMap.forEach((gender, list) -> getHeightAndWeightNum(gender, list, heightAndWeightSexList));
 
-        if (heightAndWeightSexList.size() >= 1) {
+        if (!heightAndWeightSexList.isEmpty()) {
             HeightAndWeightSexVO.HeightAndWeightSexVariableVO heightAndWeightSexVariableVO = new HeightAndWeightSexVO.HeightAndWeightSexVariableVO();
             heightAndWeightSexVariableVO.setOverweightRatioCompare(ReportUtil.getRatioCompare(heightAndWeightSexList, HeightAndWeightNum::getOverweightRatio, HeightAndWeightNum::getOverweightRatioStr));
             heightAndWeightSexVariableVO.setObeseRatioCompare(ReportUtil.getRatioCompare(heightAndWeightSexList, HeightAndWeightNum::getObeseRatio, HeightAndWeightNum::getObeseRatioStr));
@@ -112,12 +109,6 @@ public class SchoolHeightAndWeightMonitorService {
                 .setGender(gender)
                 .build(statConclusionList).ratioNotSymbol().ratio();
         heightAndWeightSexList.add(build);
-    }
-
-    private <K> void getHeightAndWeightNum(K key, List<StatConclusion> statConclusionList, Map<K, HeightAndWeightNum> heightAndWeightNumMap) {
-        HeightAndWeightNum build = new HeightAndWeightNum()
-                .build(statConclusionList).ratioNotSymbol().ratio();
-        heightAndWeightNumMap.put(key, build);
     }
 
 
@@ -196,7 +187,7 @@ public class SchoolHeightAndWeightMonitorService {
         Map<String, HeightAndWeightNum> heightAndWeightNumMap = Maps.newHashMap();
         gradeCodeMap.forEach((gradeCode, list) -> {
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(gradeCode);
-            getHeightAndWeightNum(gradeCodeEnum.getName(), list, heightAndWeightNumMap);
+            ReportUtil.getHeightAndWeightNum(gradeCodeEnum.getName(), list, heightAndWeightNumMap);
         });
 
         if (heightAndWeightNumMap.size() >= 2) {
@@ -263,7 +254,7 @@ public class SchoolHeightAndWeightMonitorService {
 
         Map<Integer, List<StatConclusion>> ageMap = statConclusionList.stream().collect(Collectors.groupingBy(sc -> ReportUtil.getLessAge(sc.getAge())));
         Map<Integer, HeightAndWeightNum> heightAndWeightNumMap = Maps.newHashMap();
-        ageMap.forEach((age, list) -> getHeightAndWeightNum(age, list, heightAndWeightNumMap));
+        ageMap.forEach((age, list) -> ReportUtil.getHeightAndWeightNum(age, list, heightAndWeightNumMap));
 
         if (heightAndWeightNumMap.size() >= 2) {
             HeightAndWeightAgeVO.HeightAndWeightAgeVariableVO ageVariableVO = new HeightAndWeightAgeVO.HeightAndWeightAgeVariableVO();

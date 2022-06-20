@@ -136,7 +136,7 @@ public class ScreeningNum extends EntityFunction {
         return MAP.get(0);
     }
 
-    public static Map<Integer,Integer> MAP = Maps.newConcurrentMap();
+    public static final Map<Integer,Integer> MAP = Maps.newConcurrentMap();
 
     public ScreeningMonitorTable buildTable(){
         ScreeningMonitorTable schoolScreeningMonitorTable = new ScreeningMonitorTable();

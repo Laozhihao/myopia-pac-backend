@@ -7,18 +7,15 @@ import com.wupol.myopia.business.api.management.constant.AgeSegmentEnum;
 import com.wupol.myopia.business.api.management.constant.ReportConst;
 import com.wupol.myopia.business.api.management.domain.vo.report.*;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
-import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -96,7 +93,7 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
         List<BloodPressureAndSpinalCurvatureNum> bloodPressureAndSpinalCurvatureSexList = Lists.newArrayList();
         genderMap.forEach((gender, list) -> getBloodPressureAndSpinalCurvatureNum(gender, list, bloodPressureAndSpinalCurvatureSexList));
 
-        if (bloodPressureAndSpinalCurvatureSexList.size() >= 1) {
+        if (!bloodPressureAndSpinalCurvatureSexList.isEmpty()) {
             BloodPressureAndSpinalCurvatureSexVO.BloodPressureAndSpinalCurvatureSexVariableVO sexVariableVO = new BloodPressureAndSpinalCurvatureSexVO.BloodPressureAndSpinalCurvatureSexVariableVO();
             sexVariableVO.setAbnormalSpineCurvatureRatioCompare(ReportUtil.getRatioCompare(bloodPressureAndSpinalCurvatureSexList, BloodPressureAndSpinalCurvatureNum::getAbnormalSpineCurvatureRatio, BloodPressureAndSpinalCurvatureNum::getAbnormalSpineCurvatureRatioStr));
             sexVariableVO.setHighBloodPressureRatioCompare(ReportUtil.getRatioCompare(bloodPressureAndSpinalCurvatureSexList, BloodPressureAndSpinalCurvatureNum::getHighBloodPressureRatio, BloodPressureAndSpinalCurvatureNum::getHighBloodPressureRatioStr));
@@ -112,11 +109,6 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
         sexList.add(build);
     }
 
-    private <K> void getBloodPressureAndSpinalCurvatureNum(K key, List<StatConclusion> statConclusionList, Map<K, BloodPressureAndSpinalCurvatureNum> bloodPressureAndSpinalCurvatureNumMap) {
-        BloodPressureAndSpinalCurvatureNum build = new BloodPressureAndSpinalCurvatureNum()
-                .build(statConclusionList).ratioNotSymbol().ratio();
-        bloodPressureAndSpinalCurvatureNumMap.put(key, build);
-    }
 
     /**
      * 血压与脊柱弯曲异常监测结果-不同性别-表格数据
@@ -191,7 +183,7 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
         Map<String, BloodPressureAndSpinalCurvatureNum> bloodPressureAndSpinalCurvatureNumMap = Maps.newHashMap();
         gradeCodeMap.forEach((gradeCode, list) -> {
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(gradeCode);
-            getBloodPressureAndSpinalCurvatureNum(gradeCodeEnum.getName(), list, bloodPressureAndSpinalCurvatureNumMap);
+            ReportUtil.getBloodPressureAndSpinalCurvatureNum(gradeCodeEnum.getName(), list, bloodPressureAndSpinalCurvatureNumMap);
         });
 
         if (bloodPressureAndSpinalCurvatureNumMap.size() >= 2) {
@@ -256,7 +248,7 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
 
         Map<Integer, List<StatConclusion>> ageMap = statConclusionList.stream().collect(Collectors.groupingBy(sc -> ReportUtil.getLessAge(sc.getAge())));
         Map<Integer, BloodPressureAndSpinalCurvatureNum> bloodPressureAndSpinalCurvatureNumMap = Maps.newHashMap();
-        ageMap.forEach((age, list) -> getBloodPressureAndSpinalCurvatureNum(age, list, bloodPressureAndSpinalCurvatureNumMap));
+        ageMap.forEach((age, list) -> ReportUtil.getBloodPressureAndSpinalCurvatureNum(age, list, bloodPressureAndSpinalCurvatureNumMap));
 
         if (bloodPressureAndSpinalCurvatureNumMap.size() >= 2) {
             BloodPressureAndSpinalCurvatureAgeVO.BloodPressureAndSpinalCurvatureAgeVariableVO ageVariableVO = new BloodPressureAndSpinalCurvatureAgeVO.BloodPressureAndSpinalCurvatureAgeVariableVO();

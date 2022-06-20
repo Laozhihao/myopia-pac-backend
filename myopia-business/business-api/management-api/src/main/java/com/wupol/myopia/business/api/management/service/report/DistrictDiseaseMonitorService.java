@@ -9,10 +9,7 @@ import com.wupol.myopia.business.api.management.domain.vo.report.DistrictCommonD
 import com.wupol.myopia.business.api.management.domain.vo.report.DistrictDiseaseMonitorVO;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.DiseaseNumDO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;

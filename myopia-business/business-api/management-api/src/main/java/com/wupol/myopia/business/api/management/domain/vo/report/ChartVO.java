@@ -15,6 +15,8 @@ import java.util.List;
 @Data
 public class ChartVO {
 
+    private ChartVO() {
+    }
 
     @Data
     public static class Chart {

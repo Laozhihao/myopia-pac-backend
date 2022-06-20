@@ -15,9 +15,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -92,7 +90,7 @@ public class DistrictHeightAndWeightMonitorService {
         List<HeightAndWeightNum> heightAndWeightSexList = Lists.newArrayList();
         genderMap.forEach((gender, list) -> getHeightAndWeightNum(gender, list, heightAndWeightSexList));
 
-        if (heightAndWeightSexList.size() >= 1) {
+        if (!heightAndWeightSexList.isEmpty()) {
             HeightAndWeightSexVO.HeightAndWeightSexVariableVO heightAndWeightSexVariableVO = new HeightAndWeightSexVO.HeightAndWeightSexVariableVO();
             heightAndWeightSexVariableVO.setOverweightRatioCompare(ReportUtil.getRatioCompare(heightAndWeightSexList, HeightAndWeightNum::getOverweightRatio, HeightAndWeightNum::getOverweightRatioStr));
             heightAndWeightSexVariableVO.setObeseRatioCompare(ReportUtil.getRatioCompare(heightAndWeightSexList, HeightAndWeightNum::getObeseRatio, HeightAndWeightNum::getObeseRatioStr));
@@ -110,11 +108,6 @@ public class DistrictHeightAndWeightMonitorService {
         heightAndWeightSexList.add(build);
     }
 
-    private <K> void getHeightAndWeightNum(K key, List<StatConclusion> statConclusionList, Map<K, HeightAndWeightNum> heightAndWeightNumMap) {
-        HeightAndWeightNum build = new HeightAndWeightNum()
-                .build(statConclusionList).ratioNotSymbol().ratio();
-        heightAndWeightNumMap.put(key, build);
-    }
 
 
     /**
@@ -191,6 +184,10 @@ public class DistrictHeightAndWeightMonitorService {
 
 
     private List<TwoTuple<String, SchoolAgeRatioVO>> getData(List<StatConclusion> statConclusionList) {
+        if (ReportUtil.getSchoolGrade(statConclusionList)) {
+            return Collections.emptyList();
+        }
+
         List<TwoTuple<String, SchoolAgeRatioVO>> tupleList = Lists.newArrayList();
 
         HeightAndWeightSchoolAge primary = getHeightAndWeightSchoolSchoolAge(statConclusionList, SchoolAge.PRIMARY.code);
@@ -249,21 +246,14 @@ public class DistrictHeightAndWeightMonitorService {
         if (CollectionUtil.isEmpty(statConclusionList)) {
             return null;
         }
-        Map<Integer, List<StatConclusion>> conclusionMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolAge));
 
+        List<StatConclusion> conclusionList;
         if (Objects.equals(schoolAge, 10)) {
-            List<StatConclusion> mergeList = Lists.newArrayList();
-            List<StatConclusion> normalHigh = conclusionMap.get(SchoolAge.HIGH.code);
-            if (CollectionUtil.isNotEmpty(normalHigh)) {
-                mergeList.addAll(normalHigh);
-            }
-            List<StatConclusion> vocationalHigh = conclusionMap.get(SchoolAge.VOCATIONAL_HIGH.code);
-            if (CollectionUtil.isNotEmpty(vocationalHigh)) {
-                mergeList.addAll(vocationalHigh);
-            }
-            return getHeightAndWeightSchoolAge(mergeList);
+            conclusionList = statConclusionList.stream().filter(sc -> Objects.equals(SchoolAge.HIGH.code, sc.getSchoolAge()) || Objects.equals(SchoolAge.VOCATIONAL_HIGH.code, sc.getSchoolAge())).collect(Collectors.toList());
+        }else {
+            conclusionList = statConclusionList.stream().filter(sc -> Objects.equals(sc.getSchoolAge(), schoolAge)).collect(Collectors.toList());
         }
-        return getHeightAndWeightSchoolAge(conclusionMap.get(schoolAge));
+        return getHeightAndWeightSchoolAge(conclusionList);
 
     }
 
@@ -281,7 +271,7 @@ public class DistrictHeightAndWeightMonitorService {
         Map<String, HeightAndWeightNum> heightAndWeightNumMap = Maps.newHashMap();
         gradeCodeMap.forEach((gradeCode, list) -> {
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(gradeCode);
-            getHeightAndWeightNum(gradeCodeEnum.getName(), list, heightAndWeightNumMap);
+            ReportUtil.getHeightAndWeightNum(gradeCodeEnum.getName(), list, heightAndWeightNumMap);
         });
 
         if (heightAndWeightNumMap.size() >= 2) {
@@ -435,7 +425,7 @@ public class DistrictHeightAndWeightMonitorService {
 
         Map<Integer, List<StatConclusion>> ageMap = statConclusionList.stream().collect(Collectors.groupingBy(sc -> ReportUtil.getLessAge(sc.getAge())));
         Map<Integer, HeightAndWeightNum> heightAndWeightNumMap = Maps.newHashMap();
-        ageMap.forEach((age, list) -> getHeightAndWeightNum(age, list, heightAndWeightNumMap));
+        ageMap.forEach((age, list) -> ReportUtil.getHeightAndWeightNum(age, list, heightAndWeightNumMap));
 
         if (heightAndWeightNumMap.size() >= 2) {
             HeightAndWeightAgeVO.HeightAndWeightAgeVariableVO ageVariableVO = new HeightAndWeightAgeVO.HeightAndWeightAgeVariableVO();

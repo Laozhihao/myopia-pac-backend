@@ -140,7 +140,7 @@ public class DiseaseNum extends EntityFunction {
         return MAP.get(0);
     }
 
-    public static Map<Integer,Integer> MAP = Maps.newConcurrentMap();
+    public static final Map<Integer,Integer> MAP = Maps.newConcurrentMap();
 
     public DistrictDiseaseMonitorVO.DiseaseMonitorVariableVO buildDiseaseMonitorVariableVO(){
         DistrictDiseaseMonitorVO.DiseaseMonitorVariableVO diseaseMonitorVariableVO = new DistrictDiseaseMonitorVO.DiseaseMonitorVariableVO();

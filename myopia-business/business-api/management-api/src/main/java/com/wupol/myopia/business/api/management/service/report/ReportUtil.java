@@ -13,6 +13,7 @@ import lombok.experimental.UtilityClass;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * 报告工具
@@ -195,5 +196,28 @@ public class ReportUtil {
         return gradeRatio;
     }
 
+
+    public boolean getSchoolGrade(List<StatConclusion> statConclusionList) {
+        Map<String, List<StatConclusion>> collect = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
+        return collect.size() <= 1;
+    }
+
+    public static <K> void getSaprodontiaNum(K key, List<StatConclusion> statConclusionList, Map<K, SaprodontiaNum> saprodontiaNumMap) {
+        SaprodontiaNum build = new SaprodontiaNum()
+                .build(statConclusionList).ratioNotSymbol().ratio();
+        saprodontiaNumMap.put(key, build);
+    }
+
+    public static  <K> void getHeightAndWeightNum(K key, List<StatConclusion> statConclusionList, Map<K, HeightAndWeightNum> heightAndWeightNumMap) {
+        HeightAndWeightNum build = new HeightAndWeightNum()
+                .build(statConclusionList).ratioNotSymbol().ratio();
+        heightAndWeightNumMap.put(key, build);
+    }
+
+    public static <K> void getBloodPressureAndSpinalCurvatureNum(K key, List<StatConclusion> statConclusionList, Map<K, BloodPressureAndSpinalCurvatureNum> bloodPressureAndSpinalCurvatureNumMap) {
+        BloodPressureAndSpinalCurvatureNum build = new BloodPressureAndSpinalCurvatureNum()
+                .build(statConclusionList).ratioNotSymbol().ratio();
+        bloodPressureAndSpinalCurvatureNumMap.put(key, build);
+    }
 
 }

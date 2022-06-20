@@ -107,7 +107,7 @@ public class BloodPressureAndSpinalCurvatureNum extends EntityFunction implement
         return MAP.get(0);
     }
 
-    public static Map<Integer,Integer> MAP = Maps.newConcurrentMap();
+    public static final Map<Integer,Integer> MAP = Maps.newConcurrentMap();
 
 
     public BloodPressureAndSpinalCurvatureMonitorVariableVO buildBloodPressureAndSpinalCurvatureMonitorVariableVO(){

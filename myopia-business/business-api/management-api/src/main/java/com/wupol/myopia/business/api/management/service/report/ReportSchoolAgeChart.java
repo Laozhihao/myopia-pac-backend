@@ -7,7 +7,7 @@ import com.wupol.myopia.business.api.management.domain.vo.report.ChartVO;
 import com.wupol.myopia.business.api.management.domain.vo.report.SchoolAgeChartVO;
 import com.wupol.myopia.business.api.management.domain.vo.report.SchoolAgeRatioVO;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
-import org.springframework.stereotype.Service;
+import lombok.experimental.UtilityClass;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -17,7 +17,7 @@ import java.util.List;
  *
  * @author hang.yuan 2022/6/4 00:56
  */
-@Service
+@UtilityClass
 public class ReportSchoolAgeChart {
 
 

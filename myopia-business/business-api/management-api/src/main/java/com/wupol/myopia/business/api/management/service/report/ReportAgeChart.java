@@ -6,7 +6,7 @@ import com.wupol.myopia.business.api.management.constant.AgeSegmentEnum;
 import com.wupol.myopia.business.api.management.constant.ReportConst;
 import com.wupol.myopia.business.api.management.domain.vo.report.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
-import org.springframework.stereotype.Service;
+import lombok.experimental.UtilityClass;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
  *
  * @author hang.yuan 2022/6/4 00:56
  */
-@Service
+@UtilityClass
 public class ReportAgeChart {
 
 
@@ -32,6 +32,9 @@ public class ReportAgeChart {
         }
 
         Map<Integer, List<StatConclusion>> ageMap = statConclusionList.stream().collect(Collectors.groupingBy(sc -> ReportUtil.getLessAge(sc.getAge())));
+        if (ageMap.size() <= 1){
+            setAgeChartVO(ageChartVO,null);
+        }
         List<Integer> dynamicAgeSegmentList = ReportUtil.dynamicAgeSegment(statConclusionList);
 
         List<String> x = Lists.newArrayList();
@@ -121,13 +124,13 @@ public class ReportAgeChart {
     private static void setAgeChartVO(AgeChartVO ageChartVO, List<ChartVO.Chart> chart) {
         switch (ageChartVO.type()) {
             case 1:
-                ageChartVO.setSaprodontiaAgeMonitorChart(chart.get(0));
+                ageChartVO.setSaprodontiaAgeMonitorChart(Objects.isNull(chart)?null:chart.get(0));
                 break;
             case 2:
-                ageChartVO.setHeightAndWeightAgeMonitorChart(chart);
+                ageChartVO.setHeightAndWeightAgeMonitorChart(Objects.isNull(chart)?null:chart);
                 break;
             case 3:
-                ageChartVO.setBloodPressureAndSpinalCurvatureAgeMonitorChart(chart.get(0));
+                ageChartVO.setBloodPressureAndSpinalCurvatureAgeMonitorChart(Objects.isNull(chart)?null:chart.get(0));
                 break;
             default:
                 break;

@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -46,7 +47,7 @@ public class SchoolClassScreeningMonitorService {
             SchoolClassScreeningMonitorVO schoolClassScreeningMonitorVO = new SchoolClassScreeningMonitorVO();
             //表格数据
             getSchoolClassScreeningMonitorTableList(list, schoolClassScreeningMonitorVO);
-            if (schoolClassScreeningMonitorVO.notEmpty()) {
+            if (Objects.equals(schoolClassScreeningMonitorVO.notEmpty(),Boolean.TRUE)) {
                 schoolClassScreeningMonitorVOList.add(schoolClassScreeningMonitorVO);
                 schoolClassScreeningMonitorVO.setGrade(GradeCodeEnum.getByCode(gradeCode).getName());
             }
@@ -68,9 +69,7 @@ public class SchoolClassScreeningMonitorService {
 
         Map<String, List<StatConclusion>> classStatConclusionMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolClassName));
         Map<String, ScreeningNum> classScreeningNumMap = Maps.newHashMap();
-        classStatConclusionMap.forEach((schoolClassName, list) -> {
-            getSchoolClassScreeningNum(schoolClassName, list, classScreeningNumMap);
-        });
+        classStatConclusionMap.forEach((schoolClassName, list) -> getSchoolClassScreeningNum(schoolClassName, list, classScreeningNumMap));
 
         List<ChartVO.GradeRatioExtremumChart> chartList = Lists.newArrayList(
                 new ChartVO.GradeRatioExtremumChart(ReportConst.SAPRODONTIA, Lists.newArrayList()),
@@ -147,9 +146,7 @@ public class SchoolClassScreeningMonitorService {
         }
         List<ScreeningMonitorTable> tableList = Lists.newArrayList();
         Map<String, List<StatConclusion>> schoolStatConclusionMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolClassName));
-        schoolStatConclusionMap.forEach((schoolClassName, list) -> {
-            getSchoolClassScreeningTable(schoolClassName, list, tableList);
-        });
+        schoolStatConclusionMap.forEach((schoolClassName, list) -> getSchoolClassScreeningTable(schoolClassName, list, tableList));
 
         CollectionUtil.sort(tableList, Comparator.comparing(ScreeningMonitorTable::getSaprodontiaLossAndRepairRatio).reversed());
 
