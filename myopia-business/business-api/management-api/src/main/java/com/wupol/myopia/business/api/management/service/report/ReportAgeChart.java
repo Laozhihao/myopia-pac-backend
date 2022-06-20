@@ -34,6 +34,7 @@ public class ReportAgeChart {
         Map<Integer, List<StatConclusion>> ageMap = statConclusionList.stream().collect(Collectors.groupingBy(sc -> ReportUtil.getLessAge(sc.getAge())));
         if (ageMap.size() <= 1){
             setAgeChartVO(ageChartVO,null);
+            return;
         }
         List<Integer> dynamicAgeSegmentList = ReportUtil.dynamicAgeSegment(statConclusionList);
 

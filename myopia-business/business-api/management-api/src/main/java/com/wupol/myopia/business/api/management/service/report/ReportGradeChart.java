@@ -60,13 +60,13 @@ public class ReportGradeChart {
     private static void getY(Integer type, List<String> y) {
         switch (type) {
             case 1:
-                y.addAll(Lists.newArrayList(ReportConst.SAPRODONTIA, ReportConst.SAPRODONTIA_LOSS, ReportConst.SAPRODONTIA_REPAIR));
+                y.addAll(Lists.newArrayList(ReportConst.SAPRODONTIA_REPAIR, ReportConst.SAPRODONTIA_LOSS,ReportConst.SAPRODONTIA));
                 break;
             case 2:
-                y.addAll(Lists.newArrayList(ReportConst.OVERWEIGHT, ReportConst.OBESE, ReportConst.MALNOURISHED, ReportConst.STUNTING));
+                y.addAll(Lists.newArrayList(ReportConst.STUNTING,ReportConst.MALNOURISHED,ReportConst.OBESE,ReportConst.OVERWEIGHT ));
                 break;
             case 3:
-                y.addAll(Lists.newArrayList(ReportConst.HIGH_BLOOD_PRESSURE, ReportConst.ABNORMAL_SPINE_CURVATURE));
+                y.addAll(Lists.newArrayList(ReportConst.ABNORMAL_SPINE_CURVATURE,ReportConst.HIGH_BLOOD_PRESSURE));
                 break;
             default:
                 break;
