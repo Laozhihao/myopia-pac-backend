@@ -6,6 +6,7 @@ import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -119,6 +120,9 @@ public class CountAndProportionService {
      * 学龄段视力低下
      */
     public CountAndProportion schoolAgeLowVision(List<StatConclusion> statConclusions, Integer schoolAge, Long total) {
+        if (CollectionUtils.isEmpty(statConclusions)) {
+            return new CountAndProportion();
+        }
         long count = statConclusions.stream()
                 .filter(s -> Objects.equals(s.getSchoolAge(), schoolAge))
                 .filter(s-> Objects.equals(s.getIsLowVision(), Boolean.TRUE))
