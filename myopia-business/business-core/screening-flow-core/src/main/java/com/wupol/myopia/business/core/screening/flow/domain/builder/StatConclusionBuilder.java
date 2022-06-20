@@ -467,15 +467,15 @@ public class StatConclusionBuilder {
             BasicData basicData = new BasicData();
             //01.处理基础的数据
             dealWithBasicData(visionScreeningResult, screeningPlanSchoolStudent, basicData);
-            //02.处理电脑验光的数据
-            ComputerOptometryDO computerOptometry = visionScreeningResult.getComputerOptometry();
-            if (computerOptometry != null) {
-                dealWithComputerOptometry(screeningPlanSchoolStudent, basicData, computerOptometry);
-            }
-            //03.处理视力相关的数据
+            //02.处理视力相关的数据
             VisionDataDO visionData = visionScreeningResult.getVisionData();
             if (visionData != null) {
                 dealWithVisionData(basicData, visionData);
+            }
+            //03.处理电脑验光的数据
+            ComputerOptometryDO computerOptometry = visionScreeningResult.getComputerOptometry();
+            if (computerOptometry != null) {
+                dealWithComputerOptometry(screeningPlanSchoolStudent, basicData, computerOptometry);
             }
             setOtherEyeDiseases(basicData, visionScreeningResult.getOtherEyeDiseases());
             return basicData;
@@ -519,6 +519,7 @@ public class StatConclusionBuilder {
             basicData.rightHyperopiaWarningLevel = StatUtil.getHyperopiaWarningLevel(basicData.rightSph, basicData.rightCyl, screeningPlanSchoolStudent.getStudentAge());
             basicData.leftMyopiaWarningLevel = StatUtil.getMyopiaWarningLevel(basicData.leftSph, basicData.leftCyl, basicData.age, basicData.getLeftNakedVision());
             basicData.rightMyopiaWarningLevel = StatUtil.getMyopiaWarningLevel(basicData.rightSph, basicData.rightCyl, basicData.age, basicData.getRightNakedVision());
+            setMyopiaVisionWarningLevel(basicData);
         }
 
         /**
@@ -543,7 +544,6 @@ public class StatConclusionBuilder {
                 basicData.rightNakedVisionWarningLevel = StatUtil.getNakedVisionWarningLevel(basicData.rightNakedVision, basicData.age);
             }
             setVisionWarningLevel(basicData);
-            setMyopiaVisionWarningLevel(basicData);
         }
 
         /**
