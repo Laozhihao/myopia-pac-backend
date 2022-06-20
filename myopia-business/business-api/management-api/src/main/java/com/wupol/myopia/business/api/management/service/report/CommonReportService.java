@@ -21,7 +21,6 @@ import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
-import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.flow.util.EyeDataUtil;
@@ -69,9 +68,6 @@ public class CommonReportService {
 
     @Resource
     private VisionScreeningResultService visionScreeningResultService;
-
-    @Resource
-    private StudentService studentService;
 
     @Resource
     private HorizontalChartService horizontalChartService;
@@ -675,7 +671,7 @@ public class CommonReportService {
                 List<ScreeningDataReportTable> dataReportTableList = new ArrayList<>();
                 classStatList.forEach(sourceData -> {
                     VisionScreeningResult result = resultMap.get(sourceData.getResultId());
-                    dataReportTableList.add(getReportDate(sourceData, result, studentNameMap.get(sourceData.getStudentId()), planStudentMap.get(result.getScreeningPlanSchoolStudentId()), isk));
+                    dataReportTableList.add(getReportDate(sourceData, result, studentNameMap.get(sourceData.getScreeningPlanSchoolStudentId()), planStudentMap.get(result.getScreeningPlanSchoolStudentId()), isk));
                 });
                 classScreeningData.setTables(dataReportTableList);
                 dataList.add(classScreeningData);
