@@ -46,5 +46,9 @@ public class HtmlPageUrlConstant {
      */
     public static final String STUDENT_ARCHIVES = "%s?resultId=%d&templateId=%d";
 
+    public static final String REPORT_AREA_VISION = "%s?reportType=visonArea&noticeId=%d&districtId=%d";
+
+
+
 
 }
