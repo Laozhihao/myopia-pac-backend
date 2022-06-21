@@ -294,11 +294,7 @@ public class DistrictCommonDiseaseReportService {
                 .map(StatConclusion::getIsAnisometropia)
                 .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
 
-        TwoTuple<BigDecimal, BigDecimal> averageVisionTuple = StatUtil.calculateAverageVision(kindergartenList);
-        BigDecimal add = averageVisionTuple.getFirst().add(averageVisionTuple.getSecond());
-        BigDecimal averageVision = BigDecimalUtil.divide(add, new BigDecimal("2"), 1);
-
-        kindergartenVO.setAvgVision(averageVision);
+        kindergartenVO.setAvgVision(StatUtil.averageVision(kindergartenList));
         kindergartenVO.setLowVisionRatio(MathUtil.ratioNotSymbol(lowVisionNum, validScreeningNum));
         kindergartenVO.setMyopiaLevelInsufficientRatio(MathUtil.ratioNotSymbol(visionLabelZeroSpNum, validScreeningNum));
         kindergartenVO.setAnisometropiaRatio(MathUtil.ratioNotSymbol(anisometropiaNum, validScreeningNum));

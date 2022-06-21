@@ -197,7 +197,7 @@ public class StatUtil {
     }
 
     /**
-     * 平均视力 (初筛数据完整才使用)
+     * 平均视力（左/右） (初筛数据完整才使用)
      * @param statConclusions
      */
     public static TwoTuple<BigDecimal,BigDecimal> calculateAverageVision(List<StatConclusion> statConclusions) {
@@ -216,6 +216,15 @@ public class StatUtil {
         return TwoTuple.of(avgVisionL,avgVisionR);
     }
 
+    /**
+     * 平均视力 (初筛数据完整才使用)
+     */
+    public static BigDecimal averageVision(List<StatConclusion> statConclusions) {
+        statConclusions = statConclusions.stream().filter(sc->Objects.equals(Boolean.TRUE,sc.getIsValid())).collect(Collectors.toList());
+        List<BigDecimal> visionList = statConclusions.stream().flatMap(sc->Lists.newArrayList(sc.getVisionL(),sc.getVisionR()).stream()).filter(Objects::nonNull).collect(Collectors.toList());
+        double sumVision = visionList.stream().mapToDouble(BigDecimal::doubleValue).sum();
+        return BigDecimalUtil.divide(String.valueOf(sumVision), String.valueOf(visionList.size()),1);
+    }
 
     /**
      * 是否近视

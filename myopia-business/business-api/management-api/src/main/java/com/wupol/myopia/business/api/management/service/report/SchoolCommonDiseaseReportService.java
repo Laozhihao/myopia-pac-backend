@@ -184,15 +184,11 @@ public class SchoolCommonDiseaseReportService {
             return;
         }
 
-        TwoTuple<BigDecimal, BigDecimal> averageVisionTuple = StatUtil.calculateAverageVision(primaryAndAboveStatConclusionList);
-        BigDecimal add = averageVisionTuple.getFirst().add(averageVisionTuple.getSecond());
-        BigDecimal averageVision = BigDecimalUtil.divide(add, new BigDecimal("2"), 1);
-
         SchoolCommonDiseaseReportVO.VisionAnalysisVO visionAnalysisVO = new VisionAnalysisNum()
                 .build(primaryAndAboveStatConclusionList)
                 .ratioNotSymbol()
                 .buildVisionAnalysisVO();
-        visionAnalysisVO.setAvgVision(averageVision);
+        visionAnalysisVO.setAvgVision(StatUtil.averageVision(primaryAndAboveStatConclusionList));
         districtCommonDiseaseReportVO.setVisionAnalysisVO(visionAnalysisVO);
     }
 
