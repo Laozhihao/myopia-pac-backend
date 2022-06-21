@@ -59,7 +59,7 @@ public class HtmlPageUrlConstant {
     /**
      *  视力报告-幼儿园
      */
-    public static final String REPORT_KINDERGARTEN_VISION = "%s?reportType=visonKindergartenSchool&planId=%d&schoolId=%d&noticeId=%d";;
+    public static final String REPORT_KINDERGARTEN_VISION = "%s?reportType=visonKindergartenSchool&planId=%d&schoolId=%d&noticeId=%d";
 
 
 
