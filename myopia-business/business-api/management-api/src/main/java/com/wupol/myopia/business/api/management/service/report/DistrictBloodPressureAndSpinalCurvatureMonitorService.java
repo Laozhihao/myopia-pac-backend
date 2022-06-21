@@ -241,24 +241,15 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorService {
         if (CollectionUtil.isEmpty(statConclusionList)) {
             return null;
         }
-        Map<Integer, List<StatConclusion>> conclusionMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolAge));
 
+        List<StatConclusion> conclusionList;
         if (Objects.equals(schoolAge, 10)) {
-            List<StatConclusion> mergeList = Lists.newArrayList();
-            List<StatConclusion> normalHigh = conclusionMap.get(SchoolAge.HIGH.code);
-            if (CollectionUtil.isNotEmpty(normalHigh)) {
-                mergeList.addAll(normalHigh);
-            }
-            List<StatConclusion> vocationalHigh = conclusionMap.get(SchoolAge.VOCATIONAL_HIGH.code);
-            if (CollectionUtil.isNotEmpty(vocationalHigh)) {
-                mergeList.addAll(vocationalHigh);
-            }
-            return getBloodPressureAndSpinalCurvatureSchoolAge(mergeList);
+            conclusionList = statConclusionList.stream().filter(sc -> Objects.equals(SchoolAge.HIGH.code, sc.getSchoolAge()) || Objects.equals(SchoolAge.VOCATIONAL_HIGH.code, sc.getSchoolAge())).collect(Collectors.toList());
+        }else {
+            conclusionList = statConclusionList.stream().filter(sc -> Objects.equals(sc.getSchoolAge(), schoolAge)).collect(Collectors.toList());
         }
 
-        List<StatConclusion> conclusions = conclusionMap.get(schoolAge);
-
-        return getBloodPressureAndSpinalCurvatureSchoolAge(conclusions);
+        return getBloodPressureAndSpinalCurvatureSchoolAge(conclusionList);
 
     }
 

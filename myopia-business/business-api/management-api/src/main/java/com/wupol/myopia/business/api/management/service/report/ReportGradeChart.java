@@ -30,14 +30,20 @@ public class ReportGradeChart {
         if (CollectionUtil.isEmpty(statConclusionList)) {
             return;
         }
+
+        Map<String, List<StatConclusion>> gradeCodeMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
+        if (gradeCodeMap.size() <= 1){
+            setGradeChartVO(gradeChartVO,null);
+            return;
+        }
+
         ChartVO.ReverseChart chart = new ChartVO.ReverseChart();
         List<String> y = Lists.newArrayList();
         getY(gradeChartVO.type(),y);
 
         List<ChartVO.ChartData> x = Lists.newArrayList();
-
         List<BigDecimal> valueList = Lists.newArrayList();
-        Map<String, List<StatConclusion>> gradeCodeMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
+
         gradeCodeMap = CollectionUtil.sort(gradeCodeMap, String::compareTo);
         gradeCodeMap.forEach((gradeCode, list) -> {
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(gradeCode);
