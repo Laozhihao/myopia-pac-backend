@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.vo.report;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.api.management.constant.ReportConst;
@@ -126,6 +127,20 @@ public class VisionAnalysisNum extends EntityFunction {
     private BigDecimal myopiaUnderCorrectedRatio;
 
     public VisionAnalysisNum build(List<StatConclusion> statConclusionList) {
+        if (CollectionUtil.isEmpty(statConclusionList)){
+            this.validScreeningNum=ReportConst.ZERO;
+            this.lowVisionNum=ReportConst.ZERO;
+            this.myopiaNum=ReportConst.ZERO;
+            this.nightWearingOrthokeratologyLensesNum=ReportConst.ZERO;
+            this.myopiaLevelEarlyNum=ReportConst.ZERO;
+            this.lowMyopiaNum=ReportConst.ZERO;
+            this.highMyopiaNum=ReportConst.ZERO;
+            this.astigmatismNum=ReportConst.ZERO;
+            this.myopiaEnoughCorrectedNum=ReportConst.ZERO;
+            this.myopiaUncorrectedNum=ReportConst.ZERO;
+            this.myopiaUnderCorrectedNum=ReportConst.ZERO;
+            return this;
+        }
         this.validScreeningNum = statConclusionList.size();
         this.lowVisionNum = getCount(statConclusionList, StatConclusion::getIsLowVision);
         this.myopiaNum = getCount(statConclusionList, StatConclusion::getIsMyopia);

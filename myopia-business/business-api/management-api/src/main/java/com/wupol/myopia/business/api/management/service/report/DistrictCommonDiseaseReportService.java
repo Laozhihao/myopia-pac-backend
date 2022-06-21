@@ -430,9 +430,6 @@ public class DistrictCommonDiseaseReportService {
      * 常见病分析变量
      */
     private void getCommonDiseasesAnalysisVariableVO(List<StatConclusion> statConclusionList, DistrictCommonDiseasesAnalysisVO districtCommonDiseasesAnalysisVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
-            return;
-        }
 
         CommonDiseasesAnalysisVariableVO commonDiseasesAnalysisVariableVO = new CommonDiseasesNum()
                 .build(statConclusionList)

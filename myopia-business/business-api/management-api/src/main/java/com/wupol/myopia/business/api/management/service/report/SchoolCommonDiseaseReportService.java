@@ -173,13 +173,9 @@ public class SchoolCommonDiseaseReportService {
      */
     private void getVisionAnalysisVO(List<StatConclusion> statConclusionList, SchoolCommonDiseaseReportVO districtCommonDiseaseReportVO) {
         if (CollectionUtil.isEmpty(statConclusionList)) {
-            return;
+            statConclusionList = Collections.emptyList();
         }
         List<StatConclusion> primaryAndAboveStatConclusionList = statConclusionList.stream().filter(sc -> !Objects.equals(GradeCodeEnum.getByCode(sc.getSchoolGradeCode()).getType(), SchoolAge.KINDERGARTEN.code)).collect(Collectors.toList());
-
-        if (CollectionUtil.isEmpty(primaryAndAboveStatConclusionList)) {
-            return;
-        }
 
         SchoolCommonDiseaseReportVO.VisionAnalysisVO visionAnalysisVO = new VisionAnalysisNum()
                 .build(primaryAndAboveStatConclusionList)
@@ -230,10 +226,11 @@ public class SchoolCommonDiseaseReportService {
      * 常见病分析变量
      */
     private void getCommonDiseasesAnalysisVariableVO(List<StatConclusion> statConclusionList, SchoolCommonDiseasesAnalysisVO districtCommonDiseasesAnalysisVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
-            return;
-        }
-        CommonDiseasesAnalysisVariableVO commonDiseasesAnalysisVariableVO = new CommonDiseasesNum().build(statConclusionList).ratioNotSymbol().buidCommonDiseasesAnalysisVariableVO();
+
+        CommonDiseasesAnalysisVariableVO commonDiseasesAnalysisVariableVO = new CommonDiseasesNum()
+                .build(statConclusionList)
+                .ratioNotSymbol()
+                .buidCommonDiseasesAnalysisVariableVO();
         districtCommonDiseasesAnalysisVO.setCommonDiseasesAnalysisVariableVO(commonDiseasesAnalysisVariableVO);
     }
 
