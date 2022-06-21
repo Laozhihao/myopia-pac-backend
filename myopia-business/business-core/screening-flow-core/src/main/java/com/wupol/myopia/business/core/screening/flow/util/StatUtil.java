@@ -220,7 +220,6 @@ public class StatUtil {
      * 平均视力 (初筛数据完整才使用)
      */
     public static BigDecimal averageVision(List<StatConclusion> statConclusions) {
-        statConclusions = statConclusions.stream().filter(sc->Objects.equals(Boolean.TRUE,sc.getIsValid())).collect(Collectors.toList());
         List<BigDecimal> visionList = statConclusions.stream().flatMap(sc->Lists.newArrayList(sc.getVisionL(),sc.getVisionR()).stream()).filter(Objects::nonNull).collect(Collectors.toList());
         double sumVision = visionList.stream().mapToDouble(BigDecimal::doubleValue).sum();
         return BigDecimalUtil.divide(String.valueOf(sumVision), String.valueOf(visionList.size()),1);
