@@ -90,7 +90,7 @@ public class ExportScreeningVisionService {
     }
 
     private void generatePrimaryVisionReport(Integer planId, Integer schoolId, Integer noticeId, String fileSavePath) {
-        String reportHtmlUrl = String.format(HtmlPageUrlConstant.REPORT_KINDERGARTEN_VISION, htmlUrlHost, planId, schoolId, noticeId);
+        String reportHtmlUrl = String.format(HtmlPageUrlConstant.REPORT_PRIMARY_VISION, htmlUrlHost, planId, schoolId, noticeId);
         String pdfUrl = html2PdfService.syncGeneratorPDF(reportHtmlUrl, "小学筛查报告-视力分析.pdf", UUID.randomUUID().toString()).getUrl();
         try {
             FileUtils.copyURLToFile(new URL(pdfUrl), new File(Paths.get(fileSavePath).toString()));

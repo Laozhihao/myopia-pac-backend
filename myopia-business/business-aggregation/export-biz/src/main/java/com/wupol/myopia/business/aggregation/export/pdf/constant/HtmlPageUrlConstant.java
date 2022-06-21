@@ -46,9 +46,19 @@ public class HtmlPageUrlConstant {
      */
     public static final String STUDENT_ARCHIVES = "%s?resultId=%d&templateId=%d";
 
+    /**
+     *  视力报告-区域
+     */
     public static final String REPORT_AREA_VISION = "%s?reportType=visonArea&noticeId=%d&districtId=%d";
 
+    /**
+     *  视力报告-小学
+     */
     public static final String REPORT_PRIMARY_VISION = "%s?reportType=visonArea&planId=%d&schoolId=%d&noticeId=%d";
+
+    /**
+     *  视力报告-幼儿园
+     */
     public static final String REPORT_KINDERGARTEN_VISION = "%s?reportType=visonArea&planId=%d&schoolId=%d&noticeId=%d";;
 
 
