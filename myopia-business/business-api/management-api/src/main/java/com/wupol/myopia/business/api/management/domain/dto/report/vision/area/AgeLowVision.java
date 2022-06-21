@@ -24,24 +24,9 @@ public class AgeLowVision {
     private String ageRange;
 
     /**
-     * 视力低下
+     * 信息
      */
-    private HighLowProportion low;
-
-    /**
-     * 轻度-视力低下
-     */
-    private HighLowProportion light;
-
-    /**
-     * 中度-视力低下
-     */
-    private HighLowProportion middle;
-
-    /**
-     * 重度-视力低下
-     */
-    private HighLowProportion high;
+    public Info info;
 
     /**
      * 图表
@@ -57,6 +42,30 @@ public class AgeLowVision {
      * 表格
      */
     private List<CommonLowVisionTable> tables;
+
+    @Getter
+    @Setter
+    public static class Info {
+        /**
+         * 视力低下
+         */
+        private HighLowProportion low;
+
+        /**
+         * 轻度-视力低下
+         */
+        private HighLowProportion light;
+
+        /**
+         * 中度-视力低下
+         */
+        private HighLowProportion middle;
+
+        /**
+         * 重度-视力低下
+         */
+        private HighLowProportion high;
+    }
 
 
 }

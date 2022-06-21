@@ -648,7 +648,6 @@ public class CommonReportService {
 
         List<VisionScreeningResult> resultList = visionScreeningResultService.getByIds(resultIds);
         Map<Integer, VisionScreeningResult> resultMap = resultList.stream().collect(Collectors.toMap(VisionScreeningResult::getId, Function.identity()));
-        Map<Integer, String> studentNameMap = planStudents.stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getId, ScreeningPlanSchoolStudent::getStudentName));
 
         // 通过学校班级年级分组
         List<SchoolGrade> gradeList = schoolGradeService.getBySchoolId(school.getId());
@@ -671,7 +670,7 @@ public class CommonReportService {
                 List<ScreeningDataReportTable> dataReportTableList = new ArrayList<>();
                 classPlanStudentList.forEach(sourceData -> {
                     VisionScreeningResult result = resultMap.get(sourceData.getScreeningPlanId());
-                    dataReportTableList.add(getReportDate(statConclusionMap.getOrDefault(sourceData.getId(),new StatConclusion()), result, sourceData, isk));
+                    dataReportTableList.add(getReportDate(statConclusionMap.getOrDefault(sourceData.getId(), new StatConclusion()), result, sourceData, isk));
                 });
                 classScreeningData.setTables(dataReportTableList);
                 dataList.add(classScreeningData);

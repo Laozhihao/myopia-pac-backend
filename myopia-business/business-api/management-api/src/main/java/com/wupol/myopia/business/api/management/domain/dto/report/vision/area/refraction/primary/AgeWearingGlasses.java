@@ -23,39 +23,9 @@ public class AgeWearingGlasses {
     private String ageInfo;
 
     /**
-     * 不佩戴眼镜
+     * 信息
      */
-    private HighLowProportion notWearing;
-
-    /**
-     * 佩戴框架眼镜
-     */
-    private HighLowProportion glasses;
-
-    /**
-     * 佩戴隐形眼镜
-     */
-    private HighLowProportion contact;
-
-    /**
-     * 夜戴
-     */
-    private HighLowProportion night;
-
-    /**
-     * 足矫
-     */
-    private HighLowProportion enough;
-
-    /**
-     * 未矫
-     */
-    private HighLowProportion uncorrected;
-
-    /**
-     * 欠矫
-     */
-    private HighLowProportion under;
+    private Info info;
 
     /**
      * 表格
@@ -71,5 +41,44 @@ public class AgeWearingGlasses {
      * 表格
      */
     private List<AgeWearingTable> tables;
+
+    @Getter
+    @Setter
+    public static class Info {
+        /**
+         * 不佩戴眼镜
+         */
+        private HighLowProportion notWearing;
+
+        /**
+         * 佩戴框架眼镜
+         */
+        private HighLowProportion glasses;
+
+        /**
+         * 佩戴隐形眼镜
+         */
+        private HighLowProportion contact;
+
+        /**
+         * 夜戴
+         */
+        private HighLowProportion night;
+
+        /**
+         * 足矫
+         */
+        private HighLowProportion enough;
+
+        /**
+         * 未矫
+         */
+        private HighLowProportion uncorrected;
+
+        /**
+         * 欠矫
+         */
+        private HighLowProportion under;
+    }
 
 }

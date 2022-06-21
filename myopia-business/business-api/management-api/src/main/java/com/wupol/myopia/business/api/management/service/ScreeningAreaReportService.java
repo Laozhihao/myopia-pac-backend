@@ -398,16 +398,16 @@ public class ScreeningAreaReportService {
 
         List<CommonLowVisionTable> tables = screeningReportTableService.gradeSchoolAgeLowVisionTable(statConclusions, total);
         schoolAgeLowVision.setTables(Lists.newArrayList(tables));
-        List<CommonLowVisionTable> tableChart = tables.stream().filter(s -> commonReportService.schoolAgeList().contains(s.getName())).collect(Collectors.toList());
-        schoolAgeLowVision.setLowVisionChart(horizontalChartService.areaLowVision(tableChart, true));
-        schoolAgeLowVision.setLowVisionLevelChart(horizontalChartService.lowVisionChart(tableChart, false));
-
         List<CommonLowVisionTable> filterTable = tables.stream().filter(s -> !commonReportService.filterList().contains(s.getName())).collect(Collectors.toList());
-        info.setLight(highLowProportionService.schoolAgeLowVisionTableHP(filterTable, s -> Float.valueOf(s.getLightLowVisionProportion())));
-        info.setMiddle(highLowProportionService.schoolAgeLowVisionTableHP(filterTable, s -> Float.valueOf(s.getMiddleLowVisionProportion())));
-        info.setHigh(highLowProportionService.schoolAgeLowVisionTableHP(filterTable, s -> Float.valueOf(s.getHighLowVisionProportion())));
-        schoolAgeLowVision.setInfo(info);
-
+        if (commonReportService.isShowInfo(filterTable, false)) {
+            List<CommonLowVisionTable> tableChart = tables.stream().filter(s -> commonReportService.schoolAgeList().contains(s.getName())).collect(Collectors.toList());
+            schoolAgeLowVision.setLowVisionChart(horizontalChartService.areaLowVision(tableChart, true));
+            schoolAgeLowVision.setLowVisionLevelChart(horizontalChartService.lowVisionChart(tableChart, false));
+            info.setLight(highLowProportionService.schoolAgeLowVisionTableHP(filterTable, s -> Float.valueOf(s.getLightLowVisionProportion())));
+            info.setMiddle(highLowProportionService.schoolAgeLowVisionTableHP(filterTable, s -> Float.valueOf(s.getMiddleLowVisionProportion())));
+            info.setHigh(highLowProportionService.schoolAgeLowVisionTableHP(filterTable, s -> Float.valueOf(s.getHighLowVisionProportion())));
+            schoolAgeLowVision.setInfo(info);
+        }
         return schoolAgeLowVision;
     }
 
@@ -422,13 +422,17 @@ public class ScreeningAreaReportService {
 
         List<CommonLowVisionTable> tables = screeningReportTableService.schoolAgeLowVisionTables(statConclusions, total);
         ageLowVision.setTables(Lists.newArrayList(tables));
-        List<CommonLowVisionTable> tableList = tables.stream().filter(s -> !StringUtils.equals(s.getName(), CommonReportService.TOTAL_NAME)).collect(Collectors.toList());
-        ageLowVision.setAgeLowVisionChart(horizontalChartService.areaLowVision(tableList, true));
-        ageLowVision.setAgeLowVisionLevelChart(horizontalChartService.lowVisionChart(tableList, true));
-        ageLowVision.setLow(highLowProportionService.ageLowVisionTableHP(tableList, s -> Float.valueOf(s.getLowVisionProportion())));
-        ageLowVision.setLight(highLowProportionService.ageLowVisionTableHP(tableList, s -> Float.valueOf(s.getLightLowVisionProportion())));
-        ageLowVision.setMiddle(highLowProportionService.ageLowVisionTableHP(tableList, s -> Float.valueOf(s.getMiddleLowVisionProportion())));
-        ageLowVision.setHigh(highLowProportionService.ageLowVisionTableHP(tableList, s -> Float.valueOf(s.getHighLowVisionProportion())));
+        if (commonReportService.isShowInfo(tables, true)) {
+            List<CommonLowVisionTable> tableList = tables.stream().filter(s -> !StringUtils.equals(s.getName(), CommonReportService.TOTAL_NAME)).collect(Collectors.toList());
+            ageLowVision.setAgeLowVisionChart(horizontalChartService.areaLowVision(tableList, true));
+            ageLowVision.setAgeLowVisionLevelChart(horizontalChartService.lowVisionChart(tableList, true));
+            AgeLowVision.Info info = new AgeLowVision.Info();
+            info.setLow(highLowProportionService.ageLowVisionTableHP(tableList, s -> Float.valueOf(s.getLowVisionProportion())));
+            info.setLight(highLowProportionService.ageLowVisionTableHP(tableList, s -> Float.valueOf(s.getLightLowVisionProportion())));
+            info.setMiddle(highLowProportionService.ageLowVisionTableHP(tableList, s -> Float.valueOf(s.getMiddleLowVisionProportion())));
+            info.setHigh(highLowProportionService.ageLowVisionTableHP(tableList, s -> Float.valueOf(s.getHighLowVisionProportion())));
+            ageLowVision.setInfo(info);
+        }
         return ageLowVision;
     }
 
@@ -490,35 +494,43 @@ public class ScreeningAreaReportService {
         long total = statConclusions.size();
 
         kindergartenInfo.setSexRefractiveInfo(commonReportService.kSexRefractive(statConclusions, total));
-
         SchoolAgeRefractive schoolAgeRefractive = new SchoolAgeRefractive();
-        SchoolAgeRefractive.Info info = new SchoolAgeRefractive.Info();
-        info.setOneInsufficient(countAndProportionService.insufficient(statConclusions.stream().filter(s -> Objects.equals(s.getSchoolGradeCode(), GradeCodeEnum.ONE_KINDERGARTEN.getCode())).collect(Collectors.toList()), total).getProportion());
-        info.setTwoInsufficient(countAndProportionService.insufficient(statConclusions.stream().filter(s -> Objects.equals(s.getSchoolGradeCode(), GradeCodeEnum.TWO_KINDERGARTEN.getCode())).collect(Collectors.toList()), total).getProportion());
-        info.setThreeInsufficient(countAndProportionService.insufficient(statConclusions.stream().filter(s -> Objects.equals(s.getSchoolGradeCode(), GradeCodeEnum.THREE_KINDERGARTEN.getCode())).collect(Collectors.toList()), total).getProportion());
-        info.setOneRefractiveError(countAndProportionService.refractiveError(statConclusions.stream().filter(s -> Objects.equals(s.getSchoolGradeCode(), GradeCodeEnum.ONE_KINDERGARTEN.getCode())).collect(Collectors.toList()), total).getProportion());
-        info.setTwoRefractiveError(countAndProportionService.refractiveError(statConclusions.stream().filter(s -> Objects.equals(s.getSchoolGradeCode(), GradeCodeEnum.TWO_KINDERGARTEN.getCode())).collect(Collectors.toList()), total).getProportion());
-        info.setThreeRefractiveError(countAndProportionService.refractiveError(statConclusions.stream().filter(s -> Objects.equals(s.getSchoolGradeCode(), GradeCodeEnum.THREE_KINDERGARTEN.getCode())).collect(Collectors.toList()), total).getProportion());
-        info.setOneAnisometropia(countAndProportionService.anisometropia(statConclusions.stream().filter(s -> Objects.equals(s.getSchoolGradeCode(), GradeCodeEnum.ONE_KINDERGARTEN.getCode())).collect(Collectors.toList()), total).getProportion());
-        info.setTwoAnisometropia(countAndProportionService.anisometropia(statConclusions.stream().filter(s -> Objects.equals(s.getSchoolGradeCode(), GradeCodeEnum.TWO_KINDERGARTEN.getCode())).collect(Collectors.toList()), total).getProportion());
-        info.setThreeAnisometropia(countAndProportionService.anisometropia(statConclusions.stream().filter(s -> Objects.equals(s.getSchoolGradeCode(), GradeCodeEnum.THREE_KINDERGARTEN.getCode())).collect(Collectors.toList()), total).getProportion());
-        schoolAgeRefractive.setInfo(info);
+
         List<RefractiveTable> ageRefractiveTable = screeningReportTableService.schoolAgeRefractiveTable(statConclusions, total);
         schoolAgeRefractive.setTables(Lists.newArrayList(ageRefractiveTable));
-        schoolAgeRefractive.setAgeRefractiveChart(horizontalChartService.refractiveChart(ageRefractiveTable.stream().filter(s -> !StringUtils.equals(s.getName(), CommonReportService.TOTAL_NAME)).collect(Collectors.toList())));
-        kindergartenInfo.setSchoolAgeRefractiveInfo(schoolAgeRefractive);
+        if (commonReportService.isShowInfo(ageRefractiveTable, true)) {
+            SchoolAgeRefractive.Info info = new SchoolAgeRefractive.Info();
+            info.setOneInsufficient(countAndProportionService.insufficient(statConclusions.stream().filter(s -> Objects.equals(s.getSchoolGradeCode(), GradeCodeEnum.ONE_KINDERGARTEN.getCode())).collect(Collectors.toList()), total).getProportion());
+            info.setTwoInsufficient(countAndProportionService.insufficient(statConclusions.stream().filter(s -> Objects.equals(s.getSchoolGradeCode(), GradeCodeEnum.TWO_KINDERGARTEN.getCode())).collect(Collectors.toList()), total).getProportion());
+            info.setThreeInsufficient(countAndProportionService.insufficient(statConclusions.stream().filter(s -> Objects.equals(s.getSchoolGradeCode(), GradeCodeEnum.THREE_KINDERGARTEN.getCode())).collect(Collectors.toList()), total).getProportion());
+            info.setOneRefractiveError(countAndProportionService.refractiveError(statConclusions.stream().filter(s -> Objects.equals(s.getSchoolGradeCode(), GradeCodeEnum.ONE_KINDERGARTEN.getCode())).collect(Collectors.toList()), total).getProportion());
+            info.setTwoRefractiveError(countAndProportionService.refractiveError(statConclusions.stream().filter(s -> Objects.equals(s.getSchoolGradeCode(), GradeCodeEnum.TWO_KINDERGARTEN.getCode())).collect(Collectors.toList()), total).getProportion());
+            info.setThreeRefractiveError(countAndProportionService.refractiveError(statConclusions.stream().filter(s -> Objects.equals(s.getSchoolGradeCode(), GradeCodeEnum.THREE_KINDERGARTEN.getCode())).collect(Collectors.toList()), total).getProportion());
+            info.setOneAnisometropia(countAndProportionService.anisometropia(statConclusions.stream().filter(s -> Objects.equals(s.getSchoolGradeCode(), GradeCodeEnum.ONE_KINDERGARTEN.getCode())).collect(Collectors.toList()), total).getProportion());
+            info.setTwoAnisometropia(countAndProportionService.anisometropia(statConclusions.stream().filter(s -> Objects.equals(s.getSchoolGradeCode(), GradeCodeEnum.TWO_KINDERGARTEN.getCode())).collect(Collectors.toList()), total).getProportion());
+            info.setThreeAnisometropia(countAndProportionService.anisometropia(statConclusions.stream().filter(s -> Objects.equals(s.getSchoolGradeCode(), GradeCodeEnum.THREE_KINDERGARTEN.getCode())).collect(Collectors.toList()), total).getProportion());
+            schoolAgeRefractive.setInfo(info);
+            schoolAgeRefractive.setAgeRefractiveChart(horizontalChartService.refractiveChart(ageRefractiveTable.stream().filter(s -> !StringUtils.equals(s.getName(), CommonReportService.TOTAL_NAME)).collect(Collectors.toList())));
+            kindergartenInfo.setSchoolAgeRefractiveInfo(schoolAgeRefractive);
+        }
+
 
         AgeRefractive ageRefractive = new AgeRefractive();
         ageRefractive.setAgeRange(commonReportService.getAgeRange(statConclusions));
         List<RefractiveTable> tables = screeningReportTableService.ageRefractiveTable(statConclusions, total);
         ageRefractive.setTables(Lists.newArrayList(tables));
-        List<RefractiveTable> filterTables = tables.stream().filter(s -> !StringUtils.equals(s.getName(), CommonReportService.TOTAL_NAME)).collect(Collectors.toList());
-        ageRefractive.setAgeRefractiveChart(horizontalChartService.refractiveChart(filterTables.stream().filter(s -> !StringUtils.equals(s.getName(), CommonReportService.TOTAL_NAME)).collect(Collectors.toList())));
-        ageRefractive.setInsufficientInfo(highLowProportionService.ageRefractiveTableHP(filterTables, s -> Float.valueOf(s.getInsufficientProportion())));
-        ageRefractive.setRefractiveErrorInfo(highLowProportionService.ageRefractiveTableHP(filterTables, s -> Float.valueOf(s.getRefractiveErrorProportion())));
-        ageRefractive.setAnisometropiaInfo(highLowProportionService.ageRefractiveTableHP(filterTables, s -> Float.valueOf(s.getAnisometropiaProportion())));
-        ageRefractive.setRecommendDoctorInfo(highLowProportionService.ageRefractiveTableHP(filterTables, s -> Float.valueOf(s.getRecommendDoctorProportion())));
-        kindergartenInfo.setAgeRefractiveInfo(ageRefractive);
+        if (commonReportService.isShowInfo(tables, true)) {
+            List<RefractiveTable> filterTables = tables.stream().filter(s -> !StringUtils.equals(s.getName(), CommonReportService.TOTAL_NAME)).collect(Collectors.toList());
+            AgeRefractive.Info info = new AgeRefractive.Info();
+            info.setAgeRefractiveChart(horizontalChartService.refractiveChart(filterTables.stream().filter(s -> !StringUtils.equals(s.getName(), CommonReportService.TOTAL_NAME)).collect(Collectors.toList())));
+            info.setInsufficientInfo(highLowProportionService.ageRefractiveTableHP(filterTables, s -> Float.valueOf(s.getInsufficientProportion())));
+            info.setRefractiveErrorInfo(highLowProportionService.ageRefractiveTableHP(filterTables, s -> Float.valueOf(s.getRefractiveErrorProportion())));
+            info.setAnisometropiaInfo(highLowProportionService.ageRefractiveTableHP(filterTables, s -> Float.valueOf(s.getAnisometropiaProportion())));
+            info.setRecommendDoctorInfo(highLowProportionService.ageRefractiveTableHP(filterTables, s -> Float.valueOf(s.getRecommendDoctorProportion())));
+            ageRefractive.setInfo(info);
+            kindergartenInfo.setAgeRefractiveInfo(ageRefractive);
+        }
+
 
         kindergartenInfo.setHistoryRefractiveInfo(commonReportService.getAreaKindergartenHistoryRefractive(tuples, noticeId));
         return kindergartenInfo;
@@ -547,16 +559,20 @@ public class ScreeningAreaReportService {
         ageWearingGlasses.setAgeInfo(commonReportService.getAgeRange(statConclusions));
         List<AgeWearingTable> ageWearingTables = screeningReportTableService.agePrimaryWearingTable(statConclusions, total);
         ageWearingGlasses.setTables(Lists.newArrayList(ageWearingTables));
-        List<AgeWearingTable> filterAgeWearingTables = ageWearingTables.stream().filter(s -> !StringUtils.equals(s.getName(), CommonReportService.TOTAL_NAME)).collect(Collectors.toList());
-        ageWearingGlasses.setAgeWearingGlassesChart(horizontalChartService.primaryWearingGlassesChart(filterAgeWearingTables, true));
-        ageWearingGlasses.setAgeVisionCorrectionChart(horizontalChartService.primaryGenderVisionCorrectionChart(filterAgeWearingTables));
-        ageWearingGlasses.setNotWearing(highLowProportionService.ageWearingTableHP("", filterAgeWearingTables, s -> Float.valueOf(s.getNotWearingProportion())));
-        ageWearingGlasses.setGlasses(highLowProportionService.ageWearingTableHP("", filterAgeWearingTables, s -> Float.valueOf(s.getGlassesProportion())));
-        ageWearingGlasses.setContact(highLowProportionService.ageWearingTableHP("", filterAgeWearingTables, s -> Float.valueOf(s.getWearingContactProportion())));
-        ageWearingGlasses.setNight(highLowProportionService.ageWearingTableHP("", filterAgeWearingTables, s -> Float.valueOf(s.getNightWearingProportion())));
-        ageWearingGlasses.setEnough(highLowProportionService.ageWearingTableHP("", filterAgeWearingTables, s -> Float.valueOf(s.getEnoughProportion())));
-        ageWearingGlasses.setUncorrected(highLowProportionService.ageWearingTableHP("", filterAgeWearingTables, s -> Float.valueOf(s.getUncorrectedProportion())));
-        ageWearingGlasses.setUnder(highLowProportionService.ageWearingTableHP("", filterAgeWearingTables, s -> Float.valueOf(s.getUnderProportion())));
+        if (commonReportService.isShowInfo(ageWearingTables, true)) {
+            List<AgeWearingTable> filterAgeWearingTables = ageWearingTables.stream().filter(s -> !StringUtils.equals(s.getName(), CommonReportService.TOTAL_NAME)).collect(Collectors.toList());
+            ageWearingGlasses.setAgeWearingGlassesChart(horizontalChartService.primaryWearingGlassesChart(filterAgeWearingTables, true));
+            ageWearingGlasses.setAgeVisionCorrectionChart(horizontalChartService.primaryGenderVisionCorrectionChart(filterAgeWearingTables));
+            AgeWearingGlasses.Info info = new AgeWearingGlasses.Info();
+            info.setNotWearing(highLowProportionService.ageWearingTableHP("", filterAgeWearingTables, s -> Float.valueOf(s.getNotWearingProportion())));
+            info.setGlasses(highLowProportionService.ageWearingTableHP("", filterAgeWearingTables, s -> Float.valueOf(s.getGlassesProportion())));
+            info.setContact(highLowProportionService.ageWearingTableHP("", filterAgeWearingTables, s -> Float.valueOf(s.getWearingContactProportion())));
+            info.setNight(highLowProportionService.ageWearingTableHP("", filterAgeWearingTables, s -> Float.valueOf(s.getNightWearingProportion())));
+            info.setEnough(highLowProportionService.ageWearingTableHP("", filterAgeWearingTables, s -> Float.valueOf(s.getEnoughProportion())));
+            info.setUncorrected(highLowProportionService.ageWearingTableHP("", filterAgeWearingTables, s -> Float.valueOf(s.getUncorrectedProportion())));
+            info.setUnder(highLowProportionService.ageWearingTableHP("", filterAgeWearingTables, s -> Float.valueOf(s.getUnderProportion())));
+            ageWearingGlasses.setInfo(info);
+        }
         return ageWearingGlasses;
     }
 
@@ -564,9 +580,11 @@ public class ScreeningAreaReportService {
         SchoolAgeWearingGlasses schoolAgeWearingGlasses = new SchoolAgeWearingGlasses();
         List<AgeWearingTable> ageWearingTableList = screeningReportTableService.gradeWearingTable(statConclusions, total);
         schoolAgeWearingGlasses.setTables(Lists.newArrayList(ageWearingTableList));
-        schoolAgeWearingGlasses.setAgeWearingGlassesChart(horizontalChartService.primaryWearingGlassesChart(ageWearingTableList.stream().filter(s -> commonReportService.schoolAgeList().contains(s.getName())).collect(Collectors.toList()), false));
-        schoolAgeWearingGlasses.setAgeVisionCorrectionChart(horizontalChartService.primaryGenderVisionCorrectionChart(ageWearingTableList.stream().filter(s -> commonReportService.schoolAgeList().contains(s.getName())).collect(Collectors.toList())));
-        schoolAgeWearingGlasses.setInfo(screeningPrimaryReportService.primaryWearingInfo(statConclusions, ageWearingTableList, total));
+        if (commonReportService.isShowInfo(ageWearingTableList.stream().filter(s -> !commonReportService.filterList().contains(s.getName())).collect(Collectors.toList()), false)) {
+            schoolAgeWearingGlasses.setAgeWearingGlassesChart(horizontalChartService.primaryWearingGlassesChart(ageWearingTableList.stream().filter(s -> commonReportService.schoolAgeList().contains(s.getName())).collect(Collectors.toList()), false));
+            schoolAgeWearingGlasses.setAgeVisionCorrectionChart(horizontalChartService.primaryGenderVisionCorrectionChart(ageWearingTableList.stream().filter(s -> commonReportService.schoolAgeList().contains(s.getName())).collect(Collectors.toList())));
+            schoolAgeWearingGlasses.setInfo(screeningPrimaryReportService.primaryWearingInfo(statConclusions, ageWearingTableList, total));
+        }
         return schoolAgeWearingGlasses;
     }
 
@@ -575,14 +593,18 @@ public class ScreeningAreaReportService {
         List<AstigmatismTable> primaryAgeTable = screeningReportTableService.ageAstigmatismTables(statConclusions, total);
         ageRefraction.setTables(Lists.newArrayList(primaryAgeTable));
         ageRefraction.setAgeRange(commonReportService.getAgeRange(statConclusions));
-        List<AstigmatismTable> filterPrimaryAgeTable = primaryAgeTable.stream().filter(s -> !StringUtils.equals(s.getName(), CommonReportService.TOTAL_NAME)).collect(Collectors.toList());
-        ageRefraction.setAgeRefractionChart(horizontalChartService.astigmatismMyopiaChart(filterPrimaryAgeTable));
-        ageRefraction.setLevelAgeRefractionChart(horizontalChartService.astigmatismMyopiaLevelChart(filterPrimaryAgeTable));
-        ageRefraction.setEarlyMyopia(highLowProportionService.ageAstigmatismTableHP(filterPrimaryAgeTable, s -> Float.valueOf(s.getEarlyMyopiaProportion())));
-        ageRefraction.setMyopia(highLowProportionService.ageAstigmatismTableHP(filterPrimaryAgeTable, s -> Float.valueOf(s.getMyopiaProportion())));
-        ageRefraction.setAstigmatism(highLowProportionService.ageAstigmatismTableHP(filterPrimaryAgeTable, s -> Float.valueOf(s.getAstigmatismProportion())));
-        ageRefraction.setLightMyopia(highLowProportionService.ageAstigmatismTableHP(filterPrimaryAgeTable, s -> Float.valueOf(s.getLightMyopiaProportion())));
-        ageRefraction.setHighMyopia(highLowProportionService.ageAstigmatismTableHP(filterPrimaryAgeTable, s -> Float.valueOf(s.getHighMyopiaProportion())));
+        if (commonReportService.isShowInfo(primaryAgeTable, true)) {
+            List<AstigmatismTable> filterPrimaryAgeTable = primaryAgeTable.stream().filter(s -> !StringUtils.equals(s.getName(), CommonReportService.TOTAL_NAME)).collect(Collectors.toList());
+            ageRefraction.setAgeRefractionChart(horizontalChartService.astigmatismMyopiaChart(filterPrimaryAgeTable));
+            ageRefraction.setLevelAgeRefractionChart(horizontalChartService.astigmatismMyopiaLevelChart(filterPrimaryAgeTable));
+            AgeRefraction.Info info = new AgeRefraction.Info();
+            info.setEarlyMyopia(highLowProportionService.ageAstigmatismTableHP(filterPrimaryAgeTable, s -> Float.valueOf(s.getEarlyMyopiaProportion())));
+            info.setMyopia(highLowProportionService.ageAstigmatismTableHP(filterPrimaryAgeTable, s -> Float.valueOf(s.getMyopiaProportion())));
+            info.setAstigmatism(highLowProportionService.ageAstigmatismTableHP(filterPrimaryAgeTable, s -> Float.valueOf(s.getAstigmatismProportion())));
+            info.setLightMyopia(highLowProportionService.ageAstigmatismTableHP(filterPrimaryAgeTable, s -> Float.valueOf(s.getLightMyopiaProportion())));
+            info.setHighMyopia(highLowProportionService.ageAstigmatismTableHP(filterPrimaryAgeTable, s -> Float.valueOf(s.getHighMyopiaProportion())));
+            ageRefraction.setInfo(info);
+        }
         return ageRefraction;
     }
 
@@ -590,13 +612,18 @@ public class ScreeningAreaReportService {
         SchoolAgeRefraction schoolAgeRefraction = new SchoolAgeRefraction();
         List<AstigmatismTable> tables = screeningReportTableService.schoolPrimaryRefractiveTable(statConclusions, total);
         schoolAgeRefraction.setTables(Lists.newArrayList(tables));
-        schoolAgeRefraction.setSchoolAgeRefractionChart(portraitChartService.refractionChart(tables.stream().filter(s -> commonReportService.schoolAgeList().contains(s.getName())).collect(Collectors.toList())));
         List<AstigmatismTable> filterTables = tables.stream().filter(s -> !commonReportService.filterList().contains(s.getName())).collect(Collectors.toList());
-        schoolAgeRefraction.setMyopia(highLowProportionService.ageAstigmatismTableHP(filterTables, s -> Float.valueOf(s.getMyopiaProportion())));
-        schoolAgeRefraction.setAstigmatism(highLowProportionService.ageAstigmatismTableHP(filterTables, s -> Float.valueOf(s.getAstigmatismProportion())));
-        schoolAgeRefraction.setEarlyMyopia(highLowProportionService.ageAstigmatismTableHP(filterTables, s -> Float.valueOf(s.getEarlyMyopiaProportion())));
-        schoolAgeRefraction.setLightMyopia(highLowProportionService.ageAstigmatismTableHP(filterTables, s -> Float.valueOf(s.getLightMyopiaProportion())));
-        schoolAgeRefraction.setHighMyopia(highLowProportionService.ageAstigmatismTableHP(filterTables, s -> Float.valueOf(s.getHighMyopiaProportion())));
+        if (commonReportService.isShowInfo(filterTables, false)) {
+            schoolAgeRefraction.setSchoolAgeRefractionChart(portraitChartService.refractionChart(tables.stream().filter(s -> commonReportService.schoolAgeList().contains(s.getName())).collect(Collectors.toList())));
+
+            SchoolAgeRefraction.Info info = new SchoolAgeRefraction.Info();
+            info.setMyopia(highLowProportionService.ageAstigmatismTableHP(filterTables, s -> Float.valueOf(s.getMyopiaProportion())));
+            info.setAstigmatism(highLowProportionService.ageAstigmatismTableHP(filterTables, s -> Float.valueOf(s.getAstigmatismProportion())));
+            info.setEarlyMyopia(highLowProportionService.ageAstigmatismTableHP(filterTables, s -> Float.valueOf(s.getEarlyMyopiaProportion())));
+            info.setLightMyopia(highLowProportionService.ageAstigmatismTableHP(filterTables, s -> Float.valueOf(s.getLightMyopiaProportion())));
+            info.setHighMyopia(highLowProportionService.ageAstigmatismTableHP(filterTables, s -> Float.valueOf(s.getHighMyopiaProportion())));
+            schoolAgeRefraction.setInfo(info);
+        }
         return schoolAgeRefraction;
     }
 

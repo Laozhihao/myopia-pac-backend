@@ -19,29 +19,9 @@ import java.util.List;
 public class SchoolAgeRefraction {
 
     /**
-     * 近视
+     * 信息
      */
-    private HighLowProportion myopia;
-
-    /**
-     * 散光
-     */
-    private HighLowProportion astigmatism;
-
-    /**
-     * 近视前期
-     */
-    private HighLowProportion earlyMyopia;
-
-    /**
-     * 低度近视
-     */
-    private HighLowProportion lightMyopia;
-
-    /**
-     * 高度近视
-     */
-    private HighLowProportion highMyopia;
+    public Info info;
 
     /**
      * 不同学龄屈光表格
@@ -52,6 +32,35 @@ public class SchoolAgeRefraction {
      * 表格
      */
     private List<AstigmatismTable> tables;
+
+    @Getter
+    @Setter
+    public static class Info {
+        /**
+         * 近视
+         */
+        private HighLowProportion myopia;
+
+        /**
+         * 散光
+         */
+        private HighLowProportion astigmatism;
+
+        /**
+         * 近视前期
+         */
+        private HighLowProportion earlyMyopia;
+
+        /**
+         * 低度近视
+         */
+        private HighLowProportion lightMyopia;
+
+        /**
+         * 高度近视
+         */
+        private HighLowProportion highMyopia;
+    }
 
 
 }

@@ -108,8 +108,10 @@ public class ScreeningKindergartenReportService {
         GradeLowVision gradeLowVision = new GradeLowVision();
         List<GradeLowVision.Table> gradeLowVisionTable = kindergartenReportTableService.gradeLowVisionTable(statConclusions, total);
         gradeLowVision.setTables(Lists.newArrayList(gradeLowVisionTable));
-        gradeLowVision.setGradeLowVisionChart(horizontalChartService.kLowVisionGenderChart(statConclusions));
-        gradeLowVision.setInfo(getGradeLowVisionInfo(statConclusions, gradeLowVisionTable, total));
+        if (commonReportService.isShowInfo(gradeLowVisionTable, true)) {
+            gradeLowVision.setGradeLowVisionChart(horizontalChartService.kLowVisionGenderChart(statConclusions));
+            gradeLowVision.setInfo(getGradeLowVisionInfo(statConclusions, gradeLowVisionTable, total));
+        }
         generalVision.setGradeLowVision(gradeLowVision);
 
         // 屈光情况
@@ -122,8 +124,11 @@ public class ScreeningKindergartenReportService {
         GradeRefractive gradeRefractive = new GradeRefractive();
         List<GradeRefractive.Table> gradeTables = kindergartenReportTableService.gradeRefractiveTables(statConclusions, total);
         gradeRefractive.setTables(Lists.newArrayList(gradeTables));
-        gradeRefractive.setGradeRefractiveChart(horizontalChartService.kGradeRefractive(statConclusions));
-        gradeRefractive.setInfo(getGradeRefractiveInfo(statConclusions, gradeTables, total));
+        if (commonReportService.isShowInfo(gradeTables, true)) {
+            gradeRefractive.setGradeRefractiveChart(horizontalChartService.kGradeRefractive(statConclusions));
+            gradeRefractive.setInfo(getGradeRefractiveInfo(statConclusions, gradeTables, total));
+        }
+
         generalVision.setGradeRefractive(gradeRefractive);
         // 视力预警情况
         generalVision.setVisionWarningSituation(commonReportService.getVisionWarningSituation(statConclusions, total));
@@ -133,8 +138,10 @@ public class ScreeningKindergartenReportService {
         GradeWarning gradeWarning = new GradeWarning();
         List<GradeWarning.Table> gradeWarningTable = kindergartenReportTableService.kindergartenGradeWarningTable(statConclusions, total);
         gradeWarning.setTables(Lists.newArrayList(gradeWarningTable));
-        gradeWarning.setGradeWarningChart(horizontalChartService.kGradeWarning(statConclusions));
-        gradeWarning.setInfo(getGradeWarning(statConclusions, gradeWarningTable, total));
+        if (commonReportService.isShowInfo(gradeWarningTable,true)) {
+            gradeWarning.setGradeWarningChart(horizontalChartService.kGradeWarning(statConclusions));
+            gradeWarning.setInfo(getGradeWarning(statConclusions, gradeWarningTable, total));
+        }
         generalVision.setGradeWarning(gradeWarning);
         return generalVision;
     }

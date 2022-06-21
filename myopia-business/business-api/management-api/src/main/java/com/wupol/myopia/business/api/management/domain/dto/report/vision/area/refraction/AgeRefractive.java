@@ -23,32 +23,41 @@ public class AgeRefractive {
     private String ageRange;
 
     /**
-     * 远视储备不足
+     * 信息
      */
-    private HighLowProportion insufficientInfo;
-
-    /**
-     * 屈光不正
-     */
-    private HighLowProportion refractiveErrorInfo;
-
-    /**
-     * 屈光参差
-     */
-    private HighLowProportion anisometropiaInfo;
-
-    /**
-     * 建议就诊
-     */
-    private HighLowProportion recommendDoctorInfo;
-
-    /**
-     * 年龄段图表
-     */
-    private HorizontalChart ageRefractiveChart;
+    private Info info;
     
     /**
      * 表格
      */
     private List<RefractiveTable> tables;
+
+    @Getter
+    @Setter
+    public static class Info {
+        /**
+         * 远视储备不足
+         */
+        private HighLowProportion insufficientInfo;
+
+        /**
+         * 屈光不正
+         */
+        private HighLowProportion refractiveErrorInfo;
+
+        /**
+         * 屈光参差
+         */
+        private HighLowProportion anisometropiaInfo;
+
+        /**
+         * 建议就诊
+         */
+        private HighLowProportion recommendDoctorInfo;
+
+        /**
+         * 年龄段图表
+         */
+        private HorizontalChart ageRefractiveChart;
+    }
 }

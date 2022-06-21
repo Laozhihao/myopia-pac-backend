@@ -23,29 +23,9 @@ public class AgeRefraction {
     private String ageRange;
 
     /**
-     * 近视前期
+     * 信息
      */
-    private HighLowProportion earlyMyopia;
-
-    /**
-     * 近视
-     */
-    private HighLowProportion myopia;
-
-    /**
-     * 散光
-     */
-    private HighLowProportion astigmatism;
-
-    /**
-     * 低度近视
-     */
-    private HighLowProportion lightMyopia;
-
-    /**
-     * 高度近视
-     */
-    private HighLowProportion highMyopia;
+    private Info info;
 
     /**
      * 图表
@@ -61,4 +41,33 @@ public class AgeRefraction {
      * 表格
      */
     private List<AstigmatismTable> tables;
+
+    @Getter
+    @Setter
+    public static class Info {
+        /**
+         * 近视前期
+         */
+        private HighLowProportion earlyMyopia;
+
+        /**
+         * 近视
+         */
+        private HighLowProportion myopia;
+
+        /**
+         * 散光
+         */
+        private HighLowProportion astigmatism;
+
+        /**
+         * 低度近视
+         */
+        private HighLowProportion lightMyopia;
+
+        /**
+         * 高度近视
+         */
+        private HighLowProportion highMyopia;
+    }
 }
