@@ -122,6 +122,15 @@ public class CommonReportService {
         return BigDecimalUtil.divide(total, new BigDecimal(statConclusions.size()).multiply(new BigDecimal("2")), 1).toString();
     }
 
+    public VisionWarningSituation getKindergartenVisionWarningSituation(List<StatConclusion> statConclusions, Long total) {
+        List<StatConclusion> statValidList = statConclusions.stream().filter(StatConclusion::getIsValid).collect(Collectors.toList());
+        VisionWarningSituation warningSituation = getVisionWarningSituation123(statConclusions, total);
+        long zeroWarningCount = statValidList.stream().filter(s -> Objects.equals(s.getWarningLevel(), WarningLevel.ZERO.code)
+                || Objects.equals(s.getWarningLevel(), WarningLevel.ZERO_SP.code)).count();
+        warningSituation.setZeroWarning(new CountAndProportion(zeroWarningCount, BigDecimalUtil.divide(zeroWarningCount, total)));
+        return warningSituation;
+    }
+
     /**
      * 视力监测预警
      *
@@ -130,19 +139,23 @@ public class CommonReportService {
      * @return VisionWarningSituation
      */
     public VisionWarningSituation getVisionWarningSituation(List<StatConclusion> statConclusions, Long total) {
-        VisionWarningSituation warningSituation = new VisionWarningSituation();
         List<StatConclusion> statValidList = statConclusions.stream().filter(StatConclusion::getIsValid).collect(Collectors.toList());
-
+        VisionWarningSituation warningSituation = getVisionWarningSituation123(statConclusions, total);
         long zeroWarningCount = statValidList.stream().filter(s -> Objects.equals(s.getWarningLevel(), WarningLevel.ZERO.code)).count();
         warningSituation.setZeroWarning(new CountAndProportion(zeroWarningCount, BigDecimalUtil.divide(zeroWarningCount, total)));
+        return warningSituation;
+    }
 
-        long oneWarningCount = statValidList.stream().filter(s -> Objects.equals(s.getWarningLevel(), WarningLevel.ONE.code)).count();
+    private VisionWarningSituation getVisionWarningSituation123(List<StatConclusion> statConclusions, Long total) {
+        VisionWarningSituation warningSituation = new VisionWarningSituation();
+
+        long oneWarningCount = statConclusions.stream().filter(s -> Objects.equals(s.getWarningLevel(), WarningLevel.ONE.code)).count();
         warningSituation.setOneWarning(new CountAndProportion(oneWarningCount, BigDecimalUtil.divide(oneWarningCount, total)));
 
-        long twoWarningCount = statValidList.stream().filter(s -> Objects.equals(s.getWarningLevel(), WarningLevel.TWO.code)).count();
+        long twoWarningCount = statConclusions.stream().filter(s -> Objects.equals(s.getWarningLevel(), WarningLevel.TWO.code)).count();
         warningSituation.setTwoWarning(new CountAndProportion(twoWarningCount, BigDecimalUtil.divide(twoWarningCount, total)));
 
-        long threeWarningCount = statValidList.stream().filter(s -> Objects.equals(s.getWarningLevel(), WarningLevel.THREE.code)).count();
+        long threeWarningCount = statConclusions.stream().filter(s -> Objects.equals(s.getWarningLevel(), WarningLevel.THREE.code)).count();
         warningSituation.setThreeWarning(new CountAndProportion(threeWarningCount, BigDecimalUtil.divide(threeWarningCount, total)));
         return warningSituation;
     }

@@ -78,7 +78,7 @@ public class ScreeningKindergartenReportService {
         schoolOutline.setVisionSituation(commonReportService.getVisionSituation(statConclusions));
         schoolOutline.setRefractiveAbnormalities(commonReportService.getRefractiveAbnormalities(statConclusions, total));
 
-        schoolOutline.setVisionWarningSituation(commonReportService.getVisionWarningSituation(statConclusions, total));
+        schoolOutline.setVisionWarningSituation(commonReportService.getKindergartenVisionWarningSituation(statConclusions, total));
         schoolOutline.setRecommendDoctor(countAndProportionService.getRecommendDoctor(statConclusions, total));
 
         schoolOutline.setHistoryRefractiveInfo(commonReportService.getKindergartenHistoryRefractive(school, plan));
@@ -131,7 +131,7 @@ public class ScreeningKindergartenReportService {
 
         generalVision.setGradeRefractive(gradeRefractive);
         // 视力预警情况
-        generalVision.setVisionWarningSituation(commonReportService.getVisionWarningSituation(statConclusions, total));
+        generalVision.setVisionWarningSituation(commonReportService.getKindergartenVisionWarningSituation(statConclusions, total));
         generalVision.setRecommendDoctor(countAndProportionService.getRecommendDoctor(statConclusions, total));
 
         // 不同年级班级视力预警情况
