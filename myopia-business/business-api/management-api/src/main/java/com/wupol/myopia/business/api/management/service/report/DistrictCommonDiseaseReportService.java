@@ -263,11 +263,13 @@ public class DistrictCommonDiseaseReportService {
         if (CollectionUtil.isEmpty(statConclusionList)) {
             return;
         }
+        List<StatConclusion> validList = statConclusionList.stream().filter(sc -> Objects.equals(sc.getIsValid(), Boolean.TRUE)).collect(Collectors.toList());
+
         DistrictCommonDiseaseReportVO.VisionAnalysisVO visionAnalysisVO = new DistrictCommonDiseaseReportVO.VisionAnalysisVO();
-        int validScreeningNum = statConclusionList.size();
+        int validScreeningNum = validList.size();
         visionAnalysisVO.setValidScreeningNum(validScreeningNum);
-        List<StatConclusion> kindergartenList = statConclusionList.stream().filter(statConclusion -> Objects.equals(statConclusion.getSchoolAge(), SchoolAge.KINDERGARTEN.code)).collect(Collectors.toList());
-        List<StatConclusion> primarySchoolAndAboveList = statConclusionList.stream().filter(statConclusion -> !Objects.equals(statConclusion.getSchoolAge(), SchoolAge.KINDERGARTEN.code)).collect(Collectors.toList());
+        List<StatConclusion> kindergartenList = validList.stream().filter(statConclusion -> Objects.equals(statConclusion.getSchoolAge(), SchoolAge.KINDERGARTEN.code)).collect(Collectors.toList());
+        List<StatConclusion> primarySchoolAndAboveList = validList.stream().filter(statConclusion -> !Objects.equals(statConclusion.getSchoolAge(), SchoolAge.KINDERGARTEN.code)).collect(Collectors.toList());
         getKindergartenVO(kindergartenList, validScreeningNum, visionAnalysisVO);
         getPrimarySchoolAndAboveVO(primarySchoolAndAboveList, validScreeningNum, visionAnalysisVO);
 
@@ -381,7 +383,6 @@ public class DistrictCommonDiseaseReportService {
     private List<StatConclusion> getStatConclusionList(Integer noticeId, List<Integer> districtIds, Boolean isValid, Boolean isRescreen,Boolean isCooperative) {
         LambdaQueryWrapper<StatConclusion> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(StatConclusion::getSrcScreeningNoticeId, noticeId);
-        queryWrapper.eq(StatConclusion::getIsValid, isValid);
         queryWrapper.eq(StatConclusion::getIsRescreen, isRescreen);
         queryWrapper.in(StatConclusion::getDistrictId, districtIds);
         queryWrapper.eq(StatConclusion::getIsCooperative, isCooperative);
@@ -396,10 +397,11 @@ public class DistrictCommonDiseaseReportService {
             return;
         }
 
-        List<StatConclusion> primaryAndAboveStatConclusionList = statConclusionList.stream().filter(sc -> {
-            GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(sc.getSchoolGradeCode());
-            return !Objects.equals(gradeCodeEnum.getType(), SchoolAge.KINDERGARTEN.code);
-        }).collect(Collectors.toList());
+        List<StatConclusion> primaryAndAboveStatConclusionList = statConclusionList.stream()
+                .filter(sc -> {
+                    GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(sc.getSchoolGradeCode());
+                    return !Objects.equals(gradeCodeEnum.getType(), SchoolAge.KINDERGARTEN.code);
+                }).collect(Collectors.toList());
         Map<Integer, String> schoolMap = Maps.newHashMap();
         if (CollectionUtil.isNotEmpty(primaryAndAboveStatConclusionList)) {
             Set<Integer> schoolIds = primaryAndAboveStatConclusionList.stream().map(StatConclusion::getSchoolId).collect(Collectors.toSet());

@@ -172,7 +172,7 @@ public class ReportUtil {
 
 
     public static <T> GradeRatio getGradeRatio(Map<String, T> numMap, Function<T, Integer> function, Function<T, String> mapper) {
-        if (CollectionUtil.isNotEmpty(numMap)) {
+        if (CollectionUtil.isEmpty(numMap)) {
             return null;
         }
         GradeRatio gradeRatio = new GradeRatio();

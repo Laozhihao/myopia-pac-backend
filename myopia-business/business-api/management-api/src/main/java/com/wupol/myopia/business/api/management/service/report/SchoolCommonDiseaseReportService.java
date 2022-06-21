@@ -65,7 +65,8 @@ public class SchoolCommonDiseaseReportService {
         SchoolCommonDiseaseReportVO schoolCommonDiseaseReportVO = new SchoolCommonDiseaseReportVO();
 
 
-        List<StatConclusion> statConclusionList = getStatConclusionList(schoolId, planId, Boolean.TRUE, Boolean.FALSE,Boolean.FALSE);
+        //学校ID、计划ID
+        List<StatConclusion> statConclusionList = getStatConclusionList(schoolId, planId, Boolean.FALSE,Boolean.FALSE);
 
         //全局变量
         getGlobalVariableVO(schoolId, planId, schoolCommonDiseaseReportVO);
@@ -175,7 +176,9 @@ public class SchoolCommonDiseaseReportService {
         if (CollectionUtil.isEmpty(statConclusionList)) {
             statConclusionList = Collections.emptyList();
         }
-        List<StatConclusion> primaryAndAboveStatConclusionList = statConclusionList.stream().filter(sc -> !Objects.equals(GradeCodeEnum.getByCode(sc.getSchoolGradeCode()).getType(), SchoolAge.KINDERGARTEN.code)).collect(Collectors.toList());
+        List<StatConclusion> primaryAndAboveStatConclusionList = statConclusionList.stream()
+                .filter(sc -> Objects.equals(sc.getIsValid(),Boolean.TRUE))
+                .filter(sc -> !Objects.equals(GradeCodeEnum.getByCode(sc.getSchoolGradeCode()).getType(), SchoolAge.KINDERGARTEN.code)).collect(Collectors.toList());
 
         SchoolCommonDiseaseReportVO.VisionAnalysisVO visionAnalysisVO = new VisionAnalysisNum()
                 .build(primaryAndAboveStatConclusionList)
@@ -186,11 +189,10 @@ public class SchoolCommonDiseaseReportService {
     }
 
 
-    private List<StatConclusion> getStatConclusionList(Integer schoolId, Integer planId, Boolean isValid, Boolean isRescreen,Boolean isCooperative) {
+    private List<StatConclusion> getStatConclusionList(Integer schoolId, Integer planId, Boolean isRescreen,Boolean isCooperative) {
         LambdaQueryWrapper<StatConclusion> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(StatConclusion::getPlanId, planId);
         queryWrapper.eq(StatConclusion::getSchoolId, schoolId);
-        queryWrapper.eq(StatConclusion::getIsValid, isValid);
         queryWrapper.eq(StatConclusion::getIsRescreen, isRescreen);
         queryWrapper.eq(StatConclusion::getIsCooperative, isCooperative);
         return statConclusionService.list(queryWrapper);
@@ -204,7 +206,8 @@ public class SchoolCommonDiseaseReportService {
             return;
         }
 
-        List<StatConclusion> primaryAndAboveStatConclusionList = statConclusionList.stream().filter(sc -> !Objects.equals(GradeCodeEnum.getByCode(sc.getSchoolGradeCode()).getType(), SchoolAge.KINDERGARTEN.code)).collect(Collectors.toList());
+        List<StatConclusion> primaryAndAboveStatConclusionList = statConclusionList.stream()
+                .filter(sc -> !Objects.equals(GradeCodeEnum.getByCode(sc.getSchoolGradeCode()).getType(), SchoolAge.KINDERGARTEN.code)).collect(Collectors.toList());
 
         SchoolCommonDiseasesAnalysisVO schoolCommonDiseasesAnalysisVO = new SchoolCommonDiseasesAnalysisVO();
         //常见病分析变量

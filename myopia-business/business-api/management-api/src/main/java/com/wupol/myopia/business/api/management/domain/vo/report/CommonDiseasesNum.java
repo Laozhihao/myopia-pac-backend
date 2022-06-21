@@ -191,7 +191,7 @@ public class CommonDiseasesNum extends EntityFunction {
         if (ObjectsUtil.allNotNull(num,ratio)){
             return new CommonDiseasesItemVO(num,ratio);
         }
-        return null;
+        return new CommonDiseasesItemVO(ReportConst.ZERO,ReportConst.ZERO_BIG_DECIMAL);
     }
 
     public CommonDiseasesAnalysisVariableVO buidCommonDiseasesAnalysisVariableVO(){

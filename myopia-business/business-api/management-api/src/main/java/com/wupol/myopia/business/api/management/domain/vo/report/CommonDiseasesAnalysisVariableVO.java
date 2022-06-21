@@ -11,7 +11,7 @@ import lombok.Data;
 @Data
 public class CommonDiseasesAnalysisVariableVO {
     /**
-     * 筛查人数(有效数据)
+     * 筛查人数(实际参与筛查的学生数)
      */
     private Integer validScreeningNum;
     /**
