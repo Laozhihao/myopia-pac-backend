@@ -97,7 +97,7 @@ public class KindergartenReportTableService {
 
     private void extracted(List<GradeWarning.Table> tables, List<StatConclusion> v, GradeWarning.Table table, Long total) {
         table.setValidCount(v.size());
-        CountAndProportion zeroWarning = countAndProportionService.zeroWarning(v, total);
+        CountAndProportion zeroWarning = countAndProportionService.zeroAndSPWarning(v, total);
         table.setZeroWarningCount(zeroWarning.getCount());
         table.setZeroWarningProportion(zeroWarning.getProportion());
         CountAndProportion oneWarning = countAndProportionService.oneWarning(v, total);

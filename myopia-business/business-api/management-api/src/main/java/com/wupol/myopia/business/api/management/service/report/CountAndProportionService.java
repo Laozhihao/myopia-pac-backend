@@ -24,6 +24,11 @@ public class CountAndProportionService {
         long zeroWarningCount = statConclusions.stream().filter(s -> Objects.equals(s.getWarningLevel(), WarningLevel.ZERO.code)).count();
         return new CountAndProportion(zeroWarningCount, BigDecimalUtil.divide(zeroWarningCount, total));
     }
+    public CountAndProportion zeroAndSPWarning(List<StatConclusion> statConclusions, Long total) {
+        long zeroWarningCount = statConclusions.stream().filter(s -> Objects.equals(s.getWarningLevel(), WarningLevel.ZERO.code)
+                || Objects.equals(s.getWarningLevel(), WarningLevel.ZERO_SP.code)).count();
+        return new CountAndProportion(zeroWarningCount, BigDecimalUtil.divide(zeroWarningCount, total));
+    }
 
     public CountAndProportion oneWarning(List<StatConclusion> statConclusions, Long total) {
         long oneWarningCount = statConclusions.stream().filter(s -> Objects.equals(s.getWarningLevel(), WarningLevel.ONE.code)).count();
