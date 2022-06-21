@@ -10,7 +10,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class RefractiveTable {
+public class RefractiveTable extends CommonTable{
 
     /**
      * 项目
@@ -71,9 +71,4 @@ public class RefractiveTable {
      * 视力低下-百分比
      */
     private String lowVisionProportion;
-
-    /**
-     * 是否本次报告
-     */
-    private Boolean isSameReport;
 }

@@ -28,17 +28,7 @@ import java.util.function.Function;
 public class HighLowProportionService {
 
     public HighLowProportion schoolAgeLowVisionTableHP(List<CommonLowVisionTable> tables, Function<CommonLowVisionTable, Float> comparingFunction) {
-        if (CollectionUtils.isEmpty(tables)) {
-            return new HighLowProportion();
-        }
-        if (tables.size() == 1) {
-            CommonLowVisionTable min = tables.get(0);
-            return new HighLowProportion(min.getName(), String.valueOf(comparingFunction.apply(min)), min.getName(), String.valueOf(comparingFunction.apply(min)));
-        }
-        tables.sort(Comparator.comparing(comparingFunction));
-        CommonLowVisionTable max = tables.get(tables.size() - 1);
-        CommonLowVisionTable min = tables.get(0);
-        return new HighLowProportion(max.getName(), String.valueOf(comparingFunction.apply(max)), min.getName(), String.valueOf(comparingFunction.apply(min)));
+        return getProportion(tables, comparingFunction);
     }
 
     public HighLowProportion warningTableHP(List<WarningTable> tables, Function<WarningTable, Float> comparingFunction) {
@@ -76,6 +66,10 @@ public class HighLowProportionService {
      * 小学-学校
      */
     public HighLowProportion ageLowVisionTableHP(List<CommonLowVisionTable> tables, Function<CommonLowVisionTable, Float> comparingFunction) {
+        return getProportion(tables, comparingFunction);
+    }
+
+    private HighLowProportion getProportion(List<CommonLowVisionTable> tables, Function<CommonLowVisionTable, Float> comparingFunction) {
         if (CollectionUtils.isEmpty(tables)) {
             return new HighLowProportion();
         }
@@ -144,17 +138,7 @@ public class HighLowProportionService {
      * 年龄-戴眼
      */
     public HighLowProportion lowVisionTableHP(List<CommonLowVisionTable> tables, Function<CommonLowVisionTable, Float> comparingFunction) {
-        if (CollectionUtils.isEmpty(tables)) {
-            return new HighLowProportion();
-        }
-        if (tables.size() == 1) {
-            CommonLowVisionTable min = tables.get(0);
-            return new HighLowProportion(min.getName(), String.valueOf(comparingFunction.apply(min)), min.getName(), String.valueOf(comparingFunction.apply(min)));
-        }
-        tables.sort(Comparator.comparing(comparingFunction));
-        CommonLowVisionTable max = tables.get(tables.size() - 1);
-        CommonLowVisionTable min = tables.get(0);
-        return new HighLowProportion(max.getName(), String.valueOf(comparingFunction.apply(max)), min.getName(), String.valueOf(comparingFunction.apply(min)));
+        return getProportion(tables, comparingFunction);
     }
 
     public MaxMinProportion getMaxMinProportion(String proportion, List<GradeRefractive.Table> tables, Function<GradeRefractive.Table, Float> comparingFunction) {

@@ -21,4 +21,9 @@ public class CommonTable {
      * 人数
      */
     private Long validCount;
+
+    /**
+     * 是否本次报告
+     */
+    private Boolean isSameReport;
 }

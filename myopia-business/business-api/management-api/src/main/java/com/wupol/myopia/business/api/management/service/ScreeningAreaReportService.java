@@ -323,10 +323,10 @@ public class ScreeningAreaReportService {
 
         if (!CollectionUtils.isEmpty(tables)) {
             if (haveK) {
-                lowVisionHistory.setKProportion(commonReportService.getChainRatioProportion(tables.stream().filter(s -> Objects.equals(s.getIsSameReport(), Boolean.TRUE)).collect(Collectors.toList()).get(0).getKLowVisionProportion(), tables.get(tables.size() - 1).getKLowVisionProportion()));
+                lowVisionHistory.setKProportion(commonReportService.getConvertRatio(tables, AreaHistoryLowVisionTable::getKLowVisionProportion));
             }
             if (haveP) {
-                lowVisionHistory.setPProportion(commonReportService.getChainRatioProportion(tables.stream().filter(s -> Objects.equals(s.getIsSameReport(), Boolean.TRUE)).collect(Collectors.toList()).get(0).getLowVisionProportion(), tables.get(tables.size() - 1).getLowVisionProportion()));
+                lowVisionHistory.setPProportion(commonReportService.getConvertRatio(tables, AreaHistoryLowVisionTable::getLowVisionProportion));
             }
         }
         lowVisionHistory.setTables(Lists.newArrayList(tables));
@@ -511,8 +511,8 @@ public class ScreeningAreaReportService {
             info.setThreeAnisometropia(countAndProportionService.anisometropia(statConclusions.stream().filter(s -> Objects.equals(s.getSchoolGradeCode(), GradeCodeEnum.THREE_KINDERGARTEN.getCode())).collect(Collectors.toList()), total).getProportion());
             schoolAgeRefractive.setInfo(info);
             schoolAgeRefractive.setAgeRefractiveChart(horizontalChartService.refractiveChart(ageRefractiveTable.stream().filter(s -> !StringUtils.equals(s.getName(), CommonReportService.TOTAL_NAME)).collect(Collectors.toList())));
-            kindergartenInfo.setSchoolAgeRefractiveInfo(schoolAgeRefractive);
         }
+        kindergartenInfo.setSchoolAgeRefractiveInfo(schoolAgeRefractive);
 
 
         AgeRefractive ageRefractive = new AgeRefractive();
@@ -528,10 +528,8 @@ public class ScreeningAreaReportService {
             info.setAnisometropiaInfo(highLowProportionService.ageRefractiveTableHP(filterTables, s -> Float.valueOf(s.getAnisometropiaProportion())));
             info.setRecommendDoctorInfo(highLowProportionService.ageRefractiveTableHP(filterTables, s -> Float.valueOf(s.getRecommendDoctorProportion())));
             ageRefractive.setInfo(info);
-            kindergartenInfo.setAgeRefractiveInfo(ageRefractive);
         }
-
-
+        kindergartenInfo.setAgeRefractiveInfo(ageRefractive);
         kindergartenInfo.setHistoryRefractiveInfo(commonReportService.getAreaKindergartenHistoryRefractive(tuples, noticeId));
         return kindergartenInfo;
     }
@@ -645,10 +643,10 @@ public class ScreeningAreaReportService {
         HistoryRefraction.Info info = new HistoryRefraction.Info();
         List<AstigmatismTable> pHistoryAstigmatismTable = screeningReportTableService.pHistoryAstigmatismTable(tuples, noticeId);
         historyRefraction.setTables(Lists.newArrayList(pHistoryAstigmatismTable));
-        info.setMyopiaProportion(commonReportService.getChainRatioProportion(pHistoryAstigmatismTable.stream().filter(s -> Objects.equals(s.getIsSameReport(), Boolean.TRUE)).collect(Collectors.toList()).get(0).getMyopiaProportion(), pHistoryAstigmatismTable.get(pHistoryAstigmatismTable.size() - 1).getMyopiaProportion()));
-        info.setEarlyMyopiaProportion(commonReportService.getChainRatioProportion(pHistoryAstigmatismTable.stream().filter(s -> Objects.equals(s.getIsSameReport(), Boolean.TRUE)).collect(Collectors.toList()).get(0).getEarlyMyopiaProportion(), pHistoryAstigmatismTable.get(pHistoryAstigmatismTable.size() - 1).getEarlyMyopiaProportion()));
-        info.setLightMyopiaProportion(commonReportService.getChainRatioProportion(pHistoryAstigmatismTable.stream().filter(s -> Objects.equals(s.getIsSameReport(), Boolean.TRUE)).collect(Collectors.toList()).get(0).getLightMyopiaProportion(), pHistoryAstigmatismTable.get(pHistoryAstigmatismTable.size() - 1).getLightMyopiaProportion()));
-        info.setHighMyopiaProportion(commonReportService.getChainRatioProportion(pHistoryAstigmatismTable.stream().filter(s -> Objects.equals(s.getIsSameReport(), Boolean.TRUE)).collect(Collectors.toList()).get(0).getHighMyopiaProportion(), pHistoryAstigmatismTable.get(pHistoryAstigmatismTable.size() - 1).getHighMyopiaProportion()));
+        info.setMyopiaProportion(commonReportService.getConvertRatio(pHistoryAstigmatismTable, AstigmatismTable::getMyopiaProportion));
+        info.setEarlyMyopiaProportion(commonReportService.getConvertRatio(pHistoryAstigmatismTable, AstigmatismTable::getMyopiaProportion));
+        info.setLightMyopiaProportion(commonReportService.getConvertRatio(pHistoryAstigmatismTable, AstigmatismTable::getMyopiaProportion));
+        info.setHighMyopiaProportion(commonReportService.getConvertRatio(pHistoryAstigmatismTable, AstigmatismTable::getMyopiaProportion));
         historyRefraction.setInfo(info);
         if (!CollectionUtils.isEmpty(pHistoryAstigmatismTable) && pHistoryAstigmatismTable.size() > 1) {
             historyRefraction.setPrimaryHistoryRefraction(horizontalChartService.primaryHistoryRefraction(pHistoryAstigmatismTable));

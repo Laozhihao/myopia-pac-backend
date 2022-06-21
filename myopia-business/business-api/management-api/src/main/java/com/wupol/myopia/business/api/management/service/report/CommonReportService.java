@@ -429,6 +429,13 @@ public class CommonReportService {
         });
     }
 
+    public <T extends CommonTable> ConvertRatio getConvertRatio(List<T> list, Function<T, String> comparingFunction) {
+        T first = list.stream().filter(s -> Objects.equals(s.getIsSameReport(), Boolean.TRUE))
+                .collect(Collectors.toList()).get(0);
+        T thisTime = list.get(list.size() - 1);
+        return getChainRatioProportion(comparingFunction.apply(first), comparingFunction.apply(thisTime));
+    }
+
     public ConvertRatio getChainRatioProportion(String firstProportion, String thisTimeProportion) {
         BigDecimal bigDecimal = new BigDecimal(firstProportion).subtract(new BigDecimal(thisTimeProportion)).setScale(2, RoundingMode.HALF_UP);
         int i = bigDecimal.compareTo(new BigDecimal("0"));
@@ -612,10 +619,10 @@ public class CommonReportService {
     private HistoryRefractive getHistoryRefractive(List<RefractiveTable> kHistoryRefractiveTable) {
         HistoryRefractive historyRefractive = new HistoryRefractive();
         historyRefractive.setTables(Lists.newArrayList(kHistoryRefractiveTable));
-        historyRefractive.setLowVisionProportion(getChainRatioProportion(kHistoryRefractiveTable.stream().filter(s -> Objects.equals(s.getIsSameReport(), Boolean.TRUE)).collect(Collectors.toList()).get(0).getLowVisionProportion(), kHistoryRefractiveTable.get(kHistoryRefractiveTable.size() - 1).getLowVisionProportion()));
-        historyRefractive.setInsufficientProportion(getChainRatioProportion(kHistoryRefractiveTable.stream().filter(s -> Objects.equals(s.getIsSameReport(), Boolean.TRUE)).collect(Collectors.toList()).get(0).getInsufficientProportion(), kHistoryRefractiveTable.get(kHistoryRefractiveTable.size() - 1).getInsufficientProportion()));
-        historyRefractive.setRefractiveErrorProportion(getChainRatioProportion(kHistoryRefractiveTable.stream().filter(s -> Objects.equals(s.getIsSameReport(), Boolean.TRUE)).collect(Collectors.toList()).get(0).getRefractiveErrorProportion(), kHistoryRefractiveTable.get(kHistoryRefractiveTable.size() - 1).getRefractiveErrorProportion()));
-        historyRefractive.setAnisometropiaProportion(getChainRatioProportion(kHistoryRefractiveTable.stream().filter(s -> Objects.equals(s.getIsSameReport(), Boolean.TRUE)).collect(Collectors.toList()).get(0).getAnisometropiaProportion(), kHistoryRefractiveTable.get(kHistoryRefractiveTable.size() - 1).getAnisometropiaProportion()));
+        historyRefractive.setLowVisionProportion(getConvertRatio(kHistoryRefractiveTable, RefractiveTable::getLowVisionProportion));
+        historyRefractive.setInsufficientProportion(getConvertRatio(kHistoryRefractiveTable, RefractiveTable::getInsufficientProportion));
+        historyRefractive.setRefractiveErrorProportion(getConvertRatio(kHistoryRefractiveTable, RefractiveTable::getRefractiveErrorProportion));
+        historyRefractive.setAnisometropiaProportion(getConvertRatio(kHistoryRefractiveTable, RefractiveTable::getAnisometropiaProportion));
         if (!CollectionUtils.isEmpty(kHistoryRefractiveTable)) {
             historyRefractive.setKindergartenHistoryRefractive(horizontalChartService.kindergartenHistoryRefractive(kHistoryRefractiveTable));
         }

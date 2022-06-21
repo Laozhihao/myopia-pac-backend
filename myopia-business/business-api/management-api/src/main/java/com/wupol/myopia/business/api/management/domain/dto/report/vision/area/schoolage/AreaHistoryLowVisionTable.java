@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.area.schoolage;
 
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.CommonTable;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,17 +11,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class AreaHistoryLowVisionTable {
-
-    /**
-     * 时间
-     */
-    private String name;
-
-    /**
-     * 有效人数
-     */
-    private Long validCount;
+public class AreaHistoryLowVisionTable extends CommonTable {
 
     /**
      * 视力低常人数
@@ -71,9 +62,4 @@ public class AreaHistoryLowVisionTable {
      * 重度-视力低下占比
      */
     private String highLowVisionProportion;
-
-    /**
-     * 是否本次报告
-     */
-    private Boolean isSameReport;
 }

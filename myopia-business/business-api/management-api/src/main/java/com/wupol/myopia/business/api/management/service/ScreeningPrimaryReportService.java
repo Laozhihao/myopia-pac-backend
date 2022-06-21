@@ -157,11 +157,11 @@ public class ScreeningPrimaryReportService {
         primaryHistoryVision.setTables(tables);
         PrimaryHistoryVision.Info info = new PrimaryHistoryVision.Info();
         if (!CollectionUtils.isEmpty(tables) && tables.size() > 1) {
-            info.setLowVision(commonReportService.getChainRatioProportion(tables.stream().filter(s -> Objects.equals(s.getIsSameReport(), Boolean.TRUE)).collect(Collectors.toList()).get(0).getLowVisionProportion(), tables.get(tables.size() - 1).getLowVisionProportion()));
-            info.setMyopia(commonReportService.getChainRatioProportion(tables.stream().filter(s -> Objects.equals(s.getIsSameReport(), Boolean.TRUE)).collect(Collectors.toList()).get(0).getMyopiaProportion(), tables.get(tables.size() - 1).getMyopiaProportion()));
-            info.setEarly(commonReportService.getChainRatioProportion(tables.stream().filter(s -> Objects.equals(s.getIsSameReport(), Boolean.TRUE)).collect(Collectors.toList()).get(0).getEarlyProportion(), tables.get(tables.size() - 1).getEarlyProportion()));
-            info.setLightMyopia(commonReportService.getChainRatioProportion(tables.stream().filter(s -> Objects.equals(s.getIsSameReport(), Boolean.TRUE)).collect(Collectors.toList()).get(0).getLightProportion(), tables.get(tables.size() - 1).getLightProportion()));
-            info.setHighMyopia(commonReportService.getChainRatioProportion(tables.stream().filter(s -> Objects.equals(s.getIsSameReport(), Boolean.TRUE)).collect(Collectors.toList()).get(0).getHighProportion(), tables.get(tables.size() - 1).getHighProportion()));
+            info.setLowVision(commonReportService.getConvertRatio(tables,MyopiaTable::getLowVisionProportion));
+            info.setMyopia(commonReportService.getConvertRatio(tables,MyopiaTable::getMyopiaProportion));
+            info.setEarly(commonReportService.getConvertRatio(tables,MyopiaTable::getEarlyProportion));
+            info.setLightMyopia(commonReportService.getConvertRatio(tables,MyopiaTable::getLightProportion));
+            info.setHighMyopia(commonReportService.getConvertRatio(tables,MyopiaTable::getHighProportion));
             primaryHistoryVision.setInfo(info);
             primaryHistoryVision.setPrimaryHistoryVisionChart(horizontalChartService.myopiaTableChart(tables));
             primaryHistoryVision.setPrimaryLevelHistoryVisionChart(horizontalChartService.myopiaLevelTableChart(tables));
