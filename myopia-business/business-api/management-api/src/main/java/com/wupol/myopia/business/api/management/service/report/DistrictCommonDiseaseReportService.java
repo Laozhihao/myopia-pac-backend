@@ -77,7 +77,7 @@ public class DistrictCommonDiseaseReportService {
             districtIds.add(districtId);
         }
 
-        List<StatConclusion> statConclusionList = getStatConclusionList(noticeId, Lists.newArrayList(districtIds), Boolean.TRUE, Boolean.FALSE,Boolean.FALSE);
+        List<StatConclusion> statConclusionList = getStatConclusionList(noticeId, Lists.newArrayList(districtIds), Boolean.TRUE, Boolean.FALSE,Boolean.TRUE);
 
         //全局变量
         getGlobalVariableVO(districtId,districtIds, noticeId, districtCommonDiseaseReportVO);
@@ -385,7 +385,7 @@ public class DistrictCommonDiseaseReportService {
         queryWrapper.eq(StatConclusion::getSrcScreeningNoticeId, noticeId);
         queryWrapper.eq(StatConclusion::getIsRescreen, isRescreen);
         queryWrapper.in(StatConclusion::getDistrictId, districtIds);
-        queryWrapper.eq(StatConclusion::getIsCooperative, isCooperative);
+        queryWrapper.ne(StatConclusion::getIsCooperative, isCooperative);
         return statConclusionService.list(queryWrapper);
     }
 
