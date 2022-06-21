@@ -82,6 +82,9 @@ public class ScreeningPrimaryReportService {
         PrimaryReportDTO reportDTO = new PrimaryReportDTO();
 
         List<StatConclusion> allStatList = statConclusionService.getByPlanIdSchoolIdNoticeId(planId, schoolId, noticeId);
+        if (CollectionUtils.isEmpty(allStatList)) {
+            return reportDTO;
+        }
         List<StatConclusion> statConclusions = commonReportService.getPList(allStatList);
         School school = schoolService.getBySchoolId(schoolId);
         ScreeningPlan plan = screeningPlanService.getById(planId);
@@ -117,6 +120,7 @@ public class ScreeningPrimaryReportService {
             CompletableFuture.allOf(c1, c2, c3, c4, c5).get();
         } catch (InterruptedException | ExecutionException e) {
             log.error("生成区域视力筛查报告异常,planId:{},schoolId:{},noticeId:{}", planId, schoolId, noticeId);
+            e.printStackTrace();
             throw new BusinessException("生成区域视力筛查报告异常");
         }
         return reportDTO;
@@ -176,6 +180,9 @@ public class ScreeningPrimaryReportService {
         PrimaryGeneralVision primaryGeneralVision = new PrimaryGeneralVision();
         List<StatConclusion> validList = commonReportService.getPList(statConclusions.stream().filter(StatConclusion::getIsValid).collect(Collectors.toList()));
         long total = validList.size();
+        if (total == 0L) {
+            return primaryGeneralVision;
+        }
         primaryGeneralVision.setLowMyopiaInfo(generateLowMyopiaInfo(validList, total));
         primaryGeneralVision.setAstigmatismInfo(generateAstigmatismInfo(validList, total));
         primaryGeneralVision.setWearingGlassesInfo(generateWearingGlassesInfo(validList, total));

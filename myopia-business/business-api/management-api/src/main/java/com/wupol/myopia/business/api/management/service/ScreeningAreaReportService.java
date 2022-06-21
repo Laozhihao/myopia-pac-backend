@@ -477,9 +477,9 @@ public class ScreeningAreaReportService {
             primary.setUncorrected(countAndProportionService.uncorrected(pList, pCount));
             primary.setUndercorrection(countAndProportionService.under(pList, pCount));
             info.setPrimary(primary);
-            areaRefraction.setInfo(info);
             areaRefraction.setPrimaryInfo(generatePrimaryRefraction(pList, pCount, noticeId, commonReportService.getHistoryData(districtId, false)));
         }
+        areaRefraction.setInfo(info);
         return areaRefraction;
     }
 
@@ -498,17 +498,31 @@ public class ScreeningAreaReportService {
 
         List<RefractiveTable> ageRefractiveTable = screeningReportTableService.schoolAgeRefractiveTable(statConclusions, total);
         schoolAgeRefractive.setTables(Lists.newArrayList(ageRefractiveTable));
-        if (commonReportService.isShowInfo(ageRefractiveTable, true)) {
+        if (!CollectionUtils.isEmpty(ageRefractiveTable)) {
             SchoolAgeRefractive.Info info = new SchoolAgeRefractive.Info();
-            info.setOneInsufficient(countAndProportionService.insufficient(statConclusions.stream().filter(s -> Objects.equals(s.getSchoolGradeCode(), GradeCodeEnum.ONE_KINDERGARTEN.getCode())).collect(Collectors.toList()), total).getProportion());
-            info.setTwoInsufficient(countAndProportionService.insufficient(statConclusions.stream().filter(s -> Objects.equals(s.getSchoolGradeCode(), GradeCodeEnum.TWO_KINDERGARTEN.getCode())).collect(Collectors.toList()), total).getProportion());
-            info.setThreeInsufficient(countAndProportionService.insufficient(statConclusions.stream().filter(s -> Objects.equals(s.getSchoolGradeCode(), GradeCodeEnum.THREE_KINDERGARTEN.getCode())).collect(Collectors.toList()), total).getProportion());
-            info.setOneRefractiveError(countAndProportionService.refractiveError(statConclusions.stream().filter(s -> Objects.equals(s.getSchoolGradeCode(), GradeCodeEnum.ONE_KINDERGARTEN.getCode())).collect(Collectors.toList()), total).getProportion());
-            info.setTwoRefractiveError(countAndProportionService.refractiveError(statConclusions.stream().filter(s -> Objects.equals(s.getSchoolGradeCode(), GradeCodeEnum.TWO_KINDERGARTEN.getCode())).collect(Collectors.toList()), total).getProportion());
-            info.setThreeRefractiveError(countAndProportionService.refractiveError(statConclusions.stream().filter(s -> Objects.equals(s.getSchoolGradeCode(), GradeCodeEnum.THREE_KINDERGARTEN.getCode())).collect(Collectors.toList()), total).getProportion());
-            info.setOneAnisometropia(countAndProportionService.anisometropia(statConclusions.stream().filter(s -> Objects.equals(s.getSchoolGradeCode(), GradeCodeEnum.ONE_KINDERGARTEN.getCode())).collect(Collectors.toList()), total).getProportion());
-            info.setTwoAnisometropia(countAndProportionService.anisometropia(statConclusions.stream().filter(s -> Objects.equals(s.getSchoolGradeCode(), GradeCodeEnum.TWO_KINDERGARTEN.getCode())).collect(Collectors.toList()), total).getProportion());
-            info.setThreeAnisometropia(countAndProportionService.anisometropia(statConclusions.stream().filter(s -> Objects.equals(s.getSchoolGradeCode(), GradeCodeEnum.THREE_KINDERGARTEN.getCode())).collect(Collectors.toList()), total).getProportion());
+
+            // TODO： 抽出来
+            if (!CollectionUtils.isEmpty(statConclusions.stream().filter(s -> StringUtils.equals(s.getSchoolGradeCode(), GradeCodeEnum.ONE_KINDERGARTEN.getCode())).collect(Collectors.toList()))) {
+                SchoolAgeRefractive.Detail detail = new SchoolAgeRefractive.Detail();
+                detail.setInsufficient(countAndProportionService.insufficient(statConclusions.stream().filter(s -> Objects.equals(s.getSchoolGradeCode(), GradeCodeEnum.ONE_KINDERGARTEN.getCode())).collect(Collectors.toList()), total).getProportion());
+                detail.setRefractiveError(countAndProportionService.refractiveError(statConclusions.stream().filter(s -> Objects.equals(s.getSchoolGradeCode(), GradeCodeEnum.ONE_KINDERGARTEN.getCode())).collect(Collectors.toList()), total).getProportion());
+                detail.setAnisometropia(countAndProportionService.anisometropia(statConclusions.stream().filter(s -> Objects.equals(s.getSchoolGradeCode(), GradeCodeEnum.ONE_KINDERGARTEN.getCode())).collect(Collectors.toList()), total).getProportion());
+                info.setOne(detail);
+            }
+            if (!CollectionUtils.isEmpty(statConclusions.stream().filter(s -> StringUtils.equals(s.getSchoolGradeCode(), GradeCodeEnum.TWO_KINDERGARTEN.getCode())).collect(Collectors.toList()))) {
+                SchoolAgeRefractive.Detail detail = new SchoolAgeRefractive.Detail();
+                detail.setInsufficient(countAndProportionService.insufficient(statConclusions.stream().filter(s -> Objects.equals(s.getSchoolGradeCode(), GradeCodeEnum.TWO_KINDERGARTEN.getCode())).collect(Collectors.toList()), total).getProportion());
+                detail.setRefractiveError(countAndProportionService.refractiveError(statConclusions.stream().filter(s -> Objects.equals(s.getSchoolGradeCode(), GradeCodeEnum.TWO_KINDERGARTEN.getCode())).collect(Collectors.toList()), total).getProportion());
+                detail.setAnisometropia(countAndProportionService.anisometropia(statConclusions.stream().filter(s -> Objects.equals(s.getSchoolGradeCode(), GradeCodeEnum.TWO_KINDERGARTEN.getCode())).collect(Collectors.toList()), total).getProportion());
+                info.setTwo(detail);
+            }
+            if (!CollectionUtils.isEmpty(statConclusions.stream().filter(s -> StringUtils.equals(s.getSchoolGradeCode(), GradeCodeEnum.THREE_KINDERGARTEN.getCode())).collect(Collectors.toList()))) {
+                SchoolAgeRefractive.Detail detail = new SchoolAgeRefractive.Detail();
+                detail.setInsufficient(countAndProportionService.insufficient(statConclusions.stream().filter(s -> Objects.equals(s.getSchoolGradeCode(), GradeCodeEnum.THREE_KINDERGARTEN.getCode())).collect(Collectors.toList()), total).getProportion());
+                detail.setRefractiveError(countAndProportionService.refractiveError(statConclusions.stream().filter(s -> Objects.equals(s.getSchoolGradeCode(), GradeCodeEnum.THREE_KINDERGARTEN.getCode())).collect(Collectors.toList()), total).getProportion());
+                detail.setAnisometropia(countAndProportionService.anisometropia(statConclusions.stream().filter(s -> Objects.equals(s.getSchoolGradeCode(), GradeCodeEnum.THREE_KINDERGARTEN.getCode())).collect(Collectors.toList()), total).getProportion());
+                info.setThree(detail);
+            }
             schoolAgeRefractive.setInfo(info);
             schoolAgeRefractive.setAgeRefractiveChart(horizontalChartService.refractiveChart(ageRefractiveTable.stream().filter(s -> !StringUtils.equals(s.getName(), CommonReportService.TOTAL_NAME)).collect(Collectors.toList())));
         }
@@ -645,9 +659,9 @@ public class ScreeningAreaReportService {
         historyRefraction.setTables(Lists.newArrayList(pHistoryAstigmatismTable));
         if (commonReportService.isShowInfo(pHistoryAstigmatismTable, false)) {
             info.setMyopiaProportion(commonReportService.getConvertRatio(pHistoryAstigmatismTable, AstigmatismTable::getMyopiaProportion));
-            info.setEarlyMyopiaProportion(commonReportService.getConvertRatio(pHistoryAstigmatismTable, AstigmatismTable::getMyopiaProportion));
-            info.setLightMyopiaProportion(commonReportService.getConvertRatio(pHistoryAstigmatismTable, AstigmatismTable::getMyopiaProportion));
-            info.setHighMyopiaProportion(commonReportService.getConvertRatio(pHistoryAstigmatismTable, AstigmatismTable::getMyopiaProportion));
+            info.setEarlyMyopiaProportion(commonReportService.getConvertRatio(pHistoryAstigmatismTable, AstigmatismTable::getEarlyMyopiaProportion));
+            info.setLightMyopiaProportion(commonReportService.getConvertRatio(pHistoryAstigmatismTable, AstigmatismTable::getLightMyopiaProportion));
+            info.setHighMyopiaProportion(commonReportService.getConvertRatio(pHistoryAstigmatismTable, AstigmatismTable::getHighMyopiaProportion));
             historyRefraction.setInfo(info);
             historyRefraction.setPrimaryHistoryRefraction(horizontalChartService.primaryHistoryRefraction(pHistoryAstigmatismTable));
         }

@@ -37,45 +37,39 @@ public class SchoolAgeRefractive {
     @Getter
     @Setter
     public static class Info {
+
+        /**
+         * 一年级
+         */
+        private Detail one;
+
+        /**
+         * 二年级
+         */
+        private Detail two;
+
+        /**
+         * 三年级
+         */
+        private Detail three;
+
+    }
+
+    @Getter
+    @Setter
+    public static class Detail {
         /**
          * 远视储备不足率
          */
-        private String oneInsufficient;
-        /**
-         * 远视储备不足率
-         */
-        private String twoInsufficient;
-        /**
-         * 远视储备不足率
-         */
-        private String threeInsufficient;
-
-
+        private String insufficient;
         /**
          * 屈光不正率
          */
-        private String oneRefractiveError;
-        /**
-         * 屈光不正率
-         */
-        private String twoRefractiveError;
-        /**
-         * 屈光不正率
-         */
-        private String threeRefractiveError;
-
+        private String refractiveError;
         /**
          * 屈光参差率
          */
-        private String oneAnisometropia;
-        /**
-         * 屈光参差率
-         */
-        private String twoAnisometropia;
-        /**
-         * 屈光参差率
-         */
-        private String threeAnisometropia;
+        private String anisometropia;
     }
 
 

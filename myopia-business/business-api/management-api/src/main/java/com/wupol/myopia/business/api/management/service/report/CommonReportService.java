@@ -700,10 +700,12 @@ public class CommonReportService {
         table.setAxsi(StrUtil.spliceChar("/", ScreeningDataFormatUtils.singleEyeDateFormatZero(EyeDataUtil.rightAxial(result)), ScreeningDataFormatUtils.singleEyeDateFormatZero(EyeDataUtil.leftAxial(result))));
         table.setSe(StrUtil.spliceChar("/", ScreeningDataFormatUtils.singlePlusEyeDateFormatTwo(EyeDataUtil.rightSE(result)), ScreeningDataFormatUtils.singlePlusEyeDateFormatTwo(EyeDataUtil.leftSE(result))));
         table.setVisionInfo(statConclusion.getIsLowVision());
-        if (isk) {
-            table.setRefractiveInfo(kVisionAnalyze(statConclusion.getIsRefractiveError(), statConclusion.getWarningLevel()));
-        } else {
-            table.setRefractiveInfo(pVisionAnalyze(statConclusion.getIsMyopia(), statConclusion.getIsAstigmatism(), statConclusion.getIsHyperopia()));
+        if (Objects.nonNull(statConclusion.getId())) {
+            if (isk) {
+                table.setRefractiveInfo(kVisionAnalyze(statConclusion.getIsRefractiveError(), statConclusion.getWarningLevel()));
+            } else {
+                table.setRefractiveInfo(pVisionAnalyze(statConclusion.getIsMyopia(), statConclusion.getIsAstigmatism(), statConclusion.getIsHyperopia()));
+            }
         }
         table.setMyopiaCorrection(VisionCorrection.getDesc(statConclusion.getVisionCorrection()));
         table.setVisionWarning(WarningLevel.getDesc(statConclusion.getWarningLevel()));
