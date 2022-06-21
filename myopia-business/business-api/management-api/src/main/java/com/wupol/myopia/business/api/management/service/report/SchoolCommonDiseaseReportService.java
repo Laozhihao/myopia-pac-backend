@@ -66,7 +66,8 @@ public class SchoolCommonDiseaseReportService {
 
 
         //学校ID、计划ID
-        List<StatConclusion> statConclusionList = getStatConclusionList(schoolId, planId, Boolean.FALSE,Boolean.TRUE);
+        List<StatConclusion> statConclusionList = getStatConclusionList(schoolId, planId, Boolean.FALSE);
+        statConclusionList = statConclusionList.stream().filter(sc -> !Objects.equals(sc.getIsCooperative(),1)).collect(Collectors.toList());
 
         //全局变量
         getGlobalVariableVO(schoolId, planId, schoolCommonDiseaseReportVO);
@@ -191,12 +192,11 @@ public class SchoolCommonDiseaseReportService {
     }
 
 
-    private List<StatConclusion> getStatConclusionList(Integer schoolId, Integer planId, Boolean isRescreen,Boolean isCooperative) {
+    private List<StatConclusion> getStatConclusionList(Integer schoolId, Integer planId, Boolean isRescreen) {
         LambdaQueryWrapper<StatConclusion> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(StatConclusion::getPlanId, planId);
         queryWrapper.eq(StatConclusion::getSchoolId, schoolId);
         queryWrapper.eq(StatConclusion::getIsRescreen, isRescreen);
-        queryWrapper.ne(StatConclusion::getIsCooperative, isCooperative);
         return statConclusionService.list(queryWrapper);
     }
 
