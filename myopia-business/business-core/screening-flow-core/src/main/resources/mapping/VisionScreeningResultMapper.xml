@@ -264,6 +264,7 @@
         <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
             #{id}
         </foreach>
+        and is_double_screen = false
         order by create_time desc
     </select>
 </mapper>

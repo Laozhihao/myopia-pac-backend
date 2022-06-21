@@ -656,7 +656,7 @@ public class CommonReportService {
         Map<Integer, StatConclusion> statConclusionMap = statConclusions.stream().collect(Collectors.toMap(StatConclusion::getScreeningPlanSchoolStudentId, Function.identity()));
 
         List<VisionScreeningResult> resultList = visionScreeningResultService.getByIds(resultIds);
-        Map<Integer, VisionScreeningResult> resultMap = resultList.stream().collect(Collectors.toMap(VisionScreeningResult::getId, Function.identity()));
+        Map<Integer, VisionScreeningResult> resultMap = resultList.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
 
         // 通过学校班级年级分组
         List<SchoolGrade> gradeList = schoolGradeService.getBySchoolId(school.getId());
@@ -678,8 +678,8 @@ public class CommonReportService {
                 classScreeningData.setClassName(schoolClass.getName());
                 List<ScreeningDataReportTable> dataReportTableList = new ArrayList<>();
                 classPlanStudentList.forEach(sourceData -> {
-                    VisionScreeningResult result = resultMap.get(sourceData.getScreeningPlanId());
-                    dataReportTableList.add(getReportDate(statConclusionMap.getOrDefault(sourceData.getId(), new StatConclusion()), result, sourceData, isk));
+                    dataReportTableList.add(getReportDate(statConclusionMap.getOrDefault(sourceData.getId(), new StatConclusion()),
+                            resultMap.get(sourceData.getId()), sourceData, isk));
                 });
                 classScreeningData.setTables(dataReportTableList);
                 dataList.add(classScreeningData);
