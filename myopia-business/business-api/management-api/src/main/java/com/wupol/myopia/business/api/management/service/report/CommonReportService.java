@@ -619,11 +619,13 @@ public class CommonReportService {
     private HistoryRefractive getHistoryRefractive(List<RefractiveTable> kHistoryRefractiveTable) {
         HistoryRefractive historyRefractive = new HistoryRefractive();
         historyRefractive.setTables(Lists.newArrayList(kHistoryRefractiveTable));
-        historyRefractive.setLowVisionProportion(getConvertRatio(kHistoryRefractiveTable, RefractiveTable::getLowVisionProportion));
-        historyRefractive.setInsufficientProportion(getConvertRatio(kHistoryRefractiveTable, RefractiveTable::getInsufficientProportion));
-        historyRefractive.setRefractiveErrorProportion(getConvertRatio(kHistoryRefractiveTable, RefractiveTable::getRefractiveErrorProportion));
-        historyRefractive.setAnisometropiaProportion(getConvertRatio(kHistoryRefractiveTable, RefractiveTable::getAnisometropiaProportion));
-        if (!CollectionUtils.isEmpty(kHistoryRefractiveTable)) {
+        if (isShowInfo(kHistoryRefractiveTable, false)) {
+            HistoryRefractive.Info info = new HistoryRefractive.Info();
+            info.setLowVisionProportion(getConvertRatio(kHistoryRefractiveTable, RefractiveTable::getLowVisionProportion));
+            info.setInsufficientProportion(getConvertRatio(kHistoryRefractiveTable, RefractiveTable::getInsufficientProportion));
+            info.setRefractiveErrorProportion(getConvertRatio(kHistoryRefractiveTable, RefractiveTable::getRefractiveErrorProportion));
+            info.setAnisometropiaProportion(getConvertRatio(kHistoryRefractiveTable, RefractiveTable::getAnisometropiaProportion));
+            historyRefractive.setInfo(info);
             historyRefractive.setKindergartenHistoryRefractive(horizontalChartService.kindergartenHistoryRefractive(kHistoryRefractiveTable));
         }
         return historyRefractive;

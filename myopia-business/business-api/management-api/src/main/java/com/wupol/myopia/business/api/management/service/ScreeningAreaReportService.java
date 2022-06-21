@@ -643,12 +643,12 @@ public class ScreeningAreaReportService {
         HistoryRefraction.Info info = new HistoryRefraction.Info();
         List<AstigmatismTable> pHistoryAstigmatismTable = screeningReportTableService.pHistoryAstigmatismTable(tuples, noticeId);
         historyRefraction.setTables(Lists.newArrayList(pHistoryAstigmatismTable));
-        info.setMyopiaProportion(commonReportService.getConvertRatio(pHistoryAstigmatismTable, AstigmatismTable::getMyopiaProportion));
-        info.setEarlyMyopiaProportion(commonReportService.getConvertRatio(pHistoryAstigmatismTable, AstigmatismTable::getMyopiaProportion));
-        info.setLightMyopiaProportion(commonReportService.getConvertRatio(pHistoryAstigmatismTable, AstigmatismTable::getMyopiaProportion));
-        info.setHighMyopiaProportion(commonReportService.getConvertRatio(pHistoryAstigmatismTable, AstigmatismTable::getMyopiaProportion));
-        historyRefraction.setInfo(info);
-        if (!CollectionUtils.isEmpty(pHistoryAstigmatismTable) && pHistoryAstigmatismTable.size() > 1) {
+        if (commonReportService.isShowInfo(pHistoryAstigmatismTable, false)) {
+            info.setMyopiaProportion(commonReportService.getConvertRatio(pHistoryAstigmatismTable, AstigmatismTable::getMyopiaProportion));
+            info.setEarlyMyopiaProportion(commonReportService.getConvertRatio(pHistoryAstigmatismTable, AstigmatismTable::getMyopiaProportion));
+            info.setLightMyopiaProportion(commonReportService.getConvertRatio(pHistoryAstigmatismTable, AstigmatismTable::getMyopiaProportion));
+            info.setHighMyopiaProportion(commonReportService.getConvertRatio(pHistoryAstigmatismTable, AstigmatismTable::getMyopiaProportion));
+            historyRefraction.setInfo(info);
             historyRefraction.setPrimaryHistoryRefraction(horizontalChartService.primaryHistoryRefraction(pHistoryAstigmatismTable));
         }
         return historyRefraction;

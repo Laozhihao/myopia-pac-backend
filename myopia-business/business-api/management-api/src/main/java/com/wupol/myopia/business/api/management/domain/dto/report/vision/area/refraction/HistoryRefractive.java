@@ -18,24 +18,9 @@ import java.util.List;
 public class HistoryRefractive {
 
     /**
-     * 视力低下
+     * 信息
      */
-    private ConvertRatio lowVisionProportion;
-
-    /**
-     * 远视储备不足
-     */
-    private ConvertRatio insufficientProportion;
-
-    /**
-     * 屈光不正率
-     */
-    private ConvertRatio refractiveErrorProportion;
-
-    /**
-     * 屈光参差率
-     */
-    private ConvertRatio anisometropiaProportion;
+    private Info info;
 
     /**
      * 幼儿园屈光图表
@@ -46,4 +31,30 @@ public class HistoryRefractive {
      * 表格
      */
     private List<RefractiveTable> tables;
+
+    @Getter
+    @Setter
+    public static class Info {
+
+        /**
+         * 视力低下
+         */
+        private ConvertRatio lowVisionProportion;
+
+        /**
+         * 远视储备不足
+         */
+        private ConvertRatio insufficientProportion;
+
+        /**
+         * 屈光不正率
+         */
+        private ConvertRatio refractiveErrorProportion;
+
+        /**
+         * 屈光参差率
+         */
+        private ConvertRatio anisometropiaProportion;
+
+    }
 }
