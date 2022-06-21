@@ -1416,14 +1416,24 @@ public class StatUtil {
             return null;
         }
 
-        List<WarningLevel> warningLevelList = Lists.newArrayList();
-
         if (Objects.equals(schoolType,SchoolAge.KINDERGARTEN.code)){
-            //裸眼视力
-            warningLevelList.add(StatUtil.nakedVision(nakedVision, age));
-            warningLevelList.add(StatUtil.myopiaLevelInsufficient(spn, cyl));
 
-        }else {
+            WarningLevel warningLevel = StatUtil.myopiaLevelInsufficient(spn, cyl);
+            if (Objects.isNull(warningLevel)){
+                //裸眼视力
+                return StatUtil.nakedVision(nakedVision, age);
+            }
+            //0级预警（远视储备不足）优先级大于 0级预警
+            WarningLevel nakedVisionWarningLevel = StatUtil.nakedVision(nakedVision, age);
+            if (Objects.isNull(nakedVisionWarningLevel) || Objects.equals(nakedVisionWarningLevel,WarningLevel.ZERO)){
+                return warningLevel;
+            }
+            return nakedVisionWarningLevel;
+
+        }
+
+        List<WarningLevel> warningLevelList = Lists.newArrayList();
+        if (!Objects.equals(schoolType,SchoolAge.KINDERGARTEN.code)){
             //裸眼视力
             warningLevelList.add(StatUtil.nakedVision(nakedVision, age));
             //近视
@@ -1432,9 +1442,7 @@ public class StatUtil {
             warningLevelList.add(StatUtil.warningLevel(spn, cyl, age, 1));
             //远视
             warningLevelList.add(StatUtil.warningLevel(spn, cyl, age, 2));
-
         }
-
         return warningLevelList.stream().filter(Objects::nonNull).max(Comparator.comparing(WarningLevel::getCode)).orElse(null);
 
     }
