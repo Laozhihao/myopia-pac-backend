@@ -9,7 +9,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.wupol.framework.core.util.CompareUtil;
 import com.wupol.myopia.base.exception.BusinessException;
-import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.api.management.constant.ReportConst;
 import com.wupol.myopia.business.api.management.domain.vo.report.CommonDiseasesAnalysisVariableVO;
@@ -19,7 +18,6 @@ import com.wupol.myopia.business.api.management.domain.vo.report.DistrictCommonD
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.constant.WarningLevel;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
-import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.model.School;
@@ -31,7 +29,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -319,10 +316,7 @@ public class DistrictCommonDiseaseReportService {
 
         Map<Integer, List<StatConclusion>> schoolMap = primarySchoolAndAboveList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolAge));
 
-        TwoTuple<BigDecimal, BigDecimal> averageVisionTuple = StatUtil.calculateAverageVision(primarySchoolAndAboveList);
-        BigDecimal add = averageVisionTuple.getFirst().add(averageVisionTuple.getSecond());
-        BigDecimal averageVision = BigDecimalUtil.divide(add, new BigDecimal("2"), 1);
-        primarySchoolAndAboveVO.setAvgVision(averageVision);
+        primarySchoolAndAboveVO.setAvgVision(StatUtil.averageVision(primarySchoolAndAboveList));
         primarySchoolAndAboveVO.setLowVisionRatio(MathUtil.ratioNotSymbol(lowVisionNum, validScreeningNum));
         primarySchoolAndAboveVO.setMyopiaRatio(MathUtil.ratioNotSymbol(myopiaNum, validScreeningNum));
 
