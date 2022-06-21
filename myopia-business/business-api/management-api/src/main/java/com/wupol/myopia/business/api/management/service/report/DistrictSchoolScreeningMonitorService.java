@@ -51,6 +51,9 @@ public class DistrictSchoolScreeningMonitorService {
         }
 
         Map<Integer, List<StatConclusion>> schoolStatConclusionMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolId));
+        if (schoolStatConclusionMap.size() <= 1){
+            return;
+        }
         Map<String, ScreeningNum> schoolScreeningNumMap = Maps.newHashMap();
         schoolStatConclusionMap.forEach((schoolId, list) -> {
             String schoolName = schoolMap.get(schoolId);

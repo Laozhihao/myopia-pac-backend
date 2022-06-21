@@ -60,8 +60,6 @@ public class SchoolClassScreeningMonitorService {
         });
 
         schoolCommonDiseasesAnalysisVO.setSchoolClassScreeningMonitorVOList(schoolClassScreeningMonitorVOList);
-
-
     }
 
     private void getSchoolClassScreeningMonitorChart(List<StatConclusion> statConclusionList, SchoolClassScreeningMonitorVO schoolClassScreeningMonitorVO) {
@@ -72,6 +70,9 @@ public class SchoolClassScreeningMonitorService {
         ScreeningNum gradeScreeningNum = new ScreeningNum().build(statConclusionList).ratioNotSymbol();
 
         Map<String, List<StatConclusion>> classStatConclusionMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolClassName));
+        if (classStatConclusionMap.size() <= 1){
+            return;
+        }
         Map<String, ScreeningNum> classScreeningNumMap = Maps.newHashMap();
         classStatConclusionMap.forEach((schoolClassName, list) -> getSchoolClassScreeningNum(schoolClassName, list, classScreeningNumMap));
 
