@@ -77,7 +77,7 @@ public class DistrictCommonDiseaseReportService {
             districtIds.add(districtId);
         }
 
-        List<StatConclusion> statConclusionList = getStatConclusionList(noticeId, Lists.newArrayList(districtIds), Boolean.TRUE, Boolean.FALSE);
+        List<StatConclusion> statConclusionList = getStatConclusionList(noticeId, Lists.newArrayList(districtIds), Boolean.TRUE, Boolean.FALSE,Boolean.FALSE);
 
         //全局变量
         getGlobalVariableVO(districtId,districtIds, noticeId, districtCommonDiseaseReportVO);
@@ -378,12 +378,13 @@ public class DistrictCommonDiseaseReportService {
         Optional.of(myopiaItemVO).ifPresent(consumer);
     }
 
-    private List<StatConclusion> getStatConclusionList(Integer noticeId, List<Integer> districtIds, Boolean isValid, Boolean isRescreen) {
+    private List<StatConclusion> getStatConclusionList(Integer noticeId, List<Integer> districtIds, Boolean isValid, Boolean isRescreen,Boolean isCooperative) {
         LambdaQueryWrapper<StatConclusion> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(StatConclusion::getSrcScreeningNoticeId, noticeId);
         queryWrapper.eq(StatConclusion::getIsValid, isValid);
         queryWrapper.eq(StatConclusion::getIsRescreen, isRescreen);
         queryWrapper.in(StatConclusion::getDistrictId, districtIds);
+        queryWrapper.eq(StatConclusion::getIsCooperative, isCooperative);
         return statConclusionService.list(queryWrapper);
     }
 
