@@ -446,7 +446,7 @@ public class CommonReportService {
         T first = list.get(0);
         T thisTime = list.stream().filter(s -> Objects.equals(s.getIsSameReport(), Boolean.TRUE))
                 .collect(Collectors.toList()).get(0);
-        return getChainRatioProportion(comparingFunction.apply(first), comparingFunction.apply(thisTime));
+        return getChainRatioProportion(comparingFunction.apply(thisTime),comparingFunction.apply(first));
     }
 
     public ConvertRatio getChainRatioProportion(String firstProportion, String thisTimeProportion) {
