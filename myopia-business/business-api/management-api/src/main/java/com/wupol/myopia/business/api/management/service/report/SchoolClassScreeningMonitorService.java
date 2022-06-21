@@ -153,7 +153,7 @@ public class SchoolClassScreeningMonitorService {
         Map<String, List<StatConclusion>> schoolStatConclusionMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolClassName));
         schoolStatConclusionMap.forEach((schoolClassName, list) -> getSchoolClassScreeningTable(schoolClassName, list, tableList));
 
-        CollectionUtil.sort(tableList, Comparator.comparing(ScreeningMonitorTable::getSaprodontiaLossAndRepairRatio).reversed());
+        CollectionUtil.sort(tableList, Comparator.comparing(ScreeningMonitorTable::getSaprodontiaRatio).reversed());
 
         schoolClassScreeningMonitorVO.setSchoolClassScreeningMonitorTableList(tableList);
     }
