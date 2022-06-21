@@ -48,6 +48,9 @@ public class HtmlPageUrlConstant {
 
     public static final String REPORT_AREA_VISION = "%s?reportType=visonArea&noticeId=%d&districtId=%d";
 
+    public static final String REPORT_PRIMARY_VISION = "%s?reportType=visonArea&planId=%d&schoolId=%d&noticeId=%d";
+    public static final String REPORT_KINDERGARTEN_VISION = "%s?reportType=visonArea&planId=%d&schoolId=%d&noticeId=%d";;
+
 
 
 
