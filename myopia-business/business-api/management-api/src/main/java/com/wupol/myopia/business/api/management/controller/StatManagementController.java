@@ -222,6 +222,15 @@ public class StatManagementController {
         scheduledTasksExecutor.statistic(null,planId,isAll);
     }
 
+
+    /**
+     * 筛查结果转换筛查结论数据，解决了录入筛查结果数据正常，筛查结论数据有误，修改规则后可以更新结论数据
+     */
+    @GetMapping("afreshScreeningToConclusion")
+    public void afreshScreeningToConclusion(Integer planId){
+        statConclusionBizService.screeningToConclusion(planId,Boolean.FALSE);
+    }
+
     /**
      * 筛查结果统计定时任务手动调用 TODO：为了测试方便
      */
