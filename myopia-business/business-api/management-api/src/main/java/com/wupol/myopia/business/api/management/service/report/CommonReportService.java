@@ -677,10 +677,9 @@ public class CommonReportService {
                 classScreeningData.setGradeName(grade.getName());
                 classScreeningData.setClassName(schoolClass.getName());
                 List<ScreeningDataReportTable> dataReportTableList = new ArrayList<>();
-                classPlanStudentList.forEach(sourceData -> {
-                    dataReportTableList.add(getReportDate(statConclusionMap.getOrDefault(sourceData.getId(), new StatConclusion()),
-                            resultMap.get(sourceData.getId()), sourceData, isk));
-                });
+                classPlanStudentList.forEach(sourceData -> dataReportTableList.add(
+                        getReportDate(statConclusionMap.getOrDefault(sourceData.getId(), new StatConclusion()),
+                                resultMap.get(sourceData.getId()), sourceData, isk)));
                 classScreeningData.setTables(dataReportTableList);
                 dataList.add(classScreeningData);
             });
