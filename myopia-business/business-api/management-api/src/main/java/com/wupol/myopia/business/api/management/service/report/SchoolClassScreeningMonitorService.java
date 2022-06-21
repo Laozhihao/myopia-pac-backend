@@ -43,6 +43,7 @@ public class SchoolClassScreeningMonitorService {
         gradeMap = MapUtil.sort(gradeMap);
         List<SchoolClassScreeningMonitorVO> schoolClassScreeningMonitorVOList = Lists.newArrayList();
 
+        boolean isShow = gradeMap.size() >= 2;
         gradeMap.forEach((gradeCode, list) -> {
             SchoolClassScreeningMonitorVO schoolClassScreeningMonitorVO = new SchoolClassScreeningMonitorVO();
             //表格数据
@@ -51,8 +52,11 @@ public class SchoolClassScreeningMonitorService {
                 schoolClassScreeningMonitorVOList.add(schoolClassScreeningMonitorVO);
                 schoolClassScreeningMonitorVO.setGrade(GradeCodeEnum.getByCode(gradeCode).getName());
             }
-            //图表数据
-            getSchoolClassScreeningMonitorChart(list, schoolClassScreeningMonitorVO);
+            if (isShow){
+                //图表数据
+                getSchoolClassScreeningMonitorChart(list, schoolClassScreeningMonitorVO);
+            }
+
         });
 
         schoolCommonDiseasesAnalysisVO.setSchoolClassScreeningMonitorVOList(schoolClassScreeningMonitorVOList);
