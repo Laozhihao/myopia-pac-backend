@@ -184,7 +184,7 @@ public class SchoolCommonDiseaseReportService {
                 .build(primaryAndAboveStatConclusionList)
                 .ratioNotSymbol()
                 .buildVisionAnalysisVO();
-        if (CollectionUtil.isNotEmpty(primaryAndAboveStatConclusionList)){
+        if (Objects.nonNull(visionAnalysisVO.getValidScreeningNum())){
             visionAnalysisVO.setAvgVision(StatUtil.averageVision(primaryAndAboveStatConclusionList));
         }
         districtCommonDiseaseReportVO.setVisionAnalysisVO(visionAnalysisVO);
