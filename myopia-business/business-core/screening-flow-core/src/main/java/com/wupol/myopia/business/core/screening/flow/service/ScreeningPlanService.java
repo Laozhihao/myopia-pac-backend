@@ -367,7 +367,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
     public List<ScreeningPlan> getByIdsOrderByStartTime(Collection<Integer> ids) {
         LambdaQueryWrapper<ScreeningPlan> screeningPlanLambdaQueryWrapper = new LambdaQueryWrapper<>();
         screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getId, ids)
-                .orderByAsc(ScreeningPlan::getStartTime);
+                .orderByDesc(ScreeningPlan::getStartTime);
         return baseMapper.selectList(screeningPlanLambdaQueryWrapper);
     }
 
