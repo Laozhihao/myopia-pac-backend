@@ -125,7 +125,8 @@ public class CountAndProportionService {
      * 学龄段视力低下
      */
     public CountAndProportion schoolAgeLowVision(List<StatConclusion> statConclusions, Integer schoolAge, Long total) {
-        if (CollectionUtils.isEmpty(statConclusions)) {
+        if (CollectionUtils.isEmpty(statConclusions) || CollectionUtils.isEmpty(statConclusions.stream()
+                .filter(s -> Objects.equals(s.getSchoolAge(), schoolAge)).collect(Collectors.toList()))) {
             return new CountAndProportion();
         }
         long count = statConclusions.stream()

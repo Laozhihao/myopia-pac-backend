@@ -443,9 +443,9 @@ public class CommonReportService {
     }
 
     public <T extends CommonTable> ConvertRatio getConvertRatio(List<T> list, Function<T, String> comparingFunction) {
-        T first = list.stream().filter(s -> Objects.equals(s.getIsSameReport(), Boolean.TRUE))
+        T first = list.get(0);
+        T thisTime = list.stream().filter(s -> Objects.equals(s.getIsSameReport(), Boolean.TRUE))
                 .collect(Collectors.toList()).get(0);
-        T thisTime = list.get(list.size() - 1);
         return getChainRatioProportion(comparingFunction.apply(first), comparingFunction.apply(thisTime));
     }
 
