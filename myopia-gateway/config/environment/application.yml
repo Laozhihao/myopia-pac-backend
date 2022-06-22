@@ -156,3 +156,5 @@ white-list:
   - "/api/fkr710/upload"
   # 获取档案卡数据统一接口
   - "/management/archive/data"
+  # 获取验证图片
+  - "/auth/verify/image"

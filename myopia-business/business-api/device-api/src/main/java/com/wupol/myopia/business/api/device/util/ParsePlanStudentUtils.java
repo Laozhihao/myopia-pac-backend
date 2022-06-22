@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.device.util;
 
 import com.wupol.myopia.base.exception.BusinessException;
+import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -8,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
  *
  * @author Simple4H
  */
+@UtilityClass
 public class ParsePlanStudentUtils {
 
     public static Integer parsePlanStudentId(String uid) {

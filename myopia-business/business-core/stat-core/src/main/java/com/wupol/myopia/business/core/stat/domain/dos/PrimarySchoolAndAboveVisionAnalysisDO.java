@@ -1,5 +1,7 @@
 package com.wupol.myopia.business.core.stat.domain.dos;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -10,9 +12,11 @@ import java.math.BigDecimal;
  *
  * @author hang.yuan 2022/4/13 15:23
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Data
 @Accessors(chain = true)
-public class PrimarySchoolAndAboveVisionAnalysisDO implements VisionAnalysis {
+public class PrimarySchoolAndAboveVisionAnalysisDO implements VisionAnalysis,FrontTableId {
+
     /**
      * 视力低下人数（默认0）
      */
@@ -24,13 +28,15 @@ public class PrimarySchoolAndAboveVisionAnalysisDO implements VisionAnalysis {
     private String lowVisionRatio;
 
     /**
-     * 平均左眼视力（小数点后二位，默认0.00）
+     * 平均左眼视力（小数点后一位，默认0.0）
      */
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private BigDecimal avgLeftVision;
 
     /**
-     * 平均右眼视力（小数点后二位，默认0.00）
+     * 平均右眼视力（小数点后一位，默认0.0）
      */
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private BigDecimal avgRightVision;
 
     /**
@@ -117,5 +123,11 @@ public class PrimarySchoolAndAboveVisionAnalysisDO implements VisionAnalysis {
      * 学校类型
      */
     private Integer schoolType;
+
+    @Override
+    public Integer getSerialVersionUID() {
+        return 3;
+    }
+
 
 }

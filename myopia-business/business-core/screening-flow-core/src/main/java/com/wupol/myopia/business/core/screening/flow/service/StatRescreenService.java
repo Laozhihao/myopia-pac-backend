@@ -1,5 +1,7 @@
 package com.wupol.myopia.business.core.screening.flow.service;
 
+import cn.hutool.core.collection.CollectionUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.StatRescreenMapper;
@@ -38,6 +40,15 @@ public class StatRescreenService extends BaseService<StatRescreenMapper, StatRes
         Assert.notNull(planId);
         Assert.notNull(schoolId);
         return baseMapper.countByPlanAndSchool(planId, schoolId);
+    }
+
+    public List<StatRescreen> getByPlanIdAndSchoolId(List<Integer> planIds,List<Integer> schoolIds){
+        Assert.isTrue(CollectionUtil.isNotEmpty(planIds));
+        Assert.isTrue(CollectionUtil.isNotEmpty(planIds));
+        LambdaQueryWrapper<StatRescreen> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(StatRescreen::getPlanId,planIds);
+        queryWrapper.in(StatRescreen::getSchoolId,schoolIds);
+        return baseMapper.selectList(queryWrapper);
     }
 
     public int deleteByScreeningTime(Date screeningTime) {

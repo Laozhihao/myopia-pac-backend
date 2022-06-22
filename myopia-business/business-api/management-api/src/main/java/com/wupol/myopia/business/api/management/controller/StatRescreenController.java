@@ -1,6 +1,8 @@
 package com.wupol.myopia.business.api.management.controller;
 
+import cn.hutool.core.util.StrUtil;
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.api.management.domain.vo.RescreenReportVO;
 import com.wupol.myopia.business.api.management.service.StatService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,8 +30,14 @@ public class StatRescreenController {
     }
 
     @GetMapping("/manualStat")
-    public void manualStat() {
-        statService.rescreenStat(new Date());
+    public void manualStat(@RequestParam(required = false) String dateStr) {
+        Date date;
+        if (StrUtil.isNotBlank(dateStr)){
+            date = DateUtil.parseDate(dateStr);
+        }else {
+            date =new Date();
+        }
+        statService.rescreenStat(date);
     }
 
 }

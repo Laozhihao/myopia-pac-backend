@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.aggregation.export.excel;
 
-import cn.hutool.core.date.DateUtil;
 import com.alibaba.excel.write.merge.OnceAbsoluteMergeStrategy;
 import com.alibaba.fastjson.JSONPath;
 import com.vistel.Interface.exception.UtilException;
@@ -9,18 +8,14 @@ import com.wupol.myopia.base.util.ExcelUtil;
 import com.wupol.myopia.base.util.ListUtil;
 import com.wupol.myopia.base.util.ScreeningDataFormatUtils;
 import com.wupol.myopia.business.common.utils.constant.*;
-import com.wupol.myopia.business.common.utils.util.MaskUtil;
-import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.util.S3Utils;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
-import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningResultPahtConst;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningDataContrastDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.VisionScreeningResultExportDTO;
-import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import com.wupol.myopia.business.core.system.service.NoticeService;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
@@ -105,7 +100,7 @@ public class ExcelFacade {
             String filePath = String.format("%s-%s", System.currentTimeMillis(), UUID.randomUUID());
             Map<String, List<StatConclusionExportDTO>> schoolNameMap = statConclusionExportDTOs.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getSchoolName));
             schoolNameMap.keySet().forEach(schoolName -> {
-                StringBuffer folder = new StringBuffer();
+                StringBuilder folder = new StringBuilder();
                 List<StatConclusionExportDTO> orDefault = schoolNameMap.getOrDefault(schoolName, Collections.emptyList());
                 //学校的区域id，以及该区域的上层id
                 if (Objects.nonNull(orDefault) && orDefault.size()>0){

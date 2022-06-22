@@ -1,6 +1,8 @@
 package com.wupol.myopia.business.core.stat.domain.dos;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 
@@ -10,7 +12,11 @@ import java.io.Serializable;
  * @author hang.yuan 2022/4/13 15:36
  */
 @Data
-public class CommonDiseaseDO implements Serializable {
+@JsonIgnoreProperties(ignoreUnknown = true)
+@Accessors(chain = true)
+public class CommonDiseaseDO implements Serializable,FrontTableId {
+
+
     /**
      * 小学及以上--超重人数（默认0）
      */
@@ -44,12 +50,12 @@ public class CommonDiseaseDO implements Serializable {
     /**
      * 小学及以上--生长迟缓人数（默认0）
      */
-    private Integer growthRetardationNum;
+    private Integer stuntingNum;
 
     /**
      * 小学及以上--生长迟缓率
      */
-    private String growthRetardationRatio;
+    private String stuntingRatio;
 
     /**
      * 小学及以上--脊柱弯曲异常人数（默认0）
@@ -80,4 +86,9 @@ public class CommonDiseaseDO implements Serializable {
      * 小学及以上--复查学生率
      */
     private String reviewStudentRatio;
+
+    @Override
+    public Integer getSerialVersionUID() {
+        return 7;
+    }
 }

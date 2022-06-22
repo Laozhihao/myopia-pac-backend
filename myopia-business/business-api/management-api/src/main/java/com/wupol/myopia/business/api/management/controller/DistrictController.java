@@ -53,7 +53,7 @@ public class DistrictController extends BaseController<DistrictService, District
      * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
      **/
     @GetMapping("/child/{code}")
-    public List<District> getChildDistrict(@PathVariable @NotNull(message = "行政区域编号不能为空") Long code) throws IOException {
+    public List<District> getChildDistrict(@PathVariable @NotNull(message = "行政区域编号不能为空") Long code) {
         return baseService.getChildDistrictByParentIdPriorityCache(code);
     }
     /**

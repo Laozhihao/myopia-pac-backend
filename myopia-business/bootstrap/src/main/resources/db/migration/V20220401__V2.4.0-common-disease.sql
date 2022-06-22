@@ -41,6 +41,21 @@ ALTER TABLE m_stat_conclusion ADD is_menarche TINYINT(1) NULL COMMENT '是否初
 ALTER TABLE m_stat_conclusion ADD is_review TINYINT(1) NULL COMMENT '是否复查';
 
 
+ALTER TABLE m_stat_conclusion ADD is_anisometropia TINYINT(1) NULL COMMENT '是否屈光参差';
+ALTER TABLE m_stat_conclusion MODIFY COLUMN is_saprodontia tinyint(1) NULL COMMENT '是否龋患';
+ALTER TABLE m_stat_conclusion ADD saprodontia_teeth INT NULL COMMENT '龋患牙齿数';
+ALTER TABLE m_stat_conclusion ADD is_saprodontia_loss TINYINT(1) NULL COMMENT '是否龋失';
+ALTER TABLE m_stat_conclusion ADD saprodontia_loss_teeth INT NULL COMMENT '龋失牙齿数';
+ALTER TABLE m_stat_conclusion ADD is_saprodontia_repair TINYINT(1) NULL COMMENT '是否龋补';
+ALTER TABLE m_stat_conclusion ADD saprodontia_repair_teeth INT NULL COMMENT '龋补牙齿数';
+
+ALTER TABLE m_stat_conclusion ADD rescreen_item_num INT NULL COMMENT '复测项次数';
+ALTER TABLE m_stat_conclusion ADD low_vision_level INT NULL COMMENT '视力低下等级';
+ALTER TABLE m_stat_conclusion ADD is_cooperative TINYINT(3) NULL COMMENT '是否配合检查(0-配合、1-不配合)';
+
+
+
+
 -- 新增筛查数据结果统计表
 CREATE TABLE `m_screening_result_statistic` (
   `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT '主键id',
@@ -68,8 +83,7 @@ CREATE TABLE `m_screening_result_statistic` (
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE,
-  UNIQUE KEY `screening_result_statistic_district_unique` (`screening_notice_id`,`district_id`,`screening_type`,`is_total`) USING BTREE,
-  UNIQUE KEY `screening_result_statistic_school_unique` (`screening_plan_id`,`screening_type`,`screening_org_id`,`school_id`) USING BTREE
+  UNIQUE KEY `screening_result_statistic_unique` (`screening_plan_id`,`screening_type`,`screening_org_id`,`school_id`,`school_type`,`district_id`,`is_total`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC COMMENT='筛查结果统计表';
 
 -- 学生常见病ID表，m_student_common_disease_id

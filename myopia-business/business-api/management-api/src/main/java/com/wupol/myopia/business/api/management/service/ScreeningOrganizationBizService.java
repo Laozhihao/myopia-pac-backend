@@ -399,7 +399,7 @@ public class ScreeningOrganizationBizService {
      * @return List<Integer>
      */
     private List<Integer> getHaveTaskOrgIds(ScreeningOrganizationQueryDTO query) {
-        if (Objects.nonNull(query.getNeedCheckHaveTask()) && query.getNeedCheckHaveTask()) {
+        if (Objects.nonNull(query.getNeedCheckHaveTask()) && Objects.equals(query.getNeedCheckHaveTask(),Boolean.TRUE)) {
             return screeningTaskOrgService.getHaveTaskOrgIds(query.getGovDeptId(), query.getStartTime(), query.getEndTime());
         }
         return Collections.emptyList();

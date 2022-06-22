@@ -8,7 +8,6 @@ import com.alibaba.csp.sentinel.slots.block.flow.FlowException;
 import com.alibaba.csp.sentinel.slots.block.flow.param.ParamFlowException;
 import com.alibaba.csp.sentinel.slots.system.SystemBlockException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sun.xml.internal.fastinfoset.Encoder;
 import com.wupol.myopia.base.domain.ApiResult;
 import org.springframework.stereotype.Component;
 
@@ -44,7 +43,7 @@ public class SentinelBlockExceptionHandler implements BlockExceptionHandler {
         }
         // http状态码
         httpServletResponse.setStatus(500);
-        httpServletResponse.setCharacterEncoding(Encoder.UTF_8);
+        httpServletResponse.setCharacterEncoding("UTF-8");
         httpServletResponse.setHeader("Content-Type", "application/json;charset=utf-8");
         httpServletResponse.setContentType("application/json;charset=utf-8");
         // spring mvc自带的json操作工具，叫jackson

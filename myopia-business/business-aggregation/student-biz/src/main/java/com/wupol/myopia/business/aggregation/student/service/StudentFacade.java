@@ -823,14 +823,14 @@ public class StudentFacade {
         // 左眼
         if (Objects.nonNull(visionData) && Objects.nonNull(visionData.getLeftEyeData()) && Objects.nonNull(computerOptometry) && Objects.nonNull(computerOptometry.getLeftEyeData())
                 && ObjectsUtil.allNotNull(computerOptometry.getLeftEyeData().getSph(), computerOptometry.getLeftEyeData().getCyl(), visionData.getLeftEyeData().getNakedVision())) {
-            left.setMyopia(StatUtil.isMyopia(computerOptometry.getLeftEyeData().getSph().floatValue(), computerOptometry.getLeftEyeData().getCyl().floatValue(), age, visionData.getLeftEyeData().getNakedVision().floatValue()));
+            left.setMyopia(StatUtil.isMyopia(computerOptometry.getLeftEyeData().getSph(), computerOptometry.getLeftEyeData().getCyl(), age, visionData.getLeftEyeData().getNakedVision()));
             left.setFarsightedness(StatUtil.isHyperopia(computerOptometry.getLeftEyeData().getSph().floatValue(), computerOptometry.getLeftEyeData().getCyl().floatValue(), age));
         }
 
         // 右眼
         if (Objects.nonNull(visionData) && Objects.nonNull(visionData.getRightEyeData()) && Objects.nonNull(computerOptometry) && Objects.nonNull(computerOptometry.getRightEyeData())
                 && ObjectsUtil.allNotNull(computerOptometry.getRightEyeData().getSph(), computerOptometry.getRightEyeData().getCyl(), visionData.getRightEyeData().getNakedVision())) {
-            right.setMyopia(StatUtil.isMyopia(computerOptometry.getRightEyeData().getSph().floatValue(), computerOptometry.getRightEyeData().getCyl().floatValue(), age, visionData.getRightEyeData().getNakedVision().floatValue()));
+            right.setMyopia(StatUtil.isMyopia(computerOptometry.getRightEyeData().getSph(), computerOptometry.getRightEyeData().getCyl(), age, visionData.getRightEyeData().getNakedVision()));
             right.setFarsightedness(StatUtil.isHyperopia(computerOptometry.getRightEyeData().getSph().floatValue(), computerOptometry.getRightEyeData().getCyl().floatValue(), age));
         }
 
@@ -1079,12 +1079,12 @@ public class StudentFacade {
         BigDecimal leftNakedVision = visionData.getLeftEyeData().getNakedVision();
         BigDecimal rightNakedVision = visionData.getRightEyeData().getNakedVision();
         // 是否近视
-        cardDetail.setIsMyopia(StatUtil.isMyopia(leftSph.floatValue(), leftCyl.floatValue(), age, leftNakedVision.floatValue())
-                || StatUtil.isMyopia(rightSph.floatValue(), rightCyl.floatValue(), age, rightNakedVision.floatValue()));
+        cardDetail.setIsMyopia(StatUtil.isMyopia(leftSph, leftCyl, age, leftNakedVision)
+                || StatUtil.isMyopia(rightSph, rightCyl, age, rightNakedVision));
 
         // 是否远视
-        cardDetail.setIsHyperopia(StatUtil.isHyperopia(leftSph.floatValue(), leftCyl.floatValue(), age)
-                || StatUtil.isHyperopia(rightSph.floatValue(), rightCyl.floatValue(), age));
+        cardDetail.setIsHyperopia(StatUtil.isHyperopia(leftSph, leftCyl, age)
+                || StatUtil.isHyperopia(rightSph, rightCyl, age));
 
     }
 
@@ -1145,11 +1145,11 @@ public class StudentFacade {
             MyopiaLevelEnum myopiaWarningLevel = null;
             if (Objects.nonNull(nakedVision)) {
                 if ((age < 6 && nakedVision.compareTo(new BigDecimal("4.9")) < 0) || (age >= 6 && nakedVision.compareTo(new BigDecimal("5.0")) < 0)) {
-                    myopiaWarningLevel = StatUtil.getMyopiaWarningLevel(sph.floatValue(), cyl.floatValue(), age, nakedVision.floatValue());
+                    myopiaWarningLevel = StatUtil.getMyopiaLevel(sph, cyl, age, nakedVision);
                 }
             }
             // 远视
-            HyperopiaLevelEnum farsightednessWarningLevel = StatUtil.getHyperopiaWarningLevel(sph.floatValue(), cyl.floatValue(), age);
+            HyperopiaLevelEnum farsightednessWarningLevel = StatUtil.getHyperopiaLevel(sph.floatValue(), cyl.floatValue(), age);
             visionInfoVO.setMyopiaLevel(Objects.nonNull(myopiaWarningLevel) ? myopiaWarningLevel.code : null);
             visionInfoVO.setHyperopiaLevel(Objects.nonNull(farsightednessWarningLevel) ? farsightednessWarningLevel.code : null);
         }

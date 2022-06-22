@@ -42,4 +42,9 @@ public class LoginDTO {
      **/
     private String refresh_token;
 
+    /**
+     * 验证标志
+     */
+    private String verify;
+
 }

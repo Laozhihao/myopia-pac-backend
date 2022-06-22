@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.io.IOException;
 import java.util.Objects;
 
 /**
@@ -91,7 +90,7 @@ public class MedicalRecordController {
     }
 
     @PostMapping("/biometrics")
-    public Boolean createBiometricsMedicalRecord(@RequestBody BiometricsMedicalRecord biometrics) throws IOException {
+    public Boolean createBiometricsMedicalRecord(@RequestBody BiometricsMedicalRecord biometrics) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         medicalRecordFacade.addCheckDataAndCreateStudent(null, null, biometrics,null, null, null, user.getOrgId(), -1, biometrics.getStudentId(), user.getClientId());
         return true;

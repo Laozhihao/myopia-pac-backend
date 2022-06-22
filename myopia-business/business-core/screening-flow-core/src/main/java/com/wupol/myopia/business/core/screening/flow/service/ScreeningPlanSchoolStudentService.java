@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.core.screening.flow.service;
 
-import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -110,6 +109,12 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      */
     public List<ScreeningPlanSchoolStudent> getByScreeningPlanId(Integer screeningPlanId) {
         return baseMapper.findByPlanId(screeningPlanId);
+    }
+
+    public List<ScreeningPlanSchoolStudent> getByScreeningPlanIds(List<Integer> screeningPlanIds) {
+        LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(ScreeningPlanSchoolStudent::getScreeningPlanId,screeningPlanIds);
+        return baseMapper.selectList(queryWrapper);
     }
 
     /**
@@ -269,6 +274,22 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         }
         return results.stream().collect(
                 Collectors.groupingBy(ScreeningPlanSchoolStudent::getSchoolDistrictId, Collectors.counting()));
+    }
+
+    /**
+     * 根据筛查通知Id获取筛查学校所在层级的计划筛查学生记录
+     *
+     * @param screeningNoticeId
+     * @return
+     */
+    public Map<Integer, List<ScreeningPlanSchoolStudent>> getPlanStudentCountBySrcScreeningNoticeId(Integer screeningNoticeId) {
+        List<ScreeningPlanSchoolStudent> results =
+                this.getPlanStudentCountByScreeningItemId(screeningNoticeId, ContrastTypeEnum.NOTIFICATION);
+        if (CollectionUtils.isEmpty(results)) {
+            return Collections.emptyMap();
+        }
+        return results.stream().collect(
+                Collectors.groupingBy(ScreeningPlanSchoolStudent::getSchoolDistrictId));
     }
 
     /**

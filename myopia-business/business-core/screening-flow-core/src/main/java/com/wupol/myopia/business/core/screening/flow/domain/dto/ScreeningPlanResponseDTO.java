@@ -26,4 +26,5 @@ public class ScreeningPlanResponseDTO extends ScreeningPlan {
      * 详情
      */
     private List<SchoolVisionStatisticItem> items;
+
 }

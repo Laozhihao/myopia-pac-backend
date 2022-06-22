@@ -1,6 +1,8 @@
 package com.wupol.myopia.business.core.hospital.domain.query;
 
 import com.wupol.myopia.business.core.hospital.domain.dto.DoctorDTO;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -10,8 +12,8 @@ import lombok.experimental.Accessors;
  * @author Chikong
  * @date 2021-02-10
  */
-@Getter
-@Setter
+@EqualsAndHashCode(callSuper = true)
+@Data
 @Accessors(chain = true)
 public class DoctorQuery extends DoctorDTO {
 

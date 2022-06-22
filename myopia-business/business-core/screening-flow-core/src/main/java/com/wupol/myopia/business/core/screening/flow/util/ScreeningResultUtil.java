@@ -22,6 +22,7 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -702,7 +703,7 @@ public class ScreeningResultUtil {
         BigDecimal seVal = se.abs().multiply(new BigDecimal("100")).setScale(0, RoundingMode.DOWN);
         if (se.compareTo(new BigDecimal("0.00")) <= 0) {
             // 近视
-            MyopiaLevelEnum myopiaWarningLevel = StatUtil.getMyopiaWarningLevel(sph.floatValue(), cyl.floatValue(), age, nakedVision.floatValue());
+            MyopiaLevelEnum myopiaWarningLevel = StatUtil.getMyopiaLevel(sph, cyl, age, nakedVision);
             String str;
             if (se.compareTo(new BigDecimal("-0.50")) < 0) {
                 str = "近视" + seVal + "度";
@@ -712,7 +713,7 @@ public class ScreeningResultUtil {
             return new TwoTuple<>(str, myopiaLevel2Type(myopiaWarningLevel));
         } else {
             // 远视
-            HyperopiaLevelEnum hyperopiaWarningLevel = StatUtil.getHyperopiaWarningLevel(sph.floatValue(), cyl.floatValue(), age);
+            HyperopiaLevelEnum hyperopiaWarningLevel = StatUtil.getHyperopiaLevel(sph.floatValue(), cyl.floatValue(), age);
             String str;
             if (StatUtil.isHyperopia(sph.floatValue(), cyl.floatValue(), age)) {
                 str = "远视" + seVal + "度";
@@ -730,7 +731,7 @@ public class ScreeningResultUtil {
      * @return String 散光中文名
      */
     public static TwoTuple<String, Integer> getCylTypeName(BigDecimal cyl) {
-        AstigmatismLevelEnum astigmatismWarningLevel = StatUtil.getAstigmatismWarningLevel(cyl.floatValue());
+        AstigmatismLevelEnum astigmatismWarningLevel = StatUtil.getAstigmatismLevel(cyl.floatValue());
         BigDecimal cylVal = cyl.abs().multiply(new BigDecimal("100")).setScale(0, RoundingMode.DOWN);
         if (BigDecimalUtil.isBetweenAll(cyl, new BigDecimal("-0.5"), new BigDecimal("0.5"))) {
             return new TwoTuple<>(cylVal + "度", astigmatismLevelLevel2Type(astigmatismWarningLevel));
@@ -746,7 +747,10 @@ public class ScreeningResultUtil {
      * @return Integer {@link ParentReportConst}
      */
     public static Integer lowVisionType(BigDecimal nakedVision, Integer age) {
-        boolean lowVision = StatUtil.isLowVision(nakedVision.floatValue(), age);
+        Boolean lowVision = StatUtil.isLowVision(nakedVision, age);
+        if (Objects.isNull(lowVision)){
+            return null;
+        }
         if (lowVision) {
             return ParentReportConst.NAKED_LOW;
         }
@@ -761,7 +765,7 @@ public class ScreeningResultUtil {
      * @return Integer {@link ParentReportConst}
      */
     public static Integer myopiaLevel2Type(MyopiaLevelEnum warningLevel) {
-        if (null == warningLevel) {
+        if (Objects.isNull(warningLevel)) {
             return ParentReportConst.LABEL_NORMAL;
         }
         // 预警-1或0则是正常
@@ -833,7 +837,7 @@ public class ScreeningResultUtil {
      * @return Integer {@link ParentReportConst}
      */
     public static Integer astigmatismLevelLevel2Type(AstigmatismLevelEnum hyperopiaLevelEnum) {
-        if (null == hyperopiaLevelEnum) {
+        if (Objects.isNull(hyperopiaLevelEnum)) {
             return ParentReportConst.LABEL_NORMAL;
         }
         // 预警-1或0则是正常
@@ -904,12 +908,14 @@ public class ScreeningResultUtil {
 
         // 幼儿园、7岁以下
         if (SchoolAge.KINDERGARTEN.code.equals(schoolAge) && age < 7) {
-            return kindergartenAdviceResult(leftNakedVision, rightNakedVision, leftCorrectedVision, rightCorrectedVision,
-                    glassesType, age, otherEyeDiseasesNormal, computerOptometry);
+            return kindergartenAdviceResult(leftNakedVision, rightNakedVision,
+                                        leftCorrectedVision, rightCorrectedVision,
+                                        glassesType, age, otherEyeDiseasesNormal, computerOptometry);
         }
         // 中小学
-        return middleAdviceResult(leftNakedVision, rightNakedVision, leftCorrectedVision, rightCorrectedVision,
-                glassesType, age, schoolAge, computerOptometry);
+        return middleAdviceResult(leftNakedVision, rightNakedVision,
+                                leftCorrectedVision, rightCorrectedVision,
+                                glassesType, age, schoolAge, computerOptometry);
 
     }
 
@@ -930,14 +936,13 @@ public class ScreeningResultUtil {
                                                  BigDecimal leftCorrectedVision, BigDecimal rightCorrectedVision,
                                                  Integer glassesType, Integer age, Integer schoolAge, ComputerOptometryDO computerOptometry) {
         TwoTuple<BigDecimal, Integer> nakedVisionResult = getResultVision(leftNakedVision, rightNakedVision);
+        BigDecimal leftSph = Optional.ofNullable(computerOptometry).map(ComputerOptometryDO::getLeftEyeData).map(ComputerOptometryDO.ComputerOptometry::getSph).orElse(null);
+        BigDecimal leftCyl = Optional.ofNullable(computerOptometry).map(ComputerOptometryDO::getLeftEyeData).map(ComputerOptometryDO.ComputerOptometry::getCyl).orElse(null);
+        BigDecimal rightSph = Optional.ofNullable(computerOptometry).map(ComputerOptometryDO::getRightEyeData).map(ComputerOptometryDO.ComputerOptometry::getSph).orElse(null);
+        BigDecimal rightCyl = Optional.ofNullable(computerOptometry).map(ComputerOptometryDO::getRightEyeData).map(ComputerOptometryDO.ComputerOptometry::getCyl).orElse(null);
 
-        BigDecimal leftSph = Objects.nonNull(computerOptometry) ? computerOptometry.getLeftEyeData().getSph() : null;
-        BigDecimal leftCyl = Objects.nonNull(computerOptometry) ? computerOptometry.getLeftEyeData().getCyl() : null;
-        BigDecimal rightSph = Objects.nonNull(computerOptometry) ? computerOptometry.getRightEyeData().getSph() : null;
-        BigDecimal rightCyl = Objects.nonNull(computerOptometry) ? computerOptometry.getRightEyeData().getCyl() : null;
-
-        BigDecimal leftSe = StatUtil.getSphericalEquivalent(leftSph, leftCyl);
-        BigDecimal rightSe = StatUtil.getSphericalEquivalent(rightSph, rightCyl);
+        BigDecimal leftSe = StatUtil.getSphericalEquivalent(leftSph,leftCyl);
+        BigDecimal rightSe = StatUtil.getSphericalEquivalent(rightSph,rightCyl);
 
         if (Objects.isNull(nakedVisionResult.getFirst())) {
             return RecommendVisitEnum.EMPTY;
@@ -946,8 +951,7 @@ public class ScreeningResultUtil {
         if (BigDecimalUtil.lessThan(nakedVisionResult.getFirst(), "4.9")) {
             // 是否佩戴眼镜
             if (glassesType >= 1) {
-                return getIsWearingGlasses(leftCorrectedVision, rightCorrectedVision,
-                        leftNakedVision, rightNakedVision, nakedVisionResult);
+                return getIsWearingGlasses(leftCorrectedVision, rightCorrectedVision,leftNakedVision, rightNakedVision, nakedVisionResult);
             } else {
                 // 获取两只眼的结论
                 TwoTuple<Integer, RecommendVisitEnum> left = getNotWearingGlasses(leftCyl, leftSe, schoolAge, age, leftNakedVision);
@@ -1131,13 +1135,14 @@ public class ScreeningResultUtil {
         if (BigDecimalUtil.lessThan(seBigDecimal, "0")) {
             return RecommendVisitEnum.KINDERGARTEN_RESULT_5;
         }
-        if (Objects.isNull(otherEyeDiseasesNormal)) {
-            return RecommendVisitEnum.EMPTY;
-        }
+        //TODO：??
+//        if (Objects.isNull(otherEyeDiseasesNormal)) {
+//            return RecommendVisitEnum.EMPTY;
+//        }
 
         if ((BigDecimalUtil.moreThanAndEqual(seBigDecimal, "2") || BigDecimalUtil.moreThan(cyl.abs(), "1.5"))
                 || (Objects.nonNull(anisometropia) && BigDecimalUtil.moreThan(anisometropia, "1.5"))
-                || !otherEyeDiseasesNormal) {
+                || (Objects.nonNull(otherEyeDiseasesNormal) && !otherEyeDiseasesNormal)) {
             return RecommendVisitEnum.KINDERGARTEN_RESULT_4;
         }
         return RecommendVisitEnum.EMPTY;
@@ -1471,13 +1476,13 @@ public class ScreeningResultUtil {
     private boolean checkSEIsNormal(BigDecimal leftSph, BigDecimal rightSph,
                                     BigDecimal leftCyl, BigDecimal rightCyl) {
 
-        TwoTuple<BigDecimal, BigDecimal> normalSE = getNormalSE(leftSph, rightSph, leftCyl, rightCyl);
-        BigDecimal leftSE = normalSE.getFirst();
-        BigDecimal rightSE = normalSE.getSecond();
-        if (Objects.isNull(leftSE) && Objects.isNull(rightSE)) {
+        TwoTuple<BigDecimal, BigDecimal> normalSe = getNormalSe(leftSph, rightSph, leftCyl, rightCyl);
+        BigDecimal leftSe = normalSe.getFirst();
+        BigDecimal rightSe = normalSe.getSecond();
+        if (ObjectsUtil.allNull(leftSe,rightSe)) {
             return false;
         }
-        return BigDecimalUtil.isBetweenLeft(getSeriousVision(leftSE, rightSE), "-0.5", "0.0");
+        return BigDecimalUtil.isBetweenLeft(getSeriousVision(leftSe, rightSe), "-0.5", "0.0");
     }
 
     /**
@@ -1491,36 +1496,36 @@ public class ScreeningResultUtil {
      */
     private boolean checkSEIsNormalWithAge(BigDecimal leftSph, BigDecimal rightSph,
                                            BigDecimal leftCyl, BigDecimal rightCyl, Integer age) {
-        TwoTuple<BigDecimal, BigDecimal> normalSE = getNormalSE(leftSph, rightSph, leftCyl, rightCyl);
-        BigDecimal leftSE = normalSE.getFirst();
-        BigDecimal rightSE = normalSE.getSecond();
-        if (Objects.isNull(leftSE) && Objects.isNull(rightSE)) {
+        TwoTuple<BigDecimal, BigDecimal> normalSE = getNormalSe(leftSph, rightSph, leftCyl, rightCyl);
+        BigDecimal leftSe = normalSE.getFirst();
+        BigDecimal rightSe = normalSE.getSecond();
+        if (ObjectsUtil.allNull(leftSe,rightSe)) {
             return false;
         }
-        if (age < 3 && isMatchSEWithVision(leftSE, rightSE, "3.0")) {
+        if (age < 3 && isMatchSEWithVision(leftSe, rightSe, "3.0")) {
             return true;
         }
 
-        if (age >= 4 && age <= 5 && isMatchSEWithVision(leftSE, rightSE, "2.0")) {
+        if (age >= 4 && age <= 5 && isMatchSEWithVision(leftSe, rightSe, "2.0")) {
             return true;
         }
 
-        if (age >= 6 && age <= 7 && isMatchSEWithVision(leftSE, rightSE, "1.5")) {
+        if (age >= 6 && age <= 7 && isMatchSEWithVision(leftSe, rightSe, "1.5")) {
             return true;
         }
 
-        if (age == 8 && isMatchSEWithVision(leftSE, rightSE, "1.0")) {
+        if (age == 8 && isMatchSEWithVision(leftSe, rightSe, "1.0")) {
             return true;
         }
 
-        if (age == 9 && isMatchSEWithVision(leftSE, rightSE, "0.75")) {
+        if (age == 9 && isMatchSEWithVision(leftSe, rightSe, "0.75")) {
             return true;
         }
 
-        if (age >= 10 && age <= 12 && isMatchSEWithVision(leftSE, rightSE, "0.5")) {
+        if (age >= 10 && age <= 12 && isMatchSEWithVision(leftSe, rightSe, "0.5")) {
             return true;
         }
-        return age > 12 && new BigDecimal("0.5").compareTo(getSeriousVision(leftSE, rightSE)) >= 0;
+        return age > 12 && new BigDecimal("0.5").compareTo(getSeriousVision(leftSe, rightSe)) >= 0;
     }
 
     /**
@@ -1545,21 +1550,11 @@ public class ScreeningResultUtil {
      * @param rightCyl 右-球镜
      * @return TwoTuple<BigDecimal, BigDecimal>
      */
-    private TwoTuple<BigDecimal, BigDecimal> getNormalSE(BigDecimal leftSph, BigDecimal rightSph,
-                                                         BigDecimal leftCyl, BigDecimal rightCyl) {
-        BigDecimal leftSE;
-        BigDecimal rightSE;
-        if (Objects.isNull(leftSph) || Objects.isNull(leftCyl)) {
-            leftSE = null;
-        } else {
-            leftSE = StatUtil.getSphericalEquivalent(leftSph, leftCyl);
-        }
-        if (Objects.isNull(rightSph) || Objects.isNull(rightCyl)) {
-            rightSE = null;
-        } else {
-            rightSE = StatUtil.getSphericalEquivalent(rightSph, rightCyl);
-        }
-        return new TwoTuple<>(leftSE, rightSE);
+    private TwoTuple<BigDecimal, BigDecimal> getNormalSe(BigDecimal leftSph, BigDecimal rightSph, BigDecimal leftCyl, BigDecimal rightCyl) {
+        //TODO:??
+        BigDecimal leftSe = StatUtil.getSphericalEquivalent(leftSph,leftCyl);
+        BigDecimal rightSe= StatUtil.getSphericalEquivalent(rightSph,rightCyl);
+        return new TwoTuple<>(leftSe, rightSe);
     }
 
     /**
