@@ -211,7 +211,6 @@ public class StatService {
      * @param notificationId 筛查通知ID
      * @param currentUser    当前用户
      * @return
-     * @throws IOException
      */
     public List<Integer> getValidDistrictIdsByNotificationId(int notificationId, CurrentUser currentUser) {
         List<ScreeningPlan> screeningPlans = managementScreeningPlanBizService
@@ -1052,31 +1051,64 @@ public class StatService {
         return String.format("%s，%s 至 %s", title, startDate, endDate);
     }
 
+    /**
+     * 按区域-获取幼儿园结果统计
+     * @param districtId 区域ID
+     * @param noticeId 通知ID
+     */
     public KindergartenResultVO getKindergartenResult(Integer districtId, Integer noticeId) {
         return statDistrictService.getKindergartenResult(districtId,noticeId);
 
     }
 
+    /**
+     * 按区域-获取小学及以上结果统计
+     * @param districtId 区域ID
+     * @param noticeId 通知ID
+     */
     public PrimarySchoolAndAboveResultVO getPrimarySchoolAndAboveResult(Integer districtId, Integer noticeId) {
         return statDistrictService.getPrimarySchoolAndAboveResult(districtId,noticeId);
 
     }
 
+    /**
+     * 按区域-获取合计详情
+     * @param districtId 区域ID
+     * @param noticeId 通知ID
+     */
     public ScreeningResultStatisticDetailVO getScreeningResultTotalDetail(Integer districtId, Integer noticeId) {
         return statDistrictService.getScreeningResultTotalDetail(districtId,noticeId);
 
     }
 
+    /**
+     * 按学校-获取幼儿园结果统计
+     *
+     * @param districtId 区域ID
+     * @param noticeId 通知ID
+     * @param planId 计划ID
+     */
     public SchoolKindergartenResultVO getSchoolKindergartenResult(Integer districtId, Integer noticeId,Integer planId) {
         return statSchoolService.getSchoolKindergartenResult(districtId,noticeId,planId);
 
     }
 
+    /**
+     * 按学校-获取小学及以上结果统计
+     *
+     * @param districtId 区域ID
+     * @param noticeId 通知ID
+     * @param planId 计划ID
+     */
     public SchoolPrimarySchoolAndAboveResultVO getSchoolPrimarySchoolAndAboveResult(Integer districtId, Integer noticeId,Integer planId) {
         return statSchoolService.getSchoolPrimarySchoolAndAboveResult(districtId,noticeId,planId);
 
     }
 
+    /**
+     * 按学校-查看详情
+     * @param statisticDetailBO 统计详情业务流转实体
+     */
     public SchoolResultDetailVO getSchoolStatisticDetail(StatisticDetailBO statisticDetailBO) {
         return statSchoolService.getSchoolStatisticDetail(statisticDetailBO);
     }

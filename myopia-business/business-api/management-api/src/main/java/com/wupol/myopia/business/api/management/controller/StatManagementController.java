@@ -6,10 +6,8 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
-import com.wupol.myopia.business.aggregation.screening.service.StatConclusionBizService;
 import com.wupol.myopia.business.api.management.domain.bo.StatisticDetailBO;
 import com.wupol.myopia.business.api.management.domain.vo.*;
-import com.wupol.myopia.business.api.management.schedule.ScheduledTasksExecutor;
 import com.wupol.myopia.business.api.management.service.*;
 import com.wupol.myopia.business.common.utils.constant.BizMsgConstant;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
@@ -55,8 +53,6 @@ public class StatManagementController {
     @Autowired
     private BigScreeningStatService bigScreeningStatService;
     @Autowired
-    private ScheduledTasksExecutor scheduledTasksExecutor;
-    @Autowired
     private ScreeningNoticeBizService screeningNoticeBizService;
     @Autowired
     private ManagementScreeningPlanBizService managementScreeningPlanBizService;
@@ -66,8 +62,7 @@ public class StatManagementController {
     private DistrictAttentiveObjectsStatisticBizService districtAttentiveObjectsStatisticBizService;
     @Autowired
     private DistrictVisionStatisticService districtVisionStatisticService;
-    @Autowired
-    private StatConclusionBizService statConclusionBizService;
+
 
     /**
      * 根据查找当前用户所处层级能够查找到的年度
@@ -208,30 +203,6 @@ public class StatManagementController {
         }
         return bigScreeningStatService.getBigScreeningVO(screeningNotice, district);
     }
-
-
-    /**
-     * 筛查结果数据转筛查数据结论和筛查结果统计  TODO： 为了测试方便
-     *
-     * @param planId 筛查计划ID, 不必填
-     * @param isAll 是否全部 (true-全部,false-不是全部) 必填
-     */
-    @GetMapping("screeningToConclusion")
-    public void screeningToConclusion(@RequestParam(required = false) Integer planId,@RequestParam Boolean isAll){
-        statConclusionBizService.screeningToConclusion(planId,isAll);
-        scheduledTasksExecutor.statistic(null,planId,isAll);
-    }
-
-    /**
-     * 触发大屏统计（todo 为了测试方便）
-     *
-     * @throws IOException
-     */
-    @GetMapping("/big")
-    public void statBigScreen() throws IOException {
-        bigScreeningStatService.statisticBigScreen();
-    }
-
 
     /**
      * 按区域-幼儿园

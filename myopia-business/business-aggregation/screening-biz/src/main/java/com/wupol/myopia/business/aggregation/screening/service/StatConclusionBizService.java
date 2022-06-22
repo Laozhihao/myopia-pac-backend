@@ -1,11 +1,8 @@
 package com.wupol.myopia.business.aggregation.screening.service;
 
 import cn.hutool.core.collection.CollectionUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.wupol.myopia.base.domain.CurrentUser;
-import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.common.utils.util.MapUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
@@ -47,28 +44,23 @@ public class StatConclusionBizService {
 
     /**
      * 筛查数据结论
+     * @param planId 计划ID
+     * @param isAll 是否全部 (true-全部,false-不是全部) 必填
      */
     public void screeningToConclusion(Integer planId,Boolean isAll){
         if(Objects.equals(isAll,Boolean.TRUE)){
-            List<VisionScreeningResult> visionScreeningResults;
-            if(Objects.nonNull(planId)){
-                LambdaQueryWrapper<VisionScreeningResult> queryWrapper = new LambdaQueryWrapper<>();
-                queryWrapper.ge(VisionScreeningResult::getPlanId,planId);
-                visionScreeningResults = visionScreeningResultService.list(queryWrapper);
-            }else {
-                visionScreeningResults = visionScreeningResultService.list();
-            }
-            screeningToConclusion(visionScreeningResults);
-        }else {
-            if (planId != null){
-                screeningToConclusionByPlanIds(Lists.newArrayList(planId));
-            }
+            screeningToConclusion(visionScreeningResultService.list());
+            return;
+        }
+
+        if(Objects.nonNull(planId)){
+            screeningToConclusionByPlanIds(Lists.newArrayList(planId));
         }
 
     }
     /**
      * 根据筛查计划Id 将筛查结果转为筛查数据结论
-     * @param planIds
+     * @param planIds 计划ID集合
      */
     public void screeningToConclusionByPlanIds(List<Integer> planIds){
         if (CollectionUtil.isEmpty(planIds)){
@@ -78,25 +70,29 @@ public class StatConclusionBizService {
         screeningToConclusion(visionScreeningResults);
     }
 
+    /**
+     * 筛查结果数据转筛查数据结论处理
+     * @param visionScreeningResults 筛查结果数据集合
+     */
     private void screeningToConclusion(List<VisionScreeningResult> visionScreeningResults){
         if (CollectionUtil.isEmpty(visionScreeningResults)){
             return;
         }
-        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         log.info("筛查数据结论,数据处理开始");
         //筛查结果分组
         Map<Integer, List<VisionScreeningResult>> visionScreeningResultMap = visionScreeningResults.stream().collect(Collectors.groupingBy(VisionScreeningResult::getPlanId));
-        if (CollectionUtil.isNotEmpty(visionScreeningResultMap)){
-            List<Map<Integer, List<VisionScreeningResult>>> mapList = MapUtil.splitMap(visionScreeningResultMap, 30);
-
-            List<CompletableFuture<Void>> completableFutureList = new ArrayList<>();
-            mapList.forEach(list->{
-                CompletableFuture<Void> future = CompletableFuture.runAsync(() -> consumerMap(list,currentUser.getClientId()), asyncServiceExecutor);
-                completableFutureList.add(future);
-            });
-            CompletableFuture.allOf(completableFutureList.toArray(new CompletableFuture[mapList.size()])).join();
-
+        if (CollectionUtil.isEmpty(visionScreeningResultMap)){
+            return;
         }
+        List<Map<Integer, List<VisionScreeningResult>>> mapList = MapUtil.splitMap(visionScreeningResultMap, 30);
+
+        List<CompletableFuture<Void>> completableFutureList = new ArrayList<>();
+        mapList.forEach(list->{
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> consumerMap(list), asyncServiceExecutor);
+            completableFutureList.add(future);
+        });
+        CompletableFuture.allOf(completableFutureList.toArray(new CompletableFuture[mapList.size()])).join();
+
         log.info("筛查数据结论,数据处理完成");
     }
 
@@ -106,10 +102,13 @@ public class StatConclusionBizService {
         private Map<Integer, ScreeningPlanSchoolStudent> screeningPlanSchoolStudentMap;
         private Map<Integer, SchoolGrade> schoolGradeMap;
         private Map<String, StatConclusion> statConclusionMap;
-        private String clientId;
     }
 
-    private void consumerMap(Map<Integer, List<VisionScreeningResult>> visionScreeningResultMap,String clientId) {
+    /**
+     * 消费筛查结果统计数据
+     * @param visionScreeningResultMap 筛查结果统计数据
+     */
+    private void consumerMap(Map<Integer, List<VisionScreeningResult>> visionScreeningResultMap) {
         if (CollectionUtil.isEmpty(visionScreeningResultMap)){
             return;
         }
@@ -120,7 +119,6 @@ public class StatConclusionBizService {
         Set<Integer> screeningPlanSchoolStudentIds = visionScreeningResultMap.values().stream().flatMap(List::stream).map(VisionScreeningResult::getScreeningPlanSchoolStudentId).collect(Collectors.toSet());
 
         DataProcessBO dataProcessBO = new DataProcessBO();
-        dataProcessBO.setClientId(clientId);
 
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getByIds(Lists.newArrayList(screeningPlanSchoolStudentIds));
         if (CollectionUtil.isNotEmpty(screeningPlanSchoolStudents)){
@@ -161,7 +159,10 @@ public class StatConclusionBizService {
     }
 
     /**
-     * 筛查结论结果
+     * 筛查结论数据
+     * @param tuple 筛查结果数据（初筛数据和复测数据）
+     * @param statConclusionList 筛查结论数据集合
+     * @param dataProcessBO 数据流转对象
      */
     private void screeningConclusionResult(TwoTuple<VisionScreeningResult, VisionScreeningResult> tuple,
                                            List<StatConclusion> statConclusionList,DataProcessBO dataProcessBO){
@@ -171,14 +172,23 @@ public class StatConclusionBizService {
         if (Objects.isNull(currentVisionScreeningResult)){
             return;
         }
+        //此时处理初筛数据结果，暂时没有复测数据
         result(statConclusionList,dataProcessBO, currentVisionScreeningResult, null);
 
         if (Objects.nonNull(secondVisionScreeningResult)){
+            //此时是处理复测数据，对比数据是初筛数据（currentVisionScreeningResult），当前数据是复测数据（secondVisionScreeningResult）
             result(statConclusionList,dataProcessBO, secondVisionScreeningResult, currentVisionScreeningResult);
         }
 
     }
 
+    /**
+     * 处理数据结果
+     * @param statConclusionList 筛查数据结论集合
+     * @param dataProcessBO 数据流转对象
+     * @param currentVisionScreeningResult 当前筛查数据结果
+     * @param secondVisionScreeningResult 初筛筛查数据结果
+     */
     private void result(List<StatConclusion> statConclusionList,DataProcessBO dataProcessBO,
                         VisionScreeningResult currentVisionScreeningResult,
                         VisionScreeningResult secondVisionScreeningResult) {
@@ -207,13 +217,13 @@ public class StatConclusionBizService {
                 .setStatConclusion(statConclusion)
                 .setScreeningPlanSchoolStudent(screeningPlanSchoolStudent)
                 .setGradeCode(schoolGradeCode)
-                .setClientId(dataProcessBO.getClientId())
                 .build();
         statConclusionList.add(statConclusion);
     }
 
     /**
-     *  map结构：筛查计划ID - 筛查类型 - 初筛/复筛数据
+     * map结构：筛查计划ID - 筛查类型 - 初筛/复筛数据
+     * @param visionScreeningResultMap 筛查数据
      */
     private Map<Integer, Map<String,TwoTuple<VisionScreeningResult,VisionScreeningResult>>> getMap(Map<Integer, List<VisionScreeningResult>> visionScreeningResultMap){
         Map<Integer, Map<String,TwoTuple<VisionScreeningResult,VisionScreeningResult>>> map= Maps.newHashMap();

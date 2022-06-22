@@ -404,8 +404,6 @@ public class StatConclusionCheck {
      * 屈光不正 人数/占比
      */
     private TwoTuple<Integer,String> getRefractiveError(@NotNull Integer planId){
-        String clientId = "1";
-        boolean zeroToSixPlatform = Objects.equals(SystemCode.PRESCHOOL_CLIENT.getCode() + StrUtil.EMPTY, clientId);
         List<ThreeTuple<ScreeningPlanSchoolStudent,VisionScreeningResult,String>> dataList = getDataList(planId);
         if (!CollectionUtils.isEmpty(dataList)){
             int size = dataList.size();
@@ -413,8 +411,8 @@ public class StatConclusionCheck {
                 ScreeningPlanSchoolStudent screeningPlanSchoolStudent = tuple.getFirst();
                 VisionScreeningResult visionScreeningResult = tuple.getSecond();
                 BasicData basicData = dealWithData(visionScreeningResult.getVisionData(), visionScreeningResult.getComputerOptometry());
-                Boolean leftRefractiveError = StatUtil.isRefractiveError(basicData.leftSph,basicData.leftCyl, screeningPlanSchoolStudent.getStudentAge(),zeroToSixPlatform);
-                Boolean rightRefractiveError = StatUtil.isRefractiveError(basicData.rightSph,basicData.rightCyl, screeningPlanSchoolStudent.getStudentAge(),zeroToSixPlatform);
+                Boolean leftRefractiveError = StatUtil.isRefractiveError(basicData.leftSph,basicData.leftCyl, screeningPlanSchoolStudent.getStudentAge());
+                Boolean rightRefractiveError = StatUtil.isRefractiveError(basicData.rightSph,basicData.rightCyl, screeningPlanSchoolStudent.getStudentAge());
                 return StatUtil.getIsExist(leftRefractiveError, rightRefractiveError);
             }).collect(Collectors.toList());
             int refractiveError = tupleList.size();

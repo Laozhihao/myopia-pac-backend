@@ -148,6 +148,10 @@ public class ScheduledTasksExecutor {
         log.info("筛查数据统计,数据处理完成");
     }
 
+    /**
+     * 根据筛查计划ID集合处理筛查结果统计
+     * @param screeningPlanIds 筛查计划ID集合
+     */
     public void screeningResultStatisticByPlanIds(List<Integer> screeningPlanIds){
 
         CompletableFuture<Void> districtFuture = CompletableFuture.runAsync(() -> {

@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.api.screening.app.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
@@ -284,8 +283,7 @@ public class ScreeningAppController {
     @PostMapping("/eye/addVision")
     public void addStudentVision(@Valid @RequestBody VisionDataDTO visionDataDTO) {
         if (visionDataDTO.isValid()) {
-            CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-            visionScreeningBizService.saveOrUpdateStudentScreenData(visionDataDTO,currentUser.getClientId());
+            visionScreeningBizService.saveOrUpdateStudentScreenData(visionDataDTO);
         }
     }
 
@@ -297,8 +295,7 @@ public class ScreeningAppController {
     @PostMapping("/eye/addComputer")
     public void addStudentComputer(@Valid @RequestBody ComputerOptometryDTO computerOptometryDTO) {
         if (computerOptometryDTO.isValid()) {
-            CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-            visionScreeningBizService.saveOrUpdateStudentScreenData(computerOptometryDTO,currentUser.getClientId());
+            visionScreeningBizService.saveOrUpdateStudentScreenData(computerOptometryDTO);
         }
     }
 
@@ -310,8 +307,7 @@ public class ScreeningAppController {
     @PostMapping("/eye/addBiology")
     public void addStudentBiology(@Valid @RequestBody BiometricDataDTO biometricDataDTO) {
         if (biometricDataDTO.isValid()) {
-            CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-            visionScreeningBizService.saveOrUpdateStudentScreenData(biometricDataDTO,currentUser.getClientId());
+            visionScreeningBizService.saveOrUpdateStudentScreenData(biometricDataDTO);
         }
     }
 
@@ -322,8 +318,7 @@ public class ScreeningAppController {
      */
     @PostMapping("/eye/addEyeDisease")
     public void addEyeDisease(@Valid @RequestBody OtherEyeDiseasesDTO otherEyeDiseasesDTO) {
-        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        visionScreeningBizService.saveOrUpdateStudentScreenData(otherEyeDiseasesDTO,currentUser.getClientId());
+        visionScreeningBizService.saveOrUpdateStudentScreenData(otherEyeDiseasesDTO);
     }
 
     /**
@@ -334,8 +329,7 @@ public class ScreeningAppController {
     @PostMapping("/eye/addMultiCheck")
     public void addMultiCheck(@Valid @RequestBody MultiCheckDataDTO multiCheckDataDTO) {
         if (multiCheckDataDTO.isValid()) {
-            CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-            visionScreeningBizService.saveOrUpdateStudentScreenData(multiCheckDataDTO,currentUser.getClientId());
+            visionScreeningBizService.saveOrUpdateStudentScreenData(multiCheckDataDTO);
         }
     }
 
@@ -347,8 +341,7 @@ public class ScreeningAppController {
     @PostMapping("/eye/addPupilOptometry")
     public void addPupilOptometry(@Valid @RequestBody PupilOptometryDTO pupilOptometryDTO) {
         if (pupilOptometryDTO.isValid()) {
-            CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-            visionScreeningBizService.saveOrUpdateStudentScreenData(pupilOptometryDTO,currentUser.getClientId());
+            visionScreeningBizService.saveOrUpdateStudentScreenData(pupilOptometryDTO);
         }
     }
 
@@ -360,8 +353,7 @@ public class ScreeningAppController {
     @PostMapping("/eye/addEyePressure")
     public void addEyePressure(@Valid @RequestBody EyePressureDataDTO eyePressureDataDTO) {
         if (eyePressureDataDTO.isValid()) {
-            CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-            visionScreeningBizService.saveOrUpdateStudentScreenData(eyePressureDataDTO,currentUser.getClientId());
+            visionScreeningBizService.saveOrUpdateStudentScreenData(eyePressureDataDTO);
         }
     }
 
@@ -373,8 +365,7 @@ public class ScreeningAppController {
     @PostMapping("/eye/addHeightAndWeight")
     public void addHeightAndWeight(@Valid @RequestBody HeightAndWeightDataDTO heightAndWeightDataDTO) {
         if (heightAndWeightDataDTO.isValid()) {
-            CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-            visionScreeningBizService.saveOrUpdateStudentScreenData(heightAndWeightDataDTO,currentUser.getClientId());
+            visionScreeningBizService.saveOrUpdateStudentScreenData(heightAndWeightDataDTO);
         }
     }
 
@@ -393,7 +384,7 @@ public class ScreeningAppController {
             Integer size,
             @RequestParam boolean isRandom,
             @RequestParam(value = "gradeName", required = false) String gradeName,
-            @RequestParam(value = "clazzName", required = false) String clazzName) throws JsonProcessingException {
+            @RequestParam(value = "clazzName", required = false) String clazzName) {
 
         gradeName = StringUtils.isBlank(gradeName) ? null : gradeName;
         clazzName = StringUtils.isBlank(clazzName) ? null : clazzName;

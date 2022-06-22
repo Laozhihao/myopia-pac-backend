@@ -49,6 +49,7 @@ public class DistrictStatisticTask {
 
     /**
      * 按区域统计
+     * @param screeningPlanIds 筛查计划ID集合
      */
     public void districtStatistics(List<Integer> screeningPlanIds) {
         if (CollectionUtil.isEmpty(screeningPlanIds)){
@@ -91,6 +92,9 @@ public class DistrictStatisticTask {
 
     /**
      * 视力筛查结果统计
+     * @param statConclusionList 筛查结论数据集合
+     * @param visionScreeningResultStatisticList 视力筛查结果统计数据集合
+     * @param commonDiseaseScreeningResultStatisticList 常见病筛查结果统计数据集合
      */
     private void screeningResultStatistic(List<StatConclusion> statConclusionList,
                                                 List<VisionScreeningResultStatistic> visionScreeningResultStatisticList,
@@ -111,6 +115,9 @@ public class DistrictStatisticTask {
 
     /**
      * 统计逻辑
+     * @param statConclusionList 筛查结论数据集合
+     * @param visionScreeningResultStatisticList 视力筛查结果统计数据集合
+     * @param commonDiseaseScreeningResultStatisticList 常见病筛查结果统计数据集合
      */
     private void statistic(List<StatConclusion> statConclusionList,
                            List<VisionScreeningResultStatistic> visionScreeningResultStatisticList,
@@ -145,6 +152,12 @@ public class DistrictStatisticTask {
 
     /**
      * 根据地区生成视力筛查统计
+     * @param screeningNotice 筛查通知数据
+     * @param districtId 区域ID
+     * @param districtPlanStudentCountMap 区域筛查计划学生成数
+     * @param districtStatConclusions 区域筛查结论数据集合
+     * @param visionScreeningResultStatisticList 视力筛查结果统计数据集合
+     * @param commonDiseaseScreeningResultStatisticList 常见病筛查结果统计数据集合
      */
     private void genStatisticsByDistrictId(ScreeningNotice screeningNotice, Integer districtId, Map<Integer, List<ScreeningPlanSchoolStudent>> districtPlanStudentCountMap,
                                            Map<Integer, List<StatConclusion>> districtStatConclusions,
@@ -210,6 +223,9 @@ public class DistrictStatisticTask {
 
     /**
      * 合计统计
+     * @param totalStatistic 结果统计流转实体
+     * @param visionScreeningResultStatisticList 视力筛查结果统计数据集合
+     * @param commonDiseaseScreeningResultStatisticList 常见病筛查结果统计数据集合
      */
     private void genTotalStatistics(StatisticResultBO totalStatistic,
                                     List<VisionScreeningResultStatistic> visionScreeningResultStatisticList,
@@ -241,6 +257,9 @@ public class DistrictStatisticTask {
 
     /**
      * 单条统计
+     * @param selfStatistic 结果统计流转实体
+     * @param visionScreeningResultStatisticList 视力筛查结果统计数据集合
+     * @param commonDiseaseScreeningResultStatisticList 常见病筛查结果统计数据集合
      */
     private void genSelfStatistics(StatisticResultBO selfStatistic,
                                    List<VisionScreeningResultStatistic> visionScreeningResultStatisticList,
@@ -275,6 +294,9 @@ public class DistrictStatisticTask {
 
     /**
      * 按区域 - 视力筛查数据统计
+     * @param statistic 结果统计流转实体
+     * @param visionScreeningResultStatisticList 视力筛查结果统计数据集合
+     * @param commonDiseaseScreeningResultStatisticList 常见病筛查结果统计数据集合
      */
     private void buildScreening(StatisticResultBO statistic,
                                       List<VisionScreeningResultStatistic> visionScreeningResultStatisticList,
