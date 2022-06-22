@@ -36,6 +36,8 @@ public class SchoolSaprodontiaMonitorService {
         SchoolSaprodontiaMonitorVO schoolSaprodontiaMonitorVO = new SchoolSaprodontiaMonitorVO();
 
         SaprodontiaNum.MAP.put(0, statConclusionList.size());
+        SaprodontiaNum.MAP.put(1, SaprodontiaNum.dmftNum(statConclusionList));
+
         //说明变量
         getSaprodontiaMonitorVariableVO(statConclusionList, schoolSaprodontiaMonitorVO);
         //不同性别

@@ -37,7 +37,9 @@ public class DistrictSaprodontiaMonitorService {
             return;
         }
         DistrictSaprodontiaMonitorVO districtSaprodontiaMonitorVO = new DistrictSaprodontiaMonitorVO();
+
         SaprodontiaNum.MAP.put(0, statConclusionList.size());
+        SaprodontiaNum.MAP.put(1, SaprodontiaNum.dmftNum(statConclusionList));
 
         //说明变量
         getSaprodontiaMonitorVariableVO(statConclusionList, districtSaprodontiaMonitorVO);
@@ -58,7 +60,10 @@ public class DistrictSaprodontiaMonitorService {
         if (CollectionUtil.isEmpty(statConclusionList)) {
             return;
         }
-        SaprodontiaMonitorVariableVO saprodontiaMonitorVariableVO = new SaprodontiaNum().build(statConclusionList).ratio().buildSaprodontiaMonitorVariableVO();
+        SaprodontiaMonitorVariableVO saprodontiaMonitorVariableVO = new SaprodontiaNum()
+                .build(statConclusionList)
+                .ratio()
+                .buildSaprodontiaMonitorVariableVO();
         districtSaprodontiaMonitorVO.setSaprodontiaMonitorVariableVO(saprodontiaMonitorVariableVO);
     }
 

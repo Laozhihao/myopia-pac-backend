@@ -137,22 +137,42 @@ public class SaprodontiaNum extends EntityFunction implements Num {
             return this;
         }
         this.validScreeningNum = statConclusionList.size();
-
-        Predicate<StatConclusion> predicateTrue = sc -> Objects.equals(Boolean.TRUE, sc.getIsSaprodontiaLoss()) || Objects.equals(Boolean.TRUE, sc.getIsSaprodontiaRepair()) || Objects.equals(Boolean.TRUE, sc.getIsSaprodontia());
-        ToIntFunction<StatConclusion> totalFunction = sc -> Optional.ofNullable(sc.getSaprodontiaLossTeeth()).orElse(ReportConst.ZERO) + Optional.ofNullable(sc.getSaprodontiaRepairTeeth()).orElse(ReportConst.ZERO) + Optional.ofNullable(sc.getSaprodontiaTeeth()).orElse(ReportConst.ZERO);
-        this.dmftNum = statConclusionList.stream().filter(Objects::nonNull).filter(predicateTrue).mapToInt(totalFunction).sum();
-
-        Predicate<StatConclusion> lossAndRepairPredicateTrue = sc -> Objects.equals(Boolean.TRUE, sc.getIsSaprodontiaLoss()) || Objects.equals(Boolean.TRUE, sc.getIsSaprodontiaRepair());
-        ToIntFunction<StatConclusion> lossAndRepairTotalFunction = sc -> Optional.ofNullable(sc.getSaprodontiaLossTeeth()).orElse(ReportConst.ZERO) + Optional.ofNullable(sc.getSaprodontiaRepairTeeth()).orElse(ReportConst.ZERO);
-        this.saprodontiaLossAndRepairTeethNum = statConclusionList.stream().filter(Objects::nonNull).filter(lossAndRepairPredicateTrue).mapToInt(lossAndRepairTotalFunction).sum();
-
+        this.dmftNum = dmftNum(statConclusionList);
+        this.saprodontiaLossAndRepairTeethNum = lossAndRepairTeethNum(statConclusionList);
         this.saprodontiaCount = getCount(statConclusionList, StatConclusion::getIsSaprodontia);
         this.saprodontiaLossNum = getCount(statConclusionList, StatConclusion::getIsSaprodontiaLoss);
         this.saprodontiaRepairNum = getCount(statConclusionList, StatConclusion::getIsSaprodontiaRepair);
-        this.saprodontiaLossAndRepairNum = (int) statConclusionList.stream()
-                .filter(lossAndRepairPredicateTrue).count();
+        this.saprodontiaLossAndRepairNum = lossAndRepairNum(statConclusionList);
 
         return this;
+    }
+
+    /**
+     * 获取龋齿总数
+     * @param statConclusionList 筛查结论数据集合
+     */
+    public static Integer dmftNum(List<StatConclusion> statConclusionList){
+        Predicate<StatConclusion> predicateTrue = sc -> Objects.equals(Boolean.TRUE, sc.getIsSaprodontiaLoss()) || Objects.equals(Boolean.TRUE, sc.getIsSaprodontiaRepair()) || Objects.equals(Boolean.TRUE, sc.getIsSaprodontia());
+        ToIntFunction<StatConclusion> totalFunction = sc -> Optional.ofNullable(sc.getSaprodontiaLossTeeth()).orElse(ReportConst.ZERO) + Optional.ofNullable(sc.getSaprodontiaRepairTeeth()).orElse(ReportConst.ZERO) + Optional.ofNullable(sc.getSaprodontiaTeeth()).orElse(ReportConst.ZERO);
+        return statConclusionList.stream().filter(Objects::nonNull).filter(predicateTrue).mapToInt(totalFunction).sum();
+    }
+    /**
+     * 获取龋失/补牙齿数
+     * @param statConclusionList 筛查结论数据集合
+     */
+    private static Integer lossAndRepairTeethNum(List<StatConclusion> statConclusionList){
+        Predicate<StatConclusion> lossAndRepairPredicateTrue = sc -> Objects.equals(Boolean.TRUE, sc.getIsSaprodontiaLoss()) || Objects.equals(Boolean.TRUE, sc.getIsSaprodontiaRepair());
+        ToIntFunction<StatConclusion> lossAndRepairTotalFunction = sc -> Optional.ofNullable(sc.getSaprodontiaLossTeeth()).orElse(ReportConst.ZERO) + Optional.ofNullable(sc.getSaprodontiaRepairTeeth()).orElse(ReportConst.ZERO);
+        return statConclusionList.stream().filter(Objects::nonNull).filter(lossAndRepairPredicateTrue).mapToInt(lossAndRepairTotalFunction).sum();
+    }
+
+    /**
+     * 获取龋失/补数
+     * @param statConclusionList 筛查结论数据集合
+     */
+    private static Integer lossAndRepairNum(List<StatConclusion> statConclusionList){
+        Predicate<StatConclusion> lossAndRepairPredicateTrue = sc -> Objects.equals(Boolean.TRUE, sc.getIsSaprodontiaLoss()) || Objects.equals(Boolean.TRUE, sc.getIsSaprodontiaRepair());
+        return (int) statConclusionList.stream().filter(lossAndRepairPredicateTrue).count();
     }
 
     /**
@@ -164,7 +184,7 @@ public class SaprodontiaNum extends EntityFunction implements Num {
         this.saprodontiaLossRatio = getRatioNotSymbol(saprodontiaLossNum, getTotal());
         this.saprodontiaRepairRatio = getRatioNotSymbol(saprodontiaRepairNum, getTotal());
         this.saprodontiaLossAndRepairRatio = getRatioNotSymbol(saprodontiaLossAndRepairNum, getTotal());
-        this.saprodontiaLossAndRepairTeethRatio = getRatioNotSymbol(saprodontiaLossAndRepairTeethNum, dmftNum);
+        this.saprodontiaLossAndRepairTeethRatio = getRatioNotSymbol(saprodontiaLossAndRepairTeethNum, getDmftTotal());
         return this;
     }
 
@@ -177,12 +197,16 @@ public class SaprodontiaNum extends EntityFunction implements Num {
         this.saprodontiaLossRatioStr = getRatio(saprodontiaLossNum, getTotal());
         this.saprodontiaRepairRatioStr = getRatio(saprodontiaRepairNum, getTotal());
         this.saprodontiaLossAndRepairRatioStr = getRatio(saprodontiaLossAndRepairNum, getTotal());
-        this.saprodontiaLossAndRepairTeethRatioStr = getRatio(saprodontiaLossAndRepairTeethNum, dmftNum);
+        this.saprodontiaLossAndRepairTeethRatioStr = getRatio(saprodontiaLossAndRepairTeethNum, getDmftTotal());
         return this;
     }
 
     private static Integer getTotal(){
         return MAP.get(0);
+    }
+
+    private static Integer getDmftTotal(){
+        return MAP.get(1);
     }
 
     public static final Map<Integer,Integer> MAP = Maps.newConcurrentMap();
