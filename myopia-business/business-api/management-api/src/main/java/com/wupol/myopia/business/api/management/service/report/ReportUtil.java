@@ -1,12 +1,15 @@
 package com.wupol.myopia.business.api.management.service.report;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.business.api.management.constant.AgeSegmentEnum;
 import com.wupol.myopia.business.api.management.constant.ReportConst;
 import com.wupol.myopia.business.api.management.domain.vo.report.*;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
+import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import lombok.experimental.UtilityClass;
 
@@ -220,4 +223,21 @@ public class ReportUtil {
         bloodPressureAndSpinalCurvatureNumMap.put(key, build);
     }
 
+
+    public static String getItemName(String grade,Integer schoolAge){
+        GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(grade);
+        String name = gradeCodeEnum.getName();
+        if (Objects.equals(SchoolAge.VOCATIONAL_HIGH.code,schoolAge)){
+            name = gradeCodeEnum.getName().replace("职", StrUtil.EMPTY);
+        }
+        return name;
+    }
+
+    public static String getItemNameTotal(Integer schoolAge){
+        String total = SchoolAge.get(schoolAge).desc;
+        if (Objects.equals(SchoolAge.VOCATIONAL_HIGH.code,schoolAge) || Objects.equals(SchoolAge.HIGH.code,schoolAge)){
+            total=ReportConst.HIGH;
+        }
+        return total;
+    }
 }

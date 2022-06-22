@@ -7,6 +7,7 @@ import com.wupol.myopia.business.api.management.constant.AgeSegmentEnum;
 import com.wupol.myopia.business.api.management.constant.ReportConst;
 import com.wupol.myopia.business.api.management.domain.vo.report.*;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
+import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -201,16 +202,44 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
         if (CollectionUtil.isEmpty(statConclusionList)) {
             return;
         }
-        Map<String, List<StatConclusion>> gradeCodeMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
+        List<BloodPressureAndSpinalCurvatureMonitorTable> tableList = Lists.newArrayList();
+        List<BloodPressureAndSpinalCurvatureMonitorTable> primaryList = getBloodPressureAndSpinalCurvatureSchoolAgeTable(statConclusionList, SchoolAge.PRIMARY.code);
+        if (CollectionUtil.isNotEmpty(primaryList)) {
+            tableList.addAll(primaryList);
+        }
+        List<BloodPressureAndSpinalCurvatureMonitorTable> juniorList = getBloodPressureAndSpinalCurvatureSchoolAgeTable(statConclusionList, SchoolAge.JUNIOR.code);
+        if (CollectionUtil.isNotEmpty(juniorList)) {
+            tableList.addAll(juniorList);
+        }
+        List<BloodPressureAndSpinalCurvatureMonitorTable> normalHighList = getBloodPressureAndSpinalCurvatureSchoolAgeTable(statConclusionList, SchoolAge.HIGH.code);
+        if (CollectionUtil.isNotEmpty(normalHighList)) {
+            tableList.addAll(normalHighList);
+        }
+        List<BloodPressureAndSpinalCurvatureMonitorTable> vocationalHighList = getBloodPressureAndSpinalCurvatureSchoolAgeTable(statConclusionList, SchoolAge.VOCATIONAL_HIGH.code);
+        if (CollectionUtil.isNotEmpty(vocationalHighList)) {
+            tableList.addAll(vocationalHighList);
+        }
+        List<BloodPressureAndSpinalCurvatureMonitorTable> universityList = getBloodPressureAndSpinalCurvatureSchoolAgeTable(statConclusionList, SchoolAge.UNIVERSITY.code);
+        if (CollectionUtil.isNotEmpty(universityList)) {
+            tableList.addAll(universityList);
+        }
+
+        getBloodPressureAndSpinalCurvatureGrade(statConclusionList,ReportConst.TOTAL,tableList);
+        schoolAgeVO.setBloodPressureAndSpinalCurvatureGradeMonitorTableList(tableList);
+    }
+
+
+    private List<BloodPressureAndSpinalCurvatureMonitorTable> getBloodPressureAndSpinalCurvatureSchoolAgeTable(List<StatConclusion> statConclusionList, Integer schoolAge) {
+        if (CollectionUtil.isEmpty(statConclusionList)) {
+            return Lists.newArrayList();
+        }
+        List<StatConclusion> conclusionList = statConclusionList.stream().filter(sc -> Objects.equals(sc.getSchoolAge(), schoolAge)).collect(Collectors.toList());
+        Map<String, List<StatConclusion>> gradeCodeMap = conclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
         gradeCodeMap = CollectionUtil.sort(gradeCodeMap, String::compareTo);
         List<BloodPressureAndSpinalCurvatureMonitorTable> tableList = Lists.newArrayList();
-        gradeCodeMap.forEach((grade, list) -> {
-            GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(grade);
-            getBloodPressureAndSpinalCurvatureGrade(list, gradeCodeEnum.getName(), tableList);
-        });
-        getBloodPressureAndSpinalCurvatureGrade(statConclusionList, ReportConst.TOTAL, tableList);
-
-        schoolAgeVO.setBloodPressureAndSpinalCurvatureGradeMonitorTableList(tableList);
+        gradeCodeMap.forEach((grade, list) -> getBloodPressureAndSpinalCurvatureGrade(list, ReportUtil.getItemName(grade,schoolAge), tableList));
+        getBloodPressureAndSpinalCurvatureGrade(conclusionList, ReportUtil.getItemNameTotal(schoolAge), tableList);
+        return tableList;
     }
 
 
