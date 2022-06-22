@@ -42,13 +42,12 @@ public class ReportAgeChart {
         List<ChartVO.ChartData> y = Lists.newArrayList();
         getAgeY(ageChartVO, y);
 
-        List<BigDecimal> valueList = Lists.newArrayList();
 
         dynamicAgeSegmentList.forEach(age -> {
             List<StatConclusion> statConclusions = ageMap.get(age);
             if (Objects.nonNull(statConclusions)) {
                 x.add(AgeSegmentEnum.get(age).getDescEn());
-                setAgeData(ageChartVO, y, statConclusions, valueList);
+                setAgeData(ageChartVO, y, statConclusions);
             }
         });
 
@@ -56,19 +55,21 @@ public class ReportAgeChart {
             ChartVO.Chart chart = new ChartVO.Chart();
             chart.setY(y);
             chart.setX(x);
-            chart.setMaxValue(CollectionUtil.max(valueList));
+            List<BigDecimal> collect = y.stream().flatMap(data -> data.getData().stream()).collect(Collectors.toList());
+            chart.setMaxValue(CollectionUtil.max(collect));
             setAgeChartVO(ageChartVO, Lists.newArrayList(chart));
         }
 
         if (Objects.equals(ageChartVO.type(),2)){
             List<ChartVO.Chart> chartList =Lists.newArrayList();
             List<List<ChartVO.ChartData>> lists = CollectionUtil.splitList(y, 2);
-            List<List<BigDecimal>> vList = CollectionUtil.splitList(valueList, valueList.size()/2);
             for (int i = 0; i < lists.size(); i++) {
                 ChartVO.Chart chart = new ChartVO.Chart();
-                chart.setY(lists.get(i));
+                List<ChartVO.ChartData> chartDataList = lists.get(i);
+                chart.setY(chartDataList);
                 chart.setX(x);
-                chart.setMaxValue(CollectionUtil.max(vList.get(i)));
+                List<BigDecimal> collect = chartDataList.stream().flatMap(data -> data.getData().stream()).collect(Collectors.toList());
+                chart.setMaxValue(CollectionUtil.max(collect));
                 chartList.add(chart);
             }
             setAgeChartVO(ageChartVO,chartList);
@@ -106,16 +107,16 @@ public class ReportAgeChart {
         }
     }
 
-    private static void setAgeData(AgeChartVO ageChartVO, List<ChartVO.ChartData> y, List<StatConclusion> statConclusionList, List<BigDecimal> valueList) {
+    private static void setAgeData(AgeChartVO ageChartVO, List<ChartVO.ChartData> y, List<StatConclusion> statConclusionList) {
         switch (ageChartVO.type()) {
             case 1:
-                getSaprodontiaAgeData(y, statConclusionList, valueList);
+                getSaprodontiaAgeData(y, statConclusionList);
                 break;
             case 2:
-                getHeightAndWeightAgeData(y, statConclusionList, valueList);
+                getHeightAndWeightAgeData(y, statConclusionList);
                 break;
             case 3:
-                getBloodPressureAndSpinalCurvatureAgeData(y, statConclusionList, valueList);
+                getBloodPressureAndSpinalCurvatureAgeData(y, statConclusionList);
                 break;
             default:
                 break;
@@ -138,34 +139,25 @@ public class ReportAgeChart {
         }
     }
 
-    private static void getSaprodontiaAgeData(List<ChartVO.ChartData> data, List<StatConclusion> statConclusionList, List<BigDecimal> valueList) {
+    private static void getSaprodontiaAgeData(List<ChartVO.ChartData> data, List<StatConclusion> statConclusionList) {
         SaprodontiaNum num = new SaprodontiaNum().build(statConclusionList).ratioNotSymbol();
         data.get(0).getData().add(num.getSaprodontiaRatio());
         data.get(1).getData().add(num.getSaprodontiaLossRatio());
         data.get(2).getData().add(num.getSaprodontiaRepairRatio());
-        valueList.add(num.getSaprodontiaRatio());
-        valueList.add(num.getSaprodontiaLossRatio());
-        valueList.add(num.getSaprodontiaRepairRatio());
     }
 
-    private static void getHeightAndWeightAgeData(List<ChartVO.ChartData> data, List<StatConclusion> statConclusionList, List<BigDecimal> valueList) {
+    private static void getHeightAndWeightAgeData(List<ChartVO.ChartData> data, List<StatConclusion> statConclusionList) {
         HeightAndWeightNum num = new HeightAndWeightNum().build(statConclusionList).ratioNotSymbol();
         data.get(0).getData().add(num.getOverweightRatio());
         data.get(1).getData().add(num.getObeseRatio());
         data.get(2).getData().add(num.getMalnourishedRatio());
         data.get(3).getData().add(num.getStuntingRatio());
-        valueList.add(num.getOverweightRatio());
-        valueList.add(num.getObeseRatio());
-        valueList.add(num.getMalnourishedRatio());
-        valueList.add(num.getStuntingRatio());
     }
 
-    private static void getBloodPressureAndSpinalCurvatureAgeData(List<ChartVO.ChartData> data, List<StatConclusion> statConclusionList, List<BigDecimal> valueList) {
+    private static void getBloodPressureAndSpinalCurvatureAgeData(List<ChartVO.ChartData> data, List<StatConclusion> statConclusionList) {
         BloodPressureAndSpinalCurvatureNum num = new BloodPressureAndSpinalCurvatureNum().build(statConclusionList).ratioNotSymbol();
         data.get(0).getData().add(num.getHighBloodPressureRatio());
         data.get(1).getData().add(num.getAbnormalSpineCurvatureRatio());
-        valueList.add(num.getHighBloodPressureRatio());
-        valueList.add(num.getAbnormalSpineCurvatureRatio());
     }
 
 }
