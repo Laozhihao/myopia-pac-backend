@@ -108,29 +108,25 @@ public class SchoolCommonDiseaseReportService {
             throw new BusinessException("暂无筛查数据！");
         }
         globalVariableVO.setReportDate(new Date());
-
-        Date min = screeningResults.stream().map(VisionScreeningResult::getUpdateTime).min(Comparator.comparing(Date::getTime)).orElse(new Date());
-        Date max = screeningResults.stream().map(VisionScreeningResult::getUpdateTime).max(Comparator.comparing(Date::getTime)).orElse(new Date());
-
-        if (DateUtil.betweenDay(max, new Date()) > 3) {
-            globalVariableVO.setReportDate(max);
+        Date endTime = screeningPlan.getEndTime();
+        if (DateUtil.betweenDay(endTime, new Date()) > 0) {
+            globalVariableVO.setReportDate(endTime);
         }
 
-        String dataYear = DateUtil.format(min, format);
-        globalVariableVO.setDataYear(dataYear);
+        Date startTime = screeningPlan.getStartTime();
+        globalVariableVO.setDataYear(DateUtil.format(startTime, format));
 
-        Set<String> years = Sets.newHashSet(DateUtil.format(min, format), DateUtil.format(max, format));
-
+        Set<String> years = Sets.newHashSet(DateUtil.format(startTime, format), DateUtil.format(endTime, format));
+        List<String> yearPeriod;
         if (years.size() == 1) {
-            List<String> yearPeriod = Lists.newArrayList(DateUtil.format(min, DatePattern.CHINESE_DATE_PATTERN), DateUtil.format(max, "MM月dd日"));
-            String screeningTimePeriod = CollectionUtil.join(yearPeriod, StrUtil.DASHED);
-            globalVariableVO.setScreeningTimePeriod(screeningTimePeriod);
+            yearPeriod = Lists.newArrayList(getDateStr(startTime), DateUtil.format(endTime, "MM月dd日"));
         } else {
-            List<String> yearPeriod = Lists.newArrayList(DateUtil.format(min, DatePattern.CHINESE_DATE_PATTERN),DateUtil.format(max, DatePattern.CHINESE_DATE_PATTERN));
-            String screeningTimePeriod = CollectionUtil.join(yearPeriod, StrUtil.DASHED);
-            globalVariableVO.setScreeningTimePeriod(screeningTimePeriod);
-
+            yearPeriod = Lists.newArrayList(getDateStr(startTime),getDateStr(endTime));
+            VisionScreeningResult visionScreeningResult = screeningResults.get(0);
+            globalVariableVO.setDataYear(DateUtil.format(visionScreeningResult.getCreateTime(), format));
         }
+        String screeningTimePeriod = CollectionUtil.join(yearPeriod, StrUtil.DASHED);
+        globalVariableVO.setScreeningTimePeriod(screeningTimePeriod);
 
         globalVariableVO.setSchoolName(school.getName());
         globalVariableVO.setTakeQuestionnaireNum(0);
@@ -139,6 +135,9 @@ public class SchoolCommonDiseaseReportService {
         districtCommonDiseaseReportVO.setGlobalVariableVO(globalVariableVO);
     }
 
+    private static String getDateStr(Date date){
+        return DateUtil.format(date, DatePattern.CHINESE_DATE_PATTERN);
+    }
 
     /**
      * 筛查人数和实际筛查人数

@@ -77,7 +77,7 @@ public class DistrictCommonDiseaseReportService {
             districtIds.add(districtId);
         }
 
-        List<StatConclusion> statConclusionList = getStatConclusionList(noticeId, Lists.newArrayList(districtIds), Boolean.TRUE, Boolean.FALSE);
+        List<StatConclusion> statConclusionList = getStatConclusionList(noticeId, Lists.newArrayList(districtIds), Boolean.FALSE);
         statConclusionList = statConclusionList.stream().filter(sc -> !Objects.equals(sc.getIsCooperative(),1)).collect(Collectors.toList());
 
         //全局变量
@@ -131,31 +131,35 @@ public class DistrictCommonDiseaseReportService {
         setSchoolItemData(planSchoolStudentMap, globalVariableVO);
 
         //获取行政区域
+        Date startTime = screeningNotice.getStartTime();
+        Date endTime = screeningNotice.getEndTime();
+
         String districtName = districtService.getDistrictNameByDistrictId(districtId);
-        Set<String> years = Sets.newHashSet(DateUtil.format(screeningNotice.getStartTime(), format),DateUtil.format(screeningNotice.getEndTime(), format));
+        Set<String> years = Sets.newHashSet(DateUtil.format(startTime, format),DateUtil.format(endTime, format));
         String year = CollectionUtil.join(years, StrUtil.DASHED);
+        List<String> yearPeriod;
         if (years.size() == 1) {
-            List<String> yearPeriod = Lists.newArrayList(DateUtil.format(screeningNotice.getStartTime(), DatePattern.CHINESE_DATE_PATTERN),
-                    DateUtil.format(screeningNotice.getEndTime(), "MM月dd日"));
-            String screeningTimePeriod = CollectionUtil.join(yearPeriod, StrUtil.DASHED);
-            globalVariableVO.setScreeningTimePeriod(screeningTimePeriod);
+            yearPeriod = Lists.newArrayList(getDateStr(startTime),DateUtil.format(endTime, "MM月dd日"));
             globalVariableVO.setDataYear(year);
         } else {
-            List<String> yearPeriod = Lists.newArrayList(DateUtil.format(screeningNotice.getStartTime(), DatePattern.CHINESE_DATE_PATTERN),
-                    DateUtil.format(screeningNotice.getEndTime(), DatePattern.CHINESE_DATE_PATTERN));
-            String screeningTimePeriod = CollectionUtil.join(yearPeriod, StrUtil.DASHED);
-            globalVariableVO.setScreeningTimePeriod(screeningTimePeriod);
-
+            yearPeriod = Lists.newArrayList(getDateStr(startTime),getDateStr(endTime));
             VisionScreeningResult visionScreeningResult = screeningResults.get(0);
-            String dataYear = DateUtil.format(visionScreeningResult.getCreateTime(), format);
-            globalVariableVO.setDataYear(dataYear);
+            globalVariableVO.setDataYear(DateUtil.format(visionScreeningResult.getCreateTime(), format));
         }
+
+        String screeningTimePeriod = CollectionUtil.join(yearPeriod, StrUtil.DASHED);
+        globalVariableVO.setScreeningTimePeriod(screeningTimePeriod);
 
         globalVariableVO.setAreaName(districtName);
         globalVariableVO.setYear(year);
         globalVariableVO.setTotalSchoolNum((int) totalSum);
         districtCommonDiseaseReportVO.setGlobalVariableVO(globalVariableVO);
     }
+
+    private static String getDateStr(Date date){
+        return DateUtil.format(date, DatePattern.CHINESE_DATE_PATTERN);
+    }
+
 
 
     /**
@@ -381,7 +385,7 @@ public class DistrictCommonDiseaseReportService {
         Optional.of(myopiaItemVO).ifPresent(consumer);
     }
 
-    private List<StatConclusion> getStatConclusionList(Integer noticeId, List<Integer> districtIds, Boolean isValid, Boolean isRescreen) {
+    private List<StatConclusion> getStatConclusionList(Integer noticeId, List<Integer> districtIds, Boolean isRescreen) {
         LambdaQueryWrapper<StatConclusion> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(StatConclusion::getSrcScreeningNoticeId, noticeId);
         queryWrapper.eq(StatConclusion::getIsRescreen, isRescreen);
