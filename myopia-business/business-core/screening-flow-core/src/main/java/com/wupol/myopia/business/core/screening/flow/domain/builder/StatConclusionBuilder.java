@@ -240,6 +240,9 @@ public class StatConclusionBuilder {
      * 设置近视预警级别
      */
     private void setMyopiaWarningLevel() {
+        if (Objects.equals(basicData.getGlassesType(),GlassesTypeEnum.ORTHOKERATOLOGY.code)) {
+            return;
+        }
         WarningLevel leftLevel = StatUtil.warningLevel(basicData.getLeftSph(), basicData.getLeftCyl(), basicData.getAge(), 0);
         WarningLevel rightLevel = StatUtil.warningLevel(basicData.getRightSph(), basicData.getRightCyl(), basicData.getAge(), 0);
         statConclusion.setMyopiaWarningLevel(StatUtil.getSeriousLevel(leftLevel,rightLevel));
@@ -266,6 +269,9 @@ public class StatConclusionBuilder {
      * 视力低下等级
      */
     private void setLowVisionLevel(){
+        if (Objects.equals(basicData.getGlassesType(),GlassesTypeEnum.ORTHOKERATOLOGY.code)) {
+            return;
+        }
         LowVisionLevelEnum leftLevel = StatUtil.getLowVisionLevel(basicData.getLeftNakedVision(), basicData.getAge());
         LowVisionLevelEnum rightLevel = StatUtil.getLowVisionLevel(basicData.getRightNakedVision(), basicData.getAge());
         statConclusion.setLowVisionLevel(StatUtil.getSeriousLevel(leftLevel,rightLevel));
@@ -326,6 +332,9 @@ public class StatConclusionBuilder {
      * 远视等级
      */
     private void setHyperopiaLevel() {
+        if (Objects.equals(basicData.getGlassesType(),GlassesTypeEnum.ORTHOKERATOLOGY.code)) {
+            return;
+        }
         HyperopiaLevelEnum leftLevel = StatUtil.getHyperopiaLevel(basicData.getLeftSph(), basicData.getLeftCyl(), basicData.getAge());
         HyperopiaLevelEnum rightLevel = StatUtil.getHyperopiaLevel(basicData.getRightSph(), basicData.getRightCyl(), basicData.getAge());
         statConclusion.setHyperopiaLevel(StatUtil.getSeriousLevel(leftLevel, rightLevel));
@@ -335,6 +344,9 @@ public class StatConclusionBuilder {
      * 散光等级
      */
     private void setAstigmatismLevel() {
+        if (Objects.equals(basicData.getGlassesType(),GlassesTypeEnum.ORTHOKERATOLOGY.code)) {
+            return;
+        }
         AstigmatismLevelEnum leftLevel = StatUtil.getAstigmatismLevel(basicData.getLeftCyl());
         AstigmatismLevelEnum rightLevel = StatUtil.getAstigmatismLevel(basicData.getRightCyl());
         statConclusion.setAstigmatismLevel(StatUtil.getSeriousLevel(leftLevel, rightLevel));
