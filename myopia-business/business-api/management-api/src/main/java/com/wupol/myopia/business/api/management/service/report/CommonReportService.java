@@ -786,6 +786,10 @@ public class CommonReportService {
         return statConclusions.stream().filter(s -> Objects.equals(s.getSchoolAge(), SchoolAge.HIGH.code) || Objects.equals(s.getSchoolAge(), SchoolAge.VOCATIONAL_HIGH.code)).collect(Collectors.toList());
     }
 
+    public List<ScreeningPlanSchoolStudent> getPlanStudentSeniorList(List<ScreeningPlanSchoolStudent> planSchoolStudentList) {
+        return planSchoolStudentList.stream().filter(s -> Objects.equals(s.getGradeType(), SchoolAge.HIGH.code) || Objects.equals(s.getGradeType(), SchoolAge.VOCATIONAL_HIGH.code)).collect(Collectors.toList());
+    }
+
     /**
      * 是否同时有普高和职高
      */

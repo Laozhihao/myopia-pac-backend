@@ -674,4 +674,11 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
                 .eq(ScreeningPlanSchoolStudent::getSchoolId, schoolId);
         return baseMapper.selectList(queryWrapper);
     }
+
+    public List<ScreeningPlanSchoolStudent> getByNoticeIdDistrictIds(Integer noticeId, List<Integer> districtIds) {
+        LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ScreeningPlanSchoolStudent::getSrcScreeningNoticeId,noticeId);
+        queryWrapper.in(ScreeningPlanSchoolStudent::getSchoolDistrictId,districtIds);
+        return baseMapper.selectList(queryWrapper);
+    }
 }

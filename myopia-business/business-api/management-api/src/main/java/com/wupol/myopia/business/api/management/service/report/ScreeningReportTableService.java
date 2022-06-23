@@ -23,6 +23,7 @@ import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -773,7 +774,7 @@ public class ScreeningReportTableService {
     /**
      * 学龄段性别统计表格
      */
-    public List<SchoolAgeGenderTable> areaOutlineTable(List<StatConclusion> statConclusions) {
+    public List<SchoolAgeGenderTable> areaOutlineTable(List<StatConclusion> statConclusions, List<ScreeningPlanSchoolStudent> planStudents) {
         List<SchoolAgeGenderTable> tables = new ArrayList<>();
         boolean haveSenior = commonReportService.isHaveSenior(statConclusions);
         List<Integer> schoolAges = SchoolAge.sortList(statConclusions.stream().map(StatConclusion::getSchoolAge).distinct().collect(Collectors.toList()));
@@ -782,13 +783,15 @@ public class ScreeningReportTableService {
             SchoolAgeGenderTable schoolAgeGenderTable = new SchoolAgeGenderTable();
             schoolAgeGenderTable.setName(SchoolAge.get(schoolAge).desc);
             List<StatConclusion> list = statConclusions.stream().filter(s -> Objects.equals(s.getSchoolAge(), schoolAge)).collect(Collectors.toList());
-            extracted(tables, schoolAgeGenderTable, list);
+            List<ScreeningPlanSchoolStudent> students = planStudents.stream().filter(s -> Objects.equals(s.getGradeType(), schoolAge)).collect(Collectors.toList());
+
+            extracted(tables, schoolAgeGenderTable, list, students);
 
             if (haveSenior && SchoolAge.VOCATIONAL_HIGH.code.equals(schoolAge)) {
                 SchoolAgeGenderTable seniorTable = new SchoolAgeGenderTable();
                 seniorTable.setName(CommonReportService.SENIOR_NAME);
                 List<StatConclusion> seniorList = commonReportService.getSeniorList(statConclusions);
-                extracted(tables, seniorTable, seniorList);
+                extracted(tables, seniorTable, seniorList, commonReportService.getPlanStudentSeniorList(planStudents));
             }
         }
         SchoolAgeGenderTable total = new SchoolAgeGenderTable();
@@ -796,30 +799,30 @@ public class ScreeningReportTableService {
         List<StatConclusion> mList = statConclusions.stream().filter(s -> Objects.equals(s.getGender(), GenderEnum.MALE.type)).collect(Collectors.toList());
         List<StatConclusion> fList = statConclusions.stream().filter(s -> Objects.equals(s.getGender(), GenderEnum.FEMALE.type)).collect(Collectors.toList());
 
-        total.setMCount((long) mList.size());
+        total.setMCount(planStudents.stream().filter(s -> Objects.equals(s.getGender(), GenderEnum.MALE.type)).count());
         total.setMValidCount(mList.stream().filter(StatConclusion::getIsValid).count());
 
-        total.setFCount((long) fList.size());
+        total.setFCount(planStudents.stream().filter(s -> Objects.equals(s.getGender(), GenderEnum.FEMALE.type)).count());
         total.setFValidCount(fList.stream().filter(StatConclusion::getIsValid).count());
 
-        total.setTotalCount((long) statConclusions.size());
+        total.setTotalCount((long) planStudents.size());
         total.setTotalValidCount(statConclusions.stream().filter(StatConclusion::getIsValid).count());
         total.setTotalValidProportion(BigDecimalUtil.divide(total.getTotalValidCount(), total.getTotalCount()));
         tables.add(total);
         return tables;
     }
 
-    private void extracted(List<SchoolAgeGenderTable> tables, SchoolAgeGenderTable seniorTable, List<StatConclusion> seniorList) {
-        seniorTable.setMCount(seniorList.stream().filter(s -> Objects.equals(s.getGender(), GenderEnum.MALE.type)).count());
-        seniorTable.setMValidCount(seniorList.stream().filter(s -> Objects.equals(s.getGender(), GenderEnum.MALE.type)).filter(StatConclusion::getIsValid).count());
+    private void extracted(List<SchoolAgeGenderTable> tables, SchoolAgeGenderTable table, List<StatConclusion> list,List<ScreeningPlanSchoolStudent> students) {
+        table.setMCount(students.stream().filter(s -> Objects.equals(s.getGender(), GenderEnum.MALE.type)).count());
+        table.setMValidCount(list.stream().filter(s -> Objects.equals(s.getGender(), GenderEnum.MALE.type)).filter(StatConclusion::getIsValid).count());
 
-        seniorTable.setFCount(seniorList.stream().filter(s -> Objects.equals(s.getGender(), GenderEnum.FEMALE.type)).count());
-        seniorTable.setFValidCount(seniorList.stream().filter(s -> Objects.equals(s.getGender(), GenderEnum.FEMALE.type)).filter(StatConclusion::getIsValid).count());
+        table.setFCount(students.stream().filter(s -> Objects.equals(s.getGender(), GenderEnum.FEMALE.type)).count());
+        table.setFValidCount(list.stream().filter(s -> Objects.equals(s.getGender(), GenderEnum.FEMALE.type)).filter(StatConclusion::getIsValid).count());
 
-        seniorTable.setTotalCount((long) seniorList.size());
-        seniorTable.setTotalValidCount(seniorList.stream().filter(StatConclusion::getIsValid).count());
-        seniorTable.setTotalValidProportion(BigDecimalUtil.divide(seniorTable.getTotalValidCount(), seniorTable.getTotalCount()));
-        tables.add(seniorTable);
+        table.setTotalCount((long) students.size());
+        table.setTotalValidCount(list.stream().filter(StatConclusion::getIsValid).count());
+        table.setTotalValidProportion(BigDecimalUtil.divide(table.getTotalValidCount(), table.getTotalCount()));
+        tables.add(table);
     }
 
     public List<GenderSexLowVisionTable> genderSexLowVisionTable(List<StatConclusion> statConclusions, Long totalCount) {

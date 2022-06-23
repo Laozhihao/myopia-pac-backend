@@ -24,6 +24,7 @@ import com.wupol.myopia.business.common.utils.constant.WarningLevel;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
@@ -94,6 +95,8 @@ public class ScreeningAreaReportService {
         childDistrictIds = districtService.getSpecificDistrictTreeAllDistrictIds(districtId);
         childDistrictIds.add(districtId);
         List<StatConclusion> statConclusions = statConclusionService.getByNoticeIdDistrictIds(noticeId, childDistrictIds);
+
+        List<ScreeningPlanSchoolStudent> planStudents = screeningPlanSchoolStudentService.getByNoticeIdDistrictIds(noticeId, childDistrictIds);
         if (CollectionUtils.isEmpty(statConclusions)) {
             return new ScreeningAreaReportDTO();
         }
@@ -106,7 +109,7 @@ public class ScreeningAreaReportService {
         }, executor);
 
         CompletableFuture<AreaOutline> c2 = CompletableFuture.supplyAsync(() -> {
-            AreaOutline areaOutline = generateAreaOutline(statConclusions, districtId);
+            AreaOutline areaOutline = generateAreaOutline(statConclusions, districtId, planStudents);
             reportDTO.setAreaOutline(areaOutline);
             return areaOutline;
         }, executor);
@@ -158,11 +161,11 @@ public class ScreeningAreaReportService {
      *
      * @param statConclusions 结论
      */
-    private AreaOutline generateAreaOutline(List<StatConclusion> statConclusions, Integer districtId) {
+    private AreaOutline generateAreaOutline(List<StatConclusion> statConclusions, Integer districtId, List<ScreeningPlanSchoolStudent> planStudents) {
         AreaOutline areaOutline = new AreaOutline();
         long total = statConclusions.size();
         areaOutline.setInfo(areaOutlineInfo(districtId, statConclusions));
-        areaOutline.setTables(screeningReportTableService.areaOutlineTable(statConclusions));
+        areaOutline.setTables(screeningReportTableService.areaOutlineTable(statConclusions,planStudents));
 
         areaOutline.setKindergarten(areaOutlineKindergarten(commonReportService.getKList(statConclusions)));
 
