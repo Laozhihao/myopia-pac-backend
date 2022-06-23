@@ -211,7 +211,7 @@ public class ScreeningKindergartenReportService {
         }
         GradeWarning.Detail detail = new GradeWarning.Detail();
         detail.setWarningProportion(highLowProportionService.getWarningMaxMinProportion(countAndProportionService.warning(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getWarningProportion())));
-        detail.setRecommendDoctor(highLowProportionService.getWarningMaxMinProportion(commonReportService.recommendDoctorRefractive(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getRecommendDoctorProportion())));
+        detail.setRecommendDoctor(highLowProportionService.getWarningMaxMinProportion(countAndProportionService.getRecommendDoctor(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getRecommendDoctorProportion())));
         detail.setZeroWarning(countAndProportionService.zeroAndSPWarning(statConclusions, total).getProportion());
         detail.setOneWarning(countAndProportionService.oneWarning(statConclusions, total).getProportion());
         detail.setTwoWarning(countAndProportionService.twoWarning(statConclusions, total).getProportion());

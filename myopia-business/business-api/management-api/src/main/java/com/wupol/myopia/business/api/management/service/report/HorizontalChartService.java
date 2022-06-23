@@ -208,7 +208,7 @@ public class HorizontalChartService {
             List<StatConclusion> v = collect.get(s);
             zeroWarning.add(countAndProportionService.zeroAndSPWarning(v, total).getProportion());
             oneWarning.add(countAndProportionService.oneWarning(v, total).getProportion());
-            twoWarning.add(countAndProportionService.threeWarning(v, total).getProportion());
+            twoWarning.add(countAndProportionService.twoWarning(v, total).getProportion());
             threeWarning.add(countAndProportionService.threeWarning(v, total).getProportion());
             recommendDoctor.add(countAndProportionService.getRecommendDoctor(v, total).getProportion());
         });
