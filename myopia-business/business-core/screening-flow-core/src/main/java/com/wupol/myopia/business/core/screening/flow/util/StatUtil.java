@@ -84,7 +84,7 @@ public class StatUtil {
      */
     public static boolean rescreenCompletedData(VisionScreeningResult visionScreeningResult){
 
-        if (Objects.equals(visionScreeningResult.getScreeningType(),0)){
+        if (Objects.equals(visionScreeningResult.getScreeningType(),ScreeningTypeEnum.VISION.getType())){
             //视力筛查
             VisionDataDO visionData = visionScreeningResult.getVisionData();
             ComputerOptometryDO computerOptometry = visionScreeningResult.getComputerOptometry();
@@ -120,7 +120,7 @@ public class StatUtil {
         //屈光
         Optional.ofNullable(visionScreeningResult.getComputerOptometry()).ifPresent(computerOptometry-> cooperativeSet.add(computerOptometry.getIsCooperative()));
 
-        if (Objects.equals(visionScreeningResult.getScreeningType(),0)){
+        if (Objects.equals(visionScreeningResult.getScreeningType(),ScreeningTypeEnum.VISION.getType())){
             //生物测量
             Optional.ofNullable(visionScreeningResult.getBiometricData()).ifPresent(biometricData-> cooperativeSet.add(biometricData.getIsCooperative()));
             //33cm眼位
@@ -1271,7 +1271,7 @@ public class StatUtil {
         if (Objects.nonNull(isWearingGlasses) && Objects.equals(isWearingGlasses,Boolean.TRUE)) {
             errorNum += getSeErrorNum(currentVisionScreeningResult,anotherVisionScreeningResult);
         }
-        if (Objects.equals(1,currentVisionScreeningResult.getScreeningType())){
+        if (Objects.equals(ScreeningTypeEnum.COMMON_DISEASE.getType(),currentVisionScreeningResult.getScreeningType())){
             errorNum += getHeightAndWeight(currentVisionScreeningResult,anotherVisionScreeningResult);
         }
         return errorNum;
