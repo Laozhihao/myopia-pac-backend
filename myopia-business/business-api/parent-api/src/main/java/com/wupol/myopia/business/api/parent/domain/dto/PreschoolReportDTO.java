@@ -3,8 +3,8 @@ package com.wupol.myopia.business.api.parent.domain.dto;
 import com.wupol.myopia.base.domain.RefractoryResultItems;
 import com.wupol.myopia.base.domain.VisionItems;
 import com.wupol.myopia.business.core.hospital.domain.dto.PreschoolCheckRecordDTO;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.List;
 
@@ -13,8 +13,8 @@ import java.util.List;
  *
  * @author Simple4H
  */
-@Getter
-@Setter
+@EqualsAndHashCode(callSuper = true)
+@Data
 public class PreschoolReportDTO extends PreschoolCheckRecordDTO {
 
     /**

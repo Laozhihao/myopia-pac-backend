@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management;
 
 import com.wupol.myopia.business.api.management.schedule.ScheduledTasksExecutor;
 import com.wupol.myopia.business.bootstrap.MyopiaBusinessApplication;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,7 @@ public class ScheduledTasksExecutorTest {
     @Test
     public void testRescreenStat() {
         scheduledTasksExecutor.rescreenStat();
+        Assert.assertTrue(true);
     }
 
 }

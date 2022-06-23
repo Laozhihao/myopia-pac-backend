@@ -31,4 +31,9 @@ public class ScreeningPlanNameDTO {
      * 计划名称
      */
     private String planName;
+
+    /**
+     * 筛查类型
+     */
+    private Integer screeningType;
 }

@@ -28,9 +28,9 @@ public class RescreeningResultVO {
     public static final Integer RESCREENING_PASS = 1;
     public static final Integer RESCREENING_NOT_PASS = 2;
     @JsonIgnore
-    private final BigDecimal AVE_RANGE_VALUE = BigDecimal.valueOf(0.5);
+    private static final BigDecimal AVE_RANGE_VALUE = BigDecimal.valueOf(0.5);
     @JsonIgnore
-    private final BigDecimal OTHERS_RANGE_VALUE = BigDecimal.valueOf(1.0);
+    private static final BigDecimal OTHERS_RANGE_VALUE = BigDecimal.valueOf(1.0);
     /**
      * -1 代表
      * 1 代表

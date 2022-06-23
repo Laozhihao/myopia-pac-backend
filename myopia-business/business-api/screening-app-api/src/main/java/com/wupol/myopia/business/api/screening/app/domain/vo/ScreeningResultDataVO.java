@@ -1,8 +1,12 @@
 package com.wupol.myopia.business.api.screening.app.domain.vo;
 
-import com.wupol.myopia.business.api.screening.app.domain.dto.*;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDTO;
+import com.wupol.myopia.business.api.screening.app.domain.dto.BiometricDataDTO;
+import com.wupol.myopia.business.api.screening.app.domain.dto.EyePressureDataDTO;
+import com.wupol.myopia.business.api.screening.app.domain.dto.MultiCheckDataDTO;
+import com.wupol.myopia.business.api.screening.app.domain.dto.PupilOptometryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ComputerOptometryDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.OtherEyeDiseasesDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.VisionDataDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.Data;
 

@@ -2,16 +2,20 @@ package com.wupol.myopia.business.aggregation.export.utils;
 
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.ListUtil;
+import lombok.experimental.UtilityClass;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 通用校验
  *
  * @author Simple4H
  */
+@UtilityClass
 public class CommonCheck {
+
 
     /**
      * 检查身份证、学号、护照是否重复
@@ -22,7 +26,7 @@ public class CommonCheck {
      */
     public static void checkHaveDuplicate(List<String> idCards, List<String> snoList, List<String> passports, Boolean isSchool) {
 
-        if (isSchool && CollectionUtils.isEmpty(snoList)) {
+        if (Objects.equals(isSchool,Boolean.TRUE) && CollectionUtils.isEmpty(snoList)) {
             throw new BusinessException("学号为空");
         }
 

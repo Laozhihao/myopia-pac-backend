@@ -76,7 +76,7 @@
 
     <select id="getDistrictIdByNoticeId" resultType="java.lang.Integer">
         select distinct district_id
-        from m_district_vision_statistic
+        from m_screening_result_statistic
         where screening_notice_id = #{noticeId}
     </select>
 </mapper>

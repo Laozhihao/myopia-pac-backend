@@ -116,8 +116,8 @@ public class DistrictBigScreenStatisticBuilder {
      * @return
      */
     private TwoTuple<Double, Double> getAvgNakedVision() {
-        OptionalDouble avgVisionR = bigScreenStatDataDTOList.stream().mapToDouble(BigScreenStatDataDTO::getVisionR).average();
-        OptionalDouble avgVisionL = bigScreenStatDataDTOList.stream().mapToDouble(BigScreenStatDataDTO::getVisionL).average();
+        OptionalDouble avgVisionR = bigScreenStatDataDTOList.stream().mapToDouble(bs->bs.getVisionL().doubleValue()).average();
+        OptionalDouble avgVisionL = bigScreenStatDataDTOList.stream().mapToDouble(bs->bs.getVisionL().doubleValue()).average();
         TwoTuple<Double, Double> leftAndRightAvgVisionData = new TwoTuple<>();
         leftAndRightAvgVisionData.setFirst(MathUtil.getFormatNumWith2Scale(avgVisionL.getAsDouble()));
         leftAndRightAvgVisionData.setSecond(MathUtil.getFormatNumWith2Scale(avgVisionR.getAsDouble()));
@@ -199,7 +199,7 @@ public class DistrictBigScreenStatisticBuilder {
             BigScreenScreeningDO.MapLocationDataDTO mapLocationDataDTO = new BigScreenScreeningDO.MapLocationDataDTO();
             mapLocationDataDTO.setName(statisticDistrictDTO.getCityName());
             mapLocationDataDTO.setValue(statisticDistrictDTO.getNum());
-            List<Double> cityCenter = cityCenterMap.get(statisticDistrictDTO.getCityDistrictId().toString());
+            List<Double> cityCenter = cityCenterMap.get(statisticDistrictDTO.getCityDistrictId());
             ArrayList<List<Double>> locationList = new ArrayList<>();
             locationList.add(cityCenter);
             locationList.add(cityCenter);

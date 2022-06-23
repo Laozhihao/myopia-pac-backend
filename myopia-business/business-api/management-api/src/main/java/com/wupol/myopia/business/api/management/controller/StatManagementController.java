@@ -1,47 +1,36 @@
 package com.wupol.myopia.business.api.management.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
-import com.wupol.myopia.business.api.management.domain.dto.SchoolMonitorStatisticDTO;
+import com.wupol.myopia.business.api.management.domain.bo.StatisticDetailBO;
 import com.wupol.myopia.business.api.management.domain.vo.*;
-import com.wupol.myopia.business.api.management.schedule.ScheduledTasksExecutor;
 import com.wupol.myopia.business.api.management.service.*;
 import com.wupol.myopia.business.common.utils.constant.BizMsgConstant;
-import com.wupol.myopia.business.common.utils.constant.WarningLevel;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
-import com.wupol.myopia.business.core.school.domain.model.School;
-import com.wupol.myopia.business.core.school.service.SchoolService;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningNoticeNameDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanNameDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanSchoolInfoDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.model.*;
-import com.wupol.myopia.business.core.screening.flow.service.*;
-import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.stat.domain.model.DistrictAttentiveObjectsStatistic;
-import com.wupol.myopia.business.core.stat.domain.model.SchoolMonitorStatistic;
-import com.wupol.myopia.business.core.stat.domain.model.SchoolVisionStatistic;
 import com.wupol.myopia.business.core.stat.service.DistrictVisionStatisticService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.*;
-import java.util.function.Function;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @ResponseResultBody
@@ -56,8 +45,6 @@ public class StatManagementController {
     @Autowired
     private DistrictBizService districtBizService;
     @Autowired
-    private SchoolService schoolService;
-    @Autowired
     private ScreeningPlanService screeningPlanService;
     @Autowired
     private ScreeningNoticeService screeningNoticeService;
@@ -65,8 +52,6 @@ public class StatManagementController {
     private StatService statService;
     @Autowired
     private BigScreeningStatService bigScreeningStatService;
-    @Autowired
-    private ScheduledTasksExecutor scheduledTasksExecutor;
     @Autowired
     private ScreeningNoticeBizService screeningNoticeBizService;
     @Autowired
@@ -76,19 +61,8 @@ public class StatManagementController {
     @Autowired
     private DistrictAttentiveObjectsStatisticBizService districtAttentiveObjectsStatisticBizService;
     @Autowired
-    private SchoolVisionStatisticBizService schoolVisionStatisticBizService;
-    @Autowired
-    private SchoolMonitorStatisticBizService schoolMonitorStatisticBizService;
-    @Autowired
-    private StatRescreenService statRescreenService;
-    @Autowired
-    private ScreeningPlanSchoolService screeningPlanSchoolService;
-    @Autowired
     private DistrictVisionStatisticService districtVisionStatisticService;
-    @Autowired
-    private VisionScreeningResultService visionScreeningResultService;
-    @Autowired
-    private StatConclusionService statConclusionService;
+
 
     /**
      * 根据查找当前用户所处层级能够查找到的年度
@@ -205,86 +179,6 @@ public class StatManagementController {
     }
 
 
-    /**
-     * 地区视力情况
-     *
-     * @param districtId
-     * @return
-     */
-    @GetMapping("/district/screening-vision-result")
-    public ScreeningVisionStatisticVO getDistrictVisionStatistic(
-            @RequestParam Integer districtId, @RequestParam Integer noticeId) throws IOException {
-        ScreeningNotice screeningNotice = screeningNoticeService.getById(noticeId);
-        if (screeningNotice == null) {
-            throw new BusinessException(BizMsgConstant.CAN_NOT_FIND_NOTICE);
-        }
-        return statService.getScreeningVisionStatisticVO(districtId, noticeId, screeningNotice, CurrentUserUtil.getCurrentUser());
-    }
-
-    /**
-     * 地区监控情况
-     *
-     * @param districtId
-     * @return
-     */
-    @GetMapping("/district/screening-monitor-result")
-    public DistrictScreeningMonitorStatisticVO getDistrictMonitorStatistic(
-            @RequestParam Integer districtId, @RequestParam Integer noticeId) throws IOException {
-        //查找notice
-        ScreeningNotice screeningNotice = screeningNoticeService.getById(noticeId);
-        if (screeningNotice == null) {
-            throw new BusinessException(BizMsgConstant.CAN_NOT_FIND_NOTICE);
-        }
-        return statService.getDistrictScreeningMonitorStatisticVO(districtId, noticeId, screeningNotice, CurrentUserUtil.getCurrentUser());
-    }
-
-
-    /**
-     * 学校视力情况
-     *
-     * @param districtId
-     * @return
-     */
-    @GetMapping("/school/screening-vision-result")
-    public ScreeningSchoolVisionStatisticVO getSchoolVisionStatistic(@RequestParam Integer districtId, @RequestParam Integer noticeId) {
-        // 获取当前层级下，所有参与任务的学校
-        ScreeningNotice screeningNotice = screeningNoticeService.getReleasedNoticeById(noticeId);
-        List<SchoolVisionStatistic> schoolVisionStatistics = schoolVisionStatisticBizService.getStatisticDtoByNoticeIdAndOrgId(screeningNotice.getId(),
-                CurrentUserUtil.getCurrentUser(),
-                districtService.getSpecificDistrictTreeAllDistrictIds(districtId));
-        return getSchoolVisionStatisticVO(schoolVisionStatistics, screeningNotice);
-    }
-
-    /**
-     * 获取学校监控统计
-     *
-     * @param districtId
-     * @param noticeId
-     * @return
-     * @throws IOException
-     */
-    @GetMapping("/school/screening-monitor-result")
-    public SchoolScreeningMonitorStatisticVO getSchoolMonitorStatistic(@RequestParam Integer districtId, @RequestParam Integer noticeId) throws IOException {
-        // 获取当前层级下，所有参与任务的学校
-        ScreeningNotice screeningNotice = screeningNoticeService.getReleasedNoticeById(noticeId);
-        if (screeningNotice == null) {
-            throw new BusinessException(BizMsgConstant.CAN_NOT_FIND_NOTICE);
-        }
-        List<SchoolMonitorStatistic> schoolMonitorStatistics = schoolMonitorStatisticBizService.getStatisticDtoByNoticeIdAndOrgId(screeningNotice.getId(), CurrentUserUtil.getCurrentUser(), districtService.getSpecificDistrictTreeAllDistrictIds(districtId));
-        if (CollectionUtils.isEmpty(schoolMonitorStatistics)) {
-            return SchoolScreeningMonitorStatisticVO.getEmptyInstance();
-        }
-        //获取数据
-        return SchoolScreeningMonitorStatisticVO.getInstance(getPlanSchoolReportStatus(schoolMonitorStatistics), screeningNotice);
-    }
-
-    private List<SchoolMonitorStatisticDTO> getPlanSchoolReportStatus(List<SchoolMonitorStatistic> schoolMonitorStatistics) {
-        return schoolMonitorStatistics.stream().map(schoolMonitorStatistic -> {
-            ScreeningPlanSchool screeningPlanSchool = screeningPlanSchoolService.getOneByPlanIdAndSchoolId(schoolMonitorStatistic.getScreeningPlanId(), schoolMonitorStatistic.getSchoolId());
-            return new SchoolMonitorStatisticDTO(schoolMonitorStatistic, statRescreenService.hasRescreenReport(schoolMonitorStatistic.getScreeningPlanId(), schoolMonitorStatistic.getSchoolId()),
-                    screeningPlanSchool.getQualityControllerName(), screeningPlanSchool.getQualityControllerCommander());
-        }).collect(Collectors.toList());
-    }
 
     /**
      * 获取大屏展示的数据
@@ -311,172 +205,84 @@ public class StatManagementController {
     }
 
     /**
-     * 为了测试方便
+     * 按区域-幼儿园
+     * @author hang.yuan
+     * @date 2022/4/7
      */
-    @GetMapping("/trigger")
-    public void statTaskTrigger() {
-        scheduledTasksExecutor.statistic();
+    @GetMapping("/district/kindergartenResult")
+    public KindergartenResultVO getKindergartenResult(@RequestParam Integer districtId,
+                                                      @RequestParam Integer noticeId) {
+        return statService.getKindergartenResult(districtId,noticeId);
     }
 
     /**
-     * 触发大屏统计（todo 为了测试方便）
-     *
-     * @throws IOException
+     * 按区域-小学及以上
+     * @author hang.yuan
+     * @date 2022/4/7
      */
-    @GetMapping("/big")
-    public void statBigScreen() throws IOException {
-        bigScreeningStatService.statisticBigScreen();
-    }
+    @GetMapping("/district/primarySchoolAndAboveResult")
+    public PrimarySchoolAndAboveResultVO getPrimarySchoolAndAboveResult(@RequestParam Integer districtId,
+                                                                        @RequestParam Integer noticeId) {
 
-    @GetMapping("/triggerAll")
-    public void statTaskTriggerAll() {
-        List<Integer> yesterdayScreeningPlanIds = screeningPlanService.list().stream().map(ScreeningPlan::getId).collect(Collectors.toList());
-        if (com.wupol.framework.core.util.CollectionUtils.isEmpty(yesterdayScreeningPlanIds)) {
-            log.info("筛查数据统计：历史无筛查数据，无需统计");
-            return;
-        }
-        scheduledTasksExecutor.statisticByPlanIds(yesterdayScreeningPlanIds);
-    }
-
-    @GetMapping("/triggerById/{planId}")
-    public void statTaskTriggerById(@PathVariable("planId") Integer planId) {
-        List<VisionScreeningResult> byPlanIdsOrderByUpdateTimeDesc = visionScreeningResultService.getByPlanIdsOrderByUpdateTimeDesc(Sets.newHashSet(planId));
-        if (CollectionUtils.isEmpty(byPlanIdsOrderByUpdateTimeDesc)) {
-            return;
-        }
-        Map<Integer, VisionScreeningResult> screeningResultMap = byPlanIdsOrderByUpdateTimeDesc.stream().collect(Collectors.toMap(VisionScreeningResult::getId, Function.identity()));
-        List<Integer> resultId = byPlanIdsOrderByUpdateTimeDesc.stream().map(VisionScreeningResult::getId).collect(Collectors.toList());
-        List<StatConclusion> statConclusionList = statConclusionService.getByResultIds(resultId);
-
-        for (StatConclusion statConclusion : statConclusionList) {
-            VisionScreeningResult visionScreeningResult = screeningResultMap.get(statConclusion.getResultId());
-            if (Objects.nonNull(visionScreeningResult)) {
-                ComputerOptometryDO computerOptometry = visionScreeningResult.getComputerOptometry();
-                if (Objects.nonNull(computerOptometry)) {
-                    Integer age = statConclusion.getAge();
-                    ComputerOptometryDO.ComputerOptometry leftEyeData = computerOptometry.getLeftEyeData();
-                    ComputerOptometryDO.ComputerOptometry rightEyeData = computerOptometry.getRightEyeData();
-                    if (ObjectsUtil.allNotNull(leftEyeData, rightEyeData)) {
-                        BigDecimal leftSpn = leftEyeData.getSph();
-                        BigDecimal leftCyl = leftEyeData.getCyl();
-
-                        BigDecimal rightSpn = rightEyeData.getSph();
-                        BigDecimal rightCyl = rightEyeData.getCyl();
-
-                        Integer leftMyopiaLevel = null;
-                        Integer rightMyopiaLevel = null;
-                        Integer seriousLevel = 0;
-
-                        VisionDataDO visionData = visionScreeningResult.getVisionData();
-                        if (Objects.nonNull(visionData)
-                                && Objects.nonNull(age)
-                                && ObjectsUtil.allNotNull(visionData.getLeftEyeData(), visionData.getRightEyeData())
-                                && ObjectsUtil.allNotNull(visionData.getLeftEyeData().getNakedVision(), visionData.getRightEyeData().getNakedVision())) {
-                            BigDecimal leftNV = visionData.getLeftEyeData().getNakedVision();
-                            BigDecimal rightNV = visionData.getRightEyeData().getNakedVision();
-                            if (ObjectsUtil.allNotNull(leftSpn, leftCyl)) {
-                                log.info(JSONObject.toJSONString(visionScreeningResult));
-                                leftMyopiaLevel = StatUtil.getMyopiaLevel(leftSpn.setScale(2, RoundingMode.HALF_UP).floatValue(), leftCyl.setScale(2, RoundingMode.HALF_UP).floatValue(), age, leftNV.floatValue());
-                            }
-                            if (ObjectsUtil.allNotNull(rightSpn, rightCyl)) {
-                                rightMyopiaLevel = StatUtil.getMyopiaLevel(rightSpn.setScale(2, RoundingMode.HALF_UP).floatValue(), rightCyl.setScale(2, RoundingMode.HALF_UP).floatValue(), age, rightNV.floatValue());
-                            }
-                            if (!ObjectsUtil.allNull(leftMyopiaLevel, rightMyopiaLevel)) {
-                                seriousLevel = StatUtil.getSeriousLevel(leftMyopiaLevel, rightMyopiaLevel);
-                            }
-                        }
-                        statConclusion.setMyopiaLevel(seriousLevel);
-                        statConclusion.setIsMyopia(StatUtil.isMyopia(seriousLevel));
-                    }
-
-                    VisionDataDO visionData = visionScreeningResult.getVisionData();
-                    if (Objects.nonNull(visionData) && Objects.nonNull(age)) {
-                        BigDecimal leftNV = visionData.getLeftEyeData().getNakedVision();
-                        BigDecimal rightNV = visionData.getRightEyeData().getNakedVision();
-                        Boolean isLeftLowVision;
-                        Boolean isRightLowVision;
-                        Integer leftCode = null;
-                        Integer rightCode = null;
-                        if (Objects.nonNull(leftNV)) {
-                            isLeftLowVision = StatUtil.isLowVision(leftNV.floatValue(), age);
-                            WarningLevel nakedVisionWarningLevel = StatUtil.getNakedVisionWarningLevel(leftNV.floatValue(), age);
-                            leftCode = Objects.nonNull(nakedVisionWarningLevel) ? nakedVisionWarningLevel.code : null;
-                        } else {
-                            isLeftLowVision = null;
-                        }
-
-                        if (Objects.nonNull(rightNV)) {
-                            isRightLowVision = StatUtil.isLowVision(rightNV.floatValue(), age);
-                            WarningLevel nakedVisionWarningLevel = StatUtil.getNakedVisionWarningLevel(rightNV.floatValue(), age);
-                            rightCode = Objects.nonNull(nakedVisionWarningLevel) ? nakedVisionWarningLevel.code : null;
-                        } else {
-                            isRightLowVision = null;
-                        }
-
-                        if (ObjectsUtil.allNull(isLeftLowVision, isRightLowVision)) {
-                            statConclusion.setIsLowVision(null);
-                            statConclusion.setNakedVisionWarningLevel(null);
-                        } else {
-                            statConclusion.setIsLowVision(ObjectsUtil.allNotNull(isLeftLowVision, isRightLowVision) ? isLeftLowVision || isRightLowVision : Objects.nonNull(isLeftLowVision) ? isLeftLowVision : Boolean.TRUE.equals(isRightLowVision));
-                            statConclusion.setNakedVisionWarningLevel(StatUtil.getSeriousLevel(leftCode, rightCode));
-                        }
-                    }
-                    statConclusion.setUpdateTime(new Date());
-                }
-            }
-        }
-        statConclusionService.updateBatchById(statConclusionList);
-        scheduledTasksExecutor.statisticByPlanIds(Lists.newArrayList(planId));
+        return statService.getPrimarySchoolAndAboveResult(districtId,noticeId);
     }
 
     /**
-     * 学校视力情况
-     *
-     * @param districtId
-     * @param planId
-     * @return
+     *  按区域-合计详情
+     * @author hang.yuan
+     * @date 2022/4/7
      */
-    @GetMapping("/plan/school/screening-vision-result")
-    public ScreeningSchoolVisionStatisticVO getSchoolVisionStatisticByPlan(@RequestParam(required = false) Integer districtId, @RequestParam Integer planId) {
-        // 获取当前层级下，所有参与任务的学校
-        ScreeningPlan plan = screeningPlanService.getReleasedPlanById(planId);
-        ScreeningNotice notice = screeningNoticeService.getById(plan.getSrcScreeningNoticeId());
-        List<SchoolVisionStatistic> schoolVisionStatistics = schoolVisionStatisticBizService.getStatisticDtoByPlanIdsAndOrgId(Collections.singletonList(plan), districtService.getSpecificDistrictTreeAllDistrictIds(districtId));
-        return getSchoolVisionStatisticVO(schoolVisionStatistics, notice);
+    @GetMapping("/district/screeningResultTotalDetail")
+    public ScreeningResultStatisticDetailVO getScreeningResultTotalDetail(@RequestParam Integer districtId,
+                                                                          @RequestParam Integer noticeId) {
+
+        return statService.getScreeningResultTotalDetail(districtId,noticeId);
+    }
+
+
+    /**
+     * 按学校-幼儿园
+     * @author hang.yuan
+     * @date 2022/4/7
+     */
+    @GetMapping("/school/kindergartenResult")
+    public SchoolKindergartenResultVO getSchoolKindergartenResult(@RequestParam Integer districtId,
+                                                                  @RequestParam(required = false) Integer noticeId,
+                                                                  @RequestParam(required = false) Integer planId) {
+
+        return statService.getSchoolKindergartenResult(districtId,noticeId,planId);
     }
 
     /**
-     * 获取学校监控统计
-     *
-     * @param districtId
-     * @param planId
-     * @throws IOException
-     * @return4
+     * 按学校-小学及以上
+     * @author hang.yuan
+     * @date 2022/4/7
      */
-    @GetMapping("/plan/school/screening-monitor-result")
-    public SchoolScreeningMonitorStatisticVO getSchoolMonitorStatisticByPlan(@RequestParam(required = false) Integer districtId, @RequestParam Integer planId) {
-        // 获取当前层级下，所有参与任务的学校
-        ScreeningPlan plan = screeningPlanService.getReleasedPlanById(planId);
-        ScreeningNotice notice = screeningNoticeService.getById(plan.getSrcScreeningNoticeId());
-        List<SchoolMonitorStatistic> schoolMonitorStatistics = schoolMonitorStatisticBizService.getStatisticDtoByPlansAndOrgId(Arrays.asList(plan), districtService.getSpecificDistrictTreeAllDistrictIds(districtId));
-        if (CollectionUtils.isEmpty(schoolMonitorStatistics)) {
-            return SchoolScreeningMonitorStatisticVO.getEmptyInstance();
-        }
-        //获取数据
-        return SchoolScreeningMonitorStatisticVO.getInstance(getPlanSchoolReportStatus(schoolMonitorStatistics), notice);
+    @GetMapping("/school/primarySchoolAndAboveResult")
+    public SchoolPrimarySchoolAndAboveResultVO getSchoolPrimarySchoolAndAboveResult(@RequestParam Integer districtId,
+                                                                                    @RequestParam(required = false) Integer noticeId,
+                                                                                    @RequestParam(required = false) Integer planId) {
+
+        return statService.getSchoolPrimarySchoolAndAboveResult(districtId,noticeId,planId);
     }
 
-    private ScreeningSchoolVisionStatisticVO getSchoolVisionStatisticVO(List<SchoolVisionStatistic> schoolVisionStatistics, ScreeningNotice notice) {
-        if (CollectionUtils.isEmpty(schoolVisionStatistics)) {
-            return ScreeningSchoolVisionStatisticVO.getEmptyInstance();
-        }
-        //学校id
-        List<Integer> schoolIds = schoolVisionStatistics.stream().map(SchoolVisionStatistic::getSchoolId).collect(Collectors.toList());
-        List<Integer> schoolDistrictIdList = schoolService.getByIds(schoolIds).stream().map(School::getDistrictId).collect(Collectors.toList());
-        //获取学校的地区
-        Map<Integer, String> schoolIdDistrictNameMap = districtService.getByIds(schoolDistrictIdList);
-        //获取数据
-        return ScreeningSchoolVisionStatisticVO.getInstance(schoolVisionStatistics, schoolIdDistrictNameMap, notice);
+    /**
+     * 按学校-查看详情
+     * @author hang.yuan
+     * @date 2022/4/7
+     */
+    @GetMapping("/school/schoolStatisticDetail")
+    public SchoolResultDetailVO getSchoolStatisticDetail(@RequestParam(required = false) Integer screeningPlanId,
+                                                         @RequestParam(required = false) Integer screeningNoticeId,
+                                                         @RequestParam(required = false) Integer type,
+                                                         @RequestParam Integer schoolId) {
+        StatisticDetailBO statisticDetailBO = new StatisticDetailBO()
+                .setScreeningPlanId(screeningPlanId)
+                .setScreeningNoticeId(screeningNoticeId)
+                .setSchoolId(schoolId)
+                .setType(type);
+        return statService.getSchoolStatisticDetail(statisticDetailBO);
     }
+
 
 }

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.business.core.school.domain.mapper.StudentCommonDiseaseIdMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.school.domain.model.StudentCommonDiseaseId">
+    </resultMap>
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(studentId)">and `student_id` = #{studentId}</if>
+                <if test="@Ognl@isNotEmpty(areaDistrictShortCode)">and `area_district_short_code` = #{areaDistrictShortCode}</if>
+                <if test="@Ognl@isNotEmpty(schoolId)">and `school_id` = #{schoolId}</if>
+                <if test="@Ognl@isNotEmpty(gradeId)">and `grade_id` = #{gradeId}</if>
+                <if test="@Ognl@isNotEmpty(year)">and `year` = #{year}</if>
+                <if test="@Ognl@isNotEmpty(commonDiseaseCode)">and `common_disease_code` = #{commonDiseaseCode}</if>
+                <if test="@Ognl@isNotEmpty(commonDiseaseId)">and `common_disease_id` = #{commonDiseaseId}</if>
+                <if test="@Ognl@isNotEmpty(areaType)">and `area_type` = #{areaType}</if>
+                <if test="@Ognl@isNotEmpty(monitorType)">and `monitor_type` = #{monitorType}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+            </trim>
+        </where>
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, student_id, area_district_short_code, school_id, grade_id, year, common_disease_code, common_disease_id, area_type, monitor_type, create_time
+    </sql>
+
+</mapper>

@@ -217,6 +217,16 @@ public class ScreeningTaskController {
     }
 
     /**
+     * 获取指定任务下学校筛查详情
+     * @param screeningTaskId
+     * @return
+     */
+    @GetMapping("screeningSchoolDetails/{screeningTaskId}")
+    public List<ScreeningTaskOrgDTO> screeningSchoolDetails(@PathVariable Integer screeningTaskId) {
+        return screeningTaskOrgBizService.getScreeningSchoolDetails(screeningTaskId);
+    }
+
+    /**
      * 新增筛查机构
      *
      * @param screeningTaskOrgs 新增参数

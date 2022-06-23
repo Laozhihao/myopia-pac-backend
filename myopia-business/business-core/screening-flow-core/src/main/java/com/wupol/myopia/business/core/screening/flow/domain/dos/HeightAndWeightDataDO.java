@@ -1,6 +1,8 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dos;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.wupol.framework.core.util.ObjectsUtil;
+import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -32,4 +34,15 @@ public class HeightAndWeightDataDO extends AbstractDiagnosisResult implements Se
      * 身体质量指数值
      */
     private BigDecimal bmi;
+
+    public BigDecimal getBmi() {
+        if(valid()){
+            return StatUtil.bmi(weight,height);
+        }
+        return bmi;
+    }
+
+    public boolean valid() {
+        return ObjectsUtil.allNotNull(height,weight);
+    }
 }

@@ -17,13 +17,17 @@ import java.util.TimeZone;
 @UtilityClass
 public class JsonUtil {
 
-    private TimeZone CHINA_TIME_ZONE = TimeZone.getTimeZone("GMT+8");
+    private TimeZone chinaTimeZone = TimeZone.getTimeZone("GMT+8");
 
-    public <T> T jsonToObject(String json, Class<T> clazz) throws IOException {
+    public <T> T jsonToObject(String json, Class<T> clazz) {
         ObjectMapper mapper = new ObjectMapper()
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                .setTimeZone(CHINA_TIME_ZONE);
-        return mapper.readValue(json, clazz);
+                .setTimeZone(chinaTimeZone);
+        try {
+            return mapper.readValue(json, clazz);
+        }catch (IOException ex) {
+            throw new ManagementUncheckedException(ex, "string转换Object错误");
+        }
     }
 
     public String objectToJsonString(Object object) {
@@ -41,16 +45,19 @@ public class JsonUtil {
      * @param k      key
      * @param vClass 值类型
      * @param <T>
-     * @return
-     * @throws IOException
+     * @return T
      */
-    public <T> T getValue(String json, String k, Class<T> vClass) throws IOException {
+    public <T> T getValue(String json, String k, Class<T> vClass) {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        JsonNode node = mapper.readTree(json);
-        JsonNode data = node.get(k);
-        ObjectReader reader = mapper.readerFor(vClass);
-        return reader.readValue(data);
+        try {
+            JsonNode node = mapper.readTree(json);
+            JsonNode data = node.get(k);
+            ObjectReader reader = mapper.readerFor(vClass);
+            return reader.readValue(data);
+        }catch (IOException ex) {
+            throw new ManagementUncheckedException(ex, "获取json字符串中指定key的值错误");
+        }
     }
 
     public <T> T parsing(String value, Class<?> parametrized, Class<?>... parameterClasses) throws IOException {

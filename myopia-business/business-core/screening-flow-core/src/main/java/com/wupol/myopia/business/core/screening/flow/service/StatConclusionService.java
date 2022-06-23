@@ -68,13 +68,27 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
         return baseMapper.selectList(queryWrapper);
     }
 
+    public List<StatConclusion> getBySrcScreeningNoticeIds(List<Integer> screeningNoticeIds) {
+        LambdaQueryWrapper<StatConclusion> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(StatConclusion::getSrcScreeningNoticeId, screeningNoticeIds);
+        return baseMapper.selectList(queryWrapper);
+    }
+
     /**
      * 根据筛查计划获取筛查结论Vo列表
      * @param screeningPlanId
      * @return
      */
-    public List<StatConclusionDTO> getVoByScreeningPlanId(Integer screeningPlanId) {
-        return baseMapper.selectVoByScreeningPlanId(screeningPlanId);
+    public List<StatConclusion> getVoByScreeningPlanId(Integer screeningPlanId) {
+        LambdaQueryWrapper<StatConclusion> queryWrapper =new LambdaQueryWrapper<>();
+        queryWrapper.eq(StatConclusion::getPlanId,screeningPlanId);
+        return baseMapper.selectList(queryWrapper);
+    }
+
+    public List<StatConclusion> getByScreeningPlanIds(List<Integer> screeningPlanIds) {
+        LambdaQueryWrapper<StatConclusion> queryWrapper =new LambdaQueryWrapper<>();
+        queryWrapper.in(StatConclusion::getPlanId,screeningPlanIds);
+        return baseMapper.selectList(queryWrapper);
     }
 
 
@@ -105,11 +119,11 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
      * @param districtIds
      * @return
      */
-    public List<screeningPlanSchoolStudentDTO> getExportVoByScreeningNoticeIdAndDistrictIdsAndGroupBy(Integer screeningNoticeId, List<Integer> districtIds) {
+    public List<ExportPlanSchool> getPlanSchoolGradeClassHasData(Integer screeningNoticeId, List<Integer> districtIds) {
         if (CollectionUtils.isEmpty(districtIds)) {
             return Collections.emptyList();
         }
-        return baseMapper.selectExportVoByScreeningNoticeIdAndDistrictIdsAndGroupBy(screeningNoticeId, districtIds);
+        return baseMapper.selectPlanSchoolGradeClassHasData(screeningNoticeId, districtIds);
     }
 
     /**

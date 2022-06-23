@@ -81,5 +81,4 @@ public class ScreeningTaskOrgService extends BaseService<ScreeningTaskOrgMapper,
         taskQuery.setStartCreateTime(startTime).setEndCreateTime(endTime);
         return baseMapper.selectHasTaskInPeriod(null, taskQuery).stream().map(ScreeningTaskOrg::getScreeningOrgId).distinct().collect(Collectors.toList());
     }
-
 }

@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.stat.domain.dos;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -11,8 +12,10 @@ import java.io.Serializable;
  * @author hang.yuan 2022/4/13 15:21
  */
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Accessors(chain = true)
-public class RescreenSituationDO implements Serializable {
+public class RescreenSituationDO implements Serializable,FrontTableId {
+
 
     /**
      * 复测人数（默认0）
@@ -58,4 +61,9 @@ public class RescreenSituationDO implements Serializable {
      * 发生率
      */
     private String incidence;
+
+    @Override
+    public Integer getSerialVersionUID() {
+        return 4;
+    }
 }

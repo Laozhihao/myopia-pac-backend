@@ -159,10 +159,8 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
             }
             if (!CommonConst.DEFAULT_ID.equals(districtId)) {
                 List<District> districtPositionDetailById = districtService.getDistrictPositionDetailById(districtId);
-                StringBuffer folder = new StringBuffer();
-                districtPositionDetailById.forEach(item->{
-                    folder.append(item.getName());
-                });
+                StringBuilder folder = new StringBuilder();
+                districtPositionDetailById.forEach(item-> folder.append(item.getName()));
                 checkNotNullAndGetName(districtService.getById(districtId), "行政区域");
                 exportFileNamePrefix = folder.toString();
                 // 合计的要包括自己层级的筛查数据
@@ -240,7 +238,8 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
         if (Objects.nonNull(o)) {
             throw new BusinessException("正在导出中，请勿重复导出");
         }
-        redisUtil.set(key, 1, 60 * 60 * 24);
+        // time : 60 * 60 * 24
+        redisUtil.set(key, 1, 86400L);
     }
 
     /**

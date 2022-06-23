@@ -11,6 +11,8 @@
     </resultMap>
     <resultMap id="StudentVisionScreeningResultExportDTO" type="com.wupol.myopia.business.core.screening.flow.domain.dto.StudentVisionScreeningResultExportDTO">
     </resultMap>
+    <resultMap id="CommonDiseasePlanStudent" type="com.wupol.myopia.business.core.screening.flow.domain.dto.CommonDiseasePlanStudent">
+    </resultMap>
 
     <!-- 通用查询条件 -->
     <sql id="Base_Where_Clause">
@@ -55,7 +57,8 @@
     <sql id="Base_Column_List">
         id, src_screening_notice_id, screening_task_id, screening_plan_id, screening_org_id, plan_district_id, school_district_id, school_id, school_name,
         grade_id, grade_name, grade_type, class_id, class_name, student_id, id_card, birthday, gender, student_age,passport,
-        student_situation, student_no, student_name, create_time, province_code, city_code,area_code,town_code, address, parent_phone,nation,artificial,screening_code,`state`
+        student_situation, student_no, student_name, create_time, province_code, city_code,area_code,town_code, address, parent_phone,nation,artificial,screening_code,`state`,
+        migrate_student_screening_id
     </sql>
 
     <select id="selectStudentInfoWithResult"
@@ -88,6 +91,9 @@
     <select id="selectSchoolGradeVoByPlanIdAndSchoolId" resultMap="GradeClassesDTO">
         select grade_id, grade_name, class_id, class_name from m_screening_plan_school_student
         where screening_plan_id = #{screeningPlanId} and school_id = #{schoolId}
+        <if test="gradeId != null">
+            AND grade_id = #{gradeId}
+        </if>
         group by grade_id, class_id
     </select>
 
@@ -143,12 +149,15 @@
                mspss.id             as planStudentId,
                mspss.screening_plan_id as planId,
                mspss.screening_org_id,
-               mspss.passport
+               mspss.passport,
+               mspss.state,
+               msp.screening_type
         FROM m_screening_plan_school_student mspss
         left join m_school ms on ms.id = mspss.school_id
         left join m_school_grade sg on sg.id = mspss.grade_id
         left join m_school_class sc on sc.id = mspss.class_id
         left join m_vision_screening_result vsc on vsc.screening_plan_school_student_id = mspss.id
+        left join m_screening_plan msp on msp.id = mspss.screening_plan_id
         <where>
             <trim prefixOverrides="and">
                 and (vsc.is_double_screen is null or vsc.is_double_screen != 1)
@@ -203,6 +212,10 @@
                 <if test="param.idCardOrPassportLike != null and param.idCardOrPassportLike != ''">
                     and (mspss.`id_card` like CONCAT('%', #{param.idCardOrPassportLike}, '%') or mspss.`passport` like CONCAT('%', #{param.idCardOrPassportLike}, '%'))
                 </if>
+                <if test="param.screeningType != null">
+                    and msp.screening_type = #{param.screeningType}
+                </if>
+                    and (ISNULL(vsc.is_double_screen) or vsc.is_double_screen = 0)
             </trim>
                 order by mspss.id desc
         </where>
@@ -543,15 +556,6 @@
         </foreach>
     </delete>
 
-    <select id="getByIds" resultMap="BaseResultMap">
-        select *
-        from m_screening_plan_school_student
-                where id in
-        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
-            #{id}
-        </foreach>
-    </select>
-
     <select id="getByNePlanId" resultMap="BaseResultMap">
         select *
         from m_screening_plan_school_student
@@ -598,5 +602,22 @@
         <if test="id != null">
             and id != #{id}
         </if>
+    </select>
+
+    <select id="selectCommonDiseaseScreeningPlanStudent" resultMap="CommonDiseasePlanStudent">
+        SELECT
+               mspss.id,
+               mspss.school_id,
+               mspss.grade_id,
+               mspss.school_district_id,
+               mspss.student_id,
+               msp.start_time as plan_start_time,
+               msp.id as plan_id
+        FROM
+             m_screening_plan_school_student mspss
+                 LEFT JOIN m_screening_plan msp ON mspss.screening_plan_id = msp.id
+        WHERE
+                mspss.school_id = #{schoolId}
+          AND msp.screening_type = 1
     </select>
 </mapper>

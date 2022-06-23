@@ -6,10 +6,7 @@ import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.DeviceDataRequestDTO;
 import com.wupol.myopia.business.api.device.config.DeviceDataFactory;
-import com.wupol.myopia.business.api.device.domain.dto.DeviceUploadDTO;
-import com.wupol.myopia.business.api.device.domain.dto.ScalesRequestDTO;
-import com.wupol.myopia.business.api.device.domain.dto.UserInfoRequestDTO;
-import com.wupol.myopia.business.api.device.domain.dto.UserInfoResponseDTO;
+import com.wupol.myopia.business.api.device.domain.dto.*;
 import com.wupol.myopia.business.api.device.domain.result.DeviceUploadResult;
 import com.wupol.myopia.business.api.device.service.DeviceUploadDataService;
 import com.wupol.myopia.business.api.device.service.FkrDataService;
@@ -52,7 +49,7 @@ public class DeviceUploadDataController {
         } catch (Exception e) {
             log.error("设备上传数据失败,数据 = {}", JSON.toJSONString(deviceUploadDto), e);
             if (e instanceof BusinessException) {
-                return DeviceUploadResult.FAILURE(e.getMessage());
+                return DeviceUploadResult.failure(e.getMessage());
             }
             return DeviceUploadResult.FAILURE;
         }
@@ -93,12 +90,13 @@ public class DeviceUploadDataController {
     /**
      * FKR710 数据上传
      *
-     * @param str 数据
+     * @param requestDTO 数据
+     *
      * @return 结果
      */
     @PostMapping("fkr710/upload")
-    public ApiResult frkUpload(@RequestBody String str) {
-        fkrDataService.uploadData(str);
+    public ApiResult frkUpload(@RequestBody FkrRequestDTO requestDTO) {
+        fkrDataService.uploadData(requestDTO);
         return ApiResult.success();
     }
 

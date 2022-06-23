@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * HTML转换PDF
@@ -58,7 +59,31 @@ public class Html2PdfService {
     }
 
     /**
-     * 同步导出PDF
+     * 转换html页面为PDF
+     *
+     * @param url html 地址
+     * @param fileName 文件名，如：student.pdf
+     * @return java.lang.String
+     **/
+    public String convertHtmlToPdf(String url, String fileName) {
+        PdfResponseDTO pdfResponse = syncGeneratorPDF(url, fileName);
+        log.info("【请求node-js服务】响应：{}", JSONObject.toJSONString(pdfResponse));
+        return pdfResponse.getUrl();
+    }
+
+    /**
+     * 同步生成PDF
+     *
+     * @param url      文件URL
+     * @param fileName 文件名，如：123.pdf
+     * @return PdfResponseDTO
+     */
+    public PdfResponseDTO syncGeneratorPDF(String url, String fileName) {
+        return syncGeneratorPDF(url, fileName, UUID.randomUUID().toString());
+    }
+
+    /**
+     * 同步生成PDF
      *
      * @param url      文件URL
      * @param fileName 文件名
@@ -66,10 +91,11 @@ public class Html2PdfService {
      * @return PdfResponseDTO
      */
     public PdfResponseDTO syncGeneratorPDF(String url, String fileName, String uuid) {
+        log.info("【同步生成PDF】url = {}，fileName = {}，uuid = {}", url, fileName, uuid);
         HttpEntity<String> request = getStringHttpEntity(url, fileName, uuid);
+        log.info("【请求node-js服务】：{}", JSONObject.toJSONString(request));
         return restTemplate.postForObject(syncRequestUrl, request, PdfResponseDTO.class);
     }
-
 
     /**
      * 生成请求参数
@@ -100,7 +126,6 @@ public class Html2PdfService {
         requestDTO.setConfig(config);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        log.info("通知书请求参数:{}", JSONObject.toJSONString(requestDTO));
         return new HttpEntity<>(JSONObject.toJSONString(requestDTO), httpHeaders);
     }
 }

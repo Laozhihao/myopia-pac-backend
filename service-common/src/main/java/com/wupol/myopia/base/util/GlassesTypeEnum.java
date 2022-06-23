@@ -13,7 +13,7 @@ import java.util.Objects;
  **/
 @Getter
 public enum GlassesTypeEnum {
-    /** 戴眼镜情况 */
+
     NOT_WEARING(0, "不戴镜"),
     FRAME_GLASSES(1, "框架眼镜"),
     CONTACT_LENS(2, "隐形眼镜"),

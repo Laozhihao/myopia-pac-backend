@@ -23,11 +23,11 @@ public class SysUtilService {
     /**
      * 次数扩展字段
      */
-    private final String COUNT = "count";
+    private static final String COUNT = "count";
     /**
      * 每天下载次数
      */
-    private final int CALL_COUNT = 2;
+    private static final  int CALL_COUNT = 2;
 
     private final RedisUtil redisUtil;
 

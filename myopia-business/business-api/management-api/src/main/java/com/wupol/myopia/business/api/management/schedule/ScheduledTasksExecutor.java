@@ -1,6 +1,9 @@
 package com.wupol.myopia.business.api.management.schedule;
 
-import com.wupol.framework.core.util.CollectionUtils;
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.ListUtil;
+import cn.hutool.core.util.StrUtil;
+import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.CompareUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.api.management.domain.builder.*;
@@ -13,7 +16,6 @@ import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
@@ -24,11 +26,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -80,6 +84,14 @@ public class ScheduledTasksExecutor {
     @Autowired
     private PreSchoolNoticeService preSchoolNoticeService;
 
+    @Autowired
+    private DistrictStatisticTask districtStatisticTask;
+    @Autowired
+    private SchoolStatisticTask schoolStatisticTask;
+
+    @Autowired
+    private ThreadPoolTaskExecutor asyncServiceExecutor;
+
     /**
      * 筛查数据统计
      */
@@ -87,11 +99,74 @@ public class ScheduledTasksExecutor {
     public void statistic() {
         //1. 查询出需要统计的通知（根据筛查数据vision_screening_result的更新时间判断）
         List<Integer> yesterdayScreeningPlanIds = visionScreeningResultService.getYesterdayScreeningPlanIds();
-        if (CollectionUtils.isEmpty(yesterdayScreeningPlanIds)) {
+        if (CollectionUtil.isEmpty(yesterdayScreeningPlanIds)) {
             log.info("筛查数据统计：前一天无筛查数据，无需统计");
             return;
         }
         statisticByPlanIds(yesterdayScreeningPlanIds);
+
+        screeningResultStatisticByPlanIds(yesterdayScreeningPlanIds);
+    }
+
+    /**
+     * 根据指定日期生成筛查结果统计数据
+     * @param date 日期
+     */
+    public void statistic(String date,Integer planId,Boolean isAll){
+        if(Objects.equals(isAll,Boolean.TRUE)){
+            List<Integer> yesterdayScreeningPlanIds = screeningPlanService.list().stream().map(ScreeningPlan::getId).filter(id->Objects.nonNull(id) && id>=127).collect(Collectors.toList());
+            if (CollectionUtil.isEmpty(yesterdayScreeningPlanIds)) {
+                log.info("筛查数据统计：历史无筛查数据，无需统计");
+                return;
+            }
+            log.info("筛查数据统计,共{}条筛查计划",yesterdayScreeningPlanIds.size());
+            Collections.sort(yesterdayScreeningPlanIds);
+            if(Objects.nonNull(planId)){
+                yesterdayScreeningPlanIds = yesterdayScreeningPlanIds.stream().filter(id->id>planId).collect(Collectors.toList());
+            }
+            List<List<Integer>> planIdsList = ListUtil.split(yesterdayScreeningPlanIds, 20);
+            for (int i = 0; i < planIdsList.size(); i++) {
+                log.info("分批执行中...{}/{}",i+1,planIdsList.size());
+                screeningResultStatisticByPlanIds(planIdsList.get(i));
+            }
+        }else {
+            if ((StrUtil.isBlank(date) && planId != null) || (StrUtil.isNotBlank(date)&& planId != null)){
+                log.info("通过筛查计划ID planId:{}生成筛查结果统计数据",planId);
+                screeningResultStatisticByPlanIds(Lists.newArrayList(planId));
+            }
+
+            if (StrUtil.isNotBlank(date)&& planId == null){
+                log.info("通过筛查计划日期 date:{} 生成筛查结果统计数据",date);
+                List<Integer> planIds = visionScreeningResultService.getScreeningPlanIdsByDate(date);
+                if (CollectionUtil.isEmpty(planIds)){
+                    log.info("筛查数据统计：{}无筛查数据，无需统计",date);
+                    return;
+                }
+                screeningResultStatisticByPlanIds(planIds);
+            }
+        }
+        log.info("筛查数据统计,数据处理完成");
+    }
+
+    /**
+     * 根据筛查计划ID集合处理筛查结果统计
+     * @param screeningPlanIds 筛查计划ID集合
+     */
+    public void screeningResultStatisticByPlanIds(List<Integer> screeningPlanIds){
+
+        CompletableFuture<Void> districtFuture = CompletableFuture.runAsync(() -> {
+            log.info("按区域统计开始");
+            districtStatisticTask.districtStatistics(screeningPlanIds);
+            log.info("按区域统计结束");
+        }, asyncServiceExecutor);
+
+        CompletableFuture<Void> schoolFuture = CompletableFuture.runAsync(() -> {
+            log.info("按学校统计开始");
+            schoolStatisticTask.schoolStatistics(screeningPlanIds);
+            log.info("按学校统计结束");
+        }, asyncServiceExecutor);
+
+        CompletableFuture.allOf(districtFuture,schoolFuture).join();
     }
 
     /**
@@ -162,11 +237,11 @@ public class ScheduledTasksExecutor {
         //3. 分别处理每个学校的统计
         yesterdayScreeningPlanIds.forEach(screeningPlanId -> {
             //3.1 查出计划对应的筛查数据(结果)
-            List<StatConclusionDTO> statConclusions = statConclusionService.getVoByScreeningPlanId(screeningPlanId);
-            if (CollectionUtils.isEmpty(statConclusions)) {
+            List<StatConclusion> statConclusions = statConclusionService.getVoByScreeningPlanId(screeningPlanId);
+            if (CollectionUtil.isEmpty(statConclusions)) {
                 return;
             }
-            Map<Integer, List<StatConclusionDTO>> schoolIdStatConslusions = statConclusions.stream().collect(Collectors.groupingBy(StatConclusionDTO::getSchoolId));
+            Map<Integer, List<StatConclusion>> schoolIdStatConslusions = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolId));
             ScreeningPlan screeningPlan = screeningPlanService.getById(screeningPlanId);
             if (Objects.isNull(screeningPlan)) {
                 log.warn("按学校生成统计数据,筛查任务异常:{}", screeningPlanId);
@@ -177,11 +252,11 @@ public class ScheduledTasksExecutor {
             Map<Integer, Long> planSchoolStudentNum = screeningPlanSchoolStudentService.getByScreeningPlanId(screeningPlanId).stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getSchoolId, Collectors.counting()));
             //3.2 每个学校分别统计
             schoolIdStatConslusions.keySet().forEach(schoolId -> {
-                List<StatConclusionDTO> schoolStatConclusion = schoolIdStatConslusions.get(schoolId);
-                Map<Boolean, List<StatConclusionDTO>> isValidMap = schoolStatConclusion.stream().collect(Collectors.groupingBy(StatConclusion::getIsValid));
-                Map<Boolean, List<StatConclusionDTO>> isRescreenTotalMap = schoolStatConclusion.stream().collect(Collectors.groupingBy(StatConclusion::getIsRescreen));
-                List<StatConclusionDTO> validStatConclusions = isValidMap.getOrDefault(true, Collections.emptyList());
-                Map<Boolean, List<StatConclusionDTO>> isRescreenMap = validStatConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getIsRescreen));
+                List<StatConclusion> schoolStatConclusion = schoolIdStatConslusions.get(schoolId);
+                Map<Boolean, List<StatConclusion>> isValidMap = schoolStatConclusion.stream().collect(Collectors.groupingBy(StatConclusion::getIsValid));
+                Map<Boolean, List<StatConclusion>> isRescreenTotalMap = schoolStatConclusion.stream().collect(Collectors.groupingBy(StatConclusion::getIsRescreen));
+                List<StatConclusion> validStatConclusions = isValidMap.getOrDefault(true, Collections.emptyList());
+                Map<Boolean, List<StatConclusion>> isRescreenMap = validStatConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getIsRescreen));
                 int planSchoolScreeningNumbers = planSchoolStudentNum.getOrDefault(schoolId, 0L).intValue();
                 int reslScreeningNumbers = isRescreenTotalMap.getOrDefault(false, Collections.emptyList()).size();
                 schoolVisionStatistics.add(SchoolVisionStatisticBuilder.build(schoolIdMap.get(schoolId), screeningOrg, screeningPlan.getSrcScreeningNoticeId(), screeningPlan.getScreeningTaskId(), screeningPlanId, isRescreenMap.getOrDefault(false, Collections.emptyList()), reslScreeningNumbers, planSchoolScreeningNumbers));
@@ -207,7 +282,7 @@ public class ScheduledTasksExecutor {
             }
             //2.1 查出对应的筛查数据(结果)
             List<StatConclusion> statConclusions = statConclusionService.getBySrcScreeningNoticeId(screeningNoticeId);
-            if (CollectionUtils.isEmpty(statConclusions)) {
+            if (CollectionUtil.isEmpty(statConclusions)) {
                 return;
             }
             //2.2 层级维度统计
@@ -272,7 +347,7 @@ public class ScheduledTasksExecutor {
     private void genSelfStatistics(Integer screeningNoticeId, Integer districtId, Integer planStudentNum,
                                    List<DistrictMonitorStatistic> districtMonitorStatistics, List<DistrictVisionStatistic> districtVisionStatistics,
                                    List<StatConclusion> selfStatConclusions) {
-        if (CollectionUtils.isEmpty(selfStatConclusions) && planStudentNum == 0) {
+        if (CollectionUtil.isEmpty(selfStatConclusions) && planStudentNum == 0) {
             // 计划筛查学生不为0时，即使还没有筛查数据，也要新增统计
             return;
         }
@@ -281,7 +356,7 @@ public class ScheduledTasksExecutor {
         List<StatConclusion> validStatConclusions = isValidMap.getOrDefault(true, Collections.emptyList());
         Map<Boolean, List<StatConclusion>> isRescreenMap = validStatConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getIsRescreen));
         // 层级自己的筛查数据肯定属于同一个任务，所以只取第一个的就可以
-        Integer screeningTaskId = CollectionUtils.isEmpty(selfStatConclusions) ? CommonConst.DEFAULT_ID : selfStatConclusions.get(0).getTaskId();
+        Integer screeningTaskId = CollectionUtil.isEmpty(selfStatConclusions) ? CommonConst.DEFAULT_ID : selfStatConclusions.get(0).getTaskId();
         Integer realScreeningStudentNum = isRescreenTotalMap.getOrDefault(false, Collections.emptyList()).size();
         districtMonitorStatistics.add(DistrictMonitorStatisticBuilder.build(screeningNoticeId, screeningTaskId, districtId, CommonConst.NOT_TOTAL, isRescreenMap.getOrDefault(true, Collections.emptyList()), planStudentNum, realScreeningStudentNum));
         districtVisionStatistics.add(DistrictVisionStatisticBuilder.build(screeningNoticeId, screeningTaskId, districtId, CommonConst.NOT_TOTAL, isRescreenMap.getOrDefault(false, Collections.emptyList()), realScreeningStudentNum, planStudentNum));
@@ -300,7 +375,7 @@ public class ScheduledTasksExecutor {
     private void genTotalStatistics(Integer screeningNoticeId, Integer districtId, Integer planStudentNum,
                                     List<DistrictMonitorStatistic> districtMonitorStatistics, List<DistrictVisionStatistic> districtVisionStatistics,
                                     List<StatConclusion> totalStatConclusions) {
-        if (CollectionUtils.isEmpty(totalStatConclusions) && planStudentNum == 0) {
+        if (CollectionUtil.isEmpty(totalStatConclusions) && planStudentNum == 0) {
             // 计划筛查学生不为0时，即使还没有筛查数据，也要新增统计
             return;
         }
@@ -319,11 +394,11 @@ public class ScheduledTasksExecutor {
     /**
      * 每天9点执行，发送短信
      */
-    @Scheduled(cron = "0 0 9 * * ?")
+//    @Scheduled(cron = "0 0 9 * * ?")
     @Transactional(rollbackFor = Exception.class)
     public void sendSMSNotice() {
         List<VisionScreeningResult> studentResult = visionScreeningResultService.getStudentResults();
-        if (CollectionUtils.isEmpty(studentResult)) {
+        if (CollectionUtil.isEmpty(studentResult)) {
             return;
         }
         // 获取学生信息

@@ -9,7 +9,6 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import org.hibernate.validator.constraints.Length;
 
-import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -26,6 +25,10 @@ import java.util.Date;
 public class ScreeningPlanSchool implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    public static final String NOT_START = "未开始";
+    public static final String IN_PROGRESS = "进行中";
+    public static final String END = "已结束";
 
     /**
      * 主键id

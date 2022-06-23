@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.aggregation.export.excel;
 
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.ZipUtil;
 import com.alibaba.excel.write.merge.OnceAbsoluteMergeStrategy;
 import com.wupol.myopia.base.cache.RedisConstant;
@@ -30,6 +31,7 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -134,6 +136,7 @@ public class ExportPlanStudentExcelService extends BaseExportExcelFileService {
 
     @Override
     public void validateBeforeExport(ExportCondition exportCondition) {
+        // Do nothing validate parameter
     }
 
     @Override
@@ -141,7 +144,7 @@ public class ExportPlanStudentExcelService extends BaseExportExcelFileService {
 
         List<PlanStudentExportDTO> exportList = data;
         ScreeningPlanSchoolStudent planSchoolStudent = screeningPlanSchoolStudentService.getOneByStudentName(exportList.get(0).getName());
-        String path = UUID.randomUUID() + "/" + planSchoolStudent.getSchoolName();
+        String path = Paths.get(UUID.randomUUID().toString(),planSchoolStudent.getSchoolName()).toString();
         Map<String, List<PlanStudentExportDTO>> stringListMap = exportList.stream().collect(Collectors.groupingBy(PlanStudentExportDTO::getGradeName));
         OnceAbsoluteMergeStrategy mergeStrategy = new OnceAbsoluteMergeStrategy(0, 1, 20, 21);
         String filepath = null;
@@ -149,10 +152,10 @@ public class ExportPlanStudentExcelService extends BaseExportExcelFileService {
             List<PlanStudentExportDTO> classExport = gradeEntry.getValue();
             Map<String, List<PlanStudentExportDTO>> classMap = classExport.stream().collect(Collectors.groupingBy(PlanStudentExportDTO::getClassName));
             for (Map.Entry<String, List<PlanStudentExportDTO>> classEntry : classMap.entrySet()) {
-                filepath = ExcelUtil.exportListToExcelWithFolder(path + "/" + gradeEntry.getKey() + "/" + classEntry.getKey(), classEntry.getKey(), classEntry.getValue(), mergeStrategy, getHeadClass(exportCondition)).getAbsolutePath();
+                filepath = ExcelUtil.exportListToExcelWithFolder(Paths.get(path,gradeEntry.getKey(),classEntry.getKey()).toString(), classEntry.getKey(), classEntry.getValue(), mergeStrategy, getHeadClass()).getAbsolutePath();
             }
         }
-        return ZipUtil.zip(StringUtils.substringBeforeLast(StringUtils.substringBeforeLast(StringUtils.substringBeforeLast(filepath, "/"), "/"), "/"));
+        return ZipUtil.zip(StringUtils.substringBeforeLast(StringUtils.substringBeforeLast(StringUtils.substringBeforeLast(filepath, StrUtil.SLASH), StrUtil.SLASH), StrUtil.SLASH));
     }
 
     @Override

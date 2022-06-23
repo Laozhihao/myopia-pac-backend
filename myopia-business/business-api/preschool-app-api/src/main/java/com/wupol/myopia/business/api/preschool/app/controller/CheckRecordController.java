@@ -275,11 +275,7 @@ public class CheckRecordController {
     public void saveCheckRecordFromReferral(@RequestBody PreschoolCheckRecord checkRecord) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         checkRecord.setHospitalId(user.getOrgId());
-        if (Objects.isNull(checkRecord.getFromReferral())) {
-            checkRecord.setIsReferral(false);
-        } else {
-            checkRecord.setIsReferral(true);
-        }
+        checkRecord.setIsReferral(!Objects.isNull(checkRecord.getFromReferral()));
         preschoolCheckRecordService.saveCheckRecord(checkRecord);
     }
 

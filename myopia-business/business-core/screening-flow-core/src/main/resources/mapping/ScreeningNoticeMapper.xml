@@ -75,10 +75,12 @@
         <where>
             <trim prefixOverrides="and">
                 and release_status = 1 and type = 0
-                <if test="@Ognl@isNotEmpty(param.id)">and <![CDATA[ `id` <> #{param.id}]]></if>
                 <if test="@Ognl@isNotEmpty(param.govDeptId)">and `gov_dept_id` = #{param.govDeptId}</if>
                 <if test="param.startTime != null and param.endTime != null">
-                    and <![CDATA[ DATE(`start_time`) < DATE(#{param.endTime})]]> and <![CDATA[ DATE(`end_time`) >= DATE(#{param.startTime})]]>
+                    and <![CDATA[ DATE(`start_time`) <= DATE(#{param.endTime})]]> and <![CDATA[ DATE(`end_time`) >= DATE(#{param.startTime})]]>
+                </if>
+                <if test="@Ognl@isNotEmpty(param.screeningType)">
+                    and screening_type = #{param.screeningType}
                 </if>
             </trim>
         </where>

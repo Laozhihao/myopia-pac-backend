@@ -13,7 +13,6 @@ import com.wupol.myopia.business.core.screening.flow.domain.builder.StatConclusi
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultBasicData;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.VisionScreeningResultMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
@@ -107,7 +106,8 @@ public class VisionScreeningBizService {
         SchoolGrade schoolGrade = schoolGradeService.getById(screeningPlanSchoolStudent.getGradeId());
         StatConclusionBuilder statConclusionBuilder = StatConclusionBuilder.getStatConclusionBuilder();
         statConclusion = statConclusionBuilder.setCurrentVisionScreeningResult(currentVisionScreeningResult,secondVisionScreeningResult).setStatConclusion(statConclusion)
-                .setScreeningPlanSchoolStudent(screeningPlanSchoolStudent).setGradeCode(schoolGrade.getGradeCode())
+                .setScreeningPlanSchoolStudent(screeningPlanSchoolStudent)
+                .setGradeCode(schoolGrade.getGradeCode())
                 .build();
         return statConclusion;
     }
@@ -145,7 +145,7 @@ public class VisionScreeningBizService {
         VisionScreeningResult currentVisionScreeningResult = null;
         VisionScreeningResult anotherVisionScreeningResult = null;
         for (VisionScreeningResult visionScreeningResult : visionScreeningResults) {
-            if (visionScreeningResult.getIsDoubleScreen() == (screeningResultBasicData.getIsState() == 1)) {
+            if (visionScreeningResult.getIsDoubleScreen().equals(screeningResultBasicData.getIsState() == 1)) {
                 currentVisionScreeningResult = visionScreeningResult;
             } else {
                 anotherVisionScreeningResult = visionScreeningResult;
@@ -198,7 +198,9 @@ public class VisionScreeningBizService {
         student.setUpdateTime(new Date());
         student.setAstigmatismLevel(statConclusion.getAstigmatismLevel());
         student.setHyperopiaLevel(statConclusion.getHyperopiaLevel());
-        student.setMyopiaLevel(statConclusion.getMyopiaLevel());
+        if (statConclusion.getAge() >= 6){
+            student.setMyopiaLevel(statConclusion.getMyopiaLevel());
+        }
         studentService.updateScreenStudent(student);
     }
 
@@ -241,7 +243,6 @@ public class VisionScreeningBizService {
      * @param districtIds 行政区域ids
      */
     public int getScreeningResult(List<Integer> districtIds, List<Integer> taskIds) {
-        int resultCount  = visionScreeningResultMapper.selectScreeningResultByDistrictIdAndTaskId(districtIds,taskIds);
-        return resultCount;
+        return visionScreeningResultMapper.selectScreeningResultByDistrictIdAndTaskId(districtIds,taskIds);
     }
 }

@@ -1,20 +1,19 @@
 package com.wupol.myopia.business.core.system.service;
 
-import com.google.common.collect.Maps;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.core.system.constants.TemplateConstants;
+import com.wupol.myopia.business.core.system.domain.dos.TemplateDO;
 import com.wupol.myopia.business.core.system.domain.dto.TemplateBindItemDTO;
 import com.wupol.myopia.business.core.system.domain.dto.TemplateBindRequestDTO;
-import com.wupol.myopia.business.core.system.domain.dto.TemplateResponseDTO;
 import com.wupol.myopia.business.core.system.domain.mapper.TemplateMapper;
 import com.wupol.myopia.business.core.system.domain.model.Template;
 import com.wupol.myopia.business.core.system.domain.model.TemplateDistrict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -30,131 +29,51 @@ public class TemplateService extends BaseService<TemplateMapper, Template> {
 
     @Resource
     private TemplateDistrictService templateDistrictService;
-    @Resource
-    private TemplateService templateService;
 
     /**
      * 获取模板列表
      *
      * @param type 类型
-     * @return List<TemplateResponse>
-     */
-    public List<TemplateResponseDTO> getTemplateLists(Integer type) {
-
-        List<TemplateResponseDTO> responses = new ArrayList<>();
-
+     * @return java.util.Map<java.lang.Integer,java.util.List<com.wupol.myopia.business.core.system.domain.dos.TemplateDO>>
+     **/
+    public Map<Integer, List<TemplateDO>> getTemplateLists(Integer type) {
         // 根据类型查模板
-        List<Template> templateList = baseMapper.getByType(type);
-
+        List<Template> templateList = findByList(new Template().setType(type));
         if (CollectionUtils.isEmpty(templateList)) {
-            return responses;
+            return Collections.emptyMap();
         }
+        // 查询使用该模板的行政区域
+        List<TemplateDistrict> templateDistrictList = templateDistrictService.getByTemplateIds(templateList.stream().map(Template::getId).collect(Collectors.toList()));
+        Map<Integer, List<TemplateDistrict>> districtMaps = templateDistrictList.stream().collect(Collectors.groupingBy(TemplateDistrict::getTemplateId));
 
-        // 查询使用的省
-        Map<Integer, List<TemplateDistrict>> districtMaps = Maps.newHashMap();
-
-        List<TemplateDistrict> templateDistricts = templateDistrictService.getByTemplateIds(templateList.stream().map(Template::getId).collect(Collectors.toList()));
-        if (!CollectionUtils.isEmpty(templateDistricts)) {
-            districtMaps = templateDistricts.stream().collect(Collectors.groupingBy(TemplateDistrict::getTemplateId));
-        }
-
-        // 封装DTO
-        for (Template t : templateList) {
-            TemplateResponseDTO response = new TemplateResponseDTO();
-            response.setId(t.getId());
-            response.setName(t.getName());
-            if (null != districtMaps.get(t.getId())) {
-                response.setDistrictInfo(districtMaps.get(t.getId()));
-            }
-            responses.add(response);
-        }
-        return responses;
+        return templateList.stream()
+                .map(t -> TemplateDO.parseFromTemplate(t).setDistrictInfo(districtMaps.getOrDefault(t.getId(), null)))
+                .collect(Collectors.groupingBy(TemplateDO::getBiz));
     }
+
     /**
-     * 绑定区域（档案卡绑定区域）
+     * 绑定区域的模板
      *
      * @param request 入参
-     * @return boolean 是否成功
+     * @return void
      */
     @Transactional(rollbackFor = Exception.class)
-    public Boolean districtBindArchives(TemplateBindRequestDTO request) {
-
+    public void bindDistrictToTemplate(TemplateBindRequestDTO request) {
         Integer templateId = request.getTemplateId();
-        List<TemplateBindItemDTO> bindItemDTOS = request.getDistrictInfo();
-
-        List<Integer> districtIds = bindItemDTOS.stream().map(TemplateBindItemDTO::getDistrictId).collect(Collectors.toList());
+        List<TemplateBindItemDTO> bindingDistrictList = request.getDistrictInfo();
+        Assert.notNull(templateId, "模板ID不能为空");
+        // 清空该模板下所有绑定
         templateDistrictService.remove(new TemplateDistrict().setTemplateId(templateId));
-        if (!CollectionUtils.isEmpty(districtIds)) {
-            batchDelete(districtIds);
-            // 批量插入
-            templateDistrictService.batchInsert(templateId, bindItemDTOS);
+        if (CollectionUtils.isEmpty(bindingDistrictList)) {
+            return;
         }
-        return true;
-    }
-
-    /**
-     * 绑定区域（档案卡绑定区域）
-     *
-     * @param request 入参
-     * @return boolean 是否成功
-     */
-    @Transactional(rollbackFor = Exception.class)
-    public Boolean districtBindReport(TemplateBindRequestDTO request) {
-
-        Integer templateId = request.getTemplateId();
-        List<TemplateBindItemDTO> bindItemDTOS = request.getDistrictInfo();
-
-        List<Integer> districtIds = bindItemDTOS.stream().map(TemplateBindItemDTO::getDistrictId).collect(Collectors.toList());
-        // 批量删除
-        templateDistrictService.remove(new TemplateDistrict().setTemplateId(templateId));
-        if (!CollectionUtils.isEmpty(districtIds)) {
-            // 批量插入
-            templateDistrictService.batchInsert(templateId, bindItemDTOS);
+        // 为档案卡模板时，解除与其他模板的绑定关系（2022-04-24 目前同筛查业务类型下，1个行政区域仅允许绑定1个模板）
+        Template template = getById(templateId);
+        if (TemplateConstants.TYPE_TEMPLATE_STUDENT_ARCHIVES.equals(template.getType())) {
+            List<Integer> districtIds = bindingDistrictList.stream().map(TemplateBindItemDTO::getDistrictId).collect(Collectors.toList());
+            templateDistrictService.removeArchivesBindingDistrictBatch(districtIds, template.getBiz());
         }
-        return true;
+        // 批量绑定到当前模板下
+        templateDistrictService.bindDistrictBatch(templateId, bindingDistrictList);
     }
-
-    /**
-     * 检查是否一个省是否绑定一个模板
-     * <p>Collections.disjoint() 如果有相同元素则返回false</p>
-     *
-     * @param type 类型
-     * @param list 新增列表
-     * @return 是否重复绑定
-     */
-    public boolean check(Integer type, List<TemplateBindItemDTO> list) {
-        // 根据类型查模板
-        List<Template> templateList = baseMapper.getByType(type);
-
-        // 根据模板ID获取所有的行政ID
-        List<TemplateDistrict> allDistrict = templateDistrictService.getByTemplateIds(
-                templateList.stream().map(Template::getId).collect(Collectors.toList()));
-
-        // 判断两个list是否有相同元素
-        return !Collections.disjoint(list.stream().map(TemplateBindItemDTO::getDistrictId).collect(Collectors.toList()),
-                allDistrict.stream().map(TemplateDistrict::getDistrictId).collect(Collectors.toList()));
-    }
-
-    /**
-     * 解除档案卡绑定区域
-     * @param districtIds
-     */
-    public void batchDelete(List<Integer> districtIds){
-        // 根据类型查模板(档案卡)
-        List<Template> templateList = getArchives();
-        List<Integer> templateIds = templateList.stream().map(Template::getId).collect(Collectors.toList());
-        templateDistrictService.batchDeleteTemplateIdsAndDistrictIds(templateIds,districtIds);
-
-    }
-
-    /**
-     * 获取所有档案卡
-     * @return
-     */
-    public List<Template> getArchives(){
-        // 根据类型查模板(档案卡)
-        List<Template> templateList = baseMapper.getByType(CommonConst.TYPE_TEMPLATE_STUDENT_ARCHIVES);
-        return templateList;
-    }
-
 }

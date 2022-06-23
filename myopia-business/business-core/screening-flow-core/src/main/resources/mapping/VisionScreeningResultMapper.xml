@@ -112,6 +112,15 @@
         order by update_time desc
     </select>
 
+    <select id="getByStudentIdWithPage" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_vision_screening_result
+        where student_id = #{studentId}
+        group by update_time
+        order by update_time desc
+    </select>
+
     <select id="getStudentResults" resultMap="BaseResultMap">
         select mvsr.*
         from m_vision_screening_result mvsr
@@ -144,16 +153,6 @@
         from m_vision_screening_result
         where plan_id = #{planId}
         group by school_id
-    </select>
-
-    <select id="getByStudentIdsAndPlanId" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from m_vision_screening_result
-        where plan_id = #{planId} and student_id in
-        <foreach collection="studentIds" item="studentId" index="index" open="(" close=")" separator=",">
-             #{studentId}
-        </foreach>
     </select>
 
     <select id="getByPlanIdAndSchoolId" resultMap="BaseResultMap">
@@ -228,4 +227,15 @@
         </foreach>
         and is_double_screen = 0
     </select>
+
+    <select id="countScreeningSchoolByTaskId" resultType="com.wupol.myopia.business.core.screening.flow.domain.dos.ScreeningSchoolCount">
+        SELECT
+               plan_id,
+               count( * ) AS screening_school_count
+        FROM
+             ( SELECT plan_id, school_id FROM m_vision_screening_result WHERE task_id = #{taskId} GROUP BY plan_id, school_id ) temp
+        GROUP BY
+               plan_id
+    </select>
+
 </mapper>

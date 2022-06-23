@@ -304,7 +304,8 @@ public class VisionScreeningController {
         if (Objects.nonNull(o)) {
             throw new BusinessException("正在导出中，请勿重复导出");
         }
-        redisUtil.set(key, 1, 60 * 60 * 24);
+        //time: 60 * 60 * 24
+        redisUtil.set(key, 1, 86400L);
     }
 
     /**

@@ -69,6 +69,8 @@ public interface ExportFileService {
 
     /**
      * 获取文件名
+     * 1.同步导出，带后缀，作为导出文件的文件名
+     * 2.异步导出，不带后缀，作为压缩包zip文件名，并作为站内消息的关键内容
      *
      * @param exportCondition 导出条件
      * @return java.lang.String

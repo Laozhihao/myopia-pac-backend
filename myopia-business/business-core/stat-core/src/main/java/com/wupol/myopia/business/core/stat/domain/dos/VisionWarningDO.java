@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.stat.domain.dos;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -11,8 +12,9 @@ import java.io.Serializable;
  * @author hang.yuan 2022/4/13 15:28
  */
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Accessors(chain = true)
-public class VisionWarningDO implements Serializable {
+public class VisionWarningDO implements Serializable,FrontTableId {
 
     /**
      * 小学及以上--视力预警人数
@@ -59,4 +61,8 @@ public class VisionWarningDO implements Serializable {
      */
     private String visionLabel3Ratio;
 
+    @Override
+    public Integer getSerialVersionUID() {
+        return 5;
+    }
 }

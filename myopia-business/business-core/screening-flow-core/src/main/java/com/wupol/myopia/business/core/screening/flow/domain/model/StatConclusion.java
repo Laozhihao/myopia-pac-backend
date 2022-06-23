@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -50,10 +51,10 @@ public class StatConclusion implements Serializable {
     private Integer warningLevel;
 
     /** 左眼视力 */
-    private Float visionL;
+    private BigDecimal visionL;
 
     /** 右眼视力 */
-    private Float visionR;
+    private BigDecimal visionR;
 
     /** 是否视力低下 */
     private Boolean isLowVision;
@@ -79,6 +80,9 @@ public class StatConclusion implements Serializable {
     /** 复测错误项次 */
     private Integer rescreenErrorNum;
 
+    /** 复测项次 */
+    private Integer rescreenItemNum;
+
     /** 是否有效数据 */
     private Boolean isValid;
 
@@ -89,17 +93,17 @@ public class StatConclusion implements Serializable {
     private Integer studentId;
 
     /**
-     * 近视预警等级
+     * 近视等级
      */
     private Integer myopiaLevel;
 
     /**
-     * 远视预警等级
+     * 远视等级
      */
     private Integer hyperopiaLevel;
 
     /**
-     * 散光预警等级
+     * 散光等级
      */
     private Integer astigmatismLevel;
 
@@ -167,7 +171,7 @@ public class StatConclusion implements Serializable {
      */
     private Integer screeningType;
     /**
-     * 是否龋齿
+     * 是否龋患
      */
     private Boolean isSaprodontia;
     /**
@@ -216,4 +220,46 @@ public class StatConclusion implements Serializable {
      * 是否复查
      */
     private Boolean isReview;
+
+    /**
+     *  是否屈光参差
+     */
+    private Boolean isAnisometropia;
+
+    /**
+     * 龋患牙齿数
+     */
+    private Integer saprodontiaTeeth;
+    /**
+     * 是否龋失
+     */
+    private Boolean isSaprodontiaLoss;
+    /**
+     * 龋失牙齿数
+     */
+    private Integer saprodontiaLossTeeth;
+    /**
+     * 是否龋补
+     */
+    private Boolean isSaprodontiaRepair;
+    /**
+     * 龋补牙齿数
+     */
+    private Integer saprodontiaRepairTeeth;
+
+    /**
+     * 是否戴镜
+     */
+    private Boolean isWearingGlasses;
+
+    /**
+     * 视力低下等级 {@link com.wupol.myopia.business.common.utils.constant.LowVisionLevelEnum}
+     */
+    private Integer lowVisionLevel;
+
+    /**
+     * 是否配合检查：0-配合、1-不配合
+     */
+    private Integer isCooperative;
+
 }

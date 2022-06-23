@@ -61,12 +61,12 @@ public class ScreeningExportService {
     /**
      * 默认文件Id
      */
-    private final static Integer DEFAULT_FILE_ID = -1;
+    private static final Integer DEFAULT_FILE_ID = -1;
 
     /**
      * 默认图片路径
      */
-    private final static String DEFAULT_IMAGE_PATH = "/image/wechat_mp_qrcode.png";
+    private static final String DEFAULT_IMAGE_PATH = "/image/wechat_mp_qrcode.png";
 
     @Value("${server.host}")
     private String hostUrl;
@@ -130,8 +130,7 @@ public class ScreeningExportService {
             }
             Map<String, Object> models = getQrCodeInfoMap(school, classDisplay, students, notificationConfig);
             // 3. 生成并上传覆盖pdf。S3上路径：myopia/pdf/{date}/{file}。获取地址1天失效
-            Map<String, String> resultMap = uploadQrCodePdf(fileName, models);
-            return resultMap;
+            return uploadQrCodePdf(fileName, models);
         } catch (Exception e) {
             throw new BusinessException("生成PDF文件失败", e);
         }
