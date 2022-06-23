@@ -78,10 +78,13 @@ public class ReportController {
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @GetMapping("/district/export")
-    public void exportDistrictReport(@NotNull(message = "筛查通知ID不能为空") Integer notificationId, @NotNull(message = "行政区域ID不能为空") Integer districtId) throws IOException {
+    public void exportDistrictReport(@NotNull(message = "筛查通知ID不能为空") Integer notificationId,
+                                     @NotNull(message = "行政区域ID不能为空") Integer districtId,
+                                     @NotNull(message = "行政区域ID不能为空") Boolean isKindergarten) throws IOException {
         ExportCondition exportCondition = new ExportCondition()
                 .setNotificationId(notificationId)
                 .setDistrictId(districtId)
+                .setIsKindergarten(isKindergarten)
                 .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
 
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.DISTRICT_SCREENING_REPORT_SERVICE);

@@ -1,20 +1,24 @@
 package com.wupol.myopia.business.aggregation.export.pdf.report;
 
+import cn.hutool.core.util.StrUtil;
 import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.pdf.BaseExportPdfFileService;
-import com.wupol.myopia.business.aggregation.export.pdf.GeneratePdfFileService;
-import com.wupol.myopia.business.aggregation.export.pdf.constant.PDFFileNameConstant;
+import com.wupol.myopia.business.aggregation.export.pdf.ExportPdfFileFactory;
+import com.wupol.myopia.business.aggregation.export.pdf.ExportPdfFileService;
+import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
-import com.wupol.myopia.business.core.school.domain.model.School;
-import com.wupol.myopia.business.core.school.service.SchoolService;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * 导出学校的筛查报告
@@ -22,15 +26,17 @@ import java.util.Objects;
  * @Author HaoHao
  * @Date 2021/3/24
  **/
-@Service("schoolScreeningReportService")
+@Service(ExportReportServiceNameConstant.SCHOOL_SCREENING_REPORT_SERVICE)
 public class ExportSchoolScreeningService extends BaseExportPdfFileService {
 
     @Autowired
-    private GeneratePdfFileService generateReportPdfService;
-    @Autowired
-    private SchoolService schoolService;
-    @Autowired
     private StatConclusionService statConclusionService;
+    @Autowired
+    private ExportPdfFileFactory exportPdfFileFactory;
+    @Autowired
+    private ScreeningNoticeService screeningNoticeService;
+    @Autowired
+    private ScreeningPlanService screeningPlanService;
 
     /**
      * 生成文件
@@ -42,7 +48,8 @@ public class ExportSchoolScreeningService extends BaseExportPdfFileService {
      **/
     @Override
     public void generatePdfFile(ExportCondition exportCondition, String fileSavePath, String fileName) {
-        generateReportPdfService.generateSchoolScreeningReportPdfFile(fileSavePath, exportCondition.getNotificationId(), exportCondition.getPlanId(), exportCondition.getSchoolId());
+        Optional<ExportPdfFileService> optional = getExportPdfFileService(exportCondition);
+        optional.ifPresent(service -> service.generateSchoolReportPdfFile(fileSavePath,fileName,exportCondition));
     }
 
     /**
@@ -53,8 +60,8 @@ public class ExportSchoolScreeningService extends BaseExportPdfFileService {
      **/
     @Override
     public String getFileName(ExportCondition exportCondition) {
-        School school = schoolService.getById(exportCondition.getSchoolId());
-        return String.format(PDFFileNameConstant.REPORT_PDF_FILE_NAME, school.getName());
+        Optional<ExportPdfFileService> optional = getExportPdfFileService(exportCondition);
+        return optional.map(service -> service.getFileName(exportCondition)).orElse(StrUtil.EMPTY);
     }
 
     @Override
@@ -73,5 +80,18 @@ public class ExportSchoolScreeningService extends BaseExportPdfFileService {
                 exportCondition.getSchoolId(),
                 exportCondition.getNotificationId(),
                 exportCondition.getPlanId());
+    }
+
+    private Optional<ExportPdfFileService> getExportPdfFileService(ExportCondition exportCondition){
+        Integer screeningType =null;
+        if (Objects.nonNull(exportCondition.getNotificationId())){
+            screeningType = screeningNoticeService.getById(exportCondition.getNotificationId()).getScreeningType();
+        }
+        if (Objects.isNull(screeningType) && Objects.nonNull(exportCondition.getPlanId())){
+            screeningType = screeningPlanService.getById(exportCondition.getPlanId()).getScreeningType();
+        }
+        Assert.isTrue(Objects.nonNull(screeningType), "筛查通知ID和筛查计划ID都为空");
+        ScreeningNotice screeningNotice = screeningNoticeService.getById(exportCondition.getNotificationId());
+        return exportPdfFileFactory.getExportPdfFileService(screeningNotice.getScreeningType());
     }
 }

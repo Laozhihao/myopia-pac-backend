@@ -1,14 +1,18 @@
 package com.wupol.myopia.business.aggregation.export.pdf.report;
 
+import cn.hutool.core.util.StrUtil;
 import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.BaseExportPdfFileService;
-import com.wupol.myopia.business.aggregation.export.pdf.GeneratePdfFileService;
-import com.wupol.myopia.business.aggregation.export.pdf.constant.PDFFileNameConstant;
+import com.wupol.myopia.business.aggregation.export.pdf.ExportPdfFileFactory;
+import com.wupol.myopia.business.aggregation.export.pdf.ExportPdfFileService;
+import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
-import com.wupol.myopia.business.core.common.domain.model.District;
-import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 /**
  * 导出行政区域的筛查报告
@@ -16,13 +20,13 @@ import org.springframework.stereotype.Service;
  * @Author HaoHao
  * @Date 2021/3/24
  **/
-@Service("districtScreeningReportService")
+@Service(ExportReportServiceNameConstant.DISTRICT_SCREENING_REPORT_SERVICE)
 public class ExportDistrictScreeningService extends BaseExportPdfFileService {
 
     @Autowired
-    private DistrictService districtService;
+    private ExportPdfFileFactory exportPdfFileFactory;
     @Autowired
-    private GeneratePdfFileService generateReportPdfService;
+    private ScreeningNoticeService screeningNoticeService;
 
     /**
      * 生成文件
@@ -34,10 +38,8 @@ public class ExportDistrictScreeningService extends BaseExportPdfFileService {
      **/
     @Override
     public void generatePdfFile(ExportCondition exportCondition, String fileSavePath, String fileName) {
-        // 区域筛查报告
-        generateReportPdfService.generateDistrictScreeningReportPdfFile(fileSavePath, fileName, exportCondition.getNotificationId(), exportCondition.getDistrictId());
-        // 学校筛查报告
-        generateReportPdfService.generateSchoolScreeningReportPdfFileByNoticeId(fileSavePath, exportCondition.getNotificationId(), exportCondition.getDistrictId());
+        Optional<ExportPdfFileService> optional = getExportPdfFileService(exportCondition);
+        optional.ifPresent(service -> service.generateDistrictReportPdfFile(fileSavePath,fileName,exportCondition));
     }
 
     /**
@@ -48,9 +50,8 @@ public class ExportDistrictScreeningService extends BaseExportPdfFileService {
      **/
     @Override
     public String getFileName(ExportCondition exportCondition) {
-        District district = districtService.getById(exportCondition.getDistrictId());
-        String districtFullName = districtService.getTopDistrictName(district.getCode());
-        return String.format(PDFFileNameConstant.REPORT_PDF_FILE_NAME, districtFullName);
+        Optional<ExportPdfFileService> optional = getExportPdfFileService(exportCondition);
+        return optional.map(service -> service.getFileName(exportCondition)).orElse(StrUtil.EMPTY);
     }
 
     @Override
@@ -59,5 +60,10 @@ public class ExportDistrictScreeningService extends BaseExportPdfFileService {
                 exportCondition.getApplyExportFileUserId(),
                 exportCondition.getNotificationId(),
                 exportCondition.getDistrictId());
+    }
+
+    private Optional<ExportPdfFileService> getExportPdfFileService(ExportCondition exportCondition){
+        ScreeningNotice screeningNotice = screeningNoticeService.getById(exportCondition.getNotificationId());
+        return exportPdfFileFactory.getExportPdfFileService(screeningNotice.getScreeningType());
     }
 }
