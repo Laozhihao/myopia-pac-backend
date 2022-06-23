@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.school;
 
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.PrimaryLowVisionInfo;
-import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.CountAndProportion;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.primary.AgeLowVision;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.primary.GenderLowVision;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.primary.GradeLowVision;

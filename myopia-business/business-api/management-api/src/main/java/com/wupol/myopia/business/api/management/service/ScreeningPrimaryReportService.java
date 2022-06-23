@@ -233,7 +233,10 @@ public class ScreeningPrimaryReportService {
         ageLowVision.setTables(Lists.newArrayList(ageTables));
 
         if (commonReportService.isShowInfo(ageTables, true)) {
-            ageLowVision.setAgeLowVisionChart(horizontalChartService.lowVisionChart(ageTables.stream().filter(s -> !StringUtils.equals(s.getName(), CommonReportService.TOTAL_NAME)).collect(Collectors.toList()), true));
+            ageLowVision.setAgeLowVisionChart(horizontalChartService.lowVisionChart(ageTables.stream()
+                    .filter(s -> !StringUtils.equals(s.getName(), CommonReportService.TOTAL_NAME))
+                    .filter(s -> s.getValidCount() != 0L)
+                    .collect(Collectors.toList()), true));
             ageLowVision.setInfo(getLowVisionInfo(ageTables));
         }
         info.setAgeLowVision(ageLowVision);
@@ -342,7 +345,7 @@ public class ScreeningPrimaryReportService {
         ageWearingGlasses.setTables(Lists.newArrayList(ageTables));
         if (commonReportService.isShowInfo(gradeTables, true)) {
             ageWearingGlasses.setWearingGlassesChart(horizontalChartService.primaryWearingGlassesChart(ageTables.stream().filter(s -> !commonReportService.filterList().contains(s.getName())).collect(Collectors.toList()), true));
-            ageWearingGlasses.setVisionCorrectionChart(horizontalChartService.primaryGenderVisionCorrectionChart(ageTables.stream().filter(s -> !commonReportService.filterList().contains(s.getName())).collect(Collectors.toList())));
+            ageWearingGlasses.setVisionCorrectionChart(horizontalChartService.primaryVisionCorrectionChart(ageTables.stream().filter(s -> !commonReportService.filterList().contains(s.getName())).collect(Collectors.toList()),true));
             ageWearingGlasses.setInfo(primaryWearingInfo(statConclusions, ageTables, total));
         }
         wearingGlassesInfo.setAgeWearingGlasses(ageWearingGlasses);
@@ -355,7 +358,7 @@ public class ScreeningPrimaryReportService {
         List<AgeWearingTable> genderTables = screeningReportTableService.genderWearingTable(statConclusions, total);
         genderWearingGlasses.setTables(Lists.newArrayList(genderTables));
         genderWearingGlasses.setGenderWearingGlassesChart(horizontalChartService.primaryWearingGlassesChart(genderTables.stream().filter(s -> !StringUtils.equals(s.getName(), CommonReportService.TOTAL_NAME)).collect(Collectors.toList()),false));
-        genderWearingGlasses.setGenderVisionCorrectionChart(horizontalChartService.primaryGenderVisionCorrectionChart(genderTables.stream().filter(s -> !StringUtils.equals(s.getName(), CommonReportService.TOTAL_NAME)).collect(Collectors.toList())));
+        genderWearingGlasses.setGenderVisionCorrectionChart(horizontalChartService.primaryVisionCorrectionChart(genderTables.stream().filter(s -> !StringUtils.equals(s.getName(), CommonReportService.TOTAL_NAME)).collect(Collectors.toList()),false));
         genderWearingGlasses.setInfo(generateGenderWearingGlasses(statConclusions, commonReportService, total));
         return genderWearingGlasses;
     }

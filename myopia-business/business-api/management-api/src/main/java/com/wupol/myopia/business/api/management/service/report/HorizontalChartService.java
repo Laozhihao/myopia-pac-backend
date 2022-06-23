@@ -2,7 +2,6 @@ package com.wupol.myopia.business.api.management.service.report;
 
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.util.BigDecimalUtil;
-import com.wupol.myopia.base.util.ListUtil;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.area.schoolage.AreaHistoryLowVisionTable;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.ChartDetail;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.CommonTable;
@@ -50,7 +49,7 @@ public class HorizontalChartService {
 
     public HorizontalChart lowVisionChart(List<CommonLowVisionTable> tables, Boolean isAge) {
         HorizontalChart horizontalChart = new HorizontalChart();
-        setHorizontalChartXName(tables, horizontalChart, isAge);
+        tables = setHorizontalChartXName(tables, horizontalChart, isAge);
         horizontalChart.setY(Lists.newArrayList(
                 new ChartDetail(LowVisionLevelEnum.LOW_VISION_LEVEL_LIGHT.desc, tables.stream().map(CommonLowVisionTable::getLightLowVisionProportion).collect(Collectors.toList())),
                 new ChartDetail(LowVisionLevelEnum.LOW_VISION_LEVEL_MIDDLE.desc, tables.stream().map(CommonLowVisionTable::getMiddleLowVisionProportion).collect(Collectors.toList())),
@@ -254,10 +253,9 @@ public class HorizontalChartService {
         return horizontalChart;
     }
 
-    public HorizontalChart primaryGenderVisionCorrectionChart(List<AgeWearingTable> tables) {
+    public HorizontalChart primaryVisionCorrectionChart(List<AgeWearingTable> tables, Boolean isAge) {
         HorizontalChart horizontalChart = new HorizontalChart();
-        horizontalChart.setX(tables.stream().map(AgeWearingTable::getName).collect(Collectors.toList()));
-
+        tables = setHorizontalChartXName(tables, horizontalChart, isAge);
         horizontalChart.setY(Lists.newArrayList(
                 new ChartDetail("足矫", tables.stream().map(AgeWearingTable::getEnoughProportion).collect(Collectors.toList())),
                 new ChartDetail("欠矫", tables.stream().map(AgeWearingTable::getUnderProportion).collect(Collectors.toList())),
