@@ -8,9 +8,8 @@ import com.wupol.myopia.business.aggregation.export.pdf.ExportPdfFileFactory;
 import com.wupol.myopia.business.aggregation.export.pdf.ExportPdfFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,8 +32,6 @@ public class ExportSchoolReportService extends BaseExportPdfFileService {
     private StatConclusionService statConclusionService;
     @Autowired
     private ExportPdfFileFactory exportPdfFileFactory;
-    @Autowired
-    private ScreeningNoticeService screeningNoticeService;
     @Autowired
     private ScreeningPlanService screeningPlanService;
 
@@ -78,20 +75,11 @@ public class ExportSchoolReportService extends BaseExportPdfFileService {
         return String.format(RedisConstant.FILE_EXPORT_PDF_SCHOOL_SCREENING,
                 exportCondition.getApplyExportFileUserId(),
                 exportCondition.getSchoolId(),
-                exportCondition.getNotificationId(),
                 exportCondition.getPlanId());
     }
 
     private Optional<ExportPdfFileService> getExportPdfFileService(ExportCondition exportCondition){
-        Integer screeningType =null;
-        if (Objects.nonNull(exportCondition.getNotificationId())){
-            screeningType = screeningNoticeService.getById(exportCondition.getNotificationId()).getScreeningType();
-        }
-        if (Objects.isNull(screeningType) && Objects.nonNull(exportCondition.getPlanId())){
-            screeningType = screeningPlanService.getById(exportCondition.getPlanId()).getScreeningType();
-        }
-        Assert.notNull(screeningType, "筛查通知ID和筛查计划ID都为空");
-        ScreeningNotice screeningNotice = screeningNoticeService.getById(exportCondition.getNotificationId());
-        return exportPdfFileFactory.getExportPdfFileService(screeningNotice.getScreeningType());
+        ScreeningPlan screeningPlan = screeningPlanService.getById(exportCondition.getPlanId());
+        return exportPdfFileFactory.getExportPdfFileService(screeningPlan.getScreeningType());
     }
 }
