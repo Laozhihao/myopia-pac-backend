@@ -27,7 +27,7 @@ import java.util.Optional;
  * @Date 2021/3/24
  **/
 @Service(ExportReportServiceNameConstant.SCHOOL_SCREENING_REPORT_SERVICE)
-public class ExportSchoolScreeningService extends BaseExportPdfFileService {
+public class ExportSchoolReportService extends BaseExportPdfFileService {
 
     @Autowired
     private StatConclusionService statConclusionService;
@@ -90,7 +90,7 @@ public class ExportSchoolScreeningService extends BaseExportPdfFileService {
         if (Objects.isNull(screeningType) && Objects.nonNull(exportCondition.getPlanId())){
             screeningType = screeningPlanService.getById(exportCondition.getPlanId()).getScreeningType();
         }
-        Assert.isTrue(Objects.nonNull(screeningType), "筛查通知ID和筛查计划ID都为空");
+        Assert.notNull(screeningType, "筛查通知ID和筛查计划ID都为空");
         ScreeningNotice screeningNotice = screeningNoticeService.getById(exportCondition.getNotificationId());
         return exportPdfFileFactory.getExportPdfFileService(screeningNotice.getScreeningType());
     }

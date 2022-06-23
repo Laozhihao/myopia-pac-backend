@@ -21,7 +21,7 @@ import java.util.Optional;
  * @Date 2021/3/24
  **/
 @Service(ExportReportServiceNameConstant.DISTRICT_SCREENING_REPORT_SERVICE)
-public class ExportDistrictScreeningService extends BaseExportPdfFileService {
+public class ExportDistrictReportService extends BaseExportPdfFileService {
 
     @Autowired
     private ExportPdfFileFactory exportPdfFileFactory;
