@@ -136,7 +136,8 @@ public class DistrictCommonDiseaseReportService {
 
         String districtName = districtService.getDistrictNameByDistrictId(districtId);
         Set<String> years = Sets.newHashSet(DateUtil.format(startTime, format),DateUtil.format(endTime, format));
-        String year = CollectionUtil.join(years, StrUtil.DASHED);
+        List<String> sort = CollectionUtil.sort(years, Comparator.comparing(String::toString));
+        String year = CollectionUtil.join(sort, StrUtil.DASHED);
         List<String> yearPeriod;
         if (years.size() == 1) {
             yearPeriod = Lists.newArrayList(getDateStr(startTime),DateUtil.format(endTime, "MM月dd日"));
