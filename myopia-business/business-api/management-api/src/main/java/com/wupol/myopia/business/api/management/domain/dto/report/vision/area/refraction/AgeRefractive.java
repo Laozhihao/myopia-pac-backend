@@ -26,6 +26,11 @@ public class AgeRefractive {
      * 信息
      */
     private Info info;
+
+    /**
+     * 年龄段图表
+     */
+    private HorizontalChart ageRefractiveChart;
     
     /**
      * 表格
@@ -54,10 +59,5 @@ public class AgeRefractive {
          * 建议就诊
          */
         private HighLowProportion recommendDoctorInfo;
-
-        /**
-         * 年龄段图表
-         */
-        private HorizontalChart ageRefractiveChart;
     }
 }

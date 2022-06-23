@@ -46,7 +46,13 @@ public class CountAndProportionService {
     }
 
     public CountAndProportion warning(List<StatConclusion> statConclusions, Long total) {
-        long threeWarningCount = statConclusions.stream().filter(s -> !Objects.equals(s.getWarningLevel(), WarningLevel.NORMAL.code)).count();
+        long threeWarningCount = statConclusions.stream()
+                .filter(s -> Objects.equals(s.getWarningLevel(), WarningLevel.ZERO.code)
+                        || Objects.equals(s.getWarningLevel(), WarningLevel.ONE.code)
+                        || Objects.equals(s.getWarningLevel(), WarningLevel.TWO.code)
+                        || Objects.equals(s.getWarningLevel(), WarningLevel.THREE.code)
+                        || Objects.equals(s.getWarningLevel(), WarningLevel.ZERO_SP.code))
+                .count();
         return new CountAndProportion(threeWarningCount, BigDecimalUtil.divide(threeWarningCount, total));
     }
 

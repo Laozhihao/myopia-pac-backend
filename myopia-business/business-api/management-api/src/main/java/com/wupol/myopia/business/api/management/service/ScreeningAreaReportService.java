@@ -536,13 +536,13 @@ public class ScreeningAreaReportService {
         if (commonReportService.isShowInfo(tables, true)) {
             List<RefractiveTable> filterTables = tables.stream().filter(s -> !StringUtils.equals(s.getName(), CommonReportService.TOTAL_NAME)).collect(Collectors.toList());
             AgeRefractive.Info info = new AgeRefractive.Info();
-            info.setAgeRefractiveChart(horizontalChartService.refractiveChart(filterTables.stream().filter(s -> !StringUtils.equals(s.getName(), CommonReportService.TOTAL_NAME)).collect(Collectors.toList())));
             info.setInsufficientInfo(highLowProportionService.ageRefractiveTableHP(filterTables, s -> Float.valueOf(s.getInsufficientProportion())));
             info.setRefractiveErrorInfo(highLowProportionService.ageRefractiveTableHP(filterTables, s -> Float.valueOf(s.getRefractiveErrorProportion())));
             info.setAnisometropiaInfo(highLowProportionService.ageRefractiveTableHP(filterTables, s -> Float.valueOf(s.getAnisometropiaProportion())));
             info.setRecommendDoctorInfo(highLowProportionService.ageRefractiveTableHP(filterTables, s -> Float.valueOf(s.getRecommendDoctorProportion())));
             ageRefractive.setInfo(info);
         }
+        ageRefractive.setAgeRefractiveChart(horizontalChartService.refractiveChart(tables.stream().filter(s -> !StringUtils.equals(s.getName(), CommonReportService.TOTAL_NAME)).collect(Collectors.toList())));
         kindergartenInfo.setAgeRefractiveInfo(ageRefractive);
         kindergartenInfo.setHistoryRefractiveInfo(commonReportService.getAreaKindergartenHistoryRefractive(tuples, noticeId));
         return kindergartenInfo;

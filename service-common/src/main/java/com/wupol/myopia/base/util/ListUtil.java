@@ -21,6 +21,7 @@ public class ListUtil {
      *
      * @param list list
      * @param <T>  对象
+     *
      * @return 重复的元素
      */
     public static <T> List<T> getDuplicateElements(List<T> list) {
@@ -39,6 +40,7 @@ public class ListUtil {
      * List转换成String
      *
      * @param obj List
+     *
      * @return String
      */
     public static String objectList2Str(Object obj) {
@@ -55,6 +57,7 @@ public class ListUtil {
      * 字符串转List
      *
      * @param str 字符串
+     *
      * @return List
      */
     public static List<Integer> str2List(String str) {
@@ -62,5 +65,19 @@ public class ListUtil {
             return new ArrayList<>();
         }
         return Arrays.stream(str.split(",")).map(s -> Integer.valueOf(s.trim())).collect(Collectors.toList());
+    }
+
+    public static <T> void sort(List<T> list1, List<T> targetList) {
+        targetList.sort(((l1, l2) -> {
+            int io1 = list1.indexOf(l1);
+            int io2 = list1.indexOf(l2);
+            if (io1 != -1) {
+                io1 = targetList.size() - io1;
+            }
+            if (io2 != -1) {
+                io2 = targetList.size() - io2;
+            }
+            return io2 - io1;
+        }));
     }
 }

@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.service.report;
 
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.util.BigDecimalUtil;
+import com.wupol.myopia.base.util.ListUtil;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.area.schoolage.AreaHistoryLowVisionTable;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.ChartDetail;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.CommonTable;
@@ -36,6 +37,9 @@ public class HorizontalChartService {
 
     @Resource
     private CommonChartService commonChartService;
+
+    @Resource
+    private CountAndProportionService countAndProportionService;
 
     public HorizontalChart areaLowVision(List<CommonLowVisionTable> tables, Boolean isAge) {
         HorizontalChart horizontalChart = new HorizontalChart();
@@ -150,15 +154,15 @@ public class HorizontalChartService {
         ArrayList<String> mProportion = new ArrayList<>();
         ArrayList<String> fProportion = new ArrayList<>();
 
+        long size = statConclusions.size();
         horizontalChart.getX().forEach(s -> {
             List<StatConclusion> v = collect.get(s);
-            mProportion.add(BigDecimalUtil.divide(v.stream().filter(statConclusion -> Objects.equals(statConclusion.getGender(), GenderEnum.MALE.type)).count(), (long) v.size()));
-            fProportion.add(BigDecimalUtil.divide(v.stream().filter(statConclusion -> Objects.equals(statConclusion.getGender(), GenderEnum.FEMALE.type)).count(), (long) v.size()));
-
+            mProportion.add(BigDecimalUtil.divide(v.stream().filter(statConclusion -> Objects.equals(statConclusion.getGender(), GenderEnum.MALE.type)).count(), size));
+            fProportion.add(BigDecimalUtil.divide(v.stream().filter(statConclusion -> Objects.equals(statConclusion.getGender(), GenderEnum.FEMALE.type)).count(), size));
         });
         horizontalChart.setY(Lists.newArrayList(
-                new ChartDetail("男生", mProportion),
-                new ChartDetail("女生", fProportion)
+                new ChartDetail(GenderEnum.MALE.cnDesc, mProportion),
+                new ChartDetail(GenderEnum.FEMALE.cnDesc, fProportion)
         ));
         return horizontalChart;
     }
@@ -171,12 +175,13 @@ public class HorizontalChartService {
         ArrayList<String> one = new ArrayList<>();
         ArrayList<String> two = new ArrayList<>();
         ArrayList<String> three = new ArrayList<>();
+        long total = statConclusions.size();
 
         horizontalChart.getX().forEach(s -> {
             List<StatConclusion> v = collect.get(s);
-            one.add(BigDecimalUtil.divide(v.stream().filter(statConclusion -> Objects.equals(statConclusion.getWarningLevel(), WarningLevel.ZERO_SP.code)).count(), (long) v.size()));
-            two.add(BigDecimalUtil.divide(v.stream().filter(StatConclusion::getIsAnisometropia).count(), (long) v.size()));
-            three.add(BigDecimalUtil.divide(v.stream().filter(StatConclusion::getIsRefractiveError).count(), (long) v.size()));
+            one.add(countAndProportionService.insufficient(v, total).getProportion());
+            two.add(countAndProportionService.anisometropia(v, total).getProportion());
+            three.add(countAndProportionService.refractiveError(v, total).getProportion());
         });
         horizontalChart.setY(Lists.newArrayList(
                 new ChartDetail("远视储备不足", one),
@@ -188,29 +193,31 @@ public class HorizontalChartService {
 
     public HorizontalChart kGradeWarning(List<StatConclusion> statConclusions) {
         HorizontalChart horizontalChart = new HorizontalChart();
-        horizontalChart.setX(statConclusions.stream().map(s -> GradeCodeEnum.getByCode(s.getSchoolGradeCode()).getName()).distinct().collect(Collectors.toList()));
+        List<String> nameList = statConclusions.stream().map(s -> GradeCodeEnum.getByCode(s.getSchoolGradeCode()).getName()).distinct().collect(Collectors.toList());
+        horizontalChart.setX(nameList);
         Map<String, List<StatConclusion>> collect = statConclusions.stream().collect(Collectors.groupingBy(s -> GradeCodeEnum.getByCode(s.getSchoolGradeCode()).getName()));
 
-        ArrayList<String> one = new ArrayList<>();
-        ArrayList<String> two = new ArrayList<>();
-        ArrayList<String> three = new ArrayList<>();
-        ArrayList<String> four = new ArrayList<>();
-        ArrayList<String> five = new ArrayList<>();
+        ArrayList<String> zeroWarning = new ArrayList<>();
+        ArrayList<String> oneWarning = new ArrayList<>();
+        ArrayList<String> twoWarning = new ArrayList<>();
+        ArrayList<String> threeWarning = new ArrayList<>();
+        ArrayList<String> recommendDoctor = new ArrayList<>();
+        long total = statConclusions.size();
 
         horizontalChart.getX().forEach(s -> {
             List<StatConclusion> v = collect.get(s);
-            one.add(BigDecimalUtil.divide(v.stream().filter(statConclusion -> Objects.equals(statConclusion.getWarningLevel(), WarningLevel.ZERO.code)).count(), (long) v.size()));
-            two.add(BigDecimalUtil.divide(v.stream().filter(statConclusion -> Objects.equals(statConclusion.getWarningLevel(), WarningLevel.ONE.code)).count(), (long) v.size()));
-            three.add(BigDecimalUtil.divide(v.stream().filter(statConclusion -> Objects.equals(statConclusion.getWarningLevel(), WarningLevel.TWO.code)).count(), (long) v.size()));
-            four.add(BigDecimalUtil.divide(v.stream().filter(statConclusion -> Objects.equals(statConclusion.getWarningLevel(), WarningLevel.THREE.code)).count(), (long) v.size()));
-            five.add(BigDecimalUtil.divide(v.stream().filter(StatConclusion::getIsRecommendVisit).count(), (long) v.size()));
+            zeroWarning.add(countAndProportionService.zeroAndSPWarning(v, total).getProportion());
+            oneWarning.add(countAndProportionService.oneWarning(v, total).getProportion());
+            twoWarning.add(countAndProportionService.threeWarning(v, total).getProportion());
+            threeWarning.add(countAndProportionService.threeWarning(v, total).getProportion());
+            recommendDoctor.add(countAndProportionService.getRecommendDoctor(v, total).getProportion());
         });
         horizontalChart.setY(Lists.newArrayList(
-                new ChartDetail("0级预警", one),
-                new ChartDetail("1级预警", two),
-                new ChartDetail("2级预警", three),
-                new ChartDetail("3级预警", four),
-                new ChartDetail("建议就诊", five)
+                new ChartDetail(WarningLevel.ZERO.desc, zeroWarning),
+                new ChartDetail(WarningLevel.ONE.desc, oneWarning),
+                new ChartDetail(WarningLevel.TWO.desc, twoWarning),
+                new ChartDetail(WarningLevel.THREE.desc, threeWarning),
+                new ChartDetail("建议就诊", recommendDoctor)
         ));
         return horizontalChart;
     }
