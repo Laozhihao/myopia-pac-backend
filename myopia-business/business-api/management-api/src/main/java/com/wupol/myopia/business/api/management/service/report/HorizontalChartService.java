@@ -101,22 +101,21 @@ public class HorizontalChartService {
 
     public HorizontalChart astigmatismMyopiaLevelChart(List<AstigmatismTable> tables) {
         HorizontalChart horizontalChart = new HorizontalChart();
-        setHorizontalChartXName(tables, horizontalChart, true);
-
+        tables = setHorizontalChartXName(tables, horizontalChart, true);
         horizontalChart.setY(Lists.newArrayList(
-                new ChartDetail("近视前期", tables.stream().filter(s -> s.getValidCount() != 0L).map(AstigmatismTable::getEarlyMyopiaProportion).collect(Collectors.toList())),
-                new ChartDetail("低度近视", tables.stream().filter(s -> s.getValidCount() != 0L).map(AstigmatismTable::getLightMyopiaProportion).collect(Collectors.toList())),
-                new ChartDetail("高度近视", tables.stream().filter(s -> s.getValidCount() != 0L).map(AstigmatismTable::getHighMyopiaProportion).collect(Collectors.toList()))
+                new ChartDetail("近视前期", tables.stream().map(AstigmatismTable::getEarlyMyopiaProportion).collect(Collectors.toList())),
+                new ChartDetail("低度近视", tables.stream().map(AstigmatismTable::getLightMyopiaProportion).collect(Collectors.toList())),
+                new ChartDetail("高度近视", tables.stream().map(AstigmatismTable::getHighMyopiaProportion).collect(Collectors.toList()))
         ));
         return horizontalChart;
     }
 
     public HorizontalChart astigmatismMyopiaChart(List<AstigmatismTable> tables) {
         HorizontalChart horizontalChart = new HorizontalChart();
-        setHorizontalChartXName(tables, horizontalChart, true);
+        tables = setHorizontalChartXName(tables, horizontalChart, true);
         horizontalChart.setY(Lists.newArrayList(
-                new ChartDetail("近视", tables.stream().filter(s -> s.getValidCount() != 0L).map(AstigmatismTable::getMyopiaProportion).collect(Collectors.toList())),
-                new ChartDetail("散光", tables.stream().filter(s -> s.getValidCount() != 0L).map(AstigmatismTable::getAstigmatismProportion).collect(Collectors.toList()))));
+                new ChartDetail("近视", tables.stream().map(AstigmatismTable::getMyopiaProportion).collect(Collectors.toList())),
+                new ChartDetail("散光", tables.stream().map(AstigmatismTable::getAstigmatismProportion).collect(Collectors.toList()))));
         return horizontalChart;
     }
 
@@ -245,7 +244,7 @@ public class HorizontalChartService {
 
     public HorizontalChart primaryWearingGlassesChart(List<AgeWearingTable> tables, Boolean isAge) {
         HorizontalChart horizontalChart = new HorizontalChart();
-        setHorizontalChartXName(tables, horizontalChart, isAge);
+        tables = setHorizontalChartXName(tables, horizontalChart, isAge);
         horizontalChart.setY(Lists.newArrayList(
                 new ChartDetail("不佩戴眼镜", tables.stream().map(AgeWearingTable::getNotWearingProportion).collect(Collectors.toList())),
                 new ChartDetail("佩戴框架眼镜", tables.stream().map(AgeWearingTable::getGlassesProportion).collect(Collectors.toList())),
@@ -277,7 +276,7 @@ public class HorizontalChartService {
         return horizontalChart;
     }
 
-    private <T extends CommonTable> void setHorizontalChartXName(List<T> t, HorizontalChart horizontalChart, Boolean isAge) {
+    private <T extends CommonTable> List<T> setHorizontalChartXName(List<T> t, HorizontalChart horizontalChart, Boolean isAge) {
         if (isAge) {
             t = t.stream().filter(s -> s.getValidCount() != 0L).collect(Collectors.toList());
             horizontalChart.setX(t.stream()
@@ -286,5 +285,6 @@ public class HorizontalChartService {
         } else {
             horizontalChart.setX(t.stream().map(T::getName).collect(Collectors.toList()));
         }
+        return t;
     }
 }

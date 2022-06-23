@@ -74,6 +74,16 @@ public class SchoolAgeLowVision {
         private String vocationalLowVisionProportion;
 
         /**
+         * 小学以上不同程度
+         */
+        private Detail detail;
+
+    }
+
+    @Getter
+    @Setter
+    public static class Detail {
+        /**
          * 轻度视力低下率
          */
         private HighLowProportion light;
@@ -87,7 +97,6 @@ public class SchoolAgeLowVision {
          * 重度视力低下率
          */
         private HighLowProportion high;
-
     }
 
 }

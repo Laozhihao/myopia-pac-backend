@@ -401,15 +401,18 @@ public class ScreeningAreaReportService {
         List<CommonLowVisionTable> tableChart = tables.stream().filter(s -> commonReportService.schoolAgeList().contains(s.getName())).collect(Collectors.toList());
         schoolAgeLowVision.setLowVisionChart(horizontalChartService.areaLowVision(tableChart, true));
 
+        // 小学及以上
         List<CommonLowVisionTable> filterTable = tables.stream()
                 .filter(s -> !commonReportService.filterList().contains(s.getName()))
-                .filter(s-> !GradeCodeEnum.kindergartenSchoolCode().contains(s.getName()))
+                .filter(s-> !GradeCodeEnum.kindergartenSchoolName().contains(s.getName()))
                 .collect(Collectors.toList());
-        if (commonReportService.isShowInfo(filterTable, false)) {
+        if (filterTable.size() > 2) {
             schoolAgeLowVision.setLowVisionLevelChart(horizontalChartService.lowVisionChart(tableChart, false));
-            info.setLight(highLowProportionService.schoolAgeLowVisionTableHP(filterTable, s -> Float.valueOf(s.getLightLowVisionProportion())));
-            info.setMiddle(highLowProportionService.schoolAgeLowVisionTableHP(filterTable, s -> Float.valueOf(s.getMiddleLowVisionProportion())));
-            info.setHigh(highLowProportionService.schoolAgeLowVisionTableHP(filterTable, s -> Float.valueOf(s.getHighLowVisionProportion())));
+            SchoolAgeLowVision.Detail detail = new SchoolAgeLowVision.Detail();
+            detail.setLight(highLowProportionService.schoolAgeLowVisionTableHP(filterTable, s -> Float.valueOf(s.getLightLowVisionProportion())));
+            detail.setMiddle(highLowProportionService.schoolAgeLowVisionTableHP(filterTable, s -> Float.valueOf(s.getMiddleLowVisionProportion())));
+            detail.setHigh(highLowProportionService.schoolAgeLowVisionTableHP(filterTable, s -> Float.valueOf(s.getHighLowVisionProportion())));
+            info.setDetail(detail);
         }
         schoolAgeLowVision.setInfo(info);
         return schoolAgeLowVision;
