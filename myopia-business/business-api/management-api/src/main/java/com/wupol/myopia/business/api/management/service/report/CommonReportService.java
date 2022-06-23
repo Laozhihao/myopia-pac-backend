@@ -617,7 +617,7 @@ public class CommonReportService {
      * 幼儿园历史
      */
     public HistoryRefractive getKindergartenHistoryRefractive(School school, ScreeningPlan screeningPlan) {
-        List<RefractiveTable> kHistoryRefractiveTable = screeningReportTableService.kHistoryRefractiveTable(getSchoolHistoryData(school.getId(), true), screeningPlan.getId());
+        List<RefractiveTable> kHistoryRefractiveTable = screeningReportTableService.getRefractiveTables(getSchoolHistoryData(school.getId(), true), screeningPlan.getId());
         return getHistoryRefractive(kHistoryRefractiveTable);
     }
 
@@ -625,7 +625,7 @@ public class CommonReportService {
      * 幼儿园历史
      */
     public HistoryRefractive getAreaKindergartenHistoryRefractive(List<ThreeTuple<Integer, String, List<StatConclusion>>> tuples, Integer noticeId) {
-        List<RefractiveTable> kHistoryRefractiveTable = screeningReportTableService.kAreaHistoryRefractiveTable(tuples, noticeId);
+        List<RefractiveTable> kHistoryRefractiveTable = screeningReportTableService.getRefractiveTables(tuples, noticeId);
         return getHistoryRefractive(kHistoryRefractiveTable);
     }
 

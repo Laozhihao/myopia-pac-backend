@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.school.kindergarten;
 
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.CommonWarningTable;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.HorizontalChart;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.MaxMinProportion;
 import lombok.Getter;
@@ -97,7 +98,7 @@ public class GradeWarning {
      */
     @Getter
     @Setter
-    public static class Table extends RowSpan{
+    public static class Table extends CommonWarningTable {
 
         /**
          * 年级名称
@@ -113,56 +114,6 @@ public class GradeWarning {
          * 有效人数
          */
         private Integer validCount;
-
-        /**
-         * 0级预警人数
-         */
-        private Long zeroWarningCount;
-
-        /**
-         * 0级预警人数百分比
-         */
-        private String zeroWarningProportion;
-
-        /**
-         * 1级预警人数
-         */
-        private Long oneWarningCount;
-
-        /**
-         * 1级预警人数百分比
-         */
-        private String oneWarningProportion;
-
-        /**
-         * 2级预警人数
-         */
-        private Long twoWarningCount;
-
-        /**
-         * 2级预警人数百分比
-         */
-        private String twoWarningProportion;
-
-        /**
-         * 3级预警人数
-         */
-        private Long threeWarningCount;
-
-        /**
-         * 3级预警人数百分比
-         */
-        private String threeWarningProportion;
-
-        /**
-         * 建议就诊人数
-         */
-        private Long recommendDoctorCount;
-
-        /**
-         * 建议就诊百分比
-         */
-        private String recommendDoctorProportion;
 
         /**
          * 预警人数

@@ -29,6 +29,9 @@ public class KindergartenReportTableService {
     @Resource
     private CommonReportService commonReportService;
 
+    @Resource
+    private ScreeningReportTableService screeningReportTableService;
+
     public List<GradeRefractive.Table> gradeRefractiveTables(List<StatConclusion> statConclusions, Long total) {
         List<GradeRefractive.Table> tables = new ArrayList<>();
         Map<String, List<StatConclusion>> collect = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
@@ -97,21 +100,8 @@ public class KindergartenReportTableService {
 
     private void extracted(List<GradeWarning.Table> tables, List<StatConclusion> v, GradeWarning.Table table, Long total) {
         table.setValidCount(v.size());
-        CountAndProportion zeroWarning = countAndProportionService.zeroAndSPWarning(v, total);
-        table.setZeroWarningCount(zeroWarning.getCount());
-        table.setZeroWarningProportion(zeroWarning.getProportion());
-        CountAndProportion oneWarning = countAndProportionService.oneWarning(v, total);
-        table.setOneWarningCount(oneWarning.getCount());
-        table.setOneWarningProportion(oneWarning.getProportion());
-        CountAndProportion twoWarning = countAndProportionService.twoWarning(v, total);
-        table.setTwoWarningCount(twoWarning.getCount());
-        table.setTwoWarningProportion(twoWarning.getProportion());
-        CountAndProportion threeWarning = countAndProportionService.threeWarning(v, total);
-        table.setThreeWarningCount(threeWarning.getCount());
-        table.setThreeWarningProportion(threeWarning.getProportion());
-        CountAndProportion recommendDoctor = countAndProportionService.getRecommendDoctor(v, total);
-        table.setRecommendDoctorCount(recommendDoctor.getCount());
-        table.setRecommendDoctorProportion(recommendDoctor.getProportion());
+        screeningReportTableService.generateWarningDateInfo(table, v, total, true);
+
         CountAndProportion warning = countAndProportionService.warning(v, total);
         table.setWarningCount(warning.getCount());
         table.setWarningProportion(warning.getProportion());

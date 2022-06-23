@@ -10,6 +10,7 @@ import com.wupol.myopia.business.api.management.domain.dto.report.vision.area.re
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.area.schoolage.AreaHistoryLowVisionTable;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.area.schoolage.GenderSexLowVisionTable;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.area.schoolage.SchoolAgeGenderTable;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.CommonWarningTable;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.CountAndProportion;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.LowVisionLevelTable;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.RefractiveTable;
@@ -127,21 +128,7 @@ public class ScreeningReportTableService {
     private void extracted(List<RefractiveTable> tables, RefractiveTable table, List<StatConclusion> v, Long total) {
         table.setValidCount((long) v.size());
 
-        CountAndProportion insufficient = countAndProportionService.insufficient(v, total);
-        table.setInsufficientStudentCount(insufficient.getCount());
-        table.setInsufficientProportion(insufficient.getProportion());
-
-        CountAndProportion refractiveError = countAndProportionService.refractiveError(v, total);
-        table.setRefractiveErrorStudentCount(refractiveError.getCount());
-        table.setRefractiveErrorProportion(refractiveError.getProportion());
-
-        CountAndProportion anisometropia = countAndProportionService.anisometropia(v, total);
-        table.setAnisometropiaStudentCount(anisometropia.getCount());
-        table.setAnisometropiaProportion(anisometropia.getProportion());
-
-        CountAndProportion recommendDoctor = countAndProportionService.getRecommendDoctor(v, total);
-        table.setRecommendDoctorCount(recommendDoctor.getCount());
-        table.setRecommendDoctorProportion(recommendDoctor.getProportion());
+        generateRefractiveInfo(table, v, total);
         tables.add(table);
     }
 
@@ -187,82 +174,45 @@ public class ScreeningReportTableService {
         return tables;
     }
 
-    public List<RefractiveTable> kHistoryRefractiveTable(List<ThreeTuple<Integer, String, List<StatConclusion>>> tuples,
-                                                         Integer planId) {
+    public List<RefractiveTable> getRefractiveTables(List<ThreeTuple<Integer, String, List<StatConclusion>>> tuples, Integer planOrNoticeId) {
         List<RefractiveTable> tables = new ArrayList<>();
         tuples.forEach(s -> {
             RefractiveTable table = new RefractiveTable();
             List<StatConclusion> list = s.getThird();
             long total = list.size();
-
             table.setName(s.getSecond());
             table.setValidCount(total);
-            table.setIsSameReport(s.getFirst().equals(planId));
-
-            CountAndProportion insufficient = countAndProportionService.insufficient(list, total);
-            table.setInsufficientStudentCount(insufficient.getCount());
-            table.setInsufficientProportion(insufficient.getProportion());
-
-            CountAndProportion refractiveError = countAndProportionService.refractiveError(list, total);
-            table.setRefractiveErrorStudentCount(refractiveError.getCount());
-            table.setRefractiveErrorProportion(refractiveError.getProportion());
-
-            CountAndProportion anisometropia = countAndProportionService.anisometropia(list, total);
-            table.setAnisometropiaStudentCount(anisometropia.getCount());
-            table.setAnisometropiaProportion(anisometropia.getProportion());
-
-            CountAndProportion recommendDoctor = countAndProportionService.getRecommendDoctor(list, total);
-            table.setRecommendDoctorCount(recommendDoctor.getCount());
-            table.setRecommendDoctorProportion(recommendDoctor.getProportion());
-
-            CountAndProportion lowVision = countAndProportionService.lowVision(list, total);
-            table.setLowVisionStudentCount(lowVision.getCount());
-            table.setLowVisionProportion(lowVision.getProportion());
-            tables.add(table);
-
+            table.setIsSameReport(s.getFirst().equals(planOrNoticeId));
+            generateRefractiveTable(tables, table, list, total);
         });
         return tables;
     }
 
-    public List<RefractiveTable> kAreaHistoryRefractiveTable(List<ThreeTuple<Integer, String, List<StatConclusion>>> tuples, Integer noticeId) {
-        List<RefractiveTable> tables = new ArrayList<>();
+    private void generateRefractiveTable(List<RefractiveTable> tables, RefractiveTable table, List<StatConclusion> list, long total) {
+        generateRefractiveInfo(table, list, total);
 
-        tuples.forEach(s -> {
-            RefractiveTable table = new RefractiveTable();
-            table.setName(s.getSecond());
+        CountAndProportion lowVision = countAndProportionService.lowVision(list, total);
+        table.setLowVisionStudentCount(lowVision.getCount());
+        table.setLowVisionProportion(lowVision.getProportion());
+        tables.add(table);
+    }
 
-            List<StatConclusion> list = s.getThird();
+    private void generateRefractiveInfo(RefractiveTable table, List<StatConclusion> list, long total) {
+        CountAndProportion insufficient = countAndProportionService.insufficient(list, total);
+        table.setInsufficientStudentCount(insufficient.getCount());
+        table.setInsufficientProportion(insufficient.getProportion());
 
-            table.setName(s.getSecond());
-            long total = list.size();
-            table.setValidCount(total);
-            table.setIsSameReport(s.getFirst().equals(noticeId));
+        CountAndProportion refractiveError = countAndProportionService.refractiveError(list, total);
+        table.setRefractiveErrorStudentCount(refractiveError.getCount());
+        table.setRefractiveErrorProportion(refractiveError.getProportion());
 
-            CountAndProportion insufficient = countAndProportionService.insufficient(list, total);
-            table.setInsufficientStudentCount(insufficient.getCount());
-            table.setInsufficientProportion(insufficient.getProportion());
+        CountAndProportion anisometropia = countAndProportionService.anisometropia(list, total);
+        table.setAnisometropiaStudentCount(anisometropia.getCount());
+        table.setAnisometropiaProportion(anisometropia.getProportion());
 
-            CountAndProportion refractiveError = countAndProportionService.refractiveError(list, total);
-            table.setRefractiveErrorStudentCount(refractiveError.getCount());
-            table.setRefractiveErrorProportion(refractiveError.getProportion());
-
-            CountAndProportion anisometropia = countAndProportionService.anisometropia(list, total);
-            table.setAnisometropiaStudentCount(anisometropia.getCount());
-            table.setAnisometropiaProportion(anisometropia.getProportion());
-
-            CountAndProportion recommendDoctor = countAndProportionService.getRecommendDoctor(list, total);
-            table.setRecommendDoctorCount(recommendDoctor.getCount());
-            table.setRecommendDoctorProportion(recommendDoctor.getProportion());
-
-            CountAndProportion lowVision = countAndProportionService.lowVision(list, total);
-            table.setLowVisionStudentCount(lowVision.getCount());
-            table.setLowVisionProportion(lowVision.getProportion());
-
-
-            tables.add(table);
-
-        });
-        return tables;
+        CountAndProportion recommendDoctor = countAndProportionService.getRecommendDoctor(list, total);
+        table.setRecommendDoctorCount(recommendDoctor.getCount());
+        table.setRecommendDoctorProportion(recommendDoctor.getProportion());
     }
 
     public List<AstigmatismTable> genderPrimaryRefractiveTable(List<StatConclusion> statConclusions, Long total) {
@@ -360,7 +310,24 @@ public class ScreeningReportTableService {
 
     private void extracted(List<AstigmatismTable> tables, AstigmatismTable table, List<StatConclusion> list, Long total) {
         table.setValidCount((long) list.size());
+        generateMyopiaInfo(tables, table, list, total);
+    }
 
+    public List<AstigmatismTable> pHistoryAstigmatismTable(List<ThreeTuple<Integer, String, List<StatConclusion>>> tuples, Integer noticeId) {
+        List<AstigmatismTable> tables = new ArrayList<>();
+        tuples.forEach(s -> {
+            AstigmatismTable table = new AstigmatismTable();
+            table.setName(s.getSecond());
+            List<StatConclusion> list = s.getThird();
+            long total = list.size();
+            table.setValidCount(total);
+            table.setIsSameReport(s.getFirst().equals(noticeId));
+            generateMyopiaInfo(tables, table, list, total);
+        });
+        return tables;
+    }
+
+    private void generateMyopiaInfo(List<AstigmatismTable> tables, AstigmatismTable table, List<StatConclusion> list, Long total) {
         CountAndProportion earlyMyopia = countAndProportionService.earlyMyopia(list, total);
         table.setEarlyMyopiaCount(earlyMyopia.getCount());
         table.setEarlyMyopiaProportion(earlyMyopia.getProportion());
@@ -381,43 +348,6 @@ public class ScreeningReportTableService {
         table.setHighMyopiaCount(highMyopia.getCount());
         table.setHighMyopiaProportion(highMyopia.getProportion());
         tables.add(table);
-    }
-
-    public List<AstigmatismTable> pHistoryAstigmatismTable(List<ThreeTuple<Integer, String, List<StatConclusion>>> tuples,
-                                                           Integer noticeId) {
-
-        List<AstigmatismTable> tables = new ArrayList<>();
-        tuples.forEach(s -> {
-            AstigmatismTable table = new AstigmatismTable();
-            table.setName(s.getSecond());
-            List<StatConclusion> list = s.getThird();
-
-            long total = list.size();
-            table.setValidCount(total);
-            table.setIsSameReport(s.getFirst().equals(noticeId));
-
-            CountAndProportion earlyMyopia = countAndProportionService.earlyMyopia(list, total);
-            table.setEarlyMyopiaCount(earlyMyopia.getCount());
-            table.setEarlyMyopiaProportion(earlyMyopia.getProportion());
-
-            CountAndProportion myopia = countAndProportionService.myopia(list, total);
-            table.setMyopiaCount(myopia.getCount());
-            table.setMyopiaProportion(myopia.getProportion());
-
-            CountAndProportion astigmatism = countAndProportionService.astigmatism(list, total);
-            table.setAstigmatismCount(astigmatism.getCount());
-            table.setAstigmatismProportion(astigmatism.getProportion());
-
-            CountAndProportion lightMyopia = countAndProportionService.lightMyopia(list, total);
-            table.setLightMyopiaCount(lightMyopia.getCount());
-            table.setLightMyopiaProportion(lightMyopia.getProportion());
-
-            CountAndProportion highMyopia = countAndProportionService.highMyopia(list, total);
-            table.setHighMyopiaCount(highMyopia.getCount());
-            table.setHighMyopiaProportion(highMyopia.getProportion());
-            tables.add(table);
-        });
-        return tables;
     }
 
     public List<AstigmatismTable> gradePrimaryRefractiveTable(List<StatConclusion> statConclusions, Long total) {
@@ -569,11 +499,11 @@ public class ScreeningReportTableService {
             gradeMap.forEach((k, v) -> {
                 WarningTable table = new WarningTable();
                 table.setName(GradeCodeEnum.getDesc(k));
-                extracted(tables, v, table, total);
+                generateWarningDate(tables, v, table, total);
             });
             WarningTable table = new WarningTable();
             table.setName(SchoolAge.get(x).desc);
-            extracted(tables, y, table, total);
+            generateWarningDate(tables, y, table, total);
             // 如果有普高和职高，则添加多一条高中数据
             if (haveSenior && SchoolAge.VOCATIONAL_HIGH.code.equals(x)) {
 
@@ -581,28 +511,39 @@ public class ScreeningReportTableService {
 
                 WarningTable seniorTable = new WarningTable();
                 seniorTable.setName(CommonReportService.SENIOR_NAME);
-                extracted(tables, seniorList, seniorTable, total);
+                generateWarningDate(tables, seniorList, seniorTable, total);
             }
         });
         WarningTable table = new WarningTable();
         table.setName(CommonReportService.TOTAL_NAME);
-        extracted(tables, statConclusions, table, total);
+        generateWarningDate(tables, statConclusions, table, total);
         return tables;
     }
 
-    private void extracted(List<WarningTable> tables, List<StatConclusion> v, WarningTable table, Long total) {
+    private void generateWarningDate(List<WarningTable> tables, List<StatConclusion> v, WarningTable table, Long total) {
         table.setValidCount(v.size());
-        CountAndProportion zero = countAndProportionService.zeroWarning(v, total);
-        table.setZeroWarningCount(zero.getCount());
-        table.setZeroWarningProportion(zero.getProportion());
+        generateWarningDateInfo(table, v, total, false);
+        tables.add(table);
+    }
 
-        CountAndProportion one = countAndProportionService.oneWarning(v, total);
-        table.setOneWarningCount(one.getCount());
-        table.setOneWarningProportion(one.getProportion());
+    public  <T extends CommonWarningTable> void generateWarningDateInfo(T table, List<StatConclusion> v, Long total, boolean isK) {
+        CountAndProportion zeroWarning;
+        if (isK) {
+            zeroWarning = countAndProportionService.zeroAndSPWarning(v, total);
+        } else {
+            zeroWarning = countAndProportionService.zeroWarning(v, total);
+        }
 
-        CountAndProportion two = countAndProportionService.twoWarning(v, total);
-        table.setTwoWarningCount(two.getCount());
-        table.setTwoWarningProportion(two.getProportion());
+        table.setZeroWarningCount(zeroWarning.getCount());
+        table.setZeroWarningProportion(zeroWarning.getProportion());
+
+        CountAndProportion oneWarning = countAndProportionService.oneWarning(v, total);
+        table.setOneWarningCount(oneWarning.getCount());
+        table.setOneWarningProportion(oneWarning.getProportion());
+
+        CountAndProportion twoWarning = countAndProportionService.twoWarning(v, total);
+        table.setTwoWarningCount(twoWarning.getCount());
+        table.setTwoWarningProportion(twoWarning.getProportion());
 
         CountAndProportion threeWarning = countAndProportionService.threeWarning(v, total);
         table.setThreeWarningCount(threeWarning.getCount());
@@ -611,7 +552,6 @@ public class ScreeningReportTableService {
         CountAndProportion recommendDoctor = countAndProportionService.getRecommendDoctor(v, total);
         table.setRecommendDoctorCount(recommendDoctor.getCount());
         table.setRecommendDoctorProportion(recommendDoctor.getProportion());
-        tables.add(table);
     }
 
     public List<KindergartenScreeningInfoTable> kindergartenScreeningInfoTables(List<StatConclusion> statConclusions, Long total) {
@@ -664,38 +604,7 @@ public class ScreeningReportTableService {
         collect.forEach((k, v) -> {
             PrimaryScreeningInfoTable table = new PrimaryScreeningInfoTable();
             table.setName(schoolMap.get(k));
-            table.setValidCount(v.size());
-
-            CountAndProportion lowVision = countAndProportionService.lowVision(v, total);
-            table.setLowVisionCount(lowVision.getCount());
-            table.setLowVisionProportion(lowVision.getProportion());
-
-            table.setAvgVision(commonReportService.getAvgVision(v));
-
-            CountAndProportion myopia = countAndProportionService.myopia(v, total);
-            table.setMyopiaCount(myopia.getCount());
-            table.setMyopiaProportion(myopia.getProportion());
-
-            CountAndProportion earlyMyopia = countAndProportionService.earlyMyopia(v, total);
-            table.setEarlyMyopiaCount(earlyMyopia.getCount());
-            table.setEarlyMyopiaProportion(earlyMyopia.getProportion());
-
-            CountAndProportion lightMyopia = countAndProportionService.lightMyopia(v, total);
-            table.setLightMyopiaCount(lightMyopia.getCount());
-            table.setLightMyopiaProportion(lightMyopia.getProportion());
-
-            CountAndProportion highMyopia = countAndProportionService.highMyopia(v, total);
-            table.setHighMyopiaCount(highMyopia.getCount());
-            table.setHighMyopiaProportion(highMyopia.getProportion());
-
-            CountAndProportion recommendDoctor = countAndProportionService.getRecommendDoctor(v, total);
-            table.setRecommendDoctorCount(recommendDoctor.getCount());
-            table.setRecommendDoctorProportion(recommendDoctor.getProportion());
-
-            CountAndProportion underAndUncorrected = countAndProportionService.underAndUncorrected(v);
-            table.setOweCount(underAndUncorrected.getCount());
-            table.setOweProportion(underAndUncorrected.getProportion());
-            tables.add(table);
+            generateScreeningInfoTable(total, tables, v, table);
         });
         return tables;
     }
@@ -707,40 +616,44 @@ public class ScreeningReportTableService {
         collect.forEach((k, v) -> {
             PrimaryScreeningInfoTable table = new PrimaryScreeningInfoTable();
             table.setName(k);
-            table.setValidCount(v.size());
-
-            CountAndProportion lowVision = countAndProportionService.lowVision(v, total);
-            table.setLowVisionCount(lowVision.getCount());
-            table.setLowVisionProportion(lowVision.getProportion());
-
-            table.setAvgVision(commonReportService.getAvgVision(v));
-
-            CountAndProportion myopia = countAndProportionService.myopia(v, total);
-            table.setMyopiaCount(myopia.getCount());
-            table.setMyopiaProportion(myopia.getProportion());
-
-            CountAndProportion earlyMyopia = countAndProportionService.earlyMyopia(v, total);
-            table.setEarlyMyopiaCount(earlyMyopia.getCount());
-            table.setEarlyMyopiaProportion(earlyMyopia.getProportion());
-
-            CountAndProportion lightMyopia = countAndProportionService.lightMyopia(v, total);
-            table.setLightMyopiaCount(lightMyopia.getCount());
-            table.setLightMyopiaProportion(lightMyopia.getProportion());
-
-            CountAndProportion highMyopia = countAndProportionService.highMyopia(v, total);
-            table.setHighMyopiaCount(highMyopia.getCount());
-            table.setHighMyopiaProportion(highMyopia.getProportion());
-
-            CountAndProportion recommendDoctor = countAndProportionService.getRecommendDoctor(v, total);
-            table.setRecommendDoctorCount(recommendDoctor.getCount());
-            table.setRecommendDoctorProportion(recommendDoctor.getProportion());
-
-            CountAndProportion underAndUncorrected = countAndProportionService.underAndUncorrected(v);
-            table.setOweCount(underAndUncorrected.getCount());
-            table.setOweProportion(underAndUncorrected.getProportion());
-            tables.add(table);
+            generateScreeningInfoTable(total, tables, v, table);
         });
         return tables;
+    }
+
+    private void generateScreeningInfoTable(Long total, List<PrimaryScreeningInfoTable> tables, List<StatConclusion> v, PrimaryScreeningInfoTable table) {
+        table.setValidCount(v.size());
+
+        CountAndProportion lowVision = countAndProportionService.lowVision(v, total);
+        table.setLowVisionCount(lowVision.getCount());
+        table.setLowVisionProportion(lowVision.getProportion());
+
+        table.setAvgVision(commonReportService.getAvgVision(v));
+
+        CountAndProportion myopia = countAndProportionService.myopia(v, total);
+        table.setMyopiaCount(myopia.getCount());
+        table.setMyopiaProportion(myopia.getProportion());
+
+        CountAndProportion earlyMyopia = countAndProportionService.earlyMyopia(v, total);
+        table.setEarlyMyopiaCount(earlyMyopia.getCount());
+        table.setEarlyMyopiaProportion(earlyMyopia.getProportion());
+
+        CountAndProportion lightMyopia = countAndProportionService.lightMyopia(v, total);
+        table.setLightMyopiaCount(lightMyopia.getCount());
+        table.setLightMyopiaProportion(lightMyopia.getProportion());
+
+        CountAndProportion highMyopia = countAndProportionService.highMyopia(v, total);
+        table.setHighMyopiaCount(highMyopia.getCount());
+        table.setHighMyopiaProportion(highMyopia.getProportion());
+
+        CountAndProportion recommendDoctor = countAndProportionService.getRecommendDoctor(v, total);
+        table.setRecommendDoctorCount(recommendDoctor.getCount());
+        table.setRecommendDoctorProportion(recommendDoctor.getProportion());
+
+        CountAndProportion underAndUncorrected = countAndProportionService.underAndUncorrected(v);
+        table.setOweCount(underAndUncorrected.getCount());
+        table.setOweProportion(underAndUncorrected.getProportion());
+        tables.add(table);
     }
 
 
@@ -812,7 +725,7 @@ public class ScreeningReportTableService {
         return tables;
     }
 
-    private void extracted(List<SchoolAgeGenderTable> tables, SchoolAgeGenderTable table, List<StatConclusion> list,List<ScreeningPlanSchoolStudent> students) {
+    private void extracted(List<SchoolAgeGenderTable> tables, SchoolAgeGenderTable table, List<StatConclusion> list, List<ScreeningPlanSchoolStudent> students) {
         table.setMCount(students.stream().filter(s -> Objects.equals(s.getGender(), GenderEnum.MALE.type)).count());
         table.setMValidCount(list.stream().filter(s -> Objects.equals(s.getGender(), GenderEnum.MALE.type)).filter(StatConclusion::getIsValid).count());
 
