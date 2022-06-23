@@ -141,7 +141,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
             schoolMap.forEach((key, value) -> {
                 School school = schoolService.getById(key);
                 String path = Paths.get(filePath, getFileNameTitle(exportCondition)).toString();
-                makerExcel(path, String.format(PLAN_STUDENT_FILE_NAME, school.getName()), screeningDataService.generateExportData(value), screeningDataService.getExportClass());
+                makeExcel(path, String.format(PLAN_STUDENT_FILE_NAME, school.getName()), screeningDataService.generateExportData(value), screeningDataService.getExportClass());
             });
         }
 
@@ -150,7 +150,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
             School school = schoolService.getById(exportCondition.getSchoolId());
             //先导出整个学校数据
             String folder = Paths.get(filePath, String.format(PLAN_STUDENT_FILE_NAME, school.getName())).toString();
-            makerExcel(folder, String.format(PLAN_STUDENT_FILE_NAME, school.getName()), screeningDataService.generateExportData(schoolMap.get(exportCondition.getSchoolId())), screeningDataService.getExportClass());
+            makeExcel(folder, String.format(PLAN_STUDENT_FILE_NAME, school.getName()), screeningDataService.generateExportData(schoolMap.get(exportCondition.getSchoolId())), screeningDataService.getExportClass());
             //再导出年级数据
             gradeMap.forEach((key, value) -> {
                 SchoolGrade grade = schoolGradeService.getById(key);
@@ -170,7 +170,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
 
         // 班级、区域维度导出
         if (ExportTypeConst.CLASS.equals(exportType) || ExportTypeConst.District.equals(exportType)) {
-            return makerExcel(filePath, getFileNameTitle(exportCondition), screeningDataService.generateExportData(data), screeningDataService.getExportClass());
+            return makeExcel(filePath, getFileNameTitle(exportCondition), screeningDataService.generateExportData(data), screeningDataService.getExportClass());
         }
         return null;
     }
@@ -183,16 +183,16 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
 
         SchoolGrade grade = schoolGradeService.getById(key);
         String path = Paths.get(filePath, gradeFolder).toString();
-        makerExcel(path, gradeFolder, screeningDataService.generateExportData(value), screeningDataService.getExportClass());
+        makeExcel(path, gradeFolder, screeningDataService.generateExportData(value), screeningDataService.getExportClass());
         //再导出该年级的班级数据
         Map<Integer, List<StatConclusionExportDTO>> collect = value.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getClassId));
         collect.forEach((classKey, classValue) -> {
             SchoolClass schoolClass = schoolClassService.getById(classKey);
-            makerExcel(path, String.format(PLAN_STUDENT_FILE_NAME, school.getName() + grade.getName() + schoolClass.getName()), screeningDataService.generateExportData(classValue), screeningDataService.getExportClass());
+            makeExcel(path, String.format(PLAN_STUDENT_FILE_NAME, school.getName() + grade.getName() + schoolClass.getName()), screeningDataService.generateExportData(classValue), screeningDataService.getExportClass());
         });
     }
 
-    public File makerExcel(String folder, String filePath, List data, Class clazz) {
+    public File makeExcel(String folder, String filePath, List data, Class clazz) {
         OnceAbsoluteMergeStrategy mergeStrategy = new OnceAbsoluteMergeStrategy(0, 1, 20, 21);
         try {
             return ExcelUtil.exportListToExcelWithFolder(folder, filePath, data, mergeStrategy, clazz);

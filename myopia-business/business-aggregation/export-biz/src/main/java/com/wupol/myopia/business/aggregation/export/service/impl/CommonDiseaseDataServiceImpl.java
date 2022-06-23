@@ -12,7 +12,6 @@ import com.wupol.myopia.business.aggregation.export.service.IScreeningDataServic
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
-import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.screening.flow.constant.SaprodontiaType;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningResultPahtConst;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
@@ -24,7 +23,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Function;
@@ -38,9 +36,6 @@ import java.util.stream.Stream;
  */
 @Service
 public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
-
-    @Resource
-    private DistrictService districtService;
 
 
     @Override
@@ -58,7 +53,7 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
                     .setGlassesTypeDesc(StringUtils.defaultIfBlank(GlassesTypeEnum.getDescByCode(vo.getGlassesType()), "--"))
                     .setIsRescreenDesc("否")
                     .setIsValid(Boolean.TRUE.equals(vo.getIsValid()) ? "有效" : "无效");
-            genScreeningData(vo, exportVo);
+            generateScreeningData(vo, exportVo);
             // 组装复筛数据
             genReScreeningData(rescreenPlanStudentIdVoMap, vo, exportVo);
             // 以下为常见病相关
@@ -88,7 +83,7 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
      * @param dto       处理后筛查数据
      * @param exportDTO 筛查数据导出
      */
-    private void genScreeningData(StatConclusionExportDTO dto, CommonDiseaseDataExportDTO exportDTO) {
+    private void generateScreeningData(StatConclusionExportDTO dto, CommonDiseaseDataExportDTO exportDTO) {
         exportDTO.setLeftNakedVisions(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_NAKED_VISION)))
                 .setRightNakedVisions(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_NAKED_VISION)))
                 .setLeftCorrectedVisions(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_CORRECTED_VISION)))
