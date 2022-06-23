@@ -241,6 +241,7 @@ public class StatConclusionBuilder {
      */
     private void setMyopiaWarningLevel() {
         if (Objects.equals(basicData.getGlassesType(),GlassesTypeEnum.ORTHOKERATOLOGY.code)) {
+            statConclusion.setMyopiaWarningLevel(null);
             return;
         }
         WarningLevel leftLevel = StatUtil.warningLevel(basicData.getLeftSph(), basicData.getLeftCyl(), basicData.getAge(), 0);
@@ -270,6 +271,7 @@ public class StatConclusionBuilder {
      */
     private void setLowVisionLevel(){
         if (Objects.equals(basicData.getGlassesType(),GlassesTypeEnum.ORTHOKERATOLOGY.code)) {
+            statConclusion.setLowVisionLevel(null);
             return;
         }
         LowVisionLevelEnum leftLevel = StatUtil.getLowVisionLevel(basicData.getLeftNakedVision(), basicData.getAge());
@@ -321,6 +323,7 @@ public class StatConclusionBuilder {
      */
     private void setMyopiaLevel() {
         if (Objects.equals(basicData.getGlassesType(),GlassesTypeEnum.ORTHOKERATOLOGY.code)) {
+            statConclusion.setMyopiaLevel(null);
             return;
         }
         MyopiaLevelEnum leftLevel = StatUtil.getMyopiaLevel(basicData.getLeftSph(), basicData.getLeftCyl());
@@ -333,6 +336,7 @@ public class StatConclusionBuilder {
      */
     private void setHyperopiaLevel() {
         if (Objects.equals(basicData.getGlassesType(),GlassesTypeEnum.ORTHOKERATOLOGY.code)) {
+            statConclusion.setHyperopiaLevel(null);
             return;
         }
         HyperopiaLevelEnum leftLevel = StatUtil.getHyperopiaLevel(basicData.getLeftSph(), basicData.getLeftCyl(), basicData.getAge());
@@ -345,6 +349,7 @@ public class StatConclusionBuilder {
      */
     private void setAstigmatismLevel() {
         if (Objects.equals(basicData.getGlassesType(),GlassesTypeEnum.ORTHOKERATOLOGY.code)) {
+            statConclusion.setAstigmatismLevel(null);
             return;
         }
         AstigmatismLevelEnum leftLevel = StatUtil.getAstigmatismLevel(basicData.getLeftCyl());
