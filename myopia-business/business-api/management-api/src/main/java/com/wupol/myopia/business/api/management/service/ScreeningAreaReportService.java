@@ -399,8 +399,12 @@ public class ScreeningAreaReportService {
         List<CommonLowVisionTable> tables = screeningReportTableService.gradeSchoolAgeLowVisionTable(statConclusions, total);
         schoolAgeLowVision.setTables(Lists.newArrayList(tables));
         List<CommonLowVisionTable> tableChart = tables.stream().filter(s -> commonReportService.schoolAgeList().contains(s.getName())).collect(Collectors.toList());
-        List<CommonLowVisionTable> filterTable = tables.stream().filter(s -> !commonReportService.filterList().contains(s.getName())).collect(Collectors.toList());
         schoolAgeLowVision.setLowVisionChart(horizontalChartService.areaLowVision(tableChart, true));
+
+        List<CommonLowVisionTable> filterTable = tables.stream()
+                .filter(s -> !commonReportService.filterList().contains(s.getName()))
+                .filter(s-> !GradeCodeEnum.kindergartenSchoolCode().contains(s.getName()))
+                .collect(Collectors.toList());
         if (commonReportService.isShowInfo(filterTable, false)) {
             schoolAgeLowVision.setLowVisionLevelChart(horizontalChartService.lowVisionChart(tableChart, false));
             info.setLight(highLowProportionService.schoolAgeLowVisionTableHP(filterTable, s -> Float.valueOf(s.getLightLowVisionProportion())));
