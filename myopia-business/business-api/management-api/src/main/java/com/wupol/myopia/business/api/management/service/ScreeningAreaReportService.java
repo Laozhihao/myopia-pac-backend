@@ -165,7 +165,7 @@ public class ScreeningAreaReportService {
         AreaOutline areaOutline = new AreaOutline();
         long total = statConclusions.size();
         areaOutline.setInfo(areaOutlineInfo(districtId, statConclusions));
-        areaOutline.setTables(screeningReportTableService.areaOutlineTable(statConclusions,planStudents));
+        areaOutline.setTables(screeningReportTableService.areaOutlineTable(statConclusions, planStudents));
 
         areaOutline.setKindergarten(areaOutlineKindergarten(commonReportService.getKList(statConclusions)));
 
@@ -407,10 +407,11 @@ public class ScreeningAreaReportService {
         // 小学及以上
         List<CommonLowVisionTable> filterTable = tables.stream()
                 .filter(s -> !commonReportService.filterList().contains(s.getName()))
-                .filter(s-> !GradeCodeEnum.kindergartenSchoolName().contains(s.getName()))
+                .filter(s -> !GradeCodeEnum.kindergartenSchoolName().contains(s.getName()))
                 .collect(Collectors.toList());
         if (filterTable.size() > 2) {
-            schoolAgeLowVision.setLowVisionLevelChart(horizontalChartService.lowVisionChart(tableChart, false));
+            schoolAgeLowVision.setLowVisionLevelChart(horizontalChartService
+                    .lowVisionChart(tableChart.stream().filter(s -> !StringUtils.equals(s.getName(), SchoolAge.KINDERGARTEN.desc)).collect(Collectors.toList()), false));
             SchoolAgeLowVision.Detail detail = new SchoolAgeLowVision.Detail();
             detail.setLight(highLowProportionService.schoolAgeLowVisionTableHP(filterTable, s -> Float.valueOf(s.getLightLowVisionProportion())));
             detail.setMiddle(highLowProportionService.schoolAgeLowVisionTableHP(filterTable, s -> Float.valueOf(s.getMiddleLowVisionProportion())));
@@ -590,7 +591,7 @@ public class ScreeningAreaReportService {
                     .filter(s -> s.getValidCount() != 0L)
                     .collect(Collectors.toList());
             ageWearingGlasses.setAgeWearingGlassesChart(horizontalChartService.primaryWearingGlassesChart(filterAgeWearingTables, true));
-            ageWearingGlasses.setAgeVisionCorrectionChart(horizontalChartService.primaryVisionCorrectionChart(filterAgeWearingTables,true));
+            ageWearingGlasses.setAgeVisionCorrectionChart(horizontalChartService.primaryVisionCorrectionChart(filterAgeWearingTables, true));
             AgeWearingGlasses.Info info = new AgeWearingGlasses.Info();
             info.setNotWearing(highLowProportionService.ageWearingTableHP("", filterAgeWearingTables, s -> Float.valueOf(s.getNotWearingProportion())));
             info.setGlasses(highLowProportionService.ageWearingTableHP("", filterAgeWearingTables, s -> Float.valueOf(s.getGlassesProportion())));
@@ -610,7 +611,7 @@ public class ScreeningAreaReportService {
         schoolAgeWearingGlasses.setTables(Lists.newArrayList(ageWearingTableList));
         if (commonReportService.isShowInfo(ageWearingTableList.stream().filter(s -> !commonReportService.filterList().contains(s.getName())).collect(Collectors.toList()), false)) {
             schoolAgeWearingGlasses.setAgeWearingGlassesChart(horizontalChartService.primaryWearingGlassesChart(ageWearingTableList.stream().filter(s -> commonReportService.schoolAgeList().contains(s.getName())).collect(Collectors.toList()), false));
-            schoolAgeWearingGlasses.setAgeVisionCorrectionChart(horizontalChartService.primaryVisionCorrectionChart(ageWearingTableList.stream().filter(s -> commonReportService.schoolAgeList().contains(s.getName())).collect(Collectors.toList()),true));
+            schoolAgeWearingGlasses.setAgeVisionCorrectionChart(horizontalChartService.primaryVisionCorrectionChart(ageWearingTableList.stream().filter(s -> commonReportService.schoolAgeList().contains(s.getName())).collect(Collectors.toList()), true));
             schoolAgeWearingGlasses.setInfo(screeningPrimaryReportService.primaryWearingInfo(statConclusions, ageWearingTableList, total));
         }
         return schoolAgeWearingGlasses;
