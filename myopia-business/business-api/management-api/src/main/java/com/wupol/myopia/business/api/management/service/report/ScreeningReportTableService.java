@@ -11,6 +11,7 @@ import com.wupol.myopia.business.api.management.domain.dto.report.vision.area.sc
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.area.schoolage.GenderSexLowVisionTable;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.area.schoolage.SchoolAgeGenderTable;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.CountAndProportion;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.LowVisionLevelTable;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.RefractiveTable;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.AstigmatismTable;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.MyopiaTable;
@@ -762,22 +763,7 @@ public class ScreeningReportTableService {
             table.setKLowVisionCount(kLowVision.getCount());
             table.setKLowVisionProportion(kLowVision.getProportion());
 
-            CountAndProportion lowVision = countAndProportionService.lowVision(pList, total);
-            table.setLowVisionCount(lowVision.getCount());
-            table.setLowVisionProportion(lowVision.getProportion());
-
-            CountAndProportion lightLowVision = countAndProportionService.lightLowVision(pList, total);
-            table.setLightLowVisionCount(lightLowVision.getCount());
-            table.setLightLowVisionProportion(lightLowVision.getProportion());
-
-            CountAndProportion middleLowVision = countAndProportionService.middleLowVision(pList, total);
-            table.setMiddleLowVisionCount(middleLowVision.getCount());
-            table.setMiddleLowVisionProportion(middleLowVision.getProportion());
-
-            CountAndProportion highLowVision = countAndProportionService.highLowVision(pList, total);
-            table.setHighLowVisionCount(highLowVision.getCount());
-            table.setHighLowVisionProportion(highLowVision.getProportion());
-
+            generateLowVisionTable(table, pList, total);
             table.setIsSameReport(tuple.getFirst().equals(noticeId));
             tables.add(table);
         });
@@ -936,24 +922,27 @@ public class ScreeningReportTableService {
 
     private void extracted(List<CommonLowVisionTable> tables, CommonLowVisionTable lowVisionTable, List<StatConclusion> v, Long total) {
         lowVisionTable.setValidCount((long) v.size());
-
-        CountAndProportion lowVision = countAndProportionService.lowVision(v, total);
-        lowVisionTable.setLowVisionCount(lowVision.getCount());
-        lowVisionTable.setLowVisionProportion(lowVision.getProportion());
-
-        CountAndProportion light = countAndProportionService.lightLowVision(v, total);
-        lowVisionTable.setLightLowVisionCount(light.getCount());
-        lowVisionTable.setLightLowVisionProportion(light.getProportion());
-
-        CountAndProportion middle = countAndProportionService.middleLowVision(v, total);
-        lowVisionTable.setMiddleLowVisionCount(middle.getCount());
-        lowVisionTable.setMiddleLowVisionProportion(middle.getProportion());
-
-        CountAndProportion high = countAndProportionService.highLowVision(v, total);
-        lowVisionTable.setHighLowVisionCount(high.getCount());
-        lowVisionTable.setHighLowVisionProportion(high.getProportion());
+        generateLowVisionTable(lowVisionTable, v, total);
         lowVisionTable.setAvgVision(commonReportService.getAvgVision(v));
         tables.add(lowVisionTable);
+    }
+
+    public <T extends LowVisionLevelTable> void generateLowVisionTable(T tables, List<StatConclusion> v, Long total) {
+        CountAndProportion lowVision = countAndProportionService.lowVision(v, total);
+        tables.setLowVisionCount(lowVision.getCount());
+        tables.setLowVisionProportion(lowVision.getProportion());
+
+        CountAndProportion light = countAndProportionService.lightLowVision(v, total);
+        tables.setLightLowVisionCount(light.getCount());
+        tables.setLightLowVisionProportion(light.getProportion());
+
+        CountAndProportion middle = countAndProportionService.middleLowVision(v, total);
+        tables.setMiddleLowVisionCount(middle.getCount());
+        tables.setMiddleLowVisionProportion(middle.getProportion());
+
+        CountAndProportion high = countAndProportionService.highLowVision(v, total);
+        tables.setHighLowVisionCount(high.getCount());
+        tables.setHighLowVisionProportion(high.getProportion());
     }
 
     public List<CommonLowVisionTable> gradeLowVision(List<StatConclusion> statConclusions, Long total) {

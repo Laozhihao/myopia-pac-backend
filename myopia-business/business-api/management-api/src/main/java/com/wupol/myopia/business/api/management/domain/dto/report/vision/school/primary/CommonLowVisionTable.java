@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.school.primary;
 
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.CommonTable;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.LowVisionLevelTable;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,52 +12,11 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class CommonLowVisionTable extends CommonTable {
+public class CommonLowVisionTable extends LowVisionLevelTable {
 
     /**
      * 平均视力
      */
     private String avgVision;
-
-    /**
-     * 视力低下人数
-     */
-    private Long lowVisionCount;
-
-    /**
-     * 视力低下占比
-     */
-    private String lowVisionProportion;
-
-    /**
-     * 轻度-视力低下人数
-     */
-    private Long lightLowVisionCount;
-
-    /**
-     * 轻度-视力低下占比
-     */
-    private String lightLowVisionProportion;
-
-    /**
-     * 中度-视力低下人数
-     */
-    private Long middleLowVisionCount;
-
-    /**
-     * 中度-视力低下占比
-     */
-    private String middleLowVisionProportion;
-
-    /**
-     * 重度-视力低下人数
-     */
-    private Long highLowVisionCount;
-
-    /**
-     * 重度-视力低下占比
-     */
-    private String highLowVisionProportion;
-
 
 }
