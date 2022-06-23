@@ -16,6 +16,8 @@ import java.util.Objects;
 @UtilityClass
 public class ScreeningDataFormatUtils {
 
+    private static final String EMPTY_RESULT = "--";
+
     /**
      * 角膜曲率（单眼）
      *
@@ -23,7 +25,7 @@ public class ScreeningDataFormatUtils {
      * @return String
      */
     public static String genEyeBiometric(Object val1) {
-        return Objects.nonNull(val1) ? StringUtils.isNotBlank(String.valueOf(val1)) ? val1 + "D" : "--" : "--";
+        return Objects.nonNull(val1) ? StringUtils.isNotBlank(String.valueOf(val1)) ? val1 + "D" : EMPTY_RESULT : EMPTY_RESULT;
     }
 
     /**
@@ -33,7 +35,7 @@ public class ScreeningDataFormatUtils {
      * @return String
      */
     public static String genBiometricAxis(Object val1) {
-        return Objects.nonNull(val1) ? StringUtils.isNotBlank(String.valueOf(val1)) ? val1 + "°" : "--" : "--";
+        return Objects.nonNull(val1) ? StringUtils.isNotBlank(String.valueOf(val1)) ? val1 + "°" : EMPTY_RESULT : EMPTY_RESULT;
     }
 
 
@@ -45,7 +47,7 @@ public class ScreeningDataFormatUtils {
      */
     public static String singleEyeDateFormat(BigDecimal date) {
         DecimalFormat decimalFormat = new DecimalFormat("0.0");
-        return Objects.isNull(date) ? "--" : decimalFormat.format(date);
+        return Objects.isNull(date) ? EMPTY_RESULT : decimalFormat.format(date);
     }
 
     /**
@@ -57,7 +59,7 @@ public class ScreeningDataFormatUtils {
     public static String singleEyeSEFormat(BigDecimal date) {
         DecimalFormat decimalFormat = new DecimalFormat("0.0");
         if (Objects.isNull(date)) {
-            return "--";
+            return EMPTY_RESULT;
         }
         String formatVal = decimalFormat.format(date);
         if (StringUtils.isNotBlank(formatVal) && BigDecimalUtil.moreThanAndEqual(formatVal, "0")) {
@@ -74,7 +76,7 @@ public class ScreeningDataFormatUtils {
      */
     public static String ipDateFormat(Object data) {
         DecimalFormat decimalFormat = new DecimalFormat("0.0");
-        return Objects.isNull(data) ? "--" : decimalFormat.format(data) + "mmHg";
+        return Objects.isNull(data) ? EMPTY_RESULT : decimalFormat.format(data) + "mmHg";
     }
 
     /**
@@ -84,7 +86,7 @@ public class ScreeningDataFormatUtils {
      * @return String
      */
     public static String levelDateFormat(Object data) {
-        return Objects.isNull(data) ? "--" : data + "级";
+        return Objects.isNull(data) ? EMPTY_RESULT : data + "级";
     }
 
     /**
@@ -114,7 +116,7 @@ public class ScreeningDataFormatUtils {
      */
     public static String generateSingleEyeDegree(Object val) {
         DecimalFormat decimalFormat = new DecimalFormat("0");
-        return Objects.nonNull(val) ? decimalFormat.format(val) + "°" : "--";
+        return Objects.nonNull(val) ? decimalFormat.format(val) + "°" : EMPTY_RESULT;
     }
 
     /**
@@ -132,7 +134,7 @@ public class ScreeningDataFormatUtils {
             }
             return formatVal + "D";
         }
-        return "--";
+        return EMPTY_RESULT;
     }
 
     /**
@@ -143,7 +145,7 @@ public class ScreeningDataFormatUtils {
      */
     public static String generateSingleSuffixMMStr(Object val) {
         DecimalFormat decimalFormat = new DecimalFormat("0.00");
-        return (StringUtils.isNotBlank((CharSequence) val) ? decimalFormat.format(new BigDecimal((String) val)) + "mm" : "--");
+        return (StringUtils.isNotBlank((CharSequence) val) ? decimalFormat.format(new BigDecimal((String) val)) + "mm" : EMPTY_RESULT);
     }
 
     /**
@@ -154,7 +156,7 @@ public class ScreeningDataFormatUtils {
      */
     public static String generateSingleSuffixUMStr(Object val) {
         DecimalFormat decimalFormat = new DecimalFormat("0.00");
-        return (StringUtils.isNotBlank((CharSequence) val) ? decimalFormat.format(new BigDecimal((String) val)) + "um" : "--");
+        return (StringUtils.isNotBlank((CharSequence) val) ? decimalFormat.format(new BigDecimal((String) val)) + "um" : EMPTY_RESULT);
     }
 
     /**
@@ -165,9 +167,9 @@ public class ScreeningDataFormatUtils {
      */
     public static String getHeight(Object height) {
         if (Objects.isNull(height)) {
-            return "--";
+            return EMPTY_RESULT;
         }
-        return StringUtils.isNotBlank(String.valueOf(height)) ? new BigDecimal(String.valueOf(height)).setScale(1, RoundingMode.DOWN) + "cm" : "--";
+        return StringUtils.isNotBlank(String.valueOf(height)) ? new BigDecimal(String.valueOf(height)).setScale(1, RoundingMode.DOWN) + "cm" : EMPTY_RESULT;
     }
 
     /**
@@ -178,9 +180,9 @@ public class ScreeningDataFormatUtils {
      */
     public static String getWeight(Object weight) {
         if (Objects.isNull(weight)) {
-            return "--";
+            return EMPTY_RESULT;
         }
-        return StringUtils.isNotBlank(String.valueOf(weight)) ? new BigDecimal(String.valueOf(weight)).setScale(1, RoundingMode.DOWN) + "kg" : "--";
+        return StringUtils.isNotBlank(String.valueOf(weight)) ? new BigDecimal(String.valueOf(weight)).setScale(1, RoundingMode.DOWN) + "kg" : EMPTY_RESULT;
     }
 
     /**
@@ -191,8 +193,8 @@ public class ScreeningDataFormatUtils {
      */
     public static String getGlassesType(Object obj) {
         if (Objects.nonNull(obj)) {
-            return StringUtils.defaultIfBlank(GlassesTypeEnum.getDescByCode((Integer) obj), "--");
+            return StringUtils.defaultIfBlank(GlassesTypeEnum.getDescByCode((Integer) obj), EMPTY_RESULT);
         }
-        return "--";
+        return EMPTY_RESULT;
     }
 }
