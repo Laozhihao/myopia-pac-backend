@@ -21,27 +21,42 @@ import java.util.stream.Collectors;
 public class CountAndProportionService {
 
     public CountAndProportion zeroWarning(List<StatConclusion> statConclusions, Long total) {
-        long zeroWarningCount = statConclusions.stream().filter(s -> Objects.equals(s.getWarningLevel(), WarningLevel.ZERO.code)).count();
+        long zeroWarningCount = statConclusions.stream()
+                .filter(s -> Objects.equals(s.getWarningLevel(), WarningLevel.ZERO.code))
+                .filter(s -> !Objects.equals(s.getGlassesType(), GlassesTypeEnum.ORTHOKERATOLOGY.code))
+                .count();
         return new CountAndProportion(zeroWarningCount, BigDecimalUtil.divide(zeroWarningCount, total));
     }
+
     public CountAndProportion zeroAndSPWarning(List<StatConclusion> statConclusions, Long total) {
         long zeroWarningCount = statConclusions.stream().filter(s -> Objects.equals(s.getWarningLevel(), WarningLevel.ZERO.code)
-                || Objects.equals(s.getWarningLevel(), WarningLevel.ZERO_SP.code)).count();
+                        || Objects.equals(s.getWarningLevel(), WarningLevel.ZERO_SP.code))
+                .filter(s -> !Objects.equals(s.getGlassesType(), GlassesTypeEnum.ORTHOKERATOLOGY.code))
+                .count();
         return new CountAndProportion(zeroWarningCount, BigDecimalUtil.divide(zeroWarningCount, total));
     }
 
     public CountAndProportion oneWarning(List<StatConclusion> statConclusions, Long total) {
-        long oneWarningCount = statConclusions.stream().filter(s -> Objects.equals(s.getWarningLevel(), WarningLevel.ONE.code)).count();
+        long oneWarningCount = statConclusions.stream()
+                .filter(s -> Objects.equals(s.getWarningLevel(), WarningLevel.ONE.code))
+                .filter(s -> !Objects.equals(s.getGlassesType(), GlassesTypeEnum.ORTHOKERATOLOGY.code))
+                .count();
         return new CountAndProportion(oneWarningCount, BigDecimalUtil.divide(oneWarningCount, total));
     }
 
     public CountAndProportion twoWarning(List<StatConclusion> statConclusions, Long total) {
-        long twoWarningCount = statConclusions.stream().filter(s -> Objects.equals(s.getWarningLevel(), WarningLevel.TWO.code)).count();
+        long twoWarningCount = statConclusions.stream()
+                .filter(s -> Objects.equals(s.getWarningLevel(), WarningLevel.TWO.code))
+                .filter(s -> !Objects.equals(s.getGlassesType(), GlassesTypeEnum.ORTHOKERATOLOGY.code))
+                .count();
         return new CountAndProportion(twoWarningCount, BigDecimalUtil.divide(twoWarningCount, total));
     }
 
     public CountAndProportion threeWarning(List<StatConclusion> statConclusions, Long total) {
-        long threeWarningCount = statConclusions.stream().filter(s -> Objects.equals(s.getWarningLevel(), WarningLevel.THREE.code)).count();
+        long threeWarningCount = statConclusions.stream()
+                .filter(s -> Objects.equals(s.getWarningLevel(), WarningLevel.THREE.code))
+                .filter(s -> !Objects.equals(s.getGlassesType(), GlassesTypeEnum.ORTHOKERATOLOGY.code))
+                .count();
         return new CountAndProportion(threeWarningCount, BigDecimalUtil.divide(threeWarningCount, total));
     }
 
@@ -137,7 +152,7 @@ public class CountAndProportionService {
         }
         long count = statConclusions.stream()
                 .filter(s -> Objects.equals(s.getSchoolAge(), schoolAge))
-                .filter(s-> Objects.equals(s.getIsLowVision(), Boolean.TRUE))
+                .filter(s -> Objects.equals(s.getIsLowVision(), Boolean.TRUE))
                 .count();
         return new CountAndProportion(count, BigDecimalUtil.divide(count, total));
     }
@@ -148,7 +163,7 @@ public class CountAndProportionService {
     public CountAndProportion seniorAgeLowVision(List<StatConclusion> statConclusions, Long total) {
         long count = statConclusions.stream()
                 .filter(s -> Objects.equals(s.getSchoolAge(), SchoolAge.HIGH.code) || Objects.equals(s.getSchoolAge(), SchoolAge.VOCATIONAL_HIGH.code))
-                .filter(s-> Objects.equals(s.getIsLowVision(), Boolean.TRUE))
+                .filter(s -> Objects.equals(s.getIsLowVision(), Boolean.TRUE))
                 .count();
         if (count == 0) {
             return new CountAndProportion();
@@ -276,7 +291,7 @@ public class CountAndProportionService {
      *
      * @return CountAndProportion
      */
-    public CountAndProportion night(List<StatConclusion> statConclusions,Long total) {
+    public CountAndProportion night(List<StatConclusion> statConclusions, Long total) {
         long enoughCount = statConclusions.stream().filter(s -> Objects.equals(s.getGlassesType(), GlassesTypeEnum.ORTHOKERATOLOGY.code)).count();
         return new CountAndProportion(enoughCount, BigDecimalUtil.divide(enoughCount, total));
     }
@@ -286,7 +301,7 @@ public class CountAndProportionService {
      *
      * @return CountAndProportion
      */
-    public CountAndProportion contact(List<StatConclusion> statConclusions,Long total) {
+    public CountAndProportion contact(List<StatConclusion> statConclusions, Long total) {
         long enoughCount = statConclusions.stream().filter(s -> Objects.equals(s.getGlassesType(), GlassesTypeEnum.CONTACT_LENS.code)).count();
         return new CountAndProportion(enoughCount, BigDecimalUtil.divide(enoughCount, total));
     }
