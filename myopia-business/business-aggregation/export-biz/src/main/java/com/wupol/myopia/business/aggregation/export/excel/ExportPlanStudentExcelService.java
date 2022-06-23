@@ -152,7 +152,7 @@ public class ExportPlanStudentExcelService extends BaseExportExcelFileService {
             List<PlanStudentExportDTO> classExport = gradeEntry.getValue();
             Map<String, List<PlanStudentExportDTO>> classMap = classExport.stream().collect(Collectors.groupingBy(PlanStudentExportDTO::getClassName));
             for (Map.Entry<String, List<PlanStudentExportDTO>> classEntry : classMap.entrySet()) {
-                filepath = ExcelUtil.exportListToExcelWithFolder(Paths.get(path,gradeEntry.getKey(),classEntry.getKey()).toString(), classEntry.getKey(), classEntry.getValue(), mergeStrategy, getHeadClass()).getAbsolutePath();
+                filepath = ExcelUtil.exportListToExcelWithFolder(Paths.get(path,gradeEntry.getKey(),classEntry.getKey()).toString(), classEntry.getKey(), classEntry.getValue(), mergeStrategy, getHeadClass(exportCondition)).getAbsolutePath();
             }
         }
         return ZipUtil.zip(StringUtils.substringBeforeLast(StringUtils.substringBeforeLast(StringUtils.substringBeforeLast(filepath, StrUtil.SLASH), StrUtil.SLASH), StrUtil.SLASH));

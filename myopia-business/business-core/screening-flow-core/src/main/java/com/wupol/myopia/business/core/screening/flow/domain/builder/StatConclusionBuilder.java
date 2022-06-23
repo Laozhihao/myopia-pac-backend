@@ -9,7 +9,6 @@ import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDO;
 import com.wupol.myopia.business.core.school.constant.SchoolEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
@@ -741,7 +740,7 @@ public class StatConclusionBuilder {
         if (ObjectsUtil.hasNull(current, another)) {
             return 0;
         }
-        return inRange(current.getHeight(), another.getHeight(), new BigDecimal("0.5"))
-                + inRange(current.getWeight(), another.getWeight(), new BigDecimal("0.1"));
+        return StatUtil.inRange(current.getHeight(), another.getHeight(), new BigDecimal("0.5"))
+                + StatUtil.inRange(current.getWeight(), another.getWeight(), new BigDecimal("0.1"));
     }
 }
