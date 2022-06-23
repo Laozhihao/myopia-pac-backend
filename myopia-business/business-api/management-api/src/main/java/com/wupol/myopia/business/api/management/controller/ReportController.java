@@ -78,10 +78,15 @@ public class ReportController {
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @GetMapping("/district/export")
-    public void exportDistrictReport(@NotNull(message = "筛查通知ID不能为空") Integer notificationId, @NotNull(message = "行政区域ID不能为空") Integer districtId) throws IOException {
+    public void exportDistrictReport(@NotNull(message = "筛查通知ID不能为空") Integer notificationId,
+                                     @NotNull(message = "行政区域ID不能为空") Integer districtId,
+                                     @NotNull(message = "是否幼儿园不能为空") Boolean isKindergarten,
+                                     @NotNull(message = "导出类型不能为空") Integer type) throws IOException {
         ExportCondition exportCondition = new ExportCondition()
                 .setNotificationId(notificationId)
                 .setDistrictId(districtId)
+                .setIsKindergarten(isKindergarten)
+                .setExportType(type)
                 .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
 
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.DISTRICT_SCREENING_REPORT_SERVICE);
@@ -90,44 +95,22 @@ public class ReportController {
     /**
      * 导出学校的筛查报告
      *
-     * @param notificationId 筛查通知ID
      * @param planId 筛查计划ID
      * @param schoolId 学校ID
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @GetMapping("/school/export")
-    public void exportSchoolReport(Integer notificationId, Integer planId, @NotNull(message = "学校ID不能为空") Integer schoolId) throws IOException {
-        if (Objects.isNull(notificationId) && Objects.isNull(planId)) {
-            throw new BusinessException("筛查通知ID或者筛查计划ID不能为空");
-        }
-
+    public void exportSchoolReport(@NotNull(message = "筛查计划ID不能为空") Integer planId,
+                                   @NotNull(message = "学校ID不能为空") Integer schoolId,
+                                   @NotNull(message = "导出类型不能为空") Integer type) throws IOException {
         ExportCondition exportCondition = new ExportCondition()
-                .setNotificationId(notificationId)
                 .setPlanId(planId)
                 .setSchoolId(schoolId)
+                .setExportType(type)
                 .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.SCHOOL_SCREENING_REPORT_SERVICE);
     }
 
-    /**
-     * 导出筛查机构的筛查报告
-     *
-     * @param planId 筛查计划ID
-     * @param screeningOrgId 行政区域ID
-     * @return com.wupol.myopia.base.domain.ApiResult
-     **/
-    @GetMapping("/screeningOrg/export")
-    public void exportScreeningOrgReport(@NotNull(message = "筛查计划ID不能为空") Integer planId,
-                                         @NotNull(message = "筛查机构ID不能为空") Integer screeningOrgId,
-                                         @NotNull(message = "学校ID不能为空") Integer schoolId) throws IOException {
-        ExportCondition exportCondition = new ExportCondition()
-                .setSchoolId(schoolId)
-                .setPlanId(planId)
-                .setScreeningOrgId(screeningOrgId)
-                .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
-
-        exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.SCREENING_ORG_SCREENING_REPORT_SERVICE);
-    }
 
     /**
      * 导出学校档案卡
