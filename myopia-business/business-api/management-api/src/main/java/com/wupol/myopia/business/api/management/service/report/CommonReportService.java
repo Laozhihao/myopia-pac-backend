@@ -661,7 +661,7 @@ public class CommonReportService {
 
         // 获取当前学校和计划下的所有学生
         List<ScreeningPlanSchoolStudent> planStudents = screeningPlanSchoolStudentService.getByPlanIdAndSchoolId(plan.getId(), school.getId());
-        List<Integer> planStudentIds = planStudents.stream().map(ScreeningPlanSchoolStudent::getId).collect(Collectors.toList());
+        List<Integer> planStudentIds = planStudents.stream().map(ScreeningPlanSchoolStudent::getId).distinct().collect(Collectors.toList());
         Map<Integer, Map<Integer, List<ScreeningPlanSchoolStudent>>> planStudentMap = planStudents.stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getGradeId, Collectors.groupingBy(ScreeningPlanSchoolStudent::getClassId, Collectors.toList())));
 
         // 通过学生获取筛查统计结果

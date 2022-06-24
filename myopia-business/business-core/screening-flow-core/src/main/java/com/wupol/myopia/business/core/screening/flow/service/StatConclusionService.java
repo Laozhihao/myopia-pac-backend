@@ -364,6 +364,7 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
     public List<StatConclusion> getByPlanStudentIds(List<Integer> planStudentIds) {
         LambdaQueryWrapper<StatConclusion> queryWrapper =new LambdaQueryWrapper<>();
         queryWrapper.in(StatConclusion::getScreeningPlanSchoolStudentId,planStudentIds);
+        queryWrapper.eq(StatConclusion::getIsRescreen,Boolean.FALSE);
         return baseMapper.selectList(queryWrapper);
     }
 
