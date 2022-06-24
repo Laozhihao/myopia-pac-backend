@@ -233,7 +233,7 @@ public class VisionScreeningController {
                 .setNotificationId(screeningNoticeId)
                 .setPlanId(planId)
                 .setSchoolId(currentUser.getOrgId())
-                .setApplyExportFileUserId(currentUser.getId()).setExportType();
+                .setApplyExportFileUserId(currentUser.getId());
         if (Objects.nonNull(screeningNoticeId) && screeningNoticeId == 0) {
             exportCondition.setNotificationId(null);
         }
