@@ -521,7 +521,7 @@ public class ScreeningReportTableService {
     }
 
     private void generateWarningDate(List<WarningTable> tables, List<StatConclusion> v, WarningTable table, Long total) {
-        table.setValidCount(v.size());
+        table.setValidCount((long) v.size());
         generateWarningDateInfo(table, v, total, false);
         tables.add(table);
     }
@@ -566,7 +566,7 @@ public class ScreeningReportTableService {
         collect.forEach((k, v) -> {
             KindergartenScreeningInfoTable table = new KindergartenScreeningInfoTable();
             table.setName(schoolMap.get(k));
-            table.setValidCount(v.size());
+            table.setValidCount((long) v.size());
 
             CountAndProportion lowVision = countAndProportionService.lowVision(v, total);
             table.setLowVisionCount(lowVision.getCount());
@@ -622,7 +622,7 @@ public class ScreeningReportTableService {
     }
 
     private void generateScreeningInfoTable(Long total, List<PrimaryScreeningInfoTable> tables, List<StatConclusion> v, PrimaryScreeningInfoTable table) {
-        table.setValidCount(v.size());
+        table.setValidCount((long) v.size());
 
         CountAndProportion lowVision = countAndProportionService.lowVision(v, total);
         table.setLowVisionCount(lowVision.getCount());

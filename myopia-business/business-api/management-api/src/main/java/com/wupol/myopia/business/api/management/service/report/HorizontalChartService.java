@@ -40,6 +40,8 @@ public class HorizontalChartService {
     @Resource
     private CountAndProportionService countAndProportionService;
 
+    ArrayList<String> x = Lists.newArrayList("远视储备不足", "屈光不正", "屈光参差");
+
     public HorizontalChart areaLowVision(List<CommonLowVisionTable> tables, Boolean isAge) {
         HorizontalChart horizontalChart = new HorizontalChart();
         setHorizontalChartXName(tables, horizontalChart, isAge);
@@ -60,7 +62,7 @@ public class HorizontalChartService {
 
     public HorizontalChart refractiveChart(List<RefractiveTable> tables) {
         HorizontalChart horizontalChart = new HorizontalChart();
-        horizontalChart.setX(Lists.newArrayList("远视储备不足", "屈光不正", "屈光参差"));
+        horizontalChart.setX(x);
         horizontalChart.setY(tables.stream().map(table -> new ChartDetail(table.getName(), Lists.newArrayList(
                 tables.stream().filter(s -> StringUtils.equals(s.getName(), table.getName())).collect(Collectors.toList()).get(0).getInsufficientProportion(),
                 tables.stream().filter(s -> StringUtils.equals(s.getName(), table.getName())).collect(Collectors.toList()).get(0).getRefractiveErrorProportion(),
@@ -71,7 +73,8 @@ public class HorizontalChartService {
 
     public HorizontalChart genderRefractiveChart(List<RefractiveTable> tables) {
         HorizontalChart horizontalChart = new HorizontalChart();
-        horizontalChart.setX(Lists.newArrayList("远视储备不足", "屈光不正", "屈光参差"));
+
+        horizontalChart.setX(x);
         horizontalChart.setY(GenderEnum.genderList().stream().map(gender -> new ChartDetail(gender.cnDesc, Lists.newArrayList(
                 tables.stream().filter(s -> StringUtils.equals(s.getName(), gender.cnDesc)).collect(Collectors.toList()).get(0).getInsufficientProportion(),
                 tables.stream().filter(s -> StringUtils.equals(s.getName(), gender.cnDesc)).collect(Collectors.toList()).get(0).getRefractiveErrorProportion(),

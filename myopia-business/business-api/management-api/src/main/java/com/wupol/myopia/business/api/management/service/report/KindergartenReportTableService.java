@@ -59,7 +59,7 @@ public class KindergartenReportTableService {
     }
 
     private void extracted(List<GradeRefractive.Table> tables, List<StatConclusion> v, GradeRefractive.Table table, Long total) {
-        table.setValidCount(v.size());
+        table.setValidCount((long) v.size());
         CountAndProportion insufficient = countAndProportionService.insufficient(v, total);
         table.setInsufficientStudentCount(insufficient.getCount());
         table.setInsufficientProportion(insufficient.getProportion());
@@ -99,7 +99,7 @@ public class KindergartenReportTableService {
     }
 
     private void extracted(List<GradeWarning.Table> tables, List<StatConclusion> v, GradeWarning.Table table, Long total) {
-        table.setValidCount(v.size());
+        table.setValidCount((long) v.size());
         screeningReportTableService.generateWarningDateInfo(table, v, total, true);
 
         CountAndProportion warning = countAndProportionService.warning(v, total);
@@ -135,7 +135,7 @@ public class KindergartenReportTableService {
     }
 
     private void extracted(List<StatConclusion> statConclusions, List<GradeLowVision.Table> tables, GradeLowVision.Table table, Long total) {
-        table.setValidCount(statConclusions.size());
+        table.setValidCount((long) statConclusions.size());
         CountAndProportion male = countAndProportionService.male(statConclusions);
         table.setMCount(male.getCount());
         table.setMProportion(male.getProportion());

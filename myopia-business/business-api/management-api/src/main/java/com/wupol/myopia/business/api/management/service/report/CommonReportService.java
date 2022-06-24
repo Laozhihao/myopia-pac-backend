@@ -514,11 +514,11 @@ public class CommonReportService {
         }
         if (isShowInfo(collect, true)) {
             WarningSituation.Info info = new WarningSituation.Info();
-            info.setZero(highLowProportionService.warningTableHP(warningTables, s -> Float.valueOf(s.getZeroWarningProportion())));
-            info.setOne(highLowProportionService.warningTableHP(warningTables, s -> Float.valueOf(s.getOneWarningProportion())));
-            info.setTwo(highLowProportionService.warningTableHP(warningTables, s -> Float.valueOf(s.getTwoWarningProportion())));
-            info.setThree(highLowProportionService.warningTableHP(warningTables, s -> Float.valueOf(s.getThreeWarningProportion())));
-            info.setRecommendDoctor(highLowProportionService.warningTableHP(warningTables, s -> Float.valueOf(s.getRecommendDoctorProportion())));
+            info.setZero(highLowProportionService.getHighLow(warningTables, s -> Float.valueOf(s.getZeroWarningProportion())));
+            info.setOne(highLowProportionService.getHighLow(warningTables, s -> Float.valueOf(s.getOneWarningProportion())));
+            info.setTwo(highLowProportionService.getHighLow(warningTables, s -> Float.valueOf(s.getTwoWarningProportion())));
+            info.setThree(highLowProportionService.getHighLow(warningTables, s -> Float.valueOf(s.getThreeWarningProportion())));
+            info.setRecommendDoctor(highLowProportionService.getHighLow(warningTables, s -> Float.valueOf(s.getRecommendDoctorProportion())));
             gradeWarning.setInfo(info);
         }
         warningSituation.setGradeWarningInfo(gradeWarning);
@@ -533,13 +533,13 @@ public class CommonReportService {
         primary.setTables(Lists.newArrayList(tables));
         if (isShowInfo(tables, false)) {
             PrimaryOverall.Info info = new PrimaryOverall.Info();
-            info.setLowVision(highLowProportionService.primaryMyopiaMaxMinProportion(countAndProportionService.lowVision(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getLowVisionProportion())));
-            info.setMyopia(highLowProportionService.primaryMyopiaMaxMinProportion(countAndProportionService.myopia(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getMyopiaProportion())));
-            info.setEarlyMyopia(highLowProportionService.primaryMyopiaMaxMinProportion(countAndProportionService.earlyMyopia(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getEarlyMyopiaProportion())));
-            info.setLightMyopia(highLowProportionService.primaryMyopiaMaxMinProportion(countAndProportionService.lightMyopia(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getLightMyopiaProportion())));
-            info.setHighMyopia(highLowProportionService.primaryMyopiaMaxMinProportion(countAndProportionService.highMyopia(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getHighMyopiaProportion())));
-            info.setRecommendDoctor(highLowProportionService.primaryMyopiaMaxMinProportion(countAndProportionService.getRecommendDoctor(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getRecommendDoctorProportion())));
-            info.setOwe(highLowProportionService.primaryMyopiaMaxMinProportion(countAndProportionService.underAndUncorrected(statConclusions).getProportion(), tables, s -> Float.valueOf(s.getOweProportion())));
+            info.setLowVision(highLowProportionService.getMaxMin(countAndProportionService.lowVision(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getLowVisionProportion())));
+            info.setMyopia(highLowProportionService.getMaxMin(countAndProportionService.myopia(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getMyopiaProportion())));
+            info.setEarlyMyopia(highLowProportionService.getMaxMin(countAndProportionService.earlyMyopia(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getEarlyMyopiaProportion())));
+            info.setLightMyopia(highLowProportionService.getMaxMin(countAndProportionService.lightMyopia(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getLightMyopiaProportion())));
+            info.setHighMyopia(highLowProportionService.getMaxMin(countAndProportionService.highMyopia(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getHighMyopiaProportion())));
+            info.setRecommendDoctor(highLowProportionService.getMaxMin(countAndProportionService.getRecommendDoctor(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getRecommendDoctorProportion())));
+            info.setOwe(highLowProportionService.getMaxMin(countAndProportionService.underAndUncorrected(statConclusions).getProportion(), tables, s -> Float.valueOf(s.getOweProportion())));
             primary.setInfo(info);
         }
         return primary;

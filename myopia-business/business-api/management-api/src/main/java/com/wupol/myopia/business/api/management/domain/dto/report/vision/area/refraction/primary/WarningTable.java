@@ -13,13 +13,4 @@ import lombok.Setter;
 @Setter
 public class WarningTable extends CommonWarningTable {
 
-    /**
-     * 年级名称
-     */
-    private String name;
-
-    /**
-     * 有效人数
-     */
-    private Integer validCount;
 }

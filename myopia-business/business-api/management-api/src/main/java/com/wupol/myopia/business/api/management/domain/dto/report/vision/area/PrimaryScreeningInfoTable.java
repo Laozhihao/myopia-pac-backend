@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.area;
 
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.CommonTable;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.CountAndProportion;
 import lombok.*;
 
@@ -11,17 +12,7 @@ import lombok.*;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PrimaryScreeningInfoTable {
-
-    /**
-     * 项目
-     */
-    private String name;
-
-    /**
-     * 有效人数
-     */
-    private Integer validCount;
+public class PrimaryScreeningInfoTable extends CommonTable {
 
     /**
      * 人数-视力低下

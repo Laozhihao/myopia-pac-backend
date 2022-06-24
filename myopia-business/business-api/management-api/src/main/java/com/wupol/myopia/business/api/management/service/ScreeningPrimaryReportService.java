@@ -247,10 +247,10 @@ public class ScreeningPrimaryReportService {
     private LowVisionInfo getLowVisionInfo(List<CommonLowVisionTable> tables) {
         List<CommonLowVisionTable> collect = tables.stream().filter(s -> !StringUtils.equals(s.getName(), CommonReportService.TOTAL_NAME)).collect(Collectors.toList());
         LowVisionInfo info = new LowVisionInfo();
-        info.setLowVision(highLowProportionService.lowVisionTableHP(collect, s -> Float.valueOf(s.getLowVisionProportion())));
-        info.setLightVision(highLowProportionService.lowVisionTableHP(collect, s -> Float.valueOf(s.getLightLowVisionProportion())));
-        info.setMiddleVision(highLowProportionService.lowVisionTableHP(collect, s -> Float.valueOf(s.getMiddleLowVisionProportion())));
-        info.setHighVision(highLowProportionService.lowVisionTableHP(collect, s -> Float.valueOf(s.getHighLowVisionProportion())));
+        info.setLowVision(highLowProportionService.getHighLow(collect, s -> Float.valueOf(s.getLowVisionProportion())));
+        info.setLightVision(highLowProportionService.getHighLow(collect, s -> Float.valueOf(s.getLightLowVisionProportion())));
+        info.setMiddleVision(highLowProportionService.getHighLow(collect, s -> Float.valueOf(s.getMiddleLowVisionProportion())));
+        info.setHighVision(highLowProportionService.getHighLow(collect, s -> Float.valueOf(s.getHighLowVisionProportion())));
         return info;
     }
 
@@ -306,11 +306,11 @@ public class ScreeningPrimaryReportService {
     private PrimaryAstigmatismInfo primaryAstigmatismInfo(List<AstigmatismTable> tables) {
         List<AstigmatismTable> tableList = tables.stream().filter(s -> !StringUtils.equals(s.getName(), CommonReportService.TOTAL_NAME)).collect(Collectors.toList());
         PrimaryAstigmatismInfo info = new PrimaryAstigmatismInfo();
-        info.setMyopia(highLowProportionService.ageAstigmatismTableHP(tableList, s -> Float.valueOf(s.getMyopiaProportion())));
-        info.setEarlyMyopia(highLowProportionService.ageAstigmatismTableHP(tableList, s -> Float.valueOf(s.getEarlyMyopiaProportion())));
-        info.setLightMyopia(highLowProportionService.ageAstigmatismTableHP(tableList, s -> Float.valueOf(s.getLightMyopiaProportion())));
-        info.setHighMyopia(highLowProportionService.ageAstigmatismTableHP(tableList, s -> Float.valueOf(s.getHighMyopiaProportion())));
-        info.setAstigmatism(highLowProportionService.ageAstigmatismTableHP(tableList, s -> Float.valueOf(s.getAstigmatismProportion())));
+        info.setMyopia(highLowProportionService.getHighLow(tableList, s -> Float.valueOf(s.getMyopiaProportion())));
+        info.setEarlyMyopia(highLowProportionService.getHighLow(tableList, s -> Float.valueOf(s.getEarlyMyopiaProportion())));
+        info.setLightMyopia(highLowProportionService.getHighLow(tableList, s -> Float.valueOf(s.getLightMyopiaProportion())));
+        info.setHighMyopia(highLowProportionService.getHighLow(tableList, s -> Float.valueOf(s.getHighMyopiaProportion())));
+        info.setAstigmatism(highLowProportionService.getHighLow(tableList, s -> Float.valueOf(s.getAstigmatismProportion())));
         return info;
     }
 
@@ -384,13 +384,13 @@ public class ScreeningPrimaryReportService {
     public PrimaryWearingInfo primaryWearingInfo(List<StatConclusion> statConclusions, List<AgeWearingTable> tables, Long total) {
         List<AgeWearingTable> collect = tables.stream().filter(s -> !commonReportService.filterList().contains(s.getName())).collect(Collectors.toList());
         PrimaryWearingInfo info = new PrimaryWearingInfo();
-        info.setNotWearing(highLowProportionService.ageWearingTableHP(countAndProportionService.notWearing(statConclusions, total).getProportion(), collect, s -> Float.valueOf(s.getNotWearingProportion())));
-        info.setGlasses(highLowProportionService.ageWearingTableHP(countAndProportionService.glasses(statConclusions, total).getProportion(), collect, s -> Float.valueOf(s.getGlassesProportion())));
-        info.setContact(highLowProportionService.ageWearingTableHP(countAndProportionService.contact(statConclusions, total).getProportion(), collect, s -> Float.valueOf(s.getWearingContactProportion())));
-        info.setNight(highLowProportionService.ageWearingTableHP(countAndProportionService.nightWearing(statConclusions, total).getProportion(), collect, s -> Float.valueOf(s.getNightWearingProportion())));
-        info.setEnough(highLowProportionService.ageWearingTableHP(countAndProportionService.enough(statConclusions, total).getProportion(), collect, s -> Float.valueOf(s.getEnoughProportion())));
-        info.setUnder(highLowProportionService.ageWearingTableHP(countAndProportionService.under(statConclusions, total).getProportion(), collect, s -> Float.valueOf(s.getUnderProportion())));
-        info.setUncorrected(highLowProportionService.ageWearingTableHP(countAndProportionService.uncorrected(statConclusions, total).getProportion(), collect, s -> Float.valueOf(s.getUncorrectedProportion())));
+        info.setNotWearing(highLowProportionService.getMaxMin(countAndProportionService.notWearing(statConclusions, total).getProportion(), collect, s -> Float.valueOf(s.getNotWearingProportion())));
+        info.setGlasses(highLowProportionService.getMaxMin(countAndProportionService.glasses(statConclusions, total).getProportion(), collect, s -> Float.valueOf(s.getGlassesProportion())));
+        info.setContact(highLowProportionService.getMaxMin(countAndProportionService.contact(statConclusions, total).getProportion(), collect, s -> Float.valueOf(s.getWearingContactProportion())));
+        info.setNight(highLowProportionService.getMaxMin(countAndProportionService.nightWearing(statConclusions, total).getProportion(), collect, s -> Float.valueOf(s.getNightWearingProportion())));
+        info.setEnough(highLowProportionService.getMaxMin(countAndProportionService.enough(statConclusions, total).getProportion(), collect, s -> Float.valueOf(s.getEnoughProportion())));
+        info.setUnder(highLowProportionService.getMaxMin(countAndProportionService.under(statConclusions, total).getProportion(), collect, s -> Float.valueOf(s.getUnderProportion())));
+        info.setUncorrected(highLowProportionService.getMaxMin(countAndProportionService.uncorrected(statConclusions, total).getProportion(), collect, s -> Float.valueOf(s.getUncorrectedProportion())));
         return info;
     }
 

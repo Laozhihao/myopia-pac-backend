@@ -56,19 +56,9 @@ public class GradeLowVision {
     public static class Table extends RowSpan{
 
         /**
-         * 年级名称
-         */
-        private String name;
-
-        /**
          * 班级名称
          */
         private String className;
-
-        /**
-         * 有效人数
-         */
-        private Integer validCount;
 
         /**
          * 男-人数
