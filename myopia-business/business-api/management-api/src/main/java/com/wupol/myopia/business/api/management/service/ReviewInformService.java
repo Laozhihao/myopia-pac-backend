@@ -246,7 +246,7 @@ public class ReviewInformService {
             noticeService.sendExportFailNotice(userId, userId, getNoticeTitle(schoolId, gradeId, type) + RESCREEN_NAME);
             throw new BusinessException("发送通知异常");
         } finally {
-            FileUtils.deleteDir(new File(fileSaveParentPath));
+            FileUtil.del(new File(fileSaveParentPath));
         }
     }
 

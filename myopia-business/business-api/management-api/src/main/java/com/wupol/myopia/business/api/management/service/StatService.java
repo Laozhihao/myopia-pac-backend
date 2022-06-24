@@ -9,10 +9,7 @@ import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.api.management.domain.bo.StatisticDetailBO;
 import com.wupol.myopia.business.api.management.domain.dto.*;
 import com.wupol.myopia.business.api.management.domain.vo.*;
-import com.wupol.myopia.business.common.utils.constant.ContrastTypeEnum;
-import com.wupol.myopia.business.common.utils.constant.GenderEnum;
-import com.wupol.myopia.business.common.utils.constant.SchoolAge;
-import com.wupol.myopia.business.common.utils.constant.WarningLevel;
+import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.domain.model.District;
@@ -35,7 +32,6 @@ import com.wupol.myopia.business.core.stat.domain.dto.WarningInfo.WarningLevelIn
 import com.wupol.myopia.business.core.stat.domain.model.ScreeningResultStatistic;
 import com.wupol.myopia.business.core.stat.service.DistrictMonitorStatisticService;
 import com.wupol.myopia.business.core.stat.service.ScreeningResultStatisticService;
-import com.wupol.myopia.business.core.system.constants.ScreeningTypeConst;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -1228,7 +1224,7 @@ public class StatService {
                         .setScreeningTime(screeningTime);
                 RescreenStat rescreenStat = this.composeRescreenConclusion(rescreenInfoByTime);
                 BeanUtils.copyProperties(rescreenStat, statRescreen);
-                if (ScreeningTypeConst.COMMON_DISEASE.equals(conclusion.getScreeningType())) {
+                if (ScreeningTypeEnum.COMMON_DISEASE.type.equals(conclusion.getScreeningType())) {
                     composePhysiqueReScreenConclusion(statRescreen, rescreenInfoByTime);
                 }
                 statRescreens.add(statRescreen);

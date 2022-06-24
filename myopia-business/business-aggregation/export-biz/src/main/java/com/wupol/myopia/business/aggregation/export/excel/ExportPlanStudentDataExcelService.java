@@ -9,6 +9,7 @@ import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportSer
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.export.service.IScreeningDataService;
 import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
+import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
@@ -22,7 +23,6 @@ import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeServ
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
-import com.wupol.myopia.business.core.system.constants.ScreeningTypeConst;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -105,10 +105,10 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
     public String getNoticeKeyContent(ExportCondition exportCondition) {
         String suffix = StringUtils.EMPTY;
         Integer screeningType = exportCondition.getScreeningType();
-        if (ScreeningTypeConst.VISION.equals(screeningType)) {
+        if (ScreeningTypeEnum.VISION.type.equals(screeningType)) {
             suffix = "【视力数据】";
         }
-        if (ScreeningTypeConst.COMMON_DISEASE.equals(screeningType)) {
+        if (ScreeningTypeEnum.COMMON_DISEASE.type.equals(screeningType)) {
             suffix = "【常见病数据】";
         }
         return getFileNameTitle(exportCondition) + suffix;

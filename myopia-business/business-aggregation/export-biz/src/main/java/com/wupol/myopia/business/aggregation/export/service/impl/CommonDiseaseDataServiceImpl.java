@@ -12,13 +12,13 @@ import com.wupol.myopia.business.aggregation.export.service.IScreeningDataServic
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
+import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.screening.flow.constant.SaprodontiaType;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningResultPahtConst;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.CommonDiseaseDataExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionExportDTO;
-import com.wupol.myopia.business.core.system.constants.ScreeningTypeConst;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -69,7 +69,7 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
 
     @Override
     public Integer getScreeningType() {
-        return ScreeningTypeConst.COMMON_DISEASE;
+        return ScreeningTypeEnum.COMMON_DISEASE.type;
     }
 
     @Override
