@@ -155,8 +155,8 @@
         group by school_id
     </select>
 
-    <select id="getByPlanIdAndSchoolId" resultType="java.lang.Integer">
-        select screening_plan_school_student_id
+    <select id="getByPlanIdAndSchoolId" resultMap="BaseResultMap">
+        select *
         from m_vision_screening_result
         where plan_id = #{planId}
           and school_id = #{schoolId}
@@ -205,6 +205,27 @@
         </foreach>
         and
             is_double_screen = 0
+    </select>
+
+    <select id="getRescreenBySchoolIds" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_vision_screening_result where plan_id = #{planId}
+                                         and school_id in
+        <foreach collection="schoolIds" item="schoolId" index="index" open="(" close=")" separator=",">
+            #{schoolId}
+        </foreach>
+        and is_double_screen = true
+    </select>
+
+    <select id="getFirstByPlanStudentIds" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_vision_screening_result where screening_plan_school_student_id in
+        <foreach collection="planStudentIds" item="planStudentId" index="index" open="(" close=")" separator=",">
+            #{planStudentId}
+        </foreach>
+        and is_double_screen = 0
     </select>
 
     <select id="countScreeningSchoolByTaskId" resultType="com.wupol.myopia.business.core.screening.flow.domain.dos.ScreeningSchoolCount">

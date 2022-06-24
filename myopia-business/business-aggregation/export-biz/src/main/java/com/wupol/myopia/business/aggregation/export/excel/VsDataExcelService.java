@@ -73,7 +73,7 @@ public class VsDataExcelService extends BaseExportExcelFileService {
     }
 
     @Override
-    public Class getHeadClass() {
+    public Class getHeadClass(ExportCondition exportCondition) {
         return DeviceScreeningDataExportDTO.class;
     }
 

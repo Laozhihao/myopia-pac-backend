@@ -154,6 +154,8 @@ white-list:
   - "/management/report/pdf"
   - "/api/getUserInfo"
   - "/api/fkr710/upload"
+  - "/management/screeningPlan/review/getExportData"
+  - "/management/stat/rescreen/export"
   # 获取档案卡数据统一接口
   - "/management/archive/data"
   # 获取验证图片

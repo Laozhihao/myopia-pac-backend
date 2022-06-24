@@ -13,7 +13,7 @@ import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
 import com.wupol.myopia.business.api.management.domain.vo.StudentWarningArchiveVO;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.DeskChairTypeEnum;
-import com.wupol.myopia.business.common.utils.constant.GlassesTypeEnum;
+import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
@@ -166,7 +166,7 @@ public class StudentBizService {
      * @return java.util.List<com.wupol.myopia.business.api.management.domain.vo.StudentWarningArchiveVO>
      **/
     public List<StudentWarningArchiveVO> getStudentWarningArchive(Integer studentId) {
-        List<StatConclusion> statConclusionList = statConclusionService.findByList(new StatConclusion().setStudentId(studentId));
+        List<StatConclusion> statConclusionList = statConclusionService.findByList(new StatConclusion().setStudentId(studentId).setIsRescreen(Boolean.FALSE));
         if (CollectionUtils.isEmpty(statConclusionList)) {
             return new ArrayList<>();
         }

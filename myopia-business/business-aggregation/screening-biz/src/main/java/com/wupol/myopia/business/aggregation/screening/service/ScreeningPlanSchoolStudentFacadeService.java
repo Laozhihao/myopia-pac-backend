@@ -6,7 +6,10 @@ import com.wupol.myopia.business.aggregation.screening.domain.vos.SchoolGradeVO;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolClassDTO;
+import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
+import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.GradeClassesDTO;
@@ -130,16 +133,25 @@ public class ScreeningPlanSchoolStudentFacadeService {
     /**
      * 获取计划中的学校年级情况(有数据)
      *
-     * @param planId   筛查计划
-     * @param schoolId 学校Id
+     * @param planId         筛查计划
+     * @param schoolId       学校Id
+     * @param isKindergarten 是否幼儿园
+     *
      * @return List<SchoolGradeVO>
      */
-    public List<SchoolGradeVO> getByPlanIdAndSchoolIdAndId(Integer planId, Integer schoolId) {
-        List<Integer> planStudentIds = visionScreeningResultService.getByPlanIdAndSchoolId(planId, schoolId);
+    public List<SchoolGradeVO> getByPlanIdAndSchoolIdAndId(Integer planId, Integer schoolId, Boolean isKindergarten) {
+        List<Integer> planStudentIds = visionScreeningResultService.getByPlanStudentIdPlanIdAndSchoolId(planId, schoolId);
         if (CollectionUtils.isEmpty(planStudentIds)) {
             return Collections.emptyList();
         }
-        return getSchoolGradeVOS(screeningPlanSchoolStudentService.getByPlanIdAndSchoolIdAndId(planId, schoolId, planStudentIds));
+        List<String> kindergartenGradeName = GradeCodeEnum.kindergartenSchoolName();
+        List<GradeClassesDTO> gradeClassesDTOS = screeningPlanSchoolStudentService.getByPlanIdAndSchoolIdAndId(planId, schoolId, planStudentIds);
+        if(Objects.isNull(isKindergarten)) {
+            return getSchoolGradeVOS(gradeClassesDTOS);
+        }
+        return getSchoolGradeVOS(gradeClassesDTOS.stream()
+                .filter(grade -> Boolean.TRUE.equals(isKindergarten) == kindergartenGradeName.contains(grade.getGradeName()))
+                .collect(Collectors.toList()));
     }
 
     /**
@@ -148,7 +160,11 @@ public class ScreeningPlanSchoolStudentFacadeService {
      * @param gradeClasses 年级
      * @return List<SchoolGradeVO>
      */
-    private List<SchoolGradeVO> getSchoolGradeVOS(List<GradeClassesDTO> gradeClasses) {
+    public List<SchoolGradeVO> getSchoolGradeVOS(List<GradeClassesDTO> gradeClasses) {
+        Map<Integer, SchoolGrade> gradeMap = schoolGradeService.getGradeMapByIds(gradeClasses.stream().map(GradeClassesDTO::getGradeId).collect(Collectors.toList()));
+        Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(gradeClasses.stream().map(GradeClassesDTO::getClassId).collect(Collectors.toList()));
+
+
         //2. 根据年级分组
         Map<Integer, List<GradeClassesDTO>> graderIdClasses = gradeClasses.stream().collect(Collectors.groupingBy(GradeClassesDTO::getGradeId));
         //3. 组装SchoolGradeVo数据
@@ -158,13 +174,13 @@ public class ScreeningPlanSchoolStudentFacadeService {
             List<GradeClassesDTO> gradeClassesDTOS = graderIdClasses.get(gradeId);
             // 查询并设置年级名称
             vo.setId(gradeId)
-                    .setName(schoolGradeService.getGradeNameById(gradeId));
+                    .setName(gradeMap.get(gradeId).getName());
             // 查询并设置班级名称
             vo.setClasses(gradeClassesDTOS.stream().map(dto -> {
                 SchoolClassDTO schoolClass = new SchoolClassDTO();
                 schoolClass.setUniqueId(UUID.randomUUID().toString());
                 schoolClass.setId(dto.getClassId())
-                        .setName(schoolClassService.getClassNameById(dto.getClassId()))
+                        .setName(classMap.get(dto.getClassId()).getName())
                         .setGradeId(gradeId);
                 return schoolClass;
             }).collect(Collectors.toList()));

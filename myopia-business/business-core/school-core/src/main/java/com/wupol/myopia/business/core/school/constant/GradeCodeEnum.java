@@ -111,6 +111,11 @@ public enum GradeCodeEnum {
                 GradeCodeEnum.THREE_KINDERGARTEN);
     }
 
+    public static List<String> kindergartenSchoolName() {
+        return Lists.newArrayList(GradeCodeEnum.ONE_KINDERGARTEN.getName(), GradeCodeEnum.TWO_KINDERGARTEN.getName(),
+                GradeCodeEnum.THREE_KINDERGARTEN.getName());
+    }
+
     public static List<GradeCodeEnum> privateSchool() {
         return Lists.newArrayList(GradeCodeEnum.ONE_PRIMARY_SCHOOL, GradeCodeEnum.TWO_PRIMARY_SCHOOL,
                 GradeCodeEnum.THREE_PRIMARY_SCHOOL, GradeCodeEnum.FOUR_PRIMARY_SCHOOL,

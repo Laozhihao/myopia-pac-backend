@@ -28,6 +28,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanSch
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningRecordItems;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
+import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationQueryDTO;
@@ -99,6 +100,9 @@ public class ScreeningOrganizationBizService {
     private OverviewScreeningOrganizationService overviewScreeningOrganizationService;
     @Autowired
     private OverviewService overviewService;
+
+    @Autowired
+    private StatConclusionService statConclusionService;
 
     /**
      * 保存筛查机构
@@ -207,6 +211,13 @@ public class ScreeningOrganizationBizService {
         } else {
             response.setStaffCount(0);
         }
+        Map<Integer, List<StatConclusion>> rescreenSchoolMap;
+        List<StatConclusion> results = statConclusionService.getReviewByPlanIdAndSchoolIds(planId, schoolIds);
+        if (CollectionUtils.isEmpty(results)) {
+            rescreenSchoolMap = new HashMap<>();
+        } else {
+            rescreenSchoolMap = results.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolId));
+        }
 
         // 封装DTO
         schoolIds.forEach(schoolId -> {
@@ -224,6 +235,8 @@ public class ScreeningOrganizationBizService {
             detail.setQualityControllerName(schoolVoMaps.get(schoolId).getQualityControllerName());
             detail.setQualityControllerCommander(schoolVoMaps.get(schoolId).getQualityControllerCommander());
             detail.setHasRescreenReport(statRescreenService.hasRescreenReport(planId, schoolId));
+
+            detail.setRescreenNum(Objects.nonNull(rescreenSchoolMap.get(schoolId)) ? rescreenSchoolMap.get(schoolId).size() : 0);
             details.add(detail);
         });
         response.setDetails(details);

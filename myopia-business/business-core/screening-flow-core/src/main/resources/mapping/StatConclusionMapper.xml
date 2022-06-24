@@ -130,7 +130,13 @@
         mvsr.vision_data, mvsr.computer_optometry, msc.glasses_type, msc.warning_level, msc.is_rescreen, msc.screening_plan_school_student_id,
         mvsr.ocular_inspection_data,mvsr.eye_pressure_data,mvsr.fundus_data,mvsr.slit_lamp_data,mvsr.pupil_optometry_data,mvsr.visual_loss_level_data,
         mvsr.systemic_disease_symptom,mvsr.biometric_data,mvsr.other_eye_diseases, mspss.grade_id, mspss.class_id, msc.myopia_level,msc.hyperopia_level,msc.astigmatism_level,mspss.student_id,msc.create_time,msc.report_id,mspss.passport, mvsr.height_and_weight_data,
-        msc.is_valid
+        msc.is_valid,mspss.screening_plan_id as planId,
+        mvsr.saprodontia_data,
+        mvsr.spine_data,
+        mvsr.blood_pressure_data,
+        mvsr.diseases_history_data,
+        mvsr.privacy_data,
+        mvsr.deviation_data
     </sql>
 
     <select id="selectLastOne" resultMap="BaseResultMap" parameterType="java.util.Map">
@@ -157,6 +163,16 @@
         WHERE msc.src_screening_notice_id = #{screeningNoticeId}
         AND msc.district_id IN
         <foreach collection="districtIds" item="id" index="index" open="(" close=")" separator=",">#{id}</foreach>
+        <if test="isKindergarten != null">
+            <choose>
+                <when test="isKindergarten == true">
+                    and msc.school_age = 5
+                </when>
+                <when test="isKindergarten == false">
+                    and msc.school_age != 5
+                </when>
+            </choose>
+        </if>
         ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
     </select>
 
@@ -170,23 +186,6 @@
         <foreach collection="districtIds" item="id" index="index" open="(" close=")" separator=",">#{id}</foreach>
         GROUP BY mspss.screening_plan_id, mspss.school_id
         ORDER BY mspss.school_name
-    </select>
-
-    <select id="selectExportVoByScreeningNoticeIdAndSchoolId" resultMap="ExportVoResultMap"
-            parameterType="java.util.Map">
-        SELECT
-        <include refid="Export_Vo_List"/>
-        FROM m_stat_conclusion msc
-                     LEFT JOIN m_vision_screening_result mvsr ON msc.result_id = mvsr.id
-                     LEFT JOIN m_screening_plan_school_student mspss ON msc.screening_plan_school_student_id = mspss.id
-                WHERE msc.school_id = #{schoolId}
-        <if test="screeningNoticeId != null">
-            and msc.src_screening_notice_id = #{screeningNoticeId}
-        </if>
-        <if test="planId != null">
-            and msc.plan_id = #{planId}
-        </if>
-        ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
     </select>
 
     <select id="selectExportVoByScreeningPlanIdAndSchoolId" resultMap="ExportVoResultMap" parameterType="java.util.Map">
@@ -214,28 +213,6 @@
         <if test="classId != null and classId != '' and classId != 0">
             AND mspss.class_id = #{classId}
         </if>
-        ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
-    </select>
-
-    <select id="selectExportVoByScreeningNoticeIdAndScreeningOrgId" resultMap="ExportVoResultMap" parameterType="java.util.Map">
-        SELECT
-        <include refid="Export_Vo_List" />
-        FROM m_stat_conclusion msc
-        LEFT JOIN m_vision_screening_result mvsr ON msc.result_id = mvsr.id
-        LEFT JOIN m_screening_plan_school_student mspss ON msc.screening_plan_school_student_id = mspss.id
-        WHERE msc.src_screening_notice_id = #{screeningNoticeId}
-        AND mvsr.screening_org_id = #{screeningOrgId}
-        ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
-    </select>
-
-    <select id="selectExportVoByScreeningPlanIdAndScreeningOrgId" resultMap="ExportVoResultMap" parameterType="java.util.Map">
-        SELECT
-        <include refid="Export_Vo_List" />
-        FROM m_stat_conclusion msc
-        LEFT JOIN m_vision_screening_result mvsr ON msc.result_id = mvsr.id
-        LEFT JOIN m_screening_plan_school_student mspss ON msc.screening_plan_school_student_id = mspss.id
-        WHERE msc.plan_id = #{screeningPlanId}
-        AND mvsr.screening_org_id = #{screeningOrgId}
         ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
     </select>
 
@@ -373,14 +350,15 @@
         limit 1
     </select>
 
-    <select id="selectExportVoBySPlanIdAndSOrgIdAndSChoolIdAndGradeNameAndClassanme" resultMap="ExportVoResultMap" parameterType="java.util.Map">
+    <select id="selectExportVoBySPlanIdAndSOrgIdAndSChoolIdAndGradeNameAndClassanme" resultMap="ExportVoResultMap"
+            parameterType="java.util.Map">
         SELECT
-        <include refid="Export_Vo_List" />
+        <include refid="Export_Vo_List"/>
         FROM m_stat_conclusion msc
-        LEFT JOIN m_vision_screening_result mvsr ON msc.result_id = mvsr.id
-        LEFT JOIN m_screening_plan_school_student mspss ON msc.screening_plan_school_student_id = mspss.id
+                 LEFT JOIN m_vision_screening_result mvsr ON msc.result_id = mvsr.id
+                 LEFT JOIN m_screening_plan_school_student mspss ON msc.screening_plan_school_student_id = mspss.id
         WHERE msc.plan_id = #{screeningPlanId}
-        AND mvsr.screening_org_id = #{screeningOrgId}
+          AND mvsr.screening_org_id = #{screeningOrgId}
         <if test="schoolId != null and schoolId != '' and schoolId != 0">
             AND mspss.school_id = #{schoolId}
         </if>
@@ -390,6 +368,26 @@
         <if test="classId != null and classId != '' and classId != 0">
             AND mspss.class_id = #{classId}
         </if>
+        <if test="isKindergarten != null">
+            <choose>
+                <when test="isKindergarten == true">
+                    and msc.school_age = 5
+                </when>
+                <when test="isKindergarten == false">
+                    and msc.school_age != 5
+                </when>
+            </choose>
+        </if>
         ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
+    </select>
+
+    <select id="getReviewByPlanIdAndSchoolIds" resultMap="BaseResultMap">
+        select *
+        from m_stat_conclusion where plan_id = #{planId}
+                                 and school_id in
+        <foreach collection="schoolIds" item="schoolId" index="index" open="(" close=")" separator=",">
+            #{schoolId}
+        </foreach>
+        and is_review = 1
     </select>
 </mapper>

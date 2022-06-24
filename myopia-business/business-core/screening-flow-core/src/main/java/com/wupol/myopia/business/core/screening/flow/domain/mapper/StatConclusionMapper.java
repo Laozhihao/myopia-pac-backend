@@ -30,43 +30,38 @@ public interface StatConclusionMapper extends BaseMapper<StatConclusion> {
      */
     List<StatConclusion> listByQuery(StatConclusionQueryDTO query);
 
-    List<StatConclusionExportDTO> selectExportVoByScreeningNoticeIdAndDistrictIds(@Param("screeningNoticeId") Integer screeningNoticeId, @Param("districtIds") List<Integer> districtIds);
+    List<StatConclusionExportDTO> selectExportVoByScreeningNoticeIdAndDistrictIds(@Param("screeningNoticeId") Integer screeningNoticeId, @Param("districtIds") List<Integer> districtIds, @Param("isKindergarten") Boolean isKindergarten);
 
     List<ExportPlanSchool> selectPlanSchoolGradeClassHasData(@Param("screeningNoticeId") Integer screeningNoticeId, @Param("districtIds") List<Integer> districtIds);
 
-    List<StatConclusionExportDTO> selectExportVoByScreeningNoticeIdAndSchoolId(@Param("screeningNoticeId") Integer screeningNoticeId, @Param("schoolId") Integer schoolId,@Param("planId") Integer planId);
-
     List<StatConclusionExportDTO> selectExportVoByScreeningPlanIdAndSchoolId(@Param("screeningPlanId") Integer screeningPlanId, @Param("schoolId") Integer schoolId);
+
     /**
-    * @Description: 参考学校
-    * @Param: [screeningPlanId, schoolId, gradeId, classId]
-    * @return: java.util.List<com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionExportDTO>
-    * @Author: 钓猫的小鱼
-    * @Date: 2021/12/31
-    */
-    List<StatConclusionExportDTO> selectExportVoByScreeningPlanIdAndSchoolIdAndGradeIdAndClassId(@Param("screeningPlanId") Integer screeningPlanId, @Param("schoolId") Integer schoolId, @Param("gradeId") Integer gradeId,@Param("classId") Integer classId);
+     * @Description: 参考学校
+     * @Param: [screeningPlanId, schoolId, gradeId, classId]
+     * @return: java.util.List<com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionExportDTO>
+     * @Author: 钓猫的小鱼
+     * @Date: 2021/12/31
+     */
+    List<StatConclusionExportDTO> selectExportVoByScreeningPlanIdAndSchoolIdAndGradeIdAndClassId(@Param("screeningPlanId") Integer screeningPlanId, @Param("schoolId") Integer schoolId, @Param("gradeId") Integer gradeId, @Param("classId") Integer classId);
 
     List<StatConclusionReportDTO> selectReportVoByQuery(
             @Param("screeningNoticeId") Integer screeningNoticeId,
             @Param("planId") Integer planId,
             @Param("schoolId") Integer schoolId);
-
-    List<StatConclusionExportDTO> selectExportVoByScreeningNoticeIdAndScreeningOrgId(@Param("screeningNoticeId") Integer screeningNoticeId, @Param("screeningOrgId") Integer screeningOrgId);
-
-    List<StatConclusionExportDTO> selectExportVoByScreeningPlanIdAndScreeningOrgId(@Param("screeningPlanId") Integer screeningPlanId, @Param("screeningOrgId") Integer screeningOrgId);
-
     /**
-    * @Description: 查询学校、班级、年级 筛查数据
-    * @Param: [screeningPlanId, screeningOrgId, 学校ID, 年级名称, 班级名称]
-    * @return: java.util.List<com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionExportDTO>
-    * @Author: 钓猫的小鱼
-    * @Date: 2021/12/30
-    */
+     * @Description: 查询学校、班级、年级 筛查数据
+     * @Param: [screeningPlanId, screeningOrgId, 学校ID, 年级名称, 班级名称]
+     * @return: java.util.List<com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionExportDTO>
+     * @Author: 钓猫的小鱼
+     * @Date: 2021/12/30
+     */
     List<StatConclusionExportDTO> selectExportVoBySPlanIdAndSOrgIdAndSChoolIdAndGradeNameAndClassanme(@Param("screeningPlanId") Integer screeningPlanId,
-                                                                                                                      @Param("screeningOrgId") Integer screeningOrgId,
-                                                                                                                      @Param("schoolId") Integer schoolId,
-                                                                                                                      @Param("gradeId") Integer gradeId,
-                                                                                                                      @Param("classId") Integer classId);
+                                                                                                      @Param("screeningOrgId") Integer screeningOrgId,
+                                                                                                      @Param("schoolId") Integer schoolId,
+                                                                                                      @Param("gradeId") Integer gradeId,
+                                                                                                      @Param("classId") Integer classId,
+                                                                                                      @Param("isKindergarten") Boolean isKindergarten);
 
 
     /**
@@ -114,8 +109,11 @@ public interface StatConclusionMapper extends BaseMapper<StatConclusion> {
 
     /**
      * 根据筛查结果id获取数据（取第一条）
+     *
      * @param resultId
      * @return
      */
     StatConclusion getByResultId(@Param("resultId") Integer resultId);
+
+    List<StatConclusion> getReviewByPlanIdAndSchoolIds(@Param("planId") Integer planId, @Param("schoolIds") List<Integer> schoolIds);
 }

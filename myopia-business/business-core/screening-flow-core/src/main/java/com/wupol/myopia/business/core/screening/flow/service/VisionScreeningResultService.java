@@ -237,13 +237,24 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
     }
 
     /**
+     * 通过学校Id和计划Id获取筛查学生Id
+     *
+     * @param planId   计划Id
+     * @param schoolId 学校Id
+     * @return List<Integer>
+     */
+    public List<Integer> getByPlanStudentIdPlanIdAndSchoolId(Integer planId, Integer schoolId) {
+        return baseMapper.getByPlanIdAndSchoolId(planId, schoolId).stream().map(VisionScreeningResult::getScreeningPlanSchoolStudentId).collect(Collectors.toList());
+    }
+
+    /**
      * 通过学校Id和计划Id获取信息
      *
      * @param planId   计划Id
      * @param schoolId 学校Id
      * @return List<Integer>
      */
-    public List<Integer> getByPlanIdAndSchoolId(Integer planId, Integer schoolId) {
+    public List<VisionScreeningResult> getByPlanIdAndSchoolId(Integer planId, Integer schoolId) {
         return baseMapper.getByPlanIdAndSchoolId(planId, schoolId);
     }
 
@@ -311,26 +322,72 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         List<VisionScreeningResult> updateResultList = new ArrayList<>();
         List<StatConclusion> updateStatConclusionList = new ArrayList<>();
 
-        Map<Integer, VisionScreeningResult> visionMap = resultList.stream()
-                .collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
+        Map<Integer, List<VisionScreeningResult>> visionMap = resultList.stream().collect(Collectors.groupingBy(VisionScreeningResult::getScreeningPlanSchoolStudentId));
         planStudents.forEach(planStudent -> {
-            VisionScreeningResult result = visionMap.get(planStudent.getId());
-            if (Objects.nonNull(result)) {
-                result.setStudentId(planStudent.getStudentId());
-                result.setSchoolId(planStudent.getSchoolId());
-                updateResultList.add(result);
-                StatConclusion statConclusion = statConclusionMap.get(result.getId());
-                if (Objects.nonNull(statConclusion)) {
-                    statConclusion.setScreeningPlanSchoolStudentId(planStudent.getId());
-                    statConclusion.setStudentId(planStudent.getStudentId());
-                    statConclusion.setSchoolId(planStudent.getSchoolId());
-                    updateStatConclusionList.add(statConclusion);
-                }
+            List<VisionScreeningResult> results = visionMap.get(planStudent.getId());
+            if (!CollectionUtils.isEmpty(results)) {
+                results.forEach(result -> {
+                    if (Objects.nonNull(result)) {
+                        result.setStudentId(planStudent.getStudentId());
+                        result.setSchoolId(planStudent.getSchoolId());
+                        updateResultList.add(result);
+                        StatConclusion statConclusion = statConclusionMap.get(result.getId());
+                        if (Objects.nonNull(statConclusion)) {
+                            statConclusion.setScreeningPlanSchoolStudentId(planStudent.getId());
+                            statConclusion.setStudentId(planStudent.getStudentId());
+                            statConclusion.setSchoolId(planStudent.getSchoolId());
+                            updateStatConclusionList.add(statConclusion);
+                        }
+                    }
+                });
             }
         });
         updateBatchById(updateResultList);
         statConclusionService.updateBatchById(updateStatConclusionList);
     }
+
+    /**
+     * 通过计划id，学校id获取复查学生数据
+     *
+     * @param planId    计划Id
+     * @param schoolIds 学校Id
+     * @return List<VisionScreeningResult>
+     */
+    public List<VisionScreeningResult> getRescreenBySchoolIds(Integer planId, List<Integer> schoolIds) {
+        if (CollectionUtils.isEmpty(schoolIds)) {
+            return new ArrayList<>();
+        }
+        return baseMapper.getRescreenBySchoolIds(planId, schoolIds);
+    }
+
+    /**
+     * 通过计划id，学校id获取复查学生数据
+     *
+     * @param planId    计划Id
+     * @param schoolIds 学校Id
+     * @return List<VisionScreeningResult>
+     */
+    public Map<Integer, List<VisionScreeningResult>> getMapRescreenBySchoolIds(Integer planId, List<Integer> schoolIds) {
+        List<VisionScreeningResult> results = getRescreenBySchoolIds(planId, schoolIds);
+        if (CollectionUtils.isEmpty(results)) {
+            return new HashMap<>();
+        }
+        return results.stream().collect(Collectors.groupingBy(VisionScreeningResult::getSchoolId));
+    }
+
+    /**
+     * 通过筛查学生查询初筛筛查结果
+     *
+     * @param planStudentIds 筛查学生
+     * @return 筛查结果
+     */
+    public List<VisionScreeningResult> getFirstByPlanStudentIds(List<Integer> planStudentIds) {
+        if (CollectionUtils.isEmpty(planStudentIds)) {
+            return Collections.emptyList();
+        }
+        return baseMapper.getFirstByPlanStudentIds(planStudentIds);
+    }
+
 
     /**
      * 获取学生初筛/复测（默认初测）

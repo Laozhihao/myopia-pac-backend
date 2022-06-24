@@ -196,6 +196,7 @@ public class VisionScreeningController {
     @GetMapping("/plan/export")
     public Object getScreeningPlanExportData(Integer planId) throws IOException, UtilException {
 
+        // TODO：复用ExportPlanStudentDataExcelService导出逻辑
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         Integer schoolId = currentUser.getOrgId();
 

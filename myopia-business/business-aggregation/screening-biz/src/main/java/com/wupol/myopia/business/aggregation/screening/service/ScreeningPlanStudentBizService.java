@@ -10,6 +10,7 @@ import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.base.util.ListUtil;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
 import com.wupol.myopia.business.aggregation.screening.handler.CredentialModificationHandler;
@@ -124,7 +125,7 @@ public class ScreeningPlanStudentBizService {
     public void updatePlanStudent(UpdatePlanStudentRequestDTO requestDTO) {
         requestDTO.checkStudentInfo();
         // 身份证或护照是否在同一计划下已经绑定了数据
-        if (!CollectionUtils.isEmpty(screeningPlanSchoolStudentService.getByIdCardAndPassport(requestDTO.getIdCard(), requestDTO.getPassport(), requestDTO.getPlanStudentId()))) {
+        if (!CollectionUtils.isEmpty(screeningPlanSchoolStudentService.getByPlanIdIdCardAndPassport(requestDTO.getPlanId(), requestDTO.getIdCard(), requestDTO.getPassport(), requestDTO.getPlanStudentId()))) {
             throw new BusinessException("身份证或护照重复，请检查");
         }
         // 获取计划学生
@@ -448,7 +449,9 @@ public class ScreeningPlanStudentBizService {
             return screeningStudentDTOS;
         }
         List<VisionScreeningResult> resultList = visionScreeningResultService.getByPlanStudentIds(screeningStudentDTOS.stream().map(ScreeningStudentDTO::getPlanStudentId).collect(Collectors.toList()));
-        Map<Integer, VisionScreeningResult> planStudentVisionResultMap = resultList.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
+        Map<Integer, VisionScreeningResult> planStudentVisionResultMap = resultList.stream()
+                .filter(result->Objects.equals(result.getIsDoubleScreen(),Boolean.FALSE))
+                .collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
 
         Set<Integer> orgIdSet = screeningStudentDTOS.stream().map(ScreeningStudentDTO::getScreeningOrgId).collect(Collectors.toSet());
         Map<Integer, String> orgIdMap = screeningOrganizationService.getByIds(orgIdSet).stream().collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization::getName, (v1, v2) -> v2));
@@ -489,5 +492,21 @@ public class ScreeningPlanStudentBizService {
         List<ScreeningPlanSchoolStudent> existPlanSchoolStudentList = screeningPlanSchoolStudentService.getByScreeningPlanId(screeningPlanSchoolStudent.getScreeningPlanId());
         // 检查学号
         screeningPlanSchoolStudentService.checkSno(existPlanSchoolStudentList, screeningPlanSchoolStudent.getStudentNo(), screeningPlanSchoolStudent.getIdCard(), screeningPlanSchoolStudent.getPassport(), screeningPlanSchoolStudent.getSchoolId());
+    }
+
+    /**
+     * 判断筛查学生是否在筛查时间内
+     *
+     * @param screeningPlanSchoolStudent 筛查学生
+     *
+     * @return 否在筛查时间内
+     */
+    public boolean isNotMatchScreeningTime(ScreeningPlanSchoolStudent screeningPlanSchoolStudent) {
+        if (Objects.isNull(screeningPlanSchoolStudent)) {
+            return true;
+        }
+        Integer screeningPlanId = screeningPlanSchoolStudent.getScreeningPlanId();
+        ScreeningPlan plan = screeningPlanService.getById(screeningPlanId);
+        return !DateUtil.isBetweenDate(plan.getStartTime(), plan.getEndTime());
     }
 }

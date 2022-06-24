@@ -5,6 +5,7 @@
     <select id="countByPlanAndSchool" resultType="int">
         SELECT COUNT(*) FROM m_stat_rescreen
         WHERE plan_id = #{planId} AND school_id = #{schoolId}
+        and create_time <![CDATA[ <= ]]> #{createTime}
     </select>
 
     <delete id="deleteByScreeningTime">
@@ -12,4 +13,19 @@
         WHERE DATE(screening_time) = DATE(#{screeningTime})
     </delete>
 
+    <select id="getSchoolDate" resultType="java.util.Date">
+        select screening_time
+        from m_stat_rescreen
+        where plan_id = #{planId}
+          and school_id = #{schoolId}
+        and create_time <![CDATA[ <= ]]> #{createTime}
+    </select>
+
+    <select id="getByPlanAndSchool" resultType="com.wupol.myopia.business.core.screening.flow.domain.model.StatRescreen">
+        select * from m_stat_rescreen where plan_id = #{planId}
+        and school_id = #{schoolId}
+        <if test="screeningTime != null">
+            and DATE(screening_time) = DATE(#{screeningTime})
+        </if>
+    </select>
 </mapper>

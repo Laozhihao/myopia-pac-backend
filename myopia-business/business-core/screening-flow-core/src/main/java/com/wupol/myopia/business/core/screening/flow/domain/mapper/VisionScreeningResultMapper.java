@@ -43,13 +43,17 @@ public interface VisionScreeningResultMapper extends BaseMapper<VisionScreeningR
 
     List<Integer> getBySchoolIdPlanId(@Param("planId") Integer planId);
 
-    List<Integer> getByPlanIdAndSchoolId(@Param("planId") Integer planId, @Param("schoolId") Integer schoolId);
+    List<VisionScreeningResult> getByPlanIdAndSchoolId(@Param("planId") Integer planId, @Param("schoolId") Integer schoolId);
 
     List<VisionScreeningResult> getByPlanId(@Param("planId") Integer planId);
 
     List<VisionScreeningResult> getByStudentIds(@Param("studentIds") List<Integer> studentIds);
 
     int selectScreeningResultByDistrictIdAndTaskId(@Param("districtIds") List<Integer> districtId, @Param("taskIds") List<Integer> taskIds);
+
+    List<VisionScreeningResult> getRescreenBySchoolIds(@Param("planId") Integer planId, @Param("schoolIds") List<Integer> schoolIds);
+
+    List<VisionScreeningResult> getFirstByPlanStudentIds(@Param("planStudentIds") List<Integer> planStudentIds);
 
     IPage<VisionScreeningResult> getByStudentIdWithPage(@Param("page") Page<?> page, @Param("studentId") Integer studentId);
 

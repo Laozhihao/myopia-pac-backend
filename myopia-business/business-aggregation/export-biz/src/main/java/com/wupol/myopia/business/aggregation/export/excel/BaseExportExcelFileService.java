@@ -60,6 +60,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
         String noticeKeyContent = null;
         String parentPath = null;
         try {
+            preProcess(exportCondition);
             // 1.获取文件名
             String fileName = getFileName(exportCondition);
             // 2.获取文件保存父目录路径
@@ -194,7 +195,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
      * @return java.io.File
      **/
     public File generateExcelFile(String fileName, List data,ExportCondition exportCondition) throws IOException {
-        return ExcelUtil.exportListToExcel(fileName, data, getHeadClass());
+        return ExcelUtil.exportListToExcel(fileName, data, getHeadClass(exportCondition));
     }
 
     /**
@@ -202,7 +203,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
      *
      * @return java.lang.Class
      **/
-    public abstract Class getHeadClass();
+    public abstract Class getHeadClass(ExportCondition exportCondition);
 
     /**
      * 获取通知的关键内容
@@ -278,6 +279,15 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
                 deleteTempFile(excelFile.getPath());
             }
         }
+    }
+
+    /**
+     * 前置处理
+     *
+     * @param exportCondition 导出条件
+     **/
+    public void preProcess(ExportCondition exportCondition) {
+        // 有需要前置处理的，重写覆盖该方法
     }
 
 }

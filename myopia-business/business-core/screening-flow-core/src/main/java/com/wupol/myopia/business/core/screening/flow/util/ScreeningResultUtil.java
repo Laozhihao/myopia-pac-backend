@@ -7,6 +7,7 @@ import com.wupol.myopia.base.domain.RefractoryResultItems;
 import com.wupol.myopia.base.domain.VisionItems;
 import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.base.util.DateFormatUtil;
+import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;

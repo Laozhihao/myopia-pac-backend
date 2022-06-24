@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.alibaba.fastjson.JSONPath;
 import com.amazonaws.services.simplesystemsmanagement.model.ParameterNotFoundException;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.api.management.domain.dto.*;
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.core.common.domain.model.District;

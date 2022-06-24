@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.util.BigDecimalUtil;
+import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
@@ -112,6 +113,7 @@ public class StatConclusionBuilder {
 
         this.setReview();
         this.setCooperative();
+        this.setPhysiqueRescreenErrorNum();
         return statConclusion;
     }
 
@@ -715,7 +717,24 @@ public class StatConclusionBuilder {
             basicData.rightNakedVision = optional.map(VisionDataDO::getRightEyeData).map(VisionDataDO.VisionData::getNakedVision).orElse(null);
             basicData.rightCorrectVision = optional.map(VisionDataDO::getRightEyeData).map(VisionDataDO.VisionData::getCorrectedVision).orElse(null);
         }
+    }
 
+    private void setPhysiqueRescreenErrorNum() {
+        statConclusion.setPhysiqueRescreenErrorNum(Objects.nonNull(anotherVisionScreeningResult) ? calculatePhysiqueRescreenErrorNum() : 0);
+    }
 
+    /**
+     * 身高体重错误项计算
+     *
+     * @return 身高体重错误项
+     */
+    private int calculatePhysiqueRescreenErrorNum() {
+        HeightAndWeightDataDO current = currentVisionScreeningResult.getHeightAndWeightData();
+        HeightAndWeightDataDO another = anotherVisionScreeningResult.getHeightAndWeightData();
+        if (ObjectsUtil.hasNull(current, another)) {
+            return 0;
+        }
+        return StatUtil.inRange(current.getHeight(), another.getHeight(), new BigDecimal("0.5"))
+                + StatUtil.inRange(current.getWeight(), another.getWeight(), new BigDecimal("0.1"));
     }
 }

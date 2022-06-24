@@ -9,10 +9,7 @@ import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.api.management.domain.bo.StatisticDetailBO;
 import com.wupol.myopia.business.api.management.domain.dto.*;
 import com.wupol.myopia.business.api.management.domain.vo.*;
-import com.wupol.myopia.business.common.utils.constant.ContrastTypeEnum;
-import com.wupol.myopia.business.common.utils.constant.GenderEnum;
-import com.wupol.myopia.business.common.utils.constant.SchoolAge;
-import com.wupol.myopia.business.common.utils.constant.WarningLevel;
+import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.domain.model.District;
@@ -25,7 +22,9 @@ import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.constant.StatClassLabel;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.*;
+import com.wupol.myopia.business.core.screening.flow.domain.vo.ReScreeningCardVO;
 import com.wupol.myopia.business.core.screening.flow.service.*;
+import com.wupol.myopia.business.core.screening.flow.util.ReScreenCardUtil;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.stat.domain.dto.WarningInfo;
@@ -50,6 +49,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -101,6 +101,8 @@ public class StatService {
 
     @Value("classpath:excel/ExportStatContrastTemplate.xlsx")
     private Resource exportStatContrastTemplate;
+    @Autowired
+    private VisionScreeningResultService visionScreeningResultService;
 
     /**
      * 预警信息
@@ -1164,15 +1166,24 @@ public class StatService {
      * @param schoolId
      * @param qualityControllerName
      * @param qualityControllerCommander
+     * @param screeningData
      * @return
      */
-    public List<RescreenReportVO> getRescreenStatInfo(
-            Integer planId, Integer schoolId, String qualityControllerName, String qualityControllerCommander) {
+    public List<RescreenReportVO> getRescreenStatInfo(Integer planId, Integer schoolId,
+                                                      String qualityControllerName, String qualityControllerCommander,
+                                                      Long screeningData) {
         List<RescreenReportVO> rrvos = new ArrayList<>();
-        List<StatRescreen> rescreens = statRescreenService.getList(planId, schoolId);
+
+        List<StatRescreen> rescreens = statRescreenService.getByPlanAndSchool(planId, schoolId, Objects.nonNull(screeningData) ? new Date(screeningData) : null);
         if (CollectionUtils.isEmpty(rescreens)) {
             return rrvos;
         }
+
+        // 获取筛查数据
+        List<VisionScreeningResult> resultList = visionScreeningResultService.getByPlanIdAndSchoolId(planId, schoolId);
+        // 通过日期分组 yyyy-MM-dd
+        Map<String, List<VisionScreeningResult>> groupDate = resultList.stream().collect(Collectors.groupingBy(s -> DateUtil.formatDate(s.getCreateTime())));
+
         String orgName = screeningOrganizationService.getNameById(rescreens.get(0).getScreeningOrgId());
         String schoolName = schoolService.getNameById(schoolId);
         rescreens.forEach(rescreen -> {
@@ -1181,7 +1192,8 @@ public class StatService {
             rrvo.setQualityControllerName(qualityControllerName)
                     .setQualityControllerCommander(qualityControllerCommander)
                     .setOrgName(orgName)
-                    .setSchoolName(schoolName);
+                    .setSchoolName(schoolName)
+                    .setCardList(generateReScreenResultCard(groupDate, rrvo.getScreeningTime(), qualityControllerName));
             rrvos.add(rrvo);
         });
         return rrvos;
@@ -1191,7 +1203,7 @@ public class StatService {
      * @param screeningTime
      * @return
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public int rescreenStat(Date screeningTime) {
         List<StatRescreen> statRescreens = new ArrayList<>();
         // 获取昨日有进行复测的计划及学校信息
@@ -1204,6 +1216,7 @@ public class StatService {
                 StatRescreen statRescreen = new StatRescreen();
                 StatConclusion conclusion = rescreenInfoByTime.get(0);
                 statRescreen.setScreeningOrgId(conclusion.getScreeningOrgId())
+                        .setScreeningType(conclusion.getScreeningType())
                         .setSrcScreeningNoticeId(conclusion.getSrcScreeningNoticeId())
                         .setTaskId(conclusion.getTaskId())
                         .setPlanId(conclusion.getPlanId())
@@ -1211,6 +1224,9 @@ public class StatService {
                         .setScreeningTime(screeningTime);
                 RescreenStat rescreenStat = this.composeRescreenConclusion(rescreenInfoByTime);
                 BeanUtils.copyProperties(rescreenStat, statRescreen);
+                if (ScreeningTypeEnum.COMMON_DISEASE.type.equals(conclusion.getScreeningType())) {
+                    composePhysiqueReScreenConclusion(statRescreen, rescreenInfoByTime);
+                }
                 statRescreens.add(statRescreen);
             }
         });
@@ -1236,6 +1252,55 @@ public class StatService {
                 .setPlanId(planId)
                 .setSchoolId(schoolId);
         return statConclusionService.listByQuery(query);
+    }
+
+    /**
+     * 生成常见病复查信息
+     *
+     * @param statRescreen    复查
+     * @param statConclusions 结论
+     */
+    private void composePhysiqueReScreenConclusion(StatRescreen statRescreen, List<StatConclusion> statConclusions) {
+        int total = statConclusions.size();
+        statRescreen.setPhysiqueRescreenNum((long) total);
+        // 体格复查指数只有两个：身高和体重
+        statRescreen.setPhysiqueIndexNum(2L);
+        statRescreen.setPhysiqueRescreenItemNum(total * 2L);
+        statRescreen.setPhysiqueIncorrectItemNum(statConclusions.stream().mapToLong(StatConclusion::getPhysiqueRescreenErrorNum).sum());
+        statRescreen.setPhysiqueIncorrectRatio(convertToPercentage((float) (statRescreen.getPhysiqueIncorrectItemNum() / statRescreen.getPhysiqueRescreenItemNum())));
+    }
+
+    /**
+     * 组装筛查复测卡
+     *
+     * @param groupDate     分组时间
+     * @param screeningTime 筛查时间
+     * @return 检测卡
+     */
+    private List<ReScreeningCardVO> generateReScreenResultCard(Map<String, List<VisionScreeningResult>> groupDate, Date screeningTime, String qualityControllerName) {
+        // 获取日期当天的数据
+        List<VisionScreeningResult> resultList = groupDate.get(DateUtil.formatDate(screeningTime));
+        if (CollectionUtils.isEmpty(resultList)) {
+            return new ArrayList<>();
+        }
+        List<ReScreeningCardVO> reScreeningCardVO = new ArrayList<>();
+
+        // 获取复筛数据
+        List<VisionScreeningResult> reScreenResults = resultList.stream().filter(VisionScreeningResult::getIsDoubleScreen).collect(Collectors.toList());
+
+        // 获取初筛数据
+        List<VisionScreeningResult> screeningResults = resultList.stream().filter(s -> Boolean.FALSE.equals(s.getIsDoubleScreen())).collect(Collectors.toList());
+        Map<Integer, VisionScreeningResult> screeningResultMap = screeningResults.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
+
+        // 获取计划学生的commonDiseasesCode
+        List<Integer> planStudentIds = screeningResults.stream().map(VisionScreeningResult::getScreeningPlanSchoolStudentId).collect(Collectors.toList());
+        Map<Integer, String> commonDiseaseMap = screeningPlanSchoolStudentService.getByIds(planStudentIds).stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getId, ScreeningPlanSchoolStudent::getCommonDiseaseId));
+
+        reScreenResults.forEach(reScreenResult -> {
+            VisionScreeningResult first = screeningResultMap.get(reScreenResult.getScreeningPlanSchoolStudentId());
+            reScreeningCardVO.add(ReScreenCardUtil.reScreenResultCard(first, reScreenResult, qualityControllerName, commonDiseaseMap.get(first.getScreeningPlanSchoolStudentId())));
+        });
+        return reScreeningCardVO;
     }
 
 }

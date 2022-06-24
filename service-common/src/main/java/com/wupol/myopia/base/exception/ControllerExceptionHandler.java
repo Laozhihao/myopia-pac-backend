@@ -10,6 +10,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.BindException;
 import org.springframework.validation.ObjectError;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -167,6 +168,17 @@ public class ControllerExceptionHandler {
     public ApiResult<Object> handleUnexpectedServer(HttpServletRequest req, Exception ex) {
         logger.error("【系统异常】接口:{}，异常信息：{}", req.getRequestURL(), ex.getMessage(), ex);
         return ApiResult.failure(ResultCode.INTERNAL_SERVER_ERROR.getMessage());
+    }
+
+    /**
+     * http请求方法异常
+     *
+     * @param ex ConstraintViolationException
+     */
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public ApiResult<Object> handleHttpRequestException(HttpRequestMethodNotSupportedException ex) {
+        return ApiResult.failure("http请求方法异常");
     }
 
 }
