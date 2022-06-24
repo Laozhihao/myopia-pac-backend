@@ -35,6 +35,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -671,8 +672,17 @@ public class CommonReportService {
         List<VisionScreeningResult> resultList = visionScreeningResultService.getByIds(resultIds);
         Map<Integer, VisionScreeningResult> resultMap = resultList.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
 
-        // 通过学校班级年级分组(只保留幼儿园)
-        List<SchoolGrade> gradeList = schoolGradeService.getBySchoolId(school.getId()).stream().filter(s -> GradeCodeEnum.kindergartenSchoolCode().contains(s.getGradeCode())).collect(Collectors.toList());
+        // 通过学校班级年级分组(只保留小学或者幼儿园，看学校数据)
+        List<SchoolGrade> schoolGradeList = schoolGradeService.getBySchoolId(school.getId());
+        Predicate<SchoolGrade> schoolGradePredicate;
+        if (isk) {
+            schoolGradePredicate= s -> GradeCodeEnum.kindergartenSchoolCode().contains(s.getGradeCode());
+        } else {
+            schoolGradePredicate = s -> !GradeCodeEnum.kindergartenSchoolCode().contains(s.getGradeCode());
+        }
+        List<SchoolGrade> gradeList = schoolGradeList.stream()
+                .filter(schoolGradePredicate)
+                .collect(Collectors.toList());
         Map<Integer, List<SchoolClassExportDTO>> classMap = schoolClassService.getByGradeIds(gradeList.stream().map(SchoolGrade::getId).collect(Collectors.toList())).stream().collect(Collectors.groupingBy(SchoolClassExportDTO::getGradeId));
 
         gradeList.forEach(grade -> {
