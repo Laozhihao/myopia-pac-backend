@@ -1,11 +1,13 @@
 package com.wupol.myopia.business.aggregation.export.pdf.report;
 
 import cn.hutool.core.util.StrUtil;
+import com.google.common.collect.Sets;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.pdf.ExportPdfFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.HtmlPageUrlConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
+import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.service.Html2PdfService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
@@ -13,10 +15,10 @@ import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.system.constants.ScreeningTypeConst;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.io.File;
@@ -25,6 +27,7 @@ import java.net.URL;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -51,7 +54,7 @@ public class ExportScreeningVisionService implements ExportPdfFileService {
     @Resource
     private SchoolService schoolService;
 
-    private static final String abc = "筛查报告-视力分析";
+    private static final String abc = "筛查报告";
 
 
     @Override
@@ -77,25 +80,6 @@ public class ExportScreeningVisionService implements ExportPdfFileService {
         generateDistrictVisionReport(exportCondition.getNotificationId(), exportCondition.getDistrictId(), fileSavePath, fileName);
     }
 
-    @Override
-    public void generateSchoolReportPdfFile(String fileSavePath, String fileName, ExportCondition exportCondition) {
-        Integer schoolId = exportCondition.getSchoolId();
-        Integer planId = exportCondition.getPlanId();
-        List<StatConclusion> statConclusions = statConclusionService.getByPlanIdSchoolId(planId, schoolId);
-
-        String schoolName = schoolService.getById(exportCondition.getSchoolId()).getName();
-
-        // 幼儿园
-        if (!CollectionUtils.isEmpty(statConclusions.stream().filter(grade -> GradeCodeEnum.kindergartenSchoolCode().contains(grade.getSchoolGradeCode())).collect(Collectors.toList()))) {
-            generateKindergartenVisionReport(planId, schoolId, fileSavePath, schoolName + "-视力分析【幼儿园】");
-        }
-
-        // 小学以上
-        if (!CollectionUtils.isEmpty(statConclusions.stream().filter(grade -> !GradeCodeEnum.kindergartenSchoolCode().contains(grade.getSchoolGradeCode())).collect(Collectors.toList()))) {
-            generatePrimaryVisionReport(planId, schoolId, fileSavePath, schoolName + "-视力分析【小学及以上】");
-        }
-    }
-
     private void generateDistrictVisionReport(Integer noticeId, Integer districtId, String fileSavePath, String fileName) {
         String reportHtmlUrl = String.format(HtmlPageUrlConstant.REPORT_AREA_VISION, htmlUrlHost, noticeId, districtId);
         String pdfUrl = html2PdfService.syncGeneratorPDF(reportHtmlUrl, fileName, UUID.randomUUID().toString()).getUrl();
@@ -106,21 +90,48 @@ public class ExportScreeningVisionService implements ExportPdfFileService {
         }
     }
 
-    private void generateKindergartenVisionReport(Integer planId, Integer schoolId, String fileSavePath, String fileName) {
-        String reportHtmlUrl = String.format(HtmlPageUrlConstant.REPORT_KINDERGARTEN_VISION, htmlUrlHost, planId, schoolId);
-        String pdfUrl = html2PdfService.syncGeneratorPDF(reportHtmlUrl, fileName, UUID.randomUUID().toString()).getUrl();
-        try {
-            FileUtils.copyURLToFile(new URL(pdfUrl), new File(Paths.get(fileSavePath, fileName + ".pdf").toString()));
-        } catch (IOException e) {
-            throw new BusinessException("生成区域报告PDF文件异常", e);
+    @Override
+    public void generateSchoolReportPdfFile(String fileSavePath, String fileName, ExportCondition exportCondition) {
+        Set<Integer> preProcess = preProcess(exportCondition);
+        preProcess.forEach(s -> generateReport(exportCondition.getPlanId(), exportCondition.getSchoolId(), fileSavePath, getName(exportCondition, s), s));
+    }
+
+    private Set<Integer> preProcess(ExportCondition exportCondition) {
+        Integer schoolId = exportCondition.getSchoolId();
+        Integer planId = exportCondition.getPlanId();
+        List<StatConclusion> statConclusions = statConclusionService.getByPlanIdSchoolId(planId, schoolId);
+
+        Set<Integer> sets = Sets.newHashSet();
+        if (!CollectionUtils.isEmpty(statConclusions.stream().filter(grade -> GradeCodeEnum.kindergartenSchoolCode().contains(grade.getSchoolGradeCode())).collect(Collectors.toList()))) {
+            sets.add(SchoolAge.KINDERGARTEN.code);
+        }
+        if (!CollectionUtils.isEmpty(statConclusions.stream().filter(grade -> !GradeCodeEnum.kindergartenSchoolCode().contains(grade.getSchoolGradeCode())).collect(Collectors.toList()))) {
+            sets.add(SchoolAge.PRIMARY.code);
+        }
+        return sets;
+    }
+
+    private String getName(ExportCondition exportCondition, Integer schoolAge) {
+        String schoolName = schoolService.getById(exportCondition.getSchoolId()).getName();
+        // 幼儿园
+        if (Objects.equals(SchoolAge.KINDERGARTEN.code, schoolAge)) {
+            return schoolName + "筛查报告-视力分析【幼儿园】";
+        } else {
+            return schoolName + "筛查报告-视力分析【小学及以上】";
         }
     }
 
-    private void generatePrimaryVisionReport(Integer planId, Integer schoolId, String fileSavePath, String fileName) {
-        String reportHtmlUrl = String.format(HtmlPageUrlConstant.REPORT_PRIMARY_VISION, htmlUrlHost, planId, schoolId);
+    private void generateReport(Integer planId, Integer schoolId, String fileSavePath, String fileName, Integer schoolAge) {
+
+        String reportHtmlUrl;
+        if (Objects.equals(SchoolAge.KINDERGARTEN.code, schoolAge)) {
+            reportHtmlUrl = String.format(HtmlPageUrlConstant.REPORT_KINDERGARTEN_VISION, htmlUrlHost, planId, schoolId);
+        } else {
+            reportHtmlUrl = String.format(HtmlPageUrlConstant.REPORT_PRIMARY_VISION, htmlUrlHost, planId, schoolId);
+        }
         String pdfUrl = html2PdfService.syncGeneratorPDF(reportHtmlUrl, fileName, UUID.randomUUID().toString()).getUrl();
         try {
-            FileUtils.copyURLToFile(new URL(pdfUrl),  new File(Paths.get(fileSavePath, fileName + ".pdf").toString()));
+            FileUtils.copyURLToFile(new URL(pdfUrl), new File(Paths.get(fileSavePath, fileName + ".pdf").toString()));
         } catch (IOException e) {
             throw new BusinessException("生成区域报告PDF文件异常", e);
         }
