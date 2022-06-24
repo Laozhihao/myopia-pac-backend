@@ -18,6 +18,9 @@ import java.util.function.Function;
 @Service
 public class HighLowProportionService {
 
+    /**
+     * 最高最低
+     */
     public <T extends CommonTable> HighLowProportion getHighLow(List<T> tables, Function<T, Float> comparingFunction) {
         if (CollectionUtils.isEmpty(tables)) {
             return new HighLowProportion();
@@ -33,7 +36,7 @@ public class HighLowProportionService {
     }
 
     /**
-     * 年龄-戴眼
+     * 最高最低描述
      */
     public <T extends CommonTable> MaxMinProportion getMaxMin(String proportion, List<T> tables, Function<T, Float> comparingFunction) {
         if (CollectionUtils.isEmpty(tables)) {

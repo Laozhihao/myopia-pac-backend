@@ -98,9 +98,9 @@ public class ExportScreeningVisionService implements ExportPdfFileService {
 
     private void generateDistrictVisionReport(Integer noticeId, Integer districtId, String fileSavePath, String fileName) {
         String reportHtmlUrl = String.format(HtmlPageUrlConstant.REPORT_AREA_VISION, htmlUrlHost, noticeId, districtId);
-        String pdfUrl = html2PdfService.syncGeneratorPDF(reportHtmlUrl, fileName + ".pdf", UUID.randomUUID().toString()).getUrl();
+        String pdfUrl = html2PdfService.syncGeneratorPDF(reportHtmlUrl, fileName, UUID.randomUUID().toString()).getUrl();
         try {
-            FileUtils.copyURLToFile(new URL(pdfUrl), new File(Paths.get(fileSavePath).toString()));
+            FileUtils.copyURLToFile(new URL(pdfUrl), new File(Paths.get(fileSavePath, fileName + ".pdf").toString()));
         } catch (IOException e) {
             throw new BusinessException("生成区域报告PDF文件异常", e);
         }
