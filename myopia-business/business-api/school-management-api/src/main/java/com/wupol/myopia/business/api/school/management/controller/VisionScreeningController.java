@@ -21,6 +21,7 @@ import com.wupol.myopia.business.aggregation.screening.service.ScreeningExportSe
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanSchoolStudentFacadeService;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanStudentBizService;
 import com.wupol.myopia.business.api.school.management.service.VisionScreeningService;
+import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
 import com.wupol.myopia.business.common.utils.domain.model.NotificationConfig;
 import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
@@ -233,6 +234,7 @@ public class VisionScreeningController {
                 .setNotificationId(screeningNoticeId)
                 .setPlanId(planId)
                 .setSchoolId(currentUser.getOrgId())
+                .setExportType(ExportTypeConst.SCHOOL)
                 .setApplyExportFileUserId(currentUser.getId());
         if (Objects.nonNull(screeningNoticeId) && screeningNoticeId == 0) {
             exportCondition.setNotificationId(null);
