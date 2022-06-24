@@ -96,7 +96,7 @@ public interface RedisConstant {
     /**
      * 导出PDF-学校-筛查机构
      */
-    String FILE_EXPORT_PDF_SCHOOL_SCREENING = "file:export:pdf:school:screening:%s-%s-%s-%s";
+    String FILE_EXPORT_PDF_SCHOOL_SCREENING = "file:export:pdf:school:screening:%s-%s-%s";
 
     /**
      * 导出PDF-筛查机构

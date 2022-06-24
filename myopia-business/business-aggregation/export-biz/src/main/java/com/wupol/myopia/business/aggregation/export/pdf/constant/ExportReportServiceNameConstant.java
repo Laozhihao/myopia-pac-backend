@@ -19,10 +19,6 @@ public class ExportReportServiceNameConstant {
      */
     public final String SCHOOL_SCREENING_REPORT_SERVICE = "schoolScreeningReportService";
     /**
-     * 筛查机构筛查报告
-     */
-    public final String SCREENING_ORG_SCREENING_REPORT_SERVICE = "screeningOrgScreeningReportService";
-    /**
      * 学校档案卡
      */
     public final String SCHOOL_ARCHIVES_SERVICE = "schoolArchivesService";
