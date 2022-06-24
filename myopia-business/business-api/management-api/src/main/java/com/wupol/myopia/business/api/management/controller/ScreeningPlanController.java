@@ -552,35 +552,6 @@ public class ScreeningPlanController {
 
     /**
      * @Description: 学生筛查信息
-     * @Param: [筛查计划ID, 筛查机构ID, 学校ID, 年级ID, 班级ID]
-     * @return: void
-     * @Author: 钓猫的小鱼
-     * @Date: 2021/12/29
-     */
-    @GetMapping("/plan/export/studentInfo")
-    public ApiResult getScreeningPlanExportDoAndSync(Integer screeningPlanId, @RequestParam(defaultValue = "0") Integer screeningOrgId,
-                                                     @RequestParam Integer schoolId,
-                                                     @RequestParam(required = false) Integer gradeId,
-                                                     @RequestParam(required = false) Integer classId) throws IOException {
-
-        ExportCondition exportCondition = new ExportCondition()
-                .setPlanId(screeningPlanId)
-                .setScreeningOrgId(screeningOrgId)
-                .setSchoolId(schoolId)
-                .setGradeId(gradeId)
-                .setClassId(classId)
-                .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
-
-        if (Objects.isNull(classId)) {
-            exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.EXPORT_VISION_SCREENING_RESULT_EXCEL_SERVICE);
-            return ApiResult.success();
-        }
-        String path = exportStrategy.syncExport(exportCondition, ExportReportServiceNameConstant.EXPORT_VISION_SCREENING_RESULT_EXCEL_SERVICE);
-        return ApiResult.success(path);
-    }
-
-    /**
-     * @Description: 学生筛查信息
      * @Param: [计划ID, 学生ID]
      * @return: java.lang.Object
      * @Author: 钓猫的小鱼
