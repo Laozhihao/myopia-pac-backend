@@ -97,14 +97,14 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
 
     @Override
     public Class getHeadClass(ExportCondition exportCondition) {
-        IScreeningDataService screeningDataService = screeningDataFactory.getScreeningDataService(getScreeningType(exportCondition));
+        IScreeningDataService screeningDataService = screeningDataFactory.getScreeningDataService(exportCondition.getScreeningType());
         return screeningDataService.getExportClass();
     }
 
     @Override
     public String getNoticeKeyContent(ExportCondition exportCondition) {
         String suffix = StringUtils.EMPTY;
-        Integer screeningType = getScreeningType(exportCondition);
+        Integer screeningType = exportCondition.getScreeningType();
         if (ScreeningTypeConst.VISION.equals(screeningType)) {
             suffix = "【视力数据】";
         }
@@ -298,13 +298,8 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         return true;
     }
 
-    /**
-     * 获取筛查类型
-     *
-     * @param exportCondition 条件
-     * @return 筛查类型
-     */
-    private Integer getScreeningType(ExportCondition exportCondition) {
+    @Override
+    public void preProcess(ExportCondition exportCondition) {
         Integer screeningType;
         // 如果是区域筛查导出的，取通知的screeningType
         if (ExportTypeConst.District.equals(exportCondition.getExportType())) {
@@ -312,6 +307,6 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         } else {
             screeningType = screeningPlanService.getById(exportCondition.getPlanId()).getScreeningType();
         }
-        return screeningType;
+        exportCondition.setScreeningType(screeningType);
     }
 }
