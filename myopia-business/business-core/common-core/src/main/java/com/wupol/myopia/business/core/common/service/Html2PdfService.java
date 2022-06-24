@@ -93,7 +93,7 @@ public class Html2PdfService {
 
         PdfRequestDTO.Config config = new PdfRequestDTO.Config();
         config.setSize("a4");
-        config.setDisplayHeaderFooter(true);
+        config.setDisplayHeaderFooter(false);
         config.setHeaderTemplate("<div></div>");
         config.setFooterTemplate("<h1>Page <span class='pageNumber'></span> of <span class='totalPages'></span></h1>");
         config.setMargin("{ \"bottom\": \"10cm\"}");
