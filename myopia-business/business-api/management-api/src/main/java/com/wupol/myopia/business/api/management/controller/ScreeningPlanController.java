@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.controller;
 
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.csp.sentinel.util.StringUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.ApiResult;
@@ -589,7 +590,7 @@ public class ScreeningPlanController {
                                     Integer type) {
         List<Integer> studentIds = null;
         if (StringUtil.isNotEmpty(planStudentIds) && !"null".equals(planStudentIds)) {
-            studentIds = Arrays.stream(planStudentIds.split(",")).map(Integer::valueOf).collect(Collectors.toList());
+            studentIds = Arrays.stream(planStudentIds.split(StrUtil.COMMA)).map(Integer::valueOf).collect(Collectors.toList());
         }
         return screeningExportService.studentQRCodeFile(screeningPlanId, schoolId, gradeId, classId, studentIds, type);
     }
@@ -611,7 +612,7 @@ public class ScreeningPlanController {
                                                 boolean isSchoolClient) {
         List<Integer> studentIds = null;
         if (StringUtil.isNotEmpty(planStudentIds) && !"null".equals(planStudentIds)) {
-            studentIds = Arrays.stream(planStudentIds.split(",")).map(Integer::valueOf).collect(Collectors.toList());
+            studentIds = Arrays.stream(planStudentIds.split(StrUtil.COMMA)).map(Integer::valueOf).collect(Collectors.toList());
         }
         return screeningExportService.getNoticeData(screeningPlanId, schoolId, gradeId, classId, studentIds, isSchoolClient);
     }

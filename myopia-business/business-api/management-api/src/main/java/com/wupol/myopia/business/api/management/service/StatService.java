@@ -1207,7 +1207,7 @@ public class StatService {
      * @param screeningTime
      * @return
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public int rescreenStat(Date screeningTime) {
         List<StatRescreen> statRescreens = new ArrayList<>();
         // 获取昨日有进行复测的计划及学校信息
@@ -1258,9 +1258,16 @@ public class StatService {
         return statConclusionService.listByQuery(query);
     }
 
+    /**
+     * 生成常见病复查信息
+     *
+     * @param statRescreen    复查
+     * @param statConclusions 结论
+     */
     private void composePhysiqueReScreenConclusion(StatRescreen statRescreen, List<StatConclusion> statConclusions) {
         int total = statConclusions.size();
         statRescreen.setPhysiqueRescreenNum((long) total);
+        // 体格复查指数只有两个：身高和体重
         statRescreen.setPhysiqueIndexNum(2L);
         statRescreen.setPhysiqueRescreenItemNum(total * 2L);
         statRescreen.setPhysiqueIncorrectItemNum(statConclusions.stream().mapToLong(StatConclusion::getPhysiqueRescreenErrorNum).sum());
@@ -1286,12 +1293,16 @@ public class StatService {
         List<VisionScreeningResult> reScreenResults = resultList.stream().filter(VisionScreeningResult::getIsDoubleScreen).collect(Collectors.toList());
 
         // 获取初筛数据
-        List<VisionScreeningResult> screeningResults = resultList.stream().filter(s->Boolean.FALSE.equals(s.getIsDoubleScreen())).collect(Collectors.toList());
+        List<VisionScreeningResult> screeningResults = resultList.stream().filter(s -> Boolean.FALSE.equals(s.getIsDoubleScreen())).collect(Collectors.toList());
         Map<Integer, VisionScreeningResult> screeningResultMap = screeningResults.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
+
+        // 获取计划学生的commonDiseasesCode
+        List<Integer> planStudentIds = screeningResults.stream().map(VisionScreeningResult::getScreeningPlanSchoolStudentId).collect(Collectors.toList());
+        Map<Integer, String> commonDiseaseMap = screeningPlanSchoolStudentService.getByIds(planStudentIds).stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getId, ScreeningPlanSchoolStudent::getCommonDiseaseId));
 
         reScreenResults.forEach(reScreenResult -> {
             VisionScreeningResult first = screeningResultMap.get(reScreenResult.getScreeningPlanSchoolStudentId());
-            reScreeningCardVO.add(ReScreenCardUtil.reScreenResultCard(first, reScreenResult, qualityControllerName, StringUtils.EMPTY));
+            reScreeningCardVO.add(ReScreenCardUtil.reScreenResultCard(first, reScreenResult, qualityControllerName, commonDiseaseMap.get(first.getScreeningPlanSchoolStudentId())));
         });
         return reScreeningCardVO;
     }

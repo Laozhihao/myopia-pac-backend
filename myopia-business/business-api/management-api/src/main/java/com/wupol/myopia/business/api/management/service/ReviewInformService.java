@@ -269,12 +269,7 @@ public class ReviewInformService {
      * @return List<ScreeningPlanSchoolStudent>
      */
     private List<ScreeningPlanSchoolStudent> getMatchRescreenResults(Integer planId, Integer orgId, Integer schoolId, Integer gradeId, Integer classId) {
-
-        List<ScreeningPlanSchoolStudent> planStudentList = screeningPlanSchoolStudentService.getReviewStudentList(planId, orgId, schoolId, gradeId, classId);
-        if (CollectionUtils.isEmpty(planStudentList)) {
-            return new ArrayList<>();
-        }
-        return planStudentList;
+        return screeningPlanSchoolStudentService.getReviewStudentList(planId, orgId, schoolId, gradeId, classId);
     }
 
     /**

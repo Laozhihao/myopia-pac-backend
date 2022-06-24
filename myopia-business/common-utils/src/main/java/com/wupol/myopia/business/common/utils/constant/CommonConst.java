@@ -174,4 +174,9 @@ public class CommonConst {
      *  中文逗号
      */
     public static final String CH_COMMA = "，";
+
+    /**
+     * 顿号
+     */
+    public static final String CN_PUNCTUATION_COMMA = "、";
 }

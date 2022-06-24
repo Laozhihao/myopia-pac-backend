@@ -501,12 +501,12 @@ public class ScreeningPlanStudentBizService {
      *
      * @return 否在筛查时间内
      */
-    public Boolean isMatchScreeningTime(ScreeningPlanSchoolStudent screeningPlanSchoolStudent) {
+    public boolean isNotMatchScreeningTime(ScreeningPlanSchoolStudent screeningPlanSchoolStudent) {
         if (Objects.isNull(screeningPlanSchoolStudent)) {
-            return false;
+            return true;
         }
         Integer screeningPlanId = screeningPlanSchoolStudent.getScreeningPlanId();
         ScreeningPlan plan = screeningPlanService.getById(screeningPlanId);
-        return DateUtil.isBetweenDate(plan.getStartTime(), plan.getEndTime());
+        return !DateUtil.isBetweenDate(plan.getStartTime(), plan.getEndTime());
     }
 }

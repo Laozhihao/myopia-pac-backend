@@ -9,6 +9,7 @@ import com.wupol.myopia.base.util.ListUtil;
 import com.wupol.myopia.base.util.ScreeningDataFormatUtils;
 import com.wupol.myopia.base.util.StrUtil;
 import com.wupol.myopia.business.aggregation.export.service.IScreeningDataService;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
@@ -181,7 +182,9 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
      * @return 结论
      */
     private String countSaprodontiaNum(List<String> list) {
-        return list.stream().filter(s -> StringUtils.equalsAny(s, SaprodontiaType.DECIDUOUS_D.getName(), SaprodontiaType.PERMANENT_D.getName())).count() + ":" + list.stream().filter(s -> StringUtils.equalsAny(s, SaprodontiaType.DECIDUOUS_M.getName(), SaprodontiaType.PERMANENT_M.getName())).count() + ":" + list.stream().filter(s -> StringUtils.equalsAny(s, SaprodontiaType.DECIDUOUS_F.getName(), SaprodontiaType.PERMANENT_F.getName())).count();
+        return list.stream().filter(s -> StringUtils.equalsAny(s, SaprodontiaType.DECIDUOUS_D.getName(), SaprodontiaType.PERMANENT_D.getName())).count()
+                + cn.hutool.core.util.StrUtil.COLON + list.stream().filter(s -> StringUtils.equalsAny(s, SaprodontiaType.DECIDUOUS_M.getName(), SaprodontiaType.PERMANENT_M.getName())).count()
+                + cn.hutool.core.util.StrUtil.COLON + list.stream().filter(s -> StringUtils.equalsAny(s, SaprodontiaType.DECIDUOUS_F.getName(), SaprodontiaType.PERMANENT_F.getName())).count();
     }
 
     /**
@@ -199,10 +202,10 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
         SpineDataDO.SpineItem chestWaist = spineData.getChestWaist();
         SpineDataDO.SpineItem waist = spineData.getWaist();
         SpineDataDO.SpineItem entirety = spineData.getEntirety();
-        exportDTO.setChest(StrUtil.spliceChar("、", SpineTypeEnum.getTypeName(chest.getType()), SpineLevelEnum.getLevelName(chest.getLevel())))
-                .setChestWaist(StrUtil.spliceChar("、", SpineTypeEnum.getTypeName(chestWaist.getType()), SpineLevelEnum.getLevelName(chestWaist.getLevel())))
-                .setWaist(StrUtil.spliceChar("、", SpineTypeEnum.getTypeName(waist.getType()), SpineLevelEnum.getLevelName(waist.getLevel())))
-                .setEntirety(StrUtil.spliceChar("、", SpineTypeEntiretyEnum.getTypeName(entirety.getType()), SpineLevelEnum.getLevelName(entirety.getLevel())));
+        exportDTO.setChest(StrUtil.spliceChar(CommonConst.CN_PUNCTUATION_COMMA, SpineTypeEnum.getTypeName(chest.getType()), SpineLevelEnum.getLevelName(chest.getLevel())))
+                .setChestWaist(StrUtil.spliceChar(CommonConst.CN_PUNCTUATION_COMMA, SpineTypeEnum.getTypeName(chestWaist.getType()), SpineLevelEnum.getLevelName(chestWaist.getLevel())))
+                .setWaist(StrUtil.spliceChar(CommonConst.CN_PUNCTUATION_COMMA, SpineTypeEnum.getTypeName(waist.getType()), SpineLevelEnum.getLevelName(waist.getLevel())))
+                .setEntirety(StrUtil.spliceChar(CommonConst.CN_PUNCTUATION_COMMA, SpineTypeEntiretyEnum.getTypeName(entirety.getType()), SpineLevelEnum.getLevelName(entirety.getLevel())));
 
     }
 
@@ -228,7 +231,7 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
         DiseasesHistoryDO diseasesHistoryData = dto.getDiseasesHistoryData();
 
         if (Objects.nonNull(diseasesHistoryData) && !CollectionUtils.isEmpty(diseasesHistoryData.getDiseases())) {
-            exportDTO.setDiseasesHistory(String.join(",", diseasesHistoryData.getDiseases()));
+            exportDTO.setDiseasesHistory(String.join(cn.hutool.core.util.StrUtil.COMMA, diseasesHistoryData.getDiseases()));
         }
         PrivacyDataDO privacyData = dto.getPrivacyData();
         if (Objects.nonNull(privacyData)) {
