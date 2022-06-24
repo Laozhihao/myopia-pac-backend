@@ -369,8 +369,8 @@ public class ReportController {
      * @return PrimaryReportDTO
      */
     @GetMapping("/screening/primaryReport")
-    public PrimaryReportDTO primaryReport(Integer planId, Integer schoolId, Integer noticeId) {
-        return screeningPrimaryReportService.generateReport(planId, schoolId, noticeId);
+    public PrimaryReportDTO primaryReport(Integer planId, Integer schoolId) {
+        return screeningPrimaryReportService.generateReport(planId, schoolId);
     }
 
     /**
@@ -379,8 +379,8 @@ public class ReportController {
      * @return KindergartenReportDTO
      */
     @GetMapping("/screening/kindergartenReport")
-    public KindergartenReportDTO kindergartenReport(Integer planId, Integer schoolId, Integer noticeId) {
-        return screeningKindergartenReportService.generateReport(planId, schoolId, noticeId);
+    public KindergartenReportDTO kindergartenReport(Integer planId, Integer schoolId) {
+        return screeningKindergartenReportService.generateReport(planId, schoolId);
 
     }
 

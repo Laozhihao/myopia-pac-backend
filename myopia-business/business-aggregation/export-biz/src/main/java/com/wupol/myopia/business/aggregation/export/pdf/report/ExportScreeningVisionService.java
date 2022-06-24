@@ -9,7 +9,6 @@ import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.service.Html2PdfService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
-import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
@@ -76,19 +75,18 @@ public class ExportScreeningVisionService implements ExportPdfFileService {
     public void generateSchoolReportPdfFile(String fileSavePath, String fileName, ExportCondition exportCondition) {
         Integer schoolId = exportCondition.getSchoolId();
         Integer planId = exportCondition.getPlanId();
-        Integer noticeId = exportCondition.getNotificationId();
-        List<StatConclusion> statConclusions = statConclusionService.getByPlanIdSchoolIdNoticeId(planId, schoolId, noticeId);
+        List<StatConclusion> statConclusions = statConclusionService.getByPlanIdSchoolId(planId, schoolId);
 
         String schoolName = schoolService.getById(exportCondition.getSchoolId()).getName();
 
         // 幼儿园
         if (!CollectionUtils.isEmpty(statConclusions.stream().filter(grade -> GradeCodeEnum.kindergartenSchoolCode().contains(grade.getSchoolGradeCode())).collect(Collectors.toList()))) {
-            generateKindergartenVisionReport(planId, schoolId, noticeId, fileSavePath, schoolName+"-视力分析"+"【幼儿园】.pdf");
+            generateKindergartenVisionReport(planId, schoolId, fileSavePath, schoolName+"-视力分析"+"【幼儿园】.pdf");
         }
 
         // 小学以上
         if (!CollectionUtils.isEmpty(statConclusions.stream().filter(grade -> !GradeCodeEnum.kindergartenSchoolCode().contains(grade.getSchoolGradeCode())).collect(Collectors.toList()))) {
-            generatePrimaryVisionReport(planId, schoolId, noticeId, fileSavePath, schoolName+"-视力分析"+"【小学及以上】.pdf");
+            generatePrimaryVisionReport(planId, schoolId, fileSavePath, schoolName+"-视力分析"+"【小学及以上】.pdf");
         }
     }
 
@@ -102,8 +100,8 @@ public class ExportScreeningVisionService implements ExportPdfFileService {
         }
     }
 
-    private void generateKindergartenVisionReport(Integer planId, Integer schoolId, Integer noticeId, String fileSavePath, String fileName) {
-        String reportHtmlUrl = String.format(HtmlPageUrlConstant.REPORT_KINDERGARTEN_VISION, htmlUrlHost, planId, schoolId, noticeId);
+    private void generateKindergartenVisionReport(Integer planId, Integer schoolId, String fileSavePath, String fileName) {
+        String reportHtmlUrl = String.format(HtmlPageUrlConstant.REPORT_KINDERGARTEN_VISION, htmlUrlHost, planId, schoolId);
         String pdfUrl = html2PdfService.syncGeneratorPDF(reportHtmlUrl, fileName, UUID.randomUUID().toString()).getUrl();
         try {
             FileUtils.copyURLToFile(new URL(pdfUrl), new File(Paths.get(fileSavePath).toString()));
@@ -112,8 +110,8 @@ public class ExportScreeningVisionService implements ExportPdfFileService {
         }
     }
 
-    private void generatePrimaryVisionReport(Integer planId, Integer schoolId, Integer noticeId, String fileSavePath, String fileName) {
-        String reportHtmlUrl = String.format(HtmlPageUrlConstant.REPORT_PRIMARY_VISION, htmlUrlHost, planId, schoolId, noticeId);
+    private void generatePrimaryVisionReport(Integer planId, Integer schoolId, String fileSavePath, String fileName) {
+        String reportHtmlUrl = String.format(HtmlPageUrlConstant.REPORT_PRIMARY_VISION, htmlUrlHost, planId, schoolId);
         String pdfUrl = html2PdfService.syncGeneratorPDF(reportHtmlUrl, fileName, UUID.randomUUID().toString()).getUrl();
         try {
             FileUtils.copyURLToFile(new URL(pdfUrl), new File(Paths.get(fileSavePath).toString()));

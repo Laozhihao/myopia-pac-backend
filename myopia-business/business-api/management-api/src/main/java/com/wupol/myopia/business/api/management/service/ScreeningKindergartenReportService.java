@@ -54,11 +54,11 @@ public class ScreeningKindergartenReportService {
     @Resource
     private KindergartenReportTableService kindergartenReportTableService;
 
-    public KindergartenReportDTO generateReport(Integer planId, Integer schoolId, Integer noticeId) {
+    public KindergartenReportDTO generateReport(Integer planId, Integer schoolId) {
 
         KindergartenReportDTO kindergartenReportDTO = new KindergartenReportDTO();
 
-        List<StatConclusion> allStatList = statConclusionService.getByPlanIdSchoolIdNoticeId(planId, schoolId, noticeId);
+        List<StatConclusion> allStatList = statConclusionService.getByPlanIdSchoolId(planId, schoolId);
         List<StatConclusion> statConclusions = commonReportService.getKList(allStatList);
         School school = schoolService.getBySchoolId(schoolId);
         ScreeningPlan plan = screeningPlanService.getById(planId);

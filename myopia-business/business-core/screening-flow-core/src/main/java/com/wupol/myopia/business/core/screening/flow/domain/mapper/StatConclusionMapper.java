@@ -9,7 +9,6 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 /**
  * 筛查数据结论Mapper接口
@@ -133,7 +132,7 @@ public interface StatConclusionMapper extends BaseMapper<StatConclusion> {
 
     List<StatConclusion> getByNoticeIdDistrictIds(@Param("noticeId") Integer noticeId, @Param("districtIds") List<Integer> districtIds);
 
-    List<StatConclusion> getByPlanIdSchoolIdNoticeId(@Param("planId") Integer planId, @Param("schoolId") Integer schoolId, @Param("noticeId") Integer noticeId);
+    List<StatConclusion> getByPlanIdSchoolId(@Param("planId") Integer planId, @Param("schoolId") Integer schoolId);
 
     List<StatConclusion> getByPlanId(Integer planId);
 }

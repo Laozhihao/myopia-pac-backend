@@ -78,10 +78,10 @@ public class ScreeningPrimaryReportService {
     @Resource
     private ThreadPoolTaskExecutor executor;
 
-    public PrimaryReportDTO generateReport(Integer planId, Integer schoolId, Integer noticeId) {
+    public PrimaryReportDTO generateReport(Integer planId, Integer schoolId) {
         PrimaryReportDTO reportDTO = new PrimaryReportDTO();
 
-        List<StatConclusion> allStatList = statConclusionService.getByPlanIdSchoolIdNoticeId(planId, schoolId, noticeId);
+        List<StatConclusion> allStatList = statConclusionService.getByPlanIdSchoolId(planId, schoolId);
         if (CollectionUtils.isEmpty(allStatList)) {
             return reportDTO;
         }
@@ -119,7 +119,7 @@ public class ScreeningPrimaryReportService {
         try {
             CompletableFuture.allOf(c1, c2, c3, c4, c5).get();
         } catch (InterruptedException | ExecutionException e) {
-            log.error("生成区域视力筛查报告异常,planId:{},schoolId:{},noticeId:{}", planId, schoolId, noticeId);
+            log.error("生成区域视力筛查报告异常,planId:{},schoolId:{}", planId, schoolId);
             e.printStackTrace();
             throw new BusinessException("生成区域视力筛查报告异常");
         }
