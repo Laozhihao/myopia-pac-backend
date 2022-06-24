@@ -53,10 +53,6 @@ public class ExportScreeningVisionService implements ExportPdfFileService {
 
     private static final String abc = "筛查报告-视力分析";
 
-    private static final String k_report = "-视力分析【幼儿园】.pdf";
-
-    private static final String p_report = "-视力分析【小学及以上】.pdf";
-
 
     @Override
     public Integer getScreeningType() {
@@ -91,12 +87,12 @@ public class ExportScreeningVisionService implements ExportPdfFileService {
 
         // 幼儿园
         if (!CollectionUtils.isEmpty(statConclusions.stream().filter(grade -> GradeCodeEnum.kindergartenSchoolCode().contains(grade.getSchoolGradeCode())).collect(Collectors.toList()))) {
-            generateKindergartenVisionReport(planId, schoolId, fileSavePath, schoolName + k_report);
+            generateKindergartenVisionReport(planId, schoolId, fileSavePath, schoolName + "-视力分析【幼儿园】");
         }
 
         // 小学以上
         if (!CollectionUtils.isEmpty(statConclusions.stream().filter(grade -> !GradeCodeEnum.kindergartenSchoolCode().contains(grade.getSchoolGradeCode())).collect(Collectors.toList()))) {
-            generatePrimaryVisionReport(planId, schoolId, fileSavePath, schoolName + p_report);
+            generatePrimaryVisionReport(planId, schoolId, fileSavePath, schoolName + "-视力分析【小学及以上】");
         }
     }
 
@@ -114,7 +110,7 @@ public class ExportScreeningVisionService implements ExportPdfFileService {
         String reportHtmlUrl = String.format(HtmlPageUrlConstant.REPORT_KINDERGARTEN_VISION, htmlUrlHost, planId, schoolId);
         String pdfUrl = html2PdfService.syncGeneratorPDF(reportHtmlUrl, fileName, UUID.randomUUID().toString()).getUrl();
         try {
-            FileUtils.copyURLToFile(new URL(pdfUrl), new File(Paths.get(fileSavePath).toString()));
+            FileUtils.copyURLToFile(new URL(pdfUrl), new File(Paths.get(fileSavePath, fileName + ".pdf").toString()));
         } catch (IOException e) {
             throw new BusinessException("生成区域报告PDF文件异常", e);
         }
@@ -124,7 +120,7 @@ public class ExportScreeningVisionService implements ExportPdfFileService {
         String reportHtmlUrl = String.format(HtmlPageUrlConstant.REPORT_PRIMARY_VISION, htmlUrlHost, planId, schoolId);
         String pdfUrl = html2PdfService.syncGeneratorPDF(reportHtmlUrl, fileName, UUID.randomUUID().toString()).getUrl();
         try {
-            FileUtils.copyURLToFile(new URL(pdfUrl), new File(Paths.get(fileSavePath).toString()));
+            FileUtils.copyURLToFile(new URL(pdfUrl),  new File(Paths.get(fileSavePath, fileName + ".pdf").toString()));
         } catch (IOException e) {
             throw new BusinessException("生成区域报告PDF文件异常", e);
         }
