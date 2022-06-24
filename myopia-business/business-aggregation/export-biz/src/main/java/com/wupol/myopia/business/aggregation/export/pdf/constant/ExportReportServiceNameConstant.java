@@ -41,12 +41,6 @@ public class ExportReportServiceNameConstant {
      * 导出筛检计划下的对应数据
      *  作者：钓猫的小鱼
      */
-    public final String SCREENING_PLAN = "exportScreeningPlanReportService";
-
-    /**
-     * 导出筛检计划下的对应数据
-     *  作者：钓猫的小鱼
-     */
     public final String EXPORT_PLAN_STUDENT_DATA_EXCEL_SERVICE = "exportPlanStudentDataExcelService";
 
     /**
