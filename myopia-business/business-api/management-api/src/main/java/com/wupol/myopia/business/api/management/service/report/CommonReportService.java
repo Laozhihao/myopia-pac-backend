@@ -446,7 +446,7 @@ public class CommonReportService {
         T first = list.get(0);
         T thisTime = list.stream().filter(s -> Objects.equals(s.getIsSameReport(), Boolean.TRUE))
                 .collect(Collectors.toList()).get(0);
-        return getChainRatioProportion(comparingFunction.apply(thisTime),comparingFunction.apply(first));
+        return getChainRatioProportion(comparingFunction.apply(thisTime), comparingFunction.apply(first));
     }
 
     public ConvertRatio getChainRatioProportion(String firstProportion, String thisTimeProportion) {
@@ -671,8 +671,8 @@ public class CommonReportService {
         List<VisionScreeningResult> resultList = visionScreeningResultService.getByIds(resultIds);
         Map<Integer, VisionScreeningResult> resultMap = resultList.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
 
-        // 通过学校班级年级分组
-        List<SchoolGrade> gradeList = schoolGradeService.getBySchoolId(school.getId());
+        // 通过学校班级年级分组(只保留幼儿园)
+        List<SchoolGrade> gradeList = schoolGradeService.getBySchoolId(school.getId()).stream().filter(s -> GradeCodeEnum.kindergartenSchoolCode().contains(s.getGradeCode())).collect(Collectors.toList());
         Map<Integer, List<SchoolClassExportDTO>> classMap = schoolClassService.getByGradeIds(gradeList.stream().map(SchoolGrade::getId).collect(Collectors.toList())).stream().collect(Collectors.groupingBy(SchoolClassExportDTO::getGradeId));
 
         gradeList.forEach(grade -> {
