@@ -690,7 +690,7 @@ public class ScreeningReportTableService {
     public List<SchoolAgeGenderTable> areaOutlineTable(List<StatConclusion> statConclusions, List<ScreeningPlanSchoolStudent> planStudents) {
         List<SchoolAgeGenderTable> tables = new ArrayList<>();
         boolean haveSenior = commonReportService.isHaveSenior(statConclusions);
-        List<Integer> schoolAges = SchoolAge.sortList(statConclusions.stream().map(StatConclusion::getSchoolAge).distinct().collect(Collectors.toList()));
+        List<Integer> schoolAges = SchoolAge.sortList(planStudents.stream().map(ScreeningPlanSchoolStudent::getGradeType).distinct().collect(Collectors.toList()));
 
         for (Integer schoolAge : schoolAges) {
             SchoolAgeGenderTable schoolAgeGenderTable = new SchoolAgeGenderTable();
