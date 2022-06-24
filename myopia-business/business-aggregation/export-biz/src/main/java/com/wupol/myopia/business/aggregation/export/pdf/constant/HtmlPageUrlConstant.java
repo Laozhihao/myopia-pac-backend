@@ -61,6 +61,19 @@ public class HtmlPageUrlConstant {
      */
     public static final String REPORT_KINDERGARTEN_VISION = "%s?reportType=visonKindergartenSchool&planId=%d&schoolId=%d&noticeId=%d";
 
+    /**
+     * 视力报告区域-文件名
+     */
+    public static final String SCREENING_VISION_DISTRICT = "";
+    /**
+     * 视力报告学校-文件名
+     */
+    public static final String SCREENING_VISION_SCHOOL_PRIMARY = "";
+    /**
+     * 视力报告学校-文件名
+     */
+    public static final String SCREENING_VISION_SCHOOL_KINDERGARTEN = "";
+
 
 
 

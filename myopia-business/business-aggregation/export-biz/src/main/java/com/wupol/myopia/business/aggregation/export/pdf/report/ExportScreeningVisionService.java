@@ -1,12 +1,19 @@
 package com.wupol.myopia.business.aggregation.export.pdf.report;
 
+import cn.hutool.core.util.StrUtil;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.business.aggregation.export.pdf.ExportPdfFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.HtmlPageUrlConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
+import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.service.Html2PdfService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
+import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
+import com.wupol.myopia.business.core.system.constants.ScreeningTypeConst;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -18,6 +25,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -27,7 +35,7 @@ import java.util.stream.Collectors;
  * @author Simple4H
  */
 @Service
-public class ExportScreeningVisionService {
+public class ExportScreeningVisionService implements ExportPdfFileService {
 
     @Value("${report.html.url-host}")
     public String htmlUrlHost;
@@ -38,40 +46,55 @@ public class ExportScreeningVisionService {
     @Resource
     private StatConclusionService statConclusionService;
 
-    /**
-     * 区域报告
-     *
-     * @param saveDirectory   保存目录
-     * @param exportCondition 条件
-     **/
-    public void generateDistrictReportPdfFile(String saveDirectory, ExportCondition exportCondition) {
-        generateVisionReport(exportCondition.getNotificationId(), exportCondition.getDistrictId(), saveDirectory);
+    @Resource
+    private DistrictService districtService;
+
+    @Resource
+    private SchoolService schoolService;
+
+
+    @Override
+    public Integer getScreeningType() {
+        return ScreeningTypeConst.VISION;
     }
 
-    /**
-     * 学校报告
-     *
-     * @param fileSavePath    保存目录
-     * @param exportCondition 条件
-     **/
-    public void generateSchoolReportPdfFile(String fileSavePath, ExportCondition exportCondition) {
+    @Override
+    public String getFileName(ExportCondition exportCondition) {
+        if (Objects.equals(exportCondition.getExportType(), ExportTypeConst.District)) {
+            String districtName = districtService.getDistrictNameByDistrictId(exportCondition.getDistrictId());
+            return districtName + "区域筛查报告-视力分析.pdf";
+        }
+        if (Objects.equals(exportCondition.getExportType(), ExportTypeConst.SCHOOL)) {
+            School school = schoolService.getById(exportCondition.getSchoolId());
+            return school.getName() + "学校筛查报告-视力分析.pdf";
+        }
+        return StrUtil.EMPTY;
+    }
+
+    @Override
+    public void generateDistrictReportPdfFile(String fileSavePath, String fileName, ExportCondition exportCondition) {
+        generateVisionReport(exportCondition.getNotificationId(), exportCondition.getDistrictId(), fileSavePath, fileName);
+    }
+
+    @Override
+    public void generateSchoolReportPdfFile(String fileSavePath, String fileName, ExportCondition exportCondition) {
         Integer schoolId = exportCondition.getSchoolId();
         Integer planId = exportCondition.getPlanId();
         Integer noticeId = exportCondition.getNotificationId();
         List<StatConclusion> statConclusions = statConclusionService.getByPlanIdSchoolIdNoticeId(planId, schoolId, noticeId);
 
+        // fileName存在问题
         if (!CollectionUtils.isEmpty(statConclusions.stream().filter(grade -> GradeCodeEnum.kindergartenSchoolCode().contains(grade.getSchoolGradeCode())).collect(Collectors.toList()))) {
-            generateKindergartenVisionReport(planId, schoolId, noticeId, fileSavePath);
+            generateKindergartenVisionReport(planId, schoolId, noticeId, fileSavePath, fileName);
         }
         if (!CollectionUtils.isEmpty(statConclusions.stream().filter(grade -> !GradeCodeEnum.kindergartenSchoolCode().contains(grade.getSchoolGradeCode())).collect(Collectors.toList()))) {
-            generatePrimaryVisionReport(planId, schoolId, noticeId, fileSavePath);
+            generatePrimaryVisionReport(planId, schoolId, noticeId, fileSavePath, fileName);
         }
     }
 
-
-    private void generateVisionReport(Integer noticeId, Integer districtId, String fileSavePath) {
+    private void generateVisionReport(Integer noticeId, Integer districtId, String fileSavePath, String fileName) {
         String reportHtmlUrl = String.format(HtmlPageUrlConstant.REPORT_AREA_VISION, htmlUrlHost, noticeId, districtId);
-        String pdfUrl = html2PdfService.syncGeneratorPDF(reportHtmlUrl, "区域报告.pdf", UUID.randomUUID().toString()).getUrl();
+        String pdfUrl = html2PdfService.syncGeneratorPDF(reportHtmlUrl, fileName, UUID.randomUUID().toString()).getUrl();
         try {
             FileUtils.copyURLToFile(new URL(pdfUrl), new File(Paths.get(fileSavePath).toString()));
         } catch (IOException e) {
@@ -79,9 +102,9 @@ public class ExportScreeningVisionService {
         }
     }
 
-    private void generateKindergartenVisionReport(Integer planId, Integer schoolId, Integer noticeId, String fileSavePath) {
+    private void generateKindergartenVisionReport(Integer planId, Integer schoolId, Integer noticeId, String fileSavePath, String fileName) {
         String reportHtmlUrl = String.format(HtmlPageUrlConstant.REPORT_KINDERGARTEN_VISION, htmlUrlHost, planId, schoolId, noticeId);
-        String pdfUrl = html2PdfService.syncGeneratorPDF(reportHtmlUrl, "幼儿园筛查报告-视力分析.pdf", UUID.randomUUID().toString()).getUrl();
+        String pdfUrl = html2PdfService.syncGeneratorPDF(reportHtmlUrl, fileName, UUID.randomUUID().toString()).getUrl();
         try {
             FileUtils.copyURLToFile(new URL(pdfUrl), new File(Paths.get(fileSavePath).toString()));
         } catch (IOException e) {
@@ -89,9 +112,9 @@ public class ExportScreeningVisionService {
         }
     }
 
-    private void generatePrimaryVisionReport(Integer planId, Integer schoolId, Integer noticeId, String fileSavePath) {
+    private void generatePrimaryVisionReport(Integer planId, Integer schoolId, Integer noticeId, String fileSavePath, String fileName) {
         String reportHtmlUrl = String.format(HtmlPageUrlConstant.REPORT_PRIMARY_VISION, htmlUrlHost, planId, schoolId, noticeId);
-        String pdfUrl = html2PdfService.syncGeneratorPDF(reportHtmlUrl, "小学筛查报告-视力分析.pdf", UUID.randomUUID().toString()).getUrl();
+        String pdfUrl = html2PdfService.syncGeneratorPDF(reportHtmlUrl, fileName, UUID.randomUUID().toString()).getUrl();
         try {
             FileUtils.copyURLToFile(new URL(pdfUrl), new File(Paths.get(fileSavePath).toString()));
         } catch (IOException e) {
