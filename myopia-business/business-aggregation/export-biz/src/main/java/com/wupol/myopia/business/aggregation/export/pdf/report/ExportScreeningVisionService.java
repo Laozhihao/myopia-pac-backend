@@ -62,18 +62,14 @@ public class ExportScreeningVisionService implements ExportPdfFileService {
     public String getFileName(ExportCondition exportCondition) {
         if (Objects.equals(exportCondition.getExportType(), ExportTypeConst.District)) {
             String districtName = districtService.getDistrictNameByDistrictId(exportCondition.getDistrictId());
-            return districtName + "区域筛查报告-视力分析.pdf";
-        }
-        if (Objects.equals(exportCondition.getExportType(), ExportTypeConst.SCHOOL)) {
-            School school = schoolService.getById(exportCondition.getSchoolId());
-            return school.getName() + "学校筛查报告-视力分析.pdf";
+            return districtName + "筛查报告-视力分析.pdf";
         }
         return StrUtil.EMPTY;
     }
 
     @Override
     public void generateDistrictReportPdfFile(String fileSavePath, String fileName, ExportCondition exportCondition) {
-        generateVisionReport(exportCondition.getNotificationId(), exportCondition.getDistrictId(), fileSavePath, fileName);
+        generateDistrictVisionReport(exportCondition.getNotificationId(), exportCondition.getDistrictId(), fileSavePath, fileName);
     }
 
     @Override
@@ -83,16 +79,20 @@ public class ExportScreeningVisionService implements ExportPdfFileService {
         Integer noticeId = exportCondition.getNotificationId();
         List<StatConclusion> statConclusions = statConclusionService.getByPlanIdSchoolIdNoticeId(planId, schoolId, noticeId);
 
-        // fileName存在问题
+        String schoolName = schoolService.getById(exportCondition.getSchoolId()).getName();
+
+        // 幼儿园
         if (!CollectionUtils.isEmpty(statConclusions.stream().filter(grade -> GradeCodeEnum.kindergartenSchoolCode().contains(grade.getSchoolGradeCode())).collect(Collectors.toList()))) {
-            generateKindergartenVisionReport(planId, schoolId, noticeId, fileSavePath, fileName);
+            generateKindergartenVisionReport(planId, schoolId, noticeId, fileSavePath, schoolName+"-视力分析"+"【幼儿园】.pdf");
         }
+
+        // 小学以上
         if (!CollectionUtils.isEmpty(statConclusions.stream().filter(grade -> !GradeCodeEnum.kindergartenSchoolCode().contains(grade.getSchoolGradeCode())).collect(Collectors.toList()))) {
-            generatePrimaryVisionReport(planId, schoolId, noticeId, fileSavePath, fileName);
+            generatePrimaryVisionReport(planId, schoolId, noticeId, fileSavePath, schoolName+"-视力分析"+"【小学及以上】.pdf");
         }
     }
 
-    private void generateVisionReport(Integer noticeId, Integer districtId, String fileSavePath, String fileName) {
+    private void generateDistrictVisionReport(Integer noticeId, Integer districtId, String fileSavePath, String fileName) {
         String reportHtmlUrl = String.format(HtmlPageUrlConstant.REPORT_AREA_VISION, htmlUrlHost, noticeId, districtId);
         String pdfUrl = html2PdfService.syncGeneratorPDF(reportHtmlUrl, fileName, UUID.randomUUID().toString()).getUrl();
         try {
