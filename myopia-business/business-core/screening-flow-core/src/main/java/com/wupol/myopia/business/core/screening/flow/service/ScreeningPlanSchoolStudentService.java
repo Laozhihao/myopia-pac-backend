@@ -576,6 +576,9 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         return baseMapper.getReviewStudentList(planId, orgId, schoolId, gradeId, classId);
     }
 
+    /**
+     * 通过证件号获取筛查学生
+     */
     public List<ScreeningPlanSchoolStudent> getByPlanIdIdCardAndPassport(Integer planId, String idCard, String passport, Integer id) {
         return baseMapper.getByPlanIdIdCardAndPassport(planId, idCard, passport, id);
     }

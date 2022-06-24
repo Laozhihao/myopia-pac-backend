@@ -717,16 +717,10 @@ public class StatConclusionBuilder {
             basicData.rightNakedVision = optional.map(VisionDataDO::getRightEyeData).map(VisionDataDO.VisionData::getNakedVision).orElse(null);
             basicData.rightCorrectVision = optional.map(VisionDataDO::getRightEyeData).map(VisionDataDO.VisionData::getCorrectedVision).orElse(null);
         }
-
-
     }
 
     private void setPhysiqueRescreenErrorNum() {
-        if (anotherVisionScreeningResult != null) {
-            statConclusion.setPhysiqueRescreenErrorNum(calculatePhysiqueRescreenErrorNum());
-        } else {
-            statConclusion.setPhysiqueRescreenErrorNum(0);
-        }
+        statConclusion.setPhysiqueRescreenErrorNum(Objects.nonNull(anotherVisionScreeningResult) ? calculatePhysiqueRescreenErrorNum() : 0);
     }
 
     /**

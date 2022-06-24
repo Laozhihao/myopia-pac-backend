@@ -710,6 +710,6 @@ public class ScreeningAppController {
         if (Objects.isNull(staff)) {
             throw new BusinessException("筛查人员信息异常");
         }
-        return staff.getType().equals(ScreeningOrganizationStaff.AUTO_CREATE_SCREENING_PERSONNEL);
+        return ScreeningOrganizationStaff.AUTO_CREATE_SCREENING_PERSONNEL == staff.getType();
     }
 }

@@ -244,12 +244,7 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
      * @return List<Integer>
      */
     public List<Integer> getByPlanStudentIdPlanIdAndSchoolId(Integer planId, Integer schoolId) {
-        List<VisionScreeningResult> resultList = baseMapper.getByPlanIdAndSchoolId(planId, schoolId);
-        if (CollectionUtils.isEmpty(resultList)) {
-            return new ArrayList<>();
-        }
-
-        return resultList.stream().map(VisionScreeningResult::getScreeningPlanSchoolStudentId).collect(Collectors.toList());
+        return baseMapper.getByPlanIdAndSchoolId(planId, schoolId).stream().map(VisionScreeningResult::getScreeningPlanSchoolStudentId).collect(Collectors.toList());
     }
 
     /**
