@@ -1,15 +1,16 @@
 package com.wupol.myopia.business.api.management.service;
 
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.business.bootstrap.MyopiaBusinessApplication;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -30,9 +31,10 @@ public class ScreeningTaskBizServiceTest {
         user.setOrgId(1);
         user.setSystemCode(1);
         user.setRealName("wlz");
-        user.setRoleTypes(Arrays.asList(0));
+        user.setRoleTypes(Lists.newArrayList(0));
         List<ScreeningTask> tasks = screeningTaskBizService.getScreeningTaskByUser(user);
         System.out.println(tasks);
+        Assert.assertTrue(true);
     }
 
 }

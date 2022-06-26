@@ -32,8 +32,10 @@ import org.springframework.util.Assert;
 import javax.annotation.Resource;
 import java.awt.*;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -181,8 +183,7 @@ public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
                     dir = getDirPath(fileSavePath, fileName, screeningStudentDTO, PDFFileNameConstant.REPORT_FICTITIOUS_QR_CODE_FILE_NAME);
                     className = String.format(PDFFileNameConstant.REPORT_FICTITIOUS_QR_CODE_FILE_NAME, "", "", screeningStudentDTO.getClassName()) + ".pdf";
                 }
-                String uuid = UUID.randomUUID().toString();
-                PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(studentQrCodePdfHtmlUrl, className, uuid);
+                PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(studentQrCodePdfHtmlUrl, className);
                 log.info("响应参数:{}", JSONObject.toJSONString(pdfResponseDTO));
                 try {
                     log.info("文件件保存路径:{}",dir);
@@ -222,8 +223,7 @@ public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
                 Objects.nonNull( exportCondition.getClassId()) ? exportCondition.getClassId() : StringUtils.EMPTY,
                 Objects.nonNull(exportCondition.getPlanStudentIds()) ? exportCondition.getPlanStudentIds() : StringUtils.EMPTY,
                 type);
-        String uuid = UUID.randomUUID().toString();
-        PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(studentQrCodePdfHtmlUrl, fileName+".pdf", uuid);
+        PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(studentQrCodePdfHtmlUrl, fileName+".pdf");
         log.info("response:{}", JSONObject.toJSONString(pdfResponseDTO));
         return pdfResponseDTO.getUrl();
     }

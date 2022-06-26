@@ -3,7 +3,6 @@ package com.wupol.myopia.business.core.screening.organization.domain.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationStaffQueryDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationStaff;
 import org.apache.ibatis.annotations.Param;
 

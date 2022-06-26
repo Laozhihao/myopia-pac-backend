@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.common.utils.util;
 
+import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -7,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
  *
  * @author Simple4H
  */
+@UtilityClass
 public class MaskUtil {
 
     /**

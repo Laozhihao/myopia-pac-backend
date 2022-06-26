@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.aggregation.export.service;
 
+import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionExportDTO;
-import com.wupol.myopia.business.core.system.constants.ScreeningTypeConst;
 
 import java.util.List;
 
@@ -21,7 +21,7 @@ public interface IScreeningDataService {
     /**
      * 获取类型
      *
-     * @return 类型 {@link ScreeningTypeConst}
+     * @return 类型 {@link ScreeningTypeEnum}
      */
     Integer getScreeningType();
 

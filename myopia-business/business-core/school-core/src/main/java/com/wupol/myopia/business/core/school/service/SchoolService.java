@@ -10,7 +10,6 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.PasswordAndUsernameGenerator;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
-import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
@@ -42,7 +41,6 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * 学校Service
@@ -326,33 +324,6 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         return !baseMapper.getByNameNeId(schoolName, id).isEmpty();
     }
 
-    /**
-     * 根据类型初始化班级信息
-     *
-     * @param type         类型 {@link SchoolAge}
-     * @param schoolId     学校ID
-     * @param createUserId 创建人
-     * @return List<SchoolGrade>
-     */
-    private List<SchoolGrade> initGrade(Integer type, Integer schoolId, Integer createUserId) {
-        return GradeCodeEnum.gradeByMap.get(type).stream()
-                .map(s -> new SchoolGrade(createUserId, schoolId, s.getCode(), s.getName()))
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * 更新OAuh2 username
-     *
-     * @param userId   用户ID
-     * @param username 用户名
-     */
-    public void updateOAuthName(Integer userId, String username) {
-        UserDTO userDTO = new UserDTO();
-        userDTO.setId(userId)
-                .setUsername(username);
-        oauthServiceClient.updateUser(userDTO);
-    }
-
     public Set<Integer> getAllSchoolDistrictIdsBySchoolIds(Set<Integer> schoolIds) {
         if (CollectionUtils.isEmpty(schoolIds)) {
             return Collections.emptySet();
@@ -481,11 +452,29 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
             schoolGrade.setGradeCode(GradeCodeEnum.getByName(schoolGrade.getName()).getCode());
             List<SchoolClass> schoolClassList = item.getSchoolClass();
             if (!CollectionUtils.isEmpty(schoolClassList)) {
-                schoolClassList.forEach(schoolClass -> {
-                    schoolClass.setSchoolId(schoolId);
-                });
+                schoolClassList.forEach(schoolClass -> schoolClass.setSchoolId(schoolId));
             }
         });
         schoolGradeService.batchSaveGrade(saveGradeRequestDTO, userId);
+    }
+
+    /**
+     * 获取最新学校编号
+     *
+     * @param districtAreaCode  区/镇/县的行政区域编号，如：210103000
+     * @param areaType          片区类型，如：2-中片区
+     * @param monitorType       监测点类型，如：1-城区
+     * @return java.lang.String
+     **/
+    public String getLatestSchoolNo(String districtAreaCode, Integer areaType, Integer monitorType) {
+        List<School> schoolList = findByList(new School().setDistrictAreaCode(Long.valueOf(districtAreaCode)));
+        // 学校编号（10位） = 省（2位）+ 市（2位）+ 片区（1位）+ 区/镇/县（2位）+ 监测点（1位） + 自增序号（2位）
+        String schoolNoPrefix = districtAreaCode.substring(0, 4) + areaType + districtAreaCode.substring(4, 6) + monitorType;
+        if (CollectionUtils.isEmpty(schoolList)) {
+            return schoolNoPrefix + "01";
+        }
+        String maxSchoolNo = String.valueOf(schoolList.stream().mapToLong(s -> Long.parseLong(s.getSchoolNo())).max().orElse(1000000000));
+        String newTotal = String.format("%02d", Integer.parseInt(maxSchoolNo.substring(maxSchoolNo.length() - 2)) + 1);
+        return schoolNoPrefix + newTotal;
     }
 }

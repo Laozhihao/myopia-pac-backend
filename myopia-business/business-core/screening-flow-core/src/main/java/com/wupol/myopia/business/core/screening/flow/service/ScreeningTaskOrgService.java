@@ -3,7 +3,6 @@ package com.wupol.myopia.business.core.screening.flow.service;
 import cn.hutool.core.lang.Assert;
 import com.alibaba.excel.util.CollectionUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskOrgDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskQueryDTO;
@@ -13,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**

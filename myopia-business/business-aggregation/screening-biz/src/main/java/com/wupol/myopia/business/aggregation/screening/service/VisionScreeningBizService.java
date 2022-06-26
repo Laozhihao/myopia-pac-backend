@@ -70,11 +70,10 @@ public class VisionScreeningBizService {
      * 保存学生眼镜信息
      *
      * @param screeningResultBasicData
-     * @param clientId                 客户端ID
      * @return 返回statconclusion
      */
     @Transactional(rollbackFor = Exception.class)
-    public TwoTuple<VisionScreeningResult, StatConclusion> saveOrUpdateStudentScreenData(ScreeningResultBasicData screeningResultBasicData, String clientId) {
+    public TwoTuple<VisionScreeningResult, StatConclusion> saveOrUpdateStudentScreenData(ScreeningResultBasicData screeningResultBasicData) {
         // 1: 根据筛查计划获得 初筛和复测数据
         // 2: 本次检查数据如果是复测，要验证是否符合初筛条件
         TwoTuple<VisionScreeningResult, VisionScreeningResult> currentAndOtherResult = getAllFirstAndSecondResult(screeningResultBasicData);
@@ -101,7 +100,7 @@ public class VisionScreeningBizService {
         //更新statConclusion表
         visionScreeningResultService.saveOrUpdateStudentScreenData(currentVisionScreeningResult);
         //更新statConclusion表（获取的初筛或复测的数据）
-        StatConclusion statConclusion = statConclusionService.saveOrUpdateStudentScreenData(getScreeningConclusionResult(currentAndOtherResult, clientId));
+        StatConclusion statConclusion = statConclusionService.saveOrUpdateStudentScreenData(getScreeningConclusionResult(currentAndOtherResult));
         // 更新是否绑定手机号码
         setIsBindMq(statConclusion);
         //更新学生表的数据（复测覆盖了初筛的结论）
@@ -172,7 +171,7 @@ public class VisionScreeningBizService {
      * @param allFirstAndSecondResult
      * @return
      */
-    private StatConclusion getScreeningConclusionResult(TwoTuple<VisionScreeningResult, VisionScreeningResult> allFirstAndSecondResult, String clientId) {
+    private StatConclusion getScreeningConclusionResult(TwoTuple<VisionScreeningResult, VisionScreeningResult> allFirstAndSecondResult) {
         VisionScreeningResult currentVisionScreeningResult = allFirstAndSecondResult.getFirst();
         VisionScreeningResult secondVisionScreeningResult = allFirstAndSecondResult.getSecond();
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getById(currentVisionScreeningResult.getScreeningPlanSchoolStudentId());
@@ -187,7 +186,6 @@ public class VisionScreeningBizService {
         statConclusion = statConclusionBuilder.setCurrentVisionScreeningResult(currentVisionScreeningResult, secondVisionScreeningResult).setStatConclusion(statConclusion)
                 .setScreeningPlanSchoolStudent(screeningPlanSchoolStudent)
                 .setGradeCode(schoolGrade.getGradeCode())
-                .setClientId(clientId)
                 .build();
         return statConclusion;
     }
@@ -323,7 +321,6 @@ public class VisionScreeningBizService {
      * @param districtIds 行政区域ids
      */
     public int getScreeningResult(List<Integer> districtIds, List<Integer> taskIds) {
-        int resultCount = visionScreeningResultMapper.selectScreeningResultByDistrictIdAndTaskId(districtIds, taskIds);
-        return resultCount;
+        return visionScreeningResultMapper.selectScreeningResultByDistrictIdAndTaskId(districtIds, taskIds);
     }
 }

@@ -1,21 +1,12 @@
 package com.wupol.myopia.business.core.screening.flow.domain.builder;
 
 import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.wupol.framework.core.util.ObjectsUtil;
-import com.wupol.myopia.base.util.GlassesTypeEnum;
-import com.wupol.myopia.base.constant.SystemCode;
-import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.BigDecimalUtil;
-import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.OtherEyeDiseasesDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.constant.SchoolEnum;
@@ -29,12 +20,10 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import org.apache.commons.collections4.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 /**
  * 筛查数据结论
@@ -50,7 +39,6 @@ public class StatConclusionBuilder {
     private BasicData basicData;
     private boolean isUpdate;
     private String gradeCode;
-    private String clientId;
 
     private StatConclusionBuilder() {
 
@@ -78,18 +66,13 @@ public class StatConclusionBuilder {
         return this;
     }
 
-    public StatConclusionBuilder setClientId(String clientId) {
-        this.clientId = clientId;
-        return this;
-    }
-
     /**
      * 构建
      *
      * @return
      */
     public StatConclusion build() {
-        if (!ObjectsUtil.allNotNull(currentVisionScreeningResult, screeningPlanSchoolStudent, statConclusion,clientId)) {
+        if (!ObjectsUtil.allNotNull(currentVisionScreeningResult, screeningPlanSchoolStudent, statConclusion)) {
             throw new ManagementUncheckedException("StatConclusion构建失败，缺少关键参数");
         }
         // 基本数据的准备
@@ -128,13 +111,10 @@ public class StatConclusionBuilder {
         //复测项次
         this.setRescreenItemNum();
 
-        this.setPhysiqueRescreenErrorNum();
         this.setReview();
-        this.setPhysiqueRescreenErrorNum();
         this.setCooperative();
+        this.setPhysiqueRescreenErrorNum();
         return statConclusion;
-
-        /******有待更新 常见病的结论******/
     }
 
     private void setCooperative() {
@@ -212,8 +192,6 @@ public class StatConclusionBuilder {
         this.setRefractiveError();
 
     }
-
-
 
 
     /**
@@ -357,9 +335,8 @@ public class StatConclusionBuilder {
      * 屈光不正
      */
     private void setRefractiveError() {
-        boolean zeroToSixPlatform = Objects.equals(SystemCode.PRESCHOOL_CLIENT.getCode() + StrUtil.EMPTY, clientId);
-        Boolean leftRefractiveError = StatUtil.isRefractiveError(basicData.getLeftSph(),basicData.getLeftCyl(),basicData.getAge(),zeroToSixPlatform);
-        Boolean rightRefractiveError = StatUtil.isRefractiveError(basicData.getRightSph(),basicData.getRightCyl(),basicData.getAge(),zeroToSixPlatform);
+        Boolean leftRefractiveError = StatUtil.isRefractiveError(basicData.getLeftSph(),basicData.getLeftCyl(),basicData.getAge());
+        Boolean rightRefractiveError = StatUtil.isRefractiveError(basicData.getRightSph(),basicData.getRightCyl(),basicData.getAge());
         statConclusion.setIsRefractiveError(StatUtil.getIsExist(leftRefractiveError,rightRefractiveError));
     }
 
@@ -409,10 +386,24 @@ public class StatConclusionBuilder {
      * 复查
      */
     private void setReview() {
-        Boolean review = StatUtil.isReview(statConclusion.getIsLowVision(), statConclusion.getIsMyopia(), statConclusion.getIsHyperopia(),
-                statConclusion.getIsAstigmatism(), statConclusion.getIsObesity(), statConclusion.getIsOverweight(),
-                statConclusion.getIsMalnutrition(), statConclusion.getIsStunting(), statConclusion.getIsSpinalCurvature());
-        statConclusion.setIsReview(review);
+        List<Boolean> isReviewList =Lists.newArrayList();
+        Consumer<Boolean> consumerTrue = flag -> isReviewList.add(Objects.equals(Boolean.TRUE, flag));
+        Consumer<Boolean> consumerFalse = flag -> isReviewList.add(Objects.equals(Boolean.FALSE, flag));
+
+        Optional.ofNullable(statConclusion.getIsLowVision()).ifPresent(consumerTrue);
+        Optional.ofNullable(statConclusion.getIsMyopia()).ifPresent(consumerTrue);
+        Optional.ofNullable(statConclusion.getIsHyperopia()).ifPresent(consumerTrue);
+        Optional.ofNullable(statConclusion.getIsAstigmatism()).ifPresent(consumerTrue);
+        Optional.ofNullable(statConclusion.getIsObesity()).ifPresent(consumerTrue);
+        Optional.ofNullable(statConclusion.getIsOverweight()).ifPresent(consumerTrue);
+        Optional.ofNullable(statConclusion.getIsMalnutrition()).ifPresent(consumerTrue);
+        Optional.ofNullable(statConclusion.getIsStunting()).ifPresent(consumerTrue);
+        Optional.ofNullable(statConclusion.getIsSpinalCurvature()).ifPresent(consumerFalse);
+
+        if (CollectionUtil.isNotEmpty(isReviewList)){
+           boolean isReview  = isReviewList.stream().filter(Objects::nonNull).anyMatch(Boolean::booleanValue);
+           statConclusion.setIsReview(isReview);
+        }
 
     }
 
@@ -436,7 +427,10 @@ public class StatConclusionBuilder {
         }
     }
 
-
+    /**
+     * 初始化筛查结论数据
+     * @param statConclusion 筛查结论数据
+     */
     public StatConclusionBuilder setStatConclusion(StatConclusion statConclusion) {
         if (statConclusion == null || statConclusion.getId() == null) {
             isUpdate = false;
@@ -455,6 +449,10 @@ public class StatConclusionBuilder {
         statConclusion.setIsValid(basicData.getIsValid());
     }
 
+    /**
+     * 设置年级编码
+     * @param gradeCode 年级编码
+     */
     public StatConclusionBuilder setGradeCode(String gradeCode) {
         this.gradeCode = gradeCode;
         return this;
@@ -667,6 +665,8 @@ public class StatConclusionBuilder {
 
         /**
          * 处理数据有效性
+         * @param visionScreeningResult 筛查结果数据
+         * @param basicData 流转基础数据
          */
         private static void dealWithVaild(VisionScreeningResult visionScreeningResult, BasicData basicData) {
             if (Objects.equals(Boolean.FALSE,visionScreeningResult.getIsDoubleScreen())){
@@ -686,8 +686,8 @@ public class StatConclusionBuilder {
         /**
          * 处理基础的数据
          *
-         * @param screeningPlanSchoolStudent
-         * @param basicData
+         * @param screeningPlanSchoolStudent 筛查计划学生信息
+         * @param basicData 流转基础数据
          */
         private static void dealWithBasicData(ScreeningPlanSchoolStudent screeningPlanSchoolStudent, BasicData basicData) {
             basicData.age = screeningPlanSchoolStudent.getStudentAge();
@@ -698,8 +698,8 @@ public class StatConclusionBuilder {
         /**
          * 处理电脑视光的数据
          *
-         * @param basicData
-         * @param computerOptometry
+         * @param basicData 流转基础数据
+         * @param computerOptometry 电脑验光数据
          */
         private static void dealWithComputerOptometry(BasicData basicData, ComputerOptometryDO computerOptometry) {
             Optional<ComputerOptometryDO> optional = Optional.ofNullable(computerOptometry);
@@ -713,8 +713,8 @@ public class StatConclusionBuilder {
         /**
          * 处理视力相关的数据
          *
-         * @param basicData
-         * @param visionData
+         * @param basicData 流转基础数据
+         * @param visionData 视力数据
          */
         private static void dealWithVisionData(BasicData basicData, VisionDataDO visionData) {
             Optional<VisionDataDO> optional = Optional.ofNullable(visionData);
@@ -726,16 +726,10 @@ public class StatConclusionBuilder {
             basicData.rightNakedVision = optional.map(VisionDataDO::getRightEyeData).map(VisionDataDO.VisionData::getNakedVision).orElse(null);
             basicData.rightCorrectVision = optional.map(VisionDataDO::getRightEyeData).map(VisionDataDO.VisionData::getCorrectedVision).orElse(null);
         }
-
-
     }
 
     private void setPhysiqueRescreenErrorNum() {
-        if (anotherVisionScreeningResult != null) {
-            statConclusion.setPhysiqueRescreenErrorNum(calculatePhysiqueRescreenErrorNum());
-        } else {
-            statConclusion.setPhysiqueRescreenErrorNum(0);
-        }
+        statConclusion.setPhysiqueRescreenErrorNum(Objects.nonNull(anotherVisionScreeningResult) ? calculatePhysiqueRescreenErrorNum() : 0);
     }
 
     /**

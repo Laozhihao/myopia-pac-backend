@@ -113,7 +113,7 @@ public class ScheduledTasksExecutor {
      * @param date 日期
      */
     public void statistic(String date,Integer planId,Boolean isAll){
-        if(isAll){
+        if(Objects.equals(isAll,Boolean.TRUE)){
             List<Integer> yesterdayScreeningPlanIds = screeningPlanService.list().stream().map(ScreeningPlan::getId).filter(id->Objects.nonNull(id) && id>=127).collect(Collectors.toList());
             if (CollectionUtil.isEmpty(yesterdayScreeningPlanIds)) {
                 log.info("筛查数据统计：历史无筛查数据，无需统计");
@@ -148,6 +148,10 @@ public class ScheduledTasksExecutor {
         log.info("筛查数据统计,数据处理完成");
     }
 
+    /**
+     * 根据筛查计划ID集合处理筛查结果统计
+     * @param screeningPlanIds 筛查计划ID集合
+     */
     public void screeningResultStatisticByPlanIds(List<Integer> screeningPlanIds){
 
         CompletableFuture<Void> districtFuture = CompletableFuture.runAsync(() -> {
@@ -400,7 +404,7 @@ public class ScheduledTasksExecutor {
     /**
      * 每天9点执行，发送短信
      */
-    @Scheduled(cron = "0 0 9 * * ?")
+//    @Scheduled(cron = "0 0 9 * * ?")
     @Transactional(rollbackFor = Exception.class)
     public void sendSMSNotice() {
         List<VisionScreeningResult> studentResult = visionScreeningResultService.getStudentResults();

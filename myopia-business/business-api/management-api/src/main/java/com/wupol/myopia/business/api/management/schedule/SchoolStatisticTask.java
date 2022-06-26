@@ -44,6 +44,7 @@ public class SchoolStatisticTask {
 
     /**
      * 按学校统计
+     * @param yesterdayScreeningPlanIds 筛查计划ID集合
      */
     public void schoolStatistics(List<Integer> yesterdayScreeningPlanIds) {
 
@@ -71,6 +72,9 @@ public class SchoolStatisticTask {
 
     /**
      * 视力筛查结果统计
+     * @param statConclusionList 筛查结论数据集合
+     * @param visionScreeningResultStatisticList 视力筛查结果统计数据集合
+     * @param commonDiseaseScreeningResultStatisticList 常见病筛查结果统计数据集合
      */
     private void screeningResultStatistic(List<StatConclusion> statConclusionList,
                                                 List<VisionScreeningResultStatistic> visionScreeningResultStatisticList,
@@ -92,6 +96,9 @@ public class SchoolStatisticTask {
 
     /**
      * 统计逻辑
+     * @param statConclusions 筛查结论数据集合
+     * @param visionScreeningResultStatisticList 视力筛查结果统计数据集合
+     * @param commonDiseaseScreeningResultStatisticList 常见病筛查结果统计数据集合
      */
     private void statistics(List<StatConclusion> statConclusions,
                             List<VisionScreeningResultStatistic> visionScreeningResultStatisticList,

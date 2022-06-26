@@ -124,23 +124,20 @@ public class CredentialModificationHandler {
         if (screeningPlanSchoolStudent == null) {
             throw new BusinessException("业务异常,screeningPlanSchoolStudent 不能为空");
         }
-
+        Integer planSchoolStudentId = screeningPlanSchoolStudent.getId();
         if (StringUtils.isNotBlank(screeningPlanSchoolStudent.getIdCard()) && StringUtils.isNotBlank(screeningPlanSchoolStudent.getPassport())) {
-            throw new BusinessException("业务异常: id 和 passport同时存在, screeningPlanSchoolStudentId = " + screeningPlanSchoolStudent.getId());
+            throw new BusinessException("业务异常: id 和 passport同时存在, screeningPlanSchoolStudentId = " + planSchoolStudentId);
         }
         CredentialModificationHandler.ProcessResult processResult = getResult(screeningPlanSchoolStudent.getIdCard(), screeningPlanSchoolStudent.getPassport(), updatePlanStudentRequestDTO.getIdCard(), updatePlanStudentRequestDTO.getPassport());
         //从多端学生中查找数据
         Student existStudentByCredentialNO = getExistStudentByCredentialNO(processResult.getUpdateCredential());
         //更新或者插入多端学生
-        Student updateStudent = updateOrInsertByCredentialNO(processResult.getUpdateCredential(), existStudentByCredentialNO, updatePlanStudentRequestDTO);
-        if (updateStudent != null) {
-            screeningPlanSchoolStudent.setIdCard(updateStudent.getIdCard());
-            screeningPlanSchoolStudent.setPassport(updateStudent.getPassport());
-            screeningPlanSchoolStudent.setStudentId(updateStudent.getId());
-        }
+        Student updateStudent = updateOrInsertByCredentialNO(processResult.getUpdateCredential(), existStudentByCredentialNO, updatePlanStudentRequestDTO, planSchoolStudentId);
+        screeningPlanSchoolStudent.setIdCard(updateStudent.getIdCard());
+        screeningPlanSchoolStudent.setPassport(updateStudent.getPassport());
+        screeningPlanSchoolStudent.setStudentId(updateStudent.getId());
         screeningPlanSchoolStudent.setClassName(schoolClassService.getById(updatePlanStudentRequestDTO.getClassId()).getName());
         screeningPlanSchoolStudent.setGradeName(schoolGradeService.getById(updatePlanStudentRequestDTO.getGradeId()).getName());
-        screeningPlanSchoolStudentService.updateById(screeningPlanSchoolStudent);
         // 更新筛查结果
         visionScreeningResultService.updatePlanStudentAndVisionResult(screeningPlanService.getById(screeningPlanSchoolStudent.getScreeningPlanId()), Lists.newArrayList(screeningPlanSchoolStudent));
         discardStudent(processResult.getDiscardCredential(), screeningPlanSchoolStudent.getScreeningPlanId());
@@ -188,13 +185,20 @@ public class CredentialModificationHandler {
      * @param credentialTypeAndContent
      * @param existStudentByCredentialNO
      * @param updatePlanStudentRequestDTO
+     * @param planSchoolStudentId
+     *
      * @return
      */
-    private Student updateOrInsertByCredentialNO(CredentialTypeAndContent credentialTypeAndContent, Student existStudentByCredentialNO, UpdatePlanStudentRequestDTO updatePlanStudentRequestDTO) {
+    private Student updateOrInsertByCredentialNO(CredentialTypeAndContent credentialTypeAndContent, Student existStudentByCredentialNO, UpdatePlanStudentRequestDTO updatePlanStudentRequestDTO, Integer planSchoolStudentId) {
+        VisionScreeningResult result = visionScreeningResultService.getByPlanStudentId(planSchoolStudentId);
+        if (Objects.nonNull(result)) {
+            updatePlanStudentRequestDTO.setLastScreeningTime(result.getCreateTime());
+        }
         if (existStudentByCredentialNO == null) {
             //新增数据
             Student newStudent = createNewStudent(updatePlanStudentRequestDTO);
-            commonImportServiceCopy.insertSchoolStudent(Arrays.asList(newStudent));
+            newStudent.setLastScreeningTime(Objects.nonNull(result) ? result.getCreateTime() : null);
+            commonImportServiceCopy.insertSchoolStudent(Collections.singletonList(newStudent));
             return newStudent;
         }
         return updateStudent(credentialTypeAndContent, existStudentByCredentialNO, updatePlanStudentRequestDTO);
@@ -219,6 +223,7 @@ public class CredentialModificationHandler {
         student.setClassId(updatePlanStudentRequestDTO.getClassId());
         student.setGradeId(updatePlanStudentRequestDTO.getGradeId());
         student.setNation(updatePlanStudentRequestDTO.getNation());
+        student.setLastScreeningTime(updatePlanStudentRequestDTO.getLastScreeningTime());
         if (StringUtils.isNotBlank(updatePlanStudentRequestDTO.getParentPhone())) {
             student.setParentPhone(updatePlanStudentRequestDTO.getParentPhone());
         }
@@ -251,6 +256,7 @@ public class CredentialModificationHandler {
         student.setUpdateTime(new Date());
         student.setSourceClient(SourceClientEnum.SCREENING_PLAN.type);
         student.setNation(updatePlanStudentRequestDTO.getNation());
+        student.setLastScreeningTime(updatePlanStudentRequestDTO.getLastScreeningTime());
         studentService.saveStudent(student);
         return student;
     }
@@ -286,6 +292,7 @@ public class CredentialModificationHandler {
      */
     public void deletedStudent(Integer studentId, Integer schoolId, Integer planId) {
         List<Integer> studentIds = Lists.newArrayList(studentId);
+        // TODO: 很危险的操作！！！基本上查出了整个表的筛查学生
         Map<Integer, ScreeningPlanSchoolStudent> planStudentMap = screeningPlanSchoolStudentService.getByNePlanId(planId).stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getStudentId, Function.identity(), (s1, s2) -> s1));
         Map<Integer, SchoolStudent> schoolStudentMap = schoolStudentService.getByStudentIdsAndSchoolId(studentIds, schoolId).stream().collect(Collectors.toMap(SchoolStudent::getStudentId, Function.identity(), (s1, s2) -> s1));
         Map<Integer, VisionScreeningResult> resultMap = visionScreeningResultService.getByStudentIds(studentIds).stream().collect(Collectors.toMap(VisionScreeningResult::getStudentId, Function.identity(), (s1, s2) -> s1));

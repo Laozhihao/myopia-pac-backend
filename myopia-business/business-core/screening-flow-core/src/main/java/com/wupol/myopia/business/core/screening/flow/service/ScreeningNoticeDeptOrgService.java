@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.core.screening.flow.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -11,10 +10,8 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningNoticeQ
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningNoticeDeptOrgMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNoticeDeptOrg;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTaskOrg;
 import org.springframework.stereotype.Service;
 
-import java.sql.Wrapper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -70,7 +67,7 @@ public class ScreeningNoticeDeptOrgService extends BaseService<ScreeningNoticeDe
         return baseMapper.getByNoticeId(screeningNoticeId);
     }
 
-    public IPage<ScreeningNoticeDTO> selectPageByQuery(IPage<ScreeningNotice> page, ScreeningNoticeQueryDTO query) {
+    public IPage<ScreeningNoticeDTO> selectPageByQuery(IPage<?> page, ScreeningNoticeQueryDTO query) {
         return baseMapper.selectPageByQuery(page, query);
     }
 
@@ -112,11 +109,11 @@ public class ScreeningNoticeDeptOrgService extends BaseService<ScreeningNoticeDe
      * @param noticeId
      * @param acceptOrgId
      * @param genTaskOrPlanId 生成的任务或计划Id
-     * @param user
+     * @param currentUserId 当前用户ID
      */
-    public void statusReadAndCreate(Integer noticeId, Integer acceptOrgId, Integer genTaskOrPlanId, CurrentUser user) {
+    public void statusReadAndCreate(Integer noticeId, Integer acceptOrgId, Integer genTaskOrPlanId, Integer currentUserId) {
         //1. 更新状态与任务/计划ID
-        baseMapper.updateStatusAndTaskPlanIdByNoticeIdAndAcceptOrgId(noticeId, acceptOrgId, genTaskOrPlanId, user.getId(), CommonConst.STATUS_NOTICE_CREATED);
+        baseMapper.updateStatusAndTaskPlanIdByNoticeIdAndAcceptOrgId(noticeId, acceptOrgId, genTaskOrPlanId, currentUserId, CommonConst.STATUS_NOTICE_CREATED);
     }
 
     /**
@@ -138,22 +135,5 @@ public class ScreeningNoticeDeptOrgService extends BaseService<ScreeningNoticeDe
             }
           batchUpdateOrSave(orgList);
         }
-    }
-
-    public void saveSelfRelease(ScreeningNotice screeningNotice) {
-        ScreeningNoticeDeptOrg screeningNoticeDeptOrg  = new ScreeningNoticeDeptOrg();
-        screeningNoticeDeptOrg.setScreeningNoticeId(screeningNotice.getId());
-        screeningNoticeDeptOrg.setDistrictId(screeningNotice.getDistrictId());
-        screeningNoticeDeptOrg.setAcceptOrgId(screeningNotice.getGovDeptId());
-        screeningNoticeDeptOrg.setOperationStatus(0);
-        screeningNoticeDeptOrg.setOperatorId(screeningNotice.getCreateUserId());
-        screeningNoticeDeptOrg.setCreateTime(screeningNotice.getCreateTime());
-        save(screeningNoticeDeptOrg);
-    }
-
-    public void deleteScreeningNotice(Integer id) {
-        QueryWrapper<ScreeningNoticeDeptOrg> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("screening_notice_id",id);
-        baseMapper.delete(queryWrapper);
     }
 }

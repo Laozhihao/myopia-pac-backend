@@ -38,7 +38,7 @@ public class ScreeningResultStatisticService extends BaseService<ScreeningResult
      */
     public void saveVisionScreeningResultStatistic(VisionScreeningResultStatistic visionScreeningResultStatistic){
         Integer schoolType = visionScreeningResultStatistic.getSchoolType();
-        if (8 == schoolType){
+        if (Objects.equals(schoolType,8)){
             saveKindergartenVisionScreening(visionScreeningResultStatistic);
         }else {
             savePrimarySchoolAndAboveVisionScreening(visionScreeningResultStatistic);
@@ -70,7 +70,7 @@ public class ScreeningResultStatisticService extends BaseService<ScreeningResult
      */
     public void saveCommonDiseaseScreeningResultStatistic(CommonDiseaseScreeningResultStatistic commonDiseaseScreeningResultStatistic){
         Integer schoolType = commonDiseaseScreeningResultStatistic.getSchoolType();
-        if (8 == schoolType){
+        if (Objects.equals(schoolType,8)){
             saveKindergartenCommonDiseaseScreening(commonDiseaseScreeningResultStatistic);
         }else {
             savePrimarySchoolAndAboveCommonDiseaseScreening(commonDiseaseScreeningResultStatistic);
@@ -119,7 +119,14 @@ public class ScreeningResultStatisticService extends BaseService<ScreeningResult
         saveOrUpdate(screeningResultStatistic);
     }
 
-
+    /**
+     * 根据通知ID和当前区域ID及子区域ID获取筛查结果统计数据
+     * @param noticeId 通知ID
+     * @param currentDistrictId 当前区域ID
+     * @param isTotal 是否是合计
+     * @param screeningType 筛查类型
+     * @param isKindergarten 是否是幼儿园
+     */
     public List<ScreeningResultStatistic> getStatisticByNoticeIdAndCurrentChildDistrictIds(Integer noticeId, Integer currentDistrictId,
                                                                                            boolean isTotal, Integer screeningType, boolean isKindergarten)  {
         if (ObjectsUtil.allNotNull(noticeId,currentDistrictId)){
@@ -140,6 +147,14 @@ public class ScreeningResultStatisticService extends BaseService<ScreeningResult
         return Lists.newArrayList();
     }
 
+    /**
+     *
+     * @param screeningResultStatistics 筛查结果统计集合
+     * @param noticeId 通知ID
+     * @param isTotal 是否是合计
+     * @param screeningType 筛查类型
+     * @param isKindergarten 是否幼儿园
+     */
     private Consumer<List<Integer>> getAction(List<ScreeningResultStatistic> screeningResultStatistics,
                                               Integer noticeId, boolean isTotal,Integer screeningType,boolean isKindergarten){
         return districtIdList -> {
@@ -149,10 +164,22 @@ public class ScreeningResultStatisticService extends BaseService<ScreeningResult
         };
     }
 
+    /**
+     * 获取学校类型
+     * @param isKindergarten 是否幼儿园
+     */
     private List<Integer> getSchoolType(boolean isKindergarten) {
         return isKindergarten?Lists.newArrayList(8):Lists.newArrayList(0,1,2,3,4,5,6,7);
     }
 
+    /**
+     * 根据通知ID和当前区域ID获取筛查结果统计数据
+     * @param noticeId 通知ID
+     * @param currentDistrictId 当前区域ID
+     * @param isTotal 是否是合计
+     * @param screeningType 筛查类型
+     * @param isKindergarten 是否是幼儿园
+     */
     public List<ScreeningResultStatistic> getStatisticByNoticeIdAndCurrentDistrictId(Integer noticeId, Integer currentDistrictId, boolean isTotal,Integer screeningType,boolean isKindergarten)  {
         if (ObjectsUtil.allNotNull(noticeId,currentDistrictId)){
             LambdaQueryWrapper<ScreeningResultStatistic> queryWrapper = getQueryWrapper(noticeId, isTotal, screeningType,isKindergarten);
@@ -162,6 +189,13 @@ public class ScreeningResultStatisticService extends BaseService<ScreeningResult
         return Lists.newArrayList();
     }
 
+    /**
+     * 组装查询条件
+     * @param noticeId 通知ID
+     * @param isTotal 是否是合计
+     * @param screeningType 筛查类型
+     * @param isKindergarten 是否有幼儿园
+     */
     private LambdaQueryWrapper<ScreeningResultStatistic> getQueryWrapper(Integer noticeId,boolean isTotal,Integer screeningType,boolean isKindergarten){
         LambdaQueryWrapper<ScreeningResultStatistic> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ScreeningResultStatistic::getScreeningNoticeId, noticeId);
@@ -172,6 +206,11 @@ public class ScreeningResultStatisticService extends BaseService<ScreeningResult
     }
 
 
+    /**
+     * 根据区域ID集合获取筛查结果统计集合
+     * @param districtIds 区域ID集合
+     * @param isTotal 是否是合计
+     */
     public List<ScreeningResultStatistic> getStatisticByDistrictIds(Set<Integer> districtIds, Boolean isTotal) {
         List<ScreeningResultStatistic> screeningResultStatistics=Lists.newArrayList();
         if (CollectionUtil.isNotEmpty(districtIds)){
@@ -186,6 +225,11 @@ public class ScreeningResultStatisticService extends BaseService<ScreeningResult
         return screeningResultStatistics;
     }
 
+    /**
+     * 根据当前区域ID获取筛查结果统计数据集合
+     * @param districtId 区域ID
+     * @param isTotal 是否合计
+     */
     public List<ScreeningResultStatistic> getStatisticByCurrentDistrictId(Integer districtId, Boolean isTotal) {
         LambdaQueryWrapper<ScreeningResultStatistic> queryWrapper= new LambdaQueryWrapper<>();
         Optional.ofNullable(isTotal).ifPresent(b->queryWrapper.eq(ScreeningResultStatistic::getIsTotal,b));
@@ -196,8 +240,8 @@ public class ScreeningResultStatisticService extends BaseService<ScreeningResult
 
     /**
      * 通过planId、学校ID获取列表
-     * @param planIds
-     * @param schoolId
+     * @param planIds 计划ID集合
+     * @param schoolId 学校ID
      */
     public List<ScreeningResultStatistic> getByPlanIdsAndSchoolId(List<Integer> planIds, Integer schoolId) {
         LambdaQueryWrapper<ScreeningResultStatistic> queryWrapper =new LambdaQueryWrapper<>();

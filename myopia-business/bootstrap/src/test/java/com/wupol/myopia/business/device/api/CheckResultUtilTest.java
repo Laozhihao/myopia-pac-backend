@@ -35,7 +35,7 @@ public class CheckResultUtilTest {
     public void testGetCheckResult() throws IOException {
         DeviceScreenDataDTO deviceScreenDataDTO = this.getObj("json/checkResult.json", DeviceScreenDataDTO.class);
         String checkResult = CheckResultUtil.getCheckResult(deviceScreenDataDTO);
-        Assert.assertTrue("红光反射、远视、中度远视".equals(checkResult));
+        Assert.assertEquals("红光反射、远视、中度远视", checkResult);
     }
 
 
@@ -53,7 +53,7 @@ public class CheckResultUtilTest {
      */
     @Test
     public void testGetHyperopiaLevel() {
-        Assert.assertTrue(CheckResultUtil.getHyperopiaLevel(36, 3.6, 3.5) == 0);
+        Assert.assertEquals(0, CheckResultUtil.getHyperopiaLevel(36, 3.6, 3.5));
     }
 
     /**

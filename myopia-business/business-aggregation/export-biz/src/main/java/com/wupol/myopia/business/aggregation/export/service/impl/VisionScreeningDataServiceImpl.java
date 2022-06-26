@@ -7,12 +7,12 @@ import com.wupol.myopia.business.aggregation.export.service.IScreeningDataServic
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
+import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.common.utils.constant.WarningLevel;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningResultPahtConst;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.VisionScreeningResultExportDTO;
-import com.wupol.myopia.business.core.system.constants.ScreeningTypeConst;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -64,7 +64,7 @@ public class VisionScreeningDataServiceImpl implements IScreeningDataService {
 
     @Override
     public Integer getScreeningType() {
-        return ScreeningTypeConst.VISION;
+        return ScreeningTypeEnum.VISION.type;
     }
 
     @Override

@@ -26,7 +26,7 @@ public class ScreeningPlanSchoolDTO extends ScreeningPlanSchool {
     /**
      * 筛查情况
      */
-    private String ScreeningSituation;
+    private String screeningSituation;
     /**
      * 问卷学生数
      */

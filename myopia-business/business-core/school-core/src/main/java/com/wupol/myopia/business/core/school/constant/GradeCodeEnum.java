@@ -16,6 +16,11 @@ import java.util.*;
 public enum GradeCodeEnum {
 
     /**
+     * 未知
+     */
+    UNKNOWN("未知", "-1", SchoolAge.UNKNOWN.code, "UNKNOWN"),
+
+    /**
      * 小学
      */
     ONE_PRIMARY_SCHOOL("一年级", "01", SchoolAge.PRIMARY.code, "ONE_PRIMARY_SCHOOL"),
@@ -48,19 +53,19 @@ public enum GradeCodeEnum {
     THREE_VOCATIONAL_HIGH_SCHOOL("职高三", "33", SchoolAge.VOCATIONAL_HIGH.code, "THREE_VOCATIONAL_HIGH_SCHOOL"),
 
     /**
-     * 幼儿园
-     */
-    ONE_KINDERGARTEN("小班", "51", SchoolAge.KINDERGARTEN.code, "ONE_KINDERGARTEN"),
-    TWO_KINDERGARTEN("中班", "52", SchoolAge.KINDERGARTEN.code, "TWO_KINDERGARTEN"),
-    THREE_KINDERGARTEN("大班", "53", SchoolAge.KINDERGARTEN.code, "THREE_KINDERGARTEN"),
-
-    /**
      * 大学
      */
     ONE_UNIVERSITY("大一", "41", SchoolAge.UNIVERSITY.code, "ONE_UNIVERSITY"),
     TWO_UNIVERSITY("大二", "42", SchoolAge.UNIVERSITY.code, "TWO_UNIVERSITY"),
     THREE_UNIVERSITY("大三", "43", SchoolAge.UNIVERSITY.code, "THREE_UNIVERSITY"),
-    FOUR_UNIVERSITY("大四", "44", SchoolAge.UNIVERSITY.code, "FOUR_UNIVERSITY");
+    FOUR_UNIVERSITY("大四", "44", SchoolAge.UNIVERSITY.code, "FOUR_UNIVERSITY"),
+
+    /**
+     * 幼儿园
+     */
+    ONE_KINDERGARTEN("小班", "51", SchoolAge.KINDERGARTEN.code, "ONE_KINDERGARTEN"),
+    TWO_KINDERGARTEN("中班", "52", SchoolAge.KINDERGARTEN.code, "TWO_KINDERGARTEN"),
+    THREE_KINDERGARTEN("大班", "53", SchoolAge.KINDERGARTEN.code, "THREE_KINDERGARTEN");
 
     /**
      * 名称
@@ -82,6 +87,7 @@ public enum GradeCodeEnum {
      * 英文名称
      */
     private final String enName;
+
 
     GradeCodeEnum(String name, String code, Integer type, String enName) {
         this.name = name;
@@ -144,19 +150,6 @@ public enum GradeCodeEnum {
     }
 
     /**
-     * 根据类型获取描述
-     *
-     * @param code code
-     * @return 描述
-     */
-    public static String getName(String code) {
-        GradeCodeEnum h = Arrays.stream(GradeCodeEnum.values())
-                .filter(item -> item.code.equals(code))
-                .findFirst().orElse(null);
-        return Objects.nonNull(h) ? h.name : null;
-    }
-
-    /**
      * 根据code获取
      *
      * @param code code
@@ -165,7 +158,7 @@ public enum GradeCodeEnum {
     public static GradeCodeEnum getByCode(String code) {
         return Arrays.stream(GradeCodeEnum.values())
                 .filter(item -> item.code.equals(code))
-                .findFirst().orElse(null);
+                .findFirst().orElse(UNKNOWN);
     }
 
     /**
@@ -177,6 +170,6 @@ public enum GradeCodeEnum {
     public static GradeCodeEnum getByName(String name) {
         return Arrays.stream(GradeCodeEnum.values())
                 .filter(item -> item.name.equals(name))
-                .findFirst().orElse(null);
+                .findFirst().orElse(UNKNOWN);
     }
 }

@@ -49,8 +49,6 @@ import java.util.stream.Collectors;
 public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrganizationStaffMapper, ScreeningOrganizationStaff> {
 
     @Resource
-    private ScreeningOrganizationStaffService screeningOrganizationStaffService;
-    @Resource
     private ScreeningOrganizationService screeningOrganizationService;
     @Resource
     private OauthServiceClient oauthServiceClient;
@@ -394,7 +392,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
     public void checkScreeningOrganizationStaffAmount(Integer screeningOrgId,List<UserDTO> listMap){
 
         ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(screeningOrgId);
-        int totalNum = screeningOrganizationStaffService.countByScreeningOrgId(screeningOrgId);
+        int totalNum = countByScreeningOrgId(screeningOrgId);
         Assert.isTrue(totalNum < screeningOrganization.getAccountNum(), "账号数量已达上限，请联系管理员!");
 
         if (CollectionUtils.isNotEmpty(listMap) && listMap.size()>(screeningOrganization.getAccountNum()-totalNum)){

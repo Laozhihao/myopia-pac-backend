@@ -1,28 +1,30 @@
 package com.wupol.myopia.base.util;
 
 import com.google.common.collect.Maps;
+import lombok.experimental.UtilityClass;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.util.Assert;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * BigDecimal工具类
  *
  * @author Simple4H
  */
+@UtilityClass
 public class BigDecimalUtil {
 
-    private static Map<Integer,String> DECIMAL_FORMAT = Maps.newHashMap();
+    private static Map<Integer,String> decimalFormat = Maps.newHashMap();
 
     static {
-        DECIMAL_FORMAT.put(1,"0.0");
-        DECIMAL_FORMAT.put(2,"0.00");
-        DECIMAL_FORMAT.put(3,"0.000");
-        DECIMAL_FORMAT.put(4,"0.0000");
+        decimalFormat.put(1,"0.0");
+        decimalFormat.put(2,"0.00");
+        decimalFormat.put(3,"0.000");
+        decimalFormat.put(4,"0.0000");
     }
 
     /**
@@ -45,7 +47,12 @@ public class BigDecimalUtil {
     public static boolean decimalEqual(BigDecimal val1, String val2) {
         return val1.compareTo(new BigDecimal(val2)) == 0;
     }
-
+    /**
+     * 等于
+     *
+     * @param val1 值1
+     * @param val2 值2
+     */
     public static boolean decimalEqual(BigDecimal val1, BigDecimal val2) {
         return val1.compareTo(val2) == 0;
     }
@@ -256,7 +263,6 @@ public class BigDecimalUtil {
         return val1.subtract(val2);
     }
 
-
     /**
      * 判断是否在某个区间，左闭右开区间
      *
@@ -276,12 +282,9 @@ public class BigDecimalUtil {
      * @param standard 标准值
      * @return true：误差 false：没误差
      */
-    public static boolean isDeviation(BigDecimal firstScreening,BigDecimal reScreening,BigDecimal standard){
-        if (firstScreening==null||reScreening==null){
-            return false;
-        }
+    public static boolean isDeviation(BigDecimal firstScreening, BigDecimal reScreening, BigDecimal standard){
         BigDecimal result = subtractAbsBigDecimal(firstScreening, reScreening);
-        return result.abs().compareTo(standard) > 0;
+        return Objects.isNull(result) ? Boolean.FALSE : result.abs().compareTo(standard) > 0;
     }
 
     /**
@@ -291,10 +294,7 @@ public class BigDecimalUtil {
      * @return 绝对差值
      */
     public static BigDecimal subtractAbsBigDecimal(BigDecimal firstScreening, BigDecimal reScreening) {
-        BigDecimal first = Optional.ofNullable(firstScreening).orElse(new BigDecimal("0"));
-        BigDecimal retest = Optional.ofNullable(reScreening).orElse(new BigDecimal("0"));
-
-        return first.subtract(retest).abs();
+        return ObjectUtils.allNotNull(firstScreening, reScreening) ? firstScreening.subtract(reScreening).abs() : null;
     }
 
     /**
@@ -332,7 +332,7 @@ public class BigDecimalUtil {
         if (Objects.isNull(source)){
             return null;
         }
-        DecimalFormat decimalFormat = new DecimalFormat(DECIMAL_FORMAT.get(scale));
+        DecimalFormat decimalFormat = new DecimalFormat(BigDecimalUtil.decimalFormat.get(scale));
         return new BigDecimal(decimalFormat.format(source));
     }
 

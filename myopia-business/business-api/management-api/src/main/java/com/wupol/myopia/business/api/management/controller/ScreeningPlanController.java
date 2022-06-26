@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.controller;
 
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.csp.sentinel.util.StringUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.ApiResult;
@@ -33,12 +34,10 @@ import com.wupol.myopia.business.core.school.service.SchoolAdminService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.service.*;
-import com.wupol.myopia.business.core.screening.flow.util.ReScreenCardUtil;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.system.service.NoticeService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -52,7 +51,10 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -112,10 +114,13 @@ public class ScreeningPlanController {
     @PostMapping()
     public void createInfo(@RequestBody @Valid ScreeningPlanDTO screeningPlanDTO) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        // 校验用户机构
-        if (user.isGovDeptUser() || user.isPlatformAdminUser()) {
-            // 政府部门，无法新增计划
+        // 校验用户机构，政府部门，无法新增计划
+        if (user.isGovDeptUser()) {
             throw new ValidationException("无权限");
+        }
+        // 平台管理员，筛查机构ID必传
+        if (user.isPlatformAdminUser()) {
+            Assert.notNull(screeningPlanDTO.getScreeningOrgId(), "筛查机构ID不能为空");
         }
         // 若为筛查人员或医生，只能发布自己机构的计划
         if (user.isScreeningUser() || (user.isHospitalUser() && (Objects.nonNull(user.getScreeningOrgId())))) {
@@ -137,12 +142,12 @@ public class ScreeningPlanController {
             ScreeningTask screeningTask = screeningTaskService.getById(screeningPlanDTO.getScreeningTaskId());
             screeningPlanDTO.setSrcScreeningNoticeId(screeningTask.getScreeningNoticeId()).setDistrictId(screeningTask.getDistrictId()).setGovDeptId(screeningTask.getGovDeptId());
         } else {
-            // 用户自己新建的筛查计划需设置districtIdmanagement/screeningNotice
+            // 用户自己新建的筛查计划需设置districtId
             ScreeningOrganization organization = screeningOrganizationService.getById(user.getScreeningOrgId());
             screeningPlanDTO.setDistrictId(organization.getDistrictId());
         }
         screeningPlanDTO.setCreateUserId(user.getId());
-        screeningPlanService.saveOrUpdateWithSchools(user, screeningPlanDTO, true);
+        screeningPlanService.saveOrUpdateWithSchools(user.getId(), screeningPlanDTO, true);
     }
 
     /**
@@ -168,9 +173,8 @@ public class ScreeningPlanController {
         if (DateUtil.isDateBeforeToday(screeningPlanDTO.getStartTime())) {
             throw new ValidationException(BizMsgConstant.VALIDATION_START_TIME_ERROR);
         }
-        CurrentUser user = CurrentUserUtil.getCurrentUser();
         screeningPlanDTO.setScreeningOrgId(screeningPlan.getScreeningOrgId());
-        screeningPlanService.saveOrUpdateWithSchools(user, screeningPlanDTO, false);
+        screeningPlanService.saveOrUpdateWithSchools(CurrentUserUtil.getCurrentUser().getId(), screeningPlanDTO, false);
     }
 
     /**
@@ -257,9 +261,7 @@ public class ScreeningPlanController {
     public List<ScreeningPlanSchoolStudent> queryGradesInfo(@PathVariable Integer screeningPlanId, @PathVariable Integer schoolId,
                                                             @PathVariable Integer gradeId, @PathVariable Integer classId) {
 
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getByPlanIdAndSchoolIdAndGradeIdAndClassId(screeningPlanId, schoolId,
-                gradeId, classId);
-        return screeningPlanSchoolStudents;
+        return screeningPlanSchoolStudentService.getByPlanIdAndSchoolIdAndGradeIdAndClassId(screeningPlanId, schoolId, gradeId, classId);
     }
 
     /**
@@ -456,43 +458,21 @@ public class ScreeningPlanController {
         screeningPlanStudentBizService.updatePlanStudent(requestDTO);
     }
 
-
-
     /**
      * 增加筛查时间
      * @param screeningPlanDTO
      */
     @PostMapping("/increased/screeningTime")
     public void updateScreeningEndTime(@RequestBody ScreeningPlanDTO screeningPlanDTO) {
-        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        Assert.isTrue(Objects.nonNull(screeningPlanDTO.getId()), "计划Id不能为空");
-        Assert.isTrue(Objects.nonNull(screeningPlanDTO.getEndTime()), "结束时间不能为空");
-        ScreeningPlan screeningPlans = new ScreeningPlan();
-        screeningPlans.setId(screeningPlanDTO.getId());
-        ScreeningPlan screeningPlan = screeningPlanService.findOne(screeningPlans);
-        if (!currentUser.isPlatformAdminUser()){
-            if (screeningPlan.getUpdateScreeningEndTimeStatus()==ScreeningPlan.MODIFIED){
-                throw new ValidationException("该计划已经增加过时间");
-            }
-            screeningPlan.setUpdateScreeningEndTimeStatus(ScreeningPlan.MODIFIED);
+        Assert.notNull(screeningPlanDTO.getId(), "计划Id不能为空");
+        Assert.notNull(screeningPlanDTO.getEndTime(), "结束时间不能为空");
+        if (!CurrentUserUtil.getCurrentUser().isPlatformAdminUser()){
+            ScreeningPlan screeningPlan = screeningPlanService.getById(screeningPlanDTO.getId());
+            Assert.isTrue(screeningPlan.getUpdateScreeningEndTimeStatus() == ScreeningPlan.NOT_CHANGED, "该计划已经增加过时间");
         }
-        screeningPlan.setEndTime(screeningPlanDTO.getEndTime());
-        screeningPlanService.updateById(screeningPlan);
+        ScreeningPlan plan = new ScreeningPlan().setId(screeningPlanDTO.getId()).setEndTime(screeningPlanDTO.getEndTime()).setUpdateScreeningEndTimeStatus(ScreeningPlan.MODIFIED);
+        screeningPlanService.updateById(plan);
     }
-
-    /**
-     * 获取结束时间添加指定天数后的时间
-     * @param endTime
-     * @param days
-     * @return
-     */
-    @GetMapping("/getTncreaseDate")
-    public Date getTncreaseDate(String endTime,int days) {
-        Assert.isTrue(Objects.nonNull(endTime), "结束时间不能为空");
-        return DateUtil.getTncreaseDate(DateUtil.parse(endTime),days);
-    }
-
-
 
     /**
      * 通过条件获取筛查学生
@@ -573,35 +553,6 @@ public class ScreeningPlanController {
 
     /**
      * @Description: 学生筛查信息
-     * @Param: [筛查计划ID, 筛查机构ID, 学校ID, 年级ID, 班级ID]
-     * @return: void
-     * @Author: 钓猫的小鱼
-     * @Date: 2021/12/29
-     */
-    @GetMapping("/plan/export/studentInfo")
-    public ApiResult getScreeningPlanExportDoAndSync(Integer screeningPlanId, @RequestParam(defaultValue = "0") Integer screeningOrgId,
-                                                     @RequestParam Integer schoolId,
-                                                     @RequestParam(required = false) Integer gradeId,
-                                                     @RequestParam(required = false) Integer classId) throws IOException {
-
-        ExportCondition exportCondition = new ExportCondition()
-                .setPlanId(screeningPlanId)
-                .setScreeningOrgId(screeningOrgId)
-                .setSchoolId(schoolId)
-                .setGradeId(gradeId)
-                .setClassId(classId)
-                .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
-
-        if (Objects.isNull(classId)) {
-            exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.EXPORT_VISION_SCREENING_RESULT_EXCEL_SERVICE);
-            return ApiResult.success();
-        }
-        String path = exportStrategy.syncExport(exportCondition, ExportReportServiceNameConstant.EXPORT_VISION_SCREENING_RESULT_EXCEL_SERVICE);
-        return ApiResult.success(path);
-    }
-
-    /**
-     * @Description: 学生筛查信息
      * @Param: [计划ID, 学生ID]
      * @return: java.lang.Object
      * @Author: 钓猫的小鱼
@@ -609,11 +560,7 @@ public class ScreeningPlanController {
      */
     @GetMapping("/getStudentEyeByStudentId")
     public ApiResult getStudentEyeByStudentId(@RequestParam Integer planId,@RequestParam Integer planStudentId) {
-        List<Integer> studentIds = Collections.singletonList(planStudentId);
-        List<VisionScreeningResult> visionScreeningResults =  visionScreeningResultService.getByStudentIdsAndPlanId(planId,studentIds,VisionScreeningResult.NOT_RETEST);
-        List<VisionScreeningResult> doubleScreeningResults =  visionScreeningResultService.getByStudentIdsAndPlanId(planId,studentIds,VisionScreeningResult.RETEST);
-
-        return ApiResult.success(visionScreeningResultService.getStudentEyeByStudentId(visionScreeningResults,doubleScreeningResults));
+        return ApiResult.success(visionScreeningResultService.getStudentScreeningResultDetail(planId, planStudentId));
     }
 
     /**
@@ -643,7 +590,7 @@ public class ScreeningPlanController {
                                     Integer type) {
         List<Integer> studentIds = null;
         if (StringUtil.isNotEmpty(planStudentIds) && !"null".equals(planStudentIds)) {
-            studentIds = Arrays.stream(planStudentIds.split(",")).map(Integer::valueOf).collect(Collectors.toList());
+            studentIds = Arrays.stream(planStudentIds.split(StrUtil.COMMA)).map(Integer::valueOf).collect(Collectors.toList());
         }
         return screeningExportService.studentQRCodeFile(screeningPlanId, schoolId, gradeId, classId, studentIds, type);
     }
@@ -665,7 +612,7 @@ public class ScreeningPlanController {
                                                 boolean isSchoolClient) {
         List<Integer> studentIds = null;
         if (StringUtil.isNotEmpty(planStudentIds) && !"null".equals(planStudentIds)) {
-            studentIds = Arrays.stream(planStudentIds.split(",")).map(Integer::valueOf).collect(Collectors.toList());
+            studentIds = Arrays.stream(planStudentIds.split(StrUtil.COMMA)).map(Integer::valueOf).collect(Collectors.toList());
         }
         return screeningExportService.getNoticeData(screeningPlanId, schoolId, gradeId, classId, studentIds, isSchoolClient);
     }

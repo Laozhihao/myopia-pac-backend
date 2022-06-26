@@ -13,7 +13,7 @@ public class StudentCommonDiseaseIdInfo {
     /**
      * 常见病ID
      */
-    Long commonDiseaseId;
+    String commonDiseaseId;
     /**
      * 省名称
      */

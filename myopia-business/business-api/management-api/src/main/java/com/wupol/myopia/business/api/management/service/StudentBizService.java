@@ -42,9 +42,6 @@ import com.wupol.myopia.business.core.screening.flow.service.StatConclusionServi
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.flow.util.ScreeningResultUtil;
 import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
-import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
-import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
-import com.wupol.myopia.business.core.system.service.TemplateDistrictService;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -398,8 +395,8 @@ public class StudentBizService {
                 BigDecimal leftCyl = computerOptometry.getLeftEyeData().getCyl();
                 BigDecimal rightSph = computerOptometry.getRightEyeData().getSph();
                 BigDecimal rightCyl = computerOptometry.getRightEyeData().getCyl();
-                BigDecimal leftSe = ScreeningResultUtil.calculationSE(leftSph, leftCyl);
-                BigDecimal rightSe = ScreeningResultUtil.calculationSE(rightSph, rightCyl);
+                BigDecimal leftSe = StatUtil.getSphericalEquivalent(leftSph, leftCyl);
+                BigDecimal rightSe = StatUtil.getSphericalEquivalent(rightSph, rightCyl);
                 // 裸眼视力大于4.9
                 String noticeInfo = getSMSNoticeInfo(student.getName(),
                         leftNakedVision, rightNakedVision,

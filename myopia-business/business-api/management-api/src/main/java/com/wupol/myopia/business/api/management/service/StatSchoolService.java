@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.management.service;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -75,10 +76,9 @@ public class StatSchoolService {
             return null;
         }
         // 获取当前层级下，所有参与任务的学校
-        ScreeningNotice screeningNotice = screeningNoticeService.getReleasedNoticeById(noticeId);
         List<Integer> districtIds = districtService.getSpecificDistrictTreeAllDistrictIds(districtId);
         List<ScreeningResultStatistic> screeningResultStatistics = getStatisticByNoticeIdAndDistrictId(noticeId, user, districtIds,true);
-        return getSchoolKindergartenResultVO(screeningResultStatistics,screeningNotice);
+        return getSchoolKindergartenResultVO(screeningResultStatistics);
     }
 
     /**
@@ -120,10 +120,9 @@ public class StatSchoolService {
             return null;
         }
         ScreeningPlan screeningPlan = screeningPlanService.getById(planId);
-        ScreeningNotice screeningNotice = screeningNoticeService.getById(screeningPlan.getSrcScreeningNoticeId());
         List<Integer> districtIds = districtService.getSpecificDistrictTreeAllDistrictIds(districtId);
         List<ScreeningResultStatistic> screeningResultStatistics = getStatisticByPlanIdsAndDistrictId(Lists.newArrayList(screeningPlan), districtIds,true);
-        return getSchoolKindergartenResultVO(screeningResultStatistics,screeningNotice);
+        return getSchoolKindergartenResultVO(screeningResultStatistics);
     }
 
     /**
@@ -141,7 +140,7 @@ public class StatSchoolService {
             query.in(CollectionUtils.isNotEmpty(districtIds), ScreeningResultStatistic::getDistrictId, districtIds)
                     .in(ScreeningResultStatistic::getScreeningPlanId, planIds)
                     .in(ScreeningResultStatistic::getScreeningOrgId, screeningOrgIdList)
-                    .in(ScreeningResultStatistic::getSchoolType,getSchoolType(isKindergarten));;
+                    .in(ScreeningResultStatistic::getSchoolType,getSchoolType(isKindergarten));
             statistics.addAll(screeningResultStatisticService.list(query));
         });
         return statistics;
@@ -150,7 +149,7 @@ public class StatSchoolService {
     /**
      * 获取幼儿园数据
      */
-    private SchoolKindergartenResultVO getSchoolKindergartenResultVO(List<ScreeningResultStatistic> screeningResultStatistics,ScreeningNotice screeningNotice){
+    private SchoolKindergartenResultVO getSchoolKindergartenResultVO(List<ScreeningResultStatistic> screeningResultStatistics){
 
         if (CollectionUtils.isEmpty(screeningResultStatistics)) {
             return null;
@@ -170,7 +169,7 @@ public class StatSchoolService {
     public Map<String,Boolean> hasRescreenReportMap(List<Integer> planIds,List<Integer> schoolIds) {
         List<StatRescreen> statRescreenList = statRescreenService.getByPlanIdAndSchoolId(planIds, schoolIds);
         if (CollectionUtil.isNotEmpty(statRescreenList)){
-            return statRescreenList.stream().collect(Collectors.toMap(sr->sr.getPlanId()+"_"+sr.getSchoolId(), sr->Boolean.TRUE,(r1,r2)->r2));
+            return statRescreenList.stream().collect(Collectors.toMap(sr->sr.getPlanId()+ StrUtil.UNDERLINE+sr.getSchoolId(), sr->Boolean.TRUE,(r1, r2)->r2));
         }
         return Maps.newHashMap();
     }
@@ -205,10 +204,9 @@ public class StatSchoolService {
             return null;
         }
         // 获取当前层级下，所有参与任务的学校
-        ScreeningNotice screeningNotice = screeningNoticeService.getReleasedNoticeById(noticeId);
         List<Integer> districtIds = districtService.getSpecificDistrictTreeAllDistrictIds(districtId);
         List<ScreeningResultStatistic> screeningResultStatistics = getStatisticByNoticeIdAndDistrictId(noticeId, user, districtIds,false);
-        return getSchoolPrimarySchoolAndAboveResultVO(screeningResultStatistics,screeningNotice);
+        return getSchoolPrimarySchoolAndAboveResultVO(screeningResultStatistics);
     }
 
     /**
@@ -222,17 +220,16 @@ public class StatSchoolService {
         }
 
         ScreeningPlan screeningPlan = screeningPlanService.getById(planId);
-        ScreeningNotice screeningNotice = screeningNoticeService.getById(screeningPlan.getSrcScreeningNoticeId());
         List<Integer> districtIds = districtService.getSpecificDistrictTreeAllDistrictIds(districtId);
 
         List<ScreeningResultStatistic> screeningResultStatistics = getStatisticByPlanIdsAndDistrictId(Lists.newArrayList(screeningPlan), districtIds,false);
-        return getSchoolPrimarySchoolAndAboveResultVO(screeningResultStatistics,screeningNotice);
+        return getSchoolPrimarySchoolAndAboveResultVO(screeningResultStatistics);
     }
 
     /**
      * 获取小学及以上数据
      */
-    private SchoolPrimarySchoolAndAboveResultVO getSchoolPrimarySchoolAndAboveResultVO(List<ScreeningResultStatistic> screeningResultStatistics,ScreeningNotice screeningNotice){
+    private SchoolPrimarySchoolAndAboveResultVO getSchoolPrimarySchoolAndAboveResultVO(List<ScreeningResultStatistic> screeningResultStatistics){
 
         if (CollectionUtils.isEmpty(screeningResultStatistics)) {
             return null;

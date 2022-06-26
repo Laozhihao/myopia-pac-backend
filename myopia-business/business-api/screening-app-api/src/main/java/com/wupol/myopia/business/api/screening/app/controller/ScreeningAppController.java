@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.api.screening.app.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
@@ -33,10 +32,7 @@ import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.DeviationDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.ComputerOptometryDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultSearchDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentQueryDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
@@ -47,6 +43,8 @@ import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchool
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
+import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationStaff;
+import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationStaffService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -106,6 +104,8 @@ public class ScreeningAppController {
     private ScreeningExportService screeningExportService;
     @Autowired
     private CommonImportService commonImportService;
+    @Autowired
+    private ScreeningOrganizationStaffService screeningOrganizationStaffService;
     @Autowired
     private ScreeningPlanSchoolService screeningPlanSchoolService;
 
@@ -207,7 +207,7 @@ public class ScreeningAppController {
         if (Objects.isNull(screeningPlanSchoolStudent)) {
             return ApiResult.failure(SysEnum.SYS_STUDENT_NULL.getCode(), SysEnum.SYS_STUDENT_NULL.getMessage());
         }
-        if (!screeningPlanStudentBizService.isMatchScreeningTime(screeningPlanSchoolStudent)) {
+        if (screeningPlanStudentBizService.isNotMatchScreeningTime(screeningPlanSchoolStudent)) {
             return ApiResult.failure(SysEnum.SYS_STUDENT_SCREENING_TIME_ERROR.getCode(), SysEnum.SYS_STUDENT_SCREENING_TIME_ERROR.getMessage());
         }
         return ApiResult.success(StudentVO.getInstance(screeningPlanSchoolStudent));
@@ -397,8 +397,7 @@ public class ScreeningAppController {
     @PostMapping("/eye/addVision")
     public ApiResult addStudentVision(@Valid @RequestBody VisionDataDTO visionDataDTO) {
         if (visionDataDTO.isValid()) {
-            CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-            visionScreeningBizService.saveOrUpdateStudentScreenData(visionDataDTO, currentUser.getClientId());
+            visionScreeningBizService.saveOrUpdateStudentScreenData(visionDataDTO);
             RetestStudentVO retestStudentVO = screeningAppService.getNumerationSecondCheck(visionDataDTO);
             if (!retestStudentVO.isLeftNakedVision() && !retestStudentVO.isRightNakedVision() && !retestStudentVO.isLeftCorrectedVision() && retestStudentVO.isRightCorrectedVision()) {
                 // 清空误差视力检查误差说明
@@ -424,8 +423,7 @@ public class ScreeningAppController {
     @PostMapping("/eye/addComputer")
     public ApiResult addStudentComputer(@Valid @RequestBody ComputerOptometryDTO computerOptometryDTO) {
         if (computerOptometryDTO.isValid()) {
-            CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-            visionScreeningBizService.saveOrUpdateStudentScreenData(computerOptometryDTO, currentUser.getClientId());
+            visionScreeningBizService.saveOrUpdateStudentScreenData(computerOptometryDTO);
             RetestStudentVO retestStudentVO = screeningAppService.getNumerationSecondCheck(computerOptometryDTO);
             if (!retestStudentVO.isLeftNakedVision() && !retestStudentVO.isRightNakedVision() &&  !retestStudentVO.isLeftCorrectedVision() && !retestStudentVO.isRightCorrectedVision()) {
                 // 清空误差视力检查误差说明
@@ -451,8 +449,7 @@ public class ScreeningAppController {
     @PostMapping("/eye/addBiology")
     public ApiResult addStudentBiology(@Valid @RequestBody BiometricDataDTO biometricDataDTO) {
         if (biometricDataDTO.isValid()) {
-            CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-            visionScreeningBizService.saveOrUpdateStudentScreenData(biometricDataDTO, currentUser.getClientId());
+            visionScreeningBizService.saveOrUpdateStudentScreenData(biometricDataDTO);
             return ApiResult.success();
         } else {
             return ApiResult.failure("请输入正确的参数");
@@ -466,8 +463,7 @@ public class ScreeningAppController {
      */
     @PostMapping("/eye/addEyeDisease")
     public void addEyeDisease(@Valid @RequestBody OtherEyeDiseasesDTO otherEyeDiseasesDTO) {
-        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        visionScreeningBizService.saveOrUpdateStudentScreenData(otherEyeDiseasesDTO, currentUser.getClientId());
+        visionScreeningBizService.saveOrUpdateStudentScreenData(otherEyeDiseasesDTO);
     }
 
     /**
@@ -478,8 +474,7 @@ public class ScreeningAppController {
     @PostMapping("/eye/addMultiCheck")
     public ApiResult addMultiCheck(@Valid @RequestBody MultiCheckDataDTO multiCheckDataDTO) {
         if (multiCheckDataDTO.isValid()) {
-            CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-            visionScreeningBizService.saveOrUpdateStudentScreenData(multiCheckDataDTO, currentUser.getClientId());
+            visionScreeningBizService.saveOrUpdateStudentScreenData(multiCheckDataDTO);
             return ApiResult.success();
         } else {
             return ApiResult.failure("请输入正确的参数");
@@ -494,8 +489,7 @@ public class ScreeningAppController {
     @PostMapping("/eye/addPupilOptometry")
     public ApiResult addPupilOptometry(@Valid @RequestBody PupilOptometryDTO pupilOptometryDTO) {
         if (pupilOptometryDTO.isValid()) {
-            CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-            visionScreeningBizService.saveOrUpdateStudentScreenData(pupilOptometryDTO, currentUser.getClientId());
+            visionScreeningBizService.saveOrUpdateStudentScreenData(pupilOptometryDTO);
             return ApiResult.success();
         } else {
             return ApiResult.failure("请输入正确的参数");
@@ -510,8 +504,7 @@ public class ScreeningAppController {
     @PostMapping("/eye/addEyePressure")
     public ApiResult addEyePressure(@Valid @RequestBody EyePressureDataDTO eyePressureDataDTO) {
         if (eyePressureDataDTO.isValid()) {
-            CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-            visionScreeningBizService.saveOrUpdateStudentScreenData(eyePressureDataDTO, currentUser.getClientId());
+            visionScreeningBizService.saveOrUpdateStudentScreenData(eyePressureDataDTO);
             return ApiResult.success();
         } else {
             return ApiResult.failure("请输入正确的参数");
@@ -526,8 +519,7 @@ public class ScreeningAppController {
     @PostMapping("/eye/addHeightAndWeight")
     public ApiResult addHeightAndWeight(@Valid @RequestBody HeightAndWeightDataDTO heightAndWeightDataDTO) {
         if (heightAndWeightDataDTO.isValid()) {
-            CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-            visionScreeningBizService.saveOrUpdateStudentScreenData(heightAndWeightDataDTO, currentUser.getClientId());
+            visionScreeningBizService.saveOrUpdateStudentScreenData(heightAndWeightDataDTO);
             RetestStudentVO retestStudentVO = screeningAppService.getNumerationSecondCheck(heightAndWeightDataDTO);
             if (!retestStudentVO.isHeight() || !retestStudentVO.isWeight()) {
                 // 清空误差视力检查误差说明
@@ -561,7 +553,7 @@ public class ScreeningAppController {
             @RequestParam boolean isRandom,
             @RequestParam(value = "gradeName", required = false) String gradeName,
             @RequestParam(value = "clazzName", required = false) String clazzName,
-            @RequestParam(value = "channel", defaultValue = "0") Integer channel) throws JsonProcessingException {
+            @RequestParam(value = "channel", defaultValue = "0") Integer channel) {
 
         gradeName = StringUtils.isBlank(gradeName) ? null : gradeName;
         clazzName = StringUtils.isBlank(clazzName) ? null : clazzName;
@@ -595,7 +587,7 @@ public class ScreeningAppController {
         if (school == null) {
             return ApiResult.failure(ErrorEnum.SYS_SCHOOL_IS_NOT_EXIST.getCode(), ErrorEnum.SYS_SCHOOL_IS_NOT_EXIST.getMessage());
         }
-        Student student = screeningAppService.getStudent(CurrentUserUtil.getCurrentUser(), appStudentDTO, school);
+        Student student = screeningAppService.getStudent(CurrentUserUtil.getCurrentUser(), appStudentDTO);
         try {
             studentService.saveStudent(student);
             screeningAppService.insertSchoolStudent(student);
@@ -670,7 +662,7 @@ public class ScreeningAppController {
         );
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getById(planStudentId);
         StudentVO studentVO = StudentVO.getInstance(screeningPlanSchoolStudent);
-        if (!screeningPlanStudentBizService.isMatchScreeningTime(screeningPlanSchoolStudent)) {
+        if (screeningPlanStudentBizService.isNotMatchScreeningTime(screeningPlanSchoolStudent)) {
             throw new BusinessException(SysEnum.SYS_STUDENT_SCREENING_TIME_ERROR.getMessage());
         }
         return StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO, screeningPlanSchoolStudent);
@@ -1150,5 +1142,20 @@ public class ScreeningAppController {
                                                                       @NotNull(message = "班级ID不能为空") Integer classId,
                                                                       @RequestParam(value = "channel", defaultValue = "0") Integer channel) {
         return screeningAppService.findClassScreeningStudentState(schoolId, gradeId, classId, CurrentUserUtil.getCurrentUser().getOrgId(), channel);
+    }
+
+    /**
+     * 获取筛查人员类型
+     *
+     * @return true-自动生成的筛查人员 false-普通筛查人员
+     */
+    @GetMapping("/check/staffType")
+    public Boolean checkStaffType() {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        ScreeningOrganizationStaff staff = screeningOrganizationStaffService.getStaffsByUserId(currentUser.getId());
+        if (Objects.isNull(staff)) {
+            throw new BusinessException("筛查人员信息异常");
+        }
+        return ScreeningOrganizationStaff.AUTO_CREATE_SCREENING_PERSONNEL == staff.getType();
     }
 }

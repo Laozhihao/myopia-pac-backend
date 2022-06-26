@@ -214,6 +214,16 @@ public class ScreeningPlanSchoolStudent implements Serializable {
     private String passport;
 
     /**
+     * 学生筛查ID - 山西数据库版
+     */
+    private String migrateStudentScreeningId;
+
+    /**
+     * 学生常见病ID，16位
+     */
+    private String commonDiseaseId;
+
+    /**
      * 检查学生信息是否正确
      * <p>
      * 身份证和护照二选一

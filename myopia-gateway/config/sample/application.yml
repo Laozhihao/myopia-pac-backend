@@ -42,6 +42,11 @@ spring:
         predicates:
         - Path=/management/**, /hospital/**, /parent/**, /app/**, /api/**, /school/**, /preschool/**
 
+      - id: route_migrate
+        uri: lb://myopia-migrate
+        predicates:
+        - Path=/migrate/**
+
     # 注册中心地址
     nacos:
       discovery:
@@ -143,7 +148,7 @@ white-list:
   - "/api/fkr710/upload"
   - "/management/screeningPlan/review/getExportData"
   - "/management/stat/rescreen/export"
-  # 获取验证图片
-  - "/auth/verify/image"
   # 获取档案卡数据统一接口
   - "/management/archive/data"
+  # 获取验证图片
+  - "/auth/verify/image"
