@@ -841,21 +841,6 @@ public class StatUtil {
      *
      * @param sphere      球镜
      * @param cylinder    柱镜
-     * @param age         年龄
-     * @param nakedVision 裸眼视力
-     */
-    public static MyopiaLevelEnum getMyopiaLevel(Float sphere, Float cylinder, Integer age, Float nakedVision) {
-        if (ObjectsUtil.hasNull(sphere, cylinder, nakedVision)) {
-            return null;
-        }
-        return getMyopiaLevel(sphere.toString(), cylinder.toString(), age, nakedVision.toString());
-    }
-
-    /**
-     * 近视等级
-     *
-     * @param sphere      球镜
-     * @param cylinder    柱镜
      */
     public static MyopiaLevelEnum getMyopiaLevel(Float sphere, Float cylinder) {
         if (ObjectsUtil.hasNull(sphere, cylinder)) {
@@ -864,6 +849,12 @@ public class StatUtil {
         return getMyopiaLevel(sphere.toString(), cylinder.toString());
     }
 
+    /**
+     * 近视等级
+     *
+     * @param sphere      球镜
+     * @param cylinder    柱镜
+     */
     public static MyopiaLevelEnum getMyopiaLevel(String sphere, String cylinder) {
         if (ObjectsUtil.hasNull(sphere, cylinder)) {
             return null;
@@ -876,11 +867,8 @@ public class StatUtil {
      *
      * @param sphere      球镜
      * @param cylinder    柱镜
-     * @param age         年龄
-     * @param nakedVision 裸眼视力
      */
     public static MyopiaLevelEnum getMyopiaLevel(BigDecimal sphere, BigDecimal cylinder) {
-
         BigDecimal se = getSphericalEquivalent(sphere, cylinder);
         if (Objects.isNull(se)) {
             return null;

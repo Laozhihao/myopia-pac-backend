@@ -3,7 +3,6 @@ package com.wupol.myopia.business.api.management.service;
 import cn.hutool.core.collection.CollectionUtil;
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.domain.CurrentUser;
-import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
@@ -31,12 +30,8 @@ import com.wupol.myopia.business.core.screening.organization.domain.model.Screen
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.stat.domain.dto.WarningInfo;
 import com.wupol.myopia.business.core.stat.domain.dto.WarningInfo.WarningLevelInfo;
-import com.wupol.myopia.business.core.stat.domain.model.ScreeningResultStatistic;
-import com.wupol.myopia.business.core.stat.service.DistrictMonitorStatisticService;
-import com.wupol.myopia.business.core.stat.service.ScreeningResultStatisticService;
 import com.wupol.myopia.business.core.stat.domain.model.DistrictAttentiveObjectsStatistic;
 import com.wupol.myopia.business.core.stat.service.DistrictAttentiveObjectsStatisticService;
-import com.wupol.myopia.business.core.system.constants.ScreeningTypeConst;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -596,7 +591,7 @@ public class StatService {
 
         RescreenStat.RescreenStatBuilder builder = RescreenStat.builder();
 
-        if (Objects.equals(screeningType,ScreeningTypeConst.COMMON_DISEASE)){
+        if (Objects.equals(screeningType, ScreeningTypeEnum.COMMON_DISEASE.getType())){
             builder.wearingGlassesRescreenIndexNum(8);
             builder.withoutGlassesRescreenIndexNum(6);
             long wearingGlassesIndexNum = wearingGlassesNum * 8;
@@ -887,7 +882,7 @@ public class StatService {
                 getDataContrastFilter(statConclusionList, schoolId, schoolGradeCode, currentUser),
                 composeScreeningDataContrast(statConclusionList, planScreeningStudentNum));
 
-        if (!CollectionUtils.isEmpty(statConclusionList) && Objects.equals(statConclusionList.get(0).getScreeningType(), ScreeningTypeConst.COMMON_DISEASE)) {
+        if (!CollectionUtils.isEmpty(statConclusionList) && Objects.equals(statConclusionList.get(0).getScreeningType(), ScreeningTypeEnum.COMMON_DISEASE.getType())) {
             RescreenStat rescreenStat = dataContrastFilterResultDTO.getResult().getRescreenStat();
             rescreenStat.setWearingGlassesRescreenIndexNum(8);
             rescreenStat.setWithoutGlassesRescreenIndexNum(6);
@@ -1261,7 +1256,7 @@ public class StatService {
                         .setScreeningTime(screeningTime);
                 RescreenStat rescreenStat = this.rescreenConclusion(rescreenInfoByTime);
                 BeanUtils.copyProperties(rescreenStat, statRescreen);
-                if (ScreeningTypeEnum.COMMON_DISEASE.type.equals(conclusion.getScreeningType())) {
+                if (ScreeningTypeEnum.COMMON_DISEASE.getType().equals(conclusion.getScreeningType())) {
                     composePhysiqueReScreenConclusion(statRescreen, rescreenInfoByTime);
                 }
                 statRescreens.add(statRescreen);
@@ -1330,7 +1325,7 @@ public class StatService {
         Map<Integer, VisionScreeningResult> screeningResultMap = firstResult.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
 
         // 获取计划学生的commonDiseasesCode
-        List<Integer> planStudentIds = screeningResults.stream().map(VisionScreeningResult::getScreeningPlanSchoolStudentId).collect(Collectors.toList());
+        List<Integer> planStudentIds = firstResult.stream().map(VisionScreeningResult::getScreeningPlanSchoolStudentId).collect(Collectors.toList());
         Map<Integer, String> commonDiseaseMap = screeningPlanSchoolStudentService.getByIds(planStudentIds).stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getId, ScreeningPlanSchoolStudent::getCommonDiseaseId));
 
         reScreenResults.forEach(reScreenResult -> {
