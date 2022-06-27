@@ -248,7 +248,7 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
         }
         PrivacyDataDO privacyData = dto.getPrivacyData();
         if (Objects.nonNull(privacyData)) {
-            if (privacyData.getHasIncident()) {
+            if (Objects.equals(privacyData.getHasIncident(),Boolean.TRUE)) {
                 exportDTO.setPrivacyData("是 年龄：" + privacyData.getAge());
             } else {
                 exportDTO.setPrivacyData("否");

@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.school.primary;
 
-import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.CommonTable;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.LowVisionLevelTable;
 import lombok.Getter;
 import lombok.Setter;

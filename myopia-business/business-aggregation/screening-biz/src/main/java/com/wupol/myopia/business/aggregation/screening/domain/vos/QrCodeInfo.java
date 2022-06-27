@@ -3,8 +3,6 @@ package com.wupol.myopia.business.aggregation.screening.domain.vos;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import java.util.Date;
-
 @Data
 @Accessors(chain = true)
 public class QrCodeInfo {

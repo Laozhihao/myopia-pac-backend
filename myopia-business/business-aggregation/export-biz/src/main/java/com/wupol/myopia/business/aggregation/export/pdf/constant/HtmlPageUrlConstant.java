@@ -77,4 +77,14 @@ public class HtmlPageUrlConstant {
 
 
 
+    /**
+     * 按区域常见病报告
+     */
+    public static final String DISTRICT_COMMON_DISEASE = "%s?reportType=diseaseArea&districtId=%d&noticeId=%d";
+    /**
+     * 按学校常见病报告
+     */
+    public static final String SCHOOL_COMMON_DISEASE = "%s?reportType=diseaseSchool&&schoolId=%d&planId=%d";
+
+
 }

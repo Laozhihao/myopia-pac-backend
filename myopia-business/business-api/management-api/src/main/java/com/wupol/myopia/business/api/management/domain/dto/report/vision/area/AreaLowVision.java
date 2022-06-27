@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.area;
 
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.PrimaryLowVisionInfo;
-import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.CountAndProportion;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.VisionSituation;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

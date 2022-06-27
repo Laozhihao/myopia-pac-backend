@@ -35,7 +35,7 @@ public class DistrictBigScreenStatisticService extends BaseService<DistrictBigSc
      * @param districtBigScreenStatistic
      * @return
      */
-    public boolean saveOrUpdateByDistrictIdAndNoticeId(DistrictBigScreenStatistic districtBigScreenStatistic) throws IOException {
+    public boolean saveOrUpdateByDistrictIdAndNoticeId(DistrictBigScreenStatistic districtBigScreenStatistic)  {
         if (null == districtBigScreenStatistic) {
             return false;
         }

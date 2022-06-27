@@ -1,7 +1,5 @@
 package com.wupol.myopia.business.core.screening.flow.util;
 
-import cn.hutool.core.collection.CollectionUtil;
-import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
 import com.wupol.myopia.business.common.utils.util.MaskUtil;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
@@ -18,7 +16,6 @@ import org.apache.commons.lang3.StringUtils;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Created with IntelliJ IDEA.

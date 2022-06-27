@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.wupol.framework.domain.ThreeTuple;
+import com.wupol.myopia.business.api.management.service.CommonDiseaseReportService;
 import com.wupol.myopia.business.bootstrap.MyopiaBusinessApplication;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
@@ -45,6 +46,8 @@ public class StatManagementTest {
     SchoolGradeService schoolGradeService;
     @Autowired
     StatConclusionCheck statConclusionCheck;
+    @Autowired
+    CommonDiseaseReportService commonDiseaseReportService;
 
 
     /**

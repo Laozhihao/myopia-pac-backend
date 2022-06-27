@@ -228,6 +228,10 @@ public class StatConclusionBuilder {
      * 设置近视预警级别
      */
     private void setMyopiaWarningLevel() {
+        if (Objects.equals(basicData.getGlassesType(),GlassesTypeEnum.ORTHOKERATOLOGY.code)) {
+            statConclusion.setMyopiaWarningLevel(null);
+            return;
+        }
         WarningLevel leftLevel = StatUtil.warningLevel(basicData.getLeftSph(), basicData.getLeftCyl(), basicData.getAge(), 0);
         WarningLevel rightLevel = StatUtil.warningLevel(basicData.getRightSph(), basicData.getRightCyl(), basicData.getAge(), 0);
         statConclusion.setMyopiaWarningLevel(StatUtil.getSeriousLevel(leftLevel,rightLevel));
@@ -254,6 +258,10 @@ public class StatConclusionBuilder {
      * 视力低下等级
      */
     private void setLowVisionLevel(){
+        if (Objects.equals(basicData.getGlassesType(),GlassesTypeEnum.ORTHOKERATOLOGY.code)) {
+            statConclusion.setLowVisionLevel(null);
+            return;
+        }
         LowVisionLevelEnum leftLevel = StatUtil.getLowVisionLevel(basicData.getLeftNakedVision(), basicData.getAge());
         LowVisionLevelEnum rightLevel = StatUtil.getLowVisionLevel(basicData.getRightNakedVision(), basicData.getAge());
         statConclusion.setLowVisionLevel(StatUtil.getSeriousLevel(leftLevel,rightLevel));
@@ -302,6 +310,10 @@ public class StatConclusionBuilder {
      * 近视等级
      */
     private void setMyopiaLevel() {
+        if (Objects.equals(basicData.getGlassesType(),GlassesTypeEnum.ORTHOKERATOLOGY.code)) {
+            statConclusion.setMyopiaLevel(null);
+            return;
+        }
         MyopiaLevelEnum leftLevel = StatUtil.getMyopiaLevel(basicData.getLeftSph(), basicData.getLeftCyl());
         MyopiaLevelEnum rightLevel = StatUtil.getMyopiaLevel(basicData.getRightSph(), basicData.getRightCyl());
         statConclusion.setMyopiaLevel(StatUtil.getSeriousLevel(leftLevel, rightLevel));
@@ -311,6 +323,10 @@ public class StatConclusionBuilder {
      * 远视等级
      */
     private void setHyperopiaLevel() {
+        if (Objects.equals(basicData.getGlassesType(),GlassesTypeEnum.ORTHOKERATOLOGY.code)) {
+            statConclusion.setHyperopiaLevel(null);
+            return;
+        }
         HyperopiaLevelEnum leftLevel = StatUtil.getHyperopiaLevel(basicData.getLeftSph(), basicData.getLeftCyl(), basicData.getAge());
         HyperopiaLevelEnum rightLevel = StatUtil.getHyperopiaLevel(basicData.getRightSph(), basicData.getRightCyl(), basicData.getAge());
         statConclusion.setHyperopiaLevel(StatUtil.getSeriousLevel(leftLevel, rightLevel));
@@ -320,6 +336,10 @@ public class StatConclusionBuilder {
      * 散光等级
      */
     private void setAstigmatismLevel() {
+        if (Objects.equals(basicData.getGlassesType(),GlassesTypeEnum.ORTHOKERATOLOGY.code)) {
+            statConclusion.setAstigmatismLevel(null);
+            return;
+        }
         AstigmatismLevelEnum leftLevel = StatUtil.getAstigmatismLevel(basicData.getLeftCyl());
         AstigmatismLevelEnum rightLevel = StatUtil.getAstigmatismLevel(basicData.getRightCyl());
         statConclusion.setAstigmatismLevel(StatUtil.getSeriousLevel(leftLevel, rightLevel));
@@ -347,6 +367,10 @@ public class StatConclusionBuilder {
      * 近视
      */
     private void setMyopia() {
+        if (Objects.equals(basicData.getGlassesType(),GlassesTypeEnum.ORTHOKERATOLOGY.code)) {
+            statConclusion.setIsMyopia(Boolean.TRUE);
+            return;
+        }
         Boolean isLeftMyopia = StatUtil.isMyopia(basicData.getLeftSph(),basicData.getLeftCyl(),basicData.getAge(),basicData.getLeftNakedVision());
         Boolean isRightMyopia = StatUtil.isMyopia(basicData.getRightSph(),basicData.getRightCyl(),basicData.getAge(),basicData.getRightNakedVision());
         statConclusion.setIsMyopia(StatUtil.getIsExist(isLeftMyopia,isRightMyopia));
@@ -496,22 +520,20 @@ public class StatConclusionBuilder {
 
 
     /**
-     * 营养不良
+     * 营养不良 和 生长迟缓
      * @param bmi 身体质量指数值
      * @param height 身高
      * @param age 年龄（精确到半岁）
      */
     private void malnutrition(BigDecimal bmi,BigDecimal height,String age){
         Boolean wasting = StatUtil.isWasting(bmi, age, screeningPlanSchoolStudent.getGender());
+        if (Objects.nonNull(wasting) ){
+            statConclusion.setIsMalnutrition(wasting);
+        }
         Boolean stunting = StatUtil.isStunting(screeningPlanSchoolStudent.getGender(), age, height);
         if (Objects.nonNull(stunting)){
             statConclusion.setIsStunting(stunting);
-            if (Objects.nonNull(wasting) ){
-                statConclusion.setIsMalnutrition(wasting && stunting);
-            }
         }
-
-
 
     }
 
@@ -552,7 +574,11 @@ public class StatConclusionBuilder {
      */
     private void setBloodPressureData() {
         BloodPressureDataDO bloodPressureData = currentVisionScreeningResult.getBloodPressureData();
+        HeightAndWeightDataDO heightAndWeightData = currentVisionScreeningResult.getHeightAndWeightData();
         if (Objects.equals(SchoolAge.KINDERGARTEN.code,screeningPlanSchoolStudent.getGradeType()) || Objects.isNull(bloodPressureData)){
+            return;
+        }
+        if (Objects.isNull(heightAndWeightData) || Objects.isNull(heightAndWeightData.getHeight())){
             return;
         }
         TwoTuple<Integer, String> ageTuple = StatUtil.getAge(screeningPlanSchoolStudent.getBirthday());
@@ -560,7 +586,7 @@ public class StatConclusionBuilder {
         if (age < 7){
             age = 7;
         }
-        boolean highBloodPressure = StatUtil.isHighBloodPressure(bloodPressureData.getSbp().intValue(), bloodPressureData.getDbp().intValue(), screeningPlanSchoolStudent.getGender(), age);
+        boolean highBloodPressure = StatUtil.isHighBloodPressure(bloodPressureData.getSbp().intValue(), bloodPressureData.getDbp().intValue(), screeningPlanSchoolStudent.getGender(), age,heightAndWeightData.getHeight());
         statConclusion.setIsNormalBloodPressure(!highBloodPressure);
 
     }
@@ -589,7 +615,47 @@ public class StatConclusionBuilder {
         DiseasesHistoryDO diseasesHistoryData = currentVisionScreeningResult.getDiseasesHistoryData();
         if (Objects.nonNull(diseasesHistoryData) && CollectionUtil.isNotEmpty(diseasesHistoryData.getDiseases())){
             statConclusion.setIsDiseasesHistory(Boolean.TRUE);
+            setDiseaseNumInfo(diseasesHistoryData.getDiseases());
         }
+    }
+
+    private void setDiseaseNumInfo(List<String> diseases){
+        if (CollectionUtil.isEmpty(diseases)){
+            return;
+        }
+        DiseaseNumDO diseaseNumDO= new DiseaseNumDO();
+        for (String disease : diseases) {
+            switch (disease){
+                case "肝炎":
+                    diseaseNumDO.setHepatitis(1);
+                    break;
+                case "肾炎":
+                    diseaseNumDO.setNephritis(1);
+                    break;
+                case "心脏病":
+                    diseaseNumDO.setHeartDisease(1);
+                    break;
+                case "贫血":
+                    diseaseNumDO.setAnemia(1);
+                    break;
+                case "高血压":
+                    diseaseNumDO.setHypertension(1);
+                    break;
+                case "糖尿病":
+                    diseaseNumDO.setDiabetes(1);
+                    break;
+                case "过敏性哮喘":
+                    diseaseNumDO.setAllergicAsthma(1);
+                    break;
+                case "身体残疾":
+                    diseaseNumDO.setPhysicalDisability(1);
+                    break;
+                default:
+                    break;
+            }
+        }
+        statConclusion.setDiseaseNum(diseaseNumDO);
+
     }
 
 

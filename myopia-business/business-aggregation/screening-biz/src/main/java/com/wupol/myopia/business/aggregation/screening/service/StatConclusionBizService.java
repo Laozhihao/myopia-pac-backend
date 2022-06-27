@@ -3,10 +3,15 @@ package com.wupol.myopia.business.aggregation.screening.service;
 import cn.hutool.core.collection.CollectionUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.wupol.myopia.business.common.utils.constant.LowVisionLevelEnum;
 import com.wupol.myopia.business.common.utils.util.MapUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
+import com.wupol.myopia.business.core.school.domain.model.Student;
+import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
+import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
+import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.builder.StatConclusionBuilder;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
@@ -17,6 +22,7 @@ import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResu
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
@@ -41,6 +47,8 @@ public class StatConclusionBizService {
     private final StatConclusionService statConclusionService;
     private final SchoolGradeService schoolGradeService;
     private final ThreadPoolTaskExecutor asyncServiceExecutor;
+    private final StudentService studentService;
+    private final SchoolStudentService schoolStudentService;
 
     /**
      * 筛查数据结论
@@ -140,7 +148,6 @@ public class StatConclusionBizService {
             dataProcessBO.setStatConclusionMap(statConclusionMap);
         }
 
-
         Map<Integer, Map<String, TwoTuple<VisionScreeningResult, VisionScreeningResult>>> map = getMap(visionScreeningResultMap);
 
         List<StatConclusion> statConclusionList= Lists.newArrayList();
@@ -155,6 +162,158 @@ public class StatConclusionBizService {
         if(CollectionUtil.isNotEmpty(statConclusionList)){
             log.info("生成筛查数据结论数据{}条",statConclusionList.size());
             statConclusionService.batchUpdateOrSave(statConclusionList);
+            updateRelatedTable(statConclusionList);
+        }
+    }
+
+    /**
+     * 筛查结论数据更新，同步更新相关表数据
+     * @param statConclusionList 筛查结论数据集合
+     */
+    private void updateRelatedTable(List<StatConclusion> statConclusionList){
+        if (CollectionUtil.isEmpty(statConclusionList)){
+            return;
+        }
+
+        Set<Integer> studentIds = statConclusionList.stream().map(StatConclusion::getStudentId).collect(Collectors.toSet());
+        Map<Integer, Student> studentMap = getStudentMap(studentIds);
+        Map<Integer, List<SchoolStudent>> schoolStudentMap = getSchoolStudentMap(studentIds);
+        Map<Integer, VisionScreeningResult> visionScreeningResultMap = getVisionScreeningResultMap(statConclusionList);
+        // 更新是否绑定手机号码
+        setIsBindMq(statConclusionList,studentMap);
+        //更新学生表的数据（复测覆盖了初筛的结论）
+        updateStudentVisionData(statConclusionList,studentMap,visionScreeningResultMap);
+        //更新学校学生
+        updateSchoolStudent(statConclusionList,schoolStudentMap,visionScreeningResultMap);
+    }
+
+    /**
+     * 获取学生信息
+     * @param studentIds 学生ID集合
+     */
+    private Map<Integer,Student> getStudentMap(Set<Integer> studentIds){
+        Map<Integer,Student> studentMap=Maps.newHashMap();
+        List<Student> studentList = studentService.listByIds(studentIds);
+        if (CollectionUtil.isNotEmpty(studentList)){
+            studentMap = studentList.stream().collect(Collectors.toMap(Student::getId, Function.identity()));
+        }
+        return studentMap;
+    }
+
+    /**
+     * 获取学校学生信息
+     * @param studentIds 学生ID集合
+     */
+    private Map<Integer,List<SchoolStudent>> getSchoolStudentMap(Set<Integer> studentIds){
+        Map<Integer,List<SchoolStudent>> schoolStudentMap=Maps.newHashMap();
+        List<SchoolStudent> schoolStudentList = schoolStudentService.listByIds(studentIds);
+        if (CollectionUtil.isNotEmpty(schoolStudentList)){
+            schoolStudentMap = schoolStudentList.stream().collect(Collectors.groupingBy(SchoolStudent::getStudentId));
+        }
+        return schoolStudentMap;
+    }
+
+    /**
+     * 获取筛查结果数据
+     * @param statConclusionList 筛查结论数据集合
+     */
+    private Map<Integer,VisionScreeningResult> getVisionScreeningResultMap(List<StatConclusion> statConclusionList){
+        Map<Integer,VisionScreeningResult> visionScreeningResultMap =Maps.newHashMap();
+        Set<Integer> resultIds = statConclusionList.stream().map(StatConclusion::getResultId).collect(Collectors.toSet());
+        List<VisionScreeningResult> visionScreeningResultList = visionScreeningResultService.listByIds(resultIds);
+        if (CollectionUtil.isNotEmpty(visionScreeningResultList)){
+            visionScreeningResultMap = visionScreeningResultList.stream().collect(Collectors.toMap(VisionScreeningResult::getId, Function.identity()));
+        }
+        return visionScreeningResultMap;
+    }
+
+
+    /**
+     * 是否绑定公众号
+     * @param statConclusionList 筛查结论数据集合
+     */
+    private void setIsBindMq(List<StatConclusion> statConclusionList,Map<Integer, Student> studentMap) {
+        statConclusionList.forEach(statConclusion -> {
+            Student student = studentMap.get(statConclusion.getStudentId());
+            statConclusion.setIsBindMp(Objects.isNull(student) ? Boolean.FALSE : StringUtils.isNotBlank(student.getMpParentPhone()));
+        });
+    }
+
+    /**
+     * 更新学生数据
+     * @param statConclusionList 筛查结论数据集合
+     */
+    private void updateStudentVisionData(List<StatConclusion> statConclusionList,Map<Integer, Student> studentMap,Map<Integer, VisionScreeningResult> visionScreeningResultMap) {
+        if (CollectionUtil.isEmpty(statConclusionList)){
+            return;
+        }
+        List<Student> studentList = Lists.newArrayList();
+        statConclusionList.forEach(statConclusion -> setStudentInfo(studentMap,visionScreeningResultMap,studentList,statConclusion));
+        if (CollectionUtil.isNotEmpty(studentList)){
+            studentService.updateBatchById(studentList);
+        }
+    }
+
+    /**
+     * 设置学生信息
+     * @param studentMap 学生信息集合
+     * @param visionScreeningResultMap 筛查结果集合
+     * @param studentList 学生结果结果集合
+     * @param statConclusion 筛查结论数据
+     */
+    private void setStudentInfo(Map<Integer, Student> studentMap,Map<Integer, VisionScreeningResult> visionScreeningResultMap,List<Student> studentList,StatConclusion statConclusion){
+        Optional.ofNullable(studentMap.get(statConclusion.getStudentId()))
+                .ifPresent(student -> {
+                    //填充数据
+                    student.setIsAstigmatism(statConclusion.getIsAstigmatism());
+                    student.setIsHyperopia(statConclusion.getIsHyperopia());
+                    student.setIsMyopia(statConclusion.getIsMyopia());
+                    student.setGlassesType(statConclusion.getGlassesType());
+                    student.setVisionLabel(statConclusion.getWarningLevel());
+                    Optional.ofNullable(visionScreeningResultMap.get(statConclusion.getResultId()))
+                            .ifPresent(visionScreeningResult -> student.setLastScreeningTime(visionScreeningResult.getUpdateTime()));
+                    student.setUpdateTime(new Date());
+                    student.setAstigmatismLevel(statConclusion.getAstigmatismLevel());
+                    student.setHyperopiaLevel(statConclusion.getHyperopiaLevel());
+                    if (statConclusion.getAge() >= 6){
+                        //小学及以上的数据同步
+                        student.setMyopiaLevel(statConclusion.getMyopiaLevel());
+                        student.setScreeningMyopia(statConclusion.getScreeningMyopia());
+                        if (Objects.equals(statConclusion.getIsLowVision(),Boolean.TRUE)) {
+                            student.setLowVision(LowVisionLevelEnum.LOW_VISION.code);
+                        }
+                    }
+                    studentList.add(student);
+                });
+    }
+
+    /**
+     * 更新学校学生
+     * @param statConclusionList 筛查结论数据集合
+     * @param schoolStudentMap 学校学生数据集合
+     * @param visionScreeningResultMap 筛查结果数据集合
+     */
+    private void updateSchoolStudent(List<StatConclusion> statConclusionList, Map<Integer, List<SchoolStudent>> schoolStudentMap,Map<Integer, VisionScreeningResult> visionScreeningResultMap) {
+        List<List<SchoolStudent>> lists =Lists.newArrayList();
+        statConclusionList.forEach(statConclusion -> {
+            List<SchoolStudent> schoolStudentList = schoolStudentMap.get(statConclusion.getStudentId());
+            VisionScreeningResult visionScreeningResult = visionScreeningResultMap.get(statConclusion.getResultId());
+            if (CollectionUtil.isNotEmpty(schoolStudentList)){
+                schoolStudentList.forEach(schoolStudent -> {
+                    schoolStudent.setGlassesType(statConclusion.getGlassesType());
+                    Optional.ofNullable(visionScreeningResult).ifPresent(vsr->schoolStudent.setLastScreeningTime(vsr.getUpdateTime()));
+                    schoolStudent.setVisionLabel(statConclusion.getWarningLevel());
+                    schoolStudent.setMyopiaLevel(statConclusion.getMyopiaLevel());
+                    schoolStudent.setHyperopiaLevel(statConclusion.getHyperopiaLevel());
+                    schoolStudent.setAstigmatismLevel(statConclusion.getAstigmatismLevel());
+                    schoolStudent.setUpdateTime(new Date());
+                });
+            }
+            lists.add(schoolStudentList);
+        });
+
+        for (List<SchoolStudent> list : lists) {
+            schoolStudentService.updateBatchById(list);
         }
     }
 
