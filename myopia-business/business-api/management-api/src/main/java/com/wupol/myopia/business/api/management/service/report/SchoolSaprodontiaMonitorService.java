@@ -302,8 +302,7 @@ public class SchoolSaprodontiaMonitorService {
 
         Map<Integer, List<StatConclusion>> ageMap = statConclusionList.stream().collect(Collectors.groupingBy(sc -> ReportUtil.getLessAge(sc.getAge()), TreeMap::new, Collectors.toList()));
         List<SaprodontiaMonitorTable> tableList = Lists.newArrayList();
-        List<Integer> dynamicAgeSegment = ReportUtil.dynamicAgeSegment(statConclusionList);
-        dynamicAgeSegment.forEach(age -> getSaprodontiaAgeTable(age, ageMap.get(age), tableList));
+        ageMap.forEach((age,list) -> getSaprodontiaAgeTable(age, list, tableList));
         getSaprodontiaAgeTable(1000, statConclusionList, tableList);
         saprodontiaAgeVO.setSaprodontiaAgeMonitorTableList(tableList);
 

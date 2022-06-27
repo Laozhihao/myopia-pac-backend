@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.service.report;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.business.api.management.constant.AgeSegmentEnum;
@@ -269,10 +270,7 @@ public class DistrictHeightAndWeightMonitorService {
 
         Map<String, List<StatConclusion>> gradeCodeMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
         Map<String, HeightAndWeightNum> heightAndWeightNumMap = Maps.newHashMap();
-        gradeCodeMap.forEach((gradeCode, list) -> {
-            GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(gradeCode);
-            ReportUtil.getHeightAndWeightNum(gradeCodeEnum.getName(), list, heightAndWeightNumMap);
-        });
+        gradeCodeMap.forEach((gradeCode, list) -> ReportUtil.getHeightAndWeightNum(ReportUtil.getGradeName(gradeCode), list, heightAndWeightNumMap));
 
         if (heightAndWeightNumMap.size() >= 2) {
             heightAndWeightSchoolAge.setMaxOverweightRatio(ReportUtil.getGradeRatio(heightAndWeightNumMap, HeightAndWeightNum::getOverweightNum, HeightAndWeightNum::getOverweightRatioStr));
@@ -307,16 +305,20 @@ public class DistrictHeightAndWeightMonitorService {
             List<HeightAndWeightMonitorTable> normalHighList = changeHeightAndWeightSchoolAgeNameTable(statConclusionList, SchoolAge.HIGH.code);
             if (CollectionUtil.isNotEmpty(normalHighList)) {
                 tableList.addAll(normalHighList);
+                tableList.addAll(vocationalHighList);
+                List<HeightAndWeightMonitorTable> highList = getHeightAndWeightSchoolAgeMergeTable(statConclusionList, 10, ReportConst.HIGH);
+                if (CollectionUtil.isNotEmpty(highList)) {
+                    tableList.addAll(highList);
+                }
+            }else {
+                ReportUtil.changeName(vocationalHighList,tableList);
             }
-            tableList.addAll(vocationalHighList);
-            List<HeightAndWeightMonitorTable> highList = getHeightAndWeightSchoolAgeMergeTable(statConclusionList, 10, ReportConst.HIGH);
-            if (CollectionUtil.isNotEmpty(highList)) {
-                tableList.addAll(highList);
-            }
+
         } else {
-            List<HeightAndWeightMonitorTable> highList = getHeightAndWeightSchoolAgeMergeTable(statConclusionList, SchoolAge.HIGH.code, ReportConst.HIGH);
-            if (CollectionUtil.isNotEmpty(highList)) {
-                tableList.addAll(highList);
+            List<HeightAndWeightMonitorTable> normalHighList = getHeightAndWeightSchoolAgeTable(statConclusionList,  SchoolAge.HIGH.code);
+            if (CollectionUtil.isNotEmpty(normalHighList)) {
+                normalHighList.get(normalHighList.size()-1).setItemName(ReportConst.HIGH);
+                tableList.addAll(normalHighList);
             }
         }
 
@@ -449,8 +451,7 @@ public class DistrictHeightAndWeightMonitorService {
 
         Map<Integer, List<StatConclusion>> ageMap = statConclusionList.stream().collect(Collectors.groupingBy(sc -> ReportUtil.getLessAge(sc.getAge()), TreeMap::new, Collectors.toList()));
         List<HeightAndWeightMonitorTable> tableList = Lists.newArrayList();
-        List<Integer> dynamicAgeSegment = ReportUtil.dynamicAgeSegment(statConclusionList);
-        dynamicAgeSegment.forEach(age -> getHeightAndWeightAgeTable(age, ageMap.get(age), tableList));
+        ageMap.forEach((age,list) -> getHeightAndWeightAgeTable(age, list, tableList));
         getHeightAndWeightAgeTable(1000, statConclusionList, tableList);
         ageVO.setHeightAndWeightAgeMonitorTableList(tableList);
     }

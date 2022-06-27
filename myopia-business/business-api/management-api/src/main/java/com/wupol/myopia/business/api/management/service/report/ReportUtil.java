@@ -224,11 +224,20 @@ public class ReportUtil {
     }
 
 
-    public static String getItemName(String grade,Integer schoolAge){
-        GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(grade);
+    public static String getItemName(String gradeCode,Integer schoolAge){
+        GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(gradeCode);
         String name = gradeCodeEnum.getName();
         if (Objects.equals(SchoolAge.VOCATIONAL_HIGH.code,schoolAge)){
-            name = gradeCodeEnum.getName().replace("职", StrUtil.EMPTY);
+            name = name.replace("职", StrUtil.EMPTY);
+        }
+        return name;
+    }
+
+    public static String getGradeName(String gradeCode){
+        GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(gradeCode);
+        String name = gradeCodeEnum.getName();
+        if (Objects.equals(gradeCodeEnum.getType(),SchoolAge.HIGH.code)){
+            name = "普"+name;
         }
         return name;
     }
@@ -239,5 +248,12 @@ public class ReportUtil {
             total=ReportConst.HIGH;
         }
         return total;
+    }
+
+    public static <T extends ItemName >void changeName(List<T > vocationalHighList,List<T> tableList){
+        int size = vocationalHighList.size();
+        vocationalHighList.get(size-1).setItemName(ReportConst.HIGH);
+        vocationalHighList.forEach(table -> table.setItemName(table.getItemName().replace("职", StrUtil.EMPTY)));
+        tableList.addAll(vocationalHighList);
     }
 }

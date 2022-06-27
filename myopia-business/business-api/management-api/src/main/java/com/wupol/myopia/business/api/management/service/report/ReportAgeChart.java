@@ -9,9 +9,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion
 import lombok.experimental.UtilityClass;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -36,19 +34,16 @@ public class ReportAgeChart {
             setAgeChartVO(ageChartVO,null);
             return;
         }
-        List<Integer> dynamicAgeSegmentList = ReportUtil.dynamicAgeSegment(statConclusionList);
+        ageMap = CollectionUtil.sort(ageMap, Comparator.comparing(Integer::intValue));
 
         List<String> x = Lists.newArrayList();
         List<ChartVO.ChartData> y = Lists.newArrayList();
         getAgeY(ageChartVO, y);
 
 
-        dynamicAgeSegmentList.forEach(age -> {
-            List<StatConclusion> statConclusions = ageMap.get(age);
-            if (Objects.nonNull(statConclusions)) {
-                x.add(AgeSegmentEnum.get(age).getDescEn());
-                setAgeData(ageChartVO, y, statConclusions);
-            }
+        ageMap.forEach((age,list) -> {
+            x.add(AgeSegmentEnum.get(age).getDesc());
+            setAgeData(ageChartVO, y, list);
         });
 
         if (Objects.equals(ageChartVO.type(),1) || Objects.equals(ageChartVO.type(),3)){

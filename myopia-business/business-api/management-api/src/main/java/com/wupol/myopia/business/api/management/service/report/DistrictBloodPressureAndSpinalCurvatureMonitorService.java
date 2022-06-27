@@ -265,10 +265,7 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorService {
 
         Map<String, List<StatConclusion>> gradeCodeMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
         Map<String, BloodPressureAndSpinalCurvatureNum> bloodPressureAndSpinalCurvatureNumMap = Maps.newHashMap();
-        gradeCodeMap.forEach((gradeCode, list) -> {
-            GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(gradeCode);
-            ReportUtil.getBloodPressureAndSpinalCurvatureNum(gradeCodeEnum.getName(), list, bloodPressureAndSpinalCurvatureNumMap);
-        });
+        gradeCodeMap.forEach((gradeCode, list) -> ReportUtil.getBloodPressureAndSpinalCurvatureNum(ReportUtil.getGradeName(gradeCode), list, bloodPressureAndSpinalCurvatureNumMap));
 
         if (bloodPressureAndSpinalCurvatureNumMap.size() >= 2) {
             bloodPressureAndSpinalCurvatureSchoolAge.setMaxAbnormalSpineCurvatureRatio(ReportUtil.getGradeRatio(bloodPressureAndSpinalCurvatureNumMap, BloodPressureAndSpinalCurvatureNum::getAbnormalSpineCurvatureNum, BloodPressureAndSpinalCurvatureNum::getAbnormalSpineCurvatureRatioStr));
@@ -300,16 +297,20 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorService {
             List<BloodPressureAndSpinalCurvatureMonitorTable> normalHighList = changeBloodPressureAndSpinalCurvatureSchoolAgeNameTable(statConclusionList, SchoolAge.HIGH.code);
             if (CollectionUtil.isNotEmpty(normalHighList)) {
                 tableList.addAll(normalHighList);
+                tableList.addAll(vocationalHighList);
+                List<BloodPressureAndSpinalCurvatureMonitorTable> highList = getBloodPressureAndSpinalCurvatureSchoolAgeMergeTable(statConclusionList, 10, ReportConst.HIGH);
+                if (CollectionUtil.isNotEmpty(highList)) {
+                    tableList.addAll(highList);
+                }
+            }else {
+                ReportUtil.changeName(vocationalHighList,tableList);
             }
-            tableList.addAll(vocationalHighList);
-            List<BloodPressureAndSpinalCurvatureMonitorTable> highList = getBloodPressureAndSpinalCurvatureSchoolAgeMergeTable(statConclusionList, 10, "高中");
-            if (CollectionUtil.isNotEmpty(highList)) {
-                tableList.addAll(highList);
-            }
+
         } else {
-            List<BloodPressureAndSpinalCurvatureMonitorTable> highList = getBloodPressureAndSpinalCurvatureSchoolAgeMergeTable(statConclusionList, SchoolAge.HIGH.code, "高中");
-            if (CollectionUtil.isNotEmpty(highList)) {
-                tableList.addAll(highList);
+            List<BloodPressureAndSpinalCurvatureMonitorTable> normalHighList = getBloodPressureAndSpinalCurvatureSchoolAgeTable(statConclusionList, SchoolAge.VOCATIONAL_HIGH.code);
+            if (CollectionUtil.isNotEmpty(normalHighList)) {
+                normalHighList.get(normalHighList.size()-1).setItemName(ReportConst.HIGH);
+                tableList.addAll(normalHighList);
             }
         }
 
@@ -437,8 +438,7 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorService {
 
         Map<Integer, List<StatConclusion>> ageMap = statConclusionList.stream().collect(Collectors.groupingBy(sc -> ReportUtil.getLessAge(sc.getAge()), TreeMap::new, Collectors.toList()));
         List<BloodPressureAndSpinalCurvatureMonitorTable> tableList = Lists.newArrayList();
-        List<Integer> dynamicAgeSegment = ReportUtil.dynamicAgeSegment(statConclusionList);
-        dynamicAgeSegment.forEach(age -> getBloodPressureAndSpinalCurvatureAgeTable(age, ageMap.get(age), tableList));
+        ageMap.forEach((age,list) -> getBloodPressureAndSpinalCurvatureAgeTable(age, list, tableList));
         getBloodPressureAndSpinalCurvatureAgeTable(1000, statConclusionList, tableList);
         ageVO.setBloodPressureAndSpinalCurvatureAgeMonitorTableList(tableList);
     }

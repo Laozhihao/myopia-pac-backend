@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.service.report;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.business.api.management.constant.AgeSegmentEnum;
@@ -274,10 +275,7 @@ public class DistrictSaprodontiaMonitorService {
 
         Map<String, List<StatConclusion>> gradeCodeMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
         Map<String, SaprodontiaNum> saprodontiaNumMap = Maps.newHashMap();
-        gradeCodeMap.forEach((gradeCode, list) -> {
-            GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(gradeCode);
-            ReportUtil.getSaprodontiaNum(gradeCodeEnum.getName(), list, saprodontiaNumMap);
-        });
+        gradeCodeMap.forEach((gradeCode, list) -> ReportUtil.getSaprodontiaNum(ReportUtil.getGradeName(gradeCode), list, saprodontiaNumMap));
 
         if (saprodontiaNumMap.size() >= 2) {
             saprodontiaSchoolAge.setMaxSaprodontiaRatio(ReportUtil.getGradeRatio(saprodontiaNumMap, SaprodontiaNum::getSaprodontiaCount, SaprodontiaNum::getSaprodontiaRatioStr));
@@ -310,17 +308,20 @@ public class DistrictSaprodontiaMonitorService {
             List<SaprodontiaMonitorTable> normalHighList = changeSaprodontiaSchoolAgeNameTable(statConclusionList, SchoolAge.HIGH.code);
             if (CollectionUtil.isNotEmpty(normalHighList)) {
                 tableList.addAll(normalHighList);
-            }
-            tableList.addAll(vocationalHighList);
-            List<SaprodontiaMonitorTable> highList = getSaprodontiaSchoolAgeMergeTable(statConclusionList, 10, ReportConst.HIGH);
-            if (CollectionUtil.isNotEmpty(highList)) {
-                tableList.addAll(highList);
+                tableList.addAll(vocationalHighList);
+                List<SaprodontiaMonitorTable> highList = getSaprodontiaSchoolAgeMergeTable(statConclusionList, 10, ReportConst.HIGH);
+                if (CollectionUtil.isNotEmpty(highList)) {
+                    tableList.addAll(highList);
+                }
+            }else {
+                ReportUtil.changeName(vocationalHighList,tableList);
             }
 
         } else {
-            List<SaprodontiaMonitorTable> highList = getSaprodontiaSchoolAgeMergeTable(statConclusionList, SchoolAge.HIGH.code, ReportConst.HIGH);
-            if (CollectionUtil.isNotEmpty(highList)) {
-                tableList.addAll(highList);
+            List<SaprodontiaMonitorTable> normalHighList = getSaprodontiaSchoolAgeTable(statConclusionList, SchoolAge.HIGH.code);
+            if (CollectionUtil.isNotEmpty(normalHighList)) {
+                normalHighList.get(normalHighList.size()-1).setItemName(ReportConst.HIGH);
+                tableList.addAll(normalHighList);
             }
         }
 
@@ -428,9 +429,8 @@ public class DistrictSaprodontiaMonitorService {
             return;
         }
         Map<Integer, List<StatConclusion>> ageMap = statConclusionList.stream().collect(Collectors.groupingBy(sc -> ReportUtil.getLessAge(sc.getAge())));
-        List<Integer> dynamicAgeSegmentList = ReportUtil.dynamicAgeSegment(statConclusionList);
         Map<Integer, SaprodontiaNum> saprodontiaNumMap = Maps.newHashMap();
-        dynamicAgeSegmentList.forEach(age -> ReportUtil.getSaprodontiaNum(age, ageMap.get(age), saprodontiaNumMap));
+        ageMap.forEach((age,list)-> ReportUtil.getSaprodontiaNum(age, list, saprodontiaNumMap));
 
         if (saprodontiaNumMap.size() >= 2) {
             SaprodontiaAgeVO.SaprodontiaAgeVariableVO saprodontiaAgeVariableVO = new SaprodontiaAgeVO.SaprodontiaAgeVariableVO();
@@ -450,8 +450,7 @@ public class DistrictSaprodontiaMonitorService {
         }
         Map<Integer, List<StatConclusion>> ageMap = statConclusionList.stream().collect(Collectors.groupingBy(sc -> ReportUtil.getLessAge(sc.getAge()), TreeMap::new, Collectors.toList()));
         List<SaprodontiaMonitorTable> tableList = Lists.newArrayList();
-        List<Integer> dynamicAgeSegmentList = ReportUtil.dynamicAgeSegment(statConclusionList);
-        dynamicAgeSegmentList.forEach(age -> getSaprodontiaAgeTable(age, ageMap.get(age), tableList));
+        ageMap.forEach((age,list) -> getSaprodontiaAgeTable(age, list, tableList));
         getSaprodontiaAgeTable(1000, statConclusionList, tableList);
         saprodontiaAgeVO.setSaprodontiaAgeMonitorTableList(tableList);
     }

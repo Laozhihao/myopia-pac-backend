@@ -12,7 +12,7 @@ import java.math.BigDecimal;
  * @date 2022/6/6
  */
 @Data
-public class BloodPressureAndSpinalCurvatureMonitorTable  {
+public class BloodPressureAndSpinalCurvatureMonitorTable implements ItemName  {
 
     /**
      * 项目 （性别、学龄段、年龄段）

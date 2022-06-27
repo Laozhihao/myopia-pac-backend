@@ -298,8 +298,7 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
 
         Map<Integer, List<StatConclusion>> ageMap = statConclusionList.stream().collect(Collectors.groupingBy(sc -> ReportUtil.getLessAge(sc.getAge()), TreeMap::new, Collectors.toList()));
         List<BloodPressureAndSpinalCurvatureMonitorTable> tableList = Lists.newArrayList();
-        List<Integer> dynamicAgeSegment = ReportUtil.dynamicAgeSegment(statConclusionList);
-        dynamicAgeSegment.forEach(age -> getBloodPressureAndSpinalCurvatureAgeTable(age, ageMap.get(age), tableList));
+        ageMap.forEach((age,list) -> getBloodPressureAndSpinalCurvatureAgeTable(age, list, tableList));
         getBloodPressureAndSpinalCurvatureAgeTable(1000, statConclusionList, tableList);
         ageVO.setBloodPressureAndSpinalCurvatureAgeMonitorTableList(tableList);
     }

@@ -309,8 +309,7 @@ public class SchoolHeightAndWeightMonitorService {
 
         Map<Integer, List<StatConclusion>> ageMap = statConclusionList.stream().collect(Collectors.groupingBy(sc -> ReportUtil.getLessAge(sc.getAge()), TreeMap::new, Collectors.toList()));
         List<HeightAndWeightMonitorTable> tableList = Lists.newArrayList();
-        List<Integer> dynamicAgeSegment = ReportUtil.dynamicAgeSegment(statConclusionList);
-        dynamicAgeSegment.forEach(age -> getHeightAndWeightAgeTable(age, ageMap.get(age), tableList));
+        ageMap.forEach((age,list) -> getHeightAndWeightAgeTable(age, list, tableList));
         getHeightAndWeightAgeTable(1000, statConclusionList, tableList);
         ageVO.setHeightAndWeightAgeMonitorTableList(tableList);
     }

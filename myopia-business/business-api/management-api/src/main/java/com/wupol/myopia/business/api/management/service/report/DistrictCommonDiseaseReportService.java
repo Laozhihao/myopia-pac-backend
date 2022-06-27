@@ -126,9 +126,8 @@ public class DistrictCommonDiseaseReportService {
         List<ScreeningPlanSchoolStudent> planStudentCountList = getScreeningStudentList(haveStudentDistrictIds,planSchoolStudentDistrictMap);
 
         long totalSum = planStudentCountList.stream().map(ScreeningPlanSchoolStudent::getSchoolId).distinct().count();
-        Map<Integer, List<ScreeningPlanSchoolStudent>> planSchoolStudentMap = planStudentCountList.stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getGradeType));
 
-        setSchoolItemData(planSchoolStudentMap, globalVariableVO);
+        setSchoolItemData(planStudentCountList, globalVariableVO);
 
         //获取行政区域
         Date startTime = screeningNotice.getStartTime();
@@ -166,61 +165,31 @@ public class DistrictCommonDiseaseReportService {
     /**
      * 学龄及学校数
      */
-    private void setSchoolItemData(Map<Integer, List<ScreeningPlanSchoolStudent>> planSchoolStudentMap, DistrictCommonDiseaseReportVO.GlobalVariableVO globalVariableVO) {
-        String format = "%s所%s";
-        List<String> itemList = Lists.newArrayList();
-        List<ScreeningPlanSchoolStudent> primary = planSchoolStudentMap.get(SchoolAge.PRIMARY.code);
-        if (CollectionUtil.isNotEmpty(primary)) {
-            long count = primary.stream().map(ScreeningPlanSchoolStudent::getSchoolId).filter(Objects::nonNull).distinct().count();
-            itemList.add(String.format(format, count, SchoolAge.PRIMARY.desc));
-        }
-        List<ScreeningPlanSchoolStudent> junior = planSchoolStudentMap.get(SchoolAge.JUNIOR.code);
-        if (CollectionUtil.isNotEmpty(junior)) {
-            long count = junior.stream().map(ScreeningPlanSchoolStudent::getSchoolId).filter(Objects::nonNull).distinct().count();
-            itemList.add(String.format(format, count, SchoolAge.JUNIOR.desc));
-        }
-        List<ScreeningPlanSchoolStudent> normalHigh = planSchoolStudentMap.get(SchoolAge.HIGH.code);
-        List<ScreeningPlanSchoolStudent> vocationalHigh = planSchoolStudentMap.get(SchoolAge.VOCATIONAL_HIGH.code);
-
-
-        if (CollectionUtil.isNotEmpty(normalHigh)) {
-            long normalHighCount = normalHigh.stream().map(ScreeningPlanSchoolStudent::getSchoolId).filter(Objects::nonNull).distinct().count();
-
-            if (CollectionUtil.isNotEmpty(vocationalHigh)) {
-                long vocationalHighCount = vocationalHigh.stream().map(ScreeningPlanSchoolStudent::getSchoolId).filter(Objects::nonNull).distinct().count();
-                String high= String.format(format, normalHighCount+vocationalHighCount, SchoolAge.HIGH.desc);
-                String normalHighStr = String.format(format, normalHighCount, SchoolAge.HIGH.desc);
-                String vocationalHighStr = String.format(format, vocationalHighCount, SchoolAge.VOCATIONAL_HIGH.desc);
-                high =  high+"（"+normalHighStr+"，"+vocationalHighStr +"）";
-                itemList.add(high);
-            }else {
-                String highStr = String.format(format, normalHighCount, ReportConst.HIGH);
-                itemList.add(highStr);
+    private void setSchoolItemData(List<ScreeningPlanSchoolStudent> planStudentCountList, DistrictCommonDiseaseReportVO.GlobalVariableVO globalVariableVO) {
+        List<Integer> schoolAgeList = planStudentCountList.stream().map(planSchoolStudent -> {
+            Integer gradeType = planSchoolStudent.getGradeType();
+            if (Objects.equals(gradeType,SchoolAge.UNKNOWN.code)){
+                return null;
             }
-
-        }else {
-            if (CollectionUtil.isNotEmpty(vocationalHigh)) {
-                long vocationalHighCount = vocationalHigh.stream().map(ScreeningPlanSchoolStudent::getSchoolId).filter(Objects::nonNull).distinct().count();
-                String highStr = String.format(format, vocationalHighCount, ReportConst.HIGH);
-                itemList.add(highStr);
+            if (Objects.equals(gradeType,SchoolAge.HIGH.code) ||Objects.equals(gradeType,SchoolAge.VOCATIONAL_HIGH.code) ){
+                return SchoolAge.HIGH.code;
             }
+            return gradeType;
+        }).filter(Objects::nonNull).distinct().sorted().collect(Collectors.toList());
+        LinkedList<String> itemList = Lists.newLinkedList();
+        for (Integer type : schoolAgeList) {
+            String desc = SchoolAge.get(type).desc;
+            if (Objects.equals(type,SchoolAge.KINDERGARTEN.code)){
+                itemList.addFirst(desc);
+                continue;
+            }
+            if (Objects.equals(type,SchoolAge.HIGH.code)){
+                itemList.add(ReportConst.HIGH);
+                continue;
+            }
+            itemList.add(desc);
         }
-
-        List<ScreeningPlanSchoolStudent> university = planSchoolStudentMap.get(SchoolAge.UNIVERSITY.code);
-        if (CollectionUtil.isNotEmpty(university)) {
-            long count = university.stream().map(ScreeningPlanSchoolStudent::getSchoolId).filter(Objects::nonNull).distinct().count();
-            itemList.add(String.format(format, count, "综合性" + SchoolAge.UNIVERSITY.desc));
-        }
-        List<ScreeningPlanSchoolStudent> kindergarten = planSchoolStudentMap.get(SchoolAge.KINDERGARTEN.code);
-        if (CollectionUtil.isNotEmpty(kindergarten)) {
-            long count = kindergarten.stream().map(ScreeningPlanSchoolStudent::getSchoolId).filter(Objects::nonNull).distinct().count();
-            itemList.add(String.format(format, count, SchoolAge.KINDERGARTEN.desc));
-        }
-
-        if (CollectionUtil.isNotEmpty(itemList)) {
-            globalVariableVO.setSchoolItem(itemList);
-        }
-
+        globalVariableVO.setSchoolItem(itemList);
     }
 
     private List<ScreeningPlanSchoolStudent> getScreeningStudentList(List<Integer> haveStudentDistrictIds,Map<Integer, List<ScreeningPlanSchoolStudent>> planStudentCountMap){
