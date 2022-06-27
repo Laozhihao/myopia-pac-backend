@@ -2,12 +2,10 @@ package com.wupol.myopia.business.core.stat.domain.dos;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.wupol.myopia.base.util.BigDecimalUtil;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
-import java.util.Objects;
 
 /**
  * 幼儿园视力分析

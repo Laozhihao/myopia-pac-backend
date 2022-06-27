@@ -4,7 +4,9 @@ import com.wupol.framework.core.util.StringUtils;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.QrCodeConstant;
+import lombok.experimental.UtilityClass;
 
+@UtilityClass
 public class QrcodeUtil {
 
     /**

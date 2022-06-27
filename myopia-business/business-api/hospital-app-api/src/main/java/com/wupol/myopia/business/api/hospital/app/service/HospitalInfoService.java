@@ -7,7 +7,6 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,7 +29,7 @@ public class HospitalInfoService {
      * @param hospitalId 医院id
      * @return
      */
-    public Map<String, Object> getHospitalInfo(Integer hospitalId) throws IOException {
+    public Map<String, Object> getHospitalInfo(Integer hospitalId) {
         Map<String, Object> map = new HashMap<>(3);
         // 累计就诊的人数
         map.put("totalMedicalPersonCount", medicalRecordService.count(new MedicalRecord().setHospitalId(hospitalId)));

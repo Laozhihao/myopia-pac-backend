@@ -161,7 +161,7 @@ public class PreschoolCheckRecordDTO extends PreschoolCheckRecord implements Has
         this.doctorIds = StringUtils.isBlank(doctorIdsStr) ? new HashSet<>() :
             Arrays.stream(doctorIdsStr.split(","))
                     .filter(x -> !"null".equalsIgnoreCase(x))
-                    .map(doctorIdStr -> Integer.valueOf(doctorIdStr)).collect(Collectors.toSet());
+                    .map(Integer::valueOf).collect(Collectors.toSet());
         return this;
     }
 

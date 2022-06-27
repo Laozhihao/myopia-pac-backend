@@ -14,7 +14,6 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanSch
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningPlanSchoolMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -114,34 +113,26 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
         screeningPlans.setId(screeningPlanId);
         ScreeningPlan screeningPlan = screeningPlanService.findOne(screeningPlans);
         Map<Integer, Long> schoolIdStudentCountMap = screeningPlanSchoolStudentService.getSchoolStudentCountByScreeningPlanId(screeningPlanId);
+        // TODO：不在循环内查询数据库
         screeningPlanSchools.forEach(vo -> {
             vo.setStudentCount(schoolIdStudentCountMap.getOrDefault(vo.getSchoolId(), (long) 0).intValue());
             vo.setPracticalStudentCount(visionScreeningResultService.getBySchoolIdAndOrgIdAndPlanId(vo.getSchoolId(), vo.getScreeningOrgId(), vo.getScreeningPlanId()).size());
             BigDecimal num = MathUtil.divide(vo.getPracticalStudentCount(),vo.getStudentCount());
-            if (num.equals(BigDecimal.ZERO)){
-                vo.setScreeningProportion("0.00%");
-            }else {
-                vo.setScreeningProportion(num.toString()+"%");
-            }
-            vo.setScreeningSituation(findSituation(vo.getSchoolId(),screeningPlan));
+            vo.setScreeningProportion(num.equals(BigDecimal.ZERO) ? "0.00%" : num.toString() + "%");
+            vo.setScreeningSituation(findSituation(vo.getSchoolId(), screeningPlan));
             vo.setQuestionnaireStudentCount(0);
             vo.setQuestionnaireProportion("0.00%");
-            vo.setQuestionnaireSituation(ScreeningPlanSchool.notStart);
-            }
-        );
+            vo.setQuestionnaireSituation(ScreeningPlanSchool.NOT_START);
+        });
         return screeningPlanSchools;
     }
 
     public String findSituation(Integer schoolId, ScreeningPlan screeningPlan) {
-        if (DateUtil.betweenDay(screeningPlan.getEndTime(),new Date())>0){
-            return ScreeningPlanSchool.end;
+        if (DateUtil.betweenDay(screeningPlan.getEndTime(), new Date()) > 0){
+            return ScreeningPlanSchool.END;
         }
-            List<VisionScreeningResult> list = visionScreeningResultService.getByPlanIdAndSchoolId(screeningPlan.getId(),schoolId);
-            if (list.size()>0){
-                return ScreeningPlanSchool.underWay;
-            }else {
-                return ScreeningPlanSchool.notStart;
-            }
+        int count = visionScreeningResultService.count(new VisionScreeningResult().setPlanId(screeningPlan.getId()).setSchoolId(schoolId));
+        return count > 0 ? ScreeningPlanSchool.IN_PROGRESS : ScreeningPlanSchool.NOT_START;
     }
 
     /**
@@ -193,9 +184,24 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
         return baseMapper.selectHasPlanInPeriod(planQuery).stream().map(ScreeningPlanSchool::getSchoolId).distinct().collect(Collectors.toList());
     }
 
+    /**
+     * 根据筛查计划获取筛查学校ID集
+     *
+     * @param screeningPlanIds  筛查计划ID集
+     * @return java.util.Set<java.lang.Integer>
+     **/
     public Set<Integer> getSchoolIdsByPlanIds(List<Integer> screeningPlanIds) {
-        List<ScreeningPlanSchool> screeningPlanSchools = baseMapper.getByPlanIds(screeningPlanIds);
-        return screeningPlanSchools.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toSet());
+        return getByPlanIds(screeningPlanIds).stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toSet());
+    }
+
+    /**
+     * 根据筛查计划获取筛查学校
+     *
+     * @param screeningPlanIds  筛查计划ID集
+     * @return java.util.List<com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool>
+     **/
+    public List<ScreeningPlanSchool> getByPlanIds(List<Integer> screeningPlanIds) {
+        return baseMapper.getByPlanIds(screeningPlanIds);
     }
 
     /**

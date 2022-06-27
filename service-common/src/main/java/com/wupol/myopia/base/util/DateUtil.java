@@ -315,6 +315,18 @@ public class DateUtil extends cn.hutool.core.date.DateUtil {
     }
 
     /**
+     * 根据日期获取其所属学年，同一学年：9月1日到次年8月31日
+     *
+     * @param date 日期
+     * @return int 所属学年，如：2021、2017
+     **/
+    public int getSchoolYear(Date date) {
+        LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        int month = localDate.getMonthValue();
+        return month >= 9 ? localDate.getYear() : localDate.getYear() - 1;
+    }
+
+    /**
      * Date to LocalDate
      *
      * @param date   日期
@@ -378,20 +390,6 @@ public class DateUtil extends cn.hutool.core.date.DateUtil {
         dateTime.setField(DateField.SECOND, seconds);
         dateTime.setField(DateField.MINUTE, mins);
         return dateTime;
-    }
-
-    /**
-     * 获取改时间与当前时间的年月日
-     *
-     * @param date 时间
-     * @return xx年xx月xx日
-     */
-    public static String dayComparePeriod(Date date) {
-        if (Objects.isNull(date)) {
-            return StringUtils.EMPTY;
-        }
-        Period period = Period.between(date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalDate.now());
-        return period.getYears() + "年" + period.getMonths() + "月" + period.getDays() + "日";
     }
 
     /**
@@ -469,16 +467,6 @@ public class DateUtil extends cn.hutool.core.date.DateUtil {
         if (Objects.nonNull(date) && (date.before(beforeDate) || date.after(afterDate))) {
             throw new BusinessException(DateFormatUtil.format(date, DateFormatUtil.FORMAT_ONLY_DATE2) + "生日超出限制，请确认");
         }
-    }
-
-    /**
-     * 指定日期加上指定天数
-     */
-    public static Date getTncreaseDate(Date date,int days){
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        calendar.add(Calendar.DATE,days);
-        return getEndTime(calendar.getTime());
     }
 
     /**

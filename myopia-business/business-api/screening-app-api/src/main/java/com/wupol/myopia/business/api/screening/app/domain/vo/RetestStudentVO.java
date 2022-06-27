@@ -133,7 +133,7 @@ public class RetestStudentVO {
     public int checkVision(VisionDataDO.VisionData first, VisionDataDO.VisionData second, RetestStudentVO retestStudentVO) {
         int count = 0;
         if (Objects.nonNull(first.getCorrectedVision()) && Objects.nonNull(second.getCorrectedVision())) {
-            if (first.getCorrectedVision().subtract(second.getCorrectedVision()).abs().compareTo(BigDecimal.valueOf(0.1)) >= 0) {
+            if (first.getCorrectedVision().subtract(second.getCorrectedVision()).abs().compareTo(BigDecimal.valueOf(0.1)) > 0) {
                 if (first.getLateriality() == 0) {
                     retestStudentVO.setLeftCorrectedVision(true);
                 } else {
@@ -143,7 +143,7 @@ public class RetestStudentVO {
             }
         }
         if (Objects.nonNull(first.getNakedVision()) && Objects.nonNull(second.getNakedVision())) {
-            if (first.getNakedVision().subtract(second.getNakedVision()).abs().compareTo(BigDecimal.valueOf(0.1)) >= 0) {
+            if (first.getNakedVision().subtract(second.getNakedVision()).abs().compareTo(BigDecimal.valueOf(0.1)) > 0) {
                 if (first.getLateriality() == 0) {
                     retestStudentVO.setLeftNakedVision(true);
                 } else {
@@ -166,7 +166,7 @@ public class RetestStudentVO {
             BigDecimal firstSe = BigDecimalUtil.getBigDecimalByFormat(first.getCyl().multiply(BigDecimal.valueOf(0.5)).add(first.getSph()), 2);
             BigDecimal secondSe = BigDecimalUtil.getBigDecimalByFormat(second.getCyl().multiply(BigDecimal.valueOf(0.5)).add(second.getSph()), 2);
             assert firstSe != null;
-            if (firstSe.subtract(secondSe).abs().compareTo(BigDecimal.valueOf(0.5)) >= 0) {
+            if (firstSe.subtract(secondSe).abs().compareTo(BigDecimal.valueOf(0.5)) > 0) {
                 if (first.getLateriality() == 0) {
                     retestStudentVO.setLeftSe(true);
                 } else {
@@ -206,13 +206,13 @@ public class RetestStudentVO {
     public int checkHeightAndWeight(HeightAndWeightDataDO first, HeightAndWeightDataDO second, RetestStudentVO retestStudentVO) {
         int count = 0;
         if (Objects.nonNull(first) && Objects.nonNull(second) && Objects.nonNull(first.getHeight()) && Objects.nonNull(second.getHeight())) {
-            if (first.getHeight().subtract(second.getHeight()).abs().compareTo(BigDecimal.valueOf(0.5)) >= 0) {
+            if (first.getHeight().subtract(second.getHeight()).abs().compareTo(BigDecimal.valueOf(0.5)) > 0) {
                 retestStudentVO.setHeight(true);
                 count += 1;
             }
         }
         if (Objects.nonNull(first) && Objects.nonNull(second) && Objects.nonNull(first.getWeight()) && Objects.nonNull(second.getWeight())) {
-            if (first.getWeight().subtract(second.getWeight()).abs().compareTo(BigDecimal.valueOf(0.1)) >= 0) {
+            if (first.getWeight().subtract(second.getWeight()).abs().compareTo(BigDecimal.valueOf(0.1)) > 0) {
                 retestStudentVO.setWeight(true);
                 count += 1;
             }

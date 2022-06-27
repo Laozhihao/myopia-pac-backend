@@ -7,6 +7,7 @@ import com.wupol.myopia.business.core.hospital.domain.interfaces.HasResult;
 import com.wupol.myopia.business.core.hospital.domain.model.BaseValue;
 import com.wupol.myopia.business.core.hospital.domain.model.PreschoolCheckRecord;
 import com.wupol.myopia.business.core.hospital.domain.model.ReferralRecord;
+import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
  * @Author wulizhou
  * @Date 2022/1/18 10:03
  */
+@UtilityClass
 public class PreschoolCheckRecordUtil {
 
     /**

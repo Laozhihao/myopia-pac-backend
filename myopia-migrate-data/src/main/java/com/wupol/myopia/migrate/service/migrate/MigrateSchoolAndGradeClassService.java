@@ -88,13 +88,18 @@ public class MigrateSchoolAndGradeClassService {
             // 迁移年级、班级
             List<SysGradeClass> gradeAndClassList = sysStudentEyeService.getAllGradeAndClassBySchoolId(sysSchoolId);
             Map<String, List<SysGradeClass>> gradeClassMap = gradeAndClassList.stream().collect(Collectors.groupingBy(SysGradeClass::getGrade));
-            gradeClassMap.forEach((gradeName, classList) -> {
+            Arrays.stream(GradeCodeEnum.values()).forEach(gradeCodeEnum -> {
+                String gradeName = gradeCodeEnum.getName();
+                List<SysGradeClass> sysGradeClassList = gradeClassMap.get(gradeName);
+                if (Objects.isNull(sysGradeClassList)) {
+                    return;
+                }
                 // 年级
                 Integer gradeId = saveGrade(schoolId, gradeName, schoolType);
                 gradeMap.put(sysSchoolId + gradeName, gradeId);
                 // 班级（存在同名的则不新增）
                 Map<@NotBlank(message = "班级名称不能为空") String, Integer> existClassMap = schoolClassService.getByGradeId(gradeId).stream().collect(Collectors.toMap(SchoolClass::getName, SchoolClass::getId));
-                List<SchoolClass> schoolClassList = classList.stream()
+                List<SchoolClass> schoolClassList = sysGradeClassList.stream()
                         .filter(x -> Objects.isNull(existClassMap.get(x.getClazz())))
                         .map(x -> new SchoolClass().setSchoolId(schoolId).setCreateUserId(1).setGradeId(gradeId).setName(x.getClazz()))
                         .collect(Collectors.toList());
@@ -193,7 +198,8 @@ public class MigrateSchoolAndGradeClassService {
      **/
     private SaveSchoolRequestDTO getSaveSchoolRequestDTO(SysSchool sysSchool) {
         Assert.hasText(sysSchool.getRegion(), sysSchool.getName() + "的区/镇/县为空");
-        Long areaDistrictCode = districtService.getCodeByName(sysSchool.getRegion());
+        Long areaDistrictCode = districtService.getCodeByName(getRegion(sysSchool.getRegion()));
+        Assert.notNull(areaDistrictCode, "无效行政区域地址");
         District areaDistrict = districtService.getByCode(areaDistrictCode);
         List<District> districtDetail = districtService.getDistrictPositionDetail(areaDistrictCode);
         SaveSchoolRequestDTO schoolDTO = new SaveSchoolRequestDTO();
@@ -217,6 +223,12 @@ public class MigrateSchoolAndGradeClassService {
                 .setCooperationEndTime(date)
                 .setStatus(StatusConstant.DISABLE);
         return schoolDTO;
+    }
+
+    private static String getRegion(String region) {
+        Map<String, String> nameMap = new HashMap<>(2);
+        nameMap.put("康定县", "康定市");
+        return Optional.ofNullable(nameMap.get(region)).orElse(region);
     }
 
     private static Integer getSchoolType(String sysSchoolState, String schoolName) {

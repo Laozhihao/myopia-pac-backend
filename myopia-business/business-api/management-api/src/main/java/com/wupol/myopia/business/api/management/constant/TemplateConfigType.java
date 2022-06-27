@@ -4,21 +4,24 @@ import com.wupol.myopia.base.constant.HospitalServiceType;
 import com.wupol.myopia.base.constant.OverviewConfigType;
 import com.wupol.myopia.base.constant.PermissionTemplateType;
 import com.wupol.myopia.business.core.screening.organization.constant.ScreeningOrgConfigTypeEnum;
+import lombok.experimental.UtilityClass;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Template org config map
  *
  * @author Simple4H
  */
+@UtilityClass
 public class TemplateConfigType {
 
-    public static final HashMap<Integer, Integer> TEMPLATE_TO_ORG_CONFIG_TYPE = new HashMap<>();
+    public static final Map<Integer, Integer> TEMPLATE_TO_ORG_CONFIG_TYPE = new HashMap<>();
 
-    public static final HashMap<Integer, Integer> TEMPLATE_TO_HOSPITAL_CONFIG_TYPE = new HashMap<>();
+    public static final Map<Integer, Integer> TEMPLATE_TO_HOSPITAL_CONFIG_TYPE = new HashMap<>();
 
-    public static final HashMap<Integer, Integer> TEMPLATE_TO_OVERVIEW_CONFIG_TYPE = new HashMap<>();
+    public static final Map<Integer, Integer> TEMPLATE_TO_OVERVIEW_CONFIG_TYPE = new HashMap<>();
 
     static {
         TEMPLATE_TO_ORG_CONFIG_TYPE.put(PermissionTemplateType.SCREENING_ORGANIZATION.getType(), ScreeningOrgConfigTypeEnum.CONFIG_TYPE_0.getType());

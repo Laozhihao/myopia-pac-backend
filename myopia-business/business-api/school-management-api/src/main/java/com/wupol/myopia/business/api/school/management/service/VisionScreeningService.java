@@ -87,7 +87,7 @@ public class VisionScreeningService {
         if (CollectionUtils.isEmpty(planIds)) {
             return responseDTO;
         }
-        List<ScreeningPlan> screeningPlans = screeningPlanService.getByIds(planIds);
+        List<ScreeningPlan> screeningPlans = screeningPlanService.listByIds(planIds);
         Map<Integer, ScreeningPlan> planMap = screeningPlans.stream().collect(Collectors.toMap(ScreeningPlan::getId, Function.identity()));
 
         // 获取统计信息

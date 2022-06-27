@@ -68,4 +68,8 @@ public class ExportCondition {
      * 是否幼儿园
      */
     private Boolean isKindergarten;
+    /**
+     * 筛查类型
+     */
+    private Integer screeningType;
 }

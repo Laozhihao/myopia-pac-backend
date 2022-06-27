@@ -55,8 +55,6 @@ public class StatManagementController {
     @Autowired
     private BigScreeningStatService bigScreeningStatService;
     @Autowired
-    private ScheduledTasksExecutor scheduledTasksExecutor;
-    @Autowired
     private ScreeningNoticeBizService screeningNoticeBizService;
     @Autowired
     private ManagementScreeningPlanBizService managementScreeningPlanBizService;
@@ -68,6 +66,8 @@ public class StatManagementController {
     private StatConclusionBizService statConclusionBizService;
     @Autowired
     private ScreeningResultStatisticService screeningResultStatisticService;
+    @Autowired
+    private ScheduledTasksExecutor scheduledTasksExecutor;
 
     /**
      * 根据查找当前用户所处层级能够查找到的年度

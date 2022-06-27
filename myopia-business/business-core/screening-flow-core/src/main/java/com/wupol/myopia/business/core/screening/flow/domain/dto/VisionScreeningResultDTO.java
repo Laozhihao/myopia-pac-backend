@@ -1,8 +1,8 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
-import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
@@ -11,7 +11,7 @@ import java.math.BigDecimal;
  * 学生筛查结果详情
  * @author tastyb
  */
-
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
 public class VisionScreeningResultDTO extends VisionScreeningResult {
@@ -27,9 +27,9 @@ public class VisionScreeningResultDTO extends VisionScreeningResult {
     private ReScreenDTO rescreening;
 
     /**
-     * 龋齿，龋失补
+     * 龋齿统计
      */
-    private SaprodontiaDataDTO saprodontiaDataDTO;
+    private SaprodontiaStat saprodontiaStat;
 
     /**
      * 等效球镜(左眼)
@@ -40,70 +40,4 @@ public class VisionScreeningResultDTO extends VisionScreeningResult {
      * 等效球镜(右眼)
      */
     private BigDecimal rightSE;
-
-
-    public static OtherEyeDiseasesDO otherEyeDiseasesDOIsNull(OtherEyeDiseasesDO otherEyeDiseases){
-        if (otherEyeDiseases == null){
-            return new OtherEyeDiseasesDO();
-        }else {
-            return  otherEyeDiseases;
-        }
-    }
-
-    public static SaprodontiaDataDO saprodontiaDataDOIsNull(SaprodontiaDataDO saprodontiaDataDO){
-        if (saprodontiaDataDO == null){
-            return new SaprodontiaDataDO();
-        }else {
-            return  saprodontiaDataDO;
-        }
-    }
-
-    public static SpineDataDO spineDataDOIsNull(SpineDataDO spineDataDO){
-        if (spineDataDO == null){
-            return new SpineDataDO();
-        }else {
-            return  spineDataDO;
-        }
-    }
-
-    public static BloodPressureDataDO bloodPressureDataDOIsNull(BloodPressureDataDO bloodPressureDataDO){
-        if (bloodPressureDataDO == null){
-            return new BloodPressureDataDO();
-        }else {
-            return  bloodPressureDataDO;
-        }
-    }
-
-    public static DiseasesHistoryDO diseasesHistoryDOIsNull(DiseasesHistoryDO diseasesHistoryDO){
-        if (diseasesHistoryDO == null){
-            return new DiseasesHistoryDO();
-        }else {
-            return  diseasesHistoryDO;
-        }
-    }
-
-    public static PrivacyDataDO privacyDataDOIsNull(PrivacyDataDO privacyDataDO){
-        if (privacyDataDO == null){
-            return new PrivacyDataDO();
-        }else {
-            return  privacyDataDO;
-        }
-    }
-
-    public static DeviationDO deviationDOIsNull(DeviationDO deviationDO){
-        if (deviationDO == null){
-            return new DeviationDO();
-        }else {
-            return  deviationDO;
-        }
-    }
-
-    public static ReScreenDTO reScreenDTOIsNull(ReScreenDTO reScreenDTO){
-        if (reScreenDTO == null){
-            return new ReScreenDTO();
-        }else {
-            return  reScreenDTO;
-        }
-    }
-
 }

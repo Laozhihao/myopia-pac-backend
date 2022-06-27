@@ -20,12 +20,12 @@ public enum ScreeningTypeEnum {
     /**
      * 代码
      */
-    public final Integer type;
+    private final Integer type;
 
     /**
      * 描述
      */
-    public final String desc;
+    private final String desc;
 
     ScreeningTypeEnum(Integer type, String desc) {
         this.type = type;
@@ -43,6 +43,16 @@ public enum ScreeningTypeEnum {
                 .filter(item -> item.type.equals(type))
                 .findFirst()
                 .orElseThrow(()-> new BusinessException("无效筛查类型"));
+    }
+
+    /**
+     * 是否为视力筛查类型
+     *
+     * @param screeningType 筛查类型
+     * @return boolean
+     **/
+    public static boolean isVisionScreeningType(Integer screeningType) {
+        return ScreeningTypeEnum.VISION.getType().equals(screeningType);
     }
 
 }

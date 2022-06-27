@@ -20,9 +20,9 @@ public interface ScreeningPlanSchoolStudentMapper extends BaseMapper<ScreeningPl
     List<ScreeningStudentDTO> selectStudentVoByPlanIdAndSchoolIdAndGradeIdAndClassId(@Param("screeningPlanId") Integer screeningPlanId, @Param("schoolId") Integer schoolId,
                                                                                      @Param("gradeId") Integer gradeId, @Param("classId") Integer classId);
 
-    List<GradeClassesDTO> selectSchoolGradeVoByPlanIdAndSchoolId(@Param("screeningPlanId") Integer screeningPlanId, @Param("schoolId") Integer schoolId);
+    List<GradeClassesDTO> selectSchoolGradeVoByPlanIdAndSchoolId(@Param("screeningPlanId") Integer screeningPlanId, @Param("schoolId") Integer schoolId, @Param("gradeId") Integer gradeId);
 
-    IPage<ScreeningStudentDTO> selectPageByQuery(@Param("page") Page<ScreeningStudentDTO> page, @Param("param") ScreeningStudentQueryDTO query);
+    IPage<ScreeningStudentDTO> selectPageByQuery(@Param("page") Page<?> page, @Param("param") ScreeningStudentQueryDTO query);
 
     List<ScreeningStudentDTO> selectListByQuery(@Param("param") ScreeningStudentQueryDTO query);
 
@@ -66,8 +66,6 @@ public interface ScreeningPlanSchoolStudentMapper extends BaseMapper<ScreeningPl
 
     void deleteByStudentIds(@Param("studentIds") List<Integer> studentIds);
 
-    List<ScreeningPlanSchoolStudent> getByIds(@Param("ids") List<Integer> ids);
-
     List<ScreeningPlanSchoolStudent> getByNePlanId(@Param("planId") Integer planId);
 
     ScreeningPlanSchoolStudent getOneByPlanId(@Param("planId") Integer planId);
@@ -79,4 +77,6 @@ public interface ScreeningPlanSchoolStudentMapper extends BaseMapper<ScreeningPl
     List<ScreeningPlanSchoolStudent> getReviewStudentList(@Param("planId") Integer planId, @Param("orgId") Integer orgId, @Param("schoolId") Integer schoolId, @Param("gradeId") Integer gradeId, @Param("classId") Integer classId);
 
     List<ScreeningPlanSchoolStudent> getByPlanIdIdCardAndPassport(@Param("planId") Integer planId, @Param("idCard") String idCard, @Param("passport") String passport, @Param("id") Integer id);
+
+    List<CommonDiseasePlanStudent> selectCommonDiseaseScreeningPlanStudent(@Param("schoolId") Integer schoolId);
 }

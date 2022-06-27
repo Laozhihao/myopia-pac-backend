@@ -3,7 +3,6 @@ package com.wupol.myopia.business.core.screening.flow.domain.model;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.business.common.utils.annotation.CheckTimeInterval;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -32,24 +31,7 @@ public class ScreeningNotice implements Serializable {
 
     public static final Integer TYPE_GOV_DEPT = 0;
     public static final Integer TYPE_ORG = 1;
-
-    /**
-     * 不是自己创建
-     */
-    public static final Integer IS_NOT_SELF_RELEASE = 0;
-    /**
-     * 是自己创建
-     */
-    public static final Integer IS_SELF_RELEASE = 1;
-
-    /**
-     * 发布的通知
-     */
-    public static final Integer IS_SELF_RECEIVE = 0;
-    /**
-     * 接收的通知
-     */
-    public static final Integer IS_NOT_SELF_RECEIVE = 1;
+    public static final Integer TYPE_GOV_DEPT_SELF_RELEASE = 2;
 
     /**
      * 主键id
@@ -80,11 +62,10 @@ public class ScreeningNotice implements Serializable {
      * 筛查通知--结束时间（时间戳）
      */
     @NotNull(message = "结束时间不能为空")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     private Date endTime;
 
     /**
-     * 筛查通知--通知类型（0是筛查通知-政府、1是筛查任务通知-筛查机构）
+     * 筛查通知--通知类型（0：政府发布的筛查通知-下级政府接收、1：政府发布的筛查任务产生的通知-筛查机构接收、2：政府发布的筛查通知-政府自己接收）
      */
     private Integer type;
 

@@ -355,11 +355,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      * @return List<ScreeningPlan>
      */
     public List<ScreeningPlan> getByIds(Collection<Integer> ids) {
-        return baseMapper.getByIds(ids);
+        return baseMapper.selectBatchIds(ids);
     }
 
-    public ScreeningPlan getPlanByTaskId(Integer screeningTaskId,Integer screeningOrgId) {
-
-        return  baseMapper.getPlanByTaskId(screeningTaskId,screeningOrgId);
-    }
 }

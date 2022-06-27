@@ -14,7 +14,7 @@ public interface IDeviceDataService {
      *
      * @param requestDTO 请求入参
      */
-    void uploadDate(DeviceDataRequestDTO requestDTO,String clientId);
+    void uploadDate(DeviceDataRequestDTO requestDTO);
 
     /**
      * 获取业务类型

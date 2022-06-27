@@ -137,8 +137,8 @@ public class StatConclusionTest {
             boolean isLowVision = StatUtil.isLowVision(visionData.getLeftEyeData().getNakedVision().floatValue(), age)
                     || StatUtil.isLowVision(visionData.getLeftEyeData().getNakedVision().floatValue(), age);
 
-            boolean leftRefractiveError = StatUtil.isRefractiveError(leftSph, leftCyl, age,false);
-            boolean rightRefractiveError = StatUtil.isRefractiveError(rightSph, rightCyl, age,false);
+            boolean leftRefractiveError = StatUtil.isRefractiveError(leftSph, leftCyl, age);
+            boolean rightRefractiveError = StatUtil.isRefractiveError(rightSph, rightCyl, age);
             boolean isRefractiveError = leftRefractiveError || rightRefractiveError;
             boolean isRecommendVisit = false;
 

@@ -32,9 +32,7 @@ public interface StatConclusionMapper extends BaseMapper<StatConclusion> {
 
     List<StatConclusionExportDTO> selectExportVoByScreeningNoticeIdAndDistrictIds(@Param("screeningNoticeId") Integer screeningNoticeId, @Param("districtIds") List<Integer> districtIds, @Param("isKindergarten") Boolean isKindergarten);
 
-    List<screeningPlanSchoolStudentDTO> selectExportVoByScreeningNoticeIdAndDistrictIdsAndGroupBy(@Param("screeningNoticeId") Integer screeningNoticeId, @Param("districtIds") List<Integer> districtIds);
-
-    List<StatConclusionExportDTO> selectExportVoByScreeningNoticeIdAndSchoolId(@Param("screeningNoticeId") Integer screeningNoticeId, @Param("schoolId") Integer schoolId, @Param("planId") Integer planId);
+    List<ExportPlanSchool> selectPlanSchoolGradeClassHasData(@Param("screeningNoticeId") Integer screeningNoticeId, @Param("districtIds") List<Integer> districtIds);
 
     List<StatConclusionExportDTO> selectExportVoByScreeningPlanIdAndSchoolId(@Param("screeningPlanId") Integer screeningPlanId, @Param("schoolId") Integer schoolId);
 
@@ -51,11 +49,6 @@ public interface StatConclusionMapper extends BaseMapper<StatConclusion> {
             @Param("screeningNoticeId") Integer screeningNoticeId,
             @Param("planId") Integer planId,
             @Param("schoolId") Integer schoolId);
-
-    List<StatConclusionExportDTO> selectExportVoByScreeningNoticeIdAndScreeningOrgId(@Param("screeningNoticeId") Integer screeningNoticeId, @Param("screeningOrgId") Integer screeningOrgId);
-
-    List<StatConclusionExportDTO> selectExportVoByScreeningPlanIdAndScreeningOrgId(@Param("screeningPlanId") Integer screeningPlanId, @Param("screeningOrgId") Integer screeningOrgId);
-
     /**
      * @Description: 查询学校、班级、年级 筛查数据
      * @Param: [screeningPlanId, screeningOrgId, 学校ID, 年级名称, 班级名称]
